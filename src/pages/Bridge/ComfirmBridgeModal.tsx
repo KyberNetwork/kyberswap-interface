@@ -12,6 +12,7 @@ import { NetworkLogo } from 'components/Logo'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { OutputBridgeInfo, useBridgeState } from 'state/bridge/hooks'
 import { ExternalLink } from 'theme'
@@ -115,6 +116,13 @@ export default memo(function ConfirmBridgeModal({
   const [accepted, setAccepted] = useState(false)
   const { account, chainId } = useActiveWeb3React()
   const [{ chainIdOut, currencyIn, currencyOut }] = useBridgeState()
+  const { mixpanelHandler } = useMixpanel()
+
+  const handleClickDisclaimer = useCallback(() => {
+    const newValue = !accepted
+    setAccepted(newValue)
+    mixpanelHandler(MIXPANEL_TYPE.BRIDGE_CLICK_DISCLAIMER, newValue)
+  }, [accepted, mixpanelHandler])
 
   const listData = useMemo(() => {
     return [
@@ -219,7 +227,7 @@ export default memo(function ConfirmBridgeModal({
               <Trans>Note: It may take upto 30 minutes for your transaction to show up under Transfer History</Trans>
             </Text>
 
-            <Disclaimer role="button" onClick={() => setAccepted(e => !e)}>
+            <Disclaimer role="button" onClick={handleClickDisclaimer}>
               <input
                 onChange={() => {
                   // empty
@@ -245,6 +253,7 @@ export default memo(function ConfirmBridgeModal({
     [
       accepted,
       currencyIn?.symbol,
+      handleClickDisclaimer,
       listData,
       onDismiss,
       onSwap,
