@@ -172,7 +172,7 @@ const SwapActionButton: React.FC<Props> = ({
     }
 
     const swapOnlyButtonProps: SwapOnlyButtonProps = {
-      isAdvancedMode,
+      isDegenMode: isAdvancedMode,
       routeSummary,
       isGettingRoute,
       isProcessingSwap,
@@ -188,7 +188,7 @@ const SwapActionButton: React.FC<Props> = ({
       setErrorWhileSwap,
       buildRoute,
 
-      isDisabled: (!routeSummary || approval !== ApprovalState.APPROVED) && permitState !== PermitState.SIGNED,
+      isApproved: approval === ApprovalState.APPROVED || permitState === PermitState.SIGNED,
     }
 
     if (showApproveFlow) {
