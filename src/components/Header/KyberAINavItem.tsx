@@ -5,7 +5,7 @@ import styled from 'styled-components'
 
 import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
-import { RowFit } from 'components/Row'
+import Row, { RowFit } from 'components/Row'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS } from 'constants/index'
 
@@ -75,18 +75,24 @@ const KyberAINavItem = () => {
       }
       dropdownContent={
         <Column>
-          <StyledNavLink id="kyberai_about" to={APP_PATHS.KYBERAI_RANKINGS} style={{ gap: '4px' }}>
-            <Icon id="info" size={16} />
-            <Trans>About</Trans>
+          <StyledNavLink id="kyberai_about" to={APP_PATHS.KYBERAI_RANKINGS}>
+            <Row gap="12px">
+              <Icon id="info" size={16} />
+              <Trans>About</Trans>
+            </Row>
           </StyledNavLink>
-          <StyledNavLink id="kyberai_ranking" to={APP_PATHS.KYBERAI_RANKINGS} style={{ gap: '4px' }}>
-            <Icon id="leaderboard" size={16} />
-            <Trans>Rankings</Trans>
+          <StyledNavLink id="kyberai_ranking" to={APP_PATHS.KYBERAI_RANKINGS}>
+            <Row gap="12px">
+              <Icon id="leaderboard" size={16} />
+              <Trans>Rankings</Trans>
+            </Row>
           </StyledNavLink>
 
-          <StyledNavLink id="kyberai_explore" to={APP_PATHS.KYBERAI_EXPLORE} style={{ gap: '4px' }}>
-            <Icon id="truesight-v2" size={16} />
-            <Trans>Explore</Trans>
+          <StyledNavLink id="kyberai_explore" to={APP_PATHS.KYBERAI_EXPLORE}>
+            <Row gap="12px">
+              <Icon id="truesight-v2" size={16} />
+              <Trans>Explore</Trans>
+            </Row>
           </StyledNavLink>
         </Column>
       }

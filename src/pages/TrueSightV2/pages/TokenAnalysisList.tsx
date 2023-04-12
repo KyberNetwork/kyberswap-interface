@@ -375,7 +375,7 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: TokenListTab; setTab: (t
           }
           if (tab === type) {
             return (
-              <MouseoverTooltip key={type} text={tooltip?.(theme)} placement="top" opacity={1}>
+              <MouseoverTooltip key={type} text={tooltip?.(theme)} placement="top" opacity={1} delay={1500}>
                 <ButtonTypeActive {...props} ref={el => (tabListRef.current[index] = el)}>
                   {icon && <Icon id={icon} size={16} />}
                   {type}
@@ -384,7 +384,7 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: TokenListTab; setTab: (t
             )
           } else {
             return (
-              <MouseoverTooltip key={type} text={tooltip?.(theme)} placement="top" opacity={1}>
+              <MouseoverTooltip key={type} text={tooltip?.(theme)} placement="top" opacity={1} delay={1500}>
                 <ButtonTypeInactive key={type} {...props} ref={el => (tabListRef.current[index] = el)}>
                   {icon && <Icon id={icon} size={16} />}
                   {type}
@@ -423,10 +423,10 @@ const MenuDropdown = styled(RowFit)`
   top: 42px;
   right: 0;
   transform: translateY(-10px);
-  transition: all 0.1s ease;
+  transition: transform 0.1s ease, visibility 0.1s ease, opacity 0.1s ease;
   visibility: hidden;
   background-color: ${({ theme }) => theme.tableHeader};
-  padding: 16px;
+  padding: 8px;
   opacity: 0;
   border-radius: 4px;
   z-index: 100;
@@ -437,14 +437,37 @@ const MenuDropdown = styled(RowFit)`
     opacity: 1;
   }
 `
-const TokenRow = ({ token }: { token: any }) => {
+
+const ChainIcon = styled.div`
+  border-radius: 50%;
+  background-color: ${({ theme }) => theme.tableHeader};
+  padding: 6px;
+  :hover {
+    filter: brightness(1.2);
+  }
+`
+
+const TokenRow = ({ token, currentTab }: { token: any; currentTab: TokenListTab }) => {
   const navigate = useNavigate()
   const theme = useTheme()
   const [showMenu, setShowMenu] = useState(false)
+  const [menuLeft, setMenuLeft] = useState<number | undefined>(undefined)
+
   const rowRef = useRef<HTMLTableRowElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+
   useOnClickOutside(rowRef, () => setShowMenu(false))
+  const handleRowClick = (e: any) => {
+    const left = e.clientX - (rowRef.current?.getBoundingClientRect()?.left || 0)
+    const rowWidth = rowRef.current?.getBoundingClientRect()?.width || 0
+    const menuWidth = menuRef.current?.getBoundingClientRect()?.width || 0
+    if (left !== undefined) {
+      setMenuLeft(Math.min(left, rowWidth - menuWidth))
+      setShowMenu(true)
+    }
+  }
   return (
-    <tr key={token.id} ref={rowRef}>
+    <tr key={token.id} ref={rowRef} onClick={handleRowClick} style={{ position: 'relative' }}>
       <td>
         <RowFit>
           <Star size={16} style={{ marginRight: '6px', cursor: 'pointer' }} /> {token.id}
@@ -481,9 +504,9 @@ const TokenRow = ({ token }: { token: any }) => {
       </td>
       <td>
         <Column style={{ alignItems: 'center', width: 'fit-content' }}>
-          <SmallKyberScoreMeter value={88} />
+          <SmallKyberScoreMeter value={currentTab === TokenListTab.Bearish ? 20 : 88} />
           <Text color={theme.primary} fontSize="14px" fontWeight={500}>
-            Very Bullish
+            {currentTab === TokenListTab.Bearish ? 'Very Bearish' : 'Very Bullish'}
           </Text>
         </Column>
       </td>
@@ -499,73 +522,91 @@ const TokenRow = ({ token }: { token: any }) => {
         </Column>
       </td>
       <td style={{ textAlign: 'start' }}>
-        <TokenChart />
+        <TokenChart isBearish={currentTab === TokenListTab.Bearish} />
       </td>
       <td style={{ textAlign: 'start' }}>
         <Text>${token['24hVolume'] || '--'}</Text>
       </td>
-
+      {[TokenListTab.TopInflow, TokenListTab.TopOutflow, TokenListTab.TrendingSoon].includes(currentTab) && (
+        <td style={{ textAlign: 'start' }}>
+          <Text>${token['24hVolume'] || '--'}</Text>
+        </td>
+      )}
       <td>
-        <Row gap="4px" justify={'flex-end'} style={{ position: 'relative' }}>
+        <Row gap="4px" justify={'flex-end'}>
           <ActionButton color={theme.subText} title={t`View Pools`}>
             <Icon id="liquid" size={16} />
           </ActionButton>
           <ActionButton color={theme.subText} title={t`Swap`}>
             <Icon id="swap" size={16} />
           </ActionButton>
-          <ActionButton color={theme.primary} onClick={() => setShowMenu(true)} title={t`Explore`}>
+          <ActionButton
+            color={theme.primary}
+            onClick={e => {
+              e.stopPropagation()
+              setMenuLeft(undefined)
+              setShowMenu(true)
+            }}
+            title={t`Explore`}
+          >
             <Icon id="truesight-v2" size={16} />
           </ActionButton>
-          <MenuDropdown className={showMenu ? 'show' : ''} gap="12px" color={theme.text}>
-            <div
+          <MenuDropdown
+            className={showMenu ? 'show' : ''}
+            gap="8px"
+            color={theme.text}
+            style={{ left: menuLeft !== undefined ? `${menuLeft}px` : undefined }}
+            ref={menuRef}
+          >
+            <ChainIcon
               onClick={() => {
-                navigate(APP_PATHS.KYBERAI_EXPLORE + testParams.address)
+                navigate(APP_PATHS.KYBERAI_EXPLORE)
               }}
             >
-              <Icon id="eth-mono" size={16} title="Ethereum" />
-            </div>
-            <div
+              <Icon id="eth-mono" size={20} title="Ethereum" />
+            </ChainIcon>
+            <ChainIcon
               onClick={() => {
-                navigate(APP_PATHS.KYBERAI_EXPLORE + testParams.address)
+                navigate(APP_PATHS.KYBERAI_EXPLORE)
               }}
             >
-              <Icon id="bnb-mono" size={16} title="Binance" />
-            </div>
-            <div
+              <Icon id="bnb-mono" size={20} title="Binance" />
+            </ChainIcon>
+            <ChainIcon
               onClick={() => {
-                navigate(APP_PATHS.KYBERAI_EXPLORE + testParams.address)
+                navigate(APP_PATHS.KYBERAI_EXPLORE)
               }}
             >
-              <Icon id="ava-mono" size={16} title="Avalance" />
-            </div>
-            <div
+              <Icon id="ava-mono" size={20} title="Avalance" />
+            </ChainIcon>
+            <ChainIcon
               onClick={() => {
-                navigate(APP_PATHS.KYBERAI_EXPLORE + testParams.address)
+                navigate(APP_PATHS.KYBERAI_EXPLORE)
               }}
             >
-              <Icon id="matic-mono" size={16} title="Polygon" />
-            </div>
-            <div
+              <Icon id="matic-mono" size={20} title="Polygon" />
+            </ChainIcon>
+            <ChainIcon
               onClick={() => {
-                navigate(APP_PATHS.KYBERAI_EXPLORE + testParams.address)
+                navigate(APP_PATHS.KYBERAI_EXPLORE)
               }}
             >
-              <Icon id="arbitrum-mono" size={16} title="Arbitrum" />
-            </div>
-            <div
+              <Icon id="arbitrum-mono" size={20} title="Arbitrum" />
+            </ChainIcon>
+            <ChainIcon
               onClick={() => {
-                navigate(APP_PATHS.KYBERAI_EXPLORE + testParams.address)
+                navigate(APP_PATHS.KYBERAI_EXPLORE)
               }}
             >
-              <Icon id="fantom-mono" size={16} title="Fantom" />
-            </div>
-            <div
+              <Icon id="fantom-mono" size={20} title="Fantom" />
+            </ChainIcon>
+            <ChainIcon
               onClick={() => {
-                navigate(APP_PATHS.KYBERAI_EXPLORE + testParams.address)
+                navigate(APP_PATHS.KYBERAI_EXPLORE)
               }}
             >
-              <Icon id="optimism-mono" size={16} title="Optimism" />
-            </div>
+              <Icon id="optimism-mono" size={20} title="Optimism" />
+            </ChainIcon>
           </MenuDropdown>
         </Row>
       </td>
@@ -580,7 +621,6 @@ export default function TokenAnalysisList() {
   const [networkFilter, setNetworkFilter] = useState<ChainId>()
   const toggle = useToggleModal(ApplicationModal.SHARE)
   const { data } = useTokenListQuery({})
-  console.log('🚀 ~ file: TokenAnalysisList.tsx:508 ~ TokenAnalysisList ~ data:', data)
   const above768 = useMedia('(min-width:768px)')
 
   const [searchParams, setSearchParams] = useSearchParams()
@@ -667,7 +707,11 @@ export default function TokenAnalysisList() {
                 <col style={{ width: '230px', minWidth: 'auto' }} />
                 <col style={{ width: '250px', minWidth: 'auto' }} />
                 <col style={{ width: '250px', minWidth: 'auto' }} />
+                {[TokenListTab.TopInflow, TokenListTab.TopOutflow, TokenListTab.TrendingSoon].includes(currentTab) && (
+                  <col style={{ width: '150px', minWidth: 'auto' }} />
+                )}
                 <col style={{ width: '150px', minWidth: 'auto' }} />
+
                 <col style={{ width: '200px', minWidth: 'auto' }} />
               </colgroup>
               <thead>
@@ -745,7 +789,12 @@ export default function TokenAnalysisList() {
                   </th>
                   <th onClick={() => handleSort(SORT_FIELD.VOLUME)}>
                     <Row justify="flex-start">
-                      <Trans>24h Volume</Trans>
+                      <Trans>
+                        {{
+                          [TokenListTab.TopInflow]: '24h Inflow',
+                          [TokenListTab.TopOutflow]: '24h Outflow',
+                        }[currentTab as string] || '24h Volume'}
+                      </Trans>
                       {sortedColumn === SORT_FIELD.VOLUME ? (
                         !sortDirection ? (
                           <ArrowUp size="12" style={{ marginLeft: '2px' }} />
@@ -757,7 +806,30 @@ export default function TokenAnalysisList() {
                       )}
                     </Row>
                   </th>
-
+                  {[TokenListTab.TopInflow, TokenListTab.TopOutflow, TokenListTab.TrendingSoon].includes(
+                    currentTab,
+                  ) && (
+                    <th>
+                      <Row justify="flex-start">
+                        <Trans>
+                          {{
+                            [TokenListTab.TopInflow]: '3D Inflow',
+                            [TokenListTab.TopOutflow]: '3D Outflow',
+                            [TokenListTab.TrendingSoon]: 'First Discovered On',
+                          }[currentTab as string] || ''}
+                        </Trans>
+                        {sortedColumn === SORT_FIELD.VOLUME ? (
+                          !sortDirection ? (
+                            <ArrowUp size="12" style={{ marginLeft: '2px' }} />
+                          ) : (
+                            <ArrowDown size="12" style={{ marginLeft: '2px' }} />
+                          )
+                        ) : (
+                          ''
+                        )}
+                      </Row>
+                    </th>
+                  )}
                   <th style={{ textAlign: 'end' }}>
                     <Trans>Action</Trans>
                   </th>
@@ -766,7 +838,7 @@ export default function TokenAnalysisList() {
 
               <tbody>
                 {templateList.slice((page - 1) * pageSize, page * pageSize).map((token: any, index: number) => (
-                  <TokenRow token={token} key={index} />
+                  <TokenRow token={token} key={index} currentTab={currentTab} />
                 ))}
               </tbody>
             </Table>

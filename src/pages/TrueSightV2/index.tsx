@@ -50,6 +50,18 @@ const HeaderWrapper = styled.div`
   }
 `
 
+const HeaderNavItem = styled.div<{ active?: boolean }>`
+  font-size: 24px;
+  line-height: 28px;
+  font-weight: 500;
+  cursor: pointer;
+  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
+
+  :hover {
+    filter: brightness(1.3);
+  }
+`
+
 export default function TrueSightV2() {
   const theme = useTheme()
   const [searchValue, setSearchValue] = useState('')
@@ -62,35 +74,21 @@ export default function TrueSightV2() {
       <HeaderWrapper>
         <RowBetween>
           <RowFit color={theme.text} gap="6px">
-            <Text
-              fontSize={above768 ? 24 : 20}
-              lineHeight="28px"
-              color={isSingleToken ? theme.subText : theme.primary}
-              fontWeight={500}
-              onClick={() => navigate(APP_PATHS.KYBERAI_RANKINGS)}
-              style={{ cursor: 'pointer' }}
-            >
+            <HeaderNavItem onClick={() => navigate(APP_PATHS.KYBERAI_RANKINGS)} active={!isSingleToken}>
               <RowFit gap="4px">
                 {above768 && <Icon id="leaderboard" size={20} />}
                 <Trans>Rankings</Trans>
               </RowFit>
-            </Text>
+            </HeaderNavItem>
             <Text fontWeight={500} fontSize={[18, 20, 24]} color={theme.subText} marginX={'12px'}>
               |
             </Text>
-            <Text
-              fontSize={above768 ? 24 : 20}
-              lineHeight="28px"
-              color={isSingleToken ? theme.primary : theme.subText}
-              fontWeight={500}
-              onClick={() => navigate(APP_PATHS.KYBERAI_EXPLORE)}
-              style={{ cursor: 'pointer' }}
-            >
+            <HeaderNavItem onClick={() => navigate(APP_PATHS.KYBERAI_EXPLORE)} active={isSingleToken}>
               <RowFit gap="4px">
                 {above768 && <Icon id="truesight-v2" size={20} />}
                 <Trans>Explore</Trans>
               </RowFit>
-            </Text>
+            </HeaderNavItem>
           </RowFit>
           <RowFit gap="16px">
             <SearchWithDropDown onSearch={setSearchValue} searchValue={searchValue} />

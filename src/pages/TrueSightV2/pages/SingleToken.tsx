@@ -236,7 +236,7 @@ export default function SingleToken() {
         ) : (
           <>
             <Text fontSize={24} color={theme.text} fontWeight={500}>
-              {data?.name}
+              {data?.name} ({data?.symbol})
             </Text>
           </>
         )}
