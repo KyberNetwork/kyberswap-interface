@@ -342,8 +342,7 @@ export default createReducer(initialState, builder =>
       state.permitData[account][chainId][address] = null
     })
     .addCase(permitError, (state, { payload: { chainId, address, account } }) => {
-      if (!state.permitData[account]) state.permitData[account] = {}
-      if (!state.permitData[account][chainId]) state.permitData[account][chainId] = {}
+      if (!state.permitData?.[account]?.[chainId]?.[address]) return
       const { errorCount } = state.permitData[account][chainId][address] || {}
       state.permitData[account][chainId][address] = {
         rawSignature: undefined,

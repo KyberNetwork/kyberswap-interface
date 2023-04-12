@@ -41,7 +41,7 @@ const SwapModal: React.FC<Props> = props => {
     txHash: '',
   })
 
-  const { routeSummary, isPermitSwap } = useSwapFormContext()
+  const { routeSummary } = useSwapFormContext()
   const currencyIn = routeSummary?.parsedAmountIn?.currency
   const currencyOut = routeSummary?.parsedAmountOut?.currency
 
@@ -85,7 +85,7 @@ const SwapModal: React.FC<Props> = props => {
   }
 
   const handleErrorDismiss = () => {
-    if (error && isPermitSwap && routeSummary && account) {
+    if (error && routeSummary && account) {
       dispatch(permitError({ chainId, address: routeSummary.parsedAmountIn.currency.wrapped.address, account }))
     }
     handleDismiss()

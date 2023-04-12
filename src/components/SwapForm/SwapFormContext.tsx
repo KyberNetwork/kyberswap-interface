@@ -11,7 +11,6 @@ type SwapFormContextProps = {
   recipient: string | null
   isStablePairSwap: boolean
   isAdvancedMode: boolean
-  isPermitSwap?: boolean
 }
 
 const SwapFormContext = createContext<SwapFormContextProps | undefined>(undefined)
