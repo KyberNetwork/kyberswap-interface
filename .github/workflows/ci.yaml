@@ -71,10 +71,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Set up Node.js 16.x
+      - name: Set up Node.js 18.15.0
         uses: actions/setup-node@v1
         with:
-          node-version: 16.18.1
+          node-version: 18.15.0
           registry-url: 'https://npm.pkg.github.com'
           scope: '@kybernetwork'
 
@@ -147,10 +147,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Set up Node.js 16.x
+      - name: Set up Node.js 18.15.0
         uses: actions/setup-node@v1
         with:
-          node-version: 16.18.1
+          node-version: 18.15.0
           registry-url: 'https://npm.pkg.github.com'
           scope: '@kybernetwork'
 
