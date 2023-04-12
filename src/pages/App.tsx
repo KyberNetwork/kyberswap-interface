@@ -273,20 +273,6 @@ export default function App() {
                     />
                     <Route path={`${APP_PATHS.ELASTIC_REMOVE_POOL}/:tokenId`} element={<ProAmmRemoveLiquidity />} />
 
-                    <Route path={`${APP_PATHS.ELASTIC_CREATE_POOL}/`} element={<RedirectDuplicateTokenIds />} />
-                    <Route
-                      path={`${APP_PATHS.ELASTIC_CREATE_POOL}/:currencyIdA`}
-                      element={<RedirectDuplicateTokenIds />}
-                    />
-                    <Route
-                      path={`${APP_PATHS.ELASTIC_CREATE_POOL}/:currencyIdA/:currencyIdB`}
-                      element={<RedirectDuplicateTokenIds />}
-                    />
-                    <Route
-                      path={`${APP_PATHS.ELASTIC_CREATE_POOL}/:currencyIdA/:currencyIdB/:feeAmount`}
-                      element={<RedirectDuplicateTokenIds />}
-                    />
-
                     <Route
                       path={`${APP_PATHS.ELASTIC_INCREASE_LIQ}/:currencyIdA/:currencyIdB/:feeAmount/:tokenId`}
                       element={<IncreaseLiquidity />}
@@ -306,6 +292,30 @@ export default function App() {
                     <Route path={`${APP_PATHS.NOTIFICATION_CENTER}/*`} element={<NotificationCenter />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgramPage />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />
+
+                    <>
+                      {/* Elastic Create Pool Routes  */}
+                      <Route
+                        path={`/:network${APP_PATHS.ELASTIC_CREATE_POOL}/`}
+                        element={<RedirectDuplicateTokenIds />}
+                      />
+                      <Route
+                        path={`/:network${APP_PATHS.ELASTIC_CREATE_POOL}/:currencyIdA`}
+                        element={<RedirectDuplicateTokenIds />}
+                      />
+                      <Route
+                        path={`/:network${APP_PATHS.ELASTIC_CREATE_POOL}/:currencyIdA/:currencyIdB`}
+                        element={<RedirectDuplicateTokenIds />}
+                      />
+                      <Route
+                        path={`/:network${APP_PATHS.ELASTIC_CREATE_POOL}/:currencyIdA/:currencyIdB/:feeAmount`}
+                        element={<RedirectDuplicateTokenIds />}
+                      />
+
+                      {/* These 2 routes to make sure backward compatibility */}
+                      <Route path={`${APP_PATHS.ELASTIC_CREATE_POOL}`} element={<RedirectDuplicateTokenIds />} />
+                      <Route path={`${APP_PATHS.ELASTIC_CREATE_POOL}/*`} element={<RedirectDuplicateTokenIds />} />
+                    </>
 
                     <Route path="*" element={<RedirectPathToSwapV3Network />} />
                   </Routes>
