@@ -266,7 +266,7 @@ export default function StakeKNCComponent() {
   const { switchToEthereum } = useSwitchToEthereum()
   const { mixpanelHandler } = useMixpanel()
   const [approvalKNC, approveCallback] = useApproveCallback(
-    inputValue
+    activeTab === STAKE_TAB.Stake && inputValue
       ? TokenAmount.fromRawAmount(
           new Token(
             chainId === ChainId.GÖRLI ? ChainId.GÖRLI : ChainId.MAINNET,
@@ -274,7 +274,7 @@ export default function StakeKNCComponent() {
             18,
             'KNC',
           ),
-          parseUnits(inputValue, 18).toString(),
+          parseUnits((+inputValue).toFixed(18).toString(), 18).toString(),
         )
       : undefined,
     kyberDAOInfo?.staking,
@@ -284,6 +284,7 @@ export default function StakeKNCComponent() {
   const newVotingPower = parseFloat(
     calculateVotingPower(formatUnits(stakedBalance), (activeTab === STAKE_TAB.Unstake ? '-' : '') + inputValue),
   )
+  console.log('🚀 ~ file: StakeKNCComponent.tsx:287 ~ StakeKNCComponent ~ newVotingPower:', newVotingPower)
   const deltaVotingPower = Math.abs(newVotingPower - parseFloat(currentVotingPower)).toPrecision(3)
 
   const handleStake = () => {
@@ -618,8 +619,11 @@ export default function StakeKNCComponent() {
                     {' '}
                     &rarr;{' '}
                     <span style={{ color: theme.text }}>
-                      {+formatUnits(stakedBalance) +
-                        (activeTab === STAKE_TAB.Unstake ? -(inputValue || '0') : +(inputValue || '0'))}{' '}
+                      {Math.max(
+                        +formatUnits(stakedBalance) +
+                          (activeTab === STAKE_TAB.Unstake ? -(inputValue || '0') : +(inputValue || '0')),
+                        0,
+                      )}{' '}
                       KNC
                     </span>
                   </>
