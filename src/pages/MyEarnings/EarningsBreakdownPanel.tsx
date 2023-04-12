@@ -23,7 +23,7 @@ const Wrapper = styled.div.attrs<WrapperProps>(({ $columns }) => ({
   background-color: ${({ theme }) => theme.background};
   border: 1px solid ${({ theme }) => theme.border};
 
-  transition: all 500ms ease;
+  transition: all 500ms ease, background 0s, border 0s, color 0s;
 
   &[data-columns='2'] {
     width: 400px;
