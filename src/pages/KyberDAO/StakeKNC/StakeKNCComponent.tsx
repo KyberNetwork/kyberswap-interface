@@ -471,6 +471,7 @@ export default function StakeKNCComponent() {
               {account ? (
                 <Row gap="12px">
                   {(approvalKNC === ApprovalState.NOT_APPROVED || approvalKNC === ApprovalState.PENDING) &&
+                    activeTab === STAKE_TAB.Stake &&
                     [ChainId.MAINNET, ChainId.GÖRLI].includes(chainId) &&
                     !errorMessage && (
                       <ButtonPrimary onClick={approveCallback} disabled={approvalKNC === ApprovalState.PENDING}>
