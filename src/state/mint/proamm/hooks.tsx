@@ -1309,7 +1309,6 @@ export function useRangeHopCallbacks(
   tickUpper: number | undefined,
   positionIndex: number,
   pool?: Pool | undefined | null,
-  price?: Price<Token, Token> | undefined | null,
 ) {
   const dispatch = useAppDispatch()
 

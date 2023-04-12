@@ -49,7 +49,7 @@ interface FeeTypeSelectorProps {
   bgColor?: 'background' | 'buttonBlack'
 }
 
-export default function FeeTypeSelector({ active = 'static', onChange, bgColor = 'background' }: FeeTypeSelectorProps) {
+export default function FeeTypeSelector({ active = 'static', onChange }: FeeTypeSelectorProps) {
   const buttonsRef = useRef<any>({})
   const [activeElement, setActiveElement] = useState()
 

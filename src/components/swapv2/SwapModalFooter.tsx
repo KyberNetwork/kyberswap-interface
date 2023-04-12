@@ -47,7 +47,7 @@ export default function SwapModalFooter({
   startedTime: number | undefined
 }) {
   const isStablePairSwap = useCheckStablePairSwap()
-  const { chainId, isSolana, isEVM } = useActiveWeb3React()
+  const { isSolana, isEVM } = useActiveWeb3React()
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const theme = useTheme()
   const slippageAdjustedAmounts = useMemo(
@@ -85,7 +85,7 @@ export default function SwapModalFooter({
               paddingLeft: '10px',
             }}
           >
-            {formatExecutionPrice(trade, showInverted, chainId)}
+            {formatExecutionPrice(trade, showInverted)}
             <StyledBalanceMaxMini onClick={() => setShowInverted(!showInverted)}>
               <Repeat size={14} color={theme.text} />
             </StyledBalanceMaxMini>

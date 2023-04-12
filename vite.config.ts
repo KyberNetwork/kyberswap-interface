@@ -11,12 +11,12 @@ export default defineConfig({
     outDir: 'build',
   },
   plugins: [
-    // eslint({ lintOnStart: true }),
     eslint({ cache: true }),
     react({
       babel: {
         // Use .babelrc files, necessary to use LinguiJS CLI
         babelrc: true,
+        plugins: ['macros'],
       },
     }),
     viteTsconfigPaths(),

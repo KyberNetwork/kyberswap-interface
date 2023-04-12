@@ -59,5 +59,9 @@ module.exports = {
     'react/react-in-jsx-scope': 'off',
     'react/jsx-pascal-case': 'off',
     '@typescript-eslint/no-var-requires': 'off',
+    '@typescript-eslint/no-unused-vars': [
+      'warn',
+      { ignoreRestSiblings: true, argsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
+    ],
   },
 }

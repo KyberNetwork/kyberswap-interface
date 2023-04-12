@@ -54,7 +54,7 @@ const useGetElasticFarms = () => {
   })
 }
 
-const FarmUpdaterV2: React.FC<CommonProps> = ({ interval }) => {
+const FarmUpdaterV2: React.FC<CommonProps> = ({}) => {
   const dispatch = useAppDispatch()
   const { chainId } = useActiveWeb3React()
   const { data, error, isValidating } = useGetElasticFarms()
