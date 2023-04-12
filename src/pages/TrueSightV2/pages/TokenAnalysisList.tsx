@@ -32,7 +32,6 @@ import KyberScoreChart from '../components/chart/KyberScoreChart'
 import { TOKEN_LIST } from '../hooks/sampleData'
 import { useTokenListQuery } from '../hooks/useTruesightV2Data'
 import { TokenListTab } from '../types'
-import { testParams } from './SingleToken'
 
 const TableWrapper = styled.div`
   border-radius: 20px 20px 0 0;
@@ -621,6 +620,7 @@ export default function TokenAnalysisList() {
   const [networkFilter, setNetworkFilter] = useState<ChainId>()
   const toggle = useToggleModal(ApplicationModal.SHARE)
   const { data } = useTokenListQuery({})
+  console.log('🚀 ~ file: TokenAnalysisList.tsx:623 ~ TokenAnalysisList ~ data:', data)
   const above768 = useMedia('(min-width:768px)')
 
   const [searchParams, setSearchParams] = useSearchParams()
