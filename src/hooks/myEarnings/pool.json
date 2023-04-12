@@ -1,0 +1,4322 @@
+[
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19403,
+    "block": 16633128,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0509005793326079"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0509005793326079"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19402,
+    "block": 16630472,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0477499374056357"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0477499374056357"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19401,
+    "block": 16623324,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0483822468287206"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0483822468287206"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19400,
+    "block": 16616164,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0477456323189326"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0477456323189326"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19399,
+    "block": 16609007,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0452945056758233"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0452945056758233"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19398,
+    "block": 16601849,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0462924906658834"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0462924906658834"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19397,
+    "block": 16594681,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0545263905179052"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0545263905179052"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19396,
+    "block": 16587526,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0547215361050264"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0547215361050264"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19395,
+    "block": 16580387,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0471398428702411"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0471398428702411"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19394,
+    "block": 16573239,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0485408965311869"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0485408965311869"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19393,
+    "block": 16566072,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0519537112197184"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0519537112197184"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19392,
+    "block": 16558906,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0510845752755148"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0510845752755148"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19391,
+    "block": 16551750,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0500712169871896"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0500712169871896"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19390,
+    "block": 16544597,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0514367964307935"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0514367964307935"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19389,
+    "block": 16537456,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0511486849481089"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0511486849481089"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19388,
+    "block": 16530297,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0447662536436675"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0447662536436675"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19387,
+    "block": 16523134,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0472326180084976"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0472326180084976"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19386,
+    "block": 16515966,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0458907612181154"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0458907612181154"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19385,
+    "block": 16508807,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0474843610420536"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0474843610420536"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19384,
+    "block": 16501638,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.045785893337135"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.045785893337135"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19383,
+    "block": 16494485,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0459923563103688"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0459923563103688"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19382,
+    "block": 16487319,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.044211569762908"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.044211569762908"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19381,
+    "block": 16480161,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0442025337562122"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0442025337562122"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19380,
+    "block": 16472995,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0443511149825823"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0443511149825823"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19379,
+    "block": 16465829,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0413202342960094"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0413202342960094"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19378,
+    "block": 16458670,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0423406045246046"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0423406045246046"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19377,
+    "block": 16451507,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0378264237892349"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0378264237892349"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19376,
+    "block": 16444338,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0374786123802673"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0374786123802673"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19375,
+    "block": 16437179,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0406815195516168"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0406815195516168"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19374,
+    "block": 16430014,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0413690897882742"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0413690897882742"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19373,
+    "block": 16422843,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0418331494346966"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0418331494346966"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19372,
+    "block": 16415683,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.040864555870518"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.040864555870518"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19371,
+    "block": 16408537,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0385359274977187"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0385359274977187"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19370,
+    "block": 16401367,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0364226635796094"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0364226635796094"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19369,
+    "block": 16394204,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0354796061736669"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0354796061736669"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19368,
+    "block": 16387048,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.034503185659147"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.034503185659147"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19367,
+    "block": 16379894,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0341100207886925"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0341100207886925"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19366,
+    "block": 16372728,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0330583556193294"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0330583556193294"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19365,
+    "block": 16365561,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0314052753770217"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0314052753770217"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19364,
+    "block": 16358396,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0309660905346651"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0309660905346651"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19363,
+    "block": 16351233,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0305508802917815"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0305508802917815"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19362,
+    "block": 16344073,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0309961413395786"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0309961413395786"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19361,
+    "block": 16336918,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.03036174885256"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.03036174885256"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19360,
+    "block": 16329750,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0303668231029648"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0303668231029648"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19359,
+    "block": 16322582,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0300479346522413"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0300479346522413"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19358,
+    "block": 16315411,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.029740650917102"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.029740650917102"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19357,
+    "block": 16308239,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.029463828337675"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.029463828337675"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19356,
+    "block": 16301073,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.03004072105832"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.03004072105832"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19355,
+    "block": 16293907,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0299941514985411"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0299941514985411"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19354,
+    "block": 16286746,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0326713141751797"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0326713141751797"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19353,
+    "block": 16279573,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0320032422835777"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0320032422835777"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19352,
+    "block": 16272417,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0318868191825306"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0318868191825306"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19351,
+    "block": 16265255,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0332743825605456"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0332743825605456"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19350,
+    "block": 16258087,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0342091972069387"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0342091972069387"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19349,
+    "block": 16250921,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.034781343066799"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.034781343066799"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19348,
+    "block": 16243741,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0354481610775271"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0354481610775271"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19347,
+    "block": 16236563,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0361512089206471"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0361512089206471"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19346,
+    "block": 16229400,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0346744069167522"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0346744069167522"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19345,
+    "block": 16222232,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0366455900114862"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0366455900114862"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19344,
+    "block": 16215066,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.037182031047042"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.037182031047042"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "755102226184912",
+        "decimals": "18",
+        "amountUSD": "0"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19343,
+    "block": 16207905,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754879537870641",
+        "decimals": "18",
+        "amountUSD": "0.0007060045787492"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0365653522669974"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0365653522669974"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754879537870641",
+        "decimals": "18",
+        "amountUSD": "0.0007060045787492"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19342,
+    "block": 16200742,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754879537870641",
+        "decimals": "18",
+        "amountUSD": "0.0007189119401188"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0419560334144908"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0419560334144908"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754879537870641",
+        "decimals": "18",
+        "amountUSD": "0.0007189119401188"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19341,
+    "block": 16193583,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754879537870641",
+        "decimals": "18",
+        "amountUSD": "0.0007689833378251"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0432960729831067"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0432960729831067"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754879537870641",
+        "decimals": "18",
+        "amountUSD": "0.0007689833378251"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19340,
+    "block": 16186426,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754879537870641",
+        "decimals": "18",
+        "amountUSD": "0.0007945339679842"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.044750203510512"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.044750203510512"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754879537870641",
+        "decimals": "18",
+        "amountUSD": "0.0007945339679842"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19339,
+    "block": 16179263,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754879537870641",
+        "decimals": "18",
+        "amountUSD": "0.0007945339679842"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0440429982309832"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0440429982309832"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754879537870641",
+        "decimals": "18",
+        "amountUSD": "0.0007945339679842"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19338,
+    "block": 16172113,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754879537870641",
+        "decimals": "18",
+        "amountUSD": "0.0007532007860841"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0433554744824948"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0433554744824948"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754879537870641",
+        "decimals": "18",
+        "amountUSD": "0.0007532007860841"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19337,
+    "block": 16164957,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754879537870641",
+        "decimals": "18",
+        "amountUSD": "0.0007612413411435"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0437754223952302"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0437754223952302"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754879537870641",
+        "decimals": "18",
+        "amountUSD": "0.0007612413411435"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19336,
+    "block": 16157797,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754882506995689",
+        "decimals": "18",
+        "amountUSD": "0.0007892085188247"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0430142786979497"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0430142786979497"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754882506995689",
+        "decimals": "18",
+        "amountUSD": "0.0007892085188247"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19335,
+    "block": 16150630,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754882506995689",
+        "decimals": "18",
+        "amountUSD": "0.000788196953312"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0430668421193168"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0430668421193168"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754882506995689",
+        "decimals": "18",
+        "amountUSD": "0.000788196953312"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19334,
+    "block": 16143480,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754882506995689",
+        "decimals": "18",
+        "amountUSD": "0.0008065627113435"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.041805966043326"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.041805966043326"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754882506995689",
+        "decimals": "18",
+        "amountUSD": "0.0008065627113435"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19333,
+    "block": 16136319,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754882506995689",
+        "decimals": "18",
+        "amountUSD": "0.0007789537973176"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.043636772477901"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.043636772477901"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754882506995689",
+        "decimals": "18",
+        "amountUSD": "0.0007789537973176"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19332,
+    "block": 16129244,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754882506995689",
+        "decimals": "18",
+        "amountUSD": "0.0007927125478713"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0440699687367086"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0440699687367086"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754882506995689",
+        "decimals": "18",
+        "amountUSD": "0.0007927125478713"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19331,
+    "block": 16122074,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754882506995689",
+        "decimals": "18",
+        "amountUSD": "0.0007972840486442"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0458864026456607"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0458864026456607"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754882506995689",
+        "decimals": "18",
+        "amountUSD": "0.0007972840486442"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19330,
+    "block": 16114930,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754882506995689",
+        "decimals": "18",
+        "amountUSD": "0.0007936424620562"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0453918454082879"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0453918454082879"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754882506995689",
+        "decimals": "18",
+        "amountUSD": "0.0007936424620562"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19329,
+    "block": 16107776,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754882506995689",
+        "decimals": "18",
+        "amountUSD": "0.0007743465764812"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0458119174170978"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0458119174170978"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754882506995689",
+        "decimals": "18",
+        "amountUSD": "0.0007743465764812"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19328,
+    "block": 16100613,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754882506995689",
+        "decimals": "18",
+        "amountUSD": "0.0007989634042687"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.045270008543574"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.045270008543574"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754882506995689",
+        "decimals": "18",
+        "amountUSD": "0.0007989634042687"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19327,
+    "block": 16093446,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754882506995689",
+        "decimals": "18",
+        "amountUSD": "0.0007989634042687"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0455328972472989"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0455328972472989"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754882506995689",
+        "decimals": "18",
+        "amountUSD": "0.0007989634042687"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19326,
+    "block": 16086282,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754882506995689",
+        "decimals": "18",
+        "amountUSD": "0.0008129635782847"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0441859054343982"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0441859054343982"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754882506995689",
+        "decimals": "18",
+        "amountUSD": "0.0008129635782847"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19325,
+    "block": 16079131,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754882506995689",
+        "decimals": "18",
+        "amountUSD": "0.0007536039208663"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0430620574627112"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0430620574627112"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754882506995689",
+        "decimals": "18",
+        "amountUSD": "0.0007536039208663"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19324,
+    "block": 16071980,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754772946984275",
+        "decimals": "18",
+        "amountUSD": "0.0007974749265774"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0440368233475387"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0440368233475387"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754772946984275",
+        "decimals": "18",
+        "amountUSD": "0.0007974749265774"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19323,
+    "block": 16064804,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754772946984275",
+        "decimals": "18",
+        "amountUSD": "0.0008183241787918"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0440162751598526"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0440162751598526"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754772946984275",
+        "decimals": "18",
+        "amountUSD": "0.0008183241787918"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19322,
+    "block": 16057645,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754772946984275",
+        "decimals": "18",
+        "amountUSD": "0.0008183241787918"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0445612994355385"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0445612994355385"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754772946984275",
+        "decimals": "18",
+        "amountUSD": "0.0008183241787918"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19321,
+    "block": 16050487,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754772946984275",
+        "decimals": "18",
+        "amountUSD": "0.0008091206090385"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0453602843130437"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0453602843130437"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754772946984275",
+        "decimals": "18",
+        "amountUSD": "0.0008091206090385"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19320,
+    "block": 16043330,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754772946984275",
+        "decimals": "18",
+        "amountUSD": "0.000816745259406"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0459866526111047"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0459866526111047"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754772946984275",
+        "decimals": "18",
+        "amountUSD": "0.000816745259406"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19319,
+    "block": 16036164,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754772946984275",
+        "decimals": "18",
+        "amountUSD": "0.0007884384886602"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0449103634765887"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0449103634765887"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754772946984275",
+        "decimals": "18",
+        "amountUSD": "0.0007884384886602"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19318,
+    "block": 16029026,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754772946984275",
+        "decimals": "18",
+        "amountUSD": "0.0007537133011932"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0445540007424139"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0445540007424139"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "753",
+        "decimals": "6",
+        "amountUSD": "0.000753"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "754772946984275",
+        "decimals": "18",
+        "amountUSD": "0.0007537133011932"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19317,
+    "block": 16021878,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "706",
+        "decimals": "6",
+        "amountUSD": "0.000706"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "706927917961155",
+        "decimals": "18",
+        "amountUSD": "0.0006466390702778"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0446462401124405"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188268245288198348",
+        "decimals": "18",
+        "amountUSD": "0.0446462401124405"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "706",
+        "decimals": "6",
+        "amountUSD": "0.000706"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "706927917961155",
+        "decimals": "18",
+        "amountUSD": "0.0006466390702778"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19316,
+    "block": 16014715,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "706",
+        "decimals": "6",
+        "amountUSD": "0.000706"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "706927917961155",
+        "decimals": "18",
+        "amountUSD": "0.0006634696039473"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188298335015795510",
+        "decimals": "18",
+        "amountUSD": "0.0498949392825138"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188298335015795510",
+        "decimals": "18",
+        "amountUSD": "0.0498949392825138"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "706",
+        "decimals": "6",
+        "amountUSD": "0.000706"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "706927917961155",
+        "decimals": "18",
+        "amountUSD": "0.0006634696039473"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19315,
+    "block": 16007552,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "705",
+        "decimals": "6",
+        "amountUSD": "0.000705"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "706259868375649",
+        "decimals": "18",
+        "amountUSD": "0.0006388335741041"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188454122012714820",
+        "decimals": "18",
+        "amountUSD": "0.0506418725627442"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "188454122012714820",
+        "decimals": "18",
+        "amountUSD": "0.0506418725627442"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "705",
+        "decimals": "6",
+        "amountUSD": "0.000705"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "706259868375649",
+        "decimals": "18",
+        "amountUSD": "0.0006388335741041"
+      }
+    ]
+  },
+  {
+    "account": "0xef09879057a9ad798438f3ba561bcdd293d72fc7",
+    "pool": "0x2c104235eb170e72a19377b07e2dfbd4d7f0c51f",
+    "day": 19314,
+    "block": 16000387,
+    "fees": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "705",
+        "decimals": "6",
+        "amountUSD": "0.000705"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "706259868375649",
+        "decimals": "18",
+        "amountUSD": "0.0006388335741041"
+      }
+    ],
+    "rewards": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "189064849862092302",
+        "decimals": "18",
+        "amountUSD": "0.0494374548298882"
+      }
+    ],
+    "total": [
+      {
+        "token": "0xae12c5930881c53715b369cec7606b70d8eb229f",
+        "amount": "189064849862092302",
+        "decimals": "18",
+        "amountUSD": "0.0494374548298882"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "705",
+        "decimals": "6",
+        "amountUSD": "0.000705"
+      },
+      {
+        "token": "0xc285b7e09a4584d027e5bc36571785b515898246",
+        "amount": "706259868375649",
+        "decimals": "18",
+        "amountUSD": "0.0006388335741041"
+      }
+    ]
+  }
+]

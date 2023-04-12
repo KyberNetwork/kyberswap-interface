@@ -7,6 +7,7 @@ import { ENV_LEVEL } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
 
 import annoucementApi from '../services/announcement'
+import earningApi from '../services/earning'
 import geckoTerminalApi from '../services/geckoTermial'
 import ksSettingApi from '../services/ksSetting'
 import notificationApi from '../services/notification'
@@ -25,6 +26,7 @@ import lists from './lists/reducer'
 import mintV2 from './mint/proamm/reducer'
 import mint from './mint/reducer'
 import multicall from './multicall/reducer'
+import myEarnings from './myEarnings/reducer'
 import pair from './pair/reducer'
 import pools from './pools/reducer'
 import swap from './swap/reducer'
@@ -65,12 +67,14 @@ const store = configureStore({
     campaigns,
     tutorial,
     bridge,
+    myEarnings,
     customizeDexes,
     elasticFarm,
     elasticFarmV2,
     tokenPrices,
     topTokens,
     [routeApi.reducerPath]: routeApi.reducer,
+    [earningApi.reducerPath]: earningApi.reducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
@@ -80,7 +84,8 @@ const store = configureStore({
       .concat(ksSettingApi.middleware)
       .concat(annoucementApi.middleware)
       .concat(priceAlertApi.middleware)
-      .concat(routeApi.middleware),
+      .concat(routeApi.middleware)
+      .concat(earningApi.middleware),
   preloadedState: load({ states: PERSISTED_KEYS }),
 })
 

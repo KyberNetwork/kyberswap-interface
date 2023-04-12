@@ -98,6 +98,7 @@
     "react-helmet": "^6.1.0",
     "react-indiana-drag-scroll": "^2.0.1",
     "react-loading-skeleton": "^3.1.0",
+    "react-minimal-pie-chart": "8.4.0",
     "react-popper": "^2.2.3",
     "react-qrcode-logo": "^2.8.0",
     "react-redux": "^7.2.9",

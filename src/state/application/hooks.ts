@@ -126,6 +126,14 @@ export function useNotificationModalToggle(): () => void {
   return useToggleModal(ApplicationModal.NOTIFICATION_SUBSCRIPTION)
 }
 
+export function useToggleSwitchEthereumModal(): () => void {
+  return useToggleModal(ApplicationModal.SWITCH_TO_ETHEREUM)
+}
+
+export function useToggleMyEarningsZoomOutModal(): () => void {
+  return useToggleModal(ApplicationModal.MY_EARNINGS_ZOOM_OUT)
+}
+
 // returns a function that allows adding a popup
 export function useAddPopup(): (
   content: PopupContent,
