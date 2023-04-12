@@ -24,7 +24,7 @@ export const TOKEN_DETAIL = {
   marketCap: 324048677736,
   numberOfHolders: 43588084,
   kyberScore: {
-    score: 75.5,
+    score: 85.5,
     label: 'Very Bullish',
   },
   isWatched: true,

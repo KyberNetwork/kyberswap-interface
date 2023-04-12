@@ -95,7 +95,7 @@ const Table = styled.table`
       cursor: pointer;
 
       :hover {
-        filter: brightness(1.2);
+        color: ${({ theme }) => theme.text} !important;
       }
     }
     tr {

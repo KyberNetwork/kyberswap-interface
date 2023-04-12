@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { Text } from 'rebass'
 import styled, { useTheme } from 'styled-components'
 
@@ -24,17 +24,34 @@ const GaugeValue = styled.div`
 function SmallKyberScoreMeter({ value }: { value?: number }) {
   const theme = useTheme()
   const activeGaugeValue = value ? (gaugeList.length * value) / 100 : 0
+  const gaugeColor = useCallback(
+    (value: number) => {
+      const percent = (value / gaugeList.length) * 100
+      if (value > activeGaugeValue) {
+        return theme.darkMode ? theme.subText + '30' : theme.background2
+      }
+      if (percent < 20) {
+        return theme.red
+      }
+      if (percent < 40) {
+        return '#FFA7C3'
+      }
+      if (percent < 60) {
+        return theme.text
+      }
+      if (percent < 80) {
+        return '#8DE1C7'
+      }
+
+      return theme.primary
+    },
+    [activeGaugeValue, theme],
+  )
   return (
     <Wrapper>
       <svg xmlns="http://www.w3.org/2000/svg" width="52" height="32" viewBox="0 0 218 133" fill="none">
         {gaugeList.map(g => (
-          <MeterGauge
-            key={g.value}
-            d={g.d}
-            fill={
-              (activeGaugeValue || 0) >= g.value ? theme.primary : theme.darkMode ? theme.subText : theme.background2
-            }
-          />
+          <MeterGauge key={g.value} d={g.d} fill={gaugeColor(g.value)} />
         ))}
       </svg>
       <GaugeValue>
