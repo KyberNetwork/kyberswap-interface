@@ -19,7 +19,7 @@
     "i18n:compile": "lingui compile",
     "i18n:extract": "lingui extract",
     "lint": "yarn eslint .",
-    "start": "yarn i18n:compile && vite",
+    "start": "env-cmd -f .env vite",
     "start-dev": "env-cmd -f .env.dev vite",
     "start-local": "env-cmd -f .env.local vite",
     "start-production": "env-cmd -f .env.production vite",
