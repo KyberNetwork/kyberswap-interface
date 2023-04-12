@@ -547,7 +547,7 @@ export function errorFriendly(text: string): string {
     return t`An error occurred. Please try increasing max slippage`
   }
 
-  if (error.includes('permit: invalid signature')) {
+  if (error.includes('permit: invalid signature') || error.includes('eip2612: invalid signature')) {
     return t`An error occurred. Invalid Permit Signature`
   }
 

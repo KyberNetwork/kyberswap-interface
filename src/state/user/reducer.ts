@@ -320,6 +320,7 @@ export default createReducer(initialState, builder =>
       state.holidayMode = !oldMode
     })
     .addCase(permitUpdate, (state, { payload: { chainId, address, rawSignature, deadline, value, account } }) => {
+      if (!state.permitData) state.permitData = {}
       if (!state.permitData[account]) state.permitData[account] = {}
       if (!state.permitData[account][chainId]) state.permitData[account][chainId] = {}
 

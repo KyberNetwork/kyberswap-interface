@@ -41,7 +41,7 @@ const SwapModal: React.FC<Props> = props => {
     txHash: '',
   })
 
-  const { routeSummary } = useSwapFormContext()
+  const { routeSummary, isPermitSwap } = useSwapFormContext()
   const currencyIn = routeSummary?.parsedAmountIn?.currency
   const currencyOut = routeSummary?.parsedAmountOut?.currency
 
@@ -85,7 +85,7 @@ const SwapModal: React.FC<Props> = props => {
   }
 
   const handleErrorDismiss = () => {
-    if (error.includes('Permit: invalid signature') && routeSummary && account) {
+    if (error && isPermitSwap && routeSummary && account) {
       dispatch(permitError({ chainId, address: routeSummary.parsedAmountIn.currency.wrapped.address, account }))
     }
     handleDismiss()
