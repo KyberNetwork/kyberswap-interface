@@ -137,8 +137,10 @@ export function subscribeNotificationOrderExpired(
   return subscribeListLimitOrder(COLLECTIONS.LO_EXPIRED_ORDERS, account, chainId, callback)
 }
 
-export function subscribeTelegramSubscription() {
-  // export function subscribeTelegramSubscription(account: string, callback: (data: { isSuccessfully: boolean }) => void) {
+export function subscribeTelegramSubscription(
+  _account: string,
+  _callback: (data: { isSuccessfully: boolean }) => void,
+) {
   // return subscribeDocument(COLLECTIONS.TELEGRAM_SUBSCRIPTION, [account.toLowerCase()], callback)
   return () => {
     //
