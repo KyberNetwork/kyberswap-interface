@@ -411,6 +411,7 @@ export const NumberofTradesChart = () => {
                 fill={rgba(theme.red, 0.6)}
                 animationBegin={ANIMATION_DELAY}
                 animationDuration={ANIMATION_DURATION}
+                radius={[5, 5, 0, 0]}
               />
             )}
             {showBuy && (
@@ -420,6 +421,7 @@ export const NumberofTradesChart = () => {
                 fill={rgba(theme.primary, 0.6)}
                 animationBegin={ANIMATION_DELAY}
                 animationDuration={ANIMATION_DURATION}
+                radius={[5, 5, 0, 0]}
               />
             )}
             {showTotalTrade && (

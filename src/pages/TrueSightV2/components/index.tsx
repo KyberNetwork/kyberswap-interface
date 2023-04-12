@@ -21,7 +21,8 @@ export const StyledSectionWrapper = styled.div<{ show?: boolean }>`
   padding: 16px;
   border-radius: 20px;
   border: 1px solid ${({ theme }) => theme.border};
-  ${({ theme }) => `background-color: ${theme.background};`}
+  /* ${({ theme }) => `background-color: ${theme.background};`} */
+  background: linear-gradient(332deg, rgb(32 32 32) 20%, rgba(15, 15, 15, 1) 90%);
   margin-bottom: 36px;
   display: flex;
   flex-direction: column;
