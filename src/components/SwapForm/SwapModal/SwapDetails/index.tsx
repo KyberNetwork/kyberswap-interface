@@ -164,8 +164,8 @@ export default function SwapDetails({
           <RowBetween height="20px" style={{ gap: '16px' }}>
             <RowFixed>
               <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
-                <MouseoverTooltip text={<Trans>Estimated network fee for your transaction.</Trans>} placement="right">
-                  <Trans>Gas Fee</Trans>
+                <MouseoverTooltip text={<Trans>Estimated network fee for your transaction</Trans>} placement="right">
+                  <Trans>Est. Gas Fee</Trans>
                 </MouseoverTooltip>
               </TextDashed>
             </RowFixed>
