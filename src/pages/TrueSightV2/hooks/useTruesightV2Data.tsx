@@ -2,7 +2,14 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 
 import { TRUESIGHT_V2_API } from 'constants/env'
 
-import { INetflowToWhaleWallets, INumberOfTrades, ITokenOverview, ITradingVolume, OHLCData } from '../types'
+import {
+  INetflowToCEX,
+  INetflowToWhaleWallets,
+  INumberOfTrades,
+  ITokenOverview,
+  ITradingVolume,
+  OHLCData,
+} from '../types'
 import { HOLDER_LIST, TOKEN_LIST } from './sampleData'
 
 const truesightV2Api = createApi({
@@ -75,7 +82,7 @@ const truesightV2Api = createApi({
       },
     ),
     //8.
-    netflowToCEX: builder.query({
+    netflowToCEX: builder.query<INetflowToCEX[], { tokenAddress?: string; from: number; to: number }>({
       query: ({ tokenAddress, from, to }) => ({
         url: `/netflow/cexes/ethereum/${tokenAddress?.toLowerCase()}`,
         params: { from, to },

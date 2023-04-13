@@ -47,7 +47,14 @@ import {
 } from 'pages/TrueSightV2/hooks/useTruesightV2Data'
 import { testParams } from 'pages/TrueSightV2/pages/SingleToken'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
-import { ChartTab, INetflowToWhaleWallets, ISRLevel, ITradingVolume, KyberAITimeframe } from 'pages/TrueSightV2/types'
+import {
+  ChartTab,
+  INetflowToCEX,
+  INetflowToWhaleWallets,
+  ISRLevel,
+  ITradingVolume,
+  KyberAITimeframe,
+} from 'pages/TrueSightV2/types'
 import { useUserLocale } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
@@ -228,11 +235,13 @@ const TooltipWrapper = styled.div`
 export const ANIMATION_DELAY = 500
 export const ANIMATION_DURATION = 1000
 
-const formatNum = (num: number, fixed = 1): string => {
+const formatShortNum = (num: number, fixed = 1): string => {
   const negative = num < 0
   const absNum = Math.abs(num)
   let formattedNum = ''
-  if (absNum > 1000000) {
+  if (absNum > 1000000000) {
+    formattedNum = (+(absNum / 1000000000).toFixed(fixed)).toString() + 'B'
+  } else if (absNum > 1000000) {
     formattedNum = (+(absNum / 1000000).toFixed(fixed)).toString() + 'M'
   } else if (absNum > 1000) {
     formattedNum = (+(absNum / 1000).toFixed(fixed)).toString() + 'K'
@@ -366,7 +375,7 @@ export const NumberofTradesChart = () => {
               axisLine={false}
               tick={{ fill: theme.subText, fontWeight: 400 }}
               width={20}
-              tickFormatter={value => `${formatNum(value)}`}
+              tickFormatter={value => `${formatShortNum(value)}`}
             />
             <YAxis
               yAxisId="right"
@@ -376,7 +385,7 @@ export const NumberofTradesChart = () => {
               tick={{ fill: theme.subText, fontWeight: 400 }}
               width={20}
               orientation="right"
-              tickFormatter={value => `${formatNum(value)}`}
+              tickFormatter={value => `${formatShortNum(value)}`}
             />
             <Tooltip
               cursor={{ fill: 'transparent' }}
@@ -392,13 +401,13 @@ export const NumberofTradesChart = () => {
                       {payload.timestamp && dayjs(payload.timestamp * 1000).format('MMM DD, YYYY')}
                     </Text>
                     <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                      Total Trades: <span style={{ color: theme.text }}>{formatNum(payload.totalTrade, 2)}</span>
+                      Total Trades: <span style={{ color: theme.text }}>{formatShortNum(payload.totalTrade, 2)}</span>
                     </Text>
                     <RowBetween fontSize="12px" lineHeight="16px" color={theme.primary}>
-                      <Text>Buys:</Text> <Text>{formatNum(payload.buy, 2)}</Text>
+                      <Text>Buys:</Text> <Text>{formatShortNum(payload.buy, 2)}</Text>
                     </RowBetween>
                     <RowBetween fontSize="12px" lineHeight="16px" color={theme.red}>
-                      <Text>Sells:</Text> <Text>{formatNum(-payload.sell, 2)}</Text>
+                      <Text>Sells:</Text> <Text>{formatShortNum(-payload.sell, 2)}</Text>
                     </RowBetween>
                   </TooltipWrapper>
                 )
@@ -435,7 +444,7 @@ export const NumberofTradesChart = () => {
                   label: ({ x, y, value }: { x: number; y: number; value: number }) => {
                     return (
                       <text x={x} y={y} dy={-8} fontSize={12} fontWeight={500} fill={theme.text} textAnchor="middle">
-                        {formatNum(value)}
+                        {formatShortNum(value)}
                       </text>
                     )
                   },
@@ -594,7 +603,7 @@ export const TradingVolumeChart = () => {
               axisLine={false}
               tick={{ fill: theme.subText, fontWeight: 400 }}
               width={40}
-              tickFormatter={value => (value > 0 ? `$${formatNum(value)}` : `-$${formatNum(-value)}`)}
+              tickFormatter={value => (value > 0 ? `$${formatShortNum(value)}` : `-$${formatShortNum(-value)}`)}
             />
             <YAxis
               yAxisId="right"
@@ -604,7 +613,7 @@ export const TradingVolumeChart = () => {
               tick={{ fill: theme.subText, fontWeight: 400 }}
               width={40}
               orientation="right"
-              tickFormatter={value => `$${formatNum(value)}`}
+              tickFormatter={value => `$${formatShortNum(value)}`}
             />
             <Tooltip
               cursor={{ fill: 'transparent' }}
@@ -620,13 +629,13 @@ export const TradingVolumeChart = () => {
                       {payload.timestamp && dayjs(payload.timestamp * 1000).format('MMM DD, YYYY')}
                     </Text>
                     <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                      Total Volume: <span style={{ color: theme.text }}>${formatNum(payload.totalVolume, 2)}</span>
+                      Total Volume: <span style={{ color: theme.text }}>${formatShortNum(payload.totalVolume, 2)}</span>
                     </Text>
                     <RowBetween fontSize="12px" lineHeight="16px" color={theme.primary}>
-                      <Text>Buys:</Text> <Text>${formatNum(payload.buyVolume, 2)}</Text>
+                      <Text>Buys:</Text> <Text>${formatShortNum(payload.buyVolume, 2)}</Text>
                     </RowBetween>
                     <RowBetween fontSize="12px" lineHeight="16px" color={theme.red}>
-                      <Text>Sells:</Text> <Text>${formatNum(-payload.sellVolume, 2)}</Text>
+                      <Text>Sells:</Text> <Text>${formatShortNum(-payload.sellVolume, 2)}</Text>
                     </RowBetween>
                   </TooltipWrapper>
                 )
@@ -663,7 +672,7 @@ export const TradingVolumeChart = () => {
                   label: ({ x, y, value }: { x: number; y: number; value: number }) => {
                     return (
                       <text x={x} y={y} dy={-8} fontSize={12} fontWeight={500} fill={theme.text} textAnchor="middle">
-                        ${formatNum(value)}
+                        ${formatShortNum(value)}
                       </text>
                     )
                   },
@@ -903,7 +912,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                   axisLine={false}
                   tick={{ fill: theme.subText, fontWeight: 400 }}
                   width={40}
-                  tickFormatter={value => `$${formatNum(value)}`}
+                  tickFormatter={value => `$${formatShortNum(value)}`}
                 />
                 <YAxis
                   yAxisId="right"
@@ -913,7 +922,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                   tick={{ fill: theme.subText, fontWeight: 400 }}
                   width={40}
                   orientation="right"
-                  tickFormatter={value => `$${formatNum(value)}`}
+                  tickFormatter={value => `$${formatShortNum(value)}`}
                 />
                 <Tooltip
                   cursor={{ fill: 'transparent' }}
@@ -929,7 +938,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                           {payload.timestamp && dayjs(payload.timestamp).format('MMM DD, YYYY')}
                         </Text>
                         <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                          Netflow: <span style={{ color: theme.text }}>${formatNum(payload.netflow)}</span>
+                          Netflow: <span style={{ color: theme.text }}>${formatShortNum(payload.netflow)}</span>
                         </Text>
                         <Row gap="16px">
                           <Column gap="4px">
@@ -948,10 +957,10 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                               Inflow
                             </Text>
                             <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
-                              ${formatNum(payload.generalInflow)}
+                              ${formatShortNum(payload.generalInflow)}
                             </Text>
                             <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
-                              ${formatNum(payload.tokenInflow)}
+                              ${formatShortNum(payload.tokenInflow)}
                             </Text>
                           </Column>
                           <Column gap="4px">
@@ -959,10 +968,10 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                               Outflow
                             </Text>
                             <Text fontSize="12px" lineHeight="16px" color={theme.red}>
-                              ${formatNum(payload.generalOutflow)}
+                              ${formatShortNum(payload.generalOutflow)}
                             </Text>
                             <Text fontSize="12px" lineHeight="16px" color={theme.red}>
-                              ${formatNum(payload.tokenOutflow)}
+                              ${formatShortNum(payload.tokenOutflow)}
                             </Text>
                           </Column>
                         </Row>
@@ -1043,40 +1052,96 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
 }
 
 export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
-  const { data } = useNetflowToCEXQuery('123')
   const [showInflow, setShowInflow] = useState(true)
   const [showOutflow, setShowOutflow] = useState(true)
   const [showNetflow, setShowNetflow] = useState(true)
-  const [timeframe, setTimeframe] = useState('7D')
-  const formattedData = useMemo(
-    () =>
-      data?.map((item: any) => {
-        if (tab === ChartTab.Second) {
-          return {
-            inflow: showInflow ? item.inflow : undefined,
-            netflow: showNetflow ? item.netflow : undefined,
-            timestamp: item.timestamp,
-          }
-        }
-        if (tab === ChartTab.Third) {
-          return {
-            outflow: showOutflow ? -item.outflow : undefined,
-            netflow: showNetflow ? item.netflow : undefined,
-            timestamp: item.timestamp,
-          }
-        }
+  const [timeframe, setTimeframe] = useState(KyberAITimeframe.ONE_MONTH)
 
-        return {
-          inflow: showInflow ? item.inflow : undefined,
-          outflow: showOutflow ? -item.outflow : undefined,
-          netflow: showNetflow ? item.netflow : undefined,
-          timestamp: item.timestamp,
-        }
-      }),
-    [data, showInflow, showOutflow, showNetflow, tab],
-  )
+  const [from, to, timerange] = useMemo(() => {
+    const now = Math.floor(Date.now() / 60000) * 60
+    const timerange =
+      {
+        [KyberAITimeframe.ONE_DAY]: 3600,
+        [KyberAITimeframe.ONE_WEEK]: 86400,
+        [KyberAITimeframe.ONE_MONTH]: 86400,
+        [KyberAITimeframe.THREE_MONTHS]: 86400,
+      }[timeframe as string] || 86400
+    const from =
+      now -
+      ({
+        [KyberAITimeframe.ONE_DAY]: 86400,
+        [KyberAITimeframe.ONE_WEEK]: 604800,
+        [KyberAITimeframe.ONE_MONTH]: 2592000,
+        [KyberAITimeframe.THREE_MONTHS]: 7776000,
+      }[timeframe as string] || 604800)
+    return [from, now, timerange]
+  }, [timeframe])
+
+  const { data } = useNetflowToCEXQuery({ tokenAddress: testParams.address, from, to })
+
+  const formattedData = useMemo(() => {
+    if (!data) return []
+    const dataTemp: {
+      cexes: INetflowToCEX[]
+      totalInflow: number
+      totalOutflow: number
+      totalNetflow: number
+      timestamp: number
+    }[] = []
+    const startTimestamp = (Math.floor(from / timerange) + 1) * timerange
+    for (let t = startTimestamp; t < to; t += timerange) {
+      const cexesData = data.filter(item => item.timestamp === t)
+      if (cexesData.length > 0) {
+        dataTemp.push({
+          timestamp: t * 1000,
+          cexes: cexesData.sort((a, b) => (a.cex > b.cex ? 1 : -1)),
+          totalInflow: showInflow ? cexesData.reduce((a, b) => a + b.inflow, 0) : 0,
+          totalOutflow: showOutflow ? -cexesData.reduce((a, b) => a + b.outflow, 0) : 0,
+          totalNetflow: showNetflow ? cexesData.reduce((a, b) => a + b.netflow, 0) : 0,
+        })
+      } else {
+        dataTemp.push({ timestamp: t * 1000, cexes: [], totalInflow: 0, totalOutflow: 0, totalNetflow: 0 })
+      }
+    }
+
+    return dataTemp
+  }, [data, showInflow, showOutflow, showNetflow, from, timerange, to])
   const theme = useTheme()
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const percentage = useMemo(() => {
+    return (
+      100 /
+      (Math.abs(
+        Math.max(...formattedData.map(_ => _.totalNetflow as number)) /
+          Math.min(...formattedData.map(_ => _.totalNetflow as number)),
+      ) +
+        1)
+    )
+  }, [formattedData])
+
+  useEffect(() => {
+    switch (tab) {
+      case ChartTab.First: {
+        setShowNetflow(true)
+        setShowInflow(true)
+        setShowOutflow(true)
+        break
+      }
+      case ChartTab.Second: {
+        setShowNetflow(true)
+        setShowInflow(true)
+        setShowOutflow(false)
+        break
+      }
+      case ChartTab.Third: {
+        setShowNetflow(true)
+        setShowInflow(false)
+        setShowOutflow(true)
+        break
+      }
+    }
+  }, [tab])
+
   return (
     <>
       <ChartWrapper>
@@ -1122,10 +1187,10 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
             width={500}
-            height={300}
+            height={400}
             data={formattedData}
             stackOffset="sign"
-            margin={{ top: 40, right: 30 }}
+            margin={{ top: 50, left: 20, right: 20 }}
           >
             <CartesianGrid vertical={false} strokeWidth={1} stroke={rgba(theme.border, 0.5)} />
             <Customized component={KyberLogo} />
@@ -1143,6 +1208,17 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
               axisLine={false}
               tick={{ fill: theme.subText, fontWeight: 400 }}
               width={40}
+              tickFormatter={value => (value > 0 ? `$${formatShortNum(value)}` : `-$${formatShortNum(-value)}`)}
+            />
+            <YAxis
+              yAxisId="right"
+              fontSize="12px"
+              tickLine={false}
+              axisLine={false}
+              orientation="right"
+              tick={{ fill: theme.subText, fontWeight: 400 }}
+              width={40}
+              tickFormatter={value => `$${formatShortNum(value)}`}
             />
             <Tooltip
               cursor={{ fill: 'transparent' }}
@@ -1158,98 +1234,78 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
                       {payload.timestamp && dayjs(payload.timestamp).format('MMM DD, YYYY')}
                     </Text>
                     <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                      Netflow: <span style={{ color: theme.text }}>${formatNum(payload.netflow)}</span>
+                      Netflow: <span style={{ color: theme.text }}>${formatShortNum(payload.totalNetflow)}</span>
                     </Text>
                     <Row gap="16px">
-                      <Column gap="4px">
+                      <Column gap="4px" style={{ textTransform: 'capitalize' }}>
                         <Text fontSize="12px" lineHeight="16px" color={theme.text}>
                           Wallet
                         </Text>
-                        <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-                          Binance
-                        </Text>
-                        <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-                          Coinbase
-                        </Text>
-                        <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-                          OKX
-                        </Text>
-                        <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-                          Kucoin
-                        </Text>
-                        <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-                          Kraken
-                        </Text>
-                        <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-                          Crypto.com
-                        </Text>
+                        {payload.cexes.map((item: INetflowToCEX, index: number) => (
+                          <Text key={index} fontSize="12px" lineHeight="16px" color={theme.text}>
+                            {item.cex}
+                          </Text>
+                        ))}
                       </Column>
                       <Column gap="4px">
                         <Text fontSize="12px" lineHeight="16px" color={theme.text}>
                           Inflow
                         </Text>
-                        <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
-                          ${formatNum(payload.inflow)}
-                        </Text>
-                        <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
-                          ${formatNum(payload.inflow)}
-                        </Text>
-                        <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
-                          ${formatNum(payload.inflow)}
-                        </Text>
-                        <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
-                          ${formatNum(payload.inflow)}
-                        </Text>
-                        <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
-                          ${formatNum(payload.inflow)}
-                        </Text>
-                        <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
-                          ${formatNum(payload.inflow)}
-                        </Text>
+                        {payload.cexes.map((item: INetflowToCEX, index: number) => (
+                          <Text key={index} fontSize="12px" lineHeight="16px" color={theme.primary}>
+                            {formatShortNum(item.inflow)}
+                          </Text>
+                        ))}
                       </Column>
                       <Column gap="4px">
                         <Text fontSize="12px" lineHeight="16px" color={theme.text}>
                           Outflow
                         </Text>
-                        <Text fontSize="12px" lineHeight="16px" color={theme.red}>
-                          ${formatNum(payload.outflow)}
-                        </Text>
-                        <Text fontSize="12px" lineHeight="16px" color={theme.red}>
-                          ${formatNum(payload.outflow)}
-                        </Text>
-                        <Text fontSize="12px" lineHeight="16px" color={theme.red}>
-                          ${formatNum(payload.outflow)}
-                        </Text>
-                        <Text fontSize="12px" lineHeight="16px" color={theme.red}>
-                          ${formatNum(payload.outflow)}
-                        </Text>
-                        <Text fontSize="12px" lineHeight="16px" color={theme.red}>
-                          ${formatNum(payload.outflow)}
-                        </Text>
-                        <Text fontSize="12px" lineHeight="16px" color={theme.red}>
-                          ${formatNum(payload.outflow)}
-                        </Text>
+                        {payload.cexes.map((item: INetflowToCEX, index: number) => (
+                          <Text key={index} fontSize="12px" lineHeight="16px" color={theme.red}>
+                            {formatShortNum(item.outflow)}
+                          </Text>
+                        ))}
                       </Column>
                     </Row>
                   </TooltipWrapper>
                 )
               }}
             />
+            <defs>
+              <linearGradient id="gradient" x1="0" y1="100%" x2="0" y2="0">
+                <stop offset="0%" stopColor={theme.red} />
+                <stop offset={`${percentage}%`} stopColor={theme.red} />
+                <stop offset={`${percentage}%`} stopColor={theme.primary} />
+                <stop offset="100%" stopColor={theme.primary} />
+              </linearGradient>
+            </defs>
             <Bar
-              dataKey="inflow"
+              dataKey="totalInflow"
               stackId="a"
               fill={rgba(theme.primary, 0.6)}
               animationBegin={ANIMATION_DELAY}
               animationDuration={ANIMATION_DURATION}
+              radius={[5, 5, 0, 0]}
             />
             <Bar
-              dataKey="outflow"
+              dataKey="totalOutflow"
               stackId="a"
               fill={rgba(theme.red, 0.6)}
               animationBegin={ANIMATION_DELAY}
               animationDuration={ANIMATION_DURATION}
+              radius={[5, 5, 0, 0]}
             />
-            <Line type="linear" dataKey="netflow" stroke={theme.primary} strokeWidth={3} dot={false} />
+            {showNetflow && (
+              <Line
+                type="linear"
+                yAxisId="right"
+                dataKey="totalNetflow"
+                stroke="url(#gradient)"
+                strokeWidth={3}
+                dot={false}
+              />
+            )}
           </ComposedChart>
         </ResponsiveContainer>
       </ChartWrapper>
@@ -1348,7 +1404,7 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
             axisLine={false}
             tick={{ fill: theme.subText, fontWeight: 400 }}
             width={40}
-            tickFormatter={value => `$${formatNum(value)}`}
+            tickFormatter={value => `$${formatShortNum(value)}`}
           />
           <Tooltip
             cursor={{ fill: 'transparent' }}
@@ -1365,7 +1421,7 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
                   </Text>
                   <Text fontSize="12px" lineHeight="16px" color={theme.text}>
                     {tab === ChartTab.Second ? 'Total Volume' : 'Total Transfers'}:{' '}
-                    <span style={{ color: theme.text }}>{formatNum(payload.count)}</span>
+                    <span style={{ color: theme.text }}>{formatShortNum(payload.count)}</span>
                   </Text>
                 </TooltipWrapper>
               )
@@ -1449,7 +1505,7 @@ export const NumberofHolders = () => {
             axisLine={false}
             tick={{ fill: theme.subText, fontWeight: 400 }}
             width={40}
-            tickFormatter={value => formatNum(value)}
+            tickFormatter={value => formatShortNum(value)}
           />
           <Tooltip
             cursor={{ fill: 'transparent' }}
@@ -1465,7 +1521,7 @@ export const NumberofHolders = () => {
                     {payload.timestamp && dayjs(payload.timestamp).format('MMM DD, YYYY')}
                   </Text>
                   <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                    Holders: <span style={{ color: theme.text }}>{formatNum(payload.count)}</span>
+                    Holders: <span style={{ color: theme.text }}>{formatShortNum(payload.count)}</span>
                   </Text>
                 </TooltipWrapper>
               )
@@ -1701,7 +1757,7 @@ export const LiquidOnCentralizedExchanges = () => {
                 tick={{ fill: theme.subText, fontWeight: 400 }}
                 width={40}
                 orientation="left"
-                tickFormatter={value => formatNum(value)}
+                tickFormatter={value => formatShortNum(value)}
               />
               <YAxis
                 yAxisId="right"
@@ -1711,7 +1767,7 @@ export const LiquidOnCentralizedExchanges = () => {
                 tick={{ fill: theme.subText, fontWeight: 400 }}
                 width={40}
                 orientation="right"
-                tickFormatter={value => formatNum(value)}
+                tickFormatter={value => formatShortNum(value)}
                 domain={[(dataMin: any) => dataMin * 0.99, (dataMax: any) => dataMax * 1.01]}
               />
               <Tooltip
@@ -1747,7 +1803,7 @@ export const LiquidOnCentralizedExchanges = () => {
                           </Text>
                           {payload.list.map((i: any) => (
                             <Text key={i.exchangeName + 'long'} fontSize="12px" lineHeight="16px" color={theme.primary}>
-                              {formatNum(i.buyVolUsd)}
+                              {formatShortNum(i.buyVolUsd)}
                             </Text>
                           ))}
                         </Column>
@@ -1757,7 +1813,7 @@ export const LiquidOnCentralizedExchanges = () => {
                           </Text>
                           {payload.list.map((i: any) => (
                             <Text key={i.exchangeName + 'short'} fontSize="12px" lineHeight="16px" color={theme.red}>
-                              {formatNum(i.sellVolUsd)}
+                              {formatShortNum(i.sellVolUsd)}
                             </Text>
                           ))}
                         </Column>
