@@ -35,7 +35,7 @@ interface CurrencyInputPanelBridgeProps {
   selectedChainId: ChainId | undefined
 }
 
-const noop = (_value: string) => {
+const noop = () => {
   //
 }
 export default function CurrencyInputPanelBridge({
