@@ -24,7 +24,7 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
   const ethPriceRef = useRef(ethPrice.currentPrice)
   ethPriceRef.current = ethPrice.currentPrice
   const allTokens = useAllTokens()
-  const { classicClient, blockClient } = useKyberSwapConfig()
+  const { classicClient, blockClient, isEnableBlockService } = useKyberSwapConfig()
 
   const farmsData = useSelector((state: AppState) => state.farms.data)
 
@@ -99,6 +99,7 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
       const poolAddresses = poolInfos.map(poolInfo => poolInfo.stakeToken.toLowerCase())
 
       const farmsData = await getBulkPoolDataFromPoolList(
+        isEnableBlockService,
         poolAddresses,
         classicClient,
         blockClient,
@@ -238,6 +239,7 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
     blockClient,
     allTokens,
     isInterval,
+    isEnableBlockService,
   ])
 
   return null

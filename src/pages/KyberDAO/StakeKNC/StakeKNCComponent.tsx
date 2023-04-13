@@ -266,7 +266,7 @@ export default function StakeKNCComponent() {
   const { switchToEthereum } = useSwitchToEthereum()
   const { mixpanelHandler } = useMixpanel()
   const [approvalKNC, approveCallback] = useApproveCallback(
-    inputValue
+    activeTab === STAKE_TAB.Stake && inputValue
       ? TokenAmount.fromRawAmount(
           new Token(
             chainId === ChainId.GÖRLI ? ChainId.GÖRLI : ChainId.MAINNET,
@@ -274,7 +274,7 @@ export default function StakeKNCComponent() {
             18,
             'KNC',
           ),
-          parseUnits(inputValue, 18).toString(),
+          parseUnits((+inputValue).toFixed(18).toString(), 18).toString(),
         )
       : undefined,
     kyberDAOInfo?.staking,
@@ -471,28 +471,37 @@ export default function StakeKNCComponent() {
               {account ? (
                 <Row gap="12px">
                   {(approvalKNC === ApprovalState.NOT_APPROVED || approvalKNC === ApprovalState.PENDING) &&
+                    activeTab === STAKE_TAB.Stake &&
                     [ChainId.MAINNET, ChainId.GÖRLI].includes(chainId) &&
                     !errorMessage && (
                       <ButtonPrimary onClick={approveCallback} disabled={approvalKNC === ApprovalState.PENDING}>
                         {approvalKNC === ApprovalState.PENDING ? 'Approving...' : 'Approve'}
                       </ButtonPrimary>
                     )}
-                  <ButtonPrimary
-                    disabled={
-                      [ChainId.MAINNET, ChainId.GÖRLI].includes(chainId) &&
-                      (approvalKNC !== ApprovalState.APPROVED || !!errorMessage)
-                    }
-                    margin="8px 0px"
-                    onClick={() => {
-                      if (activeTab === STAKE_TAB.Stake) {
-                        handleStake()
-                      } else {
-                        handleUnstake()
+                  {activeTab === STAKE_TAB.Stake ? (
+                    <ButtonPrimary
+                      disabled={
+                        [ChainId.MAINNET, ChainId.GÖRLI].includes(chainId) &&
+                        (approvalKNC !== ApprovalState.APPROVED || !!errorMessage)
                       }
-                    }}
-                  >
-                    {errorMessage || (activeTab === STAKE_TAB.Stake ? t`Stake` : t`Unstake`)}
-                  </ButtonPrimary>
+                      margin="8px 0px"
+                      onClick={() => {
+                        handleStake()
+                      }}
+                    >
+                      {errorMessage || t`Stake`}
+                    </ButtonPrimary>
+                  ) : (
+                    <ButtonPrimary
+                      disabled={[ChainId.MAINNET, ChainId.GÖRLI].includes(chainId) && !!errorMessage}
+                      margin="8px 0px"
+                      onClick={() => {
+                        handleUnstake()
+                      }}
+                    >
+                      {errorMessage || t`Unstake`}
+                    </ButtonPrimary>
+                  )}
                 </Row>
               ) : (
                 <ButtonLight onClick={toggleWalletModal}>
@@ -609,8 +618,11 @@ export default function StakeKNCComponent() {
                     {' '}
                     &rarr;{' '}
                     <span style={{ color: theme.text }}>
-                      {+formatUnits(stakedBalance) +
-                        (activeTab === STAKE_TAB.Unstake ? -(inputValue || '0') : +(inputValue || '0'))}{' '}
+                      {Math.max(
+                        +formatUnits(stakedBalance) +
+                          (activeTab === STAKE_TAB.Unstake ? -(inputValue || '0') : +(inputValue || '0')),
+                        0,
+                      )}{' '}
                       KNC
                     </span>
                   </>

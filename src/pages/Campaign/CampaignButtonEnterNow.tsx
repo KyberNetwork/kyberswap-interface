@@ -25,6 +25,7 @@ export default function CampaignButtonEnterNow({ size, campaign }: CampaignButto
   return (
     <>
       <StyledPrimaryButton
+        id="enter-now-button"
         disabled={isVerifyingToken}
         size={size}
         onClick={e => {
