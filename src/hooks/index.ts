@@ -7,6 +7,7 @@ import { Web3ReactContextInterface } from '@web3-react/core/dist/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useSelector } from 'react-redux'
+import { useSearchParams } from 'react-router-dom'
 
 import { injected, walletconnect, walletlink } from 'connectors'
 import { MOCK_ACCOUNT_EVM, MOCK_ACCOUNT_SOLANA } from 'constants/env'
@@ -28,7 +29,9 @@ export function useActiveWeb3React(): {
   isSolana: boolean
   networkInfo: NetworkInfo
 } {
-  const chainIdState = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET
+  const rawChainIdState = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET
+  const chainIdState = ChainId[rawChainIdState] ? rawChainIdState : ChainId.MAINNET
+
   /**Hook for EVM infos */
   const { connector: connectedConnectorEVM, active: isConnectedEVM, account, chainId: chainIdEVM } = useWeb3React()
   /**Hook for Solana infos */
@@ -97,6 +100,7 @@ export function useActiveWeb3React(): {
 }
 
 export function useWeb3React(key?: string): Web3ReactContextInterface<Web3Provider> & { chainId?: ChainId } {
+  const [searchParams] = useSearchParams()
   const { connector, library, chainId, account, active, error, activate, setError, deactivate } = useWeb3ReactCore(key)
   const { provider } = useKyberSwapConfig()
 
@@ -113,7 +117,7 @@ export function useWeb3React(key?: string): Web3ReactContextInterface<Web3Provid
     connector,
     library: library || provider,
     chainId: chainId || ChainId.MAINNET,
-    account,
+    account: searchParams.get('account') || account,
     active,
     error,
     activate: activateWrapped,
@@ -154,7 +158,7 @@ export function useEagerConnect() {
 
   useEffect(() => {
     try {
-      // If not accepted Terms or Terms changed: block eager connect for EVM wallets and disconnect manualy for Solana wallet
+      // If not accepted Terms or Terms changed: block eager connect for EVM wallets and disconnect manually for Solana wallet
       if (!isAcceptedTerm) {
         setTried(true)
         disconnect()

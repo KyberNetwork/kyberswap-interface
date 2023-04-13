@@ -55,7 +55,7 @@ const StyledPositionCard = styled(LightCard)`
 const TabContainer = styled.div`
   display: flex;
   border-radius: 999px;
-  background-color: ${({ theme }) => theme.tabBackgound};
+  background-color: ${({ theme }) => theme.tabBackground};
   padding: 2px;
 `
 
@@ -64,7 +64,7 @@ const Tab = styled(ButtonEmpty)<{ isActive?: boolean; isLeft?: boolean }>`
   justify-content: center;
   align-items: center;
   flex: 1;
-  background-color: ${({ theme, isActive }) => (isActive ? theme.tabActive : theme.tabBackgound)};
+  background-color: ${({ theme, isActive }) => (isActive ? theme.tabActive : theme.tabBackground)};
   padding: 4px;
   font-size: 12px;
   font-weight: 500;
@@ -212,9 +212,11 @@ function PositionListItem({
             }),
         ])
 
-        const rewardPending = currentReward?.map((item: BigNumber, index: number) => {
-          return item.sub(BigNumber.from(last24hReward?.[index] || '0'))
-        })
+        const rewardPending =
+          last24hReward.length &&
+          currentReward?.map((item: BigNumber, index: number) => {
+            return item.sub(BigNumber.from(last24hReward?.[index] || '0'))
+          })
 
         setReward24h(rewardPending)
       }

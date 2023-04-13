@@ -24,10 +24,10 @@ import { useCurrencyConvertedToNative } from 'utils/dmm'
 import ImportRow from './ImportRow'
 
 const StyledBalanceText = styled(Text)`
-  white-space: nowrap;
-  overflow: hidden;
-  max-width: 5rem;
-  text-overflow: ellipsis;
+  font-size: 16px;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+     font-size : 14px;
+  `}
 `
 
 const FavoriteButton = styled(Star)`

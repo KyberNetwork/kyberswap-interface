@@ -24,7 +24,7 @@ import { AppDispatch, AppState } from 'state'
 import { useETHPrice, useKyberSwapConfig } from 'state/application/hooks'
 import { RANGE } from 'state/mint/proamm/type'
 import { Field } from 'state/swap/actions'
-import { useSwapState } from 'state/swap/hooks'
+import { useInputCurrency, useOutputCurrency, useSwapState } from 'state/swap/hooks'
 import { modifyTransaction } from 'state/transactions/actions'
 import { TRANSACTION_TYPE, TransactionDetails, TransactionExtraInfo2Token } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
@@ -42,7 +42,7 @@ export enum MIXPANEL_TYPE {
   SWAP_TOKEN_INFO_CLICK,
   SWAP_MORE_INFO_CLICK,
   SWAP_DISPLAY_SETTING_CLICK,
-  DEGEN_MODE_ON,
+  DEGEN_MODE_TOGGLE,
   ADD_RECIPIENT_CLICKED,
   SLIPPAGE_CHANGED,
   LIVE_CHART_ON_OFF,
@@ -157,6 +157,8 @@ export enum MIXPANEL_TYPE {
   BRIDGE_TRANSACTION_SUBMIT,
   BRIDGE_CLICK_HISTORY_TRANSFER_TAB,
   BRIDGE_CLICK_SUBSCRIBE_BTN,
+  BRIDGE_CLICK_DISCLAIMER,
+  BRIDGE_CLICK_UNDERSTAND_IN_FIRST_TIME_VISIT,
 
   //Kyber DAO
   KYBER_DAO_STAKE_CLICK,
@@ -205,6 +207,11 @@ export enum MIXPANEL_TYPE {
   MENU_PREFERENCE_CLICK,
   MENU_CLAIM_REWARDS_CLICK,
   SUPPORT_CLICK,
+
+  // price alert
+  PA_CLICK_TAB_IN_NOTI_CENTER,
+  PA_CREATE_SUCCESS,
+  ACCEPT_NEW_AMOUNT,
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES: readonly TRANSACTION_TYPE[] = [
@@ -220,10 +227,15 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
   const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
   const { saveGas } = useSwapState()
   const network = networkInfo.name
-  const inputCurrency = currencies && currencies[Field.INPUT]
-  const outputCurrency = currencies && currencies[Field.OUTPUT]
-  const inputSymbol = inputCurrency && inputCurrency.isNative ? networkInfo.nativeToken.name : inputCurrency?.symbol
-  const outputSymbol = outputCurrency && outputCurrency.isNative ? networkInfo.nativeToken.name : outputCurrency?.symbol
+
+  const inputCurrencyFromHook = useInputCurrency()
+  const outputCurrencyFromHook = useOutputCurrency()
+  const inputCurrency = currencies ? currencies[Field.INPUT] : inputCurrencyFromHook
+  const outputCurrency = currencies ? currencies[Field.OUTPUT] : outputCurrencyFromHook
+
+  const inputSymbol = inputCurrency && inputCurrency.isNative ? networkInfo.nativeToken.symbol : inputCurrency?.symbol
+  const outputSymbol =
+    outputCurrency && outputCurrency.isNative ? networkInfo.nativeToken.symbol : outputCurrency?.symbol
   const ethPrice = useETHPrice()
   const dispatch = useDispatch<AppDispatch>()
   const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
@@ -265,10 +277,12 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           break
         }
         case MIXPANEL_TYPE.SWAP_CONFIRMED: {
-          const { gasUsd, inputAmount, priceImpact } = (payload || {}) as {
+          const { gasUsd, inputAmount, priceImpact, outputAmountDescription, currentPrice } = (payload || {}) as {
             gasUsd: string | undefined
             inputAmount: CurrencyAmount<Currency> | undefined
             priceImpact: number | undefined
+            outputAmountDescription: string | undefined
+            currentPrice: string | undefined
           }
 
           mixpanel.track('Swap Confirmed', {
@@ -279,6 +293,8 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
             trade_qty: inputAmount?.toExact(),
             slippage_setting: allowedSlippage ? allowedSlippage / 100 : 0,
             price_impact: priceImpact && priceImpact > 0.01 ? priceImpact.toFixed(2) : '<0.01',
+            initial_output_amt_type: outputAmountDescription,
+            current_price: currentPrice, // price in swap confirmation step
           })
 
           break
@@ -324,11 +340,11 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           mixpanel.track('Swap - Display settings on Swap settings', payload)
           break
         }
-        case MIXPANEL_TYPE.DEGEN_MODE_ON: {
-          mixpanel.track('Advanced Mode Switched On', {
-            // TODO: Event name will be updated after release degen mode.
+        case MIXPANEL_TYPE.DEGEN_MODE_TOGGLE: {
+          mixpanel.track('Degen Mode Toggle', {
             input_token: inputSymbol,
             output_token: outputSymbol,
+            type: payload.type,
           })
           break
         }
@@ -834,6 +850,20 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           mixpanel.track('Bridge - User click to Subscribe button')
           break
         }
+        case MIXPANEL_TYPE.BRIDGE_CLICK_DISCLAIMER: {
+          if (typeof payload !== 'boolean') {
+            throw new Error(`Wrong payload type for Mixpanel event: ${MIXPANEL_TYPE.BRIDGE_CLICK_DISCLAIMER}`)
+          }
+
+          mixpanel.track('Bridge - User click to Checkbox Disclaimer in Confirmation popup', {
+            checkbox: payload ? 'checked' : 'unchecked',
+          })
+          break
+        }
+        case MIXPANEL_TYPE.BRIDGE_CLICK_UNDERSTAND_IN_FIRST_TIME_VISIT: {
+          mixpanel.track('Bridge - User click to I understand button the first time visit Bridge page')
+          break
+        }
 
         case MIXPANEL_TYPE.NOTIFICATION_CLICK_MENU: {
           mixpanel.track('Notification Clicked')
@@ -1029,6 +1059,20 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
             token_2: string
           }
           mixpanel.track('Elastic - Add Liquidity page - Click Pool analytic', { token_1, token_2 })
+          break
+        }
+
+        case MIXPANEL_TYPE.PA_CLICK_TAB_IN_NOTI_CENTER: {
+          mixpanel.track('Price Alert Click')
+          break
+        }
+        case MIXPANEL_TYPE.PA_CREATE_SUCCESS: {
+          mixpanel.track('Create Alert', payload)
+          break
+        }
+
+        case MIXPANEL_TYPE.ACCEPT_NEW_AMOUNT: {
+          mixpanel.track('Accept New Amount Button Click', payload)
           break
         }
       }
@@ -1334,6 +1378,7 @@ export const useGlobalMixpanelEvents = () => {
         '/kyberdao/stake-knc': 'KyberDAO Stake',
         '/kyberdao/vote': 'KyberDAO Vote',
         limit: 'Limit Order',
+        'notification-center': 'Notification',
       }
       const pageName = map[pathName] || map[location.pathname]
       pageName && mixpanelHandler(MIXPANEL_TYPE.PAGE_VIEWED, { page: pageName })

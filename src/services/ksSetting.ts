@@ -36,6 +36,7 @@ export type KyberswapGlobalConfigurationResponse = {
   data: {
     config: {
       aggregator: string
+      isEnableAuthenAggregator: boolean
     }
   }
 }

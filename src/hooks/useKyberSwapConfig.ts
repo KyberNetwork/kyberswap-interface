@@ -57,6 +57,7 @@ const parseResponse = (
 type KyberswapGlobalConfig = {
   aggregatorDomain: string
   aggregatorAPI: string
+  isEnableAuthenAggregator: boolean
 }
 
 const parseGlobalResponse = (
@@ -65,9 +66,11 @@ const parseGlobalResponse = (
 ): KyberswapGlobalConfig => {
   const data = responseData?.data?.config
   const aggregatorDomain = data?.aggregator ?? AGGREGATOR_API
+  const isEnableAuthenAggregator = !!data?.isEnableAuthenAggregator
   return {
     aggregatorDomain,
     aggregatorAPI: `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}/route/encode`,
+    isEnableAuthenAggregator,
   }
 }
 export const useLazyKyberswapConfig = (): ((customChainId?: ChainId) => Promise<KyberSwapConfig>) => {
