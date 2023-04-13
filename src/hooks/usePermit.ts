@@ -161,7 +161,9 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
       message: message,
     })
     try {
-      const signature = await library.send('eth_signTypedData_v4', [account, data]).then(res => splitSignature(res))
+      const signature = await library
+        .send('eth_signTypedData_v4', [account.toLowerCase(), data])
+        .then((res: any) => splitSignature(res))
       const encodedPermitData = defaultAbiCoder.encode(
         ['address', 'address', 'uint256', 'uint256', 'uint8', 'bytes32', 'bytes32'],
         [message.owner, message.spender, message.value, message.deadline, signature.v, signature.r, signature.s],
