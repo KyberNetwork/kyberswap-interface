@@ -6,7 +6,7 @@ import { ArrowDown, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import { ButtonPrimary } from 'components/Button'
+import { ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import Modal from 'components/Modal'
 import Row, { AutoRow, RowBetween } from 'components/Row'
@@ -16,7 +16,7 @@ import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useTheme from 'hooks/useTheme'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { ApplicationModal } from 'state/application/actions'
-import { useModalOpen, useToggleModal } from 'state/application/hooks'
+import { useModalOpen, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
 
 import CurrencyInputForStake from './CurrencyInputForStake'
@@ -41,9 +41,11 @@ export default function MigrateModal({
 }) {
   const kyberDAOInfo = useKyberDAOInfo()
   const theme = useTheme()
-  const { chainId } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
   const modalOpen = useModalOpen(ApplicationModal.MIGRATE_KNC)
   const toggleModal = useToggleModal(ApplicationModal.MIGRATE_KNC)
+  const toggleWalletModal = useWalletModalToggle()
+
   const { migrate } = useKyberDaoStakeActions()
   const [value, setValue] = useState('1')
   const [error, setError] = useState('')
@@ -56,7 +58,7 @@ export default function MigrateModal({
             18,
             'KNCL',
           ),
-          parseUnits(value, 18).toString(),
+          parseUnits((+value).toFixed(18).toString(), 18).toString(),
         )
       : undefined,
     kyberDAOInfo?.KNCAddress,
@@ -157,14 +159,22 @@ export default function MigrateModal({
             disabled
           />
           <Row gap="12px">
-            {(approval === ApprovalState.NOT_APPROVED || approval === ApprovalState.PENDING) && !error && (
-              <ButtonPrimary onClick={approveCallback} disabled={approval === ApprovalState.PENDING}>
-                {approval === ApprovalState.PENDING ? 'Approving...' : 'Approve'}
-              </ButtonPrimary>
+            {account ? (
+              <>
+                {(approval === ApprovalState.NOT_APPROVED || approval === ApprovalState.PENDING) && !error && (
+                  <ButtonPrimary onClick={approveCallback} disabled={approval === ApprovalState.PENDING}>
+                    {approval === ApprovalState.PENDING ? 'Approving...' : 'Approve'}
+                  </ButtonPrimary>
+                )}
+                <ButtonPrimary disabled={approval !== ApprovalState.APPROVED || !!error} onClick={handleMigrate}>
+                  <Text fontSize={14}>{error || <Trans>Migrate</Trans>}</Text>
+                </ButtonPrimary>
+              </>
+            ) : (
+              <ButtonLight onClick={toggleWalletModal}>
+                <Trans>Connect Wallet</Trans>
+              </ButtonLight>
             )}
-            <ButtonPrimary disabled={approval !== ApprovalState.APPROVED || !!error} onClick={handleMigrate}>
-              <Text fontSize={14}>{error || <Trans>Migrate</Trans>}</Text>
-            </ButtonPrimary>
           </Row>
         </AutoColumn>
       </Wrapper>
