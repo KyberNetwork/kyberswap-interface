@@ -7,7 +7,7 @@ import JSBI from 'jsbi'
 import Numeral from 'numeral'
 
 import { GET_BLOCK, GET_BLOCKS } from 'apollo/queries'
-import { ENV_LEVEL } from 'constants/env'
+import { BLOCK_SERVICE_API, ENV_LEVEL } from 'constants/env'
 import { DEFAULT_GAS_LIMIT_MARGIN, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, NETWORKS_INFO_CONFIG, isEVM } from 'constants/networks'
 import { KNC, KNCL_ADDRESS } from 'constants/tokens'
@@ -15,6 +15,7 @@ import { ENV_TYPE } from 'constants/type'
 import { EVMWalletInfo, SUPPORTED_WALLET, SolanaWalletInfo, WalletInfo } from 'constants/wallets'
 import store from 'state'
 import { GroupedTxsByHash, TransactionDetails } from 'state/transactions/type'
+import { chunk } from 'utils/array'
 import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
 export const isWalletAddressSolana = async (addr: string) => {
@@ -317,36 +318,69 @@ export async function getBlockFromTimestamp(
  * @dev timestamps are returns as they were provided; not the block time.
  * @param {Array} timestamps
  */
-export async function getBlocksFromTimestamps(
+export async function getBlocksFromTimestampsSubgraph(
   blockClient: ApolloClient<NormalizedCacheObject>,
   timestamps: number[],
   chainId: ChainId,
-  skipCount = 500,
-): Promise<{ timestamp: string; number: number }[]> {
+): Promise<{ timestamp: number; number: number }[]> {
   if (!isEVM(chainId)) return []
   if (timestamps?.length === 0) {
     return []
   }
 
-  const fetchedData = await splitQuery<{ number: number }[], number, any>(
-    GET_BLOCKS,
-    blockClient,
-    timestamps,
-    [],
-    skipCount,
-  )
-  const blocks: { timestamp: string; number: number }[] = []
+  const fetchedData = await splitQuery<{ number: string }[], number, any>(GET_BLOCKS, blockClient, timestamps, [])
+  const blocks: { timestamp: number; number: number }[] = []
   if (fetchedData) {
     for (const t in fetchedData) {
       if (fetchedData[t].length > 0) {
         blocks.push({
-          timestamp: t.split('t')[1],
-          number: fetchedData[t][0]['number'],
+          timestamp: Number(t.split('t')[1]),
+          number: Number(fetchedData[t][0]['number']),
         })
       }
     }
   }
+
   return blocks
+}
+
+export async function getBlocksFromTimestampsBlockService(
+  timestamps: number[],
+  chainId: ChainId,
+): Promise<{ timestamp: number; number: number }[]> {
+  if (!isEVM(chainId)) return []
+  if (timestamps?.length === 0) {
+    return []
+  }
+  const allChunkResult = (
+    await Promise.all(
+      chunk(timestamps, 50).map(
+        async timestampsChunk =>
+          (
+            await fetch(
+              `${BLOCK_SERVICE_API}/${
+                NETWORKS_INFO[chainId].aggregatorRoute
+              }/api/v1/block?timestamps=${timestampsChunk.join(',')}`,
+            )
+          ).json() as Promise<{ data: { timestamp: number; number: number }[] }>,
+      ),
+    )
+  )
+    .map(chunk => chunk.data)
+    .flat()
+    .sort((a, b) => a.number - b.number)
+
+  return allChunkResult
+}
+
+export async function getBlocksFromTimestamps(
+  isEnableBlockService: boolean,
+  blockClient: ApolloClient<NormalizedCacheObject>,
+  timestamps: number[],
+  chainId: ChainId,
+): Promise<{ timestamp: number; number: number }[]> {
+  if (isEnableBlockService) return getBlocksFromTimestampsBlockService(timestamps, chainId)
+  return getBlocksFromTimestampsSubgraph(blockClient, timestamps, chainId)
 }
 
 /**

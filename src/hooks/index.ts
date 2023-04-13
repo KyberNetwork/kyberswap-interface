@@ -10,6 +10,7 @@ import { useSelector } from 'react-redux'
 import { useSearchParams } from 'react-router-dom'
 
 import { injected, walletconnect, walletlink } from 'connectors'
+import { MOCK_ACCOUNT_EVM, MOCK_ACCOUNT_SOLANA } from 'constants/env'
 import { NETWORKS_INFO } from 'constants/networks'
 import { NetworkInfo } from 'constants/networks/type'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS, WALLETLINK_LOCALSTORAGE_NAME } from 'constants/wallets'
@@ -73,12 +74,9 @@ export function useActiveWeb3React(): {
         : undefined,
     [isConnectedSolana, connectedWalletSolana?.adapter],
   )
-  const mockAccountEVM = ''
-  const mockAccountSolana = ''
-
   return {
     chainId: chainIdState,
-    account: isEVM ? mockAccountEVM || addressEVM : (isConnectedSolana && mockAccountSolana) || addressSolana,
+    account: isEVM ? MOCK_ACCOUNT_EVM || addressEVM : (isConnectedSolana && MOCK_ACCOUNT_SOLANA) || addressSolana,
     walletKey: isEVM ? walletKeyEVM : walletKeySolana,
     walletEVM: useMemo(() => {
       return {

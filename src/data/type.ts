@@ -1,5 +1,5 @@
 export type Block = {
-  timestamp: string
+  timestamp: number
   number: number
 }
 
