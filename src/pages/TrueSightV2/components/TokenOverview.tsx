@@ -1,7 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { ReactNode, useRef, useState } from 'react'
-import { useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -15,9 +14,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 
-import { TOKEN_DETAIL } from '../hooks/sampleData'
-import { useTokenDetailQuery } from '../hooks/useTruesightV2Data'
-import { testParams } from '../pages/SingleToken'
+import { ITokenOverview } from '../types'
 import KyberScoreMeter from './KyberScoreMeter'
 import PriceRange from './PriceRange'
 import KyberScoreChart from './chart/KyberScoreChart'
@@ -78,17 +75,14 @@ const ExternalLink = ({ href, className, children }: { href: string; className?:
   )
 }
 
-const formatMoneyWithSign = (amount: number): string => {
+const formatMoneyWithSign = (amount: number, decimal?: number): string => {
   const isNegative = amount < 0
-  return (isNegative ? '-' : '') + '$' + Math.abs(amount).toLocaleString()
+  return (isNegative ? '-' : '') + '$' + (+Math.abs(amount).toFixed(decimal || 0)).toLocaleString()
 }
 
-export const TokenOverview = () => {
+export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLoading?: boolean }) => {
   const theme = useTheme()
-  const { address } = useParams()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
-  const { data: apiData, isLoading } = useTokenDetailQuery(testParams.address)
-  const data = address ? apiData : TOKEN_DETAIL
   const [expanded, setExpanded] = useState(false)
   const ref1 = useRef<HTMLDivElement>(null)
   const ref2 = useRef<HTMLDivElement>(null)
@@ -240,13 +234,13 @@ export const TokenOverview = () => {
                 <Text color={theme.subText}>
                   <Trans>All Time Low</Trans>
                 </Text>
-                <Text color={theme.text}>{data?.atl && formatMoneyWithSign(data?.atl)}</Text>
+                <Text color={theme.text}>{data?.atl && formatMoneyWithSign(data?.atl, 4)}</Text>
               </RowBetween>
               <RowBetween>
                 <Text color={theme.subText}>
                   <Trans>All Time High</Trans>
                 </Text>
-                <Text color={theme.text}>{data?.ath && formatMoneyWithSign(data?.ath)}</Text>
+                <Text color={theme.text}>{data?.ath && formatMoneyWithSign(data?.ath, 4)}</Text>
               </RowBetween>
               <RowBetween>
                 <Text color={theme.subText}>

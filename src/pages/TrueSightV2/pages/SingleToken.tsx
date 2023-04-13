@@ -15,6 +15,7 @@ import Row, { RowBetween, RowFit } from 'components/Row'
 import ShareModal from 'components/ShareModal'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
@@ -23,7 +24,6 @@ import { MEDIA_WIDTHS } from 'theme'
 import DisplaySettings from '../components/DisplaySettings'
 import { TokenOverview } from '../components/TokenOverview'
 import TutorialModal from '../components/TutorialModal'
-import { TOKEN_DETAIL } from '../hooks/sampleData'
 import { useTokenDetailQuery } from '../hooks/useTruesightV2Data'
 import { DiscoverTokenTab, TokenListTab } from '../types'
 import OnChainAnalysis from './OnChainAnalysis'
@@ -175,7 +175,7 @@ const CheckIcon = styled(RowFit)`
 `
 
 export const testParams = {
-  address: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+  address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
   from: 1674610765,
   to: 1675215565,
 }
@@ -224,8 +224,9 @@ export default function SingleToken() {
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const { address } = useParams()
   const [currentTab, setCurrentTab] = useState<DiscoverTokenTab>(DiscoverTokenTab.OnChainAnalysis)
-  const { data: apiData, isLoading } = useTokenDetailQuery(testParams.address)
-  const data = address ? apiData : TOKEN_DETAIL
+  const { account } = useActiveWeb3React()
+  const { data: apiData, isLoading } = useTokenDetailQuery({ tokenAddress: testParams.address || address, account })
+  const data = apiData
 
   const shareUrl = useRef<string>()
   const toggleShareModal = useToggleModal(ApplicationModal.SHARE)
@@ -278,7 +279,7 @@ export default function SingleToken() {
         ) : (
           <>
             <Text fontSize={24} color={theme.text} fontWeight={500}>
-              {data?.name} ({data?.symbol})
+              {data?.name} ({data?.symbol.toUpperCase()})
             </Text>
           </>
         )}
@@ -401,7 +402,7 @@ export default function SingleToken() {
         })}
         <Tag active>View All</Tag>
       </TagWrapper>
-      <TokenOverview />
+      <TokenOverview data={data} isLoading={isLoading} />
 
       <Row>
         <Row gap={above768 ? '12px' : '8px'} justify="center">

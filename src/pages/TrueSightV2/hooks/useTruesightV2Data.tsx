@@ -19,10 +19,12 @@ const truesightV2Api = createApi({
       transformResponse: (res: any) => TOKEN_LIST,
     }),
     //4.
-    tokenDetail: builder.query<ITokenOverview, string>({
-      query: (tokenAddress?: string) => ({
-        url: '/overview/ethereum/0xdAC17F958D2ee523a2206206994597C13D831ec7?wallet=0x91df32F497b4E4Ff2B779636a6ae438fc4246661',
+    tokenDetail: builder.query<ITokenOverview, { tokenAddress?: string; account?: string }>({
+      query: ({ tokenAddress, account }: { tokenAddress?: string; account?: string }) => ({
+        url: `/overview/ethereum/${tokenAddress}`,
+        params: { wallet: account },
       }),
+      transformResponse: (res: any) => res.data,
     }),
     //5.
     numberOfTrades: builder.query<INumberOfTrades[], string>({
