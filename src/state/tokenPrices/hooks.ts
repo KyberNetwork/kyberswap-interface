@@ -78,6 +78,14 @@ export const useTokenPricesWithLoading = (
               address: '0x543c9d27ee4ef9b405d7b41f264fa777f445ae88',
               price: 13,
             },
+            {
+              address: '0x1bbeeedcf32dc2c1ebc2f138e3fc7f3decd44d6a',
+              price: 0.99,
+            },
+            {
+              address: '0x2Bf64aCf7eAd856209749D0D125e9Ade2D908E7f',
+              price: 1.01,
+            },
           ])
         }
 
@@ -113,6 +121,8 @@ export const useTokenPricesWithLoading = (
             '0xEAC23a03F26df44fe3bB67BDE1ECAeCbEE0DAaA9': 0.98765,
             '0x543C9D27Ee4ef9b405D7B41F264fa777F445ae88': 13,
             '0x543c9d27ee4ef9b405d7b41f264fa777f445ae88': 13,
+            '0x1bbeeedcf32dc2c1ebc2f138e3fc7f3decd44d6a': 0.99,
+            '0x2bf64acf7ead856209749d0d125e9ade2d908e7f': 1.01,
           }
         }
         return {}

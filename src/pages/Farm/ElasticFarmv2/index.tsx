@@ -23,6 +23,7 @@ import useTheme from 'hooks/useTheme'
 import { Dots } from 'pages/Pool/styleds'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { SORT_DIRECTION, SORT_FIELD, useFarmV2Action, useFilteredFarmsV2 } from 'state/farms/elasticv2/hooks'
+import { ElasticFarmV2 } from 'state/farms/elasticv2/types'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import useGetElasticPools from 'state/prommPools/useGetElasticPools'
 import { useIsTransactionPending } from 'state/transactions/hooks'
@@ -31,6 +32,7 @@ import { VIEW_MODE } from 'state/user/reducer'
 
 import FarmCard from './components/FarmCard'
 import { ListView } from './components/ListView'
+import StakeWithNFTsModal from './components/StakeWithNFTsModal'
 
 const Wrapper = styled.div`
   padding: 24px;
@@ -274,6 +276,8 @@ export default function ElasticFarmv2({ onShowStepGuide }: { onShowStepGuide: ()
     )
   }
 
+  const [selectedFarm, setSelectedFarm] = useState<null | ElasticFarmV2>(null)
+
   if (!filteredFarms?.length) return null
 
   const listMode = above1000 && viewMode === VIEW_MODE.LIST
@@ -312,12 +316,17 @@ export default function ElasticFarmv2({ onShowStepGuide }: { onShowStepGuide: ()
             <FarmCard
               key={farm.id}
               farm={farm}
+              onStake={() => setSelectedFarm(farm)}
               poolAPR={poolDatas?.[farm.poolAddress].apr || 0}
               isApproved={isApprovedForAll}
             />
           ),
         )}
       </FarmList>
+
+      {!!selectedFarm && (
+        <StakeWithNFTsModal farm={selectedFarm} isOpen={!!selectedFarm} onDismiss={() => setSelectedFarm(null)} />
+      )}
     </Wrapper>
   )
 }

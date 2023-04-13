@@ -89,7 +89,7 @@ export const FarmList = styled.div<{ gridMode: boolean }>`
     gridMode &&
     css`
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 24px;
       background: ${({ theme }) => theme.background};
 
@@ -104,6 +104,7 @@ export const FarmList = styled.div<{ gridMode: boolean }>`
 `
 
 export const FeeTag = styled.div`
+  width: fit-content;
   border-radius: 999px;
   background: ${({ theme }) => theme.darkBlue + '33'};
   color: ${({ theme }) => theme.darkBlue};

@@ -10,7 +10,6 @@ export interface ElasticFarmV2Range {
   tickLower: number
   tickCurrent: number
   weight: number
-  tvl?: number
   apr?: number
 }
 
@@ -24,6 +23,9 @@ export interface ElasticFarmV2 {
   poolAddress: string
   token0: Token
   token1: Token
+  tvl: number
+  tvlToken0: CurrencyAmount<Currency>
+  tvlToken1: CurrencyAmount<Currency>
   totalRewards: Array<CurrencyAmount<Currency>>
   ranges: Array<ElasticFarmV2Range>
 }
@@ -50,7 +52,11 @@ export interface SubgraphToken {
   symbol: string
 }
 
-interface SubgraphRange extends Omit<ElasticFarmV2Range, 'tvl' | 'apr'> {
+export interface SubgraphFarmV2 {
+  id: string
+  startTime: string
+  endTime: string
+  isSettled: boolean
   depositedPositions: Array<{
     id: string
     position: {
@@ -66,13 +72,7 @@ interface SubgraphRange extends Omit<ElasticFarmV2Range, 'tvl' | 'apr'> {
       token1: SubgraphToken
     }
   }>
-}
 
-export interface SubgraphFarmV2 {
-  id: string
-  startTime: string
-  endTime: string
-  isSettled: boolean
   pool: {
     id: string
     feeTier: string
@@ -88,5 +88,5 @@ export interface SubgraphFarmV2 {
     token: SubgraphToken
     amount: string
   }>
-  ranges: Array<SubgraphRange>
+  ranges: Array<Omit<ElasticFarmV2Range, 'apr'>>
 }

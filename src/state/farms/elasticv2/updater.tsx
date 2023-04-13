@@ -2,7 +2,7 @@ import { gql, useLazyQuery } from '@apollo/client'
 import { defaultAbiCoder } from '@ethersproject/abi'
 import { getCreate2Address } from '@ethersproject/address'
 import { keccak256 } from '@ethersproject/solidity'
-import { CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
@@ -32,6 +32,31 @@ const queryFarms = gql`
       startTime
       endTime
       isSettled
+      depositedPositions(first: 1000) {
+        id
+        position {
+          id
+          liquidity
+          tickLower {
+            tickIdx
+          }
+          tickUpper {
+            tickIdx
+          }
+          token0 {
+            id
+            symbol
+            name
+            decimals
+          }
+          token1 {
+            id
+            symbol
+            name
+            decimals
+          }
+        }
+      }
       pool {
         id
         feeTier
@@ -69,31 +94,6 @@ const queryFarms = gql`
         tickUpper
         tickLower
         weight
-        depositedPositions(first: 1000) {
-          id
-          position {
-            id
-            liquidity
-            tickLower {
-              tickIdx
-            }
-            tickUpper {
-              tickIdx
-            }
-            token0 {
-              id
-              symbol
-              name
-              decimals
-            }
-            token1 {
-              id
-              symbol
-              name
-              decimals
-            }
-          }
-        }
       }
     }
   }
@@ -188,6 +188,22 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
             farm.pool.reinvestL,
             Number(farm.pool.tick),
           )
+          let tvlToken0 = CurrencyAmount.fromRawAmount(token0, 0)
+          let tvlToken1 = CurrencyAmount.fromRawAmount(token1, 0)
+
+          farm.depositedPositions.forEach(pos => {
+            const position = new Position({
+              pool: p,
+              liquidity: pos.position.liquidity,
+              tickLower: Number(pos.position.tickLower.tickIdx),
+              tickUpper: Number(pos.position.tickUpper.tickIdx),
+            })
+            tvlToken0 = tvlToken0.add(position.amount0)
+            tvlToken1 = tvlToken1.add(position.amount1)
+          })
+          const tvl =
+            Number(tvlToken0.toExact() || '0') * (prices[farm.pool.token0.id] || 0) +
+            Number(tvlToken1.toExact() || '0') * (prices[farm.pool.token1.id] || 0)
 
           const totalRewards = farm.rewards.map(item => CurrencyAmount.fromRawAmount(getToken(item.token), item.amount))
           return {
@@ -201,50 +217,30 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
             token0,
             token1,
             totalRewards,
+            tvlToken0,
+            tvlToken1,
+            tvl,
             ranges: farm.ranges.map(r => {
-              let tvlToken0 = TokenAmount.fromRawAmount(token0.wrapped, 0)
-              let tvlToken1 = TokenAmount.fromRawAmount(token1.wrapped, 0)
-
-              r.depositedPositions.forEach(pos => {
-                const position = new Position({
-                  pool: p,
-                  liquidity: pos.position.liquidity,
-                  tickLower: Number(pos.position.tickLower.tickIdx),
-                  tickUpper: Number(pos.position.tickUpper.tickIdx),
-                })
-                tvlToken0 = tvlToken0.add(position.amount0)
-                tvlToken1 = tvlToken1.add(position.amount1)
-              })
-
-              const tvl =
-                Number(tvlToken0.toExact() || '0') * (prices[farm.pool.token0.id] || 0) +
-                Number(tvlToken1.toExact() || '0') * (prices[farm.pool.token1.id] || 0)
-
               const isFarmStarted = Number(farm.startTime) - Date.now() / 1000 < 0
               let apr = 0
 
+              // TODO(viet-nv): APR
               if (isFarmStarted && tvl) {
-                const totalRewardUSD =
-                  totalRewards.reduce(
-                    (total, rw) => total + +rw.toExact() * (prices[rw.currency.wrapped.address.toLowerCase()] || 0),
-                    0,
-                  ) * Number(r.weight)
-                const farmingTime = Date.now() / 1000 - Number(farm.startTime)
-                const totalTime = Number(farm.endTime) - Number(farm.startTime)
-                const rewarded = (totalRewardUSD * farmingTime) / totalTime
-                apr = (rewarded * 365 * 24 * 60 * 60 * 100) / farmingTime / tvl
+                apr = 0
               }
 
-              return { ...r, tickLower: +r.tickLower, tickUpper: +r.tickUpper, tickCurrent: +p.tickCurrent, tvl, apr }
+              return { ...r, tickLower: +r.tickLower, tickUpper: +r.tickUpper, tickCurrent: +p.tickCurrent, apr }
             }),
           }
         })
 
         dispatch(setFarms({ chainId, farms: formattedData }))
 
+        const farmAddress = (networkInfo as EVMNetworkInfo)?.elastic?.farmV2Contract
+
         // get user deposit info
-        if (account && farmv2QuoterContract && multicallContract) {
-          farmv2QuoterContract.getUserInfo(account).then(
+        if (account && farmv2QuoterContract && multicallContract && farmAddress) {
+          farmv2QuoterContract.getUserInfo(farmAddress, account).then(
             async (
               res: {
                 nftId: BigNumber

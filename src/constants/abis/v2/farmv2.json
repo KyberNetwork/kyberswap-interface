@@ -1,6 +1,9 @@
 [
   {
-    "inputs": [{ "internalType": "contract IERC721", "name": "_nft", "type": "address" }],
+    "inputs": [
+      { "internalType": "contract IERC721", "name": "_nft", "type": "address" },
+      { "internalType": "address", "name": "_helper", "type": "address" }
+    ],
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
@@ -32,7 +35,7 @@
           { "internalType": "uint32", "name": "weight", "type": "uint32" }
         ],
         "indexed": false,
-        "internalType": "struct IKyberSwapElasticLMV3.RangeInput[]",
+        "internalType": "struct IKSElasticLMV2.RangeInput[]",
         "name": "ranges",
         "type": "tuple[]"
       },
@@ -45,13 +48,13 @@
               { "internalType": "address", "name": "rewardToken", "type": "address" },
               { "internalType": "uint256", "name": "rewardAmount", "type": "uint256" }
             ],
-            "internalType": "struct IKyberSwapElasticLMV3.RewardInput[]",
+            "internalType": "struct IKSElasticLMV2.RewardInput[]",
             "name": "rewards",
             "type": "tuple[]"
           }
         ],
         "indexed": false,
-        "internalType": "struct IKyberSwapElasticLMV3.PhaseInput",
+        "internalType": "struct IKSElasticLMV2.PhaseInput",
         "name": "phase",
         "type": "tuple"
       },
@@ -73,13 +76,13 @@
               { "internalType": "address", "name": "rewardToken", "type": "address" },
               { "internalType": "uint256", "name": "rewardAmount", "type": "uint256" }
             ],
-            "internalType": "struct IKyberSwapElasticLMV3.RewardInput[]",
+            "internalType": "struct IKSElasticLMV2.RewardInput[]",
             "name": "rewards",
             "type": "tuple[]"
           }
         ],
         "indexed": false,
-        "internalType": "struct IKyberSwapElasticLMV3.PhaseInput",
+        "internalType": "struct IKSElasticLMV2.PhaseInput",
         "name": "phase",
         "type": "tuple"
       }
@@ -98,7 +101,7 @@
           { "internalType": "uint32", "name": "weight", "type": "uint32" }
         ],
         "indexed": false,
-        "internalType": "struct IKyberSwapElasticLMV3.RangeInput",
+        "internalType": "struct IKSElasticLMV2.RangeInput",
         "name": "range",
         "type": "tuple"
       }
@@ -172,6 +175,12 @@
   },
   {
     "anonymous": false,
+    "inputs": [{ "indexed": false, "internalType": "address", "name": "helper", "type": "address" }],
+    "name": "UpdateHelper",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
     "inputs": [
       { "indexed": true, "internalType": "uint256", "name": "fId", "type": "uint256" },
       { "indexed": false, "internalType": "uint256", "name": "nftId", "type": "uint256" },
@@ -190,7 +199,12 @@
     "name": "UpdateOperator",
     "type": "event"
   },
-  { "anonymous": false, "inputs": [], "name": "UpdateTokenCode", "type": "event" },
+  {
+    "anonymous": false,
+    "inputs": [{ "indexed": false, "internalType": "bytes", "name": "farmingTokenCode", "type": "bytes" }],
+    "name": "UpdateTokenCode",
+    "type": "event"
+  },
   {
     "anonymous": false,
     "inputs": [
@@ -228,7 +242,7 @@
           { "internalType": "int24", "name": "tickUpper", "type": "int24" },
           { "internalType": "uint32", "name": "weight", "type": "uint32" }
         ],
-        "internalType": "struct IKyberSwapElasticLMV3.RangeInput[]",
+        "internalType": "struct IKSElasticLMV2.RangeInput[]",
         "name": "ranges",
         "type": "tuple[]"
       },
@@ -241,12 +255,12 @@
               { "internalType": "address", "name": "rewardToken", "type": "address" },
               { "internalType": "uint256", "name": "rewardAmount", "type": "uint256" }
             ],
-            "internalType": "struct IKyberSwapElasticLMV3.RewardInput[]",
+            "internalType": "struct IKSElasticLMV2.RewardInput[]",
             "name": "rewards",
             "type": "tuple[]"
           }
         ],
-        "internalType": "struct IKyberSwapElasticLMV3.PhaseInput",
+        "internalType": "struct IKSElasticLMV2.PhaseInput",
         "name": "phase",
         "type": "tuple"
       },
@@ -280,12 +294,12 @@
               { "internalType": "address", "name": "rewardToken", "type": "address" },
               { "internalType": "uint256", "name": "rewardAmount", "type": "uint256" }
             ],
-            "internalType": "struct IKyberSwapElasticLMV3.RewardInput[]",
+            "internalType": "struct IKSElasticLMV2.RewardInput[]",
             "name": "rewards",
             "type": "tuple[]"
           }
         ],
-        "internalType": "struct IKyberSwapElasticLMV3.PhaseInput",
+        "internalType": "struct IKSElasticLMV2.PhaseInput",
         "name": "phaseInput",
         "type": "tuple"
       }
@@ -304,7 +318,7 @@
           { "internalType": "int24", "name": "tickUpper", "type": "int24" },
           { "internalType": "uint32", "name": "weight", "type": "uint32" }
         ],
-        "internalType": "struct IKyberSwapElasticLMV3.RangeInput",
+        "internalType": "struct IKSElasticLMV2.RangeInput",
         "name": "range",
         "type": "tuple"
       }
@@ -312,17 +326,6 @@
     "name": "addRange",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "address", "name": "pAddress", "type": "address" },
-      { "internalType": "address", "name": "nftContract", "type": "address" },
-      { "internalType": "uint256", "name": "nftId", "type": "uint256" }
-    ],
-    "name": "checkPool",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -352,17 +355,6 @@
     "name": "emergencyEnabled",
     "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "uint256", "name": "fId", "type": "uint256" },
-      { "internalType": "uint32", "name": "duration", "type": "uint32" },
-      { "internalType": "uint256[]", "name": "rewardAmounts", "type": "uint256[]" }
-    ],
-    "name": "expandEndTimeAndRewards",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -405,7 +397,7 @@
           { "internalType": "uint32", "name": "weight", "type": "uint32" },
           { "internalType": "bool", "name": "isRemoved", "type": "bool" }
         ],
-        "internalType": "struct IKyberSwapElasticLMV3.RangeInfo[]",
+        "internalType": "struct IKSElasticLMV2.RangeInfo[]",
         "name": "ranges",
         "type": "tuple[]"
       },
@@ -419,17 +411,17 @@
               { "internalType": "address", "name": "rewardToken", "type": "address" },
               { "internalType": "uint256", "name": "rewardAmount", "type": "uint256" }
             ],
-            "internalType": "struct IKyberSwapElasticLMV3.RewardInput[]",
+            "internalType": "struct IKSElasticLMV2.RewardInput[]",
             "name": "rewards",
             "type": "tuple[]"
           }
         ],
-        "internalType": "struct IKyberSwapElasticLMV3.PhaseInfo",
+        "internalType": "struct IKSElasticLMV2.PhaseInfo",
         "name": "phase",
         "type": "tuple"
       },
       { "internalType": "uint256", "name": "liquidity", "type": "uint256" },
-      { "internalType": "contract IKyberSwapFarmingToken", "name": "", "type": "address" },
+      { "internalType": "address", "name": "farmingToken", "type": "address" },
       { "internalType": "uint256[]", "name": "sumRewardPerLiquidity", "type": "uint256[]" },
       { "internalType": "uint32", "name": "lastTouchedTime", "type": "uint32" }
     ],
@@ -484,8 +476,22 @@
     "type": "function"
   },
   {
+    "inputs": [{ "internalType": "address", "name": "_admin", "type": "address" }],
+    "name": "transferAdmin",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [{ "internalType": "bool", "name": "enableOrDisable", "type": "bool" }],
     "name": "updateEmergency",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "_helper", "type": "address" }],
+    "name": "updateHelper",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -518,11 +524,18 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "uint256", "name": "fId", "type": "uint256" },
-      { "internalType": "uint256[]", "name": "nftIds", "type": "uint256[]" }
-    ],
+    "inputs": [{ "internalType": "uint256[]", "name": "nftIds", "type": "uint256[]" }],
     "name": "withdrawEmergency",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address[]", "name": "tokens", "type": "address[]" },
+      { "internalType": "uint256[]", "name": "amounts", "type": "uint256[]" }
+    ],
+    "name": "withdrawUnusedRewards",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

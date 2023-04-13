@@ -1,50 +1,50 @@
-import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import dayjs from 'dayjs'
 import { rgba } from 'polished'
-import React, { useCallback, useRef, useState } from 'react'
-import { Info, Plus, Share2 } from 'react-feather'
+import { useCallback, useState } from 'react'
+import { Plus, Share2 } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import bgimg from 'assets/images/card-background-2.png'
 import { ReactComponent as DownSvg } from 'assets/svg/down.svg'
-import { ButtonLight, ButtonOutlined, TextButtonPrimary } from 'components/Button'
+import { ButtonLight } from 'components/Button'
+import { OutlineCard } from 'components/Card'
 import Column from 'components/Column'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
-import AspectRatio from 'components/Icons/AspectRatio'
+import HorizontalScroll from 'components/HorizontalScroll'
 import Harvest from 'components/Icons/Harvest'
-import InfoHelper from 'components/InfoHelper'
-import Row, { RowBetween, RowFit } from 'components/Row'
+import { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { useSharePoolContext } from 'components/YieldPools/SharePoolContext'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useFarmV2Action, useUserFarmV2Info } from 'state/farms/elasticv2/hooks'
-import { ElasticFarmV2, ElasticFarmV2Range } from 'state/farms/elasticv2/types'
+import { ElasticFarmV2 } from 'state/farms/elasticv2/types'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import { formatDollarAmount } from 'utils/numbers'
 
-import PriceVisualize from './PriceVisualize'
-import StakeWithNFTsModal from './StakeWithNFTsModal'
+import { convertTickToPrice } from '../utils'
 import UnstakeWithNFTsModal from './UnstakeWithNFTsModal'
 
 const WrapperInner = styled.div<{ hasRewards: boolean }>`
-  transition: transform 0.3s ease;
-  transform-style: preserve-3d;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-  position: relative;
   background-color: ${({ theme }) => theme.buttonBlack};
+
   border-radius: 24px;
   font-weight: 500;
-  height: 100%;
-  &.rotate {
-    transform: rotateY(180deg);
-  }
 
   ${({ hasRewards }) =>
     hasRewards &&
@@ -57,73 +57,24 @@ const WrapperInner = styled.div<{ hasRewards: boolean }>`
       background-repeat: no-repeat;
     `}
 `
-const Wrapper = styled.div`
-  height: 430px;
-  perspective: 1200px;
-`
 
-const FrontFace = styled.div`
-  padding: 16px;
-  backface-visibility: hidden;
-
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-`
-const BackFace = styled(FrontFace)`
-  z-index: 1;
-  transform: rotateY(180deg);
-`
-// const MenuItem = styled(RowFit)`
-//   font-size: 12px;
-//   line-height: 16px;
-//   color: var(--subtext);
-//   gap: 4px;
-//   cursor: pointer;
-//   :hover {
-//     color: var(--primary);
-//   }
-// `
-
-const Ranges = styled(Column)`
-  overflow: hidden;
-  z-index: 2;
-  gap: 16px;
-  overflow: hidden;
-  transition: all 0.2s linear;
-  flex: 1;
-`
-
-const RangeItemWrapper = styled(Column)<{ active?: boolean }>`
-  gap: 16px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  padding: 12px;
-  background-color: var(--button-black);
+const RangeItemBtn = styled.button<{ active: boolean }>`
   cursor: pointer;
-  transition: all 0.2s ease;
-
-  :hover {
-    background-color: var(--button-black-90);
-  }
-
-  ${({ active }) =>
-    active &&
-    css`
-      background-color: rgba(49, 203, 158, 0.15);
-      border-color: var(--primary);
-      :hover {
-        background-color: rgba(49, 203, 158, 0.3);
-      }
-    `}
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: ${({ theme, active }) => (active ? rgba(theme.primary, 0.3) : 'transparent')};
+  border: ${({ theme, active }) => `1px solid ${active ? theme.primary : theme.subText}`};
+  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
+  font-weight: 500;
 `
 
-const UnstakeButton = styled(ButtonOutlined)`
-  padding: 12px 6px;
+const UnstakeButton = styled(ButtonLight)`
+  padding: 10px 12px;
+  width: fit-content;
   :hover {
     opacity: 0.9;
   }
@@ -140,193 +91,32 @@ const IconButton = styled.div`
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: var(--subtext);
+  color: ${({ theme }) => theme.subText};
   :hover {
-    color: var(--subtext-120);
+    opacity: 0.8;
   }
 `
 
-const FeeBadge = styled.div`
-  font-size: 12px;
-  line-height: 16px;
-  color: var(--blue);
-  background-color: rgba(8, 161, 231, 0.2);
-  border-radius: 16px;
-  padding: 2px 4px;
-`
-
-export const RangeItem = ({
-  active,
-  onRangeClick,
-  rangeInfo,
-  token0,
-  token1,
-  farmId,
-  addLiquidityLink,
+function FarmCard({
+  onStake,
+  farm,
+  poolAPR,
+  isApproved,
 }: {
-  active: boolean
-  onRangeClick: () => void
-  rangeInfo: ElasticFarmV2Range
-  token0: Token
-  token1: Token
-  farmId: number
-  addLiquidityLink?: string
-}) => {
-  const theme = useTheme()
-  const stakedPos = useUserFarmV2Info(farmId, rangeInfo.index)
-  const myDepositUSD = stakedPos.reduce((total, item) => item.stakedUsdValue + total, 0)
-
-  const canUpdateLiquidity = stakedPos.some(item => item.liquidity.gt(item.stakedLiquidity)) && !rangeInfo.isRemoved
-  const myTotalPosUSDValue = stakedPos.reduce((total, item) => item.positionUsdValue + total, 0)
-  const notStakedUSD = myTotalPosUSDValue - myDepositUSD
-
-  let amountToken0 = CurrencyAmount.fromRawAmount(token0, 0)
-  let amountToken1 = CurrencyAmount.fromRawAmount(token1, 0)
-
-  stakedPos.forEach(item => {
-    amountToken0 = amountToken0.add(item.position.amount0)
-    amountToken1 = amountToken1.add(item.position.amount1)
-  })
-
-  return (
-    <RangeItemWrapper active={active} onClick={onRangeClick}>
-      <RowBetween>
-        <Column gap="4px">
-          <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-            <Trans>Avg APR</Trans>
-          </Text>
-          <Text fontSize="28px" fontWeight="500" color={theme.apr}>
-            {rangeInfo.apr ? rangeInfo.apr.toFixed(2) + '%' : '--'}
-          </Text>
-        </Column>
-        <Column gap="4px">
-          {addLiquidityLink && (
-            <Text
-              fontSize="12px"
-              lineHeight="16px"
-              color={rangeInfo.isRemoved ? theme.warning : theme.primary}
-              alignSelf="flex-end"
-              sx={{
-                borderBottom: rangeInfo.isRemoved ? undefined : `1px dotted ${theme.primary}`,
-              }}
-            >
-              {rangeInfo.isRemoved ? (
-                <Trans>Inactive Range</Trans>
-              ) : (
-                <MouseoverTooltip
-                  text={t`Add liquidity to ${token0.symbol} - ${token1.symbol} pool using the current active range`}
-                  placement="top"
-                >
-                  <Link to={addLiquidityLink}>
-                    <Trans>Active Range ↗</Trans>
-                  </Link>
-                </MouseoverTooltip>
-              )}
-            </Text>
-          )}
-          <PriceVisualize
-            inactive={rangeInfo.isRemoved}
-            tickRangeLower={rangeInfo.tickLower}
-            tickRangeUpper={rangeInfo.tickUpper}
-            tickCurrent={rangeInfo.tickCurrent}
-            token0={token0}
-            token1={token1}
-          />
-        </Column>
-      </RowBetween>
-      <RowBetween>
-        <Column gap="4px">
-          <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-            <Trans>Staked TVL</Trans>
-          </Text>
-          <Text fontSize="16px" fontWeight="500" lineHeight="16px" color={theme.text}>
-            {rangeInfo.tvl ? formatDollarAmount(rangeInfo.tvl) : '--'}
-          </Text>
-        </Column>
-        <Column gap="4px" style={{ alignItems: 'flex-end' }}>
-          <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-            <Trans>My Deposit</Trans>
-          </Text>
-
-          <MouseoverTooltip
-            placement="bottom"
-            width={canUpdateLiquidity ? '270px' : 'fit-content'}
-            text={
-              !stakedPos.length ? (
-                ''
-              ) : canUpdateLiquidity ? (
-                <Flex
-                  sx={{
-                    flexDirection: 'column',
-                    gap: '6px',
-                    fontSize: '12px',
-                    lineHeight: '16px',
-                    fontWeight: 400,
-                  }}
-                >
-                  <Text as="span" color={theme.subText}>
-                    <Trans>
-                      You still have {formatDollarAmount(notStakedUSD)} in liquidity to stake to earn even more farming
-                      rewards
-                    </Trans>
-                  </Text>
-                  <Text as="span" color={theme.text}>
-                    Staked: {formatDollarAmount(myDepositUSD)}
-                  </Text>
-                  <Text as="span" color={theme.warning}>
-                    Not staked: {formatDollarAmount(notStakedUSD)}
-                  </Text>
-                </Flex>
-              ) : (
-                <>
-                  <Flex alignItems="center" sx={{ gap: '4px' }}>
-                    <CurrencyLogo currency={amountToken0.currency} size="16px" />
-                    {amountToken0.toSignificant(6)} {amountToken0.currency.symbol}
-                  </Flex>
-
-                  <Flex alignItems="center" sx={{ gap: '4px' }}>
-                    <CurrencyLogo currency={amountToken1.currency} size="16px" />
-                    {amountToken1.toSignificant(6)} {amountToken1.currency.symbol}
-                  </Flex>
-                </>
-              )
-            }
-          >
-            <Text
-              fontSize="16px"
-              fontWeight="500"
-              alignItems="center"
-              display="flex"
-              color={canUpdateLiquidity ? theme.warning : theme.text}
-            >
-              {formatDollarAmount(myTotalPosUSDValue)}
-              {canUpdateLiquidity && <Info size={14} style={{ marginLeft: '4px' }} />}
-              {!!stakedPos.length && <DownSvg />}
-            </Text>
-          </MouseoverTooltip>
-        </Column>
-      </RowBetween>
-    </RangeItemWrapper>
-  )
-}
-
-function FarmCard({ farm, poolAPR, isApproved }: { farm: ElasticFarmV2; poolAPR: number; isApproved: boolean }) {
+  onStake: () => void
+  farm: ElasticFarmV2
+  poolAPR: number
+  isApproved: boolean
+}) {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
-  const [showStake, setShowStake] = useState(false)
   const [showUnstake, setShowUnstake] = useState(false)
   const [activeRangeIndex, setActiveRangeIndex] = useState(0)
 
   const setSharePoolAddress = useSharePoolContext()
 
-  const wrapperInnerRef = useRef<HTMLDivElement>(null)
-
-  const handleFlip = useCallback(() => {
-    wrapperInnerRef.current?.classList.toggle('rotate')
-  }, [])
-
   const currentTimestamp = Math.floor(Date.now() / 1000)
-  const stakedPos = useUserFarmV2Info(farm.fId, farm.ranges[activeRangeIndex].index)
+  const stakedPos = useUserFarmV2Info(farm.fId)
   let amountToken0 = CurrencyAmount.fromRawAmount(farm.token0, 0)
   let amountToken1 = CurrencyAmount.fromRawAmount(farm.token1, 0)
 
@@ -347,15 +137,25 @@ function FarmCard({ farm, poolAPR, isApproved }: { farm: ElasticFarmV2; poolAPR:
 
   const myDepositUSD = stakedPos.reduce((total, item) => item.stakedUsdValue + total, 0)
 
+  const isEnded = currentTimestamp > farm.endTime
+
   const canUpdateLiquidity =
-    stakedPos.some(item => item.liquidity.gt(item.stakedLiquidity)) && !farm.ranges[activeRangeIndex].isRemoved
+    !isEnded &&
+    !farm.isSettled &&
+    stakedPos.some(item => {
+      const range = farm.ranges.find(r => r.index === item.rangeId)
+      if (range?.isRemoved) return false
+      return item.liquidity.gt(item.stakedLiquidity)
+    })
+
   const myTotalPosUSDValue = stakedPos.reduce((total, item) => item.positionUsdValue + total, 0)
   const notStakedUSD = myTotalPosUSDValue - myDepositUSD
 
   const { harvest } = useFarmV2Action()
+
   const handleHarvest = useCallback(() => {
-    harvest(farm?.fId, stakedPos?.filter(sp => sp.rangeId === activeRangeIndex).map(sp => sp.nftId.toNumber()) || [])
-  }, [farm, harvest, stakedPos, activeRangeIndex])
+    harvest(farm.fId, stakedPos.map(sp => sp.nftId.toNumber()) || [])
+  }, [farm, harvest, stakedPos])
 
   const { pool } = farm
 
@@ -363,30 +163,22 @@ function FarmCard({ farm, poolAPR, isApproved }: { farm: ElasticFarmV2; poolAPR:
     pool.token0.isNative ? pool.token0.symbol : pool.token0.address
   }/${pool.token1.isNative ? pool.token1.symbol : pool.token1.address}/${pool.fee}`
 
-  const rangesCount = farm.ranges.length
-
-  const isEnded = farm.isSettled || currentTimestamp > farm.endTime
-
   return (
-    <Wrapper>
-      <WrapperInner ref={wrapperInnerRef} hasRewards={canUnstake}>
-        <FrontFace>
-          <RowBetween>
-            <RowFit>
-              <DoubleCurrencyLogo size={20} currency0={farm.token0} currency1={farm.token1} />
+    <>
+      <WrapperInner hasRewards={canUnstake}>
+        <RowBetween>
+          <Flex sx={{ gap: '4px' }} flexDirection="column">
+            <RowFit gap="4px" align="center">
               <Link
                 to={addliquidityElasticPool}
                 style={{
                   textDecoration: 'none',
                 }}
               >
-                <Text fontSize="16px" lineHeight="20px" color={theme.primary} marginRight="4px">
+                <Text fontSize="16px" lineHeight="20px" color={theme.primary}>
                   {`${farm.token0.symbol} - ${farm.token1.symbol}`}
                 </Text>
               </Link>
-              <FeeBadge>FEE {farm?.pool?.fee ? (farm?.pool?.fee * 100) / ELASTIC_BASE_FEE_UNIT : 0.03}%</FeeBadge>
-            </RowFit>
-            <RowFit gap="8px">
               <IconButton>
                 <CopyHelper toCopy={farm?.poolAddress || ''} />
               </IconButton>
@@ -398,274 +190,306 @@ function FarmCard({ farm, poolAPR, isApproved }: { farm: ElasticFarmV2; poolAPR:
                 <Share2 size={14} fill="currentcolor" />
               </IconButton>
             </RowFit>
-          </RowBetween>
+
+            <FeeTag style={{ marginLeft: 0 }}>
+              FEE {farm?.pool?.fee ? (farm?.pool?.fee * 100) / ELASTIC_BASE_FEE_UNIT : 0.03}%
+            </FeeTag>
+          </Flex>
+
+          <DoubleCurrencyLogo size={44} currency0={farm.token0} currency1={farm.token1} />
+        </RowBetween>
+
+        <Divider />
+
+        <div>
           <RowBetween>
-            <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-              {!isEnded && <Trans>Current phase will end in</Trans>}
+            <Text fontSize="12px" color={theme.subText}>
+              <Trans>Staked TVL</Trans>
             </Text>
-            <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-              {isEnded ? <Trans>ENDED</Trans> : getFormattedTimeFromSecond(farm.endTime - currentTimestamp)}
+
+            <Text fontSize="12px" color={theme.subText}>
+              {!isEnded && !farm.isSettled ? (
+                farm.startTime > currentTimestamp ? (
+                  <Text fontSize="12px" color={theme.warning}>
+                    <Trans>New phase will start in</Trans>
+                  </Text>
+                ) : (
+                  <Trans>Current phase will end in</Trans>
+                )
+              ) : !farm.isSettled ? (
+                <Trans>Ended at</Trans>
+              ) : null}
             </Text>
           </RowBetween>
+
           <RowBetween>
-            <Column style={{ width: 'fit-content' }} gap="4px">
-              <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-                {hasRewards ? <Trans>My Rewards</Trans> : <Trans>Rewards</Trans>}
-              </Text>
-              <RowFit gap="8px">
-                {farm.totalRewards.map((rw, index: number) => (
+            <MouseoverTooltip
+              placement="bottom"
+              width="fit-content"
+              text={
+                farm.tvl ? (
                   <>
-                    {index > 0 && (
-                      <Text fontSize="12px" lineHeight="16px" color={theme.border}>
-                        |
+                    <Flex alignItems="center" sx={{ gap: '4px' }}>
+                      <CurrencyLogo currency={farm.token0} size="16px" />
+                      {farm.tvlToken0.toSignificant(6)} {farm.token0.symbol}
+                    </Flex>
+
+                    <Flex alignItems="center" sx={{ gap: '4px' }} marginTop="4px">
+                      <CurrencyLogo currency={farm.token1} size="16px" />
+                      {farm.tvlToken1.toSignificant(6)} {farm.token1.symbol}
+                    </Flex>
+                  </>
+                ) : (
+                  ''
+                )
+              }
+            >
+              <Text fontSize="16px" fontWeight="500" color={theme.text}>
+                {farm.tvl ? formatDollarAmount(farm.tvl) : '--'}
+              </Text>
+
+              {!!farm.tvl && <DownSvg />}
+            </MouseoverTooltip>
+
+            <Text fontSize="14px" fontWeight="500" color={theme.text}>
+              {isEnded || farm.isSettled ? (
+                isEnded ? (
+                  dayjs(farm.endTime * 1000).format('DD/MM/YYYY HH:mm')
+                ) : (
+                  <Trans>ENDED</Trans>
+                )
+              ) : farm.startTime > currentTimestamp ? (
+                <Text color={theme.warning}>{getFormattedTimeFromSecond(farm.startTime - currentTimestamp)}</Text>
+              ) : (
+                getFormattedTimeFromSecond(farm.endTime - currentTimestamp)
+              )}
+            </Text>
+          </RowBetween>
+        </div>
+
+        <div>
+          <HorizontalScroll
+            noShadow
+            backgroundColor={theme.buttonBlack}
+            items={farm.ranges.map(item => item.index.toString())}
+            renderItem={index => {
+              const range = farm.ranges.find(r => r.index === +index)
+              if (!range) return null
+              return (
+                <RangeItemBtn
+                  active={+index === activeRangeIndex}
+                  key={index}
+                  onClick={() => setActiveRangeIndex(+index)}
+                >
+                  {convertTickToPrice(farm.token0, farm.token1, range.tickLower)}
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" display="block">
+                    <path
+                      d="M11.3405 8.66669L11.3405 9.86002C11.3405 10.16 11.7005 10.3067 11.9071 10.0934L13.7605 8.23335C13.8871 8.10002 13.8871 7.89335 13.7605 7.76002L11.9071 5.90669C11.7005 5.69335 11.3405 5.84002 11.3405 6.14002L11.3405 7.33335L4.66047 7.33335L4.66047 6.14002C4.66047 5.84002 4.30047 5.69335 4.0938 5.90669L2.24047 7.76669C2.1138 7.90002 2.1138 8.10669 2.24047 8.24002L4.0938 10.1C4.30047 10.3134 4.66047 10.16 4.66047 9.86669L4.66047 8.66669L11.3405 8.66669Z"
+                      fill="currentcolor"
+                    />
+                  </svg>
+
+                  {convertTickToPrice(farm.token0, farm.token1, range.tickUpper)}
+                </RangeItemBtn>
+              )
+            }}
+          />
+        </div>
+
+        <OutlineCard padding="12px" borderRadius="12px" style={{ backgroundColor: rgba(theme.buttonBlack, 0.5) }}>
+          <RowBetween>
+            <MouseoverTooltip text={t`Active Range: Current active farming range`} placement="top">
+              <Text fontSize="12px" color={theme.subText} style={{ borderBottom: `1px dotted ${theme.subText}` }}>
+                <Trans>Avg APR</Trans>
+              </Text>
+            </MouseoverTooltip>
+
+            <MouseoverTooltip
+              text={
+                farm.ranges[activeRangeIndex].isRemoved ? (
+                  <Trans>
+                    This indicates that range is idle. Staked positions in this range is still earning small amount of
+                    rewards.
+                  </Trans>
+                ) : (
+                  ''
+                )
+              }
+            >
+              <Text
+                fontSize="12px"
+                color={farm.ranges[activeRangeIndex].isRemoved ? theme.warning : theme.primary}
+                alignSelf="flex-end"
+                sx={{
+                  borderBottom: farm.ranges[activeRangeIndex].isRemoved ? `1px dotted ${theme.warning}` : undefined,
+                }}
+              >
+                {farm.ranges[activeRangeIndex].isRemoved ? (
+                  <Trans>Idle Range</Trans>
+                ) : (
+                  <Link to={`${addliquidityElasticPool}?farmRange=${activeRangeIndex}`}>
+                    <Trans>Add Liquidity ↗</Trans>
+                  </Link>
+                )}
+              </Text>
+            </MouseoverTooltip>
+          </RowBetween>
+
+          <Text fontSize="28px" marginTop="2px" color={theme.apr}>
+            {(poolAPR + (farm.ranges[activeRangeIndex].apr || 0)).toFixed(2)}%
+          </Text>
+        </OutlineCard>
+
+        <RowBetween>
+          <Column style={{ width: 'fit-content' }} gap="4px">
+            <Text fontSize="12px" color={theme.subText}>
+              {hasRewards ? <Trans>My Rewards</Trans> : <Trans>Rewards</Trans>}
+            </Text>
+            <RowFit gap="8px">
+              {farm.totalRewards.map((rw, index: number) => (
+                <>
+                  {index > 0 && (
+                    <Text fontSize="16px" color={theme.border}>
+                      |
+                    </Text>
+                  )}
+                  <RowFit gap="4px">
+                    <MouseoverTooltip text={rw.currency.symbol} placement="top" width="fit-content">
+                      <CurrencyLogo currency={rw.currency} size="16px" />
+                    </MouseoverTooltip>
+                    {hasRewards && (
+                      <Text fontSize="16px" color={theme.text}>
+                        {userTotalRewards[index].toSignificant(4)}
                       </Text>
                     )}
-                    <RowFit gap="4px">
-                      <MouseoverTooltip text={rw.currency.symbol} placement="top" width="fit-content">
-                        <CurrencyLogo currency={rw.currency} size="16px" />
-                      </MouseoverTooltip>
-                      {hasRewards && (
-                        <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                          {userTotalRewards[index].toSignificant(4)}
-                        </Text>
-                      )}
-                    </RowFit>
-                  </>
-                ))}
-              </RowFit>
-            </Column>
-            <ButtonLight width="fit-content" disabled={!hasRewards} onClick={handleHarvest}>
-              <RowFit gap="4px">
-                <Harvest />
-                <Text>Harvest</Text>
-              </RowFit>
-            </ButtonLight>
-          </RowBetween>
-          <Divider />
-          <Column
-            gap="16px"
-            style={{
-              borderRadius: '12px',
-              border: `1px solid ${theme.border}`,
-              padding: '12px',
-              backgroundColor: theme.buttonBlack,
-            }}
+                  </RowFit>
+                </>
+              ))}
+            </RowFit>
+          </Column>
+          <ButtonLight
+            width="fit-content"
+            disabled={!hasRewards}
+            onClick={handleHarvest}
+            color={theme.apr}
+            padding="10px 12px"
           >
-            <RowBetween align="flex-start">
-              <Column gap="4px" style={{ alignItems: 'flex-start' }}>
-                <MouseoverTooltip text={t`Active Range: Current active farming range`} placement="top">
-                  <Text
-                    fontSize="12px"
-                    lineHeight="16px"
-                    color={theme.subText}
-                    style={{ borderBottom: '1px dotted var(--subtext)' }}
-                  >
-                    <Trans>Avg APR</Trans>
-                  </Text>
-                </MouseoverTooltip>
-                <Text fontSize="28px" lineHeight="32px" color={theme.apr}>
-                  {(poolAPR + (farm.ranges[activeRangeIndex].apr || 0)).toFixed(2)}%
-                </Text>
-              </Column>
-              <Column gap="4px" style={{ alignItems: 'flex-end' }}>
-                <MouseoverTooltip
-                  text={t`Add liquidity to ${farm.token0.symbol} - ${farm.token1.symbol} pool using the current active range`}
-                  placement="top"
-                >
-                  <Text
-                    fontSize="12px"
-                    lineHeight="16px"
-                    color={farm.ranges[activeRangeIndex].isRemoved ? theme.warning : theme.primary}
-                    alignSelf="flex-end"
-                    sx={{
-                      borderBottom: farm.ranges[activeRangeIndex].isRemoved ? undefined : `1px dotted ${theme.primary}`,
-                    }}
-                  >
-                    {farm.ranges[activeRangeIndex].isRemoved ? (
-                      <Trans>Inactive Range</Trans>
-                    ) : (
-                      <Link to={`${addliquidityElasticPool}?farmRange=${activeRangeIndex}`}>
-                        <Trans>Active Range ↗</Trans>
-                      </Link>
-                    )}
-                  </Text>
-                </MouseoverTooltip>
-                <PriceVisualize
-                  inactive={farm.ranges[activeRangeIndex].isRemoved}
-                  tickRangeLower={farm.ranges[activeRangeIndex].tickLower}
-                  tickRangeUpper={farm.ranges[activeRangeIndex].tickUpper}
-                  tickCurrent={farm.ranges[activeRangeIndex].tickCurrent}
-                  token0={farm.token0}
-                  token1={farm.token1}
-                />
-              </Column>
-            </RowBetween>
-            <RowBetween>
-              <Column gap="4px">
-                <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-                  <Trans>Staked TVL</Trans>
-                </Text>
-                <Text fontSize="16px" fontWeight="500" color={theme.text}>
-                  {farm.ranges[activeRangeIndex].tvl ? formatDollarAmount(farm.ranges[activeRangeIndex].tvl) : '--'}
-                </Text>
-              </Column>
-              <Column gap="4px" style={{ alignItems: 'flex-end' }}>
-                <Text fontSize="12px" fontWeight="500" color={theme.subText}>
-                  <Trans>My Deposit</Trans>
-                </Text>
-                <MouseoverTooltip
-                  placement="bottom"
-                  width="fit-content"
-                  text={
-                    !stakedPos.length ? (
-                      ''
-                    ) : (
-                      <>
-                        <Flex alignItems="center" sx={{ gap: '4px' }}>
-                          <CurrencyLogo currency={amountToken0.currency} size="16px" />
-                          {amountToken0.toSignificant(6)} {amountToken0.currency.symbol}
-                        </Flex>
+            <Harvest />
+            <Text marginLeft="4px">Harvest</Text>
+          </ButtonLight>
+        </RowBetween>
 
-                        <Flex alignItems="center" sx={{ gap: '4px' }}>
-                          <CurrencyLogo currency={amountToken1.currency} size="16px" />
-                          {amountToken1.toSignificant(6)} {amountToken1.currency.symbol}
-                        </Flex>
-                      </>
-                    )
-                  }
+        <RowBetween>
+          {!!stakedPos.length && (
+            <Column gap="4px">
+              <Text fontSize="12px" fontWeight="500" color={theme.subText}>
+                <Trans>My Deposit</Trans>
+              </Text>
+              <MouseoverTooltip
+                placement="bottom"
+                width="fit-content"
+                text={
+                  !stakedPos.length ? (
+                    ''
+                  ) : (
+                    <>
+                      <Flex alignItems="center" sx={{ gap: '4px' }}>
+                        <CurrencyLogo currency={amountToken0.currency} size="16px" />
+                        {amountToken0.toSignificant(6)} {amountToken0.currency.symbol}
+                      </Flex>
+
+                      <Flex alignItems="center" sx={{ gap: '4px' }}>
+                        <CurrencyLogo currency={amountToken1.currency} size="16px" />
+                        {amountToken1.toSignificant(6)} {amountToken1.currency.symbol}
+                      </Flex>
+                    </>
+                  )
+                }
+              >
+                <Text
+                  fontSize="16px"
+                  fontWeight="500"
+                  alignItems="center"
+                  display="flex"
+                  color={canUpdateLiquidity ? theme.warning : theme.text}
                 >
-                  <Text
-                    fontSize="16px"
-                    fontWeight="500"
-                    alignItems="center"
-                    display="flex"
-                    color={canUpdateLiquidity ? theme.warning : theme.text}
-                  >
-                    {formatDollarAmount(myTotalPosUSDValue)}
-                    {!!stakedPos.length && <DownSvg />}
-                  </Text>
-                </MouseoverTooltip>
-              </Column>
-            </RowBetween>
-            <Divider />
-            <Row gap="12px">
-              {canUnstake && (
+                  {formatDollarAmount(myTotalPosUSDValue)}
+                  {!!stakedPos.length && <DownSvg />}
+                </Text>
+              </MouseoverTooltip>
+            </Column>
+          )}
+
+          <RowFit flex={1} justify="flex-end" gap="12px">
+            {canUnstake && (
+              <MouseoverTooltip
+                width="270px"
+                text={
+                  canUpdateLiquidity ? (
+                    <Flex
+                      sx={{
+                        flexDirection: 'column',
+                        gap: '6px',
+                        fontSize: '12px',
+                        fontWeight: 400,
+                      }}
+                    >
+                      <Text as="span" color={theme.subText}>
+                        <Trans>
+                          You still have {formatDollarAmount(notStakedUSD)} in liquidity to stake to earn even more
+                          farming rewards
+                        </Trans>
+                      </Text>
+                      <Text as="span" color={theme.text}>
+                        Staked: {formatDollarAmount(myDepositUSD)}
+                      </Text>
+                      <Text as="span" color={theme.warning}>
+                        Not staked: {formatDollarAmount(notStakedUSD)}
+                      </Text>
+                    </Flex>
+                  ) : (
+                    ''
+                  )
+                }
+              >
                 <UnstakeButton
                   color={canUpdateLiquidity ? theme.warning : theme.subText}
                   onClick={() => setShowUnstake(p => !p)}
                 >
-                  {canUpdateLiquidity && (
-                    <InfoHelper
-                      color={theme.warning}
-                      size={14}
-                      style={{ marginLeft: 0, marginRight: '2px' }}
-                      width="270px"
-                      text={
-                        <Flex
-                          sx={{
-                            flexDirection: 'column',
-                            gap: '6px',
-                            fontSize: '12px',
-                            lineHeight: '16px',
-                            fontWeight: 400,
-                          }}
-                        >
-                          <Text as="span" color={theme.subText}>
-                            <Trans>
-                              You still have {formatDollarAmount(notStakedUSD)} in liquidity to stake to earn even more
-                              farming rewards
-                            </Trans>
-                          </Text>
-                          <Text as="span" color={theme.text}>
-                            Staked: {formatDollarAmount(myDepositUSD)}
-                          </Text>
-                          <Text as="span" color={theme.warning}>
-                            Not staked: {formatDollarAmount(notStakedUSD)}
-                          </Text>
-                        </Flex>
-                      }
-                    />
-                  )}
-                  Manage Positions
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g clipPath="url(#clip0_1048_20034)">
+                      <path
+                        d="M2.66667 8.66667H6.66667C7.03333 8.66667 7.33333 8.36667 7.33333 8L7.33333 2.66667C7.33333 2.3 7.03333 2 6.66667 2L2.66667 2C2.3 2 2 2.3 2 2.66667L2 8C2 8.36667 2.3 8.66667 2.66667 8.66667ZM2.66667 14H6.66667C7.03333 14 7.33333 13.7 7.33333 13.3333V10.6667C7.33333 10.3 7.03333 10 6.66667 10H2.66667C2.3 10 2 10.3 2 10.6667L2 13.3333C2 13.7 2.3 14 2.66667 14ZM9.33333 14H13.3333C13.7 14 14 13.7 14 13.3333V8C14 7.63333 13.7 7.33333 13.3333 7.33333L9.33333 7.33333C8.96667 7.33333 8.66667 7.63333 8.66667 8L8.66667 13.3333C8.66667 13.7 8.96667 14 9.33333 14ZM8.66667 2.66667V5.33333C8.66667 5.7 8.96667 6 9.33333 6H13.3333C13.7 6 14 5.7 14 5.33333V2.66667C14 2.3 13.7 2 13.3333 2L9.33333 2C8.96667 2 8.66667 2.3 8.66667 2.66667Z"
+                        fill="currentcolor"
+                      />
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_1048_20034">
+                        <rect width="16" height="16" fill="white" />
+                      </clipPath>
+                    </defs>
+                  </svg>
+                  Manage
                 </UnstakeButton>
-              )}
-              <ButtonLight
-                onClick={() => setShowStake(true)}
-                disabled={!account || !isApproved || farm.ranges[activeRangeIndex].isRemoved || isEnded}
-              >
-                <RowFit gap="6px">
-                  <Plus size={16} />
-                  <Text fontSize={['12px', '14px']}>Stake</Text>
-                </RowFit>
-              </ButtonLight>
-            </Row>
-          </Column>
-          <Row justify="center" marginTop="auto">
-            <TextButtonPrimary
-              disabled={rangesCount === 0}
-              fontSize="12px"
-              onClick={() => rangesCount > 0 && handleFlip()}
-              width="fit-content"
-            >
-              <AspectRatio size={16} />
-              <Trans>{rangesCount} Range(s) Available</Trans>
-            </TextButtonPrimary>
-          </Row>
-        </FrontFace>
+              </MouseoverTooltip>
+            )}
 
-        <BackFace>
-          <RowBetween>
-            <RowFit gap="4px">
-              <DoubleCurrencyLogo currency0={farm.token0} currency1={farm.token1} />
-              <Text fontSize="16px" lineHeight="20px" color={theme.primary} marginLeft="4px">
-                {`${farm.token0.symbol} - ${farm.token1.symbol}`}
+            <ButtonLight
+              onClick={() => {
+                onStake()
+              }}
+              disabled={!account || !isApproved || isEnded || farm.isSettled}
+              padding="10px 12px"
+              width={canUnstake ? 'fit-content' : undefined}
+            >
+              <Plus size={16} />
+              <Text marginLeft="6px" fontSize={['12px', '14px']}>
+                Stake
               </Text>
-              <FeeBadge>FEE {farm?.pool?.fee ? (farm?.pool?.fee * 100) / ELASTIC_BASE_FEE_UNIT : 0.03}%</FeeBadge>
-            </RowFit>
-            <RowFit gap="8px">
-              <IconButton>
-                <CopyHelper toCopy={farm.poolAddress} />
-              </IconButton>
-              <IconButton
-                onClick={() => {
-                  setSharePoolAddress(farm.poolAddress)
-                }}
-              >
-                <Share2 size={14} fill="currentcolor" />
-              </IconButton>
-            </RowFit>
-          </RowBetween>
-          <Ranges>
-            <div style={{ overflowY: 'scroll', flex: 1 }}>
-              <Column gap="12px">
-                {farm.ranges.map((r, index: number) => (
-                  <RangeItem
-                    active={activeRangeIndex === index}
-                    farmId={farm.fId}
-                    key={r.id}
-                    rangeInfo={r}
-                    onRangeClick={() => setActiveRangeIndex(index)}
-                    token0={farm.token0}
-                    token1={farm.token1}
-                    addLiquidityLink={`${addliquidityElasticPool}?farmRange=${r.index}`}
-                  />
-                ))}
-              </Column>
-            </div>
-            <Row justify="center" marginTop="auto">
-              <TextButtonPrimary fontSize="12px" onClick={handleFlip}>
-                <Trans>Choose this range</Trans>
-              </TextButtonPrimary>
-            </Row>
-          </Ranges>
-        </BackFace>
+            </ButtonLight>
+          </RowFit>
+        </RowBetween>
       </WrapperInner>
-      <StakeWithNFTsModal
-        farm={farm}
-        activeRangeIndex={activeRangeIndex}
-        isOpen={showStake}
-        onDismiss={() => setShowStake(false)}
-      />
       {canUnstake && (
         <UnstakeWithNFTsModal
           farm={farm}
@@ -675,8 +499,8 @@ function FarmCard({ farm, poolAPR, isApproved }: { farm: ElasticFarmV2; poolAPR:
           stakedPos={stakedPos}
         />
       )}
-    </Wrapper>
+    </>
   )
 }
 
-export default React.memo(FarmCard)
+export default FarmCard

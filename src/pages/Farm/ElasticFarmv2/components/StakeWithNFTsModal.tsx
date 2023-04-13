@@ -1,16 +1,21 @@
 import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
-import React, { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Plus, X } from 'react-feather'
-import { Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
+import RangeBadge from 'components/Badge/RangeBadge'
 import { ButtonPrimary } from 'components/Button'
+import CurrencyLogo from 'components/CurrencyLogo'
+import DoubleCurrencyLogo from 'components/DoubleLogo'
+import HoverInlineText from 'components/HoverInlineText'
 import LocalLoader from 'components/LocalLoader'
 import Modal from 'components/Modal'
-import Pagination from 'components/Pagination'
 import PriceVisualize from 'components/ProAmm/PriceVisualize'
-import Row, { RowBetween, RowFit, RowWrap } from 'components/Row'
+import Row, { RowBetween, RowFit } from 'components/Row'
+import Tabs from 'components/Tabs'
+import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
 import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
@@ -19,8 +24,10 @@ import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
 import { useFarmV2Action } from 'state/farms/elasticv2/hooks'
 import { ElasticFarmV2 } from 'state/farms/elasticv2/types'
+import { Bound } from 'state/mint/proamm/type'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { PositionDetails } from 'types/position'
+import { formatTickPrice } from 'utils/formatTickPrice'
 import { getTickToPrice } from 'utils/getTickToPrice'
 import { formatDollarAmount } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
@@ -30,34 +37,35 @@ import { convertTickToPrice } from '../utils'
 const Wrapper = styled.div`
   padding: 20px;
   border-radius: 20px;
-  background-color: var(--background);
+  background-color: ${({ theme }) => theme.background};
   display: flex;
   flex-direction: column;
   gap: 20px;
 `
 
 const ContentWrapper = styled.div`
-  padding: 16px;
-  border-radius: 16px;
-  background-color: var(--button-black);
-`
-
-const NFTsWrapper = styled(RowWrap)`
-  --gap: 12px;
-  --items-in-row: 4;
+  overflow-y: scroll;
+  display: grid;
+  padding: 1rem;
+  gap: 1rem;
+  justify-content: center;
+  grid-template-columns: 1fr 1fr 1fr;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    --items-in-row: 2;
+    grid-template-columns: 1fr 1fr;
+  `}
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    grid-template-columns: 1fr;
   `}
 `
 
 const NFTItemWrapper = styled.div<{ active?: boolean; disabled?: boolean }>`
-  border: 1px solid var(--border);
+  border: 1px solid ${({ theme }) => theme.border};
   padding: 12px;
   display: flex;
   flex-direction: column;
   border-radius: 12px;
-  background-color: var(--button-black);
+  background-color: ${({ theme }) => theme.buttonBlack};
   cursor: pointer;
   ${({ active, disabled }) =>
     disabled
@@ -79,6 +87,19 @@ const CloseButton = styled.div`
   cursor: pointer;
 `
 
+const SelectedCheck = styled.div(({ theme }) => ({
+  borderRadius: '50%',
+  width: '12px',
+  height: '12px',
+  background: theme.primary,
+  display: 'flex',
+  fontSize: '10px',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontWeight: '500',
+  color: theme.textReverse,
+}))
+
 export const NFTItem = ({
   active,
   disabled,
@@ -92,6 +113,7 @@ export const NFTItem = ({
   onClick?: (tokenId: string) => void
   prices: { [address: string]: number }
 }) => {
+  const theme = useTheme()
   const token0 = useToken(pos?.token0)
   const token1 = useToken(pos?.token1)
   const currency0 = token0 ? unwrappedToken(token0) : undefined
@@ -116,6 +138,8 @@ export const NFTItem = ({
   const priceUpper = getTickToPrice(token0?.wrapped, token1?.wrapped, position?.tickUpper)
   const ticksAtLimit = useIsTickAtLimit(pool?.fee, position?.tickLower, position?.tickUpper)
 
+  const outOfRange = !!pos && !!pool && (pool.tickCurrent < pos.tickLower || pool.tickCurrent >= pos.tickUpper)
+
   return (
     <>
       {pos && (
@@ -124,9 +148,29 @@ export const NFTItem = ({
           active={active}
           onClick={() => !disabled && onClick?.(pos.tokenId.toString())}
         >
-          <Text fontSize="12px" lineHeight="16px" color="var(--primary)">
-            {`#${pos.tokenId.toString()}`}
-          </Text>
+          <RowBetween>
+            <Flex alignItems="center" sx={{ gap: '4px' }} fontSize="14px" fontWeight="500" color={theme.subText}>
+              NFT ID <Text color={outOfRange ? theme.warning : theme.primary}>{pos.tokenId.toString()}</Text>
+              <RangeBadge size={12} hideText removed={false} inRange={!outOfRange} />
+            </Flex>
+            {active && <SelectedCheck>✓</SelectedCheck>}
+          </RowBetween>
+
+          <Flex color={theme.subText} fontSize="12px" fontWeight="500" sx={{ gap: '4px' }} marginTop="12px">
+            <Trans>My Liquidity</Trans>
+            <Text color={theme.text}>{formatDollarAmount(usd)}</Text>
+          </Flex>
+
+          <Flex fontSize="12px" fontWeight="500" alignItems="center" sx={{ gap: '4px' }} marginTop="8px">
+            <CurrencyLogo currency={currency0} size="12px" />
+            <HoverInlineText maxCharacters={10} text={position?.amount0.toSignificant(6)} />
+
+            <Text color={theme.subText}>|</Text>
+
+            <CurrencyLogo currency={currency1} size="12px" />
+            <HoverInlineText maxCharacters={10} text={position?.amount1.toSignificant(6)} />
+          </Flex>
+
           {pool && priceLower && priceUpper && (
             <PriceVisualize
               showTooltip
@@ -136,9 +180,20 @@ export const NFTItem = ({
               ticksAtLimit={ticksAtLimit}
             />
           )}
-          <Text fontSize="12px" lineHeight="16px" marginTop="12px">
-            {formatDollarAmount(usd)}
-          </Text>
+          <Flex justifyContent="space-between" fontSize="12px" fontWeight="500" marginTop="8px">
+            <Text>
+              <Text as="span" color={theme.subText}>
+                <Trans>Min Price</Trans>:
+              </Text>{' '}
+              {formatTickPrice(priceLower, ticksAtLimit, Bound.LOWER)}
+            </Text>
+            <Text>
+              <Text as="span" color={theme.subText}>
+                <Trans>Max Price</Trans>:
+              </Text>{' '}
+              {formatTickPrice(priceUpper, ticksAtLimit, Bound.UPPER)}
+            </Text>
+          </Flex>
         </NFTItemWrapper>
       )}
     </>
@@ -149,23 +204,26 @@ const StakeWithNFTsModal = ({
   isOpen,
   onDismiss,
   farm,
-  activeRangeIndex,
 }: {
   farm: ElasticFarmV2
-  activeRangeIndex: number
   isOpen: boolean
   onDismiss: () => void
 }) => {
-  const activeRange = farm.ranges[activeRangeIndex]
+  const [activeRange, setActiveRange] = useState(farm.ranges[0])
+
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const { loading, positions: allPositions } = useProAmmPositions(account)
 
   const positions = useMemo(() => {
     return allPositions?.filter(
-      item => item.poolId.toLowerCase() === farm?.poolAddress.toLowerCase() && item.liquidity.gt(0),
+      item =>
+        item.poolId.toLowerCase() === farm?.poolAddress.toLowerCase() &&
+        item.liquidity.gt(0) &&
+        item.tickLower <= activeRange.tickLower &&
+        item.tickUpper >= activeRange.tickUpper,
     )
-  }, [allPositions, farm?.poolAddress])
+  }, [allPositions, farm?.poolAddress, activeRange.tickUpper, activeRange.tickLower])
   const prices = useTokenPrices([farm.token0.wrapped.address, farm.token1.wrapped.address])
 
   const [selectedPos, setSelectedPos] = useState<{ [tokenId: string]: boolean }>({})
@@ -183,87 +241,143 @@ const StakeWithNFTsModal = ({
   }, [])
   const { deposit } = useFarmV2Action()
 
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [txHash, setTxHash] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
+  const [attemptingTxn, setAttemptingTxn] = useState(false)
+
+  const handleDismiss = () => {
+    txHash && onDismiss()
+    setTxHash('')
+    setShowConfirmModal(false)
+    setErrorMessage('')
+    setAttemptingTxn(false)
+  }
+
   const handleStake = useCallback(() => {
     if (!farm || activeRange === undefined) return
-    deposit(farm.fId, activeRange.index, selectedPosArray).then(txHash => {
-      txHash && onDismiss?.()
-      setSelectedPos({})
-    })
-  }, [farm, activeRange, deposit, onDismiss, selectedPosArray])
-
-  const priceLower = farm && convertTickToPrice(farm.token0, farm.token1, activeRange?.tickLower || 0)
-
-  const priceUpper = farm && convertTickToPrice(farm.token0, farm.token1, activeRange?.tickUpper || 0)
+    setShowConfirmModal(true)
+    setAttemptingTxn(true)
+    deposit(farm.fId, activeRange.index, selectedPosArray)
+      .then(txHash => {
+        setSelectedPos({})
+        setAttemptingTxn(false)
+        setTxHash(txHash || '')
+      })
+      .catch(e => {
+        setAttemptingTxn(false)
+        setErrorMessage(e?.message || JSON.stringify(e))
+      })
+  }, [farm, activeRange, deposit, selectedPosArray])
 
   return (
-    <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth="min(724px, 100vw)">
-      <Wrapper>
-        <RowBetween>
-          <Text fontSize="20px" lineHeight="24px" color={theme.text}>
-            <Trans>Stake your liquidity</Trans>
+    <>
+      <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth="min(900px, 100vw)" width="900px">
+        <Wrapper>
+          <RowBetween>
+            <RowFit>
+              <DoubleCurrencyLogo currency0={farm.token0} currency1={farm.token1} size={24} />
+              <Text fontSize="20px" lineHeight="24px" color={theme.text}>
+                <Trans>Stake your liquidity</Trans>
+              </Text>
+            </RowFit>
+            <CloseButton onClick={onDismiss}>
+              <X />
+            </CloseButton>
+          </RowBetween>
+          <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+            <Trans>
+              Stake your liquidity positions (NFT tokens) into the farms to start earning rewards. Positions that cover
+              the Active Range of the farm will earn maximum rewards
+            </Trans>
           </Text>
-          <CloseButton onClick={onDismiss}>
-            <X />
-          </CloseButton>
-        </RowBetween>
-        <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-          <Trans>
-            Stake your liquidity positions (NFT tokens) into the farms to start earning rewards. Positions that cover
-            the Active Range of the farm will earn maximum rewards
-          </Trans>
-        </Text>
-        <ContentWrapper>
-          <RowFit gap="4px" marginBottom="20px">
-            <Text fontSize="12px" lineHeight="20px" color="var(--subtext)">
-              <Trans>Active Range</Trans>
-            </Text>
-            <Text fontSize="12px" lineHeight="20px" color="var(--text)">
-              {priceLower ? `${priceLower} - ${priceUpper}` : '0.0005788 - 0.0006523'}
-            </Text>
-          </RowFit>
-          <NFTsWrapper>
-            {loading ? (
-              <LocalLoader />
-            ) : positions && positions.length > 0 ? (
-              positions.map(pos => {
-                return (
-                  <NFTItem
-                    key={pos.tokenId.toString()}
-                    disabled={
-                      activeRange && (pos.tickLower > activeRange.tickLower || pos.tickUpper < activeRange.tickUpper)
-                    }
-                    active={selectedPos[pos.tokenId.toString()]}
-                    pos={pos}
-                    onClick={handlePosClick}
-                    prices={prices}
-                  />
-                )
-              })
-            ) : (
-              <Row height="100px" justify="center" fontSize="12px" color="var(--subtext)" flex="1">
-                <Trans>No liquidity position</Trans>
+
+          <Tabs
+            activeKey={activeRange.index}
+            onChange={key => {
+              setSelectedPos({})
+              const range = farm.ranges.find(item => item.index === key)
+              if (range) setActiveRange(range)
+            }}
+            items={farm.ranges.map(range => {
+              const priceLower = convertTickToPrice(farm.token0, farm.token1, range.tickLower)
+              const priceUpper = convertTickToPrice(farm.token0, farm.token1, range.tickUpper)
+
+              return {
+                key: range.index,
+                label: (
+                  <Flex sx={{ gap: '2px' }} alignItems="center">
+                    {priceLower}
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" display="block">
+                      <path
+                        d="M11.3405 8.66669L11.3405 9.86002C11.3405 10.16 11.7005 10.3067 11.9071 10.0934L13.7605 8.23335C13.8871 8.10002 13.8871 7.89335 13.7605 7.76002L11.9071 5.90669C11.7005 5.69335 11.3405 5.84002 11.3405 6.14002L11.3405 7.33335L4.66047 7.33335L4.66047 6.14002C4.66047 5.84002 4.30047 5.69335 4.0938 5.90669L2.24047 7.76669C2.1138 7.90002 2.1138 8.10669 2.24047 8.24002L4.0938 10.1C4.30047 10.3134 4.66047 10.16 4.66047 9.86669L4.66047 8.66669L11.3405 8.66669Z"
+                        fill="currentcolor"
+                      />
+                    </svg>
+                    {priceUpper}
+                  </Flex>
+                ),
+                children: loading ? (
+                  <LocalLoader />
+                ) : (
+                  <ContentWrapper>
+                    {positions && positions.length > 0 ? (
+                      positions.map(pos => {
+                        return (
+                          <NFTItem
+                            key={pos.tokenId.toString()}
+                            disabled={
+                              activeRange &&
+                              (pos.tickLower > activeRange.tickLower || pos.tickUpper < activeRange.tickUpper)
+                            }
+                            active={selectedPos[pos.tokenId.toString()]}
+                            pos={pos}
+                            onClick={handlePosClick}
+                            prices={prices}
+                          />
+                        )
+                      })
+                    ) : (
+                      <Row height="100px" justify="center" fontSize="12px" color={theme.subText} flex="1">
+                        <Trans>No liquidity position</Trans>
+                      </Row>
+                    )}
+                  </ContentWrapper>
+                ),
+              }
+            })}
+          />
+
+          <ButtonPrimary
+            width="fit-content"
+            alignSelf="flex-end"
+            padding="8px 18px"
+            onClick={handleStake}
+            disabled={selectedPosArray.length === 0}
+          >
+            <Text fontSize="14px" lineHeight="20px" fontWeight={500}>
+              <Row gap="6px">
+                <Plus size={16} />
+                <Trans>Stake Selected</Trans>
               </Row>
-            )}
-          </NFTsWrapper>
-          <Pagination currentPage={1} pageSize={8} totalCount={2} onPageChange={p => console.log(p)} haveBg={false} />
-        </ContentWrapper>
-        <ButtonPrimary
-          width="fit-content"
-          alignSelf="flex-end"
-          padding="8px 18px"
-          onClick={handleStake}
-          disabled={selectedPosArray.length === 0}
-        >
-          <Text fontSize="14px" lineHeight="20px" fontWeight={500}>
-            <Row gap="6px">
-              <Plus size={16} />
-              <Trans>Stake Selected</Trans>
-            </Row>
-          </Text>
-        </ButtonPrimary>
-      </Wrapper>
-    </Modal>
+            </Text>
+          </ButtonPrimary>
+        </Wrapper>
+      </Modal>
+      <TransactionConfirmationModal
+        isOpen={showConfirmModal}
+        onDismiss={handleDismiss}
+        hash={txHash}
+        attemptingTxn={attemptingTxn}
+        pendingText={`Staking into farm`}
+        content={() => (
+          <Flex flexDirection={'column'} width="100%">
+            {errorMessage ? <TransactionErrorContent onDismiss={handleDismiss} message={errorMessage} /> : null}
+          </Flex>
+        )}
+      />
+    </>
   )
 }
 
-export default React.memo(StakeWithNFTsModal)
+export default StakeWithNFTsModal

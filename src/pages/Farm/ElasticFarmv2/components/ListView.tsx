@@ -30,7 +30,6 @@ import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import { formatDollarAmount } from 'utils/numbers'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 
-import { RangeItem } from './FarmCard'
 import PriceVisualize from './PriceVisualize'
 import StakeWithNFTsModal from './StakeWithNFTsModal'
 import UnstakeWithNFTsModal from './UnstakeWithNFTsModal'
@@ -50,7 +49,7 @@ export const ListView = ({
   const [activeRangeIndex, setActiveRangeIndex] = useState(0)
 
   const currentTimestamp = Math.floor(Date.now() / 1000)
-  const stakedPos = useUserFarmV2Info(farm.fId, farm.ranges[activeRangeIndex].index)
+  const stakedPos = useUserFarmV2Info(farm.fId)
   const canUnstake = stakedPos.length > 0
 
   const hasRewards = stakedPos.some(item => item.unclaimedRewards.some(rw => rw.greaterThan('0')))
@@ -105,20 +104,21 @@ export const ListView = ({
             </ButtonEmpty>
           </Flex>
 
-          <Flex marginTop="1rem" flexDirection="column" overflowY="scroll" flex={1} sx={{ gap: '12px' }}>
-            {farm.ranges.map((r, index: number) => (
-              <RangeItem
-                active={activeRangeIndex === index}
-                farmId={farm.fId}
-                key={r.id}
-                rangeInfo={r}
-                onRangeClick={() => setActiveRangeIndex(index)}
-                token0={farm.token0}
-                token1={farm.token1}
-                addLiquidityLink={`${addliquidityElasticPool}?farmRange=${r.index}`}
-              />
-            ))}
-          </Flex>
+          {/* <Flex marginTop="1rem" flexDirection="column" overflowY="scroll" flex={1} sx={{ gap: '12px' }}> */}
+          {/*   {farm.ranges.map((r, index: number) => ( */}
+
+          {/*     <RangeItem */}
+          {/*       active={activeRangeIndex === index} */}
+          {/*       farmId={farm.fId} */}
+          {/*       key={r.id} */}
+          {/*       rangeInfo={r} */}
+          {/*       onRangeClick={() => setActiveRangeIndex(index)} */}
+          {/*       token0={farm.token0} */}
+          {/*       token1={farm.token1} */}
+          {/*       addLiquidityLink={`${addliquidityElasticPool}?farmRange=${r.index}`} */}
+          {/*     /> */}
+          {/*   ))} */}
+          {/* </Flex> */}
         </Flex>
       </Modal>
       <ElasticFarmV2TableRow>
@@ -189,7 +189,7 @@ export const ListView = ({
           <DownSvg />
         </Flex>
 
-        <Text textAlign="left">{formatDollarAmount(farm.ranges[activeRangeIndex].tvl)}</Text>
+        <Text textAlign="left">{formatDollarAmount(farm.tvl)}</Text>
         <Flex
           alignItems="center"
           justifyContent="flex-start"
@@ -303,12 +303,7 @@ export const ListView = ({
           </MinimalActionButton>
         </Flex>
 
-        <StakeWithNFTsModal
-          isOpen={showStake}
-          onDismiss={() => setShowStake(false)}
-          farm={farm}
-          activeRangeIndex={activeRangeIndex}
-        />
+        <StakeWithNFTsModal isOpen={showStake} onDismiss={() => setShowStake(false)} farm={farm} />
         {canUnstake && (
           <UnstakeWithNFTsModal
             isOpen={showUnstake}

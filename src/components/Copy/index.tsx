@@ -13,6 +13,8 @@ const Wrapper = styled.div<{ margin?: string; size?: string }>`
   cursor: pointer;
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
   :hover,
   :active,
   :focus {
@@ -55,6 +57,8 @@ const check = keyframes`
 
 const CopyIconWrapper = styled.div`
   position: absolute;
+  display:flex;
+  align-items: center
   left: 0;
   &.copied {
     animation: ${copy} 1.5s;
@@ -62,7 +66,7 @@ const CopyIconWrapper = styled.div`
 `
 const CheckIconWrapper = styled.div`
   transform: translateY(-100%);
-  color: var(--primary);
+  color: ${({ theme }) => theme.primary};
   &.copied {
     animation: ${check} 1.5s;
   }

@@ -22,12 +22,9 @@ export const useElasticFarmsV2 = () => {
   return elasticFarm || {}
 }
 
-export const useUserFarmV2Info = (fId: number, rangeId: number): UserFarmV2Info[] => {
+export const useUserFarmV2Info = (fId: number): UserFarmV2Info[] => {
   const { userInfo } = useElasticFarmsV2()
-  return useMemo(
-    () => userInfo?.filter(item => item.fId === fId && item.rangeId === rangeId) || [],
-    [fId, rangeId, userInfo],
-  )
+  return useMemo(() => userInfo?.filter(item => item.fId === fId) || [], [fId, userInfo])
 }
 
 export enum SORT_FIELD {
@@ -160,7 +157,7 @@ export const useFarmV2Action = () => {
       try {
         const estimateGas = await farmContract.estimateGas.deposit(fId, rangeId, nftIds, account)
         const tx = await farmContract.deposit(fId, rangeId, nftIds, account, {
-          gasLimit: estimateGas,
+          gasLimit: calculateGasMargin(estimateGas),
         })
         addTransactionWithType({
           hash: tx.hash,
@@ -168,7 +165,7 @@ export const useFarmV2Action = () => {
         })
         return tx.hash
       } catch (e) {
-        console.log(e)
+        throw e
       }
     },
     [farmContract, addTransactionWithType, account],
@@ -182,7 +179,7 @@ export const useFarmV2Action = () => {
       try {
         const estimateGas = await farmContract.estimateGas.addLiquidity(fId, rangeId, nftIds)
         const tx = await farmContract.addLiquidity(fId, rangeId, nftIds, {
-          gasLimit: estimateGas,
+          gasLimit: calculateGasMargin(estimateGas),
         })
         addTransactionWithType({
           hash: tx.hash,

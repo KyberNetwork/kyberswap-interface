@@ -28,7 +28,6 @@ import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import usePoolTransactionsStat from 'hooks/usePoolTransactionsStat'
 import useTheme from 'hooks/useTheme'
-import { RangeItem } from 'pages/Farm/ElasticFarmv2/components/FarmCard'
 import PriceVisualize from 'pages/Farm/ElasticFarmv2/components/PriceVisualize'
 import { useElasticFarms } from 'state/farms/elastic/hooks'
 import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
@@ -333,7 +332,9 @@ export default function ProAmmPoolStat({
                 </Flex>
 
                 <Flex justifyContent="space-between" fontSize="16px" fontWeight="500" marginTop="0.25rem">
-                  <Text>{ranges[activeRange]?.tvl ? formatDollarAmount(ranges[activeRange].tvl) : '--'}</Text>
+                  {/*
+                      <Text>{ranges[activeRange]?.tvl ? formatDollarAmount(ranges[activeRange].tvl) : '--'}</Text>
+                  */}
                   <Text>{myLiquidity ? formatDollarAmount(Number(myLiquidity)) : '-'}</Text>
                 </Flex>
               </OutlineCard>
@@ -460,25 +461,25 @@ export default function ProAmmPoolStat({
           <div style={{ flex: 1, overflow: 'scroll' }}>
             {header}
 
-            <Column gap="12px" style={{ marginTop: '1rem' }}>
-              {farmV2 &&
-                ranges?.map((range, index) =>
-                  range.isRemoved ? null : (
-                    <RangeItem
-                      farmId={farmV2.fId}
-                      token0={farmV2.token0}
-                      token1={farmV2.token1}
-                      active={activeRange === index}
-                      key={range.id}
-                      onRangeClick={() => {
-                        setActiveRange(index)
-                        onFarmRangeSelected(ranges[index].tickLower, ranges[index].tickUpper)
-                      }}
-                      rangeInfo={range}
-                    />
-                  ),
-                )}
-            </Column>
+            {/* <Column gap="12px" style={{ marginTop: '1rem' }}> */}
+            {/*   {farmV2 && */}
+            {/*     ranges?.map((range, index) => */}
+            {/*       range.isRemoved ? null : ( */}
+            {/*         <RangeItem */}
+            {/*           farmId={farmV2.fId} */}
+            {/*           token0={farmV2.token0} */}
+            {/*           token1={farmV2.token1} */}
+            {/*           active={activeRange === index} */}
+            {/*           key={range.id} */}
+            {/*           onRangeClick={() => { */}
+            {/*             setActiveRange(index) */}
+            {/*             onFarmRangeSelected(ranges[index].tickLower, ranges[index].tickUpper) */}
+            {/*           }} */}
+            {/*           rangeInfo={range} */}
+            {/*         /> */}
+            {/*       ), */}
+            {/*     )} */}
+            {/* </Column> */}
           </div>
           <TextButtonPrimary onClick={() => setShowRange(false)} margin="0.5rem auto 0">
             <Trans>Choose this range</Trans>
