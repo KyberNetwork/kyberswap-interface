@@ -13,6 +13,7 @@ interface ChartResults {
 }
 
 export const getHourlyRateData = async (
+  isEnableBlockService: boolean,
   poolAddress: string,
   startTime: number,
   frequency: number,
@@ -38,7 +39,7 @@ export const getHourlyRateData = async (
     }
 
     // once you have all the timestamps, get the blocks for each timestamp in a bulk query
-    let blocks = await getBlocksFromTimestamps(blockClient, timestamps, networkInfo.chainId)
+    let blocks = await getBlocksFromTimestamps(isEnableBlockService, blockClient, timestamps, networkInfo.chainId)
     if (abortSignal.aborted) return
     // catch failing case
     if (!blocks || blocks?.length === 0) {

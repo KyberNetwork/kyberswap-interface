@@ -132,6 +132,7 @@ function parseData(data: any, oneDayData: any, ethPrice: any, oneDayBlock: any, 
 }
 
 export async function getBulkPoolDataFromPoolList(
+  isEnableBlockService: boolean,
   poolList: string[],
   apolloClient: ApolloClient<NormalizedCacheObject>,
   blockClient: ApolloClient<NormalizedCacheObject>,
@@ -145,7 +146,7 @@ export async function getBulkPoolDataFromPoolList(
     })
     let poolData
     const [t1] = getTimestampsForChanges()
-    const blocks = await getBlocksFromTimestamps(blockClient, [t1], chainId)
+    const blocks = await getBlocksFromTimestamps(isEnableBlockService, blockClient, [t1], chainId)
     if (!blocks.length) {
       return current.data.pools
     } else {
@@ -197,6 +198,7 @@ export async function getBulkPoolDataFromPoolList(
 }
 
 export async function getBulkPoolDataWithPagination(
+  isEnableBlockService: boolean,
   first: number,
   skip: number,
   apolloClient: ApolloClient<NormalizedCacheObject>,
@@ -206,7 +208,7 @@ export async function getBulkPoolDataWithPagination(
 ): Promise<any> {
   try {
     const [t1] = getTimestampsForChanges()
-    const blocks = await getBlocksFromTimestamps(blockClient, [t1], chainId)
+    const blocks = await getBlocksFromTimestamps(isEnableBlockService, blockClient, [t1], chainId)
 
     // In case we can't get the block one day ago then we set it to 0 which is fine
     // because our subgraph never syncs from block 0 => response is empty
@@ -315,7 +317,7 @@ export function useAllPoolsData(): {
   const error = useSelector((state: AppState) => state.pools.error)
 
   const { currentPrice: ethPrice } = useETHPrice()
-  const { classicClient, blockClient } = useKyberSwapConfig()
+  const { classicClient, blockClient, isEnableBlockService } = useKyberSwapConfig()
 
   const poolCountSubgraph = usePoolCountInSubgraph()
   useEffect(() => {
@@ -330,7 +332,15 @@ export function useAllPoolsData(): {
           const promises = []
           for (let i = 0, j = poolCountSubgraph; i < j; i += ITEM_PER_CHUNK) {
             promises.push(() =>
-              getBulkPoolDataWithPagination(ITEM_PER_CHUNK, i, classicClient, blockClient, ethPrice, chainId),
+              getBulkPoolDataWithPagination(
+                isEnableBlockService,
+                ITEM_PER_CHUNK,
+                i,
+                classicClient,
+                blockClient,
+                ethPrice,
+                chainId,
+              ),
             )
           }
           const pools = (await Promise.all(promises.map(callback => callback()))).flat()
@@ -359,6 +369,7 @@ export function useAllPoolsData(): {
     networkInfo,
     classicClient,
     blockClient,
+    isEnableBlockService,
   ])
 
   return useMemo(() => ({ loading, error, data: poolsData }), [error, loading, poolsData])
@@ -381,7 +392,7 @@ export function useSinglePoolData(
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<Error | undefined>(undefined)
   const [poolData, setPoolData] = useState<SubgraphPoolData>()
-  const { classicClient, blockClient } = useKyberSwapConfig()
+  const { classicClient, blockClient, isEnableBlockService } = useKyberSwapConfig()
 
   useEffect(() => {
     if (!isEVM) return
@@ -391,7 +402,14 @@ export function useSinglePoolData(
 
       try {
         if (poolAddress && !error) {
-          const pools = await getBulkPoolDataFromPoolList([poolAddress], classicClient, blockClient, chainId, ethPrice)
+          const pools = await getBulkPoolDataFromPoolList(
+            isEnableBlockService,
+            [poolAddress],
+            classicClient,
+            blockClient,
+            chainId,
+            ethPrice,
+          )
 
           if (pools.length > 0) {
             !isCanceled && setPoolData(pools[0])
@@ -409,7 +427,7 @@ export function useSinglePoolData(
     return () => {
       isCanceled = true
     }
-  }, [ethPrice, error, poolAddress, chainId, isEVM, networkInfo, classicClient, blockClient])
+  }, [ethPrice, error, poolAddress, chainId, isEVM, networkInfo, classicClient, blockClient, isEnableBlockService])
 
   return { loading, error, data: poolData }
 }

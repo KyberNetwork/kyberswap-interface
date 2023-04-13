@@ -68,7 +68,7 @@ export default function LimitTab({ onClick }: Props) {
   }
 
   return (
-    <Tab onClick={onClick} isActive={isLimitPage}>
+    <Tab id="limit-button" onClick={onClick} isActive={isLimitPage}>
       <Text fontSize={20} fontWeight={500}>
         <Trans>Limit</Trans>{' '}
         {numberOfInsufficientFundOrders ? (

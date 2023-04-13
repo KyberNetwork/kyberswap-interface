@@ -1412,7 +1412,8 @@ export function useHourlyRateData(
   const dispatch = useAppDispatch()
   const { chainId } = useActiveWeb3React()
   const [ratesData, setRatesData] = useState<[PoolRatesEntry[], PoolRatesEntry[]] | null>(null)
-  const { elasticClient, blockClient } = useKyberSwapConfig()
+  const { elasticClient, blockClient, isEnableBlockService } = useKyberSwapConfig()
+
   useEffect(() => {
     const controller = new AbortController()
     const currentTime = dayjs.utc()
@@ -1452,6 +1453,7 @@ export function useHourlyRateData(
       if (isEVM(chainId) && poolAddress) {
         setRatesData(null)
         const ratesData = await getHourlyRateData(
+          isEnableBlockService,
           poolAddress,
           startTime,
           frequency,
@@ -1465,7 +1467,7 @@ export function useHourlyRateData(
     }
     fetch()
     return () => controller.abort()
-  }, [timeWindow, poolAddress, dispatch, chainId, elasticClient, blockClient])
+  }, [timeWindow, poolAddress, dispatch, chainId, elasticClient, blockClient, isEnableBlockService])
 
   return ratesData
 }
