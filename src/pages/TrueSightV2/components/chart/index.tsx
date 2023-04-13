@@ -36,7 +36,7 @@ import {
 } from 'components/TradingViewChart/charting_library'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { NETFLOW_TO_WHALE_WALLETS, NUMBER_OF_HOLDERS, NUMBER_OF_TRANSFERS } from 'pages/TrueSightV2/hooks/sampleData'
+import { NUMBER_OF_HOLDERS, NUMBER_OF_TRANSFERS } from 'pages/TrueSightV2/hooks/sampleData'
 import {
   useCexesLiquidationQuery,
   useNetflowToCEXQuery,
@@ -639,6 +639,7 @@ export const TradingVolumeChart = () => {
                 fill={rgba(theme.red, 0.6)}
                 animationBegin={ANIMATION_DELAY}
                 animationDuration={ANIMATION_DURATION}
+                radius={[5, 5, 0, 0]}
               />
             )}
             {showBuy && (
@@ -648,6 +649,7 @@ export const TradingVolumeChart = () => {
                 fill={rgba(theme.primary, 0.6)}
                 animationBegin={ANIMATION_DELAY}
                 animationDuration={ANIMATION_DURATION}
+                radius={[5, 5, 0, 0]}
               />
             )}
             {showTotalVolume && (
@@ -700,27 +702,59 @@ export const TradingVolumeChart = () => {
 export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
   const theme = useTheme()
   const { address } = useParams()
-  const { data } = useNetflowToWhaleWalletsQuery(address || testParams.address)
+  const [timeframe, setTimeframe] = useState(KyberAITimeframe.ONE_MONTH)
+
+  const [from, to, timerange] = useMemo(() => {
+    const now = Math.floor(Date.now() / 60000) * 60
+    const timerange =
+      {
+        [KyberAITimeframe.ONE_DAY]: 3600,
+        [KyberAITimeframe.ONE_WEEK]: 86400,
+        [KyberAITimeframe.ONE_MONTH]: 86400,
+        [KyberAITimeframe.THREE_MONTHS]: 86400,
+      }[timeframe as string] || 86400
+    const from =
+      now -
+      ({
+        [KyberAITimeframe.ONE_DAY]: 86400,
+        [KyberAITimeframe.ONE_WEEK]: 604800,
+        [KyberAITimeframe.ONE_MONTH]: 2592000,
+        [KyberAITimeframe.THREE_MONTHS]: 7776000,
+      }[timeframe as string] || 604800)
+    return [from, now, timerange]
+  }, [timeframe])
+
+  const { data } = useNetflowToWhaleWalletsQuery({ tokenAddress: address || testParams.address, from, to })
   const { account } = useActiveWeb3React()
   const [showInflow, setShowInflow] = useState(true)
   const [showOutflow, setShowOutflow] = useState(true)
   const [showNetflow, setShowNetflow] = useState(true)
-  const [timeframe, setTimeframe] = useState(KyberAITimeframe.ONE_MONTH)
 
-  const formattedData: any[] = useMemo(() => {
-    const dataTemp = address ? data : NETFLOW_TO_WHALE_WALLETS
-    const uniqueTimestamp = dataTemp ? new Set(dataTemp?.map((i: INetflowToWhaleWallets) => i.timestamp)) : undefined
-    const newData: any[] = []
-    uniqueTimestamp?.forEach((timestamp: number) => {
-      const filteredItems = dataTemp?.filter((i: INetflowToWhaleWallets) => i.timestamp === timestamp)
-      if (filteredItems && filteredItems?.length > 0) {
-        newData.push({
+  const formattedData: (INetflowToWhaleWallets & {
+    generalInflow: number
+    generalOutflow: number
+    tokenInflow: number
+    tokenOutflow: number
+  })[] = useMemo(() => {
+    if (!data) return []
+    const dataTemp: (INetflowToWhaleWallets & {
+      generalInflow: number
+      generalOutflow: number
+      tokenInflow: number
+      tokenOutflow: number
+    })[] = []
+    const startTimestamp = (Math.floor(from / timerange) + 1) * timerange
+    for (let t = startTimestamp; t < to; t += timerange) {
+      const filteredItems = data.filter(item => item.timestamp === t)
+      if (filteredItems.length > 0) {
+        dataTemp.push({
+          whaleType: '',
           inflow: showInflow ? filteredItems?.reduce((s: number, i: INetflowToWhaleWallets) => s + i.inflow, 0) : 0,
           outflow: showOutflow
             ? -1 * filteredItems?.reduce((s: number, i: INetflowToWhaleWallets) => s + i.outflow, 0)
             : 0,
           netflow: showNetflow ? filteredItems?.reduce((s: number, i: INetflowToWhaleWallets) => s + i.netflow, 0) : 0,
-          timestamp: timestamp,
+          timestamp: t * 1000,
           generalInflow: filteredItems?.reduce(
             (s: number, i: INetflowToWhaleWallets) => (i.whaleType === 'general' ? s + i.inflow : s),
             0,
@@ -738,10 +772,23 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
             0,
           ),
         })
+      } else {
+        dataTemp.push({
+          timestamp: t * 1000,
+          whaleType: '',
+          inflow: 0,
+          outflow: 0,
+          netflow: 0,
+          generalInflow: 0,
+          generalOutflow: 0,
+          tokenInflow: 0,
+          tokenOutflow: 0,
+        })
       }
-    })
-    return newData
-  }, [data, showInflow, showOutflow, showNetflow, address])
+    }
+    return dataTemp
+  }, [data, showInflow, showOutflow, showNetflow, from, to, timerange])
+
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const percentage = useMemo(() => {
     return (
@@ -831,7 +878,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                 height={300}
                 data={formattedData}
                 stackOffset="sign"
-                margin={{ top: 50, left: 20 }}
+                margin={{ top: 50, left: 20, right: 20 }}
               >
                 <CartesianGrid
                   vertical={false}
@@ -856,6 +903,16 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                   axisLine={false}
                   tick={{ fill: theme.subText, fontWeight: 400 }}
                   width={40}
+                  tickFormatter={value => `$${formatNum(value)}`}
+                />
+                <YAxis
+                  yAxisId="right"
+                  fontSize="12px"
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fill: theme.subText, fontWeight: 400 }}
+                  width={40}
+                  orientation="right"
                   tickFormatter={value => `$${formatNum(value)}`}
                 />
                 <Tooltip
@@ -927,6 +984,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                   fill={rgba(theme.primary, 0.6)}
                   animationBegin={ANIMATION_DELAY}
                   animationDuration={ANIMATION_DURATION}
+                  radius={[5, 5, 0, 0]}
                 />
                 <Bar
                   dataKey="outflow"
@@ -934,9 +992,17 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                   fill={rgba(theme.red, 0.6)}
                   animationBegin={ANIMATION_DELAY}
                   animationDuration={ANIMATION_DURATION}
+                  radius={[5, 5, 0, 0]}
                 />
                 {showNetflow && (
-                  <Line type="linear" dataKey="netflow" stroke="url(#gradient)" strokeWidth={3} dot={false} />
+                  <Line
+                    yAxisId="right"
+                    type="linear"
+                    dataKey="netflow"
+                    stroke="url(#gradient)"
+                    strokeWidth={3}
+                    dot={false}
+                  />
                 )}
               </ComposedChart>
             </ResponsiveContainer>
