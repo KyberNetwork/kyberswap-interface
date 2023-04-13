@@ -37,6 +37,7 @@ import Icons from './Icons'
 import { RedirectPathToMyPoolsNetwork } from './Pool/redirect'
 import { RedirectPathToPoolsNetwork } from './Pools/redirect'
 import { RedirectPathToSwapV3Network } from './SwapV3/redirects'
+import TestMeta from './TestMeta'
 import TrueSightV2 from './TrueSightV2'
 import TruesightFooter from './TrueSightV2/components/TruesightFooter'
 import Verify from './Verify'
@@ -329,6 +330,7 @@ export default function App() {
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgramPage />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />
                     <Route path="/icons" element={<Icons />} />
+                    <Route path="/test" element={<TestMeta />} />
 
                     <Route path="*" element={<RedirectPathToSwapV3Network />} />
                   </Routes>
