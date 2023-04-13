@@ -672,7 +672,7 @@ export const TradingVolumeChart = () => {
                   label: ({ x, y, value }: { x: number; y: number; value: number }) => {
                     return (
                       <text x={x} y={y} dy={-8} fontSize={12} fontWeight={500} fill={theme.text} textAnchor="middle">
-                        ${formatShortNum(value)}
+                        ${value !== 0 && `$${formatShortNum(value)}`}
                       </text>
                     )
                   },
@@ -884,7 +884,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart
                 width={500}
-                height={300}
+                height={400}
                 data={formattedData}
                 stackOffset="sign"
                 margin={{ top: 50, left: 20, right: 20 }}
@@ -1011,6 +1011,23 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                     stroke="url(#gradient)"
                     strokeWidth={3}
                     dot={false}
+                    {...{
+                      label: ({ x, y, value }: { x: number; y: number; value: number }) => {
+                        return (
+                          <text
+                            x={x}
+                            y={y}
+                            dy={-8}
+                            fontSize={12}
+                            fontWeight={500}
+                            fill={theme.text}
+                            textAnchor="middle"
+                          >
+                            {value !== 0 && `$${formatShortNum(value)}`}
+                          </text>
+                        )
+                      },
+                    }}
                   />
                 )}
               </ComposedChart>
@@ -1253,7 +1270,7 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
                         </Text>
                         {payload.cexes.map((item: INetflowToCEX, index: number) => (
                           <Text key={index} fontSize="12px" lineHeight="16px" color={theme.primary}>
-                            {formatShortNum(item.inflow)}
+                            ${formatShortNum(item.inflow)}
                           </Text>
                         ))}
                       </Column>
@@ -1263,7 +1280,7 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
                         </Text>
                         {payload.cexes.map((item: INetflowToCEX, index: number) => (
                           <Text key={index} fontSize="12px" lineHeight="16px" color={theme.red}>
-                            {formatShortNum(item.outflow)}
+                            ${formatShortNum(item.outflow)}
                           </Text>
                         ))}
                       </Column>
@@ -1304,6 +1321,15 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
                 stroke="url(#gradient)"
                 strokeWidth={3}
                 dot={false}
+                {...{
+                  label: ({ x, y, value }: { x: number; y: number; value: number }) => {
+                    return (
+                      <text x={x} y={y} dy={-8} fontSize={12} fontWeight={500} fill={theme.text} textAnchor="middle">
+                        {value !== 0 && `$${formatShortNum(value)}`}
+                      </text>
+                    )
+                  },
+                }}
               />
             )}
           </ComposedChart>
