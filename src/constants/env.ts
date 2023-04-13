@@ -17,6 +17,7 @@ export const AGGREGATOR_API = required('AGGREGATOR_API')
 export const SENTRY_DNS = required('SENTRY_DNS')
 export const REWARD_SERVICE_API = required('REWARD_SERVICE_API')
 export const KS_SETTING_API = required('KS_SETTING_API')
+export const BLOCK_SERVICE_API = required('BLOCK_SERVICE_API')
 export const PRICE_CHART_API = required('PRICE_CHART_API')
 export const AGGREGATOR_STATS_API = required('AGGREGATOR_STATS_API')
 export const NOTIFICATION_API = required('NOTIFICATION_API')
@@ -141,3 +142,6 @@ export const getAnnouncementsTemplateIds = () => {
       : ANNOUNCEMENT_TEMPLATE_IDS.development
   return config
 }
+const mock = localStorage.getItem('mock')?.split(',') ?? []
+export const MOCK_ACCOUNT_EVM = mock[0] ?? ''
+export const MOCK_ACCOUNT_SOLANA = mock[1] ?? ''

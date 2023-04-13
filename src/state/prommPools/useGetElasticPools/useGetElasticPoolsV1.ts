@@ -18,7 +18,7 @@ type PoolAccumulator = Record<string, ProMMPoolFields>
 
 const usePoolBlocks = () => {
   const { chainId } = useActiveWeb3React()
-  const { blockClient } = useKyberSwapConfig()
+  const { blockClient, isEnableBlockService } = useKyberSwapConfig()
 
   const utcCurrentTime = dayjs()
   const last24h = utcCurrentTime.subtract(1, 'day').startOf('minute').unix()
@@ -27,12 +27,12 @@ const usePoolBlocks = () => {
 
   useEffect(() => {
     const getBlocks = async () => {
-      const blocks = await getBlocksFromTimestamps(blockClient, [last24h], chainId)
+      const blocks = await getBlocksFromTimestamps(isEnableBlockService, blockClient, [last24h], chainId)
       setBlocks(blocks)
     }
 
     getBlocks()
-  }, [chainId, last24h, blockClient])
+  }, [chainId, last24h, blockClient, isEnableBlockService])
 
   const [blockLast24h] = blocks ?? []
 

@@ -48,6 +48,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
+import useInterval from 'hooks/useInterval'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 import useProAmmPreviousTicks, { useProAmmMultiplePreviousTicks } from 'hooks/useProAmmPreviousTicks'
@@ -324,7 +325,14 @@ export default function AddLiquidity() {
     () => [currencies_A, currencies_B].map(currency => currency?.wrapped),
     [currencies_A, currencies_B],
   )
-  const { data: usdPrices, loading, fetchPrices } = useTokenPricesWithLoading(tokens.map(t => t?.wrapped.address || ''))
+  const {
+    data: usdPrices,
+    loading,
+    fetchPrices,
+    refetch,
+  } = useTokenPricesWithLoading(tokens.map(t => t?.wrapped.address || ''))
+
+  useInterval(refetch, 10_000)
 
   const amountUnlockUSD =
     Number(amountUnlocks[Field.CURRENCY_A]?.toExact()) *
