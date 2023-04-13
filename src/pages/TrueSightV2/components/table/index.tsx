@@ -52,6 +52,7 @@ const TableWrapper = styled(ContentWrapper)`
   overflow: hidden;
   padding: 0;
   font-size: 12px;
+  border-radius: 6px;
 `
 const TableHeader = styled.div<{ gridTemplateColumns: string }>`
   display: grid;

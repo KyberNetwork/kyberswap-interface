@@ -22,7 +22,7 @@ export const StyledSectionWrapper = styled.div<{ show?: boolean }>`
   border-radius: 20px;
   border: 1px solid ${({ theme }) => theme.border};
   /* ${({ theme }) => `background-color: ${theme.background};`} */
-  background: linear-gradient(332deg, rgb(32 32 32) 20%, rgba(15, 15, 15, 1) 90%);
+  background: linear-gradient(332deg, rgb(32 32 32) 0%, rgba(15, 15, 15, 1) 80%);
   margin-bottom: 36px;
   display: flex;
   flex-direction: column;
@@ -98,6 +98,7 @@ export const ShareButton = ({ onClick }: { onClick?: () => void }) => {
 export const SectionWrapper = ({
   show,
   title,
+  subTitle,
   description,
   id,
   shareButton,
@@ -111,6 +112,7 @@ export const SectionWrapper = ({
 }: {
   show?: boolean
   title?: string | ReactNode
+  subTitle?: string | ReactNode
   description?: ReactNode
   id?: string
   shareButton?: boolean
@@ -161,6 +163,11 @@ export const SectionWrapper = ({
                 )}
               </RowFit>
               <RowFit color={theme.subText} gap="12px">
+                {subTitle && (
+                  <Text fontStyle="italic" fontSize="12px" lineHeight="16px" color={theme.subText}>
+                    {subTitle}
+                  </Text>
+                )}
                 {shareButton && <ShareButton onClick={() => onShareClick?.(id)} />}
                 {fullscreenButton && <FullscreenButton element={ref.current} />}
               </RowFit>

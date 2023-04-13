@@ -106,10 +106,6 @@ export default function TechnicalAnalysis() {
   }, [data, isLoading])
 
   const tokenAnalysisSettings = useTokenAnalysisSettings()
-  console.log(
-    '🚀 ~ file: TechnicalAnalysis.tsx:109 ~ TechnicalAnalysis ~ tokenAnalysisSettings:',
-    tokenAnalysisSettings,
-  )
 
   return (
     <TechnicalAnalysisContext.Provider
@@ -134,6 +130,7 @@ export default function TechnicalAnalysis() {
         <SectionWrapper
           show={tokenAnalysisSettings?.supportResistanceLevels}
           title={t`Support & Resistance Levels`}
+          subTitle={t`Note: These are estimated support / resistance levels only and should not be considered as financial advice`}
           description={
             <Trans>
               <Text as="span" color={theme.primary}>
@@ -170,6 +167,7 @@ export default function TechnicalAnalysis() {
         <SectionWrapper
           show={tokenAnalysisSettings?.liveDEXTrades}
           title={t`Live Trades`}
+          subTitle={t`Note:  Live trades may be slightly delayed`}
           style={{ height: 'fit-content' }}
         >
           <LiveDEXTrades />
