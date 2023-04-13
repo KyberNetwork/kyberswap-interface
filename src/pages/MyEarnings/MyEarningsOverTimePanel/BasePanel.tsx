@@ -95,7 +95,7 @@ const BasePanel: React.FC<Props> = ({
   const todayValue = displayTicks?.slice(-1)[0]?.totalValue
 
   const renderPercentDiff = () => {
-    if (isLoading || !displayTicks) {
+    if (isLoading || !displayTicks?.length) {
       return <PercentDiff>--</PercentDiff>
     }
 
