@@ -6,6 +6,7 @@ import { Flex, Text } from 'rebass'
 import Loader from 'components/Loader'
 import useGetLeaderboardGrantProgram, { RankByParam } from 'hooks/campaigns/useGetLeaderboardGrantProgram'
 import useTheme from 'hooks/useTheme'
+import { ProjectRanking } from 'types/grantProgram'
 
 import { HeaderText } from '../../styleds'
 import LeaderBoard from './LeaderBoard'

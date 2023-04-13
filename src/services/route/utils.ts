@@ -1,6 +1,7 @@
 import { Currency, Price } from '@kyberswap/ks-sdk-core'
 
 import { getRouteTokenAddressParam } from 'components/SwapForm/hooks/useGetRoute'
+import { DetailedRouteSummary } from 'types/route'
 import { toCurrencyAmount } from 'utils/currencyAmount'
 
 import { GetRouteData } from './types/getRoute'

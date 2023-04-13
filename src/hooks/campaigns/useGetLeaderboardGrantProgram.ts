@@ -3,6 +3,7 @@ import { stringify } from 'querystring'
 import useSWR, { mutate } from 'swr'
 
 import { SWR_KEYS } from 'constants/index'
+import { ProjectRanking } from 'types/grantProgram'
 
 export type RankByParam = 'total_participants' | 'total_trades' | 'total_volume'
 

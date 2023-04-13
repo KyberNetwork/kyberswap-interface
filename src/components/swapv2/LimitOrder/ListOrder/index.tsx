@@ -29,6 +29,7 @@ import { useLimitState } from 'state/limit/hooks'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { TransactionFlowState } from 'types/TransactionFlowState'
 import { findTx, getLimitOrderContract } from 'utils'
 import {
   subscribeNotificationOrderCancelled,

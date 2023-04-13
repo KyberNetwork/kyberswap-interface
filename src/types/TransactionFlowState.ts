@@ -1,4 +1,4 @@
-type TransactionFlowState = {
+export type TransactionFlowState = {
   showConfirm: boolean
   attemptingTxn: boolean
   errorMessage: string | undefined

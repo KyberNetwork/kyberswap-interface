@@ -6,6 +6,7 @@ import styled from 'styled-components'
 import TrophyImage from 'assets/images/campaign_trophy.png'
 import useGetLeaderboardGrantProgram from 'hooks/campaigns/useGetLeaderboardGrantProgram'
 import { MEDIA_WIDTHS } from 'theme'
+import { ProjectRanking } from 'types/grantProgram'
 
 import { RankByConfig } from '.'
 

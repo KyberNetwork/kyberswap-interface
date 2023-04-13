@@ -4,6 +4,7 @@ import { Flex } from 'rebass'
 
 import { APP_PATHS } from 'constants/index'
 import { MEDIA_WIDTHS } from 'theme'
+import { GrantProgram } from 'types/grantProgram'
 
 import Banner from '../Banner'
 import CountdownTimer from '../CountdownTimer'

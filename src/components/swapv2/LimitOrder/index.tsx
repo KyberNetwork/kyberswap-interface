@@ -4,6 +4,7 @@ import { memo, useState } from 'react'
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import useSyncTokenSymbolToUrl from 'hooks/useSyncTokenSymbolToUrl'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
+import { TransactionFlowState } from 'types/TransactionFlowState'
 
 import LimitOrderForm from './LimitOrderForm'
 

@@ -24,6 +24,7 @@ import useTheme from 'hooks/useTheme'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { useElasticFarms } from 'state/farms/elastic/hooks'
 import { ExternalLink } from 'theme'
+import { ElasticPoolDetail } from 'types/pool'
 import { isAddressString, shortenAddress } from 'utils'
 import { formatDollarAmount } from 'utils/numbers'
 

@@ -16,6 +16,7 @@ import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { WrapType } from 'hooks/useWrapCallback'
 import { useWalletModalToggle } from 'state/application/hooks'
+import { DetailedRouteSummary } from 'types/route'
 
 import { Props as SwapOnlyButtonProps } from './SwapOnlyButton'
 

@@ -48,6 +48,7 @@ import { useDefaultsFromURLSearch, useInputCurrency, useOutputCurrency, useSwapA
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useDegenModeManager, useShowLiveChart, useShowTokenInfo, useShowTradeRoutes } from 'state/user/hooks'
 import { CloseIcon } from 'theme'
+import { DetailedRouteSummary } from 'types/route'
 import { getTradeComposition } from 'utils/aggregationRouting'
 import { getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList } from 'utils/tokenInfo'

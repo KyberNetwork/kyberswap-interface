@@ -1,3 +1,5 @@
+import { FeeConfig, Route } from 'types/route'
+
 export type GetRouteParams = {
   tokenIn: string
   tokenOut: string
@@ -12,22 +14,6 @@ export type GetRouteParams = {
   isInBps: string
   feeReceiver: string
   debug?: string
-}
-
-type Route = {
-  pool: string
-
-  tokenIn: string
-  swapAmount: string
-
-  tokenOut: string
-  amountOut: string
-
-  limitReturnAmount: string
-  exchange: string
-  poolLength: number
-  poolType: string
-  extra: string
 }
 
 export type RouteSummary = {

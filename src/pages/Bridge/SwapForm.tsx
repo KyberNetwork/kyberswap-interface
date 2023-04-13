@@ -35,6 +35,7 @@ import { tryParseAmount } from 'state/swap/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { ExternalLink } from 'theme'
+import { TransactionFlowState } from 'types/TransactionFlowState'
 import { formattedNum } from 'utils'
 
 import ComfirmBridgeModal from './ComfirmBridgeModal'

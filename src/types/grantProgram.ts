@@ -1,4 +1,4 @@
-type GrantProgram = {
+export type GrantProgram = {
   id: number
   name: string
   startTime: number
@@ -14,7 +14,7 @@ type GrantProgram = {
   mobileBanner: string
 }
 
-type ProjectRanking = {
+export type ProjectRanking = {
   rankNo: number
   competitorId: number
   name: string

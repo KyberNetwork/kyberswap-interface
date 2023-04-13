@@ -1,4 +1,4 @@
-type ElasticPoolDetail = {
+export type ElasticPoolDetail = {
   address: string
   feeTier: number
 
