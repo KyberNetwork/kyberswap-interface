@@ -666,7 +666,7 @@ export default function Swap() {
                       </Text>
                     </Tab>
                     {getLimitOrderContract(chainId) && (
-                      <Tab onClick={() => onClickTab(TAB.LIMIT)} isActive={isLimitPage}>
+                      <Tab id="limit-button" onClick={() => onClickTab(TAB.LIMIT)} isActive={isLimitPage}>
                         <Text fontSize={20} fontWeight={500}>
                           <Trans>Limit</Trans>
                         </Text>
