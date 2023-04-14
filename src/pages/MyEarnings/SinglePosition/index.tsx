@@ -1,17 +1,13 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { FeeAmount, Position } from '@kyberswap/ks-sdk-elastic'
+import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { useMemo, useState } from 'react'
 import { Flex } from 'rebass'
 import { PositionEarningWithDetails } from 'services/earning'
 import styled from 'styled-components'
 
 import Background from 'assets/images/card-background2.png'
-import { usePool } from 'hooks/usePools'
-import useTheme from 'hooks/useTheme'
 import EarningView from 'pages/MyEarnings/SinglePosition/EarningView'
 import PositionView from 'pages/MyEarnings/SinglePosition/PositionView'
-import { useAppSelector } from 'state/hooks'
-import { isAddress } from 'utils'
 
 export const Wrapper = styled.div`
   display: flex;
@@ -41,28 +37,10 @@ const FlipCard = styled.div<{ flip: boolean; joined?: boolean }>`
 type Props = {
   chainId: ChainId
   positionEarning: PositionEarningWithDetails
+  pool: Pool | undefined
 }
-const SinglePosition: React.FC<Props> = ({ positionEarning, chainId }) => {
-  const theme = useTheme()
+const SinglePosition: React.FC<Props> = ({ positionEarning, chainId, pool }) => {
   const [isFlipped, setFlipped] = useState(false)
-  const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
-  const feeAmount = Number(positionEarning.pool.feeTier) as FeeAmount
-
-  const [currency0, currency1] = useMemo(() => {
-    const tokenAddress0 = isAddress(chainId, positionEarning.token0)
-    const tokenAddress1 = isAddress(chainId, positionEarning.token1)
-
-    if (!tokenAddress0 || !tokenAddress1) {
-      return []
-    }
-
-    const currency0 = tokensByChainId[chainId][tokenAddress0]
-    const currency1 = tokensByChainId[chainId][tokenAddress1]
-
-    return [currency0, currency1]
-  }, [chainId, positionEarning.token0, positionEarning.token1, tokensByChainId])
-
-  const [, pool] = usePool(currency0 || undefined, currency1 || undefined, feeAmount)
 
   const position = useMemo(() => {
     if (pool) {
@@ -81,8 +59,12 @@ const SinglePosition: React.FC<Props> = ({ positionEarning, chainId }) => {
     setFlipped(v => !v)
   }
 
+  const handleClick = () => {
+    console.log({ positionEarning })
+  }
+
   return (
-    <FlipCard flip={isFlipped}>
+    <FlipCard flip={isFlipped} onClick={handleClick}>
       {isFlipped && (
         <Flex
           sx={{

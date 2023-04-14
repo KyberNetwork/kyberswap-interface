@@ -19,7 +19,7 @@ import { Wrapper } from 'pages/MyEarnings/SinglePosition'
 import { ActionButton } from 'pages/MyEarnings/SinglePosition/ActionButton'
 import PriceRangeChart from 'pages/MyEarnings/SinglePosition/PriceRangeChart'
 import { useAppSelector } from 'state/hooks'
-import { useTokenPrices } from 'state/tokenPrices/hooks'
+import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 import { formattedNumLong, isAddress } from 'utils'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
@@ -72,7 +72,10 @@ const PositionView: React.FC<Props> = ({ onFlipView, positionEarning, position }
 
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
 
-  const prices = useTokenPrices([token0.wrapped.address || '', token1.wrapped.address || ''])
+  const { data: prices } = useTokenPricesWithLoading(
+    [token0.wrapped.address || '', token1.wrapped.address || ''],
+    chainId,
+  )
 
   const liquidityInUsd =
     parseFloat(position.amount0.toExact() || '0') * prices[token0.wrapped.address || ''] +

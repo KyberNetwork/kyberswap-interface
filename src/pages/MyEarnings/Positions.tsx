@@ -1,4 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { Pool } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { useState } from 'react'
 import { Box, Flex, Text } from 'rebass'
@@ -12,8 +13,9 @@ import SinglePosition from 'pages/MyEarnings/SinglePosition'
 type Props = {
   chainId: ChainId
   positionEarnings: PositionEarningWithDetails[]
+  pool: Pool | undefined
 }
-const Positions: React.FC<Props> = ({ positionEarnings, chainId }) => {
+const Positions: React.FC<Props> = ({ positionEarnings, chainId, pool }) => {
   const theme = useTheme()
   const [numberOfVisiblePositions, setNumberOfVisiblePositions] = useState(3)
   return (
@@ -64,7 +66,7 @@ const Positions: React.FC<Props> = ({ positionEarnings, chainId }) => {
         }}
       >
         {positionEarnings.slice(0, numberOfVisiblePositions).map(positionEarning => (
-          <SinglePosition chainId={chainId} key={positionEarning.id} positionEarning={positionEarning} />
+          <SinglePosition chainId={chainId} key={positionEarning.id} positionEarning={positionEarning} pool={pool} />
         ))}
       </Box>
 

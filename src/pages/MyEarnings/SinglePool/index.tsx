@@ -1,131 +1,26 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { FeeAmount, Pool } from '@kyberswap/ks-sdk-elastic'
-import { Interface } from 'ethers/lib/utils'
+import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
 import { rgba } from 'polished'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import { PoolEarningWithDetails, PositionEarningWithDetails } from 'services/earning'
 import styled from 'styled-components'
 
+import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import CopyHelper from 'components/Copy'
 import { MoneyBag } from 'components/Icons'
+import Loader from 'components/Loader'
 import Logo from 'components/Logo'
-import ProAmmPoolStateABI from 'constants/abis/v2/ProAmmPoolState.json'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
-import { useMulticallContract } from 'hooks/useContract'
+import { PoolState } from 'hooks/usePools'
+import { usePoolv2 } from 'hooks/usePoolv2'
 import useTheme from 'hooks/useTheme'
 import Positions from 'pages/MyEarnings/Positions'
 import PoolEarningsSection from 'pages/MyEarnings/SinglePool/PoolEarningsSection'
 import StatsRow from 'pages/MyEarnings/SinglePool/StatsRow'
+import { ButtonIcon } from 'pages/Pools/styleds'
 import { useAppSelector } from 'state/hooks'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { isAddress, shortenAddress } from 'utils'
-
-const PoolStateInterface = new Interface(ProAmmPoolStateABI.abi)
-
-type CallParam = {
-  callData: string
-  target: string
-  fragment: string
-  key: string
-}
-
-const formatResult = (responseData: any, calls: CallParam[], defaultValue?: any): any => {
-  const response: any = responseData.returnData
-    ? responseData.returnData.map((item: [boolean, string]) => item[1])
-    : responseData
-
-  console.log({
-    responseData,
-    response,
-  })
-
-  const resultList: { [key: string]: any } = {}
-  if (!response) return resultList
-  for (let i = 0, len = calls.length; i < len; i++) {
-    const item = calls[i]
-    if (!response[i]) continue
-    let value: any
-    try {
-      value = PoolStateInterface?.decodeFunctionResult(item.fragment, response[i])
-    } catch (error) {
-      continue
-    }
-    const output = value || defaultValue
-    if (output) resultList[item.key] = output
-  }
-  return resultList
-}
-
-const useGetMultiplePoolDetails = (
-  chainId: ChainId,
-  poolEarning: PoolEarningWithDetails,
-  currency0: WrappedTokenInfo | undefined,
-  currency1: WrappedTokenInfo | undefined,
-  fee: FeeAmount,
-) => {
-  const multicallContract = useMulticallContract(chainId)
-
-  const getPoolsDetails = useCallback(async () => {
-    if (!multicallContract || !poolEarning) {
-      return
-    }
-
-    const callParams = [
-      {
-        callData: PoolStateInterface.encodeFunctionData('getPoolState'),
-        target: poolEarning.id,
-        fragment: 'getPoolState',
-        key: 'poolState',
-      },
-      {
-        callData: PoolStateInterface.encodeFunctionData('getLiquidityState'),
-        target: poolEarning.id,
-        fragment: 'getLiquidityState',
-        key: 'liquidityState',
-      },
-    ]
-
-    const returnData = await multicallContract.callStatic.tryBlockAndAggregate(
-      false,
-      callParams.map(({ callData, target }) => ({ callData, target })),
-    )
-
-    const xxx = formatResult(returnData, callParams, '0')
-
-    if (!currency0 || !currency1) {
-      return
-    }
-
-    const pool = new Pool(
-      currency0,
-      currency1,
-      fee,
-      xxx.poolState.sqrtP,
-      xxx.liquidityState.baseL,
-      xxx.liquidityState.reinvestL,
-      xxx.poolState.currentTick,
-    )
-
-    console.log({ xxx, pool })
-  }, [currency0, currency1, fee, multicallContract, poolEarning])
-
-  // const getEvmPoolsData = useCallback(async () => {
-  //   if (!chainId) return Promise.reject('Wrong input')
-  //   try {
-  //     const calls = getCallParams(tokenList)
-  //     const returnData = await multicallContract?.callStatic.tryBlockAndAggregate(
-  //       false,
-  //       calls.map(({ callData, target }) => ({ target, callData })),
-  //     )
-  //     return formatResult(returnData, calls, '0')
-  //   } catch (error) {
-  //     return Promise.reject(error)
-  //   }
-  // }, [chainId, tokenList, multicallContract])
-
-  return getPoolsDetails
-}
 
 const Badge = styled.div<{ $color?: string }>`
   height: 32px;
@@ -174,11 +69,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
     setExpanded(e => !e)
   }, [])
 
-  const getData = useGetMultiplePoolDetails(chainId, poolEarning, currency0, currency1, feeAmount)
-
-  useEffect(() => {
-    getData()
-  }, [getData])
+  const { pool, poolState } = usePoolv2(chainId, currency0, currency1, feeAmount)
 
   return (
     <Flex
@@ -247,19 +138,34 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
       </Flex>
 
       <StatsRow
-        isExpanded={isExpanded}
-        toggleExpanded={toggleExpanded}
         chainId={chainId}
         totalValueLockedUsd={poolEarning.totalValueLockedUsd}
         apr={poolEarning.apr}
         volume24hUsd={Number(poolEarning.volumeUsd) - Number(poolEarning.volumeUsdOneDayAgo)}
         fees24hUsd={Number(poolEarning.feesUsd) - Number(poolEarning.feesUsdOneDayAgo)}
+        renderToggleExpandButton={() => {
+          return (
+            <ButtonIcon
+              style={{
+                flex: '0 0 36px',
+                width: '36px',
+                height: '36px',
+                transform: isExpanded ? 'rotate(180deg)' : undefined,
+                transition: 'all 150ms ease',
+              }}
+              disabled={!pool}
+              onClick={toggleExpanded}
+            >
+              {poolState === PoolState.LOADING ? <Loader /> : <DropdownSVG />}
+            </ButtonIcon>
+          )
+        }}
       />
 
       {isExpanded && (
         <>
           <PoolEarningsSection poolEarning={poolEarning} chainId={chainId} />
-          <Positions positionEarnings={positionEarnings} chainId={chainId} />
+          <Positions positionEarnings={positionEarnings} chainId={chainId} pool={pool} />
         </>
       )}
     </Flex>

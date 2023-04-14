@@ -51,7 +51,6 @@ type Props = {
 
 const EarningsBreakdownPanel: React.FC<Props> = ({ isLoading, data, className }) => {
   const theme = useTheme()
-  console.log({ data })
 
   const numberOfTokens = data?.breakdowns.length || 0
 

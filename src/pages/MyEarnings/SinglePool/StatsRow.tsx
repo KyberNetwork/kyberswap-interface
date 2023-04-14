@@ -3,7 +3,6 @@ import { t } from '@lingui/macro'
 import { Box, Flex, Text } from 'rebass'
 
 import { ReactComponent as BarChart } from 'assets/svg/barchart.svg'
-import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { ButtonLight } from 'components/Button'
 import { NetworkLogo } from 'components/Logo'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -100,20 +99,16 @@ type Props = {
   volume24hUsd: number
   fees24hUsd: number
 
-  isExpanded: boolean
-  toggleExpanded: () => void
+  renderToggleExpandButton: () => React.ReactNode
 }
 const StatsRow: React.FC<Props> = ({
-  isExpanded,
-  toggleExpanded,
+  renderToggleExpandButton,
   chainId,
   totalValueLockedUsd,
   apr,
   volume24hUsd,
   fees24hUsd,
 }) => {
-  const theme = useTheme()
-
   return (
     <Box
       sx={{
@@ -150,18 +145,7 @@ const StatsRow: React.FC<Props> = ({
           <BarChart />
         </ButtonIcon>
 
-        <ButtonIcon
-          style={{
-            flex: '0 0 36px',
-            width: '36px',
-            height: '36px',
-            transform: isExpanded ? 'rotate(180deg)' : undefined,
-            transition: 'all 150ms ease',
-          }}
-          onClick={toggleExpanded}
-        >
-          <DropdownSVG />
-        </ButtonIcon>
+        {renderToggleExpandButton()}
       </Flex>
     </Box>
   )
