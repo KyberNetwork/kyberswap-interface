@@ -1,6 +1,8 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { FeeAmount, Pool } from '@kyberswap/ks-sdk-elastic'
+import { Interface } from 'ethers/lib/utils'
 import { rgba } from 'polished'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import { PoolEarningWithDetails, PositionEarningWithDetails } from 'services/earning'
 import styled from 'styled-components'
@@ -8,13 +10,122 @@ import styled from 'styled-components'
 import CopyHelper from 'components/Copy'
 import { MoneyBag } from 'components/Icons'
 import Logo from 'components/Logo'
+import ProAmmPoolStateABI from 'constants/abis/v2/ProAmmPoolState.json'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
+import { useMulticallContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
 import Positions from 'pages/MyEarnings/Positions'
 import PoolEarningsSection from 'pages/MyEarnings/SinglePool/PoolEarningsSection'
 import StatsRow from 'pages/MyEarnings/SinglePool/StatsRow'
 import { useAppSelector } from 'state/hooks'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { isAddress, shortenAddress } from 'utils'
+
+const PoolStateInterface = new Interface(ProAmmPoolStateABI.abi)
+
+type CallParam = {
+  callData: string
+  target: string
+  fragment: string
+  key: string
+}
+
+const formatResult = (responseData: any, calls: CallParam[], defaultValue?: any): any => {
+  const response: any = responseData.returnData
+    ? responseData.returnData.map((item: [boolean, string]) => item[1])
+    : responseData
+
+  console.log({
+    responseData,
+    response,
+  })
+
+  const resultList: { [key: string]: any } = {}
+  if (!response) return resultList
+  for (let i = 0, len = calls.length; i < len; i++) {
+    const item = calls[i]
+    if (!response[i]) continue
+    let value: any
+    try {
+      value = PoolStateInterface?.decodeFunctionResult(item.fragment, response[i])
+    } catch (error) {
+      continue
+    }
+    const output = value || defaultValue
+    if (output) resultList[item.key] = output
+  }
+  return resultList
+}
+
+const useGetMultiplePoolDetails = (
+  chainId: ChainId,
+  poolEarning: PoolEarningWithDetails,
+  currency0: WrappedTokenInfo | undefined,
+  currency1: WrappedTokenInfo | undefined,
+  fee: FeeAmount,
+) => {
+  const multicallContract = useMulticallContract(chainId)
+
+  const getPoolsDetails = useCallback(async () => {
+    if (!multicallContract || !poolEarning) {
+      return
+    }
+
+    const callParams = [
+      {
+        callData: PoolStateInterface.encodeFunctionData('getPoolState'),
+        target: poolEarning.id,
+        fragment: 'getPoolState',
+        key: 'poolState',
+      },
+      {
+        callData: PoolStateInterface.encodeFunctionData('getLiquidityState'),
+        target: poolEarning.id,
+        fragment: 'getLiquidityState',
+        key: 'liquidityState',
+      },
+    ]
+
+    const returnData = await multicallContract.callStatic.tryBlockAndAggregate(
+      false,
+      callParams.map(({ callData, target }) => ({ callData, target })),
+    )
+
+    const xxx = formatResult(returnData, callParams, '0')
+
+    if (!currency0 || !currency1) {
+      return
+    }
+
+    const pool = new Pool(
+      currency0,
+      currency1,
+      fee,
+      xxx.poolState.sqrtP,
+      xxx.liquidityState.baseL,
+      xxx.liquidityState.reinvestL,
+      xxx.poolState.currentTick,
+    )
+
+    console.log({ xxx, pool })
+  }, [currency0, currency1, fee, multicallContract, poolEarning])
+
+  // const getEvmPoolsData = useCallback(async () => {
+  //   if (!chainId) return Promise.reject('Wrong input')
+  //   try {
+  //     const calls = getCallParams(tokenList)
+  //     const returnData = await multicallContract?.callStatic.tryBlockAndAggregate(
+  //       false,
+  //       calls.map(({ callData, target }) => ({ target, callData })),
+  //     )
+  //     return formatResult(returnData, calls, '0')
+  //   } catch (error) {
+  //     return Promise.reject(error)
+  //   }
+  // }, [chainId, tokenList, multicallContract])
+
+  return getPoolsDetails
+}
 
 const Badge = styled.div<{ $color?: string }>`
   height: 32px;
@@ -43,6 +154,8 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
   const [isExpanded, setExpanded] = useState(false)
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
 
+  const feeAmount = Number(poolEarning.feeTier) as FeeAmount
+
   const [currency0, currency1] = useMemo(() => {
     const tokenAddress0 = isAddress(chainId, poolEarning.token0.id)
     const tokenAddress1 = isAddress(chainId, poolEarning.token1.id)
@@ -60,6 +173,12 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
   const toggleExpanded = useCallback(() => {
     setExpanded(e => !e)
   }, [])
+
+  const getData = useGetMultiplePoolDetails(chainId, poolEarning, currency0, currency1, feeAmount)
+
+  useEffect(() => {
+    getData()
+  }, [getData])
 
   return (
     <Flex
