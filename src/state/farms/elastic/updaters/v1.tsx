@@ -73,7 +73,11 @@ const ELASTIC_FARM_QUERY = gql`
     farms(first: 1000) {
       id
       rewardLocker
-      farmingPools(orderBy: pid, orderDirection: desc) {
+      farmingPools(
+        orderBy: pid
+        orderDirection: desc
+        where: { pool_: { id_not: "0xf2057f0231bedcecf32436e3cd6b0b93c6675e0a" } }
+      ) {
         id
         pid
         startTime
