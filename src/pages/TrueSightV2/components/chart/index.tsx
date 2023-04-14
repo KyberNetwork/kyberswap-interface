@@ -717,7 +717,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
     const now = Math.floor(Date.now() / 60000) * 60
     const timerange =
       {
-        [KyberAITimeframe.ONE_DAY]: 3600,
+        [KyberAITimeframe.ONE_DAY]: 14400,
         [KyberAITimeframe.ONE_WEEK]: 86400,
         [KyberAITimeframe.ONE_MONTH]: 86400,
         [KyberAITimeframe.THREE_MONTHS]: 86400,
@@ -800,14 +800,9 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
 
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const percentage = useMemo(() => {
-    return (
-      100 /
-      (Math.abs(
-        Math.max(...formattedData.map(_ => _.netflow as number)) /
-          Math.min(...formattedData.map(_ => _.netflow as number)),
-      ) +
-        1)
-    )
+    const max = Math.max(...formattedData.map(_ => _.netflow as number))
+    const min = Math.min(...formattedData.map(_ => _.netflow as number))
+    return (Math.abs(0 - min) / (max - min)) * 100
   }, [formattedData])
 
   useEffect(() => {
@@ -980,7 +975,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                   }}
                 />
                 <defs>
-                  <linearGradient id="gradient" x1="0" y1="100%" x2="0" y2="0">
+                  <linearGradient id="gradient1" x1="0" y1="100%" x2="0" y2="0">
                     <stop offset="0%" stopColor={theme.red} />
                     <stop offset={`${percentage}%`} stopColor={theme.red} />
                     <stop offset={`${percentage}%`} stopColor={theme.primary} />
@@ -1008,7 +1003,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                     yAxisId="right"
                     type="linear"
                     dataKey="netflow"
-                    stroke="url(#gradient)"
+                    stroke="url(#gradient1)"
                     strokeWidth={3}
                     dot={false}
                     {...{
@@ -1078,7 +1073,7 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
     const now = Math.floor(Date.now() / 60000) * 60
     const timerange =
       {
-        [KyberAITimeframe.ONE_DAY]: 3600,
+        [KyberAITimeframe.ONE_DAY]: 14400,
         [KyberAITimeframe.ONE_WEEK]: 86400,
         [KyberAITimeframe.ONE_MONTH]: 86400,
         [KyberAITimeframe.THREE_MONTHS]: 86400,
@@ -1126,14 +1121,9 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
   const theme = useTheme()
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const percentage = useMemo(() => {
-    return (
-      100 /
-      (Math.abs(
-        Math.max(...formattedData.map(_ => _.totalNetflow as number)) /
-          Math.min(...formattedData.map(_ => _.totalNetflow as number)),
-      ) +
-        1)
-    )
+    const max = Math.max(...formattedData.map(_ => _.totalNetflow as number))
+    const min = Math.min(...formattedData.map(_ => _.totalNetflow as number))
+    return (Math.abs(0 - min) / (max - min)) * 100
   }, [formattedData])
 
   useEffect(() => {
@@ -1290,7 +1280,7 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
               }}
             />
             <defs>
-              <linearGradient id="gradient" x1="0" y1="100%" x2="0" y2="0">
+              <linearGradient id="gradient2" x1="0" y1="100%" x2="0" y2="0">
                 <stop offset="0%" stopColor={theme.red} />
                 <stop offset={`${percentage}%`} stopColor={theme.red} />
                 <stop offset={`${percentage}%`} stopColor={theme.primary} />
@@ -1318,7 +1308,7 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
                 type="linear"
                 yAxisId="right"
                 dataKey="totalNetflow"
-                stroke="url(#gradient)"
+                stroke="url(#gradient2)"
                 strokeWidth={3}
                 dot={false}
                 {...{
