@@ -187,7 +187,7 @@ export const useFarmV2Action = () => {
         })
         return tx.hash
       } catch (e) {
-        console.log(e)
+        throw e
       }
     },
     [addTransactionWithType, farmContract],
@@ -210,7 +210,7 @@ export const useFarmV2Action = () => {
         })
         return tx.hash
       } catch (e) {
-        console.log(e)
+        throw e
       }
     },
     [addTransactionWithType, farmContract],
@@ -218,7 +218,9 @@ export const useFarmV2Action = () => {
 
   const harvest = useCallback(
     async (fId: number, nftIds: number[]) => {
-      if (!farmContract) return
+      if (!farmContract) {
+        throw new Error("Farm contract doesn't exist")
+      }
 
       try {
         const estimateGas = await farmContract.estimateGas.claimReward(fId, nftIds)
@@ -229,7 +231,7 @@ export const useFarmV2Action = () => {
         addTransactionWithType({ hash: tx.hash, type: TRANSACTION_TYPE.HARVEST })
         return tx
       } catch (e) {
-        console.log(e)
+        throw e
       }
     },
     [addTransactionWithType, farmContract],

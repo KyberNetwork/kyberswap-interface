@@ -1,7 +1,7 @@
 import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
-import { Plus, X } from 'react-feather'
+import { Info, Plus, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -16,6 +16,7 @@ import PriceVisualize from 'components/ProAmm/PriceVisualize'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import Tabs from 'components/Tabs'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
 import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
@@ -26,6 +27,7 @@ import { useFarmV2Action } from 'state/farms/elasticv2/hooks'
 import { ElasticFarmV2 } from 'state/farms/elasticv2/types'
 import { Bound } from 'state/mint/proamm/type'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
+import { StyledInternalLink } from 'theme'
 import { PositionDetails } from 'types/position'
 import { formatTickPrice } from 'utils/formatTickPrice'
 import { getTickToPrice } from 'utils/getTickToPrice'
@@ -212,7 +214,7 @@ const StakeWithNFTsModal = ({
   const [activeRange, setActiveRange] = useState(farm.ranges[0])
 
   const theme = useTheme()
-  const { account } = useActiveWeb3React()
+  const { account, networkInfo } = useActiveWeb3React()
   const { loading, positions: allPositions } = useProAmmPositions(account)
 
   const positions = useMemo(() => {
@@ -319,29 +321,45 @@ const StakeWithNFTsModal = ({
                 ),
                 children: loading ? (
                   <LocalLoader />
+                ) : !positions?.length ? (
+                  <Flex
+                    sx={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
+                    fontSize={14}
+                    color={theme.subText}
+                    padding="16px"
+                    marginTop="20px"
+                  >
+                    <Info size="48px" />
+                    <Text marginTop="16px" textAlign="center" lineHeight={1.5}>
+                      <Trans>
+                        You haven&apos;t deposited any liquidity positions (NFT tokens) for this farming pair yet.
+                        <br />
+                        <br />
+                        Add liquidity to this pool first in our{' '}
+                        <StyledInternalLink to={`${APP_PATHS.POOLS}/${networkInfo.route}`}>
+                          Pools
+                        </StyledInternalLink>{' '}
+                        page. If you&apos;ve done that, deposit your liquidity position (NFT tokens) before you stake
+                      </Trans>
+                    </Text>
+                  </Flex>
                 ) : (
                   <ContentWrapper>
-                    {positions && positions.length > 0 ? (
-                      positions.map(pos => {
-                        return (
-                          <NFTItem
-                            key={pos.tokenId.toString()}
-                            disabled={
-                              activeRange &&
-                              (pos.tickLower > activeRange.tickLower || pos.tickUpper < activeRange.tickUpper)
-                            }
-                            active={selectedPos[pos.tokenId.toString()]}
-                            pos={pos}
-                            onClick={handlePosClick}
-                            prices={prices}
-                          />
-                        )
-                      })
-                    ) : (
-                      <Row height="100px" justify="center" fontSize="12px" color={theme.subText} flex="1">
-                        <Trans>No liquidity position</Trans>
-                      </Row>
-                    )}
+                    {positions.map(pos => {
+                      return (
+                        <NFTItem
+                          key={pos.tokenId.toString()}
+                          disabled={
+                            activeRange &&
+                            (pos.tickLower > activeRange.tickLower || pos.tickUpper < activeRange.tickUpper)
+                          }
+                          active={selectedPos[pos.tokenId.toString()]}
+                          pos={pos}
+                          onClick={handlePosClick}
+                          prices={prices}
+                        />
+                      )
+                    })}
                   </ContentWrapper>
                 ),
               }

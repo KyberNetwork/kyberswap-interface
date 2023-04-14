@@ -3,14 +3,14 @@ import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import { useCallback, useState } from 'react'
-import { Plus, Share2 } from 'react-feather'
+import { Info, Minus, Plus, RefreshCw, Share2 } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import bgimg from 'assets/images/card-background-2.png'
 import { ReactComponent as DownSvg } from 'assets/svg/down.svg'
-import { ButtonLight } from 'components/Button'
+import { ButtonLight, ButtonOutlined } from 'components/Button'
 import { OutlineCard } from 'components/Card'
 import Column from 'components/Column'
 import CopyHelper from 'components/Copy'
@@ -21,6 +21,7 @@ import HorizontalScroll from 'components/HorizontalScroll'
 import Harvest from 'components/Icons/Harvest'
 import { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
+import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { useSharePoolContext } from 'components/YieldPools/SharePoolContext'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
@@ -32,7 +33,6 @@ import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import { formatDollarAmount } from 'utils/numbers'
 
 import { convertTickToPrice } from '../utils'
-import UnstakeWithNFTsModal from './UnstakeWithNFTsModal'
 
 const WrapperInner = styled.div<{ hasRewards: boolean }>`
   padding: 16px;
@@ -99,18 +99,21 @@ const IconButton = styled.div`
 
 function FarmCard({
   onStake,
+  onUnstake,
+  onUpdateFarmClick,
   farm,
   poolAPR,
   isApproved,
 }: {
   onStake: () => void
+  onUnstake: () => void
+  onUpdateFarmClick: () => void
   farm: ElasticFarmV2
   poolAPR: number
   isApproved: boolean
 }) {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
-  const [showUnstake, setShowUnstake] = useState(false)
   const [activeRangeIndex, setActiveRangeIndex] = useState(0)
 
   const setSharePoolAddress = useSharePoolContext()
@@ -151,10 +154,34 @@ function FarmCard({
   const myTotalPosUSDValue = stakedPos.reduce((total, item) => item.positionUsdValue + total, 0)
   const notStakedUSD = myTotalPosUSDValue - myDepositUSD
 
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [txHash, setTxHash] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
+  const [attemptingTxn, setAttemptingTxn] = useState(false)
+
+  const handleDismiss = () => {
+    setTxHash('')
+    setShowConfirmModal(false)
+    setErrorMessage('')
+    setAttemptingTxn(false)
+  }
+
   const { harvest } = useFarmV2Action()
 
   const handleHarvest = useCallback(() => {
+    setShowConfirmModal(true)
+    setAttemptingTxn(true)
+    setTxHash('')
     harvest(farm.fId, stakedPos.map(sp => sp.nftId.toNumber()) || [])
+      .then(txHash => {
+        setAttemptingTxn(false)
+        setTxHash(txHash)
+      })
+      .catch(e => {
+        console.log(e)
+        setAttemptingTxn(false)
+        setErrorMessage(e?.message || JSON.stringify(e))
+      })
   }, [farm, harvest, stakedPos])
 
   const { pool } = farm
@@ -387,10 +414,33 @@ function FarmCard({
               </Text>
               <MouseoverTooltip
                 placement="bottom"
-                width="fit-content"
+                width={canUpdateLiquidity ? '270px' : 'fit-content'}
                 text={
                   !stakedPos.length ? (
                     ''
+                  ) : canUpdateLiquidity ? (
+                    <Flex
+                      sx={{
+                        flexDirection: 'column',
+                        gap: '6px',
+                        fontSize: '12px',
+                        lineHeight: '16px',
+                        fontWeight: 400,
+                      }}
+                    >
+                      <Text as="span" color={theme.subText}>
+                        <Trans>
+                          You still have {formatDollarAmount(notStakedUSD)} in liquidity to stake to earn even more
+                          farming rewards
+                        </Trans>
+                      </Text>
+                      <Text as="span" color={theme.text}>
+                        Staked: {formatDollarAmount(myDepositUSD)}
+                      </Text>
+                      <Text as="span" color={theme.warning}>
+                        Not staked: {formatDollarAmount(notStakedUSD)}
+                      </Text>
+                    </Flex>
                   ) : (
                     <>
                       <Flex alignItems="center" sx={{ gap: '4px' }}>
@@ -414,6 +464,7 @@ function FarmCard({
                   color={canUpdateLiquidity ? theme.warning : theme.text}
                 >
                   {formatDollarAmount(myTotalPosUSDValue)}
+                  {canUpdateLiquidity && <Info size={14} style={{ marginLeft: '4px' }} />}
                   {!!stakedPos.length && <DownSvg />}
                 </Text>
               </MouseoverTooltip>
@@ -423,6 +474,7 @@ function FarmCard({
           <RowFit flex={1} justify="flex-end" gap="12px">
             {canUnstake && (
               <MouseoverTooltip
+                placement="top"
                 width="270px"
                 text={
                   canUpdateLiquidity ? (
@@ -446,6 +498,21 @@ function FarmCard({
                       <Text as="span" color={theme.warning}>
                         Not staked: {formatDollarAmount(notStakedUSD)}
                       </Text>
+
+                      <Flex sx={{ gap: '12px' }}>
+                        <ButtonLight padding="8px 12px" onClick={onUpdateFarmClick}>
+                          <RefreshCw size={14} />
+                          <Text marginLeft="6px" fontSize={['12px', '14px']}>
+                            <Trans>Update</Trans>
+                          </Text>
+                        </ButtonLight>
+                        <ButtonOutlined color={theme.red} padding="8px 12px" onClick={onUnstake}>
+                          <Minus size={14} />
+                          <Text marginLeft="6px" fontSize={['12px', '14px']}>
+                            <Trans>Unstake</Trans>
+                          </Text>
+                        </ButtonOutlined>
+                      </Flex>
                     </Flex>
                   ) : (
                     ''
@@ -454,7 +521,7 @@ function FarmCard({
               >
                 <UnstakeButton
                   color={canUpdateLiquidity ? theme.warning : theme.subText}
-                  onClick={() => setShowUnstake(p => !p)}
+                  onClick={() => !canUpdateLiquidity && onUnstake()}
                 >
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g clipPath="url(#clip0_1048_20034)">
@@ -469,7 +536,9 @@ function FarmCard({
                       </clipPath>
                     </defs>
                   </svg>
-                  Manage
+                  <Text marginLeft="6px" fontSize={['12px', '14px']}>
+                    <Trans>Manage</Trans>
+                  </Text>
                 </UnstakeButton>
               </MouseoverTooltip>
             )}
@@ -484,21 +553,25 @@ function FarmCard({
             >
               <Plus size={16} />
               <Text marginLeft="6px" fontSize={['12px', '14px']}>
-                Stake
+                <Trans>Stake</Trans>
               </Text>
             </ButtonLight>
           </RowFit>
         </RowBetween>
       </WrapperInner>
-      {canUnstake && (
-        <UnstakeWithNFTsModal
-          farm={farm}
-          activeRangeIndex={activeRangeIndex}
-          isOpen={showUnstake}
-          onDismiss={() => setShowUnstake(false)}
-          stakedPos={stakedPos}
-        />
-      )}
+
+      <TransactionConfirmationModal
+        isOpen={showConfirmModal}
+        onDismiss={handleDismiss}
+        hash={txHash}
+        attemptingTxn={attemptingTxn}
+        pendingText={t`Harvesting rewards`}
+        content={() => (
+          <Flex flexDirection={'column'} width="100%">
+            {errorMessage ? <TransactionErrorContent onDismiss={handleDismiss} message={errorMessage} /> : null}
+          </Flex>
+        )}
+      />
     </>
   )
 }

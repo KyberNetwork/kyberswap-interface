@@ -12,6 +12,7 @@ import DoubleCurrencyLogo from 'components/DoubleLogo'
 import Modal from 'components/Modal'
 import PriceVisualize from 'components/ProAmm/PriceVisualize'
 import { RowBetween, RowFit } from 'components/Row'
+import Tabs from 'components/Tabs'
 import { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
@@ -22,6 +23,8 @@ import { Bound } from 'state/mint/proamm/type'
 import { formatTickPrice } from 'utils/formatTickPrice'
 import { getTickToPrice } from 'utils/getTickToPrice'
 import { formatDollarAmount } from 'utils/numbers'
+
+import { convertTickToPrice } from '../utils'
 
 const Wrapper = styled.div`
   padding: 20px;
@@ -244,7 +247,7 @@ const NFTItem = ({
   )
 }
 
-const UnstakeWithNFTsModal = ({
+const UpdateLiquidityModal = ({
   isOpen,
   onDismiss,
   farm,
@@ -254,6 +257,18 @@ const UnstakeWithNFTsModal = ({
   farm: ElasticFarmV2
 }) => {
   const stakedPos = useUserFarmV2Info(farm.fId)
+
+  const allEligiblePositions = stakedPos.filter(item => {
+    const range = farm.ranges.find(r => r.index === item.rangeId)
+    return !range?.isRemoved && item.liquidity.gt(item.stakedLiquidity)
+  })
+
+  const availableRangeIds = allEligiblePositions.map(item => item.rangeId)
+  const ranges = farm.ranges.filter(range => availableRangeIds.includes(range.index))
+  const [activeRange, setActiveRange] = useState(ranges[0])
+
+  const positionsByRange = allEligiblePositions.filter(pos => pos.rangeId === activeRange.index)
+
   const theme = useTheme()
   const [selectedPos, setSelectedPos] = useState<{ [tokenId: string]: boolean }>({})
   const selectedPosArray: Array<number> = useMemo(
@@ -270,7 +285,7 @@ const UnstakeWithNFTsModal = ({
     })
   }, [])
 
-  const { withdraw } = useFarmV2Action()
+  const { updateLiquidity } = useFarmV2Action()
 
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [txHash, setTxHash] = useState('')
@@ -286,10 +301,10 @@ const UnstakeWithNFTsModal = ({
     txHash && setSelectedPos({})
   }
 
-  const handleUnstake = useCallback(async () => {
+  const handleUnstake = useCallback(() => {
     setShowConfirmModal(true)
     setAttemptingTxn(true)
-    await withdraw(farm.fId, selectedPosArray)
+    updateLiquidity(farm.fId, activeRange.index, selectedPosArray)
       .then(txHash => {
         setSelectedPos({})
         setAttemptingTxn(false)
@@ -299,7 +314,7 @@ const UnstakeWithNFTsModal = ({
         setAttemptingTxn(false)
         setErrorMessage(e?.message || JSON.stringify(e))
       })
-  }, [withdraw, farm, selectedPosArray])
+  }, [updateLiquidity, activeRange.index, farm, selectedPosArray])
 
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth="min(900px, 100vw)" width="900px">
@@ -308,31 +323,59 @@ const UnstakeWithNFTsModal = ({
           <RowFit>
             <DoubleCurrencyLogo currency0={farm.token0} currency1={farm.token1} size={24} />
             <Text fontSize="20px" lineHeight="24px" color={theme.text}>
-              <Trans>Unstake your liquidity</Trans>
+              <Trans>Update your liquidity</Trans>
             </Text>
           </RowFit>
-
           <CloseButton onClick={onDismiss}>
             <X />
           </CloseButton>
         </RowBetween>
         <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-          <Trans>
-            Unstake your liquidity positions (NFT tokens) from the farm. You will no longer earn rewards on these
-            positions once unstaked
-          </Trans>
+          <Trans>Here you can update your liquidity positions after you had increased its liquidity.</Trans>
         </Text>
-        <ContentWrapper>
-          {stakedPos.map(pos => (
-            <NFTItem
-              farm={farm}
-              key={pos.nftId.toString()}
-              active={selectedPos[pos.nftId.toString()]}
-              pos={pos}
-              onClick={handlePosClick}
-            />
-          ))}
-        </ContentWrapper>
+        <Tabs
+          activeKey={activeRange.index}
+          onChange={key => {
+            setSelectedPos({})
+            const range = farm.ranges.find(item => item.index === key)
+            if (range) setActiveRange(range)
+          }}
+          items={ranges.map(range => {
+            const priceLower = convertTickToPrice(farm.token0, farm.token1, range.tickLower)
+            const priceUpper = convertTickToPrice(farm.token0, farm.token1, range.tickUpper)
+
+            return {
+              key: range.index,
+              label: (
+                <Flex sx={{ gap: '2px' }} alignItems="center">
+                  {priceLower}
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" display="block">
+                    <path
+                      d="M11.3405 8.66669L11.3405 9.86002C11.3405 10.16 11.7005 10.3067 11.9071 10.0934L13.7605 8.23335C13.8871 8.10002 13.8871 7.89335 13.7605 7.76002L11.9071 5.90669C11.7005 5.69335 11.3405 5.84002 11.3405 6.14002L11.3405 7.33335L4.66047 7.33335L4.66047 6.14002C4.66047 5.84002 4.30047 5.69335 4.0938 5.90669L2.24047 7.76669C2.1138 7.90002 2.1138 8.10669 2.24047 8.24002L4.0938 10.1C4.30047 10.3134 4.66047 10.16 4.66047 9.86669L4.66047 8.66669L11.3405 8.66669Z"
+                      fill="currentcolor"
+                    />
+                  </svg>
+                  {priceUpper}
+                </Flex>
+              ),
+              children: (
+                <ContentWrapper>
+                  {positionsByRange.map(pos => {
+                    return (
+                      <NFTItem
+                        farm={farm}
+                        key={pos.nftId.toString()}
+                        active={selectedPos[pos.nftId.toString()]}
+                        pos={pos}
+                        onClick={handlePosClick}
+                      />
+                    )
+                  })}
+                </ContentWrapper>
+              ),
+            }
+          })}
+        />
 
         <Flex sx={{ gap: '8px' }} justifyContent="flex-end">
           <ButtonPrimary
@@ -342,7 +385,7 @@ const UnstakeWithNFTsModal = ({
             padding="8px 18px"
             onClick={handleUnstake}
           >
-            <Trans>Unstake Selected</Trans>
+            <Trans>Update Selected</Trans>
           </ButtonPrimary>
         </Flex>
       </Wrapper>
@@ -352,7 +395,7 @@ const UnstakeWithNFTsModal = ({
         onDismiss={handleDismiss}
         hash={txHash}
         attemptingTxn={attemptingTxn}
-        pendingText={`Unstaking from farm`}
+        pendingText={`Updating liquidity`}
         content={() => (
           <Flex flexDirection={'column'} width="100%">
             {errorMessage ? <TransactionErrorContent onDismiss={handleDismiss} message={errorMessage} /> : null}
@@ -363,4 +406,4 @@ const UnstakeWithNFTsModal = ({
   )
 }
 
-export default UnstakeWithNFTsModal
+export default UpdateLiquidityModal

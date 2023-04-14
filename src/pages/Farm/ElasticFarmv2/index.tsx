@@ -33,6 +33,8 @@ import { VIEW_MODE } from 'state/user/reducer'
 import FarmCard from './components/FarmCard'
 import { ListView } from './components/ListView'
 import StakeWithNFTsModal from './components/StakeWithNFTsModal'
+import UnstakeWithNFTsModal from './components/UnstakeWithNFTsModal'
+import UpdateLiquidityModal from './components/UpdateLiquidityModal'
 
 const Wrapper = styled.div`
   padding: 24px;
@@ -277,6 +279,8 @@ export default function ElasticFarmv2({ onShowStepGuide }: { onShowStepGuide: ()
   }
 
   const [selectedFarm, setSelectedFarm] = useState<null | ElasticFarmV2>(null)
+  const [selectedUnstakeFarm, setSelectedUnstakeFarm] = useState<null | ElasticFarmV2>(null)
+  const [selectedUpdateFarm, setSelectedUpdateFarm] = useState<null | ElasticFarmV2>(null)
 
   if (!filteredFarms?.length) return null
 
@@ -317,6 +321,8 @@ export default function ElasticFarmv2({ onShowStepGuide }: { onShowStepGuide: ()
               key={farm.id}
               farm={farm}
               onStake={() => setSelectedFarm(farm)}
+              onUnstake={() => setSelectedUnstakeFarm(farm)}
+              onUpdateFarmClick={() => setSelectedUpdateFarm(farm)}
               poolAPR={poolDatas?.[farm.poolAddress].apr || 0}
               isApproved={isApprovedForAll}
             />
@@ -326,6 +332,20 @@ export default function ElasticFarmv2({ onShowStepGuide }: { onShowStepGuide: ()
 
       {!!selectedFarm && (
         <StakeWithNFTsModal farm={selectedFarm} isOpen={!!selectedFarm} onDismiss={() => setSelectedFarm(null)} />
+      )}
+      {!!selectedUnstakeFarm && (
+        <UnstakeWithNFTsModal
+          farm={selectedUnstakeFarm}
+          isOpen={!!selectedUnstakeFarm}
+          onDismiss={() => setSelectedUnstakeFarm(null)}
+        />
+      )}
+      {!!selectedUpdateFarm && (
+        <UpdateLiquidityModal
+          farm={selectedUpdateFarm}
+          isOpen={!!selectedUpdateFarm}
+          onDismiss={() => setSelectedUpdateFarm(null)}
+        />
       )}
     </Wrapper>
   )

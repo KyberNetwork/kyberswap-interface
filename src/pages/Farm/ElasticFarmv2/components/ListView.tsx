@@ -305,13 +305,7 @@ export const ListView = ({
 
         <StakeWithNFTsModal isOpen={showStake} onDismiss={() => setShowStake(false)} farm={farm} />
         {canUnstake && (
-          <UnstakeWithNFTsModal
-            isOpen={showUnstake}
-            onDismiss={() => setShowUnstake(false)}
-            stakedPos={stakedPos}
-            farm={farm}
-            activeRangeIndex={activeRangeIndex}
-          />
+          <UnstakeWithNFTsModal isOpen={showUnstake} onDismiss={() => setShowUnstake(false)} farm={farm} />
         )}
       </ElasticFarmV2TableRow>
     </>
