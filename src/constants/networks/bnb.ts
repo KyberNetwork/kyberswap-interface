@@ -80,6 +80,8 @@ const bnbInfo: EVMNetworkInfo = {
   trueSightId: 'bsc',
   dexToCompare: 'pancake',
   geckoTermialId: 'bsc',
+  defaultEnableKNProtocol: true,
+  defaultEnableBlockService: false,
 }
 
 export default bnbInfo

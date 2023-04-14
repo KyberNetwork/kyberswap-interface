@@ -27,12 +27,22 @@ const usePoolBlocks = () => {
   const [blocks, setBlocks] = useState<{ number: number }[]>([])
 
   useEffect(() => {
+    const controller = new AbortController()
+
     const getBlocks = async () => {
-      const blocks = await getBlocksFromTimestamps(isEnableBlockService, blockClient, [last24h], chainId)
+      const blocks = await getBlocksFromTimestamps(
+        isEnableBlockService,
+        blockClient,
+        [last24h],
+        chainId,
+        controller.signal,
+      )
+      if (controller.signal.aborted) return
       setBlocks(blocks)
     }
 
     getBlocks()
+    return () => controller.abort()
   }, [chainId, last24h, blockClient, isEnableBlockService])
 
   const [blockLast24h] = blocks ?? []
@@ -124,7 +134,9 @@ const parsedPoolData = (
   return formatted
 }
 
-const useGetElasticPoolsV1 = (poolAddresses: string[], skip?: boolean): CommonReturn => {
+const useGetElasticPoolsV1 = (poolAddresses: string[]): CommonReturn => {
+  const { isEnableKNProtocol } = useKyberSwapConfig()
+
   const { elasticClient } = useKyberSwapConfig()
 
   const { blockLast24h } = usePoolBlocks()
@@ -132,7 +144,7 @@ const useGetElasticPoolsV1 = (poolAddresses: string[], skip?: boolean): CommonRe
   const { loading, error, data } = useQuery<PoolDataResponse>(PROMM_POOLS_BULK(undefined, poolAddresses), {
     client: elasticClient,
     fetchPolicy: 'no-cache',
-    skip,
+    skip: isEnableKNProtocol,
   })
 
   const {
@@ -142,7 +154,7 @@ const useGetElasticPoolsV1 = (poolAddresses: string[], skip?: boolean): CommonRe
   } = useQuery<PoolDataResponse>(PROMM_POOLS_BULK(blockLast24h, poolAddresses), {
     client: elasticClient,
     fetchPolicy: 'no-cache',
-    skip,
+    skip: isEnableKNProtocol,
   })
 
   const anyError = Boolean(error || error24)

@@ -253,6 +253,7 @@ export async function splitQuery<ResultType, T, U>(
   localClient: ApolloClient<NormalizedCacheObject>,
   list: T[],
   vars: U[],
+  signal: AbortSignal,
   skipCount = 100,
 ): Promise<
   | {
@@ -273,6 +274,11 @@ export async function splitQuery<ResultType, T, U>(
     const result = await localClient.query({
       query: query(sliced, ...vars),
       fetchPolicy: 'no-cache',
+      context: {
+        fetchOptions: {
+          signal,
+        },
+      },
     })
     fetchedData = {
       ...fetchedData,
@@ -322,13 +328,20 @@ export async function getBlocksFromTimestampsSubgraph(
   blockClient: ApolloClient<NormalizedCacheObject>,
   timestamps: number[],
   chainId: ChainId,
+  signal: AbortSignal,
 ): Promise<{ timestamp: number; number: number }[]> {
   if (!isEVM(chainId)) return []
   if (timestamps?.length === 0) {
     return []
   }
 
-  const fetchedData = await splitQuery<{ number: string }[], number, any>(GET_BLOCKS, blockClient, timestamps, [])
+  const fetchedData = await splitQuery<{ number: string }[], number, any>(
+    GET_BLOCKS,
+    blockClient,
+    timestamps,
+    [],
+    signal,
+  )
   const blocks: { timestamp: number; number: number }[] = []
   if (fetchedData) {
     for (const t in fetchedData) {
@@ -347,6 +360,7 @@ export async function getBlocksFromTimestampsSubgraph(
 export async function getBlocksFromTimestampsBlockService(
   timestamps: number[],
   chainId: ChainId,
+  signal: AbortSignal,
 ): Promise<{ timestamp: number; number: number }[]> {
   if (!isEVM(chainId)) return []
   if (timestamps?.length === 0) {
@@ -361,6 +375,7 @@ export async function getBlocksFromTimestampsBlockService(
               `${BLOCK_SERVICE_API}/${
                 NETWORKS_INFO[chainId].aggregatorRoute
               }/api/v1/block?timestamps=${timestampsChunk.join(',')}`,
+              { signal },
             )
           ).json() as Promise<{ data: { timestamp: number; number: number }[] }>,
       ),
@@ -378,9 +393,10 @@ export async function getBlocksFromTimestamps(
   blockClient: ApolloClient<NormalizedCacheObject>,
   timestamps: number[],
   chainId: ChainId,
+  signal: AbortSignal,
 ): Promise<{ timestamp: number; number: number }[]> {
-  if (isEnableBlockService) return getBlocksFromTimestampsBlockService(timestamps, chainId)
-  return getBlocksFromTimestampsSubgraph(blockClient, timestamps, chainId)
+  if (isEnableBlockService) return getBlocksFromTimestampsBlockService(timestamps, chainId, signal)
+  return getBlocksFromTimestampsSubgraph(blockClient, timestamps, chainId, signal)
 }
 
 /**

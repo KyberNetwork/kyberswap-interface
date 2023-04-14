@@ -79,6 +79,8 @@ const bnbTestnetInfo: EVMNetworkInfo = {
   trueSightId: NOT_SUPPORT,
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: NOT_SUPPORT,
+  defaultEnableKNProtocol: false,
+  defaultEnableBlockService: false,
 }
 
 export default bnbTestnetInfo

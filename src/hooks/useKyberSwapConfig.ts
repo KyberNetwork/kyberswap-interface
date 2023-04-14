@@ -25,8 +25,12 @@ const parseResponse = (
   responseData: KyberswapConfigurationResponse | undefined,
   defaultChainId: ChainId,
 ): KyberSwapConfig => {
+  const defaultEVMConfig = isEVM(defaultChainId) ? NETWORKS_INFO[defaultChainId] : ethereumInfo
   const data = responseData?.data?.config
+
   const rpc = data?.rpc || NETWORKS_INFO[defaultChainId].defaultRpcUrl
+  const isEnableKNProtocol = data?.isEnableKNProtocol || defaultEVMConfig.defaultEnableKNProtocol
+  const isEnableBlockService = data?.isEnableBlockService || defaultEVMConfig.defaultEnableBlockService
 
   if (!cacheRPC[defaultChainId]?.[rpc]) {
     if (!cacheRPC[defaultChainId]) cacheRPC[defaultChainId] = {}
@@ -36,17 +40,11 @@ const parseResponse = (
 
   return {
     rpc,
-    prochart: data?.prochart || false,
-    isEnableBlockService: data?.isEnableBlockService || false,
-    blockClient: isEVM(defaultChainId)
-      ? createClient(data?.blockSubgraph || NETWORKS_INFO[defaultChainId].defaultBlockSubgraph)
-      : createClient(ethereumInfo.defaultBlockSubgraph),
-    classicClient: isEVM(defaultChainId)
-      ? createClient(data?.classicSubgraph || NETWORKS_INFO[defaultChainId].classic.defaultSubgraph)
-      : createClient(ethereumInfo.classic.defaultSubgraph),
-    elasticClient: isEVM(defaultChainId)
-      ? createClient(data?.elasticSubgraph || NETWORKS_INFO[defaultChainId].elastic.defaultSubgraph)
-      : createClient(ethereumInfo.elastic.defaultSubgraph),
+    isEnableKNProtocol,
+    isEnableBlockService,
+    blockClient: createClient(data?.blockSubgraph || defaultEVMConfig.defaultBlockSubgraph),
+    classicClient: createClient(data?.classicSubgraph || defaultEVMConfig.classic.defaultSubgraph),
+    elasticClient: createClient(data?.elasticSubgraph || defaultEVMConfig.elastic.defaultSubgraph),
     provider: isEVM(defaultChainId) ? provider : undefined,
     connection: isSolana(defaultChainId)
       ? new Connection(data?.rpc || solanaInfo.defaultRpcUrl, { commitment: 'confirmed' })

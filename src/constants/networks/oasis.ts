@@ -73,6 +73,8 @@ const oasisInfo: EVMNetworkInfo = {
   trueSightId: NOT_SUPPORT,
   dexToCompare: 'valleyswap-v2',
   geckoTermialId: 'oasis',
+  defaultEnableKNProtocol: false,
+  defaultEnableBlockService: false,
 }
 
 export default oasisInfo

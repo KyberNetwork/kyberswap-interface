@@ -1,7 +1,8 @@
 import useSWRImmutable from 'swr/immutable'
 
-import { CHAINS_SUPPORT_NEW_POOL_FARM_API, NETWORKS_INFO, isEVM } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import { useKyberSwapConfig } from 'state/application/hooks'
 import { ElasticPoolDetail } from 'types/pool'
 
 import { CommonReturn } from '.'
@@ -49,8 +50,9 @@ type PoolAccumulator = { [address: string]: ElasticPoolDetail }
 
 const useGetElasticPoolsV2 = (): CommonReturn => {
   const { chainId } = useActiveWeb3React()
+  const { isEnableKNProtocol } = useKyberSwapConfig()
 
-  const shouldSkip = !isEVM(chainId) || !CHAINS_SUPPORT_NEW_POOL_FARM_API.includes(chainId)
+  const shouldSkip = !isEVM(chainId) || !isEnableKNProtocol
   const chainRoute = !isEVM(chainId) || NETWORKS_INFO[chainId].poolFarmRoute
 
   const { isValidating, error, data } = useSWRImmutable<Response>(

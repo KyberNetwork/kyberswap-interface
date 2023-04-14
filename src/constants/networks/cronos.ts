@@ -75,6 +75,8 @@ const cronosInfo: EVMNetworkInfo = {
   trueSightId: 'cronos',
   dexToCompare: 'vvs',
   geckoTermialId: 'cronos',
+  defaultEnableKNProtocol: true,
+  defaultEnableBlockService: false,
 }
 
 export default cronosInfo

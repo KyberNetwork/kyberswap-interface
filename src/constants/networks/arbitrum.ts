@@ -75,6 +75,8 @@ const arbitrumInfo: EVMNetworkInfo = {
   trueSightId: NOT_SUPPORT,
   dexToCompare: 'uniswapv3',
   geckoTermialId: 'arbitrum',
+  defaultEnableKNProtocol: true,
+  defaultEnableBlockService: false,
 }
 
 export default arbitrumInfo

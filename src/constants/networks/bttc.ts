@@ -77,6 +77,8 @@ const bttcInfo: EVMNetworkInfo = {
   trueSightId: NOT_SUPPORT,
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: 'bttc',
+  defaultEnableKNProtocol: true,
+  defaultEnableBlockService: false,
 }
 
 export default bttcInfo

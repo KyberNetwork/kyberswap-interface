@@ -82,6 +82,8 @@ const maticInfo: EVMNetworkInfo = {
   trueSightId: 'polygon',
   dexToCompare: 'quickswap',
   geckoTermialId: 'polygon_pos',
+  defaultEnableKNProtocol: false,
+  defaultEnableBlockService: false,
 }
 
 export default maticInfo

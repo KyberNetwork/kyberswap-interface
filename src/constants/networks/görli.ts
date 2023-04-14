@@ -77,6 +77,8 @@ const görliInfo: EVMNetworkInfo = {
     KNCLAddress: '0x03010458f00F1B9fEb6Ad5d67A065971126fBBc1',
   },
   geckoTermialId: NOT_SUPPORT,
+  defaultEnableKNProtocol: false,
+  defaultEnableBlockService: false,
 }
 
 export default görliInfo

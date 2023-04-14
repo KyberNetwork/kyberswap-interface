@@ -94,6 +94,8 @@ export interface EVMNetworkInfo extends NetworkInfo {
     readonly KNCAddress: string
     readonly KNCLAddress: string
   }
+  readonly defaultEnableKNProtocol: boolean
+  readonly defaultEnableBlockService: boolean
 }
 
 export interface SolanaNetworkInfo extends NetworkInfo {

@@ -84,6 +84,8 @@ const avaxInfo: EVMNetworkInfo = {
   trueSightId: 'avax',
   dexToCompare: 'traderjoe',
   geckoTermialId: 'avax',
+  defaultEnableKNProtocol: true,
+  defaultEnableBlockService: false,
 }
 
 export default avaxInfo

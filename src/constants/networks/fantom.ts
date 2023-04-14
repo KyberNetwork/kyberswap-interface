@@ -73,6 +73,8 @@ const fantomInfo: EVMNetworkInfo = {
   trueSightId: 'fantom',
   dexToCompare: 'spookyswap',
   geckoTermialId: 'fantom',
+  defaultEnableKNProtocol: true,
+  defaultEnableBlockService: false,
 }
 
 export default fantomInfo

@@ -8,7 +8,7 @@ import { KS_SETTING_API } from 'constants/env'
 
 export type KyberSwapConfig = {
   rpc: string
-  prochart: boolean
+  isEnableKNProtocol: boolean
   isEnableBlockService: boolean
   blockClient: ApolloClient<NormalizedCacheObject>
   classicClient: ApolloClient<NormalizedCacheObject>
@@ -19,7 +19,7 @@ export type KyberSwapConfig = {
 
 export type KyberSwapConfigResponse = {
   rpc: string
-  prochart: boolean
+  isEnableKNProtocol: boolean
   isEnableBlockService: boolean
   blockSubgraph: string
   classicSubgraph: string

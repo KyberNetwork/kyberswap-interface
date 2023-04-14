@@ -73,6 +73,8 @@ const velasInfo: EVMNetworkInfo = {
   trueSightId: NOT_SUPPORT,
   dexToCompare: 'wagyuswap',
   geckoTermialId: 'velas',
+  defaultEnableKNProtocol: false,
+  defaultEnableBlockService: false,
 }
 
 export default velasInfo

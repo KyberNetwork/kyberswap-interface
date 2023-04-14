@@ -70,6 +70,8 @@ const optimismInfo: EVMNetworkInfo = {
   trueSightId: NOT_SUPPORT,
   dexToCompare: 'uniswapv3',
   geckoTermialId: 'optimism',
+  defaultEnableKNProtocol: true,
+  defaultEnableBlockService: false,
 }
 
 export default optimismInfo

@@ -75,6 +75,8 @@ const auroraInfo: EVMNetworkInfo = {
   trueSightId: NOT_SUPPORT,
   dexToCompare: 'trisolaris',
   geckoTermialId: 'aurora',
+  defaultEnableKNProtocol: true,
+  defaultEnableBlockService: false,
 }
 
 export default auroraInfo

@@ -529,14 +529,15 @@ const cacheCalc: <T extends keyof typeof cacheConfig, U extends typeof cacheConf
 }
 
 function getDefaultConfig(chainId: ChainId): KyberSwapConfigResponse {
-  const evm = isEVM(chainId)
+  const defaultEVMConfig = isEVM(chainId) ? NETWORKS_INFO[chainId] : ethereumInfo
+
   return {
     rpc: NETWORKS_INFO[chainId].defaultRpcUrl,
-    prochart: false,
-    isEnableBlockService: false,
-    blockSubgraph: (evm ? NETWORKS_INFO[chainId] : ethereumInfo).defaultBlockSubgraph,
-    elasticSubgraph: (evm ? NETWORKS_INFO[chainId] : ethereumInfo).elastic.defaultSubgraph,
-    classicSubgraph: (evm ? NETWORKS_INFO[chainId] : ethereumInfo).classic.defaultSubgraph,
+    isEnableKNProtocol: defaultEVMConfig.defaultEnableKNProtocol,
+    isEnableBlockService: defaultEVMConfig.defaultEnableBlockService,
+    blockSubgraph: defaultEVMConfig.defaultBlockSubgraph,
+    elasticSubgraph: defaultEVMConfig.elastic.defaultSubgraph,
+    classicSubgraph: defaultEVMConfig.classic.defaultSubgraph,
   }
 }
 
@@ -567,8 +568,8 @@ export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => 
     return {
       rpc: config.rpc,
       isEnableBlockService: config.isEnableBlockService,
+      isEnableKNProtocol: config.isEnableKNProtocol,
       provider,
-      prochart: config.prochart,
       blockClient,
       elasticClient,
       classicClient,
@@ -577,7 +578,7 @@ export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => 
   }, [
     config.rpc,
     config.isEnableBlockService,
-    config.prochart,
+    config.isEnableKNProtocol,
     provider,
     blockClient,
     elasticClient,
