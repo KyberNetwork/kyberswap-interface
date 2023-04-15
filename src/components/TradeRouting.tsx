@@ -1,15 +1,23 @@
+import { Call } from '@0xsquid/sdk'
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import React, { memo, useCallback, useEffect, useRef } from 'react'
 import ScrollContainer from 'react-indiana-drag-scroll'
 import styled, { css } from 'styled-components'
 
 import CurrencyLogo from 'components/CurrencyLogo'
+import { TokenLogoWithChain } from 'components/Logo'
+import { ETHER_ADDRESS } from 'constants/index'
+import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useThrottle from 'hooks/useThrottle'
+import { getRouInfo } from 'pages/CrossChain/helpers'
+import { useCrossChainState } from 'state/bridge/hooks'
 import { Dex } from 'state/customizeDexes'
 import { useAllDexes } from 'state/customizeDexes/hooks'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { getEtherscanLink, isAddress } from 'utils'
 import { SwapPool, SwapRouteV2 } from 'utils/aggregationRouting'
+import { uint256ToFraction } from 'utils/numbers'
 
 const getDexInfoByPool = (pool: SwapPool, allDexes?: Dex[]) => {
   if (pool.exchange === '1inch') {
@@ -357,19 +365,24 @@ const getSwapPercent = (percent?: number, routeNumber = 0): string | null => {
   return `${val.toFixed(0)}%`
 }
 
-interface RouteRowProps {
-  route: SwapRouteV2
-  chainId: ChainId
-  backgroundColor?: string
+const onScroll = (element: HTMLDivElement | null) => {
+  if ((element?.scrollTop ?? 0) > 0) {
+    element?.classList.add('top')
+  } else {
+    element?.classList.remove('top')
+  }
+  if ((element?.scrollHeight ?? 0) - (element?.scrollTop ?? 0) > (element?.clientHeight ?? 0)) {
+    element?.classList.add('bottom')
+  } else {
+    element?.classList.remove('bottom')
+  }
 }
 
-const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
-  const scrollRef = useRef(null)
-  const contentRef: any = useRef(null)
-  const shadowRef: any = useRef(null)
-
-  const allDexes = useAllDexes()
-
+const useShadow = (
+  scrollRef: React.RefObject<HTMLDivElement>,
+  shadowRef: React.RefObject<HTMLDivElement>,
+  contentRef: React.RefObject<HTMLDivElement>,
+) => {
   const handleShadow = useThrottle(() => {
     const element: any = scrollRef.current
     if (element?.scrollLeft > 0) {
@@ -378,12 +391,28 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
       shadowRef.current?.classList.remove('left-visible')
     }
 
-    if (Math.floor(contentRef.current?.scrollWidth - element?.scrollLeft) > Math.floor(element?.clientWidth)) {
+    if (Math.floor((contentRef.current?.scrollWidth || 0) - element?.scrollLeft) > Math.floor(element?.clientWidth)) {
       shadowRef.current?.classList.add('right-visible')
     } else {
       shadowRef.current?.classList.remove('right-visible')
     }
   }, 300)
+  return handleShadow
+}
+
+interface RouteRowProps {
+  route: SwapRouteV2
+  chainId: ChainId
+  backgroundColor?: string
+}
+
+const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const shadowRef = useRef<HTMLDivElement>(null)
+
+  const allDexes = useAllDexes()
+  const handleShadow = useShadow(scrollRef, shadowRef, contentRef)
 
   useEffect(() => {
     window.addEventListener('resize', handleShadow)
@@ -497,17 +526,7 @@ const Routing = ({ tradeComposition, maxHeight, inputAmount, outputAmount, curre
   const hasRoutes = chainId && tradeComposition && tradeComposition.length > 0
 
   const handleScroll = useCallback(() => {
-    const element = wrapperRef.current
-    if ((element?.scrollTop ?? 0) > 0) {
-      shadowRef?.current?.classList.add('top')
-    } else {
-      shadowRef?.current?.classList.remove('top')
-    }
-    if ((contentRef.current?.scrollHeight ?? 0) - (element?.scrollTop ?? 0) > (element?.clientHeight ?? 0)) {
-      shadowRef.current?.classList.add('bottom')
-    } else {
-      shadowRef.current?.classList.remove('bottom')
-    }
+    return onScroll(shadowRef.current)
   }, [])
 
   useEffect(() => {
@@ -529,7 +548,7 @@ const Routing = ({ tradeComposition, maxHeight, inputAmount, outputAmount, curre
             <StyledWrapToken>{renderTokenInfo(currencyOut, outputAmount, true)}</StyledWrapToken>
           </StyledPair>
 
-          {tradeComposition && chainId && tradeComposition && tradeComposition.length > 0 ? (
+          {hasRoutes ? (
             <div>
               <StyledRoutes>
                 <StyledDot />
@@ -546,6 +565,154 @@ const Routing = ({ tradeComposition, maxHeight, inputAmount, outputAmount, curre
                 ))}
               </StyledRoutes>
             </div>
+          ) : null}
+        </div>
+      </StyledContainer>
+    </Shadow>
+  )
+}
+
+const RouteRowCrossChain = ({ routes, backgroundColor }: { routes: Call[]; backgroundColor?: string }) => {
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const shadowRef = useRef<HTMLDivElement>(null)
+
+  const allDexes = useAllDexes()
+  const handleShadow = useShadow(scrollRef, shadowRef, contentRef)
+
+  useEffect(() => {
+    window.addEventListener('resize', handleShadow)
+    return () => window.removeEventListener('resize', handleShadow)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  useEffect(() => {
+    handleShadow()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routes])
+
+  return (
+    <StyledWrap ref={shadowRef} backgroundColor={backgroundColor}>
+      <ScrollContainer innerRef={scrollRef} vertical={false} onScroll={handleShadow}>
+        <StyledHops length={routes.length} ref={contentRef}>
+          {routes.map((subRoute: any, index, arr) => {
+            const fromToken = new WrappedTokenInfo(subRoute.fromToken)
+            const toToken = new WrappedTokenInfo(subRoute.toToken)
+
+            const dex = subRoute.dex
+            const dexLogo = allDexes.find(
+              el =>
+                el.id === dex.dexName.toLowerCase() ||
+                el.name.toLowerCase() === dex.dexName.toLowerCase() ||
+                dex.dexName.toLowerCase().startsWith(el.name.toLowerCase()),
+            )?.logoURL
+            return [fromToken, toToken].map((token, indexLast) =>
+              token ? (
+                <React.Fragment key={`${index}_${indexLast}`}>
+                  <StyledHop>
+                    <StyledToken
+                      href={getEtherscanLink(
+                        token.chainId,
+                        token.address === ETHER_ADDRESS
+                          ? NativeCurrencies[token.chainId].wrapped.address
+                          : token.address,
+                        'token',
+                      )}
+                      target="_blank"
+                      style={{ gap: '4px' }}
+                    >
+                      <TokenLogoWithChain chainId={token.chainId} tokenLogo={token.logoURI ?? ''} size={16} />
+                      <span>{token?.symbol}</span>
+                    </StyledToken>
+
+                    <StyledExchangeStatic>
+                      {dexLogo && <img src={dexLogo} alt="" className="img--sm" />}
+                      {dex?.dexName}
+                    </StyledExchangeStatic>
+                  </StyledHop>
+                  {!(index === arr.length - 1 && indexLast === 1) && (
+                    <StyledHopChevronWrapper>
+                      <StyledHopChevronRight />
+                    </StyledHopChevronWrapper>
+                  )}
+                </React.Fragment>
+              ) : null,
+            )
+          })}
+        </StyledHops>
+      </ScrollContainer>
+    </StyledWrap>
+  )
+}
+
+export const RoutingCrossChain = () => {
+  const [{ chainIdOut }] = useCrossChainState()
+  const shadowRef = useRef<HTMLDivElement>(null)
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const [{ route, currencyIn, currencyOut }] = useCrossChainState()
+
+  const renderTokenInfo = (
+    currency: WrappedTokenInfo | undefined,
+    amount: string | undefined,
+    reverseOrder?: boolean,
+  ) => {
+    if (currency) {
+      return (
+        <StyledToken as="div" reverse={reverseOrder} style={{ border: 'none' }}>
+          <TokenLogoWithChain size={20} chainId={currency.chainId} tokenLogo={currency.logoURI ?? ''} />
+          <span>{`${amount ? uint256ToFraction(amount, currency.decimals).toSignificant(6) : ''} ${
+            currency.symbol
+          }`}</span>
+        </StyledToken>
+      )
+    }
+
+    return null
+  }
+
+  const { routeData, inputAmount, outputAmount } = getRouInfo(route)
+
+  const routeSource: Call[] = routeData?.fromChain ?? []
+  const routeDest: Call[] = routeData?.toChain ?? []
+  const numRoute = routeSource.length + routeDest.length
+  const hasRoutes = chainIdOut && numRoute > 0
+
+  const handleScroll = useCallback(() => {
+    return onScroll(shadowRef.current)
+  }, [])
+
+  useEffect(() => {
+    window.addEventListener('resize', handleScroll)
+    return () => window.removeEventListener('resize', handleScroll)
+  }, [handleScroll])
+
+  useEffect(() => {
+    handleScroll()
+  }, [route, handleScroll])
+
+  return (
+    <Shadow ref={shadowRef}>
+      <StyledContainer ref={wrapperRef} onScroll={handleScroll} style={{ maxHeight: '100%', paddingRight: 6 }}>
+        <div ref={contentRef}>
+          <StyledPair>
+            <StyledWrapToken>{renderTokenInfo(currencyIn, inputAmount)}</StyledWrapToken>
+            {!hasRoutes && <StyledPairLine />}
+            <StyledWrapToken>{renderTokenInfo(currencyOut, outputAmount, true)}</StyledWrapToken>
+          </StyledPair>
+
+          {hasRoutes ? (
+            <StyledRoutes>
+              <StyledDot />
+              <StyledDot out />
+              <StyledRoute>
+                <StyledPercent>100%</StyledPercent>
+                <StyledRouteLine />
+                <RouteRowCrossChain routes={routeSource.concat(routeDest)} />
+                <StyledHopChevronWrapper style={{ marginRight: '2px' }}>
+                  <StyledHopChevronRight />
+                </StyledHopChevronWrapper>
+              </StyledRoute>
+            </StyledRoutes>
           ) : null}
         </div>
       </StyledContainer>

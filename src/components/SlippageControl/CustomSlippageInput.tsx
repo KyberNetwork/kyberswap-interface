@@ -9,7 +9,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useDegenModeManager } from 'state/user/hooks'
 import { formatSlippage } from 'utils/slippage'
 
-export const parseSlippageInput = (str: string): number => Math.round(Number.parseFloat(str) * 100)
+const parseSlippageInput = (str: string): number => Math.round(Number.parseFloat(str) * 100)
 const getSlippageText = (rawSlippage: number) => {
   const isCustom = !DEFAULT_SLIPPAGES.includes(rawSlippage)
   if (!isCustom) {

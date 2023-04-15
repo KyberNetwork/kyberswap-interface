@@ -1,23 +1,29 @@
+import { RouteData } from '@0xsquid/sdk'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
-import { X } from 'react-feather'
+import { ArrowRight, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
-import { NetworkLogo } from 'components/Logo'
+import { NetworkLogo, TokenLogoWithChain } from 'components/Logo'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
+import { TradeSummaryCrossChain } from 'components/swapv2/AdvancedSwapDetails'
+import { RESERVE_USD_DECIMALS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { OutputBridgeInfo, useBridgeState } from 'state/bridge/hooks'
+import SwapBrief from 'pages/CrossChain/SwapBriefCrossChain'
+import { getRouInfo } from 'pages/CrossChain/helpers'
+import { OutputBridgeInfo, useBridgeState, useCrossChainState } from 'state/bridge/hooks'
 import { ExternalLink } from 'theme'
 import { TransactionFlowState } from 'types'
 import { formatNumberWithPrecisionRange, shortenAddress } from 'utils'
+import { uint256ToFraction } from 'utils/numbers'
 
 const Disclaimer = styled.div`
   padding: 8px;
@@ -284,6 +290,113 @@ export default memo(function ConfirmBridgeModal({
         chainId && chainIdOut
           ? t`Transferring ${currencyIn?.symbol} (${NETWORKS_INFO[chainId].name}) to ${currencyOut?.symbol} (${NETWORKS_INFO[chainIdOut].name})`
           : ''
+      }
+    />
+  )
+})
+
+export const ConfirmCrossChainModal = memo(function ConfirmCrossChainModal({
+  onSwap,
+  onDismiss,
+  swapState,
+  route,
+}: {
+  onSwap: () => void
+  onDismiss: () => void
+  swapState: TransactionFlowState
+  route: RouteData | undefined
+}) {
+  const theme = useTheme()
+  const [accepted, setAccepted] = useState(false)
+  const { chainId } = useActiveWeb3React()
+  const [{ chainIdOut, currencyIn, currencyOut }] = useCrossChainState()
+  const { inputAmount, outputAmount } = getRouInfo(route)
+
+  const handleClickDisclaimer = useCallback(() => {
+    const newValue = !accepted
+    setAccepted(newValue)
+  }, [accepted])
+
+  const confirmationContent = useCallback(
+    () =>
+      swapState.errorMessage ? (
+        <TransactionErrorContent onDismiss={onDismiss} message={swapState.errorMessage} />
+      ) : (
+        <Container>
+          <Flex flexDirection={'column'} style={{ gap: '16px' }}>
+            <Flex justifyContent={'space-between'} alignItems="center">
+              <Text color={theme.text} fontSize={20}>{t`Confirm Swap Details`}</Text>
+              <X onClick={onDismiss} style={{ cursor: 'pointer' }} color={theme.text} />
+            </Flex>
+
+            <SwapBrief route={route} />
+
+            <TradeSummaryCrossChain
+              route={route}
+              showHeader={false}
+              style={{ border: `1px solid ${theme.border}`, borderRadius: 16, padding: 12 }}
+            />
+
+            <Disclaimer role="button" onClick={handleClickDisclaimer}>
+              <input
+                onChange={() => {
+                  // empty
+                }}
+                type="checkbox"
+                checked={accepted}
+                style={{ height: '16px', width: '16px', cursor: 'pointer' }}
+              />
+              <span>
+                <Trans>
+                  You agree that KyberSwap is using{' '}
+                  <ExternalLink href="https://www.squidrouter.com/" onClick={e => e.stopPropagation()}>
+                    Squid / Axelar
+                  </ExternalLink>{' '}
+                  to facilitate swap of tokens between chains, and in case of a security breach on Squid / Axelar,
+                  KyberSwap won&apos;t assume any liability for any losses
+                </Trans>
+              </span>
+            </Disclaimer>
+
+            <ButtonPrimary id="transfer-button" onClick={onSwap} disabled={!accepted}>
+              <Trans>Swap</Trans>
+            </ButtonPrimary>
+          </Flex>
+        </Container>
+      ),
+    [accepted, handleClickDisclaimer, onDismiss, onSwap, swapState.errorMessage, theme, route],
+  )
+
+  useEffect(() => {
+    if (!swapState.showConfirm) {
+      setAccepted(false)
+    }
+  }, [swapState.showConfirm])
+
+  return (
+    <TransactionConfirmationModal
+      hash={swapState.txHash}
+      isOpen={swapState.showConfirm}
+      onDismiss={onDismiss}
+      attemptingTxn={swapState.attemptingTxn}
+      content={confirmationContent}
+      pendingText={
+        chainId &&
+        chainIdOut &&
+        inputAmount &&
+        outputAmount && (
+          <Flex alignItems={'center'} color={theme.text} sx={{ gap: '4px' }}>
+            <TokenLogoWithChain chainId={chainId} tokenLogo={currencyIn?.logoURI || ''} size={16} />
+            &nbsp;
+            {uint256ToFraction(inputAmount, currencyIn?.decimals).toSignificant(RESERVE_USD_DECIMALS)}
+            <Text as="span"> {currencyIn?.symbol}</Text>
+            <ArrowRight size={14} />
+            <TokenLogoWithChain chainId={chainIdOut} tokenLogo={currencyOut?.logoURI || ''} size={16} />
+            &nbsp;
+            {uint256ToFraction(outputAmount, currencyOut?.decimals).toSignificant(RESERVE_USD_DECIMALS)}
+            <Text as="span">{currencyOut?.symbol}</Text>
+          </Flex>
+        )
       }
     />
   )

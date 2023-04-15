@@ -2,6 +2,7 @@ import { ChainId, Currency, NativeCurrency, Token, WETH } from '@kyberswap/ks-sd
 import axios from 'axios'
 
 import { KS_SETTING_API } from 'constants/env'
+import { ETHER_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { MAP_TOKEN_HAS_MULTI_BY_NETWORK, WHITE_LIST_TOKEN_INFO_PAIR } from 'constants/tokenLists/token-info'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -58,7 +59,7 @@ export const isTokenNative = (
   currency: Currency | WrappedTokenInfo | undefined,
   chainId: ChainId | undefined,
 ): currency is NativeCurrency => {
-  if (currency?.isNative) return true
+  if (currency?.isNative || currency?.address === ETHER_ADDRESS) return true
   // case multichain token
   return chainId
     ? WETH[chainId]?.address === currency?.address &&

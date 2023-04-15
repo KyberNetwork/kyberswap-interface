@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback } from 'react'
 
 import Modal from 'components/Modal'
@@ -10,6 +11,10 @@ interface CurrencySearchModalBridgeProps {
   isOutput: boolean
   onDismiss: () => void
   onCurrencySelect: (currency: WrappedTokenInfo) => void
+  tokens: WrappedTokenInfo[]
+  isCrossChain?: boolean
+  currency: WrappedTokenInfo | undefined
+  chainId: ChainId | undefined
 }
 
 export default function CurrencySearchModalBridge({
@@ -17,6 +22,10 @@ export default function CurrencySearchModalBridge({
   isOutput,
   onDismiss,
   onCurrencySelect,
+  tokens,
+  isCrossChain,
+  currency,
+  chainId,
 }: CurrencySearchModalBridgeProps) {
   const handleCurrencySelect = useCallback(
     (currency: WrappedTokenInfo) => {
@@ -32,14 +41,18 @@ export default function CurrencySearchModalBridge({
       onDismiss={onDismiss}
       margin="auto"
       maxHeight={80}
-      height={isOutput ? undefined : '95vh'}
+      height={tokens.length < 10 ? undefined : '95vh'}
       minHeight={isOutput ? undefined : 80}
     >
       <CurrencySearchBridge
+        tokens={tokens}
         isOutput={isOutput}
+        isCrossChain={isCrossChain}
         isOpen={isOpen}
         onDismiss={onDismiss}
         onCurrencySelect={handleCurrencySelect}
+        currency={currency}
+        chainId={chainId}
       />
     </Modal>
   )

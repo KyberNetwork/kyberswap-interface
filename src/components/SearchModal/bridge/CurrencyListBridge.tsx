@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { CSSProperties, memo, useCallback } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
@@ -18,29 +18,36 @@ interface TokenRowPropsBridge {
   currencyBalance: CurrencyAmount<Currency>
   style: CSSProperties
 }
-
+const EMPTY_ARRAY: WrappedTokenInfo[] = []
 const CurrencyListBridge = memo(function CurrencyListV2({
   currencies,
   isOutput,
   onCurrencySelect,
   listTokenRef,
+  isCrossChain,
+  currency: selectedCurrency,
+  chainId,
 }: {
   currencies: WrappedTokenInfo[]
   onCurrencySelect: (currency: WrappedTokenInfo) => void
   isOutput: boolean | undefined
   listTokenRef: React.Ref<HTMLDivElement>
+  isCrossChain?: boolean
+  currency: WrappedTokenInfo | undefined
+  chainId: ChainId | undefined
 }) {
-  const [{ tokenInfoIn, tokenInfoOut, poolValueOutMap }] = useBridgeState()
-  const currencyBalances = useCurrencyBalances(!isOutput ? currencies : [])
+  const [{ tokenInfoOut, poolValueOutMap }] = useBridgeState()
+  // todo refactor
+  const currencyBalances = useCurrencyBalances(!isOutput || isCrossChain ? currencies : EMPTY_ARRAY, chainId)
   const theme = useTheme()
 
   const Row: any = useCallback(
     function TokenRow({ style, currency, currencyBalance }: TokenRowPropsBridge) {
       if (!currency) return
-      const isSelected =
-        tokenInfoIn?.address?.toLowerCase() === currency?.address?.toLowerCase() ||
-        tokenInfoOut?.sortId === currency?.multichainInfo?.sortId
-      const handleSelect = () => currency && onCurrencySelect(currency)
+      const isSelected = isOutput
+        ? tokenInfoOut?.sortId === currency?.multichainInfo?.sortId
+        : selectedCurrency?.equals(currency)
+      const handleSelect = () => onCurrencySelect(currency)
       const { symbol } = getDisplayTokenInfo(currency)
       const { sortId, type, anytoken } = (currency?.multichainInfo || {}) as Partial<MultiChainTokenInfo>
       const poolLiquidity = isOutput ? formatPoolValue(poolValueOutMap?.[anytoken?.address ?? '']) : undefined
@@ -50,7 +57,7 @@ const CurrencyListBridge = memo(function CurrencyListV2({
           style={style}
           currency={currency}
           currencyBalance={currencyBalance}
-          isSelected={isSelected}
+          isSelected={!!isSelected}
           onSelect={handleSelect}
           otherSelected={false}
           customBalance={poolLiquidity}
@@ -67,12 +74,12 @@ const CurrencyListBridge = memo(function CurrencyListV2({
         />
       )
     },
-    [onCurrencySelect, tokenInfoIn, isOutput, tokenInfoOut, theme, poolValueOutMap],
+    [onCurrencySelect, isOutput, tokenInfoOut, theme, poolValueOutMap, selectedCurrency],
   )
 
   return (
     <div style={{ flex: '1', overflow: 'hidden', height: '100%' }}>
-      {isOutput ? (
+      {currencies.length < 10 ? (
         currencies.map((item, index) => (
           <Row index={index} currency={item} key={index} currencyBalance={currencyBalances[index]} />
         ))

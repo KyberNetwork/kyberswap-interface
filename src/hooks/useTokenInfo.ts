@@ -19,7 +19,8 @@ export interface TokenInfo {
 }
 
 export default function useTokenInfo(token: Token | undefined): { data: TokenInfo; loading: boolean; error: any } {
-  const { chainId, isSolana } = useActiveWeb3React()
+  const { isSolana, chainId: currentChain } = useActiveWeb3React()
+  const chainId = token?.chainId || currentChain
 
   const fetcher = (url: string) => (url ? fetch(url).then(r => r.json()) : Promise.reject({ data: {}, error: '' }))
 

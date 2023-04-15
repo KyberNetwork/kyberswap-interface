@@ -44,3 +44,40 @@ export function NetworkLogo({ chainId, style = {} }: { chainId: ChainId; style?:
   if (!iconSrc) return null
   return <img src={iconSrc} alt="Switch Network" style={style} />
 }
+
+export const TokenLogoWithChain = ({
+  tokenLogo,
+  chainId,
+  size,
+}: {
+  tokenLogo: string
+  chainId: ChainId
+  size: number | string
+}) => {
+  const ratio = 0.7
+  const networkSize = ratio * parseInt(size + '')
+
+  return (
+    <div style={{ position: 'relative', height: size }}>
+      <Logo
+        srcs={[tokenLogo]}
+        style={{
+          width: size,
+          height: size,
+          borderRadius: '50%',
+        }}
+      />
+      <NetworkLogo
+        chainId={chainId}
+        style={{
+          position: 'absolute',
+          width: networkSize,
+          height: networkSize,
+          top: -8 * ratio,
+          right: -8 * ratio,
+          zIndex: 1,
+        }}
+      />
+    </div>
+  )
+}

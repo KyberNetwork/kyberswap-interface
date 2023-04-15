@@ -13,6 +13,7 @@ import { MultiChainTokenInfo } from './type'
 export const BridgeLocalStorageKeys = {
   BRIDGE_INFO: 'bridgeInfo',
   SHOWED_DISCLAIMED: 'showedDisclaimed',
+  SHOWED_DISCLAIMED_CROSS_CHAIN: 'showedDisclaimedCross',
   CHAINS_SUPPORTED: 'chainSupported',
   TOKEN_VERSION: 'tokenVer',
   TOKEN_LIST: 'bridgeTokenList',

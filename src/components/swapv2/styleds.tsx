@@ -214,14 +214,6 @@ export function SwapCallbackError({ error, style = {} }: { error: string; style?
   )
 }
 
-export const SwapShowAcceptChanges = styled(AutoColumn)`
-  background-color: ${({ theme }) => transparentize(0.9, theme.primary)};
-  color: ${({ theme }) => theme.primary};
-  padding: 0.5rem;
-  border-radius: 12px;
-  margin-top: 8px;
-`
-
 export const GroupButtonReturnTypes = styled.div`
   display: flex;
   border-radius: 999px;
@@ -242,33 +234,6 @@ export const ButtonReturnType = styled.div<{ active?: boolean }>`
   font-weight: 500;
   cursor: pointer;
   transition: color 300ms;
-`
-
-export const SwapFormActions = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-`
-
-export const KyberTag = styled.div`
-  position: absolute;
-  align-items: center;
-  display: flex;
-  top: 12px;
-  left: 12px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.apr};
-  font-size: 0.75rem;
-  z-index: 2;
-`
-
-export const PriceImpactHigh = styled.div<{ veryHigh?: boolean }>`
-  border-radius: 999px;
-  padding: 12px 16px;
-  background: ${({ theme, veryHigh }) => (veryHigh ? `${theme.red}66` : `${theme.warning}66`)};
-  display: flex;
-  align-items: center;
-  font-size: 12px;
 `
 
 export const SwapFormWrapper = styled.div<{ isShowTutorial?: boolean }>`

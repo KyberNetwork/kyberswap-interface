@@ -120,6 +120,7 @@ export default function SwapForm() {
       tokenInfoOut,
       chainIdOut,
       currencyIn,
+      currencyOut,
       listTokenOut,
       listTokenIn,
       listChainIn,
@@ -437,6 +438,9 @@ export default function SwapForm() {
                 style={{ maxWidth: '230px' }}
               >
                 <CurrencyInputPanelBridge
+                  loadingToken={loadingToken}
+                  tokens={listTokenIn}
+                  currency={currencyIn}
                   chainIds={listChainIn}
                   selectedChainId={chainId}
                   onSelectNetwork={changeNetwork}
@@ -465,6 +469,9 @@ export default function SwapForm() {
               }}
             >
               <CurrencyInputPanelBridge
+                loadingToken={loadingToken}
+                tokens={listTokenOut}
+                currency={currencyOut}
                 chainIds={listChainOut}
                 onSelectNetwork={onSelectDestNetwork}
                 selectedChainId={chainIdOut}

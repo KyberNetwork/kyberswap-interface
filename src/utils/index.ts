@@ -134,7 +134,7 @@ const formatDollarFractionAmount = (num: number, digits: number) => {
   return formatter.format(num)
 }
 
-export const formatDollarSignificantAmount = (num: number, minDigits: number, maxDigits?: number) => {
+const formatDollarSignificantAmount = (num: number, minDigits: number, maxDigits?: number) => {
   const formatter = new Intl.NumberFormat(['en-US'], {
     style: 'currency',
     currency: 'USD',

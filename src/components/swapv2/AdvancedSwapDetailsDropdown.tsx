@@ -1,9 +1,15 @@
+import { RouteData } from '@0xsquid/sdk'
 import styled from 'styled-components'
 
 import { useLastTruthy } from 'hooks/useLast'
 import { OutputBridgeInfo } from 'state/bridge/hooks'
 
-import { AdvancedSwapDetails, AdvancedSwapDetailsProps, TradeSummaryBridge } from './AdvancedSwapDetails'
+import {
+  AdvancedSwapDetails,
+  AdvancedSwapDetailsProps,
+  TradeSummaryBridge,
+  TradeSummaryCrossChain,
+} from './AdvancedSwapDetails'
 
 const AdvancedDetailsFooter = styled.div<{ show: boolean }>`
   padding: ${({ show }) => (show ? '12px' : '0')};
@@ -39,6 +45,20 @@ export function AdvancedSwapDetailsDropdownBridge({
   return (
     <AdvancedDetailsFooter show={true} style={{ marginTop: 0 }} className={className}>
       <TradeSummaryBridge outputInfo={outputInfo} />
+    </AdvancedDetailsFooter>
+  )
+}
+
+export function AdvancedSwapDetailsDropdownCrossChain({
+  route,
+  className,
+}: {
+  route: RouteData | undefined
+  className?: string
+}) {
+  return (
+    <AdvancedDetailsFooter show={true} style={{ marginTop: 0 }} className={className}>
+      <TradeSummaryCrossChain route={route} />
     </AdvancedDetailsFooter>
   )
 }

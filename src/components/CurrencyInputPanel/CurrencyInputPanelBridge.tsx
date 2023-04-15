@@ -1,4 +1,4 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Flex, Text } from 'rebass'
@@ -12,7 +12,6 @@ import { useActiveWeb3React } from 'hooks'
 import { useTokenBalanceOfAnotherChain } from 'hooks/bridge'
 import useTheme from 'hooks/useTheme'
 import SelectNetwork from 'pages/Bridge/SelectNetwork'
-import { useBridgeState } from 'state/bridge/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
@@ -33,31 +32,19 @@ interface CurrencyInputPanelBridgeProps {
   onSelectNetwork: (chain: ChainId) => void
   chainIds: ChainId[]
   selectedChainId: ChainId | undefined
+  currency: WrappedTokenInfo | undefined
+  tokens: WrappedTokenInfo[]
+  loadingToken: boolean
+  usdValue?: string
+  isCrossChain?: boolean
+  tooltipNotSupportChain?: string
 }
 
 const noop = (value: string) => {
   //
 }
-export default function CurrencyInputPanelBridge({
-  error,
-  value,
-  onUserInput = noop,
-  onSelectNetwork,
-  chainIds,
-  onMax,
-  selectedChainId,
-  onCurrencySelect,
-  isOutput = false,
-  id,
-}: CurrencyInputPanelBridgeProps) {
-  const [modalOpen, setModalOpen] = useState(false)
-  const { chainId, account } = useActiveWeb3React()
-  const [{ currencyIn, currencyOut, listTokenOut, chainIdOut, loadingToken }] = useBridgeState()
-  const currency = isOutput ? currencyOut : currencyIn
-  const selectedCurrencyBalance = useCurrencyBalance(isOutput ? undefined : currency ?? undefined)
-  const balanceRef = useRef(selectedCurrencyBalance?.toSignificant(10))
-  const destBalance = useTokenBalanceOfAnotherChain(chainIdOut, isOutput ? currency : undefined)
 
+const useGetPriceUsd = (currency: Currency | undefined, value: string) => {
   const currencyAddress: string = !currency ? '' : currency.isNative ? ETHER_ADDRESS : currency.wrapped.address
 
   const tokenAddresses = useMemo(() => {
@@ -69,14 +56,58 @@ export default function CurrencyInputPanelBridge({
   }, [currencyAddress])
 
   const { data: tokenPriceData, refetch } = useTokenPricesWithLoading(tokenAddresses, currency?.chainId)
+  useEffect(() => {
+    if (!currency) {
+      return
+    }
+
+    const interval = setInterval(() => {
+      refetch()
+    }, 10_000)
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [currency, refetch])
 
   const currencyValueInUSD = tokenPriceData?.[currencyAddress] * Number(value)
   const currencyValueString =
     Number.isNaN(currencyValueInUSD) || Number(value) === 0 ? '' : formattedNum(String(currencyValueInUSD), true)
 
+  return currencyValueString
+}
+
+export default function CurrencyInputPanelBridge({
+  error,
+  value,
+  onUserInput = noop,
+  onSelectNetwork,
+  chainIds,
+  onMax,
+  selectedChainId,
+  onCurrencySelect,
+  isOutput = false,
+  id,
+  currency,
+  tokens,
+  loadingToken,
+  usdValue,
+  isCrossChain,
+  tooltipNotSupportChain,
+}: CurrencyInputPanelBridgeProps) {
+  const [modalOpen, setModalOpen] = useState(false)
+  const { account } = useActiveWeb3React()
+
+  const selectedCurrencyBalance = useCurrencyBalance(isOutput ? undefined : currency ?? undefined)
+  const balanceRef = useRef(selectedCurrencyBalance?.toSignificant(10))
+  const destBalance = useTokenBalanceOfAnotherChain(selectedChainId, isOutput ? currency : undefined)
+
+  const currencyValueString = useGetPriceUsd(usdValue !== undefined ? undefined : currency, value)
+  const visibleUsdBalance = usdValue !== undefined ? formattedNum(usdValue, true) : currencyValueString
+
   useEffect(() => {
     balanceRef.current = undefined
-  }, [chainId])
+  }, [selectedChainId])
 
   // Keep previous value of balance if rpc node was down
   useEffect(() => {
@@ -90,21 +121,7 @@ export default function CurrencyInputPanelBridge({
     setModalOpen(false)
   }, [setModalOpen])
 
-  useEffect(() => {
-    if (!currencyIn) {
-      return
-    }
-
-    const interval = setInterval(() => {
-      refetch()
-    }, 10_000)
-
-    return () => {
-      clearInterval(interval)
-    }
-  }, [currencyIn, refetch])
-
-  const disabledSelect = listTokenOut.length === 1 && isOutput
+  const disabledSelect = tokens.length === 1 && isOutput
   const formatDestBalance = destBalance?.toSignificant(10) || '0'
 
   return (
@@ -112,12 +129,13 @@ export default function CurrencyInputPanelBridge({
       <InputPanel id={id}>
         <Container hideInput={false} selected={false} error={error}>
           <Flex justifyContent="space-between" fontSize="12px" marginBottom="12px" alignItems="center">
-            <SelectNetwork chainIds={chainIds} onSelectNetwork={onSelectNetwork} selectedChainId={selectedChainId} />
-            <Flex
-              onClick={() => onMax && onMax()}
-              style={{ cursor: onMax ? 'pointer' : undefined }}
-              alignItems="center"
-            >
+            <SelectNetwork
+              chainIds={chainIds}
+              onSelectNetwork={onSelectNetwork}
+              selectedChainId={selectedChainId}
+              tooltipNotSupportChain={tooltipNotSupportChain}
+            />
+            <Flex onClick={() => onMax?.()} style={{ cursor: onMax ? 'pointer' : undefined }} alignItems="center">
               <Wallet color={theme.subText} />
               <Text fontWeight={500} color={theme.subText} marginLeft="4px">
                 {isOutput ? formatDestBalance : selectedCurrencyBalance?.toSignificant(10) || balanceRef.current || 0}
@@ -133,9 +151,9 @@ export default function CurrencyInputPanelBridge({
               onUserInput={onUserInput}
             />
 
-            {currencyValueString ? (
+            {visibleUsdBalance ? (
               <Text fontSize="0.875rem" marginRight="8px" fontWeight="500" color={theme.border}>
-                ~{currencyValueString}
+                ~{visibleUsdBalance}
               </Text>
             ) : null}
 
@@ -162,8 +180,12 @@ export default function CurrencyInputPanelBridge({
           </InputRow>
         </Container>
         <CurrencySearchModalBridge
+          chainId={selectedChainId}
+          currency={currency}
+          isCrossChain={isCrossChain}
           isOutput={isOutput}
           isOpen={modalOpen}
+          tokens={tokens}
           onDismiss={handleDismissSearch}
           onCurrencySelect={onCurrencySelect}
         />

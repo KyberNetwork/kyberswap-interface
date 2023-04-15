@@ -38,6 +38,7 @@
     "ChromeAndroid >= 52"
   ],
   "dependencies": {
+    "@0xsquid/sdk": "^1.4.1",
     "@apollo/client": "^3.7.1",
     "@datadog/browser-rum": "^4.23.3",
     "@kybernetwork/oauth2": "0.0.2",

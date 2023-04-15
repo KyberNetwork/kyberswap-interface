@@ -1,12 +1,10 @@
 import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import JSBI from 'jsbi'
-import { rgba } from 'polished'
-import { stringify } from 'querystring'
-import React, { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { AlertTriangle, Info } from 'react-feather'
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Info } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { usePrevious } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import styled, { DefaultTheme, keyframes } from 'styled-components'
@@ -19,7 +17,7 @@ import ArrowRotate from 'components/ArrowRotate'
 import Banner from 'components/Banner'
 import { ButtonConfirmed, ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { GreyCard } from 'components/Card'
-import Column, { ColumnCenter } from 'components/Column'
+import Column from 'components/Column'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import Loader from 'components/Loader'
 import ProgressSteps from 'components/ProgressSteps'
@@ -39,11 +37,8 @@ import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import AdvancedSwapDetailsDropdown from 'components/swapv2/AdvancedSwapDetailsDropdown'
 import ConfirmSwapModal from 'components/swapv2/ConfirmSwapModal'
 import GasPriceTrackerPanel from 'components/swapv2/GasPriceTrackerPanel'
-import LimitOrder from 'components/swapv2/LimitOrder'
-import ListLimitOrder from 'components/swapv2/LimitOrder/ListOrder'
-import { ListOrderHandle } from 'components/swapv2/LimitOrder/type'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
-import PairSuggestion, { PairSuggestionHandle } from 'components/swapv2/PairSuggestion'
+import { PairSuggestionHandle } from 'components/swapv2/PairSuggestion'
 import RefreshButton from 'components/swapv2/RefreshButton'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TokenInfoTab from 'components/swapv2/TokenInfoTab'
@@ -57,13 +52,9 @@ import {
   InfoComponentsWrapper,
   LiveChartWrapper,
   PageWrapper,
-  PriceImpactHigh,
   RoutesWrapper,
   SwapCallbackError,
   SwapFormWrapper,
-  Tab,
-  TabContainer,
-  TabWrapper,
   Wrapper,
 } from 'components/swapv2/styleds'
 import { AGGREGATOR_WAITING_TIME, APP_PATHS, TIME_TO_REFRESH_SWAP_RATE } from 'constants/index'
@@ -78,10 +69,10 @@ import useSyncTokenSymbolToUrl from 'hooks/useSyncTokenSymbolToUrl'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { BodyWrapper } from 'pages/AppBody'
-import HeaderRightMenu from 'pages/SwapV3/HeaderRightMenu'
+import { TAB } from 'pages/SwapV3'
+import Header from 'pages/SwapV3/Header'
 import useUpdateSlippageInStableCoinSwap from 'pages/SwapV3/useUpdateSlippageInStableCoinSwap'
 import { useWalletModalToggle } from 'state/application/hooks'
-import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
 import { useDefaultsFromURLSearch, useEncodeSolana, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import { useDerivedSwapInfoV2 } from 'state/swap/useAggregator'
@@ -95,8 +86,7 @@ import {
   useUserAddedTokens,
   useUserSlippageTolerance,
 } from 'state/user/hooks'
-import { CloseIcon } from 'theme'
-import { formattedNum, getLimitOrderContract } from 'utils'
+import { formattedNum } from 'utils'
 import { getTradeComposition } from 'utils/aggregationRouting'
 import { Aggregator } from 'utils/aggregator'
 import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
@@ -106,15 +96,6 @@ import { checkPairInWhiteList } from 'utils/tokenInfo'
 
 const LiveChart = lazy(() => import('components/LiveChart'))
 const Routing = lazy(() => import('components/TradeRouting'))
-
-enum TAB {
-  SWAP = 'swap',
-  INFO = 'info',
-  SETTINGS = 'settings',
-  GAS_PRICE_TRACKER = 'gas_price_tracker',
-  LIQUIDITY_SOURCES = 'liquidity_sources',
-  LIMIT = 'limit',
-}
 
 const ChristmasDecor = styled.div`
   position: absolute;
@@ -169,15 +150,8 @@ const RoutingIconWrapper = styled(RoutingIcon)`
   }
 `
 
-const DegenBanner = styled(RowBetween)`
-  padding: 10px 16px;
-  background-color: ${({ theme }) => rgba(theme.warning, 0.3)};
-  border-radius: 24px;
-`
-
 export default function Swap() {
-  const navigateFn = useNavigate()
-  const { account, chainId, networkInfo, isSolana, isEVM } = useActiveWeb3React()
+  const { account, chainId, isSolana, isEVM } = useActiveWeb3React()
   const [rotate, setRotate] = useState(false)
   const isShowLiveChart = useShowLiveChart()
   const [holidayMode] = useHolidayMode()
@@ -193,7 +167,6 @@ export default function Swap() {
   const [encodeSolana] = useEncodeSolana()
 
   const refSuggestPair = useRef<PairSuggestionHandle>(null)
-  const refListLimitOrder = useRef<ListOrderHandle>(null)
 
   const [showingPairSuggestionImport, setShowingPairSuggestionImport] = useState<boolean>(false) // show modal import when click pair suggestion
 
@@ -203,23 +176,11 @@ export default function Swap() {
   // else select via url
 
   const isSwapPage = pathname.startsWith(APP_PATHS.SWAP)
-  const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT)
-  const [activeTab, setActiveTab] = useState<TAB>(isSwapPage ? TAB.SWAP : TAB.LIMIT)
-  const { onSelectPair: onSelectPairLimit } = useLimitActionHandlers()
-  const limitState = useLimitState()
-  const currenciesLimit = useMemo(() => {
-    return { [Field.INPUT]: limitState.currencyIn, [Field.OUTPUT]: limitState.currencyOut }
-  }, [limitState.currencyIn, limitState.currencyOut])
+  const [activeTab, setActiveTab] = useState<TAB>(TAB.SWAP)
 
   useEffect(() => {
-    setActiveTab(isSwapPage ? TAB.SWAP : TAB.LIMIT)
+    setActiveTab(TAB.SWAP)
   }, [isSwapPage])
-
-  const refreshListOrder = useCallback(() => {
-    if (isLimitPage) {
-      refListLimitOrder.current?.refreshListOrder()
-    }
-  }, [isLimitPage])
 
   useDefaultsFromURLSearch()
   const [dismissTokenWarning, setDismissTokenWarning] = useState<boolean>(false)
@@ -282,11 +243,8 @@ export default function Swap() {
   const currencyOut: Currency | undefined = currencies[Field.OUTPUT]
 
   const urlLoadedTokens: Token[] = useMemo(
-    () =>
-      (isSwapPage ? [currencyIn, currencyOut] : [limitState.currencyIn, limitState.currencyOut])?.filter(
-        (c): c is Token => c instanceof Token,
-      ) ?? [],
-    [isSwapPage, currencyIn, currencyOut, limitState.currencyIn, limitState.currencyOut],
+    () => [currencyIn, currencyOut]?.filter((c): c is Token => c instanceof Token) ?? [],
+    [currencyIn, currencyOut],
   )
   // dismiss warning if all imported tokens are in active lists
   const defaultTokens = useAllTokens()
@@ -373,11 +331,8 @@ export default function Swap() {
       if (showingPairSuggestionImport) {
         refSuggestPair.current?.onConfirmImportToken() // callback from children
       }
-      if (isLimitPage) {
-        onSelectPairLimit(tokens[0], tokens[1])
-      }
     },
-    [isLimitPage, onSelectPairLimit, showingPairSuggestionImport, handleDismissTokenWarning],
+    [showingPairSuggestionImport, handleDismissTokenWarning],
   )
 
   const formattedAmounts = {
@@ -521,15 +476,11 @@ export default function Swap() {
 
   const onSelectSuggestedPair = useCallback(
     (fromToken: Currency | undefined, toToken: Currency | undefined, amount?: string) => {
-      if (isLimitPage) {
-        onSelectPairLimit(fromToken, toToken, amount)
-        return
-      }
       if (fromToken) onCurrencySelection(Field.INPUT, fromToken)
       if (toToken) onCurrencySelection(Field.OUTPUT, toToken)
       if (amount) handleTypeInput(amount)
     },
-    [handleTypeInput, onCurrencySelection, onSelectPairLimit, isLimitPage],
+    [handleTypeInput, onCurrencySelection],
   )
 
   const tokenImports: Token[] = useUserAddedTokens()
@@ -558,7 +509,7 @@ export default function Swap() {
     })
   }, [tokenImports, chainId, prevTokenImports, currencyIn, currencyOut, onResetSelectCurrency])
 
-  useSyncTokenSymbolToUrl(currencyIn, currencyOut, onSelectSuggestedPair, isSelectCurrencyManually, isLimitPage)
+  useSyncTokenSymbolToUrl(currencyIn, currencyOut, onSelectSuggestedPair, isSelectCurrencyManually)
   const isLoadedTokenDefault = useIsLoadedTokenDefault()
 
   const [rawSlippage] = useUserSlippageTolerance()
@@ -579,63 +530,16 @@ export default function Swap() {
     getSymbolSlug(currencyOut),
   )
 
-  const onBackToSwapTab = () => setActiveTab(isLimitPage ? TAB.LIMIT : TAB.SWAP)
+  const onBackToSwapTab = () => setActiveTab(TAB.SWAP)
 
   const shouldRenderTokenInfo = isShowTokenInfoSetting && currencyIn && currencyOut && isPairInWhiteList && isSwapPage
 
   const isShowModalImportToken =
     isLoadedTokenDefault && importTokensNotInDefault.length > 0 && (!dismissTokenWarning || showingPairSuggestionImport)
 
-  const isLargeSwap = useMemo((): boolean => {
-    return false // todo: not used for current release yet
-    // if these line is 6 months old, feel free to delete it
-    /*
-    if (!isSolana) return false
-    if (!trade) return false
-    try {
-      return trade.swaps.some(swapPath =>
-        swapPath.some(swap => {
-          // return swapAmountInUsd / swap.reserveUsd > 1%
-          //  =  (swap.swapAmount / 10**decimal * tokenIn.price) / swap.reserveUsd > 1%
-          //  = swap.swapAmount * tokenIn.price / (10**decimal * swap.reserveUsd) > 1%
-          //  = 10**decimal * swap.reserveUsd / (swap.swapAmount * tokenIn.price) < 100
-          const tokenIn = trade.tokens[swap.tokenIn]
-          if (!tokenIn || !tokenIn.decimals) return false
-
-          return JSBI.lessThan(
-            JSBI.divide(
-              JSBI.multiply(
-                JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(tokenIn.decimals + 20)),
-                JSBI.BigInt(swap.reserveUsd * 10 ** 20),
-              ),
-              JSBI.multiply(JSBI.BigInt(tokenIn.price * 10 ** 20), JSBI.BigInt(Number(swap.swapAmount) * 10 ** 20)),
-            ),
-            JSBI.BigInt(100),
-          )
-        }),
-      )
-    } catch (e) {
-      return false
-    }
-  }, [isSolana, trade])
-  */
-  }, [])
-
   const tradeRouteComposition = useMemo(() => {
     return getTradeComposition(chainId, trade?.inputAmount, trade?.tokens, trade?.swaps, defaultTokens)
   }, [chainId, defaultTokens, trade])
-
-  const onClickTab = (tab: TAB) => {
-    setActiveTab(tab)
-    const isLimit = tab === TAB.LIMIT
-    const { inputCurrency, outputCurrency, ...newQs } = qs
-    navigateFn({
-      pathname: `${isLimit ? APP_PATHS.LIMIT : APP_PATHS.SWAP}/${networkInfo.route}`,
-      search: stringify(newQs),
-    })
-  }
-
-  const [isShowDegenBanner, setShowDegenBanner] = useState(true)
 
   return (
     <>
@@ -656,56 +560,7 @@ export default function Swap() {
         <TopTrendingSoonTokensInCurrentNetwork />
         <Container>
           <SwapFormWrapper isShowTutorial={isShowTutorial}>
-            <ColumnCenter gap="sm">
-              <RowBetween>
-                <TabContainer>
-                  <TabWrapper>
-                    <Tab onClick={() => onClickTab(TAB.SWAP)} isActive={isSwapPage}>
-                      <Text fontSize={20} fontWeight={500}>
-                        <Trans>Swap</Trans>
-                      </Text>
-                    </Tab>
-                    {getLimitOrderContract(chainId) && (
-                      <Tab id="limit-button" onClick={() => onClickTab(TAB.LIMIT)} isActive={isLimitPage}>
-                        <Text fontSize={20} fontWeight={500}>
-                          <Trans>Limit</Trans>
-                        </Text>
-                      </Tab>
-                    )}
-                  </TabWrapper>
-                </TabContainer>
-
-                <HeaderRightMenu activeTab={activeTab} setActiveTab={setActiveTab} />
-              </RowBetween>
-              <RowBetween>
-                <Text fontSize={12} color={theme.subText}>
-                  {isLimitPage ? (
-                    <Trans>Buy or sell any token at a specific price</Trans>
-                  ) : (
-                    <Trans>Buy or sell any token instantly at the best price</Trans>
-                  )}
-                </Text>
-              </RowBetween>
-            </ColumnCenter>
-
-            {isDegenMode && isShowDegenBanner && (
-              <DegenBanner>
-                <Text fontSize={12} fontWeight={400} color={theme.text}>
-                  <Trans>You have turned on Degen Mode. Be cautious</Trans>
-                </Text>
-                <CloseIcon size={14} onClick={() => setShowDegenBanner(false)} />
-              </DegenBanner>
-            )}
-
-            {!isSolana && (
-              <RowBetween>
-                <PairSuggestion
-                  ref={refSuggestPair}
-                  onSelectSuggestedPair={onSelectSuggestedPair}
-                  setShowModalImportToken={setShowingPairSuggestionImport}
-                />
-              </RowBetween>
-            )}
+            <Header activeTab={activeTab} setActiveTab={setActiveTab} />
 
             <AppBodyWrapped data-highlight={shouldHighlightSwapBox} id={TutorialIds.SWAP_FORM}>
               {activeTab === TAB.SWAP && (
@@ -814,15 +669,6 @@ export default function Swap() {
                     {!showWrap && <SlippageWarningNote rawSlippage={rawSlippage} isStablePairSwap={isStableCoinSwap} />}
 
                     <PriceImpactNote priceImpact={trade?.priceImpact} isDegenMode={isDegenMode} />
-
-                    {isLargeSwap && (
-                      <PriceImpactHigh>
-                        <AlertTriangle color={theme.warning} size={24} style={{ marginRight: '8px' }} />
-                        <Trans>
-                          Your transaction may not be successful. We recommend increasing the slippage for this trade
-                        </Trans>
-                      </PriceImpactHigh>
-                    )}
 
                     <ApproveMessage
                       routerAddress={trade?.routerAddress}
@@ -1018,12 +864,10 @@ export default function Swap() {
                   </Wrapper>
                 </>
               )}
-              {activeTab === TAB.INFO && (
-                <TokenInfoTab currencies={isSwapPage ? currencies : currenciesLimit} onBack={onBackToSwapTab} />
-              )}
+              {activeTab === TAB.INFO && <TokenInfoTab currencies={currencies} onBack={onBackToSwapTab} />}
               {activeTab === TAB.SETTINGS && (
                 <SettingsPanel
-                  isLimitOrder={isLimitPage}
+                  isLimitOrder={false}
                   onBack={onBackToSwapTab}
                   onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}
                   onClickGasPriceTracker={() => setActiveTab(TAB.GAS_PRICE_TRACKER)}
@@ -1035,18 +879,11 @@ export default function Swap() {
               {activeTab === TAB.LIQUIDITY_SOURCES && (
                 <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} />
               )}
-              {activeTab === TAB.LIMIT && (
-                <LimitOrder
-                  isSelectCurrencyManual={isSelectCurrencyManually}
-                  setIsSelectCurrencyManual={setIsSelectCurrencyManually}
-                  refreshListOrder={refreshListOrder}
-                />
-              )}
               {isSwapPage && <AdvancedSwapDetailsDropdown trade={trade} feeConfig={feeConfig} />}
             </AppBodyWrapped>
           </SwapFormWrapper>
 
-          {(isShowLiveChart || isShowTradeRoutes || shouldRenderTokenInfo || isLimitPage) && (
+          {(isShowLiveChart || isShowTradeRoutes || shouldRenderTokenInfo) && (
             <InfoComponentsWrapper>
               {isShowLiveChart && (
                 <LiveChartWrapper>
@@ -1060,7 +897,7 @@ export default function Swap() {
                       />
                     }
                   >
-                    <LiveChart currencies={isSwapPage ? currencies : currenciesLimit} />
+                    <LiveChart currencies={currencies} />
                   </Suspense>
                 </LiveChartWrapper>
               )}
@@ -1094,7 +931,6 @@ export default function Swap() {
                   </Flex>
                 </RoutesWrapper>
               )}
-              {isLimitPage && <ListLimitOrder ref={refListLimitOrder} />}
               {shouldRenderTokenInfo && <TokenInfoV2 currencyIn={currencyIn} currencyOut={currencyOut} />}
             </InfoComponentsWrapper>
           )}
