@@ -1,7 +1,7 @@
 import { GetRoute } from '@0xsquid/sdk'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -13,7 +13,6 @@ import CurrencyInputPanelBridge from 'components/CurrencyInputPanel/CurrencyInpu
 import { RowBetween } from 'components/Row'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
-import Tooltip from 'components/Tooltip'
 import { AdvancedSwapDetailsDropdownCrossChain } from 'components/swapv2/AdvancedSwapDetailsDropdown'
 import { INPUT_DEBOUNCE_TIME } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -68,7 +67,7 @@ export default function SwapForm() {
 
   const debouncedInput = useDebounce(inputAmount, INPUT_DEBOUNCE_TIME)
   const routeParams: GetRoute | undefined = useMemo(() => {
-    if (!currencyIn || !currencyOut || !debouncedInput || !chainIdOut || !account) return
+    if (!currencyIn || !currencyOut || !chainIdOut || !account || !Number(debouncedInput)) return
     return {
       fromChain: chainId,
       toChain: chainIdOut,
@@ -97,10 +96,6 @@ export default function SwapForm() {
 
   // modal and loading
   const [swapState, setSwapState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
-
-  useEffect(() => {
-    setInputAmount('')
-  }, [currencyIn, chainId])
 
   const inputError = useValidateInput({ inputAmount, route, errorGetRoute })
 
@@ -197,31 +192,22 @@ export default function SwapForm() {
     <>
       <Flex style={{ flexDirection: 'column', gap: '1rem' }}>
         <Flex flexDirection={'column'}>
-          <Tooltip
-            text={typeof inputError === 'string' ? inputError : ''}
-            show={typeof inputError === 'string'}
-            placement="top"
-            width="fit-content"
-            style={{ maxWidth: '230px' }}
-          >
-            <CurrencyInputPanelBridge
-              tooltipNotSupportChain={t`Axelar/Squid doesn't support this chain`}
-              isCrossChain
-              loadingToken={loadingToken}
-              tokens={listTokenIn}
-              currency={currencyIn}
-              chainIds={chains}
-              selectedChainId={chainId}
-              onSelectNetwork={changeNetwork}
-              error={typeof inputError === 'string'}
-              value={inputAmount}
-              onUserInput={handleTypeInput}
-              onMax={handleMaxInput}
-              onCurrencySelect={onCurrencySelect}
-              id="swap-currency-input"
-              usdValue={amountUsdIn || ''}
-            />
-          </Tooltip>
+          <CurrencyInputPanelBridge
+            tooltipNotSupportChain={t`Axelar/Squid doesn't support this chain`}
+            isCrossChain
+            loadingToken={loadingToken}
+            tokens={listTokenIn}
+            currency={currencyIn}
+            chainIds={chains}
+            selectedChainId={chainId}
+            onSelectNetwork={changeNetwork}
+            value={inputAmount}
+            onUserInput={handleTypeInput}
+            onMax={handleMaxInput}
+            onCurrencySelect={onCurrencySelect}
+            id="swap-currency-input"
+            usdValue={amountUsdIn || ''}
+          />
         </Flex>
 
         <Flex justifyContent="space-between" alignItems={'center'}>
@@ -257,7 +243,7 @@ export default function SwapForm() {
 
         <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={false} />
 
-        {typeof inputError !== 'string' && inputError?.state && (
+        {inputError?.state && (
           <ErrorWarningPanel title={inputError?.tip} type={inputError?.state} desc={inputError?.desc} />
         )}
 

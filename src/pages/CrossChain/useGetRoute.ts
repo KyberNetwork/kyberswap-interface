@@ -15,7 +15,7 @@ export default function useGetRouteCrossChain(params: GetRoute | undefined) {
     if (!squidInstance || !params) return
     try {
       setLoading(true)
-      // setTradeRoute(undefined) // todo bi loop
+      setTradeRoute(undefined)
       const { route } = await squidInstance.getRoute(params)
       setTradeRoute(route)
       setError(false)
@@ -26,7 +26,7 @@ export default function useGetRouteCrossChain(params: GetRoute | undefined) {
     } finally {
       setLoading(false)
     }
-  }, [squidInstance, params, setTradeRoute]) // todo
+  }, [squidInstance, params, setTradeRoute])
 
   const getRouteDebounce = useMemo(() => debounce(getRoute, 200), [getRoute])
 

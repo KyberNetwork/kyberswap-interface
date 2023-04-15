@@ -59,7 +59,7 @@ export default function TradePrice({ route, refresh }: TradePriceProps) {
     >
       {formattedPrice ? (
         <Flex sx={{ gap: '4px' }} alignItems={'center'}>
-          <RefreshButton shouldDisable={!route} callback={refresh} />
+          <RefreshButton shouldDisable={!route} skipFirst callback={refresh} />
           <Trans>Cross-chain rate is</Trans> {value}
           <StyledBalanceMaxMini>
             <Repeat size={12} />

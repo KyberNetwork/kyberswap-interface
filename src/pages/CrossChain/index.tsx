@@ -28,7 +28,7 @@ function CrossChain() {
         loading.current = true
         if (!squid) {
           squid = new Squid({
-            baseUrl: 'https://testnet.api.0xsquid.com', //'https://api.0xsquid.com' || 'https://testnet.api.0xsquid.com',
+            baseUrl: 'https://api.0xsquid.com' || 'https://testnet.api.0xsquid.com', //'https://api.0xsquid.com' || 'https://testnet.api.0xsquid.com',
           })
         }
         await squid.init() // todo too many call

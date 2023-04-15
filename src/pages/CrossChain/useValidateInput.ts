@@ -24,31 +24,26 @@ export default function useValidateInput({
   const { isEnoughEth } = useIsEnoughGas(route)
   const showErrorGas = !isEnoughEth && route
 
-  const inputError: string | undefined | { state: 'warn' | 'error'; tip: string; desc?: ReactNode } = useMemo(() => {
+  const inputError: undefined | { state: 'warn' | 'error'; tip: string; desc?: ReactNode } = useMemo(() => {
     if (!listTokenOut.length && !listTokenIn.length && !loadingToken) {
       return { state: 'error', tip: t`Cannot get token info. Please try again later.` }
     }
+    if (errorGetRoute) {
+      return { state: 'warn', tip: t`Can not find route for this transaction` }
+    }
+    const inputNumber = Number(inputAmount)
+    if (!currencyIn || !chainIdOut || !currencyOut || inputNumber === 0) return
+    const parseAmount = tryParseAmount(inputAmount, currencyIn)
+    if (!parseAmount) return { state: 'warn', tip: t`Input amount is not valid` }
+
+    if (balance?.lessThan(parseAmount)) return { state: 'warn', tip: t`Insufficient ${currencyIn?.symbol} balance` }
+
     if (showErrorGas) {
       return {
         state: 'warn',
         tip: t`You do not have enough ${NativeCurrencies[chainId].symbol} to cover the estimated gas for this transaction.`,
       }
     }
-    if (errorGetRoute) {
-      return { state: 'warn', tip: t`Can not find route for this transaction` }
-    }
-    const inputNumber = Number(inputAmount)
-
-    if (!currencyIn || !chainIdOut || !currencyOut || inputNumber === 0) return
-
-    if (isNaN(inputNumber)) return t`Input amount is not valid`
-
-    const parseAmount = tryParseAmount(inputAmount, currencyIn)
-    if (!parseAmount) {
-      return t`Your amount is invalid.`
-    }
-
-    if (balance?.lessThan(parseAmount)) return t`Insufficient ${currencyIn?.symbol} balance`
     return
   }, [
     chainIdOut,

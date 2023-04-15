@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from 'react'
 
 import { useActiveWeb3React } from 'hooks'
-import useDebug from 'hooks/useDebug'
 import { useCrossChainHandlers, useCrossChainState } from 'state/bridge/hooks'
 
 const useDefaultTokenChain = () => {
@@ -24,7 +23,6 @@ const useDefaultTokenChain = () => {
   useEffect(() => {
     selectCurrency({ currencyIn, currencyOut: listTokenOut[0] })
   }, [chainIdOut, selectCurrency, currencyIn, listTokenOut])
-  useDebug({ currencyIn })
   return { ...rest, listTokenIn, listChainOut, listTokenOut, chains, chainIdOut, currencyIn, currencyOut }
 }
 export default useDefaultTokenChain
