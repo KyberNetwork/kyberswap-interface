@@ -85,7 +85,7 @@ const SwapModal: React.FC<Props> = props => {
   }
 
   const handleErrorDismiss = () => {
-    if (error && routeSummary && account) {
+    if (buildResult?.error && buildResult.error.includes('invalid signature') && routeSummary && account) {
       dispatch(permitError({ chainId, address: routeSummary.parsedAmountIn.currency.wrapped.address, account }))
     }
     handleDismiss()
@@ -130,7 +130,7 @@ const SwapModal: React.FC<Props> = props => {
       <ConfirmSwapModalContent
         isBuildingRoute={isBuildingRoute}
         errorWhileBuildRoute={buildResult?.error}
-        onDismiss={handleDismiss}
+        onDismiss={handleErrorDismiss}
         onSwap={handleConfirmSwap}
         buildResult={buildResult}
       />

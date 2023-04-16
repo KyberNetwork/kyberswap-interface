@@ -1,7 +1,7 @@
 import { Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { transparentize } from 'polished'
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Check, Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { calculatePriceImpact } from 'services/route/utils'
@@ -87,6 +87,34 @@ export default function ConfirmSwapModalContent({
   const [isDegenMode] = useDegenModeManager()
 
   const shouldDisableConfirmButton = isBuildingRoute || !!errorWhileBuildRoute
+
+  const errorText = useMemo(() => {
+    if (!errorWhileBuildRoute) return
+    if (errorWhileBuildRoute.includes('enough') || errorWhileBuildRoute.includes('min')) {
+      return (
+        <Text>
+          <Trans>
+            There was an issue while confirming your price and minimum amount received. You may consider adjusting your{' '}
+            <b>Max Slippage</b> and then trying to swap again.
+          </Trans>
+        </Text>
+      )
+    }
+    if (errorWhileBuildRoute.includes('invalid signature')) {
+      return (
+        <Text>
+          <Trans>
+            There was an issue while trying to confirm your price. <b>Permit signature invalid</b>
+          </Trans>
+        </Text>
+      )
+    }
+    return (
+      <Text>
+        <Trans>There was an issue while trying to confirm your price. Please try to swap again.</Trans>
+      </Text>
+    )
+  }, [errorWhileBuildRoute])
 
   const priceImpactFromBuild = buildResult?.data
     ? calculatePriceImpact(Number(buildResult?.data?.amountInUsd || 0), Number(buildResult?.data?.amountOutUsd || 0))
@@ -271,24 +299,7 @@ export default function ConfirmSwapModalContent({
 
           <PriceImpactNote isDegenMode={isAdvancedMode} priceImpact={priceImpactFromBuild} />
 
-          {errorWhileBuildRoute && (
-            <WarningNote
-              shortText={
-                errorWhileBuildRoute.includes('enough') || errorWhileBuildRoute.includes('min') ? (
-                  <Text>
-                    <Trans>
-                      There was an issue while confirming your price and minimum amount received. You may consider
-                      adjusting your <b>Max Slippage</b> and then trying to swap again.
-                    </Trans>
-                  </Text>
-                ) : (
-                  <Text>
-                    <Trans>There was an issue while trying to confirm your price. Please try to swap again.</Trans>
-                  </Text>
-                )
-              }
-            />
-          )}
+          {errorWhileBuildRoute && <WarningNote shortText={errorText} />}
 
           {isSolana && !encodeSolana ? (
             <GreyCard style={{ textAlign: 'center', borderRadius: '999px', padding: '12px' }} id="confirm-swap-or-send">
