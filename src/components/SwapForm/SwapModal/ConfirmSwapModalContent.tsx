@@ -90,21 +90,21 @@ export default function ConfirmSwapModalContent({
 
   const errorText = useMemo(() => {
     if (!errorWhileBuildRoute) return
+    if (errorWhileBuildRoute.toLowerCase().includes('permit')) {
+      return (
+        <Text>
+          <Trans>
+            There was an issue while trying to confirm your price. <b>Permit signature invalid</b>
+          </Trans>
+        </Text>
+      )
+    }
     if (errorWhileBuildRoute.includes('enough') || errorWhileBuildRoute.includes('min')) {
       return (
         <Text>
           <Trans>
             There was an issue while confirming your price and minimum amount received. You may consider adjusting your{' '}
             <b>Max Slippage</b> and then trying to swap again.
-          </Trans>
-        </Text>
-      )
-    }
-    if (errorWhileBuildRoute.includes('invalid signature')) {
-      return (
-        <Text>
-          <Trans>
-            There was an issue while trying to confirm your price. <b>Permit signature invalid</b>
           </Trans>
         </Text>
       )
