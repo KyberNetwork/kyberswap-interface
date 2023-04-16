@@ -145,7 +145,7 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
   let commonPool = isError
     ? null
     : dataToken0?.data.find(
-        item => !item.relationships.dex.data.id.includes('curve') && dataToken1?.data.map(i => i.id).includes(item.id),
+        item => item.attributes.name.split('/').length === 2 && dataToken1?.data.map(i => i.id).includes(item.id),
       )
 
   if (!commonPool && !isError) {
