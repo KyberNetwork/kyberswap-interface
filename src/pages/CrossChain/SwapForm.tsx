@@ -8,12 +8,13 @@ import styled from 'styled-components'
 import SquidLogoDark from 'assets/images/squid_dark.png'
 import SquidLogoLight from 'assets/images/squid_light.png'
 import { ReactComponent as ArrowUp } from 'assets/svg/arrow_up.svg'
-import { ButtonError, ButtonLight } from 'components/Button'
+import { ButtonLight } from 'components/Button'
 import CurrencyInputPanelBridge from 'components/CurrencyInputPanel/CurrencyInputPanelBridge'
 import { RowBetween } from 'components/Row'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
+import SwapButtonWithPriceImpact from 'components/SwapForm/SwapActionButton/SwapButtonWithPriceImpact'
 import { AdvancedSwapDetailsDropdownCrossChain } from 'components/swapv2/AdvancedSwapDetailsDropdown'
 import { INPUT_DEBOUNCE_TIME } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -36,6 +37,7 @@ import { useCurrencyBalance } from 'state/wallet/hooks'
 import { ExternalLink } from 'theme'
 import { TRANSACTION_STATE_DEFAULT, TransactionFlowState } from 'types/index'
 import { uint256ToFraction } from 'utils/numbers'
+import { checkPriceImpact } from 'utils/prices'
 
 import { ConfirmCrossChainModal } from '../Bridge/ComfirmBridgeModal'
 import ErrorWarningPanel from '../Bridge/ErrorWarning'
@@ -89,7 +91,6 @@ export default function SwapForm() {
     loading: gettingRoute,
   } = useGetRouteCrossChain(routeParams)
   const { outputAmount, amountUsdIn, amountUsdOut, exchangeRate, priceImpact } = getRouInfo(route)
-
   const { selectCurrency, selectDestChain } = useCrossChainHandlers()
 
   const toggleWalletModal = useWalletModalToggle()
@@ -190,6 +191,8 @@ export default function SwapForm() {
   const disableBtnSwap =
     !!inputError || [inputAmount, currencyIn, currencyOut, chainIdOut].some(e => !e) || gettingRoute
 
+  const priceImpactResult = checkPriceImpact(Number(priceImpact || -1))
+
   return (
     <>
       <Flex style={{ flexDirection: 'column', gap: '1rem' }}>
@@ -251,9 +254,17 @@ export default function SwapForm() {
         )}
 
         {account ? (
-          <ButtonError id="review-transfer-button" onClick={showPreview} disabled={disableBtnSwap}>
-            <Text fontWeight={500}>{gettingRoute ? <Trans>Getting route...</Trans> : <Trans>Swap</Trans>}</Text>
-          </ButtonError>
+          <SwapButtonWithPriceImpact
+            onClick={showPreview}
+            disabled={disableBtnSwap}
+            showLoading={gettingRoute}
+            priceImpact={Number(priceImpact || -1)}
+            isProcessingSwap={swapState.attemptingTxn}
+            isApproved={true}
+            route={route}
+            minimal={false}
+            showNoteGetRoute={priceImpactResult.isHigh || priceImpactResult.isVeryHigh || priceImpactResult.isInvalid}
+          />
         ) : (
           <ButtonLight onClick={toggleWalletModal}>
             <Trans>Connect Wallet</Trans>
