@@ -29,7 +29,10 @@ export default function useValidateInput({
       return { state: 'error', tip: t`Cannot get token info. Please try again later.` }
     }
     if (errorGetRoute) {
-      return { state: 'warn', tip: t`Can not find route for this transaction` }
+      return {
+        state: 'warn',
+        tip: t`We couldn't find a route for this trade. You can try changing the amount to swap, selecting a different chain or tokens, or try again later.`,
+      }
     }
     const inputNumber = Number(inputAmount)
     if (!currencyIn || !chainIdOut || !currencyOut || inputNumber === 0) return
