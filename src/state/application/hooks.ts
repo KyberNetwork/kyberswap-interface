@@ -132,12 +132,13 @@ export function useAddPopup(): (
   popupType: PopupType,
   key?: string,
   removeAfterMs?: number | null,
+  account?: string,
 ) => void {
   const dispatch = useDispatch()
 
   return useCallback(
-    (content: PopupContent, popupType: PopupType, key?: string, removeAfterMs?: number | null) => {
-      dispatch(addPopup({ content, key, popupType, removeAfterMs }))
+    (content: PopupContent, popupType: PopupType, key?: string, removeAfterMs?: number | null, account?: string) => {
+      dispatch(addPopup({ content, key, popupType, removeAfterMs, account }))
     },
     [dispatch],
   )

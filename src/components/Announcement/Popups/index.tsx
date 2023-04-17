@@ -93,8 +93,6 @@ export default function Popups() {
 
     const unsubscribePrivate = subscribePrivateAnnouncement(account, data => {
       data.forEach(item => {
-        ;(item as any).account = account
-        console.log(item)
         switch (item.templateType) {
           case PrivateAnnouncementType.PRICE_ALERT:
             const mins = (Date.now() / 1000 - item.createdAt) / TIMES_IN_SECS.ONE_MIN
@@ -102,7 +100,7 @@ export default function Popups() {
             break
           case PrivateAnnouncementType.DIRECT_MESSAGE: {
             const { templateBody, metaMessageId } = item
-            addPopup(item, templateBody.popupType, metaMessageId)
+            addPopup(item, templateBody.popupType, metaMessageId, undefined, account)
             break
           }
         }

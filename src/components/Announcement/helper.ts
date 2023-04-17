@@ -35,7 +35,7 @@ export const isPopupCanShow = (
   const announcementsAckMap = getAnnouncementsAckMap()
   const isRead = announcementsAckMap[metaMessageId]
 
-  const isOwn = (popupInfo.content as any).account ? account === (popupInfo.content as any).account : true
+  const isOwn = popupInfo.account ? account === popupInfo.account : true
 
   const isExpired = Date.now() < startAt * 1000 || Date.now() > endAt * 1000
   return !isRead && !isExpired && isRightChain && isOwn

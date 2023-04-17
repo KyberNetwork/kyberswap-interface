@@ -151,6 +151,7 @@ export type PopupItemType<T extends PopupContent = PopupContent> = {
   content: T
   removeAfterMs: number | null
   popupType: PopupType
+  account?: string
 }
 
 export type PopupContent = PopupContentTxn | PopupContentSimple | PopupContentAnnouncement
