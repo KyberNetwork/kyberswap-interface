@@ -208,7 +208,10 @@ const ListItem = ({ poolData, userLiquidityPositions }: ListItemGroupProps) => {
           <ButtonEmpty
             padding="0"
             as={Link}
-            to={`/remove/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${poolData.id}`}
+            to={`/${networkInfo.route}${APP_PATHS.CLASSIC_REMOVE_POOL}/${currencyId(currency0, chainId)}/${currencyId(
+              currency1,
+              chainId,
+            )}/${poolData.id}`}
             style={{
               background: rgba(theme.red, 0.2),
               minWidth: '28px',

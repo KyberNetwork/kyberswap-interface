@@ -720,7 +720,10 @@ export default function FullPositionCard({
                 fontSize: '14px',
               }}
               as={Link}
-              to={`/remove/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${pair.address}`}
+              to={`/${networkInfo.route}${APP_PATHS.CLASSIC_REMOVE_POOL}/${currencyId(currency0, chainId)}/${currencyId(
+                currency1,
+                chainId,
+              )}/${pair.address}`}
             >
               <Text width="max-content">
                 <Trans>Remove Liquidity</Trans>

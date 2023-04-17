@@ -179,7 +179,10 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
         as={Link}
         to={
           isHaveLiquidity
-            ? `/remove/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${poolData.id}`
+            ? `/${networkInfo.route}${APP_PATHS.CLASSIC_REMOVE_POOL}/${currencyId(currency0, chainId)}/${currencyId(
+                currency1,
+                chainId,
+              )}/${poolData.id}`
             : `${APP_PATHS.SWAP}/${networkInfo.route}?inputCurrency=${currencyId(
                 currency0,
                 chainId,
