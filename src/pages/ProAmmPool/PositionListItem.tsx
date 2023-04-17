@@ -442,7 +442,7 @@ function PositionListItem({
                 <ButtonOutlined
                   padding="8px"
                   as={Link}
-                  to={`/elastic/remove/${positionDetails.tokenId}`}
+                  to={`/${networkInfo.route}${APP_PATHS.ELASTIC_REMOVE_POOL}/${positionDetails.tokenId}`}
                   onClick={() => {
                     mixpanelHandler(MIXPANEL_TYPE.ELASTIC_REMOVE_LIQUIDITY_INITIATED, {
                       token_1: token0?.symbol || '',
