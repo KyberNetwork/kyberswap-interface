@@ -60,7 +60,12 @@ const RedirectCreatePool = lazy(
 )
 
 const AddLiquidity = lazy(() => import(/* webpackChunkName: 'add-liquidity-page' */ './AddLiquidity'))
-const IncreaseLiquidity = lazy(() => import(/* webpackChunkName: 'add-liquidity-page' */ './IncreaseLiquidity'))
+const RedirectElasticIncreaseLiquidity = lazy(
+  () =>
+    import(
+      /* webpackChunkName: 'redirect-elastic-increase-liquidity-page' */ './IncreaseLiquidity/RedirectElasticIncreaseLiquidity'
+    ),
+)
 
 const RedirectRemoveLiquidity = lazy(
   () => import(/* webpackChunkName: 'redirect-remove-liquidity-page' */ './RemoveLiquidity/RedirectRemoveLiquidity'),
@@ -284,10 +289,18 @@ export default function App() {
                       <Route path={`${APP_PATHS.ELASTIC_REMOVE_POOL}/*`} element={<RedirectElasticRemoveLiquidity />} />
                     </>
 
-                    <Route
-                      path={`${APP_PATHS.ELASTIC_INCREASE_LIQ}/:currencyIdA/:currencyIdB/:feeAmount/:tokenId`}
-                      element={<IncreaseLiquidity />}
-                    />
+                    <>
+                      {/* Elastic Increase Liquidity routes */}
+                      <Route
+                        path={`:network${APP_PATHS.ELASTIC_INCREASE_LIQ}/:currencyIdA/:currencyIdB/:feeAmount/:tokenId`}
+                        element={<RedirectElasticIncreaseLiquidity />}
+                      />
+                      <Route
+                        path={`${APP_PATHS.ELASTIC_INCREASE_LIQ}/*`}
+                        element={<RedirectElasticIncreaseLiquidity />}
+                      />
+                    </>
+
                     <Route path={`${APP_PATHS.KYBERDAO_STAKE}`} element={<KyberDAOStakeKNC />} />
                     <Route path={`${APP_PATHS.KYBERDAO_VOTE}`} element={<KyberDAOVote />} />
                     <Route path={`${APP_PATHS.ABOUT}/kyberswap`} element={<AboutKyberSwap />} />
