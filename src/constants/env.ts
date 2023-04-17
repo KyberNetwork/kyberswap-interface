@@ -105,7 +105,7 @@ export const FIREBASE: { [key: string]: { DEFAULT: FirebaseConfig; LIMIT_ORDER?:
   },
 }
 
-const ANNOUNCEMENT_TEMPLATE_IDS = {
+const ANNOUNCEMENT_TEMPLATE_IDS: { [key: string]: { [type: string]: string } } = {
   development: {
     [PrivateAnnouncementType.PRICE_ALERT]: '44,45',
     [PrivateAnnouncementType.LIMIT_ORDER]: '8,9,10,11,33,34,35,36',
@@ -128,7 +128,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS = {
     [PrivateAnnouncementType.BRIDGE]: '10,11',
     [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: '9',
     [PrivateAnnouncementType.POOL_POSITION]: '17,18',
-    EXCLUDE: '2,16',
+    EXCLUDE: '2,16', // todo
   },
 }
 

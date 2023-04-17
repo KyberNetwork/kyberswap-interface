@@ -59,7 +59,7 @@ const PriceAlerts = () => {
     setDisabledClearAll(false)
   }
 
-  useAckAnnouncement(getAnnouncementsTemplateIds().PRICE_ALERT)
+  useAckAnnouncement(getAnnouncementsTemplateIds()?.PRICE_ALERT)
 
   return (
     <ShareWrapper>

@@ -20,10 +20,10 @@ export type PrivateAnnouncementProp<T extends AnnouncementTemplate = Announcemen
   title?: string
 }
 
-type PrivateAnnouncementMap = {
+type PrivateAnnouncementMap = Partial<{
   [type in PrivateAnnouncementType]: (data: PrivateAnnouncementProp) => JSX.Element
-}
-const ANNOUNCEMENT_MAP = {
+}>
+const ANNOUNCEMENT_MAP: PrivateAnnouncementMap = {
   [PrivateAnnouncementType.POOL_POSITION]: InboxItemPoolPosition,
   [PrivateAnnouncementType.LIMIT_ORDER]: InboxItemLO,
   [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: InboxItemTrendingSoon,
@@ -31,7 +31,7 @@ const ANNOUNCEMENT_MAP = {
   [PrivateAnnouncementType.PRICE_ALERT]: InboxItemPriceAlert,
 } as PrivateAnnouncementMap
 
-export const PRIVATE_ANN_TITLE = {
+export const PRIVATE_ANN_TITLE: Partial<{ [type in PrivateAnnouncementType]: string }> = {
   [PrivateAnnouncementType.POOL_POSITION]: t`Liquidity Pool Alert`,
   [PrivateAnnouncementType.LIMIT_ORDER]: t`Limit Order`,
   [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: t`Trending Soon`,

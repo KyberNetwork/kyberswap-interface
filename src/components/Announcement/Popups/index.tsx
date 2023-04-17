@@ -92,11 +92,35 @@ export default function Popups() {
     })
 
     const unsubscribePrivate = subscribePrivateAnnouncement(account, data => {
-      data.forEach(item => {
-        if (item.templateType === PrivateAnnouncementType.PRICE_ALERT) {
-          // only support price alert
-          const mins = (Date.now() / 1000 - item.createdAt) / TIMES_IN_SECS.ONE_MIN
-          if (mins <= 5) addPopup(item, PopupType.TOP_RIGHT, item.metaMessageId, 15_000)
+      data.forEach(t => {
+        const item: any = {
+          id: 1018745,
+          templateType: PrivateAnnouncementType.PRIVATE_MESSAGE,
+          templateBody: {
+            popupType: PopupType.TOP_BAR,
+            metaMessageId: Math.random(),
+            chainIds: ['1', '137'],
+            endAt: 1702317661,
+            startAt: 0,
+            name: 'ádasdasdasdasd',
+            content: '<p>ádasdasdasdasdasda</p>',
+            thumbnailImageURL:
+              'https://storage.googleapis.com/ks-setting-a3aa20b7/f0502ab7-c40d-4d48-b9b0-a2dc22edf090.png',
+            ctaName: 'ádasdasdasd',
+            ctaURL: 'https://kyberswap.dev.kyberengineering.io/swap/polygon',
+          },
+        }
+
+        switch (item.templateType) {
+          case PrivateAnnouncementType.PRICE_ALERT:
+            const mins = (Date.now() / 1000 - item.createdAt) / TIMES_IN_SECS.ONE_MIN
+            if (mins <= 5) addPopup(item, PopupType.TOP_RIGHT, item.metaMessageId, 15_000)
+            break
+          case PrivateAnnouncementType.PRIVATE_MESSAGE: {
+            const { templateBody, metaMessageId } = item
+            addPopup(item, templateBody.popupType, metaMessageId)
+            break
+          }
         }
       })
     })
