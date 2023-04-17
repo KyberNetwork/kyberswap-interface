@@ -15,10 +15,11 @@ import { StyledBalanceMaxMini } from '../../components/swapv2/styleds'
 
 interface TradePriceProps {
   route: RouteData | undefined
-  refresh: () => void
+  refresh?: () => void
+  showLogo?: boolean
 }
 
-export default function TradePrice({ route, refresh }: TradePriceProps) {
+export default function TradePrice({ route, refresh, showLogo = true }: TradePriceProps) {
   const theme = useTheme()
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const { exchangeRate } = getRouInfo(route)
@@ -31,20 +32,33 @@ export default function TradePrice({ route, refresh }: TradePriceProps) {
   const tokenInLogo = currencyIn?.logoURI
   const tokenOutLogo = currencyOut?.logoURI
 
+  // todo refactor
   const value = tokenOutLogo && tokenInLogo && chainId && chainIdOut && (
     <Flex alignItems={'center'} sx={{ gap: '4px' }} color={theme.text}>
       1{' '}
-      <TokenLogoWithChain
-        size={14}
-        chainId={showInverted ? chainIdOut : chainId}
-        tokenLogo={showInverted ? tokenOutLogo : tokenInLogo}
-      />
+      {showLogo ? (
+        <TokenLogoWithChain
+          size={14}
+          chainId={showInverted ? chainIdOut : chainId}
+          tokenLogo={showInverted ? tokenOutLogo : tokenInLogo}
+        />
+      ) : showInverted ? (
+        currencyIn.symbol
+      ) : (
+        currencyOut.symbol
+      )}{' '}
       = {formattedPrice}{' '}
-      <TokenLogoWithChain
-        size={14}
-        tokenLogo={showInverted ? tokenInLogo : tokenOutLogo}
-        chainId={showInverted ? chainId : chainIdOut}
-      />
+      {showLogo ? (
+        <TokenLogoWithChain
+          size={14}
+          tokenLogo={showInverted ? tokenInLogo : tokenOutLogo}
+          chainId={showInverted ? chainId : chainIdOut}
+        />
+      ) : !showInverted ? (
+        currencyIn.symbol
+      ) : (
+        currencyOut.symbol
+      )}
     </Flex>
   )
 
@@ -59,8 +73,8 @@ export default function TradePrice({ route, refresh }: TradePriceProps) {
     >
       {formattedPrice ? (
         <Flex sx={{ gap: '4px' }} alignItems={'center'}>
-          <RefreshButton shouldDisable={!route} skipFirst callback={refresh} />
-          <Trans>Cross-chain rate is</Trans> {value}
+          {refresh && <RefreshButton shouldDisable={!route} skipFirst callback={refresh} />}
+          {showLogo && <Trans>Cross-chain rate is</Trans>} {value}
           <StyledBalanceMaxMini>
             <Repeat size={12} />
           </StyledBalanceMaxMini>

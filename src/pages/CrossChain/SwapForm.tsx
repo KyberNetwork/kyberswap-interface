@@ -264,6 +264,7 @@ export default function SwapForm() {
             route={route}
             minimal={false}
             showNoteGetRoute={priceImpactResult.isHigh || priceImpactResult.isVeryHigh || priceImpactResult.isInvalid}
+            disabledText={t`Swap`}
           />
         ) : (
           <ButtonLight onClick={toggleWalletModal}>

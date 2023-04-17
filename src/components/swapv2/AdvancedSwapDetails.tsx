@@ -20,6 +20,7 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
 import useTheme from 'hooks/useTheme'
+import TradePrice from 'pages/CrossChain/TradePrice'
 import { getRouInfo } from 'pages/CrossChain/helpers'
 import { useIsEnoughGas } from 'pages/CrossChain/useIsEnoughGas'
 import { OutputBridgeInfo, useBridgeState, useCrossChainState } from 'state/bridge/hooks'
@@ -337,6 +338,25 @@ export function TradeSummaryCrossChain({
       {showHeader && <Header setShow={setShow} show={show} />}
       <ContentWrapper show={show} gap="0.75rem">
         {showHeader && <Divider />}
+
+        {!showHeader && (
+          <RowBetween>
+            <RowFixed>
+              <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+                <MouseoverTooltip
+                  width="200px"
+                  text={<Trans>Estimate time to complete your transactions</Trans>}
+                  placement="right"
+                >
+                  <Trans>Current Price</Trans>
+                </MouseoverTooltip>
+              </TextDashed>
+            </RowFixed>
+
+            <RowFixed>{route ? <TradePrice route={route} showLogo={false} /> : '--'}</RowFixed>
+          </RowBetween>
+        )}
+
         <RowBetween>
           <RowFixed>
             <MinReceiveLabel />

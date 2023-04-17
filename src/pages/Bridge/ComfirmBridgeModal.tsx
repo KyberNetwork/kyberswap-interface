@@ -10,6 +10,8 @@ import { ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { NetworkLogo, TokenLogoWithChain } from 'components/Logo'
+import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
+import SwapButtonWithPriceImpact from 'components/SwapForm/SwapActionButton/SwapButtonWithPriceImpact'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { TradeSummaryCrossChain } from 'components/swapv2/AdvancedSwapDetails'
 import { RESERVE_USD_DECIMALS } from 'constants/index'
@@ -20,6 +22,7 @@ import useTheme from 'hooks/useTheme'
 import SwapBrief from 'pages/CrossChain/SwapBriefCrossChain'
 import { getRouInfo } from 'pages/CrossChain/helpers'
 import { OutputBridgeInfo, useBridgeState, useCrossChainState } from 'state/bridge/hooks'
+import { useDegenModeManager } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { TransactionFlowState } from 'types'
 import { formatNumberWithPrecisionRange, shortenAddress } from 'utils'
@@ -310,7 +313,8 @@ export const ConfirmCrossChainModal = memo(function ConfirmCrossChainModal({
   const [accepted, setAccepted] = useState(false)
   const { chainId } = useActiveWeb3React()
   const [{ chainIdOut, currencyIn, currencyOut }] = useCrossChainState()
-  const { inputAmount, outputAmount } = getRouInfo(route)
+  const { inputAmount, outputAmount, priceImpact } = getRouInfo(route)
+  const [isDegenMode] = useDegenModeManager()
 
   const handleClickDisclaimer = useCallback(() => {
     const newValue = !accepted
@@ -329,6 +333,10 @@ export const ConfirmCrossChainModal = memo(function ConfirmCrossChainModal({
               <X onClick={onDismiss} style={{ cursor: 'pointer' }} color={theme.text} />
             </Flex>
 
+            <Text fontWeight={400} fontSize={12} color={theme.subText}>
+              <Trans>Please review the details of your swap:</Trans>
+            </Text>
+
             <SwapBrief route={route} />
 
             <TradeSummaryCrossChain
@@ -336,6 +344,8 @@ export const ConfirmCrossChainModal = memo(function ConfirmCrossChainModal({
               showHeader={false}
               style={{ border: `1px solid ${theme.border}`, borderRadius: 16, padding: 12 }}
             />
+
+            {priceImpact && <PriceImpactNote priceImpact={Number(priceImpact)} isDegenMode={isDegenMode} />}
 
             <Disclaimer role="button" onClick={handleClickDisclaimer}>
               <input
@@ -358,13 +368,33 @@ export const ConfirmCrossChainModal = memo(function ConfirmCrossChainModal({
               </span>
             </Disclaimer>
 
-            <ButtonPrimary id="transfer-button" onClick={onSwap} disabled={!accepted}>
-              <Trans>Swap</Trans>
-            </ButtonPrimary>
+            <SwapButtonWithPriceImpact
+              disabledText={t`Confirm Swap`}
+              onClick={onSwap}
+              disabled={!accepted}
+              showLoading={false}
+              priceImpact={Number(priceImpact || -1)}
+              isProcessingSwap={swapState.attemptingTxn}
+              isApproved={true}
+              route={route}
+              minimal={false}
+              showNoteGetRoute={false}
+            />
           </Flex>
         </Container>
       ),
-    [accepted, handleClickDisclaimer, onDismiss, onSwap, swapState.errorMessage, theme, route],
+    [
+      accepted,
+      handleClickDisclaimer,
+      onDismiss,
+      onSwap,
+      swapState.errorMessage,
+      theme,
+      route,
+      isDegenMode,
+      priceImpact,
+      swapState.attemptingTxn,
+    ],
   )
 
   useEffect(() => {

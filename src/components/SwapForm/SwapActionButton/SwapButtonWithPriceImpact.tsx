@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { Info } from 'react-feather'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -32,6 +32,7 @@ export const SwapButtonWithPriceImpact = ({
   route,
   disabled,
   showNoteGetRoute,
+  disabledText,
 }: {
   isProcessingSwap: boolean
   minimal: boolean
@@ -42,6 +43,7 @@ export const SwapButtonWithPriceImpact = ({
   route: any
   disabled?: boolean
   showNoteGetRoute?: boolean
+  disabledText?: string
 }) => {
   const theme = useTheme()
   const [isDegenMode] = useDegenModeManager()
@@ -112,9 +114,7 @@ export const SwapButtonWithPriceImpact = ({
           <Info size={14} />
         </MouseoverTooltip>
       ) : null}
-      <Text>
-        <Trans>{shouldDisable ? 'Swap Disabled' : 'Swap'}</Trans>
-      </Text>
+      <Text>{shouldDisable ? disabledText || t`Swap Disabled` : t`Swap`}</Text>
     </CustomPrimaryButton>
   )
 }

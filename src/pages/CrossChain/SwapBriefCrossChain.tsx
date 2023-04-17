@@ -92,7 +92,7 @@ export default function SwapBrief({ route }: Props) {
   }
 
   return (
-    <AutoColumn gap="sm" style={{ marginTop: '16px', position: 'relative' }}>
+    <AutoColumn gap="sm" style={{ position: 'relative' }}>
       <CurrencyInputAmountWrapper>
         <RowBetween>
           <Text fontSize={12} fontWeight={500} color={theme.subText}>

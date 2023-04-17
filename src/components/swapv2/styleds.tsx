@@ -4,7 +4,6 @@ import { Text } from 'rebass'
 import styled, { CSSProperties, css } from 'styled-components'
 
 import { ReactComponent as Alert } from 'assets/images/alert.svg'
-import { ButtonEmpty } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import Modal, { ModalProps } from 'components/Modal'
 import { Z_INDEXS } from 'constants/styles'
@@ -27,55 +26,6 @@ export const PageWrapper = styled.div`
     gap: 16px;
     padding: 20px 16px;
 `};
-`
-
-export const TabContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-
-  @media only screen and (min-width: 768px) {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-  }
-`
-
-export const TabWrapper = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  @media only screen and (min-width: 768px) {
-    margin-bottom: 0;
-  }
-`
-
-export const Tab = styled(ButtonEmpty)<{ isActive: boolean }>`
-  width: fit-content;
-  margin-right: 1.5rem;
-  font-weight: 400;
-  padding: 0;
-  padding-bottom: 4px;
-  color: ${({ theme, isActive }) => (isActive ? theme.primary : theme.subText)};
-  position: relative;
-  border-radius: 0;
-
-  &:hover {
-    text-decoration: none;
-  }
-
-  &:focus {
-    text-decoration: none;
-  }
-
-  &:last-child {
-    margin-right: 0;
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    margin-right: 12px;
-  `}
 `
 
 export const Container = styled.div`
