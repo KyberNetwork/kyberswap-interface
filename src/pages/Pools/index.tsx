@@ -153,16 +153,15 @@ const Pools = () => {
       mixpanelHandler(MIXPANEL_TYPE.ELASTIC_CREATE_POOL_INITIATED)
     }
 
-    const url =
-      tab === VERSION.CLASSIC
-        ? `/create/${currencyIdA === '' ? undefined : currencyIdA}/${currencyIdB === '' ? undefined : currencyIdB}`
-        : `${APP_PATHS.ELASTIC_CREATE_POOL}${
-            currencyIdA && currencyIdB
-              ? `/${currencyIdA}/${currencyIdB}`
-              : currencyIdA || currencyIdB
-              ? `/${currencyIdA || currencyIdB}`
-              : ''
-          }`
+    const path = tab === VERSION.CLASSIC ? APP_PATHS.CLASSIC_CREATE_POOL : APP_PATHS.ELASTIC_CREATE_POOL
+    let url = `/${networkInfo.route}${path}`
+
+    if (currencyIdA) {
+      url += `/${currencyIdA}`
+      if (currencyIdB) {
+        url += `/${currencyIdB}`
+      }
+    }
 
     navigate(url)
   }
