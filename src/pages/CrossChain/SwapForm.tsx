@@ -216,7 +216,7 @@ export default function SwapForm() {
         </Flex>
 
         <Flex justifyContent="space-between" alignItems={'center'}>
-          <TradePrice route={route} refresh={refreshRoute} />
+          <TradePrice route={route} refresh={refreshRoute} disabled={swapState.showConfirm} />
           <ArrowWrapper>
             <ArrowUp fill={theme.subText} width={14} height={14} />
           </ArrowWrapper>

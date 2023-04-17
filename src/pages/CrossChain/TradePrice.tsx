@@ -17,9 +17,10 @@ interface TradePriceProps {
   route: RouteData | undefined
   refresh?: () => void
   showLogo?: boolean
+  disabled?: boolean
 }
 
-export default function TradePrice({ route, refresh, showLogo = true }: TradePriceProps) {
+export default function TradePrice({ route, refresh, showLogo = true, disabled = false }: TradePriceProps) {
   const theme = useTheme()
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const { exchangeRate } = getRouInfo(route)
@@ -73,7 +74,7 @@ export default function TradePrice({ route, refresh, showLogo = true }: TradePri
     >
       {formattedPrice ? (
         <Flex sx={{ gap: '4px' }} alignItems={'center'}>
-          {refresh && <RefreshButton shouldDisable={!route} skipFirst callback={refresh} />}
+          {refresh && <RefreshButton shouldDisable={!route || disabled} skipFirst callback={refresh} />}
           {showLogo && <Trans>Cross-chain rate is</Trans>} {value}
           <StyledBalanceMaxMini>
             <Repeat size={12} />
