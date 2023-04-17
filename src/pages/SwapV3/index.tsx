@@ -289,7 +289,9 @@ export default function Swap() {
               {activeTab === TAB.INFO && <TokenInfoTab currencies={currencies} onBack={onBackToSwapTab} />}
               {activeTab === TAB.SETTINGS && (
                 <SettingsPanel
+                  isCrossChainPage={isCrossChainPage}
                   isLimitOrder={isLimitPage}
+                  isSwapPage={isSwapPage}
                   onBack={onBackToSwapTab}
                   onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}
                   onClickGasPriceTracker={() => setActiveTab(TAB.GAS_PRICE_TRACKER)}

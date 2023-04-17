@@ -1,7 +1,7 @@
 import { RouteData } from '@0xsquid/sdk'
 import { Currency, TradeType } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { ReactNode, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { ArrowUpRight } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
@@ -46,7 +46,7 @@ const ContentWrapper = styled(AutoColumn)<{ show: boolean }>`
   overflow: hidden;
 `
 
-const PriceImpactNote = ({ children }: { children?: ReactNode }) => (
+const PriceImpactNote = () => (
   <MouseoverTooltip
     text={
       <div>
@@ -67,7 +67,7 @@ const PriceImpactNote = ({ children }: { children?: ReactNode }) => (
     }
     placement="right"
   >
-    {children || <Trans>Price Impact</Trans>}
+    <Trans>Price Impact</Trans>
   </MouseoverTooltip>
 )
 

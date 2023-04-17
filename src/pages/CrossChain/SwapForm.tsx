@@ -12,6 +12,7 @@ import { ButtonError, ButtonLight } from 'components/Button'
 import CurrencyInputPanelBridge from 'components/CurrencyInputPanel/CurrencyInputPanelBridge'
 import { RowBetween } from 'components/Row'
 import SlippageWarningNote from 'components/SlippageWarningNote'
+import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { AdvancedSwapDetailsDropdownCrossChain } from 'components/swapv2/AdvancedSwapDetailsDropdown'
 import { INPUT_DEBOUNCE_TIME } from 'constants/index'
@@ -30,7 +31,7 @@ import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { useIsDarkMode, useUserSlippageTolerance } from 'state/user/hooks'
+import { useDegenModeManager, useIsDarkMode, useUserSlippageTolerance } from 'state/user/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { ExternalLink } from 'theme'
 import { TRANSACTION_STATE_DEFAULT, TransactionFlowState } from 'types/index'
@@ -49,6 +50,7 @@ export default function SwapForm() {
   const { account, chainId } = useActiveWeb3React()
   const { library } = useWeb3React()
   const changeNetwork = useChangeNetwork()
+  const [isDegenMode] = useDegenModeManager()
 
   const [inputAmount, setInputAmount] = useState('')
   const [slippage] = useUserSlippageTolerance()
@@ -86,7 +88,7 @@ export default function SwapForm() {
     error: errorGetRoute,
     loading: gettingRoute,
   } = useGetRouteCrossChain(routeParams)
-  const { outputAmount, amountUsdIn, amountUsdOut, exchangeRate } = getRouInfo(route)
+  const { outputAmount, amountUsdIn, amountUsdOut, exchangeRate, priceImpact } = getRouInfo(route)
 
   const { selectCurrency, selectDestChain } = useCrossChainHandlers()
 
@@ -242,6 +244,7 @@ export default function SwapForm() {
         <SlippageSetting isStablePairSwap={false} /** isolate setting */ />
 
         <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={false} />
+        {priceImpact && <PriceImpactNote priceImpact={Number(priceImpact)} isDegenMode={isDegenMode} />}
 
         {inputError?.state && (
           <ErrorWarningPanel title={inputError?.tip} type={inputError?.state} desc={inputError?.desc} />

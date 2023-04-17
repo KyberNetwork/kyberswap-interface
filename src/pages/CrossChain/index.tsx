@@ -11,6 +11,7 @@ import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { DisclaimerCrossChain } from '../Bridge/Disclaimer'
 import SwapForm from './SwapForm'
 
+const isTest = window.location.href.includes('test')
 // todo lazy load
 function CrossChain() {
   const [isInMaintenanceMode, setIsInMaintenanceMode] = useState(false)
@@ -28,7 +29,7 @@ function CrossChain() {
         loading.current = true
         if (!squid) {
           squid = new Squid({
-            baseUrl: 'https://api.0xsquid.com' || 'https://testnet.api.0xsquid.com', //'https://api.0xsquid.com' || 'https://testnet.api.0xsquid.com',
+            baseUrl: isTest ? 'https://testnet.api.0xsquid.com' : 'https://api.0xsquid.com',
           })
         }
         await squid.init() // todo too many call
