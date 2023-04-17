@@ -11,24 +11,27 @@ export default function useGetRouteCrossChain(params: GetRoute | undefined) {
   const [error, setError] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const getRoute = useCallback(async () => {
-    if (!squidInstance || !params) return
-    try {
-      setLoading(true)
-      setTradeRoute(undefined)
-      const { route } = await squidInstance.getRoute(params)
-      setTradeRoute(route)
-      setError(false)
-    } catch (error) {
-      console.log(error)
-      setError(true)
-      setTradeRoute(undefined)
-    } finally {
-      setLoading(false)
-    }
-  }, [squidInstance, params, setTradeRoute])
+  const getRoute = useCallback(
+    async (isRefresh = true) => {
+      if (!squidInstance || !params) return
+      try {
+        setLoading(true)
+        isRefresh && setTradeRoute(undefined)
+        const { route } = await squidInstance.getRoute(params)
+        setTradeRoute(route)
+        setError(false)
+      } catch (error) {
+        console.log(error)
+        setError(true)
+        setTradeRoute(undefined)
+      } finally {
+        setLoading(false)
+      }
+    },
+    [squidInstance, params, setTradeRoute],
+  )
 
-  const getRouteDebounce = useMemo(() => debounce(getRoute, 200), [getRoute])
+  const getRouteDebounce = useMemo(() => debounce(() => getRoute(false), 200), [getRoute])
 
   useEffect(() => {
     getRoute()
