@@ -1,20 +1,23 @@
 import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
+import { rgba } from 'polished'
 import { useCallback, useState } from 'react'
-import { Info, Minus, Plus, Share2, X } from 'react-feather'
+import { Info, Minus, Plus, RefreshCw, Share2 } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
+import styled from 'styled-components'
 
 import { ReactComponent as DownSvg } from 'assets/svg/down.svg'
-import { ButtonEmpty } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
+import HorizontalScroll from 'components/HorizontalScroll'
 import HoverInlineText from 'components/HoverInlineText'
 import { MoneyBag } from 'components/Icons'
 import Harvest from 'components/Icons/Harvest'
-import Modal from 'components/Modal'
-import { MouseoverTooltip } from 'components/Tooltip'
+import { RowBetween } from 'components/Row'
+import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { ButtonColorScheme, MinimalActionButton } from 'components/YieldPools/ElasticFarmGroup/buttons'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { APRTooltipContent } from 'components/YieldPools/FarmingPoolAPRCell'
@@ -30,26 +33,48 @@ import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import { formatDollarAmount } from 'utils/numbers'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 
+import { convertTickToPrice } from '../utils'
 import PriceVisualize from './PriceVisualize'
-import StakeWithNFTsModal from './StakeWithNFTsModal'
-import UnstakeWithNFTsModal from './UnstakeWithNFTsModal'
+
+const Wrapper = styled.div<{ isDeposited: boolean }>(({ theme, isDeposited }) => ({
+  padding: '16px',
+  backgroundColor: isDeposited ? rgba(theme.apr, 0.12) : theme.buttonBlack,
+  ':not:last-child': {
+    borderBottom: `1px solid ${theme.border}`,
+  },
+}))
 
 export const ListView = ({
+  onStake,
+  onUnstake,
+  onUpdateFarmClick,
   farm,
   poolAPR,
   isApproved,
 }: {
+  onStake: () => void
+  onUnstake: () => void
+  onUpdateFarmClick: () => void
   farm: ElasticFarmV2
   poolAPR: number
   isApproved: boolean
 }) => {
   const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
-
   const [activeRangeIndex, setActiveRangeIndex] = useState(0)
+
+  const setSharePoolAddress = useSharePoolContext()
 
   const currentTimestamp = Math.floor(Date.now() / 1000)
   const stakedPos = useUserFarmV2Info(farm.fId)
+  let amountToken0 = CurrencyAmount.fromRawAmount(farm.token0, 0)
+  let amountToken1 = CurrencyAmount.fromRawAmount(farm.token1, 0)
+
+  stakedPos.forEach(item => {
+    amountToken0 = amountToken0.add(item.position.amount0)
+    amountToken1 = amountToken1.add(item.position.amount1)
+  })
+
   const canUnstake = stakedPos.length > 0
 
   const hasRewards = stakedPos.some(item => item.unclaimedRewards.some(rw => rw.greaterThan('0')))
@@ -61,135 +86,132 @@ export const ListView = ({
   })
 
   const myDepositUSD = stakedPos.reduce((total, item) => item.stakedUsdValue + total, 0)
+
+  const isEnded = currentTimestamp > farm.endTime
+
   const canUpdateLiquidity =
-    stakedPos.some(item => item.liquidity.gt(item.stakedLiquidity)) && !farm.ranges[activeRangeIndex].isRemoved
+    !isEnded &&
+    !farm.isSettled &&
+    stakedPos.some(item => {
+      const range = farm.ranges.find(r => r.index === item.rangeId)
+      if (range?.isRemoved) return false
+      return item.liquidity.gt(item.stakedLiquidity)
+    })
+
   const myTotalPosUSDValue = stakedPos.reduce((total, item) => item.positionUsdValue + total, 0)
   const notStakedUSD = myTotalPosUSDValue - myDepositUSD
-  let amountToken0 = CurrencyAmount.fromRawAmount(farm.token0, 0)
-  let amountToken1 = CurrencyAmount.fromRawAmount(farm.token1, 0)
 
-  stakedPos.forEach(item => {
-    amountToken0 = amountToken0.add(item.position.amount0)
-    amountToken1 = amountToken1.add(item.position.amount1)
-  })
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [txHash, setTxHash] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
+  const [attemptingTxn, setAttemptingTxn] = useState(false)
+
+  const handleDismiss = () => {
+    setTxHash('')
+    setShowConfirmModal(false)
+    setErrorMessage('')
+    setAttemptingTxn(false)
+  }
 
   const { harvest } = useFarmV2Action()
+
   const handleHarvest = useCallback(() => {
-    harvest(farm?.fId, stakedPos?.filter(sp => sp.rangeId === activeRangeIndex).map(sp => sp.nftId.toNumber()) || [])
-  }, [farm, harvest, stakedPos, activeRangeIndex])
+    setShowConfirmModal(true)
+    setAttemptingTxn(true)
+    setTxHash('')
+    harvest(farm.fId, stakedPos.map(sp => sp.nftId.toNumber()) || [])
+      .then(txHash => {
+        setAttemptingTxn(false)
+        setTxHash(txHash)
+      })
+      .catch(e => {
+        console.log(e)
+        setAttemptingTxn(false)
+        setErrorMessage(e?.message || JSON.stringify(e))
+      })
+  }, [farm, harvest, stakedPos])
 
   const { pool } = farm
+
   const addliquidityElasticPool = `${APP_PATHS.ELASTIC_CREATE_POOL}/${
     pool.token0.isNative ? pool.token0.symbol : pool.token0.address
   }/${pool.token1.isNative ? pool.token1.symbol : pool.token1.address}/${pool.fee}`
 
-  const [showStake, setShowStake] = useState(false)
-  const [showUnstake, setShowUnstake] = useState(false)
-  const [showSelectActiveRange, setShowSelectActiveRange] = useState(false)
-
-  const setSharePoolAddress = useSharePoolContext()
-  const isEnded = farm.endTime < currentTimestamp || farm.isSettled
-
   return (
-    <>
-      <Modal isOpen={showSelectActiveRange} onDismiss={() => setShowSelectActiveRange(false)}>
-        <Flex width="100%" flexDirection="column" padding="20px">
-          <Flex alignItems="center" justifyContent="space-between">
-            <Text fontWeight="500">
-              <Trans>Farming Range</Trans>
-            </Text>
-
-            <ButtonEmpty onClick={() => setShowSelectActiveRange(false)} width="36px" height="36px" padding="0">
-              <X color={theme.text} />
-            </ButtonEmpty>
-          </Flex>
-
-          {/* <Flex marginTop="1rem" flexDirection="column" overflowY="scroll" flex={1} sx={{ gap: '12px' }}> */}
-          {/*   {farm.ranges.map((r, index: number) => ( */}
-
-          {/*     <RangeItem */}
-          {/*       active={activeRangeIndex === index} */}
-          {/*       farmId={farm.fId} */}
-          {/*       key={r.id} */}
-          {/*       rangeInfo={r} */}
-          {/*       onRangeClick={() => setActiveRangeIndex(index)} */}
-          {/*       token0={farm.token0} */}
-          {/*       token1={farm.token1} */}
-          {/*       addLiquidityLink={`${addliquidityElasticPool}?farmRange=${r.index}`} */}
-          {/*     /> */}
-          {/*   ))} */}
-          {/* </Flex> */}
-        </Flex>
-      </Modal>
-      <ElasticFarmV2TableRow>
-        <div>
-          <Flex alignItems="center">
-            <DoubleCurrencyLogo currency0={farm.token0} currency1={farm.token1} />
-            <Link
-              to={addliquidityElasticPool}
-              style={{
-                textDecoration: 'none',
-              }}
-            >
-              <Text fontSize={14} fontWeight={500}>
-                {getTokenSymbolWithHardcode(chainId, farm.token0.wrapped.address, farm.token0.symbol)} -{' '}
-                {getTokenSymbolWithHardcode(chainId, farm.token1.wrapped.address, farm.token1.symbol)}
-              </Text>
-            </Link>
-
-            <FeeTag>FEE {(farm.pool.fee * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
-          </Flex>
-
-          <Flex
-            marginTop="0.5rem"
-            alignItems="center"
-            sx={{ gap: '3px' }}
-            fontSize="12px"
-            color={theme.subText}
-            width="max-content"
-            fontWeight="500"
+    <Wrapper isDeposited={!!stakedPos.length}>
+      <RowBetween gap="1rem">
+        <Flex alignItems="center" justifyContent="space-between">
+          <DoubleCurrencyLogo currency0={farm.token0} currency1={farm.token1} />
+          <Link
+            to={addliquidityElasticPool}
+            style={{
+              textDecoration: 'none',
+            }}
           >
-            <Flex alignItems="center" sx={{ gap: '4px' }}>
-              <CopyHelper toCopy={farm.poolAddress} />
-              <Text>{shortenAddress(chainId, farm.poolAddress, 2)}</Text>
-            </Flex>
+            <Text fontSize={14} fontWeight={500}>
+              {getTokenSymbolWithHardcode(chainId, farm.token0.wrapped.address, farm.token0.symbol)} -{' '}
+              {getTokenSymbolWithHardcode(chainId, farm.token1.wrapped.address, farm.token1.symbol)}
+            </Text>
+          </Link>
 
-            <Flex
-              marginLeft="12px"
-              onClick={() => {
-                setSharePoolAddress(farm.poolAddress)
-              }}
-              sx={{
-                cursor: 'pointer',
-                gap: '4px',
-              }}
-              role="button"
-              color={theme.subText}
-            >
-              <Share2 size="14px" color={theme.subText} />
-              <Trans>Share</Trans>
-            </Flex>
+          <FeeTag>FEE {(farm.pool.fee * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
+
+          <Flex color={theme.subText} marginLeft="0.25rem">
+            <CopyHelper toCopy={farm.poolAddress} />
           </Flex>
-        </div>
-
-        <Flex
-          alignItems="center"
-          sx={{ gap: '6px', cursor: 'pointer' }}
-          role="button"
-          onClick={() => setShowSelectActiveRange(true)}
-        >
-          <PriceVisualize
-            tickCurrent={+farm.ranges[activeRangeIndex].tickCurrent}
-            tickRangeLower={+farm.ranges[activeRangeIndex].tickLower}
-            tickRangeUpper={+farm.ranges[activeRangeIndex].tickUpper}
-            token0={farm.token0}
-            token1={farm.token1}
-          />
-
-          <DownSvg />
+          <Flex
+            marginLeft="0.5rem"
+            onClick={() => {
+              setSharePoolAddress(farm.poolAddress)
+            }}
+            sx={{
+              cursor: 'pointer',
+              gap: '4px',
+            }}
+            role="button"
+            color={theme.subText}
+          >
+            <Share2 size="14px" color={theme.subText} />
+          </Flex>
         </Flex>
 
+        <HorizontalScroll
+          style={{ gap: '8px', justifyContent: 'flex-end' }}
+          noShadow
+          items={['-1'].concat(farm.ranges.map(item => item.index.toString()))}
+          renderItem={(item, index) => {
+            if (item === '-1')
+              return (
+                <Text color={theme.subText} fontSize={12} fontWeight="500" marginRight="4px">
+                  <Trans>Available Farming Range</Trans>
+                </Text>
+              )
+            const range = farm.ranges.find(r => r.index === +item)
+            if (!range) return null
+            return (
+              <Flex alignItems="center" sx={{ gap: '2px' }} color={theme.subText} fontSize={12} fontWeight="500">
+                {convertTickToPrice(farm.token0, farm.token1, range.tickLower)}
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" display="block">
+                  <path
+                    d="M11.3405 8.66669L11.3405 9.86002C11.3405 10.16 11.7005 10.3067 11.9071 10.0934L13.7605 8.23335C13.8871 8.10002 13.8871 7.89335 13.7605 7.76002L11.9071 5.90669C11.7005 5.69335 11.3405 5.84002 11.3405 6.14002L11.3405 7.33335L4.66047 7.33335L4.66047 6.14002C4.66047 5.84002 4.30047 5.69335 4.0938 5.90669L2.24047 7.76669C2.1138 7.90002 2.1138 8.10669 2.24047 8.24002L4.0938 10.1C4.30047 10.3134 4.66047 10.16 4.66047 9.86669L4.66047 8.66669L11.3405 8.66669Z"
+                    fill="currentcolor"
+                  />
+                </svg>
+
+                {convertTickToPrice(farm.token0, farm.token1, range.tickUpper)}
+
+                {index !== farm.ranges.length && <Text paddingLeft="6px">|</Text>}
+              </Flex>
+            )
+          }}
+        />
+      </RowBetween>
+      <ElasticFarmV2TableRow>
         <Text textAlign="left">{formatDollarAmount(farm.tvl)}</Text>
+        <Text textAlign="left" color={theme.text}>
+          {isEnded ? <Trans>ENDED</Trans> : getFormattedTimeFromSecond(farm.endTime - currentTimestamp)}
+        </Text>
+
         <Flex
           alignItems="center"
           justifyContent="flex-start"
@@ -209,10 +231,6 @@ export const ListView = ({
             <MoneyBag size={16} color={theme.apr} />
           </MouseoverTooltip>
         </Flex>
-
-        <Text textAlign="right" color={theme.text}>
-          {isEnded ? <Trans>ENDED</Trans> : getFormattedTimeFromSecond(farm.endTime - currentTimestamp)}
-        </Text>
 
         <Text
           fontSize="16px"
@@ -283,31 +301,48 @@ export const ListView = ({
         </Flex>
 
         <Flex justifyContent="flex-end" sx={{ gap: '4px' }}>
-          <MinimalActionButton
-            disabled={!account || !isApproved || isEnded || farm.ranges[activeRangeIndex].isRemoved}
-            onClick={() => setShowStake(true)}
-          >
-            <Plus size={16} />
-          </MinimalActionButton>
+          <MouseoverTooltipDesktopOnly text={t`Stake`} placement="top" width="fit-content">
+            <MinimalActionButton
+              disabled={!account || !isApproved || isEnded || farm.ranges[activeRangeIndex].isRemoved}
+              onClick={onStake}
+            >
+              <Plus size={16} />
+            </MinimalActionButton>
+          </MouseoverTooltipDesktopOnly>
+          {canUpdateLiquidity && (
+            <MouseoverTooltipDesktopOnly text={t`Update Liquidity`} placement="top" width="fit-content">
+              <MinimalActionButton onClick={onUpdateFarmClick} colorScheme={ButtonColorScheme.Gray}>
+                <RefreshCw size={16} />
+              </MinimalActionButton>
+            </MouseoverTooltipDesktopOnly>
+          )}
 
-          <MinimalActionButton
-            colorScheme={ButtonColorScheme.Gray}
-            disabled={!canUnstake}
-            onClick={() => setShowUnstake(true)}
-          >
-            <Minus size={16} />
-          </MinimalActionButton>
+          <MouseoverTooltipDesktopOnly text={t`Unstake`} placement="top" width="fit-content">
+            <MinimalActionButton colorScheme={ButtonColorScheme.Red} disabled={!canUnstake} onClick={onUnstake}>
+              <Minus size={16} />
+            </MinimalActionButton>
+          </MouseoverTooltipDesktopOnly>
 
-          <MinimalActionButton colorScheme={ButtonColorScheme.APR} disabled={!hasRewards} onClick={handleHarvest}>
-            <Harvest />
-          </MinimalActionButton>
+          <MouseoverTooltipDesktopOnly text={t`Harvest`} placement="top" width="fit-content">
+            <MinimalActionButton colorScheme={ButtonColorScheme.APR} disabled={!hasRewards} onClick={handleHarvest}>
+              <Harvest />
+            </MinimalActionButton>
+          </MouseoverTooltipDesktopOnly>
         </Flex>
-
-        <StakeWithNFTsModal isOpen={showStake} onDismiss={() => setShowStake(false)} farm={farm} />
-        {canUnstake && (
-          <UnstakeWithNFTsModal isOpen={showUnstake} onDismiss={() => setShowUnstake(false)} farm={farm} />
-        )}
       </ElasticFarmV2TableRow>
-    </>
+
+      <TransactionConfirmationModal
+        isOpen={showConfirmModal}
+        onDismiss={handleDismiss}
+        hash={txHash}
+        attemptingTxn={attemptingTxn}
+        pendingText={t`Harvesting rewards`}
+        content={() => (
+          <Flex flexDirection={'column'} width="100%">
+            {errorMessage ? <TransactionErrorContent onDismiss={handleDismiss} message={errorMessage} /> : null}
+          </Flex>
+        )}
+      />
+    </Wrapper>
   )
 }

@@ -233,7 +233,7 @@ export const ProMMFarmTableRow = styled(ProMMFarmTableHeader)<{ isOpen: boolean 
 `
 
 export const ElasticFarmV2TableHeader = styled(ProMMFarmTableHeader)`
-  grid-template-columns: 230px 1.5fr 0.75fr 0.5fr 0.75fr 1fr 0.75fr 120px;
+  grid-template-columns: 1fr 1.5fr 1fr 1fr 1fr 150px;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     grid-gap: 1rem;
@@ -241,15 +241,12 @@ export const ElasticFarmV2TableHeader = styled(ProMMFarmTableHeader)`
 `
 
 export const ElasticFarmV2TableRow = styled(ElasticFarmV2TableHeader)`
-  background-color: ${({ theme }) => theme.buttonBlack};
+  background-color: transparent;
   font-size: 14px;
   border-radius: 0;
   box-shadow: none;
-  border-bottom: 1px solid ${({ theme }) => theme.border};
-
-  :last-child {
-    border-bottom: none;
-  }
+  padding: 0;
+  margin-top: 12px;
 `
 
 export const ClickableText = styled(Text)`

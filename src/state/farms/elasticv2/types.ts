@@ -57,6 +57,7 @@ export interface SubgraphFarmV2 {
   startTime: string
   endTime: string
   isSettled: boolean
+  liquidity: string
   depositedPositions: Array<{
     id: string
     position: {

@@ -15,7 +15,7 @@ const HorizontalScroll = ({
   noShadow,
 }: {
   items: string[] | null
-  renderItem: (item: string) => ReactNode
+  renderItem: (item: string, index?: number) => ReactNode
   style?: CSSProperties
   backgroundColor?: string
   noShadow?: boolean
@@ -56,7 +56,7 @@ const HorizontalScroll = ({
   return (
     <ScrollContainerWithGradient
       ref={shadowRef}
-      style={{ flex: 1, overflow: 'hidden', justifyContent: 'flex-start' }}
+      style={{ flex: 1, overflow: 'hidden', justifyContent: 'flex-start', ...style }}
       backgroundColor={backgroundColor ?? theme.background}
     >
       <ScrollContainer innerRef={scrollRef} vertical={false} className="scroll-container" onScroll={handleShadow}>

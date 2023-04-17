@@ -11,15 +11,14 @@ import styled, { css } from 'styled-components'
 import bgimg from 'assets/images/card-background-2.png'
 import { ReactComponent as DownSvg } from 'assets/svg/down.svg'
 import { ButtonLight, ButtonOutlined } from 'components/Button'
-import { OutlineCard } from 'components/Card'
 import Column from 'components/Column'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
-import HorizontalScroll from 'components/HorizontalScroll'
 import Harvest from 'components/Icons/Harvest'
 import { RowBetween, RowFit } from 'components/Row'
+import Tabs from 'components/Tabs'
 import { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
@@ -33,6 +32,11 @@ import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import { formatDollarAmount } from 'utils/numbers'
 
 import { convertTickToPrice } from '../utils'
+
+const StyledTabs = styled(Tabs)`
+  border: 1px solid ${({ theme }) => theme.border};
+  border-radius: 12px;
+`
 
 const WrapperInner = styled.div<{ hasRewards: boolean }>`
   padding: 16px;
@@ -56,20 +60,6 @@ const WrapperInner = styled.div<{ hasRewards: boolean }>`
       background-size: cover;
       background-repeat: no-repeat;
     `}
-`
-
-const RangeItemBtn = styled.button<{ active: boolean }>`
-  cursor: pointer;
-  border-radius: 999px;
-  padding: 2px 8px;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: ${({ theme, active }) => (active ? rgba(theme.primary, 0.3) : 'transparent')};
-  border: ${({ theme, active }) => `1px solid ${active ? theme.primary : theme.subText}`};
-  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
-  font-weight: 500;
 `
 
 const UnstakeButton = styled(ButtonLight)`
@@ -294,78 +284,75 @@ function FarmCard({
           </RowBetween>
         </div>
 
-        <div>
-          <HorizontalScroll
-            noShadow
-            backgroundColor={theme.buttonBlack}
-            items={farm.ranges.map(item => item.index.toString())}
-            renderItem={index => {
-              const range = farm.ranges.find(r => r.index === +index)
-              if (!range) return null
-              return (
-                <RangeItemBtn
-                  active={+index === activeRangeIndex}
-                  key={index}
-                  onClick={() => setActiveRangeIndex(+index)}
-                >
-                  {convertTickToPrice(farm.token0, farm.token1, range.tickLower)}
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" display="block">
-                    <path
-                      d="M11.3405 8.66669L11.3405 9.86002C11.3405 10.16 11.7005 10.3067 11.9071 10.0934L13.7605 8.23335C13.8871 8.10002 13.8871 7.89335 13.7605 7.76002L11.9071 5.90669C11.7005 5.69335 11.3405 5.84002 11.3405 6.14002L11.3405 7.33335L4.66047 7.33335L4.66047 6.14002C4.66047 5.84002 4.30047 5.69335 4.0938 5.90669L2.24047 7.76669C2.1138 7.90002 2.1138 8.10669 2.24047 8.24002L4.0938 10.1C4.30047 10.3134 4.66047 10.16 4.66047 9.86669L4.66047 8.66669L11.3405 8.66669Z"
-                      fill="currentcolor"
-                    />
-                  </svg>
+        <StyledTabs
+          activeKey={activeRangeIndex}
+          onChange={key => {
+            setActiveRangeIndex(+key)
+          }}
+          items={farm.ranges.map(item => ({
+            key: item.index,
+            label: (
+              <Flex alignItems="center" sx={{ gap: '2px' }}>
+                {convertTickToPrice(farm.token0, farm.token1, item.tickLower)}
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" display="block">
+                  <path
+                    d="M11.3405 8.66669L11.3405 9.86002C11.3405 10.16 11.7005 10.3067 11.9071 10.0934L13.7605 8.23335C13.8871 8.10002 13.8871 7.89335 13.7605 7.76002L11.9071 5.90669C11.7005 5.69335 11.3405 5.84002 11.3405 6.14002L11.3405 7.33335L4.66047 7.33335L4.66047 6.14002C4.66047 5.84002 4.30047 5.69335 4.0938 5.90669L2.24047 7.76669C2.1138 7.90002 2.1138 8.10669 2.24047 8.24002L4.0938 10.1C4.30047 10.3134 4.66047 10.16 4.66047 9.86669L4.66047 8.66669L11.3405 8.66669Z"
+                    fill="currentcolor"
+                  />
+                </svg>
 
-                  {convertTickToPrice(farm.token0, farm.token1, range.tickUpper)}
-                </RangeItemBtn>
-              )
-            }}
-          />
-        </div>
+                {convertTickToPrice(farm.token0, farm.token1, item.tickUpper)}
+              </Flex>
+            ),
+            children: (
+              <Flex padding="12px" flexDirection="column">
+                <RowBetween>
+                  <MouseoverTooltip text={t`Active Range: Current active farming range`} placement="top">
+                    <Text fontSize="12px" color={theme.subText} style={{ borderBottom: `1px dotted ${theme.subText}` }}>
+                      APR
+                    </Text>
+                  </MouseoverTooltip>
 
-        <OutlineCard padding="12px" borderRadius="12px" style={{ backgroundColor: rgba(theme.buttonBlack, 0.5) }}>
-          <RowBetween>
-            <MouseoverTooltip text={t`Active Range: Current active farming range`} placement="top">
-              <Text fontSize="12px" color={theme.subText} style={{ borderBottom: `1px dotted ${theme.subText}` }}>
-                <Trans>Avg APR</Trans>
-              </Text>
-            </MouseoverTooltip>
+                  <MouseoverTooltip
+                    text={
+                      farm.ranges[activeRangeIndex].isRemoved ? (
+                        <Trans>
+                          This indicates that range is idle. Staked positions in this range is still earning small
+                          amount of rewards.
+                        </Trans>
+                      ) : (
+                        ''
+                      )
+                    }
+                  >
+                    <Text
+                      fontSize="12px"
+                      color={farm.ranges[activeRangeIndex].isRemoved ? theme.warning : theme.primary}
+                      alignSelf="flex-end"
+                      sx={{
+                        borderBottom: farm.ranges[activeRangeIndex].isRemoved
+                          ? `1px dotted ${theme.warning}`
+                          : undefined,
+                      }}
+                    >
+                      {farm.ranges[activeRangeIndex].isRemoved ? (
+                        <Trans>Idle Range</Trans>
+                      ) : (
+                        <Link to={`${addliquidityElasticPool}?farmRange=${activeRangeIndex}`}>
+                          <Trans>Add Liquidity ↗</Trans>
+                        </Link>
+                      )}
+                    </Text>
+                  </MouseoverTooltip>
+                </RowBetween>
 
-            <MouseoverTooltip
-              text={
-                farm.ranges[activeRangeIndex].isRemoved ? (
-                  <Trans>
-                    This indicates that range is idle. Staked positions in this range is still earning small amount of
-                    rewards.
-                  </Trans>
-                ) : (
-                  ''
-                )
-              }
-            >
-              <Text
-                fontSize="12px"
-                color={farm.ranges[activeRangeIndex].isRemoved ? theme.warning : theme.primary}
-                alignSelf="flex-end"
-                sx={{
-                  borderBottom: farm.ranges[activeRangeIndex].isRemoved ? `1px dotted ${theme.warning}` : undefined,
-                }}
-              >
-                {farm.ranges[activeRangeIndex].isRemoved ? (
-                  <Trans>Idle Range</Trans>
-                ) : (
-                  <Link to={`${addliquidityElasticPool}?farmRange=${activeRangeIndex}`}>
-                    <Trans>Add Liquidity ↗</Trans>
-                  </Link>
-                )}
-              </Text>
-            </MouseoverTooltip>
-          </RowBetween>
-
-          <Text fontSize="28px" marginTop="2px" color={theme.apr}>
-            {(poolAPR + (farm.ranges[activeRangeIndex].apr || 0)).toFixed(2)}%
-          </Text>
-        </OutlineCard>
+                <Text fontSize="28px" marginTop="2px" color={theme.apr}>
+                  {(poolAPR + (farm.ranges[activeRangeIndex].apr || 0)).toFixed(2)}%
+                </Text>
+              </Flex>
+            ),
+          }))}
+        />
 
         <RowBetween>
           <Column style={{ width: 'fit-content' }} gap="4px">

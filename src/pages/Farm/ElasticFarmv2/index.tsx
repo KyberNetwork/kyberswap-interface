@@ -176,19 +176,6 @@ export default function ElasticFarmv2({ onShowStepGuide }: { onShowStepGuide: ()
     return (
       <ElasticFarmV2TableHeader>
         <Flex alignItems="center" justifyContent="flex-start">
-          <ClickableText>
-            <Trans>Pool</Trans>
-          </ClickableText>
-        </Flex>
-
-        <Flex alignItems="center" justifyContent="flex-start">
-          <ClickableText>
-            <Trans>Active Range</Trans>
-          </ClickableText>
-          <InfoHelper text="" />
-        </Flex>
-
-        <Flex alignItems="center" justifyContent="flex-start">
           <ClickableText
             onClick={() => {
               handleSort(SORT_FIELD.STAKED_TVL)
@@ -207,12 +194,11 @@ export default function ElasticFarmv2({ onShowStepGuide }: { onShowStepGuide: ()
         <Flex alignItems="center" justifyContent="flex-start">
           <ClickableText
             onClick={() => {
-              handleSort(SORT_FIELD.APR)
+              handleSort(SORT_FIELD.END_TIME)
             }}
           >
-            <Trans>AVG APR</Trans>
-
-            {sortField === SORT_FIELD.APR &&
+            <Trans>Ending In</Trans>
+            {sortField === SORT_FIELD.END_TIME &&
               (sortDirection === SORT_DIRECTION.DESC ? (
                 <ArrowDown size={12} />
               ) : sortDirection === SORT_DIRECTION.ASC ? (
@@ -221,14 +207,15 @@ export default function ElasticFarmv2({ onShowStepGuide }: { onShowStepGuide: ()
           </ClickableText>
         </Flex>
 
-        <Flex alignItems="center" justifyContent="flex-end">
+        <Flex alignItems="center" justifyContent="flex-start">
           <ClickableText
             onClick={() => {
-              handleSort(SORT_FIELD.END_TIME)
+              handleSort(SORT_FIELD.APR)
             }}
           >
-            <Trans>Ending In</Trans>
-            {sortField === SORT_FIELD.END_TIME &&
+            <Trans>APR</Trans>
+
+            {sortField === SORT_FIELD.APR &&
               (sortDirection === SORT_DIRECTION.DESC ? (
                 <ArrowDown size={12} />
               ) : sortDirection === SORT_DIRECTION.ASC ? (
@@ -313,6 +300,9 @@ export default function ElasticFarmv2({ onShowStepGuide }: { onShowStepGuide: ()
             <ListView
               key={farm.id}
               farm={farm}
+              onStake={() => setSelectedFarm(farm)}
+              onUnstake={() => setSelectedUnstakeFarm(farm)}
+              onUpdateFarmClick={() => setSelectedUpdateFarm(farm)}
               poolAPR={poolDatas?.[farm.poolAddress].apr || 0}
               isApproved={isApprovedForAll}
             />
