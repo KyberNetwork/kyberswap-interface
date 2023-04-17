@@ -6,6 +6,7 @@ import Icon from 'components/Icons/Icon'
 import { RowFit } from 'components/Row'
 
 import { gaugeList } from './KyberScoreMeter'
+import SimpleTooltip from './SimpleTooltip'
 
 const Wrapper = styled.div`
   position: relative;
@@ -55,12 +56,14 @@ function SmallKyberScoreMeter({ value }: { value?: number }) {
         ))}
       </svg>
       <GaugeValue>
-        <RowFit gap="2px">
-          <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
-            {value}
-          </Text>
-          <Icon id="timer" size={12} />
-        </RowFit>
+        <SimpleTooltip text="This is based on calculation at 08:00 AM when the price of ETH was $0.0000000001">
+          <RowFit gap="2px">
+            <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
+              {value}
+            </Text>
+            <Icon id="timer" size={12} />
+          </RowFit>
+        </SimpleTooltip>
       </GaugeValue>
     </Wrapper>
   )

@@ -180,10 +180,10 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
           <Share2 size="14px" color={theme.subText} />
           <Trans>Share</Trans>
         </Flex>
-        <MouseoverTooltip text={t`Explore pool tokens in Truesight`} placement="top" delay={1000}>
+        <MouseoverTooltip text={t`Explore pool tokens in KyberAI`} placement="top" delay={1000}>
           <RowFit gap="4px" style={{ cursor: 'pointer' }} onClick={() => setOpenTruesightModal(true)}>
             <Icon id="truesight-v2" size={14} />
-            <Trans>Truesight</Trans>
+            <Trans>KyberAI</Trans>
           </RowFit>
         </MouseoverTooltip>
       </Flex>

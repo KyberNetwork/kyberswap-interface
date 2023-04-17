@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useRef, useState } from 'react'
+import React, { ReactElement, ReactNode, useLayoutEffect, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
 
@@ -6,17 +6,30 @@ const Wrapper = styled.div`
   padding: 16px;
   border-radius: 12px;
   background-color: ${({ theme }) => theme.tableHeader};
+  font-size: 12px;
+  color: ${({ theme }) => theme.subText};
+  width: fit-content;
+  max-width: 200px;
+  position: relative;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.32);
+
+  transform: translateY(5px);
+  transition: all 0.5s ease;
+  .show {
+    transform: translateY(0);
+  }
 `
 
 const Arrow = styled.div`
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   z-index: 99;
-
+  position: absolute;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.32);
   ::before {
     position: absolute;
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
     z-index: 99;
 
     content: '';
@@ -26,7 +39,9 @@ const Arrow = styled.div`
   }
 
   &.arrow-top {
-    bottom: -7px;
+    bottom: -5px;
+    left: 50%;
+    transform: translatex(-50%);
     ::before {
       border-top: none;
       border-left: none;
@@ -34,7 +49,7 @@ const Arrow = styled.div`
   }
 
   &.arrow-bottom {
-    top: -7px;
+    top: -5px;
     ::before {
       border-bottom: none;
       border-right: none;
@@ -42,7 +57,7 @@ const Arrow = styled.div`
   }
 
   &.arrow-left {
-    right: -7px;
+    right: -5px;
 
     ::before {
       border-bottom: none;
@@ -51,7 +66,7 @@ const Arrow = styled.div`
   }
 
   &.arrow-right {
-    left: -7px;
+    left: -5px;
     ::before {
       border-right: none;
       border-top: none;
@@ -62,24 +77,25 @@ const Arrow = styled.div`
 export default function SimpleTooltip({
   text,
   delay = 50,
+  x,
+  y,
   children,
 }: {
   text: ReactNode
   delay?: number
+  x?: number
+  y?: number
   children: ReactElement
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const [show, setShow] = useState<boolean>(false)
+  const [{ width, height }, setWidthHeight] = useState({ width: 0, height: 0 })
+  console.log('🚀 ~ file: SimpleTooltip.tsx:94 ~ width:', width)
   const hovering = useRef(false)
   const handleMouseEnter = () => {
     hovering.current = true
-
-    setTimeout(() => {
-      if (hovering.current) {
-        setShow(true)
-      }
-    }, delay)
+    setShow(true)
   }
   const handleMouseLeave = () => {
     hovering.current = false
@@ -87,15 +103,24 @@ export default function SimpleTooltip({
   }
 
   const clientRect = ref.current?.getBoundingClientRect()
-  const wrapperRect = wrapperRef.current?.getBoundingClientRect()
-  const inset = `${(clientRect?.top || 0) - (wrapperRect?.height || 50)}px 0 0 ${clientRect?.left || 0}px`
+  const bodyRect = document.body.getBoundingClientRect()
+  const top = (y || clientRect?.top || 0) - (height || 50) - 10 - bodyRect.top
+  const left = clientRect ? (x || clientRect.left) + clientRect.width / 2 : 0
 
+  const inset = `${top}px 0 0 ${left}px`
+
+  useLayoutEffect(() => {
+    if (wrapperRef.current) {
+      setWidthHeight({ width: wrapperRef.current.clientWidth, height: wrapperRef.current.clientHeight })
+    }
+  }, [show])
   return (
-    <>
-      {React.cloneElement(children, { ref: ref, onMouseEnter: handleMouseEnter, onMouseOut: handleMouseLeave })}
-      {show &&
+    <div ref={ref} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+      {children}
+      {(show || (x && y)) &&
         ReactDOM.createPortal(
           <div
+            ref={wrapperRef}
             style={{
               position: 'absolute',
               inset: inset,
@@ -105,13 +130,13 @@ export default function SimpleTooltip({
               transform: 'translateX(-50%)',
             }}
           >
-            <Wrapper ref={wrapperRef}>
+            <Wrapper>
               {text}
               <Arrow className={`arrow-top`} />
             </Wrapper>
           </div>,
           document.body,
         )}
-    </>
+    </div>
   )
 }

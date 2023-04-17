@@ -224,10 +224,10 @@ export default function Widget() {
                 <Trans>
                   You can add more tokens to your watchlist from{' '}
                   <Text color={theme.primary} display="inline">
-                    Discover
+                    KyberAI
                   </Text>
                   .<br />
-                  You can watch up to 8 tokens
+                  You can watch up to 10 tokens
                 </Trans>
               </Text>
             </Row>
