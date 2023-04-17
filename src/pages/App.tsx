@@ -52,17 +52,8 @@ const CreatePool = lazy(() => import(/* webpackChunkName: 'create-pool-page' */ 
 const ProAmmRemoveLiquidity = lazy(
   () => import(/* webpackChunkName: 'elastic-remove-liquidity-page' */ './RemoveLiquidityProAmm'),
 )
-const RedirectCreatePoolDuplicateTokenIds = lazy(
-  () =>
-    import(
-      /* webpackChunkName: 'redirect-create-pool-duplicate-token-ids-page' */ './CreatePool/RedirectDuplicateTokenIds'
-    ),
-)
-const RedirectOldCreatePoolPathStructure = lazy(
-  () =>
-    import(
-      /* webpackChunkName: 'redirect-old-create-pool-path-structure-page' */ './CreatePool/RedirectOldCreatePoolPathStructure'
-    ),
+const RedirectCreatePool = lazy(
+  () => import(/* webpackChunkName: 'redirect-create-pool-page' */ './CreatePool/RedirectCreatePool'),
 )
 
 const AddLiquidity = lazy(() => import(/* webpackChunkName: 'add-liquidity-page' */ './AddLiquidity'))
@@ -254,15 +245,21 @@ export default function App() {
                       <Route path={`${APP_PATHS.MY_POOLS}`} element={<RedirectPathToMyPoolsNetwork />} />
                     </>
 
-                    <Route path={`${APP_PATHS.CLASSIC_CREATE_POOL}`} element={<CreatePool />} />
-                    <Route
-                      path={`${APP_PATHS.CLASSIC_CREATE_POOL}/:currencyIdA`}
-                      element={<RedirectOldCreatePoolPathStructure />}
-                    />
-                    <Route
-                      path={`${APP_PATHS.CLASSIC_CREATE_POOL}/:currencyIdA/:currencyIdB`}
-                      element={<RedirectCreatePoolDuplicateTokenIds />}
-                    />
+                    <>
+                      {/* Classic Create Pool routes */}
+                      <Route path={`/:network${APP_PATHS.CLASSIC_CREATE_POOL}`} element={<CreatePool />} />
+                      <Route
+                        path={`/:network${APP_PATHS.CLASSIC_CREATE_POOL}/:currencyIdA`}
+                        element={<RedirectCreatePool />}
+                      />
+                      <Route
+                        path={`/:network${APP_PATHS.CLASSIC_CREATE_POOL}/:currencyIdA/:currencyIdB`}
+                        element={<RedirectCreatePool />}
+                      />
+
+                      <Route path={`${APP_PATHS.CLASSIC_CREATE_POOL}`} element={<RedirectCreatePool />} />
+                      <Route path={`${APP_PATHS.CLASSIC_CREATE_POOL}/*`} element={<RedirectCreatePool />} />
+                    </>
 
                     <Route
                       path={`${APP_PATHS.CLASSIC_REMOVE_POOL}/:currencyIdA/:currencyIdB/:pairAddress`}

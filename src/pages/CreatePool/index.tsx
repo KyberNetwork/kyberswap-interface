@@ -349,32 +349,36 @@ export default function CreatePool() {
 
       // support WETH
       if (isWrappedTokenInPool(currencyA, selectedCurrencyA)) {
-        navigate(`/create/${newCurrencyIdA}/${currencyIdB}`)
+        navigate(`/${networkInfo.route}${APP_PATHS.CLASSIC_CREATE_POOL}/${newCurrencyIdA}/${currencyIdB}`)
       } else if (newCurrencyIdA === currencyIdB) {
-        navigate(`/create/${currencyIdB}/${currencyIdA}`)
+        navigate(`/${networkInfo.route}${APP_PATHS.CLASSIC_CREATE_POOL}/${currencyIdB}/${currencyIdA}`)
       } else {
-        navigate(`/create/${newCurrencyIdA}/${currencyIdB}`)
+        navigate(`/${networkInfo.route}${APP_PATHS.CLASSIC_CREATE_POOL}/${newCurrencyIdA}/${currencyIdB}`)
       }
     },
-    [currencyIdB, navigate, currencyIdA, isWrappedTokenInPool, currencyA, chainId],
+    [chainId, isWrappedTokenInPool, currencyA, currencyIdB, navigate, networkInfo.route, currencyIdA],
   )
   const handleCurrencyBSelect = useCallback(
     (selectedCurrencyB: Currency) => {
       const newCurrencyIdB = currencyId(selectedCurrencyB, chainId)
 
       if (isWrappedTokenInPool(currencyB, selectedCurrencyB)) {
-        navigate(`/create/${currencyIdA}/${newCurrencyIdB}`)
+        navigate(`/${networkInfo.route}${APP_PATHS.CLASSIC_CREATE_POOL}/${currencyIdA}/${newCurrencyIdB}`)
       } else if (newCurrencyIdB === currencyIdA) {
         if (currencyIdB) {
-          navigate(`/create/${currencyIdB}/${currencyIdA}`)
+          navigate(`/${networkInfo.route}${APP_PATHS.CLASSIC_CREATE_POOL}/${currencyIdB}/${currencyIdA}`)
         } else {
-          navigate(`/create/${newCurrencyIdB}`)
+          navigate(`/${networkInfo.route}${APP_PATHS.CLASSIC_CREATE_POOL}/${newCurrencyIdB}`)
         }
       } else {
-        navigate(`/create/${currencyIdA ? currencyIdA : 'ETH'}/${newCurrencyIdB}`)
+        navigate(
+          `/${networkInfo.route}${APP_PATHS.CLASSIC_CREATE_POOL}/${
+            currencyIdA ? currencyIdA : 'ETH'
+          }/${newCurrencyIdB}`,
+        )
       }
     },
-    [currencyIdA, navigate, currencyIdB, isWrappedTokenInPool, currencyB, chainId],
+    [chainId, isWrappedTokenInPool, currencyB, currencyIdA, navigate, networkInfo.route, currencyIdB],
   )
 
   const handleDismissConfirmation = useCallback(() => {
