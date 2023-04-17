@@ -77,7 +77,7 @@ const Wrapper = styled.div.attrs<WrapperProps>(props => ({
 type Props = {
   href: string
   icon: React.ReactElement
-  text: string
+  text: string | undefined
   unread?: number
   isMobile?: boolean
 }
