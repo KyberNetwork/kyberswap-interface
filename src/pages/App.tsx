@@ -59,7 +59,9 @@ const RedirectCreatePool = lazy(
 const AddLiquidity = lazy(() => import(/* webpackChunkName: 'add-liquidity-page' */ './AddLiquidity'))
 const IncreaseLiquidity = lazy(() => import(/* webpackChunkName: 'add-liquidity-page' */ './IncreaseLiquidity'))
 
-const RemoveLiquidity = lazy(() => import(/* webpackChunkName: 'remove-liquidity-page' */ './RemoveLiquidity'))
+const RedirectRemoveLiquidity = lazy(
+  () => import(/* webpackChunkName: 'redirect-remove-liquidity-page' */ './RemoveLiquidity/RedirectRemoveLiquidity'),
+)
 
 const KyberDAOStakeKNC = lazy(() => import(/* webpackChunkName: 'stake-knc' */ './KyberDAO/StakeKNC'))
 const KyberDAOVote = lazy(() => import(/* webpackChunkName: 'vote' */ './KyberDAO/Vote'))
@@ -261,10 +263,15 @@ export default function App() {
                       <Route path={`${APP_PATHS.CLASSIC_CREATE_POOL}/*`} element={<RedirectCreatePool />} />
                     </>
 
-                    <Route
-                      path={`${APP_PATHS.CLASSIC_REMOVE_POOL}/:currencyIdA/:currencyIdB/:pairAddress`}
-                      element={<RemoveLiquidity />}
-                    />
+                    <>
+                      {/* Classic Remove Pool routes */}
+                      <Route
+                        path={`:network${APP_PATHS.CLASSIC_REMOVE_POOL}/:currencyIdA/:currencyIdB/:pairAddress`}
+                        element={<RedirectRemoveLiquidity />}
+                      />
+                      <Route path={`${APP_PATHS.CLASSIC_REMOVE_POOL}/*`} element={<RedirectRemoveLiquidity />} />
+                    </>
+
                     <Route path={`${APP_PATHS.ELASTIC_REMOVE_POOL}/:tokenId`} element={<ProAmmRemoveLiquidity />} />
 
                     <Route
