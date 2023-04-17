@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ReactNode } from 'react'
+import { Bell } from 'react-feather'
 import styled from 'styled-components'
 
 import { ReactComponent as AlarmIcon } from 'assets/svg/alarm.svg'
@@ -23,7 +24,7 @@ const mapIcon: Partial<{ [type in PrivateAnnouncementType]: ReactNode }> = {
   [PrivateAnnouncementType.POOL_POSITION]: <LiquidityIcon />,
   [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: <DiscoverIcon size={16} />,
   [PrivateAnnouncementType.PRICE_ALERT]: <AlarmIcon style={{ width: 17, height: 17 }} />,
-  [PrivateAnnouncementType.PRIVATE_MESSAGE]: <AlarmIcon style={{ width: 17, height: 17 }} />,
+  [PrivateAnnouncementType.PRIVATE_MESSAGE]: <Bell style={{ width: 17, height: 17 }} />,
 }
 
 export default function InboxIcon({ type, chainId }: { type: PrivateAnnouncementType; chainId?: ChainId }) {

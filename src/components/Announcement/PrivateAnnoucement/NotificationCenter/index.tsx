@@ -7,6 +7,7 @@ import Bridge from './Bridge'
 import LimitOrder from './LimitOrder'
 import PoolPosition from './PoolPosition'
 import PriceAlert from './PriceAlert'
+import PrivateMessage from './PrivateMessage'
 import TrendingSoon from './TrendingSoon'
 
 export type PrivateAnnouncementPropCenter<T extends AnnouncementTemplate = AnnouncementTemplate> = {
@@ -23,6 +24,7 @@ const ANNOUNCEMENT_MAP_IN_CENTER = {
   [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: TrendingSoon,
   [PrivateAnnouncementType.BRIDGE]: Bridge,
   [PrivateAnnouncementType.PRICE_ALERT]: PriceAlert,
+  [PrivateAnnouncementType.PRIVATE_MESSAGE]: PrivateMessage,
 } as PrivateAnnouncementCenterMap
 
 export default function InboxItemNotificationCenter({ announcement }: PrivateAnnouncementPropCenter) {
