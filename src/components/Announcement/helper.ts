@@ -24,14 +24,21 @@ export const ackAnnouncementPopup = (id: string | number) => {
 
 export const formatNumberOfUnread = (num: number | undefined) => (num ? (num > 10 ? '10+' : num + '') : null)
 
-export const isPopupCanShow = (popupInfo: PopupItemType<PopupContentAnnouncement>, chainId: ChainId) => {
+export const isPopupCanShow = (
+  popupInfo: PopupItemType<PopupContentAnnouncement>,
+  chainId: ChainId,
+  account: string | undefined,
+) => {
   const { templateBody = {}, metaMessageId } = popupInfo.content
   const { endAt, startAt, chainIds = [] } = templateBody as AnnouncementTemplatePopup
   const isRightChain = chainIds.includes(chainId + '')
   const announcementsAckMap = getAnnouncementsAckMap()
   const isRead = announcementsAckMap[metaMessageId]
+
+  const isOwn = (popupInfo.content as any).account ? account === (popupInfo.content as any).account : true
+
   const isExpired = Date.now() < startAt * 1000 || Date.now() > endAt * 1000
-  return !isRead && !isExpired && isRightChain
+  return !isRead && !isExpired && isRightChain && isOwn
 }
 
 /**
