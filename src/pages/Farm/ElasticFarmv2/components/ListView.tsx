@@ -28,13 +28,11 @@ import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useFarmV2Action, useUserFarmV2Info } from 'state/farms/elasticv2/hooks'
 import { ElasticFarmV2 } from 'state/farms/elasticv2/types'
-import { shortenAddress } from 'utils'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import { formatDollarAmount } from 'utils/numbers'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 
 import { convertTickToPrice } from '../utils'
-import PriceVisualize from './PriceVisualize'
 
 const Wrapper = styled.div<{ isDeposited: boolean }>(({ theme, isDeposited }) => ({
   padding: '16px',
@@ -61,7 +59,6 @@ export const ListView = ({
 }) => {
   const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
-  const [activeRangeIndex, setActiveRangeIndex] = useState(0)
 
   const setSharePoolAddress = useSharePoolContext()
 
@@ -220,20 +217,19 @@ export const ListView = ({
             gap: '4px',
           }}
         >
-          {((farm.ranges[activeRangeIndex].apr || 0) + poolAPR).toFixed(2)}%
+          {/* TODO(viet-nv) FARM APR */}
+          {((farm.ranges[0].apr || 0) + poolAPR).toFixed(2)}%
           <MouseoverTooltip
             width="fit-content"
             placement="right"
-            text={
-              <APRTooltipContent farmAPR={0} farmV2APR={farm.ranges[activeRangeIndex].apr || 0} poolAPR={poolAPR} />
-            }
+            text={<APRTooltipContent farmAPR={0} farmV2APR={farm.ranges[0].apr || 0} poolAPR={poolAPR} />}
           >
             <MoneyBag size={16} color={theme.apr} />
           </MouseoverTooltip>
         </Flex>
 
         <Text
-          fontSize="16px"
+          fontSize="14px"
           fontWeight="500"
           alignItems="center"
           display="flex"
@@ -302,10 +298,7 @@ export const ListView = ({
 
         <Flex justifyContent="flex-end" sx={{ gap: '4px' }}>
           <MouseoverTooltipDesktopOnly text={t`Stake`} placement="top" width="fit-content">
-            <MinimalActionButton
-              disabled={!account || !isApproved || isEnded || farm.ranges[activeRangeIndex].isRemoved}
-              onClick={onStake}
-            >
+            <MinimalActionButton disabled={!account || !isApproved || isEnded || farm.isSettled} onClick={onStake}>
               <Plus size={16} />
             </MinimalActionButton>
           </MouseoverTooltipDesktopOnly>

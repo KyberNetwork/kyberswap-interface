@@ -196,6 +196,7 @@ export default function CampaignButtonWithOptions({
 
   return (
     <StyledPrimaryButton
+      id="swap-now-button"
       size={size}
       onClick={e => {
         e.stopPropagation()

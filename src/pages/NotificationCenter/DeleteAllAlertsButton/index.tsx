@@ -27,7 +27,7 @@ const CloseIcon = styled(X)`
 type Props = {
   disabled: boolean
   onClear: () => Promise<any>
-  notificationName: string
+  notificationName: string | undefined
 }
 const DeleteAllAlertsButton: React.FC<Props> = ({ onClear, disabled, notificationName }) => {
   const theme = useTheme()

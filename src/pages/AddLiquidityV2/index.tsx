@@ -16,6 +16,7 @@ import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { OutlineCard, SubTextCard, WarningCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
+import ElasticDisclaimerModal from 'components/ElasticDisclaimerModal'
 import FeeSelector from 'components/FeeSelector'
 import HoverInlineText from 'components/HoverInlineText'
 import { Swap as SwapIcon } from 'components/Icons'
@@ -1195,9 +1196,11 @@ export default function AddLiquidity() {
   )
 
   if (!isEVM) return <Navigate to="/" />
+
   return (
     <>
       <ElasticFarmV2Updater interval={false} />
+      <ElasticDisclaimerModal isOpen />
       <TransactionConfirmationModal
         isOpen={showConfirm}
         onDismiss={handleDismissConfirmation}
