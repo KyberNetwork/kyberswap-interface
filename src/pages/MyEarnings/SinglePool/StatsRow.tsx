@@ -1,11 +1,15 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
-import { t } from '@lingui/macro'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
+import { Trans, t } from '@lingui/macro'
+import { Link } from 'react-router-dom'
 import { Box, Flex, Text } from 'rebass'
 
 import { ReactComponent as BarChart } from 'assets/svg/barchart.svg'
 import { ButtonLight } from 'components/Button'
 import { NetworkLogo } from 'components/Logo'
+import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
+import { NativeCurrencies } from 'constants/tokens'
 import useTheme from 'hooks/useTheme'
 import { ButtonIcon } from 'pages/Pools/styleds'
 
@@ -99,16 +103,30 @@ type Props = {
   volume24hUsd: number
   fees24hUsd: number
 
+  currency0: Currency | undefined
+  currency1: Currency | undefined
+  feeAmount: FeeAmount
   renderToggleExpandButton: () => React.ReactNode
 }
 const StatsRow: React.FC<Props> = ({
-  renderToggleExpandButton,
   chainId,
   totalValueLockedUsd,
   apr,
   volume24hUsd,
   fees24hUsd,
+
+  currency0,
+  currency1,
+  feeAmount,
+
+  renderToggleExpandButton,
 }) => {
+  const nativeToken = NativeCurrencies[chainId]
+
+  // TODO: check native currencies
+  const currency0Slug = currency0?.wrapped.address || ''
+  const currency1Slug = currency1?.wrapped.address || ''
+
   return (
     <Box
       sx={{
@@ -134,7 +152,18 @@ const StatsRow: React.FC<Props> = ({
           gap: '12px',
         }}
       >
-        <ButtonLight height="36px">+ Add Liquidity</ButtonLight>
+        <ButtonLight
+          height="36px"
+          as={Link}
+          // TODO: use new format of Elastic routes
+          to={
+            currency0Slug && currency1Slug
+              ? `${APP_PATHS.ELASTIC_CREATE_POOL}/${currency0Slug}/${currency1Slug}/${feeAmount}`
+              : '#'
+          }
+        >
+          + <Trans>Add Liquidity</Trans>
+        </ButtonLight>
         <ButtonIcon
           style={{
             flex: '0 0 36px',

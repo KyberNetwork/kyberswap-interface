@@ -138,6 +138,9 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
       </Flex>
 
       <StatsRow
+        currency0={currency0}
+        currency1={currency1}
+        feeAmount={feeAmount}
         chainId={chainId}
         totalValueLockedUsd={poolEarning.totalValueLockedUsd}
         apr={poolEarning.apr}
