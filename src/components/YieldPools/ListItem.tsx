@@ -23,7 +23,7 @@ import Harvest from 'components/Icons/Harvest'
 import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { DMM_ANALYTICS_URL, MAX_ALLOW_APY, OUTSIDE_FAIRLAUNCH_ADDRESSES } from 'constants/index'
+import { APP_PATHS, DMM_ANALYTICS_URL, MAX_ALLOW_APY, OUTSIDE_FAIRLAUNCH_ADDRESSES } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -67,7 +67,7 @@ interface ListItemProps {
 }
 
 const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
-  const { account, chainId, isEVM } = useActiveWeb3React()
+  const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const currentTimestamp = Math.floor(Date.now() / 1000)
   const [viewMode] = useViewMode()
@@ -308,10 +308,10 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
               <Row>
                 <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} />
                 <Link
-                  to={`/add/${currencyIdFromAddress(farm.token0?.id, chainId)}/${currencyIdFromAddress(
-                    farm.token1?.id,
+                  to={`/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${currencyIdFromAddress(
+                    farm.token0?.id,
                     chainId,
-                  )}/${farm.id}`}
+                  )}/${currencyIdFromAddress(farm.token1?.id, chainId)}/${farm.id}`}
                   style={{ textDecoration: 'none', marginRight: '6px' }}
                 >
                   {farm.token0?.symbol} - {farm.token1?.symbol}
@@ -464,9 +464,18 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
         <FarmCard key={`${farm.fairLaunchAddress}_${farm.stakeToken}`} joined={!!userStakedBalanceUSD}>
           <Row marginBottom="12px">
             <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={20} />
-            <Text fontSize="16px" fontWeight="500" marginRight="4px" color={theme.green}>
-              {currency0?.symbol} - {currency1?.symbol}
-            </Text>
+            <Link
+              to={`/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${currencyIdFromAddress(
+                farm.token0?.id,
+                chainId,
+              )}/${currencyIdFromAddress(farm.token1?.id, chainId)}/${farm.id}`}
+              style={{ textDecoration: 'none', marginRight: '6px' }}
+            >
+              <Text fontSize="16px" fontWeight="500" marginRight="4px" color={theme.green}>
+                {currency0?.symbol} - {currency1?.symbol}
+              </Text>
+            </Link>
+
             <Text
               fontSize={12}
               lineHeight="16px"
@@ -796,10 +805,10 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
                   </ExternalLink>
                 ) : (
                   <Link
-                    to={`/add/${currencyIdFromAddress(farm.token0?.id, chainId)}/${currencyIdFromAddress(
-                      farm.token1?.id,
+                    to={`/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${currencyIdFromAddress(
+                      farm.token0?.id,
                       chainId,
-                    )}/${farm.id}`}
+                    )}/${currencyIdFromAddress(farm.token1?.id, chainId)}/${farm.id}`}
                     style={{ textDecoration: 'none' }}
                   >
                     <GetLP style={{ textAlign: 'right' }}>

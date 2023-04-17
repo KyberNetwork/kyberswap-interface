@@ -25,7 +25,7 @@ import TransactionConfirmationModal, {
 } from 'components/TransactionConfirmationModal'
 import ZapError from 'components/ZapError'
 import FormattedPriceImpact from 'components/swapv2/FormattedPriceImpact'
-import { AMP_HINT } from 'constants/index'
+import { AMP_HINT, APP_PATHS } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { PairState } from 'data/Reserves'
@@ -445,7 +445,7 @@ const ZapIn = ({
                     <StyledInternalLink
                       onClick={handleDismissConfirmation}
                       id="unamplified-pool-link"
-                      to={`/add/${currencyIdA}/${currencyIdB}/${unAmplifiedPairAddress}`}
+                      to={`/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${currencyIdA}/${currencyIdB}/${unAmplifiedPairAddress}`}
                     >
                       Go to unamplified pool
                     </StyledInternalLink>
@@ -497,12 +497,15 @@ const ZapIn = ({
                       replace
                       to={
                         independentField === Field.CURRENCY_A
-                          ? `/add/${
+                          ? `/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${
                               selectedCurrencyIsETHER
                                 ? currencyId(WETH[chainId], chainId)
                                 : currencyId(NativeCurrencies[chainId], chainId)
                             }/${currencyId(currencies[dependentField] as Currency, chainId)}/${pairAddress}`
-                          : `/add/${currencyId(currencies[dependentField] as Currency, chainId)}/${
+                          : `/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${currencyId(
+                              currencies[dependentField] as Currency,
+                              chainId,
+                            )}/${
                               selectedCurrencyIsETHER
                                 ? currencyId(WETH[chainId], chainId)
                                 : NativeCurrencies[chainId].symbol

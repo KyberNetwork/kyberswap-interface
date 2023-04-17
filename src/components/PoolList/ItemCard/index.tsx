@@ -210,15 +210,16 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
         )}
       </ButtonOutlined>
       <ButtonLight
-        onClick={() => {
-          const url = `/add/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${poolData.id}`
-          navigate(url)
-        }}
+        as={Link}
         style={{
           padding: '10px',
           fontWeight: 500,
           height: '36px',
         }}
+        to={`/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${currencyId(currency0, chainId)}/${currencyId(
+          currency1,
+          chainId,
+        )}/${poolData.id}`}
       >
         <Plus size={16} />
         <Text marginLeft="4px" fontSize="12px">

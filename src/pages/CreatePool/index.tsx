@@ -465,7 +465,7 @@ export default function CreatePool() {
                         <StyledInternalLink
                           onClick={handleDismissConfirmation}
                           id="unamplified-pool-link"
-                          to={`/add/${currencyIdA}/${currencyIdB}/${unAmplifiedPairAddress}`}
+                          to={`/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${currencyIdA}/${currencyIdB}/${unAmplifiedPairAddress}`}
                         >
                           Go to unamplified pool
                         </StyledInternalLink>
