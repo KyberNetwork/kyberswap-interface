@@ -244,6 +244,14 @@ export default function App() {
                     <Route path={`${APP_PATHS.FIND_POOL}`} element={<PoolFinder />} />
 
                     <>
+                      {/* Pools Routes  */}
+                      <Route path={`${APP_PATHS.POOLS}/:network`} element={<Pools />} />
+                      <Route path={`${APP_PATHS.POOLS}/:network/:currencyIdA`} element={<Pools />} />
+                      <Route path={`${APP_PATHS.POOLS}`} element={<RedirectPathToPoolsNetwork />} />
+                      <Route path={`${APP_PATHS.POOLS}/:network/:currencyIdA/:currencyIdB`} element={<Pools />} />
+                    </>
+
+                    <>
                       {/* Farms Routes */}
                       <Route path={`${APP_PATHS.FARMS}/:network`} element={<Farm />} />
                       <Route path={`${APP_PATHS.FARMS}`} element={<RedirectPathToFarmNetwork />} />
@@ -316,14 +324,6 @@ export default function App() {
                     <Route path={`${APP_PATHS.NOTIFICATION_CENTER}/*`} element={<NotificationCenter />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgramPage />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />
-
-                    <>
-                      {/* Pools Routes  */}
-                      <Route path={`${APP_PATHS.POOLS}/:network`} element={<Pools />} />
-                      <Route path={`${APP_PATHS.POOLS}/:network/:currencyIdA`} element={<Pools />} />
-                      <Route path={`${APP_PATHS.POOLS}`} element={<RedirectPathToPoolsNetwork />} />
-                      <Route path={`${APP_PATHS.POOLS}/:network/:currencyIdA/:currencyIdB`} element={<Pools />} />
-                    </>
 
                     <>
                       {/* Classic Add Liquidity Routes  */}
