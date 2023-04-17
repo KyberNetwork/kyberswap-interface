@@ -16,7 +16,7 @@ export enum PrivateAnnouncementType {
   TRENDING_SOON_TOKEN = 'TRENDING_SOON',
   POOL_POSITION = 'ELASTIC_POOLS',
   PRICE_ALERT = 'PRICE_ALERT',
-  PRIVATE_MESSAGE = 'DIRECT_MESSAGE', // for some specific addresses
+  DIRECT_MESSAGE = 'DIRECT_MESSAGE', // for some specific addresses
 }
 
 export type PrivateAnnouncement<T extends AnnouncementTemplate = AnnouncementTemplate> = {

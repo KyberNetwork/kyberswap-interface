@@ -98,7 +98,7 @@ export default function Popups() {
             const mins = (Date.now() / 1000 - item.createdAt) / TIMES_IN_SECS.ONE_MIN
             if (mins <= 5) addPopup(item, PopupType.TOP_RIGHT, item.metaMessageId, 15_000)
             break
-          case PrivateAnnouncementType.PRIVATE_MESSAGE: {
+          case PrivateAnnouncementType.DIRECT_MESSAGE: {
             const { templateBody, metaMessageId } = item
             addPopup(item, templateBody.popupType, metaMessageId)
             break

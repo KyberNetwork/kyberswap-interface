@@ -24,7 +24,7 @@ const mapIcon: Partial<{ [type in PrivateAnnouncementType]: ReactNode }> = {
   [PrivateAnnouncementType.POOL_POSITION]: <LiquidityIcon />,
   [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: <DiscoverIcon size={16} />,
   [PrivateAnnouncementType.PRICE_ALERT]: <AlarmIcon style={{ width: 17, height: 17 }} />,
-  [PrivateAnnouncementType.PRIVATE_MESSAGE]: <Bell style={{ width: 17, height: 17 }} />,
+  [PrivateAnnouncementType.DIRECT_MESSAGE]: <Bell style={{ width: 17, height: 17 }} />,
 }
 
 export default function InboxIcon({ type, chainId }: { type: PrivateAnnouncementType; chainId?: ChainId }) {

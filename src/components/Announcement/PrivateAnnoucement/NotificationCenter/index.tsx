@@ -24,7 +24,7 @@ const ANNOUNCEMENT_MAP_IN_CENTER = {
   [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: TrendingSoon,
   [PrivateAnnouncementType.BRIDGE]: Bridge,
   [PrivateAnnouncementType.PRICE_ALERT]: PriceAlert,
-  [PrivateAnnouncementType.PRIVATE_MESSAGE]: PrivateMessage,
+  [PrivateAnnouncementType.DIRECT_MESSAGE]: PrivateMessage,
 } as PrivateAnnouncementCenterMap
 
 export default function InboxItemNotificationCenter({ announcement }: PrivateAnnouncementPropCenter) {

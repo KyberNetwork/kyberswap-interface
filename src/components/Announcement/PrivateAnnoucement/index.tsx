@@ -30,7 +30,7 @@ const ANNOUNCEMENT_MAP: PrivateAnnouncementMap = {
   [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: InboxItemTrendingSoon,
   [PrivateAnnouncementType.BRIDGE]: InboxItemBridge,
   [PrivateAnnouncementType.PRICE_ALERT]: InboxItemPriceAlert,
-  [PrivateAnnouncementType.PRIVATE_MESSAGE]: InboxItemPrivateMessage,
+  [PrivateAnnouncementType.DIRECT_MESSAGE]: InboxItemPrivateMessage,
 } as PrivateAnnouncementMap
 
 export const PRIVATE_ANN_TITLE: Partial<{ [type in PrivateAnnouncementType]: string }> = {
@@ -39,7 +39,7 @@ export const PRIVATE_ANN_TITLE: Partial<{ [type in PrivateAnnouncementType]: str
   [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: t`Trending Soon`,
   [PrivateAnnouncementType.BRIDGE]: t`Bridge Token`,
   [PrivateAnnouncementType.PRICE_ALERT]: t`Price Alert`,
-  [PrivateAnnouncementType.PRIVATE_MESSAGE]: t`Notification`,
+  [PrivateAnnouncementType.DIRECT_MESSAGE]: t`Notification`,
 }
 
 export default function InboxItem({ announcement, onRead, style }: PrivateAnnouncementProp) {
