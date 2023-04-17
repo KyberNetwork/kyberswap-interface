@@ -4,6 +4,7 @@ import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { PrivateAnnouncementPropCenter } from 'components/Announcement/PrivateAnnoucement/NotificationCenter'
 import { useNavigateToUrl } from 'components/Announcement/helper'
 import { AnnouncementTemplatePopup } from 'components/Announcement/type'
+import { escapeScriptHtml } from 'utils/string'
 import { formatTime } from 'utils/time'
 
 import { Desc, Time, Title, Wrapper } from './styled'
@@ -27,7 +28,7 @@ export default function AnnouncementItem({
           <Time>{formatTime(sentAt)} </Time>
         </Flex>
       </Flex>
-      <Desc>{templateBody.content}</Desc>
+      <Desc dangerouslySetInnerHTML={{ __html: escapeScriptHtml(templateBody.content ?? '') }} />
     </Wrapper>
   )
 }
