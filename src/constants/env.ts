@@ -130,7 +130,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key: string]: { [type: string]: string } } =
     [PrivateAnnouncementType.BRIDGE]: '10,11',
     [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: '9',
     [PrivateAnnouncementType.POOL_POSITION]: '17,18',
-    EXCLUDE: '2,16', // todo
+    EXCLUDE: '2,16',
   },
 }
 
