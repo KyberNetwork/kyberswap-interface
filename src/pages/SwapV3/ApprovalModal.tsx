@@ -140,7 +140,11 @@ const ApprovalModal = ({
           <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
             <Trans>
               Choose between Infinite or Custom allowance.{' '}
-              <a href="https://docs.kyberswap.com" target="_blank" rel="noreferrer">
+              <a
+                href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/user-guides/instantly-swap-at-the-best-rates#step-4-approve-contract-to-swap-tokens"
+                target="_blank"
+                rel="noreferrer"
+              >
                 Read more ↗
               </a>
             </Trans>
