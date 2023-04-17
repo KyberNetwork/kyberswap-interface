@@ -280,6 +280,20 @@ export default function App() {
                     </>
 
                     <>
+                      {/* Classic Add Liquidity Routes  */}
+                      <Route path={`/:network${APP_PATHS.CLASSIC_ADD_LIQ}/:currencyIdA/`} element={<AddLiquidity />} />
+                      <Route
+                        path={`/:network${APP_PATHS.CLASSIC_ADD_LIQ}/:currencyIdA/:currencyIdB`}
+                        element={<AddLiquidity />}
+                      />
+                      <Route
+                        path={`/:network${APP_PATHS.CLASSIC_ADD_LIQ}/:currencyIdA/:currencyIdB/:pairAddress`}
+                        element={<AddLiquidity />}
+                      />
+                      <Route path={`${APP_PATHS.CLASSIC_ADD_LIQ}/*`} element={<AddLiquidity />} />
+                    </>
+
+                    <>
                       {/* Classic Remove Pool routes */}
                       <Route
                         path={`:network${APP_PATHS.CLASSIC_REMOVE_POOL}/:currencyIdA/:currencyIdB/:pairAddress`}
@@ -324,20 +338,6 @@ export default function App() {
                     <Route path={`${APP_PATHS.NOTIFICATION_CENTER}/*`} element={<NotificationCenter />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgramPage />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />
-
-                    <>
-                      {/* Classic Add Liquidity Routes  */}
-                      <Route path={`/:network${APP_PATHS.CLASSIC_ADD_LIQ}/:currencyIdA/`} element={<AddLiquidity />} />
-                      <Route
-                        path={`/:network${APP_PATHS.CLASSIC_ADD_LIQ}/:currencyIdA/:currencyIdB`}
-                        element={<AddLiquidity />}
-                      />
-                      <Route
-                        path={`/:network${APP_PATHS.CLASSIC_ADD_LIQ}/:currencyIdA/:currencyIdB/:pairAddress`}
-                        element={<AddLiquidity />}
-                      />
-                      <Route path={`${APP_PATHS.CLASSIC_ADD_LIQ}/*`} element={<AddLiquidity />} />
-                    </>
 
                     <>
                       {/* Elastic Create Pool Routes  */}

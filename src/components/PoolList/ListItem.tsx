@@ -196,10 +196,13 @@ const ListItem = ({ poolData, userLiquidityPositions }: ListItemGroupProps) => {
             width: '28px',
             height: '28px',
           }}
+          as={Link}
+          to={`/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${currencyId(currency0, chainId)}/${currencyId(
+            currency1,
+            chainId,
+          )}/${poolData.id}`}
           onClick={(e: React.MouseEvent) => {
             e.stopPropagation()
-            const url = `/add/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${poolData.id}`
-            navigate(url)
           }}
         >
           <Plus size={16} color={theme.primary} />
