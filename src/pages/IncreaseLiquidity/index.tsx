@@ -4,7 +4,7 @@ import { FeeAmount, NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
-import React, { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { useMedia, usePrevious } from 'react-use'
@@ -19,6 +19,7 @@ import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
 import Dots from 'components/Dots'
+import ElasticDisclaimerModal from 'components/ElasticDisclaimerModal'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import Loader from 'components/Loader'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
@@ -688,6 +689,8 @@ export default function IncreaseLiquidity() {
           )}
         </Content>
       </Container>
+
+      <ElasticDisclaimerModal isOpen />
     </>
   )
 }
