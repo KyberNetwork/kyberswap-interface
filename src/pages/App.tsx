@@ -49,8 +49,11 @@ const Farm = lazy(() => import(/* webpackChunkName: 'yield-page' */ './Farm'))
 
 const PoolFinder = lazy(() => import(/* webpackChunkName: 'pool-finder-page' */ './PoolFinder'))
 const CreatePool = lazy(() => import(/* webpackChunkName: 'create-pool-page' */ './CreatePool'))
-const ProAmmRemoveLiquidity = lazy(
-  () => import(/* webpackChunkName: 'elastic-remove-liquidity-page' */ './RemoveLiquidityProAmm'),
+const RedirectElasticRemoveLiquidity = lazy(
+  () =>
+    import(
+      /* webpackChunkName: 'remove-elastic-remove-liquidity-page' */ './RemoveLiquidityProAmm/RedirectElasticRemoveLiquidity'
+    ),
 )
 const RedirectCreatePool = lazy(
   () => import(/* webpackChunkName: 'redirect-create-pool-page' */ './CreatePool/RedirectCreatePool'),
@@ -272,7 +275,14 @@ export default function App() {
                       <Route path={`${APP_PATHS.CLASSIC_REMOVE_POOL}/*`} element={<RedirectRemoveLiquidity />} />
                     </>
 
-                    <Route path={`${APP_PATHS.ELASTIC_REMOVE_POOL}/:tokenId`} element={<ProAmmRemoveLiquidity />} />
+                    <>
+                      {/* Elastic Remove Pool routes */}
+                      <Route
+                        path={`:network${APP_PATHS.ELASTIC_REMOVE_POOL}/:tokenId`}
+                        element={<RedirectElasticRemoveLiquidity />}
+                      />
+                      <Route path={`${APP_PATHS.ELASTIC_REMOVE_POOL}/*`} element={<RedirectElasticRemoveLiquidity />} />
+                    </>
 
                     <Route
                       path={`${APP_PATHS.ELASTIC_INCREASE_LIQ}/:currencyIdA/:currencyIdB/:feeAmount/:tokenId`}
