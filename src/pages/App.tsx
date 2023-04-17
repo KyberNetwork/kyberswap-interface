@@ -242,8 +242,11 @@ export default function App() {
 
                     <Route path={`${APP_PATHS.FIND_POOL}`} element={<PoolFinder />} />
 
-                    <Route path={`${APP_PATHS.FARMS}/:network`} element={<Farm />} />
-                    <Route path={`${APP_PATHS.FARMS}`} element={<RedirectPathToFarmNetwork />} />
+                    <>
+                      {/* Farms Routes */}
+                      <Route path={`${APP_PATHS.FARMS}/:network`} element={<Farm />} />
+                      <Route path={`${APP_PATHS.FARMS}`} element={<RedirectPathToFarmNetwork />} />
+                    </>
 
                     <>
                       {/* My Pools Routes */}
