@@ -288,9 +288,7 @@ const SwapActionButton: React.FC<Props> = ({
       {isAdvancedMode && errorWhileSwap ? (
         <SwapCallbackError style={{ margin: 0, zIndex: 'unset' }} error={errorWhileSwap} />
       ) : null}
-      {showApproveFlow && (
-        <ApprovalModal typedValue={typedValue} currencyInput={currencyIn} onApprove={approveCallback} />
-      )}
+      <ApprovalModal typedValue={typedValue} currencyInput={currencyIn} onApprove={approveCallback} />
     </>
   )
 }
