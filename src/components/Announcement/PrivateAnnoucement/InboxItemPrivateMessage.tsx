@@ -8,6 +8,7 @@ import {
   RowItem,
   Title,
 } from 'components/Announcement/PrivateAnnoucement/styled'
+import { useNavigateToUrl } from 'components/Announcement/helper'
 import { AnnouncementTemplatePopup } from 'components/Announcement/type'
 
 function InboxItemBridge({
@@ -18,8 +19,10 @@ function InboxItemBridge({
   title,
 }: PrivateAnnouncementProp<AnnouncementTemplatePopup>) {
   const { templateBody, isRead, templateType } = announcement
-
+  const { ctaURL } = templateBody
+  const navigate = useNavigateToUrl()
   const onClick = () => {
+    navigate(ctaURL)
     onRead(announcement, 'private_msg')
   }
 

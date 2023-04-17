@@ -2,6 +2,7 @@ import { Flex } from 'rebass'
 
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { PrivateAnnouncementPropCenter } from 'components/Announcement/PrivateAnnoucement/NotificationCenter'
+import { useNavigateToUrl } from 'components/Announcement/helper'
 import { AnnouncementTemplatePopup } from 'components/Announcement/type'
 import { formatTime } from 'utils/time'
 
@@ -12,9 +13,11 @@ export default function AnnouncementItem({
   title,
 }: PrivateAnnouncementPropCenter<AnnouncementTemplatePopup>) {
   const { sentAt, templateType, templateBody } = announcement
+  const { ctaURL } = templateBody
+  const navigate = useNavigateToUrl()
 
   return (
-    <Wrapper>
+    <Wrapper onClick={() => navigate(ctaURL)}>
       <Flex justifyContent="space-between" width="100%">
         <Title>
           <InboxIcon type={templateType} />
