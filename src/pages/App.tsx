@@ -43,7 +43,7 @@ const SwapV2 = lazy(() => import(/* webpackChunkName: 'swapv2-page' */ './SwapV2
 const SwapV3 = lazy(() => import(/* webpackChunkName: 'swapv3-page' */ './SwapV3'))
 const Bridge = lazy(() => import(/* webpackChunkName: 'bridge-page' */ './Bridge'))
 const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
-const Pool = lazy(() => import(/* webpackChunkName: 'my-pool-page' */ './Pool'))
+const MyPools = lazy(() => import(/* webpackChunkName: 'my-pool-page' */ './Pool'))
 
 const Farm = lazy(() => import(/* webpackChunkName: 'yield-page' */ './Farm'))
 
@@ -244,8 +244,12 @@ export default function App() {
 
                     <Route path={`${APP_PATHS.FARMS}/:network`} element={<Farm />} />
                     <Route path={`${APP_PATHS.FARMS}`} element={<RedirectPathToFarmNetwork />} />
-                    <Route path={`${APP_PATHS.MY_POOLS}/:network`} element={<Pool />} />
-                    <Route path={`${APP_PATHS.MY_POOLS}`} element={<RedirectPathToMyPoolsNetwork />} />
+
+                    <>
+                      {/* My Pools Routes */}
+                      <Route path={`${APP_PATHS.MY_POOLS}/:network`} element={<MyPools />} />
+                      <Route path={`${APP_PATHS.MY_POOLS}`} element={<RedirectPathToMyPoolsNetwork />} />
+                    </>
 
                     <Route path={`${APP_PATHS.CLASSIC_CREATE_POOL}`} element={<CreatePool />} />
                     <Route
