@@ -7,8 +7,11 @@ export default defineConfig({
       bundler: 'webpack',
     },
   },
-
+  chromeWebSecurity: true,
+  viewportWidth: 1920,
+  viewportHeight: 1080,
   e2e: {
+    baseUrl: 'https://kyberswap.com',
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },
