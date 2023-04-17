@@ -6,7 +6,7 @@ import { FeeAmount, NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic
 import { Trans, t } from '@lingui/macro'
 import { captureException } from '@sentry/react'
 import JSBI from 'jsbi'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useMedia, usePrevious } from 'react-use'
@@ -29,6 +29,7 @@ import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import { RowBetween } from 'components/Row'
 import Slider from 'components/Slider'
 import { SLIPPAGE_EXPLANATION_URL } from 'components/SlippageWarningNote'
+import Toggle from 'components/Toggle'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
@@ -143,6 +144,7 @@ export default function RemoveLiquidityProAmm() {
 
 function Remove({ tokenId }: { tokenId: BigNumber }) {
   const { position } = useProAmmPositionsFromTokenId(tokenId)
+  const [claimFee, setIsClaimFee] = useState(true)
   const positionManager = useProAmmNFTPositionManagerContract()
   const theme = useTheme()
   const { account, chainId, isEVM } = useActiveWeb3React()
@@ -295,12 +297,16 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       slippageTolerance: basisPointsToPercent(allowedSlippage),
       deadline: deadline.toString(),
       collectOptions: {
-        expectedCurrencyOwed0: feeValue0.subtract(feeValue0.multiply(basisPointsToPercent(allowedSlippage))),
-        expectedCurrencyOwed1: feeValue1.subtract(feeValue1.multiply(basisPointsToPercent(allowedSlippage))),
+        expectedCurrencyOwed0: claimFee
+          ? feeValue0.subtract(feeValue0.multiply(basisPointsToPercent(allowedSlippage)))
+          : CurrencyAmount.fromRawAmount(feeValue0.currency, 0),
+        expectedCurrencyOwed1: claimFee
+          ? feeValue1.subtract(feeValue1.multiply(basisPointsToPercent(allowedSlippage)))
+          : CurrencyAmount.fromRawAmount(feeValue1.currency, 0),
         recipient: account,
         deadline: deadline.toString(),
         isRemovingLiquid: true,
-        havingFee: !(feeValue0.equalTo(JSBI.BigInt('0')) && feeValue1.equalTo(JSBI.BigInt('0'))),
+        havingFee: claimFee && !(feeValue0.equalTo(JSBI.BigInt('0')) && feeValue1.equalTo(JSBI.BigInt('0'))),
       },
     })
     const txn = {
@@ -364,6 +370,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     liquidityValue0,
     liquidityValue1,
     deadline,
+    claimFee,
     account,
     chainId,
     feeValue0,
@@ -447,13 +454,15 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                     title={t`Remove Amount`}
                   />
                   {positionSDK ? (
-                    <ProAmmFee
-                      totalFeeRewardUSD={totalFeeRewardUSD}
-                      feeValue0={feeValue0}
-                      feeValue1={feeValue1}
-                      position={positionSDK}
-                      tokenId={tokenId}
-                    />
+                    claimFee ? (
+                      <ProAmmFee
+                        totalFeeRewardUSD={totalFeeRewardUSD}
+                        feeValue0={feeValue0}
+                        feeValue1={feeValue1}
+                        position={positionSDK}
+                        tokenId={tokenId}
+                      />
+                    ) : null
                   ) : (
                     <Loader />
                   )}
@@ -705,11 +714,17 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                       </div>
                     </TokenInputWrapper>
 
-                    <Text fontSize="0.75rem" fontStyle="italic" textAlign="left" marginTop="12px" color={theme.subText}>
-                      <Trans>
-                        Note: When you remove liquidity (even partially), you will receive 100% of your fee earnings
-                      </Trans>
-                    </Text>
+                    <Flex alignItems="center" sx={{ gap: '12px' }} marginTop="0.75rem">
+                      <Text fontSize="12px" fontWeight="500">
+                        Claim Your Fees Earning
+                      </Text>
+                      <Toggle
+                        isActive={claimFee}
+                        toggle={() => {
+                          setIsClaimFee(prev => !prev)
+                        }}
+                      />
+                    </Flex>
                   </AmoutToRemoveContent>
 
                   {slippageStatus === SLIPPAGE_STATUS.HIGH && (

@@ -278,7 +278,7 @@ export function TransactionErrorContent({ message, onDismiss }: { message: strin
                 sx={{ cursor: `pointer` }}
                 onClick={() => setShowDetail(!showDetail)}
               >
-                Show more details
+                {showDetail ? 'Show less' : 'Show more details'}
               </Text>
               {showDetail && (
                 <ErrorDetail>{typeof message === 'string' ? message : JSON.stringify(message)}</ErrorDetail>

@@ -545,5 +545,9 @@ export function errorFriendly(text: string): string {
     return t`An error occurred. Please try increasing max slippage`
   }
 
+  if (error.includes('burn amount exceeds balance')) {
+    return t`Insufficient fee rewards amount, try to remove your liquidity without claiming fees for now and you can try to claim it later`
+  }
+
   return t`An error occurred`
 }
