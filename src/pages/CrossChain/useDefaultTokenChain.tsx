@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 
 import { useActiveWeb3React } from 'hooks'
-import { useCrossChainHandlers, useCrossChainState } from 'state/bridge/hooks'
+import { useCrossChainHandlers, useCrossChainState } from 'state/crossChain/hooks'
 
 const useDefaultTokenChain = () => {
   const { chainId } = useActiveWeb3React()

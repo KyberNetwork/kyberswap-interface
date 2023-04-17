@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom'
 
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { useCrossChainState } from 'state/bridge/hooks'
+import { useCrossChainState } from 'state/crossChain/hooks'
 import { useLimitState } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
 import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'

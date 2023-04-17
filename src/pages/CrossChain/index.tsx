@@ -1,12 +1,16 @@
 import { Squid } from '@0xsquid/sdk'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { memo, useEffect, useRef, useState } from 'react'
+import { Trans } from '@lingui/macro'
+import { memo, useEffect, useRef } from 'react'
 import { Navigate } from 'react-router-dom'
+import { Flex, Text } from 'rebass'
 
+import WarningIcon from 'components/Icons/WarningIcon'
 import { NETWORKS_INFO_CONFIG } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { useCrossChainState } from 'state/bridge/hooks'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import useTheme from 'hooks/useTheme'
+import { useCrossChainState } from 'state/crossChain/hooks'
+import { TokenInfo, WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 import { DisclaimerCrossChain } from '../Bridge/Disclaimer'
 import SwapForm from './SwapForm'
@@ -14,8 +18,7 @@ import SwapForm from './SwapForm'
 const isTest = window.location.href.includes('test')
 // todo lazy load
 function CrossChain() {
-  const [isInMaintenanceMode, setIsInMaintenanceMode] = useState(false)
-
+  const theme = useTheme()
   const { chainId, isSolana } = useActiveWeb3React()
   const [{ squidInstance }, setCrossChainState] = useCrossChainState()
   const curChainId = useRef(chainId)
@@ -32,15 +35,13 @@ function CrossChain() {
             baseUrl: isTest ? 'https://testnet.api.0xsquid.com' : 'https://api.0xsquid.com',
           })
         }
-        await squid.init() // todo too many call
-        // cache ???
-        const { chains = [], tokens = [], isInMaintenanceMode } = squid
+        await squid.init()
+        const { chains = [], tokens = [] } = squid
         const chainSupports = (chains.map(e => e.chainId) as ChainId[]).filter(id => !!NETWORKS_INFO_CONFIG[id])
-        setIsInMaintenanceMode(isInMaintenanceMode + '' === 'true')
-        const formattedTokens = [] as any
+        const formattedTokens: WrappedTokenInfo[] = []
         tokens.forEach(token => {
           if (typeof token.chainId === 'string' || !chainSupports.includes(token.chainId)) return
-          formattedTokens.push(new WrappedTokenInfo(token as any)) // todo
+          formattedTokens.push(new WrappedTokenInfo(token as TokenInfo))
         })
         setCrossChainState({
           chains: chainSupports,
@@ -48,7 +49,6 @@ function CrossChain() {
           loadingToken: false,
           squidInstance: squid,
         })
-        // todo rename dong bo birdge state
       } catch (error) {
       } finally {
         loading.current = false
@@ -57,7 +57,17 @@ function CrossChain() {
   }, [squidInstance, setCrossChainState])
 
   if (isSolana) return <Navigate to="/" />
-  if (isInMaintenanceMode) return <div>todo bao tri roi</div>
+  if (String(squidInstance?.isInMaintenanceMode) === 'true')
+    return (
+      <Flex style={{ gap: '8px' }} alignItems={'center'}>
+        <WarningIcon color={theme.warning} size={40} />
+        <Text color={theme.warning} fontSize={14}>
+          <Trans>
+            Service is not available because of maintenance activities. Please try again after a few minutes.
+          </Trans>
+        </Text>
+      </Flex>
+    )
   return (
     <>
       <DisclaimerCrossChain />

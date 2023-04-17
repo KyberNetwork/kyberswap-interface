@@ -23,7 +23,7 @@ import useTheme from 'hooks/useTheme'
 import TradePrice from 'pages/CrossChain/TradePrice'
 import { getRouInfo } from 'pages/CrossChain/helpers'
 import { useIsEnoughGas } from 'pages/CrossChain/useIsEnoughGas'
-import { OutputBridgeInfo, useBridgeState, useCrossChainState } from 'state/bridge/hooks'
+import { OutputBridgeInfo, useBridgeState, useCrossChainState } from 'state/crossChain/hooks'
 import { Field } from 'state/swap/actions'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { TYPE } from 'theme'
@@ -394,7 +394,7 @@ export function TradeSummaryCrossChain({
             </TextDashed>
           </RowFixed>
           <TYPE.black color={theme.text} fontSize={12}>
-            <PriceImpactValue priceImpact={Number(priceImpact || -1)} />
+            <PriceImpactValue priceImpact={priceImpact || -1} />
           </TYPE.black>
         </RowBetween>
         <RowBetween>

@@ -2,6 +2,7 @@ import { RouteData } from '@0xsquid/sdk'
 
 export const getRouInfo = (route: RouteData | undefined) => {
   const estimate = route?.estimate
+  const priceImpact = estimate?.aggregatePriceImpact
   return {
     amountUsdOut: estimate?.toAmountUSD,
     amountUsdIn: estimate?.fromAmountUSD,
@@ -9,7 +10,7 @@ export const getRouInfo = (route: RouteData | undefined) => {
     inputAmount: estimate?.fromAmount,
     duration: estimate?.estimatedRouteDuration,
     minReceive: estimate?.toAmountMin,
-    priceImpact: estimate?.aggregatePriceImpact,
+    priceImpact: priceImpact ? Number(priceImpact) : undefined,
     exchangeRate: estimate?.exchangeRate,
     gasCosts: estimate?.gasCosts[0],
     feeCosts: estimate?.feeCosts[0],

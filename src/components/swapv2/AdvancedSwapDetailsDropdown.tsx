@@ -2,7 +2,7 @@ import { RouteData } from '@0xsquid/sdk'
 import styled from 'styled-components'
 
 import { useLastTruthy } from 'hooks/useLast'
-import { OutputBridgeInfo } from 'state/bridge/hooks'
+import { OutputBridgeInfo } from 'state/crossChain/hooks'
 
 import {
   AdvancedSwapDetails,

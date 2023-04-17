@@ -8,7 +8,7 @@ import { KS_SETTING_API } from 'constants/env'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useBridgeContract, useSwapBTCContract, useSwapETHContract } from 'hooks/useContract'
-import { useBridgeOutputValue, useBridgeState } from 'state/bridge/hooks'
+import { useBridgeOutputValue, useBridgeState } from 'state/crossChain/hooks'
 import { useAppSelector } from 'state/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -25,7 +25,7 @@ const NOT_APPLICABLE = {
 
 function useSendTxToKsSettingCallback() {
   const { account } = useActiveWeb3React()
-  const historyURL = useAppSelector(state => state.bridge.historyURL)
+  const historyURL = useAppSelector(state => state.crossChain.bridge.historyURL)
 
   const onSuccess = useCallback(() => {
     mutate(historyURL)

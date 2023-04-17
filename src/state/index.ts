@@ -11,10 +11,10 @@ import geckoTerminalApi from '../services/geckoTermial'
 import ksSettingApi from '../services/ksSetting'
 import notificationApi from '../services/notification'
 import application from './application/reducer'
-import bridge from './bridge/reducer'
 import burnProAmm from './burn/proamm/reducer'
 import burn from './burn/reducer'
 import campaigns from './campaigns/reducer'
+import crossChain from './crossChain/reducer'
 import customizeDexes from './customizeDexes'
 import farms from './farms/classic/reducer'
 import elasticFarm from './farms/elastic'
@@ -64,7 +64,7 @@ const store = configureStore({
     [priceAlertApi.reducerPath]: priceAlertApi.reducer,
     campaigns,
     tutorial,
-    bridge,
+    crossChain,
     customizeDexes,
     elasticFarm,
     elasticFarmV2,

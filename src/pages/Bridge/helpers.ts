@@ -4,7 +4,7 @@ import axios from 'axios'
 
 import { NETWORKS_INFO_CONFIG } from 'constants/networks'
 import { MultichainTransferStatus } from 'hooks/bridge/useGetBridgeTransfers'
-import { PoolBridgeValue } from 'state/bridge/reducer'
+import { PoolBridgeValue } from 'state/crossChain/reducer'
 import { formatNumberWithPrecisionRange, isAddress } from 'utils'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 

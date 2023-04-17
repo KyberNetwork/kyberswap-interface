@@ -19,7 +19,7 @@ import {
 export type PoolBridgeValue = undefined | string | number | null
 export type PoolValueOutMap = { [address: string]: PoolBridgeValue }
 
-export type CrossChainState = {
+export type SwapCrossChainState = {
   chains: ChainId[]
   chainIdOut: ChainId | undefined
   tokens: WrappedTokenInfo[]
@@ -29,8 +29,8 @@ export type CrossChainState = {
   squidInstance: Squid | undefined
   route: RouteData | undefined
 }
-export interface BridgeState {
-  // todo refactor struct
+
+export type BridgeState = {
   tokenInfoIn: MultiChainTokenInfo | undefined
   tokenInfoOut: MultiChainTokenInfo | undefined
   currencyIn: WrappedTokenInfo | undefined
@@ -45,25 +45,28 @@ export interface BridgeState {
   poolValueOutMap: PoolValueOutMap
 
   historyURL: string
-
-  crossChain: CrossChainState
+}
+interface CrossChainState {
+  bridge: BridgeState
+  crossChain: SwapCrossChainState
 }
 
-const DEFAULT_STATE: BridgeState = {
-  tokenInfoIn: undefined,
-  tokenInfoOut: undefined,
-  currencyIn: undefined,
-  currencyOut: undefined,
+const DEFAULT_STATE: CrossChainState = {
+  bridge: {
+    tokenInfoIn: undefined,
+    tokenInfoOut: undefined,
+    currencyIn: undefined,
+    currencyOut: undefined,
 
-  chainIdOut: undefined,
-  listTokenIn: [],
-  listChainIn: [],
-  listTokenOut: [],
-  loadingToken: true,
+    chainIdOut: undefined,
+    listTokenIn: [],
+    listChainIn: [],
+    listTokenOut: [],
+    loadingToken: true,
 
-  poolValueOutMap: {},
-
-  historyURL: '',
+    poolValueOutMap: {},
+    historyURL: '',
+  },
 
   crossChain: {
     chains: [],
@@ -83,36 +86,37 @@ export default createReducer(DEFAULT_STATE, builder =>
       setBridgeState,
       (state, { payload: { tokenIn, tokenOut, chainIdOut, listChainIn, listTokenIn, listTokenOut, loadingToken } }) => {
         if (tokenIn !== undefined) {
-          state.tokenInfoIn = tokenIn?.multichainInfo
-          state.currencyIn = tokenIn
+          state.bridge.tokenInfoIn = tokenIn?.multichainInfo
+          state.bridge.currencyIn = tokenIn
         }
         if (tokenOut !== undefined) {
-          state.tokenInfoOut = tokenOut?.multichainInfo
-          state.currencyOut = tokenOut
+          state.bridge.tokenInfoOut = tokenOut?.multichainInfo
+          state.bridge.currencyOut = tokenOut
         }
 
-        if (chainIdOut !== undefined) state.chainIdOut = chainIdOut
-        if (listChainIn !== undefined) state.listChainIn = listChainIn
-        if (listTokenIn !== undefined) state.listTokenIn = listTokenIn
-        if (listTokenOut !== undefined) state.listTokenOut = listTokenOut
-        if (loadingToken !== undefined) state.loadingToken = loadingToken
+        if (chainIdOut !== undefined) state.bridge.chainIdOut = chainIdOut
+        if (listChainIn !== undefined) state.bridge.listChainIn = listChainIn
+        if (listTokenIn !== undefined) state.bridge.listTokenIn = listTokenIn
+        if (listTokenOut !== undefined) state.bridge.listTokenOut = listTokenOut
+        if (loadingToken !== undefined) state.bridge.loadingToken = loadingToken
       },
     )
     .addCase(setBridgePoolInfo, (state, { payload: { poolValueOutMap } }) => {
-      state.poolValueOutMap = poolValueOutMap
+      state.bridge.poolValueOutMap = poolValueOutMap
     })
     .addCase(resetBridgeState, state => {
-      state.tokenInfoIn = undefined
-      state.tokenInfoOut = undefined
-      state.currencyIn = undefined
-      state.currencyOut = undefined
-      state.chainIdOut = undefined
-      state.listTokenIn = []
-      state.listTokenOut = []
+      state.bridge.tokenInfoIn = undefined
+      state.bridge.tokenInfoOut = undefined
+      state.bridge.currencyIn = undefined
+      state.bridge.currencyOut = undefined
+      state.bridge.chainIdOut = undefined
+      state.bridge.listTokenIn = []
+      state.bridge.listTokenOut = []
     })
     .addCase(setHistoryURL, (state, action) => {
-      state.historyURL = action.payload
+      state.bridge.historyURL = action.payload
     })
+    // for swap cross chain below
     .addCase(setCrossChainState, (state, { payload: { chains, tokens, loadingToken, squidInstance } }) => {
       state.crossChain.chains = chains
       state.crossChain.tokens = tokens

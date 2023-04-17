@@ -7,7 +7,7 @@ import { Flex, Text } from 'rebass'
 import useTheme from 'hooks/useTheme'
 import { formatPoolValue } from 'pages/Bridge/helpers'
 import { MultiChainTokenInfo } from 'pages/Bridge/type'
-import { useBridgeState } from 'state/bridge/hooks'
+import { useBridgeState } from 'state/crossChain/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 

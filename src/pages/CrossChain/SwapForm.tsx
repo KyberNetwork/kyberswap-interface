@@ -27,7 +27,7 @@ import useDefaultTokenChain from 'pages/CrossChain/useDefaultTokenChain'
 import useGetRouteCrossChain from 'pages/CrossChain/useGetRoute'
 import useValidateInput from 'pages/CrossChain/useValidateInput'
 import { useWalletModalToggle } from 'state/application/hooks'
-import { useCrossChainHandlers } from 'state/bridge/hooks'
+import { useCrossChainHandlers } from 'state/crossChain/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -191,7 +191,7 @@ export default function SwapForm() {
   const disableBtnSwap =
     !!inputError || [inputAmount, currencyIn, currencyOut, chainIdOut].some(e => !e) || gettingRoute
 
-  const priceImpactResult = checkPriceImpact(Number(priceImpact || -1))
+  const priceImpactResult = checkPriceImpact(priceImpact || -1)
 
   return (
     <>
@@ -258,7 +258,7 @@ export default function SwapForm() {
             onClick={showPreview}
             disabled={disableBtnSwap}
             showLoading={gettingRoute}
-            priceImpact={Number(priceImpact || -1)}
+            priceImpact={priceImpact || -1}
             isProcessingSwap={swapState.attemptingTxn}
             isApproved={true}
             route={route}
@@ -298,4 +298,3 @@ export default function SwapForm() {
     </>
   )
 }
-// todo move this link ra ngoai

@@ -15,7 +15,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { getRouInfo } from 'pages/CrossChain/helpers'
-import { useCrossChainState } from 'state/bridge/hooks'
+import { useCrossChainState } from 'state/crossChain/hooks'
 import { formattedNum } from 'utils'
 import { uint256ToFraction } from 'utils/numbers'
 

@@ -243,7 +243,6 @@ export default function Swap() {
   }, [chainId, defaultTokens, routeSummary])
   // todo check api call swap/limit when at cross chain and vice versa
   // todo split by page
-  // todo transaction setting
   return (
     <>
       {isSwapPage && (

@@ -9,7 +9,7 @@ import RefreshButton from 'components/SwapForm/RefreshButton'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { getRouInfo } from 'pages/CrossChain/helpers'
-import { useCrossChainState } from 'state/bridge/hooks'
+import { useCrossChainState } from 'state/crossChain/hooks'
 
 import { StyledBalanceMaxMini } from '../../components/swapv2/styleds'
 
@@ -27,7 +27,6 @@ export default function TradePrice({ route, refresh, showLogo = true, disabled =
   let formattedPrice
   const price = exchangeRate ? Number(exchangeRate) : undefined
   if (price) formattedPrice = showInverted ? (1 / price).toPrecision(6) : price?.toPrecision(6)
-  // todo check spam api
   const [{ currencyIn, currencyOut, chainIdOut }] = useCrossChainState()
   const { chainId } = useActiveWeb3React()
   const tokenInLogo = currencyIn?.logoURI

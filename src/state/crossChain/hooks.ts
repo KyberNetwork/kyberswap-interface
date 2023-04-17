@@ -19,11 +19,11 @@ import {
   setCrossChainState,
   setRoute,
 } from './actions'
-import { BridgeState, CrossChainState } from './reducer'
+import { BridgeState, SwapCrossChainState } from './reducer'
 
 export function useBridgeState(): [BridgeState, (value: BridgeStateParams) => void] {
   const dispatch = useDispatch<AppDispatch>()
-  const bridge = useSelector((state: AppState) => state.bridge)
+  const bridge = useSelector((state: AppState) => state.crossChain.bridge)
   const setState = useCallback((data: BridgeStateParams) => dispatch(setBridgeState(data)), [dispatch])
   return [bridge, setState]
 }
@@ -88,9 +88,9 @@ export function useBridgeOutputValue(inputBridgeValue: string) {
   }, [inputBridgeValue, tokenInfoOut])
 }
 
-export function useCrossChainState(): [CrossChainState, (value: CrossChainStateParams) => void] {
+export function useCrossChainState(): [SwapCrossChainState, (value: CrossChainStateParams) => void] {
   const dispatch = useDispatch<AppDispatch>()
-  const crossChain = useSelector((state: AppState) => state.bridge.crossChain)
+  const crossChain = useSelector((state: AppState) => state.crossChain.crossChain)
   const setState = useCallback((data: CrossChainStateParams) => dispatch(setCrossChainState(data)), [dispatch])
   return [crossChain, setState]
 }

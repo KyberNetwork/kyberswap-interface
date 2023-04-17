@@ -21,7 +21,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import SwapBrief from 'pages/CrossChain/SwapBriefCrossChain'
 import { getRouInfo } from 'pages/CrossChain/helpers'
-import { OutputBridgeInfo, useBridgeState, useCrossChainState } from 'state/bridge/hooks'
+import { OutputBridgeInfo, useBridgeState, useCrossChainState } from 'state/crossChain/hooks'
 import { useDegenModeManager } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { TransactionFlowState } from 'types'
@@ -373,7 +373,7 @@ export const ConfirmCrossChainModal = memo(function ConfirmCrossChainModal({
               onClick={onSwap}
               disabled={!accepted}
               showLoading={false}
-              priceImpact={Number(priceImpact || -1)}
+              priceImpact={priceImpact || -1}
               isProcessingSwap={swapState.attemptingTxn}
               isApproved={true}
               route={route}

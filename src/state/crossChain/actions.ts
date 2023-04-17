@@ -2,7 +2,7 @@ import { RouteData, Squid } from '@0xsquid/sdk'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createAction } from '@reduxjs/toolkit'
 
-import { PoolValueOutMap } from 'state/bridge/reducer'
+import { PoolValueOutMap } from 'state/crossChain/reducer'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 export type BridgeStateParams = {
