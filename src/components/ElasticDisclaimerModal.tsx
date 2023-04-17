@@ -4,7 +4,6 @@ import { Flex, Text } from 'rebass'
 
 import { ButtonError } from 'components/Button'
 import useTheme from 'hooks/useTheme'
-import { ExternalLink } from 'theme'
 
 import Modal from './Modal'
 
@@ -22,8 +21,7 @@ const ElasticDisclaimerModal = ({ isOpen, onOk }: { isOpen: boolean; onOk?: () =
         <Text marginTop="20px" fontSize="14px" lineHeight={1.5} marginBottom="20px">
           We have temporarily disabled this operation due to a <b>potential vulnerability</b> with KyberSwap Elastic
           pools. Our team has taken immediate action to address the vulnerability. However, as a precautionary measure,
-          we advise all KyberSwap Elastic liquidity providers to withdraw their funds at this time. You can find more
-          information <ExternalLink href="">here</ExternalLink>
+          we advise all KyberSwap Elastic liquidity providers to withdraw their funds at this time.
         </Text>
         <ButtonError onClick={() => (onOk ? onOk() : navigate(-1))} style={{ backgroundColor: theme.red }}>
           I Understand
