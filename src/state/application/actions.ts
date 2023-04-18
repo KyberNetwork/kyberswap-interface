@@ -55,6 +55,7 @@ export const addPopup = createAction<{
   removeAfterMs?: number | null
   content: PopupContent
   popupType: PopupType
+  account?: string
 }>('application/addPopup')
 export const removePopup = createAction<{ key: string }>('application/removePopup')
 

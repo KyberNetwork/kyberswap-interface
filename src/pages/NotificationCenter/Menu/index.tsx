@@ -27,9 +27,7 @@ const Divider = styled.div<{ $margin?: string }>`
   margin: ${({ $margin }) => $margin || '0'};
 `
 
-type Unread = {
-  [key in PrivateAnnouncementType]: number | undefined
-} & { ALL: number | undefined }
+type Unread = Partial<{ [type in PrivateAnnouncementType]: number | undefined }> & { ALL: number | undefined }
 
 const MenuForDesktop = ({ unread }: { unread: Unread }) => {
   return (
@@ -111,7 +109,7 @@ const MenuForDesktop = ({ unread }: { unread: Unread }) => {
   )
 }
 
-export const MENU_TITLE = {
+export const MENU_TITLE: Partial<{ [type in PrivateAnnouncementType]: string }> = {
   [PrivateAnnouncementType.BRIDGE]: t`Cross-Chain Bridge`,
   [PrivateAnnouncementType.LIMIT_ORDER]: t`Limit Orders`,
   [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: t`Trending Soon Tokens`,
@@ -213,7 +211,7 @@ const Menu = () => {
     skip,
   )
 
-  const unread = {
+  const unread: Unread = {
     [PrivateAnnouncementType.PRICE_ALERT]: dataPriceAlert?.numberOfUnread,
     [PrivateAnnouncementType.BRIDGE]: dataBridge?.numberOfUnread,
     [PrivateAnnouncementType.LIMIT_ORDER]: dataLimitOrder?.numberOfUnread,
