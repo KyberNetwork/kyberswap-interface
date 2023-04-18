@@ -96,7 +96,10 @@ const SwapActionButton: React.FC<Props> = ({
   )
 
   // check whether the user has approved the router on the input token
-  const [approval, approveCallback] = useApproveCallback(parsedAmountFromTypedValue, routeSummary?.routerAddress)
+  const [approval, approveCallback, currentAllowance] = useApproveCallback(
+    parsedAmountFromTypedValue,
+    routeSummary?.routerAddress,
+  )
 
   // check if user has gone through approval process, used to show two step buttons, reset on token change
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false)
@@ -137,6 +140,54 @@ const SwapActionButton: React.FC<Props> = ({
     } else {
       toggleApprovalModal()
     }
+  }
+
+  const approveTooltipText = () => {
+    if (currentAllowance && +currentAllowance?.toExact() > 0) {
+      if (walletKey && walletKey?.toString() === 'METAMASK') {
+        return (
+          <Trans>
+            Approve <b>{currencyIn?.symbol}</b> requires to be more than{' '}
+            <b>{`${currentAllowance.toExact()} ${currencyIn?.symbol}`}</b>, find out more{' '}
+            <a
+              href="https://support.metamask.io/hc/en-us/articles/6055177143579-How-to-customize-token-approvals-with-a-spending-cap"
+              target="_blank"
+              rel="noreferrer"
+            >
+              here
+            </a>
+          </Trans>
+        )
+      }
+      if (walletKey && walletKey?.toString() === 'TRUST_WALLET') {
+        return (
+          <Trans>
+            Approve <b>{currencyIn?.symbol}</b> requires to be more than{' '}
+            <b>{`${currentAllowance.toExact()} ${currencyIn?.symbol}`}</b>, find out more{' '}
+            <a
+              href="https://community.trustwallet.com/t/what-is-token-approval/242764"
+              target="_blank"
+              rel="noreferrer"
+            >
+              here
+            </a>
+          </Trans>
+        )
+      }
+    }
+
+    return (
+      <Trans>
+        You need to first allow KyberSwap&apos;s smart contract to use your {currencyIn?.symbol}.{' '}
+        <a
+          href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/user-guides/instantly-swap-at-the-best-rates#step-4-approve-contract-to-swap-tokens"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Read more ↗
+        </a>
+      </Trans>
+    )
   }
   const renderButton = () => {
     if (!account) {
@@ -214,22 +265,7 @@ const SwapActionButton: React.FC<Props> = ({
                   <Trans>Approved</Trans>
                 ) : (
                   <RowFit gap="4px">
-                    <InfoHelper
-                      color={theme.textReverse}
-                      placement="top"
-                      text={
-                        <Trans>
-                          You need to first allow KyberSwap&apos;s smart contract to use your {currencyIn?.symbol}.{' '}
-                          <a
-                            href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/user-guides/instantly-swap-at-the-best-rates#step-4-approve-contract-to-swap-tokens"
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            Read more ↗
-                          </a>
-                        </Trans>
-                      }
-                    />
+                    <InfoHelper color={theme.textReverse} placement="top" text={approveTooltipText()} />
                     <Trans>Approve {currencyIn?.symbol}</Trans>
                   </RowFit>
                 )}

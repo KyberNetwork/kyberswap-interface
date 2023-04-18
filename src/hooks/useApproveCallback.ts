@@ -1,6 +1,6 @@
 import { MaxUint256 } from '@ethersproject/constants'
 import { TransactionResponse } from '@ethersproject/providers'
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, TokenAmount } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import { useCallback, useMemo } from 'react'
 
@@ -27,7 +27,7 @@ export function useApproveCallback(
   amountToApprove?: CurrencyAmount<Currency>,
   spender?: string,
   forceApprove = false,
-): [ApprovalState, () => Promise<void>] {
+): [ApprovalState, () => Promise<void>, TokenAmount | undefined] {
   const { account, isSolana } = useActiveWeb3React()
   const token = amountToApprove?.currency.wrapped
   const currentAllowance = useTokenAllowance(token, account ?? undefined, spender)
@@ -130,14 +130,14 @@ export function useApproveCallback(
     [approvalState, token, tokenContract, amountToApprove, spender, addTransactionWithType, forceApprove],
   )
 
-  return [approvalState, approve]
+  return [approvalState, approve, currentAllowance]
 }
 
 // wraps useApproveCallback in the context of a swap
 export function useApproveCallbackFromTradeV2(
   trade?: Aggregator,
   allowedSlippage = 0,
-): [ApprovalState, () => Promise<void>] {
+): [ApprovalState, () => Promise<void>, TokenAmount | undefined] {
   const amountToApprove = useMemo(
     () => (trade ? computeSlippageAdjustedAmounts(trade, allowedSlippage)[Field.INPUT] : undefined),
     [trade, allowedSlippage],
