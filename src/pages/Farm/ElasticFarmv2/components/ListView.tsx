@@ -4,23 +4,23 @@ import { rgba } from 'polished'
 import { useCallback, useState } from 'react'
 import { Info, Minus, Plus, RefreshCw, Share2 } from 'react-feather'
 import { Link } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as DownSvg } from 'assets/svg/down.svg'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
+import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import HorizontalScroll from 'components/HorizontalScroll'
 import HoverInlineText from 'components/HoverInlineText'
-import { MoneyBag } from 'components/Icons'
 import Harvest from 'components/Icons/Harvest'
 import { RowBetween } from 'components/Row'
 import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { ButtonColorScheme, MinimalActionButton } from 'components/YieldPools/ElasticFarmGroup/buttons'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
-import { APRTooltipContent } from 'components/YieldPools/FarmingPoolAPRCell'
 import { useSharePoolContext } from 'components/YieldPools/SharePoolContext'
 import { ElasticFarmV2TableRow } from 'components/YieldPools/styleds'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
@@ -28,6 +28,7 @@ import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useFarmV2Action, useUserFarmV2Info } from 'state/farms/elasticv2/hooks'
 import { ElasticFarmV2 } from 'state/farms/elasticv2/types'
+import { MEDIA_WIDTHS } from 'theme'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import { formatDollarAmount } from 'utils/numbers'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
@@ -57,6 +58,7 @@ export const ListView = ({
   poolAPR: number
   isApproved: boolean
 }) => {
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
 
@@ -134,6 +136,9 @@ export const ListView = ({
     pool.token0.isNative ? pool.token0.symbol : pool.token0.address
   }/${pool.token1.isNative ? pool.token1.symbol : pool.token1.address}/${pool.fee}`
 
+  const minFarmAPR = Math.min(...farm.ranges.map(r => r.apr || 0))
+  const maxFarmAPR = Math.max(...farm.ranges.map(r => r.apr || 0))
+
   return (
     <Wrapper isDeposited={!!stakedPos.length}>
       <RowBetween gap="1rem">
@@ -209,24 +214,72 @@ export const ListView = ({
           {isEnded ? <Trans>ENDED</Trans> : getFormattedTimeFromSecond(farm.endTime - currentTimestamp)}
         </Text>
 
-        <Flex
-          alignItems="center"
-          justifyContent="flex-start"
-          color={theme.apr}
-          sx={{
-            gap: '4px',
-          }}
+        <MouseoverTooltip
+          width="fit-content"
+          text={
+            <Flex flexDirection="column" fontSize="12px" sx={{ gap: '8px' }}>
+              <Flex
+                sx={{
+                  flexDirection: 'column',
+                  fontSize: '12px',
+                  lineHeight: '16px',
+                }}
+              >
+                <Text as="span">
+                  Pool APR:{' '}
+                  <Text as="span" color={theme.text} fontWeight={500}>
+                    {poolAPR.toFixed(2)}%
+                  </Text>
+                </Text>
+                <Text
+                  as="span"
+                  fontStyle="italic"
+                  sx={{
+                    whiteSpace: upToSmall ? 'wrap' : 'nowrap',
+                  }}
+                >
+                  <Trans>Estimated return from trading fees if you participate in the pool</Trans>
+                </Text>
+              </Flex>
+
+              <Divider />
+
+              <Text>
+                <Trans>APR for each Farming Range</Trans>
+              </Text>
+
+              {farm.ranges.map(item => (
+                <Flex key={item.index} justifyContent="space-between">
+                  <Flex alignItems="center" sx={{ gap: '2px' }} fontWeight="500">
+                    {convertTickToPrice(farm.token0, farm.token1, item.tickLower)}
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" display="block">
+                      <path
+                        d="M11.3405 8.66669L11.3405 9.86002C11.3405 10.16 11.7005 10.3067 11.9071 10.0934L13.7605 8.23335C13.8871 8.10002 13.8871 7.89335 13.7605 7.76002L11.9071 5.90669C11.7005 5.69335 11.3405 5.84002 11.3405 6.14002L11.3405 7.33335L4.66047 7.33335L4.66047 6.14002C4.66047 5.84002 4.30047 5.69335 4.0938 5.90669L2.24047 7.76669C2.1138 7.90002 2.1138 8.10669 2.24047 8.24002L4.0938 10.1C4.30047 10.3134 4.66047 10.16 4.66047 9.86669L4.66047 8.66669L11.3405 8.66669Z"
+                        fill="currentcolor"
+                      />
+                    </svg>
+
+                    {convertTickToPrice(farm.token0, farm.token1, item.tickUpper)}
+                  </Flex>
+
+                  <Text fontWeight="500" color={theme.apr}>
+                    {item.apr?.toFixed(2)}%
+                  </Text>
+                </Flex>
+              ))}
+            </Flex>
+          }
         >
-          {/* TODO(viet-nv) FARM APR */}
-          {((farm.ranges[0].apr || 0) + poolAPR).toFixed(2)}%
-          <MouseoverTooltip
-            width="fit-content"
-            placement="right"
-            text={<APRTooltipContent farmAPR={0} farmV2APR={farm.ranges[0].apr || 0} poolAPR={poolAPR} />}
+          <Text
+            sx={{ borderBottom: `1px dotted ${theme.apr}` }}
+            color={theme.apr}
+            fontSize="14px"
+            fontWeight="500"
+            lineHeight="20px"
           >
-            <MoneyBag size={16} color={theme.apr} />
-          </MouseoverTooltip>
-        </Flex>
+            {(minFarmAPR + poolAPR).toFixed(2)}% - {(maxFarmAPR + poolAPR).toFixed(2)}%
+          </Text>
+        </MouseoverTooltip>
 
         <Text
           fontSize="14px"

@@ -233,7 +233,7 @@ export const ProMMFarmTableRow = styled(ProMMFarmTableHeader)<{ isOpen: boolean 
 `
 
 export const ElasticFarmV2TableHeader = styled(ProMMFarmTableHeader)`
-  grid-template-columns: 1fr 1.5fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1.5fr 2fr 1fr 1fr 1fr;
   grid-template-areas: 'staked_tvl ending_in apr my_deposit reward action';
 
   ${({ theme }) => theme.mediaWidth.upToLarge`

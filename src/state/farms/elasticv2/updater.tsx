@@ -3,7 +3,7 @@ import { defaultAbiCoder } from '@ethersproject/abi'
 import { getCreate2Address } from '@ethersproject/address'
 import { keccak256 } from '@ethersproject/solidity'
 import { CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
-import { FeeAmount, Pool, Position, TickMath } from '@kyberswap/ks-sdk-elastic'
+import { FeeAmount, Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import { useEffect } from 'react'
@@ -222,25 +222,23 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
             tvlToken1,
             tvl,
             ranges: farm.ranges.map(r => {
-              const isFarmStarted = Number(farm.startTime) - Date.now() / 1000 < 0
-
+              // APR = sharePerLiquidity / totalShare * (365 * totalRewards/farmDurationInDays)
+              // totalShare = SUM(weight * liquidity) = farm.liquidity
+              // sharePerLiquidity = weight / (price0*qty0 + price1*qty1)
+              // qty0 = (sqrt(upper) - sqrt(lower)) / (sqrt(upper) * sqrt(lower))
+              // qty1 = (sqrt(upper) - sqrt(lower)
+              // => (farm.liquidity * qty0) equivalent to amount0 of position
               const position = new Position({
                 pool: p,
                 tickLower: +r.tickLower,
                 tickUpper: +r.tickUpper,
-                liquidity: BigNumber.from(2).pow(96).toString(),
+                liquidity: farm.liquidity,
               })
 
-              const sqrtLower = BigNumber.from(TickMath.getSqrtRatioAtTick(+r.tickLower).toString())
-              const sqrtUpper = BigNumber.from(TickMath.getSqrtRatioAtTick(+r.tickUpper).toString())
-
-              const qty0 = sqrtUpper.sub(sqrtLower).div(sqrtLower.mul(sqrtUpper))
-              const qty1 = sqrtUpper.sub(sqrtLower)
-              console.log(qty0.toString(), qty1.toString())
-
               const sharePerLiquidity =
-                +position.amount0.toExact() * (prices[farm.pool.token0.id] || 0) +
-                +position.amount1.toExact() * (prices[farm.pool.token1.id] || 0)
+                r.weight /
+                (+position.amount0.toExact() * (prices[farm.pool.token0.id] || 0) +
+                  +position.amount1.toExact() * (prices[farm.pool.token1.id] || 0))
 
               const totalFarmingTime = (+farm.endTime - +farm.startTime) / 60 / 60 / 24 // in days
               const totalFarmRewardUsd = totalRewards.reduce(
@@ -248,19 +246,9 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
                 0,
               )
               const apr =
-                ((+BigNumber.from(Math.floor(sharePerLiquidity)).mul(r.weight).div(farm.liquidity).toString() *
-                  totalFarmRewardUsd) /
-                  totalFarmingTime) *
-                365
-
-              console.log(
-                sharePerLiquidity,
-                totalFarmRewardUsd,
-                totalFarmingTime,
-                farm.liquidity,
-                BigNumber.from(Math.floor(sharePerLiquidity)).div(farm.liquidity).toString(),
-              )
-
+                farm.isSettled || +farm.endTime < Date.now() / 1000
+                  ? 0
+                  : (365 * sharePerLiquidity * totalFarmRewardUsd) / totalFarmingTime
               return { ...r, tickLower: +r.tickLower, tickUpper: +r.tickUpper, tickCurrent: +p.tickCurrent, apr }
             }),
           }
