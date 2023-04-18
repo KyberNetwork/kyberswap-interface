@@ -180,7 +180,7 @@ export function useUserProMMPositions(): UserPositionResult {
       owner: account?.toLowerCase(),
     },
     fetchPolicy: 'no-cache',
-    skip: !isEVM,
+    skip: !isEVM || !account,
   })
 
   const ethPriceUSD = Number(data?.bundles?.[0]?.ethPriceUSD)
