@@ -53,6 +53,7 @@ const TableWrapper = styled(ContentWrapper)`
   padding: 0;
   font-size: 12px;
   border-radius: 6px;
+  width: 100%;
 `
 const TableHeader = styled.div<{ gridTemplateColumns: string }>`
   display: grid;

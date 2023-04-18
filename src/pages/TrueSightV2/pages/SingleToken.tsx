@@ -229,7 +229,7 @@ export default function SingleToken() {
   const data = apiData
 
   const shareUrl = useRef<string>()
-  const toggleShareModal = useToggleModal(ApplicationModal.SHARE)
+  const toggleShareModal = useToggleModal(ApplicationModal.KYBERAI_SHARE)
 
   const handleShareClick = (url?: string) => {
     shareUrl.current = url
@@ -433,6 +433,7 @@ export default function SingleToken() {
       {/* {currentTab === DiscoverTokenTab.News && <News />} */}
       <ShareModal title="Share with your friends" url={shareUrl.current} />
       <TutorialModal />
+      {/* <ShareKyberAIModal /> */}
     </Wrapper>
   )
 }

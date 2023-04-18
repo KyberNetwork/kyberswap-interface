@@ -218,8 +218,8 @@ export default function Widget() {
               </Tab>
             ))}
           </Row>
-          {activeTab === WidgetTab.MyWatchlist ? (
-            <Row align="center" justify="center" height="380px" width="820px">
+          <Row align="center" justify="center" height="360px" width="820px">
+            {activeTab === WidgetTab.MyWatchlist ? (
               <Text color={theme.subText} textAlign="center">
                 <Trans>
                   You can add more tokens to your watchlist from{' '}
@@ -230,10 +230,10 @@ export default function Widget() {
                   You can watch up to 10 tokens
                 </Trans>
               </Text>
-            </Row>
-          ) : (
-            <WidgetTable />
-          )}
+            ) : (
+              <WidgetTable />
+            )}
+          </Row>
           <RowBetween padding="16px">
             <TextButton style={{ color: theme.subText }} onClick={() => setShowExpanded(false)}>
               <Trans>Collapse</Trans>
