@@ -10,7 +10,6 @@ export default function RedirectElasticCreatePool() {
   const { currencyIdA, currencyIdB } = useParams()
 
   const { chainId, networkInfo } = useActiveWeb3React()
-  const chainRoute = networkInfo.route
 
   // prevent weth + eth
   const isETHOrWETHA = currencyIdA === 'ETH' || currencyIdA === WETH[chainId].address
@@ -21,7 +20,7 @@ export default function RedirectElasticCreatePool() {
     currencyIdB &&
     (currencyIdA.toLowerCase() === currencyIdB.toLowerCase() || (isETHOrWETHA && isETHOrWETHB))
   ) {
-    return <Navigate to={`/${chainRoute}${APP_PATHS.ELASTIC_CREATE_POOL}/${currencyIdA}`} replace />
+    return <Navigate to={`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${currencyIdA}`} replace />
   }
 
   return <ProAmmAddLiquidity />

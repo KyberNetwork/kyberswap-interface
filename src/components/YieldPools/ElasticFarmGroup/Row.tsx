@@ -67,7 +67,7 @@ const Row = ({
   onHarvest: () => void
   tokenPrices: { [key: string]: number }
 }) => {
-  const { chainId } = useActiveWeb3React()
+  const { chainId, networkInfo } = useActiveWeb3React()
   const theme = useTheme()
   const currentTimestamp = Math.floor(Date.now() / 1000)
   const [viewMode] = useViewMode()
@@ -294,7 +294,7 @@ const Row = ({
           <Flex alignItems="center">
             <DoubleCurrencyLogo currency0={farmingPool.token0} currency1={farmingPool.token1} />
             <Link
-              to={`${APP_PATHS.ELASTIC_CREATE_POOL}/${
+              to={`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${
                 farmingPool.token0.isNative ? farmingPool.token0.symbol : farmingPool.token0.address
               }/${farmingPool.token1.isNative ? farmingPool.token1.symbol : farmingPool.token1.address}/${
                 farmingPool.pool.fee
