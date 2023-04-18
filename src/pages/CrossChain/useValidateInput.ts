@@ -4,6 +4,7 @@ import { ReactNode, useMemo } from 'react'
 
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
+import { getRouInfo } from 'pages/CrossChain/helpers'
 import useDefaultTokenChain from 'pages/CrossChain/useDefaultTokenChain'
 import { useIsEnoughGas } from 'pages/CrossChain/useIsEnoughGas'
 import { tryParseAmount } from 'state/swap/hooks'
@@ -22,6 +23,7 @@ export default function useValidateInput({
   const balance = useCurrencyBalance(currencyIn)
   const { chainId } = useActiveWeb3React()
   const { isEnoughEth } = useIsEnoughGas(route)
+  const { amountUsdIn } = getRouInfo(route)
   const showErrorGas = !isEnoughEth && route
 
   const inputError: undefined | { state: 'warn' | 'error'; tip: string; desc?: ReactNode } = useMemo(() => {
@@ -38,6 +40,13 @@ export default function useValidateInput({
     if (!currencyIn || !chainIdOut || !currencyOut || inputNumber === 0) return
     const parseAmount = tryParseAmount(inputAmount, currencyIn)
     if (!parseAmount) return { state: 'warn', tip: t`Input amount is not valid` }
+
+    if (amountUsdIn && +amountUsdIn.replace(/,/g, '') > 100_000)
+      return {
+        state: 'error',
+        tip: t`Transaction size is currently limited to $100,000.`,
+        desc: t`Please decrease the size of your transaction and try again.`,
+      }
 
     if (balance?.lessThan(parseAmount)) return { state: 'warn', tip: t`Insufficient ${currencyIn?.symbol} balance` }
 
@@ -60,6 +69,7 @@ export default function useValidateInput({
     showErrorGas,
     chainId,
     errorGetRoute,
+    amountUsdIn,
   ])
   return inputError
 }
