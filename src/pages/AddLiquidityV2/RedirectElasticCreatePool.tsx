@@ -1,15 +1,13 @@
 import { WETH } from '@kyberswap/ks-sdk-core'
-import { Navigate, useLocation, useParams } from 'react-router-dom'
+import { Navigate, useParams } from 'react-router-dom'
 
 import { APP_PATHS } from 'constants/index'
-import { NETWORKS_INFO_CONFIG } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 
 import ProAmmAddLiquidity from './index'
 
-export function RedirectDuplicateTokenIds() {
-  const { currencyIdA, currencyIdB, network } = useParams()
-  const location = useLocation()
+export default function RedirectElasticCreatePool() {
+  const { currencyIdA, currencyIdB } = useParams()
 
   const { chainId, networkInfo } = useActiveWeb3React()
   const chainRoute = networkInfo.route
@@ -17,15 +15,6 @@ export function RedirectDuplicateTokenIds() {
   // prevent weth + eth
   const isETHOrWETHA = currencyIdA === 'ETH' || currencyIdA === WETH[chainId].address
   const isETHOrWETHB = currencyIdB === 'ETH' || currencyIdB === WETH[chainId].address
-
-  if (!network) {
-    return <Navigate to={`/${networkInfo.route}${location.pathname}`} replace />
-  }
-
-  const chainInfoFromParam = Object.values(NETWORKS_INFO_CONFIG).find(info => info.route === network)
-  if (!chainInfoFromParam) {
-    return <Navigate to={location.pathname.replace(network, networkInfo.route)} replace />
-  }
 
   if (
     currencyIdA &&

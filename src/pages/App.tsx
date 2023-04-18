@@ -5,7 +5,7 @@ import * as Sentry from '@sentry/react'
 import { Suspense, lazy, useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { AlertTriangle } from 'react-feather'
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
 import { useNetwork, usePrevious } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -22,20 +22,17 @@ import Modal from 'components/Modal'
 import Snowfall from 'components/Snowflake/Snowfall'
 import Web3ReactManager from 'components/Web3ReactManager'
 import { APP_PATHS, BLACKLIST_WALLETS } from 'constants/index'
+import { NETWORKS_INFO_CONFIG } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
 import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useTheme from 'hooks/useTheme'
+import Verify from 'pages/Verify'
 import { useHolidayMode } from 'state/user/hooks'
 import DarkModeQueryParamReader from 'theme/DarkModeQueryParamReader'
 import { getLimitOrderContract, isAddressString, shortenAddress } from 'utils'
 
-import { RedirectDuplicateTokenIds } from './AddLiquidityV2/redirects'
-import { RedirectPathToFarmNetwork } from './Farm/redirect'
-import { RedirectPathToMyPoolsNetwork } from './Pool/redirect'
-import { RedirectPathToPoolsNetwork } from './Pools/redirect'
 import { RedirectPathToSwapV3Network } from './SwapV3/redirects'
-import Verify from './Verify'
 
 // Route-based code splitting
 
@@ -48,28 +45,23 @@ const MyPools = lazy(() => import(/* webpackChunkName: 'my-pool-page' */ './Pool
 const Farm = lazy(() => import(/* webpackChunkName: 'yield-page' */ './Farm'))
 
 const PoolFinder = lazy(() => import(/* webpackChunkName: 'pool-finder-page' */ './PoolFinder'))
-const CreatePool = lazy(() => import(/* webpackChunkName: 'create-pool-page' */ './CreatePool'))
-const RedirectElasticRemoveLiquidity = lazy(
-  () =>
-    import(
-      /* webpackChunkName: 'remove-elastic-remove-liquidity-page' */ './RemoveLiquidityProAmm/RedirectElasticRemoveLiquidity'
-    ),
+const ElasticRemoveLiquidity = lazy(
+  () => import(/* webpackChunkName: 'elastic-remove-liquidity-page' */ 'pages/RemoveLiquidityProAmm'),
 )
 const RedirectCreatePool = lazy(
   () => import(/* webpackChunkName: 'redirect-create-pool-page' */ './CreatePool/RedirectCreatePool'),
 )
 
-const AddLiquidity = lazy(() => import(/* webpackChunkName: 'add-liquidity-page' */ './AddLiquidity'))
-const RedirectElasticIncreaseLiquidity = lazy(
-  () =>
-    import(
-      /* webpackChunkName: 'redirect-elastic-increase-liquidity-page' */ './IncreaseLiquidity/RedirectElasticIncreaseLiquidity'
-    ),
+const RedirectElasticCreatePool = lazy(
+  () => import(/* webpackChunkName: 'elastic-create-pool-page' */ 'pages/AddLiquidityV2/RedirectElasticCreatePool'),
 )
 
-const RedirectRemoveLiquidity = lazy(
-  () => import(/* webpackChunkName: 'redirect-remove-liquidity-page' */ './RemoveLiquidity/RedirectRemoveLiquidity'),
+const AddLiquidity = lazy(() => import(/* webpackChunkName: 'add-liquidity-page' */ 'pages/AddLiquidity'))
+const ElasticIncreaseLiquidity = lazy(
+  () => import(/* webpackChunkName: 'elastic-increase-liquidity-page' */ 'pages/IncreaseLiquidity'),
 )
+
+const RemoveLiquidity = lazy(() => import(/* webpackChunkName: 'remove-liquidity-page' */ 'pages/RemoveLiquidity'))
 
 const KyberDAOStakeKNC = lazy(() => import(/* webpackChunkName: 'stake-knc' */ './KyberDAO/StakeKNC'))
 const KyberDAOVote = lazy(() => import(/* webpackChunkName: 'vote' */ './KyberDAO/Vote'))
@@ -116,6 +108,79 @@ const SwapPage = () => {
   useSyncNetworkParamWithStore()
 
   return <>{chainId === ChainId.SOLANA ? <SwapV2 /> : <SwapV3 />}</>
+}
+
+const RedirectWithNetworkPrefix = () => {
+  const { networkInfo } = useActiveWeb3React()
+  const location = useLocation()
+
+  return (
+    <Navigate
+      to={{
+        ...location,
+        pathname: `/${networkInfo.route}${location.pathname}`,
+      }}
+      replace
+    />
+  )
+}
+
+const RedirectWithNetworkSuffix = () => {
+  const { networkInfo } = useActiveWeb3React()
+  const location = useLocation()
+
+  return (
+    <Navigate
+      to={{
+        ...location,
+        pathname: `${location.pathname}/${networkInfo.route}`,
+      }}
+      replace
+    />
+  )
+}
+
+const RoutesWithNetworkPrefix = () => {
+  const { network } = useParams()
+  const { networkInfo } = useActiveWeb3React()
+  const location = useLocation()
+
+  useSyncNetworkParamWithStore()
+
+  if (!network) {
+    return <Navigate to={`/${networkInfo.route}${location.pathname}`} replace />
+  }
+
+  const chainInfoFromParam = Object.values(NETWORKS_INFO_CONFIG).find(info => info.route === network)
+  if (!chainInfoFromParam) {
+    return <Navigate to={location.pathname.replace(network, networkInfo.route)} replace />
+  }
+
+  return (
+    <Routes>
+      <Route path={`${APP_PATHS.CLASSIC_CREATE_POOL}/:currencyIdA?/:currencyIdB?`} element={<RedirectCreatePool />} />
+      <Route
+        path={`${APP_PATHS.CLASSIC_ADD_LIQ}/:currencyIdA/:currencyIdB?/:pairAddress?`}
+        element={<AddLiquidity />}
+      />
+      <Route
+        path={`${APP_PATHS.CLASSIC_REMOVE_POOL}/:currencyIdA/:currencyIdB/:pairAddress`}
+        element={<RemoveLiquidity />}
+      />
+
+      <Route
+        path={`${APP_PATHS.ELASTIC_CREATE_POOL}/:currencyIdA?/:currencyIdB?/:feeAmount?`}
+        element={<RedirectElasticCreatePool />}
+      />
+      <Route
+        path={`${APP_PATHS.ELASTIC_INCREASE_LIQ}/:currencyIdA?/:currencyIdB?/:feeAmount?/:tokenId?`}
+        element={<ElasticIncreaseLiquidity />}
+      />
+      <Route path={`${APP_PATHS.ELASTIC_REMOVE_POOL}/:tokenId`} element={<ElasticRemoveLiquidity />} />
+
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
+  )
 }
 
 export default function App() {
@@ -245,82 +310,31 @@ export default function App() {
 
                     <>
                       {/* Pools Routes  */}
-                      <Route path={`${APP_PATHS.POOLS}/:network`} element={<Pools />} />
-                      <Route path={`${APP_PATHS.POOLS}/:network/:currencyIdA`} element={<Pools />} />
-                      <Route path={`${APP_PATHS.POOLS}`} element={<RedirectPathToPoolsNetwork />} />
-                      <Route path={`${APP_PATHS.POOLS}/:network/:currencyIdA/:currencyIdB`} element={<Pools />} />
+                      <Route path={`${APP_PATHS.POOLS}`} element={<RedirectWithNetworkSuffix />} />
+                      <Route path={`${APP_PATHS.POOLS}/:network/:currencyIdA?/:currencyIdB?`} element={<Pools />} />
                     </>
 
                     <>
                       {/* Farms Routes */}
+                      <Route path={`${APP_PATHS.FARMS}`} element={<RedirectWithNetworkSuffix />} />
                       <Route path={`${APP_PATHS.FARMS}/:network`} element={<Farm />} />
-                      <Route path={`${APP_PATHS.FARMS}`} element={<RedirectPathToFarmNetwork />} />
                     </>
 
                     <>
                       {/* My Pools Routes */}
+                      <Route path={`${APP_PATHS.MY_POOLS}`} element={<RedirectWithNetworkSuffix />} />
                       <Route path={`${APP_PATHS.MY_POOLS}/:network`} element={<MyPools />} />
-                      <Route path={`${APP_PATHS.MY_POOLS}`} element={<RedirectPathToMyPoolsNetwork />} />
                     </>
 
                     <>
-                      {/* Classic Create Pool routes */}
-                      <Route path={`/:network${APP_PATHS.CLASSIC_CREATE_POOL}`} element={<CreatePool />} />
-                      <Route
-                        path={`/:network${APP_PATHS.CLASSIC_CREATE_POOL}/:currencyIdA`}
-                        element={<RedirectCreatePool />}
-                      />
-                      <Route
-                        path={`/:network${APP_PATHS.CLASSIC_CREATE_POOL}/:currencyIdA/:currencyIdB`}
-                        element={<RedirectCreatePool />}
-                      />
+                      {/* These are old routes and will soon be deprecated - Check: RoutesWithNetworkParam */}
+                      <Route path={`${APP_PATHS.ELASTIC_CREATE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
+                      <Route path={`${APP_PATHS.ELASTIC_INCREASE_LIQ}/*`} element={<RedirectWithNetworkPrefix />} />
+                      <Route path={`${APP_PATHS.ELASTIC_REMOVE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
 
-                      <Route path={`${APP_PATHS.CLASSIC_CREATE_POOL}`} element={<RedirectCreatePool />} />
-                      <Route path={`${APP_PATHS.CLASSIC_CREATE_POOL}/*`} element={<RedirectCreatePool />} />
-                    </>
-
-                    <>
-                      {/* Classic Add Liquidity Routes  */}
-                      <Route path={`/:network${APP_PATHS.CLASSIC_ADD_LIQ}/:currencyIdA/`} element={<AddLiquidity />} />
-                      <Route
-                        path={`/:network${APP_PATHS.CLASSIC_ADD_LIQ}/:currencyIdA/:currencyIdB`}
-                        element={<AddLiquidity />}
-                      />
-                      <Route
-                        path={`/:network${APP_PATHS.CLASSIC_ADD_LIQ}/:currencyIdA/:currencyIdB/:pairAddress`}
-                        element={<AddLiquidity />}
-                      />
-                      <Route path={`${APP_PATHS.CLASSIC_ADD_LIQ}/*`} element={<AddLiquidity />} />
-                    </>
-
-                    <>
-                      {/* Classic Remove Pool routes */}
-                      <Route
-                        path={`:network${APP_PATHS.CLASSIC_REMOVE_POOL}/:currencyIdA/:currencyIdB/:pairAddress`}
-                        element={<RedirectRemoveLiquidity />}
-                      />
-                      <Route path={`${APP_PATHS.CLASSIC_REMOVE_POOL}/*`} element={<RedirectRemoveLiquidity />} />
-                    </>
-
-                    <>
-                      {/* Elastic Remove Pool routes */}
-                      <Route
-                        path={`:network${APP_PATHS.ELASTIC_REMOVE_POOL}/:tokenId`}
-                        element={<RedirectElasticRemoveLiquidity />}
-                      />
-                      <Route path={`${APP_PATHS.ELASTIC_REMOVE_POOL}/*`} element={<RedirectElasticRemoveLiquidity />} />
-                    </>
-
-                    <>
-                      {/* Elastic Increase Liquidity routes */}
-                      <Route
-                        path={`:network${APP_PATHS.ELASTIC_INCREASE_LIQ}/:currencyIdA/:currencyIdB/:feeAmount/:tokenId`}
-                        element={<RedirectElasticIncreaseLiquidity />}
-                      />
-                      <Route
-                        path={`${APP_PATHS.ELASTIC_INCREASE_LIQ}/*`}
-                        element={<RedirectElasticIncreaseLiquidity />}
-                      />
+                      <Route path={`${APP_PATHS.CLASSIC_CREATE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
+                      <Route path={`${APP_PATHS.CLASSIC_ADD_LIQ}/*`} element={<RedirectWithNetworkPrefix />} />
+                      <Route path={`${APP_PATHS.CLASSIC_REMOVE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
                     </>
 
                     <Route path={`${APP_PATHS.KYBERDAO_STAKE}`} element={<KyberDAOStakeKNC />} />
@@ -339,29 +353,7 @@ export default function App() {
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgramPage />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />
 
-                    <>
-                      {/* Elastic Create Pool Routes  */}
-                      <Route
-                        path={`/:network${APP_PATHS.ELASTIC_CREATE_POOL}/`}
-                        element={<RedirectDuplicateTokenIds />}
-                      />
-                      <Route
-                        path={`/:network${APP_PATHS.ELASTIC_CREATE_POOL}/:currencyIdA`}
-                        element={<RedirectDuplicateTokenIds />}
-                      />
-                      <Route
-                        path={`/:network${APP_PATHS.ELASTIC_CREATE_POOL}/:currencyIdA/:currencyIdB`}
-                        element={<RedirectDuplicateTokenIds />}
-                      />
-                      <Route
-                        path={`/:network${APP_PATHS.ELASTIC_CREATE_POOL}/:currencyIdA/:currencyIdB/:feeAmount`}
-                        element={<RedirectDuplicateTokenIds />}
-                      />
-
-                      {/* These 2 routes to make sure backward compatibility */}
-                      <Route path={`${APP_PATHS.ELASTIC_CREATE_POOL}`} element={<RedirectDuplicateTokenIds />} />
-                      <Route path={`${APP_PATHS.ELASTIC_CREATE_POOL}/*`} element={<RedirectDuplicateTokenIds />} />
-                    </>
+                    <Route path={`/:network/*`} element={<RoutesWithNetworkPrefix />} />
 
                     <Route path="*" element={<RedirectPathToSwapV3Network />} />
                   </Routes>
