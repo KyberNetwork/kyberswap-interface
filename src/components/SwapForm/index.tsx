@@ -100,6 +100,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     feeConfig,
     isSaveGas,
     parsedAmount,
+    isProcessingSwap,
   })
 
   const { data: getRouteRawResponse, isFetching: isGettingRoute, error: getRouteError } = result
