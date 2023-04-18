@@ -39,7 +39,7 @@ export default function ModalRegisterCampaignSuccess() {
             <Trans>You have successfully registered for this trading campaign. Start trading now and good luck!</Trans>
           </Content>
           <ResponsiveButtonPrimary
-            id="swap-now-button"
+            id="swap-now-modal-button"
             maxWidth="69%"
             style={{ fontSize: '14px' }}
             onClick={() => {

@@ -93,10 +93,16 @@ export default function Popups() {
 
     const unsubscribePrivate = subscribePrivateAnnouncement(account, data => {
       data.forEach(item => {
-        if (item.templateType === PrivateAnnouncementType.PRICE_ALERT) {
-          // only support price alert
-          const mins = (Date.now() / 1000 - item.createdAt) / TIMES_IN_SECS.ONE_MIN
-          if (mins <= 5) addPopup(item, PopupType.TOP_RIGHT, item.metaMessageId, 15_000)
+        switch (item.templateType) {
+          case PrivateAnnouncementType.PRICE_ALERT:
+            const mins = (Date.now() / 1000 - item.createdAt) / TIMES_IN_SECS.ONE_MIN
+            if (mins <= 5) addPopup(item, PopupType.TOP_RIGHT, item.metaMessageId, 15_000)
+            break
+          case PrivateAnnouncementType.DIRECT_MESSAGE: {
+            const { templateBody, metaMessageId } = item
+            addPopup(item, templateBody.popupType, metaMessageId, undefined, account)
+            break
+          }
         }
       })
     })
