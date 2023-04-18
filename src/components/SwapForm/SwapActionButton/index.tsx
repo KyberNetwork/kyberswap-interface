@@ -32,7 +32,7 @@ const CustomPrimaryButton = styled(ButtonPrimary).attrs({
 `
 
 type Props = {
-  isAdvancedMode: boolean
+  isDegenMode: boolean
   isGettingRoute: boolean
   isProcessingSwap: boolean
 
@@ -55,7 +55,7 @@ type Props = {
 }
 
 const SwapActionButton: React.FC<Props> = ({
-  isAdvancedMode,
+  isDegenMode,
   isGettingRoute,
   isProcessingSwap,
 
@@ -155,7 +155,7 @@ const SwapActionButton: React.FC<Props> = ({
     }
 
     const swapOnlyButtonProps: SwapOnlyButtonProps = {
-      isDegenMode: isAdvancedMode,
+      isDegenMode: isDegenMode,
       routeSummary,
       isGettingRoute,
       isProcessingSwap,
@@ -222,7 +222,7 @@ const SwapActionButton: React.FC<Props> = ({
   return (
     <>
       {renderButton()}
-      {isAdvancedMode && errorWhileSwap ? (
+      {isDegenMode && errorWhileSwap ? (
         <SwapCallbackError style={{ margin: 0, zIndex: 'unset' }} error={errorWhileSwap} />
       ) : null}
     </>

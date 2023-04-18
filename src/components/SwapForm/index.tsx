@@ -141,7 +141,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   useEffect(() => {
     // reset value for unwrapping WSOL
     // because on Solana, unwrap WSOL is closing WSOL account,
-    // which mean it will unwrap all WSOL at once and we can't unwrap partial amount of WSOL
+    // which mean it will unwrap all WSOL at once, and we can't unwrap partial amount of WSOL
     if (isSolanaUnwrap) onUserInput(balanceIn?.toExact() ?? '')
   }, [balanceIn, isSolanaUnwrap, onUserInput])
 
@@ -220,7 +220,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
             parsedAmountFromTypedValue={parsedAmount}
             balanceIn={balanceIn}
             balanceOut={balanceOut}
-            isAdvancedMode={isDegenMode}
+            isDegenMode={isDegenMode}
             typedValue={typedValue}
             currencyIn={currencyIn}
             currencyOut={currencyOut}
