@@ -595,6 +595,7 @@ const RouteRowCrossChain = ({ routes, backgroundColor }: { routes: Call[]; backg
       <ScrollContainer innerRef={scrollRef} vertical={false} onScroll={handleShadow}>
         <StyledHops length={routes.length} ref={contentRef}>
           {routes.map((subRoute: any, index, arr) => {
+            if (!subRoute.fromToken || !subRoute.toToken) return null
             const fromToken = new WrappedTokenInfo(subRoute.fromToken)
             const toToken = new WrappedTokenInfo(subRoute.toToken)
 
