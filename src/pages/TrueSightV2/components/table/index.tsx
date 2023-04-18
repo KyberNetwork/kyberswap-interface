@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { useContext, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 // import { useMemo } from 'react'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -9,6 +10,7 @@ import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
 import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
+import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import { KyberAITimeframe } from 'pages/TrueSightV2/types'
@@ -134,7 +136,7 @@ const SamepleIcon = () => {
 }
 export const Top10HoldersTable = () => {
   const theme = useTheme()
-
+  const navigate = useNavigate()
   return (
     <Table2>
       <colgroup>
@@ -187,17 +189,23 @@ export const Top10HoldersTable = () => {
             </td>
             <td>
               <RowFit gap="16px">
-                <RowFit gap="4px">
+                <RowFit gap="4px" style={{ cursor: 'pointer' }} onClick={() => navigate(APP_PATHS.KYBERAI_EXPLORE)}>
                   <SamepleIcon />
-                  <Text color={theme.primary}>234,34K USDC</Text>
+                  <Text color={theme.primary} fontSize={14}>
+                    234,34K USDC
+                  </Text>
                 </RowFit>
-                <RowFit gap="4px">
+                <RowFit gap="4px" style={{ cursor: 'pointer' }} onClick={() => navigate(APP_PATHS.KYBERAI_EXPLORE)}>
                   <SamepleIcon />
-                  <Text color={theme.primary}>234,34K USDC</Text>
+                  <Text color={theme.primary} fontSize={14}>
+                    234,34K USDC
+                  </Text>
                 </RowFit>
-                <RowFit gap="4px">
+                <RowFit gap="4px" style={{ cursor: 'pointer' }} onClick={() => navigate(APP_PATHS.KYBERAI_EXPLORE)}>
                   <SamepleIcon />
-                  <Text color={theme.primary}>234,34K USDC</Text>
+                  <Text color={theme.primary} fontSize={14}>
+                    234,34K USDC
+                  </Text>
                 </RowFit>
               </RowFit>
             </td>
