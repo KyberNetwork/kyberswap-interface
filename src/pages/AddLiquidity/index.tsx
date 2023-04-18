@@ -2,18 +2,16 @@ import { Fraction, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { useEffect, useState } from 'react'
-import { Navigate, useLocation, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
 import LiquidityProviderMode from 'components/LiquidityProviderMode'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
 import { MinimalPositionCard } from 'components/PositionCard'
 import { TutorialType } from 'components/Tutorial'
-import { NETWORKS_INFO_CONFIG } from 'constants/networks'
 import { PairState } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import { useDerivedMintInfo } from 'state/mint/hooks'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 
@@ -22,9 +20,8 @@ import ZapIn from './ZapIn'
 import { Container, LiquidityProviderModeWrapper, PageWrapper, PoolName, TopBar } from './styled'
 
 export default function AddLiquidity() {
-  const { currencyIdA = '', currencyIdB = '', pairAddress = '', network } = useParams()
-  const location = useLocation()
-  const { chainId, isEVM, networkInfo } = useActiveWeb3React()
+  const { currencyIdA = '', currencyIdB = '', pairAddress = '' } = useParams()
+  const { chainId } = useActiveWeb3React()
   const currencyA = useCurrency(currencyIdA) ?? undefined
   const currencyB = useCurrency(currencyIdB) ?? undefined
 
@@ -49,19 +46,6 @@ export default function AddLiquidity() {
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  useSyncNetworkParamWithStore()
-
-  if (!isEVM) return <Navigate to="/" />
-
-  if (!network) {
-    return <Navigate to={`/${networkInfo.route}${location.pathname}`} replace />
-  }
-
-  const chainInfoFromParam = Object.values(NETWORKS_INFO_CONFIG).find(info => info.route === network)
-  if (!chainInfoFromParam) {
-    return <Navigate to={location.pathname.replace(network, networkInfo.route)} replace />
-  }
 
   return (
     <>
