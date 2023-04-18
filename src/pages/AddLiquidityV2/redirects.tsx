@@ -11,6 +11,8 @@ export function RedirectDuplicateTokenIds() {
   const { currencyIdA, currencyIdB, network } = useParams()
   const location = useLocation()
 
+  console.log('Path RedirectDuplicateTokenIds', location.pathname)
+
   const { chainId, networkInfo } = useActiveWeb3React()
   const chainRoute = networkInfo.route
 
