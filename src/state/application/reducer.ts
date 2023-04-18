@@ -94,7 +94,7 @@ export default createReducer(initialState, builder =>
         state.openModal = null
       }
     })
-    .addCase(addPopup, (state, { payload: { content, key, removeAfterMs = 15000, popupType } }) => {
+    .addCase(addPopup, (state, { payload: { content, key, removeAfterMs = 15000, popupType, account } }) => {
       const { popupList } = state
       state.popupList = (key ? popupList.filter(popup => popup.key !== key) : popupList).concat([
         {
@@ -102,6 +102,7 @@ export default createReducer(initialState, builder =>
           content,
           removeAfterMs,
           popupType,
+          account,
         },
       ])
     })

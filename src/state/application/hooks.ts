@@ -132,12 +132,13 @@ export function useAddPopup(): (
   popupType: PopupType,
   key?: string,
   removeAfterMs?: number | null,
+  account?: string,
 ) => void {
   const dispatch = useDispatch()
 
   return useCallback(
-    (content: PopupContent, popupType: PopupType, key?: string, removeAfterMs?: number | null) => {
-      dispatch(addPopup({ content, key, popupType, removeAfterMs }))
+    (content: PopupContent, popupType: PopupType, key?: string, removeAfterMs?: number | null, account?: string) => {
+      dispatch(addPopup({ content, key, popupType, removeAfterMs, account }))
     },
     [dispatch],
   )
@@ -208,7 +209,7 @@ export function useActivePopups() {
   const popups = useSelector(
     (state: AppState) => state.application.popupList,
   ) as PopupItemType<PopupContentAnnouncement>[]
-  const { chainId } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
 
   return useMemo(() => {
     const topRightPopups = popups.filter(e => {
@@ -219,17 +220,17 @@ export function useActivePopups() {
       return false
     })
 
-    const topPopups = popups.filter(e => e.popupType === PopupType.TOP_BAR && isPopupCanShow(e, chainId))
-    const snippetPopups = popups.filter(e => e.popupType === PopupType.SNIPPET && isPopupCanShow(e, chainId))
+    const topPopups = popups.filter(e => e.popupType === PopupType.TOP_BAR && isPopupCanShow(e, chainId, account))
+    const snippetPopups = popups.filter(e => e.popupType === PopupType.SNIPPET && isPopupCanShow(e, chainId, account))
 
-    const centerPopups = popups.filter(e => e.popupType === PopupType.CENTER && isPopupCanShow(e, chainId))
+    const centerPopups = popups.filter(e => e.popupType === PopupType.CENTER && isPopupCanShow(e, chainId, account))
     return {
       topPopups,
       centerPopups,
       topRightPopups,
       snippetPopups,
     }
-  }, [popups, chainId])
+  }, [popups, chainId, account])
 }
 
 /**
