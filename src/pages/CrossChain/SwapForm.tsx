@@ -244,7 +244,10 @@ export default function SwapForm() {
           />
         </div>
 
-        <SlippageSetting isStablePairSwap={false} /** isolate setting */ />
+        <SlippageSetting
+          isStablePairSwap={false}
+          linkSlippage="https://axelar.network/blog/what-is-axlusdc-and-how-do-you-get-it" /** isolate setting */
+        />
 
         <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={false} />
         {priceImpact && <PriceImpactNote priceImpact={Number(priceImpact)} isDegenMode={isDegenMode} />}

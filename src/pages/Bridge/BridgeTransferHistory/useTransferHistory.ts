@@ -59,7 +59,9 @@ const useTransferHistory = (account: string) => {
     onClickNext,
     onClickPrevious,
     isCompletelyEmpty: page === 1 && transfers.length === 0,
+    isThisPageEmpty: transfers.length === 0,
   }
 }
+export type TransferHistoryResponse = ReturnType<typeof useTransferHistory>
 
 export default useTransferHistory

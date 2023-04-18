@@ -6,9 +6,9 @@ import styled from 'styled-components'
 import { useActiveWeb3React } from 'hooks'
 import NoData from 'pages/Bridge/BridgeTransferHistory/NoData'
 import Pagination from 'pages/Bridge/BridgeTransferHistory/Pagination'
-import TransferHistoryTable from 'pages/Bridge/BridgeTransferHistory/TransferHistoryTable'
 
-import useTransferHistory from './useTransferHistory'
+import useTransferHistory from '../../Bridge/BridgeTransferHistory/useTransferHistory'
+import TransferHistoryTable from './HistoryTable'
 
 type Props = {
   className?: string

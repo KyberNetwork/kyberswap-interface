@@ -12,7 +12,6 @@ import { SEOSwap } from 'components/SEO'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import TokenWarningModal from 'components/TokenWarningModal'
 import TopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork'
-import { RoutingCrossChain } from 'components/TradeRouting'
 import TutorialSwap from 'components/Tutorial/TutorialSwap'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import GasPriceTrackerPanel from 'components/swapv2/GasPriceTrackerPanel'
@@ -38,9 +37,9 @@ import { useAllTokens, useIsLoadedTokenDefault } from 'hooks/Tokens'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { BodyWrapper } from 'pages/AppBody'
-import BridgeHistory from 'pages/Bridge/BridgeTransfers'
 import CrossChain from 'pages/CrossChain'
 import CrossChainLink from 'pages/CrossChain/CrossChainLink'
+import CrossChainTransfersHistory from 'pages/CrossChain/TransfersHistory'
 import Header from 'pages/SwapV3/Header'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
 import { useLimitActionHandlers } from 'state/limit/hooks'
@@ -333,7 +332,7 @@ export default function Swap() {
                   </Suspense>
                 </LiveChartWrapper>
               )}
-              {isShowTradeRoutes && (isSwapPage || isCrossChainPage) && (
+              {isShowTradeRoutes && isSwapPage && (
                 <RoutesWrapper isOpenChart={isShowLiveChart}>
                   <Flex flexDirection="column" width="100%">
                     <Flex alignItems={'center'}>
@@ -352,25 +351,20 @@ export default function Swap() {
                         />
                       }
                     >
-                      {isCrossChainPage ? (
-                        <RoutingCrossChain // todo lazy
-                        />
-                      ) : (
-                        <TradeRouting
-                          tradeComposition={tradeRouteComposition}
-                          currencyIn={currencyIn}
-                          currencyOut={currencyOut}
-                          inputAmount={routeSummary?.parsedAmountIn}
-                          outputAmount={routeSummary?.parsedAmountOut}
-                        />
-                      )}
+                      <TradeRouting
+                        tradeComposition={tradeRouteComposition}
+                        currencyIn={currencyIn}
+                        currencyOut={currencyOut}
+                        inputAmount={routeSummary?.parsedAmountIn}
+                        outputAmount={routeSummary?.parsedAmountOut}
+                      />
                     </Suspense>
                   </Flex>
                 </RoutesWrapper>
               )}
               {isLimitPage && <ListLimitOrder ref={refListLimitOrder} />}
               {shouldRenderTokenInfo && <TokenInfoV2 currencyIn={currencyIn} currencyOut={currencyOut} />}
-              {isCrossChainPage && <BridgeHistory />}
+              {isCrossChainPage && <CrossChainTransfersHistory />}
             </InfoComponentsWrapper>
           )}
         </Container>

@@ -15,7 +15,9 @@ import { TokenInfo, WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { DisclaimerCrossChain } from '../Bridge/Disclaimer'
 import SwapForm from './SwapForm'
 
-const isTest = window.location.href.includes('test')
+const isTest = window.location.href.includes('test') // todo
+export const AXELAR_SCAN_URL = isTest ? 'https://testnet.axelarscan.io/gmp/' : 'https://axelarscan.io/gmp/'
+
 // todo lazy load
 function CrossChain() {
   const theme = useTheme()
