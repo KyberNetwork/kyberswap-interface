@@ -423,9 +423,9 @@ function WithdrawModal({
         <div style={{ overflowY: 'auto' }}>
           {(eligiblePositions as UserPositionFarm[])
             .filter(pos => {
-              if (forced) {
-                return failedNFTs.includes(pos.tokenId.toString())
-              }
+              // if (forced) {
+              //   return failedNFTs.includes(pos.tokenId.toString())
+              // }
 
               return true
             })
