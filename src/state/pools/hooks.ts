@@ -92,7 +92,7 @@ export function useUserLiquidityPositions(): UserLiquidityPositionResult {
       user: account?.toLowerCase(),
     },
     fetchPolicy: 'no-cache',
-    skip: !isEVM,
+    skip: !isEVM || !account,
   })
 
   return useMemo(() => ({ loading, error, data }), [data, error, loading])
@@ -256,7 +256,10 @@ export async function getBulkPoolDataWithPagination(
           //   })
           //   oneDayHistory = newData.data.pools[0]
           // }
-
+          if (!oneDayHistory) {
+            console.log('abc', { data, oneDayHistory, ethPrice, b1, chainId })
+            debugger
+          }
           data = parseData(data, oneDayHistory, ethPrice, b1, chainId)
 
           return data
