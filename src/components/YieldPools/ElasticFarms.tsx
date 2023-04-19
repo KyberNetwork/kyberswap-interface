@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -11,6 +12,7 @@ import { APP_PATHS, FARM_TAB } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
+import useElasticCompensationData from 'hooks/useElasticCompensationData'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
@@ -22,6 +24,7 @@ import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { StyledInternalLink } from 'theme'
 import { isAddressString } from 'utils'
 
+import { ElasticCompensation } from './ElasticCompensation'
 import ElasticFarmGroup from './ElasticFarmGroup'
 import { DepositModal, StakeUnstakeModal } from './ElasticFarmModals'
 import HarvestModal from './ElasticFarmModals/HarvestModal'
@@ -29,6 +32,14 @@ import WithdrawModal from './ElasticFarmModals/WithdrawModal'
 import { SharePoolContext } from './SharePoolContext'
 
 type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest' | 'forcedWithdraw'
+
+const farmIds: { [key: number]: string } = {
+  [ChainId.MAINNET]: '0xb85ebe2e4ea27526f817ff33fb55fb240057c03f',
+  [ChainId.AVAXMAINNET]: '0xbdec4a045446f583dc564c0a227ffd475b329bf0',
+  [ChainId.MATIC]: '0xbdec4a045446f583dc564c0a227ffd475b329bf0',
+  [ChainId.OPTIMISM]: '0xb85ebe2e4ea27526f817ff33fb55fb240057c03f',
+  [ChainId.ARBITRUM]: '0xbdec4a045446f583dc564c0a227ffd475b329bf0',
+}
 
 function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: boolean } }) {
   const theme = useTheme()
@@ -228,6 +239,14 @@ function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: bo
     })
   }, [isShareModalOpen, setSharePoolAddress])
 
+  const { data: userCompensationData, loading: loadingCompensationData, claimInfo } = useElasticCompensationData()
+
+  const userDepositedInfo = farmIds[chainId] && userFarmInfo?.[farmIds[chainId]]?.depositedPositions
+  const canClaimReward = !!userCompensationData?.length && claimInfo
+  const canWithdraw = !!userDepositedInfo?.length
+  const isActiveTab = !type || type === FARM_TAB.ACTIVE
+  const showCompensation = isActiveTab && !loadingCompensationData && (canWithdraw || canClaimReward)
+
   return (
     <SharePoolContext.Provider value={setSharePoolAddress}>
       {selectedFarm && selectedModal === 'deposit' && (
@@ -284,7 +303,18 @@ function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: bo
         </Text>
       )}
 
-      {loading && noFarms ? (
+      {showCompensation ? (
+        <ElasticCompensation
+          onWithdraw={() => {
+            setSeletedModal('forcedWithdraw')
+            setSeletedFarm('0xbdec4a045446f583dc564c0a227ffd475b329bf0')
+          }}
+          data={userCompensationData}
+          numberOfPosition={userDepositedInfo?.length || 0}
+          tokenPrices={tokenPrices}
+          claimInfo={claimInfo}
+        />
+      ) : loading && noFarms ? (
         <Flex
           sx={{
             borderRadius: '16px',
