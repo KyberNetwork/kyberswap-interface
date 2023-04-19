@@ -1,7 +1,7 @@
 import dayjs from 'dayjs'
 import { commify } from 'ethers/lib/utils'
 import { rgba } from 'polished'
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -1920,7 +1920,7 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
   const [tvWidget, setTvWidget] = useState<IChartingLibraryWidget | undefined>(undefined)
   const userLocale = useUserLocale()
   const datafeed = useDatafeed(isBTC || false)
-  const { SRLevels, currentPrice, resolution, setResolution } = useContext(TechnicalAnalysisContext)
+  const { SRLevels, currentPrice, resolution, setResolution, showSRLevels } = useContext(TechnicalAnalysisContext)
 
   const variablesRef = useRef({ resolution })
   useEffect(() => {
@@ -2020,31 +2020,47 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
   }, [theme, ref, datafeed])
 
   const entityIds = useRef<(EntityId | null)[]>([])
+
+  const removeSRLevels = useCallback(() => {
+    entityIds.current?.forEach(entityId => {
+      return entityId && tvWidget?.activeChart().removeEntity(entityId)
+    })
+  }, [tvWidget])
+
+  const addSRLevels = useCallback(() => {
+    if (!currentPrice || !tvWidget) return
+    SRLevels?.forEach((level: ISRLevel) => {
+      const entityId = tvWidget.activeChart().createMultipointShape([{ time: level.timestamp, price: level.value }], {
+        shape: 'horizontal_ray',
+        lock: true,
+        disableSelection: true,
+        disableSave: true,
+        overrides: {
+          linecolor: currentPrice > level.value ? theme.primary : theme.red,
+          linewidth: 1,
+          linestyle: 2,
+        },
+      })
+      entityIds.current.push(entityId)
+    }, true)
+  }, [SRLevels, tvWidget, currentPrice, theme])
+
   useEffect(() => {
     if (!tvWidget || !SRLevels || !currentPrice) return
     const subscriptionDataLoaded = tvWidget.activeChart()?.onDataLoaded()
 
     subscriptionDataLoaded?.subscribe(null, () => {
-      entityIds.current?.forEach(entityId => {
-        return entityId && tvWidget.activeChart().removeEntity(entityId)
-      })
+      removeSRLevels()
       entityIds.current = []
-      SRLevels?.forEach((level: ISRLevel) => {
-        const entityId = tvWidget.activeChart().createMultipointShape([{ time: level.timestamp, price: level.value }], {
-          shape: 'horizontal_ray',
-          lock: true,
-          disableSelection: true,
-          disableSave: true,
-          overrides: {
-            linecolor: currentPrice > level.value ? theme.primary : theme.red,
-            linewidth: 2,
-            linestyle: 2,
-          },
-        })
-        entityIds.current.push(entityId)
-      }, true)
+
+      showSRLevels && addSRLevels()
     })
-  }, [tvWidget, SRLevels, currentPrice, theme, setResolution])
+    if (!showSRLevels) {
+      removeSRLevels()
+    } else {
+      addSRLevels()
+    }
+  }, [tvWidget, SRLevels, showSRLevels, currentPrice, theme, setResolution, removeSRLevels, addSRLevels])
 
   useEffect(() => {
     if (resolution && tvWidget?.activeChart().resolution() !== (resolution as ResolutionString)) {

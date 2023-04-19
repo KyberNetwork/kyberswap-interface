@@ -7,6 +7,7 @@ import styled, { useTheme } from 'styled-components'
 import { ButtonPrimary } from 'components/Button'
 import Icon from 'components/Icons/Icon'
 import Row, { RowFit } from 'components/Row'
+import Toggle from 'components/Toggle'
 import { useTokenAnalysisSettings } from 'state/user/hooks'
 
 import { SectionWrapper } from '../components'
@@ -26,6 +27,7 @@ type TechnicalAnalysisContextProps = {
   setResolution?: (r: string) => void
   SRLevels?: ISRLevel[]
   currentPrice?: number
+  showSRLevels?: boolean
 }
 
 function isSupport(arr: OHLCData[], i: number) {
@@ -68,6 +70,7 @@ export default function TechnicalAnalysis() {
   const theme = useTheme()
 
   const [liveChartTab, setLiveChartTab] = useState(ChartTab.First)
+  const [showSRLevels, setShowSRLevels] = useState(true)
   const navigate = useNavigate()
   const [priceChartResolution, setPriceChartResolution] = useState('1h')
   const now = Math.floor(Date.now() / 60000) * 60
@@ -114,6 +117,7 @@ export default function TechnicalAnalysis() {
         setResolution: setPriceChartResolution,
         SRLevels,
         currentPrice: data?.[0].close,
+        showSRLevels,
       }}
     >
       <Wrapper>
@@ -124,6 +128,14 @@ export default function TechnicalAnalysis() {
           activeTab={liveChartTab}
           onTabClick={setLiveChartTab}
           style={{ height: '800px' }}
+          subTitle={
+            <RowFit gap="8px">
+              <Text fontSize="14px" fontStyle="initial">
+                <Trans>Support / Resistance Levels</Trans>
+              </Text>
+              <Toggle isActive={showSRLevels} toggle={() => setShowSRLevels(prev => !prev)} />
+            </RowFit>
+          }
         >
           <Prochart isBTC={liveChartTab === ChartTab.Second} />
         </SectionWrapper>
