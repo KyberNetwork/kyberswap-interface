@@ -1,6 +1,6 @@
 import { ChainId, Currency, CurrencyAmount, Price, WETH } from '@kyberswap/ks-sdk-core'
 import { debounce } from 'lodash'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import routeApi from 'services/route'
 import { GetRouteParams } from 'services/route/types/getRoute'
 
@@ -20,6 +20,7 @@ export type ArgsGetRoute = {
   currencyOut: Currency | undefined
   feeConfig: FeeConfig | undefined
   customChain?: ChainId
+  isProcessingSwap?: boolean
 }
 
 export const getRouteTokenAddressParam = (currency: Currency) =>
@@ -30,10 +31,10 @@ export const getRouteTokenAddressParam = (currency: Currency) =>
     : currency.wrapped.address
 
 const useGetRoute = (args: ArgsGetRoute) => {
-  const [trigger, result] = routeApi.useLazyGetRouteQuery()
+  const [trigger, _result] = routeApi.useLazyGetRouteQuery()
   const { aggregatorDomain, isEnableAuthenAggregator } = useKyberswapGlobalConfig()
 
-  const { isSaveGas, parsedAmount, currencyIn, currencyOut, feeConfig, customChain } = args
+  const { isSaveGas, parsedAmount, currencyIn, currencyOut, feeConfig, customChain, isProcessingSwap } = args
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
 
@@ -41,7 +42,33 @@ const useGetRoute = (args: ArgsGetRoute) => {
   const { chargeFeeBy = '', feeReceiver = '', feeAmount = '' } = feeConfig || {}
   const isInBps = feeConfig?.isInBps !== undefined ? (feeConfig.isInBps ? '1' : '0') : ''
 
-  const triggerDebounced = useMemo(() => debounce(trigger, INPUT_DEBOUNCE_TIME), [trigger])
+  // If user has just dismissed swap modal, we want to set current route summary = undefined by setting this flag = true.
+  // After receive new route summary, we reset this flag to false.s
+  const dismissSwapModalFlag = useRef(false)
+  const result: typeof _result = useMemo(() => {
+    if (dismissSwapModalFlag.current) {
+      return {
+        ..._result,
+        data: undefined,
+      } as typeof _result
+    }
+    return _result
+  }, [_result])
+
+  useEffect(() => {
+    if (!isProcessingSwap) {
+      dismissSwapModalFlag.current = true
+    }
+  }, [isProcessingSwap])
+
+  const triggerDebounced = useMemo(
+    () =>
+      debounce(async (args: { url: string; params: GetRouteParams; authentication: boolean }) => {
+        await trigger(args)
+        dismissSwapModalFlag.current = false
+      }, INPUT_DEBOUNCE_TIME),
+    [trigger],
+  )
 
   const fetcher = useCallback(async () => {
     const amountIn = parsedAmount?.quotient?.toString() || ''
