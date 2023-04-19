@@ -344,7 +344,9 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
         ) : (
           <Flex sx={{ gap: '12px' }} alignItems="center">
             {!account ? <ConnectWalletButton onClick={toggleWalletModal} /> : renderApproveButton()}
-            {!!hasAffectedByFarmIssue && <ForceWithdrawButton onClick={() => onOpenModal('forcedWithdraw')} />}
+            {account && canWithdraw && isApprovedForAll && (
+              <ForceWithdrawButton onClick={() => onOpenModal('forcedWithdraw')} />
+            )}
           </Flex>
         )}
       </Flex>

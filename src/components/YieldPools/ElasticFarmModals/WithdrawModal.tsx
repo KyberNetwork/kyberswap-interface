@@ -24,7 +24,7 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { usePool } from 'hooks/usePools'
 import useTheme from 'hooks/useTheme'
-import { useElasticFarms, useFailedNFTs, useFarmAction, usePositionFilter } from 'state/farms/elastic/hooks'
+import { useElasticFarms, useFarmAction, usePositionFilter } from 'state/farms/elastic/hooks'
 import { UserPositionFarm } from 'state/farms/elastic/types'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { PositionDetails } from 'types/position'
@@ -234,7 +234,7 @@ function WithdrawModal({
       )
       .map(pool => pool.poolAddress.toLowerCase()) || []
 
-  const failedNFTs = useFailedNFTs()
+  // const failedNFTs = useFailedNFTs()
 
   const { depositedPositions = [], joinedPositions = {} } = userFarmInfo?.[selectedFarm?.id || ''] || {}
 
@@ -317,7 +317,7 @@ function WithdrawModal({
 
   const handleWithdraw = async () => {
     if (forced) {
-      await emergencyWithdraw(failedNFTs.map(BigNumber.from))
+      await emergencyWithdraw(eligiblePositions.map(item => item.tokenId))
       onDismiss()
       return
     }
@@ -423,9 +423,9 @@ function WithdrawModal({
         <div style={{ overflowY: 'auto' }}>
           {(eligiblePositions as UserPositionFarm[])
             .filter(pos => {
-              if (forced) {
-                return failedNFTs.includes(pos.tokenId.toString())
-              }
+              // if (forced) {
+              //   return failedNFTs.includes(pos.tokenId.toString())
+              // }
 
               return true
             })
