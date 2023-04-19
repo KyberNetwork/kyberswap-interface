@@ -560,23 +560,29 @@ const TokenRow = ({ token, currentTab }: { token: any; currentTab: TokenListTab 
       )}
       <td>
         <Row gap="4px" justify={'flex-end'}>
-          <ActionButton color={theme.subText} title={t`View Pools`}>
-            <Icon id="liquid" size={16} />
-          </ActionButton>
-          <ActionButton color={theme.subText} title={t`Swap`}>
-            <Icon id="swap" size={16} />
-          </ActionButton>
-          <ActionButton
-            color={theme.primary}
-            onClick={e => {
-              e.stopPropagation()
-              setMenuLeft(undefined)
-              setShowMenu(true)
-            }}
-            title={t`Explore`}
-          >
-            <Icon id="truesight-v2" size={16} />
-          </ActionButton>
+          <SimpleTooltip text={t`View Pools`}>
+            <ActionButton color={theme.subText}>
+              <Icon id="liquid" size={16} />
+            </ActionButton>
+          </SimpleTooltip>
+          <SimpleTooltip text={t`Swap`}>
+            <ActionButton color={theme.subText}>
+              <Icon id="swap" size={16} />
+            </ActionButton>
+          </SimpleTooltip>
+          <SimpleTooltip text={t`Explore`}>
+            <ActionButton
+              color={theme.primary}
+              onClick={e => {
+                e.stopPropagation()
+                setMenuLeft(undefined)
+                setShowMenu(true)
+              }}
+            >
+              <Icon id="truesight-v2" size={16} />
+            </ActionButton>
+          </SimpleTooltip>
+
           <MenuDropdown
             className={showMenu ? 'show' : ''}
             gap="8px"

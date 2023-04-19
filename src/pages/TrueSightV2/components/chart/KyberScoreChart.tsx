@@ -1,7 +1,11 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
+import { Text } from 'rebass'
 import styled from 'styled-components'
 
+import Column from 'components/Column'
 import useTheme from 'hooks/useTheme'
+
+import SimpleTooltip from '../SimpleTooltip'
 
 const Wrapper = styled.div`
   height: 28px;
@@ -32,8 +36,16 @@ export default function KyberScoreChart({ width, height }: { width?: string; hei
     },
     [theme],
   )
+  const [{ x, y }, setXY] = useState({ x: 0, y: 0 })
+  const handleMouseEnter = useCallback((e: any) => {
+    console.log(e)
+    setXY({ x: e.clientX, y: e.clientY })
+  }, [])
+  const handleMouseLeave = useCallback(() => {
+    setXY({ x: 0, y: 0 })
+  }, [])
   return (
-    <Wrapper style={{ width, height }}>
+    <Wrapper style={{ width, height }} onMouseLeave={handleMouseLeave}>
       <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
         <g transform="scale(1,-1) translate(0,-100)">
           {sampleData.map((v, index) => {
@@ -42,7 +54,14 @@ export default function KyberScoreChart({ width, height }: { width?: string; hei
             const rectHeight = v
             const color = calculateColor(v)
             return (
-              <rect key={index} x={index * (rectWidth + gap)} y={0} width={rectWidth} style={{ fill: color }}>
+              <rect
+                key={index}
+                x={index * (rectWidth + gap)}
+                y={0}
+                width={rectWidth}
+                style={{ fill: color }}
+                onMouseEnter={handleMouseEnter}
+              >
                 <animate
                   attributeName="height"
                   from="0"
@@ -57,6 +76,21 @@ export default function KyberScoreChart({ width, height }: { width?: string; hei
           })}
         </g>
       </svg>
+      <SimpleTooltip
+        x={x}
+        y={y}
+        text={
+          <Column style={{ color: theme.subText, fontSize: '12px', lineHeight: '16px' }}>
+            <Text>24/04/2023 08:00 AM</Text>
+            <Text>
+              KyberScore: <span style={{ color: theme.primary }}>88 (Bullish)</span>
+            </Text>
+            <Text>
+              Token Price: <span style={{ color: theme.text }}>$0.000000423</span>
+            </Text>
+          </Column>
+        }
+      />
     </Wrapper>
   )
 }

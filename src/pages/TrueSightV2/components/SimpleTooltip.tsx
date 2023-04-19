@@ -76,7 +76,7 @@ const Arrow = styled.div`
 
 export default function SimpleTooltip({
   text,
-  delay = 50,
+  delay = 100,
   x,
   y,
   children,
@@ -85,17 +85,20 @@ export default function SimpleTooltip({
   delay?: number
   x?: number
   y?: number
-  children: ReactElement
+  children?: ReactElement
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const [show, setShow] = useState<boolean>(false)
   const [{ width, height }, setWidthHeight] = useState({ width: 0, height: 0 })
-  console.log('🚀 ~ file: SimpleTooltip.tsx:94 ~ width:', width)
   const hovering = useRef(false)
   const handleMouseEnter = () => {
     hovering.current = true
-    setShow(true)
+    setTimeout(() => {
+      if (hovering.current === true) {
+        setShow(true)
+      }
+    }, delay)
   }
   const handleMouseLeave = () => {
     hovering.current = false
@@ -104,8 +107,8 @@ export default function SimpleTooltip({
 
   const clientRect = ref.current?.getBoundingClientRect()
   const bodyRect = document.body.getBoundingClientRect()
-  const top = (y || clientRect?.top || 0) - (height || 50) - 10 - bodyRect.top
-  const left = clientRect ? (x || clientRect.left) + clientRect.width / 2 : 0
+  const top = (y || clientRect?.top || 0) - (height || 50) - 15 - bodyRect.top + width * 0
+  const left = clientRect ? x || clientRect.left + clientRect.width / 2 : 0
 
   const inset = `${top}px 0 0 ${left}px`
 
@@ -117,7 +120,7 @@ export default function SimpleTooltip({
   return (
     <div ref={ref} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
       {children}
-      {(show || (x && y)) &&
+      {(show || (!!x && !!y)) &&
         ReactDOM.createPortal(
           <div
             ref={wrapperRef}
