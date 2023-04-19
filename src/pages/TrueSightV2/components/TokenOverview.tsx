@@ -15,6 +15,7 @@ import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 
 import { ITokenOverview } from '../types'
+import { calculateValueToColor } from '../utils'
 import KyberScoreMeter from './KyberScoreMeter'
 import PriceRange from './PriceRange'
 import KyberScoreChart from './chart/KyberScoreChart'
@@ -197,7 +198,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
               </Row>
               <KyberScoreMeter value={data?.kyberScore?.score} />
               <RowFit gap="6px" marginBottom="12px">
-                <Text fontSize={24} fontWeight={500} color={theme.primary}>
+                <Text fontSize={24} fontWeight={500} color={calculateValueToColor(data?.kyberScore?.score || 0, theme)}>
                   {data?.kyberScore?.label}
                 </Text>
                 <MouseoverTooltip

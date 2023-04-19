@@ -23,13 +23,15 @@ const Wrapper = styled.div<{ wider?: boolean; expanded?: boolean }>`
   padding: 6px 12px;
   border-radius: 40px;
   transition: all 0.2s ease;
-  background-color: ${({ theme }) => theme.background};
+  background-color: ${({ theme }) => theme.buttonBlack};
   border: 1px solid ${({ theme }) => theme.border};
   z-index: 10;
+  box-shadow: 0 0 6px 0px ${({ theme }) => theme.primary};
 
   cursor: pointer;
   :hover {
     filter: brightness(1.1);
+    box-shadow: 0 0 6px 2px ${({ theme }) => theme.primary};
   }
 
   * {
@@ -42,7 +44,7 @@ const Wrapper = styled.div<{ wider?: boolean; expanded?: boolean }>`
     expanded &&
     css`
       border-radius: 8px 8px 0 0;
-      border-color: transparent;
+      border-color: ${theme.tableHeader};
     `}
 `
 const Input = styled.input<{ expanded?: boolean }>`
@@ -76,13 +78,13 @@ const DropdownWrapper = styled.div<{ expanded?: boolean; height?: number }>`
   width: 100%;
   background-color: ${({ theme }) => theme.background};
   z-index: 1;
-
   ${({ expanded, height, theme }) =>
     expanded
       ? css`
           max-height: ${height}px;
           border-radius: 8px;
           background-color: ${theme.tableHeader};
+          box-shadow: 0 2px 4px 2px rgba(0, 0, 0, 0.2);
         `
       : css`
           max-height: 0px;

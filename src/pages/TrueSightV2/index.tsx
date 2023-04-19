@@ -6,6 +6,7 @@ import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import headerBanner from 'assets/images/truesight-v2/header_banner.png'
+import headerBannerLight from 'assets/images/truesight-v2/header_banner_light.png'
 import Icon from 'components/Icons/Icon'
 import { RowBetween, RowFit } from 'components/Row'
 import SubscribeNotificationButton from 'components/SubscribeButton'
@@ -36,7 +37,8 @@ const Wrapper = styled.div`
 `
 
 const HeaderWrapper = styled.div`
-  background-image: url(${headerBanner});
+  background-image: url(${({ theme }) => (theme.darkMode ? headerBanner : headerBannerLight)});
+  background-color: ${({ theme }) => theme.buttonBlack};
   background-size: cover;
   width: 100%;
   display: flex;

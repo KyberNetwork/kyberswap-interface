@@ -4,10 +4,12 @@ import { useLocation } from 'react-router-dom'
 import styled from 'styled-components'
 
 import Column from 'components/Column'
+import ApeIcon from 'components/Icons/ApeIcon'
 import Icon from 'components/Icons/Icon'
 import Row, { RowFit } from 'components/Row'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS } from 'constants/index'
+import useTheme from 'hooks/useTheme'
 
 import SlideToUnlock from './SlideToUnlock'
 import NavGroup from './groups/NavGroup'
@@ -55,6 +57,23 @@ const KyberAIWrapper = styled(NavGroup)`
     }
   }
 `
+const BetaTag = () => {
+  const theme = useTheme()
+  return (
+    <RowFit
+      style={{
+        padding: '2px 4px',
+        color: theme.subText,
+        backgroundColor: theme.subText + '32',
+        borderRadius: '12px',
+        fontSize: '10px',
+        marginTop: '-16px',
+      }}
+    >
+      beta
+    </RowFit>
+  )
+}
 
 const KyberAINavItem = () => {
   const { pathname } = useLocation()
@@ -65,12 +84,15 @@ const KyberAINavItem = () => {
       isActive={isActive}
       anchor={
         <DropdownTextAnchor>
-          <CustomSlideToUnlock data-active={isActive}>
-            <RowFit>
-              <Icon id={'truesight-v2'} size={16} style={{ marginRight: '6px' }} />
-              <Trans>KyberAI</Trans>
-            </RowFit>
-          </CustomSlideToUnlock>
+          <RowFit>
+            <CustomSlideToUnlock data-active={isActive}>
+              <RowFit gap="4px">
+                <ApeIcon />
+                <Trans>KyberAI</Trans>
+              </RowFit>
+            </CustomSlideToUnlock>
+            <BetaTag />
+          </RowFit>
         </DropdownTextAnchor>
       }
       dropdownContent={

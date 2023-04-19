@@ -217,7 +217,7 @@ export const Top10HoldersTable = () => {
 }
 
 const formatLevelValue = (value: number): string => {
-  if (value > 1000) return value.toFixed(2)
+  if (value > 1000) return (+value.toFixed(2)).toLocaleString()
   return value.toPrecision(5)
 }
 

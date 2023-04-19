@@ -677,7 +677,7 @@ export const TradingVolumeChart = () => {
                   label: ({ x, y, value }: { x: number; y: number; value: number }) => {
                     return (
                       <text x={x} y={y} dy={-8} fontSize={12} fontWeight={500} fill={theme.text} textAnchor="middle">
-                        ${value !== 0 && `$${formatShortNum(value)}`}
+                        {value !== 0 && `$${formatShortNum(value)}`}
                       </text>
                     )
                   },
