@@ -151,6 +151,10 @@ const RoutesWithNetworkPrefix = () => {
     return <Navigate to={`/${networkInfo.route}${location.pathname}`} replace />
   }
 
+  if (network === NETWORKS_INFO_CONFIG[ChainId.SOLANA].route) {
+    return <Navigate to="/" />
+  }
+
   const chainInfoFromParam = Object.values(NETWORKS_INFO_CONFIG).find(info => info.route === network)
   if (!chainInfoFromParam) {
     return <Navigate to={location.pathname.replace(network, networkInfo.route)} replace />
