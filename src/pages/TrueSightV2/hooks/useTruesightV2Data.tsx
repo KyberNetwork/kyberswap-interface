@@ -6,6 +6,7 @@ import {
   INetflowToCEX,
   INetflowToWhaleWallets,
   INumberOfTrades,
+  INumberOfTransfers,
   ITokenOverview,
   ITradingVolume,
   OHLCData,
@@ -120,9 +121,10 @@ const truesightV2Api = createApi({
       query: () => ({ url: "/live-trades/ethereum/0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202'" }),
     }),
     //16.
-    transferInformation: builder.query({
-      query: () => ({
-        url: '/holdersNum/ethereum/0x2260fac5e5542a773aa44fbcfedf7c193bc2c599?from=1633344036&to=1675215565',
+    transferInformation: builder.query<INumberOfTransfers[], { tokenAddress?: string; from: number; to: number }>({
+      query: ({ tokenAddress, from, to }) => ({
+        url: `/transfer/ethereum/${tokenAddress}`,
+        params: { from, to },
       }),
       transformResponse: (res: any) => res.data,
     }),

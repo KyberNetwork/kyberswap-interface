@@ -368,7 +368,7 @@ export default function SingleToken() {
           <RowFit gap="8px">
             <SettingButtons />
           </RowFit>
-          <ButtonPrimary height="36px" width="120px" gap="4px">
+          <ButtonPrimary height="36px" width="120px" gap="4px" style={{ whiteSpace: 'nowrap' }}>
             <RowFit gap="4px">
               <Icon id="swap" size={16} />
               Swap {data?.symbol}

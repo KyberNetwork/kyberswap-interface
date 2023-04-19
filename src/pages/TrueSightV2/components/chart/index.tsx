@@ -51,6 +51,7 @@ import {
   ChartTab,
   INetflowToCEX,
   INetflowToWhaleWallets,
+  INumberOfTransfers,
   ISRLevel,
   ITradingVolume,
   KyberAITimeframe,
@@ -1363,19 +1364,42 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
 
 export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
   const theme = useTheme()
-  const { address } = useParams()
-  const { data } = useTransferInformationQuery(address)
-  const [timeframe, setTimeframe] = useState('7D')
-  const filteredData = useMemo(() => {
-    const d = address ? data : NUMBER_OF_TRANSFERS
-    switch (timeframe) {
-      case '1D':
-      case '7D':
-        return d && d.length >= 8 ? d?.slice(d.length - 8, d.length - 1) : d
-      default:
-        return d
+  const [timeframe, setTimeframe] = useState(KyberAITimeframe.ONE_MONTH)
+  const [from, to, timerange] = useMemo(() => {
+    const now = Math.floor(Date.now() / 60000) * 60
+    const timerange =
+      {
+        [KyberAITimeframe.ONE_WEEK]: 86400,
+        [KyberAITimeframe.ONE_MONTH]: 86400,
+        [KyberAITimeframe.THREE_MONTHS]: 86400,
+        [KyberAITimeframe.SIX_MONTHS]: 86400,
+      }[timeframe as string] || 86400
+    const from =
+      now -
+      ({
+        [KyberAITimeframe.ONE_WEEK]: 604800,
+        [KyberAITimeframe.ONE_MONTH]: 2592000,
+        [KyberAITimeframe.THREE_MONTHS]: 7776000,
+        [KyberAITimeframe.SIX_MONTHS]: 15552000,
+      }[timeframe as string] || 604800)
+    return [from, now, timerange]
+  }, [timeframe])
+
+  const { data } = useTransferInformationQuery({ tokenAddress: testParams.address, from, to })
+  const formattedData = useMemo(() => {
+    if (!data) return
+    const dataTemp: INumberOfTransfers[] = []
+    const startTimestamp = (Math.floor(from / timerange) + 1) * timerange
+    for (let t = startTimestamp; t < to; t += timerange) {
+      const index = data.findIndex(item => item.timestamp === t)
+      if (index >= 0) {
+        dataTemp.push({ ...data[index], timestamp: t * 1000 })
+      } else {
+        dataTemp.push({ timestamp: t * 1000, numberOfTransfer: 0, volume: 0 })
+      }
     }
-  }, [data, timeframe, address])
+    return dataTemp
+  }, [data, timerange, from, to])
 
   return (
     <ChartWrapper>
@@ -1384,10 +1408,10 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
           selected={timeframe}
           onSelect={setTimeframe}
           timeframes={[
-            KyberAITimeframe.ONE_DAY,
             KyberAITimeframe.ONE_WEEK,
             KyberAITimeframe.ONE_MONTH,
             KyberAITimeframe.THREE_MONTHS,
+            KyberAITimeframe.SIX_MONTHS,
           ]}
         />
       </LegendWrapper>
@@ -1395,7 +1419,7 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
         <AreaChart
           width={500}
           height={400}
-          data={filteredData}
+          data={formattedData}
           margin={{
             top: 40,
             right: 0,
@@ -1425,7 +1449,7 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
             axisLine={false}
             tick={{ fill: theme.subText, fontWeight: 400 }}
             width={40}
-            tickFormatter={value => `$${formatShortNum(value)}`}
+            tickFormatter={value => `${tab === ChartTab.Second ? '$' : ''}${formatShortNum(value)}`}
           />
           <Tooltip
             cursor={{ fill: 'transparent' }}
@@ -1441,8 +1465,10 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
                     {payload.timestamp && dayjs(payload.timestamp).format('MMM DD, YYYY')}
                   </Text>
                   <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                    {tab === ChartTab.Second ? 'Total Volume' : 'Total Transfers'}:{' '}
-                    <span style={{ color: theme.text }}>{formatShortNum(payload.count)}</span>
+                    {tab === ChartTab.First ? 'Total Transfers' : 'Total Volume'}:{' '}
+                    <span style={{ color: theme.text }}>
+                      {formatShortNum(tab === ChartTab.First ? payload.numberOfTransfer : payload.volume)}
+                    </span>
                   </Text>
                 </TooltipWrapper>
               )
@@ -1450,7 +1476,7 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
           />
           <Area
             type="monotone"
-            dataKey="count"
+            dataKey={tab === ChartTab.First ? 'numberOfTransfer' : 'volume'}
             stroke={theme.primary}
             fill="url(#colorUv)"
             animationBegin={ANIMATION_DELAY}

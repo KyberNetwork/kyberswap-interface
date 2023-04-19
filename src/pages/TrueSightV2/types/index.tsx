@@ -51,8 +51,9 @@ export interface INetflowToCEX {
   timestamp: number
 }
 export interface INumberOfTransfers {
-  count: number
+  numberOfTransfer: number
   timestamp: number
+  volume: number
 }
 export interface INumberOfHolders {
   count: number
