@@ -316,7 +316,7 @@ export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?
                 onClick={() => setShowSell(prev => !prev)}
               />
               <LegendButton
-                text="Total Trade"
+                text="Total Trades"
                 iconStyle={{ backgroundColor: theme.text, height: '4px', width: '16px' }}
                 enabled={showTotalTrade}
                 onClick={() => setShowTotalTrade(prev => !prev)}
@@ -474,7 +474,7 @@ export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?
             onClick={() => setShowSell(prev => !prev)}
           />
           <LegendButton
-            text="Total Trade"
+            text="Total Trades"
             iconStyle={{ backgroundColor: theme.text, height: '4px', width: '16px' }}
             enabled={showTotalTrade}
             onClick={() => setShowTotalTrade(prev => !prev)}

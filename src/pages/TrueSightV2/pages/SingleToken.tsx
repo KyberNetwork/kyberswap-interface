@@ -350,7 +350,7 @@ export default function SingleToken() {
           <ButtonPrimary height="36px" width="120px" gap="4px">
             <RowFit gap="4px">
               <Icon id="swap" size={16} />
-              Swap {data?.symbol}
+              Swap {data?.symbol?.toUpperCase()}
             </RowFit>
           </ButtonPrimary>
         </RowFit>
