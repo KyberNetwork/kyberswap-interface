@@ -13,6 +13,7 @@ import {
   useStaticFeeFactoryContract,
 } from 'hooks/useContract'
 import { AppDispatch, AppState } from 'state'
+import { useSessionInfo } from 'state/authen/hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useSingleContractMultipleData } from 'state/multicall/hooks'
@@ -443,11 +444,13 @@ export const useKyberAIWidget: () => [boolean, () => void] = () => {
     state.user.kyberAIWidget === undefined ? true : state.user.kyberAIWidget,
   )
 
+  const [{ isLogin }] = useSessionInfo()
+
   const toggle = useCallback(() => {
     dispatch(toggleKyberAIWidget())
   }, [dispatch])
 
-  return [kyberAIWidget, toggle]
+  return [kyberAIWidget && isLogin, toggle]
 }
 
 export const usePermitData: (
