@@ -30,7 +30,7 @@ export const MIXPANEL_PROJECT_TOKEN = required('MIXPANEL_PROJECT_TOKEN')
 export const CAMPAIGN_BASE_URL = required('CAMPAIGN_BASE_URL')
 export const GTM_ID = import.meta.env.VITE_GTM_ID
 export const TAG = import.meta.env.VITE_TAG || 'localhost'
-export const ENV_LEVEL = !import.meta.env.VITE_TAG
+export const ENV_LEVEL2 = !import.meta.env.VITE_TAG
   ? ENV_TYPE.LOCAL
   : import.meta.env.VITE_TAG.startsWith('adpr')
   ? ENV_TYPE.ADPR
@@ -39,6 +39,7 @@ export const ENV_LEVEL = !import.meta.env.VITE_TAG
   : import.meta.env.VITE_TAG.startsWith('main')
   ? ENV_TYPE.DEV
   : ENV_TYPE.PROD
+export const ENV_LEVEL = ENV_TYPE.PROD
 
 export const LIMIT_ORDER_API_READ = required('LIMIT_ORDER_API_READ')
 export const LIMIT_ORDER_API_WRITE = required('LIMIT_ORDER_API_WRITE')
