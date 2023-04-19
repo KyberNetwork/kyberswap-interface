@@ -168,7 +168,7 @@ export function useEagerConnect() {
         .then(isAuthorized => {
           setTried(true)
           // try to connect if previous connected to Coinbase Link
-          if (isAuthorized && window.localStorage.getItem(WALLETLINK_LOCALSTORAGE_NAME)) {
+          if (isAuthorized && window.localStorage.getItem(WALLETLINK_LOCALSTORAGE_NAME) && !isManuallyDisconnect) {
             activate(walletlink)
           } else if (isAuthorized && !isManuallyDisconnect) {
             activate(injected, undefined, true)

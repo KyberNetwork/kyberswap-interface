@@ -15,7 +15,7 @@ export const PageWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  padding: 24px 36px;
+  padding: 24px 36px 0;
   gap: 24px;
   width: 100%;
   max-width: 1464px;
