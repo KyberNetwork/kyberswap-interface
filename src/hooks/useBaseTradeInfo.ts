@@ -6,6 +6,7 @@ import { parseGetRouteResponse } from 'services/route/utils'
 import useGetRoute, { ArgsGetRoute, useGetRouteSolana } from 'components/SwapForm/hooks/useGetRoute'
 import { GAS_AMOUNT_ETHEREUM } from 'components/swapv2/LimitOrder/const'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import useDebounce from 'hooks/useDebounce'
 import useInterval from 'hooks/useInterval'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 
@@ -80,8 +81,8 @@ export function useBaseTradeInfoLimitOrder(currencyIn: Currency | undefined, cur
   }, [library, nativePriceUsd])
 
   useInterval(fetchGasFee, nativePriceUsd ? 15_000 : 2000)
-
-  return { loading, tradeInfo: { ...tradeInfo, gasFee } as BaseTradeInfoLO }
+  const debouncedLoading = useDebounce(loading, 100) // prevent flip flop UI when loading from true to false
+  return { loading: loading || debouncedLoading, tradeInfo: { ...tradeInfo, gasFee } as BaseTradeInfoLO }
 }
 
 export const useBaseTradeInfoWithAggregator = (args: ArgsGetRoute) => {

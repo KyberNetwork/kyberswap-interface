@@ -102,6 +102,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     feeConfig,
     isSaveGas,
     parsedAmount,
+    isProcessingSwap,
   })
 
   const { data: getRouteRawResponse, isFetching: isGettingRoute, error: getRouteError } = result
@@ -113,7 +114,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     return parseGetRouteResponse(getRouteRawResponse.data, currencyIn, currencyOut)
   }, [currencyIn, currencyOut, getRouteError, getRouteRawResponse])
 
-  const routeSummary = isGettingRoute ? undefined : getRouteResponse?.routeSummary
+  const routeSummary = getRouteResponse?.routeSummary
 
   const buildRoute = useBuildRoute({
     recipient: isDegenMode && recipient ? recipient : '',
@@ -144,7 +145,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   useEffect(() => {
     // reset value for unwrapping WSOL
     // because on Solana, unwrap WSOL is closing WSOL account,
-    // which mean it will unwrap all WSOL at once and we can't unwrap partial amount of WSOL
+    // which mean it will unwrap all WSOL at once, and we can't unwrap partial amount of WSOL
     if (isSolanaUnwrap) onUserInput(balanceIn?.toExact() ?? '')
   }, [balanceIn, isSolanaUnwrap, onUserInput])
 
@@ -223,7 +224,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
             parsedAmountFromTypedValue={parsedAmount}
             balanceIn={balanceIn}
             balanceOut={balanceOut}
-            isAdvancedMode={isDegenMode}
+            isDegenMode={isDegenMode}
             typedValue={typedValue}
             currencyIn={currencyIn}
             currencyOut={currencyOut}
