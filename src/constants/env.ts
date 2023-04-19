@@ -30,8 +30,7 @@ export const MIXPANEL_PROJECT_TOKEN = required('MIXPANEL_PROJECT_TOKEN')
 export const CAMPAIGN_BASE_URL = required('CAMPAIGN_BASE_URL')
 export const GTM_ID = import.meta.env.VITE_GTM_ID
 export const TAG = import.meta.env.VITE_TAG || 'localhost'
-// todo namgold: revert dis
-export const ENV_LEVEL2 = !import.meta.env.VITE_TAG
+export const ENV_LEVEL = !import.meta.env.VITE_TAG
   ? ENV_TYPE.LOCAL
   : import.meta.env.VITE_TAG.startsWith('adpr')
   ? ENV_TYPE.ADPR
@@ -40,7 +39,6 @@ export const ENV_LEVEL2 = !import.meta.env.VITE_TAG
   : import.meta.env.VITE_TAG.startsWith('main')
   ? ENV_TYPE.DEV
   : ENV_TYPE.PROD
-export const ENV_LEVEL: ENV_TYPE = ENV_TYPE.PROD
 
 export const LIMIT_ORDER_API_READ = required('LIMIT_ORDER_API_READ')
 export const LIMIT_ORDER_API_WRITE = required('LIMIT_ORDER_API_WRITE')
@@ -136,14 +134,9 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key: string]: { [type: string]: string } } =
 }
 
 export const getAnnouncementsTemplateIds = () => {
-  const config =
-    ENV_LEVEL === ENV_TYPE.PROD
-      ? ANNOUNCEMENT_TEMPLATE_IDS.production
-      : ENV_LEVEL === ENV_TYPE.STG
-      ? ANNOUNCEMENT_TEMPLATE_IDS.staging
-      : ANNOUNCEMENT_TEMPLATE_IDS.development
-  return config
+  return ANNOUNCEMENT_TEMPLATE_IDS[import.meta.env.VITE_ENV]
 }
+
 const mock = localStorage.getItem('mock')?.split(',') ?? []
 export const MOCK_ACCOUNT_EVM = mock[0] ?? ''
 export const MOCK_ACCOUNT_SOLANA = mock[1] ?? ''

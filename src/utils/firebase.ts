@@ -7,12 +7,7 @@ import { LimitOrder } from 'components/swapv2/LimitOrder/type'
 import { ENV_LEVEL, FIREBASE } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
 
-const { DEFAULT: FIREBASE_CONFIG_DEFAULT, LIMIT_ORDER: FIREBASE_CONFIG_LO } =
-  ENV_LEVEL === ENV_TYPE.PROD
-    ? FIREBASE.production
-    : ENV_LEVEL === ENV_TYPE.STG
-    ? FIREBASE.staging
-    : FIREBASE.development
+const { DEFAULT: FIREBASE_CONFIG_DEFAULT, LIMIT_ORDER: FIREBASE_CONFIG_LO } = FIREBASE[import.meta.env.VITE_ENV]
 
 const firebaseApp = firebase.initializeApp(FIREBASE_CONFIG_DEFAULT, 'default')
 const firebaseAppLimitOrder = FIREBASE_CONFIG_LO
