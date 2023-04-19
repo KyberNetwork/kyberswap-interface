@@ -8,6 +8,7 @@ export interface AuthenState {
   readonly anonymousUserInfo: { username: string } | undefined
   readonly userInfo: { wallet_address: string } | undefined
   readonly isLogin: boolean
+  readonly processing: boolean
 }
 
 const DEFAULT_AUTHEN_STATE: AuthenState = {
@@ -15,6 +16,7 @@ const DEFAULT_AUTHEN_STATE: AuthenState = {
   anonymousUserInfo: undefined,
   userInfo: undefined,
   isLogin: false,
+  processing: true,
 }
 
 export default createReducer(DEFAULT_AUTHEN_STATE, builder =>
@@ -26,5 +28,6 @@ export default createReducer(DEFAULT_AUTHEN_STATE, builder =>
       if (session.loginMethod === LoginMethod.ANONYMOUS) state.anonymousUserInfo = session.userInfo
       else state.userInfo = session.userInfo
       state.isLogin = !!state.userInfo
+      if (session.userInfo) state.processing = false
     }),
 )

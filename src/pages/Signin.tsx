@@ -1,40 +1,48 @@
 import KyberOauth2 from '@kybernetwork/oauth2'
+import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
 import { ButtonPrimary } from 'components/Button'
+import LocalLoader from 'components/LocalLoader'
+import Row from 'components/Row'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useLogin from 'hooks/useLogin'
-import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useSessionInfo } from 'state/authen/hooks'
 import { shortString } from 'utils/string'
 
 const SignIn = () => {
-  useLogin() // move this to kyber ai page
-  const [{ isLogin, userInfo, anonymousUserInfo }] = useSessionInfo()
+  const [{ isLogin, userInfo, anonymousUserInfo, processing }] = useSessionInfo()
   const { account } = useActiveWeb3React()
-
-  const qs = useParsedQueryString()
-  if (!qs.showInfo) return null
+  const navigate = useNavigate()
+  if (processing) return <LocalLoader />
   return (
     <Flex
       justifyContent={'center'}
-      style={{ gap: '10px' }}
+      style={{ gap: '10px', maxWidth: '100vw' }}
       alignItems="center"
       flexDirection="column"
       width="100%"
       margin={'20px'}
     >
-      This is fake kyber api page.
+      This is fake kyber ai landing page.
       {isLogin ? (
         <>
-          <Text>Your already logged in with wallet: {userInfo?.wallet_address}</Text>
-          <ButtonPrimary width="100px" height="30px" onClick={() => KyberOauth2.logout()}>
-            Sign out
-          </ButtonPrimary>
+          <Text textAlign={'center'}>Your already logged in with wallet: {userInfo?.wallet_address}</Text>
+          <Row gap="10px" justify="center">
+            <ButtonPrimary width="100px" height="30px" onClick={() => KyberOauth2.logout()}>
+              Sign out
+            </ButtonPrimary>
+            <ButtonPrimary width="120px" height="30px" onClick={() => navigate(APP_PATHS.KYBERAI_RANKINGS)}>
+              Try KyberAI
+            </ButtonPrimary>
+          </Row>
         </>
       ) : (
         <>
-          <Text>Anonymous user: {shortString(anonymousUserInfo?.username ?? '', 20)}</Text>
+          <Text>
+            Anonymous user: {shortString(anonymousUserInfo?.username ?? '', 20)}. If you want to try kyber AI, please
+            connect wallet and sign in
+          </Text>
           {account && (
             <ButtonPrimary width="100px" height="30px" onClick={() => KyberOauth2.authenticate()}>
               Sign in
