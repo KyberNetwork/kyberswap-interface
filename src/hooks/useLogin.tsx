@@ -7,8 +7,7 @@ const useLogin = () => {
   useEffect(() => {
     const signIn = async function signIn() {
       try {
-        const clientAppConfig = { clientId: OAUTH_CLIENT_ID }
-        KyberOauth2.initialize(clientAppConfig)
+        KyberOauth2.initialize({ clientId: OAUTH_CLIENT_ID, mode: import.meta.env.VITE_ENV })
         await KyberOauth2.loginAnonymous()
       } catch (error) {
         console.log('get info anonymous err', error)
