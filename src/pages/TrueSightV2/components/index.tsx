@@ -127,12 +127,12 @@ export const SectionWrapper = ({
   const theme = useTheme()
   const ref = useRef<HTMLDivElement>(null)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
-  const [showText, setShowText] = useState(false)
+  const [showText, setShowText] = useState(true)
 
   const descriptionRef = useRef<HTMLDivElement>(null)
 
   const isTextExceeded =
-    description && descriptionRef.current && descriptionRef.current?.clientWidth < descriptionRef.current?.scrollWidth
+    description && descriptionRef.current && descriptionRef.current?.clientWidth <= descriptionRef.current?.scrollWidth
 
   return (
     <StyledSectionWrapper show={show} ref={ref} id={id} style={style}>
@@ -183,16 +183,30 @@ export const SectionWrapper = ({
           <Row gap="4px">
             <SectionDescription show={showText} ref={descriptionRef}>
               {description}
+              {showText && isTextExceeded && (
+                <Text
+                  as="span"
+                  fontSize="14px"
+                  color={theme.primary}
+                  width="fit-content"
+                  style={{ cursor: 'pointer', flexBasis: 'fit-content', whiteSpace: 'nowrap' }}
+                  onClick={() => setShowText(prev => !prev)}
+                >
+                  {' '}
+                  {'Hide'}
+                </Text>
+              )}
             </SectionDescription>
             {!showText && isTextExceeded && (
               <Text
+                as="span"
                 fontSize="14px"
                 color={theme.primary}
                 width="fit-content"
                 style={{ cursor: 'pointer', flexBasis: 'fit-content', whiteSpace: 'nowrap' }}
-                onClick={() => setShowText(true)}
+                onClick={() => setShowText(prev => !prev)}
               >
-                Read more
+                {'Read more'}
               </Text>
             )}
           </Row>
