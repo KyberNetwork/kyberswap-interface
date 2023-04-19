@@ -73,7 +73,7 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
         {
           type: NotificationType.ERROR,
           title: t`Permit Error`,
-          summary: t`An error occurred while attempting to authorize this token. Instead, please approve normally.`,
+          summary: t`An error occurred while attempting to authorize this token. Please approve it normally instead.`,
         },
         10000,
       )

@@ -215,7 +215,8 @@ const ApprovalModal = ({
 
             <Column gap="8px" flex="0 1 200px">
               <MouseoverTooltip
-                text={t`You wish to give KyberSwap permission to use the selected custom allowance token amountfor transactions. Subsequent transactions amount exceeding more than will require your permission again. This will cost a gas fee`}
+                text={t`You wish to give KyberSwap permission to use up to the selected custom token
+                amount for transactions. Subsequent transactions exceeding this amount will require your permission again. This will cost gas fees`}
                 placement="right"
               >
                 <Text
