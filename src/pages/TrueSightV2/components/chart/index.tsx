@@ -36,7 +36,7 @@ import {
 } from 'components/TradingViewChart/charting_library'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { NUMBER_OF_HOLDERS, NUMBER_OF_TRANSFERS } from 'pages/TrueSightV2/hooks/sampleData'
+import { NUMBER_OF_HOLDERS } from 'pages/TrueSightV2/hooks/sampleData'
 import {
   useCexesLiquidationQuery,
   useNetflowToCEXQuery,
