@@ -51,21 +51,32 @@ export default function useCurrencyHandler(chainId: ChainId) {
     }
   }, [outputCurrency, currencyOut])
 
+  const switchCurrency = useCallback(() => {
+    setCurrencyIn(currencyOut)
+    setCurrencyOut(currencyIn)
+  }, [currencyOut, currencyIn])
+
   const onChangeCurrencyIn = useCallback(
     (c: Currency) => {
-      if (currencyOut?.equals(c)) return
+      if (currencyOut?.equals(c)) {
+        switchCurrency()
+        return
+      }
       setCurrencyIn(c)
       replaceUrl()
     },
-    [currencyOut, replaceUrl],
+    [currencyOut, replaceUrl, switchCurrency],
   )
   const onChangeCurrencyOut = useCallback(
     (c: Currency) => {
-      if (currencyIn?.equals(c)) return
+      if (currencyIn?.equals(c)) {
+        switchCurrency()
+        return
+      }
       setCurrencyOut(c)
       replaceUrl()
     },
-    [currencyIn, replaceUrl],
+    [currencyIn, replaceUrl, switchCurrency],
   )
 
   return {
