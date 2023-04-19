@@ -30,6 +30,7 @@ export const MIXPANEL_PROJECT_TOKEN = required('MIXPANEL_PROJECT_TOKEN')
 export const CAMPAIGN_BASE_URL = required('CAMPAIGN_BASE_URL')
 export const GTM_ID = import.meta.env.VITE_GTM_ID
 export const TAG = import.meta.env.VITE_TAG || 'localhost'
+// todo namgold: revert dis
 export const ENV_LEVEL2 = !import.meta.env.VITE_TAG
   ? ENV_TYPE.LOCAL
   : import.meta.env.VITE_TAG.startsWith('adpr')
