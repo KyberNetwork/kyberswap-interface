@@ -3,6 +3,7 @@ import React, { CSSProperties, ReactNode, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { Text } from 'rebass'
 
+import Dots from 'components/Dots'
 import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 import useTheme from 'hooks/useTheme'
@@ -40,7 +41,7 @@ export default function TradePrice({
     }
   } catch (error) {}
 
-  const show = Boolean(price?.marketRate && price?.invertRate && formattedPrice)
+  const show = Boolean(price?.marketRate && price?.invertRate && formattedPrice && !loading)
   const value = showInverted
     ? `1 ${symbolOut} = ${formattedPrice} ${symbolIn}`
     : `1 ${symbolIn} = ${formattedPrice} ${symbolOut}`
@@ -57,9 +58,13 @@ export default function TradePrice({
       {show ? (
         <>
           {label && <>{label}&nbsp;</>}
-          <Text color={color}>{loading ? null : `${value}`}</Text>
+          <Text color={color}>{value}</Text>
           <StyledBalanceMaxMini hover={!icon}>{icon || <Repeat size={12} />}</StyledBalanceMaxMini>
         </>
+      ) : loading ? (
+        <Dots>
+          <Trans>Calculating</Trans>
+        </Dots>
       ) : (
         <Text color={theme.warning}>
           <Trans>Unable to get the market price</Trans>
