@@ -12,6 +12,7 @@ import geckoTerminalApi from '../services/geckoTermial'
 import ksSettingApi from '../services/ksSetting'
 import notificationApi from '../services/notification'
 import application from './application/reducer'
+import authen from './authen/reducer'
 import bridge from './bridge/reducer'
 import burnProAmm from './burn/proamm/reducer'
 import burn from './burn/reducer'
@@ -44,6 +45,7 @@ const store = configureStore({
   devTools: process.env.NODE_ENV !== 'production',
   reducer: {
     application,
+    authen,
     user,
     transactions,
     swap,

@@ -9,13 +9,14 @@ import { isMobile } from 'react-device-detect'
 import { useSelector } from 'react-redux'
 import { useSearchParams } from 'react-router-dom'
 
-import { injected, walletconnect, walletlink } from 'connectors'
+import { injected, trustWalletConnector, walletconnect, walletlink } from 'connectors'
 import { MOCK_ACCOUNT_EVM, MOCK_ACCOUNT_SOLANA } from 'constants/env'
 import { NETWORKS_INFO } from 'constants/networks'
 import { NetworkInfo } from 'constants/networks/type'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS, WALLETLINK_LOCALSTORAGE_NAME } from 'constants/wallets'
 import { AppState } from 'state'
 import { useKyberSwapConfig } from 'state/application/hooks'
+import { useConnectedWallet } from 'state/authen/hooks'
 import { useIsAcceptedTerm, useIsUserManuallyDisconnect } from 'state/user/hooks'
 import { detectInjectedType, isEVMWallet, isSolanaWallet } from 'utils'
 
@@ -131,9 +132,9 @@ export const useWeb3Solana = () => {
   return { connection }
 }
 
-export async function isAuthorized(): Promise<boolean> {
+export async function isAuthorized(getAccount = false): Promise<string | boolean> {
   // Check if previous connected to Coinbase Link
-  if (window.localStorage.getItem(WALLETLINK_LOCALSTORAGE_NAME)) {
+  if (window.localStorage.getItem(WALLETLINK_LOCALSTORAGE_NAME) && !getAccount) {
     return true
   }
   if (!window.ethereum) {
@@ -142,7 +143,7 @@ export async function isAuthorized(): Promise<boolean> {
 
   try {
     const accounts = await window.ethereum.request({ method: 'eth_accounts' })
-    if (accounts?.length > 0) return true
+    if (accounts?.length > 0) return accounts[0]
     return false
   } catch {
     return false
@@ -155,35 +156,46 @@ export function useEagerConnect() {
   const [tried, setTried] = useState(false)
   const [isManuallyDisconnect] = useIsUserManuallyDisconnect()
   const [isAcceptedTerm] = useIsAcceptedTerm()
-
+  const detectedWallet = detectInjectedType()
+  const [, setConnectedWallet] = useConnectedWallet()
   useEffect(() => {
-    try {
-      // If not accepted Terms or Terms changed: block eager connect for EVM wallets and disconnect manually for Solana wallet
-      if (!isAcceptedTerm) {
+    ;(async () => {
+      try {
+        // If not accepted Terms or Terms changed: block eager connect for EVM wallets and disconnect manually for Solana wallet
+        if (!isAcceptedTerm) {
+          setTried(true)
+          disconnect()
+          setConnectedWallet(undefined)
+          return
+        }
+        const authorized = await isAuthorized()
         setTried(true)
-        disconnect()
-        return
+        let connector,
+          throwError = true
+        // try to connect if previous connected to Coinbase Link
+        if (authorized && window.localStorage.getItem(WALLETLINK_LOCALSTORAGE_NAME) && !isManuallyDisconnect) {
+          connector = walletlink
+          throwError = false
+        } else if ((authorized && !isManuallyDisconnect) || (isMobile && window.ethereum)) {
+          connector = injected
+        } else if (detectedWallet === 'TRUST_WALLET' && !isManuallyDisconnect) {
+          connector = trustWalletConnector
+        } else if (detectedWallet === 'WALLET_CONNECT' && !isManuallyDisconnect) {
+          connector = walletconnect
+        }
+        if (connector) {
+          await activate(connector, undefined, throwError)
+          const account = await connector.getAccount()
+          setConnectedWallet(account || undefined)
+        } else {
+          setConnectedWallet(undefined)
+        }
+      } catch (e) {
+        console.log('Eagerly connect: authorize error', e)
+        setTried(true)
+        setConnectedWallet(undefined)
       }
-      isAuthorized()
-        .then(isAuthorized => {
-          setTried(true)
-          // try to connect if previous connected to Coinbase Link
-          if (isAuthorized && window.localStorage.getItem(WALLETLINK_LOCALSTORAGE_NAME) && !isManuallyDisconnect) {
-            activate(walletlink)
-          } else if (isAuthorized && !isManuallyDisconnect) {
-            activate(injected, undefined, true)
-          } else if (isMobile && window.ethereum) {
-            activate(injected, undefined, true)
-          }
-        })
-        .catch(e => {
-          console.log('Eagerly connect: authorize error', e)
-          setTried(true)
-        })
-    } catch (e) {
-      console.log('Eagerly connect: authorize error', e)
-      setTried(true)
-    }
+    })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []) // intentionally only running on mount (make sure it's only mounted once :))
 

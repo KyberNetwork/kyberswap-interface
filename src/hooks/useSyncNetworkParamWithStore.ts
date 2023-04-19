@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { usePrevious } from 'react-use'
 
 import { NETWORKS_INFO } from 'constants/networks'
 import { isAuthorized, useActiveWeb3React, useEagerConnect } from 'hooks'
+import { useConnectedWallet } from 'state/authen/hooks'
+import { useIsUserManuallyDisconnect } from 'state/user/hooks'
 
 import { useChangeNetwork } from './useChangeNetwork'
 
@@ -12,7 +15,7 @@ import { useChangeNetwork } from './useChangeNetwork'
  * we need this hook support to check user actually connected wallet or not
  * although we connected wallet, it will take small time to load => account = undefined => wait a bit => account = 0x....
  */
-function useIsConnectedWallet() {
+export function useIsConnectedWallet() {
   const { account } = useActiveWeb3React()
   const prevAccount = usePrevious(account)
   const key = 'connectedWallet'
@@ -25,11 +28,17 @@ function useIsConnectedWallet() {
     }
   }, [account, prevAccount])
 
-  const connectedWallet = localStorage.getItem(key)
+  const connectedWalletStatus = localStorage.getItem(key)
+  const [isUserManuallyDisconnect] = useIsUserManuallyDisconnect()
+  const [possibleWallet] = useConnectedWallet()
+
   return useCallback(async () => {
-    const authorize = await isAuthorized()
-    return connectedWallet && authorize
-  }, [connectedWallet])
+    if (isUserManuallyDisconnect && !(isMobile && window.ethereum)) return false
+    if (possibleWallet === null) return null // pending
+    const currentAccount = await isAuthorized(true)
+    const walletValue = currentAccount || possibleWallet
+    return connectedWalletStatus && typeof walletValue === 'string' ? walletValue : false
+  }, [connectedWalletStatus, isUserManuallyDisconnect, possibleWallet])
 }
 
 export function useSyncNetworkParamWithStore() {
@@ -39,8 +48,7 @@ export function useSyncNetworkParamWithStore() {
   const isOnInit = useRef(true)
   const navigate = useNavigate()
   const triedEager = useEagerConnect()
-  const isConnectedWallet = useIsConnectedWallet()
-
+  const [possibleWallet] = useConnectedWallet()
   const location = useLocation()
   const [requestingNetwork, setRequestingNetwork] = useState<string>()
 
@@ -61,9 +69,8 @@ export function useSyncNetworkParamWithStore() {
           isOnInit.current = false
           return
         }
-        const isConnected = await isConnectedWallet()
-        if (isConnected && !account) {
-          // connected wallet but web3-react slow return account
+        if ((possibleWallet || possibleWallet === null) && !account) {
+          // connected wallet but web3-react slow return account, or checking connection
           return
         }
         setRequestingNetwork(params?.network)
@@ -89,7 +96,7 @@ export function useSyncNetworkParamWithStore() {
     networkInfo.route,
     walletEVM.isConnected,
     walletSolana.isConnected,
-    isConnectedWallet,
+    possibleWallet,
     account,
   ])
 
