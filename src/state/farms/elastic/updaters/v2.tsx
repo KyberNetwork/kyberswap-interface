@@ -139,9 +139,17 @@ const FarmUpdaterV2: React.FC<CommonProps> = ({}) => {
             const tvlToken0 = TokenAmount.fromRawAmount(token0.wrapped, 0)
             const tvlToken1 = TokenAmount.fromRawAmount(token1.wrapped, 0)
 
+            const current = Date.now() / 1000
+
             return {
               startTime: Number(rawPool.startTime),
-              endTime: chainId === ChainId.AVAXMAINNET && rawPool.pid === '125' ? 1680104783 : Number(rawPool.endTime),
+              // Hard code endtime
+              endTime:
+                chainId === ChainId.AVAXMAINNET && rawPool.pid === '125'
+                  ? 1680104783
+                  : Number(rawPool.endTime) > current
+                  ? 1681833600
+                  : Number(rawPool.endTime),
               pid: rawPool.pid,
               id: rawPool.id,
               feeTarget: rawPool.feeTarget,
@@ -167,7 +175,7 @@ const FarmUpdaterV2: React.FC<CommonProps> = ({}) => {
               }),
               tvlToken0,
               tvlToken1,
-              apr: chainId === ChainId.AVAXMAINNET && rawPool.pid === '125' ? 0 : Number(rawPool.apr),
+              apr: 0.0001, // chainId === ChainId.AVAXMAINNET && rawPool.pid === '125' ? 0 : Number(rawPool.apr),
               poolAPR: Number(rawPool.pool.apr),
               stakedTvl: Number(rawPool.stakedTvl),
             }

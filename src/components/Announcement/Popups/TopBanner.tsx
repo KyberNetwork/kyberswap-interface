@@ -154,7 +154,7 @@ function TopBanner() {
             ref={refContent}
             isOverflow={isOverflowParent}
             dangerouslySetInnerHTML={{
-              __html: escapeScriptHtml(content),
+              __html: escapeScriptHtml(isMobile ? content.replace(/<br\/>/g, '&nbsp;') : content),
             }}
           />
         </TextWrapper>

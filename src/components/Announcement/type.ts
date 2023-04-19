@@ -16,6 +16,7 @@ export enum PrivateAnnouncementType {
   TRENDING_SOON_TOKEN = 'TRENDING_SOON',
   POOL_POSITION = 'ELASTIC_POOLS',
   PRICE_ALERT = 'PRICE_ALERT',
+  DIRECT_MESSAGE = 'DIRECT_MESSAGE', // for some specific addresses
 }
 
 export type PrivateAnnouncement<T extends AnnouncementTemplate = AnnouncementTemplate> = {
@@ -150,6 +151,7 @@ export type PopupItemType<T extends PopupContent = PopupContent> = {
   content: T
   removeAfterMs: number | null
   popupType: PopupType
+  account?: string
 }
 
 export type PopupContent = PopupContentTxn | PopupContentSimple | PopupContentAnnouncement
