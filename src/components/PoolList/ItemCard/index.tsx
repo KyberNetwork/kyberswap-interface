@@ -4,7 +4,7 @@ import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import { useEffect, useState } from 'react'
 import { AlertTriangle, BarChart2, Minus, Plus, Share2 } from 'react-feather'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -71,7 +71,6 @@ const formatPriceMax = (price?: Fraction) => {
 const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
   const { chainId, networkInfo } = useActiveWeb3React()
   const amp = new Fraction(poolData.amp).divide(JSBI.BigInt(SUBGRAPH_AMP_MULTIPLIER))
-  const navigate = useNavigate()
   const [showDetail, setShowDetail] = useState(false)
 
   const { data: uniqueAndActiveFarms } = useActiveAndUniqueFarmsData()

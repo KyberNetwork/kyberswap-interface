@@ -5,7 +5,7 @@ import { rgba } from 'polished'
 import React from 'react'
 import { AlertTriangle, Info, Minus, Plus, Share2 } from 'react-feather'
 import { useDispatch } from 'react-redux'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
 import { ButtonEmpty } from 'components/Button'
@@ -42,8 +42,6 @@ const ListItem = ({ poolData, userLiquidityPositions }: ListItemGroupProps) => {
   const togglePoolDetailModal = usePoolDetailModalToggle()
 
   const amp = new Fraction(poolData.amp).divide(JSBI.BigInt(10000))
-
-  const navigate = useNavigate()
 
   const { data: uniqueAndActiveFarms } = useActiveAndUniqueFarmsData()
   const farm = uniqueAndActiveFarms.find(f => f.id.toLowerCase() === poolData.id.toLowerCase())
