@@ -1,13 +1,14 @@
 import { splitSignature } from '@ethersproject/bytes'
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { defaultAbiCoder, parseUnits } from 'ethers/lib/utils'
+import { defaultAbiCoder, hexZeroPad, hexlify, parseUnits } from 'ethers/lib/utils'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch } from 'react-redux'
 import { usePrevious } from 'react-use'
 
 import { NotificationType } from 'components/Announcement/type'
 import EIP_2612 from 'constants/abis/eip2612.json'
+import { EIP712_DOMAIN_TYPE, EIP712_DOMAIN_TYPE_SALT, PERMITTABLE_TOKENS, PermitType } from 'constants/permit'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useNotify } from 'state/application/hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
@@ -84,7 +85,6 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
       }
     }
   }, [permitData?.errorCount, notify, mixpanelHandler, currency, prevErrorCount])
-
   const signPermitCallback = useCallback(async (): Promise<void> => {
     if (
       !library ||
@@ -108,26 +108,15 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
       nonce: tokenNonceState.result[0].toNumber(),
       deadline: deadline,
     }
+
+    const overwritedPermitData = PERMITTABLE_TOKENS[chainId]?.[currency.address]
+
     const data = JSON.stringify({
       types: {
-        EIP712Domain: [
-          {
-            name: 'name',
-            type: 'string',
-          },
-          {
-            name: 'version',
-            type: 'string',
-          },
-          {
-            name: 'chainId',
-            type: 'uint256',
-          },
-          {
-            name: 'verifyingContract',
-            type: 'address',
-          },
-        ],
+        EIP712Domain:
+          overwritedPermitData && overwritedPermitData.type === PermitType.SALT
+            ? EIP712_DOMAIN_TYPE_SALT
+            : EIP712_DOMAIN_TYPE,
         Permit: [
           {
             name: 'owner',
@@ -151,12 +140,20 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
           },
         ],
       },
-      domain: {
-        name: currency.name,
-        verifyingContract: currency.address,
-        chainId,
-        version: '1',
-      },
+      domain:
+        overwritedPermitData && overwritedPermitData.type === PermitType.SALT
+          ? {
+              name: currency.name,
+              verifyingContract: currency.address,
+              salt: hexZeroPad(hexlify(chainId), 32),
+              version: '1',
+            }
+          : {
+              name: currency.name,
+              verifyingContract: currency.address,
+              version: '1',
+              chainId,
+            },
       primaryType: 'Permit',
       message: message,
     })
