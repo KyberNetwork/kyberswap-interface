@@ -291,19 +291,11 @@ export default function App() {
                   <Routes>
                     <Route element={<DarkModeQueryParamReader />} />
 
-                    <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency-to-:toCurrency`} element={<SwapPage />} />
-                    <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency`} element={<SwapPage />} />
-                    <Route path={`${APP_PATHS.SWAP}/:network`} element={<SwapPage />} />
+                    {/* From react-router-dom@6.5.0, :fromCurrency-to-:toCurrency no long works, need to manually parse the params */}
+                    <Route path={`${APP_PATHS.SWAP}/:network/:currency?`} element={<SwapPage />} />
 
                     {getLimitOrderContract(chainId) && (
-                      <>
-                        <Route
-                          path={`${APP_PATHS.LIMIT}/:network/:fromCurrency-to-:toCurrency`}
-                          element={<SwapPage />}
-                        />
-                        <Route path={`${APP_PATHS.LIMIT}/:network/:fromCurrency`} element={<SwapPage />} />
-                        <Route path={`${APP_PATHS.LIMIT}/:network`} element={<SwapPage />} />
-                      </>
+                      <Route path={`${APP_PATHS.LIMIT}/:network/:currency?`} element={<SwapPage />} />
                     )}
 
                     <Route path={`${APP_PATHS.FIND_POOL}`} element={<PoolFinder />} />
