@@ -4,7 +4,7 @@ import { rgba } from 'polished'
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { ArrowDown, ArrowRight, ArrowUp, Share2, Star } from 'react-feather'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { NavigateFunction, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { useGesture } from 'react-use-gesture'
 import { Text } from 'rebass'
@@ -26,6 +26,7 @@ import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
 
 import NetworkSelect from '../components/NetworkSelect'
+import SimpleTooltip from '../components/SimpleTooltip'
 import SmallKyberScoreMeter from '../components/SmallKyberScoreMeter'
 import TokenChart from '../components/TokenChartSVG'
 import KyberScoreChart from '../components/chart/KyberScoreChart'
@@ -449,7 +450,7 @@ const MenuDropdown = styled(RowFit)`
   }
 `
 
-const ChainIcon = styled.div`
+const StyledChainIcon = styled.div`
   border-radius: 50%;
   background-color: ${({ theme }) => theme.tableHeader};
   padding: 6px;
@@ -457,6 +458,20 @@ const ChainIcon = styled.div`
     filter: brightness(1.2);
   }
 `
+
+const ChainIcon = ({ id, name, navigate }: { id: string; name: string; navigate: NavigateFunction }) => {
+  return (
+    <SimpleTooltip text={name}>
+      <StyledChainIcon
+        onClick={() => {
+          navigate(APP_PATHS.KYBERAI_EXPLORE)
+        }}
+      >
+        <Icon id={id} size={20} />
+      </StyledChainIcon>
+    </SimpleTooltip>
+  )
+}
 
 const TokenRow = ({ token, currentTab }: { token: any; currentTab: TokenListTab }) => {
   const navigate = useNavigate()
@@ -569,55 +584,13 @@ const TokenRow = ({ token, currentTab }: { token: any; currentTab: TokenListTab 
             style={{ left: menuLeft !== undefined ? `${menuLeft}px` : undefined }}
             ref={menuRef}
           >
-            <ChainIcon
-              onClick={() => {
-                navigate(APP_PATHS.KYBERAI_EXPLORE)
-              }}
-            >
-              <Icon id="eth-mono" size={20} title="Ethereum" />
-            </ChainIcon>
-            <ChainIcon
-              onClick={() => {
-                navigate(APP_PATHS.KYBERAI_EXPLORE)
-              }}
-            >
-              <Icon id="bnb-mono" size={20} title="Binance" />
-            </ChainIcon>
-            <ChainIcon
-              onClick={() => {
-                navigate(APP_PATHS.KYBERAI_EXPLORE)
-              }}
-            >
-              <Icon id="ava-mono" size={20} title="Avalance" />
-            </ChainIcon>
-            <ChainIcon
-              onClick={() => {
-                navigate(APP_PATHS.KYBERAI_EXPLORE)
-              }}
-            >
-              <Icon id="matic-mono" size={20} title="Polygon" />
-            </ChainIcon>
-            <ChainIcon
-              onClick={() => {
-                navigate(APP_PATHS.KYBERAI_EXPLORE)
-              }}
-            >
-              <Icon id="arbitrum-mono" size={20} title="Arbitrum" />
-            </ChainIcon>
-            <ChainIcon
-              onClick={() => {
-                navigate(APP_PATHS.KYBERAI_EXPLORE)
-              }}
-            >
-              <Icon id="fantom-mono" size={20} title="Fantom" />
-            </ChainIcon>
-            <ChainIcon
-              onClick={() => {
-                navigate(APP_PATHS.KYBERAI_EXPLORE)
-              }}
-            >
-              <Icon id="optimism-mono" size={20} title="Optimism" />
-            </ChainIcon>
+            <ChainIcon id="eth-mono" name="Ethereum" navigate={navigate} />
+            <ChainIcon id="bnb-mono" name="Binance" navigate={navigate} />
+            <ChainIcon id="ava-mono" name="Avalance" navigate={navigate} />
+            <ChainIcon id="matic-mono" name="Polygon" navigate={navigate} />
+            <ChainIcon id="arbitrum-mono" name="Arbitrum" navigate={navigate} />
+            <ChainIcon id="fantom-mono" name="Fantom" navigate={navigate} />
+            <ChainIcon id="optimism-mono" name="Optimism" navigate={navigate} />
           </MenuDropdown>
         </Row>
       </td>
