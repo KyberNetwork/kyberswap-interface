@@ -180,60 +180,60 @@ export default function ShareKyberAIModal({ token }: { token?: ITokenOverview })
           </IconButton>
         </Row>
         <ImageWrapper>
-          <ImageInner ref={ref}>
-            <>
-              {loading && (
-                <>
-                  <RowBetween style={{ zIndex: 2 }}>
-                    <RowFit gap="8px" style={{ paddingLeft: '16px' }}>
-                      <div style={{ position: 'relative' }}>
-                        <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
-                          <Logo
-                            srcs={['https://cryptologos.cc/logos/wrapped-bitcoin-wbtc-logo.svg?v=024']}
-                            style={{ width: '36px', height: '36px', background: 'white', display: 'block' }}
-                          />
-                        </div>
-                        <div
-                          style={{
-                            position: 'absolute',
-                            top: '-4px',
-                            right: '-4px',
-                            borderRadius: '50%',
-                            border: `1px solid ${theme.background}`,
-                          }}
-                        >
-                          <img
-                            src="https://icons.iconarchive.com/icons/cjdowner/cryptocurrency-flat/512/Ethereum-ETH-icon.png"
-                            alt="eth"
-                            width="16px"
-                            height="16px"
-                            style={{ display: 'block' }}
-                          />
-                        </div>
-                      </div>
-                      <Text fontSize={24} color={theme.text} fontWeight={500}>
-                        {token?.name} ({token?.symbol.toUpperCase()})
-                      </Text>
-                    </RowFit>
-                    <RowFit gap="20px">
-                      <KyberSwapShareLogo />
-                      <QRCodeSVG
-                        value={window.location.href}
-                        size={80}
-                        bgColor="transparent"
-                        fgColor={theme.text}
-                        level="M"
+          {loading && (
+            <ImageInner ref={ref}>
+              <RowBetween style={{ zIndex: 2 }}>
+                <RowFit gap="8px" style={{ paddingLeft: '16px' }}>
+                  <div style={{ position: 'relative' }}>
+                    <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
+                      <Logo
+                        srcs={['https://cryptologos.cc/logos/wrapped-bitcoin-wbtc-logo.svg?v=024']}
+                        style={{ width: '36px', height: '36px', background: 'white', display: 'block' }}
                       />
-                    </RowFit>
-                  </RowBetween>
-                  <Row style={{ zIndex: 2, width: '100%', height: '100%', alignItems: 'stretch' }}>
-                    <NumberofTradesChart noTimeframe noAnimation />
-                  </Row>
-                </>
-              )}
-            </>
-          </ImageInner>
-          <>{canvasRef.current && <img src={canvasRef.current} alt="KyberAI share" />}</>
+                    </div>
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '-4px',
+                        right: '-4px',
+                        borderRadius: '50%',
+                        border: `1px solid ${theme.background}`,
+                      }}
+                    >
+                      <img
+                        src="https://icons.iconarchive.com/icons/cjdowner/cryptocurrency-flat/512/Ethereum-ETH-icon.png"
+                        alt="eth"
+                        width="16px"
+                        height="16px"
+                        style={{ display: 'block' }}
+                      />
+                    </div>
+                  </div>
+                  <Text fontSize={24} color={theme.text} fontWeight={500}>
+                    {token?.name} ({token?.symbol.toUpperCase()})
+                  </Text>
+                </RowFit>
+                <RowFit gap="20px">
+                  <KyberSwapShareLogo />
+                  <QRCodeSVG
+                    value={window.location.href}
+                    size={80}
+                    bgColor="transparent"
+                    fgColor={theme.text}
+                    level="M"
+                  />
+                </RowFit>
+              </RowBetween>
+              <Row style={{ zIndex: 2, width: '100%', height: '100%', alignItems: 'stretch' }}>
+                <NumberofTradesChart noTimeframe noAnimation />
+              </Row>
+            </ImageInner>
+          )}
+          <>
+            {canvasRef.current && (
+              <img src={canvasRef.current} alt="KyberAI share" style={{ height: '100%', width: '100%' }} />
+            )}
+          </>
           {loading && (
             <Loader>
               <AnimatedLoader />
