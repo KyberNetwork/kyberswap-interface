@@ -1,3 +1,4 @@
+import GlobalPolyFill from '@esbuild-plugins/node-globals-polyfill'
 import { lingui } from '@lingui/vite-plugin'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
@@ -25,5 +26,27 @@ export default defineConfig({
   ],
   define: {
     'process.env': process.env, // help libs dont break
+  },
+  //https://stackoverflow.com/a/72978600/8153505
+  optimizeDeps: {
+    esbuildOptions: {
+      define: {
+        global: 'globalThis',
+      },
+      plugins: [
+        GlobalPolyFill({
+          process: true,
+          buffer: true,
+        }),
+      ],
+    },
+  },
+  resolve: {
+    alias: {
+      process: 'process/browser',
+      stream: 'stream-browserify',
+      zlib: 'browserify-zlib',
+      util: 'util',
+    },
   },
 })
