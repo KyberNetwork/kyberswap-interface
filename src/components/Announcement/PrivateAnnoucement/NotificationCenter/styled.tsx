@@ -30,7 +30,6 @@ export const Desc = styled.div`
   color: ${({ theme }) => theme.subText};
   word-break: break-word;
   display: block;
-  display: -webkit-box;
   max-width: 100%;
   line-height: 16px;
   display: flex;
