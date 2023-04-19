@@ -92,7 +92,7 @@ export function useUserLiquidityPositions(): UserLiquidityPositionResult {
       user: account?.toLowerCase(),
     },
     fetchPolicy: 'no-cache',
-    skip: !isEVM,
+    skip: !isEVM || !account,
   })
 
   return useMemo(() => ({ loading, error, data }), [data, error, loading])

@@ -18,7 +18,7 @@ const POOLS_BULK = gql`
   }
 `
 const ETH_PRICE = gql`
-  query bundles {
+  query ethPrice {
     bundles(where: { id: 1 }) {
       id
       ethPrice

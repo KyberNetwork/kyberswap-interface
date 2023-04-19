@@ -34,7 +34,7 @@ const useAllTicks = (poolAddress: string) => {
   return useQuery(ALL_TICKS(poolAddress?.toLowerCase()), {
     client: elasticClient,
     pollInterval: 30_000,
-    skip: !isEVM,
+    skip: !isEVM || !poolAddress,
   })
 }
 
