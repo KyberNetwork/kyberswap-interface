@@ -40,7 +40,7 @@ export const ENV_LEVEL2 = !import.meta.env.VITE_TAG
   : import.meta.env.VITE_TAG.startsWith('main')
   ? ENV_TYPE.DEV
   : ENV_TYPE.PROD
-export const ENV_LEVEL = ENV_TYPE.PROD
+export const ENV_LEVEL: ENV_TYPE = ENV_TYPE.PROD
 
 export const LIMIT_ORDER_API_READ = required('LIMIT_ORDER_API_READ')
 export const LIMIT_ORDER_API_WRITE = required('LIMIT_ORDER_API_WRITE')
