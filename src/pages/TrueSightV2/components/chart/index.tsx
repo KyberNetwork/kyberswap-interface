@@ -252,7 +252,7 @@ const formatShortNum = (num: number, fixed = 1): string => {
   return (negative ? '-' : '') + formattedNum
 }
 
-export const NumberofTradesChart = () => {
+export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?: boolean; noAnimation?: boolean }) => {
   const theme = useTheme()
   const { address } = useParams()
   const [timeframe, setTimeframe] = useState(KyberAITimeframe.ONE_MONTH)
@@ -323,16 +323,18 @@ export const NumberofTradesChart = () => {
               />
             </>
           )}
-          <TimeFrameLegend
-            selected={timeframe}
-            onSelect={setTimeframe}
-            timeframes={[
-              KyberAITimeframe.ONE_DAY,
-              KyberAITimeframe.ONE_WEEK,
-              KyberAITimeframe.ONE_MONTH,
-              KyberAITimeframe.THREE_MONTHS,
-            ]}
-          />
+          {!noTimeframe && (
+            <TimeFrameLegend
+              selected={timeframe}
+              onSelect={setTimeframe}
+              timeframes={[
+                KyberAITimeframe.ONE_DAY,
+                KyberAITimeframe.ONE_WEEK,
+                KyberAITimeframe.ONE_MONTH,
+                KyberAITimeframe.THREE_MONTHS,
+              ]}
+            />
+          )}
         </LegendWrapper>
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
@@ -418,6 +420,7 @@ export const NumberofTradesChart = () => {
                 dataKey="sell"
                 stackId="a"
                 fill={rgba(theme.red, 0.6)}
+                isAnimationActive={noAnimation ? false : true}
                 animationBegin={ANIMATION_DELAY}
                 animationDuration={ANIMATION_DURATION}
                 radius={[5, 5, 0, 0]}
@@ -428,6 +431,7 @@ export const NumberofTradesChart = () => {
                 dataKey="buy"
                 stackId="a"
                 fill={rgba(theme.primary, 0.6)}
+                isAnimationActive={noAnimation ? false : true}
                 animationBegin={ANIMATION_DELAY}
                 animationDuration={ANIMATION_DURATION}
                 radius={[5, 5, 0, 0]}
@@ -449,6 +453,7 @@ export const NumberofTradesChart = () => {
                     )
                   },
                 }}
+                isAnimationActive={noAnimation ? false : true}
               />
             )}
           </ComposedChart>

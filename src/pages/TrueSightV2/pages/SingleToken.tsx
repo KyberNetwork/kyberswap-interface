@@ -22,6 +22,7 @@ import { useToggleModal } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 import DisplaySettings from '../components/DisplaySettings'
+import ShareKyberAIModal from '../components/ShareKyberAIModal'
 import { TokenOverview } from '../components/TokenOverview'
 import TutorialModal from '../components/TutorialModal'
 import { useTokenDetailQuery } from '../hooks/useTruesightV2Data'
@@ -433,7 +434,7 @@ export default function SingleToken() {
       {/* {currentTab === DiscoverTokenTab.News && <News />} */}
       <ShareModal title="Share with your friends" url={shareUrl.current} />
       <TutorialModal />
-      {/* <ShareKyberAIModal /> */}
+      <ShareKyberAIModal token={data} />
     </Wrapper>
   )
 }
