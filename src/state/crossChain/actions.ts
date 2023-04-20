@@ -39,6 +39,7 @@ export type SelectCurrencyCrossChainParam = {
 export const selectCurrencyCrossChain = createAction<SelectCurrencyCrossChainParam>(
   'crosschain/selectCurrencyCrossChain',
 )
+export const setInputAmountCrossChain = createAction<string>('crosschain/setInputAmountCrossChain')
 
 export const selectDestChainCrossChain = createAction<ChainId | undefined>('crosschain/selectDestChainCrossChain')
 export const setRoute = createAction<RouteData | undefined>('crosschain/setRoute')

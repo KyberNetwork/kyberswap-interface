@@ -17,6 +17,7 @@ import {
   setBridgePoolInfo as setBridgePoolInfoAction,
   setBridgeState,
   setCrossChainState,
+  setInputAmountCrossChain,
   setRoute,
 } from './actions'
 import { BridgeState, SwapCrossChainState } from './reducer'
@@ -108,6 +109,7 @@ export function useCrossChainHandlers() {
   )
 
   const setTradeRoute = useCallback((data: RouteData | undefined) => dispatch(setRoute(data)), [dispatch])
+  const setInputAmount = useCallback((data: string) => dispatch(setInputAmountCrossChain(data)), [dispatch])
 
-  return { selectCurrency, selectDestChain, setTradeRoute }
+  return { selectCurrency, selectDestChain, setTradeRoute, setInputAmount }
 }

@@ -1,7 +1,7 @@
 import { GetRoute } from '@0xsquid/sdk'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -54,7 +54,6 @@ export default function SwapForm() {
   const changeNetwork = useChangeNetwork()
   const [isDegenMode] = useDegenModeManager()
 
-  const [inputAmount, setInputAmount] = useState('')
   const [slippage] = useUserSlippageTolerance()
 
   const {
@@ -67,6 +66,7 @@ export default function SwapForm() {
     loadingToken,
     chainIdOut,
     squidInstance,
+    inputAmount,
   } = useDefaultTokenChain()
 
   const debouncedInput = useDebounce(inputAmount, INPUT_DEBOUNCE_TIME)
@@ -91,7 +91,7 @@ export default function SwapForm() {
     loading: gettingRoute,
   } = useGetRouteCrossChain(routeParams)
   const { outputAmount, amountUsdIn, amountUsdOut, exchangeRate, priceImpact } = getRouInfo(route)
-  const { selectCurrency, selectDestChain } = useCrossChainHandlers()
+  const { selectCurrency, selectDestChain, setInputAmount } = useCrossChainHandlers()
 
   const toggleWalletModal = useWalletModalToggle()
   const isDark = useIsDarkMode()
@@ -106,7 +106,7 @@ export default function SwapForm() {
     (value: string) => {
       if (currencyIn) setInputAmount(value)
     },
-    [currencyIn],
+    [currencyIn, setInputAmount],
   )
 
   const showPreview = () => {
@@ -162,12 +162,13 @@ export default function SwapForm() {
     inputAmount,
     outputAmount,
     exchangeRate,
+    setInputAmount,
   ])
 
   const maxAmountInput = useCurrencyBalance(currencyIn)?.toExact()
   const handleMaxInput = useCallback(() => {
     maxAmountInput && setInputAmount(maxAmountInput)
-  }, [maxAmountInput])
+  }, [maxAmountInput, setInputAmount])
 
   const onCurrencySelect = useCallback(
     (currencyIn: WrappedTokenInfo) => {

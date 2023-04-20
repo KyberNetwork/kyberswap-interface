@@ -13,6 +13,7 @@ import {
   setBridgeState,
   setCrossChainState,
   setHistoryURL,
+  setInputAmountCrossChain,
   setRoute,
 } from './actions'
 
@@ -28,6 +29,7 @@ export type SwapCrossChainState = {
   loadingToken: boolean
   squidInstance: Squid | undefined
   route: RouteData | undefined
+  inputAmount: string
 }
 
 export type BridgeState = {
@@ -69,6 +71,7 @@ const DEFAULT_STATE: CrossChainState = {
   },
 
   crossChain: {
+    inputAmount: '',
     chains: [],
     tokens: [],
     currencyIn: undefined,
@@ -126,6 +129,9 @@ export default createReducer(DEFAULT_STATE, builder =>
     .addCase(selectCurrencyCrossChain, (state, { payload: { currencyIn, currencyOut } }) => {
       state.crossChain.currencyIn = currencyIn
       state.crossChain.currencyOut = currencyOut
+    })
+    .addCase(setInputAmountCrossChain, (state, { payload: inputAmount }) => {
+      state.crossChain.inputAmount = inputAmount
     })
     .addCase(selectDestChainCrossChain, (state, { payload: chainIdOut }) => {
       state.crossChain.chainIdOut = chainIdOut
