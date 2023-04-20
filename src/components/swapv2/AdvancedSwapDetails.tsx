@@ -390,7 +390,12 @@ export function TradeSummaryCrossChain({
         <RowBetween>
           <RowFixed>
             <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
-              <PriceImpactNote />
+              <MouseoverTooltip
+                text={<Trans>You will receive at least this amount or your transaction will revert by Axelar.</Trans>}
+                placement="right"
+              >
+                <Trans>Price Impact</Trans>
+              </MouseoverTooltip>
             </TextDashed>
           </RowFixed>
           <TYPE.black color={theme.text} fontSize={12}>

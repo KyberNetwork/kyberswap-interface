@@ -442,9 +442,12 @@ export const useCrossChainSetting = () => {
     },
     [dispatch],
   )
-  const toggleExpressExecutionMode = useCallback(() => {
-    setSetting({ ...setting, enableExpressExecution: !setting.enableExpressExecution })
-  }, [setSetting, setting])
+  const setExpressExecutionMode = useCallback(
+    (enableExpressExecution: boolean) => {
+      setSetting({ ...setting, enableExpressExecution })
+    },
+    [setSetting, setting],
+  )
 
-  return { setting, toggleExpressExecutionMode }
+  return { setting, setExpressExecutionMode }
 }

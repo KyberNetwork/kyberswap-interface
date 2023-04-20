@@ -21,6 +21,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/useChangeNetwork'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
+import TradeTypeSelection from 'pages/CrossChain/SwapForm/TradeTypeSelection'
 import TradePrice from 'pages/CrossChain/TradePrice'
 import { getRouInfo } from 'pages/CrossChain/helpers'
 import useDefaultTokenChain from 'pages/CrossChain/useDefaultTokenChain'
@@ -32,15 +33,15 @@ import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { useDegenModeManager, useIsDarkMode, useUserSlippageTolerance } from 'state/user/hooks'
+import { useCrossChainSetting, useDegenModeManager, useIsDarkMode, useUserSlippageTolerance } from 'state/user/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { ExternalLink } from 'theme'
 import { TRANSACTION_STATE_DEFAULT, TransactionFlowState } from 'types/index'
 import { uint256ToFraction } from 'utils/numbers'
 import { checkPriceImpact } from 'utils/prices'
 
-import { ConfirmCrossChainModal } from '../Bridge/ComfirmBridgeModal'
-import ErrorWarningPanel from '../Bridge/ErrorWarning'
+import { ConfirmCrossChainModal } from '../../Bridge/ComfirmBridgeModal'
+import ErrorWarningPanel from '../../Bridge/ErrorWarning'
 
 const ArrowWrapper = styled.div`
   padding: 4px 6px;
@@ -70,6 +71,9 @@ export default function SwapForm() {
   } = useDefaultTokenChain()
 
   const debouncedInput = useDebounce(inputAmount, INPUT_DEBOUNCE_TIME)
+  const {
+    setting: { enableExpressExecution },
+  } = useCrossChainSetting()
   const routeParams: GetRoute | undefined = useMemo(() => {
     if (!currencyIn || !currencyOut || !chainIdOut || !account || !Number(debouncedInput)) return
     return {
@@ -80,9 +84,10 @@ export default function SwapForm() {
       fromAmount: tryParseAmount(debouncedInput, currencyIn)?.quotient.toString() ?? '',
       toAddress: account,
       slippage: slippage / 100,
+      enableExpress: enableExpressExecution,
       // customContractCalls?: ContractCall[]; // todo
     }
-  }, [currencyIn, currencyOut, account, debouncedInput, chainId, chainIdOut, slippage])
+  }, [currencyIn, currencyOut, account, debouncedInput, chainId, chainIdOut, slippage, enableExpressExecution])
 
   const {
     route,
@@ -261,7 +266,9 @@ export default function SwapForm() {
         />
 
         <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={false} />
-        {priceImpact && <PriceImpactNote priceImpact={Number(priceImpact)} isDegenMode={isDegenMode} />}
+        <TradeTypeSelection />
+
+        {!!priceImpact && <PriceImpactNote priceImpact={Number(priceImpact)} isDegenMode={isDegenMode} />}
 
         {inputError?.state && (
           <ErrorWarningPanel title={inputError?.tip} type={inputError?.state} desc={inputError?.desc} />
