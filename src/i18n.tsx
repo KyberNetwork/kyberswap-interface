@@ -19,9 +19,12 @@ const plurals: LocalePlural = {
 }
 
 async function dynamicActivate(locale: SupportedLocale) {
+  console.log('dynamicActivate', { locale })
   const { messages } = await import(`./locales/${locale}.po`)
+  console.log('dynamicActivate', { messages, 'plurals[locale]': plurals[locale] })
   i18n.loadLocaleData(locale, { plurals: plurals[locale] })
   i18n.load(locale, messages)
+  console.log('dynamicActivate final', { locale })
   i18n.activate(locale)
 }
 

@@ -61,7 +61,9 @@ const LiquiditySourcesSetting: React.FC<Props> = ({ onClick }) => {
 
       <Group>
         <NumberOfSources>
-          {selectedDexes.length || numberOfDEXes} out of {numberOfDEXes} selected
+          <Trans>
+            {selectedDexes.length || numberOfDEXes} out of {numberOfDEXes} selected
+          </Trans>
         </NumberOfSources>
         <ChevronRight size={20} color={theme.subText} />
       </Group>

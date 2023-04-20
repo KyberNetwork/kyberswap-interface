@@ -10,21 +10,22 @@
   "scripts": {
     "preview": "vite preview",
     "analyze": "source-map-explorer 'build/static/js/*.js'",
-    "build": "yarn i18n && tsc && env-cmd -f .env vite build",
-    "build-dev": "yarn i18n && tsc && env-cmd -f .env.dev vite build",
-    "build-prod": "yarn i18n && tsc && env-cmd -f .env.production vite build",
-    "build-stg": "yarn i18n && tsc && env-cmd -f .env.stg vite build",
+    "build": "yarn i18n && tsc && vite build",
+    "build-adpr": "yarn i18n && tsc && vite build --mode adpr",
+    "build-dev": "yarn i18n && tsc && vite build --mode dev",
+    "build-stg": "yarn i18n && tsc && vite build --mode stg",
+    "build-prod": "yarn i18n && tsc && vite build",
     "eject": "react-scripts eject",
     "i18n": "yarn i18n:extract && yarn i18n:compile",
     "i18n:compile": "lingui compile",
     "i18n:extract": "lingui extract",
-    "lint": "yarn eslint .",
-    "start": "env-cmd -f .env vite",
-    "start-dev": "env-cmd -f .env.dev vite",
-    "start-local": "env-cmd -f .env.local vite",
-    "start-production": "env-cmd -f .env.production vite",
-    "start-stg": "env-cmd -f .env.stg vite",
-    "test": "react-scripts test --env=jsdom"
+    "lint": "eslint --ext ts,tsx src",
+    "start": "vite --mode production",
+    "start-adpr": "vite --mode adpr",
+    "start-dev": "vite --mode dev",
+    "start-stg": "vite --mode stg",
+    "start-prod": "vite --mode production",
+    "test-e2e": "cypress run"
   },
   "browserslist": [
     "chrome >= 52",
@@ -47,8 +48,8 @@
     "@kyberswap/ks-sdk-core": "^1.0.5",
     "@kyberswap/ks-sdk-elastic": "^1.0.6",
     "@kyberswap/ks-sdk-solana": "^1.0.2",
-    "@lingui/macro": "^3.17.2",
-    "@lingui/react": "^3.17.2",
+    "@lingui/macro": "~3.14.0",
+    "@lingui/react": "~3.14.0",
     "@popperjs/core": "^2.11.6",
     "@project-serum/anchor": "^0.25.0",
     "@project-serum/serum": "^0.13.65",
@@ -132,8 +133,8 @@
     "@babel/core": "^7.21.4",
     "@babel/preset-react": "^7.18.6",
     "@babel/preset-typescript": "^7.21.4",
-    "@lingui/cli": "^3.17.2",
-    "@lingui/vite-plugin": "^3.17.2",
+    "@lingui/cli": "~3.14.0",
+    "@lingui/vite-plugin": "~3.16.1",
     "@trivago/prettier-plugin-sort-imports": "^3.3.1",
     "@types/aos": "^3.0.4",
     "@types/big.js": "^6.0.0",
@@ -185,6 +186,10 @@
   },
   "resolutions": {
     "@kyberswap/ks-sdk-core": "^1.0.5",
-    "react-error-overlay": "6.0.9"
+    "react-error-overlay": "6.0.9",
+    "@lingui/babel-plugin-extract-messages": "3.14.0",
+    "@lingui/cli": "3.14.0",
+    "@lingui/core": "3.14.0",
+    "@lingui/conf": "3.16.0"
   }
 }
