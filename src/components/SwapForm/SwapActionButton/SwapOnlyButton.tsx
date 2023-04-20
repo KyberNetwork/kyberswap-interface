@@ -59,7 +59,6 @@ const SwapOnlyButton: React.FC<Props> = ({
 
   // the callback to execute the swap
   const swapCallback = useSwapCallbackV3(isPermitSwap)
-  const priceImpactResult = checkPriceImpact(priceImpact)
   const userHasSpecifiedInputOutput = Boolean(currencyIn && currencyOut && parsedAmount)
   const showLoading =
     (isGettingRoute && routeSummary === undefined) ||
