@@ -23,6 +23,7 @@ export type Props = {
   balanceIn: CurrencyAmount<Currency> | undefined
   balanceOut: CurrencyAmount<Currency> | undefined
   parsedAmount: CurrencyAmount<Currency> | undefined
+  isPermitSwap?: boolean
 
   setProcessingSwap: React.Dispatch<React.SetStateAction<boolean>>
   setErrorWhileSwap: (e: string) => void
@@ -42,6 +43,7 @@ const SwapOnlyButton: React.FC<Props> = ({
   balanceIn,
   balanceOut,
   parsedAmount,
+  isPermitSwap,
 
   setProcessingSwap,
   setErrorWhileSwap,
@@ -56,7 +58,8 @@ const SwapOnlyButton: React.FC<Props> = ({
   const { priceImpact } = routeSummary || {}
 
   // the callback to execute the swap
-  const swapCallback = useSwapCallbackV3()
+  const swapCallback = useSwapCallbackV3(isPermitSwap)
+  const priceImpactResult = checkPriceImpact(priceImpact)
   const userHasSpecifiedInputOutput = Boolean(currencyIn && currencyOut && parsedAmount)
   const showLoading =
     (isGettingRoute && routeSummary === undefined) ||

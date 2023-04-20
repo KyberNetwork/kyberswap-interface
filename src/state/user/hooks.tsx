@@ -451,3 +451,12 @@ export const useCrossChainSetting = () => {
 
   return { setting, setExpressExecutionMode }
 }
+
+export const usePermitData: (
+  address?: string,
+) => { rawSignature?: string; deadline?: number; value?: string; errorCount?: number } | null = address => {
+  const { chainId, account } = useActiveWeb3React()
+  const permitData = useAppSelector(state => state.user.permitData)
+
+  return address && account && permitData ? permitData[account]?.[chainId]?.[address] : null
+}

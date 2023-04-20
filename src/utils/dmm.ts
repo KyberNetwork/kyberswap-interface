@@ -522,9 +522,11 @@ export function useRewardTokensFullInfo(): Token[] {
 
 export function errorFriendly(text: string): string {
   const error = text?.toLowerCase?.() || ''
+
   if (!error || error.includes('router: expired')) {
     return 'An error occurred. Refresh the page and try again '
   }
+
   if (
     error.includes('mintotalamountout') ||
     error.includes('err_limit_out') ||
@@ -546,6 +548,9 @@ export function errorFriendly(text: string): string {
     return t`An error occurred. Please try increasing max slippage`
   }
 
+  if (error.includes('permit')) {
+    return t`An error occurred. Invalid Permit Signature`
+  }
   if (error.includes('burn amount exceeds balance')) {
     return t`Insufficient fee rewards amount, try to remove your liquidity without claiming fees for now and you can try to claim it later`
   }

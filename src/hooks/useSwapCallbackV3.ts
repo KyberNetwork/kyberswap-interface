@@ -15,7 +15,7 @@ import { sendEVMTransaction } from 'utils/sendTransaction'
 
 // returns a function that will execute a swap, if the parameters are all valid
 // and the user has approved the slippage adjusted input amount for the trade
-const useSwapCallbackV3 = () => {
+const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
   const { account, chainId, isEVM } = useActiveWeb3React()
   const { library } = useWeb3React()
 
@@ -76,6 +76,7 @@ const useSwapCallbackV3 = () => {
           inputAmount: inputAmount.toExact(),
           slippageSetting: allowedSlippage ? allowedSlippage / 100 : 0,
           priceImpact: priceImpact && priceImpact > 0.01 ? priceImpact.toFixed(2) : '<0.01',
+          isPermitSwap,
         },
       } as TransactionExtraInfo2Token,
     }
@@ -91,6 +92,7 @@ const useSwapCallbackV3 = () => {
     recipient,
     recipientAddressOrName,
     typedValue,
+    isPermitSwap,
   ])
 
   const handleSwapResponse = useCallback(
@@ -110,7 +112,6 @@ const useSwapCallbackV3 = () => {
       if (!account || !inputAmount || !routerAddress || !encodedSwapData) {
         throw new Error('Missing dependencies')
       }
-
       const value = BigNumber.from(inputAmount.currency.isNative ? inputAmount.quotient.toString() : 0)
       const response = await sendEVMTransaction(
         account,
