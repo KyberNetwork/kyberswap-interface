@@ -5,7 +5,7 @@ import { Flex, Text } from 'rebass'
 import LocalLoader from 'components/LocalLoader'
 import useTheme from 'hooks/useTheme'
 
-export default function NoData({ isLoading, isEmpty }: { isLoading: boolean; isEmpty: boolean }) {
+export default function NoData({ isLoading, isEmpty, text }: { isLoading: boolean; isEmpty: boolean; text?: string }) {
   const theme = useTheme()
   // toast error
   if (isLoading) {
@@ -34,7 +34,7 @@ export default function NoData({ isLoading, isEmpty }: { isLoading: boolean; isE
             lineHeight: '24px',
           }}
         >
-          <Trans>You haven&apos;t made any transfers yet</Trans>
+          {text || <Trans>You haven&apos;t made any transfers yet</Trans>}
         </Text>
       </Flex>
     )

@@ -1,3 +1,4 @@
+import { t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useEffect, useState } from 'react'
 import { Flex } from 'rebass'
@@ -30,7 +31,13 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
   }, [])
 
   if (shouldShowLoading || isCompletelyEmpty) {
-    return <NoData isLoading={shouldShowLoading} isEmpty={isCompletelyEmpty} />
+    return (
+      <NoData
+        isLoading={shouldShowLoading}
+        isEmpty={isCompletelyEmpty}
+        text={t`You haven't made any transactions yet`}
+      />
+    )
   }
 
   return (
