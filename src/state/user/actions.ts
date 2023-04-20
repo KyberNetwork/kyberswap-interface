@@ -52,5 +52,15 @@ export const updateTokenAnalysisSettings = createAction<string>('user/updateToke
 export const updateAcceptedTermVersion = createAction<number | null>('user/updateAcceptedTermVersion')
 export const changeViewMode = createAction<VIEW_MODE>('user/changeViewMode')
 export const toggleHolidayMode = createAction<void>('user/toggleHolidayMode')
+export const permitUpdate = createAction<{
+  chainId: number
+  address: string
+  rawSignature: string
+  deadline: number
+  value: string
+  account: string
+}>('user/permitUpdate')
+export const revokePermit = createAction<{ chainId: number; address: string; account: string }>('user/revokePermit')
+export const permitError = createAction<{ chainId: number; address: string; account: string }>('user/permitError')
 export const pinSlippageControl = createAction<boolean>('user/pinSlippageControl')
 export const toggleKyberAIWidget = createAction<void>('user/toggleKyberAIWidget')

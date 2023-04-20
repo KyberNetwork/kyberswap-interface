@@ -14,7 +14,7 @@ import { AppState } from 'state'
 import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
 import { useEncodeSolana, useSwapState } from 'state/swap/hooks'
 import { useAllTransactions } from 'state/transactions/hooks'
-import { useUserSlippageTolerance } from 'state/user/hooks'
+import { usePermitData, useUserSlippageTolerance } from 'state/user/hooks'
 import { isAddress } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 
@@ -122,6 +122,7 @@ export function useTradeExactInV2(
   const ttl = useSelector<AppState, number>(state => state.user.userDeadline)
 
   const { feeConfig, saveGas } = useSwapState()
+  const permitData = usePermitData(currencyAmountIn?.currency.wrapped.address)
 
   // refresh aggregator data on new sent tx
   const allTxGroup = useMemo(() => JSON.stringify(Object.keys(txsInChain || {})), [txsInChain])
@@ -159,6 +160,7 @@ export function useTradeExactInV2(
           feeConfig,
           signal,
           minimumLoadingTime,
+          permitData && permitData.rawSignature,
         )
 
         if (!signal.aborted) {
@@ -195,6 +197,7 @@ export function useTradeExactInV2(
       dexes,
       allowedSlippage,
       feeConfig,
+      permitData,
     ],
   )
 

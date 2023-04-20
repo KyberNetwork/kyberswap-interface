@@ -43,6 +43,7 @@ export enum ApplicationModal {
   MIGRATE_KNC,
   KYBER_DAO_CLAIM,
 
+  SWAP_APPROVAL,
   TIME_DROPDOWN,
 
   TRUESIGHT_POOLS,

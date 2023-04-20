@@ -48,6 +48,7 @@ export type SwapFormProps = {
   slippage: number
   feeConfig: FeeConfig | undefined
   transactionTimeout: number
+  permit?: string
 
   onChangeCurrencyIn: (c: Currency) => void
   onChangeCurrencyOut: (c: Currency) => void
@@ -66,6 +67,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     slippage,
     feeConfig,
     transactionTimeout,
+    permit,
     onChangeCurrencyIn,
     onChangeCurrencyOut,
   } = props
@@ -119,6 +121,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     routeSummary: getRouteRawResponse?.data?.routeSummary || undefined,
     slippage,
     transactionTimeout,
+    permit,
   })
 
   const swapInputError = useGetInputError({
