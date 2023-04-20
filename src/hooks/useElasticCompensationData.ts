@@ -6,8 +6,7 @@ import { useActiveWeb3React } from 'hooks'
 
 const links: { [key: number]: string } = {
   [ChainId.ARBITRUM]:
-    'https://raw.githubusercontent.com/viet-nv/unclaimed-rewards-elastic-lm/viet-nv-patch-2/snapshots/arbitrum.json',
-  // 'https://raw.githubusercontent.com/KyberNetwork/unclaimed-rewards-elastic-lm/main/snapshots/arbitrum.json',
+    'https://raw.githubusercontent.com/KyberNetwork/unclaimed-rewards-elastic-lm/main/snapshots/arbitrum.json',
   [ChainId.MATIC]:
     'https://raw.githubusercontent.com/KyberNetwork/unclaimed-rewards-elastic-lm/main/snapshots/polygon.json',
   [ChainId.MAINNET]:
