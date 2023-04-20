@@ -86,11 +86,10 @@ const Tag = styled.div<{ active?: boolean }>`
         `}
 
   :hover {
-    filter: brightness(0.8);
+    filter: brightness(1.1);
   }
   :active {
-    filter: brightness(1.1);
-    transform: scale(1.01);
+    filter: brightness(1.3);
   }
 `
 
@@ -240,6 +239,7 @@ export default function SingleToken() {
   const [addToWatchlist] = useAddToWatchlistMutation()
   const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
   const [stared, setStared] = useState(false)
+  const [viewAll, setViewAll] = useState(false)
   const handleStarClick = () => {
     if (stared) {
       removeFromWatchlist({ wallet: account, tokenAddress: testParams.address, chain: 'ethereum' })
@@ -412,10 +412,14 @@ export default function SingleToken() {
       </Text>
 
       <TagWrapper>
-        {data?.tags?.map(tag => {
+        {data?.tags?.slice(0, viewAll ? data.tags.length : 5).map(tag => {
           return <Tag key="tag">{tag}</Tag>
         })}
-        <Tag active>View All</Tag>
+        {!viewAll && data?.tags && data.tags.length > 5 && (
+          <Tag active onClick={() => setViewAll(true)}>
+            View All
+          </Tag>
+        )}
       </TagWrapper>
       <TokenOverview data={data} isLoading={isLoading} />
 
