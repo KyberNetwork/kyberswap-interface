@@ -155,7 +155,7 @@ export const useTokenPricesWithLoading = (
         [address]: tokenPrices[key] || 0,
         [isAddressString(chainId, address)]: tokenPrices[key] || 0,
       }
-    }, {} as { [address: string]: number })
+    }, {})
   }, [tokenList, chainId, tokenPrices])
 
   return { data, loading, fetchPrices, refetch }

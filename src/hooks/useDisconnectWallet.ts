@@ -17,6 +17,7 @@ const useDisconnectWallet = () => {
     if (wallet && isEVMWallet(wallet) && isSolanaWallet(wallet)) {
       deactivate()
       disconnect()
+      setIsUserManuallyDisconnect(true)
       return
     }
 
