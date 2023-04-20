@@ -265,8 +265,8 @@ export default function SwapForm() {
           }
         />
 
-        <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={false} />
         <TradeTypeSelection />
+        <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={false} />
 
         {!!priceImpact && <PriceImpactNote priceImpact={Number(priceImpact)} isDegenMode={isDegenMode} />}
 
