@@ -1,6 +1,5 @@
 import { Trans, t } from '@lingui/macro'
 import React from 'react'
-import { useDispatch } from 'react-redux'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -9,10 +8,8 @@ import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import PinButton from 'components/swapv2/SwapSettingsPanel/PinButton'
 import { DEFAULT_SLIPPAGE, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import { useAppSelector } from 'state/hooks'
 import { useCheckStablePairSwap } from 'state/swap/hooks'
-import { pinSlippageControl } from 'state/user/actions'
-import { useSlippageSettingByPage, useUserSlippageTolerance } from 'state/user/hooks'
+import { useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { SLIPPAGE_STATUS, checkRangeSlippage } from 'utils/slippage'
 
