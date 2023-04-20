@@ -1,6 +1,6 @@
 import { TransactionResponse } from '@ethersproject/providers'
 import { ONE } from '@kyberswap/ks-sdk-classic'
-import { Currency, CurrencyAmount, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, NonfungiblePositionManager, Position, TickMath, tickToPrice } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
@@ -1200,7 +1200,7 @@ export default function AddLiquidity() {
   return (
     <>
       <ElasticFarmV2Updater interval={false} />
-      <ElasticDisclaimerModal isOpen />
+      {chainId !== ChainId.GÖRLI && <ElasticDisclaimerModal isOpen />}
       <TransactionConfirmationModal
         isOpen={showConfirm}
         onDismiss={handleDismissConfirmation}

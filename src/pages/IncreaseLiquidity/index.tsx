@@ -1,5 +1,5 @@
 import { TransactionResponse } from '@ethersproject/providers'
-import { Currency, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
@@ -690,7 +690,7 @@ export default function IncreaseLiquidity() {
         </Content>
       </Container>
 
-      <ElasticDisclaimerModal isOpen />
+      {chainId !== ChainId.GÖRLI && <ElasticDisclaimerModal isOpen />}
     </>
   )
 }
