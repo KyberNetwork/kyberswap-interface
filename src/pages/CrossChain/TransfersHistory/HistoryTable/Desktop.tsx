@@ -12,7 +12,7 @@ const commonCSS = css`
   padding: 0 16px;
 
   display: grid;
-  grid-template-columns: 112px 100px 80px 150px 70px;
+  grid-template-columns: 120px 150px 80px 150px 70px;
   justify-content: space-between;
   align-items: center;
 
