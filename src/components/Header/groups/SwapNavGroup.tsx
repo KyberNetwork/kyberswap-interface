@@ -109,6 +109,21 @@ const SwapNavGroup = () => {
           {isSolana || (
             <>
               <StyledNavLink
+                id="cross-chain-nav-link"
+                to={APP_PATHS.CROSS_CHAIN}
+                style={{ flexDirection: 'column', width: '100%' }}
+              >
+                <Flex alignItems="center" sx={{ gap: '12px' }} justifyContent="space-between">
+                  <IconWrapper>
+                    <CrossChainIcon height={15} />
+                  </IconWrapper>
+                  <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
+                    <Trans>Cross-chain</Trans>
+                    <img src={isDark ? SquidLogoLight : SquidLogoDark} alt="kyberswap with Squid" height={16} />
+                  </Flex>
+                </Flex>
+              </StyledNavLink>
+              <StyledNavLink
                 id="bridge-nav-link"
                 to={APP_PATHS.BRIDGE}
                 style={{ flexDirection: 'column', width: '100%' }}
@@ -124,21 +139,6 @@ const SwapNavGroup = () => {
                       alt="kyberswap with multichain"
                       height={10}
                     />
-                  </Flex>
-                </Flex>
-              </StyledNavLink>
-              <StyledNavLink
-                id="cross-chain-nav-link"
-                to={APP_PATHS.CROSS_CHAIN}
-                style={{ flexDirection: 'column', width: '100%' }}
-              >
-                <Flex alignItems="center" sx={{ gap: '12px' }} justifyContent="space-between">
-                  <IconWrapper>
-                    <CrossChainIcon height={15} />
-                  </IconWrapper>
-                  <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
-                    <Trans>Cross-chain</Trans>
-                    <img src={isDark ? SquidLogoLight : SquidLogoDark} alt="kyberswap with Squid" height={16} />
                   </Flex>
                 </Flex>
               </StyledNavLink>
