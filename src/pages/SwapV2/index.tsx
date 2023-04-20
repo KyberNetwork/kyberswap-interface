@@ -880,7 +880,7 @@ export default function Swap() {
                                 <Row justify="center" gap="6px">
                                   <InfoHelper
                                     color={theme.textReverse}
-                                    text={t`You need to first allow KyberSwap's smart contract to use your KNC`}
+                                    text={t`You need to first allow KyberSwap's smart contract to use your ${currencyIn?.symbol}`}
                                     placement="top"
                                     size={14}
                                   />

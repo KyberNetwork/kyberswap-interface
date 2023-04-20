@@ -14,6 +14,7 @@ import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import { SwapCallbackError } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { PermitState, usePermit } from 'hooks/usePermit'
 import useTheme from 'hooks/useTheme'
 import { WrapType } from 'hooks/useWrapCallback'
@@ -82,7 +83,7 @@ const SwapActionButton: React.FC<Props> = ({
 }) => {
   const theme = useTheme()
   const { account, walletKey } = useActiveWeb3React()
-
+  const { mixpanelHandler } = useMixpanel()
   const [errorWhileSwap, setErrorWhileSwap] = useState('')
   const noRouteFound = routeSummary && !routeSummary.route
 
@@ -273,6 +274,7 @@ const SwapActionButton: React.FC<Props> = ({
             ) : (
               <ButtonConfirmed
                 onClick={() => {
+                  mixpanelHandler(MIXPANEL_TYPE.PERMIT_CLICK)
                   permitCallback()
                 }}
                 style={{

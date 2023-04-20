@@ -62,7 +62,7 @@ export const PERMITTABLE_TOKENS: {
     '0xe6801928061CDbE32AC5AD0634427E140EFd05F9': { type: PermitType.AMOUNT, version: '1' }, //BIFI
   },
   [ChainId.ARBITRUM]: {
-    '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1': { type: PermitType.SALT, version: '1' },
+    // '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1': { type: PermitType.SALT, version: '1' },
     '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8': { type: PermitType.AMOUNT, version: '1' }, //USDC
     '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9': { type: PermitType.AMOUNT, version: '1' }, //USDT
     '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1': { type: PermitType.AMOUNT, version: '1' }, //WETH
@@ -78,14 +78,14 @@ export const PERMITTABLE_TOKENS: {
     '0xe4DDDfe67E7164b0FE14E218d80dC4C08eDC01cB': { type: PermitType.AMOUNT, version: '1' }, //KNC
   },
   [ChainId.BSCMAINNET]: {
-    '0xD6Cce248263ea1e2b8cB765178C944Fc16Ed0727': { type: PermitType.SALT, version: '1' },
+    // '0xD6Cce248263ea1e2b8cB765178C944Fc16Ed0727': { type: PermitType.SALT, version: '1' },
   },
   [ChainId.VELAS]: {
-    '0xcD7509b76281223f5B7d3aD5d47F8D7Aa5C2B9bf': { type: PermitType.SALT, version: '1' },
+    // '0xcD7509b76281223f5B7d3aD5d47F8D7Aa5C2B9bf': { type: PermitType.SALT, version: '1' },
   },
   [ChainId.OPTIMISM]: {
-    '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1': { type: PermitType.SALT, version: '1' },
-    '0xbfD291DA8A403DAAF7e5E9DC1ec0aCEaCd4848B9': { type: PermitType.SALT, version: '1' },
+    // '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1': { type: PermitType.SALT, version: '1' },
+    // '0xbfD291DA8A403DAAF7e5E9DC1ec0aCEaCd4848B9': { type: PermitType.SALT, version: '1' },
     '0x5029c236320b8f15ef0a657054b84d90bfbeded3': { type: PermitType.AMOUNT, version: '1' }, // BitANT
     '0x7b0bcc23851bbf7601efc9e9fe532bf5284f65d3': { type: PermitType.AMOUNT, version: '1' }, // EST
     '0x76fb31fb4af56892a25e32cfc43de717950c9278': { type: PermitType.AMOUNT, version: '1' }, // AAVE
@@ -95,8 +95,8 @@ export const PERMITTABLE_TOKENS: {
     '0xb12c13e66ade1f72f71834f2fc5082db8c091358': { type: PermitType.AMOUNT, version: '1' }, // ROOBEE
   },
   [ChainId.AVAXMAINNET]: {
-    '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E': { type: PermitType.SALT, version: '1' },
-    '0xb599c3590F42f8F995ECfa0f85D2980B76862fc1': { type: PermitType.SALT, version: '1' },
+    // '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E': { type: PermitType.SALT, version: '1' },
+    // '0xb599c3590F42f8F995ECfa0f85D2980B76862fc1': { type: PermitType.SALT, version: '1' },
     '0x39fC9e94Caeacb435842FADeDeCB783589F50f5f': { type: PermitType.AMOUNT, version: '1' }, // KNC
     '0x130966628846BFd36ff31a822705796e8cb8C18D': { type: PermitType.AMOUNT, version: '1' }, // MIM
     '0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7': { type: PermitType.AMOUNT, version: '1' }, // USDt
