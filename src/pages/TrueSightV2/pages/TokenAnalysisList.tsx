@@ -519,7 +519,7 @@ const TokenRow = ({ token, currentTab }: { token: any; currentTab: TokenListTab 
             <RowFit gap="6px" color={theme.text}>
               <Icon id="eth-mono" size={12} title="Ethereum" />
               <Icon id="bnb-mono" size={12} title="Binance" />
-              <Icon id="ava-mono" size={12} title="Avalance" />
+              <Icon id="ava-mono" size={12} title="Avalanche" />
               <Icon id="matic-mono" size={12} title="Polygon" />
               <Icon id="arbitrum-mono" size={12} title="Arbitrum" />
               <Icon id="fantom-mono" size={12} title="Fantom" />
@@ -592,7 +592,7 @@ const TokenRow = ({ token, currentTab }: { token: any; currentTab: TokenListTab 
           >
             <ChainIcon id="eth-mono" name="Ethereum" navigate={navigate} />
             <ChainIcon id="bnb-mono" name="Binance" navigate={navigate} />
-            <ChainIcon id="ava-mono" name="Avalance" navigate={navigate} />
+            <ChainIcon id="ava-mono" name="Avalanche" navigate={navigate} />
             <ChainIcon id="matic-mono" name="Polygon" navigate={navigate} />
             <ChainIcon id="arbitrum-mono" name="Arbitrum" navigate={navigate} />
             <ChainIcon id="fantom-mono" name="Fantom" navigate={navigate} />
