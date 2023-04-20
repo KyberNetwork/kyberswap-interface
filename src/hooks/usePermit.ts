@@ -15,8 +15,6 @@ import { useSingleCallResult } from 'state/multicall/hooks'
 import { permitUpdate } from 'state/user/actions'
 import { usePermitData } from 'state/user/hooks'
 
-import { WrappedTokenInfo } from './../state/lists/wrappedTokenInfo'
-import { useTokenV2 } from './Tokens'
 import { useContract } from './useContract'
 import useMixpanel, { MIXPANEL_TYPE } from './useMixpanel'
 import useTransactionDeadline from './useTransactionDeadline'
@@ -43,13 +41,11 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
 
   const permitData = usePermitData(currency?.address)
 
-  // Manually fetch permit info from ks tokens
-  const tokenV2 = useTokenV2(currency?.address)
-
   const { mixpanelHandler } = useMixpanel()
+  const overwritedPermitData = currency && PERMITTABLE_TOKENS[chainId]?.[currency.address]
 
   const permitState = useMemo(() => {
-    if (!(tokenV2 as WrappedTokenInfo)?.domainSeparator) {
+    if (!overwritedPermitData) {
       return PermitState.NOT_APPLICABLE
     }
     if (permitData?.errorCount !== undefined && permitData?.errorCount >= 3) return PermitState.NOT_APPLICABLE
@@ -65,7 +61,7 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
       return PermitState.SIGNED
     }
     return PermitState.NOT_SIGNED
-  }, [permitData, transactionDeadline, tokenV2, currencyAmount])
+  }, [permitData, transactionDeadline, currencyAmount, overwritedPermitData])
   const prevErrorCount = usePrevious(permitData?.errorCount)
   useEffect(() => {
     if (prevErrorCount === 2 && permitData?.errorCount === 3) {
@@ -92,7 +88,7 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
       !transactionDeadline ||
       !currency ||
       !account ||
-      !(tokenV2 as WrappedTokenInfo)?.domainSeparator ||
+      !overwritedPermitData ||
       !tokenNonceState?.result?.[0]
     ) {
       return
@@ -108,8 +104,6 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
       nonce: tokenNonceState.result[0].toNumber(),
       deadline: deadline,
     }
-
-    const overwritedPermitData = PERMITTABLE_TOKENS[chainId]?.[currency.address]
 
     const data = JSON.stringify({
       types: {
@@ -189,8 +183,8 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
     currencyAmount,
     transactionDeadline,
     dispatch,
-    tokenV2,
     tokenNonceState.result,
+    overwritedPermitData,
   ])
 
   return { permitState, permitCallback: signPermitCallback, permitData }
