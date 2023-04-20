@@ -670,7 +670,7 @@ export default function TokenAnalysisList() {
               04:39
             </Trans>
           </Text>
-          <Text fontSize="10px" color={theme.subText} fontStyle="italic">
+          <Text fontSize="12px" color={theme.subText} fontStyle="italic">
             <Trans>Disclaimer: The information here should not be treated as any form of financial advice</Trans>
           </Text>
         </Column>

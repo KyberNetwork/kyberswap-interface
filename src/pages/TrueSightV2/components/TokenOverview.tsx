@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { ReactNode, useRef, useState } from 'react'
+import { ReactNode, useMemo, useRef, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -21,18 +21,46 @@ import PriceRange from './PriceRange'
 import KyberScoreChart from './chart/KyberScoreChart'
 
 const CardWrapper = styled.div<{ gap?: string }>`
+  --background-color: ${({ theme }) => theme.subText + '16'};
+
+  position: relative;
+  overflow: hidden;
   border-radius: 20px;
   padding: 20px;
   flex: 1;
   display: flex;
   flex-direction: column;
-  border: 1px solid ${({ theme }) => theme.border};
+  background: linear-gradient(180deg, rgba(24, 24, 24, 0.14) -4.63%, var(--background-color) 105.53%);
+  box-shadow: inset 0px 2px 2px rgba(255, 255, 255, 0.2), 0px 4px 8px var(--background-color);
+
+  ::after {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    content: ' ';
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 20%;
+    background: var(--background-color);
+    filter: blur(140px) brightness(1.5);
+    z-index: 1;
+  }
+
+  &.bullish {
+    --background-color: ${({ theme }) => theme.primary + '20'};
+  }
+  &.bearish {
+    --background-color: ${({ theme }) => theme.red + '16'};
+  }
+
   ${({ theme, gap }) => css`
     background-color: ${theme.background};
     gap: ${gap || '0px'};
   `}
   > * {
     flex: 1;
+    z-index: 2;
   }
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
@@ -87,13 +115,18 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
   const [expanded, setExpanded] = useState(false)
   const ref1 = useRef<HTMLDivElement>(null)
   const ref2 = useRef<HTMLDivElement>(null)
-
+  const cardClassname = useMemo(() => {
+    if (!data) return ''
+    if (data?.kyberScore.score >= 60) return 'bullish'
+    if (data?.kyberScore.score < 40) return 'bearish'
+    return ''
+  }, [data])
   return (
     <>
       {above768 ? (
         <>
           <Row align="stretch" gap="24px" flexDirection={above768 ? 'row' : 'column'} marginBottom="12px">
-            <CardWrapper style={{ justifyContent: 'space-between' }}>
+            <CardWrapper style={{ justifyContent: 'space-between' }} className={cardClassname}>
               <Column>
                 <Text color={theme.text} fontSize="14px" lineHeight="20px" marginBottom="12px" fontWeight={500}>
                   <Trans>Price</Trans>
@@ -170,8 +203,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                 </Row>
               </Column>
             </CardWrapper>
-
-            <CardWrapper style={{ alignItems: 'center', gap: '12px' }}>
+            <CardWrapper style={{ alignItems: 'center', gap: '12px' }} className={cardClassname}>
               <Row marginBottom="4px">
                 <MouseoverTooltip
                   text={
@@ -227,7 +259,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                 <KyberScoreChart width="100%" height="36px" />
               </Column>
             </CardWrapper>
-            <CardWrapper style={{ fontSize: '12px' }} gap="10px">
+            <CardWrapper style={{ fontSize: '12px' }} gap="10px" className={cardClassname}>
               <Text color={theme.text} marginBottom="4px" fontSize="14px" lineHeight="20px" fontWeight={500}>
                 Key Stats
               </Text>

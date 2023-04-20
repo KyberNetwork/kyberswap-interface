@@ -71,7 +71,7 @@ function SmallKyberScoreMeter({ value }: { value?: number }) {
             <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
               {value}
             </Text>
-            <Icon id="timer" size={12} />
+            <Icon id="timer" size={10} />
           </RowFit>
         </SimpleTooltip>
       </GaugeValue>
