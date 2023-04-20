@@ -24,9 +24,9 @@ const DropdownIcon = styled(DropdownSVG)`
 type Props = {
   isStablePairSwap: boolean
   rightComponent?: ReactNode
-  linkSlippage?: string
+  tooltip?: ReactNode
 }
-const SlippageSetting = ({ isStablePairSwap, rightComponent, linkSlippage }: Props) => {
+const SlippageSetting = ({ isStablePairSwap, rightComponent, tooltip }: Props) => {
   const theme = useTheme()
   const isSlippageControlPinned = useAppSelector(state => state.user.isSlippageControlPinned)
   const [expanded, setExpanded] = useState(false)
@@ -68,19 +68,20 @@ const SlippageSetting = ({ isStablePairSwap, rightComponent, linkSlippage }: Pro
             <MouseoverTooltip
               placement="right"
               text={
-                <Text>
-                  <Trans>
-                    During your swap if the price changes by more than this %, your transaction will revert. Read more{' '}
-                    <ExternalLink
-                      href={
-                        linkSlippage ||
-                        'https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/slippage'
-                      }
-                    >
-                      here ↗
-                    </ExternalLink>
-                  </Trans>
-                </Text>
+                tooltip || (
+                  <Text>
+                    <Trans>
+                      During your swap if the price changes by more than this %, your transaction will revert. Read more{' '}
+                      <ExternalLink
+                        href={
+                          'https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/slippage'
+                        }
+                      >
+                        here ↗
+                      </ExternalLink>
+                    </Trans>
+                  </Text>
+                )
               }
             >
               <Trans>Max Slippage</Trans>

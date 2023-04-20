@@ -3,6 +3,7 @@ import React, { ReactNode } from 'react'
 import { CSSProperties } from 'styled-components'
 
 import InboxItemBridge from 'components/Announcement/PrivateAnnoucement/InboxItemBridge'
+import InboxItemCrossChain from 'components/Announcement/PrivateAnnoucement/InboxItemCrossChain'
 import InboxItemLO from 'components/Announcement/PrivateAnnoucement/InboxItemLO'
 import InboxItemPoolPosition from 'components/Announcement/PrivateAnnoucement/InboxItemPoolPosition'
 import InboxItemPriceAlert from 'components/Announcement/PrivateAnnoucement/InboxItemPriceAlert'
@@ -25,19 +26,21 @@ type PrivateAnnouncementMap = Partial<{
   [type in PrivateAnnouncementType]: (data: PrivateAnnouncementProp) => JSX.Element
 }>
 const ANNOUNCEMENT_MAP: PrivateAnnouncementMap = {
-  [PrivateAnnouncementType.POOL_POSITION]: InboxItemPoolPosition,
+  [PrivateAnnouncementType.ELASTIC_POOLS]: InboxItemPoolPosition,
   [PrivateAnnouncementType.LIMIT_ORDER]: InboxItemLO,
-  [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: InboxItemTrendingSoon,
-  [PrivateAnnouncementType.BRIDGE]: InboxItemBridge,
+  [PrivateAnnouncementType.TRENDING_SOON]: InboxItemTrendingSoon,
+  [PrivateAnnouncementType.BRIDGE_ASSET]: InboxItemBridge,
+  [PrivateAnnouncementType.CROSS_CHAIN]: InboxItemCrossChain,
   [PrivateAnnouncementType.PRICE_ALERT]: InboxItemPriceAlert,
   [PrivateAnnouncementType.DIRECT_MESSAGE]: InboxItemPrivateMessage,
 } as PrivateAnnouncementMap
 
 export const PRIVATE_ANN_TITLE: Partial<{ [type in PrivateAnnouncementType]: string }> = {
-  [PrivateAnnouncementType.POOL_POSITION]: t`Liquidity Pool Alert`,
+  [PrivateAnnouncementType.ELASTIC_POOLS]: t`Liquidity Pool Alert`,
   [PrivateAnnouncementType.LIMIT_ORDER]: t`Limit Order`,
-  [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: t`Trending Soon`,
-  [PrivateAnnouncementType.BRIDGE]: t`Bridge Token`,
+  [PrivateAnnouncementType.TRENDING_SOON]: t`Trending Soon`,
+  [PrivateAnnouncementType.BRIDGE_ASSET]: t`Bridge Token`,
+  [PrivateAnnouncementType.CROSS_CHAIN]: t`Cross-Chain Swap`,
   [PrivateAnnouncementType.PRICE_ALERT]: t`Price Alert`,
   [PrivateAnnouncementType.DIRECT_MESSAGE]: t`Notification`,
 }

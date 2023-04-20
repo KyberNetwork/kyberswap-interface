@@ -25,6 +25,7 @@ import {
   addSerializedToken,
   changeViewMode,
   removeSerializedToken,
+  setCrossChainSetting,
   toggleFavoriteToken as toggleFavoriteTokenAction,
   toggleHolidayMode,
   toggleLiveChart,
@@ -39,7 +40,13 @@ import {
   updateUserLocale,
   updateUserSlippageTolerance,
 } from 'state/user/actions'
-import { VIEW_MODE, defaultShowLiveCharts, getFavoriteTokenDefault } from 'state/user/reducer'
+import {
+  CROSS_CHAIN_SETTING_DEFAULT,
+  CrossChainSetting,
+  VIEW_MODE,
+  defaultShowLiveCharts,
+  getFavoriteTokenDefault,
+} from 'state/user/reducer'
 import { isAddress, isChristmasTime } from 'utils'
 
 function serializeToken(token: Token | WrappedTokenInfo): SerializedToken {
@@ -424,4 +431,20 @@ export const useHolidayMode: () => [boolean, () => void] = () => {
   }, [dispatch])
 
   return [isChristmasTime() ? holidayMode : false, toggle]
+}
+
+export const useCrossChainSetting = () => {
+  const dispatch = useAppDispatch()
+  const setting = useAppSelector(state => state.user.crossChain) || CROSS_CHAIN_SETTING_DEFAULT
+  const setSetting = useCallback(
+    (data: CrossChainSetting) => {
+      dispatch(setCrossChainSetting(data))
+    },
+    [dispatch],
+  )
+  const toggleExpressExecutionMode = useCallback(() => {
+    setSetting({ ...setting, enableExpressExecution: !setting.enableExpressExecution })
+  }, [setSetting, setting])
+
+  return { setting, toggleExpressExecutionMode }
 }

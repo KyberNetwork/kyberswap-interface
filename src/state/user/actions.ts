@@ -3,7 +3,7 @@ import { createAction } from '@reduxjs/toolkit'
 
 import { SupportedLocale } from 'constants/locales'
 
-import { VIEW_MODE } from './reducer'
+import { CrossChainSetting, VIEW_MODE } from './reducer'
 
 export interface SerializedToken {
   chainId: number
@@ -52,3 +52,5 @@ export const updateAcceptedTermVersion = createAction<number | null>('user/updat
 export const changeViewMode = createAction<VIEW_MODE>('user/changeViewMode')
 export const toggleHolidayMode = createAction<void>('user/toggleHolidayMode')
 export const pinSlippageControl = createAction<boolean>('user/pinSlippageControl')
+
+export const setCrossChainSetting = createAction<CrossChainSetting>('user/setCrossChainSetting')

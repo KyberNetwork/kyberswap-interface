@@ -110,11 +110,12 @@ const MenuForDesktop = ({ unread }: { unread: Unread }) => {
 }
 
 export const MENU_TITLE: Partial<{ [type in PrivateAnnouncementType]: string }> = {
-  [PrivateAnnouncementType.BRIDGE]: t`Cross-Chain Bridge`,
+  [PrivateAnnouncementType.BRIDGE_ASSET]: t`Cross-Chain Bridge`,
+  [PrivateAnnouncementType.CROSS_CHAIN]: t`Cross-Chain Swap`,
   [PrivateAnnouncementType.LIMIT_ORDER]: t`Limit Orders`,
-  [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: t`Trending Soon Tokens`,
+  [PrivateAnnouncementType.TRENDING_SOON]: t`Trending Soon Tokens`,
   [PrivateAnnouncementType.PRICE_ALERT]: t`Price Alerts`,
-  [PrivateAnnouncementType.POOL_POSITION]: t`Elastic Liquidity Positions`,
+  [PrivateAnnouncementType.ELASTIC_POOLS]: t`Elastic Liquidity Positions`,
 }
 
 const MenuForMobile = ({ unread }: { unread: Unread }) => {
@@ -213,10 +214,10 @@ const Menu = () => {
 
   const unread: Unread = {
     [PrivateAnnouncementType.PRICE_ALERT]: dataPriceAlert?.numberOfUnread,
-    [PrivateAnnouncementType.BRIDGE]: dataBridge?.numberOfUnread,
+    [PrivateAnnouncementType.BRIDGE_ASSET]: dataBridge?.numberOfUnread,
     [PrivateAnnouncementType.LIMIT_ORDER]: dataLimitOrder?.numberOfUnread,
-    [PrivateAnnouncementType.POOL_POSITION]: dataPool?.numberOfUnread,
-    [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: dataTrendingSoon?.numberOfUnread,
+    [PrivateAnnouncementType.ELASTIC_POOLS]: dataPool?.numberOfUnread,
+    [PrivateAnnouncementType.TRENDING_SOON]: dataTrendingSoon?.numberOfUnread,
     ALL: dataAll?.numberOfUnread,
   }
 

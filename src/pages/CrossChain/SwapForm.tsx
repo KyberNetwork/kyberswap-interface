@@ -247,7 +247,17 @@ export default function SwapForm() {
 
         <SlippageSetting
           isStablePairSwap={false}
-          linkSlippage="https://axelar.network/blog/what-is-axlusdc-and-how-do-you-get-it" /** isolate setting */
+          tooltip={
+            <Text>
+              <Trans>
+                During the processing phase, if the price changes by more than this %, you will receive axlUSDC at the
+                destination chain instead. Read more{' '}
+                <ExternalLink href={'https://axelar.network/blog/what-is-axlusdc-and-how-do-you-get-it'}>
+                  here ↗
+                </ExternalLink>
+              </Trans>
+            </Text>
+          }
         />
 
         <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={false} />

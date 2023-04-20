@@ -4,6 +4,7 @@ import { PRIVATE_ANN_TITLE } from 'components/Announcement/PrivateAnnoucement'
 import { AnnouncementTemplate, PrivateAnnouncement, PrivateAnnouncementType } from 'components/Announcement/type'
 
 import Bridge from './Bridge'
+import CrossChain from './CrossChain'
 import LimitOrder from './LimitOrder'
 import PoolPosition from './PoolPosition'
 import PriceAlert from './PriceAlert'
@@ -19,10 +20,11 @@ type PrivateAnnouncementCenterMap = {
   [type in PrivateAnnouncementType]: (data: { announcement: PrivateAnnouncement }) => JSX.Element
 }
 const ANNOUNCEMENT_MAP_IN_CENTER = {
-  [PrivateAnnouncementType.POOL_POSITION]: PoolPosition,
+  [PrivateAnnouncementType.ELASTIC_POOLS]: PoolPosition,
   [PrivateAnnouncementType.LIMIT_ORDER]: LimitOrder,
-  [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: TrendingSoon,
-  [PrivateAnnouncementType.BRIDGE]: Bridge,
+  [PrivateAnnouncementType.TRENDING_SOON]: TrendingSoon,
+  [PrivateAnnouncementType.BRIDGE_ASSET]: Bridge,
+  [PrivateAnnouncementType.CROSS_CHAIN]: CrossChain,
   [PrivateAnnouncementType.PRICE_ALERT]: PriceAlert,
   [PrivateAnnouncementType.DIRECT_MESSAGE]: PrivateMessage,
 } as PrivateAnnouncementCenterMap
