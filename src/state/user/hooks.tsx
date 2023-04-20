@@ -24,6 +24,7 @@ import {
   addSerializedPair,
   addSerializedToken,
   changeViewMode,
+  pinSlippageControl,
   removeSerializedToken,
   setCrossChainSetting,
   toggleFavoriteToken as toggleFavoriteTokenAction,
@@ -449,7 +450,36 @@ export const useCrossChainSetting = () => {
     [setSetting, setting],
   )
 
-  return { setting, setExpressExecutionMode }
+  const setRawSlippage = useCallback(
+    (slippageTolerance: number) => {
+      setSetting({ ...setting, slippageTolerance })
+    },
+    [setSetting, setting],
+  )
+
+  const toggleSlippageControlPinned = useCallback(() => {
+    setSetting({ ...setting, isSlippageControlPinned: !setting.isSlippageControlPinned })
+  }, [setSetting, setting])
+
+  return { setting, setExpressExecutionMode, setRawSlippage, toggleSlippageControlPinned }
+}
+
+export const useSlippageSettingByPage = (isCrossChain = false) => {
+  const dispatch = useDispatch()
+  const isSlippageControlPinnedSwap = useAppSelector(state => state.user.isSlippageControlPinned)
+  const [rawSlippageSwap, setRawSlippageSwap] = useUserSlippageTolerance()
+  const togglePinSlippageSwap = () => {
+    dispatch(pinSlippageControl(!isSlippageControlPinned))
+  }
+
+  const { setting, ...crossChainSetting } = useCrossChainSetting()
+
+  const isSlippageControlPinned = isCrossChain ? setting.isSlippageControlPinned : isSlippageControlPinnedSwap
+  const rawSlippage = isCrossChain ? setting.slippageTolerance : rawSlippageSwap
+  const setRawSlippage = isCrossChain ? crossChainSetting.setRawSlippage : setRawSlippageSwap
+  const togglePinSlippage = isCrossChain ? crossChainSetting.toggleSlippageControlPinned : togglePinSlippageSwap
+
+  return { setRawSlippage, rawSlippage, isSlippageControlPinned, togglePinSlippage }
 }
 
 export const usePermitData: (

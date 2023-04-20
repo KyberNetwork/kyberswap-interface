@@ -22,8 +22,8 @@ const TradeTypeSelection: React.FC = () => {
         </Text>
       </ButtonReturnType>
       <ButtonReturnType onClick={() => setExpressExecutionMode(true)} active={enableExpressExecution} role="button">
-        <MouseoverTooltip text={t`Will cost more gas fees`} width="fit-content">
-          <ThunderIcon />
+        <MouseoverTooltip text={t`Will cost more gas fees`} width="fit-content" placement="top">
+          <ThunderIcon style={{ height: 16 }} />
           <Text marginLeft="4px">
             <Trans>Express</Trans>
           </Text>

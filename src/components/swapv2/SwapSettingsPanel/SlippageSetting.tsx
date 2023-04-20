@@ -12,7 +12,7 @@ import useTheme from 'hooks/useTheme'
 import { useAppSelector } from 'state/hooks'
 import { useCheckStablePairSwap } from 'state/swap/hooks'
 import { pinSlippageControl } from 'state/user/actions'
-import { useUserSlippageTolerance } from 'state/user/hooks'
+import { useSlippageSettingByPage, useUserSlippageTolerance } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { SLIPPAGE_STATUS, checkRangeSlippage } from 'utils/slippage'
 
@@ -32,21 +32,17 @@ const Message = styled.div`
 
 type Props = {
   shouldShowPinButton?: boolean
+  isCrossChain?: boolean
 }
 
-const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true }) => {
-  const dispatch = useDispatch()
-  const [rawSlippage, setRawSlippage] = useUserSlippageTolerance()
+const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true, isCrossChain = false }) => {
+  const { rawSlippage, setRawSlippage, isSlippageControlPinned, togglePinSlippage } =
+    useSlippageSettingByPage(isCrossChain)
+
   const isStablePairSwap = useCheckStablePairSwap()
   const slippageStatus = checkRangeSlippage(rawSlippage, isStablePairSwap)
   const isWarning = slippageStatus !== SLIPPAGE_STATUS.NORMAL
   const theme = useTheme()
-
-  const isSlippageControlPinned = useAppSelector(state => state.user.isSlippageControlPinned)
-
-  const handleClickPinSlippageControl = () => {
-    dispatch(pinSlippageControl(!isSlippageControlPinned))
-  }
 
   return (
     <Flex
@@ -78,9 +74,7 @@ const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true }) => {
           </MouseoverTooltip>
         </TextDashed>
 
-        {shouldShowPinButton && (
-          <PinButton isActive={isSlippageControlPinned} onClick={handleClickPinSlippageControl} />
-        )}
+        {shouldShowPinButton && <PinButton isActive={isSlippageControlPinned} onClick={togglePinSlippage} />}
       </Flex>
 
       <SlippageControl
