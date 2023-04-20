@@ -441,7 +441,10 @@ export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?
                 return (
                   <TooltipWrapper>
                     <Text fontSize="10px" lineHeight="12px" color={theme.subText}>
-                      {payload.timestamp && dayjs(payload.timestamp * 1000).format('MMM DD, YYYY')}
+                      {payload.timestamp &&
+                        dayjs(payload.timestamp * 1000).format(
+                          timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm A, MMM DD' : 'MMM DD, YYYY',
+                        )}
                     </Text>
                     <Text fontSize="12px" lineHeight="16px" color={theme.text}>
                       Total Trades: <span style={{ color: theme.text }}>{formatShortNum(payload.totalTrade, 2)}</span>
@@ -715,7 +718,10 @@ export const TradingVolumeChart = () => {
                 return (
                   <TooltipWrapper>
                     <Text fontSize="10px" lineHeight="12px" color={theme.subText}>
-                      {payload.timestamp && dayjs(payload.timestamp * 1000).format('MMM DD, YYYY')}
+                      {payload.timestamp &&
+                        dayjs(payload.timestamp * 1000).format(
+                          timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm A, MMM DD' : 'MMM DD, YYYY',
+                        )}
                     </Text>
                     <Text fontSize="12px" lineHeight="16px" color={theme.text}>
                       Total Volume: <span style={{ color: theme.text }}>${formatShortNum(payload.totalVolume, 2)}</span>
@@ -894,6 +900,25 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
     return (Math.abs(0 - min) / (max - min)) * 100
   }, [formattedData])
 
+  const totalStats: { timeframe: string; totalNetflow: string; totalInflow: string; totalOutflow: string } =
+    useMemo(() => {
+      if (formattedData.length === 0)
+        return { timeframe: '--', totalNetflow: '--', totalInflow: '--', totalOutflow: '--' }
+
+      const tf = `${dayjs(formattedData[0].timestamp * 1000).format(
+        timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
+      )} - ${dayjs(formattedData[formattedData.length - 1].timestamp * 1000).format(
+        timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
+      )}`
+
+      return {
+        timeframe: tf,
+        totalNetflow: '$' + formatLocaleStringNum(formattedData.reduce((a, b) => a + b.netflow, 0)),
+        totalInflow: '$' + formatLocaleStringNum(formattedData.reduce((a, b) => a + b.inflow, 0)),
+        totalOutflow: '$' + formatLocaleStringNum(-formattedData.reduce((a, b) => a + b.outflow, 0)),
+      }
+    }, [formattedData, timeframe])
+
   useEffect(() => {
     switch (tab) {
       case ChartTab.First: {
@@ -922,6 +947,32 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
       <ChartWrapper>
         {account ? (
           <>
+            <InfoWrapper>
+              <Column gap="4px">
+                <Text color={theme.subText}>Timeframe</Text>
+                <Text color={theme.text} fontWeight={500}>
+                  {totalStats.timeframe}
+                </Text>
+              </Column>
+              <Column gap="4px">
+                <Text color={theme.subText}>Total Netflow</Text>
+                <Text color={theme.text} fontWeight={500}>
+                  {totalStats.totalNetflow}
+                </Text>
+              </Column>
+              <Column gap="4px">
+                <Text color={theme.subText}>Total Inflow</Text>
+                <Text color={theme.text} fontWeight={500}>
+                  {totalStats.totalInflow}
+                </Text>
+              </Column>
+              <Column gap="4px">
+                <Text color={theme.subText}>Total Outflow</Text>
+                <Text color={theme.text} fontWeight={500}>
+                  {totalStats.totalOutflow}
+                </Text>
+              </Column>
+            </InfoWrapper>
             <LegendWrapper>
               {above768 && (
                 <>
@@ -971,7 +1022,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                 height={400}
                 data={formattedData}
                 stackOffset="sign"
-                margin={{ top: 50, left: 20, right: 20 }}
+                margin={{ top: 70, left: 20, right: 20 }}
               >
                 <CartesianGrid
                   vertical={false}
@@ -1238,9 +1289,53 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
     }
   }, [tab])
 
+  const totalStats: { timeframe: string; totalNetflow: string; totalInflow: string; totalOutflow: string } =
+    useMemo(() => {
+      if (formattedData.length === 0)
+        return { timeframe: '--', totalNetflow: '--', totalInflow: '--', totalOutflow: '--' }
+
+      const tf = `${dayjs(formattedData[0].timestamp * 1000).format(
+        timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
+      )} - ${dayjs(formattedData[formattedData.length - 1].timestamp * 1000).format(
+        timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
+      )}`
+
+      return {
+        timeframe: tf,
+        totalNetflow: '$' + formatLocaleStringNum(formattedData.reduce((a, b) => a + b.totalNetflow, 0)),
+        totalInflow: '$' + formatLocaleStringNum(formattedData.reduce((a, b) => a + b.totalInflow, 0)),
+        totalOutflow: '$' + formatLocaleStringNum(-formattedData.reduce((a, b) => a + b.totalOutflow, 0)),
+      }
+    }, [formattedData, timeframe])
   return (
     <>
       <ChartWrapper>
+        <InfoWrapper>
+          <Column gap="4px">
+            <Text color={theme.subText}>Timeframe</Text>
+            <Text color={theme.text} fontWeight={500}>
+              {totalStats.timeframe}
+            </Text>
+          </Column>
+          <Column gap="4px">
+            <Text color={theme.subText}>Total Netflow</Text>
+            <Text color={theme.text} fontWeight={500}>
+              {totalStats.totalNetflow}
+            </Text>
+          </Column>
+          <Column gap="4px">
+            <Text color={theme.subText}>Total Inflow</Text>
+            <Text color={theme.text} fontWeight={500}>
+              {totalStats.totalInflow}
+            </Text>
+          </Column>
+          <Column gap="4px">
+            <Text color={theme.subText}>Total Outflow</Text>
+            <Text color={theme.text} fontWeight={500}>
+              {totalStats.totalOutflow}
+            </Text>
+          </Column>
+        </InfoWrapper>
         <LegendWrapper>
           {above768 && (
             <>
@@ -1286,7 +1381,7 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
             height={400}
             data={formattedData}
             stackOffset="sign"
-            margin={{ top: 50, left: 20, right: 20 }}
+            margin={{ top: 70, left: 20, right: 20 }}
           >
             <CartesianGrid vertical={false} strokeWidth={1} stroke={rgba(theme.border, 0.5)} />
             <Customized component={KyberLogo} />
@@ -1296,7 +1391,9 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
               tickLine={false}
               axisLine={false}
               tick={{ fill: theme.subText, fontWeight: 400 }}
-              tickFormatter={value => dayjs(value).format('MMM DD')}
+              tickFormatter={value =>
+                dayjs(value).format(timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm A, MMM DD' : 'MMM DD')
+              }
             />
             <YAxis
               fontSize="12px"
@@ -1327,7 +1424,10 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
                 return (
                   <TooltipWrapper>
                     <Text fontSize="10px" lineHeight="12px" color={theme.subText}>
-                      {payload.timestamp && dayjs(payload.timestamp).format('MMM DD, YYYY')}
+                      {payload.timestamp &&
+                        dayjs(payload.timestamp).format(
+                          timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm A, MMM DD' : 'MMM DD, YYYY',
+                        )}
                     </Text>
                     <Text fontSize="12px" lineHeight="16px" color={theme.text}>
                       Netflow: <span style={{ color: theme.text }}>${formatShortNum(payload.totalNetflow)}</span>
@@ -1470,7 +1570,7 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
 
   const { data } = useTransferInformationQuery({ tokenAddress: testParams.address, from, to })
   const formattedData = useMemo(() => {
-    if (!data) return
+    if (!data) return []
     const dataTemp: INumberOfTransfers[] = []
     const startTimestamp = (Math.floor(from / timerange) + 1) * timerange
     for (let t = startTimestamp; t < to; t += timerange) {
@@ -1484,8 +1584,36 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
     return dataTemp
   }, [data, timerange, from, to])
 
+  const totalStats: { timeframe: string; totalTranfers: string; totalVolume: string } = useMemo(() => {
+    if (formattedData.length === 0) return { timeframe: '--', totalTranfers: '--', totalVolume: '--' }
+    const tf = `${dayjs(formattedData[0].timestamp * 1000).format(
+      timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
+    )} - ${dayjs(formattedData[formattedData.length - 1].timestamp * 1000).format(
+      timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
+    )}`
+    return {
+      timeframe: tf,
+      totalTranfers: formatLocaleStringNum(formattedData.reduce((a, b) => a + b.numberOfTransfer, 0)),
+      totalVolume: '$' + formatLocaleStringNum(formattedData.reduce((a, b) => a + b.volume, 0)),
+    }
+  }, [formattedData, timeframe])
+
   return (
     <ChartWrapper>
+      <InfoWrapper>
+        <Column gap="4px">
+          <Text color={theme.subText}>Timeframe</Text>
+          <Text color={theme.text} fontWeight={500}>
+            {totalStats.timeframe}
+          </Text>
+        </Column>
+        <Column gap="4px">
+          <Text color={theme.subText}>{tab === ChartTab.First ? 'Total Transfers' : 'Total Volume'}</Text>
+          <Text color={theme.text} fontWeight={500}>
+            {tab === ChartTab.First ? totalStats.totalTranfers : totalStats.totalVolume}
+          </Text>
+        </Column>
+      </InfoWrapper>
       <LegendWrapper>
         <TimeFrameLegend
           selected={timeframe}
@@ -1504,9 +1632,9 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
           height={400}
           data={formattedData}
           margin={{
-            top: 40,
+            top: 70,
             right: 0,
-            left: 25,
+            left: 10,
             bottom: 0,
           }}
         >

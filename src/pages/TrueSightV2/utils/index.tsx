@@ -33,8 +33,17 @@ export const formatShortNum = (num: number, fixed = 1): string => {
   return (negative ? '-' : '') + formattedNum
 }
 
-export const formatLocaleStringNum = (value: number): string => {
-  if (value > 100000) return (+value.toFixed(0)).toLocaleString()
-  if (value > 1000) return (+value.toFixed(2)).toLocaleString()
-  return value.toPrecision(5)
+export const formatLocaleStringNum = (num: number): string => {
+  if (num === 0) return '--'
+  const negative = num < 0
+  const absNum = Math.abs(num)
+  let formattedNum = ''
+  if (absNum > 100000) {
+    formattedNum = (+absNum.toFixed(0)).toLocaleString()
+  } else if (absNum > 1000) {
+    formattedNum = (+absNum.toFixed(2)).toLocaleString()
+  } else {
+    formattedNum = absNum.toFixed(5)
+  }
+  return (negative ? '-' : '') + formattedNum
 }
