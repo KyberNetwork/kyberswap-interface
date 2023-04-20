@@ -4,10 +4,10 @@ import { Firestore, collection, doc, getFirestore, onSnapshot, query } from 'fir
 
 import { PopupContentAnnouncement } from 'components/Announcement/type'
 import { LimitOrder } from 'components/swapv2/LimitOrder/type'
-import { ENV_LEVEL, FIREBASE } from 'constants/env'
+import { ENV_KEY, ENV_LEVEL, FIREBASE } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
 
-const { DEFAULT: FIREBASE_CONFIG_DEFAULT, LIMIT_ORDER: FIREBASE_CONFIG_LO } = FIREBASE[import.meta.env.VITE_ENV]
+const { DEFAULT: FIREBASE_CONFIG_DEFAULT, LIMIT_ORDER: FIREBASE_CONFIG_LO } = FIREBASE[ENV_KEY]
 
 const firebaseApp = firebase.initializeApp(FIREBASE_CONFIG_DEFAULT, 'default')
 const firebaseAppLimitOrder = FIREBASE_CONFIG_LO

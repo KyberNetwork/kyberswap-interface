@@ -133,8 +133,10 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key: string]: { [type: string]: string } } =
   },
 }
 
+export const ENV_KEY: 'production' | 'staging' | 'development' = import.meta.env.VITE_ENV
+
 export const getAnnouncementsTemplateIds = () => {
-  return ANNOUNCEMENT_TEMPLATE_IDS[import.meta.env.VITE_ENV]
+  return ANNOUNCEMENT_TEMPLATE_IDS[ENV_KEY]
 }
 
 const mock = localStorage.getItem('mock')?.split(',') ?? []
