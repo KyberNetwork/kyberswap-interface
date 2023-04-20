@@ -288,7 +288,7 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
           </Text>
         </RowFit>
       </td>
-      <td style={{ textAlign: 'right' }}>
+      <td style={{ textAlign: 'left' }}>
         <Text fontSize="12px" color={score && score < 50 ? theme.red : theme.primary}>
           {score || 80}
           <Text as="span" fontSize="10px" color={theme.subText}>
@@ -296,7 +296,7 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
           </Text>
         </Text>
       </td>
-      <td style={{ textAlign: 'right' }}>
+      <td style={{ textAlign: 'left' }}>
         <Text fontSize="12px" color={theme.text}>
           $0.000000004234
         </Text>
@@ -313,10 +313,10 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
     <>
       <DropdownSection>
         <colgroup>
-          <col style={{ width: 'auto' }} />
+          <col style={{ width: '160px' }} />
           <col style={{ width: '100px', minWidth: 'auto' }} />
           <col style={{ width: '140px' }} />
-          <col style={{ width: '40px' }} />
+          <col style={{ width: '60px' }} />
         </colgroup>
         <thead>
           <tr>
@@ -326,8 +326,8 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
                 <Text fontSize="12px">Search History</Text>
               </RowFit>
             </th>
-            <th style={{ textAlign: 'right' }}>KyberScore</th>
-            <th style={{ textAlign: 'right' }}>Price</th>
+            <th style={{ textAlign: 'left' }}>KyberScore</th>
+            <th style={{ textAlign: 'left' }}>Price</th>
             <th style={{ textAlign: 'right' }}>24H</th>
           </tr>
         </thead>
@@ -339,10 +339,10 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
       </DropdownSection>
       <DropdownSection>
         <colgroup>
-          <col style={{ width: 'auto' }} />
+          <col style={{ width: '160px' }} />
           <col style={{ width: '100px', minWidth: 'auto' }} />
           <col style={{ width: '140px' }} />
-          <col style={{ width: '40px' }} />
+          <col style={{ width: '60px' }} />
         </colgroup>
         <thead>
           <tr>
@@ -352,8 +352,8 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
                 <Text fontSize="12px">Bullish Tokens</Text>
               </RowFit>
             </th>
-            <th style={{ textAlign: 'right' }}>KyberScore</th>
-            <th style={{ textAlign: 'right' }}>Price</th>
+            <th style={{ textAlign: 'left' }}>KyberScore</th>
+            <th style={{ textAlign: 'left' }}>Price</th>
             <th style={{ textAlign: 'right' }}>24H</th>
           </tr>
         </thead>
@@ -365,10 +365,10 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
       </DropdownSection>
       <DropdownSection>
         <colgroup>
-          <col style={{ width: 'auto' }} />
+          <col style={{ width: '160px' }} />
           <col style={{ width: '100px', minWidth: 'auto' }} />
           <col style={{ width: '140px' }} />
-          <col style={{ width: '40px' }} />
+          <col style={{ width: '60px' }} />
         </colgroup>
         <thead>
           <tr>
@@ -378,8 +378,8 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
                 <Text fontSize="12px">Bearish Tokens</Text>
               </RowFit>
             </th>
-            <th style={{ textAlign: 'right' }}>KyberScore</th>
-            <th style={{ textAlign: 'right' }}>Price</th>
+            <th style={{ textAlign: 'left' }}>KyberScore</th>
+            <th style={{ textAlign: 'left' }}>Price</th>
             <th style={{ textAlign: 'right' }}>24H</th>
           </tr>
         </thead>
