@@ -56,6 +56,7 @@ import {
   ITradingVolume,
   KyberAITimeframe,
 } from 'pages/TrueSightV2/types'
+import { formatLocaleStringNum, formatShortNum } from 'pages/TrueSightV2/utils'
 import { useUserLocale } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
@@ -93,6 +94,19 @@ const LegendWrapper = styled.div`
       flex: 1;
     }
   `}
+`
+
+const InfoWrapper = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  gap: 40px;
+  z-index: 10;
+  user-select: none;
+  font-size: 14px;
+  line-height: 20px;
+  padding-bottom: 8px;
 `
 
 const LegendButtonWrapper = styled.div<{ enabled?: boolean }>`
@@ -236,23 +250,6 @@ const TooltipWrapper = styled.div`
 export const ANIMATION_DELAY = 500
 export const ANIMATION_DURATION = 1000
 
-const formatShortNum = (num: number, fixed = 1): string => {
-  const negative = num < 0
-  const absNum = Math.abs(num)
-  let formattedNum = ''
-  if (absNum > 1000000000) {
-    formattedNum = (+(absNum / 1000000000).toFixed(fixed)).toString() + 'B'
-  } else if (absNum > 1000000) {
-    formattedNum = (+(absNum / 1000000).toFixed(fixed)).toString() + 'M'
-  } else if (absNum > 1000) {
-    formattedNum = (+(absNum / 1000).toFixed(fixed)).toString() + 'K'
-  } else {
-    formattedNum = (+absNum.toFixed(fixed)).toString()
-  }
-
-  return (negative ? '-' : '') + formattedNum
-}
-
 export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?: boolean; noAnimation?: boolean }) => {
   const theme = useTheme()
   const { address } = useParams()
@@ -297,10 +294,53 @@ export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?
     return datatemp
   }, [data, timerange, from, to])
 
+  const totalStats: { timeframe: string; totalTrades: string; totalBuys: string; totalSells: string } = useMemo(() => {
+    if (formattedData.length === 0) return { timeframe: '--', totalTrades: '--', totalBuys: '--', totalSells: '--' }
+
+    const tf = `${dayjs(formattedData[0].timestamp * 1000).format(
+      timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
+    )} - ${dayjs(formattedData[formattedData.length - 1].timestamp * 1000).format(
+      timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
+    )}`
+
+    return {
+      timeframe: tf,
+      totalTrades: formatLocaleStringNum(formattedData.reduce((a, b) => a + b.totalTrade, 0)),
+      totalBuys: formatLocaleStringNum(formattedData.reduce((a, b) => a + b.buy, 0)),
+      totalSells: formatLocaleStringNum(-formattedData.reduce((a, b) => a + b.sell, 0)),
+    }
+  }, [formattedData, timeframe])
+
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   return (
     <>
       <ChartWrapper>
+        <InfoWrapper>
+          <Column gap="4px">
+            <Text color={theme.subText}>Timeframe</Text>
+            <Text color={theme.text} fontWeight={500}>
+              {totalStats.timeframe}
+            </Text>
+          </Column>
+          <Column gap="4px">
+            <Text color={theme.subText}>Total Trades</Text>
+            <Text color={theme.text} fontWeight={500}>
+              {totalStats.totalTrades}
+            </Text>
+          </Column>
+          <Column gap="4px">
+            <Text color={theme.subText}>Total Buys</Text>
+            <Text color={theme.text} fontWeight={500}>
+              {totalStats.totalBuys}
+            </Text>
+          </Column>
+          <Column gap="4px">
+            <Text color={theme.subText}>Total Sells</Text>
+            <Text color={theme.text} fontWeight={500}>
+              {totalStats.totalSells}
+            </Text>
+          </Column>
+        </InfoWrapper>
         <LegendWrapper>
           {above768 && (
             <>
@@ -343,7 +383,7 @@ export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?
             height={400}
             data={formattedData}
             margin={{
-              top: 50,
+              top: 70,
               left: 20,
               right: 20,
             }}
@@ -530,10 +570,53 @@ export const TradingVolumeChart = () => {
     return datatemp
   }, [data, timerange, from, to])
 
+  const totalStats: { timeframe: string; totalVolume: string; totalBuys: string; totalSells: string } = useMemo(() => {
+    if (formattedData.length === 0) return { timeframe: '--', totalVolume: '--', totalBuys: '--', totalSells: '--' }
+
+    const tf = `${dayjs(formattedData[0].timestamp * 1000).format(
+      timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
+    )} - ${dayjs(formattedData[formattedData.length - 1].timestamp * 1000).format(
+      timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
+    )}`
+
+    return {
+      timeframe: tf,
+      totalVolume: '$' + formatLocaleStringNum(formattedData.reduce((a, b) => a + b.totalVolume, 0)),
+      totalBuys: '$' + formatLocaleStringNum(formattedData.reduce((a, b) => a + b.buyVolume, 0)),
+      totalSells: '$' + formatLocaleStringNum(-formattedData.reduce((a, b) => a + b.sellVolume, 0)),
+    }
+  }, [formattedData, timeframe])
+
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   return (
     <>
       <ChartWrapper>
+        <InfoWrapper>
+          <Column gap="4px">
+            <Text color={theme.subText}>Timeframe</Text>
+            <Text color={theme.text} fontWeight={500}>
+              {totalStats.timeframe}
+            </Text>
+          </Column>
+          <Column gap="4px">
+            <Text color={theme.subText}>Total Volume</Text>
+            <Text color={theme.text} fontWeight={500}>
+              {totalStats.totalVolume}
+            </Text>
+          </Column>
+          <Column gap="4px">
+            <Text color={theme.subText}>Total Buys</Text>
+            <Text color={theme.text} fontWeight={500}>
+              {totalStats.totalBuys}
+            </Text>
+          </Column>
+          <Column gap="4px">
+            <Text color={theme.subText}>Total Sells</Text>
+            <Text color={theme.text} fontWeight={500}>
+              {totalStats.totalSells}
+            </Text>
+          </Column>
+        </InfoWrapper>
         <LegendWrapper>
           {above768 && (
             <>
@@ -574,7 +657,7 @@ export const TradingVolumeChart = () => {
             height={400}
             data={formattedData}
             margin={{
-              top: 50,
+              top: 70,
               left: 20,
               right: 20,
             }}

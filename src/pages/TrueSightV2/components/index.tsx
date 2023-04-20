@@ -29,8 +29,8 @@ export const StyledSectionWrapper = styled.div<{ show?: boolean }>`
   margin-bottom: 36px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  height: 500px;
+  gap: 16px;
+  height: 540px;
 `
 
 export const SectionTitle = styled.div`
@@ -177,7 +177,7 @@ export const SectionWrapper = ({
             </RowBetween>
           </SectionTitle>
           {tabs && activeTab !== undefined && title && (
-            <Row marginBottom="6px">
+            <Row>
               <Text fontSize="16px" lineHeight="20px" color={theme.text} fontWeight={500}>
                 {tabs[activeTab] + ' ' + title}
               </Text>

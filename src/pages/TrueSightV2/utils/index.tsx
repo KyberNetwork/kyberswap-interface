@@ -15,3 +15,26 @@ export const calculateValueToColor = (value: number, theme: DefaultTheme) => {
   }
   return theme.primary
 }
+
+export const formatShortNum = (num: number, fixed = 1): string => {
+  const negative = num < 0
+  const absNum = Math.abs(num)
+  let formattedNum = ''
+  if (absNum > 1000000000) {
+    formattedNum = (+(absNum / 1000000000).toFixed(fixed)).toString() + 'B'
+  } else if (absNum > 1000000) {
+    formattedNum = (+(absNum / 1000000).toFixed(fixed)).toString() + 'M'
+  } else if (absNum > 1000) {
+    formattedNum = (+(absNum / 1000).toFixed(fixed)).toString() + 'K'
+  } else {
+    formattedNum = (+absNum.toFixed(fixed)).toString()
+  }
+
+  return (negative ? '-' : '') + formattedNum
+}
+
+export const formatLocaleStringNum = (value: number): string => {
+  if (value > 100000) return (+value.toFixed(0)).toLocaleString()
+  if (value > 1000) return (+value.toFixed(2)).toLocaleString()
+  return value.toPrecision(5)
+}
