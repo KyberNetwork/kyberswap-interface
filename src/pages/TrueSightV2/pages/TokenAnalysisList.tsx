@@ -31,7 +31,7 @@ import SmallKyberScoreMeter from '../components/SmallKyberScoreMeter'
 import TokenChart from '../components/TokenChartSVG'
 import KyberScoreChart from '../components/chart/KyberScoreChart'
 import { TOKEN_LIST } from '../hooks/sampleData'
-import { useTokenListQuery } from '../hooks/useTruesightV2Data'
+import { useTokenListQuery } from '../hooks/useKyberAIData'
 import { TokenListTab } from '../types'
 
 const TableWrapper = styled.div`
@@ -492,11 +492,26 @@ const TokenRow = ({ token, currentTab }: { token: any; currentTab: TokenListTab 
       setShowMenu(true)
     }
   }
+  const [stared, setStared] = useState(false)
   return (
     <tr key={token.id} ref={rowRef} onClick={handleRowClick} style={{ position: 'relative' }}>
       <td>
         <RowFit>
-          <Star size={16} style={{ marginRight: '6px', cursor: 'pointer' }} /> {token.id}
+          {
+            <SimpleTooltip text={!stared ? t`Add to watchlist` : t`Remove from watchlist`}>
+              <Star
+                size={20}
+                style={{ marginRight: '6px', cursor: 'pointer' }}
+                fill={stared ? theme.primary : 'none'}
+                stroke={stared ? theme.primary : theme.subText}
+                onClick={e => {
+                  e.stopPropagation()
+                  setStared(prev => !prev)
+                }}
+              />
+            </SimpleTooltip>
+          }{' '}
+          {token.id}
         </RowFit>
       </td>
       <td>
@@ -561,12 +576,24 @@ const TokenRow = ({ token, currentTab }: { token: any; currentTab: TokenListTab 
       <td>
         <Row gap="4px" justify={'flex-end'}>
           <SimpleTooltip text={t`View Pools`}>
-            <ActionButton color={theme.subText}>
+            <ActionButton
+              color={theme.subText}
+              onClick={e => {
+                e.stopPropagation()
+                navigate(APP_PATHS.POOLS)
+              }}
+            >
               <Icon id="liquid" size={16} />
             </ActionButton>
           </SimpleTooltip>
           <SimpleTooltip text={t`Swap`}>
-            <ActionButton color={theme.subText}>
+            <ActionButton
+              color={theme.subText}
+              onClick={e => {
+                e.stopPropagation()
+                navigate(APP_PATHS.SWAP)
+              }}
+            >
               <Icon id="swap" size={16} />
             </ActionButton>
           </SimpleTooltip>

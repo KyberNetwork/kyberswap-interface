@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/macro'
 import React, { useCallback } from 'react'
 import { Text } from 'rebass'
 import styled, { useTheme } from 'styled-components'
@@ -66,7 +67,14 @@ function SmallKyberScoreMeter({ value }: { value?: number }) {
         ))}
       </svg>
       <GaugeValue>
-        <SimpleTooltip text="This is based on calculation at 08:00 AM when the price of ETH was $0.0000000001">
+        <SimpleTooltip
+          text={
+            <Trans>
+              This is based on calculation at <b style={{ color: theme.text }}>08:00 AM</b> when the price of ETH was{' '}
+              <b style={{ color: theme.text }}>$0.0000000001</b>
+            </Trans>
+          }
+        >
           <RowFit gap="2px">
             <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
               {value}

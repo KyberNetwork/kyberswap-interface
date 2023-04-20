@@ -10,7 +10,7 @@ import {
   SubscribeBarsCallback,
   Timezone,
 } from 'components/TradingViewChart/charting_library'
-import { useLazyChartingDataQuery } from 'pages/TrueSightV2/hooks/useTruesightV2Data'
+import { useLazyChartingDataQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import { OHLCData } from 'pages/TrueSightV2/types'
 

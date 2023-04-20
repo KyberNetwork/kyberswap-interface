@@ -11,10 +11,10 @@ import Toggle from 'components/Toggle'
 import { useTokenAnalysisSettings } from 'state/user/hooks'
 
 import { SectionWrapper } from '../components'
-import CexRekt from '../components/CexRekt'
+// import CexRekt from '../components/CexRekt'
 import { LiquidOnCentralizedExchanges, Prochart } from '../components/chart'
 import { FundingRateTable, LiveDEXTrades, SupportResistanceLevel } from '../components/table'
-import { useChartingDataQuery } from '../hooks/useTruesightV2Data'
+import { useChartingDataQuery } from '../hooks/useKyberAIData'
 import { ChartTab, ISRLevel, OHLCData } from '../types'
 
 const Wrapper = styled.div`
@@ -224,7 +224,7 @@ export default function TechnicalAnalysis() {
           style={{ height: '600px' }}
         >
           <LiquidOnCentralizedExchanges />
-          <CexRekt />
+          {/* <CexRekt /> */}
         </SectionWrapper>
       </Wrapper>
     </TechnicalAnalysisContext.Provider>

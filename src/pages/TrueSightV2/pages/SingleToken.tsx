@@ -25,7 +25,7 @@ import DisplaySettings from '../components/DisplaySettings'
 import ShareKyberAIModal from '../components/ShareKyberAIModal'
 import { TokenOverview } from '../components/TokenOverview'
 import TutorialModal from '../components/TutorialModal'
-import { useTokenDetailQuery } from '../hooks/useTruesightV2Data'
+import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation, useTokenDetailQuery } from '../hooks/useKyberAIData'
 import { DiscoverTokenTab, TokenListTab } from '../types'
 import OnChainAnalysis from './OnChainAnalysis'
 import TechnicalAnalysis from './TechnicalAnalysis'
@@ -236,6 +236,19 @@ export default function SingleToken() {
     shareUrl.current = url
     toggleShareModal()
   }
+
+  const [addToWatchlist] = useAddToWatchlistMutation()
+  const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
+  const [stared, setStared] = useState(false)
+  const handleStarClick = () => {
+    if (stared) {
+      removeFromWatchlist({ wallet: account, tokenAddress: testParams.address, chain: 'ethereum' })
+      setStared(false)
+    } else {
+      addToWatchlist({ wallet: account, tokenAddress: testParams.address, chain: 'ethereum' })
+      setStared(true)
+    }
+  }
   const RenderHeader = () => {
     const TokenNameGroup = () => (
       <>
@@ -247,8 +260,9 @@ export default function SingleToken() {
             color: data?.isWatched ? theme.primary : theme.subText,
             backgroundColor: data?.isWatched ? theme.primary + '33' : theme.buttonGray,
           }}
+          onClick={handleStarClick}
         >
-          <Star size={16} fill={data?.isWatched ? 'currentcolor' : 'none'} />
+          <Star size={16} stroke={stared ? theme.primary : theme.subText} fill={stared ? theme.primary : 'none'} />
         </HeaderButton>
         <div style={{ position: 'relative' }}>
           <div style={{ borderRadius: '50%', overflow: 'hidden' }}>

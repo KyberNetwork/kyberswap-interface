@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { commify } from 'ethers/lib/utils'
 import { rgba } from 'polished'
@@ -44,7 +45,7 @@ import {
   useNumberOfHoldersQuery,
   useTradingVolumeQuery,
   useTransferInformationQuery,
-} from 'pages/TrueSightV2/hooks/useTruesightV2Data'
+} from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { testParams } from 'pages/TrueSightV2/pages/SingleToken'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import {
@@ -1898,8 +1899,9 @@ export const LiquidOnCentralizedExchanges = () => {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const [timeframe, setTimeframe] = useState<string>('7D')
-  const { data } = useCexesLiquidationQuery(timeframe)
+  const { data, isLoading } = useCexesLiquidationQuery(timeframe)
   console.log('🚀 ~ file: index.tsx:1247 ~ LiquidOnCentralizedExchanges ~ data:', data)
+  const isEmpty = !isLoading && !data
   const [showLong, setShowLong] = useState(true)
   const [showShort, setShowShort] = useState(true)
   const [showPrice, setShowPrice] = useState(true)
@@ -1950,161 +1952,188 @@ export const LiquidOnCentralizedExchanges = () => {
     <ChartWrapper>
       {account ? (
         <>
-          <LegendWrapper>
-            {above768 && (
-              <>
-                <LegendButton
-                  text="Long"
-                  iconStyle={{ backgroundColor: rgba(theme.primary, 0.6) }}
-                  enabled={showLong}
-                  onClick={() => setShowLong(prev => !prev)}
+          {isEmpty ? (
+            <Row height="100%" justify="center">
+              <Text fontSize="14px">
+                <Trans>We couldn&apos;t find any information on USDT</Trans>
+              </Text>
+            </Row>
+          ) : (
+            <>
+              <LegendWrapper>
+                {above768 && (
+                  <>
+                    <LegendButton
+                      text="Long"
+                      iconStyle={{ backgroundColor: rgba(theme.primary, 0.6) }}
+                      enabled={showLong}
+                      onClick={() => setShowLong(prev => !prev)}
+                    />
+                    <LegendButton
+                      text="Short"
+                      iconStyle={{ backgroundColor: rgba(theme.red, 0.6) }}
+                      enabled={showShort}
+                      onClick={() => setShowShort(prev => !prev)}
+                    />
+                    <LegendButton
+                      text="Price"
+                      iconStyle={{
+                        height: '4px',
+                        width: '16px',
+                        borderRadius: '8px',
+                        backgroundColor: rgba(theme.blue, 0.8),
+                      }}
+                      enabled={showPrice}
+                      onClick={() => setShowPrice(prev => !prev)}
+                    />
+                  </>
+                )}
+                <TimeFrameLegend
+                  selected={timeframe}
+                  onSelect={setTimeframe}
+                  timeframes={[KyberAITimeframe.ONE_DAY, KyberAITimeframe.ONE_WEEK, KyberAITimeframe.ONE_MONTH]}
                 />
-                <LegendButton
-                  text="Short"
-                  iconStyle={{ backgroundColor: rgba(theme.red, 0.6) }}
-                  enabled={showShort}
-                  onClick={() => setShowShort(prev => !prev)}
-                />
-                <LegendButton
-                  text="Price"
-                  iconStyle={{
-                    height: '4px',
-                    width: '16px',
-                    borderRadius: '8px',
-                    backgroundColor: rgba(theme.blue, 0.8),
-                  }}
-                  enabled={showPrice}
-                  onClick={() => setShowPrice(prev => !prev)}
-                />
-              </>
-            )}
-            <TimeFrameLegend
-              selected={timeframe}
-              onSelect={setTimeframe}
-              timeframes={[KyberAITimeframe.ONE_DAY, KyberAITimeframe.ONE_WEEK, KyberAITimeframe.ONE_MONTH]}
-            />
-          </LegendWrapper>
-          <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart
-              width={500}
-              height={500}
-              data={formattedData}
-              stackOffset="sign"
-              margin={{ left: 20, right: 20, top: 50 }}
-            >
-              <CartesianGrid
-                vertical={false}
-                strokeWidth={1}
-                stroke={rgba(theme.border, 0.5)}
-                shapeRendering="crispEdges"
-              />
-              <Customized component={KyberLogo} />
-              <XAxis
-                fontSize="12px"
-                dataKey="timestamp"
-                tickLine={false}
-                axisLine={false}
-                tick={{ fill: theme.subText, fontWeight: 400 }}
-                tickFormatter={value => dayjs(value).format(timeframe === '1D' ? 'HH:mm a,MMM DD ' : 'MMM DD')}
-              />
-              <YAxis
-                yAxisId="left"
-                fontSize="12px"
-                tickLine={false}
-                axisLine={false}
-                tick={{ fill: theme.subText, fontWeight: 400 }}
-                width={40}
-                orientation="left"
-                tickFormatter={value => formatShortNum(value)}
-              />
-              <YAxis
-                yAxisId="right"
-                fontSize="12px"
-                tickLine={false}
-                axisLine={false}
-                tick={{ fill: theme.subText, fontWeight: 400 }}
-                width={40}
-                orientation="right"
-                tickFormatter={value => formatShortNum(value)}
-                domain={[(dataMin: any) => dataMin * 0.99, (dataMax: any) => dataMax * 1.01]}
-              />
-              <Tooltip
-                cursor={{ fill: 'transparent' }}
-                wrapperStyle={{ outline: 'none' }}
-                position={{ y: 120 }}
-                animationDuration={100}
-                content={props => {
-                  const payload = props.payload?.[0]?.payload
-                  if (!payload) return <></>
-                  return (
-                    <TooltipWrapper>
-                      <Text fontSize="10px" lineHeight="12px" color={theme.subText}>
-                        {payload.timestamp && dayjs(payload.timestamp).format('MMM DD, YYYY')}
-                      </Text>
-                      <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                        Price: <span style={{ color: theme.text }}>${commify(+payload.price.toFixed(2))}</span>
-                      </Text>
-                      <Row gap="12px">
-                        <Column gap="4px">
-                          <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                            Site
+              </LegendWrapper>
+              <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart
+                  width={500}
+                  height={500}
+                  data={formattedData}
+                  stackOffset="sign"
+                  margin={{ left: 20, right: 20, top: 50 }}
+                >
+                  <CartesianGrid
+                    vertical={false}
+                    strokeWidth={1}
+                    stroke={rgba(theme.border, 0.5)}
+                    shapeRendering="crispEdges"
+                  />
+                  <Customized component={KyberLogo} />
+                  <XAxis
+                    fontSize="12px"
+                    dataKey="timestamp"
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fill: theme.subText, fontWeight: 400 }}
+                    tickFormatter={value => dayjs(value).format(timeframe === '1D' ? 'HH:mm a,MMM DD ' : 'MMM DD')}
+                  />
+                  <YAxis
+                    yAxisId="left"
+                    fontSize="12px"
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fill: theme.subText, fontWeight: 400 }}
+                    width={40}
+                    orientation="left"
+                    tickFormatter={value => formatShortNum(value)}
+                  />
+                  <YAxis
+                    yAxisId="right"
+                    fontSize="12px"
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fill: theme.subText, fontWeight: 400 }}
+                    width={40}
+                    orientation="right"
+                    tickFormatter={value => formatShortNum(value)}
+                    domain={[(dataMin: any) => dataMin * 0.99, (dataMax: any) => dataMax * 1.01]}
+                  />
+                  <Tooltip
+                    cursor={{ fill: 'transparent' }}
+                    wrapperStyle={{ outline: 'none' }}
+                    position={{ y: 120 }}
+                    animationDuration={100}
+                    content={props => {
+                      const payload = props.payload?.[0]?.payload
+                      if (!payload) return <></>
+                      return (
+                        <TooltipWrapper>
+                          <Text fontSize="10px" lineHeight="12px" color={theme.subText}>
+                            {payload.timestamp && dayjs(payload.timestamp).format('MMM DD, YYYY')}
                           </Text>
-                          {payload.list.map((i: any) => (
-                            <Text key={i.exchangeName} fontSize="12px" lineHeight="16px" color={theme.text}>
-                              {i.exchangeName}
-                            </Text>
-                          ))}
-                        </Column>
-                        <Column gap="4px" style={{ alignItems: 'flex-end' }}>
                           <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                            Long
+                            Price: <span style={{ color: theme.text }}>${commify(+payload.price.toFixed(2))}</span>
                           </Text>
-                          {payload.list.map((i: any) => (
-                            <Text key={i.exchangeName + 'long'} fontSize="12px" lineHeight="16px" color={theme.primary}>
-                              {formatShortNum(i.buyVolUsd)}
-                            </Text>
-                          ))}
-                        </Column>
-                        <Column gap="4px" style={{ alignItems: 'flex-end' }}>
-                          <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                            Short
-                          </Text>
-                          {payload.list.map((i: any) => (
-                            <Text key={i.exchangeName + 'short'} fontSize="12px" lineHeight="16px" color={theme.red}>
-                              {formatShortNum(i.sellVolUsd)}
-                            </Text>
-                          ))}
-                        </Column>
-                      </Row>
-                    </TooltipWrapper>
-                  )
-                }}
-              />
-              {showLong && (
-                <Bar
-                  dataKey="buyVolUsd"
-                  stackId="a"
-                  fill={rgba(theme.primary, 0.6)}
-                  animationBegin={ANIMATION_DELAY}
-                  animationDuration={ANIMATION_DURATION}
-                  yAxisId="left"
-                />
-              )}
-              {showShort && (
-                <Bar
-                  dataKey="sellVolUsd"
-                  stackId="a"
-                  fill={rgba(theme.red, 0.6)}
-                  animationBegin={ANIMATION_DELAY}
-                  animationDuration={ANIMATION_DURATION}
-                  yAxisId="left"
-                />
-              )}
-              {showPrice && (
-                <Line yAxisId="right" type="linear" dataKey="price" stroke={theme.blue} strokeWidth={3} dot={false} />
-              )}
-            </ComposedChart>
-          </ResponsiveContainer>
+                          <Row gap="12px">
+                            <Column gap="4px">
+                              <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                                Site
+                              </Text>
+                              {payload.list.map((i: any) => (
+                                <Text key={i.exchangeName} fontSize="12px" lineHeight="16px" color={theme.text}>
+                                  {i.exchangeName}
+                                </Text>
+                              ))}
+                            </Column>
+                            <Column gap="4px" style={{ alignItems: 'flex-end' }}>
+                              <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                                Long
+                              </Text>
+                              {payload.list.map((i: any) => (
+                                <Text
+                                  key={i.exchangeName + 'long'}
+                                  fontSize="12px"
+                                  lineHeight="16px"
+                                  color={theme.primary}
+                                >
+                                  {formatShortNum(i.buyVolUsd)}
+                                </Text>
+                              ))}
+                            </Column>
+                            <Column gap="4px" style={{ alignItems: 'flex-end' }}>
+                              <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                                Short
+                              </Text>
+                              {payload.list.map((i: any) => (
+                                <Text
+                                  key={i.exchangeName + 'short'}
+                                  fontSize="12px"
+                                  lineHeight="16px"
+                                  color={theme.red}
+                                >
+                                  {formatShortNum(i.sellVolUsd)}
+                                </Text>
+                              ))}
+                            </Column>
+                          </Row>
+                        </TooltipWrapper>
+                      )
+                    }}
+                  />
+                  {showLong && (
+                    <Bar
+                      dataKey="buyVolUsd"
+                      stackId="a"
+                      fill={rgba(theme.primary, 0.6)}
+                      animationBegin={ANIMATION_DELAY}
+                      animationDuration={ANIMATION_DURATION}
+                      yAxisId="left"
+                    />
+                  )}
+                  {showShort && (
+                    <Bar
+                      dataKey="sellVolUsd"
+                      stackId="a"
+                      fill={rgba(theme.red, 0.6)}
+                      animationBegin={ANIMATION_DELAY}
+                      animationDuration={ANIMATION_DURATION}
+                      yAxisId="left"
+                    />
+                  )}
+                  {showPrice && (
+                    <Line
+                      yAxisId="right"
+                      type="linear"
+                      dataKey="price"
+                      stroke={theme.blue}
+                      strokeWidth={3}
+                      dot={false}
+                    />
+                  )}
+                </ComposedChart>
+              </ResponsiveContainer>
+            </>
+          )}
         </>
       ) : (
         <></>

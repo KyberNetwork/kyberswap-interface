@@ -70,6 +70,20 @@ export interface IFundingRate {
   rate: number
   symbol: string
 }
+
+export interface ITokenSearchResult {
+  address: string
+  name: string
+  symbol: string
+  logo: string
+  chain: string
+  price: number
+  priceChange24h: number
+  kyberScore: {
+    score: number
+    label: string
+  }
+}
 export interface IPagination {
   page: number
   pageSize: number

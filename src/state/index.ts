@@ -5,7 +5,7 @@ import routeApi from 'services/route'
 
 import { ENV_LEVEL } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
-import truesightV2Api, { coinglassApi } from 'pages/TrueSightV2/hooks/useTruesightV2Data'
+import kyberAIApi, { coinglassApi } from 'pages/TrueSightV2/hooks/useKyberAIData'
 
 import annoucementApi from '../services/announcement'
 import geckoTerminalApi from '../services/geckoTermial'
@@ -60,7 +60,7 @@ const store = configureStore({
     vesting,
     [annoucementApi.reducerPath]: annoucementApi.reducer,
     [geckoTerminalApi.reducerPath]: geckoTerminalApi.reducer,
-    [truesightV2Api.reducerPath]: truesightV2Api.reducer,
+    [kyberAIApi.reducerPath]: kyberAIApi.reducer,
     [coinglassApi.reducerPath]: coinglassApi.reducer,
     [notificationApi.reducerPath]: notificationApi.reducer,
     [ksSettingApi.reducerPath]: ksSettingApi.reducer,
@@ -80,7 +80,7 @@ const store = configureStore({
       .concat(save({ states: PERSISTED_KEYS, debounce: 100 }))
       .concat(geckoTerminalApi.middleware)
       .concat(annoucementApi.middleware)
-      .concat(truesightV2Api.middleware)
+      .concat(kyberAIApi.middleware)
       .concat(coinglassApi.middleware)
       .concat(notificationApi.middleware)
       .concat(ksSettingApi.middleware)

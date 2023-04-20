@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 
-import { TRUESIGHT_V2_API } from 'constants/env'
+import { KYBERAI_API } from 'constants/env'
 
 import {
   INetflowToCEX,
@@ -8,15 +8,16 @@ import {
   INumberOfTrades,
   INumberOfTransfers,
   ITokenOverview,
+  ITokenSearchResult,
   ITradingVolume,
   OHLCData,
 } from '../types'
 import { HOLDER_LIST, TOKEN_LIST } from './sampleData'
 
-const truesightV2Api = createApi({
-  reducerPath: 'truesightV2Api',
+const kyberAIApi = createApi({
+  reducerPath: 'kyberAIApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: TRUESIGHT_V2_API,
+    baseUrl: KYBERAI_API,
   }),
   endpoints: builder => ({
     //1.
@@ -26,6 +27,23 @@ const truesightV2Api = createApi({
       }),
       transformResponse: (res: any) => TOKEN_LIST,
     }),
+    //2.
+    addToWatchlist: builder.mutation({
+      query: params => ({
+        url: `/watchlist`,
+        method: 'POST',
+        params,
+      }),
+    }),
+    //3.
+    removeFromWatchlist: builder.mutation({
+      query: params => ({
+        url: `/watchlist`,
+        method: 'DELETE',
+        params,
+      }),
+    }),
+
     //4.
     tokenDetail: builder.query<ITokenOverview, { tokenAddress?: string; account?: string }>({
       query: ({ tokenAddress, account }: { tokenAddress?: string; account?: string }) => ({
@@ -128,6 +146,14 @@ const truesightV2Api = createApi({
       }),
       transformResponse: (res: any) => res.data,
     }),
+    //18.
+    searchToken: builder.query<ITokenSearchResult[], { q?: string; size?: number }>({
+      query: ({ q, size }) => ({
+        url: `/tokens/search`,
+        params: { q, size },
+      }),
+      transformResponse: (res: any) => res.data,
+    }),
   }),
 })
 
@@ -188,6 +214,9 @@ export const {
   useLiveDexTradesQuery,
   useLazyChartingDataQuery,
   useChartingDataQuery,
-} = truesightV2Api
+  useAddToWatchlistMutation,
+  useRemoveFromWatchlistMutation,
+  useSearchTokenQuery,
+} = kyberAIApi
 export const { useCexesLiquidationQuery, useCexesInfoQuery, useFundingRateQuery } = coinglassApi
-export default truesightV2Api
+export default kyberAIApi

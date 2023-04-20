@@ -12,9 +12,13 @@ import Icon from 'components/Icons/Icon'
 import SearchIcon from 'components/Icons/Search'
 import Logo from 'components/Logo'
 import Row, { RowFit } from 'components/Row'
+import useDebounce from 'hooks/useDebounce'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
+
+import { useSearchTokenQuery } from '../hooks/useKyberAIData'
+import { ITokenSearchResult } from '../types'
 
 const Wrapper = styled.div<{ wider?: boolean; expanded?: boolean }>`
   display: flex;
@@ -182,6 +186,66 @@ const AnimationOnFocus = styled.div`
   animation: ${ripple} 0.6s linear;
 `
 
+const TokenItem = ({ token }: { token: ITokenSearchResult }) => {
+  const theme = useTheme()
+  return (
+    <DropdownItem>
+      <td>
+        <RowFit gap="6px">
+          <div style={{ position: 'relative' }}>
+            <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
+              <Logo
+                srcs={[token.logo]}
+                style={{ width: '16px', height: '16px', background: 'white', display: 'block' }}
+              />
+            </div>
+            <div
+              style={{
+                position: 'absolute',
+                top: '-2px',
+                right: '-2px',
+                borderRadius: '50%',
+                border: `1px solid ${theme.background}`,
+              }}
+            >
+              <img
+                src="https://icons.iconarchive.com/icons/cjdowner/cryptocurrency-flat/512/Ethereum-ETH-icon.png"
+                alt="eth"
+                width="8px"
+                height="8px"
+                style={{ display: 'block' }}
+              />
+            </div>
+          </div>
+          <Text fontSize="12px" color={theme.text}>
+            {`${token.name}(${token.symbol.toUpperCase()})`}
+          </Text>
+        </RowFit>
+      </td>
+      <td style={{ textAlign: 'left' }}>
+        <Text fontSize="12px" color={token.kyberScore && token.kyberScore.score < 50 ? theme.red : theme.primary}>
+          <>
+            {token.kyberScore.score}
+            <Text as="span" fontSize="10px" color={theme.subText}>
+              /100
+            </Text>
+          </>
+        </Text>
+      </td>
+      <td style={{ textAlign: 'left' }}>
+        <Text fontSize="12px" color={theme.text}>
+          ${token.price}
+        </Text>
+      </td>
+      <td style={{ textAlign: 'right' }}>
+        <Text fontSize="12px" color={token.priceChange24h && token.priceChange24h < 0 ? theme.red : theme.primary}>
+          {token.priceChange24h ? `${(token.priceChange24h / token.price).toFixed(2)}%` : `--%`}
+        </Text>
+      </td>
+    </DropdownItem>
+  )
+}
+
 const MobileWrapper = ({
   expanded,
   onClick,
@@ -229,9 +293,19 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
   const theme = useTheme()
   const [expanded, setExpanded] = useState(false)
   const [search, setSearch] = useState('')
+  const [height, setHeight] = useState(0)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+
+  const debouncedSearch = useDebounce(search, 1000)
+  const { data: searchResult, isFetching } = useSearchTokenQuery({ q: debouncedSearch })
+
+  const haveSearchResult = search !== '' && searchResult && searchResult.length > 0
+  const noSearchResult = search !== '' && searchResult && searchResult.length === 0
+  const loading = isFetching
+  console.log('🚀 ~ file: SearchWithDropDown.tsx:309 ~ SearchWithDropdown ~ loading:', loading)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
 
   useOnClickOutside(wrapperRef, () => setExpanded(false))
@@ -309,87 +383,140 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
     </DropdownItem>
   )
 
+  useEffect(() => {
+    if (!contentRef.current) return
+    const resizeObserver = new ResizeObserver(() => {
+      dropdownRef.current?.scrollHeight && setHeight(dropdownRef.current?.scrollHeight)
+    })
+    resizeObserver.observe(contentRef.current)
+    return () => resizeObserver.disconnect()
+  }, [])
+
   const DropdownContent = () => (
-    <>
-      <DropdownSection>
-        <colgroup>
-          <col style={{ width: '160px' }} />
-          <col style={{ width: '100px', minWidth: 'auto' }} />
-          <col style={{ width: '140px' }} />
-          <col style={{ width: '60px' }} />
-        </colgroup>
-        <thead>
-          <tr>
-            <th>
-              <RowFit color={theme.subText} gap="4px">
-                <History />
-                <Text fontSize="12px">Search History</Text>
-              </RowFit>
-            </th>
-            <th style={{ textAlign: 'left' }}>KyberScore</th>
-            <th style={{ textAlign: 'left' }}>Price</th>
-            <th style={{ textAlign: 'right' }}>24H</th>
-          </tr>
-        </thead>
-        <tbody>
-          <SampleItem />
-          <SampleItem />
-          <SampleItem />
-        </tbody>
-      </DropdownSection>
-      <DropdownSection>
-        <colgroup>
-          <col style={{ width: '160px' }} />
-          <col style={{ width: '100px', minWidth: 'auto' }} />
-          <col style={{ width: '140px' }} />
-          <col style={{ width: '60px' }} />
-        </colgroup>
-        <thead>
-          <tr>
-            <th>
-              <RowFit color={theme.subText} gap="4px">
-                <Icon id="bullish" size={16} />
-                <Text fontSize="12px">Bullish Tokens</Text>
-              </RowFit>
-            </th>
-            <th style={{ textAlign: 'left' }}>KyberScore</th>
-            <th style={{ textAlign: 'left' }}>Price</th>
-            <th style={{ textAlign: 'right' }}>24H</th>
-          </tr>
-        </thead>
-        <tbody>
-          <SampleItem />
-          <SampleItem />
-          <SampleItem />
-        </tbody>
-      </DropdownSection>
-      <DropdownSection>
-        <colgroup>
-          <col style={{ width: '160px' }} />
-          <col style={{ width: '100px', minWidth: 'auto' }} />
-          <col style={{ width: '140px' }} />
-          <col style={{ width: '60px' }} />
-        </colgroup>
-        <thead>
-          <tr>
-            <th>
-              <RowFit color={theme.subText} gap="4px">
-                <Icon id="bearish" size={16} />
-                <Text fontSize="12px">Bearish Tokens</Text>
-              </RowFit>
-            </th>
-            <th style={{ textAlign: 'left' }}>KyberScore</th>
-            <th style={{ textAlign: 'left' }}>Price</th>
-            <th style={{ textAlign: 'right' }}>24H</th>
-          </tr>
-        </thead>
-        <tbody>
-          <SampleItem score={-20} percent={-20} />
-          <SampleItem score={-20} percent={-20} />
-          <SampleItem score={-20} percent={-20} />
-        </tbody>
-      </DropdownSection>
-    </>
+    <div ref={contentRef}>
+      {haveSearchResult ? (
+        <>
+          <DropdownSection>
+            <colgroup>
+              <col style={{ width: '160px' }} />
+              <col style={{ width: '100px', minWidth: 'auto' }} />
+              <col style={{ width: '140px' }} />
+              <col style={{ width: '60px' }} />
+            </colgroup>
+            <thead>
+              <tr>
+                <th>
+                  <RowFit color={theme.subText} gap="4px">
+                    <History />
+                    <Text fontSize="12px">Search History</Text>
+                  </RowFit>
+                </th>
+                <th style={{ textAlign: 'left' }}>KyberScore</th>
+                <th style={{ textAlign: 'left' }}>Price</th>
+                <th style={{ textAlign: 'right' }}>24H</th>
+              </tr>
+            </thead>
+            <tbody>
+              {searchResult.map(item => (
+                <TokenItem key={item.address} token={item} />
+              ))}
+            </tbody>
+          </DropdownSection>
+        </>
+      ) : noSearchResult ? (
+        <>
+          <Row justify="center" height="360px">
+            <Text fontSize="14px" lineHeight="20px" maxWidth="75%">
+              <Trans>
+                Oops, we couldnt find your token! We will regularly add new tokens that have achieved a certain trading
+                volume
+              </Trans>
+            </Text>
+          </Row>
+        </>
+      ) : (
+        <>
+          <DropdownSection>
+            <colgroup>
+              <col style={{ width: '160px' }} />
+              <col style={{ width: '100px', minWidth: 'auto' }} />
+              <col style={{ width: '140px' }} />
+              <col style={{ width: '60px' }} />
+            </colgroup>
+            <thead>
+              <tr>
+                <th>
+                  <RowFit color={theme.subText} gap="4px">
+                    <History />
+                    <Text fontSize="12px">Search History</Text>
+                  </RowFit>
+                </th>
+                <th style={{ textAlign: 'left' }}>KyberScore</th>
+                <th style={{ textAlign: 'left' }}>Price</th>
+                <th style={{ textAlign: 'right' }}>24H</th>
+              </tr>
+            </thead>
+            <tbody>
+              <SampleItem />
+              <SampleItem />
+              <SampleItem />
+            </tbody>
+          </DropdownSection>
+          <DropdownSection>
+            <colgroup>
+              <col style={{ width: '160px' }} />
+              <col style={{ width: '100px', minWidth: 'auto' }} />
+              <col style={{ width: '140px' }} />
+              <col style={{ width: '60px' }} />
+            </colgroup>
+            <thead>
+              <tr>
+                <th>
+                  <RowFit color={theme.subText} gap="4px">
+                    <Icon id="bullish" size={16} />
+                    <Text fontSize="12px">Bullish Tokens</Text>
+                  </RowFit>
+                </th>
+                <th style={{ textAlign: 'left' }}>KyberScore</th>
+                <th style={{ textAlign: 'left' }}>Price</th>
+                <th style={{ textAlign: 'right' }}>24H</th>
+              </tr>
+            </thead>
+            <tbody>
+              <SampleItem />
+              <SampleItem />
+              <SampleItem />
+            </tbody>
+          </DropdownSection>
+          <DropdownSection>
+            <colgroup>
+              <col style={{ width: '160px' }} />
+              <col style={{ width: '100px', minWidth: 'auto' }} />
+              <col style={{ width: '140px' }} />
+              <col style={{ width: '60px' }} />
+            </colgroup>
+            <thead>
+              <tr>
+                <th>
+                  <RowFit color={theme.subText} gap="4px">
+                    <Icon id="bearish" size={16} />
+                    <Text fontSize="12px">Bearish Tokens</Text>
+                  </RowFit>
+                </th>
+                <th style={{ textAlign: 'left' }}>KyberScore</th>
+                <th style={{ textAlign: 'left' }}>Price</th>
+                <th style={{ textAlign: 'right' }}>24H</th>
+              </tr>
+            </thead>
+            <tbody>
+              <SampleItem score={-20} percent={-20} />
+              <SampleItem score={-20} percent={-20} />
+              <SampleItem score={-20} percent={-20} />
+            </tbody>
+          </DropdownSection>
+        </>
+      )}
+    </div>
   )
 
   if (!above768) {
@@ -445,7 +572,7 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
             <Trans>Ape Smart!</Trans>
           </RowFit>
         </RowFit>
-        <DropdownWrapper expanded={expanded} ref={dropdownRef} height={dropdownRef.current?.scrollHeight}>
+        <DropdownWrapper expanded={expanded} ref={dropdownRef} height={height}>
           <DropdownContent />
           {expanded && <AnimationOnFocus />}
         </DropdownWrapper>

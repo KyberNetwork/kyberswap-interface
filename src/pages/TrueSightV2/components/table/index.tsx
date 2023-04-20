@@ -315,6 +315,11 @@ export const FundingRateTable = () => {
   // const gridTemplateColumns = '1fr 1fr 1fr 1fr 1fr 1fr 1fr'
   return (
     <TableWrapper>
+      <Row height="200px" justify="center">
+        <Text fontSize="14px">
+          <Trans>We couldn&apos;t find any information on USDT</Trans>
+        </Text>
+      </Row>
       {/* <TableHeader gridTemplateColumns={gridTemplateColumns}>
         <TableCell></TableCell>
         {data?.cMarginList?.map((i: any) => (
