@@ -38,7 +38,7 @@ const StyledTabs = styled(Tabs)`
   border-radius: 12px;
 `
 
-const WrapperInner = styled.div<{ hasRewards: boolean }>`
+const Wrapper = styled.div<{ hasRewards: boolean }>`
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -182,7 +182,7 @@ function FarmCard({
 
   return (
     <>
-      <WrapperInner hasRewards={canUnstake}>
+      <Wrapper hasRewards={canUnstake}>
         <RowBetween>
           <Flex sx={{ gap: '4px' }} flexDirection="column">
             <RowFit gap="4px" align="center">
@@ -545,7 +545,7 @@ function FarmCard({
             </ButtonLight>
           </RowFit>
         </RowBetween>
-      </WrapperInner>
+      </Wrapper>
 
       <TransactionConfirmationModal
         isOpen={showConfirmModal}

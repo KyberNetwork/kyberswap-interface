@@ -214,72 +214,76 @@ export const ListView = ({
           {isEnded ? <Trans>ENDED</Trans> : getFormattedTimeFromSecond(farm.endTime - currentTimestamp)}
         </Text>
 
-        <MouseoverTooltip
-          width="fit-content"
-          text={
-            <Flex flexDirection="column" fontSize="12px" sx={{ gap: '8px' }}>
-              <Flex
-                sx={{
-                  flexDirection: 'column',
-                  fontSize: '12px',
-                  lineHeight: '16px',
-                }}
-              >
-                <Text as="span">
-                  Pool APR:{' '}
-                  <Text as="span" color={theme.text} fontWeight={500}>
-                    {poolAPR.toFixed(2)}%
-                  </Text>
-                </Text>
-                <Text
-                  as="span"
-                  fontStyle="italic"
+        <div>
+          <MouseoverTooltip
+            width="fit-content"
+            text={
+              <Flex flexDirection="column" fontSize="12px" sx={{ gap: '8px' }}>
+                <Flex
                   sx={{
-                    whiteSpace: upToSmall ? 'wrap' : 'nowrap',
+                    flexDirection: 'column',
+                    fontSize: '12px',
+                    lineHeight: '16px',
                   }}
                 >
-                  <Trans>Estimated return from trading fees if you participate in the pool</Trans>
-                </Text>
-              </Flex>
-
-              <Divider />
-
-              <Text>
-                <Trans>APR for each Farming Range</Trans>
-              </Text>
-
-              {farm.ranges.map(item => (
-                <Flex key={item.index} justifyContent="space-between">
-                  <Flex alignItems="center" sx={{ gap: '2px' }} fontWeight="500">
-                    {convertTickToPrice(farm.token0, farm.token1, item.tickLower)}
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" display="block">
-                      <path
-                        d="M11.3405 8.66669L11.3405 9.86002C11.3405 10.16 11.7005 10.3067 11.9071 10.0934L13.7605 8.23335C13.8871 8.10002 13.8871 7.89335 13.7605 7.76002L11.9071 5.90669C11.7005 5.69335 11.3405 5.84002 11.3405 6.14002L11.3405 7.33335L4.66047 7.33335L4.66047 6.14002C4.66047 5.84002 4.30047 5.69335 4.0938 5.90669L2.24047 7.76669C2.1138 7.90002 2.1138 8.10669 2.24047 8.24002L4.0938 10.1C4.30047 10.3134 4.66047 10.16 4.66047 9.86669L4.66047 8.66669L11.3405 8.66669Z"
-                        fill="currentcolor"
-                      />
-                    </svg>
-
-                    {convertTickToPrice(farm.token0, farm.token1, item.tickUpper)}
-                  </Flex>
-
-                  <Text fontWeight="500" color={theme.apr}>
-                    {item.apr?.toFixed(2)}%
+                  <Text as="span">
+                    Pool APR:{' '}
+                    <Text as="span" color={theme.text} fontWeight={500}>
+                      {poolAPR.toFixed(2)}%
+                    </Text>
+                  </Text>
+                  <Text
+                    as="span"
+                    fontStyle="italic"
+                    sx={{
+                      whiteSpace: upToSmall ? 'wrap' : 'nowrap',
+                    }}
+                  >
+                    <Trans>Estimated return from trading fees if you participate in the pool</Trans>
                   </Text>
                 </Flex>
-              ))}
-            </Flex>
-          }
-        >
-          <Text
-            sx={{ borderBottom: `1px dotted ${theme.apr}` }}
-            color={theme.apr}
-            fontSize="14px"
-            fontWeight="500"
-            lineHeight="20px"
+
+                <Divider />
+
+                <Text>
+                  <Trans>APR for each Farming Range</Trans>
+                </Text>
+
+                {farm.ranges.map(item => (
+                  <Flex key={item.index} justifyContent="space-between">
+                    <Flex alignItems="center" sx={{ gap: '2px' }} fontWeight="500">
+                      {convertTickToPrice(farm.token0, farm.token1, item.tickLower)}
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" display="block">
+                        <path
+                          d="M11.3405 8.66669L11.3405 9.86002C11.3405 10.16 11.7005 10.3067 11.9071 10.0934L13.7605 8.23335C13.8871 8.10002 13.8871 7.89335 13.7605 7.76002L11.9071 5.90669C11.7005 5.69335 11.3405 5.84002 11.3405 6.14002L11.3405 7.33335L4.66047 7.33335L4.66047 6.14002C4.66047 5.84002 4.30047 5.69335 4.0938 5.90669L2.24047 7.76669C2.1138 7.90002 2.1138 8.10669 2.24047 8.24002L4.0938 10.1C4.30047 10.3134 4.66047 10.16 4.66047 9.86669L4.66047 8.66669L11.3405 8.66669Z"
+                          fill="currentcolor"
+                        />
+                      </svg>
+
+                      {convertTickToPrice(farm.token0, farm.token1, item.tickUpper)}
+                    </Flex>
+
+                    <Text fontWeight="500" color={theme.apr}>
+                      {item.apr?.toFixed(2)}%
+                    </Text>
+                  </Flex>
+                ))}
+              </Flex>
+            }
           >
-            {(minFarmAPR + poolAPR).toFixed(2)}% - {(maxFarmAPR + poolAPR).toFixed(2)}%
-          </Text>
-        </MouseoverTooltip>
+            <Text
+              sx={{ borderBottom: `1px dotted ${theme.apr}` }}
+              color={theme.apr}
+              fontSize="14px"
+              fontWeight="500"
+              lineHeight="20px"
+            >
+              {farm.ranges.length === 1 || minFarmAPR === maxFarmAPR
+                ? (minFarmAPR + poolAPR).toFixed(2) + '%'
+                : `${(minFarmAPR + poolAPR).toFixed(2)}% - ${(maxFarmAPR + poolAPR).toFixed(2)}%`}
+            </Text>
+          </MouseoverTooltip>
+        </div>
 
         <Text
           fontSize="14px"

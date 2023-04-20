@@ -1,5 +1,5 @@
 import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
 import { BarChart2, MoreHorizontal, Share2 } from 'react-feather'
 import { Link, useSearchParams } from 'react-router-dom'
@@ -9,15 +9,14 @@ import { Cell, Pie, PieChart, Tooltip } from 'recharts'
 import styled from 'styled-components'
 
 import bgimg from 'assets/images/card-background.png'
-import { TextButtonPrimary } from 'components/Button'
-import { OutlineCard } from 'components/Card'
 import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { FarmTag } from 'components/FarmTag'
-import AspectRatio from 'components/Icons/AspectRatio'
 import CircleInfoIcon from 'components/LiveChart/CircleInfoIcon'
 import { Circle } from 'components/Rating'
+import { RowBetween } from 'components/Row'
+import Tabs from 'components/Tabs'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { APRTooltipContent } from 'components/YieldPools/FarmingPoolAPRCell'
@@ -28,6 +27,7 @@ import { useAllTokens } from 'hooks/Tokens'
 import usePoolTransactionsStat from 'hooks/usePoolTransactionsStat'
 import useTheme from 'hooks/useTheme'
 import PriceVisualize from 'pages/Farm/ElasticFarmv2/components/PriceVisualize'
+import { convertTickToPrice } from 'pages/Farm/ElasticFarmv2/utils'
 import { useElasticFarms } from 'state/farms/elastic/hooks'
 import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
@@ -61,42 +61,24 @@ const getPrommAnalyticLink = (chainId: ChainId, poolAddress: string) => {
   return `${PROMM_ANALYTICS_URL[chainId]}/pool/${poolAddress.toLowerCase()}`
 }
 
-const Wrapper = styled.div`
-  perspective: 1200px;
+const StyledTabs = styled(Tabs)`
+  border: 1px solid ${({ theme }) => theme.border};
+  border-radius: 12px;
 `
-const WrapperInner = styled.div`
-  transition: transform 0.3s ease;
-  transform-style: preserve-3d;
-  border-radius: 20px;
+
+const Wrapper = styled.div`
   padding: 16px;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 16px;
   background-image: url(${bgimg});
-  background-size: cover;
-  background-repeat: no-repeat;
+
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
   background-color: ${({ theme }) => theme.buttonBlack};
 
-  &.rotate {
-    transform: rotateY(180deg);
-  }
-
-  position: relative;
-`
-
-const FrontFace = styled.div`
-  backface-visibility: hidden;
-  position: relative;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-`
-const BackFace = styled(FrontFace)`
-  z-index: 1;
-  position: absolute;
-  top: 0;
-  left: 0;
-  transform: rotateY(180deg);
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
+  border-radius: 24px;
+  font-weight: 500;
 `
 
 export default function ProAmmPoolStat({
@@ -161,29 +143,27 @@ export default function ProAmmPoolStat({
   )
   const isFarmV2 = !!farmV2
 
-  const ranges = useMemo(() => farmV2?.ranges || [], [farmV2])
-
   const poolTransactionsStat = usePoolTransactionsStat(pool.address)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
   const isDarkMode = useIsDarkMode()
   const [searchParams] = useSearchParams()
-  const [activeRange, setActiveRange] = useState(Number(searchParams.get('farmRange') || '0'))
+  const [activeRangeIndex, setActiveRangeIndex] = useState(Number(searchParams.get('farmRange') || '0'))
 
+  const range = farmV2?.ranges.find(item => item.index === activeRangeIndex)
   useEffect(() => {
-    if (ranges?.[activeRange]) {
-      onFarmRangeSelected(ranges[activeRange].tickLower, ranges[activeRange].tickUpper)
+    if (range) {
+      onFarmRangeSelected(range.tickLower, range.tickUpper)
     }
     // Only run once
     // eslint-disable-next-line
   }, [])
 
-  const farmAPR = isFarmV2 ? ranges[activeRange]?.apr : pool.farmAPR
+  const farmAPR = isFarmV2 ? range?.apr : pool.farmAPR
 
   const APR = (
-    <>
+    <div>
       <Text
-        marginTop={isFarmV2 ? '0' : '1rem'}
         width="fit-content"
         lineHeight="16px"
         fontSize="12px"
@@ -194,9 +174,7 @@ export default function ProAmmPoolStat({
         <MouseoverTooltip
           width="fit-content"
           placement="right"
-          text={
-            <APRTooltipContent farmV2APR={ranges[activeRange]?.apr} farmAPR={pool.farmAPR || 0} poolAPR={pool.apr} />
-          }
+          text={<APRTooltipContent farmV2APR={range?.apr} farmAPR={pool.farmAPR || 0} poolAPR={pool.apr} />}
         >
           <Trans>Avg APR</Trans>
         </MouseoverTooltip>
@@ -209,8 +187,8 @@ export default function ProAmmPoolStat({
         {!!farmV2 ? (
           <PriceVisualize
             tickCurrent={pool.tick}
-            tickRangeLower={ranges[activeRange]?.tickLower}
-            tickRangeUpper={ranges[activeRange]?.tickUpper}
+            tickRangeLower={range?.tickLower}
+            tickRangeUpper={range?.tickUpper}
             token0={farmV2.token0}
             token1={farmV2.token1}
           />
@@ -218,12 +196,12 @@ export default function ProAmmPoolStat({
           isFarmingPool && <FarmTag version="v1" address={pool.address} />
         )}
       </Flex>
-    </>
+    </div>
   )
 
   const volumeAndFee = (
-    <>
-      <Flex justifyContent="space-between" color={theme.subText} fontSize="12px" fontWeight="500" marginTop="1rem">
+    <div>
+      <Flex justifyContent="space-between" color={theme.subText} fontSize="12px" fontWeight="500">
         <Text>
           <Trans>Volume (24H)</Trans>
         </Text>
@@ -242,7 +220,7 @@ export default function ProAmmPoolStat({
         <Text>{formatDollarAmount(pool.volumeUSDLast24h)}</Text>
         <Text>{formatDollarAmount(pool.volumeUSDLast24h * (pool.feeTier / ELASTIC_BASE_FEE_UNIT))}</Text>
       </Flex>
-    </>
+    </div>
   )
 
   const header = (
@@ -306,185 +284,184 @@ export default function ProAmmPoolStat({
     </Flex>
   )
 
-  const [showRange, setShowRange] = useState(false)
-
   return (
     <Wrapper key={pool.address}>
-      <WrapperInner className={showRange ? 'rotate' : ''}>
-        <FrontFace>
-          {header}
+      {header}
 
-          {isFarmV2 ? (
-            <>
-              <OutlineCard marginTop="1rem" padding="0.7rem">
-                {APR}
-
-                <Flex
-                  justifyContent="space-between"
-                  color={theme.subText}
-                  fontSize="12px"
-                  fontWeight="500"
-                  marginTop="1rem"
-                >
-                  <Text>Staked TVL</Text>
-                  <Text>My Deposit</Text>
-                </Flex>
-
-                <Flex justifyContent="space-between" fontSize="16px" fontWeight="500" marginTop="0.25rem">
-                  {/*
-                      <Text>{ranges[activeRange]?.tvl ? formatDollarAmount(ranges[activeRange].tvl) : '--'}</Text>
-                  */}
-                  <Text>{myLiquidity ? formatDollarAmount(Number(myLiquidity)) : '-'}</Text>
-                </Flex>
-              </OutlineCard>
-
-              <Flex justifyContent="center" margin="0.5rem 0">
-                <TextButtonPrimary
-                  disabled={ranges?.length === 0}
-                  fontSize="12px"
-                  onClick={() => {
-                    setShowRange(true)
-                  }}
-                >
-                  <AspectRatio size={16} />
-                  <Trans>{ranges.filter(item => !item.isRemoved)?.length || 0} Range(s) Available</Trans>
-                </TextButtonPrimary>
-              </Flex>
-            </>
-          ) : (
-            <>
-              {APR}
-              {volumeAndFee}
-            </>
-          )}
-
-          <Divider />
-
-          {isFarmV2 ? (
-            volumeAndFee
-          ) : (
-            <>
-              <Flex
-                justifyContent="space-between"
-                color={theme.subText}
-                fontSize="12px"
-                fontWeight="500"
-                marginTop="1rem"
-              >
-                <Text>TVL</Text>
-                <Text>My Liquidity</Text>
-              </Flex>
-
-              <Flex
-                justifyContent="space-between"
-                fontSize="16px"
-                fontWeight="500"
-                marginTop="0.25rem"
-                marginBottom="1rem"
-              >
-                <Text>{formatDollarAmount(pool.tvlUSD)}</Text>
-                <Text>{myLiquidity ? formatDollarAmount(Number(myLiquidity)) : '-'}</Text>
-              </Flex>
-            </>
-          )}
-
-          {poolTransactionsStat !== undefined && (
-            <Flex marginTop="20px" sx={{ gap: '16px' }} flexDirection="column">
-              <Text color={theme.subText} fontSize="12px" fontWeight="500">
-                <Trans>Last 24H Transactions</Trans>
-              </Text>
-              <Flex sx={{ width: '100%', height: '88px' }} alignItems="center">
-                {poolTransactionsStat === 0 ? (
-                  <Flex
-                    sx={{ width: '100%', gap: '16px', color: theme.subText }}
-                    justifyContent="center"
-                    flexDirection="column"
-                    alignItems="center"
-                  >
-                    <CircleInfoIcon size="32" />
-
-                    <Text
-                      as={Flex}
-                      wrap="unwrap"
-                      fontSize="12px"
-                      fontWeight={500}
-                      color={theme.subText}
-                      alignItems="center"
-                      flexDirection="column"
-                    >
-                      <Trans>No add / remove transactions in the last 24 hrs</Trans>
-                    </Text>
-                  </Flex>
-                ) : (
-                  <Flex sx={{ gap: upToLarge ? '16px' : '32px', paddingLeft: upToLarge ? '0' : '24px', width: '100%' }}>
-                    <PieChart width={88} height={88}>
-                      <Pie
-                        stroke={isDarkMode ? 'black' : 'white'}
-                        data={poolTransactionsStat}
-                        dataKey="value"
-                        nameKey="name"
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={30}
-                        outerRadius={40}
-                        fill="#82ca9d"
-                        startAngle={90}
-                        endAngle={-270}
-                      >
-                        {poolTransactionsStat.map((data, index) => (
-                          <Cell key={index} fill={COLORS[data.type]} />
-                        ))}
-                        <Tooltip />
-                      </Pie>
-                    </PieChart>
-                    <Flex sx={{ gap: '12px' }} flexDirection="column" alignSelf="center">
-                      {poolTransactionsStat.map(data => (
-                        <Flex sx={{ gap: '4px' }} key={data.type}>
-                          <Circle color={COLORS[data.type]} size={12} />
-                          <Text wrap="unwrap" fontSize="12px" fontWeight={500}>
-                            {data.name}{' '}
-                            <Text as="span" color={theme.subText}>
-                              ({data.percent.toFixed(0)}%)
-                            </Text>
-                          </Text>
-                        </Flex>
-                      ))}
-                    </Flex>
-                  </Flex>
-                )}
-              </Flex>
+      {isFarmV2 ? (
+        <>
+          <div>
+            <Flex justifyContent="space-between" color={theme.subText} fontSize="12px" fontWeight="500">
+              <Text>Staked TVL</Text>
+              <Text>My Deposit</Text>
             </Flex>
-          )}
-        </FrontFace>
-        <BackFace>
-          <div style={{ flex: 1, overflow: 'scroll' }}>
-            {header}
 
-            {/* <Column gap="12px" style={{ marginTop: '1rem' }}> */}
-            {/*   {farmV2 && */}
-            {/*     ranges?.map((range, index) => */}
-            {/*       range.isRemoved ? null : ( */}
-            {/*         <RangeItem */}
-            {/*           farmId={farmV2.fId} */}
-            {/*           token0={farmV2.token0} */}
-            {/*           token1={farmV2.token1} */}
-            {/*           active={activeRange === index} */}
-            {/*           key={range.id} */}
-            {/*           onRangeClick={() => { */}
-            {/*             setActiveRange(index) */}
-            {/*             onFarmRangeSelected(ranges[index].tickLower, ranges[index].tickUpper) */}
-            {/*           }} */}
-            {/*           rangeInfo={range} */}
-            {/*         /> */}
-            {/*       ), */}
-            {/*     )} */}
-            {/* </Column> */}
+            <Flex justifyContent="space-between" fontSize="16px" fontWeight="500" marginTop="0.25rem">
+              <Text>{farmV2?.tvl ? formatDollarAmount(farmV2.tvl) : '--'}</Text>
+              <Text>{myLiquidity ? formatDollarAmount(Number(myLiquidity)) : '-'}</Text>
+            </Flex>
           </div>
-          <TextButtonPrimary onClick={() => setShowRange(false)} margin="0.5rem auto 0">
-            <Trans>Choose this range</Trans>
-          </TextButtonPrimary>
-        </BackFace>
-      </WrapperInner>
+
+          <StyledTabs
+            activeKey={activeRangeIndex}
+            onChange={key => {
+              setActiveRangeIndex(+key)
+              const r = farmV2?.ranges.find(item => item.index === key)
+              if (r) onFarmRangeSelected(r.tickLower, r.tickUpper)
+            }}
+            items={farmV2.ranges.map(item => ({
+              key: item.index,
+              label: (
+                <Flex alignItems="center" sx={{ gap: '2px' }}>
+                  {convertTickToPrice(farmV2.token0, farmV2.token1, item.tickLower)}
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" display="block">
+                    <path
+                      d="M11.3405 8.66669L11.3405 9.86002C11.3405 10.16 11.7005 10.3067 11.9071 10.0934L13.7605 8.23335C13.8871 8.10002 13.8871 7.89335 13.7605 7.76002L11.9071 5.90669C11.7005 5.69335 11.3405 5.84002 11.3405 6.14002L11.3405 7.33335L4.66047 7.33335L4.66047 6.14002C4.66047 5.84002 4.30047 5.69335 4.0938 5.90669L2.24047 7.76669C2.1138 7.90002 2.1138 8.10669 2.24047 8.24002L4.0938 10.1C4.30047 10.3134 4.66047 10.16 4.66047 9.86669L4.66047 8.66669L11.3405 8.66669Z"
+                      fill="currentcolor"
+                    />
+                  </svg>
+
+                  {convertTickToPrice(farmV2.token0, farmV2.token1, item.tickUpper)}
+                </Flex>
+              ),
+              children: (
+                <Flex padding="12px" flexDirection="column">
+                  <RowBetween>
+                    <MouseoverTooltip text={t`Active Range: Current active farming range`} placement="top">
+                      <Text
+                        fontSize="12px"
+                        color={theme.subText}
+                        style={{ borderBottom: `1px dotted ${theme.subText}` }}
+                      >
+                        APR
+                      </Text>
+                    </MouseoverTooltip>
+
+                    <MouseoverTooltip
+                      text={
+                        range?.isRemoved ? (
+                          <Trans>
+                            This indicates that range is idle. Staked positions in this range is still earning small
+                            amount of rewards.
+                          </Trans>
+                        ) : (
+                          ''
+                        )
+                      }
+                    >
+                      <Text
+                        fontSize="12px"
+                        color={range?.isRemoved ? theme.warning : theme.primary}
+                        alignSelf="flex-end"
+                        sx={{
+                          borderBottom: range?.isRemoved ? `1px dotted ${theme.warning}` : undefined,
+                        }}
+                      >
+                        {range?.isRemoved && <Trans>Idle Range</Trans>}
+                      </Text>
+                    </MouseoverTooltip>
+                  </RowBetween>
+
+                  <Text fontSize="28px" marginTop="2px" color={theme.apr}>
+                    {(pool.apr + (range?.apr || 0)).toFixed(2)}%
+                  </Text>
+                </Flex>
+              ),
+            }))}
+          />
+        </>
+      ) : (
+        <>
+          {APR}
+          {volumeAndFee}
+        </>
+      )}
+
+      {isFarmV2 ? (
+        volumeAndFee
+      ) : (
+        <div>
+          <Flex justifyContent="space-between" color={theme.subText} fontSize="12px" fontWeight="500">
+            <Text>TVL</Text>
+            <Text>My Liquidity</Text>
+          </Flex>
+
+          <Flex justifyContent="space-between" fontSize="16px" fontWeight="500" marginTop="0.25rem">
+            <Text>{formatDollarAmount(pool.tvlUSD)}</Text>
+            <Text>{myLiquidity ? formatDollarAmount(Number(myLiquidity)) : '-'}</Text>
+          </Flex>
+        </div>
+      )}
+
+      <Divider />
+
+      {poolTransactionsStat !== undefined && (
+        <Flex sx={{ gap: '16px' }} flexDirection="column">
+          <Text color={theme.subText} fontSize="12px" fontWeight="500">
+            <Trans>Last 24H Transactions</Trans>
+          </Text>
+          <Flex sx={{ width: '100%', height: '88px' }} alignItems="center">
+            {poolTransactionsStat === 0 ? (
+              <Flex
+                sx={{ width: '100%', gap: '16px', color: theme.subText }}
+                justifyContent="center"
+                flexDirection="column"
+                alignItems="center"
+              >
+                <CircleInfoIcon size="32" />
+
+                <Text
+                  as={Flex}
+                  wrap="unwrap"
+                  fontSize="12px"
+                  fontWeight={500}
+                  color={theme.subText}
+                  alignItems="center"
+                  flexDirection="column"
+                >
+                  <Trans>No add / remove transactions in the last 24 hrs</Trans>
+                </Text>
+              </Flex>
+            ) : (
+              <Flex sx={{ gap: upToLarge ? '16px' : '32px', paddingLeft: upToLarge ? '0' : '24px', width: '100%' }}>
+                <PieChart width={88} height={88}>
+                  <Pie
+                    stroke={isDarkMode ? 'black' : 'white'}
+                    data={poolTransactionsStat}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={30}
+                    outerRadius={40}
+                    fill="#82ca9d"
+                    startAngle={90}
+                    endAngle={-270}
+                  >
+                    {poolTransactionsStat.map((data, index) => (
+                      <Cell key={index} fill={COLORS[data.type]} />
+                    ))}
+                    <Tooltip />
+                  </Pie>
+                </PieChart>
+                <Flex sx={{ gap: '12px' }} flexDirection="column" alignSelf="center">
+                  {poolTransactionsStat.map(data => (
+                    <Flex sx={{ gap: '4px' }} key={data.type}>
+                      <Circle color={COLORS[data.type]} size={12} />
+                      <Text wrap="unwrap" fontSize="12px" fontWeight={500}>
+                        {data.name}{' '}
+                        <Text as="span" color={theme.subText}>
+                          ({data.percent.toFixed(0)}%)
+                        </Text>
+                      </Text>
+                    </Flex>
+                  ))}
+                </Flex>
+              </Flex>
+            )}
+          </Flex>
+        </Flex>
+      )}
     </Wrapper>
   )
 }

@@ -10,7 +10,7 @@ import { useEffect } from 'react'
 
 import FarmV2QuoterABI from 'constants/abis/farmv2Quoter.json'
 import NFTPositionManagerABI from 'constants/abis/v2/ProAmmNFTPositionManager.json'
-import { ZERO_ADDRESS } from 'constants/index'
+import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -156,7 +156,9 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
                 item.pool.token0.id,
                 item.pool.token1.id,
                 ...item.rewards.map((rw: { token: SubgraphToken }) =>
-                  rw.token.id === ZERO_ADDRESS ? NativeCurrencies[chainId].wrapped.address : rw.token.id,
+                  rw.token.id === ZERO_ADDRESS || rw.token.id.toLowerCase() === ETHER_ADDRESS.toLowerCase()
+                    ? NativeCurrencies[chainId].wrapped.address
+                    : rw.token.id,
                 ),
               ])
               .flat(),
@@ -322,7 +324,9 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
 
               const infos = res.reduce((acc: UserFarmV2Info[], item) => {
                 const farm = formattedData.find(
-                  farm => farm.poolAddress.toLowerCase() === nftInfos[item.nftId.toString()].poolAddress.toLowerCase(),
+                  farm =>
+                    farm.poolAddress.toLowerCase() === nftInfos[item.nftId.toString()].poolAddress.toLowerCase() &&
+                    +farm.fId === +item.fId.toString(),
                 )
                 if (!farm) return acc
 

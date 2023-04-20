@@ -83,17 +83,21 @@ export const useTokenPricesWithLoading = (
               price: 0.99,
             },
             {
-              address: '0x2Bf64aCf7eAd856209749D0D125e9Ade2D908E7f',
+              address: '0x2bf64acf7ead856209749d0d125e9ade2d908e7f',
               price: 1.01,
+            },
+            {
+              address: '0x48f6d7dae56623dde5a0d56b283165cae1753d70',
+              price: 1800,
             },
           ])
         }
 
         if (prices?.length) {
           const formattedPrices = list.map(address => {
-            const price = prices.find(
-              (p: { address: string; marketPrice: number; price: number }) => getAddress(p.address, isEVM) === address,
-            )
+            const price = prices.find((p: { address: string; marketPrice: number; price: number }) => {
+              return getAddress(p.address, isEVM).toLowerCase() === address.toLowerCase()
+            })
 
             return {
               address,
@@ -123,6 +127,8 @@ export const useTokenPricesWithLoading = (
             '0x543c9d27ee4ef9b405d7b41f264fa777f445ae88': 13,
             '0x1bbeeedcf32dc2c1ebc2f138e3fc7f3decd44d6a': 0.99,
             '0x2bf64acf7ead856209749d0d125e9ade2d908e7f': 1.01,
+            '0x48f6d7dae56623dde5a0d56b283165cae1753d70': 1800,
+            '0x48f6D7dAE56623Dde5a0D56B283165cAE1753D70': 1800,
           }
         }
         return {}

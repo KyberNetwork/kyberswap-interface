@@ -1425,7 +1425,7 @@ export default function AddLiquidity() {
               ) : (
                 poolStatRef.current && (
                   <>
-                    <AutoColumn gap="12px">
+                    <AutoColumn gap="12px" style={{ flex: 1 }}>
                       <Text fontWeight={500} fontSize="12px">
                         <Trans>Pool Stats</Trans>
                       </Text>
