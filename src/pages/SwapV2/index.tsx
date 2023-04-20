@@ -1,5 +1,5 @@
 import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
@@ -19,11 +19,12 @@ import ArrowRotate from 'components/ArrowRotate'
 import Banner from 'components/Banner'
 import { ButtonConfirmed, ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { GreyCard } from 'components/Card'
-import Column, { ColumnCenter } from 'components/Column'
+import { ColumnCenter } from 'components/Column'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
+import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import ProgressSteps from 'components/ProgressSteps'
-import { AutoRow, RowBetween } from 'components/Row'
+import Row, { AutoRow, RowBetween } from 'components/Row'
 import { SEOSwap } from 'components/SEO'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import { Label } from 'components/SwapForm/OutputCurrencyPanel'
@@ -393,7 +394,7 @@ export default function Swap() {
   const noRoute = !trade?.swaps?.length
 
   // check whether the user has approved the router on the input token
-  const [approval, approveCallback] = useApproveCallbackFromTradeV2(trade, allowedSlippage)
+  const [approval, approveCallback] = useApproveCallbackFromTradeV2(trade, allowedSlippage) //
 
   // check if user has gone through approval process, used to show two step buttons, reset on token change
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false)
@@ -861,22 +862,30 @@ export default function Swap() {
                         </ButtonPrimary>
                       ) : showApproveFlow ? (
                         <>
-                          <RowBetween>
+                          <RowBetween gap="16px">
                             <ButtonConfirmed
                               onClick={approveCallback}
                               disabled={approval !== ApprovalState.NOT_APPROVED || approvalSubmitted}
-                              width="48%"
                               altDisabledStyle={approval === ApprovalState.PENDING} // show solid button while waiting
                               confirmed={approval === ApprovalState.APPROVED}
+                              style={{ flex: 1 }}
                             >
                               {approval === ApprovalState.PENDING ? (
-                                <AutoRow gap="6px" justify="center">
+                                <Row gap="6px" justify="center">
                                   <Trans>Approving</Trans> <Loader stroke="white" />
-                                </AutoRow>
+                                </Row>
                               ) : approvalSubmitted && approval === ApprovalState.APPROVED ? (
                                 <Trans>Approved</Trans>
                               ) : (
-                                <Trans>Approve ${currencyIn?.symbol}</Trans>
+                                <Row justify="center" gap="6px">
+                                  <InfoHelper
+                                    color={theme.textReverse}
+                                    text={t`You need to first allow KyberSwap's smart contract to use your ${currencyIn?.symbol}`}
+                                    placement="top"
+                                    size={14}
+                                  />
+                                  <Trans>Approve {currencyIn?.symbol}</Trans>
+                                </Row>
                               )}
                             </ButtonConfirmed>
                             <ButtonError
@@ -896,7 +905,6 @@ export default function Swap() {
                                   })
                                 }
                               }}
-                              width="48%"
                               id="swap-button"
                               disabled={!!swapInputError || approval !== ApprovalState.APPROVED}
                               backgroundColor={
@@ -907,15 +915,14 @@ export default function Swap() {
                                   : undefined
                               }
                               color={isPriceImpactHigh || isPriceImpactInvalid ? theme.white : undefined}
+                              style={{ flex: 1 }}
                             >
                               <Text fontSize={16} fontWeight={500}>
                                 {isPriceImpactVeryHigh ? <Trans>Swap Anyway</Trans> : <Trans>Swap</Trans>}
                               </Text>
                             </ButtonError>
                           </RowBetween>
-                          <Column style={{ marginTop: '1rem' }}>
-                            <ProgressSteps steps={[approval === ApprovalState.APPROVED]} />
-                          </Column>
+                          <ProgressSteps steps={[approval === ApprovalState.APPROVED]} />
                         </>
                       ) : isLoading ? (
                         <GreyCard style={{ textAlign: 'center', borderRadius: '999px', padding: '12px' }}>

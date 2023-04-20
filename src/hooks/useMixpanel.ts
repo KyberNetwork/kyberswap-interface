@@ -211,6 +211,13 @@ export enum MIXPANEL_TYPE {
   // price alert
   PA_CLICK_TAB_IN_NOTI_CENTER,
   PA_CREATE_SUCCESS,
+
+  // Permit
+  PERMIT_CLICK,
+  INFINITE_APPROVE_CLICK,
+  CUSTOM_APPROVE_CLICK,
+  PERMIT_FAILED_TOO_MANY_TIMES,
+
   ACCEPT_NEW_AMOUNT,
 }
 
@@ -1070,7 +1077,22 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           mixpanel.track('Create Alert', payload)
           break
         }
-
+        case MIXPANEL_TYPE.PERMIT_CLICK: {
+          mixpanel.track('Permit Click', payload)
+          break
+        }
+        case MIXPANEL_TYPE.INFINITE_APPROVE_CLICK: {
+          mixpanel.track('Infinite Allowance Click', payload)
+          break
+        }
+        case MIXPANEL_TYPE.CUSTOM_APPROVE_CLICK: {
+          mixpanel.track('Custom Allowance Click', payload)
+          break
+        }
+        case MIXPANEL_TYPE.PERMIT_FAILED_TOO_MANY_TIMES: {
+          mixpanel.track('Permit Failed Too Many Times', payload)
+          break
+        }
         case MIXPANEL_TYPE.ACCEPT_NEW_AMOUNT: {
           mixpanel.track('Accept New Amount Button Click', payload)
           break
