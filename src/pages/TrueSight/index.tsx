@@ -62,7 +62,7 @@ export default function TrueSight() {
 
   useEffect(() => {
     if (tab === undefined) {
-      navigate({ search: '?tab=' + TrueSightTabs.TRENDING_SOON })
+      navigate({ search: '?tab=' + TrueSightTabs.TRENDING_SOON }, { replace: true })
     } else {
       setActiveTab(tab as TrueSightTabs)
       setFilter({

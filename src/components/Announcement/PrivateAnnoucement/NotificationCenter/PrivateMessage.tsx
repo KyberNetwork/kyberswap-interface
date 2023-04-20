@@ -28,7 +28,10 @@ export default function AnnouncementItem({
           <Time>{formatTime(sentAt)} </Time>
         </Flex>
       </Flex>
-      <Desc dangerouslySetInnerHTML={{ __html: escapeScriptHtml(templateBody.content ?? '') }} />
+      <Desc
+        dangerouslySetInnerHTML={{ __html: escapeScriptHtml(templateBody.content ?? '') }}
+        style={{ lineHeight: '18px' }}
+      />
     </Wrapper>
   )
 }
