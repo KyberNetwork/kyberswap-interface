@@ -323,7 +323,7 @@ export const formatAndCacheToken = (rawTokenResponse: TokenInfo) => {
   }
 }
 
-export function useTokenV2(
+function useTokenV2(
   tokenAddress?: string,
   customChain?: ChainId,
 ): WrappedTokenInfo | Token | NativeCurrency | undefined | null {

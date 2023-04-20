@@ -7,6 +7,7 @@ export type BuildRoutePayload = {
   sender: string
   recipient: string
   source: 'kyberswap'
+  skipSimulateTx: boolean
   permit?: string
 }
 

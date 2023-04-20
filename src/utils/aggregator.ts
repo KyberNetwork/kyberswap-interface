@@ -292,7 +292,6 @@ export class Aggregator {
           },
           minimumLoadingTime,
         )
-        console.log('🚀 ~ file: aggregator.ts:276 ~ Aggregator ~ response:', response)
         if (Math.round(response.status / 100) !== 2) throw new Error('Aggregator status fail: ' + response.status)
         const result = await response.json()
         if (isResultInvalid(result)) {
