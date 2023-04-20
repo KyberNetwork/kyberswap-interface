@@ -85,7 +85,12 @@ const SwapModal: React.FC<Props> = props => {
   }
 
   const handleErrorDismiss = () => {
-    if (buildResult?.error && buildResult.error.toLowerCase().includes('permit') && routeSummary && account) {
+    if (
+      ((buildResult?.error && buildResult.error.toLowerCase().includes('permit')) ||
+        (error && error.toLowerCase().includes('permit'))) &&
+      routeSummary &&
+      account
+    ) {
       dispatch(permitError({ chainId, address: routeSummary.parsedAmountIn.currency.wrapped.address, account }))
     }
     handleDismiss()
