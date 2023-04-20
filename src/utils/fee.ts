@@ -1,9 +1,9 @@
-import { Fraction } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Fraction } from '@kyberswap/ks-sdk-core'
 import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 
 import { BIPS_BASE, RESERVE_USD_DECIMALS } from 'constants/index'
-import { FeeConfig } from 'hooks/useSwapV2Callback'
+import { FeeConfig } from 'types/route'
 import { Aggregator } from 'utils/aggregator'
 import { formattedNum } from 'utils/index'
 
@@ -35,23 +35,58 @@ export function getFormattedFeeAmountUsd(trade: Aggregator, feeConfig: FeeConfig
   return '--'
 }
 
-export const getFormattedFeeAmountUsdV2 = (rawAmountInUSD: number, feeAmount?: string) => {
-  if (feeAmount) {
-    const amountInUsd = new Fraction(
-      parseUnits(toFixed(rawAmountInUSD), RESERVE_USD_DECIMALS).toString(),
-      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS)),
-    )
-    if (amountInUsd) {
-      // feeAmount might < 1.
-      const feeAmountFraction = new Fraction(
-        parseUnits(feeAmount, RESERVE_USD_DECIMALS).toString(),
-        JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS)),
-      )
-      const feeAmountDecimal = feeAmountFraction.divide(BIPS_BASE)
-      const feeAmountUsd = amountInUsd.multiply(feeAmountDecimal).toSignificant(RESERVE_USD_DECIMALS)
-      return formattedNum(feeAmountUsd, true)
+export const calculateFee = (
+  currencyIn: Currency,
+  currencyOut: Currency,
+  amountIn: string,
+  amountOut: string,
+  amountInUsd: string,
+  amountOutUsd: string,
+  feeConfig: FeeConfig,
+): {
+  feeAmount: string
+  feeAmountUsd: string
+} => {
+  if (!feeConfig.chargeFeeBy || !feeConfig.feeAmount) {
+    return {
+      feeAmount: '',
+      feeAmountUsd: '',
     }
   }
 
-  return '--'
+  const feePercent = feeConfig.feeAmount
+
+  const currencyAmountIn = CurrencyAmount.fromRawAmount(currencyIn, amountIn)
+  const currencyAmountOut = CurrencyAmount.fromRawAmount(currencyOut, amountOut)
+
+  const currencyAmountToTakeFee = feeConfig.chargeFeeBy === 'currency_in' ? currencyAmountIn : currencyAmountOut
+  const amountUsd = feeConfig.chargeFeeBy === 'currency_in' ? amountInUsd : amountOutUsd
+
+  const feeAmountFraction = new Fraction(
+    parseUnits(feePercent, RESERVE_USD_DECIMALS).toString(),
+    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS)),
+  ).divide(BIPS_BASE)
+
+  let feeAmount = ''
+  let feeAmountUsd = ''
+
+  if (amountUsd) {
+    const usd = new Fraction(
+      parseUnits(toFixed(Number(amountUsd)), RESERVE_USD_DECIMALS).toString(),
+      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS)),
+    )
+
+    if (usd) {
+      const raw = usd.multiply(feeAmountFraction).toSignificant(RESERVE_USD_DECIMALS)
+      feeAmountUsd = formattedNum(raw, true, 4)
+    }
+  }
+
+  const fee = currencyAmountToTakeFee.multiply(feeAmountFraction).toSignificant(RESERVE_USD_DECIMALS)
+  feeAmount = `${formattedNum(fee, false)} ${currencyAmountToTakeFee.currency.symbol}`
+
+  return {
+    feeAmount,
+    feeAmountUsd,
+  }
 }

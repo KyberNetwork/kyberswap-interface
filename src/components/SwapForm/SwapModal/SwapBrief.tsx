@@ -145,7 +145,7 @@ export default function SwapBrief({
       <CurrencyInputAmountWrapper>
         <Flex alignItems="center" style={{ gap: '4px' }}>
           <Text fontSize={12} fontWeight={500} color={theme.subText}>
-            <Trans>Output Amount</Trans>
+            <Trans>Output Amount (incl. fee)</Trans>
           </Text>
           <UpdatedBadge $level={$level} outputAmount={outputAmount} />
         </Flex>

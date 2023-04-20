@@ -274,3 +274,13 @@ export const TRANSACTION_STATE_DEFAULT: TransactionFlowState = {
   txHash: undefined,
   pendingText: '',
 }
+
+export const CHAINS_SUPPORT_FEE_CONFIGS = [
+  // TODO: remove MATIC
+  ChainId.MATIC,
+  ChainId.BTTC,
+  ChainId.OASIS,
+  ChainId.VELAS,
+  ChainId.AURORA,
+  ChainId.CRONOS,
+]

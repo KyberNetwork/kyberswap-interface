@@ -1,3 +1,5 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
+
 import { FeeConfig, Route } from 'types/route'
 
 export type GetRouteParams = {
@@ -44,4 +46,19 @@ export type GetRouteResponse = {
   code: number
   message: string
   data?: GetRouteData
+}
+
+export type GetTokenScoreParams = {
+  chainId: ChainId
+  tokenIn: string
+  tokenOut: string
+}
+
+export type GetTokenScoreResponse = {
+  code: number
+  message: string
+  data?: {
+    tokenToTakeFee: string
+    feePercent: number
+  }
 }
