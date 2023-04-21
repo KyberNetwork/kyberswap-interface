@@ -47,6 +47,7 @@ const TableHeader = styled.div`
   padding: 1rem;
   background: ${({ theme }) => theme.buttonBlack};
   color: ${({ theme }) => theme.subText};
+  align-items: center;
 `
 const TableRow = styled(TableHeader)`
   background: ${({ theme }) => theme.background};
