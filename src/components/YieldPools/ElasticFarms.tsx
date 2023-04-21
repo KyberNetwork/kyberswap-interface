@@ -307,7 +307,7 @@ function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: bo
         <ElasticCompensation
           onWithdraw={() => {
             setSeletedModal('forcedWithdraw')
-            setSeletedFarm('0xbdec4a045446f583dc564c0a227ffd475b329bf0')
+            setSeletedFarm(farmIds[chainId])
           }}
           data={userCompensationData}
           numberOfPosition={userDepositedInfo?.length || 0}

@@ -207,7 +207,7 @@ export const ElasticCompensation = ({
           </ButtonPrimary>
         </Flex>
       </Wrapper>
-      <Modal isOpen={isOpen} onDismiss={() => setIsOpen(false)} width="800px" maxWidth="100vw">
+      <Modal isOpen={isOpen} onDismiss={() => setIsOpen(false)} width="800px" maxWidth="100vw" maxHeight={80}>
         <Flex
           width="100%"
           padding="20px"
@@ -231,7 +231,7 @@ export const ElasticCompensation = ({
             </Flex>
           </Flex>
 
-          <div>
+          <div style={{ overflowY: 'auto', flex: 1 }}>
             <TableHeader>
               <Text>NFT ID</Text>
               <Text>FARMS</Text>
