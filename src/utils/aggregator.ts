@@ -239,6 +239,7 @@ export class Aggregator {
     feeConfig: FeeConfig | undefined,
     signal: AbortSignal,
     minimumLoadingTime: number,
+    permit?: string | null,
   ): Promise<Aggregator | null> {
     const programState = new Keypair()
     const amountIn = currencyAmountIn
@@ -254,7 +255,6 @@ export class Aggregator {
         ? ETHER_ADDRESS
         : WETH[currencyOut.chainId].address
       : tokenOut.address
-
     if (tokenInAddress && tokenOutAddress) {
       const search = new URLSearchParams({
         // Trade config
@@ -278,6 +278,7 @@ export class Aggregator {
 
         // Client data
         clientData: KYBERSWAP_SOURCE,
+        permit: permit ?? '',
       })
       try {
         const response = await fetchWaiting(
