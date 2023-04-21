@@ -38,7 +38,6 @@ export const PaginationButton = styled.button`
     cursor: not-allowed;
   }
 `
-// todo any
 const Pagination = ({
   canGoPrevious,
   onClickPrevious,

@@ -96,7 +96,7 @@ export default function SwapForm() {
     loading: gettingRoute,
   } = useGetRouteCrossChain(routeParams)
   const { outputAmount, amountUsdIn, amountUsdOut, exchangeRate, priceImpact } = getRouInfo(route)
-  const { selectCurrency, selectDestChain, setInputAmount } = useCrossChainHandlers()
+  const { selectCurrencyIn, selectCurrencyOut, selectDestChain, setInputAmount } = useCrossChainHandlers()
 
   const toggleWalletModal = useWalletModalToggle()
   const isDark = useIsDarkMode()
@@ -177,15 +177,15 @@ export default function SwapForm() {
 
   const onCurrencySelect = useCallback(
     (currencyIn: WrappedTokenInfo) => {
-      selectCurrency({ currencyIn, currencyOut })
+      selectCurrencyIn(currencyIn)
     },
-    [selectCurrency, currencyOut],
+    [selectCurrencyIn],
   )
   const onCurrencySelectDest = useCallback(
     (currencyOut: WrappedTokenInfo) => {
-      selectCurrency({ currencyIn, currencyOut })
+      selectCurrencyOut(currencyOut)
     },
-    [selectCurrency, currencyIn],
+    [selectCurrencyOut],
   )
   const onSelectDestNetwork = useCallback(
     (chainId: ChainId) => {

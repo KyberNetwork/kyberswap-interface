@@ -32,9 +32,9 @@ export type CrossChainStateParams = {
 
 export const setCrossChainState = createAction<CrossChainStateParams>('crosschain/setCrossChainState')
 
-export type SelectCurrencyCrossChainParam = {
-  currencyIn: WrappedTokenInfo | undefined
-  currencyOut: WrappedTokenInfo | undefined
+type SelectCurrencyCrossChainParam = {
+  currencyIn?: WrappedTokenInfo | undefined
+  currencyOut?: WrappedTokenInfo | undefined
 }
 export const selectCurrencyCrossChain = createAction<SelectCurrencyCrossChainParam>(
   'crosschain/selectCurrencyCrossChain',

@@ -314,9 +314,9 @@ export default function Swap() {
             {isCrossChainPage && <CrossChainLink isBridge />}
           </SwapFormWrapper>
 
-          {(isShowLiveChart || isShowTradeRoutes || shouldRenderTokenInfo || isLimitPage) && (
+          {(isShowLiveChart || isShowTradeRoutes || shouldRenderTokenInfo || isLimitPage || isCrossChainPage) && (
             <InfoComponentsWrapper>
-              {isShowLiveChart && !isCrossChainPage && (
+              {isShowLiveChart && (
                 <LiveChartWrapper>
                   <Suspense
                     fallback={

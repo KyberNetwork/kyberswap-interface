@@ -127,8 +127,8 @@ export default createReducer(DEFAULT_STATE, builder =>
       state.crossChain.squidInstance = squidInstance
     })
     .addCase(selectCurrencyCrossChain, (state, { payload: { currencyIn, currencyOut } }) => {
-      state.crossChain.currencyIn = currencyIn
-      state.crossChain.currencyOut = currencyOut
+      if (currencyIn !== undefined) state.crossChain.currencyIn = currencyIn
+      if (currencyOut !== undefined) state.crossChain.currencyOut = currencyOut
     })
     .addCase(setInputAmountCrossChain, (state, { payload: inputAmount }) => {
       state.crossChain.inputAmount = inputAmount

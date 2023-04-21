@@ -5,12 +5,12 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { MultiChainTokenInfo } from 'pages/Bridge/type'
 import { AppDispatch, AppState } from 'state'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 import {
   BridgeStateParams,
   BridgeStatePoolParams,
   CrossChainStateParams,
-  SelectCurrencyCrossChainParam,
   resetBridgeState as resetBridgeStateAction,
   selectCurrencyCrossChain,
   selectDestChainCrossChain,
@@ -98,8 +98,17 @@ export function useCrossChainState(): [SwapCrossChainState, (value: CrossChainSt
 
 export function useCrossChainHandlers() {
   const dispatch = useDispatch<AppDispatch>()
-  const selectCurrency = useCallback(
-    (data: SelectCurrencyCrossChainParam) => dispatch(selectCurrencyCrossChain(data)),
+
+  const selectCurrencyIn = useCallback(
+    (currencyIn: WrappedTokenInfo) => {
+      dispatch(selectCurrencyCrossChain({ currencyIn }))
+    },
+    [dispatch],
+  )
+  const selectCurrencyOut = useCallback(
+    (currencyOut: WrappedTokenInfo) => {
+      dispatch(selectCurrencyCrossChain({ currencyOut }))
+    },
     [dispatch],
   )
 
@@ -111,5 +120,5 @@ export function useCrossChainHandlers() {
   const setTradeRoute = useCallback((data: RouteData | undefined) => dispatch(setRoute(data)), [dispatch])
   const setInputAmount = useCallback((data: string) => dispatch(setInputAmountCrossChain(data)), [dispatch])
 
-  return { selectCurrency, selectDestChain, setTradeRoute, setInputAmount }
+  return { selectDestChain, setTradeRoute, setInputAmount, selectCurrencyIn, selectCurrencyOut }
 }
