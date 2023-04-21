@@ -88,7 +88,7 @@ export const PERMITTABLE_TOKENS: {
     // '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1': { type: PermitType.SALT, version: '1' },
     // '0xbfD291DA8A403DAAF7e5E9DC1ec0aCEaCd4848B9': { type: PermitType.SALT, version: '1' },
     '0x5029C236320b8f15eF0a657054B84d90bfBEDED3': { type: PermitType.AMOUNT, version: '1' }, // BitANT
-    '0x7b0bcc23851bbf7601efc9e9fe532bf5284f65d3': { type: PermitType.AMOUNT, version: '1' }, // EST
+    '0x7b0bcC23851bBF7601efC9E9FE532Bf5284F65d3 ': { type: PermitType.AMOUNT, version: '1' }, // EST
     '0x76FB31fb4af56892A25e32cFC43De717950c9278': { type: PermitType.AMOUNT, version: '1' }, // AAVE
     '0x4200000000000000000000000000000000000042': { type: PermitType.AMOUNT, version: '1' }, // OP
     '0x2E3D870790dC77A83DD1d18184Acc7439A53f475': { type: PermitType.AMOUNT, version: '1' }, // FRAX
