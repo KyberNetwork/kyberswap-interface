@@ -79,6 +79,7 @@ export const PERMITTABLE_TOKENS: {
   },
   [ChainId.BSCMAINNET]: {
     // '0xD6Cce248263ea1e2b8cB765178C944Fc16Ed0727': { type: PermitType.SALT, version: '1' },
+    '0x0aCfc95A193009F1EA45b7fAEEF2d5e4a47c21b4': { type: PermitType.AMOUNT, version: '1' }, //VERSA
   },
   [ChainId.VELAS]: {
     // '0xcD7509b76281223f5B7d3aD5d47F8D7Aa5C2B9bf': { type: PermitType.SALT, version: '1' },
@@ -86,13 +87,13 @@ export const PERMITTABLE_TOKENS: {
   [ChainId.OPTIMISM]: {
     // '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1': { type: PermitType.SALT, version: '1' },
     // '0xbfD291DA8A403DAAF7e5E9DC1ec0aCEaCd4848B9': { type: PermitType.SALT, version: '1' },
-    '0x5029c236320b8f15ef0a657054b84d90bfbeded3': { type: PermitType.AMOUNT, version: '1' }, // BitANT
+    '0x5029C236320b8f15eF0a657054B84d90bfBEDED3': { type: PermitType.AMOUNT, version: '1' }, // BitANT
     '0x7b0bcc23851bbf7601efc9e9fe532bf5284f65d3': { type: PermitType.AMOUNT, version: '1' }, // EST
-    '0x76fb31fb4af56892a25e32cfc43de717950c9278': { type: PermitType.AMOUNT, version: '1' }, // AAVE
+    '0x76FB31fb4af56892A25e32cFC43De717950c9278': { type: PermitType.AMOUNT, version: '1' }, // AAVE
     '0x4200000000000000000000000000000000000042': { type: PermitType.AMOUNT, version: '1' }, // OP
-    '0x2e3d870790dc77a83dd1d18184acc7439a53f475': { type: PermitType.AMOUNT, version: '1' }, // FRAX
-    '0x67ccea5bb16181e7b4109c9c2143c24a1c2205be': { type: PermitType.AMOUNT, version: '1' }, // FXS
-    '0xb12c13e66ade1f72f71834f2fc5082db8c091358': { type: PermitType.AMOUNT, version: '1' }, // ROOBEE
+    '0x2E3D870790dC77A83DD1d18184Acc7439A53f475': { type: PermitType.AMOUNT, version: '1' }, // FRAX
+    '0x67CCEA5bb16181E7b4109c9c2143c24a1c2205Be': { type: PermitType.AMOUNT, version: '1' }, // FXS
+    '0xb12c13e66AdE1F72f71834f2FC5082Db8C091358': { type: PermitType.AMOUNT, version: '1' }, // ROOBEE
   },
   [ChainId.AVAXMAINNET]: {
     // '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E': { type: PermitType.SALT, version: '1' },
