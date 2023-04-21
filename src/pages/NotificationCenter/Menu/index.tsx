@@ -7,6 +7,7 @@ import styled from 'styled-components'
 
 import { ReactComponent as AlarmIcon } from 'assets/svg/alarm.svg'
 import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
+import { ReactComponent as CrossChainIcon } from 'assets/svg/cross_chain_icon.svg'
 import { ReactComponent as DropIcon } from 'assets/svg/drop.svg'
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
 import { PrivateAnnouncementType } from 'components/Announcement/type'
@@ -98,6 +99,12 @@ const MenuForDesktop = ({ unread }: { unread: Unread }) => {
             unread={unread.BRIDGE_ASSET}
           />
           <MenuItem
+            href={NOTIFICATION_ROUTES.CROSS_CHAIN}
+            icon={<CrossChainIcon width="16px" height="16px" />}
+            text={MENU_TITLE.CROSS_CHAIN}
+            unread={unread.CROSS_CHAIN}
+          />
+          <MenuItem
             href={NOTIFICATION_ROUTES.TRENDING_SOON_TOKENS}
             icon={<DiscoverIcon size={16} />}
             text={MENU_TITLE.TRENDING_SOON}
@@ -110,7 +117,7 @@ const MenuForDesktop = ({ unread }: { unread: Unread }) => {
 }
 
 export const MENU_TITLE: Partial<{ [type in PrivateAnnouncementType]: string }> = {
-  [PrivateAnnouncementType.BRIDGE_ASSET]: t`Cross-Chain Bridge`,
+  [PrivateAnnouncementType.BRIDGE_ASSET]: t`Bridge Token`,
   [PrivateAnnouncementType.CROSS_CHAIN]: t`Cross-Chain Swap`,
   [PrivateAnnouncementType.LIMIT_ORDER]: t`Limit Orders`,
   [PrivateAnnouncementType.TRENDING_SOON]: t`Trending Soon Tokens`,
@@ -172,6 +179,13 @@ const MenuForMobile = ({ unread }: { unread: Unread }) => {
       />
       <MenuItem
         isMobile
+        href={NOTIFICATION_ROUTES.CROSS_CHAIN}
+        icon={<CrossChainIcon width="16px" height="16px" />}
+        text={MENU_TITLE.CROSS_CHAIN}
+        unread={unread.CROSS_CHAIN}
+      />
+      <MenuItem
+        isMobile
         href={NOTIFICATION_ROUTES.TRENDING_SOON_TOKENS}
         icon={<DiscoverIcon size={16} />}
         text={MENU_TITLE.TRENDING_SOON}
@@ -215,6 +229,7 @@ const Menu = () => {
   const unread: Unread = {
     [PrivateAnnouncementType.PRICE_ALERT]: dataPriceAlert?.numberOfUnread,
     [PrivateAnnouncementType.BRIDGE_ASSET]: dataBridge?.numberOfUnread,
+    [PrivateAnnouncementType.CROSS_CHAIN]: dataBridge?.numberOfUnread, // todo cross chain
     [PrivateAnnouncementType.LIMIT_ORDER]: dataLimitOrder?.numberOfUnread,
     [PrivateAnnouncementType.ELASTIC_POOLS]: dataPool?.numberOfUnread,
     [PrivateAnnouncementType.TRENDING_SOON]: dataTrendingSoon?.numberOfUnread,
