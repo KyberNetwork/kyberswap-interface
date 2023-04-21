@@ -3,6 +3,7 @@ import { debounce } from 'lodash'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { INPUT_DEBOUNCE_TIME } from 'constants/index'
+import useDebounce from 'hooks/useDebounce'
 import { useCrossChainHandlers, useCrossChainState } from 'state/crossChain/hooks'
 
 export default function useGetRouteCrossChain(params: GetRoute | undefined) {
@@ -12,15 +13,17 @@ export default function useGetRouteCrossChain(params: GetRoute | undefined) {
   const [loading, setLoading] = useState(false)
   const currentRequest = useRef<GetRoute>()
 
+  const debounceParams = useDebounce(params, INPUT_DEBOUNCE_TIME)
+
   const getRoute = useCallback(
     async (isRefresh = true) => {
-      if (!squidInstance || !params) return
+      if (!squidInstance || !debounceParams) return
       try {
-        currentRequest.current = params
+        currentRequest.current = debounceParams
         setLoading(true)
         isRefresh && setTradeRoute(undefined)
-        const { route } = await squidInstance.getRoute(params)
-        if (currentRequest.current !== params) return
+        const { route } = await squidInstance.getRoute(debounceParams)
+        if (currentRequest.current !== debounceParams) return
         setTradeRoute(route)
         setError(false)
       } catch (error) {
@@ -31,7 +34,7 @@ export default function useGetRouteCrossChain(params: GetRoute | undefined) {
         setLoading(false)
       }
     },
-    [squidInstance, params, setTradeRoute],
+    [squidInstance, debounceParams, setTradeRoute],
   )
 
   const getRouteDebounce = useMemo(() => debounce(() => getRoute(false), INPUT_DEBOUNCE_TIME), [getRoute])

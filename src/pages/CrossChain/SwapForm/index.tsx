@@ -16,10 +16,8 @@ import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import SwapButtonWithPriceImpact from 'components/SwapForm/SwapActionButton/SwapButtonWithPriceImpact'
 import { AdvancedSwapDetailsDropdownCrossChain } from 'components/swapv2/AdvancedSwapDetailsDropdown'
-import { INPUT_DEBOUNCE_TIME } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/useChangeNetwork'
-import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 import TradeTypeSelection from 'pages/CrossChain/SwapForm/TradeTypeSelection'
 import TradePrice from 'pages/CrossChain/TradePrice'
@@ -70,24 +68,23 @@ export default function SwapForm() {
     inputAmount,
   } = useDefaultTokenChain()
 
-  const debouncedInput = useDebounce(inputAmount, INPUT_DEBOUNCE_TIME)
   const {
     setting: { enableExpressExecution },
   } = useCrossChainSetting()
   const routeParams: GetRoute | undefined = useMemo(() => {
-    if (!currencyIn || !currencyOut || !chainIdOut || !account || !Number(debouncedInput)) return
+    if (!currencyIn || !currencyOut || !chainIdOut || !account || !Number(inputAmount)) return
     return {
       fromChain: chainId,
       toChain: chainIdOut,
       fromToken: currencyIn?.wrapped.address,
       toToken: currencyOut.wrapped.address,
-      fromAmount: tryParseAmount(debouncedInput, currencyIn)?.quotient.toString() ?? '',
+      fromAmount: tryParseAmount(inputAmount, currencyIn)?.quotient.toString() ?? '',
       toAddress: account,
       slippage: slippage / 100,
       enableExpress: enableExpressExecution,
       // customContractCalls?: ContractCall[]; // todo
     }
-  }, [currencyIn, currencyOut, account, debouncedInput, chainId, chainIdOut, slippage, enableExpressExecution])
+  }, [currencyIn, currencyOut, account, inputAmount, chainId, chainIdOut, slippage, enableExpressExecution])
 
   const {
     route,
