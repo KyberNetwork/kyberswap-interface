@@ -345,7 +345,7 @@ export const ConfirmCrossChainModal = memo(function ConfirmCrossChainModal({
               style={{ border: `1px solid ${theme.border}`, borderRadius: 16, padding: 12 }}
             />
 
-            {priceImpact && <PriceImpactNote priceImpact={Number(priceImpact)} isDegenMode={isDegenMode} />}
+            {!!priceImpact && <PriceImpactNote priceImpact={Number(priceImpact)} isDegenMode={isDegenMode} />}
 
             <Disclaimer role="button" onClick={handleClickDisclaimer}>
               <input
