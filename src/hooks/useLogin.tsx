@@ -4,7 +4,9 @@ import { useCallback, useEffect, useRef } from 'react'
 import { OAUTH_CLIENT_ID } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import { useIsConnectedWallet } from 'hooks/useSyncNetworkParamWithStore'
+import { updateProcessingLogin } from 'state/authen/actions'
 import { useSessionInfo } from 'state/authen/hooks'
+import { useAppDispatch } from 'state/hooks'
 
 KyberOauth2.initialize({
   clientId: OAUTH_CLIENT_ID,
@@ -19,23 +21,35 @@ KyberOauth2.initialize({
 const useLogin = () => {
   const { account } = useActiveWeb3React()
   const isConnectedWallet = useIsConnectedWallet()
+  const dispatch = useAppDispatch()
 
   // prevent spam flag
   const requestingAnonymous = useRef(false)
   const requestingSession = useRef<string>()
   const [authen, saveSession] = useSessionInfo()
 
+  const setLoading = useCallback(
+    (value: boolean) => {
+      dispatch(updateProcessingLogin(value))
+    },
+    [dispatch],
+  )
+
   const signIn = useCallback(
     async function signIn(walletAddress: string | undefined) {
       const signInAnonymous = async () => {
-        saveSession({ loginMethod: LoginMethod.ETH, userInfo: undefined })
+        saveSession({ loginMethod: LoginMethod.ETH, userInfo: undefined }) // reset
         if (!requestingAnonymous.current) {
+          // make sure call once
           requestingAnonymous.current = true
           try {
             const session = await KyberOauth2.loginAnonymous()
             saveSession(session)
           } catch (error) {
             console.log('sign in anonymous err', error)
+            saveSession({ loginMethod: LoginMethod.ANONYMOUS, userInfo: undefined })
+          } finally {
+            setLoading(false)
           }
         }
       }
@@ -44,6 +58,7 @@ const useLogin = () => {
           requestingSession.current = walletAddress
           const session = await KyberOauth2.getSession({ method: LoginMethod.ETH, walletAddress })
           saveSession(session)
+          setLoading(false)
         } else if (!walletAddress) {
           signInAnonymous()
         }
@@ -52,7 +67,7 @@ const useLogin = () => {
         signInAnonymous()
       }
     },
-    [saveSession],
+    [saveSession, setLoading],
   )
 
   useEffect(() => {

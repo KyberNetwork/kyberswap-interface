@@ -1,7 +1,7 @@
 import { LoginMethod } from '@kybernetwork/oauth2'
 import { createReducer } from '@reduxjs/toolkit'
 
-import { updatePossibleWalletAddress, updateSession } from './actions'
+import { updatePossibleWalletAddress, updateProcessingLogin, updateSession } from './actions'
 
 export interface AuthenState {
   readonly possibleConnectedWalletAddress: null | string | undefined // null is checking
@@ -28,6 +28,8 @@ export default createReducer(DEFAULT_AUTHEN_STATE, builder =>
       if (session.loginMethod === LoginMethod.ANONYMOUS) state.anonymousUserInfo = session.userInfo
       else state.userInfo = session.userInfo
       state.isLogin = !!state.userInfo
-      if (session.userInfo) state.processing = false
+    })
+    .addCase(updateProcessingLogin, (state, { payload: processing }) => {
+      state.processing = processing
     }),
 )
