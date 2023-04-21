@@ -10,6 +10,7 @@ import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
 import { ReactComponent as DropIcon } from 'assets/svg/drop.svg'
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
 import { PrivateAnnouncementType } from 'components/Announcement/type'
+import ApeIcon from 'components/Icons/ApeIcon'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import MailIcon from 'components/Icons/MailIcon'
 import NotificationIcon from 'components/Icons/NotificationIcon'
@@ -99,7 +100,7 @@ const MenuForDesktop = ({ unread }: { unread: Unread }) => {
           />
           <MenuItem
             href={NOTIFICATION_ROUTES.TRENDING_SOON_TOKENS}
-            icon={<DiscoverIcon size={16} />}
+            icon={<ApeIcon size={16} />}
             text={MENU_TITLE.TRENDING_SOON}
             unread={unread.TRENDING_SOON}
           />
@@ -112,7 +113,7 @@ const MenuForDesktop = ({ unread }: { unread: Unread }) => {
 export const MENU_TITLE: Partial<{ [type in PrivateAnnouncementType]: string }> = {
   [PrivateAnnouncementType.BRIDGE]: t`Cross-Chain Bridge`,
   [PrivateAnnouncementType.LIMIT_ORDER]: t`Limit Orders`,
-  [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: t`Trending Soon Tokens`,
+  [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: t`Top Tokens by KyberAI`,
   [PrivateAnnouncementType.PRICE_ALERT]: t`Price Alerts`,
   [PrivateAnnouncementType.POOL_POSITION]: t`Elastic Liquidity Positions`,
 }
@@ -172,7 +173,7 @@ const MenuForMobile = ({ unread }: { unread: Unread }) => {
       <MenuItem
         isMobile
         href={NOTIFICATION_ROUTES.TRENDING_SOON_TOKENS}
-        icon={<DiscoverIcon size={16} />}
+        icon={<ApeIcon size={16} />}
         text={MENU_TITLE.TRENDING_SOON}
         unread={unread.TRENDING_SOON}
       />

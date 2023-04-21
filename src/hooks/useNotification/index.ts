@@ -47,6 +47,7 @@ const useNotification = () => {
   )
 
   const { data: resp, refetch } = useGetNotificationTopicsQuery(account)
+  console.log('🚀 ~ file: index.ts:50 ~ useNotification ~ resp:', resp)
 
   useEffect(() => {
     if (!resp) return
