@@ -227,10 +227,11 @@ function WithdrawModal({
 
   const poolAddresses =
     selectedFarm?.pools
-      .filter(
-        pool =>
-          tab === FARM_TAB.MY_FARMS ||
-          (tab === FARM_TAB.ACTIVE ? pool.endTime > +new Date() / 1000 : pool.endTime < +new Date() / 1000),
+      .filter(pool =>
+        forced
+          ? true
+          : tab === FARM_TAB.MY_FARMS ||
+            (tab === FARM_TAB.ACTIVE ? pool.endTime > +new Date() / 1000 : pool.endTime < +new Date() / 1000),
       )
       .map(pool => pool.poolAddress.toLowerCase()) || []
 
