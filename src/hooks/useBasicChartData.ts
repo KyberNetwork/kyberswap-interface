@@ -6,7 +6,8 @@ import useSWR from 'swr'
 
 import { PRICE_CHART_API } from 'constants/env'
 import { COINGECKO_API_URL } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isEVM as isEVMChain } from 'constants/networks'
+import { USDC } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 
 import { useKyberswapGlobalConfig } from './useKyberSwapConfig'
@@ -104,8 +105,18 @@ const fetchCoingeckoDataSWR = async (tokenAddresses: any, chainId: any, timeFram
   )
 }
 
-export default function useBasicChartData(tokens: (Token | null | undefined)[], timeFrame: LiveDataTimeframeEnum) {
-  const { chainId, isEVM, networkInfo } = useActiveWeb3React()
+type ChartData = { time: number; value: any }
+
+export default function useBasicChartData(
+  tokens: (Token | null | undefined)[],
+  timeFrame: LiveDataTimeframeEnum,
+  customChain?: ChainId,
+): { data: ChartData[]; loading: boolean; error: any } {
+  const { chainId: currentChain } = useActiveWeb3React()
+  const chainId = customChain || currentChain
+  const networkInfo = NETWORKS_INFO[chainId]
+  const isEVM = isEVMChain(chainId)
+
   const { aggregatorDomain } = useKyberswapGlobalConfig()
   const isReverse = useMemo(() => {
     if (!tokens || !tokens[0] || !tokens[1] || tokens[0].equals(tokens[1]) || tokens[0].chainId !== tokens[1].chainId)
@@ -235,4 +246,52 @@ export default function useBasicChartData(tokens: (Token | null | undefined)[], 
     error: error,
     loading: !tokenAddresses[0] || !tokenAddresses[1] || kyberLoading || coingeckoLoading,
   }
+}
+
+const getClosestPriceV2 = (prices: any[], time: number) => {
+  let closestIndex = 0
+  prices.forEach((item, index) => {
+    if (Math.abs(item.time - time) < Math.abs(prices[closestIndex].time - time)) {
+      closestIndex = index
+    }
+  })
+  return prices[closestIndex].time - time > 10000000 ? 0 : prices[closestIndex].value
+}
+
+type TokenParam = Token | null | undefined
+const EMPTY: any = []
+
+export function useBasicChartDataCrossChain(tokens: TokenParam[], timeFrame: LiveDataTimeframeEnum) {
+  const { chainId: currentChain } = useActiveWeb3React()
+
+  const { pairSrc, pairDest } = useMemo(() => {
+    if (!tokens[0] || !tokens[1]) return { pairSrc: EMPTY, pairDest: EMPTY }
+    return {
+      pairSrc: [tokens[0], USDC[tokens[0].chainId]],
+      pairDest: [tokens[1], USDC[tokens[1].chainId]],
+    }
+  }, [tokens])
+
+  const { data: dataSrc, loading: loadingSrc, error: errSrc } = useBasicChartData(pairSrc, timeFrame, currentChain)
+  const {
+    data: dataDest,
+    loading: loadingDest,
+    error: errDest,
+  } = useBasicChartData(pairDest, timeFrame, tokens[1]?.chainId)
+
+  const formatData = useMemo(() => {
+    let notMatch = false
+    const data =
+      dataSrc.length === dataDest.length && dataSrc.length !== 0
+        ? dataSrc.map((item, i: number) => {
+            const closestPrice = getClosestPriceV2(dataDest, item.time)
+            if (!dataDest[i].value || !closestPrice) {
+              notMatch = true
+            }
+            return { time: item.time, value: +item.value / closestPrice }
+          })
+        : EMPTY
+    return notMatch ? EMPTY : data
+  }, [dataDest, dataSrc])
+  return { data: formatData, loading: loadingDest || loadingSrc, error: errSrc || errDest || !formatData.length }
 }

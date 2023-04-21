@@ -13,7 +13,7 @@ import DoubleCurrencyLogo from 'components/DoubleLogo'
 import Loader from 'components/LocalLoader'
 import TradingViewChart from 'components/TradingViewChart'
 import { useActiveWeb3React } from 'hooks'
-import useBasicChartData, { LiveDataTimeframeEnum } from 'hooks/useBasicChartData'
+import useBasicChartData, { LiveDataTimeframeEnum, useBasicChartDataCrossChain } from 'hooks/useBasicChartData'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { Field } from 'state/swap/actions'
@@ -105,7 +105,16 @@ const getTimeFrameText = (timeFrame: LiveDataTimeframeEnum) => {
   }
 }
 
-function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency } }) {
+// todo co ve luc nao cung call api basic chart
+const EMPTY_ARRAY: any = []
+function LiveChart({
+  currencies,
+  isCrossChain = false,
+}: {
+  currencies: { [field in Field]?: Currency }
+  isCrossChain?: boolean
+}) {
+  const enableProChart = !isCrossChain
   const { isSolana, networkInfo } = useActiveWeb3React()
   const isDarkMode = useIsDarkMode()
   const theme = useTheme()
@@ -121,7 +130,7 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
       address: currencies[Field.INPUT]?.wrapped.address || '',
     },
     {
-      skip: !networkInfo.geckoTermialId || !currencies[Field.INPUT]?.wrapped.address,
+      skip: !enableProChart || !networkInfo.geckoTermialId || !currencies[Field.INPUT]?.wrapped.address,
     },
   )
   const {
@@ -134,7 +143,7 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
       address: currencies[Field.OUTPUT]?.wrapped.address || '',
     },
     {
-      skip: !networkInfo.geckoTermialId || !currencies[Field.OUTPUT]?.wrapped.address,
+      skip: !enableProChart || !networkInfo.geckoTermialId || !currencies[Field.OUTPUT]?.wrapped.address,
     },
   )
 
@@ -185,7 +194,15 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
   const [hoverValue, setHoverValue] = useState<number | null>(null)
   const [timeFrame, setTimeFrame] = useState<LiveDataTimeframeEnum>(LiveDataTimeframeEnum.DAY)
 
-  const { data: chartData, error: basicChartError, loading: basicChartLoading } = useBasicChartData(tokens, timeFrame)
+  const dataChartBasicCrossChain = useBasicChartDataCrossChain(isCrossChain ? tokens : EMPTY_ARRAY, timeFrame)
+  const dataChartBasic = useBasicChartData(isCrossChain ? EMPTY_ARRAY : tokens, timeFrame)
+
+  const {
+    data: chartData,
+    error: basicChartError,
+    loading: basicChartLoading,
+  } = isCrossChain ? dataChartBasicCrossChain : dataChartBasic
+
   const isProchartError = !commonPool
   const isBasicchartError = basicChartError && !basicChartLoading
   const bothChartError = isProchartError && isBasicchartError
@@ -242,11 +259,11 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
         }}
         buttons={[
           { name: 'basic', title: 'Basic', disabled: isBasicchartError },
-          { name: 'pro', title: 'Pro', disabled: isProchartError },
+          { name: 'pro', title: 'Pro', disabled: isProchartError || !enableProChart },
         ]}
       />
     )
-  }, [isBasicchartError, isProchartError, isShowProChart, bothChartError, mixpanelHandler])
+  }, [isBasicchartError, isProchartError, isShowProChart, bothChartError, mixpanelHandler, enableProChart])
 
   const isReverse =
     commonPool?.relationships?.base_token.data.id ===

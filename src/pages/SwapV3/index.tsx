@@ -328,7 +328,7 @@ export default function Swap() {
                       />
                     }
                   >
-                    <LiveChart currencies={currencies} />
+                    <LiveChart currencies={currencies} isCrossChain={isCrossChainPage} />
                   </Suspense>
                 </LiveChartWrapper>
               )}
