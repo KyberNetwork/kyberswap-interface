@@ -583,6 +583,14 @@ msgstr "Amplified Liquidity Pools"
 msgid "An error occurred"
 msgstr "An error occurred"
 
+#: src/hooks/usePermit.ts
+msgid "An error occurred while attempting to authorize this token. Please approve it normally instead."
+msgstr "An error occurred while attempting to authorize this token. Please approve it normally instead."
+
+#: src/utils/dmm.ts
+msgid "An error occurred. Invalid Permit Signature"
+msgstr "An error occurred. Invalid Permit Signature"
+
 #: src/utils/dmm.ts
 msgid "An error occurred. Please try increasing max slippage"
 msgstr "An error occurred. Please try increasing max slippage"
@@ -641,22 +649,31 @@ msgstr "Applicable to KyberSwap Classic"
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
+#: src/pages/SwapV3/ApprovalModal.tsx
+#: src/pages/SwapV3/ApprovalModal.tsx
 msgid "Approve"
 msgstr "Approve"
 
 #: src/components/SwapForm/SwapActionButton/index.tsx
 #: src/pages/SwapV2/index.tsx
-msgid "Approve ${0}"
-msgstr "Approve ${0}"
+#~ msgid "Approve ${0}"
+#~ msgstr "Approve ${0}"
+
+#: src/components/SwapForm/SwapActionButton/index.tsx
+#: src/components/SwapForm/SwapActionButton/index.tsx
+msgid "Approve <0>{0}</0> requires to be more than <1>{1} {2}</1>, find out more <2>here</2>"
+msgstr "Approve <0>{0}</0> requires to be more than <1>{1} {2}</1>, find out more <2>here</2>"
 
 #: src/components/YieldPools/ElasticFarmGroup/index.tsx
 msgid "Approve Farming Contract"
 msgstr "Approve Farming Contract"
 
+#: src/components/SwapForm/SwapActionButton/index.tsx
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/IncreaseLiquidity/index.tsx
 #: src/pages/IncreaseLiquidity/index.tsx
+#: src/pages/SwapV2/index.tsx
 msgid "Approve {0}"
 msgstr "Approve {0}"
 
@@ -1073,6 +1090,10 @@ msgstr "Checking allowance"
 msgid "Checking price"
 msgstr "Checking price"
 
+#: src/pages/SwapV3/ApprovalModal.tsx
+msgid "Choose between Infinite or Custom allowance. <0>Read more ↗</0>"
+msgstr "Choose between Infinite or Custom allowance. <0>Read more ↗</0>"
+
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "Choose pool"
 msgstr "Choose pool"
@@ -1173,7 +1194,6 @@ msgstr "Click on the Settings icon"
 
 #: src/components/Announcement/Popups/CenterPopup.tsx
 #: src/components/Announcement/Popups/CtaButton.tsx
-#: src/components/Announcement/Popups/DetailAnnouncementPopup.tsx
 #: src/components/Announcement/Popups/DetailAnnouncementPopup.tsx
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Close"
@@ -1499,6 +1519,10 @@ msgstr "Currently, there is no campaign."
 #: src/components/SlippageControl/CustomSlippageInput.tsx
 msgid "Custom"
 msgstr "Custom"
+
+#: src/pages/SwapV3/ApprovalModal.tsx
+msgid "Custom Allowance"
+msgstr "Custom Allowance"
 
 #: src/components/swapv2/LimitOrder/ExpirePicker.tsx
 msgid "Customize the Expiry Time"
@@ -2702,6 +2726,10 @@ msgstr "Increase Amount"
 #: src/pages/ProAmmPool/PositionListItem.tsx
 msgid "Increase Liquidity"
 msgstr "Increase Liquidity"
+
+#: src/pages/SwapV3/ApprovalModal.tsx
+msgid "Infinite Allowance"
+msgstr "Infinite Allowance"
 
 #: src/components/swapv2/TokenInfoIcon.tsx
 #: src/components/swapv2/TokenInfoTab.tsx
@@ -3965,6 +3993,14 @@ msgstr "Per"
 #: src/components/ErrorBoundary/FallbackView.tsx
 msgid "Permission needed"
 msgstr "Permission needed"
+
+#: src/hooks/usePermit.ts
+msgid "Permit Error"
+msgstr "Permit Error"
+
+#: src/components/SwapForm/SwapActionButton/index.tsx
+msgid "Permit {0}"
+msgstr "Permit {0}"
 
 #: src/components/Tutorial/TutorialSwap/index.tsx
 msgid "Personalize your trading interface in the display settings"
@@ -5366,6 +5402,10 @@ msgid "There was an issue while confirming your price and minimum amount receive
 msgstr "There was an issue while confirming your price and minimum amount received. You may consider adjusting your <0>Max Slippage</0> and then trying to swap again."
 
 #: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
+msgid "There was an issue while trying to confirm your price. <0>Permit signature invalid</0>"
+msgstr "There was an issue while trying to confirm your price. <0>Permit signature invalid</0>"
+
+#: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
 msgid "There was an issue while trying to confirm your price. Please try to swap again."
 msgstr "There was an issue while trying to confirm your price. Please try to swap again."
 
@@ -6633,6 +6673,18 @@ msgstr "You need to enable <0>\"Override Wallet\"</0> in Coin98 settings."
 msgid "You need to first allow KyberSwap smart contracts to use your {0}. This has to be done only once for each token."
 msgstr "You need to first allow KyberSwap smart contracts to use your {0}. This has to be done only once for each token."
 
+#: src/pages/SwapV2/index.tsx
+msgid "You need to first allow KyberSwap's smart contract to use your {0}"
+msgstr "You need to first allow KyberSwap's smart contract to use your {0}"
+
+#: src/components/SwapForm/SwapActionButton/index.tsx
+msgid "You need to first allow KyberSwap's smart contract to use your {0}. <0>Read more ↗</0>"
+msgstr "You need to first allow KyberSwap's smart contract to use your {0}. <0>Read more ↗</0>"
+
+#: src/components/SwapForm/SwapActionButton/index.tsx
+msgid "You need to first give a temporary 24H approval to KyberSwaps smart contract to use your {0}. This doesnt require a gas fees. <0>Read more ↗</0>"
+msgstr "You need to first give a temporary 24H approval to KyberSwaps smart contract to use your {0}. This doesnt require a gas fees. <0>Read more ↗</0>"
+
 #: src/components/ProAmm/ProAmmFee.tsx
 msgid "You need to withdraw your deposited liquidity position from the Farm first"
 msgstr "You need to withdraw your deposited liquidity position from the Farm first"
@@ -6701,6 +6753,18 @@ msgstr "You will receive at least this amount or your transaction will revert"
 #: src/components/Menu/FaucetModal.tsx
 msgid "You will receive {0} {tokenSymbol} soon!"
 msgstr "You will receive {0} {tokenSymbol} soon!"
+
+#: src/pages/SwapV3/ApprovalModal.tsx
+msgid "You wish to give KyberSwap permission to use the selected token for transactions without any limit. You do not need to give permission again unless you have revoked it. This approve transaction will cost a gas fee"
+msgstr "You wish to give KyberSwap permission to use the selected token for transactions without any limit. You do not need to give permission again unless you have revoked it. This approve transaction will cost a gas fee"
+
+#: src/pages/SwapV3/ApprovalModal.tsx
+msgid ""
+"You wish to give KyberSwap permission to use up to the selected custom token\n"
+"amount for transactions. Subsequent transactions exceeding this amount will require your permission again. This will cost gas fees"
+msgstr ""
+"You wish to give KyberSwap permission to use up to the selected custom token\n"
+"amount for transactions. Subsequent transactions exceeding this amount will require your permission again. This will cost gas fees"
 
 #: src/pages/Bridge/SwapForm.tsx
 msgid "You would need to first allow Multichain smart contract to use your {0}. This has to be done only once for each token."

@@ -1,6 +1,6 @@
 import useTheme from 'hooks/useTheme'
 
-function OptimismLogo({ _size }: { _size?: number }) {
+function OptimismLogo() {
   const theme = useTheme()
   return (
     <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
