@@ -23,10 +23,8 @@ const useLogin = () => {
   const isConnectedWallet = useIsConnectedWallet()
   const dispatch = useAppDispatch()
 
-  // prevent spam flag
-  const requestingAnonymous = useRef(false)
-  const requestingSession = useRef<string>()
-  const [authen, saveSession] = useSessionInfo()
+  const requestingSession = useRef<string>() // which wallet/mode requesting
+  const [{ anonymousUserInfo }, saveSession] = useSessionInfo()
 
   const setLoading = useCallback(
     (value: boolean) => {
@@ -35,39 +33,39 @@ const useLogin = () => {
     [dispatch],
   )
 
+  const signInAnonymous = useCallback(async () => {
+    if (anonymousUserInfo || requestingSession.current === LoginMethod.ANONYMOUS) return
+    try {
+      requestingSession.current = LoginMethod.ANONYMOUS
+      saveSession({ loginMethod: LoginMethod.ETH, userInfo: undefined }) // reset
+      const session = await KyberOauth2.loginAnonymous()
+      saveSession(session)
+    } catch (error) {
+      console.log('sign in anonymous err', error)
+      saveSession({ loginMethod: LoginMethod.ANONYMOUS, userInfo: undefined })
+    } finally {
+      setLoading(false)
+    }
+  }, [anonymousUserInfo, saveSession, setLoading])
+
   const signIn = useCallback(
-    async function signIn(walletAddress: string | undefined) {
-      const signInAnonymous = async () => {
-        saveSession({ loginMethod: LoginMethod.ETH, userInfo: undefined }) // reset
-        if (!requestingAnonymous.current) {
-          // make sure call once
-          requestingAnonymous.current = true
-          try {
-            const session = await KyberOauth2.loginAnonymous()
-            saveSession(session)
-          } catch (error) {
-            console.log('sign in anonymous err', error)
-            saveSession({ loginMethod: LoginMethod.ANONYMOUS, userInfo: undefined })
-          } finally {
-            setLoading(false)
-          }
-        }
-      }
+    async (walletAddress: string | undefined) => {
       try {
+        if (!walletAddress) {
+          throw new Error('Not found address.')
+        }
         if (requestingSession.current !== walletAddress) {
           requestingSession.current = walletAddress
           const session = await KyberOauth2.getSession({ method: LoginMethod.ETH, walletAddress })
           saveSession(session)
           setLoading(false)
-        } else if (!walletAddress) {
-          signInAnonymous()
         }
       } catch (error) {
-        console.log('get session err:', error.message)
+        console.log('get session:', error.message)
         signInAnonymous()
       }
     },
-    [saveSession, setLoading],
+    [saveSession, setLoading, signInAnonymous],
   )
 
   useEffect(() => {
@@ -77,7 +75,5 @@ const useLogin = () => {
       signIn(typeof wallet === 'string' ? wallet : undefined)
     })
   }, [account, signIn, isConnectedWallet])
-
-  return authen
 }
 export default useLogin
