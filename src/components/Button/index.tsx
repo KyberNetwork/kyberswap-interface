@@ -153,15 +153,20 @@ export const ButtonSecondary = styled(Base)`
   }
 `
 
-export const ButtonOutlined = styled(Base)<{ baseColor?: string }>`
-  border: 1px solid ${({ theme, baseColor }) => (baseColor ? baseColor : theme.subText)};
+export const ButtonOutlined = styled(Base)`
+  border: 1px solid ${({ theme }) => theme.subText};
   background-color: transparent;
-  color: ${({ theme, baseColor }) => (baseColor ? baseColor : theme.subText)};
+  color: ${({ theme }) => theme.subText};
   border-radius: 999px;
   font-size: 14px;
-
+  &:focus {
+    box-shadow: 0 0 0 1px ${({ theme }) => theme.subText};
+  }
+  &:hover {
+    box-shadow: 0 0 0 1px ${({ theme }) => theme.subText};
+  }
   &:active {
-    box-shadow: 0 0 0 1px ${({ theme, baseColor }) => (baseColor ? baseColor : theme.subText)};
+    box-shadow: 0 0 0 1px ${({ theme }) => theme.subText};
   }
   &:disabled {
     color: ${({ theme, altDisabledStyle }) => (altDisabledStyle ? 'white' : theme.border)};
