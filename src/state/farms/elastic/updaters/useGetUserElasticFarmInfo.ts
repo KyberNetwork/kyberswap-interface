@@ -209,9 +209,11 @@ const useGetUserFarmingInfo = (interval?: boolean) => {
                   farmingPool.rewardTokens.forEach((currency, i) => {
                     const amount = CurrencyAmount.fromRawAmount(
                       currency,
-                      isWrongFarm ? 0 : result[index].rewardPending[i],
+                      // TODO(viet-nv): Remove this, we are temporary hardcode reward to zero
+                      isWrongFarm ? 0 : 0, // result[index].rewardPending[i],
                     )
                     rewardByNft[id][i] = amount
+
                     if (!rewardPendings[pid][i]) {
                       rewardPendings[pid][i] = amount
                     } else {

@@ -91,16 +91,18 @@ export const ButtonWarning = styled(Base)`
   }
 `
 
-export const ButtonLight = styled(Base)`
-  background-color: ${({ theme }) => `${theme.primary}33`};
+export const ButtonLight = styled(Base)<{ color?: string }>`
+  background-color: ${({ theme, color }) => `${color || theme.primary}4d`};
   min-width: unset;
-  color: ${({ theme }) => theme.primary};
+  color: ${({ color, theme }) => color || theme.primary};
   font-size: 14px;
   font-weight: 500;
-
+  &:hover {
+    background-color: ${({ theme, disabled, color }) => !disabled && darken(0.03, `${color || theme.primary}4d`)};
+  }
   &:active {
-    box-shadow: 0 0 0 1pt ${({ theme, disabled }) => !disabled && darken(0.05, `${theme.primary}33`)};
-    background-color: ${({ theme, disabled }) => !disabled && darken(0.05, `${theme.primary}33`)};
+    box-shadow: 0 0 0 1pt ${({ theme, disabled, color }) => !disabled && darken(0.05, `${color || theme.primary}4d`)};
+    background-color: ${({ theme, disabled, color }) => !disabled && darken(0.05, `${color || theme.primary}4d`)};
   }
   :disabled {
     cursor: not-allowed;
