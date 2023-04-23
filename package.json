@@ -74,6 +74,7 @@
     "ethers": "^5.4.6",
     "find-replacement-tx": "^1.2.3",
     "firebase": "^9.8.2",
+    "framer-motion": "^10.12.4",
     "graphql": "^15.8.0",
     "html2canvas": "^1.4.1",
     "inter-ui": "^3.19.3",

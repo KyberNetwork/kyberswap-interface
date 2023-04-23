@@ -242,10 +242,14 @@ export default function SingleToken() {
   const [viewAll, setViewAll] = useState(false)
   const handleStarClick = () => {
     if (stared) {
-      removeFromWatchlist({ wallet: account, tokenAddress: testParams.address, chain: 'ethereum' })
+      removeFromWatchlist({
+        wallet: account,
+        tokenAddress: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
+        chain: 'ethereum',
+      })
       setStared(false)
     } else {
-      addToWatchlist({ wallet: account, tokenAddress: testParams.address, chain: 'ethereum' })
+      addToWatchlist({ wallet: account, tokenAddress: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599', chain: 'ethereum' })
       setStared(true)
     }
   }
