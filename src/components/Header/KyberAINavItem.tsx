@@ -97,7 +97,7 @@ const KyberAINavItem = () => {
       }
       dropdownContent={
         <Column>
-          <StyledNavLink id="kyberai_about" to={APP_PATHS.KYBERAI_RANKINGS}>
+          <StyledNavLink id="kyberai_about" to={APP_PATHS.KYBERAI_ABOUT}>
             <Row gap="12px">
               <Icon id="info" size={16} />
               <Trans>About</Trans>

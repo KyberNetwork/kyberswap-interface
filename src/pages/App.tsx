@@ -43,6 +43,7 @@ import { RedirectPathToSwapV3Network } from './SwapV3/redirects'
 import TestMeta from './TestMeta'
 import TrueSightV2 from './TrueSightV2'
 import TruesightFooter from './TrueSightV2/components/TruesightFooter'
+import KyberAILandingPage from './TrueSightV2/pages/LandingPage'
 import Verify from './Verify'
 
 // Route-based code splitting
@@ -321,6 +322,9 @@ export default function App() {
                     <Route path={`${APP_PATHS.ABOUT}/kyberswap`} element={<AboutKyberSwap />} />
                     <Route path={`${APP_PATHS.ABOUT}/knc`} element={<AboutKNC />} />
                     <Route path={`${APP_PATHS.REFERRAL}`} element={<CreateReferral />} />
+                    <Route path={`${APP_PATHS.KYBERAI_ABOUT}`} element={<KyberAILandingPage />} />
+                    <Route path={`${APP_PATHS.KYBERAI_RANKINGS}`} element={<TrueSightV2 />} />
+                    <Route path={`${APP_PATHS.KYBERAI_EXPLORE}`} element={<TrueSightV2 />} />
                     <Route
                       path={`${APP_PATHS.KYBERAI_RANKINGS}`}
                       element={
