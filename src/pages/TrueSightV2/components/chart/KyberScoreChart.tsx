@@ -4,6 +4,7 @@ import styled from 'styled-components'
 
 import Column from 'components/Column'
 import useTheme from 'hooks/useTheme'
+import { calculateValueToColor } from 'pages/TrueSightV2/utils'
 
 import SimpleTooltip from '../SimpleTooltip'
 
@@ -14,31 +15,11 @@ const Wrapper = styled.div`
     filter: brightness(1.2);
   }
 `
+
 export default function KyberScoreChart({ width, height }: { width?: string; height?: string }) {
   const theme = useTheme()
   const sampleData = [10, 20, 60, 40, 50, 60, 70, 40, 90, 60, 70, 80, 90, 50, 60, 70, 70, 0]
-  const calculateColor = useCallback(
-    (value: number) => {
-      if (value === 0) {
-        return theme.disableText
-      }
-      if (value < 20) {
-        return theme.red
-      }
-      if (value < 40) {
-        return '#FFA7C3'
-      }
-      if (value < 60) {
-        return theme.text
-      }
-      if (value < 80) {
-        return '#8DE1C7'
-      }
 
-      return theme.primary
-    },
-    [theme],
-  )
   const [{ x, y }, setXY] = useState({ x: 0, y: 0 })
   const handleMouseEnter = useCallback((e: any) => {
     console.log(e)
@@ -54,16 +35,21 @@ export default function KyberScoreChart({ width, height }: { width?: string; hei
           {sampleData.map((v, index) => {
             const gap = 2
             const rectWidth = (100 - (sampleData.length - 1) * gap) / sampleData.length
-            const rectHeight = v
-            const color = calculateColor(v)
+            const rectHeight = v === 0 ? 100 : v
+            const color = calculateValueToColor(v, theme)
+
             return (
               <rect
                 key={index}
                 x={index * (rectWidth + gap)}
                 y={0}
                 width={rectWidth}
-                style={{ fill: color }}
+                style={{ fill: v === 0 ? (theme.darkMode ? theme.background + '60' : theme.text + '10') : color }}
                 onMouseEnter={handleMouseEnter}
+                strokeWidth={v === 0 ? '2px' : 0}
+                stroke={theme.disableText}
+                vectorEffect="non-scaling-stroke"
+                shapeRendering="crispEdges"
               >
                 <animate
                   attributeName="height"

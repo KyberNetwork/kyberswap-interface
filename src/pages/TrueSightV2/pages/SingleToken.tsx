@@ -149,7 +149,7 @@ const HeaderTag = styled(RowFit)`
   line-height: 16px;
   font-weight: 500;
   color: ${({ theme }) => theme.subText};
-  background-color: ${({ theme }) => theme.subText + '32'};
+  background-color: ${({ theme }) => (theme.darkMode ? theme.subText + '32' : theme.background)};
   border-radius: 20px;
   cursor: pointer;
   user-select: none;
@@ -169,7 +169,7 @@ const CheckIcon = styled(RowFit)`
   border-radius: 50%;
   height: 12px;
   width: 12px;
-  background-color: #19473a;
+  background-color: ${({ theme }) => (theme.darkMode ? '#19473a' : '#bcffec')};
   justify-content: center;
   color: ${({ theme }) => theme.primary};
 `
@@ -252,15 +252,16 @@ export default function SingleToken() {
   const [stared, setStared] = useState(false)
   const [viewAll, setViewAll] = useState(false)
   const handleStarClick = () => {
+    if (!data) return
     if (stared) {
       removeFromWatchlist({
         wallet: account,
-        tokenAddress: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
+        tokenAddress: data?.address,
         chain: 'ethereum',
       })
       setStared(false)
     } else {
-      addToWatchlist({ wallet: account, tokenAddress: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599', chain: 'ethereum' })
+      addToWatchlist({ wallet: account, tokenAddress: data?.address, chain: 'ethereum' })
       setStared(true)
     }
   }
@@ -277,7 +278,11 @@ export default function SingleToken() {
           }}
           onClick={handleStarClick}
         >
-          <Star size={16} stroke={stared ? theme.primary : theme.subText} fill={stared ? theme.primary : 'none'} />
+          <Star
+            size={16}
+            stroke={data?.isWatched ? theme.primary : theme.subText}
+            fill={data?.isWatched ? theme.primary : 'none'}
+          />
         </HeaderButton>
         <div style={{ position: 'relative' }}>
           <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
@@ -412,18 +417,7 @@ export default function SingleToken() {
     <Wrapper>
       <RenderHeader />
       <Text fontSize={12} color={theme.subText} marginBottom="12px">
-        {isLoading ? (
-          <DotsLoader />
-        ) : (
-          <TokenDescription
-            description="Bitcoin is a decentralized cryptocurrency originally described in a 2008 whitepaper by a person, or group of
-          people, using the alias Satoshi Nakamoto. It was launched soon after, in January 2009. 
-          Bitcoin is a peer-to-peer online currency, meaning that all transactions happen directly between equal,
-          independent network participants, without the need for any intermediary to permit or facilitate them.
-          Bitcoin was created, according to Nakamoto's own words, to allow “online payments to be sent directly
-          from one party to another without going through a financial institution.”"
-          />
-        )}
+        {isLoading ? <DotsLoader /> : <TokenDescription description={data?.description || ''} />}
       </Text>
 
       <TagWrapper>

@@ -271,7 +271,7 @@ function KyberScoreMeter({ value }: { value?: number }) {
       if (value === 0) return theme.primary
       const percent = (value / gaugeList.length) * 100
       if (value > activeGaugeValue) {
-        return theme.darkMode ? theme.subText + '30' : theme.background2
+        return theme.darkMode ? theme.subText + '30' : theme.border + '60'
       }
       if (percent < 20) {
         return theme.red

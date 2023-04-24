@@ -164,9 +164,9 @@ const TimeFrameWrapper = styled.div`
   display: flex;
   align-items: center;
   position: relative;
-  background-color: ${({ theme }) => theme.buttonBlack};
+  background-color: ${({ theme }) => (theme.darkMode ? theme.buttonBlack : theme.subText + '80')};
   border: 2px solid ${({ theme }) => theme.buttonBlack};
-  color: ${({ theme }) => theme.subText};
+  color: ${({ theme }) => (theme.darkMode ? theme.subText : theme.textReverse)};
   cursor: pointer;
 `
 const Element = styled.div<{ active?: boolean; count?: number }>`
@@ -189,6 +189,7 @@ const ActiveElement = styled.div<{ left?: number; width?: number }>`
   position: absolute;
   left: 0;
   background-color: ${({ theme }) => theme.tableHeader};
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
   z-index: 1;
   transition: all 0.2s ease;
   :hover {
@@ -1692,6 +1693,15 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
             fill="url(#colorUv)"
             animationBegin={ANIMATION_DELAY}
             animationDuration={ANIMATION_DURATION}
+            {...{
+              label: ({ x, y, value }: { x: number; y: number; value: number }) => {
+                return (
+                  <text x={x} y={y} dy={-8} fontSize={12} fontWeight={500} fill={theme.text} textAnchor="middle">
+                    {value !== 0 && `$${formatShortNum(value)}`}
+                  </text>
+                )
+              },
+            }}
           />
         </AreaChart>
       </ResponsiveContainer>
