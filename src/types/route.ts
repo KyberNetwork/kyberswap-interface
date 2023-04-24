@@ -1,6 +1,6 @@
 import { Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
 
-type Route = {
+export type Route = {
   pool: string
 
   tokenIn: string
