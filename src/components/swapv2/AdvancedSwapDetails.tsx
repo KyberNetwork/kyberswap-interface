@@ -47,30 +47,35 @@ const ContentWrapper = styled(AutoColumn)<{ show: boolean }>`
   overflow: hidden;
 `
 
-const PriceImpactNote = () => (
-  <MouseoverTooltip
-    text={
-      <div>
-        <Trans>Estimated change in price due to the size of your transaction.</Trans>
-        <Trans>
-          <Text fontSize={12}>
-            Read more{' '}
-            <a
-              href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/price-impact"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <b>here ↗</b>
-            </a>
-          </Text>
-        </Trans>
-      </div>
-    }
-    placement="right"
-  >
-    <Trans>Price Impact</Trans>
-  </MouseoverTooltip>
-)
+const PriceImpactNote = () => {
+  const theme = useTheme()
+  return (
+    <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+      <MouseoverTooltip
+        text={
+          <div>
+            <Trans>Estimated change in price due to the size of your transaction.</Trans>
+            <Trans>
+              <Text fontSize={12}>
+                Read more{' '}
+                <a
+                  href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/price-impact"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <b>here ↗</b>
+                </a>
+              </Text>
+            </Trans>
+          </div>
+        }
+        placement="right"
+      >
+        <Trans>Price Impact</Trans>
+      </MouseoverTooltip>
+    </TextDashed>
+  )
+}
 
 const PriceImpactValue = ({ priceImpact }: { priceImpact: number }) => {
   const theme = useTheme()
@@ -171,9 +176,7 @@ function TradeSummary({ trade, feeConfig, allowedSlippage }: TradeSummaryProps) 
 
         <RowBetween>
           <RowFixed>
-            <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
-              <PriceImpactNote />
-            </TextDashed>
+            <PriceImpactNote />
           </RowFixed>
           <PriceImpactValue priceImpact={trade.priceImpact} />
         </RowBetween>
@@ -305,6 +308,12 @@ export function TradeSummaryBridge({ outputInfo }: { outputInfo: OutputBridgeInf
   )
 }
 
+const formatTime = (duration: number) => {
+  if (duration < 30) return t`half a minute`
+  if (duration < 60) return t`1 minute`
+  return formatTimeDuration(duration)
+}
+
 export function TradeSummaryCrossChain({
   route,
   showHeader = true,
@@ -359,7 +368,15 @@ export function TradeSummaryCrossChain({
 
         <RowBetween>
           <RowFixed>
-            <MinReceiveLabel />
+            <TextDashed fontSize={12} fontWeight={400} color={theme.subText} minWidth="max-content">
+              <MouseoverTooltip
+                width="200px"
+                text={<Trans>You will receive at least this amount, or your transaction will revert by Axelar</Trans>}
+                placement="right"
+              >
+                <Trans>Minimum Received</Trans>
+              </MouseoverTooltip>
+            </TextDashed>
           </RowFixed>
           <RowFixed>
             <TYPE.black color={theme.text} fontSize={12}>
@@ -383,20 +400,13 @@ export function TradeSummaryCrossChain({
           </RowFixed>
           <RowFixed>
             <TYPE.black color={theme.text} fontSize={12}>
-              {duration ? `~${formatTimeDuration(duration)}` : '--'}
+              {duration ? `~${formatTime(duration)}` : '--'}
             </TYPE.black>
           </RowFixed>
         </RowBetween>
         <RowBetween>
           <RowFixed>
-            <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
-              <MouseoverTooltip
-                text={<Trans>You will receive at least this amount or your transaction will revert by Axelar.</Trans>}
-                placement="right"
-              >
-                <Trans>Price Impact</Trans>
-              </MouseoverTooltip>
-            </TextDashed>
+            <PriceImpactNote />
           </RowFixed>
           <TYPE.black color={theme.text} fontSize={12}>
             <PriceImpactValue priceImpact={priceImpact || -1} />
