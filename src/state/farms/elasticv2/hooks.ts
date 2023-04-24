@@ -54,6 +54,9 @@ export const useFilteredFarmsV2 = () => {
   const filteredToken1Id = searchParams.get('token1') || undefined
   const stakedOnly = searchParams.get('stakedOnly') === 'true'
 
+  const sortField = searchParams.get('orderBy') || SORT_FIELD.MY_DEPOSIT
+  const sortDirection = searchParams.get('orderDirection') || SORT_DIRECTION.DESC
+
   const filteredFarms = useMemo(() => {
     const now = Date.now() / 1000
 
@@ -111,8 +114,38 @@ export const useFilteredFarmsV2 = () => {
     if (stakedOnly) {
       result = result?.filter(item => userInfo?.map(i => i.fId).includes(item.fId))
     }
-    return result || []
-  }, [stakedOnly, userInfo, farms, activeTab, chainId, filteredToken0Id, filteredToken1Id, isEVM, search])
+    return (result || []).sort((a, b) => {
+      const apr_a = a.ranges.reduce((m, cur) => (m > (cur.apr || 0) ? m : cur.apr || 0), 0)
+      const apr_b = b.ranges.reduce((m, cur) => (m > (cur.apr || 0) ? m : cur.apr || 0), 0)
+
+      switch (sortField) {
+        case SORT_FIELD.STAKED_TVL:
+          return sortDirection === SORT_DIRECTION.DESC ? b.tvl - a.tvl : a.tvl - b.tvl
+        case SORT_FIELD.END_TIME:
+          return sortDirection === SORT_DIRECTION.DESC ? b.endTime - a.endTime : a.endTime - b.endTime
+        case SORT_FIELD.APR:
+          return sortDirection === SORT_DIRECTION.DESC ? apr_b - apr_a : apr_a - apr_b
+        case SORT_FIELD.MY_DEPOSIT:
+          return -1
+        case SORT_FIELD.MY_REWARD:
+          return -1
+        default:
+          return sortDirection === SORT_DIRECTION.DESC ? apr_b - apr_a : apr_a - apr_b
+      }
+    })
+  }, [
+    sortDirection,
+    sortField,
+    stakedOnly,
+    userInfo,
+    farms,
+    activeTab,
+    chainId,
+    filteredToken0Id,
+    filteredToken1Id,
+    isEVM,
+    search,
+  ])
 
   return {
     filteredFarms,
