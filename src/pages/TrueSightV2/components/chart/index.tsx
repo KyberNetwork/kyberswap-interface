@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import React, { ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -253,6 +253,44 @@ const TooltipWrapper = styled.div`
 export const ANIMATION_DELAY = 500
 export const ANIMATION_DURATION = 1000
 
+const StyledLoadingWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+`
+
+const LoadingHandleWrapper = ({
+  isLoading,
+  hasData,
+  children,
+}: {
+  isLoading: boolean
+  hasData: boolean
+  children: ReactNode
+}) => {
+  return (
+    <>
+      {!hasData ? (
+        <>
+          <StyledLoadingWrapper>
+            {isLoading ? (
+              <AnimatedLoader />
+            ) : (
+              <Text>
+                <Trans>We couldn&apos;t find any information for this token</Trans>
+              </Text>
+            )}
+          </StyledLoadingWrapper>
+        </>
+      ) : (
+        <>{children}</>
+      )}
+    </>
+  )
+}
+
 export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?: boolean; noAnimation?: boolean }) => {
   const theme = useTheme()
   const [timeframe, setTimeframe] = useState(KyberAITimeframe.ONE_MONTH)
@@ -279,7 +317,7 @@ export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?
       }[timeframe as string] || 604800)
     return [from, now, timerange]
   }, [timeframe])
-  const { data } = useTradingVolumeQuery({ tokenAddress: testParams.address, params: { from, to } })
+  const { data, isLoading } = useTradingVolumeQuery({ tokenAddress: testParams.address, params: { from, to } })
 
   const formattedData = useMemo(() => {
     if (!data) return []
@@ -315,7 +353,7 @@ export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?
 
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   return (
-    <>
+    <LoadingHandleWrapper isLoading={isLoading} hasData={!!data}>
       <ChartWrapper>
         <InfoWrapper>
           <Column gap="4px">
@@ -527,7 +565,7 @@ export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?
           />
         </Row>
       )}
-    </>
+    </LoadingHandleWrapper>
   )
 }
 
@@ -557,7 +595,7 @@ export const TradingVolumeChart = () => {
       }[timeframe as string] || 604800)
     return [from, now, timerange]
   }, [timeframe])
-  const { data } = useTradingVolumeQuery({ tokenAddress: testParams.address, params: { from, to } })
+  const { data, isLoading } = useTradingVolumeQuery({ tokenAddress: testParams.address, params: { from, to } })
 
   const formattedData = useMemo(() => {
     if (!data) return []
@@ -593,7 +631,7 @@ export const TradingVolumeChart = () => {
 
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   return (
-    <>
+    <LoadingHandleWrapper isLoading={isLoading} hasData={!!data}>
       <ChartWrapper>
         <InfoWrapper>
           <Column gap="4px">
@@ -800,7 +838,7 @@ export const TradingVolumeChart = () => {
           />
         </Row>
       )}
-    </>
+    </LoadingHandleWrapper>
   )
 }
 
@@ -829,7 +867,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
     return [from, now, timerange]
   }, [timeframe])
 
-  const { data } = useNetflowToWhaleWalletsQuery({ tokenAddress: address || testParams.address, from, to })
+  const { data, isLoading } = useNetflowToWhaleWalletsQuery({ tokenAddress: address || testParams.address, from, to })
   const { account } = useActiveWeb3React()
   const [showInflow, setShowInflow] = useState(true)
   const [showOutflow, setShowOutflow] = useState(true)
@@ -944,7 +982,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
   }, [tab])
 
   return (
-    <>
+    <LoadingHandleWrapper isLoading={isLoading} hasData={!!data}>
       <ChartWrapper>
         {account ? (
           <>
@@ -1200,7 +1238,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
           />
         </Row>
       )}
-    </>
+    </LoadingHandleWrapper>
   )
 }
 
@@ -1230,7 +1268,7 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
     return [from, now, timerange]
   }, [timeframe])
 
-  const { data } = useNetflowToCEXQuery({ tokenAddress: testParams.address, from, to })
+  const { data, isLoading } = useNetflowToCEXQuery({ tokenAddress: testParams.address, from, to })
 
   const formattedData = useMemo(() => {
     if (!data) return []
@@ -1309,7 +1347,7 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
       }
     }, [formattedData, timeframe])
   return (
-    <>
+    <LoadingHandleWrapper isLoading={isLoading} hasData={!!data}>
       <ChartWrapper>
         <InfoWrapper>
           <Column gap="4px">
@@ -1542,7 +1580,7 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
           />
         </Row>
       )}
-    </>
+    </LoadingHandleWrapper>
   )
 }
 
@@ -1569,7 +1607,7 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
     return [from, now, timerange]
   }, [timeframe])
 
-  const { data } = useTransferInformationQuery({ tokenAddress: testParams.address, from, to })
+  const { data, isLoading } = useTransferInformationQuery({ tokenAddress: testParams.address, from, to })
   const formattedData = useMemo(() => {
     if (!data) return []
     const dataTemp: INumberOfTransfers[] = []
@@ -1600,112 +1638,114 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
   }, [formattedData, timeframe])
 
   return (
-    <ChartWrapper>
-      <InfoWrapper>
-        <Column gap="4px">
-          <Text color={theme.subText}>Timeframe</Text>
-          <Text color={theme.text} fontWeight={500}>
-            {totalStats.timeframe}
-          </Text>
-        </Column>
-        <Column gap="4px">
-          <Text color={theme.subText}>{tab === ChartTab.First ? 'Total Transfers' : 'Total Volume'}</Text>
-          <Text color={theme.text} fontWeight={500}>
-            {tab === ChartTab.First ? totalStats.totalTranfers : totalStats.totalVolume}
-          </Text>
-        </Column>
-      </InfoWrapper>
-      <LegendWrapper>
-        <TimeFrameLegend
-          selected={timeframe}
-          onSelect={setTimeframe}
-          timeframes={[
-            KyberAITimeframe.ONE_WEEK,
-            KyberAITimeframe.ONE_MONTH,
-            KyberAITimeframe.THREE_MONTHS,
-            KyberAITimeframe.SIX_MONTHS,
-          ]}
-        />
-      </LegendWrapper>
-      <ResponsiveContainer width="100%" height="100%">
-        <AreaChart
-          width={500}
-          height={400}
-          data={formattedData}
-          margin={{
-            top: 80,
-            right: 0,
-            left: 10,
-            bottom: 0,
-          }}
-        >
-          <defs>
-            <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={theme.primary} stopOpacity={0.8} />
-              <stop offset="100%" stopColor={theme.primary} stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <CartesianGrid vertical={false} strokeWidth={1} stroke={rgba(theme.border, 0.5)} />
-          <Customized component={KyberLogo} />
-          <XAxis
-            fontSize="12px"
-            dataKey="timestamp"
-            tickLine={false}
-            axisLine={false}
-            tick={{ fill: theme.subText, fontWeight: 400 }}
-            tickFormatter={value => dayjs(value).format('MMM DD')}
+    <LoadingHandleWrapper isLoading={isLoading} hasData={!!data}>
+      <ChartWrapper>
+        <InfoWrapper>
+          <Column gap="4px">
+            <Text color={theme.subText}>Timeframe</Text>
+            <Text color={theme.text} fontWeight={500}>
+              {totalStats.timeframe}
+            </Text>
+          </Column>
+          <Column gap="4px">
+            <Text color={theme.subText}>{tab === ChartTab.First ? 'Total Transfers' : 'Total Volume'}</Text>
+            <Text color={theme.text} fontWeight={500}>
+              {tab === ChartTab.First ? totalStats.totalTranfers : totalStats.totalVolume}
+            </Text>
+          </Column>
+        </InfoWrapper>
+        <LegendWrapper>
+          <TimeFrameLegend
+            selected={timeframe}
+            onSelect={setTimeframe}
+            timeframes={[
+              KyberAITimeframe.ONE_WEEK,
+              KyberAITimeframe.ONE_MONTH,
+              KyberAITimeframe.THREE_MONTHS,
+              KyberAITimeframe.SIX_MONTHS,
+            ]}
           />
-          <YAxis
-            fontSize="12px"
-            tickLine={false}
-            axisLine={false}
-            tick={{ fill: theme.subText, fontWeight: 400 }}
-            width={40}
-            tickFormatter={value => `${tab === ChartTab.Second ? '$' : ''}${formatShortNum(value)}`}
-          />
-          <Tooltip
-            cursor={{ fill: 'transparent' }}
-            wrapperStyle={{ outline: 'none' }}
-            position={{ y: 120 }}
-            animationDuration={100}
-            content={props => {
-              const payload = props.payload?.[0]?.payload
-              if (!payload) return <></>
-              return (
-                <TooltipWrapper>
-                  <Text fontSize="10px" lineHeight="12px" color={theme.subText}>
-                    {payload.timestamp && dayjs(payload.timestamp).format('MMM DD, YYYY')}
-                  </Text>
-                  <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                    {tab === ChartTab.First ? 'Total Transfers' : 'Total Volume'}:{' '}
-                    <span style={{ color: theme.text }}>
-                      {formatShortNum(tab === ChartTab.First ? payload.numberOfTransfer : payload.volume)}
-                    </span>
-                  </Text>
-                </TooltipWrapper>
-              )
+        </LegendWrapper>
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart
+            width={500}
+            height={400}
+            data={formattedData}
+            margin={{
+              top: 80,
+              right: 0,
+              left: 10,
+              bottom: 0,
             }}
-          />
-          <Area
-            type="monotone"
-            dataKey={tab === ChartTab.First ? 'numberOfTransfer' : 'volume'}
-            stroke={theme.primary}
-            fill="url(#colorUv)"
-            animationBegin={ANIMATION_DELAY}
-            animationDuration={ANIMATION_DURATION}
-            {...{
-              label: ({ x, y, value }: { x: number; y: number; value: number }) => {
+          >
+            <defs>
+              <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={theme.primary} stopOpacity={0.8} />
+                <stop offset="100%" stopColor={theme.primary} stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid vertical={false} strokeWidth={1} stroke={rgba(theme.border, 0.5)} />
+            <Customized component={KyberLogo} />
+            <XAxis
+              fontSize="12px"
+              dataKey="timestamp"
+              tickLine={false}
+              axisLine={false}
+              tick={{ fill: theme.subText, fontWeight: 400 }}
+              tickFormatter={value => dayjs(value).format('MMM DD')}
+            />
+            <YAxis
+              fontSize="12px"
+              tickLine={false}
+              axisLine={false}
+              tick={{ fill: theme.subText, fontWeight: 400 }}
+              width={40}
+              tickFormatter={value => `${tab === ChartTab.Second ? '$' : ''}${formatShortNum(value)}`}
+            />
+            <Tooltip
+              cursor={{ fill: 'transparent' }}
+              wrapperStyle={{ outline: 'none' }}
+              position={{ y: 120 }}
+              animationDuration={100}
+              content={props => {
+                const payload = props.payload?.[0]?.payload
+                if (!payload) return <></>
                 return (
-                  <text x={x} y={y} dy={-8} fontSize={12} fontWeight={500} fill={theme.text} textAnchor="middle">
-                    {value !== 0 && `$${formatShortNum(value)}`}
-                  </text>
+                  <TooltipWrapper>
+                    <Text fontSize="10px" lineHeight="12px" color={theme.subText}>
+                      {payload.timestamp && dayjs(payload.timestamp).format('MMM DD, YYYY')}
+                    </Text>
+                    <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                      {tab === ChartTab.First ? 'Total Transfers' : 'Total Volume'}:{' '}
+                      <span style={{ color: theme.text }}>
+                        {formatShortNum(tab === ChartTab.First ? payload.numberOfTransfer : payload.volume)}
+                      </span>
+                    </Text>
+                  </TooltipWrapper>
                 )
-              },
-            }}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
-    </ChartWrapper>
+              }}
+            />
+            <Area
+              type="monotone"
+              dataKey={tab === ChartTab.First ? 'numberOfTransfer' : 'volume'}
+              stroke={theme.primary}
+              fill="url(#colorUv)"
+              animationBegin={ANIMATION_DELAY}
+              animationDuration={ANIMATION_DURATION}
+              {...{
+                label: ({ x, y, value }: { x: number; y: number; value: number }) => {
+                  return (
+                    <text x={x} y={y} dy={-8} fontSize={12} fontWeight={500} fill={theme.text} textAnchor="middle">
+                      {value !== 0 && `$${formatShortNum(value)}`}
+                    </text>
+                  )
+                },
+              }}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </ChartWrapper>
+    </LoadingHandleWrapper>
   )
 }
 
@@ -1731,7 +1771,7 @@ export const NumberofHolders = () => {
       }[timeframe as string] || 604800)
     return [from, now, timerange]
   }, [timeframe])
-  const { data } = useNumberOfHoldersQuery({ tokenAddress: testParams.address, from, to })
+  const { data, isLoading } = useNumberOfHoldersQuery({ tokenAddress: testParams.address, from, to })
 
   const filteredData = useMemo(() => {
     if (!data) return []
@@ -1749,86 +1789,88 @@ export const NumberofHolders = () => {
   }, [data, timerange, from, to])
 
   return (
-    <ChartWrapper>
-      <LegendWrapper>
-        <TimeFrameLegend
-          selected={timeframe}
-          onSelect={setTimeframe}
-          timeframes={[
-            KyberAITimeframe.ONE_WEEK,
-            KyberAITimeframe.ONE_MONTH,
-            KyberAITimeframe.THREE_MONTHS,
-            KyberAITimeframe.SIX_MONTHS,
-          ]}
-        />
-      </LegendWrapper>
-      <ResponsiveContainer width="100%" height="100%">
-        <AreaChart
-          width={500}
-          height={400}
-          data={filteredData}
-          margin={{
-            top: 40,
-            right: 0,
-            left: 20,
-            bottom: 0,
-          }}
-        >
-          <defs>
-            <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={theme.primary} stopOpacity={0.8} />
-              <stop offset="100%" stopColor={theme.primary} stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <CartesianGrid vertical={false} strokeWidth={1} stroke={rgba(theme.border, 0.5)} />
-          <Customized component={KyberLogo} />
-          <XAxis
-            fontSize="12px"
-            dataKey="timestamp"
-            tickLine={false}
-            axisLine={false}
-            tick={{ fill: theme.subText, fontWeight: 400 }}
-            tickFormatter={value => dayjs(value).format('MMM DD')}
+    <LoadingHandleWrapper isLoading={isLoading} hasData={!!data}>
+      <ChartWrapper>
+        <LegendWrapper>
+          <TimeFrameLegend
+            selected={timeframe}
+            onSelect={setTimeframe}
+            timeframes={[
+              KyberAITimeframe.ONE_WEEK,
+              KyberAITimeframe.ONE_MONTH,
+              KyberAITimeframe.THREE_MONTHS,
+              KyberAITimeframe.SIX_MONTHS,
+            ]}
           />
-          <YAxis
-            fontSize="12px"
-            tickLine={false}
-            axisLine={false}
-            tick={{ fill: theme.subText, fontWeight: 400 }}
-            width={40}
-            tickFormatter={value => formatShortNum(value)}
-          />
-          <Tooltip
-            cursor={{ fill: 'transparent' }}
-            wrapperStyle={{ outline: 'none' }}
-            position={{ y: 120 }}
-            animationDuration={100}
-            content={props => {
-              const payload = props.payload?.[0]?.payload
-              if (!payload) return <></>
-              return (
-                <TooltipWrapper>
-                  <Text fontSize="10px" lineHeight="12px" color={theme.subText}>
-                    {payload.timestamp && dayjs(payload.timestamp).format('MMM DD, YYYY')}
-                  </Text>
-                  <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                    Holders: <span style={{ color: theme.text }}>{formatShortNum(payload.count)}</span>
-                  </Text>
-                </TooltipWrapper>
-              )
+        </LegendWrapper>
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart
+            width={500}
+            height={400}
+            data={filteredData}
+            margin={{
+              top: 40,
+              right: 0,
+              left: 20,
+              bottom: 0,
             }}
-          />
-          <Area
-            type="monotone"
-            dataKey="count"
-            stroke={theme.primary}
-            fill="url(#colorUv)"
-            animationBegin={ANIMATION_DELAY}
-            animationDuration={ANIMATION_DURATION}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
-    </ChartWrapper>
+          >
+            <defs>
+              <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={theme.primary} stopOpacity={0.8} />
+                <stop offset="100%" stopColor={theme.primary} stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid vertical={false} strokeWidth={1} stroke={rgba(theme.border, 0.5)} />
+            <Customized component={KyberLogo} />
+            <XAxis
+              fontSize="12px"
+              dataKey="timestamp"
+              tickLine={false}
+              axisLine={false}
+              tick={{ fill: theme.subText, fontWeight: 400 }}
+              tickFormatter={value => dayjs(value).format('MMM DD')}
+            />
+            <YAxis
+              fontSize="12px"
+              tickLine={false}
+              axisLine={false}
+              tick={{ fill: theme.subText, fontWeight: 400 }}
+              width={40}
+              tickFormatter={value => formatShortNum(value)}
+            />
+            <Tooltip
+              cursor={{ fill: 'transparent' }}
+              wrapperStyle={{ outline: 'none' }}
+              position={{ y: 120 }}
+              animationDuration={100}
+              content={props => {
+                const payload = props.payload?.[0]?.payload
+                if (!payload) return <></>
+                return (
+                  <TooltipWrapper>
+                    <Text fontSize="10px" lineHeight="12px" color={theme.subText}>
+                      {payload.timestamp && dayjs(payload.timestamp).format('MMM DD, YYYY')}
+                    </Text>
+                    <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                      Holders: <span style={{ color: theme.text }}>{formatShortNum(payload.count)}</span>
+                    </Text>
+                  </TooltipWrapper>
+                )
+              }}
+            />
+            <Area
+              type="monotone"
+              dataKey="count"
+              stroke={theme.primary}
+              fill="url(#colorUv)"
+              animationBegin={ANIMATION_DELAY}
+              animationDuration={ANIMATION_DURATION}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </ChartWrapper>
+    </LoadingHandleWrapper>
   )
 }
 
@@ -2006,7 +2048,7 @@ export const LiquidOnCentralizedExchanges = () => {
               </Text>
             </Row>
           ) : (
-            <>
+            <LoadingHandleWrapper isLoading={isLoading} hasData={!!data}>
               <InfoWrapper>
                 <Column gap="4px">
                   <Text color={theme.subText}>Timeframe</Text>
@@ -2236,7 +2278,7 @@ export const LiquidOnCentralizedExchanges = () => {
                   )}
                 </ComposedChart>
               </ResponsiveContainer>
-            </>
+            </LoadingHandleWrapper>
           )}
         </>
       ) : (
