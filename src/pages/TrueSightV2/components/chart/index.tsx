@@ -108,7 +108,7 @@ const InfoWrapper = styled.div`
   user-select: none;
   font-size: 14px;
   line-height: 20px;
-  padding-bottom: 8px;
+  padding-bottom: 16px;
 `
 
 const LegendButtonWrapper = styled.div<{ enabled?: boolean }>`
@@ -384,7 +384,7 @@ export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?
             height={400}
             data={formattedData}
             margin={{
-              top: 70,
+              top: 80,
               left: 20,
               right: 20,
             }}
@@ -660,7 +660,7 @@ export const TradingVolumeChart = () => {
             height={400}
             data={formattedData}
             margin={{
-              top: 70,
+              top: 80,
               left: 20,
               right: 20,
             }}
@@ -1022,7 +1022,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                 height={400}
                 data={formattedData}
                 stackOffset="sign"
-                margin={{ top: 70, left: 20, right: 20 }}
+                margin={{ top: 80, left: 20, right: 20 }}
               >
                 <CartesianGrid
                   vertical={false}
@@ -1381,7 +1381,7 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
             height={400}
             data={formattedData}
             stackOffset="sign"
-            margin={{ top: 70, left: 20, right: 20 }}
+            margin={{ top: 80, left: 20, right: 20 }}
           >
             <CartesianGrid vertical={false} strokeWidth={1} stroke={rgba(theme.border, 0.5)} />
             <Customized component={KyberLogo} />
@@ -1632,7 +1632,7 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
           height={400}
           data={formattedData}
           margin={{
-            top: 70,
+            top: 80,
             right: 0,
             left: 10,
             bottom: 0,
@@ -2062,7 +2062,7 @@ export const LiquidOnCentralizedExchanges = () => {
                   height={500}
                   data={formattedData}
                   stackOffset="sign"
-                  margin={{ left: 10, right: 20, top: 70 }}
+                  margin={{ left: 10, right: 20, top: 80 }}
                 >
                   <CartesianGrid
                     vertical={false}

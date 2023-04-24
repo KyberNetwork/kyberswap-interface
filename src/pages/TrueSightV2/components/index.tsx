@@ -30,7 +30,7 @@ export const StyledSectionWrapper = styled.div<{ show?: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 16px;
-  height: 540px;
+  height: 580px;
 `
 
 export const SectionTitle = styled.div`
@@ -45,6 +45,7 @@ export const SectionTitle = styled.div`
 export const SectionDescription = styled.div<{ show?: boolean }>`
   font-size: 14px;
   line-height: 20px;
+  margin-bottom: 4px;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
