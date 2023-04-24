@@ -6,10 +6,10 @@ import { Flex, Text } from 'rebass'
 
 import { TokenLogoWithChain } from 'components/Logo'
 import RefreshButton from 'components/SwapForm/RefreshButton'
-import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { getRouInfo } from 'pages/CrossChain/helpers'
 import { useCrossChainState } from 'state/crossChain/hooks'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 import { StyledBalanceMaxMini } from '../../components/swapv2/styleds'
 
@@ -28,27 +28,16 @@ export default function TradePrice({ route, refresh, showLogo = true, disabled =
   const price = exchangeRate ? Number(exchangeRate) : undefined
   if (price) formattedPrice = showInverted ? (1 / price).toPrecision(6) : price?.toPrecision(6)
   const [{ currencyIn, currencyOut, chainIdOut }] = useCrossChainState()
-  const { chainId } = useActiveWeb3React()
 
-  // todo refactor
-  const value = currencyIn && currencyOut && chainId && chainIdOut && (
+  const currencyLeft = showInverted ? currencyOut : currencyIn
+  const currencyRight = showInverted ? currencyIn : currencyOut
+
+  const renderSymbolOrLogo = (currency: WrappedTokenInfo) =>
+    showLogo ? <TokenLogoWithChain size={14} currency={currency} /> : currency?.symbol
+
+  const value = currencyLeft && currencyRight && chainIdOut && (
     <Flex alignItems={'center'} sx={{ gap: '4px' }} color={theme.text}>
-      1{' '}
-      {showLogo ? (
-        <TokenLogoWithChain size={14} currency={showInverted ? currencyOut : currencyIn} />
-      ) : showInverted ? (
-        currencyIn.symbol
-      ) : (
-        currencyOut.symbol
-      )}{' '}
-      = {formattedPrice}{' '}
-      {showLogo ? (
-        <TokenLogoWithChain size={14} currency={showInverted ? currencyIn : currencyOut} />
-      ) : !showInverted ? (
-        currencyIn.symbol
-      ) : (
-        currencyOut.symbol
-      )}
+      1 {renderSymbolOrLogo(currencyLeft)} = {formattedPrice} {renderSymbolOrLogo(currencyRight)}
     </Flex>
   )
 

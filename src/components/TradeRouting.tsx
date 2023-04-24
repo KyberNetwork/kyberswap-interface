@@ -1,13 +1,11 @@
 import { Call } from '@0xsquid/sdk'
-import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, WETH } from '@kyberswap/ks-sdk-core'
 import React, { memo, useCallback, useEffect, useRef } from 'react'
 import ScrollContainer from 'react-indiana-drag-scroll'
 import styled, { css } from 'styled-components'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import { TokenLogoWithChain } from 'components/Logo'
-import { ETHER_ADDRESS } from 'constants/index'
-import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useThrottle from 'hooks/useThrottle'
 import { getRouInfo } from 'pages/CrossChain/helpers'
@@ -18,6 +16,7 @@ import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { getEtherscanLink, isAddress } from 'utils'
 import { SwapPool, SwapRouteV2 } from 'utils/aggregationRouting'
 import { uint256ToFraction } from 'utils/numbers'
+import { isTokenNative } from 'utils/tokenInfo'
 
 const getDexInfoByPool = (pool: SwapPool, allDexes?: Dex[]) => {
   if (pool.exchange === '1inch') {
@@ -606,22 +605,21 @@ const RouteRowCrossChain = ({ routes, backgroundColor }: { routes: Call[]; backg
                 el.name.toLowerCase() === dex.dexName.toLowerCase() ||
                 dex.dexName.toLowerCase().startsWith(el.name.toLowerCase()),
             )?.logoURL
-            return [fromToken, toToken].map((token, indexLast) =>
-              token ? (
+            return [fromToken, toToken].map((token: WrappedTokenInfo, indexLast) => {
+              const chainId = token.chainId as ChainId
+              return token ? (
                 <React.Fragment key={`${index}_${indexLast}`}>
                   <StyledHop>
                     <StyledToken
                       href={getEtherscanLink(
-                        token.chainId,
-                        token.address === ETHER_ADDRESS
-                          ? NativeCurrencies[token.chainId].wrapped.address
-                          : token.address,
+                        chainId,
+                        isTokenNative(token, chainId) ? WETH[chainId].address : token.address,
                         'token',
                       )}
                       target="_blank"
                       style={{ gap: '4px' }}
                     >
-                      <TokenLogoWithChain chainId={token.chainId} tokenLogo={token.logoURI ?? ''} size={16} />
+                      <TokenLogoWithChain chainId={chainId} tokenLogo={token.logoURI ?? ''} size={16} />
                       <span>{token?.symbol}</span>
                     </StyledToken>
 
@@ -636,8 +634,8 @@ const RouteRowCrossChain = ({ routes, backgroundColor }: { routes: Call[]; backg
                     </StyledHopChevronWrapper>
                   )}
                 </React.Fragment>
-              ) : null,
-            )
+              ) : null
+            })
           })}
         </StyledHops>
       </ScrollContainer>
@@ -657,7 +655,6 @@ export const RoutingCrossChain = () => {
     amount: string | undefined,
     reverseOrder?: boolean,
   ) => {
-    // todo consistent logo native
     if (currency) {
       return (
         <StyledToken as="div" reverse={reverseOrder} style={{ border: 'none' }}>
