@@ -18,17 +18,11 @@ import HoverDropdown from 'pages/MyEarnings/HoverDropdown'
 import { Wrapper } from 'pages/MyEarnings/SinglePosition'
 import { ActionButton } from 'pages/MyEarnings/SinglePosition/ActionButton'
 import PriceRangeChart from 'pages/MyEarnings/SinglePosition/PriceRangeChart'
+import { Column, Row } from 'pages/MyEarnings/SinglePosition/styleds'
 import { useAppSelector } from 'state/hooks'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 import { formattedNumLong, isAddress } from 'utils'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-
-const GridWrapper = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, auto);
-  gap: 4px 16px;
-  justify-content: space-between;
-`
 
 const TextAPR = styled.span`
   font-weight: 500;
@@ -85,6 +79,8 @@ const PositionView: React.FC<Props> = ({ onFlipView, positionEarning, position }
 
   const feesEarnedToday = positionEarning.historicalEarning[0].fees
   const feesEarnedTodayUSD = feesEarnedToday ? feesEarnedToday.reduce((sum, fee) => sum + Number(fee.amountUSD), 0) : 0
+
+  const myStakedBalance = 0
 
   // TODO: check native token in pool
   const feesEarnedTokens = useMemo(() => {
@@ -152,52 +148,68 @@ const PositionView: React.FC<Props> = ({ onFlipView, positionEarning, position }
           </Flex>
         </Flex>
 
-        <GridWrapper>
-          <Label>My Liquidity Balance</Label>
-          <Label $hasTooltip>My Staked Balance</Label>
+        <Column>
+          <Row>
+            <Label>My Liquidity Balance</Label>
+            <Label $hasTooltip>My Staked Balance</Label>
+          </Row>
 
-          {
-            // TODO: check if there're more than 10 tokens
-            position && (
+          <Row>
+            {/* TODO: check if there're more than 10 tokens */}
+            <HoverDropdown
+              anchor={<span>{liquidityInUsdString}</span>}
+              text={
+                <>
+                  <Flex alignItems="center">
+                    <CurrencyLogo currency={position.pool.token0} size="16px" />
+                    <Text fontSize={12} marginLeft="4px">
+                      {liquidityValue0 && <FormattedCurrencyAmount currencyAmount={liquidityValue0} />}
+                    </Text>
+                  </Flex>
+                  <Flex alignItems="center" marginTop="8px">
+                    <CurrencyLogo currency={position.pool.token1} size="16px" />
+                    <Text fontSize={12} marginLeft="4px">
+                      {liquidityValue1 && <FormattedCurrencyAmount currencyAmount={liquidityValue1} />}
+                    </Text>
+                  </Flex>
+                </>
+              }
+            />
+
+            {myStakedBalance ? (
               <HoverDropdown
-                anchor={<span>{liquidityInUsdString}</span>}
+                anchor={
+                  <Text
+                    sx={{
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    --
+                  </Text>
+                }
+                disabled
                 text={
-                  <>
-                    <Flex alignItems="center">
-                      <CurrencyLogo currency={position.pool.token0} size="16px" />
-                      <Text fontSize={12} marginLeft="4px">
-                        {liquidityValue0 && <FormattedCurrencyAmount currencyAmount={liquidityValue0} />}
-                      </Text>
-                    </Flex>
-                    <Flex alignItems="center" marginTop="8px">
-                      <CurrencyLogo currency={position.pool.token1} size="16px" />
-                      <Text fontSize={12} marginLeft="4px">
-                        {liquidityValue1 && <FormattedCurrencyAmount currencyAmount={liquidityValue1} />}
-                      </Text>
-                    </Flex>
-                  </>
+                  <Flex flexDirection="column" sx={{ gap: '8px' }} fontSize="14px">
+                    hehe
+                  </Flex>
                 }
               />
-            )
-          }
+            ) : (
+              <span>--</span>
+            )}
+          </Row>
+        </Column>
 
-          <HoverDropdown
-            anchor={'$230,23K'}
-            text={
-              <Flex flexDirection="column" sx={{ gap: '8px' }} fontSize="14px">
-                hehe
-              </Flex>
-            }
-          />
-        </GridWrapper>
-
-        <GridWrapper>
-          <Label>My Pool APR</Label>
-          <Label $hasTooltip>My Farm APR</Label>
-
-          <TextAPR>--</TextAPR>
-          <TextAPR>--</TextAPR>
-        </GridWrapper>
+        <Column>
+          <Row>
+            <Label>My Pool APR</Label>
+            <Label $hasTooltip>My Farm APR</Label>
+          </Row>
+          <Row>
+            <TextAPR>--</TextAPR>
+            <TextAPR>--</TextAPR>
+          </Row>
+        </Column>
 
         <Flex
           sx={{
@@ -233,6 +245,7 @@ const PositionView: React.FC<Props> = ({ onFlipView, positionEarning, position }
               >
                 <Trans>Fees Earned</Trans>
               </Text>
+
               <HoverDropdown
                 anchor={formatUSDValue(feesEarnedTodayUSD, true)}
                 disabled={!feesEarnedTokens.length}

@@ -13,6 +13,7 @@ import useTheme from 'hooks/useTheme'
 import HoverDropdown from 'pages/MyEarnings/HoverDropdown'
 import OriginalMyEarningsOverTimePanel from 'pages/MyEarnings/MyEarningsOverTimePanel'
 import { Wrapper } from 'pages/MyEarnings/SinglePosition'
+import { Column, Row } from 'pages/MyEarnings/SinglePosition/styleds'
 import { calculateEarningStatsTick } from 'pages/MyEarnings/utils'
 import { useAppSelector } from 'state/hooks'
 import { EarningStatsTick } from 'types/myEarnings'
@@ -22,13 +23,6 @@ const MyEarningsOverTimePanel = styled(OriginalMyEarningsOverTimePanel)`
   padding: 0;
   border: none;
   background: unset;
-`
-
-const GridWrapper = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, auto);
-  gap: 4px 16px;
-  justify-content: space-between;
 `
 
 const TextAPR = styled.span`
@@ -143,13 +137,17 @@ const EarningView: React.FC<Props> = ({ onFlipView, positionEarning, chainId }) 
           />
         </Flex>
 
-        <GridWrapper>
-          <Label>My Pool APR</Label>
-          <Label $hasTooltip>My Farm APR</Label>
+        <Column>
+          <Row>
+            <Label>My Pool APR</Label>
+            <Label $hasTooltip>My Farm APR</Label>
+          </Row>
 
-          <TextAPR>--</TextAPR>
-          <TextAPR>--</TextAPR>
-        </GridWrapper>
+          <Row>
+            <TextAPR>--</TextAPR>
+            <TextAPR>--</TextAPR>
+          </Row>
+        </Column>
 
         <Flex
           sx={{
