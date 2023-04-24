@@ -13,7 +13,7 @@ import DoubleCurrencyLogo from 'components/DoubleLogo'
 import Loader from 'components/LocalLoader'
 import TradingViewChart from 'components/TradingViewChart'
 import { useActiveWeb3React } from 'hooks'
-import useBasicChartData, { LiveDataTimeframeEnum, useBasicChartDataCrossChain } from 'hooks/useBasicChartData'
+import useBasicChartData, { LiveDataTimeframeEnum } from 'hooks/useBasicChartData'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { Field } from 'state/swap/actions'
@@ -106,7 +106,6 @@ const getTimeFrameText = (timeFrame: LiveDataTimeframeEnum) => {
 }
 
 // todo co ve luc nao cung call api basic chart
-const EMPTY_ARRAY: any = []
 function LiveChart({
   currencies,
   isCrossChain = false,
@@ -194,14 +193,16 @@ function LiveChart({
   const [hoverValue, setHoverValue] = useState<number | null>(null)
   const [timeFrame, setTimeFrame] = useState<LiveDataTimeframeEnum>(LiveDataTimeframeEnum.DAY)
 
-  const dataChartBasicCrossChain = useBasicChartDataCrossChain(isCrossChain ? tokens : EMPTY_ARRAY, timeFrame)
-  const dataChartBasic = useBasicChartData(isCrossChain ? EMPTY_ARRAY : tokens, timeFrame)
+  // const dataChartBasicCrossChain = useBasicChartDataCrossChain(isCrossChain ? tokens : EMPTY_ARRAY, timeFrame)
+  // const dataChartBasic = useBasicChartData(isCrossChain ? EMPTY_ARRAY : tokens, timeFrame)
 
-  const {
-    data: chartData,
-    error: basicChartError,
-    loading: basicChartLoading,
-  } = isCrossChain ? dataChartBasicCrossChain : dataChartBasic
+  // const {
+  //   data: chartData,
+  //   error: basicChartError,
+  //   loading: basicChartLoading,
+  // } = isCrossChain ? dataChartBasicCrossChain : dataChartBasic
+
+  const { data: chartData, error: basicChartError, loading: basicChartLoading } = useBasicChartData(tokens, timeFrame)
 
   const isProchartError = !commonPool
   const isBasicchartError = basicChartError && !basicChartLoading
