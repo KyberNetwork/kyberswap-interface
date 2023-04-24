@@ -8,8 +8,6 @@ import {
   ARGENT_WALLET_DETECTOR_MAINNET_ADDRESS,
 } from 'constants/abis/argent-wallet-detector'
 import RouterSwapAction from 'constants/abis/bridge/RouterSwapAction.json'
-import RouterSwapActionV2 from 'constants/abis/bridge/RouterSwapActionV2.json'
-import swapBTCABI from 'constants/abis/bridge/swapBTCABI.json'
 import swapETHABI from 'constants/abis/bridge/swapETHABI.json'
 import FACTORY_ABI from 'constants/abis/dmm-factory.json'
 import ENS_PUBLIC_RESOLVER_ABI from 'constants/abis/ens-public-resolver.json'
@@ -339,17 +337,9 @@ export function useProAmmTickReader(withSignerIfPossible?: boolean): Contract | 
 }
 
 // bridge
-export function useSwapBTCContract(tokenAddress?: string, withSignerIfPossible?: boolean): Contract | null {
-  return useContract(tokenAddress, swapBTCABI, withSignerIfPossible)
-}
-
 export function useSwapETHContract(tokenAddress?: string, withSignerIfPossible?: boolean): Contract | null {
   return useContract(tokenAddress, swapETHABI, withSignerIfPossible)
 }
-export function useBridgeContract(routerToken?: any, version?: any, withSignerIfPossible?: boolean): Contract | null {
-  return useContract(
-    routerToken ? routerToken : undefined,
-    version ? RouterSwapActionV2 : RouterSwapAction,
-    withSignerIfPossible,
-  )
+export function useBridgeContract(routerToken?: any): Contract | null {
+  return useContract(routerToken ? routerToken : undefined, RouterSwapAction, undefined)
 }

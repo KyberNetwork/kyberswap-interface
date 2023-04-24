@@ -7,7 +7,7 @@ import { mutate } from 'swr'
 import { KS_SETTING_API } from 'constants/env'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useBridgeContract, useSwapBTCContract, useSwapETHContract } from 'hooks/useContract'
+import { useBridgeContract, useSwapETHContract } from 'hooks/useContract'
 import { useBridgeOutputValue, useBridgeState } from 'state/crossChain/hooks'
 import { useAppSelector } from 'state/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
@@ -156,7 +156,7 @@ function useRouterSwap(
   const [{ tokenInfoIn, chainIdOut, currencyIn, currencyOut }] = useBridgeState()
   const outputInfo = useBridgeOutputValue(typedValue ?? '0')
   const { account, chainId } = useActiveWeb3React()
-  const bridgeContract = useBridgeContract(isAddress(chainId, routerToken), chainIdOut && isNaN(chainIdOut) ? 'V2' : '')
+  const bridgeContract = useBridgeContract(isAddress(chainId, routerToken))
 
   const ethBalance = useNativeBalance()
   const anyBalance = useCurrencyBalance(currencyIn)
@@ -271,7 +271,6 @@ function useBridgeSwap(
   const balance = tokenInfoIn && tokenInfoIn?.tokenType !== 'NATIVE' ? tokenBalance : ethBalance
 
   const inputAmount = useMemo(() => tryParseAmount(typedValue, currencyIn), [currencyIn, typedValue])
-  const contractBTC = useSwapBTCContract(isAddress(chainId, inputToken) ? inputToken : undefined)
   const contractETH = useSwapETHContract(isAddress(chainId, inputToken) ? inputToken : undefined)
   const sendTxToKsSetting = useSendTxToKsSettingCallback()
 
@@ -302,18 +301,10 @@ function useBridgeSwap(
               txReceipt = hash && hash.toString().indexOf('0x') === 0 ? { hash } : ''
             }
           } else {
-            if (chainIdOut && isNaN(chainIdOut)) {
-              if (contractBTC) {
-                txReceipt = await contractBTC.Swapout(`0x${inputAmount.quotient.toString(16)}`, toAddress)
-              } else {
-                return Promise.reject('not found contractBTC')
-              }
+            if (contractETH) {
+              txReceipt = await contractETH.Swapout(`0x${inputAmount.quotient.toString(16)}`, toAddress)
             } else {
-              if (contractETH) {
-                txReceipt = await contractETH.Swapout(`0x${inputAmount.quotient.toString(16)}`, toAddress)
-              } else {
-                return Promise.reject('not found contractETH')
-              }
+              return Promise.reject('not found contractETH')
             }
           }
           const txHash = txReceipt?.hash
@@ -367,7 +358,6 @@ function useBridgeSwap(
     inputToken,
     tokenInfoIn?.tokenType,
     contractETH,
-    contractBTC,
     outputInfo.outputAmount,
     outputInfo.fee,
     currencyOut,
