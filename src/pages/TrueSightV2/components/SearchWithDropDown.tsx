@@ -304,8 +304,7 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
 
   const haveSearchResult = search !== '' && searchResult && searchResult.length > 0
   const noSearchResult = search !== '' && searchResult && searchResult.length === 0
-  const loading = isFetching
-  console.log('🚀 ~ file: SearchWithDropDown.tsx:309 ~ SearchWithDropdown ~ loading:', loading)
+  // const loading = isFetching
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
 
   useOnClickOutside(wrapperRef, () => setExpanded(false))

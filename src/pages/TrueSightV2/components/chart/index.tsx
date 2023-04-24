@@ -254,7 +254,6 @@ export const ANIMATION_DURATION = 1000
 
 export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?: boolean; noAnimation?: boolean }) => {
   const theme = useTheme()
-  const { address } = useParams()
   const [timeframe, setTimeframe] = useState(KyberAITimeframe.ONE_MONTH)
   const [showSell, setShowSell] = useState(true)
   const [showBuy, setShowBuy] = useState(true)
@@ -279,7 +278,7 @@ export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?
       }[timeframe as string] || 604800)
     return [from, now, timerange]
   }, [timeframe])
-  const { data } = useTradingVolumeQuery({ tokenAddress: address, params: { from, to } })
+  const { data } = useTradingVolumeQuery({ tokenAddress: testParams.address, params: { from, to } })
 
   const formattedData = useMemo(() => {
     if (!data) return []
@@ -300,9 +299,9 @@ export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?
     if (formattedData.length === 0) return { timeframe: '--', totalTrades: '--', totalBuys: '--', totalSells: '--' }
 
     const tf = `${dayjs(formattedData[0].timestamp * 1000).format(
-      timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
+      timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm, MMM DD' : 'MMM DD',
     )} - ${dayjs(formattedData[formattedData.length - 1].timestamp * 1000).format(
-      timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
+      timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm, MMM DD' : 'MMM DD',
     )}`
 
     return {
@@ -533,7 +532,6 @@ export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?
 
 export const TradingVolumeChart = () => {
   const theme = useTheme()
-  const { address } = useParams()
   const [timeframe, setTimeframe] = useState(KyberAITimeframe.ONE_MONTH)
   const [showSell, setShowSell] = useState(true)
   const [showBuy, setShowBuy] = useState(true)
@@ -558,7 +556,8 @@ export const TradingVolumeChart = () => {
       }[timeframe as string] || 604800)
     return [from, now, timerange]
   }, [timeframe])
-  const { data } = useTradingVolumeQuery({ tokenAddress: address, params: { from, to } })
+  const { data } = useTradingVolumeQuery({ tokenAddress: testParams.address, params: { from, to } })
+  console.log('🚀 ~ file: index.tsx:562 ~ TradingVolumeChart ~ data:', data)
 
   const formattedData = useMemo(() => {
     if (!data) return []
@@ -579,9 +578,9 @@ export const TradingVolumeChart = () => {
     if (formattedData.length === 0) return { timeframe: '--', totalVolume: '--', totalBuys: '--', totalSells: '--' }
 
     const tf = `${dayjs(formattedData[0].timestamp * 1000).format(
-      timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
+      timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm, MMM DD' : 'MMM DD',
     )} - ${dayjs(formattedData[formattedData.length - 1].timestamp * 1000).format(
-      timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
+      timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm, MMM DD' : 'MMM DD',
     )}`
 
     return {
@@ -901,16 +900,17 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
     const min = Math.min(...formattedData.map(_ => _.netflow as number))
     return (Math.abs(0 - min) / (max - min)) * 100
   }, [formattedData])
+  console.log('🚀 ~ file: index.tsx:903 ~ NetflowToWhaleWallets ~ formattedData:', formattedData)
 
   const totalStats: { timeframe: string; totalNetflow: string; totalInflow: string; totalOutflow: string } =
     useMemo(() => {
       if (formattedData.length === 0)
         return { timeframe: '--', totalNetflow: '--', totalInflow: '--', totalOutflow: '--' }
 
-      const tf = `${dayjs(formattedData[0].timestamp * 1000).format(
-        timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
-      )} - ${dayjs(formattedData[formattedData.length - 1].timestamp * 1000).format(
-        timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
+      const tf = `${dayjs(formattedData[0].timestamp).format(
+        timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm, MMM DD' : 'MMM DD',
+      )} - ${dayjs(formattedData[formattedData.length - 1].timestamp).format(
+        timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm, MMM DD' : 'MMM DD',
       )}`
 
       return {
@@ -1296,9 +1296,9 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
       if (formattedData.length === 0)
         return { timeframe: '--', totalNetflow: '--', totalInflow: '--', totalOutflow: '--' }
 
-      const tf = `${dayjs(formattedData[0].timestamp * 1000).format(
+      const tf = `${dayjs(formattedData[0].timestamp).format(
         timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
-      )} - ${dayjs(formattedData[formattedData.length - 1].timestamp * 1000).format(
+      )} - ${dayjs(formattedData[formattedData.length - 1].timestamp).format(
         timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
       )}`
 
@@ -1588,9 +1588,9 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
 
   const totalStats: { timeframe: string; totalTranfers: string; totalVolume: string } = useMemo(() => {
     if (formattedData.length === 0) return { timeframe: '--', totalTranfers: '--', totalVolume: '--' }
-    const tf = `${dayjs(formattedData[0].timestamp * 1000).format(
+    const tf = `${dayjs(formattedData[0].timestamp).format(
       timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
-    )} - ${dayjs(formattedData[formattedData.length - 1].timestamp * 1000).format(
+    )} - ${dayjs(formattedData[formattedData.length - 1].timestamp).format(
       timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
     )}`
     return {

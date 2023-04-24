@@ -16,6 +16,8 @@ import {
 } from '../types'
 import { HOLDER_LIST, TOKEN_LIST } from './sampleData'
 
+console.log('🚀 ~ file: useKyberAIData.tsx:4 ~ KYBERAI_API:', KYBERAI_API)
+
 const kyberAIApi = createApi({
   reducerPath: 'kyberAIApi',
   baseQuery: fetchBaseQuery({
@@ -27,7 +29,7 @@ const kyberAIApi = createApi({
       query: () => ({
         url: '/holders/ethereum/C/BTC',
       }),
-      transformResponse: (res: any) => TOKEN_LIST,
+      transformResponse: () => TOKEN_LIST,
     }),
     //2.
     addToWatchlist: builder.mutation({
@@ -57,14 +59,14 @@ const kyberAIApi = createApi({
     //5.
     numberOfTrades: builder.query<INumberOfTrades[], string>({
       query: (tokenAddress?: string) => ({
-        url: '/trades/ethereum/0xdAC17F958D2ee523a2206206994597C13D831ec7?from=1672531200&to=1673136000',
+        url: `/trades/ethereum/${tokenAddress}?from=1672531200&to=1673136000`,
       }),
       transformResponse: (res: any) => res.data,
     }),
     //6.
     tradingVolume: builder.query<ITradingVolume[], { tokenAddress?: string; params?: { from: number; to: number } }>({
       query: ({ tokenAddress, params }) => ({
-        url: '/volume/ethereum/0xdAC17F958D2ee523a2206206994597C13D831ec7',
+        url: `/volume/ethereum/${tokenAddress}`,
         params,
       }),
       transformResponse: (res: any) => {
@@ -123,7 +125,7 @@ const kyberAIApi = createApi({
       query: () => ({
         url: '/holders/ethereum/0xdac17f958d2ee523a2206206994597c13d831ec7?from=1633344036&to=1675215565',
       }),
-      transformResponse: (res: any) => HOLDER_LIST,
+      transformResponse: () => HOLDER_LIST,
     }),
     //11.
     chartingData: builder.query<OHLCData[], { from: number; to: number; candleSize: string; currency: string }>({
