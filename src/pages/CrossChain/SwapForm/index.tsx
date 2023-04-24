@@ -15,6 +15,7 @@ import SlippageWarningNote from 'components/SlippageWarningNote'
 import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import SwapButtonWithPriceImpact from 'components/SwapForm/SwapActionButton/SwapButtonWithPriceImpact'
+import useCheckStablePairSwap from 'components/SwapForm/hooks/useCheckStablePairSwap'
 import { AdvancedSwapDetailsDropdownCrossChain } from 'components/swapv2/AdvancedSwapDetailsDropdown'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/useChangeNetwork'
@@ -31,7 +32,7 @@ import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { useCrossChainSetting, useDegenModeManager, useIsDarkMode, useUserSlippageTolerance } from 'state/user/hooks'
+import { useCrossChainSetting, useDegenModeManager, useIsDarkMode } from 'state/user/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { ExternalLink } from 'theme'
 import { TRANSACTION_STATE_DEFAULT, TransactionFlowState } from 'types/index'
@@ -53,8 +54,6 @@ export default function SwapForm() {
   const changeNetwork = useChangeNetwork()
   const [isDegenMode] = useDegenModeManager()
 
-  const [slippage] = useUserSlippageTolerance()
-
   const {
     listTokenIn,
     listChainOut,
@@ -69,7 +68,7 @@ export default function SwapForm() {
   } = useDefaultTokenChain()
 
   const {
-    setting: { enableExpressExecution },
+    setting: { enableExpressExecution, slippageTolerance },
   } = useCrossChainSetting()
   const routeParams: GetRoute | undefined = useMemo(() => {
     if (!currencyIn || !currencyOut || !chainIdOut || !account || !Number(inputAmount)) return
@@ -80,11 +79,11 @@ export default function SwapForm() {
       toToken: currencyOut.wrapped.address,
       fromAmount: tryParseAmount(inputAmount, currencyIn)?.quotient.toString() ?? '',
       toAddress: account,
-      slippage: slippage / 100,
+      slippage: slippageTolerance / 100,
       enableExpress: enableExpressExecution,
       // customContractCalls?: ContractCall[]; // todo
     }
-  }, [currencyIn, currencyOut, account, inputAmount, chainId, chainIdOut, slippage, enableExpressExecution])
+  }, [currencyIn, currencyOut, account, inputAmount, chainId, chainIdOut, slippageTolerance, enableExpressExecution])
 
   const {
     route,
@@ -195,6 +194,7 @@ export default function SwapForm() {
     !!inputError || [inputAmount, currencyIn, currencyOut, chainIdOut].some(e => !e) || gettingRoute
 
   const priceImpactResult = checkPriceImpact(priceImpact || -1)
+  const isStablePairSwap = useCheckStablePairSwap(currencyIn, currencyOut)
 
   return (
     <>
@@ -249,7 +249,7 @@ export default function SwapForm() {
 
         <SlippageSetting
           isCrossChain
-          isStablePairSwap={false}
+          isStablePairSwap={isStablePairSwap}
           tooltip={
             <Text>
               <Trans>
@@ -264,7 +264,7 @@ export default function SwapForm() {
         />
 
         <TradeTypeSelection />
-        <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={false} />
+        <SlippageWarningNote rawSlippage={slippageTolerance} isStablePairSwap={isStablePairSwap} />
 
         {!!priceImpact && <PriceImpactNote priceImpact={Number(priceImpact)} isDegenMode={isDegenMode} />}
 
