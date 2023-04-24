@@ -1,6 +1,5 @@
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { commify } from 'ethers/lib/utils'
 import { rgba } from 'polished'
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -26,6 +25,7 @@ import {
 import styled, { css } from 'styled-components'
 
 import Column from 'components/Column'
+import Divider from 'components/Divider'
 import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import Row, { RowBetween } from 'components/Row'
 import {
@@ -37,7 +37,6 @@ import {
 } from 'components/TradingViewChart/charting_library'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { NUMBER_OF_HOLDERS } from 'pages/TrueSightV2/hooks/sampleData'
 import {
   useCexesLiquidationQuery,
   useNetflowToCEXQuery,
@@ -50,8 +49,10 @@ import { testParams } from 'pages/TrueSightV2/pages/SingleToken'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import {
   ChartTab,
+  ILiquidCEX,
   INetflowToCEX,
   INetflowToWhaleWallets,
+  INumberOfHolders,
   INumberOfTransfers,
   ISRLevel,
   ITradingVolume,
@@ -1702,19 +1703,42 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
 
 export const NumberofHolders = () => {
   const theme = useTheme()
-  const { address } = useParams()
-  const { data } = useNumberOfHoldersQuery(address)
-  const [timeframe, setTimeframe] = useState('7D')
+  const [timeframe, setTimeframe] = useState(KyberAITimeframe.ONE_MONTH)
+  const [from, to, timerange] = useMemo(() => {
+    const now = Math.floor(Date.now() / 60000) * 60
+    const timerange =
+      {
+        [KyberAITimeframe.ONE_WEEK]: 86400,
+        [KyberAITimeframe.ONE_MONTH]: 86400,
+        [KyberAITimeframe.THREE_MONTHS]: 86400,
+        [KyberAITimeframe.SIX_MONTHS]: 86400,
+      }[timeframe as string] || 86400
+    const from =
+      now -
+      ({
+        [KyberAITimeframe.ONE_WEEK]: 604800,
+        [KyberAITimeframe.ONE_MONTH]: 2592000,
+        [KyberAITimeframe.THREE_MONTHS]: 7776000,
+        [KyberAITimeframe.SIX_MONTHS]: 15552000,
+      }[timeframe as string] || 604800)
+    return [from, now, timerange]
+  }, [timeframe])
+  const { data } = useNumberOfHoldersQuery({ tokenAddress: testParams.address, from, to })
+
   const filteredData = useMemo(() => {
-    const d = address ? data : NUMBER_OF_HOLDERS
-    switch (timeframe) {
-      case '1D':
-      case '7D':
-        return d && d.length >= 8 ? d?.slice(d.length - 8, d.length - 1) : d
-      default:
-        return d
+    if (!data) return []
+    const dataTemp: INumberOfHolders[] = []
+    const startTimestamp = (Math.floor(from / timerange) + 1) * timerange
+    for (let t = startTimestamp; t < to; t += timerange) {
+      const index = data.findIndex(item => item.timestamp === t)
+      if (index >= 0) {
+        dataTemp.push({ ...data[index], timestamp: t * 1000 })
+      } else {
+        dataTemp.push({ timestamp: t * 1000, count: 0 })
+      }
     }
-  }, [data, timeframe, address])
+    return dataTemp
+  }, [data, timerange, from, to])
 
   return (
     <ChartWrapper>
@@ -1898,54 +1922,73 @@ export const HoldersChartWrapper = () => {
 export const LiquidOnCentralizedExchanges = () => {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
-  const [timeframe, setTimeframe] = useState<string>('7D')
-  const { data, isLoading } = useCexesLiquidationQuery(timeframe)
-  console.log('🚀 ~ file: index.tsx:1247 ~ LiquidOnCentralizedExchanges ~ data:', data)
+  const [timeframe, setTimeframe] = useState<KyberAITimeframe>(KyberAITimeframe.ONE_MONTH)
+  const [from, to, timerange] = useMemo(() => {
+    const now = Math.floor(Date.now() / 60000) * 60
+    const timerange =
+      {
+        [KyberAITimeframe.ONE_DAY]: 3600,
+        [KyberAITimeframe.ONE_WEEK]: 86400,
+        [KyberAITimeframe.ONE_MONTH]: 86400,
+        [KyberAITimeframe.THREE_MONTHS]: 86400,
+      }[timeframe as string] || 86400
+    const from =
+      now -
+      ({
+        [KyberAITimeframe.ONE_DAY]: 86400,
+        [KyberAITimeframe.ONE_WEEK]: 604800,
+        [KyberAITimeframe.ONE_MONTH]: 2592000,
+        [KyberAITimeframe.THREE_MONTHS]: 7776000,
+      }[timeframe as string] || 604800)
+    return [from, now, timerange]
+  }, [timeframe])
+  const { data, isLoading } = useCexesLiquidationQuery({
+    tokenAddress: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+    chartSize: timeframe.toString().toLowerCase(),
+  })
   const isEmpty = !isLoading && !data
   const [showLong, setShowLong] = useState(true)
   const [showShort, setShowShort] = useState(true)
   const [showPrice, setShowPrice] = useState(true)
 
-  const formattedData = useMemo(() => {
-    return []
-    // if (!data) return
-    // const dateData = new Map()
-    // const dateNow = Date.now()
-    // data
-    //   .filter((i: any) => {
-    //     switch (timeframe) {
-    //       case '1D':
-    //         return i.createTime > dateNow - 1000 * 60 * 60 * 24
-    //       case '7D':
-    //         return i.createTime > dateNow - (dateNow % (60000 * 60 * 24)) - 60000 * 60 * 24 * 6
-    //       case '1M':
-    //         return i.createTime > dateNow - 1000 * 60 * 60 * 24 * 30
-    //       default:
-    //         return false
-    //     }
-    //   })
-    //   .forEach((i: any) => {
-    //     const dateTime = i.createTime - (i.createTime % (timeframe === '1D' ? 60000 * 60 : 60000 * 60 * 24))
-    //     const dateValue = dateData.get(dateTime)
-    //     dateData.set(dateTime, {
-    //       buyVolUsd: i.buyVolUsd + dateValue?.buyVolUsd || 0,
-    //       sellVolUsd: -i.sellVolUsd + dateValue?.sellVolUsd || 0,
-    //       timestamp: dateTime,
-    //       price: dateValue?.price ? (dateValue.price + i.price) / 2 : i.price,
-    //       list: i.list.map((ex: any) => {
-    //         return {
-    //           exchangeName: ex.exchangeName,
-    //           buyVolUsd:
-    //             ex.buyVolUsd + dateValue?.list?.find((e2: any) => e2.exchangeName === ex.exchangeName)?.buyVolUsd || 0,
-    //           sellVolUsd:
-    //             ex.sellVolUsd + dateValue?.list?.find((e2: any) => e2.exchangeName === ex.exchangeName)?.sellVolUsd ||
-    //             0,
-    //         }
-    //       }),
-    //     })
-    //   })
-    // return Array.from(dateData.values())
-  }, [])
+  const formattedData: ILiquidCEX[] = useMemo(() => {
+    if (!data) return []
+    const dataTemp: (ILiquidCEX & { totalVol: number })[] = []
+    const startTimestamp = (Math.floor(from / timerange) + 1) * timerange
+    for (let t = startTimestamp; t < to; t += timerange) {
+      const index = data.chart.findIndex((item: any) => item.timestamp === t)
+      if (index >= 0) {
+        //   dataTemp.push({ buyVol: dataWithSameTimestamp.reduce((a,b)=>a ), timestamp: t * 1000 })
+        // } else {
+        //   dataTemp.push({ data: [], timestamp: t * 1000 })
+        // }
+        dataTemp.push({
+          ...data.chart[index],
+          timestamp: t * 1000,
+          totalVol: data.chart[index].buyVolUsd + data.chart[index].sellVolUsd,
+          sellVolUsd: -data.chart[index].sellVolUsd,
+        })
+      } else {
+        dataTemp.push({ timestamp: t * 1000, buyVolUsd: 0, exchanges: [], price: 0, sellVolUsd: 0, totalVol: 0 })
+      }
+    }
+    return dataTemp
+  }, [data, from, to, timerange])
+
+  const totalStats: { timeframe: string; totalVolumes: string; totalBuys: string; totalSells: string } = useMemo(() => {
+    if (formattedData.length === 0) return { timeframe: '--', totalVolumes: '--', totalBuys: '--', totalSells: '--' }
+
+    const tf = `${dayjs(from * 1000).format(
+      timeframe === KyberAITimeframe.ONE_DAY ? 'HH:00 MMM DD' : 'MMM DD',
+    )} - ${dayjs(to * 1000).format(timeframe === KyberAITimeframe.ONE_DAY ? 'HH:00 MMM DD' : 'MMM DD')}`
+
+    return {
+      timeframe: tf,
+      totalVolumes: formatLocaleStringNum(formattedData.reduce((a, b) => a + b.buyVolUsd + b.sellVolUsd, 0)),
+      totalBuys: formatLocaleStringNum(formattedData.reduce((a, b) => a + b.buyVolUsd, 0)),
+      totalSells: formatLocaleStringNum(-formattedData.reduce((a, b) => a + b.sellVolUsd, 0)),
+    }
+  }, [formattedData, timeframe, from, to])
 
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   return (
@@ -1960,17 +2003,37 @@ export const LiquidOnCentralizedExchanges = () => {
             </Row>
           ) : (
             <>
+              <InfoWrapper>
+                <Column gap="4px">
+                  <Text color={theme.subText}>Timeframe</Text>
+                  <Text color={theme.text} fontWeight={500}>
+                    {totalStats.timeframe}
+                  </Text>
+                </Column>
+                <Column gap="4px">
+                  <Text color={theme.subText}>Total Longs</Text>
+                  <Text color={theme.text} fontWeight={500}>
+                    ${totalStats.totalBuys}
+                  </Text>
+                </Column>
+                <Column gap="4px">
+                  <Text color={theme.subText}>Total Shorts</Text>
+                  <Text color={theme.text} fontWeight={500}>
+                    ${totalStats.totalSells}
+                  </Text>
+                </Column>
+              </InfoWrapper>
               <LegendWrapper>
                 {above768 && (
                   <>
                     <LegendButton
-                      text="Long"
+                      text="Longs"
                       iconStyle={{ backgroundColor: rgba(theme.primary, 0.6) }}
                       enabled={showLong}
                       onClick={() => setShowLong(prev => !prev)}
                     />
                     <LegendButton
-                      text="Short"
+                      text="Shorts"
                       iconStyle={{ backgroundColor: rgba(theme.red, 0.6) }}
                       enabled={showShort}
                       onClick={() => setShowShort(prev => !prev)}
@@ -1981,7 +2044,7 @@ export const LiquidOnCentralizedExchanges = () => {
                         height: '4px',
                         width: '16px',
                         borderRadius: '8px',
-                        backgroundColor: rgba(theme.blue, 0.8),
+                        backgroundColor: rgba(theme.text, 0.8),
                       }}
                       enabled={showPrice}
                       onClick={() => setShowPrice(prev => !prev)}
@@ -1991,7 +2054,12 @@ export const LiquidOnCentralizedExchanges = () => {
                 <TimeFrameLegend
                   selected={timeframe}
                   onSelect={setTimeframe}
-                  timeframes={[KyberAITimeframe.ONE_DAY, KyberAITimeframe.ONE_WEEK, KyberAITimeframe.ONE_MONTH]}
+                  timeframes={[
+                    KyberAITimeframe.ONE_DAY,
+                    KyberAITimeframe.ONE_WEEK,
+                    KyberAITimeframe.ONE_MONTH,
+                    KyberAITimeframe.THREE_MONTHS,
+                  ]}
                 />
               </LegendWrapper>
               <ResponsiveContainer width="100%" height="100%">
@@ -2000,7 +2068,7 @@ export const LiquidOnCentralizedExchanges = () => {
                   height={500}
                   data={formattedData}
                   stackOffset="sign"
-                  margin={{ left: 20, right: 20, top: 50 }}
+                  margin={{ left: 10, right: 20, top: 70 }}
                 >
                   <CartesianGrid
                     vertical={false}
@@ -2015,7 +2083,9 @@ export const LiquidOnCentralizedExchanges = () => {
                     tickLine={false}
                     axisLine={false}
                     tick={{ fill: theme.subText, fontWeight: 400 }}
-                    tickFormatter={value => dayjs(value).format(timeframe === '1D' ? 'HH:mm a,MMM DD ' : 'MMM DD')}
+                    tickFormatter={value =>
+                      dayjs(value).format(timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm A, MMM DD' : 'MMM DD')
+                    }
                   />
                   <YAxis
                     yAxisId="left"
@@ -2036,7 +2106,7 @@ export const LiquidOnCentralizedExchanges = () => {
                     width={40}
                     orientation="right"
                     tickFormatter={value => formatShortNum(value)}
-                    domain={[(dataMin: any) => dataMin * 0.99, (dataMax: any) => dataMax * 1.01]}
+                    domain={[(dataMin: any) => dataMin * 0.98, (dataMax: any) => dataMax * 1.01]}
                   />
                   <Tooltip
                     cursor={{ fill: 'transparent' }}
@@ -2052,49 +2122,59 @@ export const LiquidOnCentralizedExchanges = () => {
                             {payload.timestamp && dayjs(payload.timestamp).format('MMM DD, YYYY')}
                           </Text>
                           <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                            Price: <span style={{ color: theme.text }}>${commify(+payload.price.toFixed(2))}</span>
+                            BTC Price:{' '}
+                            <span style={{ color: theme.text, marginLeft: '8px' }}>
+                              ${formatLocaleStringNum(payload.price)}
+                            </span>
                           </Text>
-                          <Row gap="12px">
-                            <Column gap="4px">
+                          <Row gap="24px">
+                            <Column gap="8px">
                               <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                                Site
+                                CEX
                               </Text>
-                              {payload.list.map((i: any) => (
-                                <Text key={i.exchangeName} fontSize="12px" lineHeight="16px" color={theme.text}>
-                                  {i.exchangeName}
+                              {payload.exchanges.map((i: any) => (
+                                <Text key={i.exchangeName} fontSize="12px" lineHeight="16px" color={theme.subText}>
+                                  {i.exchangeName}:
                                 </Text>
                               ))}
                             </Column>
-                            <Column gap="4px" style={{ alignItems: 'flex-end' }}>
+                            <Column gap="8px">
                               <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                                Long
+                                Longs
                               </Text>
-                              {payload.list.map((i: any) => (
+                              {payload.exchanges.map((i: any) => (
                                 <Text
                                   key={i.exchangeName + 'long'}
                                   fontSize="12px"
                                   lineHeight="16px"
                                   color={theme.primary}
                                 >
-                                  {formatShortNum(i.buyVolUsd)}
+                                  ${formatShortNum(i.buyVolUsd)}
                                 </Text>
                               ))}
                             </Column>
-                            <Column gap="4px" style={{ alignItems: 'flex-end' }}>
+                            <Column gap="8px">
                               <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                                Short
+                                Shorts
                               </Text>
-                              {payload.list.map((i: any) => (
-                                <Text
-                                  key={i.exchangeName + 'short'}
-                                  fontSize="12px"
-                                  lineHeight="16px"
-                                  color={theme.red}
-                                >
-                                  {formatShortNum(i.sellVolUsd)}
+                              {payload.exchanges.map((i: any) => (
+                                <Text key={i.exchangeName + 'long'} fontSize="12px" lineHeight="16px" color={theme.red}>
+                                  ${formatShortNum(i.sellVolUsd)}
                                 </Text>
                               ))}
                             </Column>
+                          </Row>
+                          <Divider />
+                          <Row gap="24px" justify="space-between">
+                            <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                              Total:
+                            </Text>
+                            <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
+                              ${formatShortNum(payload.buyVolUsd)}
+                            </Text>
+                            <Text fontSize="12px" lineHeight="16px" color={theme.red}>
+                              ${formatShortNum(-payload.sellVolUsd)}
+                            </Text>
                           </Row>
                         </TooltipWrapper>
                       )
@@ -2108,6 +2188,7 @@ export const LiquidOnCentralizedExchanges = () => {
                       animationBegin={ANIMATION_DELAY}
                       animationDuration={ANIMATION_DURATION}
                       yAxisId="left"
+                      radius={[5, 5, 0, 0]}
                     />
                   )}
                   {showShort && (
@@ -2118,6 +2199,7 @@ export const LiquidOnCentralizedExchanges = () => {
                       animationBegin={ANIMATION_DELAY}
                       animationDuration={ANIMATION_DURATION}
                       yAxisId="left"
+                      radius={[5, 5, 0, 0]}
                     />
                   )}
                   {showPrice && (
@@ -2125,9 +2207,27 @@ export const LiquidOnCentralizedExchanges = () => {
                       yAxisId="right"
                       type="linear"
                       dataKey="price"
-                      stroke={theme.blue}
-                      strokeWidth={3}
+                      stroke={theme.text}
+                      strokeWidth={2}
                       dot={false}
+                      {...{
+                        label: ({ x, y, value }: { x: number; y: number; value: number }) => {
+                          if (!value) return null
+                          return (
+                            <text
+                              x={x}
+                              y={y}
+                              dy={-8}
+                              fontSize={12}
+                              fontWeight={500}
+                              fill={theme.text}
+                              textAnchor="middle"
+                            >
+                              ${formatShortNum(value)}
+                            </text>
+                          )
+                        },
+                      }}
                     />
                   )}
                 </ComposedChart>
