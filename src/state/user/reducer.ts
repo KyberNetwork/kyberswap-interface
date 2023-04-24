@@ -18,9 +18,12 @@ import {
   addSerializedPair,
   addSerializedToken,
   changeViewMode,
+  permitError,
+  permitUpdate,
   pinSlippageControl,
   removeSerializedPair,
   removeSerializedToken,
+  revokePermit,
   toggleFavoriteToken,
   toggleHolidayMode,
   toggleLiveChart,
@@ -99,6 +102,18 @@ interface UserState {
   acceptedTermVersion: number | null
   viewMode: VIEW_MODE
   holidayMode: boolean
+  permitData: {
+    [account: string]: {
+      [chainId: number]: {
+        [address: string]: {
+          rawSignature?: string
+          deadline?: number
+          value?: string
+          errorCount?: number
+        } | null
+      }
+    }
+  }
 
   isSlippageControlPinned: boolean
 }
@@ -154,6 +169,7 @@ const initialState: UserState = {
   acceptedTermVersion: null,
   viewMode: VIEW_MODE.GRID,
   holidayMode: true,
+  permitData: {},
   isSlippageControlPinned: true,
 }
 
@@ -302,6 +318,38 @@ export default createReducer(initialState, builder =>
     .addCase(toggleHolidayMode, state => {
       const oldMode = state.holidayMode
       state.holidayMode = !oldMode
+    })
+    .addCase(permitUpdate, (state, { payload: { chainId, address, rawSignature, deadline, value, account } }) => {
+      if (!state.permitData) state.permitData = {}
+      if (!state.permitData[account]) state.permitData[account] = {}
+      if (!state.permitData[account][chainId]) state.permitData[account][chainId] = {}
+
+      state.permitData[account][chainId][address] = {
+        rawSignature,
+        deadline,
+        value,
+        errorCount: state.permitData[account][chainId][address]?.errorCount || 0,
+      }
+    })
+    .addCase(revokePermit, (state, { payload: { chainId, address, account } }) => {
+      if (
+        !state.permitData[account] ||
+        !state.permitData[account][chainId] ||
+        !state.permitData[account][chainId][address]
+      )
+        return
+
+      state.permitData[account][chainId][address] = null
+    })
+    .addCase(permitError, (state, { payload: { chainId, address, account } }) => {
+      if (!state.permitData?.[account]?.[chainId]?.[address]) return
+      const { errorCount } = state.permitData[account][chainId][address] || {}
+      state.permitData[account][chainId][address] = {
+        rawSignature: undefined,
+        deadline: undefined,
+        value: undefined,
+        errorCount: (errorCount || 0) + 1,
+      }
     })
     .addCase(pinSlippageControl, (state, { payload }) => {
       state.isSlippageControlPinned = payload

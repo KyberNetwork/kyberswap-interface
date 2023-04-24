@@ -23,10 +23,11 @@ type Args = {
   routeSummary: RouteSummary | undefined
   slippage: number
   transactionTimeout: number
+  permit?: string
 }
 
 const useBuildRoute = (args: Args) => {
-  const { recipient, routeSummary, slippage, transactionTimeout } = args
+  const { recipient, routeSummary, slippage, transactionTimeout, permit } = args
   const { chainId, account } = useActiveWeb3React()
   const abortControllerRef = useRef(new AbortController())
   const { aggregatorDomain, isEnableAuthenAggregator } = useKyberswapGlobalConfig()
@@ -53,6 +54,7 @@ const useBuildRoute = (args: Args) => {
       recipient: recipient || account,
       source: 'kyberswap',
       skipSimulateTx: false,
+      permit,
     }
 
     try {
@@ -91,6 +93,7 @@ const useBuildRoute = (args: Args) => {
     transactionTimeout,
     buildRoute,
     isEnableAuthenAggregator,
+    permit,
   ])
 
   return fetcher

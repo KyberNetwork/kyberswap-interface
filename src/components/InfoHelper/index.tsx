@@ -59,7 +59,15 @@ export default function InfoHelper({
   const close = useCallback(() => setShow(false), [setShow])
 
   return (
-    <InfoHelperWrapper style={style} onClick={e => e.stopPropagation()}>
+    <InfoHelperWrapper
+      onClick={e => {
+        e.stopPropagation()
+        open()
+      }}
+      style={style}
+      onMouseEnter={open}
+      onMouseLeave={close}
+    >
       <Tooltip
         text={text}
         show={show}
@@ -68,8 +76,8 @@ export default function InfoHelper({
         size={fontSize || size}
         style={{ zIndex: zIndexTooltip }}
       >
-        <InfoWrapper onClick={open} onMouseEnter={open} onMouseLeave={close} isActive={isActive}>
-          <Info size={size || 12} color={color} />
+        <InfoWrapper isActive={isActive}>
+          <Info size={size || 12} color={color || 'currentcolor'} />
         </InfoWrapper>
       </Tooltip>
     </InfoHelperWrapper>

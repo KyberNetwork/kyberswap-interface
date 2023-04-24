@@ -1,21 +1,26 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useEffect, useState } from 'react'
-import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import { ButtonConfirmed, ButtonLight, ButtonPrimary } from 'components/Button'
 import Column from 'components/Column/index'
+import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import ProgressSteps from 'components/ProgressSteps'
-import { AutoRow, RowBetween } from 'components/Row'
+import { AutoRow, RowBetween, RowFit } from 'components/Row'
 import SwapOnlyButton from 'components/SwapForm/SwapActionButton/SwapOnlyButton'
 import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import { SwapCallbackError } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { PermitState, usePermit } from 'hooks/usePermit'
+import useTheme from 'hooks/useTheme'
 import { WrapType } from 'hooks/useWrapCallback'
-import { useWalletModalToggle } from 'state/application/hooks'
+import ApprovalModal from 'pages/SwapV3/ApprovalModal'
+import { ApplicationModal } from 'state/application/actions'
+import { useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { DetailedRouteSummary } from 'types/route'
 
 import { Props as SwapOnlyButtonProps } from './SwapOnlyButton'
@@ -76,8 +81,9 @@ const SwapActionButton: React.FC<Props> = ({
   onWrap,
   buildRoute,
 }) => {
-  const { account } = useActiveWeb3React()
-
+  const theme = useTheme()
+  const { account, walletKey } = useActiveWeb3React()
+  const { mixpanelHandler } = useMixpanel()
   const [errorWhileSwap, setErrorWhileSwap] = useState('')
   const noRouteFound = routeSummary && !routeSummary.route
 
@@ -91,10 +97,15 @@ const SwapActionButton: React.FC<Props> = ({
   )
 
   // check whether the user has approved the router on the input token
-  const [approval, approveCallback] = useApproveCallback(parsedAmountFromTypedValue, routeSummary?.routerAddress)
+  const [approval, approveCallback, currentAllowance] = useApproveCallback(
+    parsedAmountFromTypedValue,
+    routeSummary?.routerAddress,
+  )
 
   // check if user has gone through approval process, used to show two step buttons, reset on token change
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false)
+
+  const { permitState, permitCallback } = usePermit(parsedAmountFromTypedValue, routeSummary?.routerAddress)
 
   // mark when a user has submitted an approval, reset onTokenSelection for input field
   useEffect(() => {
@@ -119,8 +130,66 @@ const SwapActionButton: React.FC<Props> = ({
     !swapInputError &&
     (approval === ApprovalState.NOT_APPROVED ||
       approval === ApprovalState.PENDING ||
-      (approvalSubmitted && approval === ApprovalState.APPROVED))
+      (approvalSubmitted && approval === ApprovalState.APPROVED)) &&
+    permitState !== PermitState.SIGNED
 
+  const toggleApprovalModal = useToggleModal(ApplicationModal.SWAP_APPROVAL)
+
+  const handleApproveClick = () => {
+    if (walletKey && ['METAMASK', 'TRUST_WALLET'].includes(walletKey?.toString())) {
+      approveCallback()
+    } else {
+      toggleApprovalModal()
+    }
+  }
+
+  const approveTooltipText = () => {
+    if (currentAllowance && +currentAllowance?.toExact() > 0) {
+      if (walletKey && walletKey?.toString() === 'METAMASK') {
+        return (
+          <Trans>
+            Approve <b>{currencyIn?.symbol}</b> requires to be more than{' '}
+            <b>{`${currentAllowance.toExact()} ${currencyIn?.symbol}`}</b>, find out more{' '}
+            <a
+              href="https://support.metamask.io/hc/en-us/articles/6055177143579-How-to-customize-token-approvals-with-a-spending-cap"
+              target="_blank"
+              rel="noreferrer"
+            >
+              here
+            </a>
+          </Trans>
+        )
+      }
+      if (walletKey && walletKey?.toString() === 'TRUST_WALLET') {
+        return (
+          <Trans>
+            Approve <b>{currencyIn?.symbol}</b> requires to be more than{' '}
+            <b>{`${currentAllowance.toExact()} ${currencyIn?.symbol}`}</b>, find out more{' '}
+            <a
+              href="https://community.trustwallet.com/t/what-is-token-approval/242764"
+              target="_blank"
+              rel="noreferrer"
+            >
+              here
+            </a>
+          </Trans>
+        )
+      }
+    }
+
+    return (
+      <Trans>
+        You need to first allow KyberSwap&apos;s smart contract to use your {currencyIn?.symbol}.{' '}
+        <a
+          href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/user-guides/instantly-swap-at-the-best-rates#step-4-approve-contract-to-swap-tokens"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Read more ↗
+        </a>
+      </Trans>
+    )
+  }
   const renderButton = () => {
     if (!account) {
       return (
@@ -165,50 +234,82 @@ const SwapActionButton: React.FC<Props> = ({
       balanceIn,
       balanceOut,
       parsedAmount: parsedAmountFromTypedValue,
+      isPermitSwap: permitState === PermitState.SIGNED,
 
       setProcessingSwap,
       setErrorWhileSwap,
       buildRoute,
 
-      isApproved: approval === ApprovalState.APPROVED,
+      isApproved: approval === ApprovalState.APPROVED || permitState === PermitState.SIGNED,
     }
 
     if (showApproveFlow) {
       return (
-        <Flex
-          sx={{
-            flexDirection: 'column',
-            gap: '0.75rem',
-          }}
-        >
-          <RowBetween>
-            <ButtonConfirmed
-              onClick={approveCallback}
-              disabled={approval !== ApprovalState.NOT_APPROVED || approvalSubmitted}
-              width="48%"
-              altDisabledStyle={approval === ApprovalState.PENDING} // show solid button while waiting
-              confirmed={approval === ApprovalState.APPROVED}
-              style={{
-                border: 'none',
-              }}
-            >
-              {approval === ApprovalState.PENDING ? (
-                <AutoRow gap="6px" justify="center">
-                  <Trans>Approving</Trans> <Loader stroke="white" />
-                </AutoRow>
-              ) : approvalSubmitted && approval === ApprovalState.APPROVED ? (
-                <Trans>Approved</Trans>
-              ) : (
-                <Trans>Approve ${currencyIn?.symbol}</Trans>
-              )}
-            </ButtonConfirmed>
+        <>
+          <RowBetween gap="12px">
+            {permitState === PermitState.NOT_APPLICABLE ? (
+              <ButtonConfirmed
+                onClick={handleApproveClick}
+                disabled={approval !== ApprovalState.NOT_APPROVED || approvalSubmitted}
+                altDisabledStyle={approval === ApprovalState.PENDING} // show solid button while waiting
+                confirmed={approval === ApprovalState.APPROVED}
+                style={{
+                  border: 'none',
+                  flex: 1,
+                }}
+              >
+                {approval === ApprovalState.PENDING ? (
+                  <AutoRow gap="6px" justify="center">
+                    <Trans>Approving</Trans> <Loader stroke="white" />
+                  </AutoRow>
+                ) : approvalSubmitted && approval === ApprovalState.APPROVED ? (
+                  <Trans>Approved</Trans>
+                ) : (
+                  <RowFit gap="4px">
+                    <InfoHelper color={theme.textReverse} placement="top" text={approveTooltipText()} />
+                    <Trans>Approve {currencyIn?.symbol}</Trans>
+                  </RowFit>
+                )}
+              </ButtonConfirmed>
+            ) : (
+              <ButtonConfirmed
+                onClick={() => {
+                  mixpanelHandler(MIXPANEL_TYPE.PERMIT_CLICK)
+                  permitCallback()
+                }}
+                style={{
+                  flex: 1,
+                }}
+              >
+                <RowFit gap="4px">
+                  <InfoHelper
+                    color={theme.textReverse}
+                    placement="top"
+                    text={
+                      <Trans>
+                        You need to first give a temporary 24H approval to KyberSwaps smart contract to use your{' '}
+                        {currencyIn?.symbol}. This doesnt require a gas fees.{' '}
+                        <a
+                          href="https://docs.kyberswap.com/reference/permitable-tokens"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Read more ↗
+                        </a>
+                      </Trans>
+                    }
+                  />
+                  <Trans>Permit {currencyIn?.symbol}</Trans>
+                </RowFit>
+              </ButtonConfirmed>
+            )}
 
             <SwapOnlyButton minimal {...swapOnlyButtonProps} />
           </RowBetween>
           <Column>
             <ProgressSteps steps={[approval === ApprovalState.APPROVED]} />
           </Column>
-        </Flex>
+        </>
       )
     }
 
@@ -225,6 +326,7 @@ const SwapActionButton: React.FC<Props> = ({
       {isDegenMode && errorWhileSwap ? (
         <SwapCallbackError style={{ margin: 0, zIndex: 'unset' }} error={errorWhileSwap} />
       ) : null}
+      <ApprovalModal typedValue={typedValue} currencyInput={currencyIn} onApprove={approveCallback} />
     </>
   )
 }

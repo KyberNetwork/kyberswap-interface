@@ -95,7 +95,6 @@ export const ButtonLight = styled(Base)<{ color?: string }>`
   color: ${({ color, theme }) => color || theme.primary};
   font-size: 14px;
   font-weight: 500;
-
   &:hover {
     background-color: ${({ theme, disabled, color }) => !disabled && darken(0.03, `${color || theme.primary}4d`)};
   }

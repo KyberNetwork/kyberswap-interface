@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -7,6 +8,7 @@ import FarmIssueAnnouncement from 'components/FarmIssueAnnouncement'
 import { APP_PATHS, FARM_TAB } from 'constants/index'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
+import useElasticCompensationData from 'hooks/useElasticCompensationData'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { useFailedNFTs, useFilteredFarms } from 'state/farms/elastic/hooks'
@@ -14,6 +16,7 @@ import { FarmingPool } from 'state/farms/elastic/types'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { StyledInternalLink } from 'theme'
 
+import { ElasticCompensation } from './ElasticCompensation'
 import ElasticFarmGroup from './ElasticFarmGroup'
 import { DepositModal, StakeUnstakeModal } from './ElasticFarmModals'
 import HarvestModal from './ElasticFarmModals/HarvestModal'
@@ -21,9 +24,17 @@ import WithdrawModal from './ElasticFarmModals/WithdrawModal'
 
 type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest' | 'forcedWithdraw'
 
+const farmIds: { [key: number]: string } = {
+  [ChainId.MAINNET]: '0xb85ebe2e4ea27526f817ff33fb55fb240057c03f',
+  [ChainId.AVAXMAINNET]: '0xbdec4a045446f583dc564c0a227ffd475b329bf0',
+  [ChainId.MATIC]: '0xbdec4a045446f583dc564c0a227ffd475b329bf0',
+  [ChainId.OPTIMISM]: '0xb85ebe2e4ea27526f817ff33fb55fb240057c03f',
+  [ChainId.ARBITRUM]: '0xbdec4a045446f583dc564c0a227ffd475b329bf0',
+}
+
 function ElasticFarms({ onShowStepGuide }: { onShowStepGuide: () => void }) {
   const theme = useTheme()
-  const { networkInfo } = useActiveWeb3React()
+  const { networkInfo, chainId } = useActiveWeb3React()
 
   const [searchParams] = useSearchParams()
 
@@ -76,6 +87,14 @@ function ElasticFarms({ onShowStepGuide }: { onShowStepGuide: () => void }) {
 
     return null
   }
+
+  const { data: userCompensationData, loading: loadingCompensationData, claimInfo } = useElasticCompensationData()
+
+  const userDepositedInfo = farmIds[chainId] && userFarmInfo?.[farmIds[chainId]]?.depositedPositions
+  const canClaimReward = !!userCompensationData?.length && claimInfo
+  const canWithdraw = !!userDepositedInfo?.length
+  const isActiveTab = !type || type === FARM_TAB.ACTIVE
+  const showCompensation = isActiveTab && !loadingCompensationData && (canWithdraw || canClaimReward)
 
   return (
     <>
@@ -133,7 +152,18 @@ function ElasticFarms({ onShowStepGuide }: { onShowStepGuide: () => void }) {
         </Text>
       )}
 
-      {!!filteredFarms.length && (
+      {showCompensation ? (
+        <ElasticCompensation
+          onWithdraw={() => {
+            setSeletedModal('forcedWithdraw')
+            setSeletedFarm(farmIds[chainId])
+          }}
+          data={userCompensationData}
+          numberOfPosition={userDepositedInfo?.length || 0}
+          tokenPrices={tokenPrices}
+          claimInfo={claimInfo}
+        />
+      ) : (
         <Flex
           sx={{
             flexDirection: 'column',
