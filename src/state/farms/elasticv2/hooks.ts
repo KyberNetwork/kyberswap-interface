@@ -118,6 +118,16 @@ export const useFilteredFarmsV2 = () => {
       const apr_a = a.ranges.reduce((m, cur) => (m > (cur.apr || 0) ? m : cur.apr || 0), 0)
       const apr_b = b.ranges.reduce((m, cur) => (m > (cur.apr || 0) ? m : cur.apr || 0), 0)
 
+      const userDepositedUsdInA =
+        userInfo?.filter(item => item.fId === a.fId).reduce((total, item) => item.stakedUsdValue + total, 0) || 0
+      const userDepositedUsdInB =
+        userInfo?.filter(item => item.fId === b.fId).reduce((total, item) => item.stakedUsdValue + total, 0) || 0
+
+      const userRewardsInA =
+        userInfo?.filter(item => item.fId === a.fId).reduce((total, item) => item.unclaimedRewardsUsd + total, 0) || 0
+      const userRewardsInB =
+        userInfo?.filter(item => item.fId === b.fId).reduce((total, item) => item.unclaimedRewardsUsd + total, 0) || 0
+
       switch (sortField) {
         case SORT_FIELD.STAKED_TVL:
           return sortDirection === SORT_DIRECTION.DESC ? b.tvl - a.tvl : a.tvl - b.tvl
@@ -126,9 +136,13 @@ export const useFilteredFarmsV2 = () => {
         case SORT_FIELD.APR:
           return sortDirection === SORT_DIRECTION.DESC ? apr_b - apr_a : apr_a - apr_b
         case SORT_FIELD.MY_DEPOSIT:
-          return -1
+          return sortDirection === SORT_DIRECTION.DESC
+            ? userDepositedUsdInB - userDepositedUsdInA
+            : userDepositedUsdInA - userDepositedUsdInB
         case SORT_FIELD.MY_REWARD:
-          return -1
+          return sortDirection === SORT_DIRECTION.DESC
+            ? userRewardsInB - userRewardsInA
+            : userRewardsInA - userRewardsInB
         default:
           return sortDirection === SORT_DIRECTION.DESC ? apr_b - apr_a : apr_a - apr_b
       }
