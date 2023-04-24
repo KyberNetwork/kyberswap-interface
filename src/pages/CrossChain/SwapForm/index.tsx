@@ -141,12 +141,9 @@ export default function SwapForm() {
         signer: library.getSigner(),
         route,
       })
-      const txReceipt = await tx.wait()
-      setInputAmount('')
-      setSwapState(state => ({ ...state, attemptingTxn: false, txHash: txReceipt.transactionHash }))
       addTransaction({
         type: TRANSACTION_TYPE.CROSS_CHAIN_SWAP,
-        hash: txReceipt.transactionHash,
+        hash: tx.hash,
         extraInfo: {
           tokenSymbolIn: currencyIn?.symbol ?? '',
           tokenSymbolOut: currencyOut?.symbol ?? '',
@@ -161,6 +158,8 @@ export default function SwapForm() {
           rate: exchangeRate,
         },
       })
+      setInputAmount('')
+      setSwapState(state => ({ ...state, attemptingTxn: false, txHash: tx.hash }))
     } catch (error) {
       console.error(error)
       setSwapState(state => ({ ...state, attemptingTxn: false, errorMessage: error?.message || error }))

@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { DropdownArrowIcon } from 'components/ArrowRotate'
 import { MultichainTransfer } from 'hooks/bridge/useGetBridgeTransfers'
 import useTheme from 'hooks/useTheme'
-import { AXELAR_SCAN_URL } from 'pages/CrossChain'
+import { getAxelarScanUrl } from 'pages/CrossChain'
 import { ExternalLinkIcon } from 'theme'
 
 const IconWrap = styled.div`
@@ -34,7 +34,7 @@ export default function ActionButtons({
   return (
     <Flex>
       <IconWrap>
-        <ExternalLinkIcon href={`${AXELAR_SCAN_URL}${transfer.srcTxHash}`} color={theme.subText} />
+        <ExternalLinkIcon href={getAxelarScanUrl(transfer.srcTxHash)} color={theme.subText} />
       </IconWrap>
       <IconWrap onClick={() => setExpand(!expand)}>
         <DropdownArrowIcon rotate={!!expand} color={theme.subText} />

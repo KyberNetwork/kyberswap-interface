@@ -16,7 +16,9 @@ import { DisclaimerCrossChain } from '../Bridge/Disclaimer'
 import SwapForm from './SwapForm'
 
 const isTest = window.location.href.includes('test') // todo
-export const AXELAR_SCAN_URL = isTest ? 'https://testnet.axelarscan.io/gmp/' : 'https://axelarscan.io/gmp/'
+const AXELAR_SCAN_URL = isTest ? 'https://testnet.axelarscan.io/gmp/' : 'https://axelarscan.io/gmp/'
+
+export const getAxelarScanUrl = (srcTxHash: string) => `${AXELAR_SCAN_URL}${srcTxHash}`
 
 // todo lazy load
 function CrossChain() {
