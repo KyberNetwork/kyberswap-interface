@@ -116,7 +116,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
   const ref1 = useRef<HTMLDivElement>(null)
   const ref2 = useRef<HTMLDivElement>(null)
   const cardClassname = useMemo(() => {
-    if (!data) return ''
+    if (!data?.kyberScore || data?.kyberScore.score === 0) return ''
     if (data?.kyberScore.score >= 60) return 'bullish'
     if (data?.kyberScore.score < 40) return 'bearish'
     return ''
@@ -230,8 +230,16 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
               </Row>
               <KyberScoreMeter value={data?.kyberScore?.score} />
               <RowFit gap="6px" marginBottom="12px">
-                <Text fontSize={24} fontWeight={500} color={calculateValueToColor(data?.kyberScore?.score || 0, theme)}>
-                  {data?.kyberScore?.label}
+                <Text
+                  fontSize={24}
+                  fontWeight={500}
+                  color={isLoading ? theme.subText : calculateValueToColor(data?.kyberScore?.score || 0, theme)}
+                >
+                  {isLoading
+                    ? t`Loading`
+                    : data?.kyberScore === undefined || data?.kyberScore?.score === 0
+                    ? t`Not Available`
+                    : data.kyberScore.label}
                 </Text>
                 <MouseoverTooltip
                   text={

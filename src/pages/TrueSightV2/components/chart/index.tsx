@@ -557,7 +557,6 @@ export const TradingVolumeChart = () => {
     return [from, now, timerange]
   }, [timeframe])
   const { data } = useTradingVolumeQuery({ tokenAddress: testParams.address, params: { from, to } })
-  console.log('🚀 ~ file: index.tsx:562 ~ TradingVolumeChart ~ data:', data)
 
   const formattedData = useMemo(() => {
     if (!data) return []
@@ -900,7 +899,6 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
     const min = Math.min(...formattedData.map(_ => _.netflow as number))
     return (Math.abs(0 - min) / (max - min)) * 100
   }, [formattedData])
-  console.log('🚀 ~ file: index.tsx:903 ~ NetflowToWhaleWallets ~ formattedData:', formattedData)
 
   const totalStats: { timeframe: string; totalNetflow: string; totalInflow: string; totalOutflow: string } =
     useMemo(() => {
@@ -1958,10 +1956,6 @@ export const LiquidOnCentralizedExchanges = () => {
     for (let t = startTimestamp; t < to; t += timerange) {
       const index = data.chart.findIndex((item: any) => item.timestamp === t)
       if (index >= 0) {
-        //   dataTemp.push({ buyVol: dataWithSameTimestamp.reduce((a,b)=>a ), timestamp: t * 1000 })
-        // } else {
-        //   dataTemp.push({ data: [], timestamp: t * 1000 })
-        // }
         dataTemp.push({
           ...data.chart[index],
           timestamp: t * 1000,
@@ -2039,7 +2033,7 @@ export const LiquidOnCentralizedExchanges = () => {
                       onClick={() => setShowShort(prev => !prev)}
                     />
                     <LegendButton
-                      text="Price"
+                      text="BTC Price"
                       iconStyle={{
                         height: '4px',
                         width: '16px',

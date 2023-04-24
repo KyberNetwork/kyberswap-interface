@@ -290,6 +290,11 @@ const MobileWrapper = ({
 }
 
 const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
+  console.log(
+    '🚀 ~ file: SearchWithDropDown.tsx:293 ~ SearchWithDropdown ~ searchValue, onSearch:',
+    searchValue,
+    onSearch,
+  )
   const theme = useTheme()
   const [expanded, setExpanded] = useState(false)
   const [search, setSearch] = useState('')
@@ -300,7 +305,7 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
   const contentRef = useRef<HTMLDivElement>(null)
 
   const debouncedSearch = useDebounce(search, 1000)
-  const { data: searchResult, isFetching } = useSearchTokenQuery({ q: debouncedSearch })
+  const { data: searchResult } = useSearchTokenQuery({ q: debouncedSearch })
 
   const haveSearchResult = search !== '' && searchResult && searchResult.length > 0
   const noSearchResult = search !== '' && searchResult && searchResult.length === 0

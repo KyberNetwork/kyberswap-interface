@@ -145,14 +145,10 @@ enum WidgetTab {
 const widgetTabTooltip = {
   [WidgetTab.MyWatchlist]: undefined,
   [WidgetTab.Bullish]: {
-    tooltip: (theme: DefaultTheme) => (
-      <Trans>Based on highest KyberScore which analyzes on-chain and off-chain indicators</Trans>
-    ),
+    tooltip: () => <Trans>Based on highest KyberScore which analyzes on-chain and off-chain indicators</Trans>,
   },
   [WidgetTab.Bearish]: {
-    tooltip: (theme: DefaultTheme) => (
-      <Trans>Based on lowest KyberScore which analyzes on-chain and off-chain indicators</Trans>
-    ),
+    tooltip: () => <Trans>Based on lowest KyberScore which analyzes on-chain and off-chain indicators</Trans>,
   },
   [WidgetTab.TrendingSoon]: {
     tooltip: (theme: DefaultTheme) => (

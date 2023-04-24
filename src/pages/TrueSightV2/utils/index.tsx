@@ -1,6 +1,7 @@
 import { DefaultTheme } from 'styled-components'
 
 export const calculateValueToColor = (value: number, theme: DefaultTheme) => {
+  if (value === 0) return theme.subText
   if (value < 20) {
     return theme.red
   }

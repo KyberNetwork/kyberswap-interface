@@ -16,9 +16,12 @@ const Wrapper = styled.div`
 `
 export default function KyberScoreChart({ width, height }: { width?: string; height?: string }) {
   const theme = useTheme()
-  const sampleData = [10, 20, 60, 40, 50, 60, 70, 40, 90, 60, 70, 80, 90, 50, 60, 70, 70, 80]
+  const sampleData = [10, 20, 60, 40, 50, 60, 70, 40, 90, 60, 70, 80, 90, 50, 60, 70, 70, 0]
   const calculateColor = useCallback(
     (value: number) => {
+      if (value === 0) {
+        return theme.disableText
+      }
       if (value < 20) {
         return theme.red
       }

@@ -185,6 +185,7 @@ const StyledTokenDescription = styled.div<{ show?: boolean }>`
   overflow: hidden;
   font-size: 12px;
   line-height: 16px;
+  flex: 1;
   &,
   & * {
     white-space: ${({ show }) => (show ? 'initial' : 'nowrap')};
@@ -193,22 +194,32 @@ const StyledTokenDescription = styled.div<{ show?: boolean }>`
 
 const TokenDescription = ({ description }: { description: string }) => {
   const theme = useTheme()
-  const [show, setShow] = useState(false)
+  const [show, setShow] = useState(true)
   const ref = useRef<HTMLDivElement>(null)
-  const isTextExceeded = ref.current && ref.current?.clientWidth < ref.current?.scrollWidth
+  const isTextExceeded = ref.current && ref.current?.clientWidth <= ref.current?.scrollWidth
   return (
     <Row>
-      <StyledTokenDescription
-        ref={ref}
-        show={show}
-        dangerouslySetInnerHTML={{ __html: description || '' }}
-      ></StyledTokenDescription>
-      {!show && isTextExceeded && (
+      <StyledTokenDescription ref={ref} show={show}>
+        {description}{' '}
+        {isTextExceeded && show && (
+          <Text
+            as="span"
+            fontSize="12px"
+            color={theme.primary}
+            width="fit-content"
+            style={{ cursor: 'pointer', flexBasis: 'fit-content', whiteSpace: 'nowrap' }}
+            onClick={() => setShow(false)}
+          >
+            Hide
+          </Text>
+        )}
+      </StyledTokenDescription>
+      {isTextExceeded && !show && (
         <Text
           fontSize="12px"
           color={theme.primary}
           width="fit-content"
-          style={{ cursor: 'pointer', flexBasis: 'fit-content', whiteSpace: 'nowrap' }}
+          style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
           onClick={() => setShow(true)}
         >
           Read more

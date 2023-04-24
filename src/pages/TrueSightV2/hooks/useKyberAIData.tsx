@@ -16,8 +16,6 @@ import {
 } from '../types'
 import { HOLDER_LIST, TOKEN_LIST } from './sampleData'
 
-console.log('🚀 ~ file: useKyberAIData.tsx:4 ~ KYBERAI_API:', KYBERAI_API)
-
 const kyberAIApi = createApi({
   reducerPath: 'kyberAIApi',
   baseQuery: fetchBaseQuery({
