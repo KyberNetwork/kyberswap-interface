@@ -59,7 +59,7 @@ export async function fetchChunk(
       throw new RetryableError(`header not found for block number ${minBlockNumber}`)
     } else {
       if (chunk.length > 1) {
-        if (process.env.NODE_ENV === 'development') {
+        if (import.meta.env.DEV) {
           console.debug('Splitting a chunk in 2', chunk)
         }
         const half = Math.floor(chunk.length / 2)

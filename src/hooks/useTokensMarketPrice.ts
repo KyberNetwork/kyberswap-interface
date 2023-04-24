@@ -67,7 +67,7 @@ export default function useTokensMarketPrice(tokens: (Token | null | undefined)[
     },
   })
 
-  if (error && process.env.NODE_ENV === 'development') {
+  if (error && import.meta.env.DEV) {
     console.error(error)
   }
 

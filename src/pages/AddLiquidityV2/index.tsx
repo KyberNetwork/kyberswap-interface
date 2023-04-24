@@ -600,7 +600,6 @@ export default function AddLiquidity() {
       tickUpper,
       pIndex,
       pool,
-      price,
     )
 
   const setRange = useCallback(

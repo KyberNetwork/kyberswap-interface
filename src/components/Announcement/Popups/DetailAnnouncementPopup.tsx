@@ -212,7 +212,7 @@ export default function DetailAnnouncementPopup({
               <StyledCtaButton
                 key={item.url}
                 data={item}
-                color={item.name === t`Close` ? 'outline' : 'primary'}
+                color={!item.url ? 'outline' : 'primary'}
                 onClick={() => onClickCta(item.url)}
               />
             ))}

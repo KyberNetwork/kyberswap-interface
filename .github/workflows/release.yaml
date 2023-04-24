@@ -36,10 +36,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Set up Node.js 16.x
+      - name: Set up Node.js 18.15.0
         uses: actions/setup-node@v1
         with:
-          node-version: 16.18.1
+          node-version: 18.15.0
           registry-url: 'https://npm.pkg.github.com'
           scope: '@kybernetwork'
 
@@ -60,7 +60,7 @@ jobs:
       - name: Yarn Build
         env:
           CI: false
-          REACT_APP_TAG: ${{ github.event.inputs.version }}
+          VITE_TAG: ${{ github.event.inputs.version }}
           NODE_OPTIONS: '--max_old_space_size=4096'
         run: yarn build-prod
 

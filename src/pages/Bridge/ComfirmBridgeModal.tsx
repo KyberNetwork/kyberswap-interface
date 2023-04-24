@@ -16,7 +16,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { OutputBridgeInfo, useBridgeState } from 'state/bridge/hooks'
 import { ExternalLink } from 'theme'
-import { TransactionFlowState } from 'types'
+import { TransactionFlowState } from 'types/TransactionFlowState'
 import { formatNumberWithPrecisionRange, shortenAddress } from 'utils'
 
 const Disclaimer = styled.div`
