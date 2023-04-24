@@ -32,7 +32,6 @@ export type Props = {
 
 const SwapOnlyButton: React.FC<Props> = ({
   minimal,
-  isDegenMode,
   routeSummary,
   isGettingRoute,
   isProcessingSwap,

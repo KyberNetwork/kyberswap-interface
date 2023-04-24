@@ -129,7 +129,7 @@ const TransactionItemMobile = ({ transfer }: { transfer: MultichainTransfer }) =
       </TableRowForMobile>
       {expand && (
         <TableRowForMobile>
-          {transactions.map((txs, i) => (
+          {transactions.map(txs => (
             <DetailTransaction key={txs} isLast={false} />
           ))}
         </TableRowForMobile>
