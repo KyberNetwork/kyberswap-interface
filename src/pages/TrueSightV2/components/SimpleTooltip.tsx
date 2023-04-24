@@ -25,12 +25,11 @@ const Arrow = styled.div`
   height: 10px;
   z-index: 99;
   position: absolute;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.32);
   ::before {
     position: absolute;
     width: 10px;
     height: 10px;
-    z-index: 99;
+    z-index: 98;
 
     content: '';
     border: 1px solid transparent;
@@ -39,37 +38,12 @@ const Arrow = styled.div`
   }
 
   &.arrow-top {
-    bottom: -5px;
+    bottom: -8px;
     left: 50%;
     transform: translatex(-50%);
     ::before {
       border-top: none;
       border-left: none;
-    }
-  }
-
-  &.arrow-bottom {
-    top: -5px;
-    ::before {
-      border-bottom: none;
-      border-right: none;
-    }
-  }
-
-  &.arrow-left {
-    right: -5px;
-
-    ::before {
-      border-bottom: none;
-      border-left: none;
-    }
-  }
-
-  &.arrow-right {
-    left: -5px;
-    ::before {
-      border-right: none;
-      border-top: none;
     }
   }
 `
@@ -133,10 +107,8 @@ export default function SimpleTooltip({
               transform: 'translateX(-50%)',
             }}
           >
-            <Wrapper>
-              {text}
-              <Arrow className={`arrow-top`} />
-            </Wrapper>
+            <Wrapper>{text}</Wrapper>
+            <Arrow className={`arrow-top`} />
           </div>,
           document.body,
         )}

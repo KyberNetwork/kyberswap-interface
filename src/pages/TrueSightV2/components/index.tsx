@@ -1,16 +1,12 @@
-import { Trans } from '@lingui/macro'
 import React, { CSSProperties, ReactNode, useRef, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
-import { ButtonPrimary } from 'components/Button'
 import Icon from 'components/Icons/Icon'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 import { ChartTab } from '../types'
@@ -263,82 +259,6 @@ export const SectionWrapper = ({
     </StyledSectionWrapper>
   )
 }
-
-const StyledRequireConnectWalletWrapper = styled.div<{ bgUrl?: string; height?: string }>`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  height: ${({ height }) => height || '100%'};
-  border-radius: 10px;
-  ${({ bgUrl }) => `background: url(${bgUrl});`}
-  background-size: 100% 100%;
-  background-position: center;
-`
-
-export const RequireConnectWalletWrapper = ({
-  bgUrl,
-  height,
-  children,
-}: {
-  bgUrl: string
-  height?: string
-  children: ReactNode
-}) => {
-  const { account } = useActiveWeb3React()
-  const theme = useTheme()
-  const toggleWalletModal = useWalletModalToggle()
-  if (!account)
-    return (
-      <StyledRequireConnectWalletWrapper bgUrl={bgUrl} height={height}>
-        <Text color={theme.text}>
-          <Trans>Connect your wallet to view this insight</Trans>
-        </Text>
-        <ButtonPrimary
-          onClick={toggleWalletModal}
-          width="138px"
-          height="36px"
-          style={{ boxShadow: '0 2px 4px 2px #00000030' }}
-        >
-          <Trans>Connect Wallet</Trans>
-        </ButtonPrimary>
-      </StyledRequireConnectWalletWrapper>
-    )
-  return <>{children}</>
-}
-
-// const StyledTabButton = styled.div<{ active?: boolean }>`
-//   padding: 8px 12px;
-//   font-size: 16px;
-//   line-height: 20px;
-//   border-radius: 20px;
-//   cursor: pointer;
-//   transition: all 0.2s ease;
-//   border: 1px solid transparent;
-//   :hover {
-//     filter: brightness(0.9);
-//   }
-//   :active {
-//     filter: brightness(1.2);
-//   }
-//   ${({ theme, active }) =>
-//     active
-//       ? css`
-//           color: ${theme.primary};
-//           background-color: ${theme.primary + '30'};
-//           :active {
-//             box-shadow: 0 0 0 1px ${theme.primary + '30'};
-//           }
-//         `
-//       : css`
-//           color: ${theme.subText};
-//           border: 1px solid ${theme.subText};
-//           :active {
-//             box-shadow: 0 0 0 1px ${theme.subText};
-//           }
-//         `}
-// `
 
 const StyledMobileTabButton = styled.div<{ active?: boolean }>`
   font-size: 12px;

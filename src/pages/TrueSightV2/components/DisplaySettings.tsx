@@ -4,7 +4,6 @@ import { Sliders } from 'react-feather'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
-import { ButtonGray } from 'components/Button'
 import Column from 'components/Column'
 import Divider from 'components/Divider'
 import ExpandableBox from 'components/ExpandableBox'
@@ -18,6 +17,7 @@ import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
 import { useTokenAnalysisSettings, useUpdateTokenAnalysisSettings } from 'state/user/hooks'
 
+import { HeaderButton } from '../pages/SingleToken'
 import { DiscoverTokenTab } from '../types'
 
 const SettingsWrapper = styled.div`
@@ -192,17 +192,9 @@ export default function DisplaySettings({ currentTab }: { currentTab: DiscoverTo
       noArrow={true}
       placement="bottom"
     >
-      <ButtonGray
-        color={theme.subText}
-        gap="4px"
-        width="36px"
-        height="36px"
-        padding="6px"
-        style={{ boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.16))' }}
-        onClick={() => setShowSettings(true)}
-      >
+      <HeaderButton onClick={() => setShowSettings(true)}>
         <Sliders size={16} fill="currentcolor" style={{ transform: 'rotate(-90deg)' }} />
-      </ButtonGray>
+      </HeaderButton>
     </Popover>
   )
 }

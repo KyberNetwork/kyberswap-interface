@@ -47,7 +47,7 @@ const ButtonIcon = styled.div`
     filter: brightness(1.8);
   }
 `
-const HeaderButton = styled(ButtonGray)`
+export const HeaderButton = styled(ButtonGray)`
   width: 36px;
   height: 36px;
   padding: 8px;
@@ -56,7 +56,7 @@ const HeaderButton = styled(ButtonGray)`
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  background-color: ${({ theme }) => theme.buttonGray};
+  background-color: ${({ theme }) => (theme.darkMode ? theme.buttonGray : theme.background)};
   color: ${({ theme }) => theme.subText};
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.16);
   :hover {
@@ -274,7 +274,7 @@ export default function SingleToken() {
         <HeaderButton
           style={{
             color: data?.isWatched ? theme.primary : theme.subText,
-            backgroundColor: data?.isWatched ? theme.primary + '33' : theme.buttonGray,
+            backgroundColor: data?.isWatched ? theme.primary + '33' : undefined,
           }}
           onClick={handleStarClick}
         >
