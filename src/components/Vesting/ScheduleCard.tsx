@@ -29,7 +29,7 @@ const ScheduleCard = ({ schedules }: { schedules: Schedule[] }) => {
       token: Token
       tokenPrice: number
     }
-  }>((result, schedule, index) => {
+  }>((result, schedule) => {
     const address = (schedule.token.isNative ? ZERO_ADDRESS : schedule.token.address) as string
 
     if (!result[address]) {

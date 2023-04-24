@@ -227,10 +227,11 @@ function WithdrawModal({
 
   const poolAddresses =
     selectedFarm?.pools
-      .filter(
-        pool =>
-          tab === FARM_TAB.MY_FARMS ||
-          (tab === FARM_TAB.ACTIVE ? pool.endTime > +new Date() / 1000 : pool.endTime < +new Date() / 1000),
+      .filter(pool =>
+        forced
+          ? true
+          : tab === FARM_TAB.MY_FARMS ||
+            (tab === FARM_TAB.ACTIVE ? pool.endTime > +new Date() / 1000 : pool.endTime < +new Date() / 1000),
       )
       .map(pool => pool.poolAddress.toLowerCase()) || []
 
@@ -422,7 +423,7 @@ function WithdrawModal({
 
         <div style={{ overflowY: 'auto' }}>
           {(eligiblePositions as UserPositionFarm[])
-            .filter(pos => {
+            .filter(_pos => {
               // if (forced) {
               //   return failedNFTs.includes(pos.tokenId.toString())
               // }

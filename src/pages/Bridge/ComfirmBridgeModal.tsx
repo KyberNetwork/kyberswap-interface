@@ -24,7 +24,7 @@ import { getRouInfo } from 'pages/CrossChain/helpers'
 import { OutputBridgeInfo, useBridgeState, useCrossChainState } from 'state/crossChain/hooks'
 import { useDegenModeManager } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
-import { TransactionFlowState } from 'types'
+import { TransactionFlowState } from 'types/TransactionFlowState'
 import { formatNumberWithPrecisionRange, shortenAddress } from 'utils'
 import { uint256ToFraction } from 'utils/numbers'
 

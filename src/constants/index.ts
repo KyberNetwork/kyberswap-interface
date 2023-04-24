@@ -3,6 +3,8 @@ import { t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { v4 as uuid } from 'uuid'
 
+import { TransactionFlowState } from 'types/TransactionFlowState'
+
 import { CAMPAIGN_BASE_URL as CAMPAIGN_BASE_DOMAIN } from './env'
 import * as ENV from './env'
 import { EVM_NETWORK, NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from './networks'
@@ -332,4 +334,12 @@ export const RTK_QUERY_TAGS = {
   GET_ALERTS: 'GET_ALERTS',
   GET_ALERTS_HISTORY: 'GET_ALERTS_HISTORY',
   GET_ALERTS_STAT: 'GET_ALERTS_STAT',
+}
+
+export const TRANSACTION_STATE_DEFAULT: TransactionFlowState = {
+  showConfirm: false,
+  attemptingTxn: false,
+  errorMessage: '',
+  txHash: undefined,
+  pendingText: '',
 }

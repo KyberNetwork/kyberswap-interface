@@ -342,7 +342,7 @@ export function useFarmApr(farm: Farm, poolLiquidityUsd: string): number {
       return 0
     }
 
-    yearlyRewardUSD = rewardsPerTimeUnit.reduce((total, rewardPerSecond, index) => {
+    yearlyRewardUSD = rewardsPerTimeUnit.reduce((total, rewardPerSecond) => {
       if (!rewardPerSecond || !rewardPerSecond.amount) {
         return total
       }

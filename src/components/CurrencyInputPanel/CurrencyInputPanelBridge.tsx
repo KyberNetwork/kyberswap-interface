@@ -40,7 +40,7 @@ interface CurrencyInputPanelBridgeProps {
   tooltipNotSupportChain?: string
 }
 
-const noop = (value: string) => {
+const noop = () => {
   //
 }
 
