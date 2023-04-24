@@ -657,10 +657,11 @@ export const RoutingCrossChain = () => {
     amount: string | undefined,
     reverseOrder?: boolean,
   ) => {
+    // todo consistent logo native
     if (currency) {
       return (
         <StyledToken as="div" reverse={reverseOrder} style={{ border: 'none' }}>
-          <TokenLogoWithChain size={20} chainId={currency.chainId} tokenLogo={currency.logoURI ?? ''} />
+          <TokenLogoWithChain size={20} currency={currency} />
           <span>{`${amount ? uint256ToFraction(amount, currency.decimals).toSignificant(6) : ''} ${
             currency.symbol
           }`}</span>

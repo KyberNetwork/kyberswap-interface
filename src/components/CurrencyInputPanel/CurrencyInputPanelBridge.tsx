@@ -6,6 +6,7 @@ import { Flex, Text } from 'rebass'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import Wallet from 'components/Icons/Wallet'
 import { RowFixed } from 'components/Row'
+import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
 import CurrencySearchModalBridge from 'components/SearchModal/bridge/CurrencySearchModalBridge'
 import { EMPTY_ARRAY, ETHER_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -179,16 +180,27 @@ export default function CurrencyInputPanelBridge({
             </CurrencySelect>
           </InputRow>
         </Container>
-        <CurrencySearchModalBridge
-          chainId={selectedChainId}
-          currency={currency}
-          isCrossChain={isCrossChain}
-          isOutput={isOutput}
-          isOpen={modalOpen}
-          tokens={tokens}
-          onDismiss={handleDismissSearch}
-          onCurrencySelect={onCurrencySelect}
-        />
+        {isCrossChain ? (
+          <CurrencySearchModal
+            isOpen={modalOpen}
+            onDismiss={handleDismissSearch}
+            onCurrencySelect={onCurrencySelect as any} // todo
+            selectedCurrency={currency as any} // todo
+            showCommonBases
+            customChainId={selectedChainId}
+          />
+        ) : (
+          <CurrencySearchModalBridge
+            chainId={selectedChainId}
+            currency={currency}
+            isCrossChain={isCrossChain}
+            isOutput={isOutput}
+            isOpen={modalOpen}
+            tokens={tokens}
+            onDismiss={handleDismissSearch}
+            onCurrencySelect={onCurrencySelect}
+          />
+        )}
       </InputPanel>
     </div>
   )

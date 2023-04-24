@@ -17,7 +17,10 @@ export default function useGetRouteCrossChain(params: GetRoute | undefined) {
 
   const getRoute = useCallback(
     async (isRefresh = true) => {
-      if (!squidInstance || !debounceParams) return
+      if (!squidInstance || !debounceParams) {
+        setTradeRoute(undefined)
+        return
+      }
       try {
         currentRequest.current = debounceParams
         setLoading(true)

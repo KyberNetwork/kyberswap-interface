@@ -29,19 +29,13 @@ export default function TradePrice({ route, refresh, showLogo = true, disabled =
   if (price) formattedPrice = showInverted ? (1 / price).toPrecision(6) : price?.toPrecision(6)
   const [{ currencyIn, currencyOut, chainIdOut }] = useCrossChainState()
   const { chainId } = useActiveWeb3React()
-  const tokenInLogo = currencyIn?.logoURI
-  const tokenOutLogo = currencyOut?.logoURI
 
   // todo refactor
-  const value = tokenOutLogo && tokenInLogo && chainId && chainIdOut && (
+  const value = currencyIn && currencyOut && chainId && chainIdOut && (
     <Flex alignItems={'center'} sx={{ gap: '4px' }} color={theme.text}>
       1{' '}
       {showLogo ? (
-        <TokenLogoWithChain
-          size={14}
-          chainId={showInverted ? chainIdOut : chainId}
-          tokenLogo={showInverted ? tokenOutLogo : tokenInLogo}
-        />
+        <TokenLogoWithChain size={14} currency={showInverted ? currencyOut : currencyIn} />
       ) : showInverted ? (
         currencyIn.symbol
       ) : (
@@ -49,11 +43,7 @@ export default function TradePrice({ route, refresh, showLogo = true, disabled =
       )}{' '}
       = {formattedPrice}{' '}
       {showLogo ? (
-        <TokenLogoWithChain
-          size={14}
-          tokenLogo={showInverted ? tokenInLogo : tokenOutLogo}
-          chainId={showInverted ? chainId : chainIdOut}
-        />
+        <TokenLogoWithChain size={14} currency={showInverted ? currencyIn : currencyOut} />
       ) : !showInverted ? (
         currencyIn.symbol
       ) : (

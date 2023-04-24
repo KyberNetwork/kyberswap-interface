@@ -17,7 +17,7 @@ import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import SwapButtonWithPriceImpact from 'components/SwapForm/SwapActionButton/SwapButtonWithPriceImpact'
 import useCheckStablePairSwap from 'components/SwapForm/hooks/useCheckStablePairSwap'
 import { AdvancedSwapDetailsDropdownCrossChain } from 'components/swapv2/AdvancedSwapDetailsDropdown'
-import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
+import { ETHER_ADDRESS, TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/useChangeNetwork'
 import useTheme from 'hooks/useTheme'
@@ -26,7 +26,7 @@ import TradePrice from 'pages/CrossChain/TradePrice'
 import { getRouInfo } from 'pages/CrossChain/helpers'
 import useDefaultTokenChain from 'pages/CrossChain/useDefaultTokenChain'
 import useGetRouteCrossChain from 'pages/CrossChain/useGetRoute'
-import useValidateInput from 'pages/CrossChain/useValidateInput'
+import useValidateInput, { useIsTokensSupport } from 'pages/CrossChain/useValidateInput'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useCrossChainHandlers } from 'state/crossChain/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -48,6 +48,7 @@ const ArrowWrapper = styled.div`
   background: ${({ theme }) => theme.buttonGray};
   border-radius: 100%;
 `
+const getTokenAddress = (currency: WrappedTokenInfo) => (currency.isNative ? ETHER_ADDRESS : currency?.wrapped.address)
 
 export default function SwapForm() {
   const { account, chainId } = useActiveWeb3React()
@@ -71,20 +72,32 @@ export default function SwapForm() {
   const {
     setting: { enableExpressExecution, slippageTolerance },
   } = useCrossChainSetting()
+  const isPairSupport = useIsTokensSupport()
   const routeParams: GetRoute | undefined = useMemo(() => {
-    if (!currencyIn || !currencyOut || !chainIdOut || !account || !Number(inputAmount)) return
+    if (!currencyIn || !currencyOut || !chainIdOut || !account || !Number(inputAmount) || !isPairSupport) return
+
     return {
       fromChain: chainId,
       toChain: chainIdOut,
-      fromToken: currencyIn?.wrapped.address,
-      toToken: currencyOut.wrapped.address,
+      fromToken: getTokenAddress(currencyIn),
+      toToken: getTokenAddress(currencyOut),
       fromAmount: tryParseAmount(inputAmount, currencyIn)?.quotient.toString() ?? '',
       toAddress: account,
       slippage: slippageTolerance / 100,
       enableExpress: enableExpressExecution,
       // customContractCalls?: ContractCall[]; // todo
     }
-  }, [currencyIn, currencyOut, account, inputAmount, chainId, chainIdOut, slippageTolerance, enableExpressExecution])
+  }, [
+    currencyIn,
+    currencyOut,
+    account,
+    inputAmount,
+    chainId,
+    chainIdOut,
+    slippageTolerance,
+    enableExpressExecution,
+    isPairSupport,
+  ])
 
   const {
     route,

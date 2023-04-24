@@ -1,9 +1,10 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
-import React, { CSSProperties, useState } from 'react'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { CSSProperties, useState } from 'react'
 import { HelpCircle } from 'react-feather'
 import { ImageProps } from 'rebass'
 
 import { NETWORKS_INFO } from 'constants/networks'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useIsDarkMode } from 'state/user/hooks'
 
 const BAD_SRCS: { [tokenAddress: string]: true } = {}
@@ -45,22 +46,20 @@ export function NetworkLogo({ chainId, style = {} }: { chainId: ChainId; style?:
   return <img src={iconSrc} alt="Switch Network" style={style} />
 }
 
-export const TokenLogoWithChain = ({
-  tokenLogo,
-  chainId,
-  size,
-}: {
-  tokenLogo: string
-  chainId: ChainId
-  size: number | string
-}) => {
+export function TokenLogoWithChain(data: { tokenLogo: string; chainId: ChainId; size: number | string }): JSX.Element
+export function TokenLogoWithChain(data: { size: number | string; currency: Currency | WrappedTokenInfo }): JSX.Element
+export function TokenLogoWithChain(data: any) {
+  const { tokenLogo: tokenLogoParam, chainId: chainParam, size, currency } = data // todo
+
+  const chainId: ChainId = currency?.chainId || chainParam
+  const tokenLogo = (currency?.isNative ? NETWORKS_INFO[chainId].nativeToken.logo : currency?.logoURI) || tokenLogoParam
   const ratio = 0.7
   const networkSize = ratio * parseInt(size + '')
 
   return (
     <div style={{ position: 'relative', height: size }}>
       <Logo
-        srcs={[tokenLogo]}
+        srcs={[tokenLogo ?? '']}
         style={{
           width: size,
           height: size,

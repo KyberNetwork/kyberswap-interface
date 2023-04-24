@@ -10,6 +10,16 @@ import { useIsEnoughGas } from 'pages/CrossChain/useIsEnoughGas'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 
+export const useIsTokensSupport = () => {
+  const { listTokenIn, listTokenOut, currencyIn, currencyOut } = useDefaultTokenChain()
+  return useMemo(
+    () =>
+      (listTokenIn.some(e => currencyIn?.equals(e)) || currencyIn?.isNative) &&
+      listTokenOut.some(e => currencyOut?.equals(e) || currencyOut?.isNative),
+    [listTokenIn, listTokenOut, currencyIn, currencyOut],
+  )
+}
+
 export default function useValidateInput({
   inputAmount,
   route,
@@ -25,12 +35,13 @@ export default function useValidateInput({
   const { isEnoughEth } = useIsEnoughGas(route)
   const { amountUsdIn } = getRouInfo(route)
   const showErrorGas = !isEnoughEth && route
+  const isTokenSupport = useIsTokensSupport()
 
   const inputError: undefined | { state: 'warn' | 'error'; tip: string; desc?: ReactNode } = useMemo(() => {
     if (!listTokenOut.length && !listTokenIn.length && !loadingToken) {
       return { state: 'error', tip: t`Cannot get token info. Please try again later.` }
     }
-    if (errorGetRoute) {
+    if (errorGetRoute || !isTokenSupport) {
       return {
         state: 'warn',
         tip: t`We couldn't find a route for this trade. You can try changing the amount to swap, selecting a different chain or tokens, or try again later.`,
@@ -70,6 +81,7 @@ export default function useValidateInput({
     chainId,
     errorGetRoute,
     amountUsdIn,
+    isTokenSupport,
   ])
   return inputError
 }
