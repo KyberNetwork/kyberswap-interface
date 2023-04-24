@@ -7,9 +7,21 @@ import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import ArbitrumDark from 'assets/images/Arbitrum_HorizontalLogo-dark.svg'
+import ArbitrumLight from 'assets/images/Arbitrum_HorizontalLogo.svg'
+import BTTCDark from 'assets/images/btt-logo-dark.svg'
+import BTTCLight from 'assets/images/btt-logo.svg'
 import KNCGraphic from 'assets/images/knc-graphic.png'
+import AboutAvalanche from 'assets/svg/about_icon_avalanche.svg'
+import BSC from 'assets/svg/about_icon_bsc.svg'
+import BugBounty from 'assets/svg/about_icon_bug_bounty.svg'
+import EthereumDark from 'assets/svg/about_icon_ethereum.png'
+import EthereumLight from 'assets/svg/about_icon_ethereum_light.png'
 import githubImg from 'assets/svg/about_icon_github.png'
 import githubImgLight from 'assets/svg/about_icon_github_light.png'
+import KyberDark from 'assets/svg/about_icon_kyber.svg'
+import KyberLight from 'assets/svg/about_icon_kyber_light.svg'
+import ChainSecurity from 'assets/svg/chainsecurity.svg'
 import ForTraderImage from 'assets/svg/for_trader.svg'
 import ForTraderImageLight from 'assets/svg/for_trader_light.svg'
 import { ReactComponent as KNCSVG } from 'assets/svg/knc_black.svg'
@@ -929,9 +941,9 @@ function AboutKyberSwap() {
                   <ExternalLink href="https://chainsecurity.com/security-audit/kyberswap-elastic">
                     <img
                       src={
-                        !isDarkMode
-                          ? 'https://chainsecurity.com/wp-content/themes/chainsecurity-wp/resources/images/temp/logo.svg'
-                          : require('assets/svg/chainsecurity.svg').default
+                        isDarkMode
+                          ? ChainSecurity
+                          : 'https://chainsecurity.com/wp-content/themes/chainsecurity-wp/resources/images/temp/logo.svg'
                       }
                       alt="security"
                       width={above992 ? '197px' : '140px'}
@@ -967,11 +979,7 @@ function AboutKyberSwap() {
                 <Text color={theme.subText} textAlign="center" marginBottom="16px">
                   <Trans>Bug Bounty</Trans>
                 </Text>
-                <img
-                  src={require('assets/svg/about_icon_bug_bounty.svg').default}
-                  alt="bugbounty"
-                  width={above992 ? '186px' : '140px'}
-                />
+                <img src={BugBounty} alt="bugbounty" width={above992 ? '186px' : '140px'} />
               </div>
             </Flex>
           </Flex>
@@ -1018,42 +1026,18 @@ function AboutKyberSwap() {
             <Trans>Powered by</Trans>
 
             <Powered>
-              <img
-                src={
-                  isDarkMode
-                    ? require('assets/svg/about_icon_kyber.svg').default
-                    : require('assets/svg/about_icon_kyber_light.svg').default
-                }
-                alt="kyber_icon"
-                width="100%"
-              />
-              <img
-                src={
-                  isDarkMode
-                    ? require('assets/svg/about_icon_ethereum.png').default
-                    : require('assets/svg/about_icon_ethereum_light.png').default
-                }
-                alt="ethereum_icon"
-                width="100%"
-              />
-              <img src={require('assets/svg/about_icon_bsc.svg').default} alt="bsc_icon" width="100%" />
+              <img src={isDarkMode ? KyberDark : KyberLight} alt="kyber_icon" width="100%" />
+              <img src={isDarkMode ? EthereumDark : EthereumLight} alt="ethereum_icon" width="100%" />
+              <img src={BSC} alt="bsc_icon" width="100%" />
               <PolygonLogoFull />
-              <img src={require('assets/svg/about_icon_avalanche.svg').default} alt="avalanche_icon" width="100%" />
+              <img src={AboutAvalanche} alt="avalanche_icon" width="100%" />
               <FantomLogoFull color={isDarkMode ? '#fff' : '#1969FF'} width="100%" height="unset" />
               <CronosLogoFull color={isDarkMode ? undefined : '#142564'} />
-              <img
-                src={require(`assets/images/Arbitrum_HorizontalLogo${isDarkMode ? '-dark' : ''}.svg`).default}
-                alt=""
-                width="100%"
-              />
+              <img src={isDarkMode ? ArbitrumDark : ArbitrumLight} alt="" width="100%" />
               <VelasLogoFull color={isDarkMode ? undefined : 'black'} />
               <AuroraFull />
               <OasisLogoFull />
-              <img
-                src={require(`assets/images/btt-logo${isDarkMode ? '-dark' : ''}.svg`).default}
-                alt="btt"
-                width="100%"
-              />
+              <img src={isDarkMode ? BTTCDark : BTTCLight} alt="btt" width="100%" />
               <OptimismLogoFull />
               <SolanaLogoFull />
             </Powered>

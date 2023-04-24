@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import React from 'react'
 import { Text } from 'rebass'
-import styled from 'styled-components/macro'
+import styled from 'styled-components'
 import UAParser from 'ua-parser-js'
 
 import { ButtonPrimary } from 'components/Button'

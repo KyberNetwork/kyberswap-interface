@@ -6,6 +6,16 @@ import { Flex } from 'rebass'
 import styled, { createGlobalStyle } from 'styled-components'
 import { CardinalOrientation, Step, Walktour, WalktourLogic } from 'walktour'
 
+import Menu from 'assets/images/tutorial_swap/menu.png'
+import Step1 from 'assets/images/tutorial_swap/step1.png'
+import Step2 from 'assets/images/tutorial_swap/step2.png'
+import Step4_1 from 'assets/images/tutorial_swap/step4.1.png'
+import Step4_2 from 'assets/images/tutorial_swap/step4.2.png'
+import Step5 from 'assets/images/tutorial_swap/step5.png'
+import Step6 from 'assets/images/tutorial_swap/step6.png'
+import Step7 from 'assets/images/tutorial_swap/step7.png'
+import Step8_1 from 'assets/images/tutorial_swap/step8.1.png'
+import Step8_2 from 'assets/images/tutorial_swap/step8.2.png'
 import WelcomeImage from 'assets/images/tutorial_swap/welcome.png'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { ToggleItemType } from 'components/Collapse'
@@ -84,14 +94,18 @@ const NetworkWrapper = styled.div`
   flex-direction: column;
 `
 
-const ImageMobile = ({ imageName, marginTop = false }: { imageName: string; marginTop?: boolean }) =>
+const ImageMobile = ({
+  imgSrc,
+  imageName,
+  marginTop = false,
+}: {
+  imgSrc: string
+  imageName: string
+  marginTop?: boolean
+}) =>
   isMobile ? (
     <Flex justifyContent={'center'}>
-      <img
-        style={{ marginTop: marginTop ? 20 : 0, width: '100%', maxWidth: 800 }}
-        src={require(`../../../assets/images/tutorial_swap/${imageName}`).default}
-        alt={imageName}
-      />
+      <img style={{ marginTop: marginTop ? 20 : 0, width: '100%', maxWidth: 800 }} src={imgSrc} alt={imageName} />
     </Flex>
   ) : null
 
@@ -141,7 +155,7 @@ function ConnectWallet() {
       <Desc>
         <Trans>Choose your preferred wallet, connect it, and get started with KyberSwap!</Trans>
       </Desc>
-      <ImageMobile imageName="step1.png" />
+      <ImageMobile imgSrc={Step1} imageName="Step 1" />
       <BrowserView>
         <Heading onClick={toggleExpand} style={{ cursor: 'pointer' }}>
           <Trans>Download Wallet</Trans>
@@ -267,7 +281,7 @@ const getListSteps = (isLogin: boolean, isSolana: boolean) => {
               Choose your preferred network. KyberSwap is a multi chain platform that supports over 12 networks!
             </Trans>
           </Desc>
-          <ImageMobile imageName="step2.png" />
+          <ImageMobile imgSrc={Step2} imageName="Step 2" />
         </Layout>
       ),
       orientationPreferences: [CardinalOrientation.SOUTHEAST, CardinalOrientation.NORTHWEST],
@@ -291,8 +305,8 @@ const getListSteps = (isLogin: boolean, isSolana: boolean) => {
           <Desc>
             <Trans>You can customize advanced settings like slippage and other display settings here.</Trans>
           </Desc>
-          <ImageMobile imageName="step4.1.png" />
-          <ImageMobile imageName="step4.2.png" marginTop />
+          <ImageMobile imgSrc={Step4_1} imageName="Step 4.1" />
+          <ImageMobile imgSrc={Step4_2} imageName="Step 4.2" marginTop />
         </Layout>
       ),
       hasPointer: true,
@@ -348,7 +362,7 @@ const getListSteps = (isLogin: boolean, isSolana: boolean) => {
                   rewards!
                 </Trans>
               </Desc>
-              <ImageMobile imageName="step5.png" />
+              <ImageMobile imgSrc={Step5} imageName="Step 5" />
             </Layout>
           ),
           orientationPreferences: [CardinalOrientation.SOUTH],
@@ -362,8 +376,8 @@ const getListSteps = (isLogin: boolean, isSolana: boolean) => {
           <Desc>
             <Trans>Check out our latest trading campaigns and participate in them to earn rewards!</Trans>
           </Desc>
-          <ImageMobile imageName="menu.png" />
-          <ImageMobile imageName="step7.png" marginTop />
+          <ImageMobile imgSrc={Menu} imageName="Menu" />
+          <ImageMobile imgSrc={Step7} imageName="Step 1" marginTop />
         </Layout>
       ),
       orientationPreferences: [CardinalOrientation.SOUTH],
@@ -380,8 +394,8 @@ const getListSteps = (isLogin: boolean, isSolana: boolean) => {
               filter out the best ones for you!
             </Trans>
           </Desc>
-          <ImageMobile imageName="menu.png" />
-          <ImageMobile imageName="step6.png" marginTop />
+          <ImageMobile imgSrc={Menu} imageName="Menu" />
+          <ImageMobile imgSrc={Step6} imageName="Step 6" marginTop />
         </Layout>
       ),
       orientationPreferences: [CardinalOrientation.SOUTH, CardinalOrientation.SOUTHEAST],
@@ -407,8 +421,8 @@ const getListSteps = (isLogin: boolean, isSolana: boolean) => {
               <ExternalLink href="https://docs.kyberswap.com/guides/getting-started">click here.</ExternalLink>
             </Trans>
           </Desc>
-          <ImageMobile imageName="step8.1.png" />
-          <ImageMobile imageName="step8.2.png" marginTop />
+          <ImageMobile imgSrc={Step8_1} imageName="Step 8.1" />
+          <ImageMobile imgSrc={Step8_2} imageName="Step 8.2" marginTop />
         </Layout>
       ),
     },

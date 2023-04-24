@@ -90,7 +90,7 @@ const ApprovalModal = ({
   typedValue,
   currencyInput,
   onApprove,
-  onPermit,
+  onPermit: _onPermit,
 }: {
   typedValue?: string
   currencyInput?: Currency
