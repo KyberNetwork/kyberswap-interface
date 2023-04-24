@@ -3,6 +3,7 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import ChainSecurity from 'assets/svg/chainsecurity.svg'
 import { Telegram } from 'components/Icons'
 import Discord from 'components/Icons/Discord'
 import Medium from 'components/Icons/Medium'
@@ -126,9 +127,9 @@ function Footer() {
             <ExternalLink href="https://chainsecurity.com/security-audit/kyberswap-elastic" style={{ display: 'flex' }}>
               <img
                 src={
-                  !isDarkMode
-                    ? 'https://chainsecurity.com/wp-content/themes/chainsecurity-wp/resources/images/temp/logo.svg'
-                    : require('assets/svg/chainsecurity.svg').default
+                  isDarkMode
+                    ? ChainSecurity
+                    : 'https://chainsecurity.com/wp-content/themes/chainsecurity-wp/resources/images/temp/logo.svg'
                 }
                 alt=""
                 width="98px"

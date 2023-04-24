@@ -16,8 +16,8 @@ export interface TokenInfo {
 }
 
 export class WrappedTokenInfo extends Token {
-  public readonly isNative: false = false
-  public readonly isToken: true = true
+  public readonly isNative: false = false as const
+  public readonly isToken: true = true as const
 
   public readonly logoURI: string | undefined
   public readonly isWhitelisted: boolean = false

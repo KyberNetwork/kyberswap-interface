@@ -3,6 +3,7 @@ const config = {
     {
       path: '<rootDir>/src/locales/{locale}',
       include: ['<rootDir>/src'],
+      exclude: ['**/**.d.ts'],
     },
   ],
   compileNamespace: 'cjs',
