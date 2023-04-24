@@ -244,7 +244,7 @@ function LiveChart({
   }
 
   const toggle = useMemo(() => {
-    return (
+    return enableProChart ? (
       <ProChartToggle
         activeName={isShowProChart ? 'pro' : 'basic'}
         toggle={(name: string) => {
@@ -260,10 +260,10 @@ function LiveChart({
         }}
         buttons={[
           { name: 'basic', title: 'Basic', disabled: isBasicchartError },
-          { name: 'pro', title: 'Pro', disabled: isProchartError || !enableProChart },
+          { name: 'pro', title: 'Pro', disabled: isProchartError },
         ]}
       />
-    )
+    ) : null
   }, [isBasicchartError, isProchartError, isShowProChart, bothChartError, mixpanelHandler, enableProChart])
 
   const isReverse =
