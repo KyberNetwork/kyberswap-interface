@@ -362,7 +362,6 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
 
                 const unclaimedRewardsUsd = unclaimedRewards.reduce(
                   (total, item) => total + +item.toExact() * (prices[item.currency.wrapped.address] || 0),
-
                   0,
                 )
 

@@ -16,6 +16,7 @@ import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
+import HoverInlineText from 'components/HoverInlineText'
 import Harvest from 'components/Icons/Harvest'
 import { RowBetween, RowFit } from 'components/Row'
 import Tabs from 'components/Tabs'
@@ -373,7 +374,7 @@ function FarmCard({
                     </MouseoverTooltip>
                     {hasRewards && (
                       <Text fontSize="16px" color={theme.text}>
-                        {userTotalRewards[index].toSignificant(4)}
+                        <HoverInlineText text={userTotalRewards[index].toSignificant(4)} maxCharacters={8} />
                       </Text>
                     )}
                   </RowFit>
