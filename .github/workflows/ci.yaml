@@ -192,6 +192,7 @@ jobs:
         env:
           CI: false
           VITE_TAG: ${{ needs.prepare.outputs.image_tag_stg }}
+          NODE_OPTIONS: '--max_old_space_size=4096'
         run: yarn build-stg
 
       - name: Docker build and push
