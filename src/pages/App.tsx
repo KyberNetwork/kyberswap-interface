@@ -29,7 +29,6 @@ import useLogin from 'hooks/useLogin'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
 import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useTheme from 'hooks/useTheme'
-import SignIn from 'pages/Signin'
 import { useHolidayMode } from 'state/user/hooks'
 import DarkModeQueryParamReader from 'theme/DarkModeQueryParamReader'
 import { getLimitOrderContract, isAddressString, shortenAddress } from 'utils'
@@ -323,12 +322,10 @@ export default function App() {
                     <Route path={`${APP_PATHS.ABOUT}/knc`} element={<AboutKNC />} />
                     <Route path={`${APP_PATHS.REFERRAL}`} element={<CreateReferral />} />
                     <Route path={`${APP_PATHS.KYBERAI_ABOUT}`} element={<KyberAILandingPage />} />
-                    <Route path={`${APP_PATHS.KYBERAI_RANKINGS}`} element={<TrueSightV2 />} />
-                    <Route path={`${APP_PATHS.KYBERAI_EXPLORE}`} element={<TrueSightV2 />} />
                     <Route
                       path={`${APP_PATHS.KYBERAI_RANKINGS}`}
                       element={
-                        <ProtectedRoute redirectUrl={APP_PATHS.KYBERAI}>
+                        <ProtectedRoute redirectUrl={APP_PATHS.KYBERAI_ABOUT}>
                           <TrueSightV2 />
                         </ProtectedRoute>
                       }
@@ -336,12 +333,11 @@ export default function App() {
                     <Route
                       path={`${APP_PATHS.KYBERAI_EXPLORE}`}
                       element={
-                        <ProtectedRoute redirectUrl={APP_PATHS.KYBERAI}>
+                        <ProtectedRoute redirectUrl={APP_PATHS.KYBERAI_ABOUT}>
                           <TrueSightV2 />
                         </ProtectedRoute>
                       }
                     />
-                    <Route path={`${APP_PATHS.KYBERAI}`} element={<SignIn />} />
                     <Route path={`${APP_PATHS.BUY_CRYPTO}`} element={<BuyCrypto />} />
                     <Route path={`${APP_PATHS.CAMPAIGN}`} element={<Campaign />} />
                     <Route path={`${APP_PATHS.CAMPAIGN}/:slug`} element={<Campaign />} />

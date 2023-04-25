@@ -1,7 +1,7 @@
 import KyberOauth2, { LoginMethod } from '@kybernetwork/oauth2'
 import { useCallback, useEffect, useRef } from 'react'
 
-import { OAUTH_CLIENT_ID } from 'constants/env'
+import { ENV_KEY, OAUTH_CLIENT_ID } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import { useIsConnectedWallet } from 'hooks/useSyncNetworkParamWithStore'
 import { updateProcessingLogin } from 'state/authen/actions'
@@ -11,7 +11,7 @@ import { useAppDispatch } from 'state/hooks'
 KyberOauth2.initialize({
   clientId: OAUTH_CLIENT_ID,
   redirectUri: `${window.location.protocol}//${window.location.host}${'/kyberai'}`, // todo
-  mode: process.env.REACT_APP_ENV,
+  mode: ENV_KEY,
 })
 
 /**

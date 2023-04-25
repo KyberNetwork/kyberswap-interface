@@ -1,6 +1,8 @@
+import KyberOauth2 from '@kybernetwork/oauth2'
 import { Trans } from '@lingui/macro'
 import { motion } from 'framer-motion'
 import { ReactNode } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -26,8 +28,12 @@ import sprite from 'assets/svg/kyberAILandingPageSprite.svg'
 import { ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import GlobalIcon from 'components/Icons/Icon'
+import LocalLoader from 'components/LocalLoader'
 import Row from 'components/Row'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { useWalletModalToggle } from 'state/application/hooks'
+import { useSessionInfo } from 'state/authen/hooks'
 
 const Icon = ({
   id,
@@ -191,6 +197,18 @@ const CallToActionBox = styled.div`
 `
 export default function KyberAILandingPage() {
   const theme = useTheme()
+  const [{ isLogin, userInfo, anonymousUserInfo, processing }] = useSessionInfo()
+  const { account } = useActiveWeb3React()
+  const navigate = useNavigate()
+  const toggleWalletModal = useWalletModalToggle()
+  console.log({
+    isLogin,
+    userInfo,
+    anonymousUserInfo,
+    processing,
+  })
+
+  if (processing) return <LocalLoader />
 
   return (
     <Wrapper>
@@ -206,9 +224,20 @@ export default function KyberAILandingPage() {
             <Text fontSize="20px" lineHeight="24px" fontWeight={500}>
               Get alpha before it happens
             </Text>
-            <ConnectWalletButton style={{ height: '36px', width: '236px' }}>
-              <Trans>Connect Wallet</Trans>
-            </ConnectWalletButton>
+            {!account ? (
+              <ConnectWalletButton style={{ height: '36px', width: '236px' }} onClick={toggleWalletModal}>
+                <Trans>Connect Wallet</Trans>
+              </ConnectWalletButton>
+            ) : !isLogin ? (
+              <ConnectWalletButton
+                style={{ height: '36px', width: '236px' }}
+                onClick={() => KyberOauth2.authenticate()}
+              >
+                <Trans>Sign-in to Continue</Trans>
+              </ConnectWalletButton>
+            ) : (
+              <>login roi ne</>
+            )}
           </Column>
           <ColumnWithMotion transition={transition} variants={appearVariants} style={{ position: 'relative' }}>
             <FloatingImageWithMotion src={bitcoinImage} alt="ape head" left={-120} top={300} />
