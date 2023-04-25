@@ -180,7 +180,7 @@ export const formatAmountBridge = (rawAmount: string) => {
     return formatter.format(amount)
   }
 
-  return formatNumberWithPrecisionRange(amount, 0, 2)
+  return formatNumberWithPrecisionRange(amount, 0, 6)
 }
 
 export const getLabelByStatus = (status: MultichainTransferStatus): string => {

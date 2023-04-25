@@ -5,24 +5,26 @@ import { Flex, Text } from 'rebass'
 import Column from 'components/Column'
 import Logo from 'components/Logo'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { MultichainTransfer } from 'hooks/bridge/useGetBridgeTransfers'
 import useTheme from 'hooks/useTheme'
 import { formatAmountBridge } from 'pages/Bridge/helpers'
+import { CrossChainTransfer } from 'pages/CrossChain/useTransferHistory'
 
 type Props = {
-  transfer: MultichainTransfer
+  transfer: CrossChainTransfer
 }
 
 const TokenAmount = ({
   amount,
   symbol,
   isReceiveAnyToken,
+  logoUrl,
   plus,
 }: {
   amount: string
   symbol: string
   isReceiveAnyToken?: boolean
   plus?: boolean
+  logoUrl: string
 }) => {
   const theme = useTheme()
   return (
@@ -33,7 +35,7 @@ const TokenAmount = ({
       style={{ gap: '4px' }}
       color={isReceiveAnyToken ? theme.warning : plus ? theme.primary : theme.subText}
     >
-      <Logo srcs={['']} style={{ width: 16, height: 16, borderRadius: '50%' }} />
+      <Logo srcs={[logoUrl]} style={{ width: 16, height: 16, borderRadius: '50%' }} />
       <Text>
         {plus ? '+' : '-'} {formatAmountBridge(amount)}
       </Text>{' '}
@@ -57,16 +59,27 @@ const TokenAmount = ({
   )
 }
 
-const TokenReceiveCell: React.FC<Props> = ({ transfer }) => {
+const TokenReceiveCell: React.FC<Props> = ({
+  transfer: {
+    dstTokenLogoUrl,
+    srcTokenLogoUrl,
+    shouldCheckAxelarscan,
+    srcTokenSymbol,
+    dstAmount,
+    dstTokenSymbol,
+    srcAmount,
+  },
+}) => {
   return (
     <Column style={{ gap: '4px' }}>
       <TokenAmount
+        logoUrl={dstTokenLogoUrl}
         plus
-        amount={transfer.dstAmount}
-        symbol={transfer.dstTokenSymbol}
-        isReceiveAnyToken={transfer.isReceiveAnyToken}
+        amount={dstAmount}
+        symbol={shouldCheckAxelarscan ? 'axlUSDC' : dstTokenSymbol}
+        isReceiveAnyToken={shouldCheckAxelarscan}
       />
-      <TokenAmount amount={transfer.dstAmount} symbol={transfer.dstTokenSymbol} />
+      <TokenAmount logoUrl={srcTokenLogoUrl} amount={srcAmount} symbol={srcTokenSymbol} />
     </Column>
   )
 }

@@ -3,6 +3,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
+import { useSaveCrossChainTxsMutation } from 'services/crossChain'
 import styled from 'styled-components'
 
 import SquidLogoDark from 'assets/images/squid_dark.png'
@@ -19,6 +20,7 @@ import useCheckStablePairSwap from 'components/SwapForm/hooks/useCheckStablePair
 import { AdvancedSwapDetailsDropdownCrossChain } from 'components/swapv2/AdvancedSwapDetailsDropdown'
 import { ETHER_ADDRESS, TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { captureExceptionCrossChain } from 'hooks/bridge/useBridgeCallback'
 import { useChangeNetwork } from 'hooks/useChangeNetwork'
 import useTheme from 'hooks/useTheme'
 import TradeTypeSelection from 'pages/CrossChain/SwapForm/TradeTypeSelection'
@@ -133,6 +135,8 @@ export default function SwapForm() {
   }, [])
 
   const addTransaction = useTransactionAdder()
+  const [saveTxsToDb] = useSaveCrossChainTxsMutation()
+
   const handleSwap = useCallback(async () => {
     try {
       if (!library || !squidInstance || !route || !inputAmount || !outputAmount || !currencyIn || !currencyOut) return
@@ -141,6 +145,12 @@ export default function SwapForm() {
         signer: library.getSigner(),
         route,
       })
+
+      setInputAmount('')
+      setSwapState(state => ({ ...state, attemptingTxn: false, txHash: tx.hash }))
+      const tokenAmountOut = uint256ToFraction(outputAmount, currencyOut.decimals).toSignificant(6)
+      const tokenAddressIn = currencyIn.wrapped.address
+      const tokenAddressOut = currencyOut.wrapped.address
       addTransaction({
         type: TRANSACTION_TYPE.CROSS_CHAIN_SWAP,
         hash: tx.hash,
@@ -148,9 +158,9 @@ export default function SwapForm() {
           tokenSymbolIn: currencyIn?.symbol ?? '',
           tokenSymbolOut: currencyOut?.symbol ?? '',
           tokenAmountIn: inputAmount,
-          tokenAmountOut: uint256ToFraction(outputAmount, currencyOut.decimals).toSignificant(6),
-          tokenAddressIn: currencyIn?.address,
-          tokenAddressOut: currencyOut?.address,
+          tokenAmountOut,
+          tokenAddressIn,
+          tokenAddressOut,
           tokenLogoURLIn: currencyIn.logoURI,
           tokenLogoURLOut: currencyOut.logoURI,
           chainIdIn: chainId,
@@ -158,8 +168,19 @@ export default function SwapForm() {
           rate: exchangeRate,
         },
       })
-      setInputAmount('')
-      setSwapState(state => ({ ...state, attemptingTxn: false, txHash: tx.hash }))
+      const payload = {
+        walletAddress: account,
+        srcChainId: chainId + '',
+        dstChainId: chainIdOut + '',
+        srcTxHash: tx.hash,
+        srcTokenAddress: tokenAddressIn,
+        dstTokenAddress: tokenAddressOut,
+        srcAmount: inputAmount,
+        dstAmount: tokenAmountOut,
+      }
+      saveTxsToDb(payload).catch(e => {
+        captureExceptionCrossChain(payload, e, 'CrossChain')
+      })
     } catch (error) {
       console.error(error)
       setSwapState(state => ({ ...state, attemptingTxn: false, errorMessage: error?.message || error }))
@@ -177,6 +198,8 @@ export default function SwapForm() {
     outputAmount,
     exchangeRate,
     setInputAmount,
+    saveTxsToDb,
+    account,
   ])
 
   const maxAmountInput = useCurrencyBalance(currencyIn)?.toExact()
@@ -232,7 +255,7 @@ export default function SwapForm() {
         </Flex>
 
         <Flex justifyContent="space-between" alignItems={'center'}>
-          <TradePrice route={route} refresh={refreshRoute} disabled={swapState.showConfirm} />
+          <TradePrice route={route} refresh={refreshRoute} disabled={swapState.showConfirm} loading={gettingRoute} />
           <ArrowWrapper>
             <ArrowUp fill={theme.subText} width={14} height={14} />
           </ArrowWrapper>

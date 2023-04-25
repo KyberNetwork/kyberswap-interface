@@ -7,6 +7,7 @@ import { ENV_LEVEL } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
 
 import annoucementApi from '../services/announcement'
+import crosschainApi from '../services/crossChain'
 import geckoTerminalApi from '../services/geckoTermial'
 import ksSettingApi from '../services/ksSetting'
 import notificationApi from '../services/notification'
@@ -61,6 +62,7 @@ const store = configureStore({
     [geckoTerminalApi.reducerPath]: geckoTerminalApi.reducer,
     [notificationApi.reducerPath]: notificationApi.reducer,
     [ksSettingApi.reducerPath]: ksSettingApi.reducer,
+    [crosschainApi.reducerPath]: crosschainApi.reducer,
     [priceAlertApi.reducerPath]: priceAlertApi.reducer,
     campaigns,
     tutorial,
@@ -78,6 +80,7 @@ const store = configureStore({
       .concat(geckoTerminalApi.middleware)
       .concat(notificationApi.middleware)
       .concat(ksSettingApi.middleware)
+      .concat(crosschainApi.middleware)
       .concat(annoucementApi.middleware)
       .concat(priceAlertApi.middleware)
       .concat(routeApi.middleware),
