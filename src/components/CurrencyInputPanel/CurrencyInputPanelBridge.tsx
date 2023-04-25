@@ -184,7 +184,7 @@ export default function CurrencyInputPanelBridge({
           <CurrencySearchModal
             isOpen={modalOpen}
             onDismiss={handleDismissSearch}
-            onCurrencySelect={onCurrencySelect} // todo
+            onCurrencySelect={onCurrencySelect as any} // todo
             selectedCurrency={currency}
             showCommonBases
             customChainId={selectedChainId}
