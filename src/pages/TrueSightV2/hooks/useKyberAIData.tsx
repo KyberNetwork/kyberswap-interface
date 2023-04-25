@@ -3,8 +3,10 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { KYBERAI_API } from 'constants/env'
 
 import {
+  ILiquidCEX,
   INetflowToCEX,
   INetflowToWhaleWallets,
+  INumberOfHolders,
   INumberOfTrades,
   INumberOfTransfers,
   ITokenOverview,
@@ -25,7 +27,7 @@ const kyberAIApi = createApi({
       query: () => ({
         url: '/holders/ethereum/C/BTC',
       }),
-      transformResponse: (res: any) => TOKEN_LIST,
+      transformResponse: () => TOKEN_LIST,
     }),
     //2.
     addToWatchlist: builder.mutation({
@@ -55,14 +57,14 @@ const kyberAIApi = createApi({
     //5.
     numberOfTrades: builder.query<INumberOfTrades[], string>({
       query: (tokenAddress?: string) => ({
-        url: '/trades/ethereum/0xdAC17F958D2ee523a2206206994597C13D831ec7?from=1672531200&to=1673136000',
+        url: `/trades/ethereum/${tokenAddress}?from=1672531200&to=1673136000`,
       }),
       transformResponse: (res: any) => res.data,
     }),
     //6.
     tradingVolume: builder.query<ITradingVolume[], { tokenAddress?: string; params?: { from: number; to: number } }>({
       query: ({ tokenAddress, params }) => ({
-        url: '/volume/ethereum/0xdAC17F958D2ee523a2206206994597C13D831ec7',
+        url: `/volume/ethereum/${tokenAddress}`,
         params,
       }),
       transformResponse: (res: any) => {
@@ -109,9 +111,10 @@ const kyberAIApi = createApi({
       transformResponse: (res: any) => res.data,
     }),
     //9.
-    numberOfHolders: builder.query({
-      query: () => ({
-        url: '/holdersNum/ethereum/0xdac17f958d2ee523a2206206994597c13d831ec7?from=1633344036&to=1675215565',
+    numberOfHolders: builder.query<INumberOfHolders[], { tokenAddress?: string; from: number; to: number }>({
+      query: ({ tokenAddress, from, to }) => ({
+        url: `/holdersNum/ethereum/${tokenAddress}`,
+        params: { from, to },
       }),
       transformResponse: (res: any) => res.data,
     }),
@@ -120,7 +123,7 @@ const kyberAIApi = createApi({
       query: () => ({
         url: '/holders/ethereum/0xdac17f958d2ee523a2206206994597c13d831ec7?from=1633344036&to=1675215565',
       }),
-      transformResponse: (res: any) => HOLDER_LIST,
+      transformResponse: () => HOLDER_LIST,
     }),
     //11.
     chartingData: builder.query<OHLCData[], { from: number; to: number; candleSize: string; currency: string }>({
@@ -136,7 +139,32 @@ const kyberAIApi = createApi({
     }),
     //14.
     liveDexTrades: builder.query({
-      query: () => ({ url: "/live-trades/ethereum/0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202'" }),
+      query: ({ tokenAddress }) => ({ url: `/live-trades/ethereum/${tokenAddress}` }),
+    }),
+    //15.
+    cexesLiquidation: builder.query<
+      {
+        chart: ILiquidCEX[]
+        totalVolUsd: { h1TotalVolUsd: number; h4TotalVolUsd: number; h12TotalVolUsd: number; h24TotalVolUsd: number }
+      },
+      { tokenAddress?: string; chartSize?: '1d' | '7d' | '1m' | '3m' | string }
+    >({
+      query: ({
+        tokenAddress,
+        chartSize,
+      }: {
+        tokenAddress?: string
+        chartSize?: '1d' | '7d' | '1m' | '3m' | string
+      }) => ({
+        url: `cex/liquidation/ethereum/${tokenAddress}`,
+        params: { chartSize },
+      }),
+      transformResponse: (res: any) => {
+        if (res.code === 0) {
+          return res.data
+        }
+        throw new Error(res.msg)
+      },
     }),
     //16.
     transferInformation: builder.query<INumberOfTransfers[], { tokenAddress?: string; from: number; to: number }>({
@@ -163,19 +191,6 @@ export const coinglassApi = createApi({
     baseUrl: 'https://fapi.coinglass.com/api/',
   }),
   endpoints: builder => ({
-    cexesLiquidation: builder.query({
-      query: (timeframe?: string) => ({
-        url: `futures/liquidation/chart?symbol=BTC&timeType=${
-          (timeframe && { '1D': '11', '7D': '1', '1M': '4' }[timeframe]) || '1'
-        }`,
-      }),
-      transformResponse: (res: any) => {
-        if (res.success) {
-          return undefined
-        }
-        throw new Error(res.msg)
-      },
-    }),
     cexesInfo: builder.query({
       query: () => ({
         url: 'futures/liquidation/info?symbol=BTC&timeType=1&size=12',
@@ -216,7 +231,8 @@ export const {
   useChartingDataQuery,
   useAddToWatchlistMutation,
   useRemoveFromWatchlistMutation,
+  useCexesLiquidationQuery,
   useSearchTokenQuery,
 } = kyberAIApi
-export const { useCexesLiquidationQuery, useCexesInfoQuery, useFundingRateQuery } = coinglassApi
+export const { useCexesInfoQuery, useFundingRateQuery } = coinglassApi
 export default kyberAIApi

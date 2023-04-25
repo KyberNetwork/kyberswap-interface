@@ -6,6 +6,7 @@ import styled, { useTheme } from 'styled-components'
 import Icon from 'components/Icons/Icon'
 import { RowFit } from 'components/Row'
 
+import { calculateValueToColor } from '../utils'
 import { gaugeList } from './KyberScoreMeter'
 import SimpleTooltip from './SimpleTooltip'
 
@@ -25,7 +26,7 @@ const GaugeValue = styled.div`
 `
 function SmallKyberScoreMeter({ value }: { value?: number }) {
   const theme = useTheme()
-  const emptyColor = theme.darkMode ? theme.subText + '30' : theme.background2
+  const emptyColor = theme.darkMode ? theme.subText + '30' : theme.border + '60'
   const activeGaugeValue = value ? (gaugeList.length * value) / 100 : 0
   const gaugeColor = useCallback(
     (value: number) => {
@@ -33,23 +34,11 @@ function SmallKyberScoreMeter({ value }: { value?: number }) {
       if (value > activeGaugeValue) {
         return emptyColor
       }
-      if (percent < 20) {
-        return theme.red
-      }
-      if (percent < 40) {
-        return '#FFA7C3'
-      }
-      if (percent < 60) {
-        return theme.text
-      }
-      if (percent < 80) {
-        return '#8DE1C7'
-      }
-
-      return theme.primary
+      return calculateValueToColor(percent, theme)
     },
     [activeGaugeValue, theme, emptyColor],
   )
+
   return (
     <Wrapper>
       <svg xmlns="http://www.w3.org/2000/svg" width="52" height="32" viewBox="0 0 218 133" fill="none">

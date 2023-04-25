@@ -333,7 +333,7 @@ export default function StakeKNCComponent() {
         isUndelegate.current = false
         toggleDelegateConfirm()
       })
-      .catch(error => {
+      .catch(_error => {
         setFeatureText(t`Delegate`)
         setShowConfirm(false)
       })

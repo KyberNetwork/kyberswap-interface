@@ -1,9 +1,10 @@
 import { t } from '@lingui/macro'
 import { memo, useState } from 'react'
 
+import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import useSyncTokenSymbolToUrl from 'hooks/useSyncTokenSymbolToUrl'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
-import { TRANSACTION_STATE_DEFAULT, TransactionFlowState } from 'types'
+import { TransactionFlowState } from 'types/TransactionFlowState'
 
 import LimitOrderForm from './LimitOrderForm'
 

@@ -54,11 +54,18 @@ msgstr ""
 msgid "1D"
 msgstr ""
 
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
+msgid "1Y Range"
+msgstr ""
+
 #: src/pages/About/AboutKyberSwap/index.tsx
 msgid "24H Trading Volume"
 msgstr ""
 
 #: src/components/swapv2/TokenInfoV2/SingleTokenInfo.tsx
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
 msgid "24H Volume"
 msgstr ""
 
@@ -86,6 +93,14 @@ msgstr ""
 msgid "<0><1>Current Price:</1> 1 {0} = {1} {2}</0>"
 msgstr ""
 
+#: src/components/SwapForm/PriceImpactNote.tsx
+msgid "<0><1>Price Impact</1>is very high. You will lose funds!</0>"
+msgstr ""
+
+#: src/pages/TrueSightV2/components/TutorialModal.tsx
+msgid "<0>A unique trading insight offered by KyberAI is the <1>KyberScore</1>. KyberScore uses <2>AI</2> to measure the upcoming trend (bullish or bearish) of a token by taking into account multiple on-chain and off-chain indicators. The score ranges from 0 to 100. Higher the score, more bullish the token in the <3>short-term</3>.</0> <4>Each token supported by KyberAI is assigned a KyberScore. It refreshes multiple times a day as we collect more data on the token. You can find the KyberScore of a token in the <5>Rankings</5> or <6>Explore</6> section. Read more about the calculation here.</4> <7><8>Note: KyberScore should not be considered as financial advice</8></7>"
+msgstr ""
+
 #: src/components/YieldPools/FarmGuide.tsx
 msgid "<0>Add liquidity</0> to the corresponding <1>Elastic pool</1> and receive a NFT token for your liquidity position"
 msgstr ""
@@ -98,6 +113,10 @@ msgstr ""
 #~ msgid "<0>Advanced Mode</0> turns off the 'Confirm' transaction prompt while trading and allows trades with high price impact that can result in bad rates and lost funds."
 #~ msgstr ""
 
+#: src/pages/TrueSightV2/pages/LandingPage.tsx
+msgid "<0>Already have a token in mind?</0> <1/>Find on-chain & technical insights that provide you the edge to make the right decision, at the right time."
+msgstr ""
+
 #: src/components/YieldPools/FarmGuide.tsx
 msgid "<0>Approve</0> the farming contract (if you haven't) to let it access your liquidity positions (NFT tokens)"
 msgstr ""
@@ -106,8 +125,16 @@ msgstr ""
 msgid "<0>Claim</0> your farming rewards from the <1>Vesting</1> tab! Note: some farms may have a vesting period"
 msgstr ""
 
+#: src/pages/TrueSightV2/pages/LandingPage.tsx
+msgid "<0>Crypto traders all around the world face various challenges every day. <1>Having to stay on top of the news, making high pressure decisions, spending a lot of time researching information and analysing market movements... it's not easy.</1></0><2>But what if there was a solution to these problems. What if you could have access to <3>a tool that could assist you to navigate the dizzy world of crypto with ease?</3></2><4>Well, there is.</4>"
+msgstr ""
+
 #: src/components/YieldPools/FarmGuide.tsx
 msgid "<0>Deposit</0> your liquidity position (NFT token) into the farming contract. Then <1>stake</1> it into the farm"
+msgstr ""
+
+#: src/pages/TrueSightV2/components/TutorialModal.tsx
+msgid "<0>For traders, analyzing & interpreting on-chain data can be very powerful. It helps us see what whales, smart money and other traders are up to. And so, KyberAI has cherry picked the best on-chain indicators to help traders like you spot alpha on your tokens. Check out the <1>On-Chain Analysis</1> tab of the <2>Explore</2> section!</0><3>The best traders combine on-chain analysis with technical analysis (TA). TA is used to identify trading opportunities by evaluating price charts, price trends, patterns etc. KyberAI makes TA easy for traders. Check out the <4>Technical Analysis</4> tab of the Explore section!</3>"
 msgstr ""
 
 #: src/components/YieldPools/FarmGuide.tsx
@@ -118,12 +145,20 @@ msgstr ""
 msgid "<0>Identify</0> the Elastic farm you would like to participate in"
 msgstr ""
 
+#: src/pages/TrueSightV2/pages/LandingPage.tsx
+msgid "<0>KyberScore - our unique insight uses our Machine Learning algorithms</0> and multiple on-chain and off-chain indicators to identify whether a token is going to be <1>Bullish</1> or<2>Bearish</2> in the short term."
+msgstr ""
+
 #: src/pages/SwapV2/index.tsx
-msgid "<0>KyberSwap</0> gets you the best token rates"
-msgstr "<0>KyberSwap</0> mang đến tỷ giá Token tốt nhất cho bạn"
+#~ msgid "<0>KyberSwap</0> gets you the best token rates"
+#~ msgstr "<0>KyberSwap</0> mang đến tỷ giá Token tốt nhất cho bạn"
 
 #: src/pages/Bridge/Disclaimer.tsx
 msgid "<0>Multichain</0> is a well-known cross-chain router protocol that facilitates transfer of tokens between chains. However, in the event of a security breach on our partners platform, KyberSwap won't assume any liability for any losses incurred."
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/LandingPage.tsx
+msgid "<0>On the lookout for tokens?</0> <1/>Start with the Rankings section. You will see top tokens ranked by Bullish, Bearish, Top CEX Inflow, Top CEX Outflow, Top Traded, Trending Soon and Currently Trending."
 msgstr ""
 
 #: src/components/YieldPools/ElasticFarmSummary/SummaryContent.tsx
@@ -147,12 +182,16 @@ msgid "<0>PRICE RANGE <1>({0} per {1})</1></0>"
 msgstr ""
 
 #: src/components/SwapForm/PriceImpactNote.tsx
-msgid "<0>Price Impact</0><1> is high.</1>"
+#~ msgid "<0>Price Impact</0><1> is high.</1>"
+#~ msgstr ""
+
+#: src/components/SwapForm/PriceImpactNote.tsx
+msgid "<0>Price Impact</0><1> is high</1>"
 msgstr ""
 
 #: src/components/SwapForm/PriceImpactNote.tsx
-msgid "<0>Price Impact</0><1>is <2>very</2> high</1>"
-msgstr ""
+#~ msgid "<0>Price Impact</0><1>is <2>very</2> high</1>"
+#~ msgstr ""
 
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 #: src/components/SwapForm/TradeSummary.tsx
@@ -161,8 +200,19 @@ msgstr ""
 msgid "<0>Read more <1><2>here ↗</2></1></0>"
 msgstr ""
 
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "<0>Slippage</0><1> is high. Your transaction may be front-run</1>"
+msgstr ""
+
 #: src/components/SlippageWarningNote/index.tsx
 msgid "<0>Slippage</0><1> {msg}</1>"
+msgstr ""
+
+#: src/pages/IncreaseLiquidity/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+msgid "<0>Slippage</0><1>is high. Your transaction may be front-run</1>"
 msgstr ""
 
 #: src/components/Tutorial/TutorialSwap/index.tsx
@@ -173,8 +223,24 @@ msgstr ""
 msgid "<0>Step: {stepNumber}/</0><1>{totalStep}</1>"
 msgstr ""
 
+#: src/pages/TrueSightV2/pages/TechnicalAnalysis.tsx
+msgid "<0>Support level</0> is where the price of a token normally stops falling and bounces back from. <1>Resistance level</1> is where the price of a token normally stops rising and dips back down. <2>Support</2> and <3>Resistance</3> levels may vary depending on the timeframe you're looking at."
+msgstr ""
+
 #: src/pages/About/AboutKyberSwap/index.tsx
 msgid "<0>Swap</0> and <1>Earn</1> Tokens at the Best Rates"
+msgstr ""
+
+#: src/pages/TrueSightV2/components/TutorialModal.tsx
+msgid "<0>That's not all! Here are a few handy tips so you can get the most out of KyberAI:</0> <1><2>Use the search bar to <3>search</3> for any token you'd like to explore. KyberAI supports 4000+ tokens!</2><4><5>Subscribe</5> to receive daily emails on the top tokens as recommended by KyberAI!</4><6>Monitoring the price of a token? Set a <7>price alert</7>, sit back, and we'll notify you!</6><8>Create a <9>watchlist</9> of your favorite tokens, and access it quickly!</8></1> <10>If you wish to view this guide again, you can enable it from the settings. </10><11><12>Ape Smart with KyberAI.</12></11>"
+msgstr ""
+
+#: src/components/SwapForm/PriceImpactNote.tsx
+msgid "<0>Unable to calculate</0><1>Price Impact</1>"
+msgstr ""
+
+#: src/pages/TrueSightV2/components/TutorialModal.tsx
+msgid "<0>Whether you're looking to identify new tokens to trade, or get alpha on a specific token, KyberAI has it all! KyberAI currently provides trading insights on <1>4000+ tokens</1> across <2>7 blockchains!</2></0> <3>For traders who are in discovery mode, start with the Rankings section. Here you will see top tokens under each of the 7 categories - <4>Bullish, Bearish, Top CEX Inflow, Top CEX Outflow, Top Traded, Trending Soon, Currently Trending.</4>We update the token rankings multiple times a day!</3> <5>For traders looking to spot alpha on specific tokens, start with the Explore section. You will find a number of On-Chain and Technical insights on your token that you can look at to make an informed trading decision.</5>"
 msgstr ""
 
 #: src/pages/Verify/index.tsx
@@ -216,7 +282,7 @@ msgid "ABOUT KNC"
 msgstr ""
 
 #: src/components/swapv2/LimitOrder/ListOrder/TableHeader.tsx
-#: src/pages/Bridge/BridgeTransferHistory/index.tsx
+#: src/pages/Bridge/BridgeTransferHistory/TransferHistoryTable/Desktop.tsx
 msgid "ACTION"
 msgstr ""
 
@@ -224,7 +290,7 @@ msgstr ""
 msgid "ACTIONS"
 msgstr ""
 
-#: src/pages/Bridge/BridgeTransferHistory/index.tsx
+#: src/pages/Bridge/BridgeTransferHistory/TransferHistoryTable/Mobile.tsx
 msgid "AMOUNT"
 msgstr ""
 
@@ -280,6 +346,7 @@ msgid "AVG APR ↓"
 msgstr ""
 
 #: src/components/Header/groups/AboutNavGroup.tsx
+#: src/components/Header/KyberAINavItem.tsx
 #: src/components/Menu/index.tsx
 msgid "About"
 msgstr "Giới thiệu"
@@ -294,7 +361,6 @@ msgstr ""
 
 #: src/components/Header/web3/WalletModal/index.tsx
 #: src/components/SwapForm/SwapModal/AcceptChangesNotice.tsx
-#: src/components/swapv2/SwapModalHeader.tsx
 msgid "Accept"
 msgstr "Chấp nhận"
 
@@ -302,11 +368,17 @@ msgstr "Chấp nhận"
 #~ msgid "Accept update"
 #~ msgstr "Chấp nhận cập nhật"
 
+#: src/pages/TrueSightV2/pages/LandingPage.tsx
+msgid "Access deep insights & stay informed."
+msgstr ""
+
 #: src/pages/Pools/ModalEthPoWAck.tsx
 #~ msgid "Acknowledge"
 #~ msgstr ""
 
 #: src/pages/KyberDAO/StakeKNC/YourTransactionsModal.tsx
+#: src/pages/TrueSightV2/components/table/index.tsx
+#: src/pages/TrueSightV2/pages/TokenAnalysisList.tsx
 msgid "Action"
 msgstr ""
 
@@ -402,6 +474,10 @@ msgstr ""
 msgid "Add liquidity to the pool by supplying a single token (either token from the token pair). We will automatically create LP tokens for you and add them to the liquidity pool - all in a single transaction"
 msgstr ""
 
+#: src/pages/TrueSightV2/pages/TokenAnalysisList.tsx
+msgid "Add to watchlist"
+msgstr ""
+
 #: src/components/TransactionConfirmationModal/index.tsx
 #~ msgid "Add {0} to Metamask"
 #~ msgstr "Thêm {0} vào Metamask"
@@ -415,6 +491,9 @@ msgid "Additional Options"
 msgstr ""
 
 #: src/components/SearchModal/ImportToken.tsx
+#: src/pages/TrueSightV2/components/table/index.tsx
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
 msgid "Address"
 msgstr ""
 
@@ -435,8 +514,8 @@ msgstr ""
 #~ msgid "Advanced Mode"
 #~ msgstr "Chế Độ Nâng Cao"
 
-#: src/components/TransactionSettings/index.tsx
 #: src/components/swapv2/SwapSettingsPanel/index.tsx
+#: src/components/TransactionSettings/index.tsx
 msgid "Advanced Settings"
 msgstr "Tuỳ Chỉnh Nâng Cao"
 
@@ -494,6 +573,7 @@ msgstr ""
 #: src/components/WalletPopup/Transactions/Tab.tsx
 #: src/pages/KyberDAO/Vote/SelectProposalStatus.tsx
 #: src/pages/Pools/index.tsx
+#: src/pages/TrueSightV2/pages/TokenAnalysisList.tsx
 msgid "All"
 msgstr ""
 
@@ -504,6 +584,7 @@ msgstr ""
 #: src/components/TrueSightNetworkModal/index.tsx
 #: src/components/TrueSightNetworkModal/index.tsx
 #: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
+#: src/pages/TrueSightV2/components/NetworkSelect.tsx
 msgid "All Chains"
 msgstr ""
 
@@ -515,6 +596,16 @@ msgstr ""
 #: src/pages/NotificationCenter/Menu/index.tsx
 #: src/pages/NotificationCenter/Menu/index.tsx
 msgid "All Notifications"
+msgstr ""
+
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
+msgid "All Time High"
+msgstr ""
+
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
+msgid "All Time Low"
 msgstr ""
 
 #: src/components/PoolsCurrencyInputPanel/index.tsx
@@ -549,6 +640,10 @@ msgstr ""
 msgid "Amount"
 msgstr "Số Lượng"
 
+#: src/pages/TrueSightV2/components/table/index.tsx
+msgid "Amount held"
+msgstr ""
+
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Amount to remove"
 msgstr ""
@@ -559,6 +654,14 @@ msgstr ""
 
 #: src/utils/dmm.ts
 msgid "An error occurred"
+msgstr ""
+
+#: src/hooks/usePermit.ts
+msgid "An error occurred while attempting to authorize this token. Please approve it normally instead."
+msgstr ""
+
+#: src/utils/dmm.ts
+msgid "An error occurred. Invalid Permit Signature"
 msgstr ""
 
 #: src/utils/dmm.ts
@@ -572,6 +675,10 @@ msgstr ""
 #: src/utils/dmm.ts
 #: src/utils/sendTransaction.ts
 msgid "An error occurred. Try refreshing the price rate or increase max slippage"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/LandingPage.tsx
+msgid "An intelligent platform that provides valuable insights on 4000+ Tokens across 7 Chains"
 msgstr ""
 
 #: src/components/Popups/ListUpdatePopup.tsx
@@ -609,6 +716,14 @@ msgstr ""
 msgid "Anyone can provide liquidity to KyberSwap by depositing tokens e.g. Traders, Token Teams."
 msgstr ""
 
+#: src/pages/TrueSightV2/pages/LandingPage.tsx
+msgid "Ape Smart with <0>KyberAI</0>"
+msgstr ""
+
+#: src/pages/TrueSightV2/components/SearchWithDropDown.tsx
+msgid "Ape Smart!"
+msgstr ""
+
 #: src/pages/About/AboutKyberSwap/index.tsx
 msgid "Applicable to KyberSwap Classic"
 msgstr ""
@@ -619,22 +734,31 @@ msgstr ""
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
+#: src/pages/SwapV3/ApprovalModal.tsx
+#: src/pages/SwapV3/ApprovalModal.tsx
 msgid "Approve"
 msgstr "Chấp nhận"
 
 #: src/components/SwapForm/SwapActionButton/index.tsx
 #: src/pages/SwapV2/index.tsx
-msgid "Approve ${0}"
+#~ msgid "Approve ${0}"
+#~ msgstr ""
+
+#: src/components/SwapForm/SwapActionButton/index.tsx
+#: src/components/SwapForm/SwapActionButton/index.tsx
+msgid "Approve <0>{0}</0> requires to be more than <1>{1} {2}</1>, find out more <2>here</2>"
 msgstr ""
 
 #: src/components/YieldPools/ElasticFarmGroup/index.tsx
 msgid "Approve Farming Contract"
 msgstr ""
 
+#: src/components/SwapForm/SwapActionButton/index.tsx
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/IncreaseLiquidity/index.tsx
 #: src/pages/IncreaseLiquidity/index.tsx
+#: src/pages/SwapV2/index.tsx
 msgid "Approve {0}"
 msgstr "Chấp nhận {0}"
 
@@ -698,6 +822,10 @@ msgstr ""
 #: src/components/WalletPopup/WalletView.tsx
 #: src/components/WalletPopup/WalletView.tsx
 msgid "Assets"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/TokenAnalysisList.tsx
+msgid "At 08:00 AM"
 msgstr ""
 
 #: src/pages/GrantProgram/SingleProgram/RewardSection.tsx
@@ -798,6 +926,19 @@ msgstr "Số Dư"
 msgid "Banned"
 msgstr ""
 
+#: src/pages/TrueSightV2/components/KyberAIWidget.tsx
+msgid "Based on highest KyberScore which analyzes on-chain and off-chain indicators"
+msgstr ""
+
+#: src/pages/TrueSightV2/components/KyberAIWidget.tsx
+msgid "Based on lowest KyberScore which analyzes on-chain and off-chain indicators"
+msgstr ""
+
+#: src/pages/TrueSightV2/components/KyberAIWidget.tsx
+#: src/pages/TrueSightV2/pages/TokenAnalysisList.tsx
+msgid "Bearish"
+msgstr ""
+
 #: src/pages/NotificationCenter/const.ts
 msgid "Below"
 msgstr ""
@@ -876,6 +1017,11 @@ msgstr ""
 msgid "Bug Bounty"
 msgstr ""
 
+#: src/pages/TrueSightV2/components/KyberAIWidget.tsx
+#: src/pages/TrueSightV2/pages/TokenAnalysisList.tsx
+msgid "Bullish"
+msgstr ""
+
 #: src/components/Menu/index.tsx
 msgid "Business Enquiries"
 msgstr ""
@@ -912,7 +1058,7 @@ msgstr ""
 msgid "By collecting, you will receive 100% of your fee earnings"
 msgstr ""
 
-#: src/pages/Bridge/BridgeTransferHistory/index.tsx
+#: src/pages/Bridge/BridgeTransferHistory/TransferHistoryTable/Desktop.tsx
 msgid "CREATED"
 msgstr ""
 
@@ -925,6 +1071,7 @@ msgstr ""
 #~ msgstr ""
 
 #: src/components/SwapForm/SwapActionButton/SwapOnlyButton.tsx
+#: src/components/swapv2/LimitOrder/TradePrice.tsx
 #: src/components/swapv2/TradePrice.tsx
 msgid "Calculating"
 msgstr ""
@@ -945,7 +1092,6 @@ msgstr "Sự kiện"
 #: src/components/swapv2/LimitOrder/ListOrder/ActionButtons.tsx
 #: src/components/swapv2/LimitOrder/Modals/CancelOrderModal.tsx
 #: src/pages/KyberDAO/StakeKNC/DelegateConfirmModal.tsx
-#: src/pages/NotificationCenter/CreateAlert/CreateAlertForm.tsx
 msgid "Cancel"
 msgstr "Huỷ"
 
@@ -1002,6 +1148,7 @@ msgid "Cannot vote at this moment"
 msgstr ""
 
 #: src/pages/Bridge/BridgeTransferHistory/RouteCell.tsx
+#: src/pages/Bridge/BridgeTransferHistory/TransferHistoryTable/Mobile.tsx
 msgid "ChainId: {chainId} not supported"
 msgstr ""
 
@@ -1048,6 +1195,10 @@ msgstr ""
 msgid "Checking price"
 msgstr ""
 
+#: src/pages/SwapV3/ApprovalModal.tsx
+msgid "Choose between Infinite or Custom allowance. <0>Read more ↗</0>"
+msgstr ""
+
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "Choose pool"
 msgstr ""
@@ -1061,6 +1212,8 @@ msgid "Choose your preferred wallet, connect it, and get started with KyberSwap!
 msgstr ""
 
 #: src/components/swapv2/TokenInfoTab.tsx
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
 msgid "Circulating Supply"
 msgstr ""
 
@@ -1149,7 +1302,6 @@ msgstr ""
 #: src/components/Announcement/Popups/CenterPopup.tsx
 #: src/components/Announcement/Popups/CtaButton.tsx
 #: src/components/Announcement/Popups/DetailAnnouncementPopup.tsx
-#: src/components/Announcement/Popups/DetailAnnouncementPopup.tsx
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Close"
 msgstr "Đóng"
@@ -1165,6 +1317,10 @@ msgstr ""
 
 #: src/pages/About/AboutKyberSwap/index.tsx
 msgid "Code Audited"
+msgstr ""
+
+#: src/pages/TrueSightV2/components/KyberAIWidget.tsx
+msgid "Collapse"
 msgstr ""
 
 #: src/components/ProAmm/ProAmmFee.tsx
@@ -1231,6 +1387,8 @@ msgstr ""
 #: src/components/ModalCommunity/index.tsx
 #: src/pages/TrueSight/components/CommunityButton.tsx
 #: src/pages/TrueSight/components/CommunityRowOnMobile.tsx
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
 msgid "Community"
 msgstr ""
 
@@ -1258,12 +1416,12 @@ msgid "Confirm Price"
 msgstr ""
 
 #: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
-#: src/components/swapv2/ConfirmSwapModal.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Confirm Swap"
 msgstr "Chấp nhận Chuyển đổi"
 
 #: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
+#: src/components/swapv2/ConfirmSwapModal.tsx
 msgid "Confirm Swap Details"
 msgstr ""
 
@@ -1276,9 +1434,9 @@ msgstr "Chấp thuận giao dịch này trong ví của bạn"
 #: src/components/Menu/FaucetModal.tsx
 #: src/components/SubscribeButton/NotificationPreference/ActionButtons.tsx
 #: src/components/SwapForm/SwapActionButton/index.tsx
+#: src/components/swapv2/LimitOrder/ActionButtonLimitOrder.tsx
 #: src/components/YieldPools/ElasticFarmGroup/buttons.tsx
 #: src/components/YieldPools/ListItem.tsx
-#: src/components/swapv2/LimitOrder/ActionButtonLimitOrder.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/AddLiquidityV2/index.tsx
@@ -1286,6 +1444,7 @@ msgstr "Chấp thuận giao dịch này trong ví của bạn"
 #: src/pages/Campaign/index.tsx
 #: src/pages/CreatePool/index.tsx
 #: src/pages/IncreaseLiquidity/index.tsx
+#: src/pages/KyberDAO/StakeKNC/MigrateModal.tsx
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 #: src/pages/KyberDAO/Vote/ProposalItem/index.tsx
@@ -1293,6 +1452,9 @@ msgstr "Chấp thuận giao dịch này trong ví của bạn"
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/SwapV2/index.tsx
+#: src/pages/TrueSightV2/components/index.tsx
+#: src/pages/TrueSightV2/components/TruesightFooter.tsx
+#: src/pages/TrueSightV2/pages/LandingPage.tsx
 #: src/state/burn/proamm/hooks.tsx
 #: src/state/mint/proamm/hooks.tsx
 #: src/state/mint/proamm/hooks.tsx
@@ -1334,6 +1496,10 @@ msgstr ""
 msgid "Connect your Wallet"
 msgstr ""
 
+#: src/pages/TrueSightV2/components/index.tsx
+msgid "Connect your wallet to view this insight"
+msgstr ""
+
 #: src/components/Header/web3/AccountDetails/index.tsx
 #~ msgid "Connected with {0}"
 #~ msgstr ""
@@ -1347,8 +1513,8 @@ msgid "Contact Us"
 msgstr "Liên Hệ Chúng Tôi"
 
 #: src/components/ModalContractAddress/index.tsx
-#: src/components/WalletPopup/SendToken/WarningBrave.tsx
 #: src/components/swapv2/TokenInfoTab.tsx
+#: src/components/WalletPopup/SendToken/WarningBrave.tsx
 #: src/pages/TrueSight/components/AddressRowOnMobile.tsx
 msgid "Contract Address"
 msgstr ""
@@ -1429,6 +1595,10 @@ msgstr "Tạo Pool mới"
 msgid "Create a new pool or select another pair of tokens to view the available pools."
 msgstr "Tạo một Pool mới hoặc chọn một cặp token khác để xem các Pool có sẵn."
 
+#: src/pages/TrueSightV2/pages/LandingPage.tsx
+msgid "Create a watchlist of your favorite tokens, and analyze them quickly"
+msgstr ""
+
 #: src/components/ErrorBoundary/FallbackView.tsx
 msgid "Create an issue on GitHub"
 msgstr ""
@@ -1453,9 +1623,9 @@ msgstr ""
 #: src/components/ProAmm/ProAmmPriceRange.tsx
 #: src/components/ProAmm/ProAmmPriceRangeConfirm.tsx
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
+#: src/components/swapv2/SwapModalFooter.tsx
 #: src/components/YieldPools/ElasticFarmGroup/FarmCard.tsx
 #: src/components/YieldPools/ElasticFarmGroup/Row.tsx
-#: src/components/swapv2/SwapModalFooter.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/AddLiquidityV2/index.tsx
@@ -1464,6 +1634,7 @@ msgstr ""
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
+#: src/pages/TrueSightV2/pages/TokenAnalysisList.tsx
 msgid "Current Price"
 msgstr "Giá Hiện Tại"
 
@@ -1477,6 +1648,10 @@ msgstr ""
 #: src/components/PositionPreview/index.tsx
 #~ msgid "Current {0} Price"
 #~ msgstr ""
+
+#: src/pages/TrueSightV2/pages/TokenAnalysisList.tsx
+msgid "Currently Trending"
+msgstr ""
 
 #: src/components/YieldPools/ElasticFarms.tsx
 #: src/components/YieldPools/index.tsx
@@ -1499,6 +1674,10 @@ msgstr "Hiện tại, không có sự kiện nào."
 msgid "Custom"
 msgstr "Tự chọn"
 
+#: src/pages/SwapV3/ApprovalModal.tsx
+msgid "Custom Allowance"
+msgstr ""
+
 #: src/components/swapv2/LimitOrder/ExpirePicker.tsx
 msgid "Customize the Expiry Time"
 msgstr ""
@@ -1512,8 +1691,8 @@ msgid "DAO Governance"
 msgstr ""
 
 #: src/pages/Bridge/BridgeTransferHistory/index.tsx
-msgid "DATE | STATUS"
-msgstr ""
+#~ msgid "DATE | STATUS"
+#~ msgstr ""
 
 #: 
 #~ msgid "DEPOSIT"
@@ -1521,6 +1700,11 @@ msgstr ""
 
 #: src/pages/About/AboutKyberSwap/index.tsx
 msgid "DEXs"
+msgstr ""
+
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
+msgid "Daily Range"
 msgstr ""
 
 #: src/components/Menu/index.tsx
@@ -1531,7 +1715,6 @@ msgstr "Chế Độ Tối"
 msgid "Default Options"
 msgstr ""
 
-#: src/components/TransactionSettings/index.tsx
 #: src/components/swapv2/SwapSettingsPanel/DegenModeSetting.tsx
 msgid "Degen Mode"
 msgstr ""
@@ -1539,7 +1722,12 @@ msgstr ""
 #: src/components/TransactionSettings/index.tsx
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV3/HeaderRightMenu.tsx
-msgid "Degen mode is on!"
+#~ msgid "Degen mode is on!"
+#~ msgstr ""
+
+#: src/components/TransactionSettings/index.tsx
+#: src/pages/SwapV3/HeaderRightMenu.tsx
+msgid "Degen mode is on. Be cautious!"
 msgstr ""
 
 #: src/pages/KyberDAO/StakeKNC/DelegateConfirmModal.tsx
@@ -1657,14 +1845,18 @@ msgid "Disclaimer"
 msgstr ""
 
 #: src/pages/TrueSight/TrendingSoonHero.tsx
+#: src/pages/TrueSightV2/pages/TokenAnalysisList.tsx
 msgid "Disclaimer: The information here should not be treated as any form of financial advice"
+msgstr ""
+
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
+msgid "Disclaimer: This should not be considered as financial advice"
 msgstr ""
 
 #: src/components/WalletPopup/AccountInfo/Settings.tsx
 msgid "Disconnect"
 msgstr ""
 
-#: src/components/Header/DiscoverNavItem.tsx
 #: src/components/Menu/index.tsx
 msgid "Discover"
 msgstr "Khám phá"
@@ -1672,6 +1864,10 @@ msgstr "Khám phá"
 #: src/components/TopTrendingSoonTokensInCurrentNetwork/index.tsx
 #: src/components/TopTrendingSoonTokensInCurrentNetwork/index.tsx
 msgid "Discover more"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/LandingPage.tsx
+msgid "Discover new opportunities."
 msgstr ""
 
 #: src/components/Tutorial/TutorialSwap/index.tsx
@@ -1696,6 +1892,7 @@ msgid "Dismiss"
 msgstr "Bỏ qua"
 
 #: src/components/swapv2/SwapSettingsPanel/index.tsx
+#: src/pages/TrueSightV2/components/DisplaySettings.tsx
 msgid "Display Settings"
 msgstr ""
 
@@ -1709,6 +1906,10 @@ msgstr ""
 #: src/pages/About/AboutKyberSwap/index.tsx
 msgid "Docs"
 msgstr "Tài liệu"
+
+#: src/pages/TrueSightV2/pages/LandingPage.tsx
+msgid "Don't have enough time to <0>conduct thorough technical analysis of potential tokens?</0>"
+msgstr ""
 
 #: src/pages/Pool/index.tsx
 #: src/pages/Pool/index.tsx
@@ -1749,17 +1950,24 @@ msgstr ""
 msgid "Download a wallet"
 msgstr ""
 
+#: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
+msgid "Due to market conditions, your output has been updated from {0} {1} to {2} {3} ({formattedOutputChangePercent}%) {4}"
+msgstr ""
+
 #: src/components/SwapForm/SwapModal/SwapModalAreYouSure.tsx
 msgid "Due to market conditions, your output has been updated from {0} {1} to {2} {3} ({formattedOutputChangePercent}%)."
 msgstr ""
 
 #: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
-msgid "Due to market conditions, your output has been updated from {0} {1} to {2} {3} ({formattedOutputChangePercent}%). Please accept the new amount before swapping"
-msgstr ""
+#~ msgid "Due to market conditions, your output has been updated from {0} {1} to {2} {3} ({formattedOutputChangePercent}%). Please accept the new amount before swapping"
+#~ msgstr ""
 
+#: src/components/ProAmm/ProAmmPriceRangeConfirm.tsx
 #: src/components/SwapForm/SlippageSetting.tsx
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
+#: src/components/swapv2/SwapModalFooter.tsx
 #: src/components/swapv2/SwapSettingsPanel/SlippageSetting.tsx
+#: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "During your swap if the price changes by more than this %, your transaction will revert. Read more <0>here ↗</0>"
 msgstr ""
 
@@ -1833,11 +2041,19 @@ msgstr ""
 #~ msgstr ""
 
 #: src/pages/AddLiquidityV2/index.tsx
-msgid "Efficiency Comparison: Full range positions may earn less fees than concentrated positions."
+msgid "Efficiency Comparison: Full range positions may earn less fees than concentrated positions"
 msgstr ""
+
+#: src/pages/AddLiquidityV2/index.tsx
+#~ msgid "Efficiency Comparison: Full range positions may earn less fees than concentrated positions."
+#~ msgstr ""
 
 #: src/components/ClassicElasticTab.tsx
 msgid "Elastic Farms"
+msgstr ""
+
+#: src/pages/NotificationCenter/Menu/index.tsx
+msgid "Elastic Liquidity Positions"
 msgstr ""
 
 #: src/components/ClassicElasticTab.tsx
@@ -1998,11 +2214,17 @@ msgstr ""
 msgid "Error {summary}"
 msgstr ""
 
+#: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
+#: src/components/SwapForm/TradeSummary.tsx
+msgid "Est. Gas Fee"
+msgstr ""
+
 #: src/components/swapv2/LimitOrder/LimitOrderForm.tsx
 msgid "Est. Market Price:"
 msgstr ""
 
 #: src/components/SwapForm/OutputCurrencyPanel.tsx
+#: src/pages/SwapV2/index.tsx
 msgid "Est. Output"
 msgstr ""
 
@@ -2037,16 +2259,17 @@ msgstr ""
 msgid "Estimated change in price due to the size of your transaction."
 msgstr ""
 
+#: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
+#: src/components/SwapForm/TradeSummary.tsx
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/AdvancedSwapDetails.tsx
-#: src/components/swapv2/SwapModalFooter.tsx
 msgid "Estimated network fee for your transaction"
 msgstr "Phí mạng được ước tính cho giao dịch của bạn"
 
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 #: src/components/SwapForm/TradeSummary.tsx
-msgid "Estimated network fee for your transaction."
-msgstr ""
+#~ msgid "Estimated network fee for your transaction."
+#~ msgstr ""
 
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/FairLaunchPools.tsx
@@ -2088,6 +2311,17 @@ msgstr ""
 
 #: src/components/swapv2/LimitOrder/ListOrder/OrderItem.tsx
 msgid "Expiry"
+msgstr ""
+
+#: src/components/Header/KyberAINavItem.tsx
+#: src/pages/TrueSightV2/index.tsx
+#: src/pages/TrueSightV2/pages/LandingPage.tsx
+#: src/pages/TrueSightV2/pages/TokenAnalysisList.tsx
+msgid "Explore"
+msgstr ""
+
+#: src/pages/ProAmmPools/CardItem.tsx
+msgid "Explore pool tokens in KyberAI"
 msgstr ""
 
 #: src/pages/GrantProgram/SingleProgram/InformationSection/Details.tsx
@@ -2239,6 +2473,10 @@ msgstr "Phạm vi phí"
 #~ msgid "Feedback"
 #~ msgstr ""
 
+#: src/pages/TrueSightV2/pages/LandingPage.tsx
+msgid "Feeling exhausted <0>managing your emotions?</0>"
+msgstr ""
+
 #: src/components/PoolList/ItemCard/index.tsx
 #: src/components/ProAmm/ProAmmPoolStat.tsx
 #: src/pages/ProAmmPools/CardItem.tsx
@@ -2286,6 +2524,10 @@ msgstr ""
 
 #: src/pages/About/AboutKyberSwap/index.tsx
 msgid "Find out more"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/LandingPage.tsx
+msgid "Finding it hard to figure out <0>when is the right time to ape?</0>"
 msgstr ""
 
 #: src/components/Tutorial/TutorialSwap/index.tsx
@@ -2341,11 +2583,16 @@ msgstr ""
 msgid "Full unlocked"
 msgstr ""
 
-#: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
-#: src/components/SwapForm/TradeSummary.tsx
-#: src/components/WalletPopup/SendToken/index.tsx
+#: src/pages/TrueSightV2/pages/TechnicalAnalysis.tsx
+msgid "Funding Rate on Centralized Exchanges"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/TechnicalAnalysis.tsx
+msgid "Funding rate is useful in identifying short-term trends.<0>Positive funding rates</0> suggests traders are <1>bullish</1> . Extremely positive funding rates may result in long positions getting squeezed. <2>Negative funding rates</2> suggests traders are <3>bearish</3> . Extremely negative funding rates may result in short positions getting squeezed."
+msgstr ""
+
 #: src/components/swapv2/AdvancedSwapDetails.tsx
-#: src/components/swapv2/SwapModalFooter.tsx
+#: src/components/WalletPopup/SendToken/index.tsx
 msgid "Gas Fee"
 msgstr "Phí Gas"
 
@@ -2473,11 +2720,16 @@ msgstr ""
 msgid "History"
 msgstr "Lịch sử"
 
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Holders"
+msgstr ""
+
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
+msgid "Holders (On-chain)"
 msgstr ""
 
 #: src/components/Menu/index.tsx
@@ -2679,6 +2931,38 @@ msgstr ""
 msgid "Increase Liquidity"
 msgstr "Tăng thanh khoản"
 
+#: src/pages/TrueSightV2/pages/OnChainAnalysis.tsx
+msgid ""
+"Indicates how many times a token changes hands in a given time frame. Its measured in $. Trading volume\n"
+"indicates interest in a token. The more people are buying and selling something, the higher the volume,\n"
+"which can drive even more interest in that token. Typically, high volume trading for a token can mean an\n"
+"increase in prices and low volume cryptocurrency could indicate prices falling."
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/OnChainAnalysis.tsx
+msgid "Indicates on-chain transfer activity between wallets. High transfer activity indicates that more traders are transferring the token between wallets. Token with high transfer activity and high transfer volume may indicate that traders are interested in it."
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/OnChainAnalysis.tsx
+msgid "Indicates the number of addresses that hold a token. An increase in the number of holders may indicate more interest in the token and vice-versa. Number of holders may also indicate the distribution of the token. High number of holders may reduce the impact an individual (like a whale) can have on the price."
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/OnChainAnalysis.tsx
+msgid ""
+"Indicates the number of trades and type of trades (buy or sell) over a time period. An increase in the\n"
+"number of trades may indicate more interest in the token and vice-versa. Similarly, more buy trades in a\n"
+"timeperiod can indicate that the token is bullish and vice-versa."
+msgstr ""
+
+#: src/pages/SwapV3/ApprovalModal.tsx
+msgid "Infinite Allowance"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/OnChainAnalysis.tsx
+#: src/pages/TrueSightV2/pages/OnChainAnalysis.tsx
+msgid "Inflow"
+msgstr ""
+
 #: src/components/swapv2/TokenInfoIcon.tsx
 #: src/components/swapv2/TokenInfoTab.tsx
 msgid "Info"
@@ -2694,6 +2978,7 @@ msgid "Initializing with {walletName}..."
 msgstr ""
 
 #: src/components/SwapForm/SwapModal/SwapBrief.tsx
+#: src/components/swapv2/SwapModalHeader.tsx
 msgid "Input Amount"
 msgstr ""
 
@@ -2706,8 +2991,8 @@ msgid "Input amount is not valid"
 msgstr ""
 
 #: src/components/swapv2/SwapModalHeader.tsx
-msgid "Input is estimated. You will sell at most"
-msgstr "Đầu vào được ước tính. Bạn sẽ bán với giá tốt nhất"
+#~ msgid "Input is estimated. You will sell at most"
+#~ msgstr "Đầu vào được ước tính. Bạn sẽ bán với giá tốt nhất"
 
 #: src/components/Header/web3/WalletModal/Option.tsx
 #~ msgid "Install ${0} extension"
@@ -2718,8 +3003,6 @@ msgid "Insufficient KNCL balance!"
 msgstr ""
 
 #: src/pages/AddLiquidity/ZapIn.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -2741,14 +3024,15 @@ msgstr ""
 msgid "Insufficient balance"
 msgstr "Không đủ thanh khoản"
 
+#: src/utils/dmm.ts
+msgid "Insufficient fee rewards amount, try to remove your liquidity without claiming fees for now and you can try to claim it later"
+msgstr ""
+
 #: src/pages/AddLiquidity/TokenPair.tsx
-#: src/pages/AddLiquidity/TokenPair.tsx
-#: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Insufficient liquidity available. Please reload page and try again!"
 msgstr "Không đủ thanh khoản. Vui lòng tải lại trang và thử lại!"
 
-#: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 msgid "Insufficient liquidity available. Please reload page or increase max slippage and try again!"
 msgstr ""
@@ -2758,16 +3042,16 @@ msgid "Insufficient liquidity for this trade"
 msgstr ""
 
 #: src/pages/SwapV2/index.tsx
-msgid "Insufficient liquidity for this trade."
-msgstr "Không đủ thanh khoản cho giao dịch này."
+#~ msgid "Insufficient liquidity for this trade."
+#~ msgstr "Không đủ thanh khoản cho giao dịch này."
 
 #: src/hooks/useClaimReward.ts
 msgid "Insufficient reward amount available for claim!"
 msgstr ""
 
 #: src/components/SwapForm/hooks/useGetInputError.tsx
-#: src/components/WalletPopup/SendToken/index.tsx
 #: src/components/swapv2/LimitOrder/useValidateInputError.ts
+#: src/components/WalletPopup/SendToken/index.tsx
 #: src/hooks/useWrapCallback.ts
 #: src/pages/Bridge/SwapForm.tsx
 #: src/state/mint/hooks.ts
@@ -2828,8 +3112,12 @@ msgid "Invalid price input"
 msgstr ""
 
 #: src/pages/AddLiquidityV2/index.tsx
-msgid "Invalid range selected. The min price must be lower than the max price."
+msgid "Invalid range selected. The min price must be lower than the max price"
 msgstr ""
+
+#: src/pages/AddLiquidityV2/index.tsx
+#~ msgid "Invalid range selected. The min price must be lower than the max price."
+#~ msgstr ""
 
 #: src/components/SwapForm/hooks/useGetInputError.tsx
 #: src/state/swap/hooks.ts
@@ -2897,6 +3185,10 @@ msgstr ""
 msgid "KYBER DAO"
 msgstr ""
 
+#: src/pages/TrueSightV2/pages/LandingPage.tsx
+msgid "Key Features"
+msgstr ""
+
 #: src/pages/About/AboutKyberSwap/index.tsx
 msgid "Kyber Network Crystal (KNC)"
 msgstr ""
@@ -2907,6 +3199,19 @@ msgstr ""
 
 #: src/pages/KyberDAO/StakeKNC/index.tsx
 msgid "Kyber Network and its products like KyberSwap are governed by the community through KyberDAO, a Decentralized Autonomous Organization. KNC holders stake KNC tokens to vote on governance proposals that shape Kyber‘s future and earn KNC rewards from trading fees."
+msgstr ""
+
+#: src/components/Header/KyberAINavItem.tsx
+#: src/pages/ProAmmPools/CardItem.tsx
+msgid "KyberAI"
+msgstr ""
+
+#: src/pages/TrueSightV2/components/DisplaySettings.tsx
+msgid "KyberAI Tutorial"
+msgstr ""
+
+#: src/components/Menu/index.tsx
+msgid "KyberAI Widget"
 msgstr ""
 
 #: src/components/Header/groups/KyberDaoGroup.tsx
@@ -2924,6 +3229,15 @@ msgstr ""
 
 #: src/components/Header/web3/WalletModal/index.tsx
 msgid "KyberDAO‘s Terms of Use."
+msgstr ""
+
+#: src/pages/ProAmmPools/TruesightPoolModal.tsx
+msgid "KyberScore algorithm measures the current trend of a token by taking into account multiple on-chain and off-chain indicators. The score ranges from 0 to 100. Higher the score, more bullish the token"
+msgstr ""
+
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
+msgid "KyberScore uses AI to measure the upcoming trend of a token (bullish or bearish) by taking into account multiple on-chain and off-chain indicators. The score ranges from 0 to 100. Higher the score, more bullish the token in the short-term. Read more <0>here ↗</0>"
 msgstr ""
 
 #: src/components/Header/groups/AboutNavGroup.tsx
@@ -2950,6 +3264,10 @@ msgstr ""
 msgid "KyberSwap is also an automated market maker (AMM) with industry-leading liquidity protocols and <0>concentrated liquidity</0>. Liquidity providers can add liquidity to our pools & <1>earn fees</1>!"
 msgstr ""
 
+#: src/pages/TrueSightV2/components/TruesightFooter.tsx
+msgid "KyberSwap offers the best prices for traders, attractive earning rewards & smart trading insights. Are you FOMOing yet?"
+msgstr ""
+
 #: src/pages/Bridge/Disclaimer.tsx
 msgid "KyberSwap strives to offer its users the best DeFi experience on a single platform. In order to do that, KyberSwap partners with 3rd party platforms like Multichain."
 msgstr ""
@@ -2960,6 +3278,11 @@ msgstr ""
 
 #: src/components/Header/web3/WalletModal/index.tsx
 msgid "KyberSwap‘s Terms of Use"
+msgstr ""
+
+#: src/pages/TrueSightV2/components/table/index.tsx
+#: src/pages/TrueSightV2/pages/TokenAnalysisList.tsx
+msgid "Kyberscore"
 msgstr ""
 
 #: src/components/Menu/AboutPageDropDown.tsx
@@ -2985,6 +3308,19 @@ msgstr "Ngôn ngữ"
 
 #: src/components/ProAmm/ProAmmPoolStat.tsx
 msgid "Last 24H Transactions"
+msgstr ""
+
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
+#: src/pages/TrueSightV2/pages/TokenAnalysisList.tsx
+msgid "Last 3D KyberScores"
+msgstr ""
+
+#: src/pages/TrueSightV2/components/table/index.tsx
+msgid "Last 7 days"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/TokenAnalysisList.tsx
+msgid "Last 7d price"
 msgstr ""
 
 #: src/components/Header/web3/WalletModal/index.tsx
@@ -3022,12 +3358,24 @@ msgstr ""
 #~ msgid "Learn more"
 #~ msgstr "Tìm hiểu thêm"
 
+#: src/pages/TrueSightV2/pages/LandingPage.tsx
+msgid "Less Effort <0/><1>More Signals</1>"
+msgstr ""
+
+#: src/pages/TrueSightV2/components/TutorialModal.tsx
+msgid "Let's get started"
+msgstr ""
+
 #: src/components/Tutorial/TutorialSwap/index.tsx
 msgid "Let’s get started"
 msgstr ""
 
+#: src/pages/TrueSightV2/components/table/index.tsx
+msgid "Levels"
+msgstr ""
+
 #: src/pages/SwapV2/index.tsx
-#: src/pages/SwapV3/index.tsx
+#: src/pages/SwapV3/Tabs/LimitTab.tsx
 msgid "Limit"
 msgstr ""
 
@@ -3042,6 +3390,10 @@ msgstr ""
 
 #: src/components/swapv2/LimitOrder/LimitOrderForm.tsx
 msgid "Limit order price is >=30% higher than the market. We just want to make sure this is correct"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/TechnicalAnalysis.tsx
+msgid "Liquidations on Centralized Exchanges"
 msgstr ""
 
 #: src/components/Header/groups/AnalyticNavGroup.tsx
@@ -3081,6 +3433,10 @@ msgstr ""
 
 #: src/components/swapv2/SwapSettingsPanel/index.tsx
 msgid "Live Chart"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/TechnicalAnalysis.tsx
+msgid "Live Trades"
 msgstr ""
 
 #: src/components/SearchModal/ManageLists.tsx
@@ -3201,10 +3557,12 @@ msgid "Market"
 msgstr ""
 
 #: src/components/swapv2/TokenInfoTab.tsx
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
 msgid "Market Cap"
 msgstr ""
 
@@ -3244,10 +3602,12 @@ msgstr ""
 msgid "Max Price of your range is {maxPrice} USDT per stMatic"
 msgstr ""
 
+#: src/components/ProAmm/ProAmmPriceRangeConfirm.tsx
 #: src/components/SwapForm/SlippageSetting.tsx
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 #: src/components/swapv2/SwapSettingsPanel/SlippageSetting.tsx
+#: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Max Slippage"
 msgstr "Trượt giá Tối đa"
 
@@ -3271,14 +3631,16 @@ msgstr "Lợi nhuận tối đa"
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
-msgid "Maximum Sold"
-msgstr ""
+#~ msgid "Maximum Sold"
+#~ msgstr ""
 
 #: src/pages/NotificationCenter/CreateAlert/ConfirmModal.tsx
+#: src/pages/NotificationCenter/PriceAlerts/ActiveAlerts/SingleAlert.tsx
 msgid "Maximum number of Active Alerts reached"
 msgstr ""
 
 #: src/components/Tutorial/TutorialSwap/index.tsx
+#: src/pages/TrueSightV2/components/TutorialModal.tsx
 msgid "Maybe later"
 msgstr ""
 
@@ -3290,8 +3652,8 @@ msgstr ""
 msgid "Menu"
 msgstr ""
 
-#: src/pages/KyberDAO/StakeKNC/MigrateModal.tsx
 #: src/pages/KyberDAO/StakeKNC/index.tsx
+#: src/pages/KyberDAO/StakeKNC/MigrateModal.tsx
 msgid "Migrate"
 msgstr "Di chuyển"
 
@@ -3339,7 +3701,15 @@ msgstr ""
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
-msgid "Minimum amount you will receive or your transaction will revert"
+#~ msgid "Minimum amount you will receive or your transaction will revert"
+#~ msgstr ""
+
+#: src/pages/TrueSightV2/pages/LandingPage.tsx
+msgid "Monitor token prices - Set a price alert, sit back and we'll notify you"
+msgstr ""
+
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+msgid "More Information"
 msgstr ""
 
 #: src/components/TopTrendingSoonTokensInCurrentNetwork/TopTrendingSoonTokenItem.tsx
@@ -3369,8 +3739,8 @@ msgid "My Deposit | Target Volume"
 msgstr ""
 
 #: src/pages/NotificationCenter/Menu/index.tsx
-msgid "My Elastic Pools"
-msgstr ""
+#~ msgid "My Elastic Pools"
+#~ msgstr ""
 
 #: src/components/ProAmm/ProAmmPooledTokens.tsx
 #: src/pages/ProAmmPool/PositionListItem.tsx
@@ -3422,8 +3792,8 @@ msgid "My Positions"
 msgstr ""
 
 #: src/components/YieldPools/ElasticFarmGroup/FarmCard.tsx
-#: src/components/YieldPools/ElasticFarmGroup/PostionDetail.tsx
 #: src/components/YieldPools/ElasticFarmGroup/index.tsx
+#: src/components/YieldPools/ElasticFarmGroup/PostionDetail.tsx
 #: src/components/YieldPools/ElasticFarmModals/HarvestModal.tsx
 #: src/components/YieldPools/FairLaunchPools.tsx
 #: src/components/YieldPools/HarvestAll.tsx
@@ -3464,6 +3834,11 @@ msgstr ""
 #~ msgid "My Total Rewards"
 #~ msgstr "Tổng các Phần thưởng của tôi"
 
+#: src/pages/TrueSightV2/components/KyberAIWidget.tsx
+#: src/pages/TrueSightV2/pages/TokenAnalysisList.tsx
+msgid "My Watchlist"
+msgstr ""
+
 #: src/components/PoolList/index.tsx
 msgid "My liquidity"
 msgstr "Thanh khoản của tôi"
@@ -3480,11 +3855,11 @@ msgstr ""
 #~ msgid "My rewards"
 #~ msgstr ""
 
+#: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
-#: src/pages/TrueSight/components/TrendingLayout/index.tsx
-#: src/pages/TrueSight/components/TrendingLayout/index.tsx
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Name"
 msgstr ""
 
@@ -3496,6 +3871,19 @@ msgstr ""
 #: src/components/Tutorial/index.tsx
 #: src/components/Tutorial/index.tsx
 msgid "Navigating Pools Tutorial"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/OnChainAnalysis.tsx
+#: src/pages/TrueSightV2/pages/OnChainAnalysis.tsx
+msgid "Netflow"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/OnChainAnalysis.tsx
+msgid "Netflow (Inflow - Outflow) of token to centralized exchanges. <0>Positive netflow</0> means that more traders are depositing tokens than withdrawing, most likely for selling. <1>Negative netflow</1> means that more traders are withdrawing tokens than depositing, most likely for holding or staking."
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/OnChainAnalysis.tsx
+msgid "Netflow (Inflow - Outflow) of token to whale wallets (<0><1>General Whales</1></0> and <2><3>Token Whales</3></2>). <4>Positive netflow</4> generally means that whales are buying. <5>Negative netflow</5> generally means that whales are selling."
 msgstr ""
 
 #: src/components/UpcomingFarms/ListItem.tsx
@@ -3560,6 +3948,7 @@ msgstr ""
 msgid "No liquidity found. Check out our <0>Pools.</0>"
 msgstr ""
 
+#: src/pages/NotificationCenter/GeneralAnnouncement/index.tsx
 #: src/pages/NotificationCenter/PrivateAnnouncement.tsx
 msgid "No notification yet"
 msgstr ""
@@ -3597,8 +3986,8 @@ msgstr ""
 msgid "No token found. Try turn off truesight."
 msgstr ""
 
-#: src/components/Vesting/ProMMVesting.tsx
 #: src/components/Vesting/index.tsx
+#: src/components/Vesting/ProMMVesting.tsx
 msgid "No vesting schedule!"
 msgstr "Không có lịch vesting!"
 
@@ -3616,10 +4005,18 @@ msgstr ""
 msgid "Not selected option"
 msgstr ""
 
+#: src/pages/Bridge/BridgeTransferHistory/TransferHistoryTable/Mobile.tsx
+msgid "Not supported"
+msgstr ""
+
 #: src/components/Announcement/PrivateAnnoucement/NotificationCenter/PriceAlert.tsx
 #: src/pages/NotificationCenter/CreateAlert/CreateAlertForm.tsx
 #: src/pages/NotificationCenter/PriceAlerts/CommonSingleAlert.tsx
 msgid "Note"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/TechnicalAnalysis.tsx
+msgid "Note:  Live trades may be slightly delayed"
 msgstr ""
 
 #: src/pages/NotificationCenter/CreateAlert/ConfirmModal.tsx
@@ -3663,13 +4060,17 @@ msgstr ""
 msgid "Note: There are existing pools for this token pair. Please check"
 msgstr "Lưu ý: Có các Pool hiện có cho cặp token này. Hãy kiểm tra"
 
+#: src/pages/TrueSightV2/pages/TechnicalAnalysis.tsx
+msgid "Note: These are estimated support / resistance levels only and should not be considered as financial advice"
+msgstr ""
+
 #: src/pages/KyberDAO/Vote/index.tsx
 msgid "Note: Voting on KyberDAO is only available on Ethereum chain"
 msgstr ""
 
 #: src/pages/RemoveLiquidityProAmm/index.tsx
-msgid "Note: When you remove liquidity (even partially), you will receive 100% of your fee earnings"
-msgstr ""
+#~ msgid "Note: When you remove liquidity (even partially), you will receive 100% of your fee earnings"
+#~ msgstr ""
 
 #: src/components/swapv2/LimitOrder/ListOrder/index.tsx
 msgid "Note: Your existing order will be automatically cancelled and a new order will be created.{0} Cancelling an order will cost gas fees"
@@ -3685,6 +4086,10 @@ msgstr "Lưu ý: {warningToken} hiện còn <10% trong pool. Pool có thể khô
 
 #: src/components/WalletPopup/SendToken/WarningBrave.tsx
 msgid "Notice for Brave wallet users"
+msgstr ""
+
+#: src/components/Announcement/PrivateAnnoucement/index.tsx
+msgid "Notification"
 msgstr ""
 
 #: src/components/Menu/index.tsx
@@ -3712,9 +4117,21 @@ msgstr ""
 msgid "Now that you have purchased your crypto, you can trade from over 20,000+ tokens on KyberSwap! We give you the best trading rates in the market!"
 msgstr ""
 
+#: src/pages/TrueSightV2/pages/OnChainAnalysis.tsx
+msgid "Number"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/OnChainAnalysis.tsx
+msgid "Number of Holders"
+msgstr ""
+
 #: src/pages/Campaign/index.tsx
 #: src/pages/GrantProgram/SingleProgram/LeaderBoardSection/index.tsx
 msgid "Number of Trades"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/OnChainAnalysis.tsx
+msgid "Number of Trades & Type of Trades"
 msgstr ""
 
 #: src/components/Toggle/ListToggle.tsx
@@ -3773,6 +4190,10 @@ msgstr "Oops! Đã xảy ra lỗi không xác định. Vui lòng làm mới tran
 #~ msgid "Oops! Something went wrong"
 #~ msgstr ""
 
+#: src/pages/TrueSightV2/components/SearchWithDropDown.tsx
+msgid "Oops, we couldnt find your token! We will regularly add new tokens that have achieved a certain trading volume"
+msgstr ""
+
 #: src/components/Header/web3/WalletModal/WarningBox.tsx
 msgid "Open C98 Browser Extension"
 msgstr ""
@@ -3782,7 +4203,11 @@ msgid "Open Orders"
 msgstr ""
 
 #: src/components/SubscribeButton/NotificationPreference/ActionButtons.tsx
-msgid "Opt out from all future email"
+#~ msgid "Opt out from all future email"
+#~ msgstr ""
+
+#: src/components/SubscribeButton/NotificationPreference/ActionButtons.tsx
+msgid "Opt out from all future emails"
 msgstr ""
 
 #: src/components/swapv2/LimitOrder/ListOrder/index.tsx
@@ -3822,6 +4247,10 @@ msgstr ""
 msgid "Other Details"
 msgstr ""
 
+#: src/pages/TrueSightV2/components/table/index.tsx
+msgid "Other tokens held"
+msgstr ""
+
 #: src/components/WalletPopup/Transactions/Tab.tsx
 msgid "Others"
 msgstr ""
@@ -3841,12 +4270,18 @@ msgstr ""
 msgid "Out of range"
 msgstr ""
 
+#: src/pages/TrueSightV2/pages/OnChainAnalysis.tsx
+#: src/pages/TrueSightV2/pages/OnChainAnalysis.tsx
+msgid "Outflow"
+msgstr ""
+
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Output"
 msgstr ""
 
 #: src/components/SwapForm/SwapModal/SwapBrief.tsx
+#: src/components/swapv2/SwapModalHeader.tsx
 msgid "Output Amount"
 msgstr ""
 
@@ -3862,8 +4297,8 @@ msgid "Output is estimated. If the price changes by more than {0}% your transact
 msgstr "Đầu ra đã được ước tính. Nếu giá thay đổi hơn {0}% thì giao dịch của bạn sẽ hoàn nguyên."
 
 #: src/components/swapv2/SwapModalHeader.tsx
-msgid "Output is estimated. You will receive at least"
-msgstr "Đầu ra được ước tính. Bạn sẽ nhận được ít nhất"
+#~ msgid "Output is estimated. You will receive at least"
+#~ msgstr "Đầu ra được ước tính. Bạn sẽ nhận được ít nhất"
 
 #: src/pages/About/AboutKyberSwap/index.tsx
 msgid "PREVENT SNIPING ATTACKS"
@@ -3913,8 +4348,20 @@ msgstr ""
 msgid "Per"
 msgstr ""
 
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
+msgid "Performance"
+msgstr ""
+
 #: src/components/ErrorBoundary/FallbackView.tsx
 msgid "Permission needed"
+msgstr ""
+
+#: src/hooks/usePermit.ts
+msgid "Permit Error"
+msgstr ""
+
+#: src/components/SwapForm/SwapActionButton/index.tsx
+msgid "Permit {0}"
 msgstr ""
 
 #: src/components/Tutorial/TutorialSwap/index.tsx
@@ -3965,6 +4412,7 @@ msgid "Please input a valid email address"
 msgstr ""
 
 #: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
+#: src/components/swapv2/SwapModalHeader.tsx
 msgid "Please review the details of your swap:"
 msgstr ""
 
@@ -4100,10 +4548,11 @@ msgstr ""
 #: src/components/swapv2/TokenInfoTab.tsx
 #: src/components/swapv2/TokenInfoV2/SingleTokenInfo.tsx
 #: src/pages/TrueSight/components/Chart.tsx
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
 msgid "Price"
 msgstr ""
 
@@ -4176,6 +4625,10 @@ msgstr "Tác động giá cao"
 msgid "Price impact is too high"
 msgstr "Tác động giá quá cao"
 
+#: src/pages/TrueSightV2/components/table/index.tsx
+msgid "Price | 24 Change"
+msgstr ""
+
 #: src/pages/Swap/index.tsx
 #~ msgid "Price:"
 #~ msgstr "Giá:"
@@ -4210,7 +4663,7 @@ msgstr ""
 msgid "RATE"
 msgstr ""
 
-#: src/pages/Bridge/BridgeTransferHistory/index.tsx
+#: src/pages/Bridge/BridgeTransferHistory/TransferHistoryTable/Desktop.tsx
 msgid "RECEIVED AMOUNT"
 msgstr ""
 
@@ -4219,8 +4672,8 @@ msgstr ""
 #~ msgid "REWARD:"
 #~ msgstr ""
 
-#: src/pages/Bridge/BridgeTransferHistory/index.tsx
-#: src/pages/Bridge/BridgeTransferHistory/index.tsx
+#: src/pages/Bridge/BridgeTransferHistory/TransferHistoryTable/Desktop.tsx
+#: src/pages/Bridge/BridgeTransferHistory/TransferHistoryTable/Mobile.tsx
 msgid "ROUTE"
 msgstr ""
 
@@ -4233,12 +4686,29 @@ msgstr ""
 msgid "Rank"
 msgstr "Hạng"
 
+#: src/components/Header/KyberAINavItem.tsx
+#: src/pages/TrueSightV2/index.tsx
+msgid "Rankings"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/TokenAnalysisList.tsx
+msgid "Rankings will refresh in <0/> 04:39"
+msgstr ""
+
 #: src/components/Announcement/Popups/SnippetPopup.tsx
 msgid "Read More"
 msgstr ""
 
+#: src/components/ReadMore/index.tsx
+msgid "Read more"
+msgstr ""
+
 #: src/components/YourCampaignTransactionsModal/index.tsx
 msgid "Read the rules for this campaign & start swapping!"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/LandingPage.tsx
+msgid "Ready to experience <0>KyberAI</0>? <1/>Get alpha before it happens"
 msgstr ""
 
 #: src/components/WalletPopup/AccountInfo/ActionButtonGroup.tsx
@@ -4302,6 +4772,10 @@ msgstr "Vẫn Rút"
 msgid "Remove Liquidity"
 msgstr "Rút Thanh khoản"
 
+#: src/pages/TrueSightV2/pages/TokenAnalysisList.tsx
+msgid "Remove from watchlist"
+msgstr ""
+
 #: src/components/SearchModal/ManageLists.tsx
 #~ msgid "Remove list"
 #~ msgstr "Xóa danh sách"
@@ -4315,9 +4789,12 @@ msgid "Removing {0} {1} and {2} {3}{4}{5}"
 msgstr ""
 
 #: src/components/ProAmm/ProAmmPriceRange.tsx
-#: src/components/ProAmm/ProAmmPriceRangeConfirm.tsx
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees"
+msgstr ""
+
+#: src/components/ProAmm/ProAmmPriceRangeConfirm.tsx
+msgid "Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees."
 msgstr ""
 
 #: src/components/Menu/FaucetModal.tsx
@@ -4359,9 +4836,9 @@ msgstr ""
 
 #: src/components/YieldPools/HarvestAll.tsx
 #: src/components/YieldPools/HarvestAll.tsx
+#: src/pages/Campaign/index.tsx
+#: src/pages/Campaign/index.tsx
 #: src/pages/Campaign/LeaderboardLayout.tsx
-#: src/pages/Campaign/index.tsx
-#: src/pages/Campaign/index.tsx
 msgid "Rewards"
 msgstr "Phần thưởng"
 
@@ -4385,7 +4862,6 @@ msgstr ""
 #~ msgid "Route"
 #~ msgstr "Route"
 
-#: src/components/SwapForm/hooks/useBuildRoute.tsx
 #: src/components/SwapForm/hooks/useBuildRoute.tsx
 msgid "Route summary is missing"
 msgstr ""
@@ -4411,7 +4887,7 @@ msgstr ""
 msgid "STAKED TVL ↓"
 msgstr ""
 
-#: src/pages/Bridge/BridgeTransferHistory/index.tsx
+#: src/pages/Bridge/BridgeTransferHistory/TransferHistoryTable/Desktop.tsx
 msgid "STATUS"
 msgstr ""
 
@@ -4439,6 +4915,10 @@ msgstr ""
 msgid "Seamless liquidity."
 msgstr ""
 
+#: src/pages/TrueSightV2/components/SearchWithDropDown.tsx
+msgid "Search"
+msgstr ""
+
 #: src/pages/Campaign/LeaderboardLayout.tsx
 msgid "Search by full address"
 msgstr "Tìm kiếm bằng địa chỉ ví"
@@ -4446,6 +4926,11 @@ msgstr "Tìm kiếm bằng địa chỉ ví"
 #: src/components/Search/index.tsx
 msgid "Search by pool address"
 msgstr "Tìm kiếm theo địa chỉ Pool"
+
+#: src/pages/TrueSightV2/components/SearchWithDropDown.tsx
+#: src/pages/TrueSightV2/components/SearchWithDropDown.tsx
+msgid "Search by token name or contract address"
+msgstr ""
 
 #: src/pages/Farm/index.tsx
 #: src/pages/Pool/index.tsx
@@ -4457,8 +4942,8 @@ msgstr ""
 msgid "Search by token name or tag"
 msgstr ""
 
-#: src/components/SearchModal/CurrencySearch.tsx
 #: src/components/SearchModal/bridge/CurrencySearchBridge.tsx
+#: src/components/SearchModal/CurrencySearch.tsx
 msgid "Search by token name, token symbol or address"
 msgstr ""
 
@@ -4478,6 +4963,10 @@ msgstr ""
 msgid "Search for campaign"
 msgstr "Tìm kiếm sự kiện"
 
+#: src/pages/TrueSightV2/pages/LandingPage.tsx
+msgid "Search from over 4000+ tokens on 7 chains"
+msgstr ""
+
 #: 
 #~ msgid "Search name or paste address"
 #~ msgstr "Tìm kiếm tên hoặc địa chỉ"
@@ -4495,6 +4984,7 @@ msgid "See All"
 msgstr ""
 
 #: src/components/Announcement/Popups/SimplePopup.tsx
+#: src/components/TrendingSoonTokenBanner/index.tsx
 msgid "See here"
 msgstr ""
 
@@ -4541,8 +5031,8 @@ msgstr ""
 
 #: src/components/CurrencyInputPanel/CurrencyInputPanelBridge.tsx
 #: src/components/CurrencyInputPanel/index.tsx
-#: src/components/SearchModal/CurrencySearch.tsx
 #: src/components/SearchModal/bridge/CurrencySearchBridge.tsx
+#: src/components/SearchModal/CurrencySearch.tsx
 #: src/components/SwapForm/hooks/useGetInputError.tsx
 #: src/pages/CreateReferral/TokensSelect.tsx
 #: src/state/swap/hooks.ts
@@ -4610,8 +5100,11 @@ msgstr "Đặt giá khởi điểm"
 #~ msgid "Set Your Price Range"
 #~ msgstr "Cài đặt khoảng giá của bạn"
 
+#: src/pages/TrueSightV2/pages/SingleToken.tsx
+msgid "Set a price alert"
+msgstr ""
+
 #: src/components/swapv2/SwapSettingsPanel/index.tsx
-#: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV3/HeaderRightMenu.tsx
 msgid "Settings"
 msgstr ""
@@ -4660,8 +5153,16 @@ msgstr ""
 msgid "Share this pool with your friends!"
 msgstr ""
 
-#: src/pages/SwapV2/index.tsx
+#: src/pages/TrueSightV2/pages/SingleToken.tsx
+msgid "Share this token"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/TokenAnalysisList.tsx
+msgid "Share this token list with your friends!"
+msgstr ""
+
 #: src/pages/SwapV3/HeaderRightMenu.tsx
+#: src/pages/TrueSightV2/components/ShareKyberAIModal.tsx
 msgid "Share this with your friends!"
 msgstr ""
 
@@ -4699,12 +5200,20 @@ msgstr "Một Token"
 #~ msgstr ""
 
 #: src/components/swapv2/SwapSettingsPanel/SlippageSetting.tsx
-msgid "Slippage is high. Your transaction may be front-run."
+msgid "Slippage is high. Your transaction may be front-run"
 msgstr ""
 
 #: src/components/swapv2/SwapSettingsPanel/SlippageSetting.tsx
-msgid "Slippage is low. Your transaction may fail."
+#~ msgid "Slippage is high. Your transaction may be front-run."
+#~ msgstr ""
+
+#: src/components/swapv2/SwapSettingsPanel/SlippageSetting.tsx
+msgid "Slippage is low. Your transaction may fail"
 msgstr ""
+
+#: src/components/swapv2/SwapSettingsPanel/SlippageSetting.tsx
+#~ msgid "Slippage is low. Your transaction may fail."
+#~ msgstr ""
 
 #: src/pages/About/AboutKyberSwap/index.tsx
 msgid "Sniping is where an attacker jumps in front of normal liquidity providers by adding and removing liquidity just before and right after a huge swap. To protect our liquidity providers, we have created an anti-sniping feature."
@@ -4723,7 +5232,6 @@ msgid "Something is wrong. Please try again later!"
 msgstr ""
 
 #: src/components/SwapForm/hooks/useBuildRoute.tsx
-#: src/components/SwapForm/hooks/useBuildRoute.tsx
 #: src/pages/GrantProgram/SingleProgram/LeaderBoardSection/index.tsx
 #: src/pages/GrantProgram/SpecificProgram.tsx
 #: src/state/burn/hooks.ts
@@ -4741,6 +5249,10 @@ msgstr ""
 
 #: src/components/YieldPools/FarmPoolSort.tsx
 msgid "Sort"
+msgstr ""
+
+#: src/pages/NotificationCenter/CreateAlert/CreateAlertForm.tsx
+msgid "Specify the amount of time that must pass before the alert can be fired again"
 msgstr ""
 
 #: src/pages/Pools/index.tsx
@@ -4915,6 +5427,14 @@ msgstr ""
 msgid "Subscribe"
 msgstr ""
 
+#: src/pages/TrueSightV2/index.tsx
+msgid "Subscribe to receive daily email notifications witha curated list of tokens from each category!"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/LandingPage.tsx
+msgid "Subscribe to receive daily emails on the top tokens as recommended by KyberAI"
+msgstr ""
+
 #: src/pages/ProAmmPool/index.tsx
 #~ msgid "Subscribe to receive email notifications on <0>all</0> your liquidity positions. When your liquidity position goes <1>out-of-range</1>, back <2>in-range</2> or is <3>closed</3> you will receive a notification"
 #~ msgstr ""
@@ -5028,6 +5548,10 @@ msgstr "Cung cấp"
 msgid "Supply Anyway"
 msgstr "Vẫn Cung cấp"
 
+#: src/pages/TrueSightV2/components/table/index.tsx
+msgid "Supply owned"
+msgstr ""
+
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "Supplying {0}"
 msgstr ""
@@ -5044,24 +5568,37 @@ msgstr ""
 msgid "Supplying {amountAText} and {amountBText} across {0} positions"
 msgstr ""
 
+#: src/pages/TrueSightV2/pages/TechnicalAnalysis.tsx
+msgid "Support & Resistance Levels"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/TechnicalAnalysis.tsx
+msgid "Support / Resistance Levels"
+msgstr ""
+
 #: src/components/Header/groups/SwapNavGroup.tsx
 #: src/components/Header/groups/SwapNavGroup.tsx
 #: src/components/PoolList/ItemCard/index.tsx
-#: src/components/SwapForm/SwapActionButton/SwapOnlyButton.tsx
+#: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
-#: src/pages/SwapV3/index.tsx
+#: src/pages/SwapV3/Tabs/index.tsx
+#: src/pages/TrueSightV2/pages/TokenAnalysisList.tsx
 msgid "Swap"
 msgstr "Giao dịch"
 
-#: src/components/SwapForm/SwapActionButton/SwapOnlyButton.tsx
 #: src/components/SwapForm/SwapActionButton/SwapOnlyButton.tsx
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Swap Anyway"
 msgstr "Vẫn Giao dịch"
+
+#: src/pages/SwapV2/index.tsx
+#: src/pages/SwapV2/index.tsx
+msgid "Swap Disabled"
+msgstr ""
 
 #: src/components/Menu/index.tsx
 msgid "Swap Guide"
@@ -5208,8 +5745,8 @@ msgid "The amount to bridge must be more than {0} {1}"
 msgstr ""
 
 #: src/pages/SwapV2/index.tsx
-msgid "The amount you save compared to <0>{0}</0>."
-msgstr "Số lượng bạn tiết kiệm được khi so sánh với <0>{0}</0>"
+#~ msgid "The amount you save compared to <0>{0}</0>."
+#~ msgstr "Số lượng bạn tiết kiệm được khi so sánh với <0>{0}</0>"
 
 #: src/pages/Bridge/SwapForm.tsx
 msgid "The bridge amount must be less than the current available amount of the pool which is {poolLiquidity} {0}."
@@ -5285,8 +5822,12 @@ msgid "There are no pools for this token pair."
 msgstr "Không có Pool nào cho cặp token này."
 
 #: src/pages/Bridge/SwapForm.tsx
-msgid "There is a chance that during your transfer another high volume transaction utilizes the available liquidity. As a result, for the unavailable liquidity, you may receive ‘anyToken’ from Multichain. You can exchange your ‘anyToken’ when the Multichain pool has sufficient liquidity."
+msgid "There is a chance that during your transfer another high volume transaction utilizes the available liquidity. As a result, for the unavailable liquidity, you may receive 'anyToken' from Multichain. You can exchange your 'anyToken' when the Multichain pool has sufficient liquidity."
 msgstr ""
+
+#: src/pages/Bridge/SwapForm.tsx
+#~ msgid "There is a chance that during your transfer another high volume transaction utilizes the available liquidity. As a result, for the unavailable liquidity, you may receive ‘anyToken’ from Multichain. You can exchange your ‘anyToken’ when the Multichain pool has sufficient liquidity."
+#~ msgstr ""
 
 #: src/pages/Campaign/index.tsx
 msgid "There is an error while loading campaigns."
@@ -5301,7 +5842,17 @@ msgid "There was an issue while confirming your price and minimum amount receive
 msgstr ""
 
 #: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
+msgid "There was an issue while trying to confirm your price. <0>Permit signature invalid</0>"
+msgstr ""
+
+#: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
 msgid "There was an issue while trying to confirm your price. Please try to swap again."
+msgstr ""
+
+#: src/components/SwapForm/SwapActionButton/SwapOnlyButton.tsx
+#: src/pages/SwapV2/index.tsx
+#: src/pages/SwapV2/index.tsx
+msgid "There was an issue while trying to find a price for these tokens. Please try again. Otherwise, you may select some other tokens to swap"
 msgstr ""
 
 #: src/components/SearchModal/CommonBases.tsx
@@ -5329,8 +5880,16 @@ msgstr ""
 msgid "This farm is currently under maintenance. You can deposit your liquidity into the new farms instead. Your withdrawals are not affected."
 msgstr ""
 
-#: src/components/SwapForm/OutputCurrencyPanel.tsx
+#: src/pages/TrueSightV2/components/SmallKyberScoreMeter.tsx
+msgid "This is based on calculation at <0>08:00 AM</0> when the price of ETH was <1>$0.0000000001</1>"
+msgstr ""
+
+#: src/pages/SwapV2/index.tsx
 msgid "This is the estimated output amount. Do review the actual output amount in the confirmation screen."
+msgstr ""
+
+#: src/components/SwapForm/OutputCurrencyPanel.tsx
+msgid "This is the estimated output amount. Do review the actual output amount in the confirmation stage."
 msgstr ""
 
 #: src/components/YieldPools/FairLaunchPools.tsx
@@ -5385,6 +5944,12 @@ msgstr ""
 msgid "To continue, check the box below to verify and proceed"
 msgstr ""
 
+#: src/components/SwapForm/SwapActionButton/SwapOnlyButton.tsx
+#: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
+#: src/pages/SwapV2/index.tsx
+msgid "To ensure you dont lose funds due to very high price impact (≥10%), swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings"
+msgstr ""
+
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "To initialize this pool, select a starting price for the pool then enter your liquidity price range."
 msgstr ""
@@ -5410,12 +5975,12 @@ msgid "To learn more about how to remove liquidity on KyberSwap Elastic, view <0
 msgstr ""
 
 #: src/pages/NotificationCenter/CreateAlert/CreateAlertForm.tsx
-msgid "To specify the amount of time that must pass before the alert can be fire again"
-msgstr ""
+#~ msgid "To specify the amount of time that must pass before the alert can be fire again"
+#~ msgstr ""
 
-#: src/components/SearchModal/ManageTokens.tsx
-#~ msgid "Token"
-#~ msgstr "Token"
+#: src/pages/TrueSightV2/components/table/index.tsx
+msgid "Token"
+msgstr "Token"
 
 #: src/components/NumericalInput/index.tsx
 #~ msgid "Token Amount"
@@ -5432,6 +5997,14 @@ msgstr "Các cặp Token"
 
 #: src/pages/ProAmmPools/index.tsx
 msgid "Token Pair | Fee"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/LandingPage.tsx
+msgid "Token Rankings"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/TokenAnalysisList.tsx
+msgid "Token name"
 msgstr ""
 
 #: src/pages/TrueSight/components/FilterBar/index.tsx
@@ -5451,8 +6024,36 @@ msgstr "Các Token"
 #~ msgid "Tokens from inactive lists. Import specific tokens below or click 'Manage' to activate more lists"
 #~ msgstr ""
 
+#: src/pages/TrueSightV2/components/KyberAIWidget.tsx
+msgid "Tokens that could be <0>trending</0> in the near future. Trending indicates interest in a token - it doesnt imply bullishness or bearishness"
+msgstr ""
+
 #: src/pages/TrueSight/components/FilterBar/TrueSightToggle.tsx
 msgid "Tokens we had discovered earlier to be Trending Soon"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/OnChainAnalysis.tsx
+msgid "Top 10 Holders"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/OnChainAnalysis.tsx
+msgid "Top 25 Holders"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/TokenAnalysisList.tsx
+msgid "Top CEX Inflow"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/TokenAnalysisList.tsx
+msgid "Top CEX Outflow"
+msgstr ""
+
+#: src/pages/NotificationCenter/Menu/index.tsx
+msgid "Top Tokens by KyberAI"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/TokenAnalysisList.tsx
+msgid "Top Traded"
 msgstr ""
 
 #: src/components/swapv2/PairSuggestion/ListPair.tsx
@@ -5576,12 +6177,13 @@ msgstr ""
 #: src/pages/Campaign/index.tsx
 #: src/pages/GrantProgram/SingleProgram/LeaderBoardSection/index.tsx
 #: src/pages/TrueSight/components/Chart.tsx
+#: src/pages/TrueSightV2/pages/OnChainAnalysis.tsx
 msgid "Trading Volume"
 msgstr ""
 
 #: src/components/swapv2/TokenInfoTab.tsx
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Trading Volume (24H)"
@@ -5631,15 +6233,20 @@ msgid "Trending"
 msgstr ""
 
 #: src/components/Announcement/PrivateAnnoucement/index.tsx
-#: src/components/TopTrendingSoonTokensInCurrentNetwork/index.tsx
-#: src/components/TopTrendingSoonTokensInCurrentNetwork/index.tsx
 #: src/components/swapv2/SwapSettingsPanel/index.tsx
+#: src/components/TopTrendingSoonTokensInCurrentNetwork/index.tsx
+#: src/components/TopTrendingSoonTokensInCurrentNetwork/index.tsx
 #: src/pages/TrueSight/TrueSightTab.tsx
+#: src/pages/TrueSightV2/pages/TokenAnalysisList.tsx
 msgid "Trending Soon"
 msgstr ""
 
 #: src/pages/NotificationCenter/Menu/index.tsx
-msgid "Trending Soon Tokens"
+#~ msgid "Trending Soon Tokens"
+#~ msgstr ""
+
+#: src/pages/TrueSightV2/components/KyberAIWidget.tsx
+msgid "Trending soon"
 msgstr ""
 
 #: src/pages/TrueSight/components/FilterBar/TrueSightToggle.tsx
@@ -5683,9 +6290,8 @@ msgstr "Bật để hiển thị các token có thể sẽ trending"
 msgid "Turn on to display trade route"
 msgstr "Bật để hiển thị trade route"
 
-#: src/components/TransactionSettings/AdvanceModeModal.tsx
-#: src/components/TransactionSettings/index.tsx
 #: src/components/swapv2/SwapSettingsPanel/DegenModeSetting.tsx
+#: src/components/TransactionSettings/AdvanceModeModal.tsx
 msgid "Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can result in bad rates and loss of funds. Be cautious."
 msgstr ""
 
@@ -5700,8 +6306,8 @@ msgid "Txn Hash"
 msgstr "Hash của giao dịch"
 
 #: src/components/SwapForm/PriceImpactNote.tsx
-msgid "Unable to calculate Price Impact"
-msgstr ""
+#~ msgid "Unable to calculate Price Impact"
+#~ msgstr ""
 
 #: src/components/swapv2/LimitOrder/TradePrice.tsx
 msgid "Unable to get the market price"
@@ -5909,8 +6515,8 @@ msgid "Video Tutorial"
 msgstr ""
 
 #: src/components/TrendingSoonTokenBanner/index.tsx
-msgid "View"
-msgstr ""
+#~ msgid "View"
+#~ msgstr ""
 
 #: src/components/YieldPools/ElasticFarmGroup/FarmCard.tsx
 msgid "View Farm"
@@ -5921,12 +6527,24 @@ msgstr ""
 msgid "View Farms"
 msgstr ""
 
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
+msgid "View Less Stats"
+msgstr ""
+
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
+msgid "View More Stats"
+msgstr ""
+
 #: src/components/PoolList/ItemCard/index.tsx
 msgid "View Pool"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/index.tsx
 msgid "View Pool Details"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/TokenAnalysisList.tsx
+msgid "View Pools"
 msgstr ""
 
 #: src/components/YieldPools/ElasticFarmGroup/FarmCard.tsx
@@ -5955,6 +6573,10 @@ msgstr ""
 #~ msgid "View list"
 #~ msgstr "Xem danh sách"
 
+#: src/pages/TrueSightV2/components/KyberAIWidget.tsx
+msgid "View more ↗"
+msgstr ""
+
 #: src/components/Tutorial/TutorialSwap/constant.ts
 msgid "View our KyberSwap Guide again"
 msgstr ""
@@ -5971,6 +6593,10 @@ msgstr ""
 #: src/components/ModalViews/index.tsx
 #~ msgid "View transaction on Etherscan"
 #~ msgstr "Xem giao dịch trên Etherscan"
+
+#: src/pages/TrueSightV2/pages/OnChainAnalysis.tsx
+msgid "Volume"
+msgstr ""
 
 #: src/components/PoolList/ItemCard/index.tsx
 #: src/components/ProAmm/ProAmmPoolStat.tsx
@@ -6048,8 +6674,23 @@ msgid "Wallet Address or ENS name"
 msgstr "Địa chỉ Ví hoặc tên ENS"
 
 #: src/components/SwapForm/hooks/useBuildRoute.tsx
-#: src/components/SwapForm/hooks/useBuildRoute.tsx
 msgid "Wallet is not connected"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/OnChainAnalysis.tsx
+msgid "Wallets which hold more than 5% of the circulating supply of this token"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/OnChainAnalysis.tsx
+msgid "Wallets with more than $5m in assets across multiple chains"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/LandingPage.tsx
+msgid "Want to <0>let AI do the work of sifting through a noisy market</0>"
+msgstr ""
+
+#: src/pages/ProAmmPools/TruesightPoolModal.tsx
+msgid "Want to know more? Explore KNC in KyberAI!"
 msgstr ""
 
 #: src/pages/App.tsx
@@ -6070,6 +6711,11 @@ msgstr ""
 
 #: src/components/swapv2/PairSuggestion/ListPair.tsx
 msgid "We could not find anything. Try again."
+msgstr ""
+
+#: src/pages/TrueSightV2/components/chart/index.tsx
+#: src/pages/TrueSightV2/components/table/index.tsx
+msgid "We couldn't find any information on USDT"
 msgstr ""
 
 #: src/components/Tutorial/TutorialSwap/index.tsx
@@ -6096,9 +6742,13 @@ msgstr ""
 msgid "We have deployed an upgraded router contract at <0>{0}</0>. You may have to approve this contract before you trade your tokens"
 msgstr ""
 
-#: src/components/swapv2/SwapModalHeader.tsx
-msgid "We may send multiple tx to complete the swap"
+#: src/pages/TrueSightV2/pages/LandingPage.tsx
+msgid "We introduce to you, <0>KyberAI</0>"
 msgstr ""
+
+#: src/components/swapv2/SwapModalHeader.tsx
+#~ msgid "We may send multiple tx to complete the swap"
+#~ msgstr ""
 
 #: src/components/ErrorBoundary/FallbackView.tsx
 msgid "We need access to your local storage. The reason can be that you may have accidentally blocked cookies from this site. Please find it in your settings and turn it off."
@@ -6125,17 +6775,27 @@ msgstr ""
 msgid "We will use our Aggregator to regularly monitor price changes based on your alert conditions below. When the price alert is triggered, we will send you a notification"
 msgstr ""
 
+#: src/pages/TrueSightV2/components/TutorialModal.tsx
+msgid "We're thrilled to have you onboard and can't wait for you to start exploring the world of trading powered by <0>KyberAI</0>. We've created this short tutorial for you to highlight KyberAI's main features. Ready?"
+msgstr ""
+
 #: src/components/swapv2/HurryUpBanner.tsx
 msgid "We've got you the best price! Confirm soon to lock-in this rate"
 msgstr ""
 
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
+#: src/pages/TrueSightV2/components/TokenOverview.tsx
 msgid "Website"
 msgstr ""
 
-#: src/components/Tutorial/TutorialSwap/TutorialMobile.tsx
+#: src/pages/TrueSightV2/components/TutorialModal.tsx
+msgid "Welcome to <0/>KyberAI"
+msgstr ""
+
 #: src/components/Tutorial/TutorialSwap/constant.ts
+#: src/components/Tutorial/TutorialSwap/TutorialMobile.tsx
 msgid "Welcome to KyberSwap!"
 msgstr ""
 
@@ -6158,6 +6818,10 @@ msgstr ""
 
 #: src/pages/About/AboutKNC.tsx
 msgid "Where you can store KNC"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/LandingPage.tsx
+msgid "With advanced machine learning algorithms to help you stay ahead of the curve, KyberAI gives you the AI/ML edge by analyzing thousands of analyze thousands of tokens and billions of data points, putting you ahead of the curve. Whether you're a seasoned retail trader, just starting out or somewhere in between, KyberAI can give you a competitive edge in trading."
 msgstr ""
 
 #: src/pages/About/AboutKyberSwap/index.tsx
@@ -6218,16 +6882,16 @@ msgid "You Buy"
 msgstr ""
 
 #: src/pages/Bridge/SwapForm.tsx
-msgid "You Receive"
-msgstr ""
+#~ msgid "You Receive"
+#~ msgstr ""
 
 #: src/components/swapv2/LimitOrder/LimitOrderForm.tsx
 msgid "You Sell"
 msgstr ""
 
 #: src/pages/Bridge/SwapForm.tsx
-msgid "You Transfer"
-msgstr ""
+#~ msgid "You Transfer"
+#~ msgstr ""
 
 #: src/pages/Bridge/ComfirmBridgeModal.tsx
 msgid "You agree that KyberSwap is using <0/> to facilitate transfer of tokens between chains, and in case of a security breach on Multichain, KyberSwap won't assume any liability for any losses"
@@ -6284,6 +6948,10 @@ msgstr ""
 #: src/pages/AddLiquidity/index.tsx
 #~ msgid "You can add liquidity to the pool by supplying a single token (either token from the token pair). We will automatically create LP tokens for you and add them to the liquidity pool - all in a single transaction"
 #~ msgstr "Bạn có thể thêm thanh khoản cho Pool bằng cách cung cấp một token duy nhất (một token trong cặp đôi token). Chúng tôi sẽ tự động tạo mã thông báo LP cho bạn và thêm chúng vào nhóm thanh khoản - tất cả chỉ trong một giao dịch"
+
+#: src/pages/TrueSightV2/components/KyberAIWidget.tsx
+msgid "You can add more tokens to your watchlist from <0>KyberAI</0>.<1/>You can watch up to 10 tokens"
+msgstr ""
 
 #: src/pages/CreateReferral/index.tsx
 msgid "You can also include tokens to swap in your referral link so that referees are automatically re-directed to selected chain and selected tokens are also populated for the swap. You will still earn commission on other token swaps if they use your referral link."
@@ -6392,11 +7060,19 @@ msgstr ""
 #~ msgstr ""
 
 #: src/components/SwapForm/PriceImpactNote.tsx
-msgid "You can turn on <0>Degen Mode</0> from Settings to execute trades when price impact cannot be calculated. This can result in bad rates and loss of funds!"
+#~ msgid "You can turn on <0>Degen Mode</0> from Settings to execute trades when price impact cannot be calculated. This can result in bad rates and loss of funds!"
+#~ msgstr ""
+
+#: src/components/SwapForm/PriceImpactNote.tsx
+#~ msgid "You can turn on <0>Degen Mode</0> from Settings to execute trades with <1>very</1> high price impact. This can result in bad rates and loss of funds!"
+#~ msgstr ""
+
+#: src/components/SwapForm/PriceImpactNote.tsx
+msgid "You can turn on Degen Mode from Settings to execute trades when price impact cannot be calculated. This can result in bad rates and loss of funds!"
 msgstr ""
 
 #: src/components/SwapForm/PriceImpactNote.tsx
-msgid "You can turn on <0>Degen Mode</0> from Settings to execute trades with <1>very</1> high price impact. This can result in bad rates and loss of funds!"
+msgid "You can turn on Degen Mode from Settings to execute trades with very high price impact. This can result in bad rates and loss of funds"
 msgstr ""
 
 #: src/components/FarmIssueAnnouncement.tsx
@@ -6457,6 +7133,10 @@ msgstr ""
 msgid "You have no Transaction History"
 msgstr ""
 
+#: src/pages/Bridge/BridgeTransferHistory/TokenReceiveCell.tsx
+msgid "You have received some any{dstTokenSymbol} from Multichain. You can exchange your any{dstTokenSymbol} to {dstTokenSymbol} at Multichain, when the pool has sufficient liquidity."
+msgstr ""
+
 #: src/components/swapv2/LimitOrder/ListOrder/index.tsx
 msgid "You have successfully cancelled all orders."
 msgstr ""
@@ -6498,13 +7178,18 @@ msgid "You have turned on <0>Degen Mode</0> from settings. Trades can still be e
 msgstr ""
 
 #: src/components/SwapForm/PriceImpactNote.tsx
-msgid "You have turned on <0>Degen Mode</0> from settings. Trades with <1>very</1> high price impact can be executed."
-msgstr ""
+#~ msgid "You have turned on <0>Degen Mode</0> from settings. Trades with <1>very</1> high price impact can be executed."
+#~ msgstr ""
 
 #: src/pages/SwapV2/index.tsx
 #~ msgid "You have turned on Advanced Mode from settings. Trades with high price impact can be executed"
 #~ msgstr ""
 
+#: src/components/SwapForm/PriceImpactNote.tsx
+msgid "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
+msgstr ""
+
+#: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV3/index.tsx
 msgid "You have turned on Degen Mode. Be cautious"
 msgstr ""
@@ -6515,6 +7200,10 @@ msgstr ""
 
 #: src/components/YieldPools/ElasticFarmGroup/FarmCard.tsx
 msgid "You have {numberInRangePos} in-range position(s)"
+msgstr ""
+
+#: src/pages/SwapV3/Tabs/LimitTab.tsx
+msgid "You have {numberOfInsufficientFundOrders} active orders that don't have sufficient funds"
 msgstr ""
 
 #: src/components/YieldPools/ElasticFarmGroup/FarmCard.tsx
@@ -6541,6 +7230,18 @@ msgstr ""
 msgid "You need to first allow KyberSwap smart contracts to use your {0}. This has to be done only once for each token."
 msgstr ""
 
+#: src/pages/SwapV2/index.tsx
+msgid "You need to first allow KyberSwap's smart contract to use your {0}"
+msgstr ""
+
+#: src/components/SwapForm/SwapActionButton/index.tsx
+msgid "You need to first allow KyberSwap's smart contract to use your {0}. <0>Read more ↗</0>"
+msgstr ""
+
+#: src/components/SwapForm/SwapActionButton/index.tsx
+msgid "You need to first give a temporary 24H approval to KyberSwaps smart contract to use your {0}. This doesnt require a gas fees. <0>Read more ↗</0>"
+msgstr ""
+
 #: src/components/ProAmm/ProAmmFee.tsx
 msgid "You need to withdraw your deposited liquidity position from the Farm first"
 msgstr ""
@@ -6558,8 +7259,8 @@ msgstr ""
 #~ msgstr ""
 
 #: src/pages/SwapV2/index.tsx
-msgid "You save"
-msgstr "Tiết kiệm"
+#~ msgid "You save"
+#~ msgstr "Tiết kiệm"
 
 #: src/components/YieldPools/ElasticFarmGroup/FarmCard.tsx
 #: src/components/YieldPools/ElasticFarmGroup/Row.tsx
@@ -6601,11 +7302,23 @@ msgstr "Bạn sẽ nhận"
 
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 #: src/components/SwapForm/TradeSummary.tsx
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+#: src/components/swapv2/SwapModalFooter.tsx
 msgid "You will receive at least this amount or your transaction will revert"
 msgstr ""
 
 #: src/components/Menu/FaucetModal.tsx
 msgid "You will receive {0} {tokenSymbol} soon!"
+msgstr ""
+
+#: src/pages/SwapV3/ApprovalModal.tsx
+msgid "You wish to give KyberSwap permission to use the selected token for transactions without any limit. You do not need to give permission again unless you have revoked it. This approve transaction will cost a gas fee"
+msgstr ""
+
+#: src/pages/SwapV3/ApprovalModal.tsx
+msgid ""
+"You wish to give KyberSwap permission to use up to the selected custom token\n"
+"amount for transactions. Subsequent transactions exceeding this amount will require your permission again. This will cost gas fees"
 msgstr ""
 
 #: src/pages/Bridge/SwapForm.tsx
@@ -6743,8 +7456,8 @@ msgstr ""
 msgid "Your fees are being automatically compounded so you earn more"
 msgstr ""
 
-#: src/components/WalletPopup/SendToken/index.tsx
 #: src/components/swapv2/LimitOrder/useValidateInputError.ts
+#: src/components/WalletPopup/SendToken/index.tsx
 msgid "Your input amount is invalid."
 msgstr ""
 
@@ -6831,8 +7544,12 @@ msgid "Your position will be 100% composed of {0} at this price"
 msgstr ""
 
 #: src/pages/AddLiquidityV2/index.tsx
-msgid "Your position will not earn fees until the market price of the pool moves into your price range."
+msgid "Your position will not earn fees until the market price of the pool moves into your price range"
 msgstr ""
+
+#: src/pages/AddLiquidityV2/index.tsx
+#~ msgid "Your position will not earn fees until the market price of the pool moves into your price range."
+#~ msgstr ""
 
 #: src/components/YieldPools/ElasticFarms.tsx
 msgid "Your rewards may be automatically harvested a few days after the farm ends. Please check the <0>Vesting</0> tab to see your rewards"
@@ -6921,7 +7638,6 @@ msgstr ""
 
 #: src/components/Header/web3/WalletModal/index.tsx
 #: src/pages/Campaign/CampaignButtonWithOptions.tsx
-#: src/pages/Campaign/CampaignButtonWithOptions.tsx
 msgid "and"
 msgstr "và"
 
@@ -6956,8 +7672,8 @@ msgid "contract"
 msgstr ""
 
 #: src/components/TrendingSoonTokenBanner/index.tsx
-msgid "could be trending very soon!"
-msgstr ""
+#~ msgid "could be trending very soon!"
+#~ msgstr ""
 
 #: src/components/Announcement/Popups/TransactionPopup.tsx
 msgid "delegated voting power to {0}...{1}"
@@ -6982,7 +7698,6 @@ msgid "has been successfully transferred from"
 msgstr ""
 
 #: src/components/Header/web3/WalletModal/WarningBox.tsx
-#: src/components/TrendingSoonTokenBanner/index.tsx
 #: src/pages/CreatePool/index.tsx
 msgid "here"
 msgstr "ở đây"
@@ -7025,8 +7740,8 @@ msgstr ""
 
 #: src/components/swapv2/SwapModalHeader.tsx
 #: src/components/swapv2/SwapModalHeader.tsx
-msgid "or the transaction will revert."
-msgstr "hoặc giao dịch sẽ bị huỷ."
+#~ msgid "or the transaction will revert."
+#~ msgstr "hoặc giao dịch sẽ bị huỷ."
 
 #: src/components/Announcement/Popups/TransactionPopup.tsx
 msgid "order to pay {tokenAmountIn} {tokenSymbolIn} and receive {tokenAmountOut} {tokenSymbolOut}"
@@ -7042,6 +7757,10 @@ msgstr "trên"
 msgid "pool"
 msgstr "pool"
 
+#: src/components/TrendingSoonTokenBanner/index.tsx
+msgid "seems bullish right now."
+msgstr ""
+
 #: src/pages/NotificationCenter/CreateAlert/ConfirmModal.tsx
 #: src/pages/NotificationCenter/CreateAlert/CreateAlertForm.tsx
 msgid "the price of"
@@ -7055,6 +7774,14 @@ msgstr ""
 #: src/pages/NotificationCenter/CreateAlert/CreateAlertForm.tsx
 #: src/pages/NotificationCenter/PriceAlerts/AlertCondition.tsx
 msgid "to"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/OnChainAnalysis.tsx
+msgid "to Centralized Exchanges"
+msgstr ""
+
+#: src/pages/TrueSightV2/pages/OnChainAnalysis.tsx
+msgid "to Whale Wallets"
 msgstr ""
 
 #: src/components/Announcement/AnnoucementView.tsx
@@ -7089,9 +7816,15 @@ msgstr ""
 #: src/components/ProAmm/ListPositions.tsx
 #: src/components/SubscribeButton/NotificationPreference/index.tsx
 #: src/components/SubscribeButton/NotificationPreference/index.tsx
+#: src/components/SwapForm/SwapActionButton/SwapOnlyButton.tsx
+#: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
 #: src/components/Tutorial/TutorialSwap/index.tsx
 #: src/pages/Bridge/PoolInfo.tsx
 #: src/pages/KyberDAO/Vote/ProposalItem/index.tsx
+#: src/pages/TrueSightV2/components/DisplaySettings.tsx
+#: src/pages/TrueSightV2/components/DisplaySettings.tsx
+#: src/pages/TrueSightV2/pages/TokenAnalysisList.tsx
+#: src/pages/TrueSightV2/pages/TokenAnalysisList.tsx
 msgid "{0}"
 msgstr ""
 
@@ -7126,6 +7859,10 @@ msgstr ""
 #: 
 #~ msgid "{0} on {1}"
 #~ msgstr ""
+
+#: src/components/swapv2/SwapSettingsPanel/LiquiditySourcesSetting.tsx
+msgid "{0} out of {numberOfDEXes} selected"
+msgstr ""
 
 #: src/components/ProAmm/ProAmmPriceRange.tsx
 #: src/components/ProAmm/ProAmmPriceRange.tsx
@@ -7194,7 +7931,11 @@ msgstr ""
 #~ msgstr ""
 
 #: src/utils/time.ts
-msgid "{day} days ago"
+#~ msgid "{day} days ago"
+#~ msgstr ""
+
+#: src/utils/time.ts
+msgid "{day} {0} ago"
 msgstr ""
 
 #: src/pages/KyberDAO/StakeKNC/SwitchToEthereumModal.tsx
@@ -7206,11 +7947,19 @@ msgid "{filledPercent} Filled {increasedFilledPercent}"
 msgstr ""
 
 #: src/utils/time.ts
-msgid "{hour} hours ago"
+#~ msgid "{hour} hours ago"
+#~ msgstr ""
+
+#: src/utils/time.ts
+msgid "{hour} {0} ago"
 msgstr ""
 
 #: src/utils/time.ts
-msgid "{min} minutes ago"
+#~ msgid "{min} minutes ago"
+#~ msgstr ""
+
+#: src/utils/time.ts
+msgid "{min} {0} ago"
 msgstr ""
 
 #: src/components/Popups/ListUpdatePopup.tsx

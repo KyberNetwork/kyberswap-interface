@@ -4,6 +4,8 @@ import styled from 'styled-components'
 
 import Row from 'components/Row'
 
+import { useCexesLiquidationQuery } from '../hooks/useKyberAIData'
+
 const Card = styled.div`
   padding: 20px;
   border-radius: 16px;
@@ -34,19 +36,24 @@ const formatNum = (num: number) => {
 
 export default function CexRekt() {
   const above768 = useMedia('(min-width:768px)')
+  const { data } = useCexesLiquidationQuery({
+    tokenAddress: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+    chartSize: '1m',
+  })
+
   return (
     <Row gap="24px" flexDirection={above768 ? 'row' : 'column'} align="stretch">
       <Card>
         <Text fontSize={14}>4H Rekt</Text>
-        <Text fontSize={28}>${formatNum(0)}</Text>
+        <Text fontSize={28}>${formatNum(data ? data.totalVolUsd.h4TotalVolUsd : 0)}</Text>
       </Card>
       <Card>
         <Text fontSize={14}>12H Rekt</Text>
-        <Text fontSize={28}>${formatNum(0)}</Text>
+        <Text fontSize={28}>${formatNum(data ? data.totalVolUsd.h12TotalVolUsd : 0)}</Text>
       </Card>
       <Card>
         <Text fontSize={14}>24H Rekt</Text>
-        <Text fontSize={28}>${formatNum(0)}</Text>
+        <Text fontSize={28}>${formatNum(data ? data.totalVolUsd.h24TotalVolUsd : 0)}</Text>
       </Card>
     </Row>
   )

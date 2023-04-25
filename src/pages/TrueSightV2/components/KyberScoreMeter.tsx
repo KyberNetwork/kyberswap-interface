@@ -248,7 +248,7 @@ function KyberScoreMeter({ value }: { value?: number }) {
   const theme = useTheme()
   const [, setForceRender] = useState(0)
   useEffect(() => {
-    if (value !== 0 && !value) return
+    if (!value) return
     const interval = setInterval(() => {
       transitionValue = transitionValue + (value - transitionValue) / 4 + (Math.random() * 0.4 - 0.1)
       const rotate = transitionValue
@@ -268,9 +268,10 @@ function KyberScoreMeter({ value }: { value?: number }) {
   const activeGaugeValue = transitionValue ? (gaugeList.length * transitionValue) / 100 : 0
   const gaugeColor = useCallback(
     (value: number) => {
+      if (value === 0) return theme.primary
       const percent = (value / gaugeList.length) * 100
       if (value > activeGaugeValue) {
-        return theme.darkMode ? theme.subText + '30' : theme.background2
+        return theme.darkMode ? theme.subText + '30' : theme.border + '60'
       }
       if (percent < 20) {
         return theme.red
@@ -312,7 +313,9 @@ function KyberScoreMeter({ value }: { value?: number }) {
           strokeWidth="2"
         ></path>
       </svg>
-      <GaugeValue color={gaugeColor(activeGaugeValue)}>{transitionValue.toFixed(1)}</GaugeValue>
+      <GaugeValue color={gaugeColor(transitionValue)}>
+        {transitionValue === 0 ? '--' : transitionValue.toFixed(1)}
+      </GaugeValue>
     </Wrapper>
   )
 }

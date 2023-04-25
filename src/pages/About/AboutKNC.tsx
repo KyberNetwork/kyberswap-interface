@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { Pagination } from 'swiper'
-import { Swiper, SwiperSlide } from 'swiper/react/swiper-react'
+import { Swiper, SwiperSlide } from 'swiper/react'
 
 import GeckoterminalIcon from 'assets/images/geckoterminal_dark.png'
 import GeckoterminalIconLight from 'assets/images/geckoterminal_light.png'
@@ -17,6 +17,23 @@ import KyberDaoLight from 'assets/svg/kyber-dao-light.svg'
 import KyberDao from 'assets/svg/kyber-dao.svg'
 import RocketIcon from 'assets/svg/rocket.svg'
 import TrophyIcon from 'assets/svg/trophy.svg'
+import Argent from 'assets/wallets/argent.svg'
+import ArgentLight from 'assets/wallets/argent_light.svg'
+import Coin98 from 'assets/wallets/coin98.svg'
+import Eidoo from 'assets/wallets/eidoo.svg'
+import Enjin from 'assets/wallets/enjin.svg'
+import KrystalWallet from 'assets/wallets/krystal.svg'
+import KrystalLight from 'assets/wallets/krystal_light.svg'
+import Ledger from 'assets/wallets/ledger.svg'
+import LedgerLight from 'assets/wallets/ledger_light.svg'
+import Metamask from 'assets/wallets/metamask.svg'
+import MetamaskLight from 'assets/wallets/metamask_light.svg'
+import Mew from 'assets/wallets/mew.svg'
+import Torus from 'assets/wallets/torus.svg'
+import Trezor from 'assets/wallets/trezor.svg'
+import TrezorLight from 'assets/wallets/trezor_light.svg'
+import Trust from 'assets/wallets/trust.svg'
+import TrustLight from 'assets/wallets/trust_light.svg'
 import {
   Binance,
   Bithumb,
@@ -88,17 +105,17 @@ const LIST_EXCHANGES = [
 ]
 
 const LIST_WALLETS = [
-  { logo: 'ledger', lightLogo: 'ledger_light' },
-  { logo: 'metamask', lightLogo: 'metamask_light' },
-  { logo: 'coin98', lightLogo: 'coin98' },
-  { logo: 'krystal', lightLogo: 'krystal_light' },
-  { logo: 'trezor', lightLogo: 'trezor_light' },
-  { logo: 'mew', lightLogo: 'mew' },
-  { logo: 'trust', lightLogo: 'trust_light' },
-  { logo: 'enjin', lightLogo: 'enjin' },
-  { logo: 'torus', lightLogo: 'torus' },
-  { logo: 'argent', lightLogo: 'argent_light' },
-  { logo: 'eidoo', lightLogo: 'eidoo' },
+  { logo: Ledger, lightLogo: LedgerLight },
+  { logo: Metamask, lightLogo: MetamaskLight },
+  { logo: Coin98, lightLogo: Coin98 },
+  { logo: KrystalWallet, lightLogo: KrystalLight },
+  { logo: Trezor, lightLogo: TrezorLight },
+  { logo: Mew, lightLogo: Mew },
+  { logo: Trust, lightLogo: TrustLight },
+  { logo: Enjin, lightLogo: Enjin },
+  { logo: Torus, lightLogo: Torus },
+  { logo: Argent, lightLogo: ArgentLight },
+  { logo: Eidoo, lightLogo: Eidoo },
 ]
 
 function AboutKNC() {
@@ -395,7 +412,7 @@ function AboutKNC() {
               {LIST_WALLETS.map(wallet => (
                 <img
                   key={wallet.logo}
-                  src={require(`assets/wallets/${isDarkMode ? wallet.logo : wallet.lightLogo}.svg`).default}
+                  src={isDarkMode ? wallet.logo : wallet.lightLogo}
                   alt={wallet.logo}
                   style={{ margin: 'auto' }}
                 />
@@ -416,7 +433,7 @@ function AboutKNC() {
                 <SwiperSlide key={wallet.logo}>
                   <ExchangeWrapper>
                     <img
-                      src={require(`assets/wallets/${isDarkMode ? wallet.logo : wallet.lightLogo}.svg`).default}
+                      src={isDarkMode ? wallet.logo : wallet.lightLogo}
                       alt={wallet.logo}
                       width="160px"
                       style={{ margin: 'auto' }}

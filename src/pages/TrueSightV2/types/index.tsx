@@ -109,6 +109,14 @@ export interface ITradingVolume {
   totalTrade: number
 }
 
+export interface ILiquidCEX {
+  buyVolUsd: number
+  sellVolUsd: number
+  timestamp: number
+  exchanges: Array<{ exchangeName: string; buyVolUsd: number; sellVolUsd: number }>
+  price: number
+}
+
 export interface ISRLevel {
   timestamp: number
   value: number

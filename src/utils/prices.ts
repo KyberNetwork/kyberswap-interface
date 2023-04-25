@@ -1,5 +1,5 @@
 import { Pair, Trade } from '@kyberswap/ks-sdk-classic'
-import { ChainId, Currency, CurrencyAmount, Fraction, Percent, TradeType } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Fraction, Percent, TradeType } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 
 import {
@@ -52,7 +52,7 @@ export function warningSeverity(priceImpact: Percent | undefined): 0 | 1 | 2 | 3
   return 0
 }
 
-export function formatExecutionPrice(trade?: AnyTrade | Aggregator, inverted?: boolean, chainId?: ChainId): string {
+export function formatExecutionPrice(trade?: AnyTrade | Aggregator, inverted?: boolean): string {
   if (!trade) {
     return ''
   }

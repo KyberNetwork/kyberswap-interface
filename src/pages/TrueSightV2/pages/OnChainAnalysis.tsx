@@ -3,15 +3,12 @@ import { useEffect, useState } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
-import blurImage1 from 'assets/images/truesight-v2/blur_background_1.png'
-import blurImage2 from 'assets/images/truesight-v2/blur_background_2.png'
-import blurImage3 from 'assets/images/truesight-v2/blur_background_3.png'
-import blurImage4 from 'assets/images/truesight-v2/blur_background_4.png'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import { useTokenAnalysisSettings } from 'state/user/hooks'
 
-import { RequireConnectWalletWrapper, SectionWrapper } from '../components'
+import { SectionWrapper } from '../components'
+import RequireConnectWalletWrapper from '../components/RequireConnectWallet'
 import {
   HoldersChartWrapper,
   NetflowToCentralizedExchanges,
@@ -112,7 +109,7 @@ export default function OnChainAnalysis({ onShareClick }: { onShareClick: (url: 
         activeTab={netflowToWhaleWallets}
         onTabClick={setNetflowToWhaleWallets}
       >
-        <RequireConnectWalletWrapper bgUrl={blurImage1}>
+        <RequireConnectWalletWrapper chartType={1} tab={netflowToWhaleWallets}>
           <NetflowToWhaleWallets tab={netflowToWhaleWallets} />
         </RequireConnectWalletWrapper>
       </SectionWrapper>
@@ -140,7 +137,7 @@ export default function OnChainAnalysis({ onShareClick }: { onShareClick: (url: 
         activeTab={netflowToCEX}
         onTabClick={setNetflowToCEX}
       >
-        <RequireConnectWalletWrapper bgUrl={blurImage1}>
+        <RequireConnectWalletWrapper chartType={1} tab={netflowToCEX}>
           <NetflowToCentralizedExchanges tab={netflowToCEX} />
         </RequireConnectWalletWrapper>
       </SectionWrapper>
@@ -156,7 +153,7 @@ export default function OnChainAnalysis({ onShareClick }: { onShareClick: (url: 
         activeTab={numberOfTransfers}
         onTabClick={setNumberOfTransfers}
       >
-        <RequireConnectWalletWrapper bgUrl={blurImage2}>
+        <RequireConnectWalletWrapper chartType={2} tab={numberOfTransfers}>
           <NumberofTransfers tab={numberOfTransfers} />
         </RequireConnectWalletWrapper>
       </SectionWrapper>
@@ -169,7 +166,7 @@ export default function OnChainAnalysis({ onShareClick }: { onShareClick: (url: 
         fullscreenButton
         onShareClick={handleShareClick}
       >
-        <RequireConnectWalletWrapper bgUrl={blurImage2}>
+        <RequireConnectWalletWrapper chartType={2} tab={ChartTab.First}>
           <NumberofHolders />
         </RequireConnectWalletWrapper>
       </SectionWrapper>
@@ -181,7 +178,7 @@ export default function OnChainAnalysis({ onShareClick }: { onShareClick: (url: 
         onShareClick={handleShareClick}
         style={{ height: 'fit-content' }}
       >
-        <RequireConnectWalletWrapper bgUrl={blurImage3} height="800px">
+        <RequireConnectWalletWrapper height="800px">
           <Top10HoldersTable />
         </RequireConnectWalletWrapper>
       </SectionWrapper>
@@ -193,7 +190,7 @@ export default function OnChainAnalysis({ onShareClick }: { onShareClick: (url: 
         onShareClick={handleShareClick}
         style={{ height: '360px' }}
       >
-        <RequireConnectWalletWrapper bgUrl={blurImage4}>
+        <RequireConnectWalletWrapper>
           <HoldersChartWrapper />
         </RequireConnectWalletWrapper>
       </SectionWrapper>

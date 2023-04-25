@@ -650,7 +650,7 @@ export default function TokenAnalysisList() {
   const templateList = useMemo(
     () =>
       [...Array(5)]
-        .reduce((t, a) => t.concat(TOKEN_LIST.tokenList.data), [])
+        .reduce(t => t.concat(TOKEN_LIST.tokenList.data), [])
         .map((t: any, index: number) => {
           return { ...t, id: index + 1 }
         }) || [],

@@ -16,7 +16,6 @@ import { FadeIn } from 'utils/keyframes'
 
 const TrendingSoonTokenBanner = ({
   currencyIn,
-  currencyOut,
   style,
 }: {
   style?: CSSProperties

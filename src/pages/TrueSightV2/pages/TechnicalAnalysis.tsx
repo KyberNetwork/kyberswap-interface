@@ -11,7 +11,7 @@ import Toggle from 'components/Toggle'
 import { useTokenAnalysisSettings } from 'state/user/hooks'
 
 import { SectionWrapper } from '../components'
-// import CexRekt from '../components/CexRekt'
+import CexRekt from '../components/CexRekt'
 import { LiquidOnCentralizedExchanges, Prochart } from '../components/chart'
 import { FundingRateTable, LiveDEXTrades, SupportResistanceLevel } from '../components/table'
 import { useChartingDataQuery } from '../hooks/useKyberAIData'
@@ -216,15 +216,15 @@ export default function TechnicalAnalysis() {
         <SectionWrapper
           show={tokenAnalysisSettings?.liquidationsOnCEX}
           title={t`Liquidations on Centralized Exchanges`}
-          description={`Liquidations describe the forced closing of a trader&apos;s futures position due to the partial or total loss
+          description={`Liquidations describe the forced closing of a trader's futures position due to the partial or total loss
           of their collateral. This happens when a trader has insufficient funds to keep a leveraged trade
-          open.Leverated trading is high risk & high reward. The higher the leverage, the easier it is for a trader to
+          open. Leverated trading is high risk & high reward. The higher the leverage, the easier it is for a trader to
           get liquidated. An abrupt change in price of a token can cause large liquidations. Traders may buy / sell the
           token after large liquidations.`}
-          style={{ height: '600px' }}
+          style={{ height: '800px' }}
         >
           <LiquidOnCentralizedExchanges />
-          {/* <CexRekt /> */}
+          <CexRekt />
         </SectionWrapper>
       </Wrapper>
     </TechnicalAnalysisContext.Provider>

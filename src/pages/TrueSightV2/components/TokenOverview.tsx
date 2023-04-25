@@ -21,7 +21,7 @@ import PriceRange from './PriceRange'
 import KyberScoreChart from './chart/KyberScoreChart'
 
 const CardWrapper = styled.div<{ gap?: string }>`
-  --background-color: ${({ theme }) => theme.subText + '16'};
+  --background-color: ${({ theme }) => (theme.darkMode ? theme.text + '22' : theme.subText + '20')};
 
   position: relative;
   overflow: hidden;
@@ -30,7 +30,11 @@ const CardWrapper = styled.div<{ gap?: string }>`
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, rgba(24, 24, 24, 0.14) -4.63%, var(--background-color) 105.53%);
+  background: linear-gradient(
+    200deg,
+    ${({ theme }) => (theme.darkMode ? rgba(24, 24, 24, 0.15) : rgba(224, 224, 224, 0.15))} -4%,
+    var(--background-color) 100%
+  );
   box-shadow: inset 0px 2px 2px rgba(255, 255, 255, 0.2), 0px 4px 8px var(--background-color);
 
   ::after {
@@ -48,10 +52,10 @@ const CardWrapper = styled.div<{ gap?: string }>`
   }
 
   &.bullish {
-    --background-color: ${({ theme }) => theme.primary + '20'};
+    --background-color: ${({ theme }) => (theme.darkMode ? theme.primary + '32' : theme.primary + '40')};
   }
   &.bearish {
-    --background-color: ${({ theme }) => theme.red + '16'};
+    --background-color: ${({ theme }) => (theme.darkMode ? theme.red + '32' : theme.red + '60')};
   }
 
   ${({ theme, gap }) => css`
@@ -116,7 +120,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
   const ref1 = useRef<HTMLDivElement>(null)
   const ref2 = useRef<HTMLDivElement>(null)
   const cardClassname = useMemo(() => {
-    if (!data) return ''
+    if (!data?.kyberScore || data?.kyberScore.score === 0) return ''
     if (data?.kyberScore.score >= 60) return 'bullish'
     if (data?.kyberScore.score < 40) return 'bearish'
     return ''
@@ -126,7 +130,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
       {above768 ? (
         <>
           <Row align="stretch" gap="24px" flexDirection={above768 ? 'row' : 'column'} marginBottom="12px">
-            <CardWrapper style={{ justifyContent: 'space-between' }} className={cardClassname}>
+            <CardWrapper style={{ justifyContent: 'space-between' }} className={'bullish'}>
               <Column>
                 <Text color={theme.text} fontSize="14px" lineHeight="20px" marginBottom="12px" fontWeight={500}>
                   <Trans>Price</Trans>
@@ -230,8 +234,16 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
               </Row>
               <KyberScoreMeter value={data?.kyberScore?.score} />
               <RowFit gap="6px" marginBottom="12px">
-                <Text fontSize={24} fontWeight={500} color={calculateValueToColor(data?.kyberScore?.score || 0, theme)}>
-                  {data?.kyberScore?.label}
+                <Text
+                  fontSize={24}
+                  fontWeight={500}
+                  color={isLoading ? theme.subText : calculateValueToColor(data?.kyberScore?.score || 0, theme)}
+                >
+                  {isLoading
+                    ? t`Loading`
+                    : data?.kyberScore === undefined || data?.kyberScore?.score === 0
+                    ? t`Not Available`
+                    : data.kyberScore.label}
                 </Text>
                 <MouseoverTooltip
                   text={
@@ -259,7 +271,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                 <KyberScoreChart width="100%" height="36px" />
               </Column>
             </CardWrapper>
-            <CardWrapper style={{ fontSize: '12px' }} gap="10px" className={cardClassname}>
+            <CardWrapper style={{ fontSize: '12px' }} gap="10px" className={'bearish'}>
               <Text color={theme.text} marginBottom="4px" fontSize="14px" lineHeight="20px" fontWeight={500}>
                 Key Stats
               </Text>

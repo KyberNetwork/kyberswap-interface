@@ -74,7 +74,7 @@ export function useProAmmMultiplePreviousTicks(
   return useMemo(() => {
     if (!pool) return [[TickMath.MIN_TICK, TickMath.MIN_TICK]]
     if (!loading && !error && !!pool) {
-      const result = results.map((call, index) => {
+      const result = results.map(call => {
         const result = call.result as Result
         return result.previous
       })

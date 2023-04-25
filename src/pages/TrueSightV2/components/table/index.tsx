@@ -12,6 +12,8 @@ import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
+import { useLiveDexTradesQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
+import { testParams } from 'pages/TrueSightV2/pages/SingleToken'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import { KyberAITimeframe } from 'pages/TrueSightV2/types'
 import { shortenAddress } from 'utils'
@@ -357,6 +359,8 @@ export const FundingRateTable = () => {
 
 export const LiveDEXTrades = () => {
   const theme = useTheme()
+  const { data } = useLiveDexTradesQuery({ tokenAddress: testParams.address })
+  console.log('🚀 ~ file: index.tsx:362 ~ LiveDEXTrades ~ data:', data)
   const gridTemplateColumns = '1.4fr 1fr 1.2fr 2fr 2fr 1.5fr 1fr'
 
   return (

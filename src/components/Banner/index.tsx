@@ -4,7 +4,7 @@ import { useLocalStorage } from 'react-use'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 import { Autoplay, Navigation, Pagination } from 'swiper'
-import { Swiper, SwiperSlide } from 'swiper/react/swiper-react'
+import { Swiper, SwiperSlide } from 'swiper/react'
 
 import WorkYourAssetsDesktop from 'assets/banners/work_your_assets_desktop.png'
 import WorkYourAssetsMobile from 'assets/banners/work_your_assets_mobile.png'

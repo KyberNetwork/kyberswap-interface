@@ -12,7 +12,7 @@ import { WORSE_PRICE_DIFF_THRESHOLD } from 'components/swapv2/LimitOrder/const'
 import { useActiveWeb3React } from 'hooks'
 import { BaseTradeInfoLO } from 'hooks/useBaseTradeInfo'
 import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
-import { TransactionFlowState } from 'types'
+import { TransactionFlowState } from 'types/TransactionFlowState'
 
 import { formatAmountOrder } from '../helpers'
 import { RateInfo } from '../type'

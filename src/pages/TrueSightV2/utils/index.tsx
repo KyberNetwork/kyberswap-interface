@@ -1,6 +1,7 @@
 import { DefaultTheme } from 'styled-components'
 
 export const calculateValueToColor = (value: number, theme: DefaultTheme) => {
+  if (value === 0) return theme.darkMode ? theme.subText : theme.border
   if (value < 20) {
     return theme.red
   }
@@ -8,7 +9,7 @@ export const calculateValueToColor = (value: number, theme: DefaultTheme) => {
     return '#FFA7C3'
   }
   if (value < 60) {
-    return theme.text
+    return theme.darkMode ? theme.text : theme.border
   }
   if (value < 80) {
     return '#8DE1C7'
