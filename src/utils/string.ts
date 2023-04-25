@@ -34,3 +34,5 @@ export const shortString = (str: string | undefined, n: number) => {
 export const escapeScriptHtml = (str: string) => {
   return str.replace(/<.*?script.*?>.*?<\/.*?script.*?>/gim, '')
 }
+
+export const isEmailValid = (value: string) => value.match(/\S+@\S+\.\S+/)

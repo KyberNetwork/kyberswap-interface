@@ -22,6 +22,7 @@ import { useNotify } from 'state/application/hooks'
 import { pushUnique } from 'utils'
 import { subscribeTelegramSubscription } from 'utils/firebase'
 import getShortenAddress from 'utils/getShortenAddress'
+import { isEmailValid } from 'utils/string'
 
 const Wrapper = styled.div`
   margin: 0;
@@ -152,7 +153,6 @@ enum TAB {
 const noop = () => {
   //
 }
-const isEmailValid = (value: string) => value.match(/\S+@\S+\.\S+/)
 
 const sortGroup = (arr: Topic[]) => [...arr].sort((x, y) => y.priority - x.priority)
 

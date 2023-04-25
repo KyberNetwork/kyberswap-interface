@@ -32,6 +32,7 @@ import LocalLoader from 'components/LocalLoader'
 import Row from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import RegisterWhitelist from 'pages/TrueSightV2/pages/RegisterWhitelist'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 
@@ -236,11 +237,11 @@ export default function KyberAILandingPage() {
                 <Trans>Sign-in to Continue</Trans>
               </ConnectWalletButton>
             ) : (
-              <>login roi ne</>
+              <RegisterWhitelist />
             )}
           </Column>
           <ColumnWithMotion transition={transition} variants={appearVariants} style={{ position: 'relative' }}>
-            <FloatingImageWithMotion src={bitcoinImage} alt="ape head" left={-120} top={300} />
+            {/* <FloatingImageWithMotion src={bitcoinImage} alt="ape head" left={-120} top={300} />
             <FloatingImageWithMotion src={chartImage} alt="ape head" left={400} top={240} />
             <FloatingImageWithMotion src={eteherumImage} alt="ape head" left={300} top={300} />
             <FloatingImageWithMotion src={liveDexTradesImage} alt="ape head" left={0} top={100} />
@@ -249,7 +250,7 @@ export default function KyberAILandingPage() {
             <FloatingImageWithMotion src={kyberscoreMeterImage} alt="ape head" left={350} top={10} />
             <FloatingImageWithMotion src={starsImage} alt="ape head" left={-800} top={100} />
             <FloatingImageWithMotion src={apeImage} alt="ape head" left={-100} top={100} />
-            <FloatingImageWithMotion src={tokenPriceImage} alt="ape head" left={0} top={450} />
+            <FloatingImageWithMotion src={tokenPriceImage} alt="ape head" left={0} top={450} /> */}
           </ColumnWithMotion>
         </FixedWidth>
       </Part1>
