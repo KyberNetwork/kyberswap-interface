@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { motion } from 'framer-motion'
+import { motion, useScroll, useTransform } from 'framer-motion'
 import { ReactNode } from 'react'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -7,19 +7,25 @@ import styled, { css } from 'styled-components'
 import apeImage from 'assets/images/truesight-v2/landing-page/ape-image.png'
 import backgroundImage from 'assets/images/truesight-v2/landing-page/background-gradient.png'
 import bitcoinImage from 'assets/images/truesight-v2/landing-page/bitcoin.png'
+import chartLightImage from 'assets/images/truesight-v2/landing-page/chart-light.png'
 import chartImage from 'assets/images/truesight-v2/landing-page/chart.png'
 import coreEditImage from 'assets/images/truesight-v2/landing-page/core-edit.png'
-import eteherumImage from 'assets/images/truesight-v2/landing-page/ethereum.png'
+import ethereumImage from 'assets/images/truesight-v2/landing-page/ethereum.png'
 import feature1 from 'assets/images/truesight-v2/landing-page/feature1.png'
 import feature2 from 'assets/images/truesight-v2/landing-page/feature2.png'
 import feature3 from 'assets/images/truesight-v2/landing-page/feature3.png'
+// import gradientImage2 from 'assets/images/truesight-v2/landing-page/gradient2.png'
+// import gradientImage3 from 'assets/images/truesight-v2/landing-page/gradient3.png'
 import gradientImage from 'assets/images/truesight-v2/landing-page/gradient.png'
 import iconImage from 'assets/images/truesight-v2/landing-page/icon.png'
 import image1 from 'assets/images/truesight-v2/landing-page/image1.png'
+import kyberscoreMeterLightImage from 'assets/images/truesight-v2/landing-page/kyberscore-meter-light.png'
 import kyberscoreMeterImage from 'assets/images/truesight-v2/landing-page/kyberscore-meter.png'
+import liveDexTradesLightImage from 'assets/images/truesight-v2/landing-page/live-dex-trades-light.png'
 import liveDexTradesImage from 'assets/images/truesight-v2/landing-page/live-dex-trades.png'
 import starsImage from 'assets/images/truesight-v2/landing-page/stars.png'
 import tokenListImage from 'assets/images/truesight-v2/landing-page/token-list.png'
+import tokenPriceLightImage from 'assets/images/truesight-v2/landing-page/token-price-light.png'
 import tokenPriceImage from 'assets/images/truesight-v2/landing-page/token-price.png'
 import videoPlaceholderImage from 'assets/images/truesight-v2/landing-page/video-placeholder.png'
 import sprite from 'assets/svg/kyberAILandingPageSprite.svg'
@@ -75,6 +81,7 @@ const PartWrapper = styled(motion.div)`
   flex-direction: column;
   justify-content: center;
   max-width: 1224px;
+  position: relative;
 `
 
 const transition = { type: 'spring', bounce: 0, duration: 1 }
@@ -107,6 +114,7 @@ const Part3 = styled(PartWithMotion)``
 const Part4 = styled(PartWithMotion)`
   height: 350px;
   gap: 32px;
+  width: 100%;
 `
 const Part5 = styled(PartWithMotion)`
   height: 600px;
@@ -133,9 +141,23 @@ const FloatingImage = styled.img<{ left: number; top: number }>`
     top: ${top || 0}px;
   `}
 `
-const FloatingImageWithMotion = (props: { src: string; alt: string; left: number; top: number }) => {
+const FloatingImageWithMotion = (props: {
+  src: string
+  alt: string
+  left: number
+  top: number
+  parallaxDistance?: number
+  style?: React.CSSProperties
+}) => {
+  const { scrollYProgress } = useScroll()
+  const translateY = useTransform(
+    scrollYProgress,
+    [0, 1],
+    [0, props.parallaxDistance ? 2200 / props.parallaxDistance : 0],
+  )
+
   return (
-    <motion.div transition={transition} variants={appearVariants}>
+    <motion.div transition={transition} variants={appearVariants} style={{ translateY, ...props.style }}>
       <FloatingImage {...props} />
     </motion.div>
   )
@@ -186,13 +208,13 @@ const CallToActionBox = styled.div`
   width: 100%;
   border-radius: 8px;
   background: linear-gradient(91deg, rgba(237, 253, 248, 0.12) 4.04%, rgba(122, 183, 165, 0.04) 104.55%);
+  box-shadow: inset 0px 4px 4px rgba(255, 255, 255, 0.25), inset 0px 4px 8px rgba(0, 0, 0, 0.12);
   backdrop-filter: blur(25px);
   border: 2px solid #e3e3e332;
   padding: 44px;
 `
 export default function KyberAILandingPage() {
   const theme = useTheme()
-
   return (
     <Wrapper>
       <Part1>
@@ -212,16 +234,54 @@ export default function KyberAILandingPage() {
             </ConnectWalletButton>
           </Column>
           <ColumnWithMotion style={{ position: 'relative' }}>
-            <FloatingImageWithMotion src={bitcoinImage} alt="ape head" left={-120} top={300} />
-            <FloatingImageWithMotion src={chartImage} alt="ape head" left={400} top={240} />
-            <FloatingImageWithMotion src={eteherumImage} alt="ape head" left={300} top={300} />
-            <FloatingImageWithMotion src={liveDexTradesImage} alt="ape head" left={0} top={100} />
-            <FloatingImageWithMotion src={gradientImage} alt="ape head" left={-800} top={-80} />
-            <FloatingImageWithMotion src={iconImage} alt="ape head" left={200} top={80} />
-            <FloatingImageWithMotion src={kyberscoreMeterImage} alt="ape head" left={350} top={10} />
-            <FloatingImageWithMotion src={starsImage} alt="ape head" left={-800} top={100} />
-            <FloatingImageWithMotion src={apeImage} alt="ape head" left={-100} top={100} />
-            <FloatingImageWithMotion src={tokenPriceImage} alt="ape head" left={0} top={450} />
+            <FloatingImageWithMotion src={bitcoinImage} alt="bitcoin" left={-120} top={300} parallaxDistance={6} />
+            <FloatingImageWithMotion
+              src={theme.darkMode ? chartImage : chartLightImage}
+              alt="chart"
+              left={460}
+              top={400}
+              parallaxDistance={9}
+              style={{ scale: 0.6 }}
+            />
+            <FloatingImageWithMotion
+              src={theme.darkMode ? liveDexTradesImage : liveDexTradesLightImage}
+              alt="live dex trade"
+              left={-300}
+              top={190}
+              parallaxDistance={10}
+              style={{ scale: 0.6 }}
+            />
+            <motion.div
+              animate={{
+                opacity: [
+                  1, 0.9, 0.7, 0.8, 1, 1, 0.9, 1, 1, 0.9, 1, 0.2, 1, 1, 0.1, 1, 0.6, 0.5, 0.6, 1, 1, 0.7, 0.8, 0.7, 1,
+                  1, 0.6, 0.5, 0.6, 1,
+                ],
+              }}
+              transition={{ duration: 5, repeat: Infinity }}
+            >
+              <FloatingImageWithMotion src={gradientImage} alt="ape sight" left={-800} top={-80} parallaxDistance={4} />
+            </motion.div>
+            <FloatingImageWithMotion
+              src={theme.darkMode ? kyberscoreMeterImage : kyberscoreMeterLightImage}
+              alt="kyberscore"
+              left={450}
+              top={10}
+              parallaxDistance={5}
+              style={{ scale: 0.6 }}
+            />
+            <FloatingImageWithMotion src={iconImage} alt="icon" left={200} top={80} parallaxDistance={7} />
+            <FloatingImageWithMotion src={starsImage} alt="stars" left={-600} top={80} parallaxDistance={-10} />
+            <FloatingImageWithMotion src={apeImage} alt="ape head" left={-100} top={100} parallaxDistance={4} />
+            <FloatingImageWithMotion src={ethereumImage} alt="ethereum" left={300} top={320} parallaxDistance={-7} />
+            <FloatingImageWithMotion
+              src={theme.darkMode ? tokenPriceImage : tokenPriceLightImage}
+              alt="token Price"
+              left={-100}
+              top={850}
+              parallaxDistance={-9}
+              style={{ scale: 0.6 }}
+            />
           </ColumnWithMotion>
         </FixedWidth>
       </Part1>
@@ -301,28 +361,35 @@ export default function KyberAILandingPage() {
         </FixedWidth>
       </Part3>
       <Part4>
-        <motion.div transition={transition} variants={appearVariants}>
+        <FloatingImageWithMotion
+          src={starsImage}
+          alt="stars"
+          left={-100}
+          top={-20}
+          parallaxDistance={-8}
+          style={{ zIndex: -1 }}
+        />
+
+        <Column gap="20px" alignItems="center">
           <Text fontSize="48px" color={theme.text} fontWeight={500}>
             <Trans>
               We introduce to you,{' '}
               <span style={{ color: theme.primary, textShadow: `0 0 5px ${theme.primary}` }}>KyberAI</span>
             </Trans>
           </Text>
-        </motion.div>
-        <motion.div transition={transition} variants={appearVariants}>
-          <Text fontSize="16px" lineHeight="24px" color={theme.subText}>
+          <Text fontSize="16px" lineHeight="28px" color={theme.subText}>
             <Trans>An intelligent platform that provides valuable insights on 4000+ Tokens across 7 Chains</Trans>
           </Text>
-        </motion.div>
-        <Row justify="center" gap="16px">
-          <GlobalIcon id="eth-mono" size={36} />
-          <GlobalIcon id="bnb-mono" size={36} />
-          <GlobalIcon id="ava-mono" size={36} />
-          <GlobalIcon id="matic-mono" size={36} />
-          <GlobalIcon id="optimism-mono" size={36} />
-          <GlobalIcon id="arbitrum-mono" size={36} />
-          <GlobalIcon id="fantom-mono" size={36} />
-        </Row>
+          <Row justify="center" gap="16px">
+            <GlobalIcon id="eth-mono" size={36} />
+            <GlobalIcon id="bnb-mono" size={36} />
+            <GlobalIcon id="ava-mono" size={36} />
+            <GlobalIcon id="matic-mono" size={36} />
+            <GlobalIcon id="optimism-mono" size={36} />
+            <GlobalIcon id="arbitrum-mono" size={36} />
+            <GlobalIcon id="fantom-mono" size={36} />
+          </Row>
+        </Column>
       </Part4>
       <Part5>
         <Row justify="center">
