@@ -430,7 +430,7 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
       ) : noSearchResult ? (
         <>
           <Row justify="center" height="360px">
-            <Text fontSize="14px" lineHeight="20px" maxWidth="75%">
+            <Text fontSize="14px" lineHeight="20px" maxWidth="75%" textAlign="center">
               <Trans>
                 Oops, we couldnt find your token! We will regularly add new tokens that have achieved a certain trading
                 volume

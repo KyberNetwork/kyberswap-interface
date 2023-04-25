@@ -137,6 +137,16 @@ const kyberAIApi = createApi({
         }
       },
     }),
+    //13.
+    fundingRate: builder.query({
+      query: ({ tokenAddress }) => ({ url: `/funding-rate/ethereum/${tokenAddress}` }),
+      transformResponse: (res: any) => {
+        if (res.code === 0) {
+          return res.data
+        }
+        throw new Error(res.msg)
+      },
+    }),
     //14.
     liveDexTrades: builder.query({
       query: ({ tokenAddress }) => ({ url: `/live-trades/ethereum/${tokenAddress}` }),
@@ -202,17 +212,6 @@ export const coinglassApi = createApi({
         throw new Error(res.msg)
       },
     }),
-    fundingRate: builder.query({
-      query: () => ({
-        url: 'fundingRate/v2/home',
-      }),
-      transformResponse: (res: any) => {
-        if (res.success) {
-          return undefined
-        }
-        throw new Error(res.msg)
-      },
-    }),
   }),
 })
 
@@ -233,6 +232,7 @@ export const {
   useRemoveFromWatchlistMutation,
   useCexesLiquidationQuery,
   useSearchTokenQuery,
+  useFundingRateQuery,
 } = kyberAIApi
-export const { useCexesInfoQuery, useFundingRateQuery } = coinglassApi
+export const { useCexesInfoQuery } = coinglassApi
 export default kyberAIApi
