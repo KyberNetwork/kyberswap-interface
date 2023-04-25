@@ -190,14 +190,14 @@ export default function TechnicalAnalysis() {
           title={t`Funding Rate on Centralized Exchanges`}
           description={
             <Trans>
-              Funding rate is useful in identifying short-term trends.
+              Funding rate is useful in identifying short-term trends.{' '}
               <Text as="span" color={theme.primary}>
                 Positive funding rates
               </Text>{' '}
               suggests traders are{' '}
               <Text as="span" color={theme.primary}>
                 bullish
-              </Text>{' '}
+              </Text>
               . Extremely positive funding rates may result in long positions getting squeezed.{' '}
               <Text as="span" color={theme.red}>
                 Negative funding rates
@@ -205,7 +205,7 @@ export default function TechnicalAnalysis() {
               suggests traders are{' '}
               <Text as="span" color={theme.red}>
                 bearish
-              </Text>{' '}
+              </Text>
               . Extremely negative funding rates may result in short positions getting squeezed.
             </Trans>
           }

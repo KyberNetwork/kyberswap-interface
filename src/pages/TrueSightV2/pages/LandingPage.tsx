@@ -77,7 +77,7 @@ const PartWrapper = styled(motion.div)`
   max-width: 1224px;
 `
 
-const transition = { type: 'spring', bounce: 0, duration: 1.5, delayChildren: 0.3, staggerChildren: 0.1 }
+const transition = { type: 'spring', bounce: 0, duration: 1.5 }
 const appearVariants = {
   init: { opacity: 0, y: 100 },
   inView: { opacity: 1, y: 0 },
