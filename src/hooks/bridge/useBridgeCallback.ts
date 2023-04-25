@@ -16,6 +16,21 @@ import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useCurrencyBalance, useNativeBalance } from 'state/wallet/hooks'
 import { formatNumberWithPrecisionRange, isAddress } from 'utils'
 
+export const captureExceptionCrossChain = (body: any, err: any, errName: string) => {
+  const extraData = {
+    body,
+    status: undefined,
+    response: undefined,
+  }
+  if (err?.response?.data) {
+    extraData.status = err.response.status
+    extraData.response = err.response.data
+  }
+  const error = new Error(`SendTxToKsSetting fail, srcTxHash = ${extraData.body.srcTxHash}`, { cause: err })
+  error.name = errName
+  captureException(error, { level: 'fatal', extra: { args: JSON.stringify(extraData, null, 2) } })
+}
+
 const NOT_APPLICABLE = {
   execute: async () => {
     //
@@ -58,18 +73,7 @@ function useSendTxToKsSettingCallback() {
         await axios.post(url, body)
         onSuccess()
       } catch (err) {
-        const extraData = {
-          body,
-          status: undefined,
-          response: undefined,
-        }
-        if (err?.response?.data) {
-          extraData.status = err.response.status
-          extraData.response = err.response.data
-        }
-        const error = new Error(`SendTxToKsSetting fail, srcTxHash = ${extraData.body.srcTxHash}`, { cause: err })
-        error.name = 'PostBridge'
-        captureException(error, { level: 'fatal', extra: { args: JSON.stringify(extraData, null, 2) } })
+        captureExceptionCrossChain(body, err, 'PostBridge')
       }
     },
     [account, onSuccess],
