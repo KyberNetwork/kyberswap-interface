@@ -8,7 +8,7 @@ import { useActiveWeb3React } from 'hooks'
 import NoData from 'pages/Bridge/BridgeTransferHistory/NoData'
 import Pagination from 'pages/Bridge/BridgeTransferHistory/Pagination'
 
-import useTransferHistory from '../../Bridge/BridgeTransferHistory/useTransferHistory'
+import useTransferHistory from '../useTransferHistory'
 import TransferHistoryTable from './HistoryTable'
 
 type Props = {
