@@ -1,7 +1,7 @@
 import { Token } from '@kyberswap/ks-sdk-core'
 import { useEffect, useMemo } from 'react'
 
-import { KS_SETTING_API } from 'constants/env'
+import { BFF_API } from 'constants/env'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { CORRELATED_COINS_ADDRESS, STABLE_COINS_ADDRESS, SUPER_STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -33,7 +33,7 @@ const useTopTokens = (): {
 
   useEffect(() => {
     const fetchTopTokens = async () => {
-      const res = await fetch(`${KS_SETTING_API}/v1/tokens/popular?chainId=${chainId}&page=1`, {
+      const res = await fetch(`${BFF_API}/v1/tokens/popular?chainId=${chainId}&page=1`, {
         method: 'GET',
       }).then(res => res.json())
 
