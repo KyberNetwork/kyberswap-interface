@@ -179,6 +179,7 @@ export default function SwapForm() {
         dstAmount: tokenAmountOut,
       }
       saveTxsToDb(payload).catch(e => {
+        // todo test
         captureExceptionCrossChain(payload, e, 'CrossChain')
       })
     } catch (error) {

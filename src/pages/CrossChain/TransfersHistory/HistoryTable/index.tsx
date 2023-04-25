@@ -1,13 +1,13 @@
 import { useMedia } from 'react-use'
 
-import { MultichainTransfer } from 'hooks/bridge/useGetBridgeTransfers'
+import { CrossChainTransfer } from 'pages/CrossChain/useTransferHistory'
 import { MEDIA_WIDTHS } from 'theme'
 
 import Desktop from './Desktop'
 import Mobile from './Mobile'
 
 export type Props = {
-  transfers: MultichainTransfer[]
+  transfers: CrossChainTransfer[]
 }
 
 const TransferHistoryTable: React.FC<Props> = props => {

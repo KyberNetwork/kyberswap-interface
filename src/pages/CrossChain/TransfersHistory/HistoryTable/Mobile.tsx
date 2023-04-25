@@ -9,12 +9,12 @@ import InfoHelper from 'components/InfoHelper'
 import { NetworkLogo } from 'components/Logo'
 import { RowBetween } from 'components/Row'
 import { NETWORKS_INFO_CONFIG } from 'constants/networks'
-import { MultichainTransfer } from 'hooks/bridge/useGetBridgeTransfers'
 import useTheme from 'hooks/useTheme'
 import StatusBadge from 'pages/Bridge/BridgeTransferHistory/StatusBadge'
 import TimeStatusCell from 'pages/Bridge/BridgeTransferHistory/TimeStatusCell'
 import ActionButtons from 'pages/CrossChain/TransfersHistory/HistoryTable/ActionButons'
 import { DetailTransaction } from 'pages/CrossChain/TransfersHistory/HistoryTable/DetailTransaction'
+import { CrossChainTransfer } from 'pages/CrossChain/useTransferHistory'
 
 import TokenReceiveCell from './TokenReceiveCell'
 import { Props } from './index'
@@ -91,7 +91,7 @@ const ChainDisplay: React.FC<{ chainId: ChainId }> = ({ chainId }) => {
   )
 }
 
-const TransactionItemMobile = ({ transfer }: { transfer: MultichainTransfer }) => {
+const TransactionItemMobile = ({ transfer }: { transfer: CrossChainTransfer }) => {
   const theme = useTheme()
   const [expand, setExpand] = useState(false)
   const transactions = new Array(3).fill(123)

@@ -1,17 +1,17 @@
 import { useState } from 'react'
 
-import { MultichainTransfer } from 'hooks/bridge/useGetBridgeTransfers'
 import useTheme from 'hooks/useTheme'
 import RouteCell from 'pages/Bridge/BridgeTransferHistory/RouteCell'
 import StatusBadge from 'pages/Bridge/BridgeTransferHistory/StatusBadge'
 import TimeCell from 'pages/Bridge/BridgeTransferHistory/TimeCell'
 import ActionButtons from 'pages/CrossChain/TransfersHistory/HistoryTable/ActionButons'
 import { DetailTransaction } from 'pages/CrossChain/TransfersHistory/HistoryTable/DetailTransaction'
+import { CrossChainTransfer } from 'pages/CrossChain/useTransferHistory'
 
 import { TableRow } from './Desktop'
 import TokenReceiveCell from './TokenReceiveCell'
 
-const TransactionItem = ({ data: transfer }: { data: MultichainTransfer }) => {
+const TransactionItem = ({ data: transfer }: { data: CrossChainTransfer }) => {
   const [expand, setExpand] = useState(false)
   const theme = useTheme()
   const transactions = new Array(3).fill(123)

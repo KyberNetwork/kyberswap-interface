@@ -8,7 +8,6 @@ import { CheckCircle } from 'components/Icons'
 import Loader from 'components/Loader'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
-import { formatTimeBridge } from 'pages/Bridge/BridgeTransferHistory/TimeStatusCell'
 import { ExternalLinkIcon, MEDIA_WIDTHS } from 'theme'
 
 const ChildWrapper = styled.div<{ showBorder: boolean }>`
@@ -75,7 +74,9 @@ export const DetailTransaction = ({ isLast }: { isLast: boolean }) => {
         ) : (
           <Flex style={{ gap: '4px' }}>
             <CheckCircle size="14px" color={theme.primary} />
-            <Label>{formatTimeBridge(Date.now())}</Label>
+            <Label>
+              <Trans>Done</Trans>
+            </Label>
           </Flex>
         )}
         {isMobile && txsName}

@@ -3,9 +3,9 @@ import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import { DropdownArrowIcon } from 'components/ArrowRotate'
-import { MultichainTransfer } from 'hooks/bridge/useGetBridgeTransfers'
 import useTheme from 'hooks/useTheme'
 import { getAxelarScanUrl } from 'pages/CrossChain'
+import { CrossChainTransfer } from 'pages/CrossChain/useTransferHistory'
 import { ExternalLinkIcon } from 'theme'
 
 const IconWrap = styled.div`
@@ -26,7 +26,7 @@ export default function ActionButtons({
   expand,
   setExpand,
 }: {
-  transfer: MultichainTransfer
+  transfer: CrossChainTransfer
   setExpand: (v: boolean) => void
   expand: boolean
 }) {
