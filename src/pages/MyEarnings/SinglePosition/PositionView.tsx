@@ -5,7 +5,7 @@ import { rgba } from 'polished'
 import { useMemo } from 'react'
 import { ChevronsUp, Info, Minus, Repeat } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import { PositionEarningWithDetails } from 'services/earning'
+import { PositionEarningWithDetails, TokenEarning } from 'services/earning'
 import styled, { css } from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
@@ -13,6 +13,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import { formatUSDValue } from 'components/EarningAreaChart/utils'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import Logo from 'components/Logo'
+import { EMPTY_ARRAY } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import HoverDropdown from 'pages/MyEarnings/HoverDropdown'
 import { Wrapper } from 'pages/MyEarnings/SinglePosition'
@@ -77,7 +78,7 @@ const PositionView: React.FC<Props> = ({ onFlipView, positionEarning, position }
 
   const liquidityInUsdString = Number.isNaN(liquidityInUsd) ? '--' : formatUSDValue(liquidityInUsd, true)
 
-  const feesEarnedToday = positionEarning.historicalEarning[0].fees
+  const feesEarnedToday: TokenEarning[] = positionEarning.historicalEarning?.[0].fees || EMPTY_ARRAY
   const feesEarnedTodayUSD = feesEarnedToday ? feesEarnedToday.reduce((sum, fee) => sum + Number(fee.amountUSD), 0) : 0
 
   const myStakedBalance = 0

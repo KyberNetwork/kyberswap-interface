@@ -19,7 +19,7 @@ const Wrapper = styled.div.attrs<WrapperProps>(({ $columns }) => ({
   display: flex;
   flex-direction: column;
   padding: 24px;
-  border-radius: 8px;
+  border-radius: 20px;
   background-color: ${({ theme }) => theme.background};
   border: 1px solid ${({ theme }) => theme.border};
 

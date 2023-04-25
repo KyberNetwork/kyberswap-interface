@@ -9,6 +9,7 @@ import { EMPTY_ARRAY } from 'constants/index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS_FOR_MY_EARNINGS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import ClassicElasticTab from 'pages/MyEarnings/ClassicElasticTab'
+import PoolFilteringBar from 'pages/MyEarnings/PoolFilteringBar'
 import Pools from 'pages/MyEarnings/Pools'
 import { useAppSelector } from 'state/hooks'
 import { EarningStatsTick, EarningsBreakdown } from 'types/myEarnings'
@@ -27,6 +28,27 @@ const chainIdByRoute: Record<string, ChainId> = SUPPORTED_NETWORKS_FOR_MY_EARNIN
   acc[route] = chainId
   return acc
 }, {} as Record<string, ChainId>)
+
+const getPositionEarningsByPoolId = (
+  earnings: PositionEarningWithDetails[] | undefined,
+): Record<string, PositionEarningWithDetails[]> => {
+  const data = earnings || []
+
+  return data.reduce((acc, positionEarning) => {
+    const poolId = positionEarning.pool?.id
+    if (!poolId) {
+      return acc
+    }
+
+    if (!acc[poolId]) {
+      acc[poolId] = [positionEarning]
+    } else {
+      acc[poolId].push(positionEarning)
+    }
+
+    return acc
+  }, {} as Record<string, PositionEarningWithDetails[]>)
+}
 
 const sumTokenEarnings = (earnings: TokenEarning[]) => {
   return earnings.reduce((sum, tokenEarning) => sum + Number(tokenEarning.amountUSD), 0)
@@ -196,22 +218,12 @@ const MyEarnings = () => {
     return ticks
   }, [getEarningData?.data, tokensByChainId])
 
-  const positionEarningsByPoolId = useMemo(() => {
-    const data = getEarningData?.data?.['ethereum']?.positions || []
-    return data.reduce((acc, positionEarning) => {
-      const poolId = positionEarning.pool?.id
-      if (!poolId) {
-        return acc
-      }
+  const availableChainRoutes = useMemo(() => {
+    if (!getEarningData?.data) {
+      return []
+    }
 
-      if (!acc[poolId]) {
-        acc[poolId] = [positionEarning]
-      } else {
-        acc[poolId].push(positionEarning)
-      }
-
-      return acc
-    }, {} as Record<string, PositionEarningWithDetails[]>)
+    return Object.keys(getEarningData.data)
   }, [getEarningData?.data])
 
   return (
@@ -256,11 +268,22 @@ const MyEarnings = () => {
 
         <ClassicElasticTab />
 
-        <Pools
-          positionEarningsByPoolId={positionEarningsByPoolId}
-          chainId={ChainId.MAINNET}
-          poolEarnings={getEarningData?.data?.['ethereum']?.pools || EMPTY_ARRAY}
-        />
+        <PoolFilteringBar />
+
+        {availableChainRoutes.map(chainRoute => {
+          if (!getEarningData?.data?.[chainRoute]) {
+            return null
+          }
+
+          return (
+            <Pools
+              key={chainRoute}
+              positionEarningsByPoolId={getPositionEarningsByPoolId(getEarningData.data[chainRoute].positions)}
+              chainId={chainIdByRoute[chainRoute]}
+              poolEarnings={getEarningData.data[chainRoute].pools || EMPTY_ARRAY}
+            />
+          )
+        })}
       </Flex>
     </PageWrapper>
   )
