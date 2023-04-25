@@ -87,7 +87,7 @@ const PartWithMotion = ({ children, className }: { children: ReactNode; classNam
     <PartWrapper
       initial="init"
       whileInView="inView"
-      viewport={{ once: true, amount: 0.8 }}
+      viewport={{ once: true, amount: 0.5 }}
       className={className}
       transition={transition}
       variants={appearVariants}
@@ -98,25 +98,25 @@ const PartWithMotion = ({ children, className }: { children: ReactNode; classNam
 }
 
 const Part1 = styled(PartWithMotion)`
-  height: 80vh;
+  height: 70vh;
   min-height: 700px;
   max-height: 1000px;
 `
 const Part2 = styled(PartWithMotion)``
 const Part3 = styled(PartWithMotion)``
 const Part4 = styled(PartWithMotion)`
-  height: 550px;
+  height: 350px;
   gap: 32px;
 `
 const Part5 = styled(PartWithMotion)`
-  height: 700px;
+  height: 600px;
   gap: 20px;
 `
 const Part6 = styled(PartWithMotion)`
-  height: 700px;
+  height: 500px;
 `
 const Part7 = styled(PartWithMotion)`
-  height: 700px;
+  height: 500px;
 `
 const Part8 = styled(PartWithMotion)`
   height: 450px;
@@ -175,7 +175,8 @@ const FeatureBox = styled(motion.div)`
   padding: 28px;
   backdrop-filter: blur(25px);
   background: linear-gradient(91deg, rgba(237, 253, 248, 0.06) 4.04%, rgba(122, 183, 165, 0.02) 104.55%);
-  box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.28);
+  box-shadow: 0px 8px 8px rgba(0, 0, 0, 0.04), inset 0px 4px 4px rgba(255, 255, 255, 0.25),
+    inset 0px 4px 8px rgba(0, 0, 0, 0.12);
   flex: 1;
   align-self: stretch;
   font-weight: 400;
@@ -267,7 +268,7 @@ export default function KyberAILandingPage() {
       </Part2>
 
       <Part3>
-        <FixedWidth style={{ height: '760px' }}>
+        <FixedWidth style={{ height: '650px' }}>
           <Column justifyContent="center" style={{ flexGrow: 4 }}>
             <Text fontSize="48px" lineHeight="56px" fontWeight={500} color={theme.subText}>
               <Trans>
@@ -295,13 +296,13 @@ export default function KyberAILandingPage() {
             </Text>
           </Column>
           <Column style={{ position: 'relative', height: '100%', flexGrow: 6 }}>
-            <FloatingImage src={image1} alt="kyberAI image" left={-10} top={0} />
+            <FloatingImage src={image1} alt="kyberAI image" left={-10} top={-20} />
           </Column>
         </FixedWidth>
       </Part3>
       <Part4>
         <motion.div transition={transition} variants={appearVariants}>
-          <Text fontSize="48px" color={theme.text}>
+          <Text fontSize="48px" color={theme.text} fontWeight={500}>
             <Trans>
               We introduce to you,{' '}
               <span style={{ color: theme.primary, textShadow: `0 0 5px ${theme.primary}` }}>KyberAI</span>
@@ -309,37 +310,23 @@ export default function KyberAILandingPage() {
           </Text>
         </motion.div>
         <motion.div transition={transition} variants={appearVariants}>
-          <Text fontSize="16px" color={theme.subText}>
+          <Text fontSize="16px" lineHeight="24px" color={theme.subText}>
             <Trans>An intelligent platform that provides valuable insights on 4000+ Tokens across 7 Chains</Trans>
           </Text>
         </motion.div>
         <Row justify="center" gap="16px">
-          <motion.div transition={transition} variants={appearVariants}>
-            <GlobalIcon id="eth-mono" />
-          </motion.div>
-          <motion.div transition={transition} variants={appearVariants}>
-            <GlobalIcon id="bnb-mono" />
-          </motion.div>
-          <motion.div transition={transition} variants={appearVariants}>
-            <GlobalIcon id="ava-mono" />
-          </motion.div>
-          <motion.div transition={transition} variants={appearVariants}>
-            <GlobalIcon id="matic-mono" />
-          </motion.div>
-          <motion.div transition={transition} variants={appearVariants}>
-            <GlobalIcon id="optimism-mono" />
-          </motion.div>
-          <motion.div transition={transition} variants={appearVariants}>
-            <GlobalIcon id="arbitrum-mono" />
-          </motion.div>
-          <motion.div transition={transition} variants={appearVariants}>
-            <GlobalIcon id="fantom-mono" />
-          </motion.div>
+          <GlobalIcon id="eth-mono" size={36} />
+          <GlobalIcon id="bnb-mono" size={36} />
+          <GlobalIcon id="ava-mono" size={36} />
+          <GlobalIcon id="matic-mono" size={36} />
+          <GlobalIcon id="optimism-mono" size={36} />
+          <GlobalIcon id="arbitrum-mono" size={36} />
+          <GlobalIcon id="fantom-mono" size={36} />
         </Row>
       </Part4>
       <Part5>
         <Row justify="center">
-          <Text fontSize="48px" lineHeight="56px">
+          <Text fontSize="48px" lineHeight="56px" fontWeight={500}>
             <Trans>Key Features</Trans>
           </Text>
         </Row>
