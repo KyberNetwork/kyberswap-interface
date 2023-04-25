@@ -251,17 +251,6 @@ export default function KyberAILandingPage() {
               parallaxDistance={10}
               style={{ scale: 0.6 }}
             />
-            <motion.div
-              animate={{
-                opacity: [
-                  1, 0.9, 0.7, 0.8, 1, 1, 0.9, 1, 1, 0.9, 1, 0.2, 1, 1, 0.1, 1, 0.6, 0.5, 0.6, 1, 1, 0.7, 0.8, 0.7, 1,
-                  1, 0.6, 0.5, 0.6, 1,
-                ],
-              }}
-              transition={{ duration: 5, repeat: Infinity }}
-            >
-              <FloatingImageWithMotion src={gradientImage} alt="ape sight" left={-800} top={-80} parallaxDistance={4} />
-            </motion.div>
             <FloatingImageWithMotion
               src={theme.darkMode ? kyberscoreMeterImage : kyberscoreMeterLightImage}
               alt="kyberscore"
@@ -273,6 +262,24 @@ export default function KyberAILandingPage() {
             <FloatingImageWithMotion src={iconImage} alt="icon" left={200} top={80} parallaxDistance={7} />
             <FloatingImageWithMotion src={starsImage} alt="stars" left={-600} top={80} parallaxDistance={-10} />
             <FloatingImageWithMotion src={apeImage} alt="ape head" left={-100} top={100} parallaxDistance={4} />
+            <motion.div
+              animate={{
+                opacity: [
+                  1, 0.9, 0.7, 0.8, 1, 1, 0.9, 1, 1, 0.9, 1, 0.2, 1, 1, 0.1, 1, 0.6, 0.5, 0.6, 1, 1, 0.7, 0.8, 0.7, 1,
+                  1, 0.6, 0.5, 0.6, 1,
+                ],
+              }}
+              transition={{ duration: 5, repeat: Infinity }}
+            >
+              <FloatingImageWithMotion
+                src={gradientImage}
+                alt="ape sight"
+                left={-800}
+                top={-100}
+                parallaxDistance={4}
+                style={{ filter: 'brightness(1.1)' }}
+              />
+            </motion.div>
             <FloatingImageWithMotion src={ethereumImage} alt="ethereum" left={300} top={320} parallaxDistance={-7} />
             <FloatingImageWithMotion
               src={theme.darkMode ? tokenPriceImage : tokenPriceLightImage}

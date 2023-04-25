@@ -12,7 +12,7 @@ import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import { useFundingRateQuery, useLiveDexTradesQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
+import { useFundingRateQuery, useHolderListQuery, useLiveDexTradesQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { testParams } from 'pages/TrueSightV2/pages/SingleToken'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import { KyberAITimeframe } from 'pages/TrueSightV2/types'
@@ -139,6 +139,8 @@ const SamepleIcon = () => {
 export const Top10HoldersTable = () => {
   const theme = useTheme()
   const navigate = useNavigate()
+  const { data } = useHolderListQuery({ tokenAddress: testParams.address })
+  console.log('🚀 ~ file: index.tsx:143 ~ Top10HoldersTable ~ data:', data)
   return (
     <Table2>
       <colgroup>

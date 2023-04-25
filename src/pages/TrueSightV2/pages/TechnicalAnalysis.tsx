@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { createContext, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { useTheme } from 'styled-components'
 
@@ -14,8 +14,9 @@ import { SectionWrapper } from '../components'
 import CexRekt from '../components/CexRekt'
 import { LiquidOnCentralizedExchanges, Prochart } from '../components/chart'
 import { FundingRateTable, LiveDEXTrades, SupportResistanceLevel } from '../components/table'
-import { useChartingDataQuery } from '../hooks/useKyberAIData'
+import { useChartingDataQuery, useTokenDetailQuery } from '../hooks/useKyberAIData'
 import { ChartTab, ISRLevel, OHLCData } from '../types'
+import { testParams } from './SingleToken'
 
 const Wrapper = styled.div`
   padding: 20px 0;
@@ -68,19 +69,25 @@ export const TechnicalAnalysisContext = createContext<TechnicalAnalysisContextPr
 
 export default function TechnicalAnalysis() {
   const theme = useTheme()
-
+  const { chain, address } = useParams()
   const [liveChartTab, setLiveChartTab] = useState(ChartTab.First)
   const [showSRLevels, setShowSRLevels] = useState(true)
   const navigate = useNavigate()
   const [priceChartResolution, setPriceChartResolution] = useState('1h')
   const now = Math.floor(Date.now() / 60000) * 60
   const { data, isLoading } = useChartingDataQuery({
+    chain: chain || testParams.chain,
+    address: address || testParams.address,
     from: now - ({ '1h': 1080000, '4h': 4320000, '1d': 12960000 }[priceChartResolution] || 1080000),
     to: now,
     candleSize: priceChartResolution,
     currency: liveChartTab === ChartTab.First ? 'USD' : 'BTC',
   })
 
+  const { data: tokenData } = useTokenDetailQuery({
+    chain: chain || testParams.chain,
+    address: address || testParams.address,
+  })
   const SRLevels: ISRLevel[] = useMemo(() => {
     if (isLoading && !data) return []
     const levels: ISRLevel[] = []
@@ -124,7 +131,7 @@ export default function TechnicalAnalysis() {
         <SectionWrapper
           show={tokenAnalysisSettings?.liveCharts}
           fullscreenButton
-          tabs={[`BTC/USD`, `BTC/BTC`]}
+          tabs={[`${tokenData?.symbol}/USD`, `${tokenData?.symbol}/BTC`]}
           activeTab={liveChartTab}
           onTabClick={setLiveChartTab}
           style={{ height: '800px' }}

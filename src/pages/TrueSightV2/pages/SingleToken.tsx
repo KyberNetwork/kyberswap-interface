@@ -175,6 +175,7 @@ const CheckIcon = styled(RowFit)`
 `
 
 export const testParams = {
+  chain: 'ethereum',
   address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
   from: 1674610765,
   to: 1675215565,
@@ -233,11 +234,14 @@ export default function SingleToken() {
   const theme = useTheme()
   const navigate = useNavigate()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
-  const { address } = useParams()
+  const { chain, address } = useParams()
   const [currentTab, setCurrentTab] = useState<DiscoverTokenTab>(DiscoverTokenTab.OnChainAnalysis)
   const { account } = useActiveWeb3React()
-  const { data: apiData, isLoading } = useTokenDetailQuery({ tokenAddress: testParams.address || address, account })
-  const data = apiData
+  const { data, isLoading } = useTokenDetailQuery({
+    chain: chain || testParams.chain,
+    address: address || testParams.address,
+    account,
+  })
 
   const shareUrl = useRef<string>()
   const toggleShareModal = useToggleModal(ApplicationModal.KYBERAI_SHARE)
