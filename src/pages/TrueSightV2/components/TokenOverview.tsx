@@ -36,7 +36,7 @@ const CardWrapper = styled.div<{ gap?: string }>`
     var(--background-color) 100%
   );
   box-shadow: inset 0px 2px 2px rgba(255, 255, 255, 0.2), 0px 4px 8px var(--background-color);
-
+  transition: all 0.5s ease;
   ::after {
     bottom: 0;
     left: 0;

@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useScroll, useSpring, useTransform } from 'framer-motion'
 import { ReactNode } from 'react'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -94,7 +94,7 @@ const PartWithMotion = ({ children, className }: { children: ReactNode; classNam
     <PartWrapper
       initial="init"
       whileInView="inView"
-      viewport={{ once: true, amount: 0.5 }}
+      viewport={{ once: true, amount: 0.6 }}
       className={className}
       transition={transition}
       variants={appearVariants}
@@ -150,11 +150,13 @@ const FloatingImageWithMotion = (props: {
   style?: React.CSSProperties
 }) => {
   const { scrollYProgress } = useScroll()
-  const translateY = useTransform(
+  const transformedTranslateY = useTransform(
     scrollYProgress,
     [0, 1],
     [0, props.parallaxDistance ? 2200 / props.parallaxDistance : 0],
   )
+
+  const translateY = useSpring(transformedTranslateY, { bounce: 0, duration: 0.5 })
 
   return (
     <motion.div transition={transition} variants={appearVariants} style={{ translateY, ...props.style }}>
@@ -286,7 +288,7 @@ export default function KyberAILandingPage() {
               alt="token Price"
               left={-100}
               top={850}
-              parallaxDistance={-9}
+              parallaxDistance={-11}
               style={{ scale: 0.6 }}
             />
           </ColumnWithMotion>
