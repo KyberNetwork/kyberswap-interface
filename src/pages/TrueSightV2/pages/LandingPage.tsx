@@ -257,8 +257,8 @@ export default function KyberAILandingPage() {
               src={theme.darkMode ? kyberscoreMeterImage : kyberscoreMeterLightImage}
               alt="kyberscore"
               left={450}
-              top={10}
-              parallaxDistance={5}
+              top={-20}
+              parallaxDistance={4}
               style={{ scale: 0.6 }}
             />
             <FloatingImageWithMotion src={iconImage} alt="icon" left={200} top={80} parallaxDistance={7} />
@@ -288,7 +288,7 @@ export default function KyberAILandingPage() {
               alt="token Price"
               left={-100}
               top={850}
-              parallaxDistance={-11}
+              parallaxDistance={11}
               style={{ scale: 0.6 }}
             />
           </ColumnWithMotion>

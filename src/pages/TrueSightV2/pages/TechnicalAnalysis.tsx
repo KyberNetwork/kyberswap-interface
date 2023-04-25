@@ -93,6 +93,7 @@ export default function TechnicalAnalysis() {
     const levels: ISRLevel[] = []
     const average = getAverageCandleSize(data || [])
     data?.forEach((v, i, arr) => {
+      if (!v) return
       if (isSupport(arr, i)) {
         let newValue = Math.min(v.open, v.close)
         const closeIndex = closeToExistedValue(newValue, levels, 2 * average)
@@ -123,7 +124,7 @@ export default function TechnicalAnalysis() {
         resolution: priceChartResolution,
         setResolution: setPriceChartResolution,
         SRLevels,
-        currentPrice: data?.[0].close,
+        currentPrice: data?.[0]?.close,
         showSRLevels,
       }}
     >
