@@ -77,9 +77,9 @@ const PartWrapper = styled(motion.div)`
   max-width: 1224px;
 `
 
-const transition = { type: 'spring', bounce: 0, duration: 1.5 }
+const transition = { type: 'spring', bounce: 0, duration: 1 }
 const appearVariants = {
-  init: { opacity: 0, y: 100 },
+  init: { opacity: 0, y: 50 },
   inView: { opacity: 1, y: 0 },
 }
 const PartWithMotion = ({ children, className }: { children: ReactNode; className?: string }) => {
@@ -210,7 +210,7 @@ export default function KyberAILandingPage() {
               <Trans>Connect Wallet</Trans>
             </ConnectWalletButton>
           </Column>
-          <ColumnWithMotion transition={transition} variants={appearVariants} style={{ position: 'relative' }}>
+          <ColumnWithMotion style={{ position: 'relative' }}>
             <FloatingImageWithMotion src={bitcoinImage} alt="ape head" left={-120} top={300} />
             <FloatingImageWithMotion src={chartImage} alt="ape head" left={400} top={240} />
             <FloatingImageWithMotion src={eteherumImage} alt="ape head" left={300} top={300} />
@@ -295,12 +295,7 @@ export default function KyberAILandingPage() {
             </Text>
           </Column>
           <Column style={{ position: 'relative', height: '100%', flexGrow: 6 }}>
-            <motion.div
-              transition={transition}
-              variants={{ init: { opacity: 0, y: 100, scale: 0.9 }, inView: { opacity: 1, y: 0, scale: 1 } }}
-            >
-              <FloatingImage src={image1} alt="kyberAI image" left={-10} top={0} />
-            </motion.div>
+            <FloatingImage src={image1} alt="kyberAI image" left={-10} top={0} />
           </Column>
         </FixedWidth>
       </Part3>
@@ -402,16 +397,11 @@ export default function KyberAILandingPage() {
       <Part6>
         <FixedWidth>
           <Column style={{ position: 'relative' }}>
-            <motion.div
-              transition={transition}
-              variants={{ init: { opacity: 0, y: 100, scale: 0.9 }, inView: { opacity: 1, y: 0, scale: 1 } }}
-            >
-              <img
-                src={tokenListImage}
-                alt="token list"
-                style={{ position: 'absolute', right: '-100px', top: '-90px' }}
-              />
-            </motion.div>
+            <img
+              src={tokenListImage}
+              alt="token list"
+              style={{ position: 'absolute', right: '-100px', top: '-90px' }}
+            />
           </Column>
           <Column>
             <Text fontSize="48px" lineHeight="56px" fontWeight={500} color={theme.text}>
@@ -452,12 +442,7 @@ export default function KyberAILandingPage() {
             </Text>
           </Column>
           <Column style={{ position: 'relative' }}>
-            <motion.div
-              transition={transition}
-              variants={{ init: { opacity: 0, y: 100, scale: 0.9 }, inView: { opacity: 1, y: 0, scale: 1 } }}
-            >
-              <FloatingImage src={coreEditImage} alt="core edit" left={0} top={-100} />
-            </motion.div>
+            <FloatingImage src={coreEditImage} alt="core edit" left={0} top={-100} />
           </Column>
         </FixedWidth>
       </Part7>
