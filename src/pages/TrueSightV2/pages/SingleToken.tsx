@@ -290,10 +290,7 @@ export default function SingleToken() {
         </HeaderButton>
         <div style={{ position: 'relative' }}>
           <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
-            <Logo
-              srcs={['https://cryptologos.cc/logos/wrapped-bitcoin-wbtc-logo.svg?v=024']}
-              style={{ width: '36px', height: '36px', background: 'white', display: 'block' }}
-            />
+            <Logo srcs={[]} style={{ width: '36px', height: '36px', background: 'white', display: 'block' }} />
           </div>
           <div
             style={{
