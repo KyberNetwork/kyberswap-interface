@@ -58,7 +58,7 @@ function useSendTxToKsSettingCallback() {
     ) => {
       const url = `${KS_SETTING_API}/v1/multichain-transfers`
       const body = {
-        userAddress: account,
+        walletAddress: account,
         srcChainId: srcChainId.toString(),
         dstChainId: dstChainId.toString(),
         srcTxHash,
