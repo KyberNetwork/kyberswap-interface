@@ -22,13 +22,13 @@ const crossChainApi = createApi({
   }),
 
   endpoints: builder => ({
-    getListCrossChainTxs: builder.query<any, { userAddress: string; page: number }>({
-      query: ({ userAddress, page }) => ({
+    getListCrossChainTxs: builder.query<any, { walletAddress: string; page: number }>({
+      query: ({ walletAddress, page }) => ({
         url: '/squid-transfers',
         params: {
           page,
           pageSize: 10,
-          userAddress,
+          walletAddress,
         },
       }),
       providesTags: [RTK_QUERY_TAGS.GET_CROSS_CHAIN_HISTORY],

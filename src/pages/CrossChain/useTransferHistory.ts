@@ -5,7 +5,7 @@ import { ITEMS_PER_PAGE } from 'pages/Bridge/consts'
 
 export type CrossChainTransfer = {
   id: number
-  userAddress: string
+  walletAddress: string
   srcChainId: string
   dstChainId: string
   srcTxHash: string
@@ -28,7 +28,7 @@ const useTransferHistory = (account: string) => {
     data,
     error,
     isFetching: isValidating,
-  } = useGetListCrossChainTxsQuery({ userAddress: account, page }, { skip: !account })
+  } = useGetListCrossChainTxsQuery({ walletAddress: account, page }, { skip: !account })
 
   const transfers = useMemo(() => {
     if (data) return data.data.transfers
