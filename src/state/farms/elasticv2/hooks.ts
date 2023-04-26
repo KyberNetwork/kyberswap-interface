@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { useLocalStorage } from 'react-use'
 
 import FarmV2ABI from 'constants/abis/v2/farmv2.json'
 import { FARM_TAB } from 'constants/index'
@@ -56,6 +57,42 @@ export const useFilteredFarmsV2 = () => {
 
   const sortField = searchParams.get('orderBy') || SORT_FIELD.MY_DEPOSIT
   const sortDirection = searchParams.get('orderDirection') || SORT_DIRECTION.DESC
+
+  const [lastUpdatedTimestamp] = useLocalStorage('elasticFarmV2LastUpdatedTimeStamp', null)
+
+  const updatedFarms = useMemo(() => {
+    const newFarms = farms
+      ?.filter(farm => {
+        if (farm?.endTime < Date.now() / 1000) return false
+        const isUserJoinThisFarm = userInfo?.find(item => item.fId === farm.fId)
+        if (!isUserJoinThisFarm) return false
+
+        const minTimestamp = lastUpdatedTimestamp
+          ? +lastUpdatedTimestamp
+          : Math.min(...farm.ranges.map(range => range.updatedAt))
+
+        console.log(
+          farm.fId,
+          lastUpdatedTimestamp,
+          Math.min(...farm.ranges.map(range => range.updatedAt)),
+          minTimestamp,
+        )
+        const ranges = farm.ranges.filter(range => range.updatedAt > minTimestamp)
+        return !!ranges.length
+      })
+      .map(farm => {
+        const minTimestamp = lastUpdatedTimestamp
+          ? lastUpdatedTimestamp
+          : Math.min(...farm.ranges.map(range => range.updatedAt))
+
+        return {
+          ...farm,
+          ranges: farm.ranges.filter(range => range.updatedAt > minTimestamp),
+        }
+      })
+
+    return newFarms
+  }, [farms, lastUpdatedTimestamp, userInfo])
 
   const filteredFarms = useMemo(() => {
     const now = Date.now() / 1000
@@ -166,6 +203,7 @@ export const useFilteredFarmsV2 = () => {
     farms,
     userInfo,
     loading,
+    updatedFarms,
   }
 }
 

@@ -11,6 +11,8 @@ export interface ElasticFarmV2Range {
   tickCurrent: number
   weight: number
   apr?: number
+  createdAt: number
+  updatedAt: number
 }
 
 export interface ElasticFarmV2 {

@@ -95,6 +95,8 @@ const queryFarms = gql`
         tickUpper
         tickLower
         weight
+        createdAt
+        updatedAt
       }
     }
   }
@@ -252,7 +254,15 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
                   ? 0
                   : (365 * sharePerLiquidity * totalFarmRewardUsd) / totalFarmingTime
 
-              return { ...r, tickLower: +r.tickLower, tickUpper: +r.tickUpper, tickCurrent: +p.tickCurrent, apr }
+              return {
+                ...r,
+                tickLower: +r.tickLower,
+                tickUpper: +r.tickUpper,
+                tickCurrent: +p.tickCurrent,
+                apr,
+                createdAt: +r.createdAt,
+                updatedAt: +r.updatedAt,
+              }
             }),
           }
         })

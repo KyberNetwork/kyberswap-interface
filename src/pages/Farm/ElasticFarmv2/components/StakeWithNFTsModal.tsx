@@ -298,72 +298,74 @@ const StakeWithNFTsModal = ({
             activeKey={activeRange.index}
             onChange={key => {
               setSelectedPos({})
-              const range = farm.ranges.find(item => item.index === key)
+              const range = farm.ranges.find(item => +item.index === +key)
               if (range) setActiveRange(range)
             }}
-            items={farm.ranges.map(range => {
-              const priceLower = convertTickToPrice(farm.token0, farm.token1, range.tickLower)
-              const priceUpper = convertTickToPrice(farm.token0, farm.token1, range.tickUpper)
+            items={farm.ranges
+              .filter(range => !range.isRemoved)
+              .map(range => {
+                const priceLower = convertTickToPrice(farm.token0, farm.token1, range.tickLower)
+                const priceUpper = convertTickToPrice(farm.token0, farm.token1, range.tickUpper)
 
-              return {
-                key: range.index,
-                label: (
-                  <Flex sx={{ gap: '2px' }} alignItems="center">
-                    {priceLower}
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" display="block">
-                      <path
-                        d="M11.3405 8.66669L11.3405 9.86002C11.3405 10.16 11.7005 10.3067 11.9071 10.0934L13.7605 8.23335C13.8871 8.10002 13.8871 7.89335 13.7605 7.76002L11.9071 5.90669C11.7005 5.69335 11.3405 5.84002 11.3405 6.14002L11.3405 7.33335L4.66047 7.33335L4.66047 6.14002C4.66047 5.84002 4.30047 5.69335 4.0938 5.90669L2.24047 7.76669C2.1138 7.90002 2.1138 8.10669 2.24047 8.24002L4.0938 10.1C4.30047 10.3134 4.66047 10.16 4.66047 9.86669L4.66047 8.66669L11.3405 8.66669Z"
-                        fill="currentcolor"
-                      />
-                    </svg>
-                    {priceUpper}
-                  </Flex>
-                ),
-                children: loading ? (
-                  <LocalLoader />
-                ) : !positions?.length ? (
-                  <Flex
-                    sx={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
-                    fontSize={14}
-                    color={theme.subText}
-                    padding="16px"
-                    marginTop="20px"
-                  >
-                    <Info size="48px" />
-                    <Text marginTop="16px" textAlign="center" lineHeight={1.5}>
-                      <Trans>
-                        You haven&apos;t deposited any liquidity positions (NFT tokens) for this farming pair yet.
-                        <br />
-                        <br />
-                        Add liquidity to this pool first in our{' '}
-                        <StyledInternalLink to={`${APP_PATHS.POOLS}/${networkInfo.route}`}>
-                          Pools
-                        </StyledInternalLink>{' '}
-                        page. If you&apos;ve done that, deposit your liquidity position (NFT tokens) before you stake
-                      </Trans>
-                    </Text>
-                  </Flex>
-                ) : (
-                  <ContentWrapper>
-                    {positions.map(pos => {
-                      return (
-                        <NFTItem
-                          key={pos.tokenId.toString()}
-                          disabled={
-                            activeRange &&
-                            (pos.tickLower > activeRange.tickLower || pos.tickUpper < activeRange.tickUpper)
-                          }
-                          active={selectedPos[pos.tokenId.toString()]}
-                          pos={pos}
-                          onClick={handlePosClick}
-                          prices={prices}
+                return {
+                  key: range.index,
+                  label: (
+                    <Flex sx={{ gap: '2px' }} alignItems="center">
+                      {priceLower}
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" display="block">
+                        <path
+                          d="M11.3405 8.66669L11.3405 9.86002C11.3405 10.16 11.7005 10.3067 11.9071 10.0934L13.7605 8.23335C13.8871 8.10002 13.8871 7.89335 13.7605 7.76002L11.9071 5.90669C11.7005 5.69335 11.3405 5.84002 11.3405 6.14002L11.3405 7.33335L4.66047 7.33335L4.66047 6.14002C4.66047 5.84002 4.30047 5.69335 4.0938 5.90669L2.24047 7.76669C2.1138 7.90002 2.1138 8.10669 2.24047 8.24002L4.0938 10.1C4.30047 10.3134 4.66047 10.16 4.66047 9.86669L4.66047 8.66669L11.3405 8.66669Z"
+                          fill="currentcolor"
                         />
-                      )
-                    })}
-                  </ContentWrapper>
-                ),
-              }
-            })}
+                      </svg>
+                      {priceUpper}
+                    </Flex>
+                  ),
+                  children: loading ? (
+                    <LocalLoader />
+                  ) : !positions?.length ? (
+                    <Flex
+                      sx={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
+                      fontSize={14}
+                      color={theme.subText}
+                      padding="16px"
+                      marginTop="20px"
+                    >
+                      <Info size="48px" />
+                      <Text marginTop="16px" textAlign="center" lineHeight={1.5}>
+                        <Trans>
+                          You haven&apos;t deposited any liquidity positions (NFT tokens) for this farming pair yet.
+                          <br />
+                          <br />
+                          Add liquidity to this pool first in our{' '}
+                          <StyledInternalLink to={`${APP_PATHS.POOLS}/${networkInfo.route}`}>
+                            Pools
+                          </StyledInternalLink>{' '}
+                          page. If you&apos;ve done that, deposit your liquidity position (NFT tokens) before you stake
+                        </Trans>
+                      </Text>
+                    </Flex>
+                  ) : (
+                    <ContentWrapper>
+                      {positions.map(pos => {
+                        return (
+                          <NFTItem
+                            key={pos.tokenId.toString()}
+                            disabled={
+                              activeRange &&
+                              (pos.tickLower > activeRange.tickLower || pos.tickUpper < activeRange.tickUpper)
+                            }
+                            active={selectedPos[pos.tokenId.toString()]}
+                            pos={pos}
+                            onClick={handlePosClick}
+                            prices={prices}
+                          />
+                        )
+                      })}
+                    </ContentWrapper>
+                  ),
+                }
+              })}
           />
 
           <ButtonPrimary

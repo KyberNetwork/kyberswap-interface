@@ -293,7 +293,7 @@ function FarmCard({
           items={farm.ranges.map(item => ({
             key: item.index,
             label: (
-              <Flex alignItems="center" sx={{ gap: '2px' }}>
+              <Flex alignItems="center" sx={{ gap: '2px' }} color={item.isRemoved ? theme.warning : theme.subText}>
                 {convertTickToPrice(farm.token0, farm.token1, item.tickLower)}
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" display="block">
                   <path
@@ -347,7 +347,11 @@ function FarmCard({
                   </MouseoverTooltip>
                 </RowBetween>
 
-                <Text fontSize="28px" marginTop="2px" color={theme.apr}>
+                <Text
+                  fontSize="28px"
+                  marginTop="2px"
+                  color={farm.ranges[activeRangeIndex].isRemoved ? theme.warning : theme.apr}
+                >
                   {(poolAPR + (farm.ranges[activeRangeIndex].apr || 0)).toFixed(2)}%
                 </Text>
               </Flex>
@@ -508,24 +512,28 @@ function FarmCard({
                 }
               >
                 <UnstakeButton
-                  color={canUpdateLiquidity ? theme.warning : theme.subText}
+                  color={canUpdateLiquidity ? theme.warning : theme.red}
                   onClick={() => !canUpdateLiquidity && onUnstake()}
                 >
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <g clipPath="url(#clip0_1048_20034)">
-                      <path
-                        d="M2.66667 8.66667H6.66667C7.03333 8.66667 7.33333 8.36667 7.33333 8L7.33333 2.66667C7.33333 2.3 7.03333 2 6.66667 2L2.66667 2C2.3 2 2 2.3 2 2.66667L2 8C2 8.36667 2.3 8.66667 2.66667 8.66667ZM2.66667 14H6.66667C7.03333 14 7.33333 13.7 7.33333 13.3333V10.6667C7.33333 10.3 7.03333 10 6.66667 10H2.66667C2.3 10 2 10.3 2 10.6667L2 13.3333C2 13.7 2.3 14 2.66667 14ZM9.33333 14H13.3333C13.7 14 14 13.7 14 13.3333V8C14 7.63333 13.7 7.33333 13.3333 7.33333L9.33333 7.33333C8.96667 7.33333 8.66667 7.63333 8.66667 8L8.66667 13.3333C8.66667 13.7 8.96667 14 9.33333 14ZM8.66667 2.66667V5.33333C8.66667 5.7 8.96667 6 9.33333 6H13.3333C13.7 6 14 5.7 14 5.33333V2.66667C14 2.3 13.7 2 13.3333 2L9.33333 2C8.96667 2 8.66667 2.3 8.66667 2.66667Z"
-                        fill="currentcolor"
-                      />
-                    </g>
-                    <defs>
-                      <clipPath id="clip0_1048_20034">
-                        <rect width="16" height="16" fill="white" />
-                      </clipPath>
-                    </defs>
-                  </svg>
+                  {canUpdateLiquidity ? (
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <g clipPath="url(#clip0_1048_20034)">
+                        <path
+                          d="M2.66667 8.66667H6.66667C7.03333 8.66667 7.33333 8.36667 7.33333 8L7.33333 2.66667C7.33333 2.3 7.03333 2 6.66667 2L2.66667 2C2.3 2 2 2.3 2 2.66667L2 8C2 8.36667 2.3 8.66667 2.66667 8.66667ZM2.66667 14H6.66667C7.03333 14 7.33333 13.7 7.33333 13.3333V10.6667C7.33333 10.3 7.03333 10 6.66667 10H2.66667C2.3 10 2 10.3 2 10.6667L2 13.3333C2 13.7 2.3 14 2.66667 14ZM9.33333 14H13.3333C13.7 14 14 13.7 14 13.3333V8C14 7.63333 13.7 7.33333 13.3333 7.33333L9.33333 7.33333C8.96667 7.33333 8.66667 7.63333 8.66667 8L8.66667 13.3333C8.66667 13.7 8.96667 14 9.33333 14ZM8.66667 2.66667V5.33333C8.66667 5.7 8.96667 6 9.33333 6H13.3333C13.7 6 14 5.7 14 5.33333V2.66667C14 2.3 13.7 2 13.3333 2L9.33333 2C8.96667 2 8.66667 2.3 8.66667 2.66667Z"
+                          fill="currentcolor"
+                        />
+                      </g>
+                      <defs>
+                        <clipPath id="clip0_1048_20034">
+                          <rect width="16" height="16" fill="white" />
+                        </clipPath>
+                      </defs>
+                    </svg>
+                  ) : (
+                    <Minus size={14} />
+                  )}
                   <Text marginLeft="6px" fontSize={['12px', '14px']}>
-                    <Trans>Manage</Trans>
+                    {canUpdateLiquidity ? <Trans>Manage</Trans> : <Trans>Unstake</Trans>}
                   </Text>
                 </UnstakeButton>
               </MouseoverTooltip>

@@ -191,7 +191,13 @@ export const ListView = ({
             const range = farm.ranges.find(r => r.index === +item)
             if (!range) return null
             return (
-              <Flex alignItems="center" sx={{ gap: '2px' }} color={theme.subText} fontSize={12} fontWeight="500">
+              <Flex
+                alignItems="center"
+                sx={{ gap: '2px' }}
+                color={range.isRemoved ? theme.warning : theme.subText}
+                fontSize={12}
+                fontWeight="500"
+              >
                 {convertTickToPrice(farm.token0, farm.token1, range.tickLower)}
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" display="block">
                   <path
@@ -202,7 +208,11 @@ export const ListView = ({
 
                 {convertTickToPrice(farm.token0, farm.token1, range.tickUpper)}
 
-                {index !== farm.ranges.length && <Text paddingLeft="6px">|</Text>}
+                {index !== farm.ranges.length && (
+                  <Text paddingLeft="6px" color={theme.subText}>
+                    |
+                  </Text>
+                )}
               </Flex>
             )
           }}

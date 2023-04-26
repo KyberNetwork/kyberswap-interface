@@ -2,6 +2,8 @@ import { rgba } from 'polished'
 import { FC, ReactNode } from 'react'
 import styled from 'styled-components'
 
+import HorizontalScroll from './HorizontalScroll'
+
 interface TabsProps {
   activeKey: string | number
   items: Array<{
@@ -29,7 +31,6 @@ const TabHeader = styled.div(({ theme }) => ({
 
 const TabHeaderItem = styled.div<{ active: boolean }>(({ theme, active }) => ({
   display: 'flex',
-  overflowY: 'scroll',
   padding: '0.5rem',
   borderRight: `1px solid ${theme.border}`,
   background: active ? rgba(theme.primary, 0.3) : theme.buttonBlack,
@@ -43,16 +44,18 @@ const Tabs: FC<TabsProps> = ({ activeKey, items, className, onChange }) => {
   return (
     <Wrapper className={className}>
       <TabHeader>
-        {items.map(item => (
-          <TabHeaderItem
-            active={item.key === activeKey}
-            key={item.key}
-            role="button"
-            onClick={() => onChange(item.key)}
-          >
-            {item.label}
-          </TabHeaderItem>
-        ))}
+        <HorizontalScroll
+          style={{ gap: 0 }}
+          items={items.map(item => item.key.toString())}
+          renderItem={key => {
+            const label = items.find(i => +i.key === +key)?.label || ''
+            return (
+              <TabHeaderItem onClick={() => onChange(key)} active={+key === +activeKey}>
+                {label}
+              </TabHeaderItem>
+            )
+          }}
+        />
       </TabHeader>
       {items.find(item => item.key === activeKey)?.children}
     </Wrapper>

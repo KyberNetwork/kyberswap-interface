@@ -31,6 +31,7 @@ import { VIEW_MODE } from 'state/user/reducer'
 
 import FarmCard from './components/FarmCard'
 import { ListView } from './components/ListView'
+import NewRangesNotiModal from './components/NewRangesNotiModal'
 import StakeWithNFTsModal from './components/StakeWithNFTsModal'
 import UnstakeWithNFTsModal from './components/UnstakeWithNFTsModal'
 import UpdateLiquidityModal from './components/UpdateLiquidityModal'
@@ -64,7 +65,7 @@ export default function ElasticFarmv2({ onShowStepGuide }: { onShowStepGuide: ()
   const sortField = searchParams.get('orderBy') || SORT_FIELD.MY_DEPOSIT
   const sortDirection = searchParams.get('orderDirection') || SORT_DIRECTION.DESC
 
-  const { filteredFarms, farms } = useFilteredFarmsV2()
+  const { filteredFarms, farms, updatedFarms } = useFilteredFarmsV2()
 
   const { approve } = useFarmV2Action()
   const posManager = useProAmmNFTPositionManagerContract()
@@ -273,6 +274,7 @@ export default function ElasticFarmv2({ onShowStepGuide }: { onShowStepGuide: ()
   const listMode = above1000 && viewMode === VIEW_MODE.LIST
   return (
     <Wrapper>
+      {!!updatedFarms?.length && <NewRangesNotiModal updatedFarms={updatedFarms} />}
       <RowBetween>
         <Flex fontSize="16px" alignItems="center" color={theme.text} sx={{ gap: '6px' }}>
           <Trans>Elastic Farm V2</Trans>
