@@ -450,7 +450,7 @@ export const useKyberAIWidget: () => [boolean, () => void] = () => {
     dispatch(toggleKyberAIWidget())
   }, [dispatch])
 
-  return [kyberAIWidget && isLogin, toggle]
+  return [kyberAIWidget && isLogin, toggle] // todo check whitelist
 }
 
 export const usePermitData: (

@@ -157,5 +157,5 @@ export const useDatafeed = (isBTC: boolean, token?: ITokenOverview) => {
         //
       },
     }
-  }, [getChartingData, isBTC, setResolution, chain, address, token.symbol])
+  }, [getChartingData, isBTC, setResolution, chain, address, token?.symbol])
 }

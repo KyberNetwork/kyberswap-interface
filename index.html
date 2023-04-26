@@ -40,15 +40,16 @@
 
     <title>KyberSwap - Trading Smart</title>
     <script>
-      window.global = window;
+      window.global = window
     </script>
     <script type="module">
-      import process from "process";
-      import EventEmitter from "events";
-      import {Buffer} from "buffer";
-      window.Buffer = Buffer;
-      window.process = process;
-      window.EventEmitter = EventEmitter;
+      import { Buffer } from 'buffer'
+      import EventEmitter from 'events'
+      import process from 'process'
+
+      window.Buffer = Buffer
+      window.process = process
+      window.EventEmitter = EventEmitter
     </script>
   </head>
 
@@ -240,14 +241,6 @@
           }
         }
         setInitialColorMode(false)
-      })()
-      javascript: (function () {
-        var script = document.createElement('script')
-        script.src = '//cdn.jsdelivr.net/npm/eruda'
-        document.body.appendChild(script)
-        script.onload = function () {
-          eruda.init()
-        }
       })()
     </script>
     <script src="/charting_library/charting_library.standalone.js"></script>
