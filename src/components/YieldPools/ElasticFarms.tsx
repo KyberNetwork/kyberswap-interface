@@ -7,8 +7,6 @@ import { Flex, Text } from 'rebass'
 
 import FarmIssueAnnouncement from 'components/FarmIssueAnnouncement'
 import LocalLoader from 'components/LocalLoader'
-import { ShareFarmAddressContextProvider } from 'components/YieldPools/ShareFarmAddressContext'
-import ShareFarmAddressModal from 'components/YieldPools/ShareFarmAddressModal'
 import { APP_PATHS, FARM_TAB } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { VERSION } from 'constants/v2'
@@ -222,7 +220,7 @@ function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: bo
   const showCompensation = isActiveTab && !loadingCompensationData && (canWithdraw || canClaimReward)
 
   return (
-    <ShareFarmAddressContextProvider>
+    <>
       {selectedFarm && selectedModal === 'deposit' && (
         <DepositModal selectedFarmAddress={selectedFarm} onDismiss={onDismiss} />
       )}
@@ -337,9 +335,7 @@ function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: bo
           })}
         </Flex>
       )}
-
-      <ShareFarmAddressModal />
-    </ShareFarmAddressContextProvider>
+    </>
   )
 }
 

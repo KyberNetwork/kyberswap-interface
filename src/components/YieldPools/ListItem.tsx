@@ -23,7 +23,6 @@ import Harvest from 'components/Icons/Harvest'
 import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { useShareFarmAddressContext } from 'components/YieldPools/ShareFarmAddressContext'
 import { DMM_ANALYTICS_URL, MAX_ALLOW_APY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
@@ -36,6 +35,7 @@ import useTheme from 'hooks/useTheme'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { setAttemptingTxn, setShowConfirm, setTxHash, setYieldPoolsError } from 'state/farms/classic/actions'
+import { useShareFarmAddress } from 'state/farms/classic/hooks'
 import { Farm, Reward } from 'state/farms/classic/types'
 import { useAppDispatch } from 'state/hooks'
 import { useViewMode } from 'state/user/hooks'
@@ -72,7 +72,7 @@ const ListItem = ({ farm }: ListItemProps) => {
   const currentTimestamp = Math.floor(Date.now() / 1000)
   const [viewMode] = useViewMode()
   const { mixpanelHandler } = useMixpanel()
-  const { setAddress } = useShareFarmAddressContext()
+  const [, setFarmAddress] = useShareFarmAddress()
 
   const { type = 'active' } = useParsedQueryString<{ type: string }>()
   const above1200 = useMedia('(min-width: 1200px)')
@@ -298,7 +298,7 @@ const ListItem = ({ farm }: ListItemProps) => {
   }
 
   const handleClickShareButton = () => {
-    setAddress(farm.id)
+    setFarmAddress(farm.id)
   }
 
   return (
@@ -462,7 +462,7 @@ const ListItem = ({ farm }: ListItemProps) => {
         </>
       )}
       {(viewMode === VIEW_MODE.GRID || !above1200) && (
-        <FarmCard key={`${farm.fairLaunchAddress}_${farm.stakeToken}`} joined={!!userStakedBalanceUSD}>
+        <FarmCard joined={!!userStakedBalanceUSD}>
           <Row marginBottom="12px">
             <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={20} />
             <Text fontSize="16px" fontWeight="500" marginRight="4px" color={theme.green}>
@@ -570,8 +570,8 @@ const ListItem = ({ farm }: ListItemProps) => {
               <Row gap="8px">
                 {farmRewards.map((reward, index, arr) => {
                   return (
-                    <>
-                      <RowFit key={reward.token.wrapped.address} gap="4px" fontSize="12px" lineHeight="16px">
+                    <React.Fragment key={reward.token.wrapped.address}>
+                      <RowFit gap="4px" fontSize="12px" lineHeight="16px">
                         {chainId && reward.token.wrapped.address && (
                           <CurrencyLogo currency={reward.token} size="16px" />
                         )}
@@ -580,7 +580,7 @@ const ListItem = ({ farm }: ListItemProps) => {
                       {index !== arr.length - 1 && (
                         <div style={{ height: '10px', width: '1px', backgroundColor: theme.border }} />
                       )}
-                    </>
+                    </React.Fragment>
                   )
                 })}
               </Row>

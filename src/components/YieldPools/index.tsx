@@ -6,8 +6,6 @@ import { Flex, Text } from 'rebass'
 
 import LocalLoader from 'components/LocalLoader'
 import FairLaunchPools from 'components/YieldPools/FairLaunchPools'
-import { ShareFarmAddressContextProvider } from 'components/YieldPools/ShareFarmAddressContext'
-import ShareFarmUrlModal from 'components/YieldPools/ShareFarmAddressModal'
 import { FARM_TAB } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
@@ -142,9 +140,8 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
   }, [active, stakedOnly, farmsByFairLaunch, isCheckUserStaked])
 
   return (
-    <ShareFarmAddressContextProvider>
+    <>
       <ConfirmHarvestingModal />
-      <ShareFarmUrlModal />
 
       {loading && noFarms ? (
         <Flex backgroundColor={theme.background}>
@@ -177,7 +174,7 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
           )
         })
       )}
-    </ShareFarmAddressContextProvider>
+    </>
   )
 }
 

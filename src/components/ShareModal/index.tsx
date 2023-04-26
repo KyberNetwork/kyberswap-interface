@@ -88,14 +88,20 @@ const ButtonWithHoverEffect = ({ children, onClick }: { children: (color: string
   )
 }
 
+const noop = () => {
+  // empty
+}
+
 export default function ShareModal({
   title,
   url,
-  onShared = () => null,
+  onShared = noop,
+  onDismiss = noop,
 }: {
   title: string
   url?: string
   onShared?: () => void
+  onDismiss?: () => void
 }) {
   const isOpen = useModalOpen(ApplicationModal.SHARE)
   const toggle = useToggleModal(ApplicationModal.SHARE)
@@ -108,14 +114,19 @@ export default function ShareModal({
     setCopied(shareUrl)
   }
 
+  const handleDismissModal = () => {
+    onDismiss()
+    toggle()
+  }
+
   return (
-    <Modal isOpen={isOpen} onDismiss={toggle}>
+    <Modal isOpen={isOpen} onDismiss={handleDismissModal}>
       <Flex flexDirection="column" alignItems="center" padding="25px" width="100%">
         <RowBetween>
           <Text fontSize={18} fontWeight={500}>
             {title}
           </Text>
-          <ButtonText onClick={toggle} style={{ lineHeight: '0' }}>
+          <ButtonText onClick={handleDismissModal} style={{ lineHeight: '0' }}>
             <X color={theme.text} />
           </ButtonText>
         </RowBetween>
@@ -162,7 +173,7 @@ export default function ShareModal({
           </ButtonWithHoverEffect>
         </Flex>
         <InputWrapper>
-          <input type="text" value={shareUrl} />
+          <input type="text" value={shareUrl} onChange={noop} />
           <ButtonPrimary onClick={handleCopyClick} fontSize={14} padding="8px 12px" width="auto">
             Copy Link
             <AlertMessage className={isCopied ? 'show' : ''}>Copied!</AlertMessage>

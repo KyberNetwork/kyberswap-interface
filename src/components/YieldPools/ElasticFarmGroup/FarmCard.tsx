@@ -19,11 +19,11 @@ import { Swap as SwapIcon } from 'components/Icons'
 import Harvest from 'components/Icons/Harvest'
 import InfoHelper from 'components/InfoHelper'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { useShareFarmAddressContext } from 'components/YieldPools/ShareFarmAddressContext'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { TOBE_EXTENDED_FARMING_POOLS } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { useShareFarmAddress } from 'state/farms/classic/hooks'
 import { FarmingPool, NFTPosition } from 'state/farms/elastic/types'
 import { shortenAddress } from 'utils'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
@@ -96,7 +96,7 @@ const FarmCard = ({
   const canHarvest = rewardPendings.some(amount => amount.greaterThan(0))
 
   const amountCanStaked = isFarmEnded ? 0 : pool.depositedUsd - pool.stakedUsd
-  const { setAddress } = useShareFarmAddressContext()
+  const [, setFarmAddress] = useShareFarmAddress()
   const [showPosition, setShowPosition] = useState(false)
 
   const addliquidityElasticPool = `${APP_PATHS.ELASTIC_CREATE_POOL}/${
@@ -190,7 +190,7 @@ const FarmCard = ({
             <Flex
               marginLeft="12px"
               onClick={() => {
-                setAddress(pool.poolAddress)
+                setFarmAddress(pool.poolAddress)
               }}
               sx={{
                 cursor: 'pointer',

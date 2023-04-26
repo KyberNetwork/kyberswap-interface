@@ -18,13 +18,13 @@ import { MoneyBag, Swap2 as SwapIcon } from 'components/Icons'
 import Harvest from 'components/Icons/Harvest'
 import InfoHelper from 'components/InfoHelper'
 import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
-import { useShareFarmAddressContext } from 'components/YieldPools/ShareFarmAddressContext'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { TOBE_EXTENDED_FARMING_POOLS } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useProMMFarmContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
+import { useShareFarmAddress } from 'state/farms/classic/hooks'
 import { useElasticFarms } from 'state/farms/elastic/hooks'
 import { FarmingPool, NFTPosition } from 'state/farms/elastic/types'
 import { useViewMode } from 'state/user/hooks'
@@ -158,7 +158,7 @@ const Row = ({
   const canUnstake = !!joinedPositions.length
   const isFarmStarted = farmingPool.startTime <= currentTimestamp
 
-  const { setAddress } = useShareFarmAddressContext()
+  const [, setFarmAddress] = useShareFarmAddress()
 
   const amountCanStaked = farmingPool.endTime < currentTimestamp ? 0 : farmingPool.depositedUsd - farmingPool.stakedUsd
 
@@ -329,7 +329,7 @@ const Row = ({
             <Flex
               marginLeft="12px"
               onClick={() => {
-                setAddress(farmingPool.poolAddress)
+                setFarmAddress(farmingPool.poolAddress)
               }}
               sx={{
                 cursor: 'pointer',

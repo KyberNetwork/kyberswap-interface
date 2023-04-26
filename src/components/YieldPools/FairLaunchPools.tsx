@@ -250,6 +250,7 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
                   </Row>
                 </TableHeader>
               )}
+
               {displayFarms.map(farm => {
                 return <ListItem key={`${farm.fairLaunchAddress}_${farm.stakeToken}`} farm={farm} />
               })}

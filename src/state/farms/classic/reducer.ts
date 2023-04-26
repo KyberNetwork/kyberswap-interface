@@ -3,7 +3,15 @@ import { captureException } from '@sentry/react'
 
 import { Farm } from 'state/farms/classic/types'
 
-import { setAttemptingTxn, setFarmsData, setLoading, setShowConfirm, setTxHash, setYieldPoolsError } from './actions'
+import {
+  setAttemptingTxn,
+  setFarmAddressToShare,
+  setFarmsData,
+  setLoading,
+  setShowConfirm,
+  setTxHash,
+  setYieldPoolsError,
+} from './actions'
 
 interface FarmsState {
   readonly data: { [key: string]: Farm[] }
@@ -12,6 +20,7 @@ interface FarmsState {
   readonly attemptingTxn: boolean
   readonly txHash: string
   readonly error: string
+  readonly farmAddressToShare: string
 }
 
 const initialState: FarmsState = {
@@ -21,6 +30,7 @@ const initialState: FarmsState = {
   attemptingTxn: false,
   txHash: '',
   error: '',
+  farmAddressToShare: '',
 }
 
 export default createReducer<FarmsState>(initialState, builder =>
@@ -58,5 +68,8 @@ export default createReducer<FarmsState>(initialState, builder =>
         ...state,
         error: error ? error?.message : '',
       }
+    })
+    .addCase(setFarmAddressToShare, (state, { payload }) => {
+      state.farmAddressToShare = payload
     }),
 )
