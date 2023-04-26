@@ -23,6 +23,7 @@ import Harvest from 'components/Icons/Harvest'
 import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { useShareFarmAddressContext } from 'components/YieldPools/ShareFarmAddressContext'
 import { DMM_ANALYTICS_URL, MAX_ALLOW_APY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
@@ -63,15 +64,15 @@ const fixedFormatting = (value: BigNumber, decimals: number) => {
 
 interface ListItemProps {
   farm: Farm
-  setSharedPoolAddress: (addr: string) => void
 }
 
-const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
+const ListItem = ({ farm }: ListItemProps) => {
   const { account, chainId, isEVM } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const currentTimestamp = Math.floor(Date.now() / 1000)
   const [viewMode] = useViewMode()
   const { mixpanelHandler } = useMixpanel()
+  const { setAddress } = useShareFarmAddressContext()
 
   const { type = 'active' } = useParsedQueryString<{ type: string }>()
   const above1200 = useMedia('(min-width: 1200px)')
@@ -296,6 +297,10 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
     }
   }
 
+  const handleClickShareButton = () => {
+    setAddress(farm.id)
+  }
+
   return (
     <>
       {viewMode === VIEW_MODE.LIST && above1200 && (
@@ -341,9 +346,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
                   </Text>
                 </RowFit>
                 <RowFit
-                  onClick={() => {
-                    setSharedPoolAddress(farm.id)
-                  }}
+                  onClick={handleClickShareButton}
                   sx={{
                     cursor: 'pointer',
                   }}
@@ -489,9 +492,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
                 size="14px"
                 color={theme.subText}
                 style={{ cursor: 'pointer' }}
-                onClick={() => {
-                  setSharedPoolAddress(farm.id)
-                }}
+                onClick={handleClickShareButton}
               />
             </RowFit>
           </RowBetween>
