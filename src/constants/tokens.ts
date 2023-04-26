@@ -1,5 +1,6 @@
 import { ChainId, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
 
+import { CHAINS_SUPPORT_FEE_CONFIGS, ETHER_ADDRESS } from './index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from './networks'
 
 const NativeCurrenciesLocal: { [chainId in ChainId]: NativeCurrency } = SUPPORTED_NETWORKS.reduce(
@@ -135,7 +136,7 @@ export const STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
 
 // This list is intentionally different from the list above
 // Was requested from product team, to implement Swap fee config
-export const STABLE_COINS_FEE_TIER_1: Record<ChainId, string[]> = {
+export const STABLE_COIN_ADDRESSES_TO_TAKE_FEE: Record<ChainId, string[]> = {
   [ChainId.BTTC]: [
     '0x9B5F27f6ea9bBD753ce3793a07CbA3C74644330d', // usdt_b
     '0xE887512ab8BC60BcC9224e1c3b5Be68E26048B8B', // usdt_e
@@ -191,6 +192,16 @@ export const STABLE_COINS_FEE_TIER_1: Record<ChainId, string[]> = {
   [ChainId.BSCMAINNET]: [],
   [ChainId.ARBITRUM]: [],
 }
+
+// This is basically the same as STABLE_COIN_ADDRESSES_TO_TAKE_FEE, but with native token address
+export const TOKENS_WITH_FEE_TIER_1: Record<ChainId, string[]> = CHAINS_SUPPORT_FEE_CONFIGS.reduce((acc, chainId) => {
+  if (STABLE_COIN_ADDRESSES_TO_TAKE_FEE[chainId].length) {
+    acc[chainId] = [...STABLE_COIN_ADDRESSES_TO_TAKE_FEE[chainId], ETHER_ADDRESS]
+  } else {
+    acc[chainId] = []
+  }
+  return acc
+}, {} as Record<ChainId, string[]>)
 
 export const SUPER_STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
   [ChainId.MAINNET]: [
@@ -639,3 +650,6 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   [ChainId.SOLANA]: USDC[ChainId.SOLANA],
   [ChainId.GÖRLI]: KNC[ChainId.GÖRLI],
 }
+
+export const DEFAULT_SWAP_FEE_STABLE_PAIRS = 10
+export const DEFAULT_SWAP_FEE_NOT_STABLE_PAIRS = 30

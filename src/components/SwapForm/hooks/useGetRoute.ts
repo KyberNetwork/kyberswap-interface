@@ -111,12 +111,11 @@ const useGetRoute = (args: ArgsGetRoute) => {
 
     const chargeFeeBy =
       tokenToTakeFee === tokenInAddress ? 'currency_in' : tokenToTakeFee === tokenOutAddress ? 'currency_out' : ''
-    const feeAmount = String(feePercent)
 
-    const feeConfig: Pick<GetRouteParams, 'feeAmount' | 'feeReceiver' | 'isInBps' | 'chargeFeeBy'> | undefined =
-      chargeFeeBy
+    const feeConfig: Pick<GetRouteParams, 'feeAmount' | 'feeReceiver' | 'isInBps' | 'chargeFeeBy'> =
+      chargeFeeBy && feePercent
         ? {
-            feeAmount,
+            feeAmount: String(feePercent),
             chargeFeeBy,
             isInBps: '1',
             feeReceiver: '0x9f4cf329f4cf376b7aded854d6054859dd102a2a',
