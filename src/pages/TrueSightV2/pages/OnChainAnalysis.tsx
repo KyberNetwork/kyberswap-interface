@@ -188,7 +188,7 @@ export default function OnChainAnalysis({ onShareClick }: { onShareClick: (url: 
         id="top25holders"
         shareButton
         onShareClick={handleShareClick}
-        style={{ height: '360px' }}
+        style={{ height: '450px' }}
       >
         <RequireConnectWalletWrapper>
           <HoldersChartWrapper />

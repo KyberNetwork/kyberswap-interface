@@ -39,6 +39,7 @@ import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import {
   useCexesLiquidationQuery,
+  useHolderListQuery,
   useNetflowToCEXQuery,
   useNetflowToWhaleWalletsQuery,
   useNumberOfHoldersQuery,
@@ -50,6 +51,7 @@ import { testParams } from 'pages/TrueSightV2/pages/SingleToken'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import {
   ChartTab,
+  IHolderList,
   ILiquidCEX,
   INetflowToCEX,
   INetflowToWhaleWallets,
@@ -70,6 +72,30 @@ import { useDatafeed } from './datafeed'
 
 const CHART_RED_COLOR = '#773242'
 const CHART_GREEN_COLOR = '#246250'
+
+const LABEL_GAP_BY_TIMEFRAME: { [timeframe: string]: number } = {
+  [KyberAITimeframe.ONE_DAY]: 2,
+  [KyberAITimeframe.ONE_WEEK]: 1,
+  [KyberAITimeframe.ONE_MONTH]: 2,
+  [KyberAITimeframe.THREE_MONTHS]: 3,
+  [KyberAITimeframe.SIX_MONTHS]: 5,
+}
+
+const CustomizedLabel = (props: any) => {
+  const theme = useTheme()
+  const { x, y, value, index, timeframe, dollarSign } = props
+  const show = (index + 1) % (LABEL_GAP_BY_TIMEFRAME[timeframe as string] || 1) === 0
+
+  return (
+    <>
+      {show && (
+        <text x={x} y={y} dy={-10} fontSize={12} fontWeight={500} fill={theme.text} textAnchor="middle">
+          {value !== 0 && `${dollarSign ? '$' : ''}${formatShortNum(value)}`}
+        </text>
+      )}
+    </>
+  )
+}
 
 const ChartWrapper = styled(ContentWrapper)`
   flex: 1;
@@ -535,13 +561,7 @@ export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?
                 width={2}
                 dot={false}
                 {...{
-                  label: ({ x, y, value }: { x: number; y: number; value: number }) => {
-                    return (
-                      <text x={x} y={y} dy={-8} fontSize={12} fontWeight={500} fill={theme.text} textAnchor="middle">
-                        {formatShortNum(value)}
-                      </text>
-                    )
-                  },
+                  label: <CustomizedLabel timeframe={timeframe} />,
                 }}
                 isAnimationActive={noAnimation ? false : true}
               />
@@ -814,13 +834,7 @@ export const TradingVolumeChart = () => {
                 width={2}
                 dot={false}
                 {...{
-                  label: ({ x, y, value }: { x: number; y: number; value: number }) => {
-                    return (
-                      <text x={x} y={y} dy={-8} fontSize={12} fontWeight={500} fill={theme.text} textAnchor="middle">
-                        {value !== 0 && `$${formatShortNum(value)}`}
-                      </text>
-                    )
-                  },
+                  label: <CustomizedLabel timeframe={timeframe} dollarSign />,
                 }}
               />
             )}
@@ -1202,21 +1216,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                     strokeWidth={3}
                     dot={false}
                     {...{
-                      label: ({ x, y, value }: { x: number; y: number; value: number }) => {
-                        return (
-                          <text
-                            x={x}
-                            y={y}
-                            dy={-8}
-                            fontSize={12}
-                            fontWeight={500}
-                            fill={theme.text}
-                            textAnchor="middle"
-                          >
-                            {value !== 0 && `$${formatShortNum(value)}`}
-                          </text>
-                        )
-                      },
+                      label: <CustomizedLabel timeframe={timeframe} dollarSign />,
                     }}
                   />
                 )}
@@ -1562,13 +1562,7 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
                 strokeWidth={3}
                 dot={false}
                 {...{
-                  label: ({ x, y, value }: { x: number; y: number; value: number }) => {
-                    return (
-                      <text x={x} y={y} dy={-8} fontSize={12} fontWeight={500} fill={theme.text} textAnchor="middle">
-                        {value !== 0 && `$${formatShortNum(value)}`}
-                      </text>
-                    )
-                  },
+                  label: <CustomizedLabel timeframe={timeframe} dollarSign />,
                 }}
               />
             )}
@@ -1761,13 +1755,7 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
               animationBegin={ANIMATION_DELAY}
               animationDuration={ANIMATION_DURATION}
               {...{
-                label: ({ x, y, value }: { x: number; y: number; value: number }) => {
-                  return (
-                    <text x={x} y={y} dy={-8} fontSize={12} fontWeight={500} fill={theme.text} textAnchor="middle">
-                      {value !== 0 && `$${formatShortNum(value)}`}
-                    </text>
-                  )
-                },
+                label: <CustomizedLabel timeframe={timeframe} />,
               }}
             />
           </AreaChart>
@@ -1779,7 +1767,7 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
 
 export const NumberofHolders = () => {
   const theme = useTheme()
-  const { chain, address } = useParams()
+  // const { chain, address } = useParams()
   const [timeframe, setTimeframe] = useState(KyberAITimeframe.ONE_MONTH)
   const [from, to, timerange] = useMemo(() => {
     const now = Math.floor(Date.now() / 60000) * 60
@@ -1801,13 +1789,13 @@ export const NumberofHolders = () => {
     return [from, now, timerange]
   }, [timeframe])
   const { data, isLoading } = useNumberOfHoldersQuery({
-    chain: chain || testParams.chain,
-    address: address || testParams.address,
+    chain: testParams.chain,
+    address: '0xc3d088842dcf02c13699f936bb83dfbbc6f721ab',
     from,
     to,
   })
 
-  const filteredData = useMemo(() => {
+  const formattedData = useMemo(() => {
     if (!data) return []
     const dataTemp: INumberOfHolders[] = []
     const startTimestamp = (Math.floor(from / timerange) + 1) * timerange
@@ -1822,9 +1810,36 @@ export const NumberofHolders = () => {
     return dataTemp
   }, [data, timerange, from, to])
 
+  const totalStats: { timeframe: string; totalHolders: string } = useMemo(() => {
+    if (formattedData.length === 0) return { timeframe: '--', totalHolders: '--' }
+    const tf = `${dayjs(formattedData[0].timestamp).format(
+      timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
+    )} - ${dayjs(formattedData[formattedData.length - 1].timestamp).format(
+      timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
+    )}`
+    return {
+      timeframe: tf,
+      totalHolders: formatLocaleStringNum(formattedData.reduce((a, b) => a + b.count, 0)),
+    }
+  }, [formattedData, timeframe])
+
   return (
     <LoadingHandleWrapper isLoading={isLoading} hasData={!!data}>
       <ChartWrapper>
+        <InfoWrapper>
+          <Column gap="4px">
+            <Text color={theme.subText}>Timeframe</Text>
+            <Text color={theme.text} fontWeight={500}>
+              {totalStats.timeframe}
+            </Text>
+          </Column>
+          <Column gap="4px">
+            <Text color={theme.subText}>Total Holders</Text>
+            <Text color={theme.text} fontWeight={500}>
+              {totalStats.totalHolders}
+            </Text>
+          </Column>
+        </InfoWrapper>
         <LegendWrapper>
           <TimeFrameLegend
             selected={timeframe}
@@ -1841,9 +1856,9 @@ export const NumberofHolders = () => {
           <AreaChart
             width={500}
             height={400}
-            data={filteredData}
+            data={formattedData}
             margin={{
-              top: 40,
+              top: 80,
               right: 0,
               left: 20,
               bottom: 0,
@@ -1900,6 +1915,9 @@ export const NumberofHolders = () => {
               fill="url(#colorUv)"
               animationBegin={ANIMATION_DELAY}
               animationDuration={ANIMATION_DURATION}
+              {...{
+                label: <CustomizedLabel timeframe={timeframe} />,
+              }}
             />
           </AreaChart>
         </ResponsiveContainer>
@@ -1908,58 +1926,65 @@ export const NumberofHolders = () => {
   )
 }
 
-const data01 = [
-  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 400 },
-  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 300 },
-  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 300 },
-  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 200 },
-  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 278 },
-  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
-  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
-  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
-  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
-  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
-  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
-  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 200 },
-  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
-  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
-  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
-  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
-  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
-  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
-  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
-  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
-  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
-  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
-  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 100 },
-  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
-  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
-]
-
 const COLORS = ['#00a2f7', '#31CB9E', '#FFBB28', '#F3841E', '#FF537B', '#27AE60', '#78d5ff', '#8088E5']
-const CustomLabel = ({ x, y, cx, cy, name }: any) => {
+const CustomLabel = ({ x, y, cx, cy, address, percentage }: any) => {
   let customY = y
   if (Math.abs(cx - x) < 30) {
     customY = cy - y > 0 ? y - 8 : y + 8
   }
   return (
-    <text x={x} y={customY} textAnchor={x > cx ? 'start' : 'end'} fill="#31CB9E" fontSize={12}>
-      {name}
-    </text>
+    <>
+      {(percentage as number) > 0.01 && (
+        <text x={x} y={customY} textAnchor={x > cx ? 'start' : 'end'} fill="#31CB9E" fontSize={12}>
+          {address}
+        </text>
+      )}
+    </>
   )
+}
+
+const CustomLabelLine = (props: any) => {
+  const { percentage, points, stroke, cx, cy } = props
+  return (
+    <>
+      {percentage > 0.01 ? (
+        <path
+          fill="none"
+          d={`M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y}`}
+          stroke={stroke}
+          strokeWidth="1px"
+          cx={cx}
+          cy={cy}
+        />
+      ) : (
+        <></>
+      )}
+    </>
+  )
+  // if (percentage > 0.01) {
+  //   return (
+  //     <path
+  //       d={`M${points[0].x},${points[0].y} Q${(points[1].x + 40, points[0].y)} ${points[1].x},${points[1].y}"`}
+  //       stroke={stroke}
+  //       strokeWidth="1px"
+  //     />
+  //   )
+  // } else {
+  //   return <path />
+  // }
 }
 export const HoldersChartWrapper = () => {
   const theme = useTheme()
   const above1000 = useMedia('(min-width:1000px)')
-
+  const { data } = useHolderListQuery({ address: '0xF9fbe825bfb2bf3e387af0dc18cac8d87f29dea8' })
   const formattedData = useMemo(
     () =>
       above1000
-        ? data01
-        : data01.map(item => {
-            return { ...item, name: shortenAddress(1, item.name) }
+        ? data
+        : data?.map((item: IHolderList) => {
+            return { ...item, name: shortenAddress(1, item?.address) }
           }),
-    [above1000],
+    [above1000, data],
   )
 
   return (
@@ -1976,24 +2001,28 @@ export const HoldersChartWrapper = () => {
               if (!payload) return <></>
               return (
                 <TooltipWrapper>
+                  <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                    {payload.address}
+                  </Text>
                   <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-                    Supply Owned: {(payload.value / 30).toFixed(2)}%
+                    Supply Owned: <span style={{ color: theme.text }}>{(payload.percentage * 100).toFixed(2)}%</span>
                   </Text>
                 </TooltipWrapper>
               )
             }}
           />
           <Pie
-            dataKey="value"
+            dataKey="percentage"
             label={CustomLabel}
+            labelLine={CustomLabelLine}
             nameKey="name"
             data={formattedData}
-            innerRadius="40%"
+            innerRadius="60%"
             outerRadius="80%"
             animationBegin={ANIMATION_DELAY}
             animationDuration={ANIMATION_DURATION}
           >
-            {formattedData.map((entry, index) => (
+            {formattedData?.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length] + 'e0'} />
             ))}
           </Pie>
@@ -2291,22 +2320,7 @@ export const LiquidOnCentralizedExchanges = () => {
                       strokeWidth={2}
                       dot={false}
                       {...{
-                        label: ({ x, y, value }: { x: number; y: number; value: number }) => {
-                          if (!value) return null
-                          return (
-                            <text
-                              x={x}
-                              y={y}
-                              dy={-8}
-                              fontSize={12}
-                              fontWeight={500}
-                              fill={theme.text}
-                              textAnchor="middle"
-                            >
-                              ${formatShortNum(value)}
-                            </text>
-                          )
-                        },
+                        label: <CustomizedLabel timeframe={timeframe} />,
                       }}
                     />
                   )}
