@@ -1,11 +1,13 @@
 import KyberOauth2, { LoginMethod } from '@kybernetwork/oauth2'
 import { useCallback, useEffect, useRef } from 'react'
+import { useConnectWalletToProfileMutation, useGetOrCreateProfileQuery } from 'services/identity'
 
 import { ENV_KEY, OAUTH_CLIENT_ID } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import { useIsConnectedWallet } from 'hooks/useSyncNetworkParamWithStore'
-import { updateProcessingLogin } from 'state/authen/actions'
+import { updateProcessingLogin, updateProfile } from 'state/authen/actions'
 import { useSessionInfo } from 'state/authen/hooks'
+import { UserProfile } from 'state/authen/reducer'
 import { useAppDispatch } from 'state/hooks'
 
 KyberOauth2.initialize({
@@ -24,11 +26,18 @@ const useLogin = () => {
   const dispatch = useAppDispatch()
 
   const requestingSession = useRef<string>() // which wallet/mode requesting
-  const [{ anonymousUserInfo }, saveSession] = useSessionInfo()
+  const [{ anonymousUserInfo, isLogin }, saveSession] = useSessionInfo()
 
   const setLoading = useCallback(
     (value: boolean) => {
       dispatch(updateProcessingLogin(value))
+    },
+    [dispatch],
+  )
+
+  const setProfile = useCallback(
+    (value: UserProfile) => {
+      dispatch(updateProfile(value))
     },
     [dispatch],
   )
@@ -75,5 +84,17 @@ const useLogin = () => {
       signIn(typeof wallet === 'string' ? wallet : undefined)
     })
   }, [account, signIn, isConnectedWallet])
+
+  const { data: profileInfo } = useGetOrCreateProfileQuery({ referralProgramId: 1 }, { skip: !isLogin })
+  const [connectWalletToProfile] = useConnectWalletToProfileMutation()
+
+  console.log({ profileInfo })
+
+  useEffect(() => {
+    if (profileInfo && account) {
+      // if(profileInfo not contain acc )connectWalletToProfile({account})
+      // else save profile setProfile(profileInfo)
+    }
+  }, [profileInfo, account, connectWalletToProfile, setProfile])
 }
 export default useLogin

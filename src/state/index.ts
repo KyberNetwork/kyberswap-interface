@@ -9,6 +9,7 @@ import kyberAIApi, { coinglassApi } from 'pages/TrueSightV2/hooks/useKyberAIData
 
 import annoucementApi from '../services/announcement'
 import geckoTerminalApi from '../services/geckoTermial'
+import identifyApi from '../services/identity'
 import ksSettingApi from '../services/ksSetting'
 import notificationApi from '../services/notification'
 import application from './application/reducer'
@@ -63,6 +64,7 @@ const store = configureStore({
     [annoucementApi.reducerPath]: annoucementApi.reducer,
     [geckoTerminalApi.reducerPath]: geckoTerminalApi.reducer,
     [kyberAIApi.reducerPath]: kyberAIApi.reducer,
+    [identifyApi.reducerPath]: identifyApi.reducer,
     [coinglassApi.reducerPath]: coinglassApi.reducer,
     [notificationApi.reducerPath]: notificationApi.reducer,
     [ksSettingApi.reducerPath]: ksSettingApi.reducer,
@@ -83,6 +85,7 @@ const store = configureStore({
       .concat(geckoTerminalApi.middleware)
       .concat(annoucementApi.middleware)
       .concat(kyberAIApi.middleware)
+      .concat(identifyApi.middleware)
       .concat(coinglassApi.middleware)
       .concat(notificationApi.middleware)
       .concat(ksSettingApi.middleware)

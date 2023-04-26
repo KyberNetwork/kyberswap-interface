@@ -337,6 +337,9 @@ export const RTK_QUERY_TAGS = {
   GET_ALERTS: 'GET_ALERTS',
   GET_ALERTS_HISTORY: 'GET_ALERTS_HISTORY',
   GET_ALERTS_STAT: 'GET_ALERTS_STAT',
+
+  // identity
+  GET_PROFILE: 'GET_PROFILE',
 }
 
 export const TRANSACTION_STATE_DEFAULT: TransactionFlowState = {

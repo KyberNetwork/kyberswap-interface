@@ -12,39 +12,10 @@ import useTheme from 'hooks/useTheme'
 import VerifyCodeModal from 'pages/TrueSightV2/pages/RegisterWhitelist/VerifyCodeModal'
 import { isEmailValid } from 'utils/string'
 
-const FormWrapper = styled.div`
-  width: 500px;
-  display: flex;
-  gap: 1rem;
-`
-const Label = styled.label`
-  color: ${({ theme }) => theme.subText};
-  font-size: 12px;
-  font-weight: 500;
-`
-
-const Input = styled.input<{ $borderColor: string }>`
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-  background: none;
-  outline: none;
-  border-radius: 20px;
-  width: 100%;
-  padding: 10px 14px;
-  color: ${({ theme }) => theme.subText};
-  font-size: 14px;
-  background-color: ${({ theme }) => theme.buttonBlack};
-  transition: border 0.5s;
-  border: ${({ theme, $borderColor }) => `1px solid ${$borderColor || theme.border}`};
-  ::placeholder {
-    color: ${({ theme }) => theme.border};
-    font-size: 12px;
-  }
-`
+import { FormWrapper, Input, Label } from './styled'
 
 export default function EmailForm() {
-  const [showVerifyModal, setShowVerifyModal] = useState(true)
+  const [showVerifyModal, setShowVerifyModal] = useState(false)
   const [inputEmail, setInputEmail] = useState('')
   const [referCode, setCode] = useState('')
   const [errorInput, setErrorInput] = useState<string>('')
@@ -114,11 +85,11 @@ export default function EmailForm() {
         </Column>
       </FormWrapper>
 
-      <ButtonPrimary width="230px" height="36px">
+      <ButtonPrimary width="230px" height="36px" onClick={() => setShowVerifyModal(true)}>
         <Trans>Join KyberAI Waitlist</Trans>
       </ButtonPrimary>
 
-      <VerifyCodeModal isOpen={showVerifyModal} />
+      <VerifyCodeModal isOpen={showVerifyModal} onDismiss={() => setShowVerifyModal(false)} />
     </>
   )
 }

@@ -182,6 +182,22 @@ const kyberAIApi = createApi({
       }),
       transformResponse: (res: any) => res.data,
     }),
+    getParticipantInfo: builder.query<any, { account: string }>({
+      query: body => ({
+        url: '/v1/referral/participants',
+        method: 'POST',
+        body,
+        authentication: true, // todo
+      }),
+    }),
+    requestWhiteList: builder.mutation<any, { referredByCode: string; referralProgramId: number }>({
+      query: body => ({
+        url: '/v1/referral/participants',
+        method: 'POST',
+        body,
+        authentication: true, // todo
+      }),
+    }),
   }),
 })
 
@@ -233,6 +249,8 @@ export const {
   useRemoveFromWatchlistMutation,
   useCexesLiquidationQuery,
   useSearchTokenQuery,
+  useGetParticipantInfoQuery,
+  useRequestWhiteListMutation,
 } = kyberAIApi
 export const { useCexesInfoQuery, useFundingRateQuery } = coinglassApi
 export default kyberAIApi

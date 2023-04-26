@@ -1,7 +1,8 @@
 import { Trans } from '@lingui/macro'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { X } from 'react-feather'
-import { Flex, Text } from 'rebass'
+import { Text } from 'rebass'
+import { useSendOtpMutation, useVerifyOtpMutation } from 'services/identity'
 import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
@@ -26,36 +27,57 @@ const Label = styled.span`
   color: ${({ theme }) => theme.subText};
   font-size: 12px;
   font-weight: 400;
+  line-height: 16px;
 `
 
-const Input = styled.input`
+const Input = styled.input<{ hasError: boolean }>`
   background: ${({ theme }) => theme.buttonBlack};
   border-radius: 20px;
   width: 56px;
   height: 80px;
   font-size: 48px;
   outline: none;
-  color: ${({ theme }) => theme.subText};
-  border: 1px solid ${({ theme }) => theme.border};
+  color: ${({ theme, hasError }) => (hasError ? theme.red : theme.subText)};
+  border: 1px solid ${({ theme, hasError }) => (hasError ? theme.red : theme.border)};
   text-align: center;
 `
 
-export default function VerifyCodeModal({ isOpen }: { isOpen: boolean }) {
+export default function VerifyCodeModal({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) {
   const theme = useTheme()
   const [otp, setOtp] = useState<string>('')
-  const toggleModal = () => {
-    //
+  const [verifyOtp] = useVerifyOtpMutation()
+  const [sendOtp] = useSendOtpMutation()
+
+  useEffect(() => {
+    setError(false)
+    setOtp('')
+  }, [isOpen])
+
+  const [error, setError] = useState(false)
+
+  const verify = () => {
+    setError(true)
+    verifyOtp()
+  }
+
+  const resendCode = () => {
+    sendOtp()
+  }
+
+  const onChange = (value: string) => {
+    setError(false)
+    setOtp(value)
   }
 
   return (
-    <Modal isOpen={isOpen} onDismiss={toggleModal} minHeight={false} maxWidth={450}>
+    <Modal isOpen={isOpen} onDismiss={onDismiss} minHeight={false} maxWidth={450}>
       <Wrapper>
         <Content>
           <RowBetween>
             <Text color={theme.text} fontWeight={'500'} fontSize={'20'}>
               <Trans>Verify your email address</Trans>
             </Text>
-            <X color={theme.text} cursor="pointer" />
+            <X color={theme.text} cursor="pointer" onClick={onDismiss} />
           </RowBetween>
           <Label>
             <Trans>
@@ -68,22 +90,20 @@ export default function VerifyCodeModal({ isOpen }: { isOpen: boolean }) {
           </Label>
 
           <OTPInput
-            containerStyle={{
-              justifyContent: 'space-between',
-            }}
+            containerStyle={{ justifyContent: 'space-between' }}
             value={otp}
-            onChange={setOtp}
+            onChange={onChange}
             numInputs={6}
-            renderInput={props => <Input {...props} placeholder="-" />}
+            renderInput={props => <Input {...props} hasError={error} placeholder="-" />}
           />
 
           <Label style={{ width: '100%', textAlign: 'center' }}>
             Didn&apos;t receive code?{' '}
-            <Text as="span" color={theme.primary}>
+            <Text as="span" color={theme.primary} style={{ cursor: 'pointer' }} onClick={resendCode}>
               Resend
             </Text>
           </Label>
-          <ButtonPrimary height={'36px'} disabled={otp.length < 6}>
+          <ButtonPrimary height={'36px'} disabled={otp.length < 6} onClick={verify}>
             <Trans>Verify</Trans>
           </ButtonPrimary>
         </Content>
