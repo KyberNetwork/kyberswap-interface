@@ -1,5 +1,4 @@
 import { Trans, t } from '@lingui/macro'
-import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
