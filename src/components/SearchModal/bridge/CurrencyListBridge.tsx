@@ -24,7 +24,6 @@ const CurrencyListBridge = memo(function CurrencyListV2({
   isOutput,
   onCurrencySelect,
   listTokenRef,
-  isCrossChain,
   currency: selectedCurrency,
   chainId,
 }: {
@@ -32,13 +31,11 @@ const CurrencyListBridge = memo(function CurrencyListV2({
   onCurrencySelect: (currency: WrappedTokenInfo) => void
   isOutput: boolean | undefined
   listTokenRef: React.Ref<HTMLDivElement>
-  isCrossChain?: boolean
   currency: WrappedTokenInfo | undefined
   chainId: ChainId | undefined
 }) {
   const [{ tokenInfoOut, poolValueOutMap }] = useBridgeState()
-  // todo refactor
-  const currencyBalances = useCurrencyBalances(!isOutput || isCrossChain ? currencies : EMPTY_ARRAY, chainId)
+  const currencyBalances = useCurrencyBalances(!isOutput ? currencies : EMPTY_ARRAY, chainId)
   const theme = useTheme()
 
   const Row: any = useCallback(

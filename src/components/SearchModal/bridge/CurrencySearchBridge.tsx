@@ -25,23 +25,19 @@ interface CurrencySearchBridgeProps {
   isOutput?: boolean
   onCurrencySelect: (currency: WrappedTokenInfo) => void
   tokens: WrappedTokenInfo[]
-  isCrossChain?: boolean
   currency: WrappedTokenInfo | undefined
   chainId: ChainId | undefined
 }
 
 export default function CurrencySearchBridge({
-  isOutput: isOutputParam,
+  isOutput,
   onCurrencySelect,
   onDismiss,
   isOpen,
   tokens: fetchedTokens,
-  isCrossChain,
   currency,
   chainId,
 }: CurrencySearchBridgeProps) {
-  const isOutput = isCrossChain ? false : isOutputParam
-
   const theme = useTheme()
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedQuery = useDebounce(searchQuery, 200)
@@ -183,7 +179,6 @@ export default function CurrencySearchBridge({
           isOutput={isOutput}
           currencies={visibleCurrencies}
           onCurrencySelect={handleCurrencySelect}
-          isCrossChain={isCrossChain}
           currency={currency}
         />
       ) : (
@@ -191,17 +186,13 @@ export default function CurrencySearchBridge({
           msg={
             debouncedQuery && (
               <Text fontSize={12} color={theme.subText} fontWeight="normal" lineHeight={'18px'}>
-                {isCrossChain ? (
-                  <Trans>Axelar/Squid doesn’t support this token yet.</Trans>
-                ) : (
-                  <Trans>
-                    Multichain doesn’t support this token yet. <br />
-                    If you want to apply this token for cross-chain bridges on Multichain, please read more{' '}
-                    <ExternalLink href="https://anyswap.medium.com/how-to-apply-for-cross-chain-bridges-on-anyswap-82fcb6c9f0d2">
-                      here
-                    </ExternalLink>
-                  </Trans>
-                )}
+                <Trans>
+                  Multichain doesn’t support this token yet. <br />
+                  If you want to apply this token for cross-chain bridges on Multichain, please read more{' '}
+                  <ExternalLink href="https://anyswap.medium.com/how-to-apply-for-cross-chain-bridges-on-anyswap-82fcb6c9f0d2">
+                    here
+                  </ExternalLink>
+                </Trans>
               </Text>
             )
           }

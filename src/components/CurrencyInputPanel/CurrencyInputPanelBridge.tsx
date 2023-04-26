@@ -193,7 +193,6 @@ export default function CurrencyInputPanelBridge({
           <CurrencySearchModalBridge
             chainId={selectedChainId}
             currency={currency}
-            isCrossChain={isCrossChain}
             isOutput={isOutput}
             isOpen={modalOpen}
             tokens={tokens}

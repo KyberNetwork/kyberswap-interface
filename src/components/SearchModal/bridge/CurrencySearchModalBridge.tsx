@@ -12,7 +12,6 @@ interface CurrencySearchModalBridgeProps {
   onDismiss: () => void
   onCurrencySelect: (currency: WrappedTokenInfo) => void
   tokens: WrappedTokenInfo[]
-  isCrossChain?: boolean
   currency: WrappedTokenInfo | undefined
   chainId: ChainId | undefined
 }
@@ -23,7 +22,6 @@ export default function CurrencySearchModalBridge({
   onDismiss,
   onCurrencySelect,
   tokens,
-  isCrossChain,
   currency,
   chainId,
 }: CurrencySearchModalBridgeProps) {
@@ -47,7 +45,6 @@ export default function CurrencySearchModalBridge({
       <CurrencySearchBridge
         tokens={tokens}
         isOutput={isOutput}
-        isCrossChain={isCrossChain}
         isOpen={isOpen}
         onDismiss={onDismiss}
         onCurrencySelect={handleCurrencySelect}
