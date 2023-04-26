@@ -352,11 +352,7 @@ export function TradeSummaryCrossChain({
           <RowBetween>
             <RowFixed>
               <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
-                <MouseoverTooltip
-                  width="200px"
-                  text={<Trans>Estimate time to complete your transactions</Trans>}
-                  placement="right"
-                >
+                <MouseoverTooltip width="200px" text={<Trans>Current Price in the market</Trans>} placement="right">
                   <Trans>Current Price</Trans>
                 </MouseoverTooltip>
               </TextDashed>
@@ -391,7 +387,7 @@ export function TradeSummaryCrossChain({
             <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
               <MouseoverTooltip
                 width="200px"
-                text={<Trans>Estimate time to complete your transactions</Trans>}
+                text={<Trans>Estimate time to complete your transaction</Trans>}
                 placement="right"
               >
                 {t`Estimated Processing Time`}
@@ -440,8 +436,8 @@ export function TradeSummaryCrossChain({
                           </div>
                         ) : (
                           <Trans>
-                            We overestimate gas by 50% to guarantee your trade. Any gas we don&apos;t use will be refund
-                            by Axelar
+                            We overestimate gas by 50% to guarantee your trade. Any gas we don&apos;t use will be
+                            refunded by Axelar
                           </Trans>
                         )}
                       </Text>
