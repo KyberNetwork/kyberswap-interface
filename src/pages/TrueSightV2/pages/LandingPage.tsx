@@ -2,6 +2,7 @@ import KyberOauth2 from '@kybernetwork/oauth2'
 import { Trans } from '@lingui/macro'
 import { motion, useScroll, useSpring, useTransform } from 'framer-motion'
 import { ReactNode } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import { useGetOrCreateProfileQuery } from 'services/identity'
 import styled, { css } from 'styled-components'
@@ -239,7 +240,7 @@ export default function KyberAILandingPage() {
   if (processing) return <LocalLoader />
 
   const renderButton = (showForm = true) => {
-    const isWhiteList = true
+    const isWhiteList = false
     const style = { height: '36px', width: '236px' }
     return !account ? (
       <ConnectWalletButton style={style} onClick={toggleWalletModal}>

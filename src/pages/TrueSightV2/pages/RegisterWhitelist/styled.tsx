@@ -52,4 +52,5 @@ export const FormWrapper = styled.div`
   width: 500px;
   display: flex;
   gap: 1rem;
+  z-index: 1;
 `
