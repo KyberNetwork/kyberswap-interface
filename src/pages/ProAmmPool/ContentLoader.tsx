@@ -43,6 +43,7 @@ const Tab = styled(Loading)`
 `
 
 function ContentLoader() {
+  const a = () => {}
   return (
     <StyledPositionCard>
       <Title />

@@ -2,7 +2,7 @@ import GlobalPolyFill from '@esbuild-plugins/node-globals-polyfill'
 import lingui from '@lingui/vite-plugin'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
-import eslint from 'vite-plugin-eslint'
+import checker from 'vite-plugin-checker'
 import svgrPlugin from 'vite-plugin-svgr'
 import viteTsconfigPaths from 'vite-tsconfig-paths'
 
@@ -12,7 +12,6 @@ export default defineConfig({
     outDir: 'build',
   },
   plugins: [
-    eslint({ cache: true }),
     react({
       babel: {
         // Use .babelrc files, necessary to use LinguiJS CLI
@@ -23,6 +22,12 @@ export default defineConfig({
     viteTsconfigPaths(),
     svgrPlugin(),
     lingui(),
+    checker({
+      typescript: true,
+      eslint: {
+        lintCommand: 'eslint "./src/**/*.{ts,tsx}"',
+      },
+    }),
   ],
   define: {
     'process.env': process.env, // help libs dont break
