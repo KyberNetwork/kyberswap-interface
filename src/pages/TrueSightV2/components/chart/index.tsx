@@ -2022,7 +2022,7 @@ export const HoldersChartWrapper = () => {
             animationBegin={ANIMATION_DELAY}
             animationDuration={ANIMATION_DURATION}
           >
-            {formattedData?.map((entry, index) => (
+            {formattedData?.map((entry: IHolderList, index: number) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length] + 'e0'} />
             ))}
           </Pie>
