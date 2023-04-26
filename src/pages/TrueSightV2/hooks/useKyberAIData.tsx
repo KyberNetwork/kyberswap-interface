@@ -14,7 +14,7 @@ import {
   ITradingVolume,
   OHLCData,
 } from '../types'
-import { HOLDER_LIST, TOKEN_LIST } from './sampleData'
+import { TOKEN_LIST } from './sampleData'
 
 const kyberAIApi = createApi({
   reducerPath: 'kyberAIApi',
@@ -47,9 +47,9 @@ const kyberAIApi = createApi({
     }),
 
     //4.
-    tokenDetail: builder.query<ITokenOverview, { tokenAddress?: string; account?: string }>({
-      query: ({ tokenAddress, account }: { tokenAddress?: string; account?: string }) => ({
-        url: `/overview/ethereum/${tokenAddress}`,
+    tokenDetail: builder.query<ITokenOverview, { chain?: string; address?: string; account?: string }>({
+      query: ({ chain, address, account }: { chain?: string; address?: string; account?: string }) => ({
+        url: `/overview/${chain || 'ethereum'}/${address}`,
         params: { wallet: account },
       }),
       transformResponse: (res: any) => res.data,
@@ -62,9 +62,12 @@ const kyberAIApi = createApi({
       transformResponse: (res: any) => res.data,
     }),
     //6.
-    tradingVolume: builder.query<ITradingVolume[], { tokenAddress?: string; params?: { from: number; to: number } }>({
-      query: ({ tokenAddress, params }) => ({
-        url: `/volume/ethereum/${tokenAddress}`,
+    tradingVolume: builder.query<
+      ITradingVolume[],
+      { chain?: string; address?: string; params?: { from: number; to: number } }
+    >({
+      query: ({ chain, address, params }) => ({
+        url: `/volume/${chain}/${address}`,
         params,
       }),
       transformResponse: (res: any) => {
@@ -93,48 +96,65 @@ const kyberAIApi = createApi({
       },
     }),
     //7.
-    netflowToWhaleWallets: builder.query<INetflowToWhaleWallets[], { tokenAddress?: string; from: number; to: number }>(
-      {
-        query: ({ tokenAddress, from, to }) => ({
-          url: `/netflow/ethereum/${tokenAddress?.toLowerCase()}`,
-          params: { from, to },
-        }),
-        transformResponse: (res: any) => res.data,
-      },
-    ),
+    netflowToWhaleWallets: builder.query<
+      INetflowToWhaleWallets[],
+      { chain?: string; address?: string; from: number; to: number }
+    >({
+      query: ({ chain, address, from, to }) => ({
+        url: `/netflow/${chain}/${address?.toLowerCase()}`,
+        params: { from, to },
+      }),
+      transformResponse: (res: any) => res.data,
+    }),
     //8.
-    netflowToCEX: builder.query<INetflowToCEX[], { tokenAddress?: string; from: number; to: number }>({
-      query: ({ tokenAddress, from, to }) => ({
-        url: `/netflow/cexes/ethereum/${tokenAddress?.toLowerCase()}`,
+    netflowToCEX: builder.query<INetflowToCEX[], { chain?: string; address?: string; from: number; to: number }>({
+      query: ({ chain, address, from, to }) => ({
+        url: `/netflow/cexes/${chain}/${address?.toLowerCase()}`,
         params: { from, to },
       }),
       transformResponse: (res: any) => res.data,
     }),
     //9.
-    numberOfHolders: builder.query<INumberOfHolders[], { tokenAddress?: string; from: number; to: number }>({
-      query: ({ tokenAddress, from, to }) => ({
-        url: `/holdersNum/ethereum/${tokenAddress}`,
+    numberOfHolders: builder.query<INumberOfHolders[], { chain?: string; address?: string; from: number; to: number }>({
+      query: ({ chain, address, from, to }) => ({
+        url: `/holdersNum/${chain}/${address}`,
         params: { from, to },
       }),
       transformResponse: (res: any) => res.data,
     }),
     //10.
     holderList: builder.query({
-      query: () => ({
-        url: '/holders/ethereum/0xdac17f958d2ee523a2206206994597c13d831ec7?from=1633344036&to=1675215565',
+      query: ({ tokenAddress }) => ({
+        url: `/holders/ethereum/${tokenAddress}?page=1&pageSize=10`,
       }),
-      transformResponse: () => HOLDER_LIST,
+      transformResponse: (res: any) => {
+        console.log(res)
+        return res?.data
+      },
     }),
     //11.
-    chartingData: builder.query<OHLCData[], { from: number; to: number; candleSize: string; currency: string }>({
-      query: params => ({
-        url: `/ohlcv/ethereum/0x2260fac5e5542a773aa44fbcfedf7c193bc2c599`,
-        params,
+    chartingData: builder.query<
+      OHLCData[],
+      { chain: string; address: string; from: number; to: number; candleSize: string; currency: string }
+    >({
+      query: ({ chain, address, from, to, candleSize, currency }) => ({
+        url: `/ohlcv/${chain}/${address}`,
+        params: { from, to, candleSize, currency },
       }),
       transformResponse: (res: any) => {
         if (res.code === 0) {
           return res.data.ohlc
         }
+      },
+    }),
+    //13.
+    fundingRate: builder.query({
+      query: ({ tokenAddress }) => ({ url: `/funding-rate/ethereum/${tokenAddress}` }),
+      transformResponse: (res: any) => {
+        if (res.code === 0) {
+          return res.data
+        }
+        throw new Error(res.msg)
       },
     }),
     //14.
@@ -167,9 +187,12 @@ const kyberAIApi = createApi({
       },
     }),
     //16.
-    transferInformation: builder.query<INumberOfTransfers[], { tokenAddress?: string; from: number; to: number }>({
-      query: ({ tokenAddress, from, to }) => ({
-        url: `/transfer/ethereum/${tokenAddress}`,
+    transferInformation: builder.query<
+      INumberOfTransfers[],
+      { chain?: string; address?: string; from: number; to: number }
+    >({
+      query: ({ chain, address, from, to }) => ({
+        url: `/transfer/${chain}/${address}`,
         params: { from, to },
       }),
       transformResponse: (res: any) => res.data,
@@ -218,17 +241,6 @@ export const coinglassApi = createApi({
         throw new Error(res.msg)
       },
     }),
-    fundingRate: builder.query({
-      query: () => ({
-        url: 'fundingRate/v2/home',
-      }),
-      transformResponse: (res: any) => {
-        if (res.success) {
-          return undefined
-        }
-        throw new Error(res.msg)
-      },
-    }),
   }),
 })
 
@@ -249,8 +261,9 @@ export const {
   useRemoveFromWatchlistMutation,
   useCexesLiquidationQuery,
   useSearchTokenQuery,
+  useFundingRateQuery,
   useGetParticipantInfoQuery,
   useRequestWhiteListMutation,
 } = kyberAIApi
-export const { useCexesInfoQuery, useFundingRateQuery } = coinglassApi
+export const { useCexesInfoQuery } = coinglassApi
 export default kyberAIApi

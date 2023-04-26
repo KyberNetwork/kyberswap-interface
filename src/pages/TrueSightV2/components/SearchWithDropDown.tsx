@@ -1,6 +1,9 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { X } from 'react-feather'
+import Skeleton from 'react-loading-skeleton'
+import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css, keyframes } from 'styled-components'
@@ -12,6 +15,8 @@ import Icon from 'components/Icons/Icon'
 import SearchIcon from 'components/Icons/Search'
 import Logo from 'components/Logo'
 import Row, { RowFit } from 'components/Row'
+import { APP_PATHS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import useDebounce from 'hooks/useDebounce'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
@@ -19,6 +24,7 @@ import { MEDIA_WIDTHS } from 'theme'
 
 import { useSearchTokenQuery } from '../hooks/useKyberAIData'
 import { ITokenSearchResult } from '../types'
+import { formatLocaleStringNum } from '../utils'
 
 const Wrapper = styled.div<{ wider?: boolean; expanded?: boolean }>`
   display: flex;
@@ -115,20 +121,11 @@ const DropdownSection = styled.table`
 const DropdownItem = styled.tr`
   padding: 6px;
   background-color: ${({ theme }) => theme.tableHeader};
-  height: 28px;
-
+  height: 36px;
   :hover {
     filter: brightness(1.3);
   }
 `
-
-interface SearchProps {
-  searchValue: string
-  onSearch: (newSearchValue: string) => void
-  allowClear?: boolean
-  minWidth?: string
-  style?: React.CSSProperties
-}
 
 const MWrapper = styled.div<{ expanded?: boolean; wider?: boolean; width?: number }>`
   width: 36px;
@@ -186,33 +183,61 @@ const AnimationOnFocus = styled.div`
   animation: ${ripple} 0.6s linear;
 `
 
-const TokenItem = ({ token }: { token: ITokenSearchResult }) => {
+const NETWORK_IMAGE_URL: { [chain: string]: string } = {
+  ethereum: NETWORKS_INFO[ChainId.MAINNET].icon,
+  bsc: NETWORKS_INFO[ChainId.BSCMAINNET].icon,
+  arbitrum: NETWORKS_INFO[ChainId.ARBITRUM].icon,
+  optimism: NETWORKS_INFO[ChainId.OPTIMISM].icon,
+  avalanche: NETWORKS_INFO[ChainId.AVAXMAINNET].icon,
+  polygon: NETWORKS_INFO[ChainId.MATIC].icon,
+  fantom: NETWORKS_INFO[ChainId.FANTOM].icon,
+}
+
+const SkeletonItem = () => {
   const theme = useTheme()
   return (
-    <DropdownItem>
+    <div style={{ height: '120px' }}>
+      <Skeleton
+        baseColor={theme.border}
+        height="24px"
+        borderRadius="12px"
+        direction="ltr"
+        duration={1}
+        count={4}
+        highlightColor={theme.tabActive}
+        style={{ lineHeight: 36, marginBottom: '8px' }}
+      />
+    </div>
+  )
+}
+const TokenItem = ({ token }: { token: ITokenSearchResult }) => {
+  const theme = useTheme()
+  const navigate = useNavigate()
+  return (
+    <DropdownItem onClick={() => navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.chain}/${token.address}`)}>
       <td>
-        <RowFit gap="6px">
+        <RowFit gap="10px">
           <div style={{ position: 'relative' }}>
             <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
               <Logo
                 srcs={[token.logo]}
-                style={{ width: '16px', height: '16px', background: 'white', display: 'block' }}
+                style={{ width: '22px', height: '22px', background: 'white', display: 'block' }}
               />
             </div>
             <div
               style={{
                 position: 'absolute',
-                top: '-2px',
-                right: '-2px',
+                top: '-4px',
+                right: '-6px',
                 borderRadius: '50%',
                 border: `1px solid ${theme.background}`,
               }}
             >
               <img
-                src="https://icons.iconarchive.com/icons/cjdowner/cryptocurrency-flat/512/Ethereum-ETH-icon.png"
+                src={NETWORK_IMAGE_URL[token.chain]}
                 alt="eth"
-                width="8px"
-                height="8px"
+                width="12px"
+                height="12px"
                 style={{ display: 'block' }}
               />
             </div>
@@ -234,7 +259,7 @@ const TokenItem = ({ token }: { token: ITokenSearchResult }) => {
       </td>
       <td style={{ textAlign: 'left' }}>
         <Text fontSize="12px" color={theme.text}>
-          ${token.price}
+          ${formatLocaleStringNum(token.price)}
         </Text>
       </td>
       <td style={{ textAlign: 'right' }}>
@@ -289,12 +314,7 @@ const MobileWrapper = ({
   )
 }
 
-const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
-  console.log(
-    '🚀 ~ file: SearchWithDropDown.tsx:293 ~ SearchWithDropdown ~ searchValue, onSearch:',
-    searchValue,
-    onSearch,
-  )
+const SearchWithDropdown = () => {
   const theme = useTheme()
   const [expanded, setExpanded] = useState(false)
   const [search, setSearch] = useState('')
@@ -305,10 +325,11 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
   const contentRef = useRef<HTMLDivElement>(null)
 
   const debouncedSearch = useDebounce(search, 1000)
-  const { data: searchResult } = useSearchTokenQuery({ q: debouncedSearch })
+  const { data: searchResult, isFetching } = useSearchTokenQuery({ q: debouncedSearch, size: 10 })
 
-  const haveSearchResult = search !== '' && searchResult && searchResult.length > 0
-  const noSearchResult = search !== '' && searchResult && searchResult.length === 0
+  const haveSearchResult = debouncedSearch !== '' && searchResult && searchResult.length > 0 && !isFetching
+  const noSearchResult = debouncedSearch !== '' && searchResult && searchResult.length === 0 && !isFetching
+  const isLoading = isFetching && search === debouncedSearch
   // const loading = isFetching
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
 
@@ -335,19 +356,19 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
   const SampleItem = ({ score, percent }: { score?: number; percent?: number }) => (
     <DropdownItem onClick={() => setSearch('ETH')}>
       <td>
-        <RowFit gap="6px">
+        <RowFit gap="8px">
           <div style={{ position: 'relative' }}>
             <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
               <Logo
                 srcs={['https://cryptologos.cc/logos/wrapped-bitcoin-wbtc-logo.svg?v=024']}
-                style={{ width: '16px', height: '16px', background: 'white', display: 'block' }}
+                style={{ width: '22px', height: '22px', background: 'white', display: 'block' }}
               />
             </div>
             <div
               style={{
                 position: 'absolute',
-                top: '-2px',
-                right: '-2px',
+                top: '-4px',
+                right: '-6px',
                 borderRadius: '50%',
                 border: `1px solid ${theme.background}`,
               }}
@@ -355,8 +376,8 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
               <img
                 src="https://icons.iconarchive.com/icons/cjdowner/cryptocurrency-flat/512/Ethereum-ETH-icon.png"
                 alt="eth"
-                width="8px"
-                height="8px"
+                width="12px"
+                height="12px"
                 style={{ display: 'block' }}
               />
             </div>
@@ -387,34 +408,41 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
     </DropdownItem>
   )
 
+  console.log(contentRef.current)
   useEffect(() => {
-    if (!contentRef.current) return
-    const resizeObserver = new ResizeObserver(() => {
+    if (!dropdownRef.current) return
+    const resizeObserver = new MutationObserver(() => {
       dropdownRef.current?.scrollHeight && setHeight(dropdownRef.current?.scrollHeight)
     })
-    resizeObserver.observe(contentRef.current)
-    return () => resizeObserver.disconnect()
+    resizeObserver.observe(dropdownRef.current, {
+      childList: true,
+      subtree: true,
+    })
+    return () => {
+      resizeObserver.disconnect()
+    }
   }, [])
 
   const DropdownContent = () => (
-    <div ref={contentRef}>
-      {haveSearchResult ? (
+    <div ref={contentRef} style={{ height: 'fit-content' }}>
+      {isLoading ? (
+        <>
+          <DropdownSection>
+            <SkeletonItem />
+          </DropdownSection>
+        </>
+      ) : haveSearchResult ? (
         <>
           <DropdownSection>
             <colgroup>
-              <col style={{ width: '160px' }} />
+              <col style={{ width: '200px', minWidth: 'fit-content' }} />
               <col style={{ width: '100px', minWidth: 'auto' }} />
-              <col style={{ width: '140px' }} />
+              <col style={{ width: '100px' }} />
               <col style={{ width: '60px' }} />
             </colgroup>
             <thead>
               <tr>
-                <th>
-                  <RowFit color={theme.subText} gap="4px">
-                    <History />
-                    <Text fontSize="12px">Search History</Text>
-                  </RowFit>
-                </th>
+                <th></th>
                 <th style={{ textAlign: 'left' }}>KyberScore</th>
                 <th style={{ textAlign: 'left' }}>Price</th>
                 <th style={{ textAlign: 'right' }}>24H</th>
@@ -430,7 +458,7 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
       ) : noSearchResult ? (
         <>
           <Row justify="center" height="360px">
-            <Text fontSize="14px" lineHeight="20px" maxWidth="75%">
+            <Text fontSize="14px" lineHeight="20px" maxWidth="75%" textAlign="center">
               <Trans>
                 Oops, we couldnt find your token! We will regularly add new tokens that have achieved a certain trading
                 volume
@@ -576,7 +604,15 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
             <Trans>Ape Smart!</Trans>
           </RowFit>
         </RowFit>
-        <DropdownWrapper expanded={expanded} ref={dropdownRef} height={height}>
+        <DropdownWrapper
+          expanded={expanded}
+          ref={dropdownRef}
+          height={height}
+          onClick={e => {
+            e.stopPropagation()
+            setExpanded(false)
+          }}
+        >
           <DropdownContent />
           {expanded && <AnimationOnFocus />}
         </DropdownWrapper>

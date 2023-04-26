@@ -84,7 +84,7 @@ export default function OnChainAnalysis({ onShareClick }: { onShareClick: (url: 
             </MouseoverTooltip>{' '}
             and{' '}
             <MouseoverTooltip
-              text={t`Wallets which hold more than 5% of the circulating supply of this token`}
+              text={t`Wallets which hold 1% or more of the circulating supply of this token`}
               placement="top"
             >
               <Text color={theme.text} style={{ borderBottom: '1px dotted' }}>

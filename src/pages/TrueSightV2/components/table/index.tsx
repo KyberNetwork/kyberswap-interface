@@ -3,7 +3,7 @@ import { useContext, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 // import { useMemo } from 'react'
 import { Text } from 'rebass'
-import styled, { css } from 'styled-components'
+import styled, { DefaultTheme, css } from 'styled-components'
 
 import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
@@ -12,7 +12,7 @@ import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import { useLiveDexTradesQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
+import { useFundingRateQuery, useHolderListQuery, useLiveDexTradesQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { testParams } from 'pages/TrueSightV2/pages/SingleToken'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import { KyberAITimeframe } from 'pages/TrueSightV2/types'
@@ -139,6 +139,8 @@ const SamepleIcon = () => {
 export const Top10HoldersTable = () => {
   const theme = useTheme()
   const navigate = useNavigate()
+  const { data } = useHolderListQuery({ tokenAddress: testParams.address })
+  console.log('🚀 ~ file: index.tsx:143 ~ Top10HoldersTable ~ data:', data)
   return (
     <Table2>
       <colgroup>
@@ -306,53 +308,65 @@ export const SupportResistanceLevel = () => {
   )
 }
 
-// function colorRateText(value: number, theme: DefaultTheme) {
-//   if (value > 0.015) return theme.red
-//   if (value > 0.005) return theme.text
-//   return theme.primary
-// }
+function colorRateText(value: number, theme: DefaultTheme) {
+  if (value > 0.015) return theme.red
+  if (value > 0.005) return theme.text
+  return theme.primary
+}
 
 export const FundingRateTable = () => {
-  // const theme = useTheme()
-  // const gridTemplateColumns = '1fr 1fr 1fr 1fr 1fr 1fr 1fr'
+  const theme = useTheme()
+  const { data, isLoading } = useFundingRateQuery({ tokenAddress: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599' })
+
+  const gridTemplateColumns = data?.uMarginList
+    ? Array(data.uMarginList.length + 1)
+        .fill('1fr')
+        .join(' ')
+    : '1fr 1fr 1fr 1fr 1fr 1fr'
+  const hasNoData = !data && !isLoading
   return (
     <TableWrapper>
-      <Row height="200px" justify="center">
-        <Text fontSize="14px">
-          <Trans>We couldn&apos;t find any information on USDT</Trans>
-        </Text>
-      </Row>
-      {/* <TableHeader gridTemplateColumns={gridTemplateColumns}>
-        <TableCell></TableCell>
-        {data?.cMarginList?.map((i: any) => (
-          <TableCell key={i.exchangeName}>
-            <Row gap="4px">
-              <img alt={i.exchangeName} src={i.exchangeLogo} style={{ height: '18px', width: '18px' }} />
-              <Text color={theme.text}>{i.exchangeName}</Text>
-            </Row>
-          </TableCell>
-        ))}
+      {hasNoData ? (
+        <Row height="200px" justify="center">
+          <Text fontSize="14px">
+            <Trans>We couldn&apos;t find any information on USDT</Trans>
+          </Text>
+        </Row>
+      ) : (
+        <>
+          <TableHeader gridTemplateColumns={gridTemplateColumns}>
+            <TableCell></TableCell>
+            {data?.uMarginList?.map((i: any) => (
+              <TableCell key={i.exchangeName}>
+                <Row gap="4px">
+                  <img alt={i.exchangeName} src={i.exchangeLogo} style={{ height: '18px', width: '18px' }} />
+                  <Text color={theme.text}>{i.exchangeName}</Text>
+                </Row>
+              </TableCell>
+            ))}
 
-        <TableCell></TableCell>
-      </TableHeader>
-      <TableRow gridTemplateColumns={gridTemplateColumns}>
-        <TableCell>
-          <Row gap="4px">
-            <img alt={data?.symbol} src={data?.symbolLogo} style={{ height: '20px' }} />
-            <Text>{data?.symbol}</Text>
-          </Row>
-        </TableCell>
-        {data?.cMarginList?.map((i: any) => (
-          <TableCell key={i.exchangeName}>
-            <Row gap="4px">
-              <Text color={colorRateText(i.rate, theme)} fontWeight={500} lineHeight="40px">
-                {i.rate.toFixed(4)}%
-              </Text>
-            </Row>
-          </TableCell>
-        ))}
-        <TableCell></TableCell>
-      </TableRow> */}
+            <TableCell></TableCell>
+          </TableHeader>
+          <TableRow gridTemplateColumns={gridTemplateColumns} height={72}>
+            <TableCell>
+              <Row gap="4px">
+                <img alt={data?.symbol} src={data?.symbolLogo} style={{ height: '20px' }} />
+                <Text>{data?.symbol}</Text>
+              </Row>
+            </TableCell>
+            {data?.uMarginList?.map((i: any) => (
+              <TableCell key={i.exchangeName}>
+                <Row gap="4px">
+                  <Text color={colorRateText(i.rate, theme)} fontWeight={500} lineHeight="40px">
+                    {i.rate.toFixed(4)}%
+                  </Text>
+                </Row>
+              </TableCell>
+            ))}
+            <TableCell></TableCell>
+          </TableRow>
+        </>
+      )}
     </TableWrapper>
   )
 }

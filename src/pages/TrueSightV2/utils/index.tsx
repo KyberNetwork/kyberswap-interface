@@ -44,7 +44,7 @@ export const formatLocaleStringNum = (num: number): string => {
   } else if (absNum > 1000) {
     formattedNum = (+absNum.toFixed(2)).toLocaleString()
   } else {
-    formattedNum = absNum.toFixed(5)
+    formattedNum = (+absNum.toFixed(5)).toLocaleString()
   }
   return (negative ? '-' : '') + formattedNum
 }

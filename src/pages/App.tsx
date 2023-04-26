@@ -40,7 +40,7 @@ import { RedirectPathToMyPoolsNetwork } from './Pool/redirect'
 import { RedirectPathToPoolsNetwork } from './Pools/redirect'
 import { RedirectPathToSwapV3Network } from './SwapV3/redirects'
 import TestMeta from './TestMeta'
-import TrueSightV2 from './TrueSightV2'
+import KyberAIExplore from './TrueSightV2'
 import TruesightFooter from './TrueSightV2/components/TruesightFooter'
 import KyberAILandingPage from './TrueSightV2/pages/LandingPage'
 import Verify from './Verify'
@@ -321,12 +321,19 @@ export default function App() {
                     <Route path={`${APP_PATHS.ABOUT}/kyberswap`} element={<AboutKyberSwap />} />
                     <Route path={`${APP_PATHS.ABOUT}/knc`} element={<AboutKNC />} />
                     <Route path={`${APP_PATHS.REFERRAL}`} element={<CreateReferral />} />
-                    <Route path={`${APP_PATHS.KYBERAI_ABOUT}`} element={<KyberAILandingPage />} />
+                    <Route
+                      path={`${APP_PATHS.KYBERAI_ABOUT}`}
+                      element={
+                        <ProtectedRoute redirectUrl={APP_PATHS.KYBERAI_ABOUT}>
+                          <KyberAILandingPage />
+                        </ProtectedRoute>
+                      }
+                    />
                     <Route
                       path={`${APP_PATHS.KYBERAI_RANKINGS}`}
                       element={
                         <ProtectedRoute redirectUrl={APP_PATHS.KYBERAI_ABOUT}>
-                          <TrueSightV2 />
+                          <KyberAIExplore />
                         </ProtectedRoute>
                       }
                     />
@@ -334,7 +341,15 @@ export default function App() {
                       path={`${APP_PATHS.KYBERAI_EXPLORE}`}
                       element={
                         <ProtectedRoute redirectUrl={APP_PATHS.KYBERAI_ABOUT}>
-                          <TrueSightV2 />
+                          <KyberAIExplore />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path={`${APP_PATHS.KYBERAI_EXPLORE}/:chain/:address`}
+                      element={
+                        <ProtectedRoute redirectUrl={APP_PATHS.KYBERAI_ABOUT}>
+                          <KyberAIExplore />
                         </ProtectedRoute>
                       }
                     />

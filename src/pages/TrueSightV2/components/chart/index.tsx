@@ -42,6 +42,7 @@ import {
   useNetflowToCEXQuery,
   useNetflowToWhaleWalletsQuery,
   useNumberOfHoldersQuery,
+  useTokenDetailQuery,
   useTradingVolumeQuery,
   useTransferInformationQuery,
 } from 'pages/TrueSightV2/hooks/useKyberAIData'
@@ -293,6 +294,7 @@ const LoadingHandleWrapper = ({
 
 export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?: boolean; noAnimation?: boolean }) => {
   const theme = useTheme()
+  const { chain, address } = useParams()
   const [timeframe, setTimeframe] = useState(KyberAITimeframe.ONE_MONTH)
   const [showSell, setShowSell] = useState(true)
   const [showBuy, setShowBuy] = useState(true)
@@ -317,7 +319,11 @@ export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?
       }[timeframe as string] || 604800)
     return [from, now, timerange]
   }, [timeframe])
-  const { data, isLoading } = useTradingVolumeQuery({ tokenAddress: testParams.address, params: { from, to } })
+  const { data, isLoading } = useTradingVolumeQuery({
+    chain: chain || testParams.chain,
+    address: address || testParams.address,
+    params: { from, to },
+  })
 
   const formattedData = useMemo(() => {
     if (!data) return []
@@ -571,6 +577,7 @@ export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?
 
 export const TradingVolumeChart = () => {
   const theme = useTheme()
+  const { chain, address } = useParams()
   const [timeframe, setTimeframe] = useState(KyberAITimeframe.ONE_MONTH)
   const [showSell, setShowSell] = useState(true)
   const [showBuy, setShowBuy] = useState(true)
@@ -595,7 +602,11 @@ export const TradingVolumeChart = () => {
       }[timeframe as string] || 604800)
     return [from, now, timerange]
   }, [timeframe])
-  const { data, isLoading } = useTradingVolumeQuery({ tokenAddress: testParams.address, params: { from, to } })
+  const { data, isLoading } = useTradingVolumeQuery({
+    chain: chain || testParams.chain,
+    address: address || testParams.address,
+    params: { from, to },
+  })
 
   const formattedData = useMemo(() => {
     if (!data) return []
@@ -844,7 +855,7 @@ export const TradingVolumeChart = () => {
 
 export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
   const theme = useTheme()
-  const { address } = useParams()
+  const { chain, address } = useParams()
   const [timeframe, setTimeframe] = useState(KyberAITimeframe.ONE_MONTH)
 
   const [from, to, timerange] = useMemo(() => {
@@ -867,7 +878,12 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
     return [from, now, timerange]
   }, [timeframe])
 
-  const { data, isLoading } = useNetflowToWhaleWalletsQuery({ tokenAddress: address || testParams.address, from, to })
+  const { data, isLoading } = useNetflowToWhaleWalletsQuery({
+    chain: chain || testParams.chain,
+    address: address || testParams.address,
+    from,
+    to,
+  })
   const { account } = useActiveWeb3React()
   const [showInflow, setShowInflow] = useState(true)
   const [showOutflow, setShowOutflow] = useState(true)
@@ -1243,6 +1259,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
 }
 
 export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
+  const { chain, address } = useParams()
   const [showInflow, setShowInflow] = useState(true)
   const [showOutflow, setShowOutflow] = useState(true)
   const [showNetflow, setShowNetflow] = useState(true)
@@ -1268,7 +1285,12 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
     return [from, now, timerange]
   }, [timeframe])
 
-  const { data, isLoading } = useNetflowToCEXQuery({ tokenAddress: testParams.address, from, to })
+  const { data, isLoading } = useNetflowToCEXQuery({
+    chain: chain || testParams.chain,
+    address: address || testParams.address,
+    from,
+    to,
+  })
 
   const formattedData = useMemo(() => {
     if (!data) return []
@@ -1586,6 +1608,7 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
 
 export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
   const theme = useTheme()
+  const { chain, address } = useParams()
   const [timeframe, setTimeframe] = useState(KyberAITimeframe.ONE_MONTH)
   const [from, to, timerange] = useMemo(() => {
     const now = Math.floor(Date.now() / 60000) * 60
@@ -1607,7 +1630,12 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
     return [from, now, timerange]
   }, [timeframe])
 
-  const { data, isLoading } = useTransferInformationQuery({ tokenAddress: testParams.address, from, to })
+  const { data, isLoading } = useTransferInformationQuery({
+    chain: chain || testParams.chain,
+    address: address || testParams.address,
+    from,
+    to,
+  })
   const formattedData = useMemo(() => {
     if (!data) return []
     const dataTemp: INumberOfTransfers[] = []
@@ -1751,6 +1779,7 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
 
 export const NumberofHolders = () => {
   const theme = useTheme()
+  const { chain, address } = useParams()
   const [timeframe, setTimeframe] = useState(KyberAITimeframe.ONE_MONTH)
   const [from, to, timerange] = useMemo(() => {
     const now = Math.floor(Date.now() / 60000) * 60
@@ -1771,7 +1800,12 @@ export const NumberofHolders = () => {
       }[timeframe as string] || 604800)
     return [from, now, timerange]
   }, [timeframe])
-  const { data, isLoading } = useNumberOfHoldersQuery({ tokenAddress: testParams.address, from, to })
+  const { data, isLoading } = useNumberOfHoldersQuery({
+    chain: chain || testParams.chain,
+    address: address || testParams.address,
+    from,
+    to,
+  })
 
   const filteredData = useMemo(() => {
     if (!data) return []
@@ -2331,7 +2365,12 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
   const [loading, setLoading] = useState(false)
   const [tvWidget, setTvWidget] = useState<IChartingLibraryWidget | undefined>(undefined)
   const userLocale = useUserLocale()
-  const datafeed = useDatafeed(isBTC || false)
+  const { chain, address } = useParams()
+  const { data } = useTokenDetailQuery({
+    chain: chain || testParams.chain,
+    address: address || testParams.address,
+  })
+  const datafeed = useDatafeed(isBTC || false, data)
   const { SRLevels, currentPrice, resolution, setResolution, showSRLevels } = useContext(TechnicalAnalysisContext)
 
   const variablesRef = useRef({ resolution })

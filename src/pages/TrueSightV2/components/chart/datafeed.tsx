@@ -1,4 +1,5 @@
 import { useContext, useEffect, useMemo, useRef } from 'react'
+import { useParams } from 'react-router-dom'
 
 import {
   ErrorCallback,
@@ -11,15 +12,17 @@ import {
   Timezone,
 } from 'components/TradingViewChart/charting_library'
 import { useLazyChartingDataQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
+import { testParams } from 'pages/TrueSightV2/pages/SingleToken'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
-import { OHLCData } from 'pages/TrueSightV2/types'
+import { ITokenOverview, OHLCData } from 'pages/TrueSightV2/types'
 
 const configurationData = {
   supported_resolutions: ['1H', '4H', '1D', '4D'],
 }
 
-export const useDatafeed = (isBTC: boolean) => {
+export const useDatafeed = (isBTC: boolean, token?: ITokenOverview) => {
   const intervalRef = useRef<any>()
+  const { chain, address } = useParams()
   const [getChartingData, { isLoading }] = useLazyChartingDataQuery()
   useEffect(() => {
     return () => {
@@ -45,7 +48,7 @@ export const useDatafeed = (isBTC: boolean) => {
         _onResolveErrorCallback: ErrorCallback,
       ) => {
         try {
-          const chartName = `BTC/${isBTC ? 'BTC' : 'USD'}`
+          const chartName = `${token?.symbol}/${isBTC ? 'BTC' : 'USD'}`
           const symbolInfo: LibrarySymbolInfo = {
             ticker: chartName,
             name: chartName,
@@ -83,6 +86,8 @@ export const useDatafeed = (isBTC: boolean) => {
         setResolution?.(candleSize)
 
         const { data } = await getChartingData({
+          chain: chain || testParams.chain,
+          address: address || testParams.address,
           from: periodParams.from,
           to: periodParams.to,
           candleSize: candleSize,
@@ -119,11 +124,14 @@ export const useDatafeed = (isBTC: boolean) => {
           const candleSize = { 60: '1h', 240: '4h', '1D': '1d' }[resolution as string] || '1h'
 
           const { data } = await getChartingData({
+            chain: chain || testParams.chain,
+            address: address || testParams.address,
             from: now - 345600,
             to: now,
             candleSize: candleSize,
             currency: isBTC ? 'BTC' : 'USD',
           })
+          console.log('🚀 ~ file: datafeed.tsx:134 ~ getData ~ chain:', chain)
 
           onTick(
             (data || [])
@@ -149,5 +157,5 @@ export const useDatafeed = (isBTC: boolean) => {
         //
       },
     }
-  }, [getChartingData, isBTC, setResolution])
+  }, [getChartingData, isBTC, setResolution, chain, address, token.symbol])
 }
