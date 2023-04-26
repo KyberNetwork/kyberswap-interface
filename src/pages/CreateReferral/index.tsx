@@ -16,6 +16,7 @@ import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { VerticalDivider } from 'pages/About/styleds'
+import Note from 'pages/CreateReferral/Note'
 import { useNetworkModalToggle } from 'state/application/hooks'
 import { isAddress } from 'utils'
 import { currencyId } from 'utils/currencyId'
@@ -29,6 +30,12 @@ const PageWrapper = styled.div`
   width: 100%;
   padding: 28px;
   min-width: 343px;
+`
+
+const NoteWrapper = styled.div`
+  max-width: 1016px;
+  margin: auto;
+  margin-bottom: 16px;
 `
 
 const BodyWrapper = styled.div`
@@ -226,6 +233,12 @@ export default function CreateReferral() {
 
   return (
     <PageWrapper>
+      <NoteWrapper>
+        <Note
+          text={t`Note: Our current referral program will no longer be supported starting May 5 at 00:00 UTC. After that time, existing referral links will no longer work. Thank you for using our referral program, and stay tuned for more updates.`}
+        />
+      </NoteWrapper>
+
       <BodyWrapper>
         <Text fontSize={20} marginBottom="20px" textAlign="center" fontWeight={500}>
           <Trans>Create a Referral Link</Trans>
