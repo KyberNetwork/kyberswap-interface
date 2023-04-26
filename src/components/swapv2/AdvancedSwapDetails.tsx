@@ -447,7 +447,7 @@ export function TradeSummaryCrossChain({
                       </Text>
                       <Text marginTop={'4px'} fontSize={12}>
                         <RowBetween>
-                          <Trans>Source chain gas: </Trans>
+                          <Trans>Source chain gas fee: </Trans>
                           <Text as="span" color={colorGasFee}>
                             ~{gasFee?.toSignificant(10)} {nativeToken?.symbol} ({formattedNum(gasFeeUsd + '', true)})
                           </Text>
