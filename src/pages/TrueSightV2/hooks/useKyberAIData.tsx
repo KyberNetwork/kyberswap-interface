@@ -124,8 +124,8 @@ const kyberAIApi = createApi({
     }),
     //10.
     holderList: builder.query({
-      query: ({ tokenAddress }) => ({
-        url: `/holders/ethereum/${tokenAddress}?page=1&pageSize=10`,
+      query: ({ address }) => ({
+        url: `/holders/ethereum/${address}?page=1&pageSize=25`,
       }),
       transformResponse: (res: any) => {
         console.log(res)
@@ -159,7 +159,7 @@ const kyberAIApi = createApi({
     }),
     //14.
     liveDexTrades: builder.query({
-      query: ({ tokenAddress }) => ({ url: `/live-trades/ethereum/${tokenAddress}` }),
+      query: ({ chain, tokenAddress }) => ({ url: `/live-trades/${chain}/${tokenAddress}` }),
     }),
     //15.
     cexesLiquidation: builder.query<

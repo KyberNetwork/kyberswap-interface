@@ -325,7 +325,10 @@ const SearchWithDropdown = () => {
   const contentRef = useRef<HTMLDivElement>(null)
 
   const debouncedSearch = useDebounce(search, 1000)
-  const { data: searchResult, isFetching } = useSearchTokenQuery({ q: debouncedSearch, size: 10 })
+  const { data: searchResult, isFetching } = useSearchTokenQuery(
+    { q: debouncedSearch, size: 10 },
+    { skip: debouncedSearch === '' },
+  )
 
   const haveSearchResult = debouncedSearch !== '' && searchResult && searchResult.length > 0 && !isFetching
   const noSearchResult = debouncedSearch !== '' && searchResult && searchResult.length === 0 && !isFetching

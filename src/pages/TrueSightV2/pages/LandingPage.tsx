@@ -86,9 +86,9 @@ const PartWrapper = styled(motion.div)`
   position: relative;
 `
 
-const transition = { type: 'spring', bounce: 0, duration: 1 }
+const transition = { type: 'spring', bounce: 0, duration: 1.8 }
 const appearVariants = {
-  init: { opacity: 0, y: 50 },
+  init: { opacity: 0, y: 80 },
   inView: { opacity: 1, y: 0 },
 }
 const PartWithMotion = ({ children, className }: { children: ReactNode; className?: string }) => {
