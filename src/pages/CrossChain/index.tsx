@@ -6,6 +6,7 @@ import { Navigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
 import WarningIcon from 'components/Icons/WarningIcon'
+import { CROSS_CHAIN_CONFIG } from 'constants/env'
 import { NETWORKS_INFO_CONFIG } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -15,10 +16,7 @@ import { TokenInfo, WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { DisclaimerCrossChain } from '../Bridge/Disclaimer'
 import SwapForm from './SwapForm'
 
-const isTest = window.location.href.includes('test') // todo
-const AXELAR_SCAN_URL = isTest ? 'https://testnet.axelarscan.io/gmp/' : 'https://axelarscan.io/gmp/'
-
-export const getAxelarScanUrl = (srcTxHash: string) => `${AXELAR_SCAN_URL}${srcTxHash}`
+export const getAxelarScanUrl = (srcTxHash: string) => `${CROSS_CHAIN_CONFIG.AXELAR_SCAN_URL}${srcTxHash}`
 
 // todo lazy load
 function CrossChain() {
@@ -35,9 +33,7 @@ function CrossChain() {
         if (loading.current) return
         loading.current = true
         if (!squid) {
-          squid = new Squid({
-            baseUrl: isTest ? 'https://testnet.api.0xsquid.com' : 'https://api.0xsquid.com',
-          })
+          squid = new Squid({ baseUrl: CROSS_CHAIN_CONFIG.API_DOMAIN })
         }
         await squid.init()
         const { chains = [], tokens = [] } = squid
