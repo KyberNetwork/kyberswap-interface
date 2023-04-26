@@ -1,23 +1,17 @@
-import { Trans, t } from '@lingui/macro'
-import { debounce } from 'lodash'
+import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { ReactNode, useCallback, useMemo, useState } from 'react'
+import { ReactNode, useState } from 'react'
 import { Users } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import { useSendOtpMutation } from 'services/identity'
-import { useLazyGetConnectedWalletQuery } from 'services/notification'
-import styled from 'styled-components'
+import styled, { CSSProperties } from 'styled-components'
 
-import { ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import Row, { RowBetween } from 'components/Row'
 import { ShareGroupButtons } from 'components/ShareModal'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useGetParticipantInfoQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
-import VerifyCodeModal from 'pages/TrueSightV2/pages/RegisterWhitelist/VerifyCodeModal'
 import { useSessionInfo } from 'state/authen/hooks'
-import { isEmailValid } from 'utils/string'
 
 import { FormWrapper, Input, InputWithCopy, Label } from './styled'
 
@@ -36,67 +30,72 @@ const Icon = styled.div`
   cursor: pointer;
 `
 
-export default function EmailForm() {
+export default function EmailForm({
+  style,
+  desc,
+  showRanking = true,
+}: {
+  style?: CSSProperties
+  desc: ReactNode
+  showRanking?: boolean
+}) {
   const [{ profile }] = useSessionInfo()
-  const [referCode, setCode] = useState('12332323')
+  const [referCode] = useState('12332323')
   const { account } = useActiveWeb3React()
   const { data } = useGetParticipantInfoQuery({ account: account ?? '' }, { skip: !account })
 
   const theme = useTheme()
 
   return (
-    <>
-      <Wrapper>
-        <Text fontSize={12} color={theme.subText} lineHeight={'16px'}>
-          <Trans>
-            Hey! You&apos;re on our waitlist but your slot hasn&apos;t opened up yet. Jump the queue by referring others
-            to KyberAI.
-          </Trans>
-        </Text>
+    <Wrapper style={style}>
+      {desc}
+
+      <Column gap="6px">
+        <Label>
+          <Trans>Your Email</Trans>
+        </Label>
+        <Input $borderColor={theme.border} value={profile?.email} disabled />
+      </Column>
+
+      <RowBetween gap="12px">
+        <Column gap="6px" style={{ width: '70%' }}>
+          <Label>
+            <Trans>Your Referral Link</Trans>
+          </Label>
+          <InputWithCopy disabled $borderColor={theme.border} value={referCode} />
+        </Column>
 
         <Column gap="6px">
           <Label>
-            <Trans>Your Email</Trans>
+            <Trans>Your Referral Code</Trans>
           </Label>
-          <Input $borderColor={theme.border} value={profile?.email} />
+          <InputWithCopy disabled $borderColor={theme.border} value={referCode} />
         </Column>
+      </RowBetween>
 
-        <RowBetween>
-          <Column gap="6px">
-            <Label>
-              <Trans>Your Referral Link</Trans>
-            </Label>
-            <InputWithCopy disabled $borderColor={theme.border} value={referCode} />
-          </Column>
-
-          <Column gap="6px">
-            <Label>
-              <Trans>Your Referral Code</Trans>
-            </Label>
-            <InputWithCopy disabled $borderColor={theme.border} value={referCode} />
-          </Column>
-        </RowBetween>
-
-        <RowBetween>
-          <Column gap="6px">
-            <Flex fontSize={14} color={theme.text} style={{ gap: '6px' }}>
-              <Users size={16} />
-              <Trans>1,200 users are ahead of you!</Trans>
-            </Flex>
-            <Text fontSize={12} color={theme.subText}>
-              <Trans>The more you share, the sooner you&apos;ll get access!</Trans>
-            </Text>
-          </Column>
-          <Row gap="12px" width={'fit-content'}>
-            <ShareGroupButtons
-              shareUrl=""
-              showLabel={false}
-              size={20}
-              renderItem={({ children, color, ...props }) => <Icon {...props}>{children(color ?? '')}</Icon>}
-            />
-          </Row>
-        </RowBetween>
-      </Wrapper>
-    </>
+      <RowBetween flexWrap={'wrap'} gap="12px">
+        <Column gap="6px">
+          {showRanking && (
+            <>
+              <Flex fontSize={14} color={theme.text} style={{ gap: '6px' }}>
+                <Users size={16} />
+                <Trans>1,200 users are ahead of you!</Trans>
+              </Flex>
+              <Text fontSize={12} color={theme.subText}>
+                <Trans>The more you share, the sooner you&apos;ll get access!</Trans>
+              </Text>
+            </>
+          )}
+        </Column>
+        <Row gap="12px" width={'fit-content'}>
+          <ShareGroupButtons
+            shareUrl=""
+            showLabel={false}
+            size={20}
+            renderItem={({ children, color, ...props }) => <Icon {...props}>{children(color ?? '')}</Icon>}
+          />
+        </Row>
+      </RowBetween>
+    </Wrapper>
   )
 }

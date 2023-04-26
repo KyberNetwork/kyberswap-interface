@@ -210,15 +210,13 @@ const kyberAIApi = createApi({
         url: '/v1/referral/participants',
         method: 'POST',
         body,
-        authentication: true, // todo
       }),
     }),
-    requestWhiteList: builder.mutation<any, { referredByCode: string; referralProgramId: number }>({
+    requestWhiteList: builder.mutation<any, { referredByCode: string; referralProgramId: number; email: string }>({
       query: body => ({
         url: '/v1/referral/participants',
         method: 'POST',
         body,
-        authentication: true, // todo
       }),
     }),
   }),

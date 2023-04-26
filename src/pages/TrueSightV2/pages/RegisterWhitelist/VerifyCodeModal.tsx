@@ -1,20 +1,25 @@
-import { Trans } from '@lingui/macro'
-import { useEffect, useRef, useState } from 'react'
+import { Trans, t } from '@lingui/macro'
+import { useCallback, useEffect, useState } from 'react'
 import { X } from 'react-feather'
 import { Text } from 'rebass'
 import { useSendOtpMutation, useVerifyOtpMutation } from 'services/identity'
 import styled from 'styled-components'
 
+import { NotificationType } from 'components/Announcement/type'
 import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 import OTPInput from 'pages/TrueSightV2/pages/RegisterWhitelist/OtpInput'
+import { useNotify } from 'state/application/hooks'
+
+import WaitListForm from './WaitListForm'
 
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   padding: 20px;
+  max-width: 100%;
 `
 
 const Content = styled.div`
@@ -47,21 +52,34 @@ export default function VerifyCodeModal({ isOpen, onDismiss }: { isOpen: boolean
   const [otp, setOtp] = useState<string>('')
   const [verifyOtp] = useVerifyOtpMutation()
   const [sendOtp] = useSendOtpMutation()
+  const [verifySuccess, setVerifySuccess] = useState(true)
+  const [error, setError] = useState(false)
+
+  const sendCodeToEmail = useCallback(() => {
+    sendOtp({ email: '' })
+  }, [sendOtp])
 
   useEffect(() => {
-    setError(false)
-    setOtp('')
-  }, [isOpen])
+    if (!isOpen) {
+      setError(false)
+      setOtp('')
+      setVerifySuccess(false)
+    } else {
+      sendCodeToEmail()
+    }
+  }, [isOpen, sendCodeToEmail])
 
-  const [error, setError] = useState(false)
+  const notify = useNotify()
 
   const verify = () => {
     setError(true)
-    verifyOtp()
-  }
-
-  const resendCode = () => {
-    sendOtp()
+    verifyOtp({ code: otp })
+    setVerifySuccess(true)
+    notify({
+      title: t`Email Verified`,
+      summary: t`Your email have been verified successfully. You can now select notification preference`,
+      type: NotificationType.SUCCESS,
+    })
   }
 
   const onChange = (value: string) => {
@@ -69,44 +87,68 @@ export default function VerifyCodeModal({ isOpen, onDismiss }: { isOpen: boolean
     setOtp(value)
   }
 
+  const header = (
+    <RowBetween>
+      <Text color={theme.text} fontWeight={'500'} fontSize={'20'}>
+        {verifySuccess ? <Trans>Successful Registered</Trans> : <Trans>Verify your email address</Trans>}
+      </Text>
+      <X color={theme.text} cursor="pointer" onClick={onDismiss} />
+    </RowBetween>
+  )
+
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} minHeight={false} maxWidth={450}>
       <Wrapper>
-        <Content>
-          <RowBetween>
-            <Text color={theme.text} fontWeight={'500'} fontSize={'20'}>
-              <Trans>Verify your email address</Trans>
-            </Text>
-            <X color={theme.text} cursor="pointer" onClick={onDismiss} />
-          </RowBetween>
-          <Label>
-            <Trans>
-              We have sent a verification code to{' '}
-              <Text as="span" color={theme.text}>
-                kamiho49@gmail.com
+        {verifySuccess ? (
+          <Content>
+            {header}
+            <WaitListForm
+              style={{ maxWidth: '100%' }}
+              desc={
+                <Text fontSize={14} color={theme.text} lineHeight={'16px'} style={{ lineHeight: '18px' }}>
+                  <Trans>
+                    Thank you for registering your interest in the KyberAI Beta Program. Follow us on our social
+                    channels to get regular updates on KyberAI
+                  </Trans>
+                </Text>
+              }
+            />
+            <ButtonPrimary height={'36px'} onClick={onDismiss}>
+              <Trans>Awesome</Trans>
+            </ButtonPrimary>
+          </Content>
+        ) : (
+          <Content>
+            {header}
+            <Label>
+              <Trans>
+                We have sent a verification code to{' '}
+                <Text as="span" color={theme.text}>
+                  kamiho49@gmail.com
+                </Text>
+                . Please enter the code in the field below:
+              </Trans>
+            </Label>
+
+            <OTPInput
+              containerStyle={{ justifyContent: 'space-between' }}
+              value={otp}
+              onChange={onChange}
+              numInputs={6}
+              renderInput={props => <Input {...props} hasError={error} placeholder="-" />}
+            />
+
+            <Label style={{ width: '100%', textAlign: 'center' }}>
+              Didn&apos;t receive code?{' '}
+              <Text as="span" color={theme.primary} style={{ cursor: 'pointer' }} onClick={sendCodeToEmail}>
+                Resend
               </Text>
-              . Please enter the code in the field below:
-            </Trans>
-          </Label>
-
-          <OTPInput
-            containerStyle={{ justifyContent: 'space-between' }}
-            value={otp}
-            onChange={onChange}
-            numInputs={6}
-            renderInput={props => <Input {...props} hasError={error} placeholder="-" />}
-          />
-
-          <Label style={{ width: '100%', textAlign: 'center' }}>
-            Didn&apos;t receive code?{' '}
-            <Text as="span" color={theme.primary} style={{ cursor: 'pointer' }} onClick={resendCode}>
-              Resend
-            </Text>
-          </Label>
-          <ButtonPrimary height={'36px'} disabled={otp.length < 6} onClick={verify}>
-            <Trans>Verify</Trans>
-          </ButtonPrimary>
-        </Content>
+            </Label>
+            <ButtonPrimary height={'36px'} disabled={otp.length < 6} onClick={verify}>
+              <Trans>Verify</Trans>
+            </ButtonPrimary>
+          </Content>
+        )}
       </Wrapper>
     </Modal>
   )

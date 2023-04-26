@@ -1,10 +1,7 @@
-import KyberOauth2 from '@kybernetwork/oauth2'
 import { Trans } from '@lingui/macro'
 import { motion, useScroll, useSpring, useTransform } from 'framer-motion'
 import { ReactNode } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
-import { useGetOrCreateProfileQuery } from 'services/identity'
 import styled, { css } from 'styled-components'
 
 import apeImage from 'assets/images/truesight-v2/landing-page/ape-image.png'
@@ -32,16 +29,12 @@ import tokenPriceLightImage from 'assets/images/truesight-v2/landing-page/token-
 import tokenPriceImage from 'assets/images/truesight-v2/landing-page/token-price.png'
 import videoPlaceholderImage from 'assets/images/truesight-v2/landing-page/video-placeholder.png'
 import sprite from 'assets/svg/kyberAILandingPageSprite.svg'
-import { ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import GlobalIcon from 'components/Icons/Icon'
 import LocalLoader from 'components/LocalLoader'
 import Row from 'components/Row'
-import { APP_PATHS } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import RegisterWhitelist from 'pages/TrueSightV2/pages/RegisterWhitelist'
-import { useWalletModalToggle } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 
 const Icon = ({
@@ -138,7 +131,6 @@ const Part7 = styled(PartWithMotion)`
 const Part8 = styled(PartWithMotion)`
   height: 450px;
 `
-const ConnectWalletButton = styled(ButtonPrimary)``
 
 const ColumnWithMotion = styled(motion.div)`
   ${Column}
@@ -226,38 +218,9 @@ const CallToActionBox = styled.div`
 `
 export default function KyberAILandingPage() {
   const theme = useTheme()
-  const [{ isLogin, userInfo, anonymousUserInfo, processing, profile }] = useSessionInfo()
-  const { account } = useActiveWeb3React()
-  const navigate = useNavigate()
-  const toggleWalletModal = useWalletModalToggle()
-  console.log({
-    isLogin,
-    userInfo,
-    anonymousUserInfo,
-    processing,
-  })
+  const [{ processing }] = useSessionInfo()
 
   if (processing) return <LocalLoader />
-
-  const renderButton = (showForm = true) => {
-    const isWhiteList = false
-    const style = { height: '36px', width: '236px' }
-    return !account ? (
-      <ConnectWalletButton style={style} onClick={toggleWalletModal}>
-        <Trans>Connect Wallet</Trans>
-      </ConnectWalletButton>
-    ) : !isLogin ? (
-      <ConnectWalletButton style={style} onClick={() => KyberOauth2.authenticate()}>
-        <Trans>Sign-in to Continue</Trans>
-      </ConnectWalletButton>
-    ) : isWhiteList ? (
-      <ConnectWalletButton style={style} onClick={() => navigate(APP_PATHS.KYBERAI_EXPLORE)}>
-        <Trans>Get Started</Trans>
-      </ConnectWalletButton>
-    ) : (
-      showForm && <RegisterWhitelist />
-    )
-  }
 
   return (
     <Wrapper>
@@ -273,7 +236,7 @@ export default function KyberAILandingPage() {
             <Text fontSize="20px" lineHeight="24px" fontWeight={500}>
               Get alpha before it happens
             </Text>
-            {renderButton()}
+            <RegisterWhitelist />
           </Column>
           <ColumnWithMotion style={{ position: 'relative' }}>
             <FloatingImageWithMotion src={bitcoinImage} alt="bitcoin" left={-120} top={300} parallaxDistance={6} />
@@ -560,7 +523,9 @@ export default function KyberAILandingPage() {
                   Get alpha before it happens
                 </Trans>
               </Text>
-              <Row style={{ flex: 1 }}>{renderButton(false)}</Row>
+              <Row style={{ flex: 1 }}>
+                <RegisterWhitelist showForm={false} />
+              </Row>
             </Row>
           </CallToActionBox>
         </FixedWidth>

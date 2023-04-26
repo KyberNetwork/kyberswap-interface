@@ -16,7 +16,6 @@ const identityApi = createApi({
       query: params => ({
         url: '/v1/referral/participants',
         params,
-        authentication: true, // todo
       }),
       providesTags: [RTK_QUERY_TAGS.GET_PROFILE],
     }),
@@ -24,22 +23,19 @@ const identityApi = createApi({
       query: params => ({
         url: '/v1/referral/participants',
         params,
-        authentication: true, // todo
       }),
       invalidatesTags: [RTK_QUERY_TAGS.GET_PROFILE],
     }),
-    sendOtp: builder.mutation<GetRouteResponse, any>({
+    sendOtp: builder.mutation<GetRouteResponse, { email: string }>({
       query: params => ({
         url: '/v1/referral/participants',
         params,
-        authentication: true, // todo
       }),
     }),
-    verifyOtp: builder.mutation<GetRouteResponse, any>({
+    verifyOtp: builder.mutation<GetRouteResponse, { code: string }>({
       query: params => ({
         url: '/v1/referral/participants',
         params,
-        authentication: true, // todo
       }),
     }),
   }),

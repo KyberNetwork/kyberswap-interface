@@ -1,5 +1,5 @@
 import { t } from '@lingui/macro'
-import { ReactNode, useState } from 'react'
+import { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Share2, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
