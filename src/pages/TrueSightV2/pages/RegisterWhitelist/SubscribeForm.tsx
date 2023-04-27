@@ -11,14 +11,12 @@ import { useActiveWeb3React } from 'hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useRequestWhiteListMutation } from 'pages/TrueSightV2/hooks/useKyberAIDataV2'
-import VerifyCodeModal from 'pages/TrueSightV2/pages/RegisterWhitelist/VerifyCodeModal'
 import { useSessionInfo } from 'state/authen/hooks'
 import { isEmailValid } from 'utils/string'
 
 import { FormWrapper, Input, Label } from './styled'
 
-export default function EmailForm() {
-  const [showVerifyModal, setShowVerifyModal] = useState(false)
+export default function EmailForm({ showVerify }: { showVerify: (email: string, code: string) => void }) {
   const [inputEmail, setInputEmail] = useState('')
   const qs = useParsedQueryString<{ referrer: string }>()
   const [referredByCode, setCode] = useState(qs.referrer || '')
@@ -66,7 +64,7 @@ export default function EmailForm() {
       if (profile?.email) {
         await requestWhiteList({ referredByCode })
       }
-      setShowVerifyModal(true)
+      showVerify(inputEmail || profile?.email || '', referredByCode)
     } catch (error) {
       console.error('isFetching', error)
     }
@@ -107,12 +105,6 @@ export default function EmailForm() {
       <ButtonPrimary width="230px" height="36px" onClick={joinWaitList}>
         <Trans>Join KyberAI Waitlist</Trans>
       </ButtonPrimary>
-
-      <VerifyCodeModal
-        isOpen={showVerifyModal}
-        onDismiss={() => setShowVerifyModal(false)}
-        email={inputEmail || profile?.email || ''}
-      />
     </>
   )
 }

@@ -1,5 +1,6 @@
 import KyberOauth2 from '@kybernetwork/oauth2'
 import { Trans } from '@lingui/macro'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -9,6 +10,7 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import SubscribeForm from 'pages/TrueSightV2/pages/RegisterWhitelist/SubscribeForm'
+import VerifyCodeModal from 'pages/TrueSightV2/pages/RegisterWhitelist/VerifyCodeModal'
 import WaitListForm from 'pages/TrueSightV2/pages/RegisterWhitelist/WaitListForm'
 import { ParticipantStatus } from 'pages/TrueSightV2/types'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -28,6 +30,24 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
   const [{ isLogin }] = useSessionInfo()
 
   const [participantInfo] = useGetParticipantInfo()
+
+  const [showVerifyModal, setShowVerifyModal] = useState(false)
+  const [selectedEmail, setSelectedEmail] = useState('')
+  const [referredByCode, setCode] = useState('')
+  const showVerify = (email: string, referredByCode: string) => {
+    setSelectedEmail(email)
+    setCode(referredByCode)
+    setShowVerifyModal(true)
+  }
+
+  const verifyModal = (
+    <VerifyCodeModal
+      isOpen={showVerifyModal}
+      onDismiss={() => setShowVerifyModal(false)}
+      email={selectedEmail}
+      referredByCode={referredByCode}
+    />
+  )
 
   if (!account)
     return (
@@ -69,17 +89,25 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
     )
   if (participantInfo?.status === ParticipantStatus.WAITLISTED)
     return (
-      <WaitListForm
-        desc={
-          <Text fontSize={12} color={theme.subText} lineHeight={'16px'}>
-            <Trans>
-              Hey! You&apos;re on our waitlist but your slot hasn&apos;t opened up yet. Jump the queue by referring
-              others to KyberAI.
-            </Trans>
-          </Text>
-        }
-      />
+      <>
+        <WaitListForm
+          desc={
+            <Text fontSize={12} color={theme.subText} lineHeight={'16px'}>
+              <Trans>
+                Hey! You&apos;re on our waitlist but your slot hasn&apos;t opened up yet. Jump the queue by referring
+                others to KyberAI.
+              </Trans>
+            </Text>
+          }
+        />
+        {verifyModal}
+      </>
     )
 
-  return <SubscribeForm />
+  return (
+    <>
+      <SubscribeForm showVerify={showVerify} />
+      {verifyModal}
+    </>
+  )
 }

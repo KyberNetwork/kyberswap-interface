@@ -10,6 +10,7 @@ import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import useTheme from 'hooks/useTheme'
+import { useRequestWhiteListMutation } from 'pages/TrueSightV2/hooks/useKyberAIDataV2'
 import OTPInput from 'pages/TrueSightV2/pages/RegisterWhitelist/VerifyCodeModal/OtpInput'
 import { ParticipantStatus } from 'pages/TrueSightV2/types'
 import { useNotify } from 'state/application/hooks'
@@ -53,10 +54,12 @@ export default function VerifyCodeModal({
   isOpen,
   onDismiss,
   email,
+  referredByCode,
 }: {
   isOpen: boolean
   onDismiss: () => void
   email: string
+  referredByCode: string
 }) {
   const theme = useTheme()
   const [otp, setOtp] = useState<string>('')
@@ -65,6 +68,7 @@ export default function VerifyCodeModal({
   const [verifySuccess, setVerifySuccess] = useState(false)
   const [error, setError] = useState(false)
   const [participantInfo, refreshParticipant] = useGetParticipantInfo()
+  const [requestWaitList] = useRequestWhiteListMutation()
   const notify = useNotify()
 
   const showNotiSuccess = useCallback(() => {
@@ -102,7 +106,8 @@ export default function VerifyCodeModal({
   const verify = async () => {
     try {
       if (!email) return
-      await verifyOtp({ code: otp, email }).unwrap()
+      await verifyOtp({ code: otp, email })
+      await requestWaitList({ referredByCode })
       await refreshParticipant()
       showNotiSuccess()
     } catch (error) {
