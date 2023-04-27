@@ -2,7 +2,7 @@ import { datadogRum } from '@datadog/browser-rum'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import * as Sentry from '@sentry/react'
-import ProtectedRoute from 'ProtectedRoute'
+import { ProtectedRouteKyberAI } from 'ProtectedRoute'
 import { Suspense, lazy, useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { AlertTriangle } from 'react-feather'
@@ -325,25 +325,25 @@ export default function App() {
                     <Route
                       path={`${APP_PATHS.KYBERAI_RANKINGS}`}
                       element={
-                        <ProtectedRoute redirectUrl={APP_PATHS.KYBERAI_ABOUT}>
+                        <ProtectedRouteKyberAI redirectUrl={APP_PATHS.KYBERAI_ABOUT}>
                           <KyberAIExplore />
-                        </ProtectedRoute>
+                        </ProtectedRouteKyberAI>
                       }
                     />
                     <Route
                       path={`${APP_PATHS.KYBERAI_EXPLORE}`}
                       element={
-                        <ProtectedRoute redirectUrl={APP_PATHS.KYBERAI_ABOUT}>
+                        <ProtectedRouteKyberAI redirectUrl={APP_PATHS.KYBERAI_ABOUT}>
                           <KyberAIExplore />
-                        </ProtectedRoute>
+                        </ProtectedRouteKyberAI>
                       }
                     />
                     <Route
                       path={`${APP_PATHS.KYBERAI_EXPLORE}/:chain/:address`}
                       element={
-                        <ProtectedRoute redirectUrl={APP_PATHS.KYBERAI_ABOUT}>
+                        <ProtectedRouteKyberAI redirectUrl={APP_PATHS.KYBERAI_ABOUT}>
                           <KyberAIExplore />
-                        </ProtectedRoute>
+                        </ProtectedRouteKyberAI>
                       }
                     />
                     <Route path={`${APP_PATHS.BUY_CRYPTO}`} element={<BuyCrypto />} />

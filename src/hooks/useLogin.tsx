@@ -1,6 +1,6 @@
 import KyberOauth2, { LoginMethod } from '@kybernetwork/oauth2'
 import { useCallback, useEffect, useRef } from 'react'
-import { useConnectWalletToProfileMutation, useGetOrCreateProfileQuery } from 'services/identity'
+import { useConnectWalletToProfileMutation, useGetOrCreateProfileMutation } from 'services/identity'
 
 import { ENV_KEY, OAUTH_CLIENT_ID } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
@@ -24,9 +24,11 @@ const useLogin = () => {
   const { account } = useActiveWeb3React()
   const isConnectedWallet = useIsConnectedWallet()
   const dispatch = useAppDispatch()
+  const [createProfile] = useGetOrCreateProfileMutation()
+  const [connectWalletToProfile] = useConnectWalletToProfileMutation()
 
   const requestingSession = useRef<string>() // which wallet/mode requesting
-  const [{ anonymousUserInfo, isLogin }, saveSession] = useSessionInfo()
+  const [{ anonymousUserInfo }, saveSession] = useSessionInfo()
 
   const setLoading = useCallback(
     (value: boolean) => {
@@ -68,13 +70,20 @@ const useLogin = () => {
           const session = await KyberOauth2.getSession({ method: LoginMethod.ETH, walletAddress })
           saveSession(session)
           setLoading(false)
+          try {
+            const profile = await createProfile().unwrap()
+            await connectWalletToProfile({ walletAddress })
+            if (profile) setProfile(profile)
+          } catch (error) {
+            console.log('createProfile', error)
+          }
         }
       } catch (error) {
         console.log('get session:', error.message)
         signInAnonymous()
       }
     },
-    [saveSession, setLoading, signInAnonymous],
+    [saveSession, setLoading, signInAnonymous, createProfile, setProfile, connectWalletToProfile],
   )
 
   useEffect(() => {
@@ -84,17 +93,5 @@ const useLogin = () => {
       signIn(typeof wallet === 'string' ? wallet : undefined)
     })
   }, [account, signIn, isConnectedWallet])
-
-  const { data: profileInfo } = useGetOrCreateProfileQuery({ referralProgramId: 1 }, { skip: !isLogin })
-  const [connectWalletToProfile] = useConnectWalletToProfileMutation()
-
-  console.log({ profileInfo })
-
-  useEffect(() => {
-    if (profileInfo && account) {
-      // if(profileInfo not contain acc )connectWalletToProfile({account})
-      // else save profile setProfile(profileInfo)
-    }
-  }, [profileInfo, account, connectWalletToProfile, setProfile])
 }
 export default useLogin

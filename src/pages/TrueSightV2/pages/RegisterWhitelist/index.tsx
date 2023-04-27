@@ -8,8 +8,10 @@ import { ButtonPrimary } from 'components/Button'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { useGetParticipantInfoQuery } from 'pages/TrueSightV2/hooks/useKyberAIDataV2'
 import SubscribeForm from 'pages/TrueSightV2/pages/RegisterWhitelist/SubscribeForm'
 import WaitListForm from 'pages/TrueSightV2/pages/RegisterWhitelist/WaitListForm'
+import { ParticipantStatus } from 'pages/TrueSightV2/types'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 
@@ -24,6 +26,8 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const [{ isLogin, profile }] = useSessionInfo()
+
+  const { data: participantInfo } = useGetParticipantInfoQuery(undefined, { skip: !profile })
 
   if (!account)
     return (
@@ -41,10 +45,7 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
 
   if (!showForm) return null
 
-  if (!profile?.email) return <SubscribeForm />
-
-  const start = true
-  if (start)
+  if (participantInfo?.status === ParticipantStatus.WHITELISTED)
     return (
       <>
         <ConnectWalletButton onClick={() => navigate(APP_PATHS.KYBERAI_EXPLORE)}>
@@ -66,17 +67,19 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
         />
       </>
     )
+  if (participantInfo?.status === ParticipantStatus.WAITLISTED)
+    return (
+      <WaitListForm
+        desc={
+          <Text fontSize={12} color={theme.subText} lineHeight={'16px'}>
+            <Trans>
+              Hey! You&apos;re on our waitlist but your slot hasn&apos;t opened up yet. Jump the queue by referring
+              others to KyberAI.
+            </Trans>
+          </Text>
+        }
+      />
+    )
 
-  return (
-    <WaitListForm
-      desc={
-        <Text fontSize={12} color={theme.subText} lineHeight={'16px'}>
-          <Trans>
-            Hey! You&apos;re on our waitlist but your slot hasn&apos;t opened up yet. Jump the queue by referring others
-            to KyberAI.
-          </Trans>
-        </Text>
-      }
-    />
-  )
+  return <SubscribeForm />
 }

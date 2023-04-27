@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { debounce } from 'lodash'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Text } from 'rebass'
 import { useLazyGetConnectedWalletQuery } from 'services/notification'
 
@@ -9,8 +9,9 @@ import Column from 'components/Column'
 import Tooltip from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { useRequestWhiteListMutation } from 'pages/TrueSightV2/hooks/useKyberAIData'
+import { useRequestWhiteListMutation } from 'pages/TrueSightV2/hooks/useKyberAIDataV2'
 import VerifyCodeModal from 'pages/TrueSightV2/pages/RegisterWhitelist/VerifyCodeModal'
+import { useSessionInfo } from 'state/authen/hooks'
 import { isEmailValid } from 'utils/string'
 
 import { FormWrapper, Input, Label } from './styled'
@@ -18,9 +19,10 @@ import { FormWrapper, Input, Label } from './styled'
 export default function EmailForm() {
   const [showVerifyModal, setShowVerifyModal] = useState(false)
   const [inputEmail, setInputEmail] = useState('')
-  const [referCode, setCode] = useState('')
+  const [referredByCode, setCode] = useState('')
   const [errorInput, setErrorInput] = useState<string>('')
   const { account } = useActiveWeb3React()
+  const [{ profile }] = useSessionInfo()
   const [requestWhiteList] = useRequestWhiteListMutation()
 
   const [getConnectedWallet, { isFetching }] = useLazyGetConnectedWalletQuery()
@@ -36,6 +38,10 @@ export default function EmailForm() {
     },
     [account, getConnectedWallet],
   )
+
+  useEffect(() => {
+    profile?.email && setInputEmail(profile?.email)
+  }, [profile?.email])
 
   const validateInput = useCallback((value: string, required = false) => {
     const isValid = isEmailValid(value)
@@ -55,10 +61,10 @@ export default function EmailForm() {
   const joinWaitList = async () => {
     try {
       if (errorInput || !inputEmail || isFetching) return
-      await requestWhiteList({ email: inputEmail, referredByCode: 'string', referralProgramId: 1 })
-      console.log(inputEmail, referCode)
-      if (true) setErrorInput(t`This email address is already registered`)
-      else setShowVerifyModal(true)
+      if (profile?.email) {
+        await requestWhiteList({ referredByCode })
+      }
+      setShowVerifyModal(true)
     } catch (error) {
       console.error('isFetching', error)
     }
@@ -89,7 +95,7 @@ export default function EmailForm() {
           </Label>
           <Input
             $borderColor={theme.border}
-            value={referCode}
+            value={referredByCode}
             placeholder="Enter your Code"
             onChange={e => setCode(e.currentTarget.value)}
           />

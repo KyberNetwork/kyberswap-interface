@@ -6,6 +6,7 @@ import routeApi from 'services/route'
 import { ENV_LEVEL } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
 import kyberAIApi, { coinglassApi } from 'pages/TrueSightV2/hooks/useKyberAIData'
+import kyberAIApiV2 from 'pages/TrueSightV2/hooks/useKyberAIDataV2'
 
 import annoucementApi from '../services/announcement'
 import geckoTerminalApi from '../services/geckoTermial'
@@ -64,6 +65,7 @@ const store = configureStore({
     [annoucementApi.reducerPath]: annoucementApi.reducer,
     [geckoTerminalApi.reducerPath]: geckoTerminalApi.reducer,
     [kyberAIApi.reducerPath]: kyberAIApi.reducer,
+    [kyberAIApiV2.reducerPath]: kyberAIApiV2.reducer,
     [identifyApi.reducerPath]: identifyApi.reducer,
     [coinglassApi.reducerPath]: coinglassApi.reducer,
     [notificationApi.reducerPath]: notificationApi.reducer,
@@ -85,6 +87,7 @@ const store = configureStore({
       .concat(geckoTerminalApi.middleware)
       .concat(annoucementApi.middleware)
       .concat(kyberAIApi.middleware)
+      .concat(kyberAIApiV2.middleware)
       .concat(identifyApi.middleware)
       .concat(coinglassApi.middleware)
       .concat(notificationApi.middleware)

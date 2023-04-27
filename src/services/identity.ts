@@ -2,40 +2,38 @@ import { createApi } from '@reduxjs/toolkit/query/react'
 import baseQueryOauth from 'services/baseQueryOauth'
 
 import { BFF_API } from 'constants/env'
-import { RTK_QUERY_TAGS } from 'constants/index'
-
-import { GetRouteResponse } from './route/types/getRoute'
+import { UserProfile } from 'state/authen/reducer'
 
 const identityApi = createApi({
   reducerPath: 'identityApi',
-  tagTypes: [RTK_QUERY_TAGS.GET_PROFILE],
   baseQuery: baseQueryOauth({ baseUrl: BFF_API }),
   endpoints: builder => ({
-    getOrCreateProfile: builder.query<GetRouteResponse, { referralProgramId: number }>({
-      // todo move to another file
-      query: params => ({
-        url: '/v1/referral/participants',
-        params,
+    getOrCreateProfile: builder.mutation<UserProfile, void>({
+      query: () => ({
+        url: '/v1/profiles',
+        method: 'POST',
       }),
-      providesTags: [RTK_QUERY_TAGS.GET_PROFILE],
+      transformResponse: (data: any) => data?.data?.profile,
     }),
-    connectWalletToProfile: builder.mutation<GetRouteResponse, { referralProgramId: number }>({
-      query: params => ({
-        url: '/v1/referral/participants',
-        params,
-      }),
-      invalidatesTags: [RTK_QUERY_TAGS.GET_PROFILE],
-    }),
-    sendOtp: builder.mutation<GetRouteResponse, { email: string }>({
-      query: params => ({
-        url: '/v1/referral/participants',
-        params,
+    connectWalletToProfile: builder.mutation<any, { walletAddress: string }>({
+      query: body => ({
+        url: '/v1/profiles/connected-wallets',
+        body,
+        method: 'POST',
       }),
     }),
-    verifyOtp: builder.mutation<GetRouteResponse, { code: string }>({
-      query: params => ({
-        url: '/v1/referral/participants',
-        params,
+    sendOtp: builder.mutation<any, { email: string }>({
+      query: body => ({
+        url: '/v1/profiles/mine/link-email',
+        body,
+        method: 'PUT',
+      }),
+    }),
+    verifyOtp: builder.mutation<any, { code: string; email: string }>({
+      query: body => ({
+        url: '/v1/profiles/mine/confirm-email',
+        body,
+        method: 'PUT',
       }),
     }),
   }),
@@ -43,7 +41,7 @@ const identityApi = createApi({
 
 export const {
   useConnectWalletToProfileMutation,
-  useGetOrCreateProfileQuery,
+  useGetOrCreateProfileMutation,
   useSendOtpMutation,
   useVerifyOtpMutation,
 } = identityApi

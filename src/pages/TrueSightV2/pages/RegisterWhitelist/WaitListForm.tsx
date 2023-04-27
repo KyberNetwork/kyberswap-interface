@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { ReactNode, useState } from 'react'
+import { ReactNode } from 'react'
 import { Users } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
@@ -8,10 +8,11 @@ import styled, { CSSProperties } from 'styled-components'
 import Column from 'components/Column'
 import Row, { RowBetween } from 'components/Row'
 import { ShareGroupButtons } from 'components/ShareModal'
-import { useActiveWeb3React } from 'hooks'
+import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import { useGetParticipantInfoQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
+import { useGetParticipantInfoQuery } from 'pages/TrueSightV2/hooks/useKyberAIDataV2'
 import { useSessionInfo } from 'state/authen/hooks'
+import { formattedNum } from 'utils'
 
 import { FormWrapper, Input, InputWithCopy, Label } from './styled'
 
@@ -40,9 +41,10 @@ export default function EmailForm({
   showRanking?: boolean
 }) {
   const [{ profile }] = useSessionInfo()
-  const [referCode] = useState('12332323')
-  const { account } = useActiveWeb3React()
-  const { data } = useGetParticipantInfoQuery({ account: account ?? '' }, { skip: !account })
+  const { data: { rank, referralCode } = { rank: 0, status: '', referralCode: '' } } = useGetParticipantInfoQuery(
+    undefined,
+    { skip: !profile },
+  )
 
   const theme = useTheme()
 
@@ -62,14 +64,18 @@ export default function EmailForm({
           <Label>
             <Trans>Your Referral Link</Trans>
           </Label>
-          <InputWithCopy disabled $borderColor={theme.border} value={referCode} />
+          <InputWithCopy
+            disabled
+            $borderColor={theme.border}
+            value={`${window.location.origin}${APP_PATHS.KYBERAI_ABOUT}?referrer=${referralCode}`}
+          />
         </Column>
 
         <Column gap="6px">
           <Label>
             <Trans>Your Referral Code</Trans>
           </Label>
-          <InputWithCopy disabled $borderColor={theme.border} value={referCode} />
+          <InputWithCopy disabled $borderColor={theme.border} value={referralCode} />
         </Column>
       </RowBetween>
 
@@ -79,7 +85,7 @@ export default function EmailForm({
             <>
               <Flex fontSize={14} color={theme.text} style={{ gap: '6px' }}>
                 <Users size={16} />
-                <Trans>1,200 users are ahead of you!</Trans>
+                <Trans>{formattedNum(rank + '')} users are ahead of you!</Trans>
               </Flex>
               <Text fontSize={12} color={theme.subText}>
                 <Trans>The more you share, the sooner you&apos;ll get access!</Trans>

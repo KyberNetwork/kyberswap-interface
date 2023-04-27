@@ -10,10 +10,13 @@ import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import useTheme from 'hooks/useTheme'
-import OTPInput from 'pages/TrueSightV2/pages/RegisterWhitelist/OtpInput'
+import { useGetParticipantInfoQuery } from 'pages/TrueSightV2/hooks/useKyberAIDataV2'
+import OTPInput from 'pages/TrueSightV2/pages/RegisterWhitelist/VerifyCodeModal/OtpInput'
+import { ParticipantStatus } from 'pages/TrueSightV2/types'
 import { useNotify } from 'state/application/hooks'
+import { useSessionInfo } from 'state/authen/hooks'
 
-import WaitListForm from './WaitListForm'
+import WaitListForm from '../WaitListForm'
 
 const Wrapper = styled.div`
   display: flex;
@@ -52,12 +55,29 @@ export default function VerifyCodeModal({ isOpen, onDismiss }: { isOpen: boolean
   const [otp, setOtp] = useState<string>('')
   const [verifyOtp] = useVerifyOtpMutation()
   const [sendOtp] = useSendOtpMutation()
-  const [verifySuccess, setVerifySuccess] = useState(true)
+  const [verifySuccess, setVerifySuccess] = useState(false)
   const [error, setError] = useState(false)
+  const [{ profile }] = useSessionInfo()
+  const { data: participantInfo } = useGetParticipantInfoQuery()
+  const notify = useNotify()
+
+  const showNotiSuccess = useCallback(() => {
+    setVerifySuccess(true)
+    notify({
+      title: t`Email Verified`,
+      summary: t`Your email have been verified successfully. You can now select notification preference`,
+      type: NotificationType.SUCCESS,
+    })
+  }, [notify])
 
   const sendCodeToEmail = useCallback(() => {
-    sendOtp({ email: '' })
-  }, [sendOtp])
+    profile?.email && sendOtp({ email: profile?.email })
+  }, [sendOtp, profile?.email])
+
+  const checkRegisterStatus = useCallback(() => {
+    if (participantInfo?.status === ParticipantStatus.WAITLISTED) showNotiSuccess()
+    else sendCodeToEmail()
+  }, [participantInfo, sendCodeToEmail, showNotiSuccess])
 
   useEffect(() => {
     if (!isOpen) {
@@ -65,21 +85,23 @@ export default function VerifyCodeModal({ isOpen, onDismiss }: { isOpen: boolean
       setOtp('')
       setVerifySuccess(false)
     } else {
-      sendCodeToEmail()
+      checkRegisterStatus()
     }
-  }, [isOpen, sendCodeToEmail])
+  }, [isOpen, checkRegisterStatus])
 
-  const notify = useNotify()
-
-  const verify = () => {
-    setError(true)
-    verifyOtp({ code: otp })
-    setVerifySuccess(true)
-    notify({
-      title: t`Email Verified`,
-      summary: t`Your email have been verified successfully. You can now select notification preference`,
-      type: NotificationType.SUCCESS,
-    })
+  const verify = async () => {
+    try {
+      if (!profile?.email) return
+      await verifyOtp({ code: otp, email: profile.email })
+      showNotiSuccess()
+    } catch (error) {
+      setError(true)
+      notify({
+        title: t`Error`,
+        summary: t`OTP wrong or expired. Please try again.`,
+        type: NotificationType.ERROR,
+      })
+    }
   }
 
   const onChange = (value: string) => {
