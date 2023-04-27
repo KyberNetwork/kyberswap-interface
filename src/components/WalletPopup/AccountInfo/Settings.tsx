@@ -50,7 +50,7 @@ const customStyleMenu = { padding: '8px 0px' }
 const Settings: React.FC = () => {
   const disconnectWallet = useDisconnectWallet()
   const { chainId, account = '' } = useActiveWeb3React()
-  const [{ isLogin }] = useSessionInfo()
+  const { isLogin } = useSessionInfo()
 
   return (
     <MenuFlyout

@@ -23,7 +23,7 @@ export default function EmailForm({ showVerify }: { showVerify: (email: string, 
   const [referredByCode, setCode] = useState(qs.referrer || '')
   const [errorInput, setErrorInput] = useState<string>('')
   const { account } = useActiveWeb3React()
-  const [{ profile }] = useSessionInfo()
+  const { profile } = useSessionInfo()
   const [requestWaitList] = useRequestWhiteListMutation()
 
   const [getConnectedWallet, { isFetching }] = useLazyGetConnectedWalletQuery()

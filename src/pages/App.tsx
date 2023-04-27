@@ -321,7 +321,14 @@ export default function App() {
                     <Route path={`${APP_PATHS.ABOUT}/kyberswap`} element={<AboutKyberSwap />} />
                     <Route path={`${APP_PATHS.ABOUT}/knc`} element={<AboutKNC />} />
                     <Route path={`${APP_PATHS.REFERRAL}`} element={<CreateReferral />} />
-                    <Route path={`${APP_PATHS.KYBERAI_ABOUT}`} element={<KyberAILandingPage />} />
+                    <Route
+                      path={`${APP_PATHS.KYBERAI_ABOUT}`}
+                      element={
+                        <ProtectedRouteKyberAI waitUtilAuthenEndOnly>
+                          <KyberAILandingPage />
+                        </ProtectedRouteKyberAI>
+                      }
+                    />
                     <Route
                       path={`${APP_PATHS.KYBERAI_RANKINGS}`}
                       element={

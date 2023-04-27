@@ -15,7 +15,7 @@ import WaitListForm from 'pages/TrueSightV2/pages/RegisterWhitelist/WaitListForm
 import { ParticipantStatus } from 'pages/TrueSightV2/types'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
-import { useGetParticipantInfo } from 'state/user/hooks'
+import { useGetParticipantKyberAIInfo } from 'state/user/hooks'
 
 const ConnectWalletButton = styled(ButtonPrimary)`
   height: 36px;
@@ -27,9 +27,9 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
-  const [{ isLogin }] = useSessionInfo()
+  const { isLogin } = useSessionInfo()
 
-  const [participantInfo] = useGetParticipantInfo()
+  const participantInfo = useGetParticipantKyberAIInfo()
 
   const [showVerifyModal, setShowVerifyModal] = useState(false)
   const [selectedEmail, setSelectedEmail] = useState('')

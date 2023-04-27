@@ -11,7 +11,7 @@ import { ShareGroupButtons } from 'components/ShareModal'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { useSessionInfo } from 'state/authen/hooks'
-import { useGetParticipantInfo } from 'state/user/hooks'
+import { useGetParticipantKyberAIInfo } from 'state/user/hooks'
 import { formattedNum } from 'utils'
 
 import { FormWrapper, Input, InputWithCopy, Label } from './styled'
@@ -40,8 +40,8 @@ export default function EmailForm({
   desc: ReactNode
   showRanking?: boolean
 }) {
-  const [{ profile }] = useSessionInfo()
-  const [{ rank, referralCode }] = useGetParticipantInfo()
+  const { profile } = useSessionInfo()
+  const { rank, referralCode } = useGetParticipantKyberAIInfo()
 
   const theme = useTheme()
   const shareLink = `${window.location.origin}${APP_PATHS.KYBERAI_ABOUT}?referrer=${referralCode}`

@@ -1,14 +1,12 @@
 import KyberOauth2, { LoginMethod } from '@kybernetwork/oauth2'
+import { captureException } from '@sentry/react'
 import { useCallback, useEffect, useRef } from 'react'
 import { useConnectWalletToProfileMutation, useGetOrCreateProfileMutation } from 'services/identity'
 
 import { ENV_KEY, OAUTH_CLIENT_ID } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import { useIsConnectedWallet } from 'hooks/useSyncNetworkParamWithStore'
-import { updateProcessingLogin, updateProfile } from 'state/authen/actions'
-import { useSaveUserProfile, useSessionInfo } from 'state/authen/hooks'
-import { UserProfile } from 'state/authen/reducer'
-import { useAppDispatch } from 'state/hooks'
+import { useSaveSession, useSaveUserProfile, useSessionInfo, useSetPendingAuthentication } from 'state/authen/hooks'
 
 KyberOauth2.initialize({
   clientId: OAUTH_CLIENT_ID,
@@ -23,21 +21,16 @@ KyberOauth2.initialize({
 const useLogin = () => {
   const { account } = useActiveWeb3React()
   const isConnectedWallet = useIsConnectedWallet()
-  const dispatch = useAppDispatch()
   const [createProfile] = useGetOrCreateProfileMutation()
   const [connectWalletToProfile] = useConnectWalletToProfileMutation()
 
   const requestingSession = useRef<string>() // which wallet/mode requesting
-  const [{ anonymousUserInfo }, saveSession] = useSessionInfo()
+  const { anonymousUserInfo } = useSessionInfo()
 
-  const setLoading = useCallback(
-    (value: boolean) => {
-      dispatch(updateProcessingLogin(value))
-    },
-    [dispatch],
-  )
+  const setLoading = useSetPendingAuthentication()
 
   const setProfile = useSaveUserProfile()
+  const saveSession = useSaveSession()
 
   const signInAnonymous = useCallback(async () => {
     if (anonymousUserInfo || requestingSession.current === LoginMethod.ANONYMOUS) return
@@ -70,7 +63,9 @@ const useLogin = () => {
             const profile = await createProfile().unwrap()
             if (profile) setProfile(profile)
           } catch (error) {
-            console.log('createProfile', error)
+            const e = new Error('createProfile Error', { cause: error })
+            e.name = 'createProfile Error'
+            captureException(e, { extra: { walletAddress } })
           }
           setLoading(false)
         }

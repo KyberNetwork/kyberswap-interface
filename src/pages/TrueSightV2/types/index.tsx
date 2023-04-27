@@ -171,6 +171,7 @@ export enum KyberAITimeframe {
 export enum ParticipantStatus {
   WHITELISTED = 'WHITELISTED',
   WAITLISTED = 'WAITLISTED',
+  UNKNOWN = 'UNKNOWN',
 }
 
 export type ParticipantInfo = {

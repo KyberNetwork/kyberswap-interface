@@ -16,7 +16,8 @@ import { ParticipantStatus } from 'pages/TrueSightV2/types'
 import { getErrorMessage } from 'pages/TrueSightV2/utils'
 import { useNotify } from 'state/application/hooks'
 import { useSaveUserProfile, useSessionInfo } from 'state/authen/hooks'
-import { useGetParticipantInfo } from 'state/user/hooks'
+import { UserProfile } from 'state/authen/reducer'
+import { useGetParticipantKyberAIInfo } from 'state/user/hooks'
 
 import WaitListForm from '../WaitListForm'
 
@@ -69,10 +70,10 @@ export default function VerifyCodeModal({
   const [sendOtp] = useSendOtpMutation()
   const [verifySuccess, setVerifySuccess] = useState(false)
   const [error, setError] = useState(false)
-  const [participantInfo] = useGetParticipantInfo()
+  const participantInfo = useGetParticipantKyberAIInfo()
   const [requestWaitList] = useRequestWhiteListMutation()
   const notify = useNotify()
-  const [{ profile }] = useSessionInfo()
+  const { profile } = useSessionInfo()
 
   const showNotiSuccess = useCallback(() => {
     setVerifySuccess(true)
@@ -115,7 +116,7 @@ export default function VerifyCodeModal({
       if (!email) return
       await verifyOtp({ code: otp, email }).unwrap()
       await requestWaitList({ referredByCode }).unwrap()
-      setProfile({ ...profile, email })
+      setProfile({ ...profile, email } as UserProfile)
       showNotiSuccess()
     } catch (error) {
       setError(true)

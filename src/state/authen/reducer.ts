@@ -3,13 +3,13 @@ import { createReducer } from '@reduxjs/toolkit'
 
 import { updatePossibleWalletAddress, updateProcessingLogin, updateProfile, updateSession } from './actions'
 
-export type UserProfile = { email: string }
+export type UserProfile = { email: string; identityId: string }
 export interface AuthenState {
   readonly possibleConnectedWalletAddress: null | string | undefined // null is checking
   readonly anonymousUserInfo: { username: string } | undefined
   readonly userInfo: { wallet_address: string } | undefined
   readonly isLogin: boolean
-  readonly processing: boolean
+  readonly pendingAuthentication: boolean
   readonly profile: UserProfile | undefined
 }
 
@@ -18,7 +18,7 @@ const DEFAULT_AUTHEN_STATE: AuthenState = {
   anonymousUserInfo: undefined,
   userInfo: undefined,
   isLogin: false,
-  processing: true,
+  pendingAuthentication: true,
   profile: undefined,
 }
 
@@ -30,12 +30,12 @@ export default createReducer(DEFAULT_AUTHEN_STATE, builder =>
     .addCase(updateSession, (state, { payload: session }) => {
       if (session.loginMethod === LoginMethod.ANONYMOUS) state.anonymousUserInfo = session.userInfo
       else state.userInfo = session.userInfo
-      state.isLogin = !!state.userInfo
     })
     .addCase(updateProcessingLogin, (state, { payload: processing }) => {
-      state.processing = processing
+      state.pendingAuthentication = processing
     })
     .addCase(updateProfile, (state, { payload: profile }) => {
       state.profile = profile
+      state.isLogin = true
     }),
 )

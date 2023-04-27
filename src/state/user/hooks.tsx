@@ -1,5 +1,5 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { TERM_FILES_PATH } from 'constants/index'
@@ -13,7 +13,7 @@ import {
   useStaticFeeFactoryContract,
 } from 'hooks/useContract'
 import { useGetParticipantInfoQuery } from 'pages/TrueSightV2/hooks/useKyberAIDataV2'
-import { ParticipantStatus } from 'pages/TrueSightV2/types'
+import { ParticipantInfo, ParticipantStatus } from 'pages/TrueSightV2/types'
 import { AppDispatch, AppState } from 'state'
 import { useSessionInfo } from 'state/authen/hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
@@ -440,31 +440,25 @@ export const useHolidayMode: () => [boolean, () => void] = () => {
   return [isChristmasTime() ? holidayMode : false, toggle]
 }
 
-export const useIsWhiteListKyberAI = () => {
-  // todo doi wallet
-  const [{ isLogin, processing, profile }] = useSessionInfo()
-  const { data: participantInfo, isFetching } = useGetParticipantInfoQuery(undefined, { skip: !profile })
-  return {
-    loading: isFetching || processing,
-    isWhiteList: isLogin && participantInfo?.status === ParticipantStatus.WHITELISTED,
-  }
+export const useGetParticipantKyberAIInfo = (): ParticipantInfo => {
+  const { profile } = useSessionInfo()
+  const { data: data = { rank: 0, status: ParticipantStatus.UNKNOWN, referralCode: '', id: 0 } } =
+    useGetParticipantInfoQuery(undefined, {
+      skip: !profile,
+    })
+  return data
 }
 
-export const useGetParticipantInfo = (): any => {
-  // todo
-  const { account } = useActiveWeb3React()
-  const [{ profile }] = useSessionInfo()
-  const { data: data = { rank: 0, status: '', referralCode: '' }, refetch } = useGetParticipantInfoQuery(undefined, {
+export const useIsWhiteListKyberAI = () => {
+  const { profile } = useSessionInfo()
+  const { isLogin, pendingAuthentication } = useSessionInfo()
+  const { data: participantInfo, isFetching } = useGetParticipantInfoQuery(undefined, {
     skip: !profile,
   })
-
-  useEffect(() => {
-    try {
-      refetch() // todo call too much
-    } catch (error) {}
-  }, [account, refetch])
-
-  return [data, refetch]
+  return {
+    loading: isFetching || pendingAuthentication,
+    isWhiteList: isLogin && participantInfo?.status === ParticipantStatus.WHITELISTED,
+  }
 }
 
 export const useKyberAIWidget: () => [boolean, () => void] = () => {
@@ -479,7 +473,7 @@ export const useKyberAIWidget: () => [boolean, () => void] = () => {
     dispatch(toggleKyberAIWidget())
   }, [dispatch])
 
-  return [kyberAIWidget && isWhiteList, toggle] // todo check whitelist
+  return [kyberAIWidget && isWhiteList, toggle]
 }
 
 export const usePermitData: (

@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux'
 
 import { useActiveWeb3React } from 'hooks'
 import { AppState } from 'state'
-import { updatePossibleWalletAddress, updateProfile, updateSession } from 'state/authen/actions'
+import { updatePossibleWalletAddress, updateProcessingLogin, updateProfile, updateSession } from 'state/authen/actions'
 import { AuthenState, UserProfile } from 'state/authen/reducer'
 import { useAppDispatch } from 'state/hooks'
 
@@ -22,18 +22,21 @@ export function useConnectedWallet(): [string | null | undefined, (data: string 
   return [wallet, setConnectedWallet]
 }
 
-export function useSessionInfo(): [AuthenState, (data: SessionData) => void] {
-  const dispatch = useAppDispatch()
+export function useSessionInfo(): AuthenState {
   const { account } = useActiveWeb3React()
   const authen = useSelector((state: AppState) => state.authen)
   const isLogin = Boolean(authen.isLogin && account)
-  const saveSession = useCallback(
+  return { ...authen, isLogin }
+}
+
+export const useSaveSession = () => {
+  const dispatch = useAppDispatch()
+  return useCallback(
     (data: SessionData) => {
       dispatch(updateSession(data))
     },
     [dispatch],
   )
-  return [{ ...authen, isLogin }, saveSession]
 }
 
 export const useSaveUserProfile = () => {
@@ -41,6 +44,16 @@ export const useSaveUserProfile = () => {
   return useCallback(
     (value: UserProfile) => {
       dispatch(updateProfile(value))
+    },
+    [dispatch],
+  )
+}
+
+export const useSetPendingAuthentication = () => {
+  const dispatch = useAppDispatch()
+  return useCallback(
+    (value: boolean) => {
+      dispatch(updateProcessingLogin(value))
     },
     [dispatch],
   )

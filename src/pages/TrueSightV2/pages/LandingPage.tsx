@@ -31,11 +31,9 @@ import videoPlaceholderImage from 'assets/images/truesight-v2/landing-page/video
 import sprite from 'assets/svg/kyberAILandingPageSprite.svg'
 import Column from 'components/Column'
 import GlobalIcon from 'components/Icons/Icon'
-import LocalLoader from 'components/LocalLoader'
 import Row from 'components/Row'
 import useTheme from 'hooks/useTheme'
 import RegisterWhitelist from 'pages/TrueSightV2/pages/RegisterWhitelist'
-import { useSessionInfo } from 'state/authen/hooks'
 
 const Icon = ({
   id,
@@ -218,9 +216,6 @@ const CallToActionBox = styled.div`
 `
 export default function KyberAILandingPage() {
   const theme = useTheme()
-  const [{ processing }] = useSessionInfo()
-
-  if (processing) return <LocalLoader />
 
   return (
     <Wrapper>

@@ -8,16 +8,23 @@ type Props = {
   children: JSX.Element
   redirectUrl?: string
 }
+
 const ProtectedRoute = ({ children, redirectUrl = '/' }: Props): JSX.Element => {
-  const [{ isLogin, processing }] = useSessionInfo()
-  if (processing) return <LocalLoader />
-  return !isLogin ? <Navigate to={redirectUrl} replace /> : children
+  const { isLogin, pendingAuthentication } = useSessionInfo()
+  if (pendingAuthentication) return <LocalLoader />
+  return isLogin ? children : <Navigate to={redirectUrl} replace />
 }
 
-export const ProtectedRouteKyberAI = ({ children, redirectUrl = '/' }: Props) => {
+export const ProtectedRouteKyberAI = ({
+  children,
+  redirectUrl = '/',
+  waitUtilAuthenEndOnly,
+}: Props & {
+  waitUtilAuthenEndOnly?: boolean
+}) => {
   const { loading, isWhiteList } = useIsWhiteListKyberAI()
   if (loading) return <LocalLoader />
-  return !isWhiteList ? <Navigate to={redirectUrl} replace /> : children
+  return isWhiteList || waitUtilAuthenEndOnly ? children : <Navigate to={redirectUrl} replace />
 }
 
 export default ProtectedRoute
