@@ -73,15 +73,7 @@ export const useFarmsData = () => {
   const loading = useSelector((state: AppState) => state.farms.loading)
   const error = useSelector((state: AppState) => state.farms.error)
 
-  const data = useMemo(() => {
-    const result: {
-      [key: string]: Farm[]
-    } = {}
-    Object.keys(farmData).forEach(address => (result[address] = farmData[address]))
-    return result
-  }, [farmData])
-
-  return useMemo(() => ({ loading, error, data }), [error, data, loading])
+  return useMemo(() => ({ loading, error, data: farmData }), [error, farmData, loading])
 }
 
 export const useActiveAndUniqueFarmsData = (): { loading: boolean; error: string; data: Farm[] } => {
