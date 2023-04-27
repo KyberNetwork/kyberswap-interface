@@ -23,7 +23,7 @@ export default function EmailForm({ showVerify }: { showVerify: (email: string, 
   const [referredByCode, setCode] = useState(qs.referrer || '')
   const [errorInput, setErrorInput] = useState<string>('')
   const { account } = useActiveWeb3React()
-  const { profile } = useSessionInfo()
+  const { userInfo } = useSessionInfo()
   const [requestWaitList] = useRequestWhiteListMutation()
 
   const [getConnectedWallet, { isFetching }] = useLazyGetConnectedWalletQuery()
@@ -41,8 +41,8 @@ export default function EmailForm({ showVerify }: { showVerify: (email: string, 
   )
 
   useEffect(() => {
-    profile?.email && setInputEmail(profile?.email)
-  }, [profile?.email])
+    userInfo?.email && setInputEmail(userInfo?.email)
+  }, [userInfo?.email])
 
   const validateInput = useCallback((value: string, required = false) => {
     const isValid = isEmailValid(value)
@@ -62,10 +62,10 @@ export default function EmailForm({ showVerify }: { showVerify: (email: string, 
   const joinWaitList = async () => {
     try {
       if (errorInput || !inputEmail || isFetching) return
-      if (profile?.email) {
+      if (userInfo?.email) {
         await requestWaitList({ referredByCode }).unwrap()
       }
-      showVerify(inputEmail || profile?.email || '', referredByCode)
+      showVerify(inputEmail || userInfo?.email || '', referredByCode)
     } catch (error) {
       setErrorInput(getErrorMessage(error))
     }

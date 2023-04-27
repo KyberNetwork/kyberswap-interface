@@ -37,7 +37,6 @@ const useLogin = () => {
     if (anonymousUserInfo || requestingSession.current === LoginMethod.ANONYMOUS) return
     try {
       requestingSession.current = LoginMethod.ANONYMOUS
-      saveSession({ loginMethod: LoginMethod.ETH, userInfo: undefined }) // reset
       const session = await KyberOauth2.loginAnonymous()
       saveSession(session)
     } catch (error) {
@@ -56,8 +55,7 @@ const useLogin = () => {
         }
         if (requestingSession.current !== walletAddress) {
           requestingSession.current = walletAddress
-          const session = await KyberOauth2.getSession({ method: LoginMethod.ETH, walletAddress })
-          saveSession(session)
+          await KyberOauth2.getSession({ method: LoginMethod.ETH, walletAddress })
           try {
             await createProfile().unwrap()
             await connectWalletToProfile({ walletAddress })
@@ -75,12 +73,11 @@ const useLogin = () => {
         signInAnonymous()
       }
     },
-    [saveSession, setLoading, signInAnonymous, createProfile, setProfile, connectWalletToProfile],
+    [setLoading, signInAnonymous, createProfile, setProfile, connectWalletToProfile],
   )
 
   useEffect(() => {
     isConnectedWallet().then(wallet => {
-      console.log('checking', wallet, account)
       if (wallet === null) return // pending
       signIn(typeof wallet === 'string' ? wallet : undefined)
     })

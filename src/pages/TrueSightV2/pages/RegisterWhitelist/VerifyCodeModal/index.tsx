@@ -73,7 +73,7 @@ export default function VerifyCodeModal({
   const participantInfo = useGetParticipantKyberAIInfo()
   const [requestWaitList] = useRequestWhiteListMutation()
   const notify = useNotify()
-  const { profile } = useSessionInfo()
+  const { userInfo } = useSessionInfo()
 
   const showNotiSuccess = useCallback(() => {
     setVerifySuccess(true)
@@ -115,7 +115,7 @@ export default function VerifyCodeModal({
       if (!email) return
       await verifyOtp({ code: otp, email }).unwrap()
       await requestWaitList({ referredByCode }).unwrap()
-      setProfile({ ...profile, email } as UserProfile)
+      setProfile({ ...userInfo, email } as UserProfile)
       showNotiSuccess()
     } catch (error) {
       setError(true)

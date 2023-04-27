@@ -441,19 +441,19 @@ export const useHolidayMode: () => [boolean, () => void] = () => {
 }
 
 export const useGetParticipantKyberAIInfo = (): ParticipantInfo => {
-  const { profile } = useSessionInfo()
+  const { userInfo } = useSessionInfo()
   const { data: data = { rank: 0, status: ParticipantStatus.UNKNOWN, referralCode: '', id: 0 } } =
     useGetParticipantInfoQuery(undefined, {
-      skip: !profile,
+      skip: !userInfo,
     })
   return data
 }
 
 export const useIsWhiteListKyberAI = () => {
-  const { profile } = useSessionInfo()
+  const { userInfo } = useSessionInfo()
   const { isLogin, pendingAuthentication } = useSessionInfo()
   const { data: participantInfo, isFetching } = useGetParticipantInfoQuery(undefined, {
-    skip: !profile,
+    skip: !userInfo,
   })
   return {
     loading: isFetching || pendingAuthentication,

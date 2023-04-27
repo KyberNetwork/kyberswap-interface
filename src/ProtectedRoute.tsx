@@ -27,14 +27,14 @@ export const ProtectedRouteKyberAI = ({
   waitUtilAuthenEndOnly?: boolean
 }) => {
   const { loading, isWhiteList } = useIsWhiteListKyberAI()
-  const { profile } = useSessionInfo()
+  const { userInfo } = useSessionInfo()
   const invalidate = useInvalidateTags(kyberAIApi.reducerPath)
   const loadedPage = useRef(false)
   const canAccessPage = isWhiteList || waitUtilAuthenEndOnly
 
   useEffect(() => {
-    if (profile?.identityId) invalidate(RTK_QUERY_TAGS.GET_PARTICIPANT_INFO_KYBER_AI)
-  }, [profile?.identityId, invalidate])
+    if (userInfo?.identityId) invalidate(RTK_QUERY_TAGS.GET_PARTICIPANT_INFO_KYBER_AI)
+  }, [userInfo?.identityId, invalidate])
 
   if (loading && !loadedPage.current) return <LocalLoader />
   if (!canAccessPage) return <Navigate to={redirectUrl} replace />

@@ -40,7 +40,7 @@ export default function EmailForm({
   desc: ReactNode
   showRanking?: boolean
 }) {
-  const { profile } = useSessionInfo()
+  const { userInfo } = useSessionInfo()
   const { rank, referralCode } = useGetParticipantKyberAIInfo()
 
   const theme = useTheme()
@@ -54,7 +54,7 @@ export default function EmailForm({
         <Label>
           <Trans>Your Email</Trans>
         </Label>
-        <Input $borderColor={theme.border} value={profile?.email} disabled />
+        <Input $borderColor={theme.border} value={userInfo?.email} disabled />
       </Column>
 
       <RowBetween gap="12px">

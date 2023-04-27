@@ -7,10 +7,9 @@ export type UserProfile = { email: string; identityId: string }
 export interface AuthenState {
   readonly possibleConnectedWalletAddress: null | string | undefined // null is checking
   readonly anonymousUserInfo: { username: string } | undefined
-  readonly userInfo: { wallet_address: string } | undefined
+  readonly userInfo: UserProfile | undefined
   readonly isLogin: boolean
   readonly pendingAuthentication: boolean
-  readonly profile: UserProfile | undefined
 }
 
 const DEFAULT_AUTHEN_STATE: AuthenState = {
@@ -19,7 +18,6 @@ const DEFAULT_AUTHEN_STATE: AuthenState = {
   userInfo: undefined,
   isLogin: false,
   pendingAuthentication: true,
-  profile: undefined,
 }
 
 export default createReducer(DEFAULT_AUTHEN_STATE, builder =>
@@ -29,13 +27,12 @@ export default createReducer(DEFAULT_AUTHEN_STATE, builder =>
     })
     .addCase(updateSession, (state, { payload: session }) => {
       if (session.loginMethod === LoginMethod.ANONYMOUS) state.anonymousUserInfo = session.userInfo
-      else state.userInfo = session.userInfo
     })
     .addCase(updateProcessingLogin, (state, { payload: processing }) => {
       state.pendingAuthentication = processing
     })
-    .addCase(updateProfile, (state, { payload: profile }) => {
-      state.profile = profile
+    .addCase(updateProfile, (state, { payload: userInfo }) => {
+      state.userInfo = userInfo
       state.isLogin = true
     }),
 )
