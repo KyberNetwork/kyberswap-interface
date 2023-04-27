@@ -119,6 +119,16 @@ export interface ILiquidCEX {
   price: number
 }
 
+export interface ILiveTrade {
+  amountToken: string
+  price: number
+  timestamp: number
+  trader: string
+  traderType: string
+  txn: string
+  type: string
+}
+
 export interface ISRLevel {
   timestamp: number
   value: number

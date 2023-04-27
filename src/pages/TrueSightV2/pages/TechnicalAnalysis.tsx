@@ -226,7 +226,7 @@ export default function TechnicalAnalysis() {
           title={t`Liquidations on Centralized Exchanges`}
           description={`Liquidations describe the forced closing of a trader's futures position due to the partial or total loss
           of their collateral. This happens when a trader has insufficient funds to keep a leveraged trade
-          open. Leverated trading is high risk & high reward. The higher the leverage, the easier it is for a trader to
+          open. Leveraged trading is high risk & high reward. The higher the leverage, the easier it is for a trader to
           get liquidated. An abrupt change in price of a token can cause large liquidations. Traders may buy / sell the
           token after large liquidations.`}
           style={{ height: '800px' }}

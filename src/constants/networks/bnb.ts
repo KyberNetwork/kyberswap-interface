@@ -56,7 +56,7 @@ const bnbInfo: EVMNetworkInfo = {
       '0xcCAc8DFb75120140A5469282a13E9A60B1751276',
       '0x31De05f28568e3d3D612BFA6A78B356676367470',
     ],
-    fairlaunchV2: ['0x3474b537da4358A08f916b1587dccdD9585376A4'],
+    fairlaunchV2: ['0x8c312c9721c53a2e0bb11b3b0fc1742f6861bd4f', '0x3474b537da4358A08f916b1587dccdD9585376A4'],
   },
   elastic: {
     defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-bsc',

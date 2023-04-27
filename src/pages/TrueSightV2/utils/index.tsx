@@ -1,4 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { commify } from 'ethers/lib/utils'
 import { DefaultTheme } from 'styled-components'
 
 import { NETWORKS_INFO } from 'constants/networks'
@@ -37,17 +38,17 @@ export const formatShortNum = (num: number, fixed = 1): string => {
   return (negative ? '-' : '') + formattedNum
 }
 
-export const formatLocaleStringNum = (num: number): string => {
+export const formatLocaleStringNum = (num: number, fixed?: number): string => {
   if (num === 0) return '--'
   const negative = num < 0
   const absNum = Math.abs(num)
   let formattedNum = ''
   if (absNum > 100000) {
-    formattedNum = (+absNum.toFixed(0)).toLocaleString()
-  } else if (absNum > 1000) {
-    formattedNum = (+absNum.toFixed(2)).toLocaleString()
+    formattedNum = commify(+absNum.toFixed(fixed || 0))
+  } else if (absNum > 100) {
+    formattedNum = commify(+absNum.toFixed(fixed || 2))
   } else {
-    formattedNum = (+absNum.toFixed(5)).toLocaleString()
+    formattedNum = commify(+absNum.toFixed(fixed || 4))
   }
   return (negative ? '-' : '') + formattedNum
 }
@@ -60,4 +61,13 @@ export const NETWORK_IMAGE_URL: { [chain: string]: string } = {
   avalanche: NETWORKS_INFO[ChainId.AVAXMAINNET].icon,
   polygon: NETWORKS_INFO[ChainId.MATIC].icon,
   fantom: NETWORKS_INFO[ChainId.FANTOM].icon,
+}
+export const NETWORK_TO_CHAINID: { [chain: string]: ChainId } = {
+  ethereum: ChainId.MAINNET,
+  bsc: ChainId.BSCMAINNET,
+  arbitrum: ChainId.ARBITRUM,
+  optimism: ChainId.OPTIMISM,
+  avalanche: ChainId.AVAXMAINNET,
+  polygon: ChainId.MATIC,
+  fantom: ChainId.FANTOM,
 }
