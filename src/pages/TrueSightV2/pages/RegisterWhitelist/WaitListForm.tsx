@@ -41,7 +41,7 @@ export default function EmailForm({
   showRanking?: boolean
 }) {
   const [{ profile }] = useSessionInfo()
-  const { rank, referralCode } = useGetParticipantInfo()
+  const [{ rank, referralCode }] = useGetParticipantInfo()
 
   const theme = useTheme()
   const shareLink = `${window.location.origin}${APP_PATHS.KYBERAI_ABOUT}?referrer=${referralCode}`

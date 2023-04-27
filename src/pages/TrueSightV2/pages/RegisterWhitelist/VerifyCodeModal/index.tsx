@@ -64,7 +64,7 @@ export default function VerifyCodeModal({
   const [sendOtp] = useSendOtpMutation()
   const [verifySuccess, setVerifySuccess] = useState(false)
   const [error, setError] = useState(false)
-  const participantInfo = useGetParticipantInfo()
+  const [participantInfo, refreshParticipant] = useGetParticipantInfo()
   const notify = useNotify()
 
   const showNotiSuccess = useCallback(() => {
@@ -82,8 +82,11 @@ export default function VerifyCodeModal({
   const checkRegisterStatus = useCallback(() => {
     if (inited.current) return
     inited.current = true
-    if (participantInfo?.status === ParticipantStatus.WAITLISTED) showNotiSuccess()
-    else sendEmail()
+    if (participantInfo?.status === ParticipantStatus.WAITLISTED) {
+      showNotiSuccess()
+    } else {
+      sendEmail()
+    }
   }, [participantInfo, showNotiSuccess, sendEmail])
 
   useEffect(() => {
@@ -99,7 +102,8 @@ export default function VerifyCodeModal({
   const verify = async () => {
     try {
       if (!email) return
-      await verifyOtp({ code: otp, email })
+      await verifyOtp({ code: otp, email }).unwrap()
+      await refreshParticipant()
       showNotiSuccess()
     } catch (error) {
       setError(true)

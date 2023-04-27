@@ -27,7 +27,7 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
   const toggleWalletModal = useWalletModalToggle()
   const [{ isLogin }] = useSessionInfo()
 
-  const participantInfo = useGetParticipantInfo()
+  const [participantInfo] = useGetParticipantInfo()
 
   if (!account)
     return (

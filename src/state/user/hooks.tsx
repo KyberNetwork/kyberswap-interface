@@ -450,7 +450,8 @@ export const useIsWhiteListKyberAI = () => {
   }
 }
 
-export const useGetParticipantInfo = () => {
+export const useGetParticipantInfo = (): any => {
+  // todo
   const { account } = useActiveWeb3React()
   const [{ profile }] = useSessionInfo()
   const { data: data = { rank: 0, status: '', referralCode: '' }, refetch } = useGetParticipantInfoQuery(undefined, {
@@ -463,7 +464,7 @@ export const useGetParticipantInfo = () => {
     } catch (error) {}
   }, [account, refetch])
 
-  return data
+  return [data, refetch]
 }
 
 export const useKyberAIWidget: () => [boolean, () => void] = () => {
