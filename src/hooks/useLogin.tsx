@@ -4,13 +4,14 @@ import { useCallback, useEffect, useRef } from 'react'
 import { useConnectWalletToProfileMutation, useGetOrCreateProfileMutation } from 'services/identity'
 
 import { ENV_KEY, OAUTH_CLIENT_ID } from 'constants/env'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useIsConnectedWallet } from 'hooks/useSyncNetworkParamWithStore'
 import { useSaveSession, useSaveUserProfile, useSessionInfo, useSetPendingAuthentication } from 'state/authen/hooks'
 
 KyberOauth2.initialize({
   clientId: OAUTH_CLIENT_ID,
-  redirectUri: `${window.location.protocol}//${window.location.host}${'/kyberai'}`, // todo
+  redirectUri: `${window.location.protocol}//${window.location.host}${APP_PATHS.KYBERAI_ABOUT.toLowerCase()}`, // todo: danh limit only kyber AI page for now
   mode: ENV_KEY,
 })
 

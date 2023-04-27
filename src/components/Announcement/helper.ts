@@ -82,15 +82,19 @@ export const useNavigateToUrl = () => {
   )
 }
 
-export const useInvalidateTagAnnouncement = () => {
+export const useInvalidateTags = (reducerPath: string) => {
   const dispatch = useAppDispatch()
   return useCallback(
     (tag: string) => {
       dispatch({
-        type: `${AnnouncementApi.reducerPath}/invalidateTags`,
+        type: `${reducerPath}/invalidateTags`,
         payload: [tag],
       })
     },
-    [dispatch],
+    [dispatch, reducerPath],
   )
+}
+
+export const useInvalidateTagAnnouncement = () => {
+  return useInvalidateTags(AnnouncementApi.reducerPath)
 }

@@ -1,6 +1,7 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useGetParticipantInfoQuery } from 'services/kyberAISubscription'
 
 import { TERM_FILES_PATH } from 'constants/index'
 import { SupportedLocale } from 'constants/locales'
@@ -12,7 +13,6 @@ import {
   useOldStaticFeeFactoryContract,
   useStaticFeeFactoryContract,
 } from 'hooks/useContract'
-import { useGetParticipantInfoQuery } from 'pages/TrueSightV2/hooks/useKyberAIDataV2'
 import { ParticipantInfo, ParticipantStatus } from 'pages/TrueSightV2/types'
 import { AppDispatch, AppState } from 'state'
 import { useSessionInfo } from 'state/authen/hooks'

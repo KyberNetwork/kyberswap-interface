@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { X } from 'react-feather'
 import { Text } from 'rebass'
 import { useSendOtpMutation, useVerifyOtpMutation } from 'services/identity'
+import { useRequestWhiteListMutation } from 'services/kyberAISubscription'
 import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -10,7 +11,6 @@ import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import useTheme from 'hooks/useTheme'
-import { useRequestWhiteListMutation } from 'pages/TrueSightV2/hooks/useKyberAIDataV2'
 import OTPInput from 'pages/TrueSightV2/pages/RegisterWhitelist/VerifyCodeModal/OtpInput'
 import { ParticipantStatus } from 'pages/TrueSightV2/types'
 import { getErrorMessage } from 'pages/TrueSightV2/utils'
@@ -87,7 +87,6 @@ export default function VerifyCodeModal({
   const sendEmail = useCallback(() => email && sendOtp({ email }), [email, sendOtp])
 
   const checkedRegisterStatus = useRef(false) // prevent spam
-  // todo fake page whitelist, isolate this popup
   const checkRegisterStatus = useCallback(() => {
     if (checkedRegisterStatus.current) return
     checkedRegisterStatus.current = true
@@ -110,7 +109,7 @@ export default function VerifyCodeModal({
   }, [isOpen, checkRegisterStatus])
 
   const setProfile = useSaveUserProfile()
-  // todo
+
   const verify = async () => {
     try {
       if (!email) return
