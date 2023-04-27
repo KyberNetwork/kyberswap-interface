@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { X } from 'react-feather'
@@ -16,7 +15,6 @@ import SearchIcon from 'components/Icons/Search'
 import Logo from 'components/Logo'
 import Row, { RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
 import useDebounce from 'hooks/useDebounce'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
@@ -24,7 +22,7 @@ import { MEDIA_WIDTHS } from 'theme'
 
 import { useSearchTokenQuery } from '../hooks/useKyberAIData'
 import { ITokenSearchResult } from '../types'
-import { formatLocaleStringNum } from '../utils'
+import { NETWORK_IMAGE_URL, formatLocaleStringNum } from '../utils'
 
 const Wrapper = styled.div<{ wider?: boolean; expanded?: boolean }>`
   display: flex;
@@ -182,16 +180,6 @@ const AnimationOnFocus = styled.div`
   opacity: 0.2;
   animation: ${ripple} 0.6s linear;
 `
-
-const NETWORK_IMAGE_URL: { [chain: string]: string } = {
-  ethereum: NETWORKS_INFO[ChainId.MAINNET].icon,
-  bsc: NETWORKS_INFO[ChainId.BSCMAINNET].icon,
-  arbitrum: NETWORKS_INFO[ChainId.ARBITRUM].icon,
-  optimism: NETWORKS_INFO[ChainId.OPTIMISM].icon,
-  avalanche: NETWORKS_INFO[ChainId.AVAXMAINNET].icon,
-  polygon: NETWORKS_INFO[ChainId.MATIC].icon,
-  fantom: NETWORKS_INFO[ChainId.FANTOM].icon,
-}
 
 const SkeletonItem = () => {
   const theme = useTheme()

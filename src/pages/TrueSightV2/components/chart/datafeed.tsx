@@ -61,7 +61,7 @@ export const useDatafeed = (isBTC: boolean, token?: ITokenOverview) => {
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone as Timezone,
             exchange: '',
             minmov: 1,
-            pricescale: 10000,
+            pricescale: isBTC ? 100000000 : 10000,
             has_intraday: true,
             has_empty_bars: true,
             has_daily: true,
