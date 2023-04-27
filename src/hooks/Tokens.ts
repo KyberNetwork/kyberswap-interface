@@ -287,11 +287,11 @@ export const findCacheToken = (address: string) => {
   return cacheTokens[address] || cacheTokens[address.toLowerCase()]
 }
 
-export const fetchTokenByAddress = async (address: string, chainId: ChainId) => {
+export const fetchTokenByAddress = async (address: string, chainId: ChainId, signal?: AbortSignal) => {
   if (address === ZERO_ADDRESS) return NativeCurrencies[chainId]
   const findToken = findCacheToken(address)
   if (findToken && findToken.chainId === chainId) return findToken
-  const response = await axios.get(`${KS_SETTING_API}/v1/tokens?query=${address}&chainIds=${chainId}`)
+  const response = await axios.get(`${KS_SETTING_API}/v1/tokens?query=${address}&chainIds=${chainId}`, { signal })
   const token = response?.data?.data?.tokens?.[0]
   return token ? formatAndCacheToken(token) : undefined
 }
