@@ -69,7 +69,6 @@ const useLogin = () => {
           requestingSession.current = walletAddress
           const session = await KyberOauth2.getSession({ method: LoginMethod.ETH, walletAddress })
           saveSession(session)
-          setLoading(false)
           try {
             await createProfile().unwrap()
             await connectWalletToProfile({ walletAddress })
@@ -78,6 +77,7 @@ const useLogin = () => {
           } catch (error) {
             console.log('createProfile', error)
           }
+          setLoading(false)
         }
       } catch (error) {
         console.log('get session:', error.message)
