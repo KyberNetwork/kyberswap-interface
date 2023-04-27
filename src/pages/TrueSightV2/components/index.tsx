@@ -201,6 +201,7 @@ export const SectionWrapper = ({
               <Text
                 as="span"
                 fontSize="14px"
+                lineHeight="16px"
                 color={theme.primary}
                 width="fit-content"
                 style={{ cursor: 'pointer', flexBasis: 'fit-content', whiteSpace: 'nowrap' }}
@@ -239,7 +240,7 @@ export const SectionWrapper = ({
               <MouseoverTooltip text={description}>
                 <Text
                   style={{
-                    fontSize: '14px',
+                    fontSize: '12px',
                     textDecoration: `underline dotted ${theme.subText}`,
                     textUnderlineOffset: '6px',
                   }}

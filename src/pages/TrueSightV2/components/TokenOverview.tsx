@@ -398,8 +398,17 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
             <KyberScoreMeter value={data?.kyberScore?.score} />
           </Row>
           <Row marginBottom="16px" justify="center">
-            <Text fontSize="24px" lineHeight="28px" fontWeight={500} color={theme.primary}>
-              Very Bullish
+            <Text
+              fontSize="24px"
+              lineHeight="28px"
+              fontWeight={500}
+              color={isLoading ? theme.subText : calculateValueToColor(data?.kyberScore?.score || 0, theme)}
+            >
+              {isLoading
+                ? t`Loading`
+                : data?.kyberScore === undefined || data?.kyberScore?.score === 0
+                ? t`Not Available`
+                : data.kyberScore.label}
             </Text>
           </Row>
           <ExpandableBox expanded={expanded} height={ref2?.current?.scrollHeight} ref={ref2}>

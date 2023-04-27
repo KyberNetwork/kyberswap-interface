@@ -1,6 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useRef, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { X } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
@@ -172,7 +173,7 @@ export default function Widget() {
   const navigate = useNavigate()
   return (
     <>
-      <WidgetWrapper onClick={() => setShowExpanded(true)} show={showWidget}>
+      <WidgetWrapper onClick={() => setShowExpanded(true)} show={!isMobile && showWidget}>
         <CloseButton
           onClick={e => {
             e.stopPropagation()

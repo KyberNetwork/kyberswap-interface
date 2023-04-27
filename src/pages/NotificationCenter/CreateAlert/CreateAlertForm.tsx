@@ -2,6 +2,7 @@ import { ChainId, getChainType } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowDown, ArrowUp, Info } from 'react-feather'
+import { useParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { useCreatePriceAlertMutation } from 'services/priceAlert'
 import { CSSProperties } from 'styled-components'
@@ -70,6 +71,12 @@ export default function CreateAlert({
 
   const { currencyIn, currencyOut, onChangeCurrencyIn, onChangeCurrencyOut, inputAmount } =
     useCurrencyHandler(selectedChain)
+  const { chainId: chainIdParams } = useParams()
+  useEffect(() => {
+    if (!!chainIdParams) {
+      setSelectedChain(+chainIdParams)
+    }
+  }, [chainIdParams])
 
   const [formInput, setFormInput] = useState<{ tokenInAmount: string; threshold: string; note: string }>({
     ...defaultInput,

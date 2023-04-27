@@ -112,11 +112,13 @@ const Table = styled.table`
     cursor: pointer;
     transition: background-color 0.1s linear;
     ${({ theme }) => css`
-      background-color: ${theme.background};
+      td {
+        background-color: ${theme.background};
+      }
       color: ${theme.text};
       border-bottom: 1px solid ${theme.border};
 
-      :hover {
+      :hover td {
         background-color: ${theme.buttonGray};
       }
     `};
@@ -140,7 +142,7 @@ const Table = styled.table`
     }
     td:nth-child(2),
     th:nth-child(2) {
-      left: 34px;
+      left: 50px;
     }
   }
 `
@@ -189,6 +191,10 @@ const TabWrapper = styled.div`
       scroll-snap-align: unset;
     }
   }
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    min-width: initial;
+    flex:1;
+  `}
 `
 
 const ButtonTypeActive = styled(ButtonLight)`
@@ -496,7 +502,7 @@ const TokenRow = ({ token, currentTab }: { token: any; currentTab: TokenListTab 
   return (
     <tr key={token.id} ref={rowRef} onClick={handleRowClick} style={{ position: 'relative' }}>
       <td>
-        <RowFit>
+        <RowFit style={{ width: '30px' }}>
           {
             <SimpleTooltip text={!stared ? t`Add to watchlist` : t`Remove from watchlist`}>
               <Star
@@ -686,10 +692,10 @@ export default function TokenAnalysisList() {
           </Text>
         </ButtonGray>
       </Row>
-      <Row gap="16px" justify="center" flexWrap={above768 ? 'nowrap' : 'wrap'}>
+      <Row gap="12px" justify="center" flexWrap={above768 ? 'nowrap' : 'wrap'}>
         <TokenListDraggableTabs tab={currentTab} setTab={handleTabChange} />
       </Row>
-      <RowBetween>
+      <RowBetween flexDirection={above768 ? 'row' : 'column'} gap="16px">
         <Column gap="8px">
           <Text fontSize="12px" color={theme.subText} fontWeight={500}>
             <Trans>
@@ -701,7 +707,7 @@ export default function TokenAnalysisList() {
             <Trans>Disclaimer: The information here should not be treated as any form of financial advice</Trans>
           </Text>
         </Column>
-        <RowFit gap="12px">
+        <RowFit gap="12px" alignSelf={'flex-end'}>
           <ButtonGray
             color={theme.subText}
             gap="4px"
@@ -725,7 +731,7 @@ export default function TokenAnalysisList() {
           <div>
             <Table>
               <colgroup>
-                <col style={{ width: '35px' }} />
+                <col style={{ maxWidth: '40px' }} />
                 <col style={{ width: '250px', minWidth: '200px' }} />
                 <col style={{ width: '200px', minWidth: 'auto' }} />
                 <col style={{ width: '230px', minWidth: 'auto' }} />
