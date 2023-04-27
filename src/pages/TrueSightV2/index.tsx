@@ -1,5 +1,4 @@
 import { Trans, t } from '@lingui/macro'
-import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -66,7 +65,6 @@ const HeaderNavItem = styled.div<{ active?: boolean }>`
 
 export default function TrueSightV2() {
   const theme = useTheme()
-  const [searchValue, setSearchValue] = useState('')
   const location = useLocation()
   const isSingleToken = location?.pathname.includes('Explore')
   const above768 = useMedia('(min-width:768px)')
@@ -93,7 +91,7 @@ export default function TrueSightV2() {
             </HeaderNavItem>
           </RowFit>
           <RowFit gap="16px">
-            <SearchWithDropDown onSearch={setSearchValue} searchValue={searchValue} />
+            <SearchWithDropDown />
             <MouseoverTooltip
               text={t`Subscribe to receive daily email notifications witha curated list of tokens from each category!`}
               placement="right"
