@@ -3,13 +3,13 @@ import html2canvas from 'html2canvas'
 import { QRCodeSVG } from 'qrcode.react'
 import { useEffect, useRef, useState } from 'react'
 import { X } from 'react-feather'
+import { useParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import modalBackground from 'assets/images/truesight-v2/modal_background.png'
 import Icon from 'components/Icons/Icon'
 import AnimatedLoader from 'components/Loader/AnimatedLoader'
-import Logo from 'components/Logo'
 import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import useCopyClipboard from 'hooks/useCopyClipboard'
@@ -18,6 +18,7 @@ import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 
 import { ITokenOverview } from '../types'
+import { NETWORK_IMAGE_URL } from '../utils'
 import KyberSwapShareLogo from './KyberSwapShareLogo'
 import { NumberofTradesChart } from './chart'
 
@@ -83,7 +84,7 @@ const ImageInner = styled.div`
     opacity: 0.25;
     background: url(${modalBackground});
     background-size: cover;
-    z-index: 1;
+    z-index: -1;
   }
 `
 
@@ -108,11 +109,12 @@ export default function ShareKyberAIModal({ token }: { token?: ITokenOverview })
   const ref = useRef<HTMLDivElement>(null)
   const [loading, setLoading] = useState(true)
   const [sharingUrl, setSharingUrl] = useState('')
+  const { chain } = useParams()
   const canvasRef = useRef<string | null>(null)
   const handleGenerateImage = async () => {
     if (isOpen && ref.current && loading && sharingUrl === '') {
       try {
-        const canvasData = await html2canvas(ref.current)
+        const canvasData = await html2canvas(ref.current, { allowTaint: true, useCORS: true })
         const dataUrl = canvasData.toDataURL()
         canvasRef.current = dataUrl
         const formData = new FormData()
@@ -144,7 +146,7 @@ export default function ShareKyberAIModal({ token }: { token?: ITokenOverview })
     }
     setTimeout(() => {
       handleGenerateImage()
-    }, 500)
+    }, 1000)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
 
@@ -186,9 +188,11 @@ export default function ShareKyberAIModal({ token }: { token?: ITokenOverview })
                 <RowFit gap="8px" style={{ paddingLeft: '16px' }}>
                   <div style={{ position: 'relative' }}>
                     <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
-                      <Logo
-                        srcs={['https://cryptologos.cc/logos/wrapped-bitcoin-wbtc-logo.svg?v=024']}
-                        style={{ width: '36px', height: '36px', background: 'white', display: 'block' }}
+                      <img
+                        src={token?.logo}
+                        width="36px"
+                        height="36px"
+                        style={{ background: 'white', display: 'block' }}
                       />
                     </div>
                     <div
@@ -201,11 +205,12 @@ export default function ShareKyberAIModal({ token }: { token?: ITokenOverview })
                       }}
                     >
                       <img
-                        src="https://icons.iconarchive.com/icons/cjdowner/cryptocurrency-flat/512/Ethereum-ETH-icon.png"
+                        src={NETWORK_IMAGE_URL[chain || 'ethereum']}
                         alt="eth"
                         width="16px"
                         height="16px"
                         style={{ display: 'block' }}
+                        crossOrigin="anonymous"
                       />
                     </div>
                   </div>

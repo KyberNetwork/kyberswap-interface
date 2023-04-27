@@ -364,7 +364,6 @@ export const LiveDEXTrades = () => {
     chain: chain || testParams.chain,
     address: address || testParams.address,
   })
-  console.log('🚀 ~ file: index.tsx:377 ~ LiveDEXTrades ~ data:', data)
   const gridTemplateColumns = '1.4fr 1.2fr 2fr 2fr 1.5fr 1fr'
 
   return (
