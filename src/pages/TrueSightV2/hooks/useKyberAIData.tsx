@@ -21,6 +21,7 @@ const kyberAIApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: KYBERAI_API,
   }),
+  tagTypes: ['tokenOverview'],
   endpoints: builder => ({
     //1.
     tokenList: builder.query({
@@ -36,6 +37,7 @@ const kyberAIApi = createApi({
         method: 'POST',
         params,
       }),
+      invalidatesTags: (res, err, params) => [{ type: 'tokenOverview', id: params.tokenAddress }],
     }),
     //3.
     removeFromWatchlist: builder.mutation({
@@ -44,6 +46,7 @@ const kyberAIApi = createApi({
         method: 'DELETE',
         params,
       }),
+      invalidatesTags: (res, err, params) => [{ type: 'tokenOverview', id: params.tokenAddress }],
     }),
 
     //4.
@@ -53,6 +56,7 @@ const kyberAIApi = createApi({
         params: { wallet: account },
       }),
       transformResponse: (res: any) => res.data,
+      providesTags: result => [{ type: 'tokenOverview', id: result?.address }],
     }),
     //5.
     numberOfTrades: builder.query<INumberOfTrades[], string>({
