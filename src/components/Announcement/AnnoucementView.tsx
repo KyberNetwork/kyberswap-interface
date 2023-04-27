@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { useCallback } from 'react'
+import { RefObject, useEffect } from 'react'
 import { Info, X } from 'react-feather'
 import { useMedia } from 'react-use'
 import AutoSizer from 'react-virtualized-auto-sizer'
@@ -130,6 +130,7 @@ type Props = {
   loadMoreAnnouncements: () => void
   toggleNotificationCenter: () => void
   showDetailAnnouncement: (index: number) => void
+  scrollRef: RefObject<HTMLDivElement>
 }
 
 export default function AnnouncementView({
@@ -142,6 +143,7 @@ export default function AnnouncementView({
   isMyInboxTab,
   onSetTab,
   showDetailAnnouncement,
+  scrollRef,
 }: Props) {
   const { account } = useActiveWeb3React()
 
@@ -213,11 +215,12 @@ export default function AnnouncementView({
 
   const showClearAll = account && isMyInboxTab && announcements.length > 0
 
-  const onRefChange = useCallback((node: HTMLDivElement) => {
+  const node = scrollRef?.current
+  useEffect(() => {
     if (!node?.classList.contains('scrollbar')) {
       node?.classList.add('scrollbar')
     }
-  }, [])
+  }, [node])
 
   return (
     <Wrapper>
@@ -247,7 +250,7 @@ export default function AnnouncementView({
               <InfiniteLoader isItemLoaded={isItemLoaded} itemCount={itemCount} loadMoreItems={loadMoreAnnouncements}>
                 {({ onItemsRendered, ref }) => (
                   <FixedSizeList
-                    outerRef={onRefChange}
+                    outerRef={scrollRef}
                     height={height}
                     width={width}
                     itemCount={itemCount}
