@@ -273,7 +273,7 @@ const filterOptions = [
   },
 ] as const
 export const usePositionFilter = (positions: PositionDetails[], validPools: string[]) => {
-  const [activeFilter, setActiveFilter] = useState<(typeof filterOptions)[number]['code']>('all')
+  const [activeFilter, setActiveFilter] = useState<typeof filterOptions[number]['code']>('all')
 
   const tokenList = useMemo(() => {
     if (!positions) return []
