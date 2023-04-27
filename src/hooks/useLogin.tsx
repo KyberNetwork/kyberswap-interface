@@ -6,7 +6,7 @@ import { ENV_KEY, OAUTH_CLIENT_ID } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import { useIsConnectedWallet } from 'hooks/useSyncNetworkParamWithStore'
 import { updateProcessingLogin, updateProfile } from 'state/authen/actions'
-import { useSessionInfo } from 'state/authen/hooks'
+import { useSaveUserProfile, useSessionInfo } from 'state/authen/hooks'
 import { UserProfile } from 'state/authen/reducer'
 import { useAppDispatch } from 'state/hooks'
 
@@ -37,12 +37,7 @@ const useLogin = () => {
     [dispatch],
   )
 
-  const setProfile = useCallback(
-    (value: UserProfile) => {
-      dispatch(updateProfile(value))
-    },
-    [dispatch],
-  )
+  const setProfile = useSaveUserProfile()
 
   const signInAnonymous = useCallback(async () => {
     if (anonymousUserInfo || requestingSession.current === LoginMethod.ANONYMOUS) return

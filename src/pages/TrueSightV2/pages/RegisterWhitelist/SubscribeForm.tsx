@@ -11,6 +11,7 @@ import { useActiveWeb3React } from 'hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useRequestWhiteListMutation } from 'pages/TrueSightV2/hooks/useKyberAIDataV2'
+import { getErrorMessage } from 'pages/TrueSightV2/utils'
 import { useSessionInfo } from 'state/authen/hooks'
 import { isEmailValid } from 'utils/string'
 
@@ -23,7 +24,7 @@ export default function EmailForm({ showVerify }: { showVerify: (email: string, 
   const [errorInput, setErrorInput] = useState<string>('')
   const { account } = useActiveWeb3React()
   const [{ profile }] = useSessionInfo()
-  const [requestWhiteList] = useRequestWhiteListMutation()
+  const [requestWaitList] = useRequestWhiteListMutation()
 
   const [getConnectedWallet, { isFetching }] = useLazyGetConnectedWalletQuery()
   const checkEmailExist = useCallback(
@@ -62,11 +63,11 @@ export default function EmailForm({ showVerify }: { showVerify: (email: string, 
     try {
       if (errorInput || !inputEmail || isFetching) return
       if (profile?.email) {
-        await requestWhiteList({ referredByCode })
+        await requestWaitList({ referredByCode }).unwrap()
       }
       showVerify(inputEmail || profile?.email || '', referredByCode)
     } catch (error) {
-      console.error('isFetching', error)
+      setErrorInput(getErrorMessage(error))
     }
   }
   const theme = useTheme()

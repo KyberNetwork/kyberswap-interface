@@ -13,11 +13,9 @@ import useTheme from 'hooks/useTheme'
 import { useRequestWhiteListMutation } from 'pages/TrueSightV2/hooks/useKyberAIDataV2'
 import OTPInput from 'pages/TrueSightV2/pages/RegisterWhitelist/VerifyCodeModal/OtpInput'
 import { ParticipantStatus } from 'pages/TrueSightV2/types'
+import { getErrorMessage } from 'pages/TrueSightV2/utils'
 import { useNotify } from 'state/application/hooks'
-import { updateProfile } from 'state/authen/actions'
-import { useSessionInfo } from 'state/authen/hooks'
-import { UserProfile } from 'state/authen/reducer'
-import { useAppDispatch } from 'state/hooks'
+import { useSaveUserProfile, useSessionInfo } from 'state/authen/hooks'
 import { useGetParticipantInfo } from 'state/user/hooks'
 
 import WaitListForm from '../WaitListForm'
@@ -71,7 +69,7 @@ export default function VerifyCodeModal({
   const [sendOtp] = useSendOtpMutation()
   const [verifySuccess, setVerifySuccess] = useState(false)
   const [error, setError] = useState(false)
-  const [participantInfo, refreshParticipant] = useGetParticipantInfo()
+  const [participantInfo] = useGetParticipantInfo()
   const [requestWaitList] = useRequestWhiteListMutation()
   const notify = useNotify()
   const [{ profile }] = useSessionInfo()
@@ -87,10 +85,11 @@ export default function VerifyCodeModal({
 
   const sendEmail = useCallback(() => email && sendOtp({ email }), [email, sendOtp])
 
-  const inited = useRef(false)
+  const checkedRegisterStatus = useRef(false) // prevent spam
+  // todo fake page whitelist, isolate this popup
   const checkRegisterStatus = useCallback(() => {
-    if (inited.current) return
-    inited.current = true
+    if (checkedRegisterStatus.current) return
+    checkedRegisterStatus.current = true
     if (participantInfo?.status === ParticipantStatus.WAITLISTED) {
       showNotiSuccess()
     } else {
@@ -103,32 +102,26 @@ export default function VerifyCodeModal({
       setError(false)
       setOtp('')
       setVerifySuccess(false)
+      checkedRegisterStatus.current = false
     } else {
       checkRegisterStatus()
     }
   }, [isOpen, checkRegisterStatus])
 
-  const dispatch = useAppDispatch()
-  const setProfile = useCallback(
-    (value: UserProfile) => {
-      dispatch(updateProfile(value))
-    },
-    [dispatch],
-  )
-
+  const setProfile = useSaveUserProfile()
+  // todo
   const verify = async () => {
     try {
       if (!email) return
-      await verifyOtp({ code: otp, email })
-      await requestWaitList({ referredByCode })
-      setProfile({ ...profile, email }) // todo
-      await refreshParticipant()
+      await verifyOtp({ code: otp, email }).unwrap()
+      await requestWaitList({ referredByCode }).unwrap()
+      setProfile({ ...profile, email })
       showNotiSuccess()
     } catch (error) {
       setError(true)
       notify({
         title: t`Error`,
-        summary: t`OTP wrong or expired. Please try again.`,
+        summary: getErrorMessage(error),
         type: NotificationType.ERROR,
       })
     }
