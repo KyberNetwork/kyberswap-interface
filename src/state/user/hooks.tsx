@@ -458,7 +458,9 @@ export const useGetParticipantInfo = () => {
   })
 
   useEffect(() => {
-    refetch() // todo call too much
+    try {
+      refetch() // todo call too much
+    } catch (error) {}
   }, [account, refetch])
 
   return data
