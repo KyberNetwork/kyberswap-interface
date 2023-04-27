@@ -10,8 +10,8 @@ import Row, { RowBetween } from 'components/Row'
 import { ShareGroupButtons } from 'components/ShareModal'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import { useGetParticipantInfoQuery } from 'pages/TrueSightV2/hooks/useKyberAIDataV2'
 import { useSessionInfo } from 'state/authen/hooks'
+import { useGetParticipantInfo } from 'state/user/hooks'
 import { formattedNum } from 'utils'
 
 import { FormWrapper, Input, InputWithCopy, Label } from './styled'
@@ -41,10 +41,7 @@ export default function EmailForm({
   showRanking?: boolean
 }) {
   const [{ profile }] = useSessionInfo()
-  const { data: { rank, referralCode } = { rank: 0, status: '', referralCode: '' } } = useGetParticipantInfoQuery(
-    undefined,
-    { skip: !profile },
-  )
+  const { rank, referralCode } = useGetParticipantInfo()
 
   const theme = useTheme()
 
@@ -85,7 +82,7 @@ export default function EmailForm({
             <>
               <Flex fontSize={14} color={theme.text} style={{ gap: '6px' }}>
                 <Users size={16} />
-                <Trans>{formattedNum(rank + '')} users are ahead of you!</Trans>
+                <Trans>{formattedNum(rank - 1 + '')} users are ahead of you!</Trans>
               </Flex>
               <Text fontSize={12} color={theme.subText}>
                 <Trans>The more you share, the sooner you&apos;ll get access!</Trans>

@@ -106,7 +106,11 @@ export default function EmailForm() {
         <Trans>Join KyberAI Waitlist</Trans>
       </ButtonPrimary>
 
-      <VerifyCodeModal isOpen={showVerifyModal} onDismiss={() => setShowVerifyModal(false)} />
+      <VerifyCodeModal
+        isOpen={showVerifyModal}
+        onDismiss={() => setShowVerifyModal(false)}
+        email={inputEmail || profile?.email || ''}
+      />
     </>
   )
 }

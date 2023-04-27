@@ -10,11 +10,10 @@ import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import useTheme from 'hooks/useTheme'
-import { useGetParticipantInfoQuery } from 'pages/TrueSightV2/hooks/useKyberAIDataV2'
 import OTPInput from 'pages/TrueSightV2/pages/RegisterWhitelist/VerifyCodeModal/OtpInput'
 import { ParticipantStatus } from 'pages/TrueSightV2/types'
 import { useNotify } from 'state/application/hooks'
-import { useSessionInfo } from 'state/authen/hooks'
+import { useGetParticipantInfo } from 'state/user/hooks'
 
 import WaitListForm from '../WaitListForm'
 
@@ -50,15 +49,22 @@ const Input = styled.input<{ hasError: boolean }>`
   text-align: center;
 `
 
-export default function VerifyCodeModal({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) {
+export default function VerifyCodeModal({
+  isOpen,
+  onDismiss,
+  email,
+}: {
+  isOpen: boolean
+  onDismiss: () => void
+  email: string
+}) {
   const theme = useTheme()
   const [otp, setOtp] = useState<string>('')
   const [verifyOtp] = useVerifyOtpMutation()
   const [sendOtp] = useSendOtpMutation()
   const [verifySuccess, setVerifySuccess] = useState(false)
   const [error, setError] = useState(false)
-  const [{ profile }] = useSessionInfo()
-  const { data: participantInfo } = useGetParticipantInfoQuery()
+  const participantInfo = useGetParticipantInfo()
   const notify = useNotify()
 
   const showNotiSuccess = useCallback(() => {
@@ -71,8 +77,8 @@ export default function VerifyCodeModal({ isOpen, onDismiss }: { isOpen: boolean
   }, [notify])
 
   const sendCodeToEmail = useCallback(() => {
-    profile?.email && sendOtp({ email: profile?.email })
-  }, [sendOtp, profile?.email])
+    email && sendOtp({ email })
+  }, [sendOtp, email])
 
   const checkRegisterStatus = useCallback(() => {
     if (participantInfo?.status === ParticipantStatus.WAITLISTED) showNotiSuccess()
@@ -91,8 +97,8 @@ export default function VerifyCodeModal({ isOpen, onDismiss }: { isOpen: boolean
 
   const verify = async () => {
     try {
-      if (!profile?.email) return
-      await verifyOtp({ code: otp, email: profile.email })
+      if (!email) return
+      await verifyOtp({ code: otp, email })
       showNotiSuccess()
     } catch (error) {
       setError(true)
@@ -146,7 +152,7 @@ export default function VerifyCodeModal({ isOpen, onDismiss }: { isOpen: boolean
               <Trans>
                 We have sent a verification code to{' '}
                 <Text as="span" color={theme.text}>
-                  kamiho49@gmail.com
+                  {email}
                 </Text>
                 . Please enter the code in the field below:
               </Trans>

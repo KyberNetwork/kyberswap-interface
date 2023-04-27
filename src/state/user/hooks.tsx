@@ -1,5 +1,5 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { TERM_FILES_PATH } from 'constants/index'
@@ -441,13 +441,27 @@ export const useHolidayMode: () => [boolean, () => void] = () => {
 }
 
 export const useIsWhiteListKyberAI = () => {
-  // todo doi wallet, f5 o link protected
+  // todo doi wallet
   const [{ isLogin, processing, profile }] = useSessionInfo()
   const { data: participantInfo, isFetching } = useGetParticipantInfoQuery(undefined, { skip: !profile })
   return {
     loading: isFetching || processing,
     isWhiteList: isLogin && participantInfo?.status === ParticipantStatus.WHITELISTED,
   }
+}
+
+export const useGetParticipantInfo = () => {
+  const { account } = useActiveWeb3React()
+  const [{ profile }] = useSessionInfo()
+  const { data: data = { rank: 0, status: '', referralCode: '' }, refetch } = useGetParticipantInfoQuery(undefined, {
+    skip: !profile,
+  })
+
+  useEffect(() => {
+    refetch() // todo call too much
+  }, [account, refetch])
+
+  return data
 }
 
 export const useKyberAIWidget: () => [boolean, () => void] = () => {

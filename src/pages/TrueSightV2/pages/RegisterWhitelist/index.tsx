@@ -8,12 +8,12 @@ import { ButtonPrimary } from 'components/Button'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { useGetParticipantInfoQuery } from 'pages/TrueSightV2/hooks/useKyberAIDataV2'
 import SubscribeForm from 'pages/TrueSightV2/pages/RegisterWhitelist/SubscribeForm'
 import WaitListForm from 'pages/TrueSightV2/pages/RegisterWhitelist/WaitListForm'
 import { ParticipantStatus } from 'pages/TrueSightV2/types'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
+import { useGetParticipantInfo } from 'state/user/hooks'
 
 const ConnectWalletButton = styled(ButtonPrimary)`
   height: 36px;
@@ -25,9 +25,9 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
-  const [{ isLogin, profile }] = useSessionInfo()
+  const [{ isLogin }] = useSessionInfo()
 
-  const { data: participantInfo } = useGetParticipantInfoQuery(undefined, { skip: !profile })
+  const participantInfo = useGetParticipantInfo()
 
   if (!account)
     return (
