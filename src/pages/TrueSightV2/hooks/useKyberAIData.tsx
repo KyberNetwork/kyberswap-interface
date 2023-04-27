@@ -4,6 +4,7 @@ import { KYBERAI_API } from 'constants/env'
 
 import {
   ILiquidCEX,
+  ILiveTrade,
   INetflowToCEX,
   INetflowToWhaleWallets,
   INumberOfHolders,
@@ -162,8 +163,14 @@ const kyberAIApi = createApi({
       },
     }),
     //14.
-    liveDexTrades: builder.query({
-      query: ({ chain, tokenAddress }) => ({ url: `/live-trades/${chain}/${tokenAddress}` }),
+    liveDexTrades: builder.query<ILiveTrade[], { chain: string; address: string }>({
+      query: ({ chain, address }) => ({ url: `/live-trades/${chain}/${address}` }),
+      transformResponse: (res: any) => {
+        if (res.code === 0) {
+          return res.data
+        }
+        throw new Error(res.msg)
+      },
     }),
     //15.
     cexesLiquidation: builder.query<

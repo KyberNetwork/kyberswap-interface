@@ -1,8 +1,10 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
+import dayjs from 'dayjs'
 import { BigNumber } from 'ethers'
 import { commify, formatUnits } from 'ethers/lib/utils'
 import { useContext, useEffect, useMemo, useState } from 'react'
+import { useParams } from 'react-router-dom'
 // import { useNavigate } from 'react-router-dom'
 // import { useMemo } from 'react'
 import { Text } from 'rebass'
@@ -10,7 +12,9 @@ import styled, { DefaultTheme, css } from 'styled-components'
 
 import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
+import CopyHelper from 'components/Copy'
 import Icon from 'components/Icons/Icon'
+import InfoHelper from 'components/InfoHelper'
 import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
 import { useTokenContractForReading } from 'hooks/useContract'
@@ -23,8 +27,9 @@ import {
 } from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { testParams } from 'pages/TrueSightV2/pages/SingleToken'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
-import { IHolderList, KyberAITimeframe } from 'pages/TrueSightV2/types'
-import { shortenAddress } from 'utils'
+import { IHolderList, ILiveTrade, KyberAITimeframe } from 'pages/TrueSightV2/types'
+import { NETWORK_TO_CHAINID, formatLocaleStringNum } from 'pages/TrueSightV2/utils'
+import { getEtherscanLink, shortenAddress } from 'utils'
 
 import { ContentWrapper } from '..'
 import SmallKyberScoreMeter from '../SmallKyberScoreMeter'
@@ -106,6 +111,9 @@ const ActionButton = styled.div<{ color: string }>`
   font-size: 12px;
   line-height: 16px;
   gap: 4px;
+  padding: 6px;
+  border-radius: 50%;
+  background-color: ${({ theme }) => theme.subText + '32'};
   cursor: pointer;
   ${({ theme, color }) => css`
     color: ${color || theme.primary};
@@ -349,9 +357,15 @@ export const FundingRateTable = () => {
 
 export const LiveDEXTrades = () => {
   const theme = useTheme()
-  const { data } = useLiveDexTradesQuery({ chain: testParams.chain, tokenAddress: testParams.address })
+  const [currentPage, setCurrentPage] = useState(1)
+  const { chain, address } = useParams()
+  const { data } = useLiveDexTradesQuery({ chain: chain || testParams.chain, address: address || testParams.address })
+  const { data: tokenOverview } = useTokenDetailQuery({
+    chain: chain || testParams.chain,
+    address: address || testParams.address,
+  })
   console.log('🚀 ~ file: index.tsx:377 ~ LiveDEXTrades ~ data:', data)
-  const gridTemplateColumns = '1.4fr 1fr 1.2fr 2fr 2fr 1.5fr 1fr'
+  const gridTemplateColumns = '1.4fr 1.2fr 2fr 2fr 1.5fr 1fr'
 
   return (
     <TableWrapper>
@@ -359,70 +373,66 @@ export const LiveDEXTrades = () => {
         <TableCell>Date</TableCell>
         <TableCell>Type</TableCell>
         <TableCell>Price ($)</TableCell>
-        <TableCell>Amount In</TableCell>
-        <TableCell>Amount Out</TableCell>
+        <TableCell>Amount</TableCell>
         <TableCell>Trader</TableCell>
         <TableCell>Transaction</TableCell>
       </TableHeader>
-      {[...Array(10)].map((_, i) => (
+      {data?.slice((currentPage - 1) * 10, currentPage * 10 - 1).map((trade: ILiveTrade, i: number) => (
         <TableRow key={i} gridTemplateColumns={gridTemplateColumns}>
           <TableCell>
-            <Text>16/10/2021</Text>
+            <Text>{dayjs(trade.timestamp * 1000).format('DD/MM/YYYY')}</Text>
             <Text fontSize={12} color={theme.subText}>
-              11:25:42 AM
+              {dayjs(trade.timestamp * 1000).format('HH:mm:ss A')}
             </Text>
           </TableCell>
           <TableCell>
-            <Text color={theme.primary}>Buy</Text>
+            <Text color={trade.type === 'buy' ? theme.primary : theme.red} style={{ textTransform: 'capitalize' }}>
+              {trade.type}
+            </Text>
           </TableCell>
-          <TableCell>$0.12345</TableCell>
+          <TableCell>${formatLocaleStringNum(trade.price, 6)}</TableCell>
           <TableCell>
-            <Row>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M15.7605 9.9353C14.6919 14.221 10.3507 16.8292 6.06401 15.7605C1.77905 14.692 -0.829473 10.351 0.239641 6.06559C1.30775 1.77938 5.64897 -0.829093 9.93442 0.239396C14.2209 1.30789 16.8292 5.64934 15.7605 9.9353Z"
-                  fill="#F7931A"
-                />
-              </svg>{' '}
-              <Text color={theme.primary}> + 232,232 BTC</Text>
+            <Row gap="4px">
+              <img src={tokenOverview?.logo} width="16px" height="16px" />
+              <Text color={trade.type === 'buy' ? theme.primary : theme.subText}>
+                {trade.type === 'buy' ? '+' : '-'}
+                {formatLocaleStringNum(+trade.amountToken)} {tokenOverview?.symbol}
+              </Text>
+              {trade.price * +trade.amountToken > 100000 && (
+                <InfoHelper text={t`This transaction is higher than >$100k`} placement="top" />
+              )}
             </Row>
             <Text color={theme.subText} fontSize={12}>
-              $0.16
+              ${formatLocaleStringNum(trade.price * +trade.amountToken)}{' '}
             </Text>
           </TableCell>
           <TableCell>
-            <Row>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <rect width="16" height="16" fill="url(#pattern0)" />
-                <defs>
-                  <pattern id="pattern0" patternContentUnits="objectBoundingBox" width="1" height="1">
-                    <use transform="scale(0.00460829)" />
-                  </pattern>
-                  <image id="image0_538_1271" width="217" height="217" />
-                </defs>
-              </svg>
-              <Text color={theme.subText}>- 1,123,324.23 USDT</Text>
-            </Row>
-            <Text color={theme.subText} fontSize={12}>
-              $0.16
-            </Text>
-          </TableCell>
-          <TableCell>
-            <Text color={theme.primary}>0x9E6A...3651</Text>
+            <Text color={theme.primary}>{shortenAddress(1, trade.trader)}</Text>
           </TableCell>
           <TableCell>
             <Row justify="flex-end" gap="8px">
               <ActionButton color={theme.subText}>
-                <Icon id="copy" size={16} />
+                <CopyHelper toCopy={trade.txn} style={{ marginLeft: 0 }} />
               </ActionButton>
               <ActionButton color={theme.subText}>
-                <Icon id="open-link" size={16} />
+                <a
+                  target="_blank"
+                  rel="noreferrer"
+                  href={getEtherscanLink(NETWORK_TO_CHAINID[chain], trade.txn, 'transaction')}
+                >
+                  <Icon id="open-link" size={16} />
+                </a>
               </ActionButton>
             </Row>
           </TableCell>
         </TableRow>
       ))}
-      <Pagination currentPage={1} pageSize={10} totalCount={100} onPageChange={page => console.log(page)} />
+      <Pagination
+        currentPage={currentPage}
+        pageSize={10}
+        totalCount={data?.length || 10}
+        onPageChange={page => setCurrentPage(page)}
+      />
     </TableWrapper>
   )
 }
