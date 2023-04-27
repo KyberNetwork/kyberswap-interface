@@ -500,11 +500,11 @@ const cacheConfig: {
   client: {},
 }
 
-const cacheCalc: <T extends keyof typeof cacheConfig, U extends (typeof cacheConfig)[T][string]>(
+const cacheCalc: <T extends keyof typeof cacheConfig, U extends typeof cacheConfig[T][string]>(
   type: T,
   value: string,
   fallback: (value: string) => U,
-) => U = <T extends keyof typeof cacheConfig, U extends (typeof cacheConfig)[T][string]>(
+) => U = <T extends keyof typeof cacheConfig, U extends typeof cacheConfig[T][string]>(
   type: T,
   value: string,
   fallback: (value: string) => U,
