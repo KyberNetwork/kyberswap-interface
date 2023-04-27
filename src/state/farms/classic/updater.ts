@@ -3,7 +3,7 @@ import { Contract } from '@ethersproject/contracts'
 import { useEffect, useRef } from 'react'
 import { useSelector } from 'react-redux'
 
-import { OUTSIDE_FAIRLAUNCH_ADDRESSES, ZERO_ADDRESS } from 'constants/index'
+import { ZERO_ADDRESS } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -134,49 +134,6 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
           },
         }
       })
-
-      const outsideFarm = OUTSIDE_FAIRLAUNCH_ADDRESSES[contract.address]
-      if (outsideFarm) {
-        const poolData = await fetch(outsideFarm.subgraphAPI, {
-          method: 'POST',
-          body: JSON.stringify({
-            query: outsideFarm.query,
-          }),
-        }).then(res => res.json())
-        if (cancelled) throw new Error('canceled')
-
-        // Defend data totalSupply from pancake greater than 18 decimals
-        let totalSupply = poolData.data.pair.totalSupply
-
-        const [a, b] = totalSupply.split('.')
-        totalSupply = a + '.' + b.slice(0, 18)
-
-        farms.push({
-          ...poolData.data.pair,
-          amp: 10000,
-          vReserve0: poolData.data.pair.reserve0,
-          vReserve1: poolData.data.pair.reserve1,
-          token0: {
-            ...poolData.data.pair.token0,
-            derivedETH: poolData.data.pair.token0.derivedBNB,
-          },
-
-          token1: {
-            ...poolData.data.pair.token1,
-            derivedETH: poolData.data.pair.token1.derivedBNB,
-          },
-          trackedReserveETH: poolData.data.pair.trackedReserveBNB,
-          totalSupply,
-
-          ...poolInfos[0],
-          rewardTokens,
-          fairLaunchAddress: contract.address,
-          userData: {
-            stakedBalance: stakedBalances[0],
-            rewards: pendingRewards[0],
-          },
-        })
-      }
 
       return farms.filter(farm => !!farm.totalSupply)
     }

@@ -7,7 +7,7 @@ import { useSelector } from 'react-redux'
 
 import FAIRLAUNCH_V2_ABI from 'constants/abis/fairlaunch-v2.json'
 import FAIRLAUNCH_ABI from 'constants/abis/fairlaunch.json'
-import { MAX_ALLOW_APY, OUTSIDE_FAIRLAUNCH_ADDRESSES } from 'constants/index'
+import { MAX_ALLOW_APY } from 'constants/index'
 import { DEFAULT_REWARDS } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { VERSION } from 'constants/v2'
@@ -68,7 +68,7 @@ export const useRewardTokenPrices = (tokens: (Token | undefined | null)[], versi
   )
 }
 
-export const useFarmsData = (isIncludeOutsideFarms = true) => {
+export const useFarmsData = () => {
   const farmData = useSelector((state: AppState) => state.farms.data)
   const loading = useSelector((state: AppState) => state.farms.loading)
   const error = useSelector((state: AppState) => state.farms.error)
@@ -77,18 +77,15 @@ export const useFarmsData = (isIncludeOutsideFarms = true) => {
     const result: {
       [key: string]: Farm[]
     } = {}
-    const outsideFirlaunchAddress = Object.keys(OUTSIDE_FAIRLAUNCH_ADDRESSES).map(address => address.toLowerCase())
-    Object.keys(farmData)
-      .filter(address => isIncludeOutsideFarms || !outsideFirlaunchAddress.includes(address.toLowerCase()))
-      .forEach(address => (result[address] = farmData[address]))
+    Object.keys(farmData).forEach(address => (result[address] = farmData[address]))
     return result
-  }, [farmData, isIncludeOutsideFarms])
+  }, [farmData])
 
   return useMemo(() => ({ loading, error, data }), [error, data, loading])
 }
 
 export const useActiveAndUniqueFarmsData = (): { loading: boolean; error: string; data: Farm[] } => {
-  const farmsData = useFarmsData(false)
+  const farmsData = useFarmsData()
   const blockNumber = useBlockNumber()
 
   return useMemo(() => {

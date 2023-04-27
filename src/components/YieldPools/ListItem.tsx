@@ -23,7 +23,7 @@ import Harvest from 'components/Icons/Harvest'
 import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { DMM_ANALYTICS_URL, MAX_ALLOW_APY, OUTSIDE_FAIRLAUNCH_ADDRESSES } from 'constants/index'
+import { DMM_ANALYTICS_URL, MAX_ALLOW_APY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -82,8 +82,6 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
 
   const poolAddressChecksum = isAddressString(chainId, farm.id)
   const { value: userTokenBalance, decimals: lpTokenDecimals } = useTokenBalance(poolAddressChecksum)
-
-  const outsideFarm = OUTSIDE_FAIRLAUNCH_ADDRESSES[farm.fairLaunchAddress]
 
   const userStakedBalance = farm.userData?.stakedBalance
     ? BigNumber.from(farm.userData?.stakedBalance)
@@ -778,37 +776,24 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
                 )}
               </Flex>
               <Flex justifyContent="space-between" sx={{ gap: '8px' }} alignItems="center" marginTop="20px">
-                <ExternalLink
-                  href={outsideFarm ? outsideFarm.poolInfoLink : `${DMM_ANALYTICS_URL[chainId]}/pool/${farm.id}`}
-                >
+                <ExternalLink href={`${DMM_ANALYTICS_URL[chainId]}/pool/${farm.id}`}>
                   <GetLP>
-                    <Trans>Get pool {outsideFarm ? `(${outsideFarm.name})` : ''} info</Trans> ↗
+                    <Trans>Get pool info</Trans> ↗
                   </GetLP>
                 </ExternalLink>
-                {outsideFarm ? (
-                  <ExternalLink href={outsideFarm.getLPTokenLink}>
-                    <GetLP>
-                      <Trans>
-                        Get {farm.token0?.symbol}-{farm.token1?.symbol} {outsideFarm ? `(${outsideFarm.name})` : ''} LP
-                        ↗
-                      </Trans>
-                    </GetLP>
-                  </ExternalLink>
-                ) : (
-                  <Link
-                    to={`/add/${currencyIdFromAddress(farm.token0?.id, chainId)}/${currencyIdFromAddress(
-                      farm.token1?.id,
-                      chainId,
-                    )}/${farm.id}`}
-                    style={{ textDecoration: 'none' }}
-                  >
-                    <GetLP style={{ textAlign: 'right' }}>
-                      <Trans>
-                        Get {farm.token0?.symbol}-{farm.token1?.symbol} LP ↗
-                      </Trans>
-                    </GetLP>
-                  </Link>
-                )}
+                <Link
+                  to={`/add/${currencyIdFromAddress(farm.token0?.id, chainId)}/${currencyIdFromAddress(
+                    farm.token1?.id,
+                    chainId,
+                  )}/${farm.id}`}
+                  style={{ textDecoration: 'none' }}
+                >
+                  <GetLP style={{ textAlign: 'right' }}>
+                    <Trans>
+                      Get {farm.token0?.symbol}-{farm.token1?.symbol} LP ↗
+                    </Trans>
+                  </GetLP>
+                </Link>
               </Flex>
             </>
           )}
