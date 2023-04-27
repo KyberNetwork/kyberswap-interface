@@ -105,7 +105,7 @@ const TableCell = styled.div`
   gap: 4px;
 `
 
-const ActionButton = styled.div<{ color: string }>`
+const ActionButton = styled.div<{ color: string; hasBg?: boolean }>`
   display: flex;
   align-items: center;
   font-size: 12px;
@@ -113,7 +113,7 @@ const ActionButton = styled.div<{ color: string }>`
   gap: 4px;
   padding: 6px;
   border-radius: 50%;
-  background-color: ${({ theme }) => theme.subText + '32'};
+  background-color: ${({ theme, hasBg }) => (hasBg ? theme.subText + '32' : 'none')};
   cursor: pointer;
   ${({ theme, color }) => css`
     color: ${color || theme.primary};
@@ -411,10 +411,10 @@ export const LiveDEXTrades = () => {
           </TableCell>
           <TableCell>
             <Row justify="flex-end" gap="8px">
-              <ActionButton color={theme.subText}>
+              <ActionButton color={theme.subText} hasBg>
                 <CopyHelper toCopy={trade.txn} style={{ marginLeft: 0 }} />
               </ActionButton>
-              <ActionButton color={theme.subText}>
+              <ActionButton color={theme.subText} hasBg>
                 <a
                   target="_blank"
                   rel="noreferrer"

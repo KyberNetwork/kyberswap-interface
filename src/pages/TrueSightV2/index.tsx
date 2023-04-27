@@ -46,9 +46,6 @@ const HeaderWrapper = styled.div`
     padding: 22px 24px;
     max-width: 1500px;
   }
-  @media only screen and (max-width: 768px) {
-    padding: 16px;
-  }
 `
 
 const HeaderNavItem = styled.div<{ active?: boolean }>`
@@ -61,6 +58,10 @@ const HeaderNavItem = styled.div<{ active?: boolean }>`
   :hover {
     filter: brightness(1.3);
   }
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    font-size: 20px;
+  `}
 `
 
 export default function TrueSightV2() {

@@ -39,6 +39,7 @@ const Wrapper = styled.div`
   width: 100%;
   max-width: 1500px;
   color: ${({ theme }) => theme.subText};
+  gap: '12px';
 `
 
 const ButtonIcon = styled.div`
@@ -51,7 +52,7 @@ const ButtonIcon = styled.div`
 export const HeaderButton = styled(ButtonGray)`
   width: 36px;
   height: 36px;
-  padding: 8px;
+  padding: 0px;
   border-radius: 100%;
   display: flex;
   align-items: center;
@@ -63,6 +64,11 @@ export const HeaderButton = styled(ButtonGray)`
   :hover {
     filter: brightness(0.9);
   }
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    width: 28px;
+    height: 28px;
+  `}
 `
 
 const Tag = styled.div<{ active?: boolean }>`
@@ -219,6 +225,7 @@ const TokenDescription = ({ description }: { description: string }) => {
       {isTextExceeded && !show && (
         <Text
           fontSize="12px"
+          lineHeight="16px"
           color={theme.primary}
           width="fit-content"
           style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
@@ -293,7 +300,12 @@ export default function SingleToken() {
           <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
             <Logo
               srcs={[data?.logo || '']}
-              style={{ width: '36px', height: '36px', background: 'white', display: 'block' }}
+              style={{
+                width: above768 ? '36px' : '28px',
+                height: above768 ? '36px' : '28px',
+                background: 'white',
+                display: 'block',
+              }}
             />
           </div>
           <div
@@ -318,40 +330,44 @@ export default function SingleToken() {
           <DotsLoader />
         ) : (
           <>
-            <Text fontSize={24} color={theme.text} fontWeight={500}>
+            <Text fontSize={above768 ? 24 : 16} color={theme.text} fontWeight={500}>
               {data?.name} ({data?.symbol.toUpperCase()})
             </Text>
           </>
         )}
 
-        <HeaderTag
-          onClick={() =>
-            navigate({
-              pathname: APP_PATHS.KYBERAI_RANKINGS,
-              search: createSearchParams({ listId: TokenListTab.Bullish }).toString(),
-            })
-          }
-        >
-          <Icon id="bullish" size={12} />
-          <Text>Bullish</Text>
-          <CheckIcon>
-            <Icon id="check" size={8} />
-          </CheckIcon>
-        </HeaderTag>
-        <HeaderTag
-          onClick={() =>
-            navigate({
-              pathname: APP_PATHS.KYBERAI_RANKINGS,
-              search: createSearchParams({ listId: TokenListTab.TopInflow }).toString(),
-            })
-          }
-        >
-          <Icon id="download" size={12} />
-          <Text>Top CEX Inflow</Text>
-          <CheckIcon>
-            <Icon id="check" size={8} />
-          </CheckIcon>
-        </HeaderTag>
+        {above768 && (
+          <>
+            <HeaderTag
+              onClick={() =>
+                navigate({
+                  pathname: APP_PATHS.KYBERAI_RANKINGS,
+                  search: createSearchParams({ listId: TokenListTab.Bullish }).toString(),
+                })
+              }
+            >
+              <Icon id="bullish" size={12} />
+              <Text>Bullish</Text>
+              <CheckIcon>
+                <Icon id="check" size={8} />
+              </CheckIcon>
+            </HeaderTag>
+            <HeaderTag
+              onClick={() =>
+                navigate({
+                  pathname: APP_PATHS.KYBERAI_RANKINGS,
+                  search: createSearchParams({ listId: TokenListTab.TopInflow }).toString(),
+                })
+              }
+            >
+              <Icon id="download" size={12} />
+              <Text>Top CEX Inflow</Text>
+              <CheckIcon>
+                <Icon id="check" size={8} />
+              </CheckIcon>
+            </HeaderTag>
+          </>
+        )}
       </>
     )
 
@@ -386,7 +402,7 @@ export default function SingleToken() {
         </RowFit>
         <RowFit gap="12px">
           <SettingButtons />
-          <ButtonPrimary height="36px" width="120px" gap="4px">
+          <ButtonPrimary height={'36px'} width="120px" gap="4px">
             <RowFit gap="4px" style={{ whiteSpace: 'nowrap' }}>
               <Icon id="swap" size={16} />
               Swap {data?.symbol?.toUpperCase()}
@@ -403,13 +419,13 @@ export default function SingleToken() {
         >
           <TokenNameGroup />
         </Row>
-        <RowBetween>
+        <RowBetween marginBottom="12px">
           <RowFit gap="8px">
             <SettingButtons />
           </RowFit>
-          <ButtonPrimary height="36px" width="120px" gap="4px" style={{ whiteSpace: 'nowrap' }}>
+          <ButtonPrimary height="28px" width="fit-content" gap="4px" style={{ whiteSpace: 'nowrap', fontSize: '12px' }}>
             <RowFit gap="4px">
-              <Icon id="swap" size={16} />
+              <Icon id="swap" size={14} />
               Swap {data?.symbol}
             </RowFit>
           </ButtonPrimary>
@@ -437,7 +453,7 @@ export default function SingleToken() {
       </TagWrapper>
       <TokenOverview data={data} isLoading={isLoading} />
 
-      <Row>
+      <Row alignItems="center">
         <Row gap={above768 ? '12px' : '8px'} justify="center">
           {Object.values(DiscoverTokenTab).map((tab: DiscoverTokenTab, index: number) => (
             <>

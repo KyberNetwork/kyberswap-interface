@@ -15,7 +15,6 @@ import {
   ITradingVolume,
   OHLCData,
 } from '../types'
-import { TOKEN_LIST } from './sampleData'
 
 const kyberAIApi = createApi({
   reducerPath: 'kyberAIApi',
@@ -27,9 +26,15 @@ const kyberAIApi = createApi({
     //1.
     tokenList: builder.query({
       query: () => ({
-        url: '/holders/ethereum/C/BTC',
+        url: '/tokens',
+        params: { type: 'BULLISH', chain: 'ethereum', page: 1, pageSize: 10 },
       }),
-      transformResponse: () => TOKEN_LIST,
+      transformResponse: (res: any) => {
+        if (res.code === 0) {
+          return res.data
+        }
+        throw new Error(res.msg)
+      },
     }),
     //2.
     addToWatchlist: builder.mutation({

@@ -85,11 +85,11 @@ const CustomizedLabel = (props: any) => {
   const theme = useTheme()
   const { x, y, value, index, timeframe, dollarSign } = props
   const show = (index + 1) % (LABEL_GAP_BY_TIMEFRAME[timeframe as string] || 1) === 0
-
+  const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   return (
     <>
       {show && (
-        <text x={x} y={y} dy={-10} fontSize={12} fontWeight={500} fill={theme.text} textAnchor="middle">
+        <text x={x} y={y} dy={-10} fontSize={above768 ? 12 : 10} fontWeight={500} fill={theme.text} textAnchor="middle">
           {value !== 0 && `${dollarSign ? '$' : ''}${formatShortNum(value)}`}
         </text>
       )}
@@ -136,6 +136,16 @@ const InfoWrapper = styled.div`
   font-size: 14px;
   line-height: 20px;
   padding-bottom: 16px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    font-size: 10px;
+    line-height: 14px;
+    padding-bottom: 6px;
+    top: 36px;
+    gap: 20px;
+    text-align: center;
+    justify-content: center;
+    width: 100%;
+  `}
 `
 
 const LegendButtonWrapper = styled.div<{ enabled?: boolean }>`
@@ -195,6 +205,12 @@ const TimeFrameWrapper = styled.div`
   border: 2px solid ${({ theme }) => theme.buttonBlack};
   color: ${({ theme }) => (theme.darkMode ? theme.subText : theme.textReverse)};
   cursor: pointer;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    font-size: 10px;
+    justify-content: center;
+    background-color: ${({ theme }) => (theme.darkMode ? theme.background : theme.subText + '80')};
+  `}
 `
 const Element = styled.div<{ active?: boolean; count?: number }>`
   padding: 6px 12px;
@@ -275,6 +291,9 @@ const TooltipWrapper = styled.div`
   :active {
     border: none;
   }
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    font-size: 12px;
+  `}
 `
 
 export const ANIMATION_DELAY = 500
@@ -384,6 +403,7 @@ export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?
   }, [formattedData, timeframe])
 
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const textFontSize = above768 ? '12px' : '10px'
   return (
     <LoadingHandleWrapper isLoading={isLoading} hasData={!!data}>
       <ChartWrapper>
@@ -454,11 +474,15 @@ export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?
             width={500}
             height={400}
             data={formattedData}
-            margin={{
-              top: 80,
-              left: 20,
-              right: 20,
-            }}
+            margin={
+              above768
+                ? {
+                    top: 80,
+                    left: 20,
+                    right: 20,
+                  }
+                : { top: 100, left: 10, right: 10 }
+            }
             stackOffset="sign"
           >
             <CartesianGrid
@@ -475,7 +499,7 @@ export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?
               </linearGradient>
             </defs>
             <XAxis
-              fontSize="12px"
+              fontSize={textFontSize}
               dataKey="timestamp"
               tickLine={false}
               axisLine={false}
@@ -485,7 +509,7 @@ export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?
               }
             />
             <YAxis
-              fontSize="12px"
+              fontSize={textFontSize}
               tickLine={false}
               axisLine={false}
               tick={{ fill: theme.subText, fontWeight: 400 }}
@@ -494,7 +518,7 @@ export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?
             />
             <YAxis
               yAxisId="right"
-              fontSize="12px"
+              fontSize={textFontSize}
               tickLine={false}
               axisLine={false}
               tick={{ fill: theme.subText, fontWeight: 400 }}
@@ -518,13 +542,13 @@ export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?
                           timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm A, MMM DD' : 'MMM DD, YYYY',
                         )}
                     </Text>
-                    <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                    <Text fontSize={textFontSize} lineHeight="16px" color={theme.text}>
                       Total Trades: <span style={{ color: theme.text }}>{formatShortNum(payload.totalTrade, 2)}</span>
                     </Text>
-                    <RowBetween fontSize="12px" lineHeight="16px" color={theme.primary}>
+                    <RowBetween fontSize={textFontSize} lineHeight="16px" color={theme.primary}>
                       <Text>Buys:</Text> <Text>{formatShortNum(payload.buy, 2)}</Text>
                     </RowBetween>
-                    <RowBetween fontSize="12px" lineHeight="16px" color={theme.red}>
+                    <RowBetween fontSize={textFontSize} lineHeight="16px" color={theme.red}>
                       <Text>Sells:</Text> <Text>{formatShortNum(-payload.sell, 2)}</Text>
                     </RowBetween>
                   </TooltipWrapper>
@@ -661,6 +685,7 @@ export const TradingVolumeChart = () => {
   }, [formattedData, timeframe])
 
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const textFontSize = above768 ? '12px' : '10px'
   return (
     <LoadingHandleWrapper isLoading={isLoading} hasData={!!data}>
       <ChartWrapper>
@@ -729,11 +754,19 @@ export const TradingVolumeChart = () => {
             width={500}
             height={400}
             data={formattedData}
-            margin={{
-              top: 80,
-              left: 20,
-              right: 20,
-            }}
+            margin={
+              above768
+                ? {
+                    top: 80,
+                    left: 20,
+                    right: 20,
+                  }
+                : {
+                    top: 100,
+                    left: 10,
+                    right: 10,
+                  }
+            }
             stackOffset="sign"
           >
             <CartesianGrid
@@ -750,7 +783,7 @@ export const TradingVolumeChart = () => {
               </linearGradient>
             </defs>
             <XAxis
-              fontSize="12px"
+              fontSize={textFontSize}
               dataKey="timestamp"
               tickLine={false}
               axisLine={false}
@@ -760,7 +793,7 @@ export const TradingVolumeChart = () => {
               }
             />
             <YAxis
-              fontSize="12px"
+              fontSize={textFontSize}
               tickLine={false}
               axisLine={false}
               tick={{ fill: theme.subText, fontWeight: 400 }}
@@ -769,7 +802,7 @@ export const TradingVolumeChart = () => {
             />
             <YAxis
               yAxisId="right"
-              fontSize="12px"
+              fontSize={textFontSize}
               tickLine={false}
               axisLine={false}
               tick={{ fill: theme.subText, fontWeight: 400 }}
@@ -793,13 +826,13 @@ export const TradingVolumeChart = () => {
                           timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm A, MMM DD' : 'MMM DD, YYYY',
                         )}
                     </Text>
-                    <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                    <Text fontSize={textFontSize} lineHeight="16px" color={theme.text}>
                       Total Volume: <span style={{ color: theme.text }}>${formatShortNum(payload.totalVolume, 2)}</span>
                     </Text>
-                    <RowBetween fontSize="12px" lineHeight="16px" color={theme.primary}>
+                    <RowBetween fontSize={textFontSize} lineHeight="16px" color={theme.primary}>
                       <Text>Buys:</Text> <Text>${formatShortNum(payload.buyVolume, 2)}</Text>
                     </RowBetween>
-                    <RowBetween fontSize="12px" lineHeight="16px" color={theme.red}>
+                    <RowBetween fontSize={textFontSize} lineHeight="16px" color={theme.red}>
                       <Text>Sells:</Text> <Text>${formatShortNum(-payload.sellVolume, 2)}</Text>
                     </RowBetween>
                   </TooltipWrapper>
@@ -962,7 +995,6 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
     return dataTemp
   }, [data, showInflow, showOutflow, showNetflow, from, to, timerange])
 
-  const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const percentage = useMemo(() => {
     const max = Math.max(...formattedData.map(_ => _.netflow as number))
     const min = Math.min(...formattedData.map(_ => _.netflow as number))
@@ -1010,6 +1042,9 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
       }
     }
   }, [tab])
+
+  const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const textFontSize = above768 ? '12px' : '10px'
 
   return (
     <LoadingHandleWrapper isLoading={isLoading} hasData={!!data}>
@@ -1091,7 +1126,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                 height={400}
                 data={formattedData}
                 stackOffset="sign"
-                margin={{ top: 80, left: 20, right: 20 }}
+                margin={above768 ? { top: 80, left: 20, right: 20 } : { top: 100, left: 10, right: 10 }}
               >
                 <CartesianGrid
                   vertical={false}
@@ -1101,7 +1136,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                 />
                 <Customized component={KyberLogo} />
                 <XAxis
-                  fontSize="12px"
+                  fontSize={textFontSize}
                   dataKey="timestamp"
                   tickLine={false}
                   axisLine={false}
@@ -1111,7 +1146,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                   }
                 />
                 <YAxis
-                  fontSize="12px"
+                  fontSize={textFontSize}
                   tickLine={false}
                   axisLine={false}
                   tick={{ fill: theme.subText, fontWeight: 400 }}
@@ -1120,7 +1155,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                 />
                 <YAxis
                   yAxisId="right"
-                  fontSize="12px"
+                  fontSize={textFontSize}
                   tickLine={false}
                   axisLine={false}
                   tick={{ fill: theme.subText, fontWeight: 400 }}
@@ -1141,40 +1176,40 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                         <Text fontSize="10px" lineHeight="12px" color={theme.subText}>
                           {payload.timestamp && dayjs(payload.timestamp).format('MMM DD, YYYY')}
                         </Text>
-                        <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                        <Text fontSize={textFontSize} lineHeight="16px" color={theme.text}>
                           Netflow: <span style={{ color: theme.text }}>${formatShortNum(payload.netflow)}</span>
                         </Text>
                         <Row gap="16px">
                           <Column gap="4px">
-                            <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                            <Text fontSize={textFontSize} lineHeight="16px" color={theme.text}>
                               Wallet
                             </Text>
-                            <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                            <Text fontSize={textFontSize} lineHeight="16px" color={theme.subText}>
                               General Whales
                             </Text>
-                            <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                            <Text fontSize={textFontSize} lineHeight="16px" color={theme.subText}>
                               Token Whales
                             </Text>
                           </Column>
                           <Column gap="4px">
-                            <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                            <Text fontSize={textFontSize} lineHeight="16px" color={theme.text}>
                               Inflow
                             </Text>
-                            <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
+                            <Text fontSize={textFontSize} lineHeight="16px" color={theme.primary}>
                               ${formatShortNum(payload.generalInflow)}
                             </Text>
-                            <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
+                            <Text fontSize={textFontSize} lineHeight="16px" color={theme.primary}>
                               ${formatShortNum(payload.tokenInflow)}
                             </Text>
                           </Column>
                           <Column gap="4px">
-                            <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                            <Text fontSize={textFontSize} lineHeight="16px" color={theme.text}>
                               Outflow
                             </Text>
-                            <Text fontSize="12px" lineHeight="16px" color={theme.red}>
+                            <Text fontSize={textFontSize} lineHeight="16px" color={theme.red}>
                               ${formatShortNum(payload.generalOutflow)}
                             </Text>
-                            <Text fontSize="12px" lineHeight="16px" color={theme.red}>
+                            <Text fontSize={textFontSize} lineHeight="16px" color={theme.red}>
                               ${formatShortNum(payload.tokenOutflow)}
                             </Text>
                           </Column>
@@ -1320,7 +1355,6 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
     return dataTemp
   }, [data, showInflow, showOutflow, showNetflow, from, timerange, to])
   const theme = useTheme()
-  const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const percentage = useMemo(() => {
     const max = Math.max(...formattedData.map(_ => _.totalNetflow as number))
     const min = Math.min(...formattedData.map(_ => _.totalNetflow as number))
@@ -1368,6 +1402,9 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
         totalOutflow: '$' + formatLocaleStringNum(-formattedData.reduce((a, b) => a + b.totalOutflow, 0)),
       }
     }, [formattedData, timeframe])
+
+  const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const textFontSize = above768 ? '12px' : '10px'
   return (
     <LoadingHandleWrapper isLoading={isLoading} hasData={!!data}>
       <ChartWrapper>
@@ -1442,12 +1479,12 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
             height={400}
             data={formattedData}
             stackOffset="sign"
-            margin={{ top: 80, left: 20, right: 20 }}
+            margin={above768 ? { top: 80, left: 20, right: 20 } : { top: 100, left: 10, right: 10 }}
           >
             <CartesianGrid vertical={false} strokeWidth={1} stroke={rgba(theme.border, 0.5)} />
             <Customized component={KyberLogo} />
             <XAxis
-              fontSize="12px"
+              fontSize={textFontSize}
               dataKey="timestamp"
               tickLine={false}
               axisLine={false}
@@ -1457,7 +1494,7 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
               }
             />
             <YAxis
-              fontSize="12px"
+              fontSize={textFontSize}
               tickLine={false}
               axisLine={false}
               tick={{ fill: theme.subText, fontWeight: 400 }}
@@ -1466,7 +1503,7 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
             />
             <YAxis
               yAxisId="right"
-              fontSize="12px"
+              fontSize={textFontSize}
               tickLine={false}
               axisLine={false}
               orientation="right"
@@ -1490,36 +1527,36 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
                           timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm A, MMM DD' : 'MMM DD, YYYY',
                         )}
                     </Text>
-                    <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                    <Text fontSize={textFontSize} lineHeight="16px" color={theme.text}>
                       Netflow: <span style={{ color: theme.text }}>${formatShortNum(payload.totalNetflow)}</span>
                     </Text>
                     <Row gap="16px">
                       <Column gap="4px" style={{ textTransform: 'capitalize' }}>
-                        <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                        <Text fontSize={textFontSize} lineHeight="16px" color={theme.text}>
                           Wallet
                         </Text>
                         {payload.cexes.map((item: INetflowToCEX, index: number) => (
-                          <Text key={index} fontSize="12px" lineHeight="16px" color={theme.text}>
+                          <Text key={index} fontSize={textFontSize} lineHeight="16px" color={theme.text}>
                             {item.cex}
                           </Text>
                         ))}
                       </Column>
                       <Column gap="4px">
-                        <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                        <Text fontSize={textFontSize} lineHeight="16px" color={theme.text}>
                           Inflow
                         </Text>
                         {payload.cexes.map((item: INetflowToCEX, index: number) => (
-                          <Text key={index} fontSize="12px" lineHeight="16px" color={theme.primary}>
+                          <Text key={index} fontSize={textFontSize} lineHeight="16px" color={theme.primary}>
                             ${formatShortNum(item.inflow)}
                           </Text>
                         ))}
                       </Column>
                       <Column gap="4px">
-                        <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                        <Text fontSize={textFontSize} lineHeight="16px" color={theme.text}>
                           Outflow
                         </Text>
                         {payload.cexes.map((item: INetflowToCEX, index: number) => (
-                          <Text key={index} fontSize="12px" lineHeight="16px" color={theme.red}>
+                          <Text key={index} fontSize={textFontSize} lineHeight="16px" color={theme.red}>
                             ${formatShortNum(item.outflow)}
                           </Text>
                         ))}
@@ -1659,6 +1696,9 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
     }
   }, [formattedData, timeframe])
 
+  const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const textFontSize = above768 ? '12px' : '10px'
+
   return (
     <LoadingHandleWrapper isLoading={isLoading} hasData={!!data}>
       <ChartWrapper>
@@ -1693,12 +1733,14 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
             width={500}
             height={400}
             data={formattedData}
-            margin={{
-              top: 80,
-              right: 0,
-              left: 10,
-              bottom: 0,
-            }}
+            margin={
+              above768
+                ? {
+                    top: 80,
+                    left: 10,
+                  }
+                : { top: 100, left: 0 }
+            }
           >
             <defs>
               <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
@@ -1709,7 +1751,7 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
             <CartesianGrid vertical={false} strokeWidth={1} stroke={rgba(theme.border, 0.5)} />
             <Customized component={KyberLogo} />
             <XAxis
-              fontSize="12px"
+              fontSize={textFontSize}
               dataKey="timestamp"
               tickLine={false}
               axisLine={false}
@@ -1717,7 +1759,7 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
               tickFormatter={value => dayjs(value).format('MMM DD')}
             />
             <YAxis
-              fontSize="12px"
+              fontSize={textFontSize}
               tickLine={false}
               axisLine={false}
               tick={{ fill: theme.subText, fontWeight: 400 }}
@@ -1737,7 +1779,7 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
                     <Text fontSize="10px" lineHeight="12px" color={theme.subText}>
                       {payload.timestamp && dayjs(payload.timestamp).format('MMM DD, YYYY')}
                     </Text>
-                    <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                    <Text fontSize={textFontSize} lineHeight="16px" color={theme.text}>
                       {tab === ChartTab.First ? 'Total Transfers' : 'Total Volume'}:{' '}
                       <span style={{ color: theme.text }}>
                         {formatShortNum(tab === ChartTab.First ? payload.numberOfTransfer : payload.volume)}
@@ -1748,7 +1790,7 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
               }}
             />
             <Area
-              type="monotone"
+              type="linear"
               dataKey={tab === ChartTab.First ? 'numberOfTransfer' : 'volume'}
               stroke={theme.primary}
               fill="url(#colorUv)"
@@ -1822,7 +1864,8 @@ export const NumberofHolders = () => {
       totalHolders: formatLocaleStringNum(formattedData.reduce((a, b) => a + b.count, 0)),
     }
   }, [formattedData, timeframe])
-
+  const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const textFontSize = above768 ? '12px' : '10px'
   return (
     <LoadingHandleWrapper isLoading={isLoading} hasData={!!data}>
       <ChartWrapper>
@@ -1857,12 +1900,14 @@ export const NumberofHolders = () => {
             width={500}
             height={400}
             data={formattedData}
-            margin={{
-              top: 80,
-              right: 0,
-              left: 20,
-              bottom: 0,
-            }}
+            margin={
+              above768
+                ? {
+                    top: 80,
+                    left: 20,
+                  }
+                : { top: 100, left: 10 }
+            }
           >
             <defs>
               <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
@@ -1873,7 +1918,7 @@ export const NumberofHolders = () => {
             <CartesianGrid vertical={false} strokeWidth={1} stroke={rgba(theme.border, 0.5)} />
             <Customized component={KyberLogo} />
             <XAxis
-              fontSize="12px"
+              fontSize={textFontSize}
               dataKey="timestamp"
               tickLine={false}
               axisLine={false}
@@ -1881,7 +1926,7 @@ export const NumberofHolders = () => {
               tickFormatter={value => dayjs(value).format('MMM DD')}
             />
             <YAxis
-              fontSize="12px"
+              fontSize={textFontSize}
               tickLine={false}
               axisLine={false}
               tick={{ fill: theme.subText, fontWeight: 400 }}
@@ -1901,7 +1946,7 @@ export const NumberofHolders = () => {
                     <Text fontSize="10px" lineHeight="12px" color={theme.subText}>
                       {payload.timestamp && dayjs(payload.timestamp).format('MMM DD, YYYY')}
                     </Text>
-                    <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                    <Text fontSize={textFontSize} lineHeight="16px" color={theme.text}>
                       Holders: <span style={{ color: theme.text }}>{formatShortNum(payload.count)}</span>
                     </Text>
                   </TooltipWrapper>
@@ -1990,7 +2035,7 @@ export const HoldersChartWrapper = () => {
   return (
     <ChartWrapper>
       <ResponsiveContainer width="100%" height="100%">
-        <PieChart width={100} height={100} margin={{ top: 20, right: 90, bottom: 20, left: 90 }}>
+        <PieChart width={100} height={100} margin={{ top: 0, right: 90, bottom: 20, left: 90 }}>
           <Customized component={KyberLogo} />
           <Tooltip
             cursor={{ fill: 'transparent' }}
