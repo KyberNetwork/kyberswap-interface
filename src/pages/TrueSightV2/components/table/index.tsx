@@ -418,7 +418,7 @@ export const LiveDEXTrades = () => {
                 <a
                   target="_blank"
                   rel="noreferrer"
-                  href={chain && getEtherscanLink(NETWORK_TO_CHAINID[chain], trade.txn, 'transaction')}
+                  href={chain ? getEtherscanLink(NETWORK_TO_CHAINID[chain], trade.txn, 'transaction') : '#'}
                 >
                   <Icon id="open-link" size={16} />
                 </a>
