@@ -8,6 +8,7 @@ import { ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import Tooltip from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
+import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useRequestWhiteListMutation } from 'pages/TrueSightV2/hooks/useKyberAIDataV2'
 import VerifyCodeModal from 'pages/TrueSightV2/pages/RegisterWhitelist/VerifyCodeModal'
@@ -19,7 +20,8 @@ import { FormWrapper, Input, Label } from './styled'
 export default function EmailForm() {
   const [showVerifyModal, setShowVerifyModal] = useState(false)
   const [inputEmail, setInputEmail] = useState('')
-  const [referredByCode, setCode] = useState('')
+  const qs = useParsedQueryString<{ referrer: string }>()
+  const [referredByCode, setCode] = useState(qs.referrer || '')
   const [errorInput, setErrorInput] = useState<string>('')
   const { account } = useActiveWeb3React()
   const [{ profile }] = useSessionInfo()

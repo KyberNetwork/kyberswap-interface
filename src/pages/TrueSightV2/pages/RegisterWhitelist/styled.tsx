@@ -23,6 +23,7 @@ export const Input = styled.input<{ $borderColor: string }>`
   background-color: ${({ theme }) => theme.buttonBlack};
   transition: border 0.5s;
   border: ${({ theme, $borderColor }) => `1px solid ${$borderColor || theme.border}`};
+  text-overflow: ellipsis;
   ::placeholder {
     color: ${({ theme }) => theme.border};
     font-size: 12px;
@@ -38,7 +39,7 @@ export const InputWithCopy = (props: InputProps) => {
   const theme = useTheme()
   return (
     <InputWrapper>
-      <Input {...props} />
+      <Input {...props} style={{ paddingRight: '40px' }} />
       <CopyHelper
         size="18"
         toCopy={props.value}

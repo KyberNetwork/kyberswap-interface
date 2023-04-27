@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { ReactNode } from 'react'
 import { Users } from 'react-feather'
@@ -44,6 +44,7 @@ export default function EmailForm({
   const { rank, referralCode } = useGetParticipantInfo()
 
   const theme = useTheme()
+  const shareLink = `${window.location.origin}${APP_PATHS.KYBERAI_ABOUT}?referrer=${referralCode}`
 
   return (
     <Wrapper style={style}>
@@ -61,11 +62,7 @@ export default function EmailForm({
           <Label>
             <Trans>Your Referral Link</Trans>
           </Label>
-          <InputWithCopy
-            disabled
-            $borderColor={theme.border}
-            value={`${window.location.origin}${APP_PATHS.KYBERAI_ABOUT}?referrer=${referralCode}`}
-          />
+          <InputWithCopy disabled $borderColor={theme.border} value={shareLink} />
         </Column>
 
         <Column gap="6px">
@@ -82,7 +79,7 @@ export default function EmailForm({
             <>
               <Flex fontSize={14} color={theme.text} style={{ gap: '6px' }}>
                 <Users size={16} />
-                <Trans>{formattedNum(rank - 1 + '')} users are ahead of you!</Trans>
+                <Trans>{rank ? formattedNum(rank - 1 + '') : t`Many`} users are ahead of you!</Trans>
               </Flex>
               <Text fontSize={12} color={theme.subText}>
                 <Trans>The more you share, the sooner you&apos;ll get access!</Trans>
@@ -92,7 +89,7 @@ export default function EmailForm({
         </Column>
         <Row gap="12px" width={'fit-content'}>
           <ShareGroupButtons
-            shareUrl=""
+            shareUrl={shareLink}
             showLabel={false}
             size={20}
             renderItem={({ children, color, ...props }) => <Icon {...props}>{children(color ?? '')}</Icon>}
