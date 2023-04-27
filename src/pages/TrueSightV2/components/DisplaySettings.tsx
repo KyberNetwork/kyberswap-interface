@@ -190,7 +190,7 @@ export default function DisplaySettings({ currentTab }: { currentTab: DiscoverTo
         </SettingsWrapper>
       }
       noArrow={true}
-      placement="bottom"
+      placement="bottom-start"
     >
       <HeaderButton onClick={() => setShowSettings(true)}>
         <Sliders size={16} fill="currentcolor" style={{ transform: 'rotate(-90deg)' }} />

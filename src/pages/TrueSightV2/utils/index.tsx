@@ -1,4 +1,7 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { DefaultTheme } from 'styled-components'
+
+import { NETWORKS_INFO } from 'constants/networks'
 
 export const calculateValueToColor = (value: number, theme: DefaultTheme) => {
   if (value === 0) return theme.darkMode ? theme.subText : theme.border
@@ -47,4 +50,14 @@ export const formatLocaleStringNum = (num: number): string => {
     formattedNum = (+absNum.toFixed(5)).toLocaleString()
   }
   return (negative ? '-' : '') + formattedNum
+}
+
+export const NETWORK_IMAGE_URL: { [chain: string]: string } = {
+  ethereum: NETWORKS_INFO[ChainId.MAINNET].icon,
+  bsc: NETWORKS_INFO[ChainId.BSCMAINNET].icon,
+  arbitrum: NETWORKS_INFO[ChainId.ARBITRUM].icon,
+  optimism: NETWORKS_INFO[ChainId.OPTIMISM].icon,
+  avalanche: NETWORKS_INFO[ChainId.AVAXMAINNET].icon,
+  polygon: NETWORKS_INFO[ChainId.MATIC].icon,
+  fantom: NETWORKS_INFO[ChainId.FANTOM].icon,
 }

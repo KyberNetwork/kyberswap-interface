@@ -2,6 +2,8 @@ export interface ITokenOverview {
   tags: string[]
   name: string
   symbol: string
+  decimals: number
+  logo: string
   description: string
   webs: string[]
   communities: { key: string; value: string }[]

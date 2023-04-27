@@ -27,6 +27,7 @@ import { TokenOverview } from '../components/TokenOverview'
 import TutorialModal from '../components/TutorialModal'
 import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation, useTokenDetailQuery } from '../hooks/useKyberAIData'
 import { DiscoverTokenTab, TokenListTab } from '../types'
+import { NETWORK_IMAGE_URL } from '../utils'
 import OnChainAnalysis from './OnChainAnalysis'
 import TechnicalAnalysis from './TechnicalAnalysis'
 
@@ -290,7 +291,10 @@ export default function SingleToken() {
         </HeaderButton>
         <div style={{ position: 'relative' }}>
           <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
-            <Logo srcs={[]} style={{ width: '36px', height: '36px', background: 'white', display: 'block' }} />
+            <Logo
+              srcs={[data?.logo || '']}
+              style={{ width: '36px', height: '36px', background: 'white', display: 'block' }}
+            />
           </div>
           <div
             style={{
@@ -302,7 +306,7 @@ export default function SingleToken() {
             }}
           >
             <img
-              src="https://icons.iconarchive.com/icons/cjdowner/cryptocurrency-flat/512/Ethereum-ETH-icon.png"
+              src={NETWORK_IMAGE_URL[chain || 'ethereum']}
               alt="eth"
               width="16px"
               height="16px"
