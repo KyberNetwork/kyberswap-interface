@@ -14,6 +14,10 @@ import { useRequestWhiteListMutation } from 'pages/TrueSightV2/hooks/useKyberAID
 import OTPInput from 'pages/TrueSightV2/pages/RegisterWhitelist/VerifyCodeModal/OtpInput'
 import { ParticipantStatus } from 'pages/TrueSightV2/types'
 import { useNotify } from 'state/application/hooks'
+import { updateProfile } from 'state/authen/actions'
+import { useSessionInfo } from 'state/authen/hooks'
+import { UserProfile } from 'state/authen/reducer'
+import { useAppDispatch } from 'state/hooks'
 import { useGetParticipantInfo } from 'state/user/hooks'
 
 import WaitListForm from '../WaitListForm'
@@ -70,6 +74,7 @@ export default function VerifyCodeModal({
   const [participantInfo, refreshParticipant] = useGetParticipantInfo()
   const [requestWaitList] = useRequestWhiteListMutation()
   const notify = useNotify()
+  const [{ profile }] = useSessionInfo()
 
   const showNotiSuccess = useCallback(() => {
     setVerifySuccess(true)
@@ -103,11 +108,20 @@ export default function VerifyCodeModal({
     }
   }, [isOpen, checkRegisterStatus])
 
+  const dispatch = useAppDispatch()
+  const setProfile = useCallback(
+    (value: UserProfile) => {
+      dispatch(updateProfile(value))
+    },
+    [dispatch],
+  )
+
   const verify = async () => {
     try {
       if (!email) return
       await verifyOtp({ code: otp, email })
       await requestWaitList({ referredByCode })
+      setProfile({ ...profile, email }) // todo
       await refreshParticipant()
       showNotiSuccess()
     } catch (error) {
