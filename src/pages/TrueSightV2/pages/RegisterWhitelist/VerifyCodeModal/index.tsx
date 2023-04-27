@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { X } from 'react-feather'
 import { Text } from 'rebass'
 import { useSendOtpMutation, useVerifyOtpMutation } from 'services/identity'
@@ -76,14 +76,15 @@ export default function VerifyCodeModal({
     })
   }, [notify])
 
-  const sendCodeToEmail = useCallback(() => {
-    email && sendOtp({ email })
-  }, [sendOtp, email])
+  const sendEmail = useCallback(() => email && sendOtp({ email }), [email, sendOtp])
 
+  const inited = useRef(false)
   const checkRegisterStatus = useCallback(() => {
+    if (inited.current) return
+    inited.current = true
     if (participantInfo?.status === ParticipantStatus.WAITLISTED) showNotiSuccess()
-    else sendCodeToEmail()
-  }, [participantInfo, sendCodeToEmail, showNotiSuccess])
+    else sendEmail()
+  }, [participantInfo, showNotiSuccess, sendEmail])
 
   useEffect(() => {
     if (!isOpen) {
@@ -168,7 +169,7 @@ export default function VerifyCodeModal({
 
             <Label style={{ width: '100%', textAlign: 'center' }}>
               Didn&apos;t receive code?{' '}
-              <Text as="span" color={theme.primary} style={{ cursor: 'pointer' }} onClick={sendCodeToEmail}>
+              <Text as="span" color={theme.primary} style={{ cursor: 'pointer' }} onClick={sendEmail}>
                 Resend
               </Text>
             </Label>
