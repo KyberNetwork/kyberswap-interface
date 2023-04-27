@@ -1,4 +1,5 @@
-import { Trans, t } from '@lingui/macro'
+import { ChainId } from '@kyberswap/ks-sdk-core'
+import { Trans } from '@lingui/macro'
 import { Clock } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -6,7 +7,7 @@ import styled, { css } from 'styled-components'
 
 import { CheckCircle } from 'components/Icons'
 import Loader from 'components/Loader'
-import { MouseoverTooltip } from 'components/Tooltip'
+import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import { ExternalLinkIcon, MEDIA_WIDTHS } from 'theme'
 
@@ -42,53 +43,90 @@ const Label = styled.div`
      display: none;
   `};
 `
-export const DetailTransaction = ({ isLast }: { isLast: boolean }) => {
-  const isLoading = Math.random() < 0.5
-  const isWaiting = Math.random() < 0.5
+
+export enum DetailTransactionStatus {
+  Loading = 'loading',
+  Waiting = 'waiting',
+  Done = 'done',
+  Failed = 'failed',
+}
+
+type Props = {
+  isLast?: boolean
+  status: DetailTransactionStatus
+  description: string
+  chainId: ChainId
+  txHash: string
+}
+export const DetailTransaction: React.FC<Props> = ({ isLast = false, status, description, txHash, chainId }) => {
   const theme = useTheme()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const txsName = (
-    <Text fontWeight={'400'} fontSize={12} color={theme.subText}>
-      Swap ETH to axlUSDT
+
+  const scanUrl = NETWORKS_INFO[chainId].etherscanUrl
+  const txHashUrl = txHash ? `${scanUrl}/tx/${txHash}` : ''
+
+  const renderDescription = () => (
+    <Text fontWeight={'500'} fontSize={12} color={theme.subText} lineHeight={'16px'}>
+      {description}
     </Text>
   )
-  return (
-    <ChildWrapper showBorder={isLast}>
-      <Flex style={{ gap: '6px' }}>
-        {isLoading ? (
-          <MouseoverTooltip text={t`Processing`}>
-            <Flex style={{ gap: '4px' }}>
-              <Loader size="14px" />
-              <Label>
-                <Trans>Processing</Trans>
-              </Label>
-            </Flex>
-          </MouseoverTooltip>
-        ) : isWaiting ? (
+
+  const renderStatus = () => {
+    switch (status) {
+      case DetailTransactionStatus.Loading: {
+        return (
+          <Flex style={{ gap: '4px' }}>
+            <Loader size="14px" />
+            <Label>
+              <Trans>Processing</Trans>
+            </Label>
+          </Flex>
+        )
+      }
+
+      case DetailTransactionStatus.Waiting: {
+        return (
           <Flex style={{ gap: '4px' }}>
             <Clock size="14px" color={theme.text} />
             <Label>
               <Trans>Waiting to start</Trans>
             </Label>
           </Flex>
-        ) : (
+        )
+      }
+
+      case DetailTransactionStatus.Done: {
+        return (
           <Flex style={{ gap: '4px' }}>
             <CheckCircle size="14px" color={theme.primary} />
             <Label>
               <Trans>Done</Trans>
             </Label>
           </Flex>
-        )}
-        {isMobile && txsName}
+        )
+      }
+
+      default: {
+        return null
+      }
+    }
+  }
+
+  return (
+    <ChildWrapper showBorder={isLast}>
+      <Flex style={{ gap: '6px' }}>
+        {renderStatus()}
+        {isMobile ? renderDescription() : null}
       </Flex>
+
       {!isMobile && (
         <>
-          {txsName} <Label />
+          {renderDescription()} <Label />
           <Label />
         </>
       )}
 
-      <ExternalLinkIcon href="/" style={{ justifyContent: 'flex-end' }} />
+      {txHashUrl ? <ExternalLinkIcon href={txHashUrl} style={{ justifyContent: 'flex-end' }} /> : <div />}
     </ChildWrapper>
   )
 }
