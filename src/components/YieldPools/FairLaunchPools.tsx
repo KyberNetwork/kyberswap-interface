@@ -10,7 +10,7 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import InfoHelper from 'components/InfoHelper'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import ShareModal from 'components/ShareModal'
-import { AMP_HINT, OUTSIDE_FAIRLAUNCH_ADDRESSES } from 'constants/index'
+import { AMP_HINT } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useFairLaunchVersion } from 'hooks/useContract'
@@ -24,7 +24,7 @@ import { FairLaunchVersion, Farm } from 'state/farms/classic/types'
 import { useAppDispatch } from 'state/hooks'
 import { useViewMode } from 'state/user/hooks'
 import { VIEW_MODE } from 'state/user/reducer'
-import { ExternalLink, MEDIA_WIDTHS } from 'theme'
+import { MEDIA_WIDTHS } from 'theme'
 import { useFarmRewards } from 'utils/dmm'
 import { getFullDisplayBalance } from 'utils/formatBalance'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
@@ -198,8 +198,6 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
 
   const displayFarms = farmsList.sort((a, b) => b.endBlock - a.endBlock)
 
-  const outsideFarm = OUTSIDE_FAIRLAUNCH_ADDRESSES[fairLaunchAddress]
-
   const ConditionListWrapper = viewMode === VIEW_MODE.LIST && above1200 ? ListItemWrapper : ClassicFarmGridWrapper
   if (!isEVM) return <Navigate to="/" />
 
@@ -212,14 +210,6 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
               <Text fontSize={16} lineHeight="20px" color={theme.subText}>
                 <Trans>Farming Contract</Trans>
               </Text>
-              {outsideFarm && (
-                <Text fontSize={14} fontStyle="italic" color={theme.subText}>
-                  <Trans>
-                    This pool require {outsideFarm.name} LP Tokens. Get the LP Tokens{' '}
-                    <ExternalLink href={outsideFarm.getLPTokenLink}>here ↗</ExternalLink>{' '}
-                  </Trans>
-                </Text>
-              )}
             </RowFit>
             {above768 && (
               <Row justify="flex-end">
