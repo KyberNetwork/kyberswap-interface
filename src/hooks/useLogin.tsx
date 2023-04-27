@@ -71,8 +71,9 @@ const useLogin = () => {
           saveSession(session)
           setLoading(false)
           try {
-            const profile = await createProfile().unwrap()
+            await createProfile().unwrap()
             await connectWalletToProfile({ walletAddress })
+            const profile = await createProfile().unwrap()
             if (profile) setProfile(profile)
           } catch (error) {
             console.log('createProfile', error)

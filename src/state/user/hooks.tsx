@@ -12,6 +12,8 @@ import {
   useOldStaticFeeFactoryContract,
   useStaticFeeFactoryContract,
 } from 'hooks/useContract'
+import { useGetParticipantInfoQuery } from 'pages/TrueSightV2/hooks/useKyberAIDataV2'
+import { ParticipantStatus } from 'pages/TrueSightV2/types'
 import { AppDispatch, AppState } from 'state'
 import { useSessionInfo } from 'state/authen/hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
@@ -438,19 +440,29 @@ export const useHolidayMode: () => [boolean, () => void] = () => {
   return [isChristmasTime() ? holidayMode : false, toggle]
 }
 
+export const useIsWhiteListKyberAI = () => {
+  // todo doi wallet, f5 o link protected
+  const [{ isLogin, processing, profile }] = useSessionInfo()
+  const { data: participantInfo, isFetching } = useGetParticipantInfoQuery(undefined, { skip: !profile })
+  return {
+    loading: isFetching || processing,
+    isWhiteList: isLogin && participantInfo?.status === ParticipantStatus.WHITELISTED,
+  }
+}
+
 export const useKyberAIWidget: () => [boolean, () => void] = () => {
   const dispatch = useAppDispatch()
   const kyberAIWidget = useAppSelector(state =>
     state.user.kyberAIWidget === undefined ? true : state.user.kyberAIWidget,
   )
 
-  const [{ isLogin }] = useSessionInfo()
+  const { isWhiteList } = useIsWhiteListKyberAI()
 
   const toggle = useCallback(() => {
     dispatch(toggleKyberAIWidget())
   }, [dispatch])
 
-  return [kyberAIWidget && isLogin, toggle] // todo check whitelist
+  return [kyberAIWidget && isWhiteList, toggle] // todo check whitelist
 }
 
 export const usePermitData: (
