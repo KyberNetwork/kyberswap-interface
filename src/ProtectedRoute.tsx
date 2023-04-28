@@ -33,7 +33,8 @@ export const ProtectedRouteKyberAI = ({
   const canAccessPage = isWhiteList || waitUtilAuthenEndOnly
 
   useEffect(() => {
-    if (userInfo?.identityId) invalidate(RTK_QUERY_TAGS.GET_PARTICIPANT_INFO_KYBER_AI)
+    // change account sign in => refresh participant info
+    invalidate(RTK_QUERY_TAGS.GET_PARTICIPANT_INFO_KYBER_AI)
   }, [userInfo?.identityId, invalidate])
 
   if (loading && !loadedPage.current) return <LocalLoader />

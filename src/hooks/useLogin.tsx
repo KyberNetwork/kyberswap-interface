@@ -34,7 +34,11 @@ const useLogin = () => {
   const saveSession = useSaveSession()
 
   const signInAnonymous = useCallback(async () => {
-    if (anonymousUserInfo || requestingSession.current === LoginMethod.ANONYMOUS) return
+    if (requestingSession.current === LoginMethod.ANONYMOUS) return
+    if (anonymousUserInfo) {
+      saveSession({ loginMethod: LoginMethod.ANONYMOUS, userInfo: anonymousUserInfo }) // trigger reset account sign in
+      return
+    }
     try {
       requestingSession.current = LoginMethod.ANONYMOUS
       const session = await KyberOauth2.loginAnonymous()

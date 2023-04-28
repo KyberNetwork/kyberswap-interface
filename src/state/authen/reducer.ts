@@ -26,7 +26,13 @@ export default createReducer(DEFAULT_AUTHEN_STATE, builder =>
       state.possibleConnectedWalletAddress = possibleConnectedWalletAddress
     })
     .addCase(updateSession, (state, { payload: session }) => {
-      if (session.loginMethod === LoginMethod.ANONYMOUS) state.anonymousUserInfo = session.userInfo
+      if (session.loginMethod === LoginMethod.ANONYMOUS) {
+        state.anonymousUserInfo = session.userInfo
+        if (state.anonymousUserInfo) {
+          state.userInfo = undefined
+          state.isLogin = false
+        }
+      }
     })
     .addCase(updateProcessingLogin, (state, { payload: processing }) => {
       state.pendingAuthentication = processing
