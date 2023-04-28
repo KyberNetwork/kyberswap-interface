@@ -1,5 +1,5 @@
 import { ZoomTransform, max, scaleLinear } from 'd3'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
 
 import { Bound } from 'state/mint/proamm/type'
@@ -19,7 +19,6 @@ const Zoom = styled(OriginalZoom)<{ $interactive: boolean }>`
 `
 
 export function Chart({
-  id = 'liquidityChartRangeInput',
   data: { series, current },
   ticksAtLimit,
   styles,
@@ -31,6 +30,8 @@ export function Chart({
   onBrushDomainChange,
   zoomLevels,
 }: LiquidityChartRangeInputProps) {
+  const id = useId()
+
   const viewBoxHeight = 200
   const zoomRef = useRef<SVGRectElement | null>(null)
 
