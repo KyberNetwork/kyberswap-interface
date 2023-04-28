@@ -37,7 +37,7 @@ const useTransferHistory = (account: string) => {
     data,
     error,
     isFetching: isValidating,
-  } = useGetListCrossChainTxsQuery({ walletAddress: account, page }, { skip: !account })
+  } = useGetListCrossChainTxsQuery({ walletAddress: account, page }, { skip: !account, pollingInterval: 15_000 })
 
   const transfers = useMemo(() => {
     if (data) return data.data.transfers
