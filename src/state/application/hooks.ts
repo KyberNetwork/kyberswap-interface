@@ -18,7 +18,7 @@ import {
   PopupItemType,
   PopupType,
 } from 'components/Announcement/type'
-import { OUTSITE_FARM_REWARDS_QUERY, ZERO_ADDRESS } from 'constants/index'
+import { ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, isEVM, isSolana } from 'constants/networks'
 import ethereumInfo from 'constants/networks/ethereum'
 import { KNC } from 'constants/tokens'
@@ -411,20 +411,6 @@ const getTokenPriceByETH = async (tokenAddress: string, apolloClient: ApolloClie
     const derivedETH = result?.data?.tokens[0]?.derivedETH
 
     tokenPriceByETH = parseFloat(derivedETH)
-
-    const temp = OUTSITE_FARM_REWARDS_QUERY[tokenAddress]
-    if (temp) {
-      const res = await fetch(temp.subgraphAPI, {
-        method: 'POST',
-        body: JSON.stringify({
-          query: temp.query,
-        }),
-      }).then(res => res.json())
-
-      const derivedETH = res?.data?.tokens[0]?.derivedBNB
-
-      tokenPriceByETH = parseFloat(derivedETH)
-    }
   } catch (e) {
     console.log(e)
   }
