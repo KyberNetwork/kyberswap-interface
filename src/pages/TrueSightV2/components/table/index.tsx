@@ -376,56 +376,59 @@ export const LiveDEXTrades = () => {
         <TableCell>Trader</TableCell>
         <TableCell>Transaction</TableCell>
       </TableHeader>
-      {data?.slice((currentPage - 1) * 10, currentPage * 10 - 1).map((trade: ILiveTrade, i: number) => (
-        <TableRow key={i} gridTemplateColumns={gridTemplateColumns}>
-          <TableCell>
-            <Text>{dayjs(trade.timestamp * 1000).format('DD/MM/YYYY')}</Text>
-            <Text fontSize={12} color={theme.subText}>
-              {dayjs(trade.timestamp * 1000).format('HH:mm:ss A')}
-            </Text>
-          </TableCell>
-          <TableCell>
-            <Text color={trade.type === 'buy' ? theme.primary : theme.red} style={{ textTransform: 'capitalize' }}>
-              {trade.type}
-            </Text>
-          </TableCell>
-          <TableCell>${formatLocaleStringNum(trade.price, 6)}</TableCell>
-          <TableCell>
-            <Row gap="4px">
-              <img src={tokenOverview?.logo} width="16px" height="16px" />
-              <Text color={trade.type === 'buy' ? theme.primary : theme.subText}>
-                {trade.type === 'buy' ? '+' : '-'}
-                {formatLocaleStringNum(+trade.amountToken)} {tokenOverview?.symbol}
+      {data?.slice((currentPage - 1) * 10, currentPage * 10 - 1).map((trade: ILiveTrade, i: number) => {
+        const isBuy = trade.type === 'buy'
+        return (
+          <TableRow key={i} gridTemplateColumns={gridTemplateColumns}>
+            <TableCell>
+              <Text>{dayjs(trade.timestamp * 1000).format('DD/MM/YYYY')}</Text>
+              <Text fontSize={12} color={theme.subText}>
+                {dayjs(trade.timestamp * 1000).format('HH:mm:ss A')}
               </Text>
-              {trade.price * +trade.amountToken > 100000 && (
-                <InfoHelper text={t`This transaction is higher than >$100k`} placement="top" />
-              )}
-            </Row>
-            <Text color={theme.subText} fontSize={12}>
-              ${formatLocaleStringNum(trade.price * +trade.amountToken)}{' '}
-            </Text>
-          </TableCell>
-          <TableCell>
-            <Text color={theme.primary}>{shortenAddress(1, trade.trader)}</Text>
-          </TableCell>
-          <TableCell>
-            <Row justify="flex-end" gap="8px">
-              <ActionButton color={theme.subText} hasBg>
-                <CopyHelper toCopy={trade.txn} style={{ marginLeft: 0 }} />
-              </ActionButton>
-              <ActionButton color={theme.subText} hasBg>
-                <a
-                  target="_blank"
-                  rel="noreferrer"
-                  href={chain ? getEtherscanLink(NETWORK_TO_CHAINID[chain], trade.txn, 'transaction') : '#'}
-                >
-                  <Icon id="open-link" size={16} />
-                </a>
-              </ActionButton>
-            </Row>
-          </TableCell>
-        </TableRow>
-      ))}
+            </TableCell>
+            <TableCell>
+              <Text color={isBuy ? theme.primary : theme.red} style={{ textTransform: 'capitalize' }}>
+                {trade.type}
+              </Text>
+            </TableCell>
+            <TableCell>${formatLocaleStringNum(trade.price, 6)}</TableCell>
+            <TableCell>
+              <Row gap="4px">
+                <img src={tokenOverview?.logo} width="16px" height="16px" />
+                <Text color={isBuy ? theme.primary : theme.red}>
+                  {isBuy ? '+' : '-'}
+                  {formatLocaleStringNum(+trade.amountToken)} {tokenOverview?.symbol}
+                </Text>
+                {trade.price * +trade.amountToken > 100000 && (
+                  <InfoHelper text={t`This transaction is higher than >$100k`} placement="top" />
+                )}
+              </Row>
+              <Text color={theme.subText} fontSize={12}>
+                ${formatLocaleStringNum(trade.price * +trade.amountToken)}{' '}
+              </Text>
+            </TableCell>
+            <TableCell>
+              <Text color={theme.primary}>{shortenAddress(1, trade.trader)}</Text>
+            </TableCell>
+            <TableCell>
+              <Row justify="flex-end" gap="8px">
+                <ActionButton color={theme.subText} hasBg>
+                  <CopyHelper toCopy={trade.txn} style={{ marginLeft: 0 }} />
+                </ActionButton>
+                <ActionButton color={theme.subText} hasBg>
+                  <a
+                    target="_blank"
+                    rel="noreferrer"
+                    href={chain ? getEtherscanLink(NETWORK_TO_CHAINID[chain], trade.txn, 'transaction') : '#'}
+                  >
+                    <Icon id="open-link" size={16} />
+                  </a>
+                </ActionButton>
+              </Row>
+            </TableCell>
+          </TableRow>
+        )
+      })}
       <Pagination
         currentPage={currentPage}
         pageSize={10}

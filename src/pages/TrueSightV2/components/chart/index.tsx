@@ -1797,7 +1797,7 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
               animationBegin={ANIMATION_DELAY}
               animationDuration={ANIMATION_DURATION}
               {...{
-                label: <CustomizedLabel timeframe={timeframe} />,
+                label: <CustomizedLabel timeframe={timeframe} dollarSign={tab === ChartTab.Second} />,
               }}
             />
           </AreaChart>
