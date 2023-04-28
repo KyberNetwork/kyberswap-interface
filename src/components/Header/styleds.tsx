@@ -1,8 +1,7 @@
 import { darken } from 'polished'
 import { CSSProperties, forwardRef } from 'react'
 import { NavLink as BaseNavLink, NavLinkProps } from 'react-router-dom'
-import styled from 'styled-components'
-import { css } from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import { ExternalLink } from 'theme/components'
 
