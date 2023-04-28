@@ -2,6 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Pool } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { useState } from 'react'
+import { Eye } from 'react-feather'
 import { Box, Flex, Text } from 'rebass'
 import { PositionEarningWithDetails } from 'services/earning'
 
@@ -73,10 +74,19 @@ const Positions: React.FC<Props> = ({ positionEarnings, chainId, pool }) => {
       {numberOfVisiblePositions < positionEarnings.length && (
         <ButtonLight
           onClick={() => {
-            setNumberOfVisiblePositions(n => n + 3)
+            setNumberOfVisiblePositions(positionEarnings.length)
+          }}
+          style={{
+            gap: '4px',
+            alignItems: 'center',
+            padding: 0,
+            height: '36px',
           }}
         >
-          View more ({positionEarnings.length - numberOfVisiblePositions})
+          <Eye size={16} />
+          <span>
+            <Trans>View All</Trans> ({positionEarnings.length - numberOfVisiblePositions})
+          </span>
         </ButtonLight>
       )}
     </Flex>
