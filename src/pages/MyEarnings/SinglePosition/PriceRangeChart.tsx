@@ -146,12 +146,12 @@ const PriceRangeChart: React.FC<Props> = ({ position }) => {
           <span>{formatTickPrice(priceUpper, tickAtLimit, Bound.UPPER)}</span>
         </span>
 
-        <span>
+        <Text as="span" justifySelf="flex-start">
           {quoteCurrency.symbol}/{baseCurrency.symbol}
-        </span>
-        <span>
+        </Text>
+        <Text as="span" justifySelf="flex-end">
           {quoteCurrency.symbol}/{baseCurrency.symbol}
-        </span>
+        </Text>
       </Box>
     </Flex>
   )
