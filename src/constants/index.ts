@@ -211,7 +211,7 @@ export const APP_PATHS = {
   REFERRAL: '/referral',
   DISCOVER: '/discover',
   KYBERAI: '/KyberAI',
-  KYBERAI_ABOUT: '/KyberAI', // todo
+  KYBERAI_ABOUT: '/KyberAI/About',
   KYBERAI_RANKINGS: '/KyberAI/Rankings',
   KYBERAI_EXPLORE: '/KyberAI/Explore',
   BUY_CRYPTO: '/buy-crypto',
