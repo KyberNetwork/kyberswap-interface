@@ -477,7 +477,7 @@ export default function KyberAILandingPage() {
                   KyberScore - our unique insight uses our Machine Learning algorithms
                 </span>{' '}
                 and multiple on-chain and off-chain indicators to identify whether a token is going to be{' '}
-                <span style={{ color: theme.primary }}>Bullish</span> or
+                <span style={{ color: theme.primary }}>Bullish</span> or{' '}
                 <span style={{ color: theme.red }}>Bearish</span> in the short term.
               </Trans>
             </Text>
