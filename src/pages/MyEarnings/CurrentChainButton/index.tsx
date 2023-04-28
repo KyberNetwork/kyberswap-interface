@@ -1,6 +1,5 @@
 import { Trans } from '@lingui/macro'
 import { useDispatch } from 'react-redux'
-import { Flex } from 'rebass'
 
 import { ButtonOutlined } from 'components/Button'
 import { SUPPORTED_NETWORKS_FOR_MY_EARNINGS } from 'constants/networks'
@@ -21,18 +20,17 @@ const CurrentChainButton = () => {
   }
 
   return (
-    <Flex width="fit-content">
-      <ButtonOutlined
-        onClick={handleClickCurrentChain}
-        disabled={!isValidNetwork}
-        padding="0 8px"
-        style={{
-          height: '36px',
-        }}
-      >
-        <Trans>Current Chain</Trans>
-      </ButtonOutlined>
-    </Flex>
+    <ButtonOutlined
+      onClick={handleClickCurrentChain}
+      disabled={!isValidNetwork}
+      padding="0 8px"
+      style={{
+        height: '36px',
+        flex: ' 0 0 fit-content',
+      }}
+    >
+      <Trans>Current Chain</Trans>
+    </ButtonOutlined>
   )
 }
 

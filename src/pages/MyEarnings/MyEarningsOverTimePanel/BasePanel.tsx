@@ -57,6 +57,10 @@ const Wrapper = styled.div`
   border-radius: 20px;
   background-color: ${({ theme }) => theme.background};
   border: 1px solid ${({ theme }) => theme.border};
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    padding: 16px;
+  `}
 `
 
 const numberOfTicksByTimePeriod: Record<TimePeriod, number> = {

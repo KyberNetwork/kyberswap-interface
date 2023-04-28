@@ -13,7 +13,7 @@ import { ELASTIC_NOT_SUPPORTED, VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
-import { ExternalLink } from 'theme'
+import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { isInEnum } from 'utils/string'
 
 function ClassicElasticTab() {
@@ -25,21 +25,11 @@ function ClassicElasticTab() {
 
   const theme = useTheme()
   const navigate = useNavigate()
-  const upToSmall = useMedia('(max-width: 768px)')
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
-  return (
-    <Flex
-      sx={{
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      }}
-    >
-      <Flex
-        width="max-content"
-        sx={{
-          gap: '24px',
-        }}
-      >
+  const renderPoolButtons = () => {
+    return (
+      <>
         <Flex
           role="button"
           alignItems={'center'}
@@ -52,16 +42,24 @@ function ClassicElasticTab() {
             navigate({ search: stringify(newQs) }, { replace: true })
           }}
         >
-          <PoolElasticIcon
-            size={20}
-            color={tab === VERSION.ELASTIC ? (!!notSupportedMsg ? theme.disableText : theme.primary) : theme.subText}
-          />
+          <Flex
+            sx={{
+              flex: '0 0 20px',
+              height: '20px',
+            }}
+          >
+            <PoolElasticIcon
+              size={20}
+              color={tab === VERSION.ELASTIC ? (!!notSupportedMsg ? theme.disableText : theme.primary) : theme.subText}
+            />
+          </Flex>
           <Text
             fontWeight={500}
             fontSize={[18, 20, 24]}
             width={'auto'}
             marginLeft="4px"
             sx={{
+              whiteSpace: 'nowrap',
               cursor: !!notSupportedMsg ? 'not-allowed' : 'pointer',
             }}
           >
@@ -78,25 +76,48 @@ function ClassicElasticTab() {
           }}
           color={tab === VERSION.CLASSIC ? theme.primary : theme.subText}
         >
-          <PoolClassicIcon size={20} color={tab === VERSION.CLASSIC ? theme.primary : theme.subText} />
-          <Text fontWeight={500} fontSize={[18, 20, 24]} width={'auto'} marginLeft="4px" sx={{ cursor: 'pointer' }}>
+          <Flex
+            sx={{
+              flex: '0 0 20px',
+              height: '20px',
+            }}
+          >
+            <PoolClassicIcon size={20} color={tab === VERSION.CLASSIC ? theme.primary : theme.subText} />
+          </Flex>
+          <Text
+            fontWeight={500}
+            fontSize={[18, 20, 24]}
+            width={'auto'}
+            marginLeft="4px"
+            sx={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
+          >
             <Trans>Classic Pools</Trans>
           </Text>
         </Flex>
-      </Flex>
+      </>
+    )
+  }
 
-      <Flex sx={{ gap: '24px' }}>
+  const renderHelperButtons = () => {
+    return (
+      <>
         <ExternalLink
           style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: '4px',
             color: theme.subText,
+            fontSize: '14px',
           }}
           href={`${PROMM_ANALYTICS_URL[chainId]}/account/${account}`}
         >
           <Wallet />
-          <Text as="span">
+          <Text
+            as="span"
+            sx={{
+              whiteSpace: 'nowrap',
+            }}
+          >
             <Trans>Wallet Analytics</Trans> ↗
           </Text>
         </ExternalLink>
@@ -113,10 +134,82 @@ function ClassicElasticTab() {
               role="button"
             >
               <TutorialIcon />
-              {!upToSmall && <Trans>Video Tutorial</Trans>}
+              <Text
+                as="span"
+                sx={{
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                <Trans>Video Tutorial</Trans>
+              </Text>
             </Flex>
           }
         />
+      </>
+    )
+  }
+
+  if (upToExtraSmall) {
+    return (
+      <Flex
+        sx={{
+          width: '100%',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '16px',
+          flexDirection: 'column',
+        }}
+      >
+        <Flex
+          width="max-content"
+          sx={{
+            gap: '24px',
+            flex: 1,
+            justifyContent: 'space-between',
+          }}
+        >
+          {renderPoolButtons()}
+        </Flex>
+
+        <Flex
+          sx={{
+            gap: '24px',
+            flex: 1,
+            justifyContent: 'space-between',
+          }}
+        >
+          {renderHelperButtons()}
+        </Flex>
+      </Flex>
+    )
+  }
+
+  return (
+    <Flex
+      sx={{
+        width: '100%',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '16px',
+      }}
+    >
+      <Flex
+        width="max-content"
+        sx={{
+          gap: '24px',
+        }}
+      >
+        {renderPoolButtons()}
+      </Flex>
+
+      <Flex
+        sx={{
+          gap: '24px',
+        }}
+      >
+        {renderHelperButtons()}
       </Flex>
     </Flex>
   )

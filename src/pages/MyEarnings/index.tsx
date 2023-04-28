@@ -2,8 +2,9 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
-import { Flex, Text } from 'rebass'
+import { Flex } from 'rebass'
 import { PositionEarningWithDetails, TokenEarning, useGetEarningDataQuery } from 'services/earning'
+import styled from 'styled-components'
 
 import { EMPTY_ARRAY } from 'constants/index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS_FOR_MY_EARNINGS } from 'constants/networks'
@@ -11,15 +12,48 @@ import { useActiveWeb3React } from 'hooks'
 import ClassicElasticTab from 'pages/MyEarnings/ClassicElasticTab'
 import PoolFilteringBar from 'pages/MyEarnings/PoolFilteringBar'
 import Pools from 'pages/MyEarnings/Pools'
+import TitleAndChainSelect from 'pages/MyEarnings/TitleAndChainSelect'
 import { useAppSelector } from 'state/hooks'
 import { EarningStatsTick, EarningsBreakdown } from 'types/myEarnings'
 import { isAddress } from 'utils'
 
-import CurrentChainButton from './CurrentChainButton'
-import EarningsBreakdownPanel from './EarningsBreakdownPanel'
-import MultipleChainSelect from './MultipleChainSelect'
-import MyEarningsOverTimePanel from './MyEarningsOverTimePanel'
-import { PageWrapper } from './styleds'
+import OriginalEarningsBreakdownPanel from './EarningsBreakdownPanel'
+import OriginalMyEarningsOverTimePanel from './MyEarningsOverTimePanel'
+
+const MyEarningsOverTimePanel = styled(OriginalMyEarningsOverTimePanel)`
+  flex: 1 0 640px;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    flex: 1 1 100%;
+    height: 480px;
+  `}
+`
+
+const EarningsBreakdownPanel = styled(OriginalEarningsBreakdownPanel)`
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    flex: 1;
+    padding: 16px;
+
+    &[data-columns='2'] {
+      width: 100%;
+      flex: 1;
+    }
+  `}
+`
+
+const PageWrapper = styled.div`
+  width: 100%;
+  max-width: 1248px; // 1224px + 24px padding
+
+  height: 100%;
+
+  padding: 32px 24px 100px;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    padding-left: 16px;
+    padding-right: 16px;
+  `}
+`
 
 const chainIdByRoute: Record<string, ChainId> = SUPPORTED_NETWORKS_FOR_MY_EARNINGS.map(chainId => ({
   route: NETWORKS_INFO[chainId].aggregatorRoute,
@@ -234,32 +268,12 @@ const MyEarnings = () => {
           gap: '24px',
         }}
       >
-        <Flex alignItems="center" justifyContent="space-between">
-          <Text
-            as="span"
-            sx={{
-              fontWeight: 500,
-              fontSize: '24px',
-              lineHeight: '28px',
-            }}
-          >
-            My Earnings
-          </Text>
-
-          <Flex
-            alignItems="center"
-            sx={{
-              gap: '16px',
-            }}
-          >
-            <CurrentChainButton />
-            <MultipleChainSelect />
-          </Flex>
-        </Flex>
+        <TitleAndChainSelect />
 
         <Flex
           sx={{
             gap: '24px',
+            flexWrap: 'wrap',
           }}
         >
           <EarningsBreakdownPanel isLoading={getEarningData.isLoading} data={earningBreakdown} />

@@ -12,7 +12,10 @@ export const StyledLogo = styled.img`
   height: auto;
 `
 
-const MultipleChainSelect = () => {
+type Props = {
+  className?: string
+}
+const MultipleChainSelect: React.FC<Props> = ({ className }) => {
   const [expanded, setExpanded] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -32,6 +35,7 @@ const MultipleChainSelect = () => {
         position: 'relative',
         zIndex: '1',
       }}
+      className={className}
     >
       <SelectButton expanded={expanded} onClick={() => setExpanded(e => !e)} />
 
@@ -46,4 +50,4 @@ const MultipleChainSelect = () => {
   )
 }
 
-export default MultipleChainSelect
+export default styled(MultipleChainSelect)``
