@@ -8,12 +8,13 @@ import styled from 'styled-components'
 import InfoHelper from 'components/InfoHelper'
 import { NetworkLogo } from 'components/Logo'
 import { RowBetween } from 'components/Row'
-import { NETWORKS_INFO_CONFIG } from 'constants/networks'
+import { NETWORKS_INFO, NETWORKS_INFO_CONFIG } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import StatusBadge from 'pages/Bridge/BridgeTransferHistory/StatusBadge'
 import TimeStatusCell from 'pages/Bridge/BridgeTransferHistory/TimeStatusCell'
 import ActionButtons from 'pages/CrossChain/TransfersHistory/HistoryTable/ActionButons'
 import { DetailTransaction } from 'pages/CrossChain/TransfersHistory/HistoryTable/DetailTransaction'
+import { useGetTransactionStatus } from 'pages/CrossChain/TransfersHistory/HistoryTable/TransactionItem'
 import { CrossChainTransfer } from 'pages/CrossChain/useTransferHistory'
 
 import TokenReceiveCell from './TokenReceiveCell'
@@ -94,7 +95,13 @@ const ChainDisplay: React.FC<{ chainId: ChainId }> = ({ chainId }) => {
 const TransactionItemMobile = ({ transfer }: { transfer: CrossChainTransfer }) => {
   const theme = useTheme()
   const [expand, setExpand] = useState(false)
-  const transactions = new Array(3).fill(123)
+  const [detailTransactionStatuses, generalStatus] = useGetTransactionStatus(transfer.status)
+
+  const { srcTokenSymbol, dstTokenSymbol } = transfer
+  const dstChainName = NETWORKS_INFO[Number(transfer.dstChainId) as ChainId].name
+  const srcChainId = Number(transfer.srcChainId) as ChainId
+  const dstChainId = Number(transfer.dstChainId) as ChainId
+
   return (
     <>
       <TableRowForMobile style={{ border: expand ? 'none' : undefined, paddingBottom: expand ? 0 : undefined }}>
@@ -104,7 +111,7 @@ const TransactionItemMobile = ({ transfer }: { transfer: CrossChainTransfer }) =
             justifyContent: 'space-between',
           }}
         >
-          <StatusBadge status={transfer.status} />
+          <StatusBadge status={generalStatus} />
           <ActionButtons transfer={transfer} setExpand={setExpand} expand={expand} />
         </Flex>
 
@@ -129,9 +136,24 @@ const TransactionItemMobile = ({ transfer }: { transfer: CrossChainTransfer }) =
       </TableRowForMobile>
       {expand && (
         <TableRowForMobile>
-          {transactions.map(txs => (
-            <DetailTransaction key={txs} isLast={false} />
-          ))}
+          <DetailTransaction
+            status={detailTransactionStatuses[0]}
+            description={t`Swap ${srcTokenSymbol} to axlUSDC`}
+            chainId={srcChainId}
+            txHash={transfer.srcTxHash}
+          />
+          <DetailTransaction
+            status={detailTransactionStatuses[1]}
+            description={t`Send axlUSDC to ${dstChainName}`}
+            chainId={srcChainId}
+            txHash={transfer.srcTxHash}
+          />
+          <DetailTransaction
+            status={detailTransactionStatuses[2]}
+            description={t`Swap axlUSDC to ${dstTokenSymbol}`}
+            chainId={dstChainId}
+            txHash={transfer.dstTxHash}
+          />
         </TableRowForMobile>
       )}
     </>

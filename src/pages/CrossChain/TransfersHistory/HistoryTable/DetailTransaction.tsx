@@ -3,7 +3,7 @@ import { Trans } from '@lingui/macro'
 import { Clock } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 
 import { CheckCircle } from 'components/Icons'
 import Loader from 'components/Loader'
@@ -11,7 +11,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import { ExternalLinkIcon, MEDIA_WIDTHS } from 'theme'
 
-const ChildWrapper = styled.div<{ showBorder: boolean }>`
+const ChildWrapper = styled.div`
   width: 100%;
   display: grid;
   grid-template-columns: 120px 150px 80px 150px 70px;
@@ -19,20 +19,16 @@ const ChildWrapper = styled.div<{ showBorder: boolean }>`
   align-items: center;
   border: none;
   padding: 6px 16px;
+
   ${({ theme }) => theme.mediaWidth.upToLarge`
     column-gap: 4px;
     grid-template-columns: 112px 100px 64px minmax(auto, 130px) 70px;
   `}
+
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 0px;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr auto;
   `}
-  ${({ theme, showBorder }) =>
-    showBorder &&
-    css`
-      border-bottom: 1px solid ${theme.border};
-      padding-bottom: 20px;
-    `};
 `
 
 const Label = styled.div`
@@ -52,13 +48,12 @@ export enum DetailTransactionStatus {
 }
 
 type Props = {
-  isLast?: boolean
   status: DetailTransactionStatus
   description: string
   chainId: ChainId
   txHash: string
 }
-export const DetailTransaction: React.FC<Props> = ({ isLast = false, status, description, txHash, chainId }) => {
+export const DetailTransaction: React.FC<Props> = ({ status, description, txHash, chainId }) => {
   const theme = useTheme()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
@@ -66,7 +61,15 @@ export const DetailTransaction: React.FC<Props> = ({ isLast = false, status, des
   const txHashUrl = txHash ? `${scanUrl}/tx/${txHash}` : ''
 
   const renderDescription = () => (
-    <Text fontWeight={'500'} fontSize={12} color={theme.subText} lineHeight={'16px'}>
+    <Text
+      sx={{
+        whiteSpace: 'nowrap',
+        fontWeight: '500',
+        fontSize: 12,
+        color: theme.subText,
+        lineHeight: '16px',
+      }}
+    >
       {description}
     </Text>
   )
@@ -113,7 +116,7 @@ export const DetailTransaction: React.FC<Props> = ({ isLast = false, status, des
   }
 
   return (
-    <ChildWrapper showBorder={isLast}>
+    <ChildWrapper>
       <Flex style={{ gap: '6px' }}>
         {renderStatus()}
         {isMobile ? renderDescription() : null}

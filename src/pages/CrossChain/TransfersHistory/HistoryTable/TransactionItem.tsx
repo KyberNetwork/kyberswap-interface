@@ -1,6 +1,8 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useMemo, useState } from 'react'
+import { Flex } from 'rebass'
+import styled from 'styled-components'
 
 import { NETWORKS_INFO } from 'constants/networks'
 import { MultichainTransferStatus } from 'hooks/bridge/useGetBridgeTransfers'
@@ -18,21 +20,12 @@ import { CrossChainTransfer, CrossChainTransferStatus } from 'pages/CrossChain/u
 import { TableRow } from './Desktop'
 import TokenReceiveCell from './TokenReceiveCell'
 
-const TransactionItem = ({ data: transfer }: { data: CrossChainTransfer }) => {
-  const [expand, setExpand] = useState(false)
-  const theme = useTheme()
-  const { srcTokenSymbol, dstTokenSymbol } = transfer
-
-  const dstChainName = NETWORKS_INFO[Number(transfer.dstChainId) as ChainId].name
-
-  const srcChainId = Number(transfer.srcChainId) as ChainId
-  const dstChainId = Number(transfer.dstChainId) as ChainId
-
-  const [detailTransactionStatuses, generalStatus] = useMemo(() => {
+export const useGetTransactionStatus = (status: CrossChainTransferStatus) => {
+  return useMemo(() => {
     let detailTransactionStatuses: DetailTransactionStatus[] = []
     let generalStatus: MultichainTransferStatus = MultichainTransferStatus.Success
 
-    switch (transfer.status) {
+    switch (status) {
       case CrossChainTransferStatus.SRC_GATEWAY_CALLED: {
         detailTransactionStatuses = [
           DetailTransactionStatus.Done,
@@ -80,11 +73,11 @@ const TransactionItem = ({ data: transfer }: { data: CrossChainTransfer }) => {
       }
       case CrossChainTransferStatus.EMPTY: {
         detailTransactionStatuses = [
-          DetailTransactionStatus.Waiting,
-          DetailTransactionStatus.Waiting,
-          DetailTransactionStatus.Waiting,
+          DetailTransactionStatus.Done,
+          DetailTransactionStatus.Done,
+          DetailTransactionStatus.Done,
         ]
-        generalStatus = MultichainTransferStatus.Processing
+        generalStatus = MultichainTransferStatus.Success
         break
       }
 
@@ -98,15 +91,34 @@ const TransactionItem = ({ data: transfer }: { data: CrossChainTransfer }) => {
         break
       }
     }
-    return [detailTransactionStatuses, generalStatus]
-  }, [transfer.status])
+    return [detailTransactionStatuses, generalStatus] as const
+  }, [status])
+}
+
+const RowWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  border-bottom: 1px solid gray;
+`
+
+const TransactionItem = ({ data: transfer }: { data: CrossChainTransfer }) => {
+  const [expand, setExpand] = useState(false)
+  const theme = useTheme()
+  const { srcTokenSymbol, dstTokenSymbol } = transfer
+
+  const dstChainName = NETWORKS_INFO[Number(transfer.dstChainId) as ChainId].name
+
+  const srcChainId = Number(transfer.srcChainId) as ChainId
+  const dstChainId = Number(transfer.dstChainId) as ChainId
+
+  const [detailTransactionStatuses, generalStatus] = useGetTransactionStatus(transfer.status)
 
   return (
-    <>
+    <RowWrapper>
       <TableRow
         style={{
-          borderBottom: !expand ? `1px solid ${theme.border}` : 'none',
-          paddingBottom: expand ? '0 !important' : undefined,
+          borderBottom: 'none',
         }}
       >
         <TimeCell timestamp={transfer.createdAt * 1000} />
@@ -116,7 +128,12 @@ const TransactionItem = ({ data: transfer }: { data: CrossChainTransfer }) => {
         <ActionButtons transfer={transfer} expand={expand} setExpand={setExpand} />
       </TableRow>
       {expand && (
-        <>
+        <Flex
+          sx={{
+            flexDirection: 'column',
+            paddingBottom: '12px',
+          }}
+        >
           <DetailTransaction
             status={detailTransactionStatuses[0]}
             description={t`Swap ${srcTokenSymbol} to axlUSDC`}
@@ -130,15 +147,14 @@ const TransactionItem = ({ data: transfer }: { data: CrossChainTransfer }) => {
             txHash={transfer.srcTxHash}
           />
           <DetailTransaction
-            isLast={true}
             status={detailTransactionStatuses[2]}
             description={t`Swap axlUSDC to ${dstTokenSymbol}`}
             chainId={dstChainId}
             txHash={transfer.dstTxHash}
           />
-        </>
+        </Flex>
       )}
-    </>
+    </RowWrapper>
   )
 }
 
