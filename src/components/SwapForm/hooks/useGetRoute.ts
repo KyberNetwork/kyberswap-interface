@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import routeApi from 'services/route'
 import { GetRouteParams } from 'services/route/types/getRoute'
 
-import useGetTokenFeeScore from 'components/SwapForm/hooks/useGetTokenFeeScore'
+import useGetSwapFeeConfig, { SwapFeeConfig } from 'components/SwapForm/hooks/useGetSwapFeeConfig'
 import useSelectedDexes from 'components/SwapForm/hooks/useSelectedDexes'
 import { ETHER_ADDRESS, INPUT_DEBOUNCE_TIME, ZERO_ADDRESS_SOLANA } from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
@@ -19,6 +19,8 @@ export type ArgsGetRoute = {
   parsedAmount: CurrencyAmount<Currency> | undefined
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
+
+  // TODO: remove this
   feeConfig: FeeConfig | undefined
   customChain?: ChainId
   isProcessingSwap?: boolean
@@ -43,18 +45,53 @@ export const getRouteTokenAddressParam = (currency: Currency) =>
       : WETH[currency.chainId].address
     : currency.wrapped.address
 
+const getFeeConfigParams = (
+  swapFeeConfig: SwapFeeConfig | undefined,
+  tokenIn: string,
+  tokenOut: string,
+): Pick<GetRouteParams, 'feeAmount' | 'feeReceiver' | 'isInBps' | 'chargeFeeBy'> => {
+  if (!swapFeeConfig) {
+    return {
+      feeAmount: '',
+      chargeFeeBy: '',
+      isInBps: '',
+      feeReceiver: '',
+    }
+  }
+
+  const chargeFeeBy =
+    swapFeeConfig.token === tokenIn ? 'currency_in' : swapFeeConfig.token === tokenOut ? 'currency_out' : ''
+
+  if (!chargeFeeBy || !swapFeeConfig.feeBips) {
+    return {
+      feeAmount: '',
+      chargeFeeBy: '',
+      isInBps: '',
+      feeReceiver: '',
+    }
+  }
+
+  return {
+    feeAmount: String(swapFeeConfig.feeBips),
+    chargeFeeBy,
+    isInBps: '1',
+
+    // TODO: update this list
+    feeReceiver: '0x9f4cf329f4cf376b7aded854d6054859dd102a2a',
+  }
+}
+
 const useGetRoute = (args: ArgsGetRoute) => {
   const { aggregatorDomain, isEnableAuthenAggregator } = useKyberswapGlobalConfig()
-  const { isSaveGas, parsedAmount, currencyIn, currencyOut, feeConfig, customChain, isProcessingSwap } = args
+  const { isSaveGas, parsedAmount, currencyIn, currencyOut, customChain, isProcessingSwap } = args
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
 
   const [trigger, _result] = routeApi.useLazyGetRouteQuery()
 
-  const getTokenScore = useGetTokenFeeScore()
+  const getSwapFeeConfig = useGetSwapFeeConfig()
 
   const dexes = useSelectedDexes()
-  const isInBps = feeConfig?.isInBps !== undefined ? (feeConfig.isInBps ? '1' : '0') : ''
 
   // If user has just dismissed swap modal, we want to set current route summary = undefined by setting this flag = true.
   // After receive new route summary, we reset this flag to false.s
@@ -106,26 +143,9 @@ const useGetRoute = (args: ArgsGetRoute) => {
     const tokenInAddress = getRouteTokenAddressParam(currencyIn)
     const tokenOutAddress = getRouteTokenAddressParam(currencyOut)
 
-    const { tokenToTakeFee, feePercent } = await getTokenScore(chainId, tokenInAddress, tokenOutAddress)
-    console.log({ tokenToTakeFee, feePercent })
+    const swapFeeConfig = await getSwapFeeConfig(chainId, tokenInAddress, tokenOutAddress)
 
-    const chargeFeeBy =
-      tokenToTakeFee === tokenInAddress ? 'currency_in' : tokenToTakeFee === tokenOutAddress ? 'currency_out' : ''
-
-    const feeConfig: Pick<GetRouteParams, 'feeAmount' | 'feeReceiver' | 'isInBps' | 'chargeFeeBy'> =
-      chargeFeeBy && feePercent
-        ? {
-            feeAmount: String(feePercent),
-            chargeFeeBy,
-            isInBps: '1',
-            feeReceiver: '0x9f4cf329f4cf376b7aded854d6054859dd102a2a',
-          }
-        : {
-            feeAmount: '',
-            chargeFeeBy: '',
-            isInBps: '',
-            feeReceiver: '',
-          }
+    const feeConfigParams = getFeeConfigParams(swapFeeConfig, tokenInAddress, tokenOutAddress)
 
     const params: GetRouteParams = {
       tokenIn: tokenInAddress,
@@ -135,7 +155,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
       includedSources: dexes,
       gasInclude: 'true', // default
       gasPrice: '', // default
-      ...feeConfig,
+      ...feeConfigParams,
     }
 
     ;(Object.keys(params) as (keyof typeof params)[]).forEach(key => {
@@ -154,17 +174,17 @@ const useGetRoute = (args: ArgsGetRoute) => {
 
     return undefined
   }, [
-    parsedAmount?.quotient,
-    parsedAmount?.currency,
+    aggregatorDomain,
+    chainId,
     currencyIn,
     currencyOut,
-    chainId,
-    isSaveGas,
     dexes,
-    getTokenScore,
-    aggregatorDomain,
-    triggerDebounced,
+    getSwapFeeConfig,
     isEnableAuthenAggregator,
+    isSaveGas,
+    parsedAmount?.currency,
+    parsedAmount?.quotient,
+    triggerDebounced,
   ])
 
   return { fetcher, result }
