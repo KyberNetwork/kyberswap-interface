@@ -31,10 +31,15 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
 
   const participantInfo = useGetParticipantKyberAIInfo()
 
-  const [verifyModalState, setVerifyModalState] = useState({ isOpen: false, email: '', referredByCode: '' })
+  const [verifyModalState, setVerifyModalState] = useState({
+    isOpen: false,
+    email: '',
+    referredByCode: '',
+    showSuccess: false,
+  })
 
-  const showVerify = (email: string, referredByCode: string) => {
-    setVerifyModalState({ isOpen: true, referredByCode, email })
+  const showVerify = (email: string, referredByCode: string, showSuccess: boolean) => {
+    setVerifyModalState({ isOpen: true, referredByCode, email, showSuccess })
   }
 
   const renderVerifyModal = () => (

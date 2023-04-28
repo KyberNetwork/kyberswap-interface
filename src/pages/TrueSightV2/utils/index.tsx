@@ -73,6 +73,8 @@ export const NETWORK_TO_CHAINID: { [chain: string]: ChainId } = {
   fantom: ChainId.FANTOM,
 }
 
+export const isReferrerCodeInvalid = (error: any) => error?.data?.code === 4040
+
 export const getErrorMessage = (error: any) => {
   const mapErr: { [key: number]: string } = {
     4004: t`OTP wrong or expired. Please try again.`,

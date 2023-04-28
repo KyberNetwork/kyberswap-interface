@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { debounce } from 'lodash'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import { Text } from 'rebass'
 import { useRequestWhiteListMutation } from 'services/kyberAISubscription'
 import { useLazyGetConnectedWalletQuery } from 'services/notification'
@@ -8,21 +8,24 @@ import { useLazyGetConnectedWalletQuery } from 'services/notification'
 import { ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import Tooltip from 'components/Tooltip'
-import { useActiveWeb3React } from 'hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
-import { getErrorMessage } from 'pages/TrueSightV2/utils'
+import { getErrorMessage, isReferrerCodeInvalid } from 'pages/TrueSightV2/utils'
 import { useSessionInfo } from 'state/authen/hooks'
 import { isEmailValid } from 'utils/string'
 
 import { FormWrapper, Input, Label } from './styled'
 
-export default function EmailForm({ showVerify }: { showVerify: (email: string, code: string) => void }) {
+export default function EmailForm({
+  showVerify,
+}: {
+  showVerify: (email: string, code: string, showSuccess: boolean) => void
+}) {
   const [inputEmail, setInputEmail] = useState('')
   const qs = useParsedQueryString<{ referrer: string }>()
   const [referredByCode, setCode] = useState(qs.referrer || '')
-  const [errorInput, setErrorInput] = useState<string>('')
-  const { account } = useActiveWeb3React()
+  const [errorInput, setErrorInput] = useState({ email: '', referredByCode: '' })
+
   const { userInfo } = useSessionInfo()
   const [requestWaitList] = useRequestWhiteListMutation()
 
@@ -30,14 +33,14 @@ export default function EmailForm({ showVerify }: { showVerify: (email: string, 
   const checkEmailExist = useCallback(
     async (email: string) => {
       try {
-        if (!isEmailValid(email)) return
+        if (!isEmailValid(email) || (userInfo?.email && userInfo.email === email)) return
         const { data: walletAddress } = await getConnectedWallet(email)
-        if (walletAddress && walletAddress !== account?.toLowerCase()) {
-          setErrorInput(t`This email address is already registered`)
+        if (walletAddress) {
+          setErrorInput(prev => ({ ...prev, email: t`This email address is already registered` }))
         }
       } catch (error) {}
     },
-    [account, getConnectedWallet],
+    [getConnectedWallet, userInfo?.email],
   )
 
   useEffect(() => {
@@ -48,7 +51,7 @@ export default function EmailForm({ showVerify }: { showVerify: (email: string, 
     const isValid = isEmailValid(value)
     const errMsg = t`Please input a valid email address`
     const msg = (value.length && !isValid) || (required && !value.length) ? errMsg : ''
-    setErrorInput(msg ? msg : '')
+    setErrorInput(prev => ({ ...prev, email: msg ? msg : '' }))
   }, [])
 
   const debouncedCheckEmail = useMemo(() => debounce((email: string) => checkEmailExist(email), 500), [checkEmailExist])
@@ -59,15 +62,23 @@ export default function EmailForm({ showVerify }: { showVerify: (email: string, 
     debouncedCheckEmail(value)
   }
 
+  const onChangeCode = (e: FormEvent<HTMLInputElement>) => {
+    setCode(e.currentTarget.value)
+    setErrorInput(prev => ({ ...prev, referredByCode: '' }))
+  }
+
+  const hasErrorInput = Object.values(errorInput).some(e => e)
+
   const joinWaitList = async () => {
     try {
-      if (errorInput || !inputEmail || isFetching) return
+      if (hasErrorInput || !inputEmail || isFetching) return
       if (userInfo?.email) {
         await requestWaitList({ referredByCode }).unwrap()
       }
-      showVerify(inputEmail || userInfo?.email || '', referredByCode)
+      showVerify(inputEmail || userInfo?.email || '', referredByCode, !!userInfo?.email)
     } catch (error) {
-      setErrorInput(getErrorMessage(error))
+      const msg = getErrorMessage(error)
+      setErrorInput(prev => ({ ...prev, [isReferrerCodeInvalid(error) ? 'referredByCode' : 'email']: msg }))
     }
   }
   const theme = useTheme()
@@ -78,9 +89,9 @@ export default function EmailForm({ showVerify }: { showVerify: (email: string, 
           <Label>
             <Trans>Your Email*</Trans>
           </Label>
-          <Tooltip text={errorInput} show={!!errorInput} placement="top">
+          <Tooltip text={errorInput.email} show={!!errorInput.email} placement="top">
             <Input
-              $borderColor={errorInput ? theme.red : theme.border}
+              $borderColor={errorInput.email ? theme.red : theme.border}
               value={inputEmail}
               placeholder="Enter your email address"
               onChange={onChangeInput}
@@ -94,12 +105,14 @@ export default function EmailForm({ showVerify }: { showVerify: (email: string, 
           <Label>
             <Trans>Referral Code (Optional)</Trans>
           </Label>
-          <Input
-            $borderColor={theme.border}
-            value={referredByCode}
-            placeholder="Enter your Code"
-            onChange={e => setCode(e.currentTarget.value)}
-          />
+          <Tooltip text={errorInput.referredByCode} show={!!errorInput.referredByCode} placement="top">
+            <Input
+              $borderColor={errorInput.referredByCode ? theme.red : theme.border}
+              value={referredByCode}
+              placeholder="Enter your Code"
+              onChange={onChangeCode}
+            />
+          </Tooltip>
         </Column>
       </FormWrapper>
 

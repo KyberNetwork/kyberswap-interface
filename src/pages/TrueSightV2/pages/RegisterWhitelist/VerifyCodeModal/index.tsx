@@ -12,12 +12,10 @@ import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 import OTPInput from 'pages/TrueSightV2/pages/RegisterWhitelist/VerifyCodeModal/OtpInput'
-import { ParticipantStatus } from 'pages/TrueSightV2/types'
 import { getErrorMessage } from 'pages/TrueSightV2/utils'
 import { useNotify } from 'state/application/hooks'
 import { useSaveUserProfile, useSessionInfo } from 'state/authen/hooks'
 import { UserProfile } from 'state/authen/reducer'
-import { useGetParticipantKyberAIInfo } from 'state/user/hooks'
 
 import WaitListForm from '../WaitListForm'
 
@@ -58,11 +56,13 @@ export default function VerifyCodeModal({
   onDismiss,
   email,
   referredByCode,
+  showSuccess,
 }: {
   isOpen: boolean
   onDismiss: () => void
   email: string
   referredByCode: string
+  showSuccess?: boolean
 }) {
   const theme = useTheme()
   const [otp, setOtp] = useState<string>('')
@@ -70,7 +70,6 @@ export default function VerifyCodeModal({
   const [sendOtp] = useSendOtpMutation()
   const [verifySuccess, setVerifySuccess] = useState(false)
   const [error, setError] = useState(false)
-  const participantInfo = useGetParticipantKyberAIInfo()
   const [requestWaitList] = useRequestWhiteListMutation()
   const notify = useNotify()
   const { userInfo } = useSessionInfo()
@@ -87,26 +86,24 @@ export default function VerifyCodeModal({
   const sendEmail = useCallback(() => email && sendOtp({ email }), [email, sendOtp])
 
   const checkedRegisterStatus = useRef(false) // prevent spam
-  const checkRegisterStatus = useCallback(() => {
+  const sendEmailWhenInit = useCallback(() => {
     if (checkedRegisterStatus.current) return
     checkedRegisterStatus.current = true
-    if (participantInfo?.status === ParticipantStatus.WAITLISTED) {
-      showNotiSuccess()
-    } else {
-      sendEmail()
-    }
-  }, [participantInfo, showNotiSuccess, sendEmail])
+    sendEmail()
+  }, [sendEmail])
 
   useEffect(() => {
     if (!isOpen) {
-      setError(false)
-      setOtp('')
-      setVerifySuccess(false)
+      setTimeout(() => {
+        setError(false)
+        setOtp('')
+        setVerifySuccess(false)
+      }, 1000)
       checkedRegisterStatus.current = false
     } else {
-      checkRegisterStatus()
+      showSuccess ? showNotiSuccess() : sendEmailWhenInit()
     }
-  }, [isOpen, checkRegisterStatus])
+  }, [isOpen, showNotiSuccess, showSuccess, sendEmailWhenInit])
 
   const setProfile = useSaveUserProfile()
 

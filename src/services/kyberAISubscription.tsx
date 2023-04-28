@@ -27,7 +27,7 @@ const kyberAIApi = createApi({
         method: 'POST',
         body: { ...body, referralProgramId: Number(KYBER_AI_REFERRAL_ID) },
       }),
-      invalidatesTags: [RTK_QUERY_TAGS.GET_PARTICIPANT_INFO_KYBER_AI],
+      invalidatesTags: (_, error) => (error ? [] : [RTK_QUERY_TAGS.GET_PARTICIPANT_INFO_KYBER_AI]),
     }),
   }),
 })
