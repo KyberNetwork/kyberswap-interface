@@ -36,6 +36,7 @@ export const ProtectedRouteKyberAI = ({
     // change account sign in => refresh participant info
     invalidate(RTK_QUERY_TAGS.GET_PARTICIPANT_INFO_KYBER_AI)
   }, [userInfo?.identityId, invalidate])
+  return children
 
   if (loading && !loadedPage.current) return <LocalLoader />
   if (!canAccessPage) return <Navigate to={redirectUrl} replace />

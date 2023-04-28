@@ -32,7 +32,7 @@ import TokenChart from '../components/TokenChartSVG'
 import KyberScoreChart from '../components/chart/KyberScoreChart'
 import { TOKEN_LIST } from '../hooks/sampleData'
 import { useTokenListQuery } from '../hooks/useKyberAIData'
-import { TokenListTab } from '../types'
+import { KyberAIListType, TokenListTab } from '../types'
 
 const TableWrapper = styled.div`
   border-radius: 20px 20px 0 0;
@@ -643,8 +643,11 @@ export default function TokenAnalysisList() {
 
   const [networkFilter, setNetworkFilter] = useState<ChainId>()
   const toggle = useToggleModal(ApplicationModal.SHARE)
-  const { data } = useTokenListQuery({})
-  console.log('🚀 ~ file: TokenAnalysisList.tsx:635 ~ TokenAnalysisList ~ data:', data)
+  const { data } = useTokenListQuery({ type: KyberAIListType.ALL })
+
+  const listData = data?.data || []
+  console.log('🚀 ~ file: TokenAnalysisList.tsx:649 ~ TokenAnalysisList ~ listData:', listData)
+
   const above768 = useMedia('(min-width:768px)')
 
   const [searchParams, setSearchParams] = useSearchParams()
@@ -663,7 +666,7 @@ export default function TokenAnalysisList() {
     [],
   )
 
-  const pageSize = 50
+  const pageSize = 10
 
   const handleSort = (field: SORT_FIELD) => {
     const direction =

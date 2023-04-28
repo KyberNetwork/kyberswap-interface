@@ -27,6 +27,22 @@ export interface ITokenOverview {
   isWatched: boolean
 }
 
+export interface ITokenList {
+  symbol: string
+  name: string
+  sourceTokenId: string
+  tokens: Array<{ address: string; logo: string; chain: string }>
+  price: number
+  change_24h: number
+  volume_24h: number
+  '7daysprice': Array<{ value: number; timestamp: number }>
+  kyber_score: number
+  ks_3d: Array<{ tag: string; price: number; kyber_score: number; created_at: number }>
+  kyber_tag: string
+  market_cap: number
+  isWatched: boolean
+}
+
 export interface INumberOfTrades {
   buy: number
   sell: number
@@ -179,4 +195,15 @@ export type ParticipantInfo = {
   referralCode: string
   status: ParticipantStatus
   rank: number
+}
+
+export enum KyberAIListType {
+  ALL = 'ALL',
+  BULLISH = 'BULLISH',
+  BEARISH = 'BEARISH',
+  TRENDING = 'TRENDING',
+  TOP_CEX_INFLOW = 'TOP_CEX_INFLOW',
+  TOP_CEX_OUTFLOW = 'TOP_CEX_OUTFLOW',
+  TOP_TRADED = 'TOP_TRADED',
+  TOP_SOCIAL = 'TOP_SOCIAL',
 }

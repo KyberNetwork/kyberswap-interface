@@ -454,7 +454,7 @@ export default function SingleToken() {
       <TokenOverview data={data} isLoading={isLoading} />
 
       <Row alignItems="center">
-        <Row gap={above768 ? '12px' : '8px'} justify="center">
+        <Row gap={above768 ? '24px' : '12px'} justify="center">
           {Object.values(DiscoverTokenTab).map((tab: DiscoverTokenTab, index: number) => (
             <>
               {index !== 0 && <Text fontSize={24}>|</Text>}

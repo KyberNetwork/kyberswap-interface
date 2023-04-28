@@ -10,9 +10,11 @@ import {
   INumberOfHolders,
   INumberOfTrades,
   INumberOfTransfers,
+  ITokenList,
   ITokenOverview,
   ITokenSearchResult,
   ITradingVolume,
+  KyberAIListType,
   OHLCData,
 } from '../types'
 
@@ -24,14 +26,17 @@ const kyberAIApi = createApi({
   tagTypes: ['tokenOverview'],
   endpoints: builder => ({
     //1.
-    tokenList: builder.query({
-      query: () => ({
+    tokenList: builder.query<
+      { data: ITokenList[]; totalItems: number },
+      { type?: KyberAIListType; chain?: string; page?: number; pageSize?: number }
+    >({
+      query: ({ type, chain, page, pageSize }) => ({
         url: '/tokens',
-        params: { type: 'BULLISH', chain: 'ethereum', page: 1, pageSize: 10 },
+        params: { type: type || 'ALL', chain: chain || 'all', page: page || 1, size: pageSize || 10 },
       }),
       transformResponse: (res: any) => {
         if (res.code === 0) {
-          return res.data
+          return { data: res.data.data.contents, totalItems: res.data.paging.totalItems }
         }
         throw new Error(res.msg)
       },
