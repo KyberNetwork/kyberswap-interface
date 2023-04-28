@@ -1,6 +1,8 @@
 import { Trans } from '@lingui/macro'
 import { motion, useScroll, useSpring, useTransform } from 'framer-motion'
 import { ReactNode } from 'react'
+import { Check } from 'react-feather'
+import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -14,7 +16,7 @@ import ethereumImage from 'assets/images/truesight-v2/landing-page/ethereum.png'
 import feature1 from 'assets/images/truesight-v2/landing-page/feature1.png'
 import feature2 from 'assets/images/truesight-v2/landing-page/feature2.png'
 import feature3 from 'assets/images/truesight-v2/landing-page/feature3.png'
-// import gradientImage2 from 'assets/images/truesight-v2/landing-page/gradient2.png'
+import gradientImage2 from 'assets/images/truesight-v2/landing-page/gradient2.png'
 // import gradientImage3 from 'assets/images/truesight-v2/landing-page/gradient3.png'
 import gradientImage from 'assets/images/truesight-v2/landing-page/gradient.png'
 import iconImage from 'assets/images/truesight-v2/landing-page/icon.png'
@@ -34,6 +36,7 @@ import GlobalIcon from 'components/Icons/Icon'
 import Row from 'components/Row'
 import useTheme from 'hooks/useTheme'
 import RegisterWhitelist from 'pages/TrueSightV2/pages/RegisterWhitelist'
+import { MEDIA_WIDTHS } from 'theme'
 
 const Icon = ({
   id,
@@ -75,6 +78,10 @@ const FixedWidth = styled.div`
   > * {
     flex: 1;
   }
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex-direction: column;
+  `}
 `
 const PartWrapper = styled(motion.div)`
   display: flex;
@@ -82,6 +89,11 @@ const PartWrapper = styled(motion.div)`
   justify-content: center;
   max-width: 1224px;
   position: relative;
+  width: 100%;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex-direction: row;
+    padding:12px;
+  `}
 `
 
 const transition = { type: 'spring', bounce: 0, duration: 1.8 }
@@ -109,7 +121,9 @@ const Part1 = styled(PartWithMotion)`
   min-height: 700px;
   max-height: 1000px;
 `
-const Part2 = styled(PartWithMotion)``
+const Part2 = styled(PartWithMotion)`
+  margin-bottom: 40px;
+`
 const Part3 = styled(PartWithMotion)``
 const Part4 = styled(PartWithMotion)`
   height: 350px;
@@ -163,7 +177,11 @@ const FloatingImageWithMotion = (props: {
     </motion.div>
   )
 }
-const VideoWrapper = styled.div``
+const VideoWrapper = styled.div`
+  img {
+    width: 100%;
+  }
+`
 const ReasonWrapper = styled.div`
   border: 1px solid rgba(49, 203, 158, 0.5);
   border-radius: 16px;
@@ -191,6 +209,16 @@ const ReasonWrapper = styled.div`
   ${Column}:not(:first-child) {
     border-left: 1px solid ${({ theme }) => theme.border};
   }
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex-direction: column;
+    padding: 0 12px;
+    ${Column} { padding: 16px 0;}
+    ${Column}:not(:first-child) {
+      border-left: none;
+      border-top: 1px solid ${({ theme }) => theme.primary};
+    }
+  `}
 `
 
 const FeatureBox = styled(motion.div)`
@@ -214,8 +242,29 @@ const CallToActionBox = styled.div`
   border: 2px solid #e3e3e332;
   padding: 44px;
 `
+
+const StyledUL = styled.ul`
+  color: ${({ theme }) => theme.subText};
+  font-size: 16px;
+  line-height: 24px;
+  list-style-type: none;
+  li {
+    position: relative;
+    padding: 6px 0;
+  }
+`
+
+const CheckIcon = () => {
+  return (
+    <div style={{ position: 'absolute', left: '-40px' }}>
+      <Check size={28} />
+    </div>
+  )
+}
+
 export default function KyberAILandingPage() {
   const theme = useTheme()
+  const above768 = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   return (
     <Wrapper>
@@ -293,10 +342,12 @@ export default function KyberAILandingPage() {
         </FixedWidth>
       </Part1>
       <Part2>
+        <VideoWrapper>
+          <img src={videoPlaceholderImage} alt="video placeholder" />
+        </VideoWrapper>
+      </Part2>
+      <Part2>
         <Column maxWidth="1224px" gap="36px">
-          <VideoWrapper>
-            <img src={videoPlaceholderImage} alt="video placeholder" />
-          </VideoWrapper>
           <ReasonWrapper>
             <Column>
               <Icon id="query-stats" />
@@ -336,7 +387,7 @@ export default function KyberAILandingPage() {
 
       <Part3>
         <FixedWidth style={{ height: '650px' }}>
-          <Column justifyContent="center" style={{ flexGrow: 4 }}>
+          <Column justifyContent="center" style={{ flexGrow: 4, order: above768 ? 2 : 1 }}>
             <Text fontSize="48px" lineHeight="56px" fontWeight={500} color={theme.subText}>
               <Trans>
                 Less Effort <br />
@@ -362,7 +413,7 @@ export default function KyberAILandingPage() {
               </Trans>
             </Text>
           </Column>
-          <Column style={{ position: 'relative', height: '100%', flexGrow: 6 }}>
+          <Column style={{ position: 'relative', height: '100%', flexGrow: 6, order: above768 ? 1 : 2 }}>
             <FloatingImage src={image1} alt="kyberAI image" left={-10} top={-20} />
           </Column>
         </FixedWidth>
@@ -375,6 +426,14 @@ export default function KyberAILandingPage() {
           top={-20}
           parallaxDistance={-8}
           style={{ zIndex: -1 }}
+        />
+        <FloatingImageWithMotion
+          src={gradientImage2}
+          alt="stars"
+          left={-200}
+          top={-200}
+          parallaxDistance={-8}
+          style={{ zIndex: -1, opacity: 0.7, scale: 0.8 }}
         />
 
         <Column gap="20px" alignItems="center">
@@ -468,20 +527,36 @@ export default function KyberAILandingPage() {
             <Text fontSize="48px" lineHeight="56px" fontWeight={500} color={theme.text}>
               <Trans>Access deep insights & stay informed.</Trans>
             </Text>
-            <ul>
+            <StyledUL>
               <li>
-                <Trans>Search from over 4000+ tokens on 7 chains</Trans>
+                <CheckIcon />
+                <Trans>
+                  Search from over <span style={{ color: theme.text }}>4000+ tokens on 7 chains</span>
+                </Trans>
               </li>
               <li>
-                <Trans>Subscribe to receive daily emails on the top tokens as recommended by KyberAI</Trans>
+                <CheckIcon />
+                <Trans>
+                  Subscribe to <span style={{ color: theme.text }}>receive daily emails on the top tokens</span> as
+                  recommended by KyberAI
+                </Trans>
               </li>
               <li>
-                <Trans>Monitor token prices - Set a price alert, sit back and we&apos;ll notify you</Trans>
+                <CheckIcon />
+                <Trans>
+                  <span style={{ color: theme.text }}>Monitor token prices - Set a price alert</span>, sit back and
+                  we&apos;ll notify you
+                </Trans>
               </li>
               <li>
-                <Trans>Create a watchlist of your favorite tokens, and analyze them quickly</Trans>
+                <CheckIcon />
+                <Trans>
+                  {' '}
+                  <span style={{ color: theme.text }}>Create a watchlist of your favorite tokens</span>, and analyze
+                  them quickly
+                </Trans>
               </li>
-            </ul>
+            </StyledUL>
           </Column>
         </FixedWidth>
       </Part6>
@@ -493,17 +568,23 @@ export default function KyberAILandingPage() {
                 <Trans>Discover new opportunities.</Trans>
               </Trans>
             </Text>
-            <Text>
+            <Text fontSize="16px" lineHeight="24px" color={theme.subText}>
               <Trans>
-                With advanced machine learning algorithms to help you stay ahead of the curve, KyberAI gives you the
-                AI/ML edge by analyzing thousands of analyze thousands of tokens and billions of data points, putting
-                you ahead of the curve. Whether you&apos;re a seasoned retail trader, just starting out or somewhere in
-                between, KyberAI can give you a competitive edge in trading.
+                <p>
+                  With advanced machine learning algorithms to help you stay ahead of the curve, KyberAI gives you the
+                  AI/ML edge by analyzing thousands of{' '}
+                  <span style={{ color: theme.text }}>analyze thousands of tokens and billions of data points</span>,
+                  putting you ahead of the curve.{' '}
+                </p>
+                <p>
+                  Whether you&apos;re a seasoned retail trader, just starting out or somewhere in between,{' '}
+                  <span style={{ color: theme.text }}>KyberAI can give you a competitive edge in trading.</span>
+                </p>
               </Trans>
             </Text>
           </Column>
           <Column style={{ position: 'relative' }}>
-            <FloatingImage src={coreEditImage} alt="core edit" left={0} top={-100} />
+            <FloatingImage src={coreEditImage} alt="core edit" left={0} top={-50} />
           </Column>
         </FixedWidth>
       </Part7>

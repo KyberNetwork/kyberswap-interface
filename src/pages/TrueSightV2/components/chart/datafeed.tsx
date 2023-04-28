@@ -131,7 +131,6 @@ export const useDatafeed = (isBTC: boolean, token?: ITokenOverview) => {
             candleSize: candleSize,
             currency: isBTC ? 'BTC' : 'USD',
           })
-          console.log('🚀 ~ file: datafeed.tsx:134 ~ getData ~ chain:', chain)
 
           onTick(
             (data || [])
