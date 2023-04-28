@@ -1,6 +1,7 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useGetParticipantInfoQuery } from 'services/kyberAISubscription'
 
 import { TERM_FILES_PATH } from 'constants/index'
 import { SupportedLocale } from 'constants/locales'
@@ -12,7 +13,9 @@ import {
   useOldStaticFeeFactoryContract,
   useStaticFeeFactoryContract,
 } from 'hooks/useContract'
+import { ParticipantInfo, ParticipantStatus } from 'pages/TrueSightV2/types'
 import { AppDispatch, AppState } from 'state'
+import { useSessionInfo } from 'state/authen/hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useSingleContractMultipleData } from 'state/multicall/hooks'
@@ -437,17 +440,40 @@ export const useHolidayMode: () => [boolean, () => void] = () => {
   return [isChristmasTime() ? holidayMode : false, toggle]
 }
 
+export const useGetParticipantKyberAIInfo = (): ParticipantInfo => {
+  const { userInfo } = useSessionInfo()
+  const { data: data = { rank: 0, status: ParticipantStatus.UNKNOWN, referralCode: '', id: 0 } } =
+    useGetParticipantInfoQuery(undefined, {
+      skip: !userInfo,
+    })
+  return data
+}
+
+export const useIsWhiteListKyberAI = () => {
+  const { userInfo } = useSessionInfo()
+  const { isLogin, pendingAuthentication } = useSessionInfo()
+  const { data: participantInfo, isFetching } = useGetParticipantInfoQuery(undefined, {
+    skip: !userInfo,
+  })
+  return {
+    loading: isFetching || pendingAuthentication,
+    isWhiteList: isLogin && participantInfo?.status === ParticipantStatus.WHITELISTED,
+  }
+}
+
 export const useKyberAIWidget: () => [boolean, () => void] = () => {
   const dispatch = useAppDispatch()
   const kyberAIWidget = useAppSelector(state =>
     state.user.kyberAIWidget === undefined ? true : state.user.kyberAIWidget,
   )
 
+  const { isWhiteList } = useIsWhiteListKyberAI()
+
   const toggle = useCallback(() => {
     dispatch(toggleKyberAIWidget())
   }, [dispatch])
 
-  return [kyberAIWidget, toggle]
+  return [kyberAIWidget && isWhiteList, toggle]
 }
 
 export const usePermitData: (

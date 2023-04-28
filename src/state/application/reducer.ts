@@ -37,6 +37,7 @@ interface ApplicationState {
   readonly prommEthPrice: ETHPrice
   readonly kncPrice?: string
   readonly serviceWorkerRegistration: ServiceWorkerRegistration | null
+
   readonly notification: {
     isLoading: boolean
     topicGroups: Topic[]
@@ -148,6 +149,7 @@ export default createReducer(initialState, builder =>
         announcementDetail,
       }
     })
+
     .addMatcher(ksSettingApi.endpoints.getKyberswapConfiguration.matchFulfilled, (state, action) => {
       const { chainId } = action.meta.arg.originalArgs
       const evm = isEVM(chainId)

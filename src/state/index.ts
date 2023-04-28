@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { load, save } from 'redux-localstorage-simple'
+import kyberAISubscriptionApi from 'services/kyberAISubscription'
 import priceAlertApi from 'services/priceAlert'
 import routeApi from 'services/route'
 
@@ -9,9 +10,11 @@ import kyberAIApi, { coinglassApi } from 'pages/TrueSightV2/hooks/useKyberAIData
 
 import annoucementApi from '../services/announcement'
 import geckoTerminalApi from '../services/geckoTermial'
+import identifyApi from '../services/identity'
 import ksSettingApi from '../services/ksSetting'
 import notificationApi from '../services/notification'
 import application from './application/reducer'
+import authen from './authen/reducer'
 import bridge from './bridge/reducer'
 import burnProAmm from './burn/proamm/reducer'
 import burn from './burn/reducer'
@@ -44,6 +47,7 @@ const store = configureStore({
   devTools: process.env.NODE_ENV !== 'production',
   reducer: {
     application,
+    authen,
     user,
     transactions,
     swap,
@@ -61,6 +65,8 @@ const store = configureStore({
     [annoucementApi.reducerPath]: annoucementApi.reducer,
     [geckoTerminalApi.reducerPath]: geckoTerminalApi.reducer,
     [kyberAIApi.reducerPath]: kyberAIApi.reducer,
+    [kyberAISubscriptionApi.reducerPath]: kyberAISubscriptionApi.reducer,
+    [identifyApi.reducerPath]: identifyApi.reducer,
     [coinglassApi.reducerPath]: coinglassApi.reducer,
     [notificationApi.reducerPath]: notificationApi.reducer,
     [ksSettingApi.reducerPath]: ksSettingApi.reducer,
@@ -81,6 +87,8 @@ const store = configureStore({
       .concat(geckoTerminalApi.middleware)
       .concat(annoucementApi.middleware)
       .concat(kyberAIApi.middleware)
+      .concat(kyberAISubscriptionApi.middleware)
+      .concat(identifyApi.middleware)
       .concat(coinglassApi.middleware)
       .concat(notificationApi.middleware)
       .concat(ksSettingApi.middleware)

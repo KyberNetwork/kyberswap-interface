@@ -1,4 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { t } from '@lingui/macro'
 import { commify } from 'ethers/lib/utils'
 import { DefaultTheme } from 'styled-components'
 
@@ -70,4 +71,14 @@ export const NETWORK_TO_CHAINID: { [chain: string]: ChainId } = {
   avalanche: ChainId.AVAXMAINNET,
   polygon: ChainId.MATIC,
   fantom: ChainId.FANTOM,
+}
+
+export const getErrorMessage = (error: any) => {
+  const mapErr: { [key: number]: string } = {
+    4004: t`OTP wrong or expired. Please try again.`,
+    4040: t`Referral code is invalid`,
+    4090: t`This email address is already registered`,
+  }
+  const code = error?.data?.code
+  return mapErr[code] || t`Error occur, please try again`
 }

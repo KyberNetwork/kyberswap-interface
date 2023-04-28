@@ -1,3 +1,4 @@
+import KyberOauth2 from '@kybernetwork/oauth2'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
@@ -10,6 +11,7 @@ import MenuFlyout from 'components/MenuFlyout'
 import { PROMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useDisconnectWallet from 'hooks/useDisconnectWallet'
+import { useSessionInfo } from 'state/authen/hooks'
 import { ExternalLink } from 'theme'
 
 const shareStyleMenuItem = css`
@@ -48,6 +50,7 @@ const customStyleMenu = { padding: '8px 0px' }
 const Settings: React.FC = () => {
   const disconnectWallet = useDisconnectWallet()
   const { chainId, account = '' } = useActiveWeb3React()
+  const { isLogin } = useSessionInfo()
 
   return (
     <MenuFlyout
@@ -72,6 +75,12 @@ const Settings: React.FC = () => {
             <Trans>Disconnect</Trans>
           </Text>
         </MenuItem>
+        {isLogin && (
+          <MenuItem onClick={() => KyberOauth2.logout()}>
+            <LogOut size={16} />
+            <Trans>Sign out</Trans>
+          </MenuItem>
+        )}
       </Column>
     </MenuFlyout>
   )

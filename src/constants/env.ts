@@ -47,6 +47,8 @@ export const KYBER_DAO_STATS_API = required('KYBER_DAO_STATS_API')
 
 export const PRICE_ALERT_API = required('PRICE_ALERT_API')
 export const OAUTH_CLIENT_ID = required('OAUTH_CLIENT_ID')
+export const BFF_API = required('BFF_API')
+export const KYBER_AI_REFERRAL_ID = required('KYBER_AI_REFERRAL_ID')
 
 type FirebaseConfig = {
   apiKey: string

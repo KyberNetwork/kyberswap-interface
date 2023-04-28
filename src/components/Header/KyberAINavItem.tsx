@@ -9,6 +9,7 @@ import Icon from 'components/Icons/Icon'
 import Row, { RowFit } from 'components/Row'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 
 import SlideToUnlock from './SlideToUnlock'
@@ -77,6 +78,7 @@ const BetaTag = () => {
 
 const KyberAINavItem = () => {
   const { pathname } = useLocation()
+  const { account } = useActiveWeb3React()
   const isActive = pathname.includes(APP_PATHS.KYBERAI)
   return (
     <KyberAIWrapper
@@ -103,19 +105,23 @@ const KyberAINavItem = () => {
               <Trans>About</Trans>
             </Row>
           </StyledNavLink>
-          <StyledNavLink id="kyberai_ranking" to={APP_PATHS.KYBERAI_RANKINGS}>
-            <Row gap="12px">
-              <Icon id="leaderboard" size={16} />
-              <Trans>Rankings</Trans>
-            </Row>
-          </StyledNavLink>
+          {account && (
+            <>
+              <StyledNavLink id="kyberai_ranking" to={APP_PATHS.KYBERAI_RANKINGS}>
+                <Row gap="12px">
+                  <Icon id="leaderboard" size={16} />
+                  <Trans>Rankings</Trans>
+                </Row>
+              </StyledNavLink>
 
-          <StyledNavLink id="kyberai_explore" to={APP_PATHS.KYBERAI_EXPLORE}>
-            <Row gap="12px">
-              <Icon id="truesight-v2" size={16} />
-              <Trans>Explore</Trans>
-            </Row>
-          </StyledNavLink>
+              <StyledNavLink id="kyberai_explore" to={APP_PATHS.KYBERAI_EXPLORE}>
+                <Row gap="12px">
+                  <Icon id="truesight-v2" size={16} />
+                  <Trans>Explore</Trans>
+                </Row>
+              </StyledNavLink>
+            </>
+          )}
         </Column>
       }
     />

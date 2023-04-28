@@ -31,11 +31,11 @@ import tokenPriceLightImage from 'assets/images/truesight-v2/landing-page/token-
 import tokenPriceImage from 'assets/images/truesight-v2/landing-page/token-price.png'
 import videoPlaceholderImage from 'assets/images/truesight-v2/landing-page/video-placeholder.png'
 import sprite from 'assets/svg/kyberAILandingPageSprite.svg'
-import { ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import GlobalIcon from 'components/Icons/Icon'
 import Row from 'components/Row'
 import useTheme from 'hooks/useTheme'
+import RegisterWhitelist from 'pages/TrueSightV2/pages/RegisterWhitelist'
 import { MEDIA_WIDTHS } from 'theme'
 
 const Icon = ({
@@ -143,7 +143,6 @@ const Part7 = styled(PartWithMotion)`
 const Part8 = styled(PartWithMotion)`
   height: 450px;
 `
-const ConnectWalletButton = styled(ButtonPrimary)``
 
 const ColumnWithMotion = styled(motion.div)`
   ${Column}
@@ -281,9 +280,7 @@ export default function KyberAILandingPage() {
             <Text fontSize="20px" lineHeight="24px" fontWeight={500}>
               Get alpha before it happens
             </Text>
-            <ConnectWalletButton style={{ height: '36px', width: '236px' }}>
-              <Trans>Connect Wallet</Trans>
-            </ConnectWalletButton>
+            <RegisterWhitelist />
           </Column>
           <ColumnWithMotion style={{ position: 'relative' }}>
             <FloatingImageWithMotion src={bitcoinImage} alt="bitcoin" left={-120} top={300} parallaxDistance={6} />
@@ -480,7 +477,7 @@ export default function KyberAILandingPage() {
                   KyberScore - our unique insight uses our Machine Learning algorithms
                 </span>{' '}
                 and multiple on-chain and off-chain indicators to identify whether a token is going to be{' '}
-                <span style={{ color: theme.primary }}>Bullish</span> or
+                <span style={{ color: theme.primary }}>Bullish</span> or{' '}
                 <span style={{ color: theme.red }}>Bearish</span> in the short term.
               </Trans>
             </Text>
@@ -603,7 +600,7 @@ export default function KyberAILandingPage() {
                 </Trans>
               </Text>
               <Row style={{ flex: 1 }}>
-                <ConnectWalletButton width="236px">Connect Wallet</ConnectWalletButton>
+                <RegisterWhitelist showForm={false} />
               </Row>
             </Row>
           </CallToActionBox>

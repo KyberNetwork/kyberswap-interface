@@ -167,3 +167,16 @@ export enum KyberAITimeframe {
   THREE_MONTHS = '3m',
   SIX_MONTHS = '6m',
 }
+
+export enum ParticipantStatus {
+  WHITELISTED = 'WHITELISTED',
+  WAITLISTED = 'WAITLISTED',
+  UNKNOWN = 'UNKNOWN',
+}
+
+export type ParticipantInfo = {
+  id: number
+  referralCode: string
+  status: ParticipantStatus
+  rank: number
+}
