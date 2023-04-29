@@ -49,7 +49,7 @@ export function NetworkLogo({ chainId, style = {} }: { chainId: ChainId; style?:
 export function TokenLogoWithChain(data: { tokenLogo: string; chainId: ChainId; size: number | string }): JSX.Element
 export function TokenLogoWithChain(data: { size: number | string; currency: Currency | WrappedTokenInfo }): JSX.Element
 export function TokenLogoWithChain(data: any) {
-  const { tokenLogo: tokenLogoParam, chainId: chainParam, size, currency } = data // todo
+  const { tokenLogo: tokenLogoParam, chainId: chainParam, size, currency } = data
 
   const chainId: ChainId = currency?.chainId || chainParam
   const tokenLogo = (currency?.isNative ? NETWORKS_INFO[chainId].nativeToken.logo : currency?.logoURI) || tokenLogoParam

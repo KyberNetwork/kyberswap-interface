@@ -18,7 +18,6 @@ import SwapForm from './SwapForm'
 
 export const getAxelarScanUrl = (srcTxHash: string) => `${CROSS_CHAIN_CONFIG.AXELAR_SCAN_URL}${srcTxHash}`
 
-// todo lazy load
 function CrossChain() {
   const theme = useTheme()
   const { chainId, isSolana } = useActiveWeb3React()

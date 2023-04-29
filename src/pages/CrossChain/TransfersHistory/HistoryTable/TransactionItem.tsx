@@ -6,7 +6,6 @@ import styled from 'styled-components'
 
 import { NETWORKS_INFO } from 'constants/networks'
 import { MultichainTransferStatus } from 'hooks/bridge/useGetBridgeTransfers'
-import useTheme from 'hooks/useTheme'
 import RouteCell from 'pages/Bridge/BridgeTransferHistory/RouteCell'
 import StatusBadge from 'pages/Bridge/BridgeTransferHistory/StatusBadge'
 import TimeCell from 'pages/Bridge/BridgeTransferHistory/TimeCell'
@@ -104,7 +103,6 @@ const RowWrapper = styled.div`
 
 const TransactionItem = ({ data: transfer }: { data: CrossChainTransfer }) => {
   const [expand, setExpand] = useState(false)
-  const theme = useTheme()
   const { srcTokenSymbol, dstTokenSymbol } = transfer
 
   const dstChainName = NETWORKS_INFO[Number(transfer.dstChainId) as ChainId].name

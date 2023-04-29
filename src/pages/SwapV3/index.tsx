@@ -4,7 +4,7 @@ import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } fro
 import Skeleton from 'react-loading-skeleton'
 import { useLocation } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
-import styled, { DefaultTheme, keyframes } from 'styled-components'
+import styled from 'styled-components'
 
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import Banner from 'components/Banner'
@@ -30,6 +30,7 @@ import {
   PageWrapper,
   RoutesWrapper,
   SwapFormWrapper,
+  highlight,
 } from 'components/swapv2/styleds'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -67,20 +68,6 @@ export enum TAB {
   LIMIT = 'limit',
   CROSS_CHAIN = 'cross_chain',
 }
-
-const highlight = (theme: DefaultTheme) => keyframes`
-  0% {
-    box-shadow: 0 0 0 0 ${theme.primary};
-  }
-
-  70% {
-    box-shadow: 0 0 0 2px ${theme.primary};
-  }
-
-  100% {
-    box-shadow: 0 0 0 0 ${theme.primary};
-  }
-`
 
 const AppBodyWrapped = styled(BodyWrapper)`
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);

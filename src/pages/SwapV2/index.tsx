@@ -7,7 +7,7 @@ import Skeleton from 'react-loading-skeleton'
 import { useLocation } from 'react-router-dom'
 import { usePrevious } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
-import styled, { DefaultTheme, keyframes } from 'styled-components'
+import styled from 'styled-components'
 
 import christmasImg from 'assets/images/christmas-decor2.svg'
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
@@ -56,6 +56,7 @@ import {
   SwapCallbackError,
   SwapFormWrapper,
   Wrapper,
+  highlight,
 } from 'components/swapv2/styleds'
 import { AGGREGATOR_WAITING_TIME, APP_PATHS, TIME_TO_REFRESH_SWAP_RATE } from 'constants/index'
 import { STABLE_COINS_ADDRESS } from 'constants/tokens'
@@ -108,19 +109,6 @@ const ChristmasDecor = styled.div`
     right: -6px;
     left: -4px;
   `}
-`
-const highlight = (theme: DefaultTheme) => keyframes`
-  0% {
-    box-shadow: 0 0 0 0 ${theme.primary};
-  }
-
-  70% {
-    box-shadow: 0 0 0 2px ${theme.primary};
-  }
-
-  100% {
-    box-shadow: 0 0 0 0 ${theme.primary};
-  }
 `
 
 const AppBodyWrapped = styled(BodyWrapper)`
@@ -325,15 +313,12 @@ export default function Swap() {
     }
   }, [showingPairSuggestionImport])
 
-  const handleConfirmTokenWarning = useCallback(
-    (tokens: Currency[]) => {
-      handleDismissTokenWarning()
-      if (showingPairSuggestionImport) {
-        refSuggestPair.current?.onConfirmImportToken() // callback from children
-      }
-    },
-    [showingPairSuggestionImport, handleDismissTokenWarning],
-  )
+  const handleConfirmTokenWarning = useCallback(() => {
+    handleDismissTokenWarning()
+    if (showingPairSuggestionImport) {
+      refSuggestPair.current?.onConfirmImportToken() // callback from children
+    }
+  }, [showingPairSuggestionImport, handleDismissTokenWarning])
 
   const formattedAmounts = {
     [independentField]: typedValue,

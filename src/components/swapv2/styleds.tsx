@@ -1,7 +1,7 @@
 import { transparentize } from 'polished'
 import { useState } from 'react'
 import { Text } from 'rebass'
-import styled, { CSSProperties, css } from 'styled-components'
+import styled, { CSSProperties, DefaultTheme, css, keyframes } from 'styled-components'
 
 import { ReactComponent as Alert } from 'assets/images/alert.svg'
 import { AutoColumn } from 'components/Column'
@@ -293,5 +293,19 @@ export const IconButton = styled(StyledActionButtonSwapForm)<{ enableClickToRefr
   &:hover {
     cursor: default;
     background-color: transparent;
+  }
+`
+
+export const highlight = (theme: DefaultTheme) => keyframes`
+  0% {
+    box-shadow: 0 0 0 0 ${theme.primary};
+  }
+
+  70% {
+    box-shadow: 0 0 0 2px ${theme.primary};
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 ${theme.primary};
   }
 `
