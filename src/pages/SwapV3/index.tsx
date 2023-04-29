@@ -1,4 +1,4 @@
-import { Currency, Token } from '@kyberswap/ks-sdk-core'
+import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Skeleton from 'react-loading-skeleton'
@@ -43,6 +43,7 @@ import CrossChainLink from 'pages/CrossChain/CrossChainLink'
 import CrossChainTransfersHistory from 'pages/CrossChain/TransfersHistory'
 import Header from 'pages/SwapV3/Header'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
+import useTokenNotInDefault from 'pages/SwapV3/useTokenNotInDefault'
 import { useLimitActionHandlers } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
 import { useDefaultsFromURLSearch, useSwapActionHandlers } from 'state/swap/hooks'
@@ -149,17 +150,9 @@ export default function Swap() {
   const { onCurrencySelection, onUserInput } = useSwapActionHandlers()
   const { currencies, currencyIn, currencyOut } = useCurrenciesByPage()
 
-  const urlLoadedTokens: Token[] = useMemo(
-    () => [currencyIn, currencyOut]?.filter((c): c is Token => c instanceof Token) ?? [],
-    [currencyIn, currencyOut],
-  )
   // dismiss warning if all imported tokens are in active lists
   const defaultTokens = useAllTokens()
-  const importTokensNotInDefault =
-    urlLoadedTokens &&
-    urlLoadedTokens.filter((token: Token) => {
-      return !Boolean(token.address in defaultTokens)
-    })
+  const importTokensNotInDefault = useTokenNotInDefault()
 
   const handleTypeInput = useCallback(
     (value: string) => {

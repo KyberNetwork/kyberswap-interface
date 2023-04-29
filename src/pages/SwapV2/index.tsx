@@ -38,7 +38,6 @@ import AdvancedSwapDetailsDropdown from 'components/swapv2/AdvancedSwapDetailsDr
 import ConfirmSwapModal from 'components/swapv2/ConfirmSwapModal'
 import GasPriceTrackerPanel from 'components/swapv2/GasPriceTrackerPanel'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
-import { PairSuggestionHandle } from 'components/swapv2/PairSuggestion'
 import RefreshButton from 'components/swapv2/RefreshButton'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TokenInfoTab from 'components/swapv2/TokenInfoTab'
@@ -72,6 +71,7 @@ import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { BodyWrapper } from 'pages/AppBody'
 import { TAB } from 'pages/SwapV3'
 import Header from 'pages/SwapV3/Header'
+import useTokenNotInDefault from 'pages/SwapV3/useTokenNotInDefault'
 import useUpdateSlippageInStableCoinSwap from 'pages/SwapV3/useUpdateSlippageInStableCoinSwap'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { Field } from 'state/swap/actions'
@@ -91,6 +91,7 @@ import { formattedNum } from 'utils'
 import { getTradeComposition } from 'utils/aggregationRouting'
 import { Aggregator } from 'utils/aggregator'
 import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
+import { checkPriceImpact } from 'utils/prices'
 import { captureSwapError } from 'utils/sentry'
 import { getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList } from 'utils/tokenInfo'
@@ -153,10 +154,6 @@ export default function Swap() {
   const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
   const { pathname } = useLocation()
   const [encodeSolana] = useEncodeSolana()
-
-  const refSuggestPair = useRef<PairSuggestionHandle>(null)
-
-  const [showingPairSuggestionImport, setShowingPairSuggestionImport] = useState<boolean>(false) // show modal import when click pair suggestion
 
   const shouldHighlightSwapBox = qs.highlightBox === 'true'
 
@@ -230,17 +227,9 @@ export default function Swap() {
   const currencyIn: Currency | undefined = currencies[Field.INPUT]
   const currencyOut: Currency | undefined = currencies[Field.OUTPUT]
 
-  const urlLoadedTokens: Token[] = useMemo(
-    () => [currencyIn, currencyOut]?.filter((c): c is Token => c instanceof Token) ?? [],
-    [currencyIn, currencyOut],
-  )
   // dismiss warning if all imported tokens are in active lists
   const defaultTokens = useAllTokens()
-  const importTokensNotInDefault =
-    urlLoadedTokens &&
-    urlLoadedTokens.filter((token: Token) => {
-      return !Boolean(token.address in defaultTokens)
-    })
+  const importTokensNotInDefault = useTokenNotInDefault()
 
   const balanceIn: CurrencyAmount<Currency> | undefined = currencyBalances[Field.INPUT]
   const balanceOut: CurrencyAmount<Currency> | undefined = currencyBalances[Field.OUTPUT]
@@ -259,9 +248,11 @@ export default function Swap() {
   const trade = showWrap ? undefined : v2Trade
 
   const priceImpact = trade?.priceImpact
-  const isPriceImpactInvalid = !!priceImpact && priceImpact === -1
-  const isPriceImpactHigh = !!priceImpact && priceImpact > 2
-  const isPriceImpactVeryHigh = !!priceImpact && priceImpact > 10
+  const {
+    isInvalid: isPriceImpactInvalid,
+    isHigh: isPriceImpactHigh,
+    isVeryHigh: isPriceImpactVeryHigh,
+  } = checkPriceImpact(priceImpact)
 
   const parsedAmounts = showWrap
     ? {
@@ -306,19 +297,12 @@ export default function Swap() {
 
   // reset if they close warning without tokens in params
   const handleDismissTokenWarning = useCallback(() => {
-    if (showingPairSuggestionImport) {
-      setShowingPairSuggestionImport(false)
-    } else {
-      setDismissTokenWarning(true)
-    }
-  }, [showingPairSuggestionImport])
+    setDismissTokenWarning(true)
+  }, [])
 
   const handleConfirmTokenWarning = useCallback(() => {
     handleDismissTokenWarning()
-    if (showingPairSuggestionImport) {
-      refSuggestPair.current?.onConfirmImportToken() // callback from children
-    }
-  }, [showingPairSuggestionImport, handleDismissTokenWarning])
+  }, [handleDismissTokenWarning])
 
   const formattedAmounts = {
     [independentField]: typedValue,
@@ -519,8 +503,7 @@ export default function Swap() {
 
   const shouldRenderTokenInfo = isShowTokenInfoSetting && currencyIn && currencyOut && isPairInWhiteList && isSwapPage
 
-  const isShowModalImportToken =
-    isLoadedTokenDefault && importTokensNotInDefault.length > 0 && (!dismissTokenWarning || showingPairSuggestionImport)
+  const isShowModalImportToken = isLoadedTokenDefault && importTokensNotInDefault.length > 0 && !dismissTokenWarning
 
   const tradeRouteComposition = useMemo(() => {
     return getTradeComposition(chainId, trade?.inputAmount, trade?.tokens, trade?.swaps, defaultTokens)
