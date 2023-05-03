@@ -3,7 +3,7 @@ import { rgba } from 'polished'
 import { useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { X } from 'react-feather'
-import { useNavigate } from 'react-router-dom'
+import { createSearchParams, useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { DefaultTheme, css } from 'styled-components'
 
@@ -13,10 +13,13 @@ import Icon from 'components/Icons/Icon'
 import Row, { RowBetween } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { useKyberAIWidget } from 'state/user/hooks'
 
+import { useTokenListQuery } from '../hooks/useKyberAIData'
+import { KyberAIListType } from '../types'
 import { WidgetTable } from './table'
 
 const CloseButton = styled.div`
@@ -162,6 +165,7 @@ const widgetTabTooltip = {
 }
 
 export default function Widget() {
+  const { account } = useActiveWeb3React()
   const theme = useTheme()
   const [showExpanded, setShowExpanded] = useState(false)
   const [showWidget, toggleWidget] = useKyberAIWidget()
@@ -171,6 +175,21 @@ export default function Widget() {
     setShowExpanded(false)
   })
   const navigate = useNavigate()
+  const { data } = useTokenListQuery(
+    activeTab === WidgetTab.MyWatchlist
+      ? { type: KyberAIListType.ALL, page: 1, pageSize: 5, wallet: account }
+      : {
+          type: {
+            [WidgetTab.Bearish]: KyberAIListType.BEARISH,
+            [WidgetTab.Bullish]: KyberAIListType.BULLISH,
+            [WidgetTab.TrendingSoon]: KyberAIListType.TOP_SOCIAL,
+          }[activeTab],
+          chain: 'all',
+          page: 1,
+          pageSize: 5,
+        },
+  )
+
   return (
     <>
       <WidgetWrapper onClick={() => setShowExpanded(true)} show={!isMobile && showWidget}>
@@ -228,7 +247,7 @@ export default function Widget() {
                 </Trans>
               </Text>
             ) : (
-              <WidgetTable />
+              <WidgetTable data={data?.data} />
             )}
           </Row>
           <RowBetween padding="16px">
@@ -236,7 +255,22 @@ export default function Widget() {
               <Trans>Collapse</Trans>
               <Icon size={16} id="arrow" />
             </TextButton>
-            <TextButton style={{ color: theme.primary }} onClick={() => navigate(APP_PATHS.KYBERAI_RANKINGS)}>
+            <TextButton
+              style={{ color: theme.primary }}
+              onClick={() =>
+                navigate({
+                  pathname: APP_PATHS.KYBERAI_RANKINGS,
+                  search: `${createSearchParams({
+                    listType: {
+                      [WidgetTab.MyWatchlist]: KyberAIListType.MYWATCHLIST,
+                      [WidgetTab.Bearish]: KyberAIListType.BEARISH,
+                      [WidgetTab.Bullish]: KyberAIListType.BULLISH,
+                      [WidgetTab.TrendingSoon]: KyberAIListType.TOP_SOCIAL,
+                    }[activeTab],
+                  })}`,
+                })
+              }
+            >
               <Trans>View more ↗</Trans>
             </TextButton>
           </RowBetween>

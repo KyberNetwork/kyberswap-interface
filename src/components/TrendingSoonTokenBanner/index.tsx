@@ -1,5 +1,5 @@
 import { Currency, Token, WETH } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { CSSProperties, memo, useMemo } from 'react'
 import { Text } from 'rebass'
@@ -9,13 +9,15 @@ import Icon from 'components/Icons/Icon'
 import Row from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import { useTokenListQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
+import { KyberAIListType } from 'pages/TrueSightV2/types'
 import { ExternalLink } from 'theme'
 import { FadeIn } from 'utils/keyframes'
 
 const TrendingSoonTokenBanner = ({
   currencyIn,
+  currencyOut,
   style,
 }: {
   style?: CSSProperties
@@ -24,31 +26,53 @@ const TrendingSoonTokenBanner = ({
 }) => {
   const { chainId } = useActiveWeb3React()
   const theme = useTheme()
-  const { mixpanelHandler } = useMixpanel()
 
   const token0 = currencyIn?.wrapped
-  const trendingSoonCurrency = useMemo(() => token0, [token0])
+  const token1 = currencyOut?.wrapped
+  const token0Symbol = currencyIn instanceof Token ? currencyIn.symbol : WETH[chainId].name
+  const token1Symbol = currencyOut instanceof Token ? currencyOut.symbol : WETH[chainId].name
 
-  if (trendingSoonCurrency === undefined) return null
+  const { data: bullish0, isFetching: fetching0 } = useTokenListQuery(
+    { type: KyberAIListType.ALL, page: 1, pageSize: 5, keywords: token0?.address },
+    { skip: !token0?.address, refetchOnMountOrArgChange: true },
+  )
+  const { data: bullish1, isFetching: fetching1 } = useTokenListQuery(
+    { type: KyberAIListType.ALL, page: 1, pageSize: 5, keywords: token1?.address },
+    { skip: !token1?.address, refetchOnMountOrArgChange: true },
+  )
 
-  const currencySymbol = trendingSoonCurrency instanceof Token ? trendingSoonCurrency.symbol : WETH[chainId].name
+  const isFetching = fetching0 && fetching1
+
+  const banner: { icon: string; text: string } | undefined = useMemo(() => {
+    if (!token0 || !token1 || isFetching) return undefined
+    const token0Bullish = bullish0 && bullish0.data.length > 0
+    const token1Bullish = bullish1 && bullish1.data.length > 0
+    if (!token0Bullish && !token1Bullish) {
+      return undefined
+    }
+    if (token0Bullish && token1Bullish) {
+      return { icon: 'bullish', text: t`Both ${token0Symbol} and ${token1Symbol} seems bullish right now.` }
+    }
+    if (token0Bullish) {
+      return { icon: 'bullish', text: t`${token0Symbol} seems bullish right now.` }
+    }
+    if (token1Bullish) {
+      return { icon: 'bullish', text: t`${token1Symbol} seems bullish right now.` }
+    }
+    return undefined
+  }, [bullish0, bullish1, token0Symbol, token1Symbol, token0, token1, isFetching])
+
+  if (!banner) return null
 
   return (
     <Container style={style}>
       <Row gap="8px">
         <Text color={theme.primary}>
-          <Icon id="bullish" size={16} />
+          <Icon id={banner.icon} size={16} />
         </Text>
         <BannerText>
-          {currencySymbol} <Trans>seems bullish right now.</Trans>{' '}
-          <ExternalLink
-            href={window.location.origin + APP_PATHS.KYBERAI_EXPLORE}
-            target="_blank"
-            onClickCapture={() => {
-              mixpanelHandler(MIXPANEL_TYPE.DISCOVER_SWAP_SEE_HERE_CLICKED, { trending_token: currencySymbol })
-            }}
-            style={{ cursor: 'pointer', textDecoration: 'none' }}
-          >
+          {banner.text}{' '}
+          <ExternalLink href={window.location.origin + APP_PATHS.KYBERAI_EXPLORE}>
             <Trans>See here</Trans>
           </ExternalLink>
         </BannerText>

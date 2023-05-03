@@ -3,7 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { ReactNode, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { ArrowDown, ArrowRight, ArrowUp, Share2, Star } from 'react-feather'
+import { ArrowDown, ArrowUp, Share2, Star } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { NavigateFunction, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -27,6 +27,7 @@ import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
 
+import ChevronIcon from '../components/ChevronIcon'
 import NetworkSelect from '../components/NetworkSelect'
 import SimpleTooltip from '../components/SimpleTooltip'
 import SmallKyberScoreMeter from '../components/SmallKyberScoreMeter'
@@ -484,14 +485,6 @@ const ChainIcon = ({ id, name, navigate }: { id: string; name: string; navigate:
   )
 }
 
-const ChevronIcon = ({ color, rotate }: { color: string; rotate: string }) => {
-  return (
-    <svg fill={color} height="14px" width="14px" viewBox="0 0 24 24" style={{ rotate }}>
-      <path d="M18.0566 8H5.94336C5.10459 8 4.68455 9.02183 5.27763 9.61943L11.3343 15.7222C11.7019 16.0926 12.2981 16.0926 12.6657 15.7222L18.7223 9.61943C19.3155 9.02183 18.8954 8 18.0566 8Z" />
-    </svg>
-  )
-}
-
 const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab: KyberAIListType; index: number }) => {
   const navigate = useNavigate()
   const theme = useTheme()
@@ -576,7 +569,7 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
         <Column style={{ alignItems: 'center', width: '110px' }}>
           <SmallKyberScoreMeter data={latestKyberScore} />
           <Text color={calculateValueToColor(token.kyber_score, theme)} fontSize="14px" fontWeight={500}>
-            {token.kyber_tag || 'Not Available'}
+            {latestKyberScore.tag || 'Not Available'}
           </Text>
         </Column>
       </td>
@@ -751,7 +744,6 @@ const LoadingRowSkeleton = () => {
 }
 export default function TokenAnalysisList() {
   const theme = useTheme()
-  const navigate = useNavigate()
   const [page, setPage] = useState(1)
   const { account } = useActiveWeb3React()
   const toggle = useToggleModal(ApplicationModal.SHARE)
@@ -767,7 +759,7 @@ export default function TokenAnalysisList() {
 
   const { data, isLoading, isFetching, isError } = useTokenListQuery(
     listType === KyberAIListType.MYWATCHLIST
-      ? { type: KyberAIListType.ALL, page, pageSize, wallet: account }
+      ? { type: KyberAIListType.ALL, page, pageSize, wallet: account, watchlist: true }
       : {
           type: listType,
           chain: (chain && SUPPORTED_NETWORK_KYBERAI[Number(chain) as ChainId]) || 'all',
@@ -804,13 +796,6 @@ export default function TokenAnalysisList() {
 
   return (
     <>
-      <Row justify="flex-end">
-        <ButtonGray width="fit-content" height="30px" onClick={() => navigate(APP_PATHS.KYBERAI_EXPLORE)}>
-          <Text fontSize={14} display="flex" alignItems="center">
-            Static UI <ArrowRight size={14} />
-          </Text>
-        </ButtonGray>
-      </Row>
       <Row gap="12px" justify="center" flexWrap={above768 ? 'nowrap' : 'wrap'}>
         <TokenListDraggableTabs tab={listType} setTab={handleTabChange} />
       </Row>

@@ -4,6 +4,7 @@ import dayjs from 'dayjs'
 import { BigNumber } from 'ethers'
 import { commify, formatUnits } from 'ethers/lib/utils'
 import { useContext, useEffect, useMemo, useState } from 'react'
+import { Star } from 'react-feather'
 import { useParams } from 'react-router-dom'
 // import { useNavigate } from 'react-router-dom'
 // import { useMemo } from 'react'
@@ -27,12 +28,20 @@ import {
 } from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { testParams } from 'pages/TrueSightV2/pages/SingleToken'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
-import { IHolderList, ILiveTrade, KyberAITimeframe } from 'pages/TrueSightV2/types'
-import { NETWORK_TO_CHAINID, formatLocaleStringNum } from 'pages/TrueSightV2/utils'
+import { IHolderList, IKyberScoreChart, ILiveTrade, ITokenList, KyberAITimeframe } from 'pages/TrueSightV2/types'
+import {
+  NETWORK_TO_CHAINID,
+  calculateValueToColor,
+  formatLocaleStringNum,
+  formatTokenPrice,
+} from 'pages/TrueSightV2/utils'
 import { getEtherscanLink, shortenAddress } from 'utils'
 
 import { ContentWrapper } from '..'
+import ChevronIcon from '../ChevronIcon'
+import SimpleTooltip from '../SimpleTooltip'
 import SmallKyberScoreMeter from '../SmallKyberScoreMeter'
+import TokenChart from '../TokenChartSVG'
 import { TimeFrameLegend } from '../chart'
 
 // import OHLCData from './../chart/candles.json'
@@ -439,7 +448,7 @@ export const LiveDEXTrades = () => {
   )
 }
 
-export const WidgetTable = () => {
+export const WidgetTable = ({ data }: { data?: ITokenList[] }) => {
   const theme = useTheme()
   const gridTemplateColumns = '1fr 1fr 1fr 1fr 0.6fr'
 
@@ -462,75 +471,92 @@ export const WidgetTable = () => {
           <Trans>Action</Trans>
         </TableCell>
       </TableHeader>
-      {[...Array(5)].map((_, i) => (
-        <TableRow
-          key={i}
-          gridTemplateColumns={gridTemplateColumns}
-          height={64}
-          style={{ backgroundColor: theme.tableHeader }}
-        >
-          <TableCell>
-            <RowFit gap="6px">
-              <Icon id="star" size={16} />
-              <div style={{ position: 'relative', width: '24px', height: '24px' }}>
-                <img
-                  alt="tokenInList"
-                  src="https://cryptologos.cc/logos/thumbs/kyber-network-crystal-v2.png?v=023"
-                  width="24px"
-                  height="24px"
-                />
-                <Row
-                  justify="center"
-                  style={{
-                    position: 'absolute',
-                    top: '-6px',
-                    right: '-6px',
-                    backgroundColor: theme.background,
-                    border: `2px solid ${theme.background}`,
-                    width: '14px',
-                    height: '14px',
-                    borderRadius: '100%',
-                  }}
-                >
-                  <Icon id="eth-mono" size={12} />
+      {data?.map((token, i) => {
+        const latestKyberScore: IKyberScoreChart = token?.ks_3d?.[token.ks_3d.length - 1]
+        return (
+          <TableRow
+            key={i}
+            gridTemplateColumns={gridTemplateColumns}
+            height={64}
+            style={{ backgroundColor: theme.tableHeader }}
+          >
+            <TableCell>
+              <RowFit gap="6px">
+                <SimpleTooltip text={t`Add to watchlist`}>
+                  <Star
+                    size={16}
+                    style={{ marginRight: '6px', cursor: 'pointer' }}
+                    fill={'none'}
+                    stroke={theme.subText}
+                    onClick={e => {
+                      e.stopPropagation()
+                    }}
+                  />
+                </SimpleTooltip>
+                <Row gap="8px" style={{ position: 'relative', width: '24px', height: '24px' }}>
+                  <img
+                    alt="tokenInList"
+                    src={token.tokens[0].logo}
+                    width="24px"
+                    height="24px"
+                    style={{ borderRadius: '12px' }}
+                  />
+                  <Column gap="4px" style={{ cursor: 'pointer', alignItems: 'flex-start' }}>
+                    <Text style={{ textTransform: 'uppercase' }}>{token.symbol}</Text>{' '}
+                    <RowFit gap="6px" color={theme.text}>
+                      {token.tokens.map(item => {
+                        if (item.chain === 'ethereum') return <Icon id="eth-mono" size={12} title="Ethereum" />
+                        if (item.chain === 'bsc') return <Icon id="bnb-mono" size={12} title="Binance" />
+                        if (item.chain === 'avalanche') return <Icon id="ava-mono" size={12} title="Avalanche" />
+                        if (item.chain === 'polygon') return <Icon id="matic-mono" size={12} title="Polygon" />
+                        if (item.chain === 'arbitrum') return <Icon id="arbitrum-mono" size={12} title="Arbitrum" />
+                        if (item.chain === 'fantom') return <Icon id="fantom-mono" size={12} title="Fantom" />
+                        if (item.chain === 'optimism') return <Icon id="optimism-mono" size={12} title="Optimism" />
+                        return <></>
+                      })}
+                    </RowFit>
+                  </Column>
                 </Row>
-              </div>
-              KNC
-            </RowFit>
-          </TableCell>
-          <TableCell>
-            <SmallKyberScoreMeter
-              data={{ kyber_score: 80, tag: 'Very Bullish', created_at: 1682678739, price: 0.01 }}
-            />
-          </TableCell>
-          <TableCell>
-            <Column gap="4px">
-              <Text color={theme.text} fontSize="14px" lineHeight="20px">
-                $0.0000000401
-              </Text>
-              <Text color={theme.primary} fontSize="10px" lineHeight="12px">
-                20%
-              </Text>
-            </Column>
-          </TableCell>
-          <TableCell>
-            <svg width="141" height="43" viewBox="0 0 141 43" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M140 30.4609L138.131 35.8539L137.858 35.0721L136.792 35.9849L135.989 35.723C135.989 35.723 133.848 37.0911 133.046 37.222C132.244 37.353 130.639 34.6167 130.11 34.3548C129.572 34.0949 129.572 32.6623 129.572 32.6623L127.968 32.4668L127.431 31.945L126.099 33.1822L125.024 31.2277L121.816 41C121.816 41 120.484 39.4364 120.749 39.5029C119.682 37.5484 118.608 39.9583 118.608 39.9583L116.201 39.7628L115.936 37.8084L115.672 35.6585L114.597 35.9184L113.795 35.594C109.52 38.9165 111.388 33.7685 111.388 33.7685L106.576 15.592L106.046 16.1138L104.442 15.9829L102.565 17.351L100.961 17.2865L99.6294 20.2182L97.4878 20.4137L96.9503 21.5218L94.2793 23.4763C94.2793 23.4763 93.2125 22.1082 93.2125 22.0417C93.2125 21.9772 92.1376 21.3909 91.8729 21.3909C89.7313 22.9545 90.2687 21.3264 90.2687 21.3264L88.3998 17.351L87.0602 17.0266C87.0602 17.0266 85.9934 17.9374 85.7207 17.9374C81.1807 18.3947 81.4454 22.1727 81.4454 22.1727L80.3786 21.9127L79.5765 22.4991L77.6995 20.0873L75.8306 21.4554L73.1595 19.9583L72.0847 21.6508L70.7532 22.1727L69.4136 19.3719L67.0073 22.2372L62.1946 20.8046L60.5904 22.5636L58.4487 19.4364L56.3151 23.4099L53.1066 17.5465L52.3045 18.0038L48.2939 4.19164L47.2191 5.8197L43.4812 3.2144L41.0748 4.90892L38.1311 7.05883L35.1873 5.23336L32.7809 9.40418L31.1767 5.62425L29.3078 6.0816L26.0993 1L20.4845 11.0322L20.2687 11.4661L17.2768 17.5465L14.6058 14.8102C14.6058 14.8102 13.956 15.678 13.0015 15.6585C11.4133 15.6231 11.3973 14.1594 11.3973 14.1594L10.3216 15.463L8.71741 15.3966L6.04716 19.5009L4.17823 15.463L3.47237 16.9601L3.10259 17.7419L1.49836 16.6357L0.96976 18.1328H0"
-                stroke="#31CB9E"
-              />
-            </svg>
-          </TableCell>
-          <TableCell>
-            <ButtonLight height="28px" width="75px" padding="4px 8px">
-              <RowFit gap="4px" fontSize="14px">
-                <Icon id="swap" size={16} />
-                Swap
               </RowFit>
-            </ButtonLight>
-          </TableCell>
-        </TableRow>
-      ))}
+            </TableCell>
+            <TableCell>
+              <Column style={{ alignItems: 'center', width: '110px' }}>
+                <SmallKyberScoreMeter data={latestKyberScore} />
+                <Text color={calculateValueToColor(token.kyber_score, theme)} fontSize="14px" fontWeight={500}>
+                  {latestKyberScore.tag || t`Not Available`}
+                </Text>
+              </Column>
+            </TableCell>
+            <TableCell>
+              <Column gap="4px" style={{ textAlign: 'left' }}>
+                <Text color={theme.text} fontSize="14px" lineHeight="20px">
+                  ${formatTokenPrice(token.price)}
+                </Text>
+                <Text fontSize="10px" lineHeight="12px" color={token.change_24h > 0 ? theme.primary : theme.red}>
+                  <Row gap="2px">
+                    <ChevronIcon
+                      rotate={token.change_24h > 0 ? '180deg' : '0deg'}
+                      color={token.change_24h > 0 ? theme.primary : theme.red}
+                    />
+                    {Math.abs(token.change_24h).toFixed(2)}%
+                  </Row>
+                </Text>
+              </Column>
+            </TableCell>
+            <TableCell>
+              <TokenChart data={token['7daysprice']} />
+            </TableCell>
+            <TableCell>
+              <ButtonLight height="28px" width="75px" padding="4px 8px">
+                <RowFit gap="4px" fontSize="14px">
+                  <Icon id="swap" size={16} />
+                  Swap
+                </RowFit>
+              </ButtonLight>
+            </TableCell>
+          </TableRow>
+        )
+      })}
     </TableWrapper>
   )
 }
