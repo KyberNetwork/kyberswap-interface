@@ -33,25 +33,42 @@ const TrendingSoonTokenBanner = ({
   const token1Symbol = currencyOut instanceof Token ? currencyOut.symbol : WETH[chainId].name
 
   const { data: bullish0, isFetching: fetching0 } = useTokenListQuery(
-    { type: KyberAIListType.ALL, page: 1, pageSize: 5, keywords: token0?.address },
+    { type: KyberAIListType.BULLISH, page: 1, pageSize: 5, keywords: token0?.address },
     { skip: !token0?.address, refetchOnMountOrArgChange: true },
   )
   const { data: bullish1, isFetching: fetching1 } = useTokenListQuery(
-    { type: KyberAIListType.ALL, page: 1, pageSize: 5, keywords: token1?.address },
+    { type: KyberAIListType.BULLISH, page: 1, pageSize: 5, keywords: token1?.address },
+    { skip: !token1?.address, refetchOnMountOrArgChange: true },
+  )
+  const { data: bearish0, isFetching: fetching2 } = useTokenListQuery(
+    { type: KyberAIListType.BEARISH, page: 1, pageSize: 5, keywords: token0?.address },
+    { skip: !token0?.address, refetchOnMountOrArgChange: true },
+  )
+  const { data: bearish1, isFetching: fetching3 } = useTokenListQuery(
+    { type: KyberAIListType.BEARISH, page: 1, pageSize: 5, keywords: token1?.address },
     { skip: !token1?.address, refetchOnMountOrArgChange: true },
   )
 
-  const isFetching = fetching0 && fetching1
+  const isFetching = fetching0 && fetching1 && fetching2 && fetching3
 
   const banner: { icon: string; text: string } | undefined = useMemo(() => {
     if (!token0 || !token1 || isFetching) return undefined
     const token0Bullish = bullish0 && bullish0.data.length > 0
     const token1Bullish = bullish1 && bullish1.data.length > 0
-    if (!token0Bullish && !token1Bullish) {
-      return undefined
-    }
+    const token0Bearish = bearish0 && bearish0.data.length > 0
+    const token1Bearish = bearish1 && bearish1.data.length > 0
+
     if (token0Bullish && token1Bullish) {
-      return { icon: 'bullish', text: t`Both ${token0Symbol} and ${token1Symbol} seems bullish right now.` }
+      return { icon: 'bullish', text: t`Both ${token0Symbol} and ${token1Symbol} seem bullish right now.` }
+    }
+    if (token0Bearish && token1Bearish) {
+      return { icon: 'bearish', text: t`Both ${token0Symbol} and ${token1Symbol} seem bearish right now.` }
+    }
+    if (token0Bullish && token1Bearish) {
+      return { icon: 'bearish', text: t`${token0Symbol} seems bullish while ${token1Symbol} seems bearish right now.` }
+    }
+    if (token1Bullish && token0Bearish) {
+      return { icon: 'bearish', text: t`${token1Symbol} seems bullish while ${token0Symbol} seems bearish right now.` }
     }
     if (token0Bullish) {
       return { icon: 'bullish', text: t`${token0Symbol} seems bullish right now.` }
@@ -59,8 +76,14 @@ const TrendingSoonTokenBanner = ({
     if (token1Bullish) {
       return { icon: 'bullish', text: t`${token1Symbol} seems bullish right now.` }
     }
+    if (token0Bearish) {
+      return { icon: 'bearish', text: t`${token0Symbol} seems bearish right now.` }
+    }
+    if (token1Bearish) {
+      return { icon: 'bearish', text: t`${token1Symbol} seems bearish right now.` }
+    }
     return undefined
-  }, [bullish0, bullish1, token0Symbol, token1Symbol, token0, token1, isFetching])
+  }, [bullish0, bullish1, bearish0, bearish1, token0Symbol, token1Symbol, token0, token1, isFetching])
 
   if (!banner) return null
 
