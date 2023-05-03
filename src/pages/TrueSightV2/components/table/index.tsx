@@ -521,7 +521,7 @@ export const WidgetTable = ({ data }: { data?: ITokenList[] }) => {
             </TableCell>
             <TableCell>
               <Column style={{ alignItems: 'center', width: '110px' }}>
-                <SmallKyberScoreMeter data={latestKyberScore} />
+                <SmallKyberScoreMeter data={latestKyberScore} tokenName={token.symbol} />
                 <Text color={calculateValueToColor(token.kyber_score, theme)} fontSize="14px" fontWeight={500}>
                   {latestKyberScore.tag || t`Not Available`}
                 </Text>

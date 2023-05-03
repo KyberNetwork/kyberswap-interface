@@ -1,3 +1,5 @@
+import { Trans } from '@lingui/macro'
+import dayjs from 'dayjs'
 import { useCallback, useState } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -5,7 +7,7 @@ import styled from 'styled-components'
 import Column from 'components/Column'
 import useTheme from 'hooks/useTheme'
 import { IKyberScoreChart } from 'pages/TrueSightV2/types'
-import { calculateValueToColor } from 'pages/TrueSightV2/utils'
+import { calculateValueToColor, formatTokenPrice } from 'pages/TrueSightV2/utils'
 
 import SimpleTooltip from '../SimpleTooltip'
 
@@ -30,12 +32,15 @@ export default function KyberScoreChart({
   // const sampleData = [10, 20, 60, 40, 50, 60, 70, 40, 90, 60, 70, 80, 90, 50, 60, 70, 70, 0]
 
   const [{ x, y }, setXY] = useState({ x: 0, y: 0 })
-  const handleMouseEnter = useCallback((e: any) => {
+  const [hoveringItem, setHoveringItem] = useState<IKyberScoreChart | undefined>()
+  const handleMouseEnter = useCallback((e: any, item: IKyberScoreChart) => {
     console.log(e)
     setXY({ x: e.clientX, y: e.clientY })
+    setHoveringItem(item)
   }, [])
   const handleMouseLeave = useCallback(() => {
     setXY({ x: 0, y: 0 })
+    setHoveringItem(undefined)
   }, [])
   return (
     <Wrapper style={{ width, height }} onMouseLeave={handleMouseLeave}>
@@ -55,7 +60,7 @@ export default function KyberScoreChart({
                 y={0}
                 width={rectWidth}
                 style={{ fill: v === 0 ? (theme.darkMode ? theme.background + '60' : theme.text + '10') : color }}
-                onMouseEnter={handleMouseEnter}
+                onMouseEnter={e => handleMouseEnter(e, item)}
                 strokeWidth={v === 0 ? '2px' : 0}
                 stroke={theme.disableText}
                 vectorEffect="non-scaling-stroke"
@@ -79,13 +84,21 @@ export default function KyberScoreChart({
         x={x}
         y={y}
         text={
-          <Column style={{ color: theme.subText, fontSize: '12px', lineHeight: '16px' }}>
-            <Text>24/04/2023 08:00 AM</Text>
+          <Column style={{ color: theme.subText, fontSize: '12px', lineHeight: '16px' }} gap="2px">
             <Text>
-              KyberScore: <span style={{ color: theme.primary }}>88 (Bullish)</span>
+              {hoveringItem?.created_at && dayjs(hoveringItem?.created_at * 1000).format('DD/MM/YYYY hh:mm A')}
+            </Text>
+            <Text style={{ whiteSpace: 'nowrap' }}>
+              <Trans>KyberScore</Trans>:{' '}
+              <span
+                style={{ color: hoveringItem ? calculateValueToColor(hoveringItem.kyber_score, theme) : theme.text }}
+              >
+                {hoveringItem ? `${hoveringItem.kyber_score} (${hoveringItem.tag})` : '--'}
+              </span>
             </Text>
             <Text>
-              Token Price: <span style={{ color: theme.text }}>$0.000000423</span>
+              <Trans>Token Price</Trans>:{' '}
+              <span style={{ color: theme.text }}>${hoveringItem ? formatTokenPrice(hoveringItem?.price) : '--'}</span>
             </Text>
           </Column>
         }

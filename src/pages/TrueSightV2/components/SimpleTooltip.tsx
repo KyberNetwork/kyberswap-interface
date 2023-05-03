@@ -9,7 +9,7 @@ const Wrapper = styled.div`
   font-size: 12px;
   color: ${({ theme }) => theme.subText};
   width: fit-content;
-  max-width: 200px;
+  max-width: 220px;
   position: relative;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.32);
 
