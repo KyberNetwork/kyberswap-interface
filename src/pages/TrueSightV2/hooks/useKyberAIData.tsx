@@ -28,11 +28,18 @@ const kyberAIApi = createApi({
     //1.
     tokenList: builder.query<
       { data: ITokenList[]; totalItems: number },
-      { type?: KyberAIListType; chain?: string; page?: number; pageSize?: number }
+      { type?: KyberAIListType; chain?: string; page?: number; pageSize?: number; wallet?: string; watchlist?: boolean }
     >({
-      query: ({ type, chain, page, pageSize }) => ({
+      query: ({ type, chain, page, pageSize, wallet, watchlist }) => ({
         url: '/tokens',
-        params: { type: type || 'ALL', chain: chain || 'all', page: page || 1, size: pageSize || 10 },
+        params: {
+          type: type || 'ALL',
+          chain: chain || 'all',
+          page: page || 1,
+          size: pageSize || 10,
+          wallet,
+          watchlist: watchlist ? 'true' : undefined,
+        },
       }),
       transformResponse: (res: any) => {
         if (res.code === 0) {

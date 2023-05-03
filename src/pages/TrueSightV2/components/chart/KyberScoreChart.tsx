@@ -4,6 +4,7 @@ import styled from 'styled-components'
 
 import Column from 'components/Column'
 import useTheme from 'hooks/useTheme'
+import { IKyberScoreChart } from 'pages/TrueSightV2/types'
 import { calculateValueToColor } from 'pages/TrueSightV2/utils'
 
 import SimpleTooltip from '../SimpleTooltip'
@@ -16,9 +17,17 @@ const Wrapper = styled.div`
   }
 `
 
-export default function KyberScoreChart({ width, height }: { width?: string; height?: string }) {
+export default function KyberScoreChart({
+  width,
+  height,
+  data,
+}: {
+  width?: string
+  height?: string
+  data?: Array<IKyberScoreChart>
+}) {
   const theme = useTheme()
-  const sampleData = [10, 20, 60, 40, 50, 60, 70, 40, 90, 60, 70, 80, 90, 50, 60, 70, 70, 0]
+  // const sampleData = [10, 20, 60, 40, 50, 60, 70, 40, 90, 60, 70, 80, 90, 50, 60, 70, 70, 0]
 
   const [{ x, y }, setXY] = useState({ x: 0, y: 0 })
   const handleMouseEnter = useCallback((e: any) => {
@@ -32,15 +41,16 @@ export default function KyberScoreChart({ width, height }: { width?: string; hei
     <Wrapper style={{ width, height }} onMouseLeave={handleMouseLeave}>
       <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
         <g transform="scale(1,-1) translate(0,-100)">
-          {sampleData.map((v, index) => {
+          {data?.map((item, index) => {
+            const v = item.kyber_score
             const gap = 2
-            const rectWidth = (100 - (sampleData.length - 1) * gap) / sampleData.length
+            const rectWidth = (100 - (data.length - 1) * gap) / data.length
             const rectHeight = v === 0 ? 100 : v
             const color = calculateValueToColor(v, theme)
 
             return (
               <rect
-                key={index}
+                key={v + index}
                 x={index * (rectWidth + gap)}
                 y={0}
                 width={rectWidth}

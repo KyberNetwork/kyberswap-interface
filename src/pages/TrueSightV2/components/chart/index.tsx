@@ -2503,7 +2503,6 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
           tvWidget.activeChart().getPanes()[1].setHeight(120)
           setLoading(false)
         })
-      tvWidget.activeChart().createStudy('Moving Average Exponential')
       setTvWidget(tvWidget)
       tvWidget
         .activeChart()

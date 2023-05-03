@@ -27,6 +27,13 @@ export interface ITokenOverview {
   isWatched: boolean
 }
 
+export interface IKyberScoreChart {
+  tag: string
+  price: number
+  kyber_score: number
+  created_at: number
+}
+
 export interface ITokenList {
   symbol: string
   name: string
@@ -37,7 +44,7 @@ export interface ITokenList {
   volume_24h: number
   '7daysprice': Array<{ value: number; timestamp: number }>
   kyber_score: number
-  ks_3d: Array<{ tag: string; price: number; kyber_score: number; created_at: number }>
+  ks_3d: Array<IKyberScoreChart>
   kyber_tag: string
   market_cap: number
   isWatched: boolean
@@ -156,18 +163,6 @@ export enum DiscoverTokenTab {
   // News = 'News',
 }
 
-export enum TokenListTab {
-  All = 'all',
-  MyWatchlist = 'my_watchlist',
-  Bullish = 'bullish',
-  Bearish = 'bearish',
-  TrendingSoon = 'trending_soon',
-  CurrentlyTrending = 'currently_trending',
-  TopInflow = 'top_cex_inflow',
-  TopOutflow = 'top_cex_outflow',
-  TopTraded = 'top_traded',
-}
-
 export enum ChartTab {
   First = 0,
   Second = 1,
@@ -199,6 +194,7 @@ export type ParticipantInfo = {
 
 export enum KyberAIListType {
   ALL = 'ALL',
+  MYWATCHLIST = 'MY_WATCHLIST',
   BULLISH = 'BULLISH',
   BEARISH = 'BEARISH',
   TRENDING = 'TRENDING',

@@ -1,59 +1,65 @@
-export default function TokenChart({ isBearish }: { isBearish?: boolean }) {
+import { useMemo } from 'react'
+
+import useTheme from 'hooks/useTheme'
+
+const transformValue = (value: number, [from0, from1]: number[], [to0, to1]: number[]) => {
+  return ((value - from0) / (from1 - from0)) * (to1 - to0)
+}
+
+export default function TokenChart({ data }: { data?: Array<{ value: number; timestamp: number }> }) {
+  const theme = useTheme()
+  const formattedData: Array<{ value: number; timestamp: number }> = useMemo(() => {
+    if (!data) return []
+    const now = Math.floor(Date.now() / 86400000) * 86400
+    const tempData = []
+    for (let i = 0; i < 7; i++) {
+      const dindex = data.findIndex(item => item.timestamp === now - 86400 * i)
+      if (dindex >= 0) {
+        tempData.push(data[dindex])
+      } else {
+        tempData.push({ timestamp: now - 86400 * i, value: 0 })
+      }
+    }
+    return tempData
+  }, [data])
+
+  if (!formattedData || formattedData.length === 0) return <></>
+
+  const maxData = Math.max(...formattedData.map(item => item.value))
+  const minData = Math.min(...formattedData.map(item => item.value))
+  const transformedValues = formattedData.map(item =>
+    transformValue(item.value, [maxData * 1.1, minData * 0.91], [1, 41]),
+  )
+
+  const color = transformedValues[0] > transformedValues[6] ? theme.primary : theme.red
   return (
     <>
-      {isBearish ? (
-        <svg width="142" height="41" viewBox="0 0 142 41" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path
-            d="M141 41V26.4915L117.667 17.678L94.3333 20.1186L71 6.83051L47.6667 8.59322L24.3333 6.01695L1 1V41H141Z"
-            fill="url(#paint0_linear_4401_34238)"
-          />
-          <path
-            d="M141 26.4386L117.655 17.6146L94.2384 19.9995L70.9644 6.78627L47.6192 8.3914L24.274 6.04543L1 1"
-            stroke="#FF537B"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <circle cx="1.5" cy="1.5" r="1.5" transform="matrix(-1 0 0 1 119 16)" fill="#FF537B" />
-          <circle cx="1.5" cy="1.5" r="1.5" transform="matrix(-1 0 0 1 142 25)" fill="#FF537B" />
-          <circle cx="1.5" cy="1.5" r="1.5" transform="matrix(-1 0 0 1 96 18)" fill="#FF537B" />
-          <circle cx="1.5" cy="1.5" r="1.5" transform="matrix(-1 0 0 1 73 6)" fill="#FF537B" />
-          <circle cx="1.5" cy="1.5" r="1.5" transform="matrix(-1 0 0 1 49 7)" fill="#FF537B" />
-          <circle cx="1.5" cy="1.5" r="1.5" transform="matrix(-1 0 0 1 27 5)" fill="#FF537B" />
-          <circle cx="1.5" cy="1.5" r="1.5" transform="matrix(-1 0 0 1 3 0)" fill="#FF537B" />
-          <defs>
-            <linearGradient id="paint0_linear_4401_34238" x1="71" y1="1" x2="71" y2="41" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#FF537B" stopOpacity="0.4" />
-              <stop offset="1" stopColor="#FF537B" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-        </svg>
-      ) : (
-        <svg width="142" height="41" viewBox="0 0 142 41" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path
-            d="M1 41V26.4915L24.3333 17.678L47.6667 20.1186L71 6.83051L94.3333 8.59322L117.667 6.01695L141 1V41H1Z"
-            fill="url(#paint0_linear_4105_68065)"
-          />
-          <path
-            d="M1 26.4386L24.3452 17.6146L47.7616 19.9995L71.0356 6.78627L94.3808 8.3914L117.726 6.04543L141 1"
-            stroke="#31CB9E"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <circle cx="24.5" cy="17.5" r="1.5" fill="#31CB9E" />
-          <circle cx="1.5" cy="26.5" r="1.5" fill="#31CB9E" />
-          <circle cx="47.5" cy="19.5" r="1.5" fill="#31CB9E" />
-          <circle cx="70.5" cy="7.5" r="1.5" fill="#31CB9E" />
-          <circle cx="94.5" cy="8.5" r="1.5" fill="#31CB9E" />
-          <circle cx="116.5" cy="6.5" r="1.5" fill="#31CB9E" />
-          <circle cx="140.5" cy="1.5" r="1.5" fill="#31CB9E" />
-          <defs>
-            <linearGradient id="paint0_linear_4105_68065" x1="71" y1="1" x2="71" y2="41" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#31CB9E" stopOpacity="0.4" />
-              <stop offset="1" stopColor="#31CB9E" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-        </svg>
-      )}
+      <svg width="142" height="41" viewBox="0 0 142 41" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d={`M1 40V${transformedValues[0]}L24.3333 ${transformedValues[1]}L47.6667 ${transformedValues[2]}L71 ${transformedValues[3]}L94.3333 ${transformedValues[4]}L117.667 ${transformedValues[5]}L141 ${transformedValues[6]}V40H1Z`}
+          fill="url(#paint0_linear_4105_68065)"
+        />
+        <path
+          d={`M1 ${transformedValues[0]}L24.3452 ${transformedValues[1]}L47.7616 ${transformedValues[2]}L71.0356 ${transformedValues[3]}L94.3808 ${transformedValues[4]}L117.726 ${transformedValues[5]}L141 ${transformedValues[6]}`}
+          stroke={color}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <circle cx="1.5" cy={transformedValues[0]} r="1.5" fill={color} />
+        <circle cx="24.5" cy={transformedValues[1]} r="1.5" fill={color} />
+        <circle cx="47.5" cy={transformedValues[2]} r="1.5" fill={color} />
+        <circle cx="70.5" cy={transformedValues[3]} r="1.5" fill={color} />
+        <circle cx="94.5" cy={transformedValues[4]} r="1.5" fill={color} />
+        <circle cx="116.5" cy={transformedValues[5]} r="1.5" fill={color} />
+        <circle cx="140.5" cy={transformedValues[6]} r="1.5" fill={color} />
+
+        <defs>
+          <linearGradient id="paint0_linear_4105_68065" x1="71" y1="1" x2="71" y2="41" gradientUnits="userSpaceOnUse">
+            <stop stopColor={color} stopOpacity="0.4" />
+            <stop offset="1" stopColor={color} stopOpacity="0" />
+          </linearGradient>
+        </defs>
+      </svg>
     </>
   )
 }

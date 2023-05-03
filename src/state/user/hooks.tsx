@@ -467,13 +467,13 @@ export const useKyberAIWidget: () => [boolean, () => void] = () => {
     state.user.kyberAIWidget === undefined ? true : state.user.kyberAIWidget,
   )
 
-  const { isWhiteList } = useIsWhiteListKyberAI()
+  // const { isWhiteList } = useIsWhiteListKyberAI()
 
   const toggle = useCallback(() => {
     dispatch(toggleKyberAIWidget())
   }, [dispatch])
 
-  return [kyberAIWidget && isWhiteList, toggle]
+  return [kyberAIWidget, toggle]
 }
 
 export const usePermitData: (

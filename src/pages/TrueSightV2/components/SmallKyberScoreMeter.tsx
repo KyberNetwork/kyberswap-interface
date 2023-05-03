@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import dayjs from 'dayjs'
 import React, { useCallback } from 'react'
 import { Text } from 'rebass'
 import styled, { useTheme } from 'styled-components'
@@ -6,7 +7,8 @@ import styled, { useTheme } from 'styled-components'
 import Icon from 'components/Icons/Icon'
 import { RowFit } from 'components/Row'
 
-import { calculateValueToColor } from '../utils'
+import { IKyberScoreChart } from '../types'
+import { calculateValueToColor, formatTokenPrice } from '../utils'
 import { gaugeList } from './KyberScoreMeter'
 import SimpleTooltip from './SimpleTooltip'
 
@@ -24,7 +26,8 @@ const GaugeValue = styled.div`
   justify-content: center;
   bottom: 6px;
 `
-function SmallKyberScoreMeter({ value }: { value?: number }) {
+function SmallKyberScoreMeter({ data, tokenName }: { data?: IKyberScoreChart; tokenName?: string }) {
+  const value = data?.kyber_score
   const theme = useTheme()
   const emptyColor = theme.darkMode ? theme.subText + '30' : theme.border + '60'
   const activeGaugeValue = value ? (gaugeList.length * value) / 100 : 0
@@ -43,7 +46,7 @@ function SmallKyberScoreMeter({ value }: { value?: number }) {
     <Wrapper>
       <svg xmlns="http://www.w3.org/2000/svg" width="52" height="32" viewBox="0 0 218 133" fill="none">
         {gaugeList.map((g, index) => (
-          <MeterGauge key={g.value} d={g.d} fill={emptyColor}>
+          <MeterGauge key={`${value}${g.value}`} d={g.d} fill={emptyColor}>
             <animate
               attributeName="fill"
               from={emptyColor}
@@ -59,14 +62,15 @@ function SmallKyberScoreMeter({ value }: { value?: number }) {
         <SimpleTooltip
           text={
             <Trans>
-              This is based on calculation at <b style={{ color: theme.text }}>08:00 AM</b> when the price of ETH was{' '}
-              <b style={{ color: theme.text }}>$0.0000000001</b>
+              This is based on calculation at{' '}
+              <b style={{ color: theme.text }}>{dayjs(data?.created_at).format('HH:mm A')}</b> when the price of
+              {tokenName} was <b style={{ color: theme.text }}>${formatTokenPrice(data?.price || 0)}</b>
             </Trans>
           }
         >
           <RowFit gap="2px">
-            <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
-              {value}
+            <Text fontSize="12px" lineHeight="16px" color={calculateValueToColor(value || 0, theme)}>
+              {value?.toFixed(0)}
             </Text>
             <Icon id="timer" size={10} />
           </RowFit>

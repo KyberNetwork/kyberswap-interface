@@ -26,7 +26,7 @@ import ShareKyberAIModal from '../components/ShareKyberAIModal'
 import { TokenOverview } from '../components/TokenOverview'
 import TutorialModal from '../components/TutorialModal'
 import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation, useTokenDetailQuery } from '../hooks/useKyberAIData'
-import { DiscoverTokenTab, TokenListTab } from '../types'
+import { DiscoverTokenTab, KyberAIListType } from '../types'
 import { NETWORK_IMAGE_URL } from '../utils'
 import OnChainAnalysis from './OnChainAnalysis'
 import TechnicalAnalysis from './TechnicalAnalysis'
@@ -342,7 +342,7 @@ export default function SingleToken() {
               onClick={() =>
                 navigate({
                   pathname: APP_PATHS.KYBERAI_RANKINGS,
-                  search: createSearchParams({ listId: TokenListTab.Bullish }).toString(),
+                  search: createSearchParams({ listId: KyberAIListType.BULLISH }).toString(),
                 })
               }
             >
@@ -356,7 +356,7 @@ export default function SingleToken() {
               onClick={() =>
                 navigate({
                   pathname: APP_PATHS.KYBERAI_RANKINGS,
-                  search: createSearchParams({ listId: TokenListTab.TopInflow }).toString(),
+                  search: createSearchParams({ listId: KyberAIListType.TOP_CEX_INFLOW }).toString(),
                 })
               }
             >

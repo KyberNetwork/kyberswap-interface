@@ -8,11 +8,12 @@ import styled from 'styled-components'
 
 import { ReactComponent as ChevronDown } from 'assets/svg/down.svg'
 import Kyber from 'components/Icons/Kyber'
-import { NETWORKS_INFO, TRENDING_SOON_SUPPORTED_NETWORKS } from 'constants/networks'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { OptionsContainer } from 'pages/TrueSight/styled'
-import { useTrueSightNetworkModalToggle } from 'state/application/hooks'
+
+import { SUPPORTED_NETWORK_KYBERAI } from '../constants'
 
 const NetworkSelectContainer = styled.div`
   display: flex;
@@ -34,17 +35,11 @@ const NetworkSelect = ({ filter, setFilter }: { filter?: ChainId; setFilter: (c?
 
   useOnClickOutside(containerRef, () => !isMobile && setIsShowOptions(false))
 
-  const toggleTrueSightNetworkModal = useTrueSightNetworkModalToggle()
-
   return (
     <NetworkSelectContainer
       role="button"
       onClick={() => {
-        if (isMobile) {
-          toggleTrueSightNetworkModal()
-        } else {
-          setIsShowOptions(prev => !prev)
-        }
+        setIsShowOptions(prev => !prev)
       }}
       ref={containerRef}
     >
@@ -65,7 +60,7 @@ const NetworkSelect = ({ filter, setFilter }: { filter?: ChainId; setFilter: (c?
             color={theme.subText}
             onClick={e => {
               e.stopPropagation()
-              setFilter(undefined)
+              setFilter()
             }}
           />
         ) : (
@@ -78,18 +73,24 @@ const NetworkSelect = ({ filter, setFilter }: { filter?: ChainId; setFilter: (c?
 
       {isShowOptions && !isMobile && (
         <OptionsContainer>
-          {Object.values(TRENDING_SOON_SUPPORTED_NETWORKS).map((network, index) => (
+          {Object.keys(SUPPORTED_NETWORK_KYBERAI).map((network, index) => (
             <Flex
               key={index}
               alignItems="center"
               style={{ gap: '4px' }}
               onClick={() => {
-                setFilter(network)
+                setFilter(+network as ChainId)
               }}
             >
-              <Image minHeight={16} minWidth={16} height={16} width={16} src={NETWORKS_INFO[network].icon} />
+              <Image
+                minHeight={16}
+                minWidth={16}
+                height={16}
+                width={16}
+                src={NETWORKS_INFO[+network as ChainId].icon}
+              />
               <Text key={index} color={theme.subText} fontSize="12px">
-                {NETWORKS_INFO[network].name}
+                {NETWORKS_INFO[+network as ChainId].name}
               </Text>
             </Flex>
           ))}

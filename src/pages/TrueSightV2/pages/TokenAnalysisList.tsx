@@ -1,9 +1,10 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
+import { ReactNode, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { ArrowDown, ArrowRight, ArrowUp, Share2, Star } from 'react-feather'
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { NavigateFunction, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { useGesture } from 'react-use-gesture'
@@ -20,6 +21,7 @@ import Row, { RowBetween, RowFit } from 'components/Row'
 import ShareModal from 'components/ShareModal'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
@@ -30,9 +32,10 @@ import SimpleTooltip from '../components/SimpleTooltip'
 import SmallKyberScoreMeter from '../components/SmallKyberScoreMeter'
 import TokenChart from '../components/TokenChartSVG'
 import KyberScoreChart from '../components/chart/KyberScoreChart'
-import { TOKEN_LIST } from '../hooks/sampleData'
+import { SUPPORTED_NETWORK_KYBERAI } from '../constants'
 import { useTokenListQuery } from '../hooks/useKyberAIData'
-import { KyberAIListType, TokenListTab } from '../types'
+import { IKyberScoreChart, ITokenList, KyberAIListType } from '../types'
+import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice } from '../utils'
 
 const TableWrapper = styled.div`
   border-radius: 20px 20px 0 0;
@@ -55,6 +58,8 @@ const PaginationWrapper = styled.div`
   align-items: center;
   border-top: none;
   overflow: hidden;
+  min-height: 50px;
+  background-color: ${({ theme }) => theme.background};
   @media only screen and (max-width: 1080px) {
     margin-left: -24px;
     margin-right: -24px;
@@ -236,15 +241,15 @@ const ButtonTypeInactive = styled(ButtonOutlined)`
 `
 
 const tokenTypeList: {
-  type: TokenListTab
+  type: KyberAIListType
   icon?: string
   tooltip?: (theme: DefaultTheme) => ReactNode
   title: string
 }[] = [
-  { type: TokenListTab.All, title: t`All` },
-  { type: TokenListTab.MyWatchlist, icon: 'star', title: t`My Watchlist` },
+  { type: KyberAIListType.ALL, title: t`All` },
+  { type: KyberAIListType.MYWATCHLIST, icon: 'star', title: t`My Watchlist` },
   {
-    type: TokenListTab.Bullish,
+    type: KyberAIListType.BULLISH,
     title: t`Bullish`,
     icon: 'bullish',
     tooltip: theme => (
@@ -255,7 +260,7 @@ const tokenTypeList: {
     ),
   },
   {
-    type: TokenListTab.Bearish,
+    type: KyberAIListType.BEARISH,
     title: t`Bearish`,
     icon: 'bearish',
     tooltip: theme => (
@@ -266,7 +271,7 @@ const tokenTypeList: {
     ),
   },
   {
-    type: TokenListTab.TopInflow,
+    type: KyberAIListType.TOP_CEX_INFLOW,
     title: t`Top CEX Inflow`,
     icon: 'download',
     tooltip: theme => (
@@ -277,7 +282,7 @@ const tokenTypeList: {
     ),
   },
   {
-    type: TokenListTab.TopOutflow,
+    type: KyberAIListType.TOP_CEX_OUTFLOW,
     title: t`Top CEX Outflow`,
     icon: 'upload',
     tooltip: theme => (
@@ -288,7 +293,7 @@ const tokenTypeList: {
     ),
   },
   {
-    type: TokenListTab.TopTraded,
+    type: KyberAIListType.TOP_TRADED,
     title: t`Top Traded`,
     icon: 'coin-bag',
     tooltip: theme => (
@@ -298,7 +303,7 @@ const tokenTypeList: {
     ),
   },
   {
-    type: TokenListTab.TrendingSoon,
+    type: KyberAIListType.TOP_SOCIAL,
     title: t`Trending Soon`,
     icon: 'trending-soon',
     tooltip: theme => (
@@ -309,7 +314,7 @@ const tokenTypeList: {
     ),
   },
   {
-    type: TokenListTab.CurrentlyTrending,
+    type: KyberAIListType.TRENDING,
     title: t`Currently Trending`,
     icon: 'flame',
     tooltip: theme => (
@@ -320,7 +325,7 @@ const tokenTypeList: {
   },
 ]
 
-const TokenListDraggableTabs = ({ tab, setTab }: { tab: TokenListTab; setTab: (type: TokenListTab) => void }) => {
+const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab: (type: KyberAIListType) => void }) => {
   const theme = useTheme()
   const [showScrollRightButton, setShowScrollRightButton] = useState(false)
   const [scrollLeftValue, setScrollLeftValue] = useState(0)
@@ -479,7 +484,15 @@ const ChainIcon = ({ id, name, navigate }: { id: string; name: string; navigate:
   )
 }
 
-const TokenRow = ({ token, currentTab }: { token: any; currentTab: TokenListTab }) => {
+const ChevronIcon = ({ color, rotate }: { color: string; rotate: string }) => {
+  return (
+    <svg fill={color} height="14px" width="14px" viewBox="0 0 24 24" style={{ rotate }}>
+      <path d="M18.0566 8H5.94336C5.10459 8 4.68455 9.02183 5.27763 9.61943L11.3343 15.7222C11.7019 16.0926 12.2981 16.0926 12.6657 15.7222L18.7223 9.61943C19.3155 9.02183 18.8954 8 18.0566 8Z" />
+    </svg>
+  )
+}
+
+const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab: KyberAIListType; index: number }) => {
   const navigate = useNavigate()
   const theme = useTheme()
   const [showMenu, setShowMenu] = useState(false)
@@ -489,18 +502,27 @@ const TokenRow = ({ token, currentTab }: { token: any; currentTab: TokenListTab 
   const menuRef = useRef<HTMLDivElement>(null)
 
   useOnClickOutside(rowRef, () => setShowMenu(false))
+
+  const hasMutipleChain = token.tokens.length > 1
+
   const handleRowClick = (e: any) => {
-    const left = e.clientX - (rowRef.current?.getBoundingClientRect()?.left || 0)
-    const rowWidth = rowRef.current?.getBoundingClientRect()?.width || 0
-    const menuWidth = menuRef.current?.getBoundingClientRect()?.width || 0
-    if (left !== undefined) {
-      setMenuLeft(Math.min(left, rowWidth - menuWidth))
-      setShowMenu(true)
+    if (hasMutipleChain) {
+      const left = e.clientX - (rowRef.current?.getBoundingClientRect()?.left || 0)
+      const rowWidth = rowRef.current?.getBoundingClientRect()?.width || 0
+      const menuWidth = menuRef.current?.getBoundingClientRect()?.width || 0
+      if (left !== undefined) {
+        setMenuLeft(Math.min(left, rowWidth - menuWidth))
+        setShowMenu(true)
+      }
+    } else {
+      navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.tokens[0].chain}/${token.tokens[0].address}`)
     }
   }
   const [stared, setStared] = useState(false)
+
+  const latestKyberScore: IKyberScoreChart = token?.ks_3d?.[token.ks_3d.length - 1]
   return (
-    <tr key={token.id} ref={rowRef} onClick={handleRowClick} style={{ position: 'relative' }}>
+    <tr key={token.sourceTokenId} ref={rowRef} onClick={handleRowClick} style={{ position: 'relative' }}>
       <td>
         <RowFit style={{ width: '30px' }}>
           {
@@ -517,7 +539,7 @@ const TokenRow = ({ token, currentTab }: { token: any; currentTab: TokenListTab 
               />
             </SimpleTooltip>
           }{' '}
-          {token.id}
+          {index}
         </RowFit>
       </td>
       <td>
@@ -525,60 +547,65 @@ const TokenRow = ({ token, currentTab }: { token: any; currentTab: TokenListTab 
           <div style={{ position: 'relative', width: '36px', height: '36px' }}>
             <img
               alt="tokenInList"
-              src="https://cryptologos.cc/logos/thumbs/kyber-network-crystal-v2.png?v=023"
+              src={token.tokens[0].logo}
               width="36px"
               height="36px"
+              loading="lazy"
+              style={{ borderRadius: '18px' }}
             />
           </div>
 
-          <Column
-            gap="8px"
-            style={{ cursor: 'pointer', alignItems: 'flex-start' }}
-            onClick={() => navigate(APP_PATHS.KYBERAI_EXPLORE)}
-          >
-            <Text>{token.symbol}</Text>{' '}
+          <Column gap="8px" style={{ cursor: 'pointer', alignItems: 'flex-start' }}>
+            <Text style={{ textTransform: 'uppercase' }}>{token.symbol}</Text>{' '}
             <RowFit gap="6px" color={theme.text}>
-              <Icon id="eth-mono" size={12} title="Ethereum" />
-              <Icon id="bnb-mono" size={12} title="Binance" />
-              <Icon id="ava-mono" size={12} title="Avalanche" />
-              <Icon id="matic-mono" size={12} title="Polygon" />
-              <Icon id="arbitrum-mono" size={12} title="Arbitrum" />
-              <Icon id="fantom-mono" size={12} title="Fantom" />
-              <Icon id="optimism-mono" size={12} title="Optimism" />
+              {token.tokens.map(item => {
+                if (item.chain === 'ethereum') return <Icon id="eth-mono" size={12} title="Ethereum" />
+                if (item.chain === 'bsc') return <Icon id="bnb-mono" size={12} title="Binance" />
+                if (item.chain === 'avalanche') return <Icon id="ava-mono" size={12} title="Avalanche" />
+                if (item.chain === 'polygon') return <Icon id="matic-mono" size={12} title="Polygon" />
+                if (item.chain === 'arbitrum') return <Icon id="arbitrum-mono" size={12} title="Arbitrum" />
+                if (item.chain === 'fantom') return <Icon id="fantom-mono" size={12} title="Fantom" />
+                if (item.chain === 'optimism') return <Icon id="optimism-mono" size={12} title="Optimism" />
+                return <></>
+              })}
             </RowFit>
           </Column>
         </Row>
       </td>
       <td>
-        <Column style={{ alignItems: 'center', width: 'fit-content' }}>
-          <SmallKyberScoreMeter value={currentTab === TokenListTab.Bearish ? 20 : 88} />
-          <Text color={theme.primary} fontSize="14px" fontWeight={500}>
-            {currentTab === TokenListTab.Bearish ? 'Very Bearish' : 'Very Bullish'}
+        <Column style={{ alignItems: 'center', width: '110px' }}>
+          <SmallKyberScoreMeter data={latestKyberScore} />
+          <Text color={calculateValueToColor(token.kyber_score, theme)} fontSize="14px" fontWeight={500}>
+            {token.kyber_tag || 'Not Available'}
           </Text>
         </Column>
       </td>
       <td>
-        <KyberScoreChart />
+        <KyberScoreChart data={token.ks_3d} />
       </td>
       <td>
         <Column gap="10px" style={{ textAlign: 'left' }}>
-          <Text>${token.price}</Text>
-          <Text fontSize={12} color={theme.primary}>
-            +{token.change}
+          <Text>${formatTokenPrice(token.price)}</Text>
+          <Text fontSize={12} color={token.change_24h > 0 ? theme.primary : theme.red}>
+            <Row gap="2px">
+              <ChevronIcon
+                rotate={token.change_24h > 0 ? '180deg' : '0deg'}
+                color={token.change_24h > 0 ? theme.primary : theme.red}
+              />
+              {Math.abs(token.change_24h).toFixed(2)}%
+            </Row>
           </Text>
         </Column>
       </td>
       <td style={{ textAlign: 'start' }}>
-        <TokenChart isBearish={currentTab === TokenListTab.Bearish} />
+        <TokenChart data={token['7daysprice']} />
       </td>
       <td style={{ textAlign: 'start' }}>
-        <Text>${token['24hVolume'] || '--'}</Text>
+        <Text>${formatLocaleStringNum(token.volume_24h) || '--'}</Text>
       </td>
-      {[TokenListTab.TopInflow, TokenListTab.TopOutflow, TokenListTab.TrendingSoon].includes(currentTab) && (
-        <td style={{ textAlign: 'start' }}>
-          <Text>${token['24hVolume'] || '--'}</Text>
-        </td>
-      )}
+      {[KyberAIListType.TOP_CEX_INFLOW, KyberAIListType.TOP_CEX_OUTFLOW, KyberAIListType.TOP_SOCIAL].includes(
+        currentTab,
+      ) && <td style={{ textAlign: 'start' }}></td>}
       <td>
         <Row gap="4px" justify={'flex-end'}>
           <SimpleTooltip text={t`View Pools`}>
@@ -608,65 +635,147 @@ const TokenRow = ({ token, currentTab }: { token: any; currentTab: TokenListTab 
               color={theme.primary}
               onClick={e => {
                 e.stopPropagation()
-                setMenuLeft(undefined)
-                setShowMenu(true)
+                if (hasMutipleChain) {
+                  setMenuLeft(undefined)
+                  setShowMenu(true)
+                } else {
+                  navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.tokens[0].chain}/${token.tokens[0].address}`)
+                }
               }}
             >
               <Icon id="truesight-v2" size={16} />
             </ActionButton>
           </SimpleTooltip>
-
-          <MenuDropdown
-            className={showMenu ? 'show' : ''}
-            gap="8px"
-            color={theme.text}
-            style={{ left: menuLeft !== undefined ? `${menuLeft}px` : undefined }}
-            ref={menuRef}
-          >
-            <ChainIcon id="eth-mono" name="Ethereum" navigate={navigate} />
-            <ChainIcon id="bnb-mono" name="Binance" navigate={navigate} />
-            <ChainIcon id="ava-mono" name="Avalanche" navigate={navigate} />
-            <ChainIcon id="matic-mono" name="Polygon" navigate={navigate} />
-            <ChainIcon id="arbitrum-mono" name="Arbitrum" navigate={navigate} />
-            <ChainIcon id="fantom-mono" name="Fantom" navigate={navigate} />
-            <ChainIcon id="optimism-mono" name="Optimism" navigate={navigate} />
-          </MenuDropdown>
+          {hasMutipleChain && (
+            <MenuDropdown
+              className={showMenu ? 'show' : ''}
+              gap="8px"
+              color={theme.text}
+              style={{ left: menuLeft !== undefined ? `${menuLeft}px` : undefined }}
+              ref={menuRef}
+            >
+              {token.tokens.map((item: { address: string; logo: string; chain: string }) => {
+                if (item.chain === 'ethereum')
+                  return (
+                    <ChainIcon
+                      id="eth-mono"
+                      name="Ethereum"
+                      navigate={() => navigate(`${APP_PATHS.KYBERAI_EXPLORE}/ethereum/${item.address}`)}
+                    />
+                  )
+                if (item.chain === 'bsc')
+                  return (
+                    <ChainIcon
+                      id="bnb-mono"
+                      name="Binance"
+                      navigate={() => navigate(`${APP_PATHS.KYBERAI_EXPLORE}/bsc/${item.address}`)}
+                    />
+                  )
+                if (item.chain === 'avalanche')
+                  return (
+                    <ChainIcon
+                      id="ava-mono"
+                      name="Avalanche"
+                      navigate={() => navigate(`${APP_PATHS.KYBERAI_EXPLORE}/avalanche/${item.address}`)}
+                    />
+                  )
+                if (item.chain === 'polygon')
+                  return (
+                    <ChainIcon
+                      id="matic-mono"
+                      name="Polygon"
+                      navigate={() => navigate(`${APP_PATHS.KYBERAI_EXPLORE}/polygon/${item.address}`)}
+                    />
+                  )
+                if (item.chain === 'arbitrum')
+                  return (
+                    <ChainIcon
+                      id="arbitrum-mono"
+                      name="Arbitrum"
+                      navigate={() => navigate(`${APP_PATHS.KYBERAI_EXPLORE}/arbitrum/${item.address}`)}
+                    />
+                  )
+                if (item.chain === 'fantom')
+                  return (
+                    <ChainIcon
+                      id="fantom-mono"
+                      name="Fantom"
+                      navigate={() => navigate(`${APP_PATHS.KYBERAI_EXPLORE}/fantom/${item.address}`)}
+                    />
+                  )
+                if (item.chain === 'optimism')
+                  return (
+                    <ChainIcon
+                      id="optimism-mono"
+                      name="Optimism"
+                      navigate={() => navigate(`${APP_PATHS.KYBERAI_EXPLORE}/optimism/${item.address}`)}
+                    />
+                  )
+                return <></>
+              })}
+            </MenuDropdown>
+          )}
         </Row>
       </td>
     </tr>
+  )
+}
+const LoadingRowSkeleton = () => {
+  return (
+    <>
+      {[
+        ...Array(10)
+          .fill(0)
+          .map((_, index) => (
+            <tr key={index}>
+              <td>
+                <Skeleton></Skeleton>
+              </td>
+              <td>
+                <Skeleton></Skeleton>
+              </td>
+              <td>
+                <Skeleton></Skeleton>
+              </td>
+              <td colSpan={4}>
+                <Skeleton></Skeleton>
+              </td>
+              <td>
+                <Skeleton></Skeleton>
+              </td>
+            </tr>
+          )),
+      ]}
+    </>
   )
 }
 export default function TokenAnalysisList() {
   const theme = useTheme()
   const navigate = useNavigate()
   const [page, setPage] = useState(1)
-
-  const [networkFilter, setNetworkFilter] = useState<ChainId>()
+  const { account } = useActiveWeb3React()
   const toggle = useToggleModal(ApplicationModal.SHARE)
-  const { data } = useTokenListQuery({ type: KyberAIListType.ALL })
-
-  const listData = data?.data || []
-  console.log('🚀 ~ file: TokenAnalysisList.tsx:649 ~ TokenAnalysisList ~ listData:', listData)
-
   const above768 = useMedia('(min-width:768px)')
 
   const [searchParams, setSearchParams] = useSearchParams()
-  const currentTab = (searchParams.get('listId') as TokenListTab) || TokenListTab.All
+  const listType = (searchParams.get('listType') as KyberAIListType) || KyberAIListType.ALL
+  const chain = searchParams.get('chain') || 'all'
   const sortedColumn = searchParams.get('orderBy') || SORT_FIELD.VOLUME
   const sortOrder = searchParams.get('orderDirection') || SORT_DIRECTION.DESC
   const sortDirection = sortOrder === SORT_DIRECTION.DESC
+  const pageSize = 50
 
-  const templateList = useMemo(
-    () =>
-      [...Array(5)]
-        .reduce(t => t.concat(TOKEN_LIST.tokenList.data), [])
-        .map((t: any, index: number) => {
-          return { ...t, id: index + 1 }
-        }) || [],
-    [],
+  const { data, isLoading, isFetching, isError } = useTokenListQuery(
+    listType === KyberAIListType.MYWATCHLIST
+      ? { type: KyberAIListType.ALL, page, pageSize, wallet: account }
+      : {
+          type: listType,
+          chain: (chain && SUPPORTED_NETWORK_KYBERAI[Number(chain) as ChainId]) || 'all',
+          page,
+          pageSize,
+        },
   )
-
-  const pageSize = 10
+  const listData = data?.data || []
 
   const handleSort = (field: SORT_FIELD) => {
     const direction =
@@ -675,14 +784,21 @@ export default function TokenAnalysisList() {
         : sortOrder === SORT_DIRECTION.DESC
         ? SORT_DIRECTION.ASC
         : SORT_DIRECTION.DESC
-
     searchParams.set('orderDirection', direction)
     searchParams.set('orderBy', field)
     setSearchParams(searchParams)
   }
 
-  const handleTabChange = (tab: TokenListTab) => {
-    searchParams.set('listId', tab)
+  const handleTabChange = (tab: KyberAIListType) => {
+    searchParams.set('listType', tab)
+    setSearchParams(searchParams)
+  }
+  const handleChainChange = (chainId?: ChainId) => {
+    if (!chainId) {
+      searchParams.delete('chain')
+    } else {
+      searchParams.set('chain', chainId.toString())
+    }
     setSearchParams(searchParams)
   }
 
@@ -696,7 +812,7 @@ export default function TokenAnalysisList() {
         </ButtonGray>
       </Row>
       <Row gap="12px" justify="center" flexWrap={above768 ? 'nowrap' : 'wrap'}>
-        <TokenListDraggableTabs tab={currentTab} setTab={handleTabChange} />
+        <TokenListDraggableTabs tab={listType} setTab={handleTabChange} />
       </Row>
       <RowBetween flexDirection={above768 ? 'row' : 'column'} gap="16px">
         <Column gap="8px">
@@ -726,7 +842,7 @@ export default function TokenAnalysisList() {
           >
             <Share2 size={16} fill="currentcolor" />
           </ButtonGray>
-          <NetworkSelect filter={networkFilter} setFilter={setNetworkFilter} />
+          <NetworkSelect filter={Number(chain) as ChainId} setFilter={handleChainChange} />
         </RowFit>
       </RowBetween>
       <Column gap="0px">
@@ -734,17 +850,16 @@ export default function TokenAnalysisList() {
           <div>
             <Table>
               <colgroup>
-                <col style={{ maxWidth: '40px' }} />
-                <col style={{ width: '250px', minWidth: '200px' }} />
+                <col style={{ width: '80px' }} />
+                <col style={{ width: '220px', minWidth: '200px' }} />
                 <col style={{ width: '200px', minWidth: 'auto' }} />
                 <col style={{ width: '230px', minWidth: 'auto' }} />
                 <col style={{ width: '250px', minWidth: 'auto' }} />
                 <col style={{ width: '250px', minWidth: 'auto' }} />
-                {[TokenListTab.TopInflow, TokenListTab.TopOutflow, TokenListTab.TrendingSoon].includes(currentTab) && (
-                  <col style={{ width: '150px', minWidth: 'auto' }} />
-                )}
+                {[KyberAIListType.TOP_CEX_INFLOW, KyberAIListType.TOP_CEX_OUTFLOW, KyberAIListType.TOP_SOCIAL].includes(
+                  listType,
+                ) && <col style={{ width: '150px', minWidth: 'auto' }} />}
                 <col style={{ width: '150px', minWidth: 'auto' }} />
-
                 <col style={{ width: '200px', minWidth: 'auto' }} />
               </colgroup>
               <thead>
@@ -826,9 +941,9 @@ export default function TokenAnalysisList() {
                     <Row justify="flex-start">
                       <Trans>
                         {{
-                          [TokenListTab.TopInflow]: '24h Inflow',
-                          [TokenListTab.TopOutflow]: '24h Outflow',
-                        }[currentTab as string] || '24h Volume'}
+                          [KyberAIListType.TOP_CEX_INFLOW]: '24h Inflow',
+                          [KyberAIListType.TOP_CEX_OUTFLOW]: '24h Outflow',
+                        }[listType as string] || '24h Volume'}
                       </Trans>
                       {sortedColumn === SORT_FIELD.VOLUME ? (
                         !sortDirection ? (
@@ -841,17 +956,19 @@ export default function TokenAnalysisList() {
                       )}
                     </Row>
                   </th>
-                  {[TokenListTab.TopInflow, TokenListTab.TopOutflow, TokenListTab.TrendingSoon].includes(
-                    currentTab,
-                  ) && (
+                  {[
+                    KyberAIListType.TOP_CEX_INFLOW,
+                    KyberAIListType.TOP_CEX_OUTFLOW,
+                    KyberAIListType.TOP_SOCIAL,
+                  ].includes(listType) && (
                     <th>
                       <Row justify="flex-start">
                         <Trans>
                           {{
-                            [TokenListTab.TopInflow]: '3D Inflow',
-                            [TokenListTab.TopOutflow]: '3D Outflow',
-                            [TokenListTab.TrendingSoon]: 'First Discovered On',
-                          }[currentTab as string] || ''}
+                            [KyberAIListType.TOP_CEX_INFLOW]: '3D Inflow',
+                            [KyberAIListType.TOP_CEX_OUTFLOW]: '3D Outflow',
+                            [KyberAIListType.TOP_SOCIAL]: 'First Discovered On',
+                          }[listType as string] || ''}
                         </Trans>
                         {sortedColumn === SORT_FIELD.VOLUME ? (
                           !sortDirection ? (
@@ -870,26 +987,55 @@ export default function TokenAnalysisList() {
                   </th>
                 </tr>
               </thead>
-
               <tbody>
-                {templateList.slice((page - 1) * pageSize, page * pageSize).map((token: any, index: number) => (
-                  <TokenRow token={token} key={index} currentTab={currentTab} />
-                ))}
+                {isLoading || isFetching ? (
+                  <SkeletonTheme
+                    baseColor={theme.border}
+                    height="28px"
+                    borderRadius="8px"
+                    direction="ltr"
+                    duration={1.5}
+                    highlightColor={theme.tabActive}
+                  >
+                    <LoadingRowSkeleton />
+                  </SkeletonTheme>
+                ) : isError ? (
+                  <>
+                    <tr>
+                      <td colSpan={8} height={200}>
+                        <Text>
+                          <Trans>Some Errors Occurred, Please Try Again Later!</Trans>
+                        </Text>
+                      </td>
+                    </tr>
+                  </>
+                ) : (
+                  listData.map((token: ITokenList, index: number) => (
+                    <TokenRow
+                      token={token}
+                      key={token.sourceTokenId}
+                      currentTab={listType}
+                      index={pageSize * (page - 1) + index + 1}
+                    />
+                  ))
+                )}
               </tbody>
             </Table>
           </div>
         </TableWrapper>
         <PaginationWrapper>
-          <Pagination
-            totalCount={templateList.length}
-            pageSize={pageSize}
-            currentPage={page}
-            onPageChange={(page: number) => {
-              window.scroll({ top: 0 })
-              setPage(page)
-            }}
-            style={{ flex: 1 }}
-          />
+          {!isError && (
+            <Pagination
+              totalCount={data?.totalItems || 10}
+              pageSize={pageSize}
+              currentPage={page}
+              onPageChange={(page: number) => {
+                window.scroll({ top: 0 })
+                setPage(page)
+              }}
+              style={{ flex: 1 }}
+            />
+          )}
         </PaginationWrapper>
       </Column>
       <ShareModal title={t`Share this token list with your friends!`} />

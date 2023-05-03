@@ -54,6 +54,16 @@ export const formatLocaleStringNum = (num: number, fixed?: number): string => {
   return (negative ? '-' : '') + formattedNum
 }
 
+export const formatTokenPrice = (num: number): string => {
+  if (num > 1000) {
+    return commify(num.toFixed(2))
+  } else if (num > 1) {
+    return num.toFixed(6)
+  } else {
+    return num.toPrecision(6)
+  }
+}
+
 export const NETWORK_IMAGE_URL: { [chain: string]: string } = {
   ethereum: NETWORKS_INFO[ChainId.MAINNET].icon,
   bsc: NETWORKS_INFO[ChainId.BSCMAINNET].icon,

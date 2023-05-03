@@ -499,7 +499,9 @@ export const WidgetTable = () => {
             </RowFit>
           </TableCell>
           <TableCell>
-            <SmallKyberScoreMeter value={80} />
+            <SmallKyberScoreMeter
+              data={{ kyber_score: 80, tag: 'Very Bullish', created_at: 1682678739, price: 0.01 }}
+            />
           </TableCell>
           <TableCell>
             <Column gap="4px">
