@@ -727,7 +727,7 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
     </tr>
   )
 }
-const LoadingRowSkeleton = () => {
+const LoadingRowSkeleton = ({ hasExtraCol }: { hasExtraCol?: boolean }) => {
   return (
     <>
       {[
@@ -744,7 +744,7 @@ const LoadingRowSkeleton = () => {
               <td>
                 <Skeleton></Skeleton>
               </td>
-              <td colSpan={4}>
+              <td colSpan={hasExtraCol ? 5 : 4}>
                 <Skeleton></Skeleton>
               </td>
               <td>
@@ -807,6 +807,10 @@ export default function TokenAnalysisList() {
     }
     setSearchParams(searchParams)
   }
+
+  useEffect(() => {
+    setPage(1)
+  }, [chain])
 
   return (
     <>
@@ -993,12 +997,29 @@ export default function TokenAnalysisList() {
                     duration={1.5}
                     highlightColor={theme.tabActive}
                   >
-                    <LoadingRowSkeleton />
+                    <LoadingRowSkeleton
+                      hasExtraCol={[
+                        KyberAIListType.TOP_CEX_INFLOW,
+                        KyberAIListType.TOP_CEX_OUTFLOW,
+                        KyberAIListType.TOP_SOCIAL,
+                      ].includes(listType)}
+                    />
                   </SkeletonTheme>
                 ) : isError ? (
                   <>
                     <tr>
-                      <td colSpan={8} height={200}>
+                      <td
+                        colSpan={
+                          [
+                            KyberAIListType.TOP_CEX_INFLOW,
+                            KyberAIListType.TOP_CEX_OUTFLOW,
+                            KyberAIListType.TOP_SOCIAL,
+                          ].includes(listType)
+                            ? 9
+                            : 8
+                        }
+                        height={200}
+                      >
                         <Text>
                           <Trans>There was an error. Please try again later.</Trans>
                         </Text>

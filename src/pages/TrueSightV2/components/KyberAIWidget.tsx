@@ -90,7 +90,7 @@ const ExpandedWidgetWrapper = styled.div<{ show?: boolean }>`
   transition: all 0.2s ease;
   transform: ${({ show }) => (show ? css`translateX(0)` : css`translateX(100%)`)};
   overflow: hidden;
-  min-height: 470px;
+  min-height: 450px;
 `
 
 const Tab = styled.div<{ active?: boolean }>`

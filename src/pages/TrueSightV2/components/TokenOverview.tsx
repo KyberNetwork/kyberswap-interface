@@ -15,12 +15,14 @@ import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
-import { shortenAddress } from 'utils'
+import { getEtherscanLink, shortenAddress } from 'utils'
 
+import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from '../constants'
 import { ITokenOverview } from '../types'
-import { NETWORK_IMAGE_URL, calculateValueToColor } from '../utils'
+import { calculateValueToColor } from '../utils'
 import KyberScoreMeter from './KyberScoreMeter'
 import PriceRange from './PriceRange'
+import SimpleTooltip from './SimpleTooltip'
 import KyberScoreChart from './chart/KyberScoreChart'
 
 const CardWrapper = styled.div<{ gap?: string }>`
@@ -283,37 +285,49 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                 <Text color={theme.subText}>
                   <Trans>All Time Low</Trans>
                 </Text>
-                <Text color={theme.text}>{data?.atl && formatMoneyWithSign(data?.atl, 4)}</Text>
+                <Text color={theme.text} fontWeight={500}>
+                  {data?.atl && formatMoneyWithSign(data?.atl, 4)}
+                </Text>
               </RowBetween>
               <RowBetween>
                 <Text color={theme.subText}>
                   <Trans>All Time High</Trans>
                 </Text>
-                <Text color={theme.text}>{data?.ath && formatMoneyWithSign(data?.ath, 4)}</Text>
+                <Text color={theme.text} fontWeight={500}>
+                  {data?.ath && formatMoneyWithSign(data?.ath, 4)}
+                </Text>
               </RowBetween>
               <RowBetween>
                 <Text color={theme.subText}>
                   <Trans>24H Volume</Trans>
                 </Text>
-                <Text color={theme.text}>{data?.['24hVolume'] && formatMoneyWithSign(data?.['24hVolume'])}</Text>
+                <Text color={theme.text} fontWeight={500}>
+                  {data?.['24hVolume'] && formatMoneyWithSign(data?.['24hVolume'])}
+                </Text>
               </RowBetween>
               <RowBetween>
                 <Text color={theme.subText}>
                   <Trans>Circulating Supply</Trans>
                 </Text>
-                <Text color={theme.text}>{data && data.circulatingSupply + ' ' + data.symbol}</Text>
+                <Text color={theme.text} fontWeight={500}>
+                  {data && data.circulatingSupply + ' ' + data.symbol}
+                </Text>
               </RowBetween>
               <RowBetween>
                 <Text color={theme.subText}>
                   <Trans>Market Cap</Trans>
                 </Text>
-                <Text color={theme.text}>{data?.marketCap && formatMoneyWithSign(data?.marketCap)}</Text>
+                <Text color={theme.text} fontWeight={500}>
+                  {data?.marketCap && formatMoneyWithSign(data?.marketCap)}
+                </Text>
               </RowBetween>
               <RowBetween>
                 <Text color={theme.subText}>
                   <Trans>Holders (On-chain)</Trans>
                 </Text>
-                <Text color={theme.text}>{data?.numberOfHolders}</Text>
+                <Text color={theme.text} fontWeight={500}>
+                  {data?.numberOfHolders}
+                </Text>
               </RowBetween>
               <RowBetween>
                 <Text color={theme.subText}>
@@ -333,24 +347,37 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                 <Text color={theme.subText}>
                   <Trans>Address</Trans>
                 </Text>
-                <RowFit gap="4px">
-                  <div
-                    style={{
-                      borderRadius: '50%',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <img
-                      src={NETWORK_IMAGE_URL[chain || 'ethereum']}
-                      alt="eth"
-                      width="16px"
-                      height="16px"
-                      style={{ display: 'block' }}
-                    />
-                  </div>
-                  <Text color={theme.subText}>{data && shortenAddress(1, data.address)}</Text>
-                  <CopyHelper toCopy={data?.address || ''} />
-                </RowFit>
+                {data && chain ? (
+                  <RowFit gap="4px">
+                    <SimpleTooltip text={t`Open scan explorer`}>
+                      <a
+                        style={{
+                          borderRadius: '50%',
+                          cursor: 'pointer',
+                        }}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        href={getEtherscanLink(NETWORK_TO_CHAINID[chain], data.address, 'token')}
+                      >
+                        <img
+                          src={NETWORK_IMAGE_URL[chain || 'ethereum']}
+                          alt="eth"
+                          width="16px"
+                          height="16px"
+                          style={{ display: 'block' }}
+                        />
+                      </a>
+                    </SimpleTooltip>
+                    <Text color={theme.subText} fontWeight={500}>
+                      {shortenAddress(1, data.address)}
+                    </Text>
+                    <SimpleTooltip text={t`Copy token address`}>
+                      <CopyHelper toCopy={data?.address || ''} />
+                    </SimpleTooltip>
+                  </RowFit>
+                ) : (
+                  <></>
+                )}
               </RowBetween>
             </CardWrapper>
           </Row>
