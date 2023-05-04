@@ -41,14 +41,9 @@ const crossChainApi = createApi({
       }),
       invalidatesTags: [RTK_QUERY_TAGS.GET_CROSS_CHAIN_HISTORY],
     }),
-    getTxsByHash: builder.query<any, string>({
-      query: hash => ({
-        url: '/squid-transfers/' + hash,
-      }),
-    }),
   }),
 })
 
-export const { useSaveCrossChainTxsMutation, useGetListCrossChainTxsQuery, useLazyGetTxsByHashQuery } = crossChainApi
+export const { useSaveCrossChainTxsMutation, useGetListCrossChainTxsQuery } = crossChainApi
 
 export default crossChainApi

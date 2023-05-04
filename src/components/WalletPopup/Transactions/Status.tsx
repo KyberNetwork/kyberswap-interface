@@ -1,11 +1,9 @@
 import { t } from '@lingui/macro'
 import axios from 'axios'
-import { debounce } from 'lodash'
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { useDispatch } from 'react-redux'
 import { Flex } from 'rebass'
-import { useLazyGetTxsByHashQuery } from 'services/crossChain'
 
 import { CheckCircle } from 'components/Icons'
 import IconFailure from 'components/Icons/Failed'
@@ -24,13 +22,13 @@ import { TRANSACTION_TYPE, TransactionDetails } from 'state/transactions/type'
 import { getTransactionStatus } from 'utils/transaction'
 
 const MAX_TIME_CHECK_STATUS = 7 * 86_400_000 // the time that we don't need to interval check
+// todo
 const TYPE_NEED_CHECK_PENDING = [
   TRANSACTION_TYPE.CANCEL_LIMIT_ORDER,
-  TRANSACTION_TYPE.BRIDGE,
-  TRANSACTION_TYPE.CROSS_CHAIN_SWAP,
+  // TRANSACTION_TYPE.BRIDGE,
+  // TRANSACTION_TYPE.CROSS_CHAIN_SWAP,
 ]
-const TYPE_INTERVAL = [TRANSACTION_TYPE.BRIDGE, TRANSACTION_TYPE.CROSS_CHAIN_SWAP]
-
+const TYPE_INTERVAL: any = [] // [TRANSACTION_TYPE.BRIDGE, TRANSACTION_TYPE.CROSS_CHAIN_SWAP]
 const isTxsActuallySuccess = (txs: TransactionDetails) => txs.extraInfo?.actuallySuccess
 
 // this component to interval call api/listen firebase to check transaction status actually done or not
@@ -58,8 +56,6 @@ function StatusIcon({
 
   const interval = useRef<NodeJS.Timeout>()
 
-  const [fetchCrossChainTxs] = useLazyGetTxsByHashQuery()
-
   const checkStatus = useCallback(async () => {
     try {
       if (isTxsActuallySuccess(transaction) && interval.current) {
@@ -80,7 +76,7 @@ function StatusIcon({
           break
         }
         case TRANSACTION_TYPE.CROSS_CHAIN_SWAP: {
-          const { data: response } = await fetchCrossChainTxs(hash)
+          const { data: response } = await axios.get(`${BFF_API}/v1/squid-transfers/${hash}`)
           isPending = isCrossChainTxsPending(response?.data?.status)
           break
         }
@@ -99,32 +95,19 @@ function StatusIcon({
       console.error('Checking txs status error: ', error)
       interval.current && clearInterval(interval.current)
     }
-  }, [
-    cancellingOrdersIds,
-    cancellingOrdersNonces,
-    chainId,
-    dispatch,
-    transaction,
-    extraInfo,
-    hash,
-    type,
-    loading,
-    fetchCrossChainTxs,
-  ])
-
-  const checkStatusDebounced = useMemo(() => debounce(checkStatus, 1000), [checkStatus])
+  }, [cancellingOrdersIds, cancellingOrdersNonces, chainId, dispatch, transaction, extraInfo, hash, type, loading])
 
   useEffect(() => {
     if (!needCheckActuallyPending) {
       setIsPendingState(pendingRpc)
       return
     }
-    checkStatusDebounced()
+    checkStatus()
     if (TYPE_INTERVAL.includes(type)) {
-      interval.current = setInterval(checkStatusDebounced, 5000)
+      interval.current = setInterval(checkStatus, 5000)
     }
     return () => interval.current && clearInterval(interval.current)
-  }, [needCheckActuallyPending, pendingRpc, checkStatusDebounced, type])
+  }, [needCheckActuallyPending, pendingRpc, checkStatus, type])
 
   const theme = useTheme()
   const checkingStatus = isPendingState === null
