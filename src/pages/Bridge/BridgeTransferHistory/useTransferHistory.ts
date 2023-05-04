@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux'
 
-import { CROSS_CHAIN_API } from 'constants/env'
+import { BFF_API } from 'constants/env'
 import useGetBridgeTransfers from 'hooks/bridge/useGetBridgeTransfers'
 import { ITEMS_PER_PAGE } from 'pages/Bridge/consts'
 import { setHistoryURL } from 'state/crossChain/actions'
@@ -11,7 +11,7 @@ const useTransferHistory = (account: string) => {
   const [page, setPage] = useState(1)
 
   const swrKey = account
-    ? `${CROSS_CHAIN_API}/v1/multichain-transfers?walletAddress=${account}&page=${page}&pageSize=${ITEMS_PER_PAGE}`
+    ? `${BFF_API}/v1/multichain-transfers?walletAddress=${account}&page=${page}&pageSize=${ITEMS_PER_PAGE}`
     : ''
   const { data, isValidating, error } = useGetBridgeTransfers(swrKey)
 
