@@ -47,8 +47,8 @@ function ContentLoader() {
     <StyledPositionCard>
       <Title />
       <Tab />
-      <Loading style={{ height: '104px' }} />
-      <Loading style={{ height: '128px' }} />
+      <Loading style={{ height: '160px' }} />
+      <Loading style={{ height: '160px' }} />
 
       <Flex>
         <Loading style={{ height: '36px', flex: 1, borderRadius: '999px' }} />
