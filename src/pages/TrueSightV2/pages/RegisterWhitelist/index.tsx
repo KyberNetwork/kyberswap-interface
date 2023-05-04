@@ -58,7 +58,7 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
 
   if (!isLogin)
     return (
-      <ConnectWalletButton onClick={() => KyberOauth2.authenticate()}>
+      <ConnectWalletButton onClick={() => KyberOauth2.authenticate({ wallet_address: account ?? '' })}>
         <Trans>Sign-In to Continue</Trans>
       </ConnectWalletButton>
     )

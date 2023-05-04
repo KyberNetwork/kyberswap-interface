@@ -5,7 +5,7 @@ import useTheme from 'hooks/useTheme'
 
 export const Label = styled.label`
   color: ${({ theme }) => theme.subText};
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
 `
 
