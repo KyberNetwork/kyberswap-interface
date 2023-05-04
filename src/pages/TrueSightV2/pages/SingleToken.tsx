@@ -311,10 +311,11 @@ export default function SingleToken() {
           <div
             style={{
               position: 'absolute',
-              top: '-4px',
-              right: '-4px',
+              top: '-6px',
+              right: '-6px',
               borderRadius: '50%',
               border: `1px solid ${theme.background}`,
+              backgroundColor: theme.tableHeader,
             }}
           >
             <img
@@ -402,7 +403,7 @@ export default function SingleToken() {
         </RowFit>
         <RowFit gap="12px">
           <SettingButtons />
-          <ButtonPrimary height={'36px'} width="120px" gap="4px">
+          <ButtonPrimary height={'36px'} width="fit-content" gap="4px">
             <RowFit gap="4px" style={{ whiteSpace: 'nowrap' }}>
               <Icon id="swap" size={16} />
               Swap {data?.symbol?.toUpperCase()}

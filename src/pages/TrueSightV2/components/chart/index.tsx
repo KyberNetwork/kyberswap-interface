@@ -2064,6 +2064,7 @@ export const HoldersChartWrapper = () => {
             data={formattedData}
             innerRadius="60%"
             outerRadius="80%"
+            strokeWidth={0}
             animationBegin={ANIMATION_DELAY}
             animationDuration={ANIMATION_DURATION}
           >

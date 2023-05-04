@@ -48,6 +48,8 @@ import { TimeFrameLegend } from '../chart'
 
 const Table2 = styled.table`
   border-collapse: collapse;
+  border-radius: 6px;
+  overflow: hidden;
   thead {
     height: 48px;
     font-size: 12px;
@@ -65,10 +67,13 @@ const Table2 = styled.table`
   tr {
     height: 72px;
     border-spacing: 1px;
-    border-bottom: 1px solid ${({ theme }) => theme.border};
+    background-color: ${({ theme }) => theme.background};
     td {
       padding: 16px;
     }
+  }
+  tr:not(:last-child) {
+    border-bottom: 1px solid ${({ theme }) => theme.border};
   }
 `
 const TableWrapper = styled(ContentWrapper)`
@@ -182,11 +187,11 @@ export const Top10HoldersTable = () => {
                   <Text fontSize="14px" lineHeight="20px" color={theme.text}>
                     {shortenAddress(1, item.address)}
                   </Text>
-                  <RowFit gap="8px">
-                    <ActionButton color={theme.subText}>
+                  <RowFit gap="12px">
+                    <ActionButton color={theme.subText} style={{ padding: '6px 0' }}>
                       <Icon id="copy" size={16} /> Copy
                     </ActionButton>
-                    <ActionButton color={theme.subText}>
+                    <ActionButton color={theme.subText} style={{ padding: '6px 0' }}>
                       <Icon id="open-link" size={16} /> Analyze
                     </ActionButton>
                   </RowFit>
@@ -311,14 +316,9 @@ export const FundingRateTable = () => {
   const theme = useTheme()
   const { data, isLoading } = useFundingRateQuery({ tokenAddress: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599' })
 
-  const gridTemplateColumns = data?.uMarginList
-    ? Array(data.uMarginList.length + 1)
-        .fill('1fr')
-        .join(' ')
-    : '1fr 1fr 1fr 1fr 1fr 1fr'
   const hasNoData = !data && !isLoading
   return (
-    <TableWrapper>
+    <Table2>
       {hasNoData ? (
         <Row height="200px" justify="center">
           <Text fontSize="14px">
@@ -327,40 +327,48 @@ export const FundingRateTable = () => {
         </Row>
       ) : (
         <>
-          <TableHeader gridTemplateColumns={gridTemplateColumns}>
-            <TableCell></TableCell>
+          <colgroup>
+            <col />
+            {Array(data?.uMarginList?.length)
+              .fill(1)
+              .map((_, index) => (
+                <col key={index} />
+              ))}
+          </colgroup>
+          <thead>
+            <th></th>
             {data?.uMarginList?.map((i: any) => (
-              <TableCell key={i.exchangeName}>
+              <th key={i.exchangeName}>
                 <Row gap="4px">
                   <img alt={i.exchangeName} src={i.exchangeLogo} style={{ height: '18px', width: '18px' }} />
                   <Text color={theme.text}>{i.exchangeName}</Text>
                 </Row>
-              </TableCell>
+              </th>
             ))}
-
-            <TableCell></TableCell>
-          </TableHeader>
-          <TableRow gridTemplateColumns={gridTemplateColumns} height={72}>
-            <TableCell>
-              <Row gap="4px">
-                <img alt={data?.symbol} src={data?.symbolLogo} style={{ height: '20px' }} />
-                <Text>{data?.symbol}</Text>
-              </Row>
-            </TableCell>
-            {data?.uMarginList?.map((i: any) => (
-              <TableCell key={i.exchangeName}>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
                 <Row gap="4px">
-                  <Text color={colorRateText(i.rate, theme)} fontWeight={500} lineHeight="40px">
+                  <img alt={data?.symbol} src={data?.symbolLogo} style={{ height: '40px' }} />
+                  <Column>
+                    <Text color={theme.text}>{data?.symbol}</Text>
+                    <Text color={theme.subText}>{data?.name}</Text>
+                  </Column>
+                </Row>
+              </td>
+              {data?.uMarginList?.map((i: any) => (
+                <td key={i.exchangeName}>
+                  <Text color={colorRateText(i.rate, theme)} fontSize="14px" lineHeight="20px" fontWeight={500}>
                     {i.rate.toFixed(4)}%
                   </Text>
-                </Row>
-              </TableCell>
-            ))}
-            <TableCell></TableCell>
-          </TableRow>
+                </td>
+              ))}
+            </tr>
+          </tbody>
         </>
       )}
-    </TableWrapper>
+    </Table2>
   )
 }
 

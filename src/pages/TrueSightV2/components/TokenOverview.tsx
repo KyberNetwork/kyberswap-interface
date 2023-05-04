@@ -1,11 +1,13 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { ReactNode, useMemo, useRef, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import Column from 'components/Column'
+import CopyHelper from 'components/Copy'
 import DropdownIcon from 'components/Icons/DropdownIcon'
 import Icon from 'components/Icons/Icon'
 import { DotsLoader } from 'components/Loader/DotsLoader'
@@ -13,9 +15,10 @@ import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
+import { shortenAddress } from 'utils'
 
 import { ITokenOverview } from '../types'
-import { calculateValueToColor } from '../utils'
+import { NETWORK_IMAGE_URL, calculateValueToColor } from '../utils'
 import KyberScoreMeter from './KyberScoreMeter'
 import PriceRange from './PriceRange'
 import KyberScoreChart from './chart/KyberScoreChart'
@@ -80,17 +83,17 @@ const ExpandableBox = styled.div<{ expanded?: boolean; height?: number }>`
   ${({ expanded, height }) => (expanded ? `height: ${height}px;` : ``)}
 `
 
-const PerformanceCard = styled.div<{ color: string }>`
-  border-radius: 8px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 6px;
-  background-color: ${({ color }) => color + '48'};
-  color: ${({ color }) => color};
-`
+// const PerformanceCard = styled.div<{ color: string }>`
+//   border-radius: 8px;
+//   flex: 1;
+//   display: flex;
+//   flex-direction: column;
+//   align-items: center;
+//   gap: 4px;
+//   padding: 6px;
+//   background-color: ${({ color }) => color + '48'};
+//   color: ${({ color }) => color};
+// `
 
 const ExternalLinkWrapper = styled.a`
   text-decoration: none;
@@ -115,6 +118,7 @@ const formatMoneyWithSign = (amount: number, decimal?: number): string => {
 
 export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLoading?: boolean }) => {
   const theme = useTheme()
+  const { chain } = useParams()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const [expanded, setExpanded] = useState(false)
   const ref1 = useRef<HTMLDivElement>(null)
@@ -130,7 +134,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
       {above768 ? (
         <>
           <Row align="stretch" gap="24px" flexDirection={above768 ? 'row' : 'column'} marginBottom="12px">
-            <CardWrapper style={{ justifyContent: 'space-between' }} className={'bullish'}>
+            <CardWrapper style={{ justifyContent: 'space-between' }} className={cardClassname}>
               <Column>
                 <Text color={theme.text} fontSize="14px" lineHeight="20px" marginBottom="12px" fontWeight={500}>
                   <Trans>Price</Trans>
@@ -170,7 +174,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                 style={{ flex: 'initial' }}
               />
               <Column gap="6px" style={{ justifyContent: 'end' }}>
-                <Text fontSize="12px">
+                {/* <Text fontSize="12px">
                   <Trans>Performance</Trans>
                 </Text>
                 <Row gap="8px">
@@ -204,7 +208,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                       6M
                     </Text>
                   </PerformanceCard>
-                </Row>
+                </Row> */}
               </Column>
             </CardWrapper>
             <CardWrapper style={{ alignItems: 'center', gap: '12px' }} className={cardClassname}>
@@ -271,7 +275,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                 <KyberScoreChart width="100%" height="36px" />
               </Column>
             </CardWrapper>
-            <CardWrapper style={{ fontSize: '12px' }} gap="10px" className={'bearish'}>
+            <CardWrapper style={{ fontSize: '12px' }} gap="10px" className={cardClassname}>
               <Text color={theme.text} marginBottom="4px" fontSize="14px" lineHeight="20px" fontWeight={500}>
                 Key Stats
               </Text>
@@ -329,7 +333,24 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                 <Text color={theme.subText}>
                   <Trans>Address</Trans>
                 </Text>
-                <Text color={theme.subText}>0x394...5e3</Text>
+                <RowFit gap="4px">
+                  <div
+                    style={{
+                      borderRadius: '50%',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <img
+                      src={NETWORK_IMAGE_URL[chain || 'ethereum']}
+                      alt="eth"
+                      width="16px"
+                      height="16px"
+                      style={{ display: 'block' }}
+                    />
+                  </div>
+                  <Text color={theme.subText}>{data && shortenAddress(1, data.address)}</Text>
+                  <CopyHelper toCopy={data?.address || ''} />
+                </RowFit>
               </RowBetween>
             </CardWrapper>
           </Row>

@@ -816,10 +816,7 @@ export default function TokenAnalysisList() {
       <RowBetween flexDirection={above768 ? 'row' : 'column'} gap="16px">
         <Column gap="8px">
           <Text fontSize="12px" color={theme.subText} fontWeight={500}>
-            <Trans>
-              Rankings will refresh in <Icon id="timer" size={12} style={{ display: 'inline-block', height: '10px' }} />{' '}
-              04:39
-            </Trans>
+            <Trans>Rankings will be updated every 4 hours</Trans>
           </Text>
           <Text fontSize="12px" color={theme.subText} fontStyle="italic">
             <Trans>Disclaimer: The information here should not be treated as any form of financial advice</Trans>
@@ -1003,7 +1000,7 @@ export default function TokenAnalysisList() {
                     <tr>
                       <td colSpan={8} height={200}>
                         <Text>
-                          <Trans>Some Errors Occurred, Please Try Again Later!</Trans>
+                          <Trans>There was an error. Please try again later.</Trans>
                         </Text>
                       </td>
                     </tr>
