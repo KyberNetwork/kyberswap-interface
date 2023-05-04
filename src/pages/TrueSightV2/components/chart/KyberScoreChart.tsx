@@ -29,7 +29,6 @@ export default function KyberScoreChart({
   data?: Array<IKyberScoreChart>
 }) {
   const theme = useTheme()
-  // const sampleData = [10, 20, 60, 40, 50, 60, 70, 40, 90, 60, 70, 80, 90, 50, 60, 70, 70, 0]
 
   const [{ x, y }, setXY] = useState({ x: 0, y: 0 })
   const [hoveringItem, setHoveringItem] = useState<IKyberScoreChart | undefined>()

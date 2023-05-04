@@ -46,11 +46,11 @@ export default function TokenChart({ data }: { data?: Array<{ value: number; tim
           strokeLinejoin="round"
         />
         <circle cx="1.5" cy={transformedValues[0]} r="1.5" fill={color} />
-        <circle cx="24.5" cy={transformedValues[1]} r="1.5" fill={color} />
-        <circle cx="47.5" cy={transformedValues[2]} r="1.5" fill={color} />
-        <circle cx="70.5" cy={transformedValues[3]} r="1.5" fill={color} />
-        <circle cx="94.5" cy={transformedValues[4]} r="1.5" fill={color} />
-        <circle cx="116.5" cy={transformedValues[5]} r="1.5" fill={color} />
+        <circle cx="24.3" cy={transformedValues[1]} r="1.5" fill={color} />
+        <circle cx="47.6" cy={transformedValues[2]} r="1.5" fill={color} />
+        <circle cx="71" cy={transformedValues[3]} r="1.5" fill={color} />
+        <circle cx="94.3" cy={transformedValues[4]} r="1.5" fill={color} />
+        <circle cx="117.7" cy={transformedValues[5]} r="1.5" fill={color} />
         <circle cx="140.5" cy={transformedValues[6]} r="1.5" fill={color} />
 
         <defs>

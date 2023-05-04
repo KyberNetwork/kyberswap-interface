@@ -48,6 +48,10 @@ export interface ITokenList {
   kyber_tag: string
   market_cap: number
   isWatched: boolean
+  cex_inflow_3days: number
+  cex_outflow_3days: number
+  cex_inflow_24h: number
+  cex_outflow_24h: number
 }
 
 export interface INumberOfTrades {

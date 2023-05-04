@@ -594,11 +594,25 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
         <TokenChart data={token['7daysprice']} />
       </td>
       <td style={{ textAlign: 'start' }}>
-        <Text>${formatLocaleStringNum(token.volume_24h) || '--'}</Text>
+        $
+        {currentTab === KyberAIListType.TOP_CEX_INFLOW
+          ? formatLocaleStringNum(token.cex_inflow_24h) || '--'
+          : currentTab === KyberAIListType.TOP_CEX_OUTFLOW
+          ? formatLocaleStringNum(token.cex_outflow_24h) || '--'
+          : formatLocaleStringNum(token.volume_24h) || '--'}
       </td>
       {[KyberAIListType.TOP_CEX_INFLOW, KyberAIListType.TOP_CEX_OUTFLOW, KyberAIListType.TOP_SOCIAL].includes(
         currentTab,
-      ) && <td style={{ textAlign: 'start' }}></td>}
+      ) && (
+        <td style={{ textAlign: 'start' }}>
+          $
+          {currentTab === KyberAIListType.TOP_CEX_INFLOW
+            ? formatLocaleStringNum(token.cex_inflow_3days) || '--'
+            : currentTab === KyberAIListType.TOP_CEX_OUTFLOW
+            ? formatLocaleStringNum(token.cex_outflow_3days) || '--'
+            : '--'}
+        </td>
+      )}
       <td>
         <Row gap="4px" justify={'flex-end'}>
           <SimpleTooltip text={t`View Pools`}>
