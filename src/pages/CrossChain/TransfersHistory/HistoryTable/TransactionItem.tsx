@@ -25,6 +25,15 @@ export const useGetTransactionStatus = (status: CrossChainTransferStatus) => {
     let generalStatus: MultichainTransferStatus = MultichainTransferStatus.Success
 
     switch (status) {
+      case CrossChainTransferStatus.SRC_GATEWAY_CALLED_FAILED: {
+        detailTransactionStatuses = [
+          DetailTransactionStatus.Failed,
+          DetailTransactionStatus.Failed,
+          DetailTransactionStatus.Failed,
+        ]
+        generalStatus = MultichainTransferStatus.Processing
+        break
+      }
       case CrossChainTransferStatus.SRC_GATEWAY_CALLED: {
         detailTransactionStatuses = [
           DetailTransactionStatus.Done,
@@ -34,7 +43,19 @@ export const useGetTransactionStatus = (status: CrossChainTransferStatus) => {
         generalStatus = MultichainTransferStatus.Processing
         break
       }
-      case CrossChainTransferStatus.DEST_GATEWAY_APPROVED: {
+
+      case CrossChainTransferStatus.WAIT_CONFIRM: {
+        detailTransactionStatuses = [
+          DetailTransactionStatus.Done,
+          DetailTransactionStatus.Loading,
+          DetailTransactionStatus.Waiting,
+        ]
+        generalStatus = MultichainTransferStatus.Processing
+        break
+      }
+      case CrossChainTransferStatus.WAIT_APPROVE:
+      case CrossChainTransferStatus.APPROVED:
+      case CrossChainTransferStatus.EXECUTING: {
         detailTransactionStatuses = [
           DetailTransactionStatus.Done,
           DetailTransactionStatus.Done,
@@ -43,16 +64,8 @@ export const useGetTransactionStatus = (status: CrossChainTransferStatus) => {
         generalStatus = MultichainTransferStatus.Processing
         break
       }
-      case CrossChainTransferStatus.DEST_EXECUTED: {
-        detailTransactionStatuses = [
-          DetailTransactionStatus.Done,
-          DetailTransactionStatus.Done,
-          DetailTransactionStatus.Loading,
-        ]
-        generalStatus = MultichainTransferStatus.Processing
-        break
-      }
-      case CrossChainTransferStatus.DEST_ERROR: {
+      case CrossChainTransferStatus.EXECUTED_ERROR:
+      case CrossChainTransferStatus.NOT_ENOUGH_FEE: {
         detailTransactionStatuses = [
           DetailTransactionStatus.Done,
           DetailTransactionStatus.Done,
@@ -61,16 +74,8 @@ export const useGetTransactionStatus = (status: CrossChainTransferStatus) => {
         generalStatus = MultichainTransferStatus.Failure
         break
       }
-      case CrossChainTransferStatus.ERROR_FETCHING_STATUS: {
-        detailTransactionStatuses = [
-          DetailTransactionStatus.Failed,
-          DetailTransactionStatus.Failed,
-          DetailTransactionStatus.Failed,
-        ]
-        generalStatus = MultichainTransferStatus.Failure
-        break
-      }
-      case CrossChainTransferStatus.EMPTY: {
+      case CrossChainTransferStatus.EXECUTED:
+      case CrossChainTransferStatus.EXPRESS_EXECUTED: {
         detailTransactionStatuses = [
           DetailTransactionStatus.Done,
           DetailTransactionStatus.Done,
@@ -79,10 +84,9 @@ export const useGetTransactionStatus = (status: CrossChainTransferStatus) => {
         generalStatus = MultichainTransferStatus.Success
         break
       }
-
       default: {
         detailTransactionStatuses = [
-          DetailTransactionStatus.Waiting,
+          DetailTransactionStatus.Loading,
           DetailTransactionStatus.Waiting,
           DetailTransactionStatus.Waiting,
         ]
