@@ -68,7 +68,7 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
   if (participantInfo?.status === ParticipantStatus.WHITELISTED)
     return (
       <>
-        <ConnectWalletButton onClick={() => navigate(APP_PATHS.KYBERAI_EXPLORE)}>
+        <ConnectWalletButton onClick={() => navigate(APP_PATHS.KYBERAI_RANKINGS)}>
           <Trans>Get Started</Trans>
         </ConnectWalletButton>
         <div style={{ width: '100%', border: `1px solid ${theme.border}` }} />
@@ -76,12 +76,7 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
           showRanking={false}
           desc={
             <Text fontSize={20} color={theme.text} fontWeight={'500'}>
-              <Trans>
-                Spread the word, and get rewarded for it!{' '}
-                <Text as="span" color={theme.primary} style={{ cursor: 'pointer' }}>
-                  Details
-                </Text>
-              </Trans>
+              <Trans>Spread the word, and get rewarded for it! </Trans>
             </Text>
           }
         />
