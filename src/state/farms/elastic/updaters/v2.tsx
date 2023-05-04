@@ -25,7 +25,6 @@ interface FarmingPool {
   vestingDuration: string
   farm: {
     id: string // address of fair launch contract
-    rewardLocker: string
   }
   rewardTokensIds: string[]
   totalRewardAmounts: string[]
@@ -81,7 +80,6 @@ const FarmUpdaterV2: React.FC<CommonProps> = ({}) => {
         string,
         {
           id: string
-          rewardLocker: string
           pools: FarmingPool[]
         }
       > = {}
@@ -90,7 +88,6 @@ const FarmUpdaterV2: React.FC<CommonProps> = ({}) => {
         if (!poolsByFairLaunchContract[fairLaunchAddr]) {
           poolsByFairLaunchContract[fairLaunchAddr] = {
             id: fairLaunchAddr,
-            rewardLocker: farmingPool.farm.rewardLocker,
             pools: [],
           }
         }
@@ -99,7 +96,7 @@ const FarmUpdaterV2: React.FC<CommonProps> = ({}) => {
       })
 
       const formattedPoolData: ElasticFarm[] = Object.values(poolsByFairLaunchContract).map(
-        ({ id, rewardLocker, pools: rawPools }) => {
+        ({ id, pools: rawPools }) => {
           const pools = rawPools.map(rawPool => {
             const token0Address = isAddressString(chainId, rawPool.pool.token0.id)
             const token1Address = isAddressString(chainId, rawPool.pool.token1.id)
@@ -192,7 +189,6 @@ const FarmUpdaterV2: React.FC<CommonProps> = ({}) => {
 
           return {
             id,
-            rewardLocker,
             pools,
           }
         },

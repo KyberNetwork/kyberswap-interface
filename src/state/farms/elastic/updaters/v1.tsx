@@ -64,7 +64,6 @@ interface FarmingPool {
 
 interface SubgraphFarm {
   id: string
-  rewardLocker: string
   farmingPools: Array<FarmingPool>
 }
 
@@ -72,7 +71,6 @@ const ELASTIC_FARM_QUERY = gql`
   query getFarms {
     farms(first: 1000) {
       id
-      rewardLocker
       farmingPools(
         orderBy: pid
         orderDirection: desc
@@ -187,7 +185,6 @@ const FarmUpdaterV1: React.FC<CommonProps> = ({ interval }) => {
       const formattedData: ElasticFarm[] = data.farms.map((farm: SubgraphFarm) => {
         return {
           id: farm.id,
-          rewardLocker: isAddressString(chainId, farm.rewardLocker),
           pools: farm.farmingPools.map(pool => {
             const token0Address = isAddressString(chainId, pool.pool.token0.id)
             const token1Address = isAddressString(chainId, pool.pool.token1.id)

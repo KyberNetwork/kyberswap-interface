@@ -32,7 +32,6 @@ export interface FarmingPool {
 }
 export interface ElasticFarm {
   id: string // fair launch contract
-  rewardLocker: string
   pools: Array<FarmingPool>
 }
 

@@ -60,7 +60,7 @@ const bnbInfo: EVMNetworkInfo = {
   },
   elastic: {
     defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-bsc',
-    startBlock: 18532980,
+    startBlock: 27905999,
     coreFactory: '0x8C2D09396C0f6E61B64875D014E12Ea8063a4C61',
     nonfungiblePositionManager: '0x04bE0859c5E597308DC689A67E8393984c0B1497',
     tickReader: '0x165c68077ac06c83800d19200e6E2B08D02dE75D',
