@@ -113,6 +113,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key: string]: { [type: string]: string } } =
     [PrivateAnnouncementType.PRICE_ALERT]: '44,45',
     [PrivateAnnouncementType.LIMIT_ORDER]: '8,9,10,11,33,34,35,36',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '37,38',
+    [PrivateAnnouncementType.CROSS_CHAIN]: '48,49',
     [PrivateAnnouncementType.TRENDING_SOON]: '1',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '39,40',
     EXCLUDE: '2,29',
@@ -121,6 +122,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key: string]: { [type: string]: string } } =
     [PrivateAnnouncementType.PRICE_ALERT]: '22,23',
     [PrivateAnnouncementType.LIMIT_ORDER]: '14,15,16,17',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '12,13',
+    [PrivateAnnouncementType.CROSS_CHAIN]: '37,38', // todo
     [PrivateAnnouncementType.TRENDING_SOON]: '1',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '20,21',
     EXCLUDE: '2,11',
@@ -129,6 +131,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key: string]: { [type: string]: string } } =
     [PrivateAnnouncementType.PRICE_ALERT]: '21,22',
     [PrivateAnnouncementType.LIMIT_ORDER]: '12,13,14,15',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '10,11',
+    [PrivateAnnouncementType.CROSS_CHAIN]: '37,38', // todo
     [PrivateAnnouncementType.TRENDING_SOON]: '9',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '17,18',
     EXCLUDE: '2,16',

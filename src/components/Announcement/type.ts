@@ -2,6 +2,7 @@ import { ReactNode } from 'react'
 
 import { LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import { MultichainTransfer } from 'hooks/bridge/useGetBridgeTransfers'
+import { CrossChainTransfer } from 'pages/CrossChain/useTransferHistory'
 import { HistoricalPriceAlert } from 'pages/NotificationCenter/const'
 
 export type Announcement = {
@@ -76,6 +77,7 @@ export type AnnouncementTemplateLimitOrder = {
   order: LimitOrderAnnouncement
   popupType: PopupType
 }
+export type AnnouncementTemplateCrossChain = { transaction: CrossChainTransfer; popupType: PopupType }
 export type AnnouncementTemplateBridge = { transaction: MultichainTransfer; popupType: PopupType }
 export type AnnouncementTemplateTrendingSoon = { tokens: TrueSightToken[]; popupType: PopupType }
 export type AnnouncementTemplatePoolPosition = {
@@ -106,6 +108,7 @@ export type AnnouncementTemplatePopup = {
 export type AnnouncementTemplate =
   | AnnouncementTemplateLimitOrder
   | AnnouncementTemplateBridge
+  | AnnouncementTemplateCrossChain
   | AnnouncementTemplateTrendingSoon
   | AnnouncementTemplatePoolPosition
   | AnnouncementTemplatePopup

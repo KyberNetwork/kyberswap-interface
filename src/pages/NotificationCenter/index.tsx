@@ -122,7 +122,7 @@ function NotificationCenter() {
             />
             <Route
               path={NOTIFICATION_ROUTES.CROSS_CHAIN}
-              element={<PrivateAnnouncement type={PrivateAnnouncementType.BRIDGE_ASSET} />} // todo
+              element={<PrivateAnnouncement type={PrivateAnnouncementType.CROSS_CHAIN} />}
             />
             <Route
               path={NOTIFICATION_ROUTES.TRENDING_SOON_TOKENS}

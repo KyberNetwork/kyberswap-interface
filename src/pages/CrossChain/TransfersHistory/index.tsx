@@ -10,18 +10,18 @@ import { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 
 import HistoryCrossChain from './History'
-import TabSelector, { Tab } from './TabSelector'
+import TabSelector, { CrossChainTab } from './TabSelector'
 
 type Props = {
   className?: string
 }
 
 const BridgeHistory: React.FC<Props> = ({ className }) => {
-  const qs = useParsedQueryString<{ tab: Tab }>()
-  const [activeTab, setTab] = useState<Tab>(qs.tab || Tab.ROUTE)
+  const qs = useParsedQueryString<{ tab: CrossChainTab }>()
+  const [activeTab, setTab] = useState<CrossChainTab>(qs.tab || CrossChainTab.ROUTE)
 
   const navigate = useNavigate()
-  const onClickTab = (tab: Tab) => {
+  const onClickTab = (tab: CrossChainTab) => {
     navigate({ search: `tab=${tab}` }, { replace: true })
     setTab(tab)
   }
@@ -34,7 +34,7 @@ const BridgeHistory: React.FC<Props> = ({ className }) => {
           trackingEvent={MIXPANEL_TYPE.BRIDGE_CLICK_SUBSCRIBE_BTN}
         />
       </RowBetween>
-      {activeTab === Tab.ROUTE ? (
+      {activeTab === CrossChainTab.ROUTE ? (
         <RoutingCrossChain /> // todo lazy
       ) : (
         <HistoryCrossChain /> // todo move all file

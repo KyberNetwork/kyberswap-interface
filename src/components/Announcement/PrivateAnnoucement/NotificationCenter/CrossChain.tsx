@@ -5,12 +5,13 @@ import { Flex } from 'rebass'
 
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { PrivateAnnouncementPropCenter } from 'components/Announcement/PrivateAnnoucement/NotificationCenter'
-import { AnnouncementTemplateBridge } from 'components/Announcement/type'
+import { AnnouncementTemplateCrossChain } from 'components/Announcement/type'
 import { NetworkLogo } from 'components/Logo'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
-import { MultichainTransferStatus } from 'hooks/bridge/useGetBridgeTransfers'
 import { formatAmountBridge } from 'pages/Bridge/helpers'
+import { CrossChainTab } from 'pages/CrossChain/TransfersHistory/TabSelector'
+import { isCrossChainTxsSuccess } from 'pages/CrossChain/helpers'
 import { formatTime } from 'utils/time'
 
 import { Desc, Time, Title, Wrapper } from './styled'
@@ -18,15 +19,15 @@ import { Desc, Time, Title, Wrapper } from './styled'
 export default function AnnouncementItem({
   announcement,
   title,
-}: PrivateAnnouncementPropCenter<AnnouncementTemplateBridge>) {
+}: PrivateAnnouncementPropCenter<AnnouncementTemplateCrossChain>) {
   const { sentAt, templateType, templateBody } = announcement
   const { status, srcTokenSymbol, srcAmount, dstChainId, srcChainId } = templateBody.transaction
-  const isSuccess = Number(status) === MultichainTransferStatus.Success
+  const isSuccess = isCrossChainTxsSuccess(status)
   const chainIdIn = Number(srcChainId) as ChainId
   const chainIdOut = Number(dstChainId) as ChainId
   const navigate = useNavigate()
   return (
-    <Wrapper onClick={() => navigate(APP_PATHS.CROSS_CHAIN)}>
+    <Wrapper onClick={() => navigate(`${APP_PATHS.CROSS_CHAIN}?tab=${CrossChainTab.HISTORY}`)}>
       <Flex justifyContent="space-between" width="100%">
         <Title>
           <InboxIcon type={templateType} />

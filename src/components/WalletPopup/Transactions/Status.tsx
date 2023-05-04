@@ -5,6 +5,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { useDispatch } from 'react-redux'
 import { Flex } from 'rebass'
+import { useLazyGetTxsByHashQuery } from 'services/crossChain'
 
 import { CheckCircle } from 'components/Icons'
 import IconFailure from 'components/Icons/Failed'
@@ -13,17 +14,22 @@ import Loader from 'components/Loader'
 import { PrimaryText } from 'components/WalletPopup/Transactions/TransactionItem'
 import { isTxsPendingTooLong as isShowPendingWarning } from 'components/WalletPopup/Transactions/helper'
 import { CancellingOrderInfo } from 'components/swapv2/LimitOrder/useCancellingOrders'
-import { KS_SETTING_API } from 'constants/env'
+import { BFF_API } from 'constants/env'
 import { MultichainTransferStatus } from 'hooks/bridge/useGetBridgeTransfers'
 import useTheme from 'hooks/useTheme'
+import { isCrossChainTxsPending } from 'pages/CrossChain/helpers'
 import { AppDispatch } from 'state'
 import { modifyTransaction } from 'state/transactions/actions'
 import { TRANSACTION_TYPE, TransactionDetails } from 'state/transactions/type'
 import { getTransactionStatus } from 'utils/transaction'
 
 const MAX_TIME_CHECK_STATUS = 7 * 86_400_000 // the time that we don't need to interval check
-const TYPE_NEED_CHECK_PENDING = [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER, TRANSACTION_TYPE.BRIDGE]
-const TYPE_INTERVAL = [TRANSACTION_TYPE.BRIDGE]
+const TYPE_NEED_CHECK_PENDING = [
+  TRANSACTION_TYPE.CANCEL_LIMIT_ORDER,
+  TRANSACTION_TYPE.BRIDGE,
+  TRANSACTION_TYPE.CROSS_CHAIN_SWAP,
+]
+const TYPE_INTERVAL = [TRANSACTION_TYPE.BRIDGE, TRANSACTION_TYPE.CROSS_CHAIN_SWAP]
 
 const isTxsActuallySuccess = (txs: TransactionDetails) => txs.extraInfo?.actuallySuccess
 
@@ -52,6 +58,8 @@ function StatusIcon({
 
   const interval = useRef<NodeJS.Timeout>()
 
+  const [fetchCrossChainTxs] = useLazyGetTxsByHashQuery()
+
   const checkStatus = useCallback(async () => {
     try {
       if (isTxsActuallySuccess(transaction) && interval.current) {
@@ -67,8 +75,13 @@ function StatusIcon({
           isPending = cancellingOrdersIds.includes(orderId) || cancellingOrdersNonces.length > 0
           break
         case TRANSACTION_TYPE.BRIDGE: {
-          const { data: response } = await axios.get(`${KS_SETTING_API}/v1/multichain-transfers/${hash}`)
+          const { data: response } = await axios.get(`${BFF_API}/v1/multichain-transfers/${hash}`)
           isPending = response?.data?.status === MultichainTransferStatus.Processing
+          break
+        }
+        case TRANSACTION_TYPE.CROSS_CHAIN_SWAP: {
+          const { data: response } = await fetchCrossChainTxs(hash)
+          isPending = isCrossChainTxsPending(response?.data?.status)
           break
         }
       }
@@ -86,7 +99,18 @@ function StatusIcon({
       console.error('Checking txs status error: ', error)
       interval.current && clearInterval(interval.current)
     }
-  }, [cancellingOrdersIds, cancellingOrdersNonces, chainId, dispatch, transaction, extraInfo, hash, type, loading])
+  }, [
+    cancellingOrdersIds,
+    cancellingOrdersNonces,
+    chainId,
+    dispatch,
+    transaction,
+    extraInfo,
+    hash,
+    type,
+    loading,
+    fetchCrossChainTxs,
+  ])
 
   const checkStatusDebounced = useMemo(() => debounce(checkStatus, 1000), [checkStatus])
 
