@@ -1134,7 +1134,6 @@ export default function AddLiquidity() {
 
   return (
     <>
-      <ElasticDisclaimerModal isOpen />
       <TransactionConfirmationModal
         isOpen={showConfirm}
         onDismiss={handleDismissConfirmation}
@@ -1399,6 +1398,7 @@ export default function AddLiquidity() {
           </Row>
         </Container>
       </PageWrapper>
+      <ElasticDisclaimerModal isOpen={false} />
     </>
   )
 }

@@ -131,7 +131,7 @@ export const CHAINS_SUPPORT_NEW_POOL_FARM_API: readonly ChainId[] = [
   // ChainId.MUMBAI,
   ChainId.MATIC,
   // ChainId.BSCTESTNET,
-  ChainId.BSCMAINNET,
+  // ChainId.BSCMAINNET,
   // ChainId.AVAXTESTNET,
   ChainId.AVAXMAINNET,
   ChainId.FANTOM,
