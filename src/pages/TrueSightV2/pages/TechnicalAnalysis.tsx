@@ -5,6 +5,7 @@ import { Text } from 'rebass'
 import styled, { useTheme } from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
+import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
 import Row, { RowFit } from 'components/Row'
 import Toggle from 'components/Toggle'
@@ -229,9 +230,11 @@ export default function TechnicalAnalysis() {
           open. Leveraged trading is high risk & high reward. The higher the leverage, the easier it is for a trader to
           get liquidated. An abrupt change in price of a token can cause large liquidations. Traders may buy / sell the
           token after large liquidations.`}
-          style={{ height: '800px' }}
+          style={{ height: 'fit-content' }}
         >
-          <LiquidOnCentralizedExchanges />
+          <Column style={{ height: '500px' }}>
+            <LiquidOnCentralizedExchanges />
+          </Column>
           <CexRekt />
         </SectionWrapper>
       </Wrapper>

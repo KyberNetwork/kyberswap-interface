@@ -1,3 +1,4 @@
+import { useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -36,25 +37,33 @@ const formatNum = (num: number) => {
 
 export default function CexRekt() {
   const above768 = useMedia('(min-width:768px)')
+  const { address, chain } = useParams()
   const { data } = useCexesLiquidationQuery({
-    tokenAddress: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+    tokenAddress: address,
     chartSize: '1m',
+    chain,
   })
 
   return (
-    <Row gap="24px" flexDirection={above768 ? 'row' : 'column'} align="stretch">
-      <Card>
-        <Text fontSize={14}>4H Rekt</Text>
-        <Text fontSize={28}>${formatNum(data ? data.totalVolUsd.h4TotalVolUsd : 0)}</Text>
-      </Card>
-      <Card>
-        <Text fontSize={14}>12H Rekt</Text>
-        <Text fontSize={28}>${formatNum(data ? data.totalVolUsd.h12TotalVolUsd : 0)}</Text>
-      </Card>
-      <Card>
-        <Text fontSize={14}>24H Rekt</Text>
-        <Text fontSize={28}>${formatNum(data ? data.totalVolUsd.h24TotalVolUsd : 0)}</Text>
-      </Card>
-    </Row>
+    <>
+      {data ? (
+        <Row gap="24px" flexDirection={above768 ? 'row' : 'column'} align="stretch">
+          <Card>
+            <Text fontSize={14}>4H Rekt</Text>
+            <Text fontSize={28}>${formatNum(data ? data.totalVolUsd.h4TotalVolUsd : 0)}</Text>
+          </Card>
+          <Card>
+            <Text fontSize={14}>12H Rekt</Text>
+            <Text fontSize={28}>${formatNum(data ? data.totalVolUsd.h12TotalVolUsd : 0)}</Text>
+          </Card>
+          <Card>
+            <Text fontSize={14}>24H Rekt</Text>
+            <Text fontSize={28}>${formatNum(data ? data.totalVolUsd.h24TotalVolUsd : 0)}</Text>
+          </Card>
+        </Row>
+      ) : (
+        <></>
+      )}
+    </>
   )
 }

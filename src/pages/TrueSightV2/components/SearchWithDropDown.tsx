@@ -20,9 +20,10 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 
+import { NETWORK_IMAGE_URL } from '../constants'
 import { useSearchTokenQuery } from '../hooks/useKyberAIData'
 import { ITokenSearchResult } from '../types'
-import { NETWORK_IMAGE_URL, formatLocaleStringNum } from '../utils'
+import { formatLocaleStringNum } from '../utils'
 
 const Wrapper = styled.div<{ wider?: boolean; expanded?: boolean }>`
   display: flex;

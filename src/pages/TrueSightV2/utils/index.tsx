@@ -1,9 +1,6 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { commify } from 'ethers/lib/utils'
 import { DefaultTheme } from 'styled-components'
-
-import { NETWORKS_INFO } from 'constants/networks'
 
 export const calculateValueToColor = (value: number, theme: DefaultTheme) => {
   if (value === 0) return theme.darkMode ? theme.subText : theme.border
@@ -54,33 +51,14 @@ export const formatLocaleStringNum = (num: number, fixed?: number): string => {
   return (negative ? '-' : '') + formattedNum
 }
 
-export const formatTokenPrice = (num: number): string => {
+export const formatTokenPrice = (num: number, fixed?: number): string => {
   if (num > 1000) {
     return commify(num.toFixed(2))
   } else if (num > 1) {
-    return num.toFixed(6)
+    return num.toFixed(fixed || 6)
   } else {
-    return num.toPrecision(6)
+    return num.toPrecision(fixed || 6)
   }
-}
-
-export const NETWORK_IMAGE_URL: { [chain: string]: string } = {
-  ethereum: NETWORKS_INFO[ChainId.MAINNET].icon,
-  bsc: NETWORKS_INFO[ChainId.BSCMAINNET].icon,
-  arbitrum: NETWORKS_INFO[ChainId.ARBITRUM].icon,
-  optimism: NETWORKS_INFO[ChainId.OPTIMISM].icon,
-  avalanche: NETWORKS_INFO[ChainId.AVAXMAINNET].icon,
-  polygon: NETWORKS_INFO[ChainId.MATIC].icon,
-  fantom: NETWORKS_INFO[ChainId.FANTOM].icon,
-}
-export const NETWORK_TO_CHAINID: { [chain: string]: ChainId } = {
-  ethereum: ChainId.MAINNET,
-  bsc: ChainId.BSCMAINNET,
-  arbitrum: ChainId.ARBITRUM,
-  optimism: ChainId.OPTIMISM,
-  avalanche: ChainId.AVAXMAINNET,
-  polygon: ChainId.MATIC,
-  fantom: ChainId.FANTOM,
 }
 
 export const isReferrerCodeInvalid = (error: any) => error?.data?.code === 4040

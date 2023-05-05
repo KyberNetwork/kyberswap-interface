@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { BigNumber } from 'ethers'
@@ -20,6 +19,7 @@ import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
 import { useTokenContractForReading } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
+import { NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
 import {
   useFundingRateQuery,
   useHolderListQuery,
@@ -29,12 +29,7 @@ import {
 import { testParams } from 'pages/TrueSightV2/pages/SingleToken'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import { IHolderList, IKyberScoreChart, ILiveTrade, ITokenList, KyberAITimeframe } from 'pages/TrueSightV2/types'
-import {
-  NETWORK_TO_CHAINID,
-  calculateValueToColor,
-  formatLocaleStringNum,
-  formatTokenPrice,
-} from 'pages/TrueSightV2/utils'
+import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice } from 'pages/TrueSightV2/utils'
 import { getEtherscanLink, shortenAddress } from 'utils'
 
 import ChevronIcon from '../ChevronIcon'
@@ -100,13 +95,14 @@ const ActionButton = styled.div<{ color: string; hasBg?: boolean }>`
 export const Top10HoldersTable = () => {
   const theme = useTheme()
   // const navigate = useNavigate()
-  const { data } = useHolderListQuery({ address: '0xF9fbe825bfb2bf3e387af0dc18cac8d87f29dea8' })
+  const { chain, address } = useParams()
+  const { data } = useHolderListQuery({ address, chain })
   const { data: tokenInfo } = useTokenDetailQuery({
-    chain: 'ethereum',
-    address: '0xF9fbe825bfb2bf3e387af0dc18cac8d87f29dea8',
+    chain,
+    address,
   })
   const [decimal, setDecimal] = useState(0)
-  const tokenContract = useTokenContractForReading('0xf9fbe825bfb2bf3e387af0dc18cac8d87f29dea8', ChainId.MAINNET)
+  const tokenContract = useTokenContractForReading(address, NETWORK_TO_CHAINID[chain || 'ethereum'])
 
   useEffect(() => {
     tokenContract?.decimals().then((res: any) => {
@@ -163,8 +159,12 @@ export const Top10HoldersTable = () => {
                 <Text fontSize="14px" lineHeight="20px" color={theme.text}>
                   {tokenInfo &&
                     item.quantity &&
-                    commify(
-                      formatUnits(BigNumber.from(item.quantity.toLocaleString('fullwide', { useGrouping: false })), 18),
+                    formatLocaleStringNum(
+                      +formatUnits(
+                        BigNumber.from(item.quantity.toLocaleString('fullwide', { useGrouping: false })),
+                        18,
+                      ),
+                      0,
                     )}
                 </Text>
               </td>
@@ -272,7 +272,9 @@ function colorRateText(value: number, theme: DefaultTheme) {
 
 export const FundingRateTable = () => {
   const theme = useTheme()
-  const { data, isLoading } = useFundingRateQuery({ tokenAddress: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599' })
+  const { chain, address } = useParams()
+  const { data: tokenOverview } = useTokenDetailQuery({ address, chain })
+  const { data, isLoading } = useFundingRateQuery({ address, chain })
 
   const hasNoData = !data && !isLoading
   return (
@@ -280,7 +282,7 @@ export const FundingRateTable = () => {
       {hasNoData ? (
         <Row height="200px" justify="center">
           <Text fontSize="14px">
-            <Trans>We couldn&apos;t find any information on USDT</Trans>
+            <Trans>We couldn&apos;t find any information on {tokenOverview?.symbol?.toUpperCase()}</Trans>
           </Text>
         </Row>
       ) : (

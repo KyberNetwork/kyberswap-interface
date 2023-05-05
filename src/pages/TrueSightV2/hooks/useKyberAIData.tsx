@@ -79,7 +79,7 @@ const kyberAIApi = createApi({
     //4.
     tokenDetail: builder.query<ITokenOverview, { chain?: string; address?: string; account?: string }>({
       query: ({ chain, address, account }: { chain?: string; address?: string; account?: string }) => ({
-        url: `/overview/${chain || 'ethereum'}/${address}`,
+        url: `/overview/${chain}/${address}`,
         params: { wallet: account },
       }),
       transformResponse: (res: any) => res.data,
@@ -155,8 +155,8 @@ const kyberAIApi = createApi({
     }),
     //10.
     holderList: builder.query({
-      query: ({ address }) => ({
-        url: `/holders/ethereum/${address}?page=1&pageSize=25`,
+      query: ({ address, chain }) => ({
+        url: `/holders/${chain}/${address}?page=1&pageSize=25`,
       }),
       transformResponse: (res: any) => {
         console.log(res)
@@ -180,7 +180,7 @@ const kyberAIApi = createApi({
     }),
     //13.
     fundingRate: builder.query({
-      query: ({ tokenAddress }) => ({ url: `/funding-rate/ethereum/${tokenAddress}` }),
+      query: ({ address, chain }) => ({ url: `/funding-rate/${chain}/${address}` }),
       transformResponse: (res: any) => {
         if (res.code === 0) {
           return res.data
@@ -204,16 +204,18 @@ const kyberAIApi = createApi({
         chart: ILiquidCEX[]
         totalVolUsd: { h1TotalVolUsd: number; h4TotalVolUsd: number; h12TotalVolUsd: number; h24TotalVolUsd: number }
       },
-      { tokenAddress?: string; chartSize?: '1d' | '7d' | '1m' | '3m' | string }
+      { tokenAddress?: string; chartSize?: '1d' | '7d' | '1m' | '3m' | string; chain?: string }
     >({
       query: ({
         tokenAddress,
         chartSize,
+        chain,
       }: {
         tokenAddress?: string
         chartSize?: '1d' | '7d' | '1m' | '3m' | string
+        chain?: string
       }) => ({
-        url: `cex/liquidation/ethereum/${tokenAddress}`,
+        url: `cex/liquidation/${chain}/${tokenAddress}`,
         params: { chartSize },
       }),
       transformResponse: (res: any) => {

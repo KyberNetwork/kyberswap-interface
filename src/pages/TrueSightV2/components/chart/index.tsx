@@ -1809,7 +1809,7 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
 
 export const NumberofHolders = () => {
   const theme = useTheme()
-  // const { chain, address } = useParams()
+  const { chain, address } = useParams()
   const [timeframe, setTimeframe] = useState(KyberAITimeframe.ONE_MONTH)
   const [from, to, timerange] = useMemo(() => {
     const now = Math.floor(Date.now() / 60000) * 60
@@ -1831,8 +1831,8 @@ export const NumberofHolders = () => {
     return [from, now, timerange]
   }, [timeframe])
   const { data, isLoading } = useNumberOfHoldersQuery({
-    chain: testParams.chain,
-    address: '0xc3d088842dcf02c13699f936bb83dfbbc6f721ab',
+    chain,
+    address,
     from,
     to,
   })
@@ -2021,7 +2021,8 @@ const CustomLabelLine = (props: any) => {
 export const HoldersChartWrapper = () => {
   const theme = useTheme()
   const above1000 = useMedia('(min-width:1000px)')
-  const { data } = useHolderListQuery({ address: '0xF9fbe825bfb2bf3e387af0dc18cac8d87f29dea8' })
+  const { chain, address } = useParams()
+  const { data } = useHolderListQuery({ address, chain })
   const formattedData = useMemo(
     () =>
       above1000
@@ -2081,6 +2082,7 @@ export const HoldersChartWrapper = () => {
 export const LiquidOnCentralizedExchanges = () => {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
+  const { chain, address } = useParams()
   const [timeframe, setTimeframe] = useState<KyberAITimeframe>(KyberAITimeframe.ONE_MONTH)
   const [from, to, timerange] = useMemo(() => {
     const now = Math.floor(Date.now() / 60000) * 60
@@ -2102,9 +2104,11 @@ export const LiquidOnCentralizedExchanges = () => {
     return [from, now, timerange]
   }, [timeframe])
   const { data, isLoading } = useCexesLiquidationQuery({
-    tokenAddress: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+    tokenAddress: address,
     chartSize: timeframe.toString().toLowerCase(),
+    chain,
   })
+  const { data: tokenOverview } = useTokenDetailQuery({ address, chain })
   const isEmpty = !isLoading && !data
   const [showLong, setShowLong] = useState(true)
   const [showShort, setShowShort] = useState(true)
@@ -2153,7 +2157,7 @@ export const LiquidOnCentralizedExchanges = () => {
           {isEmpty ? (
             <Row height="100%" justify="center">
               <Text fontSize="14px">
-                <Trans>We couldn&apos;t find any information on USDT</Trans>
+                <Trans>We couldn&apos;t find any information on {tokenOverview?.symbol?.toUpperCase()}</Trans>
               </Text>
             </Row>
           ) : (

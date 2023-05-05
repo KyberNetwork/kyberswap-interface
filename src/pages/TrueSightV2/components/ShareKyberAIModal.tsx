@@ -17,8 +17,8 @@ import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 
+import { NETWORK_IMAGE_URL } from '../constants'
 import { ITokenOverview } from '../types'
-import { NETWORK_IMAGE_URL } from '../utils'
 import KyberSwapShareLogo from './KyberSwapShareLogo'
 import { NumberofTradesChart } from './chart'
 

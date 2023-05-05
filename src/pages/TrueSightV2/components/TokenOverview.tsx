@@ -19,7 +19,7 @@ import { getEtherscanLink, shortenAddress } from 'utils'
 
 import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from '../constants'
 import { ITokenOverview } from '../types'
-import { calculateValueToColor } from '../utils'
+import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice } from '../utils'
 import KyberScoreMeter from './KyberScoreMeter'
 import PriceRange from './PriceRange'
 import SimpleTooltip from './SimpleTooltip'
@@ -113,10 +113,10 @@ const ExternalLink = ({ href, className, children }: { href: string; className?:
   )
 }
 
-const formatMoneyWithSign = (amount: number, decimal?: number): string => {
-  const isNegative = amount < 0
-  return (isNegative ? '-' : '') + '$' + (+Math.abs(amount).toFixed(decimal || 0)).toLocaleString()
-}
+// const formatMoneyWithSign = (amount: number, decimal?: number): string => {
+//   const isNegative = amount < 0
+//   return (isNegative ? '-' : '') + '$' + (+Math.abs(amount).toFixed(decimal || 0)).toLocaleString()
+// }
 
 export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLoading?: boolean }) => {
   const theme = useTheme()
@@ -136,8 +136,8 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
       {above768 ? (
         <>
           <Row align="stretch" gap="24px" flexDirection={above768 ? 'row' : 'column'} marginBottom="12px">
-            <CardWrapper style={{ justifyContent: 'space-between' }} className={cardClassname}>
-              <Column>
+            <CardWrapper className={cardClassname}>
+              <Column flex={0}>
                 <Text color={theme.text} fontSize="14px" lineHeight="20px" marginBottom="12px" fontWeight={500}>
                   <Trans>Price</Trans>
                 </Text>
@@ -157,26 +157,27 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                   </Text>
                 </RowFit>
                 <Text color={theme.red} fontSize={12} lineHeight="16px">
-                  {data && formatMoneyWithSign(data?.price24hChangePercent * +data?.price || 0)}
+                  {data && formatTokenPrice(data?.price24hChangePercent * +data?.price || 0)}
                 </Text>
               </Column>
-
-              <PriceRange
-                title={t`Daily Range`}
-                high={data?.['24hHigh'] || 0}
-                low={data?.['24hLow'] || 0}
-                current={+(data?.price || 0)}
-                style={{ flex: 'initial' }}
-              />
-              <PriceRange
-                title={t`1Y Range`}
-                high={data?.['1yHigh'] || 0}
-                low={data?.['1yLow'] || 0}
-                current={data?.price ? +data.price : 0}
-                style={{ flex: 'initial' }}
-              />
-              <Column gap="6px" style={{ justifyContent: 'end' }}>
-                {/* <Text fontSize="12px">
+              <Column justifyContent="center">
+                <PriceRange
+                  title={t`Daily Range`}
+                  high={data?.['24hHigh'] || 0}
+                  low={data?.['24hLow'] || 0}
+                  current={+(data?.price || 0)}
+                  style={{ flex: 'initial' }}
+                />
+                <PriceRange
+                  title={t`1Y Range`}
+                  high={data?.['1yHigh'] || 0}
+                  low={data?.['1yLow'] || 0}
+                  current={data?.price ? +data.price : 0}
+                  style={{ flex: 'initial' }}
+                />
+              </Column>
+              {/*  <Column gap="6px" style={{ justifyContent: 'end' }}>
+                <Text fontSize="12px">
                   <Trans>Performance</Trans>
                 </Text>
                 <Row gap="8px">
@@ -210,8 +211,8 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                       6M
                     </Text>
                   </PerformanceCard>
-                </Row> */}
-              </Column>
+                </Row> 
+              </Column>*/}
             </CardWrapper>
             <CardWrapper style={{ alignItems: 'center', gap: '12px' }} className={cardClassname}>
               <Row marginBottom="4px">
@@ -286,7 +287,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                   <Trans>All Time Low</Trans>
                 </Text>
                 <Text color={theme.text} fontWeight={500}>
-                  {data?.atl && formatMoneyWithSign(data?.atl, 4)}
+                  {data?.atl && `$${formatTokenPrice(data?.atl, 4)}`}
                 </Text>
               </RowBetween>
               <RowBetween>
@@ -294,7 +295,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                   <Trans>All Time High</Trans>
                 </Text>
                 <Text color={theme.text} fontWeight={500}>
-                  {data?.ath && formatMoneyWithSign(data?.ath, 4)}
+                  {data?.ath && `$${formatTokenPrice(data?.ath, 4)}`}
                 </Text>
               </RowBetween>
               <RowBetween>
@@ -302,7 +303,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                   <Trans>24H Volume</Trans>
                 </Text>
                 <Text color={theme.text} fontWeight={500}>
-                  {data?.['24hVolume'] && formatMoneyWithSign(data?.['24hVolume'])}
+                  {data?.['24hVolume'] && `$${formatLocaleStringNum(data?.['24hVolume'], 0)}`}
                 </Text>
               </RowBetween>
               <RowBetween>
@@ -310,7 +311,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                   <Trans>Circulating Supply</Trans>
                 </Text>
                 <Text color={theme.text} fontWeight={500}>
-                  {data && data.circulatingSupply + ' ' + data.symbol}
+                  {data && `${formatLocaleStringNum(data.circulatingSupply, 0)} ${data.symbol}`}
                 </Text>
               </RowBetween>
               <RowBetween>
@@ -318,7 +319,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                   <Trans>Market Cap</Trans>
                 </Text>
                 <Text color={theme.text} fontWeight={500}>
-                  {data?.marketCap && formatMoneyWithSign(data?.marketCap)}
+                  {data?.marketCap && `$${formatLocaleStringNum(data?.marketCap)}`}
                 </Text>
               </RowBetween>
               <RowBetween>
@@ -469,19 +470,19 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                 <Text color={theme.subText}>
                   <Trans>All Time Low</Trans>
                 </Text>
-                <Text color={theme.text}>{data?.atl && formatMoneyWithSign(data?.atl)}</Text>
+                <Text color={theme.text}>{data?.atl && formatTokenPrice(data?.atl)}</Text>
               </RowBetween>
               <RowBetween>
                 <Text color={theme.subText}>
                   <Trans>All Time High</Trans>
                 </Text>
-                <Text color={theme.text}>{data?.ath && formatMoneyWithSign(data?.ath)}</Text>
+                <Text color={theme.text}>{data?.ath && formatTokenPrice(data?.ath)}</Text>
               </RowBetween>
               <RowBetween>
                 <Text color={theme.subText}>
                   <Trans>24H Volume</Trans>
                 </Text>
-                <Text color={theme.text}>{data?.['24hVolume'] && formatMoneyWithSign(data?.['24hVolume'])}</Text>
+                <Text color={theme.text}>{data?.['24hVolume'] && formatLocaleStringNum(data?.['24hVolume'])}</Text>
               </RowBetween>
               <RowBetween>
                 <Text color={theme.subText}>
@@ -493,7 +494,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                 <Text color={theme.subText}>
                   <Trans>Market Cap</Trans>
                 </Text>
-                <Text color={theme.text}>{data?.marketCap && formatMoneyWithSign(data?.marketCap)}</Text>
+                <Text color={theme.text}>{data?.marketCap && formatLocaleStringNum(data?.marketCap)}</Text>
               </RowBetween>
               <RowBetween>
                 <Text color={theme.subText}>
