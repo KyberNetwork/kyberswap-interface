@@ -1,13 +1,13 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import baseQueryOauth from 'services/baseQueryOauth'
 
-import { KS_SETTING_API } from 'constants/env'
+import { BFF_API } from 'constants/env'
 
 import { GetTokenScoreParams, GetTokenScoreResponse } from './types'
 
 const tokenApi = createApi({
   reducerPath: 'tokenApi',
-  baseQuery: baseQueryOauth({ baseUrl: KS_SETTING_API }),
+  baseQuery: baseQueryOauth({ baseUrl: BFF_API }),
   endpoints: builder => ({
     getTokenScore: builder.query<
       GetTokenScoreResponse,
