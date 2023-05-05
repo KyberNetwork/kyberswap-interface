@@ -17,6 +17,14 @@ export type SwapFeeConfig = {
   feeBips: number
 }
 
+const timeoutReject = (ms: number, msg = 'timeout') => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      return reject(new Error(msg))
+    }, ms)
+  })
+}
+
 const checkBothTokensAreStable = (chainId: ChainId, tokenIn: string, tokenOut: string) => {
   return (
     STABLE_COIN_ADDRESSES_TO_TAKE_FEE[chainId].includes(tokenIn) &&
@@ -78,11 +86,31 @@ const useGetSwapFeeConfig = () => {
     [isEnableAuthenAggregator, triggerGetTokenScoreQuery],
   )
 
-  const getTokenScores = useCallback(
-    (chainId: ChainId, tokenIn: string, tokenOut: string) => {
-      return Promise.all([getSingleTokenScore(chainId, tokenIn), getSingleTokenScore(chainId, tokenOut)])
+  const getSingleTokenScoreWithTimeout = useCallback(
+    async (chainId: ChainId, tokenAddress: string): Promise<string | undefined> => {
+      try {
+        const result = await Promise.race([getSingleTokenScore(chainId, tokenAddress), timeoutReject(1_000)])
+        if (result) {
+          return result as string
+        }
+
+        return undefined
+      } catch (e) {
+        console.error(e)
+        return undefined
+      }
     },
     [getSingleTokenScore],
+  )
+
+  const getTokenScores = useCallback(
+    (chainId: ChainId, tokenIn: string, tokenOut: string) => {
+      return Promise.all([
+        getSingleTokenScoreWithTimeout(chainId, tokenIn),
+        getSingleTokenScoreWithTimeout(chainId, tokenOut),
+      ])
+    },
+    [getSingleTokenScoreWithTimeout],
   )
 
   const getSwapFeeConfig = useCallback(
