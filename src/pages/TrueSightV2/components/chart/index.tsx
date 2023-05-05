@@ -1662,8 +1662,8 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
   }, [timeframe])
 
   const { data, isLoading } = useTransferInformationQuery({
-    chain: chain || testParams.chain,
-    address: address || testParams.address,
+    chain,
+    address,
     from,
     to,
   })

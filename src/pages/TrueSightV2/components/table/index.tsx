@@ -1,8 +1,8 @@
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { BigNumber } from 'ethers'
-import { commify, formatUnits } from 'ethers/lib/utils'
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { formatUnits } from 'ethers/lib/utils'
+import { useContext, useMemo, useState } from 'react'
 import { Star } from 'react-feather'
 import { useParams } from 'react-router-dom'
 // import { useNavigate } from 'react-router-dom'
@@ -17,7 +17,6 @@ import Icon from 'components/Icons/Icon'
 import InfoHelper from 'components/InfoHelper'
 import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
-import { useTokenContractForReading } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
 import { NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
 import {
@@ -101,14 +100,7 @@ export const Top10HoldersTable = () => {
     chain,
     address,
   })
-  const [decimal, setDecimal] = useState(0)
-  const tokenContract = useTokenContractForReading(address, NETWORK_TO_CHAINID[chain || 'ethereum'])
 
-  useEffect(() => {
-    tokenContract?.decimals().then((res: any) => {
-      setDecimal(res)
-    })
-  }, [tokenContract])
   return (
     <TableWrapper>
       <colgroup>
@@ -132,44 +124,43 @@ export const Top10HoldersTable = () => {
         </th> */}
       </thead>
       <tbody>
-        {decimal &&
-          data?.slice(0, 10).map((item: IHolderList, i: number) => (
-            <tr key={i}>
-              <td>
-                <Column gap="4px">
-                  <Text fontSize="14px" lineHeight="20px" color={theme.text}>
-                    {shortenAddress(1, item.address)}
-                  </Text>
-                  <RowFit gap="12px">
-                    <ActionButton color={theme.subText} style={{ padding: '6px 0' }}>
-                      <Icon id="copy" size={16} /> Copy
-                    </ActionButton>
-                    <ActionButton color={theme.subText} style={{ padding: '6px 0' }}>
-                      <Icon id="open-link" size={16} /> Analyze
-                    </ActionButton>
-                  </RowFit>
-                </Column>
-              </td>
-              <td>
+        {data?.slice(0, 10).map((item: IHolderList, i: number) => (
+          <tr key={i}>
+            <td>
+              <Column gap="4px">
                 <Text fontSize="14px" lineHeight="20px" color={theme.text}>
-                  {item.percentage.toPrecision(4)}%
+                  {shortenAddress(1, item.address)}
                 </Text>
-              </td>
-              <td>
-                <Text fontSize="14px" lineHeight="20px" color={theme.text}>
-                  {tokenInfo &&
-                    item.quantity &&
-                    formatLocaleStringNum(
-                      +formatUnits(
-                        BigNumber.from(item.quantity.toLocaleString('fullwide', { useGrouping: false })),
-                        18,
-                      ),
-                      0,
-                    )}
-                </Text>
-              </td>
-            </tr>
-          ))}
+                <RowFit gap="12px">
+                  <ActionButton color={theme.subText} style={{ padding: '6px 0' }}>
+                    <Icon id="copy" size={16} /> Copy
+                  </ActionButton>
+                  <ActionButton color={theme.subText} style={{ padding: '6px 0' }}>
+                    <Icon id="open-link" size={16} /> Analyze
+                  </ActionButton>
+                </RowFit>
+              </Column>
+            </td>
+            <td>
+              <Text fontSize="14px" lineHeight="20px" color={theme.text}>
+                {(item.percentage * 100).toPrecision(4)}%
+              </Text>
+            </td>
+            <td>
+              <Text fontSize="14px" lineHeight="20px" color={theme.text}>
+                {tokenInfo &&
+                  item.quantity &&
+                  formatLocaleStringNum(
+                    +formatUnits(
+                      BigNumber.from(item.quantity.toLocaleString('fullwide', { useGrouping: false })),
+                      tokenInfo.decimals,
+                    ),
+                    0,
+                  )}
+              </Text>
+            </td>
+          </tr>
+        ))}
       </tbody>
     </TableWrapper>
   )
@@ -205,11 +196,19 @@ export const SupportResistanceLevel = () => {
                 <th key={index}>
                   {index === 0 && <Trans>Levels</Trans>}
                   {index === maxLength - 1 && (
-                    <TimeFrameLegend
-                      selected={resolution as KyberAITimeframe}
-                      timeframes={[KyberAITimeframe.ONE_HOUR, KyberAITimeframe.FOUR_HOURS, KyberAITimeframe.ONE_DAY]}
-                      onSelect={t => setResolution?.(t as string)}
-                    />
+                    <Row justify="flex-end">
+                      <div style={{ width: '180px' }}>
+                        <TimeFrameLegend
+                          selected={resolution as KyberAITimeframe}
+                          timeframes={[
+                            KyberAITimeframe.ONE_HOUR,
+                            KyberAITimeframe.FOUR_HOURS,
+                            KyberAITimeframe.ONE_DAY,
+                          ]}
+                          onSelect={t => setResolution?.(t as string)}
+                        />
+                      </div>
+                    </Row>
                   )}
                 </th>
               ))}
