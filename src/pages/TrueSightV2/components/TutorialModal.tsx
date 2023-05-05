@@ -267,6 +267,14 @@ const TutorialModal = () => {
     animationState === AnimationState.Animating ? (swipe === SwipeDirection.LEFT ? step - 1 : step + 1) : undefined
 
   useEffect(() => {
+    if (!localStorage.getItem('showedKyberAITutorial')) {
+      // auto show for first time all user
+      toggle()
+      localStorage.setItem('showedKyberAITutorial', '1')
+    }
+  }, [toggle])
+
+  useEffect(() => {
     preloadImage(tutorial2)
     preloadImage(tutorial3)
     preloadImage(tutorial4)

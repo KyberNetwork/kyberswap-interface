@@ -206,4 +206,5 @@ export enum KyberAIListType {
   TOP_CEX_OUTFLOW = 'TOP_CEX_OUTFLOW',
   TOP_TRADED = 'TOP_TRADED',
   TOP_SOCIAL = 'TOP_SOCIAL',
+  TRENDING_SOON = 'trendingsoon',
 }

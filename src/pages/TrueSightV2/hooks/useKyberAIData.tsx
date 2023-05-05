@@ -41,7 +41,7 @@ const kyberAIApi = createApi({
       query: ({ type, chain, page, pageSize, wallet, watchlist, keywords }) => ({
         url: '/tokens',
         params: {
-          type: type || 'ALL',
+          type: type || 'all',
           chain: chain || 'all',
           page: page || 1,
           size: pageSize || 10,

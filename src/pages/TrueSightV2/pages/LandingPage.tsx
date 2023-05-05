@@ -284,34 +284,34 @@ export default function KyberAILandingPage() {
             <RegisterWhitelist />
           </Column>
           <ColumnWithMotion style={{ position: 'relative' }}>
-            <FloatingImageWithMotion src={bitcoinImage} alt="bitcoin" left={-120} top={300} parallaxDistance={6} />
+            <FloatingImageWithMotion src={bitcoinImage} alt="bitcoin" left={0} top={320} parallaxDistance={6} />
             <FloatingImageWithMotion
               src={theme.darkMode ? chartImage : chartLightImage}
               alt="chart"
-              left={460}
+              left={660}
               top={400}
               parallaxDistance={9}
-              style={{ scale: 0.6 }}
+              style={{ scale: 0.5 }}
             />
             <FloatingImageWithMotion
               src={theme.darkMode ? liveDexTradesImage : liveDexTradesLightImage}
               alt="live dex trade"
-              left={-300}
+              left={-200}
               top={190}
               parallaxDistance={10}
-              style={{ scale: 0.6 }}
+              style={{ scale: 0.5 }}
             />
             <FloatingImageWithMotion
               src={theme.darkMode ? kyberscoreMeterImage : kyberscoreMeterLightImage}
               alt="kyberscore"
-              left={450}
+              left={550}
               top={-20}
               parallaxDistance={4}
-              style={{ scale: 0.6 }}
+              style={{ scale: 0.5 }}
             />
-            <FloatingImageWithMotion src={iconImage} alt="icon" left={200} top={80} parallaxDistance={7} />
+            <FloatingImageWithMotion src={iconImage} alt="icon" left={230} top={80} parallaxDistance={7} />
             <FloatingImageWithMotion src={starsImage} alt="stars" left={-600} top={80} parallaxDistance={-10} />
-            <FloatingImageWithMotion src={apeImage} alt="ape head" left={-100} top={100} parallaxDistance={4} />
+            <FloatingImageWithMotion src={apeImage} alt="ape head" left={-20} top={100} parallaxDistance={4} />
             <motion.div
               animate={{
                 opacity: [
@@ -324,7 +324,7 @@ export default function KyberAILandingPage() {
               <FloatingImageWithMotion
                 src={gradientImage}
                 alt="ape sight"
-                left={-800}
+                left={-720}
                 top={-100}
                 parallaxDistance={4}
                 style={{ filter: 'brightness(1.1)' }}
@@ -334,10 +334,10 @@ export default function KyberAILandingPage() {
             <FloatingImageWithMotion
               src={theme.darkMode ? tokenPriceImage : tokenPriceLightImage}
               alt="token Price"
-              left={-100}
-              top={850}
+              left={0}
+              top={920}
               parallaxDistance={11}
-              style={{ scale: 0.6 }}
+              style={{ scale: 0.5 }}
             />
           </ColumnWithMotion>
         </FixedWidth>

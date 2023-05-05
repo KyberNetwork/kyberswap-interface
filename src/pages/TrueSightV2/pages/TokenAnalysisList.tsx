@@ -304,7 +304,7 @@ const tokenTypeList: {
     ),
   },
   {
-    type: KyberAIListType.TOP_SOCIAL,
+    type: KyberAIListType.TRENDING_SOON,
     title: t`Trending Soon`,
     icon: 'trending-soon',
     tooltip: theme => (
@@ -764,12 +764,12 @@ export default function TokenAnalysisList() {
   const above768 = useMedia('(min-width:768px)')
 
   const [searchParams, setSearchParams] = useSearchParams()
-  const listType = (searchParams.get('listType') as KyberAIListType) || KyberAIListType.ALL
+  const listType = (searchParams.get('listType') as KyberAIListType) || KyberAIListType.BULLISH
   const chain = searchParams.get('chain') || 'all'
   // const sortedColumn = searchParams.get('orderBy') || SORT_FIELD.VOLUME
   // const sortOrder = searchParams.get('orderDirection') || SORT_DIRECTION.DESC
   // const sortDirection = sortOrder === SORT_DIRECTION.DESC
-  const pageSize = 50
+  const pageSize = 10
 
   const { data, isLoading, isFetching, isError } = useTokenListQuery(
     listType === KyberAIListType.MYWATCHLIST
@@ -856,9 +856,11 @@ export default function TokenAnalysisList() {
                 <col style={{ width: '230px', minWidth: 'auto' }} />
                 <col style={{ width: '250px', minWidth: 'auto' }} />
                 <col style={{ width: '250px', minWidth: 'auto' }} />
-                {[KyberAIListType.TOP_CEX_INFLOW, KyberAIListType.TOP_CEX_OUTFLOW, KyberAIListType.TOP_SOCIAL].includes(
-                  listType,
-                ) && <col style={{ width: '150px', minWidth: 'auto' }} />}
+                {[
+                  KyberAIListType.TOP_CEX_INFLOW,
+                  KyberAIListType.TOP_CEX_OUTFLOW,
+                  KyberAIListType.TRENDING_SOON,
+                ].includes(listType) && <col style={{ width: '150px', minWidth: 'auto' }} />}
                 <col style={{ width: '150px', minWidth: 'auto' }} />
                 <col style={{ width: '200px', minWidth: 'auto' }} />
               </colgroup>
@@ -959,7 +961,7 @@ export default function TokenAnalysisList() {
                   {[
                     KyberAIListType.TOP_CEX_INFLOW,
                     KyberAIListType.TOP_CEX_OUTFLOW,
-                    KyberAIListType.TOP_SOCIAL,
+                    KyberAIListType.TRENDING_SOON,
                   ].includes(listType) && (
                     <th>
                       <Row justify="flex-start">
@@ -967,7 +969,7 @@ export default function TokenAnalysisList() {
                           {{
                             [KyberAIListType.TOP_CEX_INFLOW]: '3D Inflow',
                             [KyberAIListType.TOP_CEX_OUTFLOW]: '3D Outflow',
-                            [KyberAIListType.TOP_SOCIAL]: 'First Discovered On',
+                            [KyberAIListType.TRENDING_SOON]: 'First Discovered On',
                           }[listType as string] || ''}
                         </Trans>
                         {/* {sortedColumn === SORT_FIELD.VOLUME ? (
@@ -1001,7 +1003,7 @@ export default function TokenAnalysisList() {
                       hasExtraCol={[
                         KyberAIListType.TOP_CEX_INFLOW,
                         KyberAIListType.TOP_CEX_OUTFLOW,
-                        KyberAIListType.TOP_SOCIAL,
+                        KyberAIListType.TRENDING_SOON,
                       ].includes(listType)}
                     />
                   </SkeletonTheme>
@@ -1013,7 +1015,7 @@ export default function TokenAnalysisList() {
                           [
                             KyberAIListType.TOP_CEX_INFLOW,
                             KyberAIListType.TOP_CEX_OUTFLOW,
-                            KyberAIListType.TOP_SOCIAL,
+                            KyberAIListType.TRENDING_SOON,
                           ].includes(listType)
                             ? 9
                             : 8
