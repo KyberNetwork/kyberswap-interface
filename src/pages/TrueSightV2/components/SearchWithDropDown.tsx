@@ -219,6 +219,7 @@ const TokenItem = ({ token }: { token: ITokenSearchResult }) => {
                 right: '-6px',
                 borderRadius: '50%',
                 border: `1px solid ${theme.background}`,
+                backgroundColor: theme.tableHeader,
               }}
             >
               <img

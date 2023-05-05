@@ -9,7 +9,6 @@ import { AutoColumn } from 'components/Column'
 import { RowBetween, RowFixed } from 'components/Row'
 import Toggle from 'components/Toggle'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
-import useTopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork/useTopTrendingSoonTokensInCurrentNetwork'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
@@ -17,11 +16,9 @@ import useTheme from 'hooks/useTheme'
 import {
   useShowLiveChart,
   useShowTokenInfo,
-  useShowTopTrendingSoonTokens,
   useShowTradeRoutes,
   useToggleLiveChart,
   useToggleTokenInfo,
-  useToggleTopTrendingTokens,
   useToggleTradeRoutes,
 } from 'state/user/hooks'
 
@@ -63,9 +60,6 @@ const SettingsPanel: React.FC<Props> = ({
 }) => {
   const theme = useTheme()
 
-  const { data: topTrendingSoonTokens } = useTopTrendingSoonTokensInCurrentNetwork()
-  const shouldShowTrendingSoonSetting = topTrendingSoonTokens.length > 0
-
   const { mixpanelHandler } = useMixpanel()
   const isShowTradeRoutes = useShowTradeRoutes()
   const isShowTokenInfo = useShowTokenInfo()
@@ -74,9 +68,6 @@ const SettingsPanel: React.FC<Props> = ({
   const toggleLiveChart = useToggleLiveChart()
   const toggleTradeRoutes = useToggleTradeRoutes()
   const toggleTokenInfo = useToggleTokenInfo()
-
-  const isShowTrendingSoonTokens = useShowTopTrendingSoonTokens()
-  const toggleTopTrendingTokens = useToggleTopTrendingTokens()
 
   const handleToggleLiveChart = () => {
     mixpanelHandler(MIXPANEL_TYPE.LIVE_CHART_ON_OFF, { live_chart_on_or_off: !isShowLiveChart })
@@ -158,33 +149,6 @@ const SettingsPanel: React.FC<Props> = ({
               <Trans>Display Settings</Trans>
             </Text>
             <AutoColumn gap="md">
-              {shouldShowTrendingSoonSetting && (
-                <RowBetween>
-                  <RowFixed>
-                    <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
-                      <MouseoverTooltip
-                        text={<Trans>Turn on to display tokens that could be trending soon</Trans>}
-                        placement="right"
-                      >
-                        <Trans>Trending Soon</Trans>
-                      </MouseoverTooltip>
-                    </TextDashed>
-                  </RowFixed>
-                  <Toggle
-                    isActive={isShowTrendingSoonTokens}
-                    toggle={() => {
-                      toggleTopTrendingTokens()
-                      isLimitOrder
-                        ? mixpanelHandler(MIXPANEL_TYPE.LO_DISPLAY_SETTING_CLICK, {
-                            display_setting: isShowTrendingSoonTokens ? 'Trending Soon Off' : 'Trending Soon On',
-                          })
-                        : mixpanelHandler(MIXPANEL_TYPE.SWAP_DISPLAY_SETTING_CLICK, {
-                            display_setting: isShowTrendingSoonTokens ? 'Trending Soon Off' : 'Trending Soon On',
-                          })
-                    }}
-                  />
-                </RowBetween>
-              )}
               <RowBetween>
                 <RowFixed>
                   <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>

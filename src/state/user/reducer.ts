@@ -29,7 +29,6 @@ import {
   toggleKyberAIWidget,
   toggleLiveChart,
   toggleTokenInfo,
-  toggleTopTrendingTokens,
   toggleTradeRoutes,
   updateAcceptedTermVersion,
   updateChainId,
@@ -88,7 +87,6 @@ interface UserState {
   }
   showTradeRoutes: boolean
   showTokenInfo: boolean
-  showTopTrendingSoonTokens: boolean
   kyberAIDisplaySettings: {
     [k: string]: boolean
   }
@@ -167,7 +165,6 @@ const initialState: UserState = {
   showLiveCharts: { ...defaultShowLiveCharts },
   showTradeRoutes: true,
   showTokenInfo: true,
-  showTopTrendingSoonTokens: true,
   kyberAIDisplaySettings: {
     numberOfTrades: true,
     numberOfHolders: true,
@@ -293,9 +290,6 @@ export default createReducer(initialState, builder =>
     })
     .addCase(toggleTokenInfo, state => {
       state.showTokenInfo = !state.showTokenInfo
-    })
-    .addCase(toggleTopTrendingTokens, state => {
-      state.showTopTrendingSoonTokens = !state.showTopTrendingSoonTokens
     })
     .addCase(toggleFavoriteToken, (state, { payload: { chainId, isNative, address } }) => {
       if (!state.favoriteTokensByChainId) {

@@ -366,11 +366,6 @@ export function useShowTokenInfo(): boolean {
   return useSelector((state: AppState) => state.user.showTokenInfo) ?? true
 }
 
-export function useShowTopTrendingSoonTokens(): boolean {
-  const showTrendingSoon = useSelector((state: AppState) => state.user.showTopTrendingSoonTokens)
-  return showTrendingSoon ?? true
-}
-
 export function useTokenAnalysisSettings(): { [k: string]: boolean } {
   return useSelector((state: AppState) => state.user.kyberAIDisplaySettings) ?? null
 }
