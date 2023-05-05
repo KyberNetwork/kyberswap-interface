@@ -442,7 +442,7 @@ export const useHolidayMode: () => [boolean, () => void] = () => {
 
 export const useGetParticipantKyberAIInfo = (): ParticipantInfo => {
   const { userInfo } = useSessionInfo()
-  const { data: data = { rank: 0, status: ParticipantStatus.UNKNOWN, referralCode: '', id: 0 } } =
+  const { data: data = { rankNo: 0, status: ParticipantStatus.UNKNOWN, referralCode: '', id: 0 } } =
     useGetParticipantInfoQuery(undefined, {
       skip: !userInfo,
     })

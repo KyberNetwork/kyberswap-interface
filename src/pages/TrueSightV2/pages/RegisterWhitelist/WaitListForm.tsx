@@ -41,7 +41,7 @@ export default function EmailForm({
   showRanking?: boolean
 }) {
   const { userInfo } = useSessionInfo()
-  const { rank, referralCode } = useGetParticipantKyberAIInfo()
+  const { rankNo, referralCode } = useGetParticipantKyberAIInfo()
 
   const theme = useTheme()
   const shareLink = `${window.location.origin}${APP_PATHS.KYBERAI_ABOUT}?referrer=${referralCode}`
@@ -79,7 +79,7 @@ export default function EmailForm({
             <>
               <Flex fontSize={14} color={theme.text} style={{ gap: '6px' }}>
                 <Users size={16} />
-                <Trans>{rank ? formattedNum(rank - 1 + '') : t`Many`} users are ahead of you!</Trans>
+                <Trans>{rankNo ? formattedNum(rankNo - 1 + '') : t`Many`} users are ahead of you!</Trans>
               </Flex>
               <Text fontSize={12} color={theme.subText}>
                 <Trans>The more you share, the sooner you&apos;ll get access!</Trans>
