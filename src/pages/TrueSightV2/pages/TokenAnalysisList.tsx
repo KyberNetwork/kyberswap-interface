@@ -3,7 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { ReactNode, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { ArrowDown, ArrowUp, Share2, Star } from 'react-feather'
+import { Share2, Star } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { NavigateFunction, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -110,10 +110,10 @@ const Table = styled.table`
   }
 
   tr {
-    height: 72px;
+    height: 80px;
     font-size: 14px;
     content-visibility: auto;
-    contain-intrinsic-height: 72px;
+    contain-intrinsic-height: 80px;
     border-radius: 0;
     cursor: pointer;
     transition: background-color 0.1s linear;
@@ -430,17 +430,17 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab:
   )
 }
 
-enum SORT_FIELD {
-  NAME = 'name',
-  PRICE = 'price',
-  VOLUME = 'volume',
-  KYBERSCORE = 'kyberscore',
-}
+// enum SORT_FIELD {
+//   NAME = 'name',
+//   PRICE = 'price',
+//   VOLUME = 'volume',
+//   KYBERSCORE = 'kyberscore',
+// }
 
-enum SORT_DIRECTION {
-  ASC = 'asc',
-  DESC = 'desc',
-}
+// enum SORT_DIRECTION {
+//   ASC = 'asc',
+//   DESC = 'desc',
+// }
 
 const MenuDropdown = styled(RowFit)`
   position: absolute;
@@ -591,7 +591,7 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
         </Column>
       </td>
       <td style={{ textAlign: 'start' }}>
-        <TokenChart data={token['7daysprice']} />
+        <TokenChart data={token['7daysprice']} index={index} />
       </td>
       <td style={{ textAlign: 'start' }}>
         $
@@ -766,9 +766,9 @@ export default function TokenAnalysisList() {
   const [searchParams, setSearchParams] = useSearchParams()
   const listType = (searchParams.get('listType') as KyberAIListType) || KyberAIListType.ALL
   const chain = searchParams.get('chain') || 'all'
-  const sortedColumn = searchParams.get('orderBy') || SORT_FIELD.VOLUME
-  const sortOrder = searchParams.get('orderDirection') || SORT_DIRECTION.DESC
-  const sortDirection = sortOrder === SORT_DIRECTION.DESC
+  // const sortedColumn = searchParams.get('orderBy') || SORT_FIELD.VOLUME
+  // const sortOrder = searchParams.get('orderDirection') || SORT_DIRECTION.DESC
+  // const sortDirection = sortOrder === SORT_DIRECTION.DESC
   const pageSize = 50
 
   const { data, isLoading, isFetching, isError } = useTokenListQuery(
@@ -783,17 +783,17 @@ export default function TokenAnalysisList() {
   )
   const listData = data?.data || []
 
-  const handleSort = (field: SORT_FIELD) => {
-    const direction =
-      sortedColumn !== field
-        ? SORT_DIRECTION.DESC
-        : sortOrder === SORT_DIRECTION.DESC
-        ? SORT_DIRECTION.ASC
-        : SORT_DIRECTION.DESC
-    searchParams.set('orderDirection', direction)
-    searchParams.set('orderBy', field)
-    setSearchParams(searchParams)
-  }
+  // const handleSort = (field: SORT_FIELD) => {
+  //   const direction =
+  //     sortedColumn !== field
+  //       ? SORT_DIRECTION.DESC
+  //       : sortOrder === SORT_DIRECTION.DESC
+  //       ? SORT_DIRECTION.ASC
+  //       : SORT_DIRECTION.DESC
+  //   searchParams.set('orderDirection', direction)
+  //   searchParams.set('orderBy', field)
+  //   setSearchParams(searchParams)
+  // }
 
   const handleTabChange = (tab: KyberAIListType) => {
     searchParams.set('listType', tab)
@@ -865,10 +865,10 @@ export default function TokenAnalysisList() {
               <thead>
                 <tr>
                   <th>#</th>
-                  <th style={{ textAlign: 'left' }} onClick={() => handleSort(SORT_FIELD.NAME)}>
+                  <th style={{ textAlign: 'left' }}>
                     <Row>
                       <Trans>Token name</Trans>
-                      {sortedColumn === SORT_FIELD.NAME ? (
+                      {/* {sortedColumn === SORT_FIELD.NAME ? (
                         !sortDirection ? (
                           <ArrowUp size="12" style={{ marginLeft: '2px' }} />
                         ) : (
@@ -876,14 +876,14 @@ export default function TokenAnalysisList() {
                         )
                       ) : (
                         ''
-                      )}
+                      )} */}
                     </Row>
                   </th>
-                  <th style={{ textAlign: 'left' }} onClick={() => handleSort(SORT_FIELD.KYBERSCORE)}>
+                  <th style={{ textAlign: 'left' }}>
                     <Column gap="4px">
                       <Row justify="flex-start">
                         <Trans>Kyberscore</Trans>{' '}
-                        {sortedColumn === SORT_FIELD.KYBERSCORE ? (
+                        {/* {sortedColumn === SORT_FIELD.KYBERSCORE ? (
                           !sortDirection ? (
                             <ArrowUp size="12" style={{ marginLeft: '2px' }} />
                           ) : (
@@ -891,7 +891,7 @@ export default function TokenAnalysisList() {
                           )
                         ) : (
                           ''
-                        )}
+                        )} */}
                         <InfoHelper
                           placement="top"
                           width="300px"
@@ -908,9 +908,9 @@ export default function TokenAnalysisList() {
                           }
                         />
                       </Row>
-                      <Text fontSize="10px" style={{ textTransform: 'none' }}>
+                      {/* <Text fontSize="10px" style={{ textTransform: 'none' }}>
                         <Trans>At 08:00 AM</Trans>
-                      </Text>
+                      </Text> */}
                     </Column>
                   </th>
                   <th style={{ textAlign: 'left' }}>
@@ -918,10 +918,10 @@ export default function TokenAnalysisList() {
                       <Trans>Last 3D KyberScores</Trans>
                     </Text>
                   </th>
-                  <th onClick={() => handleSort(SORT_FIELD.PRICE)}>
+                  <th>
                     <Row justify="flex-start">
                       <Trans>Current Price</Trans>
-                      {sortedColumn === SORT_FIELD.PRICE ? (
+                      {/* {sortedColumn === SORT_FIELD.PRICE ? (
                         !sortDirection ? (
                           <ArrowUp size="12" style={{ marginLeft: '2px' }} />
                         ) : (
@@ -929,7 +929,7 @@ export default function TokenAnalysisList() {
                         )
                       ) : (
                         ''
-                      )}
+                      )} */}
                     </Row>
                   </th>
                   <th>
@@ -937,7 +937,7 @@ export default function TokenAnalysisList() {
                       <Trans>Last 7d price</Trans>
                     </Row>
                   </th>
-                  <th onClick={() => handleSort(SORT_FIELD.VOLUME)}>
+                  <th>
                     <Row justify="flex-start">
                       <Trans>
                         {{
@@ -945,7 +945,7 @@ export default function TokenAnalysisList() {
                           [KyberAIListType.TOP_CEX_OUTFLOW]: '24h Outflow',
                         }[listType as string] || '24h Volume'}
                       </Trans>
-                      {sortedColumn === SORT_FIELD.VOLUME ? (
+                      {/* {sortedColumn === SORT_FIELD.VOLUME ? (
                         !sortDirection ? (
                           <ArrowUp size="12" style={{ marginLeft: '2px' }} />
                         ) : (
@@ -953,7 +953,7 @@ export default function TokenAnalysisList() {
                         )
                       ) : (
                         ''
-                      )}
+                      )} */}
                     </Row>
                   </th>
                   {[
@@ -970,7 +970,7 @@ export default function TokenAnalysisList() {
                             [KyberAIListType.TOP_SOCIAL]: 'First Discovered On',
                           }[listType as string] || ''}
                         </Trans>
-                        {sortedColumn === SORT_FIELD.VOLUME ? (
+                        {/* {sortedColumn === SORT_FIELD.VOLUME ? (
                           !sortDirection ? (
                             <ArrowUp size="12" style={{ marginLeft: '2px' }} />
                           ) : (
@@ -978,7 +978,7 @@ export default function TokenAnalysisList() {
                           )
                         ) : (
                           ''
-                        )}
+                        )} */}
                       </Row>
                     </th>
                   )}

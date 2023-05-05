@@ -6,7 +6,13 @@ const transformValue = (value: number, [from0, from1]: number[], [to0, to1]: num
   return ((value - from0) / (from1 - from0)) * (to1 - to0)
 }
 
-export default function TokenChart({ data }: { data?: Array<{ value: number; timestamp: number }> }) {
+export default function TokenChart({
+  data,
+  index,
+}: {
+  data?: Array<{ value: number; timestamp: number }>
+  index: number
+}) {
   const theme = useTheme()
   const formattedData: Array<{ value: number; timestamp: number }> = useMemo(() => {
     if (!data) return []
@@ -31,13 +37,14 @@ export default function TokenChart({ data }: { data?: Array<{ value: number; tim
     transformValue(item.value, [maxData * 1.1, minData * 0.91], [1, 41]),
   )
 
-  const color = transformedValues[0] > transformedValues[6] ? theme.primary : theme.red
+  const color = transformedValues[0] >= transformedValues[6] ? theme.primary : theme.red
+
   return (
     <>
       <svg width="142" height="41" viewBox="0 0 142 41" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path
           d={`M1 40V${transformedValues[0]}L24.3333 ${transformedValues[1]}L47.6667 ${transformedValues[2]}L71 ${transformedValues[3]}L94.3333 ${transformedValues[4]}L117.667 ${transformedValues[5]}L141 ${transformedValues[6]}V40H1Z`}
-          fill="url(#paint0_linear_4105_68065)"
+          fill={`url(#paint0_linear_4105_68065${index})`}
         />
         <path
           d={`M1 ${transformedValues[0]}L24.3452 ${transformedValues[1]}L47.7616 ${transformedValues[2]}L71.0356 ${transformedValues[3]}L94.3808 ${transformedValues[4]}L117.726 ${transformedValues[5]}L141 ${transformedValues[6]}`}
@@ -54,7 +61,14 @@ export default function TokenChart({ data }: { data?: Array<{ value: number; tim
         <circle cx="140.5" cy={transformedValues[6]} r="1.5" fill={color} />
 
         <defs>
-          <linearGradient id="paint0_linear_4105_68065" x1="71" y1="1" x2="71" y2="41" gradientUnits="userSpaceOnUse">
+          <linearGradient
+            id={`paint0_linear_4105_68065${index}`}
+            x1="71"
+            y1="1"
+            x2="71"
+            y2="41"
+            gradientUnits="userSpaceOnUse"
+          >
             <stop stopColor={color} stopOpacity="0.4" />
             <stop offset="1" stopColor={color} stopOpacity="0" />
           </linearGradient>

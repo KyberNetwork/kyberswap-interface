@@ -37,7 +37,6 @@ import {
 } from 'pages/TrueSightV2/utils'
 import { getEtherscanLink, shortenAddress } from 'utils'
 
-import { ContentWrapper } from '..'
 import ChevronIcon from '../ChevronIcon'
 import SimpleTooltip from '../SimpleTooltip'
 import SmallKyberScoreMeter from '../SmallKyberScoreMeter'
@@ -46,7 +45,7 @@ import { TimeFrameLegend } from '../chart'
 
 // import OHLCData from './../chart/candles.json'
 
-const Table2 = styled.table`
+const TableWrapper = styled.table`
   border-collapse: collapse;
   border-radius: 6px;
   overflow: hidden;
@@ -75,48 +74,6 @@ const Table2 = styled.table`
   tr:not(:last-child) {
     border-bottom: 1px solid ${({ theme }) => theme.border};
   }
-`
-const TableWrapper = styled(ContentWrapper)`
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  overflow: hidden;
-  padding: 0;
-  font-size: 12px;
-  border-radius: 6px;
-  width: 100%;
-`
-const TableHeader = styled.div<{ gridTemplateColumns: string }>`
-  display: grid;
-  grid-template-columns: ${({ gridTemplateColumns }) => gridTemplateColumns};
-  align-items: center;
-  height: 48px;
-  text-transform: uppercase;
-
-  ${({ theme }) => css`
-    background-color: ${theme.tableHeader};
-    color: ${theme.subText};
-  `};
-
-  & > *:last-child {
-    align-items: flex-end;
-  }
-`
-const TableRow = styled(TableHeader)<{ height?: number }>`
-  height: ${({ height }) => height || 72}px;
-  font-size: 14px;
-  text-transform: initial;
-  ${({ theme }) => css`
-    background-color: ${theme.background};
-    color: ${theme.text};
-    border-bottom: 1px solid ${theme.border};
-  `};
-`
-const TableCell = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 6px 16px;
-  gap: 4px;
 `
 
 const ActionButton = styled.div<{ color: string; hasBg?: boolean }>`
@@ -157,7 +114,7 @@ export const Top10HoldersTable = () => {
     })
   }, [tokenContract])
   return (
-    <Table2>
+    <TableWrapper>
       <colgroup>
         <col style={{ width: '300px' }} />
         <col style={{ width: '300px' }} />
@@ -214,7 +171,7 @@ export const Top10HoldersTable = () => {
             </tr>
           ))}
       </tbody>
-    </Table2>
+    </TableWrapper>
   )
 }
 
@@ -235,18 +192,17 @@ export const SupportResistanceLevel = () => {
     ]
   }, [SRLevels, currentPrice])
   const maxLength = Math.max(supports?.length || 0, resistances?.length || 0, 4)
-  const gridTemplateColumns = '1fr ' + (Array(maxLength).fill('1fr').join(' ') || '')
 
   return (
     <TableWrapper>
-      <TableHeader gridTemplateColumns={gridTemplateColumns}>
+      <thead>
         <>
-          <TableCell>Type</TableCell>
+          <th>Type</th>
           <>
             {Array(maxLength)
               .fill('')
               .map((i, index) => (
-                <TableCell key={index}>
+                <th key={index}>
                   {index === 0 && <Trans>Levels</Trans>}
                   {index === maxLength - 1 && (
                     <TimeFrameLegend
@@ -255,53 +211,55 @@ export const SupportResistanceLevel = () => {
                       onSelect={t => setResolution?.(t as string)}
                     />
                   )}
-                </TableCell>
+                </th>
               ))}
           </>
         </>
-      </TableHeader>
-      <TableRow gridTemplateColumns={gridTemplateColumns}>
-        <>
-          <TableCell>
-            <Text color={theme.primary}>Support</Text>
-          </TableCell>
-          {Array(maxLength)
-            .fill('')
-            .map((i, index) => (
-              <TableCell key={index} style={{ alignItems: 'flex-start' }}>
-                <Text color={theme.text}>
-                  {supports?.[index] && currentPrice && `${formatLevelValue(supports[index].value)}`}
-                </Text>
-                <Text color={theme.apr} fontSize="12px">
-                  {supports?.[index] && currentPrice
-                    ? (((supports[index].value - currentPrice) / currentPrice) * 100).toFixed(2) + '%'
-                    : '--'}
-                </Text>
-              </TableCell>
-            ))}
-        </>
-      </TableRow>
-      <TableRow gridTemplateColumns={gridTemplateColumns}>
-        <>
-          <TableCell>
-            <Text color={theme.red}>Resistance</Text>
-          </TableCell>
-          {Array(maxLength)
-            .fill('')
-            .map((i, index) => (
-              <TableCell key={index} style={{ alignItems: 'flex-start' }}>
-                <Text color={theme.text}>
-                  {resistances?.[index] && currentPrice && `${formatLevelValue(resistances[index].value)} `}
-                </Text>
-                <Text color={theme.red} fontSize="12px">
-                  {resistances?.[index] && currentPrice
-                    ? (((resistances[index].value - currentPrice) / currentPrice) * 100).toFixed(2) + '%'
-                    : '--'}
-                </Text>
-              </TableCell>
-            ))}
-        </>
-      </TableRow>
+      </thead>
+      <tbody>
+        <tr>
+          <>
+            <td>
+              <Text color={theme.primary}>Support</Text>
+            </td>
+            {Array(maxLength)
+              .fill('')
+              .map((i, index) => (
+                <td key={index} style={{ alignItems: 'flex-start' }}>
+                  <Text color={theme.text}>
+                    {supports?.[index] && currentPrice && `${formatLevelValue(supports[index].value)}`}
+                  </Text>
+                  <Text color={theme.apr} fontSize="12px">
+                    {supports?.[index] && currentPrice
+                      ? (((supports[index].value - currentPrice) / currentPrice) * 100).toFixed(2) + '%'
+                      : '--'}
+                  </Text>
+                </td>
+              ))}
+          </>
+        </tr>
+        <tr>
+          <>
+            <td>
+              <Text color={theme.red}>Resistance</Text>
+            </td>
+            {Array(maxLength)
+              .fill('')
+              .map((i, index) => (
+                <td key={index} style={{ alignItems: 'flex-start' }}>
+                  <Text color={theme.text}>
+                    {resistances?.[index] && currentPrice && `${formatLevelValue(resistances[index].value)} `}
+                  </Text>
+                  <Text color={theme.red} fontSize="12px">
+                    {resistances?.[index] && currentPrice
+                      ? (((resistances[index].value - currentPrice) / currentPrice) * 100).toFixed(2) + '%'
+                      : '--'}
+                  </Text>
+                </td>
+              ))}
+          </>
+        </tr>
+      </tbody>
     </TableWrapper>
   )
 }
@@ -318,7 +276,7 @@ export const FundingRateTable = () => {
 
   const hasNoData = !data && !isLoading
   return (
-    <Table2>
+    <TableWrapper>
       {hasNoData ? (
         <Row height="200px" justify="center">
           <Text fontSize="14px">
@@ -368,7 +326,7 @@ export const FundingRateTable = () => {
           </tbody>
         </>
       )}
-    </Table2>
+    </TableWrapper>
   )
 }
 
@@ -381,190 +339,196 @@ export const LiveDEXTrades = () => {
     chain: chain || testParams.chain,
     address: address || testParams.address,
   })
-  const gridTemplateColumns = '1.4fr 1.2fr 2fr 2fr 1.5fr 1fr'
 
   return (
-    <TableWrapper>
-      <TableHeader gridTemplateColumns={gridTemplateColumns}>
-        <TableCell>Date</TableCell>
-        <TableCell>Type</TableCell>
-        <TableCell>Price ($)</TableCell>
-        <TableCell>Amount</TableCell>
-        <TableCell>Trader</TableCell>
-        <TableCell>Transaction</TableCell>
-      </TableHeader>
-      {data?.slice((currentPage - 1) * 10, currentPage * 10 - 1).map((trade: ILiveTrade, i: number) => {
-        const isBuy = trade.type === 'buy'
-        return (
-          <TableRow key={i} gridTemplateColumns={gridTemplateColumns}>
-            <TableCell>
-              <Text>{dayjs(trade.timestamp * 1000).format('DD/MM/YYYY')}</Text>
-              <Text fontSize={12} color={theme.subText}>
-                {dayjs(trade.timestamp * 1000).format('HH:mm:ss A')}
-              </Text>
-            </TableCell>
-            <TableCell>
-              <Text color={isBuy ? theme.primary : theme.red} style={{ textTransform: 'capitalize' }}>
-                {trade.type}
-              </Text>
-            </TableCell>
-            <TableCell>${formatLocaleStringNum(trade.price, 6)}</TableCell>
-            <TableCell>
-              <Row gap="4px">
-                <img src={tokenOverview?.logo} width="16px" height="16px" />
-                <Text color={isBuy ? theme.primary : theme.red}>
-                  {isBuy ? '+' : '-'}
-                  {formatLocaleStringNum(+trade.amountToken)} {tokenOverview?.symbol}
-                </Text>
-                {trade.price * +trade.amountToken > 100000 && (
-                  <InfoHelper text={t`This transaction is higher than >$100k`} placement="top" />
-                )}
-              </Row>
-              <Text color={theme.subText} fontSize={12}>
-                ${formatLocaleStringNum(trade.price * +trade.amountToken)}{' '}
-              </Text>
-            </TableCell>
-            <TableCell>
-              <Text color={theme.primary}>{shortenAddress(1, trade.trader)}</Text>
-            </TableCell>
-            <TableCell>
-              <Row justify="flex-end" gap="8px">
-                <ActionButton color={theme.subText} hasBg>
-                  <CopyHelper toCopy={trade.txn} style={{ marginLeft: 0 }} />
-                </ActionButton>
-                <ActionButton color={theme.subText} hasBg>
-                  <a
-                    target="_blank"
-                    rel="noreferrer"
-                    href={chain ? getEtherscanLink(NETWORK_TO_CHAINID[chain], trade.txn, 'transaction') : '#'}
-                  >
-                    <Icon id="open-link" size={16} />
-                  </a>
-                </ActionButton>
-              </Row>
-            </TableCell>
-          </TableRow>
-        )
-      })}
+    <>
+      <TableWrapper>
+        <colgroup>
+          <col width="50px" />
+          <col width="100px" />
+          <col width="200px" />
+          <col width="260px" />
+          <col width="200px" />
+          <col width="100px" />
+        </colgroup>
+        <thead>
+          <th>Date</th>
+          <th>Type</th>
+          <th>Price ($)</th>
+          <th>Amount</th>
+          <th>Trader</th>
+          <th>Transaction</th>
+        </thead>
+        <tbody style={{ fontSize: '14px', lineHeight: '20px' }}>
+          {data?.slice((currentPage - 1) * 10, currentPage * 10 - 1).map((trade: ILiveTrade, i: number) => {
+            const isBuy = trade.type === 'buy'
+            return (
+              <tr key={i}>
+                <td>
+                  <Text>{dayjs(trade.timestamp * 1000).format('DD/MM/YYYY')}</Text>
+                  <Text fontSize={12} color={theme.subText}>
+                    {dayjs(trade.timestamp * 1000).format('HH:mm:ss A')}
+                  </Text>
+                </td>
+                <td>
+                  <Text color={isBuy ? theme.primary : theme.red} style={{ textTransform: 'capitalize' }}>
+                    {trade.type}
+                  </Text>
+                </td>
+                <td>${formatLocaleStringNum(trade.price, 6)}</td>
+                <td>
+                  <Row gap="4px">
+                    <img src={tokenOverview?.logo} width="16px" height="16px" style={{ borderRadius: '8px' }} />
+                    <Text color={isBuy ? theme.primary : theme.red}>
+                      {isBuy ? '+' : '-'} {formatLocaleStringNum(+trade.amountToken)} {tokenOverview?.symbol}
+                    </Text>
+                    {trade.price * +trade.amountToken > 100000 && (
+                      <InfoHelper text={t`This transaction is higher than >$100k`} placement="top" />
+                    )}
+                  </Row>
+                  <Text color={theme.subText} fontSize={12}>
+                    ${formatLocaleStringNum(trade.price * +trade.amountToken)}{' '}
+                  </Text>
+                </td>
+                <td>
+                  <Text color={theme.primary}>{shortenAddress(1, trade.trader)}</Text>
+                </td>
+                <td>
+                  <Row justify="flex-end" gap="8px">
+                    <ActionButton color={theme.subText} hasBg>
+                      <CopyHelper toCopy={trade.txn} style={{ marginLeft: 0 }} />
+                    </ActionButton>
+                    <ActionButton color={theme.subText} hasBg>
+                      <a
+                        target="_blank"
+                        rel="noreferrer"
+                        href={chain ? getEtherscanLink(NETWORK_TO_CHAINID[chain], trade.txn, 'transaction') : '#'}
+                      >
+                        <Icon id="open-link" size={16} />
+                      </a>
+                    </ActionButton>
+                  </Row>
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </TableWrapper>
       <Pagination
         currentPage={currentPage}
         pageSize={10}
         totalCount={data?.length || 10}
         onPageChange={page => setCurrentPage(page)}
       />
-    </TableWrapper>
+    </>
   )
 }
 
 export const WidgetTable = ({ data }: { data?: ITokenList[] }) => {
   const theme = useTheme()
-  const gridTemplateColumns = '1fr 1fr 1fr 1fr 0.6fr'
 
   return (
     <TableWrapper style={{ borderRadius: '0' }}>
-      <TableHeader gridTemplateColumns={gridTemplateColumns} style={{ backgroundColor: theme.background }}>
-        <TableCell>
+      <thead style={{ backgroundColor: theme.background }}>
+        <th>
           <Trans>Token</Trans>
-        </TableCell>
-        <TableCell>
+        </th>
+        <th>
           <Trans>Kyberscore</Trans>
-        </TableCell>
-        <TableCell>
+        </th>
+        <th>
           <Trans>Price | 24 Change</Trans>
-        </TableCell>
-        <TableCell>
+        </th>
+        <th>
           <Trans>Last 7 days</Trans>
-        </TableCell>
-        <TableCell>
+        </th>
+        <th>
           <Trans>Action</Trans>
-        </TableCell>
-      </TableHeader>
-      {data?.map((token, i) => {
-        const latestKyberScore: IKyberScoreChart = token?.ks_3d?.[token.ks_3d.length - 1]
-        return (
-          <TableRow
-            key={i}
-            gridTemplateColumns={gridTemplateColumns}
-            height={64}
-            style={{ backgroundColor: theme.tableHeader }}
-          >
-            <TableCell>
-              <RowFit gap="6px">
-                <SimpleTooltip text={t`Add to watchlist`}>
-                  <Star
-                    size={16}
-                    style={{ marginRight: '6px', cursor: 'pointer' }}
-                    fill={'none'}
-                    stroke={theme.subText}
-                    onClick={e => {
-                      e.stopPropagation()
-                    }}
-                  />
-                </SimpleTooltip>
-                <Row gap="8px" style={{ position: 'relative', width: '24px', height: '24px' }}>
-                  <img
-                    alt="tokenInList"
-                    src={token.tokens[0].logo}
-                    width="24px"
-                    height="24px"
-                    style={{ borderRadius: '12px' }}
-                  />
-                  <Column gap="4px" style={{ cursor: 'pointer', alignItems: 'flex-start' }}>
-                    <Text style={{ textTransform: 'uppercase' }}>{token.symbol}</Text>{' '}
-                    <RowFit gap="6px" color={theme.text}>
-                      {token.tokens.map(item => {
-                        if (item.chain === 'ethereum') return <Icon id="eth-mono" size={12} title="Ethereum" />
-                        if (item.chain === 'bsc') return <Icon id="bnb-mono" size={12} title="Binance" />
-                        if (item.chain === 'avalanche') return <Icon id="ava-mono" size={12} title="Avalanche" />
-                        if (item.chain === 'polygon') return <Icon id="matic-mono" size={12} title="Polygon" />
-                        if (item.chain === 'arbitrum') return <Icon id="arbitrum-mono" size={12} title="Arbitrum" />
-                        if (item.chain === 'fantom') return <Icon id="fantom-mono" size={12} title="Fantom" />
-                        if (item.chain === 'optimism') return <Icon id="optimism-mono" size={12} title="Optimism" />
-                        return <></>
-                      })}
-                    </RowFit>
-                  </Column>
-                </Row>
-              </RowFit>
-            </TableCell>
-            <TableCell>
-              <Column style={{ alignItems: 'center', width: '110px' }}>
-                <SmallKyberScoreMeter data={latestKyberScore} tokenName={token.symbol} />
-                <Text color={calculateValueToColor(token.kyber_score, theme)} fontSize="14px" fontWeight={500}>
-                  {latestKyberScore.tag || t`Not Available`}
-                </Text>
-              </Column>
-            </TableCell>
-            <TableCell>
-              <Column gap="4px" style={{ textAlign: 'left' }}>
-                <Text color={theme.text} fontSize="14px" lineHeight="20px">
-                  ${formatTokenPrice(token.price)}
-                </Text>
-                <Text fontSize="10px" lineHeight="12px" color={token.change_24h > 0 ? theme.primary : theme.red}>
-                  <Row gap="2px">
-                    <ChevronIcon
-                      rotate={token.change_24h > 0 ? '180deg' : '0deg'}
-                      color={token.change_24h > 0 ? theme.primary : theme.red}
+        </th>
+      </thead>
+      <tbody>
+        {data?.map((token, i) => {
+          const latestKyberScore: IKyberScoreChart = token?.ks_3d?.[token.ks_3d.length - 1]
+          return (
+            <tr key={i} style={{ backgroundColor: theme.tableHeader, height: '64px' }}>
+              <td>
+                <RowFit gap="6px">
+                  <SimpleTooltip text={t`Add to watchlist`}>
+                    <Star
+                      size={16}
+                      style={{ marginRight: '6px', cursor: 'pointer' }}
+                      fill={'none'}
+                      stroke={theme.subText}
+                      onClick={e => {
+                        e.stopPropagation()
+                      }}
                     />
-                    {Math.abs(token.change_24h).toFixed(2)}%
+                  </SimpleTooltip>
+                  <Row gap="8px" style={{ position: 'relative', width: '24px', height: '24px' }}>
+                    <img
+                      alt="tokenInList"
+                      src={token.tokens[0].logo}
+                      width="24px"
+                      height="24px"
+                      style={{ borderRadius: '12px' }}
+                    />
+                    <Column gap="4px" style={{ cursor: 'pointer', alignItems: 'flex-start' }}>
+                      <Text style={{ textTransform: 'uppercase' }}>{token.symbol}</Text>{' '}
+                      <RowFit gap="6px" color={theme.text}>
+                        {token.tokens.map(item => {
+                          if (item.chain === 'ethereum') return <Icon id="eth-mono" size={12} title="Ethereum" />
+                          if (item.chain === 'bsc') return <Icon id="bnb-mono" size={12} title="Binance" />
+                          if (item.chain === 'avalanche') return <Icon id="ava-mono" size={12} title="Avalanche" />
+                          if (item.chain === 'polygon') return <Icon id="matic-mono" size={12} title="Polygon" />
+                          if (item.chain === 'arbitrum') return <Icon id="arbitrum-mono" size={12} title="Arbitrum" />
+                          if (item.chain === 'fantom') return <Icon id="fantom-mono" size={12} title="Fantom" />
+                          if (item.chain === 'optimism') return <Icon id="optimism-mono" size={12} title="Optimism" />
+                          return <></>
+                        })}
+                      </RowFit>
+                    </Column>
                   </Row>
-                </Text>
-              </Column>
-            </TableCell>
-            <TableCell>
-              <TokenChart data={token['7daysprice']} />
-            </TableCell>
-            <TableCell>
-              <ButtonLight height="28px" width="75px" padding="4px 8px">
-                <RowFit gap="4px" fontSize="14px">
-                  <Icon id="swap" size={16} />
-                  Swap
                 </RowFit>
-              </ButtonLight>
-            </TableCell>
-          </TableRow>
-        )
-      })}
+              </td>
+              <td>
+                <Column style={{ alignItems: 'center', width: '110px' }}>
+                  <SmallKyberScoreMeter data={latestKyberScore} tokenName={token.symbol} />
+                  <Text color={calculateValueToColor(token.kyber_score, theme)} fontSize="14px" fontWeight={500}>
+                    {latestKyberScore.tag || t`Not Available`}
+                  </Text>
+                </Column>
+              </td>
+              <td>
+                <Column gap="4px" style={{ textAlign: 'left' }}>
+                  <Text color={theme.text} fontSize="14px" lineHeight="20px">
+                    ${formatTokenPrice(token.price)}
+                  </Text>
+                  <Text fontSize="10px" lineHeight="12px" color={token.change_24h > 0 ? theme.primary : theme.red}>
+                    <Row gap="2px">
+                      <ChevronIcon
+                        rotate={token.change_24h > 0 ? '180deg' : '0deg'}
+                        color={token.change_24h > 0 ? theme.primary : theme.red}
+                      />
+                      {Math.abs(token.change_24h).toFixed(2)}%
+                    </Row>
+                  </Text>
+                </Column>
+              </td>
+              <td>
+                <TokenChart data={token['7daysprice']} index={i} />
+              </td>
+              <td>
+                <ButtonLight height="28px" width="75px" padding="4px 8px">
+                  <RowFit gap="4px" fontSize="14px">
+                    <Icon id="swap" size={16} />
+                    Swap
+                  </RowFit>
+                </ButtonLight>
+              </td>
+            </tr>
+          )
+        })}
+      </tbody>
     </TableWrapper>
   )
 }

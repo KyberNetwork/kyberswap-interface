@@ -132,7 +132,7 @@ export default function TechnicalAnalysis() {
         <SectionWrapper
           show={tokenAnalysisSettings?.liveCharts}
           fullscreenButton
-          tabs={[`${tokenData?.symbol}/USD`, `${tokenData?.symbol}/BTC`]}
+          tabs={[`${tokenData?.symbol?.toUpperCase()}/USD`, `${tokenData?.symbol?.toUpperCase()}/BTC`]}
           activeTab={liveChartTab}
           onTabClick={setLiveChartTab}
           style={{ height: '800px' }}

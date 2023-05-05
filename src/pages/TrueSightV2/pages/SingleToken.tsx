@@ -273,7 +273,7 @@ export default function SingleToken() {
       })
       setStared(false)
     } else {
-      addToWatchlist({ wallet: account, tokenAddress: data?.address, chain: 'ethereum' })
+      addToWatchlist({ wallet: account, tokenAddress: data?.address, chain })
       setStared(true)
     }
   }
