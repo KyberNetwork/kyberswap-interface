@@ -44,15 +44,7 @@ export const useGetTransactionStatus = (status: CrossChainTransferStatus) => {
         break
       }
 
-      case CrossChainTransferStatus.WAIT_CONFIRM: {
-        detailTransactionStatuses = [
-          DetailTransactionStatus.Done,
-          DetailTransactionStatus.Loading,
-          DetailTransactionStatus.Waiting,
-        ]
-        generalStatus = MultichainTransferStatus.Processing
-        break
-      }
+      case CrossChainTransferStatus.WAIT_CONFIRM:
       case CrossChainTransferStatus.WAIT_APPROVE:
       case CrossChainTransferStatus.APPROVED:
       case CrossChainTransferStatus.EXECUTING: {
