@@ -205,6 +205,7 @@ export default function AnnouncementComponent() {
       const hasNewMsg = data?.numberOfUnread !== numberOfUnread
       if (hasNewMsg) {
         resetUnread(RTK_QUERY_TAGS.GET_PRIVATE_ANN_BY_ID)
+        resetUnread(RTK_QUERY_TAGS.GET_TOTAL_UNREAD_PRIVATE_ANN)
         if (scrollRef.current) scrollRef.current.scrollTop = 0
       }
       setPrivateAnnouncements(prevData => (hasNewMsg || !prevData.length ? notifications : prevData))
@@ -250,7 +251,6 @@ export default function AnnouncementComponent() {
     toggleNotificationCenter()
     if (isOpenNotificationCenter && numberOfUnread && account) {
       ackAnnouncement({ account, action: 'read-all' })
-      resetUnread(RTK_QUERY_TAGS.GET_PRIVATE_ANN_BY_ID)
     }
   }
 
