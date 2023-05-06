@@ -1817,8 +1817,8 @@ export const NumberofHolders = () => {
       {
         [KyberAITimeframe.ONE_WEEK]: 86400,
         [KyberAITimeframe.ONE_MONTH]: 86400,
-        [KyberAITimeframe.THREE_MONTHS]: 86400,
-        [KyberAITimeframe.SIX_MONTHS]: 86400,
+        [KyberAITimeframe.THREE_MONTHS]: 604800,
+        [KyberAITimeframe.SIX_MONTHS]: 604800,
       }[timeframe as string] || 86400
     const from =
       now -
