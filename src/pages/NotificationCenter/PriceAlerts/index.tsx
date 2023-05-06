@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAckPrivateAnnouncementsByIdsMutation, useGetPrivateAnnouncementsByIdsQuery } from 'services/announcement'
 
+import { PrivateAnnouncementType } from 'components/Announcement/type'
 import { getAnnouncementsTemplateIds } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
@@ -59,7 +60,7 @@ const PriceAlerts = () => {
     setDisabledClearAll(false)
   }
 
-  useAckAnnouncement(getAnnouncementsTemplateIds().PRICE_ALERT)
+  useAckAnnouncement(getAnnouncementsTemplateIds(PrivateAnnouncementType.PRICE_ALERT))
 
   return (
     <ShareWrapper>

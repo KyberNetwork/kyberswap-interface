@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { Flex } from 'rebass'
-import styled from 'styled-components'
+import styled, { CSSProperties } from 'styled-components'
 
 import { formatNumberOfUnread } from 'components/Announcement/helper'
 import { APP_PATHS } from 'constants/index'
@@ -80,9 +80,10 @@ type Props = {
   text: string | undefined
   unread?: number
   isMobile?: boolean
+  style?: CSSProperties
 }
 
-const MenuItem: React.FC<Props> = ({ icon, text, unread, href, isMobile = false }) => {
+const MenuItem: React.FC<Props> = ({ icon, text, unread, href, isMobile = false, style }) => {
   const location = useLocation()
   const theme = useTheme()
 
@@ -95,7 +96,7 @@ const MenuItem: React.FC<Props> = ({ icon, text, unread, href, isMobile = false 
   }
 
   return (
-    <Link to={path} onClick={trackingPriceAlertTab}>
+    <Link to={path} onClick={trackingPriceAlertTab} style={style}>
       <Wrapper $active={isActive} $mobile={isMobile}>
         <Flex
           sx={{

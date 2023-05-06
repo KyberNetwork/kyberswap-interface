@@ -12,9 +12,9 @@ export type Announcement = {
 
 export enum PrivateAnnouncementType {
   LIMIT_ORDER = 'LIMIT_ORDER',
-  BRIDGE = 'BRIDGE_ASSET',
-  TRENDING_SOON_TOKEN = 'TRENDING_SOON',
-  POOL_POSITION = 'ELASTIC_POOLS',
+  BRIDGE_ASSET = 'BRIDGE_ASSET',
+  KYBER_AI = 'KYBER_AI',
+  ELASTIC_POOLS = 'ELASTIC_POOLS',
   PRICE_ALERT = 'PRICE_ALERT',
   DIRECT_MESSAGE = 'DIRECT_MESSAGE', // for some specific addresses
 }
@@ -29,14 +29,6 @@ export type PrivateAnnouncement<T extends AnnouncementTemplate = AnnouncementTem
 }
 
 export type AnnouncementCTA = { name: string; url: string }
-
-// for private announcement
-export type TrueSightToken = {
-  symbol: string
-  price: string
-  changePercentage: string
-  logo: string
-}
 
 type LimitOrderAnnouncement = {
   walletAddress: string
@@ -76,7 +68,18 @@ export type AnnouncementTemplateLimitOrder = {
   popupType: PopupType
 }
 export type AnnouncementTemplateBridge = { transaction: MultichainTransfer; popupType: PopupType }
-export type AnnouncementTemplateTrendingSoon = { tokens: TrueSightToken[]; popupType: PopupType }
+export type AnnouncementTemplateTrendingSoon = {
+  bearishTokenLogoURL: string // todo move nested
+  bearishTokenScore: string
+  bearishTokenSymbol: string
+  bullishTokenLogoURL: string
+  bullishTokenScore: string
+  bullishTokenSymbol: string
+  trendingSoonTokenLogoURL: string
+  trendingSoonTokenScore: string
+  trendingSoonTokenSymbol: string
+  popupType: PopupType
+}
 export type AnnouncementTemplatePoolPosition = {
   position: PoolPositionAnnouncement
   popupType: PopupType

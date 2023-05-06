@@ -38,6 +38,8 @@ type ParamsPrivate = {
   pageSize?: number
 }
 
+const excludedTemplateIds = getAnnouncementsTemplateIds('EXCLUDE')
+
 const AnnouncementApi = createApi({
   reducerPath: 'announcementApi',
   baseQuery: fetchBaseQuery({ baseUrl: NOTIFICATION_API }),
@@ -57,7 +59,7 @@ const AnnouncementApi = createApi({
     getPrivateAnnouncements: builder.query<AnnouncementResponse<PrivateAnnouncement>, ParamsPrivate>({
       query: ({ account, ...params }) => ({
         url: `/v1/users/${account}/notifications`,
-        params: { ...params, excludedTemplateIds: getAnnouncementsTemplateIds().EXCLUDE },
+        params: { ...params, excludedTemplateIds },
       }),
       transformResponse: transformResponseAnnouncement,
       providesTags: [RTK_QUERY_TAGS.GET_ALL_PRIVATE_ANN],
@@ -92,7 +94,7 @@ const AnnouncementApi = createApi({
       query: ({ account, action, ids }) => {
         const body: { excludedTemplateIds?: number[]; ids?: number[] } = { ids }
         if (action === 'read-all' || action === 'clear-all') {
-          body.excludedTemplateIds = getAnnouncementsTemplateIds().EXCLUDE.split(',').map(Number)
+          body.excludedTemplateIds = excludedTemplateIds.split(',').map(Number)
         }
         return {
           url: `/v1/users/${account}/notifications/${action}`,
@@ -106,7 +108,7 @@ const AnnouncementApi = createApi({
       query: ({ account, templateIds }) => {
         const body = {
           templateIds: templateIds?.split(',').map(Number),
-          excludedTemplateIds: getAnnouncementsTemplateIds().EXCLUDE.split(',').map(Number),
+          excludedTemplateIds: excludedTemplateIds.split(',').map(Number),
         }
         return {
           url: `/v1/users/${account}/notifications/read-all`,
