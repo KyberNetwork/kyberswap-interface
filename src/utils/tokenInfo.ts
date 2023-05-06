@@ -2,8 +2,8 @@ import { ChainId, Currency, NativeCurrency, Token, WETH } from '@kyberswap/ks-sd
 import axios from 'axios'
 
 import { KS_SETTING_API } from 'constants/env'
-import { ETHER_ADDRESS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
+import { ETHER_ADDRESS, ETHER_ADDRESS_SOLANA } from 'constants/index'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { MAP_TOKEN_HAS_MULTI_BY_NETWORK, WHITE_LIST_TOKEN_INFO_PAIR } from 'constants/tokenLists/token-info'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
@@ -67,6 +67,9 @@ export const isTokenNative = (
         currency.multichainInfo?.tokenType === 'NATIVE'
     : false
 }
+
+export const getTokenAddress = (currency: Currency) =>
+  currency.isNative ? (isEVM(currency.chainId) ? ETHER_ADDRESS : ETHER_ADDRESS_SOLANA) : currency?.wrapped.address ?? ''
 
 export const importTokensToKsSettings = async (tokens: Array<{ chainId: string; address: string }>) => {
   try {

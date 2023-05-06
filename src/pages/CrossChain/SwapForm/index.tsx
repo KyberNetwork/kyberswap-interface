@@ -18,7 +18,7 @@ import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import SwapButtonWithPriceImpact from 'components/SwapForm/SwapActionButton/SwapButtonWithPriceImpact'
 import useCheckStablePairSwap from 'components/SwapForm/hooks/useCheckStablePairSwap'
 import { AdvancedSwapDetailsDropdownCrossChain } from 'components/swapv2/AdvancedSwapDetailsDropdown'
-import { ETHER_ADDRESS, TRANSACTION_STATE_DEFAULT } from 'constants/index'
+import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { captureExceptionCrossChain } from 'hooks/bridge/useBridgeCallback'
 import { useChangeNetwork } from 'hooks/useChangeNetwork'
@@ -41,6 +41,7 @@ import { ExternalLink } from 'theme'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import { uint256ToFraction } from 'utils/numbers'
 import { checkPriceImpact } from 'utils/prices'
+import { getTokenAddress } from 'utils/tokenInfo'
 
 import { ConfirmCrossChainModal } from '../../Bridge/ComfirmBridgeModal'
 import ErrorWarningPanel from '../../Bridge/ErrorWarning'
@@ -50,7 +51,6 @@ const ArrowWrapper = styled.div`
   background: ${({ theme }) => theme.buttonGray};
   border-radius: 100%;
 `
-const getTokenAddress = (currency: WrappedTokenInfo) => (currency.isNative ? ETHER_ADDRESS : currency?.wrapped.address)
 
 export default function SwapForm() {
   const { account, chainId } = useActiveWeb3React()
@@ -77,7 +77,6 @@ export default function SwapForm() {
   const isPairSupport = useIsTokensSupport()
   const routeParams: GetRoute | undefined = useMemo(() => {
     if (!currencyIn || !currencyOut || !chainIdOut || !account || !Number(inputAmount) || !isPairSupport) return
-
     return {
       fromChain: chainId,
       toChain: chainIdOut,
@@ -149,8 +148,8 @@ export default function SwapForm() {
       setInputAmount('')
       setSwapState(state => ({ ...state, attemptingTxn: false, txHash: tx.hash }))
       const tokenAmountOut = uint256ToFraction(outputAmount, currencyOut.decimals).toSignificant(6)
-      const tokenAddressIn = currencyIn.wrapped.address
-      const tokenAddressOut = currencyOut.wrapped.address
+      const tokenAddressIn = getTokenAddress(currencyIn)
+      const tokenAddressOut = getTokenAddress(currencyOut)
       addTransaction({
         type: TRANSACTION_TYPE.CROSS_CHAIN_SWAP,
         hash: tx.hash,

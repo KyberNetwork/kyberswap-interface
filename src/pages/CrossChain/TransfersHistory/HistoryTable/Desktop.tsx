@@ -86,7 +86,7 @@ const Desktop: React.FC<Props> = ({ transfers }) => {
         </TableColumnText>
       </TableHeader>
       {transfers.map(transfer => (
-        <TransactionItem data={transfer} key={transfer.dstTxHash} />
+        <TransactionItem data={transfer} key={transfer.srcTxHash} />
       ))}
       {renderInvisibleRows()}
     </Flex>
