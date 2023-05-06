@@ -1,8 +1,9 @@
 import { t } from '@lingui/macro'
+import { useMemo } from 'react'
 import { List as ListIcon } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
-import { useGetPrivateAnnouncementsByIdsQuery, useGetPrivateAnnouncementsQuery } from 'services/announcement'
+import { useGetTotalUnreadAnnouncementsQuery } from 'services/announcement'
 import styled from 'styled-components'
 
 import { ReactComponent as AlarmIcon } from 'assets/svg/alarm.svg'
@@ -17,7 +18,7 @@ import NotificationIcon from 'components/Icons/NotificationIcon'
 import { getAnnouncementsTemplateIds } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import MenuItem from 'pages/NotificationCenter/Menu/MenuItem'
-import { ITEMS_PER_PAGE, NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
+import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import { MEDIA_WIDTHS } from 'theme'
 
 const Divider = styled.div<{ $margin?: string }>`
@@ -200,41 +201,23 @@ const Menu = () => {
   const { account } = useActiveWeb3React()
   const templates = getAnnouncementsTemplateIds()
 
-  // todo danh remind BE refactor this by using 1 api
-  const params = { account: account ?? '', page: 1, pageSize: ITEMS_PER_PAGE }
-  const skip = { skip: !account }
-  const { data: dataAll } = useGetPrivateAnnouncementsQuery({ ...params, pageSize: undefined }, skip)
+  const templateIds = Object.values(PrivateAnnouncementType)
+    .filter(e => e !== PrivateAnnouncementType.DIRECT_MESSAGE)
+    .map(e => templates[e])
+    .filter(Boolean)
+    .join(',')
+  const { data = [] } = useGetTotalUnreadAnnouncementsQuery({ account: account ?? '', templateIds }, { skip: !account })
 
-  const { data: dataPriceAlert } = useGetPrivateAnnouncementsByIdsQuery(
-    { ...params, templateIds: templates.PRICE_ALERT },
-    skip,
-  )
-  const { data: dataBridge } = useGetPrivateAnnouncementsByIdsQuery(
-    { ...params, templateIds: templates.BRIDGE_ASSET },
-    skip,
-  )
-  const { data: dataLimitOrder } = useGetPrivateAnnouncementsByIdsQuery(
-    { ...params, templateIds: templates.LIMIT_ORDER },
-    skip,
-  )
-  const { data: dataTrendingSoon } = useGetPrivateAnnouncementsByIdsQuery(
-    { ...params, templateIds: templates.TRENDING_SOON },
-    skip,
-  )
-  const { data: dataPool } = useGetPrivateAnnouncementsByIdsQuery(
-    { ...params, templateIds: templates.ELASTIC_POOLS },
-    skip,
-  )
-
-  const unread: Unread = {
-    [PrivateAnnouncementType.PRICE_ALERT]: dataPriceAlert?.numberOfUnread,
-    [PrivateAnnouncementType.BRIDGE_ASSET]: dataBridge?.numberOfUnread,
-    [PrivateAnnouncementType.CROSS_CHAIN]: dataBridge?.numberOfUnread, // todo cross chain
-    [PrivateAnnouncementType.LIMIT_ORDER]: dataLimitOrder?.numberOfUnread,
-    [PrivateAnnouncementType.ELASTIC_POOLS]: dataPool?.numberOfUnread,
-    [PrivateAnnouncementType.TRENDING_SOON]: dataTrendingSoon?.numberOfUnread,
-    ALL: dataAll?.numberOfUnread,
-  }
+  const unread = useMemo(() => {
+    const result = {} as Unread
+    let all = 0
+    data.forEach(({ templateType, numberOfUnread }) => {
+      result[templateType] = (result[templateType] || 0) + numberOfUnread
+      all += numberOfUnread
+    })
+    result.ALL = all
+    return result
+  }, [data])
 
   if (upToMedium) {
     return <MenuForMobile unread={unread} />
