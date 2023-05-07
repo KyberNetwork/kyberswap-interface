@@ -602,7 +602,7 @@ export default function KyberAILandingPage() {
           </Row>
         </Column>
       </Part4>
-      <Part5 variants={undefined}>
+      <Part5>
         <Row justify="center">
           <Text fontSize={above768 ? '48px' : '36px'} lineHeight="56px" fontWeight={500}>
             <Trans>Key Features</Trans>
