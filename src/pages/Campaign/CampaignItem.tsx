@@ -234,7 +234,7 @@ const CampaignItem = ({ campaign, onSelectCampaign, isSelected }: CampaignItemPr
 
       {!isShowProgressBar && (
         <div>
-          <CampaignActions campaign={campaign} leaderboard={campaign.leaderboard} size="small" hideWhenDisabled />
+          <CampaignActions campaign={campaign} size="small" hideWhenDisabled />
         </div>
       )}
     </CampaignItemWrapper>

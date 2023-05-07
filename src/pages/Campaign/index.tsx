@@ -479,7 +479,7 @@ export default function Campaign() {
                 {selectedCampaign?.name}
               </Text>
               <ButtonContainer>
-                <CampaignActions campaign={selectedCampaign} leaderboard={selectedCampaignLeaderboard} />
+                <CampaignActions campaign={selectedCampaign} />
                 <ButtonLight
                   borderRadius="50%"
                   style={{ padding: '8px', flex: 0, minWidth: '44px', minHeight: '44px' }}

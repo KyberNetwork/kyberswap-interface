@@ -27,6 +27,7 @@ type CampaignUserInfo = {
   tradingNumber: number
   rankNo: number
   status: CampaignUserInfoStatus
+  rewards: CampaignLeaderboardReward[]
 }
 
 type RewardSingle = {
@@ -112,7 +113,6 @@ export interface CampaignData {
   tradingVolumeRequired: number
   userInfo?: CampaignUserInfo
   tradingNumberRequired: number
-  leaderboard: CampaignLeaderboard | undefined
   competitionId?: number
   competitorId?: number
 }

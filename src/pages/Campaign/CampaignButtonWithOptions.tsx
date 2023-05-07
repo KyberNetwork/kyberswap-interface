@@ -22,7 +22,6 @@ import { OptionsContainer } from 'pages/TrueSight/styled'
 import { AppState } from 'state'
 import {
   CampaignData,
-  CampaignLeaderboard,
   CampaignLeaderboardReward,
   setCampaignData,
   setSelectedCampaignLeaderboard,
@@ -36,14 +35,12 @@ import { sendEVMTransaction } from 'utils/sendTransaction'
 type Size = 'small' | 'large'
 export default function CampaignButtonWithOptions({
   campaign,
-  leaderboard,
   disabled = false,
   type,
   addTemporaryClaimedRefs,
   size,
 }: {
   campaign: CampaignData | undefined
-  leaderboard?: CampaignLeaderboard
   disabled?: boolean
   type: 'swap_now' | 'claim_rewards'
   size: Size
@@ -63,11 +60,10 @@ export default function CampaignButtonWithOptions({
   const { account } = useActiveWeb3React()
   const { library } = useWeb3React()
 
-  const leaderboardInfo = leaderboard || campaign?.leaderboard
-
+  const rawRewards = campaign?.userInfo?.rewards || []
   const refs: string[] = []
-  if (leaderboardInfo && leaderboardInfo.rewards) {
-    leaderboardInfo.rewards.forEach(reward => {
+  if (rawRewards.length) {
+    rawRewards.forEach(reward => {
       if (!reward.claimed && reward.rewardAmount.greaterThan(BIG_INT_ZERO)) {
         refs.push(reward.ref)
       }
@@ -95,7 +91,7 @@ export default function CampaignButtonWithOptions({
   const dispatch = useDispatch()
 
   const updateCampaignStore = () => {
-    const rewards: CampaignLeaderboardReward[] = leaderboardInfo?.rewards?.map(rw => ({ ...rw, claimed: true })) ?? []
+    const rewards: CampaignLeaderboardReward[] = rawRewards?.map(rw => ({ ...rw, claimed: true })) ?? []
 
     // update selected leaderboard of campaign
     if (campaign?.id === selectedCampaign?.id && selectedCampaignLeaderboard) {
@@ -109,7 +105,7 @@ export default function CampaignButtonWithOptions({
 
     // update leaderboard of list campaign
     const campaigns = campaignData?.map((el: CampaignData) => {
-      if (el.id === campaign?.id && el.leaderboard) return { ...el, leaderboard: { ...el.leaderboard, rewards } }
+      if (el.id === campaign?.id && el.userInfo?.rewards) return { ...el, userInfo: { ...el.userInfo, rewards } }
       return el
     })
     dispatch(setCampaignData({ campaigns }))
@@ -118,7 +114,7 @@ export default function CampaignButtonWithOptions({
   const addTransactionWithType = useTransactionAdder()
 
   const claimRewards = async (claimChainId: ChainId) => {
-    if (!account || !library || !campaign || !leaderboardInfo) return
+    if (!account || !library || !campaign || !rawRewards.length) return
     setClaimingCampaignRewardId(campaign.id)
     const url = REWARD_SERVICE_API + '/rewards/claim'
 
@@ -148,7 +144,7 @@ export default function CampaignButtonWithOptions({
           encodedData,
           BigNumber.from(0),
           async transactionResponse => {
-            const accumulatedUnclaimedRewards = leaderboardInfo?.rewards
+            const accumulatedUnclaimedRewards = rawRewards
               .filter(reward => !reward.claimed)
               .reduce((acc: { [p: string]: CampaignLeaderboardReward }, value) => {
                 const key = value.token.chainId + '_' + value.token.address

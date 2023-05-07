@@ -3,7 +3,7 @@ import { Fraction } from '@kyberswap/ks-sdk-core'
 import axios from 'axios'
 import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
 import useSWR from 'swr'
@@ -41,6 +41,19 @@ const getCampaignStatus = ({ endTime, startTime }: CampaignData) => {
   return endTime <= now ? CampaignStatus.ENDED : startTime >= now ? CampaignStatus.UPCOMING : CampaignStatus.ONGOING
 }
 
+const formatRewards = (rewards: CampaignLeaderboardReward[]) =>
+  rewards?.map(
+    (item: any): CampaignLeaderboardReward => ({
+      rewardAmount: new Fraction(
+        item.RewardAmount,
+        JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(item?.Token?.decimals ?? 18)),
+      ),
+      ref: item.Ref,
+      claimed: item.Claimed,
+      token: item.Token,
+    }),
+  ) || []
+
 const formatLeaderboardData = (data: CampaignLeaderboard) => {
   const leaderboard: CampaignLeaderboard = {
     ...data,
@@ -63,19 +76,7 @@ const formatLeaderboardData = (data: CampaignLeaderboard) => {
           }),
         )
       : [],
-    rewards: data.rewards
-      ? data.rewards.map(
-          (item: any): CampaignLeaderboardReward => ({
-            rewardAmount: new Fraction(
-              item.RewardAmount,
-              JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(item?.Token?.decimals ?? 18)),
-            ),
-            ref: item.Ref,
-            claimed: item.Claimed,
-            token: item.Token,
-          }),
-        )
-      : [],
+    rewards: formatRewards(data.rewards),
   }
   return leaderboard
 }
@@ -119,7 +120,6 @@ export default function CampaignsUpdater(): null {
   const isCampaignPage = pathname.startsWith(APP_PATHS.CAMPAIGN)
 
   /**********************CAMPAIGN DATA**********************/
-  const refLeaderboardData = useRef<{ [key: string]: CampaignLeaderboard }>({})
 
   const {
     data: campaignData,
@@ -136,37 +136,8 @@ export default function CampaignsUpdater(): null {
       },
     })
 
-    // each of campaign: fetch leaderboard once to display claim button if eligible, and cache that leaderboard
-    const promises = response.data.map((campaignInfo: CampaignData) => {
-      const leaderboardCache = refLeaderboardData.current[campaignInfo.id]
-      if (!account) return Promise.resolve(campaignInfo)
-      return leaderboardCache
-        ? Promise.resolve({
-            ...campaignInfo,
-            leaderboard: leaderboardCache,
-          })
-        : new Promise(resolve => {
-            fetchLeaderBoard({
-              campaignId: campaignInfo.id,
-              pageNumber: 1,
-              userAddress: account?.toLowerCase() ?? '',
-              lookupAddress: selectedCampaignLeaderboardLookupAddress.toLowerCase(),
-            })
-              .then(leaderboard => {
-                refLeaderboardData.current[campaignInfo.id] = leaderboard // cache it
-                resolve({
-                  ...campaignInfo,
-                  leaderboard,
-                })
-              })
-              .catch(() => resolve(campaignInfo))
-          })
-    })
-
-    const listCampaignWithLeaderboard = await Promise.all(promises)
-
-    const campaigns: CampaignData[] = listCampaignWithLeaderboard
-      .map(item => ({ ...item, startTime: item.startTime * 1000, endTime: item.endTime * 1000 }))
+    const campaigns: CampaignData[] = response.data
+      .map((item: CampaignData) => ({ ...item, startTime: item.startTime * 1000, endTime: item.endTime * 1000 }))
       .sort((a: CampaignData, b: CampaignData) => {
         const a_status = getCampaignStatus(a)
         const b_status = getCampaignStatus(b)
@@ -262,7 +233,7 @@ export default function CampaignsUpdater(): null {
         )
       }
       if (campaign?.userInfo?.tradingVolume) campaign.userInfo.tradingVolume = Number(campaign.userInfo.tradingVolume)
-
+      if (campaign.userInfo) campaign.userInfo.rewards = formatRewards(campaign.userInfo.rewards)
       return {
         ...campaign,
         rewardDistribution,
