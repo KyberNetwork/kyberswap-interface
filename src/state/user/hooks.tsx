@@ -453,6 +453,7 @@ export const useIsWhiteListKyberAI = () => {
   return {
     loading: isFetching || pendingAuthentication,
     isWhiteList: isLogin && participantInfo?.status === ParticipantStatus.WHITELISTED,
+    isWaitList: isLogin && participantInfo?.status === ParticipantStatus.WAITLISTED,
   }
 }
 

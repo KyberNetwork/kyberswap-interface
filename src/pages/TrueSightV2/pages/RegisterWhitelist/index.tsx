@@ -12,10 +12,9 @@ import useTheme from 'hooks/useTheme'
 import SubscribeForm from 'pages/TrueSightV2/pages/RegisterWhitelist/SubscribeForm'
 import VerifyCodeModal from 'pages/TrueSightV2/pages/RegisterWhitelist/VerifyCodeModal'
 import WaitListForm from 'pages/TrueSightV2/pages/RegisterWhitelist/WaitListForm'
-import { ParticipantStatus } from 'pages/TrueSightV2/types'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
-import { useGetParticipantKyberAIInfo } from 'state/user/hooks'
+import { useIsWhiteListKyberAI } from 'state/user/hooks'
 
 const ConnectWalletButton = styled(ButtonPrimary)`
   height: 36px;
@@ -29,7 +28,7 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
   const toggleWalletModal = useWalletModalToggle()
   const { isLogin } = useSessionInfo()
 
-  const participantInfo = useGetParticipantKyberAIInfo()
+  const { isWhiteList, isWaitList } = useIsWhiteListKyberAI()
 
   const [verifyModalState, setVerifyModalState] = useState({
     isOpen: false,
@@ -63,14 +62,25 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
       </ConnectWalletButton>
     )
 
-  if (!showForm) return null
+  const btnGetStart = (
+    <ConnectWalletButton onClick={() => navigate(APP_PATHS.KYBERAI_RANKINGS)}>
+      <Trans>Get Started</Trans>
+    </ConnectWalletButton>
+  )
 
-  if (participantInfo?.status === ParticipantStatus.WHITELISTED)
+  if (!showForm) {
+    if (isWhiteList) return btnGetStart
+    return (
+      <ConnectWalletButton onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+        <Trans>Join KyberAI Waitlist</Trans>
+      </ConnectWalletButton>
+    )
+  }
+
+  if (isWhiteList)
     return (
       <>
-        <ConnectWalletButton onClick={() => navigate(APP_PATHS.KYBERAI_RANKINGS)}>
-          <Trans>Get Started</Trans>
-        </ConnectWalletButton>
+        {btnGetStart}
         <div style={{ width: '100%', border: `1px solid ${theme.border}` }} />
         <WaitListForm
           showRanking={false}
@@ -82,7 +92,7 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
         />
       </>
     )
-  if (participantInfo?.status === ParticipantStatus.WAITLISTED)
+  if (isWaitList)
     return (
       <>
         <WaitListForm
