@@ -5,7 +5,7 @@ import { ReactNode, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Share2, Star } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
-import { NavigateFunction, useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { useGesture } from 'react-use-gesture'
 import { Text } from 'rebass'
@@ -471,17 +471,55 @@ const StyledChainIcon = styled.div`
   }
 `
 
-const ChainIcon = ({ id, name, navigate }: { id: string; name: string; navigate: NavigateFunction }) => {
+const ChainIcon = ({ id, name, onClick }: { id: string; name: string; onClick: () => void }) => {
   return (
     <SimpleTooltip text={name}>
-      <StyledChainIcon
-        onClick={() => {
-          navigate(APP_PATHS.KYBERAI_EXPLORE)
-        }}
-      >
+      <StyledChainIcon onClick={onClick}>
         <Icon id={id} size={20} />
       </StyledChainIcon>
     </SimpleTooltip>
+  )
+}
+
+const MultipleChainDropdown = ({
+  show,
+  menuLeft,
+  tokens,
+  onChainClick,
+}: {
+  show: boolean
+  menuLeft?: number
+  tokens?: Array<{ address: string; logo: string; chain: string }>
+  onChainClick: (chain: string) => void
+}) => {
+  const theme = useTheme()
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  return (
+    <MenuDropdown
+      className={show ? 'show' : ''}
+      gap="8px"
+      color={theme.text}
+      style={{ left: menuLeft !== undefined ? `${menuLeft}px` : undefined }}
+      ref={menuRef}
+    >
+      {tokens?.map((item: { address: string; logo: string; chain: string }) => {
+        if (item.chain === 'ethereum')
+          return <ChainIcon id="eth-mono" name="Ethereum" onClick={() => onChainClick('ethereum')} />
+        if (item.chain === 'bsc') return <ChainIcon id="bnb-mono" name="Binance" onClick={() => onChainClick('bsc')} />
+        if (item.chain === 'avalanche')
+          return <ChainIcon id="ava-mono" name="Avalanche" onClick={() => onChainClick('avalanche')} />
+        if (item.chain === 'polygon')
+          return <ChainIcon id="matic-mono" name="Polygon" onClick={() => onChainClick('polygon')} />
+        if (item.chain === 'arbitrum')
+          return <ChainIcon id="arbitrum-mono" name="Arbitrum" onClick={() => onChainClick('arbitrum')} />
+        if (item.chain === 'fantom')
+          return <ChainIcon id="fantom-mono" name="Fantom" onClick={() => onChainClick('fantom')} />
+        if (item.chain === 'optimism')
+          return <ChainIcon id="optimism-mono" name="Optimism" onClick={() => onChainClick('optimism')} />
+        return <></>
+      })}
+    </MenuDropdown>
   )
 }
 
@@ -489,12 +527,14 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
   const navigate = useNavigate()
   const theme = useTheme()
   const [showMenu, setShowMenu] = useState(false)
+  const [showSwapMenu, setShowSwapMenu] = useState(false)
   const [menuLeft, setMenuLeft] = useState<number | undefined>(undefined)
 
   const rowRef = useRef<HTMLTableRowElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
 
   useOnClickOutside(rowRef, () => setShowMenu(false))
+  useOnClickOutside(rowRef, () => setShowSwapMenu(false))
 
   const hasMutipleChain = token.tokens.length > 1
 
@@ -615,23 +655,17 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
       )}
       <td>
         <Row gap="4px" justify={'flex-end'}>
-          <SimpleTooltip text={t`View Pools`}>
-            <ActionButton
-              color={theme.subText}
-              onClick={e => {
-                e.stopPropagation()
-                navigate(APP_PATHS.POOLS)
-              }}
-            >
-              <Icon id="liquid" size={16} />
-            </ActionButton>
-          </SimpleTooltip>
           <SimpleTooltip text={t`Swap`}>
             <ActionButton
               color={theme.subText}
               onClick={e => {
                 e.stopPropagation()
-                navigate(APP_PATHS.SWAP)
+                if (hasMutipleChain) {
+                  setShowSwapMenu(true)
+                } else {
+                  // navigate(`${APP_PATHS.SWAP}/${token.tokens[0].chain}`)
+                  window.open(window.location.origin + `${APP_PATHS.SWAP}/${token.tokens[0].chain}`, '_blank')
+                }
               }}
             >
               <Icon id="swap" size={16} />
@@ -654,73 +688,24 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
             </ActionButton>
           </SimpleTooltip>
           {hasMutipleChain && (
-            <MenuDropdown
-              className={showMenu ? 'show' : ''}
-              gap="8px"
-              color={theme.text}
-              style={{ left: menuLeft !== undefined ? `${menuLeft}px` : undefined }}
-              ref={menuRef}
-            >
-              {token.tokens.map((item: { address: string; logo: string; chain: string }) => {
-                if (item.chain === 'ethereum')
-                  return (
-                    <ChainIcon
-                      id="eth-mono"
-                      name="Ethereum"
-                      navigate={() => navigate(`${APP_PATHS.KYBERAI_EXPLORE}/ethereum/${item.address}`)}
-                    />
+            <>
+              <MultipleChainDropdown
+                show={showMenu}
+                menuLeft={menuLeft}
+                tokens={token?.tokens}
+                onChainClick={chain =>
+                  navigate(
+                    `${APP_PATHS.KYBERAI_EXPLORE}/${chain}/${token.tokens.filter(t => t.chain === chain)[0]?.address}`,
                   )
-                if (item.chain === 'bsc')
-                  return (
-                    <ChainIcon
-                      id="bnb-mono"
-                      name="Binance"
-                      navigate={() => navigate(`${APP_PATHS.KYBERAI_EXPLORE}/bsc/${item.address}`)}
-                    />
-                  )
-                if (item.chain === 'avalanche')
-                  return (
-                    <ChainIcon
-                      id="ava-mono"
-                      name="Avalanche"
-                      navigate={() => navigate(`${APP_PATHS.KYBERAI_EXPLORE}/avalanche/${item.address}`)}
-                    />
-                  )
-                if (item.chain === 'polygon')
-                  return (
-                    <ChainIcon
-                      id="matic-mono"
-                      name="Polygon"
-                      navigate={() => navigate(`${APP_PATHS.KYBERAI_EXPLORE}/polygon/${item.address}`)}
-                    />
-                  )
-                if (item.chain === 'arbitrum')
-                  return (
-                    <ChainIcon
-                      id="arbitrum-mono"
-                      name="Arbitrum"
-                      navigate={() => navigate(`${APP_PATHS.KYBERAI_EXPLORE}/arbitrum/${item.address}`)}
-                    />
-                  )
-                if (item.chain === 'fantom')
-                  return (
-                    <ChainIcon
-                      id="fantom-mono"
-                      name="Fantom"
-                      navigate={() => navigate(`${APP_PATHS.KYBERAI_EXPLORE}/fantom/${item.address}`)}
-                    />
-                  )
-                if (item.chain === 'optimism')
-                  return (
-                    <ChainIcon
-                      id="optimism-mono"
-                      name="Optimism"
-                      navigate={() => navigate(`${APP_PATHS.KYBERAI_EXPLORE}/optimism/${item.address}`)}
-                    />
-                  )
-                return <></>
-              })}
-            </MenuDropdown>
+                }
+              />
+              <MultipleChainDropdown
+                show={showSwapMenu}
+                menuLeft={menuLeft}
+                tokens={token?.tokens}
+                onChainClick={chain => navigate(`${APP_PATHS.SWAP}/${chain}`)}
+              />
+            </>
           )}
         </Row>
       </td>

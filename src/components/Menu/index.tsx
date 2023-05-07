@@ -25,6 +25,7 @@ import { ReactComponent as RoadMapIcon } from 'assets/svg/roadmap.svg'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import SlideToUnlock from 'components/Header/SlideToUnlock'
+import ApeIcon from 'components/Icons/ApeIcon'
 import ArrowRight from 'components/Icons/ArrowRight'
 import Faucet from 'components/Icons/Faucet'
 import Icon from 'components/Icons/Icon'
@@ -100,7 +101,7 @@ const StyledMenuIcon = styled(MenuIcon)`
   }
 `
 
-const DiscoverWrapper = styled(MenuItem)`
+const KyberAIWrapper = styled(MenuItem)`
   display: none;
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
@@ -122,8 +123,7 @@ const NavLinkBetween = styled(MenuItem)`
 const CampaignWrapper = styled.div`
   display: none;
 
-  /* It's better to break at 420px than at extraSmall */
-  @media (max-width: 420px) {
+  @media (max-width: 560px) {
     display: flex;
   }
 `
@@ -306,14 +306,39 @@ export default function Menu() {
               </MenuItem>
             )}
 
-            <DiscoverWrapper>
-              <NavLink to={'/discover?tab=trending_soon'} onClick={toggle}>
-                <Icon id="truesight-v2" size={16} />
-                <SlideToUnlock>
-                  <Trans>Discover</Trans>
-                </SlideToUnlock>
-              </NavLink>
-            </DiscoverWrapper>
+            <KyberAIWrapper>
+              <NavDropDown
+                icon={<ApeIcon />}
+                title={
+                  <Text>
+                    <Trans>KyberAI</Trans>{' '}
+                    <NewLabel>
+                      <Trans>New</Trans>
+                    </NewLabel>
+                  </Text>
+                }
+                link={'#'}
+                options={[
+                  { link: APP_PATHS.KYBERAI_ABOUT, label: t`About` },
+                  {
+                    link: APP_PATHS.KYBERAI_RANKINGS,
+                    label: (
+                      <Text as="span">
+                        <Trans>Rankings</Trans>{' '}
+                      </Text>
+                    ),
+                  },
+                  {
+                    link: APP_PATHS.KYBERAI_EXPLORE,
+                    label: (
+                      <Text as="span">
+                        <Trans>Explore</Trans>{' '}
+                      </Text>
+                    ),
+                  },
+                ]}
+              />
+            </KyberAIWrapper>
 
             <CampaignWrapper>
               <MenuItem>

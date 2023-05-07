@@ -25,6 +25,7 @@ import kyberscoreMeterLightImage from 'assets/images/truesight-v2/landing-page/k
 import kyberscoreMeterImage from 'assets/images/truesight-v2/landing-page/kyberscore-meter.png'
 import liveDexTradesLightImage from 'assets/images/truesight-v2/landing-page/live-dex-trades-light.png'
 import liveDexTradesImage from 'assets/images/truesight-v2/landing-page/live-dex-trades.png'
+import starsMobileImage from 'assets/images/truesight-v2/landing-page/stars-mobile.png'
 import starsImage from 'assets/images/truesight-v2/landing-page/stars.png'
 import tokenListImage from 'assets/images/truesight-v2/landing-page/token-list.png'
 import tokenPriceLightImage from 'assets/images/truesight-v2/landing-page/token-price-light.png'
@@ -61,6 +62,7 @@ const Icon = ({
 const Wrapper = styled.div`
   padding: 20px 0;
   width: 100%;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -80,7 +82,11 @@ const FixedWidth = styled.div`
   }
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
+    gap:20px;
     flex-direction: column;
+      > * {
+      flex: auto;
+    }
   `}
 `
 const PartWrapper = styled(motion.div)`
@@ -91,9 +97,13 @@ const PartWrapper = styled(motion.div)`
   max-width: 1224px;
   position: relative;
   width: 100%;
+  padding: 24px;
+
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    flex-direction: row;
-    padding:12px;
+    padding: 16px;
+    height: auto !important;
+    gap: 0;
+    margin-bottom: 24px;
   `}
 `
 
@@ -121,6 +131,12 @@ const Part1 = styled(PartWithMotion)`
   height: 70vh;
   min-height: 700px;
   max-height: 1000px;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    height: fit-content;
+    min-height: auto;
+    max-height: unset;
+  `}
 `
 const Part2 = styled(PartWithMotion)`
   margin-bottom: 40px;
@@ -130,6 +146,11 @@ const Part4 = styled(PartWithMotion)`
   height: 350px;
   gap: 32px;
   width: 100%;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    gap: 0;
+    text-align: center;
+    height: 500px !important;
+  `}
 `
 const Part5 = styled(PartWithMotion)`
   height: 600px;
@@ -242,6 +263,10 @@ const CallToActionBox = styled.div`
   backdrop-filter: blur(25px);
   border: 2px solid #e3e3e332;
   padding: 44px;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 16px;
+  `}
 `
 
 const StyledUL = styled.ul`
@@ -265,12 +290,117 @@ const CheckIcon = () => {
 
 export default function KyberAILandingPage() {
   const theme = useTheme()
-  const above768 = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const above1200 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToLarge}px)`)
+  const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
+  console.log('🚀 ~ file: LandingPage.tsx:278 ~ KyberAILandingPage ~ above768:', above768)
   return (
     <Wrapper>
       <Part1>
-        <FixedWidth style={{ height: '700px', position: 'relative' }}>
+        <FixedWidth style={{ height: above768 ? '700px' : 'fit-content', position: 'relative' }}>
+          {!above768 && (
+            <Column
+              style={{
+                position: 'relative',
+                height: '120vw',
+                marginTop: '36px',
+              }}
+            >
+              <img
+                src={starsMobileImage}
+                alt="stars"
+                width="90%"
+                style={{ position: 'absolute', transform: 'translate(-50%,-50%)', left: '50%', top: '56%' }}
+              />
+              <img
+                src={theme.darkMode ? kyberscoreMeterImage : kyberscoreMeterLightImage}
+                alt="kyberscore"
+                width="70%"
+                style={{ position: 'absolute', transform: 'translate(-50%,-50%)', left: '82%', top: '32%' }}
+              />
+              <img
+                src={apeImage}
+                alt="ape head"
+                width={'120%'}
+                style={{ position: 'absolute', transform: 'translate(-50%,-50%)', left: '50%', top: '50%' }}
+              />
+              <motion.div
+                animate={{
+                  opacity: [
+                    1, 0.9, 0.7, 0.8, 1, 1, 0.9, 1, 1, 0.9, 1, 0.2, 1, 1, 0.1, 1, 0.6, 0.5, 0.6, 1, 1, 0.7, 0.8, 0.7, 1,
+                    1, 0.6, 0.5, 0.6, 1,
+                  ],
+                }}
+                transition={{ duration: 5, repeat: Infinity }}
+              >
+                <img
+                  src={gradientImage}
+                  alt="ape sight"
+                  width={'95%'}
+                  style={{
+                    filter: 'brightness(1.1)',
+                    transform: 'translate(-50%,-50%)',
+                    position: 'absolute',
+                    top: '50%',
+                  }}
+                />
+              </motion.div>
+              <img
+                src={theme.darkMode ? tokenPriceImage : tokenPriceLightImage}
+                alt="token price"
+                width={'100%'}
+                style={{
+                  transform: 'translate(-50%,-50%)',
+                  position: 'absolute',
+                  left: '60%',
+                  top: '90%',
+                }}
+              />
+              <img
+                src={bitcoinImage}
+                alt="bitcoin"
+                width={'30%'}
+                style={{
+                  transform: 'translate(-50%,-50%)',
+                  position: 'absolute',
+                  left: '85%',
+                  top: '65%',
+                }}
+              />
+              <img
+                src={iconImage}
+                alt="icon"
+                width={'13%'}
+                style={{
+                  transform: 'translate(-50%,-50%)',
+                  position: 'absolute',
+                  left: '50%',
+                  top: '20%',
+                }}
+              />
+              <img
+                src={ethereumImage}
+                alt="ethereum"
+                width={'55%'}
+                style={{
+                  transform: 'translate(-50%,-50%)',
+                  position: 'absolute',
+                  left: '10%',
+                  top: '27%',
+                }}
+              />
+
+              {/* <FloatingImageWithMotion src={ethereumImage} alt="ethereum" left={300} top={320} parallaxDistance={-7} />
+              <FloatingImageWithMotion
+                src={theme.darkMode ? tokenPriceImage : tokenPriceLightImage}
+                alt="token Price"
+                left={0}
+                top={920}
+                parallaxDistance={11}
+                style={{ scale: 0.5 }}
+              /> */}
+            </Column>
+          )}
           <Column height="100%" gap="24px" style={{ justifyContent: 'center' }}>
             <Text fontSize="48px" lineHeight="60px" fontWeight={800}>
               <Trans>
@@ -283,63 +413,70 @@ export default function KyberAILandingPage() {
             </Text>
             <RegisterWhitelist />
           </Column>
-          <ColumnWithMotion style={{ position: 'relative' }}>
-            <FloatingImageWithMotion src={bitcoinImage} alt="bitcoin" left={0} top={320} parallaxDistance={6} />
-            <FloatingImageWithMotion
-              src={theme.darkMode ? chartImage : chartLightImage}
-              alt="chart"
-              left={660}
-              top={400}
-              parallaxDistance={9}
-              style={{ scale: 0.5 }}
-            />
-            <FloatingImageWithMotion
-              src={theme.darkMode ? liveDexTradesImage : liveDexTradesLightImage}
-              alt="live dex trade"
-              left={-200}
-              top={190}
-              parallaxDistance={10}
-              style={{ scale: 0.5 }}
-            />
-            <FloatingImageWithMotion
-              src={theme.darkMode ? kyberscoreMeterImage : kyberscoreMeterLightImage}
-              alt="kyberscore"
-              left={550}
-              top={-20}
-              parallaxDistance={4}
-              style={{ scale: 0.5 }}
-            />
-            <FloatingImageWithMotion src={iconImage} alt="icon" left={230} top={80} parallaxDistance={7} />
-            <FloatingImageWithMotion src={starsImage} alt="stars" left={-600} top={80} parallaxDistance={-10} />
-            <FloatingImageWithMotion src={apeImage} alt="ape head" left={-20} top={100} parallaxDistance={4} />
-            <motion.div
-              animate={{
-                opacity: [
-                  1, 0.9, 0.7, 0.8, 1, 1, 0.9, 1, 1, 0.9, 1, 0.2, 1, 1, 0.1, 1, 0.6, 0.5, 0.6, 1, 1, 0.7, 0.8, 0.7, 1,
-                  1, 0.6, 0.5, 0.6, 1,
-                ],
+          {above768 && (
+            <ColumnWithMotion
+              style={{
+                position: 'relative',
+                transform: `scale(${above1200 ? 1 : 0.8})`,
               }}
-              transition={{ duration: 5, repeat: Infinity }}
             >
+              <FloatingImageWithMotion src={bitcoinImage} alt="bitcoin" left={0} top={320} parallaxDistance={6} />
               <FloatingImageWithMotion
-                src={gradientImage}
-                alt="ape sight"
-                left={-720}
-                top={-100}
-                parallaxDistance={4}
-                style={{ filter: 'brightness(1.1)' }}
+                src={theme.darkMode ? chartImage : chartLightImage}
+                alt="chart"
+                left={660}
+                top={400}
+                parallaxDistance={9}
+                style={{ scale: 0.5 }}
               />
-            </motion.div>
-            <FloatingImageWithMotion src={ethereumImage} alt="ethereum" left={300} top={320} parallaxDistance={-7} />
-            <FloatingImageWithMotion
-              src={theme.darkMode ? tokenPriceImage : tokenPriceLightImage}
-              alt="token Price"
-              left={0}
-              top={920}
-              parallaxDistance={11}
-              style={{ scale: 0.5 }}
-            />
-          </ColumnWithMotion>
+              <FloatingImageWithMotion
+                src={theme.darkMode ? liveDexTradesImage : liveDexTradesLightImage}
+                alt="live dex trade"
+                left={-200}
+                top={190}
+                parallaxDistance={10}
+                style={{ scale: 0.5 }}
+              />
+              <FloatingImageWithMotion
+                src={theme.darkMode ? kyberscoreMeterImage : kyberscoreMeterLightImage}
+                alt="kyberscore"
+                left={550}
+                top={-20}
+                parallaxDistance={4}
+                style={{ scale: 0.5 }}
+              />
+              <FloatingImageWithMotion src={iconImage} alt="icon" left={230} top={80} parallaxDistance={7} />
+              <FloatingImageWithMotion src={starsImage} alt="stars" left={-600} top={80} parallaxDistance={-10} />
+              <FloatingImageWithMotion src={apeImage} alt="ape head" left={-20} top={100} parallaxDistance={4} />
+              <motion.div
+                animate={{
+                  opacity: [
+                    1, 0.9, 0.7, 0.8, 1, 1, 0.9, 1, 1, 0.9, 1, 0.2, 1, 1, 0.1, 1, 0.6, 0.5, 0.6, 1, 1, 0.7, 0.8, 0.7, 1,
+                    1, 0.6, 0.5, 0.6, 1,
+                  ],
+                }}
+                transition={{ duration: 5, repeat: Infinity }}
+              >
+                <FloatingImageWithMotion
+                  src={gradientImage}
+                  alt="ape sight"
+                  left={-720}
+                  top={-100}
+                  parallaxDistance={4}
+                  style={{ filter: 'brightness(1.1)' }}
+                />
+              </motion.div>
+              <FloatingImageWithMotion src={ethereumImage} alt="ethereum" left={300} top={320} parallaxDistance={-7} />
+              <FloatingImageWithMotion
+                src={theme.darkMode ? tokenPriceImage : tokenPriceLightImage}
+                alt="token Price"
+                left={0}
+                top={920}
+                parallaxDistance={11}
+                style={{ scale: 0.5 }}
+              />
+            </ColumnWithMotion>
+          )}
         </FixedWidth>
       </Part1>
       <Part2>
@@ -387,8 +524,13 @@ export default function KyberAILandingPage() {
       </Part2>
 
       <Part3>
-        <FixedWidth style={{ height: '650px' }}>
-          <Column justifyContent="center" style={{ flexGrow: 4, order: above768 ? 2 : 1 }}>
+        <FixedWidth style={{ height: above768 ? '650px' : 'auto' }}>
+          {!above768 && (
+            <Column style={{ position: 'relative', height: '100%', flexGrow: 6 }}>
+              <img src={image1} alt="kyberAI image" />
+            </Column>
+          )}
+          <Column justifyContent="center" style={{ flexGrow: 4 }}>
             <Text fontSize="48px" lineHeight="56px" fontWeight={500} color={theme.subText}>
               <Trans>
                 Less Effort <br />
@@ -414,9 +556,11 @@ export default function KyberAILandingPage() {
               </Trans>
             </Text>
           </Column>
-          <Column style={{ position: 'relative', height: '100%', flexGrow: 6, order: above768 ? 1 : 2 }}>
-            <FloatingImage src={image1} alt="kyberAI image" left={-10} top={-20} />
-          </Column>
+          {above768 && (
+            <Column style={{ position: 'relative', height: '100%', flexGrow: 6 }}>
+              <FloatingImage src={image1} alt="kyberAI image" left={-10} top={-20} />
+            </Column>
+          )}
         </FixedWidth>
       </Part3>
       <Part4>
@@ -438,33 +582,33 @@ export default function KyberAILandingPage() {
         />
 
         <Column gap="20px" alignItems="center">
-          <Text fontSize="48px" color={theme.text} fontWeight={500}>
+          <Text fontSize={above768 ? '48px' : '36px'} color={theme.text} fontWeight={500} textAlign="center">
             <Trans>
               We introduce to you,{' '}
               <span style={{ color: theme.primary, textShadow: `0 0 5px ${theme.primary}` }}>KyberAI</span>
             </Trans>
           </Text>
-          <Text fontSize="16px" lineHeight="28px" color={theme.subText}>
+          <Text fontSize="16px" lineHeight={above768 ? '28px' : '24px'} color={theme.subText}>
             <Trans>An intelligent platform that provides valuable insights on 4000+ Tokens across 7 Chains</Trans>
           </Text>
           <Row justify="center" gap="16px">
-            <GlobalIcon id="eth-mono" size={36} />
-            <GlobalIcon id="bnb-mono" size={36} />
-            <GlobalIcon id="ava-mono" size={36} />
-            <GlobalIcon id="matic-mono" size={36} />
-            <GlobalIcon id="optimism-mono" size={36} />
-            <GlobalIcon id="arbitrum-mono" size={36} />
-            <GlobalIcon id="fantom-mono" size={36} />
+            <GlobalIcon id="eth-mono" size={above768 ? 36 : 28} />
+            <GlobalIcon id="bnb-mono" size={above768 ? 36 : 28} />
+            <GlobalIcon id="ava-mono" size={above768 ? 36 : 28} />
+            <GlobalIcon id="matic-mono" size={above768 ? 36 : 28} />
+            <GlobalIcon id="optimism-mono" size={above768 ? 36 : 28} />
+            <GlobalIcon id="arbitrum-mono" size={above768 ? 36 : 28} />
+            <GlobalIcon id="fantom-mono" size={above768 ? 36 : 28} />
           </Row>
         </Column>
       </Part4>
-      <Part5>
+      <Part5 variants={undefined}>
         <Row justify="center">
-          <Text fontSize="48px" lineHeight="56px" fontWeight={500}>
+          <Text fontSize={above768 ? '48px' : '36px'} lineHeight="56px" fontWeight={500}>
             <Trans>Key Features</Trans>
           </Text>
         </Row>
-        <Row justify="center" gap="26px">
+        <Row justify="center" gap="26px" flexDirection={above768 ? 'row' : 'column'}>
           <FeatureBox variants={appearVariants} transition={transition}>
             <Column justifyContent="center" alignItems="center" height="200px" gap="26px">
               <img src={feature1} alt="feature 1" width="130px" />
@@ -521,11 +665,16 @@ export default function KyberAILandingPage() {
             <img
               src={tokenListImage}
               alt="token list"
-              style={{ position: 'absolute', right: '-100px', top: '-90px' }}
+              style={{ position: above768 ? 'absolute' : 'initial', right: '-100px', top: '-90px' }}
             />
           </Column>
           <Column>
-            <Text fontSize="48px" lineHeight="56px" fontWeight={500} color={theme.text}>
+            <Text
+              fontSize={above768 ? '48px' : '36px'}
+              lineHeight={above768 ? '56px' : '44px'}
+              fontWeight={500}
+              color={theme.text}
+            >
               <Trans>Access deep insights & stay informed.</Trans>
             </Text>
             <StyledUL>
@@ -563,8 +712,18 @@ export default function KyberAILandingPage() {
       </Part6>
       <Part7>
         <FixedWidth>
+          {!above768 && (
+            <Column style={{ position: 'relative' }}>
+              <img src={coreEditImage} alt="core edit" />
+            </Column>
+          )}
           <Column>
-            <Text fontSize="48px" lineHeight="56px" fontWeight={500} color={theme.text}>
+            <Text
+              fontSize={above768 ? '48px' : '36px'}
+              lineHeight={above768 ? '56px' : '44px'}
+              fontWeight={500}
+              color={theme.text}
+            >
               <Trans>
                 <Trans>Discover new opportunities.</Trans>
               </Trans>
@@ -584,15 +743,17 @@ export default function KyberAILandingPage() {
               </Trans>
             </Text>
           </Column>
-          <Column style={{ position: 'relative' }}>
-            <FloatingImage src={coreEditImage} alt="core edit" left={0} top={-50} />
-          </Column>
+          {above768 && (
+            <Column style={{ position: 'relative' }}>
+              <FloatingImage src={coreEditImage} alt="core edit" left={0} top={-50} />
+            </Column>
+          )}
         </FixedWidth>
       </Part7>
       <Part8>
         <FixedWidth>
           <CallToActionBox>
-            <Row>
+            <Row flexDirection={above768 ? 'row' : 'column'}>
               <Text fontSize="36px" lineHeight="48px" style={{ flex: 2 }}>
                 <Trans>
                   Ready to experience{' '}

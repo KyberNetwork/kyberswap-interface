@@ -89,6 +89,7 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
               <Trans>Spread the word, and get rewarded for it! </Trans>
             </Text>
           }
+          style={{ width: 'min(500px,100%)' }}
         />
       </>
     )
