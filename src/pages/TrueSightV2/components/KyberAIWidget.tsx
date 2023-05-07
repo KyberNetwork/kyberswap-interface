@@ -175,7 +175,7 @@ export default function Widget() {
     setShowExpanded(false)
   })
   const navigate = useNavigate()
-  const { data } = useTokenListQuery(
+  const { data, isFetching } = useTokenListQuery(
     activeTab === WidgetTab.MyWatchlist
       ? { type: KyberAIListType.ALL, page: 1, pageSize: 5, wallet: account }
       : {
@@ -234,7 +234,7 @@ export default function Widget() {
               </Tab>
             ))}
           </Row>
-          <Row align="center" justify="center" height="360px" width="820px">
+          <Row align="center" justify="center" height="380px" width="820px">
             {activeTab === WidgetTab.MyWatchlist ? (
               <Text color={theme.subText} textAlign="center">
                 <Trans>
@@ -247,7 +247,7 @@ export default function Widget() {
                 </Trans>
               </Text>
             ) : (
-              <WidgetTable data={data?.data} />
+              <WidgetTable data={data?.data} isLoading={isFetching} />
             )}
           </Row>
           <RowBetween padding="16px">
