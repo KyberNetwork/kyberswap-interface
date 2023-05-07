@@ -1,6 +1,7 @@
 import { t } from '@lingui/macro'
 import axios from 'axios'
-import { memo, useCallback, useEffect, useRef, useState } from 'react'
+import { debounce } from 'lodash'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { useDispatch } from 'react-redux'
 import { Flex } from 'rebass'
@@ -22,13 +23,12 @@ import { TRANSACTION_TYPE, TransactionDetails } from 'state/transactions/type'
 import { getTransactionStatus } from 'utils/transaction'
 
 const MAX_TIME_CHECK_STATUS = 7 * 86_400_000 // the time that we don't need to interval check
-// todo
 const TYPE_NEED_CHECK_PENDING = [
   TRANSACTION_TYPE.CANCEL_LIMIT_ORDER,
-  // TRANSACTION_TYPE.BRIDGE,
-  // TRANSACTION_TYPE.CROSS_CHAIN_SWAP,
+  TRANSACTION_TYPE.BRIDGE,
+  TRANSACTION_TYPE.CROSS_CHAIN_SWAP,
 ]
-const TYPE_INTERVAL: any = [] // [TRANSACTION_TYPE.BRIDGE, TRANSACTION_TYPE.CROSS_CHAIN_SWAP]
+
 const isTxsActuallySuccess = (txs: TransactionDetails) => txs.extraInfo?.actuallySuccess
 
 // this component to interval call api/listen firebase to check transaction status actually done or not
@@ -97,17 +97,19 @@ function StatusIcon({
     }
   }, [cancellingOrdersIds, cancellingOrdersNonces, chainId, dispatch, transaction, extraInfo, hash, type, loading])
 
+  const checkStatusDebounced = useMemo(() => debounce(checkStatus, 1000), [checkStatus])
+
   useEffect(() => {
     if (!needCheckActuallyPending) {
       setIsPendingState(pendingRpc)
       return
     }
-    checkStatus()
-    if (TYPE_INTERVAL.includes(type)) {
-      interval.current = setInterval(checkStatus, 5000)
+    checkStatusDebounced()
+    if (TYPE_NEED_CHECK_PENDING.includes(type)) {
+      interval.current = setInterval(checkStatusDebounced, 5000)
     }
     return () => interval.current && clearInterval(interval.current)
-  }, [needCheckActuallyPending, pendingRpc, checkStatus, type])
+  }, [needCheckActuallyPending, pendingRpc, checkStatusDebounced, type])
 
   const theme = useTheme()
   const checkingStatus = isPendingState === null
