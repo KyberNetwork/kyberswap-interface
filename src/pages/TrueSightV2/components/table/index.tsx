@@ -1,11 +1,12 @@
+import { WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
-import { useContext, useMemo, useState } from 'react'
+import { useContext, useMemo, useRef, useState } from 'react'
 import { Star } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 // import { useNavigate } from 'react-router-dom'
 // import { useMemo } from 'react'
 import { Text } from 'rebass'
@@ -18,6 +19,7 @@ import Icon from 'components/Icons/Icon'
 import InfoHelper from 'components/InfoHelper'
 import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
+import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
 import {
@@ -33,6 +35,7 @@ import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice } from '
 import { getEtherscanLink, shortenAddress } from 'utils'
 
 import ChevronIcon from '../ChevronIcon'
+import MultipleChainDropdown from '../MultipleChainDropdown'
 import SimpleTooltip from '../SimpleTooltip'
 import SmallKyberScoreMeter from '../SmallKyberScoreMeter'
 import TokenChart from '../TokenChartSVG'
@@ -428,7 +431,6 @@ export const LiveDEXTrades = () => {
 
 const WidgetTableWrapper = styled(TableWrapper)`
   width: 100%;
-  height: 100%;
 
   thead {
     th {
@@ -441,9 +443,160 @@ const WidgetTableWrapper = styled(TableWrapper)`
     }
   }
 `
+
+const WidgetTokenRow = ({ token }: { token: ITokenList }) => {
+  const theme = useTheme()
+  const navigate = useNavigate()
+  const latestKyberScore: IKyberScoreChart = token?.ks_3d?.[token.ks_3d.length - 1]
+  const hasMutipleChain = token.tokens.length > 1
+
+  const [showMenu, setShowMenu] = useState(false)
+  const [showSwapMenu, setShowSwapMenu] = useState(false)
+  const [menuLeft, setMenuLeft] = useState<number | undefined>(undefined)
+
+  const rowRef = useRef<HTMLTableRowElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  const handleRowClick = (e: any) => {
+    if (hasMutipleChain) {
+      const left = e.clientX - (rowRef.current?.getBoundingClientRect()?.left || 0)
+      const rowWidth = rowRef.current?.getBoundingClientRect()?.width || 0
+      const menuWidth = menuRef.current?.getBoundingClientRect()?.width || 0
+      if (left !== undefined) {
+        setMenuLeft(Math.min(left, rowWidth - menuWidth))
+        setShowMenu(true)
+      }
+    } else {
+      navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.tokens[0].chain}/${token.tokens[0].address}`)
+    }
+  }
+
+  const navigateToSwapPage = (t: { address: string; logo: string; chain: string }) => {
+    const wethSymbol = WETH[NETWORK_TO_CHAINID[t.chain]].symbol
+    const chain = t.chain === 'bsc' ? 'bnb' : t.chain
+    window.open(window.location.origin + `${APP_PATHS.SWAP}/${chain}/${wethSymbol}-to-${token.symbol}`, '_blank')
+  }
+
+  const handleSwapClick = (e: any) => {
+    e.stopPropagation()
+    if (hasMutipleChain) {
+      setShowSwapMenu(true)
+    } else {
+      navigateToSwapPage(token.tokens[0])
+    }
+  }
+
+  const handleSwapNavigateClick = (chain: string) => {
+    const tokenByChain = token.tokens.find(t => t.chain === chain)
+    if (tokenByChain) {
+      navigateToSwapPage(tokenByChain)
+    }
+  }
+
+  return (
+    <tr style={{ backgroundColor: theme.tableHeader, height: '64px' }} onClick={handleRowClick}>
+      <td>
+        <RowFit gap="6px">
+          <SimpleTooltip text={t`Add to watchlist`}>
+            <Star
+              size={16}
+              style={{ marginRight: '6px', cursor: 'pointer' }}
+              fill={'none'}
+              stroke={theme.subText}
+              onClick={e => {
+                e.stopPropagation()
+              }}
+            />
+          </SimpleTooltip>
+          <Row gap="8px" style={{ position: 'relative', width: '24px', height: '24px' }}>
+            <img
+              alt="tokenInList"
+              src={token.tokens[0].logo}
+              width="24px"
+              height="24px"
+              style={{ borderRadius: '12px' }}
+            />
+            <Column gap="4px" style={{ cursor: 'pointer', alignItems: 'flex-start' }}>
+              <Text style={{ textTransform: 'uppercase' }}>{token.symbol}</Text>{' '}
+              <RowFit gap="6px" color={theme.text}>
+                {token.tokens.map(item => {
+                  if (item.chain === 'ethereum') return <Icon id="eth-mono" size={12} title="Ethereum" />
+                  if (item.chain === 'bsc') return <Icon id="bnb-mono" size={12} title="Binance" />
+                  if (item.chain === 'avalanche') return <Icon id="ava-mono" size={12} title="Avalanche" />
+                  if (item.chain === 'polygon') return <Icon id="matic-mono" size={12} title="Polygon" />
+                  if (item.chain === 'arbitrum') return <Icon id="arbitrum-mono" size={12} title="Arbitrum" />
+                  if (item.chain === 'fantom') return <Icon id="fantom-mono" size={12} title="Fantom" />
+                  if (item.chain === 'optimism') return <Icon id="optimism-mono" size={12} title="Optimism" />
+                  return <></>
+                })}
+              </RowFit>
+            </Column>
+          </Row>
+        </RowFit>
+      </td>
+      <td>
+        <Column style={{ alignItems: 'center', width: '110px' }}>
+          <SmallKyberScoreMeter data={latestKyberScore} tokenName={token.symbol} />
+          <Text color={calculateValueToColor(token.kyber_score, theme)} fontSize="14px" fontWeight={500}>
+            {latestKyberScore.tag || t`Not Available`}
+          </Text>
+        </Column>
+      </td>
+      <td>
+        <Column gap="4px" style={{ textAlign: 'left' }}>
+          <Text color={theme.text} fontSize="14px" lineHeight="20px">
+            ${formatTokenPrice(token.price)}
+          </Text>
+          <Text fontSize="10px" lineHeight="12px" color={token.change_24h > 0 ? theme.primary : theme.red}>
+            <Row gap="2px">
+              <ChevronIcon
+                rotate={token.change_24h > 0 ? '180deg' : '0deg'}
+                color={token.change_24h > 0 ? theme.primary : theme.red}
+              />
+              {Math.abs(token.change_24h).toFixed(2)}%
+            </Row>
+          </Text>
+        </Column>
+      </td>
+      <td>
+        <TokenChart data={token['7daysprice']} index={token.tokens[0].address} />
+      </td>
+      <td>
+        <Row justifyContent="flex-end">
+          <ButtonLight height="28px" width="75px" padding="4px 8px" onClick={handleSwapClick}>
+            <RowFit gap="4px" fontSize="14px">
+              <Icon id="swap" size={16} />
+              Swap
+            </RowFit>
+          </ButtonLight>
+        </Row>
+      </td>
+      {hasMutipleChain && (
+        <>
+          <MultipleChainDropdown
+            show={showMenu}
+            menuLeft={menuLeft}
+            tokens={token?.tokens}
+            onChainClick={chain =>
+              navigate(
+                `${APP_PATHS.KYBERAI_EXPLORE}/${chain}/${token.tokens.filter(t => t.chain === chain)[0]?.address}`,
+              )
+            }
+          />
+          <MultipleChainDropdown
+            show={showSwapMenu}
+            menuLeft={menuLeft}
+            tokens={token?.tokens}
+            onChainClick={handleSwapNavigateClick}
+          />
+        </>
+      )}
+    </tr>
+  )
+}
 export const WidgetTable = ({ data, isLoading }: { data?: ITokenList[]; isLoading: boolean }) => {
   const theme = useTheme()
-
+  const isError = !data && !isLoading
   return (
     <div style={{ width: '100%', height: '100%', overflow: 'scroll' }}>
       <WidgetTableWrapper style={{ borderRadius: '0' }}>
@@ -509,93 +662,16 @@ export const WidgetTable = ({ data, isLoading }: { data?: ITokenList[]; isLoadin
         ) : (
           <tbody>
             {data?.map((token, i) => {
-              const latestKyberScore: IKyberScoreChart = token?.ks_3d?.[token.ks_3d.length - 1]
-              return (
-                <tr key={i} style={{ backgroundColor: theme.tableHeader, height: '64px' }}>
-                  <td>
-                    <RowFit gap="6px">
-                      <SimpleTooltip text={t`Add to watchlist`}>
-                        <Star
-                          size={16}
-                          style={{ marginRight: '6px', cursor: 'pointer' }}
-                          fill={'none'}
-                          stroke={theme.subText}
-                          onClick={e => {
-                            e.stopPropagation()
-                          }}
-                        />
-                      </SimpleTooltip>
-                      <Row gap="8px" style={{ position: 'relative', width: '24px', height: '24px' }}>
-                        <img
-                          alt="tokenInList"
-                          src={token.tokens[0].logo}
-                          width="24px"
-                          height="24px"
-                          style={{ borderRadius: '12px' }}
-                        />
-                        <Column gap="4px" style={{ cursor: 'pointer', alignItems: 'flex-start' }}>
-                          <Text style={{ textTransform: 'uppercase' }}>{token.symbol}</Text>{' '}
-                          <RowFit gap="6px" color={theme.text}>
-                            {token.tokens.map(item => {
-                              if (item.chain === 'ethereum') return <Icon id="eth-mono" size={12} title="Ethereum" />
-                              if (item.chain === 'bsc') return <Icon id="bnb-mono" size={12} title="Binance" />
-                              if (item.chain === 'avalanche') return <Icon id="ava-mono" size={12} title="Avalanche" />
-                              if (item.chain === 'polygon') return <Icon id="matic-mono" size={12} title="Polygon" />
-                              if (item.chain === 'arbitrum')
-                                return <Icon id="arbitrum-mono" size={12} title="Arbitrum" />
-                              if (item.chain === 'fantom') return <Icon id="fantom-mono" size={12} title="Fantom" />
-                              if (item.chain === 'optimism')
-                                return <Icon id="optimism-mono" size={12} title="Optimism" />
-                              return <></>
-                            })}
-                          </RowFit>
-                        </Column>
-                      </Row>
-                    </RowFit>
-                  </td>
-                  <td>
-                    <Column style={{ alignItems: 'center', width: '110px' }}>
-                      <SmallKyberScoreMeter data={latestKyberScore} tokenName={token.symbol} />
-                      <Text color={calculateValueToColor(token.kyber_score, theme)} fontSize="14px" fontWeight={500}>
-                        {latestKyberScore.tag || t`Not Available`}
-                      </Text>
-                    </Column>
-                  </td>
-                  <td>
-                    <Column gap="4px" style={{ textAlign: 'left' }}>
-                      <Text color={theme.text} fontSize="14px" lineHeight="20px">
-                        ${formatTokenPrice(token.price)}
-                      </Text>
-                      <Text fontSize="10px" lineHeight="12px" color={token.change_24h > 0 ? theme.primary : theme.red}>
-                        <Row gap="2px">
-                          <ChevronIcon
-                            rotate={token.change_24h > 0 ? '180deg' : '0deg'}
-                            color={token.change_24h > 0 ? theme.primary : theme.red}
-                          />
-                          {Math.abs(token.change_24h).toFixed(2)}%
-                        </Row>
-                      </Text>
-                    </Column>
-                  </td>
-                  <td>
-                    <TokenChart data={token['7daysprice']} index={i} />
-                  </td>
-                  <td>
-                    <Row justifyContent="flex-end">
-                      <ButtonLight height="28px" width="75px" padding="4px 8px">
-                        <RowFit gap="4px" fontSize="14px">
-                          <Icon id="swap" size={16} />
-                          Swap
-                        </RowFit>
-                      </ButtonLight>
-                    </Row>
-                  </td>
-                </tr>
-              )
+              return <WidgetTokenRow token={token} key={i} />
             })}
           </tbody>
         )}
       </WidgetTableWrapper>
+      {isError && (
+        <Row align="center" justify="center" height="80%">
+          <Trans>There was an error. Please try again later.</Trans>
+        </Row>
+      )}
     </div>
   )
 }

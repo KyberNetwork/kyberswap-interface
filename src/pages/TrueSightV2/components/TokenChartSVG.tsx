@@ -11,7 +11,7 @@ export default function TokenChart({
   index,
 }: {
   data?: Array<{ value: number; timestamp: number }>
-  index: number
+  index: number | string
 }) {
   const theme = useTheme()
   const formattedData: Array<{ value: number; timestamp: number }> = useMemo(() => {

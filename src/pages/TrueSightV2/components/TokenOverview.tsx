@@ -287,7 +287,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                   <Trans>All Time Low</Trans>
                 </Text>
                 <Text color={theme.text} fontWeight={500}>
-                  {data?.atl && `$${formatTokenPrice(data?.atl, 4)}`}
+                  {data?.atl ? `$${formatTokenPrice(data?.atl, 4)}` : '--'}
                 </Text>
               </RowBetween>
               <RowBetween>
@@ -295,7 +295,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                   <Trans>All Time High</Trans>
                 </Text>
                 <Text color={theme.text} fontWeight={500}>
-                  {data?.ath && `$${formatTokenPrice(data?.ath, 4)}`}
+                  {data?.ath ? `$${formatTokenPrice(data?.ath, 4)}` : '--'}
                 </Text>
               </RowBetween>
               <RowBetween>
@@ -303,7 +303,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                   <Trans>24H Volume</Trans>
                 </Text>
                 <Text color={theme.text} fontWeight={500}>
-                  {data?.['24hVolume'] && `$${formatLocaleStringNum(data?.['24hVolume'], 0)}`}
+                  {data?.['24hVolume'] ? `$${formatLocaleStringNum(data?.['24hVolume'], 0)}` : '--'}
                 </Text>
               </RowBetween>
               <RowBetween>
@@ -311,7 +311,9 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                   <Trans>Circulating Supply</Trans>
                 </Text>
                 <Text color={theme.text} fontWeight={500}>
-                  {data && `${formatLocaleStringNum(data.circulatingSupply, 0)} ${data.symbol}`}
+                  {data?.circulatingSupply
+                    ? `${formatLocaleStringNum(data.circulatingSupply, 0)} ${data.symbol}`
+                    : '--'}
                 </Text>
               </RowBetween>
               <RowBetween>
@@ -319,7 +321,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                   <Trans>Market Cap</Trans>
                 </Text>
                 <Text color={theme.text} fontWeight={500}>
-                  {data?.marketCap && `$${formatLocaleStringNum(data?.marketCap)}`}
+                  {data?.marketCap ? `$${formatLocaleStringNum(data?.marketCap)}` : '--'}
                 </Text>
               </RowBetween>
               <RowBetween>
@@ -327,7 +329,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                   <Trans>Holders (On-chain)</Trans>
                 </Text>
                 <Text color={theme.text} fontWeight={500}>
-                  {data?.numberOfHolders}
+                  {data?.numberOfHolders || '--'}
                 </Text>
               </RowBetween>
               <RowBetween>

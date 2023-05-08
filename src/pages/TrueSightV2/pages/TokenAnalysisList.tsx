@@ -1,7 +1,7 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { ReactNode, useEffect, useRef, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Share2, Star } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
@@ -28,12 +28,13 @@ import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
 
 import ChevronIcon from '../components/ChevronIcon'
+import MultipleChainDropdown from '../components/MultipleChainDropdown'
 import NetworkSelect from '../components/NetworkSelect'
 import SimpleTooltip from '../components/SimpleTooltip'
 import SmallKyberScoreMeter from '../components/SmallKyberScoreMeter'
 import TokenChart from '../components/TokenChartSVG'
 import KyberScoreChart from '../components/chart/KyberScoreChart'
-import { SUPPORTED_NETWORK_KYBERAI } from '../constants'
+import { NETWORK_TO_CHAINID, SUPPORTED_NETWORK_KYBERAI } from '../constants'
 import { useTokenListQuery } from '../hooks/useKyberAIData'
 import { IKyberScoreChart, ITokenList, KyberAIListType } from '../types'
 import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice } from '../utils'
@@ -442,87 +443,6 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab:
 //   DESC = 'desc',
 // }
 
-const MenuDropdown = styled(RowFit)`
-  position: absolute;
-  top: 42px;
-  right: 0;
-  transform: translateY(-10px);
-  transition: transform 0.1s ease, visibility 0.1s ease, opacity 0.1s ease;
-  visibility: hidden;
-  background-color: ${({ theme }) => theme.tableHeader};
-  padding: 8px;
-  opacity: 0;
-  border-radius: 4px;
-  z-index: 100;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.32);
-  &.show {
-    transform: translateY(0);
-    visibility: visible;
-    opacity: 1;
-  }
-`
-
-const StyledChainIcon = styled.div`
-  border-radius: 50%;
-  background-color: ${({ theme }) => theme.tableHeader};
-  padding: 6px;
-  :hover {
-    filter: brightness(1.2);
-  }
-`
-
-const ChainIcon = ({ id, name, onClick }: { id: string; name: string; onClick: () => void }) => {
-  return (
-    <SimpleTooltip text={name}>
-      <StyledChainIcon onClick={onClick}>
-        <Icon id={id} size={20} />
-      </StyledChainIcon>
-    </SimpleTooltip>
-  )
-}
-
-const MultipleChainDropdown = ({
-  show,
-  menuLeft,
-  tokens,
-  onChainClick,
-}: {
-  show: boolean
-  menuLeft?: number
-  tokens?: Array<{ address: string; logo: string; chain: string }>
-  onChainClick: (chain: string) => void
-}) => {
-  const theme = useTheme()
-  const menuRef = useRef<HTMLDivElement>(null)
-
-  return (
-    <MenuDropdown
-      className={show ? 'show' : ''}
-      gap="8px"
-      color={theme.text}
-      style={{ left: menuLeft !== undefined ? `${menuLeft}px` : undefined }}
-      ref={menuRef}
-    >
-      {tokens?.map((item: { address: string; logo: string; chain: string }) => {
-        if (item.chain === 'ethereum')
-          return <ChainIcon id="eth-mono" name="Ethereum" onClick={() => onChainClick('ethereum')} />
-        if (item.chain === 'bsc') return <ChainIcon id="bnb-mono" name="Binance" onClick={() => onChainClick('bsc')} />
-        if (item.chain === 'avalanche')
-          return <ChainIcon id="ava-mono" name="Avalanche" onClick={() => onChainClick('avalanche')} />
-        if (item.chain === 'polygon')
-          return <ChainIcon id="matic-mono" name="Polygon" onClick={() => onChainClick('polygon')} />
-        if (item.chain === 'arbitrum')
-          return <ChainIcon id="arbitrum-mono" name="Arbitrum" onClick={() => onChainClick('arbitrum')} />
-        if (item.chain === 'fantom')
-          return <ChainIcon id="fantom-mono" name="Fantom" onClick={() => onChainClick('fantom')} />
-        if (item.chain === 'optimism')
-          return <ChainIcon id="optimism-mono" name="Optimism" onClick={() => onChainClick('optimism')} />
-        return <></>
-      })}
-    </MenuDropdown>
-  )
-}
-
 const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab: KyberAIListType; index: number }) => {
   const navigate = useNavigate()
   const theme = useTheme()
@@ -537,6 +457,15 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
   useOnClickOutside(rowRef, () => setShowSwapMenu(false))
 
   const hasMutipleChain = token.tokens.length > 1
+
+  const navigateToSwapPage = useCallback((t: { address: string; logo: string; chain: string }) => {
+    const wethAddress = WETH[NETWORK_TO_CHAINID[t.chain]].address
+    const chain = t.chain === 'bsc' ? 'bnb' : t.chain
+    window.open(
+      window.location.origin + `${APP_PATHS.SWAP}/${chain}?inputCurrency=${t.address}&outputCurrency=${wethAddress}`,
+      '_blank',
+    )
+  }, [])
 
   const handleRowClick = (e: any) => {
     if (hasMutipleChain) {
@@ -663,8 +592,7 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
                 if (hasMutipleChain) {
                   setShowSwapMenu(true)
                 } else {
-                  // navigate(`${APP_PATHS.SWAP}/${token.tokens[0].chain}`)
-                  window.open(window.location.origin + `${APP_PATHS.SWAP}/${token.tokens[0].chain}`, '_blank')
+                  navigateToSwapPage(token.tokens[0])
                 }
               }}
             >
@@ -703,7 +631,12 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
                 show={showSwapMenu}
                 menuLeft={menuLeft}
                 tokens={token?.tokens}
-                onChainClick={chain => navigate(`${APP_PATHS.SWAP}/${chain}`)}
+                onChainClick={chain => {
+                  const t = token.tokens.find(t => t.chain === chain)
+                  if (t) {
+                    navigateToSwapPage(t)
+                  }
+                }}
               />
             </>
           )}
