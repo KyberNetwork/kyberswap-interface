@@ -538,7 +538,7 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
         <Column style={{ alignItems: 'center', width: '110px' }}>
           <SmallKyberScoreMeter data={latestKyberScore} tokenName={token.symbol} />
           <Text color={calculateValueToColor(token.kyber_score, theme)} fontSize="14px" fontWeight={500}>
-            {latestKyberScore.tag || 'Not Available'}
+            {latestKyberScore?.tag || 'Not Available'}
           </Text>
         </Column>
       </td>
