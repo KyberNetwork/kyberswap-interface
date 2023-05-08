@@ -117,7 +117,7 @@ const PartWithMotion = ({ children, className }: { children: ReactNode; classNam
     <PartWrapper
       initial="init"
       whileInView="inView"
-      viewport={{ once: true, amount: 0.6 }}
+      viewport={{ once: true, amount: 0.5 }}
       className={className}
       transition={transition}
       variants={appearVariants}
@@ -293,7 +293,6 @@ export default function KyberAILandingPage() {
   const above1200 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  console.log('🚀 ~ file: LandingPage.tsx:278 ~ KyberAILandingPage ~ above768:', above768)
   return (
     <Wrapper>
       <Part1>
@@ -302,7 +301,7 @@ export default function KyberAILandingPage() {
             <Column
               style={{
                 position: 'relative',
-                height: '120vw',
+                height: '110vw',
                 marginTop: '36px',
               }}
             >
@@ -558,7 +557,7 @@ export default function KyberAILandingPage() {
           </Column>
           {above768 && (
             <Column style={{ position: 'relative', height: '100%', flexGrow: 6 }}>
-              <FloatingImage src={image1} alt="kyberAI image" left={-10} top={-20} />
+              <FloatingImage src={image1} alt="kyberAI image" left={20} top={40} width="100%" />
             </Column>
           )}
         </FixedWidth>
@@ -589,7 +588,11 @@ export default function KyberAILandingPage() {
             </Trans>
           </Text>
           <Text fontSize="16px" lineHeight={above768 ? '28px' : '24px'} color={theme.subText}>
-            <Trans>An intelligent platform that provides valuable insights on 4000+ Tokens across 7 Chains</Trans>
+            <Trans>
+              An intelligent platform that provides valuable insights on{' '}
+              <span style={{ color: theme.text }}>4000+ Tokens</span> across{' '}
+              <span style={{ color: theme.text }}>7 Chains</span>
+            </Trans>
           </Text>
           <Row justify="center" gap="16px">
             <GlobalIcon id="eth-mono" size={above768 ? 36 : 28} />
@@ -663,9 +666,10 @@ export default function KyberAILandingPage() {
         <FixedWidth>
           <Column style={{ position: 'relative' }}>
             <img
+              width="100%"
               src={tokenListImage}
               alt="token list"
-              style={{ position: above768 ? 'absolute' : 'initial', right: '-100px', top: '-90px' }}
+              style={{ position: above768 ? 'absolute' : 'initial', right: '10%', top: '0', bottom: '0' }}
             />
           </Column>
           <Column>
@@ -745,7 +749,7 @@ export default function KyberAILandingPage() {
           </Column>
           {above768 && (
             <Column style={{ position: 'relative' }}>
-              <FloatingImage src={coreEditImage} alt="core edit" left={0} top={-50} />
+              <FloatingImage src={coreEditImage} alt="core edit" left={10} top={-40} width="120%" />
             </Column>
           )}
         </FixedWidth>
@@ -753,7 +757,7 @@ export default function KyberAILandingPage() {
       <Part8>
         <FixedWidth>
           <CallToActionBox>
-            <Row flexDirection={above768 ? 'row' : 'column'}>
+            <Row flexDirection={above768 ? 'row' : 'column'} justifyContent={above768 ? 'flex-start' : 'center'}>
               <Text fontSize="36px" lineHeight="48px" style={{ flex: 2 }}>
                 <Trans>
                   Ready to experience{' '}

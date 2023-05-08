@@ -337,6 +337,11 @@ const LoadingHandleWrapper = ({
   )
 }
 
+const roundNumberUp = (number: number) => {
+  const digit = Math.floor(Math.log10(number))
+  return Math.ceil(number / Math.pow(10, digit)) * Math.pow(10, digit)
+}
+
 export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?: boolean; noAnimation?: boolean }) => {
   const theme = useTheme()
   const { chain, address } = useParams()
@@ -369,6 +374,22 @@ export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?
     address: address || testParams.address,
     params: { from, to },
   })
+
+  const dataRange = useMemo(() => {
+    if (!data) return undefined
+    let maxValue = 0
+
+    data.forEach(item => {
+      if (item.buy > maxValue) {
+        maxValue = item.buy
+      }
+      if (item.sell > maxValue) {
+        maxValue = item.sell
+      }
+    })
+
+    return [-roundNumberUp(maxValue), roundNumberUp(maxValue)]
+  }, [data])
 
   const formattedData = useMemo(() => {
     if (!data) return []
@@ -515,6 +536,7 @@ export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?
               tick={{ fill: theme.subText, fontWeight: 400 }}
               width={20}
               tickFormatter={value => `${formatShortNum(value)}`}
+              domain={dataRange}
             />
             <YAxis
               yAxisId="right"
@@ -651,6 +673,22 @@ export const TradingVolumeChart = () => {
     address: address || testParams.address,
     params: { from, to },
   })
+
+  const dataRange = useMemo(() => {
+    if (!data) return undefined
+    let maxValue = 0
+
+    data.forEach(item => {
+      if (item.buyVolume > maxValue) {
+        maxValue = item.buyVolume
+      }
+      if (item.sellVolume > maxValue) {
+        maxValue = item.sellVolume
+      }
+    })
+
+    return [-roundNumberUp(maxValue), roundNumberUp(maxValue)]
+  }, [data])
 
   const formattedData = useMemo(() => {
     if (!data) return []
@@ -799,6 +837,7 @@ export const TradingVolumeChart = () => {
               tick={{ fill: theme.subText, fontWeight: 400 }}
               width={40}
               tickFormatter={value => (value > 0 ? `$${formatShortNum(value)}` : `-$${formatShortNum(-value)}`)}
+              domain={dataRange}
             />
             <YAxis
               yAxisId="right"
@@ -931,6 +970,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
     from,
     to,
   })
+
   const { account } = useActiveWeb3React()
   const [showInflow, setShowInflow] = useState(true)
   const [showOutflow, setShowOutflow] = useState(true)
@@ -1153,16 +1193,6 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                   width={40}
                   tickFormatter={value => `$${formatShortNum(value)}`}
                 />
-                <YAxis
-                  yAxisId="right"
-                  fontSize={textFontSize}
-                  tickLine={false}
-                  axisLine={false}
-                  tick={{ fill: theme.subText, fontWeight: 400 }}
-                  width={40}
-                  orientation="right"
-                  tickFormatter={value => `$${formatShortNum(value)}`}
-                />
                 <Tooltip
                   cursor={{ fill: 'transparent' }}
                   wrapperStyle={{ outline: 'none' }}
@@ -1244,11 +1274,10 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                 />
                 {showNetflow && (
                   <Line
-                    yAxisId="right"
                     type="linear"
                     dataKey="netflow"
                     stroke="url(#gradient1)"
-                    strokeWidth={3}
+                    strokeWidth={2}
                     dot={false}
                     {...{
                       label: <CustomizedLabel timeframe={timeframe} dollarSign />,
@@ -1501,16 +1530,7 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
               width={40}
               tickFormatter={value => (value > 0 ? `$${formatShortNum(value)}` : `-$${formatShortNum(-value)}`)}
             />
-            <YAxis
-              yAxisId="right"
-              fontSize={textFontSize}
-              tickLine={false}
-              axisLine={false}
-              orientation="right"
-              tick={{ fill: theme.subText, fontWeight: 400 }}
-              width={40}
-              tickFormatter={value => `$${formatShortNum(value)}`}
-            />
+
             <Tooltip
               cursor={{ fill: 'transparent' }}
               wrapperStyle={{ outline: 'none' }}
@@ -1593,10 +1613,9 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
             {showNetflow && (
               <Line
                 type="linear"
-                yAxisId="right"
                 dataKey="totalNetflow"
                 stroke="url(#gradient2)"
-                strokeWidth={3}
+                strokeWidth={2}
                 dot={false}
                 {...{
                   label: <CustomizedLabel timeframe={timeframe} dollarSign />,
@@ -2036,7 +2055,7 @@ export const HoldersChartWrapper = () => {
   return (
     <ChartWrapper>
       <ResponsiveContainer width="100%" height="100%">
-        <PieChart width={100} height={100} margin={{ top: 0, right: 90, bottom: 20, left: 90 }}>
+        <PieChart width={100} height={100} margin={{ top: 10, right: 90, bottom: 20, left: 90 }}>
           <Customized component={KyberLogo} />
           <Tooltip
             cursor={{ fill: 'transparent' }}

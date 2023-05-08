@@ -3,7 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
-import { useContext, useMemo, useRef, useState } from 'react'
+import { useCallback, useContext, useMemo, useRef, useState } from 'react'
 import { Star } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -471,11 +471,14 @@ const WidgetTokenRow = ({ token }: { token: ITokenList }) => {
     }
   }
 
-  const navigateToSwapPage = (t: { address: string; logo: string; chain: string }) => {
-    const wethSymbol = WETH[NETWORK_TO_CHAINID[t.chain]].symbol
+  const navigateToSwapPage = useCallback((t: { address: string; logo: string; chain: string }) => {
+    const wethAddress = WETH[NETWORK_TO_CHAINID[t.chain]].address
     const chain = t.chain === 'bsc' ? 'bnb' : t.chain
-    window.open(window.location.origin + `${APP_PATHS.SWAP}/${chain}/${wethSymbol}-to-${token.symbol}`, '_blank')
-  }
+    window.open(
+      window.location.origin + `${APP_PATHS.SWAP}/${chain}?inputCurrency=${t.address}&outputCurrency=${wethAddress}`,
+      '_blank',
+    )
+  }, [])
 
   const handleSwapClick = (e: any) => {
     e.stopPropagation()
