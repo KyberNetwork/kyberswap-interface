@@ -20,6 +20,7 @@ import { getEtherscanLink, shortenAddress } from 'utils'
 import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from '../constants'
 import { ITokenOverview } from '../types'
 import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice } from '../utils'
+import ChevronIcon from './ChevronIcon'
 import KyberScoreMeter from './KyberScoreMeter'
 import PriceRange from './PriceRange'
 import SimpleTooltip from './SimpleTooltip'
@@ -166,7 +167,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                 </Text>
                 <RowFit gap="8px">
                   <Text fontSize={28} lineHeight="32px" color={theme.text}>
-                    {isLoading ? <DotsLoader /> : '$' + (+(data?.price || 0)).toLocaleString()}
+                    {isLoading ? <DotsLoader /> : '$' + formatTokenPrice(data?.price || 0)}
                   </Text>
                   <Text
                     color={theme.red}
@@ -176,12 +177,22 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                     padding="4px 8px"
                     style={{ borderRadius: '16px' }}
                   >
-                    {data?.price24hChangePercent ? data?.price24hChangePercent.toFixed(2) : 0}%
+                    <RowFit gap="2px">
+                      <ChevronIcon
+                        rotate={data && data.price24hChangePercent > 0 ? '180deg' : '0deg'}
+                        color={data && data.price24hChangePercent > 0 ? theme.primary : theme.red}
+                      />
+                      {data?.price24hChangePercent ? Math.abs(data.price24hChangePercent).toFixed(2) : 0}%
+                    </RowFit>
                   </Text>
                 </RowFit>
-                <Text color={theme.red} fontSize={12} lineHeight="16px">
-                  {data && formatTokenPrice(data?.price24hChangePercent * +data?.price || 0)}
-                </Text>
+                <Row color={theme.red} fontSize={12} lineHeight="16px">
+                  <ChevronIcon
+                    rotate={data && data.price24hChangePercent > 0 ? '180deg' : '0deg'}
+                    color={data && data.price24hChangePercent > 0 ? theme.primary : theme.red}
+                  />
+                  {data && '$' + formatTokenPrice(Math.abs(data.price24hChangePercent * data.price) / 100)}
+                </Row>
               </Column>
               <Column justifyContent="center">
                 <PriceRange
@@ -279,9 +290,12 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                   text={
                     <>
                       <Column color={theme.subText} style={{ fontSize: '12px', lineHeight: '16px' }}>
-                        <Text>24/04/2023 08:00 AM</Text>
+                        {/* <Text>24/04/2023 08:00 AM</Text> */}
                         <Text>
-                          KyberScore: <span style={{ color: theme.primary }}>86 (Very Bullish)</span>
+                          KyberScore:{' '}
+                          <span style={{ color: calculateValueToColor(data?.kyberScore?.score || 0, theme) }}>
+                            {data?.kyberScore?.score || '--'} ({data?.kyberScore?.label || t`Not Available`})
+                          </span>
                         </Text>
                         <Text>
                           Token Price: <span style={{ color: theme.text }}>$0.000000423</span>

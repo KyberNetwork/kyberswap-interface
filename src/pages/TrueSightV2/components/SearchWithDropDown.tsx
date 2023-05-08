@@ -1,9 +1,9 @@
 import { Trans, t } from '@lingui/macro'
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { X } from 'react-feather'
-import Skeleton from 'react-loading-skeleton'
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useNavigate } from 'react-router-dom'
-import { useMedia } from 'react-use'
+import { useLocalStorage, useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css, keyframes } from 'styled-components'
 
@@ -12,7 +12,6 @@ import Column from 'components/Column'
 import History from 'components/Icons/History'
 import Icon from 'components/Icons/Icon'
 import SearchIcon from 'components/Icons/Search'
-import Logo from 'components/Logo'
 import Row, { RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
@@ -21,9 +20,26 @@ import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 
 import { NETWORK_IMAGE_URL } from '../constants'
-import { useSearchTokenQuery } from '../hooks/useKyberAIData'
-import { ITokenSearchResult } from '../types'
-import { formatLocaleStringNum } from '../utils'
+import { useSearchTokenQuery, useTokenListQuery } from '../hooks/useKyberAIData'
+import { ITokenList, ITokenSearchResult, KyberAIListType } from '../types'
+import { formatTokenPrice } from '../utils'
+
+const formatTokenType = (token: ITokenList): ITokenSearchResult => {
+  const token0 = token.tokens[0]
+  return {
+    address: token0.address,
+    name: token.name,
+    symbol: token.symbol,
+    logo: token0.logo,
+    chain: token0.chain,
+    price: token.price,
+    priceChange24h: token.change_24h,
+    kyberScore: {
+      score: token.ks_3d[token.ks_3d.length - 1].kyber_score,
+      label: token.ks_3d[token.ks_3d.length - 1].tag,
+    },
+  }
+}
 
 const Wrapper = styled.div<{ wider?: boolean; expanded?: boolean }>`
   display: flex;
@@ -182,36 +198,56 @@ const AnimationOnFocus = styled.div`
   animation: ${ripple} 0.6s linear;
 `
 
-const SkeletonItem = () => {
+const SkeletonRows = ({ count }: { count?: number }) => {
   const theme = useTheme()
   return (
-    <div style={{ height: '120px' }}>
-      <Skeleton
-        baseColor={theme.border}
-        height="24px"
-        borderRadius="12px"
-        direction="ltr"
-        duration={1}
-        count={4}
-        highlightColor={theme.tabActive}
-        style={{ lineHeight: 36, marginBottom: '8px' }}
-      />
-    </div>
+    <SkeletonTheme
+      baseColor={theme.border}
+      height="28px"
+      borderRadius="12px"
+      direction="ltr"
+      duration={1}
+      highlightColor={theme.tabActive}
+    >
+      {[
+        ...Array(count || 5)
+          .fill(0)
+          .map((_, index) => (
+            <tr key={index}>
+              <td>
+                <Skeleton></Skeleton>
+              </td>
+              <td>
+                <Skeleton></Skeleton>
+              </td>
+              <td>
+                <Skeleton></Skeleton>
+              </td>
+              <td>
+                <Skeleton></Skeleton>
+              </td>
+            </tr>
+          )),
+      ]}
+    </SkeletonTheme>
   )
 }
-const TokenItem = ({ token }: { token: ITokenSearchResult }) => {
+const TokenItem = ({ token, onClick }: { token: ITokenSearchResult; onClick?: () => void }) => {
   const theme = useTheme()
   const navigate = useNavigate()
+
   return (
-    <DropdownItem onClick={() => navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.chain}/${token.address}`)}>
+    <DropdownItem
+      onClick={() => {
+        navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.chain}/${token.address}`)
+        onClick?.()
+      }}
+    >
       <td>
         <RowFit gap="10px">
           <div style={{ position: 'relative' }}>
             <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
-              <Logo
-                srcs={[token.logo]}
-                style={{ width: '22px', height: '22px', background: 'white', display: 'block' }}
-              />
+              <img src={token.logo} alt={token.symbol} width="22px" height="22px" />
             </div>
             <div
               style={{
@@ -249,12 +285,12 @@ const TokenItem = ({ token }: { token: ITokenSearchResult }) => {
       </td>
       <td style={{ textAlign: 'left' }}>
         <Text fontSize="12px" color={theme.text}>
-          ${formatLocaleStringNum(token.price)}
+          ${formatTokenPrice(token.price)}
         </Text>
       </td>
       <td style={{ textAlign: 'right' }}>
         <Text fontSize="12px" color={token.priceChange24h && token.priceChange24h < 0 ? theme.red : theme.primary}>
-          {token.priceChange24h ? `${(token.priceChange24h / token.price).toFixed(2)}%` : `--%`}
+          {token.priceChange24h ? `${token.priceChange24h.toFixed(2)}%` : `--%`}
         </Text>
       </td>
     </DropdownItem>
@@ -304,6 +340,28 @@ const MobileWrapper = ({
   )
 }
 
+const SearchResultTableWrapper = ({ header, children }: { header?: ReactNode; children?: ReactNode }) => {
+  return (
+    <DropdownSection>
+      <colgroup>
+        <col style={{ width: '200px', minWidth: 'fit-content' }} />
+        <col style={{ width: '100px', minWidth: 'auto' }} />
+        <col style={{ width: '100px' }} />
+        <col style={{ width: '60px' }} />
+      </colgroup>
+      <thead>
+        <tr>
+          <th>{header}</th>
+          <th style={{ textAlign: 'left' }}>KyberScore</th>
+          <th style={{ textAlign: 'left' }}>Price</th>
+          <th style={{ textAlign: 'right' }}>24H</th>
+        </tr>
+      </thead>
+      <tbody>{children}</tbody>
+    </DropdownSection>
+  )
+}
+
 const SearchWithDropdown = () => {
   const theme = useTheme()
   const [expanded, setExpanded] = useState(false)
@@ -319,11 +377,28 @@ const SearchWithDropdown = () => {
     { q: debouncedSearch, size: 10 },
     { skip: debouncedSearch === '' },
   )
+  const [history, setHistory] = useLocalStorage<Array<ITokenSearchResult>>('kyberai-search-history')
+  const saveToHistory = (token: ITokenSearchResult) => {
+    if (!(history && history.findIndex(t => t.address === token.address && t.chain === token.chain) >= 0)) {
+      setHistory([token, ...(history || [])].slice(0, 3))
+    }
+  }
+
+  const { data: top5bullish, isLoading: isBullishLoading } = useTokenListQuery({
+    type: KyberAIListType.BULLISH,
+    page: 1,
+    pageSize: 5,
+  })
+
+  const { data: top5bearish, isLoading: isBearishLoading } = useTokenListQuery({
+    type: KyberAIListType.BEARISH,
+    page: 1,
+    pageSize: 5,
+  })
 
   const haveSearchResult = debouncedSearch !== '' && searchResult && searchResult.length > 0 && !isFetching
   const noSearchResult = debouncedSearch !== '' && searchResult && searchResult.length === 0 && !isFetching
   const isLoading = isFetching && search === debouncedSearch
-  // const loading = isFetching
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
 
   useOnClickOutside(wrapperRef, () => setExpanded(false))
@@ -331,9 +406,7 @@ const SearchWithDropdown = () => {
     if (!inputRef.current) return
     const inputEl = inputRef.current
     const onFocus = () => {
-      setTimeout(() => {
-        setExpanded(true)
-      }, 200)
+      setExpanded(true)
     }
     inputEl.addEventListener('focusin', onFocus)
     return () => {
@@ -346,62 +419,6 @@ const SearchWithDropdown = () => {
     e.stopPropagation()
   }, [])
 
-  const SampleItem = ({ score, percent }: { score?: number; percent?: number }) => (
-    <DropdownItem onClick={() => setSearch('ETH')}>
-      <td>
-        <RowFit gap="8px">
-          <div style={{ position: 'relative' }}>
-            <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
-              <Logo
-                srcs={['https://cryptologos.cc/logos/wrapped-bitcoin-wbtc-logo.svg?v=024']}
-                style={{ width: '22px', height: '22px', background: 'white', display: 'block' }}
-              />
-            </div>
-            <div
-              style={{
-                position: 'absolute',
-                top: '-4px',
-                right: '-6px',
-                borderRadius: '50%',
-                border: `1px solid ${theme.background}`,
-              }}
-            >
-              <img
-                src="https://icons.iconarchive.com/icons/cjdowner/cryptocurrency-flat/512/Ethereum-ETH-icon.png"
-                alt="eth"
-                width="12px"
-                height="12px"
-                style={{ display: 'block' }}
-              />
-            </div>
-          </div>
-          <Text fontSize="12px" color={theme.text}>
-            BTC(Bitcoin)
-          </Text>
-        </RowFit>
-      </td>
-      <td style={{ textAlign: 'left' }}>
-        <Text fontSize="12px" color={score && score < 50 ? theme.red : theme.primary}>
-          {score || 80}
-          <Text as="span" fontSize="10px" color={theme.subText}>
-            /100
-          </Text>
-        </Text>
-      </td>
-      <td style={{ textAlign: 'left' }}>
-        <Text fontSize="12px" color={theme.text}>
-          $0.000000004234
-        </Text>
-      </td>
-      <td style={{ textAlign: 'right' }}>
-        <Text fontSize="12px" color={percent && percent < 0 ? theme.red : theme.primary}>
-          {percent ? `${percent}%` : `+20%`}
-        </Text>
-      </td>
-    </DropdownItem>
-  )
-
-  console.log(contentRef.current)
   useEffect(() => {
     if (!dropdownRef.current) return
     const resizeObserver = new MutationObserver(() => {
@@ -420,33 +437,24 @@ const SearchWithDropdown = () => {
     <div ref={contentRef} style={{ height: 'fit-content' }}>
       {isLoading ? (
         <>
-          <DropdownSection>
-            <SkeletonItem />
-          </DropdownSection>
+          <SearchResultTableWrapper>
+            <SkeletonRows />
+          </SearchResultTableWrapper>
         </>
       ) : haveSearchResult ? (
         <>
-          <DropdownSection>
-            <colgroup>
-              <col style={{ width: '200px', minWidth: 'fit-content' }} />
-              <col style={{ width: '100px', minWidth: 'auto' }} />
-              <col style={{ width: '100px' }} />
-              <col style={{ width: '60px' }} />
-            </colgroup>
-            <thead>
-              <tr>
-                <th></th>
-                <th style={{ textAlign: 'left' }}>KyberScore</th>
-                <th style={{ textAlign: 'left' }}>Price</th>
-                <th style={{ textAlign: 'right' }}>24H</th>
-              </tr>
-            </thead>
-            <tbody>
-              {searchResult.map(item => (
-                <TokenItem key={item.address} token={item} />
-              ))}
-            </tbody>
-          </DropdownSection>
+          <SearchResultTableWrapper>
+            {searchResult.map(item => (
+              <TokenItem
+                key={item.address}
+                token={item}
+                onClick={() => {
+                  setExpanded(false)
+                  saveToHistory(item)
+                }}
+              />
+            ))}
+          </SearchResultTableWrapper>
         </>
       ) : noSearchResult ? (
         <>
@@ -461,84 +469,66 @@ const SearchWithDropdown = () => {
         </>
       ) : (
         <>
-          <DropdownSection>
-            <colgroup>
-              <col style={{ width: '160px' }} />
-              <col style={{ width: '100px', minWidth: 'auto' }} />
-              <col style={{ width: '140px' }} />
-              <col style={{ width: '60px' }} />
-            </colgroup>
-            <thead>
-              <tr>
-                <th>
-                  <RowFit color={theme.subText} gap="4px">
-                    <History />
-                    <Text fontSize="12px">Search History</Text>
-                  </RowFit>
-                </th>
-                <th style={{ textAlign: 'left' }}>KyberScore</th>
-                <th style={{ textAlign: 'left' }}>Price</th>
-                <th style={{ textAlign: 'right' }}>24H</th>
-              </tr>
-            </thead>
-            <tbody>
-              <SampleItem />
-              <SampleItem />
-              <SampleItem />
-            </tbody>
-          </DropdownSection>
-          <DropdownSection>
-            <colgroup>
-              <col style={{ width: '160px' }} />
-              <col style={{ width: '100px', minWidth: 'auto' }} />
-              <col style={{ width: '140px' }} />
-              <col style={{ width: '60px' }} />
-            </colgroup>
-            <thead>
-              <tr>
-                <th>
-                  <RowFit color={theme.subText} gap="4px">
-                    <Icon id="bullish" size={16} />
-                    <Text fontSize="12px">Bullish Tokens</Text>
-                  </RowFit>
-                </th>
-                <th style={{ textAlign: 'left' }}>KyberScore</th>
-                <th style={{ textAlign: 'left' }}>Price</th>
-                <th style={{ textAlign: 'right' }}>24H</th>
-              </tr>
-            </thead>
-            <tbody>
-              <SampleItem />
-              <SampleItem />
-              <SampleItem />
-            </tbody>
-          </DropdownSection>
-          <DropdownSection>
-            <colgroup>
-              <col style={{ width: '160px' }} />
-              <col style={{ width: '100px', minWidth: 'auto' }} />
-              <col style={{ width: '140px' }} />
-              <col style={{ width: '60px' }} />
-            </colgroup>
-            <thead>
-              <tr>
-                <th>
-                  <RowFit color={theme.subText} gap="4px">
-                    <Icon id="bearish" size={16} />
-                    <Text fontSize="12px">Bearish Tokens</Text>
-                  </RowFit>
-                </th>
-                <th style={{ textAlign: 'left' }}>KyberScore</th>
-                <th style={{ textAlign: 'left' }}>Price</th>
-                <th style={{ textAlign: 'right' }}>24H</th>
-              </tr>
-            </thead>
-            <tbody>
-              <SampleItem score={-20} percent={-20} />
-              <SampleItem score={-20} percent={-20} />
-              <SampleItem score={-20} percent={-20} />
-            </tbody>
-          </DropdownSection>
+          {history && (
+            <SearchResultTableWrapper
+              header={
+                <RowFit color={theme.subText} gap="4px">
+                  <History />
+                  <Text fontSize="12px">Search History</Text>
+                </RowFit>
+              }
+            >
+              {history.slice(0, 3).map((item, index) => (
+                <TokenItem key={index} token={item} onClick={() => setExpanded(false)} />
+              ))}
+            </SearchResultTableWrapper>
+          )}
+          <SearchResultTableWrapper
+            header={
+              <RowFit color={theme.subText} gap="4px">
+                <Icon id="bullish" size={16} />
+                <Text fontSize="12px">Bullish Tokens</Text>
+              </RowFit>
+            }
+          >
+            {isBullishLoading ? (
+              <SkeletonRows count={3} />
+            ) : (
+              top5bullish?.data?.slice(0, 3).map((item, index) => (
+                <TokenItem
+                  key={index}
+                  token={formatTokenType(item)}
+                  onClick={() => {
+                    setExpanded(false)
+                    saveToHistory(formatTokenType(item))
+                  }}
+                />
+              ))
+            )}
+          </SearchResultTableWrapper>
+          <SearchResultTableWrapper
+            header={
+              <RowFit color={theme.subText} gap="4px">
+                <Icon id="bearish" size={16} />
+                <Text fontSize="12px">Bearish Tokens</Text>
+              </RowFit>
+            }
+          >
+            {isBearishLoading ? (
+              <SkeletonRows count={3} />
+            ) : (
+              top5bearish?.data?.slice(0, 3).map((item, index) => (
+                <TokenItem
+                  key={index}
+                  token={formatTokenType(item)}
+                  onClick={() => {
+                    setExpanded(false)
+                    saveToHistory(formatTokenType(item))
+                  }}
+                />
+              ))
+            )}
+          </SearchResultTableWrapper>
         </>
       )}
     </div>
@@ -597,15 +587,7 @@ const SearchWithDropdown = () => {
             <Trans>Ape Smart!</Trans>
           </RowFit>
         </RowFit>
-        <DropdownWrapper
-          expanded={expanded}
-          ref={dropdownRef}
-          height={height}
-          onClick={e => {
-            e.stopPropagation()
-            setExpanded(false)
-          }}
-        >
+        <DropdownWrapper expanded={expanded} ref={dropdownRef} height={height}>
           <DropdownContent />
           {expanded && <AnimationOnFocus />}
         </DropdownWrapper>

@@ -10,7 +10,6 @@ import styled, { css } from 'styled-components'
 import { ButtonGray, ButtonPrimary } from 'components/Button'
 import Icon from 'components/Icons/Icon'
 import { DotsLoader } from 'components/Loader/DotsLoader'
-import Logo from 'components/Logo'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import ShareModal from 'components/ShareModal'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -27,6 +26,7 @@ import { TokenOverview } from '../components/TokenOverview'
 import { NETWORK_IMAGE_URL } from '../constants'
 import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation, useTokenDetailQuery } from '../hooks/useKyberAIData'
 import { DiscoverTokenTab } from '../types'
+import { navigateToSwapPage } from '../utils'
 import OnChainAnalysis from './OnChainAnalysis'
 import TechnicalAnalysis from './TechnicalAnalysis'
 
@@ -244,7 +244,7 @@ export default function SingleToken() {
   const { chain, address } = useParams()
   const [currentTab, setCurrentTab] = useState<DiscoverTokenTab>(DiscoverTokenTab.OnChainAnalysis)
   const { account } = useActiveWeb3React()
-  const { data, isLoading } = useTokenDetailQuery({
+  const { data: token, isLoading } = useTokenDetailQuery({
     chain: chain || testParams.chain,
     address: address || testParams.address,
     account,
@@ -263,16 +263,16 @@ export default function SingleToken() {
   const [stared, setStared] = useState(false)
   const [viewAll, setViewAll] = useState(false)
   const handleStarClick = () => {
-    if (!data) return
+    if (!token) return
     if (stared) {
       removeFromWatchlist({
         wallet: account,
-        tokenAddress: data?.address || testParams.address,
+        tokenAddress: token?.address || testParams.address,
         chain: chain || testParams.chain,
       })
       setStared(false)
     } else {
-      addToWatchlist({ wallet: account, tokenAddress: data?.address, chain })
+      addToWatchlist({ wallet: account, tokenAddress: token?.address, chain })
       setStared(true)
     }
   }
@@ -284,21 +284,21 @@ export default function SingleToken() {
         </ButtonIcon>
         <HeaderButton
           style={{
-            color: data?.isWatched ? theme.primary : theme.subText,
-            backgroundColor: data?.isWatched ? theme.primary + '33' : undefined,
+            color: token?.isWatched ? theme.primary : theme.subText,
+            backgroundColor: token?.isWatched ? theme.primary + '33' : undefined,
           }}
           onClick={handleStarClick}
         >
           <Star
             size={16}
-            stroke={data?.isWatched ? theme.primary : theme.subText}
-            fill={data?.isWatched ? theme.primary : 'none'}
+            stroke={token?.isWatched ? theme.primary : theme.subText}
+            fill={token?.isWatched ? theme.primary : 'none'}
           />
         </HeaderButton>
         <div style={{ position: 'relative' }}>
           <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
-            <Logo
-              srcs={[data?.logo || '']}
+            <img
+              src={token?.logo}
               style={{
                 width: above768 ? '36px' : '28px',
                 height: above768 ? '36px' : '28px',
@@ -331,7 +331,7 @@ export default function SingleToken() {
         ) : (
           <>
             <Text fontSize={above768 ? 24 : 16} color={theme.text} fontWeight={500}>
-              {data?.name} ({data?.symbol.toUpperCase()})
+              {token?.name} ({token?.symbol.toUpperCase()})
             </Text>
           </>
         )}
@@ -402,10 +402,15 @@ export default function SingleToken() {
         </RowFit>
         <RowFit gap="12px">
           <SettingButtons />
-          <ButtonPrimary height={'36px'} width="fit-content" gap="4px">
+          <ButtonPrimary
+            height={'36px'}
+            width="fit-content"
+            gap="4px"
+            onClick={() => navigateToSwapPage({ address: token?.address, chain, logo: token?.logo })}
+          >
             <RowFit gap="4px" style={{ whiteSpace: 'nowrap' }}>
               <Icon id="swap" size={16} />
-              Swap {data?.symbol?.toUpperCase()}
+              Swap {token?.symbol?.toUpperCase()}
             </RowFit>
           </ButtonPrimary>
         </RowFit>
@@ -426,7 +431,7 @@ export default function SingleToken() {
           <ButtonPrimary height="28px" width="fit-content" gap="4px" style={{ whiteSpace: 'nowrap', fontSize: '12px' }}>
             <RowFit gap="4px">
               <Icon id="swap" size={14} />
-              Swap {data?.symbol}
+              Swap {token?.symbol}
             </RowFit>
           </ButtonPrimary>
         </RowBetween>
@@ -438,20 +443,20 @@ export default function SingleToken() {
     <Wrapper>
       <RenderHeader />
       <Text fontSize={12} color={theme.subText} marginBottom="12px">
-        {isLoading ? <DotsLoader /> : <TokenDescription description={data?.description || ''} />}
+        {isLoading ? <DotsLoader /> : <TokenDescription description={token?.description || ''} />}
       </Text>
 
       <TagWrapper>
-        {data?.tags?.slice(0, viewAll ? data.tags.length : 5).map(tag => {
+        {token?.tags?.slice(0, viewAll ? token.tags.length : 5).map(tag => {
           return <Tag key="tag">{tag}</Tag>
         })}
-        {!viewAll && data?.tags && data.tags.length > 5 && (
+        {!viewAll && token?.tags && token.tags.length > 5 && (
           <Tag active onClick={() => setViewAll(true)}>
             View All
           </Tag>
         )}
       </TagWrapper>
-      <TokenOverview data={data} isLoading={isLoading} />
+      <TokenOverview data={token} isLoading={isLoading} />
 
       <Row alignItems="center">
         <Row gap={above768 ? '24px' : '12px'} justify="center">
@@ -481,7 +486,7 @@ export default function SingleToken() {
       {currentTab === DiscoverTokenTab.TechnicalAnalysis && <TechnicalAnalysis />}
       {/* {currentTab === DiscoverTokenTab.News && <News />} */}
       <ShareModal title="Share with your friends" url={shareUrl.current} />
-      <ShareKyberAIModal token={data} />
+      <ShareKyberAIModal token={token} />
     </Wrapper>
   )
 }

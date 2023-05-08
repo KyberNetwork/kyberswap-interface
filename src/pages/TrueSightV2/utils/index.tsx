@@ -1,6 +1,11 @@
+import { WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { commify } from 'ethers/lib/utils'
 import { DefaultTheme } from 'styled-components'
+
+import { APP_PATHS } from 'constants/index'
+
+import { NETWORK_TO_CHAINID } from '../constants'
 
 export const calculateValueToColor = (value: number, theme: DefaultTheme) => {
   if (value === 0) return theme.darkMode ? theme.subText : theme.border
@@ -52,12 +57,14 @@ export const formatLocaleStringNum = (num: number, fixed?: number): string => {
 }
 
 export const formatTokenPrice = (num: number, fixed?: number): string => {
+  if (num === 0) return '--'
   if (num > 1000) {
     return commify(num.toFixed(2))
   } else if (num > 1) {
     return num.toFixed(fixed || 6)
   } else {
-    return num.toPrecision(fixed || 6)
+    const log10 = Math.ceil(Math.log10(num))
+    return num.toFixed(-log10 + (fixed || 4))
   }
 }
 
@@ -71,4 +78,15 @@ export const getErrorMessage = (error: any) => {
   }
   const code = error?.data?.code
   return mapErr[code] || t`Error occur, please try again`
+}
+
+export const navigateToSwapPage = ({ address, logo, chain }: { address?: string; logo?: string; chain?: string }) => {
+  if (!address || !logo || !chain) return
+  const wethAddress = WETH[NETWORK_TO_CHAINID[chain]].address
+  const formattedChain = chain === 'bsc' ? 'bnb' : chain
+  window.open(
+    window.location.origin +
+      `${APP_PATHS.SWAP}/${formattedChain}?inputCurrency=${address}&outputCurrency=${wethAddress}`,
+    '_blank',
+  )
 }

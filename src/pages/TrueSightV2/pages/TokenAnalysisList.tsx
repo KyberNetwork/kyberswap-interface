@@ -1,7 +1,7 @@
-import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import { ReactNode, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Share2, Star } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
@@ -35,10 +35,10 @@ import SmallKyberScoreMeter from '../components/SmallKyberScoreMeter'
 import TokenChart from '../components/TokenChartSVG'
 import TutorialModal from '../components/TutorialModal'
 import KyberScoreChart from '../components/chart/KyberScoreChart'
-import { NETWORK_TO_CHAINID, SUPPORTED_NETWORK_KYBERAI } from '../constants'
+import { SUPPORTED_NETWORK_KYBERAI } from '../constants'
 import { useTokenListQuery } from '../hooks/useKyberAIData'
 import { IKyberScoreChart, ITokenList, KyberAIListType } from '../types'
-import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice } from '../utils'
+import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice, navigateToSwapPage } from '../utils'
 
 const TableWrapper = styled.div`
   border-radius: 20px 20px 0 0;
@@ -458,15 +458,6 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
   useOnClickOutside(rowRef, () => setShowSwapMenu(false))
 
   const hasMutipleChain = token.tokens.length > 1
-
-  const navigateToSwapPage = useCallback((t: { address: string; logo: string; chain: string }) => {
-    const wethAddress = WETH[NETWORK_TO_CHAINID[t.chain]].address
-    const chain = t.chain === 'bsc' ? 'bnb' : t.chain
-    window.open(
-      window.location.origin + `${APP_PATHS.SWAP}/${chain}?inputCurrency=${t.address}&outputCurrency=${wethAddress}`,
-      '_blank',
-    )
-  }, [])
 
   const handleRowClick = (e: any) => {
     if (hasMutipleChain) {
