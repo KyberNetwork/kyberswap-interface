@@ -91,6 +91,7 @@ export default function EmailForm({
           </Label>
           <Tooltip text={errorInput.email} show={!!errorInput.email} placement="top">
             <Input
+              disabled={!!userInfo?.email}
               $borderColor={errorInput.email ? theme.red : theme.border}
               value={inputEmail}
               placeholder="Enter your email address"
