@@ -1,3 +1,9 @@
+export interface IKyberScoreChart {
+  tag: string
+  price: number
+  kyber_score: number
+  created_at: number
+}
 export interface ITokenOverview {
   tags: string[]
   name: string
@@ -6,7 +12,7 @@ export interface ITokenOverview {
   logo: string
   description: string
   webs: string[]
-  communities: { key: string; value: string }[]
+  communities: string[]
   address: string
   price: number
   price24hChangePercent: number
@@ -23,15 +29,9 @@ export interface ITokenOverview {
   kyberScore: {
     score: number
     label: string
+    ks3d: Array<IKyberScoreChart>
   }
   isWatched: boolean
-}
-
-export interface IKyberScoreChart {
-  tag: string
-  price: number
-  kyber_score: number
-  created_at: number
 }
 
 export interface ITokenList {

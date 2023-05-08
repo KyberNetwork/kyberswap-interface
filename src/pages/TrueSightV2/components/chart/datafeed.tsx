@@ -38,6 +38,8 @@ export const useDatafeed = (isBTC: boolean, token?: ITokenOverview) => {
 
   return useMemo(() => {
     const { isLoading } = ref.current
+    const log10 = token ? Math.ceil(Math.log10(token?.price)) : 0
+    const pricescale = log10 < 0 ? Math.pow(10, -log10 + 4) : 10000
     return {
       onReady: (callback: any) => {
         setTimeout(() => callback(configurationData))
@@ -61,7 +63,7 @@ export const useDatafeed = (isBTC: boolean, token?: ITokenOverview) => {
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone as Timezone,
             exchange: '',
             minmov: 1,
-            pricescale: isBTC ? 100000000 : 10000,
+            pricescale: isBTC ? pricescale * 10000 : pricescale,
             has_intraday: true,
             has_empty_bars: true,
             has_daily: true,
@@ -156,5 +158,5 @@ export const useDatafeed = (isBTC: boolean, token?: ITokenOverview) => {
         //
       },
     }
-  }, [getChartingData, isBTC, setResolution, chain, address, token?.symbol])
+  }, [getChartingData, isBTC, setResolution, chain, address, token])
 }

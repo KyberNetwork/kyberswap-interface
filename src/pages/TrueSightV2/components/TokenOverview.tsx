@@ -97,18 +97,41 @@ const ExpandableBox = styled.div<{ expanded?: boolean; height?: number }>`
 //   color: ${({ color }) => color};
 // `
 
+const getCommunityLabelFromURL = (url: string) => {
+  if (url.includes('facebook')) {
+    return 'Facebook'
+  }
+  if (url.includes('twitter')) {
+    return 'Twitter'
+  }
+  if (url.includes('discord')) {
+    return 'Discord'
+  }
+  if (url.includes('t.me')) {
+    return 'Telegram'
+  }
+  if (url.includes('medium')) {
+    return 'Medium'
+  }
+  return url.split('://')[1]
+}
+
 const ExternalLinkWrapper = styled.a`
   text-decoration: none;
   color: ${({ theme }) => theme.text};
-  transition: color 0.2s ease;
+  transition: all 0.2s ease;
+  background-color: ${({ theme }) => theme.background + '80'};
+  padding: 4px 6px;
+  border-radius: 4px;
   :hover {
     color: ${({ theme }) => theme.primary};
+    background-color: ${({ theme }) => theme.tableHeader + '80'};
   }
 `
 const ExternalLink = ({ href, className, children }: { href: string; className?: string; children?: ReactNode }) => {
   return (
     <ExternalLinkWrapper className={className} href={href} target="_blank" rel="noreferrer">
-      {children} ↗
+      {children}
     </ExternalLinkWrapper>
   )
 }
@@ -271,11 +294,11 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                   <Icon id="timer" size={16} />
                 </MouseoverTooltip>
               </RowFit>
-              <Column style={{ width: '100%' }}>
+              <Column style={{ width: '100%' }} gap="2px">
                 <Text fontSize="12px" lineHeight="16px">
                   <Trans>Last 3D KyberScores</Trans>
                 </Text>
-                <KyberScoreChart width="100%" height="36px" />
+                <KyberScoreChart width="100%" height="36px" data={data?.kyberScore?.ks3d} />
               </Column>
             </CardWrapper>
             <CardWrapper style={{ fontSize: '12px' }} gap="10px" className={cardClassname}>
@@ -338,13 +361,22 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                 </Text>
                 {data?.webs?.[0] && <ExternalLink href={data.webs[0] || ''}>{data?.webs[0]}</ExternalLink>}
               </RowBetween>
-              <RowBetween>
-                <Text color={theme.subText}>
+              <RowBetween align="flex-start">
+                <Text color={theme.subText} lineHeight="24px">
                   <Trans>Community</Trans>
                 </Text>
-                {data?.communities?.[0] && (
-                  <ExternalLink href={data.communities[0].value || ''}>{data.communities[0].key}</ExternalLink>
-                )}
+                {/* {data?.communities?.[0] && (
+                  <ExternalLink href={data.communities[0].value || ''}>{data.communities[0]}</ExternalLink>
+                )} */}
+                <Row gap="6px" style={{ flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                  {data?.communities?.map((c, index) => {
+                    return (
+                      <ExternalLink key={index} href={c}>
+                        {getCommunityLabelFromURL(c)}
+                      </ExternalLink>
+                    )
+                  })}
+                </Row>
               </RowBetween>
               <RowBetween>
                 <Text color={theme.subText}>
@@ -514,9 +546,9 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                 <Text color={theme.subText}>
                   <Trans>Community</Trans>
                 </Text>
-                {data?.communities?.[0] && (
+                {/* {data?.communities?.[0] && (
                   <ExternalLink href={data.communities[0].value || ''}>{data.communities[0].key}</ExternalLink>
-                )}
+                )} */}
               </RowBetween>
               <RowBetween>
                 <Text color={theme.subText}>

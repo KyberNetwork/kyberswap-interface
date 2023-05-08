@@ -33,6 +33,7 @@ import NetworkSelect from '../components/NetworkSelect'
 import SimpleTooltip from '../components/SimpleTooltip'
 import SmallKyberScoreMeter from '../components/SmallKyberScoreMeter'
 import TokenChart from '../components/TokenChartSVG'
+import TutorialModal from '../components/TutorialModal'
 import KyberScoreChart from '../components/chart/KyberScoreChart'
 import { NETWORK_TO_CHAINID, SUPPORTED_NETWORK_KYBERAI } from '../constants'
 import { useTokenListQuery } from '../hooks/useKyberAIData'
@@ -976,6 +977,7 @@ export default function TokenAnalysisList() {
           )}
         </PaginationWrapper>
       </Column>
+      <TutorialModal />
       <ShareModal title={t`Share this token list with your friends!`} />
     </>
   )

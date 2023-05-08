@@ -2,7 +2,7 @@ import { t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useRef, useState } from 'react'
 import { ChevronLeft, Share2, Star } from 'react-feather'
-import { createSearchParams, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -24,10 +24,9 @@ import { MEDIA_WIDTHS } from 'theme'
 import DisplaySettings from '../components/DisplaySettings'
 import ShareKyberAIModal from '../components/ShareKyberAIModal'
 import { TokenOverview } from '../components/TokenOverview'
-import TutorialModal from '../components/TutorialModal'
 import { NETWORK_IMAGE_URL } from '../constants'
 import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation, useTokenDetailQuery } from '../hooks/useKyberAIData'
-import { DiscoverTokenTab, KyberAIListType } from '../types'
+import { DiscoverTokenTab } from '../types'
 import OnChainAnalysis from './OnChainAnalysis'
 import TechnicalAnalysis from './TechnicalAnalysis'
 
@@ -147,39 +146,39 @@ const TabButton = styled.div<{ active?: boolean }>`
   `}
 `
 
-const HeaderTag = styled(RowFit)`
-  position: relative;
-  gap: 4px;
-  padding: 4px 8px;
-  height: 24px;
-  font-size: 12px;
-  line-height: 16px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.subText};
-  background-color: ${({ theme }) => (theme.darkMode ? theme.subText + '32' : theme.background)};
-  border-radius: 20px;
-  cursor: pointer;
-  user-select: none;
-  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.16);
-  :hover {
-    filter: brightness(1.2);
-  }
-  :active {
-    box-shadow: 0 0 0 1pt ${({ theme }) => theme.subText + '32'};
-  }
-`
+// const HeaderTag = styled(RowFit)`
+//   position: relative;
+//   gap: 4px;
+//   padding: 4px 8px;
+//   height: 24px;
+//   font-size: 12px;
+//   line-height: 16px;
+//   font-weight: 500;
+//   color: ${({ theme }) => theme.subText};
+//   background-color: ${({ theme }) => (theme.darkMode ? theme.subText + '32' : theme.background)};
+//   border-radius: 20px;
+//   cursor: pointer;
+//   user-select: none;
+//   box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.16);
+//   :hover {
+//     filter: brightness(1.2);
+//   }
+//   :active {
+//     box-shadow: 0 0 0 1pt ${({ theme }) => theme.subText + '32'};
+//   }
+// `
 
-const CheckIcon = styled(RowFit)`
-  position: absolute;
-  top: -5px;
-  right: 0;
-  border-radius: 50%;
-  height: 12px;
-  width: 12px;
-  background-color: ${({ theme }) => (theme.darkMode ? '#19473a' : '#bcffec')};
-  justify-content: center;
-  color: ${({ theme }) => theme.primary};
-`
+// const CheckIcon = styled(RowFit)`
+//   position: absolute;
+//   top: -5px;
+//   right: 0;
+//   border-radius: 50%;
+//   height: 12px;
+//   width: 12px;
+//   background-color: ${({ theme }) => (theme.darkMode ? '#19473a' : '#bcffec')};
+//   justify-content: center;
+//   color: ${({ theme }) => theme.primary};
+// `
 
 export const testParams = {
   chain: 'ethereum',
@@ -337,7 +336,7 @@ export default function SingleToken() {
           </>
         )}
 
-        {above768 && (
+        {/* {above768 && (
           <>
             <HeaderTag
               onClick={() =>
@@ -368,7 +367,7 @@ export default function SingleToken() {
               </CheckIcon>
             </HeaderTag>
           </>
-        )}
+        )} */}
       </>
     )
 
@@ -482,7 +481,6 @@ export default function SingleToken() {
       {currentTab === DiscoverTokenTab.TechnicalAnalysis && <TechnicalAnalysis />}
       {/* {currentTab === DiscoverTokenTab.News && <News />} */}
       <ShareModal title="Share with your friends" url={shareUrl.current} />
-      <TutorialModal />
       <ShareKyberAIModal token={data} />
     </Wrapper>
   )

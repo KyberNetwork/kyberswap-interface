@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -41,26 +41,36 @@ export default function KyberScoreChart({
     setXY({ x: 0, y: 0 })
     setHoveringItem(undefined)
   }, [])
+
+  const filledData = useMemo(() => {
+    if (!data) return []
+    if (data.length < 18) {
+      return [...Array(18 - data.length).fill(null), ...data]
+    } else {
+      return data
+    }
+  }, [data])
   return (
     <Wrapper style={{ width, height }} onMouseLeave={handleMouseLeave}>
       <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
         <g transform="scale(1,-1) translate(0,-100)">
-          {data?.map((item, index) => {
-            const v = item.kyber_score
+          {filledData?.map((item, index) => {
+            const v = item?.kyber_score
             const gap = 2
-            const rectWidth = (100 - (data.length - 1) * gap) / data.length
-            const rectHeight = v === 0 ? 100 : v
+            const rectWidth = (100 - (filledData.length - 1) * gap) / filledData.length
+            const rectHeight = !v ? 100 : v
             const color = calculateValueToColor(v, theme)
 
+            // if (!item) return <rect key={index} x={index * (rectWidth + gap)} y={0} />
             return (
               <rect
                 key={v + index}
                 x={index * (rectWidth + gap)}
                 y={0}
                 width={rectWidth}
-                style={{ fill: v === 0 ? (theme.darkMode ? theme.background + '60' : theme.text + '10') : color }}
+                style={{ fill: !v ? (theme.darkMode ? theme.background + '60' : theme.text + '10') : color }}
                 onMouseEnter={e => handleMouseEnter(e, item)}
-                strokeWidth={v === 0 ? '2px' : 0}
+                strokeWidth={!v ? '2px' : 0}
                 stroke={theme.disableText}
                 vectorEffect="non-scaling-stroke"
                 shapeRendering="crispEdges"

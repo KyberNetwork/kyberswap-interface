@@ -6,6 +6,8 @@ import DropdownIcon from 'components/Icons/DropdownIcon'
 import { RowBetween } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 
+import { formatTokenPrice } from '../utils'
+
 const Wrapper = styled.div`
   position: relative;
   margin: 12px 0;
@@ -69,6 +71,7 @@ export default function PriceRange({
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const [width, setWidth] = useState(0)
   useEffect(() => {
+    if (low === 0 || high === 0) return
     const ratio = Math.min((current - low) / (high - low), 1)
     setWidth(ratio * (wrapperRef.current?.clientWidth || 0))
   }, [high, low, current])
@@ -76,9 +79,9 @@ export default function PriceRange({
   return (
     <Wrapper style={style}>
       <RowCenter>
-        <Text>{`$${low}` || '--'}</Text>
+        <Text>{low ? `$${formatTokenPrice(low)}` : '--'}</Text>
         <Text color={theme.text}>{title}</Text>
-        <Text>{`$${high}` || '--'}</Text>
+        <Text>{high ? `$${formatTokenPrice(high)}` : '--'}</Text>
       </RowCenter>
       <RangeBarWrapper ref={wrapperRef}>
         <RangeBar $width={width} />
