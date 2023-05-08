@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { motion, useScroll, useSpring, useTransform } from 'framer-motion'
 import { ReactNode } from 'react'
+import { isMobile } from 'react-device-detect'
 import { Check } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -117,7 +118,7 @@ const PartWithMotion = ({ children, className }: { children: ReactNode; classNam
     <PartWrapper
       initial="init"
       whileInView="inView"
-      viewport={{ once: true, amount: 0.5 }}
+      viewport={{ once: true, amount: isMobile ? 0.4 : 0.6 }}
       className={className}
       transition={transition}
       variants={appearVariants}

@@ -32,6 +32,7 @@ import { testParams } from 'pages/TrueSightV2/pages/SingleToken'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import { IHolderList, IKyberScoreChart, ILiveTrade, ITokenList, KyberAITimeframe } from 'pages/TrueSightV2/types'
 import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice } from 'pages/TrueSightV2/utils'
+import { ExternalLink } from 'theme'
 import { getEtherscanLink, shortenAddress } from 'utils'
 
 import ChevronIcon from '../ChevronIcon'
@@ -396,7 +397,11 @@ export const LiveDEXTrades = () => {
                   </Text>
                 </td>
                 <td>
-                  <Text color={theme.primary}>{shortenAddress(1, trade.trader)}</Text>
+                  <ExternalLink
+                    href={chain ? getEtherscanLink(NETWORK_TO_CHAINID[chain], trade.trader, 'address') : '#'}
+                  >
+                    <Text color={theme.primary}>{shortenAddress(1, trade.trader)}</Text>
+                  </ExternalLink>
                 </td>
                 <td>
                   <Row justify="flex-end" gap="8px">

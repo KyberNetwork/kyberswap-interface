@@ -1,5 +1,6 @@
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -570,15 +571,16 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
           ? formatLocaleStringNum(token.cex_outflow_24h) || '--'
           : formatLocaleStringNum(token.volume_24h) || '--'}
       </td>
-      {[KyberAIListType.TOP_CEX_INFLOW, KyberAIListType.TOP_CEX_OUTFLOW, KyberAIListType.TOP_SOCIAL].includes(
+      {[KyberAIListType.TOP_CEX_INFLOW, KyberAIListType.TOP_CEX_OUTFLOW, KyberAIListType.TRENDING_SOON].includes(
         currentTab,
       ) && (
         <td style={{ textAlign: 'start' }}>
-          $
           {currentTab === KyberAIListType.TOP_CEX_INFLOW
-            ? formatLocaleStringNum(token.cex_inflow_3days) || '--'
+            ? '$' + formatLocaleStringNum(token.cex_inflow_3days) || '--'
             : currentTab === KyberAIListType.TOP_CEX_OUTFLOW
-            ? formatLocaleStringNum(token.cex_outflow_3days) || '--'
+            ? '$' + formatLocaleStringNum(token.cex_outflow_3days) || '--'
+            : currentTab === KyberAIListType.TRENDING_SOON
+            ? '--'
             : '--'}
         </td>
       )}
