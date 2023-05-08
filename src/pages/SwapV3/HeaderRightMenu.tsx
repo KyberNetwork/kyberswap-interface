@@ -23,16 +23,24 @@ import { TAB } from 'pages/SwapV3/index'
 import { useLimitState } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
 import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
+import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useDegenModeManager } from 'state/user/hooks'
 import { currencyId } from 'utils/currencyId'
 
-export const SwapFormActions = styled.div`
+export const SwapFormActions = styled.div<{ isShowHeaderMenu: boolean }>`
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  background: ${({ theme }) => theme.background};
-  border-radius: 18px;
   z-index: ${Z_INDEXS.SWAP_PAGE_HEADER_RIGHT_MENU};
+  position: relative;
+`
+
+const ActionPanel = styled.div`
+  position: absolute;
+  right: 0;
+  display: flex;
+  gap: 0.5rem;
+  border-radius: 18px;
+  background: ${({ theme }) => theme.background};
 `
 
 const TutorialIcon = styled(TutorialSvg)`
@@ -118,62 +126,68 @@ export default function HeaderRightMenu({
     setShowHeaderMenu(prev => !prev)
   }
 
-  return (
-    <SwapFormActions onMouseEnter={onMouseEnterMenu} onMouseLeave={onMouseLeaveMenu}>
-      {isShowHeaderMenu && (
-        <>
-          <Tutorial
-            type={TutorialType.SWAP}
-            customIcon={
-              <StyledActionButtonSwapForm onClick={() => mixpanelHandler(MIXPANEL_TYPE.SWAP_TUTORIAL_CLICK)}>
-                <TutorialIcon />
-              </StyledActionButtonSwapForm>
-            }
-          />
-          <TokenInfoIcon
-            currencies={isSwapPage ? currencies : currenciesLimit}
-            onClick={() => {
-              mixpanelHandler(MIXPANEL_TYPE.SWAP_TOKEN_INFO_CLICK)
-              onToggleActionTab(TAB.INFO)
-            }}
-          />
-          <ShareButtonWithModal
-            title={t`Share this with your friends!`}
-            url={shareUrl}
-            onShared={() => {
-              mixpanelHandler(MIXPANEL_TYPE.TOKEN_SWAP_LINK_SHARED)
-            }}
-          />
-          <StyledActionButtonSwapForm
-            active={activeTab === TAB.SETTINGS}
-            onClick={() => {
-              onToggleActionTab(TAB.SETTINGS)
-              mixpanelHandler(MIXPANEL_TYPE.SWAP_SETTINGS_CLICK)
-            }}
-            aria-label="Swap Settings"
-          >
-            <MouseoverTooltip
-              text={<Trans>Settings</Trans>}
-              placement="top"
-              width="fit-content"
-              disableTooltip={isMobile}
-            >
-              <TransactionSettingsIconWrapper id={TutorialIds.BUTTON_SETTING_SWAP_FORM}>
-                <TransactionSettingsIcon fill={theme.subText} />
-              </TransactionSettingsIconWrapper>
-            </MouseoverTooltip>
-          </StyledActionButtonSwapForm>
-        </>
-      )}
+  const [{ show: showTutorialSwap, stepInfo }] = useTutorialSwapGuide() // todo refactor
+  const forceShowMenu = showTutorialSwap && stepInfo?.selector === `#${TutorialIds.BUTTON_SETTING_SWAP_FORM}`
+  const isShowMenu = Boolean(isShowHeaderMenu || forceShowMenu)
 
-      <MouseoverTooltip
-        text={<Trans>Degen mode is on. Be cautious!</Trans>}
-        placement="top"
-        width="fit-content"
-        disableTooltip={!isDegenMode || isMobile}
-      >
-        <StyledMoreHorizontal color={isDegenMode ? theme.warning : theme.subText} onClick={onClickMoreButton} />
-      </MouseoverTooltip>
+  return (
+    <SwapFormActions onMouseEnter={onMouseEnterMenu} onMouseLeave={onMouseLeaveMenu} isShowHeaderMenu={isShowMenu}>
+      <ActionPanel>
+        {isShowMenu && (
+          <>
+            <Tutorial
+              type={TutorialType.SWAP}
+              customIcon={
+                <StyledActionButtonSwapForm onClick={() => mixpanelHandler(MIXPANEL_TYPE.SWAP_TUTORIAL_CLICK)}>
+                  <TutorialIcon />
+                </StyledActionButtonSwapForm>
+              }
+            />
+            <TokenInfoIcon
+              currencies={isSwapPage ? currencies : currenciesLimit}
+              onClick={() => {
+                mixpanelHandler(MIXPANEL_TYPE.SWAP_TOKEN_INFO_CLICK)
+                onToggleActionTab(TAB.INFO)
+              }}
+            />
+            <ShareButtonWithModal
+              title={t`Share this with your friends!`}
+              url={shareUrl}
+              onShared={() => {
+                mixpanelHandler(MIXPANEL_TYPE.TOKEN_SWAP_LINK_SHARED)
+              }}
+            />
+            <StyledActionButtonSwapForm
+              active={activeTab === TAB.SETTINGS}
+              onClick={() => {
+                onToggleActionTab(TAB.SETTINGS)
+                mixpanelHandler(MIXPANEL_TYPE.SWAP_SETTINGS_CLICK)
+              }}
+              aria-label="Swap Settings"
+            >
+              <MouseoverTooltip
+                text={<Trans>Settings</Trans>}
+                placement="top"
+                width="fit-content"
+                disableTooltip={isMobile}
+              >
+                <TransactionSettingsIconWrapper id={TutorialIds.BUTTON_SETTING_SWAP_FORM}>
+                  <TransactionSettingsIcon fill={theme.subText} />
+                </TransactionSettingsIconWrapper>
+              </MouseoverTooltip>
+            </StyledActionButtonSwapForm>
+          </>
+        )}
+
+        <MouseoverTooltip
+          text={<Trans>Degen mode is on. Be cautious!</Trans>}
+          placement="top"
+          width="fit-content"
+          disableTooltip={!isDegenMode || isMobile}
+        >
+          <StyledMoreHorizontal color={isDegenMode ? theme.warning : theme.subText} onClick={onClickMoreButton} />
+        </MouseoverTooltip>
+      </ActionPanel>
     </SwapFormActions>
   )
 }

@@ -32,19 +32,21 @@ export const TutorialIds = {
   BRIDGE_LINKS: 'bridgeLinks',
   DISCOVER_LINK: 'discoverLink',
   CAMPAIGN_LINK: 'campaignLink',
+  KYBER_DAO_LINK: 'kyberDaoLink',
   BUTTON_VIEW_GUIDE_SWAP: 'btnViewGuideSwap',
 }
 
 export const LIST_TITLE = {
-  WELCOME: t`Welcome to KyberSwap!`,
+  WELCOME: t`Welcome to KyberSwap - Trading Smart!`,
   YOUR_WALLET: t`Your wallet address`,
   CONNECT_WALLET: t`Connect a wallet`,
-  SELECT_NETWORK: t`Select your network`,
-  START_TRADING: t`Select tokens to swap & start trading`,
-  SETTING: t`Customize your settings`,
+  SELECT_NETWORK: t`Select your chain`,
+  START_TRADING: t`Select tokens to swap and start trading`,
+  SETTING: t`Personalize your trading interface`,
   EARN: t`Earn trading fees through our Pools / Farms`,
-  DISCOVER: t`Discover trending soon tokens`,
+  DISCOVER: t`KyberAI - Ape Smart!`,
   CAMPAIGN: t`Participate in our campaigns`,
+  KYBER_DAO: t`KyberDAO`,
   VIEW_GUIDE: t`View our KyberSwap Guide again`,
   BRIDGE: t`Place Limit Orders, Bridge Tokens or Buy Crypto`,
 }
