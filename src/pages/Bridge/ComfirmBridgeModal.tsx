@@ -315,11 +315,18 @@ export const ConfirmCrossChainModal = memo(function ConfirmCrossChainModal({
   const [{ chainIdOut, currencyIn, currencyOut }] = useCrossChainState()
   const { inputAmount, outputAmount, priceImpact } = getRouInfo(route)
   const [isDegenMode] = useDegenModeManager()
+  const { mixpanelHandler } = useMixpanel()
 
   const handleClickDisclaimer = useCallback(() => {
     const newValue = !accepted
     setAccepted(newValue)
-  }, [accepted])
+    if (newValue) {
+      mixpanelHandler(MIXPANEL_TYPE.CROSS_CHAIN_CLICK_DISCLAIMER_CHECKBOX, {
+        input_token: currencyIn?.symbol,
+        output_token: currencyOut?.symbol,
+      })
+    }
+  }, [accepted, mixpanelHandler, currencyIn, currencyOut])
 
   const confirmationContent = useCallback(
     () =>

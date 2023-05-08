@@ -63,10 +63,11 @@ export function DisclaimerCrossChain() {
   const showed = getBridgeLocalstorage(BridgeLocalStorageKeys.SHOWED_DISCLAIMED_CROSS_CHAIN)
   const [show, setShow] = useState(!showed)
   const theme = useTheme()
-
+  const { mixpanelHandler } = useMixpanel()
   const handleClickUnderstand = () => {
     setBridgeLocalstorage(BridgeLocalStorageKeys.SHOWED_DISCLAIMED_CROSS_CHAIN, '1')
     setShow(false)
+    mixpanelHandler(MIXPANEL_TYPE.CROSS_CHAIN_CLICK_DISCLAIMER)
   }
   return (
     <ModalCenter isOpen={show}>

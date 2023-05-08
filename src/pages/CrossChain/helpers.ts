@@ -5,6 +5,14 @@ import { CrossChainTransferStatus } from 'pages/CrossChain/useTransferHistory'
 export const getRouInfo = (route: RouteData | undefined) => {
   const estimate = route?.estimate
   const priceImpact = estimate?.aggregatePriceImpact
+
+  const gasCosts = estimate?.gasCosts[0]
+  const feeCosts = estimate?.feeCosts[0]
+
+  const gasFeeUsd = Number(gasCosts?.amountUSD || '0')
+  const crossChainFeeUsd = Number(feeCosts?.amountUSD || '0')
+  const totalFeeUsd = gasFeeUsd + crossChainFeeUsd
+
   return {
     amountUsdOut: estimate?.toAmountUSD,
     amountUsdIn: estimate?.fromAmountUSD,
@@ -14,8 +22,11 @@ export const getRouInfo = (route: RouteData | undefined) => {
     minReceive: estimate?.toAmountMin,
     priceImpact: priceImpact ? Number(priceImpact) : undefined,
     exchangeRate: estimate?.exchangeRate,
-    gasCosts: estimate?.gasCosts[0],
-    feeCosts: estimate?.feeCosts[0],
+    gasCosts,
+    feeCosts,
+    totalFeeUsd,
+    gasFeeUsd,
+    crossChainFeeUsd,
     routeData: estimate?.route,
   }
 }

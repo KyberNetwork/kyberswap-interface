@@ -308,7 +308,7 @@ export function TradeSummaryBridge({ outputInfo }: { outputInfo: OutputBridgeInf
   )
 }
 
-const formatTime = (duration: number) => {
+export const formatDurationCrossChain = (duration: number) => {
   if (duration < 30) return t`half a minute`
   if (duration < 60) return t`1 minute`
   return formatTimeDuration(duration)
@@ -328,11 +328,8 @@ export function TradeSummaryCrossChain({
   const { chainId } = useActiveWeb3React()
 
   const [show, setShow] = useState(true)
-  const { duration, minReceive, priceImpact, gasCosts, feeCosts } = getRouInfo(route)
+  const { duration, minReceive, priceImpact, totalFeeUsd, gasFeeUsd, crossChainFeeUsd } = getRouInfo(route)
 
-  const gasFeeUsd = Number(gasCosts?.amountUSD || '0')
-  const crossChainFeeUsd = Number(feeCosts?.amountUSD || '0')
-  const totalFee = gasFeeUsd + crossChainFeeUsd
   const nativeToken = NativeCurrencies[chainId]
   const { isEnoughEth, gasFee, crossChainFee } = useIsEnoughGas(route)
 
@@ -396,7 +393,7 @@ export function TradeSummaryCrossChain({
           </RowFixed>
           <RowFixed>
             <TYPE.black color={theme.text} fontSize={12}>
-              {duration ? `~${formatTime(duration)}` : '--'}
+              {duration ? `~${formatDurationCrossChain(duration)}` : '--'}
             </TYPE.black>
           </RowFixed>
         </RowBetween>
@@ -415,7 +412,7 @@ export function TradeSummaryCrossChain({
                 width="360px"
                 placement={isMobile ? undefined : 'right'}
                 text={
-                  totalFee && nativeToken ? (
+                  totalFeeUsd && nativeToken ? (
                     <>
                       <Text fontSize={12}>
                         {!enoughGasFee ? (
@@ -465,7 +462,7 @@ export function TradeSummaryCrossChain({
             </TextDashed>
           </RowFixed>
           <TYPE.black color={enoughGasFee ? theme.text : theme.warning} fontSize={12}>
-            {Number(totalFee) ? formattedNum(totalFee + '', true) : '--'}
+            {Number(totalFeeUsd) ? formattedNum(totalFeeUsd + '', true) : '--'}
           </TYPE.black>
         </RowBetween>
         <RowBetween>

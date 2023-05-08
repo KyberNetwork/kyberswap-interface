@@ -17,11 +17,13 @@ import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import SwapButtonWithPriceImpact from 'components/SwapForm/SwapActionButton/SwapButtonWithPriceImpact'
 import useCheckStablePairSwap from 'components/SwapForm/hooks/useCheckStablePairSwap'
+import { formatDurationCrossChain } from 'components/swapv2/AdvancedSwapDetails'
 import { AdvancedSwapDetailsDropdownCrossChain } from 'components/swapv2/AdvancedSwapDetailsDropdown'
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { captureExceptionCrossChain } from 'hooks/bridge/useBridgeCallback'
 import { useChangeNetwork } from 'hooks/useChangeNetwork'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import TradeTypeSelection from 'pages/CrossChain/SwapForm/TradeTypeSelection'
 import TradePrice from 'pages/CrossChain/TradePrice'
@@ -106,7 +108,8 @@ export default function SwapForm() {
     error: errorGetRoute,
     loading: gettingRoute,
   } = useGetRouteCrossChain(routeParams)
-  const { outputAmount, amountUsdIn, amountUsdOut, exchangeRate, priceImpact } = getRouInfo(route)
+  const { outputAmount, amountUsdIn, amountUsdOut, exchangeRate, priceImpact, duration, totalFeeUsd } =
+    getRouInfo(route)
   const { selectCurrencyIn, selectCurrencyOut, selectDestChain, setInputAmount } = useCrossChainHandlers()
 
   const toggleWalletModal = useWalletModalToggle()
@@ -125,8 +128,36 @@ export default function SwapForm() {
     [currencyIn, setInputAmount],
   )
 
+  const { mixpanelHandler } = useMixpanel()
+  const onTracking = useCallback(
+    (type: MIXPANEL_TYPE) => {
+      mixpanelHandler(type, {
+        input_token: currencyIn?.symbol,
+        output_token: currencyOut?.symbol,
+        estimated_gas: totalFeeUsd,
+        slippage: slippageTolerance,
+        price_impact: priceImpact,
+        trade_qty: inputAmount,
+        advance_node: isDegenMode ? 'on' : 'off',
+        processing_time_est: duration ? formatDurationCrossChain(duration) : 'none',
+      })
+    },
+    [
+      currencyIn,
+      currencyOut,
+      duration,
+      inputAmount,
+      priceImpact,
+      mixpanelHandler,
+      slippageTolerance,
+      totalFeeUsd,
+      isDegenMode,
+    ],
+  )
+
   const showPreview = () => {
     setSwapState(state => ({ ...state, showConfirm: true, errorMessage: '', txHash: '' }))
+    onTracking(MIXPANEL_TYPE.CROSS_CHAIN_SWAP_INIT)
   }
 
   const hidePreview = useCallback(() => {
@@ -140,11 +171,12 @@ export default function SwapForm() {
     try {
       if (!library || !squidInstance || !route || !inputAmount || !outputAmount || !currencyIn || !currencyOut) return
       setSwapState(state => ({ ...state, attemptingTxn: true }))
+      onTracking(MIXPANEL_TYPE.CROSS_CHAIN_SWAP_CONFIRMED)
       const tx = await squidInstance.executeRoute({
         signer: library.getSigner(),
         route,
       })
-
+      onTracking(MIXPANEL_TYPE.CROSS_CHAIN_TXS_SUBMITTED)
       setInputAmount('')
       setSwapState(state => ({ ...state, attemptingTxn: false, txHash: tx.hash }))
       const tokenAmountOut = uint256ToFraction(outputAmount, currencyOut.decimals).toSignificant(6)
@@ -200,6 +232,7 @@ export default function SwapForm() {
     setInputAmount,
     saveTxsToDb,
     account,
+    onTracking,
   ])
 
   const maxAmountInput = useCurrencyBalance(currencyIn)?.toExact()

@@ -31,7 +31,7 @@ const BridgeHistory: React.FC<Props> = ({ className }) => {
         <TabSelector activeTab={activeTab} setTab={onClickTab} />
         <SubscribeNotificationButton
           subscribeTooltip={t`Subscribe to receive notifications on your cross-chain transaction`}
-          trackingEvent={MIXPANEL_TYPE.BRIDGE_CLICK_SUBSCRIBE_BTN}
+          trackingEvent={MIXPANEL_TYPE.CROSS_CHAIN_CLICK_SUBSCRIBE}
         />
       </RowBetween>
       {activeTab === CrossChainTab.ROUTE ? (
