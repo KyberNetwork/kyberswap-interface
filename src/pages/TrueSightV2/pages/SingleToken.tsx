@@ -268,8 +268,8 @@ export default function SingleToken() {
     if (stared) {
       removeFromWatchlist({
         wallet: account,
-        tokenAddress: data?.address,
-        chain: 'ethereum',
+        tokenAddress: data?.address || testParams.address,
+        chain: chain || testParams.chain,
       })
       setStared(false)
     } else {
