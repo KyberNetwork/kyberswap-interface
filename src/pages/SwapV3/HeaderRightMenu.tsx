@@ -126,7 +126,7 @@ export default function HeaderRightMenu({
     setShowHeaderMenu(prev => !prev)
   }
 
-  const [{ show: showTutorialSwap, stepInfo }] = useTutorialSwapGuide() // todo refactor
+  const [{ show: showTutorialSwap, stepInfo }] = useTutorialSwapGuide()
   const forceShowMenu = showTutorialSwap && stepInfo?.selector === `#${TutorialIds.BUTTON_SETTING_SWAP_FORM}`
   const isShowMenu = Boolean(isShowHeaderMenu || forceShowMenu)
 

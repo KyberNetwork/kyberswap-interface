@@ -177,7 +177,7 @@ function ConnectWallet() {
   )
 }
 
-function VideoSwap() {
+function SwapForm() {
   return (
     <Layout title={LIST_TITLE.START_TRADING}>
       <Desc>
@@ -254,9 +254,9 @@ const getListSteps = (isLogin: boolean, isSolana: boolean) => {
       selector: TutorialIds.SWAP_FORM,
       title: LIST_TITLE.START_TRADING,
       stepNumber: stepNumber++,
-      description: <VideoSwap />,
-      requiredClickSelector: '#' + TutorialIds.BUTTON_SETTING_SWAP_FORM,
-      selectorHint: '#' + TutorialIds.SWAP_FORM_CONTENT,
+      description: <SwapForm />,
+      requiredClickSelector: TutorialIds.BUTTON_SETTING_SWAP_FORM,
+      selectorHint: TutorialIds.SWAP_FORM_CONTENT,
     },
     {
       selector: TutorialIds.BUTTON_SETTING_SWAP_FORM,
@@ -280,8 +280,8 @@ const getListSteps = (isLogin: boolean, isSolana: boolean) => {
       selector: TutorialIds.SWAP_FORM,
       title: LIST_TITLE.SETTING,
       stepNumber: stepNumber++,
-      requiredClickSelector: '#' + TutorialIds.BUTTON_SETTING_SWAP_FORM,
-      selectorHint: '#' + TutorialIds.TRADING_SETTING_CONTENT,
+      requiredClickSelector: TutorialIds.BUTTON_SETTING_SWAP_FORM,
+      selectorHint: TutorialIds.TRADING_SETTING_CONTENT,
       description: (
         <Layout title={LIST_TITLE.SETTING}>
           <Desc>
@@ -308,44 +308,39 @@ const getListSteps = (isLogin: boolean, isSolana: boolean) => {
       orientationPreferences: [CardinalOrientation.SOUTH],
       popupStyle: { width: 430 },
     },
-    isSolana
-      ? null
-      : {
-          selector: TutorialIds.EARNING_LINKS,
-          title: LIST_TITLE.EARN,
-          stepNumber: stepNumber++,
-          description: (
-            <Layout title={LIST_TITLE.EARN}>
-              <Desc>
-                <Trans>
-                  Add liquidity into our Pools to earn trading fees & participate in our Farms to earn additional
-                  rewards!
-                </Trans>
-              </Desc>
-              <ImageMobile imgSrc={Step5} imageName="Step earn" />
-            </Layout>
-          ),
-          orientationPreferences: [CardinalOrientation.SOUTH],
-        },
-    isSolana
-      ? null
-      : {
-          selector: TutorialIds.DISCOVER_LINK,
-          title: LIST_TITLE.DISCOVER,
-          stepNumber: stepNumber++,
-          description: (
-            <Layout title={LIST_TITLE.DISCOVER}>
-              <Desc>
-                <Trans>
-                  Whether you&apos;re looking to identify new tokens to trade, or get <Highlight>alpha</Highlight> on a
-                  specific token, KyberAI has it all! It provides trading insights on{' '}
-                  <Highlight>4000+ tokens</Highlight> across <Highlight>7 blockchains!</Highlight>
-                </Trans>
-              </Desc>
-            </Layout>
-          ),
-          orientationPreferences: [CardinalOrientation.SOUTH, CardinalOrientation.SOUTHEAST],
-        },
+    !isSolana && {
+      selector: TutorialIds.EARNING_LINKS,
+      title: LIST_TITLE.EARN,
+      stepNumber: stepNumber++,
+      description: (
+        <Layout title={LIST_TITLE.EARN}>
+          <Desc>
+            <Trans>
+              Add liquidity into our Pools to earn trading fees & participate in our Farms to earn additional rewards!
+            </Trans>
+          </Desc>
+          <ImageMobile imgSrc={Step5} imageName="Step earn" />
+        </Layout>
+      ),
+      orientationPreferences: [CardinalOrientation.SOUTH],
+    },
+    {
+      selector: TutorialIds.DISCOVER_LINK,
+      title: LIST_TITLE.DISCOVER,
+      stepNumber: stepNumber++,
+      description: (
+        <Layout title={LIST_TITLE.DISCOVER}>
+          <Desc>
+            <Trans>
+              Whether you&apos;re looking to identify new tokens to trade, or get <Highlight>alpha</Highlight> on a
+              specific token, KyberAI has it all! It provides trading insights on <Highlight>4000+ tokens</Highlight>{' '}
+              across <Highlight>7 blockchains!</Highlight>
+            </Trans>
+          </Desc>
+        </Layout>
+      ),
+      orientationPreferences: [CardinalOrientation.SOUTH, CardinalOrientation.SOUTHEAST],
+    },
     {
       selector: TutorialIds.CAMPAIGN_LINK,
       title: LIST_TITLE.CAMPAIGN,
@@ -361,29 +356,25 @@ const getListSteps = (isLogin: boolean, isSolana: boolean) => {
       ),
       orientationPreferences: [CardinalOrientation.SOUTH],
     },
-    isSolana
-      ? null
-      : {
-          selector: TutorialIds.KYBER_DAO_LINK,
-          title: LIST_TITLE.KYBER_DAO,
-          stepNumber: stepNumber++,
-          description: (
-            <Layout title={LIST_TITLE.KYBER_DAO}>
-              <Desc>
-                <Trans>
-                  Stake KNC tokens to vote on proposals that shape Kyber&apos;s future and earn KNC rewards!
-                </Trans>
-              </Desc>
-            </Layout>
-          ),
-          orientationPreferences: [CardinalOrientation.SOUTH],
-        },
+    {
+      selector: TutorialIds.KYBER_DAO_LINK,
+      title: LIST_TITLE.KYBER_DAO,
+      stepNumber: stepNumber++,
+      description: (
+        <Layout title={LIST_TITLE.KYBER_DAO}>
+          <Desc>
+            <Trans>Stake KNC tokens to vote on proposals that shape Kyber&apos;s future and earn KNC rewards!</Trans>
+          </Desc>
+        </Layout>
+      ),
+      orientationPreferences: [CardinalOrientation.SOUTH],
+    },
     {
       selector: TutorialIds.BUTTON_VIEW_GUIDE_SWAP,
       title: LIST_TITLE.VIEW_GUIDE,
       stepNumber: stepNumber++,
       maskPadding: 10,
-      requiredClickSelector: '#' + TutorialIds.BUTTON_MENU_HEADER,
+      requiredClickSelector: TutorialIds.BUTTON_MENU_HEADER,
       stopPropagationMouseDown: true,
       lastStep: true,
       description: (
@@ -435,11 +426,15 @@ export default memo(function TutorialSwap() {
           content: description,
         }))
     }
-    return list.map(e => ({
-      ...e,
-      description: e.description as unknown as string, // because this lib type check description is string but actually it accept any
-      selector: '#' + e.selector,
-    }))
+    return list.map(e => {
+      if (e.requiredClickSelector) e.requiredClickSelector = '#' + e.requiredClickSelector
+      if (e.selectorHint) e.selectorHint = '#' + e.selectorHint
+      return {
+        ...e,
+        description: e.description as unknown as string, // because this lib type check description is string but actually it accept any
+        selector: '#' + e.selector,
+      }
+    })
   }, [account, isSolana])
 
   const stepInfo = (steps[step] || {}) as StepTutorial
