@@ -1,6 +1,5 @@
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
