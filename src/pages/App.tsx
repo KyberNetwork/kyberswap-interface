@@ -332,7 +332,7 @@ export default function App() {
                     <Route
                       path={`${APP_PATHS.KYBERAI_RANKINGS}`}
                       element={
-                        <ProtectedRouteKyberAI redirectUrl={APP_PATHS.KYBERAI_RANKINGS}>
+                        <ProtectedRouteKyberAI redirectUrl={APP_PATHS.KYBERAI_ABOUT}>
                           <KyberAIExplore />
                         </ProtectedRouteKyberAI>
                       }
@@ -340,7 +340,7 @@ export default function App() {
                     <Route
                       path={`${APP_PATHS.KYBERAI_EXPLORE}`}
                       element={
-                        <ProtectedRouteKyberAI redirectUrl={APP_PATHS.KYBERAI_RANKINGS}>
+                        <ProtectedRouteKyberAI redirectUrl={APP_PATHS.KYBERAI_ABOUT}>
                           <KyberAIExplore />
                         </ProtectedRouteKyberAI>
                       }
