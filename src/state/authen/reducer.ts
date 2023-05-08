@@ -3,7 +3,7 @@ import { createReducer } from '@reduxjs/toolkit'
 
 import { updatePossibleWalletAddress, updateProcessingLogin, updateProfile, updateSession } from './actions'
 
-export type UserProfile = { email: string; identityId: string }
+export type UserProfile = { email: string; identityId: string; data: { hasAccessToKyberAI: boolean } }
 export interface AuthenState {
   readonly possibleConnectedWalletAddress: null | string | undefined // null is checking
   readonly anonymousUserInfo: { username: string } | undefined

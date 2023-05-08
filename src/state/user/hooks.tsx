@@ -457,7 +457,8 @@ export const useIsWhiteListKyberAI = () => {
   const participantInfo = isError ? participantDefault : rawData
   return {
     loading: isFetching || pendingAuthentication,
-    isWhiteList: isLogin && participantInfo?.status === ParticipantStatus.WHITELISTED,
+    isWhiteList:
+      isLogin && (participantInfo?.status === ParticipantStatus.WHITELISTED || userInfo?.data?.hasAccessToKyberAI),
     isWaitList: isLogin && participantInfo?.status === ParticipantStatus.WAITLISTED,
   }
 }
@@ -474,7 +475,7 @@ export const useKyberAIWidget: () => [boolean, () => void] = () => {
     dispatch(toggleKyberAIWidget())
   }, [dispatch])
 
-  return [kyberAIWidget && isWhiteList, toggle]
+  return [kyberAIWidget && !!isWhiteList, toggle]
 }
 
 export const usePermitData: (
