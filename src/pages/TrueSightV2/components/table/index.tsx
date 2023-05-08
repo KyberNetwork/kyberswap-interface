@@ -436,15 +436,20 @@ export const LiveDEXTrades = () => {
 
 const WidgetTableWrapper = styled(TableWrapper)`
   width: 100%;
-
+  height: 100%;
   thead {
     th {
       padding: 8px 16px;
     }
   }
   tr {
+    background-color: ${({ theme }) => theme.tableHeader};
+    cursor: pointer;
     td {
       padding: 8px 16px;
+    }
+    :hover {
+      background-color: ${({ theme }) => theme.background + '50'};
     }
   }
 `
@@ -502,7 +507,7 @@ const WidgetTokenRow = ({ token }: { token: ITokenList }) => {
   }
 
   return (
-    <tr style={{ backgroundColor: theme.tableHeader, height: '64px' }} onClick={handleRowClick}>
+    <tr onClick={handleRowClick}>
       <td>
         <RowFit gap="6px">
           <SimpleTooltip text={t`Add to watchlist`}>
@@ -602,18 +607,25 @@ const WidgetTokenRow = ({ token }: { token: ITokenList }) => {
     </tr>
   )
 }
-export const WidgetTable = ({ data, isLoading }: { data?: ITokenList[]; isLoading: boolean }) => {
+export const WidgetTable = ({
+  data,
+  isLoading,
+  isError,
+}: {
+  data?: ITokenList[]
+  isLoading: boolean
+  isError: boolean
+}) => {
   const theme = useTheme()
-  const isError = !data && !isLoading
   return (
     <div style={{ width: '100%', height: '100%', overflow: 'scroll' }}>
       <WidgetTableWrapper style={{ borderRadius: '0' }}>
         <colgroup>
+          <col style={{ width: '200px' }} />
+          <col style={{ width: '150px' }} />
+          <col style={{ width: '190px' }} />
           <col style={{ width: '120px' }} />
-          <col style={{ width: '90px' }} />
-          <col style={{ width: '120px' }} />
-          <col style={{ width: '90px' }} />
-          <col style={{ width: '40px' }} />
+          <col style={{ width: '60px' }} />
         </colgroup>
         <thead style={{ backgroundColor: theme.background }}>
           <th>
@@ -636,7 +648,7 @@ export const WidgetTable = ({ data, isLoading }: { data?: ITokenList[]; isLoadin
           <tbody>
             <SkeletonTheme
               baseColor={theme.border}
-              height="28px"
+              height="32px"
               borderRadius="8px"
               direction="ltr"
               duration={1.5}
@@ -667,6 +679,18 @@ export const WidgetTable = ({ data, isLoading }: { data?: ITokenList[]; isLoadin
               ]}
             </SkeletonTheme>
           </tbody>
+        ) : isError ? (
+          <>
+            <tbody>
+              <tr>
+                <td colSpan={5}>
+                  <Row align="center" justify="center" height="70%">
+                    <Trans>There was an error. Please try again later.</Trans>
+                  </Row>
+                </td>
+              </tr>
+            </tbody>
+          </>
         ) : (
           <tbody>
             {data?.map((token, i) => {
@@ -675,11 +699,6 @@ export const WidgetTable = ({ data, isLoading }: { data?: ITokenList[]; isLoadin
           </tbody>
         )}
       </WidgetTableWrapper>
-      {isError && (
-        <Row align="center" justify="center" height="80%">
-          <Trans>There was an error. Please try again later.</Trans>
-        </Row>
-      )}
     </div>
   )
 }

@@ -175,7 +175,8 @@ export default function Widget() {
     setShowExpanded(false)
   })
   const navigate = useNavigate()
-  const { data, isFetching } = useTokenListQuery(
+
+  const { data, isFetching, isError } = useTokenListQuery(
     activeTab === WidgetTab.MyWatchlist
       ? { type: KyberAIListType.ALL, page: 1, pageSize: 5, wallet: account }
       : {
@@ -234,8 +235,8 @@ export default function Widget() {
               </Tab>
             ))}
           </Row>
-          <Row align="center" justify="center" height="380px" width="820px">
-            {activeTab === WidgetTab.MyWatchlist ? (
+          <Row align="center" justify="center" height="400px" width="820px">
+            {activeTab === WidgetTab.MyWatchlist && data && data.data.length === 0 ? (
               <Text color={theme.subText} textAlign="center">
                 <Trans>
                   You can add more tokens to your watchlist from{' '}
@@ -247,7 +248,7 @@ export default function Widget() {
                 </Trans>
               </Text>
             ) : (
-              <WidgetTable data={data?.data} isLoading={isFetching} />
+              <WidgetTable data={data?.data} isLoading={isFetching} isError={isError} />
             )}
           </Row>
           <RowBetween padding="16px">
