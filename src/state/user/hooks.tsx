@@ -435,21 +435,26 @@ export const useHolidayMode: () => [boolean, () => void] = () => {
   return [isChristmasTime() ? holidayMode : false, toggle]
 }
 
+const participantDefault = { rankNo: 0, status: ParticipantStatus.UNKNOWN, referralCode: '', id: 0 }
 export const useGetParticipantKyberAIInfo = (): ParticipantInfo => {
   const { userInfo } = useSessionInfo()
-  const { data: data = { rankNo: 0, status: ParticipantStatus.UNKNOWN, referralCode: '', id: 0 } } =
-    useGetParticipantInfoQuery(undefined, {
-      skip: !userInfo,
-    })
-  return data
+  const { data: data = participantDefault, isError } = useGetParticipantInfoQuery(undefined, {
+    skip: !userInfo,
+  })
+  return isError ? participantDefault : data
 }
 
 export const useIsWhiteListKyberAI = () => {
   const { userInfo } = useSessionInfo()
   const { isLogin, pendingAuthentication } = useSessionInfo()
-  const { data: participantInfo, isFetching } = useGetParticipantInfoQuery(undefined, {
+  const {
+    data: rawData,
+    isFetching,
+    isError,
+  } = useGetParticipantInfoQuery(undefined, {
     skip: !userInfo,
   })
+  const participantInfo = isError ? participantDefault : rawData
   return {
     loading: isFetching || pendingAuthentication,
     isWhiteList: isLogin && participantInfo?.status === ParticipantStatus.WHITELISTED,
@@ -463,13 +468,13 @@ export const useKyberAIWidget: () => [boolean, () => void] = () => {
     state.user.kyberAIWidget === undefined ? true : state.user.kyberAIWidget,
   )
 
-  // const { isWhiteList } = useIsWhiteListKyberAI()
+  const { isWhiteList } = useIsWhiteListKyberAI()
 
   const toggle = useCallback(() => {
     dispatch(toggleKyberAIWidget())
   }, [dispatch])
 
-  return [kyberAIWidget, toggle]
+  return [kyberAIWidget && isWhiteList, toggle]
 }
 
 export const usePermitData: (
