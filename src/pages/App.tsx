@@ -114,6 +114,7 @@ const BodyWrapper = styled.div`
   align-items: center;
   min-height: calc(100vh - 148px);
   flex: 1;
+  z-index: 1;
 `
 
 const preloadImages = () => {
