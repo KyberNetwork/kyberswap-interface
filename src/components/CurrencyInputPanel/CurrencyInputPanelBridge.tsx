@@ -102,10 +102,9 @@ export default function CurrencyInputPanelBridge({
   const selectedCurrencyBalance = useCurrencyBalance(isOutput ? undefined : currency ?? undefined)
   const balanceRef = useRef(selectedCurrencyBalance?.toSignificant(10))
   const destBalance = useTokenBalanceOfAnotherChain(selectedChainId, isOutput ? currency : undefined)
-
-  const currencyValueString = useGetPriceUsd(usdValue !== undefined ? undefined : currency, value)
-  const visibleUsdBalance = usdValue !== undefined ? formattedNum(usdValue, true) : currencyValueString
-
+  const hasUsdValue = usdValue !== undefined
+  const currencyValueString = useGetPriceUsd(hasUsdValue ? undefined : currency, value)
+  const visibleUsdBalance = hasUsdValue ? (usdValue ? formattedNum(usdValue, true) : undefined) : currencyValueString
   useEffect(() => {
     balanceRef.current = undefined
   }, [selectedChainId])

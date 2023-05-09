@@ -283,7 +283,7 @@ export default function SwapForm() {
             onMax={handleMaxInput}
             onCurrencySelect={onCurrencySelect}
             id="swap-currency-input"
-            usdValue={amountUsdIn}
+            usdValue={amountUsdIn ?? ''}
           />
         </Flex>
 
@@ -312,7 +312,7 @@ export default function SwapForm() {
             }
             onCurrencySelect={onCurrencySelectDest}
             id="swap-currency-output"
-            usdValue={amountUsdOut}
+            usdValue={amountUsdOut ?? ''}
           />
         </div>
 
