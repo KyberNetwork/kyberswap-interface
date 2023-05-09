@@ -69,7 +69,7 @@ export type AnnouncementTemplateLimitOrder = {
 }
 export type AnnouncementTemplateBridge = { transaction: MultichainTransfer; popupType: PopupType }
 export type AnnouncementTemplateTrendingSoon = {
-  bearishTokenLogoURL: string // todo move nested
+  bearishTokenLogoURL: string
   bearishTokenScore: string
   bearishTokenSymbol: string
   bullishTokenLogoURL: string

@@ -116,15 +116,15 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key: string]: { [type: string]: string } } =
     [PrivateAnnouncementType.BRIDGE_ASSET]: '37,38',
     [PrivateAnnouncementType.KYBER_AI]: '46',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '39,40',
-    EXCLUDE: '2,29,1',
+    EXCLUDE: '2,29,1,47,50',
   },
   staging: {
     [PrivateAnnouncementType.PRICE_ALERT]: '22,23',
     [PrivateAnnouncementType.LIMIT_ORDER]: '14,15,16,17',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '12,13',
-    [PrivateAnnouncementType.KYBER_AI]: '1', // todo
+    [PrivateAnnouncementType.KYBER_AI]: '27',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '20,21',
-    EXCLUDE: '2,11,1',
+    EXCLUDE: '2,11,1,28,29',
   },
   production: {
     [PrivateAnnouncementType.PRICE_ALERT]: '21,22',
@@ -132,7 +132,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key: string]: { [type: string]: string } } =
     [PrivateAnnouncementType.BRIDGE_ASSET]: '10,11',
     [PrivateAnnouncementType.KYBER_AI]: '9', // todo
     [PrivateAnnouncementType.ELASTIC_POOLS]: '17,18',
-    EXCLUDE: '2,16,19',
+    EXCLUDE: '2,16,19', // todo
   },
 }
 
