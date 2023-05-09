@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { darken, rgba } from 'polished'
 import { useCallback, useMemo, useState } from 'react'
@@ -5,6 +6,7 @@ import { PieChart, pieChartDefaultProps } from 'react-minimal-pie-chart'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import Logo, { NetworkLogo } from 'components/Logo'
 import { EMPTY_ARRAY } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { Loading } from 'pages/ProAmmPool/ContentLoader'
@@ -64,7 +66,8 @@ const LoadingSkeletonForLegends = () => {
 }
 
 type LegendProps = {
-  color: string
+  logoUrl?: string
+  chainId?: ChainId
   label: string
   value: string
   percent: number
@@ -73,7 +76,16 @@ type LegendProps = {
   onMouseOver: () => void
   onMouseOut: () => void
 }
-const Legend: React.FC<LegendProps> = ({ color, label, value, percent, active, onMouseOut, onMouseOver }) => {
+const Legend: React.FC<LegendProps> = ({
+  label,
+  value,
+  percent,
+  logoUrl,
+  chainId,
+  active,
+  onMouseOut,
+  onMouseOver,
+}) => {
   const theme = useTheme()
   return (
     <Flex
@@ -92,12 +104,38 @@ const Legend: React.FC<LegendProps> = ({ color, label, value, percent, active, o
     >
       <Flex
         sx={{
-          flex: '0 0 12px',
-          height: '12px',
-          borderRadius: '999px',
-          background: color,
+          position: 'relative',
+          flex: '0 0 14px',
+          height: '14px',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
-      />
+      >
+        {logoUrl ? (
+          <Logo srcs={[logoUrl]} style={{ width: 14, height: 14, borderRadius: '999px' }} />
+        ) : (
+          <Flex
+            sx={{
+              flex: '0 0 14px',
+              height: '14px',
+              borderRadius: '999px',
+              background: theme.subText,
+            }}
+          />
+        )}
+        {chainId && (
+          <NetworkLogo
+            chainId={chainId}
+            style={{
+              position: 'absolute',
+              top: '-4px',
+              right: '-4px',
+              width: '10px',
+              height: '10px',
+            }}
+          />
+        )}
+      </Flex>
 
       <Text
         as="span"
@@ -143,7 +181,9 @@ const COLORS = [
 ]
 
 type DataEntry = {
-  title: string
+  chainId?: ChainId
+  logoUrl?: string
+  symbol: string
   value: string
   percent: number
 }
@@ -179,7 +219,7 @@ const EarningPieChart: React.FC<Props> = ({ data, totalValue = '', className, is
       const color = selectedIndex === i ? darken(0.15, COLORS[i]) : COLORS[i]
 
       return {
-        title: entry.title,
+        title: entry.symbol,
         value: entry.percent,
         color,
       }
@@ -278,8 +318,9 @@ const EarningPieChart: React.FC<Props> = ({ data, totalValue = '', className, is
               <Legend
                 active={selectedIndex === i}
                 key={i}
-                color={entry.color}
-                label={entry.title}
+                chainId={entry.chainId}
+                logoUrl={entry.logoUrl}
+                label={entry.symbol}
                 value={entry.value}
                 percent={entry.percent}
                 onMouseOver={() => setSelectedIndex(i)}

@@ -3,10 +3,8 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import EarningPieChart from 'components/EarningPieChart'
-import Loader from 'components/Loader'
 import useTheme from 'hooks/useTheme'
 import { EarningsBreakdown } from 'types/myEarnings'
-import { formattedNum } from 'utils'
 
 // TODO: remove transition of background when switching dark modes
 type WrapperProps = { $columns: 1 | 2 }
@@ -18,8 +16,8 @@ const Wrapper = styled.div.attrs<WrapperProps>(({ $columns }) => ({
 
   display: flex;
   flex-direction: column;
-  padding: 24px;
-  border-radius: 20px;
+  padding: 16px;
+  border-radius: 24px;
   background-color: ${({ theme }) => theme.background};
   border: 1px solid ${({ theme }) => theme.border};
 
@@ -76,45 +74,10 @@ const EarningsBreakdownPanel: React.FC<Props> = ({ isLoading, data, className })
               color: theme.subText,
             }}
           >
-            <Trans>Total Earnings</Trans>
-          </Text>
-
-          <Text
-            sx={{
-              fontWeight: 500,
-              fontSize: '14px',
-              lineHeight: '20px',
-              color: theme.subText,
-            }}
-          >
-            <Trans>Share</Trans>
+            <Trans>Tokens Breakdown</Trans>
           </Text>
         </Flex>
-
-        <Text
-          sx={{
-            fontWeight: 500,
-            fontSize: '32px',
-            lineHeight: '36px',
-            color: theme.text,
-          }}
-        >
-          {isLoading || !data ? <Loader /> : formattedNum(String(data.totalValue), true, 6)}
-        </Text>
       </Flex>
-
-      <Text
-        as="span"
-        sx={{
-          fontWeight: 500,
-          fontSize: '14px',
-          lineHeight: '20px',
-          marginTop: '24px',
-          color: theme.subText,
-        }}
-      >
-        <Trans>Earnings Breakdown</Trans>
-      </Text>
 
       {isLoading || !data ? (
         <EarningPieChart isLoading />

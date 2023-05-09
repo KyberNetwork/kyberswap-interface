@@ -32,7 +32,6 @@ const MyEarningsOverTimePanel = styled(OriginalMyEarningsOverTimePanel)`
 const EarningsBreakdownPanel = styled(OriginalEarningsBreakdownPanel)`
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     flex: 1;
-    padding: 16px;
 
     &[data-columns='2'] {
       width: 100%;
@@ -137,6 +136,7 @@ const MyEarnings = () => {
               symbol: currency.symbol || '',
               amountUSD: Number(tokenData.amountUSD),
               chainId,
+              logoUrl: currency.logoURI,
             }
           })
 
@@ -153,18 +153,22 @@ const MyEarnings = () => {
     const breakdowns: EarningsBreakdown['breakdowns'] =
       latestAggregatedData.length <= 10
         ? latestAggregatedData.map(data => ({
-            title: data.symbol,
+            chainId: data.chainId,
+            logoUrl: data.logoUrl,
+            symbol: data.symbol,
             value: String(data.amountUSD),
             percent: (data.amountUSD / totalValue) * 100,
           }))
         : [
             ...latestAggregatedData.slice(0, 9).map(data => ({
-              title: data.symbol,
+              chainId: data.chainId,
+              logoUrl: data.logoUrl,
+              symbol: data.symbol,
               value: String(data.amountUSD),
               percent: (data.amountUSD / totalValue) * 100,
             })),
             {
-              title: t`Others`,
+              symbol: t`Others`,
               value: String(totalValueOfOthers),
               percent: (totalValueOfOthers / totalValue) * 100,
             },

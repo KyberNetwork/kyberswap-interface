@@ -7,27 +7,27 @@ export const myTotalEarningsMock: EarningsBreakdown = {
   totalValue: 189_123_456.123_456,
   breakdowns: [
     {
-      title: 'MATIC',
+      symbol: 'MATIC',
       value: '$121K',
       percent: 25,
     },
     {
-      title: 'DAI',
+      symbol: 'DAI',
       value: '$81K',
       percent: 15,
     },
     {
-      title: 'USDT',
+      symbol: 'USDT',
       value: '$8K',
       percent: 30,
     },
     {
-      title: 'KNC',
+      symbol: 'KNC',
       value: '$9K',
       percent: 10,
     },
     {
-      title: 'BNB',
+      symbol: 'BNB',
       value: '$18M',
       percent: 20,
     },

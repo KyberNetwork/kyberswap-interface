@@ -54,6 +54,7 @@ const PoolEarningsSection: React.FC<Props> = ({ poolEarning, chainId }) => {
           const currency = tokensByChainId[chainId][String(tokenAddress)]
           return {
             address: tokenAddress,
+            logoUrl: currency.logoURI,
             symbol: currency.symbol || '',
             amountUSD: Number(tokenData.amountUSD),
             chainId,
@@ -70,18 +71,20 @@ const PoolEarningsSection: React.FC<Props> = ({ poolEarning, chainId }) => {
     const breakdowns: EarningsBreakdown['breakdowns'] =
       latestData.length <= 10
         ? latestData.map(data => ({
-            title: data.symbol,
+            logoUrl: data.logoUrl,
+            symbol: data.symbol,
             value: String(data.amountUSD),
             percent: (data.amountUSD / totalValue) * 100,
           }))
         : [
             ...latestData.slice(0, 9).map(data => ({
-              title: data.symbol,
+              logoUrl: data.logoUrl,
+              symbol: data.symbol,
               value: String(data.amountUSD),
               percent: (data.amountUSD / totalValue) * 100,
             })),
             {
-              title: t`Others`,
+              symbol: t`Others`,
               value: String(totalValueOfOthers),
               percent: (totalValueOfOthers / totalValue) * 100,
             },
