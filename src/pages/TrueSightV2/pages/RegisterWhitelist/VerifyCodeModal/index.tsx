@@ -74,14 +74,18 @@ export default function VerifyCodeModal({
   const notify = useNotify()
   const { userInfo } = useSessionInfo()
 
-  const showNotiSuccess = useCallback(() => {
-    setVerifySuccess(true)
-    notify({
-      title: t`Email Verified`,
-      summary: t`Your email have been verified successfully. You can now select notification preference`,
-      type: NotificationType.SUCCESS,
-    })
-  }, [notify])
+  const showNotiSuccess = useCallback(
+    (withNotify = true) => {
+      setVerifySuccess(true)
+      withNotify &&
+        notify({
+          title: t`Email Verified`,
+          summary: t`Your email have been verified successfully. You can now select notification preference`,
+          type: NotificationType.SUCCESS,
+        })
+    },
+    [notify],
+  )
 
   const sendEmail = useCallback(() => email && sendOtp({ email }), [email, sendOtp])
 
@@ -101,7 +105,7 @@ export default function VerifyCodeModal({
       }, 1000)
       checkedRegisterStatus.current = false
     } else {
-      showSuccess ? showNotiSuccess() : sendEmailWhenInit()
+      showSuccess ? showNotiSuccess(false) : sendEmailWhenInit()
     }
   }, [isOpen, showNotiSuccess, showSuccess, sendEmailWhenInit])
 
