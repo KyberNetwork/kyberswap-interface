@@ -474,7 +474,7 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
   }
   const [stared, setStared] = useState(false)
 
-  const latestKyberScore: IKyberScoreChart = token?.ks_3d?.[token.ks_3d.length - 1]
+  const latestKyberScore: IKyberScoreChart | undefined = token?.ks_3d?.[token.ks_3d.length - 1]
   return (
     <tr key={token.sourceTokenId} ref={rowRef} onClick={handleRowClick} style={{ position: 'relative' }}>
       <td>
@@ -540,13 +540,13 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
       <td>
         <Column gap="10px" style={{ textAlign: 'left' }}>
           <Text>${formatTokenPrice(token.price)}</Text>
-          <Text fontSize={12} color={token.change_24h > 0 ? theme.primary : theme.red}>
+          <Text fontSize={12} color={token.percent_change_24h > 0 ? theme.primary : theme.red}>
             <Row gap="2px">
               <ChevronIcon
-                rotate={token.change_24h > 0 ? '180deg' : '0deg'}
-                color={token.change_24h > 0 ? theme.primary : theme.red}
+                rotate={token.percent_change_24h > 0 ? '180deg' : '0deg'}
+                color={token.percent_change_24h > 0 ? theme.primary : theme.red}
               />
-              {Math.abs(token.change_24h).toFixed(2)}%
+              {Math.abs(token.percent_change_24h).toFixed(2)}%
             </Row>
           </Text>
         </Column>

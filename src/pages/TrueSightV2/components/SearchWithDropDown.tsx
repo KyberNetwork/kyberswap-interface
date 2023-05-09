@@ -33,10 +33,10 @@ const formatTokenType = (token: ITokenList): ITokenSearchResult => {
     logo: token0.logo,
     chain: token0.chain,
     price: token.price,
-    priceChange24h: token.change_24h,
+    priceChange24h: token.percent_change_24h,
     kyberScore: {
-      score: token.ks_3d[token.ks_3d.length - 1].kyber_score,
-      label: token.ks_3d[token.ks_3d.length - 1].tag,
+      score: token.ks_3d?.[token.ks_3d.length - 1].kyber_score || 0,
+      label: token.ks_3d?.[token.ks_3d.length - 1].tag || '',
     },
   }
 }

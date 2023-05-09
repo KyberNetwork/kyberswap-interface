@@ -40,11 +40,11 @@ export interface ITokenList {
   sourceTokenId: string
   tokens: Array<{ address: string; logo: string; chain: string }>
   price: number
-  change_24h: number
+  percent_change_24h: number
   volume_24h: number
   '7daysprice': Array<{ value: number; timestamp: number }>
   kyber_score: number
-  ks_3d: Array<IKyberScoreChart>
+  ks_3d?: Array<IKyberScoreChart>
   kyber_tag: string
   market_cap: number
   isWatched: boolean

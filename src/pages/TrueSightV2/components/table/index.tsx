@@ -457,7 +457,7 @@ const WidgetTableWrapper = styled(TableWrapper)`
 const WidgetTokenRow = ({ token }: { token: ITokenList }) => {
   const theme = useTheme()
   const navigate = useNavigate()
-  const latestKyberScore: IKyberScoreChart = token?.ks_3d?.[token.ks_3d.length - 1]
+  const latestKyberScore: IKyberScoreChart | undefined = token?.ks_3d?.[token.ks_3d.length - 1]
   const hasMutipleChain = token.tokens.length > 1
 
   const [showMenu, setShowMenu] = useState(false)
@@ -560,13 +560,13 @@ const WidgetTokenRow = ({ token }: { token: ITokenList }) => {
           <Text color={theme.text} fontSize="14px" lineHeight="20px">
             ${formatTokenPrice(token.price)}
           </Text>
-          <Text fontSize="10px" lineHeight="12px" color={token.change_24h > 0 ? theme.primary : theme.red}>
+          <Text fontSize="10px" lineHeight="12px" color={token.percent_change_24h > 0 ? theme.primary : theme.red}>
             <Row gap="2px">
               <ChevronIcon
-                rotate={token.change_24h > 0 ? '180deg' : '0deg'}
-                color={token.change_24h > 0 ? theme.primary : theme.red}
+                rotate={token.percent_change_24h > 0 ? '180deg' : '0deg'}
+                color={token.percent_change_24h > 0 ? theme.primary : theme.red}
               />
-              {Math.abs(token.change_24h).toFixed(2)}%
+              {Math.abs(token.percent_change_24h).toFixed(2)}%
             </Row>
           </Text>
         </Column>
