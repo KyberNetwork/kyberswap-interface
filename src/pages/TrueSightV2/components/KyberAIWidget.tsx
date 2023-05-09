@@ -178,7 +178,7 @@ export default function Widget() {
 
   const { data, isFetching, isError } = useTokenListQuery(
     activeTab === WidgetTab.MyWatchlist
-      ? { type: KyberAIListType.ALL, page: 1, pageSize: 5, wallet: account }
+      ? { type: KyberAIListType.ALL, page: 1, pageSize: 5, wallet: account, watchlist: true }
       : {
           type: {
             [WidgetTab.Bearish]: KyberAIListType.BEARISH,

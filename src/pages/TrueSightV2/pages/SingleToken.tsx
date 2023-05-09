@@ -260,20 +260,17 @@ export default function SingleToken() {
 
   const [addToWatchlist] = useAddToWatchlistMutation()
   const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
-  const [stared, setStared] = useState(false)
   const [viewAll, setViewAll] = useState(false)
   const handleStarClick = () => {
     if (!token) return
-    if (stared) {
+    if (token.isWatched) {
       removeFromWatchlist({
         wallet: account,
         tokenAddress: token?.address || testParams.address,
         chain: chain || testParams.chain,
       })
-      setStared(false)
     } else {
       addToWatchlist({ wallet: account, tokenAddress: token?.address, chain })
-      setStared(true)
     }
   }
   const RenderHeader = () => {
