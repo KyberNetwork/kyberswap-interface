@@ -35,23 +35,25 @@ export default function EmailForm({
   style,
   desc,
   showRanking = true,
+  labelColor,
 }: {
   style?: CSSProperties
   desc: ReactNode
   showRanking?: boolean
+  labelColor?: string
 }) {
   const { userInfo } = useSessionInfo()
   const { rankNo, referralCode } = useGetParticipantKyberAIInfo()
 
   const theme = useTheme()
   const shareLink = `${window.location.origin}${APP_PATHS.KYBERAI_ABOUT}?referrer=${referralCode}`
-
+  const color = labelColor || theme.subText
   return (
     <Wrapper style={style}>
       {desc}
 
       <Column gap="6px">
-        <Label>
+        <Label style={{ color }}>
           <Trans>Your Email</Trans>
         </Label>
         <Input $borderColor={theme.border} value={userInfo?.email} disabled />
@@ -59,14 +61,14 @@ export default function EmailForm({
 
       <RowBetween gap="12px">
         <Column gap="6px" style={{ width: '70%' }}>
-          <Label>
+          <Label style={{ color }}>
             <Trans>Your Referral Link</Trans>
           </Label>
           <InputWithCopy disabled $borderColor={theme.border} value={shareLink} />
         </Column>
 
         <Column gap="6px">
-          <Label>
+          <Label style={{ color }}>
             <Trans>Your Referral Code</Trans>
           </Label>
           <InputWithCopy disabled $borderColor={theme.border} value={referralCode} />

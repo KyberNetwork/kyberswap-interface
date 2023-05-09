@@ -173,6 +173,7 @@ export default function VerifyCodeModal({
           <Content>
             {header}
             <WaitListForm
+              labelColor={theme.text}
               style={{ maxWidth: '100%' }}
               desc={
                 <Text fontSize={14} color={theme.text} lineHeight={'16px'} style={{ lineHeight: '18px' }}>
