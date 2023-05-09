@@ -612,6 +612,7 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
           {hasMutipleChain && (
             <>
               <MultipleChainDropdown
+                ref={menuRef}
                 show={showMenu}
                 menuLeft={menuLeft}
                 tokens={token?.tokens}
@@ -681,7 +682,7 @@ export default function TokenAnalysisList() {
   // const sortedColumn = searchParams.get('orderBy') || SORT_FIELD.VOLUME
   // const sortOrder = searchParams.get('orderDirection') || SORT_DIRECTION.DESC
   // const sortDirection = sortOrder === SORT_DIRECTION.DESC
-  const pageSize = 10
+  const pageSize = 25
 
   const { data, isLoading, isFetching, isError } = useTokenListQuery(
     listType === KyberAIListType.MYWATCHLIST

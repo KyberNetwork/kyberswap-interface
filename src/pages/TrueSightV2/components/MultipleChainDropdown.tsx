@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 
 import Icon from 'components/Icons/Icon'
@@ -45,44 +45,48 @@ const ChainIcon = ({ id, name, onClick }: { id: string; name: string; onClick: (
   )
 }
 
-export default function MultipleChainDropdown({
-  show,
-  menuLeft,
-  tokens,
-  onChainClick,
-}: {
-  show: boolean
-  menuLeft?: number
-  tokens?: Array<{ address: string; logo: string; chain: string }>
-  onChainClick: (chain: string) => void
-}) {
-  const theme = useTheme()
-  const menuRef = useRef<HTMLDivElement>(null)
+const MultipleChainDropdown = React.forwardRef(
+  (
+    props: {
+      show: boolean
+      menuLeft?: number
+      tokens?: Array<{ address: string; logo: string; chain: string }>
+      onChainClick: (chain: string) => void
+    },
+    ref,
+  ) => {
+    const { show, menuLeft, tokens, onChainClick } = props
+    const theme = useTheme()
+    return (
+      <MenuDropdown
+        className={show ? 'show' : ''}
+        gap="8px"
+        color={theme.text}
+        style={{ left: menuLeft !== undefined ? `${menuLeft}px` : undefined }}
+        ref={ref}
+      >
+        {tokens?.map((item: { address: string; logo: string; chain: string }) => {
+          if (item.chain === 'ethereum')
+            return <ChainIcon id="eth-mono" name="Ethereum" onClick={() => onChainClick('ethereum')} />
+          if (item.chain === 'bsc')
+            return <ChainIcon id="bnb-mono" name="Binance" onClick={() => onChainClick('bsc')} />
+          if (item.chain === 'avalanche')
+            return <ChainIcon id="ava-mono" name="Avalanche" onClick={() => onChainClick('avalanche')} />
+          if (item.chain === 'polygon')
+            return <ChainIcon id="matic-mono" name="Polygon" onClick={() => onChainClick('polygon')} />
+          if (item.chain === 'arbitrum')
+            return <ChainIcon id="arbitrum-mono" name="Arbitrum" onClick={() => onChainClick('arbitrum')} />
+          if (item.chain === 'fantom')
+            return <ChainIcon id="fantom-mono" name="Fantom" onClick={() => onChainClick('fantom')} />
+          if (item.chain === 'optimism')
+            return <ChainIcon id="optimism-mono" name="Optimism" onClick={() => onChainClick('optimism')} />
+          return <></>
+        })}
+      </MenuDropdown>
+    )
+  },
+)
 
-  return (
-    <MenuDropdown
-      className={show ? 'show' : ''}
-      gap="8px"
-      color={theme.text}
-      style={{ left: menuLeft !== undefined ? `${menuLeft}px` : undefined }}
-      ref={menuRef}
-    >
-      {tokens?.map((item: { address: string; logo: string; chain: string }) => {
-        if (item.chain === 'ethereum')
-          return <ChainIcon id="eth-mono" name="Ethereum" onClick={() => onChainClick('ethereum')} />
-        if (item.chain === 'bsc') return <ChainIcon id="bnb-mono" name="Binance" onClick={() => onChainClick('bsc')} />
-        if (item.chain === 'avalanche')
-          return <ChainIcon id="ava-mono" name="Avalanche" onClick={() => onChainClick('avalanche')} />
-        if (item.chain === 'polygon')
-          return <ChainIcon id="matic-mono" name="Polygon" onClick={() => onChainClick('polygon')} />
-        if (item.chain === 'arbitrum')
-          return <ChainIcon id="arbitrum-mono" name="Arbitrum" onClick={() => onChainClick('arbitrum')} />
-        if (item.chain === 'fantom')
-          return <ChainIcon id="fantom-mono" name="Fantom" onClick={() => onChainClick('fantom')} />
-        if (item.chain === 'optimism')
-          return <ChainIcon id="optimism-mono" name="Optimism" onClick={() => onChainClick('optimism')} />
-        return <></>
-      })}
-    </MenuDropdown>
-  )
-}
+MultipleChainDropdown.displayName = 'MultipleChainDropdown'
+
+export default MultipleChainDropdown

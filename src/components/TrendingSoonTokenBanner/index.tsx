@@ -10,6 +10,7 @@ import Row from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
 import { useTokenListQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { KyberAIListType } from 'pages/TrueSightV2/types'
 import { ExternalLink } from 'theme'
@@ -51,18 +52,27 @@ const TrendingSoonTokenBanner = ({
 
   const isFetching = fetching0 && fetching1 && fetching2 && fetching3
 
-  const banner: { icon: string; text: string } | undefined = useMemo(() => {
+  const banner: { icon: string; text: string; redirectUrl?: string } | undefined = useMemo(() => {
     if (!token0 || !token1 || isFetching) return undefined
-    const token0Bullish = bullish0 && bullish0.data.length > 0
-    const token1Bullish = bullish1 && bullish1.data.length > 0
-    const token0Bearish = bearish0 && bearish0.data.length > 0
-    const token1Bearish = bearish1 && bearish1.data.length > 0
 
+    const token0Bullish = bullish0 && bullish0.data.length === 1
+    const token1Bullish = bullish1 && bullish1.data.length === 1
+    const token0Bearish = bearish0 && bearish0.data.length === 1
+    const token1Bearish = bearish1 && bearish1.data.length === 1
+    const chain = Object.keys(NETWORK_TO_CHAINID).find(i => NETWORK_TO_CHAINID[i] === chainId)
     if (token0Bullish && token1Bullish) {
-      return { icon: 'bullish', text: t`Both ${token0Symbol} and ${token1Symbol} seem bullish right now.` }
+      return {
+        icon: 'bullish',
+        text: t`Both ${token0Symbol} and ${token1Symbol} seem bullish right now.`,
+        redirectUrl: window.location.origin + APP_PATHS.KYBERAI_RANKINGS + `?type=${KyberAIListType.BULLISH}`,
+      }
     }
     if (token0Bearish && token1Bearish) {
-      return { icon: 'bearish', text: t`Both ${token0Symbol} and ${token1Symbol} seem bearish right now.` }
+      return {
+        icon: 'bearish',
+        text: t`Both ${token0Symbol} and ${token1Symbol} seem bearish right now.`,
+        redirectUrl: window.location.origin + APP_PATHS.KYBERAI_RANKINGS + `?type=${KyberAIListType.BEARISH}`,
+      }
     }
     if (token0Bullish && token1Bearish) {
       return { icon: 'bearish', text: t`${token0Symbol} seems bullish while ${token1Symbol} seems bearish right now.` }
@@ -71,19 +81,39 @@ const TrendingSoonTokenBanner = ({
       return { icon: 'bearish', text: t`${token1Symbol} seems bullish while ${token0Symbol} seems bearish right now.` }
     }
     if (token0Bullish) {
-      return { icon: 'bullish', text: t`${token0Symbol} seems bullish right now.` }
+      const token = bullish0.data[0].tokens.find(t => t.chain === chain)
+      return {
+        icon: 'bullish',
+        text: t`${token0Symbol} seems bullish right now.`,
+        redirectUrl: window.location.origin + APP_PATHS.KYBERAI_EXPLORE + `/${chain}/${token?.address}`,
+      }
     }
     if (token1Bullish) {
-      return { icon: 'bullish', text: t`${token1Symbol} seems bullish right now.` }
+      const token = bullish1.data[0].tokens.find(t => t.chain === chain)
+      return {
+        icon: 'bullish',
+        text: t`${token1Symbol} seems bullish right now.`,
+        redirectUrl: window.location.origin + APP_PATHS.KYBERAI_EXPLORE + `/${chain}/${token?.address}`,
+      }
     }
     if (token0Bearish) {
-      return { icon: 'bearish', text: t`${token0Symbol} seems bearish right now.` }
+      const token = bearish0.data[0].tokens.find(t => t.chain === chain)
+      return {
+        icon: 'bearish',
+        text: t`${token0Symbol} seems bearish right now.`,
+        redirectUrl: window.location.origin + APP_PATHS.KYBERAI_EXPLORE + `/${chain}/${token?.address}`,
+      }
     }
     if (token1Bearish) {
-      return { icon: 'bearish', text: t`${token1Symbol} seems bearish right now.` }
+      const token = bearish1.data[0].tokens.find(t => t.chain === chain)
+      return {
+        icon: 'bearish',
+        text: t`${token1Symbol} seems bearish right now.`,
+        redirectUrl: window.location.origin + APP_PATHS.KYBERAI_EXPLORE + `/${chain}/${token?.address}`,
+      }
     }
     return undefined
-  }, [bullish0, bullish1, bearish0, bearish1, token0Symbol, token1Symbol, token0, token1, isFetching])
+  }, [bullish0, bullish1, bearish0, bearish1, token0Symbol, token1Symbol, token0, token1, isFetching, chainId])
 
   if (!banner) return null
 
@@ -95,7 +125,7 @@ const TrendingSoonTokenBanner = ({
         </Text>
         <BannerText>
           {banner.text}{' '}
-          <ExternalLink href={window.location.origin + APP_PATHS.KYBERAI_EXPLORE}>
+          <ExternalLink href={banner.redirectUrl || '#'}>
             <Trans>See here</Trans>
           </ExternalLink>
         </BannerText>

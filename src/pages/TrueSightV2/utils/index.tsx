@@ -80,13 +80,23 @@ export const getErrorMessage = (error: any) => {
   return mapErr[code] || t`Error occur, please try again`
 }
 
-export const navigateToSwapPage = ({ address, logo, chain }: { address?: string; logo?: string; chain?: string }) => {
-  if (!address || !logo || !chain) return
+export const navigateToSwapPage = ({ address, chain }: { address?: string; chain?: string }) => {
+  if (!address || !chain) return
   const wethAddress = WETH[NETWORK_TO_CHAINID[chain]].address
   const formattedChain = chain === 'bsc' ? 'bnb' : chain
   window.open(
     window.location.origin +
-      `${APP_PATHS.SWAP}/${formattedChain}?inputCurrency=${address}&outputCurrency=${wethAddress}`,
+      `${APP_PATHS.SWAP}/${formattedChain}?inputCurrency=${wethAddress}&outputCurrency=${address}`,
+    '_blank',
+  )
+}
+export const navigateToLimitPage = ({ address, chain }: { address?: string; chain?: string }) => {
+  if (!address || !chain) return
+  const wethAddress = WETH[NETWORK_TO_CHAINID[chain]].address
+  const formattedChain = chain === 'bsc' ? 'bnb' : chain
+  window.open(
+    window.location.origin +
+      `${APP_PATHS.LIMIT}/${formattedChain}?inputCurrency=${wethAddress}&outputCurrency=${address}`,
     '_blank',
   )
 }

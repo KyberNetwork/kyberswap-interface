@@ -403,7 +403,7 @@ export default function SingleToken() {
             height={'36px'}
             width="fit-content"
             gap="4px"
-            onClick={() => navigateToSwapPage({ address: token?.address, chain, logo: token?.logo })}
+            onClick={() => navigateToSwapPage({ address: token?.address, chain })}
           >
             <RowFit gap="4px" style={{ whiteSpace: 'nowrap' }}>
               <Icon id="swap" size={16} />

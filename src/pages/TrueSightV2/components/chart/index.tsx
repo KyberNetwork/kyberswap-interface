@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
-import React, { ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import React, { ReactNode, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -255,6 +255,15 @@ export const TimeFrameLegend = ({
   onSelect: (timeframe: KyberAITimeframe) => void
 }) => {
   const refs = useRef<any>({})
+  const [left, setLeft] = useState(0)
+  const [width, setWidth] = useState(0)
+
+  useLayoutEffect(() => {
+    if (refs.current?.[selected]) {
+      setLeft(refs.current[selected].offsetLeft)
+      setWidth(refs.current[selected].offsetWidth)
+    }
+  }, [selected])
   if (timeframes?.length < 1) return null
   return (
     <TimeFrameWrapper>
@@ -273,7 +282,7 @@ export const TimeFrameLegend = ({
           </Element>
         )
       })}
-      <ActiveElement left={refs.current?.[selected]?.offsetLeft} width={refs.current?.[selected]?.offsetWidth} />
+      <ActiveElement left={left} width={width} />
     </TimeFrameWrapper>
   )
 }
@@ -2567,10 +2576,10 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
     })
 
     return () => {
-      if (tvWidget !== null) {
-        tvWidget.remove()
-        setTvWidget(undefined)
-      }
+      // if (tvWidget !== null) {
+      //   tvWidget.remove()
+      //   setTvWidget(undefined)
+      // }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [theme, ref, datafeed])

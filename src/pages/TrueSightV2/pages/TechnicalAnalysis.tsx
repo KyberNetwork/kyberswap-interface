@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { createContext, useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { useTheme } from 'styled-components'
 
@@ -10,13 +10,16 @@ import Icon from 'components/Icons/Icon'
 import Row, { RowFit } from 'components/Row'
 import Toggle from 'components/Toggle'
 import { useTokenAnalysisSettings } from 'state/user/hooks'
+import { getLimitOrderContract } from 'utils'
 
 import { SectionWrapper } from '../components'
 import CexRekt from '../components/CexRekt'
 import { LiquidOnCentralizedExchanges, Prochart } from '../components/chart'
 import { FundingRateTable, LiveDEXTrades, SupportResistanceLevel } from '../components/table'
+import { NETWORK_TO_CHAINID } from '../constants'
 import { useChartingDataQuery, useTokenDetailQuery } from '../hooks/useKyberAIData'
 import { ChartTab, ISRLevel, OHLCData } from '../types'
+import { navigateToLimitPage } from '../utils'
 import { testParams } from './SingleToken'
 
 const Wrapper = styled.div`
@@ -73,7 +76,6 @@ export default function TechnicalAnalysis() {
   const { chain, address } = useParams()
   const [liveChartTab, setLiveChartTab] = useState(ChartTab.First)
   const [showSRLevels, setShowSRLevels] = useState(true)
-  const navigate = useNavigate()
   const [priceChartResolution, setPriceChartResolution] = useState('1h')
   const now = Math.floor(Date.now() / 60000) * 60
   const { data, isLoading } = useChartingDataQuery({
@@ -175,15 +177,17 @@ export default function TechnicalAnalysis() {
           style={{ height: 'fit-content' }}
         >
           <SupportResistanceLevel />
-          <Row justify="flex-end">
-            <ButtonPrimary width="fit-content" onClick={() => navigate('/limit/ethereum/wbtc-to-usdt')}>
-              <Text color={theme.textReverse} fontSize="14px" lineHeight="20px">
-                <RowFit gap="4px">
-                  <Icon id="chart" size={16} /> Place Limit Order
-                </RowFit>
-              </Text>
-            </ButtonPrimary>
-          </Row>
+          {chain && getLimitOrderContract(NETWORK_TO_CHAINID[chain]) && (
+            <Row justify="flex-end">
+              <ButtonPrimary width="fit-content" onClick={() => navigateToLimitPage({ address, chain })}>
+                <Text color={theme.textReverse} fontSize="14px" lineHeight="20px">
+                  <RowFit gap="4px">
+                    <Icon id="chart" size={16} /> Place Limit Order
+                  </RowFit>
+                </Text>
+              </ButtonPrimary>
+            </Row>
+          )}
         </SectionWrapper>
         <SectionWrapper
           show={tokenAnalysisSettings?.liveDEXTrades}

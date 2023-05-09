@@ -21,6 +21,7 @@ import InfoHelper from 'components/InfoHelper'
 import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
+import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
 import {
@@ -201,6 +202,14 @@ export const SupportResistanceLevel = () => {
 
   return (
     <TableWrapper>
+      <colgroup>
+        <col width="300px" style={{ minWidth: '100px' }} />
+        {Array(maxLength)
+          .fill('')
+          .map((_, index) => (
+            <col key={index} width="300px" />
+          ))}
+      </colgroup>
       <thead>
         <>
           <th>Type</th>
@@ -234,16 +243,18 @@ export const SupportResistanceLevel = () => {
         <tr>
           <>
             <td>
-              <Text color={theme.primary}>Support</Text>
+              <Text color={theme.primary} fontSize="14px">
+                Support
+              </Text>
             </td>
             {Array(maxLength)
               .fill('')
               .map((i, index) => (
                 <td key={index} style={{ alignItems: 'flex-start' }}>
-                  <Text color={theme.text}>
+                  <Text color={theme.text} fontSize="14px" lineHeight="20px">
                     {supports?.[index] && currentPrice && `${formatLevelValue(supports[index].value)}`}
                   </Text>
-                  <Text color={theme.apr} fontSize="12px">
+                  <Text color={theme.apr} fontSize="12px" lineHeight="16px">
                     {supports?.[index] && currentPrice
                       ? (((supports[index].value - currentPrice) / currentPrice) * 100).toFixed(2) + '%'
                       : '--'}
@@ -255,16 +266,18 @@ export const SupportResistanceLevel = () => {
         <tr>
           <>
             <td>
-              <Text color={theme.red}>Resistance</Text>
+              <Text color={theme.red} fontSize="14px">
+                Resistance
+              </Text>
             </td>
             {Array(maxLength)
               .fill('')
               .map((i, index) => (
                 <td key={index} style={{ alignItems: 'flex-start' }}>
-                  <Text color={theme.text}>
+                  <Text color={theme.text} fontSize="14px" lineHeight="20px">
                     {resistances?.[index] && currentPrice && `${formatLevelValue(resistances[index].value)} `}
                   </Text>
-                  <Text color={theme.red} fontSize="12px">
+                  <Text color={theme.red} fontSize="12px" lineHeight="16px">
                     {resistances?.[index] && currentPrice
                       ? (((resistances[index].value - currentPrice) / currentPrice) * 100).toFixed(2) + '%'
                       : '--'}
@@ -476,6 +489,9 @@ const WidgetTokenRow = ({ token, onClick }: { token: ITokenList; onClick?: () =>
   const rowRef = useRef<HTMLTableRowElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
 
+  useOnClickOutside(rowRef, () => setShowMenu(false))
+  useOnClickOutside(rowRef, () => setShowSwapMenu(false))
+
   const handleRowClick = (e: any) => {
     if (hasMutipleChain) {
       const left = e.clientX - (rowRef.current?.getBoundingClientRect()?.left || 0)
@@ -503,7 +519,12 @@ const WidgetTokenRow = ({ token, onClick }: { token: ITokenList; onClick?: () =>
   const handleSwapClick = (e: any) => {
     e.stopPropagation()
     if (hasMutipleChain) {
+      const left =
+        e.clientX -
+        (rowRef.current?.getBoundingClientRect()?.left || 0) -
+        (menuRef.current?.getBoundingClientRect()?.width || 0)
       setShowSwapMenu(true)
+      setMenuLeft(left)
     } else {
       navigateToSwapPage(token.tokens[0])
     }
@@ -517,7 +538,7 @@ const WidgetTokenRow = ({ token, onClick }: { token: ITokenList; onClick?: () =>
   }
 
   return (
-    <tr onClick={handleRowClick}>
+    <tr onClick={handleRowClick} style={{ position: 'relative' }} ref={rowRef}>
       <td>
         <RowFit gap="6px">
           <SimpleTooltip text={t`Add to watchlist`}>
@@ -560,7 +581,11 @@ const WidgetTokenRow = ({ token, onClick }: { token: ITokenList; onClick?: () =>
       <td>
         <Column style={{ alignItems: 'center', width: '110px' }}>
           <SmallKyberScoreMeter data={latestKyberScore} tokenName={token.symbol} />
-          <Text color={calculateValueToColor(token.kyber_score, theme)} fontSize="14px" fontWeight={500}>
+          <Text
+            color={calculateValueToColor(latestKyberScore?.kyber_score || 0, theme)}
+            fontSize="14px"
+            fontWeight={500}
+          >
             {latestKyberScore?.tag || t`Not Available`}
           </Text>
         </Column>
@@ -597,6 +622,7 @@ const WidgetTokenRow = ({ token, onClick }: { token: ITokenList; onClick?: () =>
       {hasMutipleChain && (
         <>
           <MultipleChainDropdown
+            ref={menuRef}
             show={showMenu}
             menuLeft={menuLeft}
             tokens={token?.tokens}
@@ -634,11 +660,11 @@ export const WidgetTable = ({
     <div style={{ width: '100%', height: '100%', overflow: 'scroll' }}>
       <WidgetTableWrapper style={{ borderRadius: '0' }}>
         <colgroup>
+          <col style={{ width: '220px' }} />
+          <col style={{ width: '160px' }} />
           <col style={{ width: '200px' }} />
-          <col style={{ width: '150px' }} />
-          <col style={{ width: '190px' }} />
-          <col style={{ width: '120px' }} />
-          <col style={{ width: '60px' }} />
+          <col style={{ width: '130px' }} />
+          <col style={{ width: '80px' }} />
         </colgroup>
         <thead style={{ backgroundColor: theme.background }}>
           <th>
