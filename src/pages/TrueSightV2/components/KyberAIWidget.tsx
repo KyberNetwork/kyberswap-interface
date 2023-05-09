@@ -36,7 +36,7 @@ const CloseButton = styled.div`
   top: -8px;
   opacity: 0;
   transition: all 0.1s linear;
-  z-index: 10;
+  z-index: 13;
   cursor: pointer;
   :hover {
     background-color: ${({ theme }) => theme.tableHeader};
@@ -59,6 +59,10 @@ const WidgetWrapper = styled.div<{ show?: boolean }>`
       opacity: 1;
     }
   }
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    display: none;
+  `}
 `
 const ButtonWrapper = styled.div`
   display: flex;

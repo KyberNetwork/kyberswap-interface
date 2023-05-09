@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/macro'
 import React, { useEffect, useReducer } from 'react'
 import { X } from 'react-feather'
+import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { keyframes } from 'styled-components'
 
@@ -17,6 +18,7 @@ import Row, { RowBetween } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 
 const preloadImage = (url: string) => (document.createElement('img').src = url)
 preloadImage(tutorial1)
@@ -28,7 +30,11 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
-  width: min(85vw, 808px);
+  width: min(95vw, 808px);
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    min-height: 70vh;
+  `}
 `
 const fadeInScale = keyframes`
   0% { opacity: 0; transform:scale(0.7) }
@@ -85,6 +91,12 @@ const StepWrapper = styled.div`
   p {
     margin-bottom: 16px;
   }
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    p {
+    margin-bottom: 0px;
+  }
+  `}
 `
 
 const StepDot = styled.div<{ active?: boolean }>`
@@ -248,12 +260,30 @@ function reducer(state: TutorialAnimationState, action: ActionTypes) {
 const StepContent = ({ step, ...rest }: { step: number; [k: string]: any }) => {
   const theme = useTheme()
   const { image, text } = steps[step - 1]
+  const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   return (
     <StepWrapper {...rest}>
-      <div style={{ overflow: 'hidden', borderRadius: '16px', boxShadow: '0 0 6px 0px #00000060', height: '350px' }}>
-        <img src={image} alt={'KyberAI Tutorial ' + step} style={{ height: '352px', display: 'block' }} />
+      <div
+        style={{
+          overflow: 'hidden',
+          borderRadius: '16px',
+          boxShadow: '0 0 6px 0px #00000060',
+          height: above768 ? '350px' : 'fit-content',
+        }}
+      >
+        <img
+          src={image}
+          alt={'KyberAI Tutorial ' + step}
+          style={{ height: above768 ? '352px' : 'fit-content', display: 'block', maxWidth: '100%' }}
+        />
       </div>
-      <Text fontSize="14px" lineHeight="20px" color={theme.subText} backgroundColor={theme.tableHeader} height="202px">
+      <Text
+        fontSize={above768 ? '14px' : '12px'}
+        lineHeight={above768 ? '20px' : '16px'}
+        color={theme.subText}
+        backgroundColor={theme.tableHeader}
+        height={above768 ? '202px' : 'fit-content'}
+      >
         {text}
       </Text>
     </StepWrapper>
@@ -267,6 +297,8 @@ const TutorialModal = () => {
   const [{ step, animationState, swipe }, dispatch] = useReducer(reducer, initialState)
   const lastStep =
     animationState === AnimationState.Animating ? (swipe === SwipeDirection.LEFT ? step - 1 : step + 1) : undefined
+
+  const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   useEffect(() => {
     if (!localStorage.getItem('showedKyberAITutorial')) {
@@ -287,7 +319,7 @@ const TutorialModal = () => {
     <Modal isOpen={isOpen} width="fit-content" maxWidth="fit-content" onDismiss={() => dispatch(ActionTypes.CLOSE)}>
       <Wrapper>
         <RowBetween>
-          <Row fontSize="20px" lineHeight="24px" color={theme.text} gap="6px">
+          <Row fontSize={above768 ? '20px' : '16px'} lineHeight="24px" color={theme.text} gap="6px">
             <Trans>
               Welcome to <ApeIcon />
               KyberAI
@@ -314,7 +346,14 @@ const TutorialModal = () => {
             <img
               src={tutorial1}
               alt="KyberAI Tutorial"
-              style={{ width: '760px', height: '400px', borderRadius: '20px', backgroundColor: theme.buttonBlack }}
+              style={{
+                width: '760px',
+                height: above768 ? '400px' : 'auto',
+                borderRadius: '20px',
+                backgroundColor: theme.buttonBlack,
+                maxWidth: '100%',
+                aspectRatio: 76 / 40,
+              }}
             />
             <Text fontSize="14px" lineHeight="20px" color={theme.subText} flex="1">
               <Trans>
@@ -326,7 +365,7 @@ const TutorialModal = () => {
 
             <Row justify="center" gap="20px">
               <ButtonOutlined width="160px" onClick={toggle}>
-                <Text fontSize="16px" lineHeight="20px">
+                <Text fontSize={above768 ? '14px' : '12px'} lineHeight={above768 ? '20px' : '14px'}>
                   <Trans>Maybe later</Trans>
                 </Text>
               </ButtonOutlined>
@@ -336,7 +375,7 @@ const TutorialModal = () => {
                   dispatch(ActionTypes.START)
                 }}
               >
-                <Text fontSize="16px" lineHeight="20px">
+                <Text fontSize={above768 ? '14px' : '12px'} lineHeight={above768 ? '20px' : '14px'}>
                   <Trans>Let&apos;s get started</Trans>
                 </Text>
               </ButtonPrimary>
@@ -372,12 +411,12 @@ const TutorialModal = () => {
                 <StepDot key={index} active={step - 1 === index} />
               ))}
             </Row>
-            <Row gap="20px" justify="center">
-              <ButtonOutlined width="160px" onClick={() => dispatch(ActionTypes.PREV_STEP)}>
-                Back
+            <Row gap="20px" justify="center" marginBottom={above768 ? 0 : '20px'}>
+              <ButtonOutlined width={above768 ? '160px' : '100px'} onClick={() => dispatch(ActionTypes.PREV_STEP)}>
+                <Text fontSize={above768 ? '14px' : '12px'}>Back</Text>
               </ButtonOutlined>
-              <ButtonPrimary width="160px" onClick={() => dispatch(ActionTypes.NEXT_STEP)}>
-                Next
+              <ButtonPrimary width={above768 ? '160px' : '100px'} onClick={() => dispatch(ActionTypes.NEXT_STEP)}>
+                <Text fontSize={above768 ? '14px' : '12px'}>Next</Text>
               </ButtonPrimary>
             </Row>
           </>

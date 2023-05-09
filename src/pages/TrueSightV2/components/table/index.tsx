@@ -74,6 +74,9 @@ const TableWrapper = styled.table`
   tr:not(:last-child) {
     border-bottom: 1px solid ${({ theme }) => theme.border};
   }
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    border-radius: 0;
+  `}
 `
 
 const ActionButton = styled.div<{ color: string; hasBg?: boolean }>`
@@ -109,13 +112,13 @@ export const Top10HoldersTable = () => {
   return (
     <TableWrapper style={{ margin: above768 ? '0' : '-16px' }}>
       <colgroup>
-        <col style={{ width: '300px' }} />
+        <col style={{ width: '300px', minWidth: '150px' }} />
         <col style={{ width: '300px' }} />
         <col style={{ width: '300px' }} />
         {/* <col style={{ width: '500px' }} /> */}
       </colgroup>
       <thead>
-        <th>
+        <th style={{ position: 'sticky', zIndex: 2 }}>
           <Trans>Address</Trans>
         </th>
         <th>
@@ -131,7 +134,7 @@ export const Top10HoldersTable = () => {
       <tbody>
         {data?.slice(0, 10).map((item: IHolderList, i: number) => (
           <tr key={i}>
-            <td>
+            <td style={{ position: 'sticky', zIndex: 2 }}>
               <Column gap="4px">
                 <Text fontSize="14px" lineHeight="20px" color={theme.text}>
                   {shortenAddress(1, item.address)}

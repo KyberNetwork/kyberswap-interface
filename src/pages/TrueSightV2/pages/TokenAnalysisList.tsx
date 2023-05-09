@@ -526,7 +526,11 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
       <td>
         <Column style={{ alignItems: 'center', width: '110px' }}>
           <SmallKyberScoreMeter data={latestKyberScore} tokenName={token.symbol} />
-          <Text color={calculateValueToColor(token.kyber_score, theme)} fontSize="14px" fontWeight={500}>
+          <Text
+            color={calculateValueToColor(latestKyberScore?.kyber_score || 0, theme)}
+            fontSize="14px"
+            fontWeight={500}
+          >
             {latestKyberScore?.tag || 'Not Available'}
           </Text>
         </Column>
@@ -759,7 +763,7 @@ export default function TokenAnalysisList() {
             <Table>
               <colgroup>
                 <col style={{ width: '80px' }} />
-                <col style={{ width: '220px', minWidth: '200px' }} />
+                <col style={{ width: '220px', minWidth: '180px' }} />
                 <col style={{ width: '200px', minWidth: 'auto' }} />
                 <col style={{ width: '230px', minWidth: 'auto' }} />
                 <col style={{ width: '250px', minWidth: 'auto' }} />
