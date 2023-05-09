@@ -289,7 +289,7 @@ export default function SwapDetails({
                   gap: '4px',
                 }}
               >
-                {feeAmountUsdFromGet !== feeAmountUsdFromBuild && (
+                {buildData && feeAmountUsdFromGet !== feeAmountUsdFromBuild && (
                   <Flex
                     sx={{
                       background: rgba(theme.warning, 0.3),
@@ -304,7 +304,7 @@ export default function SwapDetails({
                   </Flex>
                 )}
                 <TYPE.black color={theme.text} fontWeight={500} fontSize={12}>
-                  {feeAmountUsdFromBuild || '--'}
+                  {feeAmountUsdFromBuild || feeAmountFromBuild || '--'}
                 </TYPE.black>
               </Flex>
             }

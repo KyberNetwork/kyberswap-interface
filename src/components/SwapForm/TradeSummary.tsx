@@ -141,7 +141,7 @@ const SwapFee: React.FC = () => {
 
       <RowFixed>
         <TYPE.black color={theme.text} fontSize={12}>
-          {feeAmountUsd || '--'}
+          {feeAmountUsd || feeAmount || '--'}
         </TYPE.black>
       </RowFixed>
     </RowBetween>
