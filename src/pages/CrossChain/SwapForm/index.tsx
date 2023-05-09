@@ -78,17 +78,17 @@ export default function SwapForm() {
   } = useCrossChainSetting()
   const isPairSupport = useIsTokensSupport()
   const routeParams: GetRoute | undefined = useMemo(() => {
-    if (!currencyIn || !currencyOut || !chainIdOut || !account || !Number(inputAmount) || !isPairSupport) return
+    if (!currencyIn || !currencyOut || !chainIdOut || !Number(inputAmount) || !isPairSupport) return
     return {
       fromChain: chainId,
       toChain: chainIdOut,
       fromToken: getTokenAddress(currencyIn),
       toToken: getTokenAddress(currencyOut),
       fromAmount: tryParseAmount(inputAmount, currencyIn)?.quotient.toString() ?? '',
-      toAddress: account,
+      toAddress: account ?? '',
       slippage: slippageTolerance / 100,
       enableExpress: enableExpressExecution,
-      // customContractCalls?: ContractCall[]; // todo
+      quoteOnly: !account,
     }
   }, [
     currencyIn,
@@ -283,7 +283,7 @@ export default function SwapForm() {
             onMax={handleMaxInput}
             onCurrencySelect={onCurrencySelect}
             id="swap-currency-input"
-            usdValue={amountUsdIn || ''}
+            usdValue={amountUsdIn}
           />
         </Flex>
 
@@ -312,7 +312,7 @@ export default function SwapForm() {
             }
             onCurrencySelect={onCurrencySelectDest}
             id="swap-currency-output"
-            usdValue={amountUsdOut || ''}
+            usdValue={amountUsdOut}
           />
         </div>
 
