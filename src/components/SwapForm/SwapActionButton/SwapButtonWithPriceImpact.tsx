@@ -31,6 +31,7 @@ export const SwapButtonWithPriceImpact = ({
   disabled,
   showNoteGetRoute,
   disabledText,
+  text,
 }: {
   isProcessingSwap: boolean
   minimal: boolean
@@ -42,6 +43,7 @@ export const SwapButtonWithPriceImpact = ({
   disabled?: boolean
   showNoteGetRoute?: boolean
   disabledText?: string
+  text?: string
 }) => {
   const theme = useTheme()
   const [isDegenMode] = useDegenModeManager()
@@ -112,7 +114,7 @@ export const SwapButtonWithPriceImpact = ({
           <Info size={14} />
         </MouseoverTooltip>
       ) : null}
-      <Text>{shouldDisable ? disabledText || t`Swap Disabled` : t`Swap`}</Text>
+      <Text>{shouldDisable ? disabledText || t`Swap Disabled` : text || t`Swap`}</Text>
     </CustomPrimaryButton>
   )
 }

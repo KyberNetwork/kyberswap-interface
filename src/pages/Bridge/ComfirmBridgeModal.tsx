@@ -376,6 +376,7 @@ export const ConfirmCrossChainModal = memo(function ConfirmCrossChainModal({
             </Disclaimer>
 
             <SwapButtonWithPriceImpact
+              text={t`Confirm Swap`}
               disabledText={t`Confirm Swap`}
               onClick={onSwap}
               disabled={!accepted}
