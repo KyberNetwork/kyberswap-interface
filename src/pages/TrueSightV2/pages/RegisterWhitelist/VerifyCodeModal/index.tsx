@@ -209,10 +209,16 @@ export default function VerifyCodeModal({
             />
 
             <Label style={{ width: '100%', textAlign: 'center' }}>
-              {expiredDuration > 0 && <Trans>Code will be expired in {formatTime(expiredDuration)}</Trans>}
+              {expiredDuration > 0 && (
+                <Trans>
+                  Code will be expired in {formatTime(expiredDuration)}
+                  {canShowResend ? '.' : ''}
+                </Trans>
+              )}
+              &nbsp;
               {canShowResend && (
                 <Trans>
-                  . Didn&apos;t receive code?{' '}
+                  Didn&apos;t receive code?{' '}
                   <Text as="span" color={theme.primary} style={{ cursor: 'pointer' }} onClick={sendEmail}>
                     Resend
                   </Text>
