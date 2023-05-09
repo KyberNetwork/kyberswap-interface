@@ -138,9 +138,16 @@ export const Top10HoldersTable = () => {
                 </Text>
                 <RowFit gap="12px">
                   <ActionButton color={theme.subText} style={{ padding: '6px 0' }}>
-                    <Icon id="copy" size={16} /> Copy
+                    <CopyHelper toCopy={item.address} text="Copy" />
                   </ActionButton>
-                  <ActionButton color={theme.subText} style={{ padding: '6px 0' }}>
+                  <ActionButton
+                    color={theme.subText}
+                    style={{ padding: '6px 0' }}
+                    onClick={() => {
+                      chain &&
+                        window.open(getEtherscanLink(NETWORK_TO_CHAINID[chain], item.address, 'address'), '_blank')
+                    }}
+                  >
                     <Icon id="open-link" size={16} /> Analyze
                   </ActionButton>
                 </RowFit>
@@ -269,9 +276,9 @@ export const SupportResistanceLevel = () => {
 }
 
 function colorRateText(value: number, theme: DefaultTheme) {
-  if (value > 0.015) return theme.red
+  if (value > 0.015) return theme.primary
   if (value > 0.005) return theme.text
-  return theme.primary
+  return theme.red
 }
 
 export const FundingRateTable = () => {

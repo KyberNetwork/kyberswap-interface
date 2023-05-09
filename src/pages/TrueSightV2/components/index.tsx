@@ -103,7 +103,6 @@ export const SectionWrapper = ({
   id,
   shareButton,
   fullscreenButton,
-  onShareClick,
   tabs,
   activeTab,
   onTabClick,
@@ -168,7 +167,8 @@ export const SectionWrapper = ({
                     {subTitle}
                   </Text>
                 )}
-                {shareButton && <ShareButton onClick={() => onShareClick?.(id)} />}
+                {/* {shareButton && <ShareButton onClick={() => onShareClick?.(id)} />} */}
+                {shareButton && <></>}
                 {fullscreenButton && <FullscreenButton element={ref.current} />}
               </RowFit>
             </RowBetween>
@@ -249,7 +249,8 @@ export const SectionWrapper = ({
                 </Text>
               </MouseoverTooltip>
               <RowFit color={theme.subText} gap="12px">
-                {shareButton && <ShareButton onClick={() => onShareClick?.(id)} />}
+                {/* {shareButton && <ShareButton onClick={() => onShareClick?.(id)} />} */}
+                {shareButton && <></>}
                 {fullscreenButton && <FullscreenButton element={ref.current} />}
               </RowFit>
             </RowBetween>

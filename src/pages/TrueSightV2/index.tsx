@@ -15,6 +15,7 @@ import useTheme from 'hooks/useTheme'
 
 import TrueSightWidget from './components/KyberAIWidget'
 import SearchWithDropDown from './components/SearchWithDropDown'
+import TutorialModal from './components/TutorialModal'
 import SingleToken from './pages/SingleToken'
 import TokenAnalysisList from './pages/TokenAnalysisList'
 
@@ -106,6 +107,7 @@ export default function TrueSightV2() {
       <Wrapper>
         {isSingleToken ? <SingleToken /> : <TokenAnalysisList />}
         <TrueSightWidget />
+        <TutorialModal />
       </Wrapper>
     </>
   )

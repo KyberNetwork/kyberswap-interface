@@ -114,6 +114,10 @@ const getCommunityLabelFromURL = (url: string) => {
   if (url.includes('medium')) {
     return 'Medium'
   }
+  if (url.includes('instagram')) {
+    return 'Instagram'
+  }
+
   return url.split('://')[1]
 }
 

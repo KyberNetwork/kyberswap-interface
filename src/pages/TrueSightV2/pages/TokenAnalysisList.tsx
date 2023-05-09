@@ -33,7 +33,6 @@ import NetworkSelect from '../components/NetworkSelect'
 import SimpleTooltip from '../components/SimpleTooltip'
 import SmallKyberScoreMeter from '../components/SmallKyberScoreMeter'
 import TokenChart from '../components/TokenChartSVG'
-import TutorialModal from '../components/TutorialModal'
 import KyberScoreChart from '../components/chart/KyberScoreChart'
 import { SUPPORTED_NETWORK_KYBERAI } from '../constants'
 import { useTokenListQuery } from '../hooks/useKyberAIData'
@@ -472,7 +471,6 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
       navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.tokens[0].chain}/${token.tokens[0].address}`)
     }
   }
-  const [stared, setStared] = useState(false)
 
   const latestKyberScore: IKyberScoreChart | undefined = token?.ks_3d?.[token.ks_3d.length - 1]
   return (
@@ -480,15 +478,14 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
       <td>
         <RowFit style={{ width: '30px' }}>
           {
-            <SimpleTooltip text={!stared ? t`Add to watchlist` : t`Remove from watchlist`}>
+            <SimpleTooltip text={!token?.isWatched ? t`Add to watchlist` : t`Remove from watchlist`}>
               <Star
                 size={20}
                 style={{ marginRight: '6px', cursor: 'pointer' }}
-                fill={stared ? theme.primary : 'none'}
-                stroke={stared ? theme.primary : theme.subText}
+                fill={token?.isWatched ? theme.primary : 'none'}
+                stroke={token?.isWatched ? theme.primary : theme.subText}
                 onClick={e => {
                   e.stopPropagation()
-                  setStared(prev => !prev)
                 }}
               />
             </SimpleTooltip>
@@ -968,7 +965,6 @@ export default function TokenAnalysisList() {
           )}
         </PaginationWrapper>
       </Column>
-      <TutorialModal />
       <ShareModal title={t`Share this token list with your friends!`} />
     </>
   )

@@ -9,8 +9,9 @@ import tutorial2 from 'assets/images/truesight-v2/tutorial_2.png'
 import tutorial3 from 'assets/images/truesight-v2/tutorial_3.png'
 import tutorial4 from 'assets/images/truesight-v2/tutorial_4.png'
 import tutorial5 from 'assets/images/truesight-v2/tutorial_5.png'
+import tutorial6 from 'assets/images/truesight-v2/tutorial_6.png'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
-import Icon from 'components/Icons/Icon'
+import ApeIcon from 'components/Icons/ApeIcon'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
 import useTheme from 'hooks/useTheme'
@@ -28,7 +29,6 @@ const Wrapper = styled.div`
   flex-direction: column;
   gap: 16px;
   width: min(85vw, 808px);
-  height: 700px;
 `
 const fadeInScale = keyframes`
   0% { opacity: 0; transform:scale(0.7) }
@@ -78,7 +78,6 @@ const StepWrapper = styled.div`
   img {
     object-fit: contain;
   }
-
   b {
     font-weight: 500;
     color: ${({ theme }) => theme.text};
@@ -87,6 +86,7 @@ const StepWrapper = styled.div`
     margin-bottom: 16px;
   }
 `
+
 const StepDot = styled.div<{ active?: boolean }>`
   height: 8px;
   width: 8px;
@@ -155,7 +155,7 @@ const steps = [
     ),
   },
   {
-    image: tutorial5,
+    image: tutorial6,
     text: (
       <Trans>
         <p>That&apos;s not all! Here are a few handy tips so you can get the most out of KyberAI:</p>{' '}
@@ -227,7 +227,7 @@ function reducer(state: TutorialAnimationState, action: ActionTypes) {
       }
       break
     case ActionTypes.PREV_STEP:
-      if (state.step > 1 && state.animationState !== AnimationState.Animating) {
+      if (state.animationState !== AnimationState.Animating) {
         return {
           step: state.step - 1,
           animationState: AnimationState.Animating,
@@ -250,8 +250,10 @@ const StepContent = ({ step, ...rest }: { step: number; [k: string]: any }) => {
   const { image, text } = steps[step - 1]
   return (
     <StepWrapper {...rest}>
-      <img src={image} alt={'KyberAI Tutorial ' + step} style={{ height: '292px' }} />
-      <Text fontSize="14px" lineHeight="20px" color={theme.subText} flex={1} backgroundColor={theme.tableHeader}>
+      <div style={{ overflow: 'hidden', borderRadius: '16px', boxShadow: '0 0 6px 0px #00000060', height: '350px' }}>
+        <img src={image} alt={'KyberAI Tutorial ' + step} style={{ height: '352px', display: 'block' }} />
+      </div>
+      <Text fontSize="14px" lineHeight="20px" color={theme.subText} backgroundColor={theme.tableHeader} height="202px">
         {text}
       </Text>
     </StepWrapper>
@@ -287,7 +289,7 @@ const TutorialModal = () => {
         <RowBetween>
           <Row fontSize="20px" lineHeight="24px" color={theme.text} gap="6px">
             <Trans>
-              Welcome to <Icon id="truesight-v2" style={{ display: 'inline-block' }} />
+              Welcome to <ApeIcon />
               KyberAI
             </Trans>
             <div
