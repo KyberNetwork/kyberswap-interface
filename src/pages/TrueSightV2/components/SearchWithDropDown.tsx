@@ -247,7 +247,7 @@ const TokenItem = ({ token, onClick }: { token: ITokenSearchResult; onClick?: ()
         <RowFit gap="10px">
           <div style={{ position: 'relative' }}>
             <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
-              <img src={token.logo} alt={token.symbol} width="22px" height="22px" />
+              <img src={token.logo} alt={token.symbol} width="22px" height="22px" style={{ display: 'block' }} />
             </div>
             <div
               style={{

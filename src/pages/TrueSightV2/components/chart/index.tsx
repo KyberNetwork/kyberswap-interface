@@ -2133,6 +2133,22 @@ export const LiquidOnCentralizedExchanges = () => {
   const [showShort, setShowShort] = useState(true)
   const [showPrice, setShowPrice] = useState(true)
 
+  const dataRange = useMemo(() => {
+    if (!data) return undefined
+    let maxValue = 0
+
+    data.chart.forEach(item => {
+      if (item.buyVolUsd > maxValue) {
+        maxValue = item.buyVolUsd
+      }
+      if (item.sellVolUsd > maxValue) {
+        maxValue = item.sellVolUsd
+      }
+    })
+
+    return [-roundNumberUp(maxValue), roundNumberUp(maxValue)]
+  }, [data])
+
   const formattedData: ILiquidCEX[] = useMemo(() => {
     if (!data) return []
     const dataTemp: (ILiquidCEX & { totalVol: number })[] = []
@@ -2217,7 +2233,7 @@ export const LiquidOnCentralizedExchanges = () => {
                       onClick={() => setShowShort(prev => !prev)}
                     />
                     <LegendButton
-                      text="BTC Price"
+                      text={`${tokenOverview?.symbol.toUpperCase()} Price`}
                       iconStyle={{
                         height: '4px',
                         width: '16px',
@@ -2274,6 +2290,7 @@ export const LiquidOnCentralizedExchanges = () => {
                     width={40}
                     orientation="left"
                     tickFormatter={value => formatShortNum(value)}
+                    domain={dataRange}
                   />
                   <YAxis
                     yAxisId="right"
@@ -2283,7 +2300,7 @@ export const LiquidOnCentralizedExchanges = () => {
                     tick={{ fill: theme.subText, fontWeight: 400 }}
                     width={40}
                     orientation="right"
-                    tickFormatter={value => formatShortNum(value)}
+                    tickFormatter={value => '$' + formatShortNum(value)}
                     domain={[(dataMin: any) => dataMin * 0.98, (dataMax: any) => dataMax * 1.01]}
                   />
                   <Tooltip
@@ -2389,7 +2406,7 @@ export const LiquidOnCentralizedExchanges = () => {
                       strokeWidth={2}
                       dot={false}
                       {...{
-                        label: <CustomizedLabel timeframe={timeframe} />,
+                        label: <CustomizedLabel timeframe={timeframe} dollarSign />,
                       }}
                     />
                   )}

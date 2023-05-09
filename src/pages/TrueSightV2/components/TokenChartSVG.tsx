@@ -26,7 +26,7 @@ export default function TokenChart({
         tempData.push({ timestamp: now - 86400 * i, value: 0 })
       }
     }
-    return tempData
+    return tempData.sort((a, b) => a.timestamp - b.timestamp)
   }, [data])
 
   if (!formattedData || formattedData.length === 0) return <></>

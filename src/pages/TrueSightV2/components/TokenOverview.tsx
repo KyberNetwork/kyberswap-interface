@@ -137,11 +137,6 @@ const ExternalLink = ({ href, className, children }: { href: string; className?:
   )
 }
 
-// const formatMoneyWithSign = (amount: number, decimal?: number): string => {
-//   const isNegative = amount < 0
-//   return (isNegative ? '-' : '') + '$' + (+Math.abs(amount).toFixed(decimal || 0)).toLocaleString()
-// }
-
 export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLoading?: boolean }) => {
   const theme = useTheme()
   const { chain } = useParams()
@@ -155,6 +150,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
     if (data?.kyberScore.score < 40) return 'bearish'
     return ''
   }, [data])
+  const priceChangeColor = data && data.price24hChangePercent > 0 ? theme.primary : theme.red
   return (
     <>
       {above768 ? (
@@ -170,9 +166,9 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                     {isLoading ? <DotsLoader /> : '$' + formatTokenPrice(data?.price || 0)}
                   </Text>
                   <Text
-                    color={theme.red}
+                    color={data && data.price24hChangePercent > 0 ? theme.primary : theme.red}
                     fontSize="12px"
-                    backgroundColor={rgba(theme.red, 0.2)}
+                    backgroundColor={rgba(data && data.price24hChangePercent > 0 ? theme.primary : theme.red, 0.2)}
                     display="inline"
                     padding="4px 8px"
                     style={{ borderRadius: '16px' }}
@@ -180,16 +176,16 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                     <RowFit gap="2px">
                       <ChevronIcon
                         rotate={data && data.price24hChangePercent > 0 ? '180deg' : '0deg'}
-                        color={data && data.price24hChangePercent > 0 ? theme.primary : theme.red}
+                        color={priceChangeColor}
                       />
                       {data?.price24hChangePercent ? Math.abs(data.price24hChangePercent).toFixed(2) : 0}%
                     </RowFit>
                   </Text>
                 </RowFit>
-                <Row color={theme.red} fontSize={12} lineHeight="16px">
+                <Row color={priceChangeColor} fontSize={12} lineHeight="16px">
                   <ChevronIcon
                     rotate={data && data.price24hChangePercent > 0 ? '180deg' : '0deg'}
-                    color={data && data.price24hChangePercent > 0 ? theme.primary : theme.red}
+                    color={priceChangeColor}
                   />
                   {data && '$' + formatTokenPrice(Math.abs(data.price24hChangePercent * data.price) / 100)}
                 </Row>
