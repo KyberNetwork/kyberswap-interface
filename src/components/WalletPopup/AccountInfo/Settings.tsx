@@ -75,7 +75,7 @@ const Settings: React.FC = () => {
             <Trans>Disconnect</Trans>
           </Text>
         </MenuItem>
-        {isLogin && (
+        {isLogin && ( // todo
           <MenuItem onClick={() => KyberOauth2.logout()}>
             <LogOut size={16} />
             <Trans>Sign out</Trans>

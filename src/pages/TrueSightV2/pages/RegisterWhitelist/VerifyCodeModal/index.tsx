@@ -10,6 +10,8 @@ import { NotificationType } from 'components/Announcement/type'
 import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
+import { TIMES_IN_SECS } from 'constants/index'
+import useInterval from 'hooks/useInterval'
 import useTheme from 'hooks/useTheme'
 import OTPInput from 'pages/TrueSightV2/pages/RegisterWhitelist/VerifyCodeModal/OtpInput'
 import { getErrorMessage } from 'pages/TrueSightV2/utils'
@@ -51,6 +53,8 @@ const Input = styled.input<{ hasError: boolean }>`
   text-align: center;
 `
 
+const timeExpire = 5
+const defaultTime = timeExpire * TIMES_IN_SECS.ONE_MIN
 export default function VerifyCodeModal({
   isOpen,
   onDismiss,
@@ -74,6 +78,17 @@ export default function VerifyCodeModal({
   const notify = useNotify()
   const { userInfo } = useSessionInfo()
 
+  const [expiredDuration, setExpireDuration] = useState(defaultTime)
+  const canShowResend = expiredDuration < (timeExpire - 1) * TIMES_IN_SECS.ONE_MIN
+
+  const interval = useRef<NodeJS.Timeout>()
+  useEffect(() => {
+    interval.current = setInterval(() => {
+      setExpireDuration(expiredDuration - 1)
+    }, 1000)
+    return () => interval.current && clearInterval(interval.current)
+  }, [expiredDuration])
+
   const showNotiSuccess = useCallback(
     (withNotify = true) => {
       setVerifySuccess(true)
@@ -87,7 +102,17 @@ export default function VerifyCodeModal({
     [notify],
   )
 
-  const sendEmail = useCallback(() => email && sendOtp({ email }), [email, sendOtp])
+  const formatTime = (secs: number) => {
+    const mins = (secs / 60) | 0
+    const pad = (num: number) => (num < 10 ? '0' + num : num)
+    return `${pad(mins)}:${pad(secs - mins * 60)}`
+  }
+
+  const sendEmail = useCallback(() => {
+    email && sendOtp({ email })
+    interval.current && clearInterval(interval.current)
+    setExpireDuration(defaultTime)
+  }, [email, sendOtp])
 
   const checkedRegisterStatus = useRef(false) // prevent spam
   const sendEmailWhenInit = useCallback(() => {
@@ -185,10 +210,15 @@ export default function VerifyCodeModal({
             />
 
             <Label style={{ width: '100%', textAlign: 'center' }}>
-              Didn&apos;t receive code?{' '}
-              <Text as="span" color={theme.primary} style={{ cursor: 'pointer' }} onClick={sendEmail}>
-                Resend
-              </Text>
+              {expiredDuration > 0 && <Trans>Code will be expired in {formatTime(expiredDuration)}</Trans>}
+              {canShowResend && (
+                <Trans>
+                  . Didn&apos;t receive code?{' '}
+                  <Text as="span" color={theme.primary} style={{ cursor: 'pointer' }} onClick={sendEmail}>
+                    Resend
+                  </Text>
+                </Trans>
+              )}
             </Label>
             <ButtonPrimary height={'36px'} disabled={otp.length < 6} onClick={verify}>
               <Trans>Verify</Trans>
