@@ -88,7 +88,7 @@ const MenuItem: React.FC<Props> = ({ icon, text, unread, href, isMobile = false,
   const theme = useTheme()
 
   const path = `${APP_PATHS.NOTIFICATION_CENTER}${href}`
-  const isActive = location.pathname === path
+  const isActive = location.pathname === path || location.pathname === path.substring(0, path.length - 1)
 
   const { mixpanelHandler } = useMixpanel()
   const trackingPriceAlertTab = () => {
