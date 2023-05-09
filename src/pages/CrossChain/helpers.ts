@@ -2,7 +2,7 @@ import { RouteData } from '@0xsquid/sdk'
 
 import { CrossChainTransferStatus } from 'pages/CrossChain/useTransferHistory'
 
-const formatNumber = (number: string | undefined) => number?.replace(',', '')
+const formatNumber = (number: string | undefined) => number?.replace(/,/g, '')
 
 export const getRouInfo = (route: RouteData | undefined) => {
   const estimate = route?.estimate
