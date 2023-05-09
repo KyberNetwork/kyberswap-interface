@@ -1,13 +1,12 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { computePoolAddress } from '@kyberswap/ks-sdk-elastic'
-import { Trans, t } from '@lingui/macro'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { Trans } from '@lingui/macro'
+import { useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
 import FarmIssueAnnouncement from 'components/FarmIssueAnnouncement'
 import LocalLoader from 'components/LocalLoader'
-import ShareModal from 'components/ShareModal'
 import { APP_PATHS, FARM_TAB } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { VERSION } from 'constants/v2'
@@ -16,8 +15,6 @@ import useElasticCompensationData from 'hooks/useElasticCompensationData'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
-import { ApplicationModal } from 'state/application/actions'
-import { useModalOpen, useOpenModal } from 'state/application/hooks'
 import { useElasticFarms, useFailedNFTs } from 'state/farms/elastic/hooks'
 import { FarmingPool } from 'state/farms/elastic/types'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
@@ -29,7 +26,6 @@ import ElasticFarmGroup from './ElasticFarmGroup'
 import { DepositModal, StakeUnstakeModal } from './ElasticFarmModals'
 import HarvestModal from './ElasticFarmModals/HarvestModal'
 import WithdrawModal from './ElasticFarmModals/WithdrawModal'
-import { SharePoolContext } from './SharePoolContext'
 
 type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest' | 'forcedWithdraw'
 
@@ -184,14 +180,6 @@ function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: bo
   const pid = selectedPool?.pid
   const selectedPoolId = Number.isNaN(Number(pid)) ? null : Number(pid)
 
-  const openShareModal = useOpenModal(ApplicationModal.SHARE)
-  const isShareModalOpen = useModalOpen(ApplicationModal.SHARE)
-  const [sharePoolAddress, setSharePoolAddress] = useState('')
-  const networkRoute = networkInfo.route || undefined
-  const shareUrl = sharePoolAddress
-    ? `${window.location.origin}/farms/${networkRoute}?search=${sharePoolAddress}&tab=elastic&type=${activeTab}`
-    : undefined
-
   const tokenAddressList = farms
     ?.map(farm => farm.pools)
     .flat()
@@ -223,22 +211,6 @@ function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: bo
     return null
   }
 
-  useEffect(() => {
-    if (sharePoolAddress) {
-      openShareModal()
-    }
-  }, [openShareModal, sharePoolAddress])
-
-  useEffect(() => {
-    setSharePoolAddress(addr => {
-      if (!isShareModalOpen) {
-        return ''
-      }
-
-      return addr
-    })
-  }, [isShareModalOpen, setSharePoolAddress])
-
   const { data: userCompensationData, loading: loadingCompensationData, claimInfo } = useElasticCompensationData()
 
   const userDepositedInfo = farmIds[chainId] && userFarmInfo?.[farmIds[chainId]]?.depositedPositions
@@ -248,7 +220,7 @@ function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: bo
   const showCompensation = isActiveTab && !loadingCompensationData && (canWithdraw || canClaimReward)
 
   return (
-    <SharePoolContext.Provider value={setSharePoolAddress}>
+    <>
       {selectedFarm && selectedModal === 'deposit' && (
         <DepositModal selectedFarmAddress={selectedFarm} onDismiss={onDismiss} />
       )}
@@ -363,11 +335,7 @@ function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: bo
           })}
         </Flex>
       )}
-      <ShareModal
-        title={!sharePoolAddress ? t`Share farms with your friends` : t`Share this farm with your friends!`}
-        url={shareUrl}
-      />
-    </SharePoolContext.Provider>
+    </>
   )
 }
 
