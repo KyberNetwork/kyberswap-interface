@@ -7,7 +7,7 @@ import styled from 'styled-components'
 import headerBanner from 'assets/images/truesight-v2/header_banner.png'
 import headerBannerLight from 'assets/images/truesight-v2/header_banner_light.png'
 import Icon from 'components/Icons/Icon'
-import { RowBetween, RowFit } from 'components/Row'
+import Row, { RowBetween, RowFit } from 'components/Row'
 import SubscribeNotificationButton from 'components/SubscribeButton'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
@@ -32,7 +32,7 @@ const Wrapper = styled.div`
 
   @media only screen and (max-width: 768px) {
     gap: 20px;
-    padding: 28px 16px 40px;
+    padding: 28px 16px;
   }
 `
 
@@ -47,6 +47,13 @@ const HeaderWrapper = styled.div`
     padding: 22px 24px;
     max-width: 1500px;
   }
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    background-image: unset;
+    > * {
+      padding: 12px 16px;
+    }
+  `}
 `
 
 const HeaderNavItem = styled.div<{ active?: boolean }>`
@@ -74,11 +81,11 @@ export default function TrueSightV2() {
   return (
     <>
       <HeaderWrapper>
-        <RowBetween>
+        <RowBetween gap={above768 ? '12px' : '6px'}>
           <RowFit color={theme.text} gap="6px">
             <HeaderNavItem onClick={() => navigate(APP_PATHS.KYBERAI_RANKINGS)} active={!isSingleToken}>
               <RowFit gap="4px">
-                {above768 && <Icon id="leaderboard" size={20} />}
+                <Icon id="leaderboard" size={20} />
                 <Trans>Rankings</Trans>
               </RowFit>
             </HeaderNavItem>
@@ -87,13 +94,13 @@ export default function TrueSightV2() {
             </Text>
             <HeaderNavItem onClick={() => navigate(APP_PATHS.KYBERAI_EXPLORE)} active={isSingleToken}>
               <RowFit gap="4px">
-                {above768 && <Icon id="truesight-v2" size={20} />}
+                <Icon id="truesight-v2" size={20} />
                 <Trans>Explore</Trans>
               </RowFit>
             </HeaderNavItem>
           </RowFit>
-          <RowFit gap="16px">
-            <SearchWithDropDown />
+          <RowFit gap="16px" flex={1} justify="flex-end">
+            {above768 && <SearchWithDropDown />}
             <MouseoverTooltip
               text={t`Subscribe to receive daily email notifications witha curated list of tokens from each category!`}
               placement="right"
@@ -104,6 +111,11 @@ export default function TrueSightV2() {
           </RowFit>
         </RowBetween>
       </HeaderWrapper>
+      {!above768 && (
+        <Row padding="16px">
+          <SearchWithDropDown />
+        </Row>
+      )}
       <Wrapper>
         {isSingleToken ? <SingleToken /> : <TokenAnalysisList />}
         <TrueSightWidget />

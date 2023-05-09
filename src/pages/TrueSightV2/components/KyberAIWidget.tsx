@@ -248,7 +248,12 @@ export default function Widget() {
                 </Trans>
               </Text>
             ) : (
-              <WidgetTable data={data?.data} isLoading={isFetching} isError={isError} />
+              <WidgetTable
+                data={data?.data}
+                isLoading={isFetching}
+                isError={isError}
+                onRowClick={() => setShowExpanded(false)}
+              />
             )}
           </Row>
           <RowBetween padding="16px">

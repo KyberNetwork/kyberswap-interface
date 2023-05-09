@@ -1991,7 +1991,7 @@ export const NumberofHolders = () => {
 }
 
 const COLORS = ['#00a2f7', '#31CB9E', '#FFBB28', '#F3841E', '#FF537B', '#27AE60', '#78d5ff', '#8088E5']
-const CustomLabel = ({ x, y, cx, cy, address, percentage }: any) => {
+const CustomLabel = ({ x, y, cx, cy, name, percentage }: any) => {
   let customY = y
   if (Math.abs(cx - x) < 30) {
     customY = cy - y > 0 ? y - 8 : y + 8
@@ -2000,7 +2000,7 @@ const CustomLabel = ({ x, y, cx, cy, address, percentage }: any) => {
     <>
       {(percentage as number) > 0.01 && (
         <text x={x} y={customY} textAnchor={x > cx ? 'start' : 'end'} fill="#31CB9E" fontSize={12}>
-          {address}
+          {name}
         </text>
       )}
     </>
@@ -2039,23 +2039,29 @@ const CustomLabelLine = (props: any) => {
 }
 export const HoldersChartWrapper = () => {
   const theme = useTheme()
-  const above1000 = useMedia('(min-width:1000px)')
+  const above768 = useMedia('(min-width:768px)')
   const { chain, address } = useParams()
   const { data } = useHolderListQuery({ address, chain })
   const formattedData = useMemo(
     () =>
-      above1000
-        ? data
+      above768
+        ? data?.map((item: IHolderList) => {
+            return { ...item, name: item?.address }
+          })
         : data?.map((item: IHolderList) => {
             return { ...item, name: shortenAddress(1, item?.address) }
           }),
-    [above1000, data],
+    [above768, data],
   )
 
   return (
     <ChartWrapper>
       <ResponsiveContainer width="100%" height="100%">
-        <PieChart width={100} height={100} margin={{ top: 10, right: 90, bottom: 20, left: 90 }}>
+        <PieChart
+          width={100}
+          height={100}
+          margin={above768 ? { top: 10, right: 90, bottom: 20, left: 90 } : { top: 0, right: 80, bottom: 0, left: 80 }}
+        >
           <Customized component={KyberLogo} />
           <Tooltip
             cursor={{ fill: 'transparent' }}
@@ -2066,10 +2072,10 @@ export const HoldersChartWrapper = () => {
               if (!payload) return <></>
               return (
                 <TooltipWrapper>
-                  <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                  <Text fontSize={above768 ? '12px' : '10px'} lineHeight="16px" color={theme.text}>
                     {payload.address}
                   </Text>
-                  <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                  <Text fontSize={above768 ? '12px' : '10px'} lineHeight="16px" color={theme.subText}>
                     Supply Owned: <span style={{ color: theme.text }}>{(payload.percentage * 100).toFixed(2)}%</span>
                   </Text>
                 </TooltipWrapper>

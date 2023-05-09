@@ -7,6 +7,7 @@ import { useCallback, useContext, useMemo, useRef, useState } from 'react'
 import { Star } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useNavigate, useParams } from 'react-router-dom'
+import { useMedia } from 'react-use'
 // import { useNavigate } from 'react-router-dom'
 // import { useMemo } from 'react'
 import { Text } from 'rebass'
@@ -32,7 +33,7 @@ import { testParams } from 'pages/TrueSightV2/pages/SingleToken'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import { IHolderList, IKyberScoreChart, ILiveTrade, ITokenList, KyberAITimeframe } from 'pages/TrueSightV2/types'
 import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice } from 'pages/TrueSightV2/utils'
-import { ExternalLink } from 'theme'
+import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { getEtherscanLink, shortenAddress } from 'utils'
 
 import ChevronIcon from '../ChevronIcon'
@@ -98,16 +99,15 @@ const ActionButton = styled.div<{ color: string; hasBg?: boolean }>`
 
 export const Top10HoldersTable = () => {
   const theme = useTheme()
-  // const navigate = useNavigate()
   const { chain, address } = useParams()
   const { data } = useHolderListQuery({ address, chain })
   const { data: tokenInfo } = useTokenDetailQuery({
     chain,
     address,
   })
-
+  const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   return (
-    <TableWrapper>
+    <TableWrapper style={{ margin: above768 ? '0' : '-16px' }}>
       <colgroup>
         <col style={{ width: '300px' }} />
         <col style={{ width: '300px' }} />
@@ -443,7 +443,6 @@ export const LiveDEXTrades = () => {
 
 const WidgetTableWrapper = styled(TableWrapper)`
   width: 100%;
-  height: 100%;
   thead {
     th {
       padding: 8px 16px;
@@ -461,7 +460,7 @@ const WidgetTableWrapper = styled(TableWrapper)`
   }
 `
 
-const WidgetTokenRow = ({ token }: { token: ITokenList }) => {
+const WidgetTokenRow = ({ token, onClick }: { token: ITokenList; onClick?: () => void }) => {
   const theme = useTheme()
   const navigate = useNavigate()
   const latestKyberScore: IKyberScoreChart | undefined = token?.ks_3d?.[token.ks_3d.length - 1]
@@ -485,6 +484,7 @@ const WidgetTokenRow = ({ token }: { token: ITokenList }) => {
       }
     } else {
       navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.tokens[0].chain}/${token.tokens[0].address}`)
+      onClick?.()
     }
   }
 
@@ -597,11 +597,12 @@ const WidgetTokenRow = ({ token }: { token: ITokenList }) => {
             show={showMenu}
             menuLeft={menuLeft}
             tokens={token?.tokens}
-            onChainClick={chain =>
+            onChainClick={chain => {
+              onClick?.()
               navigate(
                 `${APP_PATHS.KYBERAI_EXPLORE}/${chain}/${token.tokens.filter(t => t.chain === chain)[0]?.address}`,
               )
-            }
+            }}
           />
           <MultipleChainDropdown
             show={showSwapMenu}
@@ -618,10 +619,12 @@ export const WidgetTable = ({
   data,
   isLoading,
   isError,
+  onRowClick,
 }: {
   data?: ITokenList[]
   isLoading: boolean
   isError: boolean
+  onRowClick?: () => void
 }) => {
   const theme = useTheme()
   return (
@@ -665,7 +668,7 @@ export const WidgetTable = ({
                 ...Array(5)
                   .fill(0)
                   .map((_, index) => (
-                    <tr key={index} style={{ backgroundColor: theme.tableHeader, height: '64px' }}>
+                    <tr key={index} style={{ backgroundColor: theme.tableHeader, height: '72px' }}>
                       <td>
                         <Skeleton></Skeleton>
                       </td>
@@ -689,7 +692,7 @@ export const WidgetTable = ({
         ) : isError ? (
           <>
             <tbody>
-              <tr>
+              <tr style={{ height: '300px' }}>
                 <td colSpan={5}>
                   <Row align="center" justify="center" height="70%">
                     <Trans>There was an error. Please try again later.</Trans>
@@ -701,7 +704,7 @@ export const WidgetTable = ({
         ) : (
           <tbody>
             {data?.map((token, i) => {
-              return <WidgetTokenRow token={token} key={i} />
+              return <WidgetTokenRow token={token} key={i} onClick={onRowClick} />
             })}
           </tbody>
         )}

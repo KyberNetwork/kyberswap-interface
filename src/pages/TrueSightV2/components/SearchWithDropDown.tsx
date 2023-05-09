@@ -8,10 +8,8 @@ import { Text } from 'rebass'
 import styled, { css, keyframes } from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
-import Column from 'components/Column'
 import History from 'components/Icons/History'
 import Icon from 'components/Icons/Icon'
-import SearchIcon from 'components/Icons/Search'
 import Row, { RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
@@ -50,7 +48,7 @@ const Wrapper = styled.div<{ wider?: boolean; expanded?: boolean }>`
   transition: all 0.2s ease;
   background-color: ${({ theme }) => theme.buttonBlack};
   border: 1px solid ${({ theme }) => theme.border};
-  z-index: 10;
+  z-index: 11;
   box-shadow: 0 0 6px 0px ${({ theme }) => theme.primary};
 
   cursor: pointer;
@@ -79,6 +77,7 @@ const Input = styled.input<{ expanded?: boolean }>`
   background: none;
   border: none;
   outline: none;
+  text-overflow: ellipsis;
   color: ${({ theme }) => theme.text};
   font-size: 14px;
   flex: 1;
@@ -142,41 +141,6 @@ const DropdownItem = styled.tr`
   }
 `
 
-const MWrapper = styled.div<{ expanded?: boolean; wider?: boolean; width?: number }>`
-  width: 36px;
-  height: 36px;
-  border-radius: 18px;
-  padding: 10px;
-  background-color: ${({ theme }) => theme.tableHeader};
-  position: relative;
-  transition: all 0.5s ease;
-  left: 0;
-`
-const HiddenWrapper = styled.div<{ expanded?: boolean; width?: number; left?: number; top?: number; height?: number }>`
-  position: fixed;
-  height: 36px;
-  width: 36px;
-  overflow: hidden;
-  background-color: ${({ theme }) => theme.tableHeader};
-  left: ${({ left }) => left || 0}px;
-  top: ${({ top }) => top || 0}px;
-  z-index: 20;
-  border-radius: 18px;
-  visibility: hidden;
-  transition: all 0.4s ease;
-  transition-delay: 0.3s;
-
-  ${({ expanded, width, height }) =>
-    expanded &&
-    css`
-      width: ${width}px;
-      height: ${height || 400}px;
-      left: 0px;
-      border-radius: 8px;
-      visibility: visible;
-    `}
-`
-
 const ripple = keyframes`
   to {
     transform: scale(500);
@@ -235,19 +199,26 @@ const SkeletonRows = ({ count }: { count?: number }) => {
 const TokenItem = ({ token, onClick }: { token: ITokenSearchResult; onClick?: () => void }) => {
   const theme = useTheme()
   const navigate = useNavigate()
+  const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
 
   return (
     <DropdownItem
       onClick={() => {
-        navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.chain}/${token.address}`)
         onClick?.()
+        navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.chain}/${token.address}`)
       }}
     >
       <td>
         <RowFit gap="10px">
           <div style={{ position: 'relative' }}>
             <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
-              <img src={token.logo} alt={token.symbol} width="22px" height="22px" style={{ display: 'block' }} />
+              <img
+                src={token.logo}
+                alt={token.symbol}
+                width={above768 ? '22px' : '18px'}
+                height={above768 ? '22px' : '18px'}
+                style={{ display: 'block' }}
+              />
             </div>
             <div
               style={{
@@ -262,19 +233,22 @@ const TokenItem = ({ token, onClick }: { token: ITokenSearchResult; onClick?: ()
               <img
                 src={NETWORK_IMAGE_URL[token.chain]}
                 alt="eth"
-                width="12px"
-                height="12px"
+                width={above768 ? '12px' : '10px'}
+                height={above768 ? '12px' : '10px'}
                 style={{ display: 'block' }}
               />
             </div>
           </div>
-          <Text fontSize="12px" color={theme.text}>
+          <Text fontSize={above768 ? '12px' : '10px'} color={theme.text}>
             {`${token.name}(${token.symbol.toUpperCase()})`}
           </Text>
         </RowFit>
       </td>
       <td style={{ textAlign: 'left' }}>
-        <Text fontSize="12px" color={token.kyberScore && token.kyberScore.score < 50 ? theme.red : theme.primary}>
+        <Text
+          fontSize={above768 ? '12px' : '10px'}
+          color={token.kyberScore && token.kyberScore.score < 50 ? theme.red : theme.primary}
+        >
           <>
             {token.kyberScore.score}
             <Text as="span" fontSize="10px" color={theme.subText}>
@@ -284,59 +258,19 @@ const TokenItem = ({ token, onClick }: { token: ITokenSearchResult; onClick?: ()
         </Text>
       </td>
       <td style={{ textAlign: 'left' }}>
-        <Text fontSize="12px" color={theme.text}>
+        <Text fontSize={above768 ? '12px' : '10px'} color={theme.text}>
           ${formatTokenPrice(token.price)}
         </Text>
       </td>
       <td style={{ textAlign: 'right' }}>
-        <Text fontSize="12px" color={token.priceChange24h && token.priceChange24h < 0 ? theme.red : theme.primary}>
+        <Text
+          fontSize={above768 ? '12px' : '10px'}
+          color={token.priceChange24h && token.priceChange24h < 0 ? theme.red : theme.primary}
+        >
           {token.priceChange24h ? `${token.priceChange24h.toFixed(2)}%` : `--%`}
         </Text>
       </td>
     </DropdownItem>
-  )
-}
-
-const MobileWrapper = ({
-  expanded,
-  onClick,
-  children,
-}: {
-  expanded: boolean
-  onClick: () => void
-  children: ReactNode
-}) => {
-  const theme = useTheme()
-  const ref = useRef<HTMLDivElement>(null)
-  const contentRef = useRef<HTMLDivElement>(null)
-  const [top, setTop] = useState(0)
-  const left = ref.current?.offsetLeft || 0
-  useEffect(() => {
-    setTop(ref.current?.getBoundingClientRect().top || 0)
-    function updateTop() {
-      setTop(ref.current?.getBoundingClientRect().top || 0)
-    }
-    window.addEventListener('scroll', updateTop)
-    return () => window.removeEventListener('scroll', updateTop)
-  }, [])
-
-  const contentHeight = contentRef.current?.scrollHeight
-  return (
-    <MWrapper onClick={onClick} expanded={expanded} wider={expanded} ref={ref} width={window.innerWidth}>
-      <RowFit>
-        <SearchIcon color={theme.subText} size={16} />
-      </RowFit>
-      <HiddenWrapper
-        ref={contentRef}
-        expanded={expanded}
-        width={window.innerWidth}
-        left={left}
-        top={top}
-        height={contentHeight}
-      >
-        {children}
-      </HiddenWrapper>
-    </MWrapper>
   )
 }
 
@@ -459,7 +393,12 @@ const SearchWithDropdown = () => {
       ) : noSearchResult ? (
         <>
           <Row justify="center" height="360px">
-            <Text fontSize="14px" lineHeight="20px" maxWidth="75%" textAlign="center">
+            <Text
+              fontSize={above768 ? '14px' : '12px'}
+              lineHeight={above768 ? '20px' : '16px'}
+              maxWidth="75%"
+              textAlign="center"
+            >
               <Trans>
                 Oops, we couldnt find your token! We will regularly add new tokens that have achieved a certain trading
                 volume
@@ -534,55 +473,25 @@ const SearchWithDropdown = () => {
     </div>
   )
 
-  if (!above768) {
-    return (
-      <MobileWrapper expanded={expanded} onClick={() => setExpanded(true)}>
-        <Row padding="10px" gap="4px">
-          <SearchIcon color={expanded ? theme.border : theme.subText} size={16} />
-          {expanded && (
-            <>
-              <Input
-                type="text"
-                placeholder={expanded ? t`Search by token name or contract address` : t`Search`}
-                value={search}
-                onChange={e => {
-                  setSearch(e.target.value)
-                }}
-                expanded={expanded}
-              />
-              <ButtonEmpty onClick={handleXClick} style={{ padding: '2px 4px', width: 'max-content' }}>
-                <X color={theme.subText} size={14} style={{ minWidth: '14px' }} />
-              </ButtonEmpty>
-            </>
-          )}
-        </Row>
-        <Column>
-          <DropdownContent />
-        </Column>
-      </MobileWrapper>
-    )
-  }
   return (
     <>
-      <Wrapper ref={wrapperRef} onClick={() => inputRef.current?.focus()} expanded={expanded}>
-        {above768 && (
-          <Input
-            type="text"
-            placeholder={t`Search by token name or contract address`}
-            value={search}
-            onChange={e => {
-              setSearch(e.target.value)
-            }}
-            ref={inputRef}
-          />
-        )}
+      <Wrapper ref={wrapperRef} onClick={() => !expanded && inputRef.current?.focus()} expanded={expanded}>
+        <Input
+          type="text"
+          placeholder={t`Search by token name or contract address`}
+          value={search}
+          onChange={e => {
+            setSearch(e.target.value)
+          }}
+          ref={inputRef}
+        />
         <RowFit style={{ zIndex: 2 }}>
           {search && (
             <ButtonEmpty onClick={handleXClick} style={{ padding: '2px 4px', width: 'max-content' }}>
               <X color={theme.subText} size={14} style={{ minWidth: '14px' }} />
             </ButtonEmpty>
           )}
-          <RowFit fontSize="14px" lineHeight="20px" fontWeight={500} gap="4px">
+          <RowFit fontSize="14px" lineHeight={above768 ? '20px' : '16px'} fontWeight={500} gap="4px">
             <Icon id="search" size={24} />
             <Trans>Ape Smart!</Trans>
           </RowFit>

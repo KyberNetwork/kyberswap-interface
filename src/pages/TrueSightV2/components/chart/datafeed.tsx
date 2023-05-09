@@ -38,7 +38,7 @@ export const useDatafeed = (isBTC: boolean, token?: ITokenOverview) => {
 
   return useMemo(() => {
     const { isLoading } = ref.current
-    const log10 = token ? Math.ceil(Math.log10(token?.price)) : 0
+    const log10 = token?.price ? Math.ceil(Math.log10(token.price)) : 0
     const pricescale = log10 < 0 ? Math.pow(10, -log10 + 4) : 10000
     return {
       onReady: (callback: any) => {

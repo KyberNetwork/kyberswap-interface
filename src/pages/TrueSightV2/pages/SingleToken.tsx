@@ -416,8 +416,15 @@ export default function SingleToken() {
       <>
         <Row
           gap="8px"
-          padding="10px 0"
-          style={{ position: 'sticky', top: '0px', backgroundColor: theme.buttonBlack, zIndex: 10 }}
+          padding="14px 12px"
+          style={{
+            position: 'sticky',
+            top: '-2px',
+            backgroundColor: theme.buttonBlack,
+            zIndex: 10,
+            transform: 'translateX(-16px)',
+            width: '100vw',
+          }}
         >
           <TokenNameGroup />
         </Row>
