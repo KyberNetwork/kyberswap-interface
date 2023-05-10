@@ -27,6 +27,18 @@ import { ButtonIcon } from 'pages/Pools/styleds'
 import { useAppSelector } from 'state/hooks'
 import { isAddress, shortenAddress } from 'utils'
 
+const formatValue = (value: number) => {
+  const formatter = Intl.NumberFormat('en-US', {
+    notation: 'standard',
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  })
+
+  return formatter.format(value)
+}
+
 const Badge = styled.div<{ $color?: string }>`
   height: 32px;
 
@@ -46,7 +58,7 @@ const Badge = styled.div<{ $color?: string }>`
   background: ${({ $color, theme }) => rgba($color || theme.subText, 0.3)};
 `
 
-type Props = {
+export type Props = {
   chainId: ChainId
   poolEarning: PoolEarningWithDetails
   positionEarnings: PositionEarningWithDetails[]
@@ -85,6 +97,13 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
   )
 
   const isFarmingPool = poolEarning.farmApr && poolEarning.farmApr !== '0'
+
+  const poolEarningToday = poolEarning.historicalEarning[0]?.total?.reduce(
+    (acc, tokenEarning) => acc + Number(tokenEarning.amountUSD),
+    0,
+  )
+
+  const poolEarningTodayStr = poolEarningToday ? formatValue(poolEarningToday) : '--'
 
   return (
     <Flex
@@ -233,7 +252,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
                   color: theme.text,
                 }}
               >
-                $189,298,425.43
+                {poolEarningTodayStr}
               </Text>
 
               <Flex alignItems={'center'} justifyItems={'center'} width="24px" height="24px">

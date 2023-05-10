@@ -2,7 +2,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Flex } from 'rebass'
 import { PoolEarningWithDetails, PositionEarningWithDetails } from 'services/earning'
 
-import useTheme from 'hooks/useTheme'
 import SinglePool from 'pages/MyEarnings/SinglePool'
 
 type Props = {
@@ -11,7 +10,9 @@ type Props = {
   poolEarnings: PoolEarningWithDetails[]
 }
 const Pools: React.FC<Props> = ({ poolEarnings, chainId, positionEarningsByPoolId }) => {
-  const theme = useTheme()
+  if (!poolEarnings.length) {
+    return null
+  }
 
   return (
     <Flex

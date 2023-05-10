@@ -71,8 +71,8 @@ const BasePanel: React.FC<Props> = ({
     return ticks.slice(0, numberOfTicksByTimePeriod[period]).reverse()
   }, [period, ticks])
 
-  const fromDateStr = displayTicks?.[0].date || ''
-  const toDateStr = displayTicks?.slice(-1)[0].date || ''
+  const fromDateStr = displayTicks?.[0]?.date || ''
+  const toDateStr = displayTicks?.slice(-1)[0]?.date || ''
 
   return (
     <Wrapper className={className}>
