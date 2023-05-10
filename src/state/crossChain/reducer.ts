@@ -84,7 +84,7 @@ const DEFAULT_STATE: CrossChainState = {
     tokens: [],
     currencyIn: undefined,
     currencyOut: undefined,
-    chainIdOut: defaultChainIdOut || undefined,
+    chainIdOut: defaultChainIdOut,
     loadingToken: true,
     squidInstance: undefined,
     route: undefined,
