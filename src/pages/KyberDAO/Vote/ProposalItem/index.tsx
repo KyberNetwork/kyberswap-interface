@@ -186,7 +186,7 @@ const VoteButton = ({
   )
 }
 
-const FORCED_TO_BINARY_OPTION_PROPOSALS = [14]
+const FORCED_TO_BINARY_OPTION_PROPOSALS = [14, 15]
 
 function ProposalItem({
   proposal,
