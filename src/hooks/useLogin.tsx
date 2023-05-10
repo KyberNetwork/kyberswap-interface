@@ -33,6 +33,25 @@ const useLogin = () => {
   const setProfile = useSaveUserProfile()
   const saveSession = useSaveSession()
 
+  const getProfile = useCallback(
+    async (walletAddress: string | undefined) => {
+      try {
+        let profile = await createProfile().unwrap()
+        if (walletAddress) {
+          await connectWalletToProfile({ walletAddress })
+          profile = await createProfile().unwrap()
+        }
+        setProfile(profile)
+      } catch (error) {
+        const e = new Error('createProfile Error', { cause: error })
+        e.name = 'createProfile Error'
+        captureException(e, { extra: { walletAddress } })
+        setProfile(undefined)
+      }
+    },
+    [connectWalletToProfile, createProfile, setProfile],
+  )
+
   const signInAnonymous = useCallback(async () => {
     if (requestingSession.current === LoginMethod.ANONYMOUS) return
     if (anonymousUserInfo) {
@@ -48,8 +67,9 @@ const useLogin = () => {
       saveSession({ loginMethod: LoginMethod.ANONYMOUS, userInfo: undefined })
     } finally {
       setLoading(false)
+      setProfile(undefined)
     }
-  }, [anonymousUserInfo, saveSession, setLoading])
+  }, [anonymousUserInfo, saveSession, setLoading, setProfile])
 
   const signIn = useCallback(
     async (walletAddress: string | undefined) => {
@@ -60,24 +80,15 @@ const useLogin = () => {
         if (requestingSession.current !== walletAddress) {
           requestingSession.current = walletAddress
           await KyberOauth2.getSession({ method: LoginMethod.ETH, walletAddress })
-          try {
-            await createProfile().unwrap()
-            await connectWalletToProfile({ walletAddress })
-            const profile = await createProfile().unwrap()
-            if (profile) setProfile(profile)
-          } catch (error) {
-            const e = new Error('createProfile Error', { cause: error })
-            e.name = 'createProfile Error'
-            captureException(e, { extra: { walletAddress } })
-          }
+          await getProfile(walletAddress)
           setLoading(false)
         }
       } catch (error) {
-        console.log('get session:', error.message)
+        console.log('get session:', walletAddress, error.message)
         signInAnonymous()
       }
     },
-    [setLoading, signInAnonymous, createProfile, setProfile, connectWalletToProfile],
+    [setLoading, signInAnonymous, getProfile],
   )
 
   useEffect(() => {
