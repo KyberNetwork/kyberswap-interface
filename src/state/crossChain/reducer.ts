@@ -2,6 +2,8 @@ import { RouteData, Squid } from '@0xsquid/sdk'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createReducer } from '@reduxjs/toolkit'
 
+import { ENV_LEVEL } from 'constants/env'
+import { ENV_TYPE } from 'constants/type'
 import { MultiChainTokenInfo } from 'pages/Bridge/type'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
@@ -53,6 +55,12 @@ interface CrossChainState {
   crossChain: SwapCrossChainState
 }
 
+let defaultChainIdOut = undefined
+try {
+  const params = Number(new URLSearchParams(window.location.search).get('chainIdOut'))
+  if (params && ENV_LEVEL < ENV_TYPE.PROD) defaultChainIdOut = params
+} catch (error) {}
+
 const DEFAULT_STATE: CrossChainState = {
   bridge: {
     tokenInfoIn: undefined,
@@ -76,7 +84,7 @@ const DEFAULT_STATE: CrossChainState = {
     tokens: [],
     currencyIn: undefined,
     currencyOut: undefined,
-    chainIdOut: undefined,
+    chainIdOut: defaultChainIdOut || undefined,
     loadingToken: true,
     squidInstance: undefined,
     route: undefined,
