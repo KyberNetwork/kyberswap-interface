@@ -1,14 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { useActiveWeb3React } from 'hooks'
-
-// const farmIds: { [key: number]: string } = {
-//   [ChainId.MAINNET]: '0xb85ebe2e4ea27526f817ff33fb55fb240057c03f',
-//   [ChainId.AVAXMAINNET]: '0xbdec4a045446f583dc564c0a227ffd475b329bf0',
-//   [ChainId.MATIC]: '0xbdec4a045446f583dc564c0a227ffd475b329bf0',
-//   [ChainId.OPTIMISM]: '0xb85ebe2e4ea27526f817ff33fb55fb240057c03f',
-// }
 
 export const config: {
   [chainId: number]: {
@@ -183,8 +176,17 @@ export default function useElasticLegacy(interval = true) {
   const [loading, setLoading] = useState(false)
   const [positions, setPositions] = useState<Position[]>([])
   const [farmPositions, setFarmPostions] = useState<Position[]>([])
+  const previousChainIdRef = useRef(chainId)
 
   useEffect(() => {
+    previousChainIdRef.current = chainId
+  }, [chainId])
+
+  useEffect(() => {
+    if (previousChainIdRef.current !== chainId) {
+      setPositions([])
+      setFarmPostions([])
+    }
     const getData = () => {
       if (!account || !config[chainId]) return
       fetch(config[chainId].subgraphUrl, {
