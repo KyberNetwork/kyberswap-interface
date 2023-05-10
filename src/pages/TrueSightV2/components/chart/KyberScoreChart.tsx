@@ -57,8 +57,7 @@ export default function KyberScoreChart({
     }
     return datatemp.reverse()
   }, [data])
-  console.log('🚀 ~ file: KyberScoreChart.tsx:60 ~ filledData ~ filledData:', filledData)
-  console.log('🚀 ~ file: KyberScoreChart.tsx:62 ~ data:', data)
+
   return (
     <Wrapper style={{ width, height }} onMouseLeave={handleMouseLeave}>
       <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
