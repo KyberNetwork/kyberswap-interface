@@ -64,6 +64,7 @@ export default function SimpleTooltip({
   const ref = useRef<HTMLDivElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const [show, setShow] = useState<boolean>(false)
+  const [inset, setInset] = useState<string>()
   const [{ width, height }, setWidthHeight] = useState({ width: 0, height: 0 })
   const hovering = useRef(false)
   const handleMouseEnter = () => {
@@ -79,22 +80,27 @@ export default function SimpleTooltip({
     setShow(false)
   }
 
-  const clientRect = ref.current?.getBoundingClientRect()
-  const bodyRect = document.body.getBoundingClientRect()
-  const top = (y || clientRect?.top || 0) - (height || 50) - 15 - bodyRect.top + width * 0
-  const left = clientRect ? x || clientRect.left + clientRect.width / 2 : 0
-
-  const inset = `${top}px 0 0 ${left}px`
-
   useLayoutEffect(() => {
     if (wrapperRef.current) {
       setWidthHeight({ width: wrapperRef.current.clientWidth, height: wrapperRef.current.clientHeight })
     }
   }, [show])
+
+  useLayoutEffect(() => {
+    const clientRect = ref.current?.getBoundingClientRect()
+    const bodyRect = document.body.getBoundingClientRect()
+    const top = (y || clientRect?.top || 0) - (height || 50) - 15 - bodyRect.top + width * 0
+    const left = clientRect ? x || clientRect.left + clientRect.width / 2 : 0
+
+    setInset(`${top}px 0 0 ${left}px`)
+  }, [height, width, x, y])
+
+  const isShow = show || (!!x && !!y)
+
   return (
     <div ref={ref} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
       {children}
-      {(show || (!!x && !!y)) &&
+      {isShow &&
         ReactDOM.createPortal(
           <div
             ref={wrapperRef}

@@ -523,7 +523,7 @@ export default function Menu() {
                   handlePreferenceClickMixpanel('Swap guide')
                 }}
               >
-                <Trans>Swap Guide</Trans>
+                <Trans>KyberSwap Guide</Trans>
                 <Row justify="flex-end">
                   <Text color={theme.text}>View</Text>&nbsp;
                   <LightIcon color={theme.text} />

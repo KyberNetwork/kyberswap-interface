@@ -12,7 +12,7 @@ import {
   Timezone,
 } from 'components/TradingViewChart/charting_library'
 import { useLazyChartingDataQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
-import { testParams } from 'pages/TrueSightV2/pages/SingleToken'
+import { defaultExplorePageToken } from 'pages/TrueSightV2/pages/SingleToken'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import { ITokenOverview, OHLCData } from 'pages/TrueSightV2/types'
 
@@ -88,8 +88,8 @@ export const useDatafeed = (isBTC: boolean, token?: ITokenOverview) => {
         setResolution?.(candleSize)
 
         const { data } = await getChartingData({
-          chain: chain || testParams.chain,
-          address: address || testParams.address,
+          chain: chain || defaultExplorePageToken.chain,
+          address: address || defaultExplorePageToken.address,
           from: periodParams.from,
           to: periodParams.to,
           candleSize: candleSize,
@@ -126,8 +126,8 @@ export const useDatafeed = (isBTC: boolean, token?: ITokenOverview) => {
           const candleSize = { 60: '1h', 240: '4h', '1D': '1d' }[resolution as string] || '1h'
 
           const { data } = await getChartingData({
-            chain: chain || testParams.chain,
-            address: address || testParams.address,
+            chain: chain || defaultExplorePageToken.chain,
+            address: address || defaultExplorePageToken.address,
             from: now - 345600,
             to: now,
             candleSize: candleSize,

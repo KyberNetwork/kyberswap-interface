@@ -47,7 +47,7 @@ import {
   useTradingVolumeQuery,
   useTransferInformationQuery,
 } from 'pages/TrueSightV2/hooks/useKyberAIData'
-import { testParams } from 'pages/TrueSightV2/pages/SingleToken'
+import { defaultExplorePageToken } from 'pages/TrueSightV2/pages/SingleToken'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import {
   ChartTab,
@@ -61,7 +61,7 @@ import {
   ITradingVolume,
   KyberAITimeframe,
 } from 'pages/TrueSightV2/types'
-import { formatLocaleStringNum, formatShortNum } from 'pages/TrueSightV2/utils'
+import { formatLocaleStringNum, formatShortNum, formatTokenPrice } from 'pages/TrueSightV2/utils'
 import { useUserLocale } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
@@ -91,6 +91,21 @@ const CustomizedLabel = (props: any) => {
       {show && (
         <text x={x} y={y} dy={-10} fontSize={above768 ? 12 : 10} fontWeight={500} fill={theme.text} textAnchor="middle">
           {value !== 0 && `${dollarSign ? '$' : ''}${formatShortNum(value)}`}
+        </text>
+      )}
+    </>
+  )
+}
+const CustomizedPriceLabel = (props: any) => {
+  const theme = useTheme()
+  const { x, y, value, index, timeframe } = props
+  const show = (index + 1) % (LABEL_GAP_BY_TIMEFRAME[timeframe as string] || 1) === 0
+  const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  return (
+    <>
+      {show && (
+        <text x={x} y={y} dy={-10} fontSize={above768 ? 12 : 10} fontWeight={500} fill={theme.text} textAnchor="middle">
+          {value !== 0 && `$${formatTokenPrice(value)}`}
         </text>
       )}
     </>
@@ -379,8 +394,8 @@ export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?
     return [from, now, timerange]
   }, [timeframe])
   const { data, isLoading } = useTradingVolumeQuery({
-    chain: chain || testParams.chain,
-    address: address || testParams.address,
+    chain: chain || defaultExplorePageToken.chain,
+    address: address || defaultExplorePageToken.address,
     params: { from, to },
   })
 
@@ -678,8 +693,8 @@ export const TradingVolumeChart = () => {
     return [from, now, timerange]
   }, [timeframe])
   const { data, isLoading } = useTradingVolumeQuery({
-    chain: chain || testParams.chain,
-    address: address || testParams.address,
+    chain: chain || defaultExplorePageToken.chain,
+    address: address || defaultExplorePageToken.address,
     params: { from, to },
   })
 
@@ -974,8 +989,8 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
   }, [timeframe])
 
   const { data, isLoading } = useNetflowToWhaleWalletsQuery({
-    chain: chain || testParams.chain,
-    address: address || testParams.address,
+    chain: chain || defaultExplorePageToken.chain,
+    address: address || defaultExplorePageToken.address,
     from,
     to,
   })
@@ -1359,8 +1374,8 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
   }, [timeframe])
 
   const { data, isLoading } = useNetflowToCEXQuery({
-    chain: chain || testParams.chain,
-    address: address || testParams.address,
+    chain: chain || defaultExplorePageToken.chain,
+    address: address || defaultExplorePageToken.address,
     from,
     to,
   })
@@ -1982,7 +1997,7 @@ export const NumberofHolders = () => {
               }}
             />
             <Area
-              type="monotone"
+              type="linear"
               dataKey="count"
               stroke={theme.primary}
               fill="url(#colorUv)"
@@ -2175,7 +2190,7 @@ export const LiquidOnCentralizedExchanges = () => {
           ...data.chart[index],
           timestamp: t * 1000,
           totalVol: data.chart[index].buyVolUsd + data.chart[index].sellVolUsd,
-          sellVolUsd: -data.chart[index].sellVolUsd,
+          buyVolUsd: -data.chart[index].buyVolUsd,
         })
       } else {
         dataTemp.push({ timestamp: t * 1000, buyVolUsd: 0, exchanges: [], price: 0, sellVolUsd: 0, totalVol: 0 })
@@ -2332,9 +2347,9 @@ export const LiquidOnCentralizedExchanges = () => {
                             {payload.timestamp && dayjs(payload.timestamp).format('MMM DD, YYYY')}
                           </Text>
                           <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                            BTC Price:{' '}
+                            {tokenOverview?.symbol?.toUpperCase()} Price:{' '}
                             <span style={{ color: theme.text, marginLeft: '8px' }}>
-                              ${formatLocaleStringNum(payload.price)}
+                              ${formatTokenPrice(payload.price)}
                             </span>
                           </Text>
                           <Row gap="24px">
@@ -2359,7 +2374,7 @@ export const LiquidOnCentralizedExchanges = () => {
                                   lineHeight="16px"
                                   color={theme.primary}
                                 >
-                                  ${formatShortNum(i.buyVolUsd)}
+                                  ${formatShortNum(i.sellVolUsd)}
                                 </Text>
                               ))}
                             </Column>
@@ -2369,7 +2384,7 @@ export const LiquidOnCentralizedExchanges = () => {
                               </Text>
                               {payload.exchanges.map((i: any) => (
                                 <Text key={i.exchangeName + 'long'} fontSize="12px" lineHeight="16px" color={theme.red}>
-                                  ${formatShortNum(i.sellVolUsd)}
+                                  ${formatShortNum(i.buyVolUsd)}
                                 </Text>
                               ))}
                             </Column>
@@ -2380,10 +2395,10 @@ export const LiquidOnCentralizedExchanges = () => {
                               Total:
                             </Text>
                             <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
-                              ${formatShortNum(payload.buyVolUsd)}
+                              ${formatShortNum(payload.sellVolUsd)}
                             </Text>
                             <Text fontSize="12px" lineHeight="16px" color={theme.red}>
-                              ${formatShortNum(-payload.sellVolUsd)}
+                              ${formatShortNum(-payload.buyVolUsd)}
                             </Text>
                           </Row>
                         </TooltipWrapper>
@@ -2421,7 +2436,7 @@ export const LiquidOnCentralizedExchanges = () => {
                       strokeWidth={2}
                       dot={false}
                       {...{
-                        label: <CustomizedLabel timeframe={timeframe} dollarSign />,
+                        label: <CustomizedPriceLabel timeframe={timeframe} />,
                       }}
                     />
                   )}
@@ -2482,8 +2497,8 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
   const userLocale = useUserLocale()
   const { chain, address } = useParams()
   const { data } = useTokenDetailQuery({
-    chain: chain || testParams.chain,
-    address: address || testParams.address,
+    chain: chain || defaultExplorePageToken.chain,
+    address: address || defaultExplorePageToken.address,
   })
   const datafeed = useDatafeed(isBTC || false, data)
   const { SRLevels, currentPrice, resolution, setResolution, showSRLevels } = useContext(TechnicalAnalysisContext)

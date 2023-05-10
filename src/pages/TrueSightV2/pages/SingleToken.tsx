@@ -1,13 +1,13 @@
 import { t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useRef, useState } from 'react'
-import { ChevronLeft, Share2, Star } from 'react-feather'
+import { useEffect, useRef, useState } from 'react'
+import { ChevronLeft, Share2 } from 'react-feather'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
-import { ButtonGray, ButtonPrimary } from 'components/Button'
+import { ButtonPrimary } from 'components/Button'
 import Icon from 'components/Icons/Icon'
 import { DotsLoader } from 'components/Loader/DotsLoader'
 import Row, { RowBetween, RowFit } from 'components/Row'
@@ -23,6 +23,7 @@ import { MEDIA_WIDTHS } from 'theme'
 import DisplaySettings from '../components/DisplaySettings'
 import ShareKyberAIModal from '../components/ShareKyberAIModal'
 import { TokenOverview } from '../components/TokenOverview'
+import { StarWithAnimation } from '../components/WatchlistStar'
 import { NETWORK_IMAGE_URL } from '../constants'
 import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation, useTokenDetailQuery } from '../hooks/useKyberAIData'
 import { DiscoverTokenTab } from '../types'
@@ -48,7 +49,7 @@ const ButtonIcon = styled.div`
     filter: brightness(1.8);
   }
 `
-export const HeaderButton = styled(ButtonGray)`
+export const HeaderButton = styled.div`
   width: 36px;
   height: 36px;
   padding: 0px;
@@ -180,11 +181,9 @@ const TabButton = styled.div<{ active?: boolean }>`
 //   color: ${({ theme }) => theme.primary};
 // `
 
-export const testParams = {
+export const defaultExplorePageToken = {
   chain: 'ethereum',
-  address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-  from: 1674610765,
-  to: 1675215565,
+  address: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
 }
 
 const StyledTokenDescription = styled.div<{ show?: boolean }>`
@@ -245,8 +244,8 @@ export default function SingleToken() {
   const [currentTab, setCurrentTab] = useState<DiscoverTokenTab>(DiscoverTokenTab.OnChainAnalysis)
   const { account } = useActiveWeb3React()
   const { data: token, isLoading } = useTokenDetailQuery({
-    chain: chain || testParams.chain,
-    address: address || testParams.address,
+    chain: chain || defaultExplorePageToken.chain,
+    address: address || defaultExplorePageToken.address,
     account,
   })
 
@@ -258,21 +257,37 @@ export default function SingleToken() {
     toggleShareModal()
   }
 
-  const [addToWatchlist] = useAddToWatchlistMutation()
-  const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
-  const [viewAll, setViewAll] = useState(false)
+  const [addToWatchlist, { isLoading: loadingAddtoWatchlist }] = useAddToWatchlistMutation()
+  const [removeFromWatchlist, { isLoading: loadingRemovefromWatchlist }] = useRemoveFromWatchlistMutation()
+
+  const [viewAllTag, setViewAllTag] = useState(false)
+  const [isWatched, setIsWatched] = useState(false)
+
   const handleStarClick = () => {
-    if (!token) return
-    if (token.isWatched) {
+    if (!token || !chain || !account) return
+    if (isWatched) {
       removeFromWatchlist({
         wallet: account,
-        tokenAddress: token?.address || testParams.address,
-        chain: chain || testParams.chain,
-      })
+        tokenAddress: token?.address,
+        chain,
+      }).then(() => setIsWatched(false))
     } else {
-      addToWatchlist({ wallet: account, tokenAddress: token?.address, chain })
+      addToWatchlist({ wallet: account, tokenAddress: token?.address, chain }).then(() => setIsWatched(true))
     }
   }
+
+  useEffect(() => {
+    if (token) {
+      setIsWatched(token.isWatched)
+    }
+  }, [token])
+
+  useEffect(() => {
+    if (!chain || !address) {
+      navigate(APP_PATHS.KYBERAI_EXPLORE + `/${defaultExplorePageToken.chain}/${defaultExplorePageToken.address}`)
+    }
+  }, [chain, address, navigate])
+
   const RenderHeader = () => {
     const TokenNameGroup = () => (
       <>
@@ -281,15 +296,15 @@ export default function SingleToken() {
         </ButtonIcon>
         <HeaderButton
           style={{
-            color: token?.isWatched ? theme.primary : theme.subText,
-            backgroundColor: token?.isWatched ? theme.primary + '33' : undefined,
+            color: isWatched ? theme.primary : theme.subText,
+            backgroundColor: isWatched ? theme.primary + '33' : undefined,
           }}
           onClick={handleStarClick}
         >
-          <Star
+          <StarWithAnimation
+            watched={isWatched}
+            loading={loadingAddtoWatchlist || loadingRemovefromWatchlist}
             size={16}
-            stroke={token?.isWatched ? theme.primary : theme.subText}
-            fill={token?.isWatched ? theme.primary : 'none'}
           />
         </HeaderButton>
         <div style={{ position: 'relative' }}>
@@ -451,11 +466,11 @@ export default function SingleToken() {
       </Text>
 
       <TagWrapper>
-        {token?.tags?.slice(0, viewAll ? token.tags.length : 5).map(tag => {
+        {token?.tags?.slice(0, viewAllTag ? token.tags.length : 5).map(tag => {
           return <Tag key="tag">{tag}</Tag>
         })}
-        {!viewAll && token?.tags && token.tags.length > 5 && (
-          <Tag active onClick={() => setViewAll(true)}>
+        {!viewAllTag && token?.tags && token.tags.length > 5 && (
+          <Tag active onClick={() => setViewAllTag(true)}>
             View All
           </Tag>
         )}

@@ -59,21 +59,21 @@ const kyberAIApi = createApi({
     }),
     //2.
     addToWatchlist: builder.mutation({
-      query: params => ({
+      query: (params: { wallet: string; tokenAddress: string; chain: string }) => ({
         url: `/watchlist`,
         method: 'POST',
         params,
       }),
-      invalidatesTags: (res, err, params) => [{ type: 'tokenOverview', id: params.tokenAddress }],
+      // invalidatesTags: (res, err, params) => [{ type: 'tokenOverview', id: params.tokenAddress }],
     }),
     //3.
     removeFromWatchlist: builder.mutation({
-      query: params => ({
+      query: (params: { wallet: string; tokenAddress: string; chain: string }) => ({
         url: `/watchlist`,
         method: 'DELETE',
         params,
       }),
-      invalidatesTags: (res, err, params) => [{ type: 'tokenOverview', id: params.tokenAddress }],
+      // invalidatesTags: (res, err, params) => [{ type: 'tokenOverview', id: params.tokenAddress }],
     }),
 
     //4.

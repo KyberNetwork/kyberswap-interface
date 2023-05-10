@@ -1,15 +1,12 @@
-import { WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
-import { useCallback, useContext, useMemo, useRef, useState } from 'react'
+import { useContext, useMemo, useRef, useState } from 'react'
 import { Star } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-// import { useNavigate } from 'react-router-dom'
-// import { useMemo } from 'react'
 import { Text } from 'rebass'
 import styled, { DefaultTheme, css } from 'styled-components'
 
@@ -30,10 +27,15 @@ import {
   useLiveDexTradesQuery,
   useTokenDetailQuery,
 } from 'pages/TrueSightV2/hooks/useKyberAIData'
-import { testParams } from 'pages/TrueSightV2/pages/SingleToken'
+import { defaultExplorePageToken } from 'pages/TrueSightV2/pages/SingleToken'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import { IHolderList, IKyberScoreChart, ILiveTrade, ITokenList, KyberAITimeframe } from 'pages/TrueSightV2/types'
-import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice } from 'pages/TrueSightV2/utils'
+import {
+  calculateValueToColor,
+  formatLocaleStringNum,
+  formatTokenPrice,
+  navigateToSwapPage,
+} from 'pages/TrueSightV2/utils'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { getEtherscanLink, shortenAddress } from 'utils'
 
@@ -43,8 +45,6 @@ import SimpleTooltip from '../SimpleTooltip'
 import SmallKyberScoreMeter from '../SmallKyberScoreMeter'
 import TokenChart from '../TokenChartSVG'
 import { TimeFrameLegend } from '../chart'
-
-// import OHLCData from './../chart/candles.json'
 
 const TableWrapper = styled.table`
   border-collapse: collapse;
@@ -363,10 +363,13 @@ export const LiveDEXTrades = () => {
   const theme = useTheme()
   const [currentPage, setCurrentPage] = useState(1)
   const { chain, address } = useParams()
-  const { data } = useLiveDexTradesQuery({ chain: chain || testParams.chain, address: address || testParams.address })
+  const { data } = useLiveDexTradesQuery({
+    chain: chain || defaultExplorePageToken.chain,
+    address: address || defaultExplorePageToken.address,
+  })
   const { data: tokenOverview } = useTokenDetailQuery({
-    chain: chain || testParams.chain,
-    address: address || testParams.address,
+    chain: chain || defaultExplorePageToken.chain,
+    address: address || defaultExplorePageToken.address,
   })
 
   return (
@@ -480,7 +483,7 @@ const WidgetTokenRow = ({ token, onClick }: { token: ITokenList; onClick?: () =>
   const theme = useTheme()
   const navigate = useNavigate()
   const latestKyberScore: IKyberScoreChart | undefined = token?.ks_3d?.[token.ks_3d.length - 1]
-  const hasMutipleChain = token.tokens.length > 1
+  const hasMutipleChain = token?.tokens?.length > 1
 
   const [showMenu, setShowMenu] = useState(false)
   const [showSwapMenu, setShowSwapMenu] = useState(false)
@@ -507,15 +510,6 @@ const WidgetTokenRow = ({ token, onClick }: { token: ITokenList; onClick?: () =>
     }
   }
 
-  const navigateToSwapPage = useCallback((t: { address: string; logo: string; chain: string }) => {
-    const wethAddress = WETH[NETWORK_TO_CHAINID[t.chain]].address
-    const chain = t.chain === 'bsc' ? 'bnb' : t.chain
-    window.open(
-      window.location.origin + `${APP_PATHS.SWAP}/${chain}?inputCurrency=${t.address}&outputCurrency=${wethAddress}`,
-      '_blank',
-    )
-  }, [])
-
   const handleSwapClick = (e: any) => {
     e.stopPropagation()
     if (hasMutipleChain) {
@@ -526,15 +520,12 @@ const WidgetTokenRow = ({ token, onClick }: { token: ITokenList; onClick?: () =>
       setShowSwapMenu(true)
       setMenuLeft(left)
     } else {
-      navigateToSwapPage(token.tokens[0])
+      navigateToSwapPage({ address: token.tokens[0].address, chain: token.tokens[0].chain })
     }
   }
 
-  const handleSwapNavigateClick = (chain: string) => {
-    const tokenByChain = token.tokens.find(t => t.chain === chain)
-    if (tokenByChain) {
-      navigateToSwapPage(tokenByChain)
-    }
+  const handleSwapNavigateClick = (chain: string, address: string) => {
+    navigateToSwapPage({ address, chain })
   }
 
   return (
@@ -626,11 +617,9 @@ const WidgetTokenRow = ({ token, onClick }: { token: ITokenList; onClick?: () =>
             show={showMenu}
             menuLeft={menuLeft}
             tokens={token?.tokens}
-            onChainClick={chain => {
+            onChainClick={(chain, address) => {
               onClick?.()
-              navigate(
-                `${APP_PATHS.KYBERAI_EXPLORE}/${chain}/${token.tokens.filter(t => t.chain === chain)[0]?.address}`,
-              )
+              navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${chain}/${address}`)
             }}
           />
           <MultipleChainDropdown

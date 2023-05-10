@@ -20,7 +20,7 @@ import { NETWORK_TO_CHAINID } from '../constants'
 import { useChartingDataQuery, useTokenDetailQuery } from '../hooks/useKyberAIData'
 import { ChartTab, ISRLevel, OHLCData } from '../types'
 import { navigateToLimitPage } from '../utils'
-import { testParams } from './SingleToken'
+import { defaultExplorePageToken } from './SingleToken'
 
 const Wrapper = styled.div`
   padding: 20px 0;
@@ -79,8 +79,8 @@ export default function TechnicalAnalysis() {
   const [priceChartResolution, setPriceChartResolution] = useState('1h')
   const now = Math.floor(Date.now() / 60000) * 60
   const { data, isLoading } = useChartingDataQuery({
-    chain: chain || testParams.chain,
-    address: address || testParams.address,
+    chain: chain || defaultExplorePageToken.chain,
+    address: address || defaultExplorePageToken.address,
     from: now - ({ '1h': 1080000, '4h': 4320000, '1d': 12960000 }[priceChartResolution] || 1080000),
     to: now,
     candleSize: priceChartResolution,
@@ -88,8 +88,8 @@ export default function TechnicalAnalysis() {
   })
 
   const { data: tokenData } = useTokenDetailQuery({
-    chain: chain || testParams.chain,
-    address: address || testParams.address,
+    chain: chain || defaultExplorePageToken.chain,
+    address: address || defaultExplorePageToken.address,
   })
   const SRLevels: ISRLevel[] = useMemo(() => {
     if (isLoading && !data) return []

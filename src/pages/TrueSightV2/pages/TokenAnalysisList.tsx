@@ -3,7 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { ReactNode, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Share2, Star } from 'react-feather'
+import { Share2 } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -33,9 +33,10 @@ import NetworkSelect from '../components/NetworkSelect'
 import SimpleTooltip from '../components/SimpleTooltip'
 import SmallKyberScoreMeter from '../components/SmallKyberScoreMeter'
 import TokenChart from '../components/TokenChartSVG'
+import { StarWithAnimation } from '../components/WatchlistStar'
 import KyberScoreChart from '../components/chart/KyberScoreChart'
 import { SUPPORTED_NETWORK_KYBERAI } from '../constants'
-import { useTokenListQuery } from '../hooks/useKyberAIData'
+import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation, useTokenListQuery } from '../hooks/useKyberAIData'
 import { IKyberScoreChart, ITokenList, KyberAIListType } from '../types'
 import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice, navigateToSwapPage } from '../utils'
 
@@ -155,10 +156,11 @@ const Table = styled.table`
 `
 
 const ActionButton = styled.button<{ color: string }>`
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
+  justify-content: center;
   outline: none;
   border: none;
   border-radius: 50vh;
@@ -400,7 +402,7 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab:
           }
           if (tab === type) {
             return (
-              <MouseoverTooltip key={type} text={tooltip?.(theme)} placement="top" opacity={1} delay={1500}>
+              <MouseoverTooltip key={type} text={tooltip?.(theme)} placement="top" opacity={1} delay={500}>
                 <ButtonTypeActive {...props} ref={el => (tabListRef.current[index] = el)}>
                   {icon && <Icon id={icon} size={16} />}
                   {title}
@@ -409,7 +411,7 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab:
             )
           } else {
             return (
-              <MouseoverTooltip key={type} text={tooltip?.(theme)} placement="top" opacity={1} delay={1500}>
+              <MouseoverTooltip key={type} text={tooltip?.(theme)} placement="top" opacity={1} delay={500}>
                 <ButtonTypeInactive key={type} {...props} ref={el => (tabListRef.current[index] = el)}>
                   {icon && <Icon id={icon} size={16} />}
                   {title}
@@ -445,11 +447,15 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab:
 
 const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab: KyberAIListType; index: number }) => {
   const navigate = useNavigate()
+  const { account } = useActiveWeb3React()
   const theme = useTheme()
   const [showMenu, setShowMenu] = useState(false)
   const [showSwapMenu, setShowSwapMenu] = useState(false)
   const [menuLeft, setMenuLeft] = useState<number | undefined>(undefined)
-
+  const [addToWatchlist] = useAddToWatchlistMutation()
+  const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
+  const [isWatched, setIsWatched] = useState(false)
+  const [loadingStar, setLoadingStar] = useState(false)
   const rowRef = useRef<HTMLTableRowElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -472,22 +478,39 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
     }
   }
 
+  const handleWatchlistClick = (e: any) => {
+    e.stopPropagation()
+    if (!account) return
+    setLoadingStar(true)
+    if (isWatched) {
+      Promise.all(
+        token.tokens.map(t => removeFromWatchlist({ wallet: account, tokenAddress: t.address, chain: t.chain })),
+      ).then(() => {
+        setIsWatched(false)
+        setLoadingStar(false)
+      })
+    } else {
+      Promise.all(
+        token.tokens.map(t => addToWatchlist({ wallet: account, tokenAddress: t.address, chain: t.chain })),
+      ).then(() => {
+        setIsWatched(true)
+        setLoadingStar(false)
+      })
+    }
+  }
+
+  useEffect(() => {
+    setIsWatched(token.isWatched)
+  }, [token.isWatched])
+
   const latestKyberScore: IKyberScoreChart | undefined = token?.ks_3d?.[token.ks_3d.length - 1]
   return (
     <tr key={token.sourceTokenId} ref={rowRef} onClick={handleRowClick} style={{ position: 'relative' }}>
       <td>
-        <RowFit style={{ width: '30px' }}>
+        <RowFit style={{ width: '30px' }} gap="6px">
           {
-            <SimpleTooltip text={!token?.isWatched ? t`Add to watchlist` : t`Remove from watchlist`}>
-              <Star
-                size={20}
-                style={{ marginRight: '6px', cursor: 'pointer' }}
-                fill={token?.isWatched ? theme.primary : 'none'}
-                stroke={token?.isWatched ? theme.primary : theme.subText}
-                onClick={e => {
-                  e.stopPropagation()
-                }}
-              />
+            <SimpleTooltip text={isWatched ? t`Add to watchlist` : t`Remove from watchlist`}>
+              <StarWithAnimation watched={isWatched} loading={loadingStar} onClick={handleWatchlistClick} />
             </SimpleTooltip>
           }{' '}
           {index}
@@ -577,20 +600,21 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
         </td>
       )}
       <td>
-        <Row gap="4px" justify={'flex-end'}>
+        <Row gap="6px" justify={'flex-end'}>
           <SimpleTooltip text={t`Swap`}>
             <ActionButton
               color={theme.subText}
               onClick={e => {
                 e.stopPropagation()
                 if (hasMutipleChain) {
+                  setMenuLeft(undefined)
                   setShowSwapMenu(true)
                 } else {
                   navigateToSwapPage(token.tokens[0])
                 }
               }}
             >
-              <Icon id="swap" size={16} />
+              <Icon id="swap" size={18} />
             </ActionButton>
           </SimpleTooltip>
           <SimpleTooltip text={t`Explore`}>
@@ -606,7 +630,7 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
                 }
               }}
             >
-              <Icon id="truesight-v2" size={16} />
+              <Icon id="truesight-v2" size={18} />
             </ActionButton>
           </SimpleTooltip>
           {hasMutipleChain && (
@@ -616,20 +640,15 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
                 show={showMenu}
                 menuLeft={menuLeft}
                 tokens={token?.tokens}
-                onChainClick={chain =>
-                  navigate(
-                    `${APP_PATHS.KYBERAI_EXPLORE}/${chain}/${token.tokens.filter(t => t.chain === chain)[0]?.address}`,
-                  )
-                }
+                onChainClick={(chain, address) => navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${chain}/${address}`)}
               />
               <MultipleChainDropdown
                 show={showSwapMenu}
                 menuLeft={menuLeft}
                 tokens={token?.tokens}
-                onChainClick={chain => {
-                  const t = token.tokens.find(t => t.chain === chain)
-                  if (t) {
-                    navigateToSwapPage(t)
+                onChainClick={(chain, address) => {
+                  if (chain && address) {
+                    navigateToSwapPage({ chain, address })
                   }
                 }}
               />
@@ -692,6 +711,7 @@ export default function TokenAnalysisList() {
           chain: (chain && SUPPORTED_NETWORK_KYBERAI[Number(chain) as ChainId]) || 'all',
           page,
           pageSize,
+          wallet: account,
         },
   )
   const listData = data?.data || []
