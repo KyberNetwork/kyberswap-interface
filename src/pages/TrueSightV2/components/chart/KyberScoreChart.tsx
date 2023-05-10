@@ -32,11 +32,7 @@ export default function KyberScoreChart({
 
   const [{ x, y }, setXY] = useState({ x: 0, y: 0 })
   const [hoveringItem, setHoveringItem] = useState<IKyberScoreChart | undefined>()
-  const handleMouseEnter = useCallback((e: any, item: IKyberScoreChart) => {
-    console.log(e)
-    setXY({ x: e.clientX, y: e.clientY })
-    setHoveringItem(item)
-  }, [])
+
   const handleMouseLeave = useCallback(() => {
     setXY({ x: 0, y: 0 })
     setHoveringItem(undefined)
@@ -57,17 +53,32 @@ export default function KyberScoreChart({
     }
     return datatemp.reverse()
   }, [data])
-  console.log('🚀 ~ file: KyberScoreChart.tsx:60 ~ filledData ~ filledData:', filledData)
-  console.log('🚀 ~ file: KyberScoreChart.tsx:62 ~ data:', data)
+  const handleMouseEnter = useCallback(
+    (e: any, index: number) => {
+      console.log(e)
+      setXY({ x: e.clientX, y: e.clientY })
+      setHoveringItem(filledData[index] || undefined)
+    },
+    [filledData],
+  )
   return (
     <Wrapper style={{ width, height }} onMouseLeave={handleMouseLeave}>
-      <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <g transform="scale(1,-1) translate(0,-100)">
+      <svg width="100%" height="100%" viewBox="0 0 100 22" preserveAspectRatio="none">
+        <defs>
+          <clipPath id="cut-off-outline">
+            {filledData?.map((item, index) => {
+              const gap = 2
+              const rectWidth = (100 - (filledData.length - 1) * gap) / filledData.length
+              return <rect key={index} x={index * (rectWidth + gap)} y={0} width={rectWidth} height={21}></rect>
+            })}
+          </clipPath>
+        </defs>
+        <g transform="scale(1,-1) translate(0,-21)" clipPath="url(#cut-off-outline)">
           {filledData?.map((item, index) => {
             const v = item?.kyber_score || 0
             const gap = 2
             const rectWidth = (100 - (filledData.length - 1) * gap) / filledData.length
-            const rectHeight = !v ? 100 : v
+            const rectHeight = !v ? 21 : Math.max((v * 21) / 100, 0.8)
             const color = calculateValueToColor(v || 0, theme)
 
             // if (!item) return <rect key={index} x={index * (rectWidth + gap)} y={0} />
@@ -78,11 +89,10 @@ export default function KyberScoreChart({
                 y={0}
                 width={rectWidth}
                 style={{ fill: !v ? (theme.darkMode ? theme.background + '60' : theme.text + '10') : color }}
-                onMouseEnter={e => item && handleMouseEnter(e, item)}
+                onMouseEnter={e => index && handleMouseEnter(e, index)}
                 strokeWidth={!v ? '2px' : 0}
                 stroke={theme.disableText}
                 vectorEffect="non-scaling-stroke"
-                shapeRendering="crispEdges"
               >
                 <animate
                   attributeName="height"
