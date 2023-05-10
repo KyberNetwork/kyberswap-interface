@@ -108,7 +108,7 @@ export interface ITokenSearchResult {
   chain: string
   price: number
   priceChange24h: number
-  kyberScore: {
+  kyberScore?: {
     score: number
     label: string
   }
