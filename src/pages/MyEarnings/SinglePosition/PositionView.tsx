@@ -4,50 +4,27 @@ import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useMemo } from 'react'
 import { ChevronsUp, Info, Minus, Repeat } from 'react-feather'
+import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { PositionEarningWithDetails, TokenEarning } from 'services/earning'
-import styled, { css } from 'styled-components'
 
-import { ButtonPrimary } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { formatUSDValue } from 'components/EarningAreaChart/utils'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
-import Logo from 'components/Logo'
-import { EMPTY_ARRAY } from 'constants/index'
+import { MouseoverTooltip } from 'components/Tooltip'
+import { APP_PATHS, EMPTY_ARRAY } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import HoverDropdown from 'pages/MyEarnings/HoverDropdown'
 import { Wrapper } from 'pages/MyEarnings/SinglePosition'
 import { ActionButton } from 'pages/MyEarnings/SinglePosition/ActionButton'
+import CollectFeesPanel from 'pages/MyEarnings/SinglePosition/CollectFeesPanel'
 import PriceRangeChart from 'pages/MyEarnings/SinglePosition/PriceRangeChart'
-import { Column, Row } from 'pages/MyEarnings/SinglePosition/styleds'
+import { Column, Label, Row, Value, ValueAPR } from 'pages/MyEarnings/SinglePosition/styleds'
 import { useAppSelector } from 'state/hooks'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
-import { formattedNumLong, isAddress } from 'utils'
+import { isAddress } from 'utils'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-
-const TextAPR = styled.span`
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 20px;
-
-  color: ${({ theme }) => theme.apr};
-`
-
-const Label = styled.span<{ $hasTooltip?: boolean }>`
-  font-weight: 500;
-  font-size: 12px;
-  line-height: 16px;
-  color: ${({ theme }) => theme.subText};
-
-  ${({ $hasTooltip, theme }) =>
-    $hasTooltip
-      ? css`
-          text-decoration-line: underline;
-          text-decoration-style: dashed;
-          text-decoration-color: ${theme.subText};
-        `
-      : ''};
-`
 
 // TODO: merge with EarningView props
 type Props = {
@@ -109,6 +86,14 @@ const PositionView: React.FC<Props> = ({ onFlipView, positionEarning, position }
       : []
   }, [chainId, feesEarnedToday, tokensByChainId])
 
+  const farm = (
+    <Link
+      to={`${APP_PATHS.FARMS}/${NETWORKS_INFO[chainId].route}?tab=elastic&type=active&search=${positionEarning.pool.id}`}
+    >
+      <Trans>farm</Trans>
+    </Link>
+  )
+
   return (
     <Wrapper>
       <Flex
@@ -135,30 +120,45 @@ const PositionView: React.FC<Props> = ({ onFlipView, positionEarning, position }
             #{positionEarning.id}
           </Text>
 
-          <Flex
-            sx={{
-              width: '24px',
-              height: '24px',
-              borderRadius: '999px',
-              justifyContent: 'center',
-              alignItems: 'center',
-              background: rgba(theme.primary, 0.3),
-            }}
+          <MouseoverTooltip
+            text={
+              <Trans>
+                The price of this pool is within your selected range. Your position is currently earning fees
+              </Trans>
+            }
+            placement="top"
           >
-            <Info size={16} color={theme.primary} />
-          </Flex>
+            <Flex
+              sx={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '999px',
+                justifyContent: 'center',
+                alignItems: 'center',
+                background: rgba(theme.primary, 0.3),
+              }}
+            >
+              <Info size={16} color={theme.primary} />
+            </Flex>
+          </MouseoverTooltip>
         </Flex>
 
         <Column>
           <Row>
-            <Label>My Liquidity Balance</Label>
-            <Label $hasTooltip>My Staked Balance</Label>
+            <Label>
+              <Trans>My Liquidity Balance</Trans>
+            </Label>
+            <Label $hasTooltip>
+              <MouseoverTooltip width="fit-content" text={<Trans>Amount staked in a farm</Trans>} placement="top">
+                <Trans>My Staked Balance</Trans>
+              </MouseoverTooltip>
+            </Label>
           </Row>
 
           <Row>
             {/* TODO: check if there're more than 10 tokens */}
             <HoverDropdown
-              anchor={<span>{liquidityInUsdString}</span>}
+              anchor={<Value>{liquidityInUsdString}</Value>}
               text={
                 <>
                   <Flex alignItems="center">
@@ -179,15 +179,7 @@ const PositionView: React.FC<Props> = ({ onFlipView, positionEarning, position }
 
             {myStakedBalance ? (
               <HoverDropdown
-                anchor={
-                  <Text
-                    sx={{
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    --
-                  </Text>
-                }
+                anchor={<Value>--</Value>}
                 disabled
                 text={
                   <Flex flexDirection="column" sx={{ gap: '8px' }} fontSize="14px">
@@ -196,19 +188,30 @@ const PositionView: React.FC<Props> = ({ onFlipView, positionEarning, position }
                 }
               />
             ) : (
-              <span>--</span>
+              <Value>--</Value>
             )}
           </Row>
         </Column>
 
         <Column>
           <Row>
-            <Label>My Pool APR</Label>
-            <Label $hasTooltip>My Farm APR</Label>
+            <Label>
+              <Trans>My Pool APR</Trans>
+            </Label>
+            <Label $hasTooltip>
+              <MouseoverTooltip
+                text={
+                  <Trans>You can stake your liquidity in this farm to earn even more rewards. View the {farm}</Trans>
+                }
+                placement="top"
+              >
+                <Trans>My Farm APR</Trans>
+              </MouseoverTooltip>
+            </Label>
           </Row>
           <Row>
-            <TextAPR>--</TextAPR>
-            <TextAPR>--</TextAPR>
+            <ValueAPR>--</ValueAPR>
+            <ValueAPR>--</ValueAPR>
           </Row>
         </Column>
 
@@ -221,70 +224,12 @@ const PositionView: React.FC<Props> = ({ onFlipView, positionEarning, position }
         >
           <PriceRangeChart position={position} />
 
-          <Flex
-            sx={{
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              borderRadius: '20px',
-              background: rgba(theme.apr, 0.3),
-              padding: '16px',
-            }}
-          >
-            <Flex
-              sx={{
-                flexDirection: 'column',
-              }}
-            >
-              <Text
-                as="span"
-                sx={{
-                  fontWeight: 500,
-                  fontSize: '12px',
-                  lineHeight: '16px',
-                  color: theme.subText,
-                }}
-              >
-                <Trans>Fees Earned</Trans>
-              </Text>
-
-              <HoverDropdown
-                anchor={formatUSDValue(feesEarnedTodayUSD, true)}
-                disabled={!feesEarnedTokens.length}
-                text={
-                  <>
-                    {feesEarnedTokens.map((token, index) => (
-                      <Flex
-                        alignItems="center"
-                        key={index}
-                        sx={{
-                          gap: '4px',
-                        }}
-                      >
-                        <Logo
-                          srcs={[token.logoUrl]}
-                          style={{ flex: '0 0 16px', height: '16px', borderRadius: '999px' }}
-                        />
-                        <Text fontSize={12}>
-                          {formattedNumLong(token.amount, false)} {token.symbol}
-                        </Text>
-                      </Flex>
-                    ))}
-                  </>
-                }
-              />
-            </Flex>
-
-            <ButtonPrimary
-              style={{
-                height: '36px',
-                width: 'fit-content',
-                flexWrap: 'nowrap',
-                padding: '0 12px',
-              }}
-            >
-              Collect Fees
-            </ButtonPrimary>
-          </Flex>
+          <CollectFeesPanel
+            feesEarnedTodayUSD={feesEarnedTodayUSD}
+            feesEarnedTokens={feesEarnedTokens}
+            // TODO: check disabled condition
+            disabled={false}
+          />
 
           <Flex
             sx={{

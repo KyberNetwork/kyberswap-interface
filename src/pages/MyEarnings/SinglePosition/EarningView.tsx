@@ -5,15 +5,16 @@ import { useMemo } from 'react'
 import { Info, Repeat } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { PositionEarningWithDetails } from 'services/earning'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 
 import { formatUSDValue } from 'components/EarningAreaChart/utils'
 import Logo from 'components/Logo'
+import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import HoverDropdown from 'pages/MyEarnings/HoverDropdown'
 import OriginalMyEarningsOverTimePanel from 'pages/MyEarnings/MyEarningsOverTimePanel'
 import { Wrapper } from 'pages/MyEarnings/SinglePosition'
-import { Column, Row } from 'pages/MyEarnings/SinglePosition/styleds'
+import { Column, Label, Row, Value, ValueAPR } from 'pages/MyEarnings/SinglePosition/styleds'
 import { calculateEarningStatsTick } from 'pages/MyEarnings/utils'
 import { useAppSelector } from 'state/hooks'
 import { EarningStatsTick } from 'types/myEarnings'
@@ -23,30 +24,6 @@ const MyEarningsOverTimePanel = styled(OriginalMyEarningsOverTimePanel)`
   padding: 0;
   border: none;
   background: unset;
-`
-
-const TextAPR = styled.span`
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 20px;
-
-  color: ${({ theme }) => theme.apr};
-`
-
-const Label = styled.span<{ $hasTooltip?: boolean }>`
-  font-weight: 500;
-  font-size: 12px;
-  line-height: 16px;
-  color: ${({ theme }) => theme.subText};
-
-  ${({ $hasTooltip, theme }) =>
-    $hasTooltip
-      ? css`
-          text-decoration-line: underline;
-          text-decoration-style: dashed;
-          text-decoration-color: ${theme.subText};
-        `
-      : ''};
 `
 
 type Props = {
@@ -92,18 +69,27 @@ const EarningView: React.FC<Props> = ({ onFlipView, positionEarning, chainId }) 
             #{positionEarning.id}
           </Text>
 
-          <Flex
-            sx={{
-              width: '24px',
-              height: '24px',
-              borderRadius: '999px',
-              justifyContent: 'center',
-              alignItems: 'center',
-              background: rgba(theme.primary, 0.3),
-            }}
+          <MouseoverTooltip
+            text={
+              <Trans>
+                The price of this pool is within your selected range. Your position is currently earning fees
+              </Trans>
+            }
+            placement="top"
           >
-            <Info size={16} color={theme.primary} />
-          </Flex>
+            <Flex
+              sx={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '999px',
+                justifyContent: 'center',
+                alignItems: 'center',
+                background: rgba(theme.primary, 0.3),
+              }}
+            >
+              <Info size={16} color={theme.primary} />
+            </Flex>
+          </MouseoverTooltip>
         </Flex>
 
         <Flex
@@ -112,10 +98,17 @@ const EarningView: React.FC<Props> = ({ onFlipView, positionEarning, chainId }) 
             gap: '4px 16px',
           }}
         >
-          <Label>Total Earnings</Label>
+          <Label $hasTooltip>
+            <MouseoverTooltip
+              text={<Trans>Total earnings from both pool and farm (if applicable)</Trans>}
+              placement="top"
+            >
+              <Trans>Total Earnings</Trans>
+            </MouseoverTooltip>
+          </Label>
 
           <HoverDropdown
-            anchor={earningToday ? formatUSDValue(earningToday.totalValue, false) : '--'}
+            anchor={<Value>{earningToday ? formatUSDValue(earningToday.totalValue, false) : '--'}</Value>}
             text={
               <>
                 {earningToday?.tokens.map((token, index) => (
@@ -139,13 +132,17 @@ const EarningView: React.FC<Props> = ({ onFlipView, positionEarning, chainId }) 
 
         <Column>
           <Row>
-            <Label>My Pool APR</Label>
-            <Label $hasTooltip>My Farm APR</Label>
+            <Label>
+              <Trans>My Pool APR</Trans>
+            </Label>
+            <Label $hasTooltip>
+              <Trans>My Farm APR</Trans>
+            </Label>
           </Row>
 
           <Row>
-            <TextAPR>--</TextAPR>
-            <TextAPR>--</TextAPR>
+            <ValueAPR>--</ValueAPR>
+            <ValueAPR>--</ValueAPR>
           </Row>
         </Column>
 

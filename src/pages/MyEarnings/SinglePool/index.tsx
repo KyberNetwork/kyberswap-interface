@@ -3,6 +3,7 @@ import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useCallback, useMemo, useState } from 'react'
+import { Share2 } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { PoolEarningWithDetails, PositionEarningWithDetails } from 'services/earning'
@@ -193,6 +194,53 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
 
       {isExpanded && (
         <>
+          <Flex
+            sx={{
+              width: '100%',
+              height: 0,
+              borderBottom: `1px solid transparent`,
+              borderBottomColor: theme.border,
+            }}
+          />
+          <Flex
+            sx={{
+              flexDirection: 'column',
+              gap: '12px',
+            }}
+          >
+            <Text
+              sx={{
+                fontWeight: 500,
+                fontSize: '16px',
+                lineHeight: '20px',
+                color: theme.text,
+              }}
+            >
+              <Trans>Total Earnings</Trans>
+            </Text>
+
+            <Flex
+              alignItems="center"
+              sx={{
+                gap: '16px',
+              }}
+            >
+              <Text
+                sx={{
+                  fontWeight: 500,
+                  fontSize: '24px',
+                  lineHeight: '28px',
+                  color: theme.text,
+                }}
+              >
+                $189,298,425.43
+              </Text>
+
+              <Flex alignItems={'center'} justifyItems={'center'} width="24px" height="24px">
+                <Share2 width="16px" height="16px" />
+              </Flex>
+            </Flex>
+          </Flex>
           <PoolEarningsSection poolEarning={poolEarning} chainId={chainId} />
           <Positions positionEarnings={positionEarnings} chainId={chainId} pool={pool} />
         </>
