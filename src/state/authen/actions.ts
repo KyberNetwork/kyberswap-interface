@@ -9,4 +9,4 @@ export const updateSession = createAction<SessionData>('authen/setSession')
 
 export const updateProcessingLogin = createAction<boolean>('authen/updateProcessingLogin')
 
-export const updateProfile = createAction<UserProfile>('authen/updateProfile')
+export const updateProfile = createAction<UserProfile | undefined>('authen/updateProfile')

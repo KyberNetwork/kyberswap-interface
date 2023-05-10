@@ -42,7 +42,7 @@ export const useSaveSession = () => {
 export const useSaveUserProfile = () => {
   const dispatch = useAppDispatch()
   return useCallback(
-    (value: UserProfile) => {
+    (value: UserProfile | undefined) => {
       dispatch(updateProfile(value))
     },
     [dispatch],

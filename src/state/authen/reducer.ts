@@ -39,6 +39,6 @@ export default createReducer(DEFAULT_AUTHEN_STATE, builder =>
     })
     .addCase(updateProfile, (state, { payload: userInfo }) => {
       state.userInfo = userInfo
-      state.isLogin = true
+      state.isLogin = !!userInfo
     }),
 )
