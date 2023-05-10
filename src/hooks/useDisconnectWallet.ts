@@ -15,7 +15,9 @@ const useDisconnectWallet = () => {
     const wallet = walletKey && SUPPORTED_WALLETS[walletKey]
     const onRemove = () => {
       setIsUserManuallyDisconnect(true)
-      localStorage.removeItem(WALLETLINK_LOCALSTORAGE_NAME)
+      if (localStorage.getItem(WALLETLINK_LOCALSTORAGE_NAME)) {
+        window.ethereum?.selectedProvider?.close?.()
+      }
     }
     //If wallet support both network, disconnect to both
     if (wallet && isEVMWallet(wallet) && isSolanaWallet(wallet)) {
