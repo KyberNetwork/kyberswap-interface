@@ -2,7 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import { debounce } from 'lodash'
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import { Text } from 'rebass'
-import { useRequestWhiteListMutation } from 'services/kyberAISubscription'
+import { useLazyCheckReferralCodeQuery, useRequestWhiteListMutation } from 'services/kyberAISubscription'
 import { useLazyGetConnectedWalletQuery } from 'services/notification'
 
 import { ButtonPrimary } from 'components/Button'
@@ -30,6 +30,8 @@ export default function EmailForm({
   const [requestWaitList] = useRequestWhiteListMutation()
 
   const [getConnectedWallet, { isFetching }] = useLazyGetConnectedWalletQuery()
+  const [checkReferalCode] = useLazyCheckReferralCodeQuery()
+
   const checkEmailExist = useCallback(
     async (email: string) => {
       try {
@@ -41,6 +43,19 @@ export default function EmailForm({
       } catch (error) {}
     },
     [getConnectedWallet, userInfo?.email],
+  )
+
+  const checkReferCodeExist = useCallback(
+    async (code: string) => {
+      try {
+        if (!code) return
+        const { data } = await checkReferalCode(code)
+        if (!data?.isValid) {
+          setErrorInput(prev => ({ ...prev, referredByCode: t`Referral code is invalid` }))
+        }
+      } catch (error) {}
+    },
+    [checkReferalCode],
   )
 
   useEffect(() => {
@@ -55,6 +70,11 @@ export default function EmailForm({
   }, [])
 
   const debouncedCheckEmail = useMemo(() => debounce((email: string) => checkEmailExist(email), 500), [checkEmailExist])
+  const debouncedCheckReferCode = useMemo(
+    () => debounce((code: string) => checkReferCodeExist(code), 500),
+    [checkReferCodeExist],
+  )
+
   const onChangeInput = (e: React.FormEvent<HTMLInputElement>) => {
     const value = e.currentTarget.value
     setInputEmail(value)
@@ -63,8 +83,10 @@ export default function EmailForm({
   }
 
   const onChangeCode = (e: FormEvent<HTMLInputElement>) => {
-    setCode(e.currentTarget.value)
+    const value = e.currentTarget.value
+    setCode(value)
     setErrorInput(prev => ({ ...prev, referredByCode: '' }))
+    debouncedCheckReferCode(value)
   }
 
   const hasErrorInput = Object.values(errorInput).some(e => e)
