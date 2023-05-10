@@ -44,12 +44,21 @@ export default function KyberScoreChart({
 
   const filledData = useMemo(() => {
     if (!data) return []
-    if (data.length < 18) {
-      return [...Array(18 - data.length).fill(null), ...data]
-    } else {
-      return data
+    const datatemp = []
+    const startTimestamp = Math.floor(Date.now() / 14400000) * 14400
+    for (let i = 0; i < 18; i++) {
+      const timestamp = startTimestamp - i * 14400
+      const index = data.findIndex(item => item.created_at === timestamp)
+      if (index >= 0) {
+        datatemp.push(data[index])
+      } else {
+        datatemp.push(null)
+      }
     }
+    return datatemp.reverse()
   }, [data])
+  console.log('🚀 ~ file: KyberScoreChart.tsx:60 ~ filledData ~ filledData:', filledData)
+  console.log('🚀 ~ file: KyberScoreChart.tsx:62 ~ data:', data)
   return (
     <Wrapper style={{ width, height }} onMouseLeave={handleMouseLeave}>
       <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">

@@ -2392,7 +2392,7 @@ export const LiquidOnCentralizedExchanges = () => {
                   />
                   {showLong && (
                     <Bar
-                      dataKey="buyVolUsd"
+                      dataKey="sellVolUsd"
                       stackId="a"
                       fill={rgba(theme.primary, 0.6)}
                       animationBegin={ANIMATION_DELAY}
@@ -2403,7 +2403,7 @@ export const LiquidOnCentralizedExchanges = () => {
                   )}
                   {showShort && (
                     <Bar
-                      dataKey="sellVolUsd"
+                      dataKey="buyVolUsd"
                       stackId="a"
                       fill={rgba(theme.red, 0.6)}
                       animationBegin={ANIMATION_DELAY}
@@ -2576,10 +2576,10 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
     })
 
     return () => {
-      // if (tvWidget !== null) {
-      //   tvWidget.remove()
-      //   setTvWidget(undefined)
-      // }
+      if (tvWidget !== null) {
+        tvWidget.remove()
+        setTvWidget(undefined)
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [theme, ref, datafeed])
