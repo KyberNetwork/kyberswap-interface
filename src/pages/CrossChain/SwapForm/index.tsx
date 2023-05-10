@@ -20,6 +20,7 @@ import useCheckStablePairSwap from 'components/SwapForm/hooks/useCheckStablePair
 import { formatDurationCrossChain } from 'components/swapv2/AdvancedSwapDetails'
 import { AdvancedSwapDetailsDropdownCrossChain } from 'components/swapv2/AdvancedSwapDetailsDropdown'
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { captureExceptionCrossChain } from 'hooks/bridge/useBridgeCallback'
 import { useChangeNetwork } from 'hooks/useChangeNetwork'
@@ -140,6 +141,8 @@ export default function SwapForm() {
         trade_qty: inputAmount,
         advance_node: isDegenMode ? 'on' : 'off',
         processing_time_est: duration ? formatDurationCrossChain(duration) : 'none',
+        source_chain: NETWORKS_INFO[chainId].name,
+        destination_chain: chainIdOut && NETWORKS_INFO[chainIdOut].name,
       })
     },
     [
@@ -152,6 +155,8 @@ export default function SwapForm() {
       slippageTolerance,
       totalFeeUsd,
       isDegenMode,
+      chainId,
+      chainIdOut,
     ],
   )
 
