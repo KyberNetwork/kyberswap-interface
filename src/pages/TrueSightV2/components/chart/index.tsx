@@ -1840,7 +1840,7 @@ export const NumberofHolders = () => {
   const { chain, address } = useParams()
   const [timeframe, setTimeframe] = useState(KyberAITimeframe.ONE_MONTH)
   const [from, to, timerange] = useMemo(() => {
-    const now = Math.floor(Date.now() / 60000) * 60
+    const now = Math.floor(Date.now() / 60000) * 60 - 86400
     const timerange =
       {
         [KyberAITimeframe.ONE_WEEK]: 86400,
