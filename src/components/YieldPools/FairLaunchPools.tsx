@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -9,7 +9,6 @@ import { Text } from 'rebass'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import InfoHelper from 'components/InfoHelper'
 import Row, { RowBetween, RowFit } from 'components/Row'
-import ShareModal from 'components/ShareModal'
 import { AMP_HINT } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
@@ -17,8 +16,7 @@ import { useFairLaunchVersion } from 'hooks/useContract'
 import useFairLaunch from 'hooks/useFairLaunch'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { ApplicationModal } from 'state/application/actions'
-import { useBlockNumber, useModalOpen, useOpenModal } from 'state/application/hooks'
+import { useBlockNumber } from 'state/application/hooks'
 import { setAttemptingTxn, setShowConfirm, setTxHash, setYieldPoolsError } from 'state/farms/classic/actions'
 import { FairLaunchVersion, Farm } from 'state/farms/classic/types'
 import { useAppDispatch } from 'state/hooks'
@@ -61,7 +59,6 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
   const above1200 = useMedia(`(min-width:${MEDIA_WIDTHS.upToLarge}px)`)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
-  const networkRoute = networkInfo.route || undefined
   const theme = useTheme()
   const blockNumber = useBlockNumber()
   const totalRewards = useFarmRewards(farms)
@@ -69,31 +66,7 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
   const { harvestMultiplePools } = useFairLaunch(fairLaunchAddress)
   const { mixpanelHandler } = useMixpanel()
 
-  const [sharedPoolAddress, setSharedPoolAddress] = useState('')
   const [expanded, setExpanded] = useState(true)
-
-  const openShareModal = useOpenModal(ApplicationModal.SHARE)
-  const isShareModalOpen = useModalOpen(ApplicationModal.SHARE)
-
-  useEffect(() => {
-    if (sharedPoolAddress) {
-      openShareModal()
-    }
-  }, [openShareModal, sharedPoolAddress])
-
-  useEffect(() => {
-    setSharedPoolAddress(addr => {
-      if (!isShareModalOpen) {
-        return ''
-      }
-
-      return addr
-    })
-  }, [isShareModalOpen, setSharedPoolAddress])
-
-  const shareUrl = sharedPoolAddress
-    ? window.location.origin + `/farms/${networkRoute}?search=` + sharedPoolAddress + '&tab=classic'
-    : undefined
 
   const handleHarvestAll = useCallback(async () => {
     if (!account) {
@@ -277,21 +250,14 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
                   </Row>
                 </TableHeader>
               )}
+
               {displayFarms.map(farm => {
-                return (
-                  <ListItem
-                    key={`${farm.fairLaunchAddress}_${farm.stakeToken}`}
-                    farm={farm}
-                    setSharedPoolAddress={setSharedPoolAddress}
-                  />
-                )
+                return <ListItem key={`${farm.fairLaunchAddress}_${farm.stakeToken}`} farm={farm} />
               })}
             </ConditionListWrapper>
           </ExpandableWrapper>
         </>
       )}
-
-      <ShareModal title={t`Share this farm with your friends!`} url={shareUrl} />
     </ClassicFarmWrapper>
   )
 }

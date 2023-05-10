@@ -23,6 +23,7 @@ import ElasticFarms from 'components/YieldPools/ElasticFarms'
 import FarmGuide from 'components/YieldPools/FarmGuide'
 import FarmSort from 'components/YieldPools/FarmPoolSort'
 import ListGridViewGroup from 'components/YieldPools/ListGridViewGroup'
+import ShareFarmAddressModal from 'components/YieldPools/ShareFarmAddressModal'
 import {
   HeadingContainer,
   HeadingRight,
@@ -225,6 +226,7 @@ const Farm = () => {
     <>
       <ClassicFarmUpdater isInterval />
       <FarmUpdater />
+      <ShareFarmAddressModal />
       <PageWrapper gap="24px">
         <div>
           <TopBar>
