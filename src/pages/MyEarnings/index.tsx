@@ -74,6 +74,10 @@ const getPositionEarningsByPoolId = (
       return acc
     }
 
+    if (!positionEarning.liquidity || positionEarning.liquidity === '0') {
+      return acc
+    }
+
     if (!acc[poolId]) {
       acc[poolId] = [positionEarning]
     } else {
@@ -328,12 +332,18 @@ const MyEarnings = () => {
             return null
           }
 
+          const positionEarningsByPoolId = getPositionEarningsByPoolId(getEarningData.data[chainRoute].positions)
+          const poolIdsWithActivePositions = Object.keys(positionEarningsByPoolId)
+          const activePoolEarnings = getEarningData.data[chainRoute]?.pools?.filter(pool =>
+            poolIdsWithActivePositions.includes(pool.id),
+          )
+
           return (
             <Pools
               key={chainRoute}
-              positionEarningsByPoolId={getPositionEarningsByPoolId(getEarningData.data[chainRoute].positions)}
+              positionEarningsByPoolId={positionEarningsByPoolId}
               chainId={chainIdByRoute[chainRoute]}
-              poolEarnings={getEarningData.data[chainRoute].pools || EMPTY_ARRAY}
+              poolEarnings={activePoolEarnings || EMPTY_ARRAY}
             />
           )
         })}
