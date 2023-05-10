@@ -29,8 +29,15 @@ const kyberAIApi = createApi({
       }),
       invalidatesTags: (_, error) => (error ? [] : [RTK_QUERY_TAGS.GET_PARTICIPANT_INFO_KYBER_AI]),
     }),
+    checkReferralCode: builder.query<{ isValid: boolean }, string>({
+      query: referralCode => ({
+        url: '/v1/referral/participants/check-referral-code',
+        params: { referralProgramId: KYBER_AI_REFERRAL_ID, referralCode },
+      }),
+      transformResponse: (data: any) => data?.data,
+    }),
   }),
 })
 
-export const { useGetParticipantInfoQuery, useRequestWhiteListMutation } = kyberAIApi
+export const { useGetParticipantInfoQuery, useRequestWhiteListMutation, useLazyCheckReferralCodeQuery } = kyberAIApi
 export default kyberAIApi
