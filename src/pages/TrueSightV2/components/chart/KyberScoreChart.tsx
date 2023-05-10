@@ -64,11 +64,11 @@ export default function KyberScoreChart({
       <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
         <g transform="scale(1,-1) translate(0,-100)">
           {filledData?.map((item, index) => {
-            const v = item?.kyber_score
+            const v = item?.kyber_score || 0
             const gap = 2
             const rectWidth = (100 - (filledData.length - 1) * gap) / filledData.length
             const rectHeight = !v ? 100 : v
-            const color = calculateValueToColor(v, theme)
+            const color = calculateValueToColor(v || 0, theme)
 
             // if (!item) return <rect key={index} x={index * (rectWidth + gap)} y={0} />
             return (
@@ -78,7 +78,7 @@ export default function KyberScoreChart({
                 y={0}
                 width={rectWidth}
                 style={{ fill: !v ? (theme.darkMode ? theme.background + '60' : theme.text + '10') : color }}
-                onMouseEnter={e => handleMouseEnter(e, item)}
+                onMouseEnter={e => item && handleMouseEnter(e, item)}
                 strokeWidth={!v ? '2px' : 0}
                 stroke={theme.disableText}
                 vectorEffect="non-scaling-stroke"
