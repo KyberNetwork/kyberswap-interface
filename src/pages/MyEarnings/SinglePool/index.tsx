@@ -1,7 +1,9 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
+import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useCallback, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { PoolEarningWithDetails, PositionEarningWithDetails } from 'services/earning'
 import styled from 'styled-components'
@@ -11,7 +13,9 @@ import CopyHelper from 'components/Copy'
 import { MoneyBag } from 'components/Icons'
 import Loader from 'components/Loader'
 import Logo from 'components/Logo'
-import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
+import { MouseoverTooltip } from 'components/Tooltip'
+import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import { PoolState } from 'hooks/usePools'
 import { usePoolv2 } from 'hooks/usePoolv2'
 import useTheme from 'hooks/useTheme'
@@ -34,6 +38,8 @@ const Badge = styled.div<{ $color?: string }>`
   font-size: 12px;
   line-height: 16px;
   border-radius: 16px;
+
+  user-select: none;
 
   color: ${({ $color, theme }) => $color || theme.subText};
   background: ${({ $color, theme }) => rgba($color || theme.subText, 0.3)};
@@ -70,6 +76,14 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
   }, [])
 
   const { pool, poolState } = usePoolv2(chainId, currency0, currency1, feeAmount)
+
+  const here = (
+    <Link to={`${APP_PATHS.FARMS}/${NETWORKS_INFO[chainId].route}?tab=elastic&type=active&search=${poolEarning.id}`}>
+      <Trans>here</Trans>
+    </Link>
+  )
+
+  const isFarmingPool = poolEarning.farmApr && poolEarning.farmApr !== '0'
 
   return (
     <Flex
@@ -119,9 +133,21 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
 
           <Badge $color={theme.blue}>FEE {(Number(poolEarning.feeTier) * 100) / ELASTIC_BASE_FEE_UNIT}%</Badge>
 
-          <Badge $color={theme.apr}>
-            <MoneyBag size={16} /> Farm
-          </Badge>
+          {isFarmingPool && (
+            <MouseoverTooltip
+              noArrow
+              placement="top"
+              text={
+                <Text>
+                  <Trans>Available for yield farming. Click {here} to go to the farm.</Trans>
+                </Text>
+              }
+            >
+              <Badge $color={theme.apr}>
+                <MoneyBag size={16} /> Farm
+              </Badge>
+            </MouseoverTooltip>
+          )}
         </Flex>
 
         <Flex
