@@ -11,6 +11,8 @@ import { NETWORKS_INFO, SUPPORTED_NETWORKS_FOR_MY_EARNINGS } from 'constants/net
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import ClassicElasticTab from 'pages/MyEarnings/ClassicElasticTab'
+import CurrentChainButton from 'pages/MyEarnings/CurrentChainButton'
+import MultipleChainSelect from 'pages/MyEarnings/MultipleChainSelect'
 import PoolFilteringBar from 'pages/MyEarnings/PoolFilteringBar'
 import Pools from 'pages/MyEarnings/Pools'
 import TotalEarningsAndChainSelect from 'pages/MyEarnings/TotalEarningsAndChainSelect'
@@ -296,7 +298,21 @@ const MyEarnings = () => {
           My Earnings
         </Text>
 
-        <TotalEarningsAndChainSelect totalEarnings={Number(ticks?.[0].totalValue)} />
+        <Flex alignItems="center" justifyContent="space-between">
+          <TotalEarningsAndChainSelect
+            totalEarningToday={Number(ticks?.[0].totalValue)}
+            totalEarningYesterday={Number(ticks?.[1].totalValue || 0)}
+          />
+          <Flex
+            alignItems="center"
+            sx={{
+              gap: '16px',
+            }}
+          >
+            <CurrentChainButton />
+            <MultipleChainSelect />
+          </Flex>
+        </Flex>
 
         <Flex
           sx={{
