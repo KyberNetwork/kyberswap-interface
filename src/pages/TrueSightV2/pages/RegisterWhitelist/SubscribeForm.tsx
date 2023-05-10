@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { debounce } from 'lodash'
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Text } from 'rebass'
 import { useLazyCheckReferralCodeQuery, useRequestWhiteListMutation } from 'services/kyberAISubscription'
 import { useLazyGetConnectedWalletQuery } from 'services/notification'
@@ -31,6 +31,7 @@ export default function EmailForm({
 
   const [getConnectedWallet, { isFetching }] = useLazyGetConnectedWalletQuery()
   const [checkReferalCode] = useLazyCheckReferralCodeQuery()
+  const checkingInput = useRef(false)
 
   const checkEmailExist = useCallback(
     async (email: string) => {
@@ -40,7 +41,10 @@ export default function EmailForm({
         if (walletAddress) {
           setErrorInput(prev => ({ ...prev, email: t`This email address is already registered` }))
         }
-      } catch (error) {}
+      } catch (error) {
+      } finally {
+        checkingInput.current = false
+      }
     },
     [getConnectedWallet, userInfo?.email],
   )
@@ -53,7 +57,10 @@ export default function EmailForm({
         if (!data?.isValid) {
           setErrorInput(prev => ({ ...prev, referredByCode: t`Referral code is invalid` }))
         }
-      } catch (error) {}
+      } catch (error) {
+      } finally {
+        checkingInput.current = false
+      }
     },
     [checkReferalCode],
   )
@@ -76,6 +83,7 @@ export default function EmailForm({
   )
 
   const onChangeInput = (e: React.FormEvent<HTMLInputElement>) => {
+    checkingInput.current = true
     const value = e.currentTarget.value
     setInputEmail(value)
     validateInput(value)
@@ -83,6 +91,7 @@ export default function EmailForm({
   }
 
   const onChangeCode = (e: FormEvent<HTMLInputElement>) => {
+    checkingInput.current = true
     const value = e.currentTarget.value
     setCode(value)
     setErrorInput(prev => ({ ...prev, referredByCode: '' }))
@@ -93,7 +102,7 @@ export default function EmailForm({
 
   const joinWaitList = async () => {
     try {
-      if (hasErrorInput || !inputEmail || isFetching) return
+      if (hasErrorInput || !inputEmail || isFetching || checkingInput.current) return
       if (userInfo?.email) {
         await requestWaitList({ referredByCode }).unwrap()
       }
