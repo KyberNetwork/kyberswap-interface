@@ -1,5 +1,5 @@
 import { RouteData, Squid } from '@0xsquid/sdk'
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, NativeCurrency } from '@kyberswap/ks-sdk-core'
 import { createReducer } from '@reduxjs/toolkit'
 
 import { ENV_LEVEL } from 'constants/env'
@@ -22,12 +22,13 @@ import {
 export type PoolBridgeValue = undefined | string | number | null
 export type PoolValueOutMap = { [address: string]: PoolBridgeValue }
 
+export type CrossChainCurrency = NativeCurrency | WrappedTokenInfo | undefined
 export type SwapCrossChainState = {
   chains: ChainId[]
   chainIdOut: ChainId | undefined
   tokens: WrappedTokenInfo[]
-  currencyIn: WrappedTokenInfo | undefined
-  currencyOut: WrappedTokenInfo | undefined
+  currencyIn: CrossChainCurrency
+  currencyOut: CrossChainCurrency
   loadingToken: boolean
   squidInstance: Squid | undefined
   route: RouteData | undefined

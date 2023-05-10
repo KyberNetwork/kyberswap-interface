@@ -105,7 +105,6 @@ const getTimeFrameText = (timeFrame: LiveDataTimeframeEnum) => {
   }
 }
 
-// todo co ve luc nao cung call api basic chart
 function LiveChart({
   currencies,
   isCrossChain = false,

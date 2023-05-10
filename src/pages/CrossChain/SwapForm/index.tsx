@@ -197,8 +197,8 @@ export default function SwapForm() {
           tokenAmountOut,
           tokenAddressIn,
           tokenAddressOut,
-          tokenLogoURLIn: currencyIn.logoURI,
-          tokenLogoURLOut: currencyOut.logoURI,
+          tokenLogoURLIn: (currencyIn as WrappedTokenInfo).logoURI,
+          tokenLogoURLOut: (currencyOut as WrappedTokenInfo).logoURI,
           chainIdIn: chainId,
           chainIdOut,
           rate: exchangeRate,
@@ -279,7 +279,7 @@ export default function SwapForm() {
             isCrossChain
             loadingToken={loadingToken}
             tokens={listTokenIn}
-            currency={currencyIn}
+            currency={currencyIn as WrappedTokenInfo}
             chainIds={chains}
             selectedChainId={chainId}
             onSelectNetwork={changeNetwork}
@@ -306,7 +306,7 @@ export default function SwapForm() {
             isOutput
             loadingToken={loadingToken}
             tokens={listTokenOut}
-            currency={currencyOut}
+            currency={currencyOut as WrappedTokenInfo}
             chainIds={listChainOut}
             onSelectNetwork={onSelectDestNetwork}
             selectedChainId={chainIdOut}

@@ -2,7 +2,7 @@ import { RouteData, Squid } from '@0xsquid/sdk'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createAction } from '@reduxjs/toolkit'
 
-import { PoolValueOutMap } from 'state/crossChain/reducer'
+import { CrossChainCurrency, PoolValueOutMap } from 'state/crossChain/reducer'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 export type BridgeStateParams = {
@@ -33,8 +33,8 @@ export type CrossChainStateParams = {
 export const setCrossChainState = createAction<CrossChainStateParams>('crosschain/setCrossChainState')
 
 type SelectCurrencyCrossChainParam = {
-  currencyIn?: WrappedTokenInfo | undefined
-  currencyOut?: WrappedTokenInfo | undefined
+  currencyIn?: CrossChainCurrency
+  currencyOut?: CrossChainCurrency
 }
 export const selectCurrencyCrossChain = createAction<SelectCurrencyCrossChainParam>(
   'crosschain/selectCurrencyCrossChain',

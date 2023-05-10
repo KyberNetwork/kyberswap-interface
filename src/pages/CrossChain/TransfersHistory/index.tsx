@@ -1,16 +1,19 @@
 import { t } from '@lingui/macro'
-import { useState } from 'react'
+import { Suspense, lazy, useState } from 'react'
+import Skeleton from 'react-loading-skeleton'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { RowBetween } from 'components/Row'
 import SubscribeNotificationButton from 'components/SubscribeButton'
-import { RoutingCrossChain } from 'components/TradeRouting'
 import { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
+import useTheme from 'hooks/useTheme'
 
 import HistoryCrossChain from './History'
 import TabSelector, { CrossChainTab } from './TabSelector'
+
+const Routing = lazy(() => import('components/TradeRouting/RoutingCrossChain'))
 
 type Props = {
   className?: string
@@ -25,6 +28,8 @@ const BridgeHistory: React.FC<Props> = ({ className }) => {
     navigate({ search: `tab=${tab}` }, { replace: true })
     setTab(tab)
   }
+
+  const theme = useTheme()
   return (
     <div className={className}>
       <RowBetween>
@@ -35,9 +40,20 @@ const BridgeHistory: React.FC<Props> = ({ className }) => {
         />
       </RowBetween>
       {activeTab === CrossChainTab.ROUTE ? (
-        <RoutingCrossChain /> // todo lazy
+        <Suspense
+          fallback={
+            <Skeleton
+              height="100px"
+              baseColor={theme.background}
+              highlightColor={theme.buttonGray}
+              borderRadius="1rem"
+            />
+          }
+        >
+          <Routing />
+        </Suspense>
       ) : (
-        <HistoryCrossChain /> // todo move all file
+        <HistoryCrossChain />
       )}
     </div>
   )

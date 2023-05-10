@@ -1,5 +1,5 @@
 import { RouteData } from '@0xsquid/sdk'
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, NativeCurrency } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -100,13 +100,13 @@ export function useCrossChainHandlers() {
   const dispatch = useDispatch<AppDispatch>()
 
   const selectCurrencyIn = useCallback(
-    (currencyIn: WrappedTokenInfo) => {
+    (currencyIn: NativeCurrency | WrappedTokenInfo) => {
       dispatch(selectCurrencyCrossChain({ currencyIn }))
     },
     [dispatch],
   )
   const selectCurrencyOut = useCallback(
-    (currencyOut: WrappedTokenInfo) => {
+    (currencyOut: NativeCurrency | WrappedTokenInfo) => {
       dispatch(selectCurrencyCrossChain({ currencyOut }))
     },
     [dispatch],

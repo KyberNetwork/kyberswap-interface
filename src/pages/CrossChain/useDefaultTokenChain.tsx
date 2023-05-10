@@ -14,7 +14,7 @@ const useDefaultTokenChain = () => {
   const listTokenIn = useMemo(() => tokens.filter(e => e.chainId === chainId), [tokens, chainId])
 
   useEffect(() => {
-    selectCurrencyIn(NativeCurrencies[chainId] as any) // todo
+    selectCurrencyIn(NativeCurrencies[chainId])
   }, [chainId, selectCurrencyIn])
 
   useEffect(() => {
@@ -22,7 +22,7 @@ const useDefaultTokenChain = () => {
   }, [chainId, listChainOut, chainIdOut, selectDestChain])
 
   useEffect(() => {
-    chainIdOut && selectCurrencyOut(NativeCurrencies[chainIdOut] as any) // todo
+    chainIdOut && selectCurrencyOut(NativeCurrencies[chainIdOut])
   }, [selectCurrencyOut, chainIdOut])
 
   return { ...rest, listTokenIn, listChainOut, listTokenOut, chains, chainIdOut, currencyIn, currencyOut }

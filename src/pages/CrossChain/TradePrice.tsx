@@ -1,4 +1,5 @@
 import { RouteData } from '@0xsquid/sdk'
+import { NativeCurrency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useState } from 'react'
 import { Repeat } from 'react-feather'
@@ -40,7 +41,7 @@ export default function TradePrice({
   const currencyLeft = showInverted ? currencyOut : currencyIn
   const currencyRight = showInverted ? currencyIn : currencyOut
 
-  const renderSymbolOrLogo = (currency: WrappedTokenInfo) =>
+  const renderSymbolOrLogo = (currency: NativeCurrency | WrappedTokenInfo) =>
     showLogo ? <TokenLogoWithChain size={14} currency={currency} /> : currency?.symbol
 
   const value = currencyLeft && currencyRight && chainIdOut && (

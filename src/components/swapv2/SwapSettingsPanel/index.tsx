@@ -89,7 +89,6 @@ const SettingsPanel: React.FC<Props> = ({
     })
     toggleLiveChart()
   }
-  // todo tracking cross chain
   const handleToggleTradeRoute = () => {
     mixpanelHandler(MIXPANEL_TYPE.TRADING_ROUTE_ON_OFF, {
       trading_route_on_or_off: !isShowTradeRoutes,

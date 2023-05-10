@@ -220,7 +220,6 @@ export default function Swap() {
   const tradeRouteComposition = useMemo(() => {
     return getTradeComposition(chainId, routeSummary?.parsedAmountIn, undefined, routeSummary?.route, defaultTokens)
   }, [chainId, defaultTokens, routeSummary])
-  // todo check api call swap/limit when at cross chain and vice versa
   // todo split by page
   return (
     <>
