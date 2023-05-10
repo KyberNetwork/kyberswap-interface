@@ -92,7 +92,7 @@ const Legend: React.FC<LegendProps> = ({
       sx={{
         flex: '0 0 fit-content',
         alignItems: 'center',
-        gap: '4px',
+        gap: chainId ? '8px' : '4px',
         padding: '4px',
         borderRadius: '4px',
         background: active ? rgba(theme.text4, 0.6) : undefined,
@@ -137,32 +137,39 @@ const Legend: React.FC<LegendProps> = ({
         )}
       </Flex>
 
-      <Text
-        as="span"
+      <Flex
+        alignItems="center"
         sx={{
-          flex: '0 0 max-content',
-          fontWeight: 500,
-          fontSize: '12px',
-          lineHeight: '16px',
-          color: theme.text,
+          gap: '4px',
         }}
       >
-        {label}:
-      </Text>
+        <Text
+          as="span"
+          sx={{
+            flex: '0 0 max-content',
+            fontWeight: 500,
+            fontSize: '12px',
+            lineHeight: '16px',
+            color: theme.text,
+          }}
+        >
+          {label}:
+        </Text>
 
-      <Text
-        as="span"
-        sx={{
-          flex: '0 0 max-content',
-          fontWeight: 500,
-          fontSize: '12px',
-          lineHeight: '16px',
-          color: theme.subText,
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {formatUSDValue(value)} ({percent.toFixed(2)}%)
-      </Text>
+        <Text
+          as="span"
+          sx={{
+            flex: '0 0 max-content',
+            fontWeight: 500,
+            fontSize: '12px',
+            lineHeight: '16px',
+            color: theme.subText,
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {formatUSDValue(value)} ({percent.toFixed(2)}%)
+        </Text>
+      </Flex>
     </Flex>
   )
 }

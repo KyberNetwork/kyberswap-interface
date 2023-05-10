@@ -21,11 +21,15 @@ const formatter = (value: string) => {
   return formatter.format(num)
 }
 
+const noop = () => {
+  // empty
+}
+
 type Props = {
-  setHoverValue: React.Dispatch<React.SetStateAction<number | null>>
+  setHoverValue?: React.Dispatch<React.SetStateAction<number | null>>
   data: EarningStatsTick[]
 }
-const EarningAreaChart: React.FC<Props> = ({ data, setHoverValue }) => {
+const EarningAreaChart: React.FC<Props> = ({ data, setHoverValue = noop }) => {
   const theme = useTheme()
 
   return (
@@ -49,7 +53,7 @@ const EarningAreaChart: React.FC<Props> = ({ data, setHoverValue }) => {
           axisLine={false}
           tickLine={false}
           stroke={theme.subText}
-          tickFormatter={(value: any, index: number) => formatter(String(value))}
+          tickFormatter={(value: any, _index: number) => formatter(String(value))}
           width={48}
         />
         <Tooltip

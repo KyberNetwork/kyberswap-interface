@@ -1,12 +1,12 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Pool } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
+import { rgba } from 'polished'
 import { useState } from 'react'
-import { Eye } from 'react-feather'
+import { Eye, Info } from 'react-feather'
 import { Box, Flex, Text } from 'rebass'
 import { PositionEarningWithDetails } from 'services/earning'
 
-import { ReactComponent as ZigZag } from 'assets/svg/zigzag.svg'
 import { ButtonLight } from 'components/Button'
 import useTheme from 'hooks/useTheme'
 import SinglePosition from 'pages/MyEarnings/SinglePosition'
@@ -39,23 +39,74 @@ const Positions: React.FC<Props> = ({ positionEarnings, chainId, pool }) => {
             lineHeight: '24px',
           }}
         >
-          My Liquidity ({positionEarnings.length} active positions)
+          My Liquidity Positions
         </Text>
 
         <Flex
-          role="button"
           sx={{
-            fontWeight: 500,
-            fontSize: '14px',
-            lineHeight: '20px',
-            gap: '4px',
+            gap: '12px',
             alignItems: 'center',
-            color: theme.subText,
-            userSelect: 'none',
-            cursor: 'pointer',
           }}
         >
-          <ZigZag /> <Trans>Price Ranges Chart</Trans>
+          <Flex
+            sx={{
+              gap: '4px',
+              alignItems: 'center',
+            }}
+          >
+            <Flex
+              sx={{
+                width: '16px',
+                height: '16px',
+                borderRadius: '999px',
+                justifyContent: 'center',
+                alignItems: 'center',
+                background: rgba(theme.primary, 0.3),
+              }}
+            >
+              <Info size={10} color={theme.primary} />
+            </Flex>
+
+            <Text
+              sx={{
+                fontWeight: 500,
+                fontSize: '14px',
+                lineHeight: '20px',
+              }}
+            >
+              2k Active
+            </Text>
+          </Flex>
+
+          <Flex
+            sx={{
+              gap: '4px',
+              alignItems: 'center',
+            }}
+          >
+            <Flex
+              sx={{
+                width: '16px',
+                height: '16px',
+                borderRadius: '999px',
+                justifyContent: 'center',
+                alignItems: 'center',
+                background: rgba(theme.warning, 0.3),
+              }}
+            >
+              <Info size={10} color={theme.warning} />
+            </Flex>
+
+            <Text
+              sx={{
+                fontWeight: 500,
+                fontSize: '14px',
+                lineHeight: '20px',
+              }}
+            >
+              1k Inactive
+            </Text>
+          </Flex>
         </Flex>
       </Flex>
 

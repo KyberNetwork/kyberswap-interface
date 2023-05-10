@@ -2,17 +2,18 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
-import { Flex } from 'rebass'
+import { Flex, Text } from 'rebass'
 import { PositionEarningWithDetails, TokenEarning, useGetEarningDataQuery } from 'services/earning'
 import styled from 'styled-components'
 
 import { EMPTY_ARRAY } from 'constants/index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS_FOR_MY_EARNINGS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import useTheme from 'hooks/useTheme'
 import ClassicElasticTab from 'pages/MyEarnings/ClassicElasticTab'
 import PoolFilteringBar from 'pages/MyEarnings/PoolFilteringBar'
 import Pools from 'pages/MyEarnings/Pools'
-import TitleAndChainSelect from 'pages/MyEarnings/TitleAndChainSelect'
+import TotalEarningsAndChainSelect from 'pages/MyEarnings/TotalEarningsAndChainSelect'
 import { useAppSelector } from 'state/hooks'
 import { EarningStatsTick, EarningsBreakdown } from 'types/myEarnings'
 import { isAddress } from 'utils'
@@ -106,6 +107,7 @@ function shuffle<T>(array: T[]): T[] {
 
 const MyEarnings = () => {
   const { account = '' } = useActiveWeb3React()
+  const theme = useTheme()
 
   const selectedChainIds = useAppSelector(state => state.myEarnings.selectedChains)
   const getEarningData = useGetEarningDataQuery({ account, chainIds: selectedChainIds })
@@ -117,15 +119,19 @@ const MyEarnings = () => {
       .flatMap(chainRoute => {
         const data = dataByChainRoute[chainRoute].account
         const chainId = chainIdByRoute[chainRoute]
+
+        console.log({ total: data?.[0]?.total })
         const latestData = data?.[0]?.total
           ?.filter(tokenData => {
             // TODO: check with native token
             const tokenAddress = isAddress(chainId, tokenData.token)
             if (!tokenAddress) {
+              console.log('return false token', tokenData.token)
               return false
             }
 
             const currency = tokensByChainId[chainId][tokenAddress]
+            console.log('currency: ', currency, 'tokenAddress', tokenAddress)
             return !!currency
           })
           .map(tokenData => {
@@ -179,6 +185,8 @@ const MyEarnings = () => {
       breakdowns: breakdowns, // shuffle([...breakdowns, ...breakdowns, ...breakdowns].slice(0, 5)),
     }
   }, [getEarningData?.data, tokensByChainId])
+
+  console.log({ earningBreakdown })
 
   // chop the data into the right duration
   // format pool value
@@ -272,7 +280,19 @@ const MyEarnings = () => {
           gap: '24px',
         }}
       >
-        <TitleAndChainSelect />
+        <Text
+          as="span"
+          sx={{
+            fontWeight: 500,
+            fontSize: '24px',
+            lineHeight: '28px',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          My Earnings
+        </Text>
+
+        <TotalEarningsAndChainSelect totalEarnings={Number(ticks?.[0].totalValue)} />
 
         <Flex
           sx={{
@@ -283,6 +303,21 @@ const MyEarnings = () => {
           <EarningsBreakdownPanel isLoading={getEarningData.isLoading} data={earningBreakdown} />
           <MyEarningsOverTimePanel isLoading={getEarningData.isLoading} ticks={ticks} />
         </Flex>
+
+        <Text
+          sx={{
+            fontWeight: 400,
+            fontSize: '12px',
+            lineHeight: '16px',
+            fontStyle: 'italic',
+            textAlign: 'center',
+            color: theme.subText,
+            marginBottom: '16px',
+          }}
+        >
+          Note: Your earnings may fluctuate due to the increase or decrease in price of the tokens earned. These
+          earnings include both claimed and unclaimed pool and farm rewards
+        </Text>
 
         <ClassicElasticTab />
 

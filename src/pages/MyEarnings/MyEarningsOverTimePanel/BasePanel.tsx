@@ -5,24 +5,11 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import EarningAreaChart from 'components/EarningAreaChart'
-import Loader from 'components/Loader'
 import LoaderWithKyberLogo from 'components/LocalLoader'
 import useTheme from 'hooks/useTheme'
 
 import { Props as CommonProps } from '.'
 import TimePeriodSelect, { TimePeriod } from './TimePeriodSelect'
-
-const formatValue = (value: number) => {
-  const formatter = Intl.NumberFormat('en-US', {
-    notation: 'standard',
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  })
-
-  return formatter.format(value)
-}
 
 //TODO: move to common
 export const formatPercent = (value: number) => {
@@ -37,14 +24,6 @@ export const formatPercent = (value: number) => {
 
 const MemoEarningAreaChart = React.memo(EarningAreaChart)
 
-const PercentDiff = styled.div<{ $color?: string }>`
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 16px;
-
-  color: ${({ theme, $color }) => $color || theme.subText};
-`
-
 const Wrapper = styled.div`
   overflow: hidden; /* Responsiveness won't work without this */
 
@@ -53,14 +32,10 @@ const Wrapper = styled.div`
 
   display: flex;
   flex-direction: column;
-  padding: 24px;
+  padding: 16px;
   border-radius: 20px;
   background-color: ${({ theme }) => theme.background};
   border: 1px solid ${({ theme }) => theme.border};
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    padding: 16px;
-  `}
 `
 
 const numberOfTicksByTimePeriod: Record<TimePeriod, number> = {
@@ -85,7 +60,6 @@ const BasePanel: React.FC<Props> = ({
 }) => {
   const theme = useTheme()
   const [period, setPeriod] = useState<TimePeriod>('7D')
-  const [hoverValue, setHoverValue] = useState<number | null>(null)
 
   const displayTicks = useMemo(() => {
     if (!ticks) {
@@ -96,31 +70,8 @@ const BasePanel: React.FC<Props> = ({
     return ticks.slice(0, numberOfTicksByTimePeriod[period]).reverse()
   }, [period, ticks])
 
-  const todayValue = displayTicks?.slice(-1)[0]?.totalValue
-
-  const renderPercentDiff = () => {
-    if (isLoading || !displayTicks?.length) {
-      return <PercentDiff>--</PercentDiff>
-    }
-
-    const firstValue = displayTicks[0].totalValue
-    const lastValue = displayTicks.slice(-1)[0].totalValue
-
-    const diffValue = hoverValue !== null ? hoverValue - lastValue : lastValue - firstValue
-    const compareValue = hoverValue !== null ? lastValue : firstValue
-
-    if (!Number.isFinite(diffValue) || !Number.isFinite(compareValue)) {
-      return <PercentDiff>--</PercentDiff>
-    }
-
-    const diffPercent = (diffValue / compareValue) * 100
-
-    return (
-      <PercentDiff $color={diffValue > 0 ? theme.primary : diffValue < 0 ? theme.red : undefined}>
-        {formatValue(diffValue)} ({formatPercent(diffPercent)})
-      </PercentDiff>
-    )
-  }
+  const fromDateStr = displayTicks?.[0].date || ''
+  const toDateStr = displayTicks?.slice(-1)[0].date || ''
 
   return (
     <Wrapper className={className}>
@@ -140,28 +91,25 @@ const BasePanel: React.FC<Props> = ({
           <Text
             as="span"
             sx={{
-              fontWeight: 500,
+              fontWeight: 400,
               fontSize: '14px',
-              lineHeight: '16px',
+              lineHeight: '20px',
               color: theme.subText,
             }}
           >
-            <Trans>My Earnings ({period})</Trans>
+            <Trans>Timeframe</Trans>
           </Text>
 
           <Text
             sx={{
               fontWeight: 500,
-              fontSize: '20px',
-              lineHeight: '24px',
-              marginTop: '8px',
-              marginBottom: '4px',
+              fontSize: '14px',
+              lineHeight: '20px',
+              color: theme.text,
             }}
           >
-            {isLoading || !displayTicks ? <Loader /> : formatValue(hoverValue || todayValue || 0)}
+            {fromDateStr} - {toDateStr}
           </Text>
-
-          {renderPercentDiff()}
         </Flex>
 
         <Flex
@@ -185,11 +133,7 @@ const BasePanel: React.FC<Props> = ({
         </Flex>
       </Flex>
 
-      {isLoading || !displayTicks ? (
-        <LoaderWithKyberLogo />
-      ) : (
-        <MemoEarningAreaChart data={displayTicks} setHoverValue={setHoverValue} />
-      )}
+      {isLoading || !displayTicks ? <LoaderWithKyberLogo /> : <MemoEarningAreaChart data={displayTicks} />}
     </Wrapper>
   )
 }
