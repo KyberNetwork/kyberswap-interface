@@ -43,6 +43,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useTheme from 'hooks/useTheme'
+import Notice from 'pages/ElasticLegacy/Notice'
 import { CurrencyWrapper, Tab } from 'pages/Pools/styleds'
 import { AppState } from 'state'
 import { ApplicationModal } from 'state/application/actions'
@@ -266,6 +267,12 @@ const Farm = () => {
               </>
             )}
           </TopBar>
+
+          {farmType === VERSION.ELASTIC && (
+            <div style={{ marginTop: '1rem' }}>
+              <Notice />
+            </div>
+          )}
 
           <FarmGuide farmType={farmType} />
         </div>

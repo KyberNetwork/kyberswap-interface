@@ -39,6 +39,7 @@ import Verify from './Verify'
 
 // Route-based code splitting
 
+const ElasticLegacy = lazy(() => import(/* webpackChunkName: 'ElasticLegacy' */ './ElasticLegacy'))
 const SwapV2 = lazy(() => import(/* webpackChunkName: 'swapv2-page' */ './SwapV2'))
 const SwapV3 = lazy(() => import(/* webpackChunkName: 'swapv3-page' */ './SwapV3'))
 const Bridge = lazy(() => import(/* webpackChunkName: 'bridge-page' */ './Bridge'))
@@ -306,6 +307,8 @@ export default function App() {
                     <Route path={`${APP_PATHS.NOTIFICATION_CENTER}/*`} element={<NotificationCenter />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgramPage />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />
+
+                    <Route path={`${APP_PATHS.ELASTIC_LEGACY}`} element={<ElasticLegacy />} />
 
                     <Route path="*" element={<RedirectPathToSwapV3Network />} />
                   </Routes>
