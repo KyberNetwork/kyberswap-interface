@@ -509,7 +509,7 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
       <td>
         <RowFit style={{ width: '30px' }} gap="6px">
           {
-            <SimpleTooltip text={isWatched ? t`Add to watchlist` : t`Remove from watchlist`}>
+            <SimpleTooltip text={isWatched ? t`Remove from watchlist` : t`Add to watchlist`}>
               <StarWithAnimation watched={isWatched} loading={loadingStar} onClick={handleWatchlistClick} />
             </SimpleTooltip>
           }{' '}

@@ -1,4 +1,5 @@
 import { Trans, t } from '@lingui/macro'
+import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import { ReactNode, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
@@ -148,6 +149,12 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
   const [expanded, setExpanded] = useState(false)
   const ref1 = useRef<HTMLDivElement>(null)
   const ref2 = useRef<HTMLDivElement>(null)
+
+  const latestKyberscore = useMemo(() => {
+    if (!data?.kyberScore?.ks3d) return undefined
+    return data?.kyberScore.ks3d[data?.kyberScore.ks3d.length - 1]
+  }, [data])
+
   const cardClassname = useMemo(() => {
     if (!data?.kyberScore || data?.kyberScore.score === 0) return ''
     if (data?.kyberScore.score >= 60) return 'bullish'
@@ -296,15 +303,18 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                   text={
                     <>
                       <Column color={theme.subText} style={{ fontSize: '12px', lineHeight: '16px' }}>
-                        {/* <Text>24/04/2023 08:00 AM</Text> */}
+                        <Text>
+                          {latestKyberscore && dayjs(latestKyberscore?.created_at).format('DD/MM/YYYY HH:mm A')}
+                        </Text>
                         <Text>
                           KyberScore:{' '}
-                          <span style={{ color: calculateValueToColor(data?.kyberScore?.score || 0, theme) }}>
-                            {data?.kyberScore?.score || '--'} ({data?.kyberScore?.label || t`Not Available`})
+                          <span style={{ color: calculateValueToColor(latestKyberscore?.kyber_score || 0, theme) }}>
+                            {latestKyberscore?.kyber_score || '--'} ({latestKyberscore?.tag || t`Not Available`})
                           </span>
                         </Text>
                         <Text>
-                          Token Price: <span style={{ color: theme.text }}>$0.000000423</span>
+                          Token Price:{' '}
+                          <span style={{ color: theme.text }}>{formatTokenPrice(latestKyberscore?.price || 0)}</span>
                         </Text>
                       </Column>
                     </>
