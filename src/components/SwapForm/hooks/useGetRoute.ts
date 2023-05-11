@@ -26,18 +26,6 @@ export type ArgsGetRoute = {
   isProcessingSwap?: boolean
 }
 
-export type TokenScoreByChainId = Record<
-  ChainId,
-  Record<
-    string /* token0-token1 */,
-    {
-      tokenToTakeFee: string
-      feePercent: number
-      savedAt: number
-    }
-  >
->
-
 export const getRouteTokenAddressParam = (currency: Currency) =>
   currency.isNative
     ? isEVM(currency.chainId)
