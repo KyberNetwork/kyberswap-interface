@@ -169,7 +169,7 @@ function PositionGrid({
       rowCount={Math.ceil(positions.length / 3)}
       height={0}
       columnWidth={upToSmall ? 368 : 392}
-      rowHeight={590}
+      rowHeight={586}
       itemData={itemData}
     >
       {Row as ComponentType<GridChildComponentProps<unknown>>}
