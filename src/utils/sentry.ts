@@ -9,6 +9,9 @@ export enum ErrorName {
 }
 
 export function captureSwapError(error: TransactionError) {
+  if (error.message.toLowerCase().includes('user canceled') || error.message.toLowerCase().includes('user reject')) {
+    return
+  }
   const e = new Error('Swap failed', { cause: error })
   e.name = ErrorName.SwappError
 
@@ -34,9 +37,11 @@ export function captureSwapError(error: TransactionError) {
 
 export class TransactionError extends Error {
   rawData: Deferrable<TransactionRequest>
+  code?: number
 
   constructor(message: string, rawData: Deferrable<TransactionRequest>, options?: ErrorOptions) {
     super(message, options)
     this.rawData = rawData
+    this.code = (options?.cause as any)?.code
   }
 }
