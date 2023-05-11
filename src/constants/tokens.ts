@@ -137,16 +137,6 @@ export const STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
 // This list is intentionally different from the list above
 // Was requested from product team, to implement Swap fee config
 export const STABLE_COIN_ADDRESSES_TO_TAKE_FEE: Record<ChainId, string[]> = {
-  [ChainId.BTTC]: [
-    '0x9B5F27f6ea9bBD753ce3793a07CbA3C74644330d', // usdt_b
-    '0xE887512ab8BC60BcC9224e1c3b5Be68E26048B8B', // usdt_e
-    '0xdB28719F7f938507dBfe4f0eAe55668903D34a15', // usdt_t
-    '0xCa424b845497f7204D9301bd13Ff87C0E2e86FCF', // usdc_b
-    '0xAE17940943BA9440540940DB0F1877f101D39e8b', // usdc_e
-    '0x935faA2FCec6Ab81265B301a30467Bbc804b43d3', // usdc_t
-    '0x17F235FD5974318E4E2a5e37919a209f7c37A6d1', // usdd_t
-    '0xe7dC549AE8DB61BDE71F22097BEcc8dB542cA100', // dai_e,
-  ],
   [ChainId.OASIS]: [
     '0x80A16016cC4A2E6a2CACA8a4a498b1699fF0f844', // usdc
     '0x6Cb9750a92643382e020eA9a170AbB83Df05F30B', // usdt
@@ -170,16 +160,8 @@ export const STABLE_COIN_ADDRESSES_TO_TAKE_FEE: Record<ChainId, string[]> = {
     '0x2Ae35c8E3D4bD57e8898FF7cd2bBff87166EF8cb', // MAI
   ],
 
-  // TODO: remove MATIC
-  [ChainId.MATIC]: [
-    '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063', // DAI
-    '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174', // usdc
-    '0xc2132D05D31c914a87C6611C10748AEb04B58e8F', // usdt
-    '0xa3Fa99A148fA48D14Ed51d610c367C61876997F1', // MAI
-    '0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B', // BOB
-    '0x49a0400587A7F65072c87c4910449fDcC5c47242', // MIM
-  ],
-
+  [ChainId.BTTC]: [],
+  [ChainId.MATIC]: [],
   [ChainId.OPTIMISM]: [],
   [ChainId.SOLANA]: [],
   [ChainId.GÖRLI]: [],

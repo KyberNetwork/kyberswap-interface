@@ -115,7 +115,6 @@ const useGetSwapFeeConfig = () => {
 
   const getSwapFeeConfig = useCallback(
     async (chainId: ChainId, tokenIn: string, tokenOut: string): Promise<SwapFeeConfig | undefined> => {
-      // TODO: check applicable chains
       if (!CHAINS_SUPPORT_FEE_CONFIGS.includes(chainId)) {
         return undefined
       }

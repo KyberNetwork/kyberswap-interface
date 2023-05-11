@@ -6,7 +6,7 @@ import { GetRouteParams } from 'services/route/types/getRoute'
 
 import useGetSwapFeeConfig, { SwapFeeConfig } from 'components/SwapForm/hooks/useGetSwapFeeConfig'
 import useSelectedDexes from 'components/SwapForm/hooks/useSelectedDexes'
-import { ETHER_ADDRESS, INPUT_DEBOUNCE_TIME, ZERO_ADDRESS_SOLANA } from 'constants/index'
+import { ETHER_ADDRESS, INPUT_DEBOUNCE_TIME, SWAP_FEE_RECEIVER_ADDRESS, ZERO_ADDRESS_SOLANA } from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
@@ -75,9 +75,7 @@ const getFeeConfigParams = (
     feeAmount: String(swapFeeConfig.feeBips),
     chargeFeeBy,
     isInBps: '1',
-
-    // TODO: update this list
-    feeReceiver: '0x9f4cf329f4cf376b7aded854d6054859dd102a2a',
+    feeReceiver: SWAP_FEE_RECEIVER_ADDRESS,
   }
 }
 
