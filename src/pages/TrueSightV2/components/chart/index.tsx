@@ -2504,7 +2504,7 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
   const { SRLevels, currentPrice, resolution, setResolution, showSRLevels } = useContext(TechnicalAnalysisContext)
 
   const variablesRef = useRef({ resolution })
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!ref || !window.TradingView) {
       return
     }
@@ -2591,13 +2591,10 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
     })
 
     return () => {
-      if (tvWidget !== null) {
-        tvWidget.remove()
-        setTvWidget(undefined)
-      }
+      tvWidget?.remove()
+      setTvWidget(undefined)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [theme, ref, datafeed])
+  }, [theme, ref, datafeed, setResolution, userLocale])
 
   const entityIds = useRef<(EntityId | null)[]>([])
 
@@ -2627,19 +2624,21 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
 
   useEffect(() => {
     if (!tvWidget || !SRLevels || !currentPrice) return
-    const subscriptionDataLoaded = tvWidget.activeChart()?.onDataLoaded()
-
-    subscriptionDataLoaded?.subscribe(null, () => {
+    const handleDataLoaded = () => {
       removeSRLevels()
       entityIds.current = []
-
       showSRLevels && addSRLevels()
-    })
-    if (!showSRLevels) {
-      removeSRLevels()
-    } else {
-      addSRLevels()
     }
+    try {
+      const subscriptionDataLoaded = tvWidget?.activeChart()?.onDataLoaded()
+      subscriptionDataLoaded?.subscribe(null, handleDataLoaded, true)
+
+      if (!showSRLevels) {
+        removeSRLevels()
+      } else {
+        addSRLevels()
+      }
+    } catch (error) {}
   }, [tvWidget, SRLevels, showSRLevels, currentPrice, theme, setResolution, removeSRLevels, addSRLevels])
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useEffect, useRef, useState } from 'react'
-import { ChevronLeft, Share2 } from 'react-feather'
+import { ChevronLeft } from 'react-feather'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -285,8 +285,12 @@ export default function SingleToken() {
   useEffect(() => {
     if (!chain || !address) {
       navigate(APP_PATHS.KYBERAI_EXPLORE + `/${defaultExplorePageToken.chain}/${defaultExplorePageToken.address}`)
+      window.scrollTo(0, 0)
     }
   }, [chain, address, navigate])
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
 
   const RenderHeader = () => {
     const TokenNameGroup = () => (
@@ -394,7 +398,7 @@ export default function SingleToken() {
             <Icon id="alarm" size={18} />
           </HeaderButton>
         </MouseoverTooltip>
-        <MouseoverTooltip text={t`Share this token`} placement="top" width="fit-content">
+        {/* <MouseoverTooltip text={t`Share this token`} placement="top" width="fit-content">
           <HeaderButton
             style={{
               color: theme.subText,
@@ -403,7 +407,7 @@ export default function SingleToken() {
           >
             <Share2 size={16} fill="currentcolor" />
           </HeaderButton>
-        </MouseoverTooltip>
+        </MouseoverTooltip> */}
       </>
     )
 
