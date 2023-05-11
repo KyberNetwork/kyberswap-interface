@@ -1,15 +1,15 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { useRef } from 'react'
 import { ChevronDown } from 'react-feather'
 import { Flex, Text } from 'rebass'
 
 import { ButtonPrimary } from 'components/Button'
 import NotificationIcon from 'components/Icons/NotificationIcon'
-import Search from 'components/Search'
 import SubscribeNotificationButton from 'components/SubscribeButton'
 import Toggle from 'components/Toggle'
 import useTheme from 'hooks/useTheme'
 import ClosedPositionsToggle from 'pages/MyEarnings/PoolFilteringBar/ClosedPositionsToggle'
+import SearchInput from 'pages/MyEarnings/PoolFilteringBar/SearchInput'
 
 const AnotherSubscribeButton = () => {
   const theme = useTheme()
@@ -98,12 +98,7 @@ const PoolFilteringBar = () => {
 
         <ClosedPositionsToggle />
 
-        <Search
-          searchValue={''}
-          onSearch={() => ''}
-          placeholder={t`Search by token name or pool address`}
-          minWidth={'280px'}
-        />
+        <SearchInput />
 
         <SubscribeNotificationButton trackingEvent={undefined} />
       </Flex>

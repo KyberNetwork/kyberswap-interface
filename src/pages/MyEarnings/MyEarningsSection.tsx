@@ -10,6 +10,7 @@ import styled from 'styled-components'
 import { EMPTY_ARRAY } from 'constants/index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS_FOR_MY_EARNINGS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 import ClassicElasticTab from 'pages/MyEarnings/ClassicElasticTab'
 import CurrentChainButton from 'pages/MyEarnings/CurrentChainButton'
@@ -122,6 +123,9 @@ const MyEarningsSection = () => {
   const getEarningData = useGetEarningDataQuery({ account, chainIds: selectedChainIds })
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
   const shouldShowClosedPositions = useAppSelector(state => state.myEarnings.shouldShowClosedPositions)
+  const originalSearchText = useAppSelector(state => state.myEarnings.searchText)
+
+  const searchText = useDebounce(originalSearchText, 300).toLowerCase().trim()
 
   const earningBreakdown: EarningsBreakdown | undefined = useMemo(() => {
     const dataByChainRoute = getEarningData?.data || {}
@@ -310,7 +314,25 @@ const MyEarningsSection = () => {
       const poolIdsThatHasPositions = Object.keys(positionEarningsByPoolId)
 
       const poolEarnings =
-        getEarningData.data[chainRoute]?.pools?.filter(pool => poolIdsThatHasPositions.includes(pool.id)) || EMPTY_ARRAY
+        getEarningData.data[chainRoute]?.pools?.filter(pool => {
+          if (!poolIdsThatHasPositions.includes(pool.id)) {
+            return false
+          }
+
+          if (!searchText) {
+            return true
+          }
+
+          return (
+            pool.id.toLowerCase() === searchText ||
+            pool.token0.id.toLowerCase() === searchText ||
+            pool.token0.symbol.toLowerCase() === searchText ||
+            pool.token0.name.toLowerCase() === searchText ||
+            pool.token1.id.toLowerCase() === searchText ||
+            pool.token1.symbol.toLowerCase() === searchText ||
+            pool.token1.name.toLowerCase() === searchText
+          )
+        }) || EMPTY_ARRAY
 
       return poolEarnings.map(poolEarning => {
         return {
@@ -320,7 +342,7 @@ const MyEarningsSection = () => {
         }
       })
     })
-  }, [availableChainRoutes, getEarningData.data, shouldShowClosedPositions])
+  }, [availableChainRoutes, getEarningData.data, searchText, shouldShowClosedPositions])
 
   return (
     <Flex
