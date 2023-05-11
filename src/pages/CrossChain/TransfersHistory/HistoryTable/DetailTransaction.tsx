@@ -5,7 +5,7 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import { CheckCircle } from 'components/Icons'
+import { CheckCircle, XCircle } from 'components/Icons'
 import Loader from 'components/Loader'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
@@ -104,6 +104,17 @@ export const DetailTransaction: React.FC<Props> = ({ status, description, txHash
             <CheckCircle size="14px" color={theme.primary} />
             <Label>
               <Trans>Done</Trans>
+            </Label>
+          </Flex>
+        )
+      }
+
+      case DetailTransactionStatus.Failed: {
+        return (
+          <Flex style={{ gap: '4px' }}>
+            <XCircle size="14px" color={theme.red} />
+            <Label>
+              <Trans>Failed</Trans>
             </Label>
           </Flex>
         )
