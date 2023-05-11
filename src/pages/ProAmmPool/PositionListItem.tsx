@@ -457,38 +457,30 @@ function PositionListItem({
                 </ButtonOutlined>
               )}
 
-              {removed ? (
-                <ButtonPrimary disabled padding="8px">
-                  <Text width="max-content" fontSize="14px">
-                    <Trans>Increase Liquidity</Trans>
-                  </Text>
-                </ButtonPrimary>
-              ) : (
-                <ButtonPrimary
-                  id="increase-liquidity-button"
-                  padding="8px"
-                  style={{
-                    borderRadius: '18px',
-                    fontSize: '14px',
-                  }}
-                  as={Link}
-                  to={`/elastic/increase/${currencyId(currency0, chainId)}/${currencyId(
-                    currency1,
-                    chainId,
-                  )}/${feeAmount}/${positionDetails.tokenId}`}
-                  onClick={() => {
-                    mixpanelHandler(MIXPANEL_TYPE.ELASTIC_INCREASE_LIQUIDITY_INITIATED, {
-                      token_1: token0?.symbol || '',
-                      token_2: token1?.symbol || '',
-                      fee_tier: (pool?.fee as number) / 10000,
-                    })
-                  }}
-                >
-                  <Text width="max-content" fontSize="14px">
-                    <Trans>Increase Liquidity</Trans>
-                  </Text>
-                </ButtonPrimary>
-              )}
+              <ButtonPrimary
+                id="increase-liquidity-button"
+                padding="8px"
+                style={{
+                  borderRadius: '18px',
+                  fontSize: '14px',
+                }}
+                as={Link}
+                to={`/elastic/increase/${currencyId(currency0, chainId)}/${currencyId(
+                  currency1,
+                  chainId,
+                )}/${feeAmount}/${positionDetails.tokenId}`}
+                onClick={() => {
+                  mixpanelHandler(MIXPANEL_TYPE.ELASTIC_INCREASE_LIQUIDITY_INITIATED, {
+                    token_1: token0?.symbol || '',
+                    token_2: token1?.symbol || '',
+                    fee_tier: (pool?.fee as number) / 10000,
+                  })
+                }}
+              >
+                <Text width="max-content" fontSize="14px">
+                  <Trans>Increase Liquidity</Trans>
+                </Text>
+              </ButtonPrimary>
             </ButtonGroup>
           )}
           <Divider sx={{ marginBottom: '20px' }} />

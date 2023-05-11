@@ -60,13 +60,13 @@ const bnbInfo: EVMNetworkInfo = {
   },
   elastic: {
     defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-bsc',
-    startBlock: 27905999,
-    coreFactory: '0x8C2D09396C0f6E61B64875D014E12Ea8063a4C61',
-    nonfungiblePositionManager: '0x04bE0859c5E597308DC689A67E8393984c0B1497',
+    startBlock: 28056739,
+    coreFactory: '0xdd8bAa0c865AC2a1C31b5d29331F8f6C90d0b0E9',
+    nonfungiblePositionManager: '0x9159D3b469AE84Cb8b23E77D008D36d4B3f8d72F',
     tickReader: '0x165c68077ac06c83800d19200e6E2B08D02dE75D',
-    initCodeHash: '0x930f7407ebee3dd4b56c03c5b8326d1cd50d0993e7d4098a59b14de0789354c9',
+    initCodeHash: '0xe795d5d52ec9577b45107493cebfa5f0e810b0755d251c652128704fa759e193',
     quoter: '0xDD806EaA4cD231c515021af6B69B8aC63f02B03e',
-    routers: '0x527Ea6242d6bfBD8bE37367F637A506ae1B4FCFb',
+    routers: '0x9398a4c165F7B4984a277e270F66E3a112D0f587',
     farms: ['0x8c312C9721c53a2e0bb11b3B0Fc1742F6861bD4f'],
   },
   limitOrder: {
