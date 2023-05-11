@@ -1,6 +1,6 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ReactNode, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Skeleton from 'react-loading-skeleton'
 import { useLocation } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
@@ -60,6 +60,10 @@ const TradeRouting = lazy(() => import('components/TradeRouting'))
 
 const LiveChart = lazy(() => import('components/LiveChart'))
 
+export const InfoComponents = ({ children }: { children: ReactNode[] }) => {
+  return children.filter(Boolean).length ? <InfoComponentsWrapper>{children}</InfoComponentsWrapper> : null
+}
+
 export enum TAB {
   SWAP = 'swap',
   INFO = 'info',
@@ -70,7 +74,7 @@ export enum TAB {
   CROSS_CHAIN = 'cross_chain',
 }
 
-const AppBodyWrapped = styled(BodyWrapper)`
+export const AppBodyWrapped = styled(BodyWrapper)`
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
   padding: 16px;
   margin-top: 0;
@@ -80,14 +84,14 @@ const AppBodyWrapped = styled(BodyWrapper)`
   }
 `
 
-const SwitchLocaleLinkWrapper = styled.div`
+export const SwitchLocaleLinkWrapper = styled.div`
   margin-bottom: 30px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
   margin-bottom: 0px;
 `}
 `
 
-const RoutingIconWrapper = styled(RoutingIcon)`
+export const RoutingIconWrapper = styled(RoutingIcon)`
   height: 27px;
   width: 27px;
   margin-right: 10px;
@@ -257,6 +261,7 @@ export default function Swap() {
             <AppBodyWrapped data-highlight={shouldHighlightSwapBox} id={TutorialIds.SWAP_FORM}>
               {activeTab === TAB.SWAP && (
                 <PopulatedSwapForm
+                  onSelectSuggestedPair={onSelectSuggestedPair}
                   routeSummary={routeSummary}
                   setRouteSummary={setRouteSummary}
                   goToSettingsView={() => setActiveTab(TAB.SETTINGS)}
@@ -293,59 +298,57 @@ export default function Swap() {
             {isCrossChainPage && <CrossChainLink isBridge />}
           </SwapFormWrapper>
 
-          {(isShowLiveChart || isShowTradeRoutes || shouldRenderTokenInfo || isLimitPage || isCrossChainPage) && (
-            <InfoComponentsWrapper>
-              {isShowLiveChart && (
-                <LiveChartWrapper>
+          <InfoComponents>
+            {isShowLiveChart && (
+              <LiveChartWrapper>
+                <Suspense
+                  fallback={
+                    <Skeleton
+                      height="100%"
+                      baseColor={theme.background}
+                      highlightColor={theme.buttonGray}
+                      borderRadius="1rem"
+                    />
+                  }
+                >
+                  <LiveChart currencies={currencies} isCrossChain={isCrossChainPage} />
+                </Suspense>
+              </LiveChartWrapper>
+            )}
+            {isShowTradeRoutes && isSwapPage && (
+              <RoutesWrapper isOpenChart={isShowLiveChart}>
+                <Flex flexDirection="column" width="100%">
+                  <Flex alignItems={'center'}>
+                    <RoutingIconWrapper />
+                    <Text fontSize={20} fontWeight={500} color={theme.subText}>
+                      <Trans>Your trade route</Trans>
+                    </Text>
+                  </Flex>
                   <Suspense
                     fallback={
                       <Skeleton
-                        height="100%"
+                        height="100px"
                         baseColor={theme.background}
                         highlightColor={theme.buttonGray}
                         borderRadius="1rem"
                       />
                     }
                   >
-                    <LiveChart currencies={currencies} isCrossChain={isCrossChainPage} />
+                    <TradeRouting
+                      tradeComposition={tradeRouteComposition}
+                      currencyIn={currencyIn}
+                      currencyOut={currencyOut}
+                      inputAmount={routeSummary?.parsedAmountIn}
+                      outputAmount={routeSummary?.parsedAmountOut}
+                    />
                   </Suspense>
-                </LiveChartWrapper>
-              )}
-              {isShowTradeRoutes && isSwapPage && (
-                <RoutesWrapper isOpenChart={isShowLiveChart}>
-                  <Flex flexDirection="column" width="100%">
-                    <Flex alignItems={'center'}>
-                      <RoutingIconWrapper />
-                      <Text fontSize={20} fontWeight={500} color={theme.subText}>
-                        <Trans>Your trade route</Trans>
-                      </Text>
-                    </Flex>
-                    <Suspense
-                      fallback={
-                        <Skeleton
-                          height="100px"
-                          baseColor={theme.background}
-                          highlightColor={theme.buttonGray}
-                          borderRadius="1rem"
-                        />
-                      }
-                    >
-                      <TradeRouting
-                        tradeComposition={tradeRouteComposition}
-                        currencyIn={currencyIn}
-                        currencyOut={currencyOut}
-                        inputAmount={routeSummary?.parsedAmountIn}
-                        outputAmount={routeSummary?.parsedAmountOut}
-                      />
-                    </Suspense>
-                  </Flex>
-                </RoutesWrapper>
-              )}
-              {isLimitPage && <ListLimitOrder ref={refListLimitOrder} />}
-              {shouldRenderTokenInfo && <TokenInfoV2 currencyIn={currencyIn} currencyOut={currencyOut} />}
-              {isCrossChainPage && <CrossChainTransfersHistory />}
-            </InfoComponentsWrapper>
-          )}
+                </Flex>
+              </RoutesWrapper>
+            )}
+            {isLimitPage && <ListLimitOrder ref={refListLimitOrder} />}
+            {shouldRenderTokenInfo && <TokenInfoV2 currencyIn={currencyIn} currencyOut={currencyOut} />}
+            {isCrossChainPage && <CrossChainTransfersHistory />}
+          </InfoComponents>
         </Container>
         <Flex justifyContent="center">
           <SwitchLocaleLinkWrapper>

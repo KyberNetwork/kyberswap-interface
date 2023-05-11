@@ -1,16 +1,14 @@
-import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Info } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
 import { useLocation } from 'react-router-dom'
-import { usePrevious } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import christmasImg from 'assets/images/christmas-decor2.svg'
-import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import AddressInputPanel from 'components/AddressInputPanel'
 import ApproveMessage from 'components/ApproveMessage'
 import ArrowRotate from 'components/ArrowRotate'
@@ -48,14 +46,12 @@ import {
   BottomGrouping,
   Container,
   Dots,
-  InfoComponentsWrapper,
   LiveChartWrapper,
   PageWrapper,
   RoutesWrapper,
   SwapCallbackError,
   SwapFormWrapper,
   Wrapper,
-  highlight,
 } from 'components/swapv2/styleds'
 import { AGGREGATOR_WAITING_TIME, APP_PATHS, TIME_TO_REFRESH_SWAP_RATE } from 'constants/index'
 import { STABLE_COINS_ADDRESS } from 'constants/tokens'
@@ -68,9 +64,9 @@ import { useSwapV2Callback } from 'hooks/useSwapV2Callback'
 import useSyncTokenSymbolToUrl from 'hooks/useSyncTokenSymbolToUrl'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
-import { BodyWrapper } from 'pages/AppBody'
-import { TAB } from 'pages/SwapV3'
+import { AppBodyWrapped, InfoComponents, RoutingIconWrapper, SwitchLocaleLinkWrapper, TAB } from 'pages/SwapV3'
 import Header from 'pages/SwapV3/Header'
+import useResetCurrenciesOnRemoveImportedTokens from 'pages/SwapV3/useResetCurrenciesOnRemoveImportedTokens'
 import useTokenNotInDefault from 'pages/SwapV3/useTokenNotInDefault'
 import useUpdateSlippageInStableCoinSwap from 'pages/SwapV3/useUpdateSlippageInStableCoinSwap'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -84,7 +80,6 @@ import {
   useShowLiveChart,
   useShowTokenInfo,
   useShowTradeRoutes,
-  useUserAddedTokens,
   useUserSlippageTolerance,
 } from 'state/user/hooks'
 import { formattedNum } from 'utils'
@@ -110,33 +105,6 @@ const ChristmasDecor = styled.div`
     right: -6px;
     left: -4px;
   `}
-`
-
-const AppBodyWrapped = styled(BodyWrapper)`
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-  padding: 16px 16px 24px;
-  margin-top: 0;
-
-  &[data-highlight='true'] {
-    animation: ${({ theme }) => highlight(theme)} 2s 2 alternate ease-in-out;
-  }
-`
-
-const SwitchLocaleLinkWrapper = styled.div`
-  margin-bottom: 30px;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-  margin-bottom: 0px;
-`}
-`
-
-const RoutingIconWrapper = styled(RoutingIcon)`
-  height: 27px;
-  width: 27px;
-  margin-right: 10px;
-
-  path {
-    fill: ${({ theme }) => theme.subText} !important;
-  }
 `
 
 export default function Swap() {
@@ -452,31 +420,7 @@ export default function Swap() {
     [handleTypeInput, onCurrencySelection],
   )
 
-  const tokenImports: Token[] = useUserAddedTokens()
-  const prevTokenImports = usePrevious(tokenImports)
-
-  useEffect(() => {
-    // when remove token imported
-    if (!prevTokenImports) return
-    const isRemoved = prevTokenImports?.length > tokenImports.length
-    if (!isRemoved || prevTokenImports[0].chainId !== chainId) return
-
-    const addressIn = currencyIn?.wrapped?.address
-    const addressOut = currencyOut?.wrapped?.address
-    // removed token => deselect input
-    const tokenRemoved = prevTokenImports.filter(
-      token => !tokenImports.find(token2 => token2.address === token.address),
-    )
-
-    tokenRemoved.forEach(({ address }: Token) => {
-      if (address === addressIn || !currencyIn) {
-        onResetSelectCurrency(Field.INPUT)
-      }
-      if (address === addressOut || !currencyOut) {
-        onResetSelectCurrency(Field.OUTPUT)
-      }
-    })
-  }, [tokenImports, chainId, prevTokenImports, currencyIn, currencyOut, onResetSelectCurrency])
+  useResetCurrenciesOnRemoveImportedTokens(currencyIn, currencyOut, onResetSelectCurrency)
 
   useSyncTokenSymbolToUrl(currencyIn, currencyOut, onSelectSuggestedPair, isSelectCurrencyManually)
   const isLoadedTokenDefault = useIsLoadedTokenDefault()
@@ -857,57 +801,55 @@ export default function Swap() {
             </AppBodyWrapped>
           </SwapFormWrapper>
 
-          {(isShowLiveChart || isShowTradeRoutes || shouldRenderTokenInfo) && (
-            <InfoComponentsWrapper>
-              {isShowLiveChart && (
-                <LiveChartWrapper>
+          <InfoComponents>
+            {isShowLiveChart && (
+              <LiveChartWrapper>
+                <Suspense
+                  fallback={
+                    <Skeleton
+                      height="100%"
+                      baseColor={theme.background}
+                      highlightColor={theme.buttonGray}
+                      borderRadius="1rem"
+                    />
+                  }
+                >
+                  <LiveChart currencies={currencies} />
+                </Suspense>
+              </LiveChartWrapper>
+            )}
+            {isShowTradeRoutes && isSwapPage && (
+              <RoutesWrapper isOpenChart={isShowLiveChart}>
+                <Flex flexDirection="column" width="100%">
+                  <Flex alignItems={'center'}>
+                    <RoutingIconWrapper />
+                    <Text fontSize={20} fontWeight={500} color={theme.subText}>
+                      <Trans>Your trade route</Trans>
+                    </Text>
+                  </Flex>
                   <Suspense
                     fallback={
                       <Skeleton
-                        height="100%"
+                        height="100px"
                         baseColor={theme.background}
                         highlightColor={theme.buttonGray}
                         borderRadius="1rem"
                       />
                     }
                   >
-                    <LiveChart currencies={currencies} />
+                    <Routing
+                      tradeComposition={tradeRouteComposition}
+                      currencyIn={currencyIn}
+                      currencyOut={currencyOut}
+                      inputAmount={trade?.inputAmount}
+                      outputAmount={trade?.outputAmount}
+                    />
                   </Suspense>
-                </LiveChartWrapper>
-              )}
-              {isShowTradeRoutes && isSwapPage && (
-                <RoutesWrapper isOpenChart={isShowLiveChart}>
-                  <Flex flexDirection="column" width="100%">
-                    <Flex alignItems={'center'}>
-                      <RoutingIconWrapper />
-                      <Text fontSize={20} fontWeight={500} color={theme.subText}>
-                        <Trans>Your trade route</Trans>
-                      </Text>
-                    </Flex>
-                    <Suspense
-                      fallback={
-                        <Skeleton
-                          height="100px"
-                          baseColor={theme.background}
-                          highlightColor={theme.buttonGray}
-                          borderRadius="1rem"
-                        />
-                      }
-                    >
-                      <Routing
-                        tradeComposition={tradeRouteComposition}
-                        currencyIn={currencyIn}
-                        currencyOut={currencyOut}
-                        inputAmount={trade?.inputAmount}
-                        outputAmount={trade?.outputAmount}
-                      />
-                    </Suspense>
-                  </Flex>
-                </RoutesWrapper>
-              )}
-              {shouldRenderTokenInfo && <TokenInfoV2 currencyIn={currencyIn} currencyOut={currencyOut} />}
-            </InfoComponentsWrapper>
-          )}
+                </Flex>
+              </RoutesWrapper>
+            )}
+            {shouldRenderTokenInfo && <TokenInfoV2 currencyIn={currencyIn} currencyOut={currencyOut} />}
+          </InfoComponents>
         </Container>
         <Flex justifyContent="center">
           <SwitchLocaleLinkWrapper>
