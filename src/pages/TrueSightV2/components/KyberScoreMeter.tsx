@@ -250,6 +250,9 @@ function KyberScoreMeter({ value }: { value?: number }) {
   const theme = useTheme()
   const [, setForceRender] = useState(0)
   useEffect(() => {
+    if (value === 0) {
+      transitionValue = 0
+    }
     if (!value) return
     const interval = setInterval(() => {
       transitionValue = transitionValue + (value - transitionValue) / 5

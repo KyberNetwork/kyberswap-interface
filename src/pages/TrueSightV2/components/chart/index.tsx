@@ -552,6 +552,7 @@ export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?
               tickFormatter={value =>
                 dayjs(value * 1000).format(timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm' : 'MMM DD')
               }
+              minTickGap={12}
             />
             <YAxis
               fontSize={textFontSize}
@@ -853,6 +854,7 @@ export const TradingVolumeChart = () => {
               tickFormatter={value =>
                 dayjs(value * 1000).format(timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm' : 'MMM DD')
               }
+              minTickGap={12}
             />
             <YAxis
               fontSize={textFontSize}
@@ -1204,10 +1206,11 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                   dataKey="timestamp"
                   tickLine={false}
                   axisLine={false}
-                  tick={{ fill: theme.subText, fontWeight: 400, fontSize: 10 }}
+                  tick={{ fill: theme.subText, fontWeight: 400, fontSize: 12 }}
                   tickFormatter={value =>
                     dayjs(value).format(timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm A, MMM DD' : 'MMM DD')
                   }
+                  minTickGap={12}
                 />
                 <YAxis
                   fontSize={textFontSize}
@@ -1545,6 +1548,7 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
               tickFormatter={value =>
                 dayjs(value).format(timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm A, MMM DD' : 'MMM DD')
               }
+              minTickGap={12}
             />
             <YAxis
               fontSize={textFontSize}
@@ -1800,6 +1804,7 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
               axisLine={false}
               tick={{ fill: theme.subText, fontWeight: 400 }}
               tickFormatter={value => dayjs(value).format('MMM DD')}
+              minTickGap={12}
             />
             <YAxis
               fontSize={textFontSize}
@@ -1967,6 +1972,7 @@ export const NumberofHolders = () => {
               axisLine={false}
               tick={{ fill: theme.subText, fontWeight: 400 }}
               tickFormatter={value => dayjs(value).format('MMM DD')}
+              minTickGap={12}
             />
             <YAxis
               fontSize={textFontSize}
@@ -2310,6 +2316,7 @@ export const LiquidOnCentralizedExchanges = () => {
                     tickFormatter={value =>
                       dayjs(value).format(timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm A, MMM DD' : 'MMM DD')
                     }
+                    minTickGap={12}
                   />
                   <YAxis
                     yAxisId="left"

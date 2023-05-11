@@ -1,6 +1,6 @@
 import { t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -22,6 +22,7 @@ import { MEDIA_WIDTHS } from 'theme'
 
 import DisplaySettings from '../components/DisplaySettings'
 import ShareKyberAIModal from '../components/ShareKyberAIModal'
+import SimpleTooltip from '../components/SimpleTooltip'
 import { TokenOverview } from '../components/TokenOverview'
 import { StarWithAnimation } from '../components/WatchlistStar'
 import { NETWORK_IMAGE_URL } from '../constants'
@@ -183,7 +184,7 @@ const TabButton = styled.div<{ active?: boolean }>`
 
 export const defaultExplorePageToken = {
   chain: 'ethereum',
-  address: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+  address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
 }
 
 const StyledTokenDescription = styled.div<{ show?: boolean }>`
@@ -201,8 +202,12 @@ const StyledTokenDescription = styled.div<{ show?: boolean }>`
 const TokenDescription = ({ description }: { description: string }) => {
   const theme = useTheme()
   const [show, setShow] = useState(true)
+  const [isTextExceeded, setIsTextExceeded] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
-  const isTextExceeded = ref.current && ref.current?.clientWidth <= ref.current?.scrollWidth
+  useLayoutEffect(() => {
+    setIsTextExceeded((description && ref.current && ref.current?.clientWidth <= ref.current?.scrollWidth) || false)
+  }, [description])
+
   return (
     <Row>
       <StyledTokenDescription ref={ref} show={show}>
@@ -298,19 +303,21 @@ export default function SingleToken() {
         <ButtonIcon onClick={() => navigate(APP_PATHS.KYBERAI_RANKINGS)}>
           <ChevronLeft size={24} />
         </ButtonIcon>
-        <HeaderButton
-          style={{
-            color: isWatched ? theme.primary : theme.subText,
-            backgroundColor: isWatched ? theme.primary + '33' : undefined,
-          }}
-          onClick={handleStarClick}
-        >
-          <StarWithAnimation
-            watched={isWatched}
-            loading={loadingAddtoWatchlist || loadingRemovefromWatchlist}
-            size={16}
-          />
-        </HeaderButton>
+        <SimpleTooltip text={isWatched ? t`Remove from watchlist` : t`Add to watchlist`}>
+          <HeaderButton
+            style={{
+              color: isWatched ? theme.primary : theme.subText,
+              backgroundColor: isWatched ? theme.primary + '33' : undefined,
+            }}
+            onClick={handleStarClick}
+          >
+            <StarWithAnimation
+              watched={isWatched}
+              loading={loadingAddtoWatchlist || loadingRemovefromWatchlist}
+              size={16}
+            />
+          </HeaderButton>
+        </SimpleTooltip>
         <div style={{ position: 'relative' }}>
           <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
             <img

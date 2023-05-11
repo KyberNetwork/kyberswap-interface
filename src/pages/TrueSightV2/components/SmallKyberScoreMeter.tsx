@@ -63,7 +63,10 @@ function SmallKyberScoreMeter({ data, tokenName }: { data?: IKyberScoreChart; to
           text={
             <Trans>
               This is based on calculation at{' '}
-              <b style={{ color: theme.text }}>{dayjs(data?.created_at).format('HH:mm A')}</b> when the price of
+              <b style={{ color: theme.text }}>
+                {data?.created_at ? dayjs(data.created_at * 1000).format('hh:mm A') : '--'}
+              </b>{' '}
+              when the price of
               <b style={{ color: theme.text, textTransform: 'uppercase' }}>{` ${tokenName}`}</b> was{' '}
               <b style={{ color: theme.text }}>${formatTokenPrice(data?.price || 0)}</b>
             </Trans>

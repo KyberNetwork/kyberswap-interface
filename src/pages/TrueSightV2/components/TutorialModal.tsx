@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import React, { useEffect, useReducer } from 'react'
+import React, { useEffect, useLayoutEffect, useReducer } from 'react'
 import { X } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -215,14 +215,18 @@ const initialState = {
   swipe: SwipeDirection.LEFT,
 }
 enum ActionTypes {
+  INITIAL = 'INITIAL',
   START = 'START',
   NEXT_STEP = 'NEXT_STEP',
   PREV_STEP = 'PREV_STEP',
   ANIMATION_END = 'ANIMATION_END',
-  CLOSE = 'CLOSE',
 }
 function reducer(state: TutorialAnimationState, action: ActionTypes) {
   switch (action) {
+    case ActionTypes.INITIAL:
+      return {
+        ...initialState,
+      }
     case ActionTypes.START:
       return {
         step: 1,
@@ -249,8 +253,7 @@ function reducer(state: TutorialAnimationState, action: ActionTypes) {
       break
     case ActionTypes.ANIMATION_END:
       return { ...state, animationState: AnimationState.Idle }
-    case ActionTypes.CLOSE:
-      return { ...state, step: 0 }
+
     default:
       throw new Error()
   }
@@ -293,6 +296,7 @@ const StepContent = ({ step, ...rest }: { step: number; [k: string]: any }) => {
 const TutorialModal = () => {
   const theme = useTheme()
   const isOpen = useModalOpen(ApplicationModal.KYBERAI_TUTORIAL)
+  console.log('🚀 ~ file: TutorialModal.tsx:301 ~ TutorialModal ~ isOpen:', isOpen)
   const toggle = useToggleModal(ApplicationModal.KYBERAI_TUTORIAL)
   const [{ step, animationState, swipe }, dispatch] = useReducer(reducer, initialState)
   const lastStep =
@@ -315,8 +319,14 @@ const TutorialModal = () => {
     preloadImage(tutorial5)
   }, [])
 
+  useLayoutEffect(() => {
+    if (isOpen) {
+      dispatch(ActionTypes.INITIAL)
+    }
+  }, [isOpen])
+
   return (
-    <Modal isOpen={isOpen} width="fit-content" maxWidth="fit-content" onDismiss={() => dispatch(ActionTypes.CLOSE)}>
+    <Modal isOpen={isOpen} width="fit-content" maxWidth="fit-content" onDismiss={toggle}>
       <Wrapper>
         <RowBetween>
           <Row fontSize={above768 ? '20px' : '16px'} lineHeight="24px" color={theme.text} gap="6px">
@@ -415,7 +425,16 @@ const TutorialModal = () => {
               <ButtonOutlined width={above768 ? '160px' : '100px'} onClick={() => dispatch(ActionTypes.PREV_STEP)}>
                 <Text fontSize={above768 ? '14px' : '12px'}>Back</Text>
               </ButtonOutlined>
-              <ButtonPrimary width={above768 ? '160px' : '100px'} onClick={() => dispatch(ActionTypes.NEXT_STEP)}>
+              <ButtonPrimary
+                width={above768 ? '160px' : '100px'}
+                onClick={() => {
+                  if (step < steps.length) {
+                    dispatch(ActionTypes.NEXT_STEP)
+                  } else {
+                    toggle()
+                  }
+                }}
+              >
                 <Text fontSize={above768 ? '14px' : '12px'}>Next</Text>
               </ButtonPrimary>
             </Row>

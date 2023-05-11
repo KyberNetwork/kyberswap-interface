@@ -1,4 +1,4 @@
-import React, { CSSProperties, ReactNode, useRef, useState } from 'react'
+import React, { CSSProperties, ReactNode, useLayoutEffect, useRef, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -127,11 +127,17 @@ export const SectionWrapper = ({
   const ref = useRef<HTMLDivElement>(null)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const [showText, setShowText] = useState(true)
-
+  const [isTextExceeded, setIsTexExceeded] = useState(false)
   const descriptionRef = useRef<HTMLDivElement>(null)
 
-  const isTextExceeded =
-    description && descriptionRef.current && descriptionRef.current?.clientWidth <= descriptionRef.current?.scrollWidth
+  useLayoutEffect(() => {
+    setIsTexExceeded(
+      (description &&
+        descriptionRef.current &&
+        descriptionRef.current?.clientWidth <= descriptionRef.current?.scrollWidth) ||
+        false,
+    )
+  }, [description])
 
   return (
     <StyledSectionWrapper show={show} ref={ref} id={id} style={style}>

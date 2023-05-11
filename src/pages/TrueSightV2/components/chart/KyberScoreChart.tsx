@@ -42,6 +42,9 @@ export default function KyberScoreChart({
 
   const filledData = useMemo(() => {
     if (!data) return []
+    if (data.length === 18) {
+      return data
+    }
     const datatemp = []
     const startTimestamp = Math.floor(Date.now() / 14400000) * 14400
     for (let i = 0; i < 18; i++) {
@@ -55,9 +58,9 @@ export default function KyberScoreChart({
     }
     return datatemp.reverse()
   }, [data])
+
   const handleMouseEnter = useCallback(
     (e: any, index: number) => {
-      console.log(e)
       setXY({ x: e.clientX, y: e.clientY })
       setHoveringItem(filledData[index] || undefined)
     },
@@ -92,7 +95,7 @@ export default function KyberScoreChart({
                 y={0}
                 width={rectWidth}
                 style={{ fill: !v ? (theme.darkMode ? theme.background + '60' : theme.text + '10') : color }}
-                onMouseEnter={e => index && handleMouseEnter(e, index)}
+                onMouseEnter={e => handleMouseEnter(e, index)}
                 strokeWidth={!v ? '2px' : 0}
                 stroke={theme.disableText}
                 vectorEffect="non-scaling-stroke"
