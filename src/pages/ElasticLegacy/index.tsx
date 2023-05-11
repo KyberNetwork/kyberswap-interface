@@ -14,6 +14,7 @@ import FarmLegacy from './FarmLegacy'
 import PositionLegacy from './PositionLegacy'
 
 const Tab = styled.div<{ active: boolean }>`
+  cursor: pointer;
   padding: 8px 12px;
   border-radius: 999px;
   font-size: 14px;
@@ -27,7 +28,7 @@ export default function ElasticLegacy() {
   const { loading, positions, farmPositions } = useElasticLegacy()
   const { loading: loadingCompensationData, data: farmRewardData, claimInfo } = useElasticCompensationData()
   const shouldShowFarmTab = !!farmPositions.length || !!claimInfo
-  const shouldShowPositionTab = !!positions.length
+  const shouldShowPositionTab = !!positions.length || !!farmPositions.length
 
   const theme = useTheme()
   const [tab, setTab] = useState<'farm' | 'position'>('farm')
@@ -74,7 +75,7 @@ export default function ElasticLegacy() {
           })}
         />
       )}
-      {tab === 'position' && <PositionLegacy positions={positions} />}
+      {tab === 'position' && <PositionLegacy positions={[...positions, ...farmPositions]} />}
     </PageWrapper>
   )
 }

@@ -23,6 +23,7 @@ import { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useFarmPositions, useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
+import Notice from 'pages/ElasticLegacy/Notice'
 import { FilterRow, InstructionText, PageWrapper, PositionCardGrid, Tab } from 'pages/Pool'
 import { FarmUpdater } from 'state/farms/elastic/hooks'
 import { ExternalLink, StyledInternalLink, TYPE } from 'theme'
@@ -166,6 +167,9 @@ export default function ProAmmPool() {
   return (
     <>
       <PageWrapper style={{ padding: 0, marginTop: '24px' }}>
+        <div style={{ marginBottom: '1rem' }}>
+          <Notice />
+        </div>
         <AutoColumn gap="lg" style={{ width: '100%' }}>
           <InstructionText>
             <Trans>Here you can view all your liquidity and staked balances in the Elastic Pools</Trans>

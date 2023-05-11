@@ -35,6 +35,7 @@ export async function sendEVMTransaction(
     gasEstimate = await library.getSigner().estimateGas(estimateGasOption)
     if (!gasEstimate) throw new Error('gasEstimate is nullish value')
   } catch (error) {
+    console.log(error)
     throw new TransactionError(error, estimateGasOption)
   }
 

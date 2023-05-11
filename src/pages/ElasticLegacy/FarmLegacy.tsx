@@ -25,6 +25,34 @@ import { ExternalLink } from 'theme'
 import { calculateGasMargin } from 'utils'
 import { formatDollarAmount } from 'utils/numbers'
 
+export const parsePosition = (item: SubgraphPosition, chainId: number, tokenPrices: { [key: string]: number }) => {
+  const token0 = new Token(chainId, item.token0.id, Number(item.token0.decimals), item.token0.symbol, item.token0.name)
+  const token1 = new Token(chainId, item.token1.id, Number(item.token1.decimals), item.token1.symbol, item.token1.name)
+
+  const pool = new Pool(
+    token0,
+    token1,
+    +item.pool.feeTier,
+    item.pool.sqrtPrice,
+    item.pool.liquidity,
+    item.pool.reinvestL,
+    +item.pool.tick,
+  )
+
+  const position = new Position({
+    pool,
+    liquidity: item.liquidity,
+    tickLower: +item.tickLower.tickIdx,
+    tickUpper: +item.tickUpper.tickIdx,
+  })
+
+  const usd =
+    (tokenPrices[position.amount0.currency.wrapped.address] || 0) * +position.amount0.toExact() +
+    (tokenPrices[position.amount1.currency.wrapped.address] || 0) * +position.amount1.toExact()
+
+  return { token0, token1, pool, position, usd }
+}
+
 const Wrapper = styled.div`
   border-radius: 1rem;
   border: 1px solid ${({ theme }) => theme.border};
@@ -34,7 +62,10 @@ const Wrapper = styled.div`
   line-height: 1.5;
   font-size: 14px;
   text-align: center;
-  min-width: 720px;
+  overflow-x: scroll;
+`
+const OverFlow = styled.div`
+  min-width: 860px;
   overflow-x: scroll;
 `
 
@@ -46,7 +77,7 @@ const TableHeader = styled.div`
   grid-template-columns: 1fr 2fr 1fr 1fr;
   font-weight: 500;
   padding: 1rem;
-  background: ${({ theme }) => theme.buttonBlack};
+  background: ${({ theme }) => theme.tableHeader};
   color: ${({ theme }) => theme.subText};
   align-items: center;
 `
@@ -223,117 +254,91 @@ export default function FarmLegacy({
         </Text>
       )}
 
-      <Flex alignItems="center" sx={{ gap: '8px' }} justifyContent="flex-end" marginY="1rem">
-        <Text fontSize="12px">Total Rewards</Text>
-        <Text fontSize="1rem" fontWeight="500" color={theme.text}>
-          {formatDollarAmount(unclaimedUSD)}
-        </Text>
-      </Flex>
+      {!!numberOfPosition && (
+        <Flex alignItems="center" sx={{ gap: '8px' }} justifyContent="flex-end" marginY="1rem">
+          <Text fontSize="12px">Total Rewards</Text>
+          <Text fontSize="1rem" fontWeight="500" color={theme.text}>
+            {formatDollarAmount(unclaimedUSD)}
+          </Text>
+        </Flex>
+      )}
 
-      <TableHeader>
-        <Text textAlign="left">NFT ID</Text>
-        <Text textAlign="left">FARMS</Text>
-        <Text textAlign="left">STAKED LIQUIDITY</Text>
-        <Text textAlign="right">REWARD</Text>
-      </TableHeader>
+      <OverFlow>
+        {!!numberOfPosition && (
+          <TableHeader>
+            <Text textAlign="left">NFT ID</Text>
+            <Text textAlign="left">FARMS</Text>
+            <Text textAlign="left">STAKED LIQUIDITY</Text>
+            <Text textAlign="right">REWARD</Text>
+          </TableHeader>
+        )}
 
-      {farmPositions.map(item => {
-        const token0 = new Token(
-          chainId,
-          item.token0.id,
-          Number(item.token0.decimals),
-          item.token0.symbol,
-          item.token0.name,
-        )
-        const token1 = new Token(
-          chainId,
-          item.token1.id,
-          Number(item.token1.decimals),
-          item.token1.symbol,
-          item.token1.name,
-        )
+        {farmPositions.map(item => {
+          const { token0, token1, position, usd } = parsePosition(item, chainId, tokenPrices)
 
-        const rws = item.pendingRewards.map(item => {
-          if (item.token_address === ZERO_ADDRESS)
-            return CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], item.amount)
-          const token = allTokens[item.token_address.toLowerCase()]
-          if (!token) return null
-          return CurrencyAmount.fromRawAmount(token, item.amount)
-        })
+          const rws = item.pendingRewards.map(item => {
+            if (item.token_address === ZERO_ADDRESS)
+              return CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], item.amount)
+            const token = allTokens[item.token_address.toLowerCase()]
+            if (!token) return null
+            return CurrencyAmount.fromRawAmount(token, item.amount)
+          })
 
-        const pool = new Pool(
-          token0,
-          token1,
-          +item.pool.feeTier,
-          item.pool.sqrtPrice,
-          item.pool.liquidity,
-          item.pool.reinvestL,
-          +item.pool.tick,
-        )
-
-        const position = new Position({
-          pool,
-          liquidity: item.liquidity,
-          tickLower: +item.tickLower.tickIdx,
-          tickUpper: +item.tickUpper.tickIdx,
-        })
-
-        const usd =
-          (tokenPrices[position.amount0.currency.wrapped.address] || 0) * +position.amount0.toExact() +
-          (tokenPrices[position.amount1.currency.wrapped.address] || 0) * +position.amount1.toExact()
-
-        return (
-          <TableRow key={item.id}>
-            <Text textAlign="left">{item.id}</Text>
-            <Flex alignItems="center">
-              <DoubleCurrencyLogo currency0={token0} currency1={token1} />
-              <Text color={theme.primary}>
-                {token0.symbol} - {token1.symbol}
+          return (
+            <TableRow key={item.id}>
+              <Text textAlign="left" color={theme.subText}>
+                {item.id}
               </Text>
-              <FeeTag>Fee {((Number(item.pool?.feeTier) || 0) * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
-            </Flex>
-            <Flex alignItems="center" justifyContent="flex-start" width="fit-content">
-              <MouseoverTooltip
-                width="fit-content"
-                placement="bottom"
-                text={
-                  <Flex flexDirection="column">
-                    <Flex sx={{ gap: '4px' }} alignItems="center">
-                      <CurrencyLogo currency={position.amount0.currency} size="16px" />
-                      <Text fontWeight="500">{position.amount0.toSignificant(6)}</Text>
-                      <Text fontWeight="500">{position.amount0.currency.symbol}</Text>
-                    </Flex>
+              <Flex alignItems="center">
+                <DoubleCurrencyLogo currency0={token0} currency1={token1} />
+                <Text color={theme.primary}>
+                  {token0.symbol} - {token1.symbol}
+                </Text>
+                <FeeTag>Fee {((Number(item.pool?.feeTier) || 0) * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
+              </Flex>
+              <Flex alignItems="center" justifyContent="flex-start" width="fit-content">
+                <MouseoverTooltip
+                  width="fit-content"
+                  placement="bottom"
+                  text={
+                    <Flex flexDirection="column">
+                      <Flex sx={{ gap: '4px' }} alignItems="center">
+                        <CurrencyLogo currency={position.amount0.currency} size="16px" />
+                        <Text fontWeight="500">{position.amount0.toSignificant(6)}</Text>
+                        <Text fontWeight="500">{position.amount0.currency.symbol}</Text>
+                      </Flex>
 
-                    <Flex sx={{ gap: '4px' }} alignItems="center" marginTop="6px">
-                      <CurrencyLogo currency={position.amount1.currency} size="16px" />
-                      <Text fontWeight="500">{position.amount1.toSignificant(6)}</Text>
-                      <Text fontWeight="500">{position.amount1.currency.symbol}</Text>
+                      <Flex sx={{ gap: '4px' }} alignItems="center" marginTop="6px">
+                        <CurrencyLogo currency={position.amount1.currency} size="16px" />
+                        <Text fontWeight="500">{position.amount1.toSignificant(6)}</Text>
+                        <Text fontWeight="500">{position.amount1.currency.symbol}</Text>
+                      </Flex>
                     </Flex>
-                  </Flex>
-                }
-              >
-                {formatDollarAmount(usd)}
-                <DropdownSvg />
-              </MouseoverTooltip>
-            </Flex>
+                  }
+                >
+                  {formatDollarAmount(usd)}
+                  <DropdownSvg />
+                </MouseoverTooltip>
+              </Flex>
 
-            <Flex justifyContent="flex-end" flexDirection="column" sx={{ gap: '8px' }}>
-              {!rws.length && <Text textAlign="right">--</Text>}
-              {rws.map(
-                (rw, index) =>
-                  rw && (
-                    <Flex key={index} sx={{ gap: '4px' }} justifyContent="flex-end" alignItems="center">
-                      <CurrencyLogo currency={rw.currency} size="14px" />
-                      {rw.toSignificant(6)}
-                    </Flex>
-                  ),
-              )}
-            </Flex>
-          </TableRow>
-        )
-      })}
+              <Flex justifyContent="flex-end" flexDirection="column" sx={{ gap: '8px' }}>
+                {!rws.length && <Text textAlign="right">--</Text>}
+                {rws.map(
+                  (rw, index) =>
+                    rw && (
+                      <Flex key={index} sx={{ gap: '4px' }} justifyContent="flex-end" alignItems="center">
+                        <CurrencyLogo currency={rw.currency} size="14px" />
+                        {rw.toSignificant(6)}
+                      </Flex>
+                    ),
+                )}
+              </Flex>
+            </TableRow>
+          )
+        })}
+      </OverFlow>
 
-      <Flex marginTop="24px" sx={{ gap: '12px' }} justifyContent="flex-end">
+      <Flex marginTop="24px" sx={{ gap: '12px' }} justifyContent={numberOfPosition ? 'flex-end' : 'center'}>
         {!!numberOfPosition && (
           <ButtonLight
             onClick={handleWithdraw}

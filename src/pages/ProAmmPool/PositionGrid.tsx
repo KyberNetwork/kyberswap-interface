@@ -16,7 +16,6 @@ export const PositionCardGrid = styled.div`
   display: grid;
   grid-template-columns: minmax(392px, auto) minmax(392px, auto) minmax(392px, auto);
   gap: 24px;
-  max-width: 1224px;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     grid-template-columns: 1fr 1fr;
