@@ -169,7 +169,7 @@ function PositionGrid({
       rowCount={Math.ceil(positions.length / 3)}
       height={0}
       columnWidth={upToSmall ? 368 : 392}
-      rowHeight={586}
+      rowHeight={603} // 579px row height + 24px gap
       itemData={itemData}
     >
       {Row as ComponentType<GridChildComponentProps<unknown>>}
@@ -212,7 +212,6 @@ const Row = memo(
       ...style,
       left: columnIndex === 0 ? style.left : Number(style.left) + columnIndex * 24,
       right: columnIndex === 3 ? style.right : Number(style.right) + columnIndex * 24,
-      top: rowIndex === 0 ? style.top : Number(style.top) + rowIndex * 24,
     }
 
     const index = rowIndex * 3 + columnIndex
