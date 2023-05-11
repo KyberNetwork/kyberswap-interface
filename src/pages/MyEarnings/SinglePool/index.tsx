@@ -23,6 +23,7 @@ import useTheme from 'hooks/useTheme'
 import Positions from 'pages/MyEarnings/Positions'
 import PoolEarningsSection from 'pages/MyEarnings/SinglePool/PoolEarningsSection'
 import StatsRow from 'pages/MyEarnings/SinglePool/StatsRow'
+import { today } from 'pages/MyEarnings/utils'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { useAppSelector } from 'state/hooks'
 import { isAddress, shortenAddress } from 'utils'
@@ -98,12 +99,18 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
 
   const isFarmingPool = poolEarning.farmApr && poolEarning.farmApr !== '0'
 
-  const poolEarningToday = poolEarning.historicalEarning[0]?.total?.reduce(
-    (acc, tokenEarning) => acc + Number(tokenEarning.amountUSD),
-    0,
-  )
+  const poolEarningToday = useMemo(() => {
+    if (poolEarning.historicalEarning[0]?.day !== today) {
+      return '$0'
+    }
 
-  const poolEarningTodayStr = poolEarningToday ? formatValue(poolEarningToday) : '--'
+    const earning = poolEarning.historicalEarning[0]?.total?.reduce(
+      (acc, tokenEarning) => acc + Number(tokenEarning.amountUSD),
+      0,
+    )
+
+    return earning ? formatValue(earning) : '--'
+  }, [poolEarning.historicalEarning])
 
   return (
     <Flex
@@ -252,7 +259,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
                   color: theme.text,
                 }}
               >
-                {poolEarningTodayStr}
+                {poolEarningToday}
               </Text>
 
               <Flex alignItems={'center'} justifyItems={'center'} width="24px" height="24px">

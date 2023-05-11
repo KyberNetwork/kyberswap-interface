@@ -17,6 +17,7 @@ import MultipleChainSelect from 'pages/MyEarnings/MultipleChainSelect'
 import PoolFilteringBar from 'pages/MyEarnings/PoolFilteringBar'
 import SinglePool, { Props as SinglePoolProps } from 'pages/MyEarnings/SinglePool'
 import TotalEarningsAndChainSelect from 'pages/MyEarnings/TotalEarningsAndChainSelect'
+import { today } from 'pages/MyEarnings/utils'
 import { useAppSelector } from 'state/hooks'
 import { EarningStatsTick, EarningsBreakdown } from 'types/myEarnings'
 import { isAddress } from 'utils'
@@ -115,7 +116,6 @@ function shuffle<T>(array: T[]): T[] {
 const MyEarningsSection = () => {
   const { account = '' } = useActiveWeb3React()
   const theme = useTheme()
-  const today = Math.floor(Date.now() / 1000 / 86400)
 
   const selectedChainIds = useAppSelector(state => state.myEarnings.selectedChains)
   const getEarningData = useGetEarningDataQuery({ account, chainIds: selectedChainIds })
@@ -193,7 +193,7 @@ const MyEarningsSection = () => {
       totalValue,
       breakdowns: breakdowns, // shuffle([...breakdowns, ...breakdowns, ...breakdowns].slice(0, 5)),
     }
-  }, [getEarningData?.data, today, tokensByChainId])
+  }, [getEarningData?.data, tokensByChainId])
 
   // chop the data into the right duration
   // format pool value
@@ -283,7 +283,7 @@ const MyEarningsSection = () => {
     }
 
     return ticks
-  }, [getEarningData?.data, today, tokensByChainId])
+  }, [getEarningData?.data, tokensByChainId])
 
   const availableChainRoutes = useMemo(() => {
     if (!getEarningData?.data) {

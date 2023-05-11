@@ -6,6 +6,8 @@ import { TokenAddressMap } from 'state/lists/reducer'
 import { EarningStatsTick } from 'types/myEarnings'
 import { isAddress } from 'utils'
 
+export const today = Math.floor(Date.now() / 1000 / 86400)
+
 const sumTokenEarnings = (earnings: TokenEarning[]) => {
   return earnings.reduce((sum, tokenEarning) => sum + Number(tokenEarning.amountUSD), 0)
 }
@@ -53,6 +55,20 @@ export const calculateEarningStatsTick = (
 
     return tick
   })
+
+  // fill ticks for unavailable days
+  const latestDay = data[0]?.day || today - 30 // fallback to 30 days ago
+  if (latestDay < today) {
+    for (let i = latestDay + 1; i <= today; i++) {
+      ticks.unshift({
+        date: dayjs(i * 86400 * 1000).format('MMM DD'),
+        poolRewardsValue: 0,
+        farmRewardsValue: 0,
+        totalValue: 0,
+        tokens: [],
+      })
+    }
+  }
 
   return ticks
 }

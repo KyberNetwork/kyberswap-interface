@@ -6,7 +6,7 @@ import { PoolEarningWithDetails } from 'services/earning'
 import styled from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
-import { calculateEarningStatsTick } from 'pages/MyEarnings/utils'
+import { calculateEarningStatsTick, today } from 'pages/MyEarnings/utils'
 import { useAppSelector } from 'state/hooks'
 import { EarningStatsTick, EarningsBreakdown } from 'types/myEarnings'
 import { isAddress } from 'utils'
@@ -37,29 +37,32 @@ const PoolEarningsSection: React.FC<Props> = ({ poolEarning, chainId }) => {
 
   const earningBreakdown: EarningsBreakdown | undefined = useMemo(() => {
     const data = poolEarning.historicalEarning
-    const latestData =
-      data?.[0].total
-        ?.filter(tokenData => {
-          // TODO: check with native token
-          const tokenAddress = isAddress(chainId, tokenData.token)
-          if (!tokenAddress) {
-            return false
-          }
 
-          const currency = tokensByChainId[chainId][tokenAddress]
-          return !!currency
-        })
-        .map(tokenData => {
-          const tokenAddress = isAddress(chainId, tokenData.token)
-          const currency = tokensByChainId[chainId][String(tokenAddress)]
-          return {
-            address: tokenAddress,
-            logoUrl: currency.logoURI,
-            symbol: currency.symbol || '',
-            amountUSD: Number(tokenData.amountUSD),
-            chainId,
-          }
-        }) || []
+    const latestData =
+      data?.[0]?.day === today
+        ? data?.[0].total
+            ?.filter(tokenData => {
+              // TODO: check with native token
+              const tokenAddress = isAddress(chainId, tokenData.token)
+              if (!tokenAddress) {
+                return false
+              }
+
+              const currency = tokensByChainId[chainId][tokenAddress]
+              return !!currency
+            })
+            .map(tokenData => {
+              const tokenAddress = isAddress(chainId, tokenData.token)
+              const currency = tokensByChainId[chainId][String(tokenAddress)]
+              return {
+                address: tokenAddress,
+                logoUrl: currency.logoURI,
+                symbol: currency.symbol || '',
+                amountUSD: Number(tokenData.amountUSD),
+                chainId,
+              }
+            }) || []
+        : []
     latestData.sort((data1, data2) => data2.amountUSD - data1.amountUSD)
 
     const totalValue = latestData.reduce((sum, { amountUSD }) => {

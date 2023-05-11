@@ -59,12 +59,8 @@ const SinglePosition: React.FC<Props> = ({ positionEarning, chainId, pool }) => 
     setFlipped(v => !v)
   }
 
-  const handleClick = () => {
-    console.log({ positionEarning })
-  }
-
   return (
-    <FlipCard flip={isFlipped} onClick={handleClick}>
+    <FlipCard flip={isFlipped}>
       {isFlipped && (
         <Flex
           sx={{
