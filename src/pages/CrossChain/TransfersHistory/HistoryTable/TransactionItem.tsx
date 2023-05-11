@@ -31,7 +31,7 @@ export const useGetTransactionStatus = (status: CrossChainTransferStatus) => {
           DetailTransactionStatus.Failed,
           DetailTransactionStatus.Failed,
         ]
-        generalStatus = MultichainTransferStatus.Processing
+        generalStatus = MultichainTransferStatus.Failure
         break
       }
       case CrossChainTransferStatus.SRC_GATEWAY_CALLED: {
