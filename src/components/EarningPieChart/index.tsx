@@ -222,6 +222,16 @@ const EarningPieChart: React.FC<Props> = ({ data, totalValue = '', className, is
       return LoadingData
     }
 
+    if (data.length === 0) {
+      return [
+        {
+          title: 'empty',
+          value: 100,
+          color: '#95a5a6',
+        },
+      ]
+    }
+
     return data.map((entry, i) => {
       const color = selectedIndex === i ? darken(0.15, COLORS[i]) : COLORS[i]
 
@@ -270,6 +280,7 @@ const EarningPieChart: React.FC<Props> = ({ data, totalValue = '', className, is
       className={className}
       sx={{
         flexDirection: 'column',
+        minHeight: '300px',
       }}
     >
       <Flex

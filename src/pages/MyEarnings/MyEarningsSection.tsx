@@ -115,6 +115,7 @@ function shuffle<T>(array: T[]): T[] {
 const MyEarningsSection = () => {
   const { account = '' } = useActiveWeb3React()
   const theme = useTheme()
+  const today = Math.floor(Date.now() / 1000 / 86400)
 
   const selectedChainIds = useAppSelector(state => state.myEarnings.selectedChains)
   const getEarningData = useGetEarningDataQuery({ account, chainIds: selectedChainIds })
@@ -127,18 +128,19 @@ const MyEarningsSection = () => {
         const data = dataByChainRoute[chainRoute].account
         const chainId = chainIdByRoute[chainRoute]
 
-        console.log({ total: data?.[0]?.total })
+        if (data?.[0]?.day !== today) {
+          return []
+        }
+
         const latestData = data?.[0]?.total
           ?.filter(tokenData => {
             // TODO: check with native token
             const tokenAddress = isAddress(chainId, tokenData.token)
             if (!tokenAddress) {
-              console.log('return false token', tokenData.token)
               return false
             }
 
             const currency = tokensByChainId[chainId][tokenAddress]
-            console.log('currency: ', currency, 'tokenAddress', tokenAddress)
             return !!currency
           })
           .map(tokenData => {
@@ -191,7 +193,7 @@ const MyEarningsSection = () => {
       totalValue,
       breakdowns: breakdowns, // shuffle([...breakdowns, ...breakdowns, ...breakdowns].slice(0, 5)),
     }
-  }, [getEarningData?.data, tokensByChainId])
+  }, [getEarningData?.data, today, tokensByChainId])
 
   // chop the data into the right duration
   // format pool value
@@ -266,8 +268,22 @@ const MyEarningsSection = () => {
       return tick
     })
 
+    // fill ticks for unavailable days
+    const latestDay = data[0]?.day || today - 30 // fallback to 30 days ago
+    if (latestDay < today) {
+      for (let i = latestDay + 1; i <= today; i++) {
+        ticks.unshift({
+          date: dayjs(i * 86400 * 1000).format('MMM DD'),
+          poolRewardsValue: 0,
+          farmRewardsValue: 0,
+          totalValue: 0,
+          tokens: [],
+        })
+      }
+    }
+
     return ticks
-  }, [getEarningData?.data, tokensByChainId])
+  }, [getEarningData?.data, today, tokensByChainId])
 
   const availableChainRoutes = useMemo(() => {
     if (!getEarningData?.data) {
@@ -358,7 +374,7 @@ const MyEarningsSection = () => {
         <Flex
           flexDirection={'column'}
           width="100%"
-          height="480px"
+          height="240px"
           alignItems={'center'}
           justifyContent={'center'}
           sx={{ gap: '8px' }}
