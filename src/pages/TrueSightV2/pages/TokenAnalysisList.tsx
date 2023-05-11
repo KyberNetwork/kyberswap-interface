@@ -559,7 +559,7 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
         </Column>
       </td>
       <td>
-        <KyberScoreChart data={token.ks_3d} />
+        <KyberScoreChart data={token.ks_3d} index={index} />
       </td>
       <td>
         <Column gap="10px" style={{ textAlign: 'left' }}>

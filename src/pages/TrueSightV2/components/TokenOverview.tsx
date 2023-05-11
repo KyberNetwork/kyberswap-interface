@@ -318,7 +318,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                 <Text fontSize="12px" lineHeight="16px">
                   <Trans>Last 3D KyberScores</Trans>
                 </Text>
-                <KyberScoreChart width="100%" height="36px" data={data?.kyberScore?.ks3d} />
+                <KyberScoreChart width="100%" height="36px" data={data?.kyberScore?.ks3d} index={1} />
               </Column>
             </CardWrapper>
             <CardWrapper style={{ fontSize: '12px' }} gap="10px" className={cardClassname}>

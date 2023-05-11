@@ -23,10 +23,12 @@ export default function KyberScoreChart({
   width,
   height,
   data,
+  index,
 }: {
   width?: string
   height?: string
   data?: Array<IKyberScoreChart>
+  index: number
 }) {
   const theme = useTheme()
 
@@ -61,11 +63,12 @@ export default function KyberScoreChart({
     },
     [filledData],
   )
+
   return (
     <Wrapper style={{ width, height }} onMouseLeave={handleMouseLeave}>
       <svg width="100%" height="100%" viewBox="0 0 100 22" preserveAspectRatio="none">
         <defs>
-          <clipPath id="cut-off-outline">
+          <clipPath id={'cut-off-outline' + index}>
             {filledData?.map((item, index) => {
               const gap = 2
               const rectWidth = (100 - (filledData.length - 1) * gap) / filledData.length
