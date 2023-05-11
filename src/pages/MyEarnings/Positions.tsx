@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Pool } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Eye, Info } from 'react-feather'
 import { Box, Flex, Text } from 'rebass'
 import { PositionEarningWithDetails } from 'services/earning'
@@ -10,6 +10,7 @@ import { PositionEarningWithDetails } from 'services/earning'
 import { ButtonLight } from 'components/Button'
 import useTheme from 'hooks/useTheme'
 import SinglePosition from 'pages/MyEarnings/SinglePosition'
+import { useAppSelector } from 'state/hooks'
 
 type Props = {
   chainId: ChainId
@@ -18,7 +19,15 @@ type Props = {
 }
 const Positions: React.FC<Props> = ({ positionEarnings, chainId, pool }) => {
   const theme = useTheme()
+  const shouldShowClosedPositions = useAppSelector(state => state.myEarnings.shouldShowClosedPositions)
   const [numberOfVisiblePositions, setNumberOfVisiblePositions] = useState(3)
+
+  // TODO: in range, out range positions
+  const [numOfActivePositions, numOfInactivePositions, numOfClosedPositions] = useMemo(() => {
+    const nClosed = positionEarnings.filter(pos => !pos.liquidity || pos.liquidity === '0').length
+    return [positionEarnings.length - nClosed, 0, nClosed]
+  }, [positionEarnings])
+
   return (
     <Flex
       sx={{
@@ -74,39 +83,73 @@ const Positions: React.FC<Props> = ({ positionEarnings, chainId, pool }) => {
                 lineHeight: '20px',
               }}
             >
-              2k Active
+              {numOfActivePositions} Active
             </Text>
           </Flex>
 
-          <Flex
-            sx={{
-              gap: '4px',
-              alignItems: 'center',
-            }}
-          >
+          {numOfInactivePositions ? (
             <Flex
               sx={{
-                width: '16px',
-                height: '16px',
-                borderRadius: '999px',
-                justifyContent: 'center',
+                gap: '4px',
                 alignItems: 'center',
-                background: rgba(theme.warning, 0.3),
               }}
             >
-              <Info size={10} color={theme.warning} />
-            </Flex>
+              <Flex
+                sx={{
+                  width: '16px',
+                  height: '16px',
+                  borderRadius: '999px',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  background: rgba(theme.warning, 0.3),
+                }}
+              >
+                <Info size={10} color={theme.warning} />
+              </Flex>
 
-            <Text
+              <Text
+                sx={{
+                  fontWeight: 500,
+                  fontSize: '14px',
+                  lineHeight: '20px',
+                }}
+              >
+                {numOfInactivePositions} Inactive
+              </Text>
+            </Flex>
+          ) : null}
+
+          {numOfClosedPositions || shouldShowClosedPositions ? (
+            <Flex
               sx={{
-                fontWeight: 500,
-                fontSize: '14px',
-                lineHeight: '20px',
+                gap: '4px',
+                alignItems: 'center',
               }}
             >
-              1k Inactive
-            </Text>
-          </Flex>
+              <Flex
+                sx={{
+                  width: '16px',
+                  height: '16px',
+                  borderRadius: '999px',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  background: rgba(theme.red, 0.3),
+                }}
+              >
+                <Info size={10} color={theme.red} />
+              </Flex>
+
+              <Text
+                sx={{
+                  fontWeight: 500,
+                  fontSize: '14px',
+                  lineHeight: '20px',
+                }}
+              >
+                {numOfClosedPositions} Closed
+              </Text>
+            </Flex>
+          ) : null}
         </Flex>
       </Flex>
 
