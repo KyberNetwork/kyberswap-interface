@@ -69,6 +69,7 @@ const chainIdByRoute: Record<string, ChainId> = SUPPORTED_NETWORKS_FOR_MY_EARNIN
 
 const getPositionEarningsByPoolId = (
   earnings: PositionEarningWithDetails[] | undefined,
+  includeClosedPositions = false,
 ): Record<string, PositionEarningWithDetails[]> => {
   const data = earnings || []
 
@@ -78,7 +79,7 @@ const getPositionEarningsByPoolId = (
       return acc
     }
 
-    if (!positionEarning.liquidity || positionEarning.liquidity === '0') {
+    if (!includeClosedPositions && (!positionEarning.liquidity || positionEarning.liquidity === '0')) {
       return acc
     }
 
@@ -120,6 +121,7 @@ const MyEarningsSection = () => {
   const selectedChainIds = useAppSelector(state => state.myEarnings.selectedChains)
   const getEarningData = useGetEarningDataQuery({ account, chainIds: selectedChainIds })
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
+  const shouldShowClosedPositions = useAppSelector(state => state.myEarnings.shouldShowClosedPositions)
 
   const earningBreakdown: EarningsBreakdown | undefined = useMemo(() => {
     const dataByChainRoute = getEarningData?.data || {}
@@ -300,13 +302,17 @@ const MyEarningsSection = () => {
       }
 
       const chainId = chainIdByRoute[chainRoute]
-      const positionEarningsByPoolId = getPositionEarningsByPoolId(getEarningData.data[chainRoute].positions)
-      const poolIdsWithActivePositions = Object.keys(positionEarningsByPoolId)
-      const activePoolEarnings =
-        getEarningData.data[chainRoute]?.pools?.filter(pool => poolIdsWithActivePositions.includes(pool.id)) ||
-        EMPTY_ARRAY
+      const positionEarningsByPoolId = getPositionEarningsByPoolId(
+        getEarningData.data[chainRoute].positions,
+        shouldShowClosedPositions,
+      )
 
-      return activePoolEarnings.map(poolEarning => {
+      const poolIdsThatHasPositions = Object.keys(positionEarningsByPoolId)
+
+      const poolEarnings =
+        getEarningData.data[chainRoute]?.pools?.filter(pool => poolIdsThatHasPositions.includes(pool.id)) || EMPTY_ARRAY
+
+      return poolEarnings.map(poolEarning => {
         return {
           poolEarning,
           chainId,
@@ -314,7 +320,7 @@ const MyEarningsSection = () => {
         }
       })
     })
-  }, [availableChainRoutes, getEarningData.data])
+  }, [availableChainRoutes, getEarningData.data, shouldShowClosedPositions])
 
   return (
     <Flex

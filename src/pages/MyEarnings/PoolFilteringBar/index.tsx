@@ -9,6 +9,7 @@ import Search from 'components/Search'
 import SubscribeNotificationButton from 'components/SubscribeButton'
 import Toggle from 'components/Toggle'
 import useTheme from 'hooks/useTheme'
+import ClosedPositionsToggle from 'pages/MyEarnings/PoolFilteringBar/ClosedPositionsToggle'
 
 const AnotherSubscribeButton = () => {
   const theme = useTheme()
@@ -95,22 +96,7 @@ const PoolFilteringBar = () => {
           <Toggle id="toggle-view-earnings" isActive={true} toggle={() => false} />
         </Flex>
 
-        <Flex
-          sx={{
-            alignItems: 'center',
-            gap: '8px',
-            flexWrap: 'nowrap',
-          }}
-        >
-          <Text
-            sx={{
-              whiteSpace: 'nowrap',
-            }}
-          >
-            <Trans>Closed Positions</Trans>
-          </Text>
-          <Toggle id="toggle-closed-positions" isActive={true} toggle={() => false} />
-        </Flex>
+        <ClosedPositionsToggle />
 
         <Search
           searchValue={''}
