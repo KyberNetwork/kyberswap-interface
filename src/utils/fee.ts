@@ -3,7 +3,7 @@ import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 
 import { BIPS_BASE, RESERVE_USD_DECIMALS } from 'constants/index'
-import { FeeConfig } from 'types/route'
+import { DetailedRouteSummary, FeeConfig } from 'types/route'
 import { Aggregator } from 'utils/aggregator'
 import { formattedNum } from 'utils/index'
 
@@ -42,7 +42,7 @@ export const calculateFee = (
   amountOut: string,
   amountInUsd: string,
   amountOutUsd: string,
-  feeConfig: FeeConfig,
+  feeConfig: DetailedRouteSummary['extraFee'],
 ): {
   feeAmount: string
   feeAmountUsd: string
@@ -68,9 +68,9 @@ export const calculateFee = (
   ).divide(BIPS_BASE)
 
   let feeAmount = ''
-  let feeAmountUsd = ''
+  let feeAmountUsd = feeConfig.feeAmountUsd
 
-  if (amountUsd) {
+  if (amountUsd && !feeAmountUsd) {
     const usd = new Fraction(
       parseUnits(toFixed(Number(amountUsd)), RESERVE_USD_DECIMALS).toString(),
       JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS)),
@@ -78,8 +78,11 @@ export const calculateFee = (
 
     if (usd) {
       const raw = usd.multiply(feeAmountFraction).toSignificant(RESERVE_USD_DECIMALS)
-      feeAmountUsd = formattedNum(raw, true, 4)
+      feeAmountUsd = raw
     }
+  }
+  if (feeAmountUsd) {
+    feeAmountUsd = formattedNum(feeAmountUsd, true, 4)
   }
 
   const fee = currencyAmountToTakeFee.multiply(feeAmountFraction).toSignificant(RESERVE_USD_DECIMALS)
