@@ -6,6 +6,7 @@ import { PositionEarningWithDetails } from 'services/earning'
 import styled from 'styled-components'
 
 import Background from 'assets/images/card-background2.png'
+import { CommonProps } from 'pages/MyEarnings/SinglePosition/CommonView'
 import EarningView from 'pages/MyEarnings/SinglePosition/EarningView'
 import PositionView from 'pages/MyEarnings/SinglePosition/PositionView'
 
@@ -59,6 +60,17 @@ const SinglePosition: React.FC<Props> = ({ positionEarning, chainId, pool }) => 
     setFlipped(v => !v)
   }
 
+  if (!position) {
+    return null
+  }
+
+  const props: CommonProps = {
+    chainId: chainId,
+    positionEarning: positionEarning,
+    onFlipView: toggleFlipped,
+    position,
+  }
+
   return (
     <FlipCard flip={isFlipped}>
       {isFlipped && (
@@ -69,13 +81,11 @@ const SinglePosition: React.FC<Props> = ({ positionEarning, chainId, pool }) => 
             transform: 'scale(-1, 1)',
           }}
         >
-          <EarningView chainId={chainId} positionEarning={positionEarning} onFlipView={toggleFlipped} />
+          <EarningView {...props} />
         </Flex>
       )}
 
-      {!isFlipped && position && (
-        <PositionView positionEarning={positionEarning} onFlipView={toggleFlipped} position={position} />
-      )}
+      {!isFlipped && <PositionView {...props} />}
     </FlipCard>
   )
 }

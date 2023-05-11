@@ -22,10 +22,16 @@ const Positions: React.FC<Props> = ({ positionEarnings, chainId, pool }) => {
   const shouldShowClosedPositions = useAppSelector(state => state.myEarnings.shouldShowClosedPositions)
   const [numberOfVisiblePositions, setNumberOfVisiblePositions] = useState(3)
 
-  // TODO: in range, out range positions
   const [numOfActivePositions, numOfInactivePositions, numOfClosedPositions] = useMemo(() => {
     const nClosed = positionEarnings.filter(pos => !pos.liquidity || pos.liquidity === '0').length
-    return [positionEarnings.length - nClosed, 0, nClosed]
+    const nActive = positionEarnings.filter(pos => {
+      const isNotClosed = pos.liquidity && pos.liquidity !== '0'
+      const isActive = Number(pos.tickLower) <= Number(pos.pool.tick) && Number(pos.pool.tick) < Number(pos.tickUpper)
+
+      return isNotClosed && isActive
+    }).length
+
+    return [nActive, positionEarnings.length - nClosed - nActive, nClosed]
   }, [positionEarnings])
 
   return (
