@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -595,7 +596,9 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
             : currentTab === KyberAIListType.TOP_CEX_OUTFLOW
             ? '$' + formatLocaleStringNum(token.cex_outflow_3days) || '--'
             : currentTab === KyberAIListType.TRENDING_SOON
-            ? '--'
+            ? token.discovered_on
+              ? dayjs(token.discovered_on * 1000).format('DD/MM/YYYY')
+              : '--'
             : '--'}
         </td>
       )}

@@ -187,7 +187,7 @@ export default function Widget() {
           type: {
             [WidgetTab.Bearish]: KyberAIListType.BEARISH,
             [WidgetTab.Bullish]: KyberAIListType.BULLISH,
-            [WidgetTab.TrendingSoon]: KyberAIListType.TOP_SOCIAL,
+            [WidgetTab.TrendingSoon]: KyberAIListType.TRENDING_SOON,
           }[activeTab],
           chain: 'all',
           page: 1,

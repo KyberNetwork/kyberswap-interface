@@ -52,6 +52,7 @@ export interface ITokenList {
   cex_outflow_3days: number
   cex_inflow_24h: number
   cex_outflow_24h: number
+  discovered_on?: number
 }
 
 export interface INumberOfTrades {
