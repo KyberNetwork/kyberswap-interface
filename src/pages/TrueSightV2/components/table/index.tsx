@@ -2,8 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
-import { useContext, useMemo, useRef, useState } from 'react'
-import { Star } from 'react-feather'
+import { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -18,13 +17,16 @@ import InfoHelper from 'components/InfoHelper'
 import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
 import {
+  useAddToWatchlistMutation,
   useFundingRateQuery,
   useHolderListQuery,
   useLiveDexTradesQuery,
+  useRemoveFromWatchlistMutation,
   useTokenDetailQuery,
 } from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { defaultExplorePageToken } from 'pages/TrueSightV2/pages/SingleToken'
@@ -44,6 +46,7 @@ import MultipleChainDropdown from '../MultipleChainDropdown'
 import SimpleTooltip from '../SimpleTooltip'
 import SmallKyberScoreMeter from '../SmallKyberScoreMeter'
 import TokenChart from '../TokenChartSVG'
+import { StarWithAnimation } from '../WatchlistStar'
 import { TimeFrameLegend } from '../chart'
 
 const TableWrapper = styled.table`
@@ -482,12 +485,18 @@ const WidgetTableWrapper = styled(TableWrapper)`
 const WidgetTokenRow = ({ token, onClick }: { token: ITokenList; onClick?: () => void }) => {
   const theme = useTheme()
   const navigate = useNavigate()
+  const { account } = useActiveWeb3React()
+
   const latestKyberScore: IKyberScoreChart | undefined = token?.ks_3d?.[token.ks_3d.length - 1]
   const hasMutipleChain = token?.tokens?.length > 1
 
   const [showMenu, setShowMenu] = useState(false)
   const [showSwapMenu, setShowSwapMenu] = useState(false)
   const [menuLeft, setMenuLeft] = useState<number | undefined>(undefined)
+  const [isWatched, setIsWatched] = useState(false)
+  const [loadingStar, setLoadingStar] = useState(false)
+  const [addToWatchlist] = useAddToWatchlistMutation()
+  const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
 
   const rowRef = useRef<HTMLTableRowElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -528,20 +537,37 @@ const WidgetTokenRow = ({ token, onClick }: { token: ITokenList; onClick?: () =>
     navigateToSwapPage({ address, chain })
   }
 
+  const handleWatchlistClick = (e: any) => {
+    e.stopPropagation()
+    if (!account) return
+    setLoadingStar(true)
+    if (isWatched) {
+      Promise.all(
+        token.tokens.map(t => removeFromWatchlist({ wallet: account, tokenAddress: t.address, chain: t.chain })),
+      ).then(() => {
+        setIsWatched(false)
+        setLoadingStar(false)
+      })
+    } else {
+      Promise.all(
+        token.tokens.map(t => addToWatchlist({ wallet: account, tokenAddress: t.address, chain: t.chain })),
+      ).then(() => {
+        setIsWatched(true)
+        setLoadingStar(false)
+      })
+    }
+  }
+
+  useEffect(() => {
+    setIsWatched(token.isWatched)
+  }, [token.isWatched])
+
   return (
     <tr onClick={handleRowClick} style={{ position: 'relative' }} ref={rowRef}>
       <td>
         <RowFit gap="6px">
           <SimpleTooltip text={t`Add to watchlist`}>
-            <Star
-              size={16}
-              style={{ marginRight: '6px', cursor: 'pointer' }}
-              fill={'none'}
-              stroke={theme.subText}
-              onClick={e => {
-                e.stopPropagation()
-              }}
-            />
+            <StarWithAnimation watched={isWatched} loading={loadingStar} onClick={handleWatchlistClick} />
           </SimpleTooltip>
           <Row gap="8px" style={{ position: 'relative', width: '24px', height: '24px' }}>
             <img

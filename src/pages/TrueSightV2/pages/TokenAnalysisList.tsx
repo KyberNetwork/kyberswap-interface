@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { ReactNode, useEffect, useRef, useState } from 'react'
+import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Share2 } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
@@ -741,9 +741,9 @@ export default function TokenAnalysisList() {
     setSearchParams(searchParams)
   }
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setPage(1)
-  }, [chain])
+  }, [chain, listType])
 
   return (
     <>

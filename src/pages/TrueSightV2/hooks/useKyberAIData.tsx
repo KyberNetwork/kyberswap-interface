@@ -82,7 +82,13 @@ const kyberAIApi = createApi({
         url: `/overview/${chain}/${address}`,
         params: { wallet: account },
       }),
-      transformResponse: (res: any) => res.data,
+      transformResponse: (res: any) => {
+        // If token is stablecoin remove its kyberscore value
+        if (res.data && res.data.tags?.includes('stablecoin')) {
+          return { ...res.data, kyberScore: { ks3d: null, label: '', score: 0 } }
+        }
+        return res.data
+      },
       providesTags: result => [{ type: 'tokenOverview', id: result?.address }],
     }),
     //5.
