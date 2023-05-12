@@ -7,7 +7,7 @@ import { ENV_KEY, OAUTH_CLIENT_ID } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useIsConnectedWallet } from 'hooks/useSyncNetworkParamWithStore'
-import { useSaveSession, useSaveUserProfile, useSessionInfo, useSetPendingAuthentication } from 'state/authen/hooks'
+import { useSaveUserProfile, useSessionInfo, useSetPendingAuthentication } from 'state/authen/hooks'
 
 KyberOauth2.initialize({
   clientId: OAUTH_CLIENT_ID,
@@ -25,51 +25,54 @@ const useLogin = () => {
   const [createProfile] = useGetOrCreateProfileMutation()
   const [connectWalletToProfile] = useConnectWalletToProfileMutation()
 
-  const requestingSession = useRef<string>() // which wallet/mode requesting
+  const requestingSession = useRef<string>() // which wallet requesting
+  const requestingSessionAnonymous = useRef(false)
+
   const { anonymousUserInfo } = useSessionInfo()
 
   const setLoading = useSetPendingAuthentication()
 
   const setProfile = useSaveUserProfile()
-  const saveSession = useSaveSession()
 
   const getProfile = useCallback(
-    async (walletAddress: string | undefined) => {
+    async (walletAddress: string | undefined, isAnonymous = false) => {
       try {
         let profile = await createProfile().unwrap()
         if (walletAddress) {
           await connectWalletToProfile({ walletAddress })
           profile = await createProfile().unwrap()
         }
-        setProfile(profile)
+        setProfile({ profile, isAnonymous })
       } catch (error) {
         const e = new Error('createProfile Error', { cause: error })
         e.name = 'createProfile Error'
         captureException(e, { extra: { walletAddress } })
-        setProfile(undefined)
+        setProfile({ profile: undefined, isAnonymous })
       }
     },
     [connectWalletToProfile, createProfile, setProfile],
   )
 
-  const signInAnonymous = useCallback(async () => {
-    if (requestingSession.current === LoginMethod.ANONYMOUS) return
-    if (anonymousUserInfo) {
-      saveSession({ loginMethod: LoginMethod.ANONYMOUS, userInfo: anonymousUserInfo }) // trigger reset account sign in
-      return
-    }
-    try {
-      requestingSession.current = LoginMethod.ANONYMOUS
-      const session = await KyberOauth2.loginAnonymous()
-      saveSession(session)
-    } catch (error) {
-      console.log('sign in anonymous err', error)
-      saveSession({ loginMethod: LoginMethod.ANONYMOUS, userInfo: undefined })
-    } finally {
-      setLoading(false)
-      setProfile(undefined)
-    }
-  }, [anonymousUserInfo, saveSession, setLoading, setProfile])
+  const signInAnonymous = useCallback(
+    async (walletAddress: string | undefined) => {
+      if (requestingSessionAnonymous.current) return
+      if (anonymousUserInfo) {
+        setProfile({ profile: anonymousUserInfo, isAnonymous: true }) // trigger reset account sign in
+        return
+      }
+      try {
+        requestingSessionAnonymous.current = true
+        await KyberOauth2.loginAnonymous()
+      } catch (error) {
+        console.log('sign in anonymous err', error)
+      } finally {
+        requestingSessionAnonymous.current = false
+        setLoading(false)
+        getProfile(walletAddress, true)
+      }
+    },
+    [anonymousUserInfo, setProfile, setLoading, getProfile],
+  )
 
   const signIn = useCallback(
     async (walletAddress: string | undefined) => {
@@ -85,7 +88,7 @@ const useLogin = () => {
         }
       } catch (error) {
         console.log('get session:', walletAddress, error.message)
-        signInAnonymous()
+        signInAnonymous(walletAddress)
       }
     },
     [setLoading, signInAnonymous, getProfile],

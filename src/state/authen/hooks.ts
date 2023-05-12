@@ -1,10 +1,9 @@
-import { SessionData } from '@kybernetwork/oauth2'
 import { useCallback } from 'react'
 import { useSelector } from 'react-redux'
 
 import { useActiveWeb3React } from 'hooks'
 import { AppState } from 'state'
-import { updatePossibleWalletAddress, updateProcessingLogin, updateProfile, updateSession } from 'state/authen/actions'
+import { updatePossibleWalletAddress, updateProcessingLogin, updateProfile } from 'state/authen/actions'
 import { AuthenState, UserProfile } from 'state/authen/reducer'
 import { useAppDispatch } from 'state/hooks'
 
@@ -29,21 +28,11 @@ export function useSessionInfo(): AuthenState {
   return { ...authen, isLogin }
 }
 
-export const useSaveSession = () => {
-  const dispatch = useAppDispatch()
-  return useCallback(
-    (data: SessionData) => {
-      dispatch(updateSession(data))
-    },
-    [dispatch],
-  )
-}
-
 export const useSaveUserProfile = () => {
   const dispatch = useAppDispatch()
   return useCallback(
-    (value: UserProfile | undefined) => {
-      dispatch(updateProfile(value))
+    ({ profile, isAnonymous = false }: { profile: UserProfile | undefined; isAnonymous?: boolean }) => {
+      dispatch(updateProfile({ profile, isAnonymous }))
     },
     [dispatch],
   )
