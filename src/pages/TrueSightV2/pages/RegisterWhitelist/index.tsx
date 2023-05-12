@@ -1,8 +1,9 @@
 import KyberOauth2 from '@kybernetwork/oauth2'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
+import { useRequestWhiteListMutation } from 'services/kyberAISubscription'
 import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
@@ -10,8 +11,8 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import SubscribeForm from 'pages/TrueSightV2/pages/RegisterWhitelist/SubscribeForm'
-import VerifyCodeModal from 'pages/TrueSightV2/pages/RegisterWhitelist/VerifyCodeModal'
 import WaitListForm from 'pages/TrueSightV2/pages/RegisterWhitelist/WaitListForm'
+import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 import { useIsWhiteListKyberAI } from 'state/user/hooks'
@@ -34,17 +35,45 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
     isOpen: false,
     email: '',
     referredByCode: '',
-    showSuccess: false,
+    showVerifySuccess: false,
   })
 
-  const showVerify = (email: string, referredByCode: string, showSuccess: boolean) => {
-    setVerifyModalState({ isOpen: true, referredByCode, email, showSuccess })
+  const showVerify = (email: string, referredByCode: string, showVerifySuccess: boolean) => {
+    setVerifyModalState({ isOpen: true, referredByCode, email, showVerifySuccess })
+  }
+
+  const onDismiss = () => setVerifyModalState(state => ({ ...state, isOpen: false }))
+  const [requestWaitList] = useRequestWhiteListMutation()
+
+  const onVerifySuccess = async () => {
+    return requestWaitList({ referredByCode: verifyModalState.referredByCode }).unwrap()
   }
 
   const renderVerifyModal = () => (
     <VerifyCodeModal
       {...verifyModalState}
-      onDismiss={() => setVerifyModalState(state => ({ ...state, isOpen: false }))}
+      verifySuccessTitle={t`Successful Registered`}
+      onVerifySuccess={onVerifySuccess}
+      verifySuccessContent={
+        <>
+          <WaitListForm
+            labelColor={theme.text}
+            style={{ maxWidth: '100%' }}
+            desc={
+              <Text fontSize={14} color={theme.text} lineHeight={'16px'} style={{ lineHeight: '18px' }}>
+                <Trans>
+                  Thank you for registering your interest in the KyberAI Beta Program. Follow us on our social channels
+                  to get regular updates on KyberAI
+                </Trans>
+              </Text>
+            }
+          />
+          <ButtonPrimary height={'36px'} onClick={onDismiss}>
+            <Trans>Awesome</Trans>
+          </ButtonPrimary>
+        </>
+      }
+      onDismiss={onDismiss}
     />
   )
 

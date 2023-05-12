@@ -11,7 +11,7 @@ import Column from 'components/Column'
 import Divider from 'components/Divider'
 import Icon from 'components/Icons/Icon'
 import Row, { RowBetween } from 'components/Row'
-import { MouseoverTooltip } from 'components/Tooltip'
+import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
@@ -207,21 +207,29 @@ export default function Widget() {
           <X size={12} />
         </CloseButton>
         <ButtonWrapper>
-          <IconButton onClick={() => setActiveTab(WidgetTab.MyWatchlist)} title={t`My Watchlist`}>
-            <Icon id="star" size={16} />
-          </IconButton>
+          <MouseoverTooltipDesktopOnly text={t`My Watchlist`} width="fit-content">
+            <IconButton onClick={() => setActiveTab(WidgetTab.MyWatchlist)}>
+              <Icon id="star" size={16} />
+            </IconButton>
+          </MouseoverTooltipDesktopOnly>
           <Divider style={{ margin: '0 12px' }} />
-          <IconButton onClick={() => setActiveTab(WidgetTab.Bullish)} title={t`Bullish`}>
-            <Icon id="bullish" size={16} />
-          </IconButton>
+          <MouseoverTooltipDesktopOnly text={t`Bullish`}>
+            <IconButton onClick={() => setActiveTab(WidgetTab.Bullish)}>
+              <Icon id="bullish" size={16} />
+            </IconButton>
+          </MouseoverTooltipDesktopOnly>
           <Divider style={{ margin: '0 12px' }} />
-          <IconButton onClick={() => setActiveTab(WidgetTab.Bearish)} title={t`Bearish`}>
-            <Icon id="bearish" size={16} />
-          </IconButton>
+          <MouseoverTooltipDesktopOnly text={t`Bearish`}>
+            <IconButton onClick={() => setActiveTab(WidgetTab.Bearish)}>
+              <Icon id="bearish" size={16} />
+            </IconButton>
+          </MouseoverTooltipDesktopOnly>
           <Divider style={{ margin: '0 12px' }} />
-          <IconButton onClick={() => setActiveTab(WidgetTab.TrendingSoon)} title={t`Trending soon`}>
-            <Icon id="trending-soon" size={16} />
-          </IconButton>
+          <MouseoverTooltipDesktopOnly text={t`Trending soon`}>
+            <IconButton onClick={() => setActiveTab(WidgetTab.TrendingSoon)}>
+              <Icon id="trending-soon" size={16} />
+            </IconButton>
+          </MouseoverTooltipDesktopOnly>
         </ButtonWrapper>
       </WidgetWrapper>
       <ExpandedWidgetWrapper ref={ref} show={showExpanded}>

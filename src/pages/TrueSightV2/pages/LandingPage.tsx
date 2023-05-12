@@ -113,12 +113,20 @@ const appearVariants = {
   init: { opacity: 0, y: 80 },
   inView: { opacity: 1, y: 0 },
 }
-const PartWithMotion = ({ children, className }: { children: ReactNode; className?: string }) => {
+const PartWithMotion = ({
+  children,
+  className,
+  hasViewport = true,
+}: {
+  children: ReactNode
+  className?: string
+  hasViewport?: boolean
+}) => {
   return (
     <PartWrapper
       initial="init"
       whileInView="inView"
-      viewport={{ once: true, amount: isMobile ? 0.4 : 0.6 }}
+      viewport={{ once: true, amount: hasViewport ? (isMobile ? 0.4 : 0.6) : 0 }}
       className={className}
       transition={transition}
       variants={appearVariants}
@@ -296,7 +304,7 @@ export default function KyberAILandingPage() {
 
   return (
     <Wrapper>
-      <Part1>
+      <Part1 hasViewport={false}>
         <FixedWidth style={{ height: above768 ? '700px' : 'fit-content', position: 'relative' }}>
           {!above768 && (
             <Column

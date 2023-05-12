@@ -478,7 +478,7 @@ const SearchWithDropdown = () => {
       <Wrapper ref={wrapperRef} onClick={() => !expanded && inputRef.current?.focus()} expanded={expanded}>
         <Input
           type="text"
-          placeholder={t`Search by token name or contract address`}
+          placeholder={t`Search by token name, symbol or contract address`}
           value={search}
           onChange={e => {
             setSearch(e.target.value)
