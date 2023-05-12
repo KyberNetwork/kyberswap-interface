@@ -118,24 +118,26 @@ export default function Popover({
       <ReferenceElement ref={setReferenceElement as any} style={containerStyle}>
         {children}
       </ReferenceElement>
-      <Portal>
-        <PopoverContainer
-          show={show}
-          ref={setPopperElement as any}
-          style={{ ...styles.popper, ...style }}
-          {...attributes.popper}
-        >
-          {content}
-          {noArrow || (
-            <Arrow
-              className={`arrow-${attributes.popper?.['data-popper-placement'] ?? ''}`}
-              ref={setArrowElement as any}
-              style={styles.arrow}
-              {...attributes.arrow}
-            />
-          )}
-        </PopoverContainer>
-      </Portal>
+      {show && (
+        <Portal>
+          <PopoverContainer
+            show={show}
+            ref={setPopperElement as any}
+            style={{ ...styles.popper, ...style }}
+            {...attributes.popper}
+          >
+            {content}
+            {noArrow || (
+              <Arrow
+                className={`arrow-${attributes.popper?.['data-popper-placement'] ?? ''}`}
+                ref={setArrowElement as any}
+                style={styles.arrow}
+                {...attributes.arrow}
+              />
+            )}
+          </PopoverContainer>
+        </Portal>
+      )}
     </>
   )
 }
