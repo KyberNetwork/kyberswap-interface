@@ -42,8 +42,8 @@ export default function KyberScoreChart({
 
   const filledData = useMemo(() => {
     if (!data) return []
-    if (data.length === 18) {
-      return data
+    if (data.length === 19) {
+      return data.slice(1, 19)
     }
     const datatemp = []
     const startTimestamp = Math.floor(Date.now() / 14400000) * 14400

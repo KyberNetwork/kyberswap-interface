@@ -236,7 +236,6 @@ const GaugeValue = styled.div<{ color?: string }>`
   ${({ theme, color }) => `color: ${color || theme.primary};`}
 `
 
-let transitionValue = 0
 const minRotate = 0,
   fullRotate = 204
 
@@ -245,23 +244,23 @@ const MeterHand = styled.path`
   transition: all 0.1s linear;
   ${() => `transform: rotate(${minRotate}deg);`}
 `
+let currentValue = 0
 
 function KyberScoreMeter({ value }: { value?: number }) {
   const theme = useTheme()
   const [rotate, setRotate] = useState(0)
+  const [transitionValue, setTransitionValue] = useState(0)
   useEffect(() => {
-    if (value === 0) {
-      transitionValue = 0
-      setRotate(0)
-    }
-    if (!value) return
+    if (value === undefined) return
+    currentValue = 0
     const interval = setInterval(() => {
-      transitionValue = transitionValue + (value - transitionValue) / 5
-      const rotate = transitionValue
-        ? (fullRotate * transitionValue) / 100 + minRotate < 360
-          ? (fullRotate * transitionValue) / 100 + minRotate
-          : (fullRotate * transitionValue) / 100 + minRotate - 360
+      currentValue = currentValue + (value - currentValue) / 5
+      const rotate = currentValue
+        ? (fullRotate * currentValue) / 100 + minRotate < 360
+          ? (fullRotate * currentValue) / 100 + minRotate
+          : (fullRotate * currentValue) / 100 + minRotate - 360
         : minRotate
+      setTransitionValue(currentValue)
       setRotate(rotate)
     }, 100)
 
@@ -271,6 +270,7 @@ function KyberScoreMeter({ value }: { value?: number }) {
   }, [value])
 
   const activeGaugeValue = (gaugeList.length * transitionValue) / 100
+  console.log('🚀 ~ file: KyberScoreMeter.tsx:274 ~ KyberScoreMeter ~ activeGaugeValue:', activeGaugeValue)
   const gaugeColor = useCallback(
     (value: number) => {
       if (value === 0) return theme.primary
