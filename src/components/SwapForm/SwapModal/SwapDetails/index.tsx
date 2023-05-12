@@ -14,6 +14,7 @@ import { TooltipTextOfSwapFee } from 'components/SwapForm/TradeSummary'
 import useCheckStablePairSwap from 'components/SwapForm/hooks/useCheckStablePairSwap'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
+import { CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { TruncatedText } from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
@@ -67,7 +68,7 @@ export default function SwapDetails({
   priceImpact,
   buildData,
 }: Props) {
-  const { isEVM } = useActiveWeb3React()
+  const { isEVM, chainId } = useActiveWeb3React()
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const theme = useTheme()
   const { slippage, routeSummary } = useSwapFormContext()
@@ -260,59 +261,61 @@ export default function SwapDetails({
           </RowBetween>
         )}
 
-        <RowBetween height="20px" style={{ gap: '16px' }}>
-          <RowFixed>
-            <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
-              <MouseoverTooltip
-                text={
-                  <TooltipTextOfSwapFee
-                    feeAmountText={`${feeAmountFromBuild} ${currencyFromBuild?.symbol || ''}`}
-                    feeAmountUsd={feeAmountUsdFromBuild}
-                    feePercentStr={routeSummary?.extraFee?.feeAmount}
-                  />
-                }
-                placement="right"
-              >
-                <Trans>Est. Swap Fee</Trans>
-              </MouseoverTooltip>
-            </TextDashed>
-          </RowFixed>
+        {CHAINS_SUPPORT_FEE_CONFIGS.includes(chainId) && (
+          <RowBetween height="20px" style={{ gap: '16px' }}>
+            <RowFixed>
+              <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+                <MouseoverTooltip
+                  text={
+                    <TooltipTextOfSwapFee
+                      feeAmountText={`${feeAmountFromBuild} ${currencyFromBuild?.symbol || ''}`}
+                      feeAmountUsd={feeAmountUsdFromBuild}
+                      feePercentStr={routeSummary?.extraFee?.feeAmount}
+                    />
+                  }
+                  placement="right"
+                >
+                  <Trans>Est. Swap Fee</Trans>
+                </MouseoverTooltip>
+              </TextDashed>
+            </RowFixed>
 
-          <ValueWithLoadingSkeleton
-            skeletonStyle={{
-              width: '64px',
-              height: '19px',
-            }}
-            isShowingSkeleton={isLoading}
-            content={
-              <Flex
-                sx={{
-                  alignItems: 'center',
-                  flexWrap: 'nowrap',
-                  gap: '4px',
-                }}
-              >
-                {buildData && feeAmountUsdFromGet !== feeAmountUsdFromBuild && (
-                  <Flex
-                    sx={{
-                      background: rgba(theme.warning, 0.3),
-                      color: theme.warning,
-                      borderRadius: '36px',
-                      fontSize: '10px',
-                      lineHeight: '12px',
-                      padding: '2px 4px',
-                    }}
-                  >
-                    <Trans>Updated</Trans>
-                  </Flex>
-                )}
-                <TYPE.black color={theme.text} fontWeight={500} fontSize={12}>
-                  {feeAmountUsdFromBuild || feeAmountFromBuild || '--'}
-                </TYPE.black>
-              </Flex>
-            }
-          />
-        </RowBetween>
+            <ValueWithLoadingSkeleton
+              skeletonStyle={{
+                width: '64px',
+                height: '19px',
+              }}
+              isShowingSkeleton={isLoading}
+              content={
+                <Flex
+                  sx={{
+                    alignItems: 'center',
+                    flexWrap: 'nowrap',
+                    gap: '4px',
+                  }}
+                >
+                  {buildData && feeAmountUsdFromGet !== feeAmountUsdFromBuild && (
+                    <Flex
+                      sx={{
+                        background: rgba(theme.warning, 0.3),
+                        color: theme.warning,
+                        borderRadius: '36px',
+                        fontSize: '10px',
+                        lineHeight: '12px',
+                        padding: '2px 4px',
+                      }}
+                    >
+                      <Trans>Updated</Trans>
+                    </Flex>
+                  )}
+                  <TYPE.black color={theme.text} fontWeight={500} fontSize={12}>
+                    {feeAmountUsdFromBuild || feeAmountFromBuild || '--'}
+                  </TYPE.black>
+                </Flex>
+              }
+            />
+          </RowBetween>
+        )}
 
         <RowBetween height="20px" style={{ gap: '16px' }}>
           <RowFixed>

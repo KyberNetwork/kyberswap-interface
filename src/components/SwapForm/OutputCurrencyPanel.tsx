@@ -6,7 +6,8 @@ import styled from 'styled-components'
 
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { RESERVE_USD_DECIMALS } from 'constants/index'
+import { CHAINS_SUPPORT_FEE_CONFIGS, RESERVE_USD_DECIMALS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import { WrapType } from 'hooks/useWrapCallback'
 import { formattedNum } from 'utils'
 
@@ -37,6 +38,8 @@ const OutputCurrencyPanel: React.FC<Props> = ({
   amountOutUsd,
   onChangeCurrencyOut,
 }) => {
+  const { chainId } = useActiveWeb3React()
+
   // showWrap = true if this swap is either WRAP or UNWRAP
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
 
@@ -82,7 +85,11 @@ const OutputCurrencyPanel: React.FC<Props> = ({
               </Text>
             }
           >
-            <Trans>Est. Output (incl. fee)</Trans>
+            {CHAINS_SUPPORT_FEE_CONFIGS.includes(chainId) ? (
+              <Trans>Est. Output (incl. fee)</Trans>
+            ) : (
+              <Trans>Est. Output</Trans>
+            )}
           </MouseoverTooltip>
         </Label>
       }

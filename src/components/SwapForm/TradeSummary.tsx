@@ -9,7 +9,8 @@ import Divider from 'components/Divider'
 import { RowBetween, RowFixed } from 'components/Row'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
-import { BIPS_BASE } from 'constants/index'
+import { BIPS_BASE, CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink, TYPE } from 'theme'
@@ -103,8 +104,13 @@ export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({
 }
 
 const SwapFee: React.FC = () => {
+  const { chainId } = useActiveWeb3React()
   const theme = useTheme()
   const { routeSummary } = useSwapFormContext()
+
+  if (!CHAINS_SUPPORT_FEE_CONFIGS.includes(chainId)) {
+    return null
+  }
 
   const {
     feeAmount = '',
