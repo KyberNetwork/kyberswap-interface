@@ -15,7 +15,6 @@ import Row, { RowBetween, RowFit } from 'components/Row'
 import ShareModal from 'components/ShareModal'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
-import { TRUESIGHT_NETWORK_TO_CHAINID } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
@@ -28,7 +27,7 @@ import ShareKyberAIModal from '../components/ShareKyberAIModal'
 import SimpleTooltip from '../components/SimpleTooltip'
 import { TokenOverview } from '../components/TokenOverview'
 import { StarWithAnimation } from '../components/WatchlistStar'
-import { NETWORK_IMAGE_URL } from '../constants'
+import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from '../constants'
 import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation, useTokenDetailQuery } from '../hooks/useKyberAIData'
 import { DiscoverTokenTab } from '../types'
 import { navigateToSwapPage } from '../utils'
@@ -405,7 +404,7 @@ export default function SingleToken() {
               navigate(
                 `${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.CREATE_ALERT}?${stringify({
                   inputCurrency: token?.address ?? '',
-                  chainId: chain ? TRUESIGHT_NETWORK_TO_CHAINID[chain] : '',
+                  chainId: chain ? NETWORK_TO_CHAINID[chain] : '',
                 })}`,
               )
             }
