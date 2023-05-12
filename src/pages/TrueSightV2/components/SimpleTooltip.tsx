@@ -54,12 +54,16 @@ export default function SimpleTooltip({
   x,
   y,
   children,
+  width: widthProp,
+  maxWidth: maxWidthProp,
 }: {
   text: ReactNode
   delay?: number
   x?: number
   y?: number
   children?: ReactElement
+  width?: string
+  maxWidth?: string
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -90,7 +94,10 @@ export default function SimpleTooltip({
     const clientRect = ref.current?.getBoundingClientRect()
     const bodyRect = document.body.getBoundingClientRect()
     const top = (y || clientRect?.top || 0) - (height || 50) - 15 - bodyRect.top + width * 0
-    const left = clientRect ? x || clientRect.left + clientRect.width / 2 : 0
+    const left = Math.min(
+      clientRect ? x || clientRect.left + clientRect.width / 2 : 0,
+      bodyRect.width - (clientRect?.width || 0),
+    )
 
     setInset(`${top}px 0 0 ${left}px`)
   }, [height, width, x, y])
@@ -113,7 +120,7 @@ export default function SimpleTooltip({
               transform: 'translateX(-50%)',
             }}
           >
-            <Wrapper>{text}</Wrapper>
+            <Wrapper style={{ width: widthProp || 'fit-content', maxWidth: maxWidthProp || '220px' }}>{text}</Wrapper>
             <Arrow className={`arrow-top`} />
           </div>,
           document.body,

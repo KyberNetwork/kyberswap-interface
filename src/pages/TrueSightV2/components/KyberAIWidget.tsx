@@ -20,6 +20,7 @@ import { useKyberAIWidget } from 'state/user/hooks'
 
 import { useTokenListQuery } from '../hooks/useKyberAIData'
 import { KyberAIListType } from '../types'
+import SimpleTooltip from './SimpleTooltip'
 import { WidgetTable } from './table'
 
 const CloseButton = styled.div`
@@ -207,29 +208,29 @@ export default function Widget() {
           <X size={12} />
         </CloseButton>
         <ButtonWrapper>
-          <MouseoverTooltipDesktopOnly text={t`My Watchlist`} width="fit-content">
+          <SimpleTooltip text={t`My Watchlist`} delay={500}>
             <IconButton onClick={() => setActiveTab(WidgetTab.MyWatchlist)}>
               <Icon id="star" size={16} />
             </IconButton>
-          </MouseoverTooltipDesktopOnly>
+          </SimpleTooltip>
           <Divider style={{ margin: '0 12px' }} />
-          <MouseoverTooltipDesktopOnly text={t`Bullish`}>
+          <SimpleTooltip text={t`Bullish`} delay={500}>
             <IconButton onClick={() => setActiveTab(WidgetTab.Bullish)}>
               <Icon id="bullish" size={16} />
             </IconButton>
-          </MouseoverTooltipDesktopOnly>
+          </SimpleTooltip>
           <Divider style={{ margin: '0 12px' }} />
-          <MouseoverTooltipDesktopOnly text={t`Bearish`}>
+          <SimpleTooltip text={t`Bearish`} delay={500}>
             <IconButton onClick={() => setActiveTab(WidgetTab.Bearish)}>
               <Icon id="bearish" size={16} />
             </IconButton>
-          </MouseoverTooltipDesktopOnly>
+          </SimpleTooltip>
           <Divider style={{ margin: '0 12px' }} />
-          <MouseoverTooltipDesktopOnly text={t`Trending soon`}>
+          <SimpleTooltip text={t`Trending soon`} delay={500}>
             <IconButton onClick={() => setActiveTab(WidgetTab.TrendingSoon)}>
               <Icon id="trending-soon" size={16} />
             </IconButton>
-          </MouseoverTooltipDesktopOnly>
+          </SimpleTooltip>
         </ButtonWrapper>
       </WidgetWrapper>
       <ExpandedWidgetWrapper ref={ref} show={showExpanded}>
