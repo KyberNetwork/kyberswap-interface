@@ -140,7 +140,7 @@ export default function VerifyCodeModal({
       if (!email) return
       await verifyOtp({ code: otp, email }).unwrap()
       await requestWaitList({ referredByCode }).unwrap()
-      setProfile({ ...userInfo, email } as UserProfile)
+      setProfile({ profile: { ...userInfo, email } as UserProfile })
       showNotiSuccess()
     } catch (error) {
       setError(true)

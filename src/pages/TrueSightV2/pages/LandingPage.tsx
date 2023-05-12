@@ -758,7 +758,11 @@ export default function KyberAILandingPage() {
       <Part8>
         <FixedWidth>
           <CallToActionBox>
-            <Row flexDirection={above768 ? 'row' : 'column'} justifyContent={above768 ? 'flex-start' : 'center'}>
+            <Row
+              flexDirection={above768 ? 'row' : 'column'}
+              justifyContent={above768 ? 'flex-start' : 'center'}
+              gap="16px"
+            >
               <Text fontSize="36px" lineHeight="48px" style={{ flex: 2 }}>
                 <Trans>
                   Ready to experience{' '}
