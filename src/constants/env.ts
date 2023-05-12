@@ -122,7 +122,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key: string]: { [type: string]: string } } =
     [PrivateAnnouncementType.PRICE_ALERT]: '22,23',
     [PrivateAnnouncementType.LIMIT_ORDER]: '14,15,16,17',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '12,13',
-    [PrivateAnnouncementType.CROSS_CHAIN]: '37,38', // todo
+    [PrivateAnnouncementType.CROSS_CHAIN]: '25,26',
     [PrivateAnnouncementType.TRENDING_SOON]: '1',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '20,21',
     EXCLUDE: '2,11',
