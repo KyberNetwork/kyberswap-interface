@@ -1,5 +1,6 @@
 import { t } from '@lingui/macro'
 import { rgba } from 'polished'
+import { stringify } from 'querystring'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -16,9 +17,11 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { getChainIdFromSlug } from 'utils/string'
 
 import DisplaySettings from '../components/DisplaySettings'
 import ShareKyberAIModal from '../components/ShareKyberAIModal'
@@ -398,6 +401,14 @@ export default function SingleToken() {
       <>
         <MouseoverTooltip text={t`Set a price alert`} placement="top" width="fit-content">
           <HeaderButton
+            onClick={() =>
+              navigate(
+                `${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.CREATE_ALERT}?${stringify({
+                  inputCurrency: token?.address ?? '',
+                  chainId: getChainIdFromSlug(chain),
+                })}`,
+              )
+            }
             style={{
               color: theme.subText,
             }}

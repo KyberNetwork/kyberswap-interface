@@ -1,6 +1,8 @@
 import { Currency, Token } from '@kyberswap/ks-sdk-core'
 import { parse } from 'querystring'
 
+import { NETWORKS_INFO } from 'constants/networks'
+
 /**
  * ex:  nguyen hoai danh => nguyen-hoai-danh
  * @param text
@@ -36,3 +38,7 @@ export const escapeScriptHtml = (str: string) => {
 }
 
 export const isEmailValid = (value: string) => value.match(/\S+@\S+\.\S+/)
+
+export const getChainIdFromSlug = (network: string | undefined) => {
+  return Object.values(NETWORKS_INFO).find(n => n.route === network)?.chainId
+}
