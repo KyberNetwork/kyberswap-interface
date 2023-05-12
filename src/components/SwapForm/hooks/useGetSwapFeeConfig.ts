@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback } from 'react'
 import tokenApi from 'services/token'
 
-import { CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/index'
+import { CHAINS_SUPPORT_FEE_CONFIGS, ETHER_ADDRESS } from 'constants/index'
 import {
   DEFAULT_SWAP_FEE_NOT_STABLE_PAIRS,
   DEFAULT_SWAP_FEE_STABLE_PAIRS,
@@ -65,6 +65,10 @@ const useGetSwapFeeConfig = () => {
       const { score, savedAt } = getTokenScoreFromLocal(chainId, tokenAddress) || {}
       if (score && savedAt && now - savedAt < 86400) {
         return score
+      }
+
+      if (tokenAddress === ETHER_ADDRESS) {
+        return undefined
       }
 
       const { data, isError } = await triggerGetTokenScoreQuery({
