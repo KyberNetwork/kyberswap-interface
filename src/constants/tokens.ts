@@ -633,5 +633,5 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   [ChainId.GÖRLI]: KNC[ChainId.GÖRLI],
 }
 
-export const DEFAULT_SWAP_FEE_STABLE_PAIRS = 10
-export const DEFAULT_SWAP_FEE_NOT_STABLE_PAIRS = 30
+export const DEFAULT_SWAP_FEE_STABLE_PAIRS = 4
+export const DEFAULT_SWAP_FEE_NOT_STABLE_PAIRS = 10
