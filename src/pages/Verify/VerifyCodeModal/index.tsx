@@ -1,9 +1,8 @@
 import { Trans, t } from '@lingui/macro'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { X } from 'react-feather'
 import { Text } from 'rebass'
 import { useSendOtpMutation, useVerifyOtpMutation } from 'services/identity'
-import { useRequestWhiteListMutation } from 'services/kyberAISubscription'
 import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -12,13 +11,11 @@ import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import { TIMES_IN_SECS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import OTPInput from 'pages/TrueSightV2/pages/RegisterWhitelist/VerifyCodeModal/OtpInput'
 import { getErrorMessage } from 'pages/TrueSightV2/utils'
+import OTPInput from 'pages/Verify/VerifyCodeModal/OtpInput'
 import { useNotify } from 'state/application/hooks'
 import { useSaveUserProfile, useSessionInfo } from 'state/authen/hooks'
 import { UserProfile } from 'state/authen/reducer'
-
-import WaitListForm from '../WaitListForm'
 
 const Wrapper = styled.div`
   display: flex;
@@ -52,20 +49,30 @@ const Input = styled.input<{ hasError: boolean }>`
   text-align: center;
 `
 
+const formatTime = (secs: number) => {
+  const mins = (secs / 60) | 0
+  const pad = (num: number) => (num < 10 ? '0' + num : num)
+  return `${pad(mins)}:${pad(secs - mins * 60)}`
+}
+
 const timeExpire = 5
 const defaultTime = timeExpire * TIMES_IN_SECS.ONE_MIN
 export default function VerifyCodeModal({
   isOpen,
   onDismiss,
+  onVerifySuccess,
   email,
-  referredByCode,
-  showSuccess,
+  showVerifySuccess,
+  verifySuccessTitle,
+  verifySuccessContent,
 }: {
+  onVerifySuccess: () => Promise<any>
   isOpen: boolean
   onDismiss: () => void
   email: string
-  referredByCode: string
-  showSuccess?: boolean
+  showVerifySuccess?: boolean
+  verifySuccessTitle: string
+  verifySuccessContent: ReactNode
 }) {
   const theme = useTheme()
   const [otp, setOtp] = useState<string>('')
@@ -73,9 +80,7 @@ export default function VerifyCodeModal({
   const [sendOtp] = useSendOtpMutation()
   const [verifySuccess, setVerifySuccess] = useState(false)
   const [error, setError] = useState(false)
-  const [requestWaitList] = useRequestWhiteListMutation()
   const notify = useNotify()
-  const { userInfo } = useSessionInfo()
 
   const [expiredDuration, setExpireDuration] = useState(defaultTime)
   const canShowResend = expiredDuration < (timeExpire - 1) * TIMES_IN_SECS.ONE_MIN
@@ -101,12 +106,6 @@ export default function VerifyCodeModal({
     [notify],
   )
 
-  const formatTime = (secs: number) => {
-    const mins = (secs / 60) | 0
-    const pad = (num: number) => (num < 10 ? '0' + num : num)
-    return `${pad(mins)}:${pad(secs - mins * 60)}`
-  }
-
   const sendEmail = useCallback(() => {
     email && sendOtp({ email })
     interval.current && clearInterval(interval.current)
@@ -129,17 +128,18 @@ export default function VerifyCodeModal({
       }, 1000)
       checkedRegisterStatus.current = false
     } else {
-      showSuccess ? showNotiSuccess(false) : sendEmailWhenInit()
+      showVerifySuccess ? showNotiSuccess(false) : sendEmailWhenInit()
     }
-  }, [isOpen, showNotiSuccess, showSuccess, sendEmailWhenInit])
+  }, [isOpen, showNotiSuccess, showVerifySuccess, sendEmailWhenInit])
 
   const setProfile = useSaveUserProfile()
+  const { userInfo } = useSessionInfo()
 
   const verify = async () => {
     try {
       if (!email) return
       await verifyOtp({ code: otp, email }).unwrap()
-      await requestWaitList({ referredByCode }).unwrap()
+      await onVerifySuccess()
       setProfile({ profile: { ...userInfo, email } as UserProfile })
       showNotiSuccess()
     } catch (error) {
@@ -160,7 +160,7 @@ export default function VerifyCodeModal({
   const header = (
     <RowBetween>
       <Text color={theme.text} fontWeight={'500'} fontSize={'20'}>
-        {verifySuccess ? <Trans>Successful Registered</Trans> : <Trans>Verify your email address</Trans>}
+        {verifySuccess ? verifySuccessTitle : <Trans>Verify your email address</Trans>}
       </Text>
       <X color={theme.text} cursor="pointer" onClick={onDismiss} />
     </RowBetween>
@@ -172,21 +172,7 @@ export default function VerifyCodeModal({
         {verifySuccess ? (
           <Content>
             {header}
-            <WaitListForm
-              labelColor={theme.text}
-              style={{ maxWidth: '100%' }}
-              desc={
-                <Text fontSize={14} color={theme.text} lineHeight={'16px'} style={{ lineHeight: '18px' }}>
-                  <Trans>
-                    Thank you for registering your interest in the KyberAI Beta Program. Follow us on our social
-                    channels to get regular updates on KyberAI
-                  </Trans>
-                </Text>
-              }
-            />
-            <ButtonPrimary height={'36px'} onClick={onDismiss}>
-              <Trans>Awesome</Trans>
-            </ButtonPrimary>
+            {verifySuccessContent}
           </Content>
         ) : (
           <Content>
