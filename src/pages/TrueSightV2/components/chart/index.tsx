@@ -2021,14 +2021,14 @@ export const NumberofHolders = () => {
 }
 
 const COLORS = ['#00a2f7', '#31CB9E', '#FFBB28', '#F3841E', '#FF537B', '#27AE60', '#78d5ff', '#8088E5']
-const CustomLabel = ({ x, y, cx, cy, name, percentage }: any) => {
+const CustomLabel = ({ x, y, cx, cy, name, percentage, sumPercentage }: any) => {
   let customY = y
   if (Math.abs(cx - x) < 30) {
     customY = cy - y > 0 ? y - 8 : y + 8
   }
   return (
     <>
-      {(percentage as number) > 0.01 && (
+      {percentage / sumPercentage > 0.01 && (
         <text x={x} y={customY} textAnchor={x > cx ? 'start' : 'end'} fill="#31CB9E" fontSize={12}>
           {name}
         </text>
@@ -2038,10 +2038,10 @@ const CustomLabel = ({ x, y, cx, cy, name, percentage }: any) => {
 }
 
 const CustomLabelLine = (props: any) => {
-  const { percentage, points, stroke, cx, cy } = props
+  const { percentage, points, stroke, cx, cy, sumPercentage } = props
   return (
     <>
-      {percentage > 0.01 ? (
+      {percentage / sumPercentage > 0.01 ? (
         <path
           fill="none"
           d={`M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y}`}
@@ -2072,17 +2072,18 @@ export const HoldersChartWrapper = () => {
   const above768 = useMedia('(min-width:768px)')
   const { chain, address } = useParams()
   const { data } = useHolderListQuery({ address, chain })
-  const formattedData = useMemo(
+  const formattedData: Array<IHolderList & { name: string }> = useMemo(
     () =>
-      above768
-        ? data?.map((item: IHolderList) => {
-            return { ...item, name: item?.address }
-          })
-        : data?.map((item: IHolderList) => {
-            return { ...item, name: shortenAddress(1, item?.address) }
-          }),
-    [above768, data],
+      data?.map((item: IHolderList) => {
+        return { ...item, name: shortenAddress(1, item?.address) }
+      }),
+    [data],
   )
+
+  const sumPercentage = useMemo(() => {
+    return formattedData?.reduce((s, a) => s + a.percentage, 0) || 0
+  }, [formattedData])
+  console.log('🚀 ~ file: index.tsx:2086 ~ otherAddressesAmount ~ otherAddressesAmount:', sumPercentage)
 
   return (
     <ChartWrapper>
@@ -2114,8 +2115,8 @@ export const HoldersChartWrapper = () => {
           />
           <Pie
             dataKey="percentage"
-            label={CustomLabel}
-            labelLine={CustomLabelLine}
+            label={props => <CustomLabel {...props} sumPercentage={sumPercentage} />}
+            labelLine={props => <CustomLabelLine {...props} sumPercentage={sumPercentage} />}
             nameKey="name"
             data={formattedData}
             innerRadius="60%"
