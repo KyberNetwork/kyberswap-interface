@@ -387,6 +387,7 @@ export const ConfirmCrossChainModal = memo(function ConfirmCrossChainModal({
               route={route}
               minimal={false}
               showNoteGetRoute={false}
+              showTooltipPriceImpact={false}
             />
           </Flex>
         </Container>
