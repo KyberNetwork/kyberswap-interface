@@ -15,13 +15,13 @@ import Row, { RowBetween, RowFit } from 'components/Row'
 import ShareModal from 'components/ShareModal'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
+import { TRUESIGHT_NETWORK_TO_CHAINID } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-import { getChainIdFromSlug } from 'utils/string'
 
 import DisplaySettings from '../components/DisplaySettings'
 import ShareKyberAIModal from '../components/ShareKyberAIModal'
@@ -405,7 +405,7 @@ export default function SingleToken() {
               navigate(
                 `${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.CREATE_ALERT}?${stringify({
                   inputCurrency: token?.address ?? '',
-                  chainId: getChainIdFromSlug(chain),
+                  chainId: chain ? TRUESIGHT_NETWORK_TO_CHAINID[chain] : '',
                 })}`,
               )
             }
