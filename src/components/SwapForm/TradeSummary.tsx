@@ -73,12 +73,12 @@ const formatPercent = (v: number) => {
 
 type TooltipTextOfSwapFeeProps = {
   feePercentStr: string | undefined
-  feeAmount: string
+  feeAmountText: string
   feeAmountUsd: string
 }
 export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({
   feePercentStr,
-  feeAmount,
+  feeAmountText,
   feeAmountUsd,
 }) => {
   const feePercent = formatPercent(Number(feePercentStr) / Number(BIPS_BASE.toString()))
@@ -90,13 +90,13 @@ export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({
     </ExternalLink>
   )
 
-  if (!feeAmount || !feeAmountUsd) {
+  if (!feeAmountText || !feeAmountUsd) {
     return <Trans>Read more about the fees {hereLink}</Trans>
   }
 
   return (
     <Trans>
-      A {feePercent} fee ({feeAmount}) will incur on this swap. The Est. Output amount you see above is inclusive of
+      A {feePercent} fee ({feeAmountText}) will incur on this swap. The Est. Output amount you see above is inclusive of
       this fee. Read more about the fees {hereLink}
     </Trans>
   )
@@ -106,7 +106,11 @@ const SwapFee: React.FC = () => {
   const theme = useTheme()
   const { routeSummary } = useSwapFormContext()
 
-  const { feeAmount = '', feeAmountUsd = '' } = routeSummary
+  const {
+    feeAmount = '',
+    feeAmountUsd = '',
+    currency = undefined,
+  } = routeSummary
     ? calculateFee(
         routeSummary.parsedAmountIn.currency,
         routeSummary.parsedAmountOut.currency,
@@ -126,7 +130,7 @@ const SwapFee: React.FC = () => {
             text={
               <div>
                 <TooltipTextOfSwapFee
-                  feeAmount={feeAmount}
+                  feeAmountText={`${feeAmount} ${currency?.symbol || ''}`}
                   feeAmountUsd={feeAmountUsd}
                   feePercentStr={routeSummary?.extraFee?.feeAmount}
                 />

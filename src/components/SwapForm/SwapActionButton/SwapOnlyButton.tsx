@@ -18,6 +18,7 @@ import { Field } from 'state/swap/actions'
 import { useEncodeSolana } from 'state/swap/hooks'
 import { DetailedRouteSummary } from 'types/route'
 import { toCurrencyAmount } from 'utils/currencyAmount'
+import { calculateFee } from 'utils/fee'
 import { checkPriceImpact } from 'utils/prices'
 
 const CustomPrimaryButton = styled(ButtonPrimary).attrs({
@@ -81,6 +82,28 @@ const SwapOnlyButton: React.FC<Props> = ({
   const [isBuildingRoute, setBuildingRoute] = useState(false)
   const { priceImpact } = routeSummary || {}
 
+  const {
+    feeAmount,
+    feeAmountUsd,
+    currency: currencyToTakeFee,
+  } = useMemo(() => {
+    return routeSummary
+      ? calculateFee(
+          routeSummary.parsedAmountIn.currency,
+          routeSummary.parsedAmountOut.currency,
+          routeSummary.amountIn,
+          routeSummary.amountOut,
+          routeSummary.amountInUsd,
+          routeSummary.amountOutUsd,
+          routeSummary.extraFee,
+        )
+      : {
+          feeAmount: '',
+          feeAmountUsd: '',
+          currency: undefined,
+        }
+  }, [routeSummary])
+
   // the callback to execute the swap
   const swapCallback = useSwapCallbackV3(isPermitSwap)
   const priceImpactResult = checkPriceImpact(priceImpact)
@@ -107,6 +130,14 @@ const SwapOnlyButton: React.FC<Props> = ({
       gasUsd: routeSummary?.gasUsd,
       inputAmount: routeSummary?.parsedAmountIn,
       priceImpact: routeSummary?.priceImpact,
+      feeInfo: routeSummary?.extraFee?.chargeFeeBy
+        ? {
+            chargeTokenIn: routeSummary.extraFee.chargeFeeBy === 'currency_in',
+            tokenSymbol: currencyToTakeFee?.symbol || '',
+            feeUsd: routeSummary.extraFee.feeAmountUsd || feeAmountUsd,
+            feeAmount,
+          }
+        : undefined,
     })
   }
 
@@ -161,6 +192,14 @@ const SwapOnlyButton: React.FC<Props> = ({
           priceImpact: routeSummary?.priceImpact,
           outputAmountDescription,
           currentPrice,
+          feeInfo: routeSummary?.extraFee?.chargeFeeBy
+            ? {
+                chargeTokenIn: routeSummary.extraFee.chargeFeeBy === 'currency_in',
+                tokenSymbol: currencyToTakeFee?.symbol || '',
+                feeUsd: routeSummary.extraFee.feeAmountUsd || feeAmountUsd,
+                feeAmount,
+              }
+            : undefined,
         })
 
         return swapCallback(buildResult.data.routerAddress, buildResult.data.data)
@@ -168,7 +207,7 @@ const SwapOnlyButton: React.FC<Props> = ({
     }
 
     return undefined
-  }, [buildResult, swapCallback, routeSummary, mixpanelHandler])
+  }, [buildResult, currencyToTakeFee?.symbol, feeAmount, feeAmountUsd, mixpanelHandler, routeSummary, swapCallback])
 
   const onDismissModal = useCallback(() => {
     setProcessingSwap(false)

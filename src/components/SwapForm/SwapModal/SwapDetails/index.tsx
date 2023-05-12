@@ -103,21 +103,24 @@ export default function SwapDetails({
       )
     : {}
 
-  const { feeAmount: feeAmountFromBuild = '', feeAmountUsd: feeAmountUsdFromBuild = '' } =
-    routeSummary && buildData
-      ? calculateFee(
-          routeSummary.parsedAmountIn.currency,
-          routeSummary.parsedAmountOut.currency,
+  const {
+    feeAmount: feeAmountFromBuild = '',
+    feeAmountUsd: feeAmountUsdFromBuild = '',
+    currency: currencyFromBuild = undefined,
+  } = routeSummary && buildData
+    ? calculateFee(
+        routeSummary.parsedAmountIn.currency,
+        routeSummary.parsedAmountOut.currency,
 
-          buildData.amountIn,
-          buildData.amountOut,
+        buildData.amountIn,
+        buildData.amountOut,
 
-          buildData.amountInUsd,
-          buildData.amountOutUsd,
+        buildData.amountInUsd,
+        buildData.amountOutUsd,
 
-          routeSummary.extraFee,
-        )
-      : {}
+        routeSummary.extraFee,
+      )
+    : {}
 
   return (
     <>
@@ -263,7 +266,7 @@ export default function SwapDetails({
               <MouseoverTooltip
                 text={
                   <TooltipTextOfSwapFee
-                    feeAmount={feeAmountFromBuild}
+                    feeAmountText={`${feeAmountFromBuild} ${currencyFromBuild?.symbol || ''}`}
                     feeAmountUsd={feeAmountUsdFromBuild}
                     feePercentStr={routeSummary?.extraFee?.feeAmount}
                   />

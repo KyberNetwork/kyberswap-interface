@@ -46,6 +46,7 @@ export const calculateFee = (
 ): {
   feeAmount: string
   feeAmountUsd: string
+  currency?: Currency
 } => {
   if (!feeConfig.chargeFeeBy || !feeConfig.feeAmount) {
     return {
@@ -86,10 +87,11 @@ export const calculateFee = (
   }
 
   const fee = currencyAmountToTakeFee.multiply(feeAmountFraction).toSignificant(RESERVE_USD_DECIMALS)
-  feeAmount = `${formattedNum(fee, false)} ${currencyAmountToTakeFee.currency.symbol}`
+  feeAmount = formattedNum(fee, false)
 
   return {
     feeAmount,
     feeAmountUsd,
+    currency: currencyAmountToTakeFee.currency,
   }
 }
