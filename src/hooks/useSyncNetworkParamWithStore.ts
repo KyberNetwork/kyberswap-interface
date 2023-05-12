@@ -7,6 +7,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { isAuthorized, useActiveWeb3React, useEagerConnect } from 'hooks'
 import { useConnectedWallet } from 'state/authen/hooks'
 import { useIsUserManuallyDisconnect } from 'state/user/hooks'
+import { getChainIdFromSlug } from 'utils/string'
 
 import { useChangeNetwork } from './useChangeNetwork'
 
@@ -58,7 +59,7 @@ export function useSyncNetworkParamWithStore() {
       return
     }
     if (isOnInit.current) {
-      const paramChainId = Object.values(NETWORKS_INFO).find(n => n.route === params?.network)?.chainId
+      const paramChainId = getChainIdFromSlug(params?.network)
       /**
        * Try to change to network on route param on init. Exp: /swap/ethereum => try to connect to ethereum on init
        * @param isOnInit.current: make sure only run 1 time after init
