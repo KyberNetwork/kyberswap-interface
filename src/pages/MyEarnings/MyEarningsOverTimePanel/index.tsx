@@ -35,7 +35,13 @@ const MyEarningsOverTimePanel: React.FC<Props> = props => {
   return (
     <>
       <BasePanel {...props} toggleModal={toggleModal} />
-      <ZoomOutModal isOpen={isModalOpen} toggleOpen={toggleModal} isLoading={isLoading} ticks={ticks} />
+      <ZoomOutModal
+        isOpen={isModalOpen}
+        toggleOpen={toggleModal}
+        isLoading={isLoading}
+        ticks={ticks}
+        isContainerSmall={props.isContainerSmall}
+      />
     </>
   )
 }

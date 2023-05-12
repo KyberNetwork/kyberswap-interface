@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useMemo } from 'react'
+import { useMedia } from 'react-use'
 import { Box, Flex } from 'rebass'
 import { PoolEarningWithDetails } from 'services/earning'
 import styled from 'styled-components'
@@ -8,20 +9,71 @@ import styled from 'styled-components'
 import useTheme from 'hooks/useTheme'
 import { calculateEarningStatsTick, today } from 'pages/MyEarnings/utils'
 import { useAppSelector } from 'state/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 import { EarningStatsTick, EarningsBreakdown } from 'types/myEarnings'
 import { isAddress } from 'utils'
 
 import OriginalEarningsBreakdownPanel from '../EarningsBreakdownPanel'
 import OriginalMyEarningsOverTimePanel from '../MyEarningsOverTimePanel'
 
+const VerticalSeparator = () => {
+  const theme = useTheme()
+  return (
+    <Box
+      sx={{
+        flex: '0 0 1px',
+        alignSelf: 'stretch',
+        padding: '24px 0',
+        width: '1px',
+      }}
+    >
+      <Box
+        sx={{
+          width: '100%',
+          height: '100%',
+          background: theme.border,
+          opacity: 0.5,
+        }}
+      />
+    </Box>
+  )
+}
+
+const HorizontalSeparator = () => {
+  const theme = useTheme()
+  return (
+    <Box
+      sx={{
+        flex: '0 0 1px',
+        alignSelf: 'stretch',
+        width: '100%',
+        borderBottom: '1px solid transparent',
+        borderBottomColor: theme.border,
+      }}
+    />
+  )
+}
+
 const EarningsBreakdownPanel = styled(OriginalEarningsBreakdownPanel)`
   border: none;
   background: unset;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    padding: 0;
+    width: 100%;
+    flex: 0 0 auto;
+  `}
 `
 
 const MyEarningsOverTimePanel = styled(OriginalMyEarningsOverTimePanel)`
   border: none;
   background: unset;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    border-radius: 0;
+    padding: 0;
+    flex: 0 0 420px;
+  `}
 `
 
 // TODO: handle empty data in a specific chain
@@ -33,6 +85,7 @@ type Props = {
 }
 const PoolEarningsSection: React.FC<Props> = ({ poolEarning, chainId }) => {
   const theme = useTheme()
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
 
   const earningBreakdown: EarningsBreakdown | undefined = useMemo(() => {
@@ -104,6 +157,21 @@ const PoolEarningsSection: React.FC<Props> = ({ poolEarning, chainId }) => {
     return calculateEarningStatsTick(poolEarning.historicalEarning, chainId, tokensByChainId)
   }, [chainId, poolEarning.historicalEarning, tokensByChainId])
 
+  if (upToExtraSmall) {
+    return (
+      <Flex
+        sx={{
+          flexDirection: 'column',
+          gap: '16px',
+        }}
+      >
+        <EarningsBreakdownPanel isLoading={false} data={earningBreakdown} />
+        <HorizontalSeparator />
+        <MyEarningsOverTimePanel isLoading={false} ticks={ticks} isContainerSmall />
+      </Flex>
+    )
+  }
+
   return (
     <Flex
       sx={{
@@ -112,23 +180,7 @@ const PoolEarningsSection: React.FC<Props> = ({ poolEarning, chainId }) => {
       }}
     >
       <EarningsBreakdownPanel isLoading={false} data={earningBreakdown} />
-      <Box
-        sx={{
-          flex: '0 0 1px',
-          alignSelf: 'stretch',
-          padding: '24px 0',
-          width: '1px',
-        }}
-      >
-        <Box
-          sx={{
-            width: '100%',
-            height: '100%',
-            background: theme.border,
-            opacity: 0.5,
-          }}
-        />
-      </Box>
+      <VerticalSeparator />
       <MyEarningsOverTimePanel isLoading={false} ticks={ticks} />
     </Flex>
   )

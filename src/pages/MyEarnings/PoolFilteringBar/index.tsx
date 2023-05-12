@@ -1,7 +1,8 @@
 import { Trans } from '@lingui/macro'
-import { useRef } from 'react'
 import { ChevronDown } from 'react-feather'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
+import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import NotificationIcon from 'components/Icons/NotificationIcon'
@@ -10,6 +11,19 @@ import Toggle from 'components/Toggle'
 import useTheme from 'hooks/useTheme'
 import ClosedPositionsToggle from 'pages/MyEarnings/PoolFilteringBar/ClosedPositionsToggle'
 import SearchInput from 'pages/MyEarnings/PoolFilteringBar/SearchInput'
+import { MEDIA_WIDTHS } from 'theme'
+
+const ExpandAllButtonWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: nowrap;
+  cursor: pointer;
+  color: ${({ theme }) => theme.subText};
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+`
 
 const AnotherSubscribeButton = () => {
   const theme = useTheme()
@@ -32,24 +46,20 @@ const AnotherSubscribeButton = () => {
 
 const PoolFilteringBar = () => {
   const theme = useTheme()
-  const inputRef = useRef<HTMLInputElement>(null)
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
-  return (
-    <Flex
-      sx={{
-        justifyContent: 'space-between',
-        fontWeight: 500,
-        fontSize: '14px',
-        lineHeight: '20px',
-        color: theme.subText,
-      }}
-    >
+  const renderExpandAll = () => {
+    return (
       <Flex
         sx={{
           alignItems: 'center',
           gap: '4px',
-          cursor: 'pointer',
           flexWrap: 'nowrap',
+          cursor: 'pointer',
+          color: theme.subText,
+          fontWeight: 500,
+          fontSize: '14px',
+          lineHeight: '20px',
         }}
       >
         <Flex
@@ -73,28 +83,76 @@ const PoolFilteringBar = () => {
           <Trans>Expand All</Trans>
         </Text>
       </Flex>
+    )
+  }
+
+  const renderViewEarningsToggle = () => {
+    return (
+      <Flex
+        sx={{
+          alignItems: 'center',
+          gap: '8px',
+          flexWrap: 'nowrap',
+          cursor: 'pointer',
+          color: theme.subText,
+          fontWeight: 500,
+          fontSize: '14px',
+          lineHeight: '20px',
+        }}
+      >
+        <Text
+          sx={{
+            whiteSpace: 'nowrap',
+          }}
+        >
+          View Earnings
+        </Text>
+        <Toggle id="toggle-view-earnings" isActive={true} toggle={() => false} />
+      </Flex>
+    )
+  }
+
+  if (upToExtraSmall) {
+    return (
+      <Flex
+        sx={{
+          flexDirection: 'column',
+          gap: '16px',
+        }}
+      >
+        <Flex alignItems="center" justifyContent="space-between">
+          {renderExpandAll()}
+          {renderViewEarningsToggle()}
+        </Flex>
+
+        <Flex alignItems="center" justifyContent="space-between">
+          <ClosedPositionsToggle />
+          <SubscribeNotificationButton trackingEvent={undefined} />
+        </Flex>
+
+        <SearchInput />
+      </Flex>
+    )
+  }
+
+  return (
+    <Flex
+      sx={{
+        justifyContent: 'space-between',
+        fontWeight: 500,
+        fontSize: '14px',
+        lineHeight: '20px',
+        color: theme.subText,
+      }}
+    >
+      {renderExpandAll()}
       <Flex
         sx={{
           justifyContent: 'space-between',
           gap: '16px',
         }}
       >
-        <Flex
-          sx={{
-            alignItems: 'center',
-            gap: '8px',
-            flexWrap: 'nowrap',
-          }}
-        >
-          <Text
-            sx={{
-              whiteSpace: 'nowrap',
-            }}
-          >
-            View Earnings
-          </Text>
-          <Toggle id="toggle-view-earnings" isActive={true} toggle={() => false} />
-        </Flex>
+        {renderViewEarningsToggle()}
 
         <ClosedPositionsToggle />
 

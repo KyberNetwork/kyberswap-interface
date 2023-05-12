@@ -5,7 +5,8 @@ import { rgba } from 'polished'
 import { useCallback, useMemo, useState } from 'react'
 import { Share2 } from 'react-feather'
 import { Link } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
+import { useMedia } from 'react-use'
+import { Box, Flex, Text } from 'rebass'
 import { PoolEarningWithDetails, PositionEarningWithDetails } from 'services/earning'
 import styled from 'styled-components'
 
@@ -26,6 +27,7 @@ import StatsRow from 'pages/MyEarnings/SinglePool/StatsRow'
 import { today } from 'pages/MyEarnings/utils'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { useAppSelector } from 'state/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 import { isAddress, shortenAddress } from 'utils'
 
 const formatValue = (value: number) => {
@@ -57,6 +59,11 @@ const Badge = styled.div<{ $color?: string }>`
 
   color: ${({ $color, theme }) => $color || theme.subText};
   background: ${({ $color, theme }) => rgba($color || theme.subText, 0.3)};
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    height: 16px;
+    padding: 0 4px;
+  `}
 `
 
 export type Props = {
@@ -68,6 +75,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
   const theme = useTheme()
   const [isExpanded, setExpanded] = useState(false)
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
   const feeAmount = Number(poolEarning.feeTier) as FeeAmount
 
@@ -111,6 +119,175 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
 
     return earning ? formatValue(earning) : '--'
   }, [poolEarning.historicalEarning])
+
+  const renderStatsRow = () => {
+    return (
+      <StatsRow
+        currency0={currency0}
+        currency1={currency1}
+        feeAmount={feeAmount}
+        chainId={chainId}
+        totalValueLockedUsd={poolEarning.totalValueLockedUsd}
+        apr={poolEarning.apr}
+        volume24hUsd={Number(poolEarning.volumeUsd) - Number(poolEarning.volumeUsdOneDayAgo)}
+        fees24hUsd={Number(poolEarning.feesUsd) - Number(poolEarning.feesUsdOneDayAgo)}
+        renderToggleExpandButton={() => {
+          return (
+            <ButtonIcon
+              style={{
+                flex: '0 0 36px',
+                width: '36px',
+                height: '36px',
+                transform: isExpanded ? 'rotate(180deg)' : undefined,
+                transition: 'all 150ms ease',
+              }}
+              disabled={!pool}
+              onClick={toggleExpanded}
+            >
+              {poolState === PoolState.LOADING ? <Loader /> : <DropdownSVG />}
+            </ButtonIcon>
+          )
+        }}
+      />
+    )
+  }
+
+  if (upToExtraSmall) {
+    return (
+      <Flex
+        sx={{
+          flexDirection: 'column',
+          gap: '16px',
+          width: '100%',
+          padding: '16px',
+          background: theme.background,
+          border: `1px solid ${theme.border}`,
+          borderRadius: '20px',
+        }}
+      >
+        <Flex
+          sx={{
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Flex
+            sx={{
+              alignItems: 'center',
+              gap: '8px',
+            }}
+          >
+            <Flex
+              alignItems={'center'}
+              sx={{
+                gap: '4px',
+              }}
+            >
+              <Flex alignItems={'center'}>
+                <Logo srcs={[currency0?.logoURI || '']} style={{ width: 20, height: 20, borderRadius: '999px' }} />
+                <Logo srcs={[currency1?.logoURI || '']} style={{ width: 20, height: 20, borderRadius: '999px' }} />
+              </Flex>
+
+              <Text
+                sx={{
+                  fontWeight: 500,
+                  fontSize: '16px',
+                  lineHeight: '20px',
+                }}
+              >
+                {poolEarning.token0.symbol} - {poolEarning.token1.symbol}
+              </Text>
+            </Flex>
+
+            <Badge $color={theme.blue}>FEE {(Number(poolEarning.feeTier) * 100) / ELASTIC_BASE_FEE_UNIT}%</Badge>
+
+            {isFarmingPool && (
+              <MouseoverTooltip
+                noArrow
+                placement="top"
+                text={
+                  <Text>
+                    <Trans>Available for yield farming. Click {here} to go to the farm.</Trans>
+                  </Text>
+                }
+              >
+                <Badge $color={theme.apr}>
+                  <MoneyBag size={12} /> V2
+                </Badge>
+              </MouseoverTooltip>
+            )}
+          </Flex>
+        </Flex>
+
+        {renderStatsRow()}
+
+        {isExpanded && (
+          <>
+            <Flex
+              sx={{
+                width: '100%',
+                height: 0,
+                borderBottom: `1px solid transparent`,
+                borderBottomColor: theme.border,
+              }}
+            />
+            <Flex
+              sx={{
+                flexDirection: 'column',
+                gap: '12px',
+              }}
+            >
+              <Text
+                sx={{
+                  fontWeight: 500,
+                  fontSize: '16px',
+                  lineHeight: '20px',
+                  color: theme.subText,
+                }}
+              >
+                <Trans>Total Earnings</Trans>
+              </Text>
+
+              <Flex
+                alignItems="center"
+                sx={{
+                  gap: '16px',
+                }}
+              >
+                <Text
+                  sx={{
+                    fontWeight: 500,
+                    fontSize: '24px',
+                    lineHeight: '28px',
+                    color: theme.text,
+                  }}
+                >
+                  {poolEarningToday}
+                </Text>
+
+                <Flex alignItems={'center'} justifyItems={'center'} width="24px" height="24px">
+                  <Share2 width="16px" height="16px" />
+                </Flex>
+              </Flex>
+            </Flex>
+            <PoolEarningsSection poolEarning={poolEarning} chainId={chainId} />
+
+            <Box
+              sx={{
+                flex: '0 0 1px',
+                alignSelf: 'stretch',
+                width: '100%',
+                borderBottom: '1px solid transparent',
+                borderBottomColor: theme.border,
+              }}
+            />
+
+            <Positions positionEarnings={positionEarnings} chainId={chainId} pool={pool} />
+          </>
+        )}
+      </Flex>
+    )
+  }
 
   return (
     <Flex
@@ -190,33 +367,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
         </Flex>
       </Flex>
 
-      <StatsRow
-        currency0={currency0}
-        currency1={currency1}
-        feeAmount={feeAmount}
-        chainId={chainId}
-        totalValueLockedUsd={poolEarning.totalValueLockedUsd}
-        apr={poolEarning.apr}
-        volume24hUsd={Number(poolEarning.volumeUsd) - Number(poolEarning.volumeUsdOneDayAgo)}
-        fees24hUsd={Number(poolEarning.feesUsd) - Number(poolEarning.feesUsdOneDayAgo)}
-        renderToggleExpandButton={() => {
-          return (
-            <ButtonIcon
-              style={{
-                flex: '0 0 36px',
-                width: '36px',
-                height: '36px',
-                transform: isExpanded ? 'rotate(180deg)' : undefined,
-                transition: 'all 150ms ease',
-              }}
-              disabled={!pool}
-              onClick={toggleExpanded}
-            >
-              {poolState === PoolState.LOADING ? <Loader /> : <DropdownSVG />}
-            </ButtonIcon>
-          )
-        }}
-      />
+      {renderStatsRow()}
 
       {isExpanded && (
         <>

@@ -80,13 +80,15 @@ const BasePanel: React.FC<Props> = ({
         sx={{
           flexDirection: isContainerSmall ? 'column-reverse' : 'row',
           justifyContent: isContainerSmall ? undefined : 'space-between',
-          gap: '16px',
+          gap: isContainerSmall ? '4px' : '16px',
         }}
       >
         <Flex
           sx={{
-            width: 'fit-content',
-            flexDirection: 'column',
+            flex: '0 0 fit-content',
+            flexDirection: isContainerSmall ? 'row' : 'column',
+            justifyContent: isContainerSmall ? 'space-between' : undefined,
+            alignItems: isContainerSmall ? 'center' : undefined,
           }}
         >
           <Text

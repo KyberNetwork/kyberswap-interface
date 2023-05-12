@@ -280,7 +280,6 @@ const EarningPieChart: React.FC<Props> = ({ data, totalValue = '', className, is
       className={className}
       sx={{
         flexDirection: 'column',
-        minHeight: '300px',
       }}
     >
       <Flex

@@ -4,13 +4,39 @@ import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useMemo, useState } from 'react'
 import { Eye, Info } from 'react-feather'
-import { Box, Flex, Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import { PositionEarningWithDetails } from 'services/earning'
+import styled from 'styled-components'
 
 import { ButtonLight } from 'components/Button'
 import useTheme from 'hooks/useTheme'
 import SinglePosition from 'pages/MyEarnings/SinglePosition'
 import { useAppSelector } from 'state/hooks'
+
+const TitleWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    flex-direction: column;
+    align-items: initial;
+    justify-content: initial;
+  `}
+`
+
+const ListPositions = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  `}
+`
 
 type Props = {
   chainId: ChainId
@@ -41,12 +67,7 @@ const Positions: React.FC<Props> = ({ positionEarnings, chainId, pool }) => {
         gap: '24px',
       }}
     >
-      <Flex
-        sx={{
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
+      <TitleWrapper>
         <Text
           sx={{
             fontWeight: 500,
@@ -157,19 +178,13 @@ const Positions: React.FC<Props> = ({ positionEarnings, chainId, pool }) => {
             </Flex>
           ) : null}
         </Flex>
-      </Flex>
+      </TitleWrapper>
 
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: '24px',
-        }}
-      >
+      <ListPositions>
         {positionEarnings.slice(0, numberOfVisiblePositions).map(positionEarning => (
           <SinglePosition chainId={chainId} key={positionEarning.id} positionEarning={positionEarning} pool={pool} />
         ))}
-      </Box>
+      </ListPositions>
 
       {numberOfVisiblePositions < positionEarnings.length && (
         <ButtonLight

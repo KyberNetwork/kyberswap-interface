@@ -3,6 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import { Info } from 'react-feather'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { PositionEarningWithDetails, TokenEarning, useGetEarningDataQuery } from 'services/earning'
 import styled from 'styled-components'
@@ -12,14 +13,15 @@ import { NETWORKS_INFO, SUPPORTED_NETWORKS_FOR_MY_EARNINGS } from 'constants/net
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
+import ChainSelect from 'pages/MyEarnings/ChainSelect'
 import ClassicElasticTab from 'pages/MyEarnings/ClassicElasticTab'
-import CurrentChainButton from 'pages/MyEarnings/CurrentChainButton'
 import MultipleChainSelect from 'pages/MyEarnings/MultipleChainSelect'
 import PoolFilteringBar from 'pages/MyEarnings/PoolFilteringBar'
 import SinglePool, { Props as SinglePoolProps } from 'pages/MyEarnings/SinglePool'
 import TotalEarningsAndChainSelect from 'pages/MyEarnings/TotalEarningsAndChainSelect'
 import { today } from 'pages/MyEarnings/utils'
 import { useAppSelector } from 'state/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 import { EarningStatsTick, EarningsBreakdown } from 'types/myEarnings'
 import { isAddress } from 'utils'
 
@@ -46,17 +48,20 @@ const EarningsBreakdownPanel = styled(OriginalEarningsBreakdownPanel)`
   `}
 `
 
-const PageWrapper = styled.div`
-  width: 100%;
-  max-width: 1248px; // 1224px + 24px padding
-
-  height: 100%;
-
-  padding: 32px 24px 100px;
+const ChainSelectAndEarningsWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    padding-left: 16px;
-    padding-right: 16px;
+    flex-direction: column;
+    align-items: initial;
+    justify-content: initial;
+
+    ${MultipleChainSelect} {
+      flex: 1;
+    }
   `}
 `
 
@@ -118,6 +123,8 @@ function shuffle<T>(array: T[]): T[] {
 const MyEarningsSection = () => {
   const { account = '' } = useActiveWeb3React()
   const theme = useTheme()
+
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
   const selectedChainIds = useAppSelector(state => state.myEarnings.selectedChains)
   const getEarningData = useGetEarningDataQuery({ account, chainIds: selectedChainIds })
@@ -351,21 +358,13 @@ const MyEarningsSection = () => {
         gap: '24px',
       }}
     >
-      <Flex alignItems="center" justifyContent="space-between">
+      <ChainSelectAndEarningsWrapper>
         <TotalEarningsAndChainSelect
           totalEarningToday={Number(ticks?.[0]?.totalValue)}
           totalEarningYesterday={Number(ticks?.[1]?.totalValue || 0)}
         />
-        <Flex
-          alignItems="center"
-          sx={{
-            gap: '16px',
-          }}
-        >
-          <CurrentChainButton />
-          <MultipleChainSelect />
-        </Flex>
-      </Flex>
+        <ChainSelect />
+      </ChainSelectAndEarningsWrapper>
 
       <Flex
         sx={{
@@ -374,7 +373,7 @@ const MyEarningsSection = () => {
         }}
       >
         <EarningsBreakdownPanel isLoading={getEarningData.isLoading} data={earningBreakdown} />
-        <MyEarningsOverTimePanel isLoading={getEarningData.isLoading} ticks={ticks} />
+        <MyEarningsOverTimePanel isLoading={getEarningData.isLoading} ticks={ticks} isContainerSmall={upToExtraSmall} />
       </Flex>
 
       <Text

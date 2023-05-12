@@ -5,6 +5,7 @@ import { ChevronsUp, Minus } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { TokenEarning } from 'services/earning'
+import styled from 'styled-components'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import { formatUSDValue } from 'components/EarningAreaChart/utils'
@@ -22,6 +23,49 @@ import { useAppSelector } from 'state/hooks'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 import { isAddress } from 'utils'
 import { unwrappedToken } from 'utils/wrappedCurrency'
+
+const ActionButtonsWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    gap: 8px;
+
+    ${ActionButton} {
+      padding: 8px;
+      font-size: 11px;
+    }
+  `}
+`
+
+const ActionButtons = () => {
+  return (
+    <ActionButtonsWrapper>
+      <ActionButton
+        $variant="red"
+        disabled={false}
+        style={{
+          flex: 1,
+          gap: '4px',
+        }}
+      >
+        <Minus size="16px" /> <Trans>Remove Liquidity</Trans>
+      </ActionButton>
+      <ActionButton
+        $variant="green"
+        disabled={false}
+        style={{
+          flex: 1,
+          gap: '4px',
+        }}
+      >
+        <ChevronsUp size="16px" /> <Trans>Increase Liquidity</Trans>
+      </ActionButton>
+    </ActionButtonsWrapper>
+  )
+}
 
 const PositionView: React.FC<CommonProps> = props => {
   const { positionEarning, position } = props
@@ -172,34 +216,7 @@ const PositionView: React.FC<CommonProps> = props => {
           disabled={false}
         />
 
-        <Flex
-          sx={{
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '16px',
-          }}
-        >
-          <ActionButton
-            $variant="red"
-            disabled={false}
-            style={{
-              flex: 1,
-              gap: '4px',
-            }}
-          >
-            <Minus size="16px" /> <Trans>Remove Liquidity</Trans>
-          </ActionButton>
-          <ActionButton
-            $variant="green"
-            disabled={false}
-            style={{
-              flex: 1,
-              gap: '4px',
-            }}
-          >
-            <ChevronsUp size="16px" /> <Trans>Increase Liquidity</Trans>
-          </ActionButton>
-        </Flex>
+        <ActionButtons />
       </Flex>
     </CommonView>
   )

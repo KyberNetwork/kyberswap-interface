@@ -23,7 +23,7 @@ const CurrentChainButton = () => {
     <ButtonOutlined
       onClick={handleClickCurrentChain}
       disabled={!isValidNetwork}
-      padding="0 8px"
+      padding="0 16px"
       style={{
         height: '36px',
         flex: ' 0 0 fit-content',
