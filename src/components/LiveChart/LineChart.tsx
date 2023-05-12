@@ -223,13 +223,7 @@ const LineChart = ({
             domain={[dataMin, (5 * (dataMax - dataMin)) / 4]}
             hide={!showYAsis}
           />
-          <Tooltip
-            contentStyle={{ display: 'none' }}
-            formatter={(tooltipValue: any, name: string, props: any) => (
-              <HoverUpdater payload={props.payload} setHoverValue={setHoverValue} />
-            )}
-            cursor={<CustomizedCursor timeFrame={timeFrame} />}
-          />
+          <Tooltip contentStyle={{ display: 'none' }} cursor={<CustomizedCursor timeFrame={timeFrame} />} />
           <Area type="monotone" dataKey="value" stroke={color} fill="url(#colorUv)" strokeWidth={2} />
         </AreaChartWrapper>
       ) : (

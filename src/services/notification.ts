@@ -17,13 +17,6 @@ const NotificationApi = createApi({
       }),
       transformResponse: (data: any) => data?.data,
     }),
-    getConnectedWallet: builder.query<string, string>({
-      query: email => ({
-        url: `/v1/users/connected`,
-        params: { email },
-      }),
-      transformResponse: (data: any) => data?.data?.walletAddress,
-    }),
     ackTelegramSubscriptionStatus: builder.mutation<Response, string>({
       query: wallet => ({
         url: `/v1/subscription-result/telegram`,
@@ -65,7 +58,6 @@ const NotificationApi = createApi({
 })
 
 export const {
-  useLazyGetConnectedWalletQuery,
   useAckTelegramSubscriptionStatusMutation,
   useSubscribeTopicMutation,
   useUnsubscribeTopicMutation,

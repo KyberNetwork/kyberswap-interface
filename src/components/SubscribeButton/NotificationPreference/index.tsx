@@ -1,9 +1,8 @@
 import { Trans, t } from '@lingui/macro'
-import { debounce } from 'lodash'
 import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Check } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import { useAckTelegramSubscriptionStatusMutation, useLazyGetConnectedWalletQuery } from 'services/notification'
+import { useAckTelegramSubscriptionStatusMutation } from 'services/notification'
 import styled, { css } from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -18,10 +17,12 @@ import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useNotification, { Topic } from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
+import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
 import { useNotify } from 'state/application/hooks'
+import { useSessionInfo } from 'state/authen/hooks'
 import { pushUnique } from 'utils'
 import { subscribeTelegramSubscription } from 'utils/firebase'
-import getShortenAddress from 'utils/getShortenAddress'
+import { isEmailValid } from 'utils/string'
 
 const Wrapper = styled.div`
   margin: 0;
@@ -152,7 +153,6 @@ enum TAB {
 const noop = () => {
   //
 }
-const isEmailValid = (value: string) => value.match(/\S+@\S+\.\S+/)
 
 const sortGroup = (arr: Topic[]) => [...arr].sort((x, y) => y.priority - x.priority)
 
@@ -177,6 +177,16 @@ function NotificationPreference({
     userInfo,
     unsubscribeAll,
   } = useNotification()
+
+  const { userInfo: profile } = useSessionInfo()
+  const [isShowVerify, setIsShowVerify] = useState(false)
+  const showVerifyModal = () => {
+    setIsShowVerify(true)
+  }
+  const onDismissVerifyModal = () => {
+    setIsShowVerify(false)
+    onSave()
+  }
 
   const [topicGroups, setTopicGroups] = useState<Topic[]>([])
 
@@ -292,11 +302,18 @@ function NotificationPreference({
     [selectedTopic, inputEmail, userInfo, emailPendingVerified, hasErrorInput],
   )
 
+  const checkProfileAndSave = () => {
+    if (isEmailTab) validateInput(inputEmail, true)
+    if (isLoading || hasErrorInput || notFillEmail) return
+    if (!profile?.email) {
+      showVerifyModal()
+      return
+    }
+    onSave()
+  }
+
   const onSave = async () => {
     try {
-      if (isEmailTab) validateInput(inputEmail, true)
-      if (isLoading || hasErrorInput || notFillEmail) return
-
       const { unsubscribeIds, subscribeIds, subscribeNames, unsubscribeNames } = getDiffChangeTopics(topicGroupsGlobal)
       if (subscribeNames.length) {
         mixpanelHandler(MIXPANEL_TYPE.NOTIFICATION_SELECT_TOPIC, { topics: subscribeNames })
@@ -346,33 +363,10 @@ function NotificationPreference({
     }
   }
 
-  const [getConnectedWallet] = useLazyGetConnectedWalletQuery()
-  const checkEmailExist = useCallback(
-    async (email: string) => {
-      try {
-        if (!isEmailValid(email) || email === userInfo?.email) return
-        const { data: walletAddress } = await getConnectedWallet(email)
-        if (walletAddress && walletAddress !== account?.toLowerCase()) {
-          setErrorInput({
-            msg: t`Your email has already been linked to wallet ${getShortenAddress(
-              walletAddress,
-              false,
-            )}, it will be unlinked automatically if you proceed`,
-            type: 'warn',
-          })
-        }
-      } catch (error) {}
-    },
-    [account, getConnectedWallet, userInfo?.email],
-  )
-
-  const debouncedCheckEmail = useMemo(() => debounce((email: string) => checkEmailExist(email), 500), [checkEmailExist])
-
   const onChangeInput = (e: React.FormEvent<HTMLInputElement>) => {
     const value = e.currentTarget.value
     setInputEmail(value)
     validateInput(value)
-    debouncedCheckEmail(value)
   }
 
   const onChangeTopic = (topicId: number) => {
@@ -555,11 +549,17 @@ function NotificationPreference({
       <ActionButtons
         isHorizontal={!!isInNotificationCenter}
         disableButtonSave={disableButtonSave}
-        onSave={onSave}
+        onSave={checkProfileAndSave}
         isTelegramTab={isTelegramTab}
         subscribeAtLeast1Topic={subscribeAtLeast1Topic}
         onUnsubscribeAll={onUnsubscribeAll}
         isLoading={isLoading}
+      />
+      <VerifyCodeModal
+        isOpen={isShowVerify}
+        onDismiss={onDismissVerifyModal}
+        email={inputEmail}
+        onVerifySuccess={onDismissVerifyModal}
       />
     </Wrapper>
   )

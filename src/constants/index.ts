@@ -210,6 +210,10 @@ export const APP_PATHS = {
   MY_POOLS: '/myPools',
   REFERRAL: '/referral',
   DISCOVER: '/discover',
+  KYBERAI: '/KyberAI',
+  KYBERAI_ABOUT: '/KyberAI/About',
+  KYBERAI_RANKINGS: '/KyberAI/Rankings',
+  KYBERAI_EXPLORE: '/KyberAI/Explore',
   BUY_CRYPTO: '/buy-crypto',
   BRIDGE: '/bridge',
   KYBERDAO: '/kyberdao',
@@ -260,11 +264,16 @@ export const TIMES_IN_SECS = {
 }
 
 export const RTK_QUERY_TAGS = {
+  // announcement
   GET_PRIVATE_ANN_BY_ID: 'GET_PRIVATE_ANN_BY_ID',
   GET_ALL_PRIVATE_ANN: 'GET_ALL_PRIVATE_ANN',
+  GET_TOTAL_UNREAD_PRIVATE_ANN: 'GET_TOTAL_UNREAD_PRIVATE_ANN',
   GET_ALERTS: 'GET_ALERTS',
   GET_ALERTS_HISTORY: 'GET_ALERTS_HISTORY',
   GET_ALERTS_STAT: 'GET_ALERTS_STAT',
+
+  // kyber ai
+  GET_PARTICIPANT_INFO_KYBER_AI: 'GET_PARTICIPANT_INFO_KYBER_AI',
 }
 
 export const TRANSACTION_STATE_DEFAULT: TransactionFlowState = {
