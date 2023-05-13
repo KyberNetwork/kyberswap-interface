@@ -2,6 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback } from 'react'
 
 import Modal from 'components/Modal'
+import { NUM_TOKEN_SUPPORT_REACT_WINDOW } from 'components/SearchModal/bridge/CurrencyListBridge'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 import CurrencySearchBridge from './CurrencySearchBridge'
@@ -39,7 +40,7 @@ export default function CurrencySearchModalBridge({
       onDismiss={onDismiss}
       margin="auto"
       maxHeight={80}
-      height={tokens.length < 10 ? undefined : '95vh'}
+      height={tokens.length < NUM_TOKEN_SUPPORT_REACT_WINDOW ? undefined : '95vh'}
       minHeight={isOutput ? undefined : 80}
     >
       <CurrencySearchBridge

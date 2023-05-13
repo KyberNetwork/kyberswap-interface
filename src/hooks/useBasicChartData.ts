@@ -211,7 +211,7 @@ export default function useBasicChartData(
   )
 
   const { data: liveCoingeckoData } = useSWR(
-    isKyberDataNotValid && coingeckoData ? [tokenAddresses, chainId, 'live'] : null,
+    isKyberDataNotValid && coingeckoData ? [tokenAddresses, [tokens[0]?.chainId, tokens[1]?.chainId], 'live'] : null,
     fetchCoingeckoDataSWR,
     {
       refreshInterval: 60000,

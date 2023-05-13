@@ -18,6 +18,9 @@ interface TokenRowPropsBridge {
   currencyBalance: CurrencyAmount<Currency>
   style: CSSProperties
 }
+
+export const NUM_TOKEN_SUPPORT_REACT_WINDOW = 10
+
 const EMPTY_ARRAY: WrappedTokenInfo[] = []
 const CurrencyListBridge = memo(function CurrencyListV2({
   currencies,
@@ -76,7 +79,7 @@ const CurrencyListBridge = memo(function CurrencyListV2({
 
   return (
     <div style={{ flex: '1', overflow: 'hidden', height: '100%' }}>
-      {currencies.length < 10 ? (
+      {currencies.length < NUM_TOKEN_SUPPORT_REACT_WINDOW ? (
         currencies.map((item, index) => (
           <Row index={index} currency={item} key={index} currencyBalance={currencyBalances[index]} />
         ))
