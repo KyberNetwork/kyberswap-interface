@@ -105,14 +105,10 @@ export default function Swap() {
   const isShowLiveChart = useShowLiveChart()
   const isShowTradeRoutes = useShowTradeRoutes()
   const isShowTokenInfoSetting = useShowTokenInfo()
-  const qs = useParsedQueryString<{
-    highlightBox: string
-    outputCurrency: string
-    inputCurrency: string
-  }>()
+  const qs = useParsedQueryString<{ highlightBox: string }>()
   const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
   const [routeSummary, setRouteSummary] = useState<DetailedRouteSummary>()
-  const [isSelectCurrencyManually, setIsSelectCurrencyManually] = useState(false) // true when: select token input, output manualy or click rotate token.
+  const [isSelectCurrencyManually, setIsSelectCurrencyManually] = useState(false) // true when: select token input, output manually or click rotate token.
 
   const { pathname } = useLocation()
 
@@ -224,15 +220,11 @@ export default function Swap() {
   const tradeRouteComposition = useMemo(() => {
     return getTradeComposition(chainId, routeSummary?.parsedAmountIn, undefined, routeSummary?.route, defaultTokens)
   }, [chainId, defaultTokens, routeSummary])
-  // todo split by page
+
   return (
     <>
       {isSwapPage && (
         <>
-          {/**
-           * /swap/bnb/knc-to-usdt vs /swap/bnb/usdt-to-knc has same content
-           * => add canonical link that specify which is main page, => /swap/bnb/knc-to-usdt
-           */}
           <SEOSwap canonicalUrl={canonicalUrl} />
           <TutorialSwap />
         </>
@@ -311,7 +303,7 @@ export default function Swap() {
                     />
                   }
                 >
-                  <LiveChart currencies={currencies} isCrossChain={isCrossChainPage} />
+                  <LiveChart currencies={currencies} enableProChart={isSwapPage} />
                 </Suspense>
               </LiveChartWrapper>
             )}

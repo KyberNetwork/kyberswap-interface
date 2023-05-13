@@ -114,11 +114,7 @@ export default function Swap() {
   const [holidayMode] = useHolidayMode()
   const isShowTradeRoutes = useShowTradeRoutes()
   const isShowTokenInfoSetting = useShowTokenInfo()
-  const qs = useParsedQueryString<{
-    highlightBox: string
-    outputCurrency: string
-    inputCurrency: string
-  }>()
+  const qs = useParsedQueryString<{ highlightBox: string }>()
   const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
   const { pathname } = useLocation()
   const [encodeSolana] = useEncodeSolana()
@@ -259,9 +255,6 @@ export default function Swap() {
     },
     [onUserInput],
   )
-  const handleTypeOutput = useCallback((): void => {
-    // ...
-  }, [])
 
   // reset if they close warning without tokens in params
   const handleDismissTokenWarning = useCallback(() => {
@@ -455,10 +448,6 @@ export default function Swap() {
 
   return (
     <>
-      {/**
-       * /swap/bnb/knc-to-usdt vs /swap/bnb/usdt-to-knc has same content
-       * => add canonical link that specify which is main page, => /swap/bnb/knc-to-usdt
-       */}
       <SEOSwap canonicalUrl={canonicalUrl} />
       <TutorialSwap />
       <TokenWarningModal
@@ -526,7 +515,6 @@ export default function Swap() {
                         <CurrencyInputPanel
                           disabledInput
                           value={formattedAmounts[Field.OUTPUT]}
-                          onUserInput={handleTypeOutput}
                           onMax={null}
                           onHalf={null}
                           currency={currencyOut}

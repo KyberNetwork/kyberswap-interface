@@ -214,10 +214,11 @@ export default function SwapForm() {
         srcAmount: inputAmount,
         dstAmount: tokenAmountOut,
       }
-      saveTxsToDb(payload).catch(e => {
-        // todo test
-        captureExceptionCrossChain(payload, e, 'CrossChain')
-      })
+      saveTxsToDb(payload)
+        .unwrap()
+        .catch(e => {
+          captureExceptionCrossChain(payload, e, 'CrossChain')
+        })
     } catch (error) {
       console.error(error)
       setSwapState(state => ({ ...state, attemptingTxn: false, errorMessage: error?.message || error }))

@@ -80,7 +80,6 @@ export default function Tabs({ activeTab }: Props) {
   const isSwapPage = pathname.startsWith(APP_PATHS.SWAP)
   const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN)
   const onClickTab = (tab: TAB) => {
-    console.log(tab, activeTab)
     if (activeTab === tab) {
       return
     }

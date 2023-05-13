@@ -107,12 +107,11 @@ const getTimeFrameText = (timeFrame: LiveDataTimeframeEnum) => {
 
 function LiveChart({
   currencies,
-  isCrossChain = false,
+  enableProChart = true,
 }: {
   currencies: { [field in Field]?: Currency }
-  isCrossChain?: boolean
+  enableProChart?: boolean
 }) {
-  const enableProChart = !isCrossChain
   const { isSolana, networkInfo } = useActiveWeb3React()
   const isDarkMode = useIsDarkMode()
   const theme = useTheme()
@@ -191,15 +190,6 @@ function LiveChart({
   const isUnwrapingWSOL = isSolana && isWrappedToken && currencies[Field.INPUT]?.isToken
   const [hoverValue, setHoverValue] = useState<number | null>(null)
   const [timeFrame, setTimeFrame] = useState<LiveDataTimeframeEnum>(LiveDataTimeframeEnum.DAY)
-
-  // const dataChartBasicCrossChain = useBasicChartDataCrossChain(isCrossChain ? tokens : EMPTY_ARRAY, timeFrame)
-  // const dataChartBasic = useBasicChartData(isCrossChain ? EMPTY_ARRAY : tokens, timeFrame)
-
-  // const {
-  //   data: chartData,
-  //   error: basicChartError,
-  //   loading: basicChartLoading,
-  // } = isCrossChain ? dataChartBasicCrossChain : dataChartBasic
 
   const { data: chartData, error: basicChartError, loading: basicChartLoading } = useBasicChartData(tokens, timeFrame)
 

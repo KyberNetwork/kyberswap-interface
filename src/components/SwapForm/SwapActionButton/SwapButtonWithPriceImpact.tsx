@@ -50,6 +50,7 @@ export const SwapButtonWithPriceImpact = ({
   const theme = useTheme()
   const [isDegenMode] = useDegenModeManager()
   const priceImpactResult = checkPriceImpact(priceImpact || -1)
+
   if (isProcessingSwap) {
     return (
       <CustomPrimaryButton disabled $minimal={minimal}>
@@ -85,7 +86,7 @@ export const SwapButtonWithPriceImpact = ({
       </CustomPrimaryButton>
     )
   }
-  // todo refactor this file
+
   return (
     <CustomPrimaryButton
       disabled={shouldDisable}
