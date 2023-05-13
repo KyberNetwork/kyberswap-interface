@@ -101,7 +101,7 @@ export function useActiveWeb3React(): {
 
 export function useWeb3React(key?: string): Web3ReactContextInterface<Web3Provider> & { chainId?: ChainId } {
   const [searchParams] = useSearchParams()
-  const { connector, chainId, library, account, active, error, activate, setError, deactivate } = useWeb3ReactCore(key)
+  const { connector, library, chainId, account, active, error, activate, setError, deactivate } = useWeb3ReactCore(key)
   const { provider } = useKyberSwapConfig()
 
   const activateWrapped = useCallback(
