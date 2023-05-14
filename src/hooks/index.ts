@@ -13,7 +13,12 @@ import { injected, walletconnect, walletlink } from 'connectors'
 import { MOCK_ACCOUNT_EVM, MOCK_ACCOUNT_SOLANA } from 'constants/env'
 import { NETWORKS_INFO } from 'constants/networks'
 import { NetworkInfo } from 'constants/networks/type'
-import { SUPPORTED_WALLET, SUPPORTED_WALLETS, WALLETLINK_LOCALSTORAGE_NAME } from 'constants/wallets'
+import {
+  LOCALSTORAGE_LAST_WALLETKEY,
+  SUPPORTED_WALLET,
+  SUPPORTED_WALLETS,
+  WALLETLINK_LOCALSTORAGE_NAME,
+} from 'constants/wallets'
 import { AppState } from 'state'
 import { useKyberSwapConfig } from 'state/application/hooks'
 import { useIsAcceptedTerm, useIsUserManuallyDisconnect } from 'state/user/hooks'
@@ -113,6 +118,7 @@ export function useWeb3React(key?: string): Web3ReactContextInterface<Web3Provid
   const deactivateWrapped = useCallback(() => {
     return deactivate()
   }, [deactivate])
+
   return {
     connector,
     library: library || provider,
@@ -133,7 +139,10 @@ export const useWeb3Solana = () => {
 
 export async function isAuthorized(): Promise<boolean> {
   // Check if previous connected to Coinbase Link
-  if (window.localStorage.getItem(WALLETLINK_LOCALSTORAGE_NAME)) {
+  if (
+    window.localStorage.getItem(WALLETLINK_LOCALSTORAGE_NAME) ||
+    localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY) === 'WALLET_CONNECT'
+  ) {
     return true
   }
   if (!window.ethereum) {
@@ -171,7 +180,10 @@ export function useEagerConnect() {
           if (isAuthorized && window.localStorage.getItem(WALLETLINK_LOCALSTORAGE_NAME) && !isManuallyDisconnect) {
             activate(walletlink)
           } else if (isAuthorized && !isManuallyDisconnect) {
-            activate(injected, undefined, true)
+            const lastWalletKey = localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY)
+            const wallet = lastWalletKey && SUPPORTED_WALLETS[lastWalletKey]
+            if (wallet && isEVMWallet(wallet)) activate(wallet.connector, undefined, true)
+            else activate(injected, undefined, true)
           } else if (isMobile && window.ethereum) {
             activate(injected, undefined, true)
           }
