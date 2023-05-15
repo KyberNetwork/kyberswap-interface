@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import Column from 'components/Column'
 import LightBulb from 'components/Icons/LightBulb'
 import StakeIcon from 'components/Icons/Stake'
+import UtilityIcon from 'components/Icons/Utility'
 import VoteIcon from 'components/Icons/Vote'
 import { APP_PATHS } from 'constants/index'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -35,17 +36,17 @@ const KyberDAONavGroup = () => {
         }
         dropdownContent={
           <Column>
-            <StyledNavLink id={`kyberdao-stake-knc`} to={APP_PATHS.KYBERDAO_STAKE} style={{ gap: '4px' }}>
+            <StyledNavLink id="kyberdao-stake-knc" to={APP_PATHS.KYBERDAO_STAKE} style={{ gap: '4px' }}>
               <StakeIcon />
               <Trans>Stake KNC</Trans>
             </StyledNavLink>
-            <StyledNavLink id={`kyberdao-vote`} to={APP_PATHS.KYBERDAO_VOTE} style={{ gap: '4px' }}>
+            <StyledNavLink id="kyberdao-vote" to={APP_PATHS.KYBERDAO_VOTE} style={{ gap: '4px' }}>
               <VoteIcon />
               <Trans>Vote</Trans>
             </StyledNavLink>
             <StyledNavExternalLink
-              id={`kyberdao-feature-request`}
-              href={'https://kyberswap.canny.io/feature-request'}
+              id="kyberdao-feature-request"
+              href="https://kyberswap.canny.io/feature-request"
               target="_blank"
               style={{ gap: '4px' }}
               onClick={() => {
@@ -55,6 +56,10 @@ const KyberDAONavGroup = () => {
               <LightBulb />
               <Trans>Feature Request</Trans>
             </StyledNavExternalLink>
+            <StyledNavLink id="knc-utility" to={APP_PATHS.KYBERDAO_KNC_UTILITY} style={{ gap: '4px' }}>
+              <UtilityIcon />
+              <Trans>KNC Utility</Trans>
+            </StyledNavLink>
           </Column>
         }
       />
