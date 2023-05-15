@@ -63,10 +63,16 @@ const useGetRoute = (args: ArgsGetRoute) => {
 
   const triggerDebounced = useMemo(
     () =>
-      debounce(async (args: { url: string; params: GetRouteParams; authentication: boolean }) => {
-        await trigger(args)
-        dismissSwapModalFlag.current = false
-      }, INPUT_DEBOUNCE_TIME),
+      debounce(
+        async (args: { url: string; params: GetRouteParams; authentication: boolean }) => {
+          await trigger(args)
+          dismissSwapModalFlag.current = false
+        },
+        INPUT_DEBOUNCE_TIME,
+        {
+          leading: true,
+        },
+      ),
     [trigger],
   )
 
