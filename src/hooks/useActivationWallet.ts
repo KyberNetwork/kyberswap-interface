@@ -5,15 +5,17 @@ import { UnsupportedChainIdError } from '@web3-react/core'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { useCallback } from 'react'
 
-import { walletlink } from 'connectors'
-import { SUPPORTED_WALLET, SUPPORTED_WALLETS, WALLETLINK_LOCALSTORAGE_NAME } from 'constants/wallets'
+import { walletconnect, walletlink } from 'connectors'
+import { LS_LAST_WALLETKEY, SUPPORTED_WALLET, SUPPORTED_WALLETS, WALLETLINK_LOCALSTORAGE_NAME } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useIsUserManuallyDisconnect } from 'state/user/hooks'
 import { isEVMWallet, isSolanaWallet } from 'utils'
 
 export const useActivationWallet = () => {
   const { activate, deactivate, connector: activeConnector, library } = useWeb3React()
   const { select, wallet: solanaWallet } = useWallet()
   const { isSolana, isEVM, chainId } = useActiveWeb3React()
+  const [, setIsUserManuallyDisconnect] = useIsUserManuallyDisconnect()
   const tryActivationEVM = useCallback(
     async (connector: AbstractConnector | undefined) => {
       // if the connector is walletconnect and the user has already tried to connect, manually reset the connector
@@ -28,14 +30,16 @@ export const useActivationWallet = () => {
           }
           await activate(connector, undefined, true)
           const activeProvider = library?.provider ?? window.ethereum
-          activeProvider?.request?.({
-            method: 'wallet_switchEthereumChain',
-            params: [
-              {
-                chainId: '0x' + Number(chainId).toString(16),
-              },
-            ],
-          })
+          if (connector !== walletconnect) {
+            activeProvider?.request?.({
+              method: 'wallet_switchEthereumChain',
+              params: [
+                {
+                  chainId: '0x' + Number(chainId).toString(16),
+                },
+              ],
+            })
+          }
         } catch (error) {
           if (error instanceof UnsupportedChainIdError) {
             await activate(connector)
@@ -61,6 +65,7 @@ export const useActivationWallet = () => {
 
   const tryActivation = useCallback(
     async (walletKey: SUPPORTED_WALLET) => {
+      setIsUserManuallyDisconnect(false)
       const wallet = SUPPORTED_WALLETS[walletKey]
       try {
         if (isEVM && isEVMWallet(wallet) && !wallet.href) {
@@ -77,19 +82,29 @@ export const useActivationWallet = () => {
               return false
             })
             provider && (await ethereum.setSelectedProvider(provider))
-            await deactivate()
+            deactivate()
           }
 
+          localStorage.setItem(LS_LAST_WALLETKEY, walletKey.toString())
           await tryActivationEVM(wallet.connector)
         }
         if (isSolana && isSolanaWallet(wallet) && wallet.adapter !== solanaWallet?.adapter) {
           await tryActivationSolana(wallet.adapter)
         }
       } catch (err) {
+        localStorage.removeItem(LS_LAST_WALLETKEY)
         throw err
       }
     },
-    [isSolana, isEVM, solanaWallet?.adapter, tryActivationEVM, tryActivationSolana, deactivate],
+    [
+      setIsUserManuallyDisconnect,
+      isSolana,
+      isEVM,
+      solanaWallet?.adapter,
+      tryActivationEVM,
+      tryActivationSolana,
+      deactivate,
+    ],
   )
 
   return {

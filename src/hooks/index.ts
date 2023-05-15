@@ -13,7 +13,7 @@ import { injected, trustWalletConnector, walletconnect, walletlink } from 'conne
 import { MOCK_ACCOUNT_EVM, MOCK_ACCOUNT_SOLANA } from 'constants/env'
 import { NETWORKS_INFO } from 'constants/networks'
 import { NetworkInfo } from 'constants/networks/type'
-import { SUPPORTED_WALLET, SUPPORTED_WALLETS, WALLETLINK_LOCALSTORAGE_NAME } from 'constants/wallets'
+import { LS_LAST_WALLETKEY, SUPPORTED_WALLET, SUPPORTED_WALLETS, WALLETLINK_LOCALSTORAGE_NAME } from 'constants/wallets'
 import { AppState } from 'state'
 import { useKyberSwapConfig } from 'state/application/hooks'
 import { useConnectedWallet } from 'state/authen/hooks'
@@ -114,6 +114,7 @@ export function useWeb3React(key?: string): Web3ReactContextInterface<Web3Provid
   const deactivateWrapped = useCallback(() => {
     return deactivate()
   }, [deactivate])
+
   return {
     connector,
     library: library || provider,
@@ -134,7 +135,11 @@ export const useWeb3Solana = () => {
 
 export async function isAuthorized(getAccount = false): Promise<string | boolean> {
   // Check if previous connected to Coinbase Link
-  if (window.localStorage.getItem(WALLETLINK_LOCALSTORAGE_NAME) && !getAccount) {
+  if (
+    (window.localStorage.getItem(WALLETLINK_LOCALSTORAGE_NAME) ||
+      localStorage.getItem(LS_LAST_WALLETKEY) === 'WALLET_CONNECT') &&
+    !getAccount
+  ) {
     return true
   }
   if (!window.ethereum) {
@@ -177,7 +182,9 @@ export function useEagerConnect() {
           connector = walletlink
           throwError = false
         } else if ((authorized && !isManuallyDisconnect) || (isMobile && window.ethereum)) {
-          connector = injected
+          const lastWalletKey = localStorage.getItem(LS_LAST_WALLETKEY)
+          const wallet = lastWalletKey && SUPPORTED_WALLETS[lastWalletKey]
+          connector = wallet && isEVMWallet(wallet) ? wallet.connector : injected
         } else if (detectedWallet === 'TRUST_WALLET' && !isManuallyDisconnect) {
           connector = trustWalletConnector
         } else if (detectedWallet === 'WALLET_CONNECT' && !isManuallyDisconnect) {
