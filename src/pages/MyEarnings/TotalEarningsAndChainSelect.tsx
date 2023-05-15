@@ -1,5 +1,4 @@
 import { rgba } from 'polished'
-import { Share2 } from 'react-feather'
 import { Button, Flex } from 'rebass'
 import { useLazyGetEarningDataQuery } from 'services/earning'
 import styled from 'styled-components'
@@ -7,6 +6,7 @@ import styled from 'styled-components'
 import { ReactComponent as RefreshIcon } from 'assets/svg/refresh.svg'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import ShareTotalEarningsButton from 'pages/MyEarnings/ShareTotalEarningsButton'
 import { useAppSelector } from 'state/hooks'
 
 // TODO: move to common
@@ -92,6 +92,8 @@ const TotalEarningsAndChainSelect: React.FC<Props> = ({ totalEarningToday, total
     return <Value>--</Value>
   }
 
+  const totalValue = formatValue(totalEarningToday)
+
   const diffPercent =
     totalEarningYesterday && !Number.isNaN(totalEarningYesterday)
       ? formatPercent(totalEarningToday / totalEarningYesterday - 1)
@@ -106,7 +108,7 @@ const TotalEarningsAndChainSelect: React.FC<Props> = ({ totalEarningToday, total
         maxWidth: '100%',
       }}
     >
-      <Value>{formatValue(totalEarningToday)}</Value>
+      <Value>{totalValue}</Value>
 
       <Flex
         sx={{
@@ -136,20 +138,7 @@ const TotalEarningsAndChainSelect: React.FC<Props> = ({ totalEarningToday, total
           </Flex>
         ) : null}
 
-        <Flex
-          sx={{
-            flex: '0 0 36px',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '36px',
-            borderRadius: '999px',
-            color: theme.subText,
-            background: theme.background,
-          }}
-        >
-          <Share2 size="16px" />
-        </Flex>
-
+        <ShareTotalEarningsButton totalValue={totalValue} />
         <RefreshButton />
       </Flex>
     </Flex>

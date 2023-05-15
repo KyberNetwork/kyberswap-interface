@@ -3,7 +3,6 @@ import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Share2 } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
@@ -23,6 +22,7 @@ import { usePoolv2 } from 'hooks/usePoolv2'
 import useTheme from 'hooks/useTheme'
 import Positions from 'pages/MyEarnings/Positions'
 import PoolEarningsSection from 'pages/MyEarnings/SinglePool/PoolEarningsSection'
+import SharePoolEarningsButton from 'pages/MyEarnings/SinglePool/SharePoolEarningsButton'
 import StatsRow from 'pages/MyEarnings/SinglePool/StatsRow'
 import { today } from 'pages/MyEarnings/utils'
 import { ButtonIcon } from 'pages/Pools/styleds'
@@ -43,13 +43,11 @@ const formatValue = (value: number) => {
 }
 
 const Badge = styled.div<{ $color?: string }>`
-  height: 32px;
-
   display: flex;
   align-items: center;
   gap: 4px;
 
-  padding: 0 8px;
+  padding: 2px 8px;
   font-weight: 500;
   font-size: 12px;
   line-height: 16px;
@@ -125,6 +123,8 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
   useEffect(() => {
     setExpanded(shouldExpandAllPools)
   }, [shouldExpandAllPools])
+
+  const feePercent = (Number(poolEarning.feeTier) * 100) / ELASTIC_BASE_FEE_UNIT + '%'
 
   const renderStatsRow = () => {
     return (
@@ -205,7 +205,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
               </Text>
             </Flex>
 
-            <Badge $color={theme.blue}>FEE {(Number(poolEarning.feeTier) * 100) / ELASTIC_BASE_FEE_UNIT}%</Badge>
+            <Badge $color={theme.blue}>FEE {feePercent}</Badge>
 
             {isFarmingPool && (
               <MouseoverTooltip
@@ -271,9 +271,12 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
                   {poolEarningToday}
                 </Text>
 
-                <Flex alignItems={'center'} justifyItems={'center'} width="24px" height="24px">
-                  <Share2 width="16px" height="16px" />
-                </Flex>
+                <SharePoolEarningsButton
+                  totalValue={poolEarningToday}
+                  currency0={currency0}
+                  currency1={currency1}
+                  feePercent={feePercent}
+                />
               </Flex>
             </Flex>
             <PoolEarningsSection poolEarning={poolEarning} chainId={chainId} />
@@ -341,7 +344,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
             </Text>
           </Flex>
 
-          <Badge $color={theme.blue}>FEE {(Number(poolEarning.feeTier) * 100) / ELASTIC_BASE_FEE_UNIT}%</Badge>
+          <Badge $color={theme.blue}>FEE {feePercent}</Badge>
 
           {isFarmingPool && (
             <MouseoverTooltip
@@ -419,9 +422,12 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
                 {poolEarningToday}
               </Text>
 
-              <Flex alignItems={'center'} justifyItems={'center'} width="24px" height="24px">
-                <Share2 width="16px" height="16px" />
-              </Flex>
+              <SharePoolEarningsButton
+                totalValue={poolEarningToday}
+                currency0={currency0}
+                currency1={currency1}
+                feePercent={feePercent}
+              />
             </Flex>
           </Flex>
           <PoolEarningsSection poolEarning={poolEarning} chainId={chainId} />
