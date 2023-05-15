@@ -73,6 +73,7 @@ export default function ElasticLegacy() {
               pendingRewards: reward?.pending_rewards || [],
             }
           })}
+          pendingRewards={(farmRewardData || []).map(item => item.pending_rewards).flat()}
         />
       )}
       {tab === 'position' && <PositionLegacy positions={[...positions, ...farmPositions]} />}

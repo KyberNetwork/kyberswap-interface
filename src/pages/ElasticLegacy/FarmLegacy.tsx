@@ -94,41 +94,40 @@ interface FarmPosition extends SubgraphPosition {
 
 export default function FarmLegacy({
   farmPositions,
+  pendingRewards,
   claimInfo,
 }: {
   farmPositions: FarmPosition[]
   claimInfo: { address: string; encodedData: string } | null
+  pendingRewards: Array<{ amount: string; token_address: string }>
 }) {
   const { chainId } = useActiveWeb3React()
 
   const addresses = [
     ...new Set(
       farmPositions
-        .map(item => [
-          item.token0.id,
-          item.token1.id,
-          ...item.pendingRewards.map(p =>
+        .map(item => [item.token0.id, item.token1.id])
+        .flat()
+        .concat(
+          pendingRewards.map(p =>
             p.token_address === ZERO_ADDRESS ? NativeCurrencies[chainId].wrapped.address : p.token_address,
           ),
-        ])
-        .flat(),
+        ),
     ),
   ]
 
   const tokenPrices = useTokenPrices(addresses)
   const allTokens = useAllTokens(true)
 
-  const unclaimedUSD = farmPositions.reduce((total, item) => {
-    item.pendingRewards.forEach(rw => {
-      const address = rw.token_address === ZERO_ADDRESS ? NativeCurrencies[chainId].wrapped.address : rw.token_address
-      const price = tokenPrices[address] || 0
-      if (rw.token_address === ZERO_ADDRESS) {
-        total += +CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], rw.amount).toExact() * price
-      } else {
-        const token = allTokens[address.toLowerCase()]
-        if (token) total += +CurrencyAmount.fromRawAmount(token, rw.amount).toExact() * price
-      }
-    })
+  const unclaimedUSD = pendingRewards.reduce((total, item) => {
+    const address = item.token_address === ZERO_ADDRESS ? NativeCurrencies[chainId].wrapped.address : item.token_address
+    const price = tokenPrices[address] || 0
+    if (item.token_address === ZERO_ADDRESS) {
+      total += +CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], item.amount).toExact() * price
+    } else {
+      const token = allTokens[address.toLowerCase()]
+      if (token) total += +CurrencyAmount.fromRawAmount(token, item.amount).toExact() * price
+    }
 
     return total
   }, 0)
