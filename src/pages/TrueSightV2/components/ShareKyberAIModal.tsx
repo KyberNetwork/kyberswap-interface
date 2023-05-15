@@ -1,11 +1,13 @@
 import { Trans } from '@lingui/macro'
+import axios from 'axios'
 import html2canvas from 'html2canvas'
 import { QRCodeSVG } from 'qrcode.react'
-import { useEffect, useRef, useState } from 'react'
+import { ReactNode, useEffect, useRef, useState } from 'react'
 import { X } from 'react-feather'
 import { useParams } from 'react-router-dom'
 import { Text } from 'rebass'
-import styled from 'styled-components'
+import { useCreateShareLinkMutation, useUploadImageMutation } from 'services/kyberAISubscription'
+import styled, { css } from 'styled-components'
 
 import modalBackground from 'assets/images/truesight-v2/modal_background.png'
 import Icon from 'components/Icons/Icon'
@@ -16,6 +18,7 @@ import useCopyClipboard from 'hooks/useCopyClipboard'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
+import { ExternalLink } from 'theme'
 
 import { NETWORK_IMAGE_URL } from '../constants'
 import { ITokenOverview } from '../types'
@@ -30,26 +33,40 @@ const Wrapper = styled.div`
   flex-direction: column;
   gap: 16px;
   width: 100%;
+
+  .timeframelegend {
+    display: none;
+  }
 `
 
 const Input = styled.input`
-  padding-left: 16px;
+  background-color: transparent;
+  height: 34px;
+  color: ${({ theme }) => theme.text};
+  :focus {
+  }
+  outline: none;
+  box-shadow: none;
+  width: 95%;
+  border: none;
+`
+const InputWrapper = styled.div`
   background-color: ${({ theme }) => theme.buttonBlack};
   height: 36px;
+  padding-left: 16px;
   border-radius: 20px;
   border: 1px solid ${({ theme }) => theme.border};
   flex: 1;
-  color: ${({ theme }) => theme.text};
+  display: flex;
 `
 
-const IconButton = styled.div`
+const IconButton = styled.div<{ disabled?: boolean }>`
   height: 36px;
   width: 36px;
   display: flex;
   justify-content: center;
   align-items: center;
   background-color: ${({ theme }) => theme.subText + '32'};
-  color: ${({ theme }) => theme.subText};
   border-radius: 18px;
   cursor: pointer;
   :hover {
@@ -58,6 +75,21 @@ const IconButton = styled.div`
   :active {
     box-shadow: 0 2px 4px 4px rgba(0, 0, 0, 0.2);
   }
+  color: ${({ theme }) => theme.subText} !important;
+
+  a {
+    color: ${({ theme }) => theme.subText} !important;
+  }
+  ${({ disabled }) =>
+    disabled &&
+    css`
+      cursor: default;
+      pointer-events: none;
+      color: ${({ theme }) => theme.subText + '80'} !important;
+      a {
+        color: ${({ theme }) => theme.subText + '80'} !important;
+      }
+    `}
 `
 const ImageWrapper = styled.div`
   border-radius: 8px;
@@ -100,39 +132,86 @@ const Loader = styled.div`
   z-index: 4;
 `
 
-const SHARING_API = 'https://share-with-image-server.vercel.app'
+const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 
-export default function ShareKyberAIModal({ token }: { token?: ITokenOverview }) {
+function generateRandomString(length: number) {
+  let result = ''
+  const charactersLength = characters.length
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength))
+  }
+
+  return result
+}
+
+export default function ShareKyberAIModal({
+  token,
+  title,
+  content,
+}: {
+  token?: ITokenOverview
+  title?: string
+  content?: ReactNode
+}) {
   const theme = useTheme()
   const isOpen = useModalOpen(ApplicationModal.KYBERAI_SHARE)
   const toggle = useToggleModal(ApplicationModal.KYBERAI_SHARE)
   const ref = useRef<HTMLDivElement>(null)
+  const tokenImgRef = useRef<HTMLImageElement>(null)
   const [loading, setLoading] = useState(true)
   const [sharingUrl, setSharingUrl] = useState('')
+  const [imageUrl, setImageUrl] = useState('')
   const { chain } = useParams()
-  const canvasRef = useRef<string | null>(null)
+  const [uploadImage] = useUploadImageMutation()
+  const [createShareLink] = useCreateShareLinkMutation()
   const handleGenerateImage = async () => {
-    if (isOpen && ref.current && loading && sharingUrl === '') {
+    if (isOpen && ref.current && loading && sharingUrl === '' && tokenImgRef.current) {
       try {
-        const canvasData = await html2canvas(ref.current, { allowTaint: true, useCORS: true })
-        const dataUrl = canvasData.toDataURL()
-        canvasRef.current = dataUrl
-        const formData = new FormData()
-        formData.append('file', dataUrl)
-        const res = await fetch(SHARING_API + '/upload', {
-          method: 'post',
-          body: formData,
-          mode: 'cors',
+        const canvasData = await html2canvas(ref.current, {
+          allowTaint: true,
+          useCORS: true,
         })
-        if (res.ok) {
-          const url = await res.text()
-          const sharingUrl = `${SHARING_API}/?imageurl=${url}&redirecturl=${window.location.href}`
-          setSharingUrl(sharingUrl)
-          setLoading(false)
-        } else {
-          console.log(res)
-          setLoading(false)
-        }
+        // const context = canvasData.getContext('2d')
+        // const img = new Image()
+        // const offsets = tokenImgRef.current?.getBoundingClientRect()
+        // const imgTop = offsets?.top || 0
+        // const imgLeft = offsets?.left || 0
+
+        // const offsetsContainer = ref.current?.getBoundingClientRect()
+        // const imageLeft = imgLeft - (offsetsContainer.left || 0)
+        // const imageTop = imgTop - (offsetsContainer.top || 0)
+        // img.src = tokenImgRef.current?.src || ''
+        // img.onload = () => {
+        //   context?.drawImage(img, imageLeft, imageTop) // draws the image at the specified x and y location
+        // }
+
+        canvasData.toBlob(async blob => {
+          if (blob) {
+            const fileName = `${generateRandomString(16)}.png`
+            const file = new File([blob], fileName, { type: 'image/png' })
+            const res: any = await uploadImage({
+              fileName,
+            })
+            if (res.data.code === 0) {
+              const url = res.data.data.signedURL
+              await axios({
+                url,
+                method: 'PUT',
+                data: file,
+                headers: {
+                  'Content-Type': 'image/png',
+                },
+              })
+              const imageUrl = `https://storage.googleapis.com/ks-setting-a3aa20b7/${fileName}`
+              setImageUrl(imageUrl)
+              const res2: any = await createShareLink({ metaImageUrl: imageUrl, redirectURL: window.location.href })
+              if (res2?.data?.code === 0) {
+                setSharingUrl(res2.data.data.link)
+              }
+              setLoading(false)
+            }
+          }
+        }, 'image/png')
       } catch (err) {
         console.log(err)
         setLoading(false)
@@ -146,7 +225,7 @@ export default function ShareKyberAIModal({ token }: { token?: ITokenOverview })
     }
     setTimeout(() => {
       handleGenerateImage()
-    }, 1000)
+    }, 2000)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
 
@@ -154,6 +233,26 @@ export default function ShareKyberAIModal({ token }: { token?: ITokenOverview })
   const handleCopyClick = () => {
     staticCopy(sharingUrl)
   }
+  const handleImageCopyClick = () => {
+    console.log(1)
+  }
+  const handleDownloadClick = () => {
+    if (imageUrl) {
+      fetch(imageUrl)
+        .then(response => response.blob())
+        .then(blob => {
+          const url = URL.createObjectURL(blob)
+          const link = document.createElement('a')
+          link.href = url
+          link.download = 'kyberAI_share_image.png' // Set a custom filename if desired
+          document.body.appendChild(link)
+          link.click()
+          document.body.removeChild(link)
+        })
+        .catch(err => console.log(err))
+    }
+  }
+
   return (
     <Modal isOpen={isOpen} width="880px" maxWidth="880px">
       <Wrapper>
@@ -164,20 +263,30 @@ export default function ShareKyberAIModal({ token }: { token?: ITokenOverview })
           <X style={{ cursor: 'pointer' }} onClick={toggle} />
         </RowBetween>
         <Row gap="12px">
-          <Input value={sharingUrl} />
-          <IconButton>
-            <Icon id="telegram" size={20} />
+          <InputWrapper>
+            <Input value={sharingUrl} autoFocus={false} disabled={!sharingUrl} />
+          </InputWrapper>
+          <IconButton disabled={!sharingUrl}>
+            <ExternalLink href={'https://telegram.me/share/url?url=' + encodeURIComponent(sharingUrl)}>
+              <Icon id="telegram" size={20} />
+            </ExternalLink>
           </IconButton>
-          <IconButton>
-            <Icon id="twitter" size={20} />
+          <IconButton disabled={!sharingUrl}>
+            <ExternalLink href={'https://twitter.com/intent/tweet?text=' + encodeURIComponent(sharingUrl)}>
+              <Icon id="twitter" size={20} />
+            </ExternalLink>
           </IconButton>
-          <IconButton>
-            <Icon id="facebook" size={20} />
+          <IconButton disabled={!sharingUrl}>
+            <ExternalLink href={'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(sharingUrl)}>
+              <Icon id="facebook" size={20} />
+            </ExternalLink>
           </IconButton>
-          <IconButton>
-            <Icon id="discord" size={20} />
+          <IconButton disabled={!sharingUrl}>
+            <ExternalLink href="https://discord.com/app/">
+              <Icon id="discord" size={20} />
+            </ExternalLink>
           </IconButton>
-          <IconButton onClick={handleCopyClick}>
+          <IconButton disabled={!sharingUrl} onClick={handleCopyClick}>
             <Icon id="copy" size={20} />
           </IconButton>
         </Row>
@@ -193,6 +302,8 @@ export default function ShareKyberAIModal({ token }: { token?: ITokenOverview })
                         width="36px"
                         height="36px"
                         style={{ background: 'white', display: 'block' }}
+                        crossOrigin="anonymous"
+                        ref={tokenImgRef}
                       />
                     </div>
                     <div
@@ -202,6 +313,7 @@ export default function ShareKyberAIModal({ token }: { token?: ITokenOverview })
                         right: '-4px',
                         borderRadius: '50%',
                         border: `1px solid ${theme.background}`,
+                        background: theme.tableHeader,
                       }}
                     >
                       <img
@@ -229,31 +341,33 @@ export default function ShareKyberAIModal({ token }: { token?: ITokenOverview })
                   />
                 </RowFit>
               </RowBetween>
+              <Row>
+                <Text fontSize="24px" lineHeight="28px">
+                  {title}
+                </Text>
+              </Row>
               <Row style={{ zIndex: 2, width: '100%', height: '100%', alignItems: 'stretch' }}>
-                <NumberofTradesChart noTimeframe noAnimation />
+                {content || <NumberofTradesChart noAnimation />}
               </Row>
             </ImageInner>
           )}
-          <>
-            {canvasRef.current && (
-              <img src={canvasRef.current} alt="KyberAI share" style={{ height: '100%', width: '100%' }} />
-            )}
-          </>
-          {loading && (
+          {loading ? (
             <Loader>
               <AnimatedLoader />
             </Loader>
+          ) : (
+            <>{imageUrl && <img src={imageUrl} alt="KyberAI share" style={{ height: '100%', width: '100%' }} />}</>
           )}
         </ImageWrapper>
         <RowBetween style={{ color: theme.subText }}>
-          <IconButton>
+          <IconButton disabled={!imageUrl}>
             <Icon id="devices" size={20} />
           </IconButton>
           <RowFit gap="12px">
-            <IconButton>
+            <IconButton disabled={!imageUrl} onClick={handleDownloadClick}>
               <Icon id="download" size={20} />
             </IconButton>
-            <IconButton onClick={handleCopyClick}>
+            <IconButton disabled={!imageUrl} onClick={handleImageCopyClick}>
               <Icon id="copy" size={20} />
             </IconButton>
           </RowFit>

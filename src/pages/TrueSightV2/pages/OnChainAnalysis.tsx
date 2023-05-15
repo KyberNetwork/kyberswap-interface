@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -26,7 +26,11 @@ const Wrapper = styled.div`
   width: 100%;
 `
 
-export default function OnChainAnalysis({ onShareClick }: { onShareClick: (url: string) => void }) {
+export default function OnChainAnalysis({
+  onShareClick,
+}: {
+  onShareClick: (content: ReactNode, title: string) => void
+}) {
   const theme = useTheme()
   const [netflowToWhaleWallets, setNetflowToWhaleWallets] = useState<ChartTab>(ChartTab.First)
   const [netflowToCEX, setNetflowToCEX] = useState<ChartTab>(ChartTab.First)
@@ -36,9 +40,8 @@ export default function OnChainAnalysis({ onShareClick }: { onShareClick: (url: 
     if (!window.location.hash) return
     document.getElementById(window.location.hash.replace('#', ''))?.scrollIntoView({ behavior: 'smooth' })
   }, [])
-  const handleShareClick = (tag?: string) => {
-    const { origin, pathname, search } = window.location
-    onShareClick(origin + pathname + search + (!!tag ? `#${tag}` : ''))
+  const handleShareClick = (content: ReactNode, title: string) => {
+    onShareClick(content, title)
   }
 
   return (
@@ -174,7 +177,6 @@ export default function OnChainAnalysis({ onShareClick }: { onShareClick: (url: 
         show={tokenAnalysisSettings?.top10Holders}
         title={t`Top 10 Holders`}
         id="top10holders"
-        shareButton
         onShareClick={handleShareClick}
         style={{ height: 'fit-content' }}
       >
