@@ -1,4 +1,4 @@
-import { t } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
@@ -302,9 +302,11 @@ export default function SingleToken() {
   const RenderHeader = () => {
     const TokenNameGroup = () => (
       <>
-        <ButtonIcon onClick={() => navigate(APP_PATHS.KYBERAI_RANKINGS)}>
-          <ChevronLeft size={24} />
-        </ButtonIcon>
+        <SimpleTooltip text={t`Go back Ranking page`}>
+          <ButtonIcon onClick={() => navigate(-1)}>
+            <ChevronLeft size={24} />
+          </ButtonIcon>
+        </SimpleTooltip>
         <SimpleTooltip text={isWatched ? t`Remove from watchlist` : t`Add to watchlist`}>
           <HeaderButton
             style={{
@@ -492,7 +494,7 @@ export default function SingleToken() {
         })}
         {!viewAllTag && token?.tags && token.tags.length > 5 && (
           <Tag active onClick={() => setViewAllTag(true)}>
-            View All
+            <Trans>View all</Trans>
           </Tag>
         )}
       </TagWrapper>

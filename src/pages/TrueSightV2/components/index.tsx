@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/macro'
 import React, { CSSProperties, ReactNode, useLayoutEffect, useRef, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -199,7 +200,7 @@ export const SectionWrapper = ({
                   onClick={() => setShowText(prev => !prev)}
                 >
                   {' '}
-                  {'Hide'}
+                  <Trans>Hide</Trans>
                 </Text>
               )}
             </SectionDescription>
@@ -213,7 +214,7 @@ export const SectionWrapper = ({
                 style={{ cursor: 'pointer', flexBasis: 'fit-content', whiteSpace: 'nowrap' }}
                 onClick={() => setShowText(prev => !prev)}
               >
-                {'Read more'}
+                <Trans>Show more</Trans>
               </Text>
             )}
           </Row>

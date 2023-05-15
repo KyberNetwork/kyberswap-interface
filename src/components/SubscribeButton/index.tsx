@@ -86,7 +86,7 @@ export default function SubscribeNotificationButton({
   return (
     <MouseoverTooltipDesktopOnly text={subscribeTooltip} width="400px">
       <SubscribeBtn bgColor={theme.primary} onClick={onClickBtn} iconOnly={iconOnly}>
-        <NotificationIcon />
+        <NotificationIcon size={16} />
         <ButtonText iconOnly={iconOnly}>
           <Trans>Subscribe</Trans>
         </ButtonText>

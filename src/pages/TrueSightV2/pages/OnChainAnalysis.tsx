@@ -49,7 +49,7 @@ export default function OnChainAnalysis({ onShareClick }: { onShareClick: (url: 
         title={t`Number of Trades & Type of Trades`}
         description={t`Indicates the number of trades and type of trades (buy or sell) over a time period. An increase in the
         number of trades may indicate more interest in the token and vice-versa. Similarly, more buy trades in a
-        timeperiod can indicate that the token is bullish and vice-versa.`}
+        time period can indicate that the token is bullish and vice-versa.`}
         shareButton
         fullscreenButton
         onShareClick={handleShareClick}
