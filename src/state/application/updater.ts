@@ -2,15 +2,16 @@ import { useCallback, useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useLazyGetKyberswapConfigurationQuery } from 'services/ksSetting'
 
-import { useActiveWeb3React, useWeb3React, useWeb3Solana } from 'hooks'
+import { useActiveWeb3React, useWeb3Solana } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import useIsWindowVisible from 'hooks/useIsWindowVisible'
+import { useKyberSwapConfig } from 'state/application/hooks'
 
 import { updateBlockNumber } from './actions'
 
 export default function Updater(): null {
   const { chainId, isEVM, isSolana } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { provider } = useKyberSwapConfig()
   const dispatch = useDispatch()
   const { connection } = useWeb3Solana()
 
@@ -43,20 +44,20 @@ export default function Updater(): null {
 
   // attach/detach listeners
   useEffect(() => {
-    if (!library || !windowVisible || !isEVM) return undefined
+    if (!provider || !windowVisible || !isEVM) return undefined
 
     setState({ chainId, blockNumber: null })
 
-    library
+    provider
       .getBlockNumber()
       .then(blockNumberCallback)
       .catch((error: any) => console.error(`Failed to get block number for chainId: ${chainId}`, error))
 
-    library.on('block', blockNumberCallback)
+    provider.on('block', blockNumberCallback)
     return () => {
-      library.removeListener('block', blockNumberCallback)
+      provider.removeListener('block', blockNumberCallback)
     }
-  }, [dispatch, chainId, library, blockNumberCallback, windowVisible, isEVM])
+  }, [dispatch, chainId, provider, blockNumberCallback, windowVisible, isEVM])
 
   useEffect(() => {
     if (!windowVisible || !isSolana || !connection) return undefined

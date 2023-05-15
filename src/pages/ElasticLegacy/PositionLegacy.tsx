@@ -216,7 +216,7 @@ export default function PositionLegacy({ positions }: { positions: SubgraphPosit
                 {item.owner !== account?.toLowerCase() ? (
                   <MouseoverTooltip
                     placement="top"
-                    text="You need to withdraw your deposited liquidity position from the Farm first"
+                    text="You need to withdraw your deposited liquidity position from the Farm first"
                   >
                     <ButtonPrimary padding="6px 12px" style={{ background: theme.buttonGray, color: theme.border }}>
                       <Text fontSize="12px">Remove Liquidity</Text>

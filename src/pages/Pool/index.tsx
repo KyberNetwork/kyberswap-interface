@@ -170,7 +170,7 @@ export default function PoolCombination() {
   useSyncNetworkParamWithStore()
   return (
     <>
-      <PageWrapper>
+      <PageWrapper style={{ paddingBottom: '24px' }}>
         <AutoColumn>
           <ClassicElasticTab />
         </AutoColumn>

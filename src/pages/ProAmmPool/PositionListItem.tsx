@@ -3,7 +3,7 @@ import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { stringify } from 'querystring'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -20,14 +20,13 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS, PROMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
-import { useProMMFarmContract } from 'hooks/useContract'
+// import { useProMMFarmContract } from 'hooks/useContract'
 import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { usePool } from 'hooks/usePools'
 import useTheme from 'hooks/useTheme'
 import { useElasticFarms } from 'state/farms/elastic/hooks'
 import { UserPositionFarm } from 'state/farms/elastic/types'
-import { usePoolBlocks } from 'state/prommPools/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { ExternalLink, StyledInternalLink } from 'theme'
 import { PositionDetails } from 'types/position'
@@ -167,63 +166,63 @@ function PositionListItem({
 
   const { farms } = useElasticFarms()
 
-  let farmAddress = ''
-  let pid = ''
+  // let farmAddress = ''
+  // let pid = ''
   let rewardTokens: Currency[] = []
 
   farms?.forEach(farm => {
     farm.pools.forEach(pool => {
       if (pool.endTime > Date.now() / 1000 && pool.poolAddress.toLowerCase() === positionDetails.poolId.toLowerCase()) {
-        farmAddress = farm.id
-        pid = pool.pid
+        // farmAddress = farm.id
+        // pid = pool.pid
         rewardTokens = pool.rewardTokens
       }
     })
   })
 
-  const farmContract = useProMMFarmContract(farmAddress)
+  // const farmContract = useProMMFarmContract(farmAddress)
 
-  const { blockLast24h } = usePoolBlocks()
+  // const { blockLast24h } = usePoolBlocks()
 
-  const tokenId = positionDetails.tokenId.toString()
+  // const tokenId = positionDetails.tokenId.toString()
 
-  const [reward24h, setReward24h] = useState<BigNumber[] | null>(null)
-  useEffect(() => {
-    const getReward = async () => {
-      if (blockLast24h && farmContract) {
-        const [currentReward, last24hReward] = await Promise.all([
-          farmContract
-            .getUserInfo(tokenId, pid)
-            .then((res: any) => {
-              return res.rewardPending
-            })
-            .catch(() => {
-              return []
-            }),
-          farmContract
-            .getUserInfo(tokenId, pid, {
-              blockTag: Number(blockLast24h),
-            })
-            .then((res: any) => {
-              return res.rewardPending
-            })
-            .catch(() => {
-              return []
-            }),
-        ])
-
-        const rewardPending =
-          last24hReward.length &&
-          currentReward?.map((item: BigNumber, index: number) => {
-            return item.sub(BigNumber.from(last24hReward?.[index] || '0'))
-          })
-
-        setReward24h(rewardPending)
-      }
-    }
-
-    getReward()
-  }, [blockLast24h, farmContract, tokenId, pid])
+  const [reward24h] = useState<BigNumber[] | null>(null)
+  // useEffect(() => {
+  //   const getReward = async () => {
+  //     if (blockLast24h && farmContract) {
+  //       const [currentReward, last24hReward] = await Promise.all([
+  //         farmContract
+  //           .getUserInfo(tokenId, pid)
+  //           .then((res: any) => {
+  //             return res.rewardPending
+  //           })
+  //           .catch(() => {
+  //             return []
+  //           }),
+  //         farmContract
+  //           .getUserInfo(tokenId, pid, {
+  //             blockTag: Number(blockLast24h),
+  //           })
+  //           .then((res: any) => {
+  //             return res.rewardPending
+  //           })
+  //           .catch(() => {
+  //             return []
+  //           }),
+  //       ])
+  //
+  //       const rewardPending =
+  //         last24hReward.length &&
+  //         currentReward?.map((item: BigNumber, index: number) => {
+  //           return item.sub(BigNumber.from(last24hReward?.[index] || '0'))
+  //         })
+  //
+  //       setReward24h(rewardPending)
+  //     }
+  //   }
+  //
+  //   getReward()
+  // }, [blockLast24h, farmContract, tokenId, pid])
 
   const token0 = useToken(token0Address)
   const token1 = useToken(token1Address)
@@ -242,7 +241,6 @@ function PositionListItem({
     ...rewardTokens.map(item => item.wrapped.address),
   ])
 
-  // construct Position from details returned
   const [, pool] = usePool(currency0 ?? undefined, currency1 ?? undefined, feeAmount)
 
   const position = useMemo(() => {
@@ -316,7 +314,8 @@ function PositionListItem({
     return ''
   })()
 
-  return position && priceLower && priceUpper ? (
+  if (!position || !priceLower || !priceUpper) return <ContentLoader />
+  return (
     <StyledPositionCard>
       <>
         <ProAmmPoolInfo position={position} tokenId={positionDetails.tokenId.toString()} isFarmActive={hasActiveFarm} />
@@ -508,8 +507,6 @@ function PositionListItem({
         </Flex>
       </>
     </StyledPositionCard>
-  ) : (
-    <ContentLoader />
   )
 }
 
