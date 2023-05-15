@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Share2 } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -76,6 +76,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
   const [isExpanded, setExpanded] = useState(false)
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  const shouldExpandAllPools = useAppSelector(state => state.myEarnings.shouldExpandAllPools)
 
   const feeAmount = Number(poolEarning.feeTier) as FeeAmount
 
@@ -93,11 +94,12 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
     return [currency0, currency1]
   }, [chainId, poolEarning.token0.id, poolEarning.token1.id, tokensByChainId])
 
+  const { pool, poolState } = usePoolv2(chainId, currency0, currency1, feeAmount)
+  const isExpandable = !!pool && poolState !== PoolState.LOADING
+
   const toggleExpanded = useCallback(() => {
     setExpanded(e => !e)
   }, [])
-
-  const { pool, poolState } = usePoolv2(chainId, currency0, currency1, feeAmount)
 
   const here = (
     <Link to={`${APP_PATHS.FARMS}/${NETWORKS_INFO[chainId].route}?tab=elastic&type=active&search=${poolEarning.id}`}>
@@ -120,6 +122,10 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
     return earning ? formatValue(earning) : '--'
   }, [poolEarning.historicalEarning])
 
+  useEffect(() => {
+    setExpanded(shouldExpandAllPools)
+  }, [shouldExpandAllPools])
+
   const renderStatsRow = () => {
     return (
       <StatsRow
@@ -141,7 +147,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
                 transform: isExpanded ? 'rotate(180deg)' : undefined,
                 transition: 'all 150ms ease',
               }}
-              disabled={!pool}
+              disabled={!pool || poolState === PoolState.LOADING}
               onClick={toggleExpanded}
             >
               {poolState === PoolState.LOADING ? <Loader /> : <DropdownSVG />}
@@ -221,7 +227,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
 
         {renderStatsRow()}
 
-        {isExpanded && (
+        {isExpanded && isExpandable && (
           <>
             <Flex
               sx={{
@@ -369,7 +375,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
 
       {renderStatsRow()}
 
-      {isExpanded && (
+      {isExpanded && isExpandable && (
         <>
           <Flex
             sx={{
