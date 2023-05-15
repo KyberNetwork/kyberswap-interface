@@ -247,14 +247,18 @@ const TokenItem = ({ token, onClick }: { token: ITokenSearchResult; onClick?: ()
       <td style={{ textAlign: 'left' }}>
         <Text
           fontSize={above768 ? '12px' : '10px'}
-          color={token.kyberScore && token.kyberScore?.score < 50 ? theme.red : theme.primary}
+          color={token.kyberScore ? (token.kyberScore?.score < 50 ? theme.red : theme.primary) : theme.subText}
         >
-          <>
-            {token.kyberScore?.score}
-            <Text as="span" fontSize="10px" color={theme.subText}>
-              /100
-            </Text>
-          </>
+          {token.kyberScore?.score ? (
+            <>
+              {token.kyberScore?.score}
+              <Text as="span" fontSize="10px" color={theme.subText}>
+                /100
+              </Text>
+            </>
+          ) : (
+            <>--</>
+          )}
         </Text>
       </td>
       <td style={{ textAlign: 'left' }}>

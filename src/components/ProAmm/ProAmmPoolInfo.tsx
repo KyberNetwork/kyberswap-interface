@@ -108,12 +108,7 @@ export default function ProAmmPoolInfo({
     <>
       {poolAddress && (
         <AutoColumn>
-          <Flex
-            alignItems={upToSmall ? undefined : 'center'}
-            justifyContent="space-between"
-            flexDirection={upToSmall ? 'column' : undefined}
-            sx={{ gap: '8px' }}
-          >
+          <Flex alignItems={upToSmall ? undefined : 'center'} justifyContent="space-between" sx={{ gap: '8px' }}>
             <Flex alignItems="center">
               <DoubleCurrencyLogo currency0={token0Shown} currency1={token1Shown} size={20} />
               <Text fontSize="16px" fontWeight="500">
@@ -133,7 +128,6 @@ export default function ProAmmPoolInfo({
             alignItems={upToExtraSmall ? 'flex-start' : 'center'}
             marginTop="8px"
             sx={{ gap: '8px' }}
-            flexDirection={upToExtraSmall ? 'column' : 'row'}
           >
             <Flex alignItems="center" color={theme.subText} fontSize={12}>
               <Copy
