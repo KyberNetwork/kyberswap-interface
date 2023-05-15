@@ -284,7 +284,7 @@ export default function Widget() {
                       [WidgetTab.MyWatchlist]: KyberAIListType.MYWATCHLIST,
                       [WidgetTab.Bearish]: KyberAIListType.BEARISH,
                       [WidgetTab.Bullish]: KyberAIListType.BULLISH,
-                      [WidgetTab.TrendingSoon]: KyberAIListType.TOP_SOCIAL,
+                      [WidgetTab.TrendingSoon]: KyberAIListType.TRENDING_SOON,
                     }[activeTab],
                   })}`,
                 })
