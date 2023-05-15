@@ -392,7 +392,7 @@ export const LiveDEXTrades = () => {
           <th>Price ($)</th>
           <th>Amount</th>
           <th>Trader</th>
-          <th>Transaction</th>
+          <th style={{ textAlign: 'right' }}>Transaction</th>
         </thead>
         <tbody style={{ fontSize: '14px', lineHeight: '20px' }}>
           {data?.slice((currentPage - 1) * 10, currentPage * 10 - 1).map((trade: ILiveTrade, i: number) => {

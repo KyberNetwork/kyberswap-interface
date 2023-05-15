@@ -115,6 +115,7 @@ const CustomizedPriceLabel = (props: any) => {
 const ChartWrapper = styled(ContentWrapper)`
   flex: 1;
   min-height: 0;
+  position: relative;
 `
 
 const LegendWrapper = styled.div`
