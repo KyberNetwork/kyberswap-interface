@@ -1446,9 +1446,9 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
         return { timeframe: '--', totalNetflow: '--', totalInflow: '--', totalOutflow: '--' }
 
       const tf = `${dayjs(formattedData[0].timestamp).format(
-        timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
+        timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm, MMM DD' : 'MMM DD',
       )} - ${dayjs(formattedData[formattedData.length - 1].timestamp).format(
-        timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
+        timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm, MMM DD' : 'MMM DD',
       )}`
 
       return {
@@ -1732,9 +1732,9 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
   const totalStats: { timeframe: string; totalTranfers: string; totalVolume: string } = useMemo(() => {
     if (formattedData.length === 0) return { timeframe: '--', totalTranfers: '--', totalVolume: '--' }
     const tf = `${dayjs(formattedData[0].timestamp).format(
-      timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
+      timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm, MMM DD' : 'MMM DD',
     )} - ${dayjs(formattedData[formattedData.length - 1].timestamp).format(
-      timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
+      timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm, MMM DD' : 'MMM DD',
     )}`
     return {
       timeframe: tf,
@@ -1903,9 +1903,9 @@ export const NumberofHolders = () => {
   const totalStats: { timeframe: string; totalHolders: string } = useMemo(() => {
     if (formattedData.length === 0) return { timeframe: '--', totalHolders: '--' }
     const tf = `${dayjs(formattedData[0].timestamp).format(
-      timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
+      timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm, MMM DD' : 'MMM DD',
     )} - ${dayjs(formattedData[formattedData.length - 1].timestamp).format(
-      timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm DD/MM' : 'MMM DD',
+      timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm, MMM DD' : 'MMM DD',
     )}`
     return {
       timeframe: tf,

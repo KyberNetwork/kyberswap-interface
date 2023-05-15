@@ -296,7 +296,6 @@ const StepContent = ({ step, ...rest }: { step: number; [k: string]: any }) => {
 const TutorialModal = () => {
   const theme = useTheme()
   const isOpen = useModalOpen(ApplicationModal.KYBERAI_TUTORIAL)
-  console.log('🚀 ~ file: TutorialModal.tsx:301 ~ TutorialModal ~ isOpen:', isOpen)
   const toggle = useToggleModal(ApplicationModal.KYBERAI_TUTORIAL)
   const [{ step, animationState, swipe }, dispatch] = useReducer(reducer, initialState)
   const lastStep =
@@ -423,7 +422,9 @@ const TutorialModal = () => {
             </Row>
             <Row gap="20px" justify="center" marginBottom={above768 ? 0 : '20px'}>
               <ButtonOutlined width={above768 ? '160px' : '100px'} onClick={() => dispatch(ActionTypes.PREV_STEP)}>
-                <Text fontSize={above768 ? '14px' : '12px'}>Back</Text>
+                <Text fontSize={above768 ? '14px' : '12px'}>
+                  <Trans>Back</Trans>
+                </Text>
               </ButtonOutlined>
               <ButtonPrimary
                 width={above768 ? '160px' : '100px'}
@@ -435,7 +436,9 @@ const TutorialModal = () => {
                   }
                 }}
               >
-                <Text fontSize={above768 ? '14px' : '12px'}>Next</Text>
+                <Text fontSize={above768 ? '14px' : '12px'}>
+                  {step === steps.length ? <Trans>Let&apos;s go!</Trans> : <Trans>Next</Trans>}
+                </Text>
               </ButtonPrimary>
             </Row>
           </>
