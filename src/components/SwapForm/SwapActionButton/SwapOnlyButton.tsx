@@ -59,10 +59,7 @@ const SwapOnlyButton: React.FC<Props> = ({
   // the callback to execute the swap
   const swapCallback = useSwapCallbackV3(isPermitSwap)
   const userHasSpecifiedInputOutput = Boolean(currencyIn && currencyOut && parsedAmount)
-  const showLoading =
-    (isGettingRoute && routeSummary === undefined) ||
-    isBuildingRoute ||
-    ((!balanceIn || !balanceOut) && userHasSpecifiedInputOutput)
+  const showLoading = isGettingRoute || isBuildingRoute || ((!balanceIn || !balanceOut) && userHasSpecifiedInputOutput)
 
   const handleClickSwapForNormalMode = async () => {
     if (!swapCallback || isBuildingRoute) {
