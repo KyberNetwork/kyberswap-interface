@@ -8,6 +8,7 @@ import { Flex, Text } from 'rebass'
 import { PositionEarningWithDetails, TokenEarning, useGetEarningDataQuery } from 'services/earning'
 import styled from 'styled-components'
 
+import LoaderWithKyberLogo from 'components/LocalLoader'
 import { EMPTY_ARRAY } from 'constants/index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS_FOR_MY_EARNINGS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
@@ -351,6 +352,56 @@ const MyEarningsSection = () => {
     })
   }, [availableChainRoutes, getEarningData.data, searchText, shouldShowClosedPositions])
 
+  const renderPools = () => {
+    const isLoading = getEarningData.isFetching || !pools
+    const isEmpty = pools.length === 0
+
+    if (isLoading || isEmpty) {
+      return (
+        <Flex
+          flexDirection={'column'}
+          width="100%"
+          height="240px"
+          alignItems={'center'}
+          justifyContent={'center'}
+          sx={{ gap: '8px' }}
+          color={theme.subText}
+        >
+          {isLoading ? (
+            <LoaderWithKyberLogo />
+          ) : (
+            <>
+              <Info width="32px" height="32px" />
+              <Text fontSize="16px" fontWeight={500}>
+                <Trans>No liquidity found</Trans>
+              </Text>
+            </>
+          )}
+        </Flex>
+      )
+    }
+
+    return (
+      <Flex
+        sx={{
+          flexDirection: 'column',
+          gap: '24px',
+        }}
+      >
+        {pools.map(pool => {
+          return (
+            <SinglePool
+              key={`${pool.chainId}-${pool.poolEarning.id}`}
+              poolEarning={pool.poolEarning}
+              chainId={pool.chainId}
+              positionEarnings={pool.positionEarnings}
+            />
+          )
+        })}
+      </Flex>
+    )
+  }
+
   return (
     <Flex
       sx={{
@@ -397,40 +448,7 @@ const MyEarningsSection = () => {
 
       <PoolFilteringBar />
 
-      {pools.length === 0 ? (
-        <Flex
-          flexDirection={'column'}
-          width="100%"
-          height="240px"
-          alignItems={'center'}
-          justifyContent={'center'}
-          sx={{ gap: '8px' }}
-          color={theme.subText}
-        >
-          <Info width="32px" height="32px" />
-          <Text fontSize="16px" fontWeight={500}>
-            <Trans>No liquidity found</Trans>
-          </Text>
-        </Flex>
-      ) : (
-        <Flex
-          sx={{
-            flexDirection: 'column',
-            gap: '24px',
-          }}
-        >
-          {pools.map(pool => {
-            return (
-              <SinglePool
-                key={`${pool.chainId}-${pool.poolEarning.id}`}
-                poolEarning={pool.poolEarning}
-                chainId={pool.chainId}
-                positionEarnings={pool.positionEarnings}
-              />
-            )
-          })}
-        </Flex>
-      )}
+      {renderPools()}
     </Flex>
   )
 }

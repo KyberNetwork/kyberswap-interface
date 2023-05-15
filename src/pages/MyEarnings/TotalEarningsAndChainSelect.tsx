@@ -1,10 +1,13 @@
 import { rgba } from 'polished'
 import { Share2 } from 'react-feather'
-import { Flex } from 'rebass'
+import { Button, Flex } from 'rebass'
+import { useLazyGetEarningDataQuery } from 'services/earning'
 import styled from 'styled-components'
 
 import { ReactComponent as RefreshIcon } from 'assets/svg/refresh.svg'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { useAppSelector } from 'state/hooks'
 
 // TODO: move to common
 const formatPercent = (value: number) => {
@@ -41,6 +44,42 @@ const Value = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
 `
+
+const RefreshButton = () => {
+  const theme = useTheme()
+  const { account } = useActiveWeb3React()
+  const selectedChainIds = useAppSelector(state => state.myEarnings.selectedChains)
+  const [trigger, data] = useLazyGetEarningDataQuery()
+
+  const handleClick = () => {
+    if (data.isFetching || !account) {
+      return
+    }
+
+    trigger({ account, chainIds: selectedChainIds })
+  }
+
+  return (
+    <Button
+      sx={{
+        display: 'flex',
+        flex: '0 0 36px',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '36px',
+        borderRadius: '999px',
+        color: data.isFetching ? rgba(theme.subText, 0.4) : theme.subText,
+        background: theme.background,
+        padding: '0',
+        margin: '0',
+      }}
+      disabled={data.isFetching}
+      onClick={handleClick}
+    >
+      <RefreshIcon width="17px" height="17px" />
+    </Button>
+  )
+}
 
 type Props = {
   totalEarningToday: number
@@ -111,19 +150,7 @@ const TotalEarningsAndChainSelect: React.FC<Props> = ({ totalEarningToday, total
           <Share2 size="16px" />
         </Flex>
 
-        <Flex
-          sx={{
-            flex: '0 0 36px',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '36px',
-            borderRadius: '999px',
-            color: theme.subText,
-            background: theme.background,
-          }}
-        >
-          <RefreshIcon width="17px" height="17px" />
-        </Flex>
+        <RefreshButton />
       </Flex>
     </Flex>
   )
