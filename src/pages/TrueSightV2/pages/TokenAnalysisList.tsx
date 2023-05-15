@@ -708,7 +708,14 @@ export default function TokenAnalysisList() {
 
   const { data, isLoading, isFetching, isError } = useTokenListQuery(
     listType === KyberAIListType.MYWATCHLIST
-      ? { type: KyberAIListType.ALL, page, pageSize, wallet: account, watchlist: true }
+      ? {
+          type: KyberAIListType.ALL,
+          chain: (chain && SUPPORTED_NETWORK_KYBERAI[Number(chain) as ChainId]) || 'all',
+          page,
+          pageSize,
+          wallet: account,
+          watchlist: true,
+        }
       : {
           type: listType,
           chain: (chain && SUPPORTED_NETWORK_KYBERAI[Number(chain) as ChainId]) || 'all',
