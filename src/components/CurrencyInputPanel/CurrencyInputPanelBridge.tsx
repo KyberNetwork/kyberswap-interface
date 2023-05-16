@@ -11,6 +11,7 @@ import CurrencySearchModalBridge from 'components/SearchModal/bridge/CurrencySea
 import { EMPTY_ARRAY, ETHER_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useTokenBalanceOfAnotherChain } from 'hooks/bridge'
+import useInterval from 'hooks/useInterval'
 import useTheme from 'hooks/useTheme'
 import SelectNetwork from 'pages/Bridge/SelectNetwork'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -48,28 +49,12 @@ const noop = () => {
 const useGetPriceUsd = (currency: Currency | undefined, value: string) => {
   const currencyAddress: string = !currency ? '' : currency.isNative ? ETHER_ADDRESS : currency.wrapped.address
 
-  const tokenAddresses = useMemo(() => {
-    if (currencyAddress) {
-      return [currencyAddress]
-    }
-
-    return EMPTY_ARRAY
-  }, [currencyAddress])
-
+  const tokenAddresses = useMemo(() => (currencyAddress ? [currencyAddress] : EMPTY_ARRAY), [currencyAddress])
   const { data: tokenPriceData, refetch } = useTokenPricesWithLoading(tokenAddresses, currency?.chainId)
-  useEffect(() => {
-    if (!currency) {
-      return
-    }
 
-    const interval = setInterval(() => {
-      refetch()
-    }, 10_000)
+  const intervalCallback = () => currency && refetch()
 
-    return () => {
-      clearInterval(interval)
-    }
-  }, [currency, refetch])
+  useInterval(intervalCallback, 10_000, false)
 
   const currencyValueInUSD = tokenPriceData?.[currencyAddress] * Number(value)
   const currencyValueString =

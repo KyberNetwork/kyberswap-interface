@@ -10,7 +10,7 @@ import { formatAmountBridge } from 'pages/Bridge/helpers'
 import { CrossChainTab } from 'pages/CrossChain/TransfersHistory/TabSelector'
 import { isCrossChainTxsSuccess } from 'pages/CrossChain/helpers'
 
-const DescriptionPriceAlert = (
+const DescriptionCrossChain = (
   content: AnnouncementTemplateCrossChain,
   templateType: PrivateAnnouncementType,
 ): SimplePopupProps => {
@@ -33,4 +33,4 @@ const DescriptionPriceAlert = (
       : t`There was an issue with swapping ${amountIn} ${srcTokenSymbol} on ${srcChainName} to ${amountOut} ${dstTokenSymbol} on ${dstChainName}. Your assets remain in your wallet`,
   }
 }
-export default DescriptionPriceAlert
+export default DescriptionCrossChain

@@ -39,7 +39,6 @@ export default function CurrencySearchModalBridge({
       isOpen={isOpen}
       onDismiss={onDismiss}
       margin="auto"
-      maxHeight={80}
       height={tokens.length < NUM_TOKEN_SUPPORT_REACT_WINDOW ? undefined : '95vh'}
       minHeight={isOutput ? undefined : 80}
     >
