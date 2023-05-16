@@ -277,22 +277,22 @@ const tokenTypeList: {
   },
   {
     type: KyberAIListType.TOP_CEX_INFLOW,
-    title: t`Top CEX Inflow`,
+    title: t`Top CEX Positive Netflow`,
     icon: 'download',
     tooltip: theme => (
       <span>
-        Tokens with the highest <span style={{ color: theme.text }}>deposits</span> to Centralized Exchanges over the
+        Tokens with the highest <span style={{ color: theme.text }}>net deposits</span> to Centralized Exchanges in the
         last 3 Days. Possible incoming sell pressure
       </span>
     ),
   },
   {
     type: KyberAIListType.TOP_CEX_OUTFLOW,
-    title: t`Top CEX Outflow`,
+    title: t`Top CEX Negative Netflow`,
     icon: 'upload',
     tooltip: theme => (
       <span>
-        Tokens with the highest <span style={{ color: theme.text }}>withdrawals</span> from Centralized Exchanges over
+        Tokens with the highest <span style={{ color: theme.text }}>net withdrawals</span> from Centralized Exchanges in
         the last 3 Days. Possible buy pressure
       </span>
     ),

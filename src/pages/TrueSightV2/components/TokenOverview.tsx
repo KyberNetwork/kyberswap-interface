@@ -395,9 +395,6 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                 <Text color={theme.subText} lineHeight="24px">
                   <Trans>Community</Trans>
                 </Text>
-                {/* {data?.communities?.[0] && (
-                  <ExternalLink href={data.communities[0].value || ''}>{data.communities[0]}</ExternalLink>
-                )} */}
                 <Row gap="6px" style={{ flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                   {data?.communities?.map((c, index) => {
                     return (
@@ -453,7 +450,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
           </Row>
         </>
       ) : (
-        <CardWrapper style={{ marginBottom: '16px' }}>
+        <CardWrapper style={{ marginBottom: '16px' }} className={cardClassname}>
           <RowFit gap="8px">
             <Text fontSize={28} lineHeight="32px" fontWeight={500} color={theme.text}>
               {isLoading ? <DotsLoader /> : '$' + (+(data?.price || 0)).toLocaleString()}
@@ -510,7 +507,8 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
           <Row justify="center" marginBottom="12px">
             <KyberScoreMeter value={data?.kyberScore?.score} />
           </Row>
-          <Row marginBottom="16px" justify="center">
+
+          <Row marginBottom="16px" justify="center" gap="6px">
             <Text
               fontSize="24px"
               lineHeight="28px"
@@ -523,7 +521,35 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                 ? t`Not Available`
                 : data.kyberScore.label}
             </Text>
+            <MouseoverTooltip
+              text={
+                <>
+                  <Column color={theme.subText} style={{ fontSize: '12px', lineHeight: '16px' }}>
+                    <Text>{latestKyberscore && dayjs(latestKyberscore?.created_at).format('DD/MM/YYYY HH:mm A')}</Text>
+                    <Text>
+                      KyberScore:{' '}
+                      <span style={{ color: calculateValueToColor(latestKyberscore?.kyber_score || 0, theme) }}>
+                        {latestKyberscore?.kyber_score || '--'} ({latestKyberscore?.tag || t`Not Available`})
+                      </span>
+                    </Text>
+                    <Text>
+                      Token Price:{' '}
+                      <span style={{ color: theme.text }}>{formatTokenPrice(latestKyberscore?.price || 0)}</span>
+                    </Text>
+                  </Column>
+                </>
+              }
+              placement="top"
+            >
+              <Icon id="timer" size={16} />
+            </MouseoverTooltip>
           </Row>
+          <Column style={{ width: '100%' }} gap="2px">
+            <Text fontSize="12px" lineHeight="16px">
+              <Trans>Last 3D KyberScores</Trans>
+            </Text>
+            <KyberScoreChart width="100%" height="32px" data={data?.kyberScore?.ks3d} index={1} />
+          </Column>
           <ExpandableBox expanded={expanded} height={ref2?.current?.scrollHeight} ref={ref2}>
             <Row style={{ borderBottom: `1px solid ${theme.border}`, marginBottom: '16px' }} />
             <Column gap="10px" style={{ fontSize: '12px', lineHeight: '16px' }}>
@@ -534,19 +560,21 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                 <Text color={theme.subText}>
                   <Trans>All Time Low</Trans>
                 </Text>
-                <Text color={theme.text}>{data?.atl && formatTokenPrice(data?.atl)}</Text>
+                <Text color={theme.text}>{data?.atl ? `$${formatTokenPrice(data?.atl)}` : '--'}</Text>
               </RowBetween>
               <RowBetween>
                 <Text color={theme.subText}>
                   <Trans>All Time High</Trans>
                 </Text>
-                <Text color={theme.text}>{data?.ath && formatTokenPrice(data?.ath)}</Text>
+                <Text color={theme.text}>{data?.ath ? `$${formatTokenPrice(data?.ath)}` : '--'}</Text>
               </RowBetween>
               <RowBetween>
                 <Text color={theme.subText}>
                   <Trans>24H Volume</Trans>
                 </Text>
-                <Text color={theme.text}>{data?.['24hVolume'] && formatLocaleStringNum(data?.['24hVolume'])}</Text>
+                <Text color={theme.text}>
+                  {data?.['24hVolume'] ? `$${formatLocaleStringNum(data?.['24hVolume'])}` : '--'}
+                </Text>
               </RowBetween>
               <RowBetween>
                 <Text color={theme.subText}>
@@ -558,7 +586,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                 <Text color={theme.subText}>
                   <Trans>Market Cap</Trans>
                 </Text>
-                <Text color={theme.text}>{data?.marketCap && formatLocaleStringNum(data?.marketCap)}</Text>
+                <Text color={theme.text}>{data?.marketCap ? `$${formatLocaleStringNum(data?.marketCap)}` : '--'}</Text>
               </RowBetween>
               <RowBetween>
                 <Text color={theme.subText}>
@@ -576,20 +604,56 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                 <Text color={theme.subText}>
                   <Trans>Community</Trans>
                 </Text>
-                {/* {data?.communities?.[0] && (
-                  <ExternalLink href={data.communities[0].value || ''}>{data.communities[0].key}</ExternalLink>
-                )} */}
+                <Row gap="6px" style={{ flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                  {data?.communities?.map((c, index) => {
+                    return (
+                      <ExternalLink key={index} href={c}>
+                        {getCommunityLabelFromURL(c)}
+                      </ExternalLink>
+                    )
+                  })}
+                </Row>
               </RowBetween>
               <RowBetween>
                 <Text color={theme.subText}>
                   <Trans>Address</Trans>
                 </Text>
-                <Text color={theme.subText}>0x394...5e3</Text>
+                {data && chain ? (
+                  <RowFit gap="4px">
+                    <SimpleTooltip text={t`Open scan explorer`}>
+                      <a
+                        style={{
+                          borderRadius: '50%',
+                          cursor: 'pointer',
+                        }}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        href={getEtherscanLink(NETWORK_TO_CHAINID[chain], data.address, 'token')}
+                      >
+                        <img
+                          src={NETWORK_IMAGE_URL[chain || 'ethereum']}
+                          alt="eth"
+                          width="16px"
+                          height="16px"
+                          style={{ display: 'block' }}
+                        />
+                      </a>
+                    </SimpleTooltip>
+                    <Text color={theme.subText} fontWeight={500}>
+                      {shortenAddress(1, data.address)}
+                    </Text>
+                    <SimpleTooltip text={t`Copy token address`}>
+                      <CopyHelper toCopy={data?.address || ''} />
+                    </SimpleTooltip>
+                  </RowFit>
+                ) : (
+                  <></>
+                )}
               </RowBetween>
             </Column>
           </ExpandableBox>
 
-          <Row justify="center" onClick={() => setExpanded(p => !p)}>
+          <Row justify="center" onClick={() => setExpanded(p => !p)} marginTop="6px">
             <div style={{ transform: expanded ? 'rotate(180deg)' : '', transition: 'all 0.2s ease' }}>
               <DropdownIcon />
             </div>

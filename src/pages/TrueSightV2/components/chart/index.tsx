@@ -37,6 +37,7 @@ import {
 } from 'components/TradingViewChart/charting_library'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
 import {
   useCexesLiquidationQuery,
   useHolderListQuery,
@@ -64,7 +65,7 @@ import {
 import { formatLocaleStringNum, formatShortNum, formatTokenPrice } from 'pages/TrueSightV2/utils'
 import { useUserLocale } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-import { shortenAddress } from 'utils'
+import { getEtherscanLink, shortenAddress } from 'utils'
 
 import { ContentWrapper } from '..'
 import KyberLogo from './KyberLogo'
@@ -77,8 +78,8 @@ const LABEL_GAP_BY_TIMEFRAME: { [timeframe: string]: number } = {
   [KyberAITimeframe.ONE_DAY]: 2,
   [KyberAITimeframe.ONE_WEEK]: 1,
   [KyberAITimeframe.ONE_MONTH]: 2,
-  [KyberAITimeframe.THREE_MONTHS]: 3,
-  [KyberAITimeframe.SIX_MONTHS]: 5,
+  [KyberAITimeframe.THREE_MONTHS]: 4,
+  [KyberAITimeframe.SIX_MONTHS]: 6,
 }
 
 const CustomizedLabel = (props: any) => {
@@ -89,7 +90,7 @@ const CustomizedLabel = (props: any) => {
   return (
     <>
       {show && (
-        <text x={x} y={y} dy={-10} fontSize={above768 ? 12 : 10} fontWeight={500} fill={theme.text} textAnchor="middle">
+        <text x={x} y={y} dy={-10} fontSize={above768 ? 10 : 9} fontWeight={500} fill={theme.text} textAnchor="middle">
           {value !== 0 && `${dollarSign ? '$' : ''}${formatShortNum(value)}`}
         </text>
       )}
@@ -104,7 +105,7 @@ const CustomizedPriceLabel = (props: any) => {
   return (
     <>
       {show && (
-        <text x={x} y={y} dy={-10} fontSize={above768 ? 12 : 10} fontWeight={500} fill={theme.text} textAnchor="middle">
+        <text x={x} y={y} dy={-10} fontSize={above768 ? 10 : 9} fontWeight={500} fill={theme.text} textAnchor="middle">
           {value !== 0 && `$${formatTokenPrice(value)}`}
         </text>
       )}
@@ -1783,6 +1784,7 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
               above768
                 ? {
                     top: 80,
+                    right: 20,
                     left: 10,
                   }
                 : { top: 100, left: 0 }
@@ -1803,6 +1805,7 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
               axisLine={false}
               tick={{ fill: theme.subText, fontWeight: 400 }}
               tickFormatter={value => dayjs(value).format('MMM DD')}
+              allowDataOverflow
               minTickGap={12}
             />
             <YAxis
@@ -1812,6 +1815,7 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
               tick={{ fill: theme.subText, fontWeight: 400 }}
               width={40}
               tickFormatter={value => `${tab === ChartTab.Second ? '$' : ''}${formatShortNum(value)}`}
+              allowDataOverflow
             />
             <Tooltip
               cursor={{ fill: 'transparent' }}
@@ -1945,8 +1949,9 @@ export const NumberofHolders = () => {
                 ? {
                     top: 80,
                     left: 20,
+                    right: 20,
                   }
-                : { top: 100, left: 10 }
+                : { top: 100, left: 10, right: 10 }
             }
           >
             <defs>
@@ -1965,6 +1970,7 @@ export const NumberofHolders = () => {
               tick={{ fill: theme.subText, fontWeight: 400 }}
               tickFormatter={value => dayjs(value).format('MMM DD')}
               minTickGap={12}
+              allowDataOverflow
             />
             <YAxis
               fontSize={textFontSize}
@@ -1973,6 +1979,7 @@ export const NumberofHolders = () => {
               tick={{ fill: theme.subText, fontWeight: 400 }}
               width={40}
               tickFormatter={value => formatShortNum(value)}
+              allowDataOverflow
             />
             <Tooltip
               cursor={{ fill: 'transparent' }}
@@ -2013,18 +2020,25 @@ export const NumberofHolders = () => {
 }
 
 const COLORS = ['#00a2f7', '#31CB9E', '#FFBB28', '#F3841E', '#FF537B', '#27AE60', '#78d5ff', '#8088E5']
-const CustomLabel = ({ x, y, cx, cy, name, percentage, sumPercentage }: any) => {
+const CustomLabel = ({ x, y, cx, cy, name, address, percentage, sumPercentage }: any) => {
   let customY = y
+  const { chain } = useParams()
   if (Math.abs(cx - x) < 30) {
     customY = cy - y > 0 ? y - 8 : y + 8
   }
   return (
     <>
-      {percentage / sumPercentage > 0.01 && (
-        <text x={x} y={customY} textAnchor={x > cx ? 'start' : 'end'} fill="#31CB9E" fontSize={12}>
-          {name}
-        </text>
-      )}
+      <a
+        href={chain ? getEtherscanLink(NETWORK_TO_CHAINID[chain], address, 'address') : '#'}
+        target="_blank"
+        rel="noreferrer"
+      >
+        {percentage / sumPercentage > 0.01 && (
+          <text x={x} y={customY} textAnchor={x > cx ? 'start' : 'end'} fill="#31CB9E" fontSize={12}>
+            {name}
+          </text>
+        )}
+      </a>
     </>
   )
 }
@@ -2063,7 +2077,7 @@ export const HoldersChartWrapper = () => {
   const theme = useTheme()
   const above768 = useMedia('(min-width:768px)')
   const { chain, address } = useParams()
-  const { data } = useHolderListQuery({ address, chain })
+  const { data, isLoading } = useHolderListQuery({ address, chain })
   const formattedData: Array<IHolderList & { name: string }> = useMemo(
     () =>
       data?.map((item: IHolderList) => {
@@ -2077,52 +2091,56 @@ export const HoldersChartWrapper = () => {
   }, [formattedData])
 
   return (
-    <ChartWrapper>
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart
-          width={100}
-          height={100}
-          margin={above768 ? { top: 10, right: 90, bottom: 20, left: 90 } : { top: 0, right: 80, bottom: 0, left: 80 }}
-        >
-          <Customized component={KyberLogo} />
-          <Tooltip
-            cursor={{ fill: 'transparent' }}
-            wrapperStyle={{ outline: 'none' }}
-            animationDuration={100}
-            content={props => {
-              const payload = props.payload?.[0]?.payload
-              if (!payload) return <></>
-              return (
-                <TooltipWrapper>
-                  <Text fontSize={above768 ? '12px' : '10px'} lineHeight="16px" color={theme.text}>
-                    {payload.address}
-                  </Text>
-                  <Text fontSize={above768 ? '12px' : '10px'} lineHeight="16px" color={theme.subText}>
-                    Supply Owned: <span style={{ color: theme.text }}>{(payload.percentage * 100).toFixed(2)}%</span>
-                  </Text>
-                </TooltipWrapper>
-              )
-            }}
-          />
-          <Pie
-            dataKey="percentage"
-            label={props => <CustomLabel {...props} sumPercentage={sumPercentage} />}
-            labelLine={props => <CustomLabelLine {...props} sumPercentage={sumPercentage} />}
-            nameKey="name"
-            data={formattedData}
-            innerRadius="60%"
-            outerRadius="80%"
-            strokeWidth={0}
-            animationBegin={ANIMATION_DELAY}
-            animationDuration={ANIMATION_DURATION}
+    <LoadingHandleWrapper isLoading={isLoading} hasData={!!data}>
+      <ChartWrapper>
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart
+            width={100}
+            height={100}
+            margin={
+              above768 ? { top: 10, right: 90, bottom: 20, left: 90 } : { top: 0, right: 80, bottom: 0, left: 80 }
+            }
           >
-            {formattedData?.map((entry: IHolderList, index: number) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length] + 'e0'} />
-            ))}
-          </Pie>
-        </PieChart>
-      </ResponsiveContainer>
-    </ChartWrapper>
+            <Customized component={KyberLogo} />
+            <Tooltip
+              cursor={{ fill: 'transparent' }}
+              wrapperStyle={{ outline: 'none' }}
+              animationDuration={100}
+              content={props => {
+                const payload = props.payload?.[0]?.payload
+                if (!payload) return <></>
+                return (
+                  <TooltipWrapper>
+                    <Text fontSize={above768 ? '12px' : '10px'} lineHeight="16px" color={theme.text}>
+                      {payload.address}
+                    </Text>
+                    <Text fontSize={above768 ? '12px' : '10px'} lineHeight="16px" color={theme.subText}>
+                      Supply Owned: <span style={{ color: theme.text }}>{(payload.percentage * 100).toFixed(2)}%</span>
+                    </Text>
+                  </TooltipWrapper>
+                )
+              }}
+            />
+            <Pie
+              dataKey="percentage"
+              label={props => <CustomLabel {...props} sumPercentage={sumPercentage} />}
+              labelLine={props => <CustomLabelLine {...props} sumPercentage={sumPercentage} />}
+              nameKey="name"
+              data={formattedData}
+              innerRadius="60%"
+              outerRadius="80%"
+              strokeWidth={0}
+              animationBegin={ANIMATION_DELAY}
+              animationDuration={ANIMATION_DURATION}
+            >
+              {formattedData?.map((entry: IHolderList, index: number) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length] + 'e0'} />
+              ))}
+            </Pie>
+          </PieChart>
+        </ResponsiveContainer>
+      </ChartWrapper>
+    </LoadingHandleWrapper>
   )
 }
 
@@ -2318,7 +2336,7 @@ export const LiquidOnCentralizedExchanges = () => {
                     tick={{ fill: theme.subText, fontWeight: 400 }}
                     width={40}
                     orientation="left"
-                    tickFormatter={value => formatShortNum(value)}
+                    tickFormatter={value => '$' + formatShortNum(value)}
                     domain={dataRange}
                   />
                   <YAxis

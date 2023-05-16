@@ -72,7 +72,7 @@ const TableWrapper = styled.table`
     border-spacing: 1px;
     background-color: ${({ theme }) => theme.background};
     td {
-      padding: 12px;
+      padding: 16px;
     }
   }
   tr:not(:last-child) {
@@ -107,81 +107,92 @@ const ActionButton = styled.div<{ color: string; hasBg?: boolean }>`
 export const Top10HoldersTable = () => {
   const theme = useTheme()
   const { chain, address } = useParams()
-  const { data } = useHolderListQuery({ address, chain })
-  const { data: tokenInfo } = useTokenDetailQuery({
+  const { data, isLoading } = useHolderListQuery({ address, chain })
+  const isEmpty = !isLoading && (!data || data.length === 0)
+  const { data: tokenOverview } = useTokenDetailQuery({
     chain,
     address,
   })
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   return (
-    <TableWrapper style={{ margin: above768 ? '0' : '-16px' }}>
-      <colgroup>
-        <col style={{ width: '300px', minWidth: '150px' }} />
-        <col style={{ width: '300px' }} />
-        <col style={{ width: '300px' }} />
-        {/* <col style={{ width: '500px' }} /> */}
-      </colgroup>
-      <thead>
-        <th style={{ position: 'sticky', zIndex: 2 }}>
-          <Trans>Address</Trans>
-        </th>
-        <th>
-          <Trans>Supply owned</Trans>
-        </th>
-        <th>
-          <Trans>Amount held</Trans>
-        </th>
-        {/* <th>
+    <>
+      {isEmpty ? (
+        <Row height="100%" justify="center">
+          <Text fontSize="14px">
+            <Trans>We couldn&apos;t find any information on {tokenOverview?.symbol?.toUpperCase()}</Trans>
+          </Text>
+        </Row>
+      ) : (
+        <TableWrapper style={{ margin: above768 ? '0' : '-16px' }}>
+          <colgroup>
+            <col style={{ width: '300px', minWidth: '150px' }} />
+            <col style={{ width: '300px' }} />
+            <col style={{ width: '300px' }} />
+            {/* <col style={{ width: '500px' }} /> */}
+          </colgroup>
+          <thead>
+            <th style={{ position: 'sticky', zIndex: 2 }}>
+              <Trans>Address</Trans>
+            </th>
+            <th>
+              <Trans>Supply owned</Trans>
+            </th>
+            <th>
+              <Trans>Amount held</Trans>
+            </th>
+            {/* <th>
           <Trans>Other tokens held</Trans>
         </th> */}
-      </thead>
-      <tbody>
-        {data?.slice(0, 10).map((item: IHolderList, i: number) => (
-          <tr key={i}>
-            <td style={{ position: 'sticky', zIndex: 2 }}>
-              <Column gap="4px">
-                <Text fontSize="14px" lineHeight="20px" color={theme.text}>
-                  {shortenAddress(1, item.address)}
-                </Text>
-                <RowFit gap="12px">
-                  <ActionButton color={theme.subText} style={{ padding: '6px 0' }}>
-                    <CopyHelper toCopy={item.address} text="Copy" />
-                  </ActionButton>
-                  <ActionButton
-                    color={theme.subText}
-                    style={{ padding: '6px 0' }}
-                    onClick={() => {
-                      chain &&
-                        window.open(getEtherscanLink(NETWORK_TO_CHAINID[chain], item.address, 'address'), '_blank')
-                    }}
-                  >
-                    <Icon id="open-link" size={16} /> Analyze
-                  </ActionButton>
-                </RowFit>
-              </Column>
-            </td>
-            <td>
-              <Text fontSize="14px" lineHeight="20px" color={theme.text}>
-                {(item.percentage * 100).toPrecision(4)}%
-              </Text>
-            </td>
-            <td>
-              <Text fontSize="14px" lineHeight="20px" color={theme.text}>
-                {tokenInfo &&
-                  item.quantity &&
-                  formatLocaleStringNum(
-                    +formatUnits(
-                      BigNumber.from(item.quantity.toLocaleString('fullwide', { useGrouping: false })),
-                      tokenInfo.decimals,
-                    ),
-                    0,
-                  )}
-              </Text>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </TableWrapper>
+          </thead>
+          <tbody>
+            {data?.slice(0, 10).map((item: IHolderList, i: number) => (
+              <tr key={i}>
+                <td style={{ position: 'sticky', zIndex: 2 }}>
+                  <Column gap="4px">
+                    <Text fontSize="14px" lineHeight="20px" color={theme.text}>
+                      {shortenAddress(1, item.address)}
+                    </Text>
+                    <RowFit gap="12px">
+                      <ActionButton color={theme.subText} style={{ padding: '6px 0' }}>
+                        <CopyHelper toCopy={item.address} text="Copy" />
+                      </ActionButton>
+                      <ActionButton
+                        color={theme.subText}
+                        style={{ padding: '6px 0' }}
+                        onClick={() => {
+                          chain &&
+                            window.open(getEtherscanLink(NETWORK_TO_CHAINID[chain], item.address, 'address'), '_blank')
+                        }}
+                      >
+                        <Icon id="open-link" size={16} /> Analyze
+                      </ActionButton>
+                    </RowFit>
+                  </Column>
+                </td>
+                <td>
+                  <Text fontSize="14px" lineHeight="20px" color={theme.text}>
+                    {(item.percentage * 100).toPrecision(4)}%
+                  </Text>
+                </td>
+                <td>
+                  <Text fontSize="14px" lineHeight="20px" color={theme.text}>
+                    {tokenOverview &&
+                      item.quantity &&
+                      formatLocaleStringNum(
+                        +formatUnits(
+                          BigNumber.from(item.quantity.toLocaleString('fullwide', { useGrouping: false })),
+                          tokenOverview.decimals,
+                        ),
+                        0,
+                      )}
+                  </Text>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </TableWrapper>
+      )}
+    </>
   )
 }
 
@@ -305,10 +316,11 @@ export const FundingRateTable = () => {
   const { chain, address } = useParams()
   const { data: tokenOverview } = useTokenDetailQuery({ address, chain })
   const { data, isLoading } = useFundingRateQuery({ address, chain })
+  console.log('🚀 ~ file: index.tsx:319 ~ FundingRateTable ~ data:', data)
 
   const hasNoData = !data && !isLoading
   return (
-    <TableWrapper>
+    <TableWrapper style={{ tableLayout: 'fixed' }}>
       {hasNoData ? (
         <Row height="200px" justify="center">
           <Text fontSize="14px">
@@ -322,7 +334,7 @@ export const FundingRateTable = () => {
             {Array(data?.uMarginList?.length)
               .fill(1)
               .map((_, index) => (
-                <col key={index} />
+                <col key={index} style={{ width: '150px' }} />
               ))}
           </colgroup>
           <thead>
@@ -341,9 +353,13 @@ export const FundingRateTable = () => {
               <td>
                 <Row gap="4px">
                   <img alt={data?.symbol} src={data?.symbolLogo} style={{ height: '40px' }} />
-                  <Column>
-                    <Text color={theme.text}>{data?.symbol}</Text>
-                    <Text color={theme.subText}>{data?.name}</Text>
+                  <Column gap="4px">
+                    <Text color={theme.text} fontSize="14px">
+                      {data?.symbol}
+                    </Text>
+                    <Text color={theme.subText} fontSize="12px">
+                      {tokenOverview?.name}
+                    </Text>
                   </Column>
                 </Row>
               </td>
