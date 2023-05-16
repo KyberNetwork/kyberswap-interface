@@ -48,6 +48,7 @@ export const formatLocaleStringNum = (num: number, fixed?: number): string => {
   const negative = num < 0
   const absNum = Math.abs(num)
   let formattedNum = ''
+  if (num > 1e20) return num.toString()
   if (absNum > 100000) {
     formattedNum = commify(+absNum.toFixed(fixed || 0))
   } else if (absNum > 100) {

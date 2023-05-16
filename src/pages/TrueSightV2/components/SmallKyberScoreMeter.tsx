@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
-import React, { useCallback } from 'react'
+import React from 'react'
 import { Text } from 'rebass'
 import styled, { useTheme } from 'styled-components'
 
@@ -31,16 +31,7 @@ function SmallKyberScoreMeter({ data, tokenName }: { data?: IKyberScoreChart; to
   const theme = useTheme()
   const emptyColor = theme.darkMode ? theme.subText + '30' : theme.border + '60'
   const activeGaugeValue = value ? (gaugeList.length * value) / 100 : 0
-  const gaugeColor = useCallback(
-    (value: number) => {
-      const percent = (value / gaugeList.length) * 100
-      if (value > activeGaugeValue) {
-        return emptyColor
-      }
-      return calculateValueToColor(percent, theme)
-    },
-    [activeGaugeValue, theme, emptyColor],
-  )
+  const activeGaugeColor = calculateValueToColor(value || 0, theme)
 
   return (
     <Wrapper>
@@ -50,7 +41,7 @@ function SmallKyberScoreMeter({ data, tokenName }: { data?: IKyberScoreChart; to
             <animate
               attributeName="fill"
               from={emptyColor}
-              to={gaugeColor(g.value)}
+              to={!value || g.value >= activeGaugeValue ? emptyColor : activeGaugeColor}
               dur="0.01s"
               begin={`${1 + index * 0.035}s`}
               fill="freeze"
