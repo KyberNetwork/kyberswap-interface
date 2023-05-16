@@ -2225,8 +2225,8 @@ export const LiquidOnCentralizedExchanges = () => {
     return {
       timeframe: tf,
       totalVolumes: formatLocaleStringNum(formattedData.reduce((a, b) => a + b.buyVolUsd + b.sellVolUsd, 0)),
-      totalBuys: formatLocaleStringNum(formattedData.reduce((a, b) => a + b.buyVolUsd, 0)),
-      totalSells: formatLocaleStringNum(-formattedData.reduce((a, b) => a + b.sellVolUsd, 0)),
+      totalBuys: formatLocaleStringNum(-formattedData.reduce((a, b) => a + b.buyVolUsd, 0)),
+      totalSells: formatLocaleStringNum(formattedData.reduce((a, b) => a + b.sellVolUsd, 0)),
     }
   }, [formattedData, timeframe, from, to])
 
@@ -2253,13 +2253,13 @@ export const LiquidOnCentralizedExchanges = () => {
                 <Column gap="4px">
                   <Text color={theme.subText}>Total Longs</Text>
                   <Text color={theme.text} fontWeight={500}>
-                    ${totalStats.totalBuys}
+                    ${totalStats.totalSells}
                   </Text>
                 </Column>
                 <Column gap="4px">
                   <Text color={theme.subText}>Total Shorts</Text>
                   <Text color={theme.text} fontWeight={500}>
-                    ${totalStats.totalSells}
+                    ${totalStats.totalBuys}
                   </Text>
                 </Column>
               </InfoWrapper>
