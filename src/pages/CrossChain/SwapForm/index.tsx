@@ -179,7 +179,7 @@ export default function SwapForm() {
       onTracking(MIXPANEL_TYPE.CROSS_CHAIN_SWAP_CONFIRMED)
       const tx = await squidInstance.executeRoute({
         signer: library.getSigner(),
-        route: (window as any).fakeRoute || route, // todo
+        route,
       })
       onTracking(MIXPANEL_TYPE.CROSS_CHAIN_TXS_SUBMITTED)
       setInputAmount('')
