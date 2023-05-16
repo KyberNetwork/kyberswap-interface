@@ -74,9 +74,8 @@ const formatPercent = (v: number) => {
 type TooltipTextOfSwapFeeProps = {
   feeBips: string | undefined
   feeAmountText: string
-  feeAmountUsd: string
 }
-export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({ feeBips, feeAmountText, feeAmountUsd }) => {
+export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({ feeBips, feeAmountText }) => {
   const feePercent = formatPercent(Number(feeBips) / Number(BIPS_BASE.toString()))
   const hereLink = (
     <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/user-guides/instantly-swap-at-the-best-rates#swap-fees-supporting-transactions-on-low-trading-volume-chains">
@@ -86,7 +85,7 @@ export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({ feeB
     </ExternalLink>
   )
 
-  if (!feeAmountText || !feeAmountUsd) {
+  if (!feeAmountText || !feePercent) {
     return <Trans>Read more about the fees {hereLink}</Trans>
   }
 
@@ -122,7 +121,6 @@ const SwapFee: React.FC = () => {
               <div>
                 <TooltipTextOfSwapFee
                   feeAmountText={`${feeAmount} ${currency?.symbol || ''}`}
-                  feeAmountUsd={feeAmountUsd}
                   feeBips={routeSummary?.extraFee?.feeAmount}
                 />
               </div>
@@ -136,7 +134,7 @@ const SwapFee: React.FC = () => {
 
       <RowFixed>
         <TYPE.black color={theme.text} fontSize={12}>
-          {feeAmountUsd || feeAmount || '--'}
+          {feeAmountUsd || `${feeAmount} ${currency?.symbol || ''}` || '--'}
         </TYPE.black>
       </RowFixed>
     </RowBetween>

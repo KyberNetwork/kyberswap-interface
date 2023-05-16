@@ -98,7 +98,7 @@ export default function SwapDetails({
     feeAmount: feeAmountFromBuild = '',
     feeAmountUsd: feeAmountUsdFromBuild = '',
     currency: currencyFromBuild = undefined,
-  } = routeSummary && buildData ? calculateFeeFromBuildData(routeSummary, buildData) : {}
+  } = calculateFeeFromBuildData(routeSummary, buildData)
 
   return (
     <>
@@ -246,7 +246,6 @@ export default function SwapDetails({
                   text={
                     <TooltipTextOfSwapFee
                       feeAmountText={`${feeAmountFromBuild} ${currencyFromBuild?.symbol || ''}`}
-                      feeAmountUsd={feeAmountUsdFromBuild}
                       feeBips={routeSummary?.extraFee?.feeAmount}
                     />
                   }
@@ -286,7 +285,7 @@ export default function SwapDetails({
                     </Flex>
                   )}
                   <TYPE.black color={theme.text} fontWeight={500} fontSize={12}>
-                    {feeAmountUsdFromBuild || feeAmountFromBuild || '--'}
+                    {feeAmountUsdFromBuild || `${feeAmountFromBuild} ${currencyFromBuild?.symbol || ''}` || '--'}
                   </TYPE.black>
                 </Flex>
               }
