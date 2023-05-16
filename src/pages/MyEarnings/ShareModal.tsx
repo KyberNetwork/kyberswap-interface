@@ -19,6 +19,7 @@ import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import { getSocialShareUrls } from 'components/ShareModal'
 import useCopyClipboard from 'hooks/useCopyClipboard'
+import useShareImage from 'hooks/useShareImage'
 import useTheme from 'hooks/useTheme'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { ButtonText, MEDIA_WIDTHS } from 'theme'
@@ -101,40 +102,51 @@ type Props = {
     feePercent: string
   }
 }
+
 export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }: Props) {
   const toggle = () => setIsOpen(!isOpen)
   const theme = useTheme()
   const [isSharePc, setIsSharePc] = useState(false)
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const [isCopied, setIsCopy] = useCopyClipboard()
+  const shareImage = useShareImage()
+  const loading = useRef(false)
+  const ref = useRef<HTMLDivElement>(null)
 
-  const generateImageUrl = (type: ShareType) => {
-    // todo: generate image => call api to get upload image => share image URL
-    const shareUrl = 'http://localhost:3000/logo-dark.svg'
-    const { telegram, facebook, discord, twitter } = getSocialShareUrls(shareUrl)
-    switch (type) {
-      case ShareType.COPY:
-        setIsCopy(shareUrl)
-        break
-      case ShareType.TELEGRAM:
-        window.open(telegram)
-        break
-      case ShareType.DISCORD:
-        window.open(discord)
-        break
-      case ShareType.FB:
-        window.open(facebook)
-        break
-      case ShareType.TWITTER:
-        window.open(twitter)
-        break
+  const generateImageUrlByMethod = async (type: ShareType) => {
+    if (loading.current) return
+    try {
+      loading.current = true
+      const shareUrl = await shareImage(ref.current)
+      const { telegram, facebook, discord, twitter } = getSocialShareUrls(shareUrl)
+      switch (type) {
+        case ShareType.COPY:
+          setIsCopy(shareUrl)
+          break
+        case ShareType.TELEGRAM:
+          window.open(telegram)
+          break
+        case ShareType.DISCORD:
+          window.open(discord)
+          break
+        case ShareType.FB:
+          window.open(facebook)
+          break
+        case ShareType.TWITTER:
+          window.open(twitter)
+          break
+      }
+    } catch (error) {
+      console.log('share err', error)
+    } finally {
+      loading.current = false
     }
   }
 
-  const ref = useRef<HTMLDivElement>(null)
   const downloadImage = async () => {
+    if (!ref.current || loading.current) return
     try {
-      if (!ref.current) return
+      loading.current = true
       const canvas: HTMLCanvasElement = await html2canvas(ref.current)
       if (!canvas) return
       const link = document.createElement('a')
@@ -143,6 +155,8 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
       link.click()
     } catch (error) {
       console.error(error)
+    } finally {
+      loading.current = false
     }
   }
 
@@ -152,22 +166,22 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
   const listShare = [
     {
       name: 'Telegram',
-      onClick: () => generateImageUrl(ShareType.TELEGRAM),
+      onClick: () => generateImageUrlByMethod(ShareType.TELEGRAM),
       icon: <Telegram size={20} color={theme.subText} />,
     },
     {
       name: 'Twitter',
-      onClick: () => generateImageUrl(ShareType.TWITTER),
+      onClick: () => generateImageUrlByMethod(ShareType.TWITTER),
       icon: <TwitterIcon width={20} height={20} color={theme.subText} />,
     },
     {
       name: 'Facebook',
-      onClick: () => generateImageUrl(ShareType.FB),
+      onClick: () => generateImageUrlByMethod(ShareType.FB),
       icon: <Facebook color={theme.subText} size={20} />,
     },
     {
       name: 'Discord',
-      onClick: () => generateImageUrl(ShareType.DISCORD),
+      onClick: () => generateImageUrlByMethod(ShareType.DISCORD),
       icon: <Discord width={20} height={20} color={theme.subText} />,
     },
     {
@@ -177,7 +191,7 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
     },
     {
       name: 'Copy',
-      onClick: () => generateImageUrl(ShareType.COPY),
+      onClick: () => generateImageUrlByMethod(ShareType.COPY),
       icon: isCopied ? <CheckCircle size={20} color={theme.subText} /> : <Copy size={20} color={theme.subText} />,
     },
   ]

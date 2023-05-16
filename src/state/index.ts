@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit'
 import { load, save } from 'redux-localstorage-simple'
 import priceAlertApi from 'services/priceAlert'
 import routeApi from 'services/route'
+import socialApi from 'services/social'
 
 import { ENV_LEVEL } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
@@ -60,6 +61,7 @@ const store = configureStore({
     farms,
     vesting,
     [annoucementApi.reducerPath]: annoucementApi.reducer,
+    [socialApi.reducerPath]: socialApi.reducer,
     [geckoTerminalApi.reducerPath]: geckoTerminalApi.reducer,
     [notificationApi.reducerPath]: notificationApi.reducer,
     [ksSettingApi.reducerPath]: ksSettingApi.reducer,
@@ -82,6 +84,7 @@ const store = configureStore({
       .concat(geckoTerminalApi.middleware)
       .concat(notificationApi.middleware)
       .concat(ksSettingApi.middleware)
+      .concat(socialApi.middleware)
       .concat(annoucementApi.middleware)
       .concat(priceAlertApi.middleware)
       .concat(routeApi.middleware)
