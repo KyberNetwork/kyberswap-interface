@@ -1,5 +1,7 @@
 name: 'KyberSwap Interface Release'
 
+permissions: write-all
+
 on:
   workflow_dispatch:
     inputs:
