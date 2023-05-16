@@ -26,11 +26,12 @@ const calculateFee = (
   ).divide(BIPS_BASE)
   const feeCurrencyAmount = currencyAmountToTakeFee.multiply(feeAmountFraction)
 
+  const feeAmountUsd = routeSummary.extraFee.feeAmountUsd
   return {
     currency: currencyAmountToTakeFee.currency,
     currencyAmount: feeCurrencyAmount,
     formattedAmount: feeCurrencyAmount.toSignificant(RESERVE_USD_DECIMALS),
-    formattedAmountUsd: formattedNum(routeSummary.extraFee.feeAmountUsd, true, 4),
+    formattedAmountUsd: feeAmountUsd && feeAmountUsd !== '0' ? formattedNum(feeAmountUsd, true, 4) : '',
   }
 }
 

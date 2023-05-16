@@ -65,10 +65,11 @@ export const calculateFeeFromBuildData = (
   ).divide(BIPS_BASE)
 
   const fee = currencyAmountToTakeFee.multiply(feeAmountFraction).toSignificant(RESERVE_USD_DECIMALS)
+  const feeUsd = buildData.feeUsd
 
   return {
     feeAmount: formattedNum(fee, false),
-    feeAmountUsd: buildData.feeUsd ? formattedNum(buildData.feeUsd, true, 4) : '',
+    feeAmountUsd: feeUsd && feeUsd !== '0' ? formattedNum(feeUsd, true, 4) : '',
     currency: currencyAmountToTakeFee.currency,
   }
 }
