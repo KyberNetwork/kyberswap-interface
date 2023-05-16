@@ -6,7 +6,12 @@ import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { useCallback } from 'react'
 
 import { walletconnect, walletlink } from 'connectors'
-import { LS_LAST_WALLETKEY, SUPPORTED_WALLET, SUPPORTED_WALLETS, WALLETLINK_LOCALSTORAGE_NAME } from 'constants/wallets'
+import {
+  LOCALSTORAGE_LAST_WALLETKEY,
+  SUPPORTED_WALLET,
+  SUPPORTED_WALLETS,
+  WALLETLINK_LOCALSTORAGE_NAME,
+} from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useIsUserManuallyDisconnect } from 'state/user/hooks'
 import { isEVMWallet, isSolanaWallet } from 'utils'
@@ -85,14 +90,14 @@ export const useActivationWallet = () => {
             deactivate()
           }
 
-          localStorage.setItem(LS_LAST_WALLETKEY, walletKey.toString())
+          localStorage.setItem(LOCALSTORAGE_LAST_WALLETKEY, walletKey.toString())
           await tryActivationEVM(wallet.connector)
         }
         if (isSolana && isSolanaWallet(wallet) && wallet.adapter !== solanaWallet?.adapter) {
           await tryActivationSolana(wallet.adapter)
         }
       } catch (err) {
-        localStorage.removeItem(LS_LAST_WALLETKEY)
+        localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY)
         throw err
       }
     },

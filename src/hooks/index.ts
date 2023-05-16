@@ -13,7 +13,12 @@ import { injected, trustWalletConnector, walletconnect, walletlink } from 'conne
 import { MOCK_ACCOUNT_EVM, MOCK_ACCOUNT_SOLANA } from 'constants/env'
 import { NETWORKS_INFO } from 'constants/networks'
 import { NetworkInfo } from 'constants/networks/type'
-import { LS_LAST_WALLETKEY, SUPPORTED_WALLET, SUPPORTED_WALLETS, WALLETLINK_LOCALSTORAGE_NAME } from 'constants/wallets'
+import {
+  LOCALSTORAGE_LAST_WALLETKEY,
+  SUPPORTED_WALLET,
+  SUPPORTED_WALLETS,
+  WALLETLINK_LOCALSTORAGE_NAME,
+} from 'constants/wallets'
 import { AppState } from 'state'
 import { useKyberSwapConfig } from 'state/application/hooks'
 import { useConnectedWallet } from 'state/authen/hooks'
@@ -133,12 +138,11 @@ export const useWeb3Solana = () => {
   return { connection }
 }
 
-export async function isAuthorized(getAccount = false): Promise<string | boolean> {
+export async function isAuthorized(): Promise<string | boolean> {
   // Check if previous connected to Coinbase Link
   if (
-    (window.localStorage.getItem(WALLETLINK_LOCALSTORAGE_NAME) ||
-      localStorage.getItem(LS_LAST_WALLETKEY) === 'WALLET_CONNECT') &&
-    !getAccount
+    window.localStorage.getItem(WALLETLINK_LOCALSTORAGE_NAME) ||
+    localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY) === 'WALLET_CONNECT'
   ) {
     return true
   }
@@ -164,7 +168,7 @@ export function useEagerConnect() {
   const detectedWallet = detectInjectedType()
   const [, setConnectedWallet] = useConnectedWallet()
   useEffect(() => {
-    ;(async () => {
+    const func = async () => {
       try {
         // If not accepted Terms or Terms changed: block eager connect for EVM wallets and disconnect manually for Solana wallet
         if (!isAcceptedTerm) {
@@ -182,7 +186,7 @@ export function useEagerConnect() {
           connector = walletlink
           throwError = false
         } else if ((authorized && !isManuallyDisconnect) || (isMobile && window.ethereum)) {
-          const lastWalletKey = localStorage.getItem(LS_LAST_WALLETKEY)
+          const lastWalletKey = localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY)
           const wallet = lastWalletKey && SUPPORTED_WALLETS[lastWalletKey]
           connector = wallet && isEVMWallet(wallet) ? wallet.connector : injected
         } else if (detectedWallet === 'TRUST_WALLET' && !isManuallyDisconnect) {
@@ -202,7 +206,27 @@ export function useEagerConnect() {
         setTried(true)
         setConnectedWallet(undefined)
       }
-    })()
+      isAuthorized()
+        .then(isAuthorized => {
+          setTried(true)
+          // try to connect if previous connected to Coinbase Link
+          if (isAuthorized && window.localStorage.getItem(WALLETLINK_LOCALSTORAGE_NAME) && !isManuallyDisconnect) {
+            activate(walletlink)
+          } else if (isAuthorized && !isManuallyDisconnect) {
+            const lastWalletKey = localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY)
+            const wallet = lastWalletKey && SUPPORTED_WALLETS[lastWalletKey]
+            if (wallet && isEVMWallet(wallet)) activate(wallet.connector, undefined, true)
+            else activate(injected, undefined, true)
+          } else if (isMobile && window.ethereum) {
+            activate(injected, undefined, true)
+          }
+        })
+        .catch(e => {
+          console.log('Eagerly connect: authorize error', e)
+          setTried(true)
+        })
+    }
+    func()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []) // intentionally only running on mount (make sure it's only mounted once :))
 

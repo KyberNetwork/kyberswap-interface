@@ -10,6 +10,7 @@ import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
+import { useAppDispatch } from 'state/hooks'
 import { FeeConfig } from 'types/route'
 import { Aggregator } from 'utils/aggregator'
 
@@ -54,6 +55,13 @@ const useGetRoute = (args: ArgsGetRoute) => {
     }
     return _result
   }, [_result])
+
+  const dispatch = useAppDispatch()
+  useEffect(() => {
+    if (!parsedAmount) {
+      dispatch(routeApi.util.resetApiState())
+    }
+  }, [dispatch, parsedAmount])
 
   useEffect(() => {
     if (!isProcessingSwap) {
