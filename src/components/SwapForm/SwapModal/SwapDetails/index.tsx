@@ -100,6 +100,9 @@ export default function SwapDetails({
     currency: currencyFromBuild = undefined,
   } = calculateFeeFromBuildData(routeSummary, buildData)
 
+  const feeAmountWithSymbol =
+    feeAmountFromBuild && currencyFromBuild?.symbol ? `${feeAmountFromBuild} ${currencyFromBuild.symbol}` : ''
+
   return (
     <>
       <AutoColumn
@@ -245,7 +248,7 @@ export default function SwapDetails({
                 <MouseoverTooltip
                   text={
                     <TooltipTextOfSwapFee
-                      feeAmountText={`${feeAmountFromBuild} ${currencyFromBuild?.symbol || ''}`}
+                      feeAmountText={feeAmountWithSymbol}
                       feeBips={routeSummary?.extraFee?.feeAmount}
                     />
                   }
@@ -285,7 +288,7 @@ export default function SwapDetails({
                     </Flex>
                   )}
                   <TYPE.black color={theme.text} fontWeight={500} fontSize={12}>
-                    {feeAmountUsdFromBuild || `${feeAmountFromBuild} ${currencyFromBuild?.symbol || ''}` || '--'}
+                    {feeAmountUsdFromBuild || feeAmountWithSymbol || '--'}
                   </TYPE.black>
                 </Flex>
               }

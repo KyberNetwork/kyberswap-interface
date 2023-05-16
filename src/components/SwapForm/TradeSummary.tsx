@@ -112,18 +112,15 @@ const SwapFee: React.FC = () => {
     currency = undefined,
   } = routeSummary?.fee || {}
 
+  const feeAmountWithSymbol = feeAmount && currency?.symbol ? `${feeAmount} ${currency.symbol}` : ''
+
   return (
     <RowBetween>
       <RowFixed>
         <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
           <MouseoverTooltip
             text={
-              <div>
-                <TooltipTextOfSwapFee
-                  feeAmountText={`${feeAmount} ${currency?.symbol || ''}`}
-                  feeBips={routeSummary?.extraFee?.feeAmount}
-                />
-              </div>
+              <TooltipTextOfSwapFee feeAmountText={feeAmountWithSymbol} feeBips={routeSummary?.extraFee?.feeAmount} />
             }
             placement="right"
           >
@@ -134,7 +131,7 @@ const SwapFee: React.FC = () => {
 
       <RowFixed>
         <TYPE.black color={theme.text} fontSize={12}>
-          {feeAmountUsd || `${feeAmount} ${currency?.symbol || ''}` || '--'}
+          {feeAmountUsd || feeAmountWithSymbol || '--'}
         </TYPE.black>
       </RowFixed>
     </RowBetween>
