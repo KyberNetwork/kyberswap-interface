@@ -41,6 +41,13 @@ export type DetailedRouteSummary = {
   gasUsd: string
   gasPrice: string
 
+  fee?: {
+    currency: Currency
+    currencyAmount: CurrencyAmount<Currency>
+    formattedAmount: string
+    formattedAmountUsd: string
+  }
+
   extraFee: {
     feeAmount: string
     feeAmountUsd: string

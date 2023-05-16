@@ -22,7 +22,7 @@ import { ExternalLink, TYPE } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { formattedNum } from 'utils'
 import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
-import { calculateFee } from 'utils/fee'
+import { calculateFeeFromBuildData } from 'utils/fee'
 import { checkPriceImpact, formatPriceImpact } from 'utils/prices'
 import { checkWarningSlippage, formatSlippage } from 'utils/slippage'
 
@@ -92,36 +92,13 @@ export default function SwapDetails({
   const priceImpactResult = checkPriceImpact(priceImpact)
   const isStablePair = useCheckStablePairSwap(currencyIn, currencyOut)
 
-  const { feeAmountUsd: feeAmountUsdFromGet = '' } = routeSummary
-    ? calculateFee(
-        routeSummary.parsedAmountIn.currency,
-        routeSummary.parsedAmountOut.currency,
-        routeSummary.amountIn,
-        routeSummary.amountOut,
-        routeSummary.amountInUsd,
-        routeSummary.amountOutUsd,
-        routeSummary.extraFee,
-      )
-    : {}
+  const { formattedAmountUsd: feeAmountUsdFromGet = '' } = routeSummary?.fee || {}
 
   const {
     feeAmount: feeAmountFromBuild = '',
     feeAmountUsd: feeAmountUsdFromBuild = '',
     currency: currencyFromBuild = undefined,
-  } = routeSummary && buildData
-    ? calculateFee(
-        routeSummary.parsedAmountIn.currency,
-        routeSummary.parsedAmountOut.currency,
-
-        buildData.amountIn,
-        buildData.amountOut,
-
-        buildData.amountInUsd,
-        buildData.amountOutUsd,
-
-        routeSummary.extraFee,
-      )
-    : {}
+  } = routeSummary && buildData ? calculateFeeFromBuildData(routeSummary, buildData) : {}
 
   return (
     <>
@@ -270,7 +247,7 @@ export default function SwapDetails({
                     <TooltipTextOfSwapFee
                       feeAmountText={`${feeAmountFromBuild} ${currencyFromBuild?.symbol || ''}`}
                       feeAmountUsd={feeAmountUsdFromBuild}
-                      feePercentStr={routeSummary?.extraFee?.feeAmount}
+                      feeBips={routeSummary?.extraFee?.feeAmount}
                     />
                   }
                   placement="right"

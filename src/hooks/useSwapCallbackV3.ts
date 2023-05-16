@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { ZERO_ADDRESS_SOLANA } from 'constants/index'
@@ -10,7 +10,6 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE, TransactionExtraInfo2Token } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { isAddress, shortenAddress } from 'utils'
-import { calculateFee } from 'utils/fee'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 
@@ -37,28 +36,6 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
   const { address: recipientAddress } = useENS(recipientAddressOrName)
 
   const recipient = recipientAddressOrName === null || recipientAddressOrName === '' ? account : recipientAddress
-
-  const {
-    feeAmount,
-    feeAmountUsd,
-    currency: currencyToTakeFee,
-  } = useMemo(() => {
-    return routeSummary
-      ? calculateFee(
-          routeSummary.parsedAmountIn.currency,
-          routeSummary.parsedAmountOut.currency,
-          routeSummary.amountIn,
-          routeSummary.amountOut,
-          routeSummary.amountInUsd,
-          routeSummary.amountOutUsd,
-          routeSummary.extraFee,
-        )
-      : {
-          feeAmount: '',
-          feeAmountUsd: '',
-          currency: undefined,
-        }
-  }, [routeSummary])
 
   const getSwapData = useCallback(() => {
     if (!inputAmount || !outputAmount) {
@@ -107,12 +84,12 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
           slippageSetting: allowedSlippage ? allowedSlippage / 100 : 0,
           priceImpact: priceImpact && priceImpact > 0.01 ? priceImpact.toFixed(2) : '<0.01',
           isPermitSwap,
-          feeInfo: routeSummary?.extraFee.chargeFeeBy
+          feeInfo: routeSummary?.fee
             ? {
                 chargeTokenIn: routeSummary.extraFee.chargeFeeBy === 'currency_in',
-                tokenSymbol: currencyToTakeFee?.symbol || '',
-                feeUsd: routeSummary.extraFee.feeAmountUsd || feeAmountUsd,
-                feeAmount,
+                tokenSymbol: routeSummary.fee.currency.symbol || '',
+                feeUsd: routeSummary.extraFee.feeAmountUsd,
+                feeAmount: routeSummary.fee.currencyAmount.toExact(),
               }
             : undefined,
         },
@@ -132,9 +109,6 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
     priceImpact,
     isPermitSwap,
     routeSummary,
-    currencyToTakeFee?.symbol,
-    feeAmountUsd,
-    feeAmount,
   ])
 
   const handleSwapResponse = useCallback(

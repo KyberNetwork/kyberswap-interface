@@ -17,7 +17,6 @@ import { ExternalLink, TYPE } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { formattedNum } from 'utils'
 import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
-import { calculateFee } from 'utils/fee'
 import { checkPriceImpact, formatPriceImpact } from 'utils/prices'
 
 const IconWrapper = styled.div<{ $flip: boolean }>`
@@ -73,16 +72,12 @@ const formatPercent = (v: number) => {
 }
 
 type TooltipTextOfSwapFeeProps = {
-  feePercentStr: string | undefined
+  feeBips: string | undefined
   feeAmountText: string
   feeAmountUsd: string
 }
-export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({
-  feePercentStr,
-  feeAmountText,
-  feeAmountUsd,
-}) => {
-  const feePercent = formatPercent(Number(feePercentStr) / Number(BIPS_BASE.toString()))
+export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({ feeBips, feeAmountText, feeAmountUsd }) => {
+  const feePercent = formatPercent(Number(feeBips) / Number(BIPS_BASE.toString()))
   const hereLink = (
     <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/user-guides/instantly-swap-at-the-best-rates#swap-fees-supporting-transactions-on-low-trading-volume-chains">
       <b>
@@ -113,20 +108,10 @@ const SwapFee: React.FC = () => {
   }
 
   const {
-    feeAmount = '',
-    feeAmountUsd = '',
+    formattedAmount: feeAmount = '',
+    formattedAmountUsd: feeAmountUsd = '',
     currency = undefined,
-  } = routeSummary
-    ? calculateFee(
-        routeSummary.parsedAmountIn.currency,
-        routeSummary.parsedAmountOut.currency,
-        routeSummary.amountIn,
-        routeSummary.amountOut,
-        routeSummary.amountInUsd,
-        routeSummary.amountOutUsd,
-        routeSummary.extraFee,
-      )
-    : {}
+  } = routeSummary?.fee || {}
 
   return (
     <RowBetween>
@@ -138,7 +123,7 @@ const SwapFee: React.FC = () => {
                 <TooltipTextOfSwapFee
                   feeAmountText={`${feeAmount} ${currency?.symbol || ''}`}
                   feeAmountUsd={feeAmountUsd}
-                  feePercentStr={routeSummary?.extraFee?.feeAmount}
+                  feeBips={routeSummary?.extraFee?.feeAmount}
                 />
               </div>
             }
