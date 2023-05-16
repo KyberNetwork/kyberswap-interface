@@ -1,9 +1,9 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -246,9 +246,13 @@ const TokenDescription = ({ description }: { description: string }) => {
 export default function SingleToken() {
   const theme = useTheme()
   const navigate = useNavigate()
+  const location = useLocation()
+
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const { chain, address } = useParams()
   const [currentTab, setCurrentTab] = useState<DiscoverTokenTab>(DiscoverTokenTab.OnChainAnalysis)
+  const [shareContent, setShareContent] = useState<ReactNode>(null)
+  const [shareTitle, setShareTitle] = useState<string>('')
   const { account } = useActiveWeb3React()
   const { data: token, isLoading } = useTokenDetailQuery({
     chain: chain || defaultExplorePageToken.chain,
@@ -259,8 +263,9 @@ export default function SingleToken() {
   const shareUrl = useRef<string>()
   const toggleShareModal = useToggleModal(ApplicationModal.KYBERAI_SHARE)
 
-  const handleShareClick = (url?: string) => {
-    shareUrl.current = url
+  const handleShareClick = (content: ReactNode, title: string) => {
+    setShareContent(content)
+    setShareTitle(title)
     toggleShareModal()
   }
 
@@ -280,6 +285,16 @@ export default function SingleToken() {
       }).then(() => setIsWatched(false))
     } else {
       addToWatchlist({ wallet: account, tokenAddress: token?.address, chain }).then(() => setIsWatched(true))
+    }
+  }
+
+  const handleGoBackClick = () => {
+    console.log(1)
+    console.log('🚀 ~ file: SingleToken.tsx:290 ~ handleGoBackClick ~ location.state.from:', location?.state?.from)
+    if (!!location?.state?.from) {
+      navigate(location.state.from)
+    } else {
+      navigate({ pathname: APP_PATHS.KYBERAI_RANKINGS })
     }
   }
 
@@ -303,7 +318,7 @@ export default function SingleToken() {
     const TokenNameGroup = () => (
       <>
         <SimpleTooltip text={t`Go back Ranking page`}>
-          <ButtonIcon onClick={() => navigate(-1)}>
+          <ButtonIcon onClick={handleGoBackClick}>
             <ChevronLeft size={24} />
           </ButtonIcon>
         </SimpleTooltip>
@@ -422,7 +437,7 @@ export default function SingleToken() {
             style={{
               color: theme.subText,
             }}
-            onClick={() => handleShareClick()}
+            // onClick={handleShareClick}
           >
             <Share2 size={16} fill="currentcolor" />
           </HeaderButton>
@@ -528,7 +543,7 @@ export default function SingleToken() {
       {currentTab === DiscoverTokenTab.TechnicalAnalysis && <TechnicalAnalysis />}
       {/* {currentTab === DiscoverTokenTab.News && <News />} */}
       <ShareModal title="Share with your friends" url={shareUrl.current} />
-      <ShareKyberAIModal token={token} />
+      <ShareKyberAIModal token={token} content={shareContent} title={shareTitle} />
     </Wrapper>
   )
 }

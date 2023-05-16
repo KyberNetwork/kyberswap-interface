@@ -115,6 +115,7 @@ const CustomizedPriceLabel = (props: any) => {
 const ChartWrapper = styled(ContentWrapper)`
   flex: 1;
   min-height: 0;
+  position: relative;
 `
 
 const LegendWrapper = styled.div`
@@ -281,7 +282,7 @@ export const TimeFrameLegend = ({
   }, [selected])
   if (timeframes?.length < 1) return null
   return (
-    <TimeFrameWrapper>
+    <TimeFrameWrapper className="timeframelegend">
       {timeframes.map((t: KyberAITimeframe, index: number) => {
         return (
           <Element
@@ -366,7 +367,7 @@ const roundNumberUp = (number: number) => {
   return Math.ceil(number / Math.pow(10, digit)) * Math.pow(10, digit)
 }
 
-export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?: boolean; noAnimation?: boolean }) => {
+export const NumberofTradesChart = ({ noAnimation }: { noAnimation?: boolean }) => {
   const theme = useTheme()
   const { chain, address } = useParams()
   const [timeframe, setTimeframe] = useState(KyberAITimeframe.ONE_MONTH)
@@ -501,18 +502,16 @@ export const NumberofTradesChart = ({ noTimeframe, noAnimation }: { noTimeframe?
               />
             </>
           )}
-          {!noTimeframe && (
-            <TimeFrameLegend
-              selected={timeframe}
-              onSelect={setTimeframe}
-              timeframes={[
-                KyberAITimeframe.ONE_DAY,
-                KyberAITimeframe.ONE_WEEK,
-                KyberAITimeframe.ONE_MONTH,
-                KyberAITimeframe.THREE_MONTHS,
-              ]}
-            />
-          )}
+          <TimeFrameLegend
+            selected={timeframe}
+            onSelect={setTimeframe}
+            timeframes={[
+              KyberAITimeframe.ONE_DAY,
+              KyberAITimeframe.ONE_WEEK,
+              KyberAITimeframe.ONE_MONTH,
+              KyberAITimeframe.THREE_MONTHS,
+            ]}
+          />
         </LegendWrapper>
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
@@ -1900,7 +1899,7 @@ export const NumberofHolders = () => {
     return dataTemp
   }, [data, timerange, from, to])
 
-  const totalStats: { timeframe: string; totalHolders: string } = useMemo(() => {
+  const totalStats: { timeframe: string } = useMemo(() => {
     if (formattedData.length === 0) return { timeframe: '--', totalHolders: '--' }
     const tf = `${dayjs(formattedData[0].timestamp).format(
       timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm, MMM DD' : 'MMM DD',
@@ -1909,7 +1908,6 @@ export const NumberofHolders = () => {
     )}`
     return {
       timeframe: tf,
-      totalHolders: formatLocaleStringNum(formattedData.reduce((a, b) => a + b.count, 0)),
     }
   }, [formattedData, timeframe])
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -1922,12 +1920,6 @@ export const NumberofHolders = () => {
             <Text color={theme.subText}>Timeframe</Text>
             <Text color={theme.text} fontWeight={500}>
               {totalStats.timeframe}
-            </Text>
-          </Column>
-          <Column gap="4px">
-            <Text color={theme.subText}>Total Holders</Text>
-            <Text color={theme.text} fontWeight={500}>
-              {totalStats.totalHolders}
             </Text>
           </Column>
         </InfoWrapper>
@@ -2083,7 +2075,6 @@ export const HoldersChartWrapper = () => {
   const sumPercentage = useMemo(() => {
     return formattedData?.reduce((s, a) => s + a.percentage, 0) || 0
   }, [formattedData])
-  console.log('🚀 ~ file: index.tsx:2086 ~ otherAddressesAmount ~ otherAddressesAmount:', sumPercentage)
 
   return (
     <ChartWrapper>

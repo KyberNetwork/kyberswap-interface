@@ -104,6 +104,7 @@ export const SectionWrapper = ({
   id,
   shareButton,
   fullscreenButton,
+  onShareClick,
   tabs,
   activeTab,
   onTabClick,
@@ -117,7 +118,7 @@ export const SectionWrapper = ({
   id?: string
   shareButton?: boolean
   fullscreenButton?: boolean
-  onShareClick?: (tag?: string) => void
+  onShareClick?: (content: ReactNode, title: string) => void
   tabs?: string[]
   activeTab?: ChartTab
   onTabClick?: (tab: ChartTab) => void
@@ -174,7 +175,16 @@ export const SectionWrapper = ({
                     {subTitle}
                   </Text>
                 )}
-                {/* {shareButton && <ShareButton onClick={() => onShareClick?.(id)} />} */}
+                {shareButton && (
+                  <ShareButton
+                    onClick={() =>
+                      onShareClick?.(
+                        React.cloneElement(<>{children}</>, {}),
+                        tabs && activeTab !== undefined && title ? tabs[activeTab] + ' ' + title : '',
+                      )
+                    }
+                  />
+                )}
                 {shareButton && <></>}
                 {fullscreenButton && <FullscreenButton element={ref.current} />}
               </RowFit>
@@ -256,7 +266,16 @@ export const SectionWrapper = ({
                 </Text>
               </MouseoverTooltip>
               <RowFit color={theme.subText} gap="12px">
-                {/* {shareButton && <ShareButton onClick={() => onShareClick?.(id)} />} */}
+                {shareButton && (
+                  <ShareButton
+                    onClick={() =>
+                      onShareClick?.(
+                        children,
+                        tabs && activeTab !== undefined && title ? tabs[activeTab] + ' ' + title : '',
+                      )
+                    }
+                  />
+                )}
                 {shareButton && <></>}
                 {fullscreenButton && <FullscreenButton element={ref.current} />}
               </RowFit>

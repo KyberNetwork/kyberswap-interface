@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { motion, useScroll, useSpring, useTransform } from 'framer-motion'
+import { AnimatePresence, motion, useScroll, useSpring, useTransform } from 'framer-motion'
 import { ReactNode } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Check } from 'react-feather'
@@ -203,7 +203,7 @@ const FloatingImageWithMotion = (props: {
   const translateY = useSpring(transformedTranslateY, { bounce: 0, duration: 0.5 })
 
   return (
-    <motion.div transition={transition} variants={appearVariants} style={{ translateY, ...props.style }}>
+    <motion.div transition={transition} style={{ translateY, ...props.style }}>
       <FloatingImage {...props} />
     </motion.div>
   )
@@ -421,70 +421,78 @@ export default function KyberAILandingPage() {
             </Text>
             <RegisterWhitelist />
           </Column>
-          {above768 && (
-            <ColumnWithMotion
-              style={{
-                position: 'relative',
-                transform: `scale(${above1200 ? 1 : 0.8})`,
-              }}
-            >
-              <FloatingImageWithMotion src={bitcoinImage} alt="bitcoin" left={0} top={320} parallaxDistance={6} />
-              <FloatingImageWithMotion
-                src={theme.darkMode ? chartImage : chartLightImage}
-                alt="chart"
-                left={660}
-                top={400}
-                parallaxDistance={9}
-                style={{ scale: 0.5 }}
-              />
-              <FloatingImageWithMotion
-                src={theme.darkMode ? liveDexTradesImage : liveDexTradesLightImage}
-                alt="live dex trade"
-                left={-200}
-                top={190}
-                parallaxDistance={10}
-                style={{ scale: 0.5 }}
-              />
-              <FloatingImageWithMotion
-                src={theme.darkMode ? kyberscoreMeterImage : kyberscoreMeterLightImage}
-                alt="kyberscore"
-                left={550}
-                top={-20}
-                parallaxDistance={4}
-                style={{ scale: 0.5 }}
-              />
-              <FloatingImageWithMotion src={iconImage} alt="icon" left={230} top={80} parallaxDistance={7} />
-              <FloatingImageWithMotion src={starsImage} alt="stars" left={-600} top={80} parallaxDistance={-10} />
-              <FloatingImageWithMotion src={apeImage} alt="ape head" left={-20} top={100} parallaxDistance={4} />
-              <motion.div
-                animate={{
-                  opacity: [
-                    1, 0.9, 0.7, 0.8, 1, 1, 0.9, 1, 1, 0.9, 1, 0.2, 1, 1, 0.1, 1, 0.6, 0.5, 0.6, 1, 1, 0.7, 0.8, 0.7, 1,
-                    1, 0.6, 0.5, 0.6, 1,
-                  ],
+          <AnimatePresence>
+            {above768 && (
+              <ColumnWithMotion
+                style={{
+                  position: 'relative',
+                  transform: `scale(${above1200 ? 1 : 0.8})`,
                 }}
-                transition={{ duration: 5, repeat: Infinity }}
               >
+                <FloatingImageWithMotion src={bitcoinImage} alt="bitcoin" left={0} top={320} parallaxDistance={6} />
                 <FloatingImageWithMotion
-                  src={gradientImage}
-                  alt="ape sight"
-                  left={-720}
-                  top={-100}
-                  parallaxDistance={4}
-                  style={{ filter: 'brightness(1.1)' }}
+                  src={theme.darkMode ? chartImage : chartLightImage}
+                  alt="chart"
+                  left={660}
+                  top={400}
+                  parallaxDistance={9}
+                  style={{ scale: 0.5 }}
                 />
-              </motion.div>
-              <FloatingImageWithMotion src={ethereumImage} alt="ethereum" left={300} top={320} parallaxDistance={-7} />
-              <FloatingImageWithMotion
-                src={theme.darkMode ? tokenPriceImage : tokenPriceLightImage}
-                alt="token Price"
-                left={0}
-                top={920}
-                parallaxDistance={11}
-                style={{ scale: 0.5 }}
-              />
-            </ColumnWithMotion>
-          )}
+                <FloatingImageWithMotion
+                  src={theme.darkMode ? liveDexTradesImage : liveDexTradesLightImage}
+                  alt="live dex trade"
+                  left={-200}
+                  top={190}
+                  parallaxDistance={10}
+                  style={{ scale: 0.5 }}
+                />
+                <FloatingImageWithMotion
+                  src={theme.darkMode ? kyberscoreMeterImage : kyberscoreMeterLightImage}
+                  alt="kyberscore"
+                  left={550}
+                  top={-20}
+                  parallaxDistance={4}
+                  style={{ scale: 0.5 }}
+                />
+                <FloatingImageWithMotion src={iconImage} alt="icon" left={230} top={80} parallaxDistance={7} />
+                <FloatingImageWithMotion src={starsImage} alt="stars" left={-600} top={80} parallaxDistance={-10} />
+                <FloatingImageWithMotion src={apeImage} alt="ape head" left={-20} top={100} parallaxDistance={4} />
+                <motion.div
+                  animate={{
+                    opacity: [
+                      1, 0.9, 0.7, 0.8, 1, 1, 0.9, 1, 1, 0.9, 1, 0.2, 1, 1, 0.1, 1, 0.6, 0.5, 0.6, 1, 1, 0.7, 0.8, 0.7,
+                      1, 1, 0.6, 0.5, 0.6, 1,
+                    ],
+                  }}
+                  transition={{ duration: 5, repeat: Infinity }}
+                >
+                  <FloatingImageWithMotion
+                    src={gradientImage}
+                    alt="ape sight"
+                    left={-720}
+                    top={-100}
+                    parallaxDistance={4}
+                    style={{ filter: 'brightness(1.1)' }}
+                  />
+                </motion.div>
+                <FloatingImageWithMotion
+                  src={ethereumImage}
+                  alt="ethereum"
+                  left={300}
+                  top={320}
+                  parallaxDistance={-7}
+                />
+                <FloatingImageWithMotion
+                  src={theme.darkMode ? tokenPriceImage : tokenPriceLightImage}
+                  alt="token Price"
+                  left={0}
+                  top={920}
+                  parallaxDistance={11}
+                  style={{ scale: 0.5 }}
+                />
+              </ColumnWithMotion>
+            )}
+          </AnimatePresence>
         </FixedWidth>
       </Part1>
       <Part2>
@@ -621,7 +629,7 @@ export default function KyberAILandingPage() {
           </Text>
         </Row>
         <Row justify="center" gap="26px" flexDirection={above768 ? 'row' : 'column'}>
-          <FeatureBox variants={appearVariants} transition={transition}>
+          <FeatureBox transition={transition}>
             <Column justifyContent="center" alignItems="center" height="200px" gap="26px">
               <img src={feature1} alt="feature 1" width="130px" />
               <Text fontSize="20px" lineHeight="24px" color={theme.text}>
@@ -639,7 +647,7 @@ export default function KyberAILandingPage() {
               </Trans>
             </Text>
           </FeatureBox>
-          <FeatureBox variants={appearVariants} transition={transition}>
+          <FeatureBox transition={transition}>
             <Column justifyContent="center" alignItems="center" height="200px" gap="26px">
               <img src={feature2} alt="feature 2" />
               <Text fontSize="20px" lineHeight="24px" color={theme.text}>
@@ -654,7 +662,7 @@ export default function KyberAILandingPage() {
               </Trans>
             </Text>
           </FeatureBox>
-          <FeatureBox variants={appearVariants} transition={transition}>
+          <FeatureBox transition={transition}>
             <Column justifyContent="center" alignItems="center" height="200px" gap="26px">
               <img src={feature3} alt="feature 3" />
               <Text fontSize="20px" lineHeight="24px" color={theme.text}>

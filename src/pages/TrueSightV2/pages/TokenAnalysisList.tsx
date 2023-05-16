@@ -6,7 +6,7 @@ import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Share2 } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { useGesture } from 'react-use-gesture'
 import { Text } from 'rebass'
@@ -448,6 +448,7 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab:
 
 const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab: KyberAIListType; index: number }) => {
   const navigate = useNavigate()
+  const location = useLocation()
   const { account } = useActiveWeb3React()
   const theme = useTheme()
   const [showMenu, setShowMenu] = useState(false)
@@ -475,7 +476,9 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
         setShowMenu(true)
       }
     } else {
-      navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.tokens[0].chain}/${token.tokens[0].address}`)
+      navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.tokens[0].chain}/${token.tokens[0].address}`, {
+        state: { from: location },
+      })
     }
   }
 
@@ -629,7 +632,9 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
                   setMenuLeft(undefined)
                   setShowMenu(true)
                 } else {
-                  navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.tokens[0].chain}/${token.tokens[0].address}`)
+                  navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.tokens[0].chain}/${token.tokens[0].address}`, {
+                    state: { from: location },
+                  })
                 }
               }}
             >
@@ -643,7 +648,11 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
                 show={showMenu}
                 menuLeft={menuLeft}
                 tokens={token?.tokens}
-                onChainClick={(chain, address) => navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${chain}/${address}`)}
+                onChainClick={(chain, address) =>
+                  navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${chain}/${address}`, {
+                    state: { from: location },
+                  })
+                }
               />
               <MultipleChainDropdown
                 show={showSwapMenu}
