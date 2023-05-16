@@ -137,7 +137,7 @@ export const CHAINS_SUPPORT_NEW_POOL_FARM_API: readonly ChainId[] = [
   ChainId.FANTOM,
   ChainId.CRONOS,
   ChainId.BTTC,
-  ChainId.ARBITRUM,
+  // ChainId.ARBITRUM,
   ChainId.AURORA,
   // ChainId.VELAS,
   // ChainId.OASIS,
