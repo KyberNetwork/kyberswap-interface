@@ -78,10 +78,16 @@ const OutputCurrencyPanel: React.FC<Props> = ({
             width="200px"
             text={
               <Text fontSize={12}>
-                <Trans>
-                  This is the estimated output amount. It is inclusive of any applicable swap fees. Do review the actual
-                  output amount at the confirmation stage.
-                </Trans>
+                {CHAINS_SUPPORT_FEE_CONFIGS.includes(chainId) ? (
+                  <Trans>
+                    This is the estimated output amount. It is inclusive of any applicable swap fees. Do review the
+                    actual output amount at the confirmation stage.
+                  </Trans>
+                ) : (
+                  <Trans>
+                    This is the estimated output amount. Do review the actual output amount at the confirmation stage.
+                  </Trans>
+                )}
               </Text>
             }
           >
