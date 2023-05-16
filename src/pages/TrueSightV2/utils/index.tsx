@@ -28,13 +28,13 @@ export const formatShortNum = (num: number, fixed = 1): string => {
   const negative = num < 0
   const absNum = Math.abs(num)
   let formattedNum = ''
-  if (absNum > 1000000000) {
+  if (absNum >= 1000000000) {
     formattedNum = (+(absNum / 1000000000).toFixed(fixed)).toString() + 'B'
-  } else if (absNum > 1000000) {
+  } else if (absNum >= 1000000) {
     formattedNum = (+(absNum / 1000000).toFixed(fixed)).toString() + 'M'
-  } else if (absNum > 1000) {
+  } else if (absNum >= 1000) {
     formattedNum = (+(absNum / 1000).toFixed(fixed)).toString() + 'K'
-  } else if (absNum > 1) {
+  } else if (absNum >= 1) {
     formattedNum = (+absNum.toFixed(fixed)).toString()
   } else {
     formattedNum = (+absNum.toPrecision(fixed)).toString()
