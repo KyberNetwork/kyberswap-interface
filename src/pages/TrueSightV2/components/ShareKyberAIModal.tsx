@@ -14,6 +14,7 @@ import Icon from 'components/Icons/Icon'
 import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit } from 'components/Row'
+import { KYBER_AI_GOOGLE_BUCKETS_ID } from 'constants/env'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
@@ -161,11 +162,13 @@ export default function ShareKyberAIModal({
   const [loading, setLoading] = useState(true)
   const [sharingUrl, setSharingUrl] = useState('')
   const [imageUrl, setImageUrl] = useState('')
+  const [isError, setIsError] = useState(false)
   const { chain } = useParams()
   const [uploadImage] = useUploadImageMutation()
   const [createShareLink] = useCreateShareLinkMutation()
   const handleGenerateImage = async () => {
     if (isOpen && ref.current && loading && sharingUrl === '' && tokenImgRef.current) {
+      setIsError(false)
       try {
         const canvasData = await html2canvas(ref.current, {
           allowTaint: true,
@@ -202,7 +205,7 @@ export default function ShareKyberAIModal({
                   'Content-Type': 'image/png',
                 },
               })
-              const imageUrl = `https://storage.googleapis.com/ks-setting-a3aa20b7/${fileName}`
+              const imageUrl = `https://storage.googleapis.com/${KYBER_AI_GOOGLE_BUCKETS_ID}/${fileName}`
               setImageUrl(imageUrl)
               const res2: any = await createShareLink({ metaImageUrl: imageUrl, redirectURL: window.location.href })
               if (res2?.data?.code === 0) {
@@ -215,6 +218,7 @@ export default function ShareKyberAIModal({
       } catch (err) {
         console.log(err)
         setLoading(false)
+        setIsError(true)
       }
     }
   }
@@ -355,6 +359,10 @@ export default function ShareKyberAIModal({
             <Loader>
               <AnimatedLoader />
             </Loader>
+          ) : isError ? (
+            <Row>
+              <Text>Some errors have occurred, please try again later!</Text>
+            </Row>
           ) : (
             <>{imageUrl && <img src={imageUrl} alt="KyberAI share" style={{ height: '100%', width: '100%' }} />}</>
           )}
