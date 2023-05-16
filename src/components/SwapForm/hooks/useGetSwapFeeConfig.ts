@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback } from 'react'
 import tokenApi from 'services/token'
 
-import { CHAINS_SUPPORT_FEE_CONFIGS, ETHER_ADDRESS } from 'constants/index'
+import { CHAINS_SUPPORT_FEE_CONFIGS, ETHER_ADDRESS, TOKEN_SCORE_TTL } from 'constants/index'
 import {
   DEFAULT_SWAP_FEE_NOT_STABLE_PAIRS,
   DEFAULT_SWAP_FEE_STABLE_PAIRS,
@@ -10,19 +10,12 @@ import {
   TOKENS_WITH_FEE_TIER_1,
 } from 'constants/tokens'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
+import { timeoutReject } from 'utils/retry'
 import { getTokenScore as getTokenScoreFromLocal, saveTokenScore } from 'utils/tokenScore'
 
 export type SwapFeeConfig = {
   token: string
   feeBips: number
-}
-
-const timeoutReject = (ms: number, msg = 'timeout') => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      return reject(new Error(msg))
-    }, ms)
-  })
 }
 
 const checkBothTokensAreStable = (chainId: ChainId, tokenIn: string, tokenOut: string) => {
@@ -63,7 +56,7 @@ const useGetSwapFeeConfig = () => {
       const now = Math.floor(Date.now() / 1000)
 
       const { score, savedAt } = getTokenScoreFromLocal(chainId, tokenAddress) || {}
-      if (score && savedAt && now - savedAt < 86400) {
+      if (score && savedAt && now - savedAt < TOKEN_SCORE_TTL) {
         return score
       }
 

@@ -2,6 +2,7 @@ import { createApi } from '@reduxjs/toolkit/query/react'
 import baseQueryOauth from 'services/baseQueryOauth'
 
 import { BFF_API } from 'constants/env'
+import { TOKEN_SCORE_TTL } from 'constants/index'
 
 import { GetTokenScoreParams, GetTokenScoreResponse } from './types'
 
@@ -21,7 +22,7 @@ const tokenApi = createApi({
         params,
         authentication,
       }),
-      keepUnusedDataFor: 86400,
+      keepUnusedDataFor: TOKEN_SCORE_TTL,
     }),
   }),
 })
