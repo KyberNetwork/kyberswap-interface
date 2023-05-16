@@ -195,4 +195,4 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
 export type SUPPORTED_WALLET = keyof typeof SUPPORTED_WALLETS
 
 export const WALLETLINK_LOCALSTORAGE_NAME = '-walletlink:https://www.walletlink.org:Addresses'
-export const LS_LAST_WALLETKEY = 'last-wallet-key'
+export const LOCALSTORAGE_LAST_WALLETKEY = 'last-wallet-key'

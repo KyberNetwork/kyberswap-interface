@@ -36,7 +36,7 @@ export function useIsConnectedWallet() {
   return useCallback(async () => {
     if (isUserManuallyDisconnect && !(isMobile && window.ethereum)) return false
     if (possibleWallet === null) return null // pending
-    const currentAccount = await isAuthorized(true)
+    const currentAccount = await isAuthorized()
     const walletValue = currentAccount || possibleWallet
     return connectedWalletStatus && typeof walletValue === 'string' ? walletValue : false
   }, [connectedWalletStatus, isUserManuallyDisconnect, possibleWallet])
