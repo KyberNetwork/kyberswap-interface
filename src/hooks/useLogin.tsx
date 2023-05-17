@@ -11,7 +11,7 @@ import { useSaveUserProfile, useSessionInfo, useSetPendingAuthentication } from 
 
 KyberOauth2.initialize({
   clientId: OAUTH_CLIENT_ID,
-  redirectUri: `${window.location.protocol}//${window.location.host}${APP_PATHS.KYBERAI_ABOUT.toLowerCase()}`, // limit only kyber AI page for now
+  redirectUri: `${window.location.protocol}//${window.location.host}${APP_PATHS.KYBERAI_ABOUT}`, // limit only kyber AI page for now
   mode: ENV_KEY,
 })
 
