@@ -17,28 +17,25 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 
 const Arrow = css`
-  & > div {
-    position: relative;
-    :after {
-      bottom: 100%;
-      right: 0;
-      top: -40px;
-      border: solid transparent;
-      content: '';
-      height: 0;
-      width: 0;
-      position: absolute;
-      pointer-events: none;
-      border-bottom-color: ${({ theme }) => theme.tableHeader};
-      border-width: 10px;
-      margin-left: -10px;
-    }
+  :after {
+    bottom: 100%;
+    right: 20px;
+    top: -20px;
+    border: solid transparent;
+    content: '';
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+    border-bottom-color: ${({ theme }) => theme.tableHeader};
+    border-width: 10px;
+    margin-left: -10px;
   }
   ${({ theme }) => theme.mediaWidth.upToLarge`
-    & > div:after {
-      top: calc(100% + 20px);
+    :after {
+      top: 100%;
       border-top-color: ${({ theme }) => theme.tableHeader};
-      border-bottom-color: transparent
+      border-bottom-color: transparent;
       border-width: 10px;
       margin-left: -10px;
     }
