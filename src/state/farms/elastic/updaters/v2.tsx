@@ -22,7 +22,6 @@ interface FarmingPool {
   startTime: string
   endTime: string
   feeTarget: string
-  vestingDuration: string
   farm: {
     id: string // address of fair launch contract
   }
@@ -150,7 +149,6 @@ const FarmUpdaterV2: React.FC<CommonProps> = ({}) => {
               pid: rawPool.pid,
               id: rawPool.id,
               feeTarget: rawPool.feeTarget,
-              vestingDuration: Number(rawPool.vestingDuration),
               token0,
               token1,
               poolAddress: rawPool.pool.id,

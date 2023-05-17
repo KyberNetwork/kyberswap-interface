@@ -15,7 +15,6 @@ export interface FarmingPool {
   startTime: number
   endTime: number
   feeTarget: string
-  vestingDuration: number
   rewardTokens: Currency[]
   totalRewards: Array<CurrencyAmount<Currency>>
   token0: Currency

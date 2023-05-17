@@ -27,7 +27,6 @@ interface FarmingPool {
   startTime: string
   endTime: string
   feeTarget: string
-  vestingDuration: string
   rewardTokens: Array<{
     token: SubgraphToken
     amount: string
@@ -81,7 +80,6 @@ const ELASTIC_FARM_QUERY = gql`
         startTime
         endTime
         feeTarget
-        vestingDuration
         rewardTokens(orderBy: priority, orderDirection: asc) {
           token {
             id
@@ -242,7 +240,6 @@ const FarmUpdaterV1: React.FC<CommonProps> = ({ interval }) => {
               pid: pool.pid,
               id: pool.id,
               feeTarget: pool.feeTarget,
-              vestingDuration: Number(pool.vestingDuration),
               token0,
               token1,
               poolAddress: pool.pool.id,
