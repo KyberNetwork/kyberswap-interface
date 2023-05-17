@@ -2,10 +2,10 @@ import { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   useBuildTelegramVerificationMutation,
-  useGetNotificationTopicsQuery,
-  useSubscribeTopicMutation,
-  useUnsubscribeTopicMutation,
-} from 'services/notification'
+  useGetSubscriptionTopicsQuery,
+  useSubscribeTopicsMutation,
+  useUnsubscribeTopicsMutation,
+} from 'services/identity'
 
 import { useActiveWeb3React } from 'hooks'
 import { AppState } from 'state'
@@ -26,14 +26,13 @@ export type Topic = {
 type SaveNotificationParam = {
   subscribeIds: number[]
   unsubscribeIds: number[]
-  email: string
   isChangeEmailOnly?: boolean
   isEmail: boolean
   isTelegram?: boolean
 }
 
 const useNotification = () => {
-  const { isLoading, topicGroups, userInfo } = useSelector((state: AppState) => state.application.notification)
+  const { isLoading, topicGroups } = useSelector((state: AppState) => state.application.notification)
 
   const { account, chainId } = useActiveWeb3React()
   const toggleSubscribeModal = useNotificationModalToggle()
@@ -46,30 +45,32 @@ const useNotification = () => {
     [dispatch],
   )
 
-  const { data: resp, refetch } = useGetNotificationTopicsQuery(account)
+  const { data, refetch } = useGetSubscriptionTopicsQuery()
+  const resp: any = data
+  console.log(123, resp) // todo
 
   useEffect(() => {
     if (!resp) return
-    const topicGroups: Topic[] = (resp?.topicGroups ?? []).map((e: Topic, i) => ({
+    const topicGroups: Topic[] = (resp?.topicGroups ?? []).map((e: Topic, i: number) => ({
       ...e,
       id: Date.now() + i,
       isSubscribed: e?.topics?.every(e => e.isSubscribed),
     }))
-    dispatch(setSubscribedNotificationTopic({ topicGroups, userInfo: resp?.user ?? { email: '', telegram: '' } }))
+    dispatch(setSubscribedNotificationTopic({ topicGroups }))
   }, [resp, dispatch])
 
   const refreshTopics = useCallback(() => account && refetch(), [refetch, account])
-  const [callSubscribeTopic] = useSubscribeTopicMutation()
-  const [callUnSubscribeTopic] = useUnsubscribeTopicMutation()
+  const [callSubscribeTopic] = useSubscribeTopicsMutation()
+  const [callUnSubscribeTopic] = useUnsubscribeTopicsMutation()
   const [buildTelegramVerification] = useBuildTelegramVerificationMutation()
 
   const saveNotification = useCallback(
-    async ({ subscribeIds, unsubscribeIds, email, isEmail, isChangeEmailOnly, isTelegram }: SaveNotificationParam) => {
+    async ({ subscribeIds, unsubscribeIds, isEmail, isChangeEmailOnly, isTelegram }: SaveNotificationParam) => {
       try {
         setLoading(true)
         if (isEmail) {
           if (unsubscribeIds.length) {
-            await callUnSubscribeTopic({ walletAddress: account ?? '', topicIDs: unsubscribeIds }).unwrap()
+            await callUnSubscribeTopic({ topicIds: unsubscribeIds }).unwrap()
           }
           if (subscribeIds.length || isChangeEmailOnly) {
             const allTopicSubscribed = topicGroups.reduce(
@@ -77,9 +78,7 @@ const useNotification = () => {
               [],
             )
             await callSubscribeTopic({
-              email,
-              walletAddress: account ?? '',
-              topicIDs: isChangeEmailOnly ? allTopicSubscribed : subscribeIds,
+              topicIds: isChangeEmailOnly ? allTopicSubscribed : subscribeIds,
             }).unwrap()
           }
           return
@@ -112,11 +111,11 @@ const useNotification = () => {
       })
     })
     if (!unsubscribeIds.length) return
-    saveNotification({ isEmail: true, unsubscribeIds, subscribeIds: [], email: userInfo.email })
+    saveNotification({ isEmail: true, unsubscribeIds, subscribeIds: [] })
     setTimeout(() => {
       refreshTopics()
     }, 500)
-  }, [topicGroups, saveNotification, userInfo?.email, refreshTopics])
+  }, [topicGroups, saveNotification, refreshTopics])
 
   const showNotificationModal = useCallback(() => {
     refreshTopics()
@@ -126,7 +125,6 @@ const useNotification = () => {
   return {
     topicGroups,
     isLoading,
-    userInfo,
     saveNotification,
     showNotificationModal,
     refreshTopics,

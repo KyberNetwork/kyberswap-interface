@@ -2,10 +2,11 @@ import { Trans, t } from '@lingui/macro'
 import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Check } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import { useAckTelegramSubscriptionStatusMutation } from 'services/notification'
+import { useAckTelegramSubscriptionStatusMutation } from 'services/identity'
 import styled, { css } from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
+import { ButtonLight, ButtonOutlined } from 'components/Button'
 import Checkbox from 'components/CheckBox'
 import Column from 'components/Column'
 import { Telegram } from 'components/Icons'
@@ -62,6 +63,15 @@ const CheckIcon = styled(Check)`
   bottom: 0;
   margin: auto;
 `
+const ButtonVerify = styled(ButtonLight)`
+  position: absolute;
+  right: 13px;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  font-size: 12px;
+`
+
 const Input = styled.input<{ $borderColor: string }>`
   display: flex;
   align-items: center;
@@ -326,7 +336,6 @@ function NotificationPreference({
       const verificationUrl = await saveNotification({
         subscribeIds,
         unsubscribeIds,
-        email: inputEmail,
         isEmail: isEmailTab,
         isChangeEmailOnly,
         isTelegram: isTelegramTab,
@@ -482,6 +491,11 @@ function NotificationPreference({
               placeholder="example@email.com"
               onChange={onChangeInput}
             />
+            {/* {!isVerifiedEmail && (
+              <ButtonVerify width={'50px'} height={'24px'}>
+                <Trans>Verify</Trans>
+              </ButtonVerify>
+            )} */}
             {isVerifiedEmail && hasTopicSubscribed && <CheckIcon color={theme.primary} />}
           </InputWrapper>
           {errorInput?.msg && <Label style={{ color: errorColor, margin: '7px 0px 0px 0px' }}>{errorInput?.msg}</Label>}

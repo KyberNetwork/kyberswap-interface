@@ -11,7 +11,6 @@ import annoucementApi from '../services/announcement'
 import geckoTerminalApi from '../services/geckoTermial'
 import identifyApi from '../services/identity'
 import ksSettingApi from '../services/ksSetting'
-import notificationApi from '../services/notification'
 import application from './application/reducer'
 import authen from './authen/reducer'
 import bridge from './bridge/reducer'
@@ -65,7 +64,6 @@ const store = configureStore({
     [geckoTerminalApi.reducerPath]: geckoTerminalApi.reducer,
     [kyberAISubscriptionApi.reducerPath]: kyberAISubscriptionApi.reducer,
     [identifyApi.reducerPath]: identifyApi.reducer,
-    [notificationApi.reducerPath]: notificationApi.reducer,
     [ksSettingApi.reducerPath]: ksSettingApi.reducer,
     [priceAlertApi.reducerPath]: priceAlertApi.reducer,
     campaigns,
@@ -85,7 +83,6 @@ const store = configureStore({
       .concat(annoucementApi.middleware)
       .concat(kyberAISubscriptionApi.middleware)
       .concat(identifyApi.middleware)
-      .concat(notificationApi.middleware)
       .concat(ksSettingApi.middleware)
       .concat(annoucementApi.middleware)
       .concat(priceAlertApi.middleware)
