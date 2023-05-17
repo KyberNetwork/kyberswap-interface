@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import styled from 'styled-components'
+import React, { useEffect, useRef, useState } from 'react'
+import styled, { CSSProperties } from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
 
@@ -244,23 +244,23 @@ const GaugeValue = styled.div<{ color?: string }>`
 //   transition: all 0.1s linear;
 //   ${() => `transform: rotate(${minRotate}deg);`}
 // `
-let currentValue = 0
 
-function KyberScoreMeter({ value }: { value?: number }) {
+function KyberScoreMeter({ value, style }: { value?: number; style?: CSSProperties }) {
   const theme = useTheme()
   // const [rotate, setRotate] = useState(0)
   const [transitionValue, setTransitionValue] = useState(0)
+  const currentValueRef = useRef(0)
   useEffect(() => {
     if (value === undefined) return
-    currentValue = 0
+    currentValueRef.current = 0
     const interval = setInterval(() => {
-      currentValue = currentValue + (value - currentValue) / 5
+      currentValueRef.current = currentValueRef.current + (value - currentValueRef.current) / 5
       // const rotate = currentValue
       //   ? (fullRotate * currentValue) / 100 + minRotate < 360
       //     ? (fullRotate * currentValue) / 100 + minRotate
       //     : (fullRotate * currentValue) / 100 + minRotate - 360
       //   : minRotate
-      setTransitionValue(currentValue)
+      setTransitionValue(currentValueRef.current)
       // setRotate(rotate)
     }, 100)
 
@@ -274,8 +274,8 @@ function KyberScoreMeter({ value }: { value?: number }) {
 
   // const ref = useRef<SVGPathElement>(null)
   return (
-    <Wrapper>
-      <svg xmlns="http://www.w3.org/2000/svg" width="211" height="128" viewBox="0 0 218 133" fill="none">
+    <Wrapper style={style}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 218 133" fill="none">
         {gaugeList.map(g => (
           <MeterGauge
             key={g.value}

@@ -240,7 +240,7 @@ const TokenItem = ({ token, onClick }: { token: ITokenSearchResult; onClick?: ()
             </div>
           </div>
           <Text fontSize={above768 ? '12px' : '10px'} color={theme.text}>
-            {`${token.name}(${token.symbol.toUpperCase()})`}
+            {token.name} <span style={{ color: theme.subText }}>({token.symbol.toUpperCase()})</span>
           </Text>
         </RowFit>
       </td>

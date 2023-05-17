@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
-import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -27,6 +27,7 @@ import ShareKyberAIModal from '../components/ShareKyberAIModal'
 import SimpleTooltip from '../components/SimpleTooltip'
 import { TokenOverview } from '../components/TokenOverview'
 import { StarWithAnimation } from '../components/WatchlistStar'
+import KyberScoreShareContent from '../components/share/KyberScoreShareContent'
 import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from '../constants'
 import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation, useTokenDetailQuery } from '../hooks/useKyberAIData'
 import { DiscoverTokenTab } from '../types'
@@ -263,11 +264,14 @@ export default function SingleToken() {
   const shareUrl = useRef<string>()
   const toggleShareModal = useToggleModal(ApplicationModal.KYBERAI_SHARE)
 
-  const handleShareClick = (content: ReactNode, title: string) => {
-    setShareContent(content)
-    setShareTitle(title)
-    toggleShareModal()
-  }
+  const handleShareClick = useCallback(
+    (content: ReactNode, title: string) => {
+      setShareContent(content)
+      setShareTitle(title)
+      toggleShareModal()
+    },
+    [toggleShareModal],
+  )
 
   const [addToWatchlist, { isLoading: loadingAddtoWatchlist }] = useAddToWatchlistMutation()
   const [removeFromWatchlist, { isLoading: loadingRemovefromWatchlist }] = useRemoveFromWatchlistMutation()
@@ -289,14 +293,22 @@ export default function SingleToken() {
   }
 
   const handleGoBackClick = () => {
-    console.log(1)
-    console.log('🚀 ~ file: SingleToken.tsx:290 ~ handleGoBackClick ~ location.state.from:', location?.state?.from)
     if (!!location?.state?.from) {
       navigate(location.state.from)
     } else {
       navigate({ pathname: APP_PATHS.KYBERAI_RANKINGS })
     }
   }
+
+  const handleKyberscoreShareClick = useCallback(() => {
+    try {
+      setShareContent(<KyberScoreShareContent token={token} />)
+      setShareTitle('KyberScore')
+      toggleShareModal()
+    } catch (err) {
+      console.log(err)
+    }
+  }, [toggleShareModal, token])
 
   useEffect(() => {
     if (token) {
@@ -432,16 +444,16 @@ export default function SingleToken() {
             <Icon id="alarm" size={18} />
           </HeaderButton>
         </MouseoverTooltip>
-        {/* <MouseoverTooltip text={t`Share this token`} placement="top" width="fit-content">
+        <MouseoverTooltip text={t`Share this token`} placement="top" width="fit-content">
           <HeaderButton
             style={{
               color: theme.subText,
             }}
-            // onClick={handleShareClick}
+            onClick={handleKyberscoreShareClick}
           >
-            <Share2 size={16} fill="currentcolor" />
+            <Icon id="share" size={16} />
           </HeaderButton>
-        </MouseoverTooltip> */}
+        </MouseoverTooltip>
       </>
     )
 
@@ -513,7 +525,7 @@ export default function SingleToken() {
           </Tag>
         )}
       </TagWrapper>
-      <TokenOverview data={token} isLoading={isLoading} />
+      <TokenOverview data={token} isLoading={isLoading} onShareClick={handleKyberscoreShareClick} />
 
       <Row alignItems="center">
         <Row gap={above768 ? '24px' : '12px'} justify="center">
@@ -540,7 +552,7 @@ export default function SingleToken() {
         </RowFit>
       </Row>
       {currentTab === DiscoverTokenTab.OnChainAnalysis && <OnChainAnalysis onShareClick={handleShareClick} />}
-      {currentTab === DiscoverTokenTab.TechnicalAnalysis && <TechnicalAnalysis />}
+      {currentTab === DiscoverTokenTab.TechnicalAnalysis && <TechnicalAnalysis onShareClick={handleShareClick} />}
       {/* {currentTab === DiscoverTokenTab.News && <News />} */}
       <ShareModal title="Share with your friends" url={shareUrl.current} />
       <ShareKyberAIModal token={token} content={shareContent} title={shareTitle} />

@@ -1,9 +1,9 @@
 import { Trans } from '@lingui/macro'
 import axios from 'axios'
 import html2canvas from 'html2canvas'
-import { QRCodeSVG } from 'qrcode.react'
 import { ReactNode, useEffect, useRef, useState } from 'react'
 import { X } from 'react-feather'
+import { QRCode } from 'react-qrcode-logo'
 import { useParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import { useCreateShareLinkMutation, useUploadImageMutation } from 'services/kyberAISubscription'
@@ -101,14 +101,14 @@ const ImageWrapper = styled.div`
 `
 const ImageInner = styled.div`
   width: 1050px;
-  height: 612.5px;
+  height: 612px;
   zoom: 0.8;
 
   background-color: ${({ theme }) => theme.background};
   display: flex;
   flex-direction: column;
   padding: 32px;
-  gap: 16px;
+  gap: 10px;
   position: relative;
   :before {
     content: ' ';
@@ -166,6 +166,7 @@ export default function ShareKyberAIModal({
   const { chain } = useParams()
   const [uploadImage] = useUploadImageMutation()
   const [createShareLink] = useCreateShareLinkMutation()
+  const [blob, setBlob] = useState<Blob>()
   const handleGenerateImage = async () => {
     if (isOpen && ref.current && loading && sharingUrl === '' && tokenImgRef.current) {
       setIsError(false)
@@ -190,6 +191,7 @@ export default function ShareKyberAIModal({
 
         canvasData.toBlob(async blob => {
           if (blob) {
+            setBlob(blob)
             const fileName = `${generateRandomString(16)}.png`
             const file = new File([blob], fileName, { type: 'image/png' })
             const res: any = await uploadImage({
@@ -210,9 +212,13 @@ export default function ShareKyberAIModal({
               const res2: any = await createShareLink({ metaImageUrl: imageUrl, redirectURL: window.location.href })
               if (res2?.data?.code === 0) {
                 setSharingUrl(res2.data.data.link)
+              } else {
+                setIsError(true)
               }
-              setLoading(false)
+            } else {
+              setIsError(true)
             }
+            setLoading(false)
           }
         }, 'image/png')
       } catch (err) {
@@ -224,8 +230,11 @@ export default function ShareKyberAIModal({
   }
   useEffect(() => {
     if (!isOpen) {
+      setBlob(undefined)
       setLoading(true)
       setSharingUrl('')
+      setImageUrl('')
+      setIsError(false)
     }
     setTimeout(() => {
       handleGenerateImage()
@@ -238,22 +247,19 @@ export default function ShareKyberAIModal({
     staticCopy(sharingUrl)
   }
   const handleImageCopyClick = () => {
-    console.log(1)
+    if (blob) {
+      const clipboardItem = new ClipboardItem({ ['image/png']: blob })
+      navigator.clipboard.write([clipboardItem])
+    }
   }
   const handleDownloadClick = () => {
-    if (imageUrl) {
-      fetch(imageUrl)
-        .then(response => response.blob())
-        .then(blob => {
-          const url = URL.createObjectURL(blob)
-          const link = document.createElement('a')
-          link.href = url
-          link.download = 'kyberAI_share_image.png' // Set a custom filename if desired
-          document.body.appendChild(link)
-          link.click()
-          document.body.removeChild(link)
-        })
-        .catch(err => console.log(err))
+    if (blob) {
+      const link = document.createElement('a')
+      link.download = 'kyberAI_share_image.png'
+      link.href = URL.createObjectURL(blob)
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
     }
   }
 
@@ -306,7 +312,6 @@ export default function ShareKyberAIModal({
                         width="36px"
                         height="36px"
                         style={{ background: 'white', display: 'block' }}
-                        crossOrigin="anonymous"
                         ref={tokenImgRef}
                       />
                     </div>
@@ -336,13 +341,15 @@ export default function ShareKyberAIModal({
                 </RowFit>
                 <RowFit gap="20px">
                   <KyberSwapShareLogo />
-                  <QRCodeSVG
-                    value={window.location.href}
-                    size={80}
-                    bgColor="transparent"
-                    fgColor={theme.text}
-                    level="M"
-                  />
+                  <div style={{ marginTop: '-20px', marginRight: '-20px', borderRadius: '6px', overflow: 'hidden' }}>
+                    <QRCode
+                      value={window.location.href}
+                      size={100}
+                      quietZone={4}
+                      ecLevel="L"
+                      style={{ display: 'block', borderRadius: '6px' }}
+                    />
+                  </div>
                 </RowFit>
               </RowBetween>
               <Row>
@@ -360,9 +367,9 @@ export default function ShareKyberAIModal({
               <AnimatedLoader />
             </Loader>
           ) : isError ? (
-            <Row>
+            <Loader>
               <Text>Some errors have occurred, please try again later!</Text>
-            </Row>
+            </Loader>
           ) : (
             <>{imageUrl && <img src={imageUrl} alt="KyberAI share" style={{ height: '100%', width: '100%' }} />}</>
           )}
@@ -372,10 +379,10 @@ export default function ShareKyberAIModal({
             <Icon id="devices" size={20} />
           </IconButton>
           <RowFit gap="12px">
-            <IconButton disabled={!imageUrl} onClick={handleDownloadClick}>
+            <IconButton disabled={!blob} onClick={handleDownloadClick}>
               <Icon id="download" size={20} />
             </IconButton>
-            <IconButton disabled={!imageUrl} onClick={handleImageCopyClick}>
+            <IconButton disabled={!blob} onClick={handleImageCopyClick}>
               <Icon id="copy" size={20} />
             </IconButton>
           </RowFit>
