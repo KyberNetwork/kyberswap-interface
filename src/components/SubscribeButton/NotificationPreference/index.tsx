@@ -1,12 +1,11 @@
 import { Trans, t } from '@lingui/macro'
-import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Check } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { useAckTelegramSubscriptionStatusMutation } from 'services/identity'
 import styled, { css } from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
-import { ButtonLight, ButtonOutlined } from 'components/Button'
 import Checkbox from 'components/CheckBox'
 import Column from 'components/Column'
 import { Telegram } from 'components/Icons'
@@ -14,6 +13,7 @@ import MailIcon from 'components/Icons/MailIcon'
 import Row from 'components/Row'
 import ActionButtons from 'components/SubscribeButton/NotificationPreference/ActionButtons'
 import Header from 'components/SubscribeButton/NotificationPreference/Header'
+import InputEmail from 'components/SubscribeButton/NotificationPreference/InputEmail'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useNotification, { Topic } from 'hooks/useNotification'
@@ -43,53 +43,6 @@ const Label = styled.p`
   font-weight: 500;
   line-height: 16px;
   color: ${({ theme }) => theme.subText};
-`
-
-const InputWrapper = styled.div<{ isInNotificationCenter: boolean }>`
-  position: relative;
-  ${({ isInNotificationCenter }) =>
-    isInNotificationCenter &&
-    css`
-      max-width: 50%;
-      ${({ theme }) => theme.mediaWidth.upToMedium`
-        max-width: 100%;
-      `}
-    `};
-`
-const CheckIcon = styled(Check)`
-  position: absolute;
-  right: 13px;
-  top: 0;
-  bottom: 0;
-  margin: auto;
-`
-const ButtonVerify = styled(ButtonLight)`
-  position: absolute;
-  right: 13px;
-  top: 0;
-  bottom: 0;
-  margin: auto;
-  font-size: 12px;
-`
-
-const Input = styled.input<{ $borderColor: string }>`
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-  background: none;
-  outline: none;
-  border-radius: 20px;
-  width: 100%;
-  padding: 12px 14px;
-  color: ${({ theme }) => theme.subText};
-  font-size: 14px;
-  background-color: ${({ theme }) => theme.buttonBlack};
-  transition: border 0.5s;
-  border: ${({ theme, $borderColor }) => `1px solid ${$borderColor || theme.border}`};
-  ::placeholder {
-    color: ${({ theme }) => theme.border};
-    font-size: 12px;
-  }
 `
 
 const TopicItem = styled.label`
@@ -166,6 +119,39 @@ const noop = () => {
 
 const sortGroup = (arr: Topic[]) => [...arr].sort((x, y) => y.priority - x.priority)
 
+export const useValidateEmail = (defaultEmail?: string) => {
+  // todo refactor this hook
+  const [inputEmail, setInputEmail] = useState(defaultEmail || '')
+  const [errorInput, setErrorInput] = useState<{ msg: string; type: 'error' | 'warn' } | null>(null)
+
+  const theme = useTheme()
+
+  const validateInput = useCallback((value: string) => {
+    const isValid = isEmailValid(value)
+    const errMsg = t`Please input a valid email address`
+    const msg = value.length && !isValid ? errMsg : ''
+    setErrorInput(msg ? { msg, type: 'error' } : null)
+  }, [])
+
+  const onChangeEmail = (value: string) => {
+    setInputEmail(value)
+    validateInput(value)
+  }
+
+  const hasErrorInput = errorInput?.type === 'error'
+  const errorColor = hasErrorInput ? theme.red : errorInput?.type === 'warn' ? theme.warning : theme.border
+
+  const reset = useCallback(
+    (email: string | undefined) => {
+      setErrorInput(null)
+      setInputEmail(email || defaultEmail || '')
+    },
+    [defaultEmail],
+  )
+
+  return { inputEmail, onChangeEmail, errorInput: errorInput?.msg, errorColor, hasErrorInput, reset }
+}
+
 function NotificationPreference({
   header,
   isOpen,
@@ -203,9 +189,8 @@ function NotificationPreference({
   const notify = useNotify()
   const { mixpanelHandler } = useMixpanel()
 
-  const [inputEmail, setInputEmail] = useState('')
   const [emailPendingVerified, setEmailPendingVerified] = useState('')
-  const [errorInput, setErrorInput] = useState<{ msg: string; type: 'error' | 'warn' } | null>(null)
+  const { inputEmail, errorInput, onChangeEmail, errorColor, reset, hasErrorInput } = useValidateEmail()
 
   const [activeTab] = useState<TAB>(TAB.EMAIL)
   const [selectedTopic, setSelectedTopic] = useState<number[]>([])
@@ -213,17 +198,8 @@ function NotificationPreference({
   const isEmailTab = activeTab === TAB.EMAIL
   const isTelegramTab = activeTab === TAB.TELEGRAM
 
-  const hasErrorInput = errorInput?.type === 'error'
-
   const isNewUserQualified = !userInfo?.email && !userInfo?.telegramUsername && !!inputEmail && !hasErrorInput
   const notFillEmail = !inputEmail && isEmailTab
-
-  const validateInput = useCallback((value: string, required = false) => {
-    const isValid = isEmailValid(value)
-    const errMsg = t`Please input a valid email address`
-    const msg = (value.length && !isValid) || (required && !value.length) ? errMsg : ''
-    setErrorInput(msg ? { msg, type: 'error' } : null)
-  }, [])
 
   const updateTopicGroupsLocal = useCallback(
     (subIds: number[], unsubIds: number[]) => {
@@ -254,10 +230,9 @@ function NotificationPreference({
   useEffect(() => {
     if (isOpen) {
       setEmailPendingVerified('')
-      setErrorInput(null)
-      setInputEmail(userInfo?.email || '')
+      reset(userInfo?.email)
     }
-  }, [userInfo, activeTab, isOpen])
+  }, [userInfo, activeTab, isOpen, reset])
 
   useEffect(() => {
     setTimeout(
@@ -313,7 +288,6 @@ function NotificationPreference({
   )
 
   const checkProfileAndSave = () => {
-    if (isEmailTab) validateInput(inputEmail, true)
     if (isLoading || hasErrorInput || notFillEmail) return
     if (!userInfo?.email) {
       showVerifyModal()
@@ -331,13 +305,11 @@ function NotificationPreference({
       if (unsubscribeNames.length) {
         mixpanelHandler(MIXPANEL_TYPE.NOTIFICATION_DESELECT_TOPIC, { topics: unsubscribeNames })
       }
-      const isChangeEmailOnly = !unsubscribeIds.length && !subscribeIds.length && inputEmail !== userInfo?.email
       if (inputEmail !== userInfo?.email) setEmailPendingVerified(inputEmail)
       const verificationUrl = await saveNotification({
         subscribeIds,
         unsubscribeIds,
         isEmail: isEmailTab,
-        isChangeEmailOnly,
         isTelegram: isTelegramTab,
       })
       updateTopicGroupsLocal(subscribeIds, unsubscribeIds)
@@ -346,15 +318,12 @@ function NotificationPreference({
         return
       }
 
-      const needVerify = subscribeIds.length || (userInfo?.email && userInfo?.email !== inputEmail)
       notify(
         {
-          title: needVerify ? t`Verify Your Email Address` : t`Notification Preferences`,
-          summary: needVerify
-            ? t`A verification email has been sent to your email address. Please check your inbox to verify your email.`
-            : t`Your notification preferences have been saved successfully`,
-          type: needVerify ? NotificationType.WARNING : NotificationType.SUCCESS,
-          icon: <MailIcon color={needVerify ? theme.warning : theme.primary} />,
+          title: t`Notification Preferences`,
+          summary: t`Your notification preferences have been saved successfully`,
+          type: NotificationType.SUCCESS,
+          icon: <MailIcon color={theme.primary} />,
         },
         10000,
       )
@@ -370,12 +339,6 @@ function NotificationPreference({
       })
       console.log(error)
     }
-  }
-
-  const onChangeInput = (e: React.FormEvent<HTMLInputElement>) => {
-    const value = e.currentTarget.value
-    setInputEmail(value)
-    validateInput(value)
   }
 
   const onChangeTopic = (topicId: number) => {
@@ -400,16 +363,15 @@ function NotificationPreference({
 
   const isVerifiedEmail = userInfo?.email && inputEmail === userInfo?.email
   const isVerifiedTelegram = userInfo?.telegramUsername
-  const hasTopicSubscribed = topicGroups.some(e => e.isSubscribed)
+  const needVerifyEmail = inputEmail && inputEmail !== userInfo?.email
 
   const disableButtonSave = useMemo(() => {
     if (isTelegramTab) return isLoading
-    if (isLoading || notFillEmail || hasErrorInput) return true
+    if (isLoading || notFillEmail || hasErrorInput || needVerifyEmail) return true
     return !getDiffChangeTopics(topicGroups).hasChanged
-  }, [getDiffChangeTopics, isLoading, notFillEmail, isTelegramTab, topicGroups, hasErrorInput])
+  }, [getDiffChangeTopics, isLoading, notFillEmail, isTelegramTab, topicGroups, hasErrorInput, needVerifyEmail])
 
   const disableCheckbox = !account || notFillEmail || hasErrorInput
-  const errorColor = hasErrorInput ? theme.red : errorInput?.type === 'warn' ? theme.warning : theme.border
 
   const subscribeAtLeast1Topic = topicGroupsGlobal.some(e => e.isSubscribed)
   const onUnsubscribeAll = () => {
@@ -484,21 +446,15 @@ function NotificationPreference({
           <Label>
             <Trans>Enter your email address to receive notifications</Trans>
           </Label>
-          <InputWrapper isInNotificationCenter={isInNotificationCenter}>
-            <Input
-              $borderColor={errorColor}
-              value={inputEmail}
-              placeholder="example@email.com"
-              onChange={onChangeInput}
-            />
-            {/* {!isVerifiedEmail && (
-              <ButtonVerify width={'50px'} height={'24px'}>
-                <Trans>Verify</Trans>
-              </ButtonVerify>
-            )} */}
-            {isVerifiedEmail && hasTopicSubscribed && <CheckIcon color={theme.primary} />}
-          </InputWrapper>
-          {errorInput?.msg && <Label style={{ color: errorColor, margin: '7px 0px 0px 0px' }}>{errorInput?.msg}</Label>}
+          <InputEmail
+            showVerifyModal={showVerifyModal}
+            errorColor={errorColor}
+            onChange={onChangeEmail}
+            value={inputEmail}
+            isInNotificationCenter={isInNotificationCenter}
+            isVerifiedEmail={!!isVerifiedEmail}
+          />
+          {errorInput && <Label style={{ color: errorColor, margin: '7px 0px 0px 0px' }}>{errorInput}</Label>}
         </Column>
       ) : (
         <Flex
