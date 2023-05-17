@@ -39,6 +39,8 @@ import Verify from './Verify'
 
 // Route-based code splitting
 
+// test page for swap only through elastic
+const ElasticSwap = lazy(() => import(/* webpackChunkName: 'ElasticSwap' */ './ElasticSwap'))
 const ElasticLegacy = lazy(() => import(/* webpackChunkName: 'ElasticLegacy' */ './ElasticLegacy'))
 const SwapV2 = lazy(() => import(/* webpackChunkName: 'swapv2-page' */ './SwapV2'))
 const SwapV3 = lazy(() => import(/* webpackChunkName: 'swapv3-page' */ './SwapV3'))
@@ -309,6 +311,7 @@ export default function App() {
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />
 
                     <Route path={`${APP_PATHS.ELASTIC_LEGACY}`} element={<ElasticLegacy />} />
+                    <Route path={`elastic-swap`} element={<ElasticSwap />} />
 
                     <Route path="*" element={<RedirectPathToSwapV3Network />} />
                   </Routes>
