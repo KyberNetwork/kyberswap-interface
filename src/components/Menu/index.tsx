@@ -1,7 +1,18 @@
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Award, BookOpen, Edit, FileText, HelpCircle, Info, MessageCircle, PieChart, Share2 } from 'react-feather'
+import {
+  Award,
+  BookOpen,
+  ChevronDown,
+  Edit,
+  FileText,
+  HelpCircle,
+  Info,
+  MessageCircle,
+  PieChart,
+  Share2,
+} from 'react-feather'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -61,14 +72,6 @@ const MenuItem = styled.li`
   align-items: center;
   color: ${({ theme }) => theme.subText};
   font-size: 15px;
-
-  :hover {
-    color: ${({ theme }) => theme.text};
-    cursor: pointer;
-    a {
-      color: ${({ theme }) => theme.text};
-    }
-  }
 
   svg {
     margin-right: 8px;
@@ -151,6 +154,11 @@ const StyledMenu = styled.div`
   text-align: left;
 `
 
+const ListWrapper = styled.div`
+  max-height: calc(100vh - 150px);
+  overflow-y: scroll;
+`
+
 const MenuFlyoutBrowserStyle = css`
   min-width: unset;
   right: -8px;
@@ -195,6 +203,28 @@ const Title = styled(MenuItem)`
   font-size: 16px;
   color: ${({ theme }) => theme.text};
 `
+
+const ScrollEnd = styled.div<{ show: boolean }>`
+  visibility: ${({ show }) => (show ? 'initial' : 'hidden')};
+  position: sticky !important;
+  width: 100%;
+  text-align: center;
+  z-index: 2;
+  @keyframes floating {
+    from {
+      bottom: 10px;
+    }
+    to {
+      bottom: -10px;
+    }
+  }
+  animation-name: floating;
+  animation-duration: 1s;
+  animation-timing-function: ease;
+  animation-iteration-count: infinite;
+  animation-direction: alternate-reverse;
+`
+
 const noop = () => {}
 
 export default function Menu() {
@@ -242,6 +272,29 @@ export default function Menu() {
     mixpanelHandler(MIXPANEL_TYPE.MENU_PREFERENCE_CLICK, { menu: name })
   }
 
+  const wrapperNode = useRef<HTMLDivElement>(null)
+  const [showScroll, setShowScroll] = useState<boolean>(false)
+
+  useEffect(() => {
+    const wrapper = wrapperNode.current
+    if (wrapper) {
+      const abortController = new AbortController()
+      const onScroll = () => {
+        if (abortController.signal.aborted) return
+        setShowScroll(Math.abs(wrapper.offsetHeight + wrapper.scrollTop - wrapper.scrollHeight) > 10) //no need to show scroll down when scrolled to last 10px
+      }
+      onScroll()
+      wrapper.addEventListener('scroll', onScroll)
+      window.addEventListener('resize', onScroll)
+      return () => {
+        abortController.abort()
+        wrapper.removeEventListener('scroll', onScroll)
+        window.removeEventListener('resize', onScroll)
+      }
+    }
+    return
+  }, [])
+
   return (
     <StyledMenu>
       <MenuFlyout
@@ -261,7 +314,7 @@ export default function Menu() {
             <LanguageSelector setIsSelectingLanguage={setIsSelectingLanguage} />
           </AutoColumn>
         ) : (
-          <>
+          <ListWrapper ref={wrapperNode}>
             <Title style={{ paddingTop: 0 }}>
               <Trans>Menu</Trans>
             </Title>
@@ -574,7 +627,10 @@ export default function Menu() {
             <Text fontSize="10px" fontWeight={300} color={theme.subText} mt="16px" textAlign={'center'}>
               kyberswap@{TAG}
             </Text>
-          </>
+            <ScrollEnd show={showScroll}>
+              <ChevronDown color={theme.subText} />
+            </ScrollEnd>
+          </ListWrapper>
         )}
       </MenuFlyout>
 
