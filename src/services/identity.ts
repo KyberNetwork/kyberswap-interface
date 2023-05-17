@@ -50,13 +50,6 @@ const identityApi = createApi({
         method: 'PUT',
       }),
     }),
-    unsubscribeTopics: builder.mutation<any, { topicIds: number[] }>({
-      query: body => ({
-        url: '/v1/profiles/me/notification-subscriptions',
-        body,
-        method: 'DELETE',
-      }),
-    }),
     // double check
     ackTelegramSubscriptionStatus: builder.mutation<Response, string>({
       query: wallet => ({
@@ -91,7 +84,6 @@ export const {
   useVerifyOtpMutation,
   useGetSubscriptionTopicsQuery,
   useSubscribeTopicsMutation,
-  useUnsubscribeTopicsMutation,
   useAckTelegramSubscriptionStatusMutation,
   useBuildTelegramVerificationMutation,
 } = identityApi

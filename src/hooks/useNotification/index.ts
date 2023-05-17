@@ -4,7 +4,6 @@ import {
   useBuildTelegramVerificationMutation,
   useGetSubscriptionTopicsQuery,
   useSubscribeTopicsMutation,
-  useUnsubscribeTopicsMutation,
 } from 'services/identity'
 
 import { useActiveWeb3React } from 'hooks'
@@ -26,7 +25,6 @@ export type Topic = {
 type SaveNotificationParam = {
   subscribeIds: number[]
   unsubscribeIds: number[]
-  isChangeEmailOnly?: boolean
   isEmail: boolean
   isTelegram?: boolean
 }
@@ -45,9 +43,7 @@ const useNotification = () => {
     [dispatch],
   )
 
-  const { data, refetch } = useGetSubscriptionTopicsQuery()
-  const resp: any = data
-  console.log(123, resp) // todo
+  const { data: resp, refetch } = useGetSubscriptionTopicsQuery()
 
   useEffect(() => {
     if (!resp) return
@@ -61,26 +57,24 @@ const useNotification = () => {
 
   const refreshTopics = useCallback(() => account && refetch(), [refetch, account])
   const [callSubscribeTopic] = useSubscribeTopicsMutation()
-  const [callUnSubscribeTopic] = useUnsubscribeTopicsMutation()
   const [buildTelegramVerification] = useBuildTelegramVerificationMutation()
 
   const saveNotification = useCallback(
-    async ({ subscribeIds, unsubscribeIds, isEmail, isChangeEmailOnly, isTelegram }: SaveNotificationParam) => {
+    async ({ subscribeIds, unsubscribeIds, isEmail, isTelegram }: SaveNotificationParam) => {
       try {
         setLoading(true)
         if (isEmail) {
+          let topicIds = topicGroups.reduce(
+            (topics: number[], item) => [...topics, ...item.topics.filter(e => e.isSubscribed).map(e => e.id)],
+            [],
+          )
           if (unsubscribeIds.length) {
-            await callUnSubscribeTopic({ topicIds: unsubscribeIds }).unwrap()
+            topicIds = topicIds.filter(id => !unsubscribeIds.includes(id))
           }
-          if (subscribeIds.length || isChangeEmailOnly) {
-            const allTopicSubscribed = topicGroups.reduce(
-              (topics: number[], item) => [...topics, ...item.topics.filter(e => e.isSubscribed).map(e => e.id)],
-              [],
-            )
-            await callSubscribeTopic({
-              topicIds: isChangeEmailOnly ? allTopicSubscribed : subscribeIds,
-            }).unwrap()
+          if (subscribeIds.length) {
+            topicIds = topicIds.concat(subscribeIds)
           }
+          await callSubscribeTopic({ topicIds }).unwrap()
           return
         }
         if (isTelegram) {
@@ -99,7 +93,7 @@ const useNotification = () => {
         setLoading(false)
       }
     },
-    [setLoading, account, chainId, topicGroups, callSubscribeTopic, callUnSubscribeTopic, buildTelegramVerification],
+    [setLoading, account, chainId, topicGroups, callSubscribeTopic, buildTelegramVerification],
   )
 
   const unsubscribeAll = useCallback(() => {

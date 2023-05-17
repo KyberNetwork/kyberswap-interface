@@ -13,6 +13,7 @@ export enum PriceAlertType {
 export enum NOTIFICATION_ROUTES {
   CREATE_ALERT = '/create-alert',
   OVERVIEW = '/overview',
+  PROFILE = '/profile',
   ALL = '/',
   GENERAL = '/general',
   PRICE_ALERTS = '/price-alerts',

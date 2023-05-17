@@ -10,6 +10,7 @@ import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { PrivateAnnouncementType } from 'components/Announcement/type'
 import MailIcon from 'components/Icons/MailIcon'
 import NotificationIcon from 'components/Icons/NotificationIcon'
+import ProfileIcon from 'components/Icons/Profile'
 import { getAnnouncementsTemplateIds } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import MenuItem from 'pages/NotificationCenter/Menu/MenuItem'
@@ -26,6 +27,13 @@ const Divider = styled.div<{ $margin?: string }>`
 
 type Unread = Partial<{ [type in PrivateAnnouncementType]: number | undefined }> & { ALL: number | undefined }
 const menuItems = [
+  {
+    route: NOTIFICATION_ROUTES.PROFILE,
+    icon: <ProfileIcon />,
+    title: t`Profile`,
+    type: '',
+    parent: true,
+  },
   {
     route: NOTIFICATION_ROUTES.OVERVIEW,
     icon: <NotificationIcon size="16px" />,
@@ -93,9 +101,9 @@ const MenuForDesktop = ({ unread }: { unread: Unread }) => {
               text={title || MENU_TITLE[formatType]}
               unread={unread[formatType]}
             />
-            {[NOTIFICATION_ROUTES.OVERVIEW, NOTIFICATION_ROUTES.GENERAL].includes(route) && (
-              <Divider style={{ marginLeft: paddingLeft, width: `calc(100% - ${paddingLeft})` }} />
-            )}
+            {[NOTIFICATION_ROUTES.PROFILE, NOTIFICATION_ROUTES.OVERVIEW, NOTIFICATION_ROUTES.GENERAL].includes(
+              route,
+            ) && <Divider style={{ marginLeft: paddingLeft, width: `calc(100% - ${paddingLeft})` }} />}
           </>
         )
       })}

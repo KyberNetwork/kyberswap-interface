@@ -10,6 +10,7 @@ import GeneralAnnouncement from 'pages/NotificationCenter/GeneralAnnouncement'
 import Menu from 'pages/NotificationCenter/Menu'
 import Overview from 'pages/NotificationCenter/Overview'
 import PriceAlerts from 'pages/NotificationCenter/PriceAlerts'
+import Profile from 'pages/NotificationCenter/Profile'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import VerifyComponent from 'pages/Verify/VerifyComponent'
 
@@ -105,6 +106,7 @@ function NotificationCenter() {
           <Routes>
             <Route index path={NOTIFICATION_ROUTES.ALL} element={<PrivateAnnouncement />} />
             <Route path={NOTIFICATION_ROUTES.OVERVIEW} element={<Overview />} />
+            <Route path={NOTIFICATION_ROUTES.PROFILE} element={<Profile />} />
             <Route path={NOTIFICATION_ROUTES.GENERAL} element={<GeneralAnnouncement />} />
             <Route path={NOTIFICATION_ROUTES.PRICE_ALERTS} element={<PriceAlerts />} />
             <Route path={`${NOTIFICATION_ROUTES.PRICE_ALERTS}/*`} element={<PriceAlerts />} />

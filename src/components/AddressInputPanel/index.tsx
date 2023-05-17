@@ -82,7 +82,7 @@ type Props = {
   style?: CSSProperties
 } & Pick<DOMAttributes<HTMLInputElement>, 'onBlur' | 'onFocus' | 'onChange'>
 
-export const AddressInput = function AddressInput({
+const AddressInputComponent = function AddressInput({
   onChange,
   onFocus,
   onBlur,
@@ -121,6 +121,8 @@ export const AddressInput = function AddressInput({
     </ContainerRow>
   )
 }
+
+export const AddressInput = styled(AddressInputComponent)``
 
 export default function AddressInputPanel({
   id,
