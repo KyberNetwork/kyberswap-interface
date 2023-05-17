@@ -21,11 +21,12 @@ export function useConnectedWallet(): [string | null | undefined, (data: string 
   return [wallet, setConnectedWallet]
 }
 
-export function useSessionInfo(): AuthenState {
+export function useSessionInfo(): AuthenState & { formatUserInfo: UserProfile | undefined } {
   const { account } = useActiveWeb3React()
   const authen = useSelector((state: AppState) => state.authen)
   const isLogin = Boolean(authen.isLogin && account)
-  return { ...authen, isLogin }
+  const formatUserInfo = isLogin ? authen.userInfo : authen.anonymousUserInfo // todo rename
+  return { ...authen, isLogin, formatUserInfo }
 }
 
 export const useSaveUserProfile = () => {

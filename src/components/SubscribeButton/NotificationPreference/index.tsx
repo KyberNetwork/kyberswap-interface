@@ -174,11 +174,11 @@ function NotificationPreference({
     saveNotification,
     refreshTopics,
     topicGroups: topicGroupsGlobal,
-    userInfo,
     unsubscribeAll,
   } = useNotification()
 
-  const { userInfo: profile } = useSessionInfo()
+  const { formatUserInfo: userInfo } = useSessionInfo()
+
   const [isShowVerify, setIsShowVerify] = useState(false)
   const showVerifyModal = () => {
     setIsShowVerify(true)
@@ -205,7 +205,7 @@ function NotificationPreference({
 
   const hasErrorInput = errorInput?.type === 'error'
 
-  const isNewUserQualified = !userInfo.email && !userInfo.telegram && !!inputEmail && !hasErrorInput
+  const isNewUserQualified = !userInfo?.email && !userInfo?.telegramUsername && !!inputEmail && !hasErrorInput
   const notFillEmail = !inputEmail && isEmailTab
 
   const validateInput = useCallback((value: string, required = false) => {
@@ -245,7 +245,7 @@ function NotificationPreference({
     if (isOpen) {
       setEmailPendingVerified('')
       setErrorInput(null)
-      setInputEmail(userInfo.email)
+      setInputEmail(userInfo?.email || '')
     }
   }, [userInfo, activeTab, isOpen])
 
@@ -288,7 +288,7 @@ function NotificationPreference({
       const isChangeEmail =
         !hasErrorInput &&
         inputEmail &&
-        userInfo.email !== inputEmail &&
+        userInfo?.email !== inputEmail &&
         selectedTopic.length &&
         inputEmail !== emailPendingVerified
       return {
@@ -305,7 +305,7 @@ function NotificationPreference({
   const checkProfileAndSave = () => {
     if (isEmailTab) validateInput(inputEmail, true)
     if (isLoading || hasErrorInput || notFillEmail) return
-    if (!profile?.email) {
+    if (!userInfo?.email) {
       showVerifyModal()
       return
     }
@@ -321,8 +321,8 @@ function NotificationPreference({
       if (unsubscribeNames.length) {
         mixpanelHandler(MIXPANEL_TYPE.NOTIFICATION_DESELECT_TOPIC, { topics: unsubscribeNames })
       }
-      const isChangeEmailOnly = !unsubscribeIds.length && !subscribeIds.length && inputEmail !== userInfo.email
-      if (inputEmail !== userInfo.email) setEmailPendingVerified(inputEmail)
+      const isChangeEmailOnly = !unsubscribeIds.length && !subscribeIds.length && inputEmail !== userInfo?.email
+      if (inputEmail !== userInfo?.email) setEmailPendingVerified(inputEmail)
       const verificationUrl = await saveNotification({
         subscribeIds,
         unsubscribeIds,
@@ -337,7 +337,7 @@ function NotificationPreference({
         return
       }
 
-      const needVerify = subscribeIds.length || (userInfo.email && userInfo.email !== inputEmail)
+      const needVerify = subscribeIds.length || (userInfo?.email && userInfo?.email !== inputEmail)
       notify(
         {
           title: needVerify ? t`Verify Your Email Address` : t`Notification Preferences`,
@@ -390,7 +390,7 @@ function NotificationPreference({
   }, [isNewUserQualified, topicGroups])
 
   const isVerifiedEmail = userInfo?.email && inputEmail === userInfo?.email
-  const isVerifiedTelegram = userInfo?.telegram
+  const isVerifiedTelegram = userInfo?.telegramUsername
   const hasTopicSubscribed = topicGroups.some(e => e.isSubscribed)
 
   const disableButtonSave = useMemo(() => {
@@ -501,7 +501,7 @@ function NotificationPreference({
                 <Trans>
                   Your Verified Account:{' '}
                   <Text as="span" color={theme.text}>
-                    @{userInfo?.telegram}
+                    @{userInfo?.telegramUsername}
                   </Text>
                 </Trans>
               </Text>

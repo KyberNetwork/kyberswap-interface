@@ -40,10 +40,6 @@ interface ApplicationState {
   readonly notification: {
     isLoading: boolean
     topicGroups: Topic[]
-    userInfo: {
-      email: string
-      telegram: string
-    }
     announcementDetail: {
       selectedIndex: number | null // current announcement
       announcements: AnnouncementTemplatePopup[]
@@ -132,12 +128,11 @@ export default createReducer(initialState, builder =>
       const notification = state.notification ?? initialStateNotification
       state.notification = { ...notification, isLoading }
     })
-    .addCase(setSubscribedNotificationTopic, (state, { payload: { topicGroups, userInfo } }) => {
+    .addCase(setSubscribedNotificationTopic, (state, { payload: { topicGroups } }) => {
       const notification = state.notification ?? initialStateNotification
       state.notification = {
         ...notification,
         topicGroups: topicGroups ?? notification.topicGroups,
-        userInfo: userInfo ?? notification.userInfo,
       }
     })
     .addCase(setAnnouncementDetail, (state, { payload }) => {

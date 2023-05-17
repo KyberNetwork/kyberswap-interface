@@ -77,7 +77,6 @@ export const updateServiceWorker = createAction<ServiceWorkerRegistration>('appl
 
 export const setSubscribedNotificationTopic = createAction<{
   topicGroups: Topic[]
-  userInfo: { email: string; telegram: string }
 }>('application/setSubscribedNotificationTopic')
 
 export const setLoadingNotification = createAction<boolean>('application/setLoadingNotification')
