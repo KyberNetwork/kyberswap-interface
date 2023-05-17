@@ -268,7 +268,6 @@ export default function Swap() {
         isOpen={isShowModalImportToken}
         tokens={importTokensNotInDefault}
         onConfirm={handleConfirmTokenWarning}
-        onDismiss={handleDismissTokenWarning}
       />
       <PageWrapper>
         <Banner />
