@@ -292,13 +292,16 @@ export default function Menu() {
   useEffect(() => {
     const wrapper = wrapperNode.current
     if (wrapper) {
+      const abortController = new AbortController()
       const onScroll = () => {
+        if (abortController.signal.aborted) return
         setShowScroll(Math.abs(wrapper.offsetHeight + wrapper.scrollTop - wrapper.scrollHeight) > 10) //no need to show scroll down when scrolled to last 10px
       }
       onScroll()
       wrapper.addEventListener('scroll', onScroll)
       window.addEventListener('resize', onScroll)
       return () => {
+        abortController.abort()
         wrapper.removeEventListener('scroll', onScroll)
         window.removeEventListener('resize', onScroll)
       }
