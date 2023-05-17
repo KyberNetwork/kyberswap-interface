@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { createContext, useMemo, useState } from 'react'
+import { ReactNode, createContext, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { useTheme } from 'styled-components'
@@ -71,7 +71,11 @@ function closeToExistedValue(newvalue: number, arr: any[], range: number) {
 
 export const TechnicalAnalysisContext = createContext<TechnicalAnalysisContextProps>({})
 
-export default function TechnicalAnalysis() {
+export default function TechnicalAnalysis({
+  onShareClick,
+}: {
+  onShareClick?: (content: ReactNode, title: string) => void
+}) {
   const theme = useTheme()
   const { chain, address } = useParams()
   const [liveChartTab, setLiveChartTab] = useState(ChartTab.First)
@@ -120,6 +124,9 @@ export default function TechnicalAnalysis() {
   }, [data, isLoading])
 
   const tokenAnalysisSettings = useTokenAnalysisSettings()
+  const handleShareClick = (content: ReactNode, title: string) => {
+    onShareClick?.(content, title)
+  }
 
   return (
     <TechnicalAnalysisContext.Provider
@@ -235,6 +242,8 @@ export default function TechnicalAnalysis() {
           get liquidated. An abrupt change in price of a token can cause large liquidations. Traders may buy / sell the
           token after large liquidations.`}
           style={{ height: 'fit-content' }}
+          shareButton
+          onShareClick={handleShareClick}
         >
           <Column style={{ height: '500px' }}>
             <LiquidOnCentralizedExchanges />

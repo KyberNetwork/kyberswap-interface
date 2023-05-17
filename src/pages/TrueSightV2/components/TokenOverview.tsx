@@ -2,6 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import { ReactNode, useMemo, useRef, useState } from 'react'
+import { Share2 } from 'react-feather'
 import { useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -18,6 +19,7 @@ import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 import { getEtherscanLink, shortenAddress } from 'utils'
 
+import { ShareButton } from '.'
 import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from '../constants'
 import { ITokenOverview } from '../types'
 import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice } from '../utils'
@@ -142,7 +144,15 @@ const ExternalLink = ({ href, className, children }: { href: string; className?:
   )
 }
 
-export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLoading?: boolean }) => {
+export const TokenOverview = ({
+  data,
+  isLoading,
+  onShareClick,
+}: {
+  data?: ITokenOverview
+  isLoading?: boolean
+  onShareClick?: () => void
+}) => {
   const theme = useTheme()
   const { chain } = useParams()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
@@ -256,7 +266,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
               </Column>*/}
             </CardWrapper>
             <CardWrapper style={{ alignItems: 'center', gap: '12px' }} className={cardClassname}>
-              <Row marginBottom="4px">
+              <RowBetween marginBottom="4px">
                 <MouseoverTooltip
                   text={
                     <Trans>
@@ -285,8 +295,9 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                     KyberScore
                   </Text>
                 </MouseoverTooltip>
-              </Row>
-              <KyberScoreMeter value={data?.kyberScore?.score} />
+                <ShareButton onClick={onShareClick} />
+              </RowBetween>
+              <KyberScoreMeter value={data?.kyberScore?.score} style={{ width: '211px', height: '128px' }} />
               <RowFit gap="6px" marginBottom="12px">
                 <Text
                   fontSize={24}
@@ -482,7 +493,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
             />
           </ExpandableBox>
           <Row style={{ borderBottom: `1px solid ${theme.border}`, margin: '16px 0' }} />
-          <Row marginBottom="8px">
+          <RowBetween marginBottom="8px">
             <MouseoverTooltip
               text={
                 <Trans>
@@ -503,9 +514,10 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                 KyberScore
               </Text>
             </MouseoverTooltip>
-          </Row>
+            <Share2 />
+          </RowBetween>
           <Row justify="center" marginBottom="12px">
-            <KyberScoreMeter value={data?.kyberScore?.score} />
+            <KyberScoreMeter value={latestKyberscore?.kyber_score} />
           </Row>
 
           <Row marginBottom="16px" justify="center" gap="6px">

@@ -316,7 +316,6 @@ export const FundingRateTable = () => {
   const { chain, address } = useParams()
   const { data: tokenOverview } = useTokenDetailQuery({ address, chain })
   const { data, isLoading } = useFundingRateQuery({ address, chain })
-  console.log('🚀 ~ file: index.tsx:319 ~ FundingRateTable ~ data:', data)
 
   const hasNoData = !data && !isLoading
   return (
@@ -356,9 +355,6 @@ export const FundingRateTable = () => {
                   <Column gap="4px">
                     <Text color={theme.text} fontSize="14px">
                       {data?.symbol}
-                    </Text>
-                    <Text color={theme.subText} fontSize="12px">
-                      {tokenOverview?.name}
                     </Text>
                   </Column>
                 </Row>
