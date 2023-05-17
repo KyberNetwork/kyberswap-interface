@@ -70,14 +70,6 @@ const MenuItem = styled.li`
   color: ${({ theme }) => theme.subText};
   font-size: 15px;
 
-  :hover {
-    color: ${({ theme }) => theme.text};
-    cursor: pointer;
-    a {
-      color: ${({ theme }) => theme.text};
-    }
-  }
-
   svg {
     margin-right: 8px;
     height: 16px;
