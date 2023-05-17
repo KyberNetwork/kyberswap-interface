@@ -67,7 +67,7 @@ const bnbInfo: EVMNetworkInfo = {
     initCodeHash: '0x00e263aaa3a2c06a89b53217a9e7aad7e15613490a72e0f95f303c4de2dc7045',
     quoter: '0x12AD3d673503CD6bA7374cb59B1c1b34A7fA9105',
     routers: '0x0199635cc88c6064E7c514f3a97BC35B176Bd6E7',
-    farms: [],
+    farms: ['0xbd81df7b2a83675DB92C7287635Bb141CfA931bC'],
   },
   limitOrder: {
     development: '0x26279604204aa9D3B530bcd8514fc4276bf0962C',

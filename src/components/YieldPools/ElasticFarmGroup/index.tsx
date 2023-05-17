@@ -689,7 +689,7 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
         </>
       ) : (
         <>
-          {!!upcomingFarms.length && (
+          {!!upcomingFarms.length && !!runningFarms.length && (
             <Text
               fontSize="16px"
               fontWeight="500"
@@ -701,10 +701,12 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
             </Text>
           )}
 
-          <FarmList gridMode={viewMode === VIEW_MODE.GRID || !above1000}>
-            {above1000 && viewMode === VIEW_MODE.LIST && renderTableHeaderOnDesktop()}
-            {renderFarmList(tab === FARM_TAB.ACTIVE ? runningFarms : endedFarms)}
-          </FarmList>
+          {!!runningFarms.length && (
+            <FarmList gridMode={viewMode === VIEW_MODE.GRID || !above1000}>
+              {above1000 && viewMode === VIEW_MODE.LIST && renderTableHeaderOnDesktop()}
+              {renderFarmList(tab === FARM_TAB.ACTIVE ? runningFarms : endedFarms)}
+            </FarmList>
+          )}
 
           {!!upcomingFarms.length && (
             <>
