@@ -25,6 +25,9 @@ import useTheme from 'hooks/useTheme'
 import { formatAmountBridge } from 'pages/Bridge/helpers'
 import { CrossChainTab } from 'pages/CrossChain/TransfersHistory/TabSelector'
 import { isCrossChainTxsSuccess } from 'pages/CrossChain/helpers'
+import { CrossChainTransferStatus } from 'pages/CrossChain/useTransferHistory'
+import { ExternalLinkIcon } from 'theme'
+import { getEtherscanLink } from 'utils'
 
 const NetWorkRow = styled.div`
   display: flex;
@@ -50,6 +53,8 @@ function InboxItemBridge({
     srcTokenLogoUrl,
     srcTokenSymbol,
     dstTokenSymbol,
+    dstTxHash,
+    srcTxHash,
   } = templateBody.transaction
   const isSuccess = isCrossChainTxsSuccess(status)
   const chainIdIn = Number(srcChainId) as ChainId
@@ -67,12 +72,27 @@ function InboxItemBridge({
     onRead(announcement, statusMessage)
   }
 
+  const etherscanChainSrcChain = [
+    CrossChainTransferStatus.SRC_GATEWAY_CALLED,
+    CrossChainTransferStatus.SRC_GATEWAY_CALLED_FAILED,
+  ].includes(status)
+
   return (
     <InboxItemWrapper isRead={isRead} onClick={onClick} style={style}>
       <InboxItemRow>
         <RowItem>
           <InboxIcon type={templateType} />
-          <Title isRead={isRead}>{title}</Title>
+          <Title isRead={isRead} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            {title}{' '}
+            <ExternalLinkIcon
+              href={getEtherscanLink(
+                etherscanChainSrcChain ? chainIdIn : chainIdOut,
+                etherscanChainSrcChain ? srcTxHash : dstTxHash,
+                'transaction',
+              )}
+              color={theme.text}
+            />
+          </Title>
           {!isRead && <Dot />}
         </RowItem>
         <RowItem>
