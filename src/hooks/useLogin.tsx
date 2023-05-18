@@ -101,4 +101,10 @@ const useLogin = () => {
     })
   }, [account, signIn, isConnectedWallet])
 }
+
+export const useSignInETH = () => {
+  const { account } = useActiveWeb3React()
+  return useCallback(() => KyberOauth2.authenticate({ wallet_address: account ?? '' }), [account])
+}
+
 export default useLogin

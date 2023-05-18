@@ -1,6 +1,8 @@
+import KyberOauth2 from '@kybernetwork/oauth2'
 import { Trans } from '@lingui/macro'
+import { rgba } from 'polished'
 import { useState } from 'react'
-import { LogOut, Save } from 'react-feather'
+import { Info, LogOut, Save } from 'react-feather'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -14,9 +16,11 @@ import Row from 'components/Row'
 import { useValidateEmail } from 'components/SubscribeButton/NotificationPreference'
 import InputEmail from 'components/SubscribeButton/NotificationPreference/InputEmail'
 import { useActiveWeb3React } from 'hooks'
+import { useSignInETH } from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
 import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
 import { useSessionInfo } from 'state/authen/hooks'
+import { ExternalLink } from 'theme'
 import { shortenAddress } from 'utils'
 
 const Wrapper = styled.div`
@@ -24,6 +28,7 @@ const Wrapper = styled.div`
   flex-direction: column;
   padding: 30px 24px;
   gap: 20px;
+  max-width: 630px;
 `
 
 const Label = styled.label`
@@ -59,6 +64,33 @@ const StyledAddressInput = styled(AddressInput)`
   height: 42px;
 `
 
+const WarningWrapper = styled.div`
+  border-radius: 24px;
+  background-color: ${({ theme }) => rgba(theme.subText, 0.2)};
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 8px 14px;
+`
+const SignMessage = () => {
+  const signIn = useSignInETH()
+  const theme = useTheme()
+  return (
+    <WarningWrapper>
+      <Row style={{ gap: '12px' }}>
+        <Info color={theme.subText} size={40} />
+        <Text fontSize={'12px'}>
+          You are not signed in with this wallet address. Click Sign-In to link your wallet to a profile. This will
+          allow us to offer you a better experience. Read more <ExternalLink href="#">here ↗</ExternalLink>
+        </Text>
+      </Row>
+      <ButtonPrimary width={'130px'} height={'36px'} fontSize={'14px'} onClick={signIn}>
+        Sign-in
+      </ButtonPrimary>
+    </WarningWrapper>
+  )
+}
+
 // todo sign in anonymous lau qua ko call api dc
 export default function Profile() {
   const theme = useTheme()
@@ -79,15 +111,15 @@ export default function Profile() {
   const saveProfile = () => {
     console.log(nickName, inputEmail)
   }
-
+  const thisAccount = '0xF14DE383fE1f5ECA59dbC33A7d7aB527AD7c8c94'
   const isVerifiedEmail = formatUserInfo?.email && inputEmail === formatUserInfo?.email
   return (
     <Wrapper>
       <Text fontSize={'24px'} fontWeight={'500'}>
         <Trans>Profile Details</Trans>
       </Text>
-
-      <Row gap="32px" align={'flex-start'}>
+      {(!isLogin || account?.toLowerCase() !== thisAccount?.toLowerCase()) && <SignMessage />}
+      <Row gap="32px" align={'flex-start'} justify={'space-between'}>
         <LeftColum>
           <FormGroup>
             <Label>

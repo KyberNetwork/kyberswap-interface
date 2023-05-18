@@ -35,6 +35,18 @@ const menuItems = [
     parent: true,
   },
   {
+    route: NOTIFICATION_ROUTES.GUEST_PROFILE,
+    icon: <ProfileIcon />,
+    title: t`Guest`,
+    type: '',
+  },
+  {
+    route: NOTIFICATION_ROUTES.GUEST_PROFILE,
+    icon: <ProfileIcon />,
+    title: t`0x`,
+    type: '',
+  },
+  {
     route: NOTIFICATION_ROUTES.OVERVIEW,
     icon: <NotificationIcon size="16px" />,
     title: t`Notification Overview`,

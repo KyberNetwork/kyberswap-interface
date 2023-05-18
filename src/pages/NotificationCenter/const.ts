@@ -14,6 +14,8 @@ export enum NOTIFICATION_ROUTES {
   CREATE_ALERT = '/create-alert',
   OVERVIEW = '/overview',
   PROFILE = '/profile',
+  GUEST_PROFILE = '/profile/guest',
+  SIGN_PROFILE = '/profile/:walletAddress',
   ALL = '/',
   GENERAL = '/general',
   PRICE_ALERTS = '/price-alerts',
