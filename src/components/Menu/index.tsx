@@ -299,7 +299,7 @@ export default function Menu() {
       }
     }
     return
-  })
+  }, [])
 
   return (
     <StyledMenu>
