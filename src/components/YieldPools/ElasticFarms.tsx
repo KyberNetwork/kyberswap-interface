@@ -4,7 +4,6 @@ import { useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
-import FarmIssueAnnouncement from 'components/FarmIssueAnnouncement'
 import LocalLoader from 'components/LocalLoader'
 import { APP_PATHS, FARM_TAB } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
@@ -13,7 +12,7 @@ import { useActiveWeb3React } from 'hooks'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
-import { useElasticFarms, useFailedNFTs } from 'state/farms/elastic/hooks'
+import { useElasticFarms } from 'state/farms/elastic/hooks'
 import { FarmingPool } from 'state/farms/elastic/types'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { StyledInternalLink } from 'theme'
@@ -35,8 +34,6 @@ function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: bo
   const filteredToken1Id = searchParams.get('token1') || undefined
 
   const { farms, loading, userFarmInfo } = useElasticFarms()
-
-  const failedNFTs = useFailedNFTs()
 
   const ref = useRef<HTMLDivElement>()
   const [open, setOpen] = useState(false)
@@ -183,23 +180,6 @@ function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: bo
     setSeletedPool(undefined)
   }
 
-  const renderAnnouncement = () => {
-    // show announcement only when user was affected in one of the visible farms on the UI
-    const now = Date.now() / 1000
-
-    if (activeTab === 'ended') {
-      const endedFarms = farms?.filter(farm => farm.pools.every(p => p.endTime < now))
-      const shouldShow = endedFarms?.some(farm =>
-        userFarmInfo?.[farm.id].depositedPositions
-          .map(pos => pos.nftId.toString())
-          .some(nft => failedNFTs.includes(nft)),
-      )
-      return shouldShow ? <FarmIssueAnnouncement isEnded /> : null
-    }
-
-    return null
-  }
-
   return (
     <>
       {selectedFarm && selectedModal === 'deposit' && (
@@ -227,8 +207,6 @@ function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: bo
       {selectedFarm && selectedModal === 'harvest' && (
         <HarvestModal farmsAddress={selectedFarm} poolId={selectedPoolId} onDismiss={onDismiss} />
       )}
-
-      {renderAnnouncement()}
 
       {type === FARM_TAB.ENDED && tab !== VERSION.CLASSIC && (
         <Text fontStyle="italic" fontSize={12} marginBottom="1rem" color={theme.subText}>

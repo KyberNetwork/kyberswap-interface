@@ -162,7 +162,7 @@ const FarmUpdaterV2: React.FC<CommonProps> = ({}) => {
               }),
               tvlToken0,
               tvlToken1,
-              apr: 0.0001, // chainId === ChainId.AVAXMAINNET && rawPool.pid === '125' ? 0 : Number(rawPool.apr),
+              apr: Number(rawPool.apr),
               poolAPR: Number(rawPool.pool.apr),
               stakedTvl: Number(rawPool.stakedTvl),
             }

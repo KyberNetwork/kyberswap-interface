@@ -1,4 +1,6 @@
 {
+  "contractName": "AntiSnipAttackPositionManager",
+  "sourceName": "contracts/periphery/AntiSnipAttackPositionManager.sol",
   "abi": [
     {
       "inputs": [
@@ -305,11 +307,6 @@
               "internalType": "uint256",
               "name": "tokenId",
               "type": "uint256"
-            },
-            {
-              "internalType": "int24[2]",
-              "name": "ticksPrevious",
-              "type": "int24[2]"
             },
             {
               "internalType": "uint256",
