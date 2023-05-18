@@ -132,7 +132,12 @@ export function ImportToken({ enterToImport = false, tokens, onBack, onDismiss, 
           )
         })}
 
-        <ButtonPrimary borderRadius="20px" padding="10px 1rem" onClick={onClickImport}>
+        <ButtonPrimary
+          borderRadius="20px"
+          padding="10px 1rem"
+          onClick={onClickImport}
+          className="button-confirm-import-token"
+        >
           <Trans>I understand</Trans>
         </ButtonPrimary>
       </Flex>

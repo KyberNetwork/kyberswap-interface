@@ -1,4 +1,7 @@
 /// <reference types="cypress" />
+
+import { text } from "d3";
+
 // ***********************************************
 // This example commands.ts shows you how to
 // create various custom commands and overwrite
