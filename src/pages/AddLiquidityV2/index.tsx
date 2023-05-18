@@ -311,6 +311,8 @@ export default function AddLiquidity() {
   const [approvalA, approveACallback] = useApproveCallback(
     !!currencies_A && depositADisabled && noLiquidity
       ? CurrencyAmount.fromFractionalAmount(currencies_A, ONE, ONE)
+      : isMultiplePosition
+      ? currencyAmountSum[Field.CURRENCY_A]
       : parsedAmounts_A,
     isEVM ? (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager : undefined,
   )
@@ -318,6 +320,8 @@ export default function AddLiquidity() {
   const [approvalB, approveBCallback] = useApproveCallback(
     !!currencies_B && depositBDisabled && noLiquidity
       ? CurrencyAmount.fromFractionalAmount(currencies_B, ONE, ONE)
+      : isMultiplePosition
+      ? currencyAmountSum[Field.CURRENCY_B]
       : parsedAmounts_B,
     isEVM ? (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager : undefined,
   )
