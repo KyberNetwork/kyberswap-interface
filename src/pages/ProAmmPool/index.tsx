@@ -84,7 +84,7 @@ export default function ProAmmPool() {
   const tokenAddressSymbolMap = useRef<AddressSymbolMapInterface>({})
   const { positions, loading: positionsLoading } = useProAmmPositions(account)
 
-  const { farmPositions, loading, activeFarmAddress, farms, userFarmInfo } = useFarmPositions()
+  const { farmPositions, loading, activeFarmAddress, userFarmInfo } = useFarmPositions()
 
   const [openPositions, closedPositions] = useMemo(
     () =>
@@ -259,7 +259,7 @@ export default function ProAmmPool() {
                 <Trans>Connect to a wallet to view your liquidity.</Trans>
               </TYPE.body>
             </Card>
-          ) : (positionsLoading && !positions) || (loading && !farms && !userFarmInfo) ? (
+          ) : (positionsLoading && !positions) || (loading && !userFarmInfo) ? (
             <PositionCardGrid>
               <ContentLoader />
               <ContentLoader />

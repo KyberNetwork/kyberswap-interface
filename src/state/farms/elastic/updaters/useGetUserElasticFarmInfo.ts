@@ -17,7 +17,7 @@ import { useKyberSwapConfig } from 'state/application/hooks'
 import { useAppSelector } from 'state/hooks'
 import { usePoolBlocks } from 'state/prommPools/hooks'
 
-import { setPoolFeeData, setUserFarmInfo } from '..'
+import { setLoadingUserInfo, setPoolFeeData, setUserFarmInfo } from '..'
 import { NFTPosition, UserFarmInfo } from '../types'
 
 const farmInterface = new Interface(ELASTIC_FARM_ABI)
@@ -49,6 +49,7 @@ const useGetUserFarmingInfo = (interval?: boolean) => {
     const farmAddresses = elasticFarm.farms?.map(farm => farm.id)
 
     if (isEVM(chainId) && account && farmAddresses?.length && multicallContract) {
+      dispatch(setLoadingUserInfo({ loading: true, chainId }))
       // get userDepositedNFTs
       const userDepositedNFTsFragment = farmInterface.getFunction('getDepositedNFTs')
       const callData = farmInterface.encodeFunctionData(userDepositedNFTsFragment, [account])
@@ -230,6 +231,7 @@ const useGetUserFarmingInfo = (interval?: boolean) => {
         }
       }, {} as UserFarmInfo)
 
+      dispatch(setLoadingUserInfo({ chainId, loading: false }))
       if (userInfo) dispatch(setUserFarmInfo({ chainId, userInfo }))
     }
   }, [elasticFarm.farms, chainId, account, multicallContract, dispatch])
@@ -248,7 +250,7 @@ const useGetUserFarmingInfo = (interval?: boolean) => {
     return () => {
       i && clearInterval(i)
     }
-  }, [interval])
+  }, [interval, account, elasticFarm.farms?.length])
 
   const { blockLast24h } = usePoolBlocks()
   const [getPoolInfo, { data: poolFeeData }] = useLazyQuery(POOL_FEE_HISTORY, {
