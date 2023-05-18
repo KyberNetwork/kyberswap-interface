@@ -10,15 +10,6 @@ export const token = {
   btnImport: '.button-import-token',
   btnUnderstand: '.button-confirm-import-token',
   clearAll: '.button-clear-all-import-token',
-
-  /* favoriteToken: '.sc-iOeugr .sc-iMSIvx',
-  iconRemoveToken: '.close-btn',
-  rowInWhiteList: '.ddXQwm',
-  iconFavorite: '.sc-lkkFJn',
-  iconDelete: '.sc-jwKbUx',
-  btnImport: '.sc-cTVMo .sc-gswNZR',
-  btnUnderstand: '.sc-erbdlo button',
-  clearAll: '.sc-iOeugr .sc-bgzEgf', */
 }
 
 export const homePage = {
@@ -26,12 +17,12 @@ export const homePage = {
 }
 
 export const notification = {
-  notFound: 'no-token-result',
+  notFound: '.no-token-result',
 }
 
 export const tab = {
   allTab: '.tab-all',
-  import: 'tab-import',
+  import: '.tab-import',
 }
 
 export function getText(selector: string, callback: any) {

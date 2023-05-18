@@ -1,8 +1,4 @@
-import { log } from 'console'
-import { isArrayLikeObject } from 'cypress/types/lodash'
-import { selector } from 'd3'
-
-import { getList, getText, notification, tab, token, tooltip } from '../e2e/swap/selectors'
+import { getList, getText, homePage, notification, tab, token } from '../e2e/swap/selectors'
 
 export {}
 
@@ -24,7 +20,6 @@ declare global {
       importNewTokenByAddress(selector: string, address: string): Chainable<void>
       deleteImportedToken(address: string): Chainable<void>
       clearAllImportedToken(): Chainable<void>
-      verifyImportedToken(): Chainable<void>
     }
   }
 }
@@ -42,5 +37,75 @@ Cypress.Commands.add('verifySelectedToken', (selector, value) => {
 })
 
 Cypress.Commands.add('closeWelcomeTooltip', () => {
-  cy.get(tooltip.welcomeTooltip, { timeout: 20000 }).should('be.visible').click()
+  cy.get(homePage.welcome, { timeout: 20000 }).should('be.visible').click()
+})
+
+Cypress.Commands.add('input', (selector, value) => {
+  cy.get(selector).should('be.visible').type(value)
+})
+
+Cypress.Commands.add('selectTokenInFavoriteTokensList', (selector, value) => {
+  cy.get(selector, { timeout: 10000 }).contains(value).click()
+})
+
+Cypress.Commands.add('selectTokenBySymbol', (selector, value) => {
+  cy.input(selector, value)
+  cy.get(token.rowInWhiteList, { timeout: 10000 }).eq(0).click({ force: true })
+})
+
+Cypress.Commands.add('removeTokenInFavoriteTokensList', value => {
+  cy.get(token.favoriteToken, { timeout: 10000 })
+    .contains(value)
+    .parent()
+    .find(token.iconRemoveToken)
+    .click({ force: true })
+})
+
+Cypress.Commands.add('verifyValueInList', (selector, value, exist) => {
+  getList(selector, (arr: any) => {
+    if (exist === true) {
+      expect(arr).to.include.members(value)
+    } else {
+      expect(arr).not.to.include.members(value)
+    }
+  })
+})
+
+Cypress.Commands.add('verifyIcon', checked => {
+  cy.get(token.rowInWhiteList).find(token.iconFavorite).eq(0).should('have.attr', 'data-active', checked)
+})
+
+Cypress.Commands.add('addTokenToFavoriteTokensList', value => {
+  cy.input(token.inputToken, value)
+  cy.verifyIcon('false')
+  cy.get(token.rowInWhiteList).find(token.iconFavorite).eq(0).click()
+})
+
+Cypress.Commands.add('verifyNoResultFound', () => {
+  cy.get(notification.notFound).should('have.text', 'No results found.')
+})
+
+Cypress.Commands.add('importNewTokenByAddress', (selector, address) => {
+  cy.clickButton(selector)
+  cy.input(token.inputToken, address)
+  cy.get(token.btnImport).click()
+  cy.get(token.btnUnderstand).click()
+})
+
+Cypress.Commands.add('deleteImportedToken', address => {
+  cy.input(token.inputToken, address)
+  cy.get(token.rowInWhiteList).find(token.iconDelete).click()
+})
+
+Cypress.Commands.add('clearAllImportedToken', () => {
+  cy.get(tab.import).should('be.visible').click()
+  cy.get(token.clearAll).click()
+})
+
+Cypress.Commands.add('verifyURL', (selectorTokenIn, selectorTokenOut) => {
+  getText(selectorTokenIn, (txtTokenIn: any) => {
+    getText(selectorTokenOut, (txtTokenOut: any) => {
+      cy.url().should('include', txtTokenIn.toLowerCase() + '-to-' + txtTokenOut.toLowerCase())
+    })
+  })
 })

@@ -24,8 +24,7 @@
     "start-dev": "vite --mode dev",
     "start-stg": "vite --mode stg",
     "start-prod": "vite --mode production",
-    "test-e2e": "cypress run",
-    "test:open": "cypress open"
+    "test-e2e": "cypress run"
   },
   "browserslist": [
     "chrome >= 52",

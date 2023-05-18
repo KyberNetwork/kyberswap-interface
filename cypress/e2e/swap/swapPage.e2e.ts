@@ -1,4 +1,4 @@
-import { notification, tab, token } from './selectors'
+import { tab, token } from './selectors'
 
 const mainPage = 'swap/ethereum'
 const tokenSymbol = ['KNC', 'DAI', 'USDT', 'USDC']
@@ -90,21 +90,19 @@ describe('Token Catalog', () => {
     it('Should be imported tokenIn successfully', () => {
       cy.importNewTokenByAddress(token.tokenIn, unWhiteListedToken.SCOOBY.address)
       cy.verifySelectedToken(token.tokenIn, unWhiteListedToken.SCOOBY.name)
-      cy.importNewTokenByAddress(token.tokenIn, unWhiteListedToken.TUSD.address)
       cy.clickButton(token.tokenIn)
       cy.wait(3000)
-      cy.get(tab.allTab).should('be.visible').eq(1).click()
-      cy.verifyValueInList(token.rowInWhiteList, [unWhiteListedToken.SCOOBY.name, unWhiteListedToken.TUSD.name], true)
+      cy.get(tab.import).should('be.visible').click()
+      cy.verifyValueInList(token.rowInWhiteList, [unWhiteListedToken.SCOOBY.name], true)
     })
 
     it('Should be imported tokenOut successfully', () => {
-      cy.importNewTokenByAddress(token.tokenOut, unWhiteListedToken.SCOOBY.address)
-      cy.verifySelectedToken(token.tokenOut, unWhiteListedToken.SCOOBY.name)
       cy.importNewTokenByAddress(token.tokenOut, unWhiteListedToken.TUSD.address)
+      cy.verifySelectedToken(token.tokenOut, unWhiteListedToken.TUSD.name)
       cy.clickButton(token.tokenOut)
       cy.wait(3000)
-      cy.get(tab.allTab).should('be.visible').eq(1).click()
-      cy.verifyValueInList(token.rowInWhiteList, [unWhiteListedToken.SCOOBY.name, unWhiteListedToken.TUSD.name], true)
+      cy.get(tab.import).should('be.visible').click()
+      cy.verifyValueInList(token.rowInWhiteList, [unWhiteListedToken.TUSD.name], true)
     })
   })
 
@@ -113,7 +111,7 @@ describe('Token Catalog', () => {
       cy.importNewTokenByAddress(token.tokenIn, unWhiteListedToken.SCOOBY.address)
       cy.clickButton(token.tokenIn)
       cy.wait(3000)
-      cy.get(tab.allTab).should('be.visible').eq(1).click()
+      cy.get(tab.import).should('be.visible').click()
       cy.verifyValueInList(token.rowInWhiteList, [unWhiteListedToken.SCOOBY.name], true)
       cy.deleteImportedToken(unWhiteListedToken.SCOOBY.address)
       cy.verifyNoResultFound()
@@ -123,7 +121,7 @@ describe('Token Catalog', () => {
       cy.importNewTokenByAddress(token.tokenOut, unWhiteListedToken.SCOOBY.address)
       cy.clickButton(token.tokenOut)
       cy.wait(3000)
-      cy.get(tab.allTab).should('be.visible').eq(1).click()
+      cy.get(tab.import).should('be.visible').click()
       cy.verifyValueInList(token.rowInWhiteList, [unWhiteListedToken.SCOOBY.name], true)
       cy.deleteImportedToken(unWhiteListedToken.SCOOBY.address)
       cy.verifyNoResultFound()
@@ -135,7 +133,7 @@ describe('Token Catalog', () => {
       cy.importNewTokenByAddress(token.tokenIn, unWhiteListedToken.TUSD.address)
       cy.clickButton(token.tokenIn)
       cy.wait(3000)
-      cy.get(tab.allTab).should('be.visible').eq(1).click()
+      cy.get(tab.import).should('be.visible').click()
       cy.verifyValueInList(
         token.rowInWhiteList,
         [unWhiteListedToken.SCOOBY.name, unWhiteListedToken.BGB.name, unWhiteListedToken.TUSD.name],
@@ -151,7 +149,7 @@ describe('Token Catalog', () => {
       cy.importNewTokenByAddress(token.tokenOut, unWhiteListedToken.TUSD.address)
       cy.clickButton(token.tokenOut)
       cy.wait(3000)
-      cy.get(tab.allTab).should('be.visible').eq(1).click()
+      cy.get(tab.import).should('be.visible').click()
       cy.verifyValueInList(
         token.rowInWhiteList,
         [unWhiteListedToken.SCOOBY.name, unWhiteListedToken.BGB.name, unWhiteListedToken.TUSD.name],
