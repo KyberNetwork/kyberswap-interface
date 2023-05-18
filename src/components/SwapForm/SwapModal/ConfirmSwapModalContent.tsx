@@ -138,12 +138,13 @@ export default function ConfirmSwapModalContent({
         gasUsd: undefined,
         executionPrice: undefined,
         parsedAmountOut: undefined,
-        amountInUsd: undefined,
         priceImpact: undefined,
+
+        buildData: undefined,
       }
     }
 
-    const { amountIn, amountInUsd, amountOut, gasUsd } = buildResult.data
+    const { amountIn, amountOut, gasUsd } = buildResult.data
     const parsedAmountIn = toCurrencyAmount(routeSummary.parsedAmountIn.currency, amountIn)
     const parsedAmountOut = toCurrencyAmount(routeSummary.parsedAmountOut.currency, amountOut)
     const executionPrice = new Price(
@@ -159,8 +160,9 @@ export default function ConfirmSwapModalContent({
       gasUsd,
       executionPrice,
       parsedAmountOut,
-      amountInUsd,
       priceImpact: priceImpactFromBuild,
+
+      buildData: buildResult.data,
     }
   }
 
