@@ -17,6 +17,7 @@ export type BuildRouteData = {
   amountInUsd: string
   amountOut: string
   amountOutUsd: string
+  feeUsd: string
   outputChange?: {
     percent: number
   }

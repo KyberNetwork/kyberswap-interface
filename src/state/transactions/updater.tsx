@@ -147,6 +147,7 @@ export default function Updater(): null {
                           actual_gas: receipt.gasUsed || BigNumber.from(0),
                           gas_price: receipt.effectiveGasPrice || BigNumber.from(0),
                           tx_hash: receipt.transactionHash,
+                          feeInfo: arbitrary.feeInfo,
                         })
                       }
                       break
