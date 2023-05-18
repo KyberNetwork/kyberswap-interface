@@ -1,4 +1,4 @@
-import { ChainId, CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Pool } from '@kyberswap/ks-sdk-elastic'
 import { useEffect } from 'react'
 import useSWR from 'swr'
@@ -44,7 +44,7 @@ interface Response {
 const useGetElasticFarms = () => {
   const { chainId } = useActiveWeb3React()
   const endpoint = isEVM(chainId)
-    ? `${POOL_FARM_BASE_URL}/${NETWORKS_INFO[chainId].poolFarmRoute}/api/v1/elastic/farm-pools?page=1&perPage=10000`
+    ? `${POOL_FARM_BASE_URL}/${NETWORKS_INFO[chainId].poolFarmRoute}/api/v1/elastic-new/farm-pools?page=1&perPage=10000`
     : ''
 
   return useSWR<Response>(endpoint, (url: string) => fetch(url).then(resp => resp.json()), {
@@ -135,17 +135,9 @@ const FarmUpdaterV2: React.FC<CommonProps> = ({}) => {
             const tvlToken0 = TokenAmount.fromRawAmount(token0.wrapped, 0)
             const tvlToken1 = TokenAmount.fromRawAmount(token1.wrapped, 0)
 
-            const current = Date.now() / 1000
-
             return {
               startTime: Number(rawPool.startTime),
-              // Hard code endtime
-              endTime:
-                chainId === ChainId.AVAXMAINNET && rawPool.pid === '125'
-                  ? 1680104783
-                  : Number(rawPool.endTime) > current
-                  ? 1681833600
-                  : Number(rawPool.endTime),
+              endTime: Number(rawPool.endTime),
               pid: rawPool.pid,
               id: rawPool.id,
               feeTarget: rawPool.feeTarget,
