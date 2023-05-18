@@ -165,9 +165,9 @@ const truncateFloatNumber = (num: number, maximumFractionDigits = 6) => {
   return `${wholePart}.${fractionalPart.slice(0, maximumFractionDigits)}`
 }
 
-export function formattedNum(number: string, usd = false, fractionDigits = 5) {
+export function formattedNum(number: string, usd = false, fractionDigits = 5): string {
   if (number === '' || number === undefined) {
-    return usd ? '$0' : 0
+    return usd ? '$0' : '0'
   }
 
   const num = parseFloat(number)
@@ -184,7 +184,7 @@ export function formattedNum(number: string, usd = false, fractionDigits = 5) {
     if (usd) {
       return '$0'
     }
-    return 0
+    return '0'
   }
 
   if (num < 0.0001) {

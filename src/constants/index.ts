@@ -274,3 +274,9 @@ export const TRANSACTION_STATE_DEFAULT: TransactionFlowState = {
   txHash: undefined,
   pendingText: '',
 }
+
+export const CHAINS_SUPPORT_FEE_CONFIGS = [ChainId.OASIS, ChainId.VELAS, ChainId.AURORA, ChainId.CRONOS]
+
+export const SWAP_FEE_RECEIVER_ADDRESS = '0x4f82e73EDb06d29Ff62C91EC8f5Ff06571bdeb29'
+
+export const TOKEN_SCORE_TTL = 86400
