@@ -87,3 +87,14 @@ export interface VoteInfo {
   staker: string
   power: string
 }
+
+export interface RewardStats {
+  liquidated: {
+    totalAmountInKNC: string
+    totalAmountInUSD: string
+  }
+  pending: {
+    totalAmountInKNC: string
+    totalAmountInUSD: string
+  }
+}
