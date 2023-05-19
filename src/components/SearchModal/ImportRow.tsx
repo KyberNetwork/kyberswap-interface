@@ -52,7 +52,7 @@ export default function ImportRow({
         </AutoRow>
       </AutoColumn>
       <ButtonPrimary
-        className="button-import-token"
+        data-testid="button-import-token"
         width="fit-content"
         padding="6px 12px"
         fontWeight={500}

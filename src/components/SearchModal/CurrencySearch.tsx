@@ -127,7 +127,7 @@ const fetchTokens = async (
 export const NoResult = ({ msg }: { msg?: ReactNode }) => {
   const theme = useTheme()
   return (
-    <Column style={{ padding: '20px', height: '100%' }} className="no-token-result">
+    <Column style={{ padding: '20px', height: '100%' }} data-testid="no-token-result">
       <TYPE.main color={theme.text3} textAlign="center" mb="20px">
         {msg || <Trans>No results found.</Trans>}
       </TYPE.main>
@@ -477,13 +477,13 @@ export function CurrencySearch({
               columnGap: '24px',
             }}
           >
-            <TabButton data-active={activeTab === Tab.All} onClick={() => setActiveTab(Tab.All)} className="tab-all">
+            <TabButton data-active={activeTab === Tab.All} onClick={() => setActiveTab(Tab.All)} data-testid="tab-all">
               <Text as="span" fontSize={14} fontWeight={500}>
                 <Trans>All</Trans>
               </Text>
             </TabButton>
 
-            <TabButton data-active={isImportedTab} onClick={() => setActiveTab(Tab.Imported)} className="tab-import">
+            <TabButton data-active={isImportedTab} onClick={() => setActiveTab(Tab.Imported)} data-testid="tab-import">
               <Text as="span" fontSize={14} fontWeight={500}>
                 <Trans>Imported</Trans>
               </Text>
@@ -503,7 +503,7 @@ export function CurrencySearch({
           <div>
             <Trans>{visibleCurrencies.length} Custom Tokens</Trans>
           </div>
-          <ButtonClear onClick={removeAllImportToken} className="button-clear-all-import-token">
+          <ButtonClear onClick={removeAllImportToken} data-testid="button-clear-all-import-token">
             <Trash size={13} />
             <Trans>Clear All</Trans>
           </ButtonClear>

@@ -157,7 +157,7 @@ export function CurrencyRow({
   const { symbol } = getDisplayTokenInfo(currency)
   return (
     <CurrencyRowWrapper
-      className="token-item"
+      data-testid="token-item"
       style={style}
       hoverColor={hoverColor}
       onClick={() => onSelect?.(currency)}
@@ -176,7 +176,7 @@ export function CurrencyRow({
       <Column style={{ alignItems: 'flex-end', gap: 2 }}>
         <RowFixed style={{ justifySelf: 'flex-end', gap: 15 }}>
           {showImported ? (
-            <DeleteButton onClick={onClickRemove} className="button-remove-import-token" />
+            <DeleteButton onClick={onClickRemove} data-testid="button-remove-import-token" />
           ) : customBalance !== undefined ? (
             customBalance
           ) : (
@@ -186,7 +186,7 @@ export function CurrencyRow({
             <FavoriteButton
               onClick={e => handleClickFavorite?.(e, currency)}
               data-active={isFavorite}
-              className="button-favorite-token"
+              data-testid="button-favorite-token"
             />
           )}
         </RowFixed>

@@ -2,26 +2,25 @@ export const token = {
   tokenIn: '#swap-currency-input .token-symbol-container',
   tokenOut: '#swap-currency-output .token-symbol-container',
   inputToken: '#token-search-input',
-  favoriteToken: '.favorite-token',
+  favoriteToken: '[data-testid="favorite-token"]',
   iconRemoveToken: '.close-btn',
-  rowInWhiteList: '.token-item',
-  iconFavorite: '.button-favorite-token',
-  iconDelete: '.button-remove-import-token',
-  btnImport: '.button-import-token',
-  btnUnderstand: '.button-confirm-import-token',
-  clearAll: '.button-clear-all-import-token',
+  rowInWhiteList: '[data-testid="token-item"]',
+  iconFavorite: '[data-testid="button-favorite-token"]',
+  iconDelete: '[data-testid="button-remove-import-token"]',
+  btnImport: '[data-testid="button-import-token"]',
+  btnUnderstand: '[data-testid="button-confirm-import-token"]',
+  clearAll: '[data-testid="button-clear-all-import-token"]',
 }
 
 export const homePage = {
-  welcome: '.button-skip-tutorial',
+  welcome: '[data-testid="button-skip-tutorial"]',
 }
 
 export const notification = {
-  notFound: '.no-token-result',
+  notFound: '[data-testid="no-token-result"]',
 }
 
 export const tab = {
-  allTab: '.tab-all',
-  import: '.tab-import',
+  allTab: '[data-testid="tab-all"]',
+  import: '[data-testid="tab-import"]',
 }
-

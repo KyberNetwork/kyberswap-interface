@@ -136,7 +136,7 @@ export function ImportToken({ enterToImport = false, tokens, onBack, onDismiss, 
           borderRadius="20px"
           padding="10px 1rem"
           onClick={onClickImport}
-          className="button-confirm-import-token"
+          data-testid="button-confirm-import-token"
         >
           <Trans>I understand</Trans>
         </ButtonPrimary>

@@ -1,5 +1,5 @@
-import { homePage, notification, tab, token } from '../e2e/swap/swap-page-selectors.cy'
-import { getList, getText } from './swap-page.po.cy'
+import { notification, tab, token } from '../e2e/swap/swap-page-selectors.cy'
+import { getText, getTokenList } from './swap-page.po.cy'
 
 export {}
 
@@ -19,7 +19,7 @@ declare global {
       verifyNoResultFound(): Chainable<void>
       importNewTokenByAddress(selector: string, address: string): Chainable<void>
       deleteImportedToken(address: string): Chainable<void>
-      clearAllImportedToken(): Chainable<void>
+      clearAllImportedTokens(): Chainable<void>
     }
   }
 }
@@ -58,7 +58,7 @@ Cypress.Commands.add('removeTokenInFavoriteTokensList', value => {
 })
 
 Cypress.Commands.add('verifyValueInList', (selector, value, exist) => {
-  getList(selector, (arr: any) => {
+  getTokenList(selector, (arr: any) => {
     if (exist === true) {
       expect(arr).to.include.members(value)
     } else {
@@ -93,8 +93,8 @@ Cypress.Commands.add('deleteImportedToken', address => {
   cy.get(token.rowInWhiteList).find(token.iconDelete).click()
 })
 
-Cypress.Commands.add('clearAllImportedToken', () => {
-  cy.get(token.btnImport).click()
+Cypress.Commands.add('clearAllImportedTokens', () => {
+  cy.get(tab.import).click()
   cy.get(token.clearAll).click()
 })
 

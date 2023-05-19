@@ -2,6 +2,7 @@ import { homePage, tab, token } from './swap-page-selectors.cy'
 
 const mainPage = 'swap/ethereum'
 const tokenSymbol = ['KNC', 'DAI', 'USDT', 'USDC']
+const unListedToken = ['KNNC', 'KCCN']
 
 const unWhiteListedToken = {
   SCOOBY: {
@@ -75,13 +76,13 @@ describe('Token Catalog', () => {
 
     it('Should be unselected tokenIn not exist in whitelist', () => {
       cy.clickButton(token.tokenIn)
-      cy.input(token.inputToken, 'KNNC')
+      cy.input(token.inputToken, unListedToken[0])
       cy.verifyNoResultFound()
     })
 
     it('Should be unselected tokenOut not exist in whitelist', () => {
       cy.clickButton(token.tokenOut)
-      cy.input(token.inputToken, 'KNNC')
+      cy.input(token.inputToken, unListedToken[1])
       cy.verifyNoResultFound()
     })
   })
@@ -92,7 +93,6 @@ describe('Token Catalog', () => {
       cy.verifySelectedToken(token.tokenIn, unWhiteListedToken.SCOOBY.name)
       cy.clickButton(token.tokenIn)
       cy.clickButton(tab.import)
-      // cy.get(tab.import).should('be.visible').click()
       cy.verifyValueInList(token.rowInWhiteList, [unWhiteListedToken.SCOOBY.name], true)
     })
 
@@ -135,7 +135,7 @@ describe('Token Catalog', () => {
         [unWhiteListedToken.SCOOBY.name, unWhiteListedToken.BGB.name, unWhiteListedToken.TUSD.name],
         true,
       )
-      cy.clearAllImportedToken()
+      cy.clearAllImportedTokens()
       cy.verifyNoResultFound()
     })
 
@@ -150,7 +150,7 @@ describe('Token Catalog', () => {
         [unWhiteListedToken.SCOOBY.name, unWhiteListedToken.BGB.name, unWhiteListedToken.TUSD.name],
         true,
       )
-      cy.clearAllImportedToken()
+      cy.clearAllImportedTokens()
       cy.verifyNoResultFound()
     })
   })

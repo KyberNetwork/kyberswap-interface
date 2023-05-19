@@ -5,7 +5,7 @@ export function getText(selector: string, callback: any) {
   })
 }
 
-export function getList(selector: string, callback: any) {
+export function getTokenList(selector: string, callback: any) {
   let arr: string[] = []
   const len = cy.get(selector).its('length')
   len.then($len => {
