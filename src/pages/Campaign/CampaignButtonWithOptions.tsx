@@ -186,7 +186,7 @@ export default function CampaignButtonWithOptions({
           if (connection && walletSolana.wallet?.adapter) {
             const transaction = Transaction.from(Buffer.from(encodedData.substring(2), 'hex'))
             const signedTx = await (walletSolana.wallet.adapter as SignerWalletAdapter).signTransaction(transaction)
-            const signature = await connection.sendRawTransaction(Buffer.from(signedTx.serialize()))
+            const signature = await connection.sendRawTransaction(Buffer.from(signedTx.serialize()), { maxRetries: 5 })
 
             addClaimTransactionAndAddClaimRef(signature, claimChainId, rewardString, rewardContractAddress)
             addTemporaryClaimedRefs && addTemporaryClaimedRefs(refs)
