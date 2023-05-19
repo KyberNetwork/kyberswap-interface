@@ -1,8 +1,8 @@
 name: 'Cypress Test'
 
-concurrency:
-  group: pr-workflow-${{ github.ref }}
-  cancel-in-progress: true
+# concurrency:
+#   group: pr-workflow-${{ github.ref }}
+#   cancel-in-progress: true
 
 on:
   pull_request:
