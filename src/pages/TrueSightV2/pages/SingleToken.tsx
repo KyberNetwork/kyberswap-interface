@@ -202,6 +202,18 @@ const StyledTokenDescription = styled.div<{ show?: boolean }>`
   }
 `
 
+function linkify(text: string) {
+  const urlRegex = /(https?:\/\/[^\s]+)/g
+  return text.replace(urlRegex, function (url: string) {
+    // Check if the URL is already wrapped in an anchor tag
+    if (/<a \b[^>]*>(.*?)<\/a>/i.test(text)) {
+      return url
+    } else {
+      return '<a href="' + url + '">' + url + '</a>'
+    }
+  })
+}
+
 const TokenDescription = ({ description }: { description: string }) => {
   const theme = useTheme()
   const [show, setShow] = useState(true)
@@ -211,33 +223,43 @@ const TokenDescription = ({ description }: { description: string }) => {
     setIsTextExceeded((description && ref.current && ref.current?.clientWidth <= ref.current?.scrollWidth) || false)
   }, [description])
 
+  useEffect(() => {
+    const hideBtn = document.getElementById('hide-token-description-span')
+    if (hideBtn) {
+      hideBtn.addEventListener('click', () => {
+        setShow(false)
+      })
+    }
+  }, [])
+
   return (
-    <Row>
-      <StyledTokenDescription ref={ref} show={show}>
-        {description}{' '}
-        {isTextExceeded && show && (
-          <Text
-            as="span"
-            fontSize="12px"
-            color={theme.primary}
-            width="fit-content"
-            style={{ cursor: 'pointer', flexBasis: 'fit-content', whiteSpace: 'nowrap' }}
-            onClick={() => setShow(false)}
-          >
-            Hide
-          </Text>
-        )}
-      </StyledTokenDescription>
+    <Row style={{ position: 'relative' }}>
+      <StyledTokenDescription
+        ref={ref}
+        show={show}
+        dangerouslySetInnerHTML={{
+          __html:
+            linkify(description) +
+            `<span style="color:${
+              theme.primary
+            }; cursor:pointer; margin-left:4px;" id="hide-token-description-span">${t`Hide`}</span>`,
+        }}
+      />
       {isTextExceeded && !show && (
         <Text
+          as="span"
           fontSize="12px"
-          lineHeight="16px"
           color={theme.primary}
           width="fit-content"
-          style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
+          style={{
+            padding: '0 6px',
+            cursor: 'pointer',
+            flexBasis: 'fit-content',
+            whiteSpace: 'nowrap',
+          }}
           onClick={() => setShow(true)}
         >
-          Read more
+          {t`Read more`}
         </Text>
       )}
     </Row>

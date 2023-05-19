@@ -42,7 +42,6 @@ export const SectionTitle = styled.div`
 export const SectionDescription = styled.div<{ show?: boolean }>`
   font-size: 14px;
   line-height: 20px;
-  margin-bottom: 4px;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
@@ -197,7 +196,7 @@ export const SectionWrapper = ({
               </Text>
             </Row>
           )}
-          <Row gap="4px">
+          <Row gap="4px" align="center" style={{ marginBottom: '4px' }}>
             <SectionDescription show={showText} ref={descriptionRef}>
               {description}
               {showText && isTextExceeded && (
@@ -218,7 +217,7 @@ export const SectionWrapper = ({
               <Text
                 as="span"
                 fontSize="14px"
-                lineHeight="16px"
+                lineHeight="21px"
                 color={theme.primary}
                 width="fit-content"
                 style={{ cursor: 'pointer', flexBasis: 'fit-content', whiteSpace: 'nowrap' }}

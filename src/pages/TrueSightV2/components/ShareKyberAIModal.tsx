@@ -343,7 +343,7 @@ export default function ShareKyberAIModal({
                   <KyberSwapShareLogo />
                   <div style={{ marginTop: '-20px', marginRight: '-20px', borderRadius: '6px', overflow: 'hidden' }}>
                     <QRCode
-                      value={window.location.href}
+                      value={'41241231231230120312301230'}
                       size={100}
                       quietZone={4}
                       ecLevel="L"
