@@ -70,9 +70,7 @@ export default function CampaignButtonWithOptions({
   const refs: string[] = []
   if (leaderboardInfo && leaderboardInfo.rewards) {
     leaderboardInfo.rewards.forEach(reward => {
-      if (!reward.claimed && reward.rewardAmount.greaterThan(BIG_INT_ZERO)) {
-        refs.push(reward.ref)
-      }
+      if (!reward.claimed && reward.rewardAmount.greaterThan(BIG_INT_ZERO)) refs.push(reward.ref)
     })
   }
 
@@ -82,11 +80,10 @@ export default function CampaignButtonWithOptions({
     data: campaignData,
     selectedCampaignLeaderboard,
   } = useSelector((state: AppState) => state.campaigns)
-  // const transactions = useMemo(
-  //   () => (campaign ? transactionsState[parseInt(campaign.rewardChainIds)] ?? {} : {}),
-  //   [transactionsState, campaign],
-  // )
-  const transactions = useMemo(() => (campaign ? transactionsState[101] ?? {} : {}), [transactionsState, campaign]) // TODO: Remove this
+  const transactions = useMemo(
+    () => (campaign ? transactionsState[parseInt(campaign.rewardChainIds)] ?? {} : {}),
+    [transactionsState, campaign],
+  )
   const [claimingCampaignRewardId, setClaimingCampaignRewardId] = useSetClaimingCampaignRewardId()
   const [ref2Hash, setRef2Hash] = useState<{ [ref: string]: string }>({})
   const claimRewardHashes = refs.map(ref => ref2Hash[ref]).filter(hash => !!hash)
@@ -241,9 +238,6 @@ export default function CampaignButtonWithOptions({
       {isShowNetworks && (
         <OptionsContainer>
           {chainIds.map(chainId => {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            chainId = chainId === 103 ? (chainId = 101) : chainId // TODO: Remove this.
             return (
               <Flex
                 key={chainId}
