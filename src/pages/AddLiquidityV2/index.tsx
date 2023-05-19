@@ -57,6 +57,7 @@ import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { ApplicationModal } from 'state/application/actions'
 import { useOpenModal, useWalletModalToggle } from 'state/application/hooks'
+import { FarmUpdater } from 'state/farms/elastic/hooks'
 import {
   useProAmmDerivedAllMintInfo,
   useProAmmDerivedMintInfo,
@@ -1403,6 +1404,7 @@ export default function AddLiquidity() {
         </Container>
       </PageWrapper>
       <ElasticDisclaimerModal isOpen={false} />
+      <FarmUpdater interval={false} />
     </>
   )
 }

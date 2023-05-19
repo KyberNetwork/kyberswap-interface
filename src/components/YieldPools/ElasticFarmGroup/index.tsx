@@ -148,8 +148,7 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
       )
 
       const farmDuration = (pool.endTime - pool.startTime) / 86400
-      const farmAPR =
-        chainId === pool.apr ? pool.apr : (365 * 100 * (totalRewardValue || 0)) / farmDuration / pool.poolTvl
+      const farmAPR = pool.apr ? pool.apr : (365 * 100 * (totalRewardValue || 0)) / farmDuration / pool.poolTvl
 
       let poolAPR = pool.poolAPR || 0
       if (!poolAPR && pool.feesUSD && poolFeeLast24h[pool.poolAddress]) {

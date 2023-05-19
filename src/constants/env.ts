@@ -141,5 +141,5 @@ export const getAnnouncementsTemplateIds = () => {
 }
 
 const mock = localStorage.getItem('mock')?.split(',') ?? []
-export const MOCK_ACCOUNT_EVM = mock[0] ?? '' //'0xfb5b4b6bdb5787a07b227bc99e36d314bccd18ca'
+export const MOCK_ACCOUNT_EVM = mock[0] ?? ''
 export const MOCK_ACCOUNT_SOLANA = mock[1] ?? ''

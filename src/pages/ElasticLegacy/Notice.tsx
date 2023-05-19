@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { Info } from 'react-feather'
 import { Link } from 'react-router-dom'
@@ -33,10 +34,12 @@ export default function Notice() {
     <Wrapper>
       <Info size={20} />
       <Text marginLeft="8px">
-        Note: Due to a potential security issue with our Elastic Legacy contract, we have deployed a new Elastic
-        contract. To ensure the safety of your funds, we recommend that all Liquidity Providers withdraw their funds
-        from Elastic Legacy as soon as possible and add them to the new Elastic Pools. If you have not already done so,
-        please do it immediately by visiting this <Link to={`/elastic-legacy?account=${account}`}>link</Link>.
+        <Trans>
+          Note: Due to a potential security issue with our Elastic Legacy contract, we have deployed a new Elastic
+          contract. To ensure the safety of your funds, we recommend that all Liquidity Providers withdraw their funds
+          from Elastic Legacy as soon as possible and add them to the new Elastic Pools. If you have not already done
+          so, please do it immediately by visiting this <Link to={`/elastic-legacy?account=${account}`}>link</Link>.
+        </Trans>
       </Text>
     </Wrapper>
   )
