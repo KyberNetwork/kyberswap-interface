@@ -81,7 +81,7 @@ jobs:
         uses: bahmutov/npm-install@HEAD
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GH_PAT }} ### authen npm
-          VITE_PR_NUMBER: ${{ needs.prepare.outputs.pr_number }}
+          PR_NUMBER: ${{ needs.prepare.outputs.pr_number }}
 
       - name: Install cypress
         run: yarn cypress install --force
