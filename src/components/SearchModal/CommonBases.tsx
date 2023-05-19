@@ -79,6 +79,7 @@ export default function CommonBases({
           const { symbol } = getDisplayTokenInfo(token)
           return (
             <BaseWrapper
+              className="favorite-token"
               onClick={() => !selected && onSelect(token)}
               data-selected={selected}
               key={(token.address || token?.wrapped?.address) + token.symbol}
