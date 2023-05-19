@@ -83,7 +83,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GH_PAT }} ### authen npm
 
       - name: Install cypress
-      run: yarn global add cypress
+      run: yarn cypress install --force
 
       - name: Run test
         run: yarn test-e2e
