@@ -12,6 +12,7 @@ export default defineConfig({
   viewportHeight: 1080,
   e2e: {
     baseUrl: 'https://kyberswap.com',
+    baseUrl: window.location.origin,
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },

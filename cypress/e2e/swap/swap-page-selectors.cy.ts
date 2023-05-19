@@ -3,7 +3,7 @@ export const token = {
   tokenOut: '#swap-currency-output .token-symbol-container',
   inputToken: '#token-search-input',
   favoriteToken: '[data-testid="favorite-token"]',
-  iconRemoveToken: '.close-btn',
+  iconRemoveToken: '[data-testid="close-btn"]',
   rowInWhiteList: '[data-testid="token-item"]',
   iconFavorite: '[data-testid="button-favorite-token"]',
   iconDelete: '[data-testid="button-remove-import-token"]',

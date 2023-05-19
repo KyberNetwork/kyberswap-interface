@@ -89,6 +89,7 @@ export default function CommonBases({
               <CloseBtn
                 $forceShow={isEditMode}
                 className="close-btn"
+                data-testid="close-btn"
                 size={16}
                 onClick={e => handleToggleFavorite(e, token)}
               />
