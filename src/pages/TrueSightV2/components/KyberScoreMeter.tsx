@@ -233,10 +233,11 @@ const GaugeValue = styled.div<{ color?: string }>`
   bottom: 5px;
   transform: translate(-50%, 0);
   left: 50%;
-  font-size: 44px;
+  font-size: 40px;
   line-height: 44px;
   font-weight: 500;
-  ${({ theme, color }) => `color: ${color || theme.primary};`}
+  font-family: 'Inter var';
+  ${({ theme, color }) => `color: ${color || theme.primary};`};
 `
 
 // const MeterHand = styled.path`

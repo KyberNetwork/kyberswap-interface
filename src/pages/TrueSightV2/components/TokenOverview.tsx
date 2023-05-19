@@ -315,7 +315,7 @@ export const TokenOverview = ({
                     <>
                       <Column color={theme.subText} style={{ fontSize: '12px', lineHeight: '16px' }}>
                         <Text>
-                          {latestKyberscore && dayjs(latestKyberscore?.created_at).format('DD/MM/YYYY HH:mm A')}
+                          {latestKyberscore && dayjs(latestKyberscore?.created_at * 1000).format('DD/MM/YYYY HH:mm A')}
                         </Text>
                         <Text>
                           KyberScore:{' '}
@@ -537,7 +537,9 @@ export const TokenOverview = ({
               text={
                 <>
                   <Column color={theme.subText} style={{ fontSize: '12px', lineHeight: '16px' }}>
-                    <Text>{latestKyberscore && dayjs(latestKyberscore?.created_at).format('DD/MM/YYYY HH:mm A')}</Text>
+                    <Text>
+                      {latestKyberscore && dayjs(latestKyberscore?.created_at * 1000).format('DD/MM/YYYY HH:mm A')}
+                    </Text>
                     <Text>
                       KyberScore:{' '}
                       <span style={{ color: calculateValueToColor(latestKyberscore?.kyber_score || 0, theme) }}>
