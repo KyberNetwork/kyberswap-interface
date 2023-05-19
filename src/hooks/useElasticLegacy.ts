@@ -180,10 +180,6 @@ export default function useElasticLegacy(interval = true) {
   const previousChainIdRef = useRef(chainId)
 
   useEffect(() => {
-    previousChainIdRef.current = chainId
-  }, [chainId])
-
-  useEffect(() => {
     if (previousChainIdRef.current !== chainId) {
       setPositions([])
       setFarmPostions([])
@@ -229,6 +225,10 @@ export default function useElasticLegacy(interval = true) {
 
     return () => (i ? clearInterval(i) : undefined)
   }, [chainId, account, interval])
+
+  useEffect(() => {
+    previousChainIdRef.current = chainId
+  }, [chainId])
 
   return {
     loading,
