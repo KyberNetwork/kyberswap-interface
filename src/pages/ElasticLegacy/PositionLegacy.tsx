@@ -270,7 +270,6 @@ export default function PositionLegacy({ positions }: { positions: SubgraphPosit
                             .getSigner()
                             .sendTransaction(newTxn)
                             .then((response: TransactionResponse) => {
-                              setAttemptingTxn(false)
                               const tokenAmountIn = position.amount0.toSignificant(6)
                               const tokenAmountOut = position.amount1.toSignificant(6)
                               const tokenSymbolIn = token0.symbol
@@ -289,6 +288,7 @@ export default function PositionLegacy({ positions }: { positions: SubgraphPosit
                                   nftId: item.id,
                                 },
                               })
+                              setAttemptingTxn(false)
                               setTxnHash(response.hash)
                             })
                         })
