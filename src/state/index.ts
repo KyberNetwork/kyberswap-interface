@@ -3,6 +3,7 @@ import { load, save } from 'redux-localstorage-simple'
 import kyberAISubscriptionApi from 'services/kyberAISubscription'
 import priceAlertApi from 'services/priceAlert'
 import routeApi from 'services/route'
+import tokenApi from 'services/token'
 
 import { ENV_LEVEL } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
@@ -80,6 +81,7 @@ const store = configureStore({
     tokenPrices,
     topTokens,
     [routeApi.reducerPath]: routeApi.reducer,
+    [tokenApi.reducerPath]: tokenApi.reducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
@@ -94,7 +96,8 @@ const store = configureStore({
       .concat(ksSettingApi.middleware)
       .concat(annoucementApi.middleware)
       .concat(priceAlertApi.middleware)
-      .concat(routeApi.middleware),
+      .concat(routeApi.middleware)
+      .concat(tokenApi.middleware),
   preloadedState: load({ states: PERSISTED_KEYS }),
 })
 
