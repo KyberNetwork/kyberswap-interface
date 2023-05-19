@@ -53,7 +53,7 @@ const velasInfo: EVMNetworkInfo = {
   },
   elastic: {
     defaultSubgraph: 'https://velas-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-elastic-velas',
-    startBlock: 99665516,
+    startBlock: 63322472,
     coreFactory: '0xC7a590291e07B9fe9E64b86c58fD8fC764308C4A',
     nonfungiblePositionManager: '0xe222fBE074A436145b255442D919E4E3A6c6a480',
     tickReader: '0x8Fd8Cb948965d9305999D767A02bf79833EADbB3',
