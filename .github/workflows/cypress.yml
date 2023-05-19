@@ -86,6 +86,7 @@ jobs:
         run: yarn cypress install --force
         env:
           PR_NUMBER: ${{ needs.prepare.outputs.pr_number }}
+          TEST_PR_NUMBER: ${{ needs.prepare.outputs.pr_number }}
 
       - name: Run test
         run: yarn test-e2e
