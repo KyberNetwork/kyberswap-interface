@@ -8,13 +8,11 @@ export function getText(selector: string, callback: any) {
 export function getTokenList(selector: string, callback: any) {
   let arr: string[] = []
   const listToken = cy.get(selector)
-  const len = cy.get(selector).its('length')
-  len.then($len => {
-    listToken.then($listToken => {
-      for (let i = 0; i < $len; i++) {
-        arr.push($listToken.eq(i).text())
-      }
+  listToken
+    .each(item => {
+      arr.push(item.text())
+    })
+    .then(() => {
       callback(arr)
     })
-  })
 }

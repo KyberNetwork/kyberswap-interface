@@ -1,6 +1,6 @@
 export const token = {
-  tokenIn: '#swap-currency-input [data-testid=token-symbol-container]',
-  tokenOut: '#swap-currency-output [data-testid=token-symbol-container]',
+  tokenIn: '[data-testid=swap-currency-input] [data-testid=token-symbol-container]',
+  tokenOut: '[data-testid=swap-currency-output] [data-testid=token-symbol-container]',
   inputToken: '[data-testid=token-search-input]',
   favoriteToken: '[data-testid=favorite-token]',
   iconRemoveToken: '[data-testid=close-btn]',
