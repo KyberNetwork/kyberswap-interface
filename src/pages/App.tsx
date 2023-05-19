@@ -37,56 +37,42 @@ import { RedirectPathToPoolsNetwork } from './Pools/redirect'
 import { RedirectPathToSwapV3Network } from './SwapV3/redirects'
 import Verify from './Verify'
 
-// Route-based code splitting
-
 // test page for swap only through elastic
-const ElasticSwap = lazy(() => import(/* webpackChunkName: 'ElasticSwap' */ './ElasticSwap'))
-const ElasticLegacy = lazy(() => import(/* webpackChunkName: 'ElasticLegacy' */ './ElasticLegacy'))
-const SwapV2 = lazy(() => import(/* webpackChunkName: 'swapv2-page' */ './SwapV2'))
-const SwapV3 = lazy(() => import(/* webpackChunkName: 'swapv3-page' */ './SwapV3'))
-const Bridge = lazy(() => import(/* webpackChunkName: 'bridge-page' */ './Bridge'))
-const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
-const Pool = lazy(() => import(/* webpackChunkName: 'my-pool-page' */ './Pool'))
+const ElasticSwap = lazy(() => import('./ElasticSwap'))
+const ElasticLegacy = lazy(() => import('./ElasticLegacy'))
+const SwapV2 = lazy(() => import('./SwapV2'))
+const SwapV3 = lazy(() => import('./SwapV3'))
+const Bridge = lazy(() => import('./Bridge'))
+const Pools = lazy(() => import('./Pools'))
+const Pool = lazy(() => import('./Pool'))
 
-const Farm = lazy(() => import(/* webpackChunkName: 'yield-page' */ './Farm'))
+const Farm = lazy(() => import('./Farm'))
 
-const PoolFinder = lazy(() => import(/* webpackChunkName: 'pool-finder-page' */ './PoolFinder'))
-const CreatePool = lazy(() => import(/* webpackChunkName: 'create-pool-page' */ './CreatePool'))
-const ProAmmRemoveLiquidity = lazy(
-  () => import(/* webpackChunkName: 'elastic-remove-liquidity-page' */ './RemoveLiquidityProAmm'),
-)
-const RedirectCreatePoolDuplicateTokenIds = lazy(
-  () =>
-    import(
-      /* webpackChunkName: 'redirect-create-pool-duplicate-token-ids-page' */ './CreatePool/RedirectDuplicateTokenIds'
-    ),
-)
-const RedirectOldCreatePoolPathStructure = lazy(
-  () =>
-    import(
-      /* webpackChunkName: 'redirect-old-create-pool-path-structure-page' */ './CreatePool/RedirectOldCreatePoolPathStructure'
-    ),
-)
+const PoolFinder = lazy(() => import('./PoolFinder'))
+const CreatePool = lazy(() => import('./CreatePool'))
+const ProAmmRemoveLiquidity = lazy(() => import('./RemoveLiquidityProAmm'))
+const RedirectCreatePoolDuplicateTokenIds = lazy(() => import('./CreatePool/RedirectDuplicateTokenIds'))
+const RedirectOldCreatePoolPathStructure = lazy(() => import('./CreatePool/RedirectOldCreatePoolPathStructure'))
 
-const AddLiquidity = lazy(() => import(/* webpackChunkName: 'add-liquidity-page' */ './AddLiquidity'))
-const IncreaseLiquidity = lazy(() => import(/* webpackChunkName: 'add-liquidity-page' */ './IncreaseLiquidity'))
+const AddLiquidity = lazy(() => import('./AddLiquidity'))
+const IncreaseLiquidity = lazy(() => import('./IncreaseLiquidity'))
 
-const RemoveLiquidity = lazy(() => import(/* webpackChunkName: 'remove-liquidity-page' */ './RemoveLiquidity'))
+const RemoveLiquidity = lazy(() => import('./RemoveLiquidity'))
 
-const KyberDAOStakeKNC = lazy(() => import(/* webpackChunkName: 'stake-knc' */ './KyberDAO/StakeKNC'))
-const KyberDAOVote = lazy(() => import(/* webpackChunkName: 'vote' */ './KyberDAO/Vote'))
-const AboutKyberSwap = lazy(() => import(/* webpackChunkName: 'about-page' */ './About/AboutKyberSwap'))
-const AboutKNC = lazy(() => import(/* webpackChunkName: 'about-knc' */ './About/AboutKNC'))
+const KyberDAOStakeKNC = lazy(() => import('./KyberDAO/StakeKNC'))
+const KyberDAOVote = lazy(() => import('./KyberDAO/Vote'))
+const AboutKyberSwap = lazy(() => import('./About/AboutKyberSwap'))
+const AboutKNC = lazy(() => import('./About/AboutKNC'))
 
-const CreateReferral = lazy(() => import(/* webpackChunkName: 'create-referral-page' */ './CreateReferral'))
+const CreateReferral = lazy(() => import('./CreateReferral'))
 
-const TrueSight = lazy(() => import(/* webpackChunkName: 'true-sight-page' */ './TrueSight'))
+const TrueSight = lazy(() => import('./TrueSight'))
 
-const BuyCrypto = lazy(() => import(/* webpackChunkName: 'true-sight-page' */ './BuyCrypto'))
+const BuyCrypto = lazy(() => import('./BuyCrypto'))
 
-const Campaign = lazy(() => import(/* webpackChunkName: 'campaigns-page' */ './Campaign'))
-const GrantProgramPage = lazy(() => import(/* webpackChunkName: 'grant-program-page' */ './GrantProgram'))
-const NotificationCenter = lazy(() => import(/* webpackChunkName: 'notification-center-page' */ './NotificationCenter'))
+const Campaign = lazy(() => import('./Campaign'))
+const GrantProgramPage = lazy(() => import('./GrantProgram'))
+const NotificationCenter = lazy(() => import('./NotificationCenter'))
 
 const AppWrapper = styled.div`
   display: flex;
