@@ -81,10 +81,11 @@ jobs:
         uses: bahmutov/npm-install@HEAD
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GH_PAT }} ### authen npm
-          PR_NUMBER: ${{ needs.prepare.outputs.pr_number }}
 
       - name: Install cypress
         run: yarn cypress install --force
+        env:
+          PR_NUMBER: ${{ needs.prepare.outputs.pr_number }}
 
       - name: Run test
         run: yarn test-e2e
