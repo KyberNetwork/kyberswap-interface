@@ -1,7 +1,5 @@
 import { defineConfig } from 'cypress'
 
-console.log(process.env)
-
 export default defineConfig({
   component: {
     devServer: {
