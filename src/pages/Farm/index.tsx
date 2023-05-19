@@ -18,7 +18,6 @@ import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import Toggle from 'components/Toggle'
 import Tutorial, { TutorialType } from 'components/Tutorial'
 import Vesting from 'components/Vesting'
-import ProMMVesting from 'components/Vesting/ProMMVesting'
 import YieldPools from 'components/YieldPools'
 import ElasticFarms from 'components/YieldPools/ElasticFarms'
 import FarmGuide from 'components/YieldPools/FarmGuide'
@@ -45,6 +44,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useTheme from 'hooks/useTheme'
+import Notice from 'pages/ElasticLegacy/Notice'
 import { CurrencyWrapper, Tab } from 'pages/Pools/styleds'
 import { AppState } from 'state'
 import { ApplicationModal } from 'state/application/actions'
@@ -116,7 +116,7 @@ const Farm = () => {
           <YieldPools loading={loading} active={false} />
         )
       case FARM_TAB.VESTING:
-        return farmType === VERSION.ELASTIC ? <ProMMVesting /> : <Vesting loading={vestingLoading} />
+        return farmType === VERSION.ELASTIC ? null : <Vesting loading={vestingLoading} />
       case FARM_TAB.MY_FARMS:
         return farmType === VERSION.ELASTIC ? (
           <ElasticFarms stakedOnly={stakedOnly} />
@@ -270,6 +270,12 @@ const Farm = () => {
             )}
           </TopBar>
 
+          {farmType === VERSION.ELASTIC && (
+            <div style={{ marginTop: '1rem' }}>
+              <Notice />
+            </div>
+          )}
+
           <FarmGuide farmType={farmType} />
         </div>
         {below992 && (
@@ -328,22 +334,24 @@ const Farm = () => {
                 </Row>
               </Tab>
 
-              <Tab
-                onClick={() => {
-                  if (type !== 'vesting') {
-                    mixpanelHandler(MIXPANEL_TYPE.FARMS_MYVESTING_VIEWED)
-                  }
-                  navigateTab(FARM_TAB.VESTING)
-                }}
-                active={type === FARM_TAB.VESTING}
-              >
-                <Row>
-                  <Text>
-                    <Trans>Vesting</Trans>
-                  </Text>
-                  {vestingLoading && <Loader style={{ marginLeft: '4px' }} />}
-                </Row>
-              </Tab>
+              {farmType === VERSION.CLASSIC && (
+                <Tab
+                  onClick={() => {
+                    if (type !== 'vesting') {
+                      mixpanelHandler(MIXPANEL_TYPE.FARMS_MYVESTING_VIEWED)
+                    }
+                    navigateTab(FARM_TAB.VESTING)
+                  }}
+                  active={type === FARM_TAB.VESTING}
+                >
+                  <Row>
+                    <Text>
+                      <Trans>Vesting</Trans>
+                    </Text>
+                    {vestingLoading && <Loader style={{ marginLeft: '4px' }} />}
+                  </Row>
+                </Tab>
+              )}
             </Flex>
 
             <HeadingContainer>

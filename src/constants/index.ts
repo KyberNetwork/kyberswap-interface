@@ -219,6 +219,7 @@ export const APP_PATHS = {
   VERIFY_EXTERNAL: '/verify-external',
   GRANT_PROGRAMS: '/inter-project-trading-campaigns',
   NOTIFICATION_CENTER: '/notification-center',
+  ELASTIC_LEGACY: '/elastic-legacy',
 }
 
 export const TERM_FILES_PATH = {

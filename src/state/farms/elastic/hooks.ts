@@ -332,13 +332,3 @@ export const usePositionFilter = (positions: PositionDetails[], validPools: stri
     filterOptions,
   }
 }
-
-export const useFailedNFTs = () => {
-  const { chainId } = useActiveWeb3React()
-
-  const elasticFarm = useAppSelector(state => state.elasticFarm)
-  return useMemo(() => {
-    if (chainId) return elasticFarm[chainId]?.failedNFTs || []
-    return []
-  }, [elasticFarm, chainId])
-}

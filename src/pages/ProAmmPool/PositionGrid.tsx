@@ -43,7 +43,6 @@ export const PositionCardGrid = styled.div`
   display: grid;
   grid-template-columns: minmax(392px, auto) minmax(392px, auto) minmax(392px, auto);
   gap: 24px;
-  max-width: 1224px;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     grid-template-columns: 1fr 1fr;
@@ -63,6 +62,7 @@ const queryPositionLastCollectedTimes = gql`
       id
       createdAtTimestamp
       lastCollectedFeeAt
+      lastHarvestedFarmRewardAt
     }
   }
 `
@@ -105,6 +105,20 @@ function PositionGrid({
           [item.id]: Date.now() / 1000 - Number(item.lastCollectedFeeAt), // seconds
         }
       }, {}),
+    [data?.positions],
+  )
+
+  const farmingTimes = useMemo(
+    () =>
+      data?.positions.reduce(
+        (acc: { [id: string]: number }, item: { id: string; lastHarvestedFarmRewardAt?: string }) => {
+          return {
+            ...acc,
+            [item.id]: item?.lastHarvestedFarmRewardAt ? Date.now() / 1000 - Number(item.lastHarvestedFarmRewardAt) : 0, // seconds
+          }
+        },
+        {},
+      ),
     [data?.positions],
   )
 
@@ -159,7 +173,15 @@ function PositionGrid({
     getPositionFee()
   }, [getPositionFee])
 
-  const itemData = createItemData(positions, activeFarmAddress, liquidityTimes, feeRewards, createdAts, refe)
+  const itemData = createItemData(
+    positions,
+    activeFarmAddress,
+    liquidityTimes,
+    farmingTimes,
+    feeRewards,
+    createdAts,
+    refe,
+  )
 
   return (
     <FixedSizeGrid
@@ -182,18 +204,22 @@ interface RowData {
   refe?: React.MutableRefObject<any>
   activeFarmAddress: string[]
   liquidityTimes: { [key: string]: number }
+  farmingTimes: { [key: string]: number }
   feeRewards: { [key: string]: [string, string] }
   createdAts: { [key: string]: number }
 }
 
-const createItemData = memoizeOne((positions, activeFarmAddress, liquidityTimes, feeRewards, createdAts, refe) => ({
-  positions,
-  activeFarmAddress,
-  liquidityTimes,
-  feeRewards,
-  createdAts,
-  refe,
-}))
+const createItemData = memoizeOne(
+  (positions, activeFarmAddress, liquidityTimes, farmingTimes, feeRewards, createdAts, refe) => ({
+    positions,
+    activeFarmAddress,
+    liquidityTimes,
+    farmingTimes,
+    feeRewards,
+    createdAts,
+    refe,
+  }),
+)
 
 const Row = memo(
   ({
@@ -207,7 +233,7 @@ const Row = memo(
     style: CSSProperties
     data: RowData
   }) => {
-    const { positions, refe, feeRewards, liquidityTimes, createdAts, activeFarmAddress } = data
+    const { positions, refe, feeRewards, liquidityTimes, farmingTimes, createdAts, activeFarmAddress } = data
     const styles = {
       ...style,
       left: columnIndex === 0 ? style.left : Number(style.left) + columnIndex * 24,
@@ -225,6 +251,7 @@ const Row = memo(
           positionDetails={p}
           rawFeeRewards={feeRewards[p.tokenId.toString()] || ['0', '0']}
           liquidityTime={liquidityTimes?.[p.tokenId.toString()]}
+          farmingTime={farmingTimes?.[p.tokenId.toString()]}
           createdAt={createdAts?.[p.tokenId.toString()]}
           hasUserDepositedInFarm={!!p.stakedLiquidity}
           hasActiveFarm={activeFarmAddress.includes(p.poolId.toLowerCase())}
