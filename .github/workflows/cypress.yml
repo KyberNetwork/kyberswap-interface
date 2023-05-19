@@ -77,6 +77,8 @@ jobs:
           registry-url: 'https://npm.pkg.github.com'
           scope: '@kybernetwork'
 
+      - run: printenv
+
       - name: Install dependences
         uses: bahmutov/npm-install@HEAD
         env:
