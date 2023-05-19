@@ -1,4 +1,4 @@
-name: 'Cypress Test E2E'
+name: 'Cypress Test'
 
 concurrency:
   group: pr-workflow-${{ github.ref }}

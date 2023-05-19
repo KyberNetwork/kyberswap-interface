@@ -446,6 +446,7 @@ export function CurrencySearch({
           <SearchInput
             type="text"
             id="token-search-input"
+            data-testid="token-search-input"
             placeholder={t`Search by token name, token symbol or address`}
             value={searchQuery}
             ref={inputRef}

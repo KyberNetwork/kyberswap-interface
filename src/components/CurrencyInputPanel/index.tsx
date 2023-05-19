@@ -364,6 +364,7 @@ export default function CurrencyInputPanel({
                     <StyledTokenName
                       tight={tight}
                       className="token-symbol-container"
+                      data-testid="token-symbol-container"
                       active={Boolean(currency && currency.symbol)}
                       fontSize={tight ? '14px' : fontSize}
                       style={{ paddingRight: disableCurrencySelect ? '8px' : 0 }}
