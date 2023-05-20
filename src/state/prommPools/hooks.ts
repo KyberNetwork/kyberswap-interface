@@ -121,9 +121,6 @@ const PROMM_USER_POSITIONS = gql`
         }
       }
     }
-    bundles {
-      ethPriceUSD
-    }
     positions(where: { owner: $owner, liquidity_gt: 0 }) {
       id
       owner
@@ -170,7 +167,7 @@ export interface UserPositionResult {
 /**
  * Get my liquidity for all pools
  */
-export function useUserProMMPositions(): UserPositionResult {
+export function useUserProMMPositions(prices: { [address: string]: number }): UserPositionResult {
   const { chainId, account, isEVM } = useActiveWeb3React()
   const { elasticClient } = useKyberSwapConfig()
 
@@ -182,8 +179,6 @@ export function useUserProMMPositions(): UserPositionResult {
     fetchPolicy: 'no-cache',
     skip: !isEVM,
   })
-
-  const ethPriceUSD = Number(data?.bundles?.[0]?.ethPriceUSD)
 
   const positions = useMemo(() => {
     const farmPositions = data?.depositedPositions?.map((p: any) => p.position) || []
@@ -211,14 +206,14 @@ export function useUserProMMPositions(): UserPositionResult {
       const token0Amount = CurrencyAmount.fromRawAmount(position.pool.token0, position.amount0.quotient)
       const token1Amount = CurrencyAmount.fromRawAmount(position.pool.token1, position.amount1.quotient)
 
-      const token0Usd = parseFloat(token0Amount.toFixed()) * ethPriceUSD * parseFloat(p.pool.token0.derivedETH)
-      const token1Usd = parseFloat(token1Amount.toFixed()) * ethPriceUSD * parseFloat(p.pool.token1.derivedETH)
+      const token0Usd = parseFloat(token0Amount.toFixed()) * (prices[token0.address] || 0)
+      const token1Usd = parseFloat(token1Amount.toFixed()) * (prices[token1.address] || 0)
 
       const userPositionUSD = token0Usd + token1Usd
 
       return { tokenId: p.id, address: p.pool.id, valueUSD: userPositionUSD }
     })
-  }, [data, chainId, ethPriceUSD])
+  }, [data, chainId, prices])
 
   const userLiquidityUsdByPool = useMemo(
     () =>

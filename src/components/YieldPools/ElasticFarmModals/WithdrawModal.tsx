@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Position, computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { BigNumber } from 'ethers'
@@ -57,8 +56,7 @@ const PositionRow = ({
   farmAddress: string
 }) => {
   const { token0: token0Address, token1: token1Address, fee: feeAmount, liquidity, tickLower, tickUpper } = position
-  const { chainId } = useActiveWeb3React()
-  const { unstake, emergencyWithdraw } = useFarmAction(farmAddress)
+  const { unstake } = useFarmAction(farmAddress)
   const { userFarmInfo } = useElasticFarms()
 
   const joinedPositions = userFarmInfo?.[farmAddress]?.joinedPositions
@@ -155,18 +153,14 @@ const PositionRow = ({
               disabled={position.stakedLiquidity.eq(BigNumber.from(0))}
               onClick={() => {
                 if (!!pid && positionSDK) {
-                  if (chainId === ChainId.AVAXMAINNET && Number(pid) === 125) {
-                    emergencyWithdraw([position.tokenId])
-                  } else {
-                    unstake(BigNumber.from(pid), [
-                      {
-                        nftId: position.tokenId,
-                        stakedLiquidity: position.stakedLiquidity.toString(),
-                        poolAddress: position.poolId,
-                        position: positionSDK,
-                      },
-                    ])
-                  }
+                  unstake(BigNumber.from(pid), [
+                    {
+                      nftId: position.tokenId,
+                      stakedLiquidity: position.stakedLiquidity.toString(),
+                      poolAddress: position.poolId,
+                      position: positionSDK,
+                    },
+                  ])
                 }
               }}
             >
@@ -234,8 +228,6 @@ function WithdrawModal({
             (tab === FARM_TAB.ACTIVE ? pool.endTime > +new Date() / 1000 : pool.endTime < +new Date() / 1000),
       )
       .map(pool => pool.poolAddress.toLowerCase()) || []
-
-  // const failedNFTs = useFailedNFTs()
 
   const { depositedPositions = [], joinedPositions = {} } = userFarmInfo?.[selectedFarm?.id || ''] || {}
 
@@ -422,31 +414,23 @@ function WithdrawModal({
         </TableHeader>
 
         <div style={{ overflowY: 'auto' }}>
-          {(eligiblePositions as UserPositionFarm[])
-            .filter(_pos => {
-              // if (forced) {
-              //   return failedNFTs.includes(pos.tokenId.toString())
-              // }
-
-              return true
-            })
-            .map(pos => (
-              <PositionRow
-                selected={selectedNFTs.some(e => e.tokenId.toString() === pos.tokenId.toString())}
-                key={pos.tokenId.toString()}
-                position={pos}
-                farmAddress={selectedFarmAddress}
-                forced={forced}
-                onChange={(selected: boolean, position: Position | undefined) => {
-                  const tokenId = pos.tokenId.toString()
-                  if (position) mapPositionInfo.current[tokenId] = position
-                  if (selected) setSeletedNFTs(prev => [...prev, pos])
-                  else {
-                    setSeletedNFTs(prev => prev.filter(item => item.tokenId.toString() !== tokenId))
-                  }
-                }}
-              />
-            ))}
+          {(eligiblePositions as UserPositionFarm[]).map(pos => (
+            <PositionRow
+              selected={selectedNFTs.some(e => e.tokenId.toString() === pos.tokenId.toString())}
+              key={pos.tokenId.toString()}
+              position={pos}
+              farmAddress={selectedFarmAddress}
+              forced={forced}
+              onChange={(selected: boolean, position: Position | undefined) => {
+                const tokenId = pos.tokenId.toString()
+                if (position) mapPositionInfo.current[tokenId] = position
+                if (selected) setSeletedNFTs(prev => [...prev, pos])
+                else {
+                  setSeletedNFTs(prev => prev.filter(item => item.tokenId.toString() !== tokenId))
+                }
+              }}
+            />
+          ))}
         </div>
         <Flex justifyContent="space-between" marginTop="24px">
           <div></div>

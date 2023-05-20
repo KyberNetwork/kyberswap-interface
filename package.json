@@ -46,7 +46,7 @@
     "@kybernetwork/oauth2": "0.0.3-rc.1",
     "@kyberswap/ks-sdk-classic": "^1.0.3",
     "@kyberswap/ks-sdk-core": "^1.0.5",
-    "@kyberswap/ks-sdk-elastic": "^1.0.6",
+    "@kyberswap/ks-sdk-elastic": "^1.1.0",
     "@kyberswap/ks-sdk-solana": "^1.0.2",
     "@lingui/macro": "~3.14.0",
     "@lingui/react": "~3.14.0",

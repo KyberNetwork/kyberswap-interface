@@ -1,5 +1,4 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useState } from 'react'
 import { Navigate } from 'react-router-dom'
@@ -58,7 +57,7 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
   const [viewMode] = useViewMode()
   const above1200 = useMedia(`(min-width:${MEDIA_WIDTHS.upToLarge}px)`)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
-  const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
+  const { account, isEVM, networkInfo } = useActiveWeb3React()
   const theme = useTheme()
   const blockNumber = useBlockNumber()
   const totalRewards = useFarmRewards(farms)
@@ -120,11 +119,6 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
   const farmsList =
     fairLaunchVersion === FairLaunchVersion.V1
       ? (farms || []).map(farm => {
-          // TODO: hard code for SIPHER. Need to be remove later
-          const isSipherFarm =
-            farm.fairLaunchAddress.toLowerCase() === '0xc0601973451d9369252Aee01397c0270CD2Ecd60'.toLowerCase() &&
-            chainId === ChainId.MAINNET
-
           const isFarmStarted = farm && blockNumber && farm.startBlock < blockNumber
           const isFarmEnded = farm && blockNumber && farm.endBlock < blockNumber
 
@@ -142,13 +136,7 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
 
           return {
             ...farm,
-            time: `${
-              isSipherFarm
-                ? ''
-                : isFarmEnded
-                ? 'Ended'
-                : (isFarmStarted ? '' : 'Starting in ') + formattedEstimatedRemainingTime
-            }`,
+            time: `${isFarmEnded ? 'Ended' : 'Starting in ' + formattedEstimatedRemainingTime}`,
           }
         })
       : (farms || []).map(farm => {

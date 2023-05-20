@@ -77,22 +77,31 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
           slippageSetting: allowedSlippage ? allowedSlippage / 100 : 0,
           priceImpact: priceImpact && priceImpact > 0.01 ? priceImpact.toFixed(2) : '<0.01',
           isPermitSwap,
+          feeInfo: routeSummary?.fee
+            ? {
+                chargeTokenIn: routeSummary.extraFee.chargeFeeBy === 'currency_in',
+                tokenSymbol: routeSummary.fee.currency.symbol || '',
+                feeUsd: routeSummary.extraFee.feeAmountUsd,
+                feeAmount: routeSummary.fee.currencyAmount.toExact(),
+              }
+            : undefined,
         },
       } as TransactionExtraInfo2Token,
     }
   }, [
-    account,
-    allowedSlippage,
-    chainId,
-    feeConfig,
     inputAmount,
-    isSaveGas,
     outputAmount,
-    priceImpact,
-    recipient,
-    recipientAddressOrName,
+    feeConfig,
     typedValue,
+    recipient,
+    account,
+    recipientAddressOrName,
+    chainId,
+    isSaveGas,
+    allowedSlippage,
+    priceImpact,
     isPermitSwap,
+    routeSummary,
   ])
 
   const handleSwapResponse = useCallback(

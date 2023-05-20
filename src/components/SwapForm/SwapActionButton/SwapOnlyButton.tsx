@@ -10,6 +10,19 @@ import { Field } from 'state/swap/actions'
 import { DetailedRouteSummary } from 'types/route'
 import { toCurrencyAmount } from 'utils/currencyAmount'
 
+const getFeeInfoForMixPanel = (routeSummary: DetailedRouteSummary | undefined) => {
+  if (!routeSummary?.fee) {
+    return undefined
+  }
+
+  return {
+    chargeTokenIn: routeSummary.extraFee.chargeFeeBy === 'currency_in',
+    tokenSymbol: routeSummary.fee.currency.symbol || '',
+    feeUsd: routeSummary.extraFee.feeAmountUsd,
+    feeAmount: routeSummary.fee.currencyAmount.toExact(),
+  }
+}
+
 export type Props = {
   minimal?: boolean
   isDegenMode: boolean
@@ -81,6 +94,7 @@ const SwapOnlyButton: React.FC<Props> = ({
       gasUsd: routeSummary?.gasUsd,
       inputAmount: routeSummary?.parsedAmountIn,
       priceImpact: routeSummary?.priceImpact,
+      feeInfo: getFeeInfoForMixPanel(routeSummary),
     })
   }
 
@@ -135,6 +149,7 @@ const SwapOnlyButton: React.FC<Props> = ({
           priceImpact: routeSummary?.priceImpact,
           outputAmountDescription,
           currentPrice,
+          feeInfo: getFeeInfoForMixPanel(routeSummary),
         })
 
         return swapCallback(buildResult.data.routerAddress, buildResult.data.data)
@@ -142,7 +157,7 @@ const SwapOnlyButton: React.FC<Props> = ({
     }
 
     return undefined
-  }, [buildResult, swapCallback, routeSummary, mixpanelHandler])
+  }, [buildResult?.data, mixpanelHandler, routeSummary, swapCallback])
 
   const onDismissModal = useCallback(() => {
     setProcessingSwap(false)
