@@ -26,6 +26,8 @@ import { captureExceptionCrossChain } from 'hooks/bridge/useBridgeCallback'
 import { useChangeNetwork } from 'hooks/useChangeNetwork'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import { ConfirmCrossChainModal } from 'pages/Bridge/ComfirmBridgeModal'
+import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
 import TradeTypeSelection from 'pages/CrossChain/SwapForm/TradeTypeSelection'
 import TradePrice from 'pages/CrossChain/TradePrice'
 import { getRouInfo } from 'pages/CrossChain/helpers'
@@ -45,9 +47,6 @@ import { TransactionFlowState } from 'types/TransactionFlowState'
 import { uint256ToFraction } from 'utils/numbers'
 import { checkPriceImpact } from 'utils/prices'
 import { getTokenAddress } from 'utils/tokenInfo'
-
-import { ConfirmCrossChainModal } from '../../Bridge/ComfirmBridgeModal'
-import ErrorWarningPanel from '../../Bridge/ErrorWarning'
 
 const ArrowWrapper = styled.div`
   padding: 4px 6px;

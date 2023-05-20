@@ -29,12 +29,7 @@ export function parseFraction(value: string, decimals = RESERVE_USD_DECIMALS) {
 export const removeTrailingZero = (num: string) => {
   if (num === undefined || num === null) return ''
   num = String(num)
-  if (!num.includes('.')) return num
-  while (num[num.length - 1] === '0' || num[num.length - 1] === '.') {
-    if (!num.includes('.')) return num
-    num = num.substring(0, num.length - 1) // rm last
-  }
-  return num
+  return num.replace(/^([\d,]+)$|^([\d,]+)\.0*$|^([\d,]+\.[0-9]*?)0*$/, '$1$2$3')
 }
 
 export function calcOutput(input: string, rate: string | Fraction, decimalsOut: number) {

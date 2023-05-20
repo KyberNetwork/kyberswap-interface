@@ -29,7 +29,7 @@ import { CrossChainTransferStatus } from 'pages/CrossChain/useTransferHistory'
 import { ExternalLinkIcon } from 'theme'
 import { getEtherscanLink } from 'utils'
 
-const NetWorkRow = styled.div`
+const NetworkRow = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
@@ -116,15 +116,15 @@ function InboxItemBridge({
 
       <InboxItemRow>
         <Row gap="6px" width={'fit-content'}>
-          <NetWorkRow>
+          <NetworkRow>
             <NetworkLogo chainId={chainIdIn} style={{ width: 12, height: 12 }} />
             <PrimaryText color={theme.subText}>{NETWORKS_INFO[chainIdIn].name}</PrimaryText>
-          </NetWorkRow>
+          </NetworkRow>
           to
-          <NetWorkRow>
+          <NetworkRow>
             <NetworkLogo chainId={chainIdOut} style={{ width: 12, height: 12 }} />
             <PrimaryText color={theme.subText}>{NETWORKS_INFO[chainIdOut].name}</PrimaryText>
-          </NetWorkRow>
+          </NetworkRow>
         </Row>
         {time}
       </InboxItemRow>
