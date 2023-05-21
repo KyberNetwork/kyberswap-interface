@@ -556,7 +556,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
             <KyberScoreChart width="100%" height="32px" data={data?.kyberScore?.ks3d} index={1} />
           </Column>
           <ExpandableBox expanded={expanded} height={ref2?.current?.scrollHeight} ref={ref2}>
-            <Row style={{ borderBottom: `1px solid ${theme.border}`, marginBottom: '16px' }} />
+            <Row style={{ borderBottom: `1px solid ${theme.border}`, margin: '16px 0' }} />
             <Column gap="10px" style={{ fontSize: '12px', lineHeight: '16px' }}>
               <Text fontSize="14px" lineHeight="20px" color={theme.text} marginBottom="4px">
                 Key Stats

@@ -810,7 +810,7 @@ export const LiveTradesInShareModalTable = ({ data }: { data: Array<ILiveTrade> 
         <th style={{ textAlign: 'right', padding: '6px' }}>Amount</th>
       </thead>
       <tbody>
-        {data?.map((trade, i) => {
+        {data?.map(trade => {
           const isBuy = trade.type === 'buy'
           return (
             <tr key={trade.txn} style={{ height: '64px' }}>
