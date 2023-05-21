@@ -48,7 +48,7 @@ interface CampaignsState {
 
 const initialState: CampaignsState = {
   data: [],
-  loadingCampaignData: false,
+  loadingCampaignData: true,
   loadingCampaignDataError: undefined,
 
   selectedCampaign: undefined,

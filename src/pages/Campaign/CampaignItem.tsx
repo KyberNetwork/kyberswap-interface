@@ -7,7 +7,7 @@ import { rgba } from 'polished'
 import { memo } from 'react'
 import { Check } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import styled, { css } from 'styled-components'
+import styled, { CSSProperties, css } from 'styled-components'
 
 import { ReactComponent as GrantCampaignIcon } from 'assets/svg/grant_campaign.svg'
 import ProgressBar from 'components/ProgressBar'
@@ -75,9 +75,10 @@ interface CampaignItemProps {
   isSelected: boolean
   campaign: CampaignData
   onSelectCampaign: (data: CampaignData) => void
+  style: CSSProperties
 }
 
-const CampaignItem = ({ campaign, onSelectCampaign, isSelected }: CampaignItemProps) => {
+const CampaignItem = ({ campaign, onSelectCampaign, isSelected, style }: CampaignItemProps) => {
   const { account } = useWeb3React()
   const theme = useTheme()
   const isDarkMode = useIsDarkMode()
@@ -145,6 +146,7 @@ const CampaignItem = ({ campaign, onSelectCampaign, isSelected }: CampaignItemPr
         onSelectCampaign(campaign)
       }}
       selected={isSelected}
+      style={style}
     >
       <Container>
         <Flex style={{ gap: '8px' }}>{rChainIdImages}</Flex>

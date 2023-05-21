@@ -1,824 +1,426 @@
-import { Trans, t } from '@lingui/macro'
-import dayjs from 'dayjs'
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { isMobile } from 'react-device-detect'
-import { BarChart, ChevronDown, Clock, Share2, Star, Users } from 'react-feather'
-import { useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
-import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
-import styled, { css } from 'styled-components'
-import { useSWRConfig } from 'swr'
+import { ZERO } from '@kyberswap/ks-sdk-classic'
+import { Fraction } from '@kyberswap/ks-sdk-core'
+import axios from 'axios'
+import { parseUnits } from 'ethers/lib/utils'
+import JSBI from 'jsbi'
+import { stringify } from 'querystring'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { useLocation, useNavigate } from 'react-router-dom'
+import useSWR, { mutate } from 'swr'
+import useSWRImmutable from 'swr/immutable'
 
-import { ButtonEmpty, ButtonLight } from 'components/Button'
-import Divider from 'components/Divider'
-import InfoHelper from 'components/InfoHelper'
-import LocalLoader from 'components/LocalLoader'
-import ProgressBar from 'components/ProgressBar'
-import ShareModal from 'components/ShareModal'
-import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
-import YourCampaignTransactionsModal from 'components/YourCampaignTransactionsModal'
-import { SWR_KEYS } from 'constants/index'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
-import useInterval from 'hooks/useInterval'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import useTheme from 'hooks/useTheme'
-import CampaignActions from 'pages/Campaign/CampaignActions'
-import CampaignListAndSearch from 'pages/Campaign/CampaignListAndSearch'
-import LeaderboardLayout from 'pages/Campaign/LeaderboardLayout'
-import ModalRegisterCampaignCaptcha from 'pages/Campaign/ModalRegisterCampaignCaptcha'
-import ModalRegisterCampaignSuccess from 'pages/Campaign/ModalRegisterCampaignSuccess'
-import { Loading } from 'pages/ProAmmPool/ContentLoader'
-import { AppState } from 'state'
-import { ApplicationModal } from 'state/application/actions'
-import {
-  useSelectCampaignModalToggle,
-  useToggleModal,
-  useToggleYourCampaignTransactionsModal,
-  useWalletModalToggle,
-} from 'state/application/hooks'
+import { APP_PATHS, CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE, RESERVE_USD_DECIMALS, SWR_KEYS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
+import useParsedQueryString from 'hooks/useParsedQueryString'
 import {
   CampaignData,
+  CampaignLeaderboard,
+  CampaignLeaderboardRanking,
+  CampaignLeaderboardReward,
+  CampaignLuckyWinner,
   CampaignState,
   CampaignStatus,
-  CampaignUserInfoStatus,
+  RewardDistribution,
   setCampaignData,
+  setLoadingCampaignData,
+  setLoadingCampaignDataError,
+  setLoadingSelectedCampaignLeaderboard,
+  setLoadingSelectedCampaignLuckyWinners,
   setSelectedCampaign,
+  setSelectedCampaignLeaderboard,
+  setSelectedCampaignLuckyWinners,
 } from 'state/campaigns/actions'
-import { useAppDispatch } from 'state/hooks'
-import { HideMedium, MediumOnly } from 'theme'
-// This is needed to make sure the UI looks just like in Editor
-import 'theme/CKEditor/CKEditor5.css'
-import 'theme/CKEditor/CKEditor5_custom.css'
-import { formatNumberWithPrecisionRange } from 'utils'
-import { getSlugUrlCampaign } from 'utils/campaign'
-import { getFormattedTimeFromSecond } from 'utils/formatTime'
-import oembed2iframe from 'utils/oembed2iframe'
+import { AppState } from 'state/index'
+import { SerializedToken } from 'state/user/actions'
+import { getCampaignIdFromSlug, getSlugUrlCampaign } from 'utils/campaign'
 
-import ModalSelectCampaign from './ModalSelectCampaign'
+import CampaignPage from './CampaignPage'
 
-const LoaderParagraphs = () => (
-  <>
-    <Loading style={{ height: '50px', marginBottom: '20px' }} />
-    <Loading style={{ height: '100px', marginBottom: '20px' }} />
-    <Loading style={{ height: '100px', marginBottom: '20px' }} />
-  </>
-)
+const MAXIMUM_ITEMS_PER_REQUEST = 20 // todo bi call 2 lan lan dau
 
-const RankDetailWrapper = styled.div`
-  color: ${({ theme }) => theme.subText};
-  font-size: 14px;
-  gap: 10px;
-  display: flex;
-  flex-direction: column;
-  padding: 5px 3px 10px 3px;
-`
-
-function RankDetail({ campaign }: { campaign: CampaignData | undefined }) {
-  const theme = useTheme()
-  const { account } = useWeb3React()
-  const isOngoing = campaign?.status === CampaignStatus.ONGOING
-
-  if (!account || !isOngoing || !campaign) return null
-  const {
-    tradingVolumeRequired,
-    tradingNumberRequired,
-    userInfo: { tradingNumber, tradingVolume, status: UserStatus } = { tradingNumber: 0, tradingVolume: 0 },
-  } = campaign
-
-  const percentTradingNumber = !tradingNumberRequired ? 0 : Math.floor((tradingNumber / tradingNumberRequired) * 100)
-
-  const percentTradingVolume = tradingVolumeRequired ? Math.floor((tradingVolume / tradingVolumeRequired) * 100) : 0
-
-  const isPassedVolume = percentTradingVolume >= 100
-  const isPassedNumberOfTrade = percentTradingNumber >= 100
-
-  if (
-    (isPassedVolume && isPassedNumberOfTrade) ||
-    (isPassedVolume && !tradingNumberRequired) ||
-    (isPassedNumberOfTrade && !tradingVolumeRequired) ||
-    (isOngoing && UserStatus === CampaignUserInfoStatus.Ineligible)
-  ) {
-    return null
-  }
-  return (
-    <InfoHelper
-      placement={isMobile ? 'bottom' : 'left'}
-      width="300px"
-      text={
-        <RankDetailWrapper>
-          <Text color={theme.text} fontSize={16}>
-            <Trans>Requirements</Trans>
-          </Text>
-          <Text lineHeight={'20px'}>
-            <Trans>Fulfil these requirements to participate in the campaign</Trans>
-          </Text>
-          <Flex style={{ gap: 10 }} flexDirection="column">
-            {tradingVolumeRequired > 0 && (
-              <ProgressBar
-                percent={percentTradingVolume}
-                label={t`Trading Volume`}
-                value={`${percentTradingVolume}%`}
-                color={isPassedVolume ? theme.primary : theme.warning}
-              />
-            )}
-            {tradingNumberRequired > 1 && (
-              <ProgressBar
-                percent={percentTradingNumber}
-                label={t`Number of Trades`}
-                value={`${percentTradingNumber}%`}
-                color={isPassedNumberOfTrade ? theme.primary : theme.warning}
-              />
-            )}
-          </Flex>
-        </RankDetailWrapper>
-      }
-      size={18}
-      color={theme.warning}
-    />
-  )
+const getCampaignStatus = ({ endTime, startTime }: CampaignData) => {
+  const now = Date.now()
+  return endTime <= now ? CampaignStatus.ENDED : startTime >= now ? CampaignStatus.UPCOMING : CampaignStatus.ONGOING
 }
 
-export default function Campaign() {
-  const { account } = useActiveWeb3React()
-  const theme = useTheme()
-
-  const toggleYourCampaignTransactionModal = useToggleYourCampaignTransactionsModal()
-
-  const [activeTab, setActiveTab] = useState<'how_to_win' | 'rewards' | 'leaderboard' | 'lucky_winners'>('how_to_win')
-
-  const toggleWalletModal = useWalletModalToggle()
-  const toggleShareModal = useToggleModal(ApplicationModal.SHARE)
-
-  const { selectedCampaign, selectedCampaignLeaderboard } = useSelector((state: AppState) => state.campaigns)
-
-  const rules = selectedCampaign?.rules ?? ''
-  const termsAndConditions = selectedCampaign?.termsAndConditions ?? ''
-  const otherDetails = selectedCampaign?.otherDetails ?? ''
-  const rewardDetails = selectedCampaign?.rewardDetails ?? ''
-
-  const [showRules, setShowRules] = useState(true)
-  const [showTermsAndConditions, setShowTermsAndConditions] = useState(false)
-  const [showOtherDetails, setShowOtherDetails] = useState(false)
-
-  const { mixpanelHandler } = useMixpanel()
-
-  const above768 = useMedia('(min-width: 768px)')
-
-  const campaignDetailImageRef = useRef<HTMLImageElement>(null)
-  const [campaignDetailMediaLoadedMap, setCampaignDetailMediaLoadedMap] = useState<{ [id: string]: boolean }>({})
-  const isSelectedCampaignMediaLoaded = selectedCampaign && campaignDetailMediaLoadedMap[selectedCampaign.id]
-
-  const isOngoing = selectedCampaign?.status === CampaignStatus.ONGOING
-
-  useEffect(() => {
-    if (selectedCampaign?.status === CampaignStatus.ENDED) {
-      setActiveTab('leaderboard')
-    }
-  }, [selectedCampaign])
-
-  useEffect(() => {
-    if (selectedCampaign === undefined) return
-
-    if (campaignDetailMediaLoadedMap[selectedCampaign.id]) {
-      if (campaignDetailImageRef && campaignDetailImageRef.current) {
-        campaignDetailImageRef.current.style.display = 'unset'
-      }
-    } else {
-      if (campaignDetailImageRef && campaignDetailImageRef.current) {
-        campaignDetailImageRef.current.style.display = 'none'
-      }
-    }
-  }, [campaignDetailMediaLoadedMap, selectedCampaign])
-
-  const TabHowToWinContent = useMemo(
-    // eslint-disable-next-line react/display-name
-    () => () =>
-      (
-        <Flex
-          // this is needed to make sure the content is displayed with styles of CKEditor
-          className="ck-content"
-          flexDirection="column"
-          sx={{
-            padding: '24px',
-          }}
-        >
-          <Flex
-            justifyContent="space-between"
-            alignItems="center"
-            style={{ cursor: 'pointer' }}
-            onClick={() => setShowRules(prev => !prev)}
-            padding="0 0 20px 0"
-          >
-            <Text fontSize={16} fontWeight={500}>
-              <Trans>Rules</Trans>
-            </Text>
-            <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
-              <ChevronDown size={24} color={theme.subText} />
-            </ButtonEmpty>
-          </Flex>
-          {showRules ? (
-            isSelectedCampaignMediaLoaded ? (
-              <HTMLWrapper dangerouslySetInnerHTML={{ __html: oembed2iframe(rules) }} />
-            ) : (
-              <LoaderParagraphs />
-            )
-          ) : null}
-          <Divider />
-          <Flex
-            justifyContent="space-between"
-            alignItems="center"
-            style={{ cursor: 'pointer' }}
-            onClick={() => setShowTermsAndConditions(prev => !prev)}
-            padding="20px 0"
-          >
-            <Text fontSize={16} fontWeight={500}>
-              <Trans>Terms and Conditions</Trans>
-            </Text>
-            <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
-              <ChevronDown size={24} color={theme.subText} />
-            </ButtonEmpty>
-          </Flex>
-          {showTermsAndConditions ? (
-            isSelectedCampaignMediaLoaded ? (
-              <HTMLWrapper dangerouslySetInnerHTML={{ __html: oembed2iframe(termsAndConditions) }} />
-            ) : (
-              <LoaderParagraphs />
-            )
-          ) : null}
-          <Divider />
-          <Flex
-            justifyContent="space-between"
-            alignItems="center"
-            style={{ cursor: 'pointer' }}
-            onClick={() => setShowOtherDetails(prev => !prev)}
-            padding="20px 0"
-          >
-            <Text fontSize={16} fontWeight={500}>
-              <Trans>Other Details</Trans>
-            </Text>
-            <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
-              <ChevronDown size={24} color={theme.subText} />
-            </ButtonEmpty>
-          </Flex>
-          {showOtherDetails ? (
-            isSelectedCampaignMediaLoaded ? (
-              <HTMLWrapper dangerouslySetInnerHTML={{ __html: oembed2iframe(otherDetails) }} />
-            ) : (
-              <LoaderParagraphs />
-            )
-          ) : null}
-          <Divider />
-        </Flex>
+const formatRewards = (rewards: CampaignLeaderboardReward[]) =>
+  rewards?.map(
+    (item: any): CampaignLeaderboardReward => ({
+      rewardAmount: new Fraction(
+        item.RewardAmount,
+        JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(item?.Token?.decimals ?? 18)),
       ),
-    [
-      isSelectedCampaignMediaLoaded,
-      otherDetails,
-      rules,
-      showOtherDetails,
-      showRules,
-      showTermsAndConditions,
-      termsAndConditions,
-      theme.subText,
-    ],
-  )
+      ref: item.Ref,
+      claimed: item.Claimed,
+      token: item.Token,
+    }),
+  ) || []
 
-  const TabRewardsContent = useMemo(
-    // eslint-disable-next-line react/display-name
-    () => () =>
-      (
-        <Flex
-          // this is needed to make sure the content is displayed with styles of CKEditor
-          className="ck-content"
-          flexDirection="column"
-          sx={{ gap: '20px', padding: '24px' }}
-        >
-          <Text fontSize={16} fontWeight={500}>
-            <Trans>Rewards</Trans>
-          </Text>
-          {isSelectedCampaignMediaLoaded ? (
-            <HTMLWrapper dangerouslySetInnerHTML={{ __html: oembed2iframe(rewardDetails) }} />
-          ) : (
-            <LoaderParagraphs />
-          )}
-        </Flex>
-      ),
-    [isSelectedCampaignMediaLoaded, rewardDetails],
-  )
-
-  const toggleSelectCampaignModal = useSelectCampaignModalToggle()
-
-  const navigate = useNavigate()
-  const onSelectCampaign = (campaign: CampaignData) => {
-    navigate(getSlugUrlCampaign(campaign.id, campaign.name))
+const formatLeaderboardData = (data: CampaignLeaderboard) => {
+  const leaderboard: CampaignLeaderboard = {
+    ...data,
+    rankings: data.rankings
+      ? data.rankings.map(
+          (item: any): CampaignLeaderboardRanking => ({
+            userAddress: item.userAddress,
+            totalPoint: item.totalPoint,
+            rankNo: item.rankNo,
+            rewardAmount: new Fraction(
+              item.rewardAmount || ZERO,
+              JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(item?.token?.decimals ?? 18)),
+            ),
+            rewardAmountUsd: new Fraction(
+              parseUnits(item?.rewardAmountUSD?.toString() || '0', RESERVE_USD_DECIMALS).toString(),
+              JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS)),
+            ),
+            rewardInUSD: item.rewardInUSD,
+            token: item.token,
+          }),
+        )
+      : [],
+    rewards: formatRewards(data.rewards),
   }
+  return leaderboard
+}
 
-  const now = Date.now()
+const fetchLeaderBoard = ({
+  pageNumber,
+  userAddress,
+  lookupAddress,
+  campaignId,
+}: {
+  pageNumber: number
+  userAddress: string
+  lookupAddress: string
+  campaignId: number
+}) => {
+  return axios({
+    method: 'GET',
+    url: SWR_KEYS.getLeaderboard(campaignId),
+    params: {
+      pageSize: CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE,
+      pageNumber,
+      userAddress,
+      lookupAddress,
+    },
+  }).then(({ data }) => formatLeaderboardData(data.data))
+}
+
+const LEADERBOARD_DEFAULT: CampaignLeaderboard = {
+  finalizedAt: 0,
+  distributedRewardsAt: 0,
+  userRank: 0,
+  totalParticipants: 0,
+  rankings: [],
+  rewards: [],
+}
+
+export default function CampaignsUpdater() {
+  const dispatch = useDispatch()
+  const { account } = useActiveWeb3React()
+  const { pathname } = useLocation()
+
+  /**********************CAMPAIGN DATA**********************/
+  const [page, setPage] = useState(1)
+  const [query, setQuery] = useState('')
+  const [hasMoreCampaign, setHasMoreCampaign] = useState(false)
+
+  const { data: currentCampaigns } = useSelector((state: AppState) => state.campaigns)
+  const getCampaignUrl = useCallback(
+    () =>
+      `${SWR_KEYS.getListCampaign}?${stringify({
+        limit: MAXIMUM_ITEMS_PER_REQUEST,
+        offset: (page - 1) * MAXIMUM_ITEMS_PER_REQUEST,
+        userAddress: account, // todo sort ??, query
+        query,
+      })}`,
+    [account, page, query],
+  )
 
   const {
-    loadingCampaignData,
-    loadingCampaignDataError,
-    data: campaigns,
-  } = useSelector((state: AppState) => state.campaigns)
-
-  const MINUTE_TO_REFRESH = 5
-  const [campaignsRefreshIn, setCampaignsRefreshIn] = useState(MINUTE_TO_REFRESH * 60)
-  const { mutate } = useSWRConfig()
-  const dispatch = useAppDispatch()
-  useInterval(
-    () => {
-      if (
-        selectedCampaign &&
-        selectedCampaign.status === CampaignStatus.UPCOMING &&
-        selectedCampaign.startTime < now + 1000
-      ) {
-        dispatch(
-          setCampaignData({
-            campaigns: campaigns.map(campaign => {
-              if (campaign.id === selectedCampaign.id) {
-                return {
-                  ...campaign,
-                  status: CampaignStatus.ONGOING,
-                }
-              }
-              return campaign
-            }),
-          }),
-        )
-        dispatch(setSelectedCampaign({ campaign: { ...selectedCampaign, status: CampaignStatus.ONGOING } }))
-      }
-      if (
-        selectedCampaign &&
-        selectedCampaign.status === CampaignStatus.ONGOING &&
-        selectedCampaign.endTime < now + 1000
-      ) {
-        dispatch(
-          setCampaignData({
-            campaigns: campaigns.map(campaign => {
-              if (campaign.id === selectedCampaign.id) {
-                return {
-                  ...campaign,
-                  status: CampaignStatus.ENDED,
-                }
-              }
-              return campaign
-            }),
-          }),
-        )
-        dispatch(setSelectedCampaign({ campaign: { ...selectedCampaign, status: CampaignStatus.ENDED } }))
-      }
-      setCampaignsRefreshIn(prev => {
-        if (prev === 0) {
-          return MINUTE_TO_REFRESH * 60
+    data: campaignData,
+    isValidating: isLoadingCampaignData,
+    error: loadingCampaignDataError,
+  } = useSWR<CampaignData[]>(
+    getCampaignUrl(),
+    async url => {
+      const { data: response } = await axios.get(url)
+      const campaigns: CampaignData[] = response.data.map((item: CampaignData) => ({
+        ...item,
+        startTime: item.startTime * 1000,
+        endTime: item.endTime * 1000,
+      }))
+      setHasMoreCampaign(campaigns.length !== 0)
+      const formattedCampaigns: CampaignData[] = campaigns.map((campaign: any) => {
+        const rewardDistribution: RewardDistribution[] = []
+        if (campaign.rewardDistribution.single) {
+          campaign.rewardDistribution.single.forEach(
+            ({
+              amount,
+              rank,
+              token,
+              rewardInUSD,
+            }: {
+              amount: string
+              rank: number
+              token: SerializedToken
+              rewardInUSD: boolean
+            }) => {
+              rewardDistribution.push({
+                type: 'Single',
+                amount,
+                rank,
+                token,
+                rewardInUSD,
+              })
+            },
+          )
         }
-        return prev - 1
+        if (campaign.rewardDistribution.range) {
+          campaign.rewardDistribution.range.forEach(
+            ({
+              from,
+              to,
+              amount,
+              token,
+              rewardInUSD,
+            }: {
+              from: number
+              to: number
+              amount: string
+              token: SerializedToken
+              rewardInUSD: boolean
+            }) => {
+              rewardDistribution.push({
+                type: 'Range',
+                from,
+                to,
+                amount,
+                token,
+                rewardInUSD,
+              })
+            },
+          )
+        }
+        if (campaign.rewardDistribution.random) {
+          campaign.rewardDistribution.random.forEach(
+            ({
+              from,
+              to,
+              amount,
+              numberOfWinners,
+              token,
+              rewardInUSD,
+            }: {
+              from: number
+              to: number
+              amount: string
+              numberOfWinners: number
+              token: SerializedToken
+              rewardInUSD: boolean
+            }) => {
+              rewardDistribution.push({
+                type: 'Random',
+                from,
+                to,
+                amount,
+                nWinners: numberOfWinners,
+                token,
+                rewardInUSD,
+              })
+            },
+          )
+        }
+        if (campaign?.userInfo?.tradingVolume) campaign.userInfo.tradingVolume = Number(campaign.userInfo.tradingVolume)
+        if (campaign.userInfo) campaign.userInfo.rewards = formatRewards(campaign.userInfo.rewards)
+        return {
+          ...campaign,
+          rewardDistribution,
+          status: getCampaignStatus(campaign),
+          eligibleTokens: campaign.eligibleTokens.map(
+            ({ chainId, name, symbol, address, logoURI, decimals }: SerializedToken) => {
+              return {
+                chainId,
+                name,
+                symbol,
+                address,
+                logoURI,
+                decimals,
+              }
+            },
+          ),
+        }
       })
+      return formattedCampaigns
     },
-    selectedCampaign && selectedCampaign.campaignState === CampaignState.CampaignStateReady ? 1000 : null,
-    true,
+    { revalidateOnFocus: false },
   )
+
+  const onSearchCampaign = useCallback((query: string) => {
+    setQuery(query)
+  }, [])
+
+  const refreshListCampaign = useCallback(() => {
+    mutate(getCampaignUrl())
+  }, [getCampaignUrl])
+
+  const loadMoreCampaign = useCallback(() => {
+    if (isLoadingCampaignData) return
+    setPage(page => page + 1)
+  }, [isLoadingCampaignData])
+
+  const slug = pathname.replace(APP_PATHS.CAMPAIGN, '')
+  const { selectedCampaignId = getCampaignIdFromSlug(slug) } = useParsedQueryString<{ selectedCampaignId: string }>()
+
+  const navigate = useNavigate()
+  const currentRef = useRef(currentCampaigns)
+  currentRef.current = currentCampaigns
+
+  useEffect(() => {
+    const newData = campaignData || []
+    dispatch(setCampaignData({ campaigns: page === 1 ? newData : currentRef.current.concat(newData) }))
+  }, [campaignData, dispatch, page])
+
+  useEffect(() => {
+    if (currentCampaigns?.length) {
+      const navigateFirsOne = () => {
+        navigate(getSlugUrlCampaign(currentCampaigns[0].id, currentCampaigns[0].name), {
+          replace: true,
+        })
+      }
+      if (selectedCampaignId === undefined) {
+        navigateFirsOne()
+      } else {
+        const selectedCampaign = currentCampaigns.find(campaign => campaign.id.toString() === selectedCampaignId)
+        if (selectedCampaign) {
+          dispatch(setSelectedCampaign({ campaign: selectedCampaign }))
+        } else {
+          navigateFirsOne()
+        }
+      }
+    }
+  }, [currentCampaigns, dispatch, selectedCampaignId, navigate])
+
+  useEffect(() => {
+    if (isLoadingCampaignData === false) dispatch(setLoadingCampaignData(isLoadingCampaignData))
+  }, [dispatch, isLoadingCampaignData])
+
+  useEffect(() => {
+    dispatch(setLoadingCampaignDataError(loadingCampaignDataError))
+  }, [dispatch, loadingCampaignDataError])
+
+  const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
+
+  /**********************CAMPAIGN LEADERBOARD**********************/
 
   const { selectedCampaignLeaderboardPageNumber, selectedCampaignLeaderboardLookupAddress } = useSelector(
     (state: AppState) => state.campaigns,
   )
 
+  const { data: leaderboard, isValidating: isLoadingLeaderboard } = useSWRImmutable(
+    selectedCampaign
+      ? [
+          selectedCampaign,
+          SWR_KEYS.getLeaderboard(selectedCampaign.id),
+          selectedCampaignLeaderboardPageNumber,
+          selectedCampaignLeaderboardLookupAddress,
+          account,
+        ]
+      : null,
+    async () => {
+      if (!selectedCampaign) {
+        return LEADERBOARD_DEFAULT
+      }
+
+      try {
+        return fetchLeaderBoard({
+          campaignId: selectedCampaign.id,
+          pageNumber: selectedCampaignLeaderboardPageNumber,
+          userAddress: account?.toLowerCase() ?? '',
+          lookupAddress: selectedCampaignLeaderboardLookupAddress.toLowerCase(),
+        })
+      } catch (err) {
+        console.error(err)
+        return LEADERBOARD_DEFAULT
+      }
+    },
+  )
+
   useEffect(() => {
-    if (campaignsRefreshIn === 0 && selectedCampaign) {
-      mutate([
-        selectedCampaign,
-        SWR_KEYS.getLeaderboard(selectedCampaign.id),
-        selectedCampaignLeaderboardPageNumber,
-        selectedCampaignLeaderboardLookupAddress,
-        account,
-      ])
+    if (leaderboard) {
+      dispatch(setSelectedCampaignLeaderboard({ leaderboard }))
     }
-  }, [
-    mutate,
-    campaignsRefreshIn,
-    selectedCampaign,
-    selectedCampaignLeaderboardPageNumber,
-    selectedCampaignLeaderboardLookupAddress,
-    account,
-  ])
+  }, [dispatch, leaderboard])
 
-  if (campaigns.length === 0 && loadingCampaignData) {
-    return <LocalLoader />
-  }
+  useEffect(() => {
+    dispatch(setLoadingSelectedCampaignLeaderboard(isLoadingLeaderboard))
+  }, [dispatch, isLoadingLeaderboard])
 
-  if (loadingCampaignDataError) {
-    return (
-      <div style={{ margin: '10%', fontSize: '20px' }}>
-        <Trans>There is an error while loading campaigns.</Trans>
-      </div>
-    )
-  }
+  /**********************CAMPAIGN LUCKY WINNERS**********************/
 
-  if (campaigns.length === 0)
-    return (
-      <div style={{ margin: '10%', fontSize: '20px' }}>
-        <Trans>Currently, there is no campaign.</Trans>
-      </div>
-    )
+  const { selectedCampaignLuckyWinnersPageNumber, selectedCampaignLuckyWinnersLookupAddress } = useSelector(
+    (state: AppState) => state.campaigns,
+  )
+
+  const { data: luckyWinners, isValidating: isLoadingLuckyWinners } = useSWRImmutable(
+    selectedCampaign
+      ? [
+          selectedCampaign,
+          SWR_KEYS.getLuckyWinners(selectedCampaign.id),
+          selectedCampaignLuckyWinnersPageNumber,
+          selectedCampaignLuckyWinnersLookupAddress,
+        ]
+      : null,
+    async () => {
+      if (selectedCampaign === undefined || selectedCampaign.campaignState === CampaignState.CampaignStateReady)
+        return []
+
+      try {
+        const response = await axios({
+          method: 'GET',
+          url: SWR_KEYS.getLuckyWinners(selectedCampaign.id),
+          params: {
+            pageSize: CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE,
+            pageNumber: selectedCampaignLuckyWinnersPageNumber,
+            lookupAddress: selectedCampaignLuckyWinnersLookupAddress.toLowerCase(),
+          },
+        })
+        const data = response.data.data
+        const luckyWinners: CampaignLuckyWinner[] = data.map(
+          (item: any): CampaignLuckyWinner => ({
+            userAddress: item.userAddress,
+            rewardAmount: new Fraction(
+              item.rewardAmount,
+              JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(item?.token?.decimals ?? 18)),
+            ),
+            token: item.token,
+          }),
+        )
+        return luckyWinners
+      } catch (err) {
+        console.error(err)
+        return []
+      }
+    },
+  )
+
+  useEffect(() => {
+    if (luckyWinners !== undefined) {
+      dispatch(setSelectedCampaignLuckyWinners({ luckyWinners: luckyWinners }))
+    }
+  }, [dispatch, luckyWinners])
+
+  useEffect(() => {
+    dispatch(setLoadingSelectedCampaignLuckyWinners(isLoadingLuckyWinners))
+  }, [dispatch, isLoadingLuckyWinners])
 
   return (
-    <>
-      <PageWrapper>
-        <CampaignContainer>
-          <HideMedium style={{ flex: '0 0 max(35%, 400px)' }}>
-            <CampaignListAndSearch onSelectCampaign={onSelectCampaign} />
-          </HideMedium>
-
-          <CampaignDetail>
-            <MediumOnly>
-              <Flex justifyContent="space-between" alignItems="center">
-                <Text fontSize="20px" lineHeight="24px" fontWeight={500}>
-                  <Trans>Campaigns</Trans>
-                </Text>
-                <ButtonEmpty
-                  style={{ padding: '9px 9px', background: theme.background, width: 'fit-content' }}
-                  onClick={toggleSelectCampaignModal}
-                >
-                  <BarChart
-                    size={16}
-                    strokeWidth={3}
-                    color={theme.subText}
-                    style={{ transform: 'rotate(90deg) scaleX(-1)' }}
-                  />
-                </ButtonEmpty>
-                <ModalSelectCampaign />
-                <ModalRegisterCampaignCaptcha />
-                <ModalRegisterCampaignSuccess />
-              </Flex>
-            </MediumOnly>
-
-            <CampaignDetailImageContainer>
-              <Loading
-                style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, borderRadius: '20px' }}
-              />
-              <CampaignDetailImage
-                src={above768 ? selectedCampaign?.desktopBanner : selectedCampaign?.mobileBanner}
-                alt="campaign-image"
-                ref={campaignDetailImageRef}
-                onLoad={() => {
-                  setTimeout(() => {
-                    if (selectedCampaign)
-                      setCampaignDetailMediaLoadedMap(prev => ({ ...prev, [selectedCampaign.id]: true }))
-                  }, 500)
-                }}
-                onError={() => {
-                  if (selectedCampaign)
-                    setCampaignDetailMediaLoadedMap(prev => ({ ...prev, [selectedCampaign.id]: true }))
-                  if (campaignDetailImageRef && campaignDetailImageRef.current) {
-                    campaignDetailImageRef.current.style.display = 'none'
-                  }
-                }}
-              />
-            </CampaignDetailImageContainer>
-            <CampaignDetailHeader>
-              <Text fontSize="20px" fontWeight={500}>
-                {selectedCampaign?.name}
-              </Text>
-              <ButtonContainer>
-                <CampaignActions campaign={selectedCampaign} />
-                <ButtonLight
-                  borderRadius="50%"
-                  style={{ padding: '8px', flex: 0, minWidth: '44px', minHeight: '44px' }}
-                  onClick={toggleShareModal}
-                >
-                  <Share2 size={20} color={theme.primary} style={{ minWidth: '20px', minHeight: '20px' }} />
-                </ButtonLight>
-                <ShareModal
-                  title={t`Share this campaign with your friends!`}
-                  url={window.location.href}
-                  onShared={() =>
-                    mixpanelHandler(MIXPANEL_TYPE.CAMPAIGN_SHARE_TRADING_CONTEST_CLICKED, {
-                      campaign_name: selectedCampaign?.name,
-                    })
-                  }
-                />
-              </ButtonContainer>
-            </CampaignDetailHeader>
-            <CampaignDetailBoxGroup>
-              <CampaignDetailBoxGroupItem>
-                <Text fontSize={14} fontWeight={500} color={theme.subText}>
-                  {selectedCampaign?.status === CampaignStatus.UPCOMING
-                    ? t`Starting In`
-                    : isOngoing
-                    ? t`Ending In`
-                    : t`Ended On`}
-                </Text>
-                <Clock size={20} color={theme.subText} />
-                {isSelectedCampaignMediaLoaded ? (
-                  <>
-                    {selectedCampaign.status === CampaignStatus.UPCOMING && (
-                      <TextDashed fontSize={20} fontWeight={500} style={{ gridColumn: '1 / -1' }}>
-                        <MouseoverTooltip
-                          width="fit-content"
-                          text={dayjs(selectedCampaign.startTime).format('YYYY-MM-DD HH:mm')}
-                        >
-                          {selectedCampaign
-                            ? getFormattedTimeFromSecond((selectedCampaign.startTime - now) / 1000)
-                            : '--'}
-                        </MouseoverTooltip>
-                      </TextDashed>
-                    )}
-                    {selectedCampaign.status === CampaignStatus.ONGOING && (
-                      <TextDashed fontSize={20} fontWeight={500} style={{ gridColumn: '1 / -1' }}>
-                        <MouseoverTooltip
-                          width="fit-content"
-                          text={dayjs(selectedCampaign.endTime).format('YYYY-MM-DD HH:mm')}
-                        >
-                          {selectedCampaign
-                            ? getFormattedTimeFromSecond((selectedCampaign.endTime - now) / 1000)
-                            : '--'}
-                        </MouseoverTooltip>
-                      </TextDashed>
-                    )}
-                    {selectedCampaign.status === CampaignStatus.ENDED && (
-                      <Text fontSize={20} fontWeight={500} style={{ gridColumn: '1 / -1' }}>
-                        {dayjs(selectedCampaign.endTime).format('YYYY-MM-DD HH:mm')}
-                      </Text>
-                    )}
-                  </>
-                ) : (
-                  <Loading style={{ height: '24px' }} />
-                )}
-              </CampaignDetailBoxGroupItem>
-              <CampaignDetailBoxGroupItem>
-                <Text fontSize={14} fontWeight={500} color={theme.subText}>
-                  <Trans>Participants</Trans>
-                </Text>
-                {!isMobile && <Users size={20} color={theme.subText} />}
-                {isSelectedCampaignMediaLoaded ? (
-                  <Text fontSize={20} fontWeight={500} style={{ gridColumn: '1 / -1' }}>
-                    {selectedCampaignLeaderboard?.totalParticipants
-                      ? formatNumberWithPrecisionRange(selectedCampaignLeaderboard.totalParticipants, 0, 0)
-                      : '--'}
-                  </Text>
-                ) : (
-                  <Loading style={{ height: '24px' }} />
-                )}
-              </CampaignDetailBoxGroupItem>
-              <CampaignDetailBoxGroupItem>
-                <Text fontSize={14} fontWeight={500} color={theme.subText}>
-                  <Trans>Your Rank</Trans>
-                  {isMobile && <RankDetail campaign={selectedCampaign} />}
-                </Text>
-                {!isMobile && <Star size={20} color={theme.subText} />}
-                {isSelectedCampaignMediaLoaded ? (
-                  account ? (
-                    <Flex justifyContent="space-between" alignItems="center" style={{ gridColumn: '1 / -1' }}>
-                      <Flex>
-                        <Text fontSize={20} fontWeight={500}>
-                          {selectedCampaign?.userInfo?.rankNo
-                            ? formatNumberWithPrecisionRange(selectedCampaign?.userInfo?.rankNo, 0, 2)
-                            : '--'}
-                        </Text>
-                        {!isMobile && <RankDetail campaign={selectedCampaign} />}
-                      </Flex>
-                      <YourTransactionButton onClick={toggleYourCampaignTransactionModal}>
-                        {above768 ? <Trans>Your Transactions</Trans> : <Trans>History</Trans>}
-                      </YourTransactionButton>
-                    </Flex>
-                  ) : (
-                    <ButtonLight
-                      style={{ gridColumn: '1 / -1', padding: '8px', margin: '0', borderRadius: '18px' }}
-                      onClick={toggleWalletModal}
-                    >
-                      <Trans>Connect Wallet</Trans>
-                    </ButtonLight>
-                  )
-                ) : (
-                  <Loading style={{ height: '24px' }} />
-                )}
-              </CampaignDetailBoxGroupItem>
-            </CampaignDetailBoxGroup>
-
-            <CampaignDetailTabRow>
-              <CampaignDetailTab active={activeTab === 'how_to_win'} onClick={() => setActiveTab('how_to_win')}>
-                <Trans>How to win</Trans>
-              </CampaignDetailTab>
-              <CampaignDetailTab active={activeTab === 'rewards'} onClick={() => setActiveTab('rewards')}>
-                <Trans>Rewards</Trans>
-              </CampaignDetailTab>
-              <CampaignDetailTab active={activeTab === 'leaderboard'} onClick={() => setActiveTab('leaderboard')}>
-                <Trans>Leaderboard</Trans>
-              </CampaignDetailTab>
-              {selectedCampaign && selectedCampaign.campaignState === CampaignState.CampaignStateDistributedRewards && (
-                <CampaignDetailTab active={activeTab === 'lucky_winners'} onClick={() => setActiveTab('lucky_winners')}>
-                  <Trans>Lucky Winners</Trans>
-                </CampaignDetailTab>
-              )}
-            </CampaignDetailTabRow>
-
-            <CampaignDetailContent>
-              {activeTab === 'how_to_win' && <TabHowToWinContent />}
-              {activeTab === 'rewards' && <TabRewardsContent />}
-              {activeTab === 'leaderboard' && <LeaderboardLayout type="leaderboard" refreshIn={campaignsRefreshIn} />}
-              {activeTab === 'lucky_winners' && (
-                <LeaderboardLayout type="lucky_winner" refreshIn={campaignsRefreshIn} />
-              )}
-            </CampaignDetailContent>
-          </CampaignDetail>
-        </CampaignContainer>
-      </PageWrapper>
-      <YourCampaignTransactionsModal />
-    </>
+    <CampaignPage
+      refreshListCampaign={refreshListCampaign}
+      loadMoreCampaign={loadMoreCampaign}
+      hasMoreCampaign={hasMoreCampaign}
+      onSearchCampaign={onSearchCampaign}
+    />
   )
 }
-
-const CampaignDetailContent = styled.div`
-  background: ${({ theme }) => theme.background};
-  border-radius: 20px;
-  flex: 1;
-  overflow: auto;
-`
-
-const CampaignDetailTab = styled(ButtonEmpty)<{ active: boolean }>`
-  padding: 0 0 4px 0;
-  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
-  font-size: 16px;
-  border-radius: 0;
-  cursor: pointer;
-  width: fit-content;
-  min-width: fit-content;
-
-  &:hover {
-    opacity: 0.72;
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    font-size: 14px;
-  `}
-`
-
-const CampaignDetailTabRow = styled.div`
-  display: flex;
-  gap: 24px;
-  overflow: auto;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    gap: 12px;
-  `}
-`
-
-const CampaignDetailBoxGroup = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`${css`
-    gap: 16px;
-  `}
-  `}
-`
-
-const CampaignDetailBoxGroupItem = styled.div`
-  flex: 1;
-  padding: 20px 24px;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-rows: auto auto;
-  gap: 16px;
-  background: ${({ theme }) => theme.background};
-  border-radius: 20px;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    &:first-of-type {
-      min-width: 100%;
-    }
-  `}
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    &:first-of-type {
-      min-width: unset;
-    }
-  `}
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    &:first-of-type {
-      min-width: 100%;
-    }
-  `}
-`
-
-const CampaignDetailHeader = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  text-align: left;
-  justify-content: space-between;
-  gap: 12px;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    flex-direction: column;
-    align-items: center;
-
-    & > *:first-child {
-      text-align: center;
-    }
-  `}
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    flex-direction: row;
-    align-items: center;
-
-    & > *:first-child {
-      text-align: left;
-    }
-  `}
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    flex-direction: column;
-    align-items: center;
-
-    & > *:first-child {
-      text-align: center;
-    }
-  `}
-`
-
-const ButtonContainer = styled.div`
-  gap: 12px;
-  min-width: fit-content;
-  display: flex;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    ${css`
-      min-width: 100%;
-    `}
-  `}
-`
-
-const PageWrapper = styled.div`
-  padding: 32px 24px 50px;
-  width: 100%;
-  max-width: 1500px;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    ${css`
-      padding: 24px 16px 100px;
-    `}
-  `}
-`
-
-const CampaignContainer = styled.div`
-  display: flex;
-  gap: 24px;
-  //height: calc(100vh - 84.34px - 24px - 24px - 62px);
-  min-height: calc(100vh - 84.34px - 24px - 24px - 62px);
-  overflow: auto;
-`
-
-const CampaignDetail = styled.div`
-  flex: 2;
-  overflow: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  border-radius: 20px;
-`
-
-const CampaignDetailImageContainer = styled.div`
-  position: relative;
-  border-radius: 20px;
-  width: 100%;
-  padding-bottom: 25%; // 200 / 800
-  height: 0;
-
-  ${({ theme }) =>
-    theme.mediaWidth.upToSmall`${css`
-      padding-bottom: 38.48%; // 132 / 343
-    `}`}
-`
-
-const CampaignDetailImage = styled.img`
-  object-fit: cover;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  border-radius: 20px;
-`
-
-const HTMLWrapper = styled.div`
-  padding-bottom: 20px;
-  word-break: break-word;
-  line-height: 1.5;
-
-  p,
-  li,
-  span,
-  div {
-    font-size: 14px;
-  }
-`
-
-const YourTransactionButton = styled(ButtonLight)`
-  font-weight: 500;
-  font-size: 12px;
-  line-height: 16px;
-  padding: 2px 8px;
-  width: fit-content;
-  z-index: unset;
-`

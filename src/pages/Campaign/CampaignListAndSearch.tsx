@@ -1,10 +1,17 @@
 import { Trans, t } from '@lingui/macro'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
+import AutoSizer from 'react-virtualized-auto-sizer'
+import { FixedSizeList } from 'react-window'
+import InfiniteLoader from 'react-window-infinite-loader'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { CSSProperties } from 'styled-components'
 
+import Loader from 'components/Loader'
+import Row from 'components/Row'
 import Search from 'components/Search'
+import { INPUT_DEBOUNCE_TIME } from 'constants/index'
+import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 import { AppState } from 'state'
 import { CampaignData } from 'state/campaigns/actions'
@@ -24,7 +31,9 @@ const CampaignListAndSearchContainer = styled.div`
   ${({ theme }) => theme.mediaWidth.upToMedium`
     background: ${({ theme }) => theme.tableHeader};
     border-radius: 0;
-  `}
+    flex: 1;
+    height: unset;
+  `};
 `
 
 const CampaignList = styled.div`
@@ -33,7 +42,8 @@ const CampaignList = styled.div`
   border-top: 1px solid ${({ theme }) => theme.border};
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
-   flex: 1;
+    flex: 1;
+    overflow-x: hidden;
   `}
   &::-webkit-scrollbar {
     display: block;
@@ -45,19 +55,30 @@ const CampaignList = styled.div`
   }
 `
 
-interface CampaignListAndSearchProps {
+type CampaignListAndSearchProps = {
   onSelectCampaign: (campaign: CampaignData) => void
+  loadMoreCampaign: () => void
+  hasMoreCampaign: boolean
+  onSearchCampaign: (v: string) => void
 }
 
-const CampaignListAndSearch = ({ onSelectCampaign }: CampaignListAndSearchProps) => {
+const CampaignListAndSearch = ({
+  onSelectCampaign,
+  loadMoreCampaign,
+  hasMoreCampaign,
+  onSearchCampaign,
+}: CampaignListAndSearchProps) => {
   const [searchCampaign, setSearchCampaign] = useState('')
   const theme = useTheme()
 
   const { data: campaigns, selectedCampaign } = useSelector((state: AppState) => state.campaigns)
+  const debounceSearch = useDebounce(searchCampaign, INPUT_DEBOUNCE_TIME)
+  useEffect(() => {
+    onSearchCampaign(debounceSearch)
+  }, [debounceSearch, onSearchCampaign])
 
-  const filteredCampaigns = campaigns.filter(item =>
-    item.name.toLowerCase().includes(searchCampaign.trim().toLowerCase()),
-  )
+  const isItemLoaded = (index: number) => !hasMoreCampaign || index < campaigns.length
+  const itemCount = hasMoreCampaign ? campaigns.length + 1 : campaigns.length
 
   return (
     <CampaignListAndSearchContainer>
@@ -79,14 +100,42 @@ const CampaignListAndSearch = ({ onSelectCampaign }: CampaignListAndSearchProps)
         />
       </Flex>
       <CampaignList>
-        {filteredCampaigns.map((campaign, index) => (
-          <CampaignItem
-            campaign={campaign}
-            onSelectCampaign={onSelectCampaign}
-            key={index}
-            isSelected={Boolean(selectedCampaign && selectedCampaign.id === campaign.id)}
-          />
-        ))}
+        <AutoSizer>
+          {({ height, width }) => (
+            <InfiniteLoader isItemLoaded={isItemLoaded} itemCount={itemCount} loadMoreItems={loadMoreCampaign}>
+              {({ onItemsRendered, ref }) => (
+                <FixedSizeList
+                  height={height}
+                  width={width}
+                  itemCount={itemCount}
+                  itemSize={150}
+                  onItemsRendered={onItemsRendered}
+                  ref={ref}
+                >
+                  {({ index, style }: { index: number; style: CSSProperties }) => {
+                    const campaign = campaigns[index]
+                    if (!campaign)
+                      return (
+                        <Row style={style} gap="6px" justify="center" color={theme.subText} fontSize={'12px'}>
+                          <Loader />
+                          <Trans>Loading Campaigns ...</Trans>
+                        </Row>
+                      )
+                    return (
+                      <CampaignItem
+                        style={style}
+                        campaign={campaign}
+                        onSelectCampaign={onSelectCampaign}
+                        key={index}
+                        isSelected={Boolean(selectedCampaign && selectedCampaign.id === campaign.id)}
+                      />
+                    )
+                  }}
+                </FixedSizeList>
+              )}
+            </InfiniteLoader>
+          )}
+        </AutoSizer>
       </CampaignList>
     </CampaignListAndSearchContainer>
   )
