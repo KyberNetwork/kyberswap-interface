@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { ReactNode, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -26,11 +26,7 @@ const Wrapper = styled.div`
   width: 100%;
 `
 
-export default function OnChainAnalysis({
-  onShareClick,
-}: {
-  onShareClick: (content: ReactNode, title: string) => void
-}) {
+export default function OnChainAnalysis() {
   const theme = useTheme()
   const [netflowToWhaleWallets, setNetflowToWhaleWallets] = useState<ChartTab>(ChartTab.First)
   const [netflowToCEX, setNetflowToCEX] = useState<ChartTab>(ChartTab.First)
@@ -40,9 +36,6 @@ export default function OnChainAnalysis({
     if (!window.location.hash) return
     document.getElementById(window.location.hash.replace('#', ''))?.scrollIntoView({ behavior: 'smooth' })
   }, [])
-  const handleShareClick = (content: ReactNode, title: string) => {
-    onShareClick(content, title)
-  }
 
   return (
     <Wrapper>
@@ -55,7 +48,7 @@ export default function OnChainAnalysis({
         time period can indicate that the token is bullish and vice-versa.`}
         shareButton
         fullscreenButton
-        onShareClick={handleShareClick}
+        shareContent={<NumberofTradesChart noAnimation />}
       >
         <NumberofTradesChart />
       </SectionWrapper>
@@ -69,7 +62,7 @@ export default function OnChainAnalysis({
       increase in prices and low volume cryptocurrency could indicate prices falling.`}
         shareButton
         fullscreenButton
-        onShareClick={handleShareClick}
+        shareContent={<TradingVolumeChart noAnimation />}
       >
         <TradingVolumeChart />
       </SectionWrapper>
@@ -106,8 +99,8 @@ export default function OnChainAnalysis({
           </Trans>
         }
         shareButton
+        shareContent={<NetflowToWhaleWallets tab={netflowToWhaleWallets} noAnimation />}
         fullscreenButton
-        onShareClick={handleShareClick}
         tabs={[t`Netflow`, t`Inflow`, t`Outflow`]}
         activeTab={netflowToWhaleWallets}
         onTabClick={setNetflowToWhaleWallets}
@@ -134,8 +127,8 @@ export default function OnChainAnalysis({
           </Trans>
         }
         shareButton
+        shareContent={<NetflowToCentralizedExchanges tab={netflowToCEX} noAnimation />}
         fullscreenButton
-        onShareClick={handleShareClick}
         tabs={[t`Netflow`, t`Inflow`, t`Outflow`]}
         activeTab={netflowToCEX}
         onTabClick={setNetflowToCEX}
@@ -150,8 +143,8 @@ export default function OnChainAnalysis({
         description={t`Indicates on-chain transfer activity between wallets. High transfer activity indicates that more traders are transferring the token between wallets. Token with high transfer activity and high transfer volume may indicate that traders are interested in it.`}
         id="numberoftransfers"
         shareButton
+        shareContent={<NumberofTransfers tab={numberOfTransfers} noAnimation />}
         fullscreenButton
-        onShareClick={handleShareClick}
         tabs={[t`Number`, t`Volume`]}
         activeTab={numberOfTransfers}
         onTabClick={setNumberOfTransfers}
@@ -166,8 +159,8 @@ export default function OnChainAnalysis({
         description={t`Indicates the number of addresses that hold a token. An increase in the number of holders may indicate more interest in the token and vice-versa. Number of holders may also indicate the distribution of the token. High number of holders may reduce the impact an individual (like a whale) can have on the price.`}
         id="numberofholders"
         shareButton
+        shareContent={<NumberofHolders noAnimation />}
         fullscreenButton
-        onShareClick={handleShareClick}
       >
         <RequireConnectWalletWrapper chartType={2} tab={ChartTab.First}>
           <NumberofHolders />
@@ -177,8 +170,8 @@ export default function OnChainAnalysis({
         show={tokenAnalysisSettings?.top10Holders}
         title={t`Top 10 Holders`}
         id="top10holders"
-        onShareClick={handleShareClick}
         style={{ height: 'fit-content' }}
+        shareContent={<Top10HoldersTable />}
       >
         <RequireConnectWalletWrapper height="800px">
           <Top10HoldersTable />
@@ -189,7 +182,7 @@ export default function OnChainAnalysis({
         title={t`Top 25 Holders`}
         id="top25holders"
         shareButton
-        onShareClick={handleShareClick}
+        shareContent={<HoldersChartWrapper noAnimation />}
         style={{ height: '450px' }}
       >
         <RequireConnectWalletWrapper>

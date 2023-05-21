@@ -2041,7 +2041,7 @@
     axios "1.2.1"
     client-oauth2 "^4.3.3"
 
-"@kyberswap/ks-sdk-classic@^1.0.1":
+"@kyberswap/ks-sdk-classic@^1.0.3":
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/@kyberswap/ks-sdk-classic/-/ks-sdk-classic-1.0.3.tgz#8ee8e454b2838359a36aee387729d1d2e5aa9c20"
   integrity sha512-YJ//OmCPKgwslqDSRH6iqj/W0LWWsoMoEhPURsZjBwog4ehdKUDwDsW+6s1Z0i6Bro0XSVncO7WTcqfS5yPwzA==
@@ -2059,7 +2059,7 @@
     tiny-warning "^1.0.3"
     toformat "^2.0.0"
 
-"@kyberswap/ks-sdk-core@^1.0.4", "@kyberswap/ks-sdk-core@^1.0.5":
+"@kyberswap/ks-sdk-core@^1.0.5":
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/@kyberswap/ks-sdk-core/-/ks-sdk-core-1.0.5.tgz#a8e2a8cbff1fdbf371aa9d4555ccd53dae927b09"
   integrity sha512-QGcoL9LE0XxsCirUNR/H8wg7eTKwixsbG9Q3xoKp1hjB6N+mmi+PFBLvjsV5ETGtDljL/GQxh+YcK5q+4Ej1FA==
@@ -2073,10 +2073,10 @@
     tiny-invariant "^1.1.0"
     toformat "^2.0.0"
 
-"@kyberswap/ks-sdk-elastic@^1.0.5":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@kyberswap/ks-sdk-elastic/-/ks-sdk-elastic-1.0.6.tgz#4f6a79d378a30e8472068edcbeaa1ec71dc9df0b"
-  integrity sha512-UGVS4Kdwjc74Zcc7DVoukHXtxC9HTGr/VIasHCBLkAhsk6eUxOdwgT/e2ZKfdAqikHQ8moDECullDY/aA3pM7Q==
+"@kyberswap/ks-sdk-elastic@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@kyberswap/ks-sdk-elastic/-/ks-sdk-elastic-1.1.0.tgz#06e947cb5ae9c5fb41d5f03cf789a1a7db683100"
+  integrity sha512-1DFqYH9lhv/UCYZUWAYkba1Cbi5EqhcFf3JghI3Rm2h+ioTl9VIMEUG+jMJGk2X6LioD9SW3ZklkHT+LKnS9Sg==
   dependencies:
     "@ethersproject/abi" "^5.0.12"
     "@ethersproject/solidity" "^5.0.9"
@@ -2085,7 +2085,7 @@
     tiny-invariant "^1.1.0"
     tiny-warning "^1.0.3"
 
-"@kyberswap/ks-sdk-solana@^1.0.1":
+"@kyberswap/ks-sdk-solana@^1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@kyberswap/ks-sdk-solana/-/ks-sdk-solana-1.0.2.tgz#22c93b13c529890db97bbfbd3e4a0ef63e990d56"
   integrity sha512-CFJ/pYzb9PzWeqm/w7CQ4pWXRA8uDvMNln3UpH7idIDgJfJQl7dv6CfWSTtjchotyTKgG34Wy9WAC2w979gp7A==

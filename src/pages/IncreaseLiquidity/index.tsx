@@ -690,7 +690,7 @@ export default function IncreaseLiquidity() {
         </Content>
       </Container>
 
-      <ElasticDisclaimerModal isOpen />
+      <ElasticDisclaimerModal isOpen={false} />
     </>
   )
 }

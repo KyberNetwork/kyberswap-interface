@@ -178,6 +178,7 @@ export enum KyberAITimeframe {
   ONE_HOUR = '1h',
   FOUR_HOURS = '4h',
   ONE_DAY = '1d',
+  FOUR_DAY = '4d',
   ONE_WEEK = '7d',
   ONE_MONTH = '1m',
   THREE_MONTHS = '3m',

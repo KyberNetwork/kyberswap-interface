@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { ReactNode, createContext, useMemo, useState } from 'react'
+import { createContext, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { useTheme } from 'styled-components'
@@ -15,6 +15,8 @@ import { getLimitOrderContract } from 'utils'
 import { SectionWrapper } from '../components'
 import CexRekt from '../components/CexRekt'
 import { LiquidOnCentralizedExchanges, Prochart } from '../components/chart'
+import { DexTradesShareContent } from '../components/shareContent/DexTradesShareContent'
+import ProchartShareContent from '../components/shareContent/ProchartShareContent'
 import { FundingRateTable, LiveDEXTrades, SupportResistanceLevel } from '../components/table'
 import { NETWORK_TO_CHAINID } from '../constants'
 import { useChartingDataQuery, useTokenDetailQuery } from '../hooks/useKyberAIData'
@@ -33,6 +35,7 @@ type TechnicalAnalysisContextProps = {
   SRLevels?: ISRLevel[]
   currentPrice?: number
   showSRLevels?: boolean
+  isLoading?: boolean
 }
 
 function isSupport(arr: OHLCData[], i: number) {
@@ -71,11 +74,7 @@ function closeToExistedValue(newvalue: number, arr: any[], range: number) {
 
 export const TechnicalAnalysisContext = createContext<TechnicalAnalysisContextProps>({})
 
-export default function TechnicalAnalysis({
-  onShareClick,
-}: {
-  onShareClick?: (content: ReactNode, title: string) => void
-}) {
+export default function TechnicalAnalysis() {
   const theme = useTheme()
   const { chain, address } = useParams()
   const [liveChartTab, setLiveChartTab] = useState(ChartTab.First)
@@ -124,9 +123,6 @@ export default function TechnicalAnalysis({
   }, [data, isLoading])
 
   const tokenAnalysisSettings = useTokenAnalysisSettings()
-  const handleShareClick = (content: ReactNode, title: string) => {
-    onShareClick?.(content, title)
-  }
 
   return (
     <TechnicalAnalysisContext.Provider
@@ -136,6 +132,7 @@ export default function TechnicalAnalysis({
         SRLevels,
         currentPrice: data?.[0]?.close,
         showSRLevels,
+        isLoading,
       }}
     >
       <Wrapper>
@@ -154,6 +151,8 @@ export default function TechnicalAnalysis({
               <Toggle isActive={showSRLevels} toggle={() => setShowSRLevels(prev => !prev)} />
             </RowFit>
           }
+          shareButton
+          shareContent={<ProchartShareContent isBTC={liveChartTab === ChartTab.Second} />}
         >
           <Prochart isBTC={liveChartTab === ChartTab.Second} />
         </SectionWrapper>
@@ -182,6 +181,8 @@ export default function TechnicalAnalysis({
             </Trans>
           }
           style={{ height: 'fit-content' }}
+          shareButton
+          shareContent={<SupportResistanceLevel />}
         >
           <SupportResistanceLevel />
           {chain && getLimitOrderContract(NETWORK_TO_CHAINID[chain]) && (
@@ -201,6 +202,8 @@ export default function TechnicalAnalysis({
           title={t`Live Trades`}
           subTitle={t`Note:  Live trades may be slightly delayed`}
           style={{ height: 'fit-content' }}
+          shareButton
+          shareContent={<DexTradesShareContent />}
         >
           <LiveDEXTrades />
         </SectionWrapper>
@@ -230,6 +233,8 @@ export default function TechnicalAnalysis({
             </Trans>
           }
           style={{ height: 'fit-content' }}
+          shareButton
+          shareContent={<FundingRateTable />}
         >
           <FundingRateTable />
         </SectionWrapper>
@@ -243,7 +248,11 @@ export default function TechnicalAnalysis({
           token after large liquidations.`}
           style={{ height: 'fit-content' }}
           shareButton
-          onShareClick={handleShareClick}
+          shareContent={
+            <Column style={{ height: '400px', width: '100%' }}>
+              <LiquidOnCentralizedExchanges noAnimation />
+            </Column>
+          }
         >
           <Column style={{ height: '500px' }}>
             <LiquidOnCentralizedExchanges />

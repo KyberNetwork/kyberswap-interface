@@ -27,7 +27,6 @@ interface FarmingPool {
   startTime: string
   endTime: string
   feeTarget: string
-  vestingDuration: string
   rewardTokens: Array<{
     token: SubgraphToken
     amount: string
@@ -64,7 +63,6 @@ interface FarmingPool {
 
 interface SubgraphFarm {
   id: string
-  rewardLocker: string
   farmingPools: Array<FarmingPool>
 }
 
@@ -72,7 +70,6 @@ const ELASTIC_FARM_QUERY = gql`
   query getFarms {
     farms(first: 1000) {
       id
-      rewardLocker
       farmingPools(
         orderBy: pid
         orderDirection: desc
@@ -83,7 +80,6 @@ const ELASTIC_FARM_QUERY = gql`
         startTime
         endTime
         feeTarget
-        vestingDuration
         rewardTokens(orderBy: priority, orderDirection: asc) {
           token {
             id
@@ -187,7 +183,6 @@ const FarmUpdaterV1: React.FC<CommonProps> = ({ interval }) => {
       const formattedData: ElasticFarm[] = data.farms.map((farm: SubgraphFarm) => {
         return {
           id: farm.id,
-          rewardLocker: isAddressString(chainId, farm.rewardLocker),
           pools: farm.farmingPools.map(pool => {
             const token0Address = isAddressString(chainId, pool.pool.token0.id)
             const token1Address = isAddressString(chainId, pool.pool.token1.id)
@@ -245,7 +240,6 @@ const FarmUpdaterV1: React.FC<CommonProps> = ({ interval }) => {
               pid: pool.pid,
               id: pool.id,
               feeTarget: pool.feeTarget,
-              vestingDuration: Number(pool.vestingDuration),
               token0,
               token1,
               poolAddress: pool.pool.id,

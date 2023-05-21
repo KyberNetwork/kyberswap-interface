@@ -24,11 +24,13 @@ export default function KyberScoreChart({
   height,
   data,
   index,
+  noAnimation,
 }: {
   width?: string
   height?: string
   data?: Array<IKyberScoreChart>
   index: number
+  noAnimation?: boolean
 }) {
   const theme = useTheme()
 
@@ -102,10 +104,10 @@ export default function KyberScoreChart({
               >
                 <animate
                   attributeName="height"
-                  from="0"
+                  from={noAnimation ? rectHeight : '0'}
                   to={rectHeight}
-                  dur="0.5s"
-                  begin={`${1 + index * 0.05}s`}
+                  dur={noAnimation ? '0s' : '0.5s'}
+                  begin={noAnimation ? '0s' : `${1 + index * 0.05}s`}
                   fill="freeze"
                   keySplines="0 0.33 0.3 1"
                 />

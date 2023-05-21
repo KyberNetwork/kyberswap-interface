@@ -2,7 +2,6 @@ import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import { ReactNode, useMemo, useRef, useState } from 'react'
-import { Share2 } from 'react-feather'
 import { useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -24,10 +23,12 @@ import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from '../constants'
 import { ITokenOverview } from '../types'
 import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice } from '../utils'
 import ChevronIcon from './ChevronIcon'
+import KyberAIShareModal from './KyberAIShareModal'
 import KyberScoreMeter from './KyberScoreMeter'
 import PriceRange from './PriceRange'
 import SimpleTooltip from './SimpleTooltip'
 import KyberScoreChart from './chart/KyberScoreChart'
+import KyberScoreShareContent from './shareContent/KyberScoreShareContent'
 
 const CardWrapper = styled.div<{ gap?: string }>`
   --background-color: ${({ theme }) => (theme.darkMode ? theme.text + '22' : theme.subText + '20')};
@@ -89,17 +90,14 @@ const ExpandableBox = styled.div<{ expanded?: boolean; height?: number }>`
   ${({ expanded, height }) => (expanded ? `height: ${height}px;` : ``)}
 `
 
-// const PerformanceCard = styled.div<{ color: string }>`
-//   border-radius: 8px;
-//   flex: 1;
-//   display: flex;
-//   flex-direction: column;
-//   align-items: center;
-//   gap: 4px;
-//   padding: 6px;
-//   background-color: ${({ color }) => color + '48'};
-//   color: ${({ color }) => color};
-// `
+const StyledTokenAddress = styled.div`
+  font-size: 12px;
+  color: ${({ theme }) => theme.subText};
+  cursor: pointer;
+  :hover {
+    color: ${({ theme }) => theme.primary};
+  }
+`
 
 const getCommunityLabelFromURL = (url: string) => {
   if (url.includes('facebook')) {
@@ -144,19 +142,12 @@ const ExternalLink = ({ href, className, children }: { href: string; className?:
   )
 }
 
-export const TokenOverview = ({
-  data,
-  isLoading,
-  onShareClick,
-}: {
-  data?: ITokenOverview
-  isLoading?: boolean
-  onShareClick?: () => void
-}) => {
+export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLoading?: boolean }) => {
   const theme = useTheme()
   const { chain } = useParams()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const [expanded, setExpanded] = useState(false)
+  const [showShare, setShowShare] = useState(false)
   const ref1 = useRef<HTMLDivElement>(null)
   const ref2 = useRef<HTMLDivElement>(null)
 
@@ -208,7 +199,7 @@ export const TokenOverview = ({
                     rotate={data && data.price24hChangePercent > 0 ? '180deg' : '0deg'}
                     color={priceChangeColor}
                   />
-                  {data && '$' + formatTokenPrice(Math.abs(data.price24hChangePercent * data.price) / 100)}
+                  {data && '$' + formatTokenPrice(Math.abs(data.price24hChangePercent * data.price) / 100, 2)}
                 </Row>
               </Column>
               <Column justifyContent="center">
@@ -295,7 +286,7 @@ export const TokenOverview = ({
                     KyberScore
                   </Text>
                 </MouseoverTooltip>
-                <ShareButton onClick={onShareClick} />
+                <ShareButton onClick={() => setShowShare(true)} />
               </RowBetween>
               <KyberScoreMeter value={data?.kyberScore?.score} style={{ width: '211px', height: '128px' }} />
               <RowFit gap="6px" marginBottom="12px">
@@ -432,18 +423,18 @@ export const TokenOverview = ({
                         rel="noopener noreferrer"
                         href={getEtherscanLink(NETWORK_TO_CHAINID[chain], data.address, 'token')}
                       >
-                        <img
-                          src={NETWORK_IMAGE_URL[chain || 'ethereum']}
-                          alt="eth"
-                          width="16px"
-                          height="16px"
-                          style={{ display: 'block' }}
-                        />
+                        <RowFit gap="4px">
+                          <img
+                            src={NETWORK_IMAGE_URL[chain || 'ethereum']}
+                            alt="eth"
+                            width="16px"
+                            height="16px"
+                            style={{ display: 'block' }}
+                          />
+                          <StyledTokenAddress>{shortenAddress(1, data.address)}</StyledTokenAddress>
+                        </RowFit>
                       </a>
                     </SimpleTooltip>
-                    <Text color={theme.subText} fontWeight={500}>
-                      {shortenAddress(1, data.address)}
-                    </Text>
                     <SimpleTooltip text={t`Copy token address`}>
                       <CopyHelper toCopy={data?.address || ''} />
                     </SimpleTooltip>
@@ -514,7 +505,7 @@ export const TokenOverview = ({
                 KyberScore
               </Text>
             </MouseoverTooltip>
-            <Share2 />
+            <ShareButton onClick={() => setShowShare(true)} />
           </RowBetween>
           <Row justify="center" marginBottom="12px">
             <KyberScoreMeter value={latestKyberscore?.kyber_score} />
@@ -677,6 +668,11 @@ export const TokenOverview = ({
           </Row>
         </CardWrapper>
       )}
+      <KyberAIShareModal
+        isOpen={showShare}
+        onClose={() => setShowShare(false)}
+        content={<KyberScoreShareContent token={data} />}
+      />
     </>
   )
 }
