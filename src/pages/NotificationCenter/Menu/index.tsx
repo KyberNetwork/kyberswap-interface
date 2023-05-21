@@ -1,10 +1,9 @@
 import { t } from '@lingui/macro'
 import { ReactNode, useMemo } from 'react'
-import { List as ListIcon } from 'react-feather'
+import { List as ListIcon, Plus } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
 import { useGetTotalUnreadAnnouncementsQuery } from 'services/announcement'
-import styled from 'styled-components'
 
 import { ReactComponent as AllIcon } from 'assets/svg/all_icon.svg'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
@@ -14,9 +13,11 @@ import NotificationIcon from 'components/Icons/NotificationIcon'
 import ProfileIcon from 'components/Icons/Profile'
 import { getAnnouncementsTemplateIds } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
+import { useSignInETH } from 'hooks/useLogin'
 import MenuItem from 'pages/NotificationCenter/Menu/MenuItem'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import { MEDIA_WIDTHS } from 'theme'
+import getShortenAddress from 'utils/getShortenAddress'
 
 export const MENU_TITLE: Partial<{ [type in PrivateAnnouncementType]: string }> = {
   [PrivateAnnouncementType.BRIDGE_ASSET]: t`Cross-Chain Bridge`,
@@ -30,7 +31,7 @@ export type Unread = Partial<{ [type in PrivateAnnouncementType]: number | undef
 
 export type MenuItemType = {
   route: string
-  type: string
+  type?: string
   icon?: ReactNode
   title?: string
   divider?: boolean
@@ -42,15 +43,7 @@ const menuItems: MenuItemType[] = [
     route: NOTIFICATION_ROUTES.PROFILE,
     icon: <ProfileIcon />,
     title: t`Profile`,
-    type: '',
-    childs: [
-      {
-        route: NOTIFICATION_ROUTES.GUEST_PROFILE,
-        icon: <ProfileIcon />,
-        title: t`Guest`,
-        type: '',
-      },
-    ],
+    childs: [],
   },
   {
     route: NOTIFICATION_ROUTES.ALL_NOTIFICATION,
@@ -62,7 +55,6 @@ const menuItems: MenuItemType[] = [
         route: NOTIFICATION_ROUTES.PREFERENCE,
         icon: <ListIcon size="16px" />,
         title: t`Notification Preferences`,
-        type: '',
         divider: true,
       },
       {
@@ -75,7 +67,6 @@ const menuItems: MenuItemType[] = [
         route: NOTIFICATION_ROUTES.GENERAL,
         icon: <MailIcon size={16} />,
         title: t`General`,
-        type: '',
       },
       {
         route: NOTIFICATION_ROUTES.PRICE_ALERTS,
@@ -105,7 +96,7 @@ const menuItems: MenuItemType[] = [
     childs:
       el.route !== NOTIFICATION_ROUTES.ALL_NOTIFICATION
         ? el.childs
-        : el.childs?.map(child => {
+        : el.childs?.map((child: MenuItemType) => {
             const type = child.type as PrivateAnnouncementType
             return {
               ...child,
@@ -116,7 +107,36 @@ const menuItems: MenuItemType[] = [
   }
 })
 
-const MenuForDesktop = ({ unread }: { unread: Unread }) => {
+type PropsMenu = { unread: Unread; connectedAccounts: string[] }
+const MenuForDesktop = ({ unread, connectedAccounts }: PropsMenu) => {
+  // todo mobile
+  const menuItemDeskTop = useMemo(() => {
+    return menuItems.map(el => {
+      if (el.route !== NOTIFICATION_ROUTES.PROFILE) return el
+      const guest = {
+        route: NOTIFICATION_ROUTES.GUEST_PROFILE,
+        icon: <ProfileIcon />,
+        title: t`Guest`,
+      }
+      const addAccount = {
+        route: NOTIFICATION_ROUTES.ADD_PROFILE,
+        icon: <Plus size="16px" />,
+        title: t`Add Account`,
+      }
+      const defaultChilds = connectedAccounts.length ? [addAccount] : [guest, addAccount]
+      return {
+        ...el,
+        childs: connectedAccounts
+          .map(account => ({
+            route: `${NOTIFICATION_ROUTES.PROFILE}/${account}`,
+            icon: <ProfileIcon />,
+            title: getShortenAddress(account),
+          }))
+          .concat(defaultChilds),
+      }
+    })
+  }, [connectedAccounts])
+
   return (
     <Flex
       sx={{
@@ -124,7 +144,7 @@ const MenuForDesktop = ({ unread }: { unread: Unread }) => {
         padding: '24px',
       }}
     >
-      {menuItems.map((data, index) => {
+      {menuItemDeskTop.map((data, index) => {
         return <MenuItem key={index} style={{ paddingTop: index ? undefined : 0 }} data={data} unread={unread} />
       })}
     </Flex>
@@ -137,7 +157,7 @@ const menuItemsMobile = menuItems.reduce<MenuItemType[]>((rs, item) => {
   return rs
 }, [])
 
-const MenuForMobile = ({ unread }: { unread: Unread }) => {
+const MenuForMobile = ({ unread }: PropsMenu) => {
   return (
     <Flex
       sx={{
@@ -157,6 +177,7 @@ const MenuForMobile = ({ unread }: { unread: Unread }) => {
 const Menu = () => {
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const { account } = useActiveWeb3React()
+  const { connectedAccounts } = useSignInETH()
 
   const templateIds = Object.values(PrivateAnnouncementType)
     .filter(e => e !== PrivateAnnouncementType.DIRECT_MESSAGE)
@@ -177,11 +198,8 @@ const Menu = () => {
     return result
   }, [data])
 
-  if (upToMedium) {
-    return <MenuForMobile unread={unread} />
-  }
-
-  return <MenuForDesktop unread={unread} />
+  const props = { unread, connectedAccounts }
+  return upToMedium ? <MenuForMobile {...props} /> : <MenuForDesktop {...props} />
 }
 
 export default Menu

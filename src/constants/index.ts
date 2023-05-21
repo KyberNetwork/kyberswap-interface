@@ -222,7 +222,7 @@ export const APP_PATHS = {
   LIMIT: '/limit',
   VERIFY_EXTERNAL: '/verify-external',
   GRANT_PROGRAMS: '/inter-project-trading-campaigns',
-  NOTIFICATION_CENTER: '/notification-center',
+  NOTIFICATION_CENTER: '/manage', // todo
 }
 
 export const TERM_FILES_PATH = {

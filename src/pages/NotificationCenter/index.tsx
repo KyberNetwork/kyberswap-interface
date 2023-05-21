@@ -3,7 +3,6 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { PrivateAnnouncementType } from 'components/Announcement/type'
-import MailIcon from 'components/Icons/MailIcon'
 import { APP_PATHS } from 'constants/index'
 import CreateAlert from 'pages/NotificationCenter/CreateAlert'
 import GeneralAnnouncement from 'pages/NotificationCenter/GeneralAnnouncement'
@@ -51,7 +50,7 @@ const HeaderWrapper = styled.div`
   align-items: center;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 0 16px;
+    padding: 0;
   `}
 `
 
@@ -93,9 +92,8 @@ function NotificationCenter() {
   return (
     <PageWrapper>
       <HeaderWrapper>
-        <MailIcon />
         <Title>
-          <Trans>Notification Center</Trans>
+          <Trans>Your Profile</Trans>
         </Title>
       </HeaderWrapper>
       <Wrapper>

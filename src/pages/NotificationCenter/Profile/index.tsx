@@ -1,8 +1,8 @@
-import KyberOauth2 from '@kybernetwork/oauth2'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useState } from 'react'
 import { Info, LogOut, Save } from 'react-feather'
+import { useParams } from 'react-router'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -73,7 +73,7 @@ const WarningWrapper = styled.div`
   padding: 8px 14px;
 `
 const SignMessage = () => {
-  const signIn = useSignInETH()
+  const { signInEth } = useSignInETH()
   const theme = useTheme()
   return (
     <WarningWrapper>
@@ -84,7 +84,7 @@ const SignMessage = () => {
           allow us to offer you a better experience. Read more <ExternalLink href="#">here ↗</ExternalLink>
         </Text>
       </Row>
-      <ButtonPrimary width={'130px'} height={'36px'} fontSize={'14px'} onClick={signIn}>
+      <ButtonPrimary width={'130px'} height={'36px'} fontSize={'14px'} onClick={signInEth}>
         Sign-in
       </ButtonPrimary>
     </WarningWrapper>
@@ -94,7 +94,7 @@ const SignMessage = () => {
 // todo sign in anonymous lau qua ko call api dc
 export default function Profile() {
   const theme = useTheme()
-
+  const { walletAddress: walletParam } = useParams()
   const { chainId, account } = useActiveWeb3React()
   const { formatUserInfo, isLogin } = useSessionInfo()
   const { inputEmail, onChangeEmail, errorColor } = useValidateEmail(formatUserInfo?.email)
@@ -111,14 +111,16 @@ export default function Profile() {
   const saveProfile = () => {
     console.log(nickName, inputEmail)
   }
-  const thisAccount = '0xF14DE383fE1f5ECA59dbC33A7d7aB527AD7c8c94'
+
   const isVerifiedEmail = formatUserInfo?.email && inputEmail === formatUserInfo?.email
+  const displayWallet = (walletParam ? walletParam : '') || account || ''
+  const isNeedSignIn = !isLogin || account?.toLowerCase() !== walletParam?.toLowerCase()
   return (
     <Wrapper>
       <Text fontSize={'24px'} fontWeight={'500'}>
         <Trans>Profile Details</Trans>
       </Text>
-      {(!isLogin || account?.toLowerCase() !== thisAccount?.toLowerCase()) && <SignMessage />}
+      {isNeedSignIn && <SignMessage />}
       <Row gap="32px" align={'flex-start'} justify={'space-between'}>
         <LeftColum>
           <FormGroup>
@@ -148,17 +150,23 @@ export default function Profile() {
             <StyledAddressInput
               style={{ color: theme.subText, cursor: 'pointer' }}
               disabled
-              value={shortenAddress(chainId, account ?? '', 17, false)}
-              icon={<CopyHelper toCopy={account ?? ''} style={{ color: theme.subText }} />}
+              value={shortenAddress(chainId, displayWallet, 17, false)}
+              icon={<CopyHelper toCopy={displayWallet} style={{ color: theme.subText }} />}
             />
           </FormGroup>
 
           <Row gap="20px">
-            <ButtonOutlined width={'120px'} height={'36px'} fontSize={'14px'}>
+            <ButtonOutlined width={'120px'} height={'36px'} fontSize={'14px'} disabled={isNeedSignIn}>
               <LogOut size={16} style={{ marginRight: '4px' }} />
               Log Out
             </ButtonOutlined>
-            <ButtonPrimary width={'120px'} height={'36px'} fontSize={'14px'} onClick={saveProfile}>
+            <ButtonPrimary
+              width={'120px'}
+              height={'36px'}
+              fontSize={'14px'}
+              onClick={saveProfile}
+              disabled={isLogin ? isNeedSignIn : false}
+            >
               <Save size={16} style={{ marginRight: '4px' }} />
               Save
             </ButtonPrimary>

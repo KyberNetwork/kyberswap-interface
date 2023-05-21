@@ -1,6 +1,6 @@
 import KyberOauth2, { LoginMethod } from '@kybernetwork/oauth2'
 import { captureException } from '@sentry/react'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useConnectWalletToProfileMutation, useGetOrCreateProfileMutation } from 'services/identity'
 
 import { ENV_KEY, OAUTH_CLIENT_ID } from 'constants/env'
@@ -104,7 +104,15 @@ const useLogin = () => {
 
 export const useSignInETH = () => {
   const { account } = useActiveWeb3React()
-  return useCallback(() => KyberOauth2.authenticate({ wallet_address: account ?? '' }), [account])
+
+  const connectedAccounts = useMemo(() => {
+    return KyberOauth2.getConnectedEthAccounts().sort(e => (account === e ? 1 : -1))
+  }, [account])
+
+  return {
+    connectedAccounts,
+    signInEth: useCallback(() => KyberOauth2.authenticate({ wallet_address: account ?? '' }), [account]),
+  }
 }
 
 export default useLogin
