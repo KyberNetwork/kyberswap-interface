@@ -300,7 +300,7 @@ export default function KyberAIShareModal({
           </IconButton>
         </Row>
         <ImageWrapper>
-          {loading && (
+          {true && (
             <ImageInner ref={ref}>
               <RowBetween style={{ zIndex: 2 }}>
                 <RowFit gap="8px" style={{ paddingLeft: '16px' }}>
@@ -359,7 +359,7 @@ export default function KyberAIShareModal({
               <Row style={{ zIndex: 2, width: '100%', height: '100%', alignItems: 'stretch' }}>{content}</Row>
             </ImageInner>
           )}
-          {loading ? (
+          {/* {loading ? (
             <Loader>
               <AnimatedLoader />
             </Loader>
@@ -369,7 +369,7 @@ export default function KyberAIShareModal({
             </Loader>
           ) : (
             <>{imageUrl && <img src={imageUrl} alt="KyberAI share" style={{ height: '100%', width: '100%' }} />}</>
-          )}
+          )} */}
         </ImageWrapper>
         <RowBetween style={{ color: theme.subText }}>
           <IconButton disabled={!imageUrl}>

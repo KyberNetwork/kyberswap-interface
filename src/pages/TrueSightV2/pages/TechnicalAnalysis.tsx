@@ -15,6 +15,8 @@ import { getLimitOrderContract } from 'utils'
 import { SectionWrapper } from '../components'
 import CexRekt from '../components/CexRekt'
 import { LiquidOnCentralizedExchanges, Prochart } from '../components/chart'
+import { DexTradesShareContent } from '../components/shareContent/DexTradesShareContent'
+import ProchartShareContent from '../components/shareContent/ProchartShareContent'
 import { FundingRateTable, LiveDEXTrades, SupportResistanceLevel } from '../components/table'
 import { NETWORK_TO_CHAINID } from '../constants'
 import { useChartingDataQuery, useTokenDetailQuery } from '../hooks/useKyberAIData'
@@ -150,7 +152,7 @@ export default function TechnicalAnalysis() {
             </RowFit>
           }
           shareButton
-          shareContent={<Prochart isBTC={liveChartTab === ChartTab.Second} />}
+          shareContent={<ProchartShareContent isBTC={liveChartTab === ChartTab.Second} />}
         >
           <Prochart isBTC={liveChartTab === ChartTab.Second} />
         </SectionWrapper>
@@ -201,7 +203,7 @@ export default function TechnicalAnalysis() {
           subTitle={t`Note:  Live trades may be slightly delayed`}
           style={{ height: 'fit-content' }}
           shareButton
-          shareContent={<LiveDEXTrades />}
+          shareContent={<DexTradesShareContent />}
         >
           <LiveDEXTrades />
         </SectionWrapper>
@@ -247,8 +249,8 @@ export default function TechnicalAnalysis() {
           style={{ height: 'fit-content' }}
           shareButton
           shareContent={
-            <Column style={{ height: '500px' }}>
-              <LiquidOnCentralizedExchanges />
+            <Column style={{ height: '400px', width: '100%' }}>
+              <LiquidOnCentralizedExchanges noAnimation />
             </Column>
           }
         >

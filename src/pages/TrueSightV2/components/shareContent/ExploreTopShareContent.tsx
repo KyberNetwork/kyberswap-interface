@@ -17,9 +17,8 @@ import KyberScoreChart from '../chart/KyberScoreChart'
 
 const CardWrapper = styled.div`
   background: linear-gradient(120.45deg, rgba(255, 255, 255, 0.14) -4.63%, rgba(27, 136, 104, 0) 105.53%);
-  box-shadow: inset 0px 8px 8px rgba(0, 0, 0, 0.02), inset 0px 4px 4px rgba(255, 255, 255, 0.2);
   border-radius: 20px;
-  padding: 36px;
+  padding: 28px;
   flex: 1;
   min-height: 200px;
   display: flex;

@@ -195,7 +195,7 @@ const kyberAIApi = createApi({
       },
     }),
     //14.
-    liveDexTrades: builder.query<ILiveTrade[], { chain: string; address: string }>({
+    liveDexTrades: builder.query<ILiveTrade[], { chain?: string; address?: string }>({
       query: ({ chain, address }) => ({ url: `/live-trades/${chain}/${address}` }),
       transformResponse: (res: any) => {
         if (res.code === 0) {

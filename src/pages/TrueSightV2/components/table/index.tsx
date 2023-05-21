@@ -786,3 +786,64 @@ export const WidgetTable = ({
     </div>
   )
 }
+
+export const LiveTradesInShareModalTable = ({ data }: { data: Array<ILiveTrade> }) => {
+  const theme = useTheme()
+  const { chain, address } = useParams()
+  const { data: tokenOverview } = useTokenDetailQuery({
+    chain,
+    address,
+  })
+
+  return (
+    <TableWrapper style={{ flex: 1 }}>
+      <colgroup>
+        <col />
+        <col />
+        <col />
+        <col />
+      </colgroup>
+      <thead>
+        <th>Date</th>
+        <th>Address</th>
+        <th>Price ($)</th>
+        <th style={{ textAlign: 'right', padding: '6px' }}>Amount</th>
+      </thead>
+      <tbody>
+        {data?.map((trade, i) => {
+          const isBuy = trade.type === 'buy'
+          return (
+            <tr key={trade.txn} style={{ height: '64px' }}>
+              <td>
+                <Text fontSize={14}>{dayjs(trade.timestamp * 1000).format('DD/MM/YYYY')}</Text>
+                <Text fontSize={12} color={theme.subText}>
+                  {dayjs(trade.timestamp * 1000).format('HH:mm:ss A')}
+                </Text>
+              </td>
+              <td>
+                <Text fontSize={14}>{shortenAddress(1, trade.trader)}</Text>
+              </td>
+              <td>
+                <Text fontSize={14}>${formatTokenPrice(trade.price)}</Text>
+              </td>
+              <td style={{ padding: '6px', textAlign: 'right' }}>
+                <Row gap="4px">
+                  <img src={tokenOverview?.logo} width="16px" height="16px" style={{ borderRadius: '8px' }} />
+                  <Text fontSize={14} color={isBuy ? theme.primary : theme.red}>
+                    {isBuy ? '+' : '-'} {formatLocaleStringNum(+trade.amountToken)} {tokenOverview?.symbol}
+                  </Text>
+                  {trade.price * +trade.amountToken > 100000 && (
+                    <InfoHelper text={t`This transaction is higher than >$100k`} placement="top" />
+                  )}
+                </Row>
+                <Text color={theme.subText} fontSize={12} textAlign="right">
+                  ${formatLocaleStringNum(trade.price * +trade.amountToken)}{' '}
+                </Text>
+              </td>
+            </tr>
+          )
+        })}
+      </tbody>
+    </TableWrapper>
+  )
+}
