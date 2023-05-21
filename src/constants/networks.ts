@@ -127,21 +127,21 @@ export const TRUESIGHT_NETWORK_TO_CHAINID: NetToChain = SUPPORTED_NETWORKS.reduc
 
 export const FAUCET_NETWORKS = [ChainId.BTTC]
 export const CHAINS_SUPPORT_NEW_POOL_FARM_API: readonly ChainId[] = [
-  ChainId.MAINNET,
+  // ChainId.MAINNET,
   // ChainId.MUMBAI,
-  ChainId.MATIC,
+  // ChainId.MATIC,
   // ChainId.BSCTESTNET,
-  ChainId.BSCMAINNET,
+  // ChainId.BSCMAINNET,
   // ChainId.AVAXTESTNET,
-  ChainId.AVAXMAINNET,
-  ChainId.FANTOM,
-  ChainId.CRONOS,
-  ChainId.BTTC,
-  ChainId.ARBITRUM,
-  ChainId.AURORA,
+  // ChainId.AVAXMAINNET,
+  // ChainId.FANTOM,
+  // ChainId.CRONOS,
+  // ChainId.BTTC,
+  // ChainId.ARBITRUM,
+  // ChainId.AURORA,
   // ChainId.VELAS,
   // ChainId.OASIS,
-  ChainId.OPTIMISM,
+  // ChainId.OPTIMISM,
 ]
 
 // Fee options instead of dynamic fee

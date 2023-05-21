@@ -100,8 +100,8 @@ const PositionListItem = ({
     ? [position.amount1.currency, position.amount0.currency]
     : [position.amount0.currency, position.amount1.currency]
   const usdValue =
-    parseFloat(position.amount0.toSignificant(6)) * usdPrices[tokenA.address] +
-    parseFloat(position.amount1.toSignificant(6)) * usdPrices[tokenB.address]
+    parseFloat(position.amount0.toSignificant(6)) * usdPrices[position.amount0.currency.address] +
+    parseFloat(position.amount1.toSignificant(6)) * usdPrices[position.amount1.currency.address]
   const priceLower = getTickToPrice(tokenA, tokenB, position.tickLower)
   const priceUpper = getTickToPrice(tokenA, tokenB, position.tickUpper)
   const formattedLowerPrice = formatTickPrice(priceLower, ticksAtLimit, Bound.LOWER)

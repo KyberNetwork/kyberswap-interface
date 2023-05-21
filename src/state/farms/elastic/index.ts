@@ -7,11 +7,10 @@ interface ElasticFarmState {
     loading: boolean
     farms: ElasticFarm[] | null
     userFarmInfo?: UserFarmInfo
+    loadingUserInfo: boolean
     poolFeeLast24h: {
       [poolId: string]: number
     }
-
-    failedNFTs: string[]
   }
 }
 
@@ -19,7 +18,7 @@ export const defaultChainData = {
   loading: false,
   farms: [],
   poolFeeLast24h: {},
-  failedNFTs: [],
+  loadingUserInfo: false,
 } as ElasticFarmState[number]
 
 const initialState: ElasticFarmState = {}
@@ -50,16 +49,14 @@ const slice = createSlice({
       state[chainId].poolFeeLast24h = data
     },
 
-    addFailedNFTs(state, { payload: { chainId, ids } }: { payload: { chainId: number; ids: string[] } }) {
-      state[chainId].failedNFTs = ids
-    },
-
-    resetErrorNFTs(state, { payload: chainId }: { payload: number }) {
-      state[chainId].failedNFTs = []
+    setLoadingUserInfo(state, { payload: { loading, chainId } }) {
+      if (!state[chainId]) {
+        state[chainId] = { ...defaultChainData, loadingUserInfo: loading }
+      } else state[chainId] = { ...state[chainId], loadingUserInfo: loading }
     },
   },
 })
 
-export const { setFarms, setLoading, setUserFarmInfo, setPoolFeeData, addFailedNFTs, resetErrorNFTs } = slice.actions
+export const { setFarms, setLoading, setUserFarmInfo, setPoolFeeData, setLoadingUserInfo } = slice.actions
 
 export default slice.reducer

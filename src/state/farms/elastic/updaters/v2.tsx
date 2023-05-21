@@ -1,4 +1,4 @@
-import { ChainId, CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Pool } from '@kyberswap/ks-sdk-elastic'
 import { useEffect } from 'react'
 import useSWR from 'swr'
@@ -22,10 +22,8 @@ interface FarmingPool {
   startTime: string
   endTime: string
   feeTarget: string
-  vestingDuration: string
   farm: {
     id: string // address of fair launch contract
-    rewardLocker: string
   }
   rewardTokensIds: string[]
   totalRewardAmounts: string[]
@@ -46,7 +44,7 @@ interface Response {
 const useGetElasticFarms = () => {
   const { chainId } = useActiveWeb3React()
   const endpoint = isEVM(chainId)
-    ? `${POOL_FARM_BASE_URL}/${NETWORKS_INFO[chainId].poolFarmRoute}/api/v1/elastic/farm-pools?page=1&perPage=10000`
+    ? `${POOL_FARM_BASE_URL}/${NETWORKS_INFO[chainId].poolFarmRoute}/api/v1/elastic-new/farm-pools?page=1&perPage=10000`
     : ''
 
   return useSWR<Response>(endpoint, (url: string) => fetch(url).then(resp => resp.json()), {
@@ -81,7 +79,6 @@ const FarmUpdaterV2: React.FC<CommonProps> = ({}) => {
         string,
         {
           id: string
-          rewardLocker: string
           pools: FarmingPool[]
         }
       > = {}
@@ -90,7 +87,6 @@ const FarmUpdaterV2: React.FC<CommonProps> = ({}) => {
         if (!poolsByFairLaunchContract[fairLaunchAddr]) {
           poolsByFairLaunchContract[fairLaunchAddr] = {
             id: fairLaunchAddr,
-            rewardLocker: farmingPool.farm.rewardLocker,
             pools: [],
           }
         }
@@ -99,7 +95,7 @@ const FarmUpdaterV2: React.FC<CommonProps> = ({}) => {
       })
 
       const formattedPoolData: ElasticFarm[] = Object.values(poolsByFairLaunchContract).map(
-        ({ id, rewardLocker, pools: rawPools }) => {
+        ({ id, pools: rawPools }) => {
           const pools = rawPools.map(rawPool => {
             const token0Address = isAddressString(chainId, rawPool.pool.token0.id)
             const token1Address = isAddressString(chainId, rawPool.pool.token1.id)
@@ -139,21 +135,12 @@ const FarmUpdaterV2: React.FC<CommonProps> = ({}) => {
             const tvlToken0 = TokenAmount.fromRawAmount(token0.wrapped, 0)
             const tvlToken1 = TokenAmount.fromRawAmount(token1.wrapped, 0)
 
-            const current = Date.now() / 1000
-
             return {
               startTime: Number(rawPool.startTime),
-              // Hard code endtime
-              endTime:
-                chainId === ChainId.AVAXMAINNET && rawPool.pid === '125'
-                  ? 1680104783
-                  : Number(rawPool.endTime) > current
-                  ? 1681833600
-                  : Number(rawPool.endTime),
+              endTime: Number(rawPool.endTime),
               pid: rawPool.pid,
               id: rawPool.id,
               feeTarget: rawPool.feeTarget,
-              vestingDuration: Number(rawPool.vestingDuration),
               token0,
               token1,
               poolAddress: rawPool.pool.id,
@@ -175,7 +162,7 @@ const FarmUpdaterV2: React.FC<CommonProps> = ({}) => {
               }),
               tvlToken0,
               tvlToken1,
-              apr: 0.0001, // chainId === ChainId.AVAXMAINNET && rawPool.pid === '125' ? 0 : Number(rawPool.apr),
+              apr: Number(rawPool.apr),
               poolAPR: Number(rawPool.pool.apr),
               stakedTvl: Number(rawPool.stakedTvl),
             }
@@ -192,7 +179,6 @@ const FarmUpdaterV2: React.FC<CommonProps> = ({}) => {
 
           return {
             id,
-            rewardLocker,
             pools,
           }
         },

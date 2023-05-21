@@ -55,8 +55,8 @@ const useGetElasticPoolsV2 = (): CommonReturn => {
   const chainRoute = !isEVM(chainId) || NETWORKS_INFO[chainId].poolFarmRoute
 
   const { isValidating, error, data } = useSWRImmutable<Response>(
-    `${POOL_FARM_BASE_URL}/${chainRoute}/api/v1/elastic/pools?includeLowTvl=true&page=1&perPage=10000`,
-    (url: string) => {
+    `${POOL_FARM_BASE_URL}/${chainRoute}/api/v1/elastic-new/pools?includeLowTvl=true&page=1&perPage=10000`,
+    async (url: string) => {
       if (shouldSkip) {
         return Promise.resolve({})
       }
