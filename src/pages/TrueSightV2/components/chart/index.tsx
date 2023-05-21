@@ -2344,7 +2344,7 @@ export const LiquidOnCentralizedExchanges = ({ noAnimation }: { noAnimation?: bo
 
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   return (
-    <LoadingHandleWrapper isLoading={isLoading} hasData={!!data}>
+    <LoadingHandleWrapper isLoading={isLoading} hasData={formattedData.length > 0}>
       <>
         {account ? (
           <>
