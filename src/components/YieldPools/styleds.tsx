@@ -264,10 +264,13 @@ export const TableRow = styled.div<{ fade?: boolean; joined?: boolean }>`
   ${({ joined }) =>
     joined &&
     css`
-      background: url(/static/media/card-background.77fbb037.png),
-        linear-gradient(to right, rgba(15, 170, 162, 0.12), rgba(15, 170, 162, 0.12)), #0f0f0f;
-      background-size: cover;
-      background-position: center;
+      background-image: ${({ theme }) =>
+        `url(${bgimg}),
+        linear-gradient(to right, ${rgba(theme.apr, 0.12)}, ${rgba(theme.apr, 0.12)}),
+        linear-gradient(to right, ${theme.buttonBlack}, ${theme.buttonBlack})`};
+
+      background-size: cover, cover, cover;
+      background-repeat: no-repeat, no-repeat, no-repeat;
     `}
 
   ${({ theme }) => theme.mediaWidth.upToSmall`

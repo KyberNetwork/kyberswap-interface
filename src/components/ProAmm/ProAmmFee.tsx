@@ -3,7 +3,7 @@ import { TransactionResponse } from '@ethersproject/providers'
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { NonfungiblePositionManager, Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
 
@@ -16,6 +16,7 @@ import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import QuestionHelper from 'components/QuestionHelper'
 import { RowBetween, RowFixed } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
+import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -60,8 +61,27 @@ export default function ProAmmFee({
   const [allowedSlippage] = useUserSlippageTolerance()
 
   const liquidity = position.liquidity.toString()
+
+  const [collectFeeError, setCollectFeeError] = useState<string>('')
+  const [attemptingTxn, setAttemptingTxn] = useState(false)
+  const [txnHash, setTxnHash] = useState<string | undefined>()
+  const [showPendingModal, setShowPendingModal] = useState(false)
+
+  const handleDismiss = () => {
+    setShowPendingModal(false)
+    setTxnHash('')
+    setAttemptingTxn(false)
+    setCollectFeeError('')
+  }
+
   const collect = useCallback(() => {
-    if (!feeValue0 || !feeValue1 || !positionManager || !account || !tokenId || !library || !deadline || !layout) return
+    setShowPendingModal(true)
+    setAttemptingTxn(true)
+
+    if (!feeValue0 || !feeValue1 || !positionManager || !account || !tokenId || !library || !deadline || !layout) {
+      setCollectFeeError('Something went wrong!')
+      return
+    }
     // setCollecting(true)
     mixpanelHandler(MIXPANEL_TYPE.ELASTIC_COLLECT_FEES_INITIATED, {
       token_1: token0Shown?.symbol,
@@ -118,9 +138,14 @@ export default function ProAmmFee({
                 },
               },
             })
+            setAttemptingTxn(false)
+            setTxnHash(response.hash)
           })
       })
       .catch((error: any) => {
+        setShowPendingModal(true)
+        setAttemptingTxn(false)
+        setCollectFeeError(error?.message || JSON.stringify(error))
         console.error(error)
       })
   }, [
@@ -286,6 +311,19 @@ export default function ProAmmFee({
           </ButtonLight>
         )}
       </AutoColumn>
+
+      <TransactionConfirmationModal
+        isOpen={showPendingModal}
+        onDismiss={handleDismiss}
+        hash={txnHash}
+        attemptingTxn={attemptingTxn}
+        pendingText={`Collecting fee reward`}
+        content={() => (
+          <Flex flexDirection={'column'} width="100%">
+            {collectFeeError ? <TransactionErrorContent onDismiss={handleDismiss} message={collectFeeError} /> : null}
+          </Flex>
+        )}
+      />
     </OutlineCard>
   )
 }

@@ -56,10 +56,8 @@ const Row = ({
   pool: farmingPool,
   onOpenModal,
   onHarvest,
-  isUserAffectedByFarmIssue,
   tokenPrices,
 }: {
-  isUserAffectedByFarmIssue: boolean
   isApprovedForAll: boolean
   fairlaunchAddress: string
   pool: Pool
@@ -163,26 +161,6 @@ const Row = ({
   const amountCanStaked = farmingPool.endTime < currentTimestamp ? 0 : farmingPool.depositedUsd - farmingPool.stakedUsd
 
   const renderStakeButton = () => {
-    if (isUserAffectedByFarmIssue) {
-      return (
-        <MouseoverTooltipDesktopOnly
-          text={t`This farm is currently under maintenance. You can deposit your liquidity into the new farms instead. Your withdrawals are not affected.`}
-          placement="top"
-          width="300px"
-        >
-          <MinimalActionButton
-            style={{
-              cursor: 'not-allowed',
-              backgroundColor: theme.buttonGray,
-              opacity: 0.4,
-            }}
-          >
-            <Plus size={16} />
-          </MinimalActionButton>
-        </MouseoverTooltipDesktopOnly>
-      )
-    }
-
     if (!isApprovedForAll || !canStake) {
       return (
         <MinimalActionButton disabled>

@@ -145,7 +145,9 @@ const useGetElasticPoolsV1 = (poolAddresses: string[], skip?: boolean): CommonRe
     skip,
   })
 
-  const anyError = Boolean(error || error24)
+  const anyError = error24?.message.includes('Failed to decode `block.number`')
+    ? Boolean(error)
+    : Boolean(error || error24)
   const anyLoading = Boolean(loading || loading24)
 
   // return early if not all data yet

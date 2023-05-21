@@ -41,8 +41,21 @@ export type DetailedRouteSummary = {
   gasUsd: string
   gasPrice: string
 
-  extraFee: FeeConfig
-  route: Route[][]
+  fee?: {
+    currency: Currency
+    currencyAmount: CurrencyAmount<Currency>
+    formattedAmount: string
+    formattedAmountUsd: string
+  }
 
+  extraFee: {
+    feeAmount: string
+    feeAmountUsd: string
+    chargeFeeBy: string
+    isInBps: boolean
+    feeReceiver: string
+  }
+
+  route: Route[][]
   routerAddress: string
 }

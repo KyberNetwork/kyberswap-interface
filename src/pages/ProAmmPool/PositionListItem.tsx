@@ -3,7 +3,7 @@ import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { stringify } from 'querystring'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -20,6 +20,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS, PROMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
+import { useProMMFarmContract } from 'hooks/useContract'
 // import { useProMMFarmContract } from 'hooks/useContract'
 import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -116,6 +117,7 @@ interface PositionListItemProps {
   positionDetails: PositionDetails | UserPositionFarm
   rawFeeRewards: [string, string]
   liquidityTime?: number
+  farmingTime?: number
   createdAt?: number
   hasUserDepositedInFarm?: boolean
   stakedLayout?: boolean
@@ -151,6 +153,7 @@ function PositionListItem({
   hasActiveFarm,
   rawFeeRewards,
   liquidityTime,
+  farmingTime,
   createdAt,
 }: PositionListItemProps) {
   const { chainId, networkInfo } = useActiveWeb3React()
@@ -166,63 +169,41 @@ function PositionListItem({
 
   const { farms } = useElasticFarms()
 
-  // let farmAddress = ''
-  // let pid = ''
+  let farmAddress = ''
+  let pid = ''
   let rewardTokens: Currency[] = []
 
   farms?.forEach(farm => {
     farm.pools.forEach(pool => {
       if (pool.endTime > Date.now() / 1000 && pool.poolAddress.toLowerCase() === positionDetails.poolId.toLowerCase()) {
-        // farmAddress = farm.id
-        // pid = pool.pid
+        farmAddress = farm.id
+        pid = pool.pid
         rewardTokens = pool.rewardTokens
       }
     })
   })
 
-  // const farmContract = useProMMFarmContract(farmAddress)
+  const farmContract = useProMMFarmContract(farmAddress)
 
-  // const { blockLast24h } = usePoolBlocks()
+  const tokenId = positionDetails.tokenId.toString()
 
-  // const tokenId = positionDetails.tokenId.toString()
+  const [farmReward, setFarmReward] = useState<BigNumber[] | null>(null)
+  useEffect(() => {
+    const getReward = async () => {
+      if (farmContract && farmingTime) {
+        await farmContract
+          .getUserInfo(tokenId, pid)
+          .then((res: any) => {
+            setFarmReward(res.rewardPending)
+          })
+          .catch(() => {
+            setFarmReward(null)
+          })
+      }
+    }
 
-  const [reward24h] = useState<BigNumber[] | null>(null)
-  // useEffect(() => {
-  //   const getReward = async () => {
-  //     if (blockLast24h && farmContract) {
-  //       const [currentReward, last24hReward] = await Promise.all([
-  //         farmContract
-  //           .getUserInfo(tokenId, pid)
-  //           .then((res: any) => {
-  //             return res.rewardPending
-  //           })
-  //           .catch(() => {
-  //             return []
-  //           }),
-  //         farmContract
-  //           .getUserInfo(tokenId, pid, {
-  //             blockTag: Number(blockLast24h),
-  //           })
-  //           .then((res: any) => {
-  //             return res.rewardPending
-  //           })
-  //           .catch(() => {
-  //             return []
-  //           }),
-  //       ])
-  //
-  //       const rewardPending =
-  //         last24hReward.length &&
-  //         currentReward?.map((item: BigNumber, index: number) => {
-  //           return item.sub(BigNumber.from(last24hReward?.[index] || '0'))
-  //         })
-  //
-  //       setReward24h(rewardPending)
-  //     }
-  //   }
-  //
-  //   getReward()
-  // }, [blockLast24h, farmContract, tokenId, pid])
+    getReward()
+  }, [farmContract, tokenId, pid, farmingTime])
 
   const token0 = useToken(token0Address)
   const token1 = useToken(token1Address)
@@ -278,8 +259,12 @@ function PositionListItem({
   const estimatedOneYearFee = liquidityTime && (currentFeeValue * 365 * 24 * 60 * 60) / liquidityTime
   const positionAPR = liquidityTime && usd ? (((estimatedOneYearFee || 0) * 100) / usd).toFixed(2) : '--'
 
+  const farmRewardAmount = rewardTokens.map((currency, index) => {
+    return CurrencyAmount.fromRawAmount(currency, farmReward?.[index]?.toString() || 0)
+  })
+
   const farmRewardValue = rewardTokens.reduce((usdValue, currency, index) => {
-    const temp = reward24h?.[index]
+    const temp = farmReward?.[index]
     return (
       usdValue +
       +CurrencyAmount.fromRawAmount(currency, temp?.gt('0') ? temp?.toString() : '0').toExact() *
@@ -287,7 +272,8 @@ function PositionListItem({
     )
   }, 0)
 
-  const farmAPR = reward24h !== null ? (farmRewardValue * 365 * 100) / usd : 0
+  const estimatedOneYearFarmReward = farmingTime && (farmRewardValue * 365 * 24 * 60 * 60) / farmingTime
+  const farmAPR = farmReward !== null && farmingTime && usd ? ((estimatedOneYearFarmReward || 0) * 100) / usd : 0
 
   const tickAtLimit = useIsTickAtLimit(feeAmount, tickLower, tickUpper)
 
@@ -338,6 +324,7 @@ function PositionListItem({
                 positionAPR={positionAPR}
                 createdAt={createdAt}
                 farmAPR={farmAPR}
+                farmRewardAmount={farmRewardAmount}
                 valueUSD={usd}
                 stakedUsd={stakedUsd}
                 liquidityValue0={CurrencyAmount.fromRawAmount(
@@ -456,38 +443,30 @@ function PositionListItem({
                 </ButtonOutlined>
               )}
 
-              {removed ? (
-                <ButtonPrimary disabled padding="8px">
-                  <Text width="max-content" fontSize="14px">
-                    <Trans>Increase Liquidity</Trans>
-                  </Text>
-                </ButtonPrimary>
-              ) : (
-                <ButtonPrimary
-                  id="increase-liquidity-button"
-                  padding="8px"
-                  style={{
-                    borderRadius: '18px',
-                    fontSize: '14px',
-                  }}
-                  as={Link}
-                  to={`/elastic/increase/${currencyId(currency0, chainId)}/${currencyId(
-                    currency1,
-                    chainId,
-                  )}/${feeAmount}/${positionDetails.tokenId}`}
-                  onClick={() => {
-                    mixpanelHandler(MIXPANEL_TYPE.ELASTIC_INCREASE_LIQUIDITY_INITIATED, {
-                      token_1: token0?.symbol || '',
-                      token_2: token1?.symbol || '',
-                      fee_tier: (pool?.fee as number) / 10000,
-                    })
-                  }}
-                >
-                  <Text width="max-content" fontSize="14px">
-                    <Trans>Increase Liquidity</Trans>
-                  </Text>
-                </ButtonPrimary>
-              )}
+              <ButtonPrimary
+                id="increase-liquidity-button"
+                padding="8px"
+                style={{
+                  borderRadius: '18px',
+                  fontSize: '14px',
+                }}
+                as={Link}
+                to={`/elastic/increase/${currencyId(currency0, chainId)}/${currencyId(
+                  currency1,
+                  chainId,
+                )}/${feeAmount}/${positionDetails.tokenId}`}
+                onClick={() => {
+                  mixpanelHandler(MIXPANEL_TYPE.ELASTIC_INCREASE_LIQUIDITY_INITIATED, {
+                    token_1: token0?.symbol || '',
+                    token_2: token1?.symbol || '',
+                    fee_tier: (pool?.fee as number) / 10000,
+                  })
+                }}
+              >
+                <Text width="max-content" fontSize="14px">
+                  <Trans>Increase Liquidity</Trans>
+                </Text>
+              </ButtonPrimary>
             </ButtonGroup>
           )}
           <Divider sx={{ marginBottom: '20px' }} />

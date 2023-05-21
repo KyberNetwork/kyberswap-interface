@@ -155,7 +155,6 @@ export default function Swap() {
   }, [isLimitPage])
 
   useDefaultsFromURLSearch()
-  const [dismissTokenWarning, setDismissTokenWarning] = useState<boolean>(false)
 
   const theme = useTheme()
 
@@ -200,8 +199,6 @@ export default function Swap() {
   const handleDismissTokenWarning = useCallback(() => {
     if (showingPairSuggestionImport) {
       setShowingPairSuggestionImport(false)
-    } else {
-      setDismissTokenWarning(true)
     }
   }, [showingPairSuggestionImport])
 
@@ -247,7 +244,7 @@ export default function Swap() {
   const shouldRenderTokenInfo = isShowTokenInfoSetting && currencyIn && currencyOut && isPairInWhiteList && isSwapPage
 
   const isShowModalImportToken =
-    isLoadedTokenDefault && importTokensNotInDefault.length > 0 && (!dismissTokenWarning || showingPairSuggestionImport)
+    isLoadedTokenDefault && (importTokensNotInDefault.length > 0 || showingPairSuggestionImport)
 
   const tradeRouteComposition = useMemo(() => {
     return getTradeComposition(chainId, routeSummary?.parsedAmountIn, undefined, routeSummary?.route, defaultTokens)
@@ -267,7 +264,6 @@ export default function Swap() {
         isOpen={isShowModalImportToken}
         tokens={importTokensNotInDefault}
         onConfirm={handleConfirmTokenWarning}
-        onDismiss={handleDismissTokenWarning}
       />
       <PageWrapper>
         <Banner />

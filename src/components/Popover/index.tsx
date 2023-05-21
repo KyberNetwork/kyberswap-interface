@@ -18,7 +18,7 @@ const PopoverContainer = styled.div<{ show: boolean }>`
   border: 1px solid transparent;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.32);
   color: ${({ theme }) => theme.text2};
-  border-radius: 16px;
+  border-radius: 8px;
 `
 
 const ReferenceElement = styled.div`
@@ -26,14 +26,14 @@ const ReferenceElement = styled.div`
 `
 
 const Arrow = styled.div`
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   z-index: ${Z_INDEXS.POPOVER_CONTAINER - 1};
 
   ::before {
     position: absolute;
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
     z-index: ${Z_INDEXS.POPOVER_CONTAINER - 1};
 
     content: '';
@@ -43,7 +43,7 @@ const Arrow = styled.div`
   }
 
   &.arrow-top {
-    bottom: -7px;
+    bottom: -5px;
     ::before {
       border-top: none;
       border-left: none;
@@ -51,7 +51,7 @@ const Arrow = styled.div`
   }
 
   &.arrow-bottom {
-    top: -7px;
+    top: -5px;
     ::before {
       border-bottom: none;
       border-right: none;
@@ -59,7 +59,7 @@ const Arrow = styled.div`
   }
 
   &.arrow-left {
-    right: -7px;
+    right: -5px;
 
     ::before {
       border-bottom: none;
@@ -68,7 +68,7 @@ const Arrow = styled.div`
   }
 
   &.arrow-right {
-    left: -7px;
+    left: -5px;
     ::before {
       border-right: none;
       border-top: none;
@@ -87,6 +87,9 @@ export interface PopoverProps {
   offset?: [number, number]
 }
 
+// Reference https://popper.js.org/docs/v2/modifiers/offset/#skidding
+const defaultOffset: [number, number] = [0 /* skidding */, 8 /* distance */]
+
 export default function Popover({
   content,
   show,
@@ -95,7 +98,7 @@ export default function Popover({
   noArrow = false,
   style = {},
   containerStyle = {},
-  offset = [8, 8],
+  offset = defaultOffset,
 }: PopoverProps) {
   const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null)
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null)
