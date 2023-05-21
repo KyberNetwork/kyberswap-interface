@@ -95,7 +95,7 @@ type Props = {
 }
 
 const MenuItem: React.FC<Props> = ({ data, isMobile = false, style, unread, isChildren }) => {
-  const { icon, title, route, childs, type } = data
+  const { icon, title, route, childs, type, onClick } = data
   const location = useLocation()
   const theme = useTheme()
 
@@ -107,8 +107,12 @@ const MenuItem: React.FC<Props> = ({ data, isMobile = false, style, unread, isCh
   const canShowListChildren = expand && !isChildren && !isMobile
 
   const { mixpanelHandler } = useMixpanel()
-  const onClick = (e: React.MouseEvent) => {
+  const onClickMenu = (e: React.MouseEvent) => {
     e.stopPropagation()
+    if (onClick) {
+      onClick()
+      return
+    }
     if (path.includes(NOTIFICATION_ROUTES.PRICE_ALERTS)) mixpanelHandler(MIXPANEL_TYPE.PA_CLICK_TAB_IN_NOTI_CENTER)
     canShowExpand && setIsExpand(v => !v)
   }
@@ -116,7 +120,7 @@ const MenuItem: React.FC<Props> = ({ data, isMobile = false, style, unread, isCh
   const totalUnread = type ? unread[type as PrivateAnnouncementType] : 0
   return (
     <>
-      <StyledLink to={path} onClick={onClick} isChildren={isChildren} $mobile={isMobile}>
+      <StyledLink to={onClick ? '#' : path} onClick={onClickMenu} isChildren={isChildren} $mobile={isMobile}>
         <Wrapper $active={isActive} $mobile={isMobile} style={style}>
           <Flex
             sx={{

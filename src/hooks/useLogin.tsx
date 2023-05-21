@@ -106,7 +106,7 @@ export const useSignInETH = () => {
   const { account } = useActiveWeb3React()
 
   const connectedAccounts = useMemo(() => {
-    return KyberOauth2.getConnectedEthAccounts().sort(e => (account === e ? 1 : -1))
+    return !account ? [] : KyberOauth2.getConnectedEthAccounts().sort(e => (account?.toLowerCase() === e ? 1 : -1))
   }, [account])
 
   return {

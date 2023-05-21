@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Info, LogOut, Save } from 'react-feather'
 import { useParams } from 'react-router'
 import { Text } from 'rebass'
@@ -100,6 +100,12 @@ export default function Profile() {
   const { inputEmail, onChangeEmail, errorColor } = useValidateEmail(formatUserInfo?.email)
   const [nickName, setNickName] = useState(formatUserInfo?.nickname || account || '')
 
+  // todo doi acc, nick name, email chua dung
+  // todo get all acc profile map ???
+  useEffect(() => {
+    onChangeEmail(formatUserInfo?.email ?? '')
+  }, [formatUserInfo?.identityId, formatUserInfo?.email, onChangeEmail])
+
   const [isShowVerify, setIsShowVerify] = useState(false)
   const showVerifyModal = () => {
     setIsShowVerify(true)
@@ -143,17 +149,19 @@ export default function Profile() {
             />
           </FormGroup>
 
-          <FormGroup>
-            <Label>
-              <Trans>Wallet Address</Trans>
-            </Label>
-            <StyledAddressInput
-              style={{ color: theme.subText, cursor: 'pointer' }}
-              disabled
-              value={shortenAddress(chainId, displayWallet, 17, false)}
-              icon={<CopyHelper toCopy={displayWallet} style={{ color: theme.subText }} />}
-            />
-          </FormGroup>
+          {displayWallet && (
+            <FormGroup>
+              <Label>
+                <Trans>Wallet Address</Trans>
+              </Label>
+              <StyledAddressInput
+                style={{ color: theme.subText, cursor: 'pointer' }}
+                disabled
+                value={shortenAddress(chainId, displayWallet, 17, false)}
+                icon={<CopyHelper toCopy={displayWallet} style={{ color: theme.subText }} />}
+              />
+            </FormGroup>
+          )}
 
           <Row gap="20px">
             <ButtonOutlined width={'120px'} height={'36px'} fontSize={'14px'} disabled={isNeedSignIn}>

@@ -36,6 +36,7 @@ export type MenuItemType = {
   title?: string
   divider?: boolean
   childs?: MenuItemType[]
+  onClick?: () => void
 }
 
 const menuItems: MenuItemType[] = [
@@ -110,20 +111,27 @@ const menuItems: MenuItemType[] = [
 type PropsMenu = { unread: Unread; connectedAccounts: string[] }
 const MenuForDesktop = ({ unread, connectedAccounts }: PropsMenu) => {
   // todo mobile
+  const { account } = useActiveWeb3React()
+  const { signInEth } = useSignInETH()
   const menuItemDeskTop = useMemo(() => {
     return menuItems.map(el => {
       if (el.route !== NOTIFICATION_ROUTES.PROFILE) return el
-      const guest = {
-        route: NOTIFICATION_ROUTES.GUEST_PROFILE,
-        icon: <ProfileIcon />,
-        title: t`Guest`,
+      const defaultChilds: MenuItemType[] = []
+      if (!connectedAccounts.length) {
+        defaultChilds.push({
+          route: NOTIFICATION_ROUTES.GUEST_PROFILE,
+          icon: <ProfileIcon />,
+          title: t`Guest`,
+        })
       }
-      const addAccount = {
-        route: NOTIFICATION_ROUTES.ADD_PROFILE,
-        icon: <Plus size="16px" />,
-        title: t`Add Account`,
+      if (!connectedAccounts.some(key => key === account?.toLowerCase())) {
+        defaultChilds.push({
+          route: '',
+          icon: <Plus size="16px" />,
+          title: t`Add Account`,
+          onClick: signInEth,
+        })
       }
-      const defaultChilds = connectedAccounts.length ? [addAccount] : [guest, addAccount]
       return {
         ...el,
         childs: connectedAccounts
@@ -135,7 +143,7 @@ const MenuForDesktop = ({ unread, connectedAccounts }: PropsMenu) => {
           .concat(defaultChilds),
       }
     })
-  }, [connectedAccounts])
+  }, [connectedAccounts, account, signInEth])
 
   return (
     <Flex
