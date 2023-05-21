@@ -17,14 +17,11 @@ import Row, { RowBetween, RowFit } from 'components/Row'
 import { KYBER_AI_GOOGLE_BUCKETS_ID } from 'constants/env'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import useTheme from 'hooks/useTheme'
-import { ApplicationModal } from 'state/application/actions'
-import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
 
 import { NETWORK_IMAGE_URL } from '../constants'
-import { ITokenOverview } from '../types'
+import { useTokenDetailQuery } from '../hooks/useKyberAIData'
 import KyberSwapShareLogo from './KyberSwapShareLogo'
-import { NumberofTradesChart } from './chart'
 
 const Wrapper = styled.div`
   padding: 20px;
@@ -145,25 +142,27 @@ function generateRandomString(length: number) {
   return result
 }
 
-export default function ShareKyberAIModal({
-  token,
+export default function KyberAIShareModal({
   title,
   content,
+  isOpen,
+  onClose,
 }: {
-  token?: ITokenOverview
   title?: string
   content?: ReactNode
+  isOpen: boolean
+  onClose?: () => void
 }) {
   const theme = useTheme()
-  const isOpen = useModalOpen(ApplicationModal.KYBERAI_SHARE)
-  const toggle = useToggleModal(ApplicationModal.KYBERAI_SHARE)
+
   const ref = useRef<HTMLDivElement>(null)
   const tokenImgRef = useRef<HTMLImageElement>(null)
   const [loading, setLoading] = useState(true)
   const [sharingUrl, setSharingUrl] = useState('')
   const [imageUrl, setImageUrl] = useState('')
   const [isError, setIsError] = useState(false)
-  const { chain } = useParams()
+  const { chain, address } = useParams()
+  const { data: tokenOverview } = useTokenDetailQuery({ chain, address })
   const [uploadImage] = useUploadImageMutation()
   const [createShareLink] = useCreateShareLinkMutation()
   const [blob, setBlob] = useState<Blob>()
@@ -238,7 +237,7 @@ export default function ShareKyberAIModal({
     }
     setTimeout(() => {
       handleGenerateImage()
-    }, 2000)
+    }, 1000)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
 
@@ -270,7 +269,7 @@ export default function ShareKyberAIModal({
           <Text>
             <Trans>Share this with your friends!</Trans>
           </Text>
-          <X style={{ cursor: 'pointer' }} onClick={toggle} />
+          <X style={{ cursor: 'pointer' }} onClick={() => onClose?.()} />
         </RowBetween>
         <Row gap="12px">
           <InputWrapper>
@@ -308,7 +307,7 @@ export default function ShareKyberAIModal({
                   <div style={{ position: 'relative' }}>
                     <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
                       <img
-                        src={token?.logo}
+                        src={tokenOverview?.logo}
                         width="36px"
                         height="36px"
                         style={{ background: 'white', display: 'block' }}
@@ -336,14 +335,14 @@ export default function ShareKyberAIModal({
                     </div>
                   </div>
                   <Text fontSize={24} color={theme.text} fontWeight={500}>
-                    {token?.name} ({token?.symbol.toUpperCase()})
+                    {tokenOverview?.name} ({tokenOverview?.symbol.toUpperCase()})
                   </Text>
                 </RowFit>
                 <RowFit gap="20px">
                   <KyberSwapShareLogo />
                   <div style={{ marginTop: '-20px', marginRight: '-20px', borderRadius: '6px', overflow: 'hidden' }}>
                     <QRCode
-                      value={'41241231231230120312301230'}
+                      value={window.location.href}
                       size={100}
                       quietZone={4}
                       ecLevel="L"
@@ -357,9 +356,7 @@ export default function ShareKyberAIModal({
                   {title}
                 </Text>
               </Row>
-              <Row style={{ zIndex: 2, width: '100%', height: '100%', alignItems: 'stretch' }}>
-                {content || <NumberofTradesChart noAnimation />}
-              </Row>
+              <Row style={{ zIndex: 2, width: '100%', height: '100%', alignItems: 'stretch' }}>{content}</Row>
             </ImageInner>
           )}
           {loading ? (

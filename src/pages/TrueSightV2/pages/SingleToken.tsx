@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
-import { ReactNode, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -12,23 +12,21 @@ import { ButtonPrimary } from 'components/Button'
 import Icon from 'components/Icons/Icon'
 import { DotsLoader } from 'components/Loader/DotsLoader'
 import Row, { RowBetween, RowFit } from 'components/Row'
-import ShareModal from 'components/ShareModal'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
-import { ApplicationModal } from 'state/application/actions'
-import { useToggleModal } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 import DisplaySettings from '../components/DisplaySettings'
-import ShareKyberAIModal from '../components/ShareKyberAIModal'
+import KyberAIShareModal from '../components/KyberAIShareModal'
 import SimpleTooltip from '../components/SimpleTooltip'
 import { TokenOverview } from '../components/TokenOverview'
 import { StarWithAnimation } from '../components/WatchlistStar'
-import KyberScoreShareContent from '../components/share/KyberScoreShareContent'
+import ExploreShareContent from '../components/shareContent/ExploreTopShareContent'
 import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from '../constants'
+import useChartStatesReducer, { ChartStatesContext } from '../hooks/useChartStatesReducer'
 import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation, useTokenDetailQuery } from '../hooks/useKyberAIData'
 import { DiscoverTokenTab } from '../types'
 import { navigateToSwapPage } from '../utils'
@@ -270,30 +268,18 @@ export default function SingleToken() {
   const theme = useTheme()
   const navigate = useNavigate()
   const location = useLocation()
-
+  const [state, dispatch] = useChartStatesReducer()
+  const [showShare, setShowShare] = useState(false)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const { chain, address } = useParams()
   const [currentTab, setCurrentTab] = useState<DiscoverTokenTab>(DiscoverTokenTab.OnChainAnalysis)
-  const [shareContent, setShareContent] = useState<ReactNode>(null)
-  const [shareTitle, setShareTitle] = useState<string>('')
+
   const { account } = useActiveWeb3React()
   const { data: token, isLoading } = useTokenDetailQuery({
     chain: chain || defaultExplorePageToken.chain,
     address: address || defaultExplorePageToken.address,
     account,
   })
-
-  const shareUrl = useRef<string>()
-  const toggleShareModal = useToggleModal(ApplicationModal.KYBERAI_SHARE)
-
-  const handleShareClick = useCallback(
-    (content: ReactNode, title: string) => {
-      setShareContent(content)
-      setShareTitle(title)
-      toggleShareModal()
-    },
-    [toggleShareModal],
-  )
 
   const [addToWatchlist, { isLoading: loadingAddtoWatchlist }] = useAddToWatchlistMutation()
   const [removeFromWatchlist, { isLoading: loadingRemovefromWatchlist }] = useRemoveFromWatchlistMutation()
@@ -321,16 +307,6 @@ export default function SingleToken() {
       navigate({ pathname: APP_PATHS.KYBERAI_RANKINGS })
     }
   }
-
-  const handleKyberscoreShareClick = useCallback(() => {
-    try {
-      setShareContent(<KyberScoreShareContent token={token} />)
-      setShareTitle('KyberScore')
-      toggleShareModal()
-    } catch (err) {
-      console.log(err)
-    }
-  }, [toggleShareModal, token])
 
   useEffect(() => {
     if (token) {
@@ -471,7 +447,7 @@ export default function SingleToken() {
             style={{
               color: theme.subText,
             }}
-            onClick={handleKyberscoreShareClick}
+            onClick={() => setShowShare(true)}
           >
             <Icon id="share" size={16} />
           </HeaderButton>
@@ -532,52 +508,57 @@ export default function SingleToken() {
 
   return (
     <Wrapper>
-      <RenderHeader />
-      <Text fontSize={12} color={theme.subText} marginBottom="12px">
-        {isLoading ? <DotsLoader /> : <TokenDescription description={token?.description || ''} />}
-      </Text>
+      <ChartStatesContext.Provider value={{ state, dispatch }}>
+        <RenderHeader />
+        <Text fontSize={12} color={theme.subText} marginBottom="12px">
+          {isLoading ? <DotsLoader /> : <TokenDescription description={token?.description || ''} />}
+        </Text>
 
-      <TagWrapper>
-        {token?.tags?.slice(0, viewAllTag ? token.tags.length : 5).map(tag => {
-          return <Tag key="tag">{tag}</Tag>
-        })}
-        {!viewAllTag && token?.tags && token.tags.length > 5 && (
-          <Tag active onClick={() => setViewAllTag(true)}>
-            <Trans>View all</Trans>
-          </Tag>
-        )}
-      </TagWrapper>
-      <TokenOverview data={token} isLoading={isLoading} onShareClick={handleKyberscoreShareClick} />
+        <TagWrapper>
+          {token?.tags?.slice(0, viewAllTag ? token.tags.length : 5).map(tag => {
+            return <Tag key="tag">{tag}</Tag>
+          })}
+          {!viewAllTag && token?.tags && token.tags.length > 5 && (
+            <Tag active onClick={() => setViewAllTag(true)}>
+              <Trans>View all</Trans>
+            </Tag>
+          )}
+        </TagWrapper>
+        <TokenOverview data={token} isLoading={isLoading} />
 
-      <Row alignItems="center">
-        <Row gap={above768 ? '24px' : '12px'} justify="center">
-          {Object.values(DiscoverTokenTab).map((tab: DiscoverTokenTab, index: number) => (
-            <>
-              {index !== 0 && <Text fontSize={24}>|</Text>}
-              <TabButton key={tab} active={tab === currentTab} onClick={() => setCurrentTab(tab)}>
-                <Icon
-                  id={
-                    {
-                      [DiscoverTokenTab.OnChainAnalysis]: 'on-chain',
-                      [DiscoverTokenTab.TechnicalAnalysis]: 'technical-analysis',
-                    }[tab]
-                  }
-                  size={20}
-                />
-                {above768 ? tab : tab.split(' Analysis')[0]}
-              </TabButton>
-            </>
-          ))}
+        <Row alignItems="center">
+          <Row gap={above768 ? '24px' : '12px'} justify="center">
+            {Object.values(DiscoverTokenTab).map((tab: DiscoverTokenTab, index: number) => (
+              <>
+                {index !== 0 && <Text fontSize={24}>|</Text>}
+                <TabButton key={tab} active={tab === currentTab} onClick={() => setCurrentTab(tab)}>
+                  <Icon
+                    id={
+                      {
+                        [DiscoverTokenTab.OnChainAnalysis]: 'on-chain',
+                        [DiscoverTokenTab.TechnicalAnalysis]: 'technical-analysis',
+                      }[tab]
+                    }
+                    size={20}
+                  />
+                  {above768 ? tab : tab.split(' Analysis')[0]}
+                </TabButton>
+              </>
+            ))}
+          </Row>
+          <RowFit alignSelf="flex-end">
+            <DisplaySettings currentTab={currentTab} />
+          </RowFit>
         </Row>
-        <RowFit alignSelf="flex-end">
-          <DisplaySettings currentTab={currentTab} />
-        </RowFit>
-      </Row>
-      {currentTab === DiscoverTokenTab.OnChainAnalysis && <OnChainAnalysis onShareClick={handleShareClick} />}
-      {currentTab === DiscoverTokenTab.TechnicalAnalysis && <TechnicalAnalysis onShareClick={handleShareClick} />}
-      {/* {currentTab === DiscoverTokenTab.News && <News />} */}
-      <ShareModal title="Share with your friends" url={shareUrl.current} />
-      <ShareKyberAIModal token={token} content={shareContent} title={shareTitle} />
+        {currentTab === DiscoverTokenTab.OnChainAnalysis && <OnChainAnalysis />}
+        {currentTab === DiscoverTokenTab.TechnicalAnalysis && <TechnicalAnalysis />}
+        {/* {currentTab === DiscoverTokenTab.News && <News />} */}
+      </ChartStatesContext.Provider>
+      <KyberAIShareModal
+        isOpen={showShare}
+        onClose={() => setShowShare(false)}
+        content={<ExploreShareContent token={token} />}
+      />
     </Wrapper>
   )
 }

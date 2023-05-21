@@ -246,29 +246,36 @@ const GaugeValue = styled.div<{ color?: string }>`
 //   ${() => `transform: rotate(${minRotate}deg);`}
 // `
 
-function KyberScoreMeter({ value, style }: { value?: number; style?: CSSProperties }) {
+function KyberScoreMeter({
+  value,
+  style,
+  noAnimation,
+}: {
+  value?: number
+  style?: CSSProperties
+  noAnimation?: boolean
+}) {
   const theme = useTheme()
   // const [rotate, setRotate] = useState(0)
   const [transitionValue, setTransitionValue] = useState(0)
   const currentValueRef = useRef(0)
   useEffect(() => {
     if (value === undefined) return
-    currentValueRef.current = 0
-    const interval = setInterval(() => {
-      currentValueRef.current = currentValueRef.current + (value - currentValueRef.current) / 5
-      // const rotate = currentValue
-      //   ? (fullRotate * currentValue) / 100 + minRotate < 360
-      //     ? (fullRotate * currentValue) / 100 + minRotate
-      //     : (fullRotate * currentValue) / 100 + minRotate - 360
-      //   : minRotate
-      setTransitionValue(currentValueRef.current)
-      // setRotate(rotate)
-    }, 100)
+    if (noAnimation) {
+      setTransitionValue(value)
+      return
+    } else {
+      currentValueRef.current = 0
+      const interval = setInterval(() => {
+        currentValueRef.current = currentValueRef.current + (value - currentValueRef.current) / 5
+        setTransitionValue(currentValueRef.current)
+      }, 100)
 
-    return () => {
-      if (interval) clearInterval(interval)
+      return () => {
+        if (interval) clearInterval(interval)
+      }
     }
-  }, [value])
+  }, [value, noAnimation])
 
   const activeGaugeValue = (gaugeList.length * transitionValue) / 100
   const activeGaugeColor = calculateValueToColor(transitionValue, theme)

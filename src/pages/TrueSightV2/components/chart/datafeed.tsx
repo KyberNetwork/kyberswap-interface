@@ -84,7 +84,7 @@ export const useDatafeed = (isBTC: boolean, token?: ITokenOverview) => {
         _onErrorCallback: ErrorCallback,
       ) => {
         if (isLoading) return
-        const candleSize = { 60: '1h', 240: '4h', '1D': '1d' }[resolution as string] || '1h'
+        const candleSize = { 60: '1h', 240: '4h', '1D': '1d', '4D': '4d' }[resolution as string] || '1h'
         setResolution?.(candleSize)
 
         const { data } = await getChartingData({

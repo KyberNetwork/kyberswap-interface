@@ -26,6 +26,7 @@ export default function KyberScoreShareContent({ token }: { token?: ITokenOvervi
       <KyberScoreMeter
         value={latestKyberscore?.kyber_score || 0}
         style={{ width: '380px', height: '236px', alignSelf: 'center' }}
+        noAnimation={true}
       />
       <Row justify="center">
         <Text color={theme.text} fontSize="36px" lineHeight="44px">
@@ -38,7 +39,7 @@ export default function KyberScoreShareContent({ token }: { token?: ITokenOvervi
         </Text>
       </Row>
       <Row justify="center">
-        <KyberScoreChart index={1} data={token?.kyberScore?.ks3d} width="40%" height="46px" />
+        <KyberScoreChart index={1} data={token?.kyberScore?.ks3d} width="40%" height="46px" noAnimation={true} />
       </Row>
     </Column>
   )

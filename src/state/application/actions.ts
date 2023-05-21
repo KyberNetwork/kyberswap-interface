@@ -49,7 +49,6 @@ export enum ApplicationModal {
   TRUESIGHT_POOLS,
 
   KYBERAI_TUTORIAL,
-  KYBERAI_SHARE,
 }
 
 export const updateBlockNumber = createAction<{ chainId: number; blockNumber: number }>('application/updateBlockNumber')

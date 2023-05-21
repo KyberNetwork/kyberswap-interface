@@ -11,6 +11,7 @@ import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 
 import { ChartTab } from '../types'
+import KyberAIShareModal from './KyberAIShareModal'
 
 export const StyledSectionWrapper = styled.div<{ show?: boolean }>`
   display: ${({ show }) => (show ?? 'auto' ? 'auto' : 'none !important')};
@@ -52,10 +53,6 @@ export const SectionDescription = styled.div<{ show?: boolean }>`
     css`
       white-space: initial;
     `}
-`
-export const ContentWrapper = styled.div`
-  content-visibility: auto;
-  contain-intrinsic-height: auto;
 `
 
 const ButtonWrapper = styled.div`
@@ -102,8 +99,8 @@ export const SectionWrapper = ({
   description,
   id,
   shareButton,
+  shareContent,
   fullscreenButton,
-  onShareClick,
   tabs,
   activeTab,
   onTabClick,
@@ -111,13 +108,13 @@ export const SectionWrapper = ({
   style,
 }: {
   show?: boolean
-  title?: string | ReactNode
+  title?: string
   subTitle?: string | ReactNode
   description?: ReactNode
   id?: string
   shareButton?: boolean
+  shareContent?: ReactNode
   fullscreenButton?: boolean
-  onShareClick?: (content: ReactNode, title: string) => void
   tabs?: string[]
   activeTab?: ChartTab
   onTabClick?: (tab: ChartTab) => void
@@ -128,6 +125,8 @@ export const SectionWrapper = ({
   const ref = useRef<HTMLDivElement>(null)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const [showText, setShowText] = useState(true)
+  const [showShare, setShowShare] = useState(false)
+
   const [isTextExceeded, setIsTexExceeded] = useState(false)
   const descriptionRef = useRef<HTMLDivElement>(null)
 
@@ -174,17 +173,7 @@ export const SectionWrapper = ({
                     {subTitle}
                   </Text>
                 )}
-                {shareButton && (
-                  <ShareButton
-                    onClick={() =>
-                      onShareClick?.(
-                        React.cloneElement(<>{children}</>, {}),
-                        tabs && activeTab !== undefined && title ? tabs[activeTab] + ' ' + title : '',
-                      )
-                    }
-                  />
-                )}
-                {shareButton && <></>}
+                {shareButton && <ShareButton onClick={() => setShowShare(true)} />}
                 {fullscreenButton && <FullscreenButton element={ref.current} />}
               </RowFit>
             </RowBetween>
@@ -265,17 +254,7 @@ export const SectionWrapper = ({
                 </Text>
               </MouseoverTooltip>
               <RowFit color={theme.subText} gap="12px">
-                {shareButton && (
-                  <ShareButton
-                    onClick={() =>
-                      onShareClick?.(
-                        children,
-                        tabs && activeTab !== undefined && title ? tabs[activeTab] + ' ' + title : '',
-                      )
-                    }
-                  />
-                )}
-                {shareButton && <></>}
+                {shareButton && <ShareButton onClick={() => setShowShare(true)} />}
                 {fullscreenButton && <FullscreenButton element={ref.current} />}
               </RowFit>
             </RowBetween>
@@ -283,6 +262,12 @@ export const SectionWrapper = ({
           {children || <></>}
         </>
       )}
+      <KyberAIShareModal
+        title={tabs && activeTab !== undefined && title ? tabs[activeTab] + ' ' + title : title}
+        isOpen={showShare}
+        onClose={() => setShowShare(false)}
+        content={shareContent}
+      />
     </StyledSectionWrapper>
   )
 }

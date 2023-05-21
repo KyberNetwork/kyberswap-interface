@@ -2,10 +2,9 @@ import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
-import { useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { ReactNode, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { DefaultTheme, css } from 'styled-components'
 
@@ -14,6 +13,7 @@ import Column from 'components/Column'
 import CopyHelper from 'components/Copy'
 import Icon from 'components/Icons/Icon'
 import InfoHelper from 'components/InfoHelper'
+import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
@@ -38,7 +38,7 @@ import {
   formatTokenPrice,
   navigateToSwapPage,
 } from 'pages/TrueSightV2/utils'
-import { ExternalLink, MEDIA_WIDTHS } from 'theme'
+import { ExternalLink } from 'theme'
 import { getEtherscanLink, shortenAddress } from 'utils'
 
 import ChevronIcon from '../ChevronIcon'
@@ -80,6 +80,7 @@ const TableWrapper = styled.table`
   }
   ${({ theme }) => theme.mediaWidth.upToSmall`
     border-radius: 0;
+    margin: -16px;
   `}
 `
 
@@ -104,95 +105,123 @@ const ActionButton = styled.div<{ color: string; hasBg?: boolean }>`
   }
 `
 
+const StyledLoadingWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+`
+
+const LoadingHandleWrapper = ({
+  isLoading,
+  hasData,
+  children,
+  height,
+}: {
+  isLoading: boolean
+  hasData: boolean
+  children: ReactNode
+  height?: string
+}) => {
+  return (
+    <TableWrapper>
+      {!hasData ? (
+        <>
+          <StyledLoadingWrapper style={height ? { height } : undefined}>
+            {isLoading ? (
+              <AnimatedLoader />
+            ) : (
+              <Text fontSize="14px">
+                <Trans>We couldn&apos;t find any information for this token</Trans>
+              </Text>
+            )}
+          </StyledLoadingWrapper>
+        </>
+      ) : (
+        <>{children}</>
+      )}
+    </TableWrapper>
+  )
+}
+
 export const Top10HoldersTable = () => {
   const theme = useTheme()
   const { chain, address } = useParams()
   const { data, isLoading } = useHolderListQuery({ address, chain })
-  const isEmpty = !isLoading && (!data || data.length === 0)
   const { data: tokenOverview } = useTokenDetailQuery({
     chain,
     address,
   })
-  const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   return (
-    <>
-      {isEmpty ? (
-        <Row height="100%" justify="center">
-          <Text fontSize="14px">
-            <Trans>We couldn&apos;t find any information on {tokenOverview?.symbol?.toUpperCase()}</Trans>
-          </Text>
-        </Row>
-      ) : (
-        <TableWrapper style={{ margin: above768 ? '0' : '-16px' }}>
-          <colgroup>
-            <col style={{ width: '300px', minWidth: '150px' }} />
-            <col style={{ width: '300px' }} />
-            <col style={{ width: '300px' }} />
-            {/* <col style={{ width: '500px' }} /> */}
-          </colgroup>
-          <thead>
-            <th style={{ position: 'sticky', zIndex: 2 }}>
-              <Trans>Address</Trans>
-            </th>
-            <th>
-              <Trans>Supply owned</Trans>
-            </th>
-            <th>
-              <Trans>Amount held</Trans>
-            </th>
-            {/* <th>
+    <LoadingHandleWrapper isLoading={isLoading} hasData={!!data && data.length > 0} height="400px">
+      <colgroup>
+        <col style={{ width: '300px', minWidth: '150px' }} />
+        <col style={{ width: '300px' }} />
+        <col style={{ width: '300px' }} />
+        {/* <col style={{ width: '500px' }} /> */}
+      </colgroup>
+      <thead>
+        <th style={{ position: 'sticky', zIndex: 2 }}>
+          <Trans>Address</Trans>
+        </th>
+        <th>
+          <Trans>Supply owned</Trans>
+        </th>
+        <th>
+          <Trans>Amount held</Trans>
+        </th>
+        {/* <th>
           <Trans>Other tokens held</Trans>
         </th> */}
-          </thead>
-          <tbody>
-            {data?.slice(0, 10).map((item: IHolderList, i: number) => (
-              <tr key={i}>
-                <td style={{ position: 'sticky', zIndex: 2 }}>
-                  <Column gap="4px">
-                    <Text fontSize="14px" lineHeight="20px" color={theme.text}>
-                      {shortenAddress(1, item.address)}
-                    </Text>
-                    <RowFit gap="12px">
-                      <ActionButton color={theme.subText} style={{ padding: '6px 0' }}>
-                        <CopyHelper toCopy={item.address} text="Copy" />
-                      </ActionButton>
-                      <ActionButton
-                        color={theme.subText}
-                        style={{ padding: '6px 0' }}
-                        onClick={() => {
-                          chain &&
-                            window.open(getEtherscanLink(NETWORK_TO_CHAINID[chain], item.address, 'address'), '_blank')
-                        }}
-                      >
-                        <Icon id="open-link" size={16} /> Analyze
-                      </ActionButton>
-                    </RowFit>
-                  </Column>
-                </td>
-                <td>
-                  <Text fontSize="14px" lineHeight="20px" color={theme.text}>
-                    {(item.percentage * 100).toPrecision(4)}%
-                  </Text>
-                </td>
-                <td>
-                  <Text fontSize="14px" lineHeight="20px" color={theme.text}>
-                    {tokenOverview &&
-                      item.quantity &&
-                      formatLocaleStringNum(
-                        +formatUnits(
-                          BigNumber.from(item.quantity.toLocaleString('fullwide', { useGrouping: false })),
-                          tokenOverview.decimals,
-                        ),
-                        0,
-                      )}
-                  </Text>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </TableWrapper>
-      )}
-    </>
+      </thead>
+      <tbody>
+        {data?.slice(0, 10).map((item: IHolderList, i: number) => (
+          <tr key={i}>
+            <td style={{ position: 'sticky', zIndex: 2 }}>
+              <Column gap="4px">
+                <Text fontSize="14px" lineHeight="20px" color={theme.text}>
+                  {shortenAddress(1, item.address)}
+                </Text>
+                <RowFit gap="12px">
+                  <ActionButton color={theme.subText} style={{ padding: '6px 0' }}>
+                    <CopyHelper toCopy={item.address} text="Copy" />
+                  </ActionButton>
+                  <ActionButton
+                    color={theme.subText}
+                    style={{ padding: '6px 0' }}
+                    onClick={() => {
+                      chain &&
+                        window.open(getEtherscanLink(NETWORK_TO_CHAINID[chain], item.address, 'address'), '_blank')
+                    }}
+                  >
+                    <Icon id="open-link" size={16} /> Analyze
+                  </ActionButton>
+                </RowFit>
+              </Column>
+            </td>
+            <td>
+              <Text fontSize="14px" lineHeight="20px" color={theme.text}>
+                {(item.percentage * 100).toPrecision(4)}%
+              </Text>
+            </td>
+            <td>
+              <Text fontSize="14px" lineHeight="20px" color={theme.text}>
+                {tokenOverview &&
+                  item.quantity &&
+                  formatLocaleStringNum(
+                    +formatUnits(
+                      BigNumber.from(item.quantity.toLocaleString('fullwide', { useGrouping: false })),
+                      tokenOverview.decimals,
+                    ),
+                    0,
+                  )}
+              </Text>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </LoadingHandleWrapper>
   )
 }
 
@@ -242,6 +271,7 @@ export const SupportResistanceLevel = () => {
                             KyberAITimeframe.ONE_HOUR,
                             KyberAITimeframe.FOUR_HOURS,
                             KyberAITimeframe.ONE_DAY,
+                            KyberAITimeframe.FOUR_DAY,
                           ]}
                           onSelect={t => setResolution?.(t as string)}
                         />
@@ -314,63 +344,51 @@ function colorRateText(value: number, theme: DefaultTheme) {
 export const FundingRateTable = () => {
   const theme = useTheme()
   const { chain, address } = useParams()
-  const { data: tokenOverview } = useTokenDetailQuery({ address, chain })
   const { data, isLoading } = useFundingRateQuery({ address, chain })
 
-  const hasNoData = !data && !isLoading
   return (
-    <TableWrapper style={{ tableLayout: 'fixed' }}>
-      {hasNoData ? (
-        <Row height="200px" justify="center">
-          <Text fontSize="14px">
-            <Trans>We couldn&apos;t find any information on {tokenOverview?.symbol?.toUpperCase()}</Trans>
-          </Text>
-        </Row>
-      ) : (
-        <>
-          <colgroup>
-            <col />
-            {Array(data?.uMarginList?.length)
-              .fill(1)
-              .map((_, index) => (
-                <col key={index} style={{ width: '150px' }} />
-              ))}
-          </colgroup>
-          <thead>
-            <th></th>
-            {data?.uMarginList?.map((i: any) => (
-              <th key={i.exchangeName}>
-                <Row gap="4px">
-                  <img alt={i.exchangeName} src={i.exchangeLogo} style={{ height: '18px', width: '18px' }} />
-                  <Text color={theme.text}>{i.exchangeName}</Text>
-                </Row>
-              </th>
-            ))}
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                <Row gap="4px">
-                  <img alt={data?.symbol} src={data?.symbolLogo} style={{ height: '40px' }} />
-                  <Column gap="4px">
-                    <Text color={theme.text} fontSize="14px">
-                      {data?.symbol}
-                    </Text>
-                  </Column>
-                </Row>
-              </td>
-              {data?.uMarginList?.map((i: any) => (
-                <td key={i.exchangeName}>
-                  <Text color={colorRateText(i.rate, theme)} fontSize="14px" lineHeight="20px" fontWeight={500}>
-                    {i.rate.toFixed(4)}%
-                  </Text>
-                </td>
-              ))}
-            </tr>
-          </tbody>
-        </>
-      )}
-    </TableWrapper>
+    <LoadingHandleWrapper isLoading={isLoading} hasData={!!data && data.length > 0} height="200px">
+      <colgroup>
+        <col />
+        {Array(data?.uMarginList?.length)
+          .fill(1)
+          .map((_, index) => (
+            <col key={index} style={{ width: '150px' }} />
+          ))}
+      </colgroup>
+      <thead>
+        <th></th>
+        {data?.uMarginList?.map((i: any) => (
+          <th key={i.exchangeName}>
+            <Row gap="4px">
+              <img alt={i.exchangeName} src={i.exchangeLogo} style={{ height: '18px', width: '18px' }} />
+              <Text color={theme.text}>{i.exchangeName}</Text>
+            </Row>
+          </th>
+        ))}
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <Row gap="4px">
+              <img alt={data?.symbol} src={data?.symbolLogo} style={{ height: '40px' }} />
+              <Column gap="4px">
+                <Text color={theme.text} fontSize="14px">
+                  {data?.symbol}
+                </Text>
+              </Column>
+            </Row>
+          </td>
+          {data?.uMarginList?.map((i: any) => (
+            <td key={i.exchangeName}>
+              <Text color={colorRateText(i.rate, theme)} fontSize="14px" lineHeight="20px" fontWeight={500}>
+                {i.rate.toFixed(4)}%
+              </Text>
+            </td>
+          ))}
+        </tr>
+      </tbody>
+    </LoadingHandleWrapper>
   )
 }
 
@@ -378,7 +396,7 @@ export const LiveDEXTrades = () => {
   const theme = useTheme()
   const [currentPage, setCurrentPage] = useState(1)
   const { chain, address } = useParams()
-  const { data } = useLiveDexTradesQuery({
+  const { data, isLoading } = useLiveDexTradesQuery({
     chain: chain || defaultExplorePageToken.chain,
     address: address || defaultExplorePageToken.address,
   })
@@ -389,7 +407,7 @@ export const LiveDEXTrades = () => {
 
   return (
     <>
-      <TableWrapper>
+      <LoadingHandleWrapper isLoading={isLoading} hasData={!!data && data.length > 0}>
         <colgroup>
           <col width="50px" />
           <col width="100px" />
@@ -464,7 +482,7 @@ export const LiveDEXTrades = () => {
             )
           })}
         </tbody>
-      </TableWrapper>
+      </LoadingHandleWrapper>
       <Pagination
         currentPage={currentPage}
         pageSize={10}
