@@ -135,11 +135,14 @@ const MenuForDesktop = ({ unread, connectedAccounts }: PropsMenu) => {
       return {
         ...el,
         childs: connectedAccounts
-          .map(account => ({
-            route: `${NOTIFICATION_ROUTES.PROFILE}/${account}`,
-            icon: <ProfileIcon />,
-            title: getShortenAddress(account),
-          }))
+          .map(
+            account =>
+              ({
+                route: `${NOTIFICATION_ROUTES.PROFILE}/${account}`,
+                icon: <ProfileIcon />,
+                title: getShortenAddress(account),
+              } as MenuItemType),
+          )
           .concat(defaultChilds),
       }
     })

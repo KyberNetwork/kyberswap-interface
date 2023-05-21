@@ -10,6 +10,7 @@ import Checkbox from 'components/CheckBox'
 import Column from 'components/Column'
 import { Telegram } from 'components/Icons'
 import MailIcon from 'components/Icons/MailIcon'
+import Loader from 'components/Loader'
 import Row from 'components/Row'
 import ActionButtons from 'components/SubscribeButton/NotificationPreference/ActionButtons'
 import Header from 'components/SubscribeButton/NotificationPreference/Header'
@@ -514,17 +515,27 @@ function NotificationPreference({
               </Column>
             </TopicItem>
           ))}
+          {topicGroups.length === 0 && (
+            <Row justify="center" align="center" gap="6px" marginTop={'20px'}>
+              <Loader />
+              <Text color={theme.subText} fontSize={14}>
+                <Trans>Loading topics ...</Trans>
+              </Text>
+            </Row>
+          )}
         </ListGroupWrapper>
       </Column>
-      <ActionButtons
-        isHorizontal={!!isInNotificationCenter}
-        disableButtonSave={disableButtonSave}
-        onSave={checkProfileAndSave}
-        isTelegramTab={isTelegramTab}
-        subscribeAtLeast1Topic={subscribeAtLeast1Topic}
-        onUnsubscribeAll={onUnsubscribeAll}
-        isLoading={isLoading}
-      />
+      {topicGroups.length > 0 && (
+        <ActionButtons
+          isHorizontal={!!isInNotificationCenter}
+          disableButtonSave={disableButtonSave}
+          onSave={checkProfileAndSave}
+          isTelegramTab={isTelegramTab}
+          subscribeAtLeast1Topic={subscribeAtLeast1Topic}
+          onUnsubscribeAll={onUnsubscribeAll}
+          isLoading={isLoading}
+        />
+      )}
       <VerifyCodeModal
         isOpen={isShowVerify}
         onDismiss={onDismissVerifyModal}

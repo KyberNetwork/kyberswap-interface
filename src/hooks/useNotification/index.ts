@@ -10,6 +10,7 @@ import { useActiveWeb3React } from 'hooks'
 import { AppState } from 'state'
 import { setLoadingNotification, setSubscribedNotificationTopic } from 'state/application/actions'
 import { useNotificationModalToggle } from 'state/application/hooks'
+import { useSessionInfo } from 'state/authen/hooks'
 import { pushUnique } from 'utils'
 
 export type Topic = {
@@ -31,6 +32,7 @@ type SaveNotificationParam = {
 
 const useNotification = () => {
   const { isLoading, topicGroups } = useSelector((state: AppState) => state.application.notification)
+  const { formatUserInfo } = useSessionInfo()
 
   const { account, chainId } = useActiveWeb3React()
   const toggleSubscribeModal = useNotificationModalToggle()
@@ -43,7 +45,7 @@ const useNotification = () => {
     [dispatch],
   )
 
-  const { data: resp, refetch } = useGetSubscriptionTopicsQuery()
+  const { data: resp, refetch } = useGetSubscriptionTopicsQuery(undefined, { skip: !formatUserInfo })
 
   useEffect(() => {
     if (!resp) return
@@ -55,7 +57,12 @@ const useNotification = () => {
     dispatch(setSubscribedNotificationTopic({ topicGroups }))
   }, [resp, dispatch])
 
-  const refreshTopics = useCallback(() => account && refetch(), [refetch, account])
+  const refreshTopics = useCallback(() => {
+    try {
+      account && refetch()
+    } catch (error) {}
+  }, [refetch, account])
+
   const [callSubscribeTopic] = useSubscribeTopicsMutation()
   const [buildTelegramVerification] = useBuildTelegramVerificationMutation()
 
