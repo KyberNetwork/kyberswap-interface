@@ -26,7 +26,7 @@ export default function Header({ toggleModal }: { toggleModal: () => void }) {
           size={24}
           style={{ cursor: 'pointer' }}
           onClick={() => {
-            navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.OVERVIEW}`)
+            navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PREFERENCE}`)
             toggleModal()
           }}
         />

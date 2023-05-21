@@ -104,9 +104,13 @@ function NotificationCenter() {
         </LeftColumn>
         <RightColumn>
           <Routes>
-            <Route index path={NOTIFICATION_ROUTES.ALL} element={<PrivateAnnouncement />} />
-            <Route path={NOTIFICATION_ROUTES.OVERVIEW} element={<Overview />} />
             <Route path={NOTIFICATION_ROUTES.PROFILE} element={<Profile />} />
+            <Route path={NOTIFICATION_ROUTES.GUEST_PROFILE} element={<Profile />} />
+            <Route path={NOTIFICATION_ROUTES.SIGN_PROFILE} element={<Profile />} />
+
+            <Route index path={NOTIFICATION_ROUTES.ALL_NOTIFICATION} element={<PrivateAnnouncement />} />
+            <Route path={NOTIFICATION_ROUTES.PREFERENCE} element={<Overview />} />
+
             <Route path={NOTIFICATION_ROUTES.GENERAL} element={<GeneralAnnouncement />} />
             <Route path={NOTIFICATION_ROUTES.PRICE_ALERTS} element={<PriceAlerts />} />
             <Route path={`${NOTIFICATION_ROUTES.PRICE_ALERTS}/*`} element={<PriceAlerts />} />
@@ -128,7 +132,10 @@ function NotificationCenter() {
             />
             <Route path={NOTIFICATION_ROUTES.CREATE_ALERT} element={<CreateAlert />} />
 
-            <Route path="*" element={<Navigate to={`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.ALL}`} />} />
+            <Route
+              path="*"
+              element={<Navigate to={`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.ALL_NOTIFICATION}`} />}
+            />
           </Routes>
         </RightColumn>
       </Wrapper>

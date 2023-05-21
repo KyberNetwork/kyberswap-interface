@@ -1,11 +1,16 @@
+import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Flex } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
 
 import { formatNumberOfUnread } from 'components/Announcement/helper'
+import { PrivateAnnouncementType } from 'components/Announcement/type'
+import { DropdownArrowIcon } from 'components/ArrowRotate'
+import Column from 'components/Column'
 import { APP_PATHS } from 'constants/index'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import { MenuItemType, Unread } from 'pages/NotificationCenter/Menu'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 
 const IconWrapper = styled.div`
@@ -31,6 +36,13 @@ const Badge = styled.div`
   color: ${({ theme }) => theme.textReverse};
 `
 
+const StyledLink = styled(Link)<{ isChildren?: boolean; $mobile: boolean }>`
+  border-bottom: ${({ theme, isChildren, $mobile }) => !isChildren && !$mobile && `1px solid ${theme.border}`};
+  :last-child {
+    border: none;
+  }
+`
+
 type WrapperProps = {
   $active: boolean
   $mobile: boolean
@@ -43,7 +55,7 @@ const Wrapper = styled.div.attrs<WrapperProps>(props => ({
   align-items: center;
   gap: 8px;
   color: ${({ theme }) => theme.subText};
-  padding: 4px 0;
+  padding: 14px 0;
   cursor: pointer;
 
   &[data-active='true'] {
@@ -75,44 +87,83 @@ const Wrapper = styled.div.attrs<WrapperProps>(props => ({
 `
 
 type Props = {
-  href: string
-  icon: React.ReactElement
-  text: string | undefined
-  unread?: number
   isMobile?: boolean
   style?: CSSProperties
+  unread: Unread
+  data: MenuItemType
+  isChildren?: boolean
 }
 
-const MenuItem: React.FC<Props> = ({ icon, text, unread, href, isMobile = false, style }) => {
+const MenuItem: React.FC<Props> = ({ data, isMobile = false, style, unread, isChildren }) => {
+  const { icon, title, route, childs, type } = data
   const location = useLocation()
   const theme = useTheme()
 
-  const path = `${APP_PATHS.NOTIFICATION_CENTER}${href}`
+  const path = `${APP_PATHS.NOTIFICATION_CENTER}${route}`
   const isActive = location.pathname === path || location.pathname === path.substring(0, path.length - 1)
 
+  const [expand, setIsExpand] = useState(location.pathname.startsWith(`${APP_PATHS.NOTIFICATION_CENTER}${route}`))
+  const canShowExpand = !isMobile && !isChildren
+  const canShowListChildren = expand && !isChildren && !isMobile
+
   const { mixpanelHandler } = useMixpanel()
-  const trackingPriceAlertTab = () => {
+  const onClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
     if (path.includes(NOTIFICATION_ROUTES.PRICE_ALERTS)) mixpanelHandler(MIXPANEL_TYPE.PA_CLICK_TAB_IN_NOTI_CENTER)
+    canShowExpand && setIsExpand(v => !v)
   }
 
+  const totalUnread = type ? unread[type as PrivateAnnouncementType] : 0
   return (
-    <Link to={path} onClick={trackingPriceAlertTab} style={style}>
-      <Wrapper $active={isActive} $mobile={isMobile}>
-        <Flex
-          sx={{
-            flex: '1 1 0',
-            alignItems: 'center',
-            color: isActive ? theme.primary : theme.subText,
-            gap: '8px',
-          }}
-        >
-          <IconWrapper>{icon}</IconWrapper>
-          <Label>{text}</Label>
-        </Flex>
+    <>
+      <StyledLink to={path} onClick={onClick} isChildren={isChildren} $mobile={isMobile}>
+        <Wrapper $active={isActive} $mobile={isMobile} style={style}>
+          <Flex
+            sx={{
+              flex: '1 1 0',
+              alignItems: 'center',
+              color: isActive ? theme.primary : theme.subText,
+              gap: '8px',
+            }}
+          >
+            <IconWrapper>{icon}</IconWrapper>
+            <Label>{title}</Label>
+          </Flex>
 
-        {unread ? <Badge>{formatNumberOfUnread(unread)}</Badge> : null}
-      </Wrapper>
-    </Link>
+          {totalUnread ? <Badge>{formatNumberOfUnread(totalUnread)}</Badge> : null}
+          {!isMobile && childs?.length && <DropdownArrowIcon rotate={expand} />}
+        </Wrapper>
+        {canShowListChildren && (
+          <Column style={{ padding: '8px 0', borderTop: `1px solid ${theme.border}`, marginLeft: '24px' }}>
+            {childs?.map(el => {
+              return (
+                <>
+                  <MenuItem
+                    isChildren
+                    key={el.route}
+                    data={el}
+                    unread={unread}
+                    style={{
+                      padding: '8px 0',
+                      border: 'none',
+                    }}
+                  />
+                  {el.divider && (
+                    <div
+                      style={{
+                        margin: '8px 0',
+                        width: '100%',
+                        borderBottom: `1px solid ${theme.border}`,
+                      }}
+                    />
+                  )}
+                </>
+              )
+            })}
+          </Column>
+        )}
+      </StyledLink>
+    </>
   )
 }
 

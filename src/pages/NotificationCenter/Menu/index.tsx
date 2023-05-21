@@ -1,11 +1,12 @@
 import { t } from '@lingui/macro'
-import { useMemo } from 'react'
+import { ReactNode, useMemo } from 'react'
 import { List as ListIcon } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
 import { useGetTotalUnreadAnnouncementsQuery } from 'services/announcement'
 import styled from 'styled-components'
 
+import { ReactComponent as AllIcon } from 'assets/svg/all_icon.svg'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { PrivateAnnouncementType } from 'components/Announcement/type'
 import MailIcon from 'components/Icons/MailIcon'
@@ -17,76 +18,104 @@ import MenuItem from 'pages/NotificationCenter/Menu/MenuItem'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import { MEDIA_WIDTHS } from 'theme'
 
-const Divider = styled.div<{ $margin?: string }>`
-  height: 0;
-  width: 100%;
-  padding: 0 24px;
-  border-top: 1px solid ${({ theme }) => theme.border};
-  margin: ${({ $margin }) => $margin || '0'};
-`
+export const MENU_TITLE: Partial<{ [type in PrivateAnnouncementType]: string }> = {
+  [PrivateAnnouncementType.BRIDGE_ASSET]: t`Cross-Chain Bridge`,
+  [PrivateAnnouncementType.LIMIT_ORDER]: t`Limit Orders`,
+  [PrivateAnnouncementType.KYBER_AI]: t`Top Tokens by KyberAI`,
+  [PrivateAnnouncementType.PRICE_ALERT]: t`Price Alerts`,
+  [PrivateAnnouncementType.ELASTIC_POOLS]: t`Elastic Liquidity Positions`,
+}
 
-type Unread = Partial<{ [type in PrivateAnnouncementType]: number | undefined }> & { ALL: number | undefined }
-const menuItems = [
+export type Unread = Partial<{ [type in PrivateAnnouncementType]: number | undefined }> & { ALL: number | undefined }
+
+export type MenuItemType = {
+  route: string
+  type: string
+  icon?: ReactNode
+  title?: string
+  divider?: boolean
+  childs?: MenuItemType[]
+}
+
+const menuItems: MenuItemType[] = [
   {
     route: NOTIFICATION_ROUTES.PROFILE,
     icon: <ProfileIcon />,
     title: t`Profile`,
     type: '',
-    parent: true,
+    childs: [
+      {
+        route: NOTIFICATION_ROUTES.GUEST_PROFILE,
+        icon: <ProfileIcon />,
+        title: t`Guest`,
+        type: '',
+      },
+    ],
   },
   {
-    route: NOTIFICATION_ROUTES.GUEST_PROFILE,
-    icon: <ProfileIcon />,
-    title: t`Guest`,
-    type: '',
-  },
-  {
-    route: NOTIFICATION_ROUTES.GUEST_PROFILE,
-    icon: <ProfileIcon />,
-    title: t`0x`,
-    type: '',
-  },
-  {
-    route: NOTIFICATION_ROUTES.OVERVIEW,
+    route: NOTIFICATION_ROUTES.ALL_NOTIFICATION,
     icon: <NotificationIcon size="16px" />,
-    title: t`Notification Overview`,
-    type: '',
-    parent: true,
-  },
-  {
-    route: NOTIFICATION_ROUTES.ALL,
-    icon: <ListIcon size="16px" />,
-    title: t`All Notifications`,
+    title: t`Notifications`,
     type: 'ALL',
-    parent: true,
+    childs: [
+      {
+        route: NOTIFICATION_ROUTES.PREFERENCE,
+        icon: <ListIcon size="16px" />,
+        title: t`Notification Preferences`,
+        type: '',
+        divider: true,
+      },
+      {
+        route: NOTIFICATION_ROUTES.ALL_NOTIFICATION,
+        icon: <AllIcon style={{ width: 16 }} />,
+        title: t`All Notifications`,
+        type: 'ALL',
+      },
+      {
+        route: NOTIFICATION_ROUTES.GENERAL,
+        icon: <MailIcon size={16} />,
+        title: t`General`,
+        type: '',
+      },
+      {
+        route: NOTIFICATION_ROUTES.PRICE_ALERTS,
+        type: PrivateAnnouncementType.PRICE_ALERT,
+      },
+      {
+        route: NOTIFICATION_ROUTES.MY_ELASTIC_POOLS,
+        type: PrivateAnnouncementType.ELASTIC_POOLS,
+      },
+      {
+        route: NOTIFICATION_ROUTES.LIMIT_ORDERS,
+        type: PrivateAnnouncementType.LIMIT_ORDER,
+      },
+      {
+        route: NOTIFICATION_ROUTES.BRIDGE,
+        type: PrivateAnnouncementType.BRIDGE_ASSET,
+      },
+      {
+        route: NOTIFICATION_ROUTES.KYBER_AI_TOKENS,
+        type: PrivateAnnouncementType.KYBER_AI,
+      },
+    ],
   },
-  {
-    route: NOTIFICATION_ROUTES.GENERAL,
-    icon: <MailIcon size={16} />,
-    title: t`General`,
-    type: '',
-  },
-  {
-    route: NOTIFICATION_ROUTES.PRICE_ALERTS,
-    type: PrivateAnnouncementType.PRICE_ALERT,
-  },
-  {
-    route: NOTIFICATION_ROUTES.MY_ELASTIC_POOLS,
-    type: PrivateAnnouncementType.ELASTIC_POOLS,
-  },
-  {
-    route: NOTIFICATION_ROUTES.LIMIT_ORDERS,
-    type: PrivateAnnouncementType.LIMIT_ORDER,
-  },
-  {
-    route: NOTIFICATION_ROUTES.BRIDGE,
-    type: PrivateAnnouncementType.BRIDGE_ASSET,
-  },
-  {
-    route: NOTIFICATION_ROUTES.KYBER_AI_TOKENS,
-    type: PrivateAnnouncementType.KYBER_AI,
-  },
-]
+].map(el => {
+  return {
+    ...el,
+    childs:
+      el.route !== NOTIFICATION_ROUTES.ALL_NOTIFICATION
+        ? el.childs
+        : el.childs?.map(child => {
+            const type = child.type as PrivateAnnouncementType
+            return {
+              ...child,
+              title: child.title || MENU_TITLE[type],
+              icon: child.icon || <InboxIcon type={type} />,
+            }
+          }),
+  }
+})
+
 const MenuForDesktop = ({ unread }: { unread: Unread }) => {
   return (
     <Flex
@@ -95,41 +124,18 @@ const MenuForDesktop = ({ unread }: { unread: Unread }) => {
         padding: '24px',
       }}
     >
-      {menuItems.map(({ type, route, icon, title, parent }, index) => {
-        const paddingVertical = parent ? '14px' : '8px'
-        const paddingLeft = parent ? 0 : '24px'
-        const formatType = type as PrivateAnnouncementType
-        return (
-          <>
-            <MenuItem
-              style={{
-                paddingLeft,
-                paddingTop: index && route !== NOTIFICATION_ROUTES.GENERAL ? paddingVertical : 0,
-                paddingBottom: paddingVertical,
-              }}
-              key={route}
-              href={route}
-              icon={icon || <InboxIcon type={formatType} />}
-              text={title || MENU_TITLE[formatType]}
-              unread={unread[formatType]}
-            />
-            {[NOTIFICATION_ROUTES.PROFILE, NOTIFICATION_ROUTES.OVERVIEW, NOTIFICATION_ROUTES.GENERAL].includes(
-              route,
-            ) && <Divider style={{ marginLeft: paddingLeft, width: `calc(100% - ${paddingLeft})` }} />}
-          </>
-        )
+      {menuItems.map((data, index) => {
+        return <MenuItem key={index} style={{ paddingTop: index ? undefined : 0 }} data={data} unread={unread} />
       })}
     </Flex>
   )
 }
 
-export const MENU_TITLE: Partial<{ [type in PrivateAnnouncementType]: string }> = {
-  [PrivateAnnouncementType.BRIDGE_ASSET]: t`Cross-Chain Bridge`,
-  [PrivateAnnouncementType.LIMIT_ORDER]: t`Limit Orders`,
-  [PrivateAnnouncementType.KYBER_AI]: t`Top Tokens by KyberAI`,
-  [PrivateAnnouncementType.PRICE_ALERT]: t`Price Alerts`,
-  [PrivateAnnouncementType.ELASTIC_POOLS]: t`Elastic Liquidity Positions`,
-}
+const menuItemsMobile = menuItems.reduce<MenuItemType[]>((rs, item) => {
+  rs.push(item)
+  item.childs?.forEach(e => rs.push(e))
+  return rs
+}, [])
 
 const MenuForMobile = ({ unread }: { unread: Unread }) => {
   return (
@@ -141,18 +147,8 @@ const MenuForMobile = ({ unread }: { unread: Unread }) => {
         gap: '8px',
       }}
     >
-      {menuItems.map(({ type, route, icon, title }) => {
-        const formatType = type as PrivateAnnouncementType
-        return (
-          <MenuItem
-            isMobile
-            key={route}
-            href={route}
-            icon={icon || <InboxIcon type={formatType} />}
-            text={title || MENU_TITLE[formatType]}
-            unread={unread[formatType]}
-          />
-        )
+      {menuItemsMobile.map(data => {
+        return <MenuItem isMobile key={data.route} data={data} unread={unread} />
       })}
     </Flex>
   )

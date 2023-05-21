@@ -11,18 +11,20 @@ export enum PriceAlertType {
 }
 
 export enum NOTIFICATION_ROUTES {
-  CREATE_ALERT = '/create-alert',
-  OVERVIEW = '/overview',
   PROFILE = '/profile',
   GUEST_PROFILE = '/profile/guest',
   SIGN_PROFILE = '/profile/:walletAddress',
-  ALL = '/',
-  GENERAL = '/general',
-  PRICE_ALERTS = '/price-alerts',
-  MY_ELASTIC_POOLS = '/elastic-pools',
-  LIMIT_ORDERS = '/limit-orders',
-  BRIDGE = '/bridge',
-  KYBER_AI_TOKENS = '/kyber-ai',
+
+  CREATE_ALERT = '/create-alert',
+
+  ALL_NOTIFICATION = '/notification',
+  PREFERENCE = '/notification/preferences',
+  GENERAL = '/notification/general',
+  PRICE_ALERTS = '/notification/price-alerts',
+  MY_ELASTIC_POOLS = '/notification/elastic-pools',
+  LIMIT_ORDERS = '/notification/limit-orders',
+  BRIDGE = '/notification/bridge',
+  KYBER_AI_TOKENS = '/notification/kyber-ai',
 }
 
 export type CreatePriceAlertPayload = {
