@@ -36,28 +36,8 @@ const kyberAIApi = createApi({
       }),
       transformResponse: (data: any) => data?.data,
     }),
-    uploadImage: builder.mutation({
-      query: body => ({
-        url: '/v1/buckets/signed-url-put',
-        method: 'POST',
-        body,
-      }),
-    }),
-    createShareLink: builder.mutation({
-      query: props => ({
-        url: '/v1/referral/shared-links',
-        method: 'POST',
-        body: { type: 'KYBER_AI', ...props },
-      }),
-    }),
   }),
 })
 
-export const {
-  useGetParticipantInfoQuery,
-  useRequestWhiteListMutation,
-  useLazyCheckReferralCodeQuery,
-  useUploadImageMutation,
-  useCreateShareLinkMutation,
-} = kyberAIApi
+export const { useGetParticipantInfoQuery, useRequestWhiteListMutation, useLazyCheckReferralCodeQuery } = kyberAIApi
 export default kyberAIApi
