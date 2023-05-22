@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -7,7 +6,6 @@ import { Flex, Text } from 'rebass'
 import LocalLoader from 'components/LocalLoader'
 import FairLaunchPools from 'components/YieldPools/FairLaunchPools'
 import { FARM_TAB } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useParsedQueryString from 'hooks/useParsedQueryString'
@@ -26,7 +24,6 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
   const blockNumberRef = useRef(blockNumber)
   blockNumberRef.current = blockNumber
   const { search = '', ...qs } = useParsedQueryString<{ search: string }>()
-  const { chainId } = useActiveWeb3React()
   const { data: farmsByFairLaunch } = useFarmsData()
 
   const [stakedOnly, setStakedOnly] = useState({
@@ -45,11 +42,6 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
 
   const filterFarm = useCallback(
     (farm: Farm) => {
-      // TODO: hard code for SIPHER. Need to be remove later
-      const isSipherFarm =
-        farm.fairLaunchAddress.toLowerCase() === '0xc0601973451d9369252Aee01397c0270CD2Ecd60'.toLowerCase() &&
-        chainId === ChainId.MAINNET
-
       if (farm.rewardPerSeconds) {
         // for active/ended farms
         return (
@@ -76,8 +68,6 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
           blockNumberRef.current &&
           (qs.type === FARM_TAB.MY_FARMS
             ? true
-            : isSipherFarm
-            ? active
             : active
             ? farm.endBlock >= blockNumberRef.current
             : farm.endBlock < blockNumberRef.current) &&
@@ -94,7 +84,7 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
         )
       }
     },
-    [active, activeTab, debouncedSearchText, stakedOnly, chainId, qs.type],
+    [active, activeTab, debouncedSearchText, stakedOnly, qs.type],
   )
 
   const farms = useMemo(

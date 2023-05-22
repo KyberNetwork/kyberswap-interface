@@ -149,8 +149,8 @@ export default function CampaignsUpdater(): null {
             fetchLeaderBoard({
               campaignId: campaignInfo.id,
               pageNumber: 1,
-              userAddress: account?.toLowerCase() ?? '',
-              lookupAddress: selectedCampaignLeaderboardLookupAddress.toLowerCase(),
+              userAddress: account ?? '',
+              lookupAddress: selectedCampaignLeaderboardLookupAddress,
             })
               .then(leaderboard => {
                 refLeaderboardData.current[campaignInfo.id] = leaderboard // cache it
@@ -343,8 +343,8 @@ export default function CampaignsUpdater(): null {
         return fetchLeaderBoard({
           campaignId: selectedCampaign.id,
           pageNumber: selectedCampaignLeaderboardPageNumber,
-          userAddress: account?.toLowerCase() ?? '',
-          lookupAddress: selectedCampaignLeaderboardLookupAddress.toLowerCase(),
+          userAddress: account ?? '',
+          lookupAddress: selectedCampaignLeaderboardLookupAddress,
         })
       } catch (err) {
         console.error(err)
@@ -389,7 +389,7 @@ export default function CampaignsUpdater(): null {
           params: {
             pageSize: CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE,
             pageNumber: selectedCampaignLuckyWinnersPageNumber,
-            lookupAddress: selectedCampaignLuckyWinnersLookupAddress.toLowerCase(),
+            lookupAddress: selectedCampaignLuckyWinnersLookupAddress,
           },
         })
         const data = response.data.data
