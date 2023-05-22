@@ -317,6 +317,10 @@ export default function SingleToken() {
   useEffect(() => {
     if (!chain || !address) {
       navigate(APP_PATHS.KYBERAI_EXPLORE + `/${defaultExplorePageToken.chain}/${defaultExplorePageToken.address}`)
+      setTimeout(() => {
+        const element = document.querySelector('#kyberai-search') as HTMLInputElement
+        element.focus()
+      }, 1200)
       window.scrollTo(0, 0)
     }
   }, [chain, address, navigate])

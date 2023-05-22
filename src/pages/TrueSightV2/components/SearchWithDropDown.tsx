@@ -482,6 +482,7 @@ const SearchWithDropdown = () => {
       <Wrapper ref={wrapperRef} onClick={() => !expanded && inputRef.current?.focus()} expanded={expanded}>
         <Input
           type="text"
+          id="kyberai-search"
           placeholder={t`Search by token name, symbol or contract address`}
           value={search}
           onChange={e => {

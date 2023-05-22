@@ -9,16 +9,16 @@ import { NETWORK_TO_CHAINID } from '../constants'
 
 export const calculateValueToColor = (value: number, theme: DefaultTheme) => {
   if (value === 0) return theme.darkMode ? theme.subText : theme.border
-  if (value < 20) {
+  if (value < 17) {
     return theme.red
   }
-  if (value < 40) {
+  if (value < 34) {
     return '#FFA7C3'
   }
-  if (value < 60) {
+  if (value < 68) {
     return theme.darkMode ? theme.text : theme.border
   }
-  if (value < 80) {
+  if (value < 84) {
     return '#8DE1C7'
   }
   return theme.primary

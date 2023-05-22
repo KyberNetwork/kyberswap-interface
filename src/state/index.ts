@@ -14,6 +14,7 @@ import geckoTerminalApi from '../services/geckoTermial'
 import identifyApi from '../services/identity'
 import ksSettingApi from '../services/ksSetting'
 import notificationApi from '../services/notification'
+import socialApi from '../services/social'
 import application from './application/reducer'
 import authen from './authen/reducer'
 import bridge from './bridge/reducer'
@@ -72,6 +73,7 @@ const store = configureStore({
     [notificationApi.reducerPath]: notificationApi.reducer,
     [ksSettingApi.reducerPath]: ksSettingApi.reducer,
     [priceAlertApi.reducerPath]: priceAlertApi.reducer,
+    [socialApi.reducerPath]: socialApi.reducer,
     campaigns,
     tutorial,
     bridge,
@@ -97,6 +99,7 @@ const store = configureStore({
       .concat(annoucementApi.middleware)
       .concat(priceAlertApi.middleware)
       .concat(routeApi.middleware)
+      .concat(socialApi.middleware)
       .concat(tokenApi.middleware),
   preloadedState: load({ states: PERSISTED_KEYS }),
 })

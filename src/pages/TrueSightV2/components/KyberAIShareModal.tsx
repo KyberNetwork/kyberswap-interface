@@ -1,12 +1,10 @@
 import { Trans } from '@lingui/macro'
-import axios from 'axios'
-import html2canvas from 'html2canvas'
 import { ReactNode, useEffect, useRef, useState } from 'react'
 import { X } from 'react-feather'
 import { QRCode } from 'react-qrcode-logo'
 import { useParams } from 'react-router-dom'
 import { Text } from 'rebass'
-import { useCreateShareLinkMutation, useUploadImageMutation } from 'services/kyberAISubscription'
+import { SHARE_TYPE } from 'services/social'
 import styled, { css } from 'styled-components'
 
 import modalBackground from 'assets/images/truesight-v2/modal_background.png'
@@ -14,8 +12,8 @@ import Icon from 'components/Icons/Icon'
 import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit } from 'components/Row'
-import { KYBER_AI_GOOGLE_BUCKETS_ID } from 'constants/env'
 import useCopyClipboard from 'hooks/useCopyClipboard'
+import useShareImage from 'hooks/useShareImage'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
 
@@ -130,18 +128,6 @@ const Loader = styled.div`
   z-index: 4;
 `
 
-const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-
-function generateRandomString(length: number) {
-  let result = ''
-  const charactersLength = characters.length
-  for (let i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength))
-  }
-
-  return result
-}
-
 export default function KyberAIShareModal({
   title,
   content,
@@ -163,17 +149,12 @@ export default function KyberAIShareModal({
   const [isError, setIsError] = useState(false)
   const { chain, address } = useParams()
   const { data: tokenOverview } = useTokenDetailQuery({ chain, address })
-  const [uploadImage] = useUploadImageMutation()
-  const [createShareLink] = useCreateShareLinkMutation()
   const [blob, setBlob] = useState<Blob>()
+  const shareImage = useShareImage()
   const handleGenerateImage = async () => {
     if (isOpen && ref.current && loading && sharingUrl === '' && tokenImgRef.current) {
       setIsError(false)
       try {
-        const canvasData = await html2canvas(ref.current, {
-          allowTaint: true,
-          useCORS: true,
-        })
         // const context = canvasData.getContext('2d')
         // const img = new Image()
         // const offsets = tokenImgRef.current?.getBoundingClientRect()
@@ -188,38 +169,12 @@ export default function KyberAIShareModal({
         //   context?.drawImage(img, imageLeft, imageTop) // draws the image at the specified x and y location
         // }
 
-        canvasData.toBlob(async blob => {
-          if (blob) {
-            setBlob(blob)
-            const fileName = `${generateRandomString(16)}.png`
-            const file = new File([blob], fileName, { type: 'image/png' })
-            const res: any = await uploadImage({
-              fileName,
-            })
-            if (res.data.code === 0) {
-              const url = res.data.data.signedURL
-              await axios({
-                url,
-                method: 'PUT',
-                data: file,
-                headers: {
-                  'Content-Type': 'image/png',
-                },
-              })
-              const imageUrl = `https://storage.googleapis.com/${KYBER_AI_GOOGLE_BUCKETS_ID}/${fileName}`
-              setImageUrl(imageUrl)
-              const res2: any = await createShareLink({ metaImageUrl: imageUrl, redirectURL: window.location.href })
-              if (res2?.data?.code === 0) {
-                setSharingUrl(res2.data.data.link)
-              } else {
-                setIsError(true)
-              }
-            } else {
-              setIsError(true)
-            }
-            setLoading(false)
-          }
-        }, 'image/png')
+        const { shareUrl, imageUrl, blob } = await shareImage(ref.current, SHARE_TYPE.KYBER_AI)
+        console.log(shareUrl, imageUrl, blob)
+        setSharingUrl(shareUrl)
+        setImageUrl(imageUrl)
+        setLoading(false)
+        setBlob(blob)
       } catch (err) {
         console.log(err)
         setLoading(false)
