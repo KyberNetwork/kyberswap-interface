@@ -117,8 +117,6 @@ export default function IncreaseLiquidity() {
 
   const { position: existingPosition } = useProAmmDerivedPositionInfo(existingPositionDetails)
 
-  const removed = existingPositionDetails?.liquidity?.eq(0)
-
   // fee selection from url
   const feeAmount: FeeAmount | undefined =
     feeAmountFromUrl && Object.values(FeeAmount).includes(parseFloat(feeAmountFromUrl))
@@ -431,7 +429,7 @@ export default function IncreaseLiquidity() {
             topContent={() =>
               existingPosition && (
                 <div style={{ marginTop: '1rem' }}>
-                  <ProAmmPoolInfo position={existingPosition} tokenId={tokenId} />
+                  <ProAmmPoolInfo position={existingPosition} tokenId={tokenId} showRemoved={false} />
                   <ProAmmPooledTokens
                     liquidityValue0={parsedAmounts[Field.CURRENCY_A]}
                     liquidityValue1={parsedAmounts[Field.CURRENCY_B]}
@@ -500,10 +498,9 @@ export default function IncreaseLiquidity() {
 
                   <BlackCard style={{ borderRadius: '1rem', padding: '1rem' }}>
                     <Flex alignItems="center" sx={{ gap: '4px' }}>
-                      <TokenId color={removed ? theme.red : outOfRange ? theme.warning : theme.primary}>
-                        #{tokenId?.toString()}
-                      </TokenId>
-                      <RangeBadge removed={removed} inRange={!outOfRange} hideText size={14} />
+                      <TokenId color={outOfRange ? theme.warning : theme.primary}>#{tokenId?.toString()}</TokenId>
+                      {/* dont show removed when increasing liquidity*/}
+                      <RangeBadge removed={false} inRange={!outOfRange} hideText size={14} />
                     </Flex>
 
                     <Flex
