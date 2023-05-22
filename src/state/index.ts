@@ -3,6 +3,7 @@ import { load, save } from 'redux-localstorage-simple'
 import priceAlertApi from 'services/priceAlert'
 import routeApi from 'services/route'
 import socialApi from 'services/social'
+import tokenApi from 'services/token'
 
 import { ENV_LEVEL } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
@@ -77,6 +78,7 @@ const store = configureStore({
     topTokens,
     [routeApi.reducerPath]: routeApi.reducer,
     [earningApi.reducerPath]: earningApi.reducer,
+    [tokenApi.reducerPath]: tokenApi.reducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
@@ -88,7 +90,8 @@ const store = configureStore({
       .concat(annoucementApi.middleware)
       .concat(priceAlertApi.middleware)
       .concat(routeApi.middleware)
-      .concat(earningApi.middleware),
+      .concat(earningApi.middleware)
+      .concat(tokenApi.middleware),
   preloadedState: load({ states: PERSISTED_KEYS }),
 })
 

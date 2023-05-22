@@ -23,6 +23,7 @@ import { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useFarmPositions, useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
+import Notice from 'pages/ElasticLegacy/Notice'
 import { FilterRow, InstructionText, PageWrapper, PositionCardGrid, Tab } from 'pages/Pool'
 import { FarmUpdater } from 'state/farms/elastic/hooks'
 import { ExternalLink, StyledInternalLink, TYPE } from 'theme'
@@ -83,7 +84,7 @@ export default function ProAmmPool() {
   const tokenAddressSymbolMap = useRef<AddressSymbolMapInterface>({})
   const { positions, loading: positionsLoading } = useProAmmPositions(account)
 
-  const { farmPositions, loading, activeFarmAddress, farms, userFarmInfo } = useFarmPositions()
+  const { farmPositions, loading, activeFarmAddress, userFarmInfo } = useFarmPositions()
 
   const [openPositions, closedPositions] = useMemo(
     () =>
@@ -159,6 +160,10 @@ export default function ProAmmPool() {
   )
 
   const [showStaked, setShowStaked] = useState(false)
+  const positionList = useMemo(
+    () => (showStaked ? filteredFarmPositions : filteredPositions),
+    [showStaked, filteredPositions, filteredFarmPositions],
+  )
 
   const upToSmall = useMedia('(max-width: 768px)')
 
@@ -166,6 +171,9 @@ export default function ProAmmPool() {
   return (
     <>
       <PageWrapper style={{ padding: 0, marginTop: '24px' }}>
+        <div style={{ marginBottom: '1rem' }}>
+          <Notice />
+        </div>
         <AutoColumn gap="lg" style={{ width: '100%' }}>
           <InstructionText>
             <Trans>Here you can view all your liquidity and staked balances in the Elastic Pools</Trans>
@@ -251,7 +259,7 @@ export default function ProAmmPool() {
                 <Trans>Connect to a wallet to view your liquidity.</Trans>
               </TYPE.body>
             </Card>
-          ) : (positionsLoading && !positions) || (loading && !farms && !userFarmInfo) ? (
+          ) : (positionsLoading && !positions) || (loading && !userFarmInfo) ? (
             <PositionCardGrid>
               <ContentLoader />
               <ContentLoader />
@@ -259,17 +267,8 @@ export default function ProAmmPool() {
             </PositionCardGrid>
           ) : filteredPositions.length > 0 || filteredFarmPositions.length > 0 ? (
             <>
-              {/* Use display attribute here instead of condition rendering to prevent re-render full list when toggle showStaked => increase performance */}
               <PositionGrid
-                style={{ display: showStaked ? 'none' : 'grid' }}
-                positions={filteredPositions}
-                refe={tokenAddressSymbolMap}
-                activeFarmAddress={activeFarmAddress}
-              />
-
-              <PositionGrid
-                style={{ display: !showStaked ? 'none' : 'grid' }}
-                positions={filteredFarmPositions}
+                positions={positionList}
                 refe={tokenAddressSymbolMap}
                 activeFarmAddress={activeFarmAddress}
               />

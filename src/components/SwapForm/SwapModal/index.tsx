@@ -13,6 +13,7 @@ import {
 } from 'components/TransactionConfirmationModal'
 import { useActiveWeb3React } from 'hooks'
 import { permitError } from 'state/user/actions'
+import { captureSwapError } from 'utils/sentry'
 
 import ConfirmSwapModalContent from './ConfirmSwapModalContent'
 
@@ -106,7 +107,9 @@ const SwapModal: React.FC<Props> = props => {
       const hash = await swapCallback()
       handleTxSubmitted(hash)
     } catch (e) {
-      handleError(e.message || t`Something went wrong. Please try again`)
+      if (e?.code !== 4001 && e?.code !== 'ACTION_REJECTED') captureSwapError(e)
+      const msg = t`Something went wrong. Please try again`
+      handleError(e.message === '[object Object]' ? msg : e.message || msg)
     }
   }
 
