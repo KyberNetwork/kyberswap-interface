@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
+import baseQueryOauth from 'services/baseQueryOauth'
 
-import { KYBERAI_API } from 'constants/env'
+import { BFF_API } from 'constants/env'
 
 import {
   ILiquidCEX,
@@ -20,8 +21,8 @@ import {
 
 const kyberAIApi = createApi({
   reducerPath: 'kyberAIApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: KYBERAI_API,
+  baseQuery: baseQueryOauth({
+    baseUrl: `${BFF_API}/v1/truesight`,
   }),
   tagTypes: ['tokenOverview'],
   endpoints: builder => ({
@@ -164,10 +165,7 @@ const kyberAIApi = createApi({
       query: ({ address, chain }) => ({
         url: `/holders/${chain}/${address}?page=1&pageSize=25`,
       }),
-      transformResponse: (res: any) => {
-        console.log(res)
-        return res?.data
-      },
+      transformResponse: (res: any) => res?.data?.holders,
     }),
     //11.
     chartingData: builder.query<
@@ -221,7 +219,7 @@ const kyberAIApi = createApi({
         chartSize?: '1d' | '7d' | '1m' | '3m' | string
         chain?: string
       }) => ({
-        url: `cex/liquidation/${chain}/${tokenAddress}`,
+        url: `/cex/liquidation/${chain}/${tokenAddress}`,
         params: { chartSize },
       }),
       transformResponse: (res: any) => {
