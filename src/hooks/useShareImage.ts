@@ -1,17 +1,14 @@
-import axios from 'axios'
 import html2canvas from 'html2canvas'
 import { useCallback } from 'react'
-import { SHARE_TYPE, useCreateShareLinkMutation, useUploadImageMutation } from 'services/social'
-import { v4 as uuid } from 'uuid'
+import { SHARE_TYPE, useCreateShareLinkMutation } from 'services/social'
 
-import { BUCKET_NAME } from 'constants/env'
+import { useUploadImageToCloud } from 'hooks/social'
 
-// todo danh combine this file with kyber ai prevent duplicate
 const useShareImage = () => {
-  const [uploadImage] = useUploadImageMutation()
+  const uploadImage = useUploadImageToCloud()
   const [createShareLink] = useCreateShareLinkMutation()
   return useCallback(
-    (element: HTMLDivElement | null): Promise<string> => {
+    (element: HTMLDivElement | null, type: SHARE_TYPE): Promise<{ shareUrl: string; imageUrl: string; blob: Blob }> => {
       return new Promise(async (resolve, reject) => {
         if (!element) return reject('Not found element')
         const canvasData = await html2canvas(element, {
@@ -21,24 +18,15 @@ const useShareImage = () => {
         canvasData.toBlob(async blob => {
           if (!blob) return reject('Not found blob')
 
-          const fileName = `${uuid()}.png`
-          const file = new File([blob], fileName, { type: 'image/png' })
-          const res: any = await uploadImage({
-            fileName,
-          })
+          const imageUrl = await uploadImage(blob)
+          if (!imageUrl) return reject('Upload img error')
 
-          if (res?.data?.code !== 0) return reject('Error occur')
-
-          const url = res.data.data.signedURL
-          await axios({ url, method: 'PUT', data: file })
-
-          const imageUrl = `https://storage.googleapis.com/${BUCKET_NAME}/${fileName}`
-          const link = await createShareLink({
+          const shareUrl = await createShareLink({
             metaImageUrl: imageUrl,
             redirectURL: window.location.href,
-            type: SHARE_TYPE.MY_EARNINGS,
+            type,
           }).unwrap()
-          return link ? resolve(link) : reject()
+          return shareUrl ? resolve({ shareUrl, imageUrl, blob }) : reject()
         }, 'image/png')
       })
     },

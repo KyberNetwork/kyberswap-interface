@@ -5,6 +5,7 @@ import { useRef, useState } from 'react'
 import { CheckCircle, Copy, Download, X } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
+import { SHARE_TYPE } from 'services/social'
 import styled, { css } from 'styled-components'
 
 import BgShare from 'assets/images/bg_share_my_earning.png'
@@ -117,7 +118,7 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
     if (loading.current) return
     try {
       loading.current = true
-      const shareUrl = await shareImage(ref.current)
+      const { shareUrl } = await shareImage(ref.current, SHARE_TYPE.MY_EARNINGS)
       const { telegram, facebook, discord, twitter } = getSocialShareUrls(shareUrl)
       switch (type) {
         case ShareType.COPY:
