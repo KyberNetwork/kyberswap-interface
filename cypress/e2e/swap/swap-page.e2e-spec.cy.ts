@@ -42,7 +42,7 @@ describe('Token Catalog', () => {
   })
 
   describe('Remove/add token with favorite tokens list', () => {
-    it('Should be removed token from favorite tokens list', () => {
+    it('Should be removed tokenIn from favorite tokens list', () => {
       cy.clickButton(token.tokenIn)
       cy.verifyValueInList(token.favoriteToken, [tokenSymbol[3]], true)
       cy.removeTokenInFavoriteTokensList(tokenSymbol[3])
@@ -51,8 +51,24 @@ describe('Token Catalog', () => {
       cy.verifyIcon('false')
     })
 
-    it('Should be added token to favorite tokens list', () => {
+    it('Should be added tokenIn to favorite tokens list', () => {
       cy.clickButton(token.tokenIn)
+      cy.addTokenToFavoriteTokensList(tokenSymbol[0])
+      cy.verifyIcon('true')
+      cy.verifyValueInList(token.favoriteToken, [tokenSymbol[0]], true)
+    })
+
+    it('Should be removed tokenOut from favorite tokens list', () => {
+      cy.clickButton(token.tokenOut)
+      cy.verifyValueInList(token.favoriteToken, [tokenSymbol[2]], true)
+      cy.removeTokenInFavoriteTokensList(tokenSymbol[2])
+      cy.verifyValueInList(token.favoriteToken, [tokenSymbol[2]], false)
+      cy.input(token.inputToken, tokenSymbol[2])
+      cy.verifyIcon('false')
+    })
+
+    it('Should be added tokenOut to favorite tokens list', () => {
+      cy.clickButton(token.tokenOut)
       cy.addTokenToFavoriteTokensList(tokenSymbol[0])
       cy.verifyIcon('true')
       cy.verifyValueInList(token.favoriteToken, [tokenSymbol[0]], true)
