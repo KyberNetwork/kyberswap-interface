@@ -69,6 +69,7 @@ const OutputCurrencyPanel: React.FC<Props> = ({
       onCurrencySelect={onChangeCurrencyOut}
       otherCurrency={currencyIn}
       id="swap-currency-output"
+      dataTestId="swap-currency-output"
       showCommonBases={true}
       estimatedUsd={getEstimatedUsd()}
       label={
