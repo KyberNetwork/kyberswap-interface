@@ -62,7 +62,7 @@ const arbitrumInfo: EVMNetworkInfo = {
     initCodeHash: '0x00e263aaa3a2c06a89b53217a9e7aad7e15613490a72e0f95f303c4de2dc7045',
     quoter: '0x9201906C8eD420622D843910bfA38c671Ae8f34E',
     routers: '0xe85a6F9eD85b3A0390C5fe0D2694a2af42AEa236',
-    farms: ['0xbd81df7b2a83675DB92C7287635Bb141CfA931bC'],
+    farms: ['0x67BC5156227C8372b2561b5058A7F628846019B9'],
   },
   limitOrder: {
     production: '0x227B0c196eA8db17A665EA6824D972A64202E936',

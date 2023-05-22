@@ -522,9 +522,9 @@ export default function IncreaseLiquidity() {
                     <Divider />
 
                     <Flex justifyContent="space-between" fontSize="12px" marginTop="0.75rem">
-                      <Text color={theme.subText}>Pooled {existingPosition.pool.token0.symbol}</Text>
+                      <Text color={theme.subText}>Pooled {unwrappedToken(existingPosition.pool.token0).symbol}</Text>
                       <Flex alignItems="center">
-                        <CurrencyLogo currency={existingPosition.pool.token0} size="16px" />
+                        <CurrencyLogo currency={unwrappedToken(existingPosition.pool.token0)} size="16px" />
                         <Text fontWeight="500" marginLeft="4px">
                           <FormattedCurrencyAmount
                             currencyAmount={CurrencyAmount.fromRawAmount(
@@ -532,7 +532,7 @@ export default function IncreaseLiquidity() {
                               existingPosition.amount0.quotient,
                             )}
                           />{' '}
-                          {existingPosition.pool.token0.symbol}
+                          {unwrappedToken(existingPosition.pool.token0).symbol}
                         </Text>
                       </Flex>
                     </Flex>
