@@ -104,6 +104,7 @@ export const SectionWrapper = ({
   tabs,
   activeTab,
   onTabClick,
+  onShareClick,
   children,
   style,
 }: {
@@ -118,6 +119,7 @@ export const SectionWrapper = ({
   tabs?: string[]
   activeTab?: ChartTab
   onTabClick?: (tab: ChartTab) => void
+  onShareClick?: () => void
   children?: React.ReactNode
   style?: React.CSSProperties
 }) => {
@@ -173,7 +175,14 @@ export const SectionWrapper = ({
                     {subTitle}
                   </Text>
                 )}
-                {shareButton && <ShareButton onClick={() => setShowShare(true)} />}
+                {shareButton && (
+                  <ShareButton
+                    onClick={() => {
+                      onShareClick?.()
+                      setShowShare(true)
+                    }}
+                  />
+                )}
                 {fullscreenButton && <FullscreenButton element={ref.current} />}
               </RowFit>
             </RowBetween>

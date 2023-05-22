@@ -407,7 +407,7 @@ export const LiveDEXTrades = () => {
 
   return (
     <>
-      <LoadingHandleWrapper isLoading={isLoading} hasData={!!data && data.length > 0}>
+      <LoadingHandleWrapper isLoading={isLoading} hasData={!!data && data.length > 0} height="500px">
         <colgroup>
           <col width="50px" />
           <col width="100px" />

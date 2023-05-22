@@ -9,6 +9,7 @@ import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
 import Row, { RowFit } from 'components/Row'
 import Toggle from 'components/Toggle'
+import { IChartingLibraryWidget } from 'components/TradingViewChart/charting_library/charting_library'
 import { useTokenAnalysisSettings } from 'state/user/hooks'
 import { getLimitOrderContract } from 'utils'
 
@@ -16,7 +17,9 @@ import { SectionWrapper } from '../components'
 import CexRekt from '../components/CexRekt'
 import { LiquidOnCentralizedExchanges, Prochart } from '../components/chart'
 import { DexTradesShareContent } from '../components/shareContent/DexTradesShareContent'
+import FundingRateShareContent from '../components/shareContent/FundingRateShareContent'
 import ProchartShareContent from '../components/shareContent/ProchartShareContent'
+import SupportResistanceShareContent from '../components/shareContent/SupportResistanceShareContent'
 import { FundingRateTable, LiveDEXTrades, SupportResistanceLevel } from '../components/table'
 import { NETWORK_TO_CHAINID } from '../constants'
 import { useChartingDataQuery, useTokenDetailQuery } from '../hooks/useKyberAIData'
@@ -77,6 +80,8 @@ export const TechnicalAnalysisContext = createContext<TechnicalAnalysisContextPr
 export default function TechnicalAnalysis() {
   const theme = useTheme()
   const { chain, address } = useParams()
+  const [tvWidget, setTvWidget] = useState<IChartingLibraryWidget | undefined>()
+  const [prochartDataURL, setProchartDataURL] = useState<string | undefined>()
   const [liveChartTab, setLiveChartTab] = useState(ChartTab.First)
   const [showSRLevels, setShowSRLevels] = useState(true)
   const [priceChartResolution, setPriceChartResolution] = useState('1h')
@@ -90,7 +95,7 @@ export default function TechnicalAnalysis() {
     currency: liveChartTab === ChartTab.First ? 'USD' : 'BTC',
   })
 
-  const { data: tokenData } = useTokenDetailQuery({
+  const { data: tokenOverview } = useTokenDetailQuery({
     chain: chain || defaultExplorePageToken.chain,
     address: address || defaultExplorePageToken.address,
   })
@@ -124,6 +129,12 @@ export default function TechnicalAnalysis() {
 
   const tokenAnalysisSettings = useTokenAnalysisSettings()
 
+  const takeScreenShot = () => {
+    if (!tvWidget) return
+    tvWidget.takeClientScreenshot().then(res => {
+      setProchartDataURL(res.toDataURL())
+    })
+  }
   return (
     <TechnicalAnalysisContext.Provider
       value={{
@@ -139,7 +150,7 @@ export default function TechnicalAnalysis() {
         <SectionWrapper
           show={tokenAnalysisSettings?.liveCharts}
           fullscreenButton
-          tabs={[`${tokenData?.symbol?.toUpperCase()}/USD`, `${tokenData?.symbol?.toUpperCase()}/BTC`]}
+          tabs={[`${tokenOverview?.symbol?.toUpperCase()}/USD`, `${tokenOverview?.symbol?.toUpperCase()}/BTC`]}
           activeTab={liveChartTab}
           onTabClick={setLiveChartTab}
           style={{ height: '800px' }}
@@ -152,9 +163,15 @@ export default function TechnicalAnalysis() {
             </RowFit>
           }
           shareButton
-          shareContent={<ProchartShareContent isBTC={liveChartTab === ChartTab.Second} />}
+          shareContent={
+            <ProchartShareContent
+              title={`${tokenOverview?.symbol?.toUpperCase()}/${liveChartTab === ChartTab.First ? 'USD' : 'BTC'}`}
+              dataUrl={prochartDataURL}
+            />
+          }
+          onShareClick={takeScreenShot}
         >
-          <Prochart isBTC={liveChartTab === ChartTab.Second} />
+          <Prochart isBTC={liveChartTab === ChartTab.Second} tvWidget={tvWidget} setTvWidget={setTvWidget} />
         </SectionWrapper>
         <SectionWrapper
           show={tokenAnalysisSettings?.supportResistanceLevels}
@@ -182,7 +199,8 @@ export default function TechnicalAnalysis() {
           }
           style={{ height: 'fit-content' }}
           shareButton
-          shareContent={<SupportResistanceLevel />}
+          shareContent={<SupportResistanceShareContent dataUrl={prochartDataURL} />}
+          onShareClick={takeScreenShot}
         >
           <SupportResistanceLevel />
           {chain && getLimitOrderContract(NETWORK_TO_CHAINID[chain]) && (
@@ -234,7 +252,8 @@ export default function TechnicalAnalysis() {
           }
           style={{ height: 'fit-content' }}
           shareButton
-          shareContent={<FundingRateTable />}
+          shareContent={<FundingRateShareContent dataUrl={prochartDataURL} />}
+          onShareClick={takeScreenShot}
         >
           <FundingRateTable />
         </SectionWrapper>

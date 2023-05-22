@@ -2616,12 +2616,19 @@ const Loader = styled.div`
 
 const LOCALSTORAGE_STATE_NAME = 'kyberAIProChartState'
 
-export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
+export const Prochart = ({
+  isBTC,
+  tvWidget,
+  setTvWidget,
+}: {
+  isBTC?: boolean
+  tvWidget: IChartingLibraryWidget | undefined
+  setTvWidget: React.Dispatch<React.SetStateAction<IChartingLibraryWidget | undefined>>
+}) => {
   const theme = useTheme()
   const [ref, setRef] = useState<HTMLDivElement | null>(null)
   const [fullscreen, setFullscreen] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [tvWidget, setTvWidget] = useState<IChartingLibraryWidget | undefined>(undefined)
   const userLocale = useUserLocale()
   const { chain, address } = useParams()
   const { data } = useTokenDetailQuery({
@@ -2722,7 +2729,7 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
       tvWidget?.remove()
       setTvWidget(undefined)
     }
-  }, [theme, ref, datafeed, setResolution, userLocale])
+  }, [theme, ref, datafeed, setResolution, userLocale, setTvWidget])
 
   const entityIds = useRef<(EntityId | null)[]>([])
 
@@ -2791,8 +2798,4 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
       />
     </ProLiveChartWrapper>
   )
-}
-
-export const PriceChart = () => {
-  return <Prochart></Prochart>
 }
