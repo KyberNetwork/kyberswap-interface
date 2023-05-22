@@ -12,7 +12,6 @@ import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
 import { useAppDispatch } from 'state/hooks'
-import { FeeConfig } from 'types/route'
 import { Aggregator } from 'utils/aggregator'
 
 export type ArgsGetRoute = {
@@ -21,8 +20,6 @@ export type ArgsGetRoute = {
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
 
-  // TODO: remove this
-  feeConfig: FeeConfig | undefined
   customChain?: ChainId
   isProcessingSwap?: boolean
 }

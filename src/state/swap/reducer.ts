@@ -79,7 +79,7 @@ export default createReducer<SwapState>(initialState, builder =>
   builder
     .addCase(
       replaceSwapState,
-      (state, { payload: { typedValue, recipient, field, inputCurrencyId, outputCurrencyId, feeConfig } }) => {
+      (state, { payload: { typedValue, recipient, field, inputCurrencyId, outputCurrencyId } }) => {
         return {
           ...state,
           [Field.INPUT]: {
@@ -91,7 +91,6 @@ export default createReducer<SwapState>(initialState, builder =>
           independentField: field,
           typedValue: typedValue || state.typedValue || '1',
           recipient,
-          feeConfig,
         }
       },
     )

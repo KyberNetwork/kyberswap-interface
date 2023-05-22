@@ -19,7 +19,7 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
   const { account, chainId, isEVM } = useActiveWeb3React()
   const { library } = useWeb3React()
 
-  const { typedValue, feeConfig, isSaveGas, recipient: recipientAddressOrName, routeSummary } = useSwapFormContext()
+  const { isSaveGas, recipient: recipientAddressOrName, routeSummary } = useSwapFormContext()
   const { parsedAmountIn: inputAmount, parsedAmountOut: outputAmount, priceImpact } = routeSummary || {}
 
   const [allowedSlippage] = useUserSlippageTolerance()
@@ -42,9 +42,6 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
     const inputAmountStr = formatCurrencyAmount(inputAmount, 6)
     const outputAmountStr = formatCurrencyAmount(outputAmount, 6)
 
-    const inputAmountFormat =
-      feeConfig && feeConfig.chargeFeeBy === 'currency_in' && feeConfig.isInBps ? typedValue : inputAmountStr
-
     const withRecipient =
       recipient === account
         ? undefined
@@ -58,7 +55,7 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
       hash: '',
       type: TRANSACTION_TYPE.SWAP,
       extraInfo: {
-        tokenAmountIn: inputAmountFormat,
+        tokenAmountIn: inputAmountStr,
         tokenAmountOut: outputAmountStr,
         tokenSymbolIn: inputSymbol,
         tokenSymbolOut: outputSymbol,
@@ -89,18 +86,16 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
       } as TransactionExtraInfo2Token,
     }
   }, [
-    inputAmount,
-    outputAmount,
-    feeConfig,
-    typedValue,
-    recipient,
     account,
-    recipientAddressOrName,
-    chainId,
-    isSaveGas,
     allowedSlippage,
-    priceImpact,
+    chainId,
+    inputAmount,
     isPermitSwap,
+    isSaveGas,
+    outputAmount,
+    priceImpact,
+    recipient,
+    recipientAddressOrName,
     routeSummary,
   ])
 

@@ -222,7 +222,6 @@ export class Aggregator {
    * @param slippageTolerance
    * @param deadline
    * @param to
-   * @param feeConfig
    * @param signal
    * @param minimumLoadingTime
    */

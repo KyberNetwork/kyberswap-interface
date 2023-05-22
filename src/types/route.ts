@@ -16,6 +16,7 @@ export type Route = {
   extra: string
 }
 
+// TODO: check this
 export type FeeConfig = {
   feeAmount: string
   chargeFeeBy: string
