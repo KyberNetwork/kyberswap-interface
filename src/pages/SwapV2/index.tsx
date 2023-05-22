@@ -1048,7 +1048,7 @@ export default function Swap() {
                   refreshListOrder={refreshListOrder}
                 />
               )}
-              {isSwapPage && <AdvancedSwapDetailsDropdown trade={trade} feeConfig={feeConfig} />}
+              {isSwapPage && <AdvancedSwapDetailsDropdown trade={trade} />}
             </AppBodyWrapped>
           </SwapFormWrapper>
 
