@@ -57,6 +57,7 @@ import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { ApplicationModal } from 'state/application/actions'
 import { useOpenModal, useWalletModalToggle } from 'state/application/hooks'
+import { FarmUpdater } from 'state/farms/elastic/hooks'
 import {
   useProAmmDerivedAllMintInfo,
   useProAmmDerivedMintInfo,
@@ -311,6 +312,8 @@ export default function AddLiquidity() {
   const [approvalA, approveACallback] = useApproveCallback(
     !!currencies_A && depositADisabled && noLiquidity
       ? CurrencyAmount.fromFractionalAmount(currencies_A, ONE, ONE)
+      : isMultiplePosition
+      ? currencyAmountSum[Field.CURRENCY_A]
       : parsedAmounts_A,
     isEVM ? (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager : undefined,
   )
@@ -318,6 +321,8 @@ export default function AddLiquidity() {
   const [approvalB, approveBCallback] = useApproveCallback(
     !!currencies_B && depositBDisabled && noLiquidity
       ? CurrencyAmount.fromFractionalAmount(currencies_B, ONE, ONE)
+      : isMultiplePosition
+      ? currencyAmountSum[Field.CURRENCY_B]
       : parsedAmounts_B,
     isEVM ? (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager : undefined,
   )
@@ -1134,7 +1139,6 @@ export default function AddLiquidity() {
 
   return (
     <>
-      <ElasticDisclaimerModal isOpen />
       <TransactionConfirmationModal
         isOpen={showConfirm}
         onDismiss={handleDismissConfirmation}
@@ -1399,6 +1403,8 @@ export default function AddLiquidity() {
           </Row>
         </Container>
       </PageWrapper>
+      <ElasticDisclaimerModal isOpen={false} />
+      <FarmUpdater interval={false} />
     </>
   )
 }

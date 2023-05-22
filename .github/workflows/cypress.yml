@@ -85,5 +85,17 @@ jobs:
       - name: Install cypress
         run: yarn cypress install --force
 
-      - name: Run test
-        run: yarn test-e2e
+      - name: Yarn Build
+        env:
+          CI: false
+          VITE_TAG: ${{ needs.prepare.outputs.image_tag }}
+          CURRENT_BRANCH: ${{ needs.prepare.outputs.current_branch }}
+          NODE_OPTIONS: '--max_old_space_size=4096'
+        run: yarn build-adpr
+
+      - name: run preview
+        run: |+
+          #!/bin/bash
+
+          yarn preview &
+          yarn test-e2e

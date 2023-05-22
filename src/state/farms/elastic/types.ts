@@ -15,7 +15,6 @@ export interface FarmingPool {
   startTime: number
   endTime: number
   feeTarget: string
-  vestingDuration: number
   rewardTokens: Currency[]
   totalRewards: Array<CurrencyAmount<Currency>>
   token0: Currency
@@ -32,7 +31,6 @@ export interface FarmingPool {
 }
 export interface ElasticFarm {
   id: string // fair launch contract
-  rewardLocker: string
   pools: Array<FarmingPool>
 }
 

@@ -25,7 +25,7 @@ export interface Snapshot {
   user: string
 }
 
-const useElasticCompensationData = () => {
+const useElasticCompensationData = (interval = true) => {
   const { chainId, account } = useActiveWeb3React()
 
   const [data, setData] = useState<Array<Snapshot> | null>(null)
@@ -64,8 +64,18 @@ const useElasticCompensationData = () => {
     if (links[chainId] && account) {
       setLoading(true)
       fetchData().finally(() => setLoading(false))
+
+      if (interval) {
+        const i = setInterval(() => {
+          fetchData()
+        }, 15_000)
+
+        return () => clearInterval(i)
+      }
     }
-  }, [chainId, fetchData, account])
+
+    return undefined
+  }, [chainId, fetchData, account, interval])
 
   return { data, loading, claimInfo }
 }

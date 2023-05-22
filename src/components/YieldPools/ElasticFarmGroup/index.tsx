@@ -23,7 +23,7 @@ import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
 import { Dots } from 'pages/Pool/styleds'
 import { useWalletModalToggle } from 'state/application/hooks'
-import { useElasticFarms, useFailedNFTs, useFarmAction } from 'state/farms/elastic/hooks'
+import { useElasticFarms, useFarmAction } from 'state/farms/elastic/hooks'
 import { FarmingPool, UserInfo } from 'state/farms/elastic/types'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useIsTransactionPending } from 'state/transactions/hooks'
@@ -34,7 +34,12 @@ import { formatDollarAmount } from 'utils/numbers'
 
 import { ClickableText, ProMMFarmTableHeader } from '../styleds'
 import Row, { Pool } from './Row'
-import { ConnectWalletButton, DepositButton, ForceWithdrawButton, HarvestAllButton, WithdrawButton } from './buttons'
+import {
+  ConnectWalletButton,
+  DepositButton, //ForceWithdrawButton,
+  HarvestAllButton,
+  WithdrawButton,
+} from './buttons'
 import {
   DepositedContainer,
   FarmList,
@@ -143,12 +148,7 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
       )
 
       const farmDuration = (pool.endTime - pool.startTime) / 86400
-      const farmAPR =
-        chainId === ChainId.AVAXMAINNET && pool.pid === '125'
-          ? 0
-          : pool.apr
-          ? pool.apr
-          : (365 * 100 * (totalRewardValue || 0)) / farmDuration / pool.poolTvl
+      const farmAPR = pool.apr ? pool.apr : (365 * 100 * (totalRewardValue || 0)) / farmDuration / pool.poolTvl
 
       let poolAPR = pool.poolAPR || 0
       if (!poolAPR && pool.feesUSD && poolFeeLast24h[pool.poolAddress]) {
@@ -230,10 +230,6 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
           return sortDirection === SORT_DIRECTION.DESC ? +b.pid - +a.pid : +a.pid - +b.pid
       }
     })
-
-  const failedNFTs = useFailedNFTs()
-  const userNFTs: string[] = userInfo?.depositedPositions.map(pos => pos.nftId.toString()) || []
-  const hasAffectedByFarmIssue = userNFTs.some(id => failedNFTs.includes(id))
 
   const toggleWalletModal = useWalletModalToggle()
   const posManager = useProAmmNFTPositionManagerContract()
@@ -344,9 +340,11 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
         ) : (
           <Flex sx={{ gap: '12px' }} alignItems="center">
             {!account ? <ConnectWalletButton onClick={toggleWalletModal} /> : renderApproveButton()}
-            {account && canWithdraw && isApprovedForAll && (
+            {/*
+              account && canWithdraw && isApprovedForAll && (
               <ForceWithdrawButton onClick={() => onOpenModal('forcedWithdraw')} />
-            )}
+            )
+              */}
           </Flex>
         )}
       </Flex>
@@ -629,7 +627,6 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
     return farms.map(pool => {
       return (
         <Row
-          isUserAffectedByFarmIssue={hasAffectedByFarmIssue}
           isApprovedForAll={isApprovedForAll}
           pool={pool}
           key={pool.id}
@@ -689,7 +686,7 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
         </>
       ) : (
         <>
-          {!!upcomingFarms.length && (
+          {!!upcomingFarms.length && !!runningFarms.length && (
             <Text
               fontSize="16px"
               fontWeight="500"
@@ -701,10 +698,12 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
             </Text>
           )}
 
-          <FarmList gridMode={viewMode === VIEW_MODE.GRID || !above1000}>
-            {above1000 && viewMode === VIEW_MODE.LIST && renderTableHeaderOnDesktop()}
-            {renderFarmList(tab === FARM_TAB.ACTIVE ? runningFarms : endedFarms)}
-          </FarmList>
+          {!!runningFarms.length && (
+            <FarmList gridMode={viewMode === VIEW_MODE.GRID || !above1000}>
+              {above1000 && viewMode === VIEW_MODE.LIST && renderTableHeaderOnDesktop()}
+              {renderFarmList(tab === FARM_TAB.ACTIVE ? runningFarms : endedFarms)}
+            </FarmList>
+          )}
 
           {!!upcomingFarms.length && (
             <>
