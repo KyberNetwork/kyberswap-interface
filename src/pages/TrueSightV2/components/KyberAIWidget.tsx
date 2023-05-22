@@ -194,7 +194,11 @@ export default function Widget() {
           page: 1,
           pageSize: 5,
         },
+    { refetchOnMountOrArgChange: true },
   )
+  // useEffect(() => {
+  //   refetch
+  // },[refetch,activeTab])
 
   return (
     <>

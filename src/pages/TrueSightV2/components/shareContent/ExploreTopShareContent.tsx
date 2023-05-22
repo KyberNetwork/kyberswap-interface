@@ -131,7 +131,7 @@ export default function ExploreShareContent({ token }: { token?: ITokenOverview 
           <Row justify="center">
             <Text color={theme.text} fontSize="24px" lineHeight="28px">
               <Trans>
-                {token?.symbol} seems to be{' '}
+                {token?.symbol?.toUpperCase()} seems to be{' '}
                 <span style={{ color: calculateValueToColor(latestKyberscore?.kyber_score || 0, theme) }}>
                   {latestKyberscore ? latestKyberscore.tag : ''}
                 </span>

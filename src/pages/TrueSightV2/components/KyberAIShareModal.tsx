@@ -148,7 +148,7 @@ export default function KyberAIShareModal({
   const [imageUrl, setImageUrl] = useState('')
   const [isError, setIsError] = useState(false)
   const { chain, address } = useParams()
-  const { data: tokenOverview } = useTokenDetailQuery({ chain, address })
+  const { data: tokenOverview } = useTokenDetailQuery({ chain, address }, { skip: !chain || !address })
   const [blob, setBlob] = useState<Blob>()
   const shareImage = useShareImage()
   const handleGenerateImage = async () => {
@@ -259,39 +259,43 @@ export default function KyberAIShareModal({
             <ImageInner ref={ref}>
               <RowBetween style={{ zIndex: 2 }}>
                 <RowFit gap="8px" style={{ paddingLeft: '16px' }}>
-                  <div style={{ position: 'relative' }}>
-                    <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
-                      <img
-                        src={tokenOverview?.logo}
-                        width="36px"
-                        height="36px"
-                        style={{ background: 'white', display: 'block' }}
-                        ref={tokenImgRef}
-                      />
-                    </div>
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: '-4px',
-                        right: '-4px',
-                        borderRadius: '50%',
-                        border: `1px solid ${theme.background}`,
-                        background: theme.tableHeader,
-                      }}
-                    >
-                      <img
-                        src={NETWORK_IMAGE_URL[chain || 'ethereum']}
-                        alt="eth"
-                        width="16px"
-                        height="16px"
-                        style={{ display: 'block' }}
-                        crossOrigin="anonymous"
-                      />
-                    </div>
-                  </div>
-                  <Text fontSize={24} color={theme.text} fontWeight={500}>
-                    {tokenOverview?.name} ({tokenOverview?.symbol.toUpperCase()})
-                  </Text>
+                  {tokenOverview && (
+                    <>
+                      <div style={{ position: 'relative' }}>
+                        <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
+                          <img
+                            src={tokenOverview?.logo}
+                            width="36px"
+                            height="36px"
+                            style={{ background: 'white', display: 'block' }}
+                            ref={tokenImgRef}
+                          />
+                        </div>
+                        <div
+                          style={{
+                            position: 'absolute',
+                            top: '-4px',
+                            right: '-4px',
+                            borderRadius: '50%',
+                            border: `1px solid ${theme.background}`,
+                            background: theme.tableHeader,
+                          }}
+                        >
+                          <img
+                            src={NETWORK_IMAGE_URL[chain || 'ethereum']}
+                            alt="eth"
+                            width="16px"
+                            height="16px"
+                            style={{ display: 'block' }}
+                            crossOrigin="anonymous"
+                          />
+                        </div>
+                      </div>
+                      <Text fontSize={24} color={theme.text} fontWeight={500}>
+                        {tokenOverview?.name} ({tokenOverview?.symbol.toUpperCase()})
+                      </Text>
+                    </>
+                  )}
                 </RowFit>
                 <RowFit gap="20px">
                   <KyberSwapShareLogo />
