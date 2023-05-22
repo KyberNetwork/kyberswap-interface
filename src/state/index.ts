@@ -12,6 +12,7 @@ import annoucementApi from '../services/announcement'
 import geckoTerminalApi from '../services/geckoTermial'
 import identifyApi from '../services/identity'
 import ksSettingApi from '../services/ksSetting'
+import socialApi from '../services/social'
 import application from './application/reducer'
 import authen from './authen/reducer'
 import bridge from './bridge/reducer'
@@ -77,6 +78,7 @@ const store = configureStore({
     topTokens,
     [routeApi.reducerPath]: routeApi.reducer,
     [tokenApi.reducerPath]: tokenApi.reducer,
+    [socialApi.reducerPath]: socialApi.reducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
@@ -89,6 +91,7 @@ const store = configureStore({
       .concat(annoucementApi.middleware)
       .concat(priceAlertApi.middleware)
       .concat(routeApi.middleware)
+      .concat(socialApi.middleware)
       .concat(tokenApi.middleware),
   preloadedState: load({ states: PERSISTED_KEYS }),
 })

@@ -142,14 +142,14 @@ export default function VerifyCodeModal({
   }, [isOpen, showNotiSuccess, showVerifySuccess, sendEmailWhenInit])
 
   const setProfile = useSaveUserProfile()
-  const { userInfo } = useSessionInfo()
+  const { userInfo, isLogin } = useSessionInfo()
 
   const verify = async () => {
     try {
       if (!email) return
       await verifyOtp({ code: otp, email }).unwrap()
       await onVerifySuccess?.()
-      setProfile({ profile: { ...userInfo, email } as UserProfile })
+      setProfile({ profile: { ...userInfo, email } as UserProfile, isAnonymous: !isLogin })
       showNotiSuccess()
     } catch (error) {
       setError(true)

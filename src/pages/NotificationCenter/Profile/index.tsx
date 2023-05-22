@@ -1,25 +1,31 @@
 import KyberOauth2 from '@kybernetwork/oauth2'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useEffect, useState } from 'react'
 import { Info, LogOut, Save } from 'react-feather'
 import { useParams } from 'react-router'
 import { Text } from 'rebass'
+import { useUpdateProfileMutation } from 'services/identity'
 import styled from 'styled-components'
 
 import { AddressInput } from 'components/AddressInputPanel'
+import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import CopyHelper from 'components/Copy'
+import FileInput from 'components/FileInput'
 import ProfileIcon from 'components/Icons/Profile'
 import { Input } from 'components/Input'
 import Row from 'components/Row'
 import { useValidateEmail } from 'components/SubscribeButton/NotificationPreference'
 import InputEmail from 'components/SubscribeButton/NotificationPreference/InputEmail'
 import { useActiveWeb3React } from 'hooks'
+import { useUploadImageToCloud } from 'hooks/social'
+import useDebug from 'hooks/useDebug'
 import { useSignInETH } from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
 import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
+import { useNotify } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 import { ExternalLink } from 'theme'
 import { shortenAddress } from 'utils'
@@ -46,6 +52,12 @@ const AvatarWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+`
+
+const Avatar = styled.img`
+  width: 84px;
+  height: 84px;
+  border-radius: 100%;
 `
 
 const FormGroup = styled.div`
@@ -99,13 +111,15 @@ export default function Profile() {
   const { chainId, account } = useActiveWeb3React()
   const { formatUserInfo, isLogin } = useSessionInfo()
   const { inputEmail, onChangeEmail, errorColor } = useValidateEmail(formatUserInfo?.email)
-  const [nickName, setNickName] = useState(formatUserInfo?.nickname || account || '')
+  const [nickname, setNickName] = useState(formatUserInfo?.nickname || account || '')
 
+  useDebug({ email: formatUserInfo?.email, nickname: formatUserInfo?.nickname, onChangeEmail })
   // todo doi acc, nick name, email chua dung
   // todo get all acc profile map ???
   useEffect(() => {
     onChangeEmail(formatUserInfo?.email ?? '')
-  }, [formatUserInfo?.identityId, formatUserInfo?.email, onChangeEmail])
+    setNickName(formatUserInfo?.nickname ?? '')
+  }, [formatUserInfo?.email, formatUserInfo?.nickname, onChangeEmail])
 
   // useEffect(() => {
   //   if (!isLogin) {
@@ -124,8 +138,40 @@ export default function Profile() {
     setIsShowVerify(false)
   }
 
-  const saveProfile = () => {
-    console.log(nickName, inputEmail)
+  const [file, setFile] = useState<File>()
+  const [previewImage, setPreviewImage] = useState<string>()
+  const handleFileChange = (imgUrl: string, file: File) => {
+    setFile(file)
+    setPreviewImage(imgUrl)
+  }
+
+  const displayAvatar = previewImage || formatUserInfo?.avatarURL
+
+  const [requestSaveProfile] = useUpdateProfileMutation()
+  const notify = useNotify()
+  const uploadFile = useUploadImageToCloud()
+  const saveProfile = async () => {
+    try {
+      let avatarURL
+      if (file) {
+        avatarURL = await uploadFile(file)
+      }
+      await requestSaveProfile({
+        nickname,
+        avatarURL,
+      }).unwrap()
+      notify({
+        type: NotificationType.SUCCESS,
+        title: t`Profile updated`,
+        summary: t`Your profile have been successfully updated`,
+      })
+    } catch (error) {
+      notify({
+        type: NotificationType.ERROR,
+        title: t`Profile updated failed`,
+        summary: t`Error occur, please try again`,
+      })
+    }
   }
 
   const isVerifiedEmail = formatUserInfo?.email && inputEmail === formatUserInfo?.email
@@ -143,7 +189,7 @@ export default function Profile() {
             <Label>
               <Trans>User Name</Trans>
             </Label>
-            <Input value={nickName} onChange={e => setNickName(e.target.value)} />
+            <Input value={nickname} onChange={e => setNickName(e.target.value)} />
           </FormGroup>
 
           <FormGroup>
@@ -201,9 +247,11 @@ export default function Profile() {
           <Label>
             <Trans>Profile Picture</Trans>
           </Label>
-          <AvatarWrapper>
-            <ProfileIcon size={82} color={theme.subText} />
-          </AvatarWrapper>
+          <FileInput onImgChange={handleFileChange} image>
+            <AvatarWrapper>
+              {displayAvatar ? <Avatar src={displayAvatar} /> : <ProfileIcon size={82} color={theme.subText} />}
+            </AvatarWrapper>
+          </FileInput>
         </FormGroup>
       </Row>
       <VerifyCodeModal

@@ -114,6 +114,7 @@ const ProfileContent = () => {
   const theme = useTheme()
   const { signInEth } = useSignInETH()
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
+
   const connectedAccounts = KyberOauth2.getConnectedEthAccounts()
 
   return (

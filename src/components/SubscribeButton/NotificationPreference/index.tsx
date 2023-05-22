@@ -134,10 +134,13 @@ export const useValidateEmail = (defaultEmail?: string) => {
     setErrorInput(msg ? { msg, type: 'error' } : null)
   }, [])
 
-  const onChangeEmail = (value: string) => {
-    setInputEmail(value)
-    validateInput(value)
-  }
+  const onChangeEmail = useCallback(
+    (value: string) => {
+      setInputEmail(value)
+      validateInput(value)
+    },
+    [validateInput],
+  )
 
   const hasErrorInput = errorInput?.type === 'error'
   const errorColor = hasErrorInput ? theme.red : errorInput?.type === 'warn' ? theme.warning : theme.border

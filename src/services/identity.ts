@@ -37,6 +37,13 @@ const identityApi = createApi({
         method: 'PUT',
       }),
     }),
+    updateProfile: builder.mutation<any, { nickname?: string; avatarURL?: string }>({
+      query: body => ({
+        url: `/v1/profiles/me`,
+        body,
+        method: 'PATCH',
+      }),
+    }),
     getSubscriptionTopics: builder.query<{ topicGroups: Topic[] }, void>({
       query: () => ({
         url: '/v1/profiles/me/notification-subscriptions',
@@ -86,6 +93,7 @@ export const {
   useSubscribeTopicsMutation,
   useAckTelegramSubscriptionStatusMutation,
   useBuildTelegramVerificationMutation,
+  useUpdateProfileMutation,
 } = identityApi
 
 export default identityApi

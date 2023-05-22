@@ -7,6 +7,7 @@ export type UserProfile = {
   identityId: string
   telegramUsername: string
   nickname: string
+  avatarURL: string
   data: { hasAccessToKyberAI: boolean }
 }
 export interface AuthenState {

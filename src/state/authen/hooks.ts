@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 
 import { useActiveWeb3React } from 'hooks'
@@ -25,7 +25,10 @@ export function useSessionInfo(): AuthenState & { formatUserInfo: UserProfile | 
   const { account } = useActiveWeb3React()
   const authen = useSelector((state: AppState) => state.authen)
   const isLogin = Boolean(authen.isLogin && account)
-  const formatUserInfo = isLogin ? authen.userInfo : authen.anonymousUserInfo // todo rename
+  const formatUserInfo = useMemo(
+    () => (isLogin ? authen.userInfo : authen.anonymousUserInfo),
+    [authen.userInfo, authen.anonymousUserInfo, isLogin],
+  ) // todo rename
   return { ...authen, isLogin, formatUserInfo }
 }
 
