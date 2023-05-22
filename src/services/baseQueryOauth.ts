@@ -1,8 +1,34 @@
 import KyberOauth2 from '@kybernetwork/oauth2'
 import { BaseQueryFn, fetchBaseQuery } from '@reduxjs/toolkit/query'
 
+const queryWithToken = async (config: any, baseUrl: string) => {
+  try {
+    if (config.method?.toLowerCase() !== 'get') {
+      // mapping rtk query vs axios
+      config.data = config.data || config.body
+    }
+    config.url = baseUrl + config.url
+    const result = await KyberOauth2.callHttp(config)
+    return { data: result.data }
+  } catch (err) {
+    return {
+      error: {
+        status: err.response?.status,
+        data: err.response?.data || err.message,
+      },
+    }
+  }
+}
+
 // this query is use for private api call: this will attach access token in every request, auto refresh token if expired
 const baseQueryOauth =
+  ({ baseUrl = '' }: { baseUrl?: string }): BaseQueryFn =>
+  async config => {
+    return queryWithToken(config, baseUrl)
+  }
+
+// same as baseQueryOauth, but has flag to revert if meet incident
+export const baseQueryOauthDynamic =
   ({ baseUrl = '' }: { baseUrl?: string }): BaseQueryFn =>
   async (args, WebApi, extraOptions) => {
     if (!args.authentication) {
@@ -10,22 +36,7 @@ const baseQueryOauth =
       const rawBaseQuery = fetchBaseQuery({ baseUrl })
       return rawBaseQuery(args, WebApi, extraOptions)
     }
-    try {
-      const config = args
-      if (config.method?.toLowerCase() !== 'get') {
-        // mapping rtk query vs axios
-        config.data = config.data || args.body
-      }
-      config.url = baseUrl + config.url
-      const result = await KyberOauth2.callHttp(config)
-      return { data: result.data }
-    } catch (err) {
-      return {
-        error: {
-          status: err.response?.status,
-          data: err.response?.data || err.message,
-        },
-      }
-    }
+    return queryWithToken(args, baseUrl)
   }
+
 export default baseQueryOauth
