@@ -16,10 +16,16 @@ export type Route = {
   extra: string
 }
 
-// TODO: check this
-export type FeeConfig = {
+export enum ChargeFeeBy {
+  CURRENCY_IN = 'currency_in',
+  CURRENCY_OUT = 'currency_out',
+  NONE = '',
+}
+
+type ExtraFeeConfig = {
   feeAmount: string
-  chargeFeeBy: string
+  feeAmountUsd: string
+  chargeFeeBy: ChargeFeeBy
   isInBps: boolean
   feeReceiver: string
 }
@@ -49,13 +55,7 @@ export type DetailedRouteSummary = {
     formattedAmountUsd: string
   }
 
-  extraFee: {
-    feeAmount: string
-    feeAmountUsd: string
-    chargeFeeBy: string
-    isInBps: boolean
-    feeReceiver: string
-  }
+  extraFee: ExtraFeeConfig
 
   route: Route[][]
   routerAddress: string

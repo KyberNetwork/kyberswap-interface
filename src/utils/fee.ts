@@ -4,7 +4,7 @@ import JSBI from 'jsbi'
 import { BuildRouteData } from 'services/route/types/buildRoute'
 
 import { BIPS_BASE, RESERVE_USD_DECIMALS } from 'constants/index'
-import { DetailedRouteSummary } from 'types/route'
+import { ChargeFeeBy, DetailedRouteSummary } from 'types/route'
 import { formattedNum } from 'utils/index'
 
 export const calculateFeeFromBuildData = (
@@ -28,7 +28,7 @@ export const calculateFeeFromBuildData = (
   const currencyAmountOut = CurrencyAmount.fromRawAmount(routeSummary.parsedAmountOut.currency, buildData.amountOut)
 
   const currencyAmountToTakeFee =
-    routeSummary.extraFee.chargeFeeBy === 'currency_in' ? currencyAmountIn : currencyAmountOut
+    routeSummary.extraFee.chargeFeeBy === ChargeFeeBy.CURRENCY_IN ? currencyAmountIn : currencyAmountOut
 
   const feeAmountFraction = new Fraction(
     parseUnits(feeBips, RESERVE_USD_DECIMALS).toString(),

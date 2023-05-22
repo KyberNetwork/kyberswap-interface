@@ -9,6 +9,7 @@ import useENS from 'hooks/useENS'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE, TransactionExtraInfo2Token } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
+import { ChargeFeeBy } from 'types/route'
 import { isAddress, shortenAddress } from 'utils'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 import { sendEVMTransaction } from 'utils/sendTransaction'
@@ -76,7 +77,7 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
           isPermitSwap,
           feeInfo: routeSummary?.fee
             ? {
-                chargeTokenIn: routeSummary.extraFee.chargeFeeBy === 'currency_in',
+                chargeTokenIn: routeSummary.extraFee.chargeFeeBy === ChargeFeeBy.CURRENCY_IN,
                 tokenSymbol: routeSummary.fee.currency.symbol || '',
                 feeUsd: routeSummary.extraFee.feeAmountUsd,
                 feeAmount: routeSummary.fee.currencyAmount.toExact(),
