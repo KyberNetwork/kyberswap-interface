@@ -298,7 +298,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                   {isLoading
                     ? t`Loading`
                     : data?.kyberScore === undefined || data?.kyberScore?.score === 0
-                    ? t`Not Available`
+                    ? t`Not Applicable`
                     : data.kyberScore.label}
                 </Text>
                 <MouseoverTooltip
@@ -311,7 +311,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                         <Text>
                           KyberScore:{' '}
                           <span style={{ color: calculateValueToColor(latestKyberscore?.kyber_score || 0, theme) }}>
-                            {latestKyberscore?.kyber_score || '--'} ({latestKyberscore?.tag || t`Not Available`})
+                            {latestKyberscore?.kyber_score || '--'} ({latestKyberscore?.tag || t`Not Applicable`})
                           </span>
                         </Text>
                         <Text>
@@ -521,7 +521,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
               {isLoading
                 ? t`Loading`
                 : data?.kyberScore === undefined || data?.kyberScore?.score === 0
-                ? t`Not Available`
+                ? t`Not Applicable`
                 : data.kyberScore.label}
             </Text>
             <MouseoverTooltip
@@ -534,7 +534,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                     <Text>
                       KyberScore:{' '}
                       <span style={{ color: calculateValueToColor(latestKyberscore?.kyber_score || 0, theme) }}>
-                        {latestKyberscore?.kyber_score || '--'} ({latestKyberscore?.tag || t`Not Available`})
+                        {latestKyberscore?.kyber_score || '--'} ({latestKyberscore?.tag || t`Not Applicable`})
                       </span>
                     </Text>
                     <Text>

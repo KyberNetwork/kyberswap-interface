@@ -9,7 +9,6 @@ import tutorial1 from 'assets/images/truesight-v2/tutorial_1.png'
 import tutorial2 from 'assets/images/truesight-v2/tutorial_2.png'
 import tutorial3 from 'assets/images/truesight-v2/tutorial_3.png'
 import tutorial4 from 'assets/images/truesight-v2/tutorial_4.png'
-import tutorial5 from 'assets/images/truesight-v2/tutorial_5.png'
 import tutorial6 from 'assets/images/truesight-v2/tutorial_6.png'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import ApeIcon from 'components/Icons/ApeIcon'
@@ -19,9 +18,6 @@ import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-
-const preloadImage = (url: string) => (document.createElement('img').src = url)
-preloadImage(tutorial1)
 
 const Wrapper = styled.div`
   border-radius: 20px;
@@ -269,23 +265,23 @@ const StepContent = ({ step, ...rest }: { step: number; [k: string]: any }) => {
       <div
         style={{
           overflow: 'hidden',
-          borderRadius: '16px',
+          borderRadius: above768 ? '16px' : '6px',
           boxShadow: '0 0 6px 0px #00000060',
-          height: above768 ? '350px' : 'fit-content',
+          height: above768 ? '350px' : 'auto',
+          backgroundImage: `url(${image})`,
+          backgroundSize: 'cover',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+          aspectRatio: '768/350',
         }}
-      >
-        <img
-          src={image}
-          alt={'KyberAI Tutorial ' + step}
-          style={{ height: above768 ? '352px' : 'fit-content', display: 'block', maxWidth: '100%' }}
-        />
-      </div>
+      />
       <Text
         fontSize={above768 ? '14px' : '12px'}
         lineHeight={above768 ? '20px' : '16px'}
         color={theme.subText}
         backgroundColor={theme.tableHeader}
-        height={above768 ? '202px' : 'fit-content'}
+        height={above768 ? '202px' : '35vh'}
+        overflowY={'scroll'}
       >
         {text}
       </Text>
@@ -310,13 +306,6 @@ const TutorialModal = () => {
       localStorage.setItem('showedKyberAITutorial', '1')
     }
   }, [toggle])
-
-  useEffect(() => {
-    preloadImage(tutorial2)
-    preloadImage(tutorial3)
-    preloadImage(tutorial4)
-    preloadImage(tutorial5)
-  }, [])
 
   useLayoutEffect(() => {
     if (isOpen) {
@@ -352,18 +341,21 @@ const TutorialModal = () => {
         </RowBetween>
         {step === 0 && (
           <>
-            <img
-              src={tutorial1}
-              alt="KyberAI Tutorial"
+            <div
               style={{
-                width: '760px',
-                height: above768 ? '400px' : 'auto',
-                borderRadius: '20px',
+                overflow: 'hidden',
+                borderRadius: above768 ? '16px' : '6px',
+                boxShadow: '0 0 6px 0px #00000060',
+                height: above768 ? '350px' : 'auto',
+                backgroundImage: `url(${tutorial1})`,
                 backgroundColor: theme.buttonBlack,
-                maxWidth: '100%',
-                aspectRatio: 76 / 40,
+                backgroundSize: 'cover',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center',
+                aspectRatio: '768/350',
               }}
             />
+
             <Text fontSize="14px" lineHeight="20px" color={theme.subText} flex="1">
               <Trans>
                 We&apos;re thrilled to have you onboard and can&apos;t wait for you to start exploring the world of
@@ -420,7 +412,7 @@ const TutorialModal = () => {
                 <StepDot key={index} active={step - 1 === index} />
               ))}
             </Row>
-            <Row gap="20px" justify="center" marginBottom={above768 ? 0 : '20px'}>
+            <Row gap="20px" justify="center">
               <ButtonOutlined width={above768 ? '160px' : '100px'} onClick={() => dispatch(ActionTypes.PREV_STEP)}>
                 <Text fontSize={above768 ? '14px' : '12px'}>
                   <Trans>Back</Trans>

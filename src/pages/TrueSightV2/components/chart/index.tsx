@@ -2697,7 +2697,7 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
       })
       tvWidget
         .activeChart()
-        .createStudy('Stochastic RSI')
+        .createStudy('Relative Strength Index')
         .then(() => {
           tvWidget.activeChart().getPanes()[1].setHeight(120)
           setLoading(false)

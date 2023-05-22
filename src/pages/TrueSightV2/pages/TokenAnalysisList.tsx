@@ -4,7 +4,6 @@ import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Share2 } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -19,16 +18,14 @@ import Icon from 'components/Icons/Icon'
 import InfoHelper from 'components/InfoHelper'
 import Pagination from 'components/Pagination'
 import Row, { RowBetween, RowFit } from 'components/Row'
-import ShareModal from 'components/ShareModal'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
-import { ApplicationModal } from 'state/application/actions'
-import { useToggleModal } from 'state/application/hooks'
 
 import ChevronIcon from '../components/ChevronIcon'
+import KyberAIShareModal from '../components/KyberAIShareModal'
 import MultipleChainDropdown from '../components/MultipleChainDropdown'
 import NetworkSelect from '../components/NetworkSelect'
 import SimpleTooltip from '../components/SimpleTooltip'
@@ -36,6 +33,7 @@ import SmallKyberScoreMeter from '../components/SmallKyberScoreMeter'
 import TokenChart from '../components/TokenChartSVG'
 import { StarWithAnimation } from '../components/WatchlistStar'
 import KyberScoreChart from '../components/chart/KyberScoreChart'
+import { TokenListInShareModalTable } from '../components/table'
 import { SUPPORTED_NETWORK_KYBERAI } from '../constants'
 import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation, useTokenListQuery } from '../hooks/useKyberAIData'
 import { IKyberScoreChart, ITokenList, KyberAIListType } from '../types'
@@ -558,7 +556,7 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
             fontSize="14px"
             fontWeight={500}
           >
-            {latestKyberScore?.tag || 'Not Available'}
+            {latestKyberScore?.tag || 'Not Applicable'}
           </Text>
         </Column>
       </td>
@@ -703,8 +701,8 @@ const LoadingRowSkeleton = ({ hasExtraCol }: { hasExtraCol?: boolean }) => {
 export default function TokenAnalysisList() {
   const theme = useTheme()
   const [page, setPage] = useState(1)
+  const [showShare, setShowShare] = useState(false)
   const { account } = useActiveWeb3React()
-  const toggle = useToggleModal(ApplicationModal.SHARE)
   const above768 = useMedia('(min-width:768px)')
 
   const [searchParams, setSearchParams] = useSearchParams()
@@ -790,9 +788,9 @@ export default function TokenAnalysisList() {
               flexShrink: 0,
               backgroundColor: theme.background,
             }}
-            onClick={toggle}
+            onClick={() => setShowShare(true)}
           >
-            <Share2 size={16} fill="currentcolor" />
+            <Icon size={16} id="share" />
           </ButtonGray>
           <NetworkSelect filter={Number(chain) as ChainId} setFilter={handleChainChange} />
         </RowFit>
@@ -1009,7 +1007,11 @@ export default function TokenAnalysisList() {
           )}
         </PaginationWrapper>
       </Column>
-      <ShareModal title={t`Share this token list with your friends!`} />
+      <KyberAIShareModal
+        isOpen={showShare}
+        onClose={() => setShowShare(false)}
+        content={<TokenListInShareModalTable data={data?.data || []} />}
+      />
     </>
   )
 }

@@ -633,7 +633,7 @@ const WidgetTokenRow = ({ token, onClick }: { token: ITokenList; onClick?: () =>
             fontSize="14px"
             fontWeight={500}
           >
-            {latestKyberScore?.tag || t`Not Available`}
+            {latestKyberScore?.tag || t`Not Applicable`}
           </Text>
         </Column>
       </td>
@@ -839,6 +839,83 @@ export const LiveTradesInShareModalTable = ({ data }: { data: Array<ILiveTrade> 
                 <Text color={theme.subText} fontSize={12} textAlign="right">
                   ${formatLocaleStringNum(trade.price * +trade.amountToken)}{' '}
                 </Text>
+              </td>
+            </tr>
+          )
+        })}
+      </tbody>
+    </TableWrapper>
+  )
+}
+
+export const TokenListInShareModalTable = ({ data }: { data: ITokenList[] }) => {
+  const theme = useTheme()
+  return (
+    <TableWrapper>
+      <colgroup>
+        <col width="40px" />
+        <col width="100px" />
+        <col width="300px" />
+        <col width="100px" />
+      </colgroup>
+      <thead>
+        <th>#</th>
+        <th>
+          <Trans>Token Name</Trans>
+        </th>
+        <th>
+          <Trans>Price</Trans>
+        </th>
+        <th>
+          <Trans>Kyberscore</Trans>
+        </th>
+      </thead>
+      <tbody>
+        {data.map((token, index) => {
+          return (
+            <tr key={token.symbol + index}>
+              <td>{index + 1}</td>
+              <td>
+                <RowFit>
+                  <img
+                    alt="tokenInList"
+                    src={token.tokens[0].logo}
+                    width="16px"
+                    height="16px"
+                    loading="lazy"
+                    style={{ borderRadius: '18px' }}
+                  />
+                  <Text>{token.symbol.toUpperCase()}</Text>
+                  <RowFit>
+                    {token.tokens.map(item => {
+                      if (item.chain === 'ethereum') return <Icon id="eth-mono" size={12} title="Ethereum" />
+                      if (item.chain === 'bsc') return <Icon id="bnb-mono" size={12} title="Binance" />
+                      if (item.chain === 'avalanche') return <Icon id="ava-mono" size={12} title="Avalanche" />
+                      if (item.chain === 'polygon') return <Icon id="matic-mono" size={12} title="Polygon" />
+                      if (item.chain === 'arbitrum') return <Icon id="arbitrum-mono" size={12} title="Arbitrum" />
+                      if (item.chain === 'fantom') return <Icon id="fantom-mono" size={12} title="Fantom" />
+                      if (item.chain === 'optimism') return <Icon id="optimism-mono" size={12} title="Optimism" />
+                      return <></>
+                    })}
+                  </RowFit>
+                </RowFit>
+              </td>
+              <td>
+                <RowFit>
+                  <Text>${formatTokenPrice(token.price)}</Text>
+                  <Text fontSize={12} color={token.percent_change_24h > 0 ? theme.primary : theme.red}>
+                    <Row gap="2px">
+                      <ChevronIcon
+                        rotate={token.percent_change_24h > 0 ? '180deg' : '0deg'}
+                        color={token.percent_change_24h > 0 ? theme.primary : theme.red}
+                      />
+                      {Math.abs(token.percent_change_24h).toFixed(2)}%
+                    </Row>
+                  </Text>
+                </RowFit>
+              </td>
+              <td>
+                <Text color={calculateValueToColor(token.kyber_score, theme)}>{token.kyber_score}</Text>
               </td>
             </tr>
           )
