@@ -186,6 +186,7 @@ interface CurrencyInputPanelProps {
   disabledInput?: boolean
   otherCurrency?: Currency | null
   id: string
+  dataTestId?: string
   showCommonBases?: boolean
   customBalanceText?: string
   hideLogo?: boolean
@@ -226,6 +227,7 @@ export default function CurrencyInputPanel({
   disabledInput = false,
   otherCurrency,
   id,
+  dataTestId,
   showCommonBases,
   customBalanceText,
   hideLogo = false,
@@ -280,7 +282,7 @@ export default function CurrencyInputPanel({
           </Flex>
         </StyledCard>
       )}
-      <InputPanel id={id} hideInput={hideInput}>
+      <InputPanel id={id} hideInput={hideInput} data-testid={dataTestId}>
         {locked && PoolLockContent}
         <Container hideInput={hideInput} selected={disableCurrencySelect} error={error} $outline={outline}>
           {!hideBalance && (
@@ -364,6 +366,7 @@ export default function CurrencyInputPanel({
                     <StyledTokenName
                       tight={tight}
                       className="token-symbol-container"
+                      data-testid="token-symbol-container"
                       active={Boolean(currency && currency.symbol)}
                       fontSize={tight ? '14px' : fontSize}
                       style={{ paddingRight: disableCurrencySelect ? '8px' : 0 }}
