@@ -30,7 +30,7 @@ describe('Token Catalog', () => {
       cy.clickButton(token.tokenIn)
       cy.selectTokenInFavoriteTokensList(token.favoriteToken, tokenSymbol[1])
       cy.verifySelectedToken(token.tokenIn, tokenSymbol[1])
-      cy.verifyURL(token.tokenIn, token.tokenOut)
+      cy.verifyURL(token.tokenIn, token.tokenIn)
     })
 
     it('Should be selected tokenOut in favorite tokens list successfully', () => {
