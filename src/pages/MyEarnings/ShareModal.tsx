@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import html2canvas from 'html2canvas'
 import { rgba } from 'polished'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { CheckCircle, Copy, Download, X } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -113,12 +113,22 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
   const shareImage = useShareImage()
   const loading = useRef(false)
   const ref = useRef<HTMLDivElement>(null)
+  const [shareUrlState, setShareUrl] = useState('')
+
+  useEffect(() => {
+    if (!isOpen) setShareUrl('')
+  }, [isOpen])
 
   const generateImageUrlByMethod = async (type: ShareType) => {
     if (loading.current) return
     try {
       loading.current = true
-      const { shareUrl } = await shareImage(ref.current, SHARE_TYPE.MY_EARNINGS)
+      let shareUrl = shareUrlState
+      if (!shareUrl) {
+        const data = await shareImage(ref.current, SHARE_TYPE.MY_EARNINGS)
+        shareUrl = data.shareUrl
+      }
+      setShareUrl(shareUrl)
       const { telegram, facebook, discord, twitter } = getSocialShareUrls(shareUrl)
       switch (type) {
         case ShareType.COPY:
