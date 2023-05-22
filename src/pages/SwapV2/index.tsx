@@ -236,14 +236,7 @@ export default function Swap() {
   const [allowedSlippage] = useUserSlippageTolerance()
 
   // swap state
-  const {
-    independentField,
-    typedValue,
-    recipient,
-    feeConfig,
-    [Field.INPUT]: INPUT,
-    [Field.OUTPUT]: OUTPUT,
-  } = useSwapState()
+  const { independentField, typedValue, recipient, [Field.INPUT]: INPUT, [Field.OUTPUT]: OUTPUT } = useSwapState()
 
   const {
     onSwitchTokensV2,

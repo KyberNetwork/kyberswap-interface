@@ -1,7 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit'
 
 import { APP_PATHS } from 'constants/index'
-import { FeeConfig } from 'hooks/useSwapV2Callback'
 import { Aggregator } from 'utils/aggregator'
 import { queryStringToObject } from 'utils/string'
 
@@ -33,7 +32,6 @@ export interface SwapState {
   // the typed recipient address or ENS name, or null if swap should go to sender
   readonly recipient: string | null
   readonly saveGas: boolean
-  readonly feeConfig: FeeConfig | undefined
   readonly trendingSoonShowed?: boolean
   readonly trade?: Aggregator
   readonly encodeSolana?: SolanaEncode
@@ -63,7 +61,6 @@ const initialState: SwapState = {
   },
   recipient: null,
   saveGas: false,
-  feeConfig: undefined,
   // Flag to only show animation of trending soon banner 1 time
   trendingSoonShowed: false,
   trade: undefined,

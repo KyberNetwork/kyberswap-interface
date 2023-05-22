@@ -28,7 +28,6 @@ import invariant from 'tiny-invariant'
 
 import { AbortedError, ETHER_ADDRESS, KYBERSWAP_SOURCE, ZERO_ADDRESS_SOLANA, sentryRequestId } from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
-import { FeeConfig } from 'hooks/useSwapV2Callback'
 import { SolanaEncode } from 'state/swap/types'
 
 import fetchWaiting from './fetchWaiting'
@@ -236,7 +235,6 @@ export class Aggregator {
     slippageTolerance: number,
     deadline: number | undefined,
     to: string,
-    feeConfig: FeeConfig | undefined,
     signal: AbortSignal,
     minimumLoadingTime: number,
     permit?: string | null,
@@ -267,12 +265,6 @@ export class Aggregator {
         slippageTolerance: slippageTolerance?.toString() ?? '',
         deadline: deadline?.toString() ?? '',
         to,
-
-        // Fee config
-        chargeFeeBy: feeConfig?.chargeFeeBy ?? '',
-        feeReceiver: feeConfig?.feeReceiver ?? '',
-        isInBps: feeConfig?.isInBps !== undefined ? (feeConfig.isInBps ? '1' : '0') : '',
-        feeAmount: feeConfig?.feeAmount ?? '',
 
         programState: programState.publicKey.toBase58() ?? '',
 
