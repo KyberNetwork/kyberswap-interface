@@ -129,9 +129,9 @@ export const FAUCET_NETWORKS = [ChainId.BTTC]
 export const CHAINS_SUPPORT_NEW_POOL_FARM_API: readonly ChainId[] = [
   // ChainId.MAINNET,
   // ChainId.MUMBAI,
-  // ChainId.MATIC,
+  ChainId.MATIC,
   // ChainId.BSCTESTNET,
-  // ChainId.BSCMAINNET,
+  ChainId.BSCMAINNET,
   // ChainId.AVAXTESTNET,
   // ChainId.AVAXMAINNET,
   // ChainId.FANTOM,
