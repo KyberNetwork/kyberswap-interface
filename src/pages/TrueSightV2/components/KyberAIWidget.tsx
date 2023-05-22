@@ -249,7 +249,7 @@ export default function Widget() {
             ))}
           </Row>
           <Row align="center" justify="center" height="400px" width="820px">
-            {activeTab === WidgetTab.MyWatchlist && data && data.data.length === 0 ? (
+            {activeTab === WidgetTab.MyWatchlist && data && data?.data?.length === 0 ? (
               <Text color={theme.subText} textAlign="center">
                 <Trans>
                   You can add more tokens to your watchlist from{' '}
