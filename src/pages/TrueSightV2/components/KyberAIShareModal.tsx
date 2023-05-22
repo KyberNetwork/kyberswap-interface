@@ -14,7 +14,7 @@ import Icon from 'components/Icons/Icon'
 import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit } from 'components/Row'
-import { KYBER_AI_GOOGLE_BUCKETS_ID } from 'constants/env'
+import { BUCKET_NAME } from 'constants/env'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
@@ -206,7 +206,7 @@ export default function KyberAIShareModal({
                   'Content-Type': 'image/png',
                 },
               })
-              const imageUrl = `https://storage.googleapis.com/${KYBER_AI_GOOGLE_BUCKETS_ID}/${fileName}`
+              const imageUrl = `https://storage.googleapis.com/${BUCKET_NAME}/${fileName}`
               setImageUrl(imageUrl)
               const res2: any = await createShareLink({ metaImageUrl: imageUrl, redirectURL: window.location.href })
               if (res2?.data?.code === 0) {
