@@ -425,7 +425,7 @@ export const LiveDEXTrades = () => {
           <th style={{ textAlign: 'right' }}>Transaction</th>
         </thead>
         <tbody style={{ fontSize: '14px', lineHeight: '20px' }}>
-          {data?.slice((currentPage - 1) * 10, currentPage * 10 - 1).map((trade: ILiveTrade, i: number) => {
+          {data?.slice((currentPage - 1) * 10, currentPage * 10).map((trade: ILiveTrade, i: number) => {
             const isBuy = trade.type === 'buy'
             return (
               <tr key={i}>

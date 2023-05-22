@@ -122,6 +122,7 @@ export default function KyberScoreChart({
         text={
           <Column style={{ color: theme.subText, fontSize: '12px', lineHeight: '16px' }} gap="2px">
             <Text>
+              Calculated at{' '}
               {hoveringItem?.created_at && dayjs(hoveringItem?.created_at * 1000).format('DD/MM/YYYY hh:mm A')}
             </Text>
             <Text style={{ whiteSpace: 'nowrap' }}>
@@ -138,6 +139,7 @@ export default function KyberScoreChart({
             </Text>
           </Column>
         }
+        maxWidth="250px"
       />
     </Wrapper>
   )
