@@ -89,7 +89,7 @@ export default function SelectWallet() {
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
 
   const profileIcon = (
-    <Web3StatusConnected>
+    <Web3StatusConnected onClick={toggleModal}>
       <Profile size={18} />
       {!isMobile && <Text>{isLogin ? shortenAddress(chainId, account ?? '') : t`Guest`}</Text>}
     </Web3StatusConnected>
@@ -101,7 +101,7 @@ export default function SelectWallet() {
         {isMobile ? (
           <>
             {profileIcon}
-            <Modal isOpen={isOpen} onDismiss={toggleModal} minHeight={80}>
+            <Modal isOpen={isOpen} onDismiss={toggleModal}>
               <ProfileContent />
             </Modal>
           </>

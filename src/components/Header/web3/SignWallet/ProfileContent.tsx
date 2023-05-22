@@ -24,12 +24,14 @@ import getShortenAddress from 'utils/getShortenAddress'
 const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  width: 100%;
 `
 
 const ActionWrapper = styled.div`
   display: flex;
   gap: 20px;
   padding: 12px 20px;
+  justify-content: space-between;
 `
 
 const ProfileItemWrapper = styled(RowBetween)<{ active: boolean }>`
@@ -69,11 +71,13 @@ const ProfileItem = ({ account, guest, active }: { account: string; guest?: bool
   }
   return (
     <ProfileItemWrapper active={active} onClick={onClick}>
-      <Row>
+      <Row gap="8px">
         <div>
           <Profile size={26} color={theme.primary} />
         </div>
-        <Text>{guest ? account : getShortenAddress(account)}</Text>
+        <Text fontWeight={'400'} fontSize={'14px'}>
+          {guest ? account : getShortenAddress(account)}
+        </Text>
       </Row>
       <Row justify="flex-end" gap="18px" align="center">
         {guest && (
@@ -121,10 +125,19 @@ const ProfileContent = () => {
         <ProfileItem account={t`Guest`} guest active={!isLogin} />
       </Column>
       <ActionWrapper>
-        <Flex color={theme.subText} alignItems={'center'} style={{ gap: '6px' }} onClick={signInEth}>
+        <Flex
+          color={theme.subText}
+          alignItems={'center'}
+          style={{ gap: '6px' }}
+          onClick={signInEth}
+          fontWeight={'400'}
+          fontSize={'14px'}
+        >
           <Plus size={20} /> <Trans>Add Account</Trans>
         </Flex>
         <Flex
+          fontWeight={'400'}
+          fontSize={'14px'}
           color={theme.subText}
           alignItems={'center'}
           style={{ gap: '6px' }}
