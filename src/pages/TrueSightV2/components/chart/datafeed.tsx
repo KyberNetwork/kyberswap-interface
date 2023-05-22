@@ -50,7 +50,7 @@ export const useDatafeed = (isBTC: boolean, token?: ITokenOverview) => {
         _onResolveErrorCallback: ErrorCallback,
       ) => {
         try {
-          const chartName = `${token?.symbol}/${isBTC ? 'BTC' : 'USD'}`
+          const chartName = `${token?.symbol?.toUpperCase()}/${isBTC ? 'BTC' : 'USD'}`
           const symbolInfo: LibrarySymbolInfo = {
             ticker: chartName,
             name: chartName,
