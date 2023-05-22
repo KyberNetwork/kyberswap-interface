@@ -138,11 +138,12 @@ export const useWeb3Solana = () => {
   return { connection }
 }
 
-export async function isAuthorized(): Promise<string | boolean> {
+export async function isAuthorized(getAccount = false): Promise<string | boolean> {
   // Check if previous connected to Coinbase Link
   if (
-    window.localStorage.getItem(WALLETLINK_LOCALSTORAGE_NAME) ||
-    localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY) === 'WALLET_CONNECT'
+    (window.localStorage.getItem(WALLETLINK_LOCALSTORAGE_NAME) ||
+      localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY) === 'WALLET_CONNECT') &&
+    !getAccount
   ) {
     return true
   }
