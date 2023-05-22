@@ -1,3 +1,4 @@
+import KyberOauth2 from '@kybernetwork/oauth2'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useEffect, useState } from 'react'
@@ -106,6 +107,15 @@ export default function Profile() {
     onChangeEmail(formatUserInfo?.email ?? '')
   }, [formatUserInfo?.identityId, formatUserInfo?.email, onChangeEmail])
 
+  // useEffect(() => {
+  //   if (!isLogin) {
+  //     navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.GUEST_PROFILE}`)
+  //     return
+  //   }
+  //   if (walletParam && walletParam.toLowerCase() !== account?.toLowerCase())
+  //     navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PROFILE}/${account}`)
+  // }, [formatUserInfo?.identityId, account, navigate, walletParam, isLogin])
+
   const [isShowVerify, setIsShowVerify] = useState(false)
   const showVerifyModal = () => {
     setIsShowVerify(true)
@@ -120,7 +130,7 @@ export default function Profile() {
 
   const isVerifiedEmail = formatUserInfo?.email && inputEmail === formatUserInfo?.email
   const displayWallet = (walletParam ? walletParam : '') || account || ''
-  const isNeedSignIn = !isLogin || account?.toLowerCase() !== walletParam?.toLowerCase()
+  const isNeedSignIn = !isLogin
   return (
     <Wrapper>
       <Text fontSize={'24px'} fontWeight={'500'}>
@@ -164,7 +174,13 @@ export default function Profile() {
           )}
 
           <Row gap="20px">
-            <ButtonOutlined width={'120px'} height={'36px'} fontSize={'14px'} disabled={isNeedSignIn}>
+            <ButtonOutlined
+              width={'120px'}
+              height={'36px'}
+              fontSize={'14px'}
+              disabled={isNeedSignIn}
+              onClick={() => KyberOauth2.logout()}
+            >
               <LogOut size={16} style={{ marginRight: '4px' }} />
               Log Out
             </ButtonOutlined>

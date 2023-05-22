@@ -76,6 +76,9 @@ const HeaderControls = styled.div`
   ${({ theme }) => theme.mediaWidth.upToSmall`
       height: 60px;
   `};
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+      padding: 1rem 8px;
+  `};
 `
 
 const HeaderElement = styled.div`

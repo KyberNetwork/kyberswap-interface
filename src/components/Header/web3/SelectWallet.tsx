@@ -2,8 +2,8 @@ import { Trans, t } from '@lingui/macro'
 import { UnsupportedChainIdError } from '@web3-react/core'
 import { darken, lighten } from 'polished'
 import { useMemo } from 'react'
+import { isMobile } from 'react-device-detect'
 import { Activity } from 'react-feather'
-import { useMedia } from 'react-use'
 import styled from 'styled-components'
 
 import { ButtonLight } from 'components/Button'
@@ -120,7 +120,6 @@ function Web3StatusInner() {
   const toggleWalletModal = useWalletModalToggle()
   const toggleNetworkModal = useNetworkModalToggle()
 
-  const above369 = useMedia('(min-width: 369px)')
   if (account) {
     return (
       <Web3StatusConnected
@@ -148,7 +147,7 @@ function Web3StatusInner() {
                 />
               </IconWrapper>
             )}
-            <Text>{ENSName || shortenAddress(chainId, account, above369 ? undefined : 2)}</Text>
+            <Text>{ENSName || shortenAddress(chainId, account, isMobile ? 2 : undefined)}</Text>
           </>
         )}
       </Web3StatusConnected>

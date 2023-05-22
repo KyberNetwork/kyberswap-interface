@@ -1,17 +1,19 @@
 import KyberOauth2, { LoginMethod } from '@kybernetwork/oauth2'
+import { t } from '@lingui/macro'
 import { captureException } from '@sentry/react'
 import { useCallback, useEffect, useRef } from 'react'
 import { useConnectWalletToProfileMutation, useGetOrCreateProfileMutation } from 'services/identity'
 
+import { NotificationType } from 'components/Announcement/type'
 import { ENV_KEY, OAUTH_CLIENT_ID } from 'constants/env'
-import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useIsConnectedWallet } from 'hooks/useSyncNetworkParamWithStore'
+import { useNotify } from 'state/application/hooks'
 import { useSaveUserProfile, useSessionInfo, useSetPendingAuthentication } from 'state/authen/hooks'
 
 KyberOauth2.initialize({
   clientId: OAUTH_CLIENT_ID,
-  redirectUri: `${window.location.protocol}//${window.location.host}${APP_PATHS.KYBERAI_ABOUT.toLowerCase()}`, // limit only kyber AI page for now
+  redirectUri: `${window.location.protocol}//${window.location.host}`, // todo check AI page for now
   mode: ENV_KEY,
 })
 
@@ -104,10 +106,22 @@ const useLogin = () => {
 
 export const useSignInETH = () => {
   const { account } = useActiveWeb3React()
+  const { isLogin } = useSessionInfo()
+  const notify = useNotify()
 
-  return {
-    signInEth: useCallback(() => KyberOauth2.authenticate({ wallet_address: account ?? '' }), [account]),
-  }
+  const signInEth = useCallback(() => {
+    if (isLogin) {
+      notify({
+        type: NotificationType.SUCCESS,
+        title: t`Logged in successfully`,
+        summary: t`Logged in successfully with the current wallet address`,
+      })
+      return
+    }
+    KyberOauth2.authenticate({ wallet_address: account ?? '' })
+  }, [account, isLogin, notify])
+
+  return { signInEth }
 }
 
 export default useLogin

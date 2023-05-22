@@ -1,10 +1,15 @@
 import { t } from '@lingui/macro'
 import { darken, lighten } from 'polished'
 import { useMedia } from 'react-use'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
+import ProfileContent from 'components/Header/web3/SignWallet/ProfileContent'
 import Profile from 'components/Icons/Profile'
+import MenuFlyout from 'components/MenuFlyout'
+import Modal from 'components/Modal'
 import { useActiveWeb3React } from 'hooks'
+import { ApplicationModal } from 'state/application/actions'
+import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
@@ -58,17 +63,54 @@ const AccountElement = styled.div`
   height: 42px;
 `
 
+const StyledMenu = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  border: none;
+  text-align: left;
+`
+
+const browserCustomStyle = css`
+  padding: 0;
+  border-radius: 12px;
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    top: unset;
+    bottom: 3.5rem;
+  `};
+`
+
 export default function SelectWallet() {
   const { chainId, account } = useActiveWeb3React()
   const { isLogin } = useSessionInfo()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const isOpen = useModalOpen(ApplicationModal.SWITCH_PROFILE_POPUP)
+  const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
+
+  const profileIcon = (
+    <Web3StatusConnected>
+      <Profile size={18} />
+      {!isMobile && <Text>{isLogin ? shortenAddress(chainId, account ?? '') : t`Guest`}</Text>}
+    </Web3StatusConnected>
+  )
   if (!account) return null
   return (
     <AccountElement>
-      <Web3StatusConnected>
-        <Profile size={18} />
-        {!isMobile && <Text>{isLogin ? shortenAddress(chainId, account ?? '') : t`Guest`}</Text>}
-      </Web3StatusConnected>
+      <StyledMenu>
+        {isMobile ? (
+          <>
+            {profileIcon}
+            <Modal isOpen={isOpen} onDismiss={toggleModal} minHeight={80}>
+              <ProfileContent />
+            </Modal>
+          </>
+        ) : (
+          <MenuFlyout trigger={profileIcon} customStyle={browserCustomStyle} isOpen={isOpen} toggle={toggleModal}>
+            <ProfileContent />
+          </MenuFlyout>
+        )}
+      </StyledMenu>
     </AccountElement>
   )
 }
