@@ -8,7 +8,6 @@ export enum SHARE_TYPE {
   MY_EARNINGS = 'MY_EARNINGS',
 }
 
-// todo danh combine this file with kyber ai prevent duplicate
 const SocialApi = createApi({
   reducerPath: 'socialApi',
   baseQuery: baseQueryOauth({ baseUrl: BFF_API }),
