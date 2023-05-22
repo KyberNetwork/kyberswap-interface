@@ -13,8 +13,7 @@ import { TIMES_IN_SECS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import OTPInput from 'pages/Verify/VerifyCodeModal/OtpInput'
 import { useNotify } from 'state/application/hooks'
-import { useSaveUserProfile, useSessionInfo } from 'state/authen/hooks'
-import { UserProfile } from 'state/authen/reducer'
+import { useRefreshProfile, useSessionInfo } from 'state/authen/hooks'
 
 export const getErrorMessage = (error: any) => {
   const mapErr: { [key: number]: string } = {
@@ -141,15 +140,15 @@ export default function VerifyCodeModal({
     }
   }, [isOpen, showNotiSuccess, showVerifySuccess, sendEmailWhenInit])
 
-  const setProfile = useSaveUserProfile()
-  const { userInfo, isLogin } = useSessionInfo()
+  const refreshProfile = useRefreshProfile()
+  const { isLogin } = useSessionInfo()
 
   const verify = async () => {
     try {
       if (!email) return
       await verifyOtp({ code: otp, email }).unwrap()
       await onVerifySuccess?.()
-      setProfile({ profile: { ...userInfo, email } as UserProfile, isAnonymous: !isLogin })
+      await refreshProfile(!isLogin)
       showNotiSuccess()
     } catch (error) {
       setError(true)

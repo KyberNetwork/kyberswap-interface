@@ -26,7 +26,7 @@ export default function FileInput({
   }
   return (
     <>
-      <div onClick={onClick} style={{ cursor: 'pointer' }}>
+      <div onClick={onClick} style={{ cursor: 'pointer', width: 'fit-content' }}>
         {children}
       </div>
       <input

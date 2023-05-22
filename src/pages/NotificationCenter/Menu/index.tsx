@@ -8,6 +8,7 @@ import { useGetTotalUnreadAnnouncementsQuery } from 'services/announcement'
 import { ReactComponent as AllIcon } from 'assets/svg/all_icon.svg'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { PrivateAnnouncementType } from 'components/Announcement/type'
+import Avatar from 'components/Avatar'
 import MailIcon from 'components/Icons/MailIcon'
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import ProfileIcon from 'components/Icons/Profile'
@@ -114,7 +115,7 @@ const MenuForDesktop = ({ unread }: PropsMenu) => {
   // todo mobile
   const { account } = useActiveWeb3React()
   const { signInEth } = useSignInETH()
-  const { isLogin } = useSessionInfo()
+  const { isLogin, formatUserInfo } = useSessionInfo()
   const menuItemDeskTop = useMemo(() => {
     return menuItems.map(el => {
       if (el.route !== NOTIFICATION_ROUTES.PROFILE) return el
@@ -127,7 +128,7 @@ const MenuForDesktop = ({ unread }: PropsMenu) => {
             }
           : {
               route: `${NOTIFICATION_ROUTES.PROFILE}/${account}`,
-              icon: <ProfileIcon />,
+              icon: <Avatar url={formatUserInfo?.avatarUrl} size={16} />,
               title: getShortenAddress(account ?? ''),
             },
       ]
@@ -140,7 +141,7 @@ const MenuForDesktop = ({ unread }: PropsMenu) => {
         })
       return { ...el, childs }
     })
-  }, [isLogin, account, signInEth])
+  }, [isLogin, account, signInEth, formatUserInfo?.avatarUrl])
 
   return (
     <Flex

@@ -1,5 +1,6 @@
 import KyberOauth2 from '@kybernetwork/oauth2'
 import { Trans, t } from '@lingui/macro'
+import { rgba } from 'polished'
 import { Download, Plus, Upload } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
@@ -39,7 +40,7 @@ const ProfileItemWrapper = styled(RowBetween)<{ active: boolean }>`
   color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
   border-bottom: 1px solid ${({ theme }) => theme.border};
   :hover {
-    background-color: ${({ theme }) => theme.buttonBlack};
+    background-color: ${({ theme }) => rgba(theme.buttonBlack, 0.5)};
   }
 `
 

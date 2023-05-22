@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
+import { useGetOrCreateProfileMutation } from 'services/identity'
 
 import { useActiveWeb3React } from 'hooks'
 import { AppState } from 'state'
@@ -39,6 +40,18 @@ export const useSaveUserProfile = () => {
       dispatch(updateProfile({ profile, isAnonymous }))
     },
     [dispatch],
+  )
+}
+
+export const useRefreshProfile = () => {
+  const setProfile = useSaveUserProfile()
+  const [getProfile] = useGetOrCreateProfileMutation()
+  return useCallback(
+    async (isAnonymous: boolean) => {
+      const profile = await getProfile().unwrap()
+      setProfile({ profile, isAnonymous })
+    },
+    [getProfile, setProfile],
   )
 }
 
