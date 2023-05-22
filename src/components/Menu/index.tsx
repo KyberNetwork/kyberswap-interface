@@ -138,15 +138,13 @@ const StyledMenuButton = styled.button<{ active?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${({ theme }) => theme.text};
+  color: ${({ theme }) => theme.subText};
 
   border-radius: 999px;
 
   :hover {
     cursor: pointer;
     outline: none;
-    background-color: ${({ theme }) => theme.buttonBlack};
-    border: 1px solid ${({ theme }) => theme.primary};
   }
 
   ${({ active }) =>
@@ -154,7 +152,7 @@ const StyledMenuButton = styled.button<{ active?: boolean }>`
     css`
       cursor: pointer;
       outline: none;
-      background-color: ${({ theme }) => theme.buttonBlack};
+      color: ${({ theme }) => theme.text};
     `}
 `
 
@@ -211,9 +209,7 @@ const Title = styled(MenuItem)`
   font-size: 16px;
   color: ${({ theme }) => theme.text};
 `
-const noop = () => {
-  //
-}
+const noop = () => {}
 
 export default function Menu() {
   const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()

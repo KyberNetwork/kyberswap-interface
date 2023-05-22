@@ -16,6 +16,7 @@ import { useActiveWeb3React } from 'hooks'
 import { useSignInETH } from 'hooks/useLogin'
 import MenuItem from 'pages/NotificationCenter/Menu/MenuItem'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
+import { useSessionInfo } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
 
@@ -108,45 +109,38 @@ const menuItems: MenuItemType[] = [
   }
 })
 
-type PropsMenu = { unread: Unread; connectedAccounts: string[] }
-const MenuForDesktop = ({ unread, connectedAccounts }: PropsMenu) => {
+type PropsMenu = { unread: Unread }
+const MenuForDesktop = ({ unread }: PropsMenu) => {
   // todo mobile
   const { account } = useActiveWeb3React()
   const { signInEth } = useSignInETH()
+  const { isLogin } = useSessionInfo()
   const menuItemDeskTop = useMemo(() => {
     return menuItems.map(el => {
       if (el.route !== NOTIFICATION_ROUTES.PROFILE) return el
-      const defaultChilds: MenuItemType[] = []
-      if (!connectedAccounts.length) {
-        defaultChilds.push({
-          route: NOTIFICATION_ROUTES.GUEST_PROFILE,
-          icon: <ProfileIcon />,
-          title: t`Guest`,
-        })
-      }
-      if (!connectedAccounts.some(key => key === account?.toLowerCase())) {
-        defaultChilds.push({
+      const childs: MenuItemType[] = [
+        !isLogin
+          ? {
+              route: NOTIFICATION_ROUTES.GUEST_PROFILE,
+              icon: <ProfileIcon />,
+              title: t`Guest`,
+            }
+          : {
+              route: `${NOTIFICATION_ROUTES.PROFILE}/${account}`,
+              icon: <ProfileIcon />,
+              title: getShortenAddress(account ?? ''),
+            },
+      ]
+      if (account)
+        childs.push({
           route: '',
           icon: <Plus size="16px" />,
           title: t`Add Account`,
           onClick: signInEth,
         })
-      }
-      return {
-        ...el,
-        childs: connectedAccounts
-          .map(
-            account =>
-              ({
-                route: `${NOTIFICATION_ROUTES.PROFILE}/${account}`,
-                icon: <ProfileIcon />,
-                title: getShortenAddress(account),
-              } as MenuItemType),
-          )
-          .concat(defaultChilds),
-      }
+      return { ...el, childs }
     })
-  }, [connectedAccounts, account, signInEth])
+  }, [isLogin, account, signInEth])
 
   return (
     <Flex
@@ -188,7 +182,6 @@ const MenuForMobile = ({ unread }: PropsMenu) => {
 const Menu = () => {
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const { account } = useActiveWeb3React()
-  const { connectedAccounts } = useSignInETH()
 
   const templateIds = Object.values(PrivateAnnouncementType)
     .filter(e => e !== PrivateAnnouncementType.DIRECT_MESSAGE)
@@ -209,7 +202,7 @@ const Menu = () => {
     return result
   }, [data])
 
-  const props = { unread, connectedAccounts }
+  const props = { unread }
   return upToMedium ? <MenuForMobile {...props} /> : <MenuForDesktop {...props} />
 }
 

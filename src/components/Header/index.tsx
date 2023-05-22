@@ -1,4 +1,5 @@
 import { Trans, t } from '@lingui/macro'
+import { lighten } from 'polished'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
@@ -6,6 +7,7 @@ import Announcement from 'components/Announcement'
 import CampaignNavGroup from 'components/Header/groups/CampaignNavGroup'
 import SelectNetwork from 'components/Header/web3/SelectNetwork'
 import SelectWallet from 'components/Header/web3/SelectWallet'
+import SignWallet from 'components/Header/web3/SignWallet'
 import Menu from 'components/Menu'
 import Row, { RowFixed } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -13,6 +15,7 @@ import { APP_PATHS } from 'constants/index'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useTheme from 'hooks/useTheme'
 import { useHolidayMode, useIsDarkMode } from 'state/user/hooks'
 
 import DiscoverNavItem from './DiscoverNavItem'
@@ -88,7 +91,18 @@ const HeaderElement = styled.div`
 const HeaderElementWrap = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 8px;
+  padding: 0px 6px;
+  margin-left: 8px;
+  border-radius: 36px;
+  background-color: ${({ theme }) => theme.buttonGray};
+  border: 1px solid ${({ theme }) => theme.buttonGray};
+  color: ${({ theme }) => theme.subText};
+  :hover,
+  :focus {
+    background-color: ${({ theme }) => lighten(0.05, theme.buttonGray)};
+    border: 1px solid ${({ theme }) => theme.primary};
+  }
 `
 
 const HeaderRow = styled(RowFixed)`
@@ -158,7 +172,7 @@ export default function Header() {
   const { walletKey, networkInfo } = useActiveWeb3React()
   const isDark = useIsDarkMode()
   const [holidayMode] = useHolidayMode()
-
+  const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
   return (
     <HeaderFrame>
@@ -208,9 +222,11 @@ export default function Header() {
             <SelectNetwork disabled={walletKey === 'WALLET_CONNECT'} />
           </MouseoverTooltip>
           <SelectWallet />
+          <SignWallet />
         </HeaderElement>
         <HeaderElementWrap>
           <Announcement />
+          <div style={{ height: '18px', borderLeft: `2px solid ${theme.border}` }} />
           <Menu />
         </HeaderElementWrap>
       </HeaderControls>

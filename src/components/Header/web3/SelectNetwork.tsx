@@ -44,7 +44,6 @@ const NetworkCard = styled(Card)<{ disabled?: boolean }>`
     `}
   ${({ theme }) => theme.mediaWidth.upToSmall`
     margin: 0;
-    margin-right: 0.5rem;
     width: initial;
     text-overflow: ellipsis;
     flex-shrink: 1;
@@ -86,11 +85,11 @@ function SelectNetwork({ disabled }: { disabled?: boolean }): JSX.Element | null
   return (
     <NetworkCard onClick={() => toggleNetworkModal()} role="button" id={TutorialIds.SELECT_NETWORK} disabled={disabled}>
       <NetworkSwitchContainer>
-        <Row>
+        <Row gap="10px">
           <img
             src={(isDarkMode && networkInfo.iconDark) || networkInfo.icon}
             alt={networkInfo.name + ' logo'}
-            style={{ width: 20, height: 20, marginRight: '12px' }}
+            style={{ width: 20, height: 20 }}
           />
           <NetworkLabel>{labelContent}</NetworkLabel>
         </Row>

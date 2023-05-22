@@ -31,7 +31,7 @@ const StyledMenuButton = styled.button<{ active?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${({ theme }) => theme.text};
+  color: ${({ theme }) => theme.subText};
   border-radius: 999px;
   position: relative;
   outline: none;
@@ -39,20 +39,15 @@ const StyledMenuButton = styled.button<{ active?: boolean }>`
   border: 1px solid transparent;
   :hover {
     cursor: pointer;
-    background-color: ${({ theme }) => theme.buttonBlack};
-    border: 1px solid ${({ theme }) => theme.primary};
   }
-
   ${({ active }) =>
-    active
-      ? css`
-          background-color: ${({ theme }) => theme.buttonBlack};
-        `
-      : ''}
+    active &&
+    css`
+      color: ${({ theme }) => theme.text};
+    `}
 `
 
 const StyledMenu = styled.div`
-  margin-left: 0.5rem;
   display: flex;
   justify-content: center;
   align-items: center;
