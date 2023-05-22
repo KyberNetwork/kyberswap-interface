@@ -93,7 +93,7 @@ jobs:
           NODE_OPTIONS: '--max_old_space_size=4096'
         run: yarn build-adpr
 
-      - name: run preview
+      - name: Run Cypress Test
         run: |+
           #!/bin/bash
 
