@@ -31,7 +31,7 @@ export default function KyberScoreShareContent({ token }: { token?: ITokenOvervi
       <Row justify="center">
         <Text color={theme.text} fontSize="36px" lineHeight="44px">
           <Trans>
-            {token?.symbol} seems to be{' '}
+            {token?.symbol?.toUpperCase()} seems to be{' '}
             <span style={{ color: calculateValueToColor(latestKyberscore?.kyber_score || 0, theme) }}>
               {latestKyberscore ? latestKyberscore.tag : ''}
             </span>

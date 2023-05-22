@@ -23,7 +23,7 @@ const kyberAIApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: KYBERAI_API,
   }),
-  tagTypes: ['tokenOverview'],
+  tagTypes: ['tokenOverview', 'tokenList', 'myWatchList'],
   endpoints: builder => ({
     //1.
     tokenList: builder.query<
@@ -56,6 +56,8 @@ const kyberAIApi = createApi({
         }
         throw new Error(res.msg)
       },
+      providesTags: (result, error, arg) =>
+        arg.watchlist === true && !!arg.wallet ? ['myWatchList', 'tokenList'] : ['tokenList'],
     }),
     //2.
     addToWatchlist: builder.mutation({
@@ -64,7 +66,7 @@ const kyberAIApi = createApi({
         method: 'POST',
         params,
       }),
-      // invalidatesTags: (res, err, params) => [{ type: 'tokenOverview', id: params.tokenAddress }],
+      invalidatesTags: (res, err, params) => [{ type: 'tokenOverview', id: params.tokenAddress }, 'myWatchList'],
     }),
     //3.
     removeFromWatchlist: builder.mutation({
@@ -73,7 +75,7 @@ const kyberAIApi = createApi({
         method: 'DELETE',
         params,
       }),
-      // invalidatesTags: (res, err, params) => [{ type: 'tokenOverview', id: params.tokenAddress }],
+      invalidatesTags: (res, err, params) => [{ type: 'tokenOverview', id: params.tokenAddress }, 'myWatchList'],
     }),
 
     //4.
@@ -253,26 +255,6 @@ const kyberAIApi = createApi({
   }),
 })
 
-export const coinglassApi = createApi({
-  reducerPath: 'coinglassApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: 'https://fapi.coinglass.com/api/',
-  }),
-  endpoints: builder => ({
-    cexesInfo: builder.query({
-      query: () => ({
-        url: 'futures/liquidation/info?symbol=BTC&timeType=1&size=12',
-      }),
-      transformResponse: (res: any) => {
-        if (res.success) {
-          return undefined
-        }
-        throw new Error(res.msg)
-      },
-    }),
-  }),
-})
-
 export const {
   useTokenDetailQuery,
   useNumberOfTradesQuery,
@@ -292,5 +274,4 @@ export const {
   useSearchTokenQuery,
   useFundingRateQuery,
 } = kyberAIApi
-export const { useCexesInfoQuery } = coinglassApi
 export default kyberAIApi

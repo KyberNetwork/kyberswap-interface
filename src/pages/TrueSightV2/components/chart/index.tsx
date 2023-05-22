@@ -2286,7 +2286,7 @@ export const LiquidOnCentralizedExchanges = ({ noAnimation }: { noAnimation?: bo
     chartSize: timeframe.toString().toLowerCase(),
     chain,
   })
-  const { data: tokenOverview } = useTokenDetailQuery({ address, chain })
+  const { data: tokenOverview } = useTokenDetailQuery({ address, chain }, { skip: !address || !chain })
   const [showLong, setShowLong] = useState(true)
   const [showShort, setShowShort] = useState(true)
   const [showPrice, setShowPrice] = useState(true)

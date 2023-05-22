@@ -33,7 +33,7 @@ import SmallKyberScoreMeter from '../components/SmallKyberScoreMeter'
 import TokenChart from '../components/TokenChartSVG'
 import { StarWithAnimation } from '../components/WatchlistStar'
 import KyberScoreChart from '../components/chart/KyberScoreChart'
-import { TokenListInShareModalTable } from '../components/table'
+import TokenAnalysisListShareContent from '../components/shareContent/TokenAnalysisListShareContent'
 import { SUPPORTED_NETWORK_KYBERAI } from '../constants'
 import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation, useTokenListQuery } from '../hooks/useKyberAIData'
 import { IKyberScoreChart, ITokenList, KyberAIListType } from '../types'
@@ -1010,7 +1010,7 @@ export default function TokenAnalysisList() {
       <KyberAIShareModal
         isOpen={showShare}
         onClose={() => setShowShare(false)}
-        content={<TokenListInShareModalTable data={data?.data || []} />}
+        content={<TokenAnalysisListShareContent data={data?.data || []} />}
       />
     </>
   )
