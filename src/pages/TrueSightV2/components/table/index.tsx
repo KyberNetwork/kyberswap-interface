@@ -347,7 +347,7 @@ export const FundingRateTable = () => {
   const { data, isLoading } = useFundingRateQuery({ address, chain })
 
   return (
-    <LoadingHandleWrapper isLoading={isLoading} hasData={!!data && data.length > 0} height="200px">
+    <LoadingHandleWrapper isLoading={isLoading} hasData={!!data} height="200px">
       <colgroup>
         <col />
         {Array(data?.uMarginList?.length)
