@@ -1010,7 +1010,7 @@ export default function TokenAnalysisList() {
       <KyberAIShareModal
         isOpen={showShare}
         onClose={() => setShowShare(false)}
-        content={<TokenAnalysisListShareContent data={data?.data || []} />}
+        content={mobileMode => <TokenAnalysisListShareContent data={data?.data || []} mobileMode={mobileMode} />}
       />
     </>
   )

@@ -10,6 +10,8 @@ const useShareImage = () => {
   return useCallback(
     (element: HTMLDivElement | null, type: SHARE_TYPE): Promise<{ shareUrl: string; imageUrl: string; blob: Blob }> => {
       return new Promise(async (resolve, reject) => {
+        console.log('🚀 ~ file: useShareImage.ts:32 ~ returnnewPromise ~ element:', element)
+
         if (!element) return reject('Not found element')
         const canvasData = await html2canvas(element, {
           allowTaint: true,

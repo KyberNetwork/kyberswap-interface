@@ -5,7 +5,7 @@ import { useLiveDexTradesQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
 
 import { LiveTradesInShareModalTable } from '../table'
 
-export function DexTradesShareContent() {
+export function DexTradesShareContent({ mobileMode }: { mobileMode?: boolean }) {
   const { chain, address } = useParams()
   const { data } = useLiveDexTradesQuery({
     chain,
@@ -14,8 +14,14 @@ export function DexTradesShareContent() {
 
   return (
     <Row gap="16px" justify="space-between">
-      <LiveTradesInShareModalTable data={data?.slice(0, 5) || []} />
-      <LiveTradesInShareModalTable data={data?.slice(5, 10) || []} />
+      {mobileMode ? (
+        <LiveTradesInShareModalTable data={data?.slice(0, 10) || []} mobileMode />
+      ) : (
+        <>
+          <LiveTradesInShareModalTable data={data?.slice(0, 5) || []} />
+          <LiveTradesInShareModalTable data={data?.slice(5, 10) || []} />
+        </>
+      )}
     </Row>
   )
 }

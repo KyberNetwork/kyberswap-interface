@@ -124,7 +124,7 @@ const ChartWrapper = styled(ContentWrapper)`
   position: relative;
 `
 
-const LegendWrapper = styled.div`
+export const LegendWrapper = styled.div`
   position: absolute;
   top: 0;
   right: 0;
@@ -147,7 +147,7 @@ const LegendWrapper = styled.div`
   `}
 `
 
-const InfoWrapper = styled.div`
+export const InfoWrapper = styled.div`
   position: absolute;
   top: 0;
   left: 0;
@@ -287,7 +287,7 @@ export const TimeFrameLegend = ({
   }, [selected])
   if (timeframes?.length < 1) return null
   return (
-    <TimeFrameWrapper className="timeframelegend">
+    <TimeFrameWrapper className="time-frame-legend">
       {timeframes.map((t: KyberAITimeframe, index: number) => {
         return (
           <Element
@@ -1743,6 +1743,7 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
               dataKey="totalNetflow"
               stroke="url(#gradient2)"
               strokeWidth={2}
+              isAnimationActive={noAnimation ? false : true}
               dot={false}
               {...{
                 label: <CustomizedLabel timeframe={timeframe} dollarSign />,

@@ -234,7 +234,6 @@ const GaugeValue = styled.div<{ color?: string }>`
   transform: translate(-50%, 0);
   left: 50%;
   font-size: 40px;
-  line-height: 44px;
   font-weight: 500;
   font-family: 'Inter var';
   ${({ theme, color }) => `color: ${color || theme.primary};`};
@@ -250,10 +249,12 @@ function KyberScoreMeter({
   value,
   style,
   noAnimation,
+  fontSize,
 }: {
   value?: number
   style?: CSSProperties
   noAnimation?: boolean
+  fontSize?: string
 }) {
   const theme = useTheme()
   // const [rotate, setRotate] = useState(0)
@@ -315,7 +316,10 @@ function KyberScoreMeter({
           strokeWidth="2"
         ></path> */}
       </svg>
-      <GaugeValue color={calculateValueToColor(transitionValue, theme)}>
+      <GaugeValue
+        color={calculateValueToColor(transitionValue, theme)}
+        style={fontSize ? { fontSize: fontSize } : undefined}
+      >
         {transitionValue === 0 ? '--' : transitionValue.toFixed(1)}
       </GaugeValue>
     </Wrapper>

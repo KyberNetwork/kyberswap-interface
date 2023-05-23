@@ -522,7 +522,7 @@ export default function SingleToken() {
 
         <TagWrapper>
           {token?.tags?.slice(0, viewAllTag ? token.tags.length : 5).map(tag => {
-            return <Tag key="tag">{tag}</Tag>
+            return <Tag key={tag}>{tag}</Tag>
           })}
           {!viewAllTag && token?.tags && token.tags.length > 5 && (
             <Tag active onClick={() => setViewAllTag(true)}>
@@ -563,7 +563,7 @@ export default function SingleToken() {
       <KyberAIShareModal
         isOpen={showShare}
         onClose={() => setShowShare(false)}
-        content={<ExploreShareContent token={token} />}
+        content={mobileMode => <ExploreShareContent token={token} mobileMode={mobileMode} />}
       />
     </Wrapper>
   )

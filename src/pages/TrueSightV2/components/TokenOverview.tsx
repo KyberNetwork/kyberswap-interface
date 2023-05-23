@@ -679,7 +679,8 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
       <KyberAIShareModal
         isOpen={showShare}
         onClose={() => setShowShare(false)}
-        content={<KyberScoreShareContent token={data} />}
+        content={mobileMode => <KyberScoreShareContent token={data} mobileMode={mobileMode} />}
+        title="Kyberscore"
       />
     </>
   )

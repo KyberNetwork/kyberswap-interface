@@ -167,12 +167,12 @@ export default function TechnicalAnalysis() {
             </RowFit>
           }
           shareButton
-          shareContent={
+          shareContent={() => (
             <ProchartShareContent
               title={`${tokenOverview?.symbol?.toUpperCase()}/${liveChartTab === ChartTab.First ? 'USD' : 'BTC'}`}
               dataUrl={prochartDataURL}
             />
-          }
+          )}
           onShareClick={takeScreenShot}
         >
           <Prochart isBTC={liveChartTab === ChartTab.Second} tvWidget={tvWidget} setTvWidget={setTvWidget} />
@@ -203,7 +203,9 @@ export default function TechnicalAnalysis() {
           }
           style={{ height: 'fit-content' }}
           shareButton
-          shareContent={<SupportResistanceShareContent dataUrl={prochartDataURL} />}
+          shareContent={mobileMode => (
+            <SupportResistanceShareContent dataUrl={prochartDataURL} mobileMode={mobileMode} />
+          )}
           onShareClick={takeScreenShot}
         >
           <SupportResistanceLevel />
@@ -225,7 +227,7 @@ export default function TechnicalAnalysis() {
           subTitle={t`Note:  Live trades may be slightly delayed`}
           style={{ height: 'fit-content' }}
           shareButton
-          shareContent={<DexTradesShareContent />}
+          shareContent={mobileMode => <DexTradesShareContent mobileMode={mobileMode} />}
         >
           <LiveDEXTrades />
         </SectionWrapper>
@@ -256,7 +258,7 @@ export default function TechnicalAnalysis() {
           }
           style={{ height: 'fit-content' }}
           shareButton
-          shareContent={<FundingRateShareContent dataUrl={prochartDataURL} />}
+          shareContent={mobileMode => <FundingRateShareContent dataUrl={prochartDataURL} mobileMode={mobileMode} />}
           onShareClick={takeScreenShot}
         >
           <FundingRateTable />
@@ -271,11 +273,11 @@ export default function TechnicalAnalysis() {
           token after large liquidations.`}
           style={{ height: 'fit-content' }}
           shareButton
-          shareContent={
+          shareContent={() => (
             <Column style={{ height: '400px', width: '100%' }}>
               <LiquidOnCentralizedExchanges noAnimation />
             </Column>
-          }
+          )}
         >
           <Column style={{ height: '500px' }}>
             <LiquidOnCentralizedExchanges />

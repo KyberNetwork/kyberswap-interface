@@ -23,7 +23,13 @@ const mapTypeTitle = {
   [KyberAIListType.TRENDING]: t`Top Trending Tokens`,
 }
 
-export default function TokenAnalysisListShareContent({ data }: { data: ITokenList[] }) {
+export default function TokenAnalysisListShareContent({
+  data,
+  mobileMode,
+}: {
+  data: ITokenList[]
+  mobileMode?: boolean
+}) {
   const theme = useTheme()
   const [searchParams] = useSearchParams()
   const listType = (searchParams.get('listType') as KyberAIListType) || KyberAIListType.BULLISH
@@ -37,8 +43,16 @@ export default function TokenAnalysisListShareContent({ data }: { data: ITokenLi
         </Trans>
       </Text>
       <Row gap="22px" justify="space-between">
-        <TokenListInShareModalTable data={data.slice(0, 5)} startIndex={0} />
-        {data.length > 5 && <TokenListInShareModalTable data={data.slice(5, 10)} startIndex={5} />}
+        {mobileMode ? (
+          <>
+            <TokenListInShareModalTable data={data.slice(0, 10)} startIndex={0} mobileMode />
+          </>
+        ) : (
+          <>
+            <TokenListInShareModalTable data={data.slice(0, 5)} startIndex={0} />
+            {data.length > 5 && <TokenListInShareModalTable data={data.slice(5, 10)} startIndex={5} />}
+          </>
+        )}
       </Row>
     </Column>
   )
