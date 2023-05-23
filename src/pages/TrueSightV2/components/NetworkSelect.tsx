@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useRef, useState } from 'react'
-import { isMobile } from 'react-device-detect'
 import { X } from 'react-feather'
 import { Flex, Image, Text } from 'rebass'
 import styled from 'styled-components'
@@ -33,7 +32,7 @@ const NetworkSelect = ({ filter, setFilter }: { filter?: ChainId; setFilter: (c?
   const [isShowOptions, setIsShowOptions] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  useOnClickOutside(containerRef, () => !isMobile && setIsShowOptions(false))
+  useOnClickOutside(containerRef, () => setIsShowOptions(false))
 
   return (
     <NetworkSelectContainer
@@ -71,7 +70,7 @@ const NetworkSelect = ({ filter, setFilter }: { filter?: ChainId; setFilter: (c?
         )}
       </Flex>
 
-      {isShowOptions && !isMobile && (
+      {isShowOptions && (
         <OptionsContainer>
           {Object.keys(SUPPORTED_NETWORK_KYBERAI).map((network, index) => (
             <Flex
