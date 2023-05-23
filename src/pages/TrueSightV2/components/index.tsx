@@ -94,7 +94,7 @@ export const ShareButton = ({ onClick }: { onClick?: () => void }) => {
 
 export const SectionWrapper = ({
   show,
-  title,
+  title = '',
   subTitle,
   description,
   id,
@@ -166,12 +166,14 @@ export const SectionWrapper = ({
                     )
                   })
                 ) : (
-                  <Text marginLeft="16px">{title}</Text>
+                  <Text marginLeft="16px" style={{ whiteSpace: 'nowrap' }}>
+                    {title}
+                  </Text>
                 )}
               </RowFit>
               <RowFit color={theme.subText} gap="12px">
                 {subTitle && (
-                  <Text fontStyle="italic" fontSize="12px" lineHeight="16px" color={theme.subText}>
+                  <Text fontStyle="italic" fontSize="12px" lineHeight="16px" color={theme.subText} flexShrink={1}>
                     {subTitle}
                   </Text>
                 )}

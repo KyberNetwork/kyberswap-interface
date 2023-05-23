@@ -90,9 +90,10 @@ const IconButton = styled.div<{ disabled?: boolean }>`
 const ImageWrapper = styled.div`
   border-radius: 8px;
   width: 840px;
-  height: 490px;
   overflow: hidden;
   position: relative;
+  max-width: 100%;
+  aspect-ratio: 84/49;
 `
 const ImageInner = styled.div`
   width: 1050px;
@@ -301,7 +302,7 @@ export default function KyberAIShareModal({
                   <KyberSwapShareLogo />
                   <div style={{ marginTop: '-20px', marginRight: '-20px', borderRadius: '6px', overflow: 'hidden' }}>
                     <QRCode
-                      value={'41241231231230120312301230'}
+                      value={'https://kyberswap.com'}
                       size={100}
                       quietZone={4}
                       ecLevel="L"
@@ -315,7 +316,7 @@ export default function KyberAIShareModal({
                   {title}
                 </Text>
               </Row>
-              <Row style={{ zIndex: 2, width: '100%', height: '100%', alignItems: 'stretch' }}>{content}</Row>
+              <Row style={{ zIndex: 2, width: '100%', alignItems: 'stretch', flex: 1 }}>{content}</Row>
             </ImageInner>
           )}
           {loading ? (
@@ -327,7 +328,20 @@ export default function KyberAIShareModal({
               <Text>Some errors have occurred, please try again later!</Text>
             </Loader>
           ) : (
-            <>{imageUrl && <img src={imageUrl} alt="KyberAI share" style={{ height: '100%', width: '100%' }} />}</>
+            <>
+              {imageUrl && (
+                <div
+                  style={{
+                    backgroundImage: `url(${imageUrl})`,
+                    backgroundSize: '100% 100%',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'center',
+                    height: '100%',
+                    width: '100%',
+                  }}
+                />
+              )}
+            </>
           )}
         </ImageWrapper>
         <RowBetween style={{ color: theme.subText }}>

@@ -93,7 +93,7 @@ const ExpandedWidgetWrapper = styled.div<{ show?: boolean }>`
   border-radius: 20px 0 0 20px;
   z-index: 1000;
   transition: all 0.2s ease;
-  transform: ${({ show }) => (show ? css`translateX(0)` : css`translateX(100%)`)};
+  transform: ${({ show }) => (show ? css`translateX(0)` : css`translateX(100%); visibility:hidden;`)};
   overflow: hidden;
   min-height: 450px;
 `
@@ -194,12 +194,9 @@ export default function Widget() {
           page: 1,
           pageSize: 5,
         },
-    { refetchOnMountOrArgChange: true },
+    { refetchOnMountOrArgChange: true, skip: !account },
   )
-  // useEffect(() => {
-  //   refetch
-  // },[refetch,activeTab])
-
+  if (!account) return <></>
   return (
     <>
       <WidgetWrapper onClick={() => setShowExpanded(true)} show={!isMobile && showWidget}>
