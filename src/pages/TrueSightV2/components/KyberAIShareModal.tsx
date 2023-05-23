@@ -269,6 +269,7 @@ export default function KyberAIShareModal({
                             height="36px"
                             style={{ background: 'white', display: 'block' }}
                             ref={tokenImgRef}
+                            crossOrigin="anonymous"
                           />
                         </div>
                         <div
