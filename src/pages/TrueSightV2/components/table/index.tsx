@@ -54,13 +54,13 @@ const TableWrapper = styled.table`
   border-radius: 6px;
   overflow: hidden;
   thead {
-    height: 48px;
     font-size: 12px;
     line-height: 16px;
     font-weight: 500;
     color: ${({ theme }) => theme.subText};
     text-transform: uppercase;
     tr {
+      height: 48px;
       background: ${({ theme }) => theme.buttonGray};
     }
     th {
@@ -559,7 +559,7 @@ const WidgetTokenRow = ({ token, onClick }: { token: ITokenList; onClick?: () =>
   const [showMenu, setShowMenu] = useState(false)
   const [showSwapMenu, setShowSwapMenu] = useState(false)
   const [menuLeft, setMenuLeft] = useState<number | undefined>(undefined)
-  const [isWatched, setIsWatched] = useState(false)
+  const [isWatched, setIsWatched] = useState(!!token.isWatched)
   const [loadingStar, setLoadingStar] = useState(false)
   const [addToWatchlist] = useAddToWatchlistMutation()
   const [removeFromWatchlist] = useRemoveFromWatchlistMutation()

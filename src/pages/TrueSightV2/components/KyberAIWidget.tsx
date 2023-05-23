@@ -193,6 +193,7 @@ export default function Widget() {
           chain: 'all',
           page: 1,
           pageSize: 5,
+          wallet: account,
         },
     { refetchOnMountOrArgChange: true, skip: !account },
   )
