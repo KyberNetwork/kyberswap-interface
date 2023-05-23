@@ -507,7 +507,7 @@ export default function KyberAILandingPage() {
               <Icon id="query-stats" />
               <Text>
                 <Trans>
-                  Want to <b>let AI do the work of sifting through a noisy market</b>
+                  Want to <b>let AI do the work of sifting through a noisy market?</b>
                 </Trans>
               </Text>
             </Column>

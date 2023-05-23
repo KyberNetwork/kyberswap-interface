@@ -43,7 +43,7 @@ export default function KyberScoreChart({
   }, [])
 
   const filledData = useMemo(() => {
-    if (!data) return []
+    if (!data || data.length === 0) return []
     if (data.length === 19) {
       return data.slice(1, 19)
     }

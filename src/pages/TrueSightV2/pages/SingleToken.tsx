@@ -319,7 +319,9 @@ export default function SingleToken() {
       navigate(APP_PATHS.KYBERAI_EXPLORE + `/${defaultExplorePageToken.chain}/${defaultExplorePageToken.address}`)
       setTimeout(() => {
         const element = document.querySelector('#kyberai-search') as HTMLInputElement
-        element.focus()
+        element.focus({
+          preventScroll: true,
+        })
       }, 1200)
       window.scrollTo(0, 0)
     }

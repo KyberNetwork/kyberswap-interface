@@ -208,7 +208,12 @@ const kyberAIApi = createApi({
     cexesLiquidation: builder.query<
       {
         chart: ILiquidCEX[]
-        totalVolUsd: { h1TotalVolUsd: number; h4TotalVolUsd: number; h12TotalVolUsd: number; h24TotalVolUsd: number }
+        totalVolUsd: {
+          h1TotalVolUsd?: number
+          h4TotalVolUsd?: number
+          h12TotalVolUsd?: number
+          h24TotalVolUsd?: number
+        }
       },
       { tokenAddress?: string; chartSize?: '1d' | '7d' | '1m' | '3m' | string; chain?: string }
     >({

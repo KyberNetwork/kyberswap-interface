@@ -2324,6 +2324,10 @@ export const LiquidOnCentralizedExchanges = ({ noAnimation }: { noAnimation?: bo
         dataTemp.push({ timestamp: t * 1000, buyVolUsd: 0, exchanges: [], price: 0, sellVolUsd: 0, totalVol: 0 })
       }
     }
+    //remove last zero data point to cover case api time gap
+    if (dataTemp.length > 0 && dataTemp[dataTemp.length - 1].price === 0) {
+      return dataTemp.slice(0, -1)
+    }
     return dataTemp
   }, [data, from, to, timerange])
 
