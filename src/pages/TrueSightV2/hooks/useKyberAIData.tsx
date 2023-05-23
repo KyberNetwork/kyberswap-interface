@@ -1,4 +1,4 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
+import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import baseQueryOauth from 'services/baseQueryOauth'
 
 import { BFF_API } from 'constants/env'
