@@ -129,9 +129,10 @@ const ProfileContent = () => {
   return (
     <ContentWrapper>
       <Column>
-        {connectedAccounts.map(address => (
-          <ProfileItem key={address} account={address} active={address === account?.toLowerCase()} />
-        ))}
+        {account &&
+          connectedAccounts.map(address => (
+            <ProfileItem key={address} account={address} active={address === account?.toLowerCase()} />
+          ))}
         <ProfileItem account={t`Guest`} guest active={!isLogin} />
       </Column>
       <ActionWrapper>

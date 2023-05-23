@@ -10,7 +10,7 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useIsConnectedWallet } from 'hooks/useSyncNetworkParamWithStore'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
-import { useNotify } from 'state/application/hooks'
+import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { useSaveUserProfile, useSessionInfo, useSetPendingAuthentication } from 'state/authen/hooks'
 
 KyberOauth2.initialize({
@@ -28,6 +28,7 @@ const useLogin = () => {
   const isConnectedWallet = useIsConnectedWallet()
   const [createProfile] = useGetOrCreateProfileMutation()
   const [connectWalletToProfile] = useConnectWalletToProfileMutation()
+  const notify = useNotify()
 
   const requestingSession = useRef<string>() // which wallet requesting
   const requestingSessionAnonymous = useRef(false)
@@ -88,6 +89,11 @@ const useLogin = () => {
           requestingSession.current = walletAddress
           await KyberOauth2.getSession({ method: LoginMethod.ETH, walletAddress })
           await getProfile(walletAddress)
+          notify({
+            type: NotificationType.SUCCESS,
+            title: t`Logged in successfully`,
+            summary: t`Logged in successfully with the current wallet address`,
+          })
           setLoading(false)
         }
       } catch (error) {
@@ -95,7 +101,7 @@ const useLogin = () => {
         signInAnonymous(walletAddress)
       }
     },
-    [setLoading, signInAnonymous, getProfile],
+    [setLoading, signInAnonymous, getProfile, notify],
   )
 
   useEffect(() => {
@@ -110,8 +116,14 @@ export const useSignInETH = () => {
   const { account } = useActiveWeb3React()
   const { isLogin } = useSessionInfo()
   const notify = useNotify()
+  const toggleWalletModal = useWalletModalToggle()
 
+  // todo update ux, neu chua login open connect wallet => auto redirect oauth and sign in
   const signInEth = useCallback(() => {
+    if (!account) {
+      toggleWalletModal()
+      return
+    }
     if (isLogin) {
       notify({
         type: NotificationType.SUCCESS,
@@ -121,7 +133,7 @@ export const useSignInETH = () => {
       return
     }
     KyberOauth2.authenticate({ wallet_address: account ?? '' })
-  }, [account, isLogin, notify])
+  }, [account, isLogin, notify, toggleWalletModal])
 
   const signOut = useCallback(() => {
     KyberOauth2.logout({

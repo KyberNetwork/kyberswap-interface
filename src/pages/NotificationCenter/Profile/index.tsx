@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
-import { LogOut, Save } from 'react-feather'
+import { Download, LogOut, Save } from 'react-feather'
 import { useParams } from 'react-router'
 import { Text } from 'rebass'
 import { useUpdateProfileMutation } from 'services/identity'
@@ -125,7 +125,7 @@ export default function Profile() {
 
   useEffect(() => {
     onChangeEmail(formatUserInfo?.email ?? '')
-    setNickName(formatUserInfo?.nickname ?? '')
+    setNickName(formatUserInfo?.nickname || '')
     setPreviewImage(formatUserInfo?.avatarUrl)
   }, [formatUserInfo?.email, formatUserInfo?.nickname, formatUserInfo?.avatarUrl, onChangeEmail])
 
@@ -185,6 +185,7 @@ export default function Profile() {
   const isVerifiedEmail = formatUserInfo?.email && inputEmail === formatUserInfo?.email
   const displayWallet = (walletParam ? walletParam : '') || account || ''
   const isNeedSignIn = !isLogin
+  const disabledInput = !account
   return (
     <Wrapper>
       <Text fontSize={'24px'} fontWeight={'500'}>
@@ -197,7 +198,12 @@ export default function Profile() {
             <Label>
               <Trans>User Name</Trans>
             </Label>
-            <Input value={nickname} onChange={e => setNickName(e.target.value)} placeholder="Your nickname" />
+            <Input
+              value={nickname}
+              onChange={e => setNickName(e.target.value)}
+              placeholder="Your nickname"
+              disabled={disabledInput}
+            />
           </FormGroup>
 
           <FormGroup>
@@ -210,6 +216,7 @@ export default function Profile() {
               onChange={onChangeEmail}
               value={inputEmail}
               isVerifiedEmail={!!isVerifiedEmail}
+              disabled={disabledInput}
             />
           </FormGroup>
 
@@ -228,14 +235,22 @@ export default function Profile() {
           )}
 
           <ActionsWrapper>
-            <ButtonLogout disabled={isNeedSignIn} onClick={signOut}>
-              <LogOut size={16} style={{ marginRight: '4px' }} />
-              Log Out
-            </ButtonLogout>
-            <ButtonSave onClick={saveProfile} disabled={isLogin ? isNeedSignIn : false}>
+            {isLogin && (
+              <ButtonLogout disabled={isNeedSignIn} onClick={signOut}>
+                <LogOut size={16} style={{ marginRight: '4px' }} />
+                Log Out
+              </ButtonLogout>
+            )}
+            <ButtonSave onClick={saveProfile} disabled={(isLogin ? isNeedSignIn : false) || disabledInput}>
               <Save size={16} style={{ marginRight: '4px' }} />
               Save
             </ButtonSave>
+            {!isLogin && (
+              <ButtonLogout disabled={isNeedSignIn} onClick={() => alert('in dev')}>
+                <Download size={16} style={{ marginRight: '4px' }} />
+                Export
+              </ButtonLogout>
+            )}
           </ActionsWrapper>
         </LeftColum>
 

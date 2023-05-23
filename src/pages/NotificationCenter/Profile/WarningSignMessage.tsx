@@ -5,6 +5,7 @@ import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import Row from 'components/Row'
+import { useActiveWeb3React } from 'hooks'
 import { useSignInETH } from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
 import { useSessionInfo } from 'state/authen/hooks'
@@ -21,8 +22,9 @@ const WarningWrapper = styled.div`
 const WarningSignMessage = () => {
   const { signInEth } = useSignInETH()
   const { pendingAuthentication } = useSessionInfo()
+  const { account } = useActiveWeb3React()
   const theme = useTheme()
-  if (pendingAuthentication) return null
+  if (pendingAuthentication || !account) return null
   return (
     <WarningWrapper>
       <Row style={{ gap: '12px' }}>

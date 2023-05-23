@@ -41,12 +41,14 @@ export default function InputEmail({
   onChange,
   isVerifiedEmail,
   showVerifyModal,
+  disabled,
 }: {
   errorColor?: string
   onChange: (val: string) => void
   isInNotificationCenter?: boolean
   isVerifiedEmail: boolean
   value: string
+  disabled?: boolean
   showVerifyModal: () => void
 }) {
   // todo refactor props
@@ -55,6 +57,7 @@ export default function InputEmail({
   return (
     <InputWrapper isInNotificationCenter={isInNotificationCenter}>
       <Input
+        disabled={disabled}
         $borderColor={errorColor}
         value={value}
         placeholder="example@email.com"

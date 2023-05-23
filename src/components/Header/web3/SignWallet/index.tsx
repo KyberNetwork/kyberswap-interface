@@ -94,7 +94,6 @@ export default function SelectWallet() {
       {!isMobile && <Text>{isLogin ? shortenAddress(chainId, account ?? '') : t`Guest`}</Text>}
     </Web3StatusConnected>
   )
-  if (!account) return null
   return (
     <AccountElement>
       <StyledMenu>
