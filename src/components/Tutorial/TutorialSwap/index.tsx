@@ -212,8 +212,8 @@ const getListSteps = (isLogin: boolean, isSolana: boolean) => {
         </Heading>
       ),
       customFooterRenderer: (logic: WalktourLogic) => (
-        <Flex justifyContent={'space-between'} style={{ gap: 25, marginTop: 20 }}>
-          <ButtonOutlined onClick={() => logic.close()} data-testid="button-skip-tutorial">
+        <Flex justifyContent={'center'} style={{ gap: 25, marginTop: 20 }}>
+          <ButtonOutlined onClick={() => logic.close()} data-testid="button-skip-tutorial" width="160px" height="36px">
             <Trans>Maybe later</Trans>
           </ButtonOutlined>
           <ButtonPrimary onClick={() => logic.next()} width="160px" height="36px">
