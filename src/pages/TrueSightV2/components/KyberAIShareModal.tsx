@@ -153,7 +153,7 @@ export default function KyberAIShareModal({
   const [blob, setBlob] = useState<Blob>()
   const shareImage = useShareImage()
   const handleGenerateImage = async () => {
-    if (isOpen && ref.current && loading && sharingUrl === '' && tokenImgRef.current) {
+    if (isOpen && ref.current && loading && sharingUrl === '') {
       setIsError(false)
       try {
         // const context = canvasData.getContext('2d')
@@ -171,7 +171,6 @@ export default function KyberAIShareModal({
         // }
 
         const { shareUrl, imageUrl, blob } = await shareImage(ref.current, SHARE_TYPE.KYBER_AI)
-        console.log(shareUrl, imageUrl, blob)
         setSharingUrl(shareUrl)
         setImageUrl(imageUrl)
         setLoading(false)
