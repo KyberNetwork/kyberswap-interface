@@ -123,7 +123,7 @@ const MenuForDesktop = ({ unread }: PropsMenu) => {
         !isLogin
           ? {
               route: NOTIFICATION_ROUTES.GUEST_PROFILE,
-              icon: <ProfileIcon />,
+              icon: <Avatar url={formatUserInfo?.avatarUrl} size={16} />,
               title: t`Guest`,
             }
           : {

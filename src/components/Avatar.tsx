@@ -9,5 +9,9 @@ const StyledAvatar = styled.img<{ size: number }>`
 `
 
 export default function Avatar({ url, size, color }: { url: string | undefined; size: number; color?: string }) {
-  return url ? <StyledAvatar size={size} src={url} /> : <Profile size={size} color={color} />
+  return url ? (
+    <StyledAvatar size={size} src={url} />
+  ) : (
+    <Profile size={size} color={color} style={{ minHeight: size, minWidth: size }} />
+  )
 }

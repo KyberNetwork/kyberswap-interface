@@ -7,8 +7,8 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
+import Avatar from 'components/Avatar'
 import Column from 'components/Column'
-import Profile from 'components/Icons/Profile'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import Row, { RowBetween } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -46,7 +46,7 @@ const ProfileItemWrapper = styled(RowBetween)<{ active: boolean }>`
 
 const ProfileItem = ({ account, guest, active }: { account: string; guest?: boolean; active: boolean }) => {
   const theme = useTheme()
-  const { isLogin } = useSessionInfo()
+  const { isLogin, userInfo, anonymousUserInfo } = useSessionInfo()
   const { account: currentWallet } = useActiveWeb3React()
   const navigate = useNavigate()
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
@@ -72,11 +72,19 @@ const ProfileItem = ({ account, guest, active }: { account: string; guest?: bool
   }
   return (
     <ProfileItemWrapper active={active} onClick={onClick}>
-      <Row gap="8px">
-        <div>
-          <Profile size={26} color={theme.primary} />
-        </div>
-        <Text fontWeight={'400'} fontSize={'14px'}>
+      <Row gap="8px" align="center">
+        <Avatar
+          url={
+            guest
+              ? anonymousUserInfo?.avatarUrl
+              : account === currentWallet?.toLowerCase()
+              ? userInfo?.avatarUrl
+              : undefined
+          }
+          size={26}
+          color={active ? theme.primary : theme.subText}
+        />
+        <Text fontWeight={'500'} fontSize={'14px'}>
           {guest ? account : getShortenAddress(account)}
         </Text>
       </Row>

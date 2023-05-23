@@ -3,8 +3,8 @@ import { darken, lighten } from 'polished'
 import { useMedia } from 'react-use'
 import styled, { css } from 'styled-components'
 
+import Avatar from 'components/Avatar'
 import ProfileContent from 'components/Header/web3/SignWallet/ProfileContent'
-import Profile from 'components/Icons/Profile'
 import MenuFlyout from 'components/MenuFlyout'
 import Modal from 'components/Modal'
 import { useActiveWeb3React } from 'hooks'
@@ -83,14 +83,14 @@ const browserCustomStyle = css`
 
 export default function SelectWallet() {
   const { chainId, account } = useActiveWeb3React()
-  const { isLogin } = useSessionInfo()
+  const { isLogin, formatUserInfo } = useSessionInfo()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const isOpen = useModalOpen(ApplicationModal.SWITCH_PROFILE_POPUP)
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
 
   const profileIcon = (
     <Web3StatusConnected onClick={toggleModal}>
-      <Profile size={18} />
+      <Avatar url={formatUserInfo?.avatarUrl} size={18} />
       {!isMobile && <Text>{isLogin ? shortenAddress(chainId, account ?? '') : t`Guest`}</Text>}
     </Web3StatusConnected>
   )
