@@ -199,6 +199,7 @@ export default function Profile() {
               <Trans>User Name</Trans>
             </Label>
             <Input
+              maxLength={50}
               value={nickname}
               onChange={e => setNickName(e.target.value)}
               placeholder="Your nickname"

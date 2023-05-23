@@ -13,6 +13,7 @@ import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
+import { shortString } from 'utils/string'
 
 const Web3StatusGeneric = styled.button`
   ${({ theme }) => theme.flexRowNoWrap}
@@ -91,7 +92,15 @@ export default function SelectWallet() {
   const profileIcon = (
     <Web3StatusConnected onClick={toggleModal}>
       <Avatar url={formatUserInfo?.avatarUrl} size={18} />
-      {!isMobile && <Text>{isLogin ? shortenAddress(chainId, account ?? '') : t`Guest`}</Text>}
+      {!isMobile && (
+        <Text>
+          {isLogin
+            ? formatUserInfo?.nickname
+              ? shortString(formatUserInfo.nickname, 10)
+              : shortenAddress(chainId, account ?? '')
+            : t`Guest`}
+        </Text>
+      )}
     </Web3StatusConnected>
   )
   return (

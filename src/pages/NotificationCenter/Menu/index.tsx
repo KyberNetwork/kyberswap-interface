@@ -20,6 +20,7 @@ import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import { useSessionInfo } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
+import { shortString } from 'utils/string'
 
 export const MENU_TITLE: Partial<{ [type in PrivateAnnouncementType]: string }> = {
   [PrivateAnnouncementType.BRIDGE_ASSET]: t`Cross-Chain Bridge`,
@@ -129,7 +130,9 @@ const MenuForDesktop = ({ unread }: PropsMenu) => {
           : {
               route: `${NOTIFICATION_ROUTES.PROFILE}/${account}`,
               icon: <Avatar url={formatUserInfo?.avatarUrl} size={16} />,
-              title: getShortenAddress(account ?? ''),
+              title: formatUserInfo?.nickname
+                ? shortString(formatUserInfo?.nickname, 20)
+                : getShortenAddress(account ?? ''),
             },
       ]
       if (account)
@@ -141,7 +144,7 @@ const MenuForDesktop = ({ unread }: PropsMenu) => {
         })
       return { ...el, childs }
     })
-  }, [isLogin, account, signInEth, formatUserInfo?.avatarUrl])
+  }, [isLogin, account, signInEth, formatUserInfo])
 
   return (
     <Flex
