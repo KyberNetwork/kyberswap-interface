@@ -272,18 +272,16 @@ export default function KyberAIShareModal({
             <ImageInner ref={ref}>
               <RowBetween style={{ zIndex: 2 }}>
                 <RowFit gap="8px" style={{ paddingLeft: '16px' }}>
-                  {tokenOverview && (
+                  {tokenOverview && tokenLogoData && (
                     <>
                       <div style={{ position: 'relative' }}>
                         <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
-                          {tokenLogoData && (
-                            <img
-                              src={tokenLogoData}
-                              width="36px"
-                              height="36px"
-                              style={{ background: 'white', display: 'block' }}
-                            />
-                          )}
+                          <img
+                            src={tokenLogoData}
+                            width="36px"
+                            height="36px"
+                            style={{ background: 'white', display: 'block' }}
+                          />
                         </div>
                         <div
                           style={{
