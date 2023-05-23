@@ -1,12 +1,10 @@
-import KyberOauth2 from '@kybernetwork/oauth2'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { Download, Plus, Upload } from 'react-feather'
+import { LogOut, Plus, Upload } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import { NotificationType } from 'components/Announcement/type'
 import Avatar from 'components/Avatar'
 import Column from 'components/Column'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
@@ -14,18 +12,19 @@ import Row, { RowBetween } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { useSignInETH } from 'hooks/useLogin'
+import useLogin from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
-import { useNotify, useToggleModal } from 'state/application/hooks'
-import { useSessionInfo } from 'state/authen/hooks'
+import { useToggleModal } from 'state/application/hooks'
+import { ConnectedProfile, useAllProfileInfo } from 'state/authen/hooks'
 import getShortenAddress from 'utils/getShortenAddress'
 
 const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+  min-width: 320px;
 `
 
 const ActionWrapper = styled.div`
@@ -44,52 +43,34 @@ const ProfileItemWrapper = styled(RowBetween)<{ active: boolean }>`
   }
 `
 
-const ProfileItem = ({ account, guest, active }: { account: string; guest?: boolean; active: boolean }) => {
+const ProfileItem = ({ data: { active, guest, address: account, profile } }: { data: ConnectedProfile }) => {
   const theme = useTheme()
-  const { isLogin, userInfo, anonymousUserInfo } = useSessionInfo()
   const { account: currentWallet } = useActiveWeb3React()
   const navigate = useNavigate()
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
-  const { signInEth } = useSignInETH()
-  const notify = useNotify()
+  const { signInEth, signInAnonymous, signOut } = useLogin()
 
   const onClick = () => {
-    if (guest && isLogin) {
-      KyberOauth2.logout()
-      toggleModal()
-      return
-    }
-    if (account !== currentWallet?.toLowerCase()) {
-      notify({
-        type: NotificationType.WARNING,
-        title: t`Warning`,
-        summary: t`Please change your wallet to ${account} to sign-in`,
-      })
-      return
-    }
-    signInEth()
+    if (guest) signInAnonymous(currentWallet)
+    else signInEth(account)
     toggleModal()
   }
+
   return (
     <ProfileItemWrapper active={active} onClick={onClick}>
       <Row gap="8px" align="center">
-        <Avatar
-          url={
-            guest
-              ? anonymousUserInfo?.avatarUrl
-              : account === currentWallet?.toLowerCase()
-              ? userInfo?.avatarUrl
-              : undefined
-          }
-          size={26}
-          color={active ? theme.primary : theme.subText}
-        />
-        <Text fontWeight={'500'} fontSize={'14px'}>
-          {guest ? account : getShortenAddress(account)}
-        </Text>
+        <Avatar url={profile?.avatarUrl} size={26} color={active ? theme.primary : theme.subText} />
+        <Column gap="4px">
+          <Text fontWeight={'500'} fontSize={'14px'}>
+            {profile?.nickname}
+          </Text>
+          <Text fontWeight={'500'} fontSize={'14px'}>
+            {guest ? account : getShortenAddress(account)}
+          </Text>
+        </Column>
       </Row>
       <Row justify="flex-end" gap="18px" align="center">
-        {guest && (
+        {/* {guest && (
           <MouseoverTooltip text={t`Export Profile`} width="fit-content" placement="top">
             <Download
               size={20}
@@ -101,6 +82,16 @@ const ProfileItem = ({ account, guest, active }: { account: string; guest?: bool
               }}
             />
           </MouseoverTooltip>
+        )} */}
+        {!guest && (
+          <LogOut
+            size={20}
+            onClick={e => {
+              e?.stopPropagation()
+              // signOut() // todo sdk clear
+              alert('in dev')
+            }}
+          />
         )}
         <MouseoverTooltip text={t`Edit Profile Details`} width="fit-content" placement="top">
           <TransactionSettingsIcon
@@ -118,29 +109,25 @@ const ProfileItem = ({ account, guest, active }: { account: string; guest?: bool
   )
 }
 const ProfileContent = () => {
-  const { isLogin } = useSessionInfo()
-  const { account } = useActiveWeb3React()
   const theme = useTheme()
-  const { signInEth } = useSignInETH()
+  const { signInEth } = useLogin()
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
 
-  const connectedAccounts = KyberOauth2.getConnectedEthAccounts()
+  const profiles = useAllProfileInfo()
 
   return (
     <ContentWrapper>
       <Column>
-        {account &&
-          connectedAccounts.map(address => (
-            <ProfileItem key={address} account={address} active={address === account?.toLowerCase()} />
-          ))}
-        <ProfileItem account={t`Guest`} guest active={!isLogin} />
+        {profiles.map(data => (
+          <ProfileItem key={data.address} data={data} />
+        ))}
       </Column>
       <ActionWrapper>
         <Flex
           color={theme.subText}
           alignItems={'center'}
           style={{ gap: '6px' }}
-          onClick={signInEth}
+          onClick={() => signInEth()}
           fontWeight={'400'}
           fontSize={'14px'}
         >
@@ -151,7 +138,7 @@ const ProfileContent = () => {
           fontSize={'14px'}
           color={theme.subText}
           alignItems={'center'}
-          style={{ gap: '6px' }}
+          style={{ gap: '6px', visibility: 'hidden' }}
           onClick={() => {
             alert('in dev')
             toggleModal()

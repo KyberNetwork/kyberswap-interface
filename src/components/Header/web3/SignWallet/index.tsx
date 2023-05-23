@@ -10,7 +10,7 @@ import Modal from 'components/Modal'
 import { useActiveWeb3React } from 'hooks'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
-import { useSessionInfo } from 'state/authen/hooks'
+import { useSessionInfo, useSignedWallet } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 import { shortString } from 'utils/string'
@@ -83,8 +83,9 @@ const browserCustomStyle = css`
 `
 
 export default function SelectWallet() {
-  const { chainId, account } = useActiveWeb3React()
-  const { isLogin, formatUserInfo } = useSessionInfo()
+  const { chainId } = useActiveWeb3React()
+  const { formatUserInfo } = useSessionInfo()
+  const [signedWallet] = useSignedWallet()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const isOpen = useModalOpen(ApplicationModal.SWITCH_PROFILE_POPUP)
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
@@ -94,10 +95,10 @@ export default function SelectWallet() {
       <Avatar url={formatUserInfo?.avatarUrl} size={18} />
       {!isMobile && (
         <Text>
-          {isLogin
-            ? formatUserInfo?.nickname
-              ? shortString(formatUserInfo.nickname, 10)
-              : shortenAddress(chainId, account ?? '')
+          {formatUserInfo?.nickname
+            ? shortString(formatUserInfo.nickname, 10)
+            : signedWallet
+            ? shortenAddress(chainId, signedWallet)
             : t`Guest`}
         </Text>
       )}

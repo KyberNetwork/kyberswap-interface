@@ -14,10 +14,10 @@ import NotificationIcon from 'components/Icons/NotificationIcon'
 import ProfileIcon from 'components/Icons/Profile'
 import { getAnnouncementsTemplateIds } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
-import { useSignInETH } from 'hooks/useLogin'
+import useLogin from 'hooks/useLogin'
 import MenuItem from 'pages/NotificationCenter/Menu/MenuItem'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
-import { useSessionInfo } from 'state/authen/hooks'
+import { useAllProfileInfo } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
 import { shortString } from 'utils/string'
@@ -115,36 +115,34 @@ type PropsMenu = { unread: Unread }
 const MenuForDesktop = ({ unread }: PropsMenu) => {
   // todo mobile
   const { account } = useActiveWeb3React()
-  const { signInEth } = useSignInETH()
-  const { isLogin, formatUserInfo } = useSessionInfo()
+  const { signInEth } = useLogin()
+  const profiles = useAllProfileInfo()
   const menuItemDeskTop = useMemo(() => {
     return menuItems.map(el => {
       if (el.route !== NOTIFICATION_ROUTES.PROFILE) return el
-      const childs: MenuItemType[] = [
-        !isLogin
+      const childs: MenuItemType[] = profiles.map(({ guest, profile, address }) =>
+        guest
           ? {
               route: NOTIFICATION_ROUTES.GUEST_PROFILE,
-              icon: <Avatar url={formatUserInfo?.avatarUrl} size={16} />,
-              title: t`Guest`,
+              icon: <Avatar url={profile?.avatarUrl} size={16} />,
+              title: profile?.nickname ? `${shortString(profile?.nickname, 20)} (${address})` : address,
             }
           : {
-              route: `${NOTIFICATION_ROUTES.PROFILE}/${account}`,
-              icon: <Avatar url={formatUserInfo?.avatarUrl} size={16} />,
-              title: formatUserInfo?.nickname
-                ? shortString(formatUserInfo?.nickname, 20)
-                : getShortenAddress(account ?? ''),
+              route: `${NOTIFICATION_ROUTES.PROFILE}/${address}`,
+              icon: <Avatar url={profile?.avatarUrl} size={16} />,
+              title: profile?.nickname ? shortString(profile?.nickname, 20) : getShortenAddress(address),
             },
-      ]
+      )
       if (account)
         childs.push({
           route: '',
           icon: <Plus size="16px" />,
           title: t`Add Account`,
-          onClick: signInEth,
+          onClick: () => signInEth(),
         })
       return { ...el, childs }
     })
-  }, [isLogin, account, signInEth, formatUserInfo])
+  }, [account, signInEth, profiles])
 
   return (
     <Flex

@@ -36,8 +36,8 @@ const Badge = styled.div`
   color: ${({ theme }) => theme.textReverse};
 `
 
-const StyledLink = styled(Link)<{ isChildren?: boolean; $mobile: boolean }>`
-  border-bottom: ${({ theme, isChildren, $mobile }) => !isChildren && !$mobile && `1px solid ${theme.border}`};
+const StyledLink = styled(Link)<{ $isChildren?: boolean; $mobile: boolean }>`
+  border-bottom: ${({ theme, $isChildren, $mobile }) => !$isChildren && !$mobile && `1px solid ${theme.border}`};
   :last-child {
     border: none;
   }
@@ -120,7 +120,7 @@ const MenuItem: React.FC<Props> = ({ data, isMobile = false, style, unread, isCh
   const totalUnread = type ? unread[type as PrivateAnnouncementType] : 0
   return (
     <>
-      <StyledLink to={onClick ? '#' : path} onClick={onClickMenu} isChildren={isChildren} $mobile={isMobile}>
+      <StyledLink to={onClick ? '#' : path} onClick={onClickMenu} $isChildren={isChildren} $mobile={isMobile}>
         <Wrapper $active={isActive} $mobile={isMobile} style={style}>
           <Flex
             sx={{
@@ -144,7 +144,7 @@ const MenuItem: React.FC<Props> = ({ data, isMobile = false, style, unread, isCh
                 <>
                   <MenuItem
                     isChildren
-                    key={el.route}
+                    key={el.title}
                     data={el}
                     unread={unread}
                     style={{

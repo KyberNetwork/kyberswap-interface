@@ -8,10 +8,17 @@ import { NotificationType } from 'components/Announcement/type'
 import { ENV_KEY, OAUTH_CLIENT_ID } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { useIsConnectedWallet } from 'hooks/useSyncNetworkParamWithStore'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
-import { useSaveUserProfile, useSessionInfo, useSetPendingAuthentication } from 'state/authen/hooks'
+import {
+  ProfileLocalStorageKeys,
+  getProfileLocalStorage,
+  setProfileLocalStorage,
+  useSaveUserProfile,
+  useSessionInfo,
+  useSetPendingAuthentication,
+  useSignedWallet,
+} from 'state/authen/hooks'
 
 KyberOauth2.initialize({
   clientId: OAUTH_CLIENT_ID,
@@ -19,16 +26,13 @@ KyberOauth2.initialize({
   mode: ENV_KEY,
 })
 
-/**
- * this hook should be call at 1 place
- * @returns
- */
-const useLogin = () => {
+const useLogin = (autoLogin = false) => {
   const { account } = useActiveWeb3React()
-  const isConnectedWallet = useIsConnectedWallet()
   const [createProfile] = useGetOrCreateProfileMutation()
   const [connectWalletToProfile] = useConnectWalletToProfileMutation()
   const notify = useNotify()
+  const toggleWalletModal = useWalletModalToggle()
+  const [signedWallet, saveSignedWallet] = useSignedWallet()
 
   const requestingSession = useRef<string>() // which wallet requesting
   const requestingSessionAnonymous = useRef(false)
@@ -36,7 +40,6 @@ const useLogin = () => {
   const { anonymousUserInfo } = useSessionInfo()
 
   const setLoading = useSetPendingAuthentication()
-
   const setProfile = useSaveUserProfile()
 
   const getProfile = useCallback(
@@ -58,9 +61,15 @@ const useLogin = () => {
     [connectWalletToProfile, createProfile, setProfile],
   )
 
+  const resetState = useCallback(() => {
+    setProfileLocalStorage(ProfileLocalStorageKeys.CONNECTING_WALLET, undefined)
+    saveSignedWallet(undefined)
+  }, [saveSignedWallet])
+
   const signInAnonymous = useCallback(
     async (walletAddress: string | undefined) => {
       if (requestingSessionAnonymous.current) return
+      resetState()
       if (anonymousUserInfo) {
         setProfile({ profile: anonymousUserInfo, isAnonymous: true }) // trigger reset account sign in
         return
@@ -73,75 +82,96 @@ const useLogin = () => {
       } finally {
         requestingSessionAnonymous.current = false
         setLoading(false)
-        getProfile(walletAddress, true)
+        await getProfile(walletAddress, true)
       }
     },
-    [anonymousUserInfo, setProfile, setLoading, getProfile],
+    [anonymousUserInfo, setProfile, setLoading, getProfile, resetState],
   )
 
   const signIn = useCallback(
-    async (walletAddress: string | undefined) => {
+    async (walletAddress: string | undefined, loginAnonymousIfFailed = true) => {
       try {
         if (!walletAddress) {
           throw new Error('Not found address.')
         }
-        if (requestingSession.current !== walletAddress) {
-          requestingSession.current = walletAddress
+        if (requestingSession.current !== walletAddress?.toLowerCase()) {
+          requestingSession.current = walletAddress?.toLowerCase()
           await KyberOauth2.getSession({ method: LoginMethod.ETH, walletAddress })
           await getProfile(walletAddress)
-          notify({
-            type: NotificationType.SUCCESS,
-            title: t`Logged in successfully`,
-            summary: t`Logged in successfully with the current wallet address`,
-          })
+          saveSignedWallet(walletAddress)
+          setProfileLocalStorage(ProfileLocalStorageKeys.CONNECTING_WALLET, undefined)
+          !autoLogin &&
+            notify({
+              type: NotificationType.SUCCESS,
+              title: t`Logged in successfully`,
+              summary: t`Logged in successfully with the current wallet address`,
+            })
           setLoading(false)
         }
       } catch (error) {
         console.log('get session:', walletAddress, error.message)
-        signInAnonymous(walletAddress)
+        if (loginAnonymousIfFailed) await signInAnonymous(walletAddress)
       }
     },
-    [setLoading, signInAnonymous, getProfile, notify],
+    [setLoading, signInAnonymous, getProfile, notify, saveSignedWallet, autoLogin],
   )
 
+  const isInit = useRef(false)
   useEffect(() => {
-    isConnectedWallet().then(wallet => {
-      if (wallet === null) return // pending
-      signIn(typeof wallet === 'string' ? wallet : undefined)
-    })
-  }, [account, signIn, isConnectedWallet])
-}
-
-export const useSignInETH = () => {
-  const { account } = useActiveWeb3React()
-  const { isLogin } = useSessionInfo()
-  const notify = useNotify()
-  const toggleWalletModal = useWalletModalToggle()
+    if (!autoLogin || isInit.current) return // call once
+    isInit.current = true
+    const wallet = getProfileLocalStorage(ProfileLocalStorageKeys.CONNECTING_WALLET) || signedWallet
+    if (wallet) {
+      signIn(wallet)
+    }
+    // isConnectedWallet().then(wallet => {
+    // if (wallet === null) return // pending
+    // signIn(typeof wallet === 'string' ? wallet : undefined) // todo remove all related
+    // })
+  }, [signIn, autoLogin, signedWallet])
 
   // todo update ux, neu chua login open connect wallet => auto redirect oauth and sign in
-  const signInEth = useCallback(() => {
-    if (!account) {
-      toggleWalletModal()
-      return
-    }
-    if (isLogin) {
-      notify({
-        type: NotificationType.SUCCESS,
-        title: t`Logged in successfully`,
-        summary: t`Logged in successfully with the current wallet address`,
-      })
-      return
-    }
-    KyberOauth2.authenticate({ wallet_address: account ?? '' })
-  }, [account, isLogin, notify, toggleWalletModal])
+  const signInEth = useCallback(
+    (walletAddress?: string) => {
+      if (!account) {
+        toggleWalletModal()
+        return
+      }
+      const isAddAccount = !walletAddress
+      const isSelectAccount = !!walletAddress
+      if (
+        signedWallet &&
+        ((isSelectAccount && signedWallet.toLowerCase() === walletAddress?.toLowerCase()) ||
+          (isAddAccount && signedWallet.toLowerCase() === account?.toLowerCase()))
+      ) {
+        notify({
+          type: NotificationType.SUCCESS,
+          title: t`Logged in successfully`,
+          summary: t`Logged in successfully with the current wallet address`,
+        })
+        return
+      }
+      const connectedAccounts = KyberOauth2.getConnectedEthAccounts()
+      if (isSelectAccount && connectedAccounts.includes(walletAddress?.toLowerCase() || '')) {
+        signIn(walletAddress, false) // todo check case 2 token faild
+        return
+      }
+      if (isAddAccount && connectedAccounts.includes(account?.toLowerCase() || '')) {
+        signIn(account, false)
+        return
+      }
+      setProfileLocalStorage(ProfileLocalStorageKeys.CONNECTING_WALLET, account)
+      KyberOauth2.authenticate({ wallet_address: account ?? '' }) // navigate to login page
+    },
+    [account, notify, toggleWalletModal, signedWallet, signIn],
+  )
 
   const signOut = useCallback(() => {
-    KyberOauth2.logout({
-      // redirectUrl: `${window.location.protocol}//${window.location.host}${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PROFILE}`,
-    })
-  }, [])
+    resetState()
+    KyberOauth2.logout()
+  }, [resetState])
 
-  return { signInEth, signOut }
+  return { signOut, signInEth, signInAnonymous }
 }
 
 export default useLogin

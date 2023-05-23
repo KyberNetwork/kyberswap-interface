@@ -3,6 +3,7 @@ import { createAction } from '@reduxjs/toolkit'
 import { UserProfile } from 'state/authen/reducer'
 
 export const updatePossibleWalletAddress = createAction<null | string | undefined>('authen/updatePossibleWalletAddress')
+export const updateSignedWallet = createAction<undefined | string>('authen/updateSignedWallet')
 
 export const updateProcessingLogin = createAction<boolean>('authen/updateProcessingLogin')
 

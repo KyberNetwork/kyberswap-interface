@@ -18,12 +18,12 @@ import { useValidateEmail } from 'components/SubscribeButton/NotificationPrefere
 import InputEmail from 'components/SubscribeButton/NotificationPreference/InputEmail'
 import { useActiveWeb3React } from 'hooks'
 import { useUploadImageToCloud } from 'hooks/social'
-import { useSignInETH } from 'hooks/useLogin'
+import useLogin from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
 import WarningSignMessage from 'pages/NotificationCenter/Profile/WarningSignMessage'
 import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
 import { useNotify } from 'state/application/hooks'
-import { useRefreshProfile, useSessionInfo } from 'state/authen/hooks'
+import { useRefreshProfile, useSessionInfo, useSignedWallet } from 'state/authen/hooks'
 import { shortenAddress } from 'utils'
 
 const Wrapper = styled.div`
@@ -118,7 +118,8 @@ export default function Profile() {
   const { formatUserInfo, isLogin } = useSessionInfo()
   const { inputEmail, onChangeEmail, errorColor } = useValidateEmail(formatUserInfo?.email)
   const [nickname, setNickName] = useState('')
-  const { signOut } = useSignInETH()
+  const { signOut } = useLogin()
+  const [signedWallet] = useSignedWallet()
 
   const [file, setFile] = useState<File>()
   const [previewImage, setPreviewImage] = useState<string>()
@@ -184,7 +185,11 @@ export default function Profile() {
   const displayAvatar = previewImage || formatUserInfo?.avatarUrl
   const isVerifiedEmail = formatUserInfo?.email && inputEmail === formatUserInfo?.email
   const displayWallet = (walletParam ? walletParam : '') || account || ''
-  const isNeedSignIn = !isLogin
+  const isNeedSignIn = Boolean(
+    !walletParam
+      ? false
+      : (signedWallet && signedWallet?.toLowerCase() !== walletParam?.toLowerCase()) || (walletParam && !signedWallet),
+  )
 
   return (
     <Wrapper>
@@ -199,6 +204,7 @@ export default function Profile() {
               <Trans>User Name</Trans>
             </Label>
             <Input
+              disabled={isNeedSignIn}
               maxLength={50}
               value={nickname}
               onChange={e => setNickName(e.target.value)}
@@ -211,6 +217,7 @@ export default function Profile() {
               <Trans>Email Address</Trans>
             </Label>
             <InputEmail
+              disabled={isNeedSignIn}
               showVerifyModal={showVerifyModal}
               errorColor={errorColor}
               onChange={onChangeEmail}
@@ -240,7 +247,7 @@ export default function Profile() {
                 Log Out
               </ButtonLogout>
             )}
-            <ButtonSave onClick={saveProfile} disabled={isLogin ? isNeedSignIn : false}>
+            <ButtonSave onClick={saveProfile} disabled={isNeedSignIn}>
               <Save size={16} style={{ marginRight: '4px' }} />
               Save
             </ButtonSave>

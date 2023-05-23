@@ -6,7 +6,7 @@ import styled from 'styled-components'
 import { ButtonPrimary } from 'components/Button'
 import Row from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
-import { useSignInETH } from 'hooks/useLogin'
+import useLogin from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
 import { useSessionInfo } from 'state/authen/hooks'
 import { ExternalLink } from 'theme'
@@ -20,7 +20,7 @@ const WarningWrapper = styled.div`
   padding: 8px 14px;
 `
 const WarningSignMessage = () => {
-  const { signInEth } = useSignInETH()
+  const { signInEth } = useLogin()
   const { pendingAuthentication } = useSessionInfo()
   const { account } = useActiveWeb3React()
   const theme = useTheme()
@@ -34,7 +34,7 @@ const WarningSignMessage = () => {
           allow us to offer you a better experience. Read more <ExternalLink href="#">here ↗</ExternalLink>
         </Text>
       </Row>
-      <ButtonPrimary width={'130px'} height={'36px'} fontSize={'14px'} onClick={signInEth}>
+      <ButtonPrimary width={'130px'} height={'36px'} fontSize={'14px'} onClick={() => signInEth()}>
         Sign-in
       </ButtonPrimary>
     </WarningWrapper>

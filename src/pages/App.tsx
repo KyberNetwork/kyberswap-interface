@@ -109,7 +109,7 @@ const SwapPage = () => {
 
 export default function App() {
   const { account, chainId, networkInfo } = useActiveWeb3React()
-  useLogin()
+  useLogin(true)
   const { online } = useNetwork()
   const prevOnline = usePrevious(online)
 
