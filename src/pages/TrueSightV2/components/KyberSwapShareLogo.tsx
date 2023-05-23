@@ -1,6 +1,12 @@
-export default function KyberSwapShareLogo() {
+export default function KyberSwapShareLogo({ width, height }: { width?: string; height?: string }) {
   return (
-    <svg width="204" height="72" viewBox="0 0 204 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width={width || '204'}
+      height={height || '72'}
+      viewBox="0 0 204 72"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <path
         d="M20.1528 33.9862L45.2515 48.5492C45.4522 48.664 45.679 48.7241 45.9097 48.7234C46.1403 48.7228 46.3668 48.6615 46.5669 48.5456C46.767 48.4296 46.9339 48.263 47.0512 48.0621C47.1685 47.8612 47.2321 47.6329 47.2358 47.3996L47.2401 20.5818C47.2376 20.3481 47.1747 20.1191 47.0578 19.9175C46.9408 19.7159 46.7738 19.5487 46.5734 19.4325C46.3729 19.3163 46.1459 19.255 45.9149 19.2549C45.6838 19.2547 45.4568 19.3156 45.2561 19.4316L20.1528 33.9862Z"
         fill="#31CB9E"

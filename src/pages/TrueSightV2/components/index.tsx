@@ -114,7 +114,7 @@ export const SectionWrapper = ({
   description?: ReactNode
   id?: string
   shareButton?: boolean
-  shareContent?: ReactNode
+  shareContent?: (mobileMode?: boolean) => ReactNode
   fullscreenButton?: boolean
   tabs?: string[]
   activeTab?: ChartTab
@@ -265,7 +265,14 @@ export const SectionWrapper = ({
                 </Text>
               </MouseoverTooltip>
               <RowFit color={theme.subText} gap="12px">
-                {shareButton && <ShareButton onClick={() => setShowShare(true)} />}
+                {shareButton && (
+                  <ShareButton
+                    onClick={() => {
+                      onShareClick?.()
+                      setShowShare(true)
+                    }}
+                  />
+                )}
                 {fullscreenButton && <FullscreenButton element={ref.current} />}
               </RowFit>
             </RowBetween>

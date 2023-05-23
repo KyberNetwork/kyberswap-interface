@@ -59,8 +59,10 @@ const TableWrapper = styled.table`
     line-height: 16px;
     font-weight: 500;
     color: ${({ theme }) => theme.subText};
-    background: ${({ theme }) => theme.buttonGray};
     text-transform: uppercase;
+    tr {
+      background: ${({ theme }) => theme.buttonGray};
+    }
     th {
       text-align: left;
       padding: 16px;
@@ -162,18 +164,17 @@ export const Top10HoldersTable = () => {
         {/* <col style={{ width: '500px' }} /> */}
       </colgroup>
       <thead>
-        <th style={{ position: 'sticky', zIndex: 2 }}>
-          <Trans>Address</Trans>
-        </th>
-        <th>
-          <Trans>Supply owned</Trans>
-        </th>
-        <th>
-          <Trans>Amount held</Trans>
-        </th>
-        {/* <th>
-          <Trans>Other tokens held</Trans>
-        </th> */}
+        <tr>
+          <th style={{ position: 'sticky', zIndex: 2 }}>
+            <Trans>Address</Trans>
+          </th>
+          <th>
+            <Trans>Supply owned</Trans>
+          </th>
+          <th>
+            <Trans>Amount held</Trans>
+          </th>
+        </tr>
       </thead>
       <tbody>
         {data?.slice(0, 10).map((item: IHolderList, i: number) => (
@@ -254,7 +255,7 @@ export const SupportResistanceLevel = () => {
           ))}
       </colgroup>
       <thead>
-        <>
+        <tr>
           <th>Type</th>
           <>
             {Array(maxLength)
@@ -281,7 +282,7 @@ export const SupportResistanceLevel = () => {
                 </th>
               ))}
           </>
-        </>
+        </tr>
       </thead>
       <tbody>
         <tr>
@@ -341,11 +342,42 @@ function colorRateText(value: number, theme: DefaultTheme) {
   return theme.red
 }
 
-export const FundingRateTable = () => {
+export const FundingRateTable = ({ mobileMode }: { mobileMode?: boolean }) => {
   const theme = useTheme()
   const { chain, address } = useParams()
   const { data, isLoading } = useFundingRateQuery({ address, chain })
 
+  if (mobileMode) {
+    return (
+      <LoadingHandleWrapper isLoading={isLoading} hasData={!!data} height="300px">
+        <thead>
+          <tr style={{ height: '50px' }}>
+            <td>CEX</td>
+            <td style={{ textAlign: 'right' }}>Funding Rate</td>
+          </tr>
+        </thead>
+        <tbody>
+          {data?.uMarginList?.slice(0, 5).map((i: any) => (
+            <tr key={i.exchangeName} style={{ height: '50px' }}>
+              <td>
+                <Row gap="4px">
+                  <img alt={i.exchangeName} src={i.exchangeLogo} style={{ height: '18px', width: '18px' }} />
+                  <Text color={theme.text}>{i.exchangeName}</Text>
+                </Row>
+              </td>
+              <td>
+                <Row justify="flex-end">
+                  <Text color={colorRateText(i.rate, theme)} fontSize="14px" lineHeight="20px" fontWeight={500}>
+                    {i.rate.toFixed(4)}%
+                  </Text>
+                </Row>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </LoadingHandleWrapper>
+    )
+  }
   return (
     <LoadingHandleWrapper isLoading={isLoading} hasData={!!data} height="200px">
       <colgroup>
@@ -357,15 +389,17 @@ export const FundingRateTable = () => {
           ))}
       </colgroup>
       <thead>
-        <th></th>
-        {data?.uMarginList?.map((i: any) => (
-          <th key={i.exchangeName}>
-            <Row gap="4px">
-              <img alt={i.exchangeName} src={i.exchangeLogo} style={{ height: '18px', width: '18px' }} />
-              <Text color={theme.text}>{i.exchangeName}</Text>
-            </Row>
-          </th>
-        ))}
+        <tr>
+          <th></th>
+          {data?.uMarginList?.map((i: any) => (
+            <th key={i.exchangeName}>
+              <Row gap="4px">
+                <img alt={i.exchangeName} src={i.exchangeLogo} style={{ height: '18px', width: '18px' }} />
+                <Text color={theme.text}>{i.exchangeName}</Text>
+              </Row>
+            </th>
+          ))}
+        </tr>
       </thead>
       <tbody>
         <tr>
@@ -417,12 +451,14 @@ export const LiveDEXTrades = () => {
           <col width="100px" />
         </colgroup>
         <thead>
-          <th>Date</th>
-          <th>Type</th>
-          <th>Price ($)</th>
-          <th>Amount</th>
-          <th>Trader</th>
-          <th style={{ textAlign: 'right' }}>Transaction</th>
+          <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Price ($)</th>
+            <th>Amount</th>
+            <th>Trader</th>
+            <th style={{ textAlign: 'right' }}>Transaction</th>
+          </tr>
         </thead>
         <tbody style={{ fontSize: '14px', lineHeight: '20px' }}>
           {data?.slice((currentPage - 1) * 10, currentPage * 10).map((trade: ILiveTrade, i: number) => {
@@ -712,21 +748,23 @@ export const WidgetTable = ({
           <col style={{ width: '80px' }} />
         </colgroup>
         <thead style={{ backgroundColor: theme.background }}>
-          <th>
-            <Trans>Token</Trans>
-          </th>
-          <th>
-            <Trans>Kyberscore</Trans>
-          </th>
-          <th>
-            <Trans>Price | 24 Change</Trans>
-          </th>
-          <th>
-            <Trans>Last 7 days</Trans>
-          </th>
-          <th style={{ textAlign: 'right' }}>
-            <Trans>Action</Trans>
-          </th>
+          <tr>
+            <th>
+              <Trans>Token</Trans>
+            </th>
+            <th>
+              <Trans>Kyberscore</Trans>
+            </th>
+            <th>
+              <Trans>Price | 24 Change</Trans>
+            </th>
+            <th>
+              <Trans>Last 7 days</Trans>
+            </th>
+            <th style={{ textAlign: 'right' }}>
+              <Trans>Action</Trans>
+            </th>
+          </tr>
         </thead>
         {isLoading ? (
           <tbody>
@@ -788,7 +826,8 @@ export const WidgetTable = ({
 }
 
 const ShareTableWrapper = styled(TableWrapper)`
-  tr {
+  margin: 0px !important;
+  tbody tr {
     background-color: none;
   }
   tr td,
@@ -796,7 +835,13 @@ const ShareTableWrapper = styled(TableWrapper)`
     padding: 14px 10px !important;
   }
 `
-export const LiveTradesInShareModalTable = ({ data }: { data: Array<ILiveTrade> }) => {
+export const LiveTradesInShareModalTable = ({
+  data,
+  mobileMode,
+}: {
+  data: Array<ILiveTrade>
+  mobileMode?: boolean
+}) => {
   const theme = useTheme()
   const { chain, address } = useParams()
   const { data: tokenOverview } = useTokenDetailQuery({
@@ -807,28 +852,32 @@ export const LiveTradesInShareModalTable = ({ data }: { data: Array<ILiveTrade> 
   return (
     <ShareTableWrapper style={{ flex: 1 }}>
       <colgroup>
-        <col />
+        {!mobileMode && <col />}
         <col />
         <col />
         <col />
       </colgroup>
       <thead>
-        <th>Date</th>
-        <th>Address</th>
-        <th>Price ($)</th>
-        <th style={{ textAlign: 'right', padding: '6px' }}>Amount</th>
+        <tr>
+          {!mobileMode && <th>Date</th>}
+          <th>Address</th>
+          <th>Price ($)</th>
+          <th style={{ textAlign: 'right', padding: '6px' }}>Amount</th>
+        </tr>
       </thead>
       <tbody>
         {data?.map(trade => {
           const isBuy = trade.type === 'buy'
           return (
-            <tr key={trade.txn} style={{ height: '64px' }}>
-              <td>
-                <Text fontSize={14}>{dayjs(trade.timestamp * 1000).format('DD/MM/YYYY')}</Text>
-                <Text fontSize={12} color={theme.subText}>
-                  {dayjs(trade.timestamp * 1000).format('HH:mm:ss A')}
-                </Text>
-              </td>
+            <tr key={trade.txn} style={{ height: mobileMode ? '52px' : '60px' }}>
+              {!mobileMode && (
+                <td>
+                  <Text fontSize={14}>{dayjs(trade.timestamp * 1000).format('DD/MM/YYYY')}</Text>
+                  <Text fontSize={12} color={theme.subText}>
+                    {dayjs(trade.timestamp * 1000).format('HH:mm:ss A')}
+                  </Text>
+                </td>
+              )}
               <td>
                 <Text fontSize={14}>{shortenAddress(1, trade.trader)}</Text>
               </td>
@@ -836,18 +885,28 @@ export const LiveTradesInShareModalTable = ({ data }: { data: Array<ILiveTrade> 
                 <Text fontSize={14}>${formatTokenPrice(trade.price)}</Text>
               </td>
               <td style={{ padding: '6px', textAlign: 'right' }}>
-                <Row gap="4px">
-                  <img src={tokenOverview?.logo} width="16px" height="16px" style={{ borderRadius: '8px' }} />
-                  <Text fontSize={14} color={isBuy ? theme.primary : theme.red}>
-                    {isBuy ? '+' : '-'} {formatLocaleStringNum(+trade.amountToken)} {tokenOverview?.symbol}
-                  </Text>
-                  {trade.price * +trade.amountToken > 100000 && (
-                    <InfoHelper text={t`This transaction is higher than >$100k`} placement="top" />
-                  )}
-                </Row>
-                <Text color={theme.subText} fontSize={12} textAlign="right">
-                  ${formatLocaleStringNum(trade.price * +trade.amountToken)}{' '}
-                </Text>
+                {mobileMode ? (
+                  <>
+                    <Text fontSize={14} color={isBuy ? theme.primary : theme.red}>
+                      {isBuy ? '+' : '-'} {formatLocaleStringNum(+trade.amountToken)} {tokenOverview?.symbol}
+                    </Text>
+                  </>
+                ) : (
+                  <>
+                    <Row gap="4px">
+                      <img src={tokenOverview?.logo} width="16px" height="16px" style={{ borderRadius: '8px' }} />
+                      <Text fontSize={14} color={isBuy ? theme.primary : theme.red}>
+                        {isBuy ? '+' : '-'} {formatLocaleStringNum(+trade.amountToken)} {tokenOverview?.symbol}
+                      </Text>
+                      {trade.price * +trade.amountToken > 100000 && (
+                        <InfoHelper text={t`This transaction is higher than >$100k`} placement="top" />
+                      )}
+                    </Row>
+                    <Text color={theme.subText} fontSize={12} textAlign="right">
+                      ${formatLocaleStringNum(trade.price * +trade.amountToken)}{' '}
+                    </Text>
+                  </>
+                )}
               </td>
             </tr>
           )
@@ -857,7 +916,15 @@ export const LiveTradesInShareModalTable = ({ data }: { data: Array<ILiveTrade> 
   )
 }
 
-export const TokenListInShareModalTable = ({ data, startIndex = 0 }: { data: ITokenList[]; startIndex: number }) => {
+export const TokenListInShareModalTable = ({
+  data,
+  startIndex = 0,
+  mobileMode,
+}: {
+  data: ITokenList[]
+  startIndex: number
+  mobileMode?: boolean
+}) => {
   const theme = useTheme()
   return (
     <ShareTableWrapper>
@@ -865,27 +932,31 @@ export const TokenListInShareModalTable = ({ data, startIndex = 0 }: { data: ITo
         <col width="30px" />
         <col width="160px" />
         <col width="300px" />
-        <col width="100px" />
+        {!mobileMode && <col width="100px" />}
       </colgroup>
       <thead>
-        <th style={{ padding: '16px 0px 16px 10px' }}>#</th>
-        <th>
-          <Trans>Token Name</Trans>
-        </th>
-        <th>
-          <Trans>Price</Trans>
-        </th>
-        <th>
-          <Trans>Kyberscore</Trans>
-        </th>
+        <tr>
+          <th style={{ padding: '16px 0px 16px 10px' }}>#</th>
+          <th>
+            <Trans>Token Name</Trans>
+          </th>
+          <th>
+            <Trans>Price</Trans>
+          </th>
+          {!mobileMode && (
+            <th>
+              <Trans>Kyberscore</Trans>
+            </th>
+          )}
+        </tr>
       </thead>
       <tbody>
         {data.map((token, index) => {
           const latestKyberscore = token.ks_3d ? token.ks_3d[token.ks_3d.length - 1] : null
           return (
-            <tr key={token.symbol + index} style={{ height: '56px' }}>
-              <td style={{ padding: '16px 0px 16px 10px' }}>{index + 1 + startIndex}</td>
-              <td>
+            <tr key={token.symbol + index} style={{ height: '50px' }}>
+              <td style={{ padding: '16px 0px 16px 10px', color: theme.subText }}>{index + 1 + startIndex}</td>
+              <td style={{ padding: '10px' }}>
                 <RowFit gap="6px" align="center">
                   <img
                     alt="tokenInList"
@@ -926,14 +997,152 @@ export const TokenListInShareModalTable = ({ data, startIndex = 0 }: { data: ITo
                   </Text>
                 </RowFit>
               </td>
-              <td style={{ textAlign: 'right' }}>
-                <Text color={calculateValueToColor(latestKyberscore?.kyber_score || 0, theme)}>
-                  {latestKyberscore?.kyber_score}
-                </Text>
-              </td>
+              {!mobileMode && (
+                <td style={{ textAlign: 'right' }}>
+                  <Text color={calculateValueToColor(latestKyberscore?.kyber_score || 0, theme)}>
+                    {latestKyberscore?.kyber_score}
+                  </Text>
+                </td>
+              )}
             </tr>
           )
         })}
+      </tbody>
+    </ShareTableWrapper>
+  )
+}
+
+export const SupportResistanceShareModalTable = ({ mobileMode }: { mobileMode?: boolean }) => {
+  const theme = useTheme()
+  const { SRLevels, currentPrice } = useContext(TechnicalAnalysisContext)
+  const [supports, resistances] = useMemo(() => {
+    if (!SRLevels || !currentPrice) return []
+
+    return [
+      SRLevels?.filter(level => level.value < currentPrice).sort((a, b) => b.value - a.value),
+      SRLevels?.filter(level => level.value > currentPrice).sort((a, b) => a.value - b.value),
+    ]
+  }, [SRLevels, currentPrice])
+
+  const maxLength = Math.max(supports?.length || 0, resistances?.length || 0)
+  if (mobileMode) {
+    return (
+      <ShareTableWrapper>
+        <thead>
+          <tr style={{ height: '50px' }}>
+            <th>Support</th>
+            <th style={{ textAlign: 'right' }}>Resistance</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Array(maxLength)
+            .fill(0)
+            .map((_, index) => {
+              return (
+                <tr key={index} style={{ height: '50px' }}>
+                  <td>
+                    <RowFit gap="4px">
+                      <Text color={theme.text} fontSize="14px" lineHeight="20px">
+                        {supports?.[index] && currentPrice && `${formatLevelValue(supports[index].value)}`}
+                      </Text>
+                      <Text color={theme.apr} fontSize="12px" lineHeight="16px">
+                        (
+                        {supports?.[index] && currentPrice
+                          ? (((supports[index].value - currentPrice) / currentPrice) * 100).toFixed(2) + '%'
+                          : '--'}
+                        )
+                      </Text>
+                    </RowFit>
+                  </td>
+                  <td style={{ alignContent: '' }}>
+                    <Row gap="4px" justify="flex-end">
+                      <Text color={theme.text} fontSize="14px" lineHeight="20px">
+                        {resistances?.[index] && currentPrice && `${formatLevelValue(resistances[index].value)} `}
+                      </Text>
+                      <Text color={theme.red} fontSize="12px" lineHeight="16px">
+                        {resistances?.[index] && currentPrice
+                          ? `(${(((resistances[index].value - currentPrice) / currentPrice) * 100).toFixed(2)}%)`
+                          : ''}
+                      </Text>
+                    </Row>
+                  </td>
+                </tr>
+              )
+            })}
+        </tbody>
+      </ShareTableWrapper>
+    )
+  }
+
+  return (
+    <ShareTableWrapper>
+      <colgroup>
+        <col width="300px" style={{ minWidth: '100px' }} />
+        {Array(maxLength)
+          .fill('')
+          .map((_, index) => (
+            <col key={index} width="300px" />
+          ))}
+      </colgroup>
+      <thead>
+        <tr style={{ height: '52px' }}>
+          <th>Type</th>
+          <>
+            {Array(maxLength)
+              .fill('')
+              .map((i, index) => (
+                <th key={index}>{index === 0 && <Trans>Levels</Trans>}</th>
+              ))}
+          </>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style={{ height: '52px' }}>
+          <>
+            <td>
+              <Text color={theme.primary} fontSize="14px">
+                Support
+              </Text>
+            </td>
+            {Array(maxLength)
+              .fill('')
+              .map((i, index) => (
+                <td key={index} style={{ alignItems: 'flex-start' }}>
+                  <Text color={theme.text} fontSize="14px" lineHeight="20px">
+                    {supports?.[index] && currentPrice && `${formatLevelValue(supports[index].value)}`}
+                  </Text>
+                  <Text color={theme.apr} fontSize="12px" lineHeight="16px">
+                    {supports?.[index] && currentPrice
+                      ? (((supports[index].value - currentPrice) / currentPrice) * 100).toFixed(2) + '%'
+                      : '--'}
+                  </Text>
+                </td>
+              ))}
+          </>
+        </tr>
+        <tr style={{ height: '52px' }}>
+          <>
+            <td>
+              <Text color={theme.red} fontSize="14px">
+                Resistance
+              </Text>
+            </td>
+            {Array(maxLength)
+              .fill('')
+              .map((i, index) => (
+                <td key={index} style={{ alignItems: 'flex-start' }}>
+                  <Text color={theme.text} fontSize="14px" lineHeight="20px">
+                    {resistances?.[index] && currentPrice && `${formatLevelValue(resistances[index].value)} `}
+                  </Text>
+                  <Text color={theme.red} fontSize="12px" lineHeight="16px">
+                    {resistances?.[index] && currentPrice
+                      ? (((resistances[index].value - currentPrice) / currentPrice) * 100).toFixed(2) + '%'
+                      : '--'}
+                  </Text>
+                </td>
+              ))}
+          </>
+        </tr>
       </tbody>
     </ShareTableWrapper>
   )

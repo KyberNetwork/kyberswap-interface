@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/macro'
-import { ReactNode, useEffect, useRef, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { X } from 'react-feather'
 import { QRCode } from 'react-qrcode-logo'
 import { useParams } from 'react-router-dom'
@@ -8,6 +9,8 @@ import { SHARE_TYPE } from 'services/social'
 import styled, { css } from 'styled-components'
 
 import modalBackground from 'assets/images/truesight-v2/modal_background.png'
+import modalBackgroundMobile from 'assets/images/truesight-v2/modal_background_mobile.png'
+import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
 import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import Modal from 'components/Modal'
@@ -20,6 +23,7 @@ import { ExternalLink } from 'theme'
 import { NETWORK_IMAGE_URL } from '../constants'
 import { useTokenDetailQuery } from '../hooks/useKyberAIData'
 import KyberSwapShareLogo from './KyberSwapShareLogo'
+import { InfoWrapper, LegendWrapper } from './chart'
 
 const Wrapper = styled.div`
   padding: 20px;
@@ -27,10 +31,13 @@ const Wrapper = styled.div`
   background-color: ${({ theme }) => theme.tableHeader};
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 16px;
   width: 100%;
+  min-width: 50vw;
 
-  .timeframelegend {
+  .time-frame-legend {
     display: none;
   }
 `
@@ -87,19 +94,32 @@ const IconButton = styled.div<{ disabled?: boolean }>`
       }
     `}
 `
-const ImageWrapper = styled.div`
-  border-radius: 8px;
-  width: 840px;
-  overflow: hidden;
+const ImageWrapper = styled.div<{ isMobileMode?: boolean }>`
+  max-height: 80vh;
   position: relative;
   max-width: 100%;
-  aspect-ratio: 84/49;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  overflow: hidden;
+  ${({ isMobileMode }) =>
+    isMobileMode
+      ? css`
+          height: 620px;
+          aspect-ratio: 1/2;
+        `
+      : css`
+          height: 490px;
+          width: 840px;
+        `}
 `
 const ImageInner = styled.div`
   width: 1050px;
   height: 612px;
   zoom: 0.8;
-
+  aspect-ratio: 1050/612;
+  overflow: visible;
   background-color: ${({ theme }) => theme.background};
   display: flex;
   flex-direction: column;
@@ -117,6 +137,42 @@ const ImageInner = styled.div`
   }
 `
 
+const ImageInnerMobile = styled.div`
+  width: 420px;
+  height: 840px;
+  aspect-ratio: 1/2;
+  zoom: 0.7;
+  background-color: ${({ theme }) => theme.background};
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  gap: 10px;
+  position: relative;
+  :before {
+    content: ' ';
+    position: absolute;
+    inset: 0 0 0 0;
+    opacity: 0.25;
+    background: url(${modalBackgroundMobile});
+    background-size: cover;
+    z-index: -1;
+  }
+
+  ${LegendWrapper} {
+    position: initial;
+    justify-content: flex-start;
+  }
+  ${InfoWrapper} {
+    position: initial;
+    gap: 12px;
+    font-size: 12px;
+    justify-content: space-between;
+  }
+  .recharts-responsive-container {
+    height: 490px !important;
+  }
+`
+
 const Loader = styled.div`
   position: absolute;
   inset: 0;
@@ -127,7 +183,14 @@ const Loader = styled.div`
   justify-content: center;
   background: ${({ theme }) => theme.buttonBlack};
   z-index: 4;
+  border-radius: 8px;
 `
+
+type ShareData = {
+  shareUrl?: string
+  imageUrl?: string
+  blob?: Blob
+}
 
 export default function KyberAIShareModal({
   title,
@@ -136,69 +199,87 @@ export default function KyberAIShareModal({
   onClose,
 }: {
   title?: string
-  content?: ReactNode
+  content?: (mobileMode?: boolean) => ReactNode
   isOpen: boolean
   onClose?: () => void
 }) {
   const theme = useTheme()
-
-  const ref = useRef<HTMLDivElement>(null)
-  const tokenImgRef = useRef<HTMLImageElement>(null)
-  const [loading, setLoading] = useState(true)
-  const [sharingUrl, setSharingUrl] = useState('')
-  const [imageUrl, setImageUrl] = useState('')
-  const [isError, setIsError] = useState(false)
   const { chain, address } = useParams()
   const { data: tokenOverview } = useTokenDetailQuery({ chain, address }, { skip: !chain || !address })
-  const [blob, setBlob] = useState<Blob>()
+
+  const ref = useRef<HTMLDivElement>(null)
+  const refMobile = useRef<HTMLDivElement>(null)
+  const tokenImgRef = useRef<HTMLImageElement>(null)
+  const [loading, setLoading] = useState(true)
+  const [isError, setIsError] = useState(false)
+  const [isMobileMode, setIsMobileMode] = useState(isMobile)
+  const [mobileData, setMobileData] = useState<ShareData>({})
+  const [desktopData, setDesktopData] = useState<ShareData>({})
   const shareImage = useShareImage()
-  const handleGenerateImage = async () => {
-    if (isOpen && ref.current && loading && sharingUrl === '') {
+
+  const sharingUrl = (isMobileMode ? mobileData.shareUrl : desktopData.shareUrl) || ''
+  const imageUrl = (isMobileMode ? mobileData.imageUrl : desktopData.imageUrl) || ''
+  const blob = isMobileMode ? mobileData.blob : desktopData.blob
+
+  const handleGenerateImageDesktop = useCallback(async () => {
+    if (ref.current) {
       setIsError(false)
       try {
-        // const context = canvasData.getContext('2d')
-        // const img = new Image()
-        // const offsets = tokenImgRef.current?.getBoundingClientRect()
-        // const imgTop = offsets?.top || 0
-        // const imgLeft = offsets?.left || 0
-
-        // const offsetsContainer = ref.current?.getBoundingClientRect()
-        // const imageLeft = imgLeft - (offsetsContainer.left || 0)
-        // const imageTop = imgTop - (offsetsContainer.top || 0)
-        // img.src = tokenImgRef.current?.src || ''
-        // img.onload = () => {
-        //   context?.drawImage(img, imageLeft, imageTop) // draws the image at the specified x and y location
-        // }
-
         const { shareUrl, imageUrl, blob } = await shareImage(ref.current, SHARE_TYPE.KYBER_AI)
-        setSharingUrl(shareUrl)
-        setImageUrl(imageUrl)
         setLoading(false)
-        setBlob(blob)
+        setDesktopData({ shareUrl, imageUrl, blob })
       } catch (err) {
         console.log(err)
         setLoading(false)
         setIsError(true)
       }
+    } else {
+      setLoading(false)
     }
-  }
+  }, [shareImage])
+
+  const handleGenerateImageMobile = useCallback(async () => {
+    if (refMobile.current) {
+      setIsError(false)
+      try {
+        const { shareUrl, imageUrl, blob } = await shareImage(refMobile.current, SHARE_TYPE.KYBER_AI)
+        setLoading(false)
+        setMobileData({ shareUrl, imageUrl, blob })
+      } catch (err) {
+        console.log(err)
+        setLoading(false)
+        setIsError(true)
+      }
+    } else {
+      setLoading(false)
+    }
+  }, [shareImage])
+
   useEffect(() => {
     if (!isOpen) {
-      setBlob(undefined)
-      setLoading(true)
-      setSharingUrl('')
-      setImageUrl('')
-      setIsError(false)
+      setTimeout(() => {
+        setLoading(true)
+        setIsError(false)
+        setIsMobileMode(isMobile)
+        setDesktopData({})
+        setMobileData({})
+      }, 400)
     }
-    setTimeout(() => {
-      handleGenerateImage()
-    }, 1000)
+    if (isOpen) {
+      if ((isMobileMode && !mobileData.shareUrl) || (!isMobileMode && !desktopData.shareUrl)) {
+        setLoading(true)
+        setIsError(false)
+        setTimeout(() => {
+          isMobileMode ? handleGenerateImageMobile() : handleGenerateImageDesktop()
+        }, 1000)
+      }
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen])
+  }, [isOpen, isMobileMode])
 
   const [, staticCopy] = useCopyClipboard()
   const handleCopyClick = () => {
-    staticCopy(sharingUrl)
+    staticCopy(sharingUrl || '')
   }
   const handleImageCopyClick = () => {
     if (blob) {
@@ -217,8 +298,50 @@ export default function KyberAIShareModal({
     }
   }
 
+  const TokenInfo = () => (
+    <>
+      {tokenOverview && (
+        <>
+          <div style={{ position: 'relative' }}>
+            <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
+              <img
+                src={tokenOverview?.logo}
+                width="36px"
+                height="36px"
+                style={{ background: 'white', display: 'block' }}
+                ref={tokenImgRef}
+              />
+            </div>
+            <div
+              style={{
+                position: 'absolute',
+                top: '-4px',
+                right: '-4px',
+                borderRadius: '50%',
+                border: `1px solid ${theme.background}`,
+                background: theme.tableHeader,
+              }}
+            >
+              <img
+                src={NETWORK_IMAGE_URL[chain || 'ethereum']}
+                alt="eth"
+                width="16px"
+                height="16px"
+                style={{ display: 'block' }}
+                crossOrigin="anonymous"
+              />
+            </div>
+          </div>
+          <Text fontSize={24} color={theme.text} fontWeight={500}>
+            {tokenOverview?.name} ({tokenOverview?.symbol?.toUpperCase()})
+          </Text>
+        </>
+      )}
+    </>
+  )
+
   return (
-    <Modal isOpen={isOpen} width="880px" maxWidth="880px">
+    <Modal isOpen={isOpen} width="fit-content" maxWidth="100vw">
       <Wrapper>
         <RowBetween>
           <Text>
@@ -254,70 +377,73 @@ export default function KyberAIShareModal({
             <Icon id="copy" size={20} />
           </IconButton>
         </Row>
-        <ImageWrapper>
-          {loading && (
-            <ImageInner ref={ref}>
-              <RowBetween style={{ zIndex: 2 }}>
-                <RowFit gap="8px" style={{ paddingLeft: '16px' }}>
-                  {tokenOverview && (
-                    <>
-                      <div style={{ position: 'relative' }}>
-                        <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
-                          <img
-                            src={tokenOverview?.logo}
-                            width="36px"
-                            height="36px"
-                            style={{ background: 'white', display: 'block' }}
-                            ref={tokenImgRef}
-                          />
-                        </div>
-                        <div
-                          style={{
-                            position: 'absolute',
-                            top: '-4px',
-                            right: '-4px',
-                            borderRadius: '50%',
-                            border: `1px solid ${theme.background}`,
-                            background: theme.tableHeader,
-                          }}
-                        >
-                          <img
-                            src={NETWORK_IMAGE_URL[chain || 'ethereum']}
-                            alt="eth"
-                            width="16px"
-                            height="16px"
-                            style={{ display: 'block' }}
-                            crossOrigin="anonymous"
-                          />
-                        </div>
-                      </div>
-                      <Text fontSize={24} color={theme.text} fontWeight={500}>
-                        {tokenOverview?.name} ({tokenOverview?.symbol?.toUpperCase()})
-                      </Text>
-                    </>
-                  )}
+        <ImageWrapper isMobileMode={isMobileMode}>
+          {loading &&
+            (isMobileMode ? (
+              <ImageInnerMobile ref={refMobile}>
+                <RowFit gap="8px">
+                  <TokenInfo />
                 </RowFit>
-                <RowFit gap="20px">
-                  <KyberSwapShareLogo />
-                  <div style={{ marginTop: '-20px', marginRight: '-20px', borderRadius: '6px', overflow: 'hidden' }}>
-                    <QRCode
-                      value={'https://kyberswap.com'}
-                      size={100}
-                      quietZone={4}
-                      ecLevel="L"
-                      style={{ display: 'block', borderRadius: '6px' }}
-                    />
-                  </div>
-                </RowFit>
-              </RowBetween>
-              <Row>
-                <Text fontSize="24px" lineHeight="28px">
-                  {title}
-                </Text>
-              </Row>
-              <Row style={{ zIndex: 2, width: '100%', alignItems: 'stretch', flex: 1 }}>{content}</Row>
-            </ImageInner>
-          )}
+
+                <Column
+                  style={{
+                    zIndex: 2,
+                    width: '100%',
+                    overflow: 'hidden',
+                    flex: 1,
+                    justifyContent: 'center',
+                  }}
+                  gap="20px"
+                >
+                  <Row>
+                    <Text fontSize="24px" lineHeight="28px">
+                      {title}
+                    </Text>
+                  </Row>
+                  {content?.(true)}
+                </Column>
+                <Row>
+                  <RowBetween gap="20px">
+                    <KyberSwapShareLogo height="48" width="137" />
+                    <div style={{ borderRadius: '6px', overflow: 'hidden' }}>
+                      <QRCode
+                        value={'https://kyberswap.com'}
+                        size={70}
+                        quietZone={4}
+                        ecLevel="L"
+                        style={{ display: 'block', borderRadius: '6px' }}
+                      />
+                    </div>
+                  </RowBetween>
+                </Row>
+              </ImageInnerMobile>
+            ) : (
+              <ImageInner ref={ref}>
+                <RowBetween style={{ zIndex: 2 }}>
+                  <RowFit gap="8px" style={{ paddingLeft: '16px' }}>
+                    <TokenInfo />
+                  </RowFit>
+                  <RowFit gap="20px">
+                    <KyberSwapShareLogo />
+                    <div style={{ marginTop: '-20px', marginRight: '-20px', borderRadius: '6px', overflow: 'hidden' }}>
+                      <QRCode
+                        value={'https://kyberswap.com'}
+                        size={100}
+                        quietZone={4}
+                        ecLevel="L"
+                        style={{ display: 'block', borderRadius: '6px' }}
+                      />
+                    </div>
+                  </RowFit>
+                </RowBetween>
+                <Row>
+                  <Text fontSize="24px" lineHeight="28px">
+                    {title}
+                  </Text>
+                </Row>
+                <Row style={{ zIndex: 2, width: '100%', alignItems: 'stretch', flex: 1 }}>{content?.(false)}</Row>
+              </ImageInner>
+            ))}
           {loading ? (
             <Loader>
               <AnimatedLoader />
@@ -332,11 +458,12 @@ export default function KyberAIShareModal({
                 <div
                   style={{
                     backgroundImage: `url(${imageUrl})`,
-                    backgroundSize: '100% 100%',
+                    backgroundSize: 'contain',
                     backgroundRepeat: 'no-repeat',
                     backgroundPosition: 'center',
                     height: '100%',
                     width: '100%',
+                    borderRadius: '8px',
                   }}
                 />
               )}
@@ -344,7 +471,7 @@ export default function KyberAIShareModal({
           )}
         </ImageWrapper>
         <RowBetween style={{ color: theme.subText }}>
-          <IconButton disabled={!imageUrl}>
+          <IconButton onClick={() => setIsMobileMode(prev => !prev)}>
             <Icon id="devices" size={20} />
           </IconButton>
           <RowFit gap="12px">
