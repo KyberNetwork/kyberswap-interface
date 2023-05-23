@@ -185,7 +185,7 @@ export default function Profile() {
   const isVerifiedEmail = formatUserInfo?.email && inputEmail === formatUserInfo?.email
   const displayWallet = (walletParam ? walletParam : '') || account || ''
   const isNeedSignIn = !isLogin
-  const disabledInput = !account
+
   return (
     <Wrapper>
       <Text fontSize={'24px'} fontWeight={'500'}>
@@ -203,7 +203,6 @@ export default function Profile() {
               value={nickname}
               onChange={e => setNickName(e.target.value)}
               placeholder="Your nickname"
-              disabled={disabledInput}
             />
           </FormGroup>
 
@@ -217,7 +216,6 @@ export default function Profile() {
               onChange={onChangeEmail}
               value={inputEmail}
               isVerifiedEmail={!!isVerifiedEmail}
-              disabled={disabledInput}
             />
           </FormGroup>
 
@@ -242,7 +240,7 @@ export default function Profile() {
                 Log Out
               </ButtonLogout>
             )}
-            <ButtonSave onClick={saveProfile} disabled={(isLogin ? isNeedSignIn : false) || disabledInput}>
+            <ButtonSave onClick={saveProfile} disabled={isLogin ? isNeedSignIn : false}>
               <Save size={16} style={{ marginRight: '4px' }} />
               Save
             </ButtonSave>
