@@ -18,6 +18,7 @@ import {
   NumberofTransfers,
   TradingVolumeChart,
 } from '../components/chart'
+import { Top10HoldersShareContent } from '../components/shareContent/Top10HoldersShareContent'
 import { Top10HoldersTable } from '../components/table'
 import { ChartTab } from '../types'
 
@@ -171,7 +172,8 @@ export default function OnChainAnalysis() {
         title={t`Top 10 Holders`}
         id="top10holders"
         style={{ height: 'fit-content' }}
-        shareContent={() => <Top10HoldersTable />}
+        shareButton
+        shareContent={mobileMode => <Top10HoldersShareContent mobileMode={mobileMode} />}
       >
         <RequireConnectWalletWrapper height="800px">
           <Top10HoldersTable />

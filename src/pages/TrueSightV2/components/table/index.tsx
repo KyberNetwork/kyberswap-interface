@@ -835,6 +835,80 @@ const ShareTableWrapper = styled(TableWrapper)`
     padding: 14px 10px !important;
   }
 `
+
+export const Top10HoldersShareModalTable = ({
+  data,
+  mobileMode,
+  startIndex = 0,
+}: {
+  data: Array<IHolderList>
+  mobileMode?: boolean
+  startIndex?: number
+}) => {
+  const theme = useTheme()
+  const { chain, address } = useParams()
+  const { data: tokenOverview } = useTokenDetailQuery({
+    chain,
+    address,
+  })
+
+  return (
+    <ShareTableWrapper style={{ flex: 1 }}>
+      <colgroup>
+        {!mobileMode && <col />}
+        <col />
+        <col />
+        <col />
+      </colgroup>
+      <thead>
+        <tr style={{ height: mobileMode ? '52px' : '60px' }}>
+          <th>#</th>
+          <th>Address</th>
+          {!mobileMode && <th>Supply owner</th>}
+          <th style={{ textAlign: 'right', padding: '6px' }}>Amount held</th>
+        </tr>
+      </thead>
+      <tbody>
+        {data?.map((holder, index) => {
+          return (
+            <tr key={holder.address} style={{ height: mobileMode ? '52px' : '60px' }}>
+              <td>{startIndex + index + 1}</td>
+              <td>
+                <Text fontSize={14}>{shortenAddress(1, holder.address)}</Text>
+              </td>
+              {!mobileMode && (
+                <td>
+                  <Text fontSize={14}>{(holder.percentage * 100).toFixed(2)}%</Text>
+                </td>
+              )}
+              <td>
+                <Row justify="flex-end" gap="4px">
+                  <Text fontSize={14}>
+                    {tokenOverview &&
+                      holder.quantity &&
+                      formatLocaleStringNum(
+                        +formatUnits(
+                          BigNumber.from(holder.quantity.toLocaleString('fullwide', { useGrouping: false })),
+                          tokenOverview.decimals,
+                        ),
+                        0,
+                      )}
+                  </Text>
+                  {mobileMode && (
+                    <Text fontSize={14} color={theme.subText}>
+                      ({(holder.percentage * 100).toFixed(2)}%)
+                    </Text>
+                  )}
+                </Row>
+              </td>
+            </tr>
+          )
+        })}
+      </tbody>
+    </ShareTableWrapper>
+  )
+}
+
 export const LiveTradesInShareModalTable = ({
   data,
   mobileMode,
