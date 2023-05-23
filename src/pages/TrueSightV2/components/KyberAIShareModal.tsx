@@ -16,6 +16,7 @@ import useCopyClipboard from 'hooks/useCopyClipboard'
 import useShareImage from 'hooks/useShareImage'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
+import { toDataURL } from 'utils/file'
 
 import { NETWORK_IMAGE_URL } from '../constants'
 import { useTokenDetailQuery } from '../hooks/useKyberAIData'
@@ -143,7 +144,7 @@ export default function KyberAIShareModal({
   const theme = useTheme()
 
   const ref = useRef<HTMLDivElement>(null)
-  const tokenImgRef = useRef<HTMLImageElement>(null)
+  const [tokenLogoData, setTokenLogoData] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [sharingUrl, setSharingUrl] = useState('')
   const [imageUrl, setImageUrl] = useState('')
@@ -152,6 +153,18 @@ export default function KyberAIShareModal({
   const { data: tokenOverview } = useTokenDetailQuery({ chain, address }, { skip: !chain || !address })
   const [blob, setBlob] = useState<Blob>()
   const shareImage = useShareImage()
+
+  useEffect(() => {
+    const run = async () => {
+      if (tokenOverview?.logo) {
+        const tokenLogoData = await toDataURL(tokenOverview.logo)
+        if (tokenLogoData === null || typeof tokenLogoData === 'string') setTokenLogoData(tokenLogoData)
+        else setTokenLogoData(Array.prototype.slice.call(new Uint8Array(tokenLogoData)).join(''))
+      }
+    }
+    run()
+  }, [tokenOverview?.logo])
+
   const handleGenerateImage = async () => {
     if (isOpen && ref.current && loading && sharingUrl === '') {
       setIsError(false)
@@ -263,14 +276,14 @@ export default function KyberAIShareModal({
                     <>
                       <div style={{ position: 'relative' }}>
                         <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
-                          <img
-                            src={tokenOverview?.logo}
-                            width="36px"
-                            height="36px"
-                            style={{ background: 'white', display: 'block' }}
-                            ref={tokenImgRef}
-                            crossOrigin="anonymous"
-                          />
+                          {tokenLogoData && (
+                            <img
+                              src={tokenLogoData}
+                              width="36px"
+                              height="36px"
+                              style={{ background: 'white', display: 'block' }}
+                            />
+                          )}
                         </div>
                         <div
                           style={{
