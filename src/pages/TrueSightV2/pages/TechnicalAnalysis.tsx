@@ -131,9 +131,13 @@ export default function TechnicalAnalysis() {
 
   const takeScreenShot = () => {
     if (!tvWidget) return
-    tvWidget.takeClientScreenshot().then(res => {
-      setProchartDataURL(res.toDataURL())
-    })
+    try {
+      tvWidget.takeClientScreenshot().then(res => {
+        setProchartDataURL(res.toDataURL())
+      })
+    } catch (err) {
+      console.log(err)
+    }
   }
   return (
     <TechnicalAnalysisContext.Provider
