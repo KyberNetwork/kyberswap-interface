@@ -181,7 +181,12 @@ export function useToken(tokenAddress?: string): Token | NativeCurrency | undefi
 
   const tokenContract = useTokenContract(address && tokenAddress !== ZERO_ADDRESS ? address : undefined, false)
   const tokenContractBytes32 = useBytes32TokenContract(address ? address : undefined, false)
-  const token = tokenAddress === ZERO_ADDRESS ? NativeCurrencies[chainId] : address ? tokens[address] : undefined
+  const token =
+    tokenAddress === ZERO_ADDRESS || tokenAddress?.toLowerCase() === ETHER_ADDRESS.toLowerCase()
+      ? NativeCurrencies[chainId]
+      : address
+      ? tokens[address]
+      : undefined
 
   const tokenName = useSingleCallResult(token ? undefined : tokenContract, 'name', undefined, NEVER_RELOAD)
   const tokenNameBytes32 = useSingleCallResult(
@@ -287,11 +292,11 @@ export const findCacheToken = (address: string) => {
   return cacheTokens[address] || cacheTokens[address.toLowerCase()]
 }
 
-export const fetchTokenByAddress = async (address: string, chainId: ChainId) => {
+export const fetchTokenByAddress = async (address: string, chainId: ChainId, signal?: AbortSignal) => {
   if (address === ZERO_ADDRESS) return NativeCurrencies[chainId]
   const findToken = findCacheToken(address)
   if (findToken && findToken.chainId === chainId) return findToken
-  const response = await axios.get(`${KS_SETTING_API}/v1/tokens?query=${address}&chainIds=${chainId}`)
+  const response = await axios.get(`${KS_SETTING_API}/v1/tokens?query=${address}&chainIds=${chainId}`, { signal })
   const token = response?.data?.data?.tokens?.[0]
   return token ? formatAndCacheToken(token) : undefined
 }

@@ -23,7 +23,7 @@ import Harvest from 'components/Icons/Harvest'
 import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { APP_PATHS, DMM_ANALYTICS_URL, MAX_ALLOW_APY, OUTSIDE_FAIRLAUNCH_ADDRESSES } from 'constants/index'
+import { APP_PATHS, DMM_ANALYTICS_URL, MAX_ALLOW_APY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -35,6 +35,7 @@ import useTheme from 'hooks/useTheme'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { setAttemptingTxn, setShowConfirm, setTxHash, setYieldPoolsError } from 'state/farms/classic/actions'
+import { useShareFarmAddress } from 'state/farms/classic/hooks'
 import { Farm, Reward } from 'state/farms/classic/types'
 import { useAppDispatch } from 'state/hooks'
 import { useViewMode } from 'state/user/hooks'
@@ -63,15 +64,15 @@ const fixedFormatting = (value: BigNumber, decimals: number) => {
 
 interface ListItemProps {
   farm: Farm
-  setSharedPoolAddress: (addr: string) => void
 }
 
-const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
+const ListItem = ({ farm }: ListItemProps) => {
   const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const currentTimestamp = Math.floor(Date.now() / 1000)
   const [viewMode] = useViewMode()
   const { mixpanelHandler } = useMixpanel()
+  const [, setFarmAddress] = useShareFarmAddress()
 
   const { type = 'active' } = useParsedQueryString<{ type: string }>()
   const above1200 = useMedia('(min-width: 1200px)')
@@ -82,8 +83,6 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
 
   const poolAddressChecksum = isAddressString(chainId, farm.id)
   const { value: userTokenBalance, decimals: lpTokenDecimals } = useTokenBalance(poolAddressChecksum)
-
-  const outsideFarm = OUTSIDE_FAIRLAUNCH_ADDRESSES[farm.fairLaunchAddress]
 
   const userStakedBalance = farm.userData?.stakedBalance
     ? BigNumber.from(farm.userData?.stakedBalance)
@@ -298,6 +297,10 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
     }
   }
 
+  const handleClickShareButton = () => {
+    setFarmAddress(farm.id)
+  }
+
   return (
     <>
       {viewMode === VIEW_MODE.LIST && above1200 && (
@@ -343,9 +346,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
                   </Text>
                 </RowFit>
                 <RowFit
-                  onClick={() => {
-                    setSharedPoolAddress(farm.id)
-                  }}
+                  onClick={handleClickShareButton}
                   sx={{
                     cursor: 'pointer',
                   }}
@@ -461,7 +462,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
         </>
       )}
       {(viewMode === VIEW_MODE.GRID || !above1200) && (
-        <FarmCard key={`${farm.fairLaunchAddress}_${farm.stakeToken}`} joined={!!userStakedBalanceUSD}>
+        <FarmCard joined={!!userStakedBalanceUSD}>
           <Row marginBottom="12px">
             <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={20} />
             <Link
@@ -500,9 +501,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
                 size="14px"
                 color={theme.subText}
                 style={{ cursor: 'pointer' }}
-                onClick={() => {
-                  setSharedPoolAddress(farm.id)
-                }}
+                onClick={handleClickShareButton}
               />
             </RowFit>
           </RowBetween>
@@ -580,8 +579,8 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
               <Row gap="8px">
                 {farmRewards.map((reward, index, arr) => {
                   return (
-                    <>
-                      <RowFit key={reward.token.wrapped.address} gap="4px" fontSize="12px" lineHeight="16px">
+                    <React.Fragment key={reward.token.wrapped.address}>
+                      <RowFit gap="4px" fontSize="12px" lineHeight="16px">
                         {chainId && reward.token.wrapped.address && (
                           <CurrencyLogo currency={reward.token} size="16px" />
                         )}
@@ -590,7 +589,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
                       {index !== arr.length - 1 && (
                         <div style={{ height: '10px', width: '1px', backgroundColor: theme.border }} />
                       )}
-                    </>
+                    </React.Fragment>
                   )
                 })}
               </Row>
@@ -787,37 +786,24 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
                 )}
               </Flex>
               <Flex justifyContent="space-between" sx={{ gap: '8px' }} alignItems="center" marginTop="20px">
-                <ExternalLink
-                  href={outsideFarm ? outsideFarm.poolInfoLink : `${DMM_ANALYTICS_URL[chainId]}/pool/${farm.id}`}
-                >
+                <ExternalLink href={`${DMM_ANALYTICS_URL[chainId]}/pool/${farm.id}`}>
                   <GetLP>
-                    <Trans>Get pool {outsideFarm ? `(${outsideFarm.name})` : ''} info</Trans> ↗
+                    <Trans>Get pool info</Trans> ↗
                   </GetLP>
                 </ExternalLink>
-                {outsideFarm ? (
-                  <ExternalLink href={outsideFarm.getLPTokenLink}>
-                    <GetLP>
-                      <Trans>
-                        Get {farm.token0?.symbol}-{farm.token1?.symbol} {outsideFarm ? `(${outsideFarm.name})` : ''} LP
-                        ↗
-                      </Trans>
-                    </GetLP>
-                  </ExternalLink>
-                ) : (
-                  <Link
-                    to={`/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${currencyIdFromAddress(
-                      farm.token0?.id,
-                      chainId,
-                    )}/${currencyIdFromAddress(farm.token1?.id, chainId)}/${farm.id}`}
-                    style={{ textDecoration: 'none' }}
-                  >
-                    <GetLP style={{ textAlign: 'right' }}>
-                      <Trans>
-                        Get {farm.token0?.symbol}-{farm.token1?.symbol} LP ↗
-                      </Trans>
-                    </GetLP>
-                  </Link>
-                )}
+                <Link
+                  to={`/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${currencyIdFromAddress(
+                    farm.token0?.id,
+                    chainId,
+                  )}/${currencyIdFromAddress(farm.token1?.id, chainId)}/${farm.id}`}
+                  style={{ textDecoration: 'none' }}
+                >
+                  <GetLP style={{ textAlign: 'right' }}>
+                    <Trans>
+                      Get {farm.token0?.symbol}-{farm.token1?.symbol} LP ↗
+                    </Trans>
+                  </GetLP>
+                </Link>
               </Flex>
             </>
           )}

@@ -28,6 +28,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useTheme from 'hooks/useTheme'
+import Notice from 'pages/ElasticLegacy/Notice'
 import { Instruction } from 'pages/Pools/InstructionAndGlobalData'
 import ProAmmPoolList from 'pages/ProAmmPools'
 import { ApplicationModal } from 'state/application/actions'
@@ -256,6 +257,8 @@ const Pools = () => {
           <ClassicElasticTab />
           {!upToSmall && TutorialAndShare}
         </Flex>
+
+        {tab === VERSION.ELASTIC && <Notice />}
 
         <Instruction />
 

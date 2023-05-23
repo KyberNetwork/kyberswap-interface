@@ -49,6 +49,7 @@ export interface Props {
 
 export default function UpdatedBadge({ $level, outputAmount }: Props) {
   const theme = useTheme()
+  const output = `${outputAmount.toSignificant(RESERVE_USD_DECIMALS)} ${outputAmount.currency.symbol}`
 
   if (!$level) {
     return null
@@ -63,10 +64,7 @@ export default function UpdatedBadge({ $level, outputAmount }: Props) {
           color={theme.primary}
           text={
             <Text fontSize={12}>
-              <Trans>
-                We got you a higher amount. The initial output amount was{' '}
-                {outputAmount.toSignificant(RESERVE_USD_DECIMALS)} {outputAmount.currency.symbol}
-              </Trans>
+              <Trans>We got you a higher amount. The initial output amount was {output}</Trans>
             </Text>
           }
         ></InfoHelper>

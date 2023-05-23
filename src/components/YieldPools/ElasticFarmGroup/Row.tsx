@@ -24,6 +24,7 @@ import { TOBE_EXTENDED_FARMING_POOLS } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useProMMFarmContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
+import { useShareFarmAddress } from 'state/farms/classic/hooks'
 import { useElasticFarms } from 'state/farms/elastic/hooks'
 import { FarmingPool, NFTPosition } from 'state/farms/elastic/types'
 import { useViewMode } from 'state/user/hooks'
@@ -34,7 +35,6 @@ import { formatDollarAmount } from 'utils/numbers'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 
 import { APRTooltipContent } from '../FarmingPoolAPRCell'
-import { useSharePoolContext } from '../SharePoolContext'
 import { ProMMFarmTableRow } from '../styleds'
 import FarmCard from './FarmCard'
 import FeeTarget from './FeeTarget'
@@ -56,10 +56,8 @@ const Row = ({
   pool: farmingPool,
   onOpenModal,
   onHarvest,
-  isUserAffectedByFarmIssue,
   tokenPrices,
 }: {
-  isUserAffectedByFarmIssue: boolean
   isApprovedForAll: boolean
   fairlaunchAddress: string
   pool: Pool
@@ -158,31 +156,11 @@ const Row = ({
   const canUnstake = !!joinedPositions.length
   const isFarmStarted = farmingPool.startTime <= currentTimestamp
 
-  const setSharePoolAddress = useSharePoolContext()
+  const [, setFarmAddress] = useShareFarmAddress()
 
   const amountCanStaked = farmingPool.endTime < currentTimestamp ? 0 : farmingPool.depositedUsd - farmingPool.stakedUsd
 
   const renderStakeButton = () => {
-    if (isUserAffectedByFarmIssue) {
-      return (
-        <MouseoverTooltipDesktopOnly
-          text={t`This farm is currently under maintenance. You can deposit your liquidity into the new farms instead. Your withdrawals are not affected.`}
-          placement="top"
-          width="300px"
-        >
-          <MinimalActionButton
-            style={{
-              cursor: 'not-allowed',
-              backgroundColor: theme.buttonGray,
-              opacity: 0.4,
-            }}
-          >
-            <Plus size={16} />
-          </MinimalActionButton>
-        </MouseoverTooltipDesktopOnly>
-      )
-    }
-
     if (!isApprovedForAll || !canStake) {
       return (
         <MinimalActionButton disabled>
@@ -329,7 +307,7 @@ const Row = ({
             <Flex
               marginLeft="12px"
               onClick={() => {
-                setSharePoolAddress(farmingPool.poolAddress)
+                setFarmAddress(farmingPool.poolAddress)
               }}
               sx={{
                 cursor: 'pointer',

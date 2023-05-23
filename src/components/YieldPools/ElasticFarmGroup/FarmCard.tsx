@@ -23,6 +23,7 @@ import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { TOBE_EXTENDED_FARMING_POOLS } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { useShareFarmAddress } from 'state/farms/classic/hooks'
 import { FarmingPool, NFTPosition } from 'state/farms/elastic/types'
 import { shortenAddress } from 'utils'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
@@ -30,7 +31,6 @@ import { formatDollarAmount } from 'utils/numbers'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 
 import { APRTooltipContent } from '../FarmingPoolAPRCell'
-import { useSharePoolContext } from '../SharePoolContext'
 import FeeTarget from './FeeTarget'
 import PositionDetail from './PostionDetail'
 import { Button, FeeTag, FlipCard, FlipCardBack, FlipCardFront } from './styleds'
@@ -96,7 +96,7 @@ const FarmCard = ({
   const canHarvest = rewardPendings.some(amount => amount.greaterThan(0))
 
   const amountCanStaked = isFarmEnded ? 0 : pool.depositedUsd - pool.stakedUsd
-  const setSharePoolAddress = useSharePoolContext()
+  const [, setFarmAddress] = useShareFarmAddress()
   const [showPosition, setShowPosition] = useState(false)
 
   const addLiquidityElasticPoolUrl = `/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${
@@ -190,7 +190,7 @@ const FarmCard = ({
             <Flex
               marginLeft="12px"
               onClick={() => {
-                setSharePoolAddress(pool.poolAddress)
+                setFarmAddress(pool.poolAddress)
               }}
               sx={{
                 cursor: 'pointer',

@@ -138,74 +138,6 @@ export const BLOCKED_PRICE_IMPACT_NON_DEGEN: Percent = new Percent(JSBI.BigInt(1
 
 export const BUNDLE_ID = '1'
 
-export const OUTSIDE_FAIRLAUNCH_ADDRESSES: {
-  // key: fairlaunch address
-  [key: string]: {
-    address: string
-    subgraphAPI: string
-    query: string
-    name: string
-    poolInfoLink: string
-    getLPTokenLink: string
-  }
-} = {
-  '0x597e3FeDBC02579232799Ecd4B7edeC4827B0435': {
-    address: '0x597e3FeDBC02579232799Ecd4B7edeC4827B0435',
-    subgraphAPI: 'https://pancake-subgraph-proxy.kyberswap.com/proxy',
-    query: ` { pair(id: "0x4e241e3e76214635eccc7408620b940f0bda267d") {
-    id
-    token0 {
-      id
-      symbol
-      name
-      totalLiquidity
-      derivedUSD
-      derivedBNB
-    }
-    token1 {
-      id
-      symbol
-      name
-      totalLiquidity
-      derivedUSD
-    }
-    reserve0
-    reserve1
-    reserveUSD
-    totalSupply
-    volumeUSD
-    untrackedVolumeUSD
-    trackedReserveBNB
-    token0Price
-    token1Price
-  }}`,
-    name: 'PancakeSwap',
-    poolInfoLink: 'https://pancakeswap.finance/info/pool/0x4e241E3E76214635ecCC7408620b940f0bDA267D',
-    getLPTokenLink:
-      'https://pancakeswap.finance/add/0xc04a23149efdf9a63697f3eb60705147e9f07ffd/0xe9e7cea3dedca5984780bafc599bd69add087d56',
-  },
-}
-
-export const OUTSITE_FARM_REWARDS_QUERY: {
-  [key: string]: {
-    subgraphAPI: string
-    query: string
-  }
-} = {
-  '0xc04a23149efdF9A63697f3Eb60705147e9f07FfD': {
-    subgraphAPI: 'https://pancake-subgraph-proxy.kyberswap.com/proxy',
-    query: `{
-      tokens(where: {id_in: ["0xc04a23149efdf9a63697f3eb60705147e9f07ffd"]}){
-    id
-    name
-    symbol
-    derivedUSD
-    derivedBNB
-  }
-  }`,
-  },
-}
-
 export const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3'
 export const KNC_COINGECKO_ID = 'kyber-network-crystal'
 
@@ -287,6 +219,7 @@ export const APP_PATHS = {
   VERIFY_EXTERNAL: '/verify-external',
   GRANT_PROGRAMS: '/inter-project-trading-campaigns',
   NOTIFICATION_CENTER: '/notification-center',
+  ELASTIC_LEGACY: '/elastic-legacy',
 }
 
 export const TERM_FILES_PATH = {
@@ -342,3 +275,9 @@ export const TRANSACTION_STATE_DEFAULT: TransactionFlowState = {
   txHash: undefined,
   pendingText: '',
 }
+
+export const CHAINS_SUPPORT_FEE_CONFIGS = [ChainId.OASIS, ChainId.VELAS, ChainId.AURORA, ChainId.CRONOS]
+
+export const SWAP_FEE_RECEIVER_ADDRESS = '0x4f82e73EDb06d29Ff62C91EC8f5Ff06571bdeb29'
+
+export const TOKEN_SCORE_TTL = 86400

@@ -20,6 +20,19 @@ import { DetailedRouteSummary } from 'types/route'
 import { toCurrencyAmount } from 'utils/currencyAmount'
 import { checkPriceImpact } from 'utils/prices'
 
+const getFeeInfoForMixPanel = (routeSummary: DetailedRouteSummary | undefined) => {
+  if (!routeSummary?.fee) {
+    return undefined
+  }
+
+  return {
+    chargeTokenIn: routeSummary.extraFee.chargeFeeBy === 'currency_in',
+    tokenSymbol: routeSummary.fee.currency.symbol || '',
+    feeUsd: routeSummary.extraFee.feeAmountUsd,
+    feeAmount: routeSummary.fee.currencyAmount.toExact(),
+  }
+}
+
 const CustomPrimaryButton = styled(ButtonPrimary).attrs({
   id: 'swap-button',
 })<{ $minimal?: boolean }>`
@@ -85,10 +98,7 @@ const SwapOnlyButton: React.FC<Props> = ({
   const swapCallback = useSwapCallbackV3(isPermitSwap)
   const priceImpactResult = checkPriceImpact(priceImpact)
   const userHasSpecifiedInputOutput = Boolean(currencyIn && currencyOut && parsedAmount)
-  const showLoading =
-    (isGettingRoute && routeSummary === undefined) ||
-    isBuildingRoute ||
-    ((!balanceIn || !balanceOut) && userHasSpecifiedInputOutput)
+  const showLoading = isGettingRoute || isBuildingRoute || ((!balanceIn || !balanceOut) && userHasSpecifiedInputOutput)
 
   const handleClickSwapForNormalMode = async () => {
     if (!swapCallback || isBuildingRoute) {
@@ -110,6 +120,7 @@ const SwapOnlyButton: React.FC<Props> = ({
       gasUsd: routeSummary?.gasUsd,
       inputAmount: routeSummary?.parsedAmountIn,
       priceImpact: routeSummary?.priceImpact,
+      feeInfo: getFeeInfoForMixPanel(routeSummary),
     })
   }
 
@@ -164,6 +175,7 @@ const SwapOnlyButton: React.FC<Props> = ({
           priceImpact: routeSummary?.priceImpact,
           outputAmountDescription,
           currentPrice,
+          feeInfo: getFeeInfoForMixPanel(routeSummary),
         })
 
         return swapCallback(buildResult.data.routerAddress, buildResult.data.data)
@@ -171,7 +183,7 @@ const SwapOnlyButton: React.FC<Props> = ({
     }
 
     return undefined
-  }, [buildResult, swapCallback, routeSummary, mixpanelHandler])
+  }, [buildResult?.data, mixpanelHandler, routeSummary, swapCallback])
 
   const onDismissModal = useCallback(() => {
     setProcessingSwap(false)

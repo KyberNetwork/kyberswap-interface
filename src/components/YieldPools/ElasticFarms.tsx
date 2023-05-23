@@ -1,45 +1,29 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { computePoolAddress } from '@kyberswap/ks-sdk-elastic'
-import { Trans, t } from '@lingui/macro'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { Trans } from '@lingui/macro'
+import { useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
-import FarmIssueAnnouncement from 'components/FarmIssueAnnouncement'
 import LocalLoader from 'components/LocalLoader'
-import ShareModal from 'components/ShareModal'
 import { APP_PATHS, FARM_TAB } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
-import useElasticCompensationData from 'hooks/useElasticCompensationData'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
-import { ApplicationModal } from 'state/application/actions'
-import { useModalOpen, useOpenModal } from 'state/application/hooks'
-import { useElasticFarms, useFailedNFTs } from 'state/farms/elastic/hooks'
+import { useElasticFarms } from 'state/farms/elastic/hooks'
 import { FarmingPool } from 'state/farms/elastic/types'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { StyledInternalLink } from 'theme'
 import { isAddressString } from 'utils'
 
-import { ElasticCompensation } from './ElasticCompensation'
 import ElasticFarmGroup from './ElasticFarmGroup'
 import { DepositModal, StakeUnstakeModal } from './ElasticFarmModals'
 import HarvestModal from './ElasticFarmModals/HarvestModal'
 import WithdrawModal from './ElasticFarmModals/WithdrawModal'
-import { SharePoolContext } from './SharePoolContext'
 
 type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest' | 'forcedWithdraw'
-
-const farmIds: { [key: number]: string } = {
-  [ChainId.MAINNET]: '0xb85ebe2e4ea27526f817ff33fb55fb240057c03f',
-  [ChainId.AVAXMAINNET]: '0xbdec4a045446f583dc564c0a227ffd475b329bf0',
-  [ChainId.MATIC]: '0xbdec4a045446f583dc564c0a227ffd475b329bf0',
-  [ChainId.OPTIMISM]: '0xb85ebe2e4ea27526f817ff33fb55fb240057c03f',
-  [ChainId.ARBITRUM]: '0xbdec4a045446f583dc564c0a227ffd475b329bf0',
-}
 
 function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: boolean } }) {
   const theme = useTheme()
@@ -50,8 +34,6 @@ function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: bo
   const filteredToken1Id = searchParams.get('token1') || undefined
 
   const { farms, loading, userFarmInfo } = useElasticFarms()
-
-  const failedNFTs = useFailedNFTs()
 
   const ref = useRef<HTMLDivElement>()
   const [open, setOpen] = useState(false)
@@ -184,14 +166,6 @@ function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: bo
   const pid = selectedPool?.pid
   const selectedPoolId = Number.isNaN(Number(pid)) ? null : Number(pid)
 
-  const openShareModal = useOpenModal(ApplicationModal.SHARE)
-  const isShareModalOpen = useModalOpen(ApplicationModal.SHARE)
-  const [sharePoolAddress, setSharePoolAddress] = useState('')
-  const networkRoute = networkInfo.route || undefined
-  const shareUrl = sharePoolAddress
-    ? `${window.location.origin}/farms/${networkRoute}?search=${sharePoolAddress}&tab=elastic&type=${activeTab}`
-    : undefined
-
   const tokenAddressList = farms
     ?.map(farm => farm.pools)
     .flat()
@@ -206,49 +180,8 @@ function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: bo
     setSeletedPool(undefined)
   }
 
-  const renderAnnouncement = () => {
-    // show announcement only when user was affected in one of the visible farms on the UI
-    const now = Date.now() / 1000
-
-    if (activeTab === 'ended') {
-      const endedFarms = farms?.filter(farm => farm.pools.every(p => p.endTime < now))
-      const shouldShow = endedFarms?.some(farm =>
-        userFarmInfo?.[farm.id].depositedPositions
-          .map(pos => pos.nftId.toString())
-          .some(nft => failedNFTs.includes(nft)),
-      )
-      return shouldShow ? <FarmIssueAnnouncement isEnded /> : null
-    }
-
-    return null
-  }
-
-  useEffect(() => {
-    if (sharePoolAddress) {
-      openShareModal()
-    }
-  }, [openShareModal, sharePoolAddress])
-
-  useEffect(() => {
-    setSharePoolAddress(addr => {
-      if (!isShareModalOpen) {
-        return ''
-      }
-
-      return addr
-    })
-  }, [isShareModalOpen, setSharePoolAddress])
-
-  const { data: userCompensationData, loading: loadingCompensationData, claimInfo } = useElasticCompensationData()
-
-  const userDepositedInfo = farmIds[chainId] && userFarmInfo?.[farmIds[chainId]]?.depositedPositions
-  const canClaimReward = !!userCompensationData?.length && claimInfo
-  const canWithdraw = !!userDepositedInfo?.length
-  const isActiveTab = !type || type === FARM_TAB.ACTIVE
-  const showCompensation = isActiveTab && !loadingCompensationData && (canWithdraw || canClaimReward)
-
   return (
-    <SharePoolContext.Provider value={setSharePoolAddress}>
+    <>
       {selectedFarm && selectedModal === 'deposit' && (
         <DepositModal selectedFarmAddress={selectedFarm} onDismiss={onDismiss} />
       )}
@@ -274,8 +207,6 @@ function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: bo
       {selectedFarm && selectedModal === 'harvest' && (
         <HarvestModal farmsAddress={selectedFarm} poolId={selectedPoolId} onDismiss={onDismiss} />
       )}
-
-      {renderAnnouncement()}
 
       {type === FARM_TAB.ENDED && tab !== VERSION.CLASSIC && (
         <Text fontStyle="italic" fontSize={12} marginBottom="1rem" color={theme.subText}>
@@ -303,18 +234,7 @@ function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: bo
         </Text>
       )}
 
-      {showCompensation ? (
-        <ElasticCompensation
-          onWithdraw={() => {
-            setSeletedModal('forcedWithdraw')
-            setSeletedFarm(farmIds[chainId])
-          }}
-          data={userCompensationData}
-          numberOfPosition={userDepositedInfo?.length || 0}
-          tokenPrices={tokenPrices}
-          claimInfo={claimInfo}
-        />
-      ) : loading && noFarms ? (
+      {loading && noFarms ? (
         <Flex
           sx={{
             borderRadius: '16px',
@@ -363,11 +283,7 @@ function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: bo
           })}
         </Flex>
       )}
-      <ShareModal
-        title={!sharePoolAddress ? t`Share farms with your friends` : t`Share this farm with your friends!`}
-        url={shareUrl}
-      />
-    </SharePoolContext.Provider>
+    </>
   )
 }
 

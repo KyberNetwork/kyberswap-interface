@@ -157,6 +157,7 @@ export function CurrencyRow({
   const { symbol } = getDisplayTokenInfo(currency)
   return (
     <CurrencyRowWrapper
+      data-testid="token-item"
       style={style}
       hoverColor={hoverColor}
       onClick={() => onSelect?.(currency)}
@@ -175,14 +176,18 @@ export function CurrencyRow({
       <Column style={{ alignItems: 'flex-end', gap: 2 }}>
         <RowFixed style={{ justifySelf: 'flex-end', gap: 15 }}>
           {showImported ? (
-            <DeleteButton onClick={onClickRemove} />
+            <DeleteButton onClick={onClickRemove} data-testid="button-remove-import-token" />
           ) : customBalance !== undefined ? (
             customBalance
           ) : (
             balanceComponent
           )}
           {showFavoriteIcon && (
-            <FavoriteButton onClick={e => handleClickFavorite?.(e, currency)} data-active={isFavorite} />
+            <FavoriteButton
+              onClick={e => handleClickFavorite?.(e, currency)}
+              data-active={isFavorite}
+              data-testid="button-favorite-token"
+            />
           )}
         </RowFixed>
         {usdBalance !== undefined && !hideBalance && (
@@ -238,8 +243,8 @@ function CurrencyList({
 
   const Row: any = useCallback(
     function TokenRow({ style, currency, currencyBalance }: TokenRowProps) {
-      const isSelected = Boolean(selectedCurrency && currency && selectedCurrency.equals(currency))
-      const otherSelected = Boolean(otherCurrency && currency && otherCurrency.equals(currency))
+      const isSelected = Boolean(currency && selectedCurrency?.equals(currency))
+      const otherSelected = Boolean(currency && otherCurrency?.equals(currency))
       const canShowBalance = customChainId && customChainId !== chainId ? isEVM(customChainId) === isEVM(chainId) : true
 
       const token = currency?.wrapped

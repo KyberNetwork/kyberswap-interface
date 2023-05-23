@@ -11,7 +11,8 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import { RowBetween } from 'components/Row'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import UpdatedBadge, { Props as UpdatedBadgeProps } from 'components/SwapForm/SwapModal/SwapDetails/UpdatedBadge'
-import { RESERVE_USD_DECIMALS } from 'constants/index'
+import { CHAINS_SUPPORT_FEE_CONFIGS, RESERVE_USD_DECIMALS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { formattedNum } from 'utils'
 
@@ -66,6 +67,7 @@ export default function SwapBrief({
   currencyOut,
 }: Props) {
   const theme = useTheme()
+  const { chainId } = useActiveWeb3React()
   const { typedValue } = useSwapFormContext()
 
   const renderOutputAmount = () => {
@@ -145,7 +147,11 @@ export default function SwapBrief({
       <CurrencyInputAmountWrapper>
         <Flex alignItems="center" style={{ gap: '4px' }}>
           <Text fontSize={12} fontWeight={500} color={theme.subText}>
-            <Trans>Output Amount</Trans>
+            {CHAINS_SUPPORT_FEE_CONFIGS.includes(chainId) ? (
+              <Trans>Output Amount (incl. fee)</Trans>
+            ) : (
+              <Trans>Output Amount</Trans>
+            )}
           </Text>
           <UpdatedBadge $level={$level} outputAmount={outputAmount} />
         </Flex>

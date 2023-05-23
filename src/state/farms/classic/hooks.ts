@@ -2,12 +2,12 @@ import { Interface } from '@ethersproject/abi'
 import { Fraction, Token } from '@kyberswap/ks-sdk-core'
 import { ethers } from 'ethers'
 import JSBI from 'jsbi'
-import { useMemo } from 'react'
-import { useSelector } from 'react-redux'
+import { useCallback, useMemo } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 
 import FAIRLAUNCH_V2_ABI from 'constants/abis/fairlaunch-v2.json'
 import FAIRLAUNCH_ABI from 'constants/abis/fairlaunch.json'
-import { MAX_ALLOW_APY, OUTSIDE_FAIRLAUNCH_ADDRESSES } from 'constants/index'
+import { MAX_ALLOW_APY } from 'constants/index'
 import { DEFAULT_REWARDS } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { VERSION } from 'constants/v2'
@@ -16,7 +16,9 @@ import useTokenBalance from 'hooks/useTokenBalance'
 import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
 import { AppState } from 'state'
 import { useBlockNumber, useTokensPrice } from 'state/application/hooks'
+import { setFarmAddressToShare } from 'state/farms/classic/actions'
 import { FairLaunchVersion, Farm } from 'state/farms/classic/types'
+import { useAppSelector } from 'state/hooks'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
 import { isAddressString } from 'utils'
 import { getTradingFeeAPR, useFarmApr } from 'utils/dmm'
@@ -68,27 +70,16 @@ export const useRewardTokenPrices = (tokens: (Token | undefined | null)[], versi
   )
 }
 
-export const useFarmsData = (isIncludeOutsideFarms = true) => {
+export const useFarmsData = () => {
   const farmData = useSelector((state: AppState) => state.farms.data)
   const loading = useSelector((state: AppState) => state.farms.loading)
   const error = useSelector((state: AppState) => state.farms.error)
 
-  const data = useMemo(() => {
-    const result: {
-      [key: string]: Farm[]
-    } = {}
-    const outsideFirlaunchAddress = Object.keys(OUTSIDE_FAIRLAUNCH_ADDRESSES).map(address => address.toLowerCase())
-    Object.keys(farmData)
-      .filter(address => isIncludeOutsideFarms || !outsideFirlaunchAddress.includes(address.toLowerCase()))
-      .forEach(address => (result[address] = farmData[address]))
-    return result
-  }, [farmData, isIncludeOutsideFarms])
-
-  return useMemo(() => ({ loading, error, data }), [error, data, loading])
+  return useMemo(() => ({ loading, error, data: farmData }), [error, farmData, loading])
 }
 
 export const useActiveAndUniqueFarmsData = (): { loading: boolean; error: string; data: Farm[] } => {
-  const farmsData = useFarmsData(false)
+  const farmsData = useFarmsData()
   const blockNumber = useBlockNumber()
 
   return useMemo(() => {
@@ -139,4 +130,17 @@ export const useTotalApr = (farm: Farm) => {
   const apr = farmAPR + (tradingFeeAPR < MAX_ALLOW_APY ? tradingFeeAPR : 0)
 
   return { tradingFeeAPR, farmAPR, apr }
+}
+
+export const useShareFarmAddress = () => {
+  const farmAddress = useAppSelector(state => state.farms.farmAddressToShare)
+  const dispatch = useDispatch()
+  const setFarmAddress = useCallback(
+    (addr: string) => {
+      dispatch(setFarmAddressToShare(addr))
+    },
+    [dispatch],
+  )
+
+  return [farmAddress, setFarmAddress] as const
 }

@@ -94,10 +94,15 @@ interface CurrencySearchProps {
 
 const PAGE_SIZE = 20
 
-const fetchTokens = async (search: string | undefined, page: number, chainId: ChainId): Promise<WrappedTokenInfo[]> => {
+const fetchTokens = async (
+  search: string | undefined,
+  page: number,
+  chainId: ChainId,
+  signal: AbortSignal,
+): Promise<WrappedTokenInfo[]> => {
   try {
     if (search && chainId && isAddress(chainId, search)) {
-      const token = await fetchTokenByAddress(search, chainId)
+      const token = await fetchTokenByAddress(search, chainId, signal)
       return token ? [token as WrappedTokenInfo] : []
     }
     const params: { query: string; isWhitelisted?: boolean; pageSize: number; page: number; chainIds: string } = {
@@ -111,7 +116,7 @@ const fetchTokens = async (search: string | undefined, page: number, chainId: Ch
     }
     const url = `${KS_SETTING_API}/v1/tokens?${stringify(params)}`
 
-    const response = await axios.get(url)
+    const response = await axios.get(url, { signal })
     const { tokens = [] } = response.data.data
     return filterTruthy(tokens.map(formatAndCacheToken))
   } catch (error) {
@@ -122,7 +127,7 @@ const fetchTokens = async (search: string | undefined, page: number, chainId: Ch
 export const NoResult = ({ msg }: { msg?: ReactNode }) => {
   const theme = useTheme()
   return (
-    <Column style={{ padding: '20px', height: '100%' }}>
+    <Column style={{ padding: '20px', height: '100%' }} data-testid="no-token-result">
       <TYPE.main color={theme.text3} textAlign="center" mb="20px">
         {msg || <Trans>No results found.</Trans>}
       </TYPE.main>
@@ -273,12 +278,10 @@ export function CurrencySearch({
         return
       }
 
-      if (currency.isToken) {
-        toggleFavoriteToken({
-          chainId,
-          address,
-        })
-      }
+      toggleFavoriteToken({
+        chainId,
+        address,
+      })
     },
     [chainId, favoriteTokens, toggleFavoriteToken, defaultTokens],
   )
@@ -319,26 +322,16 @@ export function CurrencySearch({
     fetchFavoriteTokenFromAddress()
   }, [fetchFavoriteTokenFromAddress])
 
-  const fetchingToken = useRef<number | null>(null)
-
-  useEffect(() => {
-    fetchingToken.current = null
-  }, [chainId, debouncedQuery, defaultTokens])
-
+  const abortControllerRef = useRef(new AbortController())
   const fetchListTokens = useCallback(
     async (page?: number) => {
-      if (fetchingToken.current) {
-        return
-      }
-
-      const fetchId = Date.now()
-      fetchingToken.current = fetchId
-
       const nextPage = (page ?? pageCount) + 1
       let tokens: WrappedTokenInfo[] = []
 
       if (debouncedQuery) {
-        tokens = await fetchTokens(debouncedQuery, nextPage, chainId)
+        abortControllerRef.current.abort()
+        abortControllerRef.current = new AbortController()
+        tokens = await fetchTokens(debouncedQuery, nextPage, chainId, abortControllerRef.current.signal)
 
         if (tokens.length === 0 && isQueryValidEVMAddress) {
           const rawToken = await fetchERC20TokenFromRPC(debouncedQuery)
@@ -365,16 +358,12 @@ export function CurrencySearch({
           // TODO: query tokens from Solana token db
         }
       } else {
-        tokens = Object.values(defaultTokens) as WrappedTokenInfo[]
+        tokens = Object.values(defaultTokens)
       }
 
-      if (fetchingToken.current === fetchId) {
-        // sometimes, API slow, api fetch later has response sooner.
-        setPageCount(nextPage)
-        setFetchedTokens(current => (nextPage === 1 ? [] : current).concat(tokens))
-        setHasMoreToken(tokens.length === PAGE_SIZE && !!debouncedQuery)
-        fetchingToken.current = null
-      }
+      setPageCount(nextPage)
+      setFetchedTokens(current => (nextPage === 1 ? [] : current).concat(tokens))
+      setHasMoreToken(tokens.length === PAGE_SIZE && !!debouncedQuery)
     },
     [
       chainId,
@@ -457,6 +446,7 @@ export function CurrencySearch({
           <SearchInput
             type="text"
             id="token-search-input"
+            data-testid="token-search-input"
             placeholder={t`Search by token name, token symbol or address`}
             value={searchQuery}
             ref={inputRef}
@@ -488,13 +478,13 @@ export function CurrencySearch({
               columnGap: '24px',
             }}
           >
-            <TabButton data-active={activeTab === Tab.All} onClick={() => setActiveTab(Tab.All)}>
+            <TabButton data-active={activeTab === Tab.All} onClick={() => setActiveTab(Tab.All)} data-testid="tab-all">
               <Text as="span" fontSize={14} fontWeight={500}>
                 <Trans>All</Trans>
               </Text>
             </TabButton>
 
-            <TabButton data-active={isImportedTab} onClick={() => setActiveTab(Tab.Imported)}>
+            <TabButton data-active={isImportedTab} onClick={() => setActiveTab(Tab.Imported)} data-testid="tab-import">
               <Text as="span" fontSize={14} fontWeight={500}>
                 <Trans>Imported</Trans>
               </Text>
@@ -514,7 +504,7 @@ export function CurrencySearch({
           <div>
             <Trans>{visibleCurrencies.length} Custom Tokens</Trans>
           </div>
-          <ButtonClear onClick={removeAllImportToken}>
+          <ButtonClear onClick={removeAllImportToken} data-testid="button-clear-all-import-token">
             <Trash size={13} />
             <Trans>Clear All</Trans>
           </ButtonClear>

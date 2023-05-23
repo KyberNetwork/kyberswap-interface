@@ -88,6 +88,7 @@ export default function AnnouncementComponent() {
   const { account, chainId } = useActiveWeb3React()
   const [activeTab, setActiveTab] = useState(Tab.ANNOUNCEMENT)
   const { mixpanelHandler } = useMixpanel()
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   const isOpenNotificationCenter = useModalOpen(ApplicationModal.NOTIFICATION_CENTER)
   const toggleNotificationCenter = useToggleNotificationCenter()
@@ -201,13 +202,12 @@ export default function AnnouncementComponent() {
       if (!account) return []
       const { data } = await fetchPrivateAnnouncement({ account, page: 1 })
       const notifications = (data?.notifications ?? []) as PrivateAnnouncement[]
-      setPrivateAnnouncements(notifications)
-
-      if (data?.numberOfUnread !== numberOfUnread) {
-        // has new msg
+      const hasNewMsg = data?.numberOfUnread !== numberOfUnread
+      if (hasNewMsg) {
         resetUnread(RTK_QUERY_TAGS.GET_PRIVATE_ANN_BY_ID)
+        if (scrollRef.current) scrollRef.current.scrollTop = 0
       }
-
+      setPrivateAnnouncements(prevData => (hasNewMsg || !prevData.length ? notifications : prevData))
       return notifications
     } catch (error) {
       setPrivateAnnouncements([])
@@ -283,6 +283,7 @@ export default function AnnouncementComponent() {
     isMyInboxTab,
     onSetTab,
     showDetailAnnouncement,
+    scrollRef,
   }
 
   const badgeText = numberOfUnread > 0 ? formatNumberOfUnread(numberOfUnread) : null

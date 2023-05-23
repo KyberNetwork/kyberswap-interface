@@ -34,7 +34,9 @@ import { getLimitOrderContract, isAddressString, shortenAddress } from 'utils'
 
 import { RedirectPathToSwapV3Network } from './SwapV3/redirects'
 
-// Route-based code splitting
+// test page for swap only through elastic
+const ElasticSwap = lazy(() => import(/* webpackChunkName: 'elastic-swap-page' */ './ElasticSwap'))
+const ElasticLegacy = lazy(() => import(/* webpackChunkName: 'elastic-legacy-page' */ './ElasticLegacy'))
 
 const SwapV2 = lazy(() => import(/* webpackChunkName: 'swapv2-page' */ './SwapV2'))
 const SwapV3 = lazy(() => import(/* webpackChunkName: 'swapv3-page' */ './SwapV3'))
@@ -348,6 +350,9 @@ export default function App() {
                     <Route path={`${APP_PATHS.NOTIFICATION_CENTER}/*`} element={<NotificationCenter />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgramPage />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />
+
+                    <Route path={`${APP_PATHS.ELASTIC_LEGACY}`} element={<ElasticLegacy />} />
+                    <Route path={`elastic-swap`} element={<ElasticSwap />} />
 
                     <Route path={`/:network/*`} element={<RoutesWithNetworkPrefix />} />
 
