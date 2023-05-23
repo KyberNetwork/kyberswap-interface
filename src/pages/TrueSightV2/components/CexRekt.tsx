@@ -50,15 +50,15 @@ export default function CexRekt() {
         <Row gap="24px" flexDirection={above768 ? 'row' : 'column'} align="stretch">
           <Card>
             <Text fontSize={14}>4H Rekt</Text>
-            <Text fontSize={28}>${formatNum(data ? data.totalVolUsd.h4TotalVolUsd : 0)}</Text>
+            <Text fontSize={28}>${formatNum(data?.totalVolUsd?.h4TotalVolUsd || 0)}</Text>
           </Card>
           <Card>
             <Text fontSize={14}>12H Rekt</Text>
-            <Text fontSize={28}>${formatNum(data ? data.totalVolUsd.h12TotalVolUsd : 0)}</Text>
+            <Text fontSize={28}>${formatNum(data?.totalVolUsd?.h12TotalVolUsd || 0)}</Text>
           </Card>
           <Card>
             <Text fontSize={14}>24H Rekt</Text>
-            <Text fontSize={28}>${formatNum(data ? data.totalVolUsd.h24TotalVolUsd : 0)}</Text>
+            <Text fontSize={28}>${formatNum(data?.totalVolUsd?.h24TotalVolUsd || 0)}</Text>
           </Card>
         </Row>
       ) : (

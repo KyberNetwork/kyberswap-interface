@@ -292,7 +292,7 @@ export default function KyberAIShareModal({
                         </div>
                       </div>
                       <Text fontSize={24} color={theme.text} fontWeight={500}>
-                        {tokenOverview?.name} ({tokenOverview?.symbol.toUpperCase()})
+                        {tokenOverview?.name} ({tokenOverview?.symbol?.toUpperCase()})
                       </Text>
                     </>
                   )}

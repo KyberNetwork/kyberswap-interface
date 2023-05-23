@@ -303,23 +303,31 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                 </Text>
                 <MouseoverTooltip
                   text={
-                    <>
-                      <Column color={theme.subText} style={{ fontSize: '12px', lineHeight: '16px' }}>
-                        <Text>
-                          {latestKyberscore && dayjs(latestKyberscore?.created_at * 1000).format('DD/MM/YYYY HH:mm A')}
+                    latestKyberscore ? (
+                      <>
+                        <Column color={theme.subText} style={{ fontSize: '12px', lineHeight: '16px' }}>
+                          <Text>
+                            Calculated at {dayjs(latestKyberscore.created_at * 1000).format('DD/MM/YYYY HH:mm A')}
+                          </Text>
+                          <Text>
+                            KyberScore:{' '}
+                            <span style={{ color: calculateValueToColor(latestKyberscore.kyber_score || 0, theme) }}>
+                              {latestKyberscore.kyber_score || '--'} ({latestKyberscore.tag || t`Not Applicable`})
+                            </span>
+                          </Text>
+                          <Text>
+                            Token Price:{' '}
+                            <span style={{ color: theme.text }}>{formatTokenPrice(latestKyberscore.price || 0)}</span>
+                          </Text>
+                        </Column>
+                      </>
+                    ) : (
+                      <>
+                        <Text fontSize="12px" fontStyle="italic">
+                          <Trans>KyberScore is not applicable for stablecoins</Trans>
                         </Text>
-                        <Text>
-                          KyberScore:{' '}
-                          <span style={{ color: calculateValueToColor(latestKyberscore?.kyber_score || 0, theme) }}>
-                            {latestKyberscore?.kyber_score || '--'} ({latestKyberscore?.tag || t`Not Applicable`})
-                          </span>
-                        </Text>
-                        <Text>
-                          Token Price:{' '}
-                          <span style={{ color: theme.text }}>{formatTokenPrice(latestKyberscore?.price || 0)}</span>
-                        </Text>
-                      </Column>
-                    </>
+                      </>
+                    )
                   }
                   placement="top"
                 >
