@@ -118,6 +118,7 @@ export default function ProAmmFee({
         amount0Min.quotient.toString(),
         amount1Min.quotient.toString(),
         poolAddress,
+        true,
         deadline?.toString(),
       )
 
@@ -126,6 +127,7 @@ export default function ProAmmFee({
         amount0Min.quotient.toString(),
         amount1Min.quotient.toString(),
         poolAddress,
+        true,
         deadline?.toString(),
         {
           gasLimit: calculateGasMargin(gasEstimation),

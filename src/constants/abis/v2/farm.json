@@ -270,7 +270,7 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "admin",
         "type": "address"
@@ -283,7 +283,7 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "user",
         "type": "address"
@@ -389,6 +389,11 @@
         "internalType": "address",
         "name": "poolAddress",
         "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "isReceiveNative",
+        "type": "bool"
       },
       {
         "internalType": "uint256",
@@ -900,6 +905,11 @@
         "type": "uint256"
       },
       {
+        "internalType": "bool",
+        "name": "isReceiveNative",
+        "type": "bool"
+      },
+      {
         "internalType": "bool[2]",
         "name": "claimFeeAndRewards",
         "type": "bool[2]"
@@ -1019,6 +1029,19 @@
     "name": "updateOperator",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "weth",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {

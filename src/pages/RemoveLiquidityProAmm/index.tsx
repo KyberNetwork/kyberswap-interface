@@ -293,6 +293,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
         amount0Min.quotient.toString(),
         amount1Min.quotient.toString(),
         deadline.toString(),
+        !receiveWETH,
         [claimFee && feeValue0?.greaterThan('0'), false],
       )
 
@@ -302,6 +303,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
         amount0Min.quotient.toString(),
         amount1Min.quotient.toString(),
         deadline.toString(),
+        !receiveWETH,
         [claimFee && feeValue0?.greaterThan('0'), false],
         {
           gasLimit: calculateGasMargin(gasEstimation),
