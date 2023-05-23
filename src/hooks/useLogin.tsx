@@ -6,14 +6,16 @@ import { useConnectWalletToProfileMutation, useGetOrCreateProfileMutation } from
 
 import { NotificationType } from 'components/Announcement/type'
 import { ENV_KEY, OAUTH_CLIENT_ID } from 'constants/env'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useIsConnectedWallet } from 'hooks/useSyncNetworkParamWithStore'
+import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import { useNotify } from 'state/application/hooks'
 import { useSaveUserProfile, useSessionInfo, useSetPendingAuthentication } from 'state/authen/hooks'
 
 KyberOauth2.initialize({
   clientId: OAUTH_CLIENT_ID,
-  redirectUri: `${window.location.protocol}//${window.location.host}`, // todo check AI page for now
+  redirectUri: `${window.location.protocol}//${window.location.host}${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PROFILE}`, // todo check AI page for now. profile page
   mode: ENV_KEY,
 })
 
@@ -121,7 +123,13 @@ export const useSignInETH = () => {
     KyberOauth2.authenticate({ wallet_address: account ?? '' })
   }, [account, isLogin, notify])
 
-  return { signInEth }
+  const signOut = useCallback(() => {
+    KyberOauth2.logout({
+      // redirectUrl: `${window.location.protocol}//${window.location.host}${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PROFILE}`,
+    })
+  }, [])
+
+  return { signInEth, signOut }
 }
 
 export default useLogin

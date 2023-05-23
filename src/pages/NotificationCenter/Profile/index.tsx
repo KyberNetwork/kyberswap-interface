@@ -1,4 +1,3 @@
-import KyberOauth2 from '@kybernetwork/oauth2'
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { LogOut, Save } from 'react-feather'
@@ -19,6 +18,7 @@ import { useValidateEmail } from 'components/SubscribeButton/NotificationPrefere
 import InputEmail from 'components/SubscribeButton/NotificationPreference/InputEmail'
 import { useActiveWeb3React } from 'hooks'
 import { useUploadImageToCloud } from 'hooks/social'
+import { useSignInETH } from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
 import WarningSignMessage from 'pages/NotificationCenter/Profile/WarningSignMessage'
 import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
@@ -118,6 +118,7 @@ export default function Profile() {
   const { formatUserInfo, isLogin } = useSessionInfo()
   const { inputEmail, onChangeEmail, errorColor } = useValidateEmail(formatUserInfo?.email)
   const [nickname, setNickName] = useState('')
+  const { signOut } = useSignInETH()
 
   const [file, setFile] = useState<File>()
   const [previewImage, setPreviewImage] = useState<string>()
@@ -227,7 +228,7 @@ export default function Profile() {
           )}
 
           <ActionsWrapper>
-            <ButtonLogout disabled={isNeedSignIn} onClick={() => KyberOauth2.logout()}>
+            <ButtonLogout disabled={isNeedSignIn} onClick={signOut}>
               <LogOut size={16} style={{ marginRight: '4px' }} />
               Log Out
             </ButtonLogout>
