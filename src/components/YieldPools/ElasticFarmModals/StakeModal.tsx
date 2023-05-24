@@ -26,6 +26,7 @@ import { NFTPosition } from 'state/farms/elastic/types'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { StyledInternalLink } from 'theme'
 import { formatDollarAmount } from 'utils/numbers'
+import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import { ModalContentWrapper, TableHeader, TableRow, Title } from './styled'
 
@@ -154,13 +155,13 @@ const PositionRow = ({
             text={
               <>
                 <Flex alignItems="center">
-                  <CurrencyLogo currency={position.available.amount0.currency} size="16px" />
+                  <CurrencyLogo currency={unwrappedToken(position.available.amount0.currency)} size="16px" />
                   <Text fontSize={12} marginLeft="4px">
                     {position.available.amount0.toSignificant(8)}
                   </Text>
                 </Flex>
                 <Flex alignItems="center" marginTop="8px">
-                  <CurrencyLogo currency={position.available.amount1.currency} size="16px" />
+                  <CurrencyLogo currency={unwrappedToken(position.available.amount1.currency)} size="16px" />
                   <Text fontSize={12} marginLeft="4px">
                     {position.available.amount1.toSignificant(8)}
                   </Text>
@@ -182,13 +183,13 @@ const PositionRow = ({
             text={
               <>
                 <Flex alignItems="center">
-                  <CurrencyLogo currency={position.available.amount0.currency} size="16px" />
+                  <CurrencyLogo currency={unwrappedToken(position.available.amount0.currency)} size="16px" />
                   <Text fontSize={12} marginLeft="4px">
                     {position.staked.amount0.toSignificant(8)}
                   </Text>
                 </Flex>
                 <Flex alignItems="center" marginTop="8px">
-                  <CurrencyLogo currency={position.available.amount1.currency} size="16px" />
+                  <CurrencyLogo currency={unwrappedToken(position.available.amount1.currency)} size="16px" />
                   <Text fontSize={12} marginLeft="4px">
                     {position.staked.amount1.toSignificant(8)}
                   </Text>

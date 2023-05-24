@@ -1,10 +1,9 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { NonfungiblePositionManager, Position } from '@kyberswap/ks-sdk-elastic'
+import { FeeAmount, NonfungiblePositionManager, Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
-import { useCallback, useState } from 'react'
-import { Info } from 'react-feather'
+import { useState } from 'react'
 import { Flex, Text } from 'rebass'
 
 import { ButtonLight } from 'components/Button'
@@ -15,18 +14,17 @@ import Divider from 'components/Divider'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import QuestionHelper from 'components/QuestionHelper'
 import { RowBetween, RowFixed } from 'components/Row'
-import { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
+import { useProAmmNFTPositionManagerContract, useProMMFarmContract } from 'hooks/useContract'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { basisPointsToPercent, calculateGasMargin, formattedNumLong } from 'utils'
-import { unwrappedToken } from 'utils/wrappedCurrency'
 
 export default function ProAmmFee({
   tokenId,
@@ -38,6 +36,7 @@ export default function ProAmmFee({
   feeValue0,
   feeValue1,
   totalFeeRewardUSD,
+  farmAddress,
 }: {
   totalFeeRewardUSD: number
   tokenId: BigNumber
@@ -45,14 +44,15 @@ export default function ProAmmFee({
   layout?: number
   text?: string
   hasUserDepositedInFarm?: boolean
+  farmAddress?: string
   feeValue0: CurrencyAmount<Currency> | undefined
   feeValue1: CurrencyAmount<Currency> | undefined
 }) {
   const { account } = useActiveWeb3React()
   const { library } = useWeb3React()
   const theme = useTheme()
-  const token0Shown = unwrappedToken(position.pool.token0)
-  const token1Shown = unwrappedToken(position.pool.token1)
+  const token0Shown = feeValue0?.currency || position.pool.token0
+  const token1Shown = feeValue1?.currency || position.pool.token1
   const addTransactionWithType = useTransactionAdder()
   const positionManager = useProAmmNFTPositionManagerContract()
   const deadline = useTransactionDeadline() // custom from users settings
@@ -74,11 +74,81 @@ export default function ProAmmFee({
     setCollectFeeError('')
   }
 
-  const collect = useCallback(() => {
+  const handleBroadcastClaimSuccess = (response: TransactionResponse) => {
+    const tokenAmountIn = feeValue0?.toSignificant(6)
+    const tokenAmountOut = feeValue1?.toSignificant(6)
+    const tokenSymbolIn = feeValue0?.currency.symbol ?? ''
+    const tokenSymbolOut = feeValue1?.currency.symbol ?? ''
+    addTransactionWithType({
+      hash: response.hash,
+      type: TRANSACTION_TYPE.ELASTIC_COLLECT_FEE,
+      extraInfo: {
+        tokenAmountIn,
+        tokenAmountOut,
+        tokenAddressIn: feeValue0?.currency.wrapped.address,
+        tokenAddressOut: feeValue1?.currency.wrapped.address,
+        tokenSymbolIn,
+        tokenSymbolOut,
+        arbitrary: {
+          token_1: token0Shown?.symbol,
+          token_2: token1Shown?.symbol,
+          token_1_amount: tokenAmountIn,
+          token_2_amount: tokenAmountOut,
+        },
+      },
+    })
+    setAttemptingTxn(false)
+    setTxnHash(response.hash)
+  }
+
+  const farmContract = useProMMFarmContract(farmAddress || '')
+  const poolAddress = useProAmmPoolInfo(position.pool.token0, position.pool.token1, position.pool.fee as FeeAmount)
+
+  const collectFeeFromFarmContract = async () => {
+    if (!farmContract || !feeValue0 || !feeValue1) {
+      setAttemptingTxn(false)
+      setCollectFeeError('Something went wrong!')
+      return
+    }
+
+    const amount0Min = feeValue0.subtract(feeValue0.multiply(basisPointsToPercent(allowedSlippage)))
+    const amount1Min = feeValue1.subtract(feeValue1.multiply(basisPointsToPercent(allowedSlippage)))
+    try {
+      const gasEstimation = await farmContract.estimateGas.claimFee(
+        [tokenId.toString()],
+        amount0Min.quotient.toString(),
+        amount1Min.quotient.toString(),
+        poolAddress,
+        true,
+        deadline?.toString(),
+      )
+
+      const tx = await farmContract.claimFee(
+        [tokenId.toString()],
+        amount0Min.quotient.toString(),
+        amount1Min.quotient.toString(),
+        poolAddress,
+        true,
+        deadline?.toString(),
+        {
+          gasLimit: calculateGasMargin(gasEstimation),
+        },
+      )
+
+      handleBroadcastClaimSuccess(tx)
+    } catch (e) {
+      setShowPendingModal(true)
+      setAttemptingTxn(false)
+      setCollectFeeError(e?.message || JSON.stringify(e))
+    }
+  }
+
+  const collect = () => {
     setShowPendingModal(true)
     setAttemptingTxn(true)
 
     if (!feeValue0 || !feeValue1 || !positionManager || !account || !tokenId || !library || !deadline || !layout) {
+      setAttemptingTxn(false)
       setCollectFeeError('Something went wrong!')
       return
     }
@@ -87,6 +157,11 @@ export default function ProAmmFee({
       token_1: token0Shown?.symbol,
       token_2: token1Shown?.symbol,
     })
+
+    if (hasUserDepositedInFarm) {
+      collectFeeFromFarmContract()
+      return
+    }
 
     const { calldata, value } = NonfungiblePositionManager.collectCallParameters({
       tokenId: tokenId.toString(),
@@ -116,30 +191,7 @@ export default function ProAmmFee({
           .getSigner()
           .sendTransaction(newTxn)
           .then((response: TransactionResponse) => {
-            const tokenAmountIn = feeValue0.toSignificant(6)
-            const tokenAmountOut = feeValue1.toSignificant(6)
-            const tokenSymbolIn = feeValue0.currency.symbol ?? ''
-            const tokenSymbolOut = feeValue1.currency.symbol ?? ''
-            addTransactionWithType({
-              hash: response.hash,
-              type: TRANSACTION_TYPE.ELASTIC_COLLECT_FEE,
-              extraInfo: {
-                tokenAmountIn,
-                tokenAmountOut,
-                tokenAddressIn: feeValue0.currency.wrapped.address,
-                tokenAddressOut: feeValue1.currency.wrapped.address,
-                tokenSymbolIn,
-                tokenSymbolOut,
-                arbitrary: {
-                  token_1: token0Shown?.symbol,
-                  token_2: token1Shown?.symbol,
-                  token_1_amount: tokenAmountIn,
-                  token_2_amount: tokenAmountOut,
-                },
-              },
-            })
-            setAttemptingTxn(false)
-            setTxnHash(response.hash)
+            handleBroadcastClaimSuccess(response)
           })
       })
       .catch((error: any) => {
@@ -148,22 +200,7 @@ export default function ProAmmFee({
         setCollectFeeError(error?.message || JSON.stringify(error))
         console.error(error)
       })
-  }, [
-    feeValue0,
-    feeValue1,
-    positionManager,
-    account,
-    tokenId,
-    addTransactionWithType,
-    library,
-    deadline,
-    layout,
-    token0Shown,
-    token1Shown,
-    mixpanelHandler,
-    allowedSlippage,
-    liquidity,
-  ])
+  }
   const hasNoFeeToCollect = !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0))
 
   if (layout === 0) {
@@ -263,53 +300,21 @@ export default function ProAmmFee({
             </Text>
           </RowFixed>
         </RowBetween>
-        {hasUserDepositedInFarm ? (
-          <MouseoverTooltip
-            placement="top"
-            text={t`You need to withdraw your deposited liquidity position from the Farm first`}
-          >
-            <Flex
-              // this flex looks like redundant
-              // but without this, the cursor will be default
-              // as we put pointerEvents=none on the button
-              sx={{
-                cursor: 'not-allowed',
-                width: '100%',
-              }}
-            >
-              <ButtonLight
-                style={{
-                  padding: '10px',
-                  fontSize: '14px',
-                  width: '100%',
-                  pointerEvents: 'none',
-                }}
-                disabled
-              >
-                <Flex alignItems="center" sx={{ gap: '8px' }}>
-                  <Info size={16} />
-                  <Trans>Collect Fees</Trans>
-                </Flex>
-              </ButtonLight>
-            </Flex>
-          </MouseoverTooltip>
-        ) : (
-          <ButtonLight disabled={hasNoFeeToCollect} onClick={collect} style={{ padding: '10px', fontSize: '14px' }}>
-            <Flex alignItems="center" sx={{ gap: '8px' }}>
-              <QuestionHelper
-                placement="top"
-                size={16}
-                text={
-                  hasNoFeeToCollect
-                    ? t`You don't have any fees to collect`
-                    : t`By collecting, you will receive 100% of your fee earnings`
-                }
-                useCurrentColor
-              />
-              <Trans>Collect Fees</Trans>
-            </Flex>
-          </ButtonLight>
-        )}
+        <ButtonLight disabled={hasNoFeeToCollect} onClick={collect} style={{ padding: '10px', fontSize: '14px' }}>
+          <Flex alignItems="center" sx={{ gap: '8px' }}>
+            <QuestionHelper
+              placement="top"
+              size={16}
+              text={
+                hasNoFeeToCollect
+                  ? t`You don't have any fees to collect`
+                  : t`By collecting, you will receive 100% of your fee earnings`
+              }
+              useCurrentColor
+            />
+            <Trans>Collect Fees</Trans>
+          </Flex>
+        </ButtonLight>
       </AutoColumn>
 
       <TransactionConfirmationModal
