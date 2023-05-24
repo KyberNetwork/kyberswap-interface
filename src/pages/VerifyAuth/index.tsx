@@ -16,9 +16,8 @@ const VerifyAuth = () => {
       const redirectUrl = getLoginRedirectUrl()
       if (redirectUrl) {
         removeLoginRedirectUrl()
-        const { origin, search, pathname } = new URL(redirectUrl)
-        console.log(`${origin}${pathname}?${stringify(qs)}${search.replace('?', '&')}`)
-        navigate(`${origin}${pathname}?${stringify(qs)}${search.replace('?', '&')}`, { replace: true })
+        const { search, pathname } = new URL(redirectUrl)
+        navigate(`${pathname}?${stringify(qs)}${search.replace('?', '&')}`, { replace: true })
       }
     } catch (error) {}
   }, [navigate, qs])
