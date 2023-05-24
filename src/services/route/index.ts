@@ -1,12 +1,12 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
-import baseQueryOauth from 'services/baseQueryOauth'
+import { baseQueryOauthDynamic } from 'services/baseQueryOauth'
 import { BuildRoutePayload, BuildRouteResponse } from 'services/route/types/buildRoute'
 
 import { GetRouteParams, GetRouteResponse } from './types/getRoute'
 
 const routeApi = createApi({
   reducerPath: 'routeApi',
-  baseQuery: baseQueryOauth({ baseUrl: '' }),
+  baseQuery: baseQueryOauthDynamic({ baseUrl: '' }),
   endpoints: builder => ({
     getRoute: builder.query<
       GetRouteResponse,

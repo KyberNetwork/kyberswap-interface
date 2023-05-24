@@ -79,6 +79,7 @@ export default function CommonBases({
           const { symbol } = getDisplayTokenInfo(token)
           return (
             <BaseWrapper
+              data-testid="favorite-token"
               onClick={() => !selected && onSelect(token)}
               data-selected={selected}
               key={(token.address || token?.wrapped?.address) + token.symbol}
@@ -88,6 +89,7 @@ export default function CommonBases({
               <CloseBtn
                 $forceShow={isEditMode}
                 className="close-btn"
+                data-testid="close-btn"
                 size={16}
                 onClick={e => handleToggleFavorite(e, token)}
               />

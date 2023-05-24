@@ -270,6 +270,7 @@ function WithdrawModal({
   const { filterOptions, activeFilter, setActiveFilter, eligiblePositions } = usePositionFilter(
     userDepositedNFTs,
     poolAddresses,
+    true,
   )
 
   const withDrawableNFTs = useMemo(() => {
