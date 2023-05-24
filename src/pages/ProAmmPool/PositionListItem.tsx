@@ -174,7 +174,7 @@ function PositionListItem({
 
   farms?.forEach(farm => {
     farm.pools.forEach(pool => {
-      if (pool.endTime > Date.now() / 1000 && pool.poolAddress.toLowerCase() === positionDetails.poolId.toLowerCase()) {
+      if (pool.poolAddress.toLowerCase() === positionDetails.poolId.toLowerCase()) {
         farmAddress = farm.id
         pid = pool.pid
         rewardTokens = pool.rewardTokens

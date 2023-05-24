@@ -106,6 +106,7 @@ export default function ProAmmFee({
 
   const collectFeeFromFarmContract = async () => {
     if (!farmContract || !feeValue0 || !feeValue1) {
+      setAttemptingTxn(false)
       setCollectFeeError('Something went wrong!')
       return
     }
@@ -147,6 +148,7 @@ export default function ProAmmFee({
     setAttemptingTxn(true)
 
     if (!feeValue0 || !feeValue1 || !positionManager || !account || !tokenId || !library || !deadline || !layout) {
+      setAttemptingTxn(false)
       setCollectFeeError('Something went wrong!')
       return
     }
