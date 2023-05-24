@@ -49,7 +49,7 @@ const TrendingSoonTokenBanner = ({
 
   const isFetching = fetching0 && fetching1
 
-  const banner: { icon: string; text: string; redirectUrl?: string } | undefined = useMemo(() => {
+  const banner: { icon: string; text: string; redirectUrl?: string; color?: string } | undefined = useMemo(() => {
     if (!tokenOverview0 || !tokenOverview1 || isFetching) return undefined
     const token0Bullish =
       tokenOverview0.kyberScore && tokenOverview0.kyberScore.label !== '' && tokenOverview0.kyberScore.score > 64
@@ -75,13 +75,24 @@ const TrendingSoonTokenBanner = ({
         icon: 'bearish',
         text: t`Both ${token0Symbol} and ${token1Symbol} seem bearish right now.`,
         redirectUrl: window.location.origin + APP_PATHS.KYBERAI_RANKINGS + `?type=${KyberAIListType.BEARISH}`,
+        color: theme.red,
       }
     }
     if (token0Bullish && token1Bearish) {
-      return { icon: 'bearish', text: t`${token0Symbol} seems bullish while ${token1Symbol} seems bearish right now.` }
+      return {
+        icon: 'bearish',
+        text: t`${token0Symbol} seems bullish while ${token1Symbol} seems bearish right now.`,
+        color: theme.warning,
+        redirectUrl: window.location.origin + APP_PATHS.KYBERAI_RANKINGS + `?type=${KyberAIListType.BULLISH}`,
+      }
     }
     if (token1Bullish && token0Bearish) {
-      return { icon: 'bearish', text: t`${token1Symbol} seems bullish while ${token0Symbol} seems bearish right now.` }
+      return {
+        icon: 'bearish',
+        text: t`${token1Symbol} seems bullish while ${token0Symbol} seems bearish right now.`,
+        color: theme.warning,
+        redirectUrl: window.location.origin + APP_PATHS.KYBERAI_RANKINGS + `?type=${KyberAIListType.BULLISH}`,
+      }
     }
     if (token0Bullish) {
       return {
@@ -102,6 +113,7 @@ const TrendingSoonTokenBanner = ({
         icon: 'bearish',
         text: t`${token0Symbol} seems bearish right now.`,
         redirectUrl: window.location.origin + APP_PATHS.KYBERAI_EXPLORE + `/${chain}/${tokenOverview0?.address}`,
+        color: theme.red,
       }
     }
     if (token1Bearish) {
@@ -109,22 +121,23 @@ const TrendingSoonTokenBanner = ({
         icon: 'bearish',
         text: t`${token1Symbol} seems bearish right now.`,
         redirectUrl: window.location.origin + APP_PATHS.KYBERAI_EXPLORE + `/${chain}/${tokenOverview1?.address}`,
+        color: theme.red,
       }
     }
     return undefined
-  }, [isFetching, tokenOverview0, tokenOverview1, chain, token0Symbol, token1Symbol])
+  }, [isFetching, tokenOverview0, tokenOverview1, chain, token0Symbol, token1Symbol, theme])
 
   if (!banner || !isWhiteList || !account) return null
 
   return (
-    <Container style={style}>
+    <Container style={style} color={banner.color}>
       <Row gap="8px">
-        <Text color={theme.primary}>
+        <Text color={banner.color || theme.primary}>
           <Icon id={banner.icon} size={16} />
         </Text>
         <BannerText>
           {banner.text}{' '}
-          <ExternalLink href={banner.redirectUrl || '#'}>
+          <ExternalLink href={banner.redirectUrl || '#'} style={{ color: banner.color || theme.primary }}>
             <Trans>See here</Trans>
           </ExternalLink>
         </BannerText>
@@ -133,8 +146,8 @@ const TrendingSoonTokenBanner = ({
   )
 }
 
-const Container = styled.div`
-  background: ${({ theme }) => rgba(theme.primary, 0.25)};
+const Container = styled.div<{ color?: string }>`
+  background: ${({ theme, color }) => rgba(color || theme.primary, 0.25)};
   border-radius: 999px;
   padding: 8px 16px;
   display: grid;

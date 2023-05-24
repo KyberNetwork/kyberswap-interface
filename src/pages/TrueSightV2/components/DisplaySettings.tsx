@@ -62,7 +62,7 @@ const onChainAnalysisSettings = [
   },
   {
     id: 'volumeOfTransfers',
-    name: 'Number of Trades / Type of Trade',
+    name: 'Number / Volume of Tranfers',
   },
   {
     id: 'numberOfHolders',
