@@ -341,8 +341,8 @@ export default function CampaignsUpdater() {
         return fetchLeaderBoard({
           campaignId: selectedCampaign.id,
           pageNumber: selectedCampaignLeaderboardPageNumber,
-          userAddress: account?.toLowerCase() ?? '',
-          lookupAddress: selectedCampaignLeaderboardLookupAddress.toLowerCase(),
+          userAddress: account ?? '',
+          lookupAddress: selectedCampaignLeaderboardLookupAddress,
         })
       } catch (err) {
         console.error(err)
@@ -387,7 +387,7 @@ export default function CampaignsUpdater() {
           params: {
             pageSize: CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE,
             pageNumber: selectedCampaignLuckyWinnersPageNumber,
-            lookupAddress: selectedCampaignLuckyWinnersLookupAddress.toLowerCase(),
+            lookupAddress: selectedCampaignLuckyWinnersLookupAddress,
           },
         })
         const data = response.data.data

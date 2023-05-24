@@ -1,6 +1,8 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import { SignerWalletAdapter } from '@solana/wallet-adapter-base'
+import { Transaction } from '@solana/web3.js'
 import axios from 'axios'
 import { useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -12,7 +14,7 @@ import { ButtonPrimary } from 'components/Button'
 import { REWARD_SERVICE_API } from 'constants/env'
 import { BIG_INT_ZERO, DEFAULT_SIGNIFICANT } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React, useWeb3React, useWeb3Solana } from 'hooks'
 import { useChangeNetwork } from 'hooks/useChangeNetwork'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
@@ -57,16 +59,15 @@ export default function CampaignButtonWithOptions({
     ? campaign[type === 'swap_now' ? 'chainIds' : 'rewardChainIds'].split(',').map(Number)
     : []
 
-  const { account } = useActiveWeb3React()
+  const { account, walletSolana } = useActiveWeb3React()
   const { library } = useWeb3React()
 
   const rawRewards = campaign?.userInfo?.rewards || []
+
   const refs: string[] = []
   if (rawRewards.length) {
     rawRewards.forEach(reward => {
-      if (!reward.claimed && reward.rewardAmount.greaterThan(BIG_INT_ZERO)) {
-        refs.push(reward.ref)
-      }
+      if (!reward.claimed && reward.rewardAmount.greaterThan(BIG_INT_ZERO)) refs.push(reward.ref)
     })
   }
 
@@ -113,17 +114,37 @@ export default function CampaignButtonWithOptions({
 
   const addTransactionWithType = useTransactionAdder()
 
+  const { connection } = useWeb3Solana()
+
+  const addClaimTransactionAndAddClaimRef = (
+    hash: string,
+    claimChainId: ChainId,
+    rewardString: string,
+    rewardContractAddress: string,
+  ) => {
+    addTransactionWithType({
+      hash,
+      type: TRANSACTION_TYPE.CLAIM_REWARD,
+      desiredChainId: claimChainId,
+      extraInfo: {
+        summary: `${rewardString} from campaign "${campaign?.name}"`,
+        contract: rewardContractAddress,
+      },
+    })
+    const newRef2Hash = refs.filter(ref => !!ref).reduce((acc, ref) => ({ ...acc, [ref]: hash }), {})
+    setRef2Hash(prev => ({ ...prev, ...newRef2Hash }))
+  }
+
   const claimRewards = async (claimChainId: ChainId) => {
     if (!account || !library || !campaign || !rawRewards.length) return
     setClaimingCampaignRewardId(campaign.id)
     const url = REWARD_SERVICE_API + '/rewards/claim'
 
     const data = {
-      wallet: account.toLowerCase(),
+      wallet: account,
       chainId: campaign.rewardChainIds,
       clientCode: 'campaign',
-      // ref: refs.join(','),
-      ref: '',
+      ref: refs.join(','),
     }
     let response: any
     try {
@@ -133,10 +154,41 @@ export default function CampaignButtonWithOptions({
       setClaimingCampaignRewardId(null)
     }
 
+    const accumulatedUnclaimedRewards = rawRewards
+      .filter(reward => !reward.claimed)
+      .reduce((acc: { [p: string]: CampaignLeaderboardReward }, value) => {
+        const key = value.token.chainId + '_' + value.token.address
+        if (acc[key] === undefined) {
+          acc[key] = value
+        } else {
+          acc[key] = {
+            ...value,
+            rewardAmount: value.rewardAmount.add(acc[key].rewardAmount),
+          }
+        }
+        return acc
+      }, {})
+    const rewardString = Object.values(accumulatedUnclaimedRewards ?? {})
+      .map(reward => reward.rewardAmount.toSignificant(DEFAULT_SIGNIFICANT) + ' ' + reward.token.symbol)
+      .join(' ' + t`and` + ' ')
+
     if (response?.data?.code === 200000) {
       const rewardContractAddress = response.data.data.ContractAddress
       const encodedData = response.data.data.EncodedData
       try {
+        if (claimChainId === ChainId.SOLANA) {
+          if (connection && walletSolana.wallet?.adapter) {
+            const transaction = Transaction.from(Buffer.from(encodedData.substring(2), 'hex'))
+            const signedTx = await (walletSolana.wallet.adapter as SignerWalletAdapter).signTransaction(transaction)
+            const signature = await connection.sendRawTransaction(Buffer.from(signedTx.serialize()))
+
+            addClaimTransactionAndAddClaimRef(signature, claimChainId, rewardString, rewardContractAddress)
+            addTemporaryClaimedRefs && addTemporaryClaimedRefs(refs)
+            updateCampaignStore()
+            setClaimingCampaignRewardId(null)
+          }
+          return
+        }
         await sendEVMTransaction(
           account,
           library,
@@ -144,36 +196,12 @@ export default function CampaignButtonWithOptions({
           encodedData,
           BigNumber.from(0),
           async transactionResponse => {
-            const accumulatedUnclaimedRewards = rawRewards
-              .filter(reward => !reward.claimed)
-              .reduce((acc: { [p: string]: CampaignLeaderboardReward }, value) => {
-                const key = value.token.chainId + '_' + value.token.address
-                if (acc[key] === undefined) {
-                  acc[key] = value
-                } else {
-                  acc[key] = {
-                    ...value,
-                    rewardAmount: value.rewardAmount.add(acc[key].rewardAmount),
-                  }
-                }
-                return acc
-              }, {})
-            const rewardString = Object.values(accumulatedUnclaimedRewards ?? {})
-              .map(reward => reward.rewardAmount.toSignificant(DEFAULT_SIGNIFICANT) + ' ' + reward.token.symbol)
-              .join(' ' + t`and` + ' ')
-            addTransactionWithType({
-              hash: transactionResponse.hash,
-              type: TRANSACTION_TYPE.CLAIM_REWARD,
-              desiredChainId: claimChainId,
-              extraInfo: {
-                summary: `${rewardString} from campaign "${campaign?.name}"`,
-                contract: rewardContractAddress,
-              },
-            })
-            const newRef2Hash = refs
-              .filter(ref => !!ref)
-              .reduce((acc, ref) => ({ ...acc, [ref]: transactionResponse.hash }), {})
-            setRef2Hash(prev => ({ ...prev, ...newRef2Hash }))
+            addClaimTransactionAndAddClaimRef(
+              transactionResponse.hash,
+              claimChainId,
+              rewardString,
+              rewardContractAddress,
+            )
             const transactionReceipt = await transactionResponse.wait()
             if (transactionReceipt.status === 1) {
               addTemporaryClaimedRefs && addTemporaryClaimedRefs(refs)
