@@ -15,6 +15,7 @@ import snow from 'assets/images/snow.png'
 import Popups from 'components/Announcement/Popups'
 import TopBanner from 'components/Announcement/Popups/TopBanner'
 import AppHaveUpdate from 'components/AppHaveUpdate'
+import ModalConfirm from 'components/ConfirmModal'
 import ErrorBoundary from 'components/ErrorBoundary'
 import Footer from 'components/Footer/Footer'
 import Header from 'components/Header'
@@ -364,6 +365,7 @@ export default function App() {
               {showFooter && <Footer />}
               <TruesightFooter />
             </Suspense>
+            <ModalConfirm />
           </AppWrapper>
         </>
       )}

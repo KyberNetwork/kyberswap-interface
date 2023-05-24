@@ -13,6 +13,7 @@ import {
   closeModal,
   removePopup,
   setAnnouncementDetail,
+  setConfirmData,
   setLoadingNotification,
   setOpenModal,
   setSubscribedNotificationTopic,
@@ -27,6 +28,14 @@ type ETHPrice = {
   currentPrice?: string
   oneDayBackPrice?: string
   pricePercentChange?: number
+}
+
+export type ConfirmModalState = {
+  isOpen: boolean
+  cancelText: string
+  confirmText: string
+  onConfirm?: () => void
+  onCancel?: () => void
 }
 
 interface ApplicationState {
@@ -54,6 +63,7 @@ interface ApplicationState {
   readonly config: {
     [chainId in ChainId]?: KyberSwapConfigResponse
   }
+  readonly confirmModal: ConfirmModalState
 }
 const initialStateNotification = {
   isLoading: false,
@@ -65,6 +75,14 @@ const initialStateNotification = {
     hasMore: false,
   },
 }
+
+export const initialStateConfirmModal = {
+  isOpen: false,
+  cancelText: '',
+  confirmText: '',
+  onConfirm: undefined,
+  onCancel: undefined,
+}
 const initialState: ApplicationState = {
   blockNumber: {},
   popupList: [],
@@ -75,6 +93,7 @@ const initialState: ApplicationState = {
   serviceWorkerRegistration: null,
   notification: initialStateNotification,
   config: {},
+  confirmModal: initialStateConfirmModal,
 }
 
 export default createReducer(initialState, builder =>
@@ -127,7 +146,9 @@ export default createReducer(initialState, builder =>
     .addCase(updateServiceWorker, (state, { payload }) => {
       state.serviceWorkerRegistration = payload
     })
-
+    .addCase(setConfirmData, (state, { payload }) => {
+      state.confirmModal = payload
+    })
     // ------ notification subscription ------
     .addCase(setLoadingNotification, (state, { payload: isLoading }) => {
       const notification = state.notification ?? initialStateNotification

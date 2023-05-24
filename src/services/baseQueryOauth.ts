@@ -1,4 +1,5 @@
-import KyberOauth2 from '@kybernetwork/oauth2'
+import KyberOauth2, { TokenExpireError } from '@kybernetwork/oauth2'
+import { t } from '@lingui/macro'
 import { BaseQueryFn, fetchBaseQuery } from '@reduxjs/toolkit/query'
 
 const queryWithToken = async (config: any, baseUrl: string) => {
@@ -11,6 +12,15 @@ const queryWithToken = async (config: any, baseUrl: string) => {
     const result = await KyberOauth2.callHttp(config)
     return { data: result.data }
   } catch (err) {
+    const error = err as TokenExpireError
+    if (error?.isTokenExpired) {
+      window.showConfirm?.({
+        isOpen: true,
+        content: t`Token expired, please Sign-in to continue.`,
+        onConfirm: () => KyberOauth2.authenticate(),
+        confirmText: t`Sign-in`,
+      })
+    }
     return {
       error: {
         status: err.response?.status,
