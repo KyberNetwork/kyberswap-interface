@@ -37,6 +37,7 @@ import { RedirectPathToMyPoolsNetwork } from './Pool/redirect'
 import { RedirectPathToPoolsNetwork } from './Pools/redirect'
 import { RedirectPathToSwapV3Network } from './SwapV3/redirects'
 import Verify from './Verify'
+import VerifyAuth from './VerifyAuth'
 
 // test page for swap only through elastic
 const ElasticSwap = lazy(() => import('./ElasticSwap'))
@@ -299,6 +300,8 @@ export default function App() {
 
                     <Route path={`${APP_PATHS.ELASTIC_LEGACY}`} element={<ElasticLegacy />} />
                     <Route path={`elastic-swap`} element={<ElasticSwap />} />
+
+                    <Route path={`${APP_PATHS.VERIFY_AUTH}`} element={<VerifyAuth />} />
 
                     <Route path="*" element={<RedirectPathToSwapV3Network />} />
                   </Routes>

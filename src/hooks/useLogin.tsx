@@ -8,7 +8,6 @@ import { NotificationType } from 'components/Announcement/type'
 import { ENV_KEY, OAUTH_CLIENT_ID } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import {
   ProfileLocalStorageKeys,
@@ -19,10 +18,11 @@ import {
   useSetPendingAuthentication,
   useSignedWallet,
 } from 'state/authen/hooks'
+import { setLoginRedirectUrl } from 'utils/redirectUponLogin'
 
 KyberOauth2.initialize({
   clientId: OAUTH_CLIENT_ID,
-  redirectUri: `${window.location.protocol}//${window.location.host}${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PROFILE}`, // todo check AI page for now. profile page // todo hungdoan
+  redirectUri: `${window.location.protocol}//${window.location.host}${APP_PATHS.VERIFY_AUTH}`, // todo check AI page for now. profile page // todo hungdoan
   mode: ENV_KEY,
 })
 
@@ -166,7 +166,7 @@ const useLogin = (autoLogin = false) => {
       }
       setProfileLocalStorage(ProfileLocalStorageKeys.CONNECTING_WALLET, account)
       KyberOauth2.authenticate({ wallet_address: account ?? '' }) // navigate to login page
-      // todo hungdoan save redirect url
+      setLoginRedirectUrl()
     },
     [account, notify, toggleWalletModal, signedWallet, requestSignIn],
   )
@@ -174,7 +174,7 @@ const useLogin = (autoLogin = false) => {
   const signOut = useCallback(
     (walletAddress?: string) => {
       resetState()
-      // todo hungdoan save redirect url
+      setLoginRedirectUrl()
       if (walletAddress?.toLowerCase() === signedWallet?.toLowerCase()) {
         KyberOauth2.logout()
       } else walletAddress && KyberOauth2.removeTokensEthAccount(walletAddress)
