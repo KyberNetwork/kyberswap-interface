@@ -13,6 +13,9 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 // Import commands.js using ES2015 syntax:
+import '@synthetixio/synpress/support/index'
+import 'cypress-metamask-plugin/support/commands'
+
 import './commands'
 import './selectTokenCommands'
 
