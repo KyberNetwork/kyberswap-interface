@@ -1,4 +1,4 @@
-import { CSSProperties, useEffect, useRef, useState } from 'react'
+import { CSSProperties, useLayoutEffect, useRef, useState } from 'react'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -26,15 +26,15 @@ const RangeBarWrapper = styled.div`
   position: relative;
   overflow: hidden;
   margin: 6px 0;
-  ${({ theme }) => `background-color: ${theme.darkMode ? theme.subText : theme.background2};`}
+  ${({ theme }) => `background-color: ${theme.background2};`}
 `
-const RangeBar = styled.div<{ $width: number }>`
+const RangeBar = styled.div<{ $width: number; color?: string }>`
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
   transition: all 0.5s ease;
-  ${({ theme }) => `background-color: ${theme.red};`}
+  ${({ theme, color }) => `background-color: ${color || theme.text};`}
   ${({ $width }) => css`
     width: ${$width}px;
   `}
@@ -59,18 +59,20 @@ export default function PriceRange({
   high,
   low,
   current,
+  color,
   style,
 }: {
   title: string
   high: number
   low: number
   current: number
+  color?: string
   style?: CSSProperties
 }) {
   const theme = useTheme()
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const [width, setWidth] = useState(0)
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (low === 0 || high === 0) return
     const ratio = Math.min((current - low) / (high - low), 1)
     setWidth(ratio * (wrapperRef.current?.clientWidth || 0))
@@ -84,7 +86,7 @@ export default function PriceRange({
         <Text>{high ? `$${formatTokenPrice(high)}` : '--'}</Text>
       </RowCenter>
       <RangeBarWrapper ref={wrapperRef}>
-        <RangeBar $width={width} />
+        <RangeBar $width={width} color={color} />
       </RangeBarWrapper>
       <ArrowPointer $left={width}>
         <DropdownIcon />

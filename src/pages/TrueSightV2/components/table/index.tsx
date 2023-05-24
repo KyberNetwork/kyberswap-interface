@@ -2,7 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
-import { ReactNode, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Text } from 'rebass'
@@ -45,9 +45,9 @@ import ChevronIcon from '../ChevronIcon'
 import MultipleChainDropdown from '../MultipleChainDropdown'
 import SimpleTooltip from '../SimpleTooltip'
 import SmallKyberScoreMeter from '../SmallKyberScoreMeter'
+import TimeFrameLegend from '../TimeFrameLegend'
 import TokenChart from '../TokenChartSVG'
 import { StarWithAnimation } from '../WatchlistStar'
-import { TimeFrameLegend } from '../chart'
 
 const TableWrapper = styled.table`
   border-collapse: collapse;
@@ -231,6 +231,13 @@ const formatLevelValue = (value: number): string => {
   return value.toPrecision(5)
 }
 
+const timeframesSRLevels = [
+  KyberAITimeframe.ONE_HOUR,
+  KyberAITimeframe.FOUR_HOURS,
+  KyberAITimeframe.ONE_DAY,
+  KyberAITimeframe.FOUR_DAY,
+]
+
 export const SupportResistanceLevel = () => {
   const theme = useTheme()
   const { SRLevels, currentPrice, resolution, setResolution } = useContext(TechnicalAnalysisContext)
@@ -242,7 +249,9 @@ export const SupportResistanceLevel = () => {
       SRLevels?.filter(level => level.value > currentPrice).sort((a, b) => a.value - b.value),
     ]
   }, [SRLevels, currentPrice])
-  const maxLength = Math.max(supports?.length || 0, resistances?.length || 0, 4)
+  const maxLength = Math.max(supports?.length || 0, resistances?.length || 0, 6)
+
+  const handleTimeframeSelect = useCallback((t: KyberAITimeframe) => setResolution?.(t as string), [setResolution])
 
   return (
     <TableWrapper>
@@ -256,32 +265,30 @@ export const SupportResistanceLevel = () => {
       </colgroup>
       <thead>
         <tr>
-          <th>Type</th>
+          <th>
+            <Trans>Type</Trans>
+          </th>
+          <th>
+            <Trans>Levels</Trans>
+          </th>
           <>
-            {Array(maxLength)
+            {Array(maxLength - 2)
               .fill('')
-              .map((i, index) => (
-                <th key={index}>
-                  {index === 0 && <Trans>Levels</Trans>}
-                  {index === maxLength - 1 && (
-                    <Row justify="flex-end">
-                      <div style={{ width: '180px' }}>
-                        <TimeFrameLegend
-                          selected={resolution as KyberAITimeframe}
-                          timeframes={[
-                            KyberAITimeframe.ONE_HOUR,
-                            KyberAITimeframe.FOUR_HOURS,
-                            KyberAITimeframe.ONE_DAY,
-                            KyberAITimeframe.FOUR_DAY,
-                          ]}
-                          onSelect={t => setResolution?.(t as string)}
-                        />
-                      </div>
-                    </Row>
-                  )}
-                </th>
+              .map((_, index) => (
+                <th key={index} />
               ))}
           </>
+          <th>
+            <Row justify="flex-end">
+              <div style={{ width: '180px' }}>
+                <TimeFrameLegend
+                  selected={resolution}
+                  timeframes={timeframesSRLevels}
+                  onSelect={handleTimeframeSelect}
+                />
+              </div>
+            </Row>
+          </th>
         </tr>
       </thead>
       <tbody>

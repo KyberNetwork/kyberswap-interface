@@ -5,7 +5,7 @@ import { X } from 'react-feather'
 import { QRCode } from 'react-qrcode-logo'
 import { useParams } from 'react-router-dom'
 import { Text } from 'rebass'
-import { SHARE_TYPE } from 'services/social'
+import { SHARE_TYPE, useCreateShareLinkMutation } from 'services/social'
 import styled, { css } from 'styled-components'
 
 import modalBackground from 'assets/images/truesight-v2/modal_background.png'
@@ -216,64 +216,95 @@ export default function KyberAIShareModal({
   const [mobileData, setMobileData] = useState<ShareData>({})
   const [desktopData, setDesktopData] = useState<ShareData>({})
   const shareImage = useShareImage()
+  const [createShareLink] = useCreateShareLinkMutation()
 
   const sharingUrl = (isMobileMode ? mobileData.shareUrl : desktopData.shareUrl) || ''
   const imageUrl = (isMobileMode ? mobileData.imageUrl : desktopData.imageUrl) || ''
   const blob = isMobileMode ? mobileData.blob : desktopData.blob
 
-  const handleGenerateImageDesktop = useCallback(async () => {
-    if (ref.current) {
-      setIsError(false)
-      try {
-        const { shareUrl, imageUrl, blob } = await shareImage(ref.current, SHARE_TYPE.KYBER_AI)
-        setLoading(false)
-        setDesktopData({ shareUrl, imageUrl, blob })
-      } catch (err) {
-        console.log(err)
-        setLoading(false)
-        setIsError(true)
-      }
-    } else {
-      setLoading(false)
-    }
-  }, [shareImage])
+  const handleGenerateImageDesktop = useCallback(
+    async (shareUrl: string) => {
+      if (ref.current) {
+        setIsError(false)
+        const shareId = shareUrl?.split('/').pop()
 
-  const handleGenerateImageMobile = useCallback(async () => {
-    if (refMobile.current) {
-      setIsError(false)
-      try {
-        const { shareUrl, imageUrl, blob } = await shareImage(refMobile.current, SHARE_TYPE.KYBER_AI)
+        if (!shareId) {
+          setLoading(false)
+          setIsError(true)
+        }
+        try {
+          const { imageUrl, blob } = await shareImage(ref.current, SHARE_TYPE.KYBER_AI, shareId)
+          setLoading(false)
+          setDesktopData(prev => {
+            return { ...prev, imageUrl, blob }
+          })
+        } catch (err) {
+          console.log(err)
+          setLoading(false)
+          setIsError(true)
+        }
+      } else {
         setLoading(false)
-        setMobileData({ shareUrl, imageUrl, blob })
-      } catch (err) {
-        console.log(err)
-        setLoading(false)
-        setIsError(true)
       }
-    } else {
-      setLoading(false)
-    }
-  }, [shareImage])
+    },
+    [shareImage],
+  )
+
+  const handleGenerateImageMobile = useCallback(
+    async (shareUrl: string) => {
+      if (refMobile.current) {
+        setIsError(false)
+        const shareId = shareUrl?.split('/').pop()
+        if (!shareId) return
+        try {
+          const { imageUrl, blob } = await shareImage(refMobile.current, SHARE_TYPE.KYBER_AI, shareId)
+          setMobileData(prev => {
+            return { ...prev, imageUrl, blob }
+          })
+          setLoading(false)
+        } catch (err) {
+          console.log(err)
+          setLoading(false)
+          setIsError(true)
+        }
+      } else {
+        setLoading(false)
+      }
+    },
+    [shareImage],
+  )
 
   useEffect(() => {
-    if (!isOpen) {
-      setTimeout(() => {
-        setLoading(true)
-        setIsError(false)
-        setIsMobileMode(isMobile)
-        setDesktopData({})
-        setMobileData({})
-      }, 400)
-    }
-    if (isOpen) {
-      if ((isMobileMode && !mobileData.shareUrl) || (!isMobileMode && !desktopData.shareUrl)) {
-        setLoading(true)
-        setIsError(false)
+    const createShareFunction = async () => {
+      if (!isOpen) {
         setTimeout(() => {
-          isMobileMode ? handleGenerateImageMobile() : handleGenerateImageDesktop()
-        }, 1000)
+          setLoading(true)
+          setIsError(false)
+          setIsMobileMode(isMobile)
+          setDesktopData({})
+          setMobileData({})
+        }, 400)
+      }
+      if (isOpen) {
+        if ((isMobileMode && !mobileData.shareUrl) || (!isMobileMode && !desktopData.shareUrl)) {
+          setLoading(true)
+          setIsError(false)
+          const shareUrl = await createShareLink({
+            redirectURL: window.location.href,
+            type: SHARE_TYPE.KYBER_AI,
+          }).unwrap()
+          if (isMobileMode && !mobileData.shareUrl) {
+            setMobileData({ shareUrl })
+          } else {
+            setDesktopData({ shareUrl })
+          }
+          setTimeout(() => {
+            isMobileMode ? handleGenerateImageMobile(shareUrl) : handleGenerateImageDesktop(shareUrl)
+          }, 1000)
+        }
       }
     }
+    createShareFunction()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, isMobileMode])
 
@@ -407,7 +438,7 @@ export default function KyberAIShareModal({
                     <KyberSwapShareLogo height="48" width="137" />
                     <div style={{ borderRadius: '6px', overflow: 'hidden' }}>
                       <QRCode
-                        value={'https://kyberswap.com'}
+                        value={sharingUrl}
                         size={70}
                         quietZone={4}
                         ecLevel="L"
@@ -427,7 +458,7 @@ export default function KyberAIShareModal({
                     <KyberSwapShareLogo />
                     <div style={{ marginTop: '-20px', marginRight: '-20px', borderRadius: '6px', overflow: 'hidden' }}>
                       <QRCode
-                        value={'https://kyberswap.com'}
+                        value={sharingUrl}
                         size={100}
                         quietZone={4}
                         ecLevel="L"

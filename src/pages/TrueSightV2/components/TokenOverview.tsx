@@ -209,6 +209,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                   low={data?.['24hLow'] || 0}
                   current={+(data?.price || 0)}
                   style={{ flex: 'initial' }}
+                  color={calculateValueToColor(data?.kyberScore?.score || 0, theme)}
                 />
                 <PriceRange
                   title={t`1Y Range`}
@@ -216,6 +217,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                   low={data?.['1yLow'] || 0}
                   current={data?.price ? +data.price : 0}
                   style={{ flex: 'initial' }}
+                  color={calculateValueToColor(data?.kyberScore?.score || 0, theme)}
                 />
               </Column>
               {/*  <Column gap="6px" style={{ justifyContent: 'end' }}>
@@ -483,12 +485,14 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
               low={data?.['24hLow'] || 0}
               current={+(data?.price || 0)}
               style={{ marginBottom: '16px' }}
+              color={calculateValueToColor(data?.kyberScore?.score || 0, theme)}
             />
             <PriceRange
               title={t`1Y Range`}
               high={data?.['1yHigh'] || 0}
               low={data?.['1yLow'] || 0}
               current={data?.price ? +data.price : 0}
+              color={calculateValueToColor(data?.kyberScore?.score || 0, theme)}
             />
           </ExpandableBox>
           <Row style={{ borderBottom: `1px solid ${theme.border}`, margin: '16px 0' }} />

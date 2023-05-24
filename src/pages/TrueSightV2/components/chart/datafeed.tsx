@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 
 import {
@@ -13,7 +13,6 @@ import {
 } from 'components/TradingViewChart/charting_library'
 import { useLazyChartingDataQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { defaultExplorePageToken } from 'pages/TrueSightV2/pages/SingleToken'
-import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import { ITokenOverview, OHLCData } from 'pages/TrueSightV2/types'
 
 const configurationData = {
@@ -31,8 +30,6 @@ export const useDatafeed = (isBTC: boolean, token?: ITokenOverview) => {
       }
     }
   }, [])
-
-  const { setResolution } = useContext(TechnicalAnalysisContext)
 
   const ref = useRef<{ isLoading: boolean }>({ isLoading })
 
@@ -84,8 +81,7 @@ export const useDatafeed = (isBTC: boolean, token?: ITokenOverview) => {
         _onErrorCallback: ErrorCallback,
       ) => {
         if (isLoading) return
-        const candleSize = { 60: '1h', 240: '4h', '1D': '1d', '4D': '4d' }[resolution as string] || '1h'
-        setResolution?.(candleSize)
+        const candleSize = { 60: '1h', 240: '4h', '1D': '1d', '4D': '1d' }[resolution as string] || '1h'
 
         const { data } = await getChartingData({
           chain: chain || defaultExplorePageToken.chain,
@@ -158,5 +154,5 @@ export const useDatafeed = (isBTC: boolean, token?: ITokenOverview) => {
         //
       },
     }
-  }, [getChartingData, isBTC, setResolution, chain, address, token])
+  }, [getChartingData, isBTC, chain, address, token])
 }
