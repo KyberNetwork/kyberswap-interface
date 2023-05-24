@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { Info } from 'react-feather'
 import { Text } from 'rebass'
@@ -19,8 +20,8 @@ const WarningWrapper = styled.div`
   gap: 20px;
   padding: 8px 14px;
 `
-const WarningSignMessage = ({ walletAddress }: { walletAddress: string | undefined }) => {
-  const { signInEth } = useLogin()
+const WarningSignMessage = ({ walletAddress, guest }: { walletAddress: string | undefined; guest: boolean }) => {
+  const { signInEth, signInAnonymous } = useLogin()
   const { pendingAuthentication } = useSessionInfo()
   const { account } = useActiveWeb3React()
   const theme = useTheme()
@@ -28,14 +29,25 @@ const WarningSignMessage = ({ walletAddress }: { walletAddress: string | undefin
   return (
     <WarningWrapper>
       <Row style={{ gap: '12px' }}>
-        <Info color={theme.subText} size={40} />
+        <Info color={theme.subText} size={20} style={{ minWidth: '20px' }} />
         <Text fontSize={'12px'}>
-          You are not signed in with this wallet address. Click Sign-In to link your wallet to a profile. This will
-          allow us to offer you a better experience. Read more <ExternalLink href="#">here ↗</ExternalLink>
+          {guest ? (
+            <Trans>You are not signed in with Guest account. Click to connect.</Trans>
+          ) : (
+            <Trans>
+              You are not signed in with this wallet address. Click Sign-In to link your wallet to a profile. This will
+              allow us to offer you a better experience. Read more <ExternalLink href="#">here ↗</ExternalLink>
+            </Trans>
+          )}
         </Text>
       </Row>
-      <ButtonPrimary width={'130px'} height={'36px'} fontSize={'14px'} onClick={() => signInEth(walletAddress)}>
-        Sign-in
+      <ButtonPrimary
+        width={'130px'}
+        height={'36px'}
+        fontSize={'14px'}
+        onClick={() => (guest ? signInAnonymous() : signInEth(walletAddress))}
+      >
+        {guest ? <Trans>Connect</Trans> : <Trans>Sign-in</Trans>}
       </ButtonPrimary>
     </WarningWrapper>
   )

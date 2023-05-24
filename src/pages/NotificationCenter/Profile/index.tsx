@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
-import { Download, LogOut, Save } from 'react-feather'
+import { LogOut, Save } from 'react-feather'
 import { useParams } from 'react-router'
 import { Text } from 'rebass'
 import { useUpdateProfileMutation } from 'services/identity'
@@ -202,10 +202,10 @@ export default function Profile() {
 
   const displayAvatar = previewImage || formatUserInfo?.avatarUrl
   const isVerifiedEmail = formatUserInfo?.email && inputEmail === formatUserInfo?.email
-  const displayWallet = (walletParam ? walletParam : '') || account || ''
+  const displayWallet = (walletParam ? walletParam : '') || account || '' // todo combine all var to 1 hook
   const isNeedSignIn = Boolean(
     !walletParam
-      ? false
+      ? signedWallet
       : (signedWallet && signedWallet?.toLowerCase() !== walletParam?.toLowerCase()) || (walletParam && !signedWallet),
   )
 
@@ -214,7 +214,7 @@ export default function Profile() {
       <Text fontSize={'24px'} fontWeight={'500'}>
         <Trans>Profile Details</Trans>
       </Text>
-      {isNeedSignIn && <WarningSignMessage walletAddress={walletParam} />}
+      {isNeedSignIn && <WarningSignMessage walletAddress={walletParam} guest={!walletParam} />}
       <FormWrapper>
         <LeftColum>
           <FormGroup>
@@ -269,12 +269,6 @@ export default function Profile() {
               <Save size={16} style={{ marginRight: '4px' }} />
               Save
             </ButtonSave>
-            {!isLogin && (
-              <ButtonLogout disabled={isNeedSignIn} onClick={() => alert('in dev')}>
-                <Download size={16} style={{ marginRight: '4px' }} />
-                Export
-              </ButtonLogout>
-            )}
           </ActionsWrapper>
         </LeftColum>
 

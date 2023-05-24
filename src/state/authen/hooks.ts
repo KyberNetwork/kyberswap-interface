@@ -84,13 +84,20 @@ export const KEY_GUEST_DEFAULT = 'default'
 export const useSaveUserProfile = () => {
   const dispatch = useAppDispatch()
   const { saveCacheProfile } = useCacheProfile()
-  const [signedWallet] = useSignedWallet()
   return useCallback(
-    ({ profile, isAnonymous = false }: { profile: UserProfile | undefined; isAnonymous?: boolean }) => {
+    ({
+      profile,
+      isAnonymous = false,
+      walletAddress,
+    }: {
+      profile: UserProfile | undefined
+      isAnonymous?: boolean
+      walletAddress: string | undefined
+    }) => {
       dispatch(updateProfile({ profile, isAnonymous }))
-      saveCacheProfile({ isAnonymous, profile, id: (isAnonymous ? '' : signedWallet) || KEY_GUEST_DEFAULT })
+      saveCacheProfile({ isAnonymous, profile, id: (isAnonymous ? '' : walletAddress) || KEY_GUEST_DEFAULT })
     },
-    [dispatch, saveCacheProfile, signedWallet],
+    [dispatch, saveCacheProfile],
   )
 }
 
@@ -132,12 +139,13 @@ export const useCacheProfile = () => {
 export const useRefreshProfile = () => {
   const setProfile = useSaveUserProfile()
   const [getProfile] = useGetOrCreateProfileMutation()
+  const [signedWallet] = useSignedWallet()
   return useCallback(
     async (isAnonymous: boolean) => {
       const profile = await getProfile().unwrap()
-      setProfile({ profile, isAnonymous })
+      setProfile({ profile, isAnonymous, walletAddress: signedWallet })
     },
-    [getProfile, setProfile],
+    [getProfile, setProfile, signedWallet],
   )
 }
 

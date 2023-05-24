@@ -11,7 +11,6 @@ import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import Row, { RowBetween } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
 import useLogin from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
@@ -45,14 +44,13 @@ const ProfileItemWrapper = styled(RowBetween)<{ active: boolean }>`
 
 const ProfileItem = ({ data: { active, guest, address: account, profile } }: { data: ConnectedProfile }) => {
   const theme = useTheme()
-  const { account: currentWallet } = useActiveWeb3React()
   const navigate = useNavigate()
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
   const { signInEth, signInAnonymous, signOut } = useLogin()
   const [signedWallet] = useSignedWallet()
 
   const onClick = () => {
-    if (guest) signInAnonymous(currentWallet)
+    if (guest) signInAnonymous()
     else signInEth(account)
     toggleModal()
   }

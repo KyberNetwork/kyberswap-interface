@@ -52,12 +52,12 @@ const useLogin = (autoLogin = false) => {
           await connectWalletToProfile({ walletAddress })
           profile = await createProfile().unwrap()
         }
-        setProfile({ profile, isAnonymous })
+        setProfile({ profile, isAnonymous, walletAddress })
       } catch (error) {
         const e = new Error('createProfile Error', { cause: error })
         e.name = 'createProfile Error'
         captureException(e, { extra: { walletAddress } })
-        setProfile({ profile: undefined, isAnonymous })
+        setProfile({ profile: undefined, isAnonymous, walletAddress })
       }
     },
     [connectWalletToProfile, createProfile, setProfile],
@@ -73,7 +73,7 @@ const useLogin = (autoLogin = false) => {
       if (requestingSessionAnonymous.current) return
       resetState()
       if (anonymousUserInfo) {
-        setProfile({ profile: anonymousUserInfo, isAnonymous: true }) // trigger reset account sign in
+        setProfile({ profile: anonymousUserInfo, isAnonymous: true, walletAddress }) // trigger reset account sign in
         return
       }
       try {
@@ -83,11 +83,10 @@ const useLogin = (autoLogin = false) => {
         console.log('sign in anonymous err', error)
       } finally {
         requestingSessionAnonymous.current = false
-        setLoading(false)
         await getProfile(walletAddress, true)
       }
     },
-    [anonymousUserInfo, setProfile, setLoading, getProfile, resetState],
+    [anonymousUserInfo, setProfile, getProfile, resetState],
   )
 
   const requestSignIn = useCallback(
@@ -96,6 +95,7 @@ const useLogin = (autoLogin = false) => {
         if (!walletAddress) {
           throw new Error('Not found address.')
         }
+        setLoading(true)
         if (requestingSession.current !== walletAddress?.toLowerCase()) {
           requestingSession.current = walletAddress?.toLowerCase()
           await KyberOauth2.getSession({ method: LoginMethod.ETH, walletAddress })
@@ -109,11 +109,14 @@ const useLogin = (autoLogin = false) => {
               title: t`Logged in successfully`,
               summary: t`Logged in successfully with the current wallet address`,
             })
-          setLoading(false)
         }
       } catch (error) {
         console.log('get session:', walletAddress, error.message)
-        if (loginAnonymousIfFailed) await signInAnonymous(walletAddress)
+        if (loginAnonymousIfFailed) {
+          await signInAnonymous(walletAddress)
+        }
+      } finally {
+        setLoading(false)
       }
     },
     [setLoading, signInAnonymous, getProfile, notify, saveSignedWallet, autoLogin],
@@ -124,9 +127,7 @@ const useLogin = (autoLogin = false) => {
     if (!autoLogin || isInit.current) return // call once
     isInit.current = true
     const wallet = getProfileLocalStorage(ProfileLocalStorageKeys.CONNECTING_WALLET) || signedWallet
-    if (wallet) {
-      requestSignIn(wallet)
-    }
+    requestSignIn(wallet || undefined)
     // isConnectedWallet().then(wallet => {
     // if (wallet === null) return // pending
     // signIn(typeof wallet === 'string' ? wallet : undefined) // todo remove all related
@@ -176,7 +177,9 @@ const useLogin = (autoLogin = false) => {
     KyberOauth2.logout()
   }, [resetState])
 
-  return { signOut, signInEth, signInAnonymous }
+  const wrappedSignInAnonymous = useCallback(() => signInAnonymous(account), [signInAnonymous, account]) // todo rename
+
+  return { signOut, signInEth, signInAnonymous: wrappedSignInAnonymous }
 }
 
 export default useLogin
