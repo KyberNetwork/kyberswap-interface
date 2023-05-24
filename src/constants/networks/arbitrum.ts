@@ -51,7 +51,7 @@ const arbitrumInfo: EVMNetworkInfo = {
     dynamic: NOT_SUPPORT,
     claimReward: NOT_SUPPORT,
     fairlaunch: EMPTY_ARRAY,
-    fairlaunchV2: ['0xE8144386BF00f168ed7a0E0D821AC18e02a461BA'],
+    fairlaunchV2: ['0xE8144386BF00f168ed7a0E0D821AC18e02a461BA', '0x8023a74412A0d6A2dF54E208E7C39713Ecd52AE8'],
   },
   elastic: {
     defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-arbitrum-one',

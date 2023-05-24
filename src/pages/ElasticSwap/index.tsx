@@ -1,5 +1,5 @@
 import { Currency, TradeType } from '@kyberswap/ks-sdk-core'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -61,10 +61,14 @@ export default function ElasticSwap() {
 
   const loading = trade.state === TradeState.LOADING || approvalState === ApprovalState.PENDING
 
-  const balances = useCurrencyBalances([
-    inputCurrency?.isNative ? NativeCurrencies[chainId] : inputCurrency?.wrapped,
-    outputCurrency?.isNative ? NativeCurrencies[chainId] : outputCurrency?.wrapped,
-  ])
+  const currencies = useMemo(() => {
+    return [
+      inputCurrency?.isNative ? NativeCurrencies[chainId] : inputCurrency?.wrapped,
+      outputCurrency?.isNative ? NativeCurrencies[chainId] : outputCurrency?.wrapped,
+    ]
+  }, [inputCurrency, outputCurrency, chainId])
+
+  const balances = useCurrencyBalances(currencies)
 
   let error = ''
   if (balances?.[0] && trade.trade?.inputAmount && balances[0].lessThan(trade.trade.inputAmount)) {
