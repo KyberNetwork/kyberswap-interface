@@ -17,7 +17,7 @@ const VerifyAuth = () => {
       if (redirectUrl) {
         removeLoginRedirectUrl()
         const { search, pathname } = new URL(redirectUrl)
-        navigate(`${pathname}?${stringify(qs)}${search.replace('?', '&')}`, { replace: true })
+        navigate(`${pathname}?${stringify(qs)}${search.replace('?', '&')}`, { replace: true }) // todo check sẽ dính case còn oauth code
       }
     } catch (error) {}
   }, [navigate, qs])

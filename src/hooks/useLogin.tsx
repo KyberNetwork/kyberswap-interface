@@ -100,7 +100,6 @@ const useLogin = (autoLogin = false) => {
           await getProfile(walletAddress)
           saveSignedWallet(walletAddress)
           setProfileLocalStorage(ProfileLocalStorageKeys.CONNECTING_WALLET, undefined)
-          // todo hungdoan login finished check redirect url + remove redirect url
           !autoLogin &&
             notify({
               type: NotificationType.SUCCESS,
@@ -175,9 +174,16 @@ const useLogin = (autoLogin = false) => {
       setLoginRedirectUrl()
       if (walletAddress?.toLowerCase() === signedWallet?.toLowerCase()) {
         KyberOauth2.logout()
-      } else walletAddress && KyberOauth2.removeTokensEthAccount(walletAddress)
+      } else if (walletAddress) {
+        KyberOauth2.removeTokensEthAccount(walletAddress)
+        notify({
+          type: NotificationType.SUCCESS,
+          title: t`Logged out successfully`,
+          summary: t`You had successfully logged out`,
+        })
+      }
     },
-    [resetState, signedWallet],
+    [resetState, signedWallet, notify],
   )
 
   const wrappedSignInAnonymous = useCallback(() => signInAnonymous(account), [signInAnonymous, account]) // todo rename
