@@ -66,7 +66,7 @@ const parseGlobalResponse = (
 ): KyberswapGlobalConfig => {
   const data = responseData?.data?.config
   const aggregatorDomain = data?.aggregator ?? AGGREGATOR_API
-  const isEnableAuthenAggregator = !!data?.isEnableAuthenAggregator
+  const isEnableAuthenAggregator = true
   return {
     aggregatorDomain,
     aggregatorAPI: `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}/route/encode`,
