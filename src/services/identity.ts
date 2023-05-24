@@ -11,14 +11,14 @@ const identityApi = createApi({
   endpoints: builder => ({
     getOrCreateProfile: builder.mutation<UserProfile, void>({
       query: () => ({
-        url: '/v1/profiles',
+        url: '/v1/profiles/me',
         method: 'POST',
       }),
       transformResponse: (data: any) => data?.data?.profile,
     }),
     connectWalletToProfile: builder.mutation<any, { walletAddress: string }>({
       query: body => ({
-        url: '/v1/profiles/connected-wallets',
+        url: '/v1/profiles/me/connected-wallets',
         body,
         method: 'POST',
       }),
