@@ -118,7 +118,7 @@ export default function ProAmmPool() {
 
   const debouncedSearchText = useDebounce(searchValueInQs.trim().toLowerCase(), 300)
 
-  const [showClosed, setShowClosed] = useState(false)
+  const [showClosed, setShowClosed] = useState(true)
 
   const filteredFarmPositions = useMemo(
     () =>
@@ -136,28 +136,30 @@ export default function ProAmmPool() {
     [debouncedSearchText, farmPositions],
   )
 
-  const filteredPositions = useMemo(
-    () =>
-      (!showClosed
-        ? [...openPositions, ...filteredFarmPositions]
-        : [...openPositions, ...filteredFarmPositions, ...closedPositions]
-      )
-        .filter(position => {
-          if (nftId) return position.tokenId.toString() === nftId
-          return (
-            debouncedSearchText.trim().length === 0 ||
-            (!!tokenAddressSymbolMap.current[position.token0.toLowerCase()] &&
-              tokenAddressSymbolMap.current[position.token0.toLowerCase()].includes(debouncedSearchText)) ||
-            (!!tokenAddressSymbolMap.current[position.token1.toLowerCase()] &&
-              tokenAddressSymbolMap.current[position.token1.toLowerCase()].includes(debouncedSearchText)) ||
-            position.poolId.toLowerCase() === debouncedSearchText ||
-            position.tokenId.toString() === debouncedSearchText
-          )
-        })
-        .filter((pos, index, array) => array.findIndex(pos2 => pos2.tokenId.eq(pos.tokenId)) === index)
-        .sort((a, b) => +a.tokenId.toString() - +b.tokenId.toString()),
-    [showClosed, openPositions, closedPositions, debouncedSearchText, filteredFarmPositions, nftId],
-  )
+  const filteredPositions = useMemo(() => {
+    const sortFn = (a: PositionDetails, b: PositionDetails) => +a.tokenId.toString() - +b.tokenId.toString()
+
+    const farmOpenPos = filteredFarmPositions.filter(pos => pos.liquidity.gt('0'))
+    const farmClosedPos = filteredFarmPositions.filter(pos => pos.liquidity.eq('0'))
+
+    const opens = [...openPositions, ...farmOpenPos].sort(sortFn)
+    const closeds = [...closedPositions, ...farmClosedPos].sort(sortFn)
+
+    return (!showClosed ? opens : [...opens, ...closeds])
+      .filter(position => {
+        if (nftId) return position.tokenId.toString() === nftId
+        return (
+          debouncedSearchText.trim().length === 0 ||
+          (!!tokenAddressSymbolMap.current[position.token0.toLowerCase()] &&
+            tokenAddressSymbolMap.current[position.token0.toLowerCase()].includes(debouncedSearchText)) ||
+          (!!tokenAddressSymbolMap.current[position.token1.toLowerCase()] &&
+            tokenAddressSymbolMap.current[position.token1.toLowerCase()].includes(debouncedSearchText)) ||
+          position.poolId.toLowerCase() === debouncedSearchText ||
+          position.tokenId.toString() === debouncedSearchText
+        )
+      })
+      .filter((pos, index, array) => array.findIndex(pos2 => pos2.tokenId.eq(pos.tokenId)) === index)
+  }, [showClosed, openPositions, closedPositions, debouncedSearchText, filteredFarmPositions, nftId])
 
   const [showStaked, setShowStaked] = useState(false)
   const positionList = useMemo(
