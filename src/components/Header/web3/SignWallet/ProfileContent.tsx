@@ -16,7 +16,7 @@ import useTheme from 'hooks/useTheme'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
-import { ConnectedProfile, useAllProfileInfo, useSignedWallet } from 'state/authen/hooks'
+import { ConnectedProfile, useAllProfileInfo } from 'state/authen/hooks'
 import getShortenAddress from 'utils/getShortenAddress'
 
 const ContentWrapper = styled.div`
@@ -42,12 +42,17 @@ const ProfileItemWrapper = styled(RowBetween)<{ active: boolean }>`
   }
 `
 
-const ProfileItem = ({ data: { active, guest, address: account, profile } }: { data: ConnectedProfile }) => {
+const ProfileItem = ({
+  data: { active, guest, address: account, profile },
+  refreshProfile,
+}: {
+  data: ConnectedProfile
+  refreshProfile: () => void
+}) => {
   const theme = useTheme()
   const navigate = useNavigate()
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
   const { signInEth, signInAnonymous, signOut } = useLogin()
-  const [signedWallet] = useSignedWallet()
 
   const onClick = () => {
     if (guest) signInAnonymous()
@@ -82,12 +87,13 @@ const ProfileItem = ({ data: { active, guest, address: account, profile } }: { d
             />
           </MouseoverTooltip>
         )} */}
-        {!guest && signedWallet?.toLowerCase() === account?.toLowerCase() && (
+        {!guest && (
           <LogOut
             size={20}
             onClick={e => {
               e?.stopPropagation()
-              signOut() // todo sdk clear
+              signOut(account)
+              refreshProfile()
             }}
           />
         )}
@@ -115,13 +121,13 @@ const ProfileContent = () => {
   const { signInEth } = useLogin()
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
 
-  const { profiles } = useAllProfileInfo()
+  const { profiles, refresh } = useAllProfileInfo()
 
   return (
     <ContentWrapper>
       <Column>
         {profiles.map(data => (
-          <ProfileItem key={data.address} data={data} />
+          <ProfileItem key={data.address} data={data} refreshProfile={refresh} />
         ))}
       </Column>
       <ActionWrapper>

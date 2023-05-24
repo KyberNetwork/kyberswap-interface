@@ -260,7 +260,7 @@ export default function Profile() {
 
           <ActionsWrapper>
             {isLogin && (
-              <ButtonLogout disabled={isNeedSignIn} onClick={signOut}>
+              <ButtonLogout disabled={isNeedSignIn} onClick={() => signOut()}>
                 <LogOut size={16} style={{ marginRight: '4px' }} />
                 Log Out
               </ButtonLogout>

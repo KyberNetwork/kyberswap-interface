@@ -171,11 +171,16 @@ const useLogin = (autoLogin = false) => {
     [account, notify, toggleWalletModal, signedWallet, requestSignIn],
   )
 
-  const signOut = useCallback(() => {
-    resetState()
-    // todo hungdoan save redirect url
-    KyberOauth2.logout()
-  }, [resetState])
+  const signOut = useCallback(
+    (walletAddress?: string) => {
+      resetState()
+      // todo hungdoan save redirect url
+      if (walletAddress?.toLowerCase() === signedWallet?.toLowerCase()) {
+        KyberOauth2.logout()
+      } else walletAddress && KyberOauth2.removeTokensEthAccount(walletAddress)
+    },
+    [resetState, signedWallet],
+  )
 
   const wrappedSignInAnonymous = useCallback(() => signInAnonymous(account), [signInAnonymous, account]) // todo rename
 
