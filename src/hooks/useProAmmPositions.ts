@@ -197,7 +197,7 @@ export const useFarmPositions = () => {
           .flat()
       })
       .flat()
-      .filter(item => item.liquidity.gt(0))
+    // .filter(item => item.liquidity.gt(0))
   }, [farmingPools, userFarmInfo, isEVM, networkInfo])
 
   return useMemo(() => {
