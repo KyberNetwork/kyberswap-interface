@@ -132,11 +132,15 @@ export default function CampaignsUpdater() {
       `${SWR_KEYS.getListCampaign}?${stringify({
         limit: MAXIMUM_ITEMS_PER_REQUEST,
         offset: (page - 1) * MAXIMUM_ITEMS_PER_REQUEST,
-        userAddress: account, // todo sort ??, query
-        query,
+        userAddress: account,
+        campaignName: query,
       })}`,
     [account, page, query],
   )
+
+  useEffect(() => {
+    setPage(1)
+  }, [query])
 
   const {
     data: campaignData,
@@ -151,7 +155,7 @@ export default function CampaignsUpdater() {
         startTime: item.startTime * 1000,
         endTime: item.endTime * 1000,
       }))
-      setHasMoreCampaign(campaigns.length !== 0)
+      setHasMoreCampaign(campaigns.length === MAXIMUM_ITEMS_PER_REQUEST)
       const formattedCampaigns: CampaignData[] = campaigns.map((campaign: any) => {
         const rewardDistribution: RewardDistribution[] = []
         if (campaign.rewardDistribution.single) {
