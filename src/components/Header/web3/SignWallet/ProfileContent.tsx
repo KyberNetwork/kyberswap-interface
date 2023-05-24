@@ -99,7 +99,11 @@ const ProfileItem = ({ data: { active, guest, address: account, profile } }: { d
             fill={theme.subText}
             onClick={e => {
               e?.stopPropagation()
-              navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.GUEST_PROFILE}`)
+              navigate(
+                `${APP_PATHS.NOTIFICATION_CENTER}${
+                  guest ? NOTIFICATION_ROUTES.GUEST_PROFILE : `${NOTIFICATION_ROUTES.PROFILE}/${account}`
+                }`,
+              )
               toggleModal()
             }}
           />
@@ -113,7 +117,7 @@ const ProfileContent = () => {
   const { signInEth } = useLogin()
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
 
-  const profiles = useAllProfileInfo()
+  const { profiles } = useAllProfileInfo()
 
   return (
     <ContentWrapper>

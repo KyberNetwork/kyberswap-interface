@@ -3,7 +3,7 @@ import { UnsupportedChainIdError } from '@web3-react/core'
 import { darken, lighten } from 'polished'
 import { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Activity } from 'react-feather'
+import { Activity, Info } from 'react-feather'
 import styled from 'styled-components'
 
 import { ButtonLight } from 'components/Button'
@@ -16,6 +16,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENSName from 'hooks/useENSName'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useNetworkModalToggle, useWalletModalToggle } from 'state/application/hooks'
+import { useSignedWallet } from 'state/authen/hooks'
 import { isTransactionRecent, newTransactionsFirst, useAllTransactions } from 'state/transactions/hooks'
 import { TransactionDetails } from 'state/transactions/type'
 import { useIsDarkMode } from 'state/user/hooks'
@@ -119,6 +120,8 @@ function Web3StatusInner() {
   const hasPendingTransactions = !!pendingLength
   const toggleWalletModal = useWalletModalToggle()
   const toggleNetworkModal = useNetworkModalToggle()
+  const [signedWallet] = useSignedWallet()
+  const isSignedMissMatch = signedWallet?.toLowerCase() !== account?.toLowerCase()
 
   if (account) {
     return (
@@ -139,33 +142,37 @@ function Web3StatusInner() {
           </RowBetween>
         ) : (
           <>
-            {walletKey && (
-              <IconWrapper size={16}>
-                <img
-                  src={isDarkMode ? SUPPORTED_WALLETS[walletKey].icon : SUPPORTED_WALLETS[walletKey].iconLight}
-                  alt={SUPPORTED_WALLETS[walletKey].name + ' icon'}
-                />
-              </IconWrapper>
+            {isSignedMissMatch ? (
+              <Info size={18} />
+            ) : (
+              walletKey && (
+                <IconWrapper size={16}>
+                  <img
+                    src={isDarkMode ? SUPPORTED_WALLETS[walletKey].icon : SUPPORTED_WALLETS[walletKey].iconLight}
+                    alt={SUPPORTED_WALLETS[walletKey].name + ' icon'}
+                  />
+                </IconWrapper>
+              )
             )}
             <Text>{ENSName || shortenAddress(chainId, account, isMobile ? 2 : undefined)}</Text>
           </>
         )}
       </Web3StatusConnected>
     )
-  } else if (error) {
+  }
+  if (error) {
     return (
       <Web3StatusError onClick={toggleNetworkModal}>
         <NetworkIcon />
         <Text>{error instanceof UnsupportedChainIdError ? t`Wrong Network` : t`Error`}</Text>
       </Web3StatusError>
     )
-  } else {
-    return (
-      <ButtonLight onClick={toggleWalletModal} padding="10px 12px" id={TutorialIds.BUTTON_CONNECT_WALLET}>
-        <Trans>Connect Wallet</Trans>
-      </ButtonLight>
-    )
   }
+  return (
+    <ButtonLight onClick={toggleWalletModal} padding="10px 12px" id={TutorialIds.BUTTON_CONNECT_WALLET}>
+      <Trans>Connect Wallet</Trans>
+    </ButtonLight>
+  )
 }
 
 export default function SelectWallet() {

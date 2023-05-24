@@ -1,12 +1,13 @@
 import KyberOauth2 from '@kybernetwork/oauth2'
 import { t } from '@lingui/macro'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useGetOrCreateProfileMutation } from 'services/identity'
 
 import { useActiveWeb3React } from 'hooks'
 import { AppState } from 'state'
 import {
+  updateAllProfile,
   updatePossibleWalletAddress,
   updateProcessingLogin,
   updateProfile,
@@ -145,8 +146,13 @@ export const useAllProfileInfo = () => {
   const [signInWallet] = useSignedWallet()
   const { getCacheProfile } = useCacheProfile()
   const [connectedAccounts, setConnectAccounts] = useState(KyberOauth2.getConnectedEthAccounts())
+  const profilesState = useSelector((state: AppState) => state.authen.profiles)
 
-  const profiles = useMemo(() => {
+  const refresh = () => {
+    setConnectAccounts(KyberOauth2.getConnectedEthAccounts())
+  }
+
+  const profiles: ConnectedProfile[] = useMemo(() => {
     return connectedAccounts
       .map(address => ({
         active: address === signInWallet?.toLowerCase(),
@@ -162,7 +168,12 @@ export const useAllProfileInfo = () => {
       })
   }, [signInWallet, getCacheProfile, connectedAccounts])
 
-  return profiles
+  const dispatch = useAppDispatch()
+  useEffect(() => {
+    dispatch(updateAllProfile(profiles))
+  }, [profiles, dispatch])
+
+  return { profiles: profilesState, refresh }
 }
 
 export const useSetPendingAuthentication = () => {

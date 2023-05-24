@@ -116,7 +116,9 @@ const MenuForDesktop = ({ unread }: PropsMenu) => {
   // todo mobile
   const { account } = useActiveWeb3React()
   const { signInEth } = useLogin()
-  const profiles = useAllProfileInfo()
+  const { profiles } = useAllProfileInfo()
+  console.log(123, profiles)
+
   const menuItemDeskTop = useMemo(() => {
     return menuItems.map(el => {
       if (el.route !== NOTIFICATION_ROUTES.PROFILE) return el

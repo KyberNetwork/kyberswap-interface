@@ -19,7 +19,7 @@ const WarningWrapper = styled.div`
   gap: 20px;
   padding: 8px 14px;
 `
-const WarningSignMessage = () => {
+const WarningSignMessage = ({ walletAddress }: { walletAddress: string | undefined }) => {
   const { signInEth } = useLogin()
   const { pendingAuthentication } = useSessionInfo()
   const { account } = useActiveWeb3React()
@@ -34,7 +34,7 @@ const WarningSignMessage = () => {
           allow us to offer you a better experience. Read more <ExternalLink href="#">here ↗</ExternalLink>
         </Text>
       </Row>
-      <ButtonPrimary width={'130px'} height={'36px'} fontSize={'14px'} onClick={() => signInEth()}>
+      <ButtonPrimary width={'130px'} height={'36px'} fontSize={'14px'} onClick={() => signInEth(walletAddress)}>
         Sign-in
       </ButtonPrimary>
     </WarningWrapper>
