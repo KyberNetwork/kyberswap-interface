@@ -14,7 +14,6 @@ import { RowBetween, RowFixed } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import { formatDollarAmount } from 'utils/numbers'
-import { unwrappedToken } from 'utils/wrappedCurrency'
 
 export default function ProAmmPooledTokens({
   liquidityValue0,
@@ -54,17 +53,13 @@ export default function ProAmmPooledTokens({
           {liquidityValue0?.greaterThan(ZERO) && (
             <RowBetween>
               <Text fontSize={12} fontWeight={500} color={theme.subText}>
-                {pooled && 'POOLED'} {liquidityValue0?.currency && unwrappedToken(liquidityValue0.currency)?.symbol}
+                {pooled && 'POOLED'} {liquidityValue0?.currency.symbol}
               </Text>
               <RowFixed>
-                <CurrencyLogo
-                  size="16px"
-                  style={{ marginLeft: '8px' }}
-                  currency={unwrappedToken(liquidityValue0.currency)}
-                />
+                <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={liquidityValue0.currency} />
                 <Text fontSize={12} fontWeight={500} marginLeft={'6px'}>
                   {liquidityValue0 && <FormattedCurrencyAmount currencyAmount={liquidityValue0} />}{' '}
-                  {liquidityValue0?.currency && unwrappedToken(liquidityValue0.currency)?.symbol}
+                  {liquidityValue0?.currency.symbol}
                 </Text>
               </RowFixed>
             </RowBetween>
@@ -72,17 +67,13 @@ export default function ProAmmPooledTokens({
           {liquidityValue1?.greaterThan(ZERO) && (
             <RowBetween>
               <Text fontSize={12} fontWeight={500} color={theme.subText}>
-                {pooled && 'POOLED'} {liquidityValue1?.currency && unwrappedToken(liquidityValue1.currency)?.symbol}
+                {pooled && 'POOLED'} {liquidityValue1?.currency.symbol}
               </Text>
               <RowFixed>
-                <CurrencyLogo
-                  size="16px"
-                  style={{ marginLeft: '8px' }}
-                  currency={unwrappedToken(liquidityValue1.currency)}
-                />
+                <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={liquidityValue1.currency} />
                 <Text fontSize={12} fontWeight={500} marginLeft={'6px'}>
                   {liquidityValue1 && <FormattedCurrencyAmount currencyAmount={liquidityValue1} />}{' '}
-                  {liquidityValue1?.currency && unwrappedToken(liquidityValue1.currency)?.symbol}
+                  {liquidityValue1?.currency.symbol}
                 </Text>
               </RowFixed>
             </RowBetween>
