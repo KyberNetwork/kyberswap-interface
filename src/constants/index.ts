@@ -224,6 +224,7 @@ export const APP_PATHS = {
   GRANT_PROGRAMS: '/inter-project-trading-campaigns',
   NOTIFICATION_CENTER: '/manage',
   ELASTIC_LEGACY: '/elastic-legacy',
+  VERIFY_AUTH: '/auth',
 }
 
 export const TERM_FILES_PATH = {
