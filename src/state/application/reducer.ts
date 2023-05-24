@@ -34,6 +34,7 @@ export type ConfirmModalState = {
   isOpen: boolean
   cancelText: string
   confirmText: string
+  content: string
   onConfirm?: () => void
   onCancel?: () => void
 }
@@ -80,6 +81,7 @@ export const initialStateConfirmModal = {
   isOpen: false,
   cancelText: '',
   confirmText: '',
+  content: '',
   onConfirm: undefined,
   onCancel: undefined,
 }

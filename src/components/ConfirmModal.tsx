@@ -1,11 +1,12 @@
 import { Trans } from '@lingui/macro'
 import { useCallback, useEffect } from 'react'
+import { isMobile } from 'react-device-detect'
 import { useSelector } from 'react-redux'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
-import Modal from 'components/Modal'
+import { ModalCenter } from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 import { AppState } from 'state'
@@ -33,7 +34,7 @@ const useShowConfirm = () => {
 }
 
 const ModalConfirm: React.FC = () => {
-  const { isOpen, onCancel, onConfirm, cancelText, confirmText } = useSelector(
+  const { isOpen, onCancel, onConfirm, cancelText, confirmText, content } = useSelector(
     (state: AppState) => state.application.confirmModal,
   )
   const theme = useTheme()
@@ -48,16 +49,16 @@ const ModalConfirm: React.FC = () => {
   }
 
   return (
-    <Modal isOpen={isOpen} minHeight={false} maxWidth={400}>
+    <ModalCenter isOpen={isOpen} minHeight={false} maxWidth={isMobile ? '95vw' : 400}>
       <Wrapper>
         <RowBetween>
           <Text fontSize={20} fontWeight={400}>
-            <Trans>Notification</Trans>
+            <Trans>Note</Trans>
           </Text>
         </RowBetween>
 
         <Text as="span" fontSize="14px" color={theme.subText}>
-          <Trans>Your session is expire, Sign-in to continue?</Trans>
+          <Trans>{content}</Trans>
         </Text>
 
         <Flex
@@ -93,7 +94,7 @@ const ModalConfirm: React.FC = () => {
           </ButtonPrimary>
         </Flex>
       </Wrapper>
-    </Modal>
+    </ModalCenter>
   )
 }
 
