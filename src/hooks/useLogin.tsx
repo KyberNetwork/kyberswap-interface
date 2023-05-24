@@ -22,11 +22,9 @@ import { setLoginRedirectUrl } from 'utils/redirectUponLogin'
 
 KyberOauth2.initialize({
   clientId: OAUTH_CLIENT_ID,
-  redirectUri: `${window.location.protocol}//${window.location.host}${APP_PATHS.VERIFY_AUTH}`, // todo check AI page for now. profile page // todo hungdoan
+  redirectUri: `${window.location.protocol}//${window.location.host}${APP_PATHS.VERIFY_AUTH}`,
   mode: ENV_KEY,
 })
-
-// => /xxxxxxxxx
 
 const useLogin = (autoLogin = false) => {
   const { account } = useActiveWeb3React()

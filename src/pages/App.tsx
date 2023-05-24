@@ -301,7 +301,7 @@ export default function App() {
                     <Route path={`${APP_PATHS.ELASTIC_LEGACY}`} element={<ElasticLegacy />} />
                     <Route path={`elastic-swap`} element={<ElasticSwap />} />
 
-                    <Route path={`${APP_PATHS.VERIFY_AUTH}`} element={<VerifyAuth />} />
+                    <Route path={APP_PATHS.VERIFY_AUTH} element={<VerifyAuth />} />
 
                     <Route path="*" element={<RedirectPathToSwapV3Network />} />
                   </Routes>
