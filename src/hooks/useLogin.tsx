@@ -22,9 +22,11 @@ import {
 
 KyberOauth2.initialize({
   clientId: OAUTH_CLIENT_ID,
-  redirectUri: `${window.location.protocol}//${window.location.host}${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PROFILE}`, // todo check AI page for now. profile page
+  redirectUri: `${window.location.protocol}//${window.location.host}${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PROFILE}`, // todo check AI page for now. profile page // todo hungdoan
   mode: ENV_KEY,
 })
+
+// => /xxxxxxxxx
 
 const useLogin = (autoLogin = false) => {
   const { account } = useActiveWeb3React()
@@ -88,7 +90,7 @@ const useLogin = (autoLogin = false) => {
     [anonymousUserInfo, setProfile, setLoading, getProfile, resetState],
   )
 
-  const signIn = useCallback(
+  const requestSignIn = useCallback(
     async (walletAddress: string | undefined, loginAnonymousIfFailed = true) => {
       try {
         if (!walletAddress) {
@@ -100,6 +102,7 @@ const useLogin = (autoLogin = false) => {
           await getProfile(walletAddress)
           saveSignedWallet(walletAddress)
           setProfileLocalStorage(ProfileLocalStorageKeys.CONNECTING_WALLET, undefined)
+          // todo hungdoan login finished check redirect url + remove redirect url
           !autoLogin &&
             notify({
               type: NotificationType.SUCCESS,
@@ -122,13 +125,13 @@ const useLogin = (autoLogin = false) => {
     isInit.current = true
     const wallet = getProfileLocalStorage(ProfileLocalStorageKeys.CONNECTING_WALLET) || signedWallet
     if (wallet) {
-      signIn(wallet)
+      requestSignIn(wallet)
     }
     // isConnectedWallet().then(wallet => {
     // if (wallet === null) return // pending
     // signIn(typeof wallet === 'string' ? wallet : undefined) // todo remove all related
     // })
-  }, [signIn, autoLogin, signedWallet])
+  }, [requestSignIn, autoLogin, signedWallet])
 
   // todo update ux, neu chua login open connect wallet => auto redirect oauth and sign in
   const signInEth = useCallback(
@@ -153,21 +156,23 @@ const useLogin = (autoLogin = false) => {
       }
       const connectedAccounts = KyberOauth2.getConnectedEthAccounts()
       if (isSelectAccount && connectedAccounts.includes(walletAddress?.toLowerCase() || '')) {
-        signIn(walletAddress, false) // todo check case 2 token faild
+        requestSignIn(walletAddress, false) // todo check case 2 token faild
         return
       }
       if (isAddAccount && connectedAccounts.includes(account?.toLowerCase() || '')) {
-        signIn(account, false)
+        requestSignIn(account, false)
         return
       }
       setProfileLocalStorage(ProfileLocalStorageKeys.CONNECTING_WALLET, account)
       KyberOauth2.authenticate({ wallet_address: account ?? '' }) // navigate to login page
+      // todo hungdoan save redirect url
     },
-    [account, notify, toggleWalletModal, signedWallet, signIn],
+    [account, notify, toggleWalletModal, signedWallet, requestSignIn],
   )
 
   const signOut = useCallback(() => {
     resetState()
+    // todo hungdoan save redirect url
     KyberOauth2.logout()
   }, [resetState])
 

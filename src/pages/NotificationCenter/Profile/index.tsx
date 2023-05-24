@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Download, LogOut, Save } from 'react-feather'
 import { useParams } from 'react-router'
 import { Text } from 'rebass'
@@ -23,7 +23,13 @@ import useTheme from 'hooks/useTheme'
 import WarningSignMessage from 'pages/NotificationCenter/Profile/WarningSignMessage'
 import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
 import { useNotify } from 'state/application/hooks'
-import { useRefreshProfile, useSessionInfo, useSignedWallet } from 'state/authen/hooks'
+import {
+  KEY_GUEST_DEFAULT,
+  useCacheProfile,
+  useRefreshProfile,
+  useSessionInfo,
+  useSignedWallet,
+} from 'state/authen/hooks'
 import { shortenAddress } from 'utils'
 
 const Wrapper = styled.div`
@@ -120,15 +126,23 @@ export default function Profile() {
   const [nickname, setNickName] = useState('')
   const { signOut } = useLogin()
   const [signedWallet] = useSignedWallet()
+  const { getCacheProfile } = useCacheProfile()
 
   const [file, setFile] = useState<File>()
   const [previewImage, setPreviewImage] = useState<string>()
+  const isCurrentWallet = signedWallet && signedWallet?.toLowerCase() !== walletParam?.toLowerCase()
+  const selectedProfile = useMemo(() => {
+    if (isCurrentWallet) {
+      return formatUserInfo
+    }
+    return getCacheProfile(walletParam || KEY_GUEST_DEFAULT, !walletParam)
+  }, [isCurrentWallet, formatUserInfo, getCacheProfile, walletParam])
 
   useEffect(() => {
-    onChangeEmail(formatUserInfo?.email ?? '')
-    setNickName(formatUserInfo?.nickname || '')
-    setPreviewImage(formatUserInfo?.avatarUrl)
-  }, [formatUserInfo?.email, formatUserInfo?.nickname, formatUserInfo?.avatarUrl, onChangeEmail])
+    onChangeEmail(selectedProfile?.email ?? '')
+    setNickName(selectedProfile?.nickname || '')
+    setPreviewImage(selectedProfile?.avatarUrl)
+  }, [selectedProfile?.email, selectedProfile?.nickname, selectedProfile?.avatarUrl, onChangeEmail])
 
   // todo
   // useEffect(() => {

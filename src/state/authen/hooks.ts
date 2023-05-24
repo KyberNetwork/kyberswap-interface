@@ -1,6 +1,6 @@
 import KyberOauth2 from '@kybernetwork/oauth2'
 import { t } from '@lingui/macro'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useGetOrCreateProfileMutation } from 'services/identity'
 
@@ -79,7 +79,7 @@ export function useSessionInfo(): AuthenState & { formatUserInfo: UserProfile | 
   return { ...authen, isLogin, formatUserInfo }
 }
 
-const KEY_GUEST_DEFAULT = 'default'
+export const KEY_GUEST_DEFAULT = 'default'
 export const useSaveUserProfile = () => {
   const dispatch = useAppDispatch()
   const { saveCacheProfile } = useCacheProfile()
@@ -113,6 +113,7 @@ export const useCacheProfile = () => {
         if (!newData.wallet) newData.wallet = {}
         newData.wallet[key] = profile
       }
+      console.log(newData)
       setProfileLocalStorage(ProfileLocalStorageKeys.PROFILE, newData)
     },
     [],
@@ -143,9 +144,10 @@ export type ConnectedProfile = { active: boolean; address: string; profile: User
 export const useAllProfileInfo = () => {
   const [signInWallet] = useSignedWallet()
   const { getCacheProfile } = useCacheProfile()
+  const [connectedAccounts, setConnectAccounts] = useState(KyberOauth2.getConnectedEthAccounts())
 
   const profiles = useMemo(() => {
-    return KyberOauth2.getConnectedEthAccounts()
+    return connectedAccounts
       .map(address => ({
         active: address === signInWallet?.toLowerCase(),
         address,
@@ -158,7 +160,7 @@ export const useAllProfileInfo = () => {
         profile: getCacheProfile(KEY_GUEST_DEFAULT, true),
         guest: true,
       })
-  }, [signInWallet, getCacheProfile])
+  }, [signInWallet, getCacheProfile, connectedAccounts])
 
   return profiles
 }

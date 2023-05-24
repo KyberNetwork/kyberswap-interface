@@ -17,7 +17,7 @@ import useTheme from 'hooks/useTheme'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
-import { ConnectedProfile, useAllProfileInfo } from 'state/authen/hooks'
+import { ConnectedProfile, useAllProfileInfo, useSignedWallet } from 'state/authen/hooks'
 import getShortenAddress from 'utils/getShortenAddress'
 
 const ContentWrapper = styled.div`
@@ -49,6 +49,7 @@ const ProfileItem = ({ data: { active, guest, address: account, profile } }: { d
   const navigate = useNavigate()
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
   const { signInEth, signInAnonymous, signOut } = useLogin()
+  const [signedWallet] = useSignedWallet()
 
   const onClick = () => {
     if (guest) signInAnonymous(currentWallet)
@@ -83,13 +84,12 @@ const ProfileItem = ({ data: { active, guest, address: account, profile } }: { d
             />
           </MouseoverTooltip>
         )} */}
-        {!guest && (
+        {!guest && signedWallet?.toLowerCase() === account?.toLowerCase() && (
           <LogOut
             size={20}
             onClick={e => {
               e?.stopPropagation()
-              // signOut() // todo sdk clear
-              alert('in dev')
+              signOut() // todo sdk clear
             }}
           />
         )}
