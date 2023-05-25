@@ -274,7 +274,7 @@ export default function Profile() {
                 Log Out
               </ButtonLogout>
             )}
-            <ButtonSave onClick={saveProfile} disabled={isNeedSignIn || !hasChangeProfile}>
+            <ButtonSave onClick={saveProfile} disabled={isNeedSignIn || !hasChangeProfile || hasErrorInput}>
               <Save size={16} style={{ marginRight: '4px' }} />
               Save
             </ButtonSave>
