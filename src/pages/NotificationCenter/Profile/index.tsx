@@ -131,7 +131,7 @@ export default function Profile() {
   const [file, setFile] = useState<File>()
   const [previewImage, setPreviewImage] = useState<string>()
 
-  const isCurrentWallet = signedWallet && signedWallet?.toLowerCase() !== walletParam?.toLowerCase()
+  const isCurrentWallet = signedWallet && signedWallet?.toLowerCase() === walletParam?.toLowerCase()
   const selectedProfile = useMemo(() => {
     if (isCurrentWallet) {
       return formatUserInfo
