@@ -2,6 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
 import { LogOut, Save } from 'react-feather'
 import { useParams } from 'react-router'
+import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import { useUpdateProfileMutation } from 'services/identity'
 import styled, { css } from 'styled-components'
@@ -16,11 +17,13 @@ import FileInput from 'components/FileInput'
 import { Input } from 'components/Input'
 import { useValidateEmail } from 'components/SubscribeButton/NotificationPreference'
 import InputEmail from 'components/SubscribeButton/NotificationPreference/InputEmail'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useUploadImageToCloud } from 'hooks/social'
 import useLogin from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
 import WarningSignMessage from 'pages/NotificationCenter/Profile/WarningSignMessage'
+import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
 import { useNotify } from 'state/application/hooks'
 import {
@@ -127,6 +130,7 @@ export default function Profile() {
   const { signOut } = useLogin()
   const [signedWallet] = useSignedWallet()
   const { getCacheProfile } = useCacheProfile()
+  const navigate = useNavigate()
 
   const [file, setFile] = useState<File>()
   const [previewImage, setPreviewImage] = useState<string>()
@@ -259,8 +263,13 @@ export default function Profile() {
           )}
 
           <ActionsWrapper>
-            {isLogin && (
-              <ButtonLogout disabled={isNeedSignIn} onClick={() => signOut()}>
+            {walletParam && (
+              <ButtonLogout
+                onClick={() => {
+                  signOut(walletParam)
+                  navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PROFILE}`)
+                }}
+              >
                 <LogOut size={16} style={{ marginRight: '4px' }} />
                 Log Out
               </ButtonLogout>

@@ -13,6 +13,7 @@ import {
   ProfileLocalStorageKeys,
   getProfileLocalStorage,
   setProfileLocalStorage,
+  useAllProfileInfo,
   useSaveUserProfile,
   useSessionInfo,
   useSetPendingAuthentication,
@@ -33,6 +34,7 @@ const useLogin = (autoLogin = false) => {
   const notify = useNotify()
   const toggleWalletModal = useWalletModalToggle()
   const [signedWallet, saveSignedWallet] = useSignedWallet()
+  const { refresh: refreshListProfile } = useAllProfileInfo()
 
   const requestingSession = useRef<string>() // which wallet requesting
   const requestingSessionAnonymous = useRef(false)
@@ -174,18 +176,23 @@ const useLogin = (autoLogin = false) => {
     (walletAddress?: string) => {
       resetState()
       setLoginRedirectUrl()
+      if (!walletAddress) {
+        KyberOauth2.logout()
+        return
+      }
       if (walletAddress?.toLowerCase() === signedWallet?.toLowerCase()) {
         KyberOauth2.logout()
-      } else if (walletAddress) {
+      } else {
         KyberOauth2.removeTokensEthAccount(walletAddress)
         notify({
           type: NotificationType.SUCCESS,
           title: t`Logged out successfully`,
           summary: t`You had successfully logged out`,
         })
+        refreshListProfile()
       }
     },
-    [resetState, signedWallet, notify],
+    [resetState, signedWallet, notify, refreshListProfile],
   )
 
   const wrappedSignInAnonymous = useCallback(() => signInAnonymous(account), [signInAnonymous, account]) // todo rename
