@@ -42,6 +42,7 @@ export default function InputEmail({
   isVerifiedEmail,
   showVerifyModal,
   disabled,
+  hasError,
 }: {
   errorColor?: string
   onChange: (val: string) => void
@@ -49,6 +50,7 @@ export default function InputEmail({
   isVerifiedEmail: boolean
   value: string
   disabled?: boolean
+  hasError?: boolean
   showVerifyModal: () => void
 }) {
   // todo refactor props
@@ -64,7 +66,7 @@ export default function InputEmail({
         onChange={e => onChange(e.target.value)}
       />
       {!isVerifiedEmail && value && (
-        <ButtonVerify width={'50px'} height={'24px'} onClick={showVerifyModal}>
+        <ButtonVerify width={'50px'} height={'24px'} onClick={hasError || disabled ? undefined : showVerifyModal}>
           <Trans>Verify</Trans>
         </ButtonVerify>
       )}

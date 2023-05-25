@@ -65,6 +65,10 @@ const formatTime = (secs: number) => {
 
 const timeExpire = 5
 const defaultTime = timeExpire * TIMES_IN_SECS.ONE_MIN
+enum ErrorType {
+  VALIDATE_ERROR = 'VALIDATE_ERROR',
+  SEND_EMAIL_ERROR = 'SEND_EMAIL_ERROR',
+}
 export default function VerifyCodeModal({
   isOpen,
   onDismiss,
@@ -87,7 +91,7 @@ export default function VerifyCodeModal({
   const [verifyOtp] = useVerifyOtpMutation()
   const [sendOtp] = useSendOtpMutation()
   const [verifySuccess, setVerifySuccess] = useState(false)
-  const [error, setError] = useState(false)
+  const [error, setError] = useState<ErrorType>()
   const notify = useNotify()
 
   const [expiredDuration, setExpireDuration] = useState(defaultTime)
@@ -115,9 +119,17 @@ export default function VerifyCodeModal({
   )
 
   const sendEmail = useCallback(() => {
-    email && sendOtp({ email })
     interval.current && clearInterval(interval.current)
-    setExpireDuration(defaultTime)
+    if (!email) return
+    sendOtp({ email })
+      .unwrap()
+      .then(() => {
+        setExpireDuration(defaultTime)
+        setError(undefined)
+      })
+      .catch(() => {
+        setError(ErrorType.SEND_EMAIL_ERROR)
+      })
   }, [email, sendOtp])
 
   const checkedRegisterStatus = useRef(false) // prevent spam
@@ -130,7 +142,7 @@ export default function VerifyCodeModal({
   useEffect(() => {
     if (!isOpen) {
       setTimeout(() => {
-        setError(false)
+        setError(undefined)
         setOtp('')
         setVerifySuccess(false)
       }, 1000)
@@ -151,7 +163,7 @@ export default function VerifyCodeModal({
       await refreshProfile(!isLogin)
       showNotiSuccess()
     } catch (error) {
-      setError(true)
+      setError(ErrorType.VALIDATE_ERROR)
       notify({
         title: t`Error`,
         summary: getErrorMessage(error),
@@ -160,8 +172,11 @@ export default function VerifyCodeModal({
     }
   }
 
+  const isSendMailError = error === ErrorType.SEND_EMAIL_ERROR
+  const isVerifyMailError = error === ErrorType.VALIDATE_ERROR
+
   const onChange = (value: string) => {
-    setError(false)
+    isVerifyMailError && setError(undefined)
     setOtp(value)
   }
 
@@ -185,14 +200,24 @@ export default function VerifyCodeModal({
         ) : (
           <Content>
             {header}
-            <Label>
-              <Trans>
-                We have sent a verification code to{' '}
-                <Text as="span" color={theme.text}>
-                  {email}
-                </Text>
-                . Please enter the code in the field below:
-              </Trans>
+            <Label style={{ color: isSendMailError ? theme.red : theme.subText }}>
+              {isSendMailError ? (
+                <Trans>
+                  Failed to send a verification code to{' '}
+                  <Text as="span" color={theme.text}>
+                    {email}
+                  </Text>
+                  . Please click Resend to try again
+                </Trans>
+              ) : (
+                <Trans>
+                  We have sent a verification code to{' '}
+                  <Text as="span" color={theme.text}>
+                    {email}
+                  </Text>
+                  . Please enter the code in the field below:
+                </Trans>
+              )}
             </Label>
 
             <OTPInput
@@ -200,7 +225,7 @@ export default function VerifyCodeModal({
               value={otp}
               onChange={onChange}
               numInputs={6}
-              renderInput={props => <Input {...props} hasError={error} placeholder="-" />}
+              renderInput={props => <Input {...props} hasError={isVerifyMailError} placeholder="-" />}
             />
 
             <Label style={{ width: '100%', textAlign: 'center' }}>

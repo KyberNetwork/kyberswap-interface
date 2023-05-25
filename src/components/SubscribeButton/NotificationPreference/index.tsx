@@ -451,6 +451,7 @@ function NotificationPreference({
             <Trans>Enter your email address to receive notifications</Trans>
           </Label>
           <InputEmail
+            hasError={hasErrorInput}
             showVerifyModal={showVerifyModal}
             errorColor={errorColor}
             onChange={onChangeEmail}

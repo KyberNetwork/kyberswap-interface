@@ -122,7 +122,7 @@ export default function Profile() {
   const { walletAddress: walletParam } = useParams()
   const { chainId, account } = useActiveWeb3React()
   const { formatUserInfo, isLogin } = useSessionInfo()
-  const { inputEmail, onChangeEmail, errorColor } = useValidateEmail(formatUserInfo?.email)
+  const { inputEmail, onChangeEmail, errorColor, hasErrorInput } = useValidateEmail(formatUserInfo?.email)
   const [nickname, setNickName] = useState('')
   const { signOut } = useLogin()
   const [signedWallet] = useSignedWallet()
@@ -232,6 +232,7 @@ export default function Profile() {
               <Trans>Email Address</Trans>
             </Label>
             <InputEmail
+              hasError={hasErrorInput}
               disabled={isNeedSignIn}
               showVerifyModal={showVerifyModal}
               errorColor={errorColor}
