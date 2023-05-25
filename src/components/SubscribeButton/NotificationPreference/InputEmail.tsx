@@ -70,7 +70,7 @@ export default function InputEmail({
           <Trans>Verify</Trans>
         </ButtonVerify>
       )}
-      {isVerifiedEmail && <CheckIcon color={theme.primary} />}
+      {isVerifiedEmail && value && <CheckIcon color={theme.primary} />}
     </InputWrapper>
   )
 }
