@@ -95,7 +95,9 @@ export default function VerifyCodeModal({
   const notify = useNotify()
 
   const [expiredDuration, setExpireDuration] = useState(defaultTime)
-  const canShowResend = expiredDuration < (timeExpire - 1) * TIMES_IN_SECS.ONE_MIN
+  const isSendMailError = error === ErrorType.SEND_EMAIL_ERROR
+  const isVerifyMailError = error === ErrorType.VALIDATE_ERROR
+  const canShowResend = !isSendMailError && expiredDuration < (timeExpire - 1) * TIMES_IN_SECS.ONE_MIN
 
   const interval = useRef<NodeJS.Timeout>()
   useEffect(() => {
@@ -172,9 +174,6 @@ export default function VerifyCodeModal({
     }
   }
 
-  const isSendMailError = error === ErrorType.SEND_EMAIL_ERROR
-  const isVerifyMailError = error === ErrorType.VALIDATE_ERROR
-
   const onChange = (value: string) => {
     isVerifyMailError && setError(undefined)
     setOtp(value)
@@ -188,6 +187,8 @@ export default function VerifyCodeModal({
       <X color={theme.text} cursor="pointer" onClick={onDismiss} />
     </RowBetween>
   )
+
+  const showExpiredTime = !isSendMailError && expiredDuration > 0
 
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} minHeight={false} maxWidth={450}>
@@ -228,26 +229,34 @@ export default function VerifyCodeModal({
               renderInput={props => <Input {...props} hasError={isVerifyMailError} placeholder="-" />}
             />
 
-            <Label style={{ width: '100%', textAlign: 'center' }}>
-              {expiredDuration > 0 && (
-                <Trans>
-                  Code will be expired in {formatTime(expiredDuration)}
-                  {canShowResend ? '.' : ''}
-                </Trans>
-              )}
-              &nbsp;
-              {canShowResend && (
-                <Trans>
-                  Didn&apos;t receive code?{' '}
-                  <Text as="span" color={theme.primary} style={{ cursor: 'pointer' }} onClick={sendEmail}>
-                    Resend
-                  </Text>
-                </Trans>
-              )}
-            </Label>
-            <ButtonPrimary height={'36px'} disabled={otp.length < 6} onClick={verify}>
-              <Trans>Verify</Trans>
-            </ButtonPrimary>
+            {(showExpiredTime || canShowResend) && (
+              <Label style={{ width: '100%', textAlign: 'center' }}>
+                {showExpiredTime && (
+                  <Trans>
+                    Code will be expired in {formatTime(expiredDuration)}
+                    {canShowResend ? '.' : ''}
+                  </Trans>
+                )}
+                &nbsp;
+                {canShowResend && (
+                  <Trans>
+                    Didn&apos;t receive code?{' '}
+                    <Text as="span" color={theme.primary} style={{ cursor: 'pointer' }} onClick={sendEmail}>
+                      Resend
+                    </Text>
+                  </Trans>
+                )}
+              </Label>
+            )}
+            {isSendMailError ? (
+              <ButtonPrimary height={'36px'} onClick={sendEmail}>
+                <Trans>Resend</Trans>
+              </ButtonPrimary>
+            ) : (
+              <ButtonPrimary height={'36px'} disabled={otp.length < 6} onClick={verify}>
+                <Trans>Verify</Trans>
+              </ButtonPrimary>
+            )}
           </Content>
         )}
       </Wrapper>
