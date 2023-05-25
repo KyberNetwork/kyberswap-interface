@@ -76,11 +76,11 @@ const CHART_RED_COLOR = '#773242'
 const CHART_GREEN_COLOR = '#246250'
 
 const LABEL_GAP_BY_TIMEFRAME: { [timeframe: string]: number } = {
-  [KyberAITimeframe.ONE_DAY]: 2,
-  [KyberAITimeframe.ONE_WEEK]: 1,
-  [KyberAITimeframe.ONE_MONTH]: 2,
-  [KyberAITimeframe.THREE_MONTHS]: 4,
-  [KyberAITimeframe.SIX_MONTHS]: 6,
+  [KyberAITimeframe.ONE_DAY]: isMobile ? 4 : 2,
+  [KyberAITimeframe.ONE_WEEK]: isMobile ? 2 : 1,
+  [KyberAITimeframe.ONE_MONTH]: isMobile ? 4 : 2,
+  [KyberAITimeframe.THREE_MONTHS]: isMobile ? 8 : 4,
+  [KyberAITimeframe.SIX_MONTHS]: isMobile ? 12 : 6,
 }
 
 const CustomizedLabel = (props: any) => {
