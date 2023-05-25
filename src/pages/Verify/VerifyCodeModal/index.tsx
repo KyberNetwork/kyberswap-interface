@@ -133,6 +133,7 @@ export default function VerifyCodeModal({
         setError(undefined)
       })
       .catch(data => {
+        setExpireDuration(0)
         setError(!data?.status ? ErrorType.RATE_LIMIT : ErrorType.SEND_EMAIL_ERROR)
       })
   }, [email, sendOtp])
@@ -150,7 +151,7 @@ export default function VerifyCodeModal({
         setError(undefined)
         setOtp('')
         setVerifySuccess(false)
-      }, 1000)
+      }, 300)
       checkedRegisterStatus.current = false
     } else {
       showVerifySuccess ? showNotiSuccess(false) : sendEmailWhenInit()
