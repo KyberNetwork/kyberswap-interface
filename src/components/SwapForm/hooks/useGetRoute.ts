@@ -69,7 +69,7 @@ const getFeeConfigParams = (
 }
 
 const useGetRoute = (args: ArgsGetRoute) => {
-  const { aggregatorDomain, isEnableAuthenAggregator } = useKyberswapGlobalConfig()
+  const { isEnableAuthenAggregator } = useKyberswapGlobalConfig()
   const { isSaveGas, parsedAmount, currencyIn, currencyOut, customChain, isProcessingSwap } = args
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
@@ -169,7 +169,6 @@ const useGetRoute = (args: ArgsGetRoute) => {
 
     return undefined
   }, [
-    aggregatorDomain,
     chainId,
     currencyIn,
     currencyOut,

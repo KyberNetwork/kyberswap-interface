@@ -153,7 +153,6 @@ export default createReducer(initialState, builder =>
       const evm = isEVM(chainId)
       const data = action.payload.data.config
       const rpc = data?.rpc || NETWORKS_INFO[chainId].defaultRpcUrl
-      const isEnableBlockService = data?.isEnableBlockService ?? false
 
       const blockSubgraph = evm
         ? data?.blockSubgraph || NETWORKS_INFO[chainId].defaultBlockSubgraph
@@ -172,7 +171,7 @@ export default createReducer(initialState, builder =>
         ...state.config,
         [chainId]: {
           rpc,
-          isEnableBlockService,
+          isEnableBlockService: true,
           prochart: data?.prochart || false,
           blockSubgraph,
           elasticSubgraph,
