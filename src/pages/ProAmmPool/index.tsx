@@ -170,6 +170,7 @@ export default function ProAmmPool() {
   const upToSmall = useMedia('(max-width: 768px)')
 
   if (!isEVM) return <Navigate to="/" />
+
   return (
     <>
       <PageWrapper style={{ padding: 0, marginTop: '24px' }}>
@@ -261,7 +262,7 @@ export default function ProAmmPool() {
                 <Trans>Connect to a wallet to view your liquidity.</Trans>
               </TYPE.body>
             </Card>
-          ) : (positionsLoading && !positions) || (loading && !userFarmInfo) ? (
+          ) : (positionsLoading && !positions) || (loading && !userFarmInfo && !positions?.length) ? (
             <PositionCardGrid>
               <ContentLoader />
               <ContentLoader />

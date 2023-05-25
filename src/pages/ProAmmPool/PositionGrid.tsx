@@ -81,6 +81,7 @@ function PositionGrid({
   const { elasticClient } = useKyberSwapConfig(chainId)
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
   // raw
   const [feeRewards, setFeeRewards] = useState<{
@@ -183,15 +184,16 @@ function PositionGrid({
     refe,
   )
 
+  const columnCount = upToSmall ? 1 : upToLarge ? 2 : 3
   return (
     <FixedSizeGrid
       style={{ width: '100%', height: 'calc(100vh - 200px)' }}
       width={10000}
-      columnCount={3}
-      rowCount={Math.ceil(positions.length / 3)}
+      columnCount={columnCount}
+      rowCount={Math.ceil(positions.length / columnCount)}
       height={0}
       columnWidth={upToSmall ? 368 : 392}
-      rowHeight={642} // 579px row height + 24px gap
+      rowHeight={630}
       itemData={itemData}
     >
       {Row as ComponentType<GridChildComponentProps<unknown>>}
@@ -240,7 +242,11 @@ const Row = memo(
       right: columnIndex === 3 ? style.right : Number(style.right) + columnIndex * 24,
     }
 
-    const index = rowIndex * 3 + columnIndex
+    const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+    const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
+    const columnCount = upToSmall ? 1 : upToLarge ? 2 : 3
+
+    const index = rowIndex * columnCount + columnIndex
     const p = positions[index]
     if (!p) return <div />
 
