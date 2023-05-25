@@ -375,7 +375,7 @@ export const FundingRateTable = ({ mobileMode }: { mobileMode?: boolean }) => {
               <td>
                 <Row justify="flex-end">
                   <Text color={colorRateText(i.rate, theme)} fontSize="14px" lineHeight="20px" fontWeight={500}>
-                    {i.rate.toFixed(4)}%
+                    {i.rate ? i.rate.toFixed(4) + '%' : '--'}
                   </Text>
                 </Row>
               </td>
@@ -423,7 +423,7 @@ export const FundingRateTable = ({ mobileMode }: { mobileMode?: boolean }) => {
           {data?.uMarginList?.map((i: any) => (
             <td key={i.exchangeName}>
               <Text color={colorRateText(i.rate, theme)} fontSize="14px" lineHeight="20px" fontWeight={500}>
-                {i.rate.toFixed(4)}%
+                {i.rate ? i.rate.toFixed(4) + '%' : '--'}
               </Text>
             </td>
           ))}
