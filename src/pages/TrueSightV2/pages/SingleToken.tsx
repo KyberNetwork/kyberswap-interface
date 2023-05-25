@@ -322,7 +322,7 @@ export default function SingleToken() {
         element.focus({
           preventScroll: true,
         })
-      }, 1200)
+      }, 750)
       window.scrollTo(0, 0)
     }
   }, [chain, address, navigate])

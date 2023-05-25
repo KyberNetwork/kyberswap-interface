@@ -1,4 +1,4 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -210,25 +210,53 @@ export default function Widget() {
           <X size={12} />
         </CloseButton>
         <ButtonWrapper>
-          <SimpleTooltip text={t`My Watchlist`} delay={500}>
+          <SimpleTooltip
+            text={
+              <Text style={{ whiteSpace: 'nowrap' }}>
+                <Trans>My Watchlist</Trans>
+              </Text>
+            }
+            disappearOnHover
+          >
             <IconButton onClick={() => setActiveTab(WidgetTab.MyWatchlist)}>
               <Icon id="star" size={16} />
             </IconButton>
           </SimpleTooltip>
           <Divider style={{ margin: '0 12px' }} />
-          <SimpleTooltip text={t`Bullish`} delay={500}>
+          <SimpleTooltip
+            text={
+              <Text style={{ whiteSpace: 'nowrap' }}>
+                <Trans>Bullish</Trans>
+              </Text>
+            }
+            disappearOnHover
+          >
             <IconButton onClick={() => setActiveTab(WidgetTab.Bullish)}>
               <Icon id="bullish" size={16} />
             </IconButton>
           </SimpleTooltip>
           <Divider style={{ margin: '0 12px' }} />
-          <SimpleTooltip text={t`Bearish`} delay={500}>
+          <SimpleTooltip
+            text={
+              <Text style={{ whiteSpace: 'nowrap' }}>
+                <Trans>Bearish</Trans>
+              </Text>
+            }
+            disappearOnHover
+          >
             <IconButton onClick={() => setActiveTab(WidgetTab.Bearish)}>
               <Icon id="bearish" size={16} />
             </IconButton>
           </SimpleTooltip>
           <Divider style={{ margin: '0 12px' }} />
-          <SimpleTooltip text={t`Trending soon`} delay={500}>
+          <SimpleTooltip
+            text={
+              <Text style={{ whiteSpace: 'nowrap' }}>
+                <Trans>Trending soon</Trans>
+              </Text>
+            }
+            disappearOnHover
+          >
             <IconButton onClick={() => setActiveTab(WidgetTab.TrendingSoon)}>
               <Icon id="trending-soon" size={16} />
             </IconButton>
