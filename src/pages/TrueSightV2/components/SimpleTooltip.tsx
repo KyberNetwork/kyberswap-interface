@@ -8,6 +8,7 @@ import React, {
   useRef,
   useState,
 } from 'react'
+import { isMobile } from 'react-device-detect'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
 
@@ -76,6 +77,7 @@ export default function SimpleTooltip({
   width: widthProp,
   maxWidth: maxWidthProp,
   disappearOnHover,
+  hideOnMobile,
 }: {
   text: ReactNode
   delay?: number
@@ -85,6 +87,7 @@ export default function SimpleTooltip({
   width?: string
   maxWidth?: string
   disappearOnHover?: boolean
+  hideOnMobile?: boolean
 }) {
   const [show, setShow] = useState<boolean>(false)
   const [className, setClassName] = useState('')
@@ -156,7 +159,7 @@ export default function SimpleTooltip({
     }
   }, [])
 
-  const isShow = show || (!!x && !!y)
+  const isShow = (show || (!!x && !!y)) && !(hideOnMobile && isMobile)
 
   const tooltipContent = useMemo(() => {
     return ReactDOM.createPortal(

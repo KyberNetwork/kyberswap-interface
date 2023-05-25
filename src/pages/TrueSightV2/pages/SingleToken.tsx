@@ -28,7 +28,7 @@ import ExploreShareContent from '../components/shareContent/ExploreTopShareConte
 import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from '../constants'
 import useChartStatesReducer, { ChartStatesContext } from '../hooks/useChartStatesReducer'
 import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation, useTokenDetailQuery } from '../hooks/useKyberAIData'
-import { DiscoverTokenTab } from '../types'
+import { DiscoverTokenTab, ITokenOverview } from '../types'
 import { navigateToSwapPage } from '../utils'
 import OnChainAnalysis from './OnChainAnalysis'
 import TechnicalAnalysis from './TechnicalAnalysis'
@@ -68,8 +68,8 @@ export const HeaderButton = styled.div`
   }
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
   `}
 `
 
@@ -264,27 +264,17 @@ const TokenDescription = ({ description }: { description: string }) => {
   )
 }
 
-export default function SingleToken() {
+const TokenNameGroup = ({ token, isLoading }: { token?: ITokenOverview; isLoading?: boolean }) => {
+  const { account } = useActiveWeb3React()
   const theme = useTheme()
   const navigate = useNavigate()
   const location = useLocation()
-  const [state, dispatch] = useChartStatesReducer()
-  const [showShare, setShowShare] = useState(false)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
-  const { chain, address } = useParams()
-  const [currentTab, setCurrentTab] = useState<DiscoverTokenTab>(DiscoverTokenTab.OnChainAnalysis)
-
-  const { account } = useActiveWeb3React()
-  const { data: token, isLoading } = useTokenDetailQuery({
-    chain: chain || defaultExplorePageToken.chain,
-    address: address || defaultExplorePageToken.address,
-    account,
-  })
+  const { chain } = useParams()
 
   const [addToWatchlist, { isLoading: loadingAddtoWatchlist }] = useAddToWatchlistMutation()
   const [removeFromWatchlist, { isLoading: loadingRemovefromWatchlist }] = useRemoveFromWatchlistMutation()
 
-  const [viewAllTag, setViewAllTag] = useState(false)
   const [isWatched, setIsWatched] = useState(false)
 
   const handleStarClick = () => {
@@ -299,7 +289,6 @@ export default function SingleToken() {
       addToWatchlist({ wallet: account, tokenAddress: token?.address, chain }).then(() => setIsWatched(true))
     }
   }
-
   const handleGoBackClick = () => {
     if (!!location?.state?.from) {
       navigate(location.state.from)
@@ -307,12 +296,197 @@ export default function SingleToken() {
       navigate({ pathname: APP_PATHS.KYBERAI_RANKINGS })
     }
   }
-
   useEffect(() => {
     if (token) {
       setIsWatched(token.isWatched)
     }
   }, [token])
+  return (
+    <>
+      <SimpleTooltip text={t`Go back Ranking page`}>
+        <ButtonIcon onClick={handleGoBackClick}>
+          <ChevronLeft size={24} />
+        </ButtonIcon>
+      </SimpleTooltip>
+      <SimpleTooltip text={isWatched ? t`Remove from watchlist` : t`Add to watchlist`}>
+        <HeaderButton
+          style={{
+            color: isWatched ? theme.primary : theme.subText,
+            backgroundColor: isWatched ? theme.primary + '33' : undefined,
+          }}
+          onClick={handleStarClick}
+        >
+          <StarWithAnimation
+            watched={isWatched}
+            loading={loadingAddtoWatchlist || loadingRemovefromWatchlist}
+            size={16}
+          />
+        </HeaderButton>
+      </SimpleTooltip>
+      <div style={{ position: 'relative' }}>
+        <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
+          <img
+            src={token?.logo}
+            style={{
+              width: above768 ? '36px' : '28px',
+              height: above768 ? '36px' : '28px',
+              background: 'white',
+              display: 'block',
+            }}
+          />
+        </div>
+        <div
+          style={{
+            position: 'absolute',
+            top: '-6px',
+            right: '-6px',
+            borderRadius: '50%',
+            border: `1px solid ${theme.background}`,
+            backgroundColor: theme.tableHeader,
+          }}
+        >
+          <img
+            src={NETWORK_IMAGE_URL[chain || 'ethereum']}
+            alt="eth"
+            width="16px"
+            height="16px"
+            style={{ display: 'block' }}
+          />
+        </div>
+      </div>
+      {isLoading ? (
+        <DotsLoader />
+      ) : (
+        <>
+          <Text fontSize={above768 ? 24 : 16} color={theme.text} fontWeight={500}>
+            {token?.name} ({token?.symbol.toUpperCase()})
+          </Text>
+        </>
+      )}
+    </>
+  )
+}
+const SettingButtons = ({ token, onShareClick }: { token?: ITokenOverview; onShareClick: () => void }) => {
+  const theme = useTheme()
+  const navigate = useNavigate()
+  const { chain } = useParams()
+  return (
+    <>
+      <MouseoverTooltip text={t`Set a price alert`} placement="top" width="fit-content">
+        <HeaderButton
+          onClick={() =>
+            navigate(
+              `${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.CREATE_ALERT}?${stringify({
+                inputCurrency: token?.address ?? '',
+                chainId: chain ? NETWORK_TO_CHAINID[chain] : '',
+              })}`,
+            )
+          }
+          style={{
+            color: theme.subText,
+          }}
+        >
+          <Icon id="alarm" size={18} />
+        </HeaderButton>
+      </MouseoverTooltip>
+      <MouseoverTooltip text={t`Share this token`} placement="top" width="fit-content">
+        <HeaderButton
+          style={{
+            color: theme.subText,
+          }}
+          onClick={onShareClick}
+        >
+          <Icon id="share" size={16} />
+        </HeaderButton>
+      </MouseoverTooltip>
+    </>
+  )
+}
+const TokenHeader = ({
+  token,
+  isLoading,
+  onShareClick,
+}: {
+  token?: ITokenOverview
+  isLoading?: boolean
+  onShareClick: () => void
+}) => {
+  const theme = useTheme()
+  const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
+  const { chain } = useParams()
+  return above768 ? (
+    <RowBetween marginBottom="24px">
+      <RowFit gap="12px">
+        <TokenNameGroup token={token} isLoading={isLoading} />
+      </RowFit>
+      <RowFit gap="12px">
+        <SettingButtons token={token} onShareClick={onShareClick} />
+        <ButtonPrimary
+          height={'36px'}
+          width="fit-content"
+          gap="4px"
+          onClick={() => navigateToSwapPage({ address: token?.address, chain })}
+        >
+          <RowFit gap="4px" style={{ whiteSpace: 'nowrap' }}>
+            <Icon id="swap" size={16} />
+            Swap {token?.symbol?.toUpperCase()}
+          </RowFit>
+        </ButtonPrimary>
+      </RowFit>
+    </RowBetween>
+  ) : (
+    <>
+      <Row
+        gap="8px"
+        padding="14px 12px"
+        style={{
+          position: 'sticky',
+          top: '-2px',
+          backgroundColor: theme.buttonBlack,
+          zIndex: 10,
+          transform: 'translateX(-16px)',
+          width: '100vw',
+        }}
+      >
+        <TokenNameGroup token={token} isLoading={isLoading} />
+      </Row>
+      <RowBetween marginBottom="12px">
+        <RowFit gap="12px">
+          <SettingButtons token={token} onShareClick={onShareClick} />
+        </RowFit>
+        <ButtonPrimary height="32px" width="fit-content" gap="4px" style={{ whiteSpace: 'nowrap', fontSize: '12px' }}>
+          <RowFit gap="4px">
+            <Icon id="swap" size={14} />
+            Swap {token?.symbol}
+          </RowFit>
+        </ButtonPrimary>
+      </RowBetween>
+    </>
+  )
+}
+
+export default function SingleToken() {
+  const theme = useTheme()
+  const navigate = useNavigate()
+  const [state, dispatch] = useChartStatesReducer()
+  const [showShare, setShowShare] = useState(false)
+  const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
+  const { chain, address } = useParams()
+  const [currentTab, setCurrentTab] = useState<DiscoverTokenTab>(DiscoverTokenTab.OnChainAnalysis)
+
+  const { account } = useActiveWeb3React()
+  const { data: token, isLoading } = useTokenDetailQuery(
+    {
+      chain: chain,
+      address: address,
+      account,
+    },
+    {
+      skip: !account || !chain || !address,
+    },
+  )
+
+  const [viewAllTag, setViewAllTag] = useState(false)
 
   useEffect(() => {
     if (!chain || !address) {
@@ -330,192 +504,10 @@ export default function SingleToken() {
     window.scrollTo(0, 0)
   }, [])
 
-  const RenderHeader = () => {
-    const TokenNameGroup = () => (
-      <>
-        <SimpleTooltip text={t`Go back Ranking page`}>
-          <ButtonIcon onClick={handleGoBackClick}>
-            <ChevronLeft size={24} />
-          </ButtonIcon>
-        </SimpleTooltip>
-        <SimpleTooltip text={isWatched ? t`Remove from watchlist` : t`Add to watchlist`}>
-          <HeaderButton
-            style={{
-              color: isWatched ? theme.primary : theme.subText,
-              backgroundColor: isWatched ? theme.primary + '33' : undefined,
-            }}
-            onClick={handleStarClick}
-          >
-            <StarWithAnimation
-              watched={isWatched}
-              loading={loadingAddtoWatchlist || loadingRemovefromWatchlist}
-              size={16}
-            />
-          </HeaderButton>
-        </SimpleTooltip>
-        <div style={{ position: 'relative' }}>
-          <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
-            <img
-              src={token?.logo}
-              style={{
-                width: above768 ? '36px' : '28px',
-                height: above768 ? '36px' : '28px',
-                background: 'white',
-                display: 'block',
-              }}
-            />
-          </div>
-          <div
-            style={{
-              position: 'absolute',
-              top: '-6px',
-              right: '-6px',
-              borderRadius: '50%',
-              border: `1px solid ${theme.background}`,
-              backgroundColor: theme.tableHeader,
-            }}
-          >
-            <img
-              src={NETWORK_IMAGE_URL[chain || 'ethereum']}
-              alt="eth"
-              width="16px"
-              height="16px"
-              style={{ display: 'block' }}
-            />
-          </div>
-        </div>
-        {isLoading ? (
-          <DotsLoader />
-        ) : (
-          <>
-            <Text fontSize={above768 ? 24 : 16} color={theme.text} fontWeight={500}>
-              {token?.name} ({token?.symbol.toUpperCase()})
-            </Text>
-          </>
-        )}
-
-        {/* {above768 && (
-          <>
-            <HeaderTag
-              onClick={() =>
-                navigate({
-                  pathname: APP_PATHS.KYBERAI_RANKINGS,
-                  search: createSearchParams({ listId: KyberAIListType.BULLISH }).toString(),
-                })
-              }
-            >
-              <Icon id="bullish" size={12} />
-              <Text>Bullish</Text>
-              <CheckIcon>
-                <Icon id="check" size={8} />
-              </CheckIcon>
-            </HeaderTag>
-            <HeaderTag
-              onClick={() =>
-                navigate({
-                  pathname: APP_PATHS.KYBERAI_RANKINGS,
-                  search: createSearchParams({ listId: KyberAIListType.TOP_CEX_INFLOW }).toString(),
-                })
-              }
-            >
-              <Icon id="download" size={12} />
-              <Text>Top CEX Inflow</Text>
-              <CheckIcon>
-                <Icon id="check" size={8} />
-              </CheckIcon>
-            </HeaderTag>
-          </>
-        )} */}
-      </>
-    )
-
-    const SettingButtons = () => (
-      <>
-        <MouseoverTooltip text={t`Set a price alert`} placement="top" width="fit-content">
-          <HeaderButton
-            onClick={() =>
-              navigate(
-                `${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.CREATE_ALERT}?${stringify({
-                  inputCurrency: token?.address ?? '',
-                  chainId: chain ? NETWORK_TO_CHAINID[chain] : '',
-                })}`,
-              )
-            }
-            style={{
-              color: theme.subText,
-            }}
-          >
-            <Icon id="alarm" size={18} />
-          </HeaderButton>
-        </MouseoverTooltip>
-        <MouseoverTooltip text={t`Share this token`} placement="top" width="fit-content">
-          <HeaderButton
-            style={{
-              color: theme.subText,
-            }}
-            onClick={() => setShowShare(true)}
-          >
-            <Icon id="share" size={16} />
-          </HeaderButton>
-        </MouseoverTooltip>
-      </>
-    )
-
-    return above768 ? (
-      <RowBetween marginBottom="24px">
-        <RowFit gap="12px">
-          <TokenNameGroup />
-        </RowFit>
-        <RowFit gap="12px">
-          <SettingButtons />
-          <ButtonPrimary
-            height={'36px'}
-            width="fit-content"
-            gap="4px"
-            onClick={() => navigateToSwapPage({ address: token?.address, chain })}
-          >
-            <RowFit gap="4px" style={{ whiteSpace: 'nowrap' }}>
-              <Icon id="swap" size={16} />
-              Swap {token?.symbol?.toUpperCase()}
-            </RowFit>
-          </ButtonPrimary>
-        </RowFit>
-      </RowBetween>
-    ) : (
-      <>
-        <Row
-          gap="8px"
-          padding="14px 12px"
-          style={{
-            position: 'sticky',
-            top: '-2px',
-            backgroundColor: theme.buttonBlack,
-            zIndex: 10,
-            transform: 'translateX(-16px)',
-            width: '100vw',
-          }}
-        >
-          <TokenNameGroup />
-        </Row>
-        <RowBetween marginBottom="12px">
-          <RowFit gap="8px">
-            <SettingButtons />
-          </RowFit>
-          <ButtonPrimary height="28px" width="fit-content" gap="4px" style={{ whiteSpace: 'nowrap', fontSize: '12px' }}>
-            <RowFit gap="4px">
-              <Icon id="swap" size={14} />
-              Swap {token?.symbol}
-            </RowFit>
-          </ButtonPrimary>
-        </RowBetween>
-      </>
-    )
-  }
-
   return (
     <Wrapper>
       <ChartStatesContext.Provider value={{ state, dispatch }}>
-        <RenderHeader />
+        <TokenHeader token={token} isLoading={isLoading} onShareClick={() => setShowShare(true)} />
         <Text fontSize={12} color={theme.subText} marginBottom="12px">
           {isLoading ? <DotsLoader /> : <TokenDescription description={token?.description || ''} />}
         </Text>
