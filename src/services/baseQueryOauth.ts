@@ -16,9 +16,10 @@ const queryWithToken = async (config: any, baseUrl: string) => {
     if (error?.isTokenExpired) {
       window.showConfirm?.({
         isOpen: true,
-        content: t`Session expired, please Sign-in to continue.`,
+        content: t`Your session has expired. Please sign-in to continue.`,
         onConfirm: () => KyberOauth2.authenticate(),
         confirmText: t`Sign-in`,
+        title: t`Session Expired`,
       })
     }
     return {

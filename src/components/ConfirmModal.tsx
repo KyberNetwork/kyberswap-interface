@@ -34,7 +34,7 @@ const useShowConfirm = () => {
 }
 
 const ModalConfirm: React.FC = () => {
-  const { isOpen, onCancel, onConfirm, cancelText, confirmText, content } = useSelector(
+  const { isOpen, onCancel, onConfirm, cancelText, confirmText, content, title } = useSelector(
     (state: AppState) => state.application.confirmModal,
   )
   const theme = useTheme()
@@ -53,7 +53,7 @@ const ModalConfirm: React.FC = () => {
       <Wrapper>
         <RowBetween>
           <Text fontSize={20} fontWeight={400}>
-            <Trans>Note</Trans>
+            {title || <Trans>Notification</Trans>}
           </Text>
         </RowBetween>
 
