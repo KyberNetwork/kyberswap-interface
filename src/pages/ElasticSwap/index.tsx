@@ -52,7 +52,6 @@ export default function ElasticSwap() {
     (isExactIn ? outputCurrency : inputCurrency) ?? undefined,
   )
 
-  console.log(trade)
   const { callback } = useSwapCallback(trade.trade)
 
   const [approvalState, approvalCallback] = useApproveCallback(
