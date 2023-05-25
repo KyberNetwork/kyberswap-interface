@@ -1,4 +1,13 @@
-import React, { ReactElement, ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import React, {
+  ReactElement,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
 
@@ -95,13 +104,13 @@ export default function SimpleTooltip({
       }
     }, delay)
   }
-  const handleMouseLeave = () => {
+  const handleMouseLeave = useCallback(() => {
     hovering.current = false
     setClassName('')
     setTimeout(() => {
       setShow(false)
     }, 150 + delay)
-  }
+  }, [delay])
 
   useLayoutEffect(() => {
     if (wrapperRef.current && firstRenderRef.current) {
@@ -149,35 +158,33 @@ export default function SimpleTooltip({
 
   const isShow = show || (!!x && !!y)
 
-  const TooltipContent = () =>
-    isShow ? (
-      ReactDOM.createPortal(
-        <Wrapper
-          ref={wrapperRef}
-          className={className}
-          style={{
-            inset: `${top}px 0 0 ${(left || 0) + (alphaLeft || 0)}px`,
-            transitionDuration: !!firstRenderRef.current ? '0s' : '0.15s',
-          }}
-          onMouseOver={() => disappearOnHover && handleMouseLeave()}
-        >
-          <ContentWrapper style={{ width: widthProp || 'fit-content', maxWidth: maxWidthProp || '220px' }}>
-            {text}
-          </ContentWrapper>
-          <Arrow className={`arrow-top`} left={alphaLeft} />
-        </Wrapper>,
-        document.body,
-      )
-    ) : (
-      <></>
+  const tooltipContent = useMemo(() => {
+    return ReactDOM.createPortal(
+      <Wrapper
+        ref={wrapperRef}
+        className={className}
+        style={{
+          inset: `${top}px 0 0 ${(left || 0) + (alphaLeft || 0)}px`,
+          transitionDuration: !!firstRenderRef.current ? '0s' : '0.15s',
+        }}
+        onMouseOver={() => disappearOnHover && handleMouseLeave()}
+      >
+        <ContentWrapper style={{ width: widthProp || 'fit-content', maxWidth: maxWidthProp || '250px' }}>
+          {text}
+        </ContentWrapper>
+        <Arrow className={`arrow-top`} left={alphaLeft} />
+      </Wrapper>,
+      document.body,
     )
+  }, [alphaLeft, className, disappearOnHover, handleMouseLeave, left, maxWidthProp, text, top, widthProp])
+
   return (
     <>
       <div ref={ref} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
         {children}
-        {!disappearOnHover && <TooltipContent />}
+        {isShow && !disappearOnHover && tooltipContent}
       </div>
-      {disappearOnHover && <TooltipContent />}
+      {isShow && disappearOnHover && tooltipContent}
     </>
   )
 }
