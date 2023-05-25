@@ -21,7 +21,8 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { calculateGasMargin } from 'utils'
 
-import { ProposalDetail, ProposalStatus, StakerAction, StakerInfo, VoteInfo } from './types'
+import { REFUND_AMOUNTS } from './const'
+import { GasRefundTier, ProposalDetail, ProposalStatus, StakerAction, StakerInfo, VoteInfo } from './types'
 
 export function isSupportKyberDao(chainId: ChainId) {
   return isEVM(chainId) && (NETWORKS_INFO_CONFIG[chainId] as EVMNetworkInfo).kyberDAO
@@ -347,6 +348,20 @@ export function useStakingInfo() {
     stakerActions,
     totalMigratedKNC: totalSupply,
   }
+}
+
+export function useGasRefundInfo() {
+  const { stakedBalance } = useStakingInfo()
+  const tier: GasRefundTier =
+    stakedBalance >= 10000 * 10 ** 18
+      ? GasRefundTier.Tier3
+      : stakedBalance >= 5000 * 10 ** 18
+      ? GasRefundTier.Tier2
+      : stakedBalance >= 500 * 10 ** 18
+      ? GasRefundTier.Tier1
+      : GasRefundTier.Tier0
+  const refundAmount = REFUND_AMOUNTS[tier] // in %
+  return { tier, refundAmount }
 }
 
 export function useVotingInfo() {

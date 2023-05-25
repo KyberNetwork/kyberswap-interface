@@ -87,3 +87,10 @@ export interface VoteInfo {
   staker: string
   power: string
 }
+
+export enum GasRefundTier {
+  Tier0 = 'Tier0',
+  Tier1 = 'Tier1',
+  Tier2 = 'Tier2',
+  Tier3 = 'Tier3',
+}

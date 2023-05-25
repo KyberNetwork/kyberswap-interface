@@ -4,7 +4,7 @@ import { isMobile } from 'react-device-detect'
 import Skeleton from 'react-loading-skeleton'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import bgimg from 'assets/images/about_background.png'
 import governancePNG from 'assets/images/kyberdao/governance.png'
@@ -13,11 +13,17 @@ import kyberCrystal from 'assets/images/kyberdao/kyber_crystal.png'
 import kyberdaoPNG from 'assets/images/kyberdao/kyberdao.png'
 import migratePNG from 'assets/images/kyberdao/migrate.png'
 import stakevotePNG from 'assets/images/kyberdao/stake_vote.png'
+import GasRefundTier1 from 'assets/svg/refund1.svg'
+import GasRefundTier2 from 'assets/svg/refund2.svg'
+import GasRefundTier3 from 'assets/svg/refund3.svg'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import Divider from 'components/Divider'
 import Row, { RowBetween, RowFit } from 'components/Row'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
-import { useStakingInfo } from 'hooks/kyberdao'
+import { useGasRefundInfo, useStakingInfo } from 'hooks/kyberdao'
+import { REFUND_AMOUNTS } from 'hooks/kyberdao/const'
+import { GasRefundTier } from 'hooks/kyberdao/types'
 import useTotalVotingReward from 'hooks/kyberdao/useTotalVotingRewards'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -76,18 +82,25 @@ const CardGroup = styled.div`
   width: 772px;
   order: 3;
 
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 100vw;
     padding: 0 16px;
   `}
 `
-const Card = styled.div`
+const Card = styled.div<{ background?: string }>`
   display: flex;
   border: 1px solid ${({ theme }) => theme.border};
   border-radius: 20px;
   gap: 12px;
   width: 100%;
   padding: 24px 16px;
+  backdrop-filter: blur(25px);
+  ${({ background }) =>
+    background &&
+    css`
+      background: ${background};
+    `}
+  backdrop-filter: blur(25px);
 `
 const Image = styled.img`
   height: 44px;
@@ -122,6 +135,7 @@ export default function StakeKNC() {
       toggleMigrationModal()
     })
   }
+  const { tier } = useGasRefundInfo()
   return (
     <Wrapper>
       <Container>
@@ -218,6 +232,52 @@ export default function StakeKNC() {
             <ButtonLight width="120px" height="44px" onClick={handleMigrateClick}>
               Migrate
             </ButtonLight>
+          </Card>
+          <Card
+            background={
+              [GasRefundTier.Tier1, GasRefundTier.Tier2, GasRefundTier.Tier3].includes(tier)
+                ? 'linear-gradient(90deg, #1F3435 0%, #162F28 100%)'
+                : undefined
+            }
+          >
+            <Image src={migratePNG} alt="Migrate" />
+            <CardInfo>
+              <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text}>
+                <Trans>KNC Utility</Trans>
+              </Text>
+              <Row gap="4px">
+                <Text fontSize={12} lineHeight="16px" fontWeight={500} textAlign="left" color={theme.subText}>
+                  <Trans>
+                    Discover more staking KNC utility and benefits{' '}
+                    <NavLink to={APP_PATHS.KYBERDAO_KNC_UTILITY}>here ↗</NavLink>
+                  </Trans>
+                </Text>
+              </Row>
+            </CardInfo>
+            <MouseoverTooltip
+              text={
+                <Trans>
+                  Tier{' '}
+                  {tier === GasRefundTier.Tier1
+                    ? `1`
+                    : tier === GasRefundTier.Tier2
+                    ? `2`
+                    : tier === GasRefundTier.Tier3
+                    ? `3`
+                    : ''}{' '}
+                  - You are eligible for{' '}
+                  <NavLink to={APP_PATHS.KYBERDAO_KNC_UTILITY}>{REFUND_AMOUNTS[tier]}% gas refund</NavLink>.
+                </Trans>
+              }
+            >
+              {tier === GasRefundTier.Tier1 ? (
+                <img src={GasRefundTier1} />
+              ) : tier === GasRefundTier.Tier2 ? (
+                <img src={GasRefundTier2} />
+              ) : tier === GasRefundTier.Tier3 ? (
+                <img src={GasRefundTier3} />
+              ) : null}
+            </MouseoverTooltip>
           </Card>
           <Card>
             <Image src={kyberdaoPNG} alt="KyberDAO v1" />

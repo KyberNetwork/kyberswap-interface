@@ -1,16 +1,19 @@
 import { Trans } from '@lingui/macro'
 import React, { useEffect, useState } from 'react'
+import { NavLink } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import { ButtonLight } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import Divider from 'components/Divider'
 import { RowBetween, RowFixed } from 'components/Row'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
-import { BIPS_BASE, CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/index'
+import { APP_PATHS, BIPS_BASE, CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import { useGasRefundInfo } from 'hooks/kyberdao'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink, TYPE } from 'theme'
@@ -144,6 +147,7 @@ type Props = {
 }
 const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
   const theme = useTheme()
+  const { refundAmount } = useGasRefundInfo()
   const [expanded, setExpanded] = useState(true)
   const [alreadyVisible, setAlreadyVisible] = useState(false)
   const { parsedAmountOut, priceImpact, gasUsd } = routeSummary || {}
@@ -261,6 +265,31 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
             </TYPE.black>
           </RowBetween>
 
+          <RowBetween>
+            <RowFixed>
+              <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+                <MouseoverTooltip
+                  text={
+                    <Trans>
+                      Stake KNC in KyberDAO to get gas refund.
+                      <a href="//some-link" target="_blank" rel="noreferrer">
+                        {/* todo namgold: fill the link */}
+                        Read more ↗
+                      </a>
+                    </Trans>
+                  }
+                  placement="right"
+                >
+                  <Trans>Gas Refund</Trans>
+                </MouseoverTooltip>
+              </TextDashed>
+            </RowFixed>
+            <NavLink to={APP_PATHS.KYBERDAO_KNC_UTILITY}>
+              <ButtonLight padding="0px 8px" width="fit-content" fontSize={10} fontWeight={500} lineHeight="16px">
+                {refundAmount}% Refund
+              </ButtonLight>
+            </NavLink>
+          </RowBetween>
           <SwapFee />
         </ContentWrapper>
       </AutoColumn>

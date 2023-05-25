@@ -89,11 +89,11 @@ export const ButtonWarning = styled(Base)`
   }
 `
 
-export const ButtonLight = styled(Base)<{ color?: string }>`
+export const ButtonLight = styled(Base)<{ color?: string; fontSize?: number }>`
   background-color: ${({ theme, color }) => `${color || theme.primary}4d`};
   min-width: unset;
   color: ${({ color, theme }) => color || theme.primary};
-  font-size: 14px;
+  font-size: ${({ fontSize }) => fontSize || 14}px;
   font-weight: 500;
   &:hover {
     background-color: ${({ theme, disabled, color }) => !disabled && darken(0.03, `${color || theme.primary}4d`)};
