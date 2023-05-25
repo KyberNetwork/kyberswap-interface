@@ -188,6 +188,7 @@ export default function Profile() {
         title: t`Profile updated`,
         summary: t`Your profile have been successfully updated`,
       })
+      setFile(undefined)
     } catch (error) {
       notify({
         type: NotificationType.ERROR,
@@ -205,6 +206,7 @@ export default function Profile() {
       ? signedWallet
       : (signedWallet && signedWallet?.toLowerCase() !== walletParam?.toLowerCase()) || (walletParam && !signedWallet),
   )
+  const hasChangeProfile = inputEmail !== selectedProfile?.email || file || nickname !== selectedProfile?.nickname
 
   return (
     <Wrapper>
@@ -263,7 +265,7 @@ export default function Profile() {
                 Log Out
               </ButtonLogout>
             )}
-            <ButtonSave onClick={saveProfile} disabled={isNeedSignIn}>
+            <ButtonSave onClick={saveProfile} disabled={isNeedSignIn || !hasChangeProfile}>
               <Save size={16} style={{ marginRight: '4px' }} />
               Save
             </ButtonSave>
