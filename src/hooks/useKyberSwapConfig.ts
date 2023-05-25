@@ -68,7 +68,7 @@ const parseGlobalResponse = (
   const aggregatorDomain = data?.aggregator ?? AGGREGATOR_API
   const isEnableAuthenAggregator = true
   return {
-    aggregatorDomain,
+    aggregatorDomain: 'https://meta-aggregator-api.kyberswap.com',
     aggregatorAPI: `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}/route/encode`,
     isEnableAuthenAggregator,
   }
