@@ -29,7 +29,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   padding: 20px;
-  max-width: 100%;
+  width: 100%;
 `
 
 const Content = styled.div`
@@ -68,6 +68,7 @@ const defaultTime = timeExpire * TIMES_IN_SECS.ONE_MIN
 enum ErrorType {
   VALIDATE_ERROR = 'VALIDATE_ERROR',
   SEND_EMAIL_ERROR = 'SEND_EMAIL_ERROR',
+  RATE_LIMIT = 'RATE_LIMIT',
 }
 export default function VerifyCodeModal({
   isOpen,
@@ -97,7 +98,9 @@ export default function VerifyCodeModal({
   const [expiredDuration, setExpireDuration] = useState(defaultTime)
   const isSendMailError = error === ErrorType.SEND_EMAIL_ERROR
   const isVerifyMailError = error === ErrorType.VALIDATE_ERROR
-  const canShowResend = !isSendMailError && expiredDuration < (timeExpire - 1) * TIMES_IN_SECS.ONE_MIN
+  const isRateLimitError = error === ErrorType.RATE_LIMIT
+  const canShowResend =
+    !isSendMailError && !isRateLimitError && expiredDuration < (timeExpire - 1) * TIMES_IN_SECS.ONE_MIN
 
   const interval = useRef<NodeJS.Timeout>()
   useEffect(() => {
@@ -129,8 +132,8 @@ export default function VerifyCodeModal({
         setExpireDuration(defaultTime)
         setError(undefined)
       })
-      .catch(() => {
-        setError(ErrorType.SEND_EMAIL_ERROR)
+      .catch(data => {
+        setError(!data?.status ? ErrorType.RATE_LIMIT : ErrorType.SEND_EMAIL_ERROR)
       })
   }, [email, sendOtp])
 
@@ -188,7 +191,7 @@ export default function VerifyCodeModal({
     </RowBetween>
   )
 
-  const showExpiredTime = !isSendMailError && expiredDuration > 0
+  const showExpiredTime = !isSendMailError && !isRateLimitError && expiredDuration > 0
 
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} minHeight={false} maxWidth={450}>
@@ -201,8 +204,10 @@ export default function VerifyCodeModal({
         ) : (
           <Content>
             {header}
-            <Label style={{ color: isSendMailError ? theme.red : theme.subText }}>
-              {isSendMailError ? (
+            <Label style={{ color: isSendMailError || isRateLimitError ? theme.red : theme.subText }}>
+              {isRateLimitError ? (
+                <Trans>You reached limit quota. Please try after a few minutes.</Trans>
+              ) : isSendMailError ? (
                 <Trans>
                   Failed to send a verification code to{' '}
                   <Text as="span" color={theme.text}>
@@ -253,7 +258,7 @@ export default function VerifyCodeModal({
                 <Trans>Resend</Trans>
               </ButtonPrimary>
             ) : (
-              <ButtonPrimary height={'36px'} disabled={otp.length < 6} onClick={verify}>
+              <ButtonPrimary height={'36px'} disabled={otp.length < 6 || isRateLimitError} onClick={verify}>
                 <Trans>Verify</Trans>
               </ButtonPrimary>
             )}

@@ -202,13 +202,13 @@ export default function Profile() {
     }
   }
 
+  const isNotMatch = signedWallet?.toLowerCase() !== walletParam?.toLowerCase() // todo rename
+
   const displayAvatar = previewImage || selectedProfile?.avatarUrl
-  const isVerifiedEmail = isCurrentWallet ? selectedProfile?.email && inputEmail === selectedProfile?.email : true
+  const isVerifiedEmail = (selectedProfile?.email && inputEmail === selectedProfile?.email) || isNotMatch
   const displayWallet = (walletParam ? walletParam : '') || account || '' // todo combine all var to 1 hook
   const isNeedSignIn = Boolean(
-    !walletParam
-      ? signedWallet
-      : (signedWallet && signedWallet?.toLowerCase() !== walletParam?.toLowerCase()) || (walletParam && !signedWallet),
+    !walletParam ? signedWallet : (signedWallet && isNotMatch) || (walletParam && !signedWallet),
   )
   const hasChangeProfile = inputEmail !== selectedProfile?.email || file || nickname !== selectedProfile?.nickname
 
