@@ -33,7 +33,7 @@ export default function Notice() {
   return (
     <Wrapper>
       <Info size={20} />
-      <Text marginLeft="8px">
+      <Text marginLeft="8px" flex={1}>
         <Trans>
           Note: Due to a potential security issue with our Elastic Legacy contract, we have deployed a new Elastic
           contract. To ensure the safety of your funds, we recommend that all Liquidity Providers withdraw their funds
