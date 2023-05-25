@@ -84,6 +84,7 @@ export const KEY_GUEST_DEFAULT = 'default'
 export const useSaveUserProfile = () => {
   const dispatch = useAppDispatch()
   const { saveCacheProfile } = useCacheProfile()
+  const { refresh: refreshListProfile } = useAllProfileInfo()
   return useCallback(
     ({
       profile,
@@ -96,8 +97,9 @@ export const useSaveUserProfile = () => {
     }) => {
       dispatch(updateProfile({ profile, isAnonymous }))
       saveCacheProfile({ isAnonymous, profile, id: (isAnonymous ? '' : walletAddress) || KEY_GUEST_DEFAULT })
+      refreshListProfile()
     },
-    [dispatch, saveCacheProfile],
+    [dispatch, saveCacheProfile, refreshListProfile],
   )
 }
 

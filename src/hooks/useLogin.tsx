@@ -72,6 +72,7 @@ const useLogin = (autoLogin = false) => {
       resetState()
       if (anonymousUserInfo) {
         setProfile({ profile: anonymousUserInfo, isAnonymous: true, walletAddress }) // trigger reset account sign in
+        requestingSession.current = undefined
         return
       }
       try {
@@ -82,6 +83,7 @@ const useLogin = (autoLogin = false) => {
       } finally {
         requestingSessionAnonymous.current = false
         await getProfile(walletAddress, true)
+        requestingSession.current = undefined
       }
     },
     [anonymousUserInfo, setProfile, getProfile, resetState],

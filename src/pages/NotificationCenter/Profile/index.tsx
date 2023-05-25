@@ -25,7 +25,6 @@ import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
 import { useNotify } from 'state/application/hooks'
 import {
   KEY_GUEST_DEFAULT,
-  useAllProfileInfo,
   useCacheProfile,
   useRefreshProfile,
   useSessionInfo,
@@ -131,7 +130,6 @@ export default function Profile() {
 
   const [file, setFile] = useState<File>()
   const [previewImage, setPreviewImage] = useState<string>()
-  const { refresh: refreshListProfile } = useAllProfileInfo()
 
   const isCurrentWallet = signedWallet && signedWallet?.toLowerCase() !== walletParam?.toLowerCase()
   const selectedProfile = useMemo(() => {
@@ -185,7 +183,6 @@ export default function Profile() {
         avatarURL,
       }).unwrap()
       await refreshProfile(!isLogin)
-      refreshListProfile()
       notify({
         type: NotificationType.SUCCESS,
         title: t`Profile updated`,
