@@ -66,7 +66,7 @@ export default function InputEmail({
         onChange={e => onChange(e.target.value)}
       />
       {!isVerifiedEmail && value && (
-        <ButtonVerify width={'50px'} height={'24px'} onClick={hasError || disabled ? undefined : showVerifyModal}>
+        <ButtonVerify width={'50px'} height={'24px'} disabled={hasError || disabled} onClick={showVerifyModal}>
           <Trans>Verify</Trans>
         </ButtonVerify>
       )}
