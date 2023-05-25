@@ -99,3 +99,12 @@ jobs:
 
           yarn preview &
           yarn test-e2e
+      
+      - name: Archive e2e artifacts 
+        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
+        if: always()
+        with:
+            name: e2e-artifacts
+            path: |
+              cypress/videos
+        continue-on-error: true    
