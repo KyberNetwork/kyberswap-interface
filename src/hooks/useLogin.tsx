@@ -58,11 +58,13 @@ const useLogin = () => {
       if (requestingSessionAnonymous.current) return
       if (anonymousUserInfo) {
         setProfile({ profile: anonymousUserInfo, isAnonymous: true }) // trigger reset account sign in
+        requestingSession.current = undefined
         return
       }
       try {
         requestingSessionAnonymous.current = true
         await KyberOauth2.loginAnonymous()
+        requestingSession.current = undefined
       } catch (error) {
         console.log('sign in anonymous err', error)
       } finally {
