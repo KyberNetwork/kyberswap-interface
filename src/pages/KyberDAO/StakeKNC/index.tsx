@@ -24,11 +24,10 @@ import { APP_PATHS } from 'constants/index'
 import { useGasRefundInfo, useStakingInfo } from 'hooks/kyberdao'
 import { REFUND_AMOUNTS } from 'hooks/kyberdao/const'
 import { GasRefundTier } from 'hooks/kyberdao/types'
-import useTotalVotingReward from 'hooks/kyberdao/useTotalVotingRewards'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
-import { useToggleModal } from 'state/application/hooks'
+import { useKNCPrice, useToggleModal } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
 
 import KNCLogo from '../kncLogo'
@@ -126,7 +125,6 @@ export default function StakeKNC() {
   const theme = useTheme()
   const toggleMigrationModal = useToggleModal(ApplicationModal.MIGRATE_KNC)
   const { switchToEthereum } = useSwitchToEthereum()
-  const { kncPriceETH } = useTotalVotingReward()
   const { totalMigratedKNC } = useStakingInfo()
   const navigate = useNavigate()
   const { mixpanelHandler } = useMixpanel()
@@ -135,7 +133,9 @@ export default function StakeKNC() {
       toggleMigrationModal()
     })
   }
+  const kncPrice = useKNCPrice()
   const { tier } = useGasRefundInfo()
+
   return (
     <Wrapper>
       <Container>
@@ -146,7 +146,7 @@ export default function StakeKNC() {
             </Text>
             <RowFit gap="4px">
               <KNCLogo size={20} />
-              <Text fontSize={16}>KNC: ${kncPriceETH ? kncPriceETH.toPrecision(4) : '--'}</Text>
+              <Text fontSize={16}>KNC: ${kncPrice ? (+kncPrice).toPrecision(4) : '--'}</Text>
             </RowFit>
           </RowBetween>
           <Divider margin={isMobile ? '20px 0' : '28px 0'} />

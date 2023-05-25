@@ -88,6 +88,17 @@ export interface VoteInfo {
   power: string
 }
 
+export interface RewardStats {
+  liquidated: {
+    totalAmountInKNC: string
+    totalAmountInUSD: string
+  }
+  pending: {
+    totalAmountInKNC: string
+    totalAmountInUSD: string
+  }
+}
+
 export enum GasRefundTier {
   Tier0 = 'Tier0',
   Tier1 = 'Tier1',

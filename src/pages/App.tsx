@@ -37,11 +37,12 @@ import { RedirectPathToPoolsNetwork } from './Pools/redirect'
 import { RedirectPathToSwapV3Network } from './SwapV3/redirects'
 import Verify from './Verify'
 
-// Route-based code splitting
-
+// test page for swap only through elastic
+const ElasticSwap = lazy(() => import('./ElasticSwap'))
+const ElasticLegacy = lazy(() => import('./ElasticLegacy'))
 const SwapV2 = lazy(() => import('./SwapV2'))
 const SwapV3 = lazy(() => import('./SwapV3'))
-const Bridge = lazy(() => import('./Bridge'))
+// const Bridge = lazy(() => import('./Bridge'))
 const Pools = lazy(() => import('./Pools'))
 const Pool = lazy(() => import('./Pool'))
 
@@ -50,18 +51,8 @@ const Farm = lazy(() => import('./Farm'))
 const PoolFinder = lazy(() => import('./PoolFinder'))
 const CreatePool = lazy(() => import('./CreatePool'))
 const ProAmmRemoveLiquidity = lazy(() => import('./RemoveLiquidityProAmm'))
-const RedirectCreatePoolDuplicateTokenIds = lazy(
-  () =>
-    import(
-      /* webpackChunkName: 'redirect-create-pool-duplicate-token-ids-page' */ './CreatePool/RedirectDuplicateTokenIds'
-    ),
-)
-const RedirectOldCreatePoolPathStructure = lazy(
-  () =>
-    import(
-      /* webpackChunkName: 'redirect-old-create-pool-path-structure-page' */ './CreatePool/RedirectOldCreatePoolPathStructure'
-    ),
-)
+const RedirectCreatePoolDuplicateTokenIds = lazy(() => import('./CreatePool/RedirectDuplicateTokenIds'))
+const RedirectOldCreatePoolPathStructure = lazy(() => import('./CreatePool/RedirectOldCreatePoolPathStructure'))
 
 const AddLiquidity = lazy(() => import('./AddLiquidity'))
 const IncreaseLiquidity = lazy(() => import('./IncreaseLiquidity'))
@@ -300,12 +291,15 @@ export default function App() {
                     <Route path={`${APP_PATHS.BUY_CRYPTO}`} element={<BuyCrypto />} />
                     <Route path={`${APP_PATHS.CAMPAIGN}`} element={<Campaign />} />
                     <Route path={`${APP_PATHS.CAMPAIGN}/:slug`} element={<Campaign />} />
-                    <Route path={`${APP_PATHS.BRIDGE}`} element={<Bridge />} />
+                    {/*<Route path={`${APP_PATHS.BRIDGE}`} element={<Bridge />} />*/}
                     <Route path={`${APP_PATHS.VERIFY_EXTERNAL}`} element={<Verify />} />
                     <Route path={`${APP_PATHS.NOTIFICATION_CENTER}`} element={<NotificationCenter />} />
                     <Route path={`${APP_PATHS.NOTIFICATION_CENTER}/*`} element={<NotificationCenter />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgramPage />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />
+
+                    <Route path={`${APP_PATHS.ELASTIC_LEGACY}`} element={<ElasticLegacy />} />
+                    <Route path={`elastic-swap`} element={<ElasticSwap />} />
 
                     <Route path="*" element={<RedirectPathToSwapV3Network />} />
                   </Routes>

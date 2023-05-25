@@ -22,7 +22,7 @@ import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { calculateGasMargin } from 'utils'
 
 import { REFUND_AMOUNTS } from './const'
-import { GasRefundTier, ProposalDetail, ProposalStatus, StakerAction, StakerInfo, VoteInfo } from './types'
+import { GasRefundTier, ProposalDetail, ProposalStatus, RewardStats, StakerAction, StakerInfo, VoteInfo } from './types'
 
 export function isSupportKyberDao(chainId: ChainId) {
   return isEVM(chainId) && (NETWORKS_INFO_CONFIG[chainId] as EVMNetworkInfo).kyberDAO
@@ -511,6 +511,10 @@ export function useVotingInfo() {
     fetcher,
   )
 
+  const { data: rewardStats } = useSWR<RewardStats>(kyberDaoInfo?.daoStatsApi + '/api/v1/reward-stats', url =>
+    fetcher(url).then(res => res.rewardStats),
+  )
+
   return {
     daoInfo: daoInfo || localStoredDaoInfo || undefined,
     userRewards,
@@ -522,6 +526,10 @@ export function useVotingInfo() {
     stakerInfo,
     stakerInfoNextEpoch,
     votesInfo,
+    rewardStats: {
+      knc: rewardStats ? +rewardStats.pending?.totalAmountInKNC + +rewardStats.liquidated?.totalAmountInKNC : 0,
+      usd: rewardStats ? +rewardStats.pending?.totalAmountInUSD + +rewardStats.liquidated?.totalAmountInUSD : 0,
+    },
   }
 }
 

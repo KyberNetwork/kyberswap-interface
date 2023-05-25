@@ -2,7 +2,7 @@ import { gql, useLazyQuery } from '@apollo/client'
 import { defaultAbiCoder } from '@ethersproject/abi'
 import { getCreate2Address } from '@ethersproject/address'
 import { keccak256 } from '@ethersproject/solidity'
-import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { BigNumber } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import { useCallback, useEffect, useRef } from 'react'
@@ -17,7 +17,7 @@ import { useKyberSwapConfig } from 'state/application/hooks'
 import { useAppSelector } from 'state/hooks'
 import { usePoolBlocks } from 'state/prommPools/hooks'
 
-import { addFailedNFTs, resetErrorNFTs, setPoolFeeData, setUserFarmInfo } from '..'
+import { setLoadingUserInfo, setPoolFeeData, setUserFarmInfo } from '..'
 import { NFTPosition, UserFarmInfo } from '../types'
 
 const farmInterface = new Interface(ELASTIC_FARM_ABI)
@@ -49,6 +49,7 @@ const useGetUserFarmingInfo = (interval?: boolean) => {
     const farmAddresses = elasticFarm.farms?.map(farm => farm.id)
 
     if (isEVM(chainId) && account && farmAddresses?.length && multicallContract) {
+      dispatch(setLoadingUserInfo({ loading: true, chainId }))
       // get userDepositedNFTs
       const userDepositedNFTsFragment = farmInterface.getFunction('getDepositedNFTs')
       const callData = farmInterface.encodeFunctionData(userDepositedNFTsFragment, [account])
@@ -128,9 +129,6 @@ const useGetUserFarmingInfo = (interval?: boolean) => {
           const rewardPendings: { [pid: string]: CurrencyAmount<Currency>[] } = {}
           const rewardByNft: { [pid_nftId: string]: CurrencyAmount<Currency>[] } = {}
 
-          // nft got underflow issue from contract and need to emergencyWithdraw
-          const errorNFTs: string[] = []
-
           const userInfoParams: Array<[BigNumber, string]> = []
           nfts.forEach(id => {
             const matchedPools = farm.pools.filter(
@@ -167,13 +165,10 @@ const useGetUserFarmingInfo = (interval?: boolean) => {
               )
             ).returnData.map((item: [boolean, string]) => item[1])
 
-            const result = returnData.map((data: string, i: number) => {
+            const result = returnData.map((data: string) => {
               try {
                 return farmInterface.decodeFunctionResult(getUserInfoFragment, data)
               } catch (e) {
-                if (JSON.stringify(e).includes('Panic')) {
-                  errorNFTs.push(userInfoParams[i][0].toString())
-                }
                 return e
               }
             })
@@ -205,13 +200,8 @@ const useGetUserFarmingInfo = (interval?: boolean) => {
                   if (!rewardPendings[pid]) {
                     rewardPendings[pid] = []
                   }
-                  const isWrongFarm = chainId === ChainId.AVAXMAINNET && Number(pid) === 125
                   farmingPool.rewardTokens.forEach((currency, i) => {
-                    const amount = CurrencyAmount.fromRawAmount(
-                      currency,
-                      // TODO(viet-nv): Remove this, we are temporary hardcode reward to zero
-                      isWrongFarm ? 0 : 0, // result[index].rewardPending[i],
-                    )
+                    const amount = CurrencyAmount.fromRawAmount(currency, result[index].rewardPending[i])
                     rewardByNft[id][i] = amount
 
                     if (!rewardPendings[pid][i]) {
@@ -229,13 +219,10 @@ const useGetUserFarmingInfo = (interval?: boolean) => {
             joinedPositions,
             rewardPendings,
             rewardByNft,
-            errorNFTs,
           }
         }) || []
 
       const res = await Promise.all(promises)
-      const errorNFTs = res.map(r => r.errorNFTs).flat()
-      dispatch(addFailedNFTs({ chainId, ids: errorNFTs }))
 
       const userInfo = elasticFarm.farms?.reduce((userInfo, farm, index) => {
         return {
@@ -244,6 +231,7 @@ const useGetUserFarmingInfo = (interval?: boolean) => {
         }
       }, {} as UserFarmInfo)
 
+      dispatch(setLoadingUserInfo({ chainId, loading: false }))
       if (userInfo) dispatch(setUserFarmInfo({ chainId, userInfo }))
     }
   }, [elasticFarm.farms, chainId, account, multicallContract, dispatch])
@@ -262,7 +250,7 @@ const useGetUserFarmingInfo = (interval?: boolean) => {
     return () => {
       i && clearInterval(i)
     }
-  }, [interval])
+  }, [interval, account, elasticFarm.farms?.length])
 
   const { blockLast24h } = usePoolBlocks()
   const [getPoolInfo, { data: poolFeeData }] = useLazyQuery(POOL_FEE_HISTORY, {
@@ -299,10 +287,6 @@ const useGetUserFarmingInfo = (interval?: boolean) => {
       })
     }
   }, [elasticFarm.farms, blockLast24h, getPoolInfo, chainId])
-
-  useEffect(() => {
-    if (chainId) dispatch(resetErrorNFTs(chainId))
-  }, [account, dispatch, chainId])
 }
 
 export default useGetUserFarmingInfo

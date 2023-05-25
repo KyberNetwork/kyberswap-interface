@@ -19,11 +19,10 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useActiveWeb3React } from 'hooks'
 import { useClaimRewardActions, useVotingActions, useVotingInfo } from 'hooks/kyberdao'
-import useTotalVotingReward from 'hooks/kyberdao/useTotalVotingRewards'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
-import { useToggleModal, useWalletModalToggle } from 'state/application/hooks'
+import { useKNCPrice, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { StyledInternalLink } from 'theme'
 import { formattedNumLong } from 'utils'
 import { formatUnitsToFixed } from 'utils/formatBalance'
@@ -144,9 +143,18 @@ export default function Vote() {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const { mixpanelHandler } = useMixpanel()
-  const { daoInfo, remainingCumulativeAmount, claimedRewardAmount, userRewards, stakerInfo, stakerInfoNextEpoch } =
-    useVotingInfo()
-  const { knc, usd, kncPriceETH } = useTotalVotingReward()
+  const {
+    daoInfo,
+    remainingCumulativeAmount,
+    claimedRewardAmount,
+    userRewards,
+    stakerInfo,
+    stakerInfoNextEpoch,
+    rewardStats: { knc, usd },
+  } = useVotingInfo()
+
+  const kncPrice = useKNCPrice()
+
   const { claim } = useClaimRewardActions()
   const { vote } = useVotingActions()
   const { switchToEthereum } = useSwitchToEthereum()
@@ -254,7 +262,7 @@ export default function Vote() {
           </Text>
           <RowFit gap="4px">
             <KNCLogo size={20} />
-            <Text fontSize={16}>KNC: ${kncPriceETH ? kncPriceETH.toPrecision(4) : '--'}</Text>
+            <Text fontSize={16}>KNC: ${kncPrice ? (+kncPrice).toPrecision(4) : '--'}</Text>
           </RowFit>
         </RowBetween>
         <CardGroup>
@@ -267,8 +275,8 @@ export default function Vote() {
                 {daoInfo ? formattedNumLong(Math.round(daoInfo.total_staked)) + ' KNC' : '--'}
               </Text>
               <Text fontSize={12} color={theme.subText}>
-                {daoInfo && kncPriceETH
-                  ? '~' + formattedNumLong(kncPriceETH * Math.round(daoInfo.total_staked)) + ' USD'
+                {daoInfo && kncPrice
+                  ? '~' + formattedNumLong(+kncPrice * Math.round(daoInfo.total_staked)) + ' USD'
                   : ''}
               </Text>
             </AutoColumn>
@@ -279,10 +287,10 @@ export default function Vote() {
                 <Trans>Total Voting Rewards</Trans>
               </Text>
               <Text fontSize={20} marginBottom="8px" fontWeight={500}>
-                {knc?.toLocaleString() ?? '--'} KNC
+                {(+knc?.toFixed(0)).toLocaleString() ?? '--'} KNC
               </Text>
               <Text fontSize={12} color={theme.subText}>
-                ~{usd?.toLocaleString() ?? '--'} USD
+                ~{(+usd?.toFixed(0)).toLocaleString() ?? '--'} USD
               </Text>
             </AutoColumn>
           </Card>
@@ -429,7 +437,7 @@ export default function Vote() {
                         {formatUnitsToFixed(remainingCumulativeAmount, undefined, 2)} KNC
                       </Text>
                       <Text fontSize={12} color={theme.subText}>
-                        {(+(+formatUnitsToFixed(remainingCumulativeAmount) * +(kncPriceETH || '0')).toFixed(
+                        {(+(+formatUnitsToFixed(remainingCumulativeAmount) * +(kncPrice || '0')).toFixed(
                           2,
                         )).toLocaleString()}{' '}
                         USD
@@ -451,7 +459,7 @@ export default function Vote() {
                         {(+formatUnitsToFixed(claimedRewardAmount, undefined, 2)).toLocaleString()} KNC
                       </Text>
                       <Text fontSize={12} color={theme.subText}>
-                        {(+(+formatUnitsToFixed(claimedRewardAmount) * (kncPriceETH || 0)).toFixed(2)).toLocaleString()}{' '}
+                        {(+(+formatUnitsToFixed(claimedRewardAmount) * +(kncPrice || 0)).toFixed(2)).toLocaleString()}{' '}
                         USD
                       </Text>
                     </AutoColumn>
