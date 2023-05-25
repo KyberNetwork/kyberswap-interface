@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Check } from 'react-feather'
+import { Check, Lock } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { useAckTelegramSubscriptionStatusMutation } from 'services/identity'
 import styled, { css } from 'styled-components'
@@ -10,14 +10,16 @@ import Checkbox from 'components/CheckBox'
 import Column from 'components/Column'
 import { Telegram } from 'components/Icons'
 import MailIcon from 'components/Icons/MailIcon'
+import NotificationIcon from 'components/Icons/NotificationIcon'
 import Loader from 'components/Loader'
 import Row from 'components/Row'
 import ActionButtons from 'components/SubscribeButton/NotificationPreference/ActionButtons'
 import Header from 'components/SubscribeButton/NotificationPreference/Header'
 import InputEmail from 'components/SubscribeButton/NotificationPreference/InputEmail'
+import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import useNotification, { Topic } from 'hooks/useNotification'
+import useNotification, { Topic, TopicType } from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
 import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
 import { useNotify } from 'state/application/hooks'
@@ -33,6 +35,7 @@ const Wrapper = styled.div`
   display: flex;
   gap: 18px;
   flex-direction: column;
+  width: 100%;
   ${({ theme }) => theme.mediaWidth.upToMedium`
      gap: 14px;
      padding: 24px 16px;
@@ -51,7 +54,7 @@ const TopicItem = styled.label`
   gap: 14px;
   font-weight: 500;
   align-items: center;
-  flex-basis: 45%;
+  width: 100%;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
      flex-basis: unset;
@@ -76,11 +79,11 @@ const ListGroupWrapper = styled.div<{ isInNotificationCenter: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
   ${({ isInNotificationCenter }) =>
     isInNotificationCenter &&
     css`
       flex-direction: row;
-      flex-wrap: wrap;
       justify-content: space-between;
     `}
   ${({ theme }) => theme.mediaWidth.upToMedium`
@@ -88,31 +91,25 @@ const ListGroupWrapper = styled.div<{ isInNotificationCenter: boolean }>`
   `}
 `
 
-// const Option = styled(Row)<{ active: boolean }>`
-//   padding: 10px 16px;
-//   gap: 10px;
-//   color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
-//   :hover {
-//     color: ${({ theme }) => theme.primary};
-//     background: ${({ theme }) => rgba(theme.subText, 0.1)};
-//   }
-// `
+const GroupColum = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+`
+
+const LabelGroup = styled(TextDashed)`
+  color: ${({ theme }) => theme.subText};
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`
 
 enum TAB {
   EMAIL,
   TELEGRAM,
 }
-
-// const NOTIFICATION_OPTIONS = [
-//   {
-//     label: 'Email',
-//     value: TAB.EMAIL,
-//   },
-//   {
-//     label: 'Telegram',
-//     value: TAB.TELEGRAM,
-//   },
-// ]
 
 const noop = () => {
   //
@@ -177,7 +174,7 @@ function NotificationPreference({
     unsubscribeAll,
   } = useNotification()
 
-  const { formatUserInfo: userInfo } = useSessionInfo()
+  const { formatUserInfo: userInfo, isLogin } = useSessionInfo()
 
   const [isShowVerify, setIsShowVerify] = useState(false)
   const showVerifyModal = () => {
@@ -338,7 +335,10 @@ function NotificationPreference({
     } catch (error) {
       notify({
         title: t`Save Error`,
-        summary: t`Error occur, please try again`,
+        summary:
+          error.status === 403
+            ? t`Some topics that you need to be whitelist to subscribe`
+            : t`Error occur, please try again`,
         type: NotificationType.ERROR,
       })
       console.log(error)
@@ -349,10 +349,6 @@ function NotificationPreference({
     setSelectedTopic(
       selectedTopic.includes(topicId) ? selectedTopic.filter(el => el !== topicId) : [...selectedTopic, topicId],
     )
-  }
-
-  const onToggleAllTopic = () => {
-    setSelectedTopic(selectedTopic.length === topicGroups.length ? [] : topicGroups.map(e => e.id))
   }
 
   const autoSelect = useRef(false)
@@ -399,52 +395,48 @@ function NotificationPreference({
         <Text fontSize={'14px'}>
           <Trans>Notification Preferences</Trans>
         </Text>
-        <Flex style={{ gap: '4px', alignItems: 'center' }}>
-          <Checkbox
-            disabled={disableCheckbox}
-            id="selectAll"
-            borderStyle
-            onChange={onToggleAllTopic}
-            style={{ width: 14, height: 14 }}
-            checked={topicGroups.length === selectedTopic.length}
-          />
-          <Text color={theme.subText} fontSize={'12px'}>
-            <Trans>Select All</Trans>
-          </Text>
-        </Flex>
       </TopicItemHeader>
     )
   }
 
+  const { commons, restrict } = useMemo(() => {
+    return {
+      commons: topicGroupsGlobal.filter(el => el.type === TopicType.NORMAL),
+      restrict: topicGroupsGlobal.filter(el => el.type === TopicType.RESTRICT),
+    }
+  }, [topicGroupsGlobal])
+
+  const totalTopic = commons.length + restrict.length
+  const renderTopic = (topic: Topic, disabled: boolean) => (
+    <TopicItem
+      key={topic.id}
+      htmlFor={`topic${topic.id}`}
+      style={{ alignItems: isInNotificationCenter ? 'flex-start' : 'center' }}
+    >
+      <Checkbox
+        disabled={disabled}
+        borderStyle
+        checked={selectedTopic.includes(topic.id)}
+        id={`topic${topic.id}`}
+        style={{ width: 14, height: 14, minWidth: 14 }}
+        onChange={() => onChangeTopic(topic.id)}
+      />
+      <Column gap="10px">
+        <Text color={theme.text} fontSize={14}>
+          <Trans>{topic.name}</Trans>
+        </Text>
+        {isInNotificationCenter && (
+          <Text color={theme.subText} fontSize={12}>
+            <Trans>{topic.description}</Trans>
+          </Text>
+        )}
+      </Column>
+    </TopicItem>
+  )
+
   return (
     <Wrapper>
       {header || <Header toggleModal={toggleModal} />}
-      {/* <RowBetween gap="14px">
-          <Label>
-            <Trans>Select mode of notification</Trans>
-          </Label>
-          <Select
-            style={{
-              flex: 1,
-              borderRadius: 40,
-              color: theme.text,
-              fontSize: 14,
-              fontWeight: 500,
-              height: 38,
-              paddingLeft: 20,
-            }}
-            menuStyle={{ background: theme.background }}
-            options={NOTIFICATION_OPTIONS}
-            value={activeTab}
-            optionRender={option => (
-              <Option active={activeTab === option?.value} key={option?.value}>
-                {option?.value === TAB.EMAIL ? <Mail size={15} /> : <Telegram size={15} />} {option?.label}
-              </Option>
-            )}
-            onChange={setActiveTab}
-          />
-        </RowBetween> */}
-
       {isEmailTab ? (
         <Column>
           <Label>
@@ -493,43 +485,37 @@ function NotificationPreference({
       <Column gap="16px">
         {renderTableHeader()}
         <ListGroupWrapper isInNotificationCenter={!!isInNotificationCenter}>
-          {topicGroups.map(topic => (
-            <TopicItem
-              key={topic.id}
-              htmlFor={`topic${topic.id}`}
-              style={{ alignItems: isInNotificationCenter ? 'flex-start' : 'center' }}
+          <GroupColum>
+            <MouseoverTooltip text={t`These topics can be subscribed by anyone`}>
+              <LabelGroup>
+                <NotificationIcon size={16} />
+                <Trans>Common Topics</Trans>
+              </LabelGroup>
+            </MouseoverTooltip>
+            {commons.map(topic => renderTopic(topic, disableCheckbox))}
+          </GroupColum>
+          <GroupColum>
+            <MouseoverTooltip
+              text={t`These topics can only be subscribed by a signed-in profile. Go to Profile tab to sign-in with your wallet`}
             >
-              <Checkbox
-                disabled={disableCheckbox}
-                borderStyle
-                checked={selectedTopic.includes(topic.id)}
-                id={`topic${topic.id}`}
-                style={{ width: 14, height: 14, minWidth: 14 }}
-                onChange={() => onChangeTopic(topic.id)}
-              />
-              <Column gap="10px">
-                <Text color={theme.text} fontSize={14}>
-                  <Trans>{topic.name}</Trans>
-                </Text>
-                {isInNotificationCenter && (
-                  <Text color={theme.subText} fontSize={12}>
-                    <Trans>{topic.description}</Trans>
-                  </Text>
-                )}
-              </Column>
-            </TopicItem>
-          ))}
-          {topicGroups.length === 0 && (
-            <Row justify="center" align="center" gap="6px" marginTop={'20px'}>
-              <Loader />
-              <Text color={theme.subText} fontSize={14}>
-                <Trans>Loading topics ...</Trans>
-              </Text>
-            </Row>
-          )}
+              <LabelGroup>
+                <Lock size={15} />
+                <Trans>Restricted Topics</Trans>
+              </LabelGroup>
+            </MouseoverTooltip>
+            {restrict.map(topic => renderTopic(topic, disableCheckbox || !isLogin))}
+          </GroupColum>
         </ListGroupWrapper>
+        {totalTopic === 0 && (
+          <Row justify="center" align="center" gap="6px" marginTop={'20px'} width={'100%'}>
+            <Loader />
+            <Text color={theme.subText} fontSize={14}>
+              <Trans>Loading topics ...</Trans>
+            </Text>
+          </Row>
+        )}
       </Column>
-      {topicGroups.length > 0 && (
+      {totalTopic > 0 && (
         <ActionButtons
           isHorizontal={!!isInNotificationCenter}
           disableButtonSave={disableButtonSave}

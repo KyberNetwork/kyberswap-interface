@@ -117,7 +117,6 @@ const MenuForDesktop = ({ unread }: PropsMenu) => {
   const { account } = useActiveWeb3React()
   const { signInEth } = useLogin()
   const { profiles } = useAllProfileInfo()
-  console.log(123, profiles)
 
   const menuItemDeskTop = useMemo(() => {
     return menuItems.map(el => {

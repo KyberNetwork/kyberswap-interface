@@ -1,24 +1,49 @@
 import { Trans } from '@lingui/macro'
-import { Text } from 'rebass'
-import styled from 'styled-components'
+import { Save } from 'react-feather'
+import styled, { css } from 'styled-components'
 
-import { ButtonConfirmed, ButtonPrimary } from 'components/Button'
+import { ButtonConfirmed, ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { XCircle } from 'components/Icons'
 import Loader from 'components/Loader'
 import Row from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { useWalletModalToggle } from 'state/application/hooks'
 
 const ButtonText = styled.div`
   font-size: 14px;
   font-weight: 500;
 `
-const ActionWrapper = styled.div`
+
+const shareStyle = css`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    width: 100%;
+    justify-content: space-around;
+`};
+`
+const ActionWrapper = styled.div<{ isHorizontal: boolean }>`
   display: flex;
-  flex-direction: column;
-  gap: 14px;
+  gap: 20px;
+  flex-direction: row;
   align-items: center;
-  justify-content: space-between;
+  ${({ isHorizontal }) => !isHorizontal && shareStyle};
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    ${shareStyle}
+`};
+`
+
+const shareStyleBtn = (isHorizontal: boolean) => css`
+  width: ${!isHorizontal ? '45%' : '120px'};
+  height: 36px;
+  border-radius: 46px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    width: 45%;
+`};
+`
+const ButtonUnSub = styled(ButtonOutlined)<{ isHorizontal: boolean }>`
+  ${({ isHorizontal }) => shareStyleBtn(isHorizontal)}
+`
+const ButtonSave = styled(ButtonPrimary)<{ isHorizontal: boolean }>`
+  ${({ isHorizontal }) => shareStyleBtn(isHorizontal)}
 `
 
 export default function ActionButtons({
@@ -36,46 +61,33 @@ export default function ActionButtons({
   isLoading: boolean
   onSave: () => void
   onUnsubscribeAll: () => void
-  isHorizontal: boolean
+  isHorizontal: boolean // todo rename
 }) {
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
-  const theme = useTheme()
+
   const unSubButton = subscribeAtLeast1Topic ? (
-    <Text
-      style={{
-        cursor: 'pointer',
-        color: theme.subText,
-        fontWeight: '500',
-        fontSize: '14px',
-      }}
-      onClick={onUnsubscribeAll}
-    >
-      <Trans>Opt out from all future emails</Trans>
-    </Text>
+    <ButtonUnSub onClick={onUnsubscribeAll} isHorizontal={isHorizontal}>
+      <XCircle size={'14px'} />
+      &nbsp;
+      <Trans>Opt-out</Trans>
+    </ButtonUnSub>
   ) : (
     isHorizontal && <div />
   )
-
-  const heightBtn = isHorizontal ? '36px' : '44px'
-  const widthBtn = isHorizontal ? '160px' : '100%'
   return (
-    <ActionWrapper style={{ flexDirection: isHorizontal ? 'row' : 'column' }}>
-      {isHorizontal && unSubButton}
+    <ActionWrapper isHorizontal={isHorizontal}>
+      {unSubButton}
       {!account ? (
-        <ButtonConfirmed confirmed onClick={toggleWalletModal} height={heightBtn} width={widthBtn}>
+        <ButtonConfirmed confirmed onClick={toggleWalletModal}>
           <ButtonText>
             <Trans>Connect Wallet</Trans>
           </ButtonText>
         </ButtonConfirmed>
       ) : (
-        <ButtonPrimary
-          disabled={disableButtonSave}
-          borderRadius="46px"
-          height={heightBtn}
-          width={widthBtn}
-          onClick={onSave}
-        >
+        <ButtonSave disabled={disableButtonSave} onClick={onSave} isHorizontal={isHorizontal}>
+          <Save size={14} />
+          &nbsp;
           <ButtonText>
             {(() => {
               if (isLoading) {
@@ -90,9 +102,8 @@ export default function ActionButtons({
               return isTelegramTab ? <Trans>Get Started</Trans> : <Trans>Save</Trans>
             })()}
           </ButtonText>
-        </ButtonPrimary>
+        </ButtonSave>
       )}
-      {!isHorizontal && unSubButton}
     </ActionWrapper>
   )
 }

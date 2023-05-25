@@ -29,7 +29,7 @@ const WarningSignMessage = ({ walletAddress, guest }: { walletAddress: string | 
   return (
     <WarningWrapper>
       <Row style={{ gap: '12px' }}>
-        <Info color={theme.subText} size={20} style={{ minWidth: '20px' }} />
+        <Info color={theme.subText} size={18} style={{ minWidth: '18px' }} />
         <Text fontSize={'12px'}>
           {guest ? (
             <Trans>You are not signed in with Guest account. Click to connect.</Trans>
@@ -42,8 +42,8 @@ const WarningSignMessage = ({ walletAddress, guest }: { walletAddress: string | 
         </Text>
       </Row>
       <ButtonPrimary
-        width={'130px'}
-        height={'36px'}
+        width={'110px'}
+        height={'30px'}
         fontSize={'14px'}
         onClick={() => (guest ? signInAnonymous() : signInEth(walletAddress))}
       >

@@ -13,6 +13,11 @@ import { useNotificationModalToggle } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 import { pushUnique } from 'utils'
 
+export enum TopicType {
+  RESTRICT = 'restricted',
+  NORMAL = 'common',
+}
+
 export type Topic = {
   id: number
   code: string
@@ -21,6 +26,7 @@ export type Topic = {
   isSubscribed: boolean
   topics: Topic[]
   priority: number
+  type: TopicType
 }
 
 type SaveNotificationParam = {
@@ -81,7 +87,7 @@ const useNotification = () => {
           if (subscribeIds.length) {
             topicIds = topicIds.concat(subscribeIds)
           }
-          await callSubscribeTopic({ topicIds }).unwrap()
+          await callSubscribeTopic({ topicIds: [...new Set(topicIds)] }).unwrap()
           return
         }
         if (isTelegram) {
