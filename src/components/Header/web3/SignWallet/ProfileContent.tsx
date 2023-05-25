@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { LogOut, Plus, Upload } from 'react-feather'
+import { LogOut, Plus } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -74,19 +74,6 @@ const ProfileItem = ({
         </Column>
       </Row>
       <Row justify="flex-end" gap="18px" align="center">
-        {/* {guest && (
-          <MouseoverTooltip text={t`Export Profile`} width="fit-content" placement="top">
-            <Download
-              size={20}
-              color={theme.subText}
-              onClick={e => {
-                e?.stopPropagation()
-                alert('in dev')
-                toggleModal()
-              }}
-            />
-          </MouseoverTooltip>
-        )} */}
         {!guest && (
           <LogOut
             size={20}
@@ -119,7 +106,6 @@ const ProfileItem = ({
 const ProfileContent = () => {
   const theme = useTheme()
   const { signInEth } = useLogin()
-  const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
 
   const { profiles, refresh } = useAllProfileInfo()
 
@@ -140,19 +126,6 @@ const ProfileContent = () => {
           fontSize={'14px'}
         >
           <Plus size={20} /> <Trans>Add Account</Trans>
-        </Flex>
-        <Flex
-          fontWeight={'400'}
-          fontSize={'14px'}
-          color={theme.subText}
-          alignItems={'center'}
-          style={{ gap: '6px', visibility: 'hidden' }}
-          onClick={() => {
-            alert('in dev')
-            toggleModal()
-          }}
-        >
-          <Upload size={19} /> <Trans>Import</Trans>
         </Flex>
       </ActionWrapper>
     </ContentWrapper>

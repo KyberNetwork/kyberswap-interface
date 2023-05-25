@@ -123,7 +123,6 @@ export const useCacheProfile = () => {
         if (!newData.wallet) newData.wallet = {}
         newData.wallet[key] = profile
       }
-      console.log(newData)
       setProfileLocalStorage(ProfileLocalStorageKeys.PROFILE, newData)
     },
     [],
