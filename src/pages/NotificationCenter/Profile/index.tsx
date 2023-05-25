@@ -198,8 +198,8 @@ export default function Profile() {
     }
   }
 
-  const displayAvatar = previewImage || formatUserInfo?.avatarUrl
-  const isVerifiedEmail = formatUserInfo?.email && inputEmail === formatUserInfo?.email
+  const displayAvatar = previewImage || selectedProfile?.avatarUrl
+  const isVerifiedEmail = isCurrentWallet ? selectedProfile?.email && inputEmail === selectedProfile?.email : true
   const displayWallet = (walletParam ? walletParam : '') || account || '' // todo combine all var to 1 hook
   const isNeedSignIn = Boolean(
     !walletParam
