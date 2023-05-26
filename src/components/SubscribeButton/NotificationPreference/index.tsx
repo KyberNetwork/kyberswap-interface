@@ -353,6 +353,7 @@ function NotificationPreference({
 
   const autoSelect = useRef(false)
   useEffect(() => {
+    return // todo
     if (isNewUserQualified && !autoSelect.current) {
       // auto select all checkbox when user no register any topic before and fill a valid email
       // this effect will call once
@@ -371,7 +372,7 @@ function NotificationPreference({
     return !getDiffChangeTopics(topicGroups).hasChanged
   }, [getDiffChangeTopics, isLoading, notFillEmail, isTelegramTab, topicGroups, hasErrorInput, needVerifyEmail])
 
-  const disableCheckbox = !account || notFillEmail || hasErrorInput
+  const disableCheckbox = needVerifyEmail || !account || notFillEmail || hasErrorInput
 
   const subscribeAtLeast1Topic = topicGroupsGlobal.some(e => e.isSubscribed)
   const onUnsubscribeAll = () => {
@@ -407,32 +408,38 @@ function NotificationPreference({
   }, [topicGroupsGlobal])
 
   const totalTopic = commons.length + restrict.length
-  const renderTopic = (topic: Topic, disabled: boolean) => (
-    <TopicItem
-      key={topic.id}
-      htmlFor={`topic${topic.id}`}
-      style={{ alignItems: isInNotificationCenter ? 'flex-start' : 'center' }}
-    >
-      <Checkbox
-        disabled={disabled}
-        borderStyle
-        checked={selectedTopic.includes(topic.id)}
-        id={`topic${topic.id}`}
-        style={{ width: 14, height: 14, minWidth: 14 }}
-        onChange={() => onChangeTopic(topic.id)}
-      />
-      <Column gap="10px">
-        <Text color={theme.text} fontSize={14}>
-          <Trans>{topic.name}</Trans>
-        </Text>
-        {isInNotificationCenter && (
-          <Text color={theme.subText} fontSize={12}>
-            <Trans>{topic.description}</Trans>
-          </Text>
-        )}
-      </Column>
-    </TopicItem>
-  )
+  const renderTopic = (topic: Topic, disabled: boolean, disableTooltip?: string) => {
+    return (
+      <MouseoverTooltip text={disabled ? disableTooltip : ''}>
+        <TopicItem
+          key={topic.id}
+          htmlFor={`topic${topic.id}`}
+          style={{
+            alignItems: isInNotificationCenter ? 'flex-start' : 'center',
+          }}
+        >
+          <Checkbox
+            disabled={disabled}
+            borderStyle
+            checked={selectedTopic.includes(topic.id)}
+            id={`topic${topic.id}`}
+            style={{ width: 14, height: 14, minWidth: 14 }}
+            onChange={() => onChangeTopic(topic.id)}
+          />
+          <Column gap="10px">
+            <Text color={disabled ? theme.border : theme.text} fontSize={14}>
+              <Trans>{topic.name}</Trans>
+            </Text>
+            {isInNotificationCenter && (
+              <Text color={disabled ? theme.border : theme.subText} fontSize={12}>
+                <Trans>{topic.description}</Trans>
+              </Text>
+            )}
+          </Column>
+        </TopicItem>
+      </MouseoverTooltip>
+    )
+  }
 
   return (
     <Wrapper>
@@ -486,24 +493,35 @@ function NotificationPreference({
         {renderTableHeader()}
         <ListGroupWrapper isInNotificationCenter={!!isInNotificationCenter}>
           <GroupColum>
-            <MouseoverTooltip text={t`These topics can be subscribed by anyone`}>
-              <LabelGroup>
-                <NotificationIcon size={16} />
+            <LabelGroup>
+              <NotificationIcon size={16} />
+              <MouseoverTooltip text={t`These topics can be subscribed by anyone`} placement="top">
                 <Trans>Common Topics</Trans>
-              </LabelGroup>
-            </MouseoverTooltip>
+              </MouseoverTooltip>
+            </LabelGroup>
             {commons.map(topic => renderTopic(topic, disableCheckbox))}
           </GroupColum>
           <GroupColum>
-            <MouseoverTooltip
-              text={t`These topics can only be subscribed by a signed-in profile. Go to Profile tab to sign-in with your wallet`}
-            >
-              <LabelGroup>
-                <Lock size={15} />
+            <LabelGroup>
+              <Lock size={15} />
+              <MouseoverTooltip
+                placement="top"
+                text={t`These topics can only be subscribed by a signed-in profile. Go to Profile tab to sign-in with your wallet`}
+              >
                 <Trans>Restricted Topics</Trans>
-              </LabelGroup>
-            </MouseoverTooltip>
-            {restrict.map(topic => renderTopic(topic, disableCheckbox || !isLogin))}
+              </MouseoverTooltip>
+            </LabelGroup>
+            {restrict.map(topic => {
+              const disableKyberAI = disableCheckbox || !isLogin || !userInfo?.data?.hasAccessToKyberAI
+              return renderTopic(
+                topic,
+                (() => (topic.isKyberAI ? disableKyberAI : disableCheckbox || !isLogin))(),
+                topic.isKyberAI && disableKyberAI
+                  ? t`You must be whitelisted to subscribe/unsubscribe this topic`
+                  : t`These topics can only be subscribed by a signed-in profile. Go to Profile tab to sign-in with your wallet
+                `,
+              )
+            })}
           </GroupColum>
         </ListGroupWrapper>
         {totalTopic === 0 && (
@@ -524,6 +542,7 @@ function NotificationPreference({
           subscribeAtLeast1Topic={subscribeAtLeast1Topic}
           onUnsubscribeAll={onUnsubscribeAll}
           isLoading={isLoading}
+          tooltipSave={needVerifyEmail || !userInfo?.email ? t`You will need to verify your email address first` : ''}
         />
       )}
       <VerifyCodeModal

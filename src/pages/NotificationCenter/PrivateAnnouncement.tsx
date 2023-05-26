@@ -65,7 +65,7 @@ export default function GeneralAnnouncement({ type }: { type?: PrivateAnnounceme
     if (!account || numberOfUnread === 0 || loadingRef.current) return
     // mark all as read
     loadingRef.current = true
-    ackAnnouncement({ templateIds: templateIds || undefined, account })
+    ackAnnouncement({ templateIds: templateIds || undefined })
       .then(() => {
         refetch()
       })
@@ -82,7 +82,7 @@ export default function GeneralAnnouncement({ type }: { type?: PrivateAnnounceme
   const [loading, setLoading] = useState(false)
   const clearAll = async () => {
     setLoading(true)
-    return clearAllAnnouncement({ account: account ?? '', templateIds })
+    return clearAllAnnouncement({ templateIds })
       .then(() => {
         refetch()
       })

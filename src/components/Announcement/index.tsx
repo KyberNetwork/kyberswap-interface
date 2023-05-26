@@ -245,7 +245,7 @@ export default function AnnouncementComponent() {
   const togglePopupWithAckAllMessage = () => {
     toggleNotificationCenter()
     if (isOpenNotificationCenter && numberOfUnread && account) {
-      ackAnnouncement({ account, action: 'read-all' })
+      ackAnnouncement({ action: 'read-all' })
     }
   }
 

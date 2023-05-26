@@ -6,6 +6,7 @@ import { ButtonConfirmed, ButtonOutlined, ButtonPrimary } from 'components/Butto
 import { XCircle } from 'components/Icons'
 import Loader from 'components/Loader'
 import Row from 'components/Row'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
 
@@ -54,6 +55,7 @@ export default function ActionButtons({
   isTelegramTab,
   subscribeAtLeast1Topic,
   isHorizontal,
+  tooltipSave,
 }: {
   disableButtonSave: boolean
   subscribeAtLeast1Topic: boolean
@@ -62,6 +64,7 @@ export default function ActionButtons({
   onSave: () => void
   onUnsubscribeAll: () => void
   isHorizontal: boolean // todo rename
+  tooltipSave: string
 }) {
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
@@ -85,24 +88,26 @@ export default function ActionButtons({
           </ButtonText>
         </ButtonConfirmed>
       ) : (
-        <ButtonSave disabled={disableButtonSave} onClick={onSave} isHorizontal={isHorizontal}>
-          <Save size={14} />
-          &nbsp;
-          <ButtonText>
-            {(() => {
-              if (isLoading) {
-                return (
-                  <Row>
-                    <Loader />
-                    &nbsp;
-                    {isTelegramTab ? <Trans>Generating Verification Link ...</Trans> : <Trans>Saving ...</Trans>}
-                  </Row>
-                )
-              }
-              return isTelegramTab ? <Trans>Get Started</Trans> : <Trans>Save</Trans>
-            })()}
-          </ButtonText>
-        </ButtonSave>
+        <MouseoverTooltip text={tooltipSave}>
+          <ButtonSave disabled={disableButtonSave} onClick={onSave} isHorizontal={isHorizontal}>
+            <Save size={14} />
+            &nbsp;
+            <ButtonText>
+              {(() => {
+                if (isLoading) {
+                  return (
+                    <Row>
+                      <Loader />
+                      &nbsp;
+                      {isTelegramTab ? <Trans>Generating Verification Link ...</Trans> : <Trans>Saving ...</Trans>}
+                    </Row>
+                  )
+                }
+                return isTelegramTab ? <Trans>Get Started</Trans> : <Trans>Save</Trans>
+              })()}
+            </ButtonText>
+          </ButtonSave>
+        </MouseoverTooltip>
       )}
     </ActionWrapper>
   )

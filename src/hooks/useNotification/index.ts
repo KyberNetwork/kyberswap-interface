@@ -6,6 +6,7 @@ import {
   useSubscribeTopicsMutation,
 } from 'services/identity'
 
+import { KYBER_AI_TOPIC_ID } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import { AppState } from 'state'
 import { setLoadingNotification, setSubscribedNotificationTopic } from 'state/application/actions'
@@ -27,6 +28,7 @@ export type Topic = {
   topics: Topic[]
   priority: number
   type: TopicType
+  isKyberAI: boolean
 }
 
 type SaveNotificationParam = {
@@ -59,6 +61,7 @@ const useNotification = () => {
       ...e,
       id: Date.now() + i,
       isSubscribed: e?.topics?.every(e => e.isSubscribed),
+      isKyberAI: e?.topics?.some(e => e.id + '' === KYBER_AI_TOPIC_ID),
     }))
     dispatch(setSubscribedNotificationTopic({ topicGroups }))
   }, [resp, dispatch])

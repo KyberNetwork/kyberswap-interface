@@ -33,7 +33,7 @@ const useAckAnnouncement = (templateIds: string) => {
     if (loadingRef.current || !account || numberOfUnread === 0) return
     // mark all as read
     loadingRef.current = true
-    ackAnnouncement({ templateIds: templateIds || undefined, account })
+    ackAnnouncement({ templateIds: templateIds || undefined })
       .then(() => {
         refetch()
       })

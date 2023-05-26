@@ -164,7 +164,7 @@ export default function AnnouncementView({
       toggleNotificationCenter()
       return
     }
-    ackAnnouncement({ account, action: 'read', ids: [item.id] })
+    ackAnnouncement({ action: 'read', ids: [item.id] })
       .then(() => {
         refreshAnnouncement()
         toggleNotificationCenter()
@@ -185,7 +185,7 @@ export default function AnnouncementView({
 
   const clearAll = () => {
     if (!announcements.length || !account) return
-    ackAnnouncement({ account, action: 'clear-all' })
+    ackAnnouncement({ action: 'clear-all' })
       .then(() => {
         refreshAnnouncement()
       })

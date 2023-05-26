@@ -8,7 +8,7 @@ import tokenApi from 'services/token'
 import { ENV_LEVEL } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
 
-import annoucementApi from '../services/announcement'
+import announcementApi, { announcementApiV2 } from '../services/announcement'
 import geckoTerminalApi from '../services/geckoTermial'
 import identifyApi from '../services/identity'
 import ksSettingApi from '../services/ksSetting'
@@ -62,7 +62,8 @@ const store = configureStore({
     pools,
     farms,
     vesting,
-    [annoucementApi.reducerPath]: annoucementApi.reducer,
+    [announcementApi.reducerPath]: announcementApi.reducer,
+    [announcementApiV2.reducerPath]: announcementApiV2.reducer,
     [geckoTerminalApi.reducerPath]: geckoTerminalApi.reducer,
     [kyberAISubscriptionApi.reducerPath]: kyberAISubscriptionApi.reducer,
     [identifyApi.reducerPath]: identifyApi.reducer,
@@ -84,11 +85,12 @@ const store = configureStore({
     getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
       .concat(save({ states: PERSISTED_KEYS, debounce: 100 }))
       .concat(geckoTerminalApi.middleware)
-      .concat(annoucementApi.middleware)
+      .concat(announcementApi.middleware)
+      .concat(announcementApiV2.middleware)
       .concat(kyberAISubscriptionApi.middleware)
       .concat(identifyApi.middleware)
       .concat(ksSettingApi.middleware)
-      .concat(annoucementApi.middleware)
+      .concat(announcementApi.middleware)
       .concat(priceAlertApi.middleware)
       .concat(routeApi.middleware)
       .concat(socialApi.middleware)
