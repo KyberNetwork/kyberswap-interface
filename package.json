@@ -24,7 +24,8 @@
     "start-dev": "vite --mode dev",
     "start-stg": "vite --mode stg",
     "start-prod": "vite --mode production",
-    "test-e2e": "cypress run"
+    "test-e2e": "cypress run --browser chrome --headed",
+    "test:open": "cypress open"
   },
   "browserslist": [
     "chrome >= 52",
@@ -62,7 +63,6 @@
     "@solana/wallet-adapter-react": "0.15.18",
     "@solana/wallet-adapter-wallets": "^0.19.5",
     "@solana/web3.js": "^1.66.2",
-    "@synthetixio/synpress": "^3.7.0",
     "@web3-react/core": "^6.1.9",
     "@web3-react/injected-connector": "^6.0.7",
     "@web3-react/walletconnect-connector": "^7.0.2-alpha.0",
@@ -134,6 +134,7 @@
     "@babel/preset-typescript": "^7.21.4",
     "@lingui/cli": "~3.14.0",
     "@lingui/vite-plugin": "~3.16.1",
+    "@synthetixio/synpress": "^3.0.0",
     "@trivago/prettier-plugin-sort-imports": "^3.3.1",
     "@types/aos": "^3.0.4",
     "@types/big.js": "^6.0.0",
@@ -163,7 +164,7 @@
     "@typescript-eslint/parser": "^5.58.0",
     "@vitejs/plugin-react": "^3.1.0",
     "babel-plugin-macros": "^3.1.0",
-    "cypress": "^12.9.0",
+    "cypress": "^12.13.0",
     "cypress-metamask-plugin": "^1.0.8-beta",
     "env-cmd": "^10.1.0",
     "eslint": "^8.38.0",

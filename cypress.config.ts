@@ -1,8 +1,5 @@
+import synpressPlugins from '@synthetixio/synpress/plugins'
 import { defineConfig } from 'cypress'
-import path from 'path'
-
-const synpressPath = path.join(process.cwd(), '/node_modules/@synthetixio/synpress')
-const pluginsPath = `${synpressPath}/plugins/index`
 
 export default defineConfig({
   component: {
@@ -15,10 +12,9 @@ export default defineConfig({
   viewportWidth: 1920,
   viewportHeight: 1080,
   e2e: {
-    baseUrl: `https://metamask.github.io/test-dapp/`,
+    baseUrl: `https://kyberswap.com/`,
     setupNodeEvents(on, config) {
-      // implement node event listeners here
-      require(pluginsPath)(on, config)
+      synpressPlugins(on, config)
       return config
     },
     specPattern: 'cypress/e2e/**/*-spec.cy.ts',
