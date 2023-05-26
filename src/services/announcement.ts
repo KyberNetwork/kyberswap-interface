@@ -52,7 +52,7 @@ const AnnouncementApi = createApi({
   endpoints: builder => ({
     getPrivateAnnouncements: builder.query<AnnouncementResponse<PrivateAnnouncement>, ParamsPrivate>({
       query: ({ account, ...params }) => ({
-        url: `/v1/notifications/me`,
+        url: `/v1/notification/me`,
         params: { ...params, excludedTemplateIds },
       }),
       transformResponse: transformResponseAnnouncement,
@@ -60,7 +60,7 @@ const AnnouncementApi = createApi({
     }),
     getPrivateAnnouncementsByIds: builder.query<AnnouncementResponse<PrivateAnnouncement>, ParamsPrivate>({
       query: ({ account, templateIds, ...params }) => ({
-        url: `/v1/notifications/me`,
+        url: `/v1/notification/me`,
         params: { ...params, templateIds },
       }),
       providesTags: [RTK_QUERY_TAGS.GET_PRIVATE_ANN_BY_ID],
@@ -75,7 +75,7 @@ const AnnouncementApi = createApi({
       { templateIds: string }
     >({
       query: ({ templateIds }) => ({
-        url: `/v1/notifications/me/number-unread`,
+        url: `/v1/notification/me/number-unread`,
         params: { templateIds },
       }),
       transformResponse: (data: any) => data?.data?.result || [],
@@ -91,7 +91,7 @@ const AnnouncementApi = createApi({
           body.excludedTemplateIds = excludedTemplateIds.split(',').map(Number)
         }
         return {
-          url: `/v1/notifications/me/${action}`,
+          url: `/v1/notification/me/${action}`,
           method: 'put',
           body,
         }
@@ -105,7 +105,7 @@ const AnnouncementApi = createApi({
           excludedTemplateIds: excludedTemplateIds.split(',').map(Number),
         }
         return {
-          url: `/v1/notifications/me/read-all`,
+          url: `/v1/notification/me/read-all`,
           method: 'put',
           body,
         }
@@ -114,7 +114,7 @@ const AnnouncementApi = createApi({
     }),
     clearAllPrivateAnnouncementById: builder.mutation<Response, { templateIds: string }>({
       query: ({ templateIds }) => ({
-        url: `/v1/notifications/me/clear-all`,
+        url: `/v1/notification/me/clear-all`,
         body: {
           templateIds: templateIds.split(',').map(id => Number(id)),
         },
