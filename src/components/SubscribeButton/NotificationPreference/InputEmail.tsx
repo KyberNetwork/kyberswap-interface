@@ -1,9 +1,10 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { Check } from 'react-feather'
 import styled, { css } from 'styled-components'
 
 import { ButtonLight } from 'components/Button'
 import { Input } from 'components/Input'
+import Tooltip from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 
 const CheckIcon = styled(Check)`
@@ -57,20 +58,23 @@ export default function InputEmail({
   const theme = useTheme()
   // todo rename isInNotificationCenter
   return (
-    <InputWrapper isInNotificationCenter={isInNotificationCenter}>
-      <Input
-        disabled={disabled}
-        $borderColor={errorColor}
-        value={value}
-        placeholder="example@email.com"
-        onChange={e => onChange(e.target.value)}
-      />
-      {!isVerifiedEmail && value && (
-        <ButtonVerify width={'50px'} height={'24px'} disabled={hasError || disabled} onClick={showVerifyModal}>
-          <Trans>Verify</Trans>
-        </ButtonVerify>
-      )}
-      {isVerifiedEmail && value && <CheckIcon color={theme.primary} />}
-    </InputWrapper>
+    <Tooltip text={t`Invalid email address`} show={!!hasError} placement="top" width="fit-content">
+      <InputWrapper isInNotificationCenter={isInNotificationCenter}>
+        <Input
+          disabled={disabled}
+          $borderColor={errorColor}
+          value={value}
+          placeholder="example@email.com"
+          onChange={e => onChange(e.target.value)}
+        />
+
+        {!isVerifiedEmail && value && (
+          <ButtonVerify width={'50px'} height={'24px'} disabled={hasError || disabled} onClick={showVerifyModal}>
+            <Trans>Verify</Trans>
+          </ButtonVerify>
+        )}
+        {isVerifiedEmail && value && <CheckIcon color={theme.primary} />}
+      </InputWrapper>
+    </Tooltip>
   )
 }
