@@ -49,10 +49,18 @@ import TimeFrameLegend from '../TimeFrameLegend'
 import TokenChart from '../TokenChartSVG'
 import { StarWithAnimation } from '../WatchlistStar'
 
-const TableWrapper = styled.table`
-  border-collapse: collapse;
+const TableWrapper = styled.div`
+  overflow-x: scroll;
   border-radius: 6px;
-  overflow: hidden;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    border-radius: 0;
+    margin: -16px;
+  `}
+`
+const Table = styled.table`
+  border-collapse: collapse;
+  min-width: 100%;
   thead {
     font-size: 12px;
     line-height: 16px;
@@ -80,9 +88,13 @@ const TableWrapper = styled.table`
   tr:not(:last-child) {
     border-bottom: 1px solid ${({ theme }) => theme.border};
   }
+
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    border-radius: 0;
-    margin: -16px;
+    tr{
+      td, th{
+        padding: 12px 16px;
+      }
+    }
   `}
 `
 
@@ -128,21 +140,23 @@ const LoadingHandleWrapper = ({
 }) => {
   return (
     <TableWrapper>
-      {!hasData ? (
-        <>
-          <StyledLoadingWrapper style={height ? { height } : undefined}>
-            {isLoading ? (
-              <AnimatedLoader />
-            ) : (
-              <Text fontSize="14px">
-                <Trans>We couldn&apos;t find any information for this token</Trans>
-              </Text>
-            )}
-          </StyledLoadingWrapper>
-        </>
-      ) : (
-        <>{children}</>
-      )}
+      <Table>
+        {!hasData ? (
+          <>
+            <StyledLoadingWrapper style={height ? { height } : undefined}>
+              {isLoading ? (
+                <AnimatedLoader />
+              ) : (
+                <Text fontSize="14px">
+                  <Trans>We couldn&apos;t find any information for this token</Trans>
+                </Text>
+              )}
+            </StyledLoadingWrapper>
+          </>
+        ) : (
+          <>{children}</>
+        )}
+      </Table>
     </TableWrapper>
   )
 }
@@ -255,90 +269,92 @@ export const SupportResistanceLevel = () => {
 
   return (
     <TableWrapper>
-      <colgroup>
-        <col width="300px" style={{ minWidth: '100px' }} />
-        {Array(maxLength)
-          .fill('')
-          .map((_, index) => (
-            <col key={index} width="300px" />
-          ))}
-      </colgroup>
-      <thead>
-        <tr>
-          <th>
-            <Trans>Type</Trans>
-          </th>
-          <th>
-            <Trans>Levels</Trans>
-          </th>
-          <>
-            {Array(maxLength - 2)
-              .fill('')
-              .map((_, index) => (
-                <th key={index} />
-              ))}
-          </>
-          <th>
-            <Row justify="flex-end">
-              <div style={{ width: '180px' }}>
-                <TimeFrameLegend
-                  selected={resolution}
-                  timeframes={timeframesSRLevels}
-                  onSelect={handleTimeframeSelect}
-                />
-              </div>
-            </Row>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <>
-            <td>
-              <Text color={theme.primary} fontSize="14px">
-                Support
-              </Text>
-            </td>
-            {Array(maxLength)
-              .fill('')
-              .map((i, index) => (
-                <td key={index} style={{ alignItems: 'flex-start' }}>
-                  <Text color={theme.text} fontSize="14px" lineHeight="20px">
-                    {supports?.[index] && currentPrice && `${formatLevelValue(supports[index].value)}`}
-                  </Text>
-                  <Text color={theme.apr} fontSize="12px" lineHeight="16px">
-                    {supports?.[index] && currentPrice
-                      ? (((supports[index].value - currentPrice) / currentPrice) * 100).toFixed(2) + '%'
-                      : '--'}
-                  </Text>
-                </td>
-              ))}
-          </>
-        </tr>
-        <tr>
-          <>
-            <td>
-              <Text color={theme.red} fontSize="14px">
-                Resistance
-              </Text>
-            </td>
-            {Array(maxLength)
-              .fill('')
-              .map((i, index) => (
-                <td key={index} style={{ alignItems: 'flex-start' }}>
-                  <Text color={theme.text} fontSize="14px" lineHeight="20px">
-                    {resistances?.[index] && currentPrice && `${formatLevelValue(resistances[index].value)} `}
-                  </Text>
-                  <Text color={theme.red} fontSize="12px" lineHeight="16px">
-                    {resistances?.[index] && currentPrice
-                      ? (((resistances[index].value - currentPrice) / currentPrice) * 100).toFixed(2) + '%'
-                      : '--'}
-                  </Text>
-                </td>
-              ))}
-          </>
-        </tr>
-      </tbody>
+      <Table>
+        <colgroup>
+          <col width="300px" style={{ minWidth: '100px' }} />
+          {Array(maxLength)
+            .fill('')
+            .map((_, index) => (
+              <col key={index} width="300px" />
+            ))}
+        </colgroup>
+        <thead>
+          <tr>
+            <th>
+              <Trans>Type</Trans>
+            </th>
+            <th>
+              <Trans>Levels</Trans>
+            </th>
+            <>
+              {Array(maxLength - 2)
+                .fill('')
+                .map((_, index) => (
+                  <th key={index} />
+                ))}
+            </>
+            <th>
+              <Row justify="flex-end">
+                <div style={{ width: '180px' }}>
+                  <TimeFrameLegend
+                    selected={resolution}
+                    timeframes={timeframesSRLevels}
+                    onSelect={handleTimeframeSelect}
+                  />
+                </div>
+              </Row>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <>
+              <td>
+                <Text color={theme.primary} fontSize="14px">
+                  Support
+                </Text>
+              </td>
+              {Array(maxLength)
+                .fill('')
+                .map((i, index) => (
+                  <td key={index} style={{ alignItems: 'flex-start' }}>
+                    <Text color={theme.text} fontSize="14px" lineHeight="20px">
+                      {supports?.[index] && currentPrice && `${formatLevelValue(supports[index].value)}`}
+                    </Text>
+                    <Text color={theme.apr} fontSize="12px" lineHeight="16px">
+                      {supports?.[index] && currentPrice
+                        ? (((supports[index].value - currentPrice) / currentPrice) * 100).toFixed(2) + '%'
+                        : '--'}
+                    </Text>
+                  </td>
+                ))}
+            </>
+          </tr>
+          <tr>
+            <>
+              <td>
+                <Text color={theme.red} fontSize="14px">
+                  Resistance
+                </Text>
+              </td>
+              {Array(maxLength)
+                .fill('')
+                .map((i, index) => (
+                  <td key={index} style={{ alignItems: 'flex-start' }}>
+                    <Text color={theme.text} fontSize="14px" lineHeight="20px">
+                      {resistances?.[index] && currentPrice && `${formatLevelValue(resistances[index].value)} `}
+                    </Text>
+                    <Text color={theme.red} fontSize="12px" lineHeight="16px">
+                      {resistances?.[index] && currentPrice
+                        ? (((resistances[index].value - currentPrice) / currentPrice) * 100).toFixed(2) + '%'
+                        : '--'}
+                    </Text>
+                  </td>
+                ))}
+            </>
+          </tr>
+        </tbody>
+      </Table>
     </TableWrapper>
   )
 }
@@ -485,9 +501,9 @@ export const LiveDEXTrades = () => {
                 </td>
                 <td>${formatLocaleStringNum(trade.price, 6)}</td>
                 <td>
-                  <Row gap="4px">
+                  <Row gap="6px">
                     <img src={tokenOverview?.logo} width="16px" height="16px" style={{ borderRadius: '8px' }} />
-                    <Text color={isBuy ? theme.primary : theme.red}>
+                    <Text color={isBuy ? theme.primary : theme.red} style={{ whiteSpace: 'nowrap' }}>
                       {isBuy ? '+' : '-'} {formatLocaleStringNum(+trade.amountToken)} {tokenOverview?.symbol}
                     </Text>
                     {trade.price * +trade.amountToken > 100000 && (
@@ -536,7 +552,7 @@ export const LiveDEXTrades = () => {
   )
 }
 
-const WidgetTableWrapper = styled(TableWrapper)`
+const WidgetTableWrapper = styled(Table)`
   width: 100%;
   thead {
     th {
@@ -832,7 +848,7 @@ export const WidgetTable = ({
   )
 }
 
-const ShareTableWrapper = styled(TableWrapper)`
+const ShareTableWrapper = styled(Table)`
   margin: 0px !important;
   tbody tr {
     background-color: none;

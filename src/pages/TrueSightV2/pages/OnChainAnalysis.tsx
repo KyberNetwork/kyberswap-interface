@@ -50,6 +50,7 @@ export default function OnChainAnalysis() {
         shareButton
         fullscreenButton
         shareContent={() => <NumberofTradesChart noAnimation />}
+        docsLinks={['https://docs.kyberswap.com/kyberswap-solutions/kyberai/on-chain-indicators/number-of-trades']}
       >
         <NumberofTradesChart />
       </SectionWrapper>
@@ -64,6 +65,7 @@ export default function OnChainAnalysis() {
         shareButton
         fullscreenButton
         shareContent={() => <TradingVolumeChart noAnimation />}
+        docsLinks={['https://docs.kyberswap.com/kyberswap-solutions/kyberai/on-chain-indicators/trading-volume']}
       >
         <TradingVolumeChart />
       </SectionWrapper>
@@ -105,6 +107,9 @@ export default function OnChainAnalysis() {
         tabs={[t`Netflow`, t`Inflow`, t`Outflow`]}
         activeTab={netflowToWhaleWallets}
         onTabClick={setNetflowToWhaleWallets}
+        docsLinks={[
+          'https://docs.kyberswap.com/kyberswap-solutions/kyberai/on-chain-indicators/netflow-to-whale-wallets',
+        ]}
       >
         <RequireConnectWalletWrapper chartType={1} tab={netflowToWhaleWallets}>
           <NetflowToWhaleWallets tab={netflowToWhaleWallets} />
@@ -133,6 +138,7 @@ export default function OnChainAnalysis() {
         tabs={[t`Netflow`, t`Inflow`, t`Outflow`]}
         activeTab={netflowToCEX}
         onTabClick={setNetflowToCEX}
+        docsLinks={['https://docs.kyberswap.com/kyberswap-solutions/kyberai/on-chain-indicators/netflow-to-cex']}
       >
         <RequireConnectWalletWrapper chartType={1} tab={netflowToCEX}>
           <NetflowToCentralizedExchanges tab={netflowToCEX} />
@@ -149,6 +155,10 @@ export default function OnChainAnalysis() {
         tabs={[t`Number`, t`Volume`]}
         activeTab={numberOfTransfers}
         onTabClick={setNumberOfTransfers}
+        docsLinks={[
+          'https://docs.kyberswap.com/kyberswap-solutions/kyberai/on-chain-indicators/number-of-transfers',
+          'https://docs.kyberswap.com/kyberswap-solutions/kyberai/on-chain-indicators/volume-of-transfers',
+        ]}
       >
         <RequireConnectWalletWrapper chartType={2} tab={numberOfTransfers}>
           <NumberofTransfers tab={numberOfTransfers} />
@@ -162,6 +172,7 @@ export default function OnChainAnalysis() {
         shareButton
         shareContent={() => <NumberofHolders noAnimation />}
         fullscreenButton
+        docsLinks={['https://docs.kyberswap.com/kyberswap-solutions/kyberai/on-chain-indicators/number-of-holders']}
       >
         <RequireConnectWalletWrapper chartType={2} tab={ChartTab.First}>
           <NumberofHolders />
@@ -174,6 +185,7 @@ export default function OnChainAnalysis() {
         style={{ height: 'fit-content' }}
         shareButton
         shareContent={mobileMode => <Top10HoldersShareContent mobileMode={mobileMode} />}
+        docsLinks={['https://docs.kyberswap.com/kyberswap-solutions/kyberai/on-chain-indicators/top-holders']}
       >
         <RequireConnectWalletWrapper height="800px">
           <Top10HoldersTable />
@@ -186,6 +198,7 @@ export default function OnChainAnalysis() {
         shareButton
         shareContent={() => <HoldersChartWrapper noAnimation />}
         style={{ height: '450px' }}
+        docsLinks={['https://docs.kyberswap.com/kyberswap-solutions/kyberai/on-chain-indicators/top-holders']}
       >
         <RequireConnectWalletWrapper>
           <HoldersChartWrapper />

@@ -98,6 +98,7 @@ export const SectionWrapper = ({
   subTitle,
   description,
   id,
+  docsLinks,
   shareButton,
   shareContent,
   fullscreenButton,
@@ -113,6 +114,7 @@ export const SectionWrapper = ({
   subTitle?: string | ReactNode
   description?: ReactNode
   id?: string
+  docsLinks: string[]
   shareButton?: boolean
   shareContent?: (mobileMode?: boolean) => ReactNode
   fullscreenButton?: boolean
@@ -141,6 +143,8 @@ export const SectionWrapper = ({
     )
   }, [description])
 
+  const docsLink = activeTab === ChartTab.Second && !!docsLinks[1] ? docsLinks[1] : docsLinks[0]
+
   return (
     <StyledSectionWrapper show={show} ref={ref} id={id} style={style}>
       {above768 ? (
@@ -152,23 +156,33 @@ export const SectionWrapper = ({
                 style={{
                   margin: '-16px',
                 }}
+                gap="4px"
               >
                 {tabs ? (
-                  tabs.map((item, index) => {
-                    return (
-                      <TabButton
-                        key={item}
-                        text={item}
-                        active={activeTab === index}
-                        onClick={() => onTabClick?.(index)}
-                        style={{ padding: '16px', fontSize: '16px', lineHeight: '16px', height: '48px' }}
-                      />
-                    )
-                  })
+                  <RowFit>
+                    {tabs.map((item, index) => {
+                      return (
+                        <TabButton
+                          key={item}
+                          text={item}
+                          active={activeTab === index}
+                          onClick={() => onTabClick?.(index)}
+                          style={{ padding: '16px', fontSize: '16px', lineHeight: '16px', height: '48px' }}
+                        />
+                      )
+                    })}
+                  </RowFit>
                 ) : (
-                  <Text marginLeft="16px" style={{ whiteSpace: 'nowrap' }}>
-                    {title}
-                  </Text>
+                  <>
+                    <Text marginLeft="16px" style={{ whiteSpace: 'nowrap' }}>
+                      {title}
+                    </Text>
+                    {docsLink && (
+                      <ButtonWrapper onClick={() => window.open(docsLink, '_blank')}>
+                        <Icon id="question" size={16} />
+                      </ButtonWrapper>
+                    )}
+                  </>
                 )}
               </RowFit>
               <RowFit color={theme.subText} gap="12px">
@@ -190,10 +204,15 @@ export const SectionWrapper = ({
             </RowBetween>
           </SectionTitle>
           {tabs && activeTab !== undefined && title && (
-            <Row>
+            <Row gap="4px">
               <Text fontSize="16px" lineHeight="20px" color={theme.text} fontWeight={500}>
                 {tabs[activeTab] + ' ' + title}
               </Text>
+              {docsLink && (
+                <ButtonWrapper onClick={() => window.open(docsLink, '_blank')}>
+                  <Icon id="question" size={16} />
+                </ButtonWrapper>
+              )}
             </Row>
           )}
           <Row gap="4px" align="center" style={{ marginBottom: '4px' }}>
@@ -254,15 +273,22 @@ export const SectionWrapper = ({
             </Row>
             <RowBetween>
               <MouseoverTooltip text={description}>
-                <Text
-                  style={{
-                    fontSize: '12px',
-                    textDecoration: `underline dotted ${theme.subText}`,
-                    textUnderlineOffset: '6px',
-                  }}
-                >
-                  {(tabs ? tabs[activeTab || 0] + ' ' : '') + title}
-                </Text>
+                <RowFit gap="4px">
+                  <Text
+                    style={{
+                      fontSize: '12px',
+                      textDecoration: `underline dotted ${theme.subText}`,
+                      textUnderlineOffset: '6px',
+                    }}
+                  >
+                    {(tabs ? tabs[activeTab || 0] + ' ' : '') + title}
+                  </Text>
+                  {docsLink && (
+                    <ButtonWrapper onClick={() => window.open(docsLink, '_blank')}>
+                      <Icon id="question" size={16} />
+                    </ButtonWrapper>
+                  )}
+                </RowFit>
               </MouseoverTooltip>
               <RowFit color={theme.subText} gap="12px">
                 {shareButton && (
