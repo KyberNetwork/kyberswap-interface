@@ -78,16 +78,20 @@ const TopicItemHeader = styled.label`
 const ListGroupWrapper = styled.div<{ isInNotificationCenter: boolean }>`
   display: flex;
   flex-direction: column;
-  gap: 16px;
   width: 100%;
   ${({ isInNotificationCenter }) =>
-    isInNotificationCenter &&
-    css`
-      flex-direction: row;
-      justify-content: space-between;
-    `}
+    isInNotificationCenter
+      ? css`
+          gap: 16px;
+          flex-direction: row;
+          justify-content: space-between;
+        `
+      : css`
+          gap: 24px;
+        `}
   ${({ theme }) => theme.mediaWidth.upToMedium`
      flex-direction: column;
+     gap: 24px;
   `}
 `
 
@@ -538,7 +542,6 @@ function NotificationPreference({
           isHorizontal={!!isInNotificationCenter}
           disableButtonSave={disableButtonSave}
           onSave={checkProfileAndSave}
-          isTelegramTab={isTelegramTab}
           subscribeAtLeast1Topic={subscribeAtLeast1Topic}
           onUnsubscribeAll={onUnsubscribeAll}
           isLoading={isLoading}

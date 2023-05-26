@@ -52,14 +52,12 @@ export default function ActionButtons({
   isLoading,
   onSave,
   onUnsubscribeAll,
-  isTelegramTab,
   subscribeAtLeast1Topic,
   isHorizontal,
   tooltipSave,
 }: {
   disableButtonSave: boolean
   subscribeAtLeast1Topic: boolean
-  isTelegramTab: boolean
   isLoading: boolean
   onSave: () => void
   onUnsubscribeAll: () => void
@@ -69,18 +67,8 @@ export default function ActionButtons({
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
 
-  const unSubButton = subscribeAtLeast1Topic ? (
-    <ButtonUnSub onClick={onUnsubscribeAll} isHorizontal={isHorizontal}>
-      <XCircle size={'14px'} />
-      &nbsp;
-      <Trans>Opt-out</Trans>
-    </ButtonUnSub>
-  ) : (
-    isHorizontal && <div />
-  )
   return (
     <ActionWrapper isHorizontal={isHorizontal}>
-      {unSubButton}
       {!account ? (
         <ButtonConfirmed confirmed onClick={toggleWalletModal}>
           <ButtonText>
@@ -88,26 +76,34 @@ export default function ActionButtons({
           </ButtonText>
         </ButtonConfirmed>
       ) : (
-        <MouseoverTooltip text={tooltipSave}>
+        <>
+          <ButtonUnSub onClick={onUnsubscribeAll} isHorizontal={isHorizontal} disabled={!subscribeAtLeast1Topic}>
+            <XCircle size={'14px'} />
+            &nbsp;
+            <Trans>Opt-out</Trans>
+          </ButtonUnSub>
+
           <ButtonSave disabled={disableButtonSave} onClick={onSave} isHorizontal={isHorizontal}>
             <Save size={14} />
             &nbsp;
-            <ButtonText>
-              {(() => {
-                if (isLoading) {
-                  return (
-                    <Row>
-                      <Loader />
-                      &nbsp;
-                      {isTelegramTab ? <Trans>Generating Verification Link ...</Trans> : <Trans>Saving ...</Trans>}
-                    </Row>
-                  )
-                }
-                return isTelegramTab ? <Trans>Get Started</Trans> : <Trans>Save</Trans>
-              })()}
-            </ButtonText>
+            <MouseoverTooltip text={tooltipSave}>
+              <ButtonText>
+                {(() => {
+                  if (isLoading) {
+                    return (
+                      <Row>
+                        <Loader />
+                        &nbsp;
+                        <Trans>Saving ...</Trans>
+                      </Row>
+                    )
+                  }
+                  return <Trans>Save</Trans>
+                })()}
+              </ButtonText>
+            </MouseoverTooltip>
           </ButtonSave>
-        </MouseoverTooltip>
+        </>
       )}
     </ActionWrapper>
   )
