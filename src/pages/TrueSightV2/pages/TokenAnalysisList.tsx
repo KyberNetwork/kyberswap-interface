@@ -47,8 +47,8 @@ const TableWrapper = styled.div`
   transition: all 0.15s ease;
   overflow: hidden;
   @media only screen and (max-width: 1080px) {
-    margin-left: -24px;
-    margin-right: -24px;
+    margin-left: -16px;
+    margin-right: -16px;
     border-radius: 0px;
     border: none;
     overflow-x: scroll;
@@ -63,8 +63,8 @@ const PaginationWrapper = styled.div`
   min-height: 50px;
   background-color: ${({ theme }) => theme.background};
   @media only screen and (max-width: 1080px) {
-    margin-left: -24px;
-    margin-right: -24px;
+    margin-left: -16px;
+    margin-right: -16px;
     border-radius: 0px;
     border: none;
   }
@@ -145,12 +145,33 @@ const Table = styled.table`
     }
     td:nth-child(1),
     th:nth-child(1) {
-      left: 0px;
+      left: -1px;
     }
     td:nth-child(2),
     th:nth-child(2) {
-      left: 50px;
+      left: 34px;
     }
+  }
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    tr {
+      td, th {
+        padding: 8px 10px;
+      }
+    }
+  `}
+
+  .table-cell-shadow-right::before {
+    box-shadow: inset 10px 0 8px -8px #00000099;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: -1px;
+    width: 30px;
+    transform: translate(100%);
+    transition: box-shadow 0.5s;
+    content: '';
+    pointer-events: none;
   }
 `
 
@@ -444,7 +465,17 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab:
 //   DESC = 'desc',
 // }
 
-const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab: KyberAIListType; index: number }) => {
+const TokenRow = ({
+  token,
+  currentTab,
+  index,
+  isScrolling,
+}: {
+  token: ITokenList
+  currentTab: KyberAIListType
+  index: number
+  isScrolling?: boolean
+}) => {
   const navigate = useNavigate()
   const location = useLocation()
   const { account } = useActiveWeb3React()
@@ -461,6 +492,7 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
 
   useOnClickOutside(rowRef, () => setShowMenu(false))
   useOnClickOutside(rowRef, () => setShowSwapMenu(false))
+  const above768 = useMedia('(min-width:768px)')
 
   const hasMutipleChain = token.tokens.length > 1
 
@@ -509,16 +541,21 @@ const TokenRow = ({ token, currentTab, index }: { token: ITokenList; currentTab:
   return (
     <tr key={token.sourceTokenId} ref={rowRef} onClick={handleRowClick} style={{ position: 'relative' }}>
       <td>
-        <RowFit style={{ width: '30px' }} gap="6px">
+        <RowFit gap="6px">
           {
             <SimpleTooltip text={isWatched ? t`Remove from watchlist` : t`Add to watchlist`} hideOnMobile>
-              <StarWithAnimation watched={isWatched} loading={loadingStar} onClick={handleWatchlistClick} />
+              <StarWithAnimation
+                watched={isWatched}
+                loading={loadingStar}
+                onClick={handleWatchlistClick}
+                size={above768 ? 20 : 16}
+              />
             </SimpleTooltip>
-          }{' '}
-          {index}
+          }
+          {above768 ? index : <></>}
         </RowFit>
       </td>
-      <td>
+      <td className={isScrolling ? 'table-cell-shadow-right' : ''}>
         <Row gap="8px">
           <div style={{ position: 'relative', width: '36px', height: '36px' }}>
             <img
@@ -700,9 +737,12 @@ const LoadingRowSkeleton = ({ hasExtraCol }: { hasExtraCol?: boolean }) => {
 }
 export default function TokenAnalysisList() {
   const theme = useTheme()
+  const { account } = useActiveWeb3React()
   const [page, setPage] = useState(1)
   const [showShare, setShowShare] = useState(false)
-  const { account } = useActiveWeb3React()
+  const [isScrolling, setIsScrolling] = useState(false)
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  const tableRef = useRef<HTMLTableElement>(null)
   const above768 = useMedia('(min-width:768px)')
 
   const [searchParams, setSearchParams] = useSearchParams()
@@ -762,9 +802,28 @@ export default function TokenAnalysisList() {
     setPage(1)
   }, [chain, listType])
 
+  useEffect(() => {
+    if (wrapperRef.current && tableRef.current) {
+      const onScroll = () => {
+        if (tableRef.current?.getBoundingClientRect().x === 0) {
+          setIsScrolling(false)
+        } else {
+          setIsScrolling(true)
+        }
+      }
+      const el = wrapperRef.current
+      el?.addEventListener('scroll', onScroll)
+
+      return () => {
+        el?.removeEventListener('scroll', onScroll)
+      }
+    }
+    return
+  }, [])
+
   return (
     <>
-      <Row gap="12px" justify="center" flexWrap={above768 ? 'nowrap' : 'wrap'}>
+      <Row gap="8px" justify="center" flexWrap={above768 ? 'nowrap' : 'wrap'}>
         <TokenListDraggableTabs tab={listType} setTab={handleTabChange} />
       </Row>
       <RowBetween flexDirection={above768 ? 'row' : 'column'} gap="16px">
@@ -796,133 +855,132 @@ export default function TokenAnalysisList() {
         </RowFit>
       </RowBetween>
       <Column gap="0px">
-        <TableWrapper>
-          <div>
-            <Table>
-              <colgroup>
-                <col style={{ width: '80px' }} />
-                <col style={{ width: '220px', minWidth: '180px' }} />
-                <col style={{ width: '200px', minWidth: 'auto' }} />
-                <col style={{ width: '230px', minWidth: 'auto' }} />
-                <col style={{ width: '250px', minWidth: 'auto' }} />
-                <col style={{ width: '250px', minWidth: 'auto' }} />
+        <TableWrapper ref={wrapperRef}>
+          <Table ref={tableRef}>
+            <colgroup>
+              <col style={{ width: '80px', minWidth: '30px' }} />
+              <col style={{ width: '220px', minWidth: 'fit-content' }} />
+              <col style={{ width: '200px', minWidth: 'auto' }} />
+              <col style={{ width: '230px', minWidth: 'auto' }} />
+              <col style={{ width: '250px', minWidth: 'auto' }} />
+              <col style={{ width: '250px', minWidth: 'auto' }} />
+              {[
+                KyberAIListType.TOP_CEX_INFLOW,
+                KyberAIListType.TOP_CEX_OUTFLOW,
+                KyberAIListType.TRENDING_SOON,
+              ].includes(listType) && <col style={{ width: '150px', minWidth: 'auto' }} />}
+              <col style={{ width: '150px', minWidth: 'auto' }} />
+              <col style={{ width: '200px', minWidth: 'auto' }} />
+            </colgroup>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th style={{ textAlign: 'left' }} className={isScrolling ? 'table-cell-shadow-right' : ''}>
+                  <Row>
+                    <Trans>Token name</Trans>
+                    {/* {sortedColumn === SORT_FIELD.NAME ? (
+                        !sortDirection ? (
+                          <ArrowUp size="12" style={{ marginLeft: '2px' }} />
+                        ) : (
+                          <ArrowDown size="12" style={{ marginLeft: '2px' }} />
+                        )
+                      ) : (
+                        ''
+                      )} */}
+                  </Row>
+                </th>
+                <th style={{ textAlign: 'left' }}>
+                  <Column gap="4px">
+                    <Row justify="flex-start">
+                      <Trans>Kyberscore</Trans>{' '}
+                      {/* {sortedColumn === SORT_FIELD.KYBERSCORE ? (
+                          !sortDirection ? (
+                            <ArrowUp size="12" style={{ marginLeft: '2px' }} />
+                          ) : (
+                            <ArrowDown size="12" style={{ marginLeft: '2px' }} />
+                          )
+                        ) : (
+                          ''
+                        )} */}
+                      <InfoHelper
+                        placement="top"
+                        width="300px"
+                        size={12}
+                        text={
+                          <span>
+                            KyberScore uses AI to measure the upcoming trend of a token (bullish or bearish) by taking
+                            into account multiple on-chain and off-chain indicators. The score ranges from 0 to 100.
+                            Higher the score, more bullish the token in the short-term. Read more{' '}
+                            <a href="https://docs.kyberswap.com/kyberswap-solutions/kyberai/concepts/kyberscore">
+                              here ↗
+                            </a>
+                          </span>
+                        }
+                      />
+                    </Row>
+                    {/* <Text fontSize="10px" style={{ textTransform: 'none' }}>
+                        <Trans>At 08:00 AM</Trans>
+                      </Text> */}
+                  </Column>
+                </th>
+                <th style={{ textAlign: 'left' }}>
+                  <Text>
+                    <Trans>Last 3D KyberScores</Trans>
+                  </Text>
+                </th>
+                <th>
+                  <Row justify="flex-start">
+                    <Trans>Current Price</Trans>
+                    {/* {sortedColumn === SORT_FIELD.PRICE ? (
+                        !sortDirection ? (
+                          <ArrowUp size="12" style={{ marginLeft: '2px' }} />
+                        ) : (
+                          <ArrowDown size="12" style={{ marginLeft: '2px' }} />
+                        )
+                      ) : (
+                        ''
+                      )} */}
+                  </Row>
+                </th>
+                <th>
+                  <Row justify="flex-start">
+                    <Trans>Last 7d price</Trans>
+                  </Row>
+                </th>
+                <th>
+                  <Row justify="flex-start">
+                    <Trans>
+                      {{
+                        [KyberAIListType.TOP_CEX_INFLOW]: '24h Inflow',
+                        [KyberAIListType.TOP_CEX_OUTFLOW]: '24h Outflow',
+                      }[listType as string] || '24h Volume'}
+                    </Trans>
+                    {/* {sortedColumn === SORT_FIELD.VOLUME ? (
+                        !sortDirection ? (
+                          <ArrowUp size="12" style={{ marginLeft: '2px' }} />
+                        ) : (
+                          <ArrowDown size="12" style={{ marginLeft: '2px' }} />
+                        )
+                      ) : (
+                        ''
+                      )} */}
+                  </Row>
+                </th>
                 {[
                   KyberAIListType.TOP_CEX_INFLOW,
                   KyberAIListType.TOP_CEX_OUTFLOW,
                   KyberAIListType.TRENDING_SOON,
-                ].includes(listType) && <col style={{ width: '150px', minWidth: 'auto' }} />}
-                <col style={{ width: '150px', minWidth: 'auto' }} />
-                <col style={{ width: '200px', minWidth: 'auto' }} />
-              </colgroup>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th style={{ textAlign: 'left' }}>
-                    <Row>
-                      <Trans>Token name</Trans>
-                      {/* {sortedColumn === SORT_FIELD.NAME ? (
-                        !sortDirection ? (
-                          <ArrowUp size="12" style={{ marginLeft: '2px' }} />
-                        ) : (
-                          <ArrowDown size="12" style={{ marginLeft: '2px' }} />
-                        )
-                      ) : (
-                        ''
-                      )} */}
-                    </Row>
-                  </th>
-                  <th style={{ textAlign: 'left' }}>
-                    <Column gap="4px">
-                      <Row justify="flex-start">
-                        <Trans>Kyberscore</Trans>{' '}
-                        {/* {sortedColumn === SORT_FIELD.KYBERSCORE ? (
-                          !sortDirection ? (
-                            <ArrowUp size="12" style={{ marginLeft: '2px' }} />
-                          ) : (
-                            <ArrowDown size="12" style={{ marginLeft: '2px' }} />
-                          )
-                        ) : (
-                          ''
-                        )} */}
-                        <InfoHelper
-                          placement="top"
-                          width="300px"
-                          size={12}
-                          text={
-                            <span>
-                              KyberScore uses AI to measure the upcoming trend of a token (bullish or bearish) by taking
-                              into account multiple on-chain and off-chain indicators. The score ranges from 0 to 100.
-                              Higher the score, more bullish the token in the short-term. Read more{' '}
-                              <a href="https://docs.kyberswap.com/kyberswap-solutions/kyberai/concepts/kyberscore">
-                                here ↗
-                              </a>
-                            </span>
-                          }
-                        />
-                      </Row>
-                      {/* <Text fontSize="10px" style={{ textTransform: 'none' }}>
-                        <Trans>At 08:00 AM</Trans>
-                      </Text> */}
-                    </Column>
-                  </th>
-                  <th style={{ textAlign: 'left' }}>
-                    <Text>
-                      <Trans>Last 3D KyberScores</Trans>
-                    </Text>
-                  </th>
-                  <th>
-                    <Row justify="flex-start">
-                      <Trans>Current Price</Trans>
-                      {/* {sortedColumn === SORT_FIELD.PRICE ? (
-                        !sortDirection ? (
-                          <ArrowUp size="12" style={{ marginLeft: '2px' }} />
-                        ) : (
-                          <ArrowDown size="12" style={{ marginLeft: '2px' }} />
-                        )
-                      ) : (
-                        ''
-                      )} */}
-                    </Row>
-                  </th>
-                  <th>
-                    <Row justify="flex-start">
-                      <Trans>Last 7d price</Trans>
-                    </Row>
-                  </th>
+                ].includes(listType) && (
                   <th>
                     <Row justify="flex-start">
                       <Trans>
                         {{
-                          [KyberAIListType.TOP_CEX_INFLOW]: '24h Inflow',
-                          [KyberAIListType.TOP_CEX_OUTFLOW]: '24h Outflow',
-                        }[listType as string] || '24h Volume'}
+                          [KyberAIListType.TOP_CEX_INFLOW]: '3D Inflow',
+                          [KyberAIListType.TOP_CEX_OUTFLOW]: '3D Outflow',
+                          [KyberAIListType.TRENDING_SOON]: 'First Discovered On',
+                        }[listType as string] || ''}
                       </Trans>
                       {/* {sortedColumn === SORT_FIELD.VOLUME ? (
-                        !sortDirection ? (
-                          <ArrowUp size="12" style={{ marginLeft: '2px' }} />
-                        ) : (
-                          <ArrowDown size="12" style={{ marginLeft: '2px' }} />
-                        )
-                      ) : (
-                        ''
-                      )} */}
-                    </Row>
-                  </th>
-                  {[
-                    KyberAIListType.TOP_CEX_INFLOW,
-                    KyberAIListType.TOP_CEX_OUTFLOW,
-                    KyberAIListType.TRENDING_SOON,
-                  ].includes(listType) && (
-                    <th>
-                      <Row justify="flex-start">
-                        <Trans>
-                          {{
-                            [KyberAIListType.TOP_CEX_INFLOW]: '3D Inflow',
-                            [KyberAIListType.TOP_CEX_OUTFLOW]: '3D Outflow',
-                            [KyberAIListType.TRENDING_SOON]: 'First Discovered On',
-                          }[listType as string] || ''}
-                        </Trans>
-                        {/* {sortedColumn === SORT_FIELD.VOLUME ? (
                           !sortDirection ? (
                             <ArrowUp size="12" style={{ marginLeft: '2px' }} />
                           ) : (
@@ -931,66 +989,67 @@ export default function TokenAnalysisList() {
                         ) : (
                           ''
                         )} */}
-                      </Row>
-                    </th>
-                  )}
-                  <th style={{ textAlign: 'end' }}>
-                    <Trans>Action</Trans>
+                    </Row>
                   </th>
-                </tr>
-              </thead>
-              <tbody>
-                {isLoading || isFetching ? (
-                  <SkeletonTheme
-                    baseColor={theme.border}
-                    height="28px"
-                    borderRadius="8px"
-                    direction="ltr"
-                    duration={1.5}
-                    highlightColor={theme.tabActive}
-                  >
-                    <LoadingRowSkeleton
-                      hasExtraCol={[
-                        KyberAIListType.TOP_CEX_INFLOW,
-                        KyberAIListType.TOP_CEX_OUTFLOW,
-                        KyberAIListType.TRENDING_SOON,
-                      ].includes(listType)}
-                    />
-                  </SkeletonTheme>
-                ) : isError ? (
-                  <>
-                    <tr>
-                      <td
-                        colSpan={
-                          [
-                            KyberAIListType.TOP_CEX_INFLOW,
-                            KyberAIListType.TOP_CEX_OUTFLOW,
-                            KyberAIListType.TRENDING_SOON,
-                          ].includes(listType)
-                            ? 9
-                            : 8
-                        }
-                        height={200}
-                      >
-                        <Text>
-                          <Trans>There was an error. Please try again later.</Trans>
-                        </Text>
-                      </td>
-                    </tr>
-                  </>
-                ) : (
-                  listData.map((token: ITokenList, index: number) => (
-                    <TokenRow
-                      token={token}
-                      key={token.sourceTokenId}
-                      currentTab={listType}
-                      index={pageSize * (page - 1) + index + 1}
-                    />
-                  ))
                 )}
-              </tbody>
-            </Table>
-          </div>
+                <th style={{ textAlign: 'end' }}>
+                  <Trans>Action</Trans>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading || isFetching ? (
+                <SkeletonTheme
+                  baseColor={theme.border}
+                  height="28px"
+                  borderRadius="8px"
+                  direction="ltr"
+                  duration={1.5}
+                  highlightColor={theme.tabActive}
+                >
+                  <LoadingRowSkeleton
+                    hasExtraCol={[
+                      KyberAIListType.TOP_CEX_INFLOW,
+                      KyberAIListType.TOP_CEX_OUTFLOW,
+                      KyberAIListType.TRENDING_SOON,
+                    ].includes(listType)}
+                  />
+                </SkeletonTheme>
+              ) : isError || listData.length === 0 ? (
+                <>
+                  <tr>
+                    <td
+                      colSpan={
+                        [
+                          KyberAIListType.TOP_CEX_INFLOW,
+                          KyberAIListType.TOP_CEX_OUTFLOW,
+                          KyberAIListType.TRENDING_SOON,
+                        ].includes(listType)
+                          ? 9
+                          : 8
+                      }
+                      height={200}
+                      style={{ pointerEvents: 'none' }}
+                    >
+                      <Text>
+                        <Trans>There was an error. Please try again later.</Trans>
+                      </Text>
+                    </td>
+                  </tr>
+                </>
+              ) : (
+                listData.map((token: ITokenList, index: number) => (
+                  <TokenRow
+                    token={token}
+                    key={token.sourceTokenId}
+                    currentTab={listType}
+                    index={pageSize * (page - 1) + index + 1}
+                    isScrolling={isScrolling}
+                  />
+                ))
+              )}
+            </tbody>
+          </Table>
         </TableWrapper>
         <PaginationWrapper>
           {!isError && (

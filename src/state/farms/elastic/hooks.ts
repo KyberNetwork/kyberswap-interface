@@ -272,7 +272,7 @@ const filterOptions = [
     value: t`All positions`,
   },
 ] as const
-export const usePositionFilter = (positions: PositionDetails[], validPools: string[]) => {
+export const usePositionFilter = (positions: PositionDetails[], validPools: string[], includeClosedPos = false) => {
   const [activeFilter, setActiveFilter] = useState<typeof filterOptions[number]['code']>('all')
 
   const tokenList = useMemo(() => {
@@ -301,7 +301,7 @@ export const usePositionFilter = (positions: PositionDetails[], validPools: stri
       ?.filter(pos => validPools?.includes(pos.poolId.toLowerCase()))
       .filter(pos => {
         // remove closed position
-        if (pos.liquidity.eq(0)) return false
+        if (!includeClosedPos && pos.liquidity.eq(0)) return false
 
         const pool = pools.find(
           p =>
@@ -323,7 +323,7 @@ export const usePositionFilter = (positions: PositionDetails[], validPools: stri
         }
         return true
       })
-  }, [positions, validPools, activeFilter, pools])
+  }, [positions, validPools, activeFilter, pools, includeClosedPos])
 
   return {
     activeFilter,

@@ -36,8 +36,7 @@ const Wrapper = styled.div`
   justify-content: center;
   gap: 16px;
   width: 100%;
-  min-width: 50vw;
-
+  min-width: min(50vw, 880px);
   .time-frame-legend {
     display: none;
   }

@@ -488,6 +488,7 @@ const SearchWithDropdown = () => {
           onChange={e => {
             setSearch(e.target.value)
           }}
+          autoComplete="off"
           ref={inputRef}
         />
         <RowFit style={{ zIndex: 2 }}>

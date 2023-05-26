@@ -174,6 +174,7 @@ export default function TechnicalAnalysis() {
             />
           )}
           onShareClick={takeScreenShot}
+          docsLinks={['https://docs.kyberswap.com/kyberswap-solutions/kyberai/technical-indicators/live-charts']}
         >
           <Prochart isBTC={liveChartTab === ChartTab.Second} tvWidget={tvWidget} setTvWidget={setTvWidget} />
         </SectionWrapper>
@@ -207,6 +208,9 @@ export default function TechnicalAnalysis() {
             <SupportResistanceShareContent dataUrl={prochartDataURL} mobileMode={mobileMode} />
           )}
           onShareClick={takeScreenShot}
+          docsLinks={[
+            'https://docs.kyberswap.com/kyberswap-solutions/kyberai/technical-indicators/support-and-resistance-levels',
+          ]}
         >
           <SupportResistanceLevel />
           {chain && getLimitOrderContract(NETWORK_TO_CHAINID[chain]) && (
@@ -228,6 +232,7 @@ export default function TechnicalAnalysis() {
           style={{ height: 'fit-content' }}
           shareButton
           shareContent={mobileMode => <DexTradesShareContent mobileMode={mobileMode} />}
+          docsLinks={['https://docs.kyberswap.com/kyberswap-solutions/kyberai/technical-indicators/live-trades']}
         >
           <LiveDEXTrades />
         </SectionWrapper>
@@ -260,6 +265,9 @@ export default function TechnicalAnalysis() {
           shareButton
           shareContent={mobileMode => <FundingRateShareContent dataUrl={prochartDataURL} mobileMode={mobileMode} />}
           onShareClick={takeScreenShot}
+          docsLinks={[
+            'https://docs.kyberswap.com/kyberswap-solutions/kyberai/technical-indicators/funding-rate-on-cex',
+          ]}
         >
           <FundingRateTable />
         </SectionWrapper>
@@ -278,6 +286,9 @@ export default function TechnicalAnalysis() {
               <LiquidOnCentralizedExchanges noAnimation />
             </Column>
           )}
+          docsLinks={[
+            'https://docs.kyberswap.com/kyberswap-solutions/kyberai/technical-indicators/liquidations-on-cex',
+          ]}
         >
           <Column style={{ height: '500px' }}>
             <LiquidOnCentralizedExchanges />
