@@ -192,7 +192,7 @@ const Menu = () => {
     .filter(Boolean)
     .join(',')
 
-  const { data = [] } = useGetTotalUnreadAnnouncementsQuery({ account: account ?? '', templateIds }, { skip: !account })
+  const { data = [] } = useGetTotalUnreadAnnouncementsQuery({ templateIds }, { skip: !account })
 
   const unread = useMemo(() => {
     const result = {} as Unread

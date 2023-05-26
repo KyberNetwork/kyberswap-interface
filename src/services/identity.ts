@@ -11,48 +11,48 @@ const identityApi = createApi({
   endpoints: builder => ({
     getOrCreateProfile: builder.mutation<UserProfile, void>({
       query: () => ({
-        url: '/v1/profiles/me',
+        url: '/v1/profile/me',
         method: 'POST',
       }),
       transformResponse: (data: any) => data?.data?.profile,
     }),
     connectWalletToProfile: builder.mutation<any, { walletAddress: string }>({
       query: body => ({
-        url: '/v1/profiles/me/connected-wallets',
+        url: '/v1/profile/me/connected-wallets',
         body,
         method: 'POST',
       }),
     }),
     sendOtp: builder.mutation<any, { email: string }>({
       query: body => ({
-        url: '/v1/profiles/me/link-email',
+        url: '/v1/profile/me/link-email',
         body,
         method: 'PUT',
       }),
     }),
     verifyOtp: builder.mutation<any, { code: string; email: string }>({
       query: body => ({
-        url: '/v1/profiles/me/confirm-email',
+        url: '/v1/profile/me/confirm-email',
         body,
         method: 'PUT',
       }),
     }),
     updateProfile: builder.mutation<any, { nickname?: string; avatarURL?: string }>({
       query: body => ({
-        url: `/v1/profiles/me`,
+        url: `/v1/profile/me`,
         body,
         method: 'PATCH',
       }),
     }),
     getSubscriptionTopics: builder.query<{ topicGroups: Topic[] }, void>({
       query: () => ({
-        url: '/v1/profiles/me/notification-subscriptions',
+        url: '/v1/profile/me/notification-subscriptions',
       }),
       transformResponse: (data: any) => data?.data,
     }),
     subscribeTopics: builder.mutation<any, { topicIds: number[] }>({
       query: body => ({
-        url: '/v1/profiles/me/notification-subscriptions',
+        url: '/v1/profile/me/notification-subscriptions',
         body,
         method: 'PUT',
       }),
