@@ -1,10 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { Flex, Text } from 'rebass'
-import {
-  useClearAllPriceAlertHistoryMutation,
-  useDeleteAllAlertsMutation,
-  useGetAlertStatsQuery,
-} from 'services/priceAlert'
+import { useClearAllPriceAlertHistoryMutation } from 'services/announcement'
+import { useDeleteAllAlertsMutation, useGetAlertStatsQuery } from 'services/priceAlert'
 import styled, { CSSProperties, useTheme } from 'styled-components'
 
 import { ButtonLight, ButtonOutlined } from 'components/Button'
@@ -116,9 +113,7 @@ const Header: React.FC<Props> = ({ currentTab, setCurrentTab, disabledClearAll }
           <DeleteAllAlertsButton
             disabled={disabledClearAll}
             onClear={() =>
-              currentTab === Tab.ACTIVE
-                ? deleteAllActive({ account: account ?? '' })
-                : clearAllHistory({ account: account ?? '' })
+              currentTab === Tab.ACTIVE ? deleteAllActive({ account: account ?? '' }) : clearAllHistory()
             }
             notificationName={'Alerts'}
           />

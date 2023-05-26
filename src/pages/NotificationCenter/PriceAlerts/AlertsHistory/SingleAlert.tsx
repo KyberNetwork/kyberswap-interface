@@ -1,4 +1,4 @@
-import { useClearSinglePriceAlertHistoryMutation } from 'services/priceAlert'
+import { useClearSinglePriceAlertHistoryMutation } from 'services/announcement'
 
 import { AnnouncementTemplatePriceAlert, PrivateAnnouncement } from 'components/Announcement/type'
 import { useActiveWeb3React } from 'hooks'
@@ -17,7 +17,7 @@ const SingleAlert: React.FC<Props> = ({ announcement }) => {
   return (
     <CommonSingleAlert
       renderDeleteButton={() => (
-        <DeleteSingleAlertButton isDisabled={result.isLoading} onClick={() => account && clearAlert({ account, id })} />
+        <DeleteSingleAlertButton isDisabled={result.isLoading} onClick={() => account && clearAlert({ id })} />
       )}
       timeText={formatTime(sentAt)}
       alertData={historicalAlert}

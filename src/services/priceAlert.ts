@@ -1,8 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { AnnouncementResponse, transformResponseAnnouncement } from 'services/announcement'
 
-import { PrivateAnnouncement, PrivateAnnouncementType } from 'components/Announcement/type'
-import { NOTIFICATION_API, PRICE_ALERT_API, getAnnouncementsTemplateIds } from 'constants/env'
+import { PRICE_ALERT_API } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
 import { CreatePriceAlertPayload, PriceAlert, PriceAlertStat } from 'pages/NotificationCenter/const'
 
@@ -29,7 +27,7 @@ type GetListAlertsParams = {
 const priceAlertApi = createApi({
   reducerPath: 'priceAlertApi',
   baseQuery: fetchBaseQuery({ baseUrl: PRICE_ALERT_API }),
-  tagTypes: [RTK_QUERY_TAGS.GET_ALERTS, RTK_QUERY_TAGS.GET_ALERTS_HISTORY, RTK_QUERY_TAGS.GET_ALERTS_STAT],
+  tagTypes: [RTK_QUERY_TAGS.GET_ALERTS, RTK_QUERY_TAGS.GET_ALERTS_STAT],
   endpoints: builder => ({
     getListAlerts: builder.query<GetListAlertsResponseData, GetListAlertsParams>({
       query: params => ({
@@ -82,46 +80,6 @@ const priceAlertApi = createApi({
       }),
       invalidatesTags: [RTK_QUERY_TAGS.GET_ALERTS, RTK_QUERY_TAGS.GET_ALERTS_STAT],
     }),
-    getListPriceAlertHistory: builder.query<
-      AnnouncementResponse<PrivateAnnouncement>,
-      {
-        account: string
-        page: number
-        pageSize?: number
-      }
-    >({
-      query: ({ account, ...params }) => ({
-        url: `${NOTIFICATION_API}/v1/users/${account}/notifications`,
-        params: {
-          ...params,
-          templateIds: getAnnouncementsTemplateIds(PrivateAnnouncementType.PRICE_ALERT),
-        },
-      }),
-      providesTags: [RTK_QUERY_TAGS.GET_ALERTS_HISTORY],
-      transformResponse: transformResponseAnnouncement,
-    }),
-    clearSinglePriceAlertHistory: builder.mutation<Response, { account: string; id: number }>({
-      query: ({ account, id }) => ({
-        url: `${NOTIFICATION_API}/v1/users/${account}/notifications/clear`,
-        body: {
-          ids: [id],
-        },
-        method: 'PUT',
-      }),
-      invalidatesTags: [RTK_QUERY_TAGS.GET_ALERTS_HISTORY],
-    }),
-    clearAllPriceAlertHistory: builder.mutation<Response, { account: string }>({
-      query: ({ account }) => ({
-        url: `${NOTIFICATION_API}/v1/users/${account}/notifications/clear-all`,
-        body: {
-          templateIds: getAnnouncementsTemplateIds(PrivateAnnouncementType.PRICE_ALERT)
-            .split(',')
-            .map(id => Number(id)),
-        },
-        method: 'PUT',
-      }),
-      invalidatesTags: [RTK_QUERY_TAGS.GET_ALERTS_HISTORY],
-    }),
   }),
 })
 export const {
@@ -132,8 +90,5 @@ export const {
   useGetListAlertsQuery,
   useDeleteAllAlertsMutation,
   useDeleteSingleAlertMutation,
-  useClearSinglePriceAlertHistoryMutation,
-  useClearAllPriceAlertHistoryMutation,
-  useGetListPriceAlertHistoryQuery,
 } = priceAlertApi
 export default priceAlertApi

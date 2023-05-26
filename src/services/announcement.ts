@@ -48,6 +48,7 @@ const AnnouncementApi = createApi({
     RTK_QUERY_TAGS.GET_PRIVATE_ANN_BY_ID,
     RTK_QUERY_TAGS.GET_ALL_PRIVATE_ANN,
     RTK_QUERY_TAGS.GET_TOTAL_UNREAD_PRIVATE_ANN,
+    RTK_QUERY_TAGS.GET_ALERTS_HISTORY,
   ],
   endpoints: builder => ({
     getPrivateAnnouncements: builder.query<AnnouncementResponse<PrivateAnnouncement>, ParamsPrivate>({
@@ -126,10 +127,51 @@ const AnnouncementApi = createApi({
         RTK_QUERY_TAGS.GET_TOTAL_UNREAD_PRIVATE_ANN,
       ],
     }),
+    // price alert
+    // todo consider merge api
+    getListPriceAlertHistory: builder.query<
+      AnnouncementResponse<PrivateAnnouncement>,
+      {
+        page: number
+        pageSize?: number
+      }
+    >({
+      query: params => ({
+        url: `/v1/notification/me`,
+        params: {
+          ...params,
+          templateIds: getAnnouncementsTemplateIds(PrivateAnnouncementType.PRICE_ALERT),
+        },
+      }),
+      providesTags: [RTK_QUERY_TAGS.GET_ALERTS_HISTORY],
+      transformResponse: transformResponseAnnouncement,
+    }),
+    clearSinglePriceAlertHistory: builder.mutation<Response, { id: number }>({
+      query: ({ id }) => ({
+        url: `/v1/notification/me/clear`,
+        body: {
+          ids: [id],
+        },
+        method: 'PUT',
+      }),
+      invalidatesTags: [RTK_QUERY_TAGS.GET_ALERTS_HISTORY],
+    }),
+    clearAllPriceAlertHistory: builder.mutation<Response, void>({
+      query: () => ({
+        url: `/v1/notification/me/clear-all`,
+        body: {
+          templateIds: getAnnouncementsTemplateIds(PrivateAnnouncementType.PRICE_ALERT)
+            .split(',')
+            .map(id => Number(id)),
+        },
+        method: 'PUT',
+      }),
+      invalidatesTags: [RTK_QUERY_TAGS.GET_ALERTS_HISTORY],
+    }),
   }),
 })
 
-export const announcementApiV2 = createApi({
+export const publicAnnouncementApi = createApi({
   reducerPath: 'announcementApiV2',
   baseQuery: fetchBaseQuery({ baseUrl: NOTIFICATION_API }),
   endpoints: builder => ({
@@ -143,7 +185,7 @@ export const announcementApiV2 = createApi({
   }),
 })
 
-export const { useGetAnnouncementsQuery, useLazyGetAnnouncementsQuery } = announcementApiV2
+export const { useGetAnnouncementsQuery, useLazyGetAnnouncementsQuery } = publicAnnouncementApi
 
 export const {
   useLazyGetPrivateAnnouncementsQuery,
@@ -153,6 +195,9 @@ export const {
   useClearAllPrivateAnnouncementByIdMutation,
   useAckPrivateAnnouncementsByIdsMutation,
   useGetTotalUnreadAnnouncementsQuery,
+  useClearSinglePriceAlertHistoryMutation,
+  useClearAllPriceAlertHistoryMutation,
+  useGetListPriceAlertHistoryQuery,
 } = AnnouncementApi
 
 export default AnnouncementApi

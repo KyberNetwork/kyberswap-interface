@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { Flex } from 'rebass'
-import { useGetListPriceAlertHistoryQuery } from 'services/priceAlert'
+import { useGetListPriceAlertHistoryQuery } from 'services/announcement'
 
 import { AnnouncementTemplatePriceAlert, PrivateAnnouncement } from 'components/Announcement/type'
 import { useActiveWeb3React } from 'hooks'
@@ -16,7 +16,6 @@ const AlertsHistory = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boole
   const [page, setPage] = useState(1)
   const { data, isLoading } = useGetListPriceAlertHistoryQuery(
     {
-      account: account || '',
       page,
       pageSize: ITEMS_PER_PAGE,
     },
