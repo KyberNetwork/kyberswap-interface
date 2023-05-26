@@ -16,10 +16,9 @@ const ButtonText = styled.div`
 `
 
 const shareStyle = css`
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 100%;
-    justify-content: space-around;
-`};
+  width: 100%;
+  justify-content: space-around;
+  margin-top: 4px;
 `
 const ActionWrapper = styled.div<{ isHorizontal: boolean }>`
   display: flex;
