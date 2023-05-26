@@ -285,7 +285,7 @@ export default function Profile() {
           <Label style={{ textAlign: 'center' }}>
             <Trans>Profile Picture</Trans>
           </Label>
-          <FileInput onImgChange={handleFileChange} image>
+          <FileInput onImgChange={handleFileChange} image disabled={isNeedSignIn}>
             <AvatarWrapper>
               <Avatar url={displayAvatar} size={84} color={theme.subText} />
             </AvatarWrapper>
