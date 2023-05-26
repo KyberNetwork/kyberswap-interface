@@ -51,7 +51,7 @@ const arbitrumInfo: EVMNetworkInfo = {
     dynamic: NOT_SUPPORT,
     claimReward: NOT_SUPPORT,
     fairlaunch: EMPTY_ARRAY,
-    fairlaunchV2: ['0xE8144386BF00f168ed7a0E0D821AC18e02a461BA'],
+    fairlaunchV2: ['0xE8144386BF00f168ed7a0E0D821AC18e02a461BA', '0x8023a74412A0d6A2dF54E208E7C39713Ecd52AE8'],
   },
   elastic: {
     defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-arbitrum-one',
@@ -62,7 +62,7 @@ const arbitrumInfo: EVMNetworkInfo = {
     initCodeHash: '0x00e263aaa3a2c06a89b53217a9e7aad7e15613490a72e0f95f303c4de2dc7045',
     quoter: '0x4d47fd5a29904Dae0Ef51b1c450C9750F15D7856',
     routers: '0xF9c2b5746c946EF883ab2660BbbB1f10A5bdeAb4',
-    farms: [],
+    farms: ['0x7D5ba536ab244aAA1EA42aB88428847F25E3E676'],
   },
   limitOrder: {
     production: '0x227B0c196eA8db17A665EA6824D972A64202E936',

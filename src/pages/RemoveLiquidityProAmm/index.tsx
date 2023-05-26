@@ -36,8 +36,9 @@ import TransactionConfirmationModal, {
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
+import { useProAmmNFTPositionManagerContract, useProMMFarmContract } from 'hooks/useContract'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 import { useProAmmPositionsFromTokenId } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
@@ -52,7 +53,7 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { ExternalLink, MEDIA_WIDTHS, TYPE } from 'theme'
-import { basisPointsToPercent, calculateGasMargin, formattedNum, formattedNumLong } from 'utils'
+import { basisPointsToPercent, calculateGasMargin, formattedNum, formattedNumLong, isAddressString } from 'utils'
 import { ErrorName } from 'utils/sentry'
 import { SLIPPAGE_STATUS, checkRangeSlippage, checkWarningSlippage, formatSlippage } from 'utils/slippage'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
@@ -147,13 +148,19 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const [claimFee, setIsClaimFee] = useState(true)
   const positionManager = useProAmmNFTPositionManagerContract()
   const theme = useTheme()
-  const { account, chainId, isEVM } = useActiveWeb3React()
+  const { networkInfo, account, chainId, isEVM } = useActiveWeb3React()
   const { library } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const [removeLiquidityError, setRemoveLiquidityError] = useState<string>('')
 
   const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId.toNumber()]).result?.[0]
-  const ownsNFT = owner === account
+  const ownByFarm = isEVM
+    ? (networkInfo as EVMNetworkInfo).elastic.farms.flat().includes(isAddressString(chainId, owner))
+    : false
+
+  // TODO(viet-nv): temporary disabled
+  const ownsNFT = owner === account // || ownByFarm
+
   const navigate = useNavigate()
   const prevChainId = usePrevious(chainId)
 
@@ -248,7 +255,70 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const [txnHash, setTxnHash] = useState<string | undefined>()
   const addTransactionWithType = useTransactionAdder()
 
-  const burn = useCallback(async () => {
+  const farmContract = useProMMFarmContract(owner)
+
+  const handleBroadcastRemoveSuccess = (response: TransactionResponse) => {
+    setAttemptingTxn(false)
+    const tokenAmountIn = liquidityValue0?.toSignificant(6)
+    const tokenAmountOut = liquidityValue1?.toSignificant(6)
+    const tokenSymbolIn = liquidityValue0?.currency.symbol ?? ''
+    const tokenSymbolOut = liquidityValue1?.currency.symbol ?? ''
+    addTransactionWithType({
+      hash: response.hash,
+      type: TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY,
+      extraInfo: {
+        tokenAmountIn,
+        tokenAmountOut,
+        tokenSymbolIn,
+        tokenSymbolOut,
+        tokenAddressIn: liquidityValue0?.currency.wrapped.address,
+        tokenAddressOut: liquidityValue1?.currency.wrapped.address,
+        contract: poolAddress,
+        nftId: tokenId.toString(),
+      },
+    })
+    setTxnHash(response.hash)
+  }
+  const burnFromFarm = async () => {
+    if (!farmContract || !liquidityValue0 || !liquidityValue1 || !deadline || !positionSDK || !liquidityPercentage) {
+      return
+    }
+
+    try {
+      const amount0Min = liquidityValue0?.subtract(liquidityValue0.multiply(basisPointsToPercent(allowedSlippage)))
+      const amount1Min = liquidityValue1?.subtract(liquidityValue1.multiply(basisPointsToPercent(allowedSlippage)))
+
+      const gasEstimation = await farmContract.estimateGas.removeLiquidity(
+        tokenId.toString(),
+        liquidityPercentage.multiply(positionSDK.liquidity).quotient.toString(),
+        amount0Min.quotient.toString(),
+        amount1Min.quotient.toString(),
+        deadline.toString(),
+        !receiveWETH,
+        [claimFee && feeValue0?.greaterThan('0'), false],
+      )
+
+      const tx = await farmContract.removeLiquidity(
+        tokenId.toString(),
+        liquidityPercentage.multiply(positionSDK.liquidity).quotient.toString(),
+        amount0Min.quotient.toString(),
+        amount1Min.quotient.toString(),
+        deadline.toString(),
+        !receiveWETH,
+        [claimFee && feeValue0?.greaterThan('0'), false],
+        {
+          gasLimit: calculateGasMargin(gasEstimation),
+        },
+      )
+
+      handleBroadcastRemoveSuccess(tx)
+    } catch (e) {
+      setAttemptingTxn(false)
+      setRemoveLiquidityError(e?.message || JSON.stringify(e))
+    }
+  }
+
+  const burn = async () => {
     setAttemptingTxn(true)
     if (
       !positionManager ||
@@ -285,12 +355,11 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
 
       return
     }
-    // const partialPosition = new Position({
-    //   pool: positionSDK.pool,
-    //   liquidity: liquidityPercentage.multiply(positionSDK.liquidity).quotient,
-    //   tickLower: positionSDK.tickLower,
-    //   tickUpper: positionSDK.tickUpper,
-    // })
+
+    if (ownByFarm) {
+      return burnFromFarm()
+    }
+
     const { calldata, value } = NonfungiblePositionManager.removeCallParameters(positionSDK, {
       tokenId: tokenId.toString(),
       liquidityPercentage,
@@ -326,26 +395,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
           .getSigner()
           .sendTransaction(newTxn)
           .then((response: TransactionResponse) => {
-            setAttemptingTxn(false)
-            const tokenAmountIn = liquidityValue0?.toSignificant(6)
-            const tokenAmountOut = liquidityValue1?.toSignificant(6)
-            const tokenSymbolIn = liquidityValue0?.currency.symbol ?? ''
-            const tokenSymbolOut = liquidityValue1?.currency.symbol ?? ''
-            addTransactionWithType({
-              hash: response.hash,
-              type: TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY,
-              extraInfo: {
-                tokenAmountIn,
-                tokenAmountOut,
-                tokenSymbolIn,
-                tokenSymbolOut,
-                tokenAddressIn: liquidityValue0?.currency.wrapped.address,
-                tokenAddressOut: liquidityValue1?.currency.wrapped.address,
-                contract: poolAddress,
-                nftId: tokenId.toString(),
-              },
-            })
-            setTxnHash(response.hash)
+            handleBroadcastRemoveSuccess(response)
           })
       })
       .catch((error: any) => {
@@ -365,24 +415,8 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
 
         setRemoveLiquidityError(error?.message || JSON.stringify(error))
       })
-  }, [
-    positionManager,
-    liquidityValue0,
-    liquidityValue1,
-    deadline,
-    claimFee,
-    account,
-    chainId,
-    feeValue0,
-    feeValue1,
-    positionSDK,
-    liquidityPercentage,
-    library,
-    tokenId,
-    allowedSlippage,
-    addTransactionWithType,
-    poolAddress,
-  ])
+  }
+
   const handleDismissConfirmation = useCallback(() => {
     setShowConfirm(false)
     // if there was a tx hash, we want to clear the input

@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
@@ -118,7 +118,7 @@ export default function ProAmmPool() {
 
   const debouncedSearchText = useDebounce(searchValueInQs.trim().toLowerCase(), 300)
 
-  const [showClosed, setShowClosed] = useState(false)
+  const [showClosed, setShowClosed] = useState(true)
 
   const filteredFarmPositions = useMemo(
     () =>
@@ -136,38 +136,63 @@ export default function ProAmmPool() {
     [debouncedSearchText, farmPositions],
   )
 
-  const filteredPositions = useMemo(
-    () =>
-      (!showClosed
-        ? [...openPositions, ...filteredFarmPositions]
-        : [...openPositions, ...filteredFarmPositions, ...closedPositions]
-      )
-        .filter(position => {
-          if (nftId) return position.tokenId.toString() === nftId
-          return (
-            debouncedSearchText.trim().length === 0 ||
-            (!!tokenAddressSymbolMap.current[position.token0.toLowerCase()] &&
-              tokenAddressSymbolMap.current[position.token0.toLowerCase()].includes(debouncedSearchText)) ||
-            (!!tokenAddressSymbolMap.current[position.token1.toLowerCase()] &&
-              tokenAddressSymbolMap.current[position.token1.toLowerCase()].includes(debouncedSearchText)) ||
-            position.poolId.toLowerCase() === debouncedSearchText ||
-            position.tokenId.toString() === debouncedSearchText
-          )
-        })
-        .filter((pos, index, array) => array.findIndex(pos2 => pos2.tokenId.eq(pos.tokenId)) === index)
-        .sort((a, b) => +a.tokenId.toString() - +b.tokenId.toString()),
-    [showClosed, openPositions, closedPositions, debouncedSearchText, filteredFarmPositions, nftId],
+  const sortFn = useCallback(
+    (a: PositionDetails, b: PositionDetails) => +a.tokenId.toString() - +b.tokenId.toString(),
+    [],
   )
+
+  const openFarmPositions = useMemo(() => {
+    return filteredFarmPositions.filter(pos => pos.liquidity.gt('0')).sort(sortFn)
+  }, [filteredFarmPositions, sortFn])
+
+  const closedFarmPositions = useMemo(() => {
+    return filteredFarmPositions.filter(pos => pos.liquidity.eq('0')).sort(sortFn)
+  }, [filteredFarmPositions, sortFn])
+
+  const filteredPositions = useMemo(() => {
+    const opens = [...openPositions, ...openFarmPositions].sort(sortFn)
+    const closeds = [...closedPositions, ...closedFarmPositions].sort(sortFn)
+
+    return (!showClosed ? opens : [...opens, ...closeds])
+      .filter(position => {
+        if (nftId) return position.tokenId.toString() === nftId
+        return (
+          debouncedSearchText.trim().length === 0 ||
+          (!!tokenAddressSymbolMap.current[position.token0.toLowerCase()] &&
+            tokenAddressSymbolMap.current[position.token0.toLowerCase()].includes(debouncedSearchText)) ||
+          (!!tokenAddressSymbolMap.current[position.token1.toLowerCase()] &&
+            tokenAddressSymbolMap.current[position.token1.toLowerCase()].includes(debouncedSearchText)) ||
+          position.poolId.toLowerCase() === debouncedSearchText ||
+          position.tokenId.toString() === debouncedSearchText
+        )
+      })
+      .filter((pos, index, array) => array.findIndex(pos2 => pos2.tokenId.eq(pos.tokenId)) === index)
+  }, [
+    showClosed,
+    openPositions,
+    closedPositions,
+    debouncedSearchText,
+    nftId,
+    openFarmPositions,
+    closedFarmPositions,
+    sortFn,
+  ])
 
   const [showStaked, setShowStaked] = useState(false)
   const positionList = useMemo(
-    () => (showStaked ? filteredFarmPositions : filteredPositions),
-    [showStaked, filteredPositions, filteredFarmPositions],
+    () =>
+      showStaked
+        ? showClosed
+          ? [...openFarmPositions, ...closedFarmPositions]
+          : openFarmPositions
+        : filteredPositions,
+    [showStaked, filteredPositions, openFarmPositions, closedFarmPositions, showClosed],
   )
 
   const upToSmall = useMedia('(max-width: 768px)')
 
   if (!isEVM) return <Navigate to="/" />
+
   return (
     <>
       <PageWrapper style={{ padding: 0, marginTop: '24px' }}>
@@ -259,7 +284,7 @@ export default function ProAmmPool() {
                 <Trans>Connect to a wallet to view your liquidity.</Trans>
               </TYPE.body>
             </Card>
-          ) : (positionsLoading && !positions) || (loading && !userFarmInfo) ? (
+          ) : (positionsLoading && !positions) || (loading && !userFarmInfo && !positions?.length) ? (
             <PositionCardGrid>
               <ContentLoader />
               <ContentLoader />
