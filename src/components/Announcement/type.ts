@@ -13,7 +13,7 @@ export type Announcement = {
 export enum PrivateAnnouncementType {
   LIMIT_ORDER = 'LIMIT_ORDER',
   BRIDGE_ASSET = 'BRIDGE_ASSET',
-  KYBER_AI = 'KYBER_AI',
+  KYBER_AI = 'TRENDING_SOON',
   ELASTIC_POOLS = 'ELASTIC_POOLS',
   PRICE_ALERT = 'PRICE_ALERT',
   DIRECT_MESSAGE = 'DIRECT_MESSAGE', // for some specific addresses

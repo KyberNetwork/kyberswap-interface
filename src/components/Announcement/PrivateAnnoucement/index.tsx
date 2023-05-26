@@ -36,7 +36,7 @@ const ANNOUNCEMENT_MAP: PrivateAnnouncementMap = {
 export const PRIVATE_ANN_TITLE: Partial<{ [type in PrivateAnnouncementType]: string }> = {
   [PrivateAnnouncementType.ELASTIC_POOLS]: t`Liquidity Pool Alert`,
   [PrivateAnnouncementType.LIMIT_ORDER]: t`Limit Order`,
-  [PrivateAnnouncementType.KYBER_AI]: t`Top Tokens by KyberAI`,
+  [PrivateAnnouncementType.KYBER_AI]: t`Trending Soon`,
   [PrivateAnnouncementType.BRIDGE_ASSET]: t`Bridge Token`,
   [PrivateAnnouncementType.PRICE_ALERT]: t`Price Alert`,
   [PrivateAnnouncementType.DIRECT_MESSAGE]: t`Notification`,
