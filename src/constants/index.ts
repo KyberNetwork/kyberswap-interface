@@ -220,7 +220,6 @@ export const APP_PATHS = {
   KYBERDAO_STAKE: '/kyberdao/stake-knc',
   KYBERDAO_VOTE: '/kyberdao/vote',
   LIMIT: '/limit',
-  VERIFY_EXTERNAL: '/verify-external',
   GRANT_PROGRAMS: '/inter-project-trading-campaigns',
   NOTIFICATION_CENTER: '/manage',
   ELASTIC_LEGACY: '/elastic-legacy',

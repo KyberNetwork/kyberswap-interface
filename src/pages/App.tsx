@@ -36,7 +36,6 @@ import { RedirectPathToFarmNetwork } from './Farm/redirect'
 import { RedirectPathToMyPoolsNetwork } from './Pool/redirect'
 import { RedirectPathToPoolsNetwork } from './Pools/redirect'
 import { RedirectPathToSwapV3Network } from './SwapV3/redirects'
-import Verify from './Verify'
 import VerifyAuth from './VerifyAuth'
 
 // test page for swap only through elastic
@@ -292,7 +291,6 @@ export default function App() {
                     <Route path={`${APP_PATHS.CAMPAIGN}`} element={<Campaign />} />
                     <Route path={`${APP_PATHS.CAMPAIGN}/:slug`} element={<Campaign />} />
                     {/*<Route path={`${APP_PATHS.BRIDGE}`} element={<Bridge />} />*/}
-                    <Route path={`${APP_PATHS.VERIFY_EXTERNAL}`} element={<Verify />} />
                     <Route path={`${APP_PATHS.NOTIFICATION_CENTER}`} element={<NotificationCenter />} />
                     <Route path={`${APP_PATHS.NOTIFICATION_CENTER}/*`} element={<NotificationCenter />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgramPage />} />

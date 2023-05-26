@@ -65,6 +65,7 @@ interface AddressSymbolMapInterface {
 const renderNotificationButton = (iconOnly: boolean) => {
   return (
     <SubscribeNotificationButton
+      watchWallet
       iconOnly={iconOnly}
       subscribeTooltip={
         <div>

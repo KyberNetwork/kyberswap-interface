@@ -11,7 +11,6 @@ import Overview from 'pages/NotificationCenter/Overview'
 import PriceAlerts from 'pages/NotificationCenter/PriceAlerts'
 import Profile from 'pages/NotificationCenter/Profile'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
-import VerifyComponent from 'pages/Verify/VerifyComponent'
 
 import PrivateAnnouncement from './PrivateAnnouncement'
 
@@ -137,7 +136,6 @@ function NotificationCenter() {
           </Routes>
         </RightColumn>
       </Wrapper>
-      <VerifyComponent />
     </PageWrapper>
   )
 }

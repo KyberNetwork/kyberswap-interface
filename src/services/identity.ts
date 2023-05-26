@@ -57,6 +57,13 @@ const identityApi = createApi({
         method: 'PUT',
       }),
     }),
+    createWatchWallet: builder.mutation<any, { walletAddress: string }>({
+      query: body => ({
+        url: '/v1/profile/me/watched-wallets',
+        body,
+        method: 'POST',
+      }),
+    }),
     // double check
     ackTelegramSubscriptionStatus: builder.mutation<Response, string>({
       query: wallet => ({
@@ -94,6 +101,7 @@ export const {
   useAckTelegramSubscriptionStatusMutation,
   useBuildTelegramVerificationMutation,
   useUpdateProfileMutation,
+  useCreateWatchWalletMutation,
 } = identityApi
 
 export default identityApi

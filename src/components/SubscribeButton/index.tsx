@@ -1,13 +1,18 @@
-import { Trans } from '@lingui/macro'
-import { ReactNode, useEffect, useRef } from 'react'
+import { Trans, t } from '@lingui/macro'
+import { ReactNode, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
+import { useCreateWatchWalletMutation } from 'services/identity'
 import styled, { css } from 'styled-components'
 
+import { NotificationType } from 'components/Announcement/type'
 import NotificationIcon from 'components/Icons/NotificationIcon'
-import { useWeb3React } from 'hooks'
+import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import useNotification from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
+import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
+import { useNotify } from 'state/application/hooks'
 
 import { ButtonPrimary } from '../Button'
 import { MouseoverTooltipDesktopOnly } from '../Tooltip'
@@ -54,33 +59,50 @@ export default function SubscribeNotificationButton({
   subscribeTooltip,
   iconOnly = false,
   trackingEvent,
+  watchWallet = false,
 }: {
   subscribeTooltip?: ReactNode
   iconOnly?: boolean
+  watchWallet?: boolean
   trackingEvent?: MIXPANEL_TYPE
 }) {
   const theme = useTheme()
-  const { account } = useWeb3React()
 
   const { mixpanelHandler } = useMixpanel()
-  const { showNotificationModal } = useNotification()
+  const [requestWatchWallet] = useCreateWatchWalletMutation()
+  const { account } = useActiveWeb3React()
+  const notify = useNotify()
 
-  const showModalWhenConnected = useRef(false)
+  const navigate = useNavigate()
+  // const { showNotificationModal } = useNotification()
+  const showNotificationModal = useCallback(() => {
+    navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PREFERENCE}`)
+  }, [navigate]) // todo remove content popup subscribe topic if unused
 
-  useEffect(() => {
-    if (account && showModalWhenConnected.current) {
-      showNotificationModal()
-      showModalWhenConnected.current = false
+  const addToWatchList = useCallback(async () => {
+    if (!account) return
+    try {
+      await requestWatchWallet({ walletAddress: account }).unwrap()
+      notify({
+        type: NotificationType.SUCCESS,
+        title: t`Add to Watch List Success`,
+        summary: t`You have successfully added this wallet to Watch List`,
+      })
+    } catch (error) {
+      notify({
+        type: NotificationType.ERROR,
+        title: t`Add to Watch List Failed`,
+        summary: t`Error occur, please try again`,
+      })
     }
-  }, [account, showNotificationModal])
+  }, [requestWatchWallet, account, notify])
 
   const onClickBtn = () => {
-    showNotificationModal()
+    watchWallet ? addToWatchList() : showNotificationModal()
     if (trackingEvent)
       setTimeout(() => {
         mixpanelHandler(trackingEvent)
       }, 100)
-    if (!account) showModalWhenConnected.current = true
   }
 
   return (
@@ -88,7 +110,7 @@ export default function SubscribeNotificationButton({
       <SubscribeBtn bgColor={theme.primary} onClick={onClickBtn} iconOnly={iconOnly}>
         <NotificationIcon />
         <ButtonText iconOnly={iconOnly}>
-          <Trans>Subscribe</Trans>
+          {watchWallet ? <Trans>Add to Watch List</Trans> : <Trans>Subscribe</Trans>}
         </ButtonText>
       </SubscribeBtn>
     </MouseoverTooltipDesktopOnly>
