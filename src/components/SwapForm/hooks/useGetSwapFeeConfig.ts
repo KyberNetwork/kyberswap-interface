@@ -1,4 +1,4 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import { useCallback } from 'react'
 import tokenApi from 'services/token'
 
@@ -60,7 +60,7 @@ const useGetSwapFeeConfig = () => {
         return score
       }
 
-      if (tokenAddress === ETHER_ADDRESS) {
+      if (tokenAddress === ETHER_ADDRESS || tokenAddress === WETH[chainId].address) {
         return undefined
       }
 
