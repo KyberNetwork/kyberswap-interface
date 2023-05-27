@@ -36,8 +36,8 @@ const Badge = styled.div`
   color: ${({ theme }) => theme.textReverse};
 `
 
-const StyledLink = styled(Link)<{ $isChildren?: boolean; $mobile: boolean }>`
-  border-bottom: ${({ theme, $isChildren, $mobile }) => !$isChildren && !$mobile && `1px solid ${theme.border}`};
+const StyledLink = styled(Link)<{ $isChildren?: boolean }>`
+  border-bottom: ${({ theme, $isChildren }) => !$isChildren && `1px solid ${theme.border}`};
   :last-child {
     border: none;
   }
@@ -45,11 +45,9 @@ const StyledLink = styled(Link)<{ $isChildren?: boolean; $mobile: boolean }>`
 
 type WrapperProps = {
   $active: boolean
-  $mobile: boolean
 }
 const Wrapper = styled.div.attrs<WrapperProps>(props => ({
   'data-active': props.$active,
-  'data-mobile': props.$mobile,
 }))<WrapperProps>`
   display: flex;
   align-items: center;
@@ -65,25 +63,6 @@ const Wrapper = styled.div.attrs<WrapperProps>(props => ({
       background-color: ${({ theme }) => theme.primary};
     }
   }
-
-  &[data-mobile='true'] {
-    height: 36px;
-    padding: 0 12px;
-    flex-wrap: nowrap;
-
-    border: 1px solid ${({ theme }) => theme.subText};
-    border-radius: 36px;
-
-    ${Label} {
-      overflow-wrap: unset;
-      white-space: nowrap;
-    }
-
-    &[data-active='true'] {
-      background-color: ${({ theme }) => `${theme.primary}33`};
-      border-color: transparent;
-    }
-  }
 `
 
 type Props = {
@@ -94,7 +73,7 @@ type Props = {
   isChildren?: boolean
 }
 
-const MenuItem: React.FC<Props> = ({ data, isMobile = false, style, unread, isChildren }) => {
+const MenuItem: React.FC<Props> = ({ data, style, unread, isChildren }) => {
   const { icon, title, route, childs, type, onClick } = data
   const location = useLocation()
   const theme = useTheme()
@@ -103,8 +82,8 @@ const MenuItem: React.FC<Props> = ({ data, isMobile = false, style, unread, isCh
   const isActive = location.pathname === path || location.pathname === path.substring(0, path.length - 1)
 
   const [expand, setIsExpand] = useState(location.pathname.startsWith(`${APP_PATHS.NOTIFICATION_CENTER}${route}`))
-  const canShowExpand = !isMobile && !isChildren
-  const canShowListChildren = expand && !isChildren && !isMobile
+  const canShowExpand = !isChildren
+  const canShowListChildren = expand && !isChildren
 
   const { mixpanelHandler } = useMixpanel()
   const onClickMenu = (e: React.MouseEvent) => {
@@ -120,8 +99,8 @@ const MenuItem: React.FC<Props> = ({ data, isMobile = false, style, unread, isCh
   const totalUnread = type ? unread[type as PrivateAnnouncementType] : 0
   return (
     <>
-      <StyledLink to={onClick ? '#' : path} onClick={onClickMenu} $isChildren={isChildren} $mobile={isMobile}>
-        <Wrapper $active={isActive} $mobile={isMobile} style={style}>
+      <StyledLink to={onClick ? '#' : path} onClick={onClickMenu} $isChildren={isChildren}>
+        <Wrapper $active={isActive} style={style}>
           <Flex
             sx={{
               flex: '1 1 0',
@@ -135,7 +114,7 @@ const MenuItem: React.FC<Props> = ({ data, isMobile = false, style, unread, isCh
           </Flex>
 
           {totalUnread ? <Badge>{formatNumberOfUnread(totalUnread)}</Badge> : null}
-          {!isMobile && childs?.length && <DropdownArrowIcon rotate={expand} />}
+          {childs?.length && <DropdownArrowIcon rotate={expand} />}
         </Wrapper>
         {canShowListChildren && (
           <Column style={{ padding: '8px 0', borderTop: `1px solid ${theme.border}`, marginLeft: '24px' }}>

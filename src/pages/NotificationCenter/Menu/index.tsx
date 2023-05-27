@@ -1,9 +1,10 @@
 import { t } from '@lingui/macro'
 import { ReactNode, useMemo } from 'react'
-import { List as ListIcon, Plus } from 'react-feather'
+import { AlignJustify, List as ListIcon, Plus } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
 import { useGetTotalUnreadAnnouncementsQuery } from 'services/announcement'
+import { css } from 'styled-components'
 
 import { ReactComponent as AllIcon } from 'assets/svg/all_icon.svg'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
@@ -12,11 +13,15 @@ import Avatar from 'components/Avatar'
 import MailIcon from 'components/Icons/MailIcon'
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import ProfileIcon from 'components/Icons/Profile'
+import MenuFlyout from 'components/MenuFlyout'
 import { getAnnouncementsTemplateIds } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import useLogin from 'hooks/useLogin'
+import useTheme from 'hooks/useTheme'
 import MenuItem from 'pages/NotificationCenter/Menu/MenuItem'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
+import { ApplicationModal } from 'state/application/actions'
+import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { useSessionInfo, useSignedWalletInfo } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
@@ -113,10 +118,10 @@ const menuItems: MenuItemType[] = [
 
 type PropsMenu = { unread: Unread }
 const MenuForDesktop = ({ unread }: PropsMenu) => {
-  // todo mobile
   const { signInEth } = useLogin()
   const { userInfo: profile } = useSessionInfo()
   const { signedWallet, isGuest, canSignInEth } = useSignedWalletInfo()
+  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   const menuItemDeskTop = useMemo(() => {
     return menuItems.map(el => {
@@ -146,39 +151,30 @@ const MenuForDesktop = ({ unread }: PropsMenu) => {
   }, [canSignInEth, signInEth, signedWallet, isGuest, profile])
 
   return (
-    <Flex
-      sx={{
-        flexDirection: 'column',
-        padding: '24px',
-      }}
-    >
-      {menuItemDeskTop.map((data, index) => {
-        return <MenuItem key={index} style={{ paddingTop: index ? undefined : 0 }} data={data} unread={unread} />
-      })}
+    <Flex sx={{ flexDirection: 'column', padding: upToMedium ? '20px' : '24px' }}>
+      {menuItemDeskTop.map((data, index) => (
+        <MenuItem key={index} style={{ paddingTop: index ? undefined : 0 }} data={data} unread={unread} />
+      ))}
     </Flex>
   )
 }
 
-const menuItemsMobile = menuItems.reduce<MenuItemType[]>((rs, item) => {
-  rs.push(item)
-  item.childs?.forEach(e => rs.push(e))
-  return rs
-}, [])
-
+const browserCustomStyle = css`
+  padding: 0;
+`
 const MenuForMobile = ({ unread }: PropsMenu) => {
+  const isOpen = useModalOpen(ApplicationModal.MENU_NOTI_CENTER)
+  const toggleModal = useToggleModal(ApplicationModal.MENU_NOTI_CENTER)
+  const theme = useTheme()
   return (
-    <Flex
-      sx={{
-        overflowX: 'auto',
-        alignItems: 'center',
-        padding: '0 16px',
-        gap: '8px',
-      }}
+    <MenuFlyout
+      trigger={<AlignJustify color={theme.subText} />}
+      customStyle={browserCustomStyle}
+      isOpen={isOpen}
+      toggle={toggleModal}
     >
-      {menuItemsMobile.map(data => {
-        return <MenuItem isMobile key={data.route} data={data} unread={unread} />
-      })}
-    </Flex>
+      <MenuForDesktop unread={unread} />
+    </MenuFlyout>
   )
 }
 

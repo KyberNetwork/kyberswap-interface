@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import styled from 'styled-components'
 
 import { PrivateAnnouncementType } from 'components/Announcement/type'
@@ -11,6 +12,7 @@ import Overview from 'pages/NotificationCenter/Overview'
 import PriceAlerts from 'pages/NotificationCenter/PriceAlerts'
 import Profile from 'pages/NotificationCenter/Profile'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
+import { MEDIA_WIDTHS } from 'theme'
 
 import PrivateAnnouncement from './PrivateAnnouncement'
 
@@ -50,6 +52,7 @@ const HeaderWrapper = styled.div`
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     padding: 0;
+    padding-left: 16px;
   `}
 `
 
@@ -57,6 +60,9 @@ const Title = styled.h2`
   margin-left: 12px;
   font-size: 24px;
   font-weight: 500;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    font-size: 20px;
+  `}
 `
 
 const LeftColumn = styled.div`
@@ -88,17 +94,21 @@ const RightColumn = styled.div`
 `
 
 function NotificationCenter() {
+  const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   return (
     <PageWrapper>
       <HeaderWrapper>
+        {isMobile && <Menu />}
         <Title>
           <Trans>Your Profile</Trans>
         </Title>
       </HeaderWrapper>
       <Wrapper>
-        <LeftColumn>
-          <Menu />
-        </LeftColumn>
+        {!isMobile && (
+          <LeftColumn>
+            <Menu />
+          </LeftColumn>
+        )}
         <RightColumn>
           <Routes>
             <Route path={NOTIFICATION_ROUTES.PROFILE} element={<Profile />} />

@@ -31,6 +31,9 @@ const ActionWrapper = styled.div`
   gap: 20px;
   padding: 12px 20px;
   justify-content: space-between;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+      padding: 14px 24px;
+  `}
 `
 
 const ProfileItemWrapper = styled(RowBetween)<{ active: boolean }>`
@@ -40,6 +43,9 @@ const ProfileItemWrapper = styled(RowBetween)<{ active: boolean }>`
   :hover {
     background-color: ${({ theme }) => rgba(theme.buttonBlack, 0.5)};
   }
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+      padding: 14px 24px;
+  `}
 `
 
 const ProfileItem = ({

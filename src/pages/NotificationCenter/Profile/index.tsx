@@ -1,7 +1,9 @@
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { LogOut, Save } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import { useUpdateProfileMutation } from 'services/identity'
 import styled, { css } from 'styled-components'
@@ -25,6 +27,7 @@ import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
 import { useNotify } from 'state/application/hooks'
 import { useRefreshProfile, useSessionInfo, useSignedWalletInfo } from 'state/authen/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 
 const Wrapper = styled.div`
@@ -44,7 +47,7 @@ const Label = styled.label`
   color: ${({ theme }) => theme.subText};
 `
 
-const AVATAR_SIZE = '120px'
+const AVATAR_SIZE = isMobile ? '72px' : '120px'
 const AvatarWrapper = styled.div`
   border-radius: 100%;
   padding: 16px;
@@ -114,6 +117,7 @@ const ButtonSave = styled(ButtonPrimary)`
 
 export default function Profile() {
   const theme = useTheme()
+  const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const { chainId } = useActiveWeb3React()
   const { userInfo, isLogin } = useSessionInfo()
   const { inputEmail, onChangeEmail, errorColor, hasErrorInput } = useValidateEmail(userInfo?.email)
@@ -181,9 +185,11 @@ export default function Profile() {
 
   return (
     <Wrapper>
-      <Text fontSize={'24px'} fontWeight={'500'}>
-        <Trans>Profile Details</Trans>
-      </Text>
+      {!isMobile && (
+        <Text fontSize={'24px'} fontWeight={'500'}>
+          <Trans>Profile Details</Trans>
+        </Text>
+      )}
       <FormWrapper>
         <LeftColum>
           <FormGroup>
@@ -245,13 +251,13 @@ export default function Profile() {
           </ActionsWrapper>
         </LeftColum>
 
-        <FormGroup style={{ width: AVATAR_SIZE }}>
+        <FormGroup style={{ width: isMobile ? '100px' : AVATAR_SIZE, alignItems: 'center' }}>
           <Label style={{ textAlign: 'center' }}>
             <Trans>Profile Picture</Trans>
           </Label>
           <FileInput onImgChange={handleFileChange} image>
             <AvatarWrapper>
-              <Avatar url={displayAvatar} size={84} color={theme.subText} />
+              <Avatar url={displayAvatar} size={isMobile ? 50 : 84} color={theme.subText} />
             </AvatarWrapper>
           </FileInput>
         </FormGroup>

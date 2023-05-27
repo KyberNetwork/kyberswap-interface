@@ -38,7 +38,7 @@ export default function FileInput({
         ref={fileRef}
         type="file"
         onChange={handleFileChange}
-        style={{ visibility: 'hidden' }}
+        style={{ visibility: 'hidden', height: 0, width: 0 }}
         accept={image ? 'image/*' : undefined}
       />
     </>
