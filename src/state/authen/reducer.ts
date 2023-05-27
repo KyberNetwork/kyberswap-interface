@@ -22,7 +22,7 @@ export interface AuthenState {
   readonly possibleConnectedWalletAddress: null | string | undefined // null is checking
   readonly signedWalletAddress: undefined | string
   readonly anonymousUserInfo: UserProfile | undefined
-  readonly userInfo: UserProfile | undefined
+  readonly signedUserInfo: UserProfile | undefined
   readonly isLogin: boolean
   readonly pendingAuthentication: boolean
   readonly profiles: ConnectedProfile[]
@@ -32,7 +32,7 @@ const DEFAULT_AUTHEN_STATE: AuthenState = {
   possibleConnectedWalletAddress: null,
   signedWalletAddress: undefined,
   anonymousUserInfo: undefined,
-  userInfo: undefined,
+  signedUserInfo: undefined,
   isLogin: false,
   pendingAuthentication: true,
   profiles: [],
@@ -52,9 +52,9 @@ export default createReducer(DEFAULT_AUTHEN_STATE, builder =>
     .addCase(updateProfile, (state, { payload: { profile, isAnonymous } }) => {
       if (isAnonymous) {
         state.anonymousUserInfo = profile
-        state.userInfo = undefined
+        state.signedUserInfo = undefined
       } else {
-        state.userInfo = profile
+        state.signedUserInfo = profile
         state.anonymousUserInfo = undefined
       }
       state.isLogin = !isAnonymous

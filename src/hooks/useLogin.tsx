@@ -135,15 +135,16 @@ const useLogin = (autoLogin = false) => {
     // })
   }, [requestSignIn, autoLogin, signedWallet])
 
-  // todo update ux, neu chua login open connect wallet => auto redirect oauth and sign in
   const signInEth = useCallback(
     (walletAddress?: string) => {
-      if (!account) {
+      const isAddAccount = !walletAddress
+      const isSelectAccount = !!walletAddress
+
+      if (isAddAccount && !account) {
         toggleWalletModal()
         return
       }
-      const isAddAccount = !walletAddress
-      const isSelectAccount = !!walletAddress
+
       if (
         signedWallet &&
         ((isSelectAccount && signedWallet.toLowerCase() === walletAddress?.toLowerCase()) ||
@@ -156,6 +157,7 @@ const useLogin = (autoLogin = false) => {
         })
         return
       }
+
       const connectedAccounts = KyberOauth2.getConnectedEthAccounts()
       if (isSelectAccount && connectedAccounts.includes(walletAddress?.toLowerCase() || '')) {
         requestSignIn(walletAddress, false) // todo check case 2 token faild
@@ -169,7 +171,7 @@ const useLogin = (autoLogin = false) => {
       KyberOauth2.authenticate({ wallet_address: account ?? '' }) // navigate to login page
       setLoginRedirectUrl()
     },
-    [account, notify, toggleWalletModal, signedWallet, requestSignIn],
+    [account, notify, signedWallet, requestSignIn, toggleWalletModal],
   )
 
   const signOut = useCallback(
@@ -195,9 +197,31 @@ const useLogin = (autoLogin = false) => {
     [resetState, signedWallet, notify, refreshListProfile],
   )
 
+  const signOutAll = useCallback(() => {
+    const connectedAccounts = KyberOauth2.getConnectedEthAccounts()
+    let needRedirect = false
+    connectedAccounts.forEach(address => {
+      if (address?.toLowerCase() === signedWallet?.toLowerCase()) {
+        needRedirect = true
+        return
+      }
+      KyberOauth2.removeTokensEthAccount(address)
+    })
+    if (needRedirect) {
+      signOut(signedWallet)
+      return
+    }
+    refreshListProfile()
+    notify({
+      type: NotificationType.SUCCESS,
+      title: t`Logged out all accounts successfully`,
+      summary: t`You had successfully logged out`,
+    })
+  }, [notify, refreshListProfile, signedWallet, signOut])
+
   const wrappedSignInAnonymous = useCallback(() => signInAnonymous(account), [signInAnonymous, account]) // todo rename
 
-  return { signOut, signInEth, signInAnonymous: wrappedSignInAnonymous }
+  return { signOut, signInEth, signInAnonymous: wrappedSignInAnonymous, signOutAll }
 }
 
 export default useLogin

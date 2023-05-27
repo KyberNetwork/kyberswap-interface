@@ -16,7 +16,7 @@ import useTheme from 'hooks/useTheme'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
-import { ConnectedProfile, useAllProfileInfo } from 'state/authen/hooks'
+import { ConnectedProfile, useAllProfileInfo, useSignedWalletInfo } from 'state/authen/hooks'
 import getShortenAddress from 'utils/getShortenAddress'
 
 const ContentWrapper = styled.div`
@@ -53,6 +53,7 @@ const ProfileItem = ({
   const navigate = useNavigate()
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
   const { signInEth, signInAnonymous, signOut } = useLogin()
+  const { isSignedWallet, isGuest } = useSignedWalletInfo()
 
   const onClick = () => {
     if (guest) signInAnonymous()
@@ -74,6 +75,19 @@ const ProfileItem = ({
         </Column>
       </Row>
       <Row justify="flex-end" gap="18px" align="center">
+        {(isSignedWallet(account) || (guest && isGuest)) && (
+          <MouseoverTooltip text={t`Edit Profile Details`} width="fit-content" placement="top">
+            <TransactionSettingsIcon
+              size={20}
+              fill={theme.subText}
+              onClick={e => {
+                e?.stopPropagation()
+                navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PROFILE}`)
+                toggleModal()
+              }}
+            />
+          </MouseoverTooltip>
+        )}
         {!guest && (
           <LogOut
             size={20}
@@ -84,30 +98,16 @@ const ProfileItem = ({
             }}
           />
         )}
-        <MouseoverTooltip text={t`Edit Profile Details`} width="fit-content" placement="top">
-          <TransactionSettingsIcon
-            size={20}
-            fill={theme.subText}
-            onClick={e => {
-              e?.stopPropagation()
-              navigate(
-                `${APP_PATHS.NOTIFICATION_CENTER}${
-                  guest ? NOTIFICATION_ROUTES.GUEST_PROFILE : `${NOTIFICATION_ROUTES.PROFILE}/${account}`
-                }`,
-              )
-              toggleModal()
-            }}
-          />
-        </MouseoverTooltip>
       </Row>
     </ProfileItemWrapper>
   )
 }
 const ProfileContent = () => {
   const theme = useTheme()
-  const { signInEth } = useLogin()
-
+  const { signInEth, signOutAll } = useLogin()
+  const { canSignInEth } = useSignedWalletInfo()
   const { profiles, refresh } = useAllProfileInfo()
+  const totalSignedAccount = profiles.filter(e => !e.guest).length
 
   return (
     <ContentWrapper>
@@ -117,16 +117,30 @@ const ProfileContent = () => {
         ))}
       </Column>
       <ActionWrapper>
-        <Flex
-          color={theme.subText}
-          alignItems={'center'}
-          style={{ gap: '6px' }}
-          onClick={() => signInEth()}
-          fontWeight={'400'}
-          fontSize={'14px'}
-        >
-          <Plus size={20} /> <Trans>Add Account</Trans>
-        </Flex>
+        {canSignInEth && (
+          <Flex
+            color={theme.subText}
+            alignItems={'center'}
+            style={{ gap: '6px' }}
+            onClick={() => signInEth()}
+            fontWeight={'400'}
+            fontSize={'14px'}
+          >
+            <Plus size={20} /> <Trans>Add Account</Trans>
+          </Flex>
+        )}
+        {totalSignedAccount > 0 && (
+          <Flex
+            color={theme.subText}
+            alignItems={'center'}
+            style={{ gap: '6px' }}
+            fontWeight={'400'}
+            fontSize={'14px'}
+            onClick={signOutAll}
+          >
+            <LogOut size={20} /> <Trans>Sign-out all</Trans>
+          </Flex>
+        )}
       </ActionWrapper>
     </ContentWrapper>
   )

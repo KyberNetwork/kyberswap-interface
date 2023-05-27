@@ -3,9 +3,10 @@ import { UnsupportedChainIdError } from '@web3-react/core'
 import { darken, lighten } from 'polished'
 import { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Activity, Info } from 'react-feather'
+import { Activity } from 'react-feather'
 import styled from 'styled-components'
 
+import { ReactComponent as WarningInfo } from 'assets/svg/warning_info_icon.svg'
 import { ButtonLight } from 'components/Button'
 import WalletModal from 'components/Header/web3/WalletModal'
 import Loader from 'components/Loader'
@@ -16,7 +17,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENSName from 'hooks/useENSName'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useNetworkModalToggle, useWalletModalToggle } from 'state/application/hooks'
-import { useSignedWallet } from 'state/authen/hooks'
+import { useSignedWalletInfo } from 'state/authen/hooks'
 import { isTransactionRecent, newTransactionsFirst, useAllTransactions } from 'state/transactions/hooks'
 import { TransactionDetails } from 'state/transactions/type'
 import { useIsDarkMode } from 'state/user/hooks'
@@ -120,8 +121,7 @@ function Web3StatusInner() {
   const hasPendingTransactions = !!pendingLength
   const toggleWalletModal = useWalletModalToggle()
   const toggleNetworkModal = useNetworkModalToggle()
-  const [signedWallet] = useSignedWallet()
-  const isSignedMissMatch = signedWallet?.toLowerCase() !== account?.toLowerCase()
+  const { signedDifferentWallet } = useSignedWalletInfo()
 
   if (account) {
     return (
@@ -142,8 +142,8 @@ function Web3StatusInner() {
           </RowBetween>
         ) : (
           <>
-            {isSignedMissMatch ? (
-              <Info size={18} />
+            {signedDifferentWallet ? (
+              <WarningInfo width={20} height={20} />
             ) : (
               walletKey && (
                 <IconWrapper size={16}>

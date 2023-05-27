@@ -17,7 +17,7 @@ import { useActiveWeb3React } from 'hooks'
 import useLogin from 'hooks/useLogin'
 import MenuItem from 'pages/NotificationCenter/Menu/MenuItem'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
-import { useAllProfileInfo } from 'state/authen/hooks'
+import { useSessionInfo, useSignedWalletInfo } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
 import { shortString } from 'utils/string'
@@ -114,27 +114,27 @@ const menuItems: MenuItemType[] = [
 type PropsMenu = { unread: Unread }
 const MenuForDesktop = ({ unread }: PropsMenu) => {
   // todo mobile
-  const { account } = useActiveWeb3React()
   const { signInEth } = useLogin()
-  const { profiles } = useAllProfileInfo()
+  const { userInfo: profile } = useSessionInfo()
+  const { signedWallet, isGuest, canSignInEth } = useSignedWalletInfo()
 
   const menuItemDeskTop = useMemo(() => {
     return menuItems.map(el => {
       if (el.route !== NOTIFICATION_ROUTES.PROFILE) return el
-      const childs: MenuItemType[] = profiles.map(({ guest, profile, address }) =>
-        guest
+      const childs: MenuItemType[] = [
+        isGuest
           ? {
-              route: NOTIFICATION_ROUTES.GUEST_PROFILE,
+              route: NOTIFICATION_ROUTES.PROFILE,
               icon: <Avatar url={profile?.avatarUrl} size={16} />,
-              title: profile?.nickname ? `${shortString(profile?.nickname, 20)} (${address})` : address,
+              title: profile?.nickname ? `${shortString(profile?.nickname, 20)} (${t`Guest`})` : t`Guest`,
             }
           : {
-              route: `${NOTIFICATION_ROUTES.PROFILE}/${address}`,
+              route: NOTIFICATION_ROUTES.PROFILE,
               icon: <Avatar url={profile?.avatarUrl} size={16} />,
-              title: profile?.nickname ? shortString(profile?.nickname, 20) : getShortenAddress(address),
+              title: profile?.nickname ? shortString(profile?.nickname, 20) : getShortenAddress(signedWallet ?? ''),
             },
-      )
-      if (account)
+      ]
+      if (canSignInEth)
         childs.push({
           route: '',
           icon: <Plus size="16px" />,
@@ -143,7 +143,7 @@ const MenuForDesktop = ({ unread }: PropsMenu) => {
         })
       return { ...el, childs }
     })
-  }, [account, signInEth, profiles])
+  }, [canSignInEth, signInEth, signedWallet, isGuest, profile])
 
   return (
     <Flex

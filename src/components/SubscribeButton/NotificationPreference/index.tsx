@@ -178,7 +178,7 @@ function NotificationPreference({
     unsubscribeAll,
   } = useNotification()
 
-  const { formatUserInfo: userInfo, isLogin } = useSessionInfo()
+  const { signedUserInfo: userInfo, isLogin } = useSessionInfo()
 
   const [isShowVerify, setIsShowVerify] = useState(false)
   const showVerifyModal = () => {

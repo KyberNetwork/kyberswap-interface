@@ -15,7 +15,7 @@ import OTPInput from 'pages/Verify/VerifyCodeModal/OtpInput'
 import { useNotify } from 'state/application/hooks'
 import { useRefreshProfile, useSessionInfo } from 'state/authen/hooks'
 
-export const getErrorMessage = (error: any) => {
+const getErrorMessage = (error: any) => {
   const mapErr: { [key: number]: string } = {
     4004: t`OTP wrong or expired. Please try again.`,
     4040: t`Referral code is invalid`,

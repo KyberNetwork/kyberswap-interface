@@ -12,8 +12,6 @@ export enum PriceAlertType {
 
 export enum NOTIFICATION_ROUTES {
   PROFILE = '/profile',
-  GUEST_PROFILE = '/profile/guest',
-  SIGN_PROFILE = '/profile/:walletAddress',
 
   CREATE_ALERT = '/create-alert',
 

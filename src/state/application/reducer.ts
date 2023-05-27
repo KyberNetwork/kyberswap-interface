@@ -53,7 +53,6 @@ interface ApplicationState {
 const initialStateNotification = {
   isLoading: false,
   topicGroups: [],
-  userInfo: { email: '', telegram: '' },
   announcementDetail: {
     selectedIndex: null,
     announcements: [],

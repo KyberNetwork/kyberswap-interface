@@ -102,9 +102,6 @@ function NotificationCenter() {
         <RightColumn>
           <Routes>
             <Route path={NOTIFICATION_ROUTES.PROFILE} element={<Profile />} />
-            <Route path={NOTIFICATION_ROUTES.GUEST_PROFILE} element={<Profile />} />
-            <Route path={NOTIFICATION_ROUTES.SIGN_PROFILE} element={<Profile />} />
-
             <Route index path={NOTIFICATION_ROUTES.ALL_NOTIFICATION} element={<PrivateAnnouncement />} />
             <Route path={NOTIFICATION_ROUTES.PREFERENCE} element={<Overview />} />
 

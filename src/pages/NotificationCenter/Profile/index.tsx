@@ -1,7 +1,6 @@
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { LogOut, Save } from 'react-feather'
-import { useParams } from 'react-router'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import { useUpdateProfileMutation } from 'services/identity'
@@ -22,17 +21,10 @@ import { useActiveWeb3React } from 'hooks'
 import { useUploadImageToCloud } from 'hooks/social'
 import useLogin from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
-import WarningSignMessage from 'pages/NotificationCenter/Profile/WarningSignMessage'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
 import { useNotify } from 'state/application/hooks'
-import {
-  KEY_GUEST_DEFAULT,
-  useCacheProfile,
-  useRefreshProfile,
-  useSessionInfo,
-  useSignedWallet,
-} from 'state/authen/hooks'
+import { useRefreshProfile, useSessionInfo, useSignedWalletInfo } from 'state/authen/hooks'
 import { shortenAddress } from 'utils'
 
 const Wrapper = styled.div`
@@ -122,42 +114,22 @@ const ButtonSave = styled(ButtonPrimary)`
 
 export default function Profile() {
   const theme = useTheme()
-  const { walletAddress: walletParam } = useParams()
-  const { chainId, account } = useActiveWeb3React()
-  const { formatUserInfo, isLogin } = useSessionInfo()
-  const { inputEmail, onChangeEmail, errorColor, hasErrorInput } = useValidateEmail(formatUserInfo?.email)
+  const { chainId } = useActiveWeb3React()
+  const { userInfo, isLogin } = useSessionInfo()
+  const { inputEmail, onChangeEmail, errorColor, hasErrorInput } = useValidateEmail(userInfo?.email)
   const [nickname, setNickName] = useState('')
   const { signOut } = useLogin()
-  const [signedWallet] = useSignedWallet()
-  const { getCacheProfile } = useCacheProfile()
   const navigate = useNavigate()
+  const { signedWallet } = useSignedWalletInfo()
 
   const [file, setFile] = useState<File>()
   const [previewImage, setPreviewImage] = useState<string>()
 
-  const isCurrentWallet = signedWallet && signedWallet?.toLowerCase() === walletParam?.toLowerCase()
-  const selectedProfile = useMemo(() => {
-    if (isCurrentWallet) {
-      return formatUserInfo
-    }
-    return getCacheProfile(walletParam || KEY_GUEST_DEFAULT, !walletParam)
-  }, [isCurrentWallet, formatUserInfo, getCacheProfile, walletParam])
-
   useEffect(() => {
-    onChangeEmail(selectedProfile?.email ?? '')
-    setNickName(selectedProfile?.nickname || '')
-    setPreviewImage(selectedProfile?.avatarUrl)
-  }, [selectedProfile?.email, selectedProfile?.nickname, selectedProfile?.avatarUrl, onChangeEmail])
-
-  // todo
-  // useEffect(() => {
-  //   if (!isLogin) {
-  //     navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.GUEST_PROFILE}`)
-  //     return
-  //   }
-  //   if (walletParam && walletParam.toLowerCase() !== account?.toLowerCase())
-  //     navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PROFILE}/${account}`)
-  // }, [formatUserInfo?.identityId, account, navigate, walletParam, isLogin])
+    onChangeEmail(userInfo?.email ?? '')
+    setNickName(userInfo?.nickname || '')
+    setPreviewImage(userInfo?.avatarUrl)
+  }, [userInfo?.email, userInfo?.nickname, userInfo?.avatarUrl, onChangeEmail])
 
   const [isShowVerify, setIsShowVerify] = useState(false)
   const showVerifyModal = () => {
@@ -202,22 +174,16 @@ export default function Profile() {
     }
   }
 
-  const isNotMatch = signedWallet?.toLowerCase() !== walletParam?.toLowerCase() // todo rename
+  const displayAvatar = previewImage || userInfo?.avatarUrl
+  const isVerifiedEmail = userInfo?.email && inputEmail === userInfo?.email
 
-  const displayAvatar = previewImage || selectedProfile?.avatarUrl
-  const isVerifiedEmail = (selectedProfile?.email && inputEmail === selectedProfile?.email) || isNotMatch
-  const displayWallet = (walletParam ? walletParam : '') || account || '' // todo combine all var to 1 hook
-  const isNeedSignIn = Boolean(
-    !walletParam ? signedWallet : (signedWallet && isNotMatch) || (walletParam && !signedWallet),
-  )
-  const hasChangeProfile = inputEmail !== selectedProfile?.email || file || nickname !== selectedProfile?.nickname
+  const hasChangeProfile = inputEmail !== userInfo?.email || file || nickname !== userInfo?.nickname
 
   return (
     <Wrapper>
       <Text fontSize={'24px'} fontWeight={'500'}>
         <Trans>Profile Details</Trans>
       </Text>
-      {isNeedSignIn && <WarningSignMessage walletAddress={walletParam} guest={!walletParam} />}
       <FormWrapper>
         <LeftColum>
           <FormGroup>
@@ -225,7 +191,6 @@ export default function Profile() {
               <Trans>User Name</Trans>
             </Label>
             <Input
-              disabled={isNeedSignIn}
               maxLength={50}
               value={nickname}
               onChange={e => setNickName(e.target.value)}
@@ -239,7 +204,6 @@ export default function Profile() {
             </Label>
             <InputEmail
               hasError={hasErrorInput}
-              disabled={isNeedSignIn}
               showVerifyModal={showVerifyModal}
               errorColor={errorColor}
               onChange={onChangeEmail}
@@ -248,7 +212,7 @@ export default function Profile() {
             />
           </FormGroup>
 
-          {displayWallet && (
+          {signedWallet && (
             <FormGroup>
               <Label>
                 <Trans>Wallet Address</Trans>
@@ -256,17 +220,17 @@ export default function Profile() {
               <StyledAddressInput
                 style={{ color: theme.subText, cursor: 'pointer' }}
                 disabled
-                value={shortenAddress(chainId, displayWallet, 17, false)}
-                icon={<CopyHelper toCopy={displayWallet} style={{ color: theme.subText }} />}
+                value={shortenAddress(chainId, signedWallet, 17, false)}
+                icon={<CopyHelper toCopy={signedWallet} style={{ color: theme.subText }} />}
               />
             </FormGroup>
           )}
 
           <ActionsWrapper>
-            {walletParam && (
+            {signedWallet && (
               <ButtonLogout
                 onClick={() => {
-                  signOut(walletParam)
+                  signOut(signedWallet)
                   navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PROFILE}`)
                 }}
               >
@@ -274,7 +238,7 @@ export default function Profile() {
                 Log Out
               </ButtonLogout>
             )}
-            <ButtonSave onClick={saveProfile} disabled={isNeedSignIn || !hasChangeProfile || hasErrorInput}>
+            <ButtonSave onClick={saveProfile} disabled={!hasChangeProfile || hasErrorInput}>
               <Save size={16} style={{ marginRight: '4px' }} />
               Save
             </ButtonSave>
@@ -285,7 +249,7 @@ export default function Profile() {
           <Label style={{ textAlign: 'center' }}>
             <Trans>Profile Picture</Trans>
           </Label>
-          <FileInput onImgChange={handleFileChange} image disabled={isNeedSignIn}>
+          <FileInput onImgChange={handleFileChange} image>
             <AvatarWrapper>
               <Avatar url={displayAvatar} size={84} color={theme.subText} />
             </AvatarWrapper>

@@ -86,7 +86,6 @@ export const {
   useCreatePriceAlertMutation,
   useUpdatePriceAlertMutation,
   useGetAlertStatsQuery,
-  useLazyGetAlertStatsQuery,
   useGetListAlertsQuery,
   useDeleteAllAlertsMutation,
   useDeleteSingleAlertMutation,

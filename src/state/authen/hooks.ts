@@ -69,15 +69,32 @@ export function useSignedWallet(): [string | undefined, (data: string | undefine
   return [getProfileLocalStorage(ProfileLocalStorageKeys.CONNECTED_WALLET) || wallet, setWallet]
 }
 
-export function useSessionInfo(): AuthenState & { formatUserInfo: UserProfile | undefined } {
+// info relate wallet currently singed in
+export const useSignedWalletInfo = () => {
+  const [signedWallet] = useSignedWallet()
   const { account } = useActiveWeb3React()
+  const isSignedWallet = useCallback(
+    (address: string) => signedWallet && signedWallet?.toLowerCase() === address?.toLowerCase(),
+    [signedWallet],
+  )
+  const isGuest = !signedWallet
+  return {
+    signedWallet,
+    signedDifferentWallet: signedWallet && account?.toLowerCase() !== signedWallet?.toLowerCase(),
+    canSignInEth: !signedWallet || account?.toLowerCase() !== signedWallet?.toLowerCase(),
+    isGuest,
+    isSignedWallet,
+  }
+}
+
+// info relate profile, session
+export function useSessionInfo(): AuthenState & { userInfo: UserProfile | undefined } {
   const authen = useSelector((state: AppState) => state.authen)
-  const isLogin = Boolean(authen.isLogin && account)
-  const formatUserInfo = useMemo(
-    () => (isLogin ? authen.userInfo : authen.anonymousUserInfo),
-    [authen.userInfo, authen.anonymousUserInfo, isLogin],
-  ) // todo rename
-  return { ...authen, isLogin, formatUserInfo }
+  const userInfo = useMemo(
+    () => (authen.isLogin ? authen.signedUserInfo : authen.anonymousUserInfo),
+    [authen.signedUserInfo, authen.anonymousUserInfo, authen.isLogin],
+  )
+  return { ...authen, userInfo }
 }
 
 export const KEY_GUEST_DEFAULT = 'default'
@@ -140,7 +157,7 @@ export const useCacheProfile = () => {
 export const useRefreshProfile = () => {
   const setProfile = useSaveUserProfile()
   const [getProfile] = useGetOrCreateProfileMutation()
-  const [signedWallet] = useSignedWallet()
+  const { signedWallet } = useSignedWalletInfo()
   return useCallback(
     async (isAnonymous: boolean) => {
       const profile = await getProfile().unwrap()
@@ -152,7 +169,7 @@ export const useRefreshProfile = () => {
 
 export type ConnectedProfile = { active: boolean; address: string; profile: UserProfile | undefined; guest: boolean }
 export const useAllProfileInfo = () => {
-  const [signInWallet] = useSignedWallet()
+  const { signedWallet, isGuest } = useSignedWalletInfo()
   const { getCacheProfile } = useCacheProfile()
   const [connectedAccounts, setConnectAccounts] = useState(KyberOauth2.getConnectedEthAccounts())
   const profilesState = useSelector((state: AppState) => state.authen.profiles)
@@ -164,18 +181,18 @@ export const useAllProfileInfo = () => {
   const profiles: ConnectedProfile[] = useMemo(() => {
     return connectedAccounts
       .map(address => ({
-        active: address === signInWallet?.toLowerCase(),
+        active: address === signedWallet?.toLowerCase(),
         address,
         profile: getCacheProfile(address, false),
         guest: false,
       }))
       .concat({
         address: t`Guest`,
-        active: !signInWallet,
+        active: isGuest,
         profile: getCacheProfile(KEY_GUEST_DEFAULT, true),
         guest: true,
       })
-  }, [signInWallet, getCacheProfile, connectedAccounts])
+  }, [signedWallet, getCacheProfile, connectedAccounts, isGuest])
 
   const dispatch = useAppDispatch()
   useEffect(() => {

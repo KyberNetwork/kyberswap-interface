@@ -5,7 +5,7 @@ import { Announcement, PrivateAnnouncement, PrivateAnnouncementType } from 'comp
 import { BFF_API, NOTIFICATION_API, getAnnouncementsTemplateIds } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
 
-export type AnnouncementResponse<T extends PrivateAnnouncement | Announcement = Announcement> = {
+type AnnouncementResponse<T extends PrivateAnnouncement | Announcement = Announcement> = {
   notifications: T[]
   numberOfUnread: number
   pagination: {
@@ -13,9 +13,7 @@ export type AnnouncementResponse<T extends PrivateAnnouncement | Announcement = 
   }
 }
 
-export const transformResponseAnnouncement = <T extends PrivateAnnouncement | Announcement = Announcement>(
-  data: any,
-) => {
+const transformResponseAnnouncement = <T extends PrivateAnnouncement | Announcement = Announcement>(data: any) => {
   const { metaMessages, notifications, ...rest } = data.data ?? {}
   return {
     ...rest,

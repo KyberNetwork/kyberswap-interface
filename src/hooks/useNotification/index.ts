@@ -40,7 +40,7 @@ type SaveNotificationParam = {
 
 const useNotification = () => {
   const { isLoading, topicGroups } = useSelector((state: AppState) => state.application.notification)
-  const { formatUserInfo } = useSessionInfo()
+  const { userInfo } = useSessionInfo()
 
   const { account, chainId } = useActiveWeb3React()
   const toggleSubscribeModal = useNotificationModalToggle()
@@ -53,7 +53,7 @@ const useNotification = () => {
     [dispatch],
   )
 
-  const { data: resp, refetch } = useGetSubscriptionTopicsQuery(undefined, { skip: !formatUserInfo })
+  const { data: resp, refetch } = useGetSubscriptionTopicsQuery(undefined, { skip: !userInfo })
 
   useEffect(() => {
     if (!resp) return
