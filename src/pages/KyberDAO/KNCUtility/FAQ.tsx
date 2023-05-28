@@ -76,13 +76,7 @@ const DetailPanel: React.FC<PanelProps> = ({ isExpanded, title, content, toggleE
 
 const DetailsContainer = styled.div`
   padding: 16px 24px;
-  width: 600px;
   height: fit-content;
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    width: 100%;
-  `}
-
   display: flex;
   flex-direction: column;
   background: ${({ theme }) => rgba(theme.background, 0.8)};

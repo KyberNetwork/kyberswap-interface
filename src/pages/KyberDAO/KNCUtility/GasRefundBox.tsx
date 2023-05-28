@@ -11,16 +11,16 @@ import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 
 const TotalReward = styled.div`
-  padding-bottom: 12px;
-  margin-bottom: 12px;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
   border-bottom: 1px solid ${({ theme }) => theme.border};
 `
 
 const Wrapper = styled.div`
   width: 100%;
-  border: 1px solid ${({ theme }) => theme.primary};
   border-radius: 20px;
-  padding: 20px 24px;
+  padding: 24px 24px 30px;
+  background-color: ${({ theme }) => theme.background};
 `
 
 enum Tabs {
@@ -57,12 +57,13 @@ const Tab = styled(Text)<{ active?: boolean }>`
 export default function GasRefundBox() {
   const theme = useTheme()
   const totalReward = 20000000000000
+  const totalRewardUSD = 2
   const [selectedTab, setSelectedTab] = useState<Tabs>(Tabs.Available)
   return (
     <Wrapper>
       <TotalReward>
         <RowBetween>
-          <Flex flexDirection="column" sx={{ gap: '8px' }}>
+          <Flex flexDirection="column" sx={{ gap: '16px' }}>
             <TextDashed fontSize={14} lineHeight="20px" fontWeight={500} color={theme.subText}>
               <MouseoverTooltip
                 width="fit-content"
@@ -72,18 +73,22 @@ export default function GasRefundBox() {
                 <Trans>Your Total Rewards</Trans>
               </MouseoverTooltip>
             </TextDashed>
-
-            <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text} alignItems="center">
-              {formatUnits(totalReward)} KNC
-            </Text>
+            <Flex flexDirection="column" sx={{ gap: '8px' }}>
+              <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text} alignItems="center">
+                {formatUnits(totalReward)} KNC
+              </Text>
+              <Text fontSize={12} lineHeight="16px" fontWeight={500} color={theme.subText} alignItems="center">
+                ${totalRewardUSD}
+              </Text>
+            </Flex>
           </Flex>
-          <Flex alignSelf="start">
-            <ButtonLight padding="2px 6px">Your Transactions</ButtonLight>
+          <Flex alignSelf="end">
+            <ButtonLight padding="2px 12px">Your Transactions</ButtonLight>
           </Flex>
         </RowBetween>
       </TotalReward>
       <RowBetween>
-        <Flex flexDirection="column" sx={{ gap: '8px' }}>
+        <Flex flexDirection="column" sx={{ gap: '16px' }}>
           <Flex>
             <MouseoverTooltip
               width="fit-content"
@@ -119,12 +124,17 @@ export default function GasRefundBox() {
               </Tab>
             </MouseoverTooltip>
           </Flex>
-          <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text} alignItems="center">
-            {formatUnits(totalReward)} KNC
-          </Text>
+          <Flex flexDirection="column" sx={{ gap: '8px' }}>
+            <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text} alignItems="center">
+              {formatUnits(totalReward)} KNC
+            </Text>
+            <Text fontSize={12} lineHeight="16px" fontWeight={500} color={theme.subText} alignItems="center">
+              ${totalRewardUSD}
+            </Text>
+          </Flex>
         </Flex>
         <Flex alignSelf="end">
-          <ButtonPrimary padding="8px 20px">Claim</ButtonPrimary>
+          <ButtonPrimary padding="8px 45px">Claim</ButtonPrimary>
         </Flex>
       </RowBetween>
     </Wrapper>
