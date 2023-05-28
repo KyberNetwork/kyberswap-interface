@@ -1,12 +1,14 @@
+import KyberOauth2, { KyberOauth2Event } from '@kybernetwork/oauth2'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { X } from 'react-feather'
 import { createSearchParams, useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { DefaultTheme, css } from 'styled-components'
 
+import { ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import Divider from 'components/Divider'
 import Icon from 'components/Icons/Icon'
@@ -175,11 +177,20 @@ export default function Widget() {
   const [showExpanded, setShowExpanded] = useState(false)
   const [showWidget, toggleWidget] = useKyberAIWidget()
   const [activeTab, setActiveTab] = useState<WidgetTab>(WidgetTab.MyWatchlist)
+  const [isSessionExpired, setIsSessionExpired] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   useOnClickOutside(ref, () => {
     setShowExpanded(false)
   })
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const listener = () => {
+      setIsSessionExpired(true)
+    }
+    KyberOauth2.on(KyberOauth2Event.SESSION_EXPIRED, listener)
+    return () => KyberOauth2.off(KyberOauth2Event.SESSION_EXPIRED, listener)
+  }, [])
 
   const { data, isFetching, isError } = useTokenListQuery(
     activeTab === WidgetTab.MyWatchlist
@@ -198,6 +209,7 @@ export default function Widget() {
     { refetchOnMountOrArgChange: true, skip: !account },
   )
   if (!account) return <></>
+
   return (
     <>
       <WidgetWrapper onClick={() => setShowExpanded(true)} show={!isMobile && showWidget}>
@@ -278,51 +290,66 @@ export default function Widget() {
               </Tab>
             ))}
           </Row>
-          <Row align="center" justify="center" height="400px" width="820px">
-            {activeTab === WidgetTab.MyWatchlist && data && data?.data?.length === 0 ? (
-              <Text color={theme.subText} textAlign="center">
-                <Trans>
-                  You can add more tokens to your watchlist from{' '}
-                  <Text color={theme.primary} display="inline">
-                    KyberAI
+          {isSessionExpired ? (
+            <Column alignItems="center" justify="center" flex={1} marginTop={'100px'} gap="16px" width="820px">
+              <Trans>Your session has expired. Please sign-in to continue.</Trans>
+              <ButtonPrimary
+                height={'30px'}
+                width={'100px'}
+                onClick={() => KyberOauth2.authenticate({ wallet_address: account ?? '' })}
+              >
+                <Trans>Sign-in</Trans>
+              </ButtonPrimary>
+            </Column>
+          ) : (
+            <>
+              <Row align="center" justify="center" height="400px" width="820px">
+                {activeTab === WidgetTab.MyWatchlist && data && data?.data?.length === 0 ? (
+                  <Text color={theme.subText} textAlign="center">
+                    <Trans>
+                      You can add more tokens to your watchlist from{' '}
+                      <Text color={theme.primary} display="inline">
+                        KyberAI
+                      </Text>
+                      .<br />
+                      You can watch up to 10 tokens
+                    </Trans>
                   </Text>
-                  .<br />
-                  You can watch up to 10 tokens
-                </Trans>
-              </Text>
-            ) : (
-              <WidgetTable
-                data={data?.data}
-                isLoading={isFetching}
-                isError={isError}
-                onRowClick={() => setShowExpanded(false)}
-              />
-            )}
-          </Row>
-          <RowBetween padding="16px">
-            <TextButton style={{ color: theme.subText }} onClick={() => setShowExpanded(false)}>
-              <Trans>Collapse</Trans>
-              <Icon size={16} id="arrow" />
-            </TextButton>
-            <TextButton
-              style={{ color: theme.primary }}
-              onClick={() =>
-                navigate({
-                  pathname: APP_PATHS.KYBERAI_RANKINGS,
-                  search: `${createSearchParams({
-                    listType: {
-                      [WidgetTab.MyWatchlist]: KyberAIListType.MYWATCHLIST,
-                      [WidgetTab.Bearish]: KyberAIListType.BEARISH,
-                      [WidgetTab.Bullish]: KyberAIListType.BULLISH,
-                      [WidgetTab.TrendingSoon]: KyberAIListType.TRENDING_SOON,
-                    }[activeTab],
-                  })}`,
-                })
-              }
-            >
-              <Trans>View more ↗</Trans>
-            </TextButton>
-          </RowBetween>
+                ) : (
+                  <WidgetTable
+                    data={data?.data}
+                    isLoading={isFetching}
+                    isError={isError}
+                    onRowClick={() => setShowExpanded(false)}
+                  />
+                )}
+              </Row>
+              <RowBetween padding="16px">
+                <TextButton style={{ color: theme.subText }} onClick={() => setShowExpanded(false)}>
+                  <Trans>Collapse</Trans>
+                  <Icon size={16} id="arrow" />
+                </TextButton>
+                <TextButton
+                  style={{ color: theme.primary }}
+                  onClick={() =>
+                    navigate({
+                      pathname: APP_PATHS.KYBERAI_RANKINGS,
+                      search: `${createSearchParams({
+                        listType: {
+                          [WidgetTab.MyWatchlist]: KyberAIListType.MYWATCHLIST,
+                          [WidgetTab.Bearish]: KyberAIListType.BEARISH,
+                          [WidgetTab.Bullish]: KyberAIListType.BULLISH,
+                          [WidgetTab.TrendingSoon]: KyberAIListType.TRENDING_SOON,
+                        }[activeTab],
+                      })}`,
+                    })
+                  }
+                >
+                  <Trans>View more ↗</Trans>
+                </TextButton>
+              </RowBetween>
+            </>
+          )}
         </Column>
       </ExpandedWidgetWrapper>
     </>

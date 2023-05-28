@@ -39,7 +39,6 @@ interface Window {
   solana?: any
   recaptchaOptions?: any
   zESettings?: any
-  showConfirm?: (data: any) => void
 }
 
 declare module 'content-hash' {

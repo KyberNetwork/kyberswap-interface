@@ -32,7 +32,7 @@ type ETHPrice = {
 
 export type ConfirmModalState = {
   isOpen: boolean
-  cancelText: string
+  cancelText?: string
   confirmText: string
   title?: string
   content: string

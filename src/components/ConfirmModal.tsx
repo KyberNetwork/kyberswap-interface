@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useSelector } from 'react-redux'
 import { Flex, Text } from 'rebass'
@@ -23,7 +23,7 @@ const Wrapper = styled.div`
   flex-direction: column;
 `
 
-const useShowConfirm = () => {
+export const useShowConfirm = () => {
   const dispatch = useAppDispatch()
   return useCallback(
     (data: ConfirmModalState) => {
@@ -39,10 +39,6 @@ const ModalConfirm: React.FC = () => {
   )
   const theme = useTheme()
   const dispatch = useAppDispatch()
-  const showConfirm = useShowConfirm()
-  useEffect(() => {
-    window.showConfirm = showConfirm
-  }, [showConfirm])
 
   const handleDismiss = () => {
     dispatch(setConfirmData(initialStateConfirmModal))
