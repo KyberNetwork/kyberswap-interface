@@ -30,3 +30,16 @@ export const NETWORK_TO_CHAINID: { [chain: string]: ChainId } = {
   polygon: ChainId.MATIC,
   fantom: ChainId.FANTOM,
 }
+
+export enum MIXPANEL_KYBERAI_TAG {
+  RANKING_ALL = 'ranking_all',
+  RANKING_BULLISH = 'ranking_bullish',
+  RANKING_BEARISH = 'ranking_bearish',
+  RANKING_MY_WATCHLIST = 'ranking_my_watchlist',
+  RANKING_TOP_CEX_INFLOW = 'ranking_top_cex_inflow',
+  RANKING_TOP_CEX_OUTFLOW = 'ranking_top_cex_outflow',
+  RANKING_TOP_TRADED = 'ranking_top_traded',
+  RANKING_TRENDING_SOON = 'ranking_trending_soon',
+  RANKING_CURRENTLY_TRENDING = 'ranking_currently_trending',
+  EXPLORE_SHARE_THIS_TOKEN = 'explore_share_this_token',
+}

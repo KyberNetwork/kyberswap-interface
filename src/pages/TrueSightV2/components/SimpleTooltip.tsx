@@ -70,7 +70,7 @@ const Arrow = styled.div<{ left?: number }>`
 
 export default function SimpleTooltip({
   text,
-  delay = 100,
+  delay = 50,
   x,
   y,
   children,
@@ -93,26 +93,30 @@ export default function SimpleTooltip({
   const [className, setClassName] = useState('')
   const [bodyRect, setBodyRect] = useState<DOMRect>()
   const [{ width, height }, setWidthHeight] = useState({ width: 0, height: 0 })
-  const hovering = useRef(false)
+  const timeOutID = useRef<NodeJS.Timeout>()
   const ref = useRef<HTMLDivElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const firstRenderRef = useRef<boolean>(true)
 
   const handleMouseEnter = () => {
-    hovering.current = true
-    setTimeout(() => {
-      if (hovering.current === true) {
-        setShow(true)
-        setClassName('show')
-      }
+    if (timeOutID.current) {
+      clearTimeout(timeOutID.current)
+    }
+    timeOutID.current = setTimeout(() => {
+      setShow(true)
+      setClassName('show')
     }, delay)
   }
   const handleMouseLeave = useCallback(() => {
-    hovering.current = false
-    setClassName('')
-    setTimeout(() => {
-      setShow(false)
-    }, 150 + delay)
+    if (timeOutID.current) {
+      clearTimeout(timeOutID.current)
+    }
+    timeOutID.current = setTimeout(() => {
+      setClassName('')
+      setTimeout(() => {
+        setShow(false)
+      }, 150)
+    }, delay)
   }, [delay])
 
   useLayoutEffect(() => {
@@ -162,6 +166,7 @@ export default function SimpleTooltip({
   const isShow = (show || (!!x && !!y)) && !(hideOnMobile && isMobile)
 
   const tooltipContent = useMemo(() => {
+    if (!text) return null
     return ReactDOM.createPortal(
       <Wrapper
         ref={wrapperRef}

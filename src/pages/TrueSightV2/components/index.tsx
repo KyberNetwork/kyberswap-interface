@@ -128,7 +128,7 @@ export const SectionWrapper = ({
   const theme = useTheme()
   const ref = useRef<HTMLDivElement>(null)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
-  const [showText, setShowText] = useState(true)
+  const [showText, setShowText] = useState(above768 ? true : false)
   const [showShare, setShowShare] = useState(false)
 
   const [isTextExceeded, setIsTexExceeded] = useState(false)
@@ -271,12 +271,12 @@ export const SectionWrapper = ({
                   )
                 })}
             </Row>
-            <RowBetween>
+            <RowBetween marginBottom="8px">
               <MouseoverTooltip text={description}>
                 <RowFit gap="4px">
                   <Text
                     style={{
-                      fontSize: '12px',
+                      fontSize: '14px',
                       textDecoration: `underline dotted ${theme.subText}`,
                       textUnderlineOffset: '6px',
                     }}
@@ -302,6 +302,37 @@ export const SectionWrapper = ({
                 {fullscreenButton && <FullscreenButton element={ref.current} />}
               </RowFit>
             </RowBetween>
+            <Row>
+              <SectionDescription show={showText} ref={descriptionRef} style={{ fontSize: '12px' }}>
+                {description}
+                {showText && isTextExceeded && (
+                  <Text
+                    as="span"
+                    fontSize="12px"
+                    color={theme.primary}
+                    width="fit-content"
+                    style={{ cursor: 'pointer', flexBasis: 'fit-content', whiteSpace: 'nowrap' }}
+                    onClick={() => setShowText(prev => !prev)}
+                  >
+                    {' '}
+                    <Trans>Hide</Trans>
+                  </Text>
+                )}
+              </SectionDescription>
+              {!showText && isTextExceeded && (
+                <Text
+                  as="span"
+                  fontSize="12px"
+                  lineHeight="21px"
+                  color={theme.primary}
+                  width="fit-content"
+                  style={{ cursor: 'pointer', flexBasis: 'fit-content', whiteSpace: 'nowrap' }}
+                  onClick={() => setShowText(prev => !prev)}
+                >
+                  <Trans>Show more</Trans>
+                </Text>
+              )}
+            </Row>
           </SectionTitle>
           {children || <></>}
         </>

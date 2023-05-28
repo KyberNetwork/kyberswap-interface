@@ -4,6 +4,7 @@ import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
+import { Info } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -15,10 +16,8 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { ButtonGray, ButtonLight, ButtonOutlined } from 'components/Button'
 import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
-import InfoHelper from 'components/InfoHelper'
 import Pagination from 'components/Pagination'
 import Row, { RowBetween, RowFit } from 'components/Row'
-import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
@@ -228,7 +227,6 @@ const TabWrapper = styled.div`
 
 const ButtonTypeActive = styled(ButtonLight)`
   height: 36px;
-  width: fit-content;
   margin: 0 !important;
   display: flex;
   gap: 4px;
@@ -246,7 +244,6 @@ const ButtonTypeActive = styled(ButtonLight)`
 
 const ButtonTypeInactive = styled(ButtonOutlined)`
   height: 36px;
-  width: fit-content;
   margin: 0 !important;
   display: flex;
   gap: 4px;
@@ -422,21 +419,21 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab:
           }
           if (tab === type) {
             return (
-              <MouseoverTooltip key={type} text={tooltip?.(theme)} placement="top" opacity={1} delay={500}>
+              <SimpleTooltip key={type} text={tooltip?.(theme)} delay={500} hideOnMobile>
                 <ButtonTypeActive {...props} ref={el => (tabListRef.current[index] = el)}>
                   {icon && <Icon id={icon} size={16} />}
                   {title}
                 </ButtonTypeActive>
-              </MouseoverTooltip>
+              </SimpleTooltip>
             )
           } else {
             return (
-              <MouseoverTooltip key={type} text={tooltip?.(theme)} placement="top" opacity={1} delay={500}>
+              <SimpleTooltip key={type} text={tooltip?.(theme)} delay={500} hideOnMobile>
                 <ButtonTypeInactive key={type} {...props} ref={el => (tabListRef.current[index] = el)}>
                   {icon && <Icon id={icon} size={16} />}
                   {title}
                 </ButtonTypeInactive>
-              </MouseoverTooltip>
+              </SimpleTooltip>
             )
           }
         })}
@@ -490,8 +487,8 @@ const TokenRow = ({
   const rowRef = useRef<HTMLTableRowElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
 
-  useOnClickOutside(rowRef, () => setShowMenu(false))
-  useOnClickOutside(rowRef, () => setShowSwapMenu(false))
+  useOnClickOutside(menuRef, () => setShowMenu(false))
+  useOnClickOutside(menuRef, () => setShowSwapMenu(false))
   const above768 = useMedia('(min-width:768px)')
 
   const hasMutipleChain = token.tokens.length > 1
@@ -891,7 +888,7 @@ export default function TokenAnalysisList() {
                 </th>
                 <th style={{ textAlign: 'left' }}>
                   <Column gap="4px">
-                    <Row justify="flex-start">
+                    <Row justify="flex-start" gap="4px">
                       <Trans>Kyberscore</Trans>{' '}
                       {/* {sortedColumn === SORT_FIELD.KYBERSCORE ? (
                           !sortDirection ? (
@@ -902,10 +899,7 @@ export default function TokenAnalysisList() {
                         ) : (
                           ''
                         )} */}
-                      <InfoHelper
-                        placement="top"
-                        width="300px"
-                        size={12}
+                      <SimpleTooltip
                         text={
                           <span>
                             KyberScore uses AI to measure the upcoming trend of a token (bullish or bearish) by taking
@@ -916,7 +910,10 @@ export default function TokenAnalysisList() {
                             </a>
                           </span>
                         }
-                      />
+                        delay={200}
+                      >
+                        <Info size={10} color={'currentcolor'} display="block" />
+                      </SimpleTooltip>
                     </Row>
                     {/* <Text fontSize="10px" style={{ textTransform: 'none' }}>
                         <Trans>At 08:00 AM</Trans>
