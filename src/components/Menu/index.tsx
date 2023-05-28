@@ -49,7 +49,13 @@ import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import { useDarkModeManager, useHolidayMode, useKyberAIWidget, useUserLocale } from 'state/user/hooks'
+import {
+  useDarkModeManager,
+  useHolidayMode,
+  useIsWhiteListKyberAI,
+  useKyberAIWidget,
+  useUserLocale,
+} from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { isChristmasTime } from 'utils'
 
@@ -222,6 +228,7 @@ export default function Menu() {
   const [darkMode, toggleSetDarkMode] = useDarkModeManager()
   const [holidayMode, toggleHolidayMode] = useHolidayMode()
   const [kyberAIWidgetActive, toggleKyberAIWidget] = useKyberAIWidget()
+  const { isWhiteList } = useIsWhiteListKyberAI()
   const [isSelectingLanguage, setIsSelectingLanguage] = useState(false)
 
   const userLocale = useUserLocale()
@@ -537,15 +544,17 @@ export default function Menu() {
               </NavLinkBetween>
             )}
 
-            <NavLinkBetween
-              onClick={() => {
-                toggleKyberAIWidget()
-                handlePreferenceClickMixpanel('KyberAI Widget')
-              }}
-            >
-              <Trans>KyberAI Widget</Trans>
-              <Toggle isActive={kyberAIWidgetActive} toggle={noop} />
-            </NavLinkBetween>
+            {isWhiteList && (
+              <NavLinkBetween
+                onClick={() => {
+                  toggleKyberAIWidget()
+                  handlePreferenceClickMixpanel('KyberAI Widget')
+                }}
+              >
+                <Trans>KyberAI Widget</Trans>
+                <Toggle isActive={kyberAIWidgetActive} toggle={noop} />
+              </NavLinkBetween>
+            )}
             <NavLinkBetween
               onClick={() => {
                 toggleSetDarkMode()

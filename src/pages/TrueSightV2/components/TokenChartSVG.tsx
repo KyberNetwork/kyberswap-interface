@@ -28,9 +28,11 @@ const PathHandleHover = ({
 }
 export default function TokenChart({
   data,
+  width,
   index,
 }: {
   data?: Array<{ value: number; timestamp: number }>
+  width?: string
   index: number | string
 }) {
   const theme = useTheme()
@@ -72,7 +74,7 @@ export default function TokenChart({
   return (
     <>
       <svg
-        width="142"
+        width={width || '142'}
         height="41"
         viewBox="0 0 142 41"
         fill="none"
@@ -82,6 +84,7 @@ export default function TokenChart({
           setXY({ x: 0, y: 0 })
         }}
         ref={ref}
+        preserveAspectRatio="none"
       >
         <path
           d={`M1 40V${transformedValues[0]}L24.3333 ${transformedValues[1]}L47.6667 ${transformedValues[2]}L71 ${transformedValues[3]}L94.3333 ${transformedValues[4]}L117.667 ${transformedValues[5]}L141 ${transformedValues[6]}V40H1Z`}

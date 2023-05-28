@@ -3,6 +3,7 @@ import dayjs from 'dayjs'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import { ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Text } from 'rebass'
@@ -653,67 +654,117 @@ const WidgetTokenRow = ({ token, onClick }: { token: ITokenList; onClick?: () =>
 
   return (
     <tr onClick={handleRowClick} style={{ position: 'relative' }} ref={rowRef}>
-      <td>
-        <RowFit gap="6px">
-          <SimpleTooltip text={isWatched ? t`Remove from watchlist` : t`Add to watchlist`}>
-            <StarWithAnimation watched={isWatched} loading={loadingStar} onClick={handleWatchlistClick} />
-          </SimpleTooltip>
-          <Row gap="8px" style={{ position: 'relative', width: '24px', height: '24px' }}>
-            <img
-              alt="tokenInList"
-              src={token.tokens[0].logo}
-              width="24px"
-              height="24px"
-              style={{ borderRadius: '12px' }}
-            />
-            <Column gap="4px" style={{ cursor: 'pointer', alignItems: 'flex-start' }}>
-              <Text style={{ textTransform: 'uppercase' }}>{token.symbol}</Text>{' '}
-              <RowFit gap="6px" color={theme.text}>
-                {token.tokens.map(item => {
-                  if (item.chain === 'ethereum') return <Icon id="eth-mono" size={12} title="Ethereum" />
-                  if (item.chain === 'bsc') return <Icon id="bnb-mono" size={12} title="Binance" />
-                  if (item.chain === 'avalanche') return <Icon id="ava-mono" size={12} title="Avalanche" />
-                  if (item.chain === 'polygon') return <Icon id="matic-mono" size={12} title="Polygon" />
-                  if (item.chain === 'arbitrum') return <Icon id="arbitrum-mono" size={12} title="Arbitrum" />
-                  if (item.chain === 'fantom') return <Icon id="fantom-mono" size={12} title="Fantom" />
-                  if (item.chain === 'optimism') return <Icon id="optimism-mono" size={12} title="Optimism" />
-                  return <></>
-                })}
+      {isMobile ? (
+        <>
+          <td>
+            <Column gap="4px">
+              <RowFit gap="6px">
+                <StarWithAnimation watched={isWatched} loading={loadingStar} onClick={handleWatchlistClick} />
+                <img
+                  alt="tokenInList"
+                  src={token.tokens[0].logo}
+                  width="24px"
+                  height="24px"
+                  style={{ borderRadius: '12px' }}
+                />
+                <Column gap="2px" style={{ cursor: 'pointer', alignItems: 'flex-start' }}>
+                  <Text fontSize="14px" style={{ textTransform: 'uppercase' }}>
+                    {token.symbol}
+                  </Text>{' '}
+                  <RowFit gap="6px" color={theme.text}>
+                    {token.tokens.map(item => {
+                      if (item.chain === 'ethereum') return <Icon id="eth-mono" size={10} title="Ethereum" />
+                      if (item.chain === 'bsc') return <Icon id="bnb-mono" size={10} title="Binance" />
+                      if (item.chain === 'avalanche') return <Icon id="ava-mono" size={10} title="Avalanche" />
+                      if (item.chain === 'polygon') return <Icon id="matic-mono" size={10} title="Polygon" />
+                      if (item.chain === 'arbitrum') return <Icon id="arbitrum-mono" size={10} title="Arbitrum" />
+                      if (item.chain === 'fantom') return <Icon id="fantom-mono" size={10} title="Fantom" />
+                      if (item.chain === 'optimism') return <Icon id="optimism-mono" size={10} title="Optimism" />
+                      return <></>
+                    })}
+                  </RowFit>
+                </Column>
               </RowFit>
+              <Text color={theme.text} fontSize="14px" lineHeight="20px">
+                ${formatTokenPrice(token.price)}
+              </Text>
+              <Text fontSize="10px" lineHeight="12px" color={token.percent_change_24h > 0 ? theme.primary : theme.red}>
+                <Row gap="2px">
+                  <ChevronIcon
+                    rotate={token.percent_change_24h > 0 ? '180deg' : '0deg'}
+                    color={token.percent_change_24h > 0 ? theme.primary : theme.red}
+                  />
+                  {Math.abs(token.percent_change_24h).toFixed(2)}%
+                </Row>
+              </Text>
             </Column>
-          </Row>
-        </RowFit>
-      </td>
+          </td>
+        </>
+      ) : (
+        <>
+          <td>
+            <RowFit gap="6px">
+              <SimpleTooltip text={isWatched ? t`Remove from watchlist` : t`Add to watchlist`}>
+                <StarWithAnimation watched={isWatched} loading={loadingStar} onClick={handleWatchlistClick} />
+              </SimpleTooltip>
+              <Row gap="8px" style={{ position: 'relative', width: '24px', height: '24px' }}>
+                <img
+                  alt="tokenInList"
+                  src={token.tokens[0].logo}
+                  width="24px"
+                  height="24px"
+                  style={{ borderRadius: '12px' }}
+                />
+                <Column gap="4px" style={{ cursor: 'pointer', alignItems: 'flex-start' }}>
+                  <Text style={{ textTransform: 'uppercase' }}>{token.symbol}</Text>{' '}
+                  <RowFit gap="6px" color={theme.text}>
+                    {token.tokens.map(item => {
+                      if (item.chain === 'ethereum') return <Icon id="eth-mono" size={12} title="Ethereum" />
+                      if (item.chain === 'bsc') return <Icon id="bnb-mono" size={12} title="Binance" />
+                      if (item.chain === 'avalanche') return <Icon id="ava-mono" size={12} title="Avalanche" />
+                      if (item.chain === 'polygon') return <Icon id="matic-mono" size={12} title="Polygon" />
+                      if (item.chain === 'arbitrum') return <Icon id="arbitrum-mono" size={12} title="Arbitrum" />
+                      if (item.chain === 'fantom') return <Icon id="fantom-mono" size={12} title="Fantom" />
+                      if (item.chain === 'optimism') return <Icon id="optimism-mono" size={12} title="Optimism" />
+                      return <></>
+                    })}
+                  </RowFit>
+                </Column>
+              </Row>
+            </RowFit>
+          </td>
+          <td>
+            <Column style={{ alignItems: 'center', width: '110px' }}>
+              <SmallKyberScoreMeter data={latestKyberScore} tokenName={token.symbol} />
+              <Text
+                color={calculateValueToColor(latestKyberScore?.kyber_score || 0, theme)}
+                fontSize="14px"
+                fontWeight={500}
+              >
+                {latestKyberScore?.tag || t`Not Applicable`}
+              </Text>
+            </Column>
+          </td>
+          <td>
+            <Column gap="4px" style={{ textAlign: 'left' }}>
+              <Text color={theme.text} fontSize="14px" lineHeight="20px">
+                ${formatTokenPrice(token.price)}
+              </Text>
+              <Text fontSize="10px" lineHeight="12px" color={token.percent_change_24h > 0 ? theme.primary : theme.red}>
+                <Row gap="2px">
+                  <ChevronIcon
+                    rotate={token.percent_change_24h > 0 ? '180deg' : '0deg'}
+                    color={token.percent_change_24h > 0 ? theme.primary : theme.red}
+                  />
+                  {Math.abs(token.percent_change_24h).toFixed(2)}%
+                </Row>
+              </Text>
+            </Column>
+          </td>
+        </>
+      )}
       <td>
-        <Column style={{ alignItems: 'center', width: '110px' }}>
-          <SmallKyberScoreMeter data={latestKyberScore} tokenName={token.symbol} />
-          <Text
-            color={calculateValueToColor(latestKyberScore?.kyber_score || 0, theme)}
-            fontSize="14px"
-            fontWeight={500}
-          >
-            {latestKyberScore?.tag || t`Not Applicable`}
-          </Text>
-        </Column>
-      </td>
-      <td>
-        <Column gap="4px" style={{ textAlign: 'left' }}>
-          <Text color={theme.text} fontSize="14px" lineHeight="20px">
-            ${formatTokenPrice(token.price)}
-          </Text>
-          <Text fontSize="10px" lineHeight="12px" color={token.percent_change_24h > 0 ? theme.primary : theme.red}>
-            <Row gap="2px">
-              <ChevronIcon
-                rotate={token.percent_change_24h > 0 ? '180deg' : '0deg'}
-                color={token.percent_change_24h > 0 ? theme.primary : theme.red}
-              />
-              {Math.abs(token.percent_change_24h).toFixed(2)}%
-            </Row>
-          </Text>
-        </Column>
-      </td>
-      <td>
-        <TokenChart data={token['7daysprice']} index={token.tokens[0].address} />
+        <TokenChart data={token['7daysprice']} index={token.tokens[0].address} width={isMobile ? '100%' : ''} />
       </td>
       <td>
         <Row justifyContent="flex-end">
@@ -748,6 +799,7 @@ const WidgetTokenRow = ({ token, onClick }: { token: ITokenList; onClick?: () =>
     </tr>
   )
 }
+
 export const WidgetTable = ({
   data,
   isLoading,
@@ -829,6 +881,78 @@ export const WidgetTable = ({
             <tbody>
               <tr style={{ height: '300px' }}>
                 <td colSpan={5}>
+                  <Row align="center" justify="center" height="70%">
+                    <Trans>There was an error. Please try again later.</Trans>
+                  </Row>
+                </td>
+              </tr>
+            </tbody>
+          </>
+        ) : (
+          <tbody>
+            {data?.map((token, i) => {
+              return <WidgetTokenRow token={token} key={i} onClick={onRowClick} />
+            })}
+          </tbody>
+        )}
+      </WidgetTableWrapper>
+    </div>
+  )
+}
+export const WidgetMobileTable = ({
+  data,
+  isLoading,
+  isError,
+  onRowClick,
+}: {
+  data?: ITokenList[]
+  isLoading: boolean
+  isError: boolean
+  onRowClick?: () => void
+}) => {
+  const theme = useTheme()
+  return (
+    <div style={{ width: '100%', height: '100%', overflow: 'scroll' }}>
+      <WidgetTableWrapper style={{ borderRadius: '0' }}>
+        <colgroup>
+          <col style={{ width: '140px' }} />
+          <col style={{ width: '140px' }} />
+          <col style={{ width: '60px' }} />
+        </colgroup>
+        {isLoading && !data ? (
+          <tbody>
+            <SkeletonTheme
+              baseColor={theme.border + '80'}
+              height="60px"
+              borderRadius="12px"
+              direction="ltr"
+              duration={1}
+              highlightColor={theme.tabActive}
+            >
+              {[
+                ...Array(5)
+                  .fill(0)
+                  .map((_, index) => (
+                    <tr key={index} style={{ backgroundColor: theme.tableHeader, height: '82px' }}>
+                      <td>
+                        <Skeleton></Skeleton>
+                      </td>
+                      <td>
+                        <Skeleton></Skeleton>
+                      </td>
+                      <td>
+                        <Skeleton></Skeleton>
+                      </td>
+                    </tr>
+                  )),
+              ]}
+            </SkeletonTheme>
+          </tbody>
+        ) : isError ? (
+          <>
+            <tbody>
+              <tr style={{ height: '300px' }}>
+                <td colSpan={3}>
                   <Row align="center" justify="center" height="70%">
                     <Trans>There was an error. Please try again later.</Trans>
                   </Row>

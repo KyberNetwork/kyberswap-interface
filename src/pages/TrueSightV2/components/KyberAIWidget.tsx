@@ -10,6 +10,7 @@ import styled, { DefaultTheme, css } from 'styled-components'
 import Column from 'components/Column'
 import Divider from 'components/Divider'
 import Icon from 'components/Icons/Icon'
+import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
@@ -19,9 +20,9 @@ import useTheme from 'hooks/useTheme'
 import { useKyberAIWidget } from 'state/user/hooks'
 
 import { useTokenListQuery } from '../hooks/useKyberAIData'
-import { KyberAIListType } from '../types'
+import { ITokenList, KyberAIListType } from '../types'
 import SimpleTooltip from './SimpleTooltip'
-import { WidgetTable } from './table'
+import { WidgetMobileTable, WidgetTable } from './table'
 
 const CloseButton = styled.div`
   display: flex;
@@ -43,12 +44,13 @@ const CloseButton = styled.div`
     background-color: ${({ theme }) => theme.tableHeader};
   }
 `
+
 const WidgetWrapper = styled.div<{ show?: boolean }>`
   position: fixed;
   right: 0;
   top: 110px;
   transition: all 1.5s ease-out;
-  z-index: 10;
+  z-index: 20;
   ${({ show }) =>
     !show &&
     css`
@@ -62,7 +64,7 @@ const WidgetWrapper = styled.div<{ show?: boolean }>`
   }
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    display: none;
+    
   `}
 `
 const ButtonWrapper = styled.div`
@@ -71,6 +73,7 @@ const ButtonWrapper = styled.div`
   background-color: ${({ theme }) => theme.tableHeader};
   border-radius: 8px 0 0 8px;
   overflow: hidden;
+  box-shadow: 0 0 4px 2px #00000040;
 `
 const IconButton = styled.div`
   padding: 12px;
@@ -176,7 +179,8 @@ export default function Widget() {
   const [showWidget, toggleWidget] = useKyberAIWidget()
   const [activeTab, setActiveTab] = useState<WidgetTab>(WidgetTab.MyWatchlist)
   const ref = useRef<HTMLDivElement>(null)
-  useOnClickOutside(ref, () => {
+  const mobileRef = useRef<HTMLDivElement>(null)
+  useOnClickOutside(isMobile ? mobileRef : ref, () => {
     setShowExpanded(false)
   })
   const navigate = useNavigate()
@@ -200,7 +204,7 @@ export default function Widget() {
   if (!account) return <></>
   return (
     <>
-      <WidgetWrapper onClick={() => setShowExpanded(true)} show={!isMobile && showWidget}>
+      <WidgetWrapper onClick={() => setShowExpanded(true)} show={showWidget}>
         <CloseButton
           onClick={e => {
             e.stopPropagation()
@@ -217,6 +221,7 @@ export default function Widget() {
               </Text>
             }
             disappearOnHover
+            hideOnMobile
           >
             <IconButton onClick={() => setActiveTab(WidgetTab.MyWatchlist)}>
               <Icon id="star" size={16} />
@@ -230,6 +235,7 @@ export default function Widget() {
               </Text>
             }
             disappearOnHover
+            hideOnMobile
           >
             <IconButton onClick={() => setActiveTab(WidgetTab.Bullish)}>
               <Icon id="bullish" size={16} />
@@ -243,6 +249,7 @@ export default function Widget() {
               </Text>
             }
             disappearOnHover
+            hideOnMobile
           >
             <IconButton onClick={() => setActiveTab(WidgetTab.Bearish)}>
               <Icon id="bearish" size={16} />
@@ -256,6 +263,7 @@ export default function Widget() {
               </Text>
             }
             disappearOnHover
+            hideOnMobile
           >
             <IconButton onClick={() => setActiveTab(WidgetTab.TrendingSoon)}>
               <Icon id="trending-soon" size={16} />
@@ -263,68 +271,193 @@ export default function Widget() {
           </SimpleTooltip>
         </ButtonWrapper>
       </WidgetWrapper>
-      <ExpandedWidgetWrapper ref={ref} show={showExpanded}>
-        <Column>
-          <Row>
-            {Object.values(WidgetTab).map(t => (
-              <Tab key={t} onClick={() => setActiveTab(t)} active={activeTab === t}>
-                {widgetTabTooltip[t]?.tooltip ? (
-                  <MouseoverTooltip text={widgetTabTooltip[t]?.tooltip(theme)} placement="top">
-                    <Text style={{ borderBottom: `1px dotted ${theme.subText}` }}>{t}</Text>
-                  </MouseoverTooltip>
-                ) : (
-                  <Text>{t}</Text>
-                )}
-              </Tab>
-            ))}
-          </Row>
-          <Row align="center" justify="center" height="400px" width="820px">
-            {activeTab === WidgetTab.MyWatchlist && data && data.data.length === 0 ? (
-              <Text color={theme.subText} textAlign="center">
-                <Trans>
-                  You can add more tokens to your watchlist from{' '}
-                  <Text color={theme.primary} display="inline">
-                    KyberAI
-                  </Text>
-                  .<br />
-                  You can watch up to 10 tokens
-                </Trans>
-              </Text>
-            ) : (
-              <WidgetTable
-                data={data?.data}
-                isLoading={isFetching}
-                isError={isError}
-                onRowClick={() => setShowExpanded(false)}
-              />
-            )}
-          </Row>
-          <RowBetween padding="16px">
-            <TextButton style={{ color: theme.subText }} onClick={() => setShowExpanded(false)}>
-              <Trans>Collapse</Trans>
-              <Icon size={16} id="arrow" />
-            </TextButton>
-            <TextButton
-              style={{ color: theme.primary }}
-              onClick={() =>
-                navigate({
-                  pathname: APP_PATHS.KYBERAI_RANKINGS,
-                  search: `${createSearchParams({
-                    listType: {
-                      [WidgetTab.MyWatchlist]: KyberAIListType.MYWATCHLIST,
-                      [WidgetTab.Bearish]: KyberAIListType.BEARISH,
-                      [WidgetTab.Bullish]: KyberAIListType.BULLISH,
-                      [WidgetTab.TrendingSoon]: KyberAIListType.TRENDING_SOON,
-                    }[activeTab],
-                  })}`,
-                })
-              }
-            >
-              <Trans>View more ↗</Trans>
-            </TextButton>
-          </RowBetween>
-        </Column>
-      </ExpandedWidgetWrapper>
+      {isMobile ? (
+        <Modal isOpen={showExpanded} maxWidth="100vw">
+          <div ref={mobileRef} style={{ width: '100%' }}>
+            <KyberAIWidgetMobileContent
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              data={data?.data}
+              isLoading={isFetching}
+              isError={isError}
+              onRowClick={() => setShowExpanded(false)}
+            />
+          </div>
+        </Modal>
+      ) : (
+        <ExpandedWidgetWrapper ref={ref} show={showExpanded}>
+          <Column>
+            <Row>
+              {Object.values(WidgetTab).map(t => (
+                <Tab key={t} onClick={() => setActiveTab(t)} active={activeTab === t}>
+                  {widgetTabTooltip[t]?.tooltip ? (
+                    <MouseoverTooltip text={widgetTabTooltip[t]?.tooltip(theme)} placement="top">
+                      <Text style={{ borderBottom: `1px dotted ${theme.subText}` }}>{t}</Text>
+                    </MouseoverTooltip>
+                  ) : (
+                    <Text>{t}</Text>
+                  )}
+                </Tab>
+              ))}
+            </Row>
+            <Row align="center" justify="center" height="400px" width="820px">
+              {activeTab === WidgetTab.MyWatchlist && data && data.data.length === 0 ? (
+                <Text color={theme.subText} textAlign="center">
+                  <Trans>
+                    You can add more tokens to your watchlist from{' '}
+                    <Text color={theme.primary} display="inline">
+                      KyberAI
+                    </Text>
+                    .<br />
+                    You can watch up to 10 tokens
+                  </Trans>
+                </Text>
+              ) : (
+                <WidgetTable
+                  data={data?.data}
+                  isLoading={isFetching}
+                  isError={isError}
+                  onRowClick={() => setShowExpanded(false)}
+                />
+              )}
+            </Row>
+            <RowBetween padding="16px">
+              <TextButton style={{ color: theme.subText }} onClick={() => setShowExpanded(false)}>
+                <Trans>Collapse</Trans>
+                <Icon size={16} id="arrow" />
+              </TextButton>
+              <TextButton
+                style={{ color: theme.primary }}
+                onClick={() =>
+                  navigate({
+                    pathname: APP_PATHS.KYBERAI_RANKINGS,
+                    search: `${createSearchParams({
+                      listType: {
+                        [WidgetTab.MyWatchlist]: KyberAIListType.MYWATCHLIST,
+                        [WidgetTab.Bearish]: KyberAIListType.BEARISH,
+                        [WidgetTab.Bullish]: KyberAIListType.BULLISH,
+                        [WidgetTab.TrendingSoon]: KyberAIListType.TRENDING_SOON,
+                      }[activeTab],
+                    })}`,
+                  })
+                }
+              >
+                <Trans>View more ↗</Trans>
+              </TextButton>
+            </RowBetween>
+          </Column>
+        </ExpandedWidgetWrapper>
+      )}
     </>
+  )
+}
+
+const Wrapper = styled.div`
+  width: 100%;
+  min-height: min(530px, 100vh);
+  display: flex;
+  flex-direction: column;
+`
+const MobileTab = styled.div<{ active?: boolean }>`
+  padding: 18px;
+  display: flex;
+  white-space: nowrap;
+  gap: 12px;
+  align-items: center;
+  transition: width 0.5s ease, flex 0.5s ease;
+  box-sizing: border-box;
+  span {
+    transition: opacity 0.25s ease;
+    opacity: 1;
+  }
+
+  &:not(:last-child) {
+    border-right: 1px solid ${({ theme }) => theme.border};
+  }
+
+  ${({ theme, active }) =>
+    active
+      ? css`
+          width: 200px;
+          color: ${theme.text};
+          flex: 1;
+          z-index: 2;
+          background-color: ${theme.primary + '48'};
+          border-bottom: 2px solid ${theme.primary};
+        `
+      : css`
+          width: 52px;
+          color: ${theme.subText};
+          z-index: 1;
+          flex: 0;
+          border-bottom: 1px solid ${theme.border};
+          span {
+            opacity: 0;
+          }
+        `}
+`
+
+const KyberAIWidgetMobileContent = ({
+  activeTab,
+  setActiveTab,
+  data,
+  isLoading,
+  isError,
+  onRowClick,
+}: {
+  activeTab: WidgetTab
+  setActiveTab: any
+  data?: ITokenList[]
+  isLoading: boolean
+  isError: boolean
+  onRowClick?: () => void
+}) => {
+  const theme = useTheme()
+  const navigate = useNavigate()
+  return (
+    <Wrapper style={{ width: '100%' }}>
+      <Row>
+        <MobileTab active={activeTab === WidgetTab.MyWatchlist} onClick={() => setActiveTab(WidgetTab.MyWatchlist)}>
+          <Icon id="star" size={16} />
+          <span>{WidgetTab.MyWatchlist}</span>
+        </MobileTab>
+        <MobileTab active={activeTab === WidgetTab.Bullish} onClick={() => setActiveTab(WidgetTab.Bullish)}>
+          <Icon id="bullish" size={16} />
+          <span>{WidgetTab.Bullish}</span>
+        </MobileTab>
+        <MobileTab active={activeTab === WidgetTab.Bearish} onClick={() => setActiveTab(WidgetTab.Bearish)}>
+          <Icon id="bearish" size={16} />
+          <span>{WidgetTab.Bearish}</span>
+        </MobileTab>
+        <MobileTab active={activeTab === WidgetTab.TrendingSoon} onClick={() => setActiveTab(WidgetTab.TrendingSoon)}>
+          <Icon id="trending-soon" size={16} />
+          <span>{WidgetTab.TrendingSoon}</span>
+        </MobileTab>
+      </Row>
+      <div style={{ flex: 1 }}>
+        <WidgetMobileTable data={data} isLoading={isLoading} isError={isError} onRowClick={onRowClick} />
+      </div>
+      <RowBetween padding="8px 12px">
+        <div></div>
+        <TextButton
+          style={{ color: theme.primary }}
+          onClick={() =>
+            navigate({
+              pathname: APP_PATHS.KYBERAI_RANKINGS,
+              search: `${createSearchParams({
+                listType: {
+                  [WidgetTab.MyWatchlist]: KyberAIListType.MYWATCHLIST,
+                  [WidgetTab.Bearish]: KyberAIListType.BEARISH,
+                  [WidgetTab.Bullish]: KyberAIListType.BULLISH,
+                  [WidgetTab.TrendingSoon]: KyberAIListType.TRENDING_SOON,
+                }[activeTab],
+              })}`,
+            })
+          }
+        >
+          <Trans>View more ↗</Trans>
+        </TextButton>
+      </RowBetween>
+    </Wrapper>
   )
 }

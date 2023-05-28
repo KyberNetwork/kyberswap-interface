@@ -1,8 +1,12 @@
 import React from 'react'
+import { isMobile } from 'react-device-detect'
+import { Text } from 'rebass'
 import styled from 'styled-components'
 
+import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
-import { RowFit } from 'components/Row'
+import Modal from 'components/Modal'
+import Row, { RowFit } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 
 import SimpleTooltip from './SimpleTooltip'
@@ -35,6 +39,13 @@ const StyledChainIcon = styled.div`
     filter: brightness(1.2);
   }
 `
+const StyledMobileChainIcon = styled.div`
+  width: 50%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 8px;
+`
 const ChainIcon = ({ id, name, onClick }: { id: string; name: string; onClick: () => void }) => {
   return (
     <SimpleTooltip text={name}>
@@ -42,6 +53,18 @@ const ChainIcon = ({ id, name, onClick }: { id: string; name: string; onClick: (
         <Icon id={id} size={20} />
       </StyledChainIcon>
     </SimpleTooltip>
+  )
+}
+
+const MobileChainIcon = ({ id, name, onClick }: { id: string; name: string; onClick: () => void }) => {
+  const theme = useTheme()
+  return (
+    <StyledMobileChainIcon onClick={onClick}>
+      <Icon id={id} size={20} />{' '}
+      <Text fontSize="12px" color={theme.subText}>
+        {name}
+      </Text>
+    </StyledMobileChainIcon>
   )
 }
 
@@ -57,6 +80,76 @@ const MultipleChainDropdown = React.forwardRef(
   ) => {
     const { show, menuLeft, tokens, onChainClick } = props
     const theme = useTheme()
+    if (isMobile) {
+      return (
+        <Modal isOpen={show}>
+          <Column padding="16px" width="100%" gap="12px">
+            <Row>
+              <Text fontSize="20px" fontWeight={500}>
+                Select Chain
+              </Text>
+            </Row>
+            <Row style={{ flexWrap: 'wrap' }}>
+              {tokens?.map((item: { address: string; logo: string; chain: string }) => {
+                if (item.chain === 'ethereum')
+                  return (
+                    <MobileChainIcon
+                      id="eth-mono"
+                      name="Ethereum"
+                      onClick={() => onChainClick('ethereum', item.address)}
+                    />
+                  )
+                if (item.chain === 'bsc')
+                  return (
+                    <MobileChainIcon id="bnb-mono" name="Binance" onClick={() => onChainClick('bsc', item.address)} />
+                  )
+                if (item.chain === 'avalanche')
+                  return (
+                    <MobileChainIcon
+                      id="ava-mono"
+                      name="Avalanche"
+                      onClick={() => onChainClick('avalanche', item.address)}
+                    />
+                  )
+                if (item.chain === 'polygon')
+                  return (
+                    <MobileChainIcon
+                      id="matic-mono"
+                      name="Polygon"
+                      onClick={() => onChainClick('polygon', item.address)}
+                    />
+                  )
+                if (item.chain === 'arbitrum')
+                  return (
+                    <MobileChainIcon
+                      id="arbitrum-mono"
+                      name="Arbitrum"
+                      onClick={() => onChainClick('arbitrum', item.address)}
+                    />
+                  )
+                if (item.chain === 'fantom')
+                  return (
+                    <MobileChainIcon
+                      id="fantom-mono"
+                      name="Fantom"
+                      onClick={() => onChainClick('fantom', item.address)}
+                    />
+                  )
+                if (item.chain === 'optimism')
+                  return (
+                    <MobileChainIcon
+                      id="optimism-mono"
+                      name="Optimism"
+                      onClick={() => onChainClick('optimism', item.address)}
+                    />
+                  )
+                return <></>
+              })}
+            </Row>
+          </Column>
+        </Modal>
+      )
+    }
     return (
       <MenuDropdown
         className={show ? 'show' : ''}
