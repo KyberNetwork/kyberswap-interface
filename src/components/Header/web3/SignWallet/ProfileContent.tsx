@@ -25,6 +25,7 @@ const ContentWrapper = styled.div`
   flex-direction: column;
   width: 100%;
   min-width: 320px;
+  padding: 12px 20px;
 `
 
 const ActionItem = styled.div`
@@ -44,7 +45,7 @@ const ActionItem = styled.div`
 
 const ActionWrapper = styled.div`
   display: flex;
-  padding: 12px 20px;
+  padding: 12px 20px 0px 20px;
   flex-direction: column;
   justify-content: space-between;
   ${({ theme }) => theme.mediaWidth.upToMedium`
@@ -53,12 +54,8 @@ const ActionWrapper = styled.div`
 `
 
 const ProfileItemWrapper = styled(RowBetween)<{ active: boolean }>`
-  padding: 10px 20px;
-  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
+  padding: 10px 0px;
   border-bottom: 1px solid ${({ theme }) => theme.border};
-  :hover {
-    background-color: ${({ theme }) => rgba(theme.buttonBlack, 0.5)};
-  }
   ${({ theme }) => theme.mediaWidth.upToMedium`
       padding: 14px 24px;
   `}
@@ -84,21 +81,23 @@ const ProfileItem = ({
   }
 
   const signOutBtn = !guest ? (
-    <LogOut
-      color={theme.subText}
-      size={16}
-      onClick={e => {
-        e?.stopPropagation()
-        signOut(account)
-        refreshProfile()
-      }}
-    />
+    <MouseoverTooltip text={t`Sign-out this account`} width="fit-content" placement="top">
+      <LogOut
+        color={theme.subText}
+        size={16}
+        onClick={e => {
+          e?.stopPropagation()
+          signOut(account)
+          refreshProfile()
+        }}
+      />
+    </MouseoverTooltip>
   ) : null
 
   return (
     <ProfileItemWrapper active={active} onClick={onClick}>
       <Row gap="16px" align="center">
-        <Flex style={{ width: 64 }} justifyContent="center">
+        <Flex style={{ width: 64, minWidth: 64 }} justifyContent="center">
           <Avatar url={profile?.avatarUrl} size={active ? 64 : 32} color={active ? theme.text : theme.subText} />
         </Flex>
         <Column gap="8px">

@@ -75,7 +75,7 @@ const StyledMenu = styled.div`
 
 const browserCustomStyle = css`
   padding: 0;
-  border-radius: 12px;
+  border-radius: 20px;
   ${({ theme }) => theme.mediaWidth.upToLarge`
     top: unset;
     bottom: 3.5rem;
