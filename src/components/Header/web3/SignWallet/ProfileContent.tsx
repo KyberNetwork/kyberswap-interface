@@ -26,12 +26,18 @@ const ContentWrapper = styled.div`
   width: 100%;
   min-width: 320px;
   padding: 14px 20px;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+      padding: 0;
+  `}
 `
 
 const ListProfile = styled.div<{ hasData: boolean }>`
   padding: ${({ hasData }) => hasData && `10px 0`};
   border-top: ${({ theme }) => `1px solid ${theme.border}`};
   border-bottom: ${({ theme, hasData }) => hasData && `1px solid ${theme.border}`};
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+      padding: 0px;
+  `}
 `
 
 const ActionItem = styled.div`
@@ -55,15 +61,13 @@ const ActionWrapper = styled.div`
   flex-direction: column;
   justify-content: space-between;
   ${({ theme }) => theme.mediaWidth.upToMedium`
-      padding: 14px 24px;
+      padding: 10px 14px;
   `}
 `
 
 const ProfileItemWrapper = styled(RowBetween)<{ active: boolean }>`
   padding: 10px 0px;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-      padding: 14px 24px;
-  `}
+
   ${({ active }) =>
     active
       ? css`
@@ -78,6 +82,18 @@ const ProfileItemWrapper = styled(RowBetween)<{ active: boolean }>`
             background-color: ${({ theme }) => rgba(theme.subText, 0.2)};
           }
         `}
+  ${({ theme, active }) => theme.mediaWidth.upToMedium`
+     ${
+       active
+         ? css`
+             padding: 16px 20px;
+           `
+         : css`
+             padding: 10px 20px;
+           `
+     }}
+      
+  `}
 `
 
 const ProfileItem = ({

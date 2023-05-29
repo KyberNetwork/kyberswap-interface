@@ -4,7 +4,6 @@ import { AlignJustify, List as ListIcon } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
 import { useGetTotalUnreadAnnouncementsQuery } from 'services/announcement'
-import { css } from 'styled-components'
 
 import { ReactComponent as AllIcon } from 'assets/svg/all_icon.svg'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
@@ -13,7 +12,7 @@ import Avatar from 'components/Avatar'
 import MailIcon from 'components/Icons/MailIcon'
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import ProfileIcon from 'components/Icons/Profile'
-import MenuFlyout from 'components/MenuFlyout'
+import Drawer from 'components/Modal/Drawer'
 import { getAnnouncementsTemplateIds } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -115,8 +114,8 @@ const menuItems: MenuItemType[] = [
   }
 })
 
-type PropsMenu = { unread: Unread }
-const MenuForDesktop = ({ unread }: PropsMenu) => {
+type PropsMenu = { unread: Unread; onClickItem?: () => void }
+const MenuForDesktop = ({ unread, onClickItem }: PropsMenu) => {
   const { userInfo: profile } = useSessionInfo()
   const { signedWallet, isGuest } = useSignedWalletInfo()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
@@ -142,30 +141,33 @@ const MenuForDesktop = ({ unread }: PropsMenu) => {
   }, [signedWallet, isGuest, profile])
 
   return (
-    <Flex sx={{ flexDirection: 'column', padding: upToMedium ? '20px' : '24px' }}>
+    <Flex sx={{ flexDirection: 'column', padding: upToMedium ? '0px' : '24px' }}>
       {menuItemDeskTop.map((data, index) => (
-        <MenuItem key={index} style={{ paddingTop: index ? undefined : 0 }} data={data} unread={unread} />
+        <MenuItem
+          key={index}
+          style={{ paddingTop: index ? undefined : 0 }}
+          data={data}
+          unread={unread}
+          onClickItem={onClickItem}
+        />
       ))}
     </Flex>
   )
 }
 
-const browserCustomStyle = css`
-  padding: 0;
-`
 const MenuForMobile = ({ unread }: PropsMenu) => {
   const isOpen = useModalOpen(ApplicationModal.MENU_NOTI_CENTER)
   const toggleModal = useToggleModal(ApplicationModal.MENU_NOTI_CENTER)
   const theme = useTheme()
   return (
-    <MenuFlyout
-      trigger={<AlignJustify color={theme.subText} />}
-      customStyle={browserCustomStyle}
+    <Drawer
+      title={t`Your Profile`}
+      trigger={<AlignJustify color={theme.subText} onClick={toggleModal} />}
       isOpen={isOpen}
-      toggle={toggleModal}
+      onDismiss={toggleModal}
     >
-      <MenuForDesktop unread={unread} />
-    </MenuFlyout>
+      <MenuForDesktop unread={unread} onClickItem={toggleModal} />
+    </Drawer>
   )
 }
 

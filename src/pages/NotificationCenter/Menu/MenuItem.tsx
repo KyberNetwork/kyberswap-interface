@@ -71,9 +71,10 @@ type Props = {
   unread: Unread
   data: MenuItemType
   isChildren?: boolean
+  onClickItem?: () => void
 }
 
-const MenuItem: React.FC<Props> = ({ data, style, unread, isChildren }) => {
+const MenuItem: React.FC<Props> = ({ data, style, unread, isChildren, onClickItem }) => {
   const { icon, title, route, childs, type, onClick } = data
   const location = useLocation()
   const theme = useTheme()
@@ -88,6 +89,7 @@ const MenuItem: React.FC<Props> = ({ data, style, unread, isChildren }) => {
   const { mixpanelHandler } = useMixpanel()
   const onClickMenu = (e: React.MouseEvent) => {
     e.stopPropagation()
+    isChildren && onClickItem?.() // todo rename
     if (onClick) {
       onClick()
       return
@@ -122,6 +124,7 @@ const MenuItem: React.FC<Props> = ({ data, style, unread, isChildren }) => {
               return (
                 <>
                   <MenuItem
+                    onClickItem={onClickItem}
                     isChildren
                     key={el.title}
                     data={el}
