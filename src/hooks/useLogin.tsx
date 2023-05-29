@@ -173,8 +173,8 @@ const useLogin = (autoLogin = false) => {
         requestSignIn(account, false)
         return
       }
-      setProfileLocalStorage(ProfileLocalStorageKeys.CONNECTING_WALLET, account)
-      KyberOauth2.authenticate({ wallet_address: account ?? '' }) // navigate to login page
+      setProfileLocalStorage(ProfileLocalStorageKeys.CONNECTING_WALLET, walletAddress || account)
+      KyberOauth2.authenticate({ wallet_address: walletAddress || account || '' }) // navigate to login page
       setLoginRedirectUrl()
     },
     [account, notify, signedWallet, requestSignIn, toggleWalletModal],

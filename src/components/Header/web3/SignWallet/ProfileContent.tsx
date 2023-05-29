@@ -68,16 +68,16 @@ const ActionWrapper = styled.div`
 `
 
 const ProfileItemWrapper = styled(RowBetween)<{ active: boolean }>`
-  padding: 10px 0px;
-
   ${({ active }) =>
     active
       ? css`
+          padding: 12px 0px 14px 0px;
           padding-top: 0;
           flex-direction: column;
           gap: 12px;
         `
       : css`
+          padding: 10px 0px;
           border-bottom: none;
           border-radius: 8px;
           :hover {
@@ -141,7 +141,7 @@ const ProfileItem = ({
           <Column gap="8px" minWidth={'unset'} flex={1}>
             {profile?.nickname && (
               <Text fontWeight={'bold'} fontSize={'14px'} color={active ? theme.primary : theme.subText}>
-                {shortString(profile?.nickname ?? '', active ? 18 : 25)}
+                {shortString(profile?.nickname ?? '', active ? 20 : 25)}
               </Text>
             )}
             <Text fontWeight={'500'} fontSize={active ? '14px' : '12px'} color={active ? theme.primary : theme.subText}>
