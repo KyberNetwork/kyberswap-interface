@@ -8,7 +8,6 @@ import {
   FileText,
   HelpCircle,
   Info,
-  Menu as MenuIcon,
   MessageCircle,
   PieChart,
   Share2,
@@ -19,6 +18,7 @@ import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
+import { ReactComponent as MenuIcon } from 'assets/svg/all_icon.svg'
 import { ReactComponent as BlogIcon } from 'assets/svg/blog.svg'
 import { ReactComponent as DiscoverIconSvg } from 'assets/svg/discover_icon.svg'
 import { ReactComponent as LightIcon } from 'assets/svg/light.svg'
@@ -91,12 +91,6 @@ const MenuItem = styled.li`
       text-decoration: none;
       color: ${({ theme }) => theme.text};
     }
-  }
-`
-
-const StyledMenuIcon = styled(MenuIcon)`
-  path {
-    stroke: ${({ theme }) => theme.text};
   }
 `
 
@@ -259,7 +253,7 @@ export default function Menu() {
       <MenuFlyout
         trigger={
           <StyledMenuButton active={open} onClick={toggle} aria-label="Menu" id={TutorialIds.BUTTON_MENU_HEADER}>
-            <StyledMenuIcon />
+            <MenuIcon width={18} height={18} />
           </StyledMenuButton>
         }
         customStyle={MenuFlyoutBrowserStyle}

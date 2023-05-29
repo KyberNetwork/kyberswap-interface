@@ -7,10 +7,11 @@ import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import Avatar from 'components/Avatar'
-import { ButtonOutlined } from 'components/Button'
+import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import Row, { RowBetween } from 'components/Row'
+import CardBackground from 'components/WalletPopup/AccountInfo/CardBackground'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useLogin from 'hooks/useLogin'
@@ -29,17 +30,13 @@ const ContentWrapper = styled.div`
   min-width: 320px;
   padding: 14px 20px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
-      padding: 0;
+      padding: 14px;
+      gap: 8px;
   `}
 `
 
 const ListProfile = styled.div<{ hasData: boolean }>`
-  padding: ${({ hasData }) => hasData && `10px 0`};
-  border-top: ${({ theme }) => `1px solid ${theme.border}`};
-  border-bottom: ${({ theme, hasData }) => hasData && `1px solid ${theme.border}`};
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-      padding: 0px;
-  `}
+  padding: ${({ hasData }) => hasData && `12px 0`};
 `
 
 const ActionItem = styled.div`
@@ -51,30 +48,33 @@ const ActionItem = styled.div`
   font-size: 14px;
   font-weight: 500;
   gap: 6px;
+  width: 100%;
   padding: 12px;
   :hover {
     background-color: ${({ theme }) => rgba(theme.subText, 0.2)};
   }
 `
 
-const ActionWrapper = styled.div`
+const ActionWrapper = styled.div<{ hasBorder: boolean }>`
   display: flex;
-  padding: 12px 20px 0px 20px;
+  padding: 12px 0px 0px 0px;
   flex-direction: column;
   justify-content: space-between;
+  border-top: ${({ theme, hasBorder }) => hasBorder && `1px solid ${theme.border}`};
   ${({ theme }) => theme.mediaWidth.upToMedium`
       padding: 10px 14px;
   `}
 `
 
 const ProfileItemWrapper = styled(RowBetween)<{ active: boolean }>`
+  position: relative;
   ${({ active }) =>
     active
       ? css`
-          padding: 12px 0px 14px 0px;
-          padding-top: 0;
+          padding: 14px;
           flex-direction: column;
-          gap: 12px;
+          gap: 16px;
+          border-radius: 20px;
         `
       : css`
           padding: 10px 0px;
@@ -120,8 +120,8 @@ const ProfileItem = ({
 
   const signOutBtn = !guest ? (
     <LogOut
-      style={{ zIndex: 1, marginRight: '10px' }}
-      color={theme.subText}
+      style={{ marginRight: active ? 0 : '10px' }}
+      color={active ? theme.text : theme.subText}
       size={16}
       onClick={e => {
         e?.stopPropagation()
@@ -133,28 +133,29 @@ const ProfileItem = ({
 
   return (
     <ProfileItemWrapper active={active} onClick={onClick}>
-      <Row width={'100%'}>
-        <Row gap="16px" align="center">
-          <Flex style={{ width: 64, minWidth: 64 }} justifyContent="center">
-            <Avatar url={profile?.avatarUrl} size={active ? 64 : 40} color={active ? theme.text : theme.subText} />
+      {active && <CardBackground noLogo />}
+      <Row width={'100%'} style={{ zIndex: 1 }}>
+        <Row gap={active ? '16px' : '12px'} align="center">
+          <Flex style={{ width: 54, minWidth: 54 }} justifyContent="center">
+            <Avatar url={profile?.avatarUrl} size={active ? 54 : 40} color={active ? theme.text : theme.subText} />
           </Flex>
           <Column gap="8px" minWidth={'unset'} flex={1}>
             {profile?.nickname && (
-              <Text fontWeight={'bold'} fontSize={'14px'} color={active ? theme.primary : theme.subText}>
-                {shortString(profile?.nickname ?? '', active ? 20 : 25)}
+              <Text fontWeight={'bold'} fontSize={active ? '20px' : '16px'} color={active ? theme.text : theme.subText}>
+                {shortString(profile?.nickname ?? '', active ? 18 : 20)}
               </Text>
             )}
-            <Text fontWeight={'500'} fontSize={active ? '14px' : '12px'} color={active ? theme.primary : theme.subText}>
+            <Text fontWeight={'500'} fontSize={active ? '16px' : '12px'} color={active ? theme.subText : theme.subText}>
               {guest ? account : getShortenAddress(account)}
             </Text>
           </Column>
-          {active && <div>{signOutBtn}</div>}
+          {active && signOutBtn}
         </Row>
         {!active && signOutBtn}
       </Row>
       {(isSignedWallet(account) || (guest && isGuest)) && (
         <Row width={'100%'}>
-          <ButtonOutlined
+          <ButtonLight
             height={'36px'}
             style={{ flex: 1 }}
             onClick={e => {
@@ -163,10 +164,10 @@ const ProfileItem = ({
               toggleModal()
             }}
           >
-            <TransactionSettingsIcon size={20} fill={theme.subText} />
+            <TransactionSettingsIcon size={20} fill={theme.primary} />
             &nbsp;
             <Trans>Edit current account</Trans>
-          </ButtonOutlined>
+          </ButtonLight>
         </Row>
       )}
     </ProfileItemWrapper>
@@ -190,7 +191,7 @@ const ProfileContent = () => {
           ))}
         </ListProfile>
       </Column>
-      <ActionWrapper>
+      <ActionWrapper hasBorder={profiles.length > 1}>
         {canSignInEth && !KyberOauth2.getConnectedEthAccounts().includes(connectedWallet?.toLowerCase() ?? '') && (
           <ActionItem onClick={() => signInEth()}>
             <UserPlus size={18} /> <Trans>Add Account with current wallet</Trans>

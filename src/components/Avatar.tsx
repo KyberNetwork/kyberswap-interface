@@ -8,10 +8,20 @@ const StyledAvatar = styled.img<{ size: number }>`
   border-radius: 100%;
 `
 
-export default function Avatar({ url, size, color }: { url: string | undefined; size: number; color?: string }) {
+export default function Avatar({
+  url,
+  size,
+  color,
+  onClick,
+}: {
+  url: string | undefined
+  size: number
+  color?: string
+  onClick?: () => void
+}) {
   return url ? (
-    <StyledAvatar size={size} src={url} />
+    <StyledAvatar size={size} src={url} onClick={onClick} />
   ) : (
-    <Profile size={size} color={color} style={{ minHeight: size, minWidth: size }} />
+    <Profile size={size} color={color} style={{ minHeight: size, minWidth: size }} onClick={onClick} />
   )
 }

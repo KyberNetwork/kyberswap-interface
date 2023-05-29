@@ -96,7 +96,6 @@ const HeaderElementWrap = styled.div`
   align-items: center;
   gap: 8px;
   padding: 0px 6px;
-  margin-left: 8px;
   border-radius: 36px;
   background-color: ${({ theme }) => theme.buttonGray};
   border: 1px solid ${({ theme }) => theme.buttonGray};
@@ -225,13 +224,13 @@ export default function Header() {
             <SelectNetwork disabled={walletKey === 'WALLET_CONNECT'} />
           </MouseoverTooltip>
           <SelectWallet />
+          <HeaderElementWrap>
+            <Announcement />
+            <div style={{ height: '18px', borderLeft: `2px solid ${theme.subText}` }} />
+            <Menu />
+          </HeaderElementWrap>
           <SignWallet />
         </HeaderElement>
-        <HeaderElementWrap>
-          <Announcement />
-          <div style={{ height: '18px', borderLeft: `2px solid ${theme.border}` }} />
-          <Menu />
-        </HeaderElementWrap>
       </HeaderControls>
     </HeaderFrame>
   )
