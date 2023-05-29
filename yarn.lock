@@ -4724,6 +4724,7 @@
     "@uniswap/v3-core" "1.0.0"
     base64-sol "1.0.1"
 
+test-synpress-2
 "@viem/anvil@^0.0.5":
   version "0.0.5"
   resolved "https://registry.yarnpkg.com/@viem/anvil/-/anvil-0.0.5.tgz#9f65358e6b601e2c925f4bd7c1ffc2d4df1a5be9"
@@ -4733,6 +4734,18 @@
     get-port "^6.1.2"
     http-proxy "^1.18.1"
     ws "^8.13.0"
+
+"@use-gesture/core@10.2.27":
+  version "10.2.27"
+  resolved "https://registry.yarnpkg.com/@use-gesture/core/-/core-10.2.27.tgz#0f24b17c036cd828ba07e3451ff45e2df959c6f5"
+  integrity sha512-V4XV7hn9GAD2MYu8yBBVi5iuWBsAMfjPRMsEVzoTNGYH72tf0kFP+OKqGKc8YJFQIJx6yj+AOqxmEHOmx2/MEA==
+
+"@use-gesture/react@^10.2.27":
+  version "10.2.27"
+  resolved "https://registry.yarnpkg.com/@use-gesture/react/-/react-10.2.27.tgz#7fbd50d14449ec5bc49c9b6cfef8a2845f5e0608"
+  integrity sha512-7E5vnWCxeslWlxwZ8uKIcnUZVMTRMZ8cvSnLLKF1NkyNb3PnNiAzoXM4G1vTKJKRhgOTeI6wK1YsEpwo9ABV5w==
+  dependencies:
+    "@use-gesture/core" "10.2.27"
 
 "@vitejs/plugin-react@^3.1.0":
   version "3.1.0"
