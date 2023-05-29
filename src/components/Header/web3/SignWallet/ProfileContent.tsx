@@ -140,11 +140,11 @@ const ProfileItem = ({
           </Flex>
           <Column gap="8px" minWidth={'unset'} flex={1}>
             {profile?.nickname && (
-              <Text fontWeight={'500'} fontSize={'14px'} color={active ? theme.text : theme.subText}>
+              <Text fontWeight={'bold'} fontSize={'14px'} color={active ? theme.primary : theme.subText}>
                 {shortString(profile?.nickname ?? '', active ? 18 : 25)}
               </Text>
             )}
-            <Text fontWeight={'500'} fontSize={active ? '14px' : '12px'} color={active ? theme.text : theme.subText}>
+            <Text fontWeight={'500'} fontSize={active ? '14px' : '12px'} color={active ? theme.primary : theme.subText}>
               {guest ? account : getShortenAddress(account)}
             </Text>
           </Column>

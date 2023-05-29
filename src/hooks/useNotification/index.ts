@@ -73,6 +73,10 @@ const useNotification = () => {
     } catch (error) {}
   }, [refetch, account])
 
+  useEffect(() => {
+    refreshTopics()
+  }, [userInfo?.identityId, refreshTopics])
+
   const [requestWatchWallet] = useCreateWatchWalletMutation()
   const [callSubscribeTopic] = useSubscribeTopicsMutation()
   const [buildTelegramVerification] = useBuildTelegramVerificationMutation()
