@@ -1,4 +1,4 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { LogOut, UserPlus } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
@@ -10,7 +10,6 @@ import { ButtonOutlined } from 'components/Button'
 import Column from 'components/Column'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import Row, { RowBetween } from 'components/Row'
-import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import useLogin from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
@@ -69,6 +68,8 @@ const ProfileItemWrapper = styled(RowBetween)<{ active: boolean }>`
     active
       ? css`
           padding-top: 0;
+          flex-direction: column;
+          gap: 12px;
         `
       : css`
           border-bottom: none;
@@ -101,7 +102,7 @@ const ProfileItem = ({
 
   const signOutBtn = !guest ? (
     <LogOut
-      style={{ zIndex: 1, marginRight: active ? 0 : '10px' }}
+      style={{ zIndex: 1, marginRight: '10px' }}
       color={theme.subText}
       size={16}
       onClick={e => {
@@ -114,43 +115,42 @@ const ProfileItem = ({
 
   return (
     <ProfileItemWrapper active={active} onClick={onClick}>
-      <Row gap="16px" align="center">
-        <Flex style={{ width: 64, minWidth: 64 }} justifyContent="center">
-          <Avatar url={profile?.avatarUrl} size={active ? 64 : 32} color={active ? theme.text : theme.subText} />
-        </Flex>
-        <Column gap="8px" minWidth={'unset'}>
-          <Flex style={{ gap: '8px' }} alignItems={'center'}>
+      <Row width={'100%'}>
+        <Row gap="16px" align="center">
+          <Flex style={{ width: 64, minWidth: 64 }} justifyContent="center">
+            <Avatar url={profile?.avatarUrl} size={active ? 64 : 40} color={active ? theme.text : theme.subText} />
+          </Flex>
+          <Column gap="8px" minWidth={'unset'} flex={1}>
             {profile?.nickname && (
               <Text fontWeight={'500'} fontSize={'14px'} color={active ? theme.text : theme.subText}>
                 {shortString(profile?.nickname ?? '', active ? 18 : 25)}
               </Text>
             )}
-            {active && signOutBtn}
-          </Flex>
-          <Text fontWeight={'500'} fontSize={active ? '14px' : '12px'} color={active ? theme.text : theme.subText}>
-            {guest ? account : getShortenAddress(account)}
-          </Text>
-        </Column>
-      </Row>
-      <Row justify="flex-end" gap="18px" align="center">
-        {(isSignedWallet(account) || (guest && isGuest)) && (
-          <MouseoverTooltip text={t`Edit Profile Details`} width="fit-content" placement="top">
-            <ButtonOutlined
-              height={'36px'}
-              onClick={e => {
-                e?.stopPropagation()
-                navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PROFILE}`)
-                toggleModal()
-              }}
-            >
-              <TransactionSettingsIcon size={20} fill={theme.subText} />
-              &nbsp;
-              <Trans>Edit</Trans>
-            </ButtonOutlined>
-          </MouseoverTooltip>
-        )}
+            <Text fontWeight={'500'} fontSize={active ? '14px' : '12px'} color={active ? theme.text : theme.subText}>
+              {guest ? account : getShortenAddress(account)}
+            </Text>
+          </Column>
+          {active && <div>{signOutBtn}</div>}
+        </Row>
         {!active && signOutBtn}
       </Row>
+      {(isSignedWallet(account) || (guest && isGuest)) && (
+        <Row width={'100%'}>
+          <ButtonOutlined
+            height={'36px'}
+            style={{ flex: 1 }}
+            onClick={e => {
+              e?.stopPropagation()
+              navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PROFILE}`)
+              toggleModal()
+            }}
+          >
+            <TransactionSettingsIcon size={20} fill={theme.subText} />
+            &nbsp;
+            <Trans>Edit current account</Trans>
+          </ButtonOutlined>
+        </Row>
+      )}
     </ProfileItemWrapper>
   )
 }
