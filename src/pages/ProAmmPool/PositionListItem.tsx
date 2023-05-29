@@ -175,7 +175,7 @@ function PositionListItem({
 
   farms?.forEach(farm => {
     farm.pools.forEach(pool => {
-      if (pool.endTime > Date.now() / 1000 && pool.poolAddress.toLowerCase() === positionDetails.poolId.toLowerCase()) {
+      if (pool.poolAddress.toLowerCase() === positionDetails.poolId.toLowerCase()) {
         farmAddress = farm.id
         pid = pool.pid
         rewardTokens = pool.rewardTokens
@@ -292,11 +292,9 @@ function PositionListItem({
     if (removed) {
       return t`You have zero liquidity to remove`
     }
-
     if (stakedLiquidity) {
       return t`You need to withdraw your deposited liquidity position from the farms first`
     }
-
     return ''
   })()
 
@@ -370,6 +368,7 @@ function PositionListItem({
             )}
             {!stakedLayout && (
               <ProAmmFee
+                farmAddress={farmAddress}
                 totalFeeRewardUSD={currentFeeValue}
                 feeValue0={feeValue0}
                 feeValue1={feeValue1}

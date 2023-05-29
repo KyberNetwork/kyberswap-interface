@@ -31,6 +31,7 @@ export default function ProAmmPoolInfo({
   rotatedProp,
   setRotatedProp,
   showRangeInfo = true,
+  showRemoved = true,
 }: {
   isFarmActive?: boolean
   position: Position
@@ -39,6 +40,7 @@ export default function ProAmmPoolInfo({
   rotatedProp?: boolean
   setRotatedProp?: (rotated: boolean) => void
   showRangeInfo?: boolean
+  showRemoved?: boolean
 }) {
   const { networkInfo, chainId } = useActiveWeb3React()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -119,7 +121,7 @@ export default function ProAmmPoolInfo({
 
             <Flex sx={{ gap: '8px' }}>
               {renderFarmIcon()}
-              {showRangeInfo && <RangeBadge removed={removed} inRange={!outOfRange} hideText />}
+              {showRangeInfo && <RangeBadge removed={showRemoved && removed} inRange={!outOfRange} hideText />}
             </Flex>
           </Flex>
 

@@ -1,7 +1,18 @@
 import { gql, useQuery } from '@apollo/client'
+import { useScroll } from '@use-gesture/react'
 import { Interface } from 'ethers/lib/utils'
 import memoizeOne from 'memoize-one'
-import React, { CSSProperties, ComponentType, memo, useCallback, useEffect, useMemo, useState } from 'react'
+import React, {
+  CSSProperties,
+  ComponentType,
+  forwardRef,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { useMedia } from 'react-use'
 import { FixedSizeGrid as FixedSizeGridRW, GridChildComponentProps, areEqual } from 'react-window'
 import styled from 'styled-components'
@@ -81,6 +92,7 @@ function PositionGrid({
   const { elasticClient } = useKyberSwapConfig(chainId)
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
   // raw
   const [feeRewards, setFeeRewards] = useState<{
@@ -183,15 +195,17 @@ function PositionGrid({
     refe,
   )
 
+  const columnCount = upToSmall ? 1 : upToLarge ? 2 : 3
   return (
     <FixedSizeGrid
       style={{ width: '100%', height: 'calc(100vh - 200px)' }}
       width={10000}
-      columnCount={3}
-      rowCount={Math.ceil(positions.length / 3)}
+      columnCount={columnCount}
+      outerElementType={outerElementType}
+      rowCount={Math.ceil(positions.length / columnCount)}
       height={0}
       columnWidth={upToSmall ? 368 : 392}
-      rowHeight={603} // 579px row height + 24px gap
+      rowHeight={630}
       itemData={itemData}
     >
       {Row as ComponentType<GridChildComponentProps<unknown>>}
@@ -240,7 +254,11 @@ const Row = memo(
       right: columnIndex === 3 ? style.right : Number(style.right) + columnIndex * 24,
     }
 
-    const index = rowIndex * 3 + columnIndex
+    const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+    const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
+    const columnCount = upToSmall ? 1 : upToLarge ? 2 : 3
+
+    const index = rowIndex * columnCount + columnIndex
     const p = positions[index]
     if (!p) return <div />
 
@@ -263,5 +281,52 @@ const Row = memo(
 )
 
 Row.displayName = 'RowItem'
+
+const emptyFunction = (): void => {
+  return
+}
+
+type DocumentPropsType = React.HTMLProps<HTMLElement>
+
+const outerElementType = forwardRef<HTMLElement, DocumentPropsType>(({ onScroll, children }, forwardedRef) => {
+  const containerRef = useRef<HTMLDivElement>(null)
+  useScroll(
+    () => {
+      if (!(onScroll instanceof Function)) {
+        return
+      }
+
+      const { clientWidth, clientHeight, scrollLeft, scrollTop, scrollHeight, scrollWidth } = document.documentElement
+
+      onScroll({
+        currentTarget: {
+          clientHeight,
+          clientWidth,
+          scrollLeft,
+          addEventListener: emptyFunction,
+          removeEventListener: emptyFunction,
+          dispatchEvent: () => false,
+          scrollTop:
+            scrollTop - (containerRef.current ? containerRef.current.getBoundingClientRect().top + scrollTop : 0),
+          scrollHeight,
+          scrollWidth,
+        },
+      } as unknown as React.UIEvent<HTMLElement>)
+    },
+    { target: window },
+  )
+
+  if (forwardedRef != null && !(forwardedRef instanceof Function)) {
+    forwardedRef.current = document.documentElement
+  }
+
+  return (
+    <div ref={containerRef} style={{ position: 'relative' }}>
+      {children}
+    </div>
+  )
+})
+
+outerElementType.displayName = 'outerElementType'
 
 export default PositionGrid
