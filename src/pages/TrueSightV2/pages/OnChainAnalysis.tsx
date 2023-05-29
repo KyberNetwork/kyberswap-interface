@@ -150,7 +150,7 @@ export default function OnChainAnalysis() {
         description={t`Indicates on-chain transfer activity between wallets. High transfer activity indicates that more traders are transferring the token between wallets. Token with high transfer activity and high transfer volume may indicate that traders are interested in it.`}
         id="numberoftransfers"
         shareButton
-        shareContent={() => <NumberofTransfers tab={numberOfTransfers} noAnimation />}
+        shareContent={() => <NumberofTransfers tab={numberOfTransfers} />}
         fullscreenButton
         tabs={[t`Number`, t`Volume`]}
         activeTab={numberOfTransfers}
@@ -170,7 +170,7 @@ export default function OnChainAnalysis() {
         description={t`Indicates the number of addresses that hold a token. An increase in the number of holders may indicate more interest in the token and vice-versa. Number of holders may also indicate the distribution of the token. High number of holders may reduce the impact an individual (like a whale) can have on the price.`}
         id="numberofholders"
         shareButton
-        shareContent={() => <NumberofHolders noAnimation />}
+        shareContent={() => <NumberofHolders />}
         fullscreenButton
         docsLinks={['https://docs.kyberswap.com/kyberswap-solutions/kyberai/on-chain-indicators/number-of-holders']}
       >

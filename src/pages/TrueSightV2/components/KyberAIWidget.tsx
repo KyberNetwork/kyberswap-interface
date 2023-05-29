@@ -23,7 +23,7 @@ import { useKyberAIWidget } from 'state/user/hooks'
 import { useTokenListQuery } from '../hooks/useKyberAIData'
 import { ITokenList, KyberAIListType } from '../types'
 import SimpleTooltip from './SimpleTooltip'
-import { WidgetMobileTable, WidgetTable } from './table'
+import { WidgetMobileTable, WidgetTable } from './table/index'
 
 const CloseButton = styled.div`
   display: flex;

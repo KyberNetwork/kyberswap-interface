@@ -974,6 +974,7 @@ export const WidgetMobileTable = ({
 
 const ShareTableWrapper = styled(Table)`
   margin: 0px !important;
+  min-width: inherit;
   tbody tr {
     background-color: none;
   }

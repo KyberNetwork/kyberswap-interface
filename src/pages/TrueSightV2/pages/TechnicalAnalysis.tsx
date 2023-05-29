@@ -263,7 +263,7 @@ export default function TechnicalAnalysis() {
           }
           style={{ height: 'fit-content' }}
           shareButton
-          shareContent={mobileMode => <FundingRateShareContent dataUrl={prochartDataURL} mobileMode={mobileMode} />}
+          shareContent={mobileMode => <FundingRateShareContent mobileMode={mobileMode} />}
           onShareClick={takeScreenShot}
           docsLinks={[
             'https://docs.kyberswap.com/kyberswap-solutions/kyberai/technical-indicators/funding-rate-on-cex',

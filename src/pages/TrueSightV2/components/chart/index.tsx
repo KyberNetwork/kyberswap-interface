@@ -554,7 +554,7 @@ export const NumberofTradesChart = ({ noAnimation }: { noAnimation?: boolean }) 
               {...{
                 label: <CustomizedLabel timeframe={timeframe} />,
               }}
-              isAnimationActive={noAnimation ? false : true}
+              isAnimationActive={false}
             />
           )}
         </ComposedChart>
@@ -861,9 +861,7 @@ export const TradingVolumeChart = ({ noAnimation }: { noAnimation?: boolean }) =
               dataKey="totalVolume"
               stroke={theme.text}
               width={2}
-              isAnimationActive={noAnimation ? false : true}
-              animationBegin={ANIMATION_DELAY}
-              animationDuration={ANIMATION_DURATION}
+              isAnimationActive={false}
               dot={false}
               {...{
                 label: <CustomizedLabel timeframe={timeframe} dollarSign />,
@@ -1275,6 +1273,7 @@ export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; no
                   stroke="url(#gradient1)"
                   strokeWidth={2}
                   dot={false}
+                  isAnimationActive={false}
                   {...{
                     label: <CustomizedLabel timeframe={timeframe} dollarSign />,
                   }}
@@ -1651,7 +1650,7 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
               dataKey="totalNetflow"
               stroke="url(#gradient2)"
               strokeWidth={2}
-              isAnimationActive={noAnimation ? false : true}
+              isAnimationActive={false}
               dot={false}
               {...{
                 label: <CustomizedLabel timeframe={timeframe} dollarSign />,
@@ -1697,7 +1696,7 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
   )
 }
 
-export const NumberofTransfers = ({ tab, noAnimation }: { tab: ChartTab; noAnimation?: boolean }) => {
+export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
   const theme = useTheme()
   const { chain, address } = useParams()
   const { state, dispatch } = useChartStatesContext('numberOfTransfers', {
@@ -1862,9 +1861,7 @@ export const NumberofTransfers = ({ tab, noAnimation }: { tab: ChartTab; noAnima
             dataKey={tab === ChartTab.First ? 'numberOfTransfer' : 'volume'}
             stroke={theme.primary}
             fill="url(#colorUv)"
-            isAnimationActive={noAnimation ? false : true}
-            animationBegin={ANIMATION_DELAY}
-            animationDuration={ANIMATION_DURATION}
+            isAnimationActive={false}
             {...{
               label: <CustomizedLabel timeframe={timeframe} dollarSign={tab === ChartTab.Second} />,
             }}
@@ -1875,7 +1872,7 @@ export const NumberofTransfers = ({ tab, noAnimation }: { tab: ChartTab; noAnima
   )
 }
 
-export const NumberofHolders = ({ noAnimation }: { noAnimation?: boolean }) => {
+export const NumberofHolders = () => {
   const theme = useTheme()
   const { chain, address } = useParams()
   const { state, dispatch } = useChartStatesContext('numberOfHolders', {
@@ -2026,9 +2023,7 @@ export const NumberofHolders = ({ noAnimation }: { noAnimation?: boolean }) => {
             dataKey="count"
             stroke={theme.primary}
             fill="url(#colorUv)"
-            isAnimationActive={noAnimation ? false : true}
-            animationBegin={ANIMATION_DELAY}
-            animationDuration={ANIMATION_DURATION}
+            isAnimationActive={false}
             {...{
               label: <CustomizedLabel timeframe={timeframe} />,
             }}
@@ -2473,9 +2468,7 @@ export const LiquidOnCentralizedExchanges = ({ noAnimation }: { noAnimation?: bo
                     dataKey="price"
                     stroke={theme.text}
                     strokeWidth={2}
-                    isAnimationActive={noAnimation ? false : true}
-                    animationBegin={ANIMATION_DELAY}
-                    animationDuration={ANIMATION_DURATION}
+                    isAnimationActive={false}
                     dot={false}
                     {...{
                       label: <CustomizedPriceLabel timeframe={timeframe} />,
