@@ -23,6 +23,7 @@ import { useActiveWeb3React } from 'hooks'
 import { useUploadImageToCloud } from 'hooks/social'
 import useLogin from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
+import WarningSignMessage from 'pages/NotificationCenter/Profile/WarningSignMessage'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
 import { useNotify } from 'state/application/hooks'
@@ -190,6 +191,7 @@ export default function Profile() {
           <Trans>Profile Details</Trans>
         </Text>
       )}
+      <WarningSignMessage walletAddress={signedWallet} />
       <FormWrapper>
         <LeftColum>
           <FormGroup>
