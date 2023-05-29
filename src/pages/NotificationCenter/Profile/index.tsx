@@ -228,7 +228,7 @@ export default function Profile() {
                 <Trans>Wallet Address</Trans>
               </Label>
               <StyledAddressInput
-                style={{ color: theme.text, cursor: 'pointer' }}
+                style={{ color: theme.subText, cursor: 'pointer' }}
                 disabled
                 value={shortenAddress(chainId, signedWallet, 17, false)}
                 icon={<CopyHelper toCopy={signedWallet} style={{ color: theme.subText }} />}
