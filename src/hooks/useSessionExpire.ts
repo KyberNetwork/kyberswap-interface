@@ -19,6 +19,10 @@ export default function useSessionExpiredGlobal() {
   useEffect(() => {
     const listener = () => {
       const isKyberAI = pathname.toLowerCase().startsWith(APP_PATHS.KYBERAI.toLowerCase())
+      console.log('danh', {
+        signedWallet,
+        CONNECTING_WALLET: getProfileLocalStorage(ProfileLocalStorageKeys.CONNECTING_WALLET),
+      })
       const data: ConfirmModalState = {
         isOpen: true,
         content: t`Your session has expired. Please sign-in to continue.`,
