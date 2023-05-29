@@ -3,7 +3,7 @@ import { rgba } from 'polished'
 import { LogOut, UserPlus } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import Avatar from 'components/Avatar'
 import { ButtonOutlined } from 'components/Button'
@@ -25,7 +25,7 @@ const ContentWrapper = styled.div`
   flex-direction: column;
   width: 100%;
   min-width: 320px;
-  padding: 12px 20px;
+  padding: 14px 20px;
 `
 
 const ActionItem = styled.div`
@@ -48,6 +48,8 @@ const ActionWrapper = styled.div`
   padding: 12px 20px 0px 20px;
   flex-direction: column;
   justify-content: space-between;
+  border-top: 1px solid ${({ theme }) => theme.border};
+  margin-top: 10px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
       padding: 14px 24px;
   `}
@@ -59,6 +61,19 @@ const ProfileItemWrapper = styled(RowBetween)<{ active: boolean }>`
   ${({ theme }) => theme.mediaWidth.upToMedium`
       padding: 14px 24px;
   `}
+  ${({ active }) =>
+    active
+      ? css`
+          margin-bottom: 10px;
+          padding-top: 0;
+        `
+      : css`
+          border-bottom: none;
+          border-radius: 8px;
+          :hover {
+            background-color: ${({ theme }) => rgba(theme.subText, 0.2)};
+          }
+        `}
 `
 
 const ProfileItem = ({
@@ -105,10 +120,10 @@ const ProfileItem = ({
             fontWeight={'500'}
             fontSize={'14px'}
             alignItems={'center'}
-            style={{ gap: '6px' }}
+            style={{ gap: '8px' }}
             color={active ? theme.text : theme.subText}
           >
-            {profile?.nickname} {active && signOutBtn}
+            {profile?.nickname} {signOutBtn}
           </Flex>
           <Text fontWeight={'500'} fontSize={active ? '14px' : '12px'} color={active ? theme.text : theme.subText}>
             {guest ? account : getShortenAddress(account)}
@@ -132,7 +147,6 @@ const ProfileItem = ({
             </ButtonOutlined>
           </MouseoverTooltip>
         )}
-        {!active && signOutBtn}
       </Row>
     </ProfileItemWrapper>
   )
