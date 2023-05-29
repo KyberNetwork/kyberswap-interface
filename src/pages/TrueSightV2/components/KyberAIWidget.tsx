@@ -8,7 +8,6 @@ import { createSearchParams, useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { DefaultTheme, css } from 'styled-components'
 
-import { ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import Divider from 'components/Divider'
 import Icon from 'components/Icons/Icon'
@@ -180,7 +179,7 @@ export default function Widget() {
   const [showExpanded, setShowExpanded] = useState(false)
   const [showWidget, toggleWidget] = useKyberAIWidget()
   const [activeTab, setActiveTab] = useState<WidgetTab>(WidgetTab.MyWatchlist)
-  const [isSessionExpired, setIsSessionExpired] = useState(false)
+  const [, setIsSessionExpired] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const mobileRef = useRef<HTMLDivElement>(null)
   useOnClickOutside(isMobile ? mobileRef : ref, () => {
