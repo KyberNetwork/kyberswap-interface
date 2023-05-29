@@ -28,6 +28,12 @@ const ContentWrapper = styled.div`
   padding: 14px 20px;
 `
 
+const ListProfile = styled.div<{ hasData: boolean }>`
+  padding: ${({ hasData }) => hasData && `10px 0`};
+  border-top: ${({ theme }) => `1px solid ${theme.border}`};
+  border-bottom: ${({ theme, hasData }) => hasData && `1px solid ${theme.border}`};
+`
+
 const ActionItem = styled.div`
   display: flex;
   justify-content: center;
@@ -48,23 +54,19 @@ const ActionWrapper = styled.div`
   padding: 12px 20px 0px 20px;
   flex-direction: column;
   justify-content: space-between;
-  border-top: 1px solid ${({ theme }) => theme.border};
-  margin-top: 10px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
       padding: 14px 24px;
   `}
 `
 
-const ProfileItemWrapper = styled(RowBetween)<{ active: boolean; hasBorder: boolean }>`
+const ProfileItemWrapper = styled(RowBetween)<{ active: boolean }>`
   padding: 10px 0px;
-  border-bottom: ${({ theme, hasBorder }) => hasBorder && `1px solid ${theme.border}`};
   ${({ theme }) => theme.mediaWidth.upToMedium`
       padding: 14px 24px;
   `}
   ${({ active }) =>
     active
       ? css`
-          margin-bottom: 10px;
           padding-top: 0;
         `
       : css`
@@ -79,11 +81,9 @@ const ProfileItemWrapper = styled(RowBetween)<{ active: boolean; hasBorder: bool
 const ProfileItem = ({
   data: { active, guest, address: account, profile },
   refreshProfile,
-  totalProfile,
 }: {
   data: ConnectedProfile
   refreshProfile: () => void
-  totalProfile: number
 }) => {
   const theme = useTheme()
   const navigate = useNavigate()
@@ -99,7 +99,7 @@ const ProfileItem = ({
   }
 
   return (
-    <ProfileItemWrapper active={active} hasBorder={totalProfile > 1} onClick={onClick}>
+    <ProfileItemWrapper active={active} onClick={onClick}>
       <Row gap="16px" align="center">
         <Flex style={{ width: 64, minWidth: 64 }} justifyContent="center">
           <Avatar url={profile?.avatarUrl} size={active ? 64 : 32} color={active ? theme.text : theme.subText} />
@@ -153,13 +153,17 @@ const ProfileContent = () => {
   const { canSignInEth } = useSignedWalletInfo()
   const { profiles, refresh } = useAllProfileInfo()
   const totalSignedAccount = profiles.filter(e => !e.guest).length
+  const listNotActive = profiles.slice(1)
 
   return (
     <ContentWrapper>
       <Column>
-        {profiles.map(data => (
-          <ProfileItem key={data.address} data={data} refreshProfile={refresh} totalProfile={profiles.length} />
-        ))}
+        <ProfileItem data={profiles[0]} refreshProfile={refresh} />
+        <ListProfile hasData={!!listNotActive.length}>
+          {listNotActive.map(data => (
+            <ProfileItem key={data.address} data={data} refreshProfile={refresh} />
+          ))}
+        </ListProfile>
       </Column>
       <ActionWrapper>
         {canSignInEth && (
