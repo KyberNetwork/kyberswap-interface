@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import firebase from 'firebase/compat/app'
+import { initializeApp } from 'firebase/app'
 import { Firestore, collection, doc, getFirestore, onSnapshot, query } from 'firebase/firestore'
 
 import { PopupContentAnnouncement } from 'components/Announcement/type'
@@ -9,10 +9,8 @@ import { ENV_TYPE } from 'constants/type'
 
 const { DEFAULT: FIREBASE_CONFIG_DEFAULT, LIMIT_ORDER: FIREBASE_CONFIG_LO } = FIREBASE[ENV_KEY]
 
-const firebaseApp = firebase.initializeApp(FIREBASE_CONFIG_DEFAULT, 'default')
-const firebaseAppLimitOrder = FIREBASE_CONFIG_LO
-  ? firebase.initializeApp(FIREBASE_CONFIG_LO, 'limit_order')
-  : firebaseApp
+const firebaseApp = initializeApp(FIREBASE_CONFIG_DEFAULT, 'default')
+const firebaseAppLimitOrder = FIREBASE_CONFIG_LO ? initializeApp(FIREBASE_CONFIG_LO, 'limit_order') : firebaseApp
 
 const dbNotification = getFirestore(firebaseApp)
 const dbLimitOrder = getFirestore(firebaseAppLimitOrder)

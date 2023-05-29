@@ -234,6 +234,10 @@ msgstr ""
 msgid "A verification email has been sent to your email address. Please check your inbox to verify your email."
 msgstr ""
 
+#: src/components/SwapForm/TradeSummary.tsx
+msgid "A {feePercent} fee ({feeAmountText}) will incur on this swap. The Est. Output amount you see above is inclusive of this fee. Read more about the fees {hereLink}"
+msgstr ""
+
 #: src/pages/About/AboutKyberSwap/index.tsx
 msgid "ABOUT KNC"
 msgstr ""
@@ -468,16 +472,16 @@ msgstr "Tuỳ Chỉnh Nâng Cao"
 #~ msgstr "Đang bật chế độ nâng cao!"
 
 #: src/components/FarmIssueAnnouncement.tsx
-msgid "After force withdrawing your liquidity position from the farm, remember <0>not</0> to re-stake this in the farm."
-msgstr ""
+#~ msgid "After force withdrawing your liquidity position from the farm, remember <0>not</0> to re-stake this in the farm."
+#~ msgstr ""
 
 #: src/components/YieldPools/ElasticFarmModals/HarvestModal.tsx
 #~ msgid "After harvesting, your rewards will begin vesting linearly (only if the farm has a vesting duration).<0/><1/>Vesting means that your reward tokens will be locked initially but released gradually. You can claim the reward tokens to your wallet as and when they are released.<2/><3/>To claim your rewards, go to the <4> Vesting</4> tab and click 'Claim'."
 #~ msgstr ""
 
 #: src/components/YieldPools/ElasticFarmModals/HarvestModal.tsx
-msgid "After harvesting, your rewards will begin vesting linearly (only if the farm has a vesting duration).<0/><1/>Vesting means that your reward tokens will be locked initially but released gradually. You can claim the reward tokens to your wallet as and when they are released.<2/><3/>To claim your rewards, go to the <4>Vesting</4> tab and click 'Claim'."
-msgstr ""
+#~ msgid "After harvesting, your rewards will begin vesting linearly (only if the farm has a vesting duration).<0/><1/>Vesting means that your reward tokens will be locked initially but released gradually. You can claim the reward tokens to your wallet as and when they are released.<2/><3/>To claim your rewards, go to the <4>Vesting</4> tab and click 'Claim'."
+#~ msgstr ""
 
 #: src/components/YieldPools/FairLaunchPools.tsx
 msgid "After harvesting, your rewards will unlock linearly over the indicated time period"
@@ -898,7 +902,6 @@ msgstr ""
 msgid "Brave wallet can only be used in Brave Browser. Download it <0>here↗</0>"
 msgstr ""
 
-#: src/components/Header/groups/SwapNavGroup.tsx
 #: src/pages/Bridge/index.tsx
 msgid "Bridge"
 msgstr ""
@@ -1211,7 +1214,6 @@ msgid "Code Audited"
 msgstr ""
 
 #: src/components/ProAmm/ProAmmFee.tsx
-#: src/components/ProAmm/ProAmmFee.tsx
 msgid "Collect Fees"
 msgstr "Thu phí"
 
@@ -1252,8 +1254,6 @@ msgstr "Sắp Có Mặt"
 msgid "Commission (%) that is applied to each successful trade that uses your referral link"
 msgstr ""
 
-#: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
-#: src/components/SwapForm/TradeSummary.tsx
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Commission fee to be paid directly to your referrer"
@@ -1773,12 +1773,12 @@ msgid "Don't see your tokens"
 msgstr ""
 
 #: src/components/FarmIssueAnnouncement.tsx
-msgid "Don't worry, your funds are <0>100% safe</0>."
-msgstr ""
+#~ msgid "Don't worry, your funds are <0>100% safe</0>."
+#~ msgstr ""
 
 #: src/components/FarmIssueAnnouncement.tsx
-msgid "Don't worry, your funds are <0>100% safe</0>. And you are still earning farming rewards."
-msgstr ""
+#~ msgid "Don't worry, your funds are <0>100% safe</0>. And you are still earning farming rewards."
+#~ msgstr ""
 
 #: src/components/Tutorial/TutorialSwap/CustomPopup.tsx
 msgid "Done"
@@ -2077,6 +2077,15 @@ msgstr ""
 #: src/components/SwapForm/OutputCurrencyPanel.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Est. Output"
+msgstr ""
+
+#: src/components/SwapForm/OutputCurrencyPanel.tsx
+msgid "Est. Output (incl. fee)"
+msgstr ""
+
+#: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
+#: src/components/SwapForm/TradeSummary.tsx
+msgid "Est. Swap Fee"
 msgstr ""
 
 #: src/components/swapv2/LimitOrder/Modals/styled.tsx
@@ -2453,16 +2462,20 @@ msgid "Get Started"
 msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
-msgid "Get pool {0} info"
+msgid "Get pool info"
 msgstr ""
+
+#: src/components/YieldPools/ListItem.tsx
+#~ msgid "Get pool {0} info"
+#~ msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 msgid "Get {0}-{1} LP ↗"
 msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
-msgid "Get {0}-{1} {2} LP ↗"
-msgstr ""
+#~ msgid "Get {0}-{1} {2} LP ↗"
+#~ msgstr ""
 
 #: src/pages/About/AboutKNC.tsx
 #: src/pages/About/AboutKyberSwap/index.tsx
@@ -2605,8 +2618,8 @@ msgstr ""
 #~ msgstr ""
 
 #: src/components/FarmIssueAnnouncement.tsx
-msgid "If you do this, your farming rewards will <0>not</0> be automatically harvested but we can <1>manually transfer</1> your farming rewards to you."
-msgstr ""
+#~ msgid "If you do this, your farming rewards will <0>not</0> be automatically harvested but we can <1>manually transfer</1> your farming rewards to you."
+#~ msgstr ""
 
 #: src/components/Header/web3/WalletModal/index.tsx
 msgid "If you haven‘t created a Solflare wallet yet, please follow the steps below"
@@ -2621,12 +2634,12 @@ msgstr ""
 #~ msgstr ""
 
 #: src/components/FarmIssueAnnouncement.tsx
-msgid "If you still wish to withdraw your liquidity positions from the farm, you can use the <0>Force Withdraw</0> button as an emergency option. Note:"
-msgstr ""
+#~ msgid "If you still wish to withdraw your liquidity positions from the farm, you can use the <0>Force Withdraw</0> button as an emergency option. Note:"
+#~ msgstr ""
 
 #: src/components/FarmIssueAnnouncement.tsx
-msgid "If you wish to continue participating in the farm, you should remove liquidity from the <0>pool</0>, create a <1>new</1> liquidity position by adding liquidity into the pool, and then stake this new liquidity position into the farm."
-msgstr ""
+#~ msgid "If you wish to continue participating in the farm, you should remove liquidity from the <0>pool</0>, create a <1>new</1> liquidity position by adding liquidity into the pool, and then stake this new liquidity position into the farm."
+#~ msgstr ""
 
 #: src/components/YieldPools/ElasticFarmSummary/SummaryContent.tsx
 #~ msgid "If you wish to learn more, click <0>here ↗</0>"
@@ -2691,8 +2704,8 @@ msgid "Import token in Brave wallet"
 msgstr ""
 
 #: src/components/FarmIssueAnnouncement.tsx
-msgid "Important Announcement"
-msgstr ""
+#~ msgid "Important Announcement"
+#~ msgstr ""
 
 #: src/components/Announcement/Popups/CenterPopup.tsx
 msgid "Important Announcement!"
@@ -2745,7 +2758,6 @@ msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
 #: src/pages/IncreaseLiquidity/index.tsx
-#: src/pages/ProAmmPool/PositionListItem.tsx
 #: src/pages/ProAmmPool/PositionListItem.tsx
 msgid "Increase Liquidity"
 msgstr "Tăng thanh khoản"
@@ -3684,7 +3696,6 @@ msgstr ""
 msgid "No token found. Try turn off truesight."
 msgstr ""
 
-#: src/components/Vesting/ProMMVesting.tsx
 #: src/components/Vesting/index.tsx
 msgid "No vesting schedule!"
 msgstr "Không có lịch vesting!"
@@ -3725,6 +3736,10 @@ msgstr ""
 msgid "Note: Cancelling an order will cost gas fees. {0}"
 msgstr ""
 
+#: src/pages/ElasticLegacy/Notice.tsx
+msgid "Note: Due to a potential security issue with our Elastic Legacy contract, we have deployed a new Elastic contract. To ensure the safety of your funds, we recommend that all Liquidity Providers withdraw their funds from Elastic Legacy as soon as possible and add them to the new Elastic Pools. If you have not already done so, please do it immediately by visiting this <0>link</0>."
+msgstr ""
+
 #: src/components/YieldPools/ElasticFarms.tsx
 msgid "Note: Farms will run in <0>multiple phases</0>. Once the current phase ends, you can harvest your rewards from the farm in the <1>Ended</1> tab. To continue earning rewards in the new phase, you must restake your NFT position into the active farm"
 msgstr ""
@@ -3739,6 +3754,10 @@ msgstr ""
 
 #: src/components/swapv2/LimitOrder/index.tsx
 msgid "Note: Once your order is filled, you will receive {0} ({1})"
+msgstr ""
+
+#: src/pages/CreateReferral/index.tsx
+msgid "Note: Our current referral program will no longer be supported starting May 5 at 00:00 UTC. After that time, existing referral links will no longer work. Thank you for using our referral program, and stay tuned for more updates."
 msgstr ""
 
 #: src/pages/KyberDAO/StakeKNC/index.tsx
@@ -3948,6 +3967,10 @@ msgstr ""
 #: src/components/SwapForm/SwapModal/SwapBrief.tsx
 #: src/components/swapv2/SwapModalHeader.tsx
 msgid "Output Amount"
+msgstr ""
+
+#: src/components/SwapForm/SwapModal/SwapBrief.tsx
+msgid "Output Amount (incl. fee)"
 msgstr ""
 
 #: src/pages/CreateReferral/index.tsx
@@ -4346,6 +4369,10 @@ msgstr "Hạng"
 msgid "Read More"
 msgstr ""
 
+#: src/components/SwapForm/TradeSummary.tsx
+msgid "Read more about the fees {hereLink}"
+msgstr ""
+
 #: src/components/YourCampaignTransactionsModal/index.tsx
 msgid "Read the rules for this campaign & start swapping!"
 msgstr ""
@@ -4375,8 +4402,6 @@ msgstr ""
 msgid "Referral Commission"
 msgstr ""
 
-#: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
-#: src/components/SwapForm/TradeSummary.tsx
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Referral Fee"
@@ -4740,8 +4765,8 @@ msgid "Share"
 msgstr "Chia sẻ"
 
 #: src/components/YieldPools/ElasticFarms.tsx
-msgid "Share farms with your friends"
-msgstr ""
+#~ msgid "Share farms with your friends"
+#~ msgstr ""
 
 #: src/components/PoolPriceBar/index.tsx
 msgid "Share of Pool"
@@ -4753,8 +4778,8 @@ msgstr "Chia sẻ sự kiện này với bạn bè!"
 
 #: src/components/YieldPools/ElasticFarms.tsx
 #: src/components/YieldPools/FairLaunchPools.tsx
-msgid "Share this farm with your friends!"
-msgstr ""
+#~ msgid "Share this farm with your friends!"
+#~ msgstr ""
 
 #: src/pages/ProAmmPools/index.tsx
 msgid "Share this list of pools with your friends"
@@ -4775,6 +4800,7 @@ msgid "Share this with your friends!"
 msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
+#: src/components/YieldPools/ShareFarmAddressModal.tsx
 #: src/pages/GrantProgram/SingleProgram/LeaderBoardSection/ExpandedSection.tsx
 msgid "Share with your friends!"
 msgstr ""
@@ -5464,7 +5490,11 @@ msgid "This campaign is participating in the Grant Campaign"
 msgstr ""
 
 #: src/components/YieldPools/ElasticFarmGroup/Row.tsx
-msgid "This farm is currently under maintenance. You can deposit your liquidity into the new farms instead. Your withdrawals are not affected."
+#~ msgid "This farm is currently under maintenance. You can deposit your liquidity into the new farms instead. Your withdrawals are not affected."
+#~ msgstr ""
+
+#: src/components/SwapForm/OutputCurrencyPanel.tsx
+msgid "This is the estimated output amount. Do review the actual output amount at the confirmation stage."
 msgstr ""
 
 #: src/pages/SwapV2/index.tsx
@@ -5472,12 +5502,16 @@ msgid "This is the estimated output amount. Do review the actual output amount i
 msgstr ""
 
 #: src/components/SwapForm/OutputCurrencyPanel.tsx
-msgid "This is the estimated output amount. Do review the actual output amount in the confirmation stage."
+#~ msgid "This is the estimated output amount. Do review the actual output amount in the confirmation stage."
+#~ msgstr ""
+
+#: src/components/SwapForm/OutputCurrencyPanel.tsx
+msgid "This is the estimated output amount. It is inclusive of any applicable swap fees. Do review the actual output amount at the confirmation stage."
 msgstr ""
 
 #: src/components/YieldPools/FairLaunchPools.tsx
-msgid "This pool require {0} LP Tokens. Get the LP Tokens <0>here ↗</0>"
-msgstr ""
+#~ msgid "This pool require {0} LP Tokens. Get the LP Tokens <0>here ↗</0>"
+#~ msgstr ""
 
 #: src/components/SearchModal/ImportToken.tsx
 #~ msgid "This token doesn't appear on the active token list(s). Make sure this is the token that you want to trade."
@@ -5977,6 +6011,7 @@ msgstr ""
 #~ msgstr "Cập nhật danh sách"
 
 #: src/components/SwapForm/SwapModal/SwapDetails/UpdatedBadge.tsx
+#: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 msgid "Updated"
 msgstr ""
 
@@ -6235,7 +6270,11 @@ msgid "We give liquidity providers the option of choosing between two liquidity 
 msgstr ""
 
 #: src/components/SwapForm/SwapModal/SwapDetails/UpdatedBadge.tsx
-msgid "We got you a higher amount. The initial output amount was {0} {1}"
+#~ msgid "We got you a higher amount. The initial output amount was {0} {1}"
+#~ msgstr ""
+
+#: src/components/SwapForm/SwapModal/SwapDetails/UpdatedBadge.tsx
+msgid "We got you a higher amount. The initial output amount was {output}"
 msgstr ""
 
 #: src/components/ApproveMessage/index.tsx
@@ -6251,13 +6290,13 @@ msgid "We need access to your local storage. The reason can be that you may have
 msgstr ""
 
 #: src/components/FarmIssueAnnouncement.tsx
-msgid "We really apologize for the trouble."
-msgstr ""
+#~ msgid "We really apologize for the trouble."
+#~ msgstr ""
 
 #: src/components/FarmIssueAnnouncement.tsx
 #: src/components/FarmIssueAnnouncement.tsx
-msgid "We recently discovered an issue in our Elastic farming contract where you might not be able to harvest your rewards or withdraw your liquidity positions like you <0>normally</0> would."
-msgstr ""
+#~ msgid "We recently discovered an issue in our Elastic farming contract where you might not be able to harvest your rewards or withdraw your liquidity positions like you <0>normally</0> would."
+#~ msgstr ""
 
 #: src/components/swapv2/LimitOrder/LimitOrderForm.tsx
 msgid "We suggest you increase the value of your limit order to at least <0>${threshold}</0>. This will increase the odds of your order being filled."
@@ -6457,8 +6496,8 @@ msgstr ""
 
 #: src/components/FarmIssueAnnouncement.tsx
 #: src/components/FarmIssueAnnouncement.tsx
-msgid "You can get in touch with us by joining our <0>Discord channel ↗</0> and we will assist you with your questions or transfer of rewards."
-msgstr ""
+#~ msgid "You can get in touch with us by joining our <0>Discord channel ↗</0> and we will assist you with your questions or transfer of rewards."
+#~ msgstr ""
 
 #: src/pages/CreateReferral/index.tsx
 msgid "You can include the chain in your referral link so referees are automatically re-directed to this network on KyberSwap. You will still earn commission on trades that are made on other chains and use your referral link"
@@ -6554,8 +6593,8 @@ msgid "You can turn on Degen Mode from Settings to execute trades with very high
 msgstr ""
 
 #: src/components/FarmIssueAnnouncement.tsx
-msgid "You can use the <0>Force Withdraw</0> button as an emergency option. If you do this, your farming rewards will <1>not</1> be automatically harvested but we can <2>manually transfer</2> your farming rewards to you."
-msgstr ""
+#~ msgid "You can use the <0>Force Withdraw</0> button as an emergency option. If you do this, your farming rewards will <1>not</1> be automatically harvested but we can <2>manually transfer</2> your farming rewards to you."
+#~ msgstr ""
 
 #: src/components/WalletPopup/SendToken/index.tsx
 msgid "You can’t use your own address as a receiver"
@@ -6721,8 +6760,8 @@ msgid "You need to first give a temporary 24H approval to KyberSwaps smart contr
 msgstr ""
 
 #: src/components/ProAmm/ProAmmFee.tsx
-msgid "You need to withdraw your deposited liquidity position from the Farm first"
-msgstr ""
+#~ msgid "You need to withdraw your deposited liquidity position from the Farm first"
+#~ msgstr ""
 
 #: src/pages/ProAmmPool/PositionListItem.tsx
 msgid "You need to withdraw your deposited liquidity position from the farms first"
@@ -7176,6 +7215,7 @@ msgid "has been successfully transferred from"
 msgstr ""
 
 #: src/components/Header/web3/WalletModal/WarningBox.tsx
+#: src/components/SwapForm/TradeSummary.tsx
 #: src/components/TrendingSoonTokenBanner/index.tsx
 #: src/pages/CreatePool/index.tsx
 msgid "here"

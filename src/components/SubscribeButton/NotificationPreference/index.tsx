@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { debounce } from 'lodash'
+import debounce from 'lodash/debounce'
 import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Check } from 'react-feather'
 import { Flex, Text } from 'rebass'

@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
-import { debounce } from 'lodash'
+import debounce from 'lodash/debounce'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'

@@ -174,6 +174,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-unused-imports": "^2.0.0",
     "prettier": "^2.7.1",
+    "rollup-plugin-visualizer": "^5.9.0",
     "ts-node": "^10.9.1",
     "typescript": "4.8.4",
     "vite": "^4.2.1",
