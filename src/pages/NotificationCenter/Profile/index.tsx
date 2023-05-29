@@ -183,8 +183,8 @@ export default function Profile() {
   const isVerifiedEmail = userInfo?.email && inputEmail === userInfo?.email
 
   const hasChangeProfile =
-    inputEmail !== userInfo?.email ||
     file ||
+    (userInfo?.email && !inputEmail ? false : inputEmail !== userInfo?.email) ||
     (userInfo?.nickname && !nickname ? false : nickname !== userInfo?.nickname)
 
   return (
