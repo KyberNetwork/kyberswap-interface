@@ -6,7 +6,6 @@ import styled, { CSSProperties, useTheme } from 'styled-components'
 
 import { ButtonLight, ButtonOutlined } from 'components/Button'
 import Loader from 'components/Loader'
-import SubscribeNotificationButton from 'components/SubscribeButton'
 import { useActiveWeb3React } from 'hooks'
 import DeleteAllAlertsButton from 'pages/NotificationCenter/DeleteAllAlertsButton'
 import { Tab } from 'pages/NotificationCenter/PriceAlerts'
@@ -117,7 +116,6 @@ const Header: React.FC<Props> = ({ currentTab, setCurrentTab, disabledClearAll }
             }
             notificationName={'Alerts'}
           />
-          <SubscribeNotificationButton watchWallet iconOnly />
           <CreateAlertButton />
         </Flex>
       </Flex>

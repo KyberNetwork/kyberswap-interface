@@ -59,11 +59,9 @@ export default function SubscribeNotificationButton({
   subscribeTooltip,
   iconOnly = false,
   trackingEvent,
-  watchWallet = false,
 }: {
   subscribeTooltip?: ReactNode
   iconOnly?: boolean
-  watchWallet?: boolean
   trackingEvent?: MIXPANEL_TYPE
 }) {
   const theme = useTheme()
@@ -98,7 +96,7 @@ export default function SubscribeNotificationButton({
   }, [requestWatchWallet, account, notify])
 
   const onClickBtn = () => {
-    watchWallet ? addToWatchList() : showNotificationModal()
+    showNotificationModal()
     if (trackingEvent)
       setTimeout(() => {
         mixpanelHandler(trackingEvent)
@@ -110,7 +108,7 @@ export default function SubscribeNotificationButton({
       <SubscribeBtn bgColor={theme.primary} onClick={onClickBtn} iconOnly={iconOnly}>
         <NotificationIcon />
         <ButtonText iconOnly={iconOnly}>
-          {watchWallet ? <Trans>Add to Watch List</Trans> : <Trans>Subscribe</Trans>}
+          <Trans>Subscribe</Trans>
         </ButtonText>
       </SubscribeBtn>
     </MouseoverTooltipDesktopOnly>
