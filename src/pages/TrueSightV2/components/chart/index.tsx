@@ -1696,7 +1696,7 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
   )
 }
 
-export const NumberofTransfers = ({ tab, noAnimation }: { tab: ChartTab; noAnimation?: boolean }) => {
+export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
   const theme = useTheme()
   const { chain, address } = useParams()
   const { state, dispatch } = useChartStatesContext('numberOfTransfers', {
@@ -1872,7 +1872,7 @@ export const NumberofTransfers = ({ tab, noAnimation }: { tab: ChartTab; noAnima
   )
 }
 
-export const NumberofHolders = ({ noAnimation }: { noAnimation?: boolean }) => {
+export const NumberofHolders = () => {
   const theme = useTheme()
   const { chain, address } = useParams()
   const { state, dispatch } = useChartStatesContext('numberOfHolders', {
