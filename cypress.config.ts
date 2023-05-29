@@ -12,9 +12,6 @@ export default defineConfig({
   chromeWebSecurity: true,
   viewportWidth: 1920,
   viewportHeight: 1080,
-  defaultCommandTimeout: 30000,
-  pageLoadTimeout: 30000,
-  requestTimeout: 30000,
   e2e: {
     testIsolation: false,
     baseUrl: `https://kyberswap.com/`,
