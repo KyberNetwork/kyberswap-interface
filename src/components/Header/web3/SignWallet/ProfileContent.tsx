@@ -99,6 +99,19 @@ const ProfileItem = ({
     toggleModal()
   }
 
+  const signOutBtn = !guest ? (
+    <LogOut
+      style={{ zIndex: 1, marginRight: active ? 0 : '10px' }}
+      color={theme.subText}
+      size={16}
+      onClick={e => {
+        e?.stopPropagation()
+        signOut(account)
+        refreshProfile()
+      }}
+    />
+  ) : null
+
   return (
     <ProfileItemWrapper active={active} onClick={onClick}>
       <Row gap="16px" align="center">
@@ -107,21 +120,12 @@ const ProfileItem = ({
         </Flex>
         <Column gap="8px" minWidth={'unset'}>
           <Flex style={{ gap: '8px' }} alignItems={'center'}>
-            <Text fontWeight={'500'} fontSize={'14px'} color={active ? theme.text : theme.subText}>
-              {shortString(profile?.nickname ?? '', active ? 18 : 25)}
-            </Text>
-            {!guest && (
-              <LogOut
-                style={{ zIndex: 1 }}
-                color={theme.subText}
-                size={16}
-                onClick={e => {
-                  e?.stopPropagation()
-                  signOut(account)
-                  refreshProfile()
-                }}
-              />
+            {profile?.nickname && (
+              <Text fontWeight={'500'} fontSize={'14px'} color={active ? theme.text : theme.subText}>
+                {shortString(profile?.nickname ?? '', active ? 18 : 25)}
+              </Text>
             )}
+            {active && signOutBtn}
           </Flex>
           <Text fontWeight={'500'} fontSize={active ? '14px' : '12px'} color={active ? theme.text : theme.subText}>
             {guest ? account : getShortenAddress(account)}
@@ -145,6 +149,7 @@ const ProfileItem = ({
             </ButtonOutlined>
           </MouseoverTooltip>
         )}
+        {!active && signOutBtn}
       </Row>
     </ProfileItemWrapper>
   )
