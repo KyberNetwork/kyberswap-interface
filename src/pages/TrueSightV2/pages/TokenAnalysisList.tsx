@@ -175,7 +175,7 @@ const Table = styled.table`
 `
 
 const ActionButton = styled.button<{ color: string }>`
-  width: 32px;
+  padding: 8px 12px;
   height: 32px;
   display: flex;
   align-items: center;
@@ -195,6 +195,7 @@ const ActionButton = styled.button<{ color: string }>`
   :hover {
     filter: brightness(1.2);
   }
+  gap: 4px;
 `
 
 const TabWrapper = styled.div`
@@ -639,23 +640,21 @@ const TokenRow = ({
       )}
       <td>
         <Row gap="6px" justify={'flex-end'}>
-          <SimpleTooltip text={t`Swap`}>
-            <ActionButton
-              color={theme.subText}
-              onClick={e => {
-                e.stopPropagation()
-                if (hasMutipleChain) {
-                  setMenuLeft(undefined)
-                  setShowSwapMenu(true)
-                } else {
-                  navigateToSwapPage(token.tokens[0])
-                }
-              }}
-            >
-              <Icon id="swap" size={18} />
-            </ActionButton>
-          </SimpleTooltip>
-          <SimpleTooltip text={t`Explore`}>
+          <ActionButton
+            color={theme.primary}
+            onClick={e => {
+              e.stopPropagation()
+              if (hasMutipleChain) {
+                setMenuLeft(undefined)
+                setShowSwapMenu(true)
+              } else {
+                navigateToSwapPage(token.tokens[0])
+              }
+            }}
+          >
+            <Icon id="swap" size={18} /> Swap {token.symbol?.toUpperCase()}
+          </ActionButton>
+          {/* <SimpleTooltip text={t`Explore`}>
             <ActionButton
               color={theme.primary}
               onClick={e => {
@@ -672,7 +671,7 @@ const TokenRow = ({
             >
               <Icon id="truesight-v2" size={18} />
             </ActionButton>
-          </SimpleTooltip>
+          </SimpleTooltip> */}
           {hasMutipleChain && (
             <>
               <MultipleChainDropdown

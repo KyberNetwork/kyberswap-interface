@@ -281,6 +281,7 @@ export default function TechnicalAnalysis() {
           token after large liquidations.`}
           style={{ height: 'fit-content' }}
           shareButton
+          fullscreenButton
           shareContent={() => (
             <Column style={{ height: '400px', width: '100%' }}>
               <LiquidOnCentralizedExchanges noAnimation />
