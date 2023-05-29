@@ -88,15 +88,13 @@ jobs:
             fluxbox \
             xvfb
   
-      - name: Run xvfb and fluxbox
+      - name: Install linux deps
         run: |
-            Xvfb :0 -screen 0 1024x768x24 -listen tcp -ac &
-            fluxbox &
-        env:
-            DISPLAY: :0.0
+              sudo apt-get install --no-install-recommends -y \
+              fluxbox \
+              xvfb
   
-      - name: Install cypress
-        run: yarn cypress install --force
+    
 
       - name: Yarn Build
         env:
@@ -109,8 +107,9 @@ jobs:
       - name: Run Cypress Test
         run: |+
           #!/bin/bash
-
           yarn preview &
+          Xvfb :0 -screen 0 1024x768x24 -listen tcp -ac &
+          fluxbox &
           yarn test-e2e
       
       - name: Archive e2e artifacts 
