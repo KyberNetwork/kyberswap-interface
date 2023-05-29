@@ -47,6 +47,9 @@ export default function KyberScoreChart({
     if (data.length === 19) {
       return data.slice(1, 19)
     }
+    if (data.length === 18) {
+      return data
+    }
     const datatemp = []
     const startTimestamp = Math.floor(Date.now() / 14400000) * 14400
     for (let i = 0; i < 18; i++) {
@@ -130,7 +133,11 @@ export default function KyberScoreChart({
               <span
                 style={{ color: hoveringItem ? calculateValueToColor(hoveringItem.kyber_score, theme) : theme.text }}
               >
-                {hoveringItem ? `${hoveringItem.kyber_score} (${hoveringItem.tag})` : '--'}
+                {hoveringItem
+                  ? !!hoveringItem.tag
+                    ? `${hoveringItem.kyber_score} (${hoveringItem.tag})`
+                    : 'N/A'
+                  : '--'}
               </span>
             </Text>
             <Text>

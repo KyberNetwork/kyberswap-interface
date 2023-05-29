@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import styled, { css } from 'styled-components'
 
 import { KyberAITimeframe } from '../types'
@@ -14,7 +14,7 @@ const TimeFrameWrapper = styled.div`
   border: 2px solid ${({ theme }) => theme.buttonBlack};
   color: ${({ theme }) => (theme.darkMode ? theme.subText : theme.textReverse)};
   cursor: pointer;
-
+  overflow: hidden;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     font-size: 10px;
     justify-content: center;
@@ -68,11 +68,20 @@ const TimeFrameLegend = ({
   const [width, setWidth] = useState(0)
 
   useLayoutEffect(() => {
-    if (selected && refs.current?.[selected]) {
-      setLeft(refs.current[selected].offsetLeft)
-      setWidth(refs.current[selected].offsetWidth)
+    const update = () => {
+      if (selected && refs.current?.[selected]) {
+        setLeft(refs.current[selected].offsetLeft)
+        setWidth(refs.current[selected].offsetWidth)
+      }
+    }
+    update()
+    window.addEventListener('resize', update)
+
+    return () => {
+      window.removeEventListener('resize', update)
     }
   }, [selected])
+
   if (timeframes?.length < 1) return null
   return (
     <TimeFrameWrapper className="time-frame-legend">

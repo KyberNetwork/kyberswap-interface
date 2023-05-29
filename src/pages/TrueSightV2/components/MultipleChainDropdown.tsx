@@ -40,7 +40,7 @@ const StyledChainIcon = styled.div`
   }
 `
 const StyledMobileChainIcon = styled.div`
-  width: 50%;
+  width: calc(50% - 6px);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -83,13 +83,13 @@ const MultipleChainDropdown = React.forwardRef(
     if (isMobile) {
       return (
         <Modal isOpen={show}>
-          <Column padding="16px" width="100%" gap="12px">
+          <Column padding="24px" width="100%" gap="12px">
             <Row>
               <Text fontSize="20px" fontWeight={500}>
                 Select Chain
               </Text>
             </Row>
-            <Row style={{ flexWrap: 'wrap' }}>
+            <Row style={{ flexWrap: 'wrap', gap: '12px', marginTop: '12px' }}>
               {tokens?.map((item: { address: string; logo: string; chain: string }) => {
                 if (item.chain === 'ethereum')
                   return (
