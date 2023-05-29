@@ -27,6 +27,8 @@ KyberOauth2.initialize({
   mode: ENV_KEY,
 })
 
+let needSignInAfterConnectWallet = false // todo
+let accountTemp: string | undefined // todo
 const useLogin = (autoLogin = false) => {
   const { account } = useActiveWeb3React()
   const [createProfile] = useGetOrCreateProfileMutation()
@@ -142,9 +144,11 @@ const useLogin = (autoLogin = false) => {
 
       if (isAddAccount && !account) {
         toggleWalletModal()
+        needSignInAfterConnectWallet = true
+        accountTemp = walletAddress
         return
       }
-
+      needSignInAfterConnectWallet = false
       if (
         signedWallet &&
         ((isSelectAccount && signedWallet.toLowerCase() === walletAddress?.toLowerCase()) ||
@@ -173,6 +177,14 @@ const useLogin = (autoLogin = false) => {
     },
     [account, notify, signedWallet, requestSignIn, toggleWalletModal],
   )
+
+  useEffect(() => {
+    if (autoLogin) return
+    if (account && needSignInAfterConnectWallet) {
+      signInEth(accountTemp)
+      needSignInAfterConnectWallet = false
+    }
+  }, [account, signInEth, autoLogin])
 
   const signOut = useCallback(
     (walletAddress?: string) => {
