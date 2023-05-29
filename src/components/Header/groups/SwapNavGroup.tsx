@@ -7,9 +7,9 @@ import styled from 'styled-components'
 
 import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
 import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
-import MultichainLogoDark from 'assets/images/multichain_black.png'
-import MultichainLogoLight from 'assets/images/multichain_white.png'
-import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
+// import MultichainLogoDark from 'assets/images/multichain_black.png'
+// import MultichainLogoLight from 'assets/images/multichain_white.png'
+// import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
 import { ReactComponent as BuyCrypto } from 'assets/svg/buy_crypto.svg'
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
@@ -17,7 +17,7 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import { useIsDarkMode } from 'state/user/hooks'
+// import { useIsDarkMode } from 'state/user/hooks'
 import { getLimitOrderContract } from 'utils'
 
 import { DropdownTextAnchor, StyledNavLink } from '../styleds'
@@ -37,11 +37,11 @@ const VisaSVG = styled(Visa)`
   }
 `
 
-const StyledBridgeIcon = styled(BridgeIcon)`
-  path {
-    fill: currentColor;
-  }
-`
+// const StyledBridgeIcon = styled(BridgeIcon)`
+//   path {
+//     fill: currentColor;
+//   }
+// `
 const StyledBuyCrypto = styled(BuyCrypto)`
   path {
     fill: currentColor;
@@ -49,8 +49,8 @@ const StyledBuyCrypto = styled(BuyCrypto)`
 `
 
 const SwapNavGroup = () => {
-  const { isSolana, networkInfo, chainId } = useActiveWeb3React()
-  const isDark = useIsDarkMode()
+  const { networkInfo, chainId } = useActiveWeb3React()
+  // const isDark = useIsDarkMode()
   const { pathname } = useLocation()
   const upTo420 = useMedia('(max-width: 420px)')
 
@@ -103,6 +103,7 @@ const SwapNavGroup = () => {
             </StyledNavLink>
           )}
 
+          {/*
           {isSolana || (
             <StyledNavLink
               id="bridge-nav-link"
@@ -125,6 +126,7 @@ const SwapNavGroup = () => {
               </Flex>
             </StyledNavLink>
           )}
+          */}
           <StyledNavLink
             id="buy-crypto-nav-link"
             to={APP_PATHS.BUY_CRYPTO}

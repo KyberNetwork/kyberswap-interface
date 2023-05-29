@@ -1,4 +1,4 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import React, { useEffect, useState } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -6,16 +6,17 @@ import styled from 'styled-components'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { AutoColumn } from 'components/Column'
 import Divider from 'components/Divider'
-import InfoHelper from 'components/InfoHelper'
 import { RowBetween, RowFixed } from 'components/Row'
+import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import { BIPS_BASE, CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { TYPE } from 'theme'
-import { DetailedRouteSummary, FeeConfig } from 'types/route'
+import { ExternalLink, TYPE } from 'theme'
+import { DetailedRouteSummary } from 'types/route'
 import { formattedNum } from 'utils'
 import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
-import { getFormattedFeeAmountUsdV2 } from 'utils/fee'
 import { checkPriceImpact, formatPriceImpact } from 'utils/prices'
 
 const IconWrapper = styled.div<{ $flip: boolean }>`
@@ -60,21 +61,96 @@ const Wrapper = styled.div.attrs<WrapperProps>(props => ({
   }
 `
 
+const formatPercent = (v: number) => {
+  const formatter = Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+    style: 'percent',
+  })
+
+  return formatter.format(v)
+}
+
+type TooltipTextOfSwapFeeProps = {
+  feeBips: string | undefined
+  feeAmountText: string
+}
+export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({ feeBips, feeAmountText }) => {
+  const feePercent = formatPercent(Number(feeBips) / Number(BIPS_BASE.toString()))
+  const hereLink = (
+    <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/user-guides/instantly-swap-at-the-best-rates#swap-fees-supporting-transactions-on-low-trading-volume-chains">
+      <b>
+        <Trans>here</Trans> ↗
+      </b>
+    </ExternalLink>
+  )
+
+  if (!feeAmountText || !feePercent) {
+    return <Trans>Read more about the fees {hereLink}</Trans>
+  }
+
+  return (
+    <Trans>
+      A {feePercent} fee ({feeAmountText}) will incur on this swap. The Est. Output amount you see above is inclusive of
+      this fee. Read more about the fees {hereLink}
+    </Trans>
+  )
+}
+
+const SwapFee: React.FC = () => {
+  const { chainId } = useActiveWeb3React()
+  const theme = useTheme()
+  const { routeSummary } = useSwapFormContext()
+
+  if (!CHAINS_SUPPORT_FEE_CONFIGS.includes(chainId)) {
+    return null
+  }
+
+  const {
+    formattedAmount: feeAmount = '',
+    formattedAmountUsd: feeAmountUsd = '',
+    currency = undefined,
+  } = routeSummary?.fee || {}
+
+  const feeAmountWithSymbol = feeAmount && currency?.symbol ? `${feeAmount} ${currency.symbol}` : ''
+
+  return (
+    <RowBetween>
+      <RowFixed>
+        <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+          <MouseoverTooltip
+            text={
+              <TooltipTextOfSwapFee feeAmountText={feeAmountWithSymbol} feeBips={routeSummary?.extraFee?.feeAmount} />
+            }
+            placement="right"
+          >
+            <Trans>Est. Swap Fee</Trans>
+          </MouseoverTooltip>
+        </TextDashed>
+      </RowFixed>
+
+      <RowFixed>
+        <TYPE.black color={theme.text} fontSize={12}>
+          {feeAmountUsd || feeAmountWithSymbol || '--'}
+        </TYPE.black>
+      </RowFixed>
+    </RowBetween>
+  )
+}
+
 type Props = {
-  feeConfig: FeeConfig | undefined
   routeSummary: DetailedRouteSummary | undefined
   slippage: number
 }
-const TradeSummary: React.FC<Props> = ({ feeConfig, routeSummary, slippage }) => {
+const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
   const theme = useTheme()
   const [expanded, setExpanded] = useState(true)
   const [alreadyVisible, setAlreadyVisible] = useState(false)
-  const { amountInUsd, parsedAmountOut, priceImpact, gasUsd } = routeSummary || {}
+  const { parsedAmountOut, priceImpact, gasUsd } = routeSummary || {}
   const hasTrade = !!routeSummary?.route
 
   const priceImpactResult = checkPriceImpact(priceImpact)
 
-  const formattedFeeAmountUsd = amountInUsd ? getFormattedFeeAmountUsdV2(Number(amountInUsd), feeConfig?.feeAmount) : 0
   const minimumAmountOut = parsedAmountOut ? minimumAmountAfterSlippage(parsedAmountOut, slippage) : undefined
   const currencyOut = parsedAmountOut?.currency
   const minimumAmountOutStr =
@@ -185,19 +261,7 @@ const TradeSummary: React.FC<Props> = ({ feeConfig, routeSummary, slippage }) =>
             </TYPE.black>
           </RowBetween>
 
-          {feeConfig && (
-            <RowBetween>
-              <RowFixed>
-                <TYPE.black fontSize={12} fontWeight={400} color={theme.subText}>
-                  <Trans>Referral Fee</Trans>
-                </TYPE.black>
-                <InfoHelper size={14} text={t`Commission fee to be paid directly to your referrer`} />
-              </RowFixed>
-              <TYPE.black color={theme.text} fontSize={12}>
-                {formattedFeeAmountUsd}
-              </TYPE.black>
-            </RowBetween>
-          )}
+          <SwapFee />
         </ContentWrapper>
       </AutoColumn>
     </Wrapper>

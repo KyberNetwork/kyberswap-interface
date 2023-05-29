@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit'
 import { load, save } from 'redux-localstorage-simple'
 import priceAlertApi from 'services/priceAlert'
 import routeApi from 'services/route'
+import tokenApi from 'services/token'
 
 import { ENV_LEVEL } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
@@ -71,6 +72,7 @@ const store = configureStore({
     tokenPrices,
     topTokens,
     [routeApi.reducerPath]: routeApi.reducer,
+    [tokenApi.reducerPath]: tokenApi.reducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
@@ -80,21 +82,34 @@ const store = configureStore({
       .concat(ksSettingApi.middleware)
       .concat(annoucementApi.middleware)
       .concat(priceAlertApi.middleware)
-      .concat(routeApi.middleware),
+      .concat(routeApi.middleware)
+      .concat(tokenApi.middleware),
   preloadedState: load({ states: PERSISTED_KEYS }),
 })
 
+const PREFIX_REDUX_PERSIST = 'redux_localstorage_simple_'
 // remove unused redux keys in local storage
 try {
-  const prefix = 'redux_localstorage_simple_'
   Object.keys(localStorage).forEach(key => {
-    if (!key.startsWith(prefix)) return
-    const name = key.replace(prefix, '')
+    if (!key.startsWith(PREFIX_REDUX_PERSIST)) return
+    const name = key.replace(PREFIX_REDUX_PERSIST, '')
     if (!PERSISTED_KEYS.includes(name)) {
       localStorage.removeItem(key)
     }
   })
 } catch (error) {}
+
+// remove all redux keys in local storage
+export const removeAllReduxPersist = () => {
+  try {
+    Object.keys(localStorage).forEach(key => {
+      const name = key.replace(PREFIX_REDUX_PERSIST, '')
+      if (PERSISTED_KEYS.includes(name)) {
+        localStorage.removeItem(key)
+      }
+    })
+  } catch (error) {}
+}
 
 store.dispatch(updateVersion())
 // setupListeners(store.dispatch)
