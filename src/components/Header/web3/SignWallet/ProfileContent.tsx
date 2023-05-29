@@ -19,6 +19,7 @@ import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
 import { ConnectedProfile, useAllProfileInfo, useSignedWalletInfo } from 'state/authen/hooks'
 import getShortenAddress from 'utils/getShortenAddress'
+import { shortString } from 'utils/string'
 
 const ContentWrapper = styled.div`
   display: flex;
@@ -107,7 +108,7 @@ const ProfileItem = ({
         <Column gap="8px" minWidth={'unset'}>
           <Flex style={{ gap: '8px' }} alignItems={'center'}>
             <Text fontWeight={'500'} fontSize={'14px'} color={active ? theme.text : theme.subText}>
-              {profile?.nickname}
+              {shortString(profile?.nickname ?? '', active ? 18 : 25)}
             </Text>
             {!guest && (
               <LogOut
