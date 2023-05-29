@@ -192,6 +192,7 @@ export const useAllProfileInfo = () => {
         profile: getCacheProfile(KEY_GUEST_DEFAULT, true),
         guest: true,
       })
+      .sort(a => (a.active ? -1 : 1))
   }, [signedWallet, getCacheProfile, connectedAccounts, isGuest])
 
   const dispatch = useAppDispatch()

@@ -1,11 +1,12 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { LogOut, Plus } from 'react-feather'
+import { LogOut, UserPlus } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import Avatar from 'components/Avatar'
+import { ButtonOutlined } from 'components/Button'
 import Column from 'components/Column'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import Row, { RowBetween } from 'components/Row'
@@ -26,10 +27,25 @@ const ContentWrapper = styled.div`
   min-width: 320px;
 `
 
+const ActionItem = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 24px;
+  color: ${({ theme }) => theme.subText};
+  font-size: 14px;
+  font-weight: 500;
+  gap: 6px;
+  padding: 12px;
+  :hover {
+    background-color: ${({ theme }) => rgba(theme.subText, 0.2)};
+  }
+`
+
 const ActionWrapper = styled.div`
   display: flex;
-  gap: 20px;
   padding: 12px 20px;
+  flex-direction: column;
   justify-content: space-between;
   ${({ theme }) => theme.mediaWidth.upToMedium`
       padding: 14px 24px;
@@ -67,15 +83,35 @@ const ProfileItem = ({
     toggleModal()
   }
 
+  const signOutBtn = !guest ? (
+    <LogOut
+      color={theme.subText}
+      size={16}
+      onClick={e => {
+        e?.stopPropagation()
+        signOut(account)
+        refreshProfile()
+      }}
+    />
+  ) : null
+
   return (
     <ProfileItemWrapper active={active} onClick={onClick}>
-      <Row gap="8px" align="center">
-        <Avatar url={profile?.avatarUrl} size={26} color={active ? theme.primary : theme.subText} />
-        <Column gap="4px">
-          <Text fontWeight={'500'} fontSize={'14px'}>
-            {profile?.nickname}
-          </Text>
-          <Text fontWeight={'500'} fontSize={'14px'}>
+      <Row gap="16px" align="center">
+        <Flex style={{ width: 64 }} justifyContent="center">
+          <Avatar url={profile?.avatarUrl} size={active ? 64 : 32} color={active ? theme.text : theme.subText} />
+        </Flex>
+        <Column gap="8px">
+          <Flex
+            fontWeight={'500'}
+            fontSize={'14px'}
+            alignItems={'center'}
+            style={{ gap: '6px' }}
+            color={active ? theme.text : theme.subText}
+          >
+            {profile?.nickname} {active && signOutBtn}
+          </Flex>
+          <Text fontWeight={'500'} fontSize={active ? '14px' : '12px'} color={active ? theme.text : theme.subText}>
             {guest ? account : getShortenAddress(account)}
           </Text>
         </Column>
@@ -83,33 +119,26 @@ const ProfileItem = ({
       <Row justify="flex-end" gap="18px" align="center">
         {(isSignedWallet(account) || (guest && isGuest)) && (
           <MouseoverTooltip text={t`Edit Profile Details`} width="fit-content" placement="top">
-            <TransactionSettingsIcon
-              size={20}
-              fill={theme.subText}
+            <ButtonOutlined
+              height={'36px'}
               onClick={e => {
                 e?.stopPropagation()
                 navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PROFILE}`)
                 toggleModal()
               }}
-            />
+            >
+              <TransactionSettingsIcon size={20} fill={theme.subText} />
+              &nbsp;
+              <Trans>Edit</Trans>
+            </ButtonOutlined>
           </MouseoverTooltip>
         )}
-        {!guest && (
-          <LogOut
-            size={20}
-            onClick={e => {
-              e?.stopPropagation()
-              signOut(account)
-              refreshProfile()
-            }}
-          />
-        )}
+        {!active && signOutBtn}
       </Row>
     </ProfileItemWrapper>
   )
 }
 const ProfileContent = () => {
-  const theme = useTheme()
   const { signInEth, signOutAll } = useLogin()
   const { canSignInEth } = useSignedWalletInfo()
   const { profiles, refresh } = useAllProfileInfo()
@@ -124,28 +153,14 @@ const ProfileContent = () => {
       </Column>
       <ActionWrapper>
         {canSignInEth && (
-          <Flex
-            color={theme.subText}
-            alignItems={'center'}
-            style={{ gap: '6px' }}
-            onClick={() => signInEth()}
-            fontWeight={'400'}
-            fontSize={'14px'}
-          >
-            <Plus size={20} /> <Trans>Add Account</Trans>
-          </Flex>
+          <ActionItem onClick={() => signInEth()}>
+            <UserPlus size={18} /> <Trans>Add Account with current wallet</Trans>
+          </ActionItem>
         )}
         {totalSignedAccount > 0 && (
-          <Flex
-            color={theme.subText}
-            alignItems={'center'}
-            style={{ gap: '6px' }}
-            fontWeight={'400'}
-            fontSize={'14px'}
-            onClick={signOutAll}
-          >
-            <LogOut size={20} /> <Trans>Sign-out all</Trans>
-          </Flex>
+          <ActionItem onClick={signOutAll}>
+            <LogOut size={18} /> <Trans>Sign out of all accounts</Trans>
+          </ActionItem>
         )}
       </ActionWrapper>
     </ContentWrapper>
