@@ -163,6 +163,7 @@ const useLogin = (autoLogin = false) => {
       }
 
       const connectedAccounts = KyberOauth2.getConnectedEthAccounts()
+      setProfileLocalStorage(ProfileLocalStorageKeys.CONNECTING_WALLET, account)
       if (isSelectAccount && connectedAccounts.includes(walletAddress?.toLowerCase() || '')) {
         requestSignIn(walletAddress, false) // todo check case 2 token faild
         return
@@ -171,7 +172,6 @@ const useLogin = (autoLogin = false) => {
         requestSignIn(account, false)
         return
       }
-      setProfileLocalStorage(ProfileLocalStorageKeys.CONNECTING_WALLET, account)
       KyberOauth2.authenticate({ wallet_address: account ?? '' }) // navigate to login page
       setLoginRedirectUrl()
     },
