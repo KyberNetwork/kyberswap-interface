@@ -55,9 +55,9 @@ const ActionWrapper = styled.div`
   `}
 `
 
-const ProfileItemWrapper = styled(RowBetween)<{ active: boolean }>`
+const ProfileItemWrapper = styled(RowBetween)<{ active: boolean; hasBorder: boolean }>`
   padding: 10px 0px;
-  border-bottom: 1px solid ${({ theme }) => theme.border};
+  border-bottom: ${({ theme, hasBorder }) => hasBorder && `1px solid ${theme.border}`};
   ${({ theme }) => theme.mediaWidth.upToMedium`
       padding: 14px 24px;
   `}
@@ -79,9 +79,11 @@ const ProfileItemWrapper = styled(RowBetween)<{ active: boolean }>`
 const ProfileItem = ({
   data: { active, guest, address: account, profile },
   refreshProfile,
+  totalProfile,
 }: {
   data: ConnectedProfile
   refreshProfile: () => void
+  totalProfile: number
 }) => {
   const theme = useTheme()
   const navigate = useNavigate()
@@ -90,40 +92,35 @@ const ProfileItem = ({
   const { isSignedWallet, isGuest } = useSignedWalletInfo()
 
   const onClick = () => {
+    if (active) return
     if (guest) signInAnonymous()
     else signInEth(account)
     toggleModal()
   }
 
-  const signOutBtn = !guest ? (
-    <MouseoverTooltip text={t`Sign-out this account`} width="fit-content" placement="top">
-      <LogOut
-        color={theme.subText}
-        size={16}
-        onClick={e => {
-          e?.stopPropagation()
-          signOut(account)
-          refreshProfile()
-        }}
-      />
-    </MouseoverTooltip>
-  ) : null
-
   return (
-    <ProfileItemWrapper active={active} onClick={onClick}>
+    <ProfileItemWrapper active={active} hasBorder={totalProfile > 1} onClick={onClick}>
       <Row gap="16px" align="center">
         <Flex style={{ width: 64, minWidth: 64 }} justifyContent="center">
           <Avatar url={profile?.avatarUrl} size={active ? 64 : 32} color={active ? theme.text : theme.subText} />
         </Flex>
-        <Column gap="8px">
-          <Flex
-            fontWeight={'500'}
-            fontSize={'14px'}
-            alignItems={'center'}
-            style={{ gap: '8px' }}
-            color={active ? theme.text : theme.subText}
-          >
-            {profile?.nickname} {signOutBtn}
+        <Column gap="8px" minWidth={'unset'}>
+          <Flex style={{ gap: '8px' }} alignItems={'center'}>
+            <Text fontWeight={'500'} fontSize={'14px'} color={active ? theme.text : theme.subText}>
+              {profile?.nickname}
+            </Text>
+            {!guest && (
+              <LogOut
+                style={{ zIndex: 1 }}
+                color={theme.subText}
+                size={16}
+                onClick={e => {
+                  e?.stopPropagation()
+                  signOut(account)
+                  refreshProfile()
+                }}
+              />
+            )}
           </Flex>
           <Text fontWeight={'500'} fontSize={active ? '14px' : '12px'} color={active ? theme.text : theme.subText}>
             {guest ? account : getShortenAddress(account)}
@@ -161,7 +158,7 @@ const ProfileContent = () => {
     <ContentWrapper>
       <Column>
         {profiles.map(data => (
-          <ProfileItem key={data.address} data={data} refreshProfile={refresh} />
+          <ProfileItem key={data.address} data={data} refreshProfile={refresh} totalProfile={profiles.length} />
         ))}
       </Column>
       <ActionWrapper>

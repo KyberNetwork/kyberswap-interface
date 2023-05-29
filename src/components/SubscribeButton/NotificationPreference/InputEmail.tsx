@@ -44,6 +44,7 @@ export default function InputEmail({
   showVerifyModal,
   disabled,
   hasError,
+  color,
 }: {
   errorColor?: string
   onChange: (val: string) => void
@@ -53,6 +54,7 @@ export default function InputEmail({
   disabled?: boolean
   hasError?: boolean
   showVerifyModal: () => void
+  color?: string
 }) {
   // todo refactor props
   const theme = useTheme()
@@ -61,6 +63,7 @@ export default function InputEmail({
     <Tooltip text={t`Invalid email address`} show={!!hasError} placement="top" width="fit-content">
       <InputWrapper isInNotificationCenter={isInNotificationCenter}>
         <Input
+          color={color}
           disabled={disabled}
           $borderColor={errorColor}
           value={value}

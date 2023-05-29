@@ -199,6 +199,7 @@ export default function Profile() {
               <Trans>User Name</Trans>
             </Label>
             <Input
+              color={theme.text}
               maxLength={50}
               value={nickname}
               onChange={e => setNickName(e.target.value)}
@@ -211,6 +212,7 @@ export default function Profile() {
               <Trans>Email Address</Trans>
             </Label>
             <InputEmail
+              color={theme.text}
               hasError={hasErrorInput}
               showVerifyModal={showVerifyModal}
               errorColor={errorColor}
@@ -226,7 +228,7 @@ export default function Profile() {
                 <Trans>Wallet Address</Trans>
               </Label>
               <StyledAddressInput
-                style={{ color: theme.subText, cursor: 'pointer' }}
+                style={{ color: theme.text, cursor: 'pointer' }}
                 disabled
                 value={shortenAddress(chainId, signedWallet, 17, false)}
                 icon={<CopyHelper toCopy={signedWallet} style={{ color: theme.subText }} />}

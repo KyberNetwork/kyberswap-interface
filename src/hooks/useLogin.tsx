@@ -176,14 +176,17 @@ const useLogin = (autoLogin = false) => {
 
   const signOut = useCallback(
     (walletAddress?: string) => {
-      resetState()
-      setLoginRedirectUrl()
-      if (!walletAddress) {
+      const onRedirectLogout = () => {
+        resetState()
+        setLoginRedirectUrl()
         KyberOauth2.logout()
+      }
+      if (!walletAddress) {
+        onRedirectLogout()
         return
       }
       if (walletAddress?.toLowerCase() === signedWallet?.toLowerCase()) {
-        KyberOauth2.logout()
+        onRedirectLogout()
       } else {
         KyberOauth2.removeTokensEthAccount(walletAddress)
         notify({
