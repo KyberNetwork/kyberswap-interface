@@ -191,7 +191,7 @@ export default function Profile() {
           <Trans>Profile Details</Trans>
         </Text>
       )}
-      <WarningSignMessage walletAddress={signedWallet} />
+      <WarningSignMessage />
       <FormWrapper>
         <LeftColum>
           <FormGroup>

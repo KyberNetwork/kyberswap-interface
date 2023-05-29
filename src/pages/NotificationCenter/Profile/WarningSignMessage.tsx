@@ -1,3 +1,4 @@
+import KyberOauth2 from '@kybernetwork/oauth2'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { Info } from 'react-feather'
@@ -9,7 +10,7 @@ import Row from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import useLogin from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
-import { useSessionInfo } from 'state/authen/hooks'
+import { useSessionInfo, useSignedWalletInfo } from 'state/authen/hooks'
 import { ExternalLink } from 'theme'
 
 const WarningWrapper = styled.div`
@@ -20,13 +21,18 @@ const WarningWrapper = styled.div`
   gap: 20px;
   padding: 8px 14px;
 `
-const WarningSignMessage = ({ walletAddress }: { walletAddress: string | undefined }) => {
+const WarningSignMessage = () => {
   const { signInEth } = useLogin()
   const { pendingAuthentication } = useSessionInfo()
+  const { signedWallet } = useSignedWalletInfo()
   const { account } = useActiveWeb3React()
   const theme = useTheme()
-  if (pendingAuthentication || account?.toLowerCase() === walletAddress?.toLowerCase()) return null
-  return null // todo remove
+  if (
+    pendingAuthentication ||
+    KyberOauth2.getConnectedEthAccounts().includes(account?.toLowerCase() ?? '') ||
+    account?.toLowerCase() === signedWallet?.toLowerCase()
+  )
+    return null
   return (
     <WarningWrapper>
       <Row style={{ gap: '12px' }}>
