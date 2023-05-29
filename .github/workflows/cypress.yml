@@ -82,6 +82,19 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GH_PAT }} ### authen npm
 
+      - name: Install linux deps
+        run: |
+            sudo apt-get install --no-install-recommends -y \
+            fluxbox \
+            xvfb
+  
+      - name: Run xvfb and fluxbox
+        run: |
+            Xvfb :0 -screen 0 1024x768x24 -listen tcp -ac &
+            fluxbox &
+        env:
+            DISPLAY: :0.0
+  
       - name: Install cypress
         run: yarn cypress install --force
 
