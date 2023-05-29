@@ -1,14 +1,19 @@
 import html2canvas from 'html2canvas'
 import { useCallback } from 'react'
-import { SHARE_TYPE, useCreateShareLinkMutation } from 'services/social'
+import { SHARE_TYPE, useCreateShareLinkMutation, usePatchShareLinkMutation } from 'services/social'
 
 import { useUploadImageToCloud } from 'hooks/social'
 
 const useShareImage = () => {
   const uploadImage = useUploadImageToCloud()
+  const [patchShareLink] = usePatchShareLinkMutation()
   const [createShareLink] = useCreateShareLinkMutation()
   return useCallback(
-    (element: HTMLDivElement | null, type: SHARE_TYPE): Promise<{ shareUrl: string; imageUrl: string; blob: Blob }> => {
+    (
+      element: HTMLDivElement | null,
+      type: SHARE_TYPE,
+      shareLinkId?: string,
+    ): Promise<{ shareUrl?: string; imageUrl: string; blob: Blob }> => {
       return new Promise(async (resolve, reject) => {
         if (!element) return reject('Not found element')
         const canvasData = await html2canvas(element, {
@@ -20,17 +25,24 @@ const useShareImage = () => {
 
           const imageUrl = await uploadImage(blob)
           if (!imageUrl) return reject('Upload img error')
-
-          const shareUrl = await createShareLink({
-            metaImageUrl: imageUrl,
-            redirectURL: window.location.href,
-            type,
-          }).unwrap()
-          return shareUrl ? resolve({ shareUrl, imageUrl, blob }) : reject()
+          if (shareLinkId) {
+            await patchShareLink({
+              id: shareLinkId,
+              metaImageURL: imageUrl,
+            }).unwrap()
+            return resolve({ imageUrl, blob })
+          } else {
+            const shareUrl = await createShareLink({
+              metaImageURL: imageUrl,
+              redirectURL: window.location.href,
+              type,
+            }).unwrap()
+            return shareUrl ? resolve({ shareUrl, imageUrl, blob }) : reject()
+          }
         }, 'image/png')
       })
     },
-    [createShareLink, uploadImage],
+    [patchShareLink, uploadImage, createShareLink],
   )
 }
 export default useShareImage

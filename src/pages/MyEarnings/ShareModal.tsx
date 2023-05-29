@@ -116,18 +116,19 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
   const [shareUrlState, setShareUrl] = useState('')
 
   useEffect(() => {
-    if (!isOpen) setShareUrl('')
-  }, [isOpen])
+    setShareUrl('')
+  }, [isOpen, isSharePc])
 
   const generateImageUrlByMethod = async (type: ShareType) => {
     if (loading.current) return
     try {
       loading.current = true
-      let shareUrl = shareUrlState
+      let shareUrl: string | undefined = shareUrlState
       if (!shareUrl) {
         const data = await shareImage(ref.current, SHARE_TYPE.MY_EARNINGS)
         shareUrl = data.shareUrl
       }
+      if (!shareUrl) return
       setShareUrl(shareUrl)
       const { telegram, facebook, discord, twitter } = getSocialShareUrls(shareUrl)
       switch (type) {

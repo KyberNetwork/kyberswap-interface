@@ -14,12 +14,12 @@ const SocialApi = createApi({
   endpoints: builder => ({
     uploadImage: builder.mutation({
       query: body => ({
-        url: '/v1/buckets/signed-url-put',
+        url: '/v1/ks-setting/buckets/signed-url-put',
         method: 'POST',
         body,
       }),
     }),
-    createShareLink: builder.mutation<string, { metaImageUrl: string; redirectURL: string; type: SHARE_TYPE }>({
+    createShareLink: builder.mutation<string, { metaImageURL?: string; redirectURL: string; type: SHARE_TYPE }>({
       query: body => ({
         url: '/v1/referral/shared-links',
         method: 'POST',
@@ -27,9 +27,16 @@ const SocialApi = createApi({
       }),
       transformResponse: (data: any) => data?.data?.link,
     }),
+    patchShareLink: builder.mutation<{ metaImageURL: string }, { metaImageURL: string; id: string }>({
+      query: ({ metaImageURL, id }) => ({
+        url: `/v1/referral/shared-links/${id}`,
+        method: 'PATCH',
+        body: { metaImageURL: metaImageURL },
+      }),
+    }),
   }),
 })
 
-export const { useUploadImageMutation, useCreateShareLinkMutation } = SocialApi
+export const { useUploadImageMutation, useCreateShareLinkMutation, usePatchShareLinkMutation } = SocialApi
 
 export default SocialApi
