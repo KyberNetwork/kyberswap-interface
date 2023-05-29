@@ -384,7 +384,7 @@ export default function KyberAIShareModal({
   )
 
   return (
-    <Modal isOpen={isOpen} width="fit-content" maxWidth="100vw">
+    <Modal isOpen={isOpen} width="fit-content" maxWidth="100vw" maxHeight="90vh">
       <Wrapper>
         <RowBetween>
           <Text>
