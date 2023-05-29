@@ -1,3 +1,4 @@
+import KyberOauth2 from '@kybernetwork/oauth2'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { LogOut, UserPlus } from 'react-feather'
@@ -11,6 +12,7 @@ import Column from 'components/Column'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import Row, { RowBetween } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import useLogin from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
@@ -174,6 +176,7 @@ const ProfileContent = () => {
   const { signInEth, signOutAll } = useLogin()
   const { canSignInEth } = useSignedWalletInfo()
   const { profiles, refresh } = useAllProfileInfo()
+  const { account: connectedWallet } = useActiveWeb3React()
   const totalSignedAccount = profiles.filter(e => !e.guest).length
   const listNotActive = profiles.slice(1)
 
@@ -188,7 +191,7 @@ const ProfileContent = () => {
         </ListProfile>
       </Column>
       <ActionWrapper>
-        {canSignInEth && (
+        {canSignInEth && !KyberOauth2.getConnectedEthAccounts().includes(connectedWallet?.toLowerCase() ?? '') && (
           <ActionItem onClick={() => signInEth()}>
             <UserPlus size={18} /> <Trans>Add Account with current wallet</Trans>
           </ActionItem>
