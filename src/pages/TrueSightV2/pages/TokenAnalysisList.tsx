@@ -890,15 +890,6 @@ export default function TokenAnalysisList() {
                   <Column gap="4px">
                     <Row justify="flex-start" gap="4px">
                       <Trans>Kyberscore</Trans>{' '}
-                      {/* {sortedColumn === SORT_FIELD.KYBERSCORE ? (
-                          !sortDirection ? (
-                            <ArrowUp size="12" style={{ marginLeft: '2px' }} />
-                          ) : (
-                            <ArrowDown size="12" style={{ marginLeft: '2px' }} />
-                          )
-                        ) : (
-                          ''
-                        )} */}
                       <SimpleTooltip
                         text={
                           <span>
@@ -915,9 +906,6 @@ export default function TokenAnalysisList() {
                         <Info size={10} color={'currentcolor'} display="block" />
                       </SimpleTooltip>
                     </Row>
-                    {/* <Text fontSize="10px" style={{ textTransform: 'none' }}>
-                        <Trans>At 08:00 AM</Trans>
-                      </Text> */}
                   </Column>
                 </th>
                 <th style={{ textAlign: 'left' }}>
