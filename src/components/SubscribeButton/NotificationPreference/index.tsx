@@ -178,7 +178,7 @@ function NotificationPreference({
     unsubscribeAll,
   } = useNotification()
 
-  const { signedUserInfo: userInfo, isLogin } = useSessionInfo()
+  const { userInfo, isLogin } = useSessionInfo()
 
   const [isShowVerify, setIsShowVerify] = useState(false)
   const showVerifyModal = () => {
@@ -195,7 +195,7 @@ function NotificationPreference({
   const { mixpanelHandler } = useMixpanel()
 
   const [emailPendingVerified, setEmailPendingVerified] = useState('')
-  const { inputEmail, errorInput, onChangeEmail, errorColor, reset, hasErrorInput } = useValidateEmail()
+  const { inputEmail, errorInput, onChangeEmail, errorColor, reset, hasErrorInput } = useValidateEmail(userInfo?.email)
 
   const [activeTab] = useState<TAB>(TAB.EMAIL)
   const [selectedTopic, setSelectedTopic] = useState<number[]>([])
