@@ -26,6 +26,7 @@ const WarningSignMessage = ({ walletAddress }: { walletAddress: string | undefin
   const { account } = useActiveWeb3React()
   const theme = useTheme()
   if (pendingAuthentication || account?.toLowerCase() === walletAddress?.toLowerCase()) return null
+  return null // todo remove
   return (
     <WarningWrapper>
       <Row style={{ gap: '12px' }}>

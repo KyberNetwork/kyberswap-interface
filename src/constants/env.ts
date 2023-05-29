@@ -50,6 +50,8 @@ export const PRICE_ALERT_API = required('PRICE_ALERT_API')
 export const OAUTH_CLIENT_ID = required('OAUTH_CLIENT_ID')
 export const KYBER_AI_REFERRAL_ID = required('KYBER_AI_REFERRAL_ID')
 export const KYBER_AI_TOPIC_ID = required('KYBER_AI_TOPIC_ID')
+export const PRICE_ALERT_TOPIC_ID = required('PRICE_ALERT_TOPIC_ID')
+export const ELASTIC_POOL_TOPIC_ID = required('ELASTIC_POOL_TOPIC_ID')
 export const BUCKET_NAME = required('BUCKET_NAME')
 
 type FirebaseConfig = {

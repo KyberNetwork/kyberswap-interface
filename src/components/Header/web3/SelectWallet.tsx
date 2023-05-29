@@ -11,6 +11,7 @@ import { ButtonLight } from 'components/Button'
 import WalletModal from 'components/Header/web3/WalletModal'
 import Loader from 'components/Loader'
 import { RowBetween } from 'components/Row'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -143,7 +144,11 @@ function Web3StatusInner() {
         ) : (
           <>
             {signedDifferentWallet ? (
-              <WarningInfo width={20} height={20} />
+              <MouseoverTooltip
+                text={t`You are not signed in with this wallet address. Sign-In to link your wallet to a profile. This will allow us to offer you a better experience`}
+              >
+                <WarningInfo width={20} height={20} />
+              </MouseoverTooltip>
             ) : (
               walletKey && (
                 <IconWrapper size={16}>
