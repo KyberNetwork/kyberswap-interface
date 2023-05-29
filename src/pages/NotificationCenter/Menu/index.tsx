@@ -1,6 +1,6 @@
 import { t } from '@lingui/macro'
 import { ReactNode, useMemo } from 'react'
-import { AlignJustify, List as ListIcon, Plus } from 'react-feather'
+import { AlignJustify, List as ListIcon } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
 import { useGetTotalUnreadAnnouncementsQuery } from 'services/announcement'
@@ -16,7 +16,6 @@ import ProfileIcon from 'components/Icons/Profile'
 import MenuFlyout from 'components/MenuFlyout'
 import { getAnnouncementsTemplateIds } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
-import useLogin from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
 import MenuItem from 'pages/NotificationCenter/Menu/MenuItem'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
@@ -118,9 +117,8 @@ const menuItems: MenuItemType[] = [
 
 type PropsMenu = { unread: Unread }
 const MenuForDesktop = ({ unread }: PropsMenu) => {
-  const { signInEth } = useLogin()
   const { userInfo: profile } = useSessionInfo()
-  const { signedWallet, isGuest, canSignInEth } = useSignedWalletInfo()
+  const { signedWallet, isGuest } = useSignedWalletInfo()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   const menuItemDeskTop = useMemo(() => {
@@ -139,16 +137,9 @@ const MenuForDesktop = ({ unread }: PropsMenu) => {
               title: profile?.nickname ? shortString(profile?.nickname, 20) : getShortenAddress(signedWallet ?? ''),
             },
       ]
-      if (canSignInEth)
-        childs.push({
-          route: '',
-          icon: <Plus size="16px" />,
-          title: t`Add Account`,
-          onClick: () => signInEth(),
-        })
       return { ...el, childs }
     })
-  }, [canSignInEth, signInEth, signedWallet, isGuest, profile])
+  }, [signedWallet, isGuest, profile])
 
   return (
     <Flex sx={{ flexDirection: 'column', padding: upToMedium ? '20px' : '24px' }}>

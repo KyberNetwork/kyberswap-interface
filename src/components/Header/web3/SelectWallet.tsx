@@ -6,7 +6,7 @@ import { isMobile } from 'react-device-detect'
 import { Activity } from 'react-feather'
 import styled from 'styled-components'
 
-import { ReactComponent as WarningInfo } from 'assets/svg/warning_info_icon.svg'
+import { ReactComponent as WarningInfo } from 'assets/svg/wallet_warning_icon.svg'
 import { ButtonLight } from 'components/Button'
 import WalletModal from 'components/Header/web3/WalletModal'
 import Loader from 'components/Loader'
