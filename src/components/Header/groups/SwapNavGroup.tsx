@@ -7,11 +7,11 @@ import styled from 'styled-components'
 
 import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
 import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
-import MultichainLogoDark from 'assets/images/multichain_black.png'
-import MultichainLogoLight from 'assets/images/multichain_white.png'
 import SquidLogoDark from 'assets/images/squid_dark.png'
 import SquidLogoLight from 'assets/images/squid_light.png'
-import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
+// import MultichainLogoDark from 'assets/images/multichain_black.png'
+// import MultichainLogoLight from 'assets/images/multichain_white.png'
+// import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
 import { ReactComponent as BuyCrypto } from 'assets/svg/buy_crypto.svg'
 import { ReactComponent as CrossChainIcon } from 'assets/svg/cross_chain_icon.svg'
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
@@ -21,6 +21,7 @@ import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
+// import { useIsDarkMode } from 'state/user/hooks'
 import { getLimitOrderContract } from 'utils'
 
 import { DropdownTextAnchor, StyledNavLink } from '../styleds'
@@ -40,11 +41,11 @@ const VisaSVG = styled(Visa)`
   }
 `
 
-const StyledBridgeIcon = styled(BridgeIcon)`
-  path {
-    fill: currentColor;
-  }
-`
+// const StyledBridgeIcon = styled(BridgeIcon)`
+//   path {
+//     fill: currentColor;
+//   }
+// `
 const StyledBuyCrypto = styled(BuyCrypto)`
   path {
     fill: currentColor;
@@ -52,7 +53,7 @@ const StyledBuyCrypto = styled(BuyCrypto)`
 `
 
 const SwapNavGroup = () => {
-  const { isSolana, networkInfo, chainId } = useActiveWeb3React()
+  const { networkInfo, chainId, isSolana } = useActiveWeb3React()
   const isDark = useIsDarkMode()
   const { pathname } = useLocation()
   const upTo420 = useMedia('(max-width: 420px)')
@@ -118,12 +119,12 @@ const SwapNavGroup = () => {
                     <CrossChainIcon height={15} />
                   </IconWrapper>
                   <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
-                    <Trans>Cross-chain</Trans>
+                    <Trans>Cross-Chain</Trans>
                     <img src={isDark ? SquidLogoLight : SquidLogoDark} alt="kyberswap with Squid" height={16} />
                   </Flex>
                 </Flex>
               </StyledNavLink>
-              <StyledNavLink
+              {/* <StyledNavLink
                 id="bridge-nav-link"
                 to={APP_PATHS.BRIDGE}
                 style={{ flexDirection: 'column', width: '100%' }}
@@ -141,9 +142,10 @@ const SwapNavGroup = () => {
                     />
                   </Flex>
                 </Flex>
-              </StyledNavLink>
+              </StyledNavLink> */}
             </>
           )}
+
           <StyledNavLink
             id="buy-crypto-nav-link"
             to={APP_PATHS.BUY_CRYPTO}

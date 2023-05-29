@@ -26,7 +26,6 @@ const NetworkSwitchContainer = styled.div`
 const NetworkLabel = styled.div`
   white-space: nowrap;
   font-weight: 500;
-  margin-right: 8px;
   font-size: 14px;
 `
 
