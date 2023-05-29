@@ -3,7 +3,9 @@ version: '3.9'
 services:
   synpress:
     container_name: synpress
-    build: .
+    build:
+     context: .
+     dockerfile:  e2eDockerfile
     environment:
       - DISPLAY=display:0.0
       - PRIVATE_KEY=${PRIVATE_KEY}
