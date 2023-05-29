@@ -254,6 +254,7 @@ export const FixedGlobalStyle = createGlobalStyle`
   body {
     margin: 0;
     padding: 0;
+    -webkit-text-size-adjust: none;
   }
 
   a {
