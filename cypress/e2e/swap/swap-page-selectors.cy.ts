@@ -13,14 +13,14 @@ export const token = {
 }
 
 export const homePage = {
-  welcome: '[data-testid="button-skip-tutorial"]',
+  welcome: '[data-testid=button-skip-tutorial]',
 }
 
 export const notification = {
-  notFound: '[data-testid="no-token-result"]',
+  notFound: '[data-testid=no-token-result]',
 }
 
 export const tab = {
-  allTab: '[data-testid="tab-all"]',
-  import: '[data-testid="tab-import"]',
+  allTab: '[data-testid=tab-all]',
+  import: '[data-testid=tab-import]',
 }
