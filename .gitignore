@@ -33,10 +33,11 @@ notes.txt
 
 package-lock.json
 
-cypress/videos
+cypress/
 cypress/screenshots
 cypress/fixtures/example.json
 /src/libs/sdk/*
 .vercel
 .vim
+target/
 

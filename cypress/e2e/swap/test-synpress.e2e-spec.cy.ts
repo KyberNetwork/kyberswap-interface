@@ -2,7 +2,7 @@
 describe('Metamask Extension tests', () => {
   before(() => {
     cy.visit('/')
-    cy.get('#walktour-tooltip-container svg').click()
+    cy.get('#walktour-tooltip-container svg').click();
   })
   it('connect metamask wallet', () => {
     cy.get('#btnConnectWallet').click()
