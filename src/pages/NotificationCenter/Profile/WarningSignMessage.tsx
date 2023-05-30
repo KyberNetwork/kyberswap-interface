@@ -51,6 +51,7 @@ const WarningSignMessage = () => {
             allow us to offer you a better experience.
             {!upToMedium ? (
               <>
+                {' '}
                 Read more <ExternalLink href="#">here ↗</ExternalLink>
               </>
             ) : (
