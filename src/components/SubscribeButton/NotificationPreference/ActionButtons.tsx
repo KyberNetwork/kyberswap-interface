@@ -20,30 +20,29 @@ const shareStyle = css`
   justify-content: space-around;
   margin-top: 4px;
 `
-const ActionWrapper = styled.div<{ isHorizontal: boolean }>`
+const ActionWrapper = styled.div`
   display: flex;
   gap: 20px;
   flex-direction: row;
   align-items: center;
-  ${({ isHorizontal }) => !isHorizontal && shareStyle};
   ${({ theme }) => theme.mediaWidth.upToSmall`
     ${shareStyle}
 `};
 `
 
-const shareStyleBtn = (isHorizontal: boolean) => css`
-  width: ${!isHorizontal ? '45%' : '120px'};
+const shareStyleBtn = css`
+  width: 120px;
   height: 36px;
   border-radius: 46px;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 45%;
 `};
 `
-const ButtonUnSub = styled(ButtonOutlined)<{ isHorizontal: boolean }>`
-  ${({ isHorizontal }) => shareStyleBtn(isHorizontal)}
+const ButtonUnSub = styled(ButtonOutlined)`
+  ${shareStyleBtn}
 `
-const ButtonSave = styled(ButtonPrimary)<{ isHorizontal: boolean }>`
-  ${({ isHorizontal }) => shareStyleBtn(isHorizontal)}
+const ButtonSave = styled(ButtonPrimary)`
+  ${shareStyleBtn}
 `
 
 export default function ActionButtons({
@@ -52,7 +51,6 @@ export default function ActionButtons({
   onSave,
   onUnsubscribeAll,
   subscribeAtLeast1Topic,
-  isHorizontal,
   tooltipSave,
 }: {
   disableButtonSave: boolean
@@ -60,14 +58,13 @@ export default function ActionButtons({
   isLoading: boolean
   onSave: () => void
   onUnsubscribeAll: () => void
-  isHorizontal: boolean // todo rename
   tooltipSave: string
 }) {
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
 
   return (
-    <ActionWrapper isHorizontal={isHorizontal}>
+    <ActionWrapper>
       {!account ? (
         <ButtonConfirmed confirmed onClick={toggleWalletModal}>
           <ButtonText>
@@ -76,13 +73,13 @@ export default function ActionButtons({
         </ButtonConfirmed>
       ) : (
         <>
-          <ButtonUnSub onClick={onUnsubscribeAll} isHorizontal={isHorizontal} disabled={!subscribeAtLeast1Topic}>
+          <ButtonUnSub onClick={onUnsubscribeAll} disabled={!subscribeAtLeast1Topic}>
             <XCircle size={'14px'} />
             &nbsp;
             <Trans>Opt-out</Trans>
           </ButtonUnSub>
 
-          <ButtonSave disabled={disableButtonSave} onClick={onSave} isHorizontal={isHorizontal}>
+          <ButtonSave disabled={disableButtonSave} onClick={onSave}>
             <Save size={14} />
             &nbsp;
             <MouseoverTooltip text={tooltipSave}>

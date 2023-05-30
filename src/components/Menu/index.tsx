@@ -22,7 +22,6 @@ import LanguageSelector from 'components/LanguageSelector'
 import Loader from 'components/Loader'
 import MenuFlyout from 'components/MenuFlyout'
 import Row, { AutoRow } from 'components/Row'
-import NotificationModal from 'components/SubscribeButton/NotificationModal'
 import Toggle from 'components/Toggle'
 import ThemeToggle from 'components/Toggle/ThemeToggle'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
@@ -544,7 +543,6 @@ export default function Menu() {
       </MenuFlyout>
 
       <ClaimRewardModal />
-      <NotificationModal />
       {FAUCET_NETWORKS.includes(chainId) && <FaucetModal />}
     </StyledMenu>
   )

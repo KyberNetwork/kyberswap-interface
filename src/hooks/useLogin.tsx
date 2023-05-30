@@ -28,8 +28,8 @@ KyberOauth2.initialize({
   mode: ENV_KEY,
 })
 
-let needSignInAfterConnectWallet = false // todo
-let accountTemp: string | undefined // todo
+let needSignInAfterConnectWallet = false
+let accountSignAfterConnectedWallet: string | undefined
 const useLogin = (autoLogin = false) => {
   const { account } = useActiveWeb3React()
   const [createProfile] = useGetOrCreateProfileMutation()
@@ -38,6 +38,7 @@ const useLogin = (autoLogin = false) => {
   const toggleWalletModal = useWalletModalToggle()
   const [signedWallet, saveSignedWallet] = useSignedWallet()
   const { removeProfile, removeAllProfile } = useAllProfileInfo()
+  const showConfirm = useShowConfirm()
 
   const requestingSession = useRef<string>() // which wallet requesting
   const requestingSessionAnonymous = useRef(false)
@@ -93,6 +94,7 @@ const useLogin = (autoLogin = false) => {
     },
     [anonymousUserInfo, setProfile, getProfile, resetState],
   )
+  const wrappedSignInAnonymous = useCallback(() => signInAnonymous(account), [signInAnonymous, account])
 
   const requestSignIn = useCallback(
     async (walletAddress: string | undefined, loginAnonymousIfFailed = true) => {
@@ -126,22 +128,7 @@ const useLogin = (autoLogin = false) => {
     [setLoading, signInAnonymous, getProfile, notify, saveSignedWallet, autoLogin],
   )
 
-  const isInit = useRef(false)
-  useEffect(() => {
-    if (!autoLogin || isInit.current) return // call once
-    isInit.current = true
-    const wallet = getProfileLocalStorage(ProfileLocalStorageKeys.CONNECTING_WALLET) || signedWallet
-    requestSignIn(wallet || undefined)
-    // isConnectedWallet().then(wallet => {
-    // if (wallet === null) return // pending
-    // signIn(typeof wallet === 'string' ? wallet : undefined) // todo remove all related
-    // })
-  }, [requestSignIn, autoLogin, signedWallet])
-
-  const wrappedSignInAnonymous = useCallback(() => signInAnonymous(account), [signInAnonymous, account]) // todo rename
-
-  const showConfirm = useShowConfirm()
-  const signInEth = useCallback(
+  const signIn = useCallback(
     (walletAddress?: string, showSessionExpired = false) => {
       const isAddAccount = !walletAddress
       const isSelectAccount = !!walletAddress
@@ -149,7 +136,7 @@ const useLogin = (autoLogin = false) => {
       if (isAddAccount && !account) {
         toggleWalletModal()
         needSignInAfterConnectWallet = true
-        accountTemp = walletAddress
+        accountSignAfterConnectedWallet = walletAddress
         return
       }
       needSignInAfterConnectWallet = false
@@ -169,7 +156,7 @@ const useLogin = (autoLogin = false) => {
       const connectedAccounts = KyberOauth2.getConnectedEthAccounts()
       if (isSelectAccount && connectedAccounts.includes(walletAddress?.toLowerCase() || '')) {
         setProfileLocalStorage(ProfileLocalStorageKeys.CONNECTING_WALLET, walletAddress)
-        requestSignIn(walletAddress, false) // todo check case 2 token faild
+        requestSignIn(walletAddress, false)
         return
       }
       if (isAddAccount && connectedAccounts.includes(account?.toLowerCase() || '')) {
@@ -200,13 +187,21 @@ const useLogin = (autoLogin = false) => {
     [account, notify, signedWallet, requestSignIn, toggleWalletModal, showConfirm],
   )
 
+  // auto try sign in when the first visit app, call once
+  const isInit = useRef(false)
   useEffect(() => {
-    if (autoLogin) return
-    if (account && needSignInAfterConnectWallet) {
-      signInEth(accountTemp)
-      needSignInAfterConnectWallet = false
-    }
-  }, [account, signInEth, autoLogin])
+    if (!autoLogin || isInit.current) return
+    isInit.current = true
+    const wallet = getProfileLocalStorage(ProfileLocalStorageKeys.CONNECTING_WALLET) || signedWallet
+    requestSignIn(wallet || undefined)
+  }, [requestSignIn, autoLogin, signedWallet])
+
+  // auto sign in after connect wallet
+  useEffect(() => {
+    if (autoLogin || !account || !needSignInAfterConnectWallet) return
+    signIn(accountSignAfterConnectedWallet)
+    needSignInAfterConnectWallet = false
+  }, [account, signIn, autoLogin])
 
   const signOut = useCallback(
     (walletAddress?: string) => {
@@ -256,7 +251,7 @@ const useLogin = (autoLogin = false) => {
     })
   }, [notify, removeAllProfile, signedWallet, signOut])
 
-  return { signOut, signInEth, signInAnonymous: wrappedSignInAnonymous, signOutAll }
+  return { signOut, signIn, signInAnonymous: wrappedSignInAnonymous, signOutAll }
 }
 
 export default useLogin

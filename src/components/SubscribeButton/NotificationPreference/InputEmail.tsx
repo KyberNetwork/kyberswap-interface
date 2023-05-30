@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { Check } from 'react-feather'
-import styled, { css } from 'styled-components'
+import styled, { CSSProperties } from 'styled-components'
 
 import { ButtonLight } from 'components/Button'
 import { Input } from 'components/Input'
@@ -23,21 +23,12 @@ const ButtonVerify = styled(ButtonLight)`
   font-size: 12px;
 `
 
-const InputWrapper = styled.div<{ isInNotificationCenter: boolean }>`
+const InputWrapper = styled.div`
   position: relative;
-  ${({ isInNotificationCenter }) =>
-    isInNotificationCenter &&
-    css`
-      max-width: 50%;
-      ${({ theme }) => theme.mediaWidth.upToMedium`
-        max-width: 100%;
-      `}
-    `};
 `
 
 export default function InputEmail({
   errorColor,
-  isInNotificationCenter = false,
   value,
   onChange,
   isVerifiedEmail,
@@ -45,23 +36,22 @@ export default function InputEmail({
   disabled,
   hasError,
   color,
+  style,
 }: {
   errorColor?: string
   onChange: (val: string) => void
-  isInNotificationCenter?: boolean
   isVerifiedEmail: boolean
   value: string
   disabled?: boolean
   hasError?: boolean
   showVerifyModal: () => void
   color?: string
+  style?: CSSProperties
 }) {
-  // todo refactor props
   const theme = useTheme()
-  // todo rename isInNotificationCenter
   return (
     <Tooltip text={t`Invalid email address`} show={!!hasError} placement="top" width="fit-content">
-      <InputWrapper isInNotificationCenter={isInNotificationCenter}>
+      <InputWrapper style={style}>
         <Input
           color={color}
           disabled={disabled}

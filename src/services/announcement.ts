@@ -126,7 +126,6 @@ const AnnouncementApi = createApi({
       ],
     }),
     // price alert
-    // todo consider merge api
     getListPriceAlertHistory: builder.query<
       AnnouncementResponse<PrivateAnnouncement>,
       {

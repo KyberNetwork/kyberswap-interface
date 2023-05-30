@@ -1,46 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { isMobile } from 'react-device-detect'
+import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { usePrevious } from 'react-use'
 
 import { NETWORKS_INFO } from 'constants/networks'
-import { isAuthorized, useActiveWeb3React, useEagerConnect } from 'hooks'
+import { useActiveWeb3React, useEagerConnect } from 'hooks'
 import { useConnectedWallet } from 'state/authen/hooks'
-import { useIsUserManuallyDisconnect } from 'state/user/hooks'
 import { getChainIdFromSlug } from 'utils/string'
 
 import { useChangeNetwork } from './useChangeNetwork'
-
-/**
- *
- * we need this hook support to check user actually connected wallet or not
- * although we connected wallet, it will take small time to load => account = undefined => wait a bit => account = 0x....
- */
-export function useIsConnectedWallet() {
-  const { account } = useActiveWeb3React()
-  const prevAccount = usePrevious(account)
-  const key = 'connectedWallet'
-  useEffect(() => {
-    if (account) {
-      localStorage.setItem(key, '1')
-    }
-    if (prevAccount && !account) {
-      localStorage.removeItem(key)
-    }
-  }, [account, prevAccount])
-
-  const connectedWalletStatus = localStorage.getItem(key)
-  const [isUserManuallyDisconnect] = useIsUserManuallyDisconnect()
-  const [possibleWallet] = useConnectedWallet()
-
-  return useCallback(async () => {
-    if (isUserManuallyDisconnect && !(isMobile && window.ethereum)) return false
-    if (possibleWallet === null) return null // pending
-    const currentAccount = await isAuthorized(true)
-    const walletValue = currentAccount || possibleWallet
-    return connectedWalletStatus && typeof walletValue === 'string' ? walletValue : false
-  }, [connectedWalletStatus, isUserManuallyDisconnect, possibleWallet])
-}
 
 export function useSyncNetworkParamWithStore() {
   const params = useParams<{ network?: string }>()

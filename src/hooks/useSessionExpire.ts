@@ -12,7 +12,7 @@ import { ProfileLocalStorageKeys, getProfileLocalStorage, useSignedWalletInfo } 
 export default function useSessionExpiredGlobal() {
   const { pathname } = useLocation()
   const showConfirm = useShowConfirm()
-  const { signInEth, signInAnonymous } = useLogin()
+  const { signIn, signInAnonymous } = useLogin()
   const { signedWallet } = useSignedWalletInfo()
   const navigate = useNavigate()
 
@@ -24,7 +24,7 @@ export default function useSessionExpiredGlobal() {
         content: t`Your session has expired. Please sign-in to continue.`,
         title: t`Session Expired`,
         confirmText: t`Sign-in`,
-        onConfirm: () => signInEth(getProfileLocalStorage(ProfileLocalStorageKeys.CONNECTING_WALLET) || signedWallet), // todo consider
+        onConfirm: () => signIn(getProfileLocalStorage(ProfileLocalStorageKeys.CONNECTING_WALLET) || signedWallet),
       }
       if (!isKyberAI) {
         data.cancelText = t`Use Guest Account`
@@ -34,5 +34,5 @@ export default function useSessionExpiredGlobal() {
     }
     KyberOauth2.on(KyberOauth2Event.SESSION_EXPIRED, listener)
     return () => KyberOauth2.off(KyberOauth2Event.SESSION_EXPIRED, listener)
-  }, [pathname, showConfirm, navigate, signedWallet, signInEth, signInAnonymous])
+  }, [pathname, showConfirm, navigate, signedWallet, signIn, signInAnonymous])
 }

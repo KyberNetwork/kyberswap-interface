@@ -113,13 +113,12 @@ const ProfileItem = ({
   const navigate = useNavigate()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
-  const { signInEth, signInAnonymous, signOut } = useLogin()
+  const { signIn, signInAnonymous, signOut } = useLogin()
   const { isSignedWallet, isGuest } = useSignedWalletInfo()
 
   const onClick = () => {
     if (active) return
-    if (guest) signInAnonymous()
-    else signInEth(account, true)
+    guest ? signInAnonymous() : signIn(account, true)
     toggleModal()
   }
 
@@ -179,7 +178,7 @@ const ProfileItem = ({
   )
 }
 const ProfileContent = () => {
-  const { signInEth, signOutAll } = useLogin()
+  const { signIn, signOutAll } = useLogin()
   const { canSignInEth } = useSignedWalletInfo()
   const { profiles, refresh } = useAllProfileInfo()
   const { account: connectedWallet } = useActiveWeb3React()
@@ -198,7 +197,7 @@ const ProfileContent = () => {
       </Column>
       <ActionWrapper hasBorder={profiles.length > 1}>
         {canSignInEth && !KyberOauth2.getConnectedEthAccounts().includes(connectedWallet?.toLowerCase() ?? '') && (
-          <ActionItem onClick={() => signInEth()}>
+          <ActionItem onClick={() => signIn()}>
             <UserPlus size={18} /> <Trans>Add Account with current wallet</Trans>
           </ActionItem>
         )}

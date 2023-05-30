@@ -11,7 +11,6 @@ import { ELASTIC_POOL_TOPIC_ID, KYBER_AI_TOPIC_ID, PRICE_ALERT_TOPIC_ID } from '
 import { useActiveWeb3React } from 'hooks'
 import { AppState } from 'state'
 import { setLoadingNotification, setSubscribedNotificationTopic } from 'state/application/actions'
-import { useNotificationModalToggle } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 import { pushUnique } from 'utils'
 
@@ -44,7 +43,6 @@ const useNotification = () => {
   const { userInfo } = useSessionInfo()
 
   const { account, chainId } = useActiveWeb3React()
-  const toggleSubscribeModal = useNotificationModalToggle()
   const dispatch = useDispatch()
 
   const setLoading = useCallback(
@@ -139,16 +137,10 @@ const useNotification = () => {
     }, 500)
   }, [topicGroups, saveNotification, refreshTopics])
 
-  const showNotificationModal = useCallback(() => {
-    refreshTopics()
-    toggleSubscribeModal()
-  }, [refreshTopics, toggleSubscribeModal])
-
   return {
     topicGroups,
     isLoading,
     saveNotification,
-    showNotificationModal,
     refreshTopics,
     unsubscribeAll,
   }

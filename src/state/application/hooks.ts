@@ -122,10 +122,6 @@ export function useTrueSightNetworkModalToggle(): () => void {
   return useToggleModal(ApplicationModal.TRUESIGHT_NETWORK)
 }
 
-export function useNotificationModalToggle(): () => void {
-  return useToggleModal(ApplicationModal.NOTIFICATION_SUBSCRIPTION)
-}
-
 // returns a function that allows adding a popup
 export function useAddPopup(): (
   content: PopupContent,

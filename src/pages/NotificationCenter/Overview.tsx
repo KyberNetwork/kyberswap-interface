@@ -22,7 +22,6 @@ export default function Overview() {
   return (
     <StyledPreference>
       <NotificationPreference
-        isInNotificationCenter
         isOpen={true}
         header={
           <Text fontWeight={'500'} color={theme.text} fontSize="14px">

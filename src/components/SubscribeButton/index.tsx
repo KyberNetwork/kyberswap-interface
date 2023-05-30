@@ -65,10 +65,9 @@ export default function SubscribeNotificationButton({
   const { mixpanelHandler } = useMixpanel()
 
   const navigate = useNavigate()
-  // const { showNotificationModal } = useNotification()
   const showNotificationModal = useCallback(() => {
     navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PREFERENCE}`)
-  }, [navigate]) // todo remove content popup subscribe topic if unused
+  }, [navigate])
 
   const onClickBtn = () => {
     showNotificationModal()

@@ -114,8 +114,8 @@ const menuItems: MenuItemType[] = [
   }
 })
 
-type PropsMenu = { unread: Unread; onClickItem?: () => void }
-const MenuForDesktop = ({ unread, onClickItem }: PropsMenu) => {
+type PropsMenu = { unread: Unread; onChildrenClick?: () => void }
+const MenuForDesktop = ({ unread, onChildrenClick }: PropsMenu) => {
   const { signedWallet, isGuest } = useSignedWalletInfo()
   const { cacheProfile } = useCacheProfile()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
@@ -149,7 +149,7 @@ const MenuForDesktop = ({ unread, onClickItem }: PropsMenu) => {
           style={{ paddingTop: index ? undefined : 0 }}
           data={data}
           unread={unread}
-          onClickItem={onClickItem}
+          onChildrenClick={onChildrenClick}
         />
       ))}
     </Flex>
@@ -167,7 +167,7 @@ const MenuForMobile = ({ unread }: PropsMenu) => {
       isOpen={isOpen}
       onDismiss={toggleModal}
     >
-      <MenuForDesktop unread={unread} onClickItem={toggleModal} />
+      <MenuForDesktop unread={unread} onChildrenClick={toggleModal} />
     </Drawer>
   )
 }
@@ -195,8 +195,7 @@ const Menu = () => {
     return result
   }, [data])
 
-  const props = { unread }
-  return upToMedium ? <MenuForMobile {...props} /> : <MenuForDesktop {...props} />
+  return upToMedium ? <MenuForMobile unread={unread} /> : <MenuForDesktop unread={unread} />
 }
 
 export default Menu
