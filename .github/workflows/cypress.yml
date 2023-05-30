@@ -95,7 +95,7 @@ jobs:
           CURRENT_BRANCH: ${{ needs.prepare.outputs.current_branch }}
           NODE_OPTIONS: '--max_old_space_size=4096'
         run: yarn build-adpr
-
+        
       - name: Run xvfb and fluxbox
         run: Xvfb :0 -screen 0 1024x768x24 -listen tcp -ac &
           fluxbox &
@@ -103,14 +103,12 @@ jobs:
           DISPLAY: :0.0  
 
       - name: Run Cypress Test
-        uses: cypress-io/github-action@v5.7.2
-        with:
-          working-directory: .
-          install: true
-          command: yarn preview & yarn test-e2e
-          wait-on-timeout: 300
+        run: |+
+          #!/bin/bash
+          yarn preview &
+          yarn test-e2e
         env:
-          DISPLAY: :0.0  
+            DISPLAY: :0.0      
       
       - name: Archive e2e artifacts 
         uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
