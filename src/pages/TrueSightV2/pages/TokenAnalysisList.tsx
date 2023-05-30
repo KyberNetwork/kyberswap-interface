@@ -585,7 +585,7 @@ const TokenRow = ({
       </td>
       <td>
         <Column style={{ alignItems: 'center', width: '110px' }}>
-          <SmallKyberScoreMeter data={latestKyberScore} tokenName={token.symbol} />
+          <SmallKyberScoreMeter data={latestKyberScore} />
           <Text
             color={calculateValueToColor(latestKyberScore?.kyber_score || 0, theme)}
             fontSize="14px"

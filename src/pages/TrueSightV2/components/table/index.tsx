@@ -454,10 +454,13 @@ export const LiveDEXTrades = () => {
   const theme = useTheme()
   const [currentPage, setCurrentPage] = useState(1)
   const { chain, address } = useParams()
-  const { data, isLoading } = useLiveDexTradesQuery({
-    chain: chain || defaultExplorePageToken.chain,
-    address: address || defaultExplorePageToken.address,
-  })
+  const { data, isLoading } = useLiveDexTradesQuery(
+    {
+      chain: chain || defaultExplorePageToken.chain,
+      address: address || defaultExplorePageToken.address,
+    },
+    { pollingInterval: 10000 },
+  )
   const { data: tokenOverview } = useTokenDetailQuery({
     chain: chain || defaultExplorePageToken.chain,
     address: address || defaultExplorePageToken.address,
@@ -735,7 +738,7 @@ const WidgetTokenRow = ({ token, onClick }: { token: ITokenList; onClick?: () =>
           </td>
           <td>
             <Column style={{ alignItems: 'center', width: '110px' }}>
-              <SmallKyberScoreMeter data={latestKyberScore} tokenName={token.symbol} />
+              <SmallKyberScoreMeter data={latestKyberScore} />
               <Text
                 color={calculateValueToColor(latestKyberScore?.kyber_score || 0, theme)}
                 fontSize="14px"

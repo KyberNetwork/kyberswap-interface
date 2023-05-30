@@ -140,7 +140,7 @@ export default function DisplaySettings({ currentTab }: { currentTab: DiscoverTo
             expandedDefault={currentTab === DiscoverTokenTab.OnChainAnalysis}
             headerContent={
               <Text color={theme.text} fontSize={14} fontWeight={500}>
-                On-Chain Analysis
+                <Trans>On-Chain Analysis</Trans>
               </Text>
             }
             hasDivider={false}
@@ -167,7 +167,7 @@ export default function DisplaySettings({ currentTab }: { currentTab: DiscoverTo
             expandedDefault={currentTab === DiscoverTokenTab.TechnicalAnalysis}
             headerContent={
               <Text color={theme.text} fontSize={14} fontWeight={500}>
-                Technical Analysis
+                <Trans>Technical Analysis</Trans>
               </Text>
             }
             hasDivider={false}

@@ -550,7 +550,6 @@ export default function SingleToken() {
         </Row>
         {currentTab === DiscoverTokenTab.OnChainAnalysis && <OnChainAnalysis />}
         {currentTab === DiscoverTokenTab.TechnicalAnalysis && <TechnicalAnalysis />}
-        {/* {currentTab === DiscoverTokenTab.News && <News />} */}
       </ChartStatesContext.Provider>
       <KyberAIShareModal
         isOpen={showShare}

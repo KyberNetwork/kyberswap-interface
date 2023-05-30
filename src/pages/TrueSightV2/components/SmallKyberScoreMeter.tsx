@@ -1,9 +1,10 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import React from 'react'
 import { Text } from 'rebass'
 import styled, { useTheme } from 'styled-components'
 
+import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
 import { RowFit } from 'components/Row'
 
@@ -26,7 +27,7 @@ const GaugeValue = styled.div`
   justify-content: center;
   bottom: 6px;
 `
-function SmallKyberScoreMeter({ data, tokenName }: { data?: IKyberScoreChart; tokenName?: string }) {
+function SmallKyberScoreMeter({ data }: { data?: IKyberScoreChart }) {
   const value = data?.kyber_score
   const theme = useTheme()
   const emptyColor = theme.darkMode ? theme.subText + '30' : theme.border + '60'
@@ -53,17 +54,20 @@ function SmallKyberScoreMeter({ data, tokenName }: { data?: IKyberScoreChart; to
         <SimpleTooltip
           text={
             data ? (
-              <Text style={{ whiteSpace: 'pre-wrap' }}>
-                <Trans>
-                  This is based on calculation at{' '}
-                  <b style={{ color: theme.text }}>
-                    {data?.created_at ? dayjs(data.created_at * 1000).format('hh:mm A') : '--'}
-                  </b>{' '}
-                  when the price of
-                  <b style={{ color: theme.text, textTransform: 'uppercase' }}>{` ${tokenName}`}</b> was{' '}
-                  <b style={{ color: theme.text }}>${formatTokenPrice(data?.price || 0)}</b>
-                </Trans>
-              </Text>
+              <Column style={{ whiteSpace: 'pre-wrap' }}>
+                <Text>
+                  Calculated at {data.created_at ? dayjs(data.created_at * 1000).format('DD/MM/YYYY HH:mm A') : '--'}
+                </Text>
+                <Text>
+                  KyberScore:{' '}
+                  <span style={{ color: calculateValueToColor(data.kyber_score || 0, theme) }}>
+                    {data.kyber_score || '--'} ({data.tag || t`Not Applicable`})
+                  </span>
+                </Text>
+                <Text>
+                  Token Price: <span style={{ color: theme.text }}>{formatTokenPrice(data.price || 0)}</span>
+                </Text>
+              </Column>
             ) : (
               <Text fontStyle="italic">
                 <Trans>KyberScore is not applicable for stablecoins</Trans>
