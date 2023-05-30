@@ -1,17 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import {
-  Award,
-  BookOpen,
-  Edit,
-  FileText,
-  HelpCircle,
-  Info,
-  MessageCircle,
-  PieChart,
-  Share2,
-} from 'react-feather'
+import { Award, BookOpen, Edit, FileText, HelpCircle, Info, MessageCircle, PieChart, Share2 } from 'react-feather'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
