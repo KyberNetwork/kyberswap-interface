@@ -37,7 +37,6 @@ const HeaderFrame = styled.div`
   width: 100%;
   top: 0;
   position: relative;
-  background-color: ${({ theme }) => theme.background};
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   padding: 1rem;
   z-index: ${Z_INDEXS.HEADER};
@@ -49,8 +48,8 @@ const HeaderFrame = styled.div`
   `};
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-   padding: 0.5rem 1rem;
-   height: 60px;
+    padding: 0.5rem 1rem;
+    height: 60px;
   `}
 `
 
@@ -100,12 +99,12 @@ const HeaderElementWrap = styled.div`
   gap: 8px;
   padding: 0px 6px;
   border-radius: 36px;
-  background-color: ${({ theme }) => theme.buttonGray};
-  border: 1px solid ${({ theme }) => theme.buttonGray};
+  background-color: ${({ theme }) => theme.background};
+  border: 1px solid ${({ theme }) => theme.background};
   color: ${({ theme }) => theme.subText};
   :hover,
   :focus {
-    background-color: ${({ theme }) => lighten(0.05, theme.buttonGray)};
+    background-color: ${({ theme }) => lighten(0.05, theme.background)};
     border: 1px solid ${({ theme }) => theme.primary};
   }
 `

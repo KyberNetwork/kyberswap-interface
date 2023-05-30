@@ -80,7 +80,7 @@ export const useSignedWalletInfo = () => {
   const isGuest = !signedWallet
   return {
     signedWallet,
-    signedDifferentWallet: signedWallet && account?.toLowerCase() !== signedWallet?.toLowerCase(),
+    signedDifferentWallet: account?.toLowerCase() !== signedWallet?.toLowerCase(),
     canSignInEth: !signedWallet || account?.toLowerCase() !== signedWallet?.toLowerCase(),
     isGuest,
     isSignedWallet,

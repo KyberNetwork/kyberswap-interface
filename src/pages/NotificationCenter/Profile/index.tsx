@@ -67,7 +67,7 @@ const FormGroup = styled.div`
 `
 
 const LeftColum = styled(Column)`
-  gap: 20px;
+  gap: 28px;
   flex: 1;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 100%;

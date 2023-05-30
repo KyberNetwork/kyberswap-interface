@@ -81,9 +81,10 @@ const MenuItem: React.FC<Props> = ({ data, style, unread, isChildren, onClickIte
 
   const path = `${APP_PATHS.NOTIFICATION_CENTER}${route}`
   const isActive = location.pathname === path || location.pathname === path.substring(0, path.length - 1)
-
-  const [expand, setIsExpand] = useState(location.pathname.startsWith(`${APP_PATHS.NOTIFICATION_CENTER}${route}`))
-  const canShowExpand = !isChildren
+  const canShowExpand = !isChildren && (childs?.length || 0) > 1
+  const [expand, setIsExpand] = useState(
+    canShowExpand ? location.pathname.startsWith(`${APP_PATHS.NOTIFICATION_CENTER}${route}`) : true,
+  )
   const canShowListChildren = expand && !isChildren
 
   const { mixpanelHandler } = useMixpanel()
@@ -116,7 +117,7 @@ const MenuItem: React.FC<Props> = ({ data, style, unread, isChildren, onClickIte
           </Flex>
 
           {totalUnread ? <Badge>{formatNumberOfUnread(totalUnread)}</Badge> : null}
-          {childs?.length && <DropdownArrowIcon rotate={expand} />}
+          {canShowExpand && <DropdownArrowIcon rotate={expand} />}
         </Wrapper>
         {canShowListChildren && (
           <Column style={{ padding: '8px 0', borderTop: `1px solid ${theme.border}`, marginLeft: '24px' }}>

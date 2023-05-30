@@ -1,3 +1,4 @@
+import { lighten } from 'polished'
 import styled, { css } from 'styled-components'
 
 import { ReactComponent as DropdownSvg } from 'assets/svg/down.svg'
@@ -20,7 +21,7 @@ const NetworkSwitchContainer = styled.div`
 
 const NetworkCard = styled(Card)<{ disabled?: boolean }>`
   position: relative;
-  background-color: ${({ theme }) => theme.buttonGray};
+  background-color: ${({ theme }) => theme.background};
   color: ${({ theme }) => theme.text};
   border-radius: 999px;
   padding: 8px 12px;
@@ -31,6 +32,7 @@ const NetworkCard = styled(Card)<{ disabled?: boolean }>`
     text-decoration: none;
     border: 1px solid ${({ theme }) => theme.primary};
     cursor: pointer;
+    background-color: ${({ theme }) => lighten(0.05, theme.background)};
   }
   ${({ disabled }) =>
     disabled &&

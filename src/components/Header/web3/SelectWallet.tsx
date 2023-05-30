@@ -61,14 +61,14 @@ const Web3StatusError = styled(Web3StatusGeneric)`
 `
 
 const Web3StatusConnected = styled(Web3StatusGeneric)<{ pending?: boolean }>`
-  background-color: ${({ pending, theme }) => (pending ? theme.primary : theme.buttonGray)};
-  border: 1px solid ${({ pending, theme }) => (pending ? theme.primary : theme.buttonGray)};
+  background-color: ${({ pending, theme }) => (pending ? theme.primary : theme.background)};
+  border: 1px solid ${({ pending, theme }) => (pending ? theme.primary : theme.background)};
   color: ${({ pending, theme }) => (pending ? theme.white : theme.subText)};
   font-weight: 500;
   :hover,
   :focus {
     background-color: ${({ pending, theme }) =>
-      pending ? darken(0.05, theme.primary) : lighten(0.05, theme.buttonGray)};
+      pending ? darken(0.05, theme.primary) : lighten(0.05, theme.background)};
     border: 1px solid ${({ theme }) => theme.primary};
   }
 `
