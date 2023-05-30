@@ -70,14 +70,16 @@ const OTPInput = ({
 
   const isInputValueValid = (value: string) => {
     const isTypeValid = isInputNum ? !isNaN(Number(value)) : typeof value === 'string'
-    return isTypeValid && value.trim().length === 1
+    return isTypeValid && value.trim().length >= 1
   }
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target
-
     if (isInputValueValid(value)) {
-      changeCodeAtFocus(value)
+      const otp = getOTPValue()
+      const [first, second] = value.split('')
+      const newValue = otp[activeInput] === first ? second : first
+      changeCodeAtFocus(newValue)
       focusInput(activeInput + 1)
     } else {
       const { nativeEvent } = event
@@ -92,9 +94,8 @@ const OTPInput = ({
     }
   }
 
-  const handleFocus = (event: React.FocusEvent<HTMLInputElement>) => (index: number) => {
+  const handleFocus = () => (index: number) => {
     setActiveInput(index)
-    event.target.select()
   }
 
   const onBlur = () => {
@@ -106,7 +107,7 @@ const OTPInput = ({
     if ([event.code, event.key].includes('Backspace')) {
       event.preventDefault()
       changeCodeAtFocus('')
-      focusInput(activeInput - 1)
+      if (!otp[activeInput]) focusInput(activeInput - 1)
     } else if (event.code === 'Delete') {
       event.preventDefault()
       changeCodeAtFocus('')
@@ -137,7 +138,6 @@ const OTPInput = ({
 
     if (inputRefs.current[activeInput]) {
       inputRefs.current[activeInput]?.focus()
-      inputRefs.current[activeInput]?.select()
       setActiveInput(activeInput)
     }
   }
@@ -191,7 +191,7 @@ const OTPInput = ({
               value: getOTPValue()[index] ?? '',
               ref: element => (inputRefs.current[index] = element),
               onChange: handleChange,
-              onFocus: event => handleFocus(event)(index),
+              onFocus: () => handleFocus()(index),
               onBlur,
               onKeyDown,
               onPaste,
