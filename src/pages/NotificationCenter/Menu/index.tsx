@@ -20,7 +20,7 @@ import MenuItem from 'pages/NotificationCenter/Menu/MenuItem'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
-import { useSessionInfo, useSignedWalletInfo } from 'state/authen/hooks'
+import { useCacheProfile, useSignedWalletInfo } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
 import { shortString } from 'utils/string'
@@ -116,9 +116,10 @@ const menuItems: MenuItemType[] = [
 
 type PropsMenu = { unread: Unread; onClickItem?: () => void }
 const MenuForDesktop = ({ unread, onClickItem }: PropsMenu) => {
-  const { userInfo: profile } = useSessionInfo()
   const { signedWallet, isGuest } = useSignedWalletInfo()
+  const { cacheProfile } = useCacheProfile()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+  const profile = cacheProfile
 
   const menuItemDeskTop = useMemo(() => {
     return menuItems.map(el => {

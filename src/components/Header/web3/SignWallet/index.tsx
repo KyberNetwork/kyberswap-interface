@@ -8,7 +8,7 @@ import Modal from 'components/Modal'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
-import { KEY_GUEST_DEFAULT, useCacheProfile, useSessionInfo, useSignedWalletInfo } from 'state/authen/hooks'
+import { useCacheProfile } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 const StyledMenu = styled.div`
@@ -30,13 +30,11 @@ const browserCustomStyle = css`
 `
 
 export default function SelectWallet() {
-  const { userInfo } = useSessionInfo()
-  const { getCacheProfile } = useCacheProfile()
-  const { signedWallet, isGuest } = useSignedWalletInfo()
+  const { cacheProfile } = useCacheProfile()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const isOpen = useModalOpen(ApplicationModal.SWITCH_PROFILE_POPUP)
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
-  const profile = userInfo || getCacheProfile(signedWallet ? signedWallet : KEY_GUEST_DEFAULT, isGuest)
+  const profile = cacheProfile
   const theme = useTheme()
   const profileIcon = (
     <Avatar

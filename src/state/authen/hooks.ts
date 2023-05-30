@@ -158,7 +158,11 @@ export const useCacheProfile = () => {
     return isAnonymous ? profileMap?.guest?.[id] : profileMap?.wallet?.[id]
   }, [])
 
-  return { saveCacheProfile, getCacheProfile, removeAllSignedAccount }
+  const { userInfo } = useSessionInfo()
+  const { signedWallet, isGuest } = useSignedWalletInfo()
+  const cacheProfile = userInfo || getCacheProfile(signedWallet ? signedWallet : KEY_GUEST_DEFAULT, isGuest)
+
+  return { saveCacheProfile, getCacheProfile, removeAllSignedAccount, cacheProfile }
 }
 
 export const useRefreshProfile = () => {
