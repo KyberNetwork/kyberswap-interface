@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { LogOut, Save } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
@@ -129,11 +129,23 @@ export default function Profile() {
 
   const [file, setFile] = useState<File>()
   const [previewImage, setPreviewImage] = useState<string>()
+  const cacheData = useRef<{ nickname: string; file: File | undefined; avatar: string }>({
+    nickname: '',
+    file: undefined,
+    avatar: '',
+  })
+
+  const onChangeNickname = useCallback((value: string) => {
+    setNickName(value)
+    cacheData.current.nickname = value
+  }, [])
 
   useEffect(() => {
+    const { file, nickname, avatar } = cacheData.current
     onChangeEmail(userInfo?.email ?? '')
-    setNickName(userInfo?.nickname || '')
-    setPreviewImage(userInfo?.avatarUrl)
+    setNickName(nickname || userInfo?.nickname || '')
+    setPreviewImage(avatar || userInfo?.avatarUrl)
+    file && setFile(file)
   }, [userInfo?.email, userInfo?.nickname, userInfo?.avatarUrl, onChangeEmail])
 
   const [isShowVerify, setIsShowVerify] = useState(false)
@@ -147,6 +159,8 @@ export default function Profile() {
   const handleFileChange = (imgUrl: string, file: File) => {
     setFile(file)
     setPreviewImage(imgUrl)
+    cacheData.current.file = file
+    cacheData.current.avatar = imgUrl
   }
 
   const [requestSaveProfile] = useUpdateProfileMutation()
@@ -183,6 +197,7 @@ export default function Profile() {
   const isVerifiedEmail = userInfo?.email && inputEmail === userInfo?.email
 
   const hasChangeProfile = file || (userInfo?.nickname && !nickname ? false : nickname !== userInfo?.nickname)
+  const disableBtnSave = !hasChangeProfile || hasErrorInput
 
   return (
     <Wrapper>
@@ -202,7 +217,7 @@ export default function Profile() {
               color={theme.text}
               maxLength={50}
               value={nickname}
-              onChange={e => setNickName(e.target.value)}
+              onChange={e => onChangeNickname(e.target.value)}
               placeholder="Your nickname"
             />
           </FormGroup>
@@ -237,7 +252,7 @@ export default function Profile() {
           )}
 
           <ActionsWrapper>
-            <ButtonSave onClick={saveProfile} disabled={!hasChangeProfile || hasErrorInput}>
+            <ButtonSave onClick={saveProfile} disabled={disableBtnSave}>
               <Save size={16} style={{ marginRight: '4px' }} />
               Save
             </ButtonSave>
