@@ -15,4 +15,5 @@
 import '@synthetixio/synpress/support/index'
 
 import './commands'
+import './connectWalletCommands'
 import './selectTokenCommands'

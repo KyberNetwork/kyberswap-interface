@@ -13,7 +13,7 @@ export const token = {
 }
 
 export const homePage = {
-  welcome: '[data-testid=button-skip-tutorial]',
+  skipTutorial: '[data-testid=button-skip-tutorial]',
 }
 
 export const notification = {
@@ -23,4 +23,11 @@ export const notification = {
 export const tab = {
   allTab: '[data-testid=tab-all]',
   import: '[data-testid=tab-import]',
+}
+
+export const wallet = {
+  btnConnectWallet: '[data-testid=button-connect-wallet]',
+  btnMetaMask: '[data-testid=connect-METAMASK]',
+  checkboxAcceptTerm: '[data-testid=accept-term]',
+  statusConnected: '[data-testid=web3-status-connected]',
 }

@@ -33,7 +33,7 @@ notes.txt
 
 package-lock.json
 
-cypress/
+cypress/videos
 cypress/screenshots
 cypress/fixtures/example.json
 /src/libs/sdk/*
