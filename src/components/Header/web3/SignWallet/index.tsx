@@ -37,7 +37,7 @@ export default function SelectWallet() {
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
   const profile = userInfo || getCacheProfile(signedWallet ? signedWallet : KEY_GUEST_DEFAULT, isGuest)
 
-  const profileIcon = <Avatar url={profile?.avatarUrl} size={34} onClick={toggleModal} />
+  const profileIcon = <Avatar url={profile?.avatarUrl} size={34} onClick={toggleModal} style={{ cursor: 'pointer' }} />
   return (
     <StyledMenu>
       {isMobile ? (

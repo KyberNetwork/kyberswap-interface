@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled, { CSSProperties } from 'styled-components'
 
 import Profile from 'components/Icons/Profile'
 
@@ -14,15 +14,17 @@ export default function Avatar({
   size,
   color,
   onClick,
+  style,
 }: {
   url: string | undefined
   size: number
   color?: string
   onClick?: () => void
+  style?: CSSProperties
 }) {
   return url ? (
-    <StyledAvatar $size={size} src={url} onClick={onClick} />
+    <StyledAvatar $size={size} src={url} onClick={onClick} style={style} />
   ) : (
-    <Profile size={size} color={color} style={{ minHeight: size, minWidth: size }} onClick={onClick} />
+    <Profile size={size} color={color} style={{ ...style, minHeight: size, minWidth: size }} onClick={onClick} />
   )
 }
