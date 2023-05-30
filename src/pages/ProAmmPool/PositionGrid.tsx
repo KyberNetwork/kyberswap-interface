@@ -1,7 +1,18 @@
 import { gql, useQuery } from '@apollo/client'
+import { useScroll } from '@use-gesture/react'
 import { Interface } from 'ethers/lib/utils'
 import memoizeOne from 'memoize-one'
-import React, { CSSProperties, ComponentType, memo, useCallback, useEffect, useMemo, useState } from 'react'
+import React, {
+  CSSProperties,
+  ComponentType,
+  forwardRef,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { useMedia } from 'react-use'
 import { FixedSizeGrid as FixedSizeGridRW, GridChildComponentProps, areEqual } from 'react-window'
 import styled from 'styled-components'
@@ -190,6 +201,7 @@ function PositionGrid({
       style={{ width: '100%', height: 'calc(100vh - 200px)' }}
       width={10000}
       columnCount={columnCount}
+      outerElementType={outerElementType}
       rowCount={Math.ceil(positions.length / columnCount)}
       height={0}
       columnWidth={upToSmall ? 368 : 392}
@@ -269,5 +281,52 @@ const Row = memo(
 )
 
 Row.displayName = 'RowItem'
+
+const emptyFunction = (): void => {
+  return
+}
+
+type DocumentPropsType = React.HTMLProps<HTMLElement>
+
+const outerElementType = forwardRef<HTMLElement, DocumentPropsType>(({ onScroll, children }, forwardedRef) => {
+  const containerRef = useRef<HTMLDivElement>(null)
+  useScroll(
+    () => {
+      if (!(onScroll instanceof Function)) {
+        return
+      }
+
+      const { clientWidth, clientHeight, scrollLeft, scrollTop, scrollHeight, scrollWidth } = document.documentElement
+
+      onScroll({
+        currentTarget: {
+          clientHeight,
+          clientWidth,
+          scrollLeft,
+          addEventListener: emptyFunction,
+          removeEventListener: emptyFunction,
+          dispatchEvent: () => false,
+          scrollTop:
+            scrollTop - (containerRef.current ? containerRef.current.getBoundingClientRect().top + scrollTop : 0),
+          scrollHeight,
+          scrollWidth,
+        },
+      } as unknown as React.UIEvent<HTMLElement>)
+    },
+    { target: window },
+  )
+
+  if (forwardedRef != null && !(forwardedRef instanceof Function)) {
+    forwardedRef.current = document.documentElement
+  }
+
+  return (
+    <div ref={containerRef} style={{ position: 'relative' }}>
+      {children}
+    </div>
+  )
+})
+
+outerElementType.displayName = 'outerElementType'
 
 export default PositionGrid

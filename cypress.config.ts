@@ -1,3 +1,4 @@
+import synpressPlugins from '@synthetixio/synpress/plugins'
 import { defineConfig } from 'cypress'
 
 export default defineConfig({
@@ -7,13 +8,14 @@ export default defineConfig({
       bundler: 'webpack',
     },
   },
+  userAgent: 'synpress',
   chromeWebSecurity: true,
   viewportWidth: 1920,
   viewportHeight: 1080,
   e2e: {
-    baseUrl: `http://localhost:4173`,
+    baseUrl: `http://localhost:4173/`,
     setupNodeEvents(on, config) {
-      // implement node event listeners here
+      synpressPlugins(on, config)
     },
     specPattern: 'cypress/e2e/**/*-spec.cy.ts',
   },

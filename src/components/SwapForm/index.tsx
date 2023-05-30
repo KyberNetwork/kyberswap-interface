@@ -23,7 +23,7 @@ import { useActiveWeb3React } from 'hooks'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { Field } from 'state/swap/actions'
 import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
-import { DetailedRouteSummary, FeeConfig } from 'types/route'
+import { DetailedRouteSummary } from 'types/route'
 
 import PriceImpactNote from './PriceImpactNote'
 import RefreshButton from './RefreshButton'
@@ -46,7 +46,6 @@ export type SwapFormProps = {
 
   isDegenMode: boolean
   slippage: number
-  feeConfig: FeeConfig | undefined
   transactionTimeout: number
   permit?: string
 
@@ -65,7 +64,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     setRouteSummary,
     isDegenMode,
     slippage,
-    feeConfig,
     transactionTimeout,
     permit,
     onChangeCurrencyIn,
@@ -99,7 +97,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   const { fetcher: getRoute, result } = useGetRoute({
     currencyIn,
     currencyOut,
-    feeConfig,
     isSaveGas,
     parsedAmount,
     isProcessingSwap,
@@ -155,7 +152,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
 
   return (
     <SwapFormContextProvider
-      feeConfig={feeConfig}
       slippage={slippage}
       routeSummary={routeSummary}
       typedValue={typedValue}

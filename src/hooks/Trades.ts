@@ -115,7 +115,7 @@ export function useTradeExactInV2(
 
   const ttl = useSelector<AppState, number>(state => state.user.userDeadline)
 
-  const { feeConfig, saveGas } = useSwapState()
+  const { saveGas } = useSwapState()
   const permitData = usePermitData(currencyAmountIn?.currency.wrapped.address)
 
   // refresh aggregator data on new sent tx
@@ -151,7 +151,6 @@ export function useTradeExactInV2(
           allowedSlippage,
           deadline,
           to,
-          feeConfig,
           signal,
           minimumLoadingTime,
           permitData && permitData.rawSignature,
@@ -190,7 +189,6 @@ export function useTradeExactInV2(
       saveGas,
       dexes,
       allowedSlippage,
-      feeConfig,
       permitData,
     ],
   )

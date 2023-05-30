@@ -7,7 +7,7 @@ import TransactionConfirmationModal, {
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
 import { useActiveWeb3React } from 'hooks'
-import { useEncodeSolana, useSwapState } from 'state/swap/hooks'
+import { useEncodeSolana } from 'state/swap/hooks'
 import { Aggregator } from 'utils/aggregator'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 
@@ -55,7 +55,6 @@ export default function ConfirmSwapModal({
   showTxBanner?: boolean
 }) {
   const { isSolana } = useActiveWeb3React()
-  const { feeConfig, typedValue } = useSwapState()
   const [startedTime, setStartedTime] = useState<number | undefined>(undefined)
   const [encodeSolana] = useEncodeSolana()
 
@@ -81,26 +80,15 @@ export default function ConfirmSwapModal({
         disabledConfirm={showAcceptChanges || (isSolana && !encodeSolana)}
         swapErrorMessage={swapErrorMessage}
         allowedSlippage={allowedSlippage}
-        feeConfig={feeConfig}
         startedTime={startedTime}
       />
     ) : null
-  }, [
-    allowedSlippage,
-    onConfirm,
-    showAcceptChanges,
-    swapErrorMessage,
-    trade,
-    feeConfig,
-    isSolana,
-    startedTime,
-    encodeSolana,
-  ])
+  }, [allowedSlippage, onConfirm, showAcceptChanges, swapErrorMessage, trade, isSolana, startedTime, encodeSolana])
 
   const nativeInput = useCurrencyConvertedToNative(originalTrade?.inputAmount?.currency)
   const nativeOutput = useCurrencyConvertedToNative(originalTrade?.outputAmount?.currency)
   // text to show while loading
-  const pendingText = `Swapping ${!!feeConfig ? typedValue : originalTrade?.inputAmount?.toSignificant(6)} ${
+  const pendingText = `Swapping ${originalTrade?.inputAmount?.toSignificant(6)} ${
     nativeInput?.symbol
   } for ${originalTrade?.outputAmount?.toSignificant(6)} ${nativeOutput?.symbol}`
 
