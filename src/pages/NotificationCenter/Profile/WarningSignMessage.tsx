@@ -49,10 +49,12 @@ const WarningSignMessage = () => {
           <Trans>
             You are not signed in with this wallet address. Click Sign-In to link your wallet to a profile. This will
             allow us to offer you a better experience.
-            {!upToMedium && (
+            {!upToMedium ? (
               <>
                 Read more <ExternalLink href="#">here ↗</ExternalLink>
               </>
+            ) : (
+              ''
             )}
           </Trans>
         </Text>
