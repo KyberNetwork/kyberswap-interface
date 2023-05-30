@@ -13,11 +13,10 @@ export default function useSessionExpiredGlobal() {
   const showConfirm = useShowConfirm()
   const { account } = useActiveWeb3React()
   const navigate = useNavigate()
-
   useEffect(() => {
     const listener = () => {
       const isKyberAI = pathname.toLowerCase().startsWith(APP_PATHS.KYBERAI.toLowerCase())
-      if (!isKyberAI) return
+      if (!isKyberAI || pathname === APP_PATHS.KYBERAI_ABOUT) return
       const data: ConfirmModalState = {
         isOpen: true,
         content: t`Your session has expired. Please sign-in to continue.`,
