@@ -348,7 +348,7 @@ export default function KyberAIShareModal({
           <div style={{ position: 'relative' }}>
             <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
               <img
-                src={tokenOverview.logo}
+                src={`https://proxy.kyberswap.com/token-logo?url=${tokenOverview.logo}`}
                 width="36px"
                 height="36px"
                 style={{ background: 'white', display: 'block' }}
