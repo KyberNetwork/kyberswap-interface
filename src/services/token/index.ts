@@ -18,7 +18,7 @@ const tokenApi = createApi({
       }
     >({
       query: ({ params, authentication }) => ({
-        url: '/v1/tokens/score',
+        url: '/v1/aggregator/token-score',
         params,
         authentication,
       }),
