@@ -146,7 +146,7 @@ const ProfileItem = ({
           <Column gap="8px" minWidth={'unset'} flex={1}>
             {profile?.nickname && (
               <Text fontWeight={'bold'} fontSize={active ? '20px' : '16px'} color={active ? theme.text : theme.subText}>
-                {shortString(profile?.nickname ?? '', active ? 18 : 20)}
+                {shortString(profile?.nickname ?? '', 18)}
               </Text>
             )}
             <Text fontWeight={'500'} fontSize={active ? '16px' : '12px'} color={active ? theme.subText : theme.subText}>

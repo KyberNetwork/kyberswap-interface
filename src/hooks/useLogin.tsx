@@ -208,6 +208,7 @@ const useLogin = (autoLogin = false) => {
       const onRedirectLogout = () => {
         resetState()
         setLoginRedirectUrl()
+        removeProfile(walletAddress)
         KyberOauth2.logout()
       }
       if (!walletAddress) {

@@ -1,4 +1,5 @@
 import { useMedia } from 'react-use'
+import { Flex } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import Avatar from 'components/Avatar'
@@ -37,13 +38,15 @@ export default function SelectWallet() {
   const profile = cacheProfile
   const theme = useTheme()
   const profileIcon = (
-    <Avatar
-      url={profile?.avatarUrl}
-      size={34}
-      onClick={toggleModal}
-      color={theme.subText}
-      style={{ cursor: 'pointer' }}
-    />
+    <Flex alignItems={'center'}>
+      <Avatar
+        url={profile?.avatarUrl}
+        size={34}
+        onClick={toggleModal}
+        color={theme.subText}
+        style={{ cursor: 'pointer' }}
+      />
+    </Flex>
   )
   return (
     <StyledMenu>

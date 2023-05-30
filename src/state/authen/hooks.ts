@@ -194,7 +194,7 @@ export const useAllProfileInfo = () => {
   }, [])
 
   const removeProfile = useCallback(
-    (wallet: string) => {
+    (wallet: string | undefined) => {
       if (!wallet) return
       saveCacheProfile({ isAnonymous: false, profile: undefined, id: wallet })
       refresh()
