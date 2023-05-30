@@ -182,10 +182,7 @@ export default function Profile() {
   const displayAvatar = previewImage || userInfo?.avatarUrl
   const isVerifiedEmail = userInfo?.email && inputEmail === userInfo?.email
 
-  const hasChangeProfile =
-    file ||
-    (userInfo?.email && !inputEmail ? false : inputEmail !== userInfo?.email) ||
-    (userInfo?.nickname && !nickname ? false : nickname !== userInfo?.nickname)
+  const hasChangeProfile = file || (userInfo?.nickname && !nickname ? false : nickname !== userInfo?.nickname)
 
   return (
     <Wrapper>
