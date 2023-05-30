@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef } from 'react'
 import { useConnectWalletToProfileMutation, useGetOrCreateProfileMutation } from 'services/identity'
 
 import { NotificationType } from 'components/Announcement/type'
+import { useShowConfirm } from 'components/ConfirmModal'
 import { ENV_KEY, OAUTH_CLIENT_ID } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -36,7 +37,7 @@ const useLogin = (autoLogin = false) => {
   const notify = useNotify()
   const toggleWalletModal = useWalletModalToggle()
   const [signedWallet, saveSignedWallet] = useSignedWallet()
-  const { refresh: refreshListProfile } = useAllProfileInfo()
+  const { removeProfile, removeAllProfile } = useAllProfileInfo()
 
   const requestingSession = useRef<string>() // which wallet requesting
   const requestingSessionAnonymous = useRef(false)
@@ -137,6 +138,9 @@ const useLogin = (autoLogin = false) => {
     // })
   }, [requestSignIn, autoLogin, signedWallet])
 
+  const wrappedSignInAnonymous = useCallback(() => signInAnonymous(account), [signInAnonymous, account]) // todo rename
+
+  const showConfirm = useShowConfirm()
   const signInEth = useCallback(
     (walletAddress?: string) => {
       const isAddAccount = !walletAddress
@@ -173,11 +177,27 @@ const useLogin = (autoLogin = false) => {
         requestSignIn(account, false)
         return
       }
-      setProfileLocalStorage(ProfileLocalStorageKeys.CONNECTING_WALLET, walletAddress || account)
-      KyberOauth2.authenticate({ wallet_address: walletAddress || account || '' }) // navigate to login page
-      setLoginRedirectUrl()
+
+      const redirect = () => {
+        setProfileLocalStorage(ProfileLocalStorageKeys.CONNECTING_WALLET, walletAddress || account)
+        KyberOauth2.authenticate({ wallet_address: walletAddress || account || '' }) // navigate to login page
+        setLoginRedirectUrl()
+      }
+
+      if (isSelectAccount && !connectedAccounts.includes(walletAddress?.toLowerCase())) {
+        showConfirm({
+          isOpen: true,
+          content: t`Your session has expired. Please sign-in to continue.`,
+          title: t`Session Expired`,
+          confirmText: t`Sign-in`,
+          onConfirm: () => redirect(),
+          cancelText: t`Cancel`,
+        })
+        return
+      }
+      redirect()
     },
-    [account, notify, signedWallet, requestSignIn, toggleWalletModal],
+    [account, notify, signedWallet, requestSignIn, toggleWalletModal, showConfirm],
   )
 
   useEffect(() => {
@@ -208,10 +228,10 @@ const useLogin = (autoLogin = false) => {
           title: t`Logged out successfully`,
           summary: t`You had successfully logged out`,
         })
-        refreshListProfile()
+        removeProfile(walletAddress)
       }
     },
-    [resetState, signedWallet, notify, refreshListProfile],
+    [resetState, signedWallet, notify, removeProfile],
   )
 
   const signOutAll = useCallback(() => {
@@ -224,19 +244,17 @@ const useLogin = (autoLogin = false) => {
       }
       KyberOauth2.removeTokensEthAccount(address)
     })
+    removeAllProfile()
     if (needRedirect) {
       signOut(signedWallet)
       return
     }
-    refreshListProfile()
     notify({
       type: NotificationType.SUCCESS,
       title: t`Logged out all accounts successfully`,
       summary: t`You had successfully logged out`,
     })
-  }, [notify, refreshListProfile, signedWallet, signOut])
-
-  const wrappedSignInAnonymous = useCallback(() => signInAnonymous(account), [signInAnonymous, account]) // todo rename
+  }, [notify, removeAllProfile, signedWallet, signOut])
 
   return { signOut, signInEth, signInAnonymous: wrappedSignInAnonymous, signOutAll }
 }

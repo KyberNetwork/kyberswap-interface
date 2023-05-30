@@ -132,18 +132,25 @@ export const useCacheProfile = () => {
       const key = id.toLowerCase()
       const profileMap = getProfileLocalStorage(ProfileLocalStorageKeys.PROFILE) || {}
       const newData = { ...profileMap } as CacheProfile
-      if (!profile) return
       if (isAnonymous) {
         if (!newData.guest) newData.guest = {}
-        newData.guest[key] = profile
+        if (profile) newData.guest[key] = profile
+        else delete newData.guest[key]
       } else {
         if (!newData.wallet) newData.wallet = {}
-        newData.wallet[key] = profile
+        if (profile) newData.wallet[key] = profile
+        else delete newData.wallet[key]
       }
       setProfileLocalStorage(ProfileLocalStorageKeys.PROFILE, newData)
     },
     [],
   )
+
+  const removeAllSignedAccount = useCallback(() => {
+    const profileMap = getProfileLocalStorage(ProfileLocalStorageKeys.PROFILE) || {}
+    profileMap.wallet = {}
+    setProfileLocalStorage(ProfileLocalStorageKeys.PROFILE, profileMap)
+  }, [])
 
   const getCacheProfile = useCallback((key: string, isAnonymous: boolean): UserProfile | undefined => {
     const profileMap = getProfileLocalStorage(ProfileLocalStorageKeys.PROFILE) || {}
@@ -151,7 +158,7 @@ export const useCacheProfile = () => {
     return isAnonymous ? profileMap?.guest?.[id] : profileMap?.wallet?.[id]
   }, [])
 
-  return { saveCacheProfile, getCacheProfile }
+  return { saveCacheProfile, getCacheProfile, removeAllSignedAccount }
 }
 
 export const useRefreshProfile = () => {
@@ -171,12 +178,30 @@ export type ConnectedProfile = { active: boolean; address: string; profile: User
 export const useAllProfileInfo = () => {
   const { signedWallet, isGuest } = useSignedWalletInfo()
   const { getCacheProfile } = useCacheProfile()
-  const [connectedAccounts, setConnectAccounts] = useState(KyberOauth2.getConnectedEthAccounts())
+  const { saveCacheProfile, removeAllSignedAccount } = useCacheProfile()
+  const [connectedAccounts, setConnectAccounts] = useState(
+    Object.keys(getProfileLocalStorage(ProfileLocalStorageKeys.PROFILE)?.wallet ?? {}),
+  )
   const profilesState = useSelector((state: AppState) => state.authen.profiles)
 
-  const refresh = () => {
-    setConnectAccounts(KyberOauth2.getConnectedEthAccounts())
-  }
+  const refresh = useCallback(() => {
+    const listAddress = Object.keys(getProfileLocalStorage(ProfileLocalStorageKeys.PROFILE)?.wallet ?? {})
+    setConnectAccounts([...new Set(listAddress.concat(KyberOauth2.getConnectedEthAccounts()))])
+  }, [])
+
+  const removeProfile = useCallback(
+    (wallet: string) => {
+      if (!wallet) return
+      saveCacheProfile({ isAnonymous: false, profile: undefined, id: wallet })
+      refresh()
+    },
+    [refresh, saveCacheProfile],
+  )
+
+  const removeAllProfile = useCallback(() => {
+    removeAllSignedAccount()
+    setConnectAccounts([])
+  }, [removeAllSignedAccount])
 
   const profiles: ConnectedProfile[] = useMemo(() => {
     return connectedAccounts
@@ -200,7 +225,7 @@ export const useAllProfileInfo = () => {
     dispatch(updateAllProfile(profiles))
   }, [profiles, dispatch])
 
-  return { profiles: profilesState, refresh }
+  return { profiles: profilesState, refresh, removeProfile, removeAllProfile }
 }
 
 export const useSetPendingAuthentication = () => {
