@@ -42,6 +42,8 @@ import { useWalletModalToggle } from 'state/application/hooks'
 import { useDarkModeManager } from 'state/user/hooks'
 import { ButtonText, ExternalLink } from 'theme'
 
+import KyberAIWidget from '../TrueSightV2/components/KyberAIWidget'
+
 const LedgerSVG = styled(Ledger)`
   path {
     fill: currentColor;
@@ -657,6 +659,7 @@ function BuyCrypto() {
           </Flex>
         </DownloadWalletContent>
       </DownloadWalletWrapper>
+      <KyberAIWidget />
     </>
   )
 }
