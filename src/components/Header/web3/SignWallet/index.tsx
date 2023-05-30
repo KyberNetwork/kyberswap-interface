@@ -5,6 +5,7 @@ import Avatar from 'components/Avatar'
 import ProfileContent from 'components/Header/web3/SignWallet/ProfileContent'
 import MenuFlyout from 'components/MenuFlyout'
 import Modal from 'components/Modal'
+import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { KEY_GUEST_DEFAULT, useCacheProfile, useSessionInfo, useSignedWalletInfo } from 'state/authen/hooks'
@@ -36,8 +37,16 @@ export default function SelectWallet() {
   const isOpen = useModalOpen(ApplicationModal.SWITCH_PROFILE_POPUP)
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
   const profile = userInfo || getCacheProfile(signedWallet ? signedWallet : KEY_GUEST_DEFAULT, isGuest)
-
-  const profileIcon = <Avatar url={profile?.avatarUrl} size={34} onClick={toggleModal} style={{ cursor: 'pointer' }} />
+  const theme = useTheme()
+  const profileIcon = (
+    <Avatar
+      url={profile?.avatarUrl}
+      size={34}
+      onClick={toggleModal}
+      color={theme.subText}
+      style={{ cursor: 'pointer' }}
+    />
+  )
   return (
     <StyledMenu>
       {isMobile ? (
