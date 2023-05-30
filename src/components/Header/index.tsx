@@ -1,6 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { lighten } from 'polished'
 import { Link } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import styled from 'styled-components'
 
 import Announcement from 'components/Announcement'
@@ -17,6 +18,7 @@ import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useHolidayMode, useIsDarkMode } from 'state/user/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 
 import DiscoverNavItem from './DiscoverNavItem'
 import AboutNavGroup from './groups/AboutNavGroup'
@@ -57,12 +59,11 @@ const HeaderControls = styled.div`
   flex-direction: row;
   align-items: center;
   justify-self: flex-end;
-
+  gap: 8px;
   ${({ theme }) => theme.mediaWidth.upToLarge`
     flex-direction: row;
     justify-content: space-between;
     justify-self: center;
-    width: 100%;
     padding: 1rem;
     position: fixed;
     bottom: 0px;
@@ -86,8 +87,10 @@ const HeaderElement = styled.div`
   align-items: center;
   gap: 8px;
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
     align-items: center;
+    width: 100%;
+    justify-content: space-between;
   `};
 `
 
@@ -176,6 +179,22 @@ export default function Header() {
   const [holidayMode] = useHolidayMode()
   const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
+  const uptoSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const chainSelect = (
+    <MouseoverTooltip
+      text={t`You are currently connected through WalletConnect. If you want to change the connected network, please disconnect your wallet before changing the network.`}
+      disableTooltip={walletKey !== 'WALLET_CONNECT'}
+    >
+      <SelectNetwork disabled={walletKey === 'WALLET_CONNECT'} />
+    </MouseoverTooltip>
+  )
+  const menu = (
+    <HeaderElementWrap>
+      <Announcement />
+      <div style={{ height: '18px', borderLeft: `2px solid ${theme.subText}` }} />
+      <Menu />
+    </HeaderElementWrap>
+  )
   return (
     <HeaderFrame>
       <HeaderRow>
@@ -216,21 +235,25 @@ export default function Header() {
         </HeaderLinks>
       </HeaderRow>
       <HeaderControls>
-        <HeaderElement>
-          <MouseoverTooltip
-            text={t`You are currently connected through WalletConnect. If you want to change the connected network, please disconnect your wallet before changing the network.`}
-            disableTooltip={walletKey !== 'WALLET_CONNECT'}
-          >
-            <SelectNetwork disabled={walletKey === 'WALLET_CONNECT'} />
-          </MouseoverTooltip>
-          <SelectWallet />
-          <HeaderElementWrap>
-            <Announcement />
-            <div style={{ height: '18px', borderLeft: `2px solid ${theme.subText}` }} />
-            <Menu />
-          </HeaderElementWrap>
-          <SignWallet />
-        </HeaderElement>
+        {uptoSmall ? (
+          <HeaderElement>
+            {chainSelect}
+            <SelectWallet />
+            {menu}
+            <SignWallet />
+          </HeaderElement>
+        ) : (
+          <>
+            <HeaderElement style={{ justifyContent: 'flex-start' }}>
+              {chainSelect}
+              <SelectWallet />
+            </HeaderElement>
+            <HeaderElement style={{ justifyContent: 'flex-end' }}>
+              {menu}
+              <SignWallet />
+            </HeaderElement>
+          </>
+        )}
       </HeaderControls>
     </HeaderFrame>
   )

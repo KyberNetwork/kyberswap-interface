@@ -40,6 +40,7 @@ const ListProfile = styled.div<{ hasData: boolean }>`
 `
 
 const ActionItem = styled.div`
+  cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -68,6 +69,7 @@ const ActionWrapper = styled.div<{ hasBorder: boolean }>`
 
 const ProfileItemWrapper = styled(RowBetween)<{ active: boolean }>`
   position: relative;
+  cursor: pointer;
   ${({ active }) =>
     active
       ? css`

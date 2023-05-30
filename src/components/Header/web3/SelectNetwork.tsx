@@ -25,7 +25,7 @@ const NetworkCard = styled(Card)<{ disabled?: boolean }>`
   border-radius: 999px;
   padding: 8px 12px;
   border: 1px solid transparent;
-  min-width: fit-content;
+  width: fit-content;
 
   &:hover {
     text-decoration: none;

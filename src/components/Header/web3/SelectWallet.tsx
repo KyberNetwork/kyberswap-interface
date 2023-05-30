@@ -2,8 +2,8 @@ import { Trans, t } from '@lingui/macro'
 import { UnsupportedChainIdError } from '@web3-react/core'
 import { darken, lighten } from 'polished'
 import { useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
 import { Activity } from 'react-feather'
+import { useMedia } from 'react-use'
 import styled from 'styled-components'
 
 import { ReactComponent as WarningInfo } from 'assets/svg/wallet_warning_icon.svg'
@@ -24,6 +24,7 @@ import { isTransactionRecent, newTransactionsFirst, useAllTransactions } from 's
 import { TransactionDetails } from 'state/transactions/type'
 import { useIsDarkMode } from 'state/user/hooks'
 import { useNativeBalance } from 'state/wallet/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 
 const IconWrapper = styled.div<{ size?: number }>`
@@ -38,7 +39,7 @@ const IconWrapper = styled.div<{ size?: number }>`
 
 const Web3StatusGeneric = styled.button`
   ${({ theme }) => theme.flexRowNoWrap}
-  width: 100%;
+  width: fit-content;
   align-items: center;
   padding: 10px 12px;
   border-radius: 999px;
@@ -96,7 +97,7 @@ const AccountElement = styled.div`
   align-items: center;
   border-radius: 999px;
   white-space: nowrap;
-  width: 100%;
+  width: fit-content;
   cursor: pointer;
   pointer-events: auto;
   height: 42px;
@@ -107,6 +108,8 @@ function Web3StatusInner() {
   const { error } = useWeb3React()
   const isDarkMode = useIsDarkMode()
   const { mixpanelHandler } = useMixpanel()
+  const uptoSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const uptoMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   const { ENSName } = useENSName(isEVM ? account ?? undefined : undefined)
 
@@ -125,10 +128,9 @@ function Web3StatusInner() {
   const toggleWalletModal = useWalletModalToggle()
   const toggleNetworkModal = useNetworkModalToggle()
   const { signedDifferentWallet } = useSignedWalletInfo()
-
   const userEthBalance = useNativeBalance()
   const labelContent = useMemo(() => {
-    if (!userEthBalance || isMobile) return
+    if (!userEthBalance || uptoSmall) return
     const balanceFixedStr = userEthBalance.lessThan(1000 * 10 ** NativeCurrencies[chainId].decimals) // less than 1000
       ? userEthBalance.lessThan(10 ** NativeCurrencies[chainId].decimals) // less than 1
         ? parseFloat(userEthBalance.toSignificant(6)).toFixed(6)
@@ -136,7 +138,7 @@ function Web3StatusInner() {
       : parseFloat(userEthBalance.toExact()).toFixed(2)
     const balanceFixed = Number(balanceFixedStr)
     return `${balanceFixed} ${NativeCurrencies[chainId].symbol}`
-  }, [userEthBalance, chainId])
+  }, [userEthBalance, chainId, uptoSmall])
 
   if (account) {
     return (
@@ -174,7 +176,7 @@ function Web3StatusInner() {
               )
             )}
             <Text>
-              {ENSName || shortenAddress(chainId, account, isMobile ? 2 : undefined)}
+              {ENSName || shortenAddress(chainId, account, uptoMedium ? 2 : undefined)}
               {labelContent && ` | ${labelContent}`}
             </Text>
           </>
