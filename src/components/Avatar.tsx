@@ -4,6 +4,7 @@ import Profile from 'components/Icons/Profile'
 
 const StyledAvatar = styled.img<{ $size: number }>`
   width: ${({ $size }) => $size}px;
+  min-width: ${({ $size }) => $size}px;
   height: ${({ $size }) => $size}px;
   border-radius: 100%;
 `
