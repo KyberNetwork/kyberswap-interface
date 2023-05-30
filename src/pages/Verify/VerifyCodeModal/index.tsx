@@ -47,6 +47,11 @@ const Input = styled.input<{ hasError: boolean }>`
   color: ${({ theme, hasError }) => (hasError ? theme.red : theme.subText)};
   border: 1px solid ${({ theme, hasError }) => (hasError ? theme.red : theme.border)};
   text-align: center;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    font-size: 28px;
+    width: 46px;
+    height: 60px;
+  `}
 `
 
 const formatTime = (secs: number) => {
@@ -192,7 +197,7 @@ export default function VerifyCodeModal({
               value={otp}
               onChange={onChange}
               numInputs={6}
-              renderInput={props => <Input {...props} hasError={error} placeholder="-" />}
+              renderInput={props => <Input {...props} hasError={error} placeholder="-" type="number" />}
             />
 
             <Label style={{ width: '100%', textAlign: 'center' }}>
