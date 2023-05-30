@@ -212,8 +212,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
         <Flex flexDirection="column" style={{ gap: '1.25rem' }}>
           <TradeTypeSelection isSaveGas={isSaveGas} setSaveGas={setSaveGas} />
 
-          {/* <TrendingSoonTokenBanner currencyIn={currencyIn} currencyOut={currencyOut} /> */}
-
           {!isWrapOrUnwrap && <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={isStablePairSwap} />}
 
           <PriceImpactNote priceImpact={routeSummary?.priceImpact} isDegenMode={isDegenMode} />

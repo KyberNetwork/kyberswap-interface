@@ -14,6 +14,7 @@ import { RowBetween } from 'components/Row'
 import { SEOSwap } from 'components/SEO'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import TokenWarningModal from 'components/TokenWarningModal'
+import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import TutorialSwap from 'components/Tutorial/TutorialSwap'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import GasPriceTrackerPanel from 'components/swapv2/GasPriceTrackerPanel'
@@ -343,6 +344,7 @@ export default function Swap() {
 
           {(isShowLiveChart || isShowTradeRoutes || shouldRenderTokenInfo || isLimitPage) && (
             <InfoComponentsWrapper>
+              <TrendingSoonTokenBanner currencyIn={currencyIn} currencyOut={currencyOut} />
               {isShowLiveChart && (
                 <LiveChartWrapper>
                   <Suspense
