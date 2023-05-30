@@ -3,6 +3,7 @@ import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { LogOut, UserPlus } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -20,6 +21,7 @@ import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
 import { ConnectedProfile, useAllProfileInfo, useSignedWalletInfo } from 'state/authen/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
 import { shortString } from 'utils/string'
 
@@ -109,6 +111,7 @@ const ProfileItem = ({
 }) => {
   const theme = useTheme()
   const navigate = useNavigate()
+  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
   const { signInEth, signInAnonymous, signOut } = useLogin()
   const { isSignedWallet, isGuest } = useSignedWalletInfo()
@@ -122,7 +125,7 @@ const ProfileItem = ({
 
   const signOutBtn = !guest ? (
     <LogOut
-      style={{ marginRight: active ? 0 : '10px' }}
+      style={{ marginRight: active || upToMedium ? 0 : '10px' }}
       color={active ? theme.text : theme.subText}
       size={16}
       onClick={e => {
