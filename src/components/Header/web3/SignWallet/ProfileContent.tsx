@@ -119,7 +119,7 @@ const ProfileItem = ({
   const onClick = () => {
     if (active) return
     if (guest) signInAnonymous()
-    else signInEth(account)
+    else signInEth(account, true)
     toggleModal()
   }
 

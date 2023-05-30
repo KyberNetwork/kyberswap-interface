@@ -142,7 +142,7 @@ const useLogin = (autoLogin = false) => {
 
   const showConfirm = useShowConfirm()
   const signInEth = useCallback(
-    (walletAddress?: string) => {
+    (walletAddress?: string, showSessionExpired = false) => {
       const isAddAccount = !walletAddress
       const isSelectAccount = !!walletAddress
 
@@ -184,7 +184,7 @@ const useLogin = (autoLogin = false) => {
         setLoginRedirectUrl()
       }
 
-      if (isSelectAccount && !connectedAccounts.includes(walletAddress?.toLowerCase())) {
+      if (showSessionExpired && isSelectAccount && !connectedAccounts.includes(walletAddress?.toLowerCase())) {
         showConfirm({
           isOpen: true,
           content: t`Your session has expired. Please sign-in to continue.`,
