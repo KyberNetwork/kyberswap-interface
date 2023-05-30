@@ -30,7 +30,7 @@ const ContentWrapper = styled.div`
   flex-direction: column;
   width: 100%;
   min-width: 320px;
-  padding: 14px 20px;
+  padding: 16px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
       padding: 14px;
       gap: 8px;
