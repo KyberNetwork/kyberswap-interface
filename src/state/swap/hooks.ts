@@ -15,7 +15,6 @@ import { useCurrencyV2 } from 'hooks/Tokens'
 import { useTradeExactIn } from 'hooks/Trades'
 import useENS from 'hooks/useENS'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { FeeConfig } from 'hooks/useSwapV2Callback'
 import { AppDispatch, AppState } from 'state/index'
 import {
   Field,
@@ -321,16 +320,6 @@ export function queryParametersToSwapState(
   }
 
   const recipient = validatedRecipient(parsedQs.recipient, chainId)
-  const feePercent = parseInt(parsedQs?.['fee_bip']?.toString() || '0')
-  const feeConfig: FeeConfig | undefined =
-    parsedQs.referral && isAddress(chainId, parsedQs.referral) && parsedQs['fee_bip'] && !isNaN(feePercent)
-      ? {
-          chargeFeeBy: 'currency_in',
-          feeReceiver: parsedQs.referral.toString(),
-          isInBps: true,
-          feeAmount: feePercent < 1 ? '1' : feePercent > 10 ? '10' : feePercent.toString(),
-        }
-      : undefined
   const typedValue = (parsedQs.amountIn ?? '') as string
   return {
     [Field.INPUT]: {
@@ -341,7 +330,6 @@ export function queryParametersToSwapState(
     },
     independentField: parseIndependentFieldURLParameter(parsedQs.exactField),
     recipient,
-    feeConfig,
     showConfirm: false,
     tradeToConfirm: undefined,
     attemptingTxn: false,
@@ -420,7 +408,6 @@ export const useDefaultsFromURLSearch = ():
         inputCurrencyId,
         outputCurrencyId,
         recipient: parsed.recipient,
-        feeConfig: parsed.feeConfig,
         typedValue: parsed.typedValue,
       }),
     )

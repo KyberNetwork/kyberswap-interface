@@ -1,6 +1,6 @@
 import { Currency, TradeType } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -11,7 +11,6 @@ import InfoHelper from 'components/InfoHelper'
 import { RowBetween, RowFixed } from 'components/Row'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
-import { FeeConfig } from 'hooks/useSwapV2Callback'
 import useTheme from 'hooks/useTheme'
 import { OutputBridgeInfo, useBridgeState } from 'state/bridge/hooks'
 import { Field } from 'state/swap/actions'
@@ -20,7 +19,6 @@ import { TYPE } from 'theme'
 import { formattedNum } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
-import { getFormattedFeeAmountUsd } from 'utils/fee'
 import { computeSlippageAdjustedAmounts } from 'utils/prices'
 
 const IconWrapper = styled.div<{ show: boolean }>`
@@ -38,10 +36,9 @@ const ContentWrapper = styled(AutoColumn)<{ show: boolean }>`
 interface TradeSummaryProps {
   trade: Aggregator
   allowedSlippage: number
-  feeConfig?: FeeConfig | undefined
 }
 
-function TradeSummary({ trade, feeConfig, allowedSlippage }: TradeSummaryProps) {
+function TradeSummary({ trade, allowedSlippage }: TradeSummaryProps) {
   const { isEVM } = useActiveWeb3React()
   const theme = useTheme()
   const [show, setShow] = useState(true)
@@ -51,8 +48,6 @@ function TradeSummary({ trade, feeConfig, allowedSlippage }: TradeSummaryProps) 
 
   const nativeInput = useCurrencyConvertedToNative(trade.inputAmount.currency as Currency)
   const nativeOutput = useCurrencyConvertedToNative(trade.outputAmount.currency as Currency)
-
-  const formattedFeeAmountUsd = useMemo(() => getFormattedFeeAmountUsd(trade, feeConfig), [trade, feeConfig])
 
   return (
     <>
@@ -148,19 +143,6 @@ function TradeSummary({ trade, feeConfig, allowedSlippage }: TradeSummaryProps) 
                 : '< 0.01%'}
             </TYPE.black>
           </RowBetween>
-          {feeConfig && (
-            <RowBetween>
-              <RowFixed>
-                <TYPE.black fontSize={12} fontWeight={400} color={theme.subText}>
-                  <Trans>Referral Fee</Trans>
-                </TYPE.black>
-                <InfoHelper size={14} text={t`Commission fee to be paid directly to your referrer`} />
-              </RowFixed>
-              <TYPE.black color={theme.text} fontSize={12}>
-                {formattedFeeAmountUsd}
-              </TYPE.black>
-            </RowBetween>
-          )}
         </ContentWrapper>
       </AutoColumn>
     </>
@@ -169,13 +151,12 @@ function TradeSummary({ trade, feeConfig, allowedSlippage }: TradeSummaryProps) 
 
 export interface AdvancedSwapDetailsProps {
   trade?: Aggregator
-  feeConfig?: FeeConfig | undefined
 }
 
-export function AdvancedSwapDetails({ trade, feeConfig }: AdvancedSwapDetailsProps) {
+export function AdvancedSwapDetails({ trade }: AdvancedSwapDetailsProps) {
   const [allowedSlippage] = useUserSlippageTolerance()
 
-  return trade ? <TradeSummary trade={trade} feeConfig={feeConfig} allowedSlippage={allowedSlippage} /> : null
+  return trade ? <TradeSummary trade={trade} allowedSlippage={allowedSlippage} /> : null
 }
 
 export function TradeSummaryBridge({ outputInfo }: { outputInfo: OutputBridgeInfo }) {
@@ -235,7 +216,7 @@ export function TradeSummaryBridge({ outputInfo }: { outputInfo: OutputBridgeInf
                         <Trans>{tokenInfoOut?.SwapFeeRatePerMillion}% Transaction Fee</Trans>
                       </Text>
                       {tokenInfoOut?.MinimumSwapFee === tokenInfoOut?.MaximumSwapFee ? (
-                        outputInfo.fee > 0 && (
+                        Number(outputInfo.fee) > 0 && (
                           <Text marginTop={'5px'}>
                             <Trans>
                               Gas Fee: {`${fee} ${tokenInfoOut.symbol} `}

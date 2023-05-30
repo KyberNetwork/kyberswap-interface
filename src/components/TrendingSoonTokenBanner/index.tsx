@@ -90,7 +90,13 @@ const TrendingSoonTokenBanner = ({
             </Column>
           </RowFit>
           <SkewKyberScoreWrapper>
-            <KyberScoreMeter value={33} noAnimation fontSize="18px" hiddenValue style={{ height: '32px' }} />
+            <KyberScoreMeter
+              value={token.kyberScore.score}
+              noAnimation
+              fontSize="18px"
+              hiddenValue
+              style={{ height: '32px' }}
+            />
             <RowFit fontSize="10px" gap="4px">
               <ApeIcon size={14} /> KyberScore
             </RowFit>
@@ -127,7 +133,13 @@ const TrendingSoonTokenBanner = ({
               </Column>
             </RowFit>
             <SkewKyberScoreWrapper style={{ width: '120x', height: '74px' }}>
-              <KyberScoreMeter value={33} noAnimation fontSize="14px" hiddenValue style={{ height: '36px' }} />
+              <KyberScoreMeter
+                value={token.kyberScore?.score}
+                noAnimation
+                fontSize="14px"
+                hiddenValue
+                style={{ height: '36px' }}
+              />
               <RowFit fontSize="10px" gap="4px">
                 <ApeIcon size={14} /> KyberScore
               </RowFit>
