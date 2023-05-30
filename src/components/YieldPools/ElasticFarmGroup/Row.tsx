@@ -4,7 +4,7 @@ import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { BigNumber } from 'ethers'
 import { useEffect, useState } from 'react'
-import { Minus, Plus, Share2 } from 'react-feather'
+import { Info, Minus, Plus, Share2 } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -40,7 +40,7 @@ import FarmCard from './FarmCard'
 import FeeTarget from './FeeTarget'
 import PositionDetail from './PostionDetail'
 import { ButtonColorScheme, MinimalActionButton } from './buttons'
-import { FeeTag, NFTListWrapper, RowWrapper } from './styleds'
+import { FeeTag, NFTListWrapper, Range, RowWrapper } from './styleds'
 
 export interface Pool extends FarmingPool {
   tvl: number
@@ -155,6 +155,14 @@ const Row = ({
 
   const canUnstake = !!joinedPositions.length
   const isFarmStarted = farmingPool.startTime <= currentTimestamp
+
+  const numberOutRangePos = depositedPositions.filter(
+    pos => pos.pool.tickCurrent < pos.tickLower || pos.pool.tickCurrent >= pos.tickUpper,
+  ).length
+
+  const numberInRangePos = depositedPositions.filter(
+    pos => pos.pool.tickCurrent >= pos.tickLower && pos.pool.tickCurrent < pos.tickUpper,
+  ).length
 
   const [, setFarmAddress] = useShareFarmAddress()
 
@@ -403,8 +411,38 @@ const Row = ({
               />
             </Flex>
           ) : (
-            <Flex justifyContent="flex-start" color={theme.text}>
+            <Flex justifyContent="space-between" color={theme.text} alignItems="center">
               {farmingPool.depositedUsd ? formatDollarAmount(farmingPool.depositedUsd) : '--'}
+
+              <Flex sx={{ gap: '4px' }}>
+                {!!numberOutRangePos && (
+                  <MouseoverTooltip
+                    text={
+                      <Text fontSize="12px" fontStyle="italic">
+                        <Trans>You have {numberOutRangePos} out-of-range position(s)</Trans>
+                      </Text>
+                    }
+                  >
+                    <Range>
+                      {numberOutRangePos} <Info size={12} />
+                    </Range>
+                  </MouseoverTooltip>
+                )}
+
+                {!!numberInRangePos && (
+                  <MouseoverTooltip
+                    text={
+                      <Text fontSize="12px" fontStyle="italic">
+                        <Trans>You have {numberInRangePos} in-range position(s)</Trans>
+                      </Text>
+                    }
+                  >
+                    <Range inrange>
+                      {numberInRangePos} <Info size={12} />
+                    </Range>
+                  </MouseoverTooltip>
+                )}
+              </Flex>
             </Flex>
           )}
 
