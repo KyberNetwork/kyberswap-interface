@@ -695,85 +695,84 @@ const ListItem = ({ farm }: ListItemProps) => {
                 ) : (
                   approvalState === ApprovalState.UNKNOWN && <Dots></Dots>
                 )}
-                {(approvalState === ApprovalState.NOT_APPROVED || approvalState === ApprovalState.PENDING) && (
-                  <ButtonPrimary
-                    color="blue"
-                    disabled={approvalState === ApprovalState.PENDING}
-                    onClick={approve}
-                    padding="12px"
-                  >
-                    {approvalState === ApprovalState.PENDING ? (
-                      <Dots>
-                        <Trans>Approving </Trans>
-                      </Dots>
-                    ) : (
-                      <Trans>Approve</Trans>
-                    )}
-                  </ButtonPrimary>
+                {modalType !== 'unstake' &&
+                  (approvalState === ApprovalState.NOT_APPROVED || approvalState === ApprovalState.PENDING) && (
+                    <ButtonPrimary
+                      color="blue"
+                      disabled={approvalState === ApprovalState.PENDING}
+                      onClick={approve}
+                      padding="12px"
+                    >
+                      {approvalState === ApprovalState.PENDING ? (
+                        <Dots>
+                          <Trans>Approving </Trans>
+                        </Dots>
+                      ) : (
+                        <Trans>Approve</Trans>
+                      )}
+                    </ButtonPrimary>
+                  )}
+                {approvalState === ApprovalState.APPROVED && chainId && modalType === 'stake' && (
+                  <CurrencyInputPanel
+                    value={depositValue}
+                    onUserInput={value => {
+                      setDepositValue(value)
+                    }}
+                    onMax={() => {
+                      setDepositValue(fixedFormatting(balance.value, balance.decimals))
+                    }}
+                    onHalf={() => {
+                      setDepositValue(fixedFormatting(balance.value.div(2), balance.decimals))
+                    }}
+                    currency={new Token(chainId, farm.id, balance.decimals, `${pairSymbol}`, `${pairSymbol}`)}
+                    id="stake-lp-input"
+                    disableCurrencySelect
+                    positionMax="top"
+                    hideLogo={true}
+                    fontSize="14px"
+                    customCurrencySelect={
+                      <ButtonPrimary
+                        disabled={isStakeInvalidAmount}
+                        padding="8px 12px"
+                        width="max-content"
+                        style={{ minWidth: '80px' }}
+                        onClick={() => handleStake(farm.pid)}
+                      >
+                        {depositValue && isStakeInvalidAmount ? 'Invalid Amount' : 'Stake'}
+                      </ButtonPrimary>
+                    }
+                  />
                 )}
-                {approvalState === ApprovalState.APPROVED && chainId && (
-                  <>
-                    {modalType === 'stake' ? (
-                      <CurrencyInputPanel
-                        value={depositValue}
-                        onUserInput={value => {
-                          setDepositValue(value)
-                        }}
-                        onMax={() => {
-                          setDepositValue(fixedFormatting(balance.value, balance.decimals))
-                        }}
-                        onHalf={() => {
-                          setDepositValue(fixedFormatting(balance.value.div(2), balance.decimals))
-                        }}
-                        currency={new Token(chainId, farm.id, balance.decimals, `${pairSymbol}`, `${pairSymbol}`)}
-                        id="stake-lp-input"
-                        disableCurrencySelect
-                        positionMax="top"
-                        hideLogo={true}
-                        fontSize="14px"
-                        customCurrencySelect={
-                          <ButtonPrimary
-                            disabled={isStakeInvalidAmount}
-                            padding="8px 12px"
-                            width="max-content"
-                            style={{ minWidth: '80px' }}
-                            onClick={() => handleStake(farm.pid)}
-                          >
-                            {depositValue && isStakeInvalidAmount ? 'Invalid Amount' : 'Stake'}
-                          </ButtonPrimary>
-                        }
-                      />
-                    ) : (
-                      <CurrencyInputPanel
-                        value={withdrawValue}
-                        onUserInput={setWithdrawValue}
-                        onMax={() => {
-                          setWithdrawValue(fixedFormatting(staked.value, staked.decimals))
-                        }}
-                        onHalf={() => {
-                          setWithdrawValue(fixedFormatting(staked.value.div(2), staked.decimals))
-                        }}
-                        currency={new Token(chainId, farm.id, balance.decimals, `${pairSymbol}`, `${pairSymbol}`)}
-                        id="unstake-lp-input"
-                        disableCurrencySelect
-                        customBalanceText={`${fixedFormatting(staked.value, staked.decimals)}`}
-                        positionMax="top"
-                        hideLogo={true}
-                        fontSize="14px"
-                        customCurrencySelect={
-                          <ButtonPrimary
-                            disabled={isUnstakeInvalidAmount}
-                            padding="8px 12px"
-                            width="max-content"
-                            style={{ minWidth: '80px' }}
-                            onClick={() => handleUnstake(farm.pid)}
-                          >
-                            {withdrawValue && isUnstakeInvalidAmount ? 'Invalid Amount' : 'Unstake'}
-                          </ButtonPrimary>
-                        }
-                      />
-                    )}
-                  </>
+
+                {modalType === 'unstake' && (
+                  <CurrencyInputPanel
+                    value={withdrawValue}
+                    onUserInput={setWithdrawValue}
+                    onMax={() => {
+                      setWithdrawValue(fixedFormatting(staked.value, staked.decimals))
+                    }}
+                    onHalf={() => {
+                      setWithdrawValue(fixedFormatting(staked.value.div(2), staked.decimals))
+                    }}
+                    currency={new Token(chainId, farm.id, balance.decimals, `${pairSymbol}`, `${pairSymbol}`)}
+                    id="unstake-lp-input"
+                    disableCurrencySelect
+                    customBalanceText={`${fixedFormatting(staked.value, staked.decimals)}`}
+                    positionMax="top"
+                    hideLogo={true}
+                    fontSize="14px"
+                    customCurrencySelect={
+                      <ButtonPrimary
+                        disabled={isUnstakeInvalidAmount}
+                        padding="8px 12px"
+                        width="max-content"
+                        style={{ minWidth: '80px' }}
+                        onClick={() => handleUnstake(farm.pid)}
+                      >
+                        {withdrawValue && isUnstakeInvalidAmount ? 'Invalid Amount' : 'Unstake'}
+                      </ButtonPrimary>
+                    }
+                  />
                 )}
               </Flex>
               <Flex justifyContent="space-between" sx={{ gap: '8px' }} alignItems="center" marginTop="20px">
