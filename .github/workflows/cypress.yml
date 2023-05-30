@@ -95,6 +95,9 @@ jobs:
           CURRENT_BRANCH: ${{ needs.prepare.outputs.current_branch }}
           NODE_OPTIONS: '--max_old_space_size=4096'
         run: yarn build-adpr
+      
+      - name: Install cypress
+        run: yarn cypress install --force  
         
       - name: Run xvfb and fluxbox
         run: Xvfb :0 -screen 0 1024x768x24 -listen tcp -ac &
