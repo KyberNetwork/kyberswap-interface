@@ -230,7 +230,7 @@ const MeterGauge = styled.path`
 
 const GaugeValue = styled.div<{ color?: string }>`
   position: absolute;
-  bottom: 5px;
+  bottom: 0px;
   transform: translate(-50%, 0);
   left: 50%;
   font-size: 40px;
@@ -249,15 +249,17 @@ function easeOutQuart(t: number, b: number, c: number, d: number) {
 }
 
 function KyberScoreMeter({
-  value,
+  value = 0,
   style,
   noAnimation,
   fontSize,
+  hiddenValue,
 }: {
   value?: number
   style?: CSSProperties
   noAnimation?: boolean
   fontSize?: string
+  hiddenValue?: boolean
 }) {
   const theme = useTheme()
   const currentValueRef = useRef(0)
@@ -265,7 +267,7 @@ function KyberScoreMeter({
   const valueRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!value) return
+    if (!value || noAnimation) return
     let startTime = 0
     let lastFrameTime = 0
     const fps = 60
@@ -305,19 +307,37 @@ function KyberScoreMeter({
   return (
     <Wrapper style={style}>
       <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 218 133" fill="none">
-        {gaugeList.map(g => (
-          <MeterGauge
-            key={g.value}
-            d={g.d}
-            fill={theme.darkMode ? theme.subText + '30' : theme.border + '60'}
-            ref={el => {
-              gaugeRefs.current[g.value.toString()] = el
-            }}
-          />
-        ))}
+        {noAnimation
+          ? gaugeList.map(g => (
+              <MeterGauge
+                key={g.value}
+                d={g.d}
+                fill={
+                  g.value < (value * gaugeList.length) / 100
+                    ? calculateValueToColor(value, theme)
+                    : theme.darkMode
+                    ? theme.subText + '30'
+                    : theme.border + '60'
+                }
+              />
+            ))
+          : gaugeList.map(g => (
+              <MeterGauge
+                key={g.value}
+                d={g.d}
+                fill={theme.darkMode ? theme.subText + '30' : theme.border + '60'}
+                ref={el => {
+                  gaugeRefs.current[g.value.toString()] = el
+                }}
+              />
+            ))}
       </svg>
-      <GaugeValue color={theme.text} style={fontSize ? { fontSize: fontSize } : undefined} ref={valueRef}>
-        --
+      <GaugeValue
+        color={noAnimation ? calculateValueToColor(value, theme) : theme.text}
+        style={fontSize ? { fontSize: fontSize } : undefined}
+        ref={valueRef}
+      >
+        {noAnimation ? (hiddenValue ? '??' : value) : '--'}
       </GaugeValue>
     </Wrapper>
   )

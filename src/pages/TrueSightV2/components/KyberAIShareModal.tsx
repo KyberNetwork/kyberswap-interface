@@ -197,11 +197,13 @@ export default function KyberAIShareModal({
   content,
   isOpen,
   onClose,
+  onShareClick,
 }: {
   title?: string
   content?: (mobileMode?: boolean) => ReactNode
   isOpen: boolean
   onClose?: () => void
+  onShareClick?: (network: string) => void
 }) {
   const theme = useTheme()
   const { chain, address } = useParams()
@@ -323,6 +325,7 @@ export default function KyberAIShareModal({
   const [, staticCopy] = useCopyClipboard()
   const handleCopyClick = () => {
     staticCopy(sharingUrl || '')
+    onShareClick?.('copy to clipboard')
   }
   const handleImageCopyClick = () => {
     if (blob) {
@@ -396,22 +399,22 @@ export default function KyberAIShareModal({
           <InputWrapper>
             <Input value={sharingUrl} autoFocus={false} disabled={!sharingUrl} />
           </InputWrapper>
-          <IconButton disabled={!sharingUrl}>
+          <IconButton disabled={!sharingUrl} onClick={() => onShareClick?.('telegram')}>
             <ExternalLink href={'https://telegram.me/share/url?url=' + encodeURIComponent(sharingUrl)}>
               <Icon id="telegram" size={20} />
             </ExternalLink>
           </IconButton>
-          <IconButton disabled={!sharingUrl}>
+          <IconButton disabled={!sharingUrl} onClick={() => onShareClick?.('twitter')}>
             <ExternalLink href={'https://twitter.com/intent/tweet?text=' + encodeURIComponent(sharingUrl)}>
               <Icon id="twitter" size={20} />
             </ExternalLink>
           </IconButton>
-          <IconButton disabled={!sharingUrl}>
+          <IconButton disabled={!sharingUrl} onClick={() => onShareClick?.('facebook')}>
             <ExternalLink href={'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(sharingUrl)}>
               <Icon id="facebook" size={20} />
             </ExternalLink>
           </IconButton>
-          <IconButton disabled={!sharingUrl}>
+          <IconButton disabled={!sharingUrl} onClick={() => onShareClick?.('discord')}>
             <ExternalLink href="https://discord.com/app/">
               <Icon id="discord" size={20} />
             </ExternalLink>

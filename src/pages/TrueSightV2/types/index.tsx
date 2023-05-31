@@ -201,12 +201,12 @@ export type ParticipantInfo = {
 export enum KyberAIListType {
   ALL = 'ALL',
   MYWATCHLIST = 'MY_WATCHLIST',
-  BULLISH = 'bullish',
-  BEARISH = 'bearish',
-  TRENDING = 'trending',
+  BULLISH = 'BULLISH',
+  BEARISH = 'BEARISH',
+  TRENDING = 'TRENDING',
   TOP_CEX_INFLOW = 'TOP_CEX_INFLOW',
   TOP_CEX_OUTFLOW = 'TOP_CEX_OUTFLOW',
   TOP_TRADED = 'TOP_TRADED',
-  TOP_SOCIAL = 'TOP_SOCIAL',
-  TRENDING_SOON = 'trendingsoon',
+  // TOP_SOCIAL = 'TOP_SOCIAL',
+  TRENDING_SOON = 'TRENDINGSOON',
 }

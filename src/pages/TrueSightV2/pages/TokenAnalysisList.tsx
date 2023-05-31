@@ -19,7 +19,9 @@ import Icon from 'components/Icons/Icon'
 import Pagination from 'components/Pagination'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 
@@ -33,7 +35,7 @@ import TokenChart from '../components/TokenChartSVG'
 import { StarWithAnimation } from '../components/WatchlistStar'
 import KyberScoreChart from '../components/chart/KyberScoreChart'
 import TokenAnalysisListShareContent from '../components/shareContent/TokenAnalysisListShareContent'
-import { SUPPORTED_NETWORK_KYBERAI } from '../constants'
+import { KYBERAI_LISTYPE_TO_MIXPANEL, SUPPORTED_NETWORK_KYBERAI } from '../constants'
 import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation, useTokenListQuery } from '../hooks/useKyberAIData'
 import { IKyberScoreChart, ITokenList, KyberAIListType } from '../types'
 import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice, navigateToSwapPage } from '../utils'
@@ -175,8 +177,7 @@ const Table = styled.table`
 `
 
 const ActionButton = styled.button<{ color: string }>`
-  padding: 8px 12px;
-  height: 32px;
+  padding: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -349,6 +350,7 @@ const tokenTypeList: {
 
 const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab: (type: KyberAIListType) => void }) => {
   const theme = useTheme()
+  const { mixpanelHandler } = useMixpanel()
   const [showScrollRightButton, setShowScrollRightButton] = useState(false)
   const [scrollLeftValue, setScrollLeftValue] = useState(0)
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -406,6 +408,11 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab:
         {tokenTypeList.map(({ type, title, icon, tooltip }, index) => {
           const props = {
             onClick: () => {
+              mixpanelHandler(MIXPANEL_TYPE.KYBERAI_RANKING_CATEGORY_CLICK, {
+                from_cate: KYBERAI_LISTYPE_TO_MIXPANEL[tab],
+                to_cate: KYBERAI_LISTYPE_TO_MIXPANEL[type],
+                source: KYBERAI_LISTYPE_TO_MIXPANEL[tab],
+              })
               setTab(type)
               if (!wrapperRef.current) return
               const tabRef = tabListRef.current[index]
@@ -468,14 +475,17 @@ const TokenRow = ({
   currentTab,
   index,
   isScrolling,
+  listType,
 }: {
   token: ITokenList
   currentTab: KyberAIListType
   index: number
   isScrolling?: boolean
+  listType: KyberAIListType
 }) => {
   const navigate = useNavigate()
   const location = useLocation()
+  const { mixpanelHandler } = useMixpanel()
   const { account } = useActiveWeb3React()
   const theme = useTheme()
   const [showMenu, setShowMenu] = useState(false)
@@ -515,6 +525,12 @@ const TokenRow = ({
     if (!account) return
     setLoadingStar(true)
     if (isWatched) {
+      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
+        token_name: token.symbol?.toUpperCase(),
+        source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
+        ranking_order: index,
+        option: 'remove',
+      })
       Promise.all(
         token.tokens.map(t => removeFromWatchlist({ wallet: account, tokenAddress: t.address, chain: t.chain })),
       ).then(() => {
@@ -522,6 +538,12 @@ const TokenRow = ({
         setLoadingStar(false)
       })
     } else {
+      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
+        token_name: token.symbol?.toUpperCase(),
+        source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
+        ranking_order: index,
+        option: 'add',
+      })
       Promise.all(
         token.tokens.map(t => addToWatchlist({ wallet: account, tokenAddress: t.address, chain: t.chain })),
       ).then(() => {
@@ -570,13 +592,15 @@ const TokenRow = ({
             <Text style={{ textTransform: 'uppercase' }}>{token.symbol}</Text>{' '}
             <RowFit gap="6px" color={theme.text}>
               {token.tokens.map(item => {
-                if (item.chain === 'ethereum') return <Icon id="eth-mono" size={12} title="Ethereum" />
-                if (item.chain === 'bsc') return <Icon id="bnb-mono" size={12} title="Binance" />
-                if (item.chain === 'avalanche') return <Icon id="ava-mono" size={12} title="Avalanche" />
-                if (item.chain === 'polygon') return <Icon id="matic-mono" size={12} title="Polygon" />
-                if (item.chain === 'arbitrum') return <Icon id="arbitrum-mono" size={12} title="Arbitrum" />
-                if (item.chain === 'fantom') return <Icon id="fantom-mono" size={12} title="Fantom" />
-                if (item.chain === 'optimism') return <Icon id="optimism-mono" size={12} title="Optimism" />
+                if (item.chain === 'ethereum') return <Icon key="eth-mono" id="eth-mono" size={12} title="Ethereum" />
+                if (item.chain === 'bsc') return <Icon key="bnb-mono" id="bnb-mono" size={12} title="Binance" />
+                if (item.chain === 'avalanche') return <Icon key="ava-mono" id="ava-mono" size={12} title="Avalanche" />
+                if (item.chain === 'polygon') return <Icon key="matic-mono" id="matic-mono" size={12} title="Polygon" />
+                if (item.chain === 'arbitrum')
+                  return <Icon key="arbitrum-mono" id="arbitrum-mono" size={12} title="Arbitrum" />
+                if (item.chain === 'fantom') return <Icon key="fantom-mono" id="fantom-mono" size={12} title="Fantom" />
+                if (item.chain === 'optimism')
+                  return <Icon key="optimism-mono" id="optimism-mono" size={12} title="Optimism" />
                 return <></>
               })}
             </RowFit>
@@ -640,25 +664,16 @@ const TokenRow = ({
       )}
       <td>
         <Row gap="6px" justify={'flex-end'}>
-          <ActionButton
-            color={theme.primary}
-            onClick={e => {
-              e.stopPropagation()
-              if (hasMutipleChain) {
-                setMenuLeft(undefined)
-                setShowSwapMenu(true)
-              } else {
-                navigateToSwapPage(token.tokens[0])
-              }
-            }}
-          >
-            <Icon id="swap" size={18} /> Swap {token.symbol?.toUpperCase()}
-          </ActionButton>
-          {/* <SimpleTooltip text={t`Explore`}>
+          <SimpleTooltip text={t`Explore`}>
             <ActionButton
-              color={theme.primary}
+              color={theme.subText}
               onClick={e => {
                 e.stopPropagation()
+                mixpanelHandler(MIXPANEL_TYPE.KYBERAI_RANKING_ACTION_CLICK, {
+                  token_name: token.symbol?.toUpperCase(),
+                  source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
+                  option: 'explore',
+                })
                 if (hasMutipleChain) {
                   setMenuLeft(undefined)
                   setShowMenu(true)
@@ -669,9 +684,30 @@ const TokenRow = ({
                 }
               }}
             >
-              <Icon id="truesight-v2" size={18} />
+              <Icon id="truesight-v2" size={16} />
             </ActionButton>
-          </SimpleTooltip> */}
+          </SimpleTooltip>
+          <SimpleTooltip text={t`Swap`}>
+            <ActionButton
+              color={theme.primary}
+              onClick={e => {
+                e.stopPropagation()
+                mixpanelHandler(MIXPANEL_TYPE.KYBERAI_RANKING_ACTION_CLICK, {
+                  token_name: token.symbol?.toUpperCase(),
+                  source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
+                  option: 'swap',
+                })
+                if (hasMutipleChain) {
+                  setMenuLeft(undefined)
+                  setShowSwapMenu(true)
+                } else {
+                  navigateToSwapPage(token.tokens[0])
+                }
+              }}
+            >
+              <Icon id="swap" size={16} />
+            </ActionButton>
+          </SimpleTooltip>
           {hasMutipleChain && (
             <>
               <MultipleChainDropdown
@@ -734,6 +770,7 @@ const LoadingRowSkeleton = ({ hasExtraCol }: { hasExtraCol?: boolean }) => {
 export default function TokenAnalysisList() {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
+  const { mixpanelHandler } = useMixpanel()
   const [page, setPage] = useState(1)
   const [showShare, setShowShare] = useState(false)
   const [isScrolling, setIsScrolling] = useState(false)
@@ -744,9 +781,6 @@ export default function TokenAnalysisList() {
   const [searchParams, setSearchParams] = useSearchParams()
   const listType = (searchParams.get('listType') as KyberAIListType) || KyberAIListType.BULLISH
   const chain = searchParams.get('chain') || 'all'
-  // const sortedColumn = searchParams.get('orderBy') || SORT_FIELD.VOLUME
-  // const sortOrder = searchParams.get('orderDirection') || SORT_DIRECTION.DESC
-  // const sortDirection = sortOrder === SORT_DIRECTION.DESC
   const pageSize = 25
 
   const { data, isLoading, isFetching, isError } = useTokenListQuery(
@@ -769,18 +803,6 @@ export default function TokenAnalysisList() {
   )
   const listData = data?.data || []
 
-  // const handleSort = (field: SORT_FIELD) => {
-  //   const direction =
-  //     sortedColumn !== field
-  //       ? SORT_DIRECTION.DESC
-  //       : sortOrder === SORT_DIRECTION.DESC
-  //       ? SORT_DIRECTION.ASC
-  //       : SORT_DIRECTION.DESC
-  //   searchParams.set('orderDirection', direction)
-  //   searchParams.set('orderBy', field)
-  //   setSearchParams(searchParams)
-  // }
-
   const handleTabChange = (tab: KyberAIListType) => {
     searchParams.set('listType', tab)
     setSearchParams(searchParams)
@@ -788,8 +810,16 @@ export default function TokenAnalysisList() {
   const handleChainChange = (chainId?: ChainId) => {
     if (!chainId) {
       searchParams.delete('chain')
+      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_RANKING_SWITCH_CHAIN_CLICK, {
+        source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
+        network: 'All',
+      })
     } else {
       searchParams.set('chain', chainId.toString())
+      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_RANKING_SWITCH_CHAIN_CLICK, {
+        source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
+        network: NETWORKS_INFO[chainId].name,
+      })
     }
     setSearchParams(searchParams)
   }
@@ -1029,6 +1059,7 @@ export default function TokenAnalysisList() {
                     currentTab={listType}
                     index={pageSize * (page - 1) + index + 1}
                     isScrolling={isScrolling}
+                    listType={listType}
                   />
                 ))
               )}
@@ -1054,6 +1085,14 @@ export default function TokenAnalysisList() {
         isOpen={showShare}
         onClose={() => setShowShare(false)}
         content={mobileMode => <TokenAnalysisListShareContent data={data?.data || []} mobileMode={mobileMode} />}
+        onShareClick={social =>
+          mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SHARE_TOKEN_CLICK, {
+            token_name: 'share_list_token',
+            network: chain,
+            source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
+            share_via: social,
+          })
+        }
       />
     </>
   )

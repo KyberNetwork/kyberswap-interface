@@ -19,6 +19,7 @@ import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
@@ -43,6 +44,7 @@ import { ExternalLink } from 'theme'
 import { getEtherscanLink, shortenAddress } from 'utils'
 
 import ChevronIcon from '../ChevronIcon'
+import { WidgetTab } from '../KyberAIWidget'
 import MultipleChainDropdown from '../MultipleChainDropdown'
 import SimpleTooltip from '../SimpleTooltip'
 import SmallKyberScoreMeter from '../SmallKyberScoreMeter'
@@ -575,10 +577,21 @@ const WidgetTableWrapper = styled(Table)`
   }
 `
 
-const WidgetTokenRow = ({ token, onClick }: { token: ITokenList; onClick?: () => void }) => {
+const WidgetTokenRow = ({
+  token,
+  onClick,
+  activeTab,
+  index,
+}: {
+  token: ITokenList
+  onClick?: () => void
+  activeTab: WidgetTab
+  index: number
+}) => {
   const theme = useTheme()
   const navigate = useNavigate()
   const { account } = useActiveWeb3React()
+  const { mixpanelHandler } = useMixpanel()
 
   const latestKyberScore: IKyberScoreChart | undefined = token?.ks_3d?.[token.ks_3d.length - 1]
   const hasMutipleChain = token?.tokens?.length > 1
@@ -635,6 +648,12 @@ const WidgetTokenRow = ({ token, onClick }: { token: ITokenList; onClick?: () =>
     if (!account) return
     setLoadingStar(true)
     if (isWatched) {
+      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
+        token_name: token.symbol?.toUpperCase(),
+        source: activeTab,
+        ranking_order: index,
+        option: 'remove',
+      })
       Promise.all(
         token.tokens.map(t => removeFromWatchlist({ wallet: account, tokenAddress: t.address, chain: t.chain })),
       ).then(() => {
@@ -642,6 +661,12 @@ const WidgetTokenRow = ({ token, onClick }: { token: ITokenList; onClick?: () =>
         setLoadingStar(false)
       })
     } else {
+      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
+        token_name: token.symbol?.toUpperCase(),
+        source: activeTab,
+        ranking_order: index,
+        option: 'add',
+      })
       Promise.all(
         token.tokens.map(t => addToWatchlist({ wallet: account, tokenAddress: t.address, chain: t.chain })),
       ).then(() => {
@@ -808,11 +833,13 @@ export const WidgetTable = ({
   isLoading,
   isError,
   onRowClick,
+  activeTab,
 }: {
   data?: ITokenList[]
   isLoading: boolean
   isError: boolean
   onRowClick?: () => void
+  activeTab: WidgetTab
 }) => {
   const theme = useTheme()
   return (
@@ -894,7 +921,7 @@ export const WidgetTable = ({
         ) : (
           <tbody>
             {data?.map((token, i) => {
-              return <WidgetTokenRow token={token} key={i} onClick={onRowClick} />
+              return <WidgetTokenRow token={token} key={i} onClick={onRowClick} activeTab={activeTab} index={i + 1} />
             })}
           </tbody>
         )}
@@ -907,11 +934,13 @@ export const WidgetMobileTable = ({
   isLoading,
   isError,
   onRowClick,
+  activeTab,
 }: {
   data?: ITokenList[]
   isLoading: boolean
   isError: boolean
   onRowClick?: () => void
+  activeTab: WidgetTab
 }) => {
   const theme = useTheme()
   return (
@@ -966,7 +995,7 @@ export const WidgetMobileTable = ({
         ) : (
           <tbody>
             {data?.map((token, i) => {
-              return <WidgetTokenRow token={token} key={i} onClick={onRowClick} />
+              return <WidgetTokenRow token={token} key={i} onClick={onRowClick} activeTab={activeTab} index={i + 1} />
             })}
           </tbody>
         )}

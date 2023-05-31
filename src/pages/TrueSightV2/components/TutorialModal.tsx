@@ -61,7 +61,7 @@ const StepWrapper = styled.div`
   flex-direction: column;
   gap: 20px;
   width: 100%;
-  height: 100%;
+  height: fit-content;
   &.fadeInScale {
     animation: ${fadeInScale} 0.3s ease;
   }
@@ -385,7 +385,15 @@ const TutorialModal = () => {
         )}
         {step > 0 && (
           <>
-            <Row style={{ position: 'relative', flex: 1, alignItems: 'stretch', backgroundColor: theme.tableHeader }}>
+            <Row
+              style={{
+                position: 'relative',
+                flex: 1,
+                alignItems: 'stretch',
+                backgroundColor: theme.tableHeader,
+                overflowY: 'scroll',
+              }}
+            >
               {animationState === AnimationState.Animating && (
                 <>
                   <StepContent

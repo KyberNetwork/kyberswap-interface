@@ -14,12 +14,13 @@ import Icon from 'components/Icons/Icon'
 import { DotsLoader } from 'components/Loader/DotsLoader'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 import { getEtherscanLink, shortenAddress } from 'utils'
 
 import { ShareButton } from '.'
-import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from '../constants'
+import { MIXPANEL_KYBERAI_TAG, NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from '../constants'
 import { ITokenOverview } from '../types'
 import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice } from '../utils'
 import ChevronIcon from './ChevronIcon'
@@ -145,6 +146,7 @@ const ExternalLink = ({ href, className, children }: { href: string; className?:
 export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLoading?: boolean }) => {
   const theme = useTheme()
   const { chain } = useParams()
+  const { mixpanelHandler } = useMixpanel()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const [expanded, setExpanded] = useState(false)
   const [showShare, setShowShare] = useState(false)
@@ -685,6 +687,14 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
         onClose={() => setShowShare(false)}
         content={mobileMode => <KyberScoreShareContent token={data} mobileMode={mobileMode} />}
         title="Kyberscore"
+        onShareClick={social =>
+          mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SHARE_TOKEN_CLICK, {
+            token_name: data?.symbol?.toUpperCase(),
+            network: chain,
+            source: MIXPANEL_KYBERAI_TAG.EXPLORE_SHARE_THIS_TOKEN,
+            share_via: social,
+          })
+        }
       />
     </>
   )

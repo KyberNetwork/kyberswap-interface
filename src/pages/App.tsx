@@ -74,10 +74,6 @@ const KyberDAOVote = lazy(() => import('./KyberDAO/Vote'))
 const AboutKyberSwap = lazy(() => import('./About/AboutKyberSwap'))
 const AboutKNC = lazy(() => import('./About/AboutKNC'))
 
-const CreateReferral = lazy(() => import('./CreateReferral'))
-
-// const TrueSight = lazy(() => import('./TrueSight'))
-
 const BuyCrypto = lazy(() => import('./BuyCrypto'))
 
 const Campaign = lazy(() => import('./Campaign'))
@@ -315,7 +311,6 @@ export default function App() {
                     <Route path={`${APP_PATHS.KYBERDAO_VOTE}`} element={<KyberDAOVote />} />
                     <Route path={`${APP_PATHS.ABOUT}/kyberswap`} element={<AboutKyberSwap />} />
                     <Route path={`${APP_PATHS.ABOUT}/knc`} element={<AboutKNC />} />
-                    <Route path={`${APP_PATHS.REFERRAL}`} element={<CreateReferral />} />
                     <Route
                       path={`${APP_PATHS.KYBERAI_ABOUT}`}
                       element={

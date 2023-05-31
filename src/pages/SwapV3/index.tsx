@@ -10,6 +10,7 @@ import styled, { DefaultTheme, keyframes } from 'styled-components'
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import Banner from 'components/Banner'
 import { ColumnCenter } from 'components/Column'
+import KyberAITokenBanner from 'components/KyberAITokenBanner'
 import { RowBetween } from 'components/Row'
 import { SEOSwap } from 'components/SEO'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
@@ -343,6 +344,7 @@ export default function Swap() {
 
           {(isShowLiveChart || isShowTradeRoutes || shouldRenderTokenInfo || isLimitPage) && (
             <InfoComponentsWrapper>
+              <KyberAITokenBanner currencyIn={currencyIn} currencyOut={currencyOut} />
               {isShowLiveChart && (
                 <LiveChartWrapper>
                   <Suspense

@@ -1,4 +1,4 @@
-import { homePage, tab, token } from './swap-page-selectors.cy'
+import { homePage, tab, token } from '../selectors/selectors.cy'
 
 const mainPage = 'swap/ethereum'
 const tokenSymbol = ['KNC', 'DAI', 'USDT', 'USDC']
@@ -23,7 +23,7 @@ describe('Token Catalog', () => {
   beforeEach(() => {
     cy.visit('/')
     cy.url().should('include', mainPage)
-    cy.clickButton(homePage.welcome)
+    cy.clickButton(homePage.skipTutorial)
   })
   describe('Select token in favorite tokens list', () => {
     it('Should be selected tokenIn in favorite tokens list successfully', () => {

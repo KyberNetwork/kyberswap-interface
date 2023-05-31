@@ -2,7 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { X } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useLocalStorage, useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css, keyframes } from 'styled-components'
@@ -13,11 +13,12 @@ import Icon from 'components/Icons/Icon'
 import Row, { RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 
-import { NETWORK_IMAGE_URL } from '../constants'
+import { KYBERAI_LISTYPE_TO_MIXPANEL, NETWORK_IMAGE_URL } from '../constants'
 import { useSearchTokenQuery, useTokenListQuery } from '../hooks/useKyberAIData'
 import { ITokenList, ITokenSearchResult, KyberAIListType } from '../types'
 import { formatTokenPrice } from '../utils'
@@ -302,6 +303,10 @@ const SearchResultTableWrapper = ({ header, children }: { header?: ReactNode; ch
 
 const SearchWithDropdown = () => {
   const theme = useTheme()
+  const { mixpanelHandler } = useMixpanel()
+  const [searchParams] = useSearchParams()
+  const { pathname } = useLocation()
+
   const [expanded, setExpanded] = useState(false)
   const [search, setSearch] = useState('')
   const [height, setHeight] = useState(0)
@@ -321,6 +326,8 @@ const SearchWithDropdown = () => {
       setHistory([token, ...(history || [])].slice(0, 3))
     }
   }
+
+  const listType = (searchParams.get('listType') as KyberAIListType) || KyberAIListType.BULLISH
 
   const { data: top5bullish, isLoading: isBullishLoading } = useTokenListQuery({
     type: KyberAIListType.BULLISH,
@@ -389,6 +396,13 @@ const SearchWithDropdown = () => {
                 onClick={() => {
                   setExpanded(false)
                   saveToHistory(item)
+                  mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SEARCH_TOKEN_SUCCESS, {
+                    token_name: item.symbol?.toUpperCase(),
+                    source: pathname.includes(APP_PATHS.KYBERAI_EXPLORE)
+                      ? 'explore'
+                      : KYBERAI_LISTYPE_TO_MIXPANEL[listType],
+                    search_term: search,
+                  })
                 }}
               />
             ))}
@@ -444,6 +458,13 @@ const SearchWithDropdown = () => {
                   onClick={() => {
                     setExpanded(false)
                     saveToHistory(formatTokenType(item))
+                    mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SEARCH_TOKEN_SUCCESS, {
+                      token_name: item.symbol?.toUpperCase(),
+                      source: pathname.includes(APP_PATHS.KYBERAI_EXPLORE)
+                        ? 'explore'
+                        : KYBERAI_LISTYPE_TO_MIXPANEL[listType],
+                      token_type: 'bullish',
+                    })
                   }}
                 />
               ))
@@ -467,6 +488,13 @@ const SearchWithDropdown = () => {
                   onClick={() => {
                     setExpanded(false)
                     saveToHistory(formatTokenType(item))
+                    mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SEARCH_TOKEN_SUCCESS, {
+                      token_name: item.symbol?.toUpperCase(),
+                      source: pathname.includes(APP_PATHS.KYBERAI_EXPLORE)
+                        ? 'explore'
+                        : KYBERAI_LISTYPE_TO_MIXPANEL[listType],
+                      token_type: 'bearish',
+                    })
                   }}
                 />
               ))

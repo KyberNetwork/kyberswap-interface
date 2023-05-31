@@ -94,6 +94,7 @@ const MultipleChainDropdown = React.forwardRef(
                 if (item.chain === 'ethereum')
                   return (
                     <MobileChainIcon
+                      key={item.address}
                       id="eth-mono"
                       name="Ethereum"
                       onClick={() => onChainClick('ethereum', item.address)}
@@ -101,11 +102,17 @@ const MultipleChainDropdown = React.forwardRef(
                   )
                 if (item.chain === 'bsc')
                   return (
-                    <MobileChainIcon id="bnb-mono" name="Binance" onClick={() => onChainClick('bsc', item.address)} />
+                    <MobileChainIcon
+                      key={item.address}
+                      id="bnb-mono"
+                      name="Binance"
+                      onClick={() => onChainClick('bsc', item.address)}
+                    />
                   )
                 if (item.chain === 'avalanche')
                   return (
                     <MobileChainIcon
+                      key={item.address}
                       id="ava-mono"
                       name="Avalanche"
                       onClick={() => onChainClick('avalanche', item.address)}
@@ -114,6 +121,7 @@ const MultipleChainDropdown = React.forwardRef(
                 if (item.chain === 'polygon')
                   return (
                     <MobileChainIcon
+                      key={item.address}
                       id="matic-mono"
                       name="Polygon"
                       onClick={() => onChainClick('polygon', item.address)}
@@ -122,6 +130,7 @@ const MultipleChainDropdown = React.forwardRef(
                 if (item.chain === 'arbitrum')
                   return (
                     <MobileChainIcon
+                      key={item.address}
                       id="arbitrum-mono"
                       name="Arbitrum"
                       onClick={() => onChainClick('arbitrum', item.address)}
@@ -130,6 +139,7 @@ const MultipleChainDropdown = React.forwardRef(
                 if (item.chain === 'fantom')
                   return (
                     <MobileChainIcon
+                      key={item.address}
                       id="fantom-mono"
                       name="Fantom"
                       onClick={() => onChainClick('fantom', item.address)}
@@ -138,6 +148,7 @@ const MultipleChainDropdown = React.forwardRef(
                 if (item.chain === 'optimism')
                   return (
                     <MobileChainIcon
+                      key={item.address}
                       id="optimism-mono"
                       name="Optimism"
                       onClick={() => onChainClick('optimism', item.address)}
@@ -160,22 +171,67 @@ const MultipleChainDropdown = React.forwardRef(
       >
         {tokens?.map((item: { address: string; logo: string; chain: string }) => {
           if (item.chain === 'ethereum')
-            return <ChainIcon id="eth-mono" name="Ethereum" onClick={() => onChainClick('ethereum', item.address)} />
+            return (
+              <ChainIcon
+                key={item.address}
+                id="eth-mono"
+                name="Ethereum"
+                onClick={() => onChainClick('ethereum', item.address)}
+              />
+            )
           if (item.chain === 'bsc')
-            return <ChainIcon id="bnb-mono" name="Binance" onClick={() => onChainClick('bsc', item.address)} />
+            return (
+              <ChainIcon
+                key={item.address}
+                id="bnb-mono"
+                name="Binance"
+                onClick={() => onChainClick('bsc', item.address)}
+              />
+            )
           if (item.chain === 'avalanche')
-            return <ChainIcon id="ava-mono" name="Avalanche" onClick={() => onChainClick('avalanche', item.address)} />
+            return (
+              <ChainIcon
+                key={item.address}
+                id="ava-mono"
+                name="Avalanche"
+                onClick={() => onChainClick('avalanche', item.address)}
+              />
+            )
           if (item.chain === 'polygon')
-            return <ChainIcon id="matic-mono" name="Polygon" onClick={() => onChainClick('polygon', item.address)} />
+            return (
+              <ChainIcon
+                key={item.address}
+                id="matic-mono"
+                name="Polygon"
+                onClick={() => onChainClick('polygon', item.address)}
+              />
+            )
           if (item.chain === 'arbitrum')
             return (
-              <ChainIcon id="arbitrum-mono" name="Arbitrum" onClick={() => onChainClick('arbitrum', item.address)} />
+              <ChainIcon
+                key={item.address}
+                id="arbitrum-mono"
+                name="Arbitrum"
+                onClick={() => onChainClick('arbitrum', item.address)}
+              />
             )
           if (item.chain === 'fantom')
-            return <ChainIcon id="fantom-mono" name="Fantom" onClick={() => onChainClick('fantom', item.address)} />
+            return (
+              <ChainIcon
+                key={item.address}
+                id="fantom-mono"
+                name="Fantom"
+                onClick={() => onChainClick('fantom', item.address)}
+              />
+            )
           if (item.chain === 'optimism')
             return (
-              <ChainIcon id="optimism-mono" name="Optimism" onClick={() => onChainClick('optimism', item.address)} />
+              <ChainIcon
+                key={item.address}
+                id="optimism-mono"
+                name="Optimism"
+                onClick={() => onChainClick('optimism', item.address)}
+              />
             )
           return <></>
         })}

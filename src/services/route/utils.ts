@@ -4,7 +4,7 @@ import { parseUnits } from 'ethers/lib/utils'
 
 import { getRouteTokenAddressParam } from 'components/SwapForm/hooks/useGetRoute'
 import { BIPS_BASE, RESERVE_USD_DECIMALS } from 'constants/index'
-import { DetailedRouteSummary } from 'types/route'
+import { ChargeFeeBy, DetailedRouteSummary } from 'types/route'
 import { formattedNum } from 'utils'
 import { toCurrencyAmount } from 'utils/currencyAmount'
 
@@ -19,7 +19,8 @@ const calculateFee = (
     return undefined
   }
 
-  const currencyAmountToTakeFee = routeSummary.extraFee.chargeFeeBy === 'currency_in' ? parsedAmountIn : parsedAmountOut
+  const currencyAmountToTakeFee =
+    routeSummary.extraFee.chargeFeeBy === ChargeFeeBy.CURRENCY_IN ? parsedAmountIn : parsedAmountOut
   const feeAmountFraction = new Fraction(
     parseUnits(routeSummary.extraFee.feeAmount, RESERVE_USD_DECIMALS).toString(),
     JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS)),
