@@ -1214,7 +1214,7 @@ export const TokenListInShareModalTable = ({
                 <RowFit gap="6px" align="center">
                   <img
                     alt="tokenInList"
-                    src={token.tokens[0].logo}
+                    src={`https://proxy.kyberswap.com/token-logo?url=${token.tokens[0].logo}`}
                     width="18px"
                     height="18px"
                     loading="lazy"

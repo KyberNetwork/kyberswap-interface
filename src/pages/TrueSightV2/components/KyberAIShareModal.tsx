@@ -115,11 +115,9 @@ const ImageWrapper = styled.div<{ isMobileMode?: boolean }>`
         `}
 `
 const ImageInner = styled.div`
-  width: 1050px;
-  height: 612px;
-  zoom: 0.8;
-  aspect-ratio: 1050/612;
-  overflow: visible;
+  width: 1300px;
+  height: 765px;
+  aspect-ratio: 1300/765;
   background-color: ${({ theme }) => theme.background};
   display: flex;
   flex-direction: column;
@@ -138,10 +136,9 @@ const ImageInner = styled.div`
 `
 
 const ImageInnerMobile = styled.div`
-  width: 420px;
-  height: 840px;
+  width: 600px;
+  height: 1200px;
   aspect-ratio: 1/2;
-  zoom: 0.7;
   background-color: ${({ theme }) => theme.background};
   display: flex;
   flex-direction: column;
