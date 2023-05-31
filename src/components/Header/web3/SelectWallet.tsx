@@ -13,7 +13,6 @@ import Loader from 'components/Loader'
 import { RowBetween } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { NativeCurrencies } from 'constants/tokens'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENSName from 'hooks/useENSName'
@@ -23,7 +22,6 @@ import { useSignedWalletInfo } from 'state/authen/hooks'
 import { isTransactionRecent, newTransactionsFirst, useAllTransactions } from 'state/transactions/hooks'
 import { TransactionDetails } from 'state/transactions/type'
 import { useIsDarkMode } from 'state/user/hooks'
-import { useNativeBalance } from 'state/wallet/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 
@@ -108,7 +106,6 @@ function Web3StatusInner() {
   const { error } = useWeb3React()
   const isDarkMode = useIsDarkMode()
   const { mixpanelHandler } = useMixpanel()
-  const uptoSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const uptoMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   const { ENSName } = useENSName(isEVM ? account ?? undefined : undefined)
@@ -128,17 +125,6 @@ function Web3StatusInner() {
   const toggleWalletModal = useWalletModalToggle()
   const toggleNetworkModal = useNetworkModalToggle()
   const { signedDifferentWallet } = useSignedWalletInfo()
-  const userEthBalance = useNativeBalance()
-  const labelContent = useMemo(() => {
-    if (!userEthBalance || uptoSmall) return
-    const balanceFixedStr = userEthBalance.lessThan(1000 * 10 ** NativeCurrencies[chainId].decimals) // less than 1000
-      ? userEthBalance.lessThan(10 ** NativeCurrencies[chainId].decimals) // less than 1
-        ? parseFloat(userEthBalance.toSignificant(6)).toFixed(6)
-        : parseFloat(userEthBalance.toExact()).toFixed(4)
-      : parseFloat(userEthBalance.toExact()).toFixed(2)
-    const balanceFixed = Number(balanceFixedStr)
-    return `${balanceFixed} ${NativeCurrencies[chainId].symbol}`
-  }, [userEthBalance, chainId, uptoSmall])
 
   if (account) {
     return (
@@ -176,10 +162,7 @@ function Web3StatusInner() {
                 </IconWrapper>
               )
             )}
-            <Text>
-              {ENSName || shortenAddress(chainId, account, uptoMedium ? 2 : undefined)}
-              {labelContent && ` | ${labelContent}`}
-            </Text>
+            <Text>{ENSName || shortenAddress(chainId, account, uptoMedium ? 2 : undefined)}</Text>
           </>
         )}
       </Web3StatusConnected>

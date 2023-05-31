@@ -51,10 +51,9 @@ const useLogin = (autoLogin = false) => {
   const getProfile = useCallback(
     async (walletAddress: string | undefined, isAnonymous = false) => {
       try {
-        let profile = await createProfile().unwrap()
+        const profile = await createProfile().unwrap()
         if (walletAddress) {
           await connectWalletToProfile({ walletAddress })
-          profile = await createProfile().unwrap()
         }
         setProfile({ profile, isAnonymous, walletAddress })
       } catch (error) {

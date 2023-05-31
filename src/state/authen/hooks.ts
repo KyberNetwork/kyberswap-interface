@@ -17,11 +17,11 @@ import { AuthenState, UserProfile } from 'state/authen/reducer'
 import { useAppDispatch } from 'state/hooks'
 
 export const ProfileLocalStorageKeys = {
-  PROFILE: 'profile',
-  /** sub */
+  PROFILE_INFO: 'profileInfo',
+  /** sub item*/
   CONNECTED_WALLET: 'wallet',
   CONNECTING_WALLET: 'connecting_wallet',
-  PROFILE_INFO: 'profileInfo',
+  PROFILE: 'profile',
 }
 
 export const getProfileLocalStorage = (key: string) => {
