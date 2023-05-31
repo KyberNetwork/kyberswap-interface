@@ -791,12 +791,6 @@ export default function Swap() {
                       )}
 
                       <SlippageSettingGroup isWrapOrUnwrap={showWrap} isStablePairSwap={isStableCoinSwap} />
-
-                      {/* <TrendingSoonTokenBanner
-                        currencyIn={currencyIn}
-                        currencyOut={currencyOut}
-                        style={{ marginTop: '24px' }}
-                      /> */}
                     </Flex>
 
                     <TradeTypeSelection />

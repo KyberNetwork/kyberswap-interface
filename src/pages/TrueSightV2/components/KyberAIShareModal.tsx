@@ -286,9 +286,10 @@ export default function KyberAIShareModal({
   }, [tokenOverview?.logo])
 
   useEffect(() => {
+    let timeout: NodeJS.Timeout
     const createShareFunction = async () => {
       if (!isOpen) {
-        setTimeout(() => {
+        timeout = setTimeout(() => {
           setLoading(true)
           setIsError(false)
           setIsMobileMode(isMobile)
@@ -309,13 +310,16 @@ export default function KyberAIShareModal({
           } else {
             setDesktopData({ shareUrl })
           }
-          setTimeout(() => {
+          timeout = setTimeout(() => {
             isMobileMode ? handleGenerateImageMobile(shareUrl) : handleGenerateImageDesktop(shareUrl)
           }, 1000)
         }
       }
     }
     createShareFunction()
+    return () => {
+      timeout && clearTimeout(timeout)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, isMobileMode])
 

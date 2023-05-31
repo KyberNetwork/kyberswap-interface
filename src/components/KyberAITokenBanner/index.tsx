@@ -128,7 +128,7 @@ const KyberAITokenBanner = ({
           <div style={{ width: '100px' }}></div>
         </Container>
       ) : (
-        <MobileContainer>
+        <MobileContainer color={color}>
           <RowBetween>
             <RowFit gap="8px">
               <img src={token?.logo} width="32" height="32" style={{ borderRadius: '50%' }} />

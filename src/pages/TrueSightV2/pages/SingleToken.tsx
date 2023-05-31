@@ -12,7 +12,6 @@ import { ButtonPrimary } from 'components/Button'
 import Icon from 'components/Icons/Icon'
 import { DotsLoader } from 'components/Loader/DotsLoader'
 import Row, { RowBetween, RowFit } from 'components/Row'
-import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -385,7 +384,7 @@ const SettingButtons = ({ token, onShareClick }: { token?: ITokenOverview; onSha
   const { chain } = useParams()
   return (
     <>
-      <MouseoverTooltip text={t`Set a price alert`} placement="top" width="fit-content">
+      <SimpleTooltip text={t`Set a price alert`} hideOnMobile>
         <HeaderButton
           onClick={() =>
             navigate(
@@ -401,8 +400,8 @@ const SettingButtons = ({ token, onShareClick }: { token?: ITokenOverview; onSha
         >
           <Icon id="alarm" size={18} />
         </HeaderButton>
-      </MouseoverTooltip>
-      <MouseoverTooltip text={t`Share this token`} placement="top" width="fit-content">
+      </SimpleTooltip>
+      <SimpleTooltip text={t`Share this token`} hideOnMobile>
         <HeaderButton
           style={{
             color: theme.subText,
@@ -411,7 +410,7 @@ const SettingButtons = ({ token, onShareClick }: { token?: ITokenOverview; onSha
         >
           <Icon id="share" size={16} />
         </HeaderButton>
-      </MouseoverTooltip>
+      </SimpleTooltip>
     </>
   )
 }

@@ -145,7 +145,7 @@ const LoadingHandleWrapper = ({
     <TableWrapper>
       <Table>
         {!hasData ? (
-          <>
+          <tr>
             <StyledLoadingWrapper style={height ? { height } : undefined}>
               {isLoading ? (
                 <AnimatedLoader />
@@ -155,7 +155,7 @@ const LoadingHandleWrapper = ({
                 </Text>
               )}
             </StyledLoadingWrapper>
-          </>
+          </tr>
         ) : (
           <>{children}</>
         )}

@@ -974,11 +974,11 @@ export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; no
             0,
           ),
           tokenInflow: filteredItems?.reduce(
-            (s: number, i: INetflowToWhaleWallets) => (i.whaleType === 'token' ? s + i.inflow : s),
+            (s: number, i: INetflowToWhaleWallets) => (i.whaleType === 'token_whale' ? s + i.inflow : s),
             0,
           ),
           tokenOutflow: filteredItems?.reduce(
-            (s: number, i: INetflowToWhaleWallets) => (i.whaleType === 'token' ? s + i.outflow : s),
+            (s: number, i: INetflowToWhaleWallets) => (i.whaleType === 'token_whale' ? s + i.outflow : s),
             0,
           ),
         })
