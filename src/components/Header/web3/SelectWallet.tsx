@@ -16,7 +16,9 @@ import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENSName from 'hooks/useENSName'
+import useLogin from 'hooks/useLogin'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useTheme from 'hooks/useTheme'
 import { useNetworkModalToggle, useWalletModalToggle } from 'state/application/hooks'
 import { useSignedWalletInfo } from 'state/authen/hooks'
 import { isTransactionRecent, newTransactionsFirst, useAllTransactions } from 'state/transactions/hooks'
@@ -107,8 +109,9 @@ function Web3StatusInner() {
   const isDarkMode = useIsDarkMode()
   const { mixpanelHandler } = useMixpanel()
   const uptoMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
-
+  const { signIn } = useLogin()
   const { ENSName } = useENSName(isEVM ? account ?? undefined : undefined)
+  const theme = useTheme()
 
   const allTransactions = useAllTransactions()
 
@@ -148,7 +151,23 @@ function Web3StatusInner() {
           <>
             {signedDifferentWallet ? (
               <MouseoverTooltip
-                text={t`You are not signed in with this wallet address. Sign-In to link your wallet to a profile. This will allow us to offer you a better experience`}
+                placement="bottom"
+                text={
+                  <Text style={{ fontSize: '12px', textAlign: 'left', whiteSpace: 'normal' }}>
+                    <Trans>You are not signed in with this wallet address. </Trans>
+                    <Text
+                      as="span"
+                      style={{ cursor: 'pointer', fontSize: '12px', color: theme.primary }}
+                      onClick={e => {
+                        e.stopPropagation()
+                        signIn()
+                      }}
+                    >
+                      Sign-In
+                    </Text>
+                    <Trans>to link your wallet to a profile. This will allow us to offer you a better experience</Trans>
+                  </Text>
+                }
               >
                 <WarningInfo width={20} height={20} />
               </MouseoverTooltip>
