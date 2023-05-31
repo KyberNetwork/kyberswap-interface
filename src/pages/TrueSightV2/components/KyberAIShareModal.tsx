@@ -115,9 +115,9 @@ const ImageWrapper = styled.div<{ isMobileMode?: boolean }>`
         `}
 `
 const ImageInner = styled.div`
-  width: 1300px;
-  height: 765px;
-  aspect-ratio: 1300/765;
+  width: 1050px;
+  height: 612px;
+  aspect-ratio: 1050/612;
   background-color: ${({ theme }) => theme.background};
   display: flex;
   flex-direction: column;
@@ -136,8 +136,8 @@ const ImageInner = styled.div`
 `
 
 const ImageInnerMobile = styled.div`
-  width: 600px;
-  height: 1200px;
+  width: 500px;
+  height: 1000px;
   aspect-ratio: 1/2;
   background-color: ${({ theme }) => theme.background};
   display: flex;
