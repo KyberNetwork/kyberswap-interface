@@ -2,13 +2,14 @@ import KyberOauth2, { LoginMethod } from '@kybernetwork/oauth2'
 import { t } from '@lingui/macro'
 import { captureException } from '@sentry/react'
 import { useCallback, useEffect, useRef } from 'react'
+import { ANNOUNCEMENT_TAGS } from 'services/announcement'
 import { useConnectWalletToProfileMutation, useGetOrCreateProfileMutation } from 'services/identity'
 
 import { useInvalidateTagAnnouncement } from 'components/Announcement/helper'
 import { NotificationType } from 'components/Announcement/type'
 import { useShowConfirm } from 'components/ConfirmModal'
 import { ENV_KEY, OAUTH_CLIENT_ID } from 'constants/env'
-import { APP_PATHS, RTK_QUERY_TAGS } from 'constants/index'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import {
@@ -54,7 +55,7 @@ const useLogin = (autoLogin = false) => {
     async (walletAddress: string | undefined, isAnonymous = false) => {
       try {
         const profile = await createProfile().unwrap()
-        invalidateTag([RTK_QUERY_TAGS.GET_PRIVATE_ANN_BY_ID, RTK_QUERY_TAGS.GET_ALL_PRIVATE_ANN]) // todo
+        invalidateTag(ANNOUNCEMENT_TAGS) // todo find the best way
         if (walletAddress) {
           await connectWalletToProfile({ walletAddress })
         }

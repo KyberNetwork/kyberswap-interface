@@ -39,15 +39,17 @@ type ParamsPrivate = {
 
 const excludedTemplateIds = getAnnouncementsTemplateIds('EXCLUDE')
 
+export const ANNOUNCEMENT_TAGS = [
+  RTK_QUERY_TAGS.GET_PRIVATE_ANN_BY_ID,
+  RTK_QUERY_TAGS.GET_ALL_PRIVATE_ANN,
+  RTK_QUERY_TAGS.GET_TOTAL_UNREAD_PRIVATE_ANN,
+  RTK_QUERY_TAGS.GET_ALERTS_HISTORY,
+]
+
 const AnnouncementApi = createApi({
   reducerPath: 'announcementApi',
   baseQuery: baseQueryOauth({ baseUrl: BFF_API }),
-  tagTypes: [
-    RTK_QUERY_TAGS.GET_PRIVATE_ANN_BY_ID,
-    RTK_QUERY_TAGS.GET_ALL_PRIVATE_ANN,
-    RTK_QUERY_TAGS.GET_TOTAL_UNREAD_PRIVATE_ANN,
-    RTK_QUERY_TAGS.GET_ALERTS_HISTORY,
-  ],
+  tagTypes: ANNOUNCEMENT_TAGS,
   endpoints: builder => ({
     getPrivateAnnouncements: builder.query<AnnouncementResponse<PrivateAnnouncement>, ParamsPrivate>({
       query: ({ account, ...params }) => ({
