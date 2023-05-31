@@ -73,10 +73,10 @@ const ButtonWrapper = styled.div`
   }
 `
 export const FullscreenButton = React.memo(function FCButton({
-  element,
+  elementRef,
   onClick,
 }: {
-  element?: HTMLDivElement | null
+  elementRef: React.RefObject<HTMLDivElement>
   onClick?: () => void
 }) {
   const toggleFullscreen = () => {
@@ -84,7 +84,7 @@ export const FullscreenButton = React.memo(function FCButton({
     if (document.fullscreenElement) {
       document.exitFullscreen()
     } else {
-      element?.requestFullscreen()
+      elementRef?.current?.requestFullscreen()
     }
   }
 
@@ -146,6 +146,8 @@ export const SectionWrapper = ({
   const [showShare, setShowShare] = useState(false)
 
   const [isTextExceeded, setIsTexExceeded] = useState(false)
+  const [fullscreenMode, setFullscreenMode] = useState(false)
+
   const descriptionRef = useRef<HTMLDivElement>(null)
 
   useLayoutEffect(() => {
@@ -158,7 +160,6 @@ export const SectionWrapper = ({
   }, [description])
 
   const docsLink = activeTab === ChartTab.Second && !!docsLinks[1] ? docsLinks[1] : docsLinks[0]
-
   return (
     <StyledSectionWrapper show={show} ref={ref} id={id} style={style} className="section-wrapper">
       {above768 ? (
@@ -205,7 +206,7 @@ export const SectionWrapper = ({
                     {subTitle}
                   </Text>
                 )}
-                {shareButton && (
+                {shareButton && !fullscreenMode && (
                   <ShareButton
                     onClick={() => {
                       onShareClick?.()
@@ -220,14 +221,15 @@ export const SectionWrapper = ({
                 )}
                 {fullscreenButton && (
                   <FullscreenButton
-                    element={ref.current}
-                    onClick={() =>
+                    elementRef={ref}
+                    onClick={() => {
+                      setFullscreenMode(prev => !prev)
                       mixpanelHandler(MIXPANEL_TYPE.KYBERAI_EXPLORING_FULL_SCREEN_CLICK, {
                         token_name: token?.symbol?.toUpperCase(),
                         network: chain,
                         chart_name: id,
                       })
-                    }
+                    }}
                   />
                 )}
               </RowFit>
@@ -336,8 +338,9 @@ export const SectionWrapper = ({
                 )}
                 {fullscreenButton && (
                   <FullscreenButton
-                    element={ref.current}
+                    elementRef={ref}
                     onClick={() => {
+                      setFullscreenMode(prev => !prev)
                       mixpanelHandler(MIXPANEL_TYPE.KYBERAI_EXPLORING_FULL_SCREEN_CLICK, {
                         token_name: token?.symbol?.toUpperCase(),
                         network: chain,
