@@ -20,7 +20,7 @@ import MultipleChainSelect from 'pages/MyEarnings/MultipleChainSelect'
 import PoolFilteringBar from 'pages/MyEarnings/PoolFilteringBar'
 import SinglePool, { Props as SinglePoolProps } from 'pages/MyEarnings/SinglePool'
 import TotalEarningsAndChainSelect from 'pages/MyEarnings/TotalEarningsAndChainSelect'
-import { today } from 'pages/MyEarnings/utils'
+import { aggregateAccountEarnings, aggregatePoolEarnings, today } from 'pages/MyEarnings/utils'
 import { useAppSelector } from 'state/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { EarningStatsTick, EarningsBreakdown } from 'types/myEarnings'
@@ -135,8 +135,10 @@ const MyEarningsSection = () => {
 
   const searchText = useDebounce(originalSearchText, 300).toLowerCase().trim()
 
+  const earningResponse = aggregateAccountEarnings(aggregatePoolEarnings(getEarningData.data))
+
   const earningBreakdown: EarningsBreakdown | undefined = useMemo(() => {
-    const dataByChainRoute = getEarningData?.data || {}
+    const dataByChainRoute = earningResponse || {}
     const latestAggregatedData = Object.keys(dataByChainRoute)
       .flatMap(chainRoute => {
         const data = dataByChainRoute[chainRoute].account
@@ -207,13 +209,13 @@ const MyEarningsSection = () => {
       totalValue,
       breakdowns: breakdowns, // shuffle([...breakdowns, ...breakdowns, ...breakdowns].slice(0, 5)),
     }
-  }, [getEarningData?.data, tokensByChainId])
+  }, [earningResponse, tokensByChainId])
 
   // chop the data into the right duration
   // format pool value
   // multiple chains
   const ticks: EarningStatsTick[] | undefined = useMemo(() => {
-    const data = getEarningData?.data?.['ethereum']?.account
+    const data = earningResponse?.['ethereum']?.account
     const chainRoute = 'ethereum'
     const chainId = chainIdByRoute[chainRoute]
 
@@ -297,32 +299,33 @@ const MyEarningsSection = () => {
     }
 
     return ticks
-  }, [getEarningData?.data, tokensByChainId])
+  }, [earningResponse, tokensByChainId])
 
   const availableChainRoutes = useMemo(() => {
-    if (!getEarningData?.data) {
+    if (!earningResponse) {
       return []
     }
 
-    return Object.keys(getEarningData.data)
-  }, [getEarningData?.data])
+    return Object.keys(earningResponse)
+  }, [earningResponse])
 
   const pools: SinglePoolProps[] = useMemo(() => {
+    const data = earningResponse
     return availableChainRoutes.flatMap(chainRoute => {
-      if (!getEarningData?.data?.[chainRoute]) {
+      if (!data?.[chainRoute]) {
         return []
       }
 
       const chainId = chainIdByRoute[chainRoute]
       const positionEarningsByPoolId = getPositionEarningsByPoolId(
-        getEarningData.data[chainRoute].positions,
+        data[chainRoute].positions,
         shouldShowClosedPositions,
       )
 
       const poolIdsThatHasPositions = Object.keys(positionEarningsByPoolId)
 
       const poolEarnings =
-        getEarningData.data[chainRoute]?.pools?.filter(pool => {
+        data[chainRoute].pools?.filter(pool => {
           if (!poolIdsThatHasPositions.includes(pool.id)) {
             return false
           }
@@ -350,7 +353,9 @@ const MyEarningsSection = () => {
         }
       })
     })
-  }, [availableChainRoutes, getEarningData.data, searchText, shouldShowClosedPositions])
+  }, [availableChainRoutes, earningResponse, searchText, shouldShowClosedPositions])
+
+  console.log({ pools })
 
   const renderPools = () => {
     const isLoading = getEarningData.isFetching || !pools

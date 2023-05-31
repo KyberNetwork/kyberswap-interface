@@ -73,7 +73,7 @@ type MetaResponse<T> = {
   data?: T
 }
 
-type Response = Record<
+export type GetEarningDataResponse = Record<
   string,
   {
     positions: PositionEarningWithDetails[]
@@ -90,7 +90,7 @@ const earningApi = createApi({
   reducerPath: 'earningApi',
   baseQuery: fetchBaseQuery({ baseUrl: 'https://pool-farm.dev.kyberengineering.io' }),
   endpoints: builder => ({
-    getEarningData: builder.query<Response, Params>({
+    getEarningData: builder.query<GetEarningDataResponse, Params>({
       query: ({ account, chainIds }) => ({
         url: `/all-chain/api/v1/portfolio`,
         params: {
@@ -98,8 +98,8 @@ const earningApi = createApi({
           chainNames: chainIds.map(chainId => NETWORKS_INFO[chainId].aggregatorRoute),
         },
       }),
-      transformResponse: (response: MetaResponse<Response>) => {
-        return response.data as Response
+      transformResponse: (response: MetaResponse<GetEarningDataResponse>) => {
+        return response.data as GetEarningDataResponse
       },
     }),
   }),
