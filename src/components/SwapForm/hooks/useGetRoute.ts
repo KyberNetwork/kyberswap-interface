@@ -6,7 +6,14 @@ import { GetRouteParams } from 'services/route/types/getRoute'
 
 import useGetSwapFeeConfig, { SwapFeeConfig } from 'components/SwapForm/hooks/useGetSwapFeeConfig'
 import useSelectedDexes from 'components/SwapForm/hooks/useSelectedDexes'
-import { ETHER_ADDRESS, INPUT_DEBOUNCE_TIME, SWAP_FEE_RECEIVER_ADDRESS, ZERO_ADDRESS_SOLANA } from 'constants/index'
+import { AGGREGATOR_API } from 'constants/env'
+import {
+  ETHER_ADDRESS,
+  INPUT_DEBOUNCE_TIME,
+  ROUTES_API_PATHS,
+  SWAP_FEE_RECEIVER_ADDRESS,
+  ZERO_ADDRESS_SOLANA,
+} from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
@@ -14,6 +21,7 @@ import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
 import { useAppDispatch } from 'state/hooks'
 import { ChargeFeeBy } from 'types/route'
 import { Aggregator } from 'utils/aggregator'
+import { isRouteApiDown } from 'utils/error'
 
 export type ArgsGetRoute = {
   isSaveGas: boolean
@@ -159,8 +167,9 @@ const useGetRoute = (args: ArgsGetRoute) => {
         delete params[key]
       }
     })
-
-    const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}/api/v1/routes`
+    const url = `${isRouteApiDown() ? AGGREGATOR_API : aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}${
+      ROUTES_API_PATHS.GET_ROUTE
+    }`
 
     triggerDebounced({
       url,
