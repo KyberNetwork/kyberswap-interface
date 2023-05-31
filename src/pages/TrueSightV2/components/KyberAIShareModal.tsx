@@ -365,7 +365,7 @@ export default function KyberAIShareModal({
               />
             </div>
           </div>
-          <Text fontSize={24} color={theme.text} fontWeight={500}>
+          <Text fontSize={24} color={theme.text} fontWeight={500} style={{ whiteSpace: 'nowrap' }}>
             {tokenOverview?.name} ({tokenOverview?.symbol?.toUpperCase()})
           </Text>
         </>
