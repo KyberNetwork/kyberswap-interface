@@ -4,10 +4,11 @@ import { captureException } from '@sentry/react'
 import { useCallback, useEffect, useRef } from 'react'
 import { useConnectWalletToProfileMutation, useGetOrCreateProfileMutation } from 'services/identity'
 
+import { useInvalidateTagAnnouncement } from 'components/Announcement/helper'
 import { NotificationType } from 'components/Announcement/type'
 import { useShowConfirm } from 'components/ConfirmModal'
 import { ENV_KEY, OAUTH_CLIENT_ID } from 'constants/env'
-import { APP_PATHS } from 'constants/index'
+import { APP_PATHS, RTK_QUERY_TAGS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import {
@@ -47,11 +48,13 @@ const useLogin = (autoLogin = false) => {
 
   const setLoading = useSetPendingAuthentication()
   const setProfile = useSaveUserProfile()
+  const invalidateTag = useInvalidateTagAnnouncement()
 
   const getProfile = useCallback(
     async (walletAddress: string | undefined, isAnonymous = false) => {
       try {
         const profile = await createProfile().unwrap()
+        invalidateTag([RTK_QUERY_TAGS.GET_PRIVATE_ANN_BY_ID, RTK_QUERY_TAGS.GET_ALL_PRIVATE_ANN]) // todo
         if (walletAddress) {
           await connectWalletToProfile({ walletAddress })
         }
@@ -63,7 +66,7 @@ const useLogin = (autoLogin = false) => {
         setProfile({ profile: undefined, isAnonymous, walletAddress })
       }
     },
-    [connectWalletToProfile, createProfile, setProfile],
+    [connectWalletToProfile, createProfile, setProfile, invalidateTag],
   )
 
   const resetState = useCallback(() => {
