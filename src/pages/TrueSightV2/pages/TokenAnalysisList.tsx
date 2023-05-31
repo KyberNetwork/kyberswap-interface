@@ -884,7 +884,7 @@ export default function TokenAnalysisList() {
         <TableWrapper ref={wrapperRef}>
           <Table ref={tableRef}>
             <colgroup>
-              <col style={{ width: '80px', minWidth: '30px' }} />
+              <col style={{ width: '80px', minWidth: '40px' }} />
               <col style={{ width: '220px', minWidth: 'fit-content' }} />
               <col style={{ width: '200px', minWidth: 'auto' }} />
               <col style={{ width: '230px', minWidth: 'auto' }} />
@@ -1031,25 +1031,42 @@ export default function TokenAnalysisList() {
                 </SkeletonTheme>
               ) : isError || listData.length === 0 ? (
                 <>
-                  <tr>
-                    <td
-                      colSpan={
-                        [
-                          KyberAIListType.TOP_CEX_INFLOW,
-                          KyberAIListType.TOP_CEX_OUTFLOW,
-                          KyberAIListType.TRENDING_SOON,
-                        ].includes(listType)
-                          ? 9
-                          : 8
-                      }
-                      height={200}
-                      style={{ pointerEvents: 'none' }}
-                    >
-                      <Text>
-                        <Trans>There was an error. Please try again later.</Trans>
-                      </Text>
-                    </td>
-                  </tr>
+                  {above768 ? (
+                    <tr>
+                      <td
+                        colSpan={
+                          [
+                            KyberAIListType.TOP_CEX_INFLOW,
+                            KyberAIListType.TOP_CEX_OUTFLOW,
+                            KyberAIListType.TRENDING_SOON,
+                          ].includes(listType)
+                            ? 9
+                            : 8
+                        }
+                        height={200}
+                        style={{ pointerEvents: 'none' }}
+                      >
+                        <Text>
+                          <Trans>There was an error. Please try again later.</Trans>
+                        </Text>
+                      </td>
+                    </tr>
+                  ) : (
+                    <tr style={{ height: '201px' }}>
+                      <Row
+                        style={{
+                          position: 'absolute',
+                          height: '200px',
+                          justifyContent: 'center',
+                          backgroundColor: theme.background,
+                        }}
+                      >
+                        <Text>
+                          <Trans>There was an error. Please try again later.</Trans>
+                        </Text>
+                      </Row>
+                    </tr>
+                  )}
                 </>
               ) : (
                 listData.map((token: ITokenList, index: number) => (
