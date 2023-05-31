@@ -2,6 +2,8 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import { NETWORKS_INFO } from 'constants/networks'
 
+import { KyberAIListType } from '../types'
+
 export const SUPPORTED_NETWORK_KYBERAI: { [chainId in ChainId]?: string } = {
   [ChainId.MAINNET]: 'ethereum',
   [ChainId.BSCMAINNET]: 'bsc',
@@ -42,4 +44,16 @@ export enum MIXPANEL_KYBERAI_TAG {
   RANKING_TRENDING_SOON = 'ranking_trending_soon',
   RANKING_CURRENTLY_TRENDING = 'ranking_currently_trending',
   EXPLORE_SHARE_THIS_TOKEN = 'explore_share_this_token',
+}
+
+export const KYBERAI_LISTYPE_TO_MIXPANEL = {
+  [KyberAIListType.ALL]: MIXPANEL_KYBERAI_TAG.RANKING_ALL,
+  [KyberAIListType.BULLISH]: MIXPANEL_KYBERAI_TAG.RANKING_BULLISH,
+  [KyberAIListType.BEARISH]: MIXPANEL_KYBERAI_TAG.RANKING_BEARISH,
+  [KyberAIListType.MYWATCHLIST]: MIXPANEL_KYBERAI_TAG.RANKING_MY_WATCHLIST,
+  [KyberAIListType.TOP_CEX_INFLOW]: MIXPANEL_KYBERAI_TAG.RANKING_TOP_CEX_INFLOW,
+  [KyberAIListType.TOP_CEX_OUTFLOW]: MIXPANEL_KYBERAI_TAG.RANKING_TOP_CEX_OUTFLOW,
+  [KyberAIListType.TOP_TRADED]: MIXPANEL_KYBERAI_TAG.RANKING_TOP_TRADED,
+  [KyberAIListType.TRENDING_SOON]: MIXPANEL_KYBERAI_TAG.RANKING_TRENDING_SOON,
+  [KyberAIListType.TRENDING]: MIXPANEL_KYBERAI_TAG.RANKING_CURRENTLY_TRENDING,
 }

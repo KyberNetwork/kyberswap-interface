@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { useRef, useState } from 'react'
 import { Sliders } from 'react-feather'
+import { useParams } from 'react-router'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -11,12 +12,14 @@ import Icon from 'components/Icons/Icon'
 import Popover from 'components/Popover'
 import { RowBetween, RowFit } from 'components/Row'
 import Toggle from 'components/Toggle'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
 import { useTokenAnalysisSettings, useUpdateTokenAnalysisSettings } from 'state/user/hooks'
 
+import useKyberAITokenOverview from '../hooks/useKyberAITokenOverview'
 import { HeaderButton } from '../pages/SingleToken'
 import { DiscoverTokenTab } from '../types'
 
@@ -103,10 +106,13 @@ const technicalAnalysisSettings = [
 
 export default function DisplaySettings({ currentTab }: { currentTab: DiscoverTokenTab }) {
   const theme = useTheme()
+  const { mixpanelHandler } = useMixpanel()
   const [showSettings, setShowSettings] = useState(false)
   const storedTokenAnalysisSettings = useTokenAnalysisSettings()
   const updateTokenAnalysisSettings = useUpdateTokenAnalysisSettings()
   const toggleTutorial = useToggleModal(ApplicationModal.KYBERAI_TUTORIAL)
+  const { data: token } = useKyberAITokenOverview()
+  const { chain } = useParams()
   const ref = useRef<HTMLDivElement>(null)
   useOnClickOutside(ref, () => {
     setShowSettings(false)
@@ -153,7 +159,17 @@ export default function DisplaySettings({ currentTab }: { currentTab: DiscoverTo
                     </Text>
                     <Toggle
                       isActive={storedTokenAnalysisSettings?.[t.id] ?? true}
-                      toggle={() => updateTokenAnalysisSettings(t.id)}
+                      toggle={() => {
+                        mixpanelHandler(MIXPANEL_TYPE.KYBERAI_EXPLORING_CHANGE_DISPLAY_SETTING, {
+                          token_name: token?.symbol?.toUpperCase(),
+                          network: chain,
+                          source:
+                            currentTab === DiscoverTokenTab.OnChainAnalysis ? 'onchain_analysis' : 'technical_analysis',
+                          option: t.name,
+                          on_off: !(storedTokenAnalysisSettings?.[t.id] ?? true),
+                        })
+                        updateTokenAnalysisSettings(t.id)
+                      }}
                     />
                   </RowBetween>
                 ))}
@@ -180,7 +196,17 @@ export default function DisplaySettings({ currentTab }: { currentTab: DiscoverTo
                     </Text>
                     <Toggle
                       isActive={storedTokenAnalysisSettings?.[t.id] ?? true}
-                      toggle={() => updateTokenAnalysisSettings(t.id)}
+                      toggle={() => {
+                        mixpanelHandler(MIXPANEL_TYPE.KYBERAI_EXPLORING_CHANGE_DISPLAY_SETTING, {
+                          token_name: token?.symbol?.toUpperCase(),
+                          network: chain,
+                          source:
+                            currentTab === DiscoverTokenTab.OnChainAnalysis ? 'onchain_analysis' : 'technical_analysis',
+                          option: t.name,
+                          on_off: !(storedTokenAnalysisSettings?.[t.id] ?? true),
+                        })
+                        updateTokenAnalysisSettings(t.id)
+                      }}
                     />
                   </RowBetween>
                 ))}
@@ -192,7 +218,16 @@ export default function DisplaySettings({ currentTab }: { currentTab: DiscoverTo
       noArrow={true}
       placement="bottom-end"
     >
-      <HeaderButton onClick={() => setShowSettings(true)}>
+      <HeaderButton
+        onClick={() => {
+          mixpanelHandler(MIXPANEL_TYPE.KYBERAI_EXPLORING_DISPLAY_SETTING_CLICK, {
+            token_name: token?.symbol?.toUpperCase(),
+            network: chain,
+            source: currentTab === DiscoverTokenTab.OnChainAnalysis ? 'onchain_analysis' : 'technical_analysis',
+          })
+          setShowSettings(true)
+        }}
+      >
         <Sliders size={16} fill="currentcolor" style={{ transform: 'rotate(-90deg)' }} />
       </HeaderButton>
     </Popover>

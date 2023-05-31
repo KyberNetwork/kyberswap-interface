@@ -11,6 +11,7 @@ import Row, { RowBetween, RowFit } from 'components/Row'
 import SubscribeNotificationButton from 'components/SubscribeButton'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 
 import TrueSightWidget from './components/KyberAIWidget'
@@ -74,8 +75,9 @@ const HeaderNavItem = styled.div<{ active?: boolean }>`
 
 export default function TrueSightV2() {
   const theme = useTheme()
+  const { mixpanelHandler } = useMixpanel()
   const location = useLocation()
-  const isSingleToken = location?.pathname.includes('Explore')
+  const isExplore = location?.pathname.includes('Explore')
   const above768 = useMedia('(min-width:768px)')
   const navigate = useNavigate()
   return (
@@ -83,7 +85,7 @@ export default function TrueSightV2() {
       <HeaderWrapper>
         <RowBetween gap={above768 ? '12px' : '6px'}>
           <RowFit color={theme.text} gap="6px">
-            <HeaderNavItem onClick={() => navigate(APP_PATHS.KYBERAI_RANKINGS)} active={!isSingleToken}>
+            <HeaderNavItem onClick={() => navigate(APP_PATHS.KYBERAI_RANKINGS)} active={!isExplore}>
               <RowFit gap="4px">
                 <Icon id="leaderboard" size={20} />
                 <Trans>Rankings</Trans>
@@ -92,7 +94,7 @@ export default function TrueSightV2() {
             <Text fontWeight={500} fontSize={[18, 20, 24]} color={theme.subText} marginX={'12px'}>
               |
             </Text>
-            <HeaderNavItem onClick={() => navigate(APP_PATHS.KYBERAI_EXPLORE)} active={isSingleToken}>
+            <HeaderNavItem onClick={() => navigate(APP_PATHS.KYBERAI_EXPLORE)} active={isExplore}>
               <RowFit gap="4px">
                 <Icon id="truesight-v2" size={20} />
                 <Trans>Explore</Trans>
@@ -106,7 +108,13 @@ export default function TrueSightV2() {
               placement="right"
               delay={1200}
             >
-              <SubscribeNotificationButton />
+              <SubscribeNotificationButton
+                onClick={() =>
+                  mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SUBSCRIBE_CLICK, {
+                    source: isExplore ? 'explore' : 'ranking',
+                  })
+                }
+              />
             </MouseoverTooltip>
           </RowFit>
         </RowBetween>
@@ -117,7 +125,7 @@ export default function TrueSightV2() {
         </Row>
       )}
       <Wrapper>
-        {isSingleToken ? <SingleToken /> : <TokenAnalysisList />}
+        {isExplore ? <SingleToken /> : <TokenAnalysisList />}
         <TrueSightWidget />
         <TutorialModal />
       </Wrapper>

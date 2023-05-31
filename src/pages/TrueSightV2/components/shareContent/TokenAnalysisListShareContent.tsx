@@ -18,7 +18,7 @@ const mapTypeTitle = {
   [KyberAIListType.TOP_CEX_INFLOW]: t`Top CEX Positive Netflow Tokens`,
   [KyberAIListType.TOP_CEX_OUTFLOW]: t`Top CEX Negative Netflow Tokens`,
   [KyberAIListType.TOP_TRADED]: t`Top Trade Tokens`,
-  [KyberAIListType.TOP_SOCIAL]: t`Top Social Tokens`,
+  // [KyberAIListType.TOP_SOCIAL]: t`Top Social Tokens`,
   [KyberAIListType.TRENDING_SOON]: t`Trending Soon Tokens`,
   [KyberAIListType.TRENDING]: t`Top Trending Tokens`,
 }

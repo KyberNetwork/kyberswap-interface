@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/macro'
 import React, { CSSProperties, ReactNode, useLayoutEffect, useRef, useState } from 'react'
+import { useParams } from 'react-router'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -7,9 +8,12 @@ import styled, { css } from 'styled-components'
 import Icon from 'components/Icons/Icon'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 
+import { MIXPANEL_KYBERAI_TAG } from '../constants'
+import useKyberAITokenOverview from '../hooks/useKyberAITokenOverview'
 import { ChartTab } from '../types'
 import KyberAIShareModal from './KyberAIShareModal'
 
@@ -68,8 +72,15 @@ const ButtonWrapper = styled.div`
     background-color: ${({ theme }) => theme.border + '33'};
   }
 `
-export const FullscreenButton = React.memo(function FCButton({ element }: { element?: HTMLDivElement | null }) {
+export const FullscreenButton = React.memo(function FCButton({
+  element,
+  onClick,
+}: {
+  element?: HTMLDivElement | null
+  onClick?: () => void
+}) {
   const toggleFullscreen = () => {
+    onClick?.()
     if (document.fullscreenElement) {
       document.exitFullscreen()
     } else {
@@ -126,6 +137,9 @@ export const SectionWrapper = ({
   style?: React.CSSProperties
 }) => {
   const theme = useTheme()
+  const { mixpanelHandler } = useMixpanel()
+  const { chain } = useParams()
+  const { data: token } = useKyberAITokenOverview()
   const ref = useRef<HTMLDivElement>(null)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const [showText, setShowText] = useState(above768 ? true : false)
@@ -146,7 +160,7 @@ export const SectionWrapper = ({
   const docsLink = activeTab === ChartTab.Second && !!docsLinks[1] ? docsLinks[1] : docsLinks[0]
 
   return (
-    <StyledSectionWrapper show={show} ref={ref} id={id} style={style}>
+    <StyledSectionWrapper show={show} ref={ref} id={id} style={style} className="section-wrapper">
       {above768 ? (
         <>
           {/* DESKTOP */}
@@ -196,10 +210,26 @@ export const SectionWrapper = ({
                     onClick={() => {
                       onShareClick?.()
                       setShowShare(true)
+                      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_EXPLORING_SHARE_CHART_CLICK, {
+                        token_name: token?.symbol?.toUpperCase(),
+                        network: chain,
+                        chart_name: id,
+                      })
                     }}
                   />
                 )}
-                {fullscreenButton && <FullscreenButton element={ref.current} />}
+                {fullscreenButton && (
+                  <FullscreenButton
+                    element={ref.current}
+                    onClick={() =>
+                      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_EXPLORING_FULL_SCREEN_CLICK, {
+                        token_name: token?.symbol?.toUpperCase(),
+                        network: chain,
+                        chart_name: id,
+                      })
+                    }
+                  />
+                )}
               </RowFit>
             </RowBetween>
           </SectionTitle>
@@ -296,10 +326,26 @@ export const SectionWrapper = ({
                     onClick={() => {
                       onShareClick?.()
                       setShowShare(true)
+                      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_EXPLORING_SHARE_CHART_CLICK, {
+                        token_name: token?.symbol?.toUpperCase(),
+                        network: chain,
+                        chart_name: id,
+                      })
                     }}
                   />
                 )}
-                {fullscreenButton && <FullscreenButton element={ref.current} />}
+                {fullscreenButton && (
+                  <FullscreenButton
+                    element={ref.current}
+                    onClick={() => {
+                      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_EXPLORING_FULL_SCREEN_CLICK, {
+                        token_name: token?.symbol?.toUpperCase(),
+                        network: chain,
+                        chart_name: id,
+                      })
+                    }}
+                  />
+                )}
               </RowFit>
             </RowBetween>
             <Row>
@@ -342,6 +388,14 @@ export const SectionWrapper = ({
         isOpen={showShare}
         onClose={() => setShowShare(false)}
         content={shareContent}
+        onShareClick={social =>
+          mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SHARE_TOKEN_CLICK, {
+            token_name: token?.symbol?.toUpperCase(),
+            network: chain,
+            source: MIXPANEL_KYBERAI_TAG.EXPLORE_SHARE_THIS_TOKEN,
+            share_via: social,
+          })
+        }
       />
     </StyledSectionWrapper>
   )

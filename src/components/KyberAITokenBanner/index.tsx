@@ -14,6 +14,7 @@ import Row, { RowBetween, RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import KyberScoreMeter from 'pages/TrueSightV2/components/KyberScoreMeter'
 import { NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
@@ -24,7 +25,7 @@ import { calculateValueToColor } from 'pages/TrueSightV2/utils'
 import { useIsWhiteListKyberAI } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
-const TrendingSoonTokenBanner = ({
+const KyberAITokenBanner = ({
   currencyIn,
   currencyOut,
 }: {
@@ -34,6 +35,7 @@ const TrendingSoonTokenBanner = ({
   const { chainId, account } = useActiveWeb3React()
   const { isWhiteList } = useIsWhiteListKyberAI()
   const navigate = useNavigate()
+  const { mixpanelHandler } = useMixpanel()
   const chain = Object.keys(NETWORK_TO_CHAINID).find(i => NETWORK_TO_CHAINID[i] === chainId)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const theme = useTheme()
@@ -112,9 +114,14 @@ const TrendingSoonTokenBanner = ({
                 size={14}
                 stroke={theme.primary}
                 style={{ cursor: 'pointer' }}
-                onClick={() =>
+                onClick={() => {
+                  mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SWAP_INSIGHT_CLICK, {
+                    input_token: token0?.symbol?.toUpperCase(),
+                    output_token: token1?.symbol?.toUpperCase(),
+                  })
+
                   navigate(APP_PATHS.KYBERAI_EXPLORE + '/' + SUPPORTED_NETWORK_KYBERAI[chainId] + '/' + token?.address)
-                }
+                }}
               />
             </RowFit>
           </Column>
@@ -151,9 +158,13 @@ const TrendingSoonTokenBanner = ({
               size={14}
               stroke={theme.primary}
               style={{ cursor: 'pointer' }}
-              onClick={() =>
+              onClick={() => {
+                mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SWAP_INSIGHT_CLICK, {
+                  input_token: token0?.symbol?.toUpperCase(),
+                  output_token: token1?.symbol?.toUpperCase(),
+                })
                 navigate(APP_PATHS.KYBERAI_EXPLORE + '/' + SUPPORTED_NETWORK_KYBERAI[chainId] + '/' + token?.address)
-              }
+              }}
             />
           </Row>
         </MobileContainer>
@@ -218,4 +229,4 @@ const SkewKyberScoreWrapper = styled.div`
   gap: 4px;
 `
 
-export default memo(TrendingSoonTokenBanner)
+export default memo(KyberAITokenBanner)

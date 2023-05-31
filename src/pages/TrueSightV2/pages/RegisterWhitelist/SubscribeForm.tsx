@@ -8,6 +8,7 @@ import { useLazyGetConnectedWalletQuery } from 'services/notification'
 import { ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import Tooltip from 'components/Tooltip'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { getErrorMessage, isReferrerCodeInvalid } from 'pages/TrueSightV2/utils'
@@ -21,6 +22,7 @@ export default function EmailForm({
 }: {
   showVerify: (email: string, code: string, showSuccess: boolean) => void
 }) {
+  const { mixpanelHandler } = useMixpanel()
   const [inputEmail, setInputEmail] = useState('')
   const qs = useParsedQueryString<{ referrer: string }>()
   const [referredByCode, setCode] = useState(qs.referrer || '')
@@ -101,6 +103,7 @@ export default function EmailForm({
   const hasErrorInput = Object.values(errorInput).some(e => e)
 
   const joinWaitList = async () => {
+    mixpanelHandler(MIXPANEL_TYPE.KYBERAI_JOIN_KYBER_WAITLIST_CLICK)
     try {
       if (hasErrorInput || !inputEmail || isFetching || checkingInput.current) return
       if (userInfo?.email) {

@@ -1,6 +1,9 @@
 import React, { useLayoutEffect, useRef, useState } from 'react'
 import styled, { css } from 'styled-components'
 
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+
+import useKyberAITokenOverview from '../hooks/useKyberAITokenOverview'
 import { KyberAITimeframe } from '../types'
 
 const TimeFrameWrapper = styled.div`
@@ -63,10 +66,23 @@ const TimeFrameLegend = ({
   timeframes: KyberAITimeframe[]
   onSelect: (timeframe: KyberAITimeframe) => void
 }) => {
+  const { mixpanelHandler } = useMixpanel()
   const refs = useRef<any>({})
+  const ref = useRef<HTMLDivElement>(null)
   const [left, setLeft] = useState(0)
   const [width, setWidth] = useState(0)
+  const { data: token } = useKyberAITokenOverview()
+  const handleSelect = (t: KyberAITimeframe) => {
+    const wrapperEl = ref.current?.closest('section-wrapper')
 
+    mixpanelHandler(MIXPANEL_TYPE.KYBERAI_EXPLORING_SWITCH_TIMEFRAME_CLICK, {
+      token_name: token?.symbol?.toUpperCase(),
+      chart_name: wrapperEl?.id,
+      from_timeframe: selected,
+      to_timeframe: t,
+    })
+    onSelect?.(t)
+  }
   useLayoutEffect(() => {
     const update = () => {
       if (selected && refs.current?.[selected]) {
@@ -84,7 +100,7 @@ const TimeFrameLegend = ({
 
   if (timeframes?.length < 1) return null
   return (
-    <TimeFrameWrapper className="time-frame-legend">
+    <TimeFrameWrapper className="time-frame-legend" ref={ref}>
       {timeframes.map((t: KyberAITimeframe, index: number) => {
         return (
           <Element
@@ -92,7 +108,7 @@ const TimeFrameLegend = ({
             ref={el => {
               refs.current[t] = el
             }}
-            onClick={() => onSelect?.(t)}
+            onClick={() => handleSelect(t)}
             active={selected === t}
             count={timeframes.length}
           >

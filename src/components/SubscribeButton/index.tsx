@@ -54,10 +54,12 @@ export default function SubscribeNotificationButton({
   subscribeTooltip,
   iconOnly = false,
   trackingEvent,
+  onClick,
 }: {
   subscribeTooltip?: ReactNode
   iconOnly?: boolean
   trackingEvent?: MIXPANEL_TYPE
+  onClick?: () => void
 }) {
   const theme = useTheme()
   const { account } = useWeb3React()
@@ -76,6 +78,7 @@ export default function SubscribeNotificationButton({
 
   const onClickBtn = () => {
     showNotificationModal()
+    onClick?.()
     if (trackingEvent)
       setTimeout(() => {
         mixpanelHandler(trackingEvent)

@@ -15,6 +15,7 @@ import Row, { RowBetween } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { useKyberAIWidget } from 'state/user/hooks'
@@ -147,7 +148,7 @@ const TextButton = styled.div`
   }
 `
 
-enum WidgetTab {
+export enum WidgetTab {
   MyWatchlist = 'My Watchlist',
   Bullish = 'Bullish',
   Bearish = 'Bearish',
@@ -174,6 +175,7 @@ const widgetTabTooltip = {
 
 export default function Widget() {
   const { account } = useActiveWeb3React()
+  const { mixpanelHandler } = useMixpanel()
   const theme = useTheme()
   const [showExpanded, setShowExpanded] = useState(false)
   const [showWidget, toggleWidget] = useKyberAIWidget()
@@ -204,7 +206,15 @@ export default function Widget() {
   if (!account) return <></>
   return (
     <>
-      <WidgetWrapper onClick={() => setShowExpanded(true)} show={showWidget}>
+      <WidgetWrapper
+        onClick={() => {
+          mixpanelHandler(MIXPANEL_TYPE.KYBERAI_EXPAND_WIDGET_CLICK, {
+            source: window.location.pathname.split('/')[1],
+          })
+          setShowExpanded(true)
+        }}
+        show={showWidget}
+      >
         <CloseButton
           onClick={e => {
             e.stopPropagation()
@@ -289,7 +299,18 @@ export default function Widget() {
           <Column>
             <Row>
               {Object.values(WidgetTab).map(t => (
-                <Tab key={t} onClick={() => setActiveTab(t)} active={activeTab === t}>
+                <Tab
+                  key={t}
+                  onClick={() => {
+                    mixpanelHandler(MIXPANEL_TYPE.KYBERAI_RANKING_CATEGORY_CLICK, {
+                      from_cate: activeTab,
+                      to_cate: t,
+                      source: 'widget',
+                    })
+                    setActiveTab(t)
+                  }}
+                  active={activeTab === t}
+                >
                   {widgetTabTooltip[t]?.tooltip ? (
                     <MouseoverTooltip text={widgetTabTooltip[t]?.tooltip(theme)} placement="top">
                       <Text style={{ borderBottom: `1px dotted ${theme.subText}` }}>{t}</Text>
@@ -318,6 +339,7 @@ export default function Widget() {
                   isLoading={isFetching}
                   isError={isError}
                   onRowClick={() => setShowExpanded(false)}
+                  activeTab={activeTab}
                 />
               )}
             </Row>
@@ -435,7 +457,13 @@ const KyberAIWidgetMobileContent = ({
         </MobileTab>
       </Row>
       <div style={{ flex: 1 }}>
-        <WidgetMobileTable data={data} isLoading={isLoading} isError={isError} onRowClick={onRowClick} />
+        <WidgetMobileTable
+          data={data}
+          isLoading={isLoading}
+          isError={isError}
+          onRowClick={onRowClick}
+          activeTab={activeTab}
+        />
       </div>
       <RowBetween padding="8px 12px">
         <div></div>

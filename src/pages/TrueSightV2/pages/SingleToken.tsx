@@ -15,6 +15,7 @@ import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import { MEDIA_WIDTHS } from 'theme'
@@ -25,9 +26,10 @@ import SimpleTooltip from '../components/SimpleTooltip'
 import { TokenOverview } from '../components/TokenOverview'
 import { StarWithAnimation } from '../components/WatchlistStar'
 import ExploreShareContent from '../components/shareContent/ExploreTopShareContent'
-import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from '../constants'
+import { MIXPANEL_KYBERAI_TAG, NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from '../constants'
 import useChartStatesReducer, { ChartStatesContext } from '../hooks/useChartStatesReducer'
-import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation, useTokenDetailQuery } from '../hooks/useKyberAIData'
+import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation } from '../hooks/useKyberAIData'
+import useKyberAITokenOverview from '../hooks/useKyberAITokenOverview'
 import { DiscoverTokenTab, ITokenOverview } from '../types'
 import { navigateToSwapPage } from '../utils'
 import OnChainAnalysis from './OnChainAnalysis'
@@ -267,6 +269,7 @@ const TokenDescription = ({ description }: { description: string }) => {
 const TokenNameGroup = ({ token, isLoading }: { token?: ITokenOverview; isLoading?: boolean }) => {
   const { account } = useActiveWeb3React()
   const theme = useTheme()
+  const { mixpanelHandler } = useMixpanel()
   const navigate = useNavigate()
   const location = useLocation()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
@@ -280,12 +283,22 @@ const TokenNameGroup = ({ token, isLoading }: { token?: ITokenOverview; isLoadin
   const handleStarClick = () => {
     if (!token || !chain || !account) return
     if (isWatched) {
+      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
+        token_name: token.symbol?.toUpperCase(),
+        source: 'explore',
+        option: 'remove',
+      })
       removeFromWatchlist({
         wallet: account,
         tokenAddress: token?.address,
         chain,
       }).then(() => setIsWatched(false))
     } else {
+      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
+        token_name: token.symbol?.toUpperCase(),
+        source: 'explore',
+        option: 'add',
+      })
       addToWatchlist({ wallet: account, tokenAddress: token?.address, chain }).then(() => setIsWatched(true))
     }
   }
@@ -412,6 +425,7 @@ const TokenHeader = ({
   onShareClick: () => void
 }) => {
   const theme = useTheme()
+  const { mixpanelHandler } = useMixpanel()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const { chain } = useParams()
   return above768 ? (
@@ -425,7 +439,13 @@ const TokenHeader = ({
           height={'36px'}
           width="fit-content"
           gap="4px"
-          onClick={() => navigateToSwapPage({ address: token?.address, chain })}
+          onClick={() => {
+            mixpanelHandler(MIXPANEL_TYPE.KYBERAI_EXPLORING_SWAP_TOKEN_CLICK, {
+              token_name: token?.symbol?.toUpperCase(),
+              network: chain,
+            })
+            navigateToSwapPage({ address: token?.address, chain })
+          }}
         >
           <RowFit gap="4px" style={{ whiteSpace: 'nowrap' }}>
             <Icon id="swap" size={16} />
@@ -454,7 +474,19 @@ const TokenHeader = ({
         <RowFit gap="12px">
           <SettingButtons token={token} onShareClick={onShareClick} />
         </RowFit>
-        <ButtonPrimary height="32px" width="fit-content" gap="4px" style={{ whiteSpace: 'nowrap', fontSize: '12px' }}>
+        <ButtonPrimary
+          height="32px"
+          width="fit-content"
+          gap="4px"
+          style={{ whiteSpace: 'nowrap', fontSize: '12px' }}
+          onClick={() => {
+            mixpanelHandler(MIXPANEL_TYPE.KYBERAI_EXPLORING_SWAP_TOKEN_CLICK, {
+              token_name: token?.symbol?.toUpperCase(),
+              network: chain,
+            })
+            navigateToSwapPage({ address: token?.address, chain })
+          }}
+        >
           <RowFit gap="4px">
             <Icon id="swap" size={14} />
             Swap {token?.symbol}
@@ -468,23 +500,14 @@ const TokenHeader = ({
 export default function SingleToken() {
   const theme = useTheme()
   const navigate = useNavigate()
+  const { mixpanelHandler } = useMixpanel()
   const [state, dispatch] = useChartStatesReducer()
   const [showShare, setShowShare] = useState(false)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const { chain, address } = useParams()
   const [currentTab, setCurrentTab] = useState<DiscoverTokenTab>(DiscoverTokenTab.OnChainAnalysis)
 
-  const { account } = useActiveWeb3React()
-  const { data: token, isLoading } = useTokenDetailQuery(
-    {
-      chain: chain,
-      address: address,
-      account,
-    },
-    {
-      skip: !account || !chain || !address,
-    },
-  )
+  const { data: token, isLoading } = useKyberAITokenOverview()
 
   const [viewAllTag, setViewAllTag] = useState(false)
 
@@ -517,7 +540,16 @@ export default function SingleToken() {
             return <Tag key={tag}>{tag}</Tag>
           })}
           {!viewAllTag && token?.tags && token.tags.length > 5 && (
-            <Tag active onClick={() => setViewAllTag(true)}>
+            <Tag
+              active
+              onClick={() => {
+                mixpanelHandler(MIXPANEL_TYPE.KYBERAI_EXPLORING_VIEW_ALL_CLICK, {
+                  token_name: token?.symbol?.toUpperCase(),
+                  network: chain,
+                })
+                setViewAllTag(true)
+              }}
+            >
               <Trans>View all</Trans>
             </Tag>
           )}
@@ -529,7 +561,18 @@ export default function SingleToken() {
             {Object.values(DiscoverTokenTab).map((tab: DiscoverTokenTab, index: number) => (
               <>
                 {index !== 0 && <Text fontSize={24}>|</Text>}
-                <TabButton key={tab} active={tab === currentTab} onClick={() => setCurrentTab(tab)}>
+                <TabButton
+                  key={tab}
+                  active={tab === currentTab}
+                  onClick={() => {
+                    mixpanelHandler(MIXPANEL_TYPE.KYBERAI_EXPLORING_ANALYSIS_TYPE_CLICK, {
+                      token_name: token?.symbol?.toUpperCase(),
+                      network: chain,
+                      option: tab === DiscoverTokenTab.OnChainAnalysis ? 'onchain_analysis' : 'technical_analysis',
+                    })
+                    setCurrentTab(tab)
+                  }}
+                >
                   <Icon
                     id={
                       {
@@ -555,6 +598,14 @@ export default function SingleToken() {
         isOpen={showShare}
         onClose={() => setShowShare(false)}
         content={mobileMode => <ExploreShareContent token={token} mobileMode={mobileMode} />}
+        onShareClick={social =>
+          mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SHARE_TOKEN_CLICK, {
+            token_name: token?.symbol?.toUpperCase(),
+            network: chain,
+            source: MIXPANEL_KYBERAI_TAG.EXPLORE_SHARE_THIS_TOKEN,
+            share_via: social,
+          })
+        }
       />
     </Wrapper>
   )
