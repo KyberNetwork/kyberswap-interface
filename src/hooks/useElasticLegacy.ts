@@ -1,7 +1,14 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { Interface } from 'ethers/lib/utils'
 import { useEffect, useRef, useState } from 'react'
 
+import TickReaderABI from 'constants/abis/v2/ProAmmTickReader.json'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
+
+import { useMulticallContract } from './useContract'
+
+const tickReaderInterface = new Interface(TickReaderABI.abi)
 
 export const config: {
   [chainId: number]: {
@@ -115,7 +122,7 @@ const query = (user: string) => `
       }
     }
   }
-  positions(first: 1000, where: {owner: "${user.toLowerCase()}", liquidity_gt: 0}) {
+  positions(first: 1000, where: {owner: "${user.toLowerCase()}"}) {
     id
     liquidity
     owner
@@ -189,7 +196,10 @@ export default function useElasticLegacy(interval = true) {
       setFarmPostions([])
     }
     const getData = () => {
-      if (!account || !config[chainId]) return
+      if (!account || !config[chainId]) {
+        setLoading(false)
+        return
+      }
       fetch(config[chainId].subgraphUrl, {
         method: 'POST',
         body: JSON.stringify({
@@ -236,7 +246,61 @@ export default function useElasticLegacy(interval = true) {
 
   return {
     loading,
-    positions,
+    positions: positions.filter(item => item.liquidity !== '0'),
+    allPositions: positions,
     farmPositions,
   }
+}
+
+export function usePositionFees(positions: Position[]) {
+  const [feeRewards, setFeeRewards] = useState<{
+    [tokenId: string]: [string, string]
+  }>(() => positions.reduce((acc, item) => ({ ...acc, [item.id]: ['0', '0'] }), {}))
+
+  const multicallContract = useMulticallContract()
+
+  const { chainId, networkInfo } = useActiveWeb3React()
+
+  useEffect(() => {
+    const getData = async () => {
+      if (!multicallContract) return
+      const fragment = tickReaderInterface.getFunction('getTotalFeesOwedToPosition')
+      const callParams = positions.map(item => {
+        return {
+          target: (networkInfo as EVMNetworkInfo).elastic.tickReader,
+          callData: tickReaderInterface.encodeFunctionData(fragment, [
+            config[chainId].positionManagerContract,
+            item.pool.id,
+            item.id,
+          ]),
+        }
+      })
+
+      const { returnData } = await multicallContract?.callStatic.tryBlockAndAggregate(false, callParams)
+      setFeeRewards(
+        returnData.reduce(
+          (
+            acc: { [tokenId: string]: [string, string] },
+            item: { success: boolean; returnData: string },
+            index: number,
+          ) => {
+            if (item.success) {
+              const tmp = tickReaderInterface.decodeFunctionResult(fragment, item.returnData)
+              return {
+                ...acc,
+                [positions[index].id]: [tmp.token0Owed.toString(), tmp.token1Owed.toString()],
+              }
+            }
+            return { ...acc, [positions[index].id]: ['0', '0'] }
+          },
+          {} as { [tokenId: string]: [string, string] },
+        ),
+      )
+    }
+
+    getData()
+    // eslint-disable-next-line
+  }, [chainId, multicallContract, networkInfo, positions.length])
+
+  return feeRewards
 }

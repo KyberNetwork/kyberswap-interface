@@ -1,82 +1,118 @@
+import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import { PoolElasticIcon } from 'components/Icons'
 import LocalLoader from 'components/LocalLoader'
-import { PageWrapper } from 'components/YieldPools/styleds'
 import useElasticCompensationData from 'hooks/useElasticCompensationData'
 import useElasticLegacy from 'hooks/useElasticLegacy'
 import useTheme from 'hooks/useTheme'
 
+import AllPositionLegacy from './AllPositionLegacy'
 import FarmLegacy from './FarmLegacy'
 import PositionLegacy from './PositionLegacy'
 
-const Tab = styled.div<{ active: boolean }>`
-  cursor: pointer;
-  padding: 8px 12px;
-  border-radius: 999px;
+const Wrapper = styled.div`
+  border-radius: 24px;
+  background: ${({ theme }) => theme.background};
+  border: 1px solid ${({ theme }) => theme.border};
+  padding: 12px 20px;
   font-size: 14px;
-  font-weight: 500;
-  background: ${({ theme, active }) => (active ? rgba(theme.primary, 0.3) : 'transparent')};
-  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
-  border: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
+  line-height: 1.5;
+  color: ${({ theme }) => theme.subText};
 `
 
-export default function ElasticLegacy() {
-  const { loading, positions, farmPositions } = useElasticLegacy()
+const Warning = styled(Wrapper)`
+  background: ${({ theme }) => rgba(theme.warning, 0.3)};
+  border: none;
+  color: ${({ theme }) => theme.text};
+`
+const Notice = ({ isFarm }: { isFarm?: boolean }) => {
+  const theme = useTheme()
+  return (
+    <Wrapper>
+      <Trans>
+        Due to a potential issue with our legacy{' '}
+        <Text as="span" color={theme.text}>
+          Elastic protocol
+        </Text>
+        , we have permanently paused our{' '}
+        <Text as="span" color={theme.text}>
+          Elastic {isFarm ? 'Farms' : 'Pools'} (Legacy)
+        </Text>
+        . If you wish to participate in our pools, check out our new and audited{' '}
+        <Link to={isFarm ? '/farms' : '/pools'}>Elastic {isFarm ? 'Farms' : 'Pools'}</Link>
+      </Trans>
+    </Wrapper>
+  )
+}
+
+const WarningNotice = () => {
+  const theme = useTheme()
+  return (
+    <Warning>
+      <Trans>
+        Due to a{' '}
+        <Text as="span" color={theme.warning}>
+          potential issue
+        </Text>{' '}
+        with our legacy Elastic protocol, we recommend that all liquidity providers withdraw their liquidity from
+        Elastic Pools (Legacy). We have fixed all the issues and deployed the new and audited{' '}
+        <Link to="/pools">Elastic Pools</Link> where you can add liquidity normally instead
+      </Trans>
+    </Warning>
+  )
+}
+
+export default function ElasticLegacy({ tab }: { tab: 'farm' | 'position' | 'my_positions' }) {
+  const { loading, positions, farmPositions, allPositions } = useElasticLegacy()
   const { loading: loadingCompensationData, data: farmRewardData, claimInfo } = useElasticCompensationData()
   const shouldShowFarmTab = !!farmPositions.length || !!claimInfo
   const shouldShowPositionTab = !!positions.length || !!farmPositions.length
-
-  const theme = useTheme()
-  const [tab, setTab] = useState<'farm' | 'position'>('farm')
-
-  useEffect(() => {
-    if (!shouldShowFarmTab && shouldShowPositionTab) setTab('position')
-  }, [shouldShowPositionTab, shouldShowFarmTab])
 
   if (loading || loadingCompensationData) {
     return <LocalLoader />
   }
 
   return (
-    <PageWrapper>
-      <Flex sx={{ gap: '6px' }} alignItems="center">
-        <PoolElasticIcon size={20} color={theme.text} />
-        <Text fontSize="24px" fontWeight="500">
-          Elastic Legacy
-        </Text>
-      </Flex>
+    <>
+      <div />
+      {tab === 'farm' &&
+        (shouldShowFarmTab ? (
+          <>
+            <WarningNotice />
+            <FarmLegacy
+              claimInfo={claimInfo}
+              farmPositions={farmPositions.map(item => {
+                const reward = farmRewardData?.find(frd => frd.nftid.toString() === item.id)
+                return {
+                  ...item,
+                  pendingRewards: reward?.pending_rewards || [],
+                }
+              })}
+              pendingRewards={(farmRewardData || []).map(item => item.pending_rewards).flat()}
+            />
+          </>
+        ) : (
+          <Notice isFarm={true} />
+        ))}
+      {tab === 'position' &&
+        (shouldShowPositionTab ? (
+          <>
+            <WarningNotice />
+            <PositionLegacy positions={[...positions, ...farmPositions]} />
+          </>
+        ) : (
+          <Notice />
+        ))}
 
-      <Flex sx={{ gap: '8px' }} marginTop="24px" marginBottom="1rem">
-        {shouldShowFarmTab && (
-          <Tab active={tab === 'farm'} role="button" onClick={() => setTab('farm')}>
-            My Farms
-          </Tab>
-        )}
-        {shouldShowPositionTab && (
-          <Tab active={tab === 'position'} role="button" onClick={() => setTab('position')}>
-            My Positions
-          </Tab>
-        )}
-      </Flex>
-
-      {tab === 'farm' && (
-        <FarmLegacy
-          claimInfo={claimInfo}
-          farmPositions={farmPositions.map(item => {
-            const reward = farmRewardData?.find(frd => frd.nftid.toString() === item.id)
-            return {
-              ...item,
-              pendingRewards: reward?.pending_rewards || [],
-            }
-          })}
-          pendingRewards={(farmRewardData || []).map(item => item.pending_rewards).flat()}
-        />
+      {tab === 'my_positions' && (
+        <Flex flexDirection="column" marginTop="1.5rem">
+          <WarningNotice />
+          <AllPositionLegacy positions={[...allPositions, ...farmPositions]} />
+        </Flex>
       )}
-      {tab === 'position' && <PositionLegacy positions={[...positions, ...farmPositions]} />}
-    </PageWrapper>
+    </>
   )
 }

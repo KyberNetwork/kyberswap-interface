@@ -3,9 +3,8 @@ import { CurrencyAmount, Percent } from '@kyberswap/ks-sdk-core'
 import { NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic'
 import { captureException } from '@sentry/react'
 import { BigNumber } from 'ethers'
-import { Interface } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -16,12 +15,9 @@ import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
-import TickReaderABI from 'constants/abis/v2/ProAmmTickReader.json'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useMulticallContract } from 'hooks/useContract'
-import { Position as SubgraphPosition, config } from 'hooks/useElasticLegacy'
+import { Position as SubgraphPosition, config, usePositionFees } from 'hooks/useElasticLegacy'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
@@ -34,8 +30,6 @@ import { ErrorName } from 'utils/sentry'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import { parsePosition } from './FarmLegacy'
-
-const tickReaderInterface = new Interface(TickReaderABI.abi)
 
 const Wrapper = styled.div`
   border-radius: 1rem;
@@ -73,7 +67,7 @@ const TableRow = styled(TableHeader)`
 `
 
 export default function PositionLegacy({ positions }: { positions: SubgraphPosition[] }) {
-  const { chainId, networkInfo, account } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
   const { library } = useWeb3React()
   const theme = useTheme()
 
@@ -81,52 +75,7 @@ export default function PositionLegacy({ positions }: { positions: SubgraphPosit
 
   const tokenPrices = useTokenPrices(addresses)
 
-  const [feeRewards, setFeeRewards] = useState<{
-    [tokenId: string]: [string, string]
-  }>(() => positions.reduce((acc, item) => ({ ...acc, [item.id]: ['0', '0'] }), {}))
-
-  const multicallContract = useMulticallContract()
-
-  useEffect(() => {
-    const getData = async () => {
-      if (!multicallContract) return
-      const fragment = tickReaderInterface.getFunction('getTotalFeesOwedToPosition')
-      const callParams = positions.map(item => {
-        return {
-          target: (networkInfo as EVMNetworkInfo).elastic.tickReader,
-          callData: tickReaderInterface.encodeFunctionData(fragment, [
-            config[chainId].positionManagerContract,
-            item.pool.id,
-            item.id,
-          ]),
-        }
-      })
-
-      const { returnData } = await multicallContract?.callStatic.tryBlockAndAggregate(false, callParams)
-      setFeeRewards(
-        returnData.reduce(
-          (
-            acc: { [tokenId: string]: [string, string] },
-            item: { success: boolean; returnData: string },
-            index: number,
-          ) => {
-            if (item.success) {
-              const tmp = tickReaderInterface.decodeFunctionResult(fragment, item.returnData)
-              return {
-                ...acc,
-                [positions[index].id]: [tmp.token0Owed.toString(), tmp.token1Owed.toString()],
-              }
-            }
-            return { ...acc, [positions[index].id]: ['0', '0'] }
-          },
-          {} as { [tokenId: string]: [string, string] },
-        ),
-      )
-    }
-
-    getData()
-    // eslint-disable-next-line
-  }, [chainId, multicallContract, networkInfo, positions.length])
+  const feeRewards = usePositionFees(positions)
 
   const [allowedSlippage] = useUserSlippageTolerance()
   const deadline = useTransactionDeadline()

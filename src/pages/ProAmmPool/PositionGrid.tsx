@@ -198,7 +198,7 @@ function PositionGrid({
   const columnCount = upToSmall ? 1 : upToLarge ? 2 : 3
   return (
     <FixedSizeGrid
-      style={{ width: '100%', height: 'calc(100vh - 200px)' }}
+      style={{ width: '100%', height: '100vh' }}
       width={10000}
       columnCount={columnCount}
       outerElementType={outerElementType}
@@ -288,7 +288,7 @@ const emptyFunction = (): void => {
 
 type DocumentPropsType = React.HTMLProps<HTMLElement>
 
-const outerElementType = forwardRef<HTMLElement, DocumentPropsType>(({ onScroll, children }, forwardedRef) => {
+export const outerElementType = forwardRef<HTMLElement, DocumentPropsType>(({ onScroll, children }, forwardedRef) => {
   const containerRef = useRef<HTMLDivElement>(null)
   useScroll(
     () => {

@@ -39,7 +39,6 @@ import Verify from './Verify'
 
 // test page for swap only through elastic
 const ElasticSwap = lazy(() => import('./ElasticSwap'))
-const ElasticLegacy = lazy(() => import('./ElasticLegacy'))
 const SwapV2 = lazy(() => import('./SwapV2'))
 const SwapV3 = lazy(() => import('./SwapV3'))
 // const Bridge = lazy(() => import('./Bridge'))
@@ -296,7 +295,6 @@ export default function App() {
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgramPage />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />
 
-                    <Route path={`${APP_PATHS.ELASTIC_LEGACY}`} element={<ElasticLegacy />} />
                     <Route path={`elastic-swap`} element={<ElasticSwap />} />
 
                     <Route path="*" element={<RedirectPathToSwapV3Network />} />
