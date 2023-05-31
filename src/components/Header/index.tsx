@@ -70,10 +70,7 @@ const HeaderControls = styled.div`
     width: 100%;
     z-index: 98;
     height: 72px;
-    background-color: ${({ theme }) => theme.background};
-  `};
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-      background-color: ${({ theme }) => theme.buttonBlack};
+    background-color: ${({ theme }) => theme.buttonBlack};
   `};
   ${({ theme }) => theme.mediaWidth.upToSmall`
       height: 60px;
