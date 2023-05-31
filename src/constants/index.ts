@@ -209,7 +209,6 @@ export const APP_PATHS = {
   FARMS: '/farms',
   MY_POOLS: '/myPools',
   MY_EARNINGS: '/my-earnings',
-  REFERRAL: '/referral',
   DISCOVER: '/discover',
   BUY_CRYPTO: '/buy-crypto',
   BRIDGE: '/bridge',

@@ -125,6 +125,7 @@ function Web3StatusInner() {
     return (
       <Web3StatusConnected
         id={TutorialIds.BUTTON_ADDRESS_WALLET}
+        data-testid="web3-status-connected"
         onClick={() => {
           toggleWalletModal()
           mixpanelHandler(MIXPANEL_TYPE.WUI_WALLET_CLICK)
@@ -162,7 +163,12 @@ function Web3StatusInner() {
     )
   } else {
     return (
-      <ButtonLight onClick={toggleWalletModal} padding="10px 12px" id={TutorialIds.BUTTON_CONNECT_WALLET}>
+      <ButtonLight
+        onClick={toggleWalletModal}
+        padding="10px 12px"
+        id={TutorialIds.BUTTON_CONNECT_WALLET}
+        data-testid="button-connect-wallet"
+      >
         <Trans>Connect Wallet</Trans>
       </ButtonLight>
     )
