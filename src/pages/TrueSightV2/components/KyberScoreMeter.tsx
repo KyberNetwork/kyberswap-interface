@@ -273,6 +273,13 @@ function KyberScoreMeter({
     const fps = 60
     const interval = 1000 / fps
     const duration = 3000
+    let eliminate = false
+
+    Object.keys(gaugeRefs.current).map((k: string) => {
+      const el = gaugeRefs.current?.[k]
+      el?.setAttribute('style', 'fill:' + theme.darkMode ? theme.subText + '30' : theme.border + '60')
+    })
+
     const step = (currentTime: number) => {
       if (!startTime) {
         startTime = currentTime
@@ -297,11 +304,15 @@ function KyberScoreMeter({
         }
       }
 
-      if (elapsedTime < duration) {
+      if (elapsedTime < duration && !eliminate) {
         window.requestAnimationFrame(step)
       }
     }
     window.requestAnimationFrame(step)
+
+    return () => {
+      eliminate = true
+    }
   }, [value, noAnimation, theme])
 
   return (

@@ -50,7 +50,7 @@ export default function KyberScoreShareContent({
           data={token?.kyberScore?.ks3d}
           width={mobileMode ? '80%' : '40%'}
           height={mobileMode ? '40px' : '46px'}
-          noAnimation={true}
+          noAnimation
         />
       </Row>
     </Column>
