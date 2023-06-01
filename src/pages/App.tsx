@@ -1,5 +1,6 @@
 import { datadogRum } from '@datadog/browser-rum'
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { Widget } from '@kyberswap/widgets'
 import { Trans } from '@lingui/macro'
 import * as Sentry from '@sentry/react'
 import { Suspense, lazy, useEffect } from 'react'
@@ -22,7 +23,7 @@ import Modal from 'components/Modal'
 import Snowfall from 'components/Snowflake/Snowfall'
 import Web3ReactManager from 'components/Web3ReactManager'
 import { APP_PATHS, BLACKLIST_WALLETS } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
 import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useTheme from 'hooks/useTheme'
@@ -146,6 +147,7 @@ export default function App() {
   const snowflake = new Image()
   snowflake.src = snow
 
+  const { library } = useWeb3React()
   return (
     <ErrorBoundary>
       <AppHaveUpdate />
@@ -293,6 +295,34 @@ export default function App() {
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />
 
                     <Route path={`elastic-swap`} element={<ElasticSwap />} />
+                    <Route
+                      path={`widget-test`}
+                      element={
+                        <Widget
+                          client="widget-react-demo"
+                          theme={{
+                            text: '#FFFFFF',
+                            subText: '#A9A9A9',
+                            primary: '#1C1C1C',
+                            dialog: '#313131',
+                            secondary: '#0F0F0F',
+                            interactive: '#292929',
+                            stroke: '#505050',
+                            accent: '#28E0B9',
+                            success: '#189470',
+                            warning: '#FF9901',
+                            error: '#FF537B',
+                            fontFamily: 'Work Sans',
+                            borderRadius: '16px',
+                            buttonRadius: '999px',
+                            boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.04)',
+                          }}
+                          tokenList={[]}
+                          provider={library}
+                          feeSetting={undefined}
+                        />
+                      }
+                    />
 
                     <Route path="*" element={<RedirectPathToSwapV3Network />} />
                   </Routes>
