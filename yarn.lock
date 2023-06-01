@@ -12,12 +12,7 @@
     ethers "^5.7.1"
     release-it "^15.5.0"
 
-"@adraffy/ens-normalize@1.9.0":
-  version "1.9.0"
-  resolved "https://registry.yarnpkg.com/@adraffy/ens-normalize/-/ens-normalize-1.9.0.tgz#223572538f6bea336750039bb43a4016dcc8182d"
-  integrity sha512-iowxq3U30sghZotgl4s/oJRci6WPBfNO5YYgk2cIOMCHr3LeGPcsZjCEr+33Q4N+oV3OABDAtA+pyvWjbvBifQ==
-
-"@adraffy/ens-normalize@https://github.com/ricmoo/ens-normalize.js":
+"@adraffy/ens-normalize@1.9.0", "@adraffy/ens-normalize@https://github.com/ricmoo/ens-normalize.js":
   version "1.9.0"
   resolved "https://github.com/ricmoo/ens-normalize.js#2d040533e57e4f25f9a7cc4715e219658ad454b5"
 
@@ -3010,7 +3005,7 @@
     redux-thunk "^2.4.2"
     reselect "^4.1.7"
 
-"@release-it/conventional-changelog@github:release-it/conventional-changelog":
+"@release-it/conventional-changelog@release-it/conventional-changelog":
   version "5.1.1"
   resolved "https://codeload.github.com/release-it/conventional-changelog/tar.gz/ff9f1aae654dc378d5ed4703a2802ef9591e1a96"
   dependencies:

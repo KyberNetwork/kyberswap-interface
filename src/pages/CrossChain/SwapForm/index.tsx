@@ -89,7 +89,6 @@ export default function SwapForm() {
       slippage: slippageTolerance / 100,
       enableExpress: enableExpressExecution,
       quoteOnly: !account,
-      prefer: ['KYBERSWAP_AGGREGATOR'],
     }
   }, [
     currencyIn,

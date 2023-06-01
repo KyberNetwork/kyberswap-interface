@@ -1,4 +1,5 @@
 import { GetRoute } from '@0xsquid/sdk'
+import { RouteData } from '@sentry/react/types/types'
 import { debounce } from 'lodash'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -21,19 +22,26 @@ export default function useGetRouteCrossChain(params: GetRoute | undefined) {
         setTradeRoute(undefined)
         return
       }
+      let route: RouteData | undefined
       try {
         currentRequest.current = debounceParams
         setLoading(true)
         isRefresh && setTradeRoute(undefined)
-        const { route } = await squidInstance.getRoute(debounceParams)
+        const resp = await squidInstance.getRoute({ ...debounceParams, prefer: ['KYBERSWAP_AGGREGATOR'] })
+        route = resp.route
         if (currentRequest.current !== debounceParams) return
+      } catch (error) {}
+      try {
+        if (!route) {
+          const resp = await squidInstance.getRoute(debounceParams)
+          route = resp.route
+        }
         setTradeRoute(route)
         setError(false)
+        setLoading(false)
       } catch (error) {
-        console.log(error)
         setError(true)
         setTradeRoute(undefined)
-      } finally {
         setLoading(false)
       }
     },
