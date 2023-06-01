@@ -111,6 +111,10 @@ export function isSolana(chainId?: ChainId): chainId is ChainId.SOLANA {
   const chainType = getChainType(chainId)
   return chainType === ChainType.SOLANA
 }
+export function isSupportedChainId(chainId?: number): chainId is ChainId {
+  if (!chainId) return false
+  return !!(NETWORKS_INFO_CONFIG as any)[chainId]
+}
 
 type NetToChain = { [p: string]: ChainId }
 

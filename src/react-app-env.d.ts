@@ -12,6 +12,8 @@ interface Window {
     isBraveWallet?: any
     isCoinbaseWallet?: boolean
     isTrustWallet?: boolean
+    isRabby?: boolean
+    isLedgerConnect?: boolean
     on?: (...args: any[]) => void
     removeListener?: (...args: any[]) => void
     request: (params: { method: string; params?: any }) => Promise<any>

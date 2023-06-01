@@ -1,7 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { WalletReadyState } from '@solana/wallet-adapter-base'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { UnsupportedChainIdError } from '@web3-react/core'
 import dayjs from 'dayjs'
 import { rgba, transparentize } from 'polished'
 import { useCallback, useEffect, useState } from 'react'
@@ -21,9 +20,9 @@ import WalletPopup from 'components/WalletPopup'
 import { APP_PATHS, TERM_FILES_PATH } from 'constants/index'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS, WalletInfo } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useActivationWallet } from 'hooks/useActivationWallet'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import { useActivationWallet } from 'hooks/web3/useActivationWallet'
 import { ApplicationModal } from 'state/application/actions'
 import {
   useCloseModal,
@@ -54,15 +53,6 @@ const Wrapper = styled.div`
   margin: 0;
   padding: 0;
   width: 100%;
-`
-
-const HeaderRow = styled.div<{ padding?: string }>`
-  ${({ theme }) => theme.flexRowNoWrap};
-  font-weight: 500;
-  color: ${props => (props.color === 'blue' ? ({ theme }) => theme.primary : 'inherit')};
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 1.5rem 1rem 1rem;
-  `};
 `
 
 const ContentWrapper = styled.div`
@@ -145,19 +135,19 @@ type WalletInfoExtended = WalletInfo & {
 }
 
 export default function WalletModal() {
-  const { account, isSolana, isEVM, walletKey } = useActiveWeb3React()
+  const { isWrongNetwork, account, isSolana, isEVM, walletKey } = useActiveWeb3React()
   // important that these are destructed from the account-specific web3-react context
-  const { active, connector, error } = useWeb3React()
+  const { active, connector } = useWeb3React()
   const { connected, connecting, wallet: solanaWallet } = useWallet()
   const { tryActivation } = useActivationWallet()
 
   const theme = useTheme()
 
   const [walletView, setWalletView] = useState(WALLET_VIEWS.ACCOUNT)
-
   const [pendingWalletKey, setPendingWalletKey] = useState<SUPPORTED_WALLET | undefined>()
 
   const [pendingError, setPendingError] = useState<boolean>()
+  const [error, setError] = useState<Error | null>(null)
 
   const walletModalOpen = useModalOpen(ApplicationModal.WALLET)
   const toggleWalletModal = useWalletModalToggle()
@@ -183,15 +173,16 @@ export default function WalletModal() {
   }, [account, previousAccount, toggleWalletModal, walletModalOpen, location.pathname, mixpanelHandler])
 
   useEffect(() => {
-    if (error && error instanceof UnsupportedChainIdError) {
+    if (isWrongNetwork) {
       openNetworkModal()
     }
-  }, [error, openNetworkModal])
+  }, [isWrongNetwork, openNetworkModal])
 
   // always reset to account view
   useEffect(() => {
     if (walletModalOpen) {
       setPendingError(false)
+      setError(null)
       setWalletView(WALLET_VIEWS.ACCOUNT)
     }
   }, [walletModalOpen])
@@ -201,7 +192,7 @@ export default function WalletModal() {
   const connectorPrevious = usePrevious(connector)
 
   useEffect(() => {
-    if (walletModalOpen && ((active && !activePrevious) || (connector && connector !== connectorPrevious && !error))) {
+    if (walletModalOpen && ((active && !activePrevious) || (connector !== connectorPrevious && !error))) {
       setWalletView(WALLET_VIEWS.ACCOUNT)
     }
   }, [setWalletView, active, error, connector, walletModalOpen, activePrevious, connectorPrevious])
@@ -218,11 +209,13 @@ export default function WalletModal() {
     async (walletKey: SUPPORTED_WALLET) => {
       setPendingWalletKey(walletKey)
       setWalletView(WALLET_VIEWS.PENDING)
-      setPendingError(false)
       try {
         await tryActivation(walletKey)
-      } catch {
+        setPendingError(false)
+        setError(null)
+      } catch (error) {
         setPendingError(true)
+        setError(error)
       }
     },
     [tryActivation],
@@ -286,24 +279,6 @@ export default function WalletModal() {
   const [isPinnedPopupWallet, setPinnedPopupWallet] = useState(false)
 
   function getModalContent() {
-    if (error) {
-      return (
-        <UpperSection>
-          <RowBetween>
-            <HeaderRow padding="1rem">
-              <Trans>Error connecting</Trans>
-            </HeaderRow>
-            <CloseIcon onClick={toggleWalletModal}>
-              <Close />
-            </CloseIcon>
-          </RowBetween>
-          <ContentWrapper>
-            <Trans>Error connecting. Try refreshing the page.</Trans>
-          </ContentWrapper>
-        </UpperSection>
-      )
-    }
-
     return (
       <UpperSection>
         <RowBetween marginBottom="26px" gap="20px">
@@ -311,6 +286,7 @@ export default function WalletModal() {
             <HoverText
               onClick={() => {
                 setPendingError(false)
+                setError(null)
                 setWalletView(WALLET_VIEWS.ACCOUNT)
               }}
               style={{ marginRight: '1rem', flex: 1 }}

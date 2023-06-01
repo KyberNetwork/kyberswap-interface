@@ -3,9 +3,10 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { usePrevious } from 'react-use'
 
 import { NETWORKS_INFO } from 'constants/networks'
-import { isAuthorized, useActiveWeb3React, useEagerConnect } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
+import { isAuthorized, useEagerConnect } from 'hooks/web3/useEagerConnect'
 
-import { useChangeNetwork } from './useChangeNetwork'
+import { useChangeNetwork } from './web3/useChangeNetwork'
 
 /**
  *

@@ -534,7 +534,7 @@ export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => 
   const config = useAppSelector(state => state.application.config[chainId] || getDefaultConfig(chainId))
 
   const provider = useMemo(
-    () => cacheCalc('rpc', config.rpc, subgraph => new ethers.providers.JsonRpcProvider(subgraph)),
+    () => cacheCalc('rpc', config.rpc, rpc => new ethers.providers.JsonRpcProvider(rpc)),
     [config.rpc],
   )
   const blockClient = useMemo(

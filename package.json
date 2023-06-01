@@ -64,9 +64,11 @@
     "@solana/wallet-adapter-wallets": "^0.19.5",
     "@solana/web3.js": "^1.66.2",
     "@use-gesture/react": "^10.2.27",
-    "@web3-react/core": "^6.1.9",
-    "@web3-react/injected-connector": "^6.0.7",
-    "@web3-react/walletconnect-connector": "^7.0.2-alpha.0",
+    "@web3-react/coinbase-wallet": "^8.2.0",
+    "@web3-react/core": "^8.2.0",
+    "@web3-react/metamask": "^8.2.1",
+    "@web3-react/types": "^8.2.0",
+    "@web3-react/walletconnect-v2": "^8.3.1",
     "@web3-react/walletlink-connector": "^6.2.14",
     "aos": "^2.3.4",
     "axios": "1.2.1",
@@ -183,6 +185,7 @@
     "vite-tsconfig-paths": "^4.0.8"
   },
   "resolutions": {
+    "@walletconnect/sign-client": "2.7.7",
     "@kyberswap/ks-sdk-core": "^1.0.5",
     "react-error-overlay": "6.0.9",
     "@lingui/babel-plugin-extract-messages": "3.14.0",

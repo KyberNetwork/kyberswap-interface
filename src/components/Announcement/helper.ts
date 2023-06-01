@@ -5,7 +5,7 @@ import AnnouncementApi from 'services/announcement'
 
 import { AnnouncementTemplatePopup, PopupContentAnnouncement, PopupItemType } from 'components/Announcement/type'
 import { useActiveWeb3React } from 'hooks'
-import { useChangeNetwork } from 'hooks/useChangeNetwork'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useAppDispatch } from 'state/hooks'
 
 const LsKey = 'ack-announcements'

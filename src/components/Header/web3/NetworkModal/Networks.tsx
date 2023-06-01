@@ -13,9 +13,9 @@ import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
-import { useChangeNetwork } from 'hooks/useChangeNetwork'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useAppDispatch } from 'state/hooks'
 import { updateChainId } from 'state/user/actions'
 import { useIsDarkMode } from 'state/user/hooks'
@@ -137,7 +137,7 @@ const Networks = ({
   disabledAll?: boolean
   disabledAllMsg?: string
 }) => {
-  const { chainId: currentChainId } = useActiveWeb3React()
+  const { chainId: currentChainId, isWrongNetwork } = useActiveWeb3React()
   const changeNetwork = useChangeNetwork()
   const qs = useParsedQueryString()
   const navigate = useNavigate()
@@ -181,7 +181,7 @@ const Networks = ({
       {MAINNET_NETWORKS.map((key: ChainId, i: number) => {
         const { iconDark, icon, name } = NETWORKS_INFO[key]
         const disabled = !isAcceptedTerm || (activeChainIds ? !activeChainIds?.includes(key) : false)
-        const selected = selectedId === key
+        const selected = selectedId === key && !isWrongNetwork
 
         const imgSrc = (isDarkMode ? iconDark : icon) || icon
         const walletKey =

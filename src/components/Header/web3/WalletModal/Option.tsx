@@ -237,14 +237,15 @@ const Option = ({
   if (isOverridden) {
     return (
       <MouseoverTooltip
-        width="500px"
+        width="fit-content"
+        maxWidth="500px"
         text={
           walletKey === 'COIN98' ? (
             <Trans>
               You need to enable <b>&quot;Override Wallet&quot;</b> in Coin98 settings.
             </Trans>
           ) : (
-            <C98OverrideGuide walletKey={walletKey} />
+            <C98OverrideGuide walletKey={walletKey} isOpened={false} />
           )
         }
         placement="bottom"

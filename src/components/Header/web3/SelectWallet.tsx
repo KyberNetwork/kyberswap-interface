@@ -1,5 +1,4 @@
-import { Trans, t } from '@lingui/macro'
-import { UnsupportedChainIdError } from '@web3-react/core'
+import { Trans } from '@lingui/macro'
 import { darken, lighten } from 'polished'
 import { useMemo } from 'react'
 import { Activity } from 'react-feather'
@@ -12,7 +11,7 @@ import Loader from 'components/Loader'
 import { RowBetween } from 'components/Row'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import useENSName from 'hooks/useENSName'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useNetworkModalToggle, useWalletModalToggle } from 'state/application/hooks'
@@ -98,8 +97,7 @@ const AccountElement = styled.div`
 `
 
 function Web3StatusInner() {
-  const { chainId, account, walletKey, isEVM } = useActiveWeb3React()
-  const { error } = useWeb3React()
+  const { chainId, account, walletKey, isEVM, isWrongNetwork } = useActiveWeb3React()
   const isDarkMode = useIsDarkMode()
   const { mixpanelHandler } = useMixpanel()
 
@@ -121,7 +119,16 @@ function Web3StatusInner() {
   const toggleNetworkModal = useNetworkModalToggle()
 
   const above369 = useMedia('(min-width: 369px)')
-  if (account) {
+  if (isWrongNetwork) {
+    return (
+      <Web3StatusError onClick={toggleNetworkModal}>
+        <NetworkIcon />
+        <Text>
+          <Trans>Wrong Network</Trans>
+        </Text>
+      </Web3StatusError>
+    )
+  } else if (account) {
     return (
       <Web3StatusConnected
         id={TutorialIds.BUTTON_ADDRESS_WALLET}
@@ -153,13 +160,6 @@ function Web3StatusInner() {
           </>
         )}
       </Web3StatusConnected>
-    )
-  } else if (error) {
-    return (
-      <Web3StatusError onClick={toggleNetworkModal}>
-        <NetworkIcon />
-        <Text>{error instanceof UnsupportedChainIdError ? t`Wrong Network` : t`Error`}</Text>
-      </Web3StatusError>
     )
   } else {
     return (
