@@ -31,7 +31,7 @@ import starsImage from 'assets/images/truesight-v2/landing-page/stars.png'
 import tokenListImage from 'assets/images/truesight-v2/landing-page/token-list.png'
 import tokenPriceLightImage from 'assets/images/truesight-v2/landing-page/token-price-light.png'
 import tokenPriceImage from 'assets/images/truesight-v2/landing-page/token-price.png'
-import videoPlaceholderImage from 'assets/images/truesight-v2/landing-page/video-placeholder.png'
+// import videoPlaceholderImage from 'assets/images/truesight-v2/landing-page/video-placeholder.png'
 import sprite from 'assets/svg/kyberAILandingPageSprite.svg'
 import Column from 'components/Column'
 import GlobalIcon from 'components/Icons/Icon'
@@ -209,8 +209,19 @@ const FloatingImageWithMotion = (props: {
   )
 }
 const VideoWrapper = styled.div`
-  img {
+  padding-bottom: 56.25%;
+  position: relative;
+  width: 100%;
+  height: 0;
+  border-radius: 16px;
+  overflow: hidden;
+
+  iframe {
     width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
   }
 `
 const ReasonWrapper = styled.div`
@@ -497,7 +508,15 @@ export default function KyberAILandingPage() {
       </Part1>
       <Part2>
         <VideoWrapper>
-          <img src={videoPlaceholderImage} alt="video placeholder" />
+          <iframe
+            width="315"
+            height="560"
+            src="https://www.youtube.com/embed/7NJtxBRabjo"
+            title="YouTube video player"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+            frameBorder="0"
+          />
         </VideoWrapper>
       </Part2>
       <Part2>
