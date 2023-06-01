@@ -22,6 +22,7 @@ import {
   useSetPendingAuthentication,
   useSignedWallet,
 } from 'state/authen/hooks'
+import getShortenAddress from 'utils/getShortenAddress'
 import { setLoginRedirectUrl } from 'utils/redirectUponLogin'
 
 KyberOauth2.initialize({
@@ -42,7 +43,6 @@ const useLogin = (autoLogin = false) => {
   const { removeProfile, removeAllProfile } = useAllProfileInfo()
   const showConfirm = useShowConfirm()
 
-  const requestingSession = useRef<string>() // which wallet requesting
   const requestingSessionAnonymous = useRef(false)
 
   const { anonymousUserInfo } = useSessionInfo()
@@ -81,7 +81,6 @@ const useLogin = (autoLogin = false) => {
       resetState()
       if (anonymousUserInfo) {
         setProfile({ profile: anonymousUserInfo, isAnonymous: true, walletAddress }) // trigger reset account sign in
-        requestingSession.current = undefined
         return
       }
       try {
@@ -92,12 +91,24 @@ const useLogin = (autoLogin = false) => {
       } finally {
         requestingSessionAnonymous.current = false
         await getProfile(walletAddress, true)
-        requestingSession.current = undefined
       }
     },
     [anonymousUserInfo, setProfile, getProfile, resetState],
   )
   const wrappedSignInAnonymous = useCallback(() => signInAnonymous(account), [signInAnonymous, account])
+
+  const showNotiSuccess = useCallback(
+    (walletAddress: string | undefined) =>
+      notify({
+        type: NotificationType.SUCCESS,
+        title: t`Logged in successfully`,
+        summary:
+          walletAddress?.toLowerCase() === account?.toLowerCase()
+            ? t`Logged in successfully with the current wallet address`
+            : t`Logged in successfully with wallet ${getShortenAddress(walletAddress ?? '')}`,
+      }),
+    [account, notify],
+  )
 
   const requestSignIn = useCallback(
     async (walletAddress: string | undefined, loginAnonymousIfFailed = true) => {
@@ -106,19 +117,11 @@ const useLogin = (autoLogin = false) => {
           throw new Error('Not found address.')
         }
         setLoading(true)
-        if (requestingSession.current !== walletAddress?.toLowerCase()) {
-          requestingSession.current = walletAddress?.toLowerCase()
-          await KyberOauth2.getSession({ method: LoginMethod.ETH, walletAddress })
-          await getProfile(walletAddress)
-          saveSignedWallet(walletAddress)
-          setProfileLocalStorage(ProfileLocalStorageKeys.CONNECTING_WALLET, undefined)
-          !autoLogin &&
-            notify({
-              type: NotificationType.SUCCESS,
-              title: t`Logged in successfully`,
-              summary: t`Logged in successfully with the current wallet address`,
-            })
-        }
+        await KyberOauth2.getSession({ method: LoginMethod.ETH, walletAddress })
+        await getProfile(walletAddress)
+        saveSignedWallet(walletAddress)
+        setProfileLocalStorage(ProfileLocalStorageKeys.CONNECTING_WALLET, undefined)
+        !autoLogin && showNotiSuccess(walletAddress)
       } catch (error) {
         console.log('get session:', walletAddress, error.message)
         if (loginAnonymousIfFailed) {
@@ -128,7 +131,7 @@ const useLogin = (autoLogin = false) => {
         setLoading(false)
       }
     },
-    [setLoading, signInAnonymous, getProfile, notify, saveSignedWallet, autoLogin],
+    [setLoading, signInAnonymous, getProfile, saveSignedWallet, autoLogin, showNotiSuccess],
   )
 
   const signIn = useCallback(
@@ -148,11 +151,7 @@ const useLogin = (autoLogin = false) => {
         ((isSelectAccount && signedWallet.toLowerCase() === walletAddress?.toLowerCase()) ||
           (isAddAccount && signedWallet.toLowerCase() === account?.toLowerCase()))
       ) {
-        notify({
-          type: NotificationType.SUCCESS,
-          title: t`Logged in successfully`,
-          summary: t`Logged in successfully with the current wallet address`,
-        })
+        showNotiSuccess(walletAddress)
         return
       }
 
@@ -187,7 +186,7 @@ const useLogin = (autoLogin = false) => {
       }
       redirect()
     },
-    [account, notify, signedWallet, requestSignIn, toggleWalletModal, showConfirm],
+    [account, signedWallet, requestSignIn, toggleWalletModal, showConfirm, showNotiSuccess],
   )
 
   // auto try sign in when the first visit app, call once

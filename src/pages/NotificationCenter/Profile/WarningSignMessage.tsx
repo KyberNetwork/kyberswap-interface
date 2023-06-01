@@ -66,7 +66,7 @@ const WarningSignMessage = () => {
             <Trans>Read More</Trans>
           </ButtonOutlined>
         )}
-        <ButtonPrimary width={btnWidth} height={'30px'} fontSize={'14px'} onClick={() => signIn(account)}>
+        <ButtonPrimary width={btnWidth} height={'30px'} fontSize={'14px'} onClick={() => signIn()}>
           <Trans>Sign-in</Trans>
         </ButtonPrimary>
       </Row>

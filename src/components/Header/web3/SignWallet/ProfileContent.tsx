@@ -149,7 +149,11 @@ const ProfileItem = ({
                 {shortString(profile?.nickname ?? '', 18)}
               </Text>
             )}
-            <Text fontWeight={'500'} fontSize={active ? '16px' : '12px'} color={active ? theme.subText : theme.subText}>
+            <Text
+              fontWeight={'500'}
+              fontSize={active ? '16px' : profile?.nickname ? '12px' : '16px'}
+              color={active ? theme.subText : theme.subText}
+            >
               {guest ? account : getShortenAddress(account)}
             </Text>
           </Column>
