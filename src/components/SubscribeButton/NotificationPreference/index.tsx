@@ -483,7 +483,7 @@ function NotificationPreference({
               value={inputEmail}
               placeholder="example@email.com"
               onChange={onChangeInput}
-              disabled={userInfo.email}
+              disabled={!!userInfo.email}
             />
             {isVerifiedEmail && hasTopicSubscribed && <CheckIcon color={theme.primary} />}
           </InputWrapper>
