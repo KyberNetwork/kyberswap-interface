@@ -105,7 +105,7 @@ const useSwap = ({
       ).then(res => res.json())
 
       let dexes: Dex[] = res?.data?.dexes || []
-      const ksElastic = dexes.find(dex => dex.dexId === 'kyberswapv2')
+      const ksElastic = dexes.find(dex => dex.dexId === 'kyberswap-elastic')
       const ksClassic = dexes.find(dex => dex.dexId === 'kyberswap')
       const ksClassicStatic = dexes.find(dex => dex.dexId === 'kyberswap-static')
       const ksLo = dexes.find(dex => dex.dexId === 'kyberswap-limit-order')
@@ -114,7 +114,7 @@ const useSwap = ({
       if (ksElastic)
         ksProtocols = [
           {
-            dexId: 'kyberswapv2',
+            dexId: 'kyberswap-elastic',
             name: 'KyberSwap Elastic',
             logoURL: 'https://kyberswap.com/favicon.ico',
           },
@@ -135,7 +135,7 @@ const useSwap = ({
 
       dexes = ksProtocols.concat(
         dexes.filter(
-          dex => !['kyberswap', 'kyberswapv2', 'kyberswap-static', 'kyberswap-limit-order'].includes(dex.dexId),
+          dex => !['kyberswap', 'kyberswap-elastic', 'kyberswap-static', 'kyberswap-limit-order'].includes(dex.dexId),
         ),
       )
 
