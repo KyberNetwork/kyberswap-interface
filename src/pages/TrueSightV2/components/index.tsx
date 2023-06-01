@@ -72,6 +72,24 @@ const ButtonWrapper = styled.div`
     background-color: ${({ theme }) => theme.border + '33'};
   }
 `
+
+function openFullscreen(elem: any) {
+  if (elem.requestFullscreen) {
+    elem.requestFullscreen()
+  } else if (elem.webkitRequestFullScreen) {
+    /* Old webkit */
+    elem.webkitRequestFullScreen()
+  } else if (elem.webkitRequestFullscreen) {
+    /* New webkit */
+    elem.webkitRequestFullscreen()
+  } else if (elem.mozRequestFullScreen) {
+    elem.mozRequestFullScreen()
+  } else if (elem.msRequestFullscreen) {
+    /* IE11 */
+    elem.msRequestFullscreen()
+  }
+}
+
 export const FullscreenButton = React.memo(function FCButton({
   elementRef,
   onClick,
@@ -84,7 +102,7 @@ export const FullscreenButton = React.memo(function FCButton({
     if (document.fullscreenElement) {
       document.exitFullscreen()
     } else {
-      elementRef?.current?.requestFullscreen()
+      elementRef.current && openFullscreen(elementRef.current)
     }
   }
 

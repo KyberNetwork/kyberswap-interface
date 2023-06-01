@@ -234,7 +234,6 @@ export default function KyberAIShareModal({
         }
         try {
           const { imageUrl, blob } = await shareImage(ref.current, SHARE_TYPE.KYBER_AI, shareId)
-          setLoading(false)
           setDesktopData(prev => {
             return { ...prev, imageUrl, blob }
           })
@@ -261,7 +260,6 @@ export default function KyberAIShareModal({
           setMobileData(prev => {
             return { ...prev, imageUrl, blob }
           })
-          setLoading(false)
         } catch (err) {
           console.log(err)
           setLoading(false)
@@ -387,6 +385,16 @@ export default function KyberAIShareModal({
     </>
   )
 
+  useEffect(() => {
+    if (imageUrl) {
+      const img = new Image()
+      img.src = imageUrl
+      img.onload = () => {
+        setLoading(false)
+      }
+    }
+  }, [imageUrl])
+
   return (
     <Modal isOpen={isOpen} width="fit-content" maxWidth="100vw" maxHeight="80vh">
       <Wrapper>
@@ -493,7 +501,9 @@ export default function KyberAIShareModal({
             ))}
           {loading ? (
             <Loader>
-              <AnimatedLoader />
+              <Text>
+                <Trans>Generating your image...</Trans>
+              </Text>
             </Loader>
           ) : isError ? (
             <Loader>
