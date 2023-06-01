@@ -149,7 +149,7 @@ const ImageInnerMobile = styled.div`
     content: ' ';
     position: absolute;
     inset: 0 0 0 0;
-    opacity: 0.25;
+    opacity: 1;
     background: url(${modalBackgroundMobile});
     background-size: cover;
     z-index: -1;
