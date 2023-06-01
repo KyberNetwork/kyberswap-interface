@@ -1,6 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { debounce } from 'lodash'
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import { useLazyCheckReferralCodeQuery, useRequestWhiteListMutation } from 'services/kyberAISubscription'
 import { useLazyGetConnectedWalletQuery } from 'services/notification'
@@ -13,6 +14,7 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { getErrorMessage, isReferrerCodeInvalid } from 'pages/TrueSightV2/utils'
 import { useSessionInfo } from 'state/authen/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 import { isEmailValid } from 'utils/string'
 
 import { FormWrapper, Input, Label } from './styled'
@@ -27,6 +29,7 @@ export default function EmailForm({
   const qs = useParsedQueryString<{ referrer: string }>()
   const [referredByCode, setCode] = useState(qs.referrer || '')
   const [errorInput, setErrorInput] = useState({ email: '', referredByCode: '' })
+  const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const { userInfo } = useSessionInfo()
   const [requestWaitList] = useRequestWhiteListMutation()
@@ -119,7 +122,7 @@ export default function EmailForm({
   return (
     <>
       <FormWrapper>
-        <Column style={{ width: '70%' }} gap="6px">
+        <Column style={{ width: isMobile ? '100%' : '70%' }} gap="6px">
           <Label>
             <Trans>Your Email*</Trans>
           </Label>
@@ -136,7 +139,7 @@ export default function EmailForm({
             <Trans>We will never share your email with third parties</Trans>
           </Text>
         </Column>
-        <Column gap="6px">
+        <Column gap="6px" style={{ width: isMobile ? '100%' : undefined }}>
           <Label>
             <Trans>Referral Code (Optional)</Trans>
           </Label>
