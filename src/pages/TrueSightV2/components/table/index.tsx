@@ -22,7 +22,7 @@ import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
-import { NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
+import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
 import {
   useAddToWatchlistMutation,
   useFundingRateQuery,
@@ -1008,7 +1008,7 @@ const ShareTableWrapper = styled(Table)`
   margin: 0px !important;
   min-width: inherit;
   tbody tr {
-    background-color: none;
+    background-color: transparent !important;
   }
   tr td,
   thead th {
@@ -1222,16 +1222,11 @@ export const TokenListInShareModalTable = ({
                   />
                   <Text>{token.symbol.toUpperCase()}</Text>
                   <RowFit gap="4px" marginLeft="4px">
-                    {token.tokens.map(item => {
-                      if (item.chain === 'ethereum') return <Icon id="eth-mono" size={14} title="Ethereum" />
-                      if (item.chain === 'bsc') return <Icon id="bnb-mono" size={14} title="Binance" />
-                      if (item.chain === 'avalanche') return <Icon id="ava-mono" size={14} title="Avalanche" />
-                      if (item.chain === 'polygon') return <Icon id="matic-mono" size={14} title="Polygon" />
-                      if (item.chain === 'arbitrum') return <Icon id="arbitrum-mono" size={14} title="Arbitrum" />
-                      if (item.chain === 'fantom') return <Icon id="fantom-mono" size={14} title="Fantom" />
-                      if (item.chain === 'optimism') return <Icon id="optimism-mono" size={14} title="Optimism" />
-                      return <></>
+                    {token.tokens.slice(0, 6).map(item => {
+                      const size = token.tokens.length > 6 ? '12px' : '14px'
+                      return <img src={NETWORK_IMAGE_URL[item.chain]} key={item.address} width={size} height={size} />
                     })}
+                    {token.tokens.length > 6 && <span style={{ fontSize: '10px' }}>...</span>}
                   </RowFit>
                 </RowFit>
               </td>

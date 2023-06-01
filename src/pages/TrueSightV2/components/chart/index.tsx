@@ -1172,7 +1172,7 @@ export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; no
                 axisLine={false}
                 tick={{ fill: theme.subText, fontWeight: 400, fontSize: 12 }}
                 tickFormatter={value =>
-                  dayjs(value).format(timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm A, MMM DD' : 'MMM DD')
+                  dayjs(value).format(timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm' : 'MMM DD')
                 }
                 minTickGap={12}
               />
@@ -1196,7 +1196,10 @@ export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; no
                   return (
                     <TooltipWrapper>
                       <Text fontSize="10px" lineHeight="12px" color={theme.subText}>
-                        {payload.timestamp && dayjs(payload.timestamp).format('MMM DD, YYYY')}
+                        {payload.timestamp &&
+                          dayjs(payload.timestamp).format(
+                            timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm ,MMM DD' : 'MMM DD, YYYY',
+                          )}
                       </Text>
                       <Text fontSize={textFontSize} lineHeight="16px" color={theme.text}>
                         Netflow: <span style={{ color: theme.text }}>${formatShortNum(payload.netflow)}</span>
@@ -1574,7 +1577,7 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
                   <Text fontSize="10px" lineHeight="12px" color={theme.subText}>
                     {payload.timestamp &&
                       dayjs(payload.timestamp).format(
-                        timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm A, MMM DD' : 'MMM DD, YYYY',
+                        timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm, MMM DD' : 'MMM DD, YYYY',
                       )}
                   </Text>
                   <Text fontSize={textFontSize} lineHeight="16px" color={theme.text}>

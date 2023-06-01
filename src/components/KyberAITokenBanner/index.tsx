@@ -184,6 +184,13 @@ const Wrapper = styled.div`
   overflow: hidden;
   border-radius: 24px;
   margin-bottom: 16px;
+  cursor: pointer;
+  :hover {
+    filter: brightness(1.15);
+  }
+  :active {
+    filter: brightness(1.25);
+  }
 `
 
 const Container = styled.div<{ color?: string }>`
