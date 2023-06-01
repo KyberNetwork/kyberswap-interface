@@ -83,7 +83,6 @@ export enum MIXPANEL_TYPE {
   ABOUT_STAKE_KNC_CLICKED,
   ANALYTICS_MENU_CLICKED,
   BLOG_MENU_CLICKED,
-  CREATE_REFERRAL_CLICKED,
   DISCOVER_TRENDING_SOON_CLICKED,
   DISCOVER_TRENDING_CLICKED,
   DISCOVER_SWAP_INITIATED,
@@ -628,16 +627,6 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
         }
         case MIXPANEL_TYPE.ANALYTICS_MENU_CLICKED: {
           mixpanel.track('Analytics Page Clicked')
-          break
-        }
-        case MIXPANEL_TYPE.CREATE_REFERRAL_CLICKED: {
-          const { referral_commission, input_token, output_token } = payload
-          mixpanel.track('Create Referral Link Clicked', {
-            referral_commission,
-            input_token,
-            output_token,
-            chain: network,
-          })
           break
         }
         case MIXPANEL_TYPE.DISCOVER_TRENDING_SOON_CLICKED: {
@@ -1475,7 +1464,6 @@ export const useGlobalMixpanelEvents = () => {
         add: 'Add Liquidity',
         remove: 'Remove Liquidity',
         about: 'About',
-        referral: 'Referral',
         discover: 'Discover',
         campaigns: 'Campaign',
         'elastic/remove': 'Elastic - Remove Liquidity',

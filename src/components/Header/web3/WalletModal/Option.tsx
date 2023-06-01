@@ -131,6 +131,7 @@ const Option = ({
   const content = (
     <OptionCardClickable
       id={`connect-${walletKey}`}
+      data-testid={`connect-${walletKey}`}
       onClick={
         onSelected &&
         !isConnected &&

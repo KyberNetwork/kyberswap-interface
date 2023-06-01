@@ -7,7 +7,7 @@ import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useSwapCallbackV3 from 'hooks/useSwapCallbackV3'
 import { Field } from 'state/swap/actions'
-import { DetailedRouteSummary } from 'types/route'
+import { ChargeFeeBy, DetailedRouteSummary } from 'types/route'
 import { toCurrencyAmount } from 'utils/currencyAmount'
 
 const getFeeInfoForMixPanel = (routeSummary: DetailedRouteSummary | undefined) => {
@@ -16,7 +16,7 @@ const getFeeInfoForMixPanel = (routeSummary: DetailedRouteSummary | undefined) =
   }
 
   return {
-    chargeTokenIn: routeSummary.extraFee.chargeFeeBy === 'currency_in',
+    chargeTokenIn: routeSummary.extraFee.chargeFeeBy === ChargeFeeBy.CURRENCY_IN,
     tokenSymbol: routeSummary.fee.currency.symbol || '',
     feeUsd: routeSummary.extraFee.feeAmountUsd,
     feeAmount: routeSummary.fee.currencyAmount.toExact(),

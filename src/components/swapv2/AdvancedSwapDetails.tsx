@@ -1,7 +1,7 @@
 import { RouteData } from '@0xsquid/sdk'
 import { Currency, TradeType } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { ArrowUpRight } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
@@ -18,7 +18,6 @@ import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { FeeConfig } from 'hooks/useSwapV2Callback'
 import useTheme from 'hooks/useTheme'
 import TradePrice from 'pages/CrossChain/TradePrice'
 import { getRouInfo } from 'pages/CrossChain/helpers'
@@ -30,7 +29,6 @@ import { TYPE } from 'theme'
 import { formattedNum } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
-import { getFormattedFeeAmountUsd } from 'utils/fee'
 import { uint256ToFraction } from 'utils/numbers'
 import { computeSlippageAdjustedAmounts } from 'utils/prices'
 import { formatTimeDuration } from 'utils/time'
@@ -118,10 +116,9 @@ const MinReceiveLabel = () => {
 interface TradeSummaryProps {
   trade: Aggregator
   allowedSlippage: number
-  feeConfig?: FeeConfig | undefined
 }
 
-function TradeSummary({ trade, feeConfig, allowedSlippage }: TradeSummaryProps) {
+function TradeSummary({ trade, allowedSlippage }: TradeSummaryProps) {
   const { isEVM } = useActiveWeb3React()
   const theme = useTheme()
   const [show, setShow] = useState(true)
@@ -131,8 +128,6 @@ function TradeSummary({ trade, feeConfig, allowedSlippage }: TradeSummaryProps) 
 
   const nativeInput = useCurrencyConvertedToNative(trade.inputAmount.currency as Currency)
   const nativeOutput = useCurrencyConvertedToNative(trade.outputAmount.currency as Currency)
-
-  const formattedFeeAmountUsd = useMemo(() => getFormattedFeeAmountUsd(trade, feeConfig), [trade, feeConfig])
 
   return (
     <AutoColumn>
@@ -180,19 +175,6 @@ function TradeSummary({ trade, feeConfig, allowedSlippage }: TradeSummaryProps) 
           </RowFixed>
           <PriceImpactValue priceImpact={trade.priceImpact} />
         </RowBetween>
-        {feeConfig && (
-          <RowBetween>
-            <RowFixed>
-              <TYPE.black fontSize={12} fontWeight={400} color={theme.subText}>
-                <Trans>Referral Fee</Trans>
-              </TYPE.black>
-              <InfoHelper size={14} text={t`Commission fee to be paid directly to your referrer`} />
-            </RowFixed>
-            <TYPE.black color={theme.text} fontSize={12}>
-              {formattedFeeAmountUsd}
-            </TYPE.black>
-          </RowBetween>
-        )}
       </ContentWrapper>
     </AutoColumn>
   )
@@ -200,13 +182,12 @@ function TradeSummary({ trade, feeConfig, allowedSlippage }: TradeSummaryProps) 
 
 export interface AdvancedSwapDetailsProps {
   trade?: Aggregator
-  feeConfig?: FeeConfig | undefined
 }
 
-export function AdvancedSwapDetails({ trade, feeConfig }: AdvancedSwapDetailsProps) {
+export function AdvancedSwapDetails({ trade }: AdvancedSwapDetailsProps) {
   const [allowedSlippage] = useUserSlippageTolerance()
 
-  return trade ? <TradeSummary trade={trade} feeConfig={feeConfig} allowedSlippage={allowedSlippage} /> : null
+  return trade ? <TradeSummary trade={trade} allowedSlippage={allowedSlippage} /> : null
 }
 
 export function TradeSummaryBridge({ outputInfo }: { outputInfo: OutputBridgeInfo }) {

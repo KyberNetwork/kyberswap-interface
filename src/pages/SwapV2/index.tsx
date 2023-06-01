@@ -145,14 +145,7 @@ export default function Swap() {
   const [allowedSlippage] = useUserSlippageTolerance()
 
   // swap state
-  const {
-    independentField,
-    typedValue,
-    recipient,
-    feeConfig,
-    [Field.INPUT]: INPUT,
-    [Field.OUTPUT]: OUTPUT,
-  } = useSwapState()
+  const { independentField, typedValue, recipient, [Field.INPUT]: INPUT, [Field.OUTPUT]: OUTPUT } = useSwapState()
 
   const {
     onSwitchTokensV2,
@@ -784,7 +777,7 @@ export default function Swap() {
               {activeTab === TAB.LIQUIDITY_SOURCES && (
                 <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} />
               )}
-              {isSwapPage && <AdvancedSwapDetailsDropdown trade={trade} feeConfig={feeConfig} />}
+              {isSwapPage && <AdvancedSwapDetailsDropdown trade={trade} />}
             </AppBodyWrapped>
           </SwapFormWrapper>
 
