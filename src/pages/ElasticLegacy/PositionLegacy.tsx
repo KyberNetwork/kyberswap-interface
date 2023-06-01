@@ -1,10 +1,3 @@
-import { TransactionResponse } from '@ethersproject/abstract-provider'
-import { CurrencyAmount, Percent } from '@kyberswap/ks-sdk-core'
-import { NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic'
-import { captureException } from '@sentry/react'
-import { BigNumber } from 'ethers'
-import JSBI from 'jsbi'
-import { useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -16,20 +9,11 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { Position as SubgraphPosition, config, usePositionFees } from 'hooks/useElasticLegacy'
+import { useActiveWeb3React } from 'hooks'
+import { Position as SubgraphPosition, usePositionFees, useRemoveLiquidityLegacy } from 'hooks/useElasticLegacy'
 import useTheme from 'hooks/useTheme'
-import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
-import { useTransactionAdder } from 'state/transactions/hooks'
-import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { useUserSlippageTolerance } from 'state/user/hooks'
-import { basisPointsToPercent, calculateGasMargin } from 'utils'
 import { formatDollarAmount } from 'utils/numbers'
-import { ErrorName } from 'utils/sentry'
-import { unwrappedToken } from 'utils/wrappedCurrency'
-
-import { parsePosition } from './FarmLegacy'
 
 const Wrapper = styled.div`
   border-radius: 1rem;
@@ -67,31 +51,11 @@ const TableRow = styled(TableHeader)`
 `
 
 export default function PositionLegacy({ positions }: { positions: SubgraphPosition[] }) {
-  const { chainId, account } = useActiveWeb3React()
-  const { library } = useWeb3React()
-  const theme = useTheme()
-
   const addresses = [...new Set(positions.map(item => [item.token0.id, item.token1.id]).flat())]
 
   const tokenPrices = useTokenPrices(addresses)
 
   const feeRewards = usePositionFees(positions)
-
-  const [allowedSlippage] = useUserSlippageTolerance()
-  const deadline = useTransactionDeadline()
-
-  const [removeLiquidityError, setRemoveLiquidityError] = useState<string>('')
-  const [attemptingTxn, setAttemptingTxn] = useState(false)
-  const [txnHash, setTxnHash] = useState<string | undefined>()
-  const addTransactionWithType = useTransactionAdder()
-  const [showPendingModal, setShowPendingModal] = useState(false)
-
-  const handleDismiss = () => {
-    setShowPendingModal(false)
-    setTxnHash('')
-    setAttemptingTxn(false)
-    setRemoveLiquidityError('')
-  }
 
   return (
     <Wrapper>
@@ -105,173 +69,110 @@ export default function PositionLegacy({ positions }: { positions: SubgraphPosit
         </TableHeader>
 
         {positions.map(item => {
-          const { token0, token1, position, usd } = parsePosition(item, chainId, tokenPrices)
-
-          const feeValue0 = CurrencyAmount.fromRawAmount(unwrappedToken(token0), feeRewards[item.id][0])
-          const feeValue1 = CurrencyAmount.fromRawAmount(unwrappedToken(token1), feeRewards[item.id][1])
-
-          return (
-            <TableRow key={item.id}>
-              <Text color={theme.subText}>{item.id}</Text>
-
-              <Flex alignItems="center">
-                <DoubleCurrencyLogo currency0={token0} currency1={token1} />
-                <Text color={theme.primary}>
-                  {token0.symbol} - {token1.symbol}
-                </Text>
-                <FeeTag>Fee {((Number(item.pool?.feeTier) || 0) * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
-              </Flex>
-
-              <Flex alignItems="center" justifyContent="flex-start" width="fit-content">
-                <MouseoverTooltip
-                  width="fit-content"
-                  placement="bottom"
-                  text={
-                    <Flex flexDirection="column" fontSize="12px">
-                      <Flex sx={{ gap: '4px' }} alignItems="center">
-                        <CurrencyLogo currency={position.amount0.currency} size="16px" />
-                        <Text fontWeight="500">{position.amount0.toSignificant(6)}</Text>
-                        <Text fontWeight="500">{position.amount0.currency.symbol}</Text>
-                      </Flex>
-
-                      <Flex sx={{ gap: '4px' }} alignItems="center" marginTop="6px">
-                        <CurrencyLogo currency={position.amount1.currency} size="16px" />
-                        <Text fontWeight="500">{position.amount1.toSignificant(6)}</Text>
-                        <Text fontWeight="500">{position.amount1.currency.symbol}</Text>
-                      </Flex>
-                    </Flex>
-                  }
-                >
-                  {formatDollarAmount(usd)}
-                  <DropdownSvg />
-                </MouseoverTooltip>
-              </Flex>
-
-              <Flex flexDirection="column" sx={{ gap: '6px' }} fontSize="12px">
-                <Flex sx={{ gap: '4px' }} alignItems="center">
-                  <CurrencyLogo currency={token0} size="16px" />
-                  <Text fontWeight="500">{feeValue0.toSignificant(6)}</Text>
-                  <Text fontWeight="500">{token0.symbol}</Text>
-                </Flex>
-
-                <Flex sx={{ gap: '4px' }} alignItems="center">
-                  <CurrencyLogo currency={token1} size="16px" />
-                  <Text fontWeight="500">{feeValue1.toSignificant(6)}</Text>
-                  <Text fontWeight="500">{token1.symbol}</Text>
-                </Flex>
-              </Flex>
-
-              <Flex justifyContent="flex-end">
-                {item.owner !== account?.toLowerCase() ? (
-                  <MouseoverTooltip
-                    placement="top"
-                    text="You need to withdraw your deposited liquidity position from the Farm first"
-                  >
-                    <ButtonPrimary padding="6px 12px" style={{ background: theme.buttonGray, color: theme.border }}>
-                      <Text fontSize="12px">Remove Liquidity</Text>
-                    </ButtonPrimary>
-                  </MouseoverTooltip>
-                ) : (
-                  <ButtonOutlined
-                    padding="6px 12px"
-                    width="fit-content"
-                    onClick={() => {
-                      setShowPendingModal(true)
-                      setAttemptingTxn(true)
-                      if (!deadline || !account || !library) {
-                        setRemoveLiquidityError('Something went wrong!')
-                        return
-                      }
-                      const { calldata, value } = NonfungiblePositionManager.removeCallParameters(position, {
-                        tokenId: item.id,
-                        liquidityPercentage: new Percent('100', '100'),
-                        slippageTolerance: basisPointsToPercent(allowedSlippage),
-                        deadline: deadline.toString(),
-                        collectOptions: {
-                          expectedCurrencyOwed0: feeValue0.subtract(
-                            feeValue0.multiply(basisPointsToPercent(allowedSlippage)),
-                          ),
-                          expectedCurrencyOwed1: feeValue1.subtract(
-                            feeValue1.multiply(basisPointsToPercent(allowedSlippage)),
-                          ),
-                          recipient: account,
-                          deadline: deadline.toString(),
-                          isRemovingLiquid: true,
-                          havingFee: !(feeValue0.equalTo(JSBI.BigInt('0')) && feeValue1.equalTo(JSBI.BigInt('0'))),
-                        },
-                      })
-
-                      const txn = {
-                        to: config[chainId].positionManagerContract,
-                        data: calldata,
-                        value,
-                      }
-
-                      library
-                        .getSigner()
-                        .estimateGas(txn)
-                        .then(async (estimate: BigNumber) => {
-                          const newTxn = {
-                            ...txn,
-                            gasLimit: calculateGasMargin(estimate),
-                          }
-                          return library
-                            .getSigner()
-                            .sendTransaction(newTxn)
-                            .then((response: TransactionResponse) => {
-                              const tokenAmountIn = position.amount0.toSignificant(6)
-                              const tokenAmountOut = position.amount1.toSignificant(6)
-                              const tokenSymbolIn = token0.symbol
-                              const tokenSymbolOut = token1.symbol
-                              addTransactionWithType({
-                                hash: response.hash,
-                                type: TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY,
-                                extraInfo: {
-                                  tokenAmountIn,
-                                  tokenAmountOut,
-                                  tokenSymbolIn,
-                                  tokenSymbolOut,
-                                  tokenAddressIn: token0.address,
-                                  tokenAddressOut: token1.address,
-                                  contract: item.pool.id,
-                                  nftId: item.id,
-                                },
-                              })
-                              setAttemptingTxn(false)
-                              setTxnHash(response.hash)
-                            })
-                        })
-                        .catch((error: any) => {
-                          setShowPendingModal(true)
-                          setAttemptingTxn(false)
-
-                          if (error?.code !== 'ACTION_REJECTED') {
-                            const e = new Error('Remove Legacy Elastic Liquidity Error', { cause: error })
-                            e.name = ErrorName.RemoveElasticLiquidityError
-                            captureException(e, {
-                              extra: {
-                                calldata,
-                                value,
-                                to: config[chainId].positionManagerContract,
-                              },
-                            })
-                          }
-
-                          setRemoveLiquidityError(error?.message || JSON.stringify(error))
-                        })
-                    }}
-                  >
-                    <Text fontSize="12px">Remove Liquidity</Text>
-                  </ButtonOutlined>
-                )}
-              </Flex>
-            </TableRow>
-          )
+          return <Row key={item.id} position={item} feeRewards={feeRewards} tokenPrices={tokenPrices} />
         })}
       </OverFlow>
+    </Wrapper>
+  )
+}
+
+const Row = ({
+  position: item,
+  tokenPrices,
+  feeRewards,
+}: {
+  position: SubgraphPosition
+  tokenPrices: Record<string, number>
+  feeRewards: Record<string, [string, string]>
+}) => {
+  const {
+    removeLiquidity,
+    handleDismiss,
+    removeLiquidityError,
+    attemptingTxn,
+    txnHash,
+    showPendingModal,
+    token0,
+    token1,
+    position,
+    feeValue0,
+    feeValue1,
+    usd,
+  } = useRemoveLiquidityLegacy(item, tokenPrices, feeRewards)
+
+  const theme = useTheme()
+  const { account } = useActiveWeb3React()
+
+  return (
+    <TableRow key={item.id}>
+      <Text color={theme.subText}>{item.id}</Text>
+
+      <Flex alignItems="center">
+        <DoubleCurrencyLogo currency0={token0} currency1={token1} />
+        <Text color={theme.primary}>
+          {token0.symbol} - {token1.symbol}
+        </Text>
+        <FeeTag>Fee {((Number(item.pool?.feeTier) || 0) * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
+      </Flex>
+
+      <Flex alignItems="center" justifyContent="flex-start" width="fit-content">
+        <MouseoverTooltip
+          width="fit-content"
+          placement="bottom"
+          text={
+            <Flex flexDirection="column" fontSize="12px">
+              <Flex sx={{ gap: '4px' }} alignItems="center">
+                <CurrencyLogo currency={position.amount0.currency} size="16px" />
+                <Text fontWeight="500">{position.amount0.toSignificant(6)}</Text>
+                <Text fontWeight="500">{position.amount0.currency.symbol}</Text>
+              </Flex>
+
+              <Flex sx={{ gap: '4px' }} alignItems="center" marginTop="6px">
+                <CurrencyLogo currency={position.amount1.currency} size="16px" />
+                <Text fontWeight="500">{position.amount1.toSignificant(6)}</Text>
+                <Text fontWeight="500">{position.amount1.currency.symbol}</Text>
+              </Flex>
+            </Flex>
+          }
+        >
+          {formatDollarAmount(usd)}
+          <DropdownSvg />
+        </MouseoverTooltip>
+      </Flex>
+
+      <Flex flexDirection="column" sx={{ gap: '6px' }} fontSize="12px">
+        <Flex sx={{ gap: '4px' }} alignItems="center">
+          <CurrencyLogo currency={token0} size="16px" />
+          <Text fontWeight="500">{feeValue0.toSignificant(6)}</Text>
+          <Text fontWeight="500">{token0.symbol}</Text>
+        </Flex>
+
+        <Flex sx={{ gap: '4px' }} alignItems="center">
+          <CurrencyLogo currency={token1} size="16px" />
+          <Text fontWeight="500">{feeValue1.toSignificant(6)}</Text>
+          <Text fontWeight="500">{token1.symbol}</Text>
+        </Flex>
+      </Flex>
+
+      <Flex justifyContent="flex-end">
+        {item.owner !== account?.toLowerCase() ? (
+          <MouseoverTooltip
+            placement="top"
+            text="You need to withdraw your deposited liquidity position from the Farm first"
+          >
+            <ButtonPrimary padding="6px 12px" style={{ background: theme.buttonGray, color: theme.border }}>
+              <Text fontSize="12px">Remove Liquidity</Text>
+            </ButtonPrimary>
+          </MouseoverTooltip>
+        ) : (
+          <ButtonOutlined padding="6px 12px" width="fit-content" onClick={() => removeLiquidity(true)}>
+            <Text fontSize="12px">Remove Liquidity</Text>
+          </ButtonOutlined>
+        )}
+      </Flex>
 
       <TransactionConfirmationModal
-        isOpen={showPendingModal}
+        isOpen={!!showPendingModal}
         onDismiss={handleDismiss}
         hash={txnHash}
         attemptingTxn={attemptingTxn}
@@ -279,11 +180,20 @@ export default function PositionLegacy({ positions }: { positions: SubgraphPosit
         content={() => (
           <Flex flexDirection={'column'} width="100%">
             {removeLiquidityError ? (
-              <TransactionErrorContent onDismiss={handleDismiss} message={removeLiquidityError} />
+              <TransactionErrorContent
+                onDismiss={handleDismiss}
+                message={removeLiquidityError}
+                confirmText={removeLiquidityError?.includes('burn amount exceeds balance') ? 'Remove without Fees' : ''}
+                confirmAction={() => {
+                  if (removeLiquidityError?.includes('burn amount exceeds balance')) {
+                    removeLiquidity(false)
+                  }
+                }}
+              />
             ) : null}
           </Flex>
         )}
       />
-    </Wrapper>
+    </TableRow>
   )
 }

@@ -164,6 +164,8 @@ const Row = ({
     pos => pos.pool.tickCurrent >= pos.tickLower && pos.pool.tickCurrent < pos.tickUpper,
   ).length
 
+  console.log(numberInRangePos, numberOutRangePos)
+
   const [, setFarmAddress] = useShareFarmAddress()
 
   const amountCanStaked = farmingPool.endTime < currentTimestamp ? 0 : farmingPool.depositedUsd - farmingPool.stakedUsd
@@ -273,6 +275,38 @@ const Row = ({
     )
   }
 
+  const inOutRangeInfo = (
+    <Flex sx={{ gap: '4px' }}>
+      {!!numberOutRangePos && (
+        <MouseoverTooltip
+          text={
+            <Text fontSize="12px" fontStyle="italic">
+              <Trans>You have {numberOutRangePos} out-of-range position(s)</Trans>
+            </Text>
+          }
+        >
+          <Range>
+            {numberOutRangePos} <Info size={12} />
+          </Range>
+        </MouseoverTooltip>
+      )}
+
+      {!!numberInRangePos && (
+        <MouseoverTooltip
+          text={
+            <Text fontSize="12px" fontStyle="italic">
+              <Trans>You have {numberInRangePos} in-range position(s)</Trans>
+            </Text>
+          }
+        >
+          <Range inrange>
+            {numberInRangePos} <Info size={12} />
+          </Range>
+        </MouseoverTooltip>
+      )}
+    </Flex>
+  )
+
   return (
     <RowWrapper isOpen={rowOpen && !!depositedPositions.length} data-testid={farmingPool.id}>
       <ProMMFarmTableRow isOpen={rowOpen && !!depositedPositions.length}>
@@ -378,71 +412,45 @@ const Row = ({
 
         <div>
           {amountCanStaked ? (
-            <Flex justifyContent="flex-start" color={theme.warning}>
-              {formatDollarAmount(farmingPool.depositedUsd)}
-              <InfoHelper
-                placement="top"
-                color={theme.warning}
-                width={'270px'}
-                text={
-                  <Flex
-                    sx={{
-                      flexDirection: 'column',
-                      gap: '6px',
-                      fontSize: '12px',
-                      lineHeight: '16px',
-                      fontWeight: 400,
-                    }}
-                  >
-                    <Text as="span" color={theme.subText}>
-                      <Trans>
-                        You still have {formatDollarAmount(amountCanStaked)} in liquidity to stake to earn even more
-                        farming rewards
-                      </Trans>
-                    </Text>
-                    <Text as="span" color={theme.text}>
-                      Staked: {formatDollarAmount(farmingPool.stakedUsd)}
-                    </Text>
-                    <Text as="span" color={theme.warning}>
-                      Not staked: {formatDollarAmount(amountCanStaked)}
-                    </Text>
-                  </Flex>
-                }
-              />
+            <Flex justifyContent="space-between" color={theme.text} alignItems="center">
+              <Flex justifyContent="flex-start" color={theme.warning}>
+                {formatDollarAmount(farmingPool.depositedUsd)}
+                <InfoHelper
+                  placement="top"
+                  color={theme.warning}
+                  width={'270px'}
+                  text={
+                    <Flex
+                      sx={{
+                        flexDirection: 'column',
+                        gap: '6px',
+                        fontSize: '12px',
+                        lineHeight: '16px',
+                        fontWeight: 400,
+                      }}
+                    >
+                      <Text as="span" color={theme.subText}>
+                        <Trans>
+                          You still have {formatDollarAmount(amountCanStaked)} in liquidity to stake to earn even more
+                          farming rewards
+                        </Trans>
+                      </Text>
+                      <Text as="span" color={theme.text}>
+                        Staked: {formatDollarAmount(farmingPool.stakedUsd)}
+                      </Text>
+                      <Text as="span" color={theme.warning}>
+                        Not staked: {formatDollarAmount(amountCanStaked)}
+                      </Text>
+                    </Flex>
+                  }
+                />
+              </Flex>
+              {inOutRangeInfo}
             </Flex>
           ) : (
             <Flex justifyContent="space-between" color={theme.text} alignItems="center">
               {farmingPool.depositedUsd ? formatDollarAmount(farmingPool.depositedUsd) : '--'}
-
-              <Flex sx={{ gap: '4px' }}>
-                {!!numberOutRangePos && (
-                  <MouseoverTooltip
-                    text={
-                      <Text fontSize="12px" fontStyle="italic">
-                        <Trans>You have {numberOutRangePos} out-of-range position(s)</Trans>
-                      </Text>
-                    }
-                  >
-                    <Range>
-                      {numberOutRangePos} <Info size={12} />
-                    </Range>
-                  </MouseoverTooltip>
-                )}
-
-                {!!numberInRangePos && (
-                  <MouseoverTooltip
-                    text={
-                      <Text fontSize="12px" fontStyle="italic">
-                        <Trans>You have {numberInRangePos} in-range position(s)</Trans>
-                      </Text>
-                    }
-                  >
-                    <Range inrange>
-                      {numberInRangePos} <Info size={12} />
-                    </Range>
-                  </MouseoverTooltip>
-                )}
-              </Flex>
+              {inOutRangeInfo}
             </Flex>
           )}
 

@@ -1,5 +1,4 @@
-import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import memoizeOne from 'memoize-one'
 import { CSSProperties, memo, useState } from 'react'
 import { useMedia } from 'react-use'
@@ -14,10 +13,16 @@ import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
+import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { Position, Position as SubgraphPosition, usePositionFees } from 'hooks/useElasticLegacy'
+import { useActiveWeb3React } from 'hooks'
+import {
+  Position,
+  Position as SubgraphPosition,
+  usePositionFees,
+  useRemoveLiquidityLegacy,
+} from 'hooks/useElasticLegacy'
 import useTheme from 'hooks/useTheme'
 import { outerElementType } from 'pages/ProAmmPool/PositionGrid'
 import { Tab, TabContainer } from 'pages/ProAmmPool/PositionListItem'
@@ -26,8 +31,6 @@ import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 import { formatDollarAmount } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-
-import { parsePosition } from './FarmLegacy'
 
 const Item = styled.div`
   border-radius: 20px;
@@ -94,8 +97,7 @@ const Row = memo(
     const theme = useTheme()
     const [tab, setTab] = useState<'liquidity' | 'price_range'>('liquidity')
 
-    const { chainId, account } = useActiveWeb3React()
-    const { library } = useWeb3React()
+    const { chainId } = useActiveWeb3React()
 
     const sortedPositions = positions.sort((a, b) => +b.liquidity - +a.liquidity)
     const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -103,12 +105,24 @@ const Row = memo(
     const columnCount = upToSmall ? 1 : upToLarge ? 2 : 3
     const index = rowIndex * columnCount + columnIndex
     const p = sortedPositions[index]
+
+    const {
+      removeLiquidity,
+      collectFee,
+      handleDismiss,
+      removeLiquidityError,
+      attemptingTxn,
+      txnHash,
+      showPendingModal,
+      token0,
+      token1,
+      position,
+      feeValue0,
+      feeValue1,
+      usd,
+    } = useRemoveLiquidityLegacy(p || positions[0], tokenPrices, feeRewards)
+
     if (!p) return <div />
-
-    const { token0, token1, position, usd } = parsePosition(p, chainId, tokenPrices)
-
-    const feeValue0 = CurrencyAmount.fromRawAmount(unwrappedToken(token0), feeRewards[p.id][0])
-    const feeValue1 = CurrencyAmount.fromRawAmount(unwrappedToken(token1), feeRewards[p.id][1])
 
     const outOfRange = +p.pool.tick < +p.tickLower.tickIdx || +p.pool.tick >= +p.tickUpper.tickIdx
 
@@ -243,14 +257,50 @@ const Row = memo(
           )}
 
           <Flex marginTop="1rem" sx={{ gap: '12px' }}>
-            <ButtonPrimary style={{ height: '36px' }} disabled={p.liquidity === '0'}>
+            <ButtonPrimary
+              style={{ height: '36px' }}
+              disabled={p.liquidity === '0'}
+              onClick={() => removeLiquidity(true)}
+            >
               Remove Liquidity
             </ButtonPrimary>
-            <ButtonOutlined style={{ height: '36px' }} disabled={feeValue0.equalTo('0') && feeValue1.equalTo('0')}>
+            <ButtonOutlined
+              style={{ height: '36px' }}
+              disabled={feeValue0.equalTo('0') && feeValue1.equalTo('0')}
+              onClick={() => {
+                collectFee()
+              }}
+            >
               Collect Fees
             </ButtonOutlined>
           </Flex>
         </Item>
+
+        <TransactionConfirmationModal
+          isOpen={!!showPendingModal}
+          onDismiss={handleDismiss}
+          hash={txnHash}
+          attemptingTxn={attemptingTxn}
+          pendingText={showPendingModal === 'collectFee' ? t`Collecting Fees` : t`Removing liquidity`}
+          content={() => (
+            <Flex flexDirection={'column'} width="100%">
+              {removeLiquidityError ? (
+                <TransactionErrorContent
+                  onDismiss={handleDismiss}
+                  message={removeLiquidityError}
+                  confirmText={
+                    removeLiquidityError?.includes('burn amount exceeds balance') ? 'Remove without Fees' : ''
+                  }
+                  confirmAction={() => {
+                    if (removeLiquidityError?.includes('burn amount exceeds balance')) {
+                      removeLiquidity(false)
+                    }
+                  }}
+                />
+              ) : null}
+            </Flex>
+          )}
+        />
       </div>
     )
   },
