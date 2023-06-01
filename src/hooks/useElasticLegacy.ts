@@ -408,7 +408,6 @@ export const useRemoveLiquidityLegacy = (
         deadline: deadline.toString(),
         isRemovingLiquid: true,
         havingFee: !(feeValue0.equalTo(JSBI.BigInt('0')) && feeValue1.equalTo(JSBI.BigInt('0'))),
-        legacyMode: true,
       },
     })
 
@@ -490,6 +489,7 @@ export const useRemoveLiquidityLegacy = (
       deadline: deadline.toString(),
       havingFee: true,
       isPositionClosed: item.liquidity === '0',
+      legacyMode: true,
     })
 
     const txn = {

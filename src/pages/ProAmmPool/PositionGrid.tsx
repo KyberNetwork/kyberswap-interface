@@ -198,12 +198,11 @@ function PositionGrid({
   const columnCount = upToSmall ? 1 : upToLarge ? 2 : 3
   return (
     <FixedSizeGrid
-      style={{ width: '100%', height: '100vh' }}
       width={10000}
       columnCount={columnCount}
       outerElementType={outerElementType}
       rowCount={Math.ceil(positions.length / columnCount)}
-      height={0}
+      height={1260}
       columnWidth={upToSmall ? 368 : 392}
       rowHeight={630}
       itemData={itemData}

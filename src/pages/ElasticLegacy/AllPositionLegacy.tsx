@@ -59,7 +59,7 @@ export default function AllPositionLegacy({ positions }: { positions: SubgraphPo
         columnCount={columnCount}
         outerElementType={outerElementType}
         rowCount={Math.ceil(positions.length / columnCount)}
-        height={0}
+        height={752}
         columnWidth={upToSmall ? 368 : 392}
         rowHeight={376}
         itemData={itemData}
