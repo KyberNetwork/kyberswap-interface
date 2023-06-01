@@ -81,7 +81,16 @@ const KyberAITokenBanner = ({
   return (
     <Wrapper>
       {above768 ? (
-        <Container color={color}>
+        <Container
+          color={color}
+          onClick={() => {
+            mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SWAP_INSIGHT_CLICK, {
+              input_token: token0?.symbol?.toUpperCase(),
+              output_token: token1?.symbol?.toUpperCase(),
+            })
+            navigate(APP_PATHS.KYBERAI_EXPLORE + '/' + SUPPORTED_NETWORK_KYBERAI[chainId] + '/' + token?.address)
+          }}
+        >
           <RowFit gap="8px">
             <img src={token?.logo} width="32" height="32" style={{ borderRadius: '50%' }} />
             <Column gap="4px">
@@ -128,7 +137,16 @@ const KyberAITokenBanner = ({
           <div style={{ width: '100px' }}></div>
         </Container>
       ) : (
-        <MobileContainer color={color}>
+        <MobileContainer
+          color={color}
+          onClick={() => {
+            mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SWAP_INSIGHT_CLICK, {
+              input_token: token0?.symbol?.toUpperCase(),
+              output_token: token1?.symbol?.toUpperCase(),
+            })
+            navigate(APP_PATHS.KYBERAI_EXPLORE + '/' + SUPPORTED_NETWORK_KYBERAI[chainId] + '/' + token?.address)
+          }}
+        >
           <RowBetween>
             <RowFit gap="8px">
               <img src={token?.logo} width="32" height="32" style={{ borderRadius: '50%' }} />
@@ -154,18 +172,7 @@ const KyberAITokenBanner = ({
           </RowBetween>
           <Row fontSize="12px" gap="4px" justify="center">
             Explore with <span style={{ color: theme.primary }}>KyberAI</span> here!{' '}
-            <ArrowRight
-              size={14}
-              stroke={theme.primary}
-              style={{ cursor: 'pointer' }}
-              onClick={() => {
-                mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SWAP_INSIGHT_CLICK, {
-                  input_token: token0?.symbol?.toUpperCase(),
-                  output_token: token1?.symbol?.toUpperCase(),
-                })
-                navigate(APP_PATHS.KYBERAI_EXPLORE + '/' + SUPPORTED_NETWORK_KYBERAI[chainId] + '/' + token?.address)
-              }}
-            />
+            <ArrowRight size={14} stroke={theme.primary} style={{ cursor: 'pointer' }} />
           </Row>
         </MobileContainer>
       )}

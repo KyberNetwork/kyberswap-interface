@@ -315,12 +315,12 @@ const TokenNameGroup = ({ token, isLoading }: { token?: ITokenOverview; isLoadin
   }, [token])
   return (
     <>
-      <SimpleTooltip text={t`Go back Ranking page`}>
+      <SimpleTooltip text={t`Go back Ranking page`} hideOnMobile>
         <ButtonIcon onClick={handleGoBackClick}>
           <ChevronLeft size={24} />
         </ButtonIcon>
       </SimpleTooltip>
-      <SimpleTooltip text={isWatched ? t`Remove from watchlist` : t`Add to watchlist`}>
+      <SimpleTooltip text={isWatched ? t`Remove from watchlist` : t`Add to watchlist`} hideOnMobile>
         <HeaderButton
           style={{
             color: isWatched ? theme.primary : theme.subText,

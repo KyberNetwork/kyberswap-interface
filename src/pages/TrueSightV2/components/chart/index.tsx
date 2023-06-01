@@ -506,7 +506,7 @@ export const NumberofTradesChart = ({ noAnimation }: { noAnimation?: boolean }) 
                   <Text fontSize="10px" lineHeight="12px" color={theme.subText}>
                     {payload.timestamp &&
                       dayjs(payload.timestamp * 1000).format(
-                        timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm A, MMM DD' : 'MMM DD, YYYY',
+                        timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm' : 'MMM DD, YYYY',
                       )}
                   </Text>
                   <Text fontSize={textFontSize} lineHeight="16px" color={theme.text}>
@@ -915,7 +915,7 @@ export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; no
     const now = Math.floor(Date.now() / 60000) * 60
     const timerange =
       {
-        [KyberAITimeframe.ONE_DAY]: 14400,
+        [KyberAITimeframe.ONE_DAY]: 3600,
         [KyberAITimeframe.ONE_WEEK]: 86400,
         [KyberAITimeframe.ONE_MONTH]: 86400,
         [KyberAITimeframe.THREE_MONTHS]: 86400,
@@ -1339,7 +1339,7 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
     const now = Math.floor(Date.now() / 60000) * 60
     const timerange =
       {
-        [KyberAITimeframe.ONE_DAY]: 14400,
+        [KyberAITimeframe.ONE_DAY]: 3600,
         [KyberAITimeframe.ONE_WEEK]: 86400,
         [KyberAITimeframe.ONE_MONTH]: 86400,
         [KyberAITimeframe.THREE_MONTHS]: 86400,
@@ -1548,9 +1548,7 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
             tickLine={false}
             axisLine={false}
             tick={{ fill: theme.subText, fontWeight: 400 }}
-            tickFormatter={value =>
-              dayjs(value).format(timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm A, MMM DD' : 'MMM DD')
-            }
+            tickFormatter={value => dayjs(value).format(timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm' : 'MMM DD')}
             minTickGap={12}
           />
           <YAxis
