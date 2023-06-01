@@ -1,6 +1,8 @@
 import { Trans, t } from '@lingui/macro'
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { X } from 'react-feather'
+import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import { useSendOtpMutation, useVerifyOtpMutation } from 'services/identity'
 import styled from 'styled-components'
@@ -51,7 +53,7 @@ const Input = styled.input<{ hasError: boolean }>`
     font-size: 28px;
     width: 46px;
     height: 60px;
-  `}
+  `};
 `
 
 const formatTime = (secs: number) => {
@@ -86,6 +88,7 @@ export default function VerifyCodeModal({
   const [verifySuccess, setVerifySuccess] = useState(false)
   const [error, setError] = useState(false)
   const notify = useNotify()
+  const isTyping = useMedia(`(max-height: 450px)`)
 
   const [expiredDuration, setExpireDuration] = useState(defaultTime)
   const canShowResend = expiredDuration < (timeExpire - 1) * TIMES_IN_SECS.ONE_MIN
@@ -172,7 +175,13 @@ export default function VerifyCodeModal({
   )
 
   return (
-    <Modal isOpen={isOpen} onDismiss={onDismiss} minHeight={false} maxWidth={450}>
+    <Modal
+      isOpen={isOpen}
+      onDismiss={onDismiss}
+      minHeight={false}
+      maxWidth={450}
+      height={isTyping && isMobile ? '100%' : undefined}
+    >
       <Wrapper>
         {verifySuccess ? (
           <Content>
