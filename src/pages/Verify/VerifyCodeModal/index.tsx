@@ -1,6 +1,8 @@
 import { Trans, t } from '@lingui/macro'
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { X } from 'react-feather'
+import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import { useSendOtpMutation, useVerifyOtpMutation } from 'services/identity'
 import styled from 'styled-components'
@@ -99,6 +101,7 @@ export default function VerifyCodeModal({
   const [verifySuccess, setVerifySuccess] = useState(false)
   const [error, setError] = useState<ErrorType>()
   const notify = useNotify()
+  const isTyping = useMedia(`(max-height: 450px)`)
 
   const [expiredDuration, setExpireDuration] = useState(defaultTime)
   const isSendMailError = error === ErrorType.SEND_EMAIL_ERROR
@@ -200,7 +203,13 @@ export default function VerifyCodeModal({
   const showExpiredTime = !isSendMailError && !isRateLimitError && expiredDuration > 0
 
   return (
-    <Modal isOpen={isOpen} onDismiss={onDismiss} minHeight={false} maxWidth={450}>
+    <Modal
+      isOpen={isOpen}
+      onDismiss={onDismiss}
+      minHeight={false}
+      maxWidth={450}
+      height={isTyping && isMobile ? '100%' : undefined}
+    >
       <Wrapper>
         {verifySuccess ? (
           <Content>
