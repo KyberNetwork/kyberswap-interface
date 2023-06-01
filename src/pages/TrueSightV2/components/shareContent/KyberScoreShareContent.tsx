@@ -22,7 +22,7 @@ export default function KyberScoreShareContent({
   if (!token) return null
   const latestKyberscore = token.kyberScore?.ks3d && token.kyberScore.ks3d[token.kyberScore.ks3d.length - 1]
   return (
-    <Column width="100%" justify="center" gap={mobileMode ? '24px' : '16px'}>
+    <Column width="100%" justify="center" gap={mobileMode ? '28px' : '16px'}>
       <Text fontSize={mobileMode ? '14px' : '16px'}>
         <Trans>
           Calculated at {latestKyberscore ? dayjs(latestKyberscore?.created_at * 1000).format('HH:mm A, MMM DD') : ''}{' '}

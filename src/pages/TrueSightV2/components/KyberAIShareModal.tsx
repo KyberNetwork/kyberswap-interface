@@ -4,6 +4,7 @@ import { isMobile } from 'react-device-detect'
 import { X } from 'react-feather'
 import { QRCode } from 'react-qrcode-logo'
 import { useParams } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import { SHARE_TYPE, useCreateShareLinkMutation } from 'services/social'
 import styled, { css } from 'styled-components'
@@ -12,13 +13,12 @@ import modalBackground from 'assets/images/truesight-v2/modal_background.png'
 import modalBackgroundMobile from 'assets/images/truesight-v2/modal_background_mobile.png'
 import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
-import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import useShareImage from 'hooks/useShareImage'
 import useTheme from 'hooks/useTheme'
-import { ExternalLink } from 'theme'
+import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { toDataURL } from 'utils/file'
 
 import { NETWORK_IMAGE_URL } from '../constants'
@@ -136,14 +136,14 @@ const ImageInner = styled.div`
 `
 
 const ImageInnerMobile = styled.div`
-  width: 500px;
-  height: 1000px;
+  width: 400px;
+  height: 800px;
   aspect-ratio: 1/2;
   background-color: ${({ theme }) => theme.background};
   display: flex;
   flex-direction: column;
   padding: 24px;
-  gap: 10px;
+  gap: 16px;
   position: relative;
   :before {
     content: ' ';
@@ -165,9 +165,9 @@ const ImageInnerMobile = styled.div`
     font-size: 12px;
     justify-content: space-between;
   }
-  .recharts-responsive-container {
+  /* .recharts-responsive-container {
     height: 490px !important;
-  }
+  } */
 `
 
 const Loader = styled.div`
@@ -217,7 +217,7 @@ export default function KyberAIShareModal({
   const [desktopData, setDesktopData] = useState<ShareData>({})
   const shareImage = useShareImage()
   const [createShareLink] = useCreateShareLinkMutation()
-
+  const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const sharingUrl = (isMobileMode ? mobileData.shareUrl : desktopData.shareUrl) || ''
   const imageUrl = (isMobileMode ? mobileData.imageUrl : desktopData.imageUrl) || ''
   const blob = isMobileMode ? mobileData.blob : desktopData.blob
@@ -377,7 +377,14 @@ export default function KyberAIShareModal({
               />
             </div>
           </div>
-          <Text fontSize={24} color={theme.text} fontWeight={500} style={{ whiteSpace: 'nowrap' }}>
+          <Text
+            fontSize={24}
+            color={theme.text}
+            fontWeight={500}
+            style={{
+              whiteSpace: above768 ? 'nowrap' : 'unset',
+            }}
+          >
             {tokenOverview?.name} ({tokenOverview?.symbol?.toUpperCase()})
           </Text>
         </>
@@ -448,10 +455,10 @@ export default function KyberAIShareModal({
                     flex: 1,
                     justifyContent: 'center',
                   }}
-                  gap="20px"
+                  gap="24px"
                 >
                   <Row>
-                    <Text fontSize="24px" lineHeight="28px">
+                    <Text fontSize="24px" lineHeight="28px" style={{ whiteSpace: 'nowrap' }}>
                       {title}
                     </Text>
                   </Row>
@@ -459,11 +466,11 @@ export default function KyberAIShareModal({
                 </Column>
                 <Row>
                   <RowBetween gap="20px">
-                    <KyberSwapShareLogo height="48" width="137" />
+                    <KyberSwapShareLogo height="80" width="200" />
                     <div style={{ borderRadius: '6px', overflow: 'hidden' }}>
                       <QRCode
                         value={sharingUrl}
-                        size={70}
+                        size={100}
                         quietZone={4}
                         ecLevel="L"
                         style={{ display: 'block', borderRadius: '6px' }}
@@ -501,8 +508,8 @@ export default function KyberAIShareModal({
             ))}
           {loading ? (
             <Loader>
-              <Text>
-                <Trans>Generating your image...</Trans>
+              <Text fontSize={above768 ? '16px' : '12px'}>
+                <Trans>Crafting your screenshot...</Trans>
               </Text>
             </Loader>
           ) : isError ? (

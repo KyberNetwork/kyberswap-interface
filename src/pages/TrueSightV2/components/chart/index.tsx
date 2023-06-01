@@ -134,6 +134,8 @@ export const LegendWrapper = styled.div`
   gap: 20px;
   z-index: 10;
   user-select: none;
+  flex-wrap: wrap;
+  max-width: 50%;
 
   > * {
     cursor: pointer;
@@ -142,6 +144,7 @@ export const LegendWrapper = styled.div`
   ${({ theme }) => theme.mediaWidth.upToSmall`
     left:0;
     justify-content: center;
+    max-width: 100%;
     > * {
       flex: 1;
     }
@@ -159,6 +162,11 @@ export const InfoWrapper = styled.div`
   font-size: 14px;
   line-height: 20px;
   padding-bottom: 16px;
+  max-width: 50%;
+  white-space: nowrap;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    font-size: 12px;
+  `}
   ${({ theme }) => theme.mediaWidth.upToSmall`
     font-size: 10px;
     line-height: 14px;
@@ -168,6 +176,7 @@ export const InfoWrapper = styled.div`
     text-align: center;
     justify-content: center;
     width: 100%;
+    max-width: 100%;
   `}
 `
 

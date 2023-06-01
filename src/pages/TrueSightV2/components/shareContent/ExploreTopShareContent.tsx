@@ -111,12 +111,12 @@ export default function ExploreShareContent({ token, mobileMode }: { token?: ITo
               </RowFit>
             </Text>
           </RowFit>
-          <Row height={'120px'}>
+          <Row height={'140px'}>
             <PriceChart7Days data={formattedData} />
           </Row>
         </Column>
         <Divider style={{ flex: 'unset' }} />
-        <Column width="100%" height="100%" gap="8px" style={{ justifyContent: 'space-between' }}>
+        <Column width="100%" height="100%" gap="16px" style={{ justifyContent: 'space-between' }}>
           <Text fontWeight={500}>KyberScore</Text>
           <Text fontSize="12px">
             <Trans>
@@ -144,7 +144,7 @@ export default function ExploreShareContent({ token, mobileMode }: { token?: ITo
             </Row>
           </Row>
           <Row marginTop="12px">
-            <Text fontSize="14px">
+            <Text fontSize="14px" style={{ whiteSpace: 'nowrap' }}>
               <Trans>Last 3D Kyberscores</Trans>
             </Text>
           </Row>
@@ -181,7 +181,7 @@ export default function ExploreShareContent({ token, mobileMode }: { token?: ITo
               </Trans>
             </Text>
           </Row>
-          <Row marginTop="12px">
+          <Row marginTop="12px" style={{ whiteSpace: 'nowrap' }}>
             <Text>
               <Trans>Last 3D Kyberscores</Trans>
             </Text>
