@@ -18,6 +18,7 @@ import { FormWrapper, Input, InputWithCopy, Label } from './styled'
 
 const Wrapper = styled(FormWrapper)`
   flex-direction: column;
+  max-width: 100%;
 `
 
 const Icon = styled.div`
