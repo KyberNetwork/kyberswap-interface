@@ -291,7 +291,6 @@ const TokenNameGroup = ({ token, isLoading }: { token?: ITokenOverview; isLoadin
         wallet: account,
         tokenAddress: token?.address,
         chain,
-        symbol: token?.symbol,
       }).then(() => setIsWatched(false))
     } else {
       mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
@@ -299,9 +298,7 @@ const TokenNameGroup = ({ token, isLoading }: { token?: ITokenOverview; isLoadin
         source: 'explore',
         option: 'add',
       })
-      addToWatchlist({ wallet: account, tokenAddress: token?.address, chain, symbol: token?.symbol }).then(() =>
-        setIsWatched(true),
-      )
+      addToWatchlist({ wallet: account, tokenAddress: token?.address, chain }).then(() => setIsWatched(true))
     }
   }
   const handleGoBackClick = () => {

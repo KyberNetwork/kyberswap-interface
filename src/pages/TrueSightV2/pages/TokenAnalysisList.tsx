@@ -532,9 +532,7 @@ const TokenRow = ({
         option: 'remove',
       })
       Promise.all(
-        token.tokens.map(t =>
-          removeFromWatchlist({ wallet: account, tokenAddress: t.address, chain: t.chain, symbol: token?.symbol }),
-        ),
+        token.tokens.map(t => removeFromWatchlist({ wallet: account, tokenAddress: t.address, chain: t.chain })),
       ).then(() => {
         setIsWatched(false)
         setLoadingStar(false)
@@ -547,9 +545,7 @@ const TokenRow = ({
         option: 'add',
       })
       Promise.all(
-        token.tokens.map(t =>
-          addToWatchlist({ wallet: account, tokenAddress: t.address, chain: t.chain, symbol: token?.symbol }),
-        ),
+        token.tokens.map(t => addToWatchlist({ wallet: account, tokenAddress: t.address, chain: t.chain })),
       ).then(() => {
         setIsWatched(true)
         setLoadingStar(false)
