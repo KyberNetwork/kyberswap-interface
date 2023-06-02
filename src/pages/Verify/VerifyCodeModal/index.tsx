@@ -181,6 +181,7 @@ export default function VerifyCodeModal({
       onDismiss={onDismiss}
       minHeight={false}
       maxWidth={450}
+      maxHeight={isTypingIos && isIOS ? window.innerHeight + 'px' : undefined}
       height={
         !isMobile
           ? undefined
@@ -221,8 +222,8 @@ export default function VerifyCodeModal({
                   hasError={error}
                   placeholder="-"
                   type="number"
-                  onFocus={() => setIsTypingIos(true)}
-                  onBlur={() => setIsTypingIos(false)}
+                  onFocus={() => isIOS && setIsTypingIos(true)}
+                  onBlur={() => isIOS && setIsTypingIos(false)}
                 />
               )}
             />
