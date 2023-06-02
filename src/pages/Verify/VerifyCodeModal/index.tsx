@@ -88,7 +88,7 @@ export default function VerifyCodeModal({
   const [verifySuccess, setVerifySuccess] = useState(false)
   const [error, setError] = useState(false)
   const notify = useNotify()
-  const isTyping = useMedia(`(max-height: 450px)`)
+  const isTyping = useMedia(`(max-height: 550px)`)
 
   const [expiredDuration, setExpireDuration] = useState(defaultTime)
   const canShowResend = expiredDuration < (timeExpire - 1) * TIMES_IN_SECS.ONE_MIN
