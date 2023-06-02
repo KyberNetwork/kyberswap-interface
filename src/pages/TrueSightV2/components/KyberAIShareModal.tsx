@@ -373,7 +373,6 @@ export default function KyberAIShareModal({
                 width="16px"
                 height="16px"
                 style={{ display: 'block' }}
-                crossOrigin="anonymous"
               />
             </div>
           </div>

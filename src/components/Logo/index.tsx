@@ -30,7 +30,6 @@ export default function Logo({ srcs, alt, ...rest }: LogoProps) {
           if (src) BAD_SRCS[src] = true
           refresh(i => i + 1)
         }}
-        crossOrigin="anonymous"
       />
     )
   }

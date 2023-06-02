@@ -211,9 +211,6 @@ const LineChart = ({
           />
           <Tooltip
             contentStyle={{ display: 'none' }}
-            // formatter={(tooltipValue: any, name: string, props: any) => (
-            //   <HoverUpdater payload={props.payload} setHoverValue={setHoverValue} />
-            // )}
             formatter={(tooltipValue: any, name: string, props: any) => {
               setHoverValue(props.payload.value)
               return ''

@@ -23,8 +23,10 @@ import Loader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import Snowfall from 'components/Snowflake/Snowfall'
 import Web3ReactManager from 'components/Web3ReactManager'
+import { ENV_LEVEL } from 'constants/env'
 import { APP_PATHS, BLACKLIST_WALLETS } from 'constants/index'
 import { NETWORKS_INFO_CONFIG } from 'constants/networks'
+import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
 import useLogin from 'hooks/useLogin'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
@@ -41,7 +43,6 @@ import Icons from './Icons'
 import { RedirectPathToMyPoolsNetwork } from './Pool/redirect'
 import { RedirectPathToPoolsNetwork } from './Pools/redirect'
 import { RedirectPathToSwapV3Network } from './SwapV3/redirects'
-import TestMeta from './TestMeta'
 import KyberAIExplore from './TrueSightV2'
 import TruesightFooter from './TrueSightV2/components/TruesightFooter'
 import KyberAILandingPage from './TrueSightV2/pages/LandingPage'
@@ -352,8 +353,7 @@ export default function App() {
                     <Route path={`${APP_PATHS.NOTIFICATION_CENTER}/*`} element={<NotificationCenter />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgramPage />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />
-                    <Route path="/icons" element={<Icons />} />
-                    <Route path="/test" element={<TestMeta />} />
+                    {ENV_LEVEL === ENV_TYPE.LOCAL && <Route path="/icons" element={<Icons />} />}
 
                     <Route path={`${APP_PATHS.ELASTIC_LEGACY}`} element={<ElasticLegacy />} />
                     <Route path={`elastic-swap`} element={<ElasticSwap />} />

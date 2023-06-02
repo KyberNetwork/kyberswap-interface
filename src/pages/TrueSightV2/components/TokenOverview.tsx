@@ -467,7 +467,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
         <CardWrapper style={{ marginBottom: '16px' }} className={cardClassname}>
           <RowFit gap="8px">
             <Text fontSize={28} lineHeight="32px" fontWeight={500} color={theme.text}>
-              {isLoading ? <DotsLoader /> : '$' + (+(data?.price || 0)).toLocaleString()}
+              {isLoading ? <DotsLoader /> : '$' + formatTokenPrice(+(data?.price || 0))}
             </Text>
             <Text
               color={theme.red}
