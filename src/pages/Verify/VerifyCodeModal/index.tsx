@@ -89,14 +89,6 @@ export default function VerifyCodeModal({
   const notify = useNotify()
   const [isTyping, setIsTyping] = useState(false)
 
-  useEffect(() => {
-    const onResize = () => {
-      setIsTyping(window.innerHeight < 450)
-    }
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
-  }, [])
-
   const [expiredDuration, setExpireDuration] = useState(defaultTime)
   const canShowResend = expiredDuration < (timeExpire - 1) * TIMES_IN_SECS.ONE_MIN
 
@@ -213,7 +205,16 @@ export default function VerifyCodeModal({
               value={otp}
               onChange={onChange}
               numInputs={6}
-              renderInput={props => <Input {...props} hasError={error} placeholder="-" type="number" />}
+              renderInput={props => (
+                <Input
+                  {...props}
+                  hasError={error}
+                  placeholder="-"
+                  type="number"
+                  onFocus={() => setIsTyping(true)}
+                  onBlur={() => setIsTyping(false)}
+                />
+              )}
             />
 
             <Label style={{ width: '100%', textAlign: 'center' }}>
