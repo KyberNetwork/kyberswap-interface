@@ -1,4 +1,4 @@
-import KyberOauth2, { TokenExpireError } from '@kybernetwork/oauth2'
+import KyberOauth2 from '@kybernetwork/oauth2'
 import { BaseQueryFn, fetchBaseQuery } from '@reduxjs/toolkit/query'
 
 const queryWithToken = async (config: any, baseUrl: string) => {
@@ -11,10 +11,6 @@ const queryWithToken = async (config: any, baseUrl: string) => {
     const result = await KyberOauth2.callHttp(config)
     return { data: result.data }
   } catch (err) {
-    const error = err as TokenExpireError
-    if (error?.isTokenExpired) {
-      console.debug('TokenExpireError')
-    }
     return {
       error: {
         status: err.response?.status,
