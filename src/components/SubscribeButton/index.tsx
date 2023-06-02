@@ -61,7 +61,7 @@ export default function SubscribeNotificationButton({
   iconOnly?: boolean
   trackingEvent?: MIXPANEL_TYPE
   onClick?: () => void
-  topicId?: number
+  topicId?: string
 }) {
   const theme = useTheme()
   const { account } = useWeb3React()
