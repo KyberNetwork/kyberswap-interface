@@ -1,10 +1,40 @@
-import { Currency, Price } from '@kyberswap/ks-sdk-core'
+import { JSBI } from '@kyberswap/ks-sdk-classic'
+import { Currency, CurrencyAmount, Fraction, Price } from '@kyberswap/ks-sdk-core'
+import { parseUnits } from 'ethers/lib/utils'
 
 import { getRouteTokenAddressParam } from 'components/SwapForm/hooks/useGetRoute'
-import { DetailedRouteSummary } from 'types/route'
+import { BIPS_BASE, RESERVE_USD_DECIMALS } from 'constants/index'
+import { ChargeFeeBy, DetailedRouteSummary } from 'types/route'
+import { formattedNum } from 'utils'
 import { toCurrencyAmount } from 'utils/currencyAmount'
 
-import { GetRouteData } from './types/getRoute'
+import { GetRouteData, RouteSummary } from './types/getRoute'
+
+const calculateFee = (
+  parsedAmountIn: CurrencyAmount<Currency>,
+  parsedAmountOut: CurrencyAmount<Currency>,
+  routeSummary: RouteSummary,
+): DetailedRouteSummary['fee'] => {
+  if (!routeSummary.extraFee?.chargeFeeBy || !routeSummary.extraFee?.feeAmount) {
+    return undefined
+  }
+
+  const currencyAmountToTakeFee =
+    routeSummary.extraFee.chargeFeeBy === ChargeFeeBy.CURRENCY_IN ? parsedAmountIn : parsedAmountOut
+  const feeAmountFraction = new Fraction(
+    parseUnits(routeSummary.extraFee.feeAmount, RESERVE_USD_DECIMALS).toString(),
+    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS)),
+  ).divide(BIPS_BASE)
+  const feeCurrencyAmount = currencyAmountToTakeFee.multiply(feeAmountFraction)
+
+  const feeAmountUsd = routeSummary.extraFee.feeAmountUsd
+  return {
+    currency: currencyAmountToTakeFee.currency,
+    currencyAmount: feeCurrencyAmount,
+    formattedAmount: formattedNum(feeCurrencyAmount.toSignificant(RESERVE_USD_DECIMALS), false),
+    formattedAmountUsd: feeAmountUsd && feeAmountUsd !== '0' ? formattedNum(feeAmountUsd, true, 4) : '',
+  }
+}
 
 export const calculatePriceImpact = (amountInUsd: number, amountOutUsd: number) => {
   const priceImpact = !amountOutUsd ? NaN : ((amountInUsd - amountOutUsd) * 100) / amountInUsd
@@ -50,6 +80,7 @@ export const parseGetRouteResponse = (
     ...rawRouteSummary,
     parsedAmountIn,
     parsedAmountOut,
+    fee: calculateFee(parsedAmountIn, parsedAmountOut, rawRouteSummary),
     priceImpact: calculatePriceImpact(Number(rawRouteSummary.amountInUsd), Number(rawRouteSummary.amountOutUsd)),
     executionPrice,
     routerAddress: rawData.routerAddress,

@@ -1,5 +1,5 @@
 import { TransactionResponse } from '@ethersproject/providers'
-import { ChainId, Currency, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
@@ -116,8 +116,6 @@ export default function IncreaseLiquidity() {
     : false
 
   const { position: existingPosition } = useProAmmDerivedPositionInfo(existingPositionDetails)
-
-  const removed = existingPositionDetails?.liquidity?.eq(0)
 
   // fee selection from url
   const feeAmount: FeeAmount | undefined =
@@ -431,7 +429,7 @@ export default function IncreaseLiquidity() {
             topContent={() =>
               existingPosition && (
                 <div style={{ marginTop: '1rem' }}>
-                  <ProAmmPoolInfo position={existingPosition} tokenId={tokenId} />
+                  <ProAmmPoolInfo position={existingPosition} tokenId={tokenId} showRemoved={false} />
                   <ProAmmPooledTokens
                     liquidityValue0={parsedAmounts[Field.CURRENCY_A]}
                     liquidityValue1={parsedAmounts[Field.CURRENCY_B]}
@@ -500,10 +498,9 @@ export default function IncreaseLiquidity() {
 
                   <BlackCard style={{ borderRadius: '1rem', padding: '1rem' }}>
                     <Flex alignItems="center" sx={{ gap: '4px' }}>
-                      <TokenId color={removed ? theme.red : outOfRange ? theme.warning : theme.primary}>
-                        #{tokenId?.toString()}
-                      </TokenId>
-                      <RangeBadge removed={removed} inRange={!outOfRange} hideText size={14} />
+                      <TokenId color={outOfRange ? theme.warning : theme.primary}>#{tokenId?.toString()}</TokenId>
+                      {/* dont show removed when increasing liquidity*/}
+                      <RangeBadge removed={false} inRange={!outOfRange} hideText size={14} />
                     </Flex>
 
                     <Flex
@@ -522,9 +519,9 @@ export default function IncreaseLiquidity() {
                     <Divider />
 
                     <Flex justifyContent="space-between" fontSize="12px" marginTop="0.75rem">
-                      <Text color={theme.subText}>Pooled {existingPosition.pool.token0.symbol}</Text>
+                      <Text color={theme.subText}>Pooled {unwrappedToken(existingPosition.pool.token0).symbol}</Text>
                       <Flex alignItems="center">
-                        <CurrencyLogo currency={existingPosition.pool.token0} size="16px" />
+                        <CurrencyLogo currency={unwrappedToken(existingPosition.pool.token0)} size="16px" />
                         <Text fontWeight="500" marginLeft="4px">
                           <FormattedCurrencyAmount
                             currencyAmount={CurrencyAmount.fromRawAmount(
@@ -532,7 +529,7 @@ export default function IncreaseLiquidity() {
                               existingPosition.amount0.quotient,
                             )}
                           />{' '}
-                          {existingPosition.pool.token0.symbol}
+                          {unwrappedToken(existingPosition.pool.token0).symbol}
                         </Text>
                       </Flex>
                     </Flex>
@@ -690,7 +687,7 @@ export default function IncreaseLiquidity() {
         </Content>
       </Container>
 
-      {chainId !== ChainId.GÖRLI && <ElasticDisclaimerModal isOpen />}
+      <ElasticDisclaimerModal isOpen={false} />
     </>
   )
 }

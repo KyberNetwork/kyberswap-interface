@@ -21,7 +21,7 @@ import { AutoRow } from 'components/Row'
 import Search from 'components/Search'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import Tutorial, { TutorialType } from 'components/Tutorial'
-import { APP_PATHS, DMM_ANALYTICS_URL, OUTSIDE_FAIRLAUNCH_ADDRESSES } from 'constants/index'
+import { APP_PATHS, DMM_ANALYTICS_URL } from 'constants/index'
 import { VERSION } from 'constants/v2'
 import { usePairByAddress, usePairsByAddress } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks'
@@ -170,7 +170,7 @@ export default function PoolCombination() {
   useSyncNetworkParamWithStore()
   return (
     <>
-      <PageWrapper>
+      <PageWrapper style={{ paddingBottom: '24px' }}>
         <AutoColumn>
           <ClassicElasticTab />
         </AutoColumn>
@@ -203,11 +203,7 @@ function Pool() {
     () =>
       Object.values(farms)
         .flat()
-        .filter(
-          farm =>
-            JSBI.greaterThan(JSBI.BigInt(farm.userData?.stakedBalance || 0), JSBI.BigInt(0)) &&
-            !OUTSIDE_FAIRLAUNCH_ADDRESSES[farm.fairLaunchAddress],
-        ),
+        .filter(farm => JSBI.greaterThan(JSBI.BigInt(farm.userData?.stakedBalance || 0), JSBI.BigInt(0))),
     [farms],
   )
 

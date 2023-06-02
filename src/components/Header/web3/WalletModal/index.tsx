@@ -32,7 +32,7 @@ import {
   useOpenNetworkModal,
   useWalletModalToggle,
 } from 'state/application/hooks'
-import { useIsAcceptedTerm, useIsUserManuallyDisconnect } from 'state/user/hooks'
+import { useIsAcceptedTerm } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { isEVMWallet, isOverriddenWallet, isSolanaWallet } from 'utils'
 
@@ -151,8 +151,6 @@ export default function WalletModal() {
   const { connected, connecting, wallet: solanaWallet } = useWallet()
   const { tryActivation } = useActivationWallet()
 
-  const [, setIsUserManuallyDisconnect] = useIsUserManuallyDisconnect()
-
   const theme = useTheme()
 
   const [walletView, setWalletView] = useState(WALLET_VIEWS.ACCOUNT)
@@ -223,12 +221,11 @@ export default function WalletModal() {
       setPendingError(false)
       try {
         await tryActivation(walletKey)
-        setIsUserManuallyDisconnect(false)
       } catch {
         setPendingError(true)
       }
     },
-    [setIsUserManuallyDisconnect, tryActivation],
+    [tryActivation],
   )
 
   function getOptions() {
@@ -340,6 +337,7 @@ export default function WalletModal() {
               }}
               type="checkbox"
               checked={isAcceptedTerm}
+              data-testid="accept-term"
               style={{ marginRight: '12px', height: '14px', width: '14px', cursor: 'pointer' }}
             />
             <Text color={theme.subText}>

@@ -1,6 +1,6 @@
 import { TransactionResponse } from '@ethersproject/providers'
 import { ONE } from '@kyberswap/ks-sdk-classic'
-import { ChainId, Currency, CurrencyAmount, WETH } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, NonfungiblePositionManager, Position, TickMath, tickToPrice } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
@@ -57,6 +57,7 @@ import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { ApplicationModal } from 'state/application/actions'
 import { useOpenModal, useWalletModalToggle } from 'state/application/hooks'
+import { FarmUpdater } from 'state/farms/elastic/hooks'
 import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import ElasticFarmV2Updater from 'state/farms/elasticv2/updater'
 import {
@@ -334,6 +335,8 @@ export default function AddLiquidity() {
   const [approvalA, approveACallback] = useApproveCallback(
     !!currencies_A && depositADisabled && noLiquidity
       ? CurrencyAmount.fromFractionalAmount(currencies_A, ONE, ONE)
+      : isMultiplePosition
+      ? currencyAmountSum[Field.CURRENCY_A]
       : parsedAmounts_A,
     isEVM ? (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager : undefined,
   )
@@ -341,6 +344,8 @@ export default function AddLiquidity() {
   const [approvalB, approveBCallback] = useApproveCallback(
     !!currencies_B && depositBDisabled && noLiquidity
       ? CurrencyAmount.fromFractionalAmount(currencies_B, ONE, ONE)
+      : isMultiplePosition
+      ? currencyAmountSum[Field.CURRENCY_B]
       : parsedAmounts_B,
     isEVM ? (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager : undefined,
   )
@@ -1159,7 +1164,7 @@ export default function AddLiquidity() {
   }
 
   const openShareModal = useOpenModal(ApplicationModal.SHARE)
-  const userLiquidityPositionsQueryResult = useUserProMMPositions()
+  const userLiquidityPositionsQueryResult = useUserProMMPositions(usdPrices)
   const userPositions = useMemo(
     () => (!account ? {} : userLiquidityPositionsQueryResult.userLiquidityUsdByPool),
     [account, userLiquidityPositionsQueryResult],
@@ -1198,8 +1203,6 @@ export default function AddLiquidity() {
 
   return (
     <>
-      <ElasticFarmV2Updater interval={false} />
-      {chainId !== ChainId.GÖRLI && <ElasticDisclaimerModal isOpen />}
       <TransactionConfirmationModal
         isOpen={showConfirm}
         onDismiss={handleDismissConfirmation}
@@ -1465,6 +1468,9 @@ export default function AddLiquidity() {
           </Row>
         </Container>
       </PageWrapper>
+      <ElasticDisclaimerModal isOpen={false} />
+      <FarmUpdater interval={false} />
+      <ElasticFarmV2Updater interval={false} />
     </>
   )
 }

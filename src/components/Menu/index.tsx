@@ -12,7 +12,6 @@ import {
   MessageCircle,
   PieChart,
   Share2,
-  UserPlus,
 } from 'react-feather'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -358,19 +357,6 @@ export default function Menu() {
                 />
               </MenuItem>
             )}
-
-            <MenuItem>
-              <NavLink
-                to="/referral"
-                onClick={() => {
-                  toggle()
-                  handleMenuClickMixpanel('Referral')
-                }}
-              >
-                <UserPlus />
-                <Trans>Referral</Trans>
-              </NavLink>
-            </MenuItem>
             {under1040 && (
               <MenuItem>
                 <NavDropDown

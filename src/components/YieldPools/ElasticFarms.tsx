@@ -1,22 +1,18 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
-import FarmIssueAnnouncement from 'components/FarmIssueAnnouncement'
 import { APP_PATHS, FARM_TAB } from 'constants/index'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
-import useElasticCompensationData from 'hooks/useElasticCompensationData'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
-import { useFailedNFTs, useFilteredFarms } from 'state/farms/elastic/hooks'
+import { useFilteredFarms } from 'state/farms/elastic/hooks'
 import { FarmingPool } from 'state/farms/elastic/types'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { StyledInternalLink } from 'theme'
 
-import { ElasticCompensation } from './ElasticCompensation'
 import ElasticFarmGroup from './ElasticFarmGroup'
 import { DepositModal, StakeUnstakeModal } from './ElasticFarmModals'
 import HarvestModal from './ElasticFarmModals/HarvestModal'
@@ -24,28 +20,17 @@ import WithdrawModal from './ElasticFarmModals/WithdrawModal'
 
 type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest' | 'forcedWithdraw'
 
-const farmIds: { [key: number]: string } = {
-  [ChainId.MAINNET]: '0xb85ebe2e4ea27526f817ff33fb55fb240057c03f',
-  [ChainId.AVAXMAINNET]: '0xbdec4a045446f583dc564c0a227ffd475b329bf0',
-  [ChainId.MATIC]: '0xbdec4a045446f583dc564c0a227ffd475b329bf0',
-  [ChainId.OPTIMISM]: '0xb85ebe2e4ea27526f817ff33fb55fb240057c03f',
-  [ChainId.ARBITRUM]: '0xbdec4a045446f583dc564c0a227ffd475b329bf0',
-}
-
 function ElasticFarms({ onShowStepGuide }: { onShowStepGuide: () => void }) {
   const theme = useTheme()
-  const { networkInfo, chainId } = useActiveWeb3React()
+  const { networkInfo } = useActiveWeb3React()
 
   const [searchParams] = useSearchParams()
-
-  const failedNFTs = useFailedNFTs()
 
   const ref = useRef<HTMLDivElement>()
   const [open, setOpen] = useState(false)
   useOnClickOutside(ref, open ? () => setOpen(prev => !prev) : undefined)
 
   const type = searchParams.get('type')
-  const activeTab: string = type || FARM_TAB.ACTIVE
 
   const tab = searchParams.get('tab')
 
@@ -70,31 +55,6 @@ function ElasticFarms({ onShowStepGuide }: { onShowStepGuide: () => void }) {
     setSeletedModal(null)
     setSeletedPool(undefined)
   }
-
-  const renderAnnouncement = () => {
-    // show announcement only when user was affected in one of the visible farms on the UI
-    const now = Date.now() / 1000
-
-    if (activeTab === 'ended') {
-      const endedFarms = farms?.filter(farm => farm.pools.every(p => p.endTime < now))
-      const shouldShow = endedFarms?.some(farm =>
-        userFarmInfo?.[farm.id].depositedPositions
-          .map(pos => pos.nftId.toString())
-          .some(nft => failedNFTs.includes(nft)),
-      )
-      return shouldShow ? <FarmIssueAnnouncement isEnded /> : null
-    }
-
-    return null
-  }
-
-  const { data: userCompensationData, loading: loadingCompensationData, claimInfo } = useElasticCompensationData()
-
-  const userDepositedInfo = farmIds[chainId] && userFarmInfo?.[farmIds[chainId]]?.depositedPositions
-  const canClaimReward = !!userCompensationData?.length && claimInfo
-  const canWithdraw = !!userDepositedInfo?.length
-  const isActiveTab = !type || type === FARM_TAB.ACTIVE
-  const showCompensation = isActiveTab && !loadingCompensationData && (canWithdraw || canClaimReward)
 
   return (
     <>
@@ -124,8 +84,6 @@ function ElasticFarms({ onShowStepGuide }: { onShowStepGuide: () => void }) {
         <HarvestModal farmsAddress={selectedFarm} poolId={selectedPoolId} onDismiss={onDismiss} />
       )}
 
-      {renderAnnouncement()}
-
       {type === FARM_TAB.ENDED && tab !== VERSION.CLASSIC && (
         <Text fontStyle="italic" fontSize={12} marginBottom="1rem" color={theme.subText}>
           <Trans>
@@ -152,43 +110,30 @@ function ElasticFarms({ onShowStepGuide }: { onShowStepGuide: () => void }) {
         </Text>
       )}
 
-      {showCompensation ? (
-        <ElasticCompensation
-          onWithdraw={() => {
-            setSeletedModal('forcedWithdraw')
-            setSeletedFarm(farmIds[chainId])
-          }}
-          data={userCompensationData}
-          numberOfPosition={userDepositedInfo?.length || 0}
-          tokenPrices={tokenPrices}
-          claimInfo={claimInfo}
-        />
-      ) : (
-        <Flex
-          sx={{
-            flexDirection: 'column',
-            rowGap: '48px',
-          }}
-        >
-          {filteredFarms.map(farm => {
-            return (
-              <ElasticFarmGroup
-                onShowStepGuide={onShowStepGuide}
-                key={farm.id}
-                address={farm.id}
-                onOpenModal={(modalType: ModalType, pool?: FarmingPool) => {
-                  setSeletedModal(modalType)
-                  setSeletedFarm(farm.id)
-                  setSeletedPool(pool)
-                }}
-                pools={farm.pools}
-                userInfo={userFarmInfo?.[farm.id]}
-                tokenPrices={tokenPrices}
-              />
-            )
-          })}
-        </Flex>
-      )}
+      <Flex
+        sx={{
+          flexDirection: 'column',
+          rowGap: '48px',
+        }}
+      >
+        {filteredFarms.map(farm => {
+          return (
+            <ElasticFarmGroup
+              onShowStepGuide={onShowStepGuide}
+              key={farm.id}
+              address={farm.id}
+              onOpenModal={(modalType: ModalType, pool?: FarmingPool) => {
+                setSeletedModal(modalType)
+                setSeletedFarm(farm.id)
+                setSeletedPool(pool)
+              }}
+              pools={farm.pools}
+              userInfo={userFarmInfo?.[farm.id]}
+              tokenPrices={tokenPrices}
+            />
+          )
+        })}
+      </Flex>
     </>
   )
 }

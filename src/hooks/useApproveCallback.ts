@@ -88,7 +88,7 @@ export function useApproveCallback(
       let estimatedGas
       let approvedAmount
       try {
-        if (customAmount) {
+        if (customAmount instanceof CurrencyAmount) {
           estimatedGas = await tokenContract.estimateGas.approve(spender, customAmount)
           approvedAmount = customAmount
         } else {

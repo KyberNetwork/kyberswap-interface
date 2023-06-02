@@ -83,7 +83,6 @@ export enum MIXPANEL_TYPE {
   ABOUT_STAKE_KNC_CLICKED,
   ANALYTICS_MENU_CLICKED,
   BLOG_MENU_CLICKED,
-  CREATE_REFERRAL_CLICKED,
   DISCOVER_TRENDING_SOON_CLICKED,
   DISCOVER_TRENDING_CLICKED,
   DISCOVER_SWAP_INITIATED,
@@ -230,6 +229,13 @@ export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES: readonly TRANSACTION_TYPE[] 
   TRANSACTION_TYPE.ELASTIC_CREATE_POOL,
 ] as const
 
+type FeeInfo = {
+  chargeTokenIn: boolean
+  tokenSymbol: string
+  feeUsd: string
+  feeAmount: string
+}
+
 export default function useMixpanel(currencies?: { [field in Field]?: Currency }) {
   const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
   const { saveGas } = useSwapState()
@@ -265,13 +271,14 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           mixpanel.track('Wallet Connected')
           break
         case MIXPANEL_TYPE.SWAP_INITIATED: {
-          const { gasUsd, inputAmount, priceImpact } = (payload || {}) as {
+          const { gasUsd, inputAmount, priceImpact, feeInfo } = (payload || {}) as {
             gasUsd: number | string | undefined
             inputAmount: CurrencyAmount<Currency> | undefined
             priceImpact: number | undefined
+            feeInfo?: FeeInfo
           }
 
-          mixpanel.track('Swap Initiated', {
+          const body: Record<string, any> = {
             input_token: inputSymbol,
             output_token: outputSymbol,
             estimated_gas: gasUsd ? Number(gasUsd).toFixed(4) : undefined,
@@ -279,20 +286,35 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
             trade_qty: inputAmount?.toExact(),
             slippage_setting: allowedSlippage ? allowedSlippage / 100 : 0,
             price_impact: priceImpact && priceImpact > 0.01 ? priceImpact.toFixed(2) : '<0.01',
-          })
+          }
 
+          if (feeInfo) {
+            if (feeInfo.chargeTokenIn) {
+              body.charged_token_type = 'input'
+            } else {
+              body.charged_token_type = 'output'
+            }
+
+            body.charged_token_symbol = feeInfo.tokenSymbol
+            body.amount_fee_usd = feeInfo.feeUsd
+            body.amount_fee_token = feeInfo.feeAmount
+          }
+
+          mixpanel.track('Swap Initiated', body)
           break
         }
         case MIXPANEL_TYPE.SWAP_CONFIRMED: {
-          const { gasUsd, inputAmount, priceImpact, outputAmountDescription, currentPrice } = (payload || {}) as {
+          const { gasUsd, inputAmount, priceImpact, outputAmountDescription, currentPrice, feeInfo } = (payload ||
+            {}) as {
             gasUsd: string | undefined
             inputAmount: CurrencyAmount<Currency> | undefined
             priceImpact: number | undefined
             outputAmountDescription: string | undefined
             currentPrice: string | undefined
+            feeInfo?: FeeInfo
           }
 
-          mixpanel.track('Swap Confirmed', {
+          const body: Record<string, any> = {
             input_token: inputSymbol,
             output_token: outputSymbol,
             estimated_gas: gasUsd,
@@ -302,14 +324,30 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
             price_impact: priceImpact && priceImpact > 0.01 ? priceImpact.toFixed(2) : '<0.01',
             initial_output_amt_type: outputAmountDescription,
             current_price: currentPrice, // price in swap confirmation step
-          })
+          }
+
+          if (feeInfo) {
+            if (feeInfo.chargeTokenIn) {
+              body.charged_token_type = 'input'
+            } else {
+              body.charged_token_type = 'output'
+            }
+
+            body.charged_token_symbol = feeInfo.tokenSymbol
+            body.amount_fee_usd = feeInfo.feeUsd
+            body.amount_fee_token = feeInfo.feeAmount
+          }
+
+          mixpanel.track('Swap Confirmed', body)
 
           break
         }
         case MIXPANEL_TYPE.SWAP_COMPLETED: {
           const { arbitrary, actual_gas, gas_price, tx_hash } = payload
+          const feeInfo = payload.feeInfo as FeeInfo
           const formattedGas = gas_price ? formatUnits(gas_price, networkInfo.nativeToken.decimal) : '0'
-          mixpanel.track('Swap Completed', {
+
+          const body: Record<string, any> = {
             input_token: arbitrary.inputSymbol,
             output_token: arbitrary.outputSymbol,
             actual_gas:
@@ -324,7 +362,21 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
             gas_price: formattedGas,
             eth_price: ethPrice?.currentPrice,
             actual_gas_native: actual_gas?.toNumber(),
-          })
+          }
+
+          if (feeInfo) {
+            if (feeInfo.chargeTokenIn) {
+              body.charged_token_type = 'input'
+            } else {
+              body.charged_token_type = 'output'
+            }
+
+            body.charged_token_symbol = feeInfo.tokenSymbol
+            body.amount_fee_usd = feeInfo.feeUsd
+            body.amount_fee_token = feeInfo.feeAmount
+          }
+
+          mixpanel.track('Swap Completed', body)
           break
         }
         case MIXPANEL_TYPE.SWAP_SETTINGS_CLICK: {
@@ -567,16 +619,6 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
         }
         case MIXPANEL_TYPE.ANALYTICS_MENU_CLICKED: {
           mixpanel.track('Analytics Page Clicked')
-          break
-        }
-        case MIXPANEL_TYPE.CREATE_REFERRAL_CLICKED: {
-          const { referral_commission, input_token, output_token } = payload
-          mixpanel.track('Create Referral Link Clicked', {
-            referral_commission,
-            input_token,
-            output_token,
-            chain: network,
-          })
           break
         }
         case MIXPANEL_TYPE.DISCOVER_TRENDING_SOON_CLICKED: {
@@ -1389,7 +1431,6 @@ export const useGlobalMixpanelEvents = () => {
         add: 'Add Liquidity',
         remove: 'Remove Liquidity',
         about: 'About',
-        referral: 'Referral',
         discover: 'Discover',
         campaigns: 'Campaign',
         'elastic/remove': 'Elastic - Remove Liquidity',

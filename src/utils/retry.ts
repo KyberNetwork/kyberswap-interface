@@ -67,3 +67,11 @@ export function retry<T>(
     },
   }
 }
+
+export const timeoutReject = (ms: number, msg = 'timeout') => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      return reject(new Error(msg))
+    }, ms)
+  })
+}

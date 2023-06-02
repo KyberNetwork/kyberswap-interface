@@ -125,18 +125,29 @@ export default function ProAmmPoolList({
 
   const [viewMode] = useViewMode()
 
+  const { loading, addresses } = useTopPoolAddresses()
+  const { isLoading: poolDataLoading, data: poolDatas } = useGetElasticPools(addresses || [])
+
   const { farms } = useElasticFarms()
   const { farms: elasticFarmV2s } = useElasticFarmsV2()
-  const allRewards = [
+  const farmTokens = [
     ...new Set(
       farms
         ?.map(farm => farm.pools)
         .flat()
-        .map(pool => pool.rewardTokens.map(rw => rw.wrapped.address.toLowerCase()))
+        .map(pool => [
+          ...pool.rewardTokens.map(rw => rw.wrapped.address.toLowerCase()),
+          pool.token0.wrapped.address,
+          pool.token1.wrapped.address,
+        ])
         .flat() || [],
     ),
   ]
-  const tokenPriceMap = useTokenPrices(allRewards)
+
+  const poolTokens = Object.values(poolDatas || {})
+    .map(item => [item.token0.address, item.token1.address])
+    .flat()
+  const tokenPriceMap = useTokenPrices([...new Set(farmTokens.concat(poolTokens))])
 
   const totalFarmRewardUSDByPoolId = useMemo(
     () =>
@@ -172,11 +183,8 @@ export default function ProAmmPoolList({
   const caId = currencies[Field.CURRENCY_A]?.wrapped.address.toLowerCase()
   const cbId = currencies[Field.CURRENCY_B]?.wrapped.address.toLowerCase()
 
-  const { loading, addresses } = useTopPoolAddresses()
-  const { isLoading: poolDataLoading, data: poolDatas } = useGetElasticPools(addresses || [])
-
   const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
-  const userLiquidityPositionsQueryResult = useUserProMMPositions()
+  const userLiquidityPositionsQueryResult = useUserProMMPositions(tokenPriceMap)
   const loadingUserPositions = !account ? false : userLiquidityPositionsQueryResult.loading
   const userPositions = useMemo(
     () => (!account ? {} : userLiquidityPositionsQueryResult.userLiquidityUsdByPool),

@@ -132,7 +132,7 @@ export function useProAmmPositions(account: string | null | undefined): UseProAm
 export const useFarmPositions = () => {
   const { isEVM, networkInfo } = useActiveWeb3React()
 
-  const { farms, loading, userFarmInfo } = useElasticFarms()
+  const { farms, loading, userFarmInfo, loadingUserInfo } = useElasticFarms()
 
   const farmingPools = useMemo(() => farms?.map(farm => farm.pools).flat() || [], [farms])
 
@@ -197,7 +197,6 @@ export const useFarmPositions = () => {
           .flat()
       })
       .flat()
-      .filter(item => item.liquidity.gt(0))
   }, [farmingPools, userFarmInfo, isEVM, networkInfo])
 
   return useMemo(() => {
@@ -206,7 +205,7 @@ export const useFarmPositions = () => {
       userFarmInfo,
       activeFarmAddress,
       farmPositions,
-      loading,
+      loading: loadingUserInfo || loading,
     }
-  }, [loading, farmPositions, activeFarmAddress, farms, userFarmInfo])
+  }, [loading, loadingUserInfo, farmPositions, activeFarmAddress, farms, userFarmInfo])
 }

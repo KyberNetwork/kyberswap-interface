@@ -18,7 +18,7 @@ const PopoverContainer = styled.div<{ show: boolean }>`
   border: 1px solid transparent;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.32);
   color: ${({ theme }) => theme.text2};
-  border-radius: 6px;
+  border-radius: 8px;
 `
 
 const ReferenceElement = styled.div`
@@ -26,14 +26,14 @@ const ReferenceElement = styled.div`
 `
 
 const Arrow = styled.div`
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   z-index: ${Z_INDEXS.POPOVER_CONTAINER - 1};
 
   ::before {
     position: absolute;
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     z-index: ${Z_INDEXS.POPOVER_CONTAINER - 1};
 
     content: '';
@@ -87,6 +87,9 @@ export interface PopoverProps {
   offset?: [number, number]
 }
 
+// Reference https://popper.js.org/docs/v2/modifiers/offset/#skidding
+const defaultOffset: [number, number] = [0 /* skidding */, 8 /* distance */]
+
 export default function Popover({
   content,
   show,
@@ -95,7 +98,7 @@ export default function Popover({
   noArrow = false,
   style = {},
   containerStyle = {},
-  offset = [8, 8],
+  offset = defaultOffset,
 }: PopoverProps) {
   const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null)
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null)
@@ -118,24 +121,26 @@ export default function Popover({
       <ReferenceElement ref={setReferenceElement as any} style={containerStyle}>
         {children}
       </ReferenceElement>
-      <Portal>
-        <PopoverContainer
-          show={show}
-          ref={setPopperElement as any}
-          style={{ ...styles.popper, ...style }}
-          {...attributes.popper}
-        >
-          {content}
-          {noArrow || (
-            <Arrow
-              className={`arrow-${attributes.popper?.['data-popper-placement'] ?? ''}`}
-              ref={setArrowElement as any}
-              style={styles.arrow}
-              {...attributes.arrow}
-            />
-          )}
-        </PopoverContainer>
-      </Portal>
+      {show && (
+        <Portal>
+          <PopoverContainer
+            show={show}
+            ref={setPopperElement as any}
+            style={{ ...styles.popper, ...style }}
+            {...attributes.popper}
+          >
+            {content}
+            {noArrow || (
+              <Arrow
+                className={`arrow-${attributes.popper?.['data-popper-placement'] ?? ''}`}
+                ref={setArrowElement as any}
+                style={styles.arrow}
+                {...attributes.arrow}
+              />
+            )}
+          </PopoverContainer>
+        </Portal>
+      )}
     </>
   )
 }

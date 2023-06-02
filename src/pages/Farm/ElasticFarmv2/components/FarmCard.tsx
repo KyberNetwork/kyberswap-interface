@@ -23,10 +23,10 @@ import Tabs from 'components/Tabs'
 import { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
-import { useSharePoolContext } from 'components/YieldPools/SharePoolContext'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { useShareFarmAddress } from 'state/farms/classic/hooks'
 import { useFarmV2Action, useUserFarmV2Info } from 'state/farms/elasticv2/hooks'
 import { ElasticFarmV2 } from 'state/farms/elasticv2/types'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
@@ -107,7 +107,7 @@ function FarmCard({
   const { account } = useActiveWeb3React()
   const [activeRangeIndex, setActiveRangeIndex] = useState(0)
 
-  const setSharePoolAddress = useSharePoolContext()
+  const [, setSharePoolAddress] = useShareFarmAddress()
 
   const currentTimestamp = Math.floor(Date.now() / 1000)
   const stakedPos = useUserFarmV2Info(farm.fId)

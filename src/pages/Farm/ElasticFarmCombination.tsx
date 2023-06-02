@@ -1,15 +1,11 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { FC, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
 import LocalLoader from 'components/LocalLoader'
-import ShareModal from 'components/ShareModal'
 import ElasticFarms from 'components/YieldPools/ElasticFarms'
 import FarmStepGuide from 'components/YieldPools/FarmStepGuide'
-import { SharePoolContext } from 'components/YieldPools/SharePoolContext'
-import { FARM_TAB } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useOpenModal } from 'state/application/hooks'
@@ -23,7 +19,7 @@ export const ElasticFarmCombination: FC = () => {
   const { filteredFarms: filteredFarmsV1, loading: loadingV1 } = useFilteredFarms()
   const { filteredFarms: filteredFarmsV2, loading: loadingV2 } = useFilteredFarmsV2()
 
-  const { networkInfo } = useActiveWeb3React()
+  // const { networkInfo } = useActiveWeb3React()
   const [searchParams] = useSearchParams()
   const search: string = searchParams.get('search')?.toLowerCase() || ''
   const stakedOnly = searchParams.get('stakedOnly') === 'true'
@@ -35,12 +31,12 @@ export const ElasticFarmCombination: FC = () => {
   const [sharePoolAddress, setSharePoolAddress] = useState('')
   const isShareModalOpen = useModalOpen(ApplicationModal.SHARE)
 
-  const type = searchParams.get('type')
-  const activeTab: string = type || FARM_TAB.ACTIVE
-  const networkRoute = networkInfo.route || undefined
-  const shareUrl = sharePoolAddress
-    ? `${window.location.origin}/farms/${networkRoute}?search=${sharePoolAddress}&tab=elastic&type=${activeTab}`
-    : undefined
+  // const type = searchParams.get('type')
+  // const activeTab: string = type || FARM_TAB.ACTIVE
+  // const networkRoute = networkInfo.route || undefined
+  // const shareUrl = sharePoolAddress
+  //   ? `${window.location.origin}/farms/${networkRoute}?search=${sharePoolAddress}&tab=elastic&type=${activeTab}`
+  //   : undefined
 
   const openShareModal = useOpenModal(ApplicationModal.SHARE)
   useEffect(() => {
@@ -83,15 +79,10 @@ export const ElasticFarmCombination: FC = () => {
   }
 
   return (
-    <SharePoolContext.Provider value={setSharePoolAddress}>
-      <ShareModal
-        title={!sharePoolAddress ? t`Share farms with your friends` : t`Share this farm with your friends!`}
-        url={shareUrl}
-      />
-
+    <>
       <FarmStepGuide version={showFarmStepGuide} onChangeVersion={setShowFarmStepGuide} />
       <ElasticFarms onShowStepGuide={() => setShowFarmStepGuide('v1')} />
       <ElasticFarmv2 onShowStepGuide={() => setShowFarmStepGuide('v2')} />
-    </SharePoolContext.Provider>
+    </>
   )
 }

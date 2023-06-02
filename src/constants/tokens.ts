@@ -1,5 +1,6 @@
-import { ChainId, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, NativeCurrency, Token, WETH } from '@kyberswap/ks-sdk-core'
 
+import { CHAINS_SUPPORT_FEE_CONFIGS, ETHER_ADDRESS } from './index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from './networks'
 
 const NativeCurrenciesLocal: { [chainId in ChainId]: NativeCurrency } = SUPPORTED_NETWORKS.reduce(
@@ -96,6 +97,7 @@ export const STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
   [ChainId.VELAS]: [
     '0xe2C120f188eBd5389F71Cf4d9C16d05b62A58993', // usdc
     '0x01445C31581c354b7338AC35693AB2001B50b9aE', // usdt
+    '0xc111c29A988AE0C0087D97b33C6E6766808A3BD3', // busd
   ],
   [ChainId.AURORA]: [
     '0xe3520349F477A5F6EB06107066048508498A291b', // Dai
@@ -131,6 +133,58 @@ export const STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
   [ChainId.BSCTESTNET]: [],
   [ChainId.AVAXTESTNET]: [],
 }
+
+// This list is intentionally different from the list above
+// Was requested from product team, to implement Swap fee config
+export const STABLE_COIN_ADDRESSES_TO_TAKE_FEE: Record<ChainId, string[]> = {
+  [ChainId.OASIS]: [
+    '0x80A16016cC4A2E6a2CACA8a4a498b1699fF0f844', // usdc
+    '0x6Cb9750a92643382e020eA9a170AbB83Df05F30B', // usdt
+    '0x639A647fbe20b6c8ac19E48E2de44ea792c62c5C', // busd
+  ],
+  [ChainId.VELAS]: [
+    '0xe2C120f188eBd5389F71Cf4d9C16d05b62A58993', // usdc
+    '0x01445C31581c354b7338AC35693AB2001B50b9aE', // usdt
+    '0xc111c29A988AE0C0087D97b33C6E6766808A3BD3', // busd
+  ],
+  [ChainId.AURORA]: [
+    '0xB12BFcA5A55806AaF64E99521918A4bf0fC40802', // usdc
+    '0x4988a896b1227218e4A686fdE5EabdcAbd91571f', // usdt
+    '0xe3520349F477A5F6EB06107066048508498A291b', // Dai
+  ],
+  [ChainId.CRONOS]: [
+    '0xc21223249CA28397B4B6541dfFaEcC539BfF0c59', // usdc
+    '0xF2001B145b43032AAF5Ee2884e456CCd805F677D', // dai
+    '0x66e428c3f67a68878562e79A0234c1F83c208770', // usdt
+    '0xC74D59A548ecf7fc1754bb7810D716E9Ac3e3AE5', // busd
+    '0x2Ae35c8E3D4bD57e8898FF7cd2bBff87166EF8cb', // MAI
+  ],
+
+  [ChainId.BTTC]: [],
+  [ChainId.MATIC]: [],
+  [ChainId.OPTIMISM]: [],
+  [ChainId.SOLANA]: [],
+  [ChainId.GÖRLI]: [],
+  [ChainId.MUMBAI]: [],
+  [ChainId.BSCTESTNET]: [],
+  [ChainId.AVAXTESTNET]: [],
+  [ChainId.MAINNET]: [],
+  [ChainId.AVAXMAINNET]: [],
+  [ChainId.FANTOM]: [],
+  [ChainId.BSCMAINNET]: [],
+  [ChainId.ARBITRUM]: [],
+}
+
+// This is basically the same as STABLE_COIN_ADDRESSES_TO_TAKE_FEE,
+// but with native token address and wrapped native token address
+export const TOKENS_WITH_FEE_TIER_1: Record<ChainId, string[]> = CHAINS_SUPPORT_FEE_CONFIGS.reduce((acc, chainId) => {
+  if (STABLE_COIN_ADDRESSES_TO_TAKE_FEE[chainId].length) {
+    acc[chainId] = [...STABLE_COIN_ADDRESSES_TO_TAKE_FEE[chainId], ETHER_ADDRESS, WETH[chainId].address]
+  } else {
+    acc[chainId] = []
+  }
+  return acc
+}, {} as Record<ChainId, string[]>)
 
 export const SUPER_STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
   [ChainId.MAINNET]: [
@@ -579,3 +633,6 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   [ChainId.SOLANA]: USDC[ChainId.SOLANA],
   [ChainId.GÖRLI]: KNC[ChainId.GÖRLI],
 }
+
+export const DEFAULT_SWAP_FEE_STABLE_PAIRS = 4
+export const DEFAULT_SWAP_FEE_NOT_STABLE_PAIRS = 10

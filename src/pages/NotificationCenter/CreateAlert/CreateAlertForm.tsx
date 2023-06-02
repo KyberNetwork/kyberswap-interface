@@ -90,14 +90,12 @@ export default function CreateAlert({
     currencyOut,
     parsedAmount,
     isSaveGas: false,
-    feeConfig: undefined,
     customChain: selectedChain,
   })
 
   const onChangeInput = (name: string, val: string) => {
-    if (name === 'threshold' && val.includes('.')) {
-      const numPrecision = val.split('.').pop()?.length || 0
-      if (numPrecision > 6) return
+    if (name === 'threshold' && val.length > 60) {
+      return
     }
     setFormInput({ ...formInput, [name]: val })
   }

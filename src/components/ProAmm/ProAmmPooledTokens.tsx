@@ -2,7 +2,7 @@ import { ZERO } from '@kyberswap/ks-sdk-classic'
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 
 import { OutlineCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
@@ -11,9 +11,9 @@ import Divider from 'components/Divider'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween, RowFixed } from 'components/Row'
+import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import { formatDollarAmount } from 'utils/numbers'
-import { unwrappedToken } from 'utils/wrappedCurrency'
 
 export default function ProAmmPooledTokens({
   liquidityValue0,
@@ -26,6 +26,7 @@ export default function ProAmmPooledTokens({
   positionAPR,
   createdAt,
   farmAPR,
+  farmRewardAmount,
 }: {
   liquidityValue0: CurrencyAmount<Currency> | undefined
   liquidityValue1: CurrencyAmount<Currency> | undefined
@@ -37,6 +38,7 @@ export default function ProAmmPooledTokens({
   positionAPR?: string
   createdAt?: number
   farmAPR?: number
+  farmRewardAmount?: Array<CurrencyAmount<Currency>>
 }) {
   const theme = useTheme()
   const render =
@@ -51,17 +53,13 @@ export default function ProAmmPooledTokens({
           {liquidityValue0?.greaterThan(ZERO) && (
             <RowBetween>
               <Text fontSize={12} fontWeight={500} color={theme.subText}>
-                {pooled && 'POOLED'} {liquidityValue0?.currency && unwrappedToken(liquidityValue0.currency)?.symbol}
+                {pooled && 'POOLED'} {liquidityValue0?.currency.symbol}
               </Text>
               <RowFixed>
-                <CurrencyLogo
-                  size="16px"
-                  style={{ marginLeft: '8px' }}
-                  currency={unwrappedToken(liquidityValue0.currency)}
-                />
+                <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={liquidityValue0.currency} />
                 <Text fontSize={12} fontWeight={500} marginLeft={'6px'}>
                   {liquidityValue0 && <FormattedCurrencyAmount currencyAmount={liquidityValue0} />}{' '}
-                  {liquidityValue0?.currency && unwrappedToken(liquidityValue0.currency)?.symbol}
+                  {liquidityValue0?.currency.symbol}
                 </Text>
               </RowFixed>
             </RowBetween>
@@ -69,17 +67,13 @@ export default function ProAmmPooledTokens({
           {liquidityValue1?.greaterThan(ZERO) && (
             <RowBetween>
               <Text fontSize={12} fontWeight={500} color={theme.subText}>
-                {pooled && 'POOLED'} {liquidityValue1?.currency && unwrappedToken(liquidityValue1.currency)?.symbol}
+                {pooled && 'POOLED'} {liquidityValue1?.currency.symbol}
               </Text>
               <RowFixed>
-                <CurrencyLogo
-                  size="16px"
-                  style={{ marginLeft: '8px' }}
-                  currency={unwrappedToken(liquidityValue1.currency)}
-                />
+                <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={liquidityValue1.currency} />
                 <Text fontSize={12} fontWeight={500} marginLeft={'6px'}>
                   {liquidityValue1 && <FormattedCurrencyAmount currencyAmount={liquidityValue1} />}{' '}
-                  {liquidityValue1?.currency && unwrappedToken(liquidityValue1.currency)?.symbol}
+                  {liquidityValue1?.currency.symbol}
                 </Text>
               </RowFixed>
             </RowBetween>
@@ -147,16 +141,41 @@ export default function ProAmmPooledTokens({
               </Text>
             </RowBetween>
 
-            {!!farmAPR && (
-              <RowBetween>
-                <Text fontSize={12} fontWeight="500" color={theme.subText}>
-                  <Trans>My Farm APR</Trans>
-                </Text>
+            <RowBetween>
+              <Text fontSize={12} fontWeight="500" color={theme.subText}>
+                <Trans>My Farm APR</Trans>
+              </Text>
+              {!!farmAPR && !!farmRewardAmount?.length ? (
+                <MouseoverTooltip
+                  width="fit-content"
+                  text={
+                    <Flex flexDirection="column" sx={{ gap: '8px' }}>
+                      {farmRewardAmount.map((item, index) => (
+                        <Flex key={index} alignItems="center" sx={{ gap: '4px' }}>
+                          <CurrencyLogo currency={item.currency} size="14px" />
+                          <Text>
+                            {item.toSignificant(6)} {item.currency.symbol}
+                          </Text>
+                        </Flex>
+                      ))}
+                    </Flex>
+                  }
+                >
+                  <Text
+                    fontSize={12}
+                    fontWeight="500"
+                    color={theme.apr}
+                    sx={{ borderBottom: `1px dotted ${theme.border}` }}
+                  >
+                    {farmAPR ? `${farmAPR.toFixed(2)}%` : '--'}
+                  </Text>
+                </MouseoverTooltip>
+              ) : (
                 <Text fontSize={12} fontWeight="500" color={theme.apr}>
-                  {farmAPR.toFixed(2)}%
+                  {farmAPR ? `${farmAPR.toFixed(2)}%` : '--'}
                 </Text>
-              </RowBetween>
-            )}
+              )}
+            </RowBetween>
           </AutoColumn>
         </OutlineCard>
       </>

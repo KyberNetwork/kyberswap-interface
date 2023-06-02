@@ -3,9 +3,7 @@ import { Currency, CurrencyAmount, Token, TradeType } from '@kyberswap/ks-sdk-co
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 
-import { ENV_LEVEL } from 'constants/env'
 import { ZERO_ADDRESS, ZERO_ADDRESS_SOLANA } from 'constants/index'
-import { ENV_TYPE } from 'constants/type'
 import { PairState, usePairs } from 'data/Reserves'
 import { useActiveWeb3React, useWeb3Solana } from 'hooks/index'
 import { useAllCurrencyCombinations } from 'hooks/useAllCurrencyCombinations'
@@ -63,10 +61,6 @@ export function useTradeExactIn(
     const fn = async function () {
       timeout = setTimeout(() => {
         if (currencyAmountIn && currencyOut && allowedPairs.length > 0) {
-          if (ENV_LEVEL < ENV_TYPE.PROD) {
-            console.log('trade amount: ', currencyAmountIn.toSignificant(10))
-          }
-
           setTrade(
             Trade.bestTradeExactIn(allowedPairs, currencyAmountIn, currencyOut, {
               maxHops: 3,
@@ -121,7 +115,7 @@ export function useTradeExactInV2(
 
   const ttl = useSelector<AppState, number>(state => state.user.userDeadline)
 
-  const { feeConfig, saveGas } = useSwapState()
+  const { saveGas } = useSwapState()
   const permitData = usePermitData(currencyAmountIn?.currency.wrapped.address)
 
   // refresh aggregator data on new sent tx
@@ -157,7 +151,6 @@ export function useTradeExactInV2(
           allowedSlippage,
           deadline,
           to,
-          feeConfig,
           signal,
           minimumLoadingTime,
           permitData && permitData.rawSignature,
@@ -196,7 +189,6 @@ export function useTradeExactInV2(
       saveGas,
       dexes,
       allowedSlippage,
-      feeConfig,
       permitData,
     ],
   )

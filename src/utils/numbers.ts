@@ -31,8 +31,8 @@ export const formatNotDollarAmount = (num: number | undefined, digits = 2) => {
   }
   const fractionDigits = num > 1000 ? 2 : digits
   return Intl.NumberFormat('en-US', {
-    notation: 'compact',
-    minimumFractionDigits: fractionDigits,
+    notation: num < 10000 ? 'standard' : 'compact',
+    minimumFractionDigits: 0,
     maximumFractionDigits: fractionDigits,
   })
     .format(num)

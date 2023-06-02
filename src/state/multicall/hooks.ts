@@ -282,3 +282,39 @@ export function useSingleCallResult(
     return toCallState({ valid, data, blockNumber }, contract?.interface, fragment, latestBlockNumber)
   }, [valid, data, blockNumber, contract, fragment, latestBlockNumber])
 }
+
+export function useSingleContractWithCallData(
+  contract: Contract | null | undefined,
+  callDatas: string[],
+  options?: ListenerOptions,
+): CallState[] {
+  const { gasRequired } = options ?? {}
+  const calls = useMemo(
+    () =>
+      contract && callDatas && callDatas.length > 0
+        ? callDatas.map<Call>(callData => {
+            return {
+              address: contract.address,
+              callData,
+              gasRequired,
+            }
+          })
+        : [],
+    [callDatas, contract, gasRequired],
+  )
+
+  const results = useCallsData(calls, options)
+
+  const latestBlockNumber = useBlockNumber()
+
+  return useMemo(() => {
+    return results.map((result, i) =>
+      toCallState(
+        result,
+        contract?.interface,
+        contract?.interface?.getFunction(callDatas[i].substring(0, 10)),
+        latestBlockNumber,
+      ),
+    )
+  }, [contract, results, latestBlockNumber, callDatas])
+}

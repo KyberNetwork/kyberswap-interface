@@ -24,6 +24,7 @@ import { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useFarmPositions, useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
+import Notice from 'pages/ElasticLegacy/Notice'
 import { FilterRow, InstructionText, PageWrapper, PositionCardGrid, Tab } from 'pages/Pool'
 import { FarmUpdater } from 'state/farms/elastic/hooks'
 import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
@@ -114,7 +115,7 @@ export default function ProAmmPool() {
   const activeFarmV2Address =
     farmV2s?.filter(farm => farm.endTime > Date.now() / 1000 && !farm.isSettled).map(farm => farm.poolAddress) || []
 
-  const { farmPositions, loading, activeFarmAddress: activeFarmV1Address, farms, userFarmInfo } = useFarmPositions()
+  const { farmPositions, loading, activeFarmAddress: activeFarmV1Address, userFarmInfo } = useFarmPositions()
   const [openPositions, closedPositions] = useMemo(
     () =>
       positions?.reduce<[PositionDetails[], PositionDetails[]]>(
@@ -147,7 +148,7 @@ export default function ProAmmPool() {
 
   const debouncedSearchText = useDebounce(searchValueInQs.trim().toLowerCase(), 300)
 
-  const [showClosed, setShowClosed] = useState(false)
+  const [showClosed, setShowClosed] = useState(true)
 
   const filter = useCallback(
     (pos: PositionDetails): boolean => {
@@ -165,34 +166,72 @@ export default function ProAmmPool() {
   )
 
   const filteredFarmPositions = useMemo(() => {
-    return farmPositions.filter(filter)
-  }, [filter, farmPositions])
+    return [...farmPositions, ...farmV2Positions].filter(filter)
+  }, [filter, farmPositions, farmV2Positions])
 
-  const filteredFarmv2Positions = useMemo(() => farmV2Positions.filter(filter), [farmV2Positions, filter])
-
-  const filteredPositions = useMemo(
-    () =>
-      (!showClosed
-        ? [...openPositions, ...filteredFarmPositions, ...filteredFarmv2Positions]
-        : [...openPositions, ...filteredFarmPositions, ...filteredFarmv2Positions, ...closedPositions]
-      )
-        .filter(position => {
-          if (nftId) return position.tokenId.toString() === nftId
-          return filter(position)
-        })
-        .filter((pos, index, array) => array.findIndex(pos2 => pos2.tokenId.eq(pos.tokenId)) === index)
-        .sort((a, b) => +a.tokenId.lt(b.tokenId)),
-    [showClosed, openPositions, closedPositions, filteredFarmPositions, nftId, filteredFarmv2Positions, filter],
+  const sortFn = useCallback(
+    (a: PositionDetails, b: PositionDetails) => +a.tokenId.toString() - +b.tokenId.toString(),
+    [],
   )
 
+  const openFarmPositions = useMemo(() => {
+    return filteredFarmPositions.filter(pos => pos.liquidity.gt('0')).sort(sortFn)
+  }, [filteredFarmPositions, sortFn])
+
+  const closedFarmPositions = useMemo(() => {
+    return filteredFarmPositions.filter(pos => pos.liquidity.eq('0')).sort(sortFn)
+  }, [filteredFarmPositions, sortFn])
+
+  const filteredPositions = useMemo(() => {
+    const opens = [...openPositions, ...openFarmPositions].sort(sortFn)
+    const closeds = [...closedPositions, ...closedFarmPositions].sort(sortFn)
+
+    return (!showClosed ? opens : [...opens, ...closeds])
+      .filter(position => {
+        if (nftId) return position.tokenId.toString() === nftId
+        return (
+          debouncedSearchText.trim().length === 0 ||
+          (!!tokenAddressSymbolMap.current[position.token0.toLowerCase()] &&
+            tokenAddressSymbolMap.current[position.token0.toLowerCase()].includes(debouncedSearchText)) ||
+          (!!tokenAddressSymbolMap.current[position.token1.toLowerCase()] &&
+            tokenAddressSymbolMap.current[position.token1.toLowerCase()].includes(debouncedSearchText)) ||
+          position.poolId.toLowerCase() === debouncedSearchText ||
+          position.tokenId.toString() === debouncedSearchText
+        )
+      })
+      .filter((pos, index, array) => array.findIndex(pos2 => pos2.tokenId.eq(pos.tokenId)) === index)
+  }, [
+    showClosed,
+    openPositions,
+    closedPositions,
+    debouncedSearchText,
+    nftId,
+    openFarmPositions,
+    closedFarmPositions,
+    sortFn,
+  ])
+
   const [showStaked, setShowStaked] = useState(false)
+  const positionList = useMemo(
+    () =>
+      showStaked
+        ? showClosed
+          ? [...openFarmPositions, ...closedFarmPositions]
+          : openFarmPositions
+        : filteredPositions,
+    [showStaked, filteredPositions, openFarmPositions, closedFarmPositions, showClosed],
+  )
 
   const upToSmall = useMedia('(max-width: 768px)')
 
   if (!isEVM) return <Navigate to="/" />
+
   return (
     <>
       <PageWrapper style={{ padding: 0, marginTop: '24px' }}>
+        <div style={{ marginBottom: '1rem' }}>
+          <Notice />
+        </div>
         <AutoColumn gap="lg" style={{ width: '100%' }}>
           <InstructionText>
             <Trans>Here you can view all your liquidity and staked balances in the Elastic Pools</Trans>
@@ -278,7 +317,7 @@ export default function ProAmmPool() {
                 <Trans>Connect to a wallet to view your liquidity.</Trans>
               </TYPE.body>
             </Card>
-          ) : (positionsLoading && !positions) || (loading && !farms && !userFarmInfo) ? (
+          ) : (positionsLoading && !positions) || (loading && !userFarmInfo && !positions?.length) ? (
             <PositionCardGrid>
               <ContentLoader />
               <ContentLoader />
@@ -286,18 +325,8 @@ export default function ProAmmPool() {
             </PositionCardGrid>
           ) : filteredPositions.length > 0 || filteredFarmPositions.length > 0 ? (
             <>
-              {/* Use display attribute here instead of condition rendering to prevent re-render full list when toggle showStaked => increase performance */}
               <PositionGrid
-                style={{ display: showStaked ? 'none' : 'grid' }}
-                positions={filteredPositions}
-                refe={tokenAddressSymbolMap}
-                activeFarmV1Address={activeFarmV1Address}
-                activeFarmV2Address={activeFarmV2Address}
-              />
-
-              <PositionGrid
-                style={{ display: !showStaked ? 'none' : 'grid' }}
-                positions={filteredFarmPositions}
+                positions={positionList}
                 refe={tokenAddressSymbolMap}
                 activeFarmV1Address={activeFarmV1Address}
                 activeFarmV2Address={activeFarmV2Address}
