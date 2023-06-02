@@ -507,7 +507,7 @@ export default function KyberAIShareModal({
             ))}
           {loading ? (
             <Loader>
-              <Text fontSize={above768 ? '16px' : '12px'}>
+              <Text fontSize={above768 ? '16px' : '12px'} textAlign="center">
                 <Trans>Crafting your screenshot...</Trans>
               </Text>
             </Loader>
