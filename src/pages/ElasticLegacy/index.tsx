@@ -8,6 +8,7 @@ import LocalLoader from 'components/LocalLoader'
 import useElasticCompensationData from 'hooks/useElasticCompensationData'
 import useElasticLegacy from 'hooks/useElasticLegacy'
 import useTheme from 'hooks/useTheme'
+import { ExternalLink } from 'theme'
 
 import AllPositionLegacy from './AllPositionLegacy'
 import FarmLegacy from './FarmLegacy'
@@ -54,9 +55,11 @@ const WarningNotice = () => {
     <Warning>
       <Trans>
         Due to a{' '}
-        <Text as="span" color={theme.warning}>
-          potential issue
-        </Text>{' '}
+        <ExternalLink href="https://twitter.com/KyberNetwork/status/1647920799557505028?t=3W5CxZULDimB9AgGKFHQ2w&s=19">
+          <Text as="span" color={theme.warning}>
+            potential issue
+          </Text>
+        </ExternalLink>{' '}
         with our legacy Elastic protocol, we recommend that all liquidity providers withdraw their liquidity from
         Elastic Pools (Legacy). We have fixed all the issues and deployed the new and audited{' '}
         <Link to="/pools">Elastic Pools</Link> where you can add liquidity normally instead

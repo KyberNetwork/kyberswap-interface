@@ -203,7 +203,7 @@ export default function useElasticLegacy(interval = true) {
   const previousChainIdRef = useRef(chainId)
 
   useEffect(() => {
-    if (previousChainIdRef.current !== chainId) {
+    if (previousChainIdRef.current !== chainId || !account) {
       setPositions([])
       setFarmPostions([])
     }
@@ -311,6 +311,11 @@ export function usePositionFees(positions: Position[]) {
     }
 
     getData()
+    const i = setInterval(() => {
+      getData()
+    }, 10_000)
+
+    return () => clearInterval(i)
     // eslint-disable-next-line
   }, [chainId, multicallContract, networkInfo, positions.length])
 
@@ -318,24 +323,16 @@ export function usePositionFees(positions: Position[]) {
 }
 
 export const parsePosition = (item: Position, chainId: number, tokenPrices: { [key: string]: number }) => {
-  const token0 = new TokenSDK(
-    chainId,
-    item.token0.id,
-    Number(item.token0.decimals),
-    item.token0.symbol,
-    item.token0.name,
+  const token0 = unwrappedToken(
+    new TokenSDK(chainId, item.token0.id, Number(item.token0.decimals), item.token0.symbol, item.token0.name),
   )
-  const token1 = new TokenSDK(
-    chainId,
-    item.token1.id,
-    Number(item.token1.decimals),
-    item.token1.symbol,
-    item.token1.name,
+  const token1 = unwrappedToken(
+    new TokenSDK(chainId, item.token1.id, Number(item.token1.decimals), item.token1.symbol, item.token1.name),
   )
 
   const pool = new Pool(
-    token0,
-    token1,
+    token0.wrapped,
+    token1.wrapped,
     +item.pool.feeTier,
     item.pool.sqrtPrice,
     item.pool.liquidity,
@@ -441,8 +438,8 @@ export const useRemoveLiquidityLegacy = (
                 tokenAmountOut,
                 tokenSymbolIn,
                 tokenSymbolOut,
-                tokenAddressIn: token0.address,
-                tokenAddressOut: token1.address,
+                tokenAddressIn: token0.wrapped.address,
+                tokenAddressOut: token1.wrapped.address,
                 contract: item.pool.id,
                 nftId: item.id,
               },

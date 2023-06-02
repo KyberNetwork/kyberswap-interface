@@ -31,6 +31,7 @@ import DarkModeQueryParamReader from 'theme/DarkModeQueryParamReader'
 import { getLimitOrderContract, isAddressString, shortenAddress } from 'utils'
 
 import { RedirectDuplicateTokenIds } from './AddLiquidityV2/redirects'
+import ElasticLegacyNotice from './ElasticLegacy/ElasticLegacyNotice'
 import { RedirectPathToFarmNetwork } from './Farm/redirect'
 import { RedirectPathToMyPoolsNetwork } from './Pool/redirect'
 import { RedirectPathToPoolsNetwork } from './Pools/redirect'
@@ -190,6 +191,7 @@ export default function App() {
       {(!account || !BLACKLIST_WALLETS.includes(account)) && (
         <>
           <AppWrapper>
+            <ElasticLegacyNotice />
             <TopBanner />
             <HeaderWrapper>
               <Header />

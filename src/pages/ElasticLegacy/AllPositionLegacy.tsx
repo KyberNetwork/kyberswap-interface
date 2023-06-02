@@ -23,12 +23,15 @@ import {
   usePositionFees,
   useRemoveLiquidityLegacy,
 } from 'hooks/useElasticLegacy'
+import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import useTheme from 'hooks/useTheme'
 import { outerElementType } from 'pages/ProAmmPool/PositionGrid'
 import { Tab, TabContainer } from 'pages/ProAmmPool/PositionListItem'
+import { Bound } from 'state/mint/proamm/type'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
+import { formatTickPrice } from 'utils/formatTickPrice'
 import { formatDollarAmount } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
@@ -122,6 +125,9 @@ const Row = memo(
       usd,
     } = useRemoveLiquidityLegacy(p || positions[0], tokenPrices, feeRewards)
 
+    const pTemp = p || positions[0]
+    const tickAtLimit = useIsTickAtLimit(+pTemp.pool.feeTier, +pTemp.tickLower.tickIdx, +pTemp.tickUpper.tickIdx)
+
     if (!p) return <div />
 
     const outOfRange = +p.pool.tick < +p.tickLower.tickIdx || +p.pool.tick >= +p.tickUpper.tickIdx
@@ -135,9 +141,9 @@ const Row = memo(
         <Item>
           <Flex justifyContent="space-between" alignItems="center">
             <Flex alignItems="center">
-              <DoubleCurrencyLogo currency0={token0} currency1={token1} size={20} />
+              <DoubleCurrencyLogo currency0={unwrappedToken(token0)} currency1={unwrappedToken(token1)} size={20} />
               <Text fontWeight="500">
-                {token0.symbol} - {token1.symbol}
+                {unwrappedToken(token0).symbol} - {unwrappedToken(token1).symbol}
               </Text>
               <FeeTag>Fee {((Number(p.pool?.feeTier) || 0) * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
             </Flex>
@@ -182,7 +188,7 @@ const Row = memo(
                   <Trans>My Pooled {unwrappedToken(token0).symbol}</Trans>
                 </Text>
                 <Flex color={theme.text} fontWeight="500" alignItems="center" sx={{ gap: '4px' }}>
-                  <CurrencyLogo currency={token0} size="12px" />
+                  <CurrencyLogo currency={unwrappedToken(token0)} size="12px" />
                   {position.amount0.toSignificant(6)}
                 </Flex>
               </Flex>
@@ -191,7 +197,7 @@ const Row = memo(
                   <Trans>My Pooled {unwrappedToken(token1).symbol}</Trans>
                 </Text>
                 <Flex color={theme.text} fontWeight="500" alignItems="center" sx={{ gap: '4px' }}>
-                  <CurrencyLogo currency={token1} size="12px" />
+                  <CurrencyLogo currency={unwrappedToken(token1)} size="12px" />
                   {position.amount1.toSignificant(6)}
                 </Flex>
               </Flex>
@@ -201,7 +207,7 @@ const Row = memo(
                   <Trans>{unwrappedToken(token0).symbol} Fees Earned</Trans>
                 </Text>
                 <Flex color={theme.text} fontWeight="500" alignItems="center" sx={{ gap: '4px' }}>
-                  <CurrencyLogo currency={token0} size="12px" />
+                  <CurrencyLogo currency={unwrappedToken(token0)} size="12px" />
                   {feeValue0.toSignificant(6)}
                 </Flex>
               </Flex>
@@ -210,7 +216,7 @@ const Row = memo(
                   <Trans>{unwrappedToken(token1).symbol} Fees Earned</Trans>
                 </Text>
                 <Flex color={theme.text} fontWeight="500" alignItems="center" sx={{ gap: '4px' }}>
-                  <CurrencyLogo currency={token1} size="12px" />
+                  <CurrencyLogo currency={unwrappedToken(token1)} size="12px" />
                   {feeValue1.toSignificant(6)}
                 </Flex>
               </Flex>
@@ -238,7 +244,8 @@ const Row = memo(
                     <Trans>Min Price</Trans>
                   </Text>
                   <Flex color={theme.text} fontWeight="500" alignItems="center" sx={{ gap: '4px' }}>
-                    {priceLower.toSignificant(6)} {unwrappedToken(token1).symbol} per {unwrappedToken(token0).symbol}
+                    {formatTickPrice(priceLower, tickAtLimit, Bound.LOWER)} {unwrappedToken(token1).symbol} per{' '}
+                    {unwrappedToken(token0).symbol}
                   </Flex>
                 </Flex>
 
@@ -247,7 +254,8 @@ const Row = memo(
                     <Trans>Max Price</Trans>
                   </Text>
                   <Flex color={theme.text} fontWeight="500" alignItems="center" sx={{ gap: '4px' }}>
-                    {priceUpper.toSignificant(6)} {unwrappedToken(token1).symbol} per {unwrappedToken(token0).symbol}
+                    {formatTickPrice(priceUpper, tickAtLimit, Bound.UPPER)} {unwrappedToken(token1).symbol} per{' '}
+                    {unwrappedToken(token0).symbol}
                   </Flex>
                 </Flex>
               </OutlineCard>

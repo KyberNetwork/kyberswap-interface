@@ -14,6 +14,7 @@ import { Position as SubgraphPosition, usePositionFees, useRemoveLiquidityLegacy
 import useTheme from 'hooks/useTheme'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { formatDollarAmount } from 'utils/numbers'
+import { unwrappedToken } from 'utils/wrappedCurrency'
 
 const Wrapper = styled.div`
   border-radius: 1rem;
@@ -108,9 +109,9 @@ const Row = ({
       <Text color={theme.subText}>{item.id}</Text>
 
       <Flex alignItems="center">
-        <DoubleCurrencyLogo currency0={token0} currency1={token1} />
+        <DoubleCurrencyLogo currency0={unwrappedToken(token0)} currency1={unwrappedToken(token1)} />
         <Text color={theme.primary}>
-          {token0.symbol} - {token1.symbol}
+          {unwrappedToken(token0).symbol} - {unwrappedToken(token1).symbol}
         </Text>
         <FeeTag>Fee {((Number(item.pool?.feeTier) || 0) * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
       </Flex>
@@ -122,15 +123,15 @@ const Row = ({
           text={
             <Flex flexDirection="column" fontSize="12px">
               <Flex sx={{ gap: '4px' }} alignItems="center">
-                <CurrencyLogo currency={position.amount0.currency} size="16px" />
+                <CurrencyLogo currency={unwrappedToken(position.amount0.currency)} size="16px" />
                 <Text fontWeight="500">{position.amount0.toSignificant(6)}</Text>
-                <Text fontWeight="500">{position.amount0.currency.symbol}</Text>
+                <Text fontWeight="500">{unwrappedToken(position.amount0.currency).symbol}</Text>
               </Flex>
 
               <Flex sx={{ gap: '4px' }} alignItems="center" marginTop="6px">
-                <CurrencyLogo currency={position.amount1.currency} size="16px" />
+                <CurrencyLogo currency={unwrappedToken(position.amount1.currency)} size="16px" />
                 <Text fontWeight="500">{position.amount1.toSignificant(6)}</Text>
-                <Text fontWeight="500">{position.amount1.currency.symbol}</Text>
+                <Text fontWeight="500">{unwrappedToken(position.amount1.currency).symbol}</Text>
               </Flex>
             </Flex>
           }
@@ -142,15 +143,15 @@ const Row = ({
 
       <Flex flexDirection="column" sx={{ gap: '6px' }} fontSize="12px">
         <Flex sx={{ gap: '4px' }} alignItems="center">
-          <CurrencyLogo currency={token0} size="16px" />
+          <CurrencyLogo currency={unwrappedToken(token0)} size="16px" />
           <Text fontWeight="500">{feeValue0.toSignificant(6)}</Text>
-          <Text fontWeight="500">{token0.symbol}</Text>
+          <Text fontWeight="500">{unwrappedToken(token0).symbol}</Text>
         </Flex>
 
         <Flex sx={{ gap: '4px' }} alignItems="center">
-          <CurrencyLogo currency={token1} size="16px" />
+          <CurrencyLogo currency={unwrappedToken(token1)} size="16px" />
           <Text fontWeight="500">{feeValue1.toSignificant(6)}</Text>
-          <Text fontWeight="500">{token1.symbol}</Text>
+          <Text fontWeight="500">{unwrappedToken(token1).symbol}</Text>
         </Flex>
       </Flex>
 
