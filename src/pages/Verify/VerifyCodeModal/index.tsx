@@ -2,7 +2,6 @@ import { Trans, t } from '@lingui/macro'
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { X } from 'react-feather'
-import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import { useSendOtpMutation, useVerifyOtpMutation } from 'services/identity'
 import styled from 'styled-components'
@@ -88,7 +87,15 @@ export default function VerifyCodeModal({
   const [verifySuccess, setVerifySuccess] = useState(false)
   const [error, setError] = useState(false)
   const notify = useNotify()
-  const isTyping = useMedia(`(max-height: 550px)`)
+  const [isTyping, setIsTyping] = useState(false)
+
+  useEffect(() => {
+    const onResize = () => {
+      setIsTyping(window.innerHeight < 450)
+    }
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
 
   const [expiredDuration, setExpireDuration] = useState(defaultTime)
   const canShowResend = expiredDuration < (timeExpire - 1) * TIMES_IN_SECS.ONE_MIN
