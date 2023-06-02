@@ -228,7 +228,12 @@ export default function VerifyCodeModal({
                       window.scrollTo({ top: 0 })
                     }, 100)
                   }}
-                  onBlur={() => isIOS && setIsTypingIos(false)}
+                  onBlur={() =>
+                    isIOS &&
+                    setTimeout(() => {
+                      setIsTypingIos(false)
+                    }, 100)
+                  }
                 />
               )}
             />
