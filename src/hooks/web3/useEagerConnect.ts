@@ -61,7 +61,6 @@ export function useEagerConnect() {
         if (tried) return
         tried = true
         reRender({})
-        // try to connect if previous connected to Coinbase Link
         if (isAuthorized && !isManuallyDisconnect) {
           const lastWalletKey = localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY)
           const wallet = lastWalletKey && SUPPORTED_WALLETS[lastWalletKey]

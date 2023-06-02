@@ -23,7 +23,7 @@ export default function Updater(): null {
     }
   }, [library, networkInfo.defaultRpcUrl, chainId])
 
-  const { provider } = useKyberSwapConfig()
+  const { readProvider } = useKyberSwapConfig()
   const dispatch = useDispatch()
   const { connection } = useWeb3Solana()
 
@@ -59,20 +59,20 @@ export default function Updater(): null {
 
   // attach/detach listeners
   useEffect(() => {
-    if (!provider || !windowVisible || !isEVM) return undefined
+    if (!readProvider || !windowVisible || !isEVM) return undefined
 
     setState({ chainId, blockNumber: null })
 
-    provider
+    readProvider
       .getBlockNumber()
       .then(blockNumberCallback)
       .catch((error: any) => console.error(`Failed to get block number for chainId: ${chainId}`, error))
 
-    provider.on('block', blockNumberCallback)
+    readProvider.on('block', blockNumberCallback)
     return () => {
-      provider.removeListener('block', blockNumberCallback)
+      readProvider.removeListener('block', blockNumberCallback)
     }
-  }, [dispatch, chainId, provider, blockNumberCallback, windowVisible, isEVM])
+  }, [dispatch, chainId, readProvider, blockNumberCallback, windowVisible, isEVM])
 
   useEffect(() => {
     if (!windowVisible || !isSolana || !connection) return undefined

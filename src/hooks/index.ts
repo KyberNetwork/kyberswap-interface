@@ -121,8 +121,7 @@ type Web3React = {
 }
 
 export function useWeb3React(): Web3React {
-  const { connector, chainId, account, isActive: active, provider } = useWeb3ReactCore()
-
+  const { connector, chainId, account, isActive: active, provider } = useWeb3ReactCore<Web3Provider>()
   return {
     connector,
     library: provider,
