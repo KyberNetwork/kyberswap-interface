@@ -108,6 +108,8 @@ export default function DisplaySettings({ currentTab }: { currentTab: DiscoverTo
   const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
   const [showSettings, setShowSettings] = useState(false)
+  const [showOnchainSetting, setShowOnchainSetting] = useState(currentTab === DiscoverTokenTab.OnChainAnalysis)
+  const [showTechnicalSetting, setShowTechnicalSetting] = useState(currentTab === DiscoverTokenTab.TechnicalAnalysis)
   const storedTokenAnalysisSettings = useTokenAnalysisSettings()
   const updateTokenAnalysisSettings = useUpdateTokenAnalysisSettings()
   const toggleTutorial = useToggleModal(ApplicationModal.KYBERAI_TUTORIAL)
@@ -143,7 +145,13 @@ export default function DisplaySettings({ currentTab }: { currentTab: DiscoverTo
           <ExpandableBox
             style={{ padding: 0, opacity: 1 }}
             backgroundColor="inherit"
-            expandedDefault={currentTab === DiscoverTokenTab.OnChainAnalysis}
+            isExpanded={showOnchainSetting}
+            onChange={value => {
+              setShowOnchainSetting(value)
+              if (value) {
+                setShowTechnicalSetting(false)
+              }
+            }}
             headerContent={
               <Text color={theme.text} fontSize={14} fontWeight={500}>
                 <Trans>On-Chain Analysis</Trans>
@@ -180,7 +188,13 @@ export default function DisplaySettings({ currentTab }: { currentTab: DiscoverTo
           <ExpandableBox
             style={{ padding: 0 }}
             backgroundColor="inherit"
-            expandedDefault={currentTab === DiscoverTokenTab.TechnicalAnalysis}
+            isExpanded={showTechnicalSetting}
+            onChange={value => {
+              setShowTechnicalSetting(value)
+              if (value) {
+                setShowOnchainSetting(false)
+              }
+            }}
             headerContent={
               <Text color={theme.text} fontSize={14} fontWeight={500}>
                 <Trans>Technical Analysis</Trans>

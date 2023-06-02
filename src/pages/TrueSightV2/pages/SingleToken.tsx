@@ -462,7 +462,7 @@ const TokenHeader = ({
           position: 'sticky',
           top: '-2px',
           backgroundColor: theme.buttonBlack,
-          zIndex: 10,
+          zIndex: 100,
           transform: 'translateX(-16px)',
           width: '100vw',
         }}

@@ -36,6 +36,8 @@ export default function ExpandableBox({
   style,
   className,
   hasDivider = true,
+  isExpanded: expandedProp,
+  onChange,
 }: {
   expandedDefault?: boolean
   headerContent?: ReactNode
@@ -48,10 +50,22 @@ export default function ExpandableBox({
   style?: CSSProperties
   className?: string
   hasDivider?: boolean
+  isExpanded?: boolean
+  onChange?: (value: boolean) => void
 }) {
   const [expanded, setExpanded] = useState(expandedDefault)
   const contentRef = useRef<HTMLDivElement>(null)
   const contentHeight = contentRef.current?.getBoundingClientRect().height
+
+  const handleChange = () => {
+    if (onChange && expandedProp !== undefined) {
+      onChange(!expandedProp)
+    } else {
+      setExpanded(ex => !ex)
+    }
+  }
+
+  const isExpanded = expandedProp !== undefined ? expandedProp : expanded
   return (
     <Wrapper
       style={{
@@ -66,21 +80,21 @@ export default function ExpandableBox({
       className={className}
     >
       <Header
-        onClick={() => setExpanded(ex => !ex)}
-        $expanded={expanded}
+        onClick={handleChange}
+        $expanded={isExpanded}
         style={{
           backgroundColor: backgroundColor || 'black',
         }}
       >
-        {headerContent || 'Header'} <DropdownSVG style={{ transform: expanded ? 'rotate(180deg)' : undefined }} />
+        {headerContent || 'Header'} <DropdownSVG style={{ transform: isExpanded ? 'rotate(180deg)' : undefined }} />
       </Header>
 
-      <Content ref={contentRef} $expanded={expanded} $height={contentHeight}>
+      <Content ref={contentRef} $expanded={isExpanded} $height={contentHeight}>
         {hasDivider && (
           <Divider
             style={{
               margin: '16px 0',
-              opacity: expanded ? '1' : '0',
+              opacity: isExpanded ? '1' : '0',
             }}
           />
         )}
