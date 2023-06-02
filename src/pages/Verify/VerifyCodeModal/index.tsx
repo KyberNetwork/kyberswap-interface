@@ -232,7 +232,7 @@ export default function VerifyCodeModal({
                     isIOS &&
                     setTimeout(() => {
                       setIsTypingIos(false)
-                    }, 100)
+                    }, 0)
                   }
                 />
               )}
