@@ -1,7 +1,8 @@
 import { Trans, t } from '@lingui/macro'
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
-import { isMobile } from 'react-device-detect'
+import { isAndroid, isIOS, isMobile } from 'react-device-detect'
 import { X } from 'react-feather'
+import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import { useSendOtpMutation, useVerifyOtpMutation } from 'services/identity'
 import styled from 'styled-components'
@@ -87,7 +88,8 @@ export default function VerifyCodeModal({
   const [verifySuccess, setVerifySuccess] = useState(false)
   const [error, setError] = useState(false)
   const notify = useNotify()
-  const [isTyping, setIsTyping] = useState(false)
+  const [isTypingIos, setIsTypingIos] = useState(false)
+  const isTypingAndroid = useMedia(`(max-height: 450px)`)
 
   const [expiredDuration, setExpireDuration] = useState(defaultTime)
   const canShowResend = expiredDuration < (timeExpire - 1) * TIMES_IN_SECS.ONE_MIN
@@ -179,7 +181,15 @@ export default function VerifyCodeModal({
       onDismiss={onDismiss}
       minHeight={false}
       maxWidth={450}
-      height={isTyping && isMobile ? window.innerHeight + 'px' : undefined}
+      height={
+        !isMobile
+          ? undefined
+          : isAndroid && isTypingAndroid
+          ? '100%'
+          : isTypingIos && isIOS
+          ? window.innerHeight + 'px'
+          : undefined
+      }
     >
       <Wrapper>
         {verifySuccess ? (
@@ -211,8 +221,8 @@ export default function VerifyCodeModal({
                   hasError={error}
                   placeholder="-"
                   type="number"
-                  onFocus={() => setIsTyping(true)}
-                  onBlur={() => setIsTyping(false)}
+                  onFocus={() => setIsTypingIos(true)}
+                  onBlur={() => setIsTypingIos(false)}
                 />
               )}
             />
