@@ -222,7 +222,12 @@ export default function VerifyCodeModal({
                   hasError={error}
                   placeholder="-"
                   type="number"
-                  onFocus={() => isIOS && setIsTypingIos(true)}
+                  onFocus={() => {
+                    isIOS && setIsTypingIos(true)
+                    setTimeout(() => {
+                      window.scrollTo({ top: 0 })
+                    }, 100)
+                  }}
                   onBlur={() => isIOS && setIsTypingIos(false)}
                 />
               )}
