@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
-import { isMobile } from 'react-device-detect'
+import { isAndroid, isIOS, isMobile } from 'react-device-detect'
 import { X } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -101,7 +101,8 @@ export default function VerifyCodeModal({
   const [verifySuccess, setVerifySuccess] = useState(false)
   const [error, setError] = useState<ErrorType>()
   const notify = useNotify()
-  const isTyping = useMedia(`(max-height: 450px)`)
+  const [isTypingIos, setIsTypingIos] = useState(false)
+  const isTypingAndroid = useMedia(`(max-height: 450px)`)
 
   const [expiredDuration, setExpireDuration] = useState(defaultTime)
   const isSendMailError = error === ErrorType.SEND_EMAIL_ERROR
@@ -208,7 +209,16 @@ export default function VerifyCodeModal({
       onDismiss={onDismiss}
       minHeight={false}
       maxWidth={450}
-      height={isTyping && isMobile ? '100%' : undefined}
+      maxHeight={isTypingIos && isIOS ? window.innerHeight + 'px' : undefined}
+      height={
+        !isMobile
+          ? undefined
+          : isAndroid && isTypingAndroid
+          ? '100%'
+          : isTypingIos && isIOS
+          ? window.innerHeight + 'px'
+          : undefined
+      }
     >
       <Wrapper>
         {verifySuccess ? (
@@ -246,7 +256,15 @@ export default function VerifyCodeModal({
               value={otp}
               onChange={onChange}
               numInputs={6}
-              renderInput={props => <Input {...props} hasError={isVerifyMailError} placeholder="-" type="number" />}
+              renderInput={props => (
+                <Input
+                  {...props}
+                  hasError={isVerifyMailError}
+                  placeholder="-"
+                  type="number"
+                  onBlur={() => isIOS && setIsTypingIos(false)}
+                />
+              )}
             />
 
             {(showExpiredTime || canShowResend) && (
