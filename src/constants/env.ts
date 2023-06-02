@@ -130,9 +130,9 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key: string]: { [type: string]: string } } =
     [PrivateAnnouncementType.PRICE_ALERT]: '21,22',
     [PrivateAnnouncementType.LIMIT_ORDER]: '12,13,14,15',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '10,11',
-    [PrivateAnnouncementType.KYBER_AI]: '9', // todo
+    [PrivateAnnouncementType.KYBER_AI]: '26',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '17,18',
-    EXCLUDE: '2,16,19', // todo
+    EXCLUDE: '2,16,19,9,25,24',
   },
 }
 

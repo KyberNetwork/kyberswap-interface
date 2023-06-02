@@ -39,6 +39,8 @@ interface OTPInputProps {
   inputStyle?: React.CSSProperties
   /** The type that will be passed to the input being rendered */
   inputType?: AllowedInputTypes
+  onFocus?: () => void
+  onBlur?: () => void
 }
 
 const OTPInput = ({
@@ -50,6 +52,8 @@ const OTPInput = ({
   inputType = 'text',
   containerStyle,
   inputStyle,
+  onFocus,
+  onBlur,
 }: OTPInputProps) => {
   const [activeInput, setActiveInput] = React.useState(0)
   const inputRefs = React.useRef<Array<HTMLInputElement | null>>([])
@@ -95,10 +99,12 @@ const OTPInput = ({
   }
 
   const handleFocus = () => (index: number) => {
+    onFocus?.()
     setActiveInput(index)
   }
 
-  const onBlur = () => {
+  const handleBlur = () => {
+    onBlur?.()
     setActiveInput(activeInput - 1)
   }
 
@@ -194,7 +200,7 @@ const OTPInput = ({
               ref: element => (inputRefs.current[index] = element),
               onChange: handleChange,
               onFocus: () => handleFocus()(index),
-              onBlur,
+              onBlur: handleBlur,
               onKeyDown,
               onPaste,
               autoComplete: 'off',
