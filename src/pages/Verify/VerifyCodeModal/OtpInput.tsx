@@ -130,6 +130,8 @@ const OTPInput = ({
       event.code === 'ArrowDown'
     ) {
       event.preventDefault()
+    } else if (isNaN(+event.key)) {
+      event.preventDefault()
     }
   }
 
