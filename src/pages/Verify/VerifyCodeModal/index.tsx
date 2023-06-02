@@ -179,7 +179,7 @@ export default function VerifyCodeModal({
       onDismiss={onDismiss}
       minHeight={false}
       maxWidth={450}
-      height={isTyping && isMobile ? '100%' : undefined}
+      height={isTyping && isMobile ? window.innerHeight + 'px' : undefined}
     >
       <Wrapper>
         {verifySuccess ? (
