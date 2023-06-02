@@ -10,6 +10,7 @@ import Icon from 'components/Icons/Icon'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import SubscribeNotificationButton from 'components/SubscribeButton'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { KYBER_AI_TOPIC_ID } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -109,6 +110,7 @@ export default function TrueSightV2() {
               delay={1200}
             >
               <SubscribeNotificationButton
+                topicId={KYBER_AI_TOPIC_ID}
                 onClick={() =>
                   mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SUBSCRIBE_CLICK, {
                     source: isExplore ? 'explore' : 'ranking',
