@@ -21,6 +21,7 @@ export const useActivationWallet: () => {
     try {
       await connector.activate()
     } catch (error) {
+      console.error('Activate evm failed:', { connector, error })
       throw error
     }
   }, [])
@@ -51,7 +52,6 @@ export const useActivationWallet: () => {
         })()
         localStorage.setItem(LOCALSTORAGE_LAST_WALLETKEY, walletKey.toString())
       } catch (error) {
-        console.error('Activate wallet failed:', { walletKey, error })
         localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY)
         throw error
       }
