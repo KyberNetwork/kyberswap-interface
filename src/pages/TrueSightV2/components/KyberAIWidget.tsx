@@ -19,7 +19,7 @@ import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
-import { useKyberAIWidget } from 'state/user/hooks'
+import { useIsWhiteListKyberAI, useKyberAIWidget } from 'state/user/hooks'
 
 import { useTokenListQuery } from '../hooks/useKyberAIData'
 import { ITokenList, KyberAIListType } from '../types'
@@ -181,6 +181,7 @@ export default function Widget() {
   const [showExpanded, setShowExpanded] = useState(false)
   const [showWidget, toggleWidget] = useKyberAIWidget()
   const [activeTab, setActiveTab] = useState<WidgetTab>(WidgetTab.MyWatchlist)
+  const { isWhiteList } = useIsWhiteListKyberAI()
   const [, setIsSessionExpired] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const mobileRef = useRef<HTMLDivElement>(null)
@@ -211,7 +212,7 @@ export default function Widget() {
           pageSize: 5,
           wallet: account,
         },
-    { refetchOnMountOrArgChange: true, skip: !account },
+    { refetchOnMountOrArgChange: true, skip: !isWhiteList },
   )
   if (!account) return <></>
 
