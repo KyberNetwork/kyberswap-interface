@@ -2100,7 +2100,7 @@ const CustomLabelLine = (props: any) => {
 }
 export const HoldersChartWrapper = ({ noAnimation }: { noAnimation?: boolean }) => {
   const theme = useTheme()
-  const above768 = useMedia('(min-width:768px)')
+  const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const { chain, address } = useParams()
   const { data, isLoading } = useHolderListQuery({ address, chain })
   const formattedData: Array<IHolderList & { name: string }> = useMemo(

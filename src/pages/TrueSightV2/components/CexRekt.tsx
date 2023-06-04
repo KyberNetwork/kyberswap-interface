@@ -4,6 +4,7 @@ import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import Row from 'components/Row'
+import { MEDIA_WIDTHS } from 'theme'
 
 import { useCexesLiquidationQuery } from '../hooks/useKyberAIData'
 
@@ -36,7 +37,7 @@ const formatNum = (num: number) => {
 }
 
 export default function CexRekt() {
-  const above768 = useMedia('(min-width:768px)')
+  const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const { address, chain } = useParams()
   const { data } = useCexesLiquidationQuery({
     tokenAddress: address,

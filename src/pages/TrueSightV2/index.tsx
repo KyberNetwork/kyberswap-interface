@@ -14,6 +14,7 @@ import { KYBER_AI_TOPIC_ID } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import { MEDIA_WIDTHS } from 'theme'
 
 import TrueSightWidget from './components/KyberAIWidget'
 import SearchWithDropDown from './components/SearchWithDropDown'
@@ -79,7 +80,7 @@ export default function TrueSightV2() {
   const { mixpanelHandler } = useMixpanel()
   const location = useLocation()
   const isExplore = location?.pathname.includes('Explore')
-  const above768 = useMedia('(min-width:768px)')
+  const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const navigate = useNavigate()
   return (
     <>

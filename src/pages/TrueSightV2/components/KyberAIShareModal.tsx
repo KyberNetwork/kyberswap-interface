@@ -19,7 +19,6 @@ import useCopyClipboard from 'hooks/useCopyClipboard'
 import useShareImage from 'hooks/useShareImage'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
-import { toDataURL } from 'utils/file'
 
 import { NETWORK_IMAGE_URL } from '../constants'
 import { useTokenDetailQuery } from '../hooks/useKyberAIData'
@@ -207,7 +206,6 @@ export default function KyberAIShareModal({
   const { data: tokenOverview } = useTokenDetailQuery({ chain, address }, { skip: !chain || !address })
 
   const ref = useRef<HTMLDivElement>(null)
-  const [, setTokenLogoData] = useState<string | null>(null)
   const refMobile = useRef<HTMLDivElement>(null)
   const tokenImgRef = useRef<HTMLImageElement>(null)
   const [loading, setLoading] = useState(true)
@@ -271,17 +269,6 @@ export default function KyberAIShareModal({
     },
     [shareImage],
   )
-
-  useEffect(() => {
-    const run = async () => {
-      if (tokenOverview?.logo) {
-        const tokenLogoData = await toDataURL(tokenOverview.logo)
-        if (tokenLogoData === null || typeof tokenLogoData === 'string') setTokenLogoData(tokenLogoData)
-        else setTokenLogoData(Array.prototype.slice.call(new Uint8Array(tokenLogoData)).join(''))
-      }
-    }
-    run()
-  }, [tokenOverview?.logo])
 
   useEffect(() => {
     let timeout: NodeJS.Timeout
