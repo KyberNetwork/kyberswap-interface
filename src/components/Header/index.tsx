@@ -115,9 +115,9 @@ const IconImage = styled.img<{ isChristmas?: boolean }>`
     margin-top: ${isChristmas ? '-10px' : '1px'};
   `};
 
-  @media only screen and (max-width: 400px) {
-    width: 100px;
-  }
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    width:100px;
+  `}
 `
 
 const BlogWrapper = styled.span`

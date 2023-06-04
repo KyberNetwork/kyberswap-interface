@@ -1,17 +1,18 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { transparentize } from 'polished'
 import { memo, useMemo } from 'react'
 import { ArrowRight } from 'react-feather'
 import { useNavigate } from 'react-router'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 
 import bannerBackground from 'assets/images/truesight-v2/banner-background.png'
 import Column from 'components/Column'
 import ApeIcon from 'components/Icons/ApeIcon'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -20,10 +21,63 @@ import KyberScoreMeter from 'pages/TrueSightV2/components/KyberScoreMeter'
 import { NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
 import { SUPPORTED_NETWORK_KYBERAI } from 'pages/TrueSightV2/constants/index'
 import { useTokenDetailQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
-import { ITokenOverview } from 'pages/TrueSightV2/types'
 import { calculateValueToColor } from 'pages/TrueSightV2/utils'
 import { useIsWhiteListKyberAI } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+
+const StaticSupportedToken: {
+  [chain: number]: { kyberScore?: number; label?: string; address?: string; logo?: string; symbol?: string }[]
+} = {
+  [ChainId.MATIC]: [
+    {
+      address: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
+      symbol: 'MATIC',
+      logo: NETWORKS_INFO[ChainId.MATIC].nativeToken.logo,
+    },
+  ],
+  [ChainId.MAINNET]: [
+    {
+      address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+      symbol: 'ETH',
+      logo: NETWORKS_INFO[ChainId.MAINNET].nativeToken.logo,
+    },
+  ],
+  [ChainId.ARBITRUM]: [
+    {
+      address: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+      symbol: 'ETH',
+      logo: NETWORKS_INFO[ChainId.MAINNET].nativeToken.logo,
+    },
+  ],
+  [ChainId.OPTIMISM]: [
+    {
+      address: '0x4200000000000000000000000000000000000006',
+      symbol: 'ETH',
+      logo: NETWORKS_INFO[ChainId.MAINNET].nativeToken.logo,
+    },
+  ],
+  [ChainId.BSCMAINNET]: [
+    {
+      address: '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c',
+      symbol: 'BNB',
+      logo: NETWORKS_INFO[ChainId.BSCMAINNET].nativeToken.logo,
+    },
+  ],
+  [ChainId.FANTOM]: [
+    {
+      address: '0x21be370d5312f44cb42ce377bc9b8a0cef1a4c83',
+      symbol: 'FTM',
+      logo: NETWORKS_INFO[ChainId.FANTOM].nativeToken.logo,
+    },
+  ],
+  [ChainId.AVAXMAINNET]: [
+    {
+      address: '0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7',
+      symbol: 'AVAX',
+      logo: NETWORKS_INFO[ChainId.AVAXMAINNET].nativeToken.logo,
+    },
+  ],
+}
 
 const KyberAITokenBanner = ({
   currencyIn,
@@ -39,7 +93,7 @@ const KyberAITokenBanner = ({
   const chain = Object.keys(NETWORK_TO_CHAINID).find(i => NETWORK_TO_CHAINID[i] === chainId)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const theme = useTheme()
-
+  const staticMode = !isWhiteList || !account
   const token0 = currencyIn?.wrapped
   const token1 = currencyOut?.wrapped
 
@@ -60,24 +114,56 @@ const KyberAITokenBanner = ({
 
   const isFetching = fetching0 || fetching1 || fetching2
 
-  const token: ITokenOverview | undefined = useMemo(() => {
-    if (isFetching) return undefined
+  const token: { kyberScore?: number; label?: string; address?: string; logo?: string; symbol?: string } | undefined =
+    useMemo(() => {
+      if (isFetching) return undefined
 
-    const token =
-      tokenInputOverview?.kyberScore && tokenInputOverview.kyberScore.label !== ''
-        ? tokenInputOverview
-        : tokenOutputOverview?.kyberScore && tokenOutputOverview.kyberScore.label !== ''
-        ? tokenOutputOverview
-        : tokenNativeOverview?.kyberScore && tokenNativeOverview.kyberScore.label !== ''
-        ? tokenNativeOverview
-        : undefined
+      if (staticMode) {
+        const index0 = StaticSupportedToken[chainId as number]?.findIndex(
+          i => i.address?.toLowerCase() === token0?.address?.toLowerCase(),
+        )
+        const index1 = StaticSupportedToken[chainId as number]?.findIndex(
+          i => i.address?.toLowerCase() === token1?.address?.toLowerCase(),
+        )
+        if (index0 >= 0) {
+          return StaticSupportedToken[chainId as number]?.[index0]
+        } else if (index1 >= 0) {
+          return StaticSupportedToken[chainId as number]?.[index1]
+        } else {
+          return undefined
+        }
+      }
 
-    return token
-  }, [isFetching, tokenInputOverview, tokenOutputOverview, tokenNativeOverview])
+      const token =
+        tokenInputOverview?.kyberScore && tokenInputOverview.kyberScore.label !== ''
+          ? tokenInputOverview
+          : tokenOutputOverview?.kyberScore && tokenOutputOverview.kyberScore.label !== ''
+          ? tokenOutputOverview
+          : tokenNativeOverview?.kyberScore && tokenNativeOverview.kyberScore.label !== ''
+          ? tokenNativeOverview
+          : undefined
+
+      return {
+        kyberScore: token?.kyberScore?.score,
+        label: token?.kyberScore?.label,
+        address: token?.address,
+        logo: token?.logo,
+        symbol: token?.symbol,
+      }
+    }, [
+      isFetching,
+      tokenInputOverview,
+      tokenOutputOverview,
+      tokenNativeOverview,
+      chainId,
+      staticMode,
+      token0?.address,
+      token1?.address,
+    ])
 
   if (!token || !isWhiteList || !account) return null
 
-  const color = calculateValueToColor(token?.kyberScore?.score || 0, theme)
+  const color = calculateValueToColor(token?.kyberScore || 0, theme)
   return (
     <Wrapper>
       {above768 ? (
@@ -98,19 +184,27 @@ const KyberAITokenBanner = ({
             <img src={token?.logo} width="32" height="32" style={{ borderRadius: '50%' }} />
             <Column gap="4px">
               <Text color={theme.text}>{token?.symbol?.toUpperCase() || '--'} seems to be</Text>
-              <Text color={color} fontWeight={600}>
-                {token?.kyberScore.label || '--'}
-              </Text>
+              {staticMode ? (
+                <AnimatedKyberscoreLabels />
+              ) : (
+                <Text color={color} fontWeight={600}>
+                  {token?.label || '--'}
+                </Text>
+              )}
             </Column>
           </RowFit>
           <SkewKyberScoreWrapper>
-            <KyberScoreMeter
-              value={token.kyberScore.score}
-              noAnimation
-              fontSize="18px"
-              hiddenValue
-              style={{ height: '32px' }}
-            />
+            {staticMode ? (
+              <KyberScoreMeter value={1} staticMode fontSize="14px" style={{ height: '32px' }} />
+            ) : (
+              <KyberScoreMeter
+                value={token?.kyberScore || 0}
+                noAnimation
+                fontSize="18px"
+                hiddenValue
+                style={{ height: '32px' }}
+              />
+            )}
             <RowFit fontSize="10px" gap="4px">
               <ApeIcon size={14} /> KyberScore
             </RowFit>
@@ -158,19 +252,27 @@ const KyberAITokenBanner = ({
               <img src={token?.logo} width="32" height="32" style={{ borderRadius: '50%' }} />
               <Column gap="4px">
                 <Text color={theme.text}>{token?.symbol?.toUpperCase() || '--'} seems to be</Text>
-                <Text color={color} fontWeight={600}>
-                  {token?.kyberScore.label || '--'}
-                </Text>
+                {staticMode ? (
+                  <AnimatedKyberscoreLabels />
+                ) : (
+                  <Text color={color} fontWeight={600}>
+                    {token?.label || '--'}
+                  </Text>
+                )}
               </Column>
             </RowFit>
             <SkewKyberScoreWrapper style={{ width: '120x', height: '74px' }}>
-              <KyberScoreMeter
-                value={token.kyberScore?.score}
-                noAnimation
-                fontSize="14px"
-                hiddenValue
-                style={{ height: '36px' }}
-              />
+              {staticMode ? (
+                <KyberScoreMeter value={token?.kyberScore || 0} staticMode fontSize="14px" style={{ height: '36px' }} />
+              ) : (
+                <KyberScoreMeter
+                  value={token?.kyberScore || 0}
+                  noAnimation
+                  fontSize="14px"
+                  hiddenValue
+                  style={{ height: '36px' }}
+                />
+              )}
               <RowFit fontSize="10px" gap="4px">
                 <ApeIcon size={14} /> KyberScore
               </RowFit>
@@ -248,5 +350,71 @@ const SkewKyberScoreWrapper = styled.div`
   align-items: center;
   gap: 4px;
 `
+
+const backAndForward = keyframes`
+  0%{
+    transform: translateY(0px);
+  }
+  5%{
+    transform: translateY(-24px);
+  }
+  15%{
+    transform: translateY(-72px);
+  }
+  25%{
+    transform: translateY(-144px);
+  }
+  35%{
+    transform: translateY(-48px);
+  }
+  45%{
+    transform: translateY(-96px);
+  }
+  55%{
+    transform: translateY(-168px);
+  }
+  100%{
+    transform: translateY(-168px);
+  }
+`
+const AnimatedKyberscoreWrapper = styled.div`
+  height: 24px;
+  width: 100%;
+  overflow: hidden;
+`
+const LabelsWrapper = styled.div`
+  height: 100px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  animation: ${backAndForward} 12s ease infinite;
+`
+const Label = styled.div<{ color?: string }>`
+  height: 24px;
+  width: 100%;
+  line-height: 24px;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  ${({ color }) => `color: ${color};`}
+`
+const AnimatedKyberscoreLabels = () => {
+  const theme = useTheme()
+  return (
+    <AnimatedKyberscoreWrapper>
+      <LabelsWrapper>
+        <Label color={theme.text}>??</Label>
+        <Label color={theme.text}>Neutral</Label>
+        <Label color={calculateValueToColor(100, theme)}>Very Bullish</Label>
+        <Label color={calculateValueToColor(70, theme)}>Bullish</Label>
+        <Label color={theme.text}>Neutral</Label>
+        <Label color={calculateValueToColor(30, theme)}>Bearish</Label>
+        <Label color={calculateValueToColor(1, theme)}>Very Bearish</Label>
+        <Label color={theme.text}>??</Label>
+      </LabelsWrapper>
+    </AnimatedKyberscoreWrapper>
+  )
+}
 
 export default memo(KyberAITokenBanner)

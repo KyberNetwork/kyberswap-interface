@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -414,6 +414,53 @@ const SettingButtons = ({ token, onShareClick }: { token?: ITokenOverview; onSha
     </>
   )
 }
+
+const MobileStickyHeader = ({ children }: { children: ReactNode }) => {
+  const theme = useTheme()
+  const ref = useRef<HTMLDivElement>(null)
+  const [showPopover, setShowPopover] = useState(false)
+  useEffect(() => {
+    const checkScroll = () => {
+      if (!ref.current) return
+      const rect = ref.current.getBoundingClientRect()
+      if (rect.top > 0) {
+        setShowPopover(false)
+      } else {
+        setShowPopover(true)
+      }
+    }
+    window.addEventListener('scroll', checkScroll)
+    return () => {
+      return window.removeEventListener('scroll', checkScroll)
+    }
+  }, [])
+  return (
+    <>
+      <Row gap="8px" padding="16px 0px" ref={ref}>
+        {children}
+      </Row>
+      <Row
+        gap="8px"
+        padding="14px 12px"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          backgroundColor: theme.buttonBlack,
+          zIndex: 100,
+          width: '100vw',
+          transform: showPopover ? 'translateY(0)' : 'translateY(-100%)',
+          transition: 'all 0.1s ease-out',
+          visibility: showPopover ? 'visible' : 'hidden',
+        }}
+      >
+        {children}
+      </Row>
+    </>
+  )
+}
+
 const TokenHeader = ({
   token,
   isLoading,
@@ -423,7 +470,6 @@ const TokenHeader = ({
   isLoading?: boolean
   onShareClick: () => void
 }) => {
-  const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const { chain } = useParams()
@@ -455,20 +501,9 @@ const TokenHeader = ({
     </RowBetween>
   ) : (
     <>
-      <Row
-        gap="8px"
-        padding="14px 12px"
-        style={{
-          position: 'sticky',
-          top: '-2px',
-          backgroundColor: theme.buttonBlack,
-          zIndex: 100,
-          transform: 'translateX(-16px)',
-          width: '100vw',
-        }}
-      >
+      <MobileStickyHeader>
         <TokenNameGroup token={token} isLoading={isLoading} />
-      </Row>
+      </MobileStickyHeader>
       <RowBetween marginBottom="12px">
         <RowFit gap="12px">
           <SettingButtons token={token} onShareClick={onShareClick} />

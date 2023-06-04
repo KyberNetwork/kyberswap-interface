@@ -166,7 +166,6 @@ export default function TechnicalAnalysis() {
               <Toggle isActive={showSRLevels} toggle={() => setShowSRLevels(prev => !prev)} />
             </RowFit>
           }
-          shareButton
           shareContent={() => (
             <ProchartShareContent
               title={`${tokenOverview?.symbol?.toUpperCase()}/${liveChartTab === ChartTab.First ? 'USD' : 'BTC'}`}
@@ -203,7 +202,6 @@ export default function TechnicalAnalysis() {
             </Trans>
           }
           style={{ height: 'fit-content' }}
-          shareButton
           shareContent={mobileMode => (
             <SupportResistanceShareContent dataUrl={prochartDataURL} mobileMode={mobileMode} />
           )}
@@ -230,7 +228,6 @@ export default function TechnicalAnalysis() {
           title={t`Live Trades`}
           subTitle={t`Note:  Live trades may be slightly delayed`}
           style={{ height: 'fit-content' }}
-          shareButton
           shareContent={mobileMode => <DexTradesShareContent mobileMode={mobileMode} />}
           docsLinks={['https://docs.kyberswap.com/kyberswap-solutions/kyberai/technical-indicators/live-trades']}
         >
@@ -262,7 +259,6 @@ export default function TechnicalAnalysis() {
             </Trans>
           }
           style={{ height: 'fit-content' }}
-          shareButton
           shareContent={mobileMode => <FundingRateShareContent mobileMode={mobileMode} />}
           onShareClick={takeScreenShot}
           docsLinks={[
@@ -280,7 +276,6 @@ export default function TechnicalAnalysis() {
           get liquidated. An abrupt change in price of a token can cause large liquidations. Traders may buy / sell the
           token after large liquidations.`}
           style={{ height: 'fit-content' }}
-          shareButton
           fullscreenButton
           shareContent={() => (
             <Column style={{ height: '400px', width: '100%' }}>

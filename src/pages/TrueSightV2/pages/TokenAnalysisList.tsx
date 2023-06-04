@@ -1047,7 +1047,11 @@ export default function TokenAnalysisList() {
                         style={{ pointerEvents: 'none' }}
                       >
                         <Text>
-                          <Trans>There was an error. Please try again later.</Trans>
+                          {listType === KyberAIListType.MYWATCHLIST && listData.length === 0 ? (
+                            <Trans>You haven&apos;t added any tokens to your watchlist yet</Trans>
+                          ) : (
+                            <Trans>There was an error. Please try again later.</Trans>
+                          )}
                         </Text>
                       </td>
                     </tr>
@@ -1062,7 +1066,11 @@ export default function TokenAnalysisList() {
                         }}
                       >
                         <Text>
-                          <Trans>There was an error. Please try again later.</Trans>
+                          {listType === KyberAIListType.MYWATCHLIST && listData.length === 0 ? (
+                            <Trans>You haven&apos;t added any tokens to your watchlist yet</Trans>
+                          ) : (
+                            <Trans>There was an error. Please try again later.</Trans>
+                          )}
                         </Text>
                       </Row>
                     </tr>

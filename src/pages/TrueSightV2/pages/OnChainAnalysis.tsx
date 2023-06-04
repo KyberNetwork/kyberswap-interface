@@ -47,7 +47,6 @@ export default function OnChainAnalysis() {
         description={t`Indicates the number of trades and type of trades (buy or sell) over a time period. An increase in the
         number of trades may indicate more interest in the token and vice-versa. Similarly, more buy trades in a
         time period can indicate that the token is bullish and vice-versa.`}
-        shareButton
         fullscreenButton
         shareContent={() => <NumberofTradesChart noAnimation />}
         docsLinks={['https://docs.kyberswap.com/kyberswap-solutions/kyberai/on-chain-indicators/number-of-trades']}
@@ -62,7 +61,6 @@ export default function OnChainAnalysis() {
       indicates interest in a token. The more people are buying and selling something, the higher the volume,
       which can drive even more interest in that token. Typically, high volume trading for a token can mean an
       increase in prices and low volume cryptocurrency could indicate prices falling.`}
-        shareButton
         fullscreenButton
         shareContent={() => <TradingVolumeChart noAnimation />}
         docsLinks={['https://docs.kyberswap.com/kyberswap-solutions/kyberai/on-chain-indicators/trading-volume']}
@@ -101,7 +99,6 @@ export default function OnChainAnalysis() {
             generally means that whales are selling.
           </Trans>
         }
-        shareButton
         shareContent={() => <NetflowToWhaleWallets tab={netflowToWhaleWallets} noAnimation />}
         fullscreenButton
         tabs={[t`Netflow`, t`Inflow`, t`Outflow`]}
@@ -132,7 +129,6 @@ export default function OnChainAnalysis() {
             means that more traders are withdrawing tokens than depositing, most likely for holding or staking.
           </Trans>
         }
-        shareButton
         shareContent={() => <NetflowToCentralizedExchanges tab={netflowToCEX} noAnimation />}
         fullscreenButton
         tabs={[t`Netflow`, t`Inflow`, t`Outflow`]}
@@ -149,7 +145,6 @@ export default function OnChainAnalysis() {
         title={'of Transfers'}
         description={t`Indicates on-chain transfer activity between wallets. High transfer activity indicates that more traders are transferring the token between wallets. Token with high transfer activity and high transfer volume may indicate that traders are interested in it.`}
         id="numberoftransfers"
-        shareButton
         shareContent={() => <NumberofTransfers tab={numberOfTransfers} />}
         fullscreenButton
         tabs={[t`Number`, t`Volume`]}
@@ -169,7 +164,6 @@ export default function OnChainAnalysis() {
         title={t`Number of Holders`}
         description={t`Indicates the number of addresses that hold a token. An increase in the number of holders may indicate more interest in the token and vice-versa. Number of holders may also indicate the distribution of the token. High number of holders may reduce the impact an individual (like a whale) can have on the price.`}
         id="numberofholders"
-        shareButton
         shareContent={() => <NumberofHolders />}
         fullscreenButton
         docsLinks={['https://docs.kyberswap.com/kyberswap-solutions/kyberai/on-chain-indicators/number-of-holders']}
@@ -183,7 +177,6 @@ export default function OnChainAnalysis() {
         title={t`Top 10 Holders`}
         id="top10holders"
         style={{ height: 'fit-content' }}
-        shareButton
         shareContent={mobileMode => <Top10HoldersShareContent mobileMode={mobileMode} />}
         docsLinks={['https://docs.kyberswap.com/kyberswap-solutions/kyberai/on-chain-indicators/top-holders']}
       >
@@ -195,7 +188,6 @@ export default function OnChainAnalysis() {
         show={tokenAnalysisSettings?.top25Holders}
         title={t`Top 25 Holders`}
         id="top25holders"
-        shareButton
         shareContent={() => <HoldersChartWrapper noAnimation />}
         style={{ height: '450px' }}
         docsLinks={['https://docs.kyberswap.com/kyberswap-solutions/kyberai/on-chain-indicators/top-holders']}
