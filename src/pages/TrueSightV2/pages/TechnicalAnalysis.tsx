@@ -21,7 +21,7 @@ import FundingRateShareContent from '../components/shareContent/FundingRateShare
 import ProchartShareContent from '../components/shareContent/ProchartShareContent'
 import SupportResistanceShareContent from '../components/shareContent/SupportResistanceShareContent'
 import { FundingRateTable, LiveDEXTrades, SupportResistanceLevel } from '../components/table'
-import { NETWORK_TO_CHAINID } from '../constants'
+import { KYBERAI_CHART_ID, NETWORK_TO_CHAINID } from '../constants'
 import { useChartingDataQuery, useTokenDetailQuery } from '../hooks/useKyberAIData'
 import { ChartTab, ISRLevel, OHLCData } from '../types'
 import { navigateToLimitPage } from '../utils'
@@ -268,6 +268,7 @@ export default function TechnicalAnalysis() {
           <FundingRateTable />
         </SectionWrapper>
         <SectionWrapper
+          id={KYBERAI_CHART_ID.LIQUID_ON_CEX}
           show={tokenAnalysisSettings?.liquidationsOnCEX}
           title={t`Liquidations on Centralized Exchanges`}
           description={`Liquidations describe the forced closing of a trader's futures position due to the partial or total loss

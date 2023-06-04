@@ -643,9 +643,9 @@ const TokenRow = ({
       <td style={{ textAlign: 'start' }}>
         $
         {currentTab === KyberAIListType.TOP_CEX_INFLOW
-          ? formatLocaleStringNum(token.cex_inflow_24h) || '--'
+          ? formatLocaleStringNum(token.cex_inflow_24h - token.cex_outflow_24h) || '--'
           : currentTab === KyberAIListType.TOP_CEX_OUTFLOW
-          ? formatLocaleStringNum(token.cex_outflow_24h) || '--'
+          ? formatLocaleStringNum(token.cex_outflow_24h - token.cex_inflow_24h) || '--'
           : formatLocaleStringNum(token.volume_24h) || '--'}
       </td>
       {[KyberAIListType.TOP_CEX_INFLOW, KyberAIListType.TOP_CEX_OUTFLOW, KyberAIListType.TRENDING_SOON].includes(
@@ -653,9 +653,9 @@ const TokenRow = ({
       ) && (
         <td style={{ textAlign: 'start' }}>
           {currentTab === KyberAIListType.TOP_CEX_INFLOW
-            ? '$' + formatLocaleStringNum(token.cex_inflow_3days) || '--'
+            ? '$' + formatLocaleStringNum(token.cex_netflow_3days) || '--'
             : currentTab === KyberAIListType.TOP_CEX_OUTFLOW
-            ? '$' + formatLocaleStringNum(token.cex_outflow_3days) || '--'
+            ? '$' + formatLocaleStringNum(token.cex_netflow_3days) || '--'
             : currentTab === KyberAIListType.TRENDING_SOON
             ? token.discovered_on
               ? dayjs(token.discovered_on * 1000).format('DD/MM/YYYY')
@@ -990,8 +990,8 @@ export default function TokenAnalysisList() {
                     <Row justify="flex-start">
                       <Trans>
                         {{
-                          [KyberAIListType.TOP_CEX_INFLOW]: '3D Inflow',
-                          [KyberAIListType.TOP_CEX_OUTFLOW]: '3D Outflow',
+                          [KyberAIListType.TOP_CEX_INFLOW]: '3D Netflow',
+                          [KyberAIListType.TOP_CEX_OUTFLOW]: '3D Netflow',
                           [KyberAIListType.TRENDING_SOON]: 'First Discovered On',
                         }[listType as string] || ''}
                       </Trans>

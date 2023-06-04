@@ -297,7 +297,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
         }
         case MIXPANEL_TYPE.WALLET_CONNECTED:
           mixpanel.register({ wallet_address: account, platform: isMobile ? 'Mobile' : 'Web', network })
-          mixpanel.track('Wallet Connected')
+          mixpanel.track('Wallet Connected', { source: location.pathname })
           break
         case MIXPANEL_TYPE.SWAP_INITIATED: {
           const { gasUsd, inputAmount, priceImpact, feeInfo } = (payload || {}) as {
@@ -1266,6 +1266,10 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
         }
         case MIXPANEL_TYPE.KYBERAI_JOIN_KYBER_WAITLIST_CLICK: {
           mixpanel.track('KyberAI - Click Join Kyber Waitlist Button', payload)
+          break
+        }
+        case MIXPANEL_TYPE.KYBERAI_AWESOME_CLICK: {
+          mixpanel.track('KyberAI - Click Awesome Button', payload)
           break
         }
       }

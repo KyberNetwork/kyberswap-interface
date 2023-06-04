@@ -37,7 +37,7 @@ import {
 } from 'components/TradingViewChart/charting_library'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
+import { KYBERAI_CHART_ID, NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
 import { CHART_STATES_ACTION_TYPE, useChartStatesContext } from 'pages/TrueSightV2/hooks/useChartStatesReducer'
 import {
   useCexesLiquidationQuery,
@@ -292,9 +292,10 @@ const roundNumberUp = (number: number) => {
 export const NumberofTradesChart = ({ noAnimation }: { noAnimation?: boolean }) => {
   const theme = useTheme()
   const { chain, address } = useParams()
-  const { state, dispatch } = useChartStatesContext('numberOfTrades', {
+  const { state, dispatch } = useChartStatesContext(KYBERAI_CHART_ID.NUMBER_OF_TRADES, {
     timeframe: KyberAITimeframe.ONE_MONTH,
     showOptions: ['showSell', 'showBuy', 'showTotalTrade'],
+    noData: true,
   })
 
   const timeframe = state?.timeframe || KyberAITimeframe.ONE_MONTH
@@ -344,7 +345,12 @@ export const NumberofTradesChart = ({ noAnimation }: { noAnimation?: boolean }) 
   }, [data])
 
   const formattedData = useMemo(() => {
-    if (!data) return []
+    if (!data || data.length === 0) {
+      dispatch({ type: CHART_STATES_ACTION_TYPE.NO_DATA, payload: { value: true } })
+      return []
+    } else {
+      dispatch({ type: CHART_STATES_ACTION_TYPE.NO_DATA, payload: { value: false } })
+    }
     const datatemp: ITradingVolume[] = []
     const startTimestamp = (Math.floor(from / timerange) + 1) * timerange
     for (let t = startTimestamp; t < to; t += timerange) {
@@ -356,7 +362,7 @@ export const NumberofTradesChart = ({ noAnimation }: { noAnimation?: boolean }) 
       }
     }
     return datatemp
-  }, [data, timerange, from, to])
+  }, [data, timerange, from, to, dispatch])
 
   const totalStats: { timeframe: string; totalTrades: string; totalBuys: string; totalSells: string } = useMemo(() => {
     if (formattedData.length === 0) return { timeframe: '--', totalTrades: '--', totalBuys: '--', totalSells: '--' }
@@ -455,7 +461,7 @@ export const NumberofTradesChart = ({ noAnimation }: { noAnimation?: boolean }) 
                   left: 20,
                   right: 20,
                 }
-              : { top: 100, left: 10, right: 10 }
+              : { top: 100, left: 10, right: 10, bottom: 10 }
           }
           stackOffset="sign"
         >
@@ -569,7 +575,7 @@ export const NumberofTradesChart = ({ noAnimation }: { noAnimation?: boolean }) 
         </ComposedChart>
       </ResponsiveContainer>
       {!above768 && (
-        <Row justify="center" gap="16px">
+        <Row justify="center" gap="16px" style={{ position: 'absolute', bottom: 0 }}>
           <LegendButton
             text="Buys"
             iconStyle={{ backgroundColor: CHART_GREEN_COLOR }}
@@ -599,9 +605,10 @@ export const NumberofTradesChart = ({ noAnimation }: { noAnimation?: boolean }) 
 export const TradingVolumeChart = ({ noAnimation }: { noAnimation?: boolean }) => {
   const theme = useTheme()
   const { chain, address } = useParams()
-  const { state, dispatch } = useChartStatesContext('tradingVolume', {
+  const { state, dispatch } = useChartStatesContext(KYBERAI_CHART_ID.TRADING_VOLUME, {
     timeframe: KyberAITimeframe.ONE_MONTH,
     showOptions: ['showSell', 'showBuy', 'showTotalVolume'],
+    noData: true,
   })
 
   const timeframe = state?.timeframe || KyberAITimeframe.ONE_MONTH
@@ -651,7 +658,12 @@ export const TradingVolumeChart = ({ noAnimation }: { noAnimation?: boolean }) =
   }, [data])
 
   const formattedData = useMemo(() => {
-    if (!data) return []
+    if (!data || data.length === 0) {
+      dispatch({ type: CHART_STATES_ACTION_TYPE.NO_DATA, payload: { value: true } })
+      return []
+    } else {
+      dispatch({ type: CHART_STATES_ACTION_TYPE.NO_DATA, payload: { value: false } })
+    }
     const datatemp: ITradingVolume[] = []
     const startTimestamp = (Math.floor(from / timerange) + 1) * timerange
     for (let t = startTimestamp; t < to; t += timerange) {
@@ -663,7 +675,7 @@ export const TradingVolumeChart = ({ noAnimation }: { noAnimation?: boolean }) =
       }
     }
     return datatemp
-  }, [data, timerange, from, to])
+  }, [data, timerange, from, to, dispatch])
 
   const totalStats: { timeframe: string; totalVolume: string; totalBuys: string; totalSells: string } = useMemo(() => {
     if (formattedData.length === 0) return { timeframe: '--', totalVolume: '--', totalBuys: '--', totalSells: '--' }
@@ -766,6 +778,7 @@ export const TradingVolumeChart = ({ noAnimation }: { noAnimation?: boolean }) =
                   top: 100,
                   left: 10,
                   right: 10,
+                  bottom: 10,
                 }
           }
           stackOffset="sign"
@@ -880,7 +893,7 @@ export const TradingVolumeChart = ({ noAnimation }: { noAnimation?: boolean }) =
         </ComposedChart>
       </ResponsiveContainer>
       {!above768 && (
-        <Row justify="center" gap="16px">
+        <Row justify="center" gap="16px" style={{ position: 'absolute', bottom: 0 }}>
           <LegendButton
             text="Buys"
             iconStyle={{ backgroundColor: CHART_GREEN_COLOR }}
@@ -910,9 +923,10 @@ export const TradingVolumeChart = ({ noAnimation }: { noAnimation?: boolean }) =
 export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; noAnimation?: boolean }) => {
   const theme = useTheme()
   const { chain, address } = useParams()
-  const { state, dispatch } = useChartStatesContext('netflowToWhaleWallets', {
+  const { state, dispatch } = useChartStatesContext(KYBERAI_CHART_ID.NETFLOW_TO_WHALE_WALLET, {
     timeframe: KyberAITimeframe.ONE_MONTH,
     showOptions: ['showInflow', 'showOutflow', 'showNetflow'],
+    noData: true,
   })
 
   const timeframe = state?.timeframe || KyberAITimeframe.ONE_MONTH
@@ -955,7 +969,12 @@ export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; no
     tokenInflow: number
     tokenOutflow: number
   })[] = useMemo(() => {
-    if (!data) return []
+    if (!data || data.length === 0) {
+      dispatch({ type: CHART_STATES_ACTION_TYPE.NO_DATA, payload: { value: true } })
+      return []
+    } else {
+      dispatch({ type: CHART_STATES_ACTION_TYPE.NO_DATA, payload: { value: false } })
+    }
     const dataTemp: (INetflowToWhaleWallets & {
       generalInflow: number
       generalOutflow: number
@@ -1006,7 +1025,7 @@ export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; no
       }
     }
     return dataTemp
-  }, [data, showInflow, showOutflow, showNetflow, from, to, timerange])
+  }, [data, showInflow, showOutflow, showNetflow, from, to, timerange, dispatch])
 
   const dataRange = useMemo(() => {
     if (!formattedData) return undefined
@@ -1165,7 +1184,7 @@ export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; no
               height={400}
               data={formattedData}
               stackOffset="sign"
-              margin={above768 ? { top: 80, left: 20, right: 20 } : { top: 100, left: 10, right: 10 }}
+              margin={above768 ? { top: 80, left: 20, right: 20 } : { top: 100, left: 10, right: 10, bottom: 10 }}
             >
               <CartesianGrid
                 vertical={false}
@@ -1179,7 +1198,7 @@ export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; no
                 dataKey="timestamp"
                 tickLine={false}
                 axisLine={false}
-                tick={{ fill: theme.subText, fontWeight: 400, fontSize: 12 }}
+                tick={{ fill: theme.subText, fontWeight: 400 }}
                 tickFormatter={value =>
                   dayjs(value).format(timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm' : 'MMM DD')
                 }
@@ -1298,7 +1317,7 @@ export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; no
         <></>
       )}
       {!above768 && (
-        <Row justify="center" gap="16px">
+        <Row justify="center" gap="16px" style={{ position: 'absolute', bottom: 0 }}>
           <LegendButton
             text="Inflow"
             iconStyle={{ backgroundColor: rgba(theme.primary, 0.6) }}
@@ -1337,9 +1356,10 @@ export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; no
 export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: ChartTab; noAnimation?: boolean }) => {
   const theme = useTheme()
   const { chain, address } = useParams()
-  const { state, dispatch } = useChartStatesContext('netflowToCentralizedExchanges', {
+  const { state, dispatch } = useChartStatesContext(KYBERAI_CHART_ID.NETFLOW_TO_CEX, {
     timeframe: KyberAITimeframe.ONE_MONTH,
     showOptions: ['showInflow', 'showOutflow', 'showNetflow'],
+    noData: true,
   })
 
   const timeframe = state?.timeframe || KyberAITimeframe.ONE_MONTH
@@ -1375,7 +1395,12 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
   })
 
   const formattedData = useMemo(() => {
-    if (!data) return []
+    if (!data || data.length === 0) {
+      dispatch({ type: CHART_STATES_ACTION_TYPE.NO_DATA, payload: { value: true } })
+      return []
+    } else {
+      dispatch({ type: CHART_STATES_ACTION_TYPE.NO_DATA, payload: { value: false } })
+    }
     const dataTemp: {
       cexes: INetflowToCEX[]
       totalInflow: number
@@ -1400,7 +1425,7 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
     }
 
     return dataTemp
-  }, [data, showInflow, showOutflow, showNetflow, from, timerange, to])
+  }, [data, showInflow, showOutflow, showNetflow, from, timerange, to, dispatch])
 
   const dataRange = useMemo(() => {
     if (!formattedData) return undefined
@@ -1550,7 +1575,7 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
           height={400}
           data={formattedData}
           stackOffset="sign"
-          margin={above768 ? { top: 80, left: 20, right: 20 } : { top: 100, left: 10, right: 10 }}
+          margin={above768 ? { top: 80, left: 20, right: 20 } : { top: 100, left: 10, right: 10, bottom: 10 }}
         >
           <CartesianGrid vertical={false} strokeWidth={1} stroke={rgba(theme.border, 0.5)} />
           <Customized component={KyberLogo} />
@@ -1670,7 +1695,7 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
         </ComposedChart>
       </ResponsiveContainer>
       {!above768 && (
-        <Row justify="center" gap="16px">
+        <Row justify="center" gap="16px" style={{ position: 'absolute', bottom: 0 }}>
           <LegendButton
             text="Inflow"
             iconStyle={{ backgroundColor: rgba(theme.primary, 0.6) }}
@@ -1709,8 +1734,9 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
 export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
   const theme = useTheme()
   const { chain, address } = useParams()
-  const { state, dispatch } = useChartStatesContext('numberOfTransfers', {
+  const { state, dispatch } = useChartStatesContext(KYBERAI_CHART_ID.NUMBER_OF_TRANSFERS, {
     timeframe: KyberAITimeframe.ONE_MONTH,
+    noData: true,
   })
 
   const timeframe = state?.timeframe || KyberAITimeframe.ONE_MONTH
@@ -1742,7 +1768,12 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
     to,
   })
   const formattedData = useMemo(() => {
-    if (!data) return []
+    if (!data || data.length === 0) {
+      dispatch({ type: CHART_STATES_ACTION_TYPE.NO_DATA, payload: { value: true } })
+      return []
+    } else {
+      dispatch({ type: CHART_STATES_ACTION_TYPE.NO_DATA, payload: { value: false } })
+    }
     const dataTemp: INumberOfTransfers[] = []
     const startTimestamp = (Math.floor(from / timerange) + 1) * timerange
     for (let t = startTimestamp; t < to; t += timerange) {
@@ -1754,7 +1785,7 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
       }
     }
     return dataTemp
-  }, [data, timerange, from, to])
+  }, [data, timerange, from, to, dispatch])
 
   const totalStats: { timeframe: string; totalTranfers: string; totalVolume: string } = useMemo(() => {
     if (formattedData.length === 0) return { timeframe: '--', totalTranfers: '--', totalVolume: '--' }
@@ -1885,8 +1916,9 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
 export const NumberofHolders = () => {
   const theme = useTheme()
   const { chain, address } = useParams()
-  const { state, dispatch } = useChartStatesContext('numberOfHolders', {
+  const { state, dispatch } = useChartStatesContext(KYBERAI_CHART_ID.NUMBER_OF_HOLDERS, {
     timeframe: KyberAITimeframe.ONE_MONTH,
+    noData: true,
   })
   const timeframe = state?.timeframe || KyberAITimeframe.ONE_MONTH
 
@@ -1917,7 +1949,12 @@ export const NumberofHolders = () => {
   })
 
   const formattedData = useMemo(() => {
-    if (!data) return []
+    if (!data || data.length === 0) {
+      dispatch({ type: CHART_STATES_ACTION_TYPE.NO_DATA, payload: { value: true } })
+      return []
+    } else {
+      dispatch({ type: CHART_STATES_ACTION_TYPE.NO_DATA, payload: { value: false } })
+    }
     const dataTemp: INumberOfHolders[] = []
     const startTimestamp = (Math.floor(from / timerange) + 1) * timerange
     for (let t = startTimestamp; t < to; t += timerange) {
@@ -1929,7 +1966,7 @@ export const NumberofHolders = () => {
       }
     }
     return dataTemp
-  }, [data, timerange, from, to])
+  }, [data, timerange, from, to, dispatch])
 
   const totalStats: { timeframe: string } = useMemo(() => {
     if (formattedData.length === 0) return { timeframe: '--', totalHolders: '--' }
@@ -2102,14 +2139,22 @@ export const HoldersChartWrapper = ({ noAnimation }: { noAnimation?: boolean }) 
   const theme = useTheme()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const { chain, address } = useParams()
+  const { dispatch } = useChartStatesContext(KYBERAI_CHART_ID.HOLDER_PIE_CHART, {
+    noData: true,
+  })
+
   const { data, isLoading } = useHolderListQuery({ address, chain })
-  const formattedData: Array<IHolderList & { name: string }> = useMemo(
-    () =>
-      data?.map((item: IHolderList) => {
-        return { ...item, name: shortenAddress(1, item?.address) }
-      }),
-    [data],
-  )
+  const formattedData: Array<IHolderList & { name: string }> = useMemo(() => {
+    if (!data || data.length === 0) {
+      dispatch({ type: CHART_STATES_ACTION_TYPE.NO_DATA, payload: { value: true } })
+      return []
+    } else {
+      dispatch({ type: CHART_STATES_ACTION_TYPE.NO_DATA, payload: { value: false } })
+    }
+    return data?.map((item: IHolderList) => {
+      return { ...item, name: shortenAddress(1, item?.address) }
+    })
+  }, [data, dispatch])
 
   const sumPercentage = useMemo(() => {
     return formattedData?.reduce((s, a) => s + a.percentage, 0) || 0
@@ -2170,8 +2215,9 @@ export const LiquidOnCentralizedExchanges = ({ noAnimation }: { noAnimation?: bo
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const { chain, address } = useParams()
-  const { state, dispatch } = useChartStatesContext('numberOfTransfers', {
+  const { state, dispatch } = useChartStatesContext(KYBERAI_CHART_ID.LIQUID_ON_CEX, {
     timeframe: KyberAITimeframe.ONE_MONTH,
+    noData: true,
   })
 
   const timeframe = state?.timeframe || KyberAITimeframe.ONE_MONTH
@@ -2222,7 +2268,12 @@ export const LiquidOnCentralizedExchanges = ({ noAnimation }: { noAnimation?: bo
   }, [data])
 
   const formattedData: ILiquidCEX[] = useMemo(() => {
-    if (!data) return []
+    if (!data || data.chart.length === 0) {
+      dispatch({ type: CHART_STATES_ACTION_TYPE.NO_DATA, payload: { value: true } })
+      return []
+    } else {
+      dispatch({ type: CHART_STATES_ACTION_TYPE.NO_DATA, payload: { value: false } })
+    }
     const dataTemp: (ILiquidCEX & { totalVol: number })[] = []
     const startTimestamp = (Math.floor(from / timerange) + 1) * timerange
     for (let t = startTimestamp; t < to; t += timerange) {
@@ -2243,7 +2294,7 @@ export const LiquidOnCentralizedExchanges = ({ noAnimation }: { noAnimation?: bo
       return dataTemp.slice(0, -1)
     }
     return dataTemp
-  }, [data, from, to, timerange])
+  }, [data, from, to, timerange, dispatch])
 
   const totalStats: { timeframe: string; totalVolumes: string; totalBuys: string; totalSells: string } = useMemo(() => {
     if (formattedData.length === 0) return { timeframe: '--', totalVolumes: '--', totalBuys: '--', totalSells: '--' }
@@ -2634,7 +2685,6 @@ export const Prochart = ({
           r => {
             const resolution = { 60: '1h', 240: '4h', '1D': '1d', '4D': '4d' }[r as string] || '1h'
             if (resolution !== variablesRef.current?.resolution) {
-              console.log(2)
               setResolution?.(resolution)
             }
           },

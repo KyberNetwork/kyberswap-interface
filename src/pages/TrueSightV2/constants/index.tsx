@@ -57,3 +57,15 @@ export const KYBERAI_LISTYPE_TO_MIXPANEL = {
   [KyberAIListType.TRENDING_SOON]: MIXPANEL_KYBERAI_TAG.RANKING_TRENDING_SOON,
   [KyberAIListType.TRENDING]: MIXPANEL_KYBERAI_TAG.RANKING_CURRENTLY_TRENDING,
 }
+
+export enum KYBERAI_CHART_ID {
+  NUMBER_OF_TRADES = 'numberOfTrades',
+  TRADING_VOLUME = 'tradingVolume',
+  NETFLOW_TO_WHALE_WALLET = 'netflowToWhaleWallets',
+  NETFLOW_TO_CEX = 'netflowToCentralizedExchanges',
+  NUMBER_OF_TRANSFERS = 'numberOfTransfers',
+  NUMBER_OF_HOLDERS = 'numberOfHolders',
+  HOLDER_PIE_CHART = 'holdersPieChart',
+  PRICE_CHART = 'priceChart',
+  LIQUID_ON_CEX = 'liquidOnCEX',
+}

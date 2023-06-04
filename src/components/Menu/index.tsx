@@ -107,7 +107,7 @@ const StyledMenuIcon = styled(MenuIcon)`
 const KyberAIWrapper = styled(MenuItem)`
   display: none;
 
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+  ${({ theme }) => theme.mediaWidth.upToXXSmall`
     display: flex;
   `};
 `
