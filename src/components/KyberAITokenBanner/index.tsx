@@ -95,6 +95,7 @@ const KyberAITokenBanner = ({
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const theme = useTheme()
   const staticMode = !isWhiteList || !account
+  console.log('🚀 ~ file: index.tsx:98 ~ staticMode:', staticMode)
   const token0 = currencyIn?.wrapped
   const token1 = currencyOut?.wrapped
 
@@ -162,7 +163,7 @@ const KyberAITokenBanner = ({
       token1?.address,
     ])
 
-  if (!token || !isWhiteList || !account) return null
+  if (!token) return null
 
   const color = calculateValueToColor(token?.kyberScore || 0, theme)
   return (

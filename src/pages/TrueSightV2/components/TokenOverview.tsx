@@ -447,7 +447,13 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                         </RowFit>
                       </a>
                     </SimpleTooltip>
-                    <SimpleTooltip text={t`Copy token address`}>
+                    <SimpleTooltip
+                      text={
+                        <Text style={{ whiteSpace: 'nowrap' }}>
+                          <Trans>Copy token address</Trans>
+                        </Text>
+                      }
+                    >
                       <CopyHelper toCopy={data?.address || ''} />
                     </SimpleTooltip>
                   </RowFit>
@@ -661,9 +667,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                     <Text color={theme.subText} fontWeight={500}>
                       {shortenAddress(1, data.address)}
                     </Text>
-                    <SimpleTooltip text={t`Copy token address`}>
-                      <CopyHelper toCopy={data?.address || ''} />
-                    </SimpleTooltip>
+                    <CopyHelper toCopy={data?.address || ''} />
                   </RowFit>
                 ) : (
                   <></>
