@@ -228,12 +228,12 @@ const MeterGauge = styled.path`
   transition: all 0.2s ease;
 `
 
-const GaugeValue = styled.div<{ color?: string }>`
+const GaugeValue = styled.div<{ color?: string; fontSize?: string }>`
   position: absolute;
   bottom: 0px;
   transform: translate(-50%, 0);
   left: 50%;
-  font-size: 40px;
+  font-size: ${({ fontSize }) => fontSize || '40px'};
   font-weight: 500;
   font-family: 'Inter var';
   ${({ theme, color }) => `color: ${color || theme.primary};`};
@@ -249,17 +249,19 @@ function easeOutQuart(t: number, b: number, c: number, d: number) {
 }
 
 function KyberScoreMeter({
-  value = 0,
+  value: valueProp = 0,
   style,
   noAnimation,
   fontSize,
   hiddenValue,
+  staticMode,
 }: {
   value?: number
   style?: CSSProperties
   noAnimation?: boolean
   fontSize?: string
   hiddenValue?: boolean
+  staticMode?: boolean
 }) {
   const theme = useTheme()
   const currentValueRef = useRef(0)
@@ -267,20 +269,21 @@ function KyberScoreMeter({
   const valueRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!value || noAnimation) return
+    if (!valueProp || noAnimation) return
     let startTime = 0
     let lastFrameTime = 0
     const fps = 60
     const interval = 1000 / fps
-    const duration = 3000
-    let eliminate = false
+    let duration = 3000
+    let eliminated = false
+    let hidden = hiddenValue || false
 
     Object.keys(gaugeRefs.current).map((k: string) => {
       const el = gaugeRefs.current?.[k]
       el?.setAttribute('style', 'fill:' + theme.darkMode ? theme.subText + '30' : theme.border + '60')
     })
 
-    const step = (currentTime: number) => {
+    const step = (currentTime: number, prevValue: number, nextValue: number) => {
       if (!startTime) {
         startTime = currentTime
       }
@@ -290,30 +293,65 @@ function KyberScoreMeter({
       if (frameTime > interval) {
         // render the next frame
         lastFrameTime = currentTime - (elapsedTime % interval)
-        currentValueRef.current = easeOutQuart(elapsedTime, 0, value, duration)
+        currentValueRef.current = easeOutQuart(elapsedTime, prevValue, nextValue - prevValue, duration)
         const activeGaugeValue = (gaugeList.length * currentValueRef.current) / 100
-        valueRef.current.innerText = value ? currentValueRef.current.toFixed(1) : '--'
+        valueRef.current.innerText = hidden ? '??' : nextValue ? currentValueRef.current.toFixed(1) : '--'
         valueRef.current.setAttribute('style', 'color:' + calculateValueToColor(currentValueRef.current, theme))
         if (!!gaugeRefs.current) {
           Object.keys(gaugeRefs.current).map((k: string) => {
             const el = gaugeRefs.current?.[k]
-            if (+k <= activeGaugeValue) {
-              el?.setAttribute('style', 'fill:' + calculateValueToColor(currentValueRef.current, theme))
-            }
+            el?.setAttribute(
+              'style',
+              'fill:' +
+                (+k <= activeGaugeValue
+                  ? calculateValueToColor(currentValueRef.current, theme)
+                  : theme.darkMode
+                  ? theme.subText + '30'
+                  : theme.border + '60'),
+            )
           })
         }
       }
 
-      if (elapsedTime < duration && !eliminate) {
-        window.requestAnimationFrame(step)
+      if (elapsedTime < duration && !eliminated) {
+        window.requestAnimationFrame(currentTime => step(currentTime, prevValue, nextValue))
       }
     }
-    window.requestAnimationFrame(step)
 
-    return () => {
-      eliminate = true
+    let timeout: NodeJS.Timeout
+    if (staticMode) {
+      duration = 2000
+      const intervalFunc = () => {
+        startTime = 0
+        lastFrameTime = 0
+        hidden = false
+        window.requestAnimationFrame(currentTime => step(currentTime, 50, 99))
+        setTimeout(() => {
+          startTime = 0
+          lastFrameTime = 0
+          window.requestAnimationFrame(currentTime => step(currentTime, 99, 1))
+        }, 2200)
+        setTimeout(() => {
+          startTime = 0
+          lastFrameTime = 0
+          hidden = true
+          window.requestAnimationFrame(currentTime => step(currentTime, 1, 50))
+        }, 4500)
+      }
+      intervalFunc()
+      timeout = setInterval(() => {
+        intervalFunc()
+      }, 12000)
+    } else {
+      window.requestAnimationFrame(currentTime => step(currentTime, 0, valueProp))
     }
-  }, [value, noAnimation, theme])
+    return () => {
+      eliminated = true
+      if (timeout) {
+        clearInterval(timeout)
+      }
+    }
+  }, [valueProp, noAnimation, theme, staticMode, hiddenValue])
 
   return (
     <Wrapper style={style}>
@@ -324,8 +362,8 @@ function KyberScoreMeter({
                 key={g.value}
                 d={g.d}
                 fill={
-                  g.value < (value * gaugeList.length) / 100
-                    ? calculateValueToColor(value, theme)
+                  g.value < (valueProp * gaugeList.length) / 100
+                    ? calculateValueToColor(valueProp, theme)
                     : theme.darkMode
                     ? theme.subText + '30'
                     : theme.border + '60'
@@ -344,11 +382,11 @@ function KyberScoreMeter({
             ))}
       </svg>
       <GaugeValue
-        color={noAnimation ? calculateValueToColor(value, theme) : theme.text}
-        style={fontSize ? { fontSize: fontSize } : undefined}
+        color={noAnimation ? calculateValueToColor(valueProp, theme) : theme.text}
+        fontSize={fontSize}
         ref={valueRef}
       >
-        {noAnimation ? (hiddenValue ? '??' : value) : '--'}
+        {noAnimation ? (hiddenValue ? '??' : valueProp) : '--'}
       </GaugeValue>
     </Wrapper>
   )

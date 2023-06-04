@@ -128,7 +128,6 @@ export const SectionWrapper = ({
   description,
   id,
   docsLinks,
-  shareButton,
   shareContent,
   fullscreenButton,
   tabs,
@@ -144,7 +143,6 @@ export const SectionWrapper = ({
   description?: ReactNode
   id?: string
   docsLinks: string[]
-  shareButton?: boolean
   shareContent?: (mobileMode?: boolean) => ReactNode
   fullscreenButton?: boolean
   tabs?: string[]
@@ -178,6 +176,7 @@ export const SectionWrapper = ({
   }, [description])
 
   const docsLink = activeTab === ChartTab.Second && !!docsLinks[1] ? docsLinks[1] : docsLinks[0]
+
   return (
     <StyledSectionWrapper show={show} ref={ref} id={id} style={style} className="section-wrapper">
       {above768 ? (
@@ -224,7 +223,7 @@ export const SectionWrapper = ({
                     {subTitle}
                   </Text>
                 )}
-                {shareButton && !fullscreenMode && (
+                {shareContent && !fullscreenMode && (
                   <ShareButton
                     onClick={() => {
                       onShareClick?.()
@@ -341,7 +340,7 @@ export const SectionWrapper = ({
                 </RowFit>
               </MouseoverTooltip>
               <RowFit color={theme.subText} gap="12px">
-                {shareButton && (
+                {shareContent && (
                   <ShareButton
                     onClick={() => {
                       onShareClick?.()
@@ -404,20 +403,22 @@ export const SectionWrapper = ({
           {children || <></>}
         </>
       )}
-      <KyberAIShareModal
-        title={tabs && activeTab !== undefined && title ? tabs[activeTab] + ' ' + title : title}
-        isOpen={showShare}
-        onClose={() => setShowShare(false)}
-        content={shareContent}
-        onShareClick={social =>
-          mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SHARE_TOKEN_CLICK, {
-            token_name: token?.symbol?.toUpperCase(),
-            network: chain,
-            source: MIXPANEL_KYBERAI_TAG.EXPLORE_SHARE_THIS_TOKEN,
-            share_via: social,
-          })
-        }
-      />
+      {shareContent && (
+        <KyberAIShareModal
+          title={tabs && activeTab !== undefined && title ? tabs[activeTab] + ' ' + title : title}
+          isOpen={showShare}
+          onClose={() => setShowShare(false)}
+          content={shareContent}
+          onShareClick={social =>
+            mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SHARE_TOKEN_CLICK, {
+              token_name: token?.symbol?.toUpperCase(),
+              network: chain,
+              source: MIXPANEL_KYBERAI_TAG.EXPLORE_SHARE_THIS_TOKEN,
+              share_via: social,
+            })
+          }
+        />
+      )}
     </StyledSectionWrapper>
   )
 }
