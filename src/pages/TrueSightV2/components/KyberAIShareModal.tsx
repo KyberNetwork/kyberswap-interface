@@ -23,6 +23,7 @@ import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { NETWORK_IMAGE_URL } from '../constants'
 import { useTokenDetailQuery } from '../hooks/useKyberAIData'
 import KyberSwapShareLogo from './KyberSwapShareLogo'
+import LoadingTextAnimation from './LoadingTextAnimation'
 import { InfoWrapper, LegendWrapper } from './chart'
 
 const Wrapper = styled.div`
@@ -180,6 +181,7 @@ const Loader = styled.div`
   background: ${({ theme }) => theme.buttonBlack};
   z-index: 4;
   border-radius: 8px;
+  padding: 0 12px;
 `
 
 type ShareData = {
@@ -495,7 +497,7 @@ export default function KyberAIShareModal({
           {loading ? (
             <Loader>
               <Text fontSize={above768 ? '16px' : '12px'} textAlign="center">
-                <Trans>Crafting your screenshot...</Trans>
+                <LoadingTextAnimation />
               </Text>
             </Loader>
           ) : isError ? (
