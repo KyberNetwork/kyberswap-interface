@@ -1,4 +1,5 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { Trans } from '@lingui/macro'
 import { transparentize } from 'polished'
 import { memo, useMemo } from 'react'
 import { ArrowRight } from 'react-feather'
@@ -181,7 +182,7 @@ const KyberAITokenBanner = ({
           }}
         >
           <RowFit gap="8px">
-            <img src={token?.logo} width="32" height="32" style={{ borderRadius: '50%' }} />
+            <img src={token?.logo} alt={token?.symbol} width="32" height="32" style={{ borderRadius: '50%' }} />
             <Column gap="4px">
               <Text color={theme.text}>{token?.symbol?.toUpperCase() || '--'} seems to be</Text>
               {staticMode ? (
@@ -211,11 +212,22 @@ const KyberAITokenBanner = ({
           </SkewKyberScoreWrapper>
           <Column gap="4px" padding="0 26px">
             <Text fontSize="12px">
-              Want to know the <b style={{ color: theme.text }}>KyberScore</b> for{' '}
-              {token?.symbol?.toUpperCase() || 'KNC'}?
+              <Trans>
+                Want to know the{' '}
+                <Text as="b" color={theme.text}>
+                  KyberScore
+                </Text>{' '}
+                for {token?.symbol?.toUpperCase() || 'KNC'}?
+              </Trans>
             </Text>
             <RowFit fontSize="12px" gap="4px">
-              Explore with <span style={{ color: theme.primary }}>KyberAI</span> here!{' '}
+              <Trans>
+                Explore with{' '}
+                <Text as="span" color={theme.primary}>
+                  KyberAI
+                </Text>{' '}
+                here!{' '}
+              </Trans>
               <ArrowRight
                 size={14}
                 stroke={theme.primary}
@@ -249,7 +261,7 @@ const KyberAITokenBanner = ({
         >
           <RowBetween>
             <RowFit gap="8px">
-              <img src={token?.logo} width="32" height="32" style={{ borderRadius: '50%' }} />
+              <img src={token?.logo} alt={token?.symbol} width="32" height="32" style={{ borderRadius: '50%' }} />
               <Column gap="4px">
                 <Text color={theme.text}>{token?.symbol?.toUpperCase() || '--'} seems to be</Text>
                 {staticMode ? (
@@ -279,7 +291,9 @@ const KyberAITokenBanner = ({
             </SkewKyberScoreWrapper>
           </RowBetween>
           <Row fontSize="12px" gap="4px" justify="center">
-            Explore with <span style={{ color: theme.primary }}>KyberAI</span> here!{' '}
+            <Trans>
+              Explore with <span style={{ color: theme.primary }}>KyberAI</span> here!{' '}
+            </Trans>
             <ArrowRight size={14} stroke={theme.primary} style={{ cursor: 'pointer' }} />
           </Row>
         </MobileContainer>

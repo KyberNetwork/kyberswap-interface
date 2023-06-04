@@ -24,6 +24,7 @@ import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
+import { MEDIA_WIDTHS } from 'theme'
 
 import ChevronIcon from '../components/ChevronIcon'
 import KyberAIShareModal from '../components/KyberAIShareModal'
@@ -500,7 +501,7 @@ const TokenRow = ({
 
   useOnClickOutside(menuRef, () => setShowMenu(false))
   useOnClickOutside(menuRef, () => setShowSwapMenu(false))
-  const above768 = useMedia('(min-width:768px)')
+  const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
 
   const hasMutipleChain = token.tokens.length > 1
 
@@ -776,7 +777,7 @@ export default function TokenAnalysisList() {
   const [isScrolling, setIsScrolling] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const tableRef = useRef<HTMLTableElement>(null)
-  const above768 = useMedia('(min-width:768px)')
+  const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
 
   const [searchParams, setSearchParams] = useSearchParams()
   const listType = (searchParams.get('listType') as KyberAIListType) || KyberAIListType.BULLISH

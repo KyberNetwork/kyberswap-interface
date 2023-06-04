@@ -408,16 +408,6 @@ export default function KyberAILandingPage() {
                   top: '27%',
                 }}
               />
-
-              {/* <FloatingImageWithMotion src={ethereumImage} alt="ethereum" left={300} top={320} parallaxDistance={-7} />
-              <FloatingImageWithMotion
-                src={theme.darkMode ? tokenPriceImage : tokenPriceLightImage}
-                alt="token Price"
-                left={0}
-                top={920}
-                parallaxDistance={11}
-                style={{ scale: 0.5 }}
-              /> */}
             </Column>
           )}
           <Column height="100%" gap="24px" style={{ justifyContent: 'center' }}>
@@ -428,7 +418,7 @@ export default function KyberAILandingPage() {
               </Trans>
             </Text>
             <Text fontSize="20px" lineHeight="24px" fontWeight={500}>
-              Get alpha before it happens
+              <Trans>Get alpha before it happens</Trans>
             </Text>
             <RegisterWhitelist />
           </Column>
