@@ -1,7 +1,8 @@
-import { createApi } from '@reduxjs/toolkit/dist/query/react'
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import baseQueryOauth from 'services/baseQueryOauth'
 
-import { BFF_API } from 'constants/env'
+import { BFF_API, ENV_LEVEL } from 'constants/env'
+import { ENV_TYPE } from 'constants/type'
 
 import {
   ILiquidCEX,
@@ -21,9 +22,14 @@ import {
 
 const kyberAIApi = createApi({
   reducerPath: 'kyberAIApi',
-  baseQuery: baseQueryOauth({
-    baseUrl: `${BFF_API}/v1/truesight`,
-  }),
+  baseQuery:
+    ENV_LEVEL === ENV_TYPE.LOCAL
+      ? fetchBaseQuery({
+          baseUrl: 'https://truesight-v2.kyberswap.com/truesight/api/v2',
+        })
+      : baseQueryOauth({
+          baseUrl: `${BFF_API}/v1/truesight`,
+        }),
   tagTypes: ['tokenOverview', 'tokenList', 'myWatchList'],
   endpoints: builder => ({
     //1.

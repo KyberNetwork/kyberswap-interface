@@ -104,6 +104,10 @@ const HeaderLinks = styled(Row)`
   ${({ theme }) => theme.mediaWidth.upToLarge`
     justify-content: flex-end;
   `};
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+     gap: 0px;
+  `}
 `
 
 const IconImage = styled.img<{ isChristmas?: boolean }>`

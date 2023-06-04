@@ -470,7 +470,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
           </Row>
         </>
       ) : (
-        <CardWrapper style={{ marginBottom: '16px' }} className={cardClassname}>
+        <CardWrapper style={{ marginBottom: '24px' }} className={cardClassname}>
           <RowFit gap="8px">
             <Text fontSize={28} lineHeight="32px" fontWeight={500} color={theme.text}>
               {isLoading ? <DotsLoader /> : '$' + formatTokenPrice(+(data?.price || 0))}

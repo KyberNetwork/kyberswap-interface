@@ -95,7 +95,6 @@ const KyberAITokenBanner = ({
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const theme = useTheme()
   const staticMode = !isWhiteList || !account
-  console.log('🚀 ~ file: index.tsx:98 ~ staticMode:', staticMode)
   const token0 = currencyIn?.wrapped
   const token1 = currencyOut?.wrapped
 
@@ -165,7 +164,7 @@ const KyberAITokenBanner = ({
 
   if (!token) return null
 
-  const color = calculateValueToColor(token?.kyberScore || 0, theme)
+  const color = staticMode ? theme.primary : calculateValueToColor(token?.kyberScore || 0, theme)
   return (
     <Wrapper>
       {above768 ? (
@@ -276,7 +275,7 @@ const KyberAITokenBanner = ({
             </RowFit>
             <SkewKyberScoreWrapper style={{ width: '120x', height: '74px' }}>
               {staticMode ? (
-                <KyberScoreMeter value={token?.kyberScore || 0} staticMode fontSize="14px" style={{ height: '36px' }} />
+                <KyberScoreMeter value={1} staticMode fontSize="14px" style={{ height: '36px' }} />
               ) : (
                 <KyberScoreMeter
                   value={token?.kyberScore || 0}

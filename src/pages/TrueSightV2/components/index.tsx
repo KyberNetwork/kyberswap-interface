@@ -1,16 +1,19 @@
 import { Trans } from '@lingui/macro'
 import React, { CSSProperties, ReactNode, useLayoutEffect, useRef, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { useParams } from 'react-router'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
+import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
+import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { MEDIA_WIDTHS } from 'theme'
+import { CloseIcon, MEDIA_WIDTHS } from 'theme'
 
 import { MIXPANEL_KYBERAI_TAG } from '../constants'
 import useKyberAITokenOverview from '../hooks/useKyberAITokenOverview'
@@ -99,6 +102,7 @@ export const FullscreenButton = React.memo(function FCButton({
 }) {
   const toggleFullscreen = () => {
     onClick?.()
+    if (isMobile) return
     if (document.fullscreenElement) {
       document.exitFullscreen()
     } else {
@@ -159,8 +163,7 @@ export const SectionWrapper = ({
   const ref = useRef<HTMLDivElement>(null)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const [showText, setShowText] = useState(above768 ? true : false)
-  const [showShare, setShowShare] = useState(false)
-
+  const [showShareModal, setShowShareModal] = useState(false)
   const [isTextExceeded, setIsTexExceeded] = useState(false)
   const [fullscreenMode, setFullscreenMode] = useState(false)
 
@@ -227,7 +230,7 @@ export const SectionWrapper = ({
                   <ShareButton
                     onClick={() => {
                       onShareClick?.()
-                      setShowShare(true)
+                      setShowShareModal(true)
                       mixpanelHandler(MIXPANEL_TYPE.KYBERAI_EXPLORING_SHARE_CHART_CLICK, {
                         token_name: token?.symbol?.toUpperCase(),
                         network: chain,
@@ -340,11 +343,11 @@ export const SectionWrapper = ({
                 </RowFit>
               </MouseoverTooltip>
               <RowFit color={theme.subText} gap="12px">
-                {shareContent && (
+                {shareContent && !fullscreenMode && (
                   <ShareButton
                     onClick={() => {
                       onShareClick?.()
-                      setShowShare(true)
+                      setShowShareModal(true)
                       mixpanelHandler(MIXPANEL_TYPE.KYBERAI_EXPLORING_SHARE_CHART_CLICK, {
                         token_name: token?.symbol?.toUpperCase(),
                         network: chain,
@@ -401,13 +404,23 @@ export const SectionWrapper = ({
             </Row>
           </SectionTitle>
           {children || <></>}
+          {fullscreenMode && (
+            <Modal isOpen={true} onDismiss={() => setFullscreenMode(false)} height="100vh">
+              <Column padding="16px" height="100%" width="100%">
+                <Row marginBottom="16px" justify="flex-end">
+                  <CloseIcon onClick={() => setFullscreenMode(false)} />
+                </Row>
+                {children}
+              </Column>
+            </Modal>
+          )}
         </>
       )}
       {shareContent && (
         <KyberAIShareModal
           title={tabs && activeTab !== undefined && title ? tabs[activeTab] + ' ' + title : title}
-          isOpen={showShare}
-          onClose={() => setShowShare(false)}
+          isOpen={showShareModal}
+          onClose={() => setShowShareModal(false)}
           content={shareContent}
           onShareClick={social =>
             mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SHARE_TOKEN_CLICK, {
@@ -430,7 +443,7 @@ const StyledMobileTabButton = styled.div<{ active?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 32px;
+  height: 40px;
   flex: 1;
   box-sizing: border-box;
   cursor: pointer;

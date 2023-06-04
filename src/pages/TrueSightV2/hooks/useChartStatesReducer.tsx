@@ -1,15 +1,17 @@
 import { createContext, useCallback, useContext, useEffect, useReducer } from 'react'
 
+import { KYBERAI_CHART_ID } from '../constants'
 import { KyberAITimeframe } from '../types'
 
 export type ChartStatesType = {
-  [chartName: string]: { timeframe?: KyberAITimeframe; showOptions?: Array<string> }
+  [chartName: string]: { timeframe?: KyberAITimeframe; showOptions?: Array<string>; noData?: boolean }
 }
 export enum CHART_STATES_ACTION_TYPE {
   INITIAL,
   TIMEFRAME_CHANGE,
   TOGGLE_OPTION,
   SET_SHOW_OPTIONS,
+  NO_DATA,
 }
 type Action = {
   type: CHART_STATES_ACTION_TYPE
@@ -52,6 +54,10 @@ const reducer = (state: ChartStatesType, action: Action) => {
       const chartName = action.payload.chartName
       return { ...state, [chartName]: { ...state[chartName], showOptions: action.payload.showOptions } }
     }
+    case CHART_STATES_ACTION_TYPE.NO_DATA: {
+      const chartName = action.payload.chartName
+      return { ...state, [chartName]: { ...state[chartName], noData: action.payload.value } }
+    }
     default:
       return state
   }
@@ -64,8 +70,8 @@ export default function useChartStatesReducer(): [ChartStatesType, React.Dispatc
 }
 
 export function useChartStatesContext(
-  chartName: string,
-  initialValues: { timeframe?: KyberAITimeframe; showOptions?: Array<string> },
+  chartName: KYBERAI_CHART_ID,
+  initialValues?: { timeframe?: KyberAITimeframe; showOptions?: Array<string>; noData?: boolean },
 ) {
   const { state, dispatch } = useContext(ChartStatesContext)
 
@@ -76,10 +82,15 @@ export function useChartStatesContext(
     [dispatch, chartName],
   )
   useEffect(() => {
-    if (!state[chartName]) {
+    if (!state[chartName] && initialValues) {
       dispatch({ type: CHART_STATES_ACTION_TYPE.INITIAL, payload: { initialValues, chartName } })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   return { state: state[chartName], dispatch: customDispatch }
+}
+
+export function useChartNoData(chartName: KYBERAI_CHART_ID) {
+  const { state } = useChartStatesContext(chartName)
+  return state?.noData === undefined ? true : state.noData
 }
