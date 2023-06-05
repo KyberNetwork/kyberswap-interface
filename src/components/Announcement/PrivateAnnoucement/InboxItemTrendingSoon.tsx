@@ -1,27 +1,80 @@
+import { Trans } from '@lingui/macro'
 import { useNavigate } from 'react-router-dom'
-import { Text } from 'rebass'
+import styled from 'styled-components'
 
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { Dot, InboxItemRow, InboxItemWrapper, RowItem, Title } from 'components/Announcement/PrivateAnnoucement/styled'
-import { AnnouncementTemplateTrendingSoon, TrueSightToken } from 'components/Announcement/type'
+import { AnnouncementTemplateTrendingSoon } from 'components/Announcement/type'
+import DiscoverIcon from 'components/Icons/DiscoverIcon'
+import Icon from 'components/Icons/Icon'
 import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmount'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 
-export const TokenInfo = ({ token, separator }: { token: TrueSightToken; separator?: boolean }) => {
+const ItemWrapper = styled.div<{ color: string }>`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: ${({ color }) => color};
+`
+export const TokenInfo = ({
+  templateBody,
+  type,
+}: {
+  templateBody: AnnouncementTemplateTrendingSoon
+  type: 'bullish' | 'bearish' | 'trending'
+}) => {
   const theme = useTheme()
-  return (
-    <>
-      {token.symbol} ${token.price}{' '}
-      <Text as="span" color={theme.apr}>
-        ({token.changePercentage}%)
-        <Text as="span" color={theme.subText}>
-          {separator && ','}
-        </Text>
-      </Text>
-    </>
-  )
+  const {
+    bullishTokenLogoURL,
+    bullishTokenScore,
+    bullishTokenSymbol,
+    bearishTokenLogoURL,
+    bearishTokenScore,
+    bearishTokenSymbol,
+    trendingSoonTokenLogoURL,
+    trendingSoonTokenScore,
+    trendingSoonTokenSymbol,
+  } = templateBody
+  switch (type) {
+    case 'bullish':
+      return (
+        <ItemWrapper color={theme.apr}>
+          <Icon id="bullish" size={14} /> <Trans>Bullish:</Trans>
+          <DeltaTokenAmount
+            amount={null}
+            logoURL={bullishTokenLogoURL}
+            color={theme.text}
+            symbol={`${bullishTokenSymbol} (${bullishTokenScore})`}
+          />
+        </ItemWrapper>
+      )
+    case 'bearish':
+      return (
+        <ItemWrapper color={theme.red}>
+          <Icon id="bearish" size={12} /> <Trans>Bearish:</Trans>
+          <DeltaTokenAmount
+            amount={null}
+            logoURL={bearishTokenLogoURL}
+            color={theme.text}
+            symbol={`${bearishTokenSymbol} (${bearishTokenScore})`}
+          />
+        </ItemWrapper>
+      )
+    case 'trending':
+      return (
+        <ItemWrapper color={theme.text}>
+          <DiscoverIcon size={12} /> <Trans>Trending Soon:</Trans>
+          <DeltaTokenAmount
+            amount={null}
+            logoURL={trendingSoonTokenLogoURL}
+            color={theme.text}
+            symbol={`${trendingSoonTokenSymbol} (${trendingSoonTokenScore})`}
+          />
+        </ItemWrapper>
+      )
+  }
 }
 
 function InboxItemBridge({
@@ -32,13 +85,13 @@ function InboxItemBridge({
   title,
 }: PrivateAnnouncementProp<AnnouncementTemplateTrendingSoon>) {
   const { templateBody, isRead, templateType } = announcement
-  const [token1, token2 = token1, token3 = token1] = templateBody.tokens
-  const theme = useTheme()
+
   const navigate = useNavigate()
   const onClick = () => {
-    navigate(APP_PATHS.DISCOVER)
+    navigate(APP_PATHS.KYBERAI_RANKINGS)
     onRead(announcement, 'trending_soon')
   }
+
   return (
     <InboxItemWrapper isRead={isRead} onClick={onClick} style={style}>
       <InboxItemRow>
@@ -50,16 +103,12 @@ function InboxItemBridge({
       </InboxItemRow>
 
       <InboxItemRow>
-        {token1 && <DeltaTokenAmount amount={<TokenInfo token={token1} />} logoURL={token1.logo} color={theme.text} />}
-        {token2 && <DeltaTokenAmount amount={<TokenInfo token={token2} />} logoURL={token2.logo} color={theme.text} />}
+        <TokenInfo templateBody={templateBody} type="bullish" />
+        <TokenInfo templateBody={templateBody} type="bearish" />
       </InboxItemRow>
 
       <InboxItemRow>
-        {token3 ? (
-          <DeltaTokenAmount amount={<TokenInfo token={token3} />} logoURL={token3.logo} color={theme.text} />
-        ) : (
-          <div />
-        )}
+        <TokenInfo templateBody={templateBody} type="trending" />
         {time}
       </InboxItemRow>
     </InboxItemWrapper>

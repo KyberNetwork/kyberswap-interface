@@ -1,4 +1,5 @@
 import { RefObject, useEffect, useRef } from 'react'
+import { isMobile } from 'react-device-detect'
 
 export function useOnClickOutside<T extends HTMLElement>(
   node: RefObject<T | undefined>,
@@ -10,17 +11,17 @@ export function useOnClickOutside<T extends HTMLElement>(
   }, [handler])
 
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
       if (node.current?.contains(e.target as Node) ?? false) {
         return
       }
       if (handlerRef.current) handlerRef.current()
     }
 
-    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener(isMobile ? 'touchstart' : 'mousedown', handleClickOutside)
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener(isMobile ? 'touchstart' : 'mousedown', handleClickOutside)
     }
   }, [node])
 }

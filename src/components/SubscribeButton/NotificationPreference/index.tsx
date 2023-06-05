@@ -21,7 +21,7 @@ import useTheme from 'hooks/useTheme'
 import { useNotify } from 'state/application/hooks'
 import { pushUnique } from 'utils'
 import { subscribeTelegramSubscription } from 'utils/firebase'
-import getShortenAddress from 'utils/getShortenAddress'
+import { isEmailValid } from 'utils/string'
 
 const Wrapper = styled.div`
   margin: 0;
@@ -152,7 +152,6 @@ enum TAB {
 const noop = () => {
   //
 }
-const isEmailValid = (value: string) => value.match(/\S+@\S+\.\S+/)
 
 const sortGroup = (arr: Topic[]) => [...arr].sort((x, y) => y.priority - x.priority)
 
@@ -352,18 +351,15 @@ function NotificationPreference({
       try {
         if (!isEmailValid(email) || email === userInfo?.email) return
         const { data: walletAddress } = await getConnectedWallet(email)
-        if (walletAddress && walletAddress !== account?.toLowerCase()) {
+        if (walletAddress) {
           setErrorInput({
-            msg: t`Your email has already been linked to wallet ${getShortenAddress(
-              walletAddress,
-              false,
-            )}, it will be unlinked automatically if you proceed`,
+            msg: t`Your email has already been linked to wallet ${walletAddress}, it will be unlinked automatically if you proceed`,
             type: 'warn',
           })
         }
       } catch (error) {}
     },
-    [account, getConnectedWallet, userInfo?.email],
+    [getConnectedWallet, userInfo?.email],
   )
 
   const debouncedCheckEmail = useMemo(() => debounce((email: string) => checkEmailExist(email), 500), [checkEmailExist])
@@ -487,6 +483,7 @@ function NotificationPreference({
               value={inputEmail}
               placeholder="example@email.com"
               onChange={onChangeInput}
+              disabled={!!userInfo.email}
             />
             {isVerifiedEmail && hasTopicSubscribed && <CheckIcon color={theme.primary} />}
           </InputWrapper>

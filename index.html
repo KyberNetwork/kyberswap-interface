@@ -1,209 +1,219 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark" translate="no">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" href="/favicon.ico?version=v" />
+    <link rel="apple-touch-icon" type="image/png" href="/favicon.png?version=v1" />
+    <link rel="icon" type="image/png" href="/favicon.png?version=v1" />
 
-<head>
-  <meta charset="utf-8" />
-  <link rel="shortcut icon" href="/favicon.ico?version=v" />
-  <link rel="apple-touch-icon" type="image/png" href="/favicon.png?version=v1" />
-  <link rel="icon" type="image/png" href="/favicon.png?version=v1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="theme-color" content="#31CB9E" />
+    <meta name="fortmatic-site-verification" content="j93LgcVZk79qcgyo" />
+    <meta
+      name="description"
+      content="KyberSwap is DeFi’s first Dynamic Market Maker; a decentralized exchange protocol that provides frictionless crypto liquidity with extremely high flexibility and capital efficiency. KyberSwap is the first major protocol in Kyber’s liquidity hub."
+    />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <meta name="theme-color" content="#31CB9E" />
-  <meta name="fortmatic-site-verification" content="j93LgcVZk79qcgyo" />
-  <meta name="description"
-    content="KyberSwap is DeFi’s first Dynamic Market Maker; a decentralized exchange protocol that provides frictionless crypto liquidity with extremely high flexibility and capital efficiency. KyberSwap is the first major protocol in Kyber’s liquidity hub." />
+    <meta property="og:image" content="/kyberswap-og-image.jpg?version=1200x630" />
 
-  <meta property="og:image" content="/kyberswap-og-image.jpg?version=1200x630" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
 
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
-
-  <!--
+    <!--
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
     -->
-  <link rel="manifest" href="/manifest.json" />
-  <link rel="preload" as="image" href="/logo-dark.svg" />
-  <link rel="preload" as="image" href="/logo.svg" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600&display=swap" rel="preload"
-    as="style" />
-  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="preload" as="image" href="/logo-dark.svg" />
+    <link rel="preload" as="image" href="/logo.svg" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600&display=swap"
+      rel="preload"
+      as="style"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
 
-  <title>KyberSwap - Swap and earn tokens at the best rates</title>
-  <script>
-    window.global = window
-  </script>
-  <script type="module">
-    import {Buffer} from 'buffer'
-    import EventEmitter from 'events'
-    import process from 'process'
+    <title>KyberSwap - Trading Smart</title>
+    <script>
+      window.global = window
+    </script>
+    <script type="module">
+      import { Buffer } from 'buffer'
+      import EventEmitter from 'events'
+      import process from 'process'
 
-    window.Buffer = Buffer
-    window.process = process
-    window.EventEmitter = EventEmitter
-  </script>
-</head>
+      window.Buffer = Buffer
+      window.process = process
+      window.EventEmitter = EventEmitter
+    </script>
+  </head>
 
-<body>
-  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
 
-  <div id="app"></div>
-  <script type="module" src="/src/index.tsx"></script>
+    <div id="app"></div>
+    <script type="module" src="/src/index.tsx"></script>
 
-  <style type="text/css" class="preloadhtml-style">
-    .preloadhtml {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      font-family: 'Work Sans', 'Inter var', sans-serif;
-    }
-
-    [data-theme='dark'] .preloadhtml {
-      background-color: #0f0f0f;
-    }
-
-    [data-theme='light'] .preloadhtml {
-      background-color: rgb(245, 245, 245);
-    }
-
-    .preloadhtml-header {
-      display: flex;
-      padding: 1rem;
-      z-index: 2;
-    }
-
-    [data-theme='dark'] .preloadhtml-header {
-      background-color: #1c1c1c;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    }
-
-    [data-theme='light'] .preloadhtml-header {
-      background-color: rgb(255, 255, 255);
-      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    }
-
-    .preloadhtml-logo {
-      transition: transform 0.3s ease;
-    }
-
-    .preloadhtml-logo:hover {
-      transform: rotate(-5deg);
-    }
-
-    .preloadhtml-header-link {
-      display: flex;
-      align-items: center;
-      margin-left: 12px;
-    }
-
-    .preloadhtml-header-link-item {
-      padding: 8px 12px;
-      width: max-content;
-      font-weight: 500;
-      font-size: 16px;
-    }
-
-    [data-theme='dark'] .preloadhtml-header-link-item {
-      color: rgb(169, 169, 169);
-    }
-
-    [data-theme='light'] .preloadhtml-header-link-item {
-      color: rgb(94, 94, 94);
-    }
-
-    .preloadhtml-header-link-item-icon {
-      min-width: 14px;
-      width: 14px;
-      color: #a9a9a9;
-      margin-top: -20px;
-      transform: translate(-1px, -3.5px);
-    }
-
-    .preloadhtml-header-link-item-icon * {
-      color: #a9a9a9;
-      fill: currentColor;
-    }
-
-    .preloadhtml-logo {
-      width: 140px;
-      height: 51.38px;
-    }
-
-    [data-theme='dark'] .onlyVisibleInLightMode {
-      display: none;
-    }
-
-    [data-theme='light'] .onlyVisibleInDarkMode {
-      display: none;
-    }
-
-    @keyframes pulse {
-      0% {
-        transform: scale(1);
+    <style type="text/css" class="preloadhtml-style">
+      .preloadhtml {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        font-family: 'Work Sans', 'Inter var', sans-serif;
+      }
+      [data-theme='dark'] .preloadhtml {
+        background-color: #0f0f0f;
+      }
+      [data-theme='light'] .preloadhtml {
+        background-color: rgb(245, 245, 245);
       }
 
-      60% {
-        transform: scale(1.1);
+      .preloadhtml-header {
+        display: flex;
+        padding: 1rem;
+        z-index: 2;
+      }
+      [data-theme='dark'] .preloadhtml-header {
+        background-color: #1c1c1c;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      }
+      [data-theme='light'] .preloadhtml-header {
+        background-color: rgb(255, 255, 255);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
       }
 
-      100% {
-        transform: scale(1);
+      .preloadhtml-logo {
+        transition: transform 0.3s ease;
       }
-    }
-  </style>
-  <div class="preloadhtml">
-    <div class="preloadhtml-header">
-      <div class="preloadhtml-logo">
-        <img class="onlyVisibleInDarkMode" style="margin-top: 1px" width="140px" src="/logo-dark.svg" alt="DmmLogo" />
-        <img class="onlyVisibleInLightMode" style="margin-top: 1px" width="140px" src="/logo.svg" alt="DmmLogo" />
-      </div>
-      <div class="preloadhtml-header-link">
-        <div style="color: #31cb9e" class="preloadhtml-header-link-item">Swap</div>
-        <div class="preloadhtml-header-link-item">Earn</div>
-        <div class="preloadhtml-header-link-item">Farms</div>
-        <div class="preloadhtml-header-link-item">Campaigns</div>
-        <div class="preloadhtml-header-link-item">
-          Discover
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-            class="preloadhtml-header-link-item-icon">
-            <path
-              d="M17.6309 7.86166C18.1386 7.54785 18.2957 6.88189 17.9819 6.37418C17.6681 5.86648 17.0022 5.7093 16.4945 6.02311C15.9868 6.33692 15.8296 7.00288 16.1434 7.51059C16.4572 8.01829 17.1232 8.17547 17.6309 7.86166Z"
-              fill="currentColor" />
-            <path
-              d="M1.32411 19.665C-0.35922 21.3484 0.041749 23.9575 0.041749 23.9575C0.041749 23.9575 2.6509 24.3585 4.33423 22.6751C5.2961 21.7793 5.48023 20.4915 4.51254 19.4867C3.52193 18.4874 2.13833 18.7576 1.32411 19.665V19.665Z"
-              fill="currentColor" />
-            <path
-              d="M23.9869 0.0137298C23.3583 -0.022364 22.1686 -0.00642649 20.6016 0.3967C18.4064 0.961077 15.001 2.42311 11.2434 6.18109C8.99672 8.42735 7.54828 10.5569 6.25171 12.8121L8.22187 14.7822L8.98313 14.0205L9.97876 15.0161L9.2175 15.7774L11.1872 17.7475C13.4428 16.451 15.5719 15.0025 17.8182 12.7563C23.8346 6.73984 24.0797 1.5967 23.9869 0.0137298V0.0137298ZM14.5599 6.94469C14.5599 5.56469 15.6769 4.44624 17.055 4.44624C18.4327 4.44624 19.5497 5.56469 19.5497 6.94469C19.5497 8.32469 18.4327 9.4436 17.055 9.4436C15.6769 9.4436 14.5599 8.32469 14.5599 6.94469Z"
-              fill="currentColor" />
-            <path
-              d="M7.46054 17.5343L6.46515 16.5389L7.22654 15.7775L5.53791 14.0889C5.23576 14.6421 4.49119 16.0376 4.42224 16.1667L7.83268 19.5771C7.96168 19.5083 9.35719 18.7637 9.91055 18.4615L8.22193 16.7729L7.46054 17.5343Z"
-              fill="currentColor" />
-            <path
-              d="M13.5645 20.2697V22.7282L14.7937 23.9574L17.2522 21.4989L18.7987 13.7661C16.5179 16.044 14.376 17.5243 12.1265 18.8317L13.5645 20.2697Z"
-              fill="currentColor" />
-            <path
-              d="M3.72941 10.4349L5.16748 11.873C6.47492 9.62334 7.95509 7.48148 10.233 5.20068L2.5002 6.74728L0.041748 9.20568L1.27095 10.4349H3.72941Z"
-              fill="currentColor" />
-          </svg>
+
+      .preloadhtml-logo:hover {
+        transform: rotate(-5deg);
+      }
+
+      .preloadhtml-header-link {
+        display: flex;
+        align-items: center;
+        margin-left: 12px;
+      }
+
+      .preloadhtml-header-link-item {
+        padding: 8px 12px;
+        width: max-content;
+        font-weight: 500;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      [data-theme='dark'] .preloadhtml-header-link-item {
+        color: rgb(169, 169, 169);
+      }
+      [data-theme='light'] .preloadhtml-header-link-item {
+        color: rgb(94, 94, 94);
+      }
+
+      .preloadhtml-logo {
+        width: 140px;
+        height: 51.38px;
+      }
+
+      [data-theme='dark'] .onlyVisibleInLightMode {
+        display: none;
+      }
+      [data-theme='light'] .onlyVisibleInDarkMode {
+        display: none;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+
+        60% {
+          transform: scale(1.1);
+        }
+
+        100% {
+          transform: scale(1);
+        }
+      }
+    </style>
+    <div class="preloadhtml">
+      <div class="preloadhtml-header">
+        <div class="preloadhtml-logo">
+          <img class="onlyVisibleInDarkMode" style="margin-top: 1px" width="140px" src="/logo-dark.svg" alt="DmmLogo" />
+          <img class="onlyVisibleInLightMode" style="margin-top: 1px" width="140px" src="/logo.svg" alt="DmmLogo" />
         </div>
-        <div class="preloadhtml-header-link-item">Analytics</div>
-        <div class="preloadhtml-header-link-item">About</div>
-        <div class="preloadhtml-header-link-item">Blog</div>
+        <div class="preloadhtml-header-link">
+          <div style="color: #31cb9e" class="preloadhtml-header-link-item">Swap</div>
+          <div class="preloadhtml-header-link-item">Earn</div>
+          <div class="preloadhtml-header-link-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" opacity="1">
+              <path
+                opacity="0.5"
+                d="M19.685 10.5414V10.5717C19.1654 8.43724 18.1374 6.73812 17.3691 5.69813C16.5472 4.58551 15.4164 3.72694 14.0984 3.30371C12.49 2.78364 11.0202 2.99533 9.89005 3.38829C8.61401 3.82363 7.51924 4.66418 6.71559 5.74655C5.43955 7.46368 4.69554 9.08427 4.30878 10.5838C4.30878 10.5655 4.30878 10.5535 4.31468 10.5414C4.31468 10.5414 0.602295 10.2028 0.602295 13.3893C0.602295 16.4792 2.40387 16.5698 4.49005 16.3824C4.94355 17.7731 5.61493 18.8252 6.06842 19.442C6.31643 19.7746 6.63057 20.0466 6.99962 20.2341L6.64297 19.7746C6.4735 19.5689 6.63057 19.2545 6.89688 19.2545H8.66833L8.93464 19.6475C9.07931 19.8652 9.32732 19.9922 9.58772 19.9801C10.1859 19.9619 11.2984 19.9076 12.0784 19.8169C12.8584 19.9076 13.9715 19.9619 14.5696 19.9801C14.83 19.9922 15.0775 19.8652 15.2227 19.6475L15.489 19.2545H17.1034C17.3691 19.2545 17.5203 19.5568 17.3573 19.7746L16.8613 20.4396C17.551 20.2281 18.1315 19.7564 18.4757 19.1275C18.9835 18.1903 19.3526 17.2773 19.6006 16.3884C21.6442 16.5638 23.398 16.4368 23.398 13.3893C23.398 10.2028 19.685 10.5414 19.685 10.5414Z"
+                fill="currentcolor"
+              ></path>
+              <path
+                d="M18.5032 10.3059C18.4433 10.1484 18.329 10.0216 18.1814 9.94073L16.5732 9.06002C15.9981 8.745 15.3128 8.7016 14.7025 8.94133L11.8936 10.0452L9.1877 8.94857C8.58629 8.70499 7.90694 8.74884 7.34214 9.06785L5.80067 9.93837C5.65453 10.0209 5.54263 10.1486 5.48447 10.3059C5.22761 11.0001 4.67521 13.031 6.2152 14.6947C6.29668 14.7827 6.40356 14.8477 6.51723 14.8855L9.30934 15.8121C8.28307 15.9814 7.3504 18.905 11.9987 18.905C16.6612 18.905 15.7084 15.9616 14.6786 15.8091C14.6553 15.8056 14.6376 15.7981 14.6151 15.7939L17.445 14.8829C17.5578 14.8468 17.6641 14.7837 17.7459 14.6983C19.3384 13.0341 18.7683 11.0007 18.5032 10.3059Z"
+                fill="currentcolor"
+              ></path>
+              <path
+                d="M17.3349 11.566C16.972 10.5717 15.972 10.3307 14.804 10.817C14.6657 10.8745 14.5424 10.9572 14.4212 11.041C14.0538 11.2954 13.3038 11.3761 11.9987 11.3766C10.6936 11.3761 9.94365 11.2954 9.57619 11.041C9.45497 10.9572 9.33169 10.8745 9.19344 10.817C8.02542 10.3307 7.0254 10.5717 6.66253 11.566C6.23814 12.7292 7.32335 13.578 8.01219 13.9823C8.79581 14.4423 9.84689 14.1712 10.2355 13.3938C10.2414 13.3819 10.2477 13.37 10.2532 13.3576C10.6868 12.4026 11.7134 12.3261 11.9692 12.3221C11.9692 12.3221 11.9814 12.3222 11.9987 12.3221C12.016 12.3222 12.0282 12.3225 12.0282 12.3225C12.284 12.3264 13.3106 12.4026 13.7442 13.3576C13.7497 13.37 13.756 13.3819 13.7619 13.3938C14.1505 14.1712 15.2016 14.4423 15.9852 13.9823C16.674 13.578 17.7593 12.7292 17.3349 11.566Z"
+                fill="#1C1C1C"
+              ></path>
+              <path
+                d="M11.9987 16.9052C11.7804 16.9027 11.5234 16.8744 11.2356 16.8024C9.84299 16.4479 10.3004 15.3866 11.3204 15.7489C11.5388 15.8311 11.7701 15.8723 11.9987 15.8723C12.2275 15.8723 12.4587 15.8311 12.6771 15.7489C12.8235 15.6976 12.9572 15.6744 13.0754 15.6744C13.7897 15.6744 13.9567 16.4992 12.7593 16.8024C12.7593 16.8024 12.4741 16.9103 11.9987 16.9052Z"
+                fill="#1C1C1C"
+              ></path>
+            </svg>
+            KyberAI
+            <div
+              style="
+                padding: 2px 4px;
+                color: rgb(169, 169, 169);
+                background-color: rgba(169, 169, 169, 0.196);
+                border-radius: 12px;
+                font-size: 10px;
+                margin-top: -16px;
+              "
+            >
+              beta
+            </div>
+          </div>
+
+          <div class="preloadhtml-header-link-item">Campaigns</div>
+          <div class="preloadhtml-header-link-item">Analytics</div>
+          <div class="preloadhtml-header-link-item">About</div>
+          <div class="preloadhtml-header-link-item">Blog</div>
+        </div>
+      </div>
+      <div style="height: 180px; display: flex">
+        <img
+          class="onlyVisibleInDarkMode"
+          style="animation: pulse 800ms linear infinite; margin: auto"
+          width="160px"
+          src="/logo-dark.svg"
+          alt="DmmLogo"
+        />
+        <img
+          class="onlyVisibleInLightMode"
+          style="animation: pulse 800ms linear infinite; margin: auto"
+          width="160px"
+          src="/logo.svg"
+          alt="DmmLogo"
+        />
       </div>
     </div>
-    <div style="height: 180px; display: flex">
-      <img class="onlyVisibleInDarkMode" style="animation: pulse 800ms linear infinite; margin: auto" width="160px"
-        src="/logo-dark.svg" alt="DmmLogo" />
-      <img class="onlyVisibleInLightMode" style="animation: pulse 800ms linear infinite; margin: auto" width="160px"
-        src="/logo.svg" alt="DmmLogo" />
-    </div>
-  </div>
-  <script>
-      ; (() => {
+    <script>
+      ;(() => {
         function doesUseDarkMode() {
           const rawLocalState = window.localStorage.getItem('redux_localstorage_simple_user')
           const hasRawLocalState = typeof rawLocalState === 'string'
@@ -249,25 +259,25 @@
         }
         setInitialColorMode(false)
       })()
-  </script>
-  <script src="/charting_library/charting_library.standalone.js"></script>
-  <script>
-    // customer support widget
-    window.zESettings = {
-      webWidget: {
-        offset: {
-          vertical: window.innerWidth > 1200 ? '0px' : '75px',
-          mobile: {
-            vertical: '65px',
-            horizontal: '-5px',
+    </script>
+    <script src="/charting_library/charting_library.standalone.js"></script>
+    <script>
+      // customer support widget
+      window.zESettings = {
+        webWidget: {
+          offset: {
+            vertical: window.innerWidth > 1200 ? '0px' : '75px',
+            mobile: {
+              vertical: '65px',
+              horizontal: '-5px',
+            },
           },
+          zIndex: 3,
         },
-        zIndex: 3,
-      },
-    }
-  </script>
-  <script async src="/libs/zenddesk.js?key=a73faacd-ba50-493a-8bf5-4b6878035346" id="ze-snippet"></script>
-  <!--
+      }
+    </script>
+    <script async src="/libs/zenddesk.js?key=a73faacd-ba50-493a-8bf5-4b6878035346" id="ze-snippet"></script>
+    <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
 
@@ -277,6 +287,5 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
-</body>
-
+  </body>
 </html>

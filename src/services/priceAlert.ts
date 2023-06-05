@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { AnnouncementResponse, transformResponseAnnouncement } from 'services/announcement'
 
-import { PrivateAnnouncement } from 'components/Announcement/type'
+import { PrivateAnnouncement, PrivateAnnouncementType } from 'components/Announcement/type'
 import { NOTIFICATION_API, PRICE_ALERT_API, getAnnouncementsTemplateIds } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
 import { CreatePriceAlertPayload, PriceAlert, PriceAlertStat } from 'pages/NotificationCenter/const'
@@ -94,7 +94,7 @@ const priceAlertApi = createApi({
         url: `${NOTIFICATION_API}/v1/users/${account}/notifications`,
         params: {
           ...params,
-          templateIds: getAnnouncementsTemplateIds().PRICE_ALERT,
+          templateIds: getAnnouncementsTemplateIds(PrivateAnnouncementType.PRICE_ALERT),
         },
       }),
       providesTags: [RTK_QUERY_TAGS.GET_ALERTS_HISTORY],
@@ -114,8 +114,8 @@ const priceAlertApi = createApi({
       query: ({ account }) => ({
         url: `${NOTIFICATION_API}/v1/users/${account}/notifications/clear-all`,
         body: {
-          templateIds: getAnnouncementsTemplateIds()
-            .PRICE_ALERT.split(',')
+          templateIds: getAnnouncementsTemplateIds(PrivateAnnouncementType.PRICE_ALERT)
+            .split(',')
             .map(id => Number(id)),
         },
         method: 'PUT',

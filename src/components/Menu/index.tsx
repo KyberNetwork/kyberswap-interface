@@ -13,18 +13,17 @@ import {
   PieChart,
   Share2,
 } from 'react-feather'
-import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { ReactComponent as BlogIcon } from 'assets/svg/blog.svg'
-import { ReactComponent as DiscoverIconSvg } from 'assets/svg/discover_icon.svg'
 import { ReactComponent as LightIcon } from 'assets/svg/light.svg'
 import { ReactComponent as RoadMapIcon } from 'assets/svg/roadmap.svg'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
-import SlideToUnlock from 'components/Header/SlideToUnlock'
+import ApeIcon from 'components/Icons/ApeIcon'
 import ArrowRight from 'components/Icons/ArrowRight'
 import Faucet from 'components/Icons/Faucet'
 import MailIcon from 'components/Icons/MailIcon'
@@ -49,7 +48,13 @@ import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import { useDarkModeManager, useHolidayMode, useUserLocale } from 'state/user/hooks'
+import {
+  useDarkModeManager,
+  useHolidayMode,
+  useIsWhiteListKyberAI,
+  useKyberAIWidget,
+  useUserLocale,
+} from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { isChristmasTime } from 'utils'
 
@@ -99,10 +104,10 @@ const StyledMenuIcon = styled(MenuIcon)`
   }
 `
 
-const DiscoverWrapper = styled(MenuItem)`
+const KyberAIWrapper = styled(MenuItem)`
   display: none;
 
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+  ${({ theme }) => theme.mediaWidth.upToXXSmall`
     display: flex;
   `};
 `
@@ -121,8 +126,7 @@ const NavLinkBetween = styled(MenuItem)`
 const CampaignWrapper = styled.div`
   display: none;
 
-  /* It's better to break at 420px than at extraSmall */
-  @media (max-width: 420px) {
+  @media (max-width: 560px) {
     display: flex;
   }
 `
@@ -222,6 +226,8 @@ export default function Menu() {
   const toggle = useToggleModal(ApplicationModal.MENU)
   const [darkMode, toggleSetDarkMode] = useDarkModeManager()
   const [holidayMode, toggleHolidayMode] = useHolidayMode()
+  const [kyberAIWidgetActive, toggleKyberAIWidget] = useKyberAIWidget()
+  const { isWhiteList } = useIsWhiteListKyberAI()
   const [isSelectingLanguage, setIsSelectingLanguage] = useState(false)
 
   const userLocale = useUserLocale()
@@ -304,14 +310,39 @@ export default function Menu() {
               </MenuItem>
             )}
 
-            <DiscoverWrapper>
-              <NavLink to={'/discover?tab=trending_soon'} onClick={toggle}>
-                <DiscoverIconSvg />
-                <SlideToUnlock>
-                  <Trans>Discover</Trans>
-                </SlideToUnlock>
-              </NavLink>
-            </DiscoverWrapper>
+            <KyberAIWrapper>
+              <NavDropDown
+                icon={<ApeIcon />}
+                title={
+                  <Text>
+                    <Trans>KyberAI</Trans>{' '}
+                    <NewLabel>
+                      <Trans>New</Trans>
+                    </NewLabel>
+                  </Text>
+                }
+                link={'#'}
+                options={[
+                  { link: APP_PATHS.KYBERAI_ABOUT, label: t`About` },
+                  {
+                    link: APP_PATHS.KYBERAI_RANKINGS,
+                    label: (
+                      <Text as="span">
+                        <Trans>Rankings</Trans>{' '}
+                      </Text>
+                    ),
+                  },
+                  {
+                    link: APP_PATHS.KYBERAI_EXPLORE,
+                    label: (
+                      <Text as="span">
+                        <Trans>Explore</Trans>{' '}
+                      </Text>
+                    ),
+                  },
+                ]}
+              />
+            </KyberAIWrapper>
 
             <CampaignWrapper>
               <MenuItem>
@@ -485,7 +516,7 @@ export default function Menu() {
                   handlePreferenceClickMixpanel('Swap guide')
                 }}
               >
-                <Trans>Swap Guide</Trans>
+                <Trans>KyberSwap Guide</Trans>
                 <Row justify="flex-end">
                   <Text color={theme.text}>View</Text>&nbsp;
                   <LightIcon color={theme.text} />
@@ -499,6 +530,17 @@ export default function Menu() {
               </NavLinkBetween>
             )}
 
+            {isWhiteList && (
+              <NavLinkBetween
+                onClick={() => {
+                  toggleKyberAIWidget()
+                  handlePreferenceClickMixpanel('KyberAI Widget')
+                }}
+              >
+                <Trans>KyberAI Widget</Trans>
+                <Toggle isActive={kyberAIWidgetActive} toggle={noop} backgroundColor={theme.buttonBlack} />
+              </NavLinkBetween>
+            )}
             <NavLinkBetween
               onClick={() => {
                 toggleSetDarkMode()
