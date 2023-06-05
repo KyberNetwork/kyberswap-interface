@@ -31,13 +31,6 @@ export const ElasticFarmCombination: FC = () => {
   const [sharePoolAddress, setSharePoolAddress] = useState('')
   const isShareModalOpen = useModalOpen(ApplicationModal.SHARE)
 
-  // const type = searchParams.get('type')
-  // const activeTab: string = type || FARM_TAB.ACTIVE
-  // const networkRoute = networkInfo.route || undefined
-  // const shareUrl = sharePoolAddress
-  //   ? `${window.location.origin}/farms/${networkRoute}?search=${sharePoolAddress}&tab=elastic&type=${activeTab}`
-  //   : undefined
-
   const openShareModal = useOpenModal(ApplicationModal.SHARE)
   useEffect(() => {
     if (sharePoolAddress) {

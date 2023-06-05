@@ -220,7 +220,22 @@ export const ListView = ({
       </RowBetween>
       <ElasticFarmV2TableRow>
         <Text textAlign="left">{formatDollarAmount(farm.tvl)}</Text>
-        <Text textAlign="left" color={theme.text}>
+        <Text
+          textAlign="left"
+          color={!isEnded && !farm.isSettled && farm.startTime > currentTimestamp ? theme.warning : theme.text}
+        >
+          {!isEnded && !farm.isSettled ? (
+            farm.startTime > currentTimestamp ? (
+              <Text fontSize="12px" color={theme.warning}>
+                <Trans>New phase will start in</Trans>
+              </Text>
+            ) : (
+              <Trans>Current phase will end in</Trans>
+            )
+          ) : !farm.isSettled ? (
+            <Trans>Ended at</Trans>
+          ) : null}
+
           {isEnded ? <Trans>ENDED</Trans> : getFormattedTimeFromSecond(farm.endTime - currentTimestamp)}
         </Text>
 
