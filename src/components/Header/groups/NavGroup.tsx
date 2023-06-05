@@ -76,10 +76,19 @@ type Props = {
   anchor: React.ReactNode
   dropdownContent: React.ReactNode
   dropdownAlign?: DropdownAlign
+  className?: string
 }
-const NavGroup: React.FC<Props> = ({ id, forceOpen, isActive, anchor, dropdownContent, dropdownAlign = 'left' }) => {
+const NavGroup: React.FC<Props> = ({
+  id,
+  forceOpen,
+  isActive,
+  anchor,
+  dropdownContent,
+  dropdownAlign = 'left',
+  className,
+}) => {
   return (
-    <HoverDropdown id={id} forceShowDropdown={forceOpen} active={!!isActive}>
+    <HoverDropdown id={id} forceShowDropdown={forceOpen} active={!!isActive} className={className}>
       <Flex
         alignItems="center"
         sx={{

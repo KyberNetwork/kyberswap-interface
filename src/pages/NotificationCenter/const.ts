@@ -20,7 +20,7 @@ export enum NOTIFICATION_ROUTES {
   LIMIT_ORDERS = '/limit-orders',
   BRIDGE = '/bridge',
   CROSS_CHAIN = '/cross-chain',
-  TRENDING_SOON_TOKENS = '/trending-soon',
+  KYBER_AI_TOKENS = '/kyber-ai',
 }
 
 export type CreatePriceAlertPayload = {

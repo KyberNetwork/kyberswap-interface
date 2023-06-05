@@ -62,6 +62,7 @@ export interface Colors {
 
   //blues
   primary: Color
+  primary30: Color
 
   // border colors
   border: Color

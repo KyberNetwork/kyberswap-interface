@@ -28,7 +28,7 @@ type PrivateAnnouncementMap = Partial<{
 const ANNOUNCEMENT_MAP: PrivateAnnouncementMap = {
   [PrivateAnnouncementType.ELASTIC_POOLS]: InboxItemPoolPosition,
   [PrivateAnnouncementType.LIMIT_ORDER]: InboxItemLO,
-  [PrivateAnnouncementType.TRENDING_SOON]: InboxItemTrendingSoon,
+  [PrivateAnnouncementType.KYBER_AI]: InboxItemTrendingSoon,
   [PrivateAnnouncementType.BRIDGE_ASSET]: InboxItemBridge,
   [PrivateAnnouncementType.CROSS_CHAIN]: InboxItemCrossChain,
   [PrivateAnnouncementType.PRICE_ALERT]: InboxItemPriceAlert,
@@ -38,9 +38,9 @@ const ANNOUNCEMENT_MAP: PrivateAnnouncementMap = {
 export const PRIVATE_ANN_TITLE: Partial<{ [type in PrivateAnnouncementType]: string }> = {
   [PrivateAnnouncementType.ELASTIC_POOLS]: t`Liquidity Pool Alert`,
   [PrivateAnnouncementType.LIMIT_ORDER]: t`Limit Order`,
-  [PrivateAnnouncementType.TRENDING_SOON]: t`Trending Soon`,
-  [PrivateAnnouncementType.BRIDGE_ASSET]: t`Bridge Token`,
   [PrivateAnnouncementType.CROSS_CHAIN]: t`Cross-Chain Swap`,
+  [PrivateAnnouncementType.KYBER_AI]: t`Top Tokens by KyberAI`,
+  [PrivateAnnouncementType.BRIDGE_ASSET]: t`Bridge Token`,
   [PrivateAnnouncementType.PRICE_ALERT]: t`Price Alert`,
   [PrivateAnnouncementType.DIRECT_MESSAGE]: t`Notification`,
 }

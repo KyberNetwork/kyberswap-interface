@@ -33,7 +33,7 @@ const HeaderWrapper = styled.div`
 export default function GeneralAnnouncement({ type }: { type?: PrivateAnnouncementType }) {
   const [page, setPage] = useState(1)
   const { account } = useActiveWeb3React()
-  const templateIds = type ? getAnnouncementsTemplateIds()[type] : ''
+  const templateIds = type ? getAnnouncementsTemplateIds(type) : ''
   const {
     data: respNotificationByType,
     refetch: refetchById,

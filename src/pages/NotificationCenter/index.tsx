@@ -61,7 +61,7 @@ const Title = styled.h2`
 `
 
 const LeftColumn = styled.div`
-  width: 280px;
+  width: 290px;
 
   background-color: ${({ theme }) => theme.tableHeader};
   border-radius: 24px 0px 0px 24px;
@@ -125,8 +125,8 @@ function NotificationCenter() {
               element={<PrivateAnnouncement type={PrivateAnnouncementType.CROSS_CHAIN} />}
             />
             <Route
-              path={NOTIFICATION_ROUTES.TRENDING_SOON_TOKENS}
-              element={<PrivateAnnouncement type={PrivateAnnouncementType.TRENDING_SOON} />}
+              path={NOTIFICATION_ROUTES.KYBER_AI_TOKENS}
+              element={<PrivateAnnouncement type={PrivateAnnouncementType.KYBER_AI} />}
             />
             <Route path={NOTIFICATION_ROUTES.CREATE_ALERT} element={<CreateAlert />} />
 

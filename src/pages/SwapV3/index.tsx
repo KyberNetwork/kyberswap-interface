@@ -8,10 +8,12 @@ import styled from 'styled-components'
 
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import Banner from 'components/Banner'
+import { ColumnCenter } from 'components/Column'
+import KyberAITokenBanner from 'components/KyberAITokenBanner'
+import { RowBetween } from 'components/Row'
 import { SEOSwap } from 'components/SEO'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import TokenWarningModal from 'components/TokenWarningModal'
-import TopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork'
 import TutorialSwap from 'components/Tutorial/TutorialSwap'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import GasPriceTrackerPanel from 'components/swapv2/GasPriceTrackerPanel'
@@ -47,12 +49,20 @@ import { useLimitActionHandlers } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
 import { useDefaultsFromURLSearch, useSwapActionHandlers } from 'state/swap/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import { useShowLiveChart, useShowTokenInfo, useShowTradeRoutes } from 'state/user/hooks'
+import {
+  useDegenModeManager,
+  useShowKyberAIBanner,
+  useShowLiveChart,
+  useShowTokenInfo,
+  useShowTradeRoutes,
+} from 'state/user/hooks'
+import { CloseIcon } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { getTradeComposition } from 'utils/aggregationRouting'
 import { getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList } from 'utils/tokenInfo'
 
+import KyberAIWidget from '../TrueSightV2/components/KyberAIWidget'
 import PopulatedSwapForm from './PopulatedSwapForm'
 
 const TradeRouting = lazy(() => import('components/TradeRouting'))
@@ -104,7 +114,12 @@ export default function Swap() {
   const isShowLiveChart = useShowLiveChart()
   const isShowTradeRoutes = useShowTradeRoutes()
   const isShowTokenInfoSetting = useShowTokenInfo()
-  const qs = useParsedQueryString<{ highlightBox: string }>()
+  const isShowKyberAIBanner = useShowKyberAIBanner()
+  const qs = useParsedQueryString<{
+    highlightBox: string
+    outputCurrency: string
+    inputCurrency: string
+  }>()
   const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
   const [routeSummary, setRouteSummary] = useState<DetailedRouteSummary>()
   const [isSelectCurrencyManually, setIsSelectCurrencyManually] = useState(false) // true when: select token input, output manually or click rotate token.
@@ -229,7 +244,6 @@ export default function Swap() {
       />
       <PageWrapper>
         <Banner />
-        <TopTrendingSoonTokensInCurrentNetwork />
         <Container>
           <SwapFormWrapper isShowTutorial={isShowTutorial}>
             <Header activeTab={activeTab} setActiveTab={setActiveTab} />
@@ -281,6 +295,7 @@ export default function Swap() {
           </SwapFormWrapper>
 
           <InfoComponents>
+            {isShowKyberAIBanner && <KyberAITokenBanner currencyIn={currencyIn} currencyOut={currencyOut} />}
             {isShowLiveChart && (
               <LiveChartWrapper>
                 <Suspense
@@ -337,6 +352,7 @@ export default function Swap() {
             <SwitchLocaleLink />
           </SwitchLocaleLinkWrapper>
         </Flex>
+        <KyberAIWidget />
       </PageWrapper>
     </>
   )

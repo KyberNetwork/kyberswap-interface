@@ -90,14 +90,14 @@ export default function HeaderRightMenu({
     setShowHeaderMenu(prev => !prev)
   }
 
+  const [{ show: showTutorialSwap, stepInfo }] = useTutorialSwapGuide()
+  const forceShowMenu = showTutorialSwap && stepInfo?.selector === `#${TutorialIds.BUTTON_SETTING_SWAP_FORM}`
+  const isShowMenu = Boolean(isShowHeaderMenu || forceShowMenu)
+
   return (
-    <SwapFormActions
-      onMouseEnter={onMouseEnterMenu}
-      onMouseLeave={onMouseLeaveMenu}
-      isShowHeaderMenu={isShowHeaderMenu}
-    >
+    <SwapFormActions onMouseEnter={onMouseEnterMenu} onMouseLeave={onMouseLeaveMenu} isShowHeaderMenu={isShowMenu}>
       <ActionPanel>
-        {isShowHeaderMenu && (
+        {isShowMenu && (
           <>
             <Tutorial
               type={TutorialType.SWAP}
@@ -108,7 +108,7 @@ export default function HeaderRightMenu({
               }
             />
             <TokenInfoIcon
-              currencies={currencies}
+              currencies={isSwapPage ? currencies : currenciesLimit}
               onClick={() => {
                 mixpanelHandler(MIXPANEL_TYPE.SWAP_TOKEN_INFO_CLICK)
                 onToggleActionTab(TAB.INFO)
@@ -142,6 +142,7 @@ export default function HeaderRightMenu({
             </StyledActionButtonSwapForm>
           </>
         )}
+
         <MouseoverTooltip
           text={<Trans>Degen mode is on. Be cautious!</Trans>}
           placement="top"

@@ -22,9 +22,9 @@ type PrivateAnnouncementCenterMap = {
 const ANNOUNCEMENT_MAP_IN_CENTER = {
   [PrivateAnnouncementType.ELASTIC_POOLS]: PoolPosition,
   [PrivateAnnouncementType.LIMIT_ORDER]: LimitOrder,
-  [PrivateAnnouncementType.TRENDING_SOON]: TrendingSoon,
   [PrivateAnnouncementType.BRIDGE_ASSET]: Bridge,
   [PrivateAnnouncementType.CROSS_CHAIN]: CrossChain,
+  [PrivateAnnouncementType.KYBER_AI]: TrendingSoon,
   [PrivateAnnouncementType.PRICE_ALERT]: PriceAlert,
   [PrivateAnnouncementType.DIRECT_MESSAGE]: PrivateMessage,
 } as PrivateAnnouncementCenterMap

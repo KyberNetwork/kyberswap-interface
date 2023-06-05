@@ -2,6 +2,7 @@ import { ChainId, getChainType } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowDown, ArrowUp, Info } from 'react-feather'
+import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { useCreatePriceAlertMutation } from 'services/priceAlert'
 import { CSSProperties } from 'styled-components'
@@ -18,6 +19,7 @@ import TradePrice from 'components/swapv2/TradePrice'
 import { useActiveWeb3React } from 'hooks'
 import { useBaseTradeInfoWithAggregator } from 'hooks/useBaseTradeInfo'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import InputNote from 'pages/NotificationCenter/CreateAlert/InputNote'
 import {
@@ -62,14 +64,22 @@ export default function CreateAlert({
   showModalConfirm: (data: ConfirmAlertModalData) => void
   priceAlertStat: PriceAlertStat
 }) {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId: currentChain } = useActiveWeb3React()
+  const { chainId: chainIdParams } = useParsedQueryString()
+  const chainId = chainIdParams ? +chainIdParams || currentChain : currentChain
+
   const [createAlert] = useCreatePriceAlertMutation()
   const notify = useNotify()
   const toggleWalletModal = useWalletModalToggle()
+
   const [selectedChain, setSelectedChain] = useState(chainId)
 
   const { currencyIn, currencyOut, onChangeCurrencyIn, onChangeCurrencyOut, inputAmount } =
     useCurrencyHandler(selectedChain)
+
+  useEffect(() => {
+    setSelectedChain(chainId)
+  }, [chainId])
 
   const [formInput, setFormInput] = useState<{ tokenInAmount: string; threshold: string; note: string }>({
     ...defaultInput,
@@ -165,9 +175,7 @@ export default function CreateAlert({
     }
   }
 
-  useEffect(() => {
-    setSelectedChain(chainId)
-  }, [chainId])
+  const navigate = useNavigate()
 
   return (
     <>
@@ -184,7 +192,10 @@ export default function CreateAlert({
               value={selectedChain}
               arrowColor={theme.subText}
               options={NETWORK_OPTIONS}
-              onChange={setSelectedChain}
+              onChange={chain => {
+                setSelectedChain(chain)
+                navigate({ search: '' }, { replace: true })
+              }}
               menuStyle={{ height: 250, overflow: 'scroll', width: '100%' }}
               optionStyle={{ padding: 0 }}
               optionRender={item => {

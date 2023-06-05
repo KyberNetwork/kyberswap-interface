@@ -9,7 +9,7 @@ import { ReactComponent as CrossChainIcon } from 'assets/svg/cross_chain_icon.sv
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
 import { ReactComponent as LiquidityIcon } from 'assets/svg/liquidity_icon.svg'
 import { PrivateAnnouncementType } from 'components/Announcement/type'
-import DiscoverIcon from 'components/Icons/DiscoverIcon'
+import ApeIcon from 'components/Icons/ApeIcon'
 import { NetworkLogo } from 'components/Logo'
 
 const IconWrapper = styled.div<{ hasNetwork: boolean }>`
@@ -24,7 +24,7 @@ const mapIcon: Partial<{ [type in PrivateAnnouncementType]: ReactNode }> = {
   [PrivateAnnouncementType.CROSS_CHAIN]: <CrossChainIcon />,
   [PrivateAnnouncementType.LIMIT_ORDER]: <LimitOrderIcon />,
   [PrivateAnnouncementType.ELASTIC_POOLS]: <LiquidityIcon />,
-  [PrivateAnnouncementType.TRENDING_SOON]: <DiscoverIcon size={16} />,
+  [PrivateAnnouncementType.KYBER_AI]: <ApeIcon size={18} />,
   [PrivateAnnouncementType.PRICE_ALERT]: <AlarmIcon style={{ width: 17, height: 17 }} />,
   [PrivateAnnouncementType.DIRECT_MESSAGE]: <Bell style={{ width: 17, height: 17 }} />,
 }
