@@ -201,7 +201,7 @@ const TokenItem = ({ token, onClick }: { token: ITokenSearchResult; onClick?: ()
   const theme = useTheme()
   const navigate = useNavigate()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
-
+  if (!token) return null
   return (
     <DropdownItem
       onClick={() => {
