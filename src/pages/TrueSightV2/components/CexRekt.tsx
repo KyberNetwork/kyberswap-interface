@@ -50,9 +50,7 @@ export default function CexRekt() {
             <Text fontSize={28}>${formatShortNum(data?.totalVolUsd?.h24TotalVolUsd || 0)}</Text>
           </Card>
         </Row>
-      ) : (
-        <></>
-      )}
+      ) : null}
     </>
   )
 }

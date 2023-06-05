@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useRef, useState } from 'react'
 import { Sliders } from 'react-feather'
 import { useParams } from 'react-router'
@@ -48,59 +48,58 @@ const ViewTutorialButton = styled(RowFit)`
 const onChainAnalysisSettings = [
   {
     id: 'numberOfTrades',
-    name: 'Number of Trades / Type of Trade',
+    name: t`Number of Trades / Type of Trade`,
   },
-
   {
     id: 'tradingVolume',
-    name: 'Trading Volume',
+    name: t`Trading Volume`,
   },
   {
     id: 'netflowToWhaleWallets',
-    name: 'Netflow to Whale Wallets',
+    name: t`Netflow to Whale Wallets`,
   },
   {
     id: 'netflowToCEX',
-    name: 'Netflow to CEX',
+    name: t`Netflow to CEX`,
   },
   {
     id: 'volumeOfTransfers',
-    name: 'Number / Volume of Tranfers',
+    name: t`Number / Volume of Tranfers`,
   },
   {
     id: 'numberOfHolders',
-    name: 'Number of Holders',
+    name: t`Number of Holders`,
   },
   {
     id: 'top10Holders',
-    name: 'Top 10 Holders',
+    name: t`Top 10 Holders`,
   },
   {
     id: 'top25Holders',
-    name: 'Top 25 Holders',
+    name: t`Top 25 Holders`,
   },
 ]
 
 const technicalAnalysisSettings = [
   {
     id: 'liveCharts',
-    name: 'Live Charts',
+    name: t`Live Charts`,
   },
   {
     id: 'supportResistanceLevels',
-    name: 'Support & Resistance Levels',
+    name: t`Support & Resistance Levels`,
   },
   {
     id: 'liveDEXTrades',
-    name: 'Live DEX Trades',
+    name: t`Live DEX Trades`,
   },
   {
     id: 'fundingRateOnCEX',
-    name: 'Funding Rate on CEX',
+    name: t`Funding Rate on CEX`,
   },
   {
     id: 'liquidationsOnCEX',
-    name: 'Liquidations on CEX',
+    name: t`Liquidations on CEX`,
   },
 ]
 
@@ -162,9 +161,7 @@ export default function DisplaySettings({ currentTab }: { currentTab: DiscoverTo
               <Column gap="12px" style={{ marginTop: '12px' }}>
                 {onChainAnalysisSettings.map(t => (
                   <RowBetween key={t.id}>
-                    <Text fontSize={14}>
-                      <Trans>{t.name}</Trans>
-                    </Text>
+                    <Text fontSize={14}>{t.name}</Text>
                     <Toggle
                       isActive={storedTokenAnalysisSettings?.[t.id] ?? true}
                       toggle={() => {
@@ -205,9 +202,7 @@ export default function DisplaySettings({ currentTab }: { currentTab: DiscoverTo
               <Column gap="12px" style={{ marginTop: '12px' }}>
                 {technicalAnalysisSettings.map(t => (
                   <RowBetween key={t.id}>
-                    <Text fontSize={14}>
-                      <Trans>{t.name}</Trans>
-                    </Text>
+                    <Text fontSize={14}>{t.name}</Text>
                     <Toggle
                       isActive={storedTokenAnalysisSettings?.[t.id] ?? true}
                       toggle={() => {
