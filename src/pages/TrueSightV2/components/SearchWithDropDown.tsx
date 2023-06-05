@@ -19,7 +19,7 @@ import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 
 import { KYBERAI_LISTYPE_TO_MIXPANEL, NETWORK_IMAGE_URL } from '../constants'
-import { useSearchTokenQuery, useTokenListQuery } from '../hooks/useKyberAIData'
+import { useLazySearchTokenQuery, useSearchTokenQuery, useTokenListQuery } from '../hooks/useKyberAIData'
 import { ITokenList, ITokenSearchResult, KyberAIListType } from '../types'
 import { formatTokenPrice } from '../utils'
 
@@ -301,6 +301,7 @@ const SearchResultTableWrapper = ({ header, children }: { header?: ReactNode; ch
   )
 }
 
+let checkedNewData = false
 const SearchWithDropdown = () => {
   const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
@@ -314,7 +315,6 @@ const SearchWithDropdown = () => {
   const inputRef = useRef<HTMLInputElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
-
   const debouncedSearch = useDebounce(search, 1000)
   const { data: searchResult, isFetching } = useSearchTokenQuery(
     { q: debouncedSearch, size: 10 },
@@ -326,6 +326,22 @@ const SearchWithDropdown = () => {
       setHistory([token, ...(history || [])].slice(0, 3))
     }
   }
+
+  const [getTokenData] = useLazySearchTokenQuery()
+  useEffect(() => {
+    if (history && !checkedNewData) {
+      const fetchHistoryTokenInfo = async () => {
+        const results = await Promise.all(
+          history.map(t => {
+            return getTokenData({ q: t.address, size: 1 }, true).unwrap()
+          }),
+        )
+        setHistory(results.map(res => res[0]))
+        checkedNewData = true
+      }
+      fetchHistoryTokenInfo()
+    }
+  }, [history, getTokenData, setHistory])
 
   const listType = (searchParams.get('listType') as KyberAIListType) || KyberAIListType.BULLISH
 

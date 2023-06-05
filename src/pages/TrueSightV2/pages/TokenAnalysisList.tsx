@@ -966,8 +966,8 @@ export default function TokenAnalysisList() {
                   <Row justify="flex-start">
                     <Trans>
                       {{
-                        [KyberAIListType.TOP_CEX_INFLOW]: '24h Inflow',
-                        [KyberAIListType.TOP_CEX_OUTFLOW]: '24h Outflow',
+                        [KyberAIListType.TOP_CEX_INFLOW]: '24h Netflow',
+                        [KyberAIListType.TOP_CEX_OUTFLOW]: '24h Netflow',
                       }[listType as string] || '24h Volume'}
                     </Trans>
                     {/* {sortedColumn === SORT_FIELD.VOLUME ? (

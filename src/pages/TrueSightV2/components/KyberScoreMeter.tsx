@@ -239,11 +239,6 @@ const GaugeValue = styled.div<{ color?: string; fontSize?: string }>`
   ${({ theme, color }) => `color: ${color || theme.primary};`};
 `
 
-// const MeterHand = styled.path`
-//   transform-origin: 50% 80%;
-//   transition: all 0.1s linear;
-//   ${() => `transform: rotate(${minRotate}deg);`}
-// `
 function easeOutQuart(t: number, b: number, c: number, d: number) {
   return -c * ((t = t / d - 1) * t * t * t - 1) + b
 }
@@ -336,7 +331,7 @@ function KyberScoreMeter({
           lastFrameTime = 0
           hidden = true
           window.requestAnimationFrame(currentTime => step(currentTime, 1, 50))
-        }, 4500)
+        }, 5000)
       }
       intervalFunc()
       timeout = setInterval(() => {

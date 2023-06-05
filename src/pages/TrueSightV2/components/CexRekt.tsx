@@ -7,6 +7,7 @@ import Row from 'components/Row'
 import { MEDIA_WIDTHS } from 'theme'
 
 import { useCexesLiquidationQuery } from '../hooks/useKyberAIData'
+import { formatShortNum } from '../utils'
 
 const Card = styled.div`
   padding: 20px;
@@ -23,19 +24,6 @@ const Card = styled.div`
   color: ${({ theme }) => theme.text};
 `
 
-const formatNum = (num: number) => {
-  if (!num) return
-  let formattedNum = ''
-  if (num > 1000000) {
-    formattedNum = (num / 1000000).toFixed(2) + 'M'
-  } else if (num > 1000) {
-    formattedNum = (num / 1000).toFixed(2) + 'K'
-  } else {
-    formattedNum = num.toFixed(2)
-  }
-  return formattedNum
-}
-
 export default function CexRekt() {
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const { address, chain } = useParams()
@@ -51,15 +39,15 @@ export default function CexRekt() {
         <Row gap="24px" flexDirection={above768 ? 'row' : 'column'} align="stretch">
           <Card>
             <Text fontSize={14}>4H Rekt</Text>
-            <Text fontSize={28}>${formatNum(data?.totalVolUsd?.h4TotalVolUsd || 0)}</Text>
+            <Text fontSize={28}>${formatShortNum(data?.totalVolUsd?.h4TotalVolUsd || 0)}</Text>
           </Card>
           <Card>
             <Text fontSize={14}>12H Rekt</Text>
-            <Text fontSize={28}>${formatNum(data?.totalVolUsd?.h12TotalVolUsd || 0)}</Text>
+            <Text fontSize={28}>${formatShortNum(data?.totalVolUsd?.h12TotalVolUsd || 0)}</Text>
           </Card>
           <Card>
             <Text fontSize={14}>24H Rekt</Text>
-            <Text fontSize={28}>${formatNum(data?.totalVolUsd?.h24TotalVolUsd || 0)}</Text>
+            <Text fontSize={28}>${formatShortNum(data?.totalVolUsd?.h24TotalVolUsd || 0)}</Text>
           </Card>
         </Row>
       ) : (
