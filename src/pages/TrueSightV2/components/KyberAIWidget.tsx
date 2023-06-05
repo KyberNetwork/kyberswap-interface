@@ -64,10 +64,6 @@ const WidgetWrapper = styled.div<{ show?: boolean }>`
       opacity: 1;
     }
   }
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    
-  `}
 `
 const ButtonWrapper = styled.div`
   display: flex;
@@ -89,6 +85,13 @@ const IconButton = styled.div`
   :hover {
     filter: brightness(0.8);
   }
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 10px;
+    > * {
+      height: 12px;
+      width: 12px;
+    }
+  `}
 `
 const ExpandedWidgetWrapper = styled.div<{ show?: boolean }>`
   position: fixed;
@@ -246,7 +249,7 @@ export default function Widget() {
             hideOnMobile
           >
             <IconButton onClick={() => setActiveTab(WidgetTab.MyWatchlist)}>
-              <Icon id="star" size={16} />
+              <Icon id="star" size={isMobile ? 12 : 16} />
             </IconButton>
           </SimpleTooltip>
           <Divider style={{ margin: '0 12px' }} />
@@ -260,7 +263,7 @@ export default function Widget() {
             hideOnMobile
           >
             <IconButton onClick={() => setActiveTab(WidgetTab.Bullish)}>
-              <Icon id="bullish" size={16} />
+              <Icon id="bullish" size={isMobile ? 12 : 16} />
             </IconButton>
           </SimpleTooltip>
           <Divider style={{ margin: '0 12px' }} />
@@ -274,7 +277,7 @@ export default function Widget() {
             hideOnMobile
           >
             <IconButton onClick={() => setActiveTab(WidgetTab.Bearish)}>
-              <Icon id="bearish" size={16} />
+              <Icon id="bearish" size={isMobile ? 12 : 16} />
             </IconButton>
           </SimpleTooltip>
           <Divider style={{ margin: '0 12px' }} />
@@ -288,7 +291,7 @@ export default function Widget() {
             hideOnMobile
           >
             <IconButton onClick={() => setActiveTab(WidgetTab.TrendingSoon)}>
-              <Icon id="trending-soon" size={16} />
+              <Icon id="trending-soon" size={isMobile ? 12 : 16} />
             </IconButton>
           </SimpleTooltip>
         </ButtonWrapper>

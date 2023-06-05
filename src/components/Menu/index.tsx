@@ -538,7 +538,7 @@ export default function Menu() {
                 }}
               >
                 <Trans>KyberAI Widget</Trans>
-                <Toggle isActive={kyberAIWidgetActive} toggle={noop} />
+                <Toggle isActive={kyberAIWidgetActive} toggle={noop} backgroundColor={theme.buttonBlack} />
               </NavLinkBetween>
             )}
             <NavLinkBetween

@@ -14,9 +14,11 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import {
+  useShowKyberAIBanner,
   useShowLiveChart,
   useShowTokenInfo,
   useShowTradeRoutes,
+  useToggleKyberAIBanner,
   useToggleLiveChart,
   useToggleTokenInfo,
   useToggleTradeRoutes,
@@ -63,11 +65,12 @@ const SettingsPanel: React.FC<Props> = ({
   const { mixpanelHandler } = useMixpanel()
   const isShowTradeRoutes = useShowTradeRoutes()
   const isShowTokenInfo = useShowTokenInfo()
-
   const isShowLiveChart = useShowLiveChart()
+  const isShowKyberAIBanner = useShowKyberAIBanner()
   const toggleLiveChart = useToggleLiveChart()
   const toggleTradeRoutes = useToggleTradeRoutes()
   const toggleTokenInfo = useToggleTokenInfo()
+  const toggleKyberAIBanner = useToggleKyberAIBanner()
 
   const handleToggleLiveChart = () => {
     mixpanelHandler(MIXPANEL_TYPE.LIVE_CHART_ON_OFF, { live_chart_on_or_off: !isShowLiveChart })
@@ -149,6 +152,16 @@ const SettingsPanel: React.FC<Props> = ({
               <Trans>Display Settings</Trans>
             </Text>
             <AutoColumn gap="md">
+              <RowBetween>
+                <RowFixed>
+                  <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
+                    <MouseoverTooltip text={<Trans>Turn on to display KyberAI banner</Trans>} placement="right">
+                      <Trans>KyberAI Banner</Trans>
+                    </MouseoverTooltip>
+                  </TextDashed>
+                </RowFixed>
+                <Toggle isActive={isShowKyberAIBanner} toggle={toggleKyberAIBanner} />
+              </RowBetween>
               <RowBetween>
                 <RowFixed>
                   <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
