@@ -28,7 +28,7 @@ import { shortString } from 'utils/string'
 export const MENU_TITLE: Partial<{ [type in PrivateAnnouncementType]: string }> = {
   [PrivateAnnouncementType.BRIDGE_ASSET]: t`Cross-Chain Bridge`,
   [PrivateAnnouncementType.LIMIT_ORDER]: t`Limit Orders`,
-  [PrivateAnnouncementType.KYBER_AI]: t`Trending Soon Tokens`,
+  [PrivateAnnouncementType.KYBER_AI]: t`Top Tokens by KyberAI`,
   [PrivateAnnouncementType.PRICE_ALERT]: t`Price Alerts`,
   [PrivateAnnouncementType.ELASTIC_POOLS]: t`Elastic Liquidity Positions`,
 }

@@ -750,7 +750,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
 
                     <Flex alignItems="center" sx={{ gap: '12px' }} marginTop="0.75rem">
                       <Text fontSize="12px" fontWeight="500">
-                        Claim Your Fees Earning
+                        Claim Your Fees Earned
                       </Text>
                       <Toggle
                         isActive={claimFee}

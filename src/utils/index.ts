@@ -522,3 +522,20 @@ export const getLimitOrderContract = (chainId: ChainId) => {
   const { production, development } = NETWORKS_INFO_CONFIG[chainId]?.limitOrder ?? {}
   return ENV_KEY === 'production' || ENV_KEY === 'staging' ? production : development
 }
+
+export function openFullscreen(elem: any) {
+  if (elem.requestFullscreen) {
+    elem.requestFullscreen()
+  } else if (elem.webkitRequestFullScreen) {
+    /* Old webkit */
+    elem.webkitRequestFullScreen()
+  } else if (elem.webkitRequestFullscreen) {
+    /* New webkit */
+    elem.webkitRequestFullscreen()
+  } else if (elem.mozRequestFullScreen) {
+    elem.mozRequestFullScreen()
+  } else if (elem.msRequestFullscreen) {
+    /* IE11 */
+    elem.msRequestFullscreen()
+  }
+}

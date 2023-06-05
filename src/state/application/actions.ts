@@ -46,6 +46,10 @@ export enum ApplicationModal {
 
   SWAP_APPROVAL,
   TIME_DROPDOWN,
+
+  TRUESIGHT_POOLS,
+
+  KYBERAI_TUTORIAL,
 }
 
 export const updateBlockNumber = createAction<{ chainId: number; blockNumber: number }>('application/updateBlockNumber')

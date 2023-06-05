@@ -352,7 +352,7 @@ function NotificationPreference({
     notify(
       {
         title: t`Unsubscribe Successfully`,
-        summary: t`You have successfully unsubscribe from further receiving email notification from us`,
+        summary: t`You have successfully unsubscribed from all email notifications`,
         type: NotificationType.SUCCESS,
         icon: <MailIcon color={theme.primary} />,
       },

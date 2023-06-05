@@ -170,7 +170,7 @@ const LineChart = ({
         >
           <defs>
             <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={color} stopOpacity={0.4} />
+              <stop offset="0%" stopColor={color} stopOpacity={0.8} />
               <stop offset="100%" stopColor={color} stopOpacity={0} />
             </linearGradient>
           </defs>
@@ -209,7 +209,14 @@ const LineChart = ({
             domain={[dataMin, (5 * (dataMax - dataMin)) / 4]}
             hide={!showYAsis}
           />
-          <Tooltip contentStyle={{ display: 'none' }} cursor={<CustomizedCursor timeFrame={timeFrame} />} />
+          <Tooltip
+            contentStyle={{ display: 'none' }}
+            formatter={(tooltipValue: any, name: string, props: any) => {
+              setHoverValue(props.payload.value)
+              return ''
+            }}
+            cursor={<CustomizedCursor timeFrame={timeFrame} />}
+          />
           <Area type="monotone" dataKey="value" stroke={color} fill="url(#colorUv)" strokeWidth={2} />
         </AreaChartWrapper>
       ) : (

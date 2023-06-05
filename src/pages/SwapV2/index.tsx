@@ -33,7 +33,6 @@ import SlippageSettingGroup from 'components/SwapForm/SlippageSettingGroup'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import TokenWarningModal from 'components/TokenWarningModal'
 import { MouseoverTooltip } from 'components/Tooltip'
-import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import TutorialSwap from 'components/Tutorial/TutorialSwap'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import AdvancedSwapDetailsDropdown from 'components/swapv2/AdvancedSwapDetailsDropdown'
@@ -792,12 +791,6 @@ export default function Swap() {
                       )}
 
                       <SlippageSettingGroup isWrapOrUnwrap={showWrap} isStablePairSwap={isStableCoinSwap} />
-
-                      <TrendingSoonTokenBanner
-                        currencyIn={currencyIn}
-                        currencyOut={currencyOut}
-                        style={{ marginTop: '24px' }}
-                      />
                     </Flex>
 
                     <TradeTypeSelection />

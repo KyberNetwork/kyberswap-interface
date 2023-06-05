@@ -7,6 +7,7 @@ import tokenApi from 'services/token'
 
 import { ENV_LEVEL } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
+import kyberAIApi from 'pages/TrueSightV2/hooks/useKyberAIData'
 
 import announcementApi, { publicAnnouncementApi } from '../services/announcement'
 import geckoTerminalApi from '../services/geckoTermial'
@@ -65,10 +66,12 @@ const store = configureStore({
     [announcementApi.reducerPath]: announcementApi.reducer,
     [publicAnnouncementApi.reducerPath]: publicAnnouncementApi.reducer,
     [geckoTerminalApi.reducerPath]: geckoTerminalApi.reducer,
+    [kyberAIApi.reducerPath]: kyberAIApi.reducer,
     [kyberAISubscriptionApi.reducerPath]: kyberAISubscriptionApi.reducer,
     [identifyApi.reducerPath]: identifyApi.reducer,
     [ksSettingApi.reducerPath]: ksSettingApi.reducer,
     [priceAlertApi.reducerPath]: priceAlertApi.reducer,
+    [socialApi.reducerPath]: socialApi.reducer,
     campaigns,
     tutorial,
     bridge,
@@ -85,6 +88,9 @@ const store = configureStore({
     getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
       .concat(save({ states: PERSISTED_KEYS, debounce: 100 }))
       .concat(geckoTerminalApi.middleware)
+      .concat(kyberAIApi.middleware)
+      .concat(kyberAISubscriptionApi.middleware)
+      .concat(identifyApi.middleware)
       .concat(announcementApi.middleware)
       .concat(publicAnnouncementApi.middleware)
       .concat(kyberAISubscriptionApi.middleware)

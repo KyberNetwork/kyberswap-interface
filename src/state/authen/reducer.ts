@@ -19,7 +19,11 @@ export type UserProfile = {
   data: { hasAccessToKyberAI: boolean }
 }
 export interface AuthenState {
-  readonly possibleConnectedWalletAddress: null | string | undefined // null is checking
+  /**
+   * useActiveWeb3React slow return account, this wallet is same as account of useActiveWeb3React, when we migrate to web3-react v8, we can remove it
+   *  null is checking wallet address
+   */
+  readonly possibleConnectedWalletAddress: null | string | undefined
   readonly signedWalletAddress: undefined | string
   readonly anonymousUserInfo: UserProfile | undefined
   readonly signedUserInfo: UserProfile | undefined

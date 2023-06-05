@@ -100,6 +100,7 @@ const guideStepByVersion: Record<
       title: 'Step 6',
     },
   ],
+  [VERSION.ELASTIC_LEGACY]: [],
   [VERSION.CLASSIC]: [
     {
       content: <Trans>Identify the Classic farm you would like to participate in</Trans>,

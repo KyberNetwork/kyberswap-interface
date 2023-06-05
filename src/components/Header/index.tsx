@@ -20,7 +20,7 @@ import useTheme from 'hooks/useTheme'
 import { useHolidayMode, useIsDarkMode } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
-import DiscoverNavItem from './DiscoverNavItem'
+import KyberAINavItem from './KyberAINavItem'
 import AboutNavGroup from './groups/AboutNavGroup'
 import AnalyticNavGroup from './groups/AnalyticNavGroup'
 import EarnNavGroup from './groups/EarnNavGroup'
@@ -121,6 +121,10 @@ const HeaderLinks = styled(Row)`
   ${({ theme }) => theme.mediaWidth.upToLarge`
     justify-content: flex-end;
   `};
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+     gap: 0px;
+  `}
 `
 
 const IconImage = styled.img<{ isChristmas?: boolean }>`
@@ -132,9 +136,9 @@ const IconImage = styled.img<{ isChristmas?: boolean }>`
     margin-top: ${isChristmas ? '-10px' : '1px'};
   `};
 
-  @media only screen and (max-width: 400px) {
-    width: 100px;
-  }
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    width:100px;
+  `}
 `
 
 const BlogWrapper = styled.span`
@@ -214,8 +218,8 @@ export default function Header() {
         <HeaderLinks>
           <SwapNavGroup />
           <EarnNavGroup />
+          <KyberAINavItem />
           <CampaignNavGroup />
-          <DiscoverNavItem />
           <KyberDAONavGroup />
           <AnalyticNavGroup />
           <AboutNavGroup />
