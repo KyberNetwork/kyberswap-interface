@@ -49,7 +49,7 @@ const OTPInput = ({
   onChange,
   renderInput,
   shouldAutoFocus = false,
-  inputType = 'text',
+  inputType = 'number',
   containerStyle,
   inputStyle,
   onFocus,
@@ -134,8 +134,9 @@ const OTPInput = ({
       event.code === 'ArrowDown'
     ) {
       event.preventDefault()
-    } else if (isNaN(+event.key)) {
-      event.preventDefault()
+    } else if (isInputNum && isNaN(+event.key)) {
+      const isPaste = (event.metaKey || event.ctrlKey) && event.key === 'v'
+      !isPaste && event.preventDefault()
     }
   }
 
