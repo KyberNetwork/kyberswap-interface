@@ -19,6 +19,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { TAB } from 'pages/SwapV3/index'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
+import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useDegenModeManager } from 'state/user/hooks'
 
 const SwapFormActions = styled.div<{ isShowHeaderMenu: boolean }>`
@@ -108,7 +109,7 @@ export default function HeaderRightMenu({
               }
             />
             <TokenInfoIcon
-              currencies={isSwapPage ? currencies : currenciesLimit}
+              currencies={currencies}
               onClick={() => {
                 mixpanelHandler(MIXPANEL_TYPE.SWAP_TOKEN_INFO_CLICK)
                 onToggleActionTab(TAB.INFO)

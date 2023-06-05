@@ -8,9 +8,7 @@ import styled from 'styled-components'
 
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import Banner from 'components/Banner'
-import { ColumnCenter } from 'components/Column'
 import KyberAITokenBanner from 'components/KyberAITokenBanner'
-import { RowBetween } from 'components/Row'
 import { SEOSwap } from 'components/SEO'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import TokenWarningModal from 'components/TokenWarningModal'
@@ -49,14 +47,7 @@ import { useLimitActionHandlers } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
 import { useDefaultsFromURLSearch, useSwapActionHandlers } from 'state/swap/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import {
-  useDegenModeManager,
-  useShowKyberAIBanner,
-  useShowLiveChart,
-  useShowTokenInfo,
-  useShowTradeRoutes,
-} from 'state/user/hooks'
-import { CloseIcon } from 'theme'
+import { useShowKyberAIBanner, useShowLiveChart, useShowTokenInfo, useShowTradeRoutes } from 'state/user/hooks'
 import { DetailedRouteSummary } from 'types/route'
 import { getTradeComposition } from 'utils/aggregationRouting'
 import { getSymbolSlug } from 'utils/string'
@@ -115,11 +106,7 @@ export default function Swap() {
   const isShowTradeRoutes = useShowTradeRoutes()
   const isShowTokenInfoSetting = useShowTokenInfo()
   const isShowKyberAIBanner = useShowKyberAIBanner()
-  const qs = useParsedQueryString<{
-    highlightBox: string
-    outputCurrency: string
-    inputCurrency: string
-  }>()
+  const qs = useParsedQueryString<{ highlightBox: string }>()
   const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
   const [routeSummary, setRouteSummary] = useState<DetailedRouteSummary>()
   const [isSelectCurrencyManually, setIsSelectCurrencyManually] = useState(false) // true when: select token input, output manually or click rotate token.
