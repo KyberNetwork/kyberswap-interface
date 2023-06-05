@@ -30,6 +30,7 @@ import {
   removeSerializedToken,
   toggleFavoriteToken as toggleFavoriteTokenAction,
   toggleHolidayMode,
+  toggleKyberAIBanner,
   toggleKyberAIWidget,
   toggleLiveChart,
   toggleTokenInfo,
@@ -366,6 +367,10 @@ export function useShowTokenInfo(): boolean {
   return useSelector((state: AppState) => state.user.showTokenInfo) ?? true
 }
 
+export function useShowKyberAIBanner(): boolean {
+  return useSelector((state: AppState) => state.user.showKyberAIBanner) ?? true
+}
+
 export function useTokenAnalysisSettings(): { [k: string]: boolean } {
   return useSelector((state: AppState) => state.user.kyberAIDisplaySettings) ?? null
 }
@@ -389,6 +394,10 @@ export function useToggleTradeRoutes(): () => void {
 export function useToggleTokenInfo(): () => void {
   const dispatch = useDispatch<AppDispatch>()
   return useCallback(() => dispatch(toggleTokenInfo()), [dispatch])
+}
+export function useToggleKyberAIBanner(): () => void {
+  const dispatch = useDispatch<AppDispatch>()
+  return useCallback(() => dispatch(toggleKyberAIBanner()), [dispatch])
 }
 
 export function useToggleTopTrendingTokens(): () => void {

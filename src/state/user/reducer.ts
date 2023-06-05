@@ -26,6 +26,7 @@ import {
   revokePermit,
   toggleFavoriteToken,
   toggleHolidayMode,
+  toggleKyberAIBanner,
   toggleKyberAIWidget,
   toggleLiveChart,
   toggleTokenInfo,
@@ -87,6 +88,7 @@ interface UserState {
   }
   showTradeRoutes: boolean
   showTokenInfo: boolean
+  showKyberAIBanner: boolean
   kyberAIDisplaySettings: {
     [k: string]: boolean
   }
@@ -165,6 +167,7 @@ const initialState: UserState = {
   showLiveCharts: { ...defaultShowLiveCharts },
   showTradeRoutes: true,
   showTokenInfo: true,
+  showKyberAIBanner: true,
   kyberAIDisplaySettings: {
     numberOfTrades: true,
     numberOfHolders: true,
@@ -290,6 +293,9 @@ export default createReducer(initialState, builder =>
     })
     .addCase(toggleTokenInfo, state => {
       state.showTokenInfo = !state.showTokenInfo
+    })
+    .addCase(toggleKyberAIBanner, state => {
+      state.showKyberAIBanner = !state.showKyberAIBanner
     })
     .addCase(toggleFavoriteToken, (state, { payload: { chainId, isNative, address } }) => {
       if (!state.favoriteTokensByChainId) {

@@ -46,7 +46,13 @@ import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
 import { useDefaultsFromURLSearch, useInputCurrency, useOutputCurrency, useSwapActionHandlers } from 'state/swap/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import { useDegenModeManager, useShowLiveChart, useShowTokenInfo, useShowTradeRoutes } from 'state/user/hooks'
+import {
+  useDegenModeManager,
+  useShowKyberAIBanner,
+  useShowLiveChart,
+  useShowTokenInfo,
+  useShowTradeRoutes,
+} from 'state/user/hooks'
 import { CloseIcon } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { getTradeComposition } from 'utils/aggregationRouting'
@@ -119,6 +125,7 @@ export default function Swap() {
   const isShowLiveChart = useShowLiveChart()
   const isShowTradeRoutes = useShowTradeRoutes()
   const isShowTokenInfoSetting = useShowTokenInfo()
+  const isShowKyberAIBanner = useShowKyberAIBanner()
   const qs = useParsedQueryString<{
     highlightBox: string
     outputCurrency: string
@@ -344,7 +351,7 @@ export default function Swap() {
 
           {(isShowLiveChart || isShowTradeRoutes || shouldRenderTokenInfo || isLimitPage) && (
             <InfoComponentsWrapper>
-              <KyberAITokenBanner currencyIn={currencyIn} currencyOut={currencyOut} />
+              {isShowKyberAIBanner && <KyberAITokenBanner currencyIn={currencyIn} currencyOut={currencyOut} />}
               {isShowLiveChart && (
                 <LiveChartWrapper>
                   <Suspense
