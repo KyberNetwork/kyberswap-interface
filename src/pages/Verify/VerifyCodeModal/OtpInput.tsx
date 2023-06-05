@@ -135,7 +135,7 @@ const OTPInput = ({
     ) {
       event.preventDefault()
     } else if (isInputNum && isNaN(+event.key)) {
-      const isPaste = event.metaKey && event.key === 'v'
+      const isPaste = (event.metaKey || event.ctrlKey) && event.key === 'v'
       !isPaste && event.preventDefault()
     }
   }
