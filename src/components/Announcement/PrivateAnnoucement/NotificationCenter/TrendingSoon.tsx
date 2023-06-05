@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/macro'
 import { useNavigate } from 'react-router-dom'
 import { Flex } from 'rebass'
 
@@ -31,7 +32,7 @@ export default function AnnouncementItem({
         </Flex>
       </Flex>
       <Desc style={{ gap: 6, flexWrap: 'wrap', color: theme.subText }}>
-        Here are our top tokens by KyberAI
+        <Trans>Here are our top tokens by KyberAI</Trans>
         <TokenInfo templateBody={templateBody} type="bullish" />,
         <TokenInfo templateBody={templateBody} type="bearish" />,
         <TokenInfo templateBody={templateBody} type="trending" />
