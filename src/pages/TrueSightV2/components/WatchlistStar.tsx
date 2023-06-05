@@ -6,11 +6,13 @@ export const StarWithAnimation = ({
   watched,
   onClick,
   size,
+  disabled,
 }: {
   watched: boolean
   loading: boolean
   onClick?: (e: any) => void
   size?: number
+  disabled?: boolean
 }) => {
   const theme = useTheme()
   const variants = {
@@ -42,7 +44,10 @@ export const StarWithAnimation = ({
         initial={{ opacity: 1, scale: 1 }}
         variants={variants}
         onClick={e => {
-          onClick?.(e)
+          e.stopPropagation()
+          if (!disabled) {
+            onClick?.(e)
+          }
         }}
       >
         {loading ? (

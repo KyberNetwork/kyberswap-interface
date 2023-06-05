@@ -37,6 +37,7 @@ import { StarWithAnimation } from '../components/WatchlistStar'
 import KyberScoreChart from '../components/chart/KyberScoreChart'
 import TokenAnalysisListShareContent from '../components/shareContent/TokenAnalysisListShareContent'
 import { KYBERAI_LISTYPE_TO_MIXPANEL, SUPPORTED_NETWORK_KYBERAI } from '../constants'
+import useIsReachMaxLimitWatchedToken from '../hooks/useIsReachMaxLimitWatchedToken'
 import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation, useTokenListQuery } from '../hooks/useKyberAIData'
 import { IKyberScoreChart, ITokenList, KyberAIListType } from '../types'
 import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice, navigateToSwapPage } from '../utils'
@@ -459,18 +460,6 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab:
   )
 }
 
-// enum SORT_FIELD {
-//   NAME = 'name',
-//   PRICE = 'price',
-//   VOLUME = 'volume',
-//   KYBERSCORE = 'kyberscore',
-// }
-
-// enum SORT_DIRECTION {
-//   ASC = 'asc',
-//   DESC = 'desc',
-// }
-
 const TokenRow = ({
   token,
   currentTab,
@@ -494,6 +483,7 @@ const TokenRow = ({
   const [menuLeft, setMenuLeft] = useState<number | undefined>(undefined)
   const [addToWatchlist] = useAddToWatchlistMutation()
   const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
+  const reachedMaxLimit = useIsReachMaxLimitWatchedToken()
   const [isWatched, setIsWatched] = useState(false)
   const [loadingStar, setLoadingStar] = useState(false)
   const rowRef = useRef<HTMLTableRowElement>(null)
@@ -539,18 +529,20 @@ const TokenRow = ({
         setLoadingStar(false)
       })
     } else {
-      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-        token_name: token.symbol?.toUpperCase(),
-        source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
-        ranking_order: index,
-        option: 'add',
-      })
-      Promise.all(
-        token.tokens.map(t => addToWatchlist({ wallet: account, tokenAddress: t.address, chain: t.chain })),
-      ).then(() => {
-        setIsWatched(true)
-        setLoadingStar(false)
-      })
+      if (!reachedMaxLimit) {
+        mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
+          token_name: token.symbol?.toUpperCase(),
+          source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
+          ranking_order: index,
+          option: 'add',
+        })
+        Promise.all(
+          token.tokens.map(t => addToWatchlist({ wallet: account, tokenAddress: t.address, chain: t.chain })),
+        ).then(() => {
+          setIsWatched(true)
+          setLoadingStar(false)
+        })
+      }
     }
   }
 
@@ -563,16 +555,20 @@ const TokenRow = ({
     <tr key={token.sourceTokenId} ref={rowRef} onClick={handleRowClick} style={{ position: 'relative' }}>
       <td>
         <RowFit gap="6px">
-          {
-            <SimpleTooltip text={isWatched ? t`Remove from watchlist` : t`Add to watchlist`} hideOnMobile>
-              <StarWithAnimation
-                watched={isWatched}
-                loading={loadingStar}
-                onClick={handleWatchlistClick}
-                size={above768 ? 20 : 16}
-              />
-            </SimpleTooltip>
-          }
+          <SimpleTooltip
+            text={
+              isWatched ? t`Remove from watchlist` : reachedMaxLimit ? t`Reached 30 tokens limit` : t`Add to watchlist`
+            }
+            hideOnMobile
+          >
+            <StarWithAnimation
+              watched={isWatched}
+              loading={loadingStar}
+              onClick={handleWatchlistClick}
+              size={above768 ? 20 : 16}
+              disabled={!isWatched && reachedMaxLimit}
+            />
+          </SimpleTooltip>
           {above768 ? index : <></>}
         </RowFit>
       </td>
@@ -653,9 +649,9 @@ const TokenRow = ({
       ) && (
         <td style={{ textAlign: 'start' }}>
           {currentTab === KyberAIListType.TOP_CEX_INFLOW
-            ? '$' + formatLocaleStringNum(token.cex_netflow_3days) || '--'
+            ? '$' + formatLocaleStringNum(token.cex_netflow_3days || 0) || '--'
             : currentTab === KyberAIListType.TOP_CEX_OUTFLOW
-            ? '$' + formatLocaleStringNum(token.cex_netflow_3days) || '--'
+            ? '$' + formatLocaleStringNum(token.cex_netflow_3days || 0) || '--'
             : currentTab === KyberAIListType.TRENDING_SOON
             ? token.discovered_on
               ? dayjs(token.discovered_on * 1000).format('DD/MM/YYYY')
@@ -905,15 +901,6 @@ export default function TokenAnalysisList() {
                 <th style={{ textAlign: 'left' }} className={isScrolling ? 'table-cell-shadow-right' : ''}>
                   <Row>
                     <Trans>Token name</Trans>
-                    {/* {sortedColumn === SORT_FIELD.NAME ? (
-                        !sortDirection ? (
-                          <ArrowUp size="12" style={{ marginLeft: '2px' }} />
-                        ) : (
-                          <ArrowDown size="12" style={{ marginLeft: '2px' }} />
-                        )
-                      ) : (
-                        ''
-                      )} */}
                   </Row>
                 </th>
                 <th style={{ textAlign: 'left' }}>
@@ -946,15 +933,6 @@ export default function TokenAnalysisList() {
                 <th>
                   <Row justify="flex-start">
                     <Trans>Current Price</Trans>
-                    {/* {sortedColumn === SORT_FIELD.PRICE ? (
-                        !sortDirection ? (
-                          <ArrowUp size="12" style={{ marginLeft: '2px' }} />
-                        ) : (
-                          <ArrowDown size="12" style={{ marginLeft: '2px' }} />
-                        )
-                      ) : (
-                        ''
-                      )} */}
                   </Row>
                 </th>
                 <th>
@@ -970,15 +948,6 @@ export default function TokenAnalysisList() {
                         [KyberAIListType.TOP_CEX_OUTFLOW]: '24h Netflow',
                       }[listType as string] || '24h Volume'}
                     </Trans>
-                    {/* {sortedColumn === SORT_FIELD.VOLUME ? (
-                        !sortDirection ? (
-                          <ArrowUp size="12" style={{ marginLeft: '2px' }} />
-                        ) : (
-                          <ArrowDown size="12" style={{ marginLeft: '2px' }} />
-                        )
-                      ) : (
-                        ''
-                      )} */}
                   </Row>
                 </th>
                 {[
