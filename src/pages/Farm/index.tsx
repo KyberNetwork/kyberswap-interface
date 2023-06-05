@@ -9,7 +9,6 @@ import { Flex, Text } from 'rebass'
 
 import { ReactComponent as TutorialIcon } from 'assets/svg/play_circle_outline.svg'
 import ClassicElasticTab from 'components/ClassicElasticTab'
-import Column from 'components/Column'
 import Loader from 'components/Loader'
 import PoolsCurrencyInputPanel from 'components/PoolsCurrencyInputPanel'
 import RewardTokenPrices from 'components/RewardTokenPrices'
@@ -39,10 +38,12 @@ import { FARM_TAB } from 'constants/index'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
+import useElasticCompensationData from 'hooks/useElasticCompensationData'
+import useElasticLegacy from 'hooks/useElasticLegacy'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useTheme from 'hooks/useTheme'
-import Notice from 'pages/ElasticLegacy/Notice'
+import ElasticLegacy from 'pages/ElasticLegacy'
 import { CurrencyWrapper, Tab } from 'pages/Pools/styleds'
 import { AppState } from 'state'
 import { ApplicationModal } from 'state/application/actions'
@@ -52,6 +53,7 @@ import ClassicFarmUpdater from 'state/farms/classic/updater'
 import { FarmUpdater, useElasticFarms } from 'state/farms/elastic/hooks'
 import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import ElasticFarmV2Updater from 'state/farms/elasticv2/updater'
+import { MEDIA_WIDTHS } from 'theme'
 import { isInEnum } from 'utils/string'
 
 import { ElasticFarmCombination } from './ElasticFarmCombination'
@@ -156,10 +158,22 @@ const Farm = () => {
     return Object.values(tokenMap)
   }, [farmsByFairLaunch, blockNumber, elasticFarms, chainId, elasticFarmsV2])
 
+  const { farmPositions } = useElasticLegacy(false)
+  const { claimInfo } = useElasticCompensationData(false)
+  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+  const shouldShowFarmTab = !!farmPositions.length || !!claimInfo
+  const explicit3Tab = shouldShowFarmTab && !upToMedium
+
   const rewardPrice = !!rewardTokens.length && (
     <Flex
       flex={1}
-      width={below1500 ? 'calc(100vw - 706px)' : '796px'}
+      width={
+        below1500
+          ? `calc(100vw - ${explicit3Tab ? '1064px' : farmType === VERSION.ELASTIC_LEGACY ? '794px' : '730px'})`
+          : explicit3Tab
+          ? '544px'
+          : '796px'
+      }
       sx={{ gap: '4px' }}
       alignItems="center"
       justifyContent="flex-end"
@@ -260,15 +274,9 @@ const Farm = () => {
             )}
           </TopBar>
 
-          {farmType === VERSION.ELASTIC && (
-            <div style={{ marginTop: '1rem' }}>
-              <Notice />
-            </div>
-          )}
-
-          <FarmGuide farmType={farmType} />
+          {farmType !== VERSION.ELASTIC_LEGACY && <FarmGuide farmType={farmType} />}
         </div>
-        {below992 && (
+        {below992 && farmType !== VERSION.ELASTIC_LEGACY && (
           <Flex sx={{ gap: '1rem' }}>
             {rewardPrice}
             <Flex alignItems="center" sx={{ gap: '6px' }}>
@@ -283,109 +291,114 @@ const Farm = () => {
           </Flex>
         )}
 
-        <div>
-          <TabContainer>
-            <Flex sx={{ gap: '8px' }}>
-              <Tab
-                onClick={() => {
-                  if (type && type !== 'active') {
-                    mixpanelHandler(MIXPANEL_TYPE.FARMS_ACTIVE_VIEWED)
-                  }
-                  navigateTab(FARM_TAB.ACTIVE)
-                }}
-                active={!type || type === 'active'}
-              >
-                <PoolTitleContainer>
-                  <Trans>Active</Trans>
-                </PoolTitleContainer>
-              </Tab>
-              <Tab
-                onClick={() => {
-                  if (type !== 'ended') {
-                    mixpanelHandler(MIXPANEL_TYPE.FARMS_ENDING_VIEWED)
-                  }
-                  navigateTab(FARM_TAB.ENDED)
-                }}
-                active={type === FARM_TAB.ENDED}
-              >
-                <PoolTitleContainer>
-                  <Trans>Ended</Trans>
-                </PoolTitleContainer>
-              </Tab>
-
-              <Tab
-                onClick={() => {
-                  navigateTab(FARM_TAB.MY_FARMS)
-                }}
-                active={type === FARM_TAB.MY_FARMS}
-              >
-                <Row>
-                  <Trans>My Farms</Trans>
-                </Row>
-              </Tab>
-
-              {farmType === VERSION.CLASSIC && (
+        {farmType === VERSION.ELASTIC_LEGACY ? (
+          <ElasticLegacy tab="farm" />
+        ) : (
+          <div>
+            <TabContainer>
+              <Flex sx={{ gap: '8px' }}>
                 <Tab
                   onClick={() => {
-                    if (type !== 'vesting') {
-                      mixpanelHandler(MIXPANEL_TYPE.FARMS_MYVESTING_VIEWED)
+                    if (type && type !== 'active') {
+                      mixpanelHandler(MIXPANEL_TYPE.FARMS_ACTIVE_VIEWED)
                     }
-                    navigateTab(FARM_TAB.VESTING)
+                    navigateTab(FARM_TAB.ACTIVE)
                   }}
-                  active={type === FARM_TAB.VESTING}
+                  active={!type || type === 'active'}
+                >
+                  <PoolTitleContainer>
+                    <Trans>Active</Trans>
+                  </PoolTitleContainer>
+                </Tab>
+                <Tab
+                  onClick={() => {
+                    if (type !== 'ended') {
+                      mixpanelHandler(MIXPANEL_TYPE.FARMS_ENDING_VIEWED)
+                    }
+                    navigateTab(FARM_TAB.ENDED)
+                  }}
+                  active={type === FARM_TAB.ENDED}
+                >
+                  <PoolTitleContainer>
+                    <Trans>Ended</Trans>
+                  </PoolTitleContainer>
+                </Tab>
+
+                <Tab
+                  onClick={() => {
+                    navigateTab(FARM_TAB.MY_FARMS)
+                  }}
+                  active={type === FARM_TAB.MY_FARMS}
                 >
                   <Row>
-                    <Text>
-                      <Trans>Vesting</Trans>
-                    </Text>
-                    {vestingLoading && <Loader style={{ marginLeft: '4px' }} />}
+                    <Trans>My Farms</Trans>
                   </Row>
                 </Tab>
-              )}
-            </Flex>
 
-            <HeadingContainer>
-              <StakedOnlyToggleWrapper>
-                <Row gap="12px">
-                  {above1000 && (
-                    <RowFit>
-                      <ListGridViewGroup />
-                    </RowFit>
-                  )}
+                {farmType === VERSION.CLASSIC && (
+                  <Tab
+                    onClick={() => {
+                      if (type !== 'vesting') {
+                        mixpanelHandler(MIXPANEL_TYPE.FARMS_MYVESTING_VIEWED)
+                      }
+                      navigateTab(FARM_TAB.VESTING)
+                    }}
+                    active={type === FARM_TAB.VESTING}
+                  >
+                    <Row>
+                      <Text>
+                        <Trans>Vesting</Trans>
+                      </Text>
+                      {vestingLoading && <Loader style={{ marginLeft: '4px' }} />}
+                    </Row>
+                  </Tab>
+                )}
+              </Flex>
 
-                  {type !== FARM_TAB.MY_FARMS && (
-                    <>
-                      <StakedOnlyToggleText>
-                        <Trans>Staked Only</Trans>
-                      </StakedOnlyToggleText>
-                      <Toggle
-                        isActive={stakedOnly}
-                        toggle={() => {
-                          searchParams.set('stakedOnly', stakedOnly ? 'false' : 'true')
-                          setSearchParams(searchParams)
-                        }}
-                      />
-                    </>
-                  )}
-                  <FarmSort />
-                </Row>
-              </StakedOnlyToggleWrapper>
-              <HeadingRight>
-                {selectTokenFilter}
-                <SearchContainer>
-                  <SearchInput
-                    placeholder={t`Search by token name or pool address`}
-                    maxLength={255}
-                    value={search}
-                    onChange={e => handleSearch(e.target.value)}
-                  />
-                  <Search color={theme.subText} size={16} />
-                </SearchContainer>
-              </HeadingRight>
-            </HeadingContainer>
-          </TabContainer>
-          <Column gap="20px">{renderTabContent()}</Column>
-        </div>
+              <HeadingContainer>
+                <StakedOnlyToggleWrapper>
+                  <Row gap="12px">
+                    {above1000 && (
+                      <RowFit>
+                        <ListGridViewGroup />
+                      </RowFit>
+                    )}
+
+                    {type !== FARM_TAB.MY_FARMS && (
+                      <>
+                        <StakedOnlyToggleText>
+                          <Trans>Staked Only</Trans>
+                        </StakedOnlyToggleText>
+                        <Toggle
+                          isActive={stakedOnly}
+                          toggle={() => {
+                            searchParams.set('stakedOnly', stakedOnly ? 'false' : 'true')
+                            setSearchParams(searchParams)
+                          }}
+                        />
+                      </>
+                    )}
+                    <FarmSort />
+                  </Row>
+                </StakedOnlyToggleWrapper>
+                <HeadingRight>
+                  {selectTokenFilter}
+                  <SearchContainer>
+                    <SearchInput
+                      placeholder={t`Search by token name or pool address`}
+                      maxLength={255}
+                      value={search}
+                      onChange={e => handleSearch(e.target.value)}
+                    />
+                    <Search color={theme.subText} size={16} />
+                  </SearchContainer>
+                </HeadingRight>
+              </HeadingContainer>
+            </TabContainer>
+
+            {renderTabContent()}
+          </div>
+        )}
       </PageWrapper>
       <SwitchLocaleLink />
     </>

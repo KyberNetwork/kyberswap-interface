@@ -209,3 +209,16 @@ export const Button = styled(ButtonLight)<{ color: string }>`
     outline: none;
   }
 `
+
+export const Range = styled.div<{ inrange?: boolean }>`
+  align-self: flex-end;
+  align-items: center;
+  color: ${({ theme, inrange }) => (inrange ? theme.primary : theme.warning)};
+  padding: 3px 4px;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  border-radius: 999px;
+  background: ${({ theme, inrange }) => rgba(inrange ? theme.primary : theme.warning, 0.3)};
+`

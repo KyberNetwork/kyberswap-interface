@@ -52,19 +52,20 @@ const StyledPositionCard = styled(LightCard)`
   `}
 `
 
-const TabContainer = styled.div`
+export const TabContainer = styled.div`
   display: flex;
   border-radius: 999px;
   background-color: ${({ theme }) => theme.tabBackground};
   padding: 2px;
 `
 
-const Tab = styled(ButtonEmpty)<{ isActive?: boolean; isLeft?: boolean }>`
+export const Tab = styled(ButtonEmpty)<{ isActive?: boolean; isLeft?: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
   flex: 1;
   background-color: ${({ theme, isActive }) => (isActive ? theme.tabActive : theme.tabBackground)};
+  color: ${({ theme, isActive }) => (isActive ? theme.text : theme.subText)};
   padding: 4px;
   font-size: 12px;
   font-weight: 500;
@@ -74,13 +75,6 @@ const Tab = styled(ButtonEmpty)<{ isActive?: boolean; isLeft?: boolean }>`
   &:hover {
     text-decoration: none;
   }
-`
-
-const TabText = styled.div<{ isActive: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  color: ${({ theme, isActive }) => (isActive ? theme.text : theme.subText)};
 `
 
 const StakedInfo = styled.div`
@@ -312,14 +306,10 @@ function PositionListItem({
         />
         <TabContainer style={{ marginTop: '1rem' }}>
           <Tab isActive={activeTab === TAB.MY_LIQUIDITY} padding="0" onClick={() => setActiveTab(TAB.MY_LIQUIDITY)}>
-            <TabText isActive={activeTab === TAB.MY_LIQUIDITY} style={{ fontSize: '12px' }}>
-              <Trans>My Liquidity</Trans>
-            </TabText>
+            <Trans>My Liquidity</Trans>
           </Tab>
           <Tab isActive={activeTab === TAB.PRICE_RANGE} padding="0" onClick={() => setActiveTab(TAB.PRICE_RANGE)}>
-            <TabText isActive={activeTab === TAB.PRICE_RANGE} style={{ fontSize: '12px' }}>
-              <Trans>Price Range</Trans>
-            </TabText>
+            <Trans>Price Range</Trans>
           </Tab>
         </TabContainer>
         {activeTab === TAB.MY_LIQUIDITY && (
