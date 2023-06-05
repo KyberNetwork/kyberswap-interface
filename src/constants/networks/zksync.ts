@@ -36,7 +36,7 @@ const zkSyncInfo: EVMNetworkInfo = {
     minForGas: 10 ** 16,
   },
   defaultRpcUrl: 'https://mainnet.era.zksync.io',
-  multicall: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
+  multicall: '0xF9cda624FBC7e059355ce98a31693d299FACd963',
   classic: {
     defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-optimism',
     static: {
