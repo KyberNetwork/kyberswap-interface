@@ -501,8 +501,8 @@ export default function KyberAILandingPage() {
           <iframe
             width="315"
             height="560"
-            src="https://www.youtube.com/embed/7NJtxBRabjo"
-            title="YouTube video player"
+            src="https://www.youtube.com/embed/ZKJuZQqWsHs"
+            title="Meet KyberAI | Now In Beta | KyberSwap"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
             frameBorder="0"
