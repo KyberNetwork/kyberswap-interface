@@ -49,7 +49,7 @@ const OTPInput = ({
   onChange,
   renderInput,
   shouldAutoFocus = false,
-  inputType = 'text',
+  inputType = 'number',
   containerStyle,
   inputStyle,
   onFocus,
@@ -134,8 +134,9 @@ const OTPInput = ({
       event.code === 'ArrowDown'
     ) {
       event.preventDefault()
-    } else if (isNaN(+event.key)) {
-      event.preventDefault()
+    } else if (isInputNum && isNaN(+event.key)) {
+      const isPaste = (event.metaKey || event.ctrlKey) && event.key === 'v'
+      !isPaste && event.preventDefault()
     }
   }
 
@@ -170,6 +171,8 @@ const OTPInput = ({
       .getData('text/plain')
       .slice(0, numInputs - activeInput)
       .split('')
+
+    if (isInputNum && pastedData.some(el => isNaN(+el))) return
 
     // Prevent pasting if the clipboard data contains non-numeric values for number inputs
     if (isInputNum && pastedData.some(value => isNaN(Number(value)))) {
