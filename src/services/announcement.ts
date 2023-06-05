@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
-import { Announcement, PrivateAnnouncement } from 'components/Announcement/type'
+import { Announcement, PrivateAnnouncement, PrivateAnnouncementType } from 'components/Announcement/type'
 import { NOTIFICATION_API, getAnnouncementsTemplateIds } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
 
@@ -38,10 +38,16 @@ type ParamsPrivate = {
   pageSize?: number
 }
 
+const excludedTemplateIds = getAnnouncementsTemplateIds('EXCLUDE')
+
 const AnnouncementApi = createApi({
   reducerPath: 'announcementApi',
   baseQuery: fetchBaseQuery({ baseUrl: NOTIFICATION_API }),
-  tagTypes: [RTK_QUERY_TAGS.GET_PRIVATE_ANN_BY_ID, RTK_QUERY_TAGS.GET_ALL_PRIVATE_ANN],
+  tagTypes: [
+    RTK_QUERY_TAGS.GET_PRIVATE_ANN_BY_ID,
+    RTK_QUERY_TAGS.GET_ALL_PRIVATE_ANN,
+    RTK_QUERY_TAGS.GET_TOTAL_UNREAD_PRIVATE_ANN,
+  ],
   endpoints: builder => ({
     getAnnouncements: builder.query<AnnouncementResponse<Announcement>, Params>({
       query: params => ({
@@ -53,7 +59,7 @@ const AnnouncementApi = createApi({
     getPrivateAnnouncements: builder.query<AnnouncementResponse<PrivateAnnouncement>, ParamsPrivate>({
       query: ({ account, ...params }) => ({
         url: `/v1/users/${account}/notifications`,
-        params: { ...params, excludedTemplateIds: getAnnouncementsTemplateIds().EXCLUDE },
+        params: { ...params, excludedTemplateIds },
       }),
       transformResponse: transformResponseAnnouncement,
       providesTags: [RTK_QUERY_TAGS.GET_ALL_PRIVATE_ANN],
@@ -66,6 +72,21 @@ const AnnouncementApi = createApi({
       providesTags: [RTK_QUERY_TAGS.GET_PRIVATE_ANN_BY_ID],
       transformResponse: transformResponseAnnouncement,
     }),
+    getTotalUnreadAnnouncements: builder.query<
+      {
+        numberOfUnread: number
+        templateId: number
+        templateType: PrivateAnnouncementType
+      }[],
+      { account: string; templateIds: string }
+    >({
+      query: ({ account, templateIds }) => ({
+        url: `/v1/users/${account}/number-unread`,
+        params: { templateIds },
+      }),
+      transformResponse: (data: any) => data?.data?.result || [],
+      providesTags: [RTK_QUERY_TAGS.GET_TOTAL_UNREAD_PRIVATE_ANN],
+    }),
     ackPrivateAnnouncements: builder.mutation<
       AnnouncementResponse,
       { account: string; action: 'read' | 'clear-all' | 'read-all'; ids?: number[] }
@@ -73,7 +94,7 @@ const AnnouncementApi = createApi({
       query: ({ account, action, ids }) => {
         const body: { excludedTemplateIds?: number[]; ids?: number[] } = { ids }
         if (action === 'read-all' || action === 'clear-all') {
-          body.excludedTemplateIds = getAnnouncementsTemplateIds().EXCLUDE.split(',').map(Number)
+          body.excludedTemplateIds = excludedTemplateIds.split(',').map(Number)
         }
         return {
           url: `/v1/users/${account}/notifications/${action}`,
@@ -81,12 +102,13 @@ const AnnouncementApi = createApi({
           body,
         }
       },
+      invalidatesTags: [RTK_QUERY_TAGS.GET_PRIVATE_ANN_BY_ID, RTK_QUERY_TAGS.GET_TOTAL_UNREAD_PRIVATE_ANN],
     }),
     ackPrivateAnnouncementsByIds: builder.mutation<AnnouncementResponse, { account: string; templateIds?: string }>({
       query: ({ account, templateIds }) => {
         const body = {
           templateIds: templateIds?.split(',').map(Number),
-          excludedTemplateIds: getAnnouncementsTemplateIds().EXCLUDE.split(',').map(Number),
+          excludedTemplateIds: excludedTemplateIds.split(',').map(Number),
         }
         return {
           url: `/v1/users/${account}/notifications/read-all`,
@@ -94,7 +116,7 @@ const AnnouncementApi = createApi({
           body,
         }
       },
-      invalidatesTags: [RTK_QUERY_TAGS.GET_ALL_PRIVATE_ANN],
+      invalidatesTags: [RTK_QUERY_TAGS.GET_ALL_PRIVATE_ANN, RTK_QUERY_TAGS.GET_TOTAL_UNREAD_PRIVATE_ANN],
     }),
     clearAllPrivateAnnouncementById: builder.mutation<Response, { account: string; templateIds: string }>({
       query: ({ account, templateIds }) => ({
@@ -104,7 +126,11 @@ const AnnouncementApi = createApi({
         },
         method: 'PUT',
       }),
-      invalidatesTags: [RTK_QUERY_TAGS.GET_ALL_PRIVATE_ANN, RTK_QUERY_TAGS.GET_PRIVATE_ANN_BY_ID],
+      invalidatesTags: [
+        RTK_QUERY_TAGS.GET_ALL_PRIVATE_ANN,
+        RTK_QUERY_TAGS.GET_PRIVATE_ANN_BY_ID,
+        RTK_QUERY_TAGS.GET_TOTAL_UNREAD_PRIVATE_ANN,
+      ],
     }),
   }),
 })
@@ -117,6 +143,7 @@ export const {
   useGetPrivateAnnouncementsByIdsQuery,
   useClearAllPrivateAnnouncementByIdMutation,
   useAckPrivateAnnouncementsByIdsMutation,
+  useGetTotalUnreadAnnouncementsQuery,
 } = AnnouncementApi
 
 export default AnnouncementApi

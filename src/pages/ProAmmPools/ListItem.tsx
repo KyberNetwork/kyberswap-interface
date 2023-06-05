@@ -179,7 +179,6 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
             </Flex>
           </Flex>
         </Link>
-
         <Flex
           marginTop="0.5rem"
           alignItems="center"

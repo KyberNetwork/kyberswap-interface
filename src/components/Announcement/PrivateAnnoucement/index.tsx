@@ -25,19 +25,19 @@ type PrivateAnnouncementMap = Partial<{
   [type in PrivateAnnouncementType]: (data: PrivateAnnouncementProp) => JSX.Element
 }>
 const ANNOUNCEMENT_MAP: PrivateAnnouncementMap = {
-  [PrivateAnnouncementType.POOL_POSITION]: InboxItemPoolPosition,
+  [PrivateAnnouncementType.ELASTIC_POOLS]: InboxItemPoolPosition,
   [PrivateAnnouncementType.LIMIT_ORDER]: InboxItemLO,
-  [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: InboxItemTrendingSoon,
-  [PrivateAnnouncementType.BRIDGE]: InboxItemBridge,
+  [PrivateAnnouncementType.KYBER_AI]: InboxItemTrendingSoon,
+  [PrivateAnnouncementType.BRIDGE_ASSET]: InboxItemBridge,
   [PrivateAnnouncementType.PRICE_ALERT]: InboxItemPriceAlert,
   [PrivateAnnouncementType.DIRECT_MESSAGE]: InboxItemPrivateMessage,
 } as PrivateAnnouncementMap
 
 export const PRIVATE_ANN_TITLE: Partial<{ [type in PrivateAnnouncementType]: string }> = {
-  [PrivateAnnouncementType.POOL_POSITION]: t`Liquidity Pool Alert`,
+  [PrivateAnnouncementType.ELASTIC_POOLS]: t`Liquidity Pool Alert`,
   [PrivateAnnouncementType.LIMIT_ORDER]: t`Limit Order`,
-  [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: t`Trending Soon`,
-  [PrivateAnnouncementType.BRIDGE]: t`Bridge Token`,
+  [PrivateAnnouncementType.KYBER_AI]: t`Top Tokens by KyberAI`,
+  [PrivateAnnouncementType.BRIDGE_ASSET]: t`Bridge Token`,
   [PrivateAnnouncementType.PRICE_ALERT]: t`Price Alert`,
   [PrivateAnnouncementType.DIRECT_MESSAGE]: t`Notification`,
 }

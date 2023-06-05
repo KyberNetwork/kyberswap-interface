@@ -458,28 +458,40 @@ export const isEVMWallet = (wallet: WalletInfo): wallet is EVMWalletInfo =>
   !!(wallet as EVMWalletInfo).connector || !!(wallet as EVMWalletInfo).href
 export const isSolanaWallet = (wallet: WalletInfo): wallet is SolanaWalletInfo => !!(wallet as SolanaWalletInfo).adapter
 
+enum WALLET_KEYS {
+  COIN98 = 'COIN98',
+  BRAVE = 'BRAVE',
+  METAMASK = 'METAMASK',
+  COINBASE = 'COINBASE',
+  TRUST_WALLET = 'TRUST_WALLET',
+  WALLET_CONNECT = 'WALLET_CONNECT',
+}
+
 // https://docs.metamask.io/guide/ethereum-provider.html#basic-usage
 // https://docs.cloud.coinbase.com/wallet-sdk/docs/injected-provider#properties
 // Coin98 and Brave wallet is overriding Metamask. So at a time, there is only 1 exists
-export const detectInjectedType = (): 'COIN98' | 'BRAVE' | 'METAMASK' | 'COINBASE' | 'TRUST_WALLET' | null => {
+export const detectInjectedType = (): WALLET_KEYS | null => {
   const { ethereum } = window
   // When Coinbase wallet connected will inject selectedProvider property and some others props
   if (ethereum?.selectedProvider) {
-    if (ethereum?.selectedProvider?.isMetaMask) return 'METAMASK'
-    if (ethereum?.selectedProvider?.isCoinbaseWallet) return 'COINBASE'
+    if (ethereum?.selectedProvider?.isMetaMask) return WALLET_KEYS.METAMASK
+    if (ethereum?.selectedProvider?.isCoinbaseWallet) return WALLET_KEYS.COINBASE
   }
 
-  if (ethereum?.isCoinbaseWallet) return 'COINBASE'
+  if (ethereum?.isCoinbaseWallet) return WALLET_KEYS.COINBASE
 
-  if (ethereum?.isTrustWallet) return 'TRUST_WALLET'
+  if (ethereum?.isTrustWallet) return WALLET_KEYS.TRUST_WALLET
 
-  if (checkForBraveBrowser() && ethereum?.isBraveWallet) return 'BRAVE'
+  if (checkForBraveBrowser() && ethereum?.isBraveWallet) return WALLET_KEYS.BRAVE
 
   if (ethereum?.isMetaMask) {
     if (ethereum?.isCoin98) {
-      return 'COIN98'
+      return WALLET_KEYS.COIN98
     }
-    return 'METAMASK'
+    return WALLET_KEYS.METAMASK
+  }
+  if (JSON.parse(localStorage.walletconnect || '{}').connected) {
+    return WALLET_KEYS.WALLET_CONNECT
   }
   return null
 }
@@ -487,13 +499,13 @@ export const detectInjectedType = (): 'COIN98' | 'BRAVE' | 'METAMASK' | 'COINBAS
 export const isOverriddenWallet = (wallet: SUPPORTED_WALLET) => {
   const injectedType = detectInjectedType()
   return (
-    (wallet === 'COIN98' && injectedType === 'METAMASK') ||
-    (wallet === 'METAMASK' && injectedType === 'COIN98') ||
-    (wallet === 'BRAVE' && injectedType === 'COIN98') ||
-    (wallet === 'COIN98' && injectedType === 'BRAVE') ||
-    (wallet === 'COINBASE' && injectedType === 'COIN98') ||
+    (wallet === WALLET_KEYS.COIN98 && injectedType === WALLET_KEYS.METAMASK) ||
+    (wallet === WALLET_KEYS.METAMASK && injectedType === WALLET_KEYS.COIN98) ||
+    (wallet === WALLET_KEYS.BRAVE && injectedType === WALLET_KEYS.COIN98) ||
+    (wallet === WALLET_KEYS.COIN98 && injectedType === WALLET_KEYS.BRAVE) ||
+    (wallet === WALLET_KEYS.COINBASE && injectedType === WALLET_KEYS.COIN98) ||
     // Coin98 turned off override MetaMask in setting
-    (wallet === 'COIN98' && window.coin98 && !window.ethereum?.isCoin98)
+    (wallet === WALLET_KEYS.COIN98 && window.coin98 && !window.ethereum?.isCoin98)
   )
 }
 
@@ -518,4 +530,21 @@ export const isChristmasTime = () => {
 export const getLimitOrderContract = (chainId: ChainId) => {
   const { production, development } = NETWORKS_INFO_CONFIG[chainId]?.limitOrder ?? {}
   return ENV_KEY === 'production' || ENV_KEY === 'staging' ? production : development
+}
+
+export function openFullscreen(elem: any) {
+  if (elem.requestFullscreen) {
+    elem.requestFullscreen()
+  } else if (elem.webkitRequestFullScreen) {
+    /* Old webkit */
+    elem.webkitRequestFullScreen()
+  } else if (elem.webkitRequestFullscreen) {
+    /* New webkit */
+    elem.webkitRequestFullscreen()
+  } else if (elem.mozRequestFullScreen) {
+    elem.mozRequestFullScreen()
+  } else if (elem.msRequestFullscreen) {
+    /* IE11 */
+    elem.msRequestFullscreen()
+  }
 }

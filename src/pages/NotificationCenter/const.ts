@@ -19,7 +19,7 @@ export enum NOTIFICATION_ROUTES {
   MY_ELASTIC_POOLS = '/elastic-pools',
   LIMIT_ORDERS = '/limit-orders',
   BRIDGE = '/bridge',
-  TRENDING_SOON_TOKENS = '/trending-soon',
+  KYBER_AI_TOKENS = '/kyber-ai',
 }
 
 export type CreatePriceAlertPayload = {

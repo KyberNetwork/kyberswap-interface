@@ -15,7 +15,6 @@ import useCheckStablePairSwap from 'components/SwapForm/hooks/useCheckStablePair
 import useGetInputError from 'components/SwapForm/hooks/useGetInputError'
 import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
-import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import TradePrice from 'components/swapv2/TradePrice'
 import { Wrapper } from 'components/swapv2/styleds'
@@ -208,8 +207,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
         </Wrapper>
         <Flex flexDirection="column" style={{ gap: '1.25rem' }}>
           <TradeTypeSelection isSaveGas={isSaveGas} setSaveGas={setSaveGas} />
-
-          <TrendingSoonTokenBanner currencyIn={currencyIn} currencyOut={currencyOut} />
 
           {!isWrapOrUnwrap && <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={isStablePairSwap} />}
 

@@ -29,6 +29,8 @@ import { ElasticPoolDetail } from 'types/pool'
 import { isAddressString } from 'utils'
 import { formatDollarAmount } from 'utils/numbers'
 
+import KyberAIModalInPool from './KyberAIModalInPool'
+
 const StyledLink = styled(ExternalLink)`
   :hover {
     text-decoration: none;
@@ -159,6 +161,10 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
                   <Share2 size="14px" color={theme.subText} />
                   <Trans>Share</Trans>
                 </Flex>
+                <KyberAIModalInPool
+                  currency0={isToken0WETH ? nativeToken : token0}
+                  currency1={isToken1WETH ? nativeToken : token1}
+                />
 
                 <StyledLink href={getPrommAnalyticLink(chainId, pool.address)}>
                   <Flex alignItems="center">

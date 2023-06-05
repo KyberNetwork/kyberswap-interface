@@ -111,6 +111,7 @@ function colors(darkMode: boolean): Colors {
 
     //primary colors
     primary: '#31CB9E',
+    primary30: darkMode ? '#1D4D3D' : '#C7E9DC',
 
     // border colors
     border: darkMode ? '#505050' : '#C1C1C1',
@@ -253,6 +254,7 @@ export const FixedGlobalStyle = createGlobalStyle`
   body {
     margin: 0;
     padding: 0;
+    -webkit-text-size-adjust: none;
   }
 
   a {
@@ -293,95 +295,6 @@ export const ThemedGlobalStyle = createGlobalStyle`
   html {
     color: ${({ theme }) => theme.text};
     background-color: ${({ theme }) => theme.buttonBlack};
-
-    --primary-120: #27a27e;
-    --primary-110: #2cb78e;
-    --primary: #31CB9E;
-    --primary-90: #44d2a8;
-    --primary-80: #59d7b2;
-    --primary-alpha-50: #31CB9E80;
-    --primary-alpha-30: #31CB9E30;
-    --red-120:#ff0f47;
-    --red-110:#ff3161;
-    --red:#FF537B;
-    --red-90:#ff6488;
-    --red-80:#ff7595;
-    --red-alpha-50:#FF537B80;
-    --red-alpha-30:#FF537B30;
-    --warning-120:#cd7b00;
-    --warning-110:#e68a00;
-    --warning:#FF9901;
-    --warning-90:#ffa31a;
-    --warning-80:#ffad34;
-    --warning-alpha-50:#FF990180;
-    --warning-alpha-30:#FF990130;
-    --blue: #08A1E7;
-    ${({ theme }) =>
-      theme.darkMode
-        ? css`
-            --background-120: #161616;
-            --background-110: #191919;
-            --background: #1c1c1c;
-            --background-90: #333333;
-            --background-80: #494949;
-            --background-alpha-30: #1c1c1c30;
-            --button-black-120: #0c0c0c;
-            --button-black-110: #0d0d0d;
-            --button-black: #0f0f0f;
-            --button-black-90: #272727;
-            --button-black-80: #3f3f3f;
-            --button-gray-120: #212121;
-            --button-gray-110: #252525;
-            --button-gray: #292929;
-            --button-gray-90: #3e3e3e;
-            --button-gray-80: #545454;
-            --text-120: #cccccc;
-            --text-110: #e6e6e6;
-            --text: #ffffff;
-            --subtext-120: #878787;
-            --subtext-110: #989898;
-            --subtext: #a9a9a9;
-            --table-header-120: #272727;
-            --table-header-110: #2c2c2c;
-            --table-header: #313131;
-            --border-120: #404040;
-            --border-110: #484848;
-            --border: #505050;
-            --border-90: #616161;
-            --border-80: #737373;
-          `
-        : css`
-            --background-120: #ffffff;
-            --background-110: #ffffff;
-            --background: #ffffff;
-            --background-90: #e6e6e6;
-            --background-80: #cccccc;
-            --background-alpha-30: #ffffff30;
-            --button-black-120: #f7f7f7;
-            --button-black-110: #f6f6f6;
-            --button-black: #f5f5f5;
-            --button-black-90: #dcdcdc;
-            --button-black-80: #c4c4c4;
-            --button-gray-120: #e8e8e8;
-            --button-gray-110: #e5e5e5;
-            --button-gray: #e2e2e2;
-            --button-gray-90: #cbcbcb;
-            --button-gray-80: #b5b5b5;
-            --text-120: #4e4e4e;
-            --text-110: #383838;
-            --text: #222222;
-            --subtext-120: #7e7e7e;
-            --subtext-110: #6e6e6e;
-            --subtext: #5e5e5e;
-            --table-header-120: #fcfcfc;
-            --table-header-110: #fbfbfb;
-            --table-header: #fbfbfb;
-            --border-120: #cdcdcd;
-            --border-110: #c7c7c7;
-            --border: #c1c1c1;
-            --border-90: #aeaeae;
-            --border-80: #9a9a9a;
-          `}
   }
 
   body {

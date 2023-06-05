@@ -17,7 +17,6 @@ export const AGGREGATOR_API = required('AGGREGATOR_API')
 export const SENTRY_DNS = required('SENTRY_DNS')
 export const REWARD_SERVICE_API = required('REWARD_SERVICE_API')
 export const KS_SETTING_API = required('KS_SETTING_API')
-export const BFF_API = required('BFF_API')
 export const BLOCK_SERVICE_API = required('BLOCK_SERVICE_API')
 export const PRICE_CHART_API = required('PRICE_CHART_API')
 export const AGGREGATOR_STATS_API = required('AGGREGATOR_STATS_API')
@@ -47,6 +46,9 @@ export const KYBER_DAO_STATS_API = required('KYBER_DAO_STATS_API')
 
 export const PRICE_ALERT_API = required('PRICE_ALERT_API')
 export const OAUTH_CLIENT_ID = required('OAUTH_CLIENT_ID')
+export const BFF_API = required('BFF_API')
+export const KYBER_AI_REFERRAL_ID = required('KYBER_AI_REFERRAL_ID')
+export const KYBER_AI_TOPIC_ID = required('KYBER_AI_TOPIC_ID')
 export const BUCKET_NAME = required('BUCKET_NAME')
 
 type FirebaseConfig = {
@@ -112,33 +114,33 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key: string]: { [type: string]: string } } =
   development: {
     [PrivateAnnouncementType.PRICE_ALERT]: '44,45',
     [PrivateAnnouncementType.LIMIT_ORDER]: '8,9,10,11,33,34,35,36',
-    [PrivateAnnouncementType.BRIDGE]: '37,38',
-    [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: '1',
-    [PrivateAnnouncementType.POOL_POSITION]: '39,40',
-    EXCLUDE: '2,29',
+    [PrivateAnnouncementType.BRIDGE_ASSET]: '37,38',
+    [PrivateAnnouncementType.KYBER_AI]: '46',
+    [PrivateAnnouncementType.ELASTIC_POOLS]: '39,40',
+    EXCLUDE: '2,29,1,47,50',
   },
   staging: {
     [PrivateAnnouncementType.PRICE_ALERT]: '22,23',
     [PrivateAnnouncementType.LIMIT_ORDER]: '14,15,16,17',
-    [PrivateAnnouncementType.BRIDGE]: '12,13',
-    [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: '1',
-    [PrivateAnnouncementType.POOL_POSITION]: '20,21',
-    EXCLUDE: '2,11',
+    [PrivateAnnouncementType.BRIDGE_ASSET]: '12,13',
+    [PrivateAnnouncementType.KYBER_AI]: '27',
+    [PrivateAnnouncementType.ELASTIC_POOLS]: '20,21',
+    EXCLUDE: '2,11,1,28,29',
   },
   production: {
     [PrivateAnnouncementType.PRICE_ALERT]: '21,22',
     [PrivateAnnouncementType.LIMIT_ORDER]: '12,13,14,15',
-    [PrivateAnnouncementType.BRIDGE]: '10,11',
-    [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: '9',
-    [PrivateAnnouncementType.POOL_POSITION]: '17,18',
-    EXCLUDE: '2,16',
+    [PrivateAnnouncementType.BRIDGE_ASSET]: '10,11',
+    [PrivateAnnouncementType.KYBER_AI]: '26',
+    [PrivateAnnouncementType.ELASTIC_POOLS]: '17,18',
+    EXCLUDE: '2,16,19,9,25,24',
   },
 }
 
 export const ENV_KEY: 'production' | 'staging' | 'development' = import.meta.env.VITE_ENV
 
-export const getAnnouncementsTemplateIds = () => {
-  return ANNOUNCEMENT_TEMPLATE_IDS[ENV_KEY]
+export const getAnnouncementsTemplateIds = (type: PrivateAnnouncementType | 'EXCLUDE') => {
+  return ANNOUNCEMENT_TEMPLATE_IDS[ENV_KEY]?.[type]
 }
 
 const mock = localStorage.getItem('mock')?.split(',') ?? []
