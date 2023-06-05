@@ -38,7 +38,7 @@ const zkSyncInfo: EVMNetworkInfo = {
   defaultRpcUrl: 'https://mainnet.era.zksync.io',
   multicall: '0xF9cda624FBC7e059355ce98a31693d299FACd963',
   classic: {
-    defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-optimism',
+    defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-zksync',
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
       router: '0x5649B4DD00780e99Bab7Abb4A3d581Ea1aEB23D0',
@@ -51,7 +51,7 @@ const zkSyncInfo: EVMNetworkInfo = {
     fairlaunchV2: ['0x715Cc6C0d591CA3FA8EA6e4Cb445adA0DC79069A'],
   },
   elastic: {
-    defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-optimism',
+    defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-zksync',
     startBlock: 99665516,
     coreFactory: '0xC7a590291e07B9fe9E64b86c58fD8fC764308C4A',
     nonfungiblePositionManager: '0xe222fBE074A436145b255442D919E4E3A6c6a480',
@@ -65,13 +65,13 @@ const zkSyncInfo: EVMNetworkInfo = {
     development: '0xAF800D3EB207BAFBadE540554DF8bDCe561166f8',
     production: '0x227B0c196eA8db17A665EA6824D972A64202E936',
   },
-  averageBlockTimeInSeconds: 120,
-  coingeckoNetworkId: 'optimistic-ethereum',
+  averageBlockTimeInSeconds: 15,
+  coingeckoNetworkId: 'zksync-ethereum',
   coingeckoNativeTokenId: 'ethereum',
   deBankSlug: '',
   trueSightId: NOT_SUPPORT,
   dexToCompare: '',
-  geckoTermialId: 'optimism',
+  geckoTermialId: 'zksync',
 }
 
 export default zkSyncInfo
