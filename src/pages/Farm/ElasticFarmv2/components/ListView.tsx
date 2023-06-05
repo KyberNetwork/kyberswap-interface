@@ -230,7 +230,7 @@ export const ListView = ({
                 <Trans>New phase will start in</Trans>
               </Text>
             ) : (
-              <Trans>Current phase will end in</Trans>
+              ''
             )
           ) : !farm.isSettled ? (
             <Trans>Ended at</Trans>

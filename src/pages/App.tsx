@@ -28,7 +28,6 @@ import { APP_PATHS, BLACKLIST_WALLETS } from 'constants/index'
 import { NETWORKS_INFO_CONFIG } from 'constants/networks'
 import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
-import { useContract } from 'hooks/useContract'
 import useLogin from 'hooks/useLogin'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
 import useSessionExpiredGlobal from 'hooks/useSessionExpire'
@@ -178,576 +177,553 @@ export default function App() {
   const snowflake = new Image()
   snowflake.src = snow
 
-  const c = useContract('0x179A3d2e958D185F47D1Db046b796C5242d68981', [
-    {
-      inputs: [
-        { internalType: 'contract IERC721', name: '_nft', type: 'address' },
-        { internalType: 'address', name: '_helper', type: 'address' },
-      ],
-      stateMutability: 'nonpayable',
-      type: 'constructor',
-    },
-    { inputs: [], name: 'EmergencyEnabled', type: 'error' },
-    { inputs: [], name: 'FailToAdd', type: 'error' },
-    { inputs: [], name: 'FailToRemove', type: 'error' },
-    { inputs: [], name: 'FarmNotFound', type: 'error' },
-    { inputs: [], name: 'Forbidden', type: 'error' },
-    { inputs: [], name: 'InvalidFarm', type: 'error' },
-    { inputs: [], name: 'InvalidInput', type: 'error' },
-    { inputs: [], name: 'InvalidRange', type: 'error' },
-    { inputs: [], name: 'InvalidReward', type: 'error' },
-    { inputs: [], name: 'InvalidTime', type: 'error' },
-    { inputs: [], name: 'NotOwner', type: 'error' },
-    { inputs: [], name: 'PhaseSettled', type: 'error' },
-    { inputs: [], name: 'PositionNotEligible', type: 'error' },
-    { inputs: [], name: 'RangeNotFound', type: 'error' },
-    { inputs: [], name: 'RangeNotMatch', type: 'error' },
-    { inputs: [], name: 'StakeNotFound', type: 'error' },
-    {
-      anonymous: false,
-      inputs: [
-        { indexed: true, internalType: 'uint256', name: 'fId', type: 'uint256' },
-        { indexed: false, internalType: 'address', name: 'poolAddress', type: 'address' },
-        {
-          components: [
-            { internalType: 'int24', name: 'tickLower', type: 'int24' },
-            { internalType: 'int24', name: 'tickUpper', type: 'int24' },
-            { internalType: 'uint32', name: 'weight', type: 'uint32' },
-          ],
-          indexed: false,
-          internalType: 'struct IKSElasticLMV2.RangeInput[]',
-          name: 'ranges',
-          type: 'tuple[]',
-        },
-        {
-          components: [
-            { internalType: 'uint32', name: 'startTime', type: 'uint32' },
-            { internalType: 'uint32', name: 'endTime', type: 'uint32' },
-            {
-              components: [
-                { internalType: 'address', name: 'rewardToken', type: 'address' },
-                { internalType: 'uint256', name: 'rewardAmount', type: 'uint256' },
-              ],
-              internalType: 'struct IKSElasticLMV2.RewardInput[]',
-              name: 'rewards',
-              type: 'tuple[]',
-            },
-          ],
-          indexed: false,
-          internalType: 'struct IKSElasticLMV2.PhaseInput',
-          name: 'phase',
-          type: 'tuple',
-        },
-        { indexed: false, internalType: 'address', name: 'farmingToken', type: 'address' },
-      ],
-      name: 'AddFarm',
-      type: 'event',
-    },
-    {
-      anonymous: false,
-      inputs: [
-        { indexed: true, internalType: 'uint256', name: 'fId', type: 'uint256' },
-        {
-          components: [
-            { internalType: 'uint32', name: 'startTime', type: 'uint32' },
-            { internalType: 'uint32', name: 'endTime', type: 'uint32' },
-            {
-              components: [
-                { internalType: 'address', name: 'rewardToken', type: 'address' },
-                { internalType: 'uint256', name: 'rewardAmount', type: 'uint256' },
-              ],
-              internalType: 'struct IKSElasticLMV2.RewardInput[]',
-              name: 'rewards',
-              type: 'tuple[]',
-            },
-          ],
-          indexed: false,
-          internalType: 'struct IKSElasticLMV2.PhaseInput',
-          name: 'phase',
-          type: 'tuple',
-        },
-      ],
-      name: 'AddPhase',
-      type: 'event',
-    },
-    {
-      anonymous: false,
-      inputs: [
-        { indexed: true, internalType: 'uint256', name: 'fId', type: 'uint256' },
-        {
-          components: [
-            { internalType: 'int24', name: 'tickLower', type: 'int24' },
-            { internalType: 'int24', name: 'tickUpper', type: 'int24' },
-            { internalType: 'uint32', name: 'weight', type: 'uint32' },
-          ],
-          indexed: false,
-          internalType: 'struct IKSElasticLMV2.RangeInput',
-          name: 'range',
-          type: 'tuple',
-        },
-      ],
-      name: 'AddRange',
-      type: 'event',
-    },
-    {
-      anonymous: false,
-      inputs: [
-        { indexed: false, internalType: 'uint256', name: 'fId', type: 'uint256' },
-        { indexed: false, internalType: 'uint256[]', name: 'nftIds', type: 'uint256[]' },
-        { indexed: false, internalType: 'address', name: 'token', type: 'address' },
-        { indexed: false, internalType: 'uint256', name: 'amount', type: 'uint256' },
-        { indexed: false, internalType: 'address', name: 'receiver', type: 'address' },
-      ],
-      name: 'ClaimReward',
-      type: 'event',
-    },
-    {
-      anonymous: false,
-      inputs: [
-        { indexed: true, internalType: 'uint256', name: 'fId', type: 'uint256' },
-        { indexed: false, internalType: 'uint256', name: 'rangeId', type: 'uint256' },
-        { indexed: false, internalType: 'uint256[]', name: 'nftIds', type: 'uint256[]' },
-        { indexed: true, internalType: 'address', name: 'depositer', type: 'address' },
-        { indexed: false, internalType: 'address', name: 'receiver', type: 'address' },
-      ],
-      name: 'Deposit',
-      type: 'event',
-    },
-    {
-      anonymous: false,
-      inputs: [
-        { indexed: true, internalType: 'uint256', name: 'fId', type: 'uint256' },
-        { indexed: false, internalType: 'uint256', name: 'duration', type: 'uint256' },
-        { indexed: false, internalType: 'uint256[]', name: 'rewardAmounts', type: 'uint256[]' },
-      ],
-      name: 'ExpandEndTimeAndRewards',
-      type: 'event',
-    },
-    {
-      anonymous: false,
-      inputs: [{ indexed: true, internalType: 'uint256', name: 'fId', type: 'uint256' }],
-      name: 'ForceClosePhase',
-      type: 'event',
-    },
-    {
-      anonymous: false,
-      inputs: [
-        { indexed: true, internalType: 'uint256', name: 'fId', type: 'uint256' },
-        { indexed: false, internalType: 'uint256', name: 'rangeId', type: 'uint256' },
-      ],
-      name: 'RemoveRange',
-      type: 'event',
-    },
-    {
-      anonymous: false,
-      inputs: [
-        { indexed: false, internalType: 'address', name: 'oldAdmin', type: 'address' },
-        { indexed: false, internalType: 'address', name: 'newAdmin', type: 'address' },
-      ],
-      name: 'TransferAdmin',
-      type: 'event',
-    },
-    {
-      anonymous: false,
-      inputs: [{ indexed: false, internalType: 'bool', name: 'enableOrDisable', type: 'bool' }],
-      name: 'UpdateEmergency',
-      type: 'event',
-    },
-    {
-      anonymous: false,
-      inputs: [{ indexed: false, internalType: 'address', name: 'helper', type: 'address' }],
-      name: 'UpdateHelper',
-      type: 'event',
-    },
-    {
-      anonymous: false,
-      inputs: [
-        { indexed: true, internalType: 'uint256', name: 'fId', type: 'uint256' },
-        { indexed: false, internalType: 'uint256', name: 'nftId', type: 'uint256' },
-        { indexed: false, internalType: 'uint256', name: 'oldLiquidity', type: 'uint256' },
-        { indexed: false, internalType: 'uint256', name: 'newLiquidity', type: 'uint256' },
-      ],
-      name: 'UpdateLiquidity',
-      type: 'event',
-    },
-    {
-      anonymous: false,
-      inputs: [
-        { indexed: false, internalType: 'address', name: 'operator', type: 'address' },
-        { indexed: false, internalType: 'bool', name: 'grantOrRevoke', type: 'bool' },
-      ],
-      name: 'UpdateOperator',
-      type: 'event',
-    },
-    {
-      anonymous: false,
-      inputs: [{ indexed: false, internalType: 'bytes', name: 'farmingTokenCode', type: 'bytes' }],
-      name: 'UpdateTokenCode',
-      type: 'event',
-    },
-    {
-      anonymous: false,
-      inputs: [
-        { indexed: false, internalType: 'uint256[]', name: 'nftIds', type: 'uint256[]' },
-        { indexed: false, internalType: 'address', name: 'receiver', type: 'address' },
-      ],
-      name: 'Withdraw',
-      type: 'event',
-    },
-    {
-      anonymous: false,
-      inputs: [
-        { indexed: false, internalType: 'uint256', name: 'nftId', type: 'uint256' },
-        { indexed: false, internalType: 'address', name: 'receiver', type: 'address' },
-      ],
-      name: 'WithdrawEmergency',
-      type: 'event',
-    },
-    {
-      anonymous: false,
-      inputs: [
-        { indexed: false, internalType: 'address', name: 'token', type: 'address' },
-        { indexed: false, internalType: 'uint256', name: 'amount', type: 'uint256' },
-        { indexed: false, internalType: 'address', name: 'receiver', type: 'address' },
-      ],
-      name: 'WithdrawUnusedRewards',
-      type: 'event',
-    },
-    {
-      inputs: [
-        { internalType: 'address', name: 'poolAddress', type: 'address' },
-        {
-          components: [
-            { internalType: 'int24', name: 'tickLower', type: 'int24' },
-            { internalType: 'int24', name: 'tickUpper', type: 'int24' },
-            { internalType: 'uint32', name: 'weight', type: 'uint32' },
-          ],
-          internalType: 'struct IKSElasticLMV2.RangeInput[]',
-          name: 'ranges',
-          type: 'tuple[]',
-        },
-        {
-          components: [
-            { internalType: 'uint32', name: 'startTime', type: 'uint32' },
-            { internalType: 'uint32', name: 'endTime', type: 'uint32' },
-            {
-              components: [
-                { internalType: 'address', name: 'rewardToken', type: 'address' },
-                { internalType: 'uint256', name: 'rewardAmount', type: 'uint256' },
-              ],
-              internalType: 'struct IKSElasticLMV2.RewardInput[]',
-              name: 'rewards',
-              type: 'tuple[]',
-            },
-          ],
-          internalType: 'struct IKSElasticLMV2.PhaseInput',
-          name: 'phase',
-          type: 'tuple',
-        },
-        { internalType: 'bool', name: 'isUsingToken', type: 'bool' },
-      ],
-      name: 'addFarm',
-      outputs: [{ internalType: 'uint256', name: 'fId', type: 'uint256' }],
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-    {
-      inputs: [
-        { internalType: 'uint256', name: 'fId', type: 'uint256' },
-        { internalType: 'uint256', name: 'rangeId', type: 'uint256' },
-        { internalType: 'uint256[]', name: 'nftIds', type: 'uint256[]' },
-      ],
-      name: 'addLiquidity',
-      outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-    {
-      inputs: [
-        { internalType: 'uint256', name: 'fId', type: 'uint256' },
-        {
-          components: [
-            { internalType: 'uint32', name: 'startTime', type: 'uint32' },
-            { internalType: 'uint32', name: 'endTime', type: 'uint32' },
-            {
-              components: [
-                { internalType: 'address', name: 'rewardToken', type: 'address' },
-                { internalType: 'uint256', name: 'rewardAmount', type: 'uint256' },
-              ],
-              internalType: 'struct IKSElasticLMV2.RewardInput[]',
-              name: 'rewards',
-              type: 'tuple[]',
-            },
-          ],
-          internalType: 'struct IKSElasticLMV2.PhaseInput',
-          name: 'phaseInput',
-          type: 'tuple',
-        },
-      ],
-      name: 'addPhase',
-      outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-    {
-      inputs: [
-        { internalType: 'uint256', name: 'fId', type: 'uint256' },
-        {
-          components: [
-            { internalType: 'int24', name: 'tickLower', type: 'int24' },
-            { internalType: 'int24', name: 'tickUpper', type: 'int24' },
-            { internalType: 'uint32', name: 'weight', type: 'uint32' },
-          ],
-          internalType: 'struct IKSElasticLMV2.RangeInput',
-          name: 'range',
-          type: 'tuple',
-        },
-      ],
-      name: 'addRange',
-      outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-    {
-      inputs: [
-        { internalType: 'uint256', name: 'fId', type: 'uint256' },
-        { internalType: 'uint256[]', name: 'nftIds', type: 'uint256[]' },
-      ],
-      name: 'claimReward',
-      outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-    {
-      inputs: [
-        { internalType: 'uint256', name: 'fId', type: 'uint256' },
-        { internalType: 'uint256', name: 'rangeId', type: 'uint256' },
-        { internalType: 'uint256[]', name: 'nftIds', type: 'uint256[]' },
-        { internalType: 'address', name: 'receiver', type: 'address' },
-      ],
-      name: 'deposit',
-      outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-    {
-      inputs: [],
-      name: 'emergencyEnabled',
-      outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
-      stateMutability: 'view',
-      type: 'function',
-    },
-    {
-      inputs: [],
-      name: 'farmCount',
-      outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-      stateMutability: 'view',
-      type: 'function',
-    },
-    {
-      inputs: [{ internalType: 'uint256', name: 'fId', type: 'uint256' }],
-      name: 'forceClosePhase',
-      outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-    {
-      inputs: [],
-      name: 'getAdmin',
-      outputs: [{ internalType: 'address', name: '', type: 'address' }],
-      stateMutability: 'view',
-      type: 'function',
-    },
-    {
-      inputs: [{ internalType: 'address', name: 'user', type: 'address' }],
-      name: 'getDepositedNFTs',
-      outputs: [{ internalType: 'uint256[]', name: 'listNFTs', type: 'uint256[]' }],
-      stateMutability: 'view',
-      type: 'function',
-    },
-    {
-      inputs: [{ internalType: 'uint256', name: 'fId', type: 'uint256' }],
-      name: 'getFarm',
-      outputs: [
-        { internalType: 'address', name: 'poolAddress', type: 'address' },
-        {
-          components: [
-            { internalType: 'int24', name: 'tickLower', type: 'int24' },
-            { internalType: 'int24', name: 'tickUpper', type: 'int24' },
-            { internalType: 'uint32', name: 'weight', type: 'uint32' },
-            { internalType: 'bool', name: 'isRemoved', type: 'bool' },
-          ],
-          internalType: 'struct IKSElasticLMV2.RangeInfo[]',
-          name: 'ranges',
-          type: 'tuple[]',
-        },
-        {
-          components: [
-            { internalType: 'uint32', name: 'startTime', type: 'uint32' },
-            { internalType: 'uint32', name: 'endTime', type: 'uint32' },
-            { internalType: 'bool', name: 'isSettled', type: 'bool' },
-            {
-              components: [
-                { internalType: 'address', name: 'rewardToken', type: 'address' },
-                { internalType: 'uint256', name: 'rewardAmount', type: 'uint256' },
-              ],
-              internalType: 'struct IKSElasticLMV2.RewardInput[]',
-              name: 'rewards',
-              type: 'tuple[]',
-            },
-          ],
-          internalType: 'struct IKSElasticLMV2.PhaseInfo',
-          name: 'phase',
-          type: 'tuple',
-        },
-        { internalType: 'uint256', name: 'liquidity', type: 'uint256' },
-        { internalType: 'address', name: 'farmingToken', type: 'address' },
-        { internalType: 'uint256[]', name: 'sumRewardPerLiquidity', type: 'uint256[]' },
-        { internalType: 'uint32', name: 'lastTouchedTime', type: 'uint32' },
-      ],
-      stateMutability: 'view',
-      type: 'function',
-    },
-    {
-      inputs: [],
-      name: 'getNft',
-      outputs: [{ internalType: 'contract IERC721', name: '', type: 'address' }],
-      stateMutability: 'view',
-      type: 'function',
-    },
-    {
-      inputs: [{ internalType: 'uint256', name: 'nftId', type: 'uint256' }],
-      name: 'getStake',
-      outputs: [
-        { internalType: 'address', name: 'owner', type: 'address' },
-        { internalType: 'uint256', name: 'fId', type: 'uint256' },
-        { internalType: 'uint256', name: 'rangeId', type: 'uint256' },
-        { internalType: 'uint256', name: 'liquidity', type: 'uint256' },
-        { internalType: 'uint256[]', name: 'lastSumRewardPerLiquidity', type: 'uint256[]' },
-        { internalType: 'uint256[]', name: 'rewardUnclaimed', type: 'uint256[]' },
-      ],
-      stateMutability: 'view',
-      type: 'function',
-    },
-    {
-      inputs: [
-        { internalType: 'uint256', name: 'fId', type: 'uint256' },
-        { internalType: 'uint256', name: 'rangeId', type: 'uint256' },
-        { internalType: 'uint256[]', name: 'nftIds', type: 'uint256[]' },
-        { internalType: 'uint128[]', name: 'liquidities', type: 'uint128[]' },
-        { internalType: 'uint256', name: 'amount0Min', type: 'uint256' },
-        { internalType: 'uint256', name: 'amount1Min', type: 'uint256' },
-        { internalType: 'uint256', name: 'deadline', type: 'uint256' },
-        { internalType: 'bool', name: 'claimFee', type: 'bool' },
-      ],
-      name: 'removeLiquidity',
-      outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-    {
-      inputs: [
-        { internalType: 'uint256', name: 'fId', type: 'uint256' },
-        { internalType: 'uint256', name: 'rangeId', type: 'uint256' },
-      ],
-      name: 'removeRange',
-      outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-    {
-      inputs: [{ internalType: 'address', name: '_admin', type: 'address' }],
-      name: 'transferAdmin',
-      outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-    {
-      inputs: [{ internalType: 'bool', name: 'enableOrDisable', type: 'bool' }],
-      name: 'updateEmergency',
-      outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-    {
-      inputs: [{ internalType: 'address', name: '_helper', type: 'address' }],
-      name: 'updateHelper',
-      outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-    {
-      inputs: [
-        { internalType: 'address', name: 'user', type: 'address' },
-        { internalType: 'bool', name: 'grantOrRevoke', type: 'bool' },
-      ],
-      name: 'updateOperator',
-      outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-    {
-      inputs: [{ internalType: 'bytes', name: '_farmingTokenCreationCode', type: 'bytes' }],
-      name: 'updateTokenCode',
-      outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-    {
-      inputs: [
-        { internalType: 'uint256', name: 'fId', type: 'uint256' },
-        { internalType: 'uint256[]', name: 'nftIds', type: 'uint256[]' },
-      ],
-      name: 'withdraw',
-      outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-    {
-      inputs: [{ internalType: 'uint256[]', name: 'nftIds', type: 'uint256[]' }],
-      name: 'withdrawEmergency',
-      outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-    {
-      inputs: [
-        { internalType: 'address[]', name: 'tokens', type: 'address[]' },
-        { internalType: 'uint256[]', name: 'amounts', type: 'uint256[]' },
-      ],
-      name: 'withdrawUnusedRewards',
-      outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-    { stateMutability: 'payable', type: 'receive' },
-  ])
-
+  // const c = useContract('0x179A3d2e958D185F47D1Db046b796C5242d68981', [
+  //   {
+  //     inputs: [
+  //       { internalType: 'contract IERC721', name: '_nft', type: 'address' },
+  //       { internalType: 'address', name: '_helper', type: 'address' },
+  //     ],
+  //     stateMutability: 'nonpayable',
+  //     type: 'constructor',
+  //   },
+  //   { inputs: [], name: 'EmergencyEnabled', type: 'error' },
+  //   { inputs: [], name: 'FailToAdd', type: 'error' },
+  //   { inputs: [], name: 'FailToRemove', type: 'error' },
+  //   { inputs: [], name: 'FarmNotFound', type: 'error' },
+  //   { inputs: [], name: 'Forbidden', type: 'error' },
+  //   { inputs: [], name: 'InvalidFarm', type: 'error' },
+  //   { inputs: [], name: 'InvalidInput', type: 'error' },
+  //   { inputs: [], name: 'InvalidRange', type: 'error' },
+  //   { inputs: [], name: 'InvalidReward', type: 'error' },
+  //   { inputs: [], name: 'InvalidTime', type: 'error' },
+  //   { inputs: [], name: 'NotOwner', type: 'error' },
+  //   { inputs: [], name: 'PhaseSettled', type: 'error' },
+  //   { inputs: [], name: 'PositionNotEligible', type: 'error' },
+  //   { inputs: [], name: 'RangeNotFound', type: 'error' },
+  //   { inputs: [], name: 'RangeNotMatch', type: 'error' },
+  //   { inputs: [], name: 'StakeNotFound', type: 'error' },
+  //   {
+  //     anonymous: false,
+  //     inputs: [
+  //       { indexed: true, internalType: 'uint256', name: 'fId', type: 'uint256' },
+  //       { indexed: false, internalType: 'address', name: 'poolAddress', type: 'address' },
+  //       {
+  //         components: [
+  //           { internalType: 'int24', name: 'tickLower', type: 'int24' },
+  //           { internalType: 'int24', name: 'tickUpper', type: 'int24' },
+  //           { internalType: 'uint32', name: 'weight', type: 'uint32' },
+  //         ],
+  //         indexed: false,
+  //         internalType: 'struct IKSElasticLMV2.RangeInput[]',
+  //         name: 'ranges',
+  //         type: 'tuple[]',
+  //       },
+  //       {
+  //         components: [
+  //           { internalType: 'uint32', name: 'startTime', type: 'uint32' },
+  //           { internalType: 'uint32', name: 'endTime', type: 'uint32' },
+  //           {
+  //             components: [
+  //               { internalType: 'address', name: 'rewardToken', type: 'address' },
+  //               { internalType: 'uint256', name: 'rewardAmount', type: 'uint256' },
+  //             ],
+  //             internalType: 'struct IKSElasticLMV2.RewardInput[]',
+  //             name: 'rewards',
+  //             type: 'tuple[]',
+  //           },
+  //         ],
+  //         indexed: false,
+  //         internalType: 'struct IKSElasticLMV2.PhaseInput',
+  //         name: 'phase',
+  //         type: 'tuple',
+  //       },
+  //       { indexed: false, internalType: 'address', name: 'farmingToken', type: 'address' },
+  //     ],
+  //     name: 'AddFarm',
+  //     type: 'event',
+  //   },
+  //   {
+  //     anonymous: false,
+  //     inputs: [
+  //       { indexed: true, internalType: 'uint256', name: 'fId', type: 'uint256' },
+  //       {
+  //         components: [
+  //           { internalType: 'uint32', name: 'startTime', type: 'uint32' },
+  //           { internalType: 'uint32', name: 'endTime', type: 'uint32' },
+  //           {
+  //             components: [
+  //               { internalType: 'address', name: 'rewardToken', type: 'address' },
+  //               { internalType: 'uint256', name: 'rewardAmount', type: 'uint256' },
+  //             ],
+  //             internalType: 'struct IKSElasticLMV2.RewardInput[]',
+  //             name: 'rewards',
+  //             type: 'tuple[]',
+  //           },
+  //         ],
+  //         indexed: false,
+  //         internalType: 'struct IKSElasticLMV2.PhaseInput',
+  //         name: 'phase',
+  //         type: 'tuple',
+  //       },
+  //     ],
+  //     name: 'AddPhase',
+  //     type: 'event',
+  //   },
+  //   {
+  //     anonymous: false,
+  //     inputs: [
+  //       { indexed: true, internalType: 'uint256', name: 'fId', type: 'uint256' },
+  //       {
+  //         components: [
+  //           { internalType: 'int24', name: 'tickLower', type: 'int24' },
+  //           { internalType: 'int24', name: 'tickUpper', type: 'int24' },
+  //           { internalType: 'uint32', name: 'weight', type: 'uint32' },
+  //         ],
+  //         indexed: false,
+  //         internalType: 'struct IKSElasticLMV2.RangeInput',
+  //         name: 'range',
+  //         type: 'tuple',
+  //       },
+  //     ],
+  //     name: 'AddRange',
+  //     type: 'event',
+  //   },
+  //   {
+  //     anonymous: false,
+  //     inputs: [
+  //       { indexed: false, internalType: 'uint256', name: 'fId', type: 'uint256' },
+  //       { indexed: false, internalType: 'uint256[]', name: 'nftIds', type: 'uint256[]' },
+  //       { indexed: false, internalType: 'address', name: 'token', type: 'address' },
+  //       { indexed: false, internalType: 'uint256', name: 'amount', type: 'uint256' },
+  //       { indexed: false, internalType: 'address', name: 'receiver', type: 'address' },
+  //     ],
+  //     name: 'ClaimReward',
+  //     type: 'event',
+  //   },
+  //   {
+  //     anonymous: false,
+  //     inputs: [
+  //       { indexed: true, internalType: 'uint256', name: 'fId', type: 'uint256' },
+  //       { indexed: false, internalType: 'uint256', name: 'rangeId', type: 'uint256' },
+  //       { indexed: false, internalType: 'uint256[]', name: 'nftIds', type: 'uint256[]' },
+  //       { indexed: true, internalType: 'address', name: 'depositer', type: 'address' },
+  //       { indexed: false, internalType: 'address', name: 'receiver', type: 'address' },
+  //     ],
+  //     name: 'Deposit',
+  //     type: 'event',
+  //   },
+  //   {
+  //     anonymous: false,
+  //     inputs: [
+  //       { indexed: true, internalType: 'uint256', name: 'fId', type: 'uint256' },
+  //       { indexed: false, internalType: 'uint256', name: 'duration', type: 'uint256' },
+  //       { indexed: false, internalType: 'uint256[]', name: 'rewardAmounts', type: 'uint256[]' },
+  //     ],
+  //     name: 'ExpandEndTimeAndRewards',
+  //     type: 'event',
+  //   },
+  //   {
+  //     anonymous: false,
+  //     inputs: [{ indexed: true, internalType: 'uint256', name: 'fId', type: 'uint256' }],
+  //     name: 'ForceClosePhase',
+  //     type: 'event',
+  //   },
+  //   {
+  //     anonymous: false,
+  //     inputs: [
+  //       { indexed: true, internalType: 'uint256', name: 'fId', type: 'uint256' },
+  //       { indexed: false, internalType: 'uint256', name: 'rangeId', type: 'uint256' },
+  //     ],
+  //     name: 'RemoveRange',
+  //     type: 'event',
+  //   },
+  //   {
+  //     anonymous: false,
+  //     inputs: [
+  //       { indexed: false, internalType: 'address', name: 'oldAdmin', type: 'address' },
+  //       { indexed: false, internalType: 'address', name: 'newAdmin', type: 'address' },
+  //     ],
+  //     name: 'TransferAdmin',
+  //     type: 'event',
+  //   },
+  //   {
+  //     anonymous: false,
+  //     inputs: [{ indexed: false, internalType: 'bool', name: 'enableOrDisable', type: 'bool' }],
+  //     name: 'UpdateEmergency',
+  //     type: 'event',
+  //   },
+  //   {
+  //     anonymous: false,
+  //     inputs: [{ indexed: false, internalType: 'address', name: 'helper', type: 'address' }],
+  //     name: 'UpdateHelper',
+  //     type: 'event',
+  //   },
+  //   {
+  //     anonymous: false,
+  //     inputs: [
+  //       { indexed: true, internalType: 'uint256', name: 'fId', type: 'uint256' },
+  //       { indexed: false, internalType: 'uint256', name: 'nftId', type: 'uint256' },
+  //       { indexed: false, internalType: 'uint256', name: 'oldLiquidity', type: 'uint256' },
+  //       { indexed: false, internalType: 'uint256', name: 'newLiquidity', type: 'uint256' },
+  //     ],
+  //     name: 'UpdateLiquidity',
+  //     type: 'event',
+  //   },
+  //   {
+  //     anonymous: false,
+  //     inputs: [
+  //       { indexed: false, internalType: 'address', name: 'operator', type: 'address' },
+  //       { indexed: false, internalType: 'bool', name: 'grantOrRevoke', type: 'bool' },
+  //     ],
+  //     name: 'UpdateOperator',
+  //     type: 'event',
+  //   },
+  //   {
+  //     anonymous: false,
+  //     inputs: [{ indexed: false, internalType: 'bytes', name: 'farmingTokenCode', type: 'bytes' }],
+  //     name: 'UpdateTokenCode',
+  //     type: 'event',
+  //   },
+  //   {
+  //     anonymous: false,
+  //     inputs: [
+  //       { indexed: false, internalType: 'uint256[]', name: 'nftIds', type: 'uint256[]' },
+  //       { indexed: false, internalType: 'address', name: 'receiver', type: 'address' },
+  //     ],
+  //     name: 'Withdraw',
+  //     type: 'event',
+  //   },
+  //   {
+  //     anonymous: false,
+  //     inputs: [
+  //       { indexed: false, internalType: 'uint256', name: 'nftId', type: 'uint256' },
+  //       { indexed: false, internalType: 'address', name: 'receiver', type: 'address' },
+  //     ],
+  //     name: 'WithdrawEmergency',
+  //     type: 'event',
+  //   },
+  //   {
+  //     anonymous: false,
+  //     inputs: [
+  //       { indexed: false, internalType: 'address', name: 'token', type: 'address' },
+  //       { indexed: false, internalType: 'uint256', name: 'amount', type: 'uint256' },
+  //       { indexed: false, internalType: 'address', name: 'receiver', type: 'address' },
+  //     ],
+  //     name: 'WithdrawUnusedRewards',
+  //     type: 'event',
+  //   },
+  //   {
+  //     inputs: [
+  //       { internalType: 'address', name: 'poolAddress', type: 'address' },
+  //       {
+  //         components: [
+  //           { internalType: 'int24', name: 'tickLower', type: 'int24' },
+  //           { internalType: 'int24', name: 'tickUpper', type: 'int24' },
+  //           { internalType: 'uint32', name: 'weight', type: 'uint32' },
+  //         ],
+  //         internalType: 'struct IKSElasticLMV2.RangeInput[]',
+  //         name: 'ranges',
+  //         type: 'tuple[]',
+  //       },
+  //       {
+  //         components: [
+  //           { internalType: 'uint32', name: 'startTime', type: 'uint32' },
+  //           { internalType: 'uint32', name: 'endTime', type: 'uint32' },
+  //           {
+  //             components: [
+  //               { internalType: 'address', name: 'rewardToken', type: 'address' },
+  //               { internalType: 'uint256', name: 'rewardAmount', type: 'uint256' },
+  //             ],
+  //             internalType: 'struct IKSElasticLMV2.RewardInput[]',
+  //             name: 'rewards',
+  //             type: 'tuple[]',
+  //           },
+  //         ],
+  //         internalType: 'struct IKSElasticLMV2.PhaseInput',
+  //         name: 'phase',
+  //         type: 'tuple',
+  //       },
+  //       { internalType: 'bool', name: 'isUsingToken', type: 'bool' },
+  //     ],
+  //     name: 'addFarm',
+  //     outputs: [{ internalType: 'uint256', name: 'fId', type: 'uint256' }],
+  //     stateMutability: 'nonpayable',
+  //     type: 'function',
+  //   },
+  //   {
+  //     inputs: [
+  //       { internalType: 'uint256', name: 'fId', type: 'uint256' },
+  //       { internalType: 'uint256', name: 'rangeId', type: 'uint256' },
+  //       { internalType: 'uint256[]', name: 'nftIds', type: 'uint256[]' },
+  //     ],
+  //     name: 'addLiquidity',
+  //     outputs: [],
+  //     stateMutability: 'nonpayable',
+  //     type: 'function',
+  //   },
+  //   {
+  //     inputs: [
+  //       { internalType: 'uint256', name: 'fId', type: 'uint256' },
+  //       {
+  //         components: [
+  //           { internalType: 'uint32', name: 'startTime', type: 'uint32' },
+  //           { internalType: 'uint32', name: 'endTime', type: 'uint32' },
+  //           {
+  //             components: [
+  //               { internalType: 'address', name: 'rewardToken', type: 'address' },
+  //               { internalType: 'uint256', name: 'rewardAmount', type: 'uint256' },
+  //             ],
+  //             internalType: 'struct IKSElasticLMV2.RewardInput[]',
+  //             name: 'rewards',
+  //             type: 'tuple[]',
+  //           },
+  //         ],
+  //         internalType: 'struct IKSElasticLMV2.PhaseInput',
+  //         name: 'phaseInput',
+  //         type: 'tuple',
+  //       },
+  //     ],
+  //     name: 'addPhase',
+  //     outputs: [],
+  //     stateMutability: 'nonpayable',
+  //     type: 'function',
+  //   },
+  //   {
+  //     inputs: [
+  //       { internalType: 'uint256', name: 'fId', type: 'uint256' },
+  //       {
+  //         components: [
+  //           { internalType: 'int24', name: 'tickLower', type: 'int24' },
+  //           { internalType: 'int24', name: 'tickUpper', type: 'int24' },
+  //           { internalType: 'uint32', name: 'weight', type: 'uint32' },
+  //         ],
+  //         internalType: 'struct IKSElasticLMV2.RangeInput',
+  //         name: 'range',
+  //         type: 'tuple',
+  //       },
+  //     ],
+  //     name: 'addRange',
+  //     outputs: [],
+  //     stateMutability: 'nonpayable',
+  //     type: 'function',
+  //   },
+  //   {
+  //     inputs: [
+  //       { internalType: 'uint256', name: 'fId', type: 'uint256' },
+  //       { internalType: 'uint256[]', name: 'nftIds', type: 'uint256[]' },
+  //     ],
+  //     name: 'claimReward',
+  //     outputs: [],
+  //     stateMutability: 'nonpayable',
+  //     type: 'function',
+  //   },
+  //   {
+  //     inputs: [
+  //       { internalType: 'uint256', name: 'fId', type: 'uint256' },
+  //       { internalType: 'uint256', name: 'rangeId', type: 'uint256' },
+  //       { internalType: 'uint256[]', name: 'nftIds', type: 'uint256[]' },
+  //       { internalType: 'address', name: 'receiver', type: 'address' },
+  //     ],
+  //     name: 'deposit',
+  //     outputs: [],
+  //     stateMutability: 'nonpayable',
+  //     type: 'function',
+  //   },
+  //   {
+  //     inputs: [],
+  //     name: 'emergencyEnabled',
+  //     outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+  //     stateMutability: 'view',
+  //     type: 'function',
+  //   },
+  //   {
+  //     inputs: [],
+  //     name: 'farmCount',
+  //     outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+  //     stateMutability: 'view',
+  //     type: 'function',
+  //   },
+  //   {
+  //     inputs: [{ internalType: 'uint256', name: 'fId', type: 'uint256' }],
+  //     name: 'forceClosePhase',
+  //     outputs: [],
+  //     stateMutability: 'nonpayable',
+  //     type: 'function',
+  //   },
+  //   {
+  //     inputs: [],
+  //     name: 'getAdmin',
+  //     outputs: [{ internalType: 'address', name: '', type: 'address' }],
+  //     stateMutability: 'view',
+  //     type: 'function',
+  //   },
+  //   {
+  //     inputs: [{ internalType: 'address', name: 'user', type: 'address' }],
+  //     name: 'getDepositedNFTs',
+  //     outputs: [{ internalType: 'uint256[]', name: 'listNFTs', type: 'uint256[]' }],
+  //     stateMutability: 'view',
+  //     type: 'function',
+  //   },
+  //   {
+  //     inputs: [{ internalType: 'uint256', name: 'fId', type: 'uint256' }],
+  //     name: 'getFarm',
+  //     outputs: [
+  //       { internalType: 'address', name: 'poolAddress', type: 'address' },
+  //       {
+  //         components: [
+  //           { internalType: 'int24', name: 'tickLower', type: 'int24' },
+  //           { internalType: 'int24', name: 'tickUpper', type: 'int24' },
+  //           { internalType: 'uint32', name: 'weight', type: 'uint32' },
+  //           { internalType: 'bool', name: 'isRemoved', type: 'bool' },
+  //         ],
+  //         internalType: 'struct IKSElasticLMV2.RangeInfo[]',
+  //         name: 'ranges',
+  //         type: 'tuple[]',
+  //       },
+  //       {
+  //         components: [
+  //           { internalType: 'uint32', name: 'startTime', type: 'uint32' },
+  //           { internalType: 'uint32', name: 'endTime', type: 'uint32' },
+  //           { internalType: 'bool', name: 'isSettled', type: 'bool' },
+  //           {
+  //             components: [
+  //               { internalType: 'address', name: 'rewardToken', type: 'address' },
+  //               { internalType: 'uint256', name: 'rewardAmount', type: 'uint256' },
+  //             ],
+  //             internalType: 'struct IKSElasticLMV2.RewardInput[]',
+  //             name: 'rewards',
+  //             type: 'tuple[]',
+  //           },
+  //         ],
+  //         internalType: 'struct IKSElasticLMV2.PhaseInfo',
+  //         name: 'phase',
+  //         type: 'tuple',
+  //       },
+  //       { internalType: 'uint256', name: 'liquidity', type: 'uint256' },
+  //       { internalType: 'address', name: 'farmingToken', type: 'address' },
+  //       { internalType: 'uint256[]', name: 'sumRewardPerLiquidity', type: 'uint256[]' },
+  //       { internalType: 'uint32', name: 'lastTouchedTime', type: 'uint32' },
+  //     ],
+  //     stateMutability: 'view',
+  //     type: 'function',
+  //   },
+  //   {
+  //     inputs: [],
+  //     name: 'getNft',
+  //     outputs: [{ internalType: 'contract IERC721', name: '', type: 'address' }],
+  //     stateMutability: 'view',
+  //     type: 'function',
+  //   },
+  //   {
+  //     inputs: [{ internalType: 'uint256', name: 'nftId', type: 'uint256' }],
+  //     name: 'getStake',
+  //     outputs: [
+  //       { internalType: 'address', name: 'owner', type: 'address' },
+  //       { internalType: 'uint256', name: 'fId', type: 'uint256' },
+  //       { internalType: 'uint256', name: 'rangeId', type: 'uint256' },
+  //       { internalType: 'uint256', name: 'liquidity', type: 'uint256' },
+  //       { internalType: 'uint256[]', name: 'lastSumRewardPerLiquidity', type: 'uint256[]' },
+  //       { internalType: 'uint256[]', name: 'rewardUnclaimed', type: 'uint256[]' },
+  //     ],
+  //     stateMutability: 'view',
+  //     type: 'function',
+  //   },
+  //   {
+  //     inputs: [
+  //       { internalType: 'uint256', name: 'fId', type: 'uint256' },
+  //       { internalType: 'uint256', name: 'rangeId', type: 'uint256' },
+  //       { internalType: 'uint256[]', name: 'nftIds', type: 'uint256[]' },
+  //       { internalType: 'uint128[]', name: 'liquidities', type: 'uint128[]' },
+  //       { internalType: 'uint256', name: 'amount0Min', type: 'uint256' },
+  //       { internalType: 'uint256', name: 'amount1Min', type: 'uint256' },
+  //       { internalType: 'uint256', name: 'deadline', type: 'uint256' },
+  //       { internalType: 'bool', name: 'claimFee', type: 'bool' },
+  //     ],
+  //     name: 'removeLiquidity',
+  //     outputs: [],
+  //     stateMutability: 'nonpayable',
+  //     type: 'function',
+  //   },
+  //   {
+  //     inputs: [
+  //       { internalType: 'uint256', name: 'fId', type: 'uint256' },
+  //       { internalType: 'uint256', name: 'rangeId', type: 'uint256' },
+  //     ],
+  //     name: 'removeRange',
+  //     outputs: [],
+  //     stateMutability: 'nonpayable',
+  //     type: 'function',
+  //   },
+  //   {
+  //     inputs: [{ internalType: 'address', name: '_admin', type: 'address' }],
+  //     name: 'transferAdmin',
+  //     outputs: [],
+  //     stateMutability: 'nonpayable',
+  //     type: 'function',
+  //   },
+  //   {
+  //     inputs: [{ internalType: 'bool', name: 'enableOrDisable', type: 'bool' }],
+  //     name: 'updateEmergency',
+  //     outputs: [],
+  //     stateMutability: 'nonpayable',
+  //     type: 'function',
+  //   },
+  //   {
+  //     inputs: [{ internalType: 'address', name: '_helper', type: 'address' }],
+  //     name: 'updateHelper',
+  //     outputs: [],
+  //     stateMutability: 'nonpayable',
+  //     type: 'function',
+  //   },
+  //   {
+  //     inputs: [
+  //       { internalType: 'address', name: 'user', type: 'address' },
+  //       { internalType: 'bool', name: 'grantOrRevoke', type: 'bool' },
+  //     ],
+  //     name: 'updateOperator',
+  //     outputs: [],
+  //     stateMutability: 'nonpayable',
+  //     type: 'function',
+  //   },
+  //   {
+  //     inputs: [{ internalType: 'bytes', name: '_farmingTokenCreationCode', type: 'bytes' }],
+  //     name: 'updateTokenCode',
+  //     outputs: [],
+  //     stateMutability: 'nonpayable',
+  //     type: 'function',
+  //   },
+  //   {
+  //     inputs: [
+  //       { internalType: 'uint256', name: 'fId', type: 'uint256' },
+  //       { internalType: 'uint256[]', name: 'nftIds', type: 'uint256[]' },
+  //     ],
+  //     name: 'withdraw',
+  //     outputs: [],
+  //     stateMutability: 'nonpayable',
+  //     type: 'function',
+  //   },
+  //   {
+  //     inputs: [{ internalType: 'uint256[]', name: 'nftIds', type: 'uint256[]' }],
+  //     name: 'withdrawEmergency',
+  //     outputs: [],
+  //     stateMutability: 'nonpayable',
+  //     type: 'function',
+  //   },
+  //   {
+  //     inputs: [
+  //       { internalType: 'address[]', name: 'tokens', type: 'address[]' },
+  //       { internalType: 'uint256[]', name: 'amounts', type: 'uint256[]' },
+  //     ],
+  //     name: 'withdrawUnusedRewards',
+  //     outputs: [],
+  //     stateMutability: 'nonpayable',
+  //     type: 'function',
+  //   },
+  //   { stateMutability: 'payable', type: 'receive' },
+  // ])
+  //
   return (
     <ErrorBoundary>
-      <button
-        onClick={() => {
-          c?.addFarm(
-            '0xaf3EC7e24AA7eeE26362Db2631294efC9A362E37',
-            [
-              [-100, 100, 1],
-              [-198, 198, 2],
-            ],
-            [
-              1685962800,
-              1686654000,
-              [
-                ['0x325697956767826a1DDf0Ee8D5Eb0f8AE3a2c171', '1000000000000000000000'],
-                ['0xEAC23a03F26df44fe3bB67BDE1ECAeCbEE0DAaA9', '1000000000000000000000'],
-              ],
-            ],
-            false,
-          )
-        }}
-      >
-        aaa
-      </button>
-
       <AppHaveUpdate />
       {(BLACKLIST_WALLETS.includes(isAddressString(chainId, account)) ||
         BLACKLIST_WALLETS.includes(account?.toLowerCase() || '')) && (
