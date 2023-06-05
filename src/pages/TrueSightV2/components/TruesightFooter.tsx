@@ -43,8 +43,7 @@ export default function TruesightFooter() {
     <Wrapper>
       <Text>
         <Trans>
-          KyberSwap offers the best prices for traders, attractive earning rewards & smart trading insights. Are you
-          FOMOing yet?
+          KyberSwap offers excellent rates for traders, attractive rewards & smart trading insights! Get started now.
         </Trans>
       </Text>
       <ButtonPrimary onClick={toggle} width="fit-content" height="36px">

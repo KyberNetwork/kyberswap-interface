@@ -593,7 +593,7 @@ const WidgetTokenRow = ({
   const navigate = useNavigate()
   const { account } = useActiveWeb3React()
   const { mixpanelHandler } = useMixpanel()
-  const reachedMaxLimit = useIsReachMaxLimitWatchedToken()
+  const reachedMaxLimit = useIsReachMaxLimitWatchedToken(token?.tokens.length)
 
   const latestKyberScore: IKyberScoreChart | undefined = token?.ks_3d?.[token.ks_3d.length - 1]
   const hasMutipleChain = token?.tokens?.length > 1
