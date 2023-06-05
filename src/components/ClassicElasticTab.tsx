@@ -61,7 +61,7 @@ function ClassicElasticTab() {
   )
 
   const handleSwitchTab = (version: VERSION) => {
-    if (!!notSupportedMsg) return
+    if (!!notSupportedMsg && version !== VERSION.CLASSIC) return
     const newQs = { ...qs, tab: version }
     navigate({ search: stringify(newQs) }, { replace: true })
   }
@@ -155,9 +155,7 @@ function ClassicElasticTab() {
               sx={{ position: 'relative' }}
               alignItems={'center'}
               onClick={() => {
-                if (!!notSupportedMsg) return
-                const newQs = { ...qs, tab: VERSION.ELASTIC_LEGACY }
-                navigate({ search: stringify(newQs) }, { replace: true })
+                handleSwitchTab(VERSION.ELASTIC_LEGACY)
               }}
             >
               <PoolElasticIcon size={20} color={tab === VERSION.ELASTIC_LEGACY ? theme.primary : theme.subText} />
@@ -192,8 +190,7 @@ function ClassicElasticTab() {
       <Flex
         alignItems={'center'}
         onClick={() => {
-          const newQs = { ...qs, tab: VERSION.CLASSIC }
-          navigate({ search: stringify(newQs) }, { replace: true })
+          handleSwitchTab(VERSION.CLASSIC)
         }}
       >
         <PoolClassicIcon size={20} color={tab === VERSION.CLASSIC ? theme.primary : theme.subText} />

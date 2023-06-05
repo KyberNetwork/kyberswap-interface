@@ -287,7 +287,7 @@ const Farm = () => {
 
           {farmType !== VERSION.ELASTIC_LEGACY && <FarmGuide farmType={farmType} />}
         </div>
-        {below992 && (
+        {below992 && farmType !== VERSION.ELASTIC_LEGACY && (
           <Flex sx={{ gap: '1rem' }}>
             {rewardPrice}
             <Flex alignItems="center" sx={{ gap: '6px' }}>

@@ -164,8 +164,6 @@ const Row = ({
     pos => pos.pool.tickCurrent >= pos.tickLower && pos.pool.tickCurrent < pos.tickUpper,
   ).length
 
-  console.log(numberInRangePos, numberOutRangePos)
-
   const [, setFarmAddress] = useShareFarmAddress()
 
   const amountCanStaked = farmingPool.endTime < currentTimestamp ? 0 : farmingPool.depositedUsd - farmingPool.stakedUsd
