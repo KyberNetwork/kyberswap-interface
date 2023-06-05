@@ -23,6 +23,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
+import useIsReachMaxLimitWatchedToken from 'pages/TrueSightV2/hooks/useIsReachMaxLimitWatchedToken'
 import {
   useAddToWatchlistMutation,
   useFundingRateQuery,
@@ -592,10 +593,10 @@ const WidgetTokenRow = ({
   const navigate = useNavigate()
   const { account } = useActiveWeb3React()
   const { mixpanelHandler } = useMixpanel()
+  const reachedMaxLimit = useIsReachMaxLimitWatchedToken()
 
   const latestKyberScore: IKyberScoreChart | undefined = token?.ks_3d?.[token.ks_3d.length - 1]
   const hasMutipleChain = token?.tokens?.length > 1
-
   const [showMenu, setShowMenu] = useState(false)
   const [showSwapMenu, setShowSwapMenu] = useState(false)
   const [menuLeft, setMenuLeft] = useState<number | undefined>(undefined)
@@ -661,18 +662,20 @@ const WidgetTokenRow = ({
         setLoadingStar(false)
       })
     } else {
-      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-        token_name: token.symbol?.toUpperCase(),
-        source: activeTab,
-        ranking_order: index,
-        option: 'add',
-      })
-      Promise.all(
-        token.tokens.map(t => addToWatchlist({ wallet: account, tokenAddress: t.address, chain: t.chain })),
-      ).then(() => {
-        setIsWatched(true)
-        setLoadingStar(false)
-      })
+      if (!isWatched) {
+        mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
+          token_name: token.symbol?.toUpperCase(),
+          source: activeTab,
+          ranking_order: index,
+          option: 'add',
+        })
+        Promise.all(
+          token.tokens.map(t => addToWatchlist({ wallet: account, tokenAddress: t.address, chain: t.chain })),
+        ).then(() => {
+          setIsWatched(true)
+          setLoadingStar(false)
+        })
+      }
     }
   }
 
@@ -687,7 +690,12 @@ const WidgetTokenRow = ({
           <td>
             <Column gap="4px">
               <RowFit gap="6px">
-                <StarWithAnimation watched={isWatched} loading={loadingStar} onClick={handleWatchlistClick} />
+                <StarWithAnimation
+                  watched={isWatched}
+                  loading={loadingStar}
+                  onClick={handleWatchlistClick}
+                  disabled={!isWatched && reachedMaxLimit}
+                />
                 <img
                   alt="tokenInList"
                   src={token.tokens[0].logo}
@@ -732,8 +740,21 @@ const WidgetTokenRow = ({
         <>
           <td>
             <RowFit gap="6px">
-              <SimpleTooltip text={isWatched ? t`Remove from watchlist` : t`Add to watchlist`}>
-                <StarWithAnimation watched={isWatched} loading={loadingStar} onClick={handleWatchlistClick} />
+              <SimpleTooltip
+                text={
+                  isWatched
+                    ? t`Remove from watchlist`
+                    : reachedMaxLimit
+                    ? t`Reached 30 tokens limit`
+                    : t`Add to watchlist`
+                }
+              >
+                <StarWithAnimation
+                  watched={isWatched}
+                  loading={loadingStar}
+                  onClick={handleWatchlistClick}
+                  disabled={!isWatched && reachedMaxLimit}
+                />
               </SimpleTooltip>
               <Row gap="8px" style={{ position: 'relative', width: '24px', height: '24px' }}>
                 <img

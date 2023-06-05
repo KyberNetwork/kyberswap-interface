@@ -120,29 +120,16 @@ const KyberAITokenBanner = ({
       if (isFetching) return undefined
 
       if (staticMode) {
-        const index0 = StaticSupportedToken[chainId as number]?.findIndex(
-          i => i.address?.toLowerCase() === token0?.address?.toLowerCase(),
-        )
-        const index1 = StaticSupportedToken[chainId as number]?.findIndex(
-          i => i.address?.toLowerCase() === token1?.address?.toLowerCase(),
-        )
-        if (index0 >= 0) {
-          return StaticSupportedToken[chainId as number]?.[index0]
-        } else if (index1 >= 0) {
-          return StaticSupportedToken[chainId as number]?.[index1]
-        } else {
-          return undefined
-        }
+        return StaticSupportedToken[chainId as number]?.[0]
       }
 
-      const token =
-        tokenInputOverview?.kyberScore && tokenInputOverview.kyberScore.label !== ''
-          ? tokenInputOverview
-          : tokenOutputOverview?.kyberScore && tokenOutputOverview.kyberScore.label !== ''
-          ? tokenOutputOverview
-          : tokenNativeOverview?.kyberScore && tokenNativeOverview.kyberScore.label !== ''
-          ? tokenNativeOverview
-          : undefined
+      const token = tokenInputOverview?.kyberScore?.label
+        ? tokenInputOverview
+        : tokenOutputOverview?.kyberScore?.label
+        ? tokenOutputOverview
+        : tokenNativeOverview?.kyberScore?.label
+        ? tokenNativeOverview
+        : undefined
 
       return {
         kyberScore: token?.kyberScore?.score,
@@ -151,16 +138,7 @@ const KyberAITokenBanner = ({
         logo: token?.logo,
         symbol: token?.symbol,
       }
-    }, [
-      isFetching,
-      tokenInputOverview,
-      tokenOutputOverview,
-      tokenNativeOverview,
-      chainId,
-      staticMode,
-      token0?.address,
-      token1?.address,
-    ])
+    }, [isFetching, tokenInputOverview, tokenOutputOverview, tokenNativeOverview, chainId, staticMode])
 
   if (!token) return null
 

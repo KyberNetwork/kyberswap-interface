@@ -92,7 +92,6 @@ export default function KyberScoreChart({
             const rectHeight = !v ? 21 : Math.max((v * 21) / 100, 0.8)
             const color = calculateValueToColor(v || 0, theme)
 
-            // if (!item) return <rect key={index} x={index * (rectWidth + gap)} y={0} />
             return (
               <rect
                 key={v + index}

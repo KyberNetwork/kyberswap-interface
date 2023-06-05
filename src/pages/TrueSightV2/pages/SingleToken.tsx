@@ -27,6 +27,7 @@ import { StarWithAnimation } from '../components/WatchlistStar'
 import ExploreShareContent from '../components/shareContent/ExploreTopShareContent'
 import { MIXPANEL_KYBERAI_TAG, NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from '../constants'
 import useChartStatesReducer, { ChartStatesContext } from '../hooks/useChartStatesReducer'
+import useIsReachMaxLimitWatchedToken from '../hooks/useIsReachMaxLimitWatchedToken'
 import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation } from '../hooks/useKyberAIData'
 import useKyberAITokenOverview from '../hooks/useKyberAITokenOverview'
 import { DiscoverTokenTab, ITokenOverview } from '../types'
@@ -42,7 +43,6 @@ const Wrapper = styled.div`
   width: 100%;
   max-width: 1500px;
   color: ${({ theme }) => theme.subText};
-  gap: '12px';
 `
 
 const ButtonIcon = styled.div`
@@ -150,40 +150,6 @@ const TabButton = styled.div<{ active?: boolean }>`
   `}
 `
 
-// const HeaderTag = styled(RowFit)`
-//   position: relative;
-//   gap: 4px;
-//   padding: 4px 8px;
-//   height: 24px;
-//   font-size: 12px;
-//   line-height: 16px;
-//   font-weight: 500;
-//   color: ${({ theme }) => theme.subText};
-//   background-color: ${({ theme }) => (theme.darkMode ? theme.subText + '32' : theme.background)};
-//   border-radius: 20px;
-//   cursor: pointer;
-//   user-select: none;
-//   box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.16);
-//   :hover {
-//     filter: brightness(1.2);
-//   }
-//   :active {
-//     box-shadow: 0 0 0 1pt ${({ theme }) => theme.subText + '32'};
-//   }
-// `
-
-// const CheckIcon = styled(RowFit)`
-//   position: absolute;
-//   top: -5px;
-//   right: 0;
-//   border-radius: 50%;
-//   height: 12px;
-//   width: 12px;
-//   background-color: ${({ theme }) => (theme.darkMode ? '#19473a' : '#bcffec')};
-//   justify-content: center;
-//   color: ${({ theme }) => theme.primary};
-// `
-
 export const defaultExplorePageToken = {
   chain: 'ethereum',
   address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
@@ -273,7 +239,7 @@ const TokenNameGroup = ({ token, isLoading }: { token?: ITokenOverview; isLoadin
   const location = useLocation()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const { chain } = useParams()
-
+  const reachedMaxLimit = useIsReachMaxLimitWatchedToken()
   const [addToWatchlist, { isLoading: loadingAddtoWatchlist }] = useAddToWatchlistMutation()
   const [removeFromWatchlist, { isLoading: loadingRemovefromWatchlist }] = useRemoveFromWatchlistMutation()
 
@@ -293,12 +259,14 @@ const TokenNameGroup = ({ token, isLoading }: { token?: ITokenOverview; isLoadin
         chain,
       }).then(() => setIsWatched(false))
     } else {
-      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-        token_name: token.symbol?.toUpperCase(),
-        source: 'explore',
-        option: 'add',
-      })
-      addToWatchlist({ wallet: account, tokenAddress: token?.address, chain }).then(() => setIsWatched(true))
+      if (!reachedMaxLimit) {
+        mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
+          token_name: token.symbol?.toUpperCase(),
+          source: 'explore',
+          option: 'add',
+        })
+        addToWatchlist({ wallet: account, tokenAddress: token?.address, chain }).then(() => setIsWatched(true))
+      }
     }
   }
   const handleGoBackClick = () => {
@@ -320,7 +288,10 @@ const TokenNameGroup = ({ token, isLoading }: { token?: ITokenOverview; isLoadin
           <ChevronLeft size={24} />
         </ButtonIcon>
       </SimpleTooltip>
-      <SimpleTooltip text={isWatched ? t`Remove from watchlist` : t`Add to watchlist`} hideOnMobile>
+      <SimpleTooltip
+        text={isWatched ? t`Remove from watchlist` : reachedMaxLimit ? t`Reached 30 tokens limit` : t`Add to watchlist`}
+        hideOnMobile
+      >
         <HeaderButton
           style={{
             color: isWatched ? theme.primary : theme.subText,
@@ -332,6 +303,7 @@ const TokenNameGroup = ({ token, isLoading }: { token?: ITokenOverview; isLoadin
             watched={isWatched}
             loading={loadingAddtoWatchlist || loadingRemovefromWatchlist}
             size={16}
+            disabled={!isWatched && reachedMaxLimit}
           />
         </HeaderButton>
       </SimpleTooltip>
@@ -550,11 +522,10 @@ export default function SingleToken() {
       navigate(APP_PATHS.KYBERAI_EXPLORE + `/${defaultExplorePageToken.chain}/${defaultExplorePageToken.address}`)
       setTimeout(() => {
         const element = document.querySelector('#kyberai-search') as HTMLInputElement
-        element.focus({
+        element?.focus({
           preventScroll: true,
         })
       }, 750)
-      window.scrollTo(0, 0)
     }
   }, [chain, address, navigate])
   useEffect(() => {

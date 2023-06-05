@@ -14,6 +14,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { CloseIcon, MEDIA_WIDTHS } from 'theme'
+import { openFullscreen } from 'utils/index'
 
 import { MIXPANEL_KYBERAI_TAG } from '../constants'
 import useKyberAITokenOverview from '../hooks/useKyberAITokenOverview'
@@ -75,23 +76,6 @@ const ButtonWrapper = styled.div`
     background-color: ${({ theme }) => theme.border + '33'};
   }
 `
-
-function openFullscreen(elem: any) {
-  if (elem.requestFullscreen) {
-    elem.requestFullscreen()
-  } else if (elem.webkitRequestFullScreen) {
-    /* Old webkit */
-    elem.webkitRequestFullScreen()
-  } else if (elem.webkitRequestFullscreen) {
-    /* New webkit */
-    elem.webkitRequestFullscreen()
-  } else if (elem.mozRequestFullScreen) {
-    elem.mozRequestFullScreen()
-  } else if (elem.msRequestFullscreen) {
-    /* IE11 */
-    elem.msRequestFullscreen()
-  }
-}
 
 export const FullscreenButton = React.memo(function FCButton({
   elementRef,
