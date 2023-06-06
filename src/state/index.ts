@@ -1,19 +1,23 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { load, save } from 'redux-localstorage-simple'
+import kyberAISubscriptionApi from 'services/kyberAISubscription'
 import priceAlertApi from 'services/priceAlert'
 import routeApi from 'services/route'
-import socialApi from 'services/social'
 import tokenApi from 'services/token'
 
 import { ENV_LEVEL } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
+import kyberAIApi from 'pages/TrueSightV2/hooks/useKyberAIData'
 
 import annoucementApi from '../services/announcement'
 import earningApi from '../services/earning'
 import geckoTerminalApi from '../services/geckoTermial'
+import identifyApi from '../services/identity'
 import ksSettingApi from '../services/ksSetting'
 import notificationApi from '../services/notification'
+import socialApi from '../services/social'
 import application from './application/reducer'
+import authen from './authen/reducer'
 import bridge from './bridge/reducer'
 import burnProAmm from './burn/proamm/reducer'
 import burn from './burn/reducer'
@@ -47,6 +51,7 @@ const store = configureStore({
   devTools: process.env.NODE_ENV !== 'production',
   reducer: {
     application,
+    authen,
     user,
     transactions,
     swap,
@@ -64,9 +69,13 @@ const store = configureStore({
     [annoucementApi.reducerPath]: annoucementApi.reducer,
     [socialApi.reducerPath]: socialApi.reducer,
     [geckoTerminalApi.reducerPath]: geckoTerminalApi.reducer,
+    [kyberAIApi.reducerPath]: kyberAIApi.reducer,
+    [kyberAISubscriptionApi.reducerPath]: kyberAISubscriptionApi.reducer,
+    [identifyApi.reducerPath]: identifyApi.reducer,
     [notificationApi.reducerPath]: notificationApi.reducer,
     [ksSettingApi.reducerPath]: ksSettingApi.reducer,
     [priceAlertApi.reducerPath]: priceAlertApi.reducer,
+    [socialApi.reducerPath]: socialApi.reducer,
     campaigns,
     tutorial,
     bridge,
@@ -84,6 +93,10 @@ const store = configureStore({
     getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
       .concat(save({ states: PERSISTED_KEYS, debounce: 100 }))
       .concat(geckoTerminalApi.middleware)
+      .concat(annoucementApi.middleware)
+      .concat(kyberAIApi.middleware)
+      .concat(kyberAISubscriptionApi.middleware)
+      .concat(identifyApi.middleware)
       .concat(notificationApi.middleware)
       .concat(ksSettingApi.middleware)
       .concat(socialApi.middleware)
@@ -91,6 +104,7 @@ const store = configureStore({
       .concat(priceAlertApi.middleware)
       .concat(routeApi.middleware)
       .concat(earningApi.middleware)
+      .concat(socialApi.middleware)
       .concat(tokenApi.middleware),
   preloadedState: load({ states: PERSISTED_KEYS }),
 })
@@ -120,10 +134,8 @@ export const removeAllReduxPersist = () => {
 }
 
 store.dispatch(updateVersion())
-// setupListeners(store.dispatch)
 
 export default store
-
 export type AppState = ReturnType<typeof store.getState>
 
 /**

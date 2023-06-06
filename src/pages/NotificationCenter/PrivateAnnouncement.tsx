@@ -12,7 +12,6 @@ import InboxItemNotificationCenter from 'components/Announcement/PrivateAnnoucem
 import { useInvalidateTagAnnouncement } from 'components/Announcement/helper'
 import { PrivateAnnouncement, PrivateAnnouncementType } from 'components/Announcement/type'
 import { getAnnouncementsTemplateIds } from 'constants/env'
-import { RTK_QUERY_TAGS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import DeleteAllAlertsButton from 'pages/NotificationCenter/DeleteAllAlertsButton'
 import { MENU_TITLE } from 'pages/NotificationCenter/Menu'
@@ -34,7 +33,7 @@ const HeaderWrapper = styled.div`
 export default function GeneralAnnouncement({ type }: { type?: PrivateAnnouncementType }) {
   const [page, setPage] = useState(1)
   const { account } = useActiveWeb3React()
-  const templateIds = type ? getAnnouncementsTemplateIds()[type] : ''
+  const templateIds = type ? getAnnouncementsTemplateIds(type) : ''
   const {
     data: respNotificationByType,
     refetch: refetchById,
@@ -69,10 +68,6 @@ export default function GeneralAnnouncement({ type }: { type?: PrivateAnnounceme
     ackAnnouncement({ templateIds: templateIds || undefined, account })
       .then(() => {
         refetch()
-        if (!templateIds) {
-          // select tab all notification
-          resetUnread(RTK_QUERY_TAGS.GET_PRIVATE_ANN_BY_ID)
-        }
       })
       .catch(e => {
         console.error('ackAnnouncement', e)

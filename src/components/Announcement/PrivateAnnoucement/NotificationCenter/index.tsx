@@ -19,10 +19,10 @@ type PrivateAnnouncementCenterMap = {
   [type in PrivateAnnouncementType]: (data: { announcement: PrivateAnnouncement }) => JSX.Element
 }
 const ANNOUNCEMENT_MAP_IN_CENTER = {
-  [PrivateAnnouncementType.POOL_POSITION]: PoolPosition,
+  [PrivateAnnouncementType.ELASTIC_POOLS]: PoolPosition,
   [PrivateAnnouncementType.LIMIT_ORDER]: LimitOrder,
-  [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: TrendingSoon,
-  [PrivateAnnouncementType.BRIDGE]: Bridge,
+  [PrivateAnnouncementType.KYBER_AI]: TrendingSoon,
+  [PrivateAnnouncementType.BRIDGE_ASSET]: Bridge,
   [PrivateAnnouncementType.PRICE_ALERT]: PriceAlert,
   [PrivateAnnouncementType.DIRECT_MESSAGE]: PrivateMessage,
 } as PrivateAnnouncementCenterMap

@@ -19,6 +19,7 @@ interface Window {
       isCoinbaseBrowser: boolean
       isCoinbaseWallet: boolean
       isMetaMask: boolean
+      close?: () => void
     }
     providers?: any[]
     autoRefreshOnNetworkChange?: boolean
