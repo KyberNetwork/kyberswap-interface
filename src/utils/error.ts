@@ -12,8 +12,8 @@ const ErrorInfo = {
   sentAlertRouteApi: false,
 }
 
-const isIamApiDown = () => ErrorInfo.iamApoError > ErrorInfo.errorThreshold
-export const isRouteApiDown = () => ErrorInfo.routeApiError > ErrorInfo.errorThreshold
+const isIamApiDown = () => ErrorInfo.iamApoError >= ErrorInfo.errorThreshold
+export const isRouteApiDown = () => ErrorInfo.routeApiError >= ErrorInfo.errorThreshold
 
 const sendError = (name: string, apiUrl: string) => {
   const error = new Error(`${name} Error: ${apiUrl}`)
