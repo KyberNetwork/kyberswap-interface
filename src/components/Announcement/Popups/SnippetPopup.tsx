@@ -181,6 +181,7 @@ const Wrapper = styled.div`
     ${css`
       left: 0;
       right: 0;
+      bottom: 74px;
       width: 100%;
       padding: 0px ${PADDING_MOBILE};
       --swiper-navigation-size: 10px;
