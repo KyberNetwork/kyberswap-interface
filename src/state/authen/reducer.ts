@@ -27,7 +27,7 @@ export interface AuthenState {
   readonly signedWalletAddress: undefined | string
   readonly anonymousUserInfo: UserProfile | undefined
   readonly signedUserInfo: UserProfile | undefined
-  readonly isLogin: boolean
+  readonly isLogin: boolean // is sign in eth
   readonly pendingAuthentication: boolean
   readonly profiles: ConnectedProfile[]
 }

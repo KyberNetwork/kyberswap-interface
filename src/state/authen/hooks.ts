@@ -77,11 +77,12 @@ export const useSignedWalletInfo = () => {
     (address: string) => signedWallet && signedWallet?.toLowerCase() === address?.toLowerCase(),
     [signedWallet],
   )
+  const signedDifferentWallet = account?.toLowerCase() !== signedWallet?.toLowerCase()
   const isGuest = !signedWallet
   return {
     signedWallet,
-    signedDifferentWallet: account?.toLowerCase() !== signedWallet?.toLowerCase(),
-    canSignInEth: !signedWallet || account?.toLowerCase() !== signedWallet?.toLowerCase(),
+    signedDifferentWallet,
+    canSignInEth: !signedWallet || signedDifferentWallet,
     isGuest,
     isSignedWallet,
   }
@@ -98,6 +99,7 @@ export function useSessionInfo(): AuthenState & { userInfo: UserProfile | undefi
 }
 
 export const KEY_GUEST_DEFAULT = 'default'
+// save to store and local storage as well
 export const useSaveUserProfile = () => {
   const dispatch = useAppDispatch()
   const { saveCacheProfile } = useCacheProfile()
