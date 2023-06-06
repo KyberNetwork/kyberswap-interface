@@ -28,6 +28,7 @@ import { usePool } from 'hooks/usePools'
 import useTheme from 'hooks/useTheme'
 import { useElasticFarms } from 'state/farms/elastic/hooks'
 import { UserPositionFarm } from 'state/farms/elastic/types'
+import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { ExternalLink, StyledInternalLink } from 'theme'
 import { PositionDetails } from 'types/position'
@@ -116,8 +117,6 @@ interface PositionListItemProps {
   hasUserDepositedInFarm?: boolean
   stakedLayout?: boolean
   refe?: React.MutableRefObject<any>
-  hasActiveFarm: boolean
-  hasActiveFarmV2: boolean
 }
 
 function getPriceOrderingFromPositionForUI(position?: Position): {
@@ -145,8 +144,6 @@ function PositionListItem({
   hasUserDepositedInFarm,
   positionDetails,
   refe,
-  hasActiveFarm,
-  hasActiveFarmV2,
   rawFeeRewards,
   liquidityTime,
   farmingTime,
@@ -164,20 +161,32 @@ function PositionListItem({
   } = positionDetails
 
   const { farms } = useElasticFarms()
+  const { farms: farmV2s } = useElasticFarmsV2()
 
   let farmAddress = ''
   let pid = ''
   let rewardTokens: Currency[] = []
 
+  let hasActiveFarm = false
   farms?.forEach(farm => {
     farm.pools.forEach(pool => {
       if (pool.poolAddress.toLowerCase() === positionDetails.poolId.toLowerCase()) {
         farmAddress = farm.id
         pid = pool.pid
         rewardTokens = pool.rewardTokens
+        if (pool.endTime > Date.now() / 1000) {
+          hasActiveFarm = true
+        }
       }
     })
   })
+
+  const hasActiveFarmV2 = !!farmV2s?.filter(
+    f =>
+      f.endTime > Date.now() / 1000 &&
+      f.poolAddress.toLowerCase() === positionDetails.poolId.toLowerCase() &&
+      f.ranges.some(r => positionDetails.tickLower <= r.tickLower && positionDetails.tickUpper >= r.tickUpper),
+  ).length
 
   const farmContract = useProMMFarmContract(farmAddress)
 
@@ -295,6 +304,7 @@ function PositionListItem({
   })()
 
   if (!position || !priceLower || !priceUpper) return <ContentLoader />
+
   return (
     <StyledPositionCard>
       <>

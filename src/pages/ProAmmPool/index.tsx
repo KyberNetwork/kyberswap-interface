@@ -86,7 +86,7 @@ export default function ProAmmPool() {
   const tokenAddressSymbolMap = useRef<AddressSymbolMapInterface>({})
   const { positions, loading: positionsLoading } = useProAmmPositions(account)
 
-  const { userInfo, farms: farmV2s } = useElasticFarmsV2()
+  const { userInfo } = useElasticFarmsV2()
 
   const farmV2Positions = useMemo(
     () =>
@@ -111,10 +111,7 @@ export default function ProAmmPool() {
       })) || [],
     [userInfo],
   )
-  const activeFarmV2Address =
-    farmV2s?.filter(farm => farm.endTime > Date.now() / 1000 && !farm.isSettled).map(farm => farm.poolAddress) || []
-
-  const { farmPositions, loading, activeFarmAddress: activeFarmV1Address, userFarmInfo } = useFarmPositions()
+  const { farmPositions, loading, userFarmInfo } = useFarmPositions()
   const [openPositions, closedPositions] = useMemo(
     () =>
       positions?.reduce<[PositionDetails[], PositionDetails[]]>(
@@ -321,12 +318,7 @@ export default function ProAmmPool() {
             </PositionCardGrid>
           ) : filteredPositions.length > 0 || filteredFarmPositions.length > 0 ? (
             <>
-              <PositionGrid
-                positions={positionList}
-                refe={tokenAddressSymbolMap}
-                activeFarmV1Address={activeFarmV1Address}
-                activeFarmV2Address={activeFarmV2Address}
-              />
+              <PositionGrid positions={positionList} refe={tokenAddressSymbolMap} />
             </>
           ) : (
             <Flex flexDirection="column" alignItems="center" marginTop="60px">
