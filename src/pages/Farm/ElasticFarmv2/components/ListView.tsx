@@ -236,7 +236,13 @@ export const ListView = ({
             <Trans>Ended at</Trans>
           ) : null}
 
-          {isEnded ? <Trans>ENDED</Trans> : getFormattedTimeFromSecond(farm.endTime - currentTimestamp)}
+          {isEnded ? (
+            <Trans>ENDED</Trans>
+          ) : farm.startTime > currentTimestamp ? (
+            <Text color={theme.warning}>{getFormattedTimeFromSecond(farm.startTime - currentTimestamp)}</Text>
+          ) : (
+            getFormattedTimeFromSecond(farm.endTime - currentTimestamp)
+          )}
         </Text>
 
         <div>
