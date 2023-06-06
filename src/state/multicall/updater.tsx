@@ -44,6 +44,9 @@ export async function fetchChunk(
         callData: obj.callData,
         gasLimit: obj.gasRequired ?? 1_000_000,
       })),
+      {
+        blockTag: minBlockNumber,
+      },
     )
 
     resultsBlockNumber = res.blockNumber
@@ -76,6 +79,8 @@ export async function fetchChunk(
     console.debug('Failed to fetch chunk inside retry', error)
     throw error
   }
+
+  // Don't need this code anymore as we call the function at the specific block
   // if (resultsBlockNumber.toNumber() < minBlockNumber) {
   //   console.debug(`Fetched results for old block number: ${resultsBlockNumber.toString()} vs. ${minBlockNumber}`)
   //   throw new RetryableError('Fetched for old block number')
