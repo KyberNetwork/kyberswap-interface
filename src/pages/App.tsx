@@ -20,7 +20,7 @@ import Footer from 'components/Footer/Footer'
 import Header from 'components/Header'
 import Loader from 'components/LocalLoader'
 import Modal from 'components/Modal'
-import { ProtectedRouteKyberAI } from 'components/ProtectedRoute'
+import ProtectedRoute, { ProtectedRouteKyberAI } from 'components/ProtectedRoute'
 import Snowfall from 'components/Snowflake/Snowfall'
 import Web3ReactManager from 'components/Web3ReactManager'
 import { ENV_LEVEL } from 'constants/env'
@@ -122,8 +122,7 @@ const preloadImages = () => {
 const SwapPage = () => {
   const { chainId } = useActiveWeb3React()
   useSyncNetworkParamWithStore()
-
-  return <>{chainId === ChainId.SOLANA ? <SwapV2 /> : <SwapV3 />}</>
+  return <ProtectedRoute>{chainId === ChainId.SOLANA ? <SwapV2 /> : <SwapV3 />}</ProtectedRoute>
 }
 
 export default function App() {

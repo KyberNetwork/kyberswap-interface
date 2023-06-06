@@ -176,7 +176,9 @@ const Wrapper = styled.div`
   .swiper-pagination {
     display: none;
   }
-
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    bottom: 74px;
+  `}
   ${({ theme }) => theme.mediaWidth.upToSmall`
     ${css`
       left: 0;
