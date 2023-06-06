@@ -69,26 +69,32 @@ export const useTokenPricesWithLoading = (
             {
               address: '0x325697956767826a1ddf0ee8d5eb0f8ae3a2c171',
               price: 1.012345,
+              preferPriceSource: 'kyberswap',
             },
             {
               address: '0xeac23a03f26df44fe3bb67bde1ecaecbee0daaa9',
               price: 0.98765,
+              preferPriceSource: 'kyberswap',
             },
             {
               address: '0x543c9d27ee4ef9b405d7b41f264fa777f445ae88',
               price: 13,
+              preferPriceSource: 'kyberswap',
             },
             {
               address: '0x1bbeeedcf32dc2c1ebc2f138e3fc7f3decd44d6a',
               price: 0.99,
+              preferPriceSource: 'kyberswap',
             },
             {
               address: '0x2bf64acf7ead856209749d0d125e9ade2d908e7f',
               price: 1.01,
+              preferPriceSource: 'kyberswap',
             },
             {
               address: '0x48f6d7dae56623dde5a0d56b283165cae1753d70',
               price: 1800,
+              preferPriceSource: 'kyberswap',
             },
           ])
         }
@@ -107,7 +113,7 @@ export const useTokenPricesWithLoading = (
             return {
               address,
               chainId: chainId,
-              price: price.preferPriceSource === 'kyberswap' ? price?.price || 0 : price?.marketPrice || 0,
+              price: price?.preferPriceSource === 'kyberswap' ? price?.price || 0 : price?.marketPrice || 0,
             }
           })
 
@@ -121,6 +127,7 @@ export const useTokenPricesWithLoading = (
             {},
           )
         }
+
         // hardcoded for goerli to test
         if (chainId === ChainId.GÖRLI) {
           return {
@@ -134,10 +141,13 @@ export const useTokenPricesWithLoading = (
             '0x2bf64acf7ead856209749d0d125e9ade2d908e7f': 1.01,
             '0x48f6d7dae56623dde5a0d56b283165cae1753d70': 1800,
             '0x48f6D7dAE56623Dde5a0D56B283165cAE1753D70': 1800,
+            '0x2Bf64aCf7eAd856209749D0D125e9Ade2D908E7f': 1,
+            '0x1BBeeEdCF32dc2c1Ebc2F138e3FC7f3DeCD44D6A': 0.99,
           }
         }
         return {}
       } catch (e) {
+        console.log(e)
         // empty
         return {}
       } finally {

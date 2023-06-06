@@ -71,12 +71,6 @@ export const useFilteredFarmsV2 = () => {
           ? +lastUpdatedTimestamp
           : Math.min(...farm.ranges.map(range => range.updatedAt))
 
-        console.log(
-          farm.fId,
-          lastUpdatedTimestamp,
-          Math.min(...farm.ranges.map(range => range.updatedAt)),
-          minTimestamp,
-        )
         const ranges = farm.ranges.filter(range => range.updatedAt > minTimestamp)
         return !!ranges.length
       })
