@@ -4,12 +4,10 @@ import routeApi from 'services/route'
 import { BuildRouteData, BuildRoutePayload } from 'services/route/types/buildRoute'
 import { RouteSummary } from 'services/route/types/getRoute'
 
-import { AGGREGATOR_API } from 'constants/env'
 import { ROUTES_API_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
-import { isRouteApiDown } from 'utils/error'
 
 export type BuildRouteResult =
   | {
@@ -64,9 +62,7 @@ const useBuildRoute = (args: Args) => {
       abortControllerRef.current.abort()
       abortControllerRef.current = new AbortController()
 
-      const url = `${isRouteApiDown() ? AGGREGATOR_API : aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}${
-        ROUTES_API_PATHS.BUILD_ROUTE
-      }`
+      const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}${ROUTES_API_PATHS.BUILD_ROUTE}`
 
       const response = await buildRoute({
         url,

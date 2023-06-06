@@ -13,7 +13,7 @@ const ErrorInfo = {
 }
 
 const isIamApiDown = () => ErrorInfo.iamApoError >= ErrorInfo.errorThreshold
-export const isRouteApiDown = () => ErrorInfo.routeApiError >= ErrorInfo.errorThreshold
+const isRouteApiDown = () => ErrorInfo.routeApiError >= ErrorInfo.errorThreshold
 
 const sendError = (name: string, apiUrl: string) => {
   const error = new Error(`${name} Error: ${apiUrl}`)
