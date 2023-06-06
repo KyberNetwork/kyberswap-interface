@@ -207,25 +207,6 @@ export function useEagerConnect() {
         setTried(true)
         setConnectedWallet(undefined)
       }
-      isAuthorized()
-        .then(isAuthorized => {
-          setTried(true)
-          // try to connect if previous connected to Coinbase Link
-          if (isAuthorized && window.localStorage.getItem(WALLETLINK_LOCALSTORAGE_NAME) && !isManuallyDisconnect) {
-            activate(walletlink)
-          } else if (isAuthorized && !isManuallyDisconnect) {
-            const lastWalletKey = localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY)
-            const wallet = lastWalletKey && SUPPORTED_WALLETS[lastWalletKey]
-            if (wallet && isEVMWallet(wallet)) activate(wallet.connector, undefined, true)
-            else activate(injected, undefined, true)
-          } else if (isMobile && window.ethereum) {
-            activate(injected, undefined, true)
-          }
-        })
-        .catch(e => {
-          console.log('Eagerly connect: authorize error', e)
-          setTried(true)
-        })
     }
     func()
     // eslint-disable-next-line react-hooks/exhaustive-deps
