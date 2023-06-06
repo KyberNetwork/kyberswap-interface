@@ -176,12 +176,13 @@ const Wrapper = styled.div`
   .swiper-pagination {
     display: none;
   }
-
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    bottom: 74px;
+  `}
   ${({ theme }) => theme.mediaWidth.upToSmall`
     ${css`
       left: 0;
       right: 0;
-      bottom: 74px;
       width: 100%;
       padding: 0px ${PADDING_MOBILE};
       --swiper-navigation-size: 10px;
