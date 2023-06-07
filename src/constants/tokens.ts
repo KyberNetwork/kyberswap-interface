@@ -654,6 +654,7 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   [ChainId.BTTC]: USDT[ChainId.BTTC], // USDT_b
   [ChainId.SOLANA]: USDC[ChainId.SOLANA],
   [ChainId.GÖRLI]: KNC[ChainId.GÖRLI],
+  [ChainId.ZKSYNC]: USDC[ChainId.ZKSYNC],
 }
 
 export const DEFAULT_SWAP_FEE_STABLE_PAIRS = 4
