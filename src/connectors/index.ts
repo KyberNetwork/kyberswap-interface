@@ -16,6 +16,7 @@ export const [walletConnectV2, walletConnectV2Hooks] = initializeConnector<Walle
   actions =>
     new WalletConnectV2({
       actions,
+      defaultChainId: ChainId.MAINNET,
       options: {
         projectId: WALLETCONNECT_PROJECT_ID,
         chains: WALLET_CONNECT_SUPPORTED_CHAIN_IDS,
