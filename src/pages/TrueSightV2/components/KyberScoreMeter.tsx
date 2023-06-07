@@ -288,7 +288,8 @@ function KyberScoreMeter({
       if (frameTime > interval) {
         // render the next frame
         lastFrameTime = currentTime - (elapsedTime % interval)
-        currentValueRef.current = easeOutQuart(elapsedTime, prevValue, nextValue - prevValue, duration)
+        currentValueRef.current =
+          elapsedTime < duration ? easeOutQuart(elapsedTime, prevValue, nextValue - prevValue, duration) : nextValue
         const activeGaugeValue = (gaugeList.length * currentValueRef.current) / 100
         valueRef.current.innerText = hidden ? '??' : nextValue ? currentValueRef.current.toFixed(1) : '--'
         valueRef.current.setAttribute('style', 'color:' + calculateValueToColor(currentValueRef.current, theme))
