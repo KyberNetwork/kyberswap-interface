@@ -23,7 +23,7 @@ const useLogin = () => {
   const [createProfile] = useGetOrCreateProfileMutation()
   const [connectWalletToProfile] = useConnectWalletToProfileMutation()
 
-  const requestingSession = useRef<string>() // which wallet requesting
+  const requestingSession = useRef(false)
   const requestingSessionAnonymous = useRef(false)
 
   const { anonymousUserInfo } = useSessionInfo()
@@ -74,19 +74,20 @@ const useLogin = () => {
 
   const signIn = useCallback(
     async (walletAddress: string | undefined) => {
+      if (requestingSession.current) return
       try {
         if (!walletAddress) {
           throw new Error('Not found address.')
         }
-        if (requestingSession.current !== walletAddress) {
-          requestingSession.current = walletAddress
-          await KyberOauth2.getSession({ method: LoginMethod.ETH, walletAddress })
-          await getProfile(walletAddress)
-          setLoading(false)
-        }
+        requestingSession.current = true
+        await KyberOauth2.getSession({ method: LoginMethod.ETH, walletAddress })
+        await getProfile(walletAddress)
+        setLoading(false)
       } catch (error) {
         console.log('get session:', walletAddress, error.message)
         signInAnonymous(walletAddress)
+      } finally {
+        requestingSession.current = false
       }
     },
     [setLoading, signInAnonymous, getProfile],
