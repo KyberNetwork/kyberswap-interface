@@ -39,8 +39,8 @@ export default function EmailForm({
   const checkReferCodeExist = useCallback(
     async (code: string) => {
       try {
-        if (!code) return
-        const { data } = await checkReferalCode(code)
+        if (!code?.trim()) return
+        const { data } = await checkReferralCode(code.trim())
         if (!data?.isValid) {
           setErrorInput(prev => ({ ...prev, referredByCode: t`Referral code is invalid` }))
         }
@@ -49,7 +49,7 @@ export default function EmailForm({
         checkingInput.current = false
       }
     },
-    [checkReferalCode],
+    [checkReferralCode],
   )
 
   useEffect(() => {
