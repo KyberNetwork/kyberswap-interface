@@ -7,7 +7,7 @@ import { ENV_KEY, OAUTH_CLIENT_ID } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useIsConnectedWallet } from 'hooks/useSyncNetworkParamWithStore'
-import { useSaveUserProfile, useSessionInfo, useSetPendingAuthentication } from 'state/authen/hooks'
+import { useSaveUserProfile, useSetPendingAuthentication } from 'state/authen/hooks'
 
 KyberOauth2.initialize({
   clientId: OAUTH_CLIENT_ID,
@@ -28,8 +28,6 @@ const useLogin = () => {
   const requestingSession = useRef(false)
   const requestingSessionAnonymous = useRef(false)
 
-  const { anonymousUserInfo } = useSessionInfo()
-
   const setLoading = useSetPendingAuthentication()
 
   const setProfile = useSaveUserProfile()
@@ -38,6 +36,7 @@ const useLogin = () => {
     async (walletAddress: string | undefined, isAnonymous = false) => {
       try {
         let profile = await createProfile().unwrap()
+
         if (walletAddress) {
           await connectWalletToProfile({ walletAddress })
           profile = await createProfile().unwrap()
@@ -56,10 +55,7 @@ const useLogin = () => {
   const signInAnonymous = useCallback(
     async (walletAddress: string | undefined) => {
       if (requestingSessionAnonymous.current) return
-      if (anonymousUserInfo) {
-        setProfile({ profile: anonymousUserInfo, isAnonymous: true }) // trigger reset account sign in
-        return
-      }
+      console.log('signin anonymous', KyberOauth2)
       try {
         requestingSessionAnonymous.current = true
         await KyberOauth2.loginAnonymous()
@@ -71,12 +67,13 @@ const useLogin = () => {
         getProfile(walletAddress, true)
       }
     },
-    [anonymousUserInfo, setProfile, setLoading, getProfile],
+    [setLoading, getProfile],
   )
 
   const signIn = useCallback(
     async (walletAddress: string | undefined) => {
       if (requestingSession.current) return
+      console.log('signin ', walletAddress, KyberOauth2)
       try {
         if (!walletAddress) {
           throw new Error('Not found address.')
