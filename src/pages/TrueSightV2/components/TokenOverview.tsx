@@ -333,6 +333,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                       </>
                     )
                   }
+                  disableTooltip={data?.symbol === 'KNC'}
                   placement="top"
                 >
                   <Icon id="timer" size={16} />

@@ -777,7 +777,7 @@ const WidgetTokenRow = ({
           </td>
           <td>
             <Column style={{ alignItems: 'center', width: '110px' }}>
-              <SmallKyberScoreMeter data={latestKyberScore} />
+              <SmallKyberScoreMeter data={latestKyberScore} disabledTooltip={token.symbol === 'KNC'} />
               <Text
                 color={calculateValueToColor(latestKyberScore?.kyber_score || 0, theme)}
                 fontSize="14px"

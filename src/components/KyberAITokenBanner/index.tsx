@@ -91,10 +91,13 @@ const KyberAITokenBanner = ({
     staticMode &&
     STABLE_COINS_ADDRESS[chainId].findIndex(
       value => value.toLowerCase() === currencyIn?.wrapped.address.toLowerCase(),
-    ) >= 0 &&
-    KNC[chainId].address.toLowerCase() === currencyIn?.wrapped.address.toLowerCase()
+    ) >= 0
   )
     return null
+  const staticModeCurrency =
+    KNC[chainId].address.toLowerCase() === currencyIn?.wrapped.address.toLowerCase()
+      ? NativeCurrencies[chainId]
+      : currencyIn
   const color = staticMode ? theme.primary : calculateValueToColor(token?.kyberScore || 0, theme)
   return (
     <Wrapper>
@@ -116,13 +119,14 @@ const KyberAITokenBanner = ({
         >
           <RowFit gap="8px">
             {staticMode ? (
-              <CurrencyLogo currency={currencyIn} size={'32px'} />
+              <CurrencyLogo currency={staticModeCurrency} size={'32px'} />
             ) : (
               <img src={token?.logo} alt={token?.symbol} width="32" height="32" style={{ borderRadius: '50%' }} />
             )}
             <Column gap="4px">
               <Text color={theme.text}>
-                {staticMode ? currencyIn?.wrapped.symbol : token?.symbol?.toUpperCase() || '--'} seems to be
+                {staticMode ? staticModeCurrency?.wrapped.symbol?.toUpperCase() : token?.symbol?.toUpperCase() || '--'}{' '}
+                seems to be
               </Text>
               {staticMode ? (
                 <AnimatedKyberscoreLabels />
@@ -156,7 +160,8 @@ const KyberAITokenBanner = ({
                 <Text as="b" color={theme.text}>
                   KyberScore
                 </Text>{' '}
-                for {staticMode ? currencyIn?.wrapped.symbol : token?.symbol?.toUpperCase() || '--'}?
+                for{' '}
+                {staticMode ? staticModeCurrency?.wrapped.symbol?.toUpperCase() : token?.symbol?.toUpperCase() || '--'}?
               </Trans>
             </Text>
             <RowFit fontSize="12px" gap="4px">
@@ -201,13 +206,16 @@ const KyberAITokenBanner = ({
           <RowBetween>
             <RowFit gap="8px">
               {staticMode ? (
-                <CurrencyLogo currency={currencyIn} size={'32px'} />
+                <CurrencyLogo currency={staticModeCurrency} size={'32px'} />
               ) : (
                 <img src={token?.logo} alt={token?.symbol} width="32" height="32" style={{ borderRadius: '50%' }} />
               )}
               <Column gap="4px">
                 <Text color={theme.text}>
-                  {staticMode ? currencyIn?.wrapped.symbol : token?.symbol?.toUpperCase() || '--'} seems to be
+                  {staticMode
+                    ? staticModeCurrency?.wrapped.symbol?.toUpperCase()
+                    : token?.symbol?.toUpperCase() || '--'}{' '}
+                  seems to be
                 </Text>
                 {staticMode ? (
                   <AnimatedKyberscoreLabels />
