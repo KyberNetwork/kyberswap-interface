@@ -214,7 +214,7 @@ const StakeWithNFTsModal = ({
   const [activeRange, setActiveRange] = useState(farm.ranges[0])
 
   const theme = useTheme()
-  const { account, networkInfo } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
   const { loading, positions: allPositions } = useProAmmPositions(account)
 
   const positions = useMemo(() => {
@@ -271,6 +271,10 @@ const StakeWithNFTsModal = ({
         setErrorMessage(e?.message || JSON.stringify(e))
       })
   }, [farm, activeRange, deposit, selectedPosArray])
+
+  const addliquidityElasticPool = `${APP_PATHS.ELASTIC_CREATE_POOL}/${
+    farm.token0.isNative ? farm.token0.symbol : farm.token0.address
+  }/${farm.token1.isNative ? farm.token1.symbol : farm.token1.address}/${farm.pool.fee}?farmRange=${activeRange.index}`
 
   return (
     <>
@@ -330,18 +334,15 @@ const StakeWithNFTsModal = ({
                       color={theme.subText}
                       padding="16px"
                       marginTop="20px"
+                      marginBottom="44px"
                     >
                       <Info size="48px" />
                       <Text marginTop="16px" textAlign="center" lineHeight={1.5}>
                         <Trans>
-                          You haven&apos;t deposited any liquidity positions (NFT tokens) for this farming pair yet.
+                          You don&apos;t have any relevant liquidity positions yet.
                           <br />
-                          <br />
-                          Add liquidity to this pool first in our{' '}
-                          <StyledInternalLink to={`${APP_PATHS.POOLS}/${networkInfo.route}`}>
-                            Pools
-                          </StyledInternalLink>{' '}
-                          page. If you&apos;ve done that, deposit your liquidity position (NFT tokens) before you stake
+                          Add liquidity to this pool with the current{' '}
+                          <StyledInternalLink to={addliquidityElasticPool}>Active Farm Range ↗</StyledInternalLink>{' '}
                         </Trans>
                       </Text>
                     </Flex>

@@ -73,6 +73,8 @@ const Wrapper = styled.div`
   flex-direction: column;
   gap: 16px;
   background-image: url(${bgimg});
+  background-repeat: repeat-y;
+  background-size: cover;
 
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
   background-color: ${({ theme }) => theme.buttonBlack};
@@ -306,7 +308,7 @@ export default function ProAmmPoolStat({
             activeKey={activeRangeIndex}
             onChange={key => {
               setActiveRangeIndex(+key)
-              const r = farmV2?.ranges.find(item => item.index === key)
+              const r = farmV2?.ranges.find(item => item.index === +key)
               if (r) onFarmRangeSelected(r.tickLower, r.tickUpper)
             }}
             items={farmV2.ranges.map(item => ({

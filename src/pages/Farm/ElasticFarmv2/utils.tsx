@@ -10,5 +10,5 @@ export function convertTickToPrice(baseToken: Token, quoteToken: Token, tickInpu
   if ((tick || 0) >= TickMath.MAX_TICK) {
     return '∞'
   }
-  return tickToPrice(baseToken, quoteToken, tick)?.toSignificant(4)
+  return tickToPrice(baseToken, quoteToken, tick)?.toSignificant(6)
 }

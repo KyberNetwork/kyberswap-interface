@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
 import { ArrowDown, ArrowUp, Info } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
@@ -9,6 +9,7 @@ import styled from 'styled-components'
 import { ReactComponent as QuestionSquareIcon } from 'assets/svg/question_icon_square.svg'
 import { ButtonPrimary } from 'components/Button'
 import Divider from 'components/Divider'
+import InfoHelper from 'components/InfoHelper'
 import { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { ConnectWalletButton } from 'components/YieldPools/ElasticFarmGroup/buttons'
@@ -204,6 +205,7 @@ export default function ElasticFarmv2({ onShowStepGuide }: { onShowStepGuide: ()
               ) : sortDirection === SORT_DIRECTION.ASC ? (
                 <ArrowUp size={12} />
               ) : null)}
+            <InfoHelper text={t`Once a farm has ended, you will continue to receive returns through LP Fees`} />
           </ClickableText>
         </Flex>
 
@@ -221,6 +223,9 @@ export default function ElasticFarmv2({ onShowStepGuide }: { onShowStepGuide: ()
               ) : sortDirection === SORT_DIRECTION.ASC ? (
                 <ArrowUp size={12} />
               ) : null)}
+            <InfoHelper
+              text={t`Average estimated return based on yearly trading fees from the pool & additional bonus rewards if you participate in the farm`}
+            />
           </ClickableText>
         </Flex>
 
