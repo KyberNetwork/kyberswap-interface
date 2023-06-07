@@ -4,12 +4,10 @@ import { getUnixTime, subHours } from 'date-fns'
 import { useMemo } from 'react'
 import useSWR from 'swr'
 
-import { PRICE_CHART_API } from 'constants/env'
+import { AGGREGATOR_API, PRICE_CHART_API } from 'constants/env'
 import { COINGECKO_API_URL } from 'constants/index'
 import { NETWORKS_INFO, isEVM as isEVMChain } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-
-import { useKyberswapGlobalConfig } from './useKyberSwapConfig'
 
 export enum LiveDataTimeframeEnum {
   HOUR = '1H',
@@ -116,7 +114,6 @@ export default function useBasicChartData(
   const networkInfo = NETWORKS_INFO[chainId]
   const isEVM = isEVMChain(chainId)
 
-  const { aggregatorDomain } = useKyberswapGlobalConfig()
   const isReverse = useMemo(() => {
     if (!tokens || !tokens[0] || !tokens[1] || tokens[0].equals(tokens[1]) || tokens[0].chainId !== tokens[1].chainId)
       return false
@@ -199,7 +196,7 @@ export default function useBasicChartData(
 
   const { data: liveKyberData } = useSWR(
     !isKyberDataNotValid && kyberData && chainId
-      ? `${aggregatorDomain}/${networkInfo.aggregatorRoute}/tokens?ids=${tokenAddresses[0]},${tokenAddresses[1]}`
+      ? `${AGGREGATOR_API}/${networkInfo.aggregatorRoute}/tokens?ids=${tokenAddresses[0]},${tokenAddresses[1]}`
       : null,
     fetchKyberDataSWRWithHeader,
     {

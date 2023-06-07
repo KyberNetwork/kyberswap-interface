@@ -338,7 +338,7 @@ export default function WalletModal() {
               type="checkbox"
               checked={isAcceptedTerm}
               data-testid="accept-term"
-              style={{ marginRight: '12px', height: '14px', width: '14px', cursor: 'pointer' }}
+              style={{ marginRight: '12px', height: '14px', width: '14px', minWidth: '14px', cursor: 'pointer' }}
             />
             <Text color={theme.subText}>
               <Trans>Accept </Trans>{' '}

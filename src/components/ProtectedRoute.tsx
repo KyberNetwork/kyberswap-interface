@@ -13,10 +13,10 @@ type Props = {
   redirectUrl?: string
 }
 
-const ProtectedRoute = ({ children, redirectUrl = '/' }: Props): JSX.Element => {
-  const { isLogin, pendingAuthentication } = useSessionInfo()
-  if (pendingAuthentication) return <LocalLoader />
-  return isLogin ? children : <Navigate to={redirectUrl} replace />
+// wait utils sign in eth/anonymous done (error/success)
+const ProtectedRoute = ({ children }: Props) => {
+  const { pendingAuthentication } = useSessionInfo()
+  return pendingAuthentication ? <LocalLoader /> : children
 }
 
 export const ProtectedRouteKyberAI = ({
