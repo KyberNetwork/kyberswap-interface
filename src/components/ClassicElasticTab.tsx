@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
+import { useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -77,6 +78,13 @@ function ClassicElasticTab() {
       ? theme.disableText
       : theme.primary
     : theme.subText
+
+  useEffect(() => {
+    if (!!notSupportedMsg && tab !== VERSION.CLASSIC) {
+      const newQs = { ...qs, tab: VERSION.CLASSIC }
+      navigate({ search: stringify(newQs) }, { replace: true })
+    }
+  }, [navigate, notSupportedMsg, qs, tab])
 
   return (
     <Flex width="max-content">
