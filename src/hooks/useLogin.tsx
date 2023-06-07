@@ -76,11 +76,11 @@ const useLogin = () => {
 
   const signIn = useCallback(
     async (walletAddress: string | undefined) => {
+      if (requestingSession.current) return
       try {
         if (!walletAddress) {
           throw new Error('Not found address.')
         }
-        if (requestingSession.current) return
         requestingSession.current = true
         await KyberOauth2.getSession({ method: LoginMethod.ETH, walletAddress })
         await getProfile(walletAddress)
