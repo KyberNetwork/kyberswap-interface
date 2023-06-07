@@ -14,7 +14,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import ApeIcon from 'components/Icons/ApeIcon'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
-import { NativeCurrencies, STABLE_COINS_ADDRESS } from 'constants/tokens'
+import { KNC, NativeCurrencies, STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -91,7 +91,8 @@ const KyberAITokenBanner = ({
     staticMode &&
     STABLE_COINS_ADDRESS[chainId].findIndex(
       value => value.toLowerCase() === currencyIn?.wrapped.address.toLowerCase(),
-    ) >= 0
+    ) >= 0 &&
+    KNC[chainId].address.toLowerCase() === currencyIn?.wrapped.address.toLowerCase()
   )
     return null
   const color = staticMode ? theme.primary : calculateValueToColor(token?.kyberScore || 0, theme)
