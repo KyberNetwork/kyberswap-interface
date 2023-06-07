@@ -98,7 +98,7 @@ const useLogin = () => {
   useEffect(() => {
     isConnectedWallet().then(wallet => {
       if (wallet === null) return // pending
-      signIn(typeof wallet === 'string' ? wallet : undefined)
+      signIn(typeof wallet === 'string' ? wallet : account || undefined)
     })
   }, [account, signIn, isConnectedWallet])
 }
