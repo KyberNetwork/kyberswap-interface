@@ -10,6 +10,7 @@ import { isEVMWallet, isSolanaWallet } from 'utils'
 const disconnectEvmConnector: (connector: Connector | undefined) => void | Promise<void> = (
   connector: Connector | undefined,
 ) => {
+  window.ethereum?.selectedProvider?.close?.() // for coinbase
   if (connector) {
     if (connector.deactivate) {
       return connector.deactivate()
