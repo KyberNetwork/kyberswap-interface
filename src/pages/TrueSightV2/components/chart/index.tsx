@@ -45,10 +45,10 @@ import {
   useNetflowToCEXQuery,
   useNetflowToWhaleWalletsQuery,
   useNumberOfHoldersQuery,
-  useTokenDetailQuery,
   useTradingVolumeQuery,
   useTransferInformationQuery,
 } from 'pages/TrueSightV2/hooks/useKyberAIData'
+import useKyberAITokenOverview from 'pages/TrueSightV2/hooks/useKyberAITokenOverview'
 import { defaultExplorePageToken } from 'pages/TrueSightV2/pages/SingleToken'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import {
@@ -384,7 +384,7 @@ export const NumberofTradesChart = ({ noAnimation }: { noAnimation?: boolean }) 
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const textFontSize = above768 ? '12px' : '10px'
   return (
-    <LoadingHandleWrapper isLoading={isLoading} hasData={!!data}>
+    <LoadingHandleWrapper isLoading={isLoading} hasData={!!data && data.length > 0}>
       <InfoWrapper>
         <Column gap="4px">
           <Text color={theme.subText}>Timeframe</Text>
@@ -697,7 +697,7 @@ export const TradingVolumeChart = ({ noAnimation }: { noAnimation?: boolean }) =
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const textFontSize = above768 ? '12px' : '10px'
   return (
-    <LoadingHandleWrapper isLoading={isLoading} hasData={!!data}>
+    <LoadingHandleWrapper isLoading={isLoading} hasData={!!data && data.length > 0}>
       <InfoWrapper>
         <Column gap="4px">
           <Text color={theme.subText}>Timeframe</Text>
@@ -1098,7 +1098,7 @@ export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; no
   const textFontSize = above768 ? '12px' : '10px'
 
   return (
-    <LoadingHandleWrapper isLoading={isLoading} hasData={!!data}>
+    <LoadingHandleWrapper isLoading={isLoading} hasData={!!data && data.length > 0}>
       {account ? (
         <>
           <InfoWrapper>
@@ -1496,8 +1496,9 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
 
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const textFontSize = above768 ? '12px' : '10px'
+  console.log('🚀 ~ file: index.tsx:1501 ~ NetflowToCentralizedExchanges ~ data:', data)
   return (
-    <LoadingHandleWrapper isLoading={isLoading} hasData={!!data}>
+    <LoadingHandleWrapper isLoading={isLoading} hasData={!!data && data.length > 0}>
       <InfoWrapper>
         <Column gap="4px">
           <Text color={theme.subText}>Timeframe</Text>
@@ -1761,12 +1762,15 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
     return [from, now, timerange]
   }, [timeframe])
 
-  const { data, isLoading } = useTransferInformationQuery({
-    chain,
-    address,
-    from,
-    to,
-  })
+  const { data, isLoading } = useTransferInformationQuery(
+    {
+      chain,
+      address,
+      from,
+      to,
+    },
+    { skip: !chain || !address },
+  )
   const formattedData = useMemo(() => {
     if (!data || data.length === 0) {
       dispatch({ type: CHART_STATES_ACTION_TYPE.NO_DATA, payload: { value: true } })
@@ -1805,7 +1809,7 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
   const textFontSize = above768 ? '12px' : '10px'
 
   return (
-    <LoadingHandleWrapper isLoading={isLoading} hasData={!!data}>
+    <LoadingHandleWrapper isLoading={isLoading} hasData={!!data && data.length > 0}>
       <InfoWrapper>
         <Column gap="4px">
           <Text color={theme.subText}>Timeframe</Text>
@@ -1941,12 +1945,15 @@ export const NumberofHolders = () => {
       }[timeframe as string] || 604800)
     return [from, now, timerange]
   }, [timeframe])
-  const { data, isLoading } = useNumberOfHoldersQuery({
-    chain,
-    address,
-    from,
-    to,
-  })
+  const { data, isLoading } = useNumberOfHoldersQuery(
+    {
+      chain,
+      address,
+      from,
+      to,
+    },
+    { skip: !chain || !address },
+  )
 
   const formattedData = useMemo(() => {
     if (!data || data.length === 0) {
@@ -1982,7 +1989,7 @@ export const NumberofHolders = () => {
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const textFontSize = above768 ? '12px' : '10px'
   return (
-    <LoadingHandleWrapper isLoading={isLoading} hasData={!!data}>
+    <LoadingHandleWrapper isLoading={isLoading} hasData={!!data && data.length > 0}>
       <InfoWrapper>
         <Column gap="4px">
           <Text color={theme.subText}>Timeframe</Text>
@@ -2241,12 +2248,15 @@ export const LiquidOnCentralizedExchanges = ({ noAnimation }: { noAnimation?: bo
       }[timeframe as string] || 604800)
     return [from, now, timerange]
   }, [timeframe])
-  const { data, isLoading } = useCexesLiquidationQuery({
-    tokenAddress: address,
-    chartSize: timeframe.toString().toLowerCase(),
-    chain,
-  })
-  const { data: tokenOverview } = useTokenDetailQuery({ address, chain }, { skip: !address || !chain })
+  const { data, isLoading } = useCexesLiquidationQuery(
+    {
+      tokenAddress: address,
+      chartSize: timeframe.toString().toLowerCase(),
+      chain,
+    },
+    { skip: !address || !chain },
+  )
+  const { data: tokenOverview } = useKyberAITokenOverview()
   const [showLong, setShowLong] = useState(true)
   const [showShort, setShowShort] = useState(true)
   const [showPrice, setShowPrice] = useState(true)
@@ -2597,11 +2607,7 @@ export const Prochart = ({
   const [fullscreen, setFullscreen] = useState(false)
   const [loading, setLoading] = useState(false)
   const userLocale = useUserLocale()
-  const { chain, address } = useParams()
-  const { data } = useTokenDetailQuery({
-    chain: chain || defaultExplorePageToken.chain,
-    address: address || defaultExplorePageToken.address,
-  })
+  const { data } = useKyberAITokenOverview()
   const datafeed = useDatafeed(isBTC || false, data)
   const { SRLevels, currentPrice, resolution, setResolution, showSRLevels } = useContext(TechnicalAnalysisContext)
 

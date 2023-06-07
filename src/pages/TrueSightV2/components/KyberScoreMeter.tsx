@@ -333,10 +333,12 @@ function KyberScoreMeter({
           window.requestAnimationFrame(currentTime => step(currentTime, 1, 50))
         }, 5000)
       }
-      intervalFunc()
-      timeout = setInterval(() => {
+      setTimeout(() => {
         intervalFunc()
-      }, 12000)
+        timeout = setInterval(() => {
+          intervalFunc()
+        }, 12000)
+      }, 2000)
     } else {
       window.requestAnimationFrame(currentTime => step(currentTime, 0, valueProp))
     }

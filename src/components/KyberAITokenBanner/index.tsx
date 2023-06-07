@@ -14,7 +14,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import ApeIcon from 'components/Icons/ApeIcon'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
-import { NativeCurrencies } from 'constants/tokens'
+import { NativeCurrencies, STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -87,7 +87,13 @@ const KyberAITokenBanner = ({
     }, [isFetching, tokenInputOverview, tokenOutputOverview, tokenNativeOverview, staticMode])
 
   if (!token && !staticMode) return null
-
+  if (
+    staticMode &&
+    STABLE_COINS_ADDRESS[chainId].findIndex(
+      value => value.toLowerCase() === currencyIn?.wrapped.address.toLowerCase(),
+    ) >= 0
+  )
+    return null
   const color = staticMode ? theme.primary : calculateValueToColor(token?.kyberScore || 0, theme)
   return (
     <Wrapper>
@@ -193,9 +199,15 @@ const KyberAITokenBanner = ({
         >
           <RowBetween>
             <RowFit gap="8px">
-              <img src={token?.logo} alt={token?.symbol} width="32" height="32" style={{ borderRadius: '50%' }} />
+              {staticMode ? (
+                <CurrencyLogo currency={currencyIn} size={'32px'} />
+              ) : (
+                <img src={token?.logo} alt={token?.symbol} width="32" height="32" style={{ borderRadius: '50%' }} />
+              )}
               <Column gap="4px">
-                <Text color={theme.text}>{token?.symbol?.toUpperCase() || '--'} seems to be</Text>
+                <Text color={theme.text}>
+                  {staticMode ? currencyIn?.wrapped.symbol : token?.symbol?.toUpperCase() || '--'} seems to be
+                </Text>
                 {staticMode ? (
                   <AnimatedKyberscoreLabels />
                 ) : (
@@ -334,6 +346,7 @@ const LabelsWrapper = styled.div`
   display: flex;
   flex-direction: column;
   animation: ${backAndForward} 12s ease infinite;
+  animation-delay: 2s;
 `
 const Label = styled.div<{ color?: string }>`
   height: 24px;

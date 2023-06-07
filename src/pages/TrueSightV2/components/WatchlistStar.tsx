@@ -31,7 +31,7 @@ export const StarWithAnimation = ({
       whileHover={{ scale: 1.07 }}
       whileTap={{ scale: 0.8 }}
       transition={{ scale: { type: 'spring', damping: 10, stiffness: 800, restDelta: 0.1 } }}
-      animate={watched ? 'watched' : 'unWatched'}
+      animate={disabled ? undefined : watched ? 'watched' : 'unWatched'}
     >
       <motion.svg
         width={size || '20'}

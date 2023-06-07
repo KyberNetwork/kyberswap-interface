@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
-import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { ReactNode, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
@@ -589,15 +589,20 @@ const TokenRow = ({
             <Text style={{ textTransform: 'uppercase' }}>{token.symbol}</Text>{' '}
             <RowFit gap="6px" color={theme.text}>
               {token.tokens.map(item => {
-                if (item.chain === 'ethereum') return <Icon key="eth-mono" id="eth-mono" size={12} title="Ethereum" />
-                if (item.chain === 'bsc') return <Icon key="bnb-mono" id="bnb-mono" size={12} title="Binance" />
-                if (item.chain === 'avalanche') return <Icon key="ava-mono" id="ava-mono" size={12} title="Avalanche" />
-                if (item.chain === 'polygon') return <Icon key="matic-mono" id="matic-mono" size={12} title="Polygon" />
+                if (item.chain === 'ethereum')
+                  return <Icon key={'eth-mono' + index} id="eth-mono" size={12} title="Ethereum" />
+                if (item.chain === 'bsc')
+                  return <Icon key={'bnb-mono' + index} id="bnb-mono" size={12} title="Binance" />
+                if (item.chain === 'avalanche')
+                  return <Icon key={'ava-mono' + index} id="ava-mono" size={12} title="Avalanche" />
+                if (item.chain === 'polygon')
+                  return <Icon key={'matic-mono' + index} id="matic-mono" size={12} title="Polygon" />
                 if (item.chain === 'arbitrum')
-                  return <Icon key="arbitrum-mono" id="arbitrum-mono" size={12} title="Arbitrum" />
-                if (item.chain === 'fantom') return <Icon key="fantom-mono" id="fantom-mono" size={12} title="Fantom" />
+                  return <Icon key={'arbitrum-mono' + index} id="arbitrum-mono" size={12} title="Arbitrum" />
+                if (item.chain === 'fantom')
+                  return <Icon key={'fantom-mono' + index} id="fantom-mono" size={12} title="Fantom" />
                 if (item.chain === 'optimism')
-                  return <Icon key="optimism-mono" id="optimism-mono" size={12} title="Optimism" />
+                  return <Icon key={'optimism-mono' + index} id="optimism-mono" size={12} title="Optimism" />
                 return <></>
               })}
             </RowFit>
@@ -768,20 +773,21 @@ export default function TokenAnalysisList() {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const { mixpanelHandler } = useMixpanel()
-  const [page, setPage] = useState(1)
   const [showShare, setShowShare] = useState(false)
   const [isScrolling, setIsScrolling] = useState(false)
+  const [listType, setListType] = useState(KyberAIListType.BULLISH)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const tableRef = useRef<HTMLTableElement>(null)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
 
   const [searchParams, setSearchParams] = useSearchParams()
-  const listType = (searchParams.get('listType') as KyberAIListType) || KyberAIListType.BULLISH
+  const listTypeParam = (searchParams.get('listType') as KyberAIListType) || KyberAIListType.BULLISH
+  const page = +(searchParams.get('page') || 1)
   const chain = searchParams.get('chain') || 'all'
   const pageSize = 25
 
   const { data, isLoading, isFetching, isError } = useTokenListQuery(
-    listType === KyberAIListType.MYWATCHLIST
+    listTypeParam === KyberAIListType.MYWATCHLIST
       ? {
           type: KyberAIListType.ALL,
           chain: (chain && SUPPORTED_NETWORK_KYBERAI[Number(chain) as ChainId]) || 'all',
@@ -791,7 +797,7 @@ export default function TokenAnalysisList() {
           watchlist: true,
         }
       : {
-          type: listType,
+          type: listTypeParam,
           chain: (chain && SUPPORTED_NETWORK_KYBERAI[Number(chain) as ChainId]) || 'all',
           page,
           pageSize,
@@ -802,6 +808,11 @@ export default function TokenAnalysisList() {
 
   const handleTabChange = (tab: KyberAIListType) => {
     searchParams.set('listType', tab)
+    searchParams.set('page', '1')
+    setSearchParams(searchParams)
+  }
+  const handlePageChange = (page: number) => {
+    searchParams.set('page', page.toString())
     setSearchParams(searchParams)
   }
   const handleChainChange = (chainId?: ChainId) => {
@@ -818,12 +829,9 @@ export default function TokenAnalysisList() {
         network: NETWORKS_INFO[chainId].name,
       })
     }
+    searchParams.set('page', '1')
     setSearchParams(searchParams)
   }
-
-  useLayoutEffect(() => {
-    setPage(1)
-  }, [chain, listType])
 
   useEffect(() => {
     if (wrapperRef.current && tableRef.current) {
@@ -843,11 +851,15 @@ export default function TokenAnalysisList() {
     }
     return
   }, [])
-
+  useEffect(() => {
+    if (!isFetching) {
+      setListType(listTypeParam)
+    }
+  }, [isFetching, listTypeParam])
   return (
     <>
       <Row gap="8px" justify="center" flexWrap={above768 ? 'nowrap' : 'wrap'}>
-        <TokenListDraggableTabs tab={listType} setTab={handleTabChange} />
+        <TokenListDraggableTabs tab={listTypeParam} setTab={handleTabChange} />
       </Row>
       <RowBetween flexDirection={above768 ? 'row' : 'column'} gap="16px">
         <Column gap="8px">
@@ -982,7 +994,7 @@ export default function TokenAnalysisList() {
               </tr>
             </thead>
             <tbody>
-              {isLoading || isFetching ? (
+              {isLoading ? (
                 <SkeletonTheme
                   baseColor={theme.border}
                   height="28px"
@@ -1069,7 +1081,7 @@ export default function TokenAnalysisList() {
               currentPage={page}
               onPageChange={(page: number) => {
                 window.scroll({ top: 0 })
-                setPage(page)
+                handlePageChange(page)
               }}
               style={{ flex: 1 }}
             />
