@@ -9,8 +9,22 @@ import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import useTheme from 'hooks/useTheme'
 
+import v1Step1 from './images/v1/step1.png'
+import v1Step2 from './images/v1/step2.png'
+import v1Step3 from './images/v1/step3.png'
+import v1Step4 from './images/v1/step4.png'
+import v1Step5 from './images/v1/step5.png'
+import v1Step6 from './images/v1/step6.png'
+import v1Step7 from './images/v1/step7.png'
+import step1 from './images/v2/step_1.png'
+import step2 from './images/v2/step_2.png'
+import step3 from './images/v2/step_3.png'
+import step4 from './images/v2/step_4.png'
+import step5 from './images/v2/step_5.png'
+import step6 from './images/v2/step_6.png'
+
 interface FarmStepGuideProps {
-  onChangeVersion: (verison: 'v1' | 'v2' | null) => void
+  onChangeVersion: (version: 'v1' | 'v2' | null) => void
   version: 'v1' | 'v2' | null
 }
 
@@ -30,6 +44,8 @@ const Right = styled.div<{ img: string }>`
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
+  padding: 1rem;
+  background-origin: content-box;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     display: none
   `}
@@ -94,7 +110,7 @@ const FarmStepGuide: FC<FarmStepGuideProps> = ({ version, onChangeVersion }) => 
   const v2Steps = [
     {
       title: t`Step 1: Select the Farm`,
-      img: 'https://avatars.githubusercontent.com/u/11427213?v=4',
+      img: step1,
       description: (
         <Text fontSize="12px" color={theme.subText} paddingTop="12px">
           <Trans>
@@ -110,7 +126,7 @@ const FarmStepGuide: FC<FarmStepGuideProps> = ({ version, onChangeVersion }) => 
 
     {
       title: t`Step 2: Approve the Farming contract`,
-      img: 'https://i.ytimg.com/vi/E9iP8jdtYZ0/maxresdefault.jpg',
+      img: step2,
       description: (
         <Text fontSize="12px" color={theme.subText} paddingTop="12px" lineHeight="1rem">
           <Trans>
@@ -125,7 +141,7 @@ const FarmStepGuide: FC<FarmStepGuideProps> = ({ version, onChangeVersion }) => 
     },
     {
       title: t`Step 3: Stake in a farm`,
-      img: 'https://i.pinimg.com/736x/97/d0/2a/97d02ad83bbf9161f2a4d73ff8b95195.jpg',
+      img: step3,
       description: (
         <Text fontSize="12px" color={theme.subText} paddingTop="12px" lineHeight="1rem">
           <Trans>
@@ -140,8 +156,8 @@ const FarmStepGuide: FC<FarmStepGuideProps> = ({ version, onChangeVersion }) => 
       ),
     },
     {
-      title: t`Step 4: Stake in a farm`,
-      img: 'https://avatars.githubusercontent.com/u/11427213?v=4',
+      title: t`Step 4: Claim Rewards`,
+      img: step4,
       description: (
         <Text fontSize="12px" color={theme.subText} paddingTop="12px" lineHeight="1rem">
           <Trans>
@@ -157,7 +173,7 @@ const FarmStepGuide: FC<FarmStepGuideProps> = ({ version, onChangeVersion }) => 
 
     {
       title: t`Step 5: Change Farming Range`,
-      img: 'https://i.ytimg.com/vi/E9iP8jdtYZ0/maxresdefault.jpg',
+      img: step5,
       description: (
         <Text fontSize="12px" color={theme.subText} paddingTop="12px" lineHeight="1rem">
           <Trans>
@@ -172,7 +188,7 @@ const FarmStepGuide: FC<FarmStepGuideProps> = ({ version, onChangeVersion }) => 
     },
     {
       title: t`Step 6: Unstake liquidity from a farm`,
-      img: 'https://avatars.githubusercontent.com/u/11427213?v=4',
+      img: step6,
       description: (
         <Text fontSize="12px" color={theme.subText} paddingTop="12px" lineHeight="1rem">
           <Trans>
@@ -212,11 +228,11 @@ const FarmStepGuide: FC<FarmStepGuideProps> = ({ version, onChangeVersion }) => 
           </Trans>
         </Text>
       ),
-      img: 'https://avatars.githubusercontent.com/u/11427213?v=4',
+      img: v1Step1,
     },
     {
       title: t`Step 2: Approve the Farming contract`,
-      img: 'https://i.ytimg.com/vi/E9iP8jdtYZ0/maxresdefault.jpg',
+      img: v1Step2,
       description: (
         <Text fontSize="12px" color={theme.subText} paddingTop="12px" lineHeight="1rem">
           <Trans>
@@ -231,7 +247,7 @@ const FarmStepGuide: FC<FarmStepGuideProps> = ({ version, onChangeVersion }) => 
     },
     {
       title: t`Step 3: Deposit liquidity to Farming contract`,
-      img: 'https://i.ytimg.com/vi/E9iP8jdtYZ0/maxresdefault.jpg',
+      img: v1Step3,
       description: (
         <Text fontSize="12px" color={theme.subText} paddingTop="12px" lineHeight="1rem">
           <Trans>
@@ -247,7 +263,8 @@ const FarmStepGuide: FC<FarmStepGuideProps> = ({ version, onChangeVersion }) => 
 
     {
       title: t`Step 4: Stake in a farm`,
-      img: 'https://i.ytimg.com/vi/E9iP8jdtYZ0/maxresdefault.jpg',
+      img: v1Step4,
+
       description: (
         <Text fontSize="12px" color={theme.subText} paddingTop="12px" lineHeight="1rem">
           <Trans>
@@ -263,7 +280,7 @@ const FarmStepGuide: FC<FarmStepGuideProps> = ({ version, onChangeVersion }) => 
 
     {
       title: t`Step 5: Harvest your farming rewards`,
-      img: 'https://i.ytimg.com/vi/E9iP8jdtYZ0/maxresdefault.jpg',
+      img: v1Step5,
       description: (
         <Text fontSize="12px" color={theme.subText} paddingTop="12px" lineHeight="1rem">
           <Trans>
@@ -279,7 +296,7 @@ const FarmStepGuide: FC<FarmStepGuideProps> = ({ version, onChangeVersion }) => 
 
     {
       title: t`Step 6: Unstake liquidity from a farm`,
-      img: 'https://i.ytimg.com/vi/E9iP8jdtYZ0/maxresdefault.jpg',
+      img: v1Step6,
       description: (
         <Text fontSize="12px" color={theme.subText} paddingTop="12px" lineHeight="1rem">
           <Trans>
@@ -305,7 +322,7 @@ const FarmStepGuide: FC<FarmStepGuideProps> = ({ version, onChangeVersion }) => 
     },
     {
       title: t`Step 7: Withdraw your liquidty`,
-      img: 'https://i.ytimg.com/vi/E9iP8jdtYZ0/maxresdefault.jpg',
+      img: v1Step7,
       description: (
         <Text fontSize="12px" color={theme.subText} paddingTop="12px" lineHeight="1rem">
           <Trans>
