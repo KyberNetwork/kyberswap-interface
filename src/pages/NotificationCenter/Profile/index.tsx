@@ -6,12 +6,11 @@ import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import { useUpdateProfileMutation } from 'services/identity'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 
 import { AddressInput } from 'components/AddressInputPanel'
 import { NotificationType } from 'components/Announcement/type'
 import Avatar from 'components/Avatar'
-import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import CopyHelper from 'components/Copy'
 import FileInput from 'components/FileInput'
@@ -23,7 +22,9 @@ import { useActiveWeb3React } from 'hooks'
 import { useUploadImageToCloud } from 'hooks/social'
 import useLogin from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
+import ExportAccountButton from 'pages/NotificationCenter/Profile/ExportAccountButton'
 import WarningSignMessage from 'pages/NotificationCenter/Profile/WarningSignMessage'
+import { ButtonLogout, ButtonSave } from 'pages/NotificationCenter/Profile/buttons'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
 import { useNotify } from 'state/application/hooks'
@@ -98,22 +99,6 @@ const ActionsWrapper = styled.div`
   ${({ theme }) => theme.mediaWidth.upToSmall`
     justify-content: space-between;
   `}
-`
-
-const shareButtonStyle = css`
-  width: 120px;
-  height: 36px;
-  font-size: 14px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    max-width: 45%;
-    width: 164px;
-  `}
-`
-const ButtonLogout = styled(ButtonOutlined)`
-  ${shareButtonStyle}
-`
-const ButtonSave = styled(ButtonPrimary)`
-  ${shareButtonStyle}
 `
 
 export default function Profile() {
@@ -267,6 +252,8 @@ export default function Profile() {
                 Log Out
               </ButtonLogout>
             )}
+
+            <ExportAccountButton />
           </ActionsWrapper>
         </LeftColum>
 
