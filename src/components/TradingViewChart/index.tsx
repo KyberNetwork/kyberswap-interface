@@ -10,6 +10,7 @@ import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import { Z_INDEXS } from 'constants/styles'
 import useTheme from 'hooks/useTheme'
 import { useUserLocale } from 'state/user/hooks'
+import { openFullscreen } from 'utils/index'
 
 import { ChartingLibraryWidgetOptions, LanguageCode, ResolutionString, Timezone } from './charting_library'
 import { useDatafeed } from './datafeed'
@@ -55,23 +56,6 @@ const MobileChart = styled.div<{ fullscreen: boolean; $loading: boolean }>`
 `
 
 const LOCALSTORAGE_STATE_NAME = 'proChartSavedState'
-
-function openFullscreen(elem: any) {
-  if (elem.requestFullscreen) {
-    elem.requestFullscreen()
-  } else if (elem.webkitRequestFullScreen) {
-    /* Old webkit */
-    elem.webkitRequestFullScreen()
-  } else if (elem.webkitRequestFullscreen) {
-    /* New webkit */
-    elem.webkitRequestFullscreen()
-  } else if (elem.mozRequestFullScreen) {
-    elem.mozRequestFullScreen()
-  } else if (elem.msRequestFullscreen) {
-    /* IE11 */
-    elem.msRequestFullscreen()
-  }
-}
 
 interface FullScreenDocument extends Document {
   msExitFullscreen?: () => void

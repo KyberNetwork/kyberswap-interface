@@ -13,6 +13,7 @@ import {
   closeModal,
   removePopup,
   setAnnouncementDetail,
+  setConfirmData,
   setLoadingNotification,
   setOpenModal,
   setSubscribedNotificationTopic,
@@ -29,6 +30,16 @@ type ETHPrice = {
   pricePercentChange?: number
 }
 
+export type ConfirmModalState = {
+  isOpen: boolean
+  cancelText?: string
+  confirmText: string
+  title?: string
+  content: string
+  onConfirm?: () => void
+  onCancel?: () => void
+}
+
 interface ApplicationState {
   readonly blockNumber: { readonly [chainId: number]: number }
   readonly popupList: PopupItemType[]
@@ -37,6 +48,7 @@ interface ApplicationState {
   readonly prommEthPrice: ETHPrice
   readonly kncPrice?: string
   readonly serviceWorkerRegistration: ServiceWorkerRegistration | null
+
   readonly notification: {
     isLoading: boolean
     topicGroups: Topic[]
@@ -53,6 +65,7 @@ interface ApplicationState {
   readonly config: {
     [chainId in ChainId]?: KyberSwapConfigResponse
   }
+  readonly confirmModal: ConfirmModalState
 }
 const initialStateNotification = {
   isLoading: false,
@@ -64,6 +77,16 @@ const initialStateNotification = {
     hasMore: false,
   },
 }
+
+export const initialStateConfirmModal = {
+  isOpen: false,
+  cancelText: '',
+  confirmText: '',
+  content: '',
+  title: '',
+  onConfirm: undefined,
+  onCancel: undefined,
+}
 const initialState: ApplicationState = {
   blockNumber: {},
   popupList: [],
@@ -74,6 +97,7 @@ const initialState: ApplicationState = {
   serviceWorkerRegistration: null,
   notification: initialStateNotification,
   config: {},
+  confirmModal: initialStateConfirmModal,
 }
 
 export default createReducer(initialState, builder =>
@@ -126,7 +150,9 @@ export default createReducer(initialState, builder =>
     .addCase(updateServiceWorker, (state, { payload }) => {
       state.serviceWorkerRegistration = payload
     })
-
+    .addCase(setConfirmData, (state, { payload }) => {
+      state.confirmModal = payload
+    })
     // ------ notification subscription ------
     .addCase(setLoadingNotification, (state, { payload: isLoading }) => {
       const notification = state.notification ?? initialStateNotification
@@ -148,6 +174,7 @@ export default createReducer(initialState, builder =>
         announcementDetail,
       }
     })
+
     .addMatcher(ksSettingApi.endpoints.getKyberswapConfiguration.matchFulfilled, (state, action) => {
       const { chainId } = action.meta.arg.originalArgs
       const evm = isEVM(chainId)

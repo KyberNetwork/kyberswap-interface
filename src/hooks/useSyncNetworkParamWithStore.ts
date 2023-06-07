@@ -1,37 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { usePrevious } from 'react-use'
 
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { isAuthorized, useEagerConnect } from 'hooks/web3/useEagerConnect'
+import { useEagerConnect } from 'hooks/web3/useEagerConnect'
+import { getChainIdFromSlug } from 'utils/string'
 
 import { useChangeNetwork } from './web3/useChangeNetwork'
-
-/**
- *
- * we need this hook support to check user actually connected wallet or not
- * although we connected wallet, it will take small time to load => account = undefined => wait a bit => account = 0x....
- */
-function useIsConnectedWallet() {
-  const { account } = useActiveWeb3React()
-  const prevAccount = usePrevious(account)
-  const key = 'connectedWallet'
-  useEffect(() => {
-    if (account) {
-      localStorage.setItem(key, '1')
-    }
-    if (prevAccount && !account) {
-      localStorage.removeItem(key)
-    }
-  }, [account, prevAccount])
-
-  const connectedWallet = localStorage.getItem(key)
-  return useCallback(async () => {
-    const authorize = await isAuthorized()
-    return connectedWallet && authorize
-  }, [connectedWallet])
-}
 
 export function useSyncNetworkParamWithStore() {
   const params = useParams<{ network?: string }>()
@@ -40,8 +15,6 @@ export function useSyncNetworkParamWithStore() {
   const isOnInit = useRef(true)
   const navigate = useNavigate()
   const triedEager = useEagerConnect()
-  const isConnectedWallet = useIsConnectedWallet()
-
   const location = useLocation()
   const [requestingNetwork, setRequestingNetwork] = useState<string>()
 
@@ -51,7 +24,7 @@ export function useSyncNetworkParamWithStore() {
       return
     }
     if (isOnInit.current) {
-      const paramChainId = Object.values(NETWORKS_INFO).find(n => n.route === params?.network)?.chainId
+      const paramChainId = getChainIdFromSlug(params?.network)
       /**
        * Try to change to network on route param on init. Exp: /swap/ethereum => try to connect to ethereum on init
        * @param isOnInit.current: make sure only run 1 time after init
@@ -62,9 +35,7 @@ export function useSyncNetworkParamWithStore() {
           isOnInit.current = false
           return
         }
-        const isConnected = await isConnectedWallet()
-        if (isConnected && !account) {
-          // connected wallet but web3-react slow return account
+        if (!account) {
           return
         }
         setRequestingNetwork(params?.network)
@@ -90,7 +61,6 @@ export function useSyncNetworkParamWithStore() {
     networkInfo.route,
     walletEVM.isConnected,
     walletSolana.isConnected,
-    isConnectedWallet,
     account,
   ])
 

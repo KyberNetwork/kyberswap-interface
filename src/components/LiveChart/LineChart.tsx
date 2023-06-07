@@ -1,5 +1,5 @@
 import { format } from 'date-fns'
-import React, { useEffect, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import styled from 'styled-components'
@@ -49,20 +49,6 @@ const getAxisDateFormat = (timeFrame: LiveDataTimeframeEnum | undefined) => {
     default:
       return 'p MMM d'
   }
-}
-
-const HoverUpdater = ({
-  payload,
-  setHoverValue,
-}: {
-  payload: any
-  setHoverValue: React.Dispatch<React.SetStateAction<number | null>>
-}) => {
-  useEffect(() => {
-    setHoverValue(payload.value)
-  }, [payload.value, payload.time, setHoverValue])
-
-  return null
 }
 
 const CustomizedCursor = (props: any) => {
@@ -184,7 +170,7 @@ const LineChart = ({
         >
           <defs>
             <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={color} stopOpacity={0.4} />
+              <stop offset="0%" stopColor={color} stopOpacity={0.8} />
               <stop offset="100%" stopColor={color} stopOpacity={0} />
             </linearGradient>
           </defs>
@@ -225,9 +211,10 @@ const LineChart = ({
           />
           <Tooltip
             contentStyle={{ display: 'none' }}
-            formatter={(tooltipValue: any, name: string, props: any) => (
-              <HoverUpdater payload={props.payload} setHoverValue={setHoverValue} />
-            )}
+            formatter={(tooltipValue: any, name: string, props: any) => {
+              setHoverValue(props.payload.value)
+              return ''
+            }}
             cursor={<CustomizedCursor timeFrame={timeFrame} />}
           />
           <Area type="monotone" dataKey="value" stroke={color} fill="url(#colorUv)" strokeWidth={2} />

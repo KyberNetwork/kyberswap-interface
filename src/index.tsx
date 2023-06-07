@@ -24,7 +24,6 @@ import SolanaWalletContext from 'components/SolanaWalletContext'
 import { ENV_LEVEL, GTM_ID, MIXPANEL_PROJECT_TOKEN, SENTRY_DNS, TAG } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
 import { connections } from 'constants/wallets'
-import useLogin from 'hooks/useLogin'
 // import { updateServiceWorker } from 'state/application/actions'
 import CampaignsUpdater from 'state/campaigns/updater'
 
@@ -123,7 +122,6 @@ window.recaptchaOptions = {
 
 const ReactApp = () => {
   useEffect(hideLoader, [])
-  useLogin()
   const connectors: [Connector, Web3ReactHooks][] = useMemo(
     () => connections.map(({ hooks, connector }) => [connector, hooks]),
     [],
@@ -133,7 +131,7 @@ const ReactApp = () => {
   return (
     <StrictMode>
       <SEO
-        title="KyberSwap - Swap and earn tokens at the best rates"
+        title="KyberSwap - Trading Smart"
         description="KyberSwap is DeFi‚Äôs first Dynamic Market Maker; a decentralized exchange protocol that provides frictionless crypto liquidity with extremely high flexibility and capital efficiency. KyberSwap is the first major protocol in Kyber‚Äôs liquidity hub."
       />
       <FixedGlobalStyle />

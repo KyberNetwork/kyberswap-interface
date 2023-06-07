@@ -4,15 +4,28 @@ import { ArrowLeft, ExternalLink as LinkIconFeather, X } from 'react-feather'
 import { Link } from 'react-router-dom'
 import styled, { css, keyframes } from 'styled-components'
 
-export const ButtonText = styled.button`
+export const ButtonText = styled.button<{ color?: string; gap?: string }>`
   outline: none;
   border: none;
   font-size: inherit;
   padding: 0;
   margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background: none;
   cursor: pointer;
-
+  transition: all 0.2s ease;
+  ${({ color }) =>
+    color &&
+    css`
+      color: ${color};
+    `}
+  ${({ gap }) =>
+    gap &&
+    css`
+      gap: ${gap};
+    `}
   :hover {
     opacity: 0.7;
   }

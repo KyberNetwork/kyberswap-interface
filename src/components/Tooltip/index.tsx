@@ -21,6 +21,7 @@ export const TextDashed = styled(Text)<{ color?: string; underlineColor?: string
 
 interface TooltipProps extends Omit<PopoverProps, 'content'> {
   text: string | ReactNode
+  delay?: number
   width?: string
   maxWidth?: string
   size?: number
@@ -51,20 +52,34 @@ export default function Tooltip({ text, width, maxWidth, size, onMouseEnter, onM
   )
 }
 
-export function MouseoverTooltip({ children, disableTooltip, ...rest }: Omit<TooltipProps, 'show'>) {
+export function MouseoverTooltip({ children, disableTooltip, delay, ...rest }: Omit<TooltipProps, 'show'>) {
   const [show, setShow] = useState(false)
   const [closeTimeout, setCloseTimeout] = useState<NodeJS.Timeout | null>(null)
   const ref = useRef(null)
+  const hovering = useRef(false)
   const open = useCallback(() => {
     if (!!rest.text) {
-      setShow(true)
+      hovering.current = true
+      setTimeout(() => {
+        if (hovering.current) setShow(true)
+      }, delay || 50)
+
       if (closeTimeout) {
         clearTimeout(closeTimeout)
         setCloseTimeout(null)
       }
     }
-  }, [rest.text, closeTimeout])
-  const close = useCallback(() => setCloseTimeout(setTimeout(() => setShow(false), 50)), [])
+  }, [rest.text, closeTimeout, delay])
+  const close = useCallback(
+    () =>
+      setCloseTimeout(
+        setTimeout(() => {
+          hovering.current = false
+          setShow(false)
+        }, 50),
+      ),
+    [],
+  )
   if (disableTooltip) return <>{children}</>
   return (
     <Tooltip {...rest} show={show} onMouseEnter={open} onMouseLeave={close}>
