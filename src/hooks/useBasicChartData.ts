@@ -112,8 +112,7 @@ export default function useBasicChartData(
   tokens: (Token | null | undefined)[],
   timeFrame: LiveDataTimeframeEnum,
 ): { data: ChartData[]; loading: boolean; error: any } {
-  const { chainId, isEVM } = useActiveWeb3React()
-  const networkInfo = NETWORKS_INFO[chainId]
+  const { chainId, isEVM, networkInfo } = useActiveWeb3React()
 
   const isReverse = useMemo(() => {
     if (!tokens || !tokens[0] || !tokens[1] || tokens[0].equals(tokens[1]) || tokens[0].chainId !== tokens[1].chainId)
