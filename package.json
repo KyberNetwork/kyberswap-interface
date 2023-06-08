@@ -122,7 +122,7 @@
     "styled-components": "^5.3.6",
     "swiper": "^8.4.4",
     "swr": "^2.0.0",
-    "ua-parser-js": "^1.0.32",
+    "ua-parser-js": "^1.0.33",
     "util": "^0.12.5",
     "vite-plugin-env-compatible": "^1.1.1",
     "walktour": "^5.2.0",
