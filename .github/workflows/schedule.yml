@@ -49,7 +49,6 @@ jobs:
       - name: Run Cypress Test
         run: |+
           #!/bin/bash
-          yarn preview &
           yarn test-e2e
         env:
             DISPLAY: :0.0      
