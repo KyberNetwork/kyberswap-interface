@@ -193,8 +193,8 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
             farm.pool.reinvestL,
             Number(farm.pool.tick),
           )
-          let tvlToken0 = CurrencyAmount.fromRawAmount(token0, 0)
-          let tvlToken1 = CurrencyAmount.fromRawAmount(token1, 0)
+          let tvlToken0 = CurrencyAmount.fromRawAmount(token0.wrapped, 0)
+          let tvlToken1 = CurrencyAmount.fromRawAmount(token1.wrapped, 0)
 
           farm.depositedPositions.forEach(pos => {
             const position = new Position({
@@ -203,6 +203,7 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
               tickLower: Number(pos.position.tickLower.tickIdx),
               tickUpper: Number(pos.position.tickUpper.tickIdx),
             })
+
             tvlToken0 = tvlToken0.add(position.amount0)
             tvlToken1 = tvlToken1.add(position.amount1)
           })

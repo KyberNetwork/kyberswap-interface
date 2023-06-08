@@ -111,8 +111,8 @@ function FarmCard({
 
   const currentTimestamp = Math.floor(Date.now() / 1000)
   const stakedPos = useUserFarmV2Info(farm.fId)
-  let amountToken0 = CurrencyAmount.fromRawAmount(farm.token0, 0)
-  let amountToken1 = CurrencyAmount.fromRawAmount(farm.token1, 0)
+  let amountToken0 = CurrencyAmount.fromRawAmount(farm.token0.wrapped, 0)
+  let amountToken1 = CurrencyAmount.fromRawAmount(farm.token1.wrapped, 0)
 
   stakedPos.forEach(item => {
     amountToken0 = amountToken0.add(item.position.amount0)
