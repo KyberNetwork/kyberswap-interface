@@ -178,8 +178,8 @@ function FarmCard({
   const { pool } = farm
 
   const addliquidityElasticPool = `${APP_PATHS.ELASTIC_CREATE_POOL}/${
-    pool.token0.isNative ? pool.token0.symbol : pool.token0.address
-  }/${pool.token1.isNative ? pool.token1.symbol : pool.token1.address}/${pool.fee}`
+    farm.token0.isNative ? farm.token0.symbol : farm.token0.address
+  }/${farm.token1.isNative ? farm.token1.symbol : pool.token1.address}/${pool.fee}`
 
   return (
     <>
@@ -290,73 +290,79 @@ function FarmCard({
           onChange={key => {
             setActiveRangeIndex(+key)
           }}
-          items={farm.ranges.map(item => ({
-            key: item.index,
-            label: (
-              <Flex alignItems="center" sx={{ gap: '2px' }} color={item.isRemoved ? theme.warning : theme.subText}>
-                {convertTickToPrice(farm.token0, farm.token1, item.tickLower)}
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" display="block">
-                  <path
-                    d="M11.3405 8.66669L11.3405 9.86002C11.3405 10.16 11.7005 10.3067 11.9071 10.0934L13.7605 8.23335C13.8871 8.10002 13.8871 7.89335 13.7605 7.76002L11.9071 5.90669C11.7005 5.69335 11.3405 5.84002 11.3405 6.14002L11.3405 7.33335L4.66047 7.33335L4.66047 6.14002C4.66047 5.84002 4.30047 5.69335 4.0938 5.90669L2.24047 7.76669C2.1138 7.90002 2.1138 8.10669 2.24047 8.24002L4.0938 10.1C4.30047 10.3134 4.66047 10.16 4.66047 9.86669L4.66047 8.66669L11.3405 8.66669Z"
-                    fill="currentcolor"
-                  />
-                </svg>
+          items={farm.ranges.map(item => {
+            return {
+              key: item.index,
+              label: (
+                <Flex alignItems="center" sx={{ gap: '2px' }} color={item.isRemoved ? theme.warning : theme.subText}>
+                  {convertTickToPrice(farm.token0, farm.token1, item.tickLower, pool.fee)}
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" display="block">
+                    <path
+                      d="M11.3405 8.66669L11.3405 9.86002C11.3405 10.16 11.7005 10.3067 11.9071 10.0934L13.7605 8.23335C13.8871 8.10002 13.8871 7.89335 13.7605 7.76002L11.9071 5.90669C11.7005 5.69335 11.3405 5.84002 11.3405 6.14002L11.3405 7.33335L4.66047 7.33335L4.66047 6.14002C4.66047 5.84002 4.30047 5.69335 4.0938 5.90669L2.24047 7.76669C2.1138 7.90002 2.1138 8.10669 2.24047 8.24002L4.0938 10.1C4.30047 10.3134 4.66047 10.16 4.66047 9.86669L4.66047 8.66669L11.3405 8.66669Z"
+                      fill="currentcolor"
+                    />
+                  </svg>
 
-                {convertTickToPrice(farm.token0, farm.token1, item.tickUpper)}
-              </Flex>
-            ),
-            children: (
-              <Flex padding="12px" flexDirection="column">
-                <RowBetween>
-                  <MouseoverTooltip text={t`Active Range: Current active farming range`} placement="top">
-                    <Text fontSize="12px" color={theme.subText} style={{ borderBottom: `1px dotted ${theme.subText}` }}>
-                      APR
-                    </Text>
-                  </MouseoverTooltip>
+                  {convertTickToPrice(farm.token0, farm.token1, item.tickUpper, pool.fee)}
+                </Flex>
+              ),
+              children: (
+                <Flex padding="12px" flexDirection="column">
+                  <RowBetween>
+                    <MouseoverTooltip text={t`Active Range: Current active farming range`} placement="top">
+                      <Text
+                        fontSize="12px"
+                        color={theme.subText}
+                        style={{ borderBottom: `1px dotted ${theme.subText}` }}
+                      >
+                        APR
+                      </Text>
+                    </MouseoverTooltip>
 
-                  <MouseoverTooltip
-                    text={
-                      farm.ranges[activeRangeIndex].isRemoved ? (
-                        <Trans>
-                          This indicates that range is idle. Staked positions in this range is still earning small
-                          amount of rewards.
-                        </Trans>
-                      ) : (
-                        ''
-                      )
-                    }
-                  >
-                    <Text
-                      fontSize="12px"
-                      color={farm.ranges[activeRangeIndex].isRemoved ? theme.warning : theme.primary}
-                      alignSelf="flex-end"
-                      sx={{
-                        borderBottom: farm.ranges[activeRangeIndex].isRemoved
-                          ? `1px dotted ${theme.warning}`
-                          : undefined,
-                      }}
+                    <MouseoverTooltip
+                      text={
+                        farm.ranges[activeRangeIndex].isRemoved ? (
+                          <Trans>
+                            This indicates that range is idle. Staked positions in this range is still earning small
+                            amount of rewards.
+                          </Trans>
+                        ) : (
+                          ''
+                        )
+                      }
                     >
-                      {farm.ranges[activeRangeIndex].isRemoved ? (
-                        <Trans>Idle Range</Trans>
-                      ) : (
-                        <Link to={`${addliquidityElasticPool}?farmRange=${activeRangeIndex}`}>
-                          <Trans>Add Liquidity ↗</Trans>
-                        </Link>
-                      )}
-                    </Text>
-                  </MouseoverTooltip>
-                </RowBetween>
+                      <Text
+                        fontSize="12px"
+                        color={farm.ranges[activeRangeIndex].isRemoved ? theme.warning : theme.primary}
+                        alignSelf="flex-end"
+                        sx={{
+                          borderBottom: farm.ranges[activeRangeIndex].isRemoved
+                            ? `1px dotted ${theme.warning}`
+                            : undefined,
+                        }}
+                      >
+                        {farm.ranges[activeRangeIndex].isRemoved ? (
+                          <Trans>Idle Range</Trans>
+                        ) : (
+                          <Link to={`${addliquidityElasticPool}?farmRange=${activeRangeIndex}`}>
+                            <Trans>Add Liquidity ↗</Trans>
+                          </Link>
+                        )}
+                      </Text>
+                    </MouseoverTooltip>
+                  </RowBetween>
 
-                <Text
-                  fontSize="28px"
-                  marginTop="2px"
-                  color={farm.ranges[activeRangeIndex].isRemoved ? theme.warning : theme.apr}
-                >
-                  {(poolAPR + (farm.ranges[activeRangeIndex].apr || 0)).toFixed(2)}%
-                </Text>
-              </Flex>
-            ),
-          }))}
+                  <Text
+                    fontSize="28px"
+                    marginTop="2px"
+                    color={farm.ranges[activeRangeIndex].isRemoved ? theme.warning : theme.apr}
+                  >
+                    {(poolAPR + (farm.ranges[activeRangeIndex].apr || 0)).toFixed(2)}%
+                  </Text>
+                </Flex>
+              ),
+            }
+          })}
         />
 
         <RowBetween>

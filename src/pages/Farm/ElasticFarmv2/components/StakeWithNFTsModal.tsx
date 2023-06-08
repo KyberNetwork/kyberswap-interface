@@ -313,8 +313,8 @@ const StakeWithNFTsModal = ({
             items={farm.ranges
               .filter(range => !range.isRemoved)
               .map(range => {
-                const priceLower = convertTickToPrice(farm.token0, farm.token1, range.tickLower)
-                const priceUpper = convertTickToPrice(farm.token0, farm.token1, range.tickUpper)
+                const priceLower = convertTickToPrice(farm.token0, farm.token1, range.tickLower, farm.pool.fee)
+                const priceUpper = convertTickToPrice(farm.token0, farm.token1, range.tickUpper, farm.pool.fee)
 
                 return {
                   key: range.index,
