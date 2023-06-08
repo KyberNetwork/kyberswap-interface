@@ -29,6 +29,9 @@ export function parseFraction(value: string, decimals = RESERVE_USD_DECIMALS) {
 export const removeTrailingZero = (num: string) => {
   if (num === undefined || num === null) return ''
   num = String(num)
+  /**
+   * 15.23000: $1 is 15, $2 is ., $3 is 23000 => '$1$2$3' => 15.23
+   */
   return num.replace(/^([\d,]+)$|^([\d,]+)\.0*$|^([\d,]+\.[0-9]*?)0*$/, '$1$2$3')
 }
 
