@@ -63,6 +63,10 @@ const menuItems = [
     type: PrivateAnnouncementType.BRIDGE_ASSET,
   },
   {
+    route: NOTIFICATION_ROUTES.CROSS_CHAIN,
+    type: PrivateAnnouncementType.CROSS_CHAIN,
+  },
+  {
     route: NOTIFICATION_ROUTES.KYBER_AI_TOKENS,
     type: PrivateAnnouncementType.KYBER_AI,
   },
