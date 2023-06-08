@@ -8,6 +8,7 @@
     "node": "~18.15.0"
   },
   "scripts": {
+    "postinstall": "patch-package",
     "preview": "vite preview",
     "build": "yarn i18n && tsc && vite build",
     "build-adpr": "yarn i18n && tsc && vite build --mode adpr",
@@ -69,7 +70,7 @@
     "@web3-react/core": "^8.2.0",
     "@web3-react/metamask": "^8.2.1",
     "@web3-react/types": "^8.2.0",
-    "@web3-react/walletconnect-v2": "^8.3.1",
+    "@web3-react/walletconnect-v2": "^8.3.2",
     "@web3-react/walletlink-connector": "^6.2.14",
     "aos": "^2.3.4",
     "axios": "1.2.1",
@@ -94,7 +95,9 @@
     "multihashes": "^3.1.2",
     "node-vibrant": "^3.1.6",
     "numeral": "^2.0.6",
+    "patch-package": "^7.0.0",
     "polished": "^3.7.2",
+    "postinstall-postinstall": "^2.1.0",
     "process": "^0.11.10",
     "react": "^18.2.0",
     "react-date-picker": "^9.1.0",
@@ -188,7 +191,7 @@
     "vite-tsconfig-paths": "^4.0.8"
   },
   "resolutions": {
-    "@walletconnect/sign-client": "2.7.7",
+    "@walletconnect/sign-client": "2.7.8",
     "@kyberswap/ks-sdk-core": "^1.0.5",
     "react-error-overlay": "6.0.9",
     "@lingui/babel-plugin-extract-messages": "3.14.0",

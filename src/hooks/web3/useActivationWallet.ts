@@ -3,7 +3,6 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import { Connector } from '@web3-react/types'
 import { useCallback } from 'react'
 
-import { walletConnectV2 } from 'connectors'
 import { LOCALSTORAGE_LAST_WALLETKEY, SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
 import { useIsUserManuallyDisconnect } from 'state/user/hooks'
@@ -20,11 +19,6 @@ export const useActivationWallet: () => {
 
   const tryActivationEVM: (connector: Connector) => Promise<void> = useCallback(async (connector: Connector) => {
     try {
-      if (connector === walletConnectV2) {
-        import('@walletconnect/ethereum-provider').then(async ethProviderModule => {
-          console.log('ethProviderModule', { ethProviderModule })
-        })
-      }
       await connector.activate()
     } catch (error) {
       console.error('Activate evm failed:', { connector, error })
