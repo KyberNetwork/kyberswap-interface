@@ -1,0 +1,64 @@
+name: 'Cron Schedule'
+
+on:
+  schedule:
+    - cron: "*/40 * * * *"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Code Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js 18.15.0
+        uses: actions/setup-node@v1
+        with:
+          node-version: 18.15.0
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@kybernetwork'
+
+      - name: Install dependences
+        uses: bahmutov/npm-install@HEAD
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GH_PAT }} ### authen npm
+
+      - name: Install linux deps
+        run: |
+            sudo apt-get install --no-install-recommends -y \
+            fluxbox \
+            xvfb
+  
+      - name: Yarn Build
+        env:
+          CI: false
+          VITE_TAG: ${{ needs.prepare.outputs.image_tag }}
+          CURRENT_BRANCH: ${{ needs.prepare.outputs.current_branch }}
+          NODE_OPTIONS: '--max_old_space_size=4096'
+        run: yarn build-adpr
+      
+      - name: Install cypress
+        run: yarn cypress install --force  
+        
+      - name: Run xvfb and fluxbox
+        run: Xvfb :0 -screen 0 1024x768x24 -listen tcp -ac &
+          fluxbox &
+        env:
+          DISPLAY: :0.0  
+
+      - name: Run Cypress Test
+        run: |+
+          #!/bin/bash
+          yarn preview &
+          yarn test-e2e
+        env:
+            DISPLAY: :0.0      
+      
+      - name: Archive e2e artifacts 
+        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
+        if: always()
+        with:
+            name: e2e-artifacts
+            path: |
+              cypress/videos
+        continue-on-error: true    
