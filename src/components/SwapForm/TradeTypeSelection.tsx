@@ -13,7 +13,7 @@ const GroupButtonReturnTypes = styled.div`
   padding: 2px;
 `
 
-export const ButtonReturnType = styled.div<{ active?: boolean }>`
+const ButtonReturnType = styled.div<{ active?: boolean }>`
   border-radius: 999px;
   flex: 1;
   padding: 8px;

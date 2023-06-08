@@ -131,6 +131,10 @@ function NotificationCenter() {
               element={<PrivateAnnouncement type={PrivateAnnouncementType.BRIDGE_ASSET} />}
             />
             <Route
+              path={NOTIFICATION_ROUTES.CROSS_CHAIN}
+              element={<PrivateAnnouncement type={PrivateAnnouncementType.CROSS_CHAIN} />}
+            />
+            <Route
               path={NOTIFICATION_ROUTES.KYBER_AI_TOKENS}
               element={<PrivateAnnouncement type={PrivateAnnouncementType.KYBER_AI} />}
             />

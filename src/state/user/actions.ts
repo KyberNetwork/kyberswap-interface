@@ -3,7 +3,7 @@ import { createAction } from '@reduxjs/toolkit'
 
 import { SupportedLocale } from 'constants/locales'
 
-import { VIEW_MODE } from './reducer'
+import { CrossChainSetting, VIEW_MODE } from './reducer'
 
 export interface SerializedToken {
   chainId: number
@@ -65,3 +65,5 @@ export const revokePermit = createAction<{ chainId: number; address: string; acc
 export const permitError = createAction<{ chainId: number; address: string; account: string }>('user/permitError')
 export const pinSlippageControl = createAction<boolean>('user/pinSlippageControl')
 export const toggleKyberAIWidget = createAction<void>('user/toggleKyberAIWidget')
+
+export const setCrossChainSetting = createAction<CrossChainSetting>('user/setCrossChainSetting')

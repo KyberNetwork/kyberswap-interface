@@ -4,7 +4,7 @@ import { Flex, Text } from 'rebass'
 
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
-import { PoolBridgeValue } from 'state/bridge/reducer'
+import { PoolBridgeValue } from 'state/crossChain/reducer'
 
 import { formatPoolValue } from './helpers'
 import { MultiChainTokenInfo } from './type'

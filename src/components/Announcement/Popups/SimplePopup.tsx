@@ -16,6 +16,14 @@ const RowNoFlex = styled(AutoRow)`
   flex-wrap: nowrap;
 `
 
+export type SimplePopupProps = {
+  title: string
+  type: NotificationType
+  summary?: ReactNode
+  icon?: ReactNode
+  link?: string
+}
+
 export default function SimplePopup({
   title,
   summary,
@@ -23,12 +31,7 @@ export default function SimplePopup({
   icon,
   link,
   onRemove,
-}: {
-  title: string
-  type?: NotificationType
-  summary?: ReactNode
-  icon?: ReactNode
-  link?: string
+}: SimplePopupProps & {
   onRemove?: () => void
 }) {
   const theme = useTheme()

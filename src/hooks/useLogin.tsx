@@ -45,8 +45,6 @@ const useLogin = (autoLogin = false) => {
 
   const requestingSessionAnonymous = useRef(false)
 
-  const { anonymousUserInfo } = useSessionInfo()
-
   const setLoading = useSetPendingAuthentication()
   const setProfile = useSaveUserProfile()
   const invalidateTag = useInvalidateTagAnnouncement()

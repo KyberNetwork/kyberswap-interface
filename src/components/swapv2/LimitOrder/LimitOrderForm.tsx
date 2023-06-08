@@ -43,7 +43,6 @@ import { TransactionFlowState } from 'types/TransactionFlowState'
 import { formattedNum, getLimitOrderContract } from 'utils'
 import { subscribeNotificationOrderCancelled, subscribeNotificationOrderExpired } from 'utils/firebase'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
-import { toFixed } from 'utils/numbers'
 
 import ExpirePicker from './ExpirePicker'
 import {
@@ -61,6 +60,8 @@ import {
   formatAmountOrder,
   getErrorMessage,
   getPayloadCreateOrder,
+  parseFraction,
+  removeTrailingZero,
 } from './helpers'
 import { clearCacheActiveMakingAmount, getMessageSignature, getTotalActiveMakingAmount, submitOrder } from './request'
 import { CreateOrderParam, LimitOrder, RateInfo } from './type'
@@ -164,7 +165,7 @@ const LimitOrderForm = function LimitOrderForm({
 
   const onSetRate = (rate: string, invertRate: string) => {
     if (!currencyIn || !currencyOut) return
-    const newRate = { ...rateInfo, rate, invertRate }
+    const newRate: RateInfo = { ...rateInfo, rate, invertRate, rateFraction: parseFraction(rate) }
     if (!rate && !invertRate) {
       setRateInfo(newRate)
       return
@@ -172,7 +173,7 @@ const LimitOrderForm = function LimitOrderForm({
 
     if (rate) {
       if (inputAmount) {
-        const output = calcOutput(inputAmount, rate, currencyOut.decimals)
+        const output = calcOutput(inputAmount, newRate.rateFraction || rate, currencyOut.decimals)
         setOuputAmount(output)
       }
       if (!invertRate) {
@@ -183,8 +184,9 @@ const LimitOrderForm = function LimitOrderForm({
     }
     if (invertRate) {
       newRate.rate = calcInvert(invertRate)
+      newRate.rateFraction = parseFraction(invertRate).invert()
       if (inputAmount) {
-        const output = calcOutput(inputAmount, newRate.rate, currencyOut.decimals)
+        const output = calcOutput(inputAmount, newRate.rateFraction, currencyOut.decimals)
         setOuputAmount(output)
       }
       setRateInfo(newRate)
@@ -198,6 +200,7 @@ const LimitOrderForm = function LimitOrderForm({
       setRateInfo({
         ...rateInfo,
         rate,
+        rateFraction: parseFraction(rate),
         invertRate: calcInvert(rate),
       })
     }
@@ -209,8 +212,8 @@ const LimitOrderForm = function LimitOrderForm({
       mixpanelHandler(MIXPANEL_TYPE.LO_ENTER_DETAIL, 'set price')
       if (loadingTrade || !tradeInfo) return
       onSetRate(
-        toFixed(parseFloat(tradeInfo.marketRate.toFixed(16))) ?? '',
-        toFixed(parseFloat(tradeInfo.invertRate.toFixed(16))) ?? '',
+        removeTrailingZero(tradeInfo.marketRate.toFixed(16)) ?? '',
+        removeTrailingZero(tradeInfo.invertRate.toFixed(16)) ?? '',
       )
     } catch (error) {}
   }
@@ -225,7 +228,7 @@ const LimitOrderForm = function LimitOrderForm({
     (input: string) => {
       setInputAmount(input)
       if (rateInfo.rate && currencyIn && currencyOut && input) {
-        setOuputAmount(calcOutput(input, rateInfo.rate, currencyOut.decimals))
+        setOuputAmount(calcOutput(input, rateInfo.rateFraction || rateInfo.rate, currencyOut.decimals))
       }
     },
     [rateInfo, currencyIn, currencyOut],
@@ -243,9 +246,9 @@ const LimitOrderForm = function LimitOrderForm({
       }
       setCurrencyIn(currency)
       setIsSelectCurrencyManual?.(true)
-      resetRate && setRateInfo({ ...rateInfo, invertRate: '', rate: '' })
+      resetRate && setRateInfo(rateInfo => ({ ...rateInfo, invertRate: '', rate: '', rateFraction: undefined }))
     },
-    [currencyOut, setCurrencyIn, setIsSelectCurrencyManual, rateInfo, switchCurrency],
+    [currencyOut, setCurrencyIn, setIsSelectCurrencyManual, switchCurrency],
   )
 
   const switchToWeth = useCallback(() => {
@@ -261,7 +264,7 @@ const LimitOrderForm = function LimitOrderForm({
     }
     setCurrencyOut(currency)
     setIsSelectCurrencyManual?.(true)
-    setRateInfo({ ...rateInfo, invertRate: '', rate: '' })
+    setRateInfo({ ...rateInfo, invertRate: '', rate: '', rateFraction: undefined })
   }
 
   const [rotate, setRotate] = useState(false)
@@ -652,7 +655,7 @@ const LimitOrderForm = function LimitOrderForm({
           <Trans>
             Your order may only be filled when market price of {currencyIn?.symbol} to {currencyOut?.symbol} is &lt;
             <HightLight>{formattedNum(String(tradeInfo?.marketRate), true)}</HightLight>, as estimated gas fee to fill
-            your order is ~<HightLight>${toFixed(parseFloat(tradeInfo?.gasFee?.toPrecision(6) ?? '0'))}</HightLight>.
+            your order is ~<HightLight>${removeTrailingZero(tradeInfo?.gasFee?.toPrecision(6) ?? '0')}</HightLight>.
           </Trans>
         </Text>,
       )

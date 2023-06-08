@@ -28,8 +28,8 @@ import useTheme from 'hooks/useTheme'
 import { BodyWrapper } from 'pages/AppBody'
 import useGetPool from 'pages/Bridge/useGetPool'
 import { useWalletModalToggle } from 'state/application/hooks'
-import { useBridgeOutputValue, useBridgeState, useBridgeStateHandler } from 'state/bridge/hooks'
-import { PoolBridgeValue, PoolValueOutMap } from 'state/bridge/reducer'
+import { useBridgeOutputValue, useBridgeState, useBridgeStateHandler } from 'state/crossChain/hooks'
+import { PoolBridgeValue, PoolValueOutMap } from 'state/crossChain/reducer'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
@@ -121,6 +121,7 @@ export default function SwapForm() {
       tokenInfoOut,
       chainIdOut,
       currencyIn,
+      currencyOut,
       listTokenOut,
       listTokenIn,
       listChainIn,
@@ -438,6 +439,9 @@ export default function SwapForm() {
                 style={{ maxWidth: '230px' }}
               >
                 <CurrencyInputPanelBridge
+                  loadingToken={loadingToken}
+                  tokens={listTokenIn}
+                  currency={currencyIn}
                   chainIds={listChainIn}
                   selectedChainId={chainId}
                   onSelectNetwork={changeNetwork}
@@ -466,6 +470,9 @@ export default function SwapForm() {
               }}
             >
               <CurrencyInputPanelBridge
+                loadingToken={loadingToken}
+                tokens={listTokenOut}
+                currency={currencyOut}
                 chainIds={listChainOut}
                 onSelectNetwork={onSelectDestNetwork}
                 selectedChainId={chainIdOut}
