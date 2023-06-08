@@ -1,4 +1,4 @@
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { transparentize } from 'polished'
 import { memo, useMemo } from 'react'
@@ -10,10 +10,10 @@ import styled, { keyframes } from 'styled-components'
 
 import bannerBackground from 'assets/images/truesight-v2/banner-background.png'
 import Column from 'components/Column'
+import CurrencyLogo from 'components/CurrencyLogo'
 import ApeIcon from 'components/Icons/ApeIcon'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -25,60 +25,6 @@ import { useTokenDetailQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { calculateValueToColor } from 'pages/TrueSightV2/utils'
 import { useIsWhiteListKyberAI } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-
-const StaticSupportedToken: {
-  [chain: number]: { kyberScore?: number; label?: string; address?: string; logo?: string; symbol?: string }[]
-} = {
-  [ChainId.MATIC]: [
-    {
-      address: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
-      symbol: 'MATIC',
-      logo: NETWORKS_INFO[ChainId.MATIC].nativeToken.logo,
-    },
-  ],
-  [ChainId.MAINNET]: [
-    {
-      address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-      symbol: 'ETH',
-      logo: NETWORKS_INFO[ChainId.MAINNET].nativeToken.logo,
-    },
-  ],
-  [ChainId.ARBITRUM]: [
-    {
-      address: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
-      symbol: 'ETH',
-      logo: NETWORKS_INFO[ChainId.MAINNET].nativeToken.logo,
-    },
-  ],
-  [ChainId.OPTIMISM]: [
-    {
-      address: '0x4200000000000000000000000000000000000006',
-      symbol: 'ETH',
-      logo: NETWORKS_INFO[ChainId.MAINNET].nativeToken.logo,
-    },
-  ],
-  [ChainId.BSCMAINNET]: [
-    {
-      address: '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c',
-      symbol: 'BNB',
-      logo: NETWORKS_INFO[ChainId.BSCMAINNET].nativeToken.logo,
-    },
-  ],
-  [ChainId.FANTOM]: [
-    {
-      address: '0x21be370d5312f44cb42ce377bc9b8a0cef1a4c83',
-      symbol: 'FTM',
-      logo: NETWORKS_INFO[ChainId.FANTOM].nativeToken.logo,
-    },
-  ],
-  [ChainId.AVAXMAINNET]: [
-    {
-      address: '0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7',
-      symbol: 'AVAX',
-      logo: NETWORKS_INFO[ChainId.AVAXMAINNET].nativeToken.logo,
-    },
-  ],
-}
 
 const KyberAITokenBanner = ({
   currencyIn,
@@ -120,7 +66,7 @@ const KyberAITokenBanner = ({
       if (isFetching) return undefined
 
       if (staticMode) {
-        return StaticSupportedToken[chainId as number]?.[0]
+        return undefined
       }
 
       const token = tokenInputOverview?.kyberScore?.label
@@ -138,9 +84,9 @@ const KyberAITokenBanner = ({
         logo: token?.logo,
         symbol: token?.symbol,
       }
-    }, [isFetching, tokenInputOverview, tokenOutputOverview, tokenNativeOverview, chainId, staticMode])
+    }, [isFetching, tokenInputOverview, tokenOutputOverview, tokenNativeOverview, staticMode])
 
-  if (!token) return null
+  if (!token && !staticMode) return null
 
   const color = staticMode ? theme.primary : calculateValueToColor(token?.kyberScore || 0, theme)
   return (
@@ -153,16 +99,24 @@ const KyberAITokenBanner = ({
               input_token: token0?.symbol?.toUpperCase(),
               output_token: token1?.symbol?.toUpperCase(),
             })
-            window.open(
-              APP_PATHS.KYBERAI_EXPLORE + '/' + SUPPORTED_NETWORK_KYBERAI[chainId] + '/' + token?.address,
-              '_blank',
-            )
+            staticMode
+              ? window.open(APP_PATHS.KYBERAI_ABOUT, '_blank')
+              : window.open(
+                  APP_PATHS.KYBERAI_EXPLORE + '/' + SUPPORTED_NETWORK_KYBERAI[chainId] + '/' + token?.address,
+                  '_blank',
+                )
           }}
         >
           <RowFit gap="8px">
-            <img src={token?.logo} alt={token?.symbol} width="32" height="32" style={{ borderRadius: '50%' }} />
+            {staticMode ? (
+              <CurrencyLogo currency={currencyIn} size={'32px'} />
+            ) : (
+              <img src={token?.logo} alt={token?.symbol} width="32" height="32" style={{ borderRadius: '50%' }} />
+            )}
             <Column gap="4px">
-              <Text color={theme.text}>{token?.symbol?.toUpperCase() || '--'} seems to be</Text>
+              <Text color={theme.text}>
+                {staticMode ? currencyIn?.wrapped.symbol : token?.symbol?.toUpperCase() || '--'} seems to be
+              </Text>
               {staticMode ? (
                 <AnimatedKyberscoreLabels />
               ) : (
@@ -195,7 +149,7 @@ const KyberAITokenBanner = ({
                 <Text as="b" color={theme.text}>
                   KyberScore
                 </Text>{' '}
-                for {token?.symbol?.toUpperCase() || 'KNC'}?
+                for {staticMode ? currencyIn?.wrapped.symbol : token?.symbol?.toUpperCase() || '--'}?
               </Trans>
             </Text>
             <RowFit fontSize="12px" gap="4px">

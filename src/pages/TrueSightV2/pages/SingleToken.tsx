@@ -242,7 +242,6 @@ const TokenNameGroup = ({ token, isLoading }: { token?: ITokenOverview; isLoadin
   const reachedMaxLimit = useIsReachMaxLimitWatchedToken()
   const [addToWatchlist, { isLoading: loadingAddtoWatchlist }] = useAddToWatchlistMutation()
   const [removeFromWatchlist, { isLoading: loadingRemovefromWatchlist }] = useRemoveFromWatchlistMutation()
-
   const [isWatched, setIsWatched] = useState(false)
 
   const handleStarClick = () => {
@@ -253,6 +252,7 @@ const TokenNameGroup = ({ token, isLoading }: { token?: ITokenOverview; isLoadin
         source: 'explore',
         option: 'remove',
       })
+
       removeFromWatchlist({
         wallet: account,
         tokenAddress: token?.address,
@@ -297,13 +297,13 @@ const TokenNameGroup = ({ token, isLoading }: { token?: ITokenOverview; isLoadin
             color: isWatched ? theme.primary : theme.subText,
             backgroundColor: isWatched ? theme.primary + '33' : undefined,
           }}
-          onClick={handleStarClick}
         >
           <StarWithAnimation
             watched={isWatched}
             loading={loadingAddtoWatchlist || loadingRemovefromWatchlist}
             size={16}
             disabled={!isWatched && reachedMaxLimit}
+            onClick={handleStarClick}
           />
         </HeaderButton>
       </SimpleTooltip>

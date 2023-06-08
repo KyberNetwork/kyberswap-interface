@@ -13,6 +13,7 @@ const required = (envKey: string): string => {
 
 export const GOOGLE_RECAPTCHA_KEY = required('GOOGLE_RECAPTCHA_KEY')
 export const PRICE_API = required('PRICE_API')
+export const DEFAULT_AGGREGATOR_API = required('DEFAULT_AGGREGATOR_API')
 export const AGGREGATOR_API = required('AGGREGATOR_API')
 export const SENTRY_DNS = required('SENTRY_DNS')
 export const REWARD_SERVICE_API = required('REWARD_SERVICE_API')
