@@ -189,10 +189,10 @@ export function useCurrencyBalance(currency?: Currency): CurrencyAmount<Currency
 }
 
 // mimics useAllBalances
-export function useAllTokenBalances(): { [tokenAddress: string]: TokenAmount | undefined } {
-  const allTokens = useAllTokens()
+export function useAllTokenBalances(chainId?: ChainId): { [tokenAddress: string]: TokenAmount | undefined } {
+  const allTokens = useAllTokens(false, chainId)
   const allTokensArray = useMemo(() => Object.values(allTokens ?? {}), [allTokens])
-  return useTokenBalances(allTokensArray) ?? EMPTY_OBJECT
+  return useTokenBalances(allTokensArray, chainId) ?? EMPTY_OBJECT
 }
 
 // return list token has balance

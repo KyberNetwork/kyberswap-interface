@@ -404,7 +404,7 @@ const FarmStepGuide: FC<FarmStepGuideProps> = ({ version, onChangeVersion }) => 
             Okay
           </ButtonPrimary>
         </Left>
-        <Right img={steps[currentStep].img} />
+        <Right img={steps[currentStep]?.img} />
       </Flex>
     </Modal>
   )

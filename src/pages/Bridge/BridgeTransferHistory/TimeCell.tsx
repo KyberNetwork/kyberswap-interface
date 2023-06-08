@@ -1,17 +1,15 @@
 import { Trans } from '@lingui/macro'
-import dayjs from 'dayjs'
 import { Flex, Text } from 'rebass'
 
 import useTheme from 'hooks/useTheme'
-import { ONLY_DATE_FORMAT, ONLY_TIME_FORMAT } from 'pages/Bridge/consts'
+import { formatTimeBridge } from 'pages/Bridge/BridgeTransferHistory/TimeStatusCell'
 
 type Props = {
   timestamp?: number | ''
 }
 
 const TimeCell: React.FC<Props> = ({ timestamp }) => {
-  const dateString = timestamp ? dayjs.utc(timestamp).local().format(ONLY_DATE_FORMAT) : ''
-  const timeString = timestamp ? dayjs.utc(timestamp).local().format(ONLY_TIME_FORMAT) : ''
+  const dateString = formatTimeBridge(timestamp)
 
   const theme = useTheme()
   return (
@@ -24,24 +22,20 @@ const TimeCell: React.FC<Props> = ({ timestamp }) => {
         justifyContent: 'space-between',
       }}
     >
-      {timeString ? (
-        <>
-          <Text as="span">
-            <Text
-              as="span"
-              sx={{
-                display: 'inline-block',
-                width: '70px',
-                marginRight: '6px',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {dateString}
-            </Text>
+      {dateString ? (
+        <Text as="span">
+          <Text
+            as="span"
+            sx={{
+              display: 'inline-block',
+              width: '70px',
+              marginRight: '6px',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {dateString}
           </Text>
-
-          <Text as="span">{timeString}</Text>
-        </>
+        </Text>
       ) : (
         <Text as="span">
           <Trans>Unknown</Trans>

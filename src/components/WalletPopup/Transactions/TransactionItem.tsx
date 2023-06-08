@@ -226,6 +226,58 @@ const DescriptionBridge = (transaction: TransactionDetails) => {
   }
 }
 
+const DescriptionCrossChain = (transaction: TransactionDetails) => {
+  const { extraInfo = {} } = transaction
+  const {
+    tokenAmountIn,
+    tokenSymbolIn,
+    chainIdIn = ChainId.MAINNET,
+    chainIdOut = ChainId.MAINNET,
+    tokenAddressIn,
+    tokenAddressOut,
+    tokenAmountOut,
+    tokenSymbolOut,
+    tokenLogoURLIn,
+    tokenLogoURLOut,
+    rate,
+  } = extraInfo as TransactionExtraInfo2Token
+  const theme = useTheme()
+
+  return {
+    leftComponent: (
+      <>
+        <TokenAmountWrapper>
+          <DeltaTokenAmount
+            tokenAddress={tokenAddressOut}
+            amount={tokenAmountOut}
+            symbol={tokenSymbolOut}
+            plus
+            chainId={chainIdOut}
+            logoURL={tokenLogoURLOut}
+          />
+        </TokenAmountWrapper>
+        <TokenAmountWrapper>
+          <DeltaTokenAmount
+            tokenAddress={tokenAddressIn}
+            amount={tokenAmountIn}
+            symbol={tokenSymbolIn}
+            plus={false}
+            chainId={chainIdIn}
+            logoURL={tokenLogoURLIn}
+          />
+        </TokenAmountWrapper>
+      </>
+    ),
+    rightComponent: (
+      <DeltaTokenAmount
+        color={theme.text}
+        symbol={`${tokenSymbolIn}/${tokenSymbolOut}`}
+        amount={Number(rate).toPrecision(6)}
+      />
+    ),
+  }
+}
+
 // ex: approve elastic farm, approve knc, claim 3knc
 const DescriptionApproveClaim = (transaction: TransactionDetails) => {
   const { extraInfo = {}, type } = transaction
@@ -305,6 +357,7 @@ const DESCRIPTION_MAP: {
   [TRANSACTION_TYPE.KYBERDAO_MIGRATE]: Description2Token,
 
   [TRANSACTION_TYPE.BRIDGE]: DescriptionBridge,
+  [TRANSACTION_TYPE.CROSS_CHAIN_SWAP]: DescriptionCrossChain,
   [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: DescriptionLimitOrder,
 
   [TRANSACTION_TYPE.CLASSIC_CREATE_POOL]: DescriptionLiquidity,

@@ -2,6 +2,7 @@ import { ReactNode } from 'react'
 
 import { LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import { MultichainTransfer } from 'hooks/bridge/useGetBridgeTransfers'
+import { CrossChainTransfer } from 'pages/CrossChain/useTransferHistory'
 import { HistoricalPriceAlert } from 'pages/NotificationCenter/const'
 
 export type Announcement = {
@@ -15,6 +16,7 @@ export enum PrivateAnnouncementType {
   BRIDGE_ASSET = 'BRIDGE_ASSET',
   KYBER_AI = 'KYBER_AI',
   ELASTIC_POOLS = 'ELASTIC_POOLS',
+  CROSS_CHAIN = 'CROSS_CHAIN',
   PRICE_ALERT = 'PRICE_ALERT',
   DIRECT_MESSAGE = 'DIRECT_MESSAGE', // for some specific addresses
 }
@@ -67,6 +69,7 @@ export type AnnouncementTemplateLimitOrder = {
   order: LimitOrderAnnouncement
   popupType: PopupType
 }
+export type AnnouncementTemplateCrossChain = { transaction: CrossChainTransfer; popupType: PopupType }
 export type AnnouncementTemplateBridge = { transaction: MultichainTransfer; popupType: PopupType }
 export type AnnouncementTemplateTrendingSoon = {
   bearishTokenLogoURL: string
@@ -108,6 +111,7 @@ export type AnnouncementTemplatePopup = {
 export type AnnouncementTemplate =
   | AnnouncementTemplateLimitOrder
   | AnnouncementTemplateBridge
+  | AnnouncementTemplateCrossChain
   | AnnouncementTemplateTrendingSoon
   | AnnouncementTemplatePoolPosition
   | AnnouncementTemplatePopup

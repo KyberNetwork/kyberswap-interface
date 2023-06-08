@@ -24,6 +24,7 @@ import {
   removeSerializedPair,
   removeSerializedToken,
   revokePermit,
+  setCrossChainSetting,
   toggleFavoriteToken,
   toggleHolidayMode,
   toggleKyberAIBanner,
@@ -49,6 +50,12 @@ const AUTO_DISABLE_DEGEN_MODE_MINUTES = 30
 export enum VIEW_MODE {
   GRID = 'grid',
   LIST = 'list',
+}
+
+export type CrossChainSetting = {
+  isSlippageControlPinned: boolean
+  slippageTolerance: number
+  enableExpressExecution: boolean
 }
 
 interface UserState {
@@ -121,6 +128,8 @@ interface UserState {
 
   isSlippageControlPinned: boolean
   kyberAIWidget: boolean
+
+  crossChain: CrossChainSetting
 }
 
 function pairKey(token0Address: string, token1Address: string) {
@@ -151,6 +160,12 @@ export const defaultShowLiveCharts: { [chainId in ChainId]: boolean } = {
   [ChainId.MUMBAI]: false,
   [ChainId.BSCTESTNET]: false,
   [ChainId.AVAXTESTNET]: false,
+}
+
+export const CROSS_CHAIN_SETTING_DEFAULT = {
+  isSlippageControlPinned: true,
+  slippageTolerance: INITIAL_ALLOWED_SLIPPAGE,
+  enableExpressExecution: false,
 }
 
 const initialState: UserState = {
@@ -192,6 +207,7 @@ const initialState: UserState = {
   permitData: {},
   isSlippageControlPinned: true,
   kyberAIWidget: true,
+  crossChain: CROSS_CHAIN_SETTING_DEFAULT,
 }
 
 export default createReducer(initialState, builder =>
@@ -380,6 +396,10 @@ export default createReducer(initialState, builder =>
     })
     .addCase(pinSlippageControl, (state, { payload }) => {
       state.isSlippageControlPinned = payload
+    })
+    .addCase(setCrossChainSetting, (state, { payload }) => {
+      const setting = state.crossChain || CROSS_CHAIN_SETTING_DEFAULT
+      state.crossChain = { ...setting, ...payload }
     })
     .addCase(toggleKyberAIWidget, state => {
       state.kyberAIWidget = !state.kyberAIWidget
