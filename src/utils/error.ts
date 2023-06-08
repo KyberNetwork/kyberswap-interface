@@ -15,10 +15,10 @@ const ErrorInfo = {
 const isIamApiDown = () => ErrorInfo.iamApoError >= ErrorInfo.errorThreshold
 const isRouteApiDown = () => ErrorInfo.routeApiError >= ErrorInfo.errorThreshold
 
-const sendError = (name: string, apiUrl: string) => {
+const sendError = (name: string, apiUrl: string, trackData: any) => {
   const error = new Error(`${name} Error: ${apiUrl}`)
   error.name = `${name} was down`
-  captureException(error, { level: 'fatal', extra: { args: JSON.stringify({ apiUrl }, null, 2) } })
+  captureException(error, { level: 'fatal', extra: { args: JSON.stringify(trackData, null, 2) } })
 }
 
 /**
@@ -31,6 +31,16 @@ export const checkIamDown = (axiosErr: AxiosError) => {
     (!axiosErr?.response?.data ||
       (axiosErr?.response?.status === 404 && axiosErr?.response?.data === '404 page not found'))
 
+  const trackData = {
+    config: {
+      data: axiosErr?.config?.data,
+      headers: axiosErr?.config?.headers,
+      params: axiosErr?.config?.params,
+      url: axiosErr?.config?.url,
+    },
+    response: axiosErr?.response?.data,
+    status: axiosErr?.response?.status,
+  }
   const apiUrl = axiosErr?.config?.url ?? ''
 
   const isRouteApiDie =
@@ -42,14 +52,14 @@ export const checkIamDown = (axiosErr: AxiosError) => {
     ErrorInfo.routeApiError++
     if (isRouteApiDown() && !ErrorInfo.sentAlertRouteApi) {
       ErrorInfo.sentAlertRouteApi = true
-      sendError('Route API', apiUrl)
+      sendError('Route API', apiUrl, trackData)
     }
   }
   if (isIamDie) {
     ErrorInfo.iamApoError++
     if (isIamApiDown() && !ErrorInfo.sentAlertIamApi) {
       ErrorInfo.sentAlertIamApi = true
-      sendError('IAM API', apiUrl)
+      sendError('IAM API', apiUrl, trackData)
     }
   }
 }
