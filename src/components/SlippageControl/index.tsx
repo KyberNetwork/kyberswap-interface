@@ -9,7 +9,7 @@ import useTheme from 'hooks/useTheme'
 
 import { Props as CustomSlippageInputProps } from './CustomSlippageInput'
 
-export const slippageOptionCSS = css`
+const slippageOptionCSS = css`
   height: 100%;
   padding: 0;
   border-radius: 20px;

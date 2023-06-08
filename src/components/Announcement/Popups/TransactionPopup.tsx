@@ -80,7 +80,7 @@ const summaryLiquidity = (txs: TransactionDetails) => {
   }`
 }
 
-const summaryBridge = (txs: TransactionDetails) => {
+const summaryCrossChain = (txs: TransactionDetails) => {
   const {
     tokenAmountIn,
     tokenAmountOut,
@@ -89,7 +89,7 @@ const summaryBridge = (txs: TransactionDetails) => {
     chainIdIn = ChainId.MAINNET,
     chainIdOut = ChainId.MAINNET,
   } = (txs.extraInfo || {}) as TransactionExtraInfo2Token
-  const summary = `Your bridge transaction from ${tokenAmountIn} ${tokenSymbolIn} (${NETWORKS_INFO[chainIdIn].name}) to ${tokenAmountOut} ${tokenSymbolOut} (${NETWORKS_INFO[chainIdOut].name})`
+  const summary = `Your ${txs.type} transaction from ${tokenAmountIn} ${tokenSymbolIn} (${NETWORKS_INFO[chainIdIn].name}) to ${tokenAmountOut} ${tokenSymbolOut} (${NETWORKS_INFO[chainIdOut].name})`
   return { success: `${summary} is being processed`, error: `${summary} failed` }
 }
 
@@ -137,7 +137,8 @@ const SUMMARY: { [type in TRANSACTION_TYPE]: SummaryFunction } = {
   [TRANSACTION_TYPE.UNWRAP_TOKEN]: summary2Token,
   [TRANSACTION_TYPE.APPROVE]: summaryApprove,
   [TRANSACTION_TYPE.SWAP]: summary2Token,
-  [TRANSACTION_TYPE.BRIDGE]: summaryBridge,
+  [TRANSACTION_TYPE.BRIDGE]: summaryCrossChain,
+  [TRANSACTION_TYPE.CROSS_CHAIN_SWAP]: summaryCrossChain,
 
   [TRANSACTION_TYPE.CLASSIC_CREATE_POOL]: summaryLiquidity,
   [TRANSACTION_TYPE.ELASTIC_CREATE_POOL]: summaryLiquidity,
@@ -171,6 +172,7 @@ const SUMMARY: { [type in TRANSACTION_TYPE]: SummaryFunction } = {
 
 const CUSTOM_SUCCESS_STATUS: { [key in string]: string } = {
   [TRANSACTION_TYPE.BRIDGE]: '- Processing',
+  [TRANSACTION_TYPE.CROSS_CHAIN_SWAP]: '- Processing',
   [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: 'Submitted',
 }
 

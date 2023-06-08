@@ -1,17 +1,17 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux'
 
-import { KS_SETTING_API } from 'constants/env'
+import { BFF_API } from 'constants/env'
 import useGetBridgeTransfers from 'hooks/bridge/useGetBridgeTransfers'
 import { ITEMS_PER_PAGE } from 'pages/Bridge/consts'
-import { setHistoryURL } from 'state/bridge/actions'
+import { setHistoryURL } from 'state/crossChain/actions'
 
 const useTransferHistory = (account: string) => {
   const dispatch = useDispatch()
   const [page, setPage] = useState(1)
 
   const swrKey = account
-    ? `${KS_SETTING_API}/v1/multichain-transfers?userAddress=${account}&page=${page}&pageSize=${ITEMS_PER_PAGE}`
+    ? `${BFF_API}/v1/multichain-transfers?walletAddress=${account}&page=${page}&pageSize=${ITEMS_PER_PAGE}`
     : ''
   const { data, isValidating, error } = useGetBridgeTransfers(swrKey)
 
@@ -59,7 +59,9 @@ const useTransferHistory = (account: string) => {
     onClickNext,
     onClickPrevious,
     isCompletelyEmpty: page === 1 && transfers.length === 0,
+    isThisPageEmpty: transfers.length === 0,
   }
 }
+export type TransferHistoryResponse = ReturnType<typeof useTransferHistory>
 
 export default useTransferHistory

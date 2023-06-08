@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useActiveWeb3React } from 'hooks'
 import { subscribeCancellingOrders } from 'utils/firebase'
@@ -46,5 +46,7 @@ export default function useCancellingOrders(): CancellingOrderInfo {
     [cancellingOrdersNonces, cancellingOrdersIds],
   )
 
-  return { cancellingOrdersIds, cancellingOrdersNonces, loading, setCancellingOrders, isOrderCancelling }
+  return useMemo(() => {
+    return { cancellingOrdersIds, cancellingOrdersNonces, loading, setCancellingOrders, isOrderCancelling }
+  }, [cancellingOrdersIds, cancellingOrdersNonces, loading, setCancellingOrders, isOrderCancelling])
 }

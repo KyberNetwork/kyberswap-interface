@@ -8,7 +8,7 @@ export enum MultichainTransferStatus {
 
 export type MultichainTransfer = {
   id: number
-  userAddress: string
+  walletAddress: string
   srcChainId: string
   dstChainId: string
   srcTxHash: string

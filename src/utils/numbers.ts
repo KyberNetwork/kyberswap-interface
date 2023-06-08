@@ -1,7 +1,7 @@
 import { Fraction } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 
-import { EPSILON, RESERVE_USD_DECIMALS } from 'constants/index'
+import { RESERVE_USD_DECIMALS } from 'constants/index'
 
 // using a currency library here in case we want to add more in future
 export const formatDollarAmount = (num: number | undefined, digits = 2) => {
@@ -37,10 +37,6 @@ export const formatNotDollarAmount = (num: number | undefined, digits = 2) => {
   })
     .format(num)
     .toLowerCase()
-}
-
-export function isEqual(a: number, b: number, ep = EPSILON) {
-  return Math.abs(a - b) < ep
 }
 
 // https://stackoverflow.com/a/1685917/8153505

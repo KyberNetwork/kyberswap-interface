@@ -8,7 +8,8 @@ import styled from 'styled-components'
 import { PageWrapper } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { useBridgeState } from 'state/bridge/hooks'
+import CrossChainLink from 'pages/CrossChain/CrossChainLink'
+import { useBridgeState } from 'state/crossChain/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { isAddress } from 'utils'
 import { isTokenNative } from 'utils/tokenInfo'
@@ -171,6 +172,7 @@ export default function Bridge() {
             </Text>
           </div>
           <SwapForm />
+          <CrossChainLink />
         </Container>
         <BridgeHistory />
       </Content>
