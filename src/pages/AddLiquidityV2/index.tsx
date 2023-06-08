@@ -1427,7 +1427,7 @@ export default function AddLiquidity() {
               ) : (
                 poolStatRef.current && (
                   <>
-                    <AutoColumn gap="12px" style={{ flex: 1 }}>
+                    <Flex sx={{ flex: 1, gap: '12px', flexDirection: 'column' }}>
                       <Text fontWeight={500} fontSize="12px">
                         <Trans>Pool Stats</Trans>
                       </Text>
@@ -1444,7 +1444,7 @@ export default function AddLiquidity() {
                             })
                         }}
                       />
-                    </AutoColumn>
+                    </Flex>
                     <ShareModal
                       url={`${window.location.origin}/pools/${networkInfo.route}?search=${poolAddress}&tab=elastic`}
                       title={t`Share this pool with your friends!`}
