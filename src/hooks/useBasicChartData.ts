@@ -6,7 +6,7 @@ import useSWR from 'swr'
 
 import { AGGREGATOR_API, PRICE_CHART_API } from 'constants/env'
 import { COINGECKO_API_URL } from 'constants/index'
-import { NETWORKS_INFO, isEVM as isEVMChain } from 'constants/networks'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 
 export enum LiveDataTimeframeEnum {
@@ -84,7 +84,11 @@ const fetchKyberDataSWRWithHeader = async (url: string) => {
   return res.data
 }
 
-const fetchCoingeckoDataSWR = async (tokenAddresses: string[], chainIds: ChainId[], timeFrame: any): Promise<any> => {
+const fetchCoingeckoDataSWR = async ([tokenAddresses, chainIds, timeFrame]: [
+  tokenAddresses: string[],
+  chainIds: ChainId[],
+  timeFrame: any,
+]): Promise<any> => {
   return await Promise.all(
     [tokenAddresses[0], tokenAddresses[1]].map((address, i) =>
       axios
@@ -107,12 +111,9 @@ type ChartData = { time: number; value: any }
 export default function useBasicChartData(
   tokens: (Token | null | undefined)[],
   timeFrame: LiveDataTimeframeEnum,
-  customChain?: ChainId,
 ): { data: ChartData[]; loading: boolean; error: any } {
-  const { chainId: currentChain } = useActiveWeb3React()
-  const chainId = customChain || currentChain
+  const { chainId, isEVM } = useActiveWeb3React()
   const networkInfo = NETWORKS_INFO[chainId]
-  const isEVM = isEVMChain(chainId)
 
   const isReverse = useMemo(() => {
     if (!tokens || !tokens[0] || !tokens[1] || tokens[0].equals(tokens[1]) || tokens[0].chainId !== tokens[1].chainId)
@@ -134,7 +135,9 @@ export default function useBasicChartData(
     error: coingeckoError,
     isValidating: coingeckoLoading,
   } = useSWR(
-    tokenAddresses[0] && tokenAddresses[1] && [tokenAddresses, [tokens[0]?.chainId, tokens[1]?.chainId], timeFrame],
+    tokenAddresses[0] && tokenAddresses[1]
+      ? [tokenAddresses, [tokens[0]?.chainId, tokens[1]?.chainId], timeFrame]
+      : null,
     fetchCoingeckoDataSWR,
     {
       shouldRetryOnError: false,
