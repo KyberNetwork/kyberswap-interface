@@ -61,7 +61,7 @@ export default function TradePrice({
     >
       <Flex sx={{ gap: '4px' }} alignItems={'center'}>
         {refresh && (loading || formattedPrice) && (
-          <RefreshButton shouldDisable={!route || disabled} skipFirst callback={refresh} />
+          <RefreshButton shouldDisable={!route || disabled || loading} skipFirst callback={refresh} />
         )}
         {loading ? (
           <Dots>
