@@ -3,6 +3,7 @@ import { NativeCurrency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useState } from 'react'
 import { Repeat } from 'react-feather'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
 import Dots from 'components/Dots'
@@ -12,6 +13,7 @@ import useTheme from 'hooks/useTheme'
 import { getRouInfo } from 'pages/CrossChain/helpers'
 import { useCrossChainState } from 'state/crossChain/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { MEDIA_WIDTHS } from 'theme'
 
 import { StyledBalanceMaxMini } from '../../components/swapv2/styleds'
 
@@ -50,6 +52,8 @@ export default function TradePrice({
     </Flex>
   )
 
+  const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+
   return (
     <Text
       fontWeight={500}
@@ -70,7 +74,7 @@ export default function TradePrice({
         ) : (
           formattedPrice && (
             <>
-              {showLogo && <Trans>Cross-chain rate is</Trans>} {value}
+              {showLogo && !isMobile && <Trans>Cross-chain rate is</Trans>} {value}
               <StyledBalanceMaxMini>
                 <Repeat size={12} />
               </StyledBalanceMaxMini>
