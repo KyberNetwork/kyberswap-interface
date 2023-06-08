@@ -103,12 +103,22 @@ function InboxItemBridge({
 
       <InboxItemRow>
         <Row gap="6px" width={'fit-content'}>
-          <DeltaTokenAmount amount={formatAmountBridge(srcAmount)} symbol={srcTokenSymbol} logoURL={srcTokenLogoUrl} />
+          <DeltaTokenAmount
+            amount={formatAmountBridge(srcAmount)}
+            symbol={srcTokenSymbol}
+            logoURL={srcTokenLogoUrl}
+            style={{ whiteSpace: 'nowrap' }}
+          />
           to
-          <DeltaTokenAmount amount={formatAmountBridge(dstAmount)} symbol={dstTokenSymbol} logoURL={dstTokenLogoUrl} />
+          <DeltaTokenAmount
+            amount={formatAmountBridge(dstAmount)}
+            symbol={dstTokenSymbol}
+            logoURL={dstTokenLogoUrl}
+            style={{ whiteSpace: 'nowrap' }}
+          />
         </Row>
         {rate && (
-          <PrimaryText>
+          <PrimaryText style={{ textAlign: 'right' }}>
             {rate} {srcTokenSymbol}/{dstTokenSymbol}
           </PrimaryText>
         )}
