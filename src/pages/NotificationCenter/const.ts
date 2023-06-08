@@ -23,6 +23,7 @@ export enum NOTIFICATION_ROUTES {
   LIMIT_ORDERS = '/notification/limit-orders',
   BRIDGE = '/notification/bridge',
   KYBER_AI_TOKENS = '/notification/kyber-ai',
+  CROSS_CHAIN = '/cross-chain',
 }
 
 export type CreatePriceAlertPayload = {

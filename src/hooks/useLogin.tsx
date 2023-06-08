@@ -42,6 +42,7 @@ const useLogin = (autoLogin = false) => {
   const [signedWallet, saveSignedWallet] = useSignedWallet()
   const { removeProfile, removeAllProfile } = useAllProfileInfo()
   const showConfirm = useShowConfirm()
+  const { anonymousUserInfo } = useSessionInfo()
 
   const requestingSessionAnonymous = useRef(false)
 

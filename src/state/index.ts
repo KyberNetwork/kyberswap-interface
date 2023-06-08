@@ -99,7 +99,6 @@ const store = configureStore({
       .concat(identifyApi.middleware)
       .concat(ksSettingApi.middleware)
       .concat(crosschainApi.middleware)
-      .concat(annoucementApi.middleware)
       .concat(priceAlertApi.middleware)
       .concat(routeApi.middleware)
       .concat(socialApi.middleware)
