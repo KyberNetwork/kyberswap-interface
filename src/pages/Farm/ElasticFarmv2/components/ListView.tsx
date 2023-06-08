@@ -1,5 +1,6 @@
 import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import { useCallback, useState } from 'react'
 import { Info, Minus, Plus, RefreshCw, Share2 } from 'react-feather'
@@ -233,16 +234,24 @@ export const ListView = ({
               ''
             )
           ) : !farm.isSettled ? (
-            <Trans>Ended at</Trans>
+            <Text color={theme.subText}>
+              <Trans>Ended at</Trans>
+            </Text>
           ) : null}
 
-          {isEnded ? (
-            <Trans>ENDED</Trans>
-          ) : farm.startTime > currentTimestamp ? (
-            <Text color={theme.warning}>{getFormattedTimeFromSecond(farm.startTime - currentTimestamp)}</Text>
-          ) : (
-            getFormattedTimeFromSecond(farm.endTime - currentTimestamp)
-          )}
+          <Text fontSize="14px" fontWeight="500" color={theme.text} marginTop="2px">
+            {isEnded || farm.isSettled ? (
+              isEnded ? (
+                dayjs(farm.endTime * 1000).format('DD/MM/YYYY HH:mm')
+              ) : (
+                <Trans>ENDED</Trans>
+              )
+            ) : farm.startTime > currentTimestamp ? (
+              <Text color={theme.warning}>{getFormattedTimeFromSecond(farm.startTime - currentTimestamp)}</Text>
+            ) : (
+              getFormattedTimeFromSecond(farm.endTime - currentTimestamp)
+            )}
+          </Text>
         </Text>
 
         <div>

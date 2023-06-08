@@ -155,7 +155,7 @@ export default function ProAmmPool() {
         (!!tokenAddressSymbolMap.current[pos.token1.toLowerCase()] &&
           tokenAddressSymbolMap.current[pos.token1.toLowerCase()].includes(debouncedSearchText)) ||
         pos.poolId.toLowerCase() === debouncedSearchText ||
-        pos.poolId.toLowerCase() === debouncedSearchText
+        pos.tokenId.toString() === debouncedSearchText
       )
     },
     [debouncedSearchText],

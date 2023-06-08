@@ -1,6 +1,6 @@
 import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Info, Plus, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -226,6 +226,11 @@ const StakeWithNFTsModal = ({
         item.tickUpper >= activeRange.tickUpper,
     )
   }, [allPositions, farm?.poolAddress, activeRange.tickUpper, activeRange.tickLower])
+
+  useEffect(() => {
+    setSelectedPos({})
+  }, [positions?.length])
+
   const prices = useTokenPrices([farm.token0.wrapped.address, farm.token1.wrapped.address])
 
   const [selectedPos, setSelectedPos] = useState<{ [tokenId: string]: boolean }>({})

@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Info, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -256,6 +256,11 @@ const UnstakeWithNFTsModal = ({
   const stakedPos = useUserFarmV2Info(farm.fId)
   const theme = useTheme()
   const [selectedPos, setSelectedPos] = useState<{ [tokenId: string]: boolean }>({})
+
+  useEffect(() => {
+    setSelectedPos({})
+  }, [stakedPos?.length])
+
   const selectedPosArray: Array<number> = useMemo(
     () =>
       Object.keys(selectedPos)

@@ -191,8 +191,8 @@ export default function ProAmmPoolStat({
             tickCurrent={pool.tick}
             tickRangeLower={range?.tickLower}
             tickRangeUpper={range?.tickUpper}
-            token0={farmV2.token0}
-            token1={farmV2.token1}
+            token0={farmV2.token0.wrapped}
+            token1={farmV2.token1.wrapped}
           />
         ) : (
           isFarmingPool && <FarmTag version="v1" address={pool.address} />

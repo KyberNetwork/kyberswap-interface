@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 
@@ -23,8 +23,8 @@ export interface ElasticFarmV2 {
   isSettled: boolean
   pool: Pool
   poolAddress: string
-  token0: Token
-  token1: Token
+  token0: Currency
+  token1: Currency
   tvl: number
   tvlToken0: CurrencyAmount<Currency>
   tvlToken1: CurrencyAmount<Currency>

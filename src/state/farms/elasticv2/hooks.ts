@@ -105,7 +105,7 @@ export const useFilteredFarmsV2 = () => {
     if (searchAddress) {
       if (isEVM)
         result = result?.filter(farm => {
-          return [farm.poolAddress, farm.token0.address, farm.token1.address]
+          return [farm.poolAddress, farm.token0.wrapped.address, farm.token1.wrapped.address]
             .map(item => item.toLowerCase())
             .includes(searchAddress.toLowerCase())
         })
@@ -125,18 +125,18 @@ export const useFilteredFarmsV2 = () => {
       if (filteredToken1Id && filteredToken0Id) {
         result = result?.filter(farm => {
           return (
-            (farm.token0.address.toLowerCase() === filteredToken0Id.toLowerCase() &&
-              farm.token1.address.toLowerCase() === filteredToken1Id.toLowerCase()) ||
-            (farm.token0.address.toLowerCase() === filteredToken1Id.toLowerCase() &&
-              farm.token1.address.toLowerCase() === filteredToken0Id.toLowerCase())
+            (farm.token0.wrapped.address.toLowerCase() === filteredToken0Id.toLowerCase() &&
+              farm.token1.wrapped.address.toLowerCase() === filteredToken1Id.toLowerCase()) ||
+            (farm.token0.wrapped.address.toLowerCase() === filteredToken1Id.toLowerCase() &&
+              farm.token1.wrapped.address.toLowerCase() === filteredToken0Id.toLowerCase())
           )
         })
       } else {
         const address = filteredToken1Id || filteredToken0Id
         result = result?.filter(farm => {
           return (
-            farm.token0.address.toLowerCase() === address?.toLowerCase() ||
-            farm.token1.address.toLowerCase() === address?.toLowerCase()
+            farm.token0.wrapped.address.toLowerCase() === address?.toLowerCase() ||
+            farm.token1.wrapped.address.toLowerCase() === address?.toLowerCase()
           )
         })
       }

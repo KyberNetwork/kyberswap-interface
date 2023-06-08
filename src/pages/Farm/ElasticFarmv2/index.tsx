@@ -298,7 +298,10 @@ export default function ElasticFarmv2({ onShowStepGuide }: { onShowStepGuide: ()
         <RowFit>{renderApproveButton()}</RowFit>
       </RowBetween>
       <Divider />
-      <FarmList gridMode={viewMode === VIEW_MODE.GRID || !above1000} style={{ margin: '0', paddingBottom: '12px' }}>
+      <FarmList
+        gridMode={viewMode === VIEW_MODE.GRID || !above1000}
+        style={{ margin: '0', paddingBottom: viewMode === VIEW_MODE.GRID ? '12px' : '0' }}
+      >
         {listMode && renderTableHeaderOnDesktop()}
 
         {filteredFarms?.map(farm =>
