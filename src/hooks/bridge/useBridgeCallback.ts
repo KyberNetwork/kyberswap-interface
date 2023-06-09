@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { captureException } from '@sentry/react'
 import { useCallback, useMemo } from 'react'
-import { useSaveCrossChainTxsMutation } from 'services/crossChain'
+import { useSaveBridgeTxsMutation } from 'services/crossChain'
 
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -37,7 +37,7 @@ const NOT_APPLICABLE = {
 
 function useSendTxToKsSettingCallback() {
   const { account } = useActiveWeb3React()
-  const [saveTxs] = useSaveCrossChainTxsMutation()
+  const [saveTxs] = useSaveBridgeTxsMutation()
 
   return useCallback(
     async (

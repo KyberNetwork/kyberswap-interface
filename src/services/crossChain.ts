@@ -63,6 +63,11 @@ const crossChainApi = createApi({
   }),
 })
 
-export const { useSaveCrossChainTxsMutation, useGetListCrossChainTxsQuery, useGetListBridgeTxsQuery } = crossChainApi
+export const {
+  useSaveCrossChainTxsMutation,
+  useGetListCrossChainTxsQuery,
+  useGetListBridgeTxsQuery,
+  useSaveBridgeTxsMutation,
+} = crossChainApi
 
 export default crossChainApi
