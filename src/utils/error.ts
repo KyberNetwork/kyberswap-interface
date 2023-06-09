@@ -26,10 +26,11 @@ const sendError = (name: string, apiUrl: string, trackData: any) => {
  * only check bff api + 2 route apis
  */
 export const checkIamDown = (axiosErr: AxiosError) => {
+  const statusCode = axiosErr?.response?.status
   const isDie =
     navigator.onLine &&
-    (!axiosErr?.response?.data ||
-      (axiosErr?.response?.status === 404 && axiosErr?.response?.data === '404 page not found'))
+    statusCode !== 401 &&
+    (!axiosErr?.response?.data || (statusCode === 404 && axiosErr?.response?.data === '404 page not found'))
 
   const trackData = {
     config: {
@@ -39,7 +40,7 @@ export const checkIamDown = (axiosErr: AxiosError) => {
       url: axiosErr?.config?.url,
     },
     response: axiosErr?.response?.data,
-    status: axiosErr?.response?.status,
+    statusCode,
   }
   const apiUrl = axiosErr?.config?.url ?? ''
 
