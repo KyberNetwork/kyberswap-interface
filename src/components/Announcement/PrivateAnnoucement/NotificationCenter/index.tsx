@@ -4,6 +4,7 @@ import { PRIVATE_ANN_TITLE } from 'components/Announcement/PrivateAnnoucement'
 import { AnnouncementTemplate, PrivateAnnouncement, PrivateAnnouncementType } from 'components/Announcement/type'
 
 import Bridge from './Bridge'
+import CrossChain from './CrossChain'
 import LimitOrder from './LimitOrder'
 import PoolPosition from './PoolPosition'
 import PriceAlert from './PriceAlert'
@@ -21,8 +22,9 @@ type PrivateAnnouncementCenterMap = {
 const ANNOUNCEMENT_MAP_IN_CENTER = {
   [PrivateAnnouncementType.ELASTIC_POOLS]: PoolPosition,
   [PrivateAnnouncementType.LIMIT_ORDER]: LimitOrder,
-  [PrivateAnnouncementType.KYBER_AI]: TrendingSoon,
   [PrivateAnnouncementType.BRIDGE_ASSET]: Bridge,
+  [PrivateAnnouncementType.CROSS_CHAIN]: CrossChain,
+  [PrivateAnnouncementType.KYBER_AI]: TrendingSoon,
   [PrivateAnnouncementType.PRICE_ALERT]: PriceAlert,
   [PrivateAnnouncementType.DIRECT_MESSAGE]: PrivateMessage,
 } as PrivateAnnouncementCenterMap

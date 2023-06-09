@@ -26,7 +26,6 @@ const NetworkSwitchContainer = styled.div`
 const NetworkLabel = styled.div`
   white-space: nowrap;
   font-weight: 500;
-  margin-right: 8px;
   font-size: 14px;
 `
 
@@ -39,10 +38,12 @@ function Web3Network({
   chainIds = [],
   onSelectNetwork,
   selectedChainId,
+  tooltipNotSupportChain,
 }: {
   chainIds: ChainId[]
   onSelectNetwork: (chain: ChainId) => void
   selectedChainId?: ChainId
+  tooltipNotSupportChain?: string
 }): JSX.Element | null {
   const { chainId } = useActiveWeb3React()
 
@@ -63,7 +64,7 @@ function Web3Network({
         <DropdownIcon open={isOpen} />
       </NetworkSwitchContainer>
       <NetworkModal
-        disabledMsg={t`The token cannot be bridged to this chain`}
+        disabledMsg={tooltipNotSupportChain || t`The token cannot be bridged to this chain`}
         activeChainIds={chainIds}
         isOpen={isOpen}
         selectedId={selectedChainId}

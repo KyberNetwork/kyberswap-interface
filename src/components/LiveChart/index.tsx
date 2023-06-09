@@ -105,7 +105,13 @@ const getTimeFrameText = (timeFrame: LiveDataTimeframeEnum) => {
   }
 }
 
-function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency } }) {
+function LiveChart({
+  currencies,
+  enableProChart = true,
+}: {
+  currencies: { [field in Field]?: Currency }
+  enableProChart?: boolean
+}) {
   const { isSolana, networkInfo } = useActiveWeb3React()
   const isDarkMode = useIsDarkMode()
   const theme = useTheme()
@@ -121,7 +127,7 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
       address: currencies[Field.INPUT]?.wrapped.address || '',
     },
     {
-      skip: !networkInfo.geckoTermialId || !currencies[Field.INPUT]?.wrapped.address,
+      skip: !enableProChart || !networkInfo.geckoTermialId || !currencies[Field.INPUT]?.wrapped.address,
     },
   )
   const {
@@ -134,7 +140,7 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
       address: currencies[Field.OUTPUT]?.wrapped.address || '',
     },
     {
-      skip: !networkInfo.geckoTermialId || !currencies[Field.OUTPUT]?.wrapped.address,
+      skip: !enableProChart || !networkInfo.geckoTermialId || !currencies[Field.OUTPUT]?.wrapped.address,
     },
   )
 
@@ -186,6 +192,7 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
   const [timeFrame, setTimeFrame] = useState<LiveDataTimeframeEnum>(LiveDataTimeframeEnum.DAY)
 
   const { data: chartData, error: basicChartError, loading: basicChartLoading } = useBasicChartData(tokens, timeFrame)
+
   const isProchartError = !commonPool
   const isBasicchartError = basicChartError && !basicChartLoading
   const bothChartError = isProchartError && isBasicchartError
@@ -226,7 +233,7 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
   }
 
   const toggle = useMemo(() => {
-    return (
+    return enableProChart ? (
       <ProChartToggle
         activeName={isShowProChart ? 'pro' : 'basic'}
         toggle={(name: string) => {
@@ -245,8 +252,8 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
           { name: 'pro', title: 'Pro', disabled: isProchartError },
         ]}
       />
-    )
-  }, [isBasicchartError, isProchartError, isShowProChart, bothChartError, mixpanelHandler])
+    ) : null
+  }, [isBasicchartError, isProchartError, isShowProChart, bothChartError, mixpanelHandler, enableProChart])
 
   const isReverse =
     commonPool?.relationships?.base_token.data.id ===
@@ -317,7 +324,7 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
           {/* Stop tradingview from rerender on isShowProChart change */}
           <div style={{ display: isShowProChart && !!poolAddress ? 'block' : 'none', height: '100%' }}>
             {commonPool && <TradingViewChart poolDetail={commonPool} isReverse={isReverse} label={label} />}
-            <Flex justifyContent="flex-end" sx={{ gap: '0.5rem' }}>
+            <Flex justifyContent="flex-end" sx={{ gap: '0.5rem', marginTop: '6px' }}>
               <Text color={theme.subText} fontSize="10px">
                 Powered by
               </Text>

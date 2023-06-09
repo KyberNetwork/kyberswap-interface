@@ -57,7 +57,7 @@ export const useDatafeed = (poolDetail: PoolResponse, isReverse: boolean, label:
             minmov: 1,
             pricescale: 10000,
             has_intraday: true,
-            // has_empty_bars: true,
+            has_empty_bars: true,
             has_weekly_and_monthly: true,
             has_daily: true,
             supported_resolutions: configurationData.supported_resolutions as ResolutionString[],
