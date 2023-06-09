@@ -312,7 +312,7 @@ export default function ElasticFarmv2({ onShowStepGuide }: { onShowStepGuide: ()
               onStake={() => setSelectedFarm(farm)}
               onUnstake={() => setSelectedUnstakeFarm(farm)}
               onUpdateFarmClick={() => setSelectedUpdateFarm(farm)}
-              poolAPR={poolDatas?.[farm.poolAddress].apr || 0}
+              poolAPR={poolDatas?.[farm.poolAddress]?.apr || 0}
               isApproved={isApprovedForAll}
             />
           ) : (
@@ -322,7 +322,7 @@ export default function ElasticFarmv2({ onShowStepGuide }: { onShowStepGuide: ()
               onStake={() => setSelectedFarm(farm)}
               onUnstake={() => setSelectedUnstakeFarm(farm)}
               onUpdateFarmClick={() => setSelectedUpdateFarm(farm)}
-              poolAPR={poolDatas?.[farm.poolAddress].apr || 0}
+              poolAPR={poolDatas?.[farm.poolAddress]?.apr || 0}
               isApproved={isApprovedForAll}
             />
           ),

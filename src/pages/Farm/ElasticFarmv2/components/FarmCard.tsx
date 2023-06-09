@@ -23,6 +23,7 @@ import Tabs from 'components/Tabs'
 import { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
+import { APRTooltipContent } from 'components/YieldPools/FarmingPoolAPRCell'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -309,7 +310,17 @@ function FarmCard({
               children: (
                 <Flex padding="12px" flexDirection="column">
                   <RowBetween>
-                    <MouseoverTooltip text={t`Active Range: Current active farming range`} placement="top">
+                    <MouseoverTooltip
+                      width="fit-content"
+                      text={
+                        <APRTooltipContent
+                          farmV2APR={farm.ranges[activeRangeIndex].apr || 0}
+                          farmAPR={0}
+                          poolAPR={poolAPR}
+                        />
+                      }
+                      placement="top"
+                    >
                       <Text
                         fontSize="12px"
                         color={theme.subText}

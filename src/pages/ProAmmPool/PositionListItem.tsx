@@ -161,7 +161,7 @@ function PositionListItem({
   } = positionDetails
 
   const { farms } = useElasticFarms()
-  const { farms: farmV2s } = useElasticFarmsV2()
+  const { farms: farmV2s, userInfo } = useElasticFarmsV2()
 
   let farmAddress = ''
   let pid = ''
@@ -282,6 +282,12 @@ function PositionListItem({
 
   const tickAtLimit = useIsTickAtLimit(feeAmount, tickLower, tickUpper)
 
+  const v2Reward = userInfo?.find(item => item.nftId.toString() === tokenId.toString())
+  const estimatedOneYearFarmV2Reward =
+    farmingTime && ((v2Reward?.unclaimedRewardsUsd || 0) * 365 * 24 * 60 * 60) / farmingTime
+  const farmV2APR =
+    v2Reward?.unclaimedRewardsUsd && farmingTime && usd ? ((estimatedOneYearFarmV2Reward || 0) * 100) / usd : 0
+
   // prices
   const { priceLower, priceUpper } = getPriceOrderingFromPositionForUI(position)
 
@@ -328,8 +334,8 @@ function PositionListItem({
               <ProAmmPooledTokens
                 positionAPR={positionAPR}
                 createdAt={createdAt}
-                farmAPR={farmAPR}
-                farmRewardAmount={farmRewardAmount}
+                farmAPR={farmAPR || farmV2APR}
+                farmRewardAmount={v2Reward?.unclaimedRewards || farmRewardAmount}
                 valueUSD={usd}
                 stakedUsd={stakedUsd}
                 liquidityValue0={CurrencyAmount.fromRawAmount(
@@ -369,7 +375,7 @@ function PositionListItem({
                   <Text color={theme.subText}>
                     <Trans>My Farm APR</Trans>
                   </Text>
-                  <Text color={theme.apr}>{farmAPR ? farmAPR.toFixed(2) + '%' : '--'}</Text>
+                  <Text color={theme.apr}>{farmAPR || farmV2APR ? (farmAPR || farmV2APR).toFixed(2) + '%' : '--'}</Text>
                 </StakedRow>
               </StakedInfo>
             )}
