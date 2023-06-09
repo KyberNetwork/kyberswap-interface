@@ -283,75 +283,73 @@ export default function Swap() {
             </AppBodyWrapped>
           </SwapFormWrapper>
 
-          {(isShowLiveChart || isShowTradeRoutes || shouldRenderTokenInfo || isLimitPage) && (
-            <InfoComponents>
-              {isShowKyberAIBanner && (
-                <KyberAIBannerWrapper>
+          <InfoComponents>
+            {isShowKyberAIBanner && (
+              <KyberAIBannerWrapper>
+                <Suspense
+                  fallback={
+                    <Skeleton
+                      height="100%"
+                      baseColor={theme.background}
+                      highlightColor={theme.buttonGray}
+                      borderRadius="24px"
+                    />
+                  }
+                >
+                  <KyberAITokenBanner currencyIn={currencyIn} currencyOut={currencyOut} />
+                </Suspense>
+              </KyberAIBannerWrapper>
+            )}
+            {isShowLiveChart && (
+              <LiveChartWrapper>
+                <Suspense
+                  fallback={
+                    <Skeleton
+                      height="100%"
+                      baseColor={theme.background}
+                      highlightColor={theme.buttonGray}
+                      borderRadius="1rem"
+                    />
+                  }
+                >
+                  <LiveChart currencies={currencies} enableProChart={isSwapPage} />
+                </Suspense>
+              </LiveChartWrapper>
+            )}
+            {isShowTradeRoutes && isSwapPage && (
+              <RoutesWrapper isOpenChart={isShowLiveChart}>
+                <Flex flexDirection="column" width="100%">
+                  <Flex alignItems={'center'}>
+                    <RoutingIconWrapper />
+                    <Text fontSize={20} fontWeight={500} color={theme.subText}>
+                      <Trans>Your trade route</Trans>
+                    </Text>
+                  </Flex>
                   <Suspense
                     fallback={
                       <Skeleton
-                        height="100%"
-                        baseColor={theme.background}
-                        highlightColor={theme.buttonGray}
-                        borderRadius="24px"
-                      />
-                    }
-                  >
-                    <KyberAITokenBanner currencyIn={currencyIn} currencyOut={currencyOut} />
-                  </Suspense>
-                </KyberAIBannerWrapper>
-              )}
-              {isShowLiveChart && (
-                <LiveChartWrapper>
-                  <Suspense
-                    fallback={
-                      <Skeleton
-                        height="100%"
+                        height="100px"
                         baseColor={theme.background}
                         highlightColor={theme.buttonGray}
                         borderRadius="1rem"
                       />
                     }
                   >
-                    <LiveChart currencies={currencies} enableProChart={isSwapPage} />
+                    <TradeRouting
+                      tradeComposition={tradeRouteComposition}
+                      currencyIn={currencyIn}
+                      currencyOut={currencyOut}
+                      inputAmount={routeSummary?.parsedAmountIn}
+                      outputAmount={routeSummary?.parsedAmountOut}
+                    />
                   </Suspense>
-                </LiveChartWrapper>
-              )}
-              {isShowTradeRoutes && isSwapPage && (
-                <RoutesWrapper isOpenChart={isShowLiveChart}>
-                  <Flex flexDirection="column" width="100%">
-                    <Flex alignItems={'center'}>
-                      <RoutingIconWrapper />
-                      <Text fontSize={20} fontWeight={500} color={theme.subText}>
-                        <Trans>Your trade route</Trans>
-                      </Text>
-                    </Flex>
-                    <Suspense
-                      fallback={
-                        <Skeleton
-                          height="100px"
-                          baseColor={theme.background}
-                          highlightColor={theme.buttonGray}
-                          borderRadius="1rem"
-                        />
-                      }
-                    >
-                      <TradeRouting
-                        tradeComposition={tradeRouteComposition}
-                        currencyIn={currencyIn}
-                        currencyOut={currencyOut}
-                        inputAmount={routeSummary?.parsedAmountIn}
-                        outputAmount={routeSummary?.parsedAmountOut}
-                      />
-                    </Suspense>
-                  </Flex>
-                </RoutesWrapper>
-              )}
-              {isLimitPage && <ListLimitOrder ref={refListLimitOrder} />}
-              {shouldRenderTokenInfo && <TokenInfoV2 currencyIn={currencyIn} currencyOut={currencyOut} />}
-              {isCrossChainPage && <CrossChainTransfersHistory />}
-            </InfoComponents>
-          )}
+                </Flex>
+              </RoutesWrapper>
+            )}
+            {isLimitPage && <ListLimitOrder ref={refListLimitOrder} />}
+            {shouldRenderTokenInfo && <TokenInfoV2 currencyIn={currencyIn} currencyOut={currencyOut} />}
+            {isCrossChainPage && <CrossChainTransfersHistory />}
+          </InfoComponents>
         </Container>
         <Flex justifyContent="center">
           <SwitchLocaleLinkWrapper>

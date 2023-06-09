@@ -91,10 +91,7 @@ const KyberAITokenBanner = ({
     STABLE_COINS_ADDRESS[chainId].some(value => value.toLowerCase() === currencyIn?.wrapped.address.toLowerCase())
   )
     return null
-  const staticModeCurrency =
-    KNC[chainId].address.toLowerCase() === currencyIn?.wrapped.address.toLowerCase()
-      ? NativeCurrencies[chainId]
-      : currencyIn
+  const staticModeCurrency = !currencyIn || KNC[chainId].equals(currencyIn) ? NativeCurrencies[chainId] : currencyIn
   const color = staticMode ? theme.primary : calculateValueToColor(token?.kyberScore || 0, theme)
   return (
     <Wrapper>
