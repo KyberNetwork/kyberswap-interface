@@ -44,6 +44,7 @@ export type MenuItemType = {
   divider?: boolean
   childs?: MenuItemType[]
   onClick?: () => void
+  defaultExpand?: boolean
 }
 
 const menuItems: MenuItemType[] = [
@@ -58,6 +59,7 @@ const menuItems: MenuItemType[] = [
     icon: <NotificationIcon size="16px" />,
     title: t`Notifications`,
     type: 'ALL',
+    defaultExpand: true,
     childs: [
       {
         route: NOTIFICATION_ROUTES.PREFERENCE,

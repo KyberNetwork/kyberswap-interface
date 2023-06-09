@@ -181,7 +181,7 @@ export default function Profile() {
       notify({
         type: NotificationType.SUCCESS,
         title: t`Profile updated`,
-        summary: t`Your profile have been successfully updated`,
+        summary: t`Your profile has been successfully updated`,
       })
       setFile(undefined)
     } catch (error) {

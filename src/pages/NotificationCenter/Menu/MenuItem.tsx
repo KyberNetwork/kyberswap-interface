@@ -75,7 +75,7 @@ type Props = {
 }
 
 const MenuItem: React.FC<Props> = ({ data, style, unread, isChildren, onChildrenClick }) => {
-  const { icon, title, route, childs, type, onClick } = data
+  const { icon, title, route, childs, type, onClick, defaultExpand } = data
   const location = useLocation()
   const theme = useTheme()
 
@@ -83,7 +83,7 @@ const MenuItem: React.FC<Props> = ({ data, style, unread, isChildren, onChildren
   const isActive = location.pathname === path || location.pathname === path.substring(0, path.length - 1)
   const canShowExpand = !isChildren && (childs?.length || 0) > 1
   const [expand, setIsExpand] = useState(
-    canShowExpand ? location.pathname.startsWith(`${APP_PATHS.NOTIFICATION_CENTER}${route}`) : true,
+    canShowExpand ? location.pathname.startsWith(`${APP_PATHS.NOTIFICATION_CENTER}${route}`) || defaultExpand : true,
   )
   const canShowListChildren = expand && !isChildren
 
