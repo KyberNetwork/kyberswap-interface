@@ -26,10 +26,9 @@ const Chart = styled(LiquidityChartRangeInput)`
 
 // TODO: merge with EarningView props
 type Props = {
-  poolAddress: string
   position: Position
 }
-const PriceRangeChart: React.FC<Props> = ({ position, poolAddress }) => {
+const PriceRangeChart: React.FC<Props> = ({ position }) => {
   const theme = useTheme()
 
   const token0 = unwrappedToken(position.pool.token0)
@@ -103,7 +102,6 @@ const PriceRangeChart: React.FC<Props> = ({ position, poolAddress }) => {
           minHeight: '180px',
           height: '180px',
         }}
-        poolAddress={poolAddress}
         currencyA={baseCurrency}
         currencyB={quoteCurrency}
         feeAmount={position.pool.fee}
