@@ -13,10 +13,10 @@ export default defineConfig({
   viewportWidth: 1920,
   viewportHeight: 1080,
   e2e: {
-    baseUrl: `https://kyberswap.com/`,
-    setupNodeEvents(on, config) {
-      // synpressPlugins(on, config)
-    },
     specPattern: 'cypress/e2e/**/swap-page.e2e-spec.cy.ts',
+    setupNodeEvents(on, config) {
+      require('@cypress/grep/src/plugin')(config)
+      synpressPlugins(on, config)
+    },
   },
 })
