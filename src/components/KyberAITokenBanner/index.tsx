@@ -14,7 +14,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import ApeIcon from 'components/Icons/ApeIcon'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
-import { NativeCurrencies } from 'constants/tokens'
+import { KNC, NativeCurrencies, STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -44,27 +44,23 @@ const KyberAITokenBanner = ({
   const token0 = currencyIn?.wrapped
   const token1 = currencyOut?.wrapped
 
-  const { data: tokenInputOverview, isFetching: fetching0 } = useTokenDetailQuery(
+  const { data: tokenInputOverview } = useTokenDetailQuery(
     { address: token0?.address, chain },
     { skip: !token0?.address || !account || !isWhiteList, refetchOnMountOrArgChange: true },
   )
 
-  const { data: tokenOutputOverview, isFetching: fetching1 } = useTokenDetailQuery(
+  const { data: tokenOutputOverview } = useTokenDetailQuery(
     { address: token1?.address, chain },
     { skip: !token1?.address || !account || !isWhiteList, refetchOnMountOrArgChange: true },
   )
 
-  const { data: tokenNativeOverview, isFetching: fetching2 } = useTokenDetailQuery(
+  const { data: tokenNativeOverview } = useTokenDetailQuery(
     { address: NativeCurrencies[chainId].wrapped.address, chain },
     { skip: !account || !isWhiteList, refetchOnMountOrArgChange: true },
   )
 
-  const isFetching = fetching0 || fetching1 || fetching2
-
   const token: { kyberScore?: number; label?: string; address?: string; logo?: string; symbol?: string } | undefined =
     useMemo(() => {
-      if (isFetching) return undefined
-
       if (staticMode) {
         return undefined
       }
@@ -76,7 +72,9 @@ const KyberAITokenBanner = ({
         : tokenNativeOverview?.kyberScore?.label
         ? tokenNativeOverview
         : undefined
-
+      if (!token) {
+        return undefined
+      }
       return {
         kyberScore: token?.kyberScore?.score,
         label: token?.kyberScore?.label,
@@ -84,10 +82,16 @@ const KyberAITokenBanner = ({
         logo: token?.logo,
         symbol: token?.symbol,
       }
-    }, [isFetching, tokenInputOverview, tokenOutputOverview, tokenNativeOverview, staticMode])
+    }, [tokenInputOverview, tokenOutputOverview, tokenNativeOverview, staticMode])
 
   if (!token && !staticMode) return null
 
+  if (
+    staticMode &&
+    STABLE_COINS_ADDRESS[chainId].some(value => value.toLowerCase() === currencyIn?.wrapped.address.toLowerCase())
+  )
+    return null
+  const staticModeCurrency = !currencyIn || KNC[chainId].equals(currencyIn) ? NativeCurrencies[chainId] : currencyIn
   const color = staticMode ? theme.primary : calculateValueToColor(token?.kyberScore || 0, theme)
   return (
     <Wrapper>
@@ -109,13 +113,14 @@ const KyberAITokenBanner = ({
         >
           <RowFit gap="8px">
             {staticMode ? (
-              <CurrencyLogo currency={currencyIn} size={'32px'} />
+              <CurrencyLogo currency={staticModeCurrency} size={'32px'} />
             ) : (
               <img src={token?.logo} alt={token?.symbol} width="32" height="32" style={{ borderRadius: '50%' }} />
             )}
             <Column gap="4px">
               <Text color={theme.text}>
-                {staticMode ? currencyIn?.wrapped.symbol : token?.symbol?.toUpperCase() || '--'} seems to be
+                {staticMode ? staticModeCurrency?.wrapped.symbol?.toUpperCase() : token?.symbol?.toUpperCase() || '--'}{' '}
+                seems to be
               </Text>
               {staticMode ? (
                 <AnimatedKyberscoreLabels />
@@ -149,7 +154,8 @@ const KyberAITokenBanner = ({
                 <Text as="b" color={theme.text}>
                   KyberScore
                 </Text>{' '}
-                for {staticMode ? currencyIn?.wrapped.symbol : token?.symbol?.toUpperCase() || '--'}?
+                for{' '}
+                {staticMode ? staticModeCurrency?.wrapped.symbol?.toUpperCase() : token?.symbol?.toUpperCase() || '--'}?
               </Trans>
             </Text>
             <RowFit fontSize="12px" gap="4px">
@@ -193,9 +199,18 @@ const KyberAITokenBanner = ({
         >
           <RowBetween>
             <RowFit gap="8px">
-              <img src={token?.logo} alt={token?.symbol} width="32" height="32" style={{ borderRadius: '50%' }} />
+              {staticMode ? (
+                <CurrencyLogo currency={staticModeCurrency} size={'32px'} />
+              ) : (
+                <img src={token?.logo} alt={token?.symbol} width="32" height="32" style={{ borderRadius: '50%' }} />
+              )}
               <Column gap="4px">
-                <Text color={theme.text}>{token?.symbol?.toUpperCase() || '--'} seems to be</Text>
+                <Text color={theme.text}>
+                  {staticMode
+                    ? staticModeCurrency?.wrapped.symbol?.toUpperCase()
+                    : token?.symbol?.toUpperCase() || '--'}{' '}
+                  seems to be
+                </Text>
                 {staticMode ? (
                   <AnimatedKyberscoreLabels />
                 ) : (
@@ -237,7 +252,6 @@ const KyberAITokenBanner = ({
 const Wrapper = styled.div`
   overflow: hidden;
   border-radius: 24px;
-  margin-bottom: 16px;
   cursor: pointer;
   :hover {
     filter: brightness(1.15);
@@ -334,6 +348,7 @@ const LabelsWrapper = styled.div`
   display: flex;
   flex-direction: column;
   animation: ${backAndForward} 12s ease infinite;
+  animation-delay: 2s;
 `
 const Label = styled.div<{ color?: string }>`
   height: 24px;
