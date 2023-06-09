@@ -159,8 +159,8 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
                 item.pool.token1.id,
                 ...item.rewards.map((rw: { token: SubgraphToken }) =>
                   rw.token.id === ZERO_ADDRESS || rw.token.id.toLowerCase() === ETHER_ADDRESS.toLowerCase()
-                    ? NativeCurrencies[chainId].wrapped.address
-                    : rw.token.id,
+                    ? NativeCurrencies[chainId].wrapped.address.toLowerCase()
+                    : rw.token.id.toLowerCase(),
                 ),
               ])
               .flat(),
