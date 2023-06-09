@@ -46,10 +46,10 @@ import {
   TYPE_OPTIONS,
   getCoolDownOptions,
 } from 'pages/NotificationCenter/const'
-import { getTokenAddress } from 'pages/NotificationCenter/helper'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { formatTimeDuration } from 'utils/time'
+import { getTokenAddress } from 'utils/tokenInfo'
 
 const defaultInput = {
   tokenInAmount: '1',
@@ -144,8 +144,8 @@ export default function CreateAlert({
       const alert: CreatePriceAlertPayload = {
         walletAddress: account ?? '',
         chainId: selectedChain.toString(),
-        tokenInAddress: getTokenAddress(currencyIn, selectedChain),
-        tokenOutAddress: getTokenAddress(currencyOut, selectedChain),
+        tokenInAddress: getTokenAddress(currencyIn),
+        tokenOutAddress: getTokenAddress(currencyOut),
         type: alertType,
         isEnabled: totalActiveAlerts < maxActiveAlerts,
         disableAfterTrigger,

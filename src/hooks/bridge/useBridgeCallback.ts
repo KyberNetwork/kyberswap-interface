@@ -7,14 +7,29 @@ import { mutate } from 'swr'
 import { KS_SETTING_API } from 'constants/env'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useBridgeContract, useSwapBTCContract, useSwapETHContract } from 'hooks/useContract'
-import { useBridgeOutputValue, useBridgeState } from 'state/bridge/hooks'
+import { useBridgeContract, useSwapETHContract } from 'hooks/useContract'
+import { useBridgeOutputValue, useBridgeState } from 'state/crossChain/hooks'
 import { useAppSelector } from 'state/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useCurrencyBalance, useNativeBalance } from 'state/wallet/hooks'
 import { formatNumberWithPrecisionRange, isAddress } from 'utils'
+
+export const captureExceptionCrossChain = (body: any, err: any, errName: string) => {
+  const extraData = {
+    body,
+    status: undefined,
+    response: undefined,
+  }
+  if (err?.response?.data) {
+    extraData.status = err.response.status
+    extraData.response = err.response.data
+  }
+  const error = new Error(`SendTxToKsSetting fail, srcTxHash = ${extraData.body.srcTxHash}`, { cause: err })
+  error.name = errName
+  captureException(error, { level: 'fatal', extra: { args: JSON.stringify(extraData, null, 2) } })
+}
 
 const NOT_APPLICABLE = {
   execute: async () => {
@@ -25,7 +40,7 @@ const NOT_APPLICABLE = {
 
 function useSendTxToKsSettingCallback() {
   const { account } = useActiveWeb3React()
-  const historyURL = useAppSelector(state => state.bridge.historyURL)
+  const historyURL = useAppSelector(state => state.crossChain.bridge.historyURL)
 
   const onSuccess = useCallback(() => {
     mutate(historyURL)
@@ -43,7 +58,7 @@ function useSendTxToKsSettingCallback() {
     ) => {
       const url = `${KS_SETTING_API}/v1/multichain-transfers`
       const body = {
-        userAddress: account,
+        walletAddress: account,
         srcChainId: srcChainId.toString(),
         dstChainId: dstChainId.toString(),
         srcTxHash,
@@ -58,18 +73,7 @@ function useSendTxToKsSettingCallback() {
         await axios.post(url, body)
         onSuccess()
       } catch (err) {
-        const extraData = {
-          body,
-          status: undefined,
-          response: undefined,
-        }
-        if (err?.response?.data) {
-          extraData.status = err.response.status
-          extraData.response = err.response.data
-        }
-        const error = new Error(`SendTxToKsSetting fail, srcTxHash = ${extraData.body.srcTxHash}`, { cause: err })
-        error.name = 'PostBridge'
-        captureException(error, { level: 'fatal', extra: { args: JSON.stringify(extraData, null, 2) } })
+        captureExceptionCrossChain(body, err, 'PostBridge')
       }
     },
     [account, onSuccess],
@@ -156,7 +160,7 @@ function useRouterSwap(
   const [{ tokenInfoIn, chainIdOut, currencyIn, currencyOut }] = useBridgeState()
   const outputInfo = useBridgeOutputValue(typedValue ?? '0')
   const { account, chainId } = useActiveWeb3React()
-  const bridgeContract = useBridgeContract(isAddress(chainId, routerToken), chainIdOut && isNaN(chainIdOut) ? 'V2' : '')
+  const bridgeContract = useBridgeContract(isAddress(chainId, routerToken))
 
   const ethBalance = useNativeBalance()
   const anyBalance = useCurrencyBalance(currencyIn)
@@ -271,7 +275,6 @@ function useBridgeSwap(
   const balance = tokenInfoIn && tokenInfoIn?.tokenType !== 'NATIVE' ? tokenBalance : ethBalance
 
   const inputAmount = useMemo(() => tryParseAmount(typedValue, currencyIn), [currencyIn, typedValue])
-  const contractBTC = useSwapBTCContract(isAddress(chainId, inputToken) ? inputToken : undefined)
   const contractETH = useSwapETHContract(isAddress(chainId, inputToken) ? inputToken : undefined)
   const sendTxToKsSetting = useSendTxToKsSettingCallback()
 
@@ -302,18 +305,10 @@ function useBridgeSwap(
               txReceipt = hash && hash.toString().indexOf('0x') === 0 ? { hash } : ''
             }
           } else {
-            if (chainIdOut && isNaN(chainIdOut)) {
-              if (contractBTC) {
-                txReceipt = await contractBTC.Swapout(`0x${inputAmount.quotient.toString(16)}`, toAddress)
-              } else {
-                return Promise.reject('not found contractBTC')
-              }
+            if (contractETH) {
+              txReceipt = await contractETH.Swapout(`0x${inputAmount.quotient.toString(16)}`, toAddress)
             } else {
-              if (contractETH) {
-                txReceipt = await contractETH.Swapout(`0x${inputAmount.quotient.toString(16)}`, toAddress)
-              } else {
-                return Promise.reject('not found contractETH')
-              }
+              return Promise.reject('not found contractETH')
             }
           }
           const txHash = txReceipt?.hash
@@ -367,7 +362,6 @@ function useBridgeSwap(
     inputToken,
     tokenInfoIn?.tokenType,
     contractETH,
-    contractBTC,
     outputInfo.outputAmount,
     outputInfo.fee,
     currencyOut,

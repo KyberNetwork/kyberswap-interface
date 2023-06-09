@@ -5,6 +5,7 @@ import styled from 'styled-components'
 
 import { ReactComponent as AlarmIcon } from 'assets/svg/alarm.svg'
 import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
+import { ReactComponent as CrossChainIcon } from 'assets/svg/cross_chain_icon.svg'
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
 import { ReactComponent as LiquidityIcon } from 'assets/svg/liquidity_icon.svg'
 import { PrivateAnnouncementType } from 'components/Announcement/type'
@@ -20,6 +21,7 @@ const mapPosition: Partial<{ [type in PrivateAnnouncementType]: { top: number; r
 }
 const mapIcon: Partial<{ [type in PrivateAnnouncementType]: ReactNode }> = {
   [PrivateAnnouncementType.BRIDGE_ASSET]: <BridgeIcon />,
+  [PrivateAnnouncementType.CROSS_CHAIN]: <CrossChainIcon />,
   [PrivateAnnouncementType.LIMIT_ORDER]: <LimitOrderIcon />,
   [PrivateAnnouncementType.ELASTIC_POOLS]: <LiquidityIcon />,
   [PrivateAnnouncementType.KYBER_AI]: <ApeIcon size={18} />,

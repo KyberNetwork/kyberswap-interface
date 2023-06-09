@@ -3,6 +3,7 @@ import React, { ReactNode } from 'react'
 import { CSSProperties } from 'styled-components'
 
 import InboxItemBridge from 'components/Announcement/PrivateAnnoucement/InboxItemBridge'
+import InboxItemCrossChain from 'components/Announcement/PrivateAnnoucement/InboxItemCrossChain'
 import InboxItemLO from 'components/Announcement/PrivateAnnoucement/InboxItemLO'
 import InboxItemPoolPosition from 'components/Announcement/PrivateAnnoucement/InboxItemPoolPosition'
 import InboxItemPriceAlert from 'components/Announcement/PrivateAnnoucement/InboxItemPriceAlert'
@@ -29,6 +30,7 @@ const ANNOUNCEMENT_MAP: PrivateAnnouncementMap = {
   [PrivateAnnouncementType.LIMIT_ORDER]: InboxItemLO,
   [PrivateAnnouncementType.KYBER_AI]: InboxItemTrendingSoon,
   [PrivateAnnouncementType.BRIDGE_ASSET]: InboxItemBridge,
+  [PrivateAnnouncementType.CROSS_CHAIN]: InboxItemCrossChain,
   [PrivateAnnouncementType.PRICE_ALERT]: InboxItemPriceAlert,
   [PrivateAnnouncementType.DIRECT_MESSAGE]: InboxItemPrivateMessage,
 } as PrivateAnnouncementMap
@@ -36,6 +38,7 @@ const ANNOUNCEMENT_MAP: PrivateAnnouncementMap = {
 export const PRIVATE_ANN_TITLE: Partial<{ [type in PrivateAnnouncementType]: string }> = {
   [PrivateAnnouncementType.ELASTIC_POOLS]: t`Liquidity Pool Alert`,
   [PrivateAnnouncementType.LIMIT_ORDER]: t`Limit Order`,
+  [PrivateAnnouncementType.CROSS_CHAIN]: t`Cross-Chain Swap`,
   [PrivateAnnouncementType.KYBER_AI]: t`Top Tokens by KyberAI`,
   [PrivateAnnouncementType.BRIDGE_ASSET]: t`Bridge Token`,
   [PrivateAnnouncementType.PRICE_ALERT]: t`Price Alert`,

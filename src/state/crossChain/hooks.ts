@@ -1,21 +1,30 @@
+import { RouteData } from '@0xsquid/sdk'
+import { ChainId, NativeCurrency } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { MultiChainTokenInfo } from 'pages/Bridge/type'
 import { AppDispatch, AppState } from 'state'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 import {
   BridgeStateParams,
   BridgeStatePoolParams,
+  CrossChainStateParams,
   resetBridgeState as resetBridgeStateAction,
+  selectCurrencyCrossChain,
+  selectDestChainCrossChain,
   setBridgePoolInfo as setBridgePoolInfoAction,
   setBridgeState,
+  setCrossChainState,
+  setInputAmountCrossChain,
+  setRoute,
 } from './actions'
-import { BridgeState } from './reducer'
+import { BridgeState, SwapCrossChainState } from './reducer'
 
 export function useBridgeState(): [BridgeState, (value: BridgeStateParams) => void] {
   const dispatch = useDispatch<AppDispatch>()
-  const bridge = useSelector((state: AppState) => state.bridge)
+  const bridge = useSelector((state: AppState) => state.crossChain.bridge)
   const setState = useCallback((data: BridgeStateParams) => dispatch(setBridgeState(data)), [dispatch])
   return [bridge, setState]
 }
@@ -78,4 +87,38 @@ export function useBridgeOutputValue(inputBridgeValue: string) {
   return useMemo(() => {
     return calcReceiveValueAndFee(inputBridgeValue, tokenInfoOut)
   }, [inputBridgeValue, tokenInfoOut])
+}
+
+export function useCrossChainState(): [SwapCrossChainState, (value: CrossChainStateParams) => void] {
+  const dispatch = useDispatch<AppDispatch>()
+  const crossChain = useSelector((state: AppState) => state.crossChain.crossChain)
+  const setState = useCallback((data: CrossChainStateParams) => dispatch(setCrossChainState(data)), [dispatch])
+  return [crossChain, setState]
+}
+
+export function useCrossChainHandlers() {
+  const dispatch = useDispatch<AppDispatch>()
+
+  const selectCurrencyIn = useCallback(
+    (currencyIn: NativeCurrency | WrappedTokenInfo) => {
+      dispatch(selectCurrencyCrossChain({ currencyIn }))
+    },
+    [dispatch],
+  )
+  const selectCurrencyOut = useCallback(
+    (currencyOut: NativeCurrency | WrappedTokenInfo) => {
+      dispatch(selectCurrencyCrossChain({ currencyOut }))
+    },
+    [dispatch],
+  )
+
+  const selectDestChain = useCallback(
+    (chainId: ChainId | undefined) => dispatch(selectDestChainCrossChain(chainId)),
+    [dispatch],
+  )
+
+  const setTradeRoute = useCallback((data: RouteData | undefined) => dispatch(setRoute(data)), [dispatch])
+  const setInputAmount = useCallback((data: string) => dispatch(setInputAmountCrossChain(data)), [dispatch])
+
+  return { selectDestChain, setTradeRoute, setInputAmount, selectCurrencyIn, selectCurrencyOut }
 }

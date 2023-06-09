@@ -19,6 +19,10 @@ const SEO = ({ title, description }: SEOProps) => {
   )
 }
 
+/**
+ * /swap/bnb/knc-to-usdt vs /swap/bnb/usdt-to-knc has same content
+ * => add canonical link that specify which is main page, => /swap/bnb/knc-to-usdt
+ */
 export const SEOSwap = ({ canonicalUrl }: { canonicalUrl: string }) => {
   if (!canonicalUrl) return null
   return (

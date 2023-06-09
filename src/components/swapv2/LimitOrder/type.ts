@@ -1,4 +1,4 @@
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, Fraction } from '@kyberswap/ks-sdk-core'
 
 export enum LimitOrderStatus {
   // status from BE
@@ -47,9 +47,10 @@ export type LimitOrder = {
 }
 
 export type RateInfo = {
-  rate: string
-  invertRate: string
+  rate: string // to store user input
+  invertRate: string // to store user input
   invert: boolean
+  rateFraction?: Fraction // to calc with big number
 }
 
 export type ListOrderHandle = {

@@ -562,6 +562,7 @@ const TokenRow = ({
             hideOnMobile
           >
             <StarWithAnimation
+              key={token.sourceTokenId}
               watched={isWatched}
               loading={loadingStar}
               onClick={handleWatchlistClick}

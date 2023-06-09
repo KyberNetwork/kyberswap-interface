@@ -162,7 +162,7 @@ export function tryParseAmount<T extends Currency>(
   } catch (error) {
     if (error.message.includes('fractional component exceeds decimals')) return undefined
     // should fail if the user specifies too many decimal places of precision (or maybe exceed max uint?)
-    console.debug(`Failed to parse input amount: "${value}"`, error)
+    console.debug(`Failed to parse input amount: "%s"`, value, error)
   }
   // necessary for all paths to return a value
   return undefined
