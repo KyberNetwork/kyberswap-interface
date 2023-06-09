@@ -4,7 +4,7 @@ import axios from 'axios'
 
 import { NETWORKS_INFO_CONFIG } from 'constants/networks'
 import { MultichainTransferStatus } from 'hooks/bridge/useGetBridgeTransfers'
-import { PoolBridgeValue } from 'state/bridge/reducer'
+import { PoolBridgeValue } from 'state/crossChain/reducer'
 import { formatNumberWithPrecisionRange, isAddress } from 'utils'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 
@@ -13,6 +13,7 @@ import { MultiChainTokenInfo } from './type'
 export const BridgeLocalStorageKeys = {
   BRIDGE_INFO: 'bridgeInfo',
   SHOWED_DISCLAIMED: 'showedDisclaimed',
+  SHOWED_DISCLAIMED_CROSS_CHAIN: 'showedDisclaimedCross',
   CHAINS_SUPPORTED: 'chainSupported',
   TOKEN_VERSION: 'tokenVer',
   TOKEN_LIST: 'bridgeTokenList',
@@ -179,7 +180,7 @@ export const formatAmountBridge = (rawAmount: string) => {
     return formatter.format(amount)
   }
 
-  return formatNumberWithPrecisionRange(amount, 0, 2)
+  return formatNumberWithPrecisionRange(amount, 0, 6)
 }
 
 export const getLabelByStatus = (status: MultichainTransferStatus): string => {

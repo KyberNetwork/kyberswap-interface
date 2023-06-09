@@ -30,9 +30,8 @@ import {
   useHolderListQuery,
   useLiveDexTradesQuery,
   useRemoveFromWatchlistMutation,
-  useTokenDetailQuery,
 } from 'pages/TrueSightV2/hooks/useKyberAIData'
-import { defaultExplorePageToken } from 'pages/TrueSightV2/pages/SingleToken'
+import useKyberAITokenOverview from 'pages/TrueSightV2/hooks/useKyberAITokenOverview'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import { IHolderList, IKyberScoreChart, ILiveTrade, ITokenList, KyberAITimeframe } from 'pages/TrueSightV2/types'
 import {
@@ -146,7 +145,7 @@ const LoadingHandleWrapper = ({
     <TableWrapper>
       <Table>
         {!hasData ? (
-          <tr>
+          <tr style={{ backgroundColor: 'unset' }}>
             <StyledLoadingWrapper style={height ? { height } : undefined}>
               {isLoading ? (
                 <AnimatedLoader />
@@ -169,10 +168,7 @@ export const Top10HoldersTable = () => {
   const theme = useTheme()
   const { chain, address } = useParams()
   const { data, isLoading } = useHolderListQuery({ address, chain })
-  const { data: tokenOverview } = useTokenDetailQuery({
-    chain,
-    address,
-  })
+  const { data: tokenOverview } = useKyberAITokenOverview()
   return (
     <LoadingHandleWrapper isLoading={isLoading} hasData={!!data && data.length > 0} height="400px">
       <colgroup>
@@ -459,15 +455,12 @@ export const LiveDEXTrades = () => {
   const { chain, address } = useParams()
   const { data, isLoading } = useLiveDexTradesQuery(
     {
-      chain: chain || defaultExplorePageToken.chain,
-      address: address || defaultExplorePageToken.address,
+      chain,
+      address,
     },
     { pollingInterval: 10000 },
   )
-  const { data: tokenOverview } = useTokenDetailQuery({
-    chain: chain || defaultExplorePageToken.chain,
-    address: address || defaultExplorePageToken.address,
-  })
+  const { data: tokenOverview } = useKyberAITokenOverview()
 
   return (
     <>
@@ -784,7 +777,7 @@ const WidgetTokenRow = ({
           </td>
           <td>
             <Column style={{ alignItems: 'center', width: '110px' }}>
-              <SmallKyberScoreMeter data={latestKyberScore} />
+              <SmallKyberScoreMeter data={latestKyberScore} disabledTooltip={token.symbol === 'KNC'} />
               <Text
                 color={calculateValueToColor(latestKyberScore?.kyber_score || 0, theme)}
                 fontSize="14px"
@@ -1047,11 +1040,7 @@ export const Top10HoldersShareModalTable = ({
   startIndex?: number
 }) => {
   const theme = useTheme()
-  const { chain, address } = useParams()
-  const { data: tokenOverview } = useTokenDetailQuery({
-    chain,
-    address,
-  })
+  const { data: tokenOverview } = useKyberAITokenOverview()
 
   return (
     <ShareTableWrapper style={{ flex: 1 }}>
@@ -1118,11 +1107,7 @@ export const LiveTradesInShareModalTable = ({
   mobileMode?: boolean
 }) => {
   const theme = useTheme()
-  const { chain, address } = useParams()
-  const { data: tokenOverview } = useTokenDetailQuery({
-    chain,
-    address,
-  })
+  const { data: tokenOverview } = useKyberAITokenOverview()
 
   return (
     <ShareTableWrapper style={{ flex: 1 }}>

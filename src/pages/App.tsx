@@ -245,6 +245,7 @@ export default function App() {
                     <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency-to-:toCurrency`} element={<SwapPage />} />
                     <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency`} element={<SwapPage />} />
                     <Route path={`${APP_PATHS.SWAP}/:network`} element={<SwapPage />} />
+                    <Route path={`${APP_PATHS.CROSS_CHAIN}`} element={<SwapV3 />} />
 
                     {getLimitOrderContract(chainId) && (
                       <>

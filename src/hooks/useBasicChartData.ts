@@ -84,11 +84,15 @@ const fetchKyberDataSWRWithHeader = async (url: string) => {
   return res.data
 }
 
-const fetchCoingeckoDataSWR = async (tokenAddresses: any, chainId: any, timeFrame: any): Promise<any> => {
+const fetchCoingeckoDataSWR = async ([tokenAddresses, chainIds, timeFrame]: [
+  tokenAddresses: string[],
+  chainIds: ChainId[],
+  timeFrame: any,
+]): Promise<any> => {
   return await Promise.all(
-    [tokenAddresses[0], tokenAddresses[1]].map(address =>
+    [tokenAddresses[0], tokenAddresses[1]].map((address, i) =>
       axios
-        .get(generateCoingeckoUrl(chainId, address, timeFrame), { timeout: 5000 })
+        .get(generateCoingeckoUrl(chainIds[i], address, timeFrame), { timeout: 5000 })
         .then(res => {
           if (res.status === 204) {
             throw new Error('No content')
@@ -102,8 +106,14 @@ const fetchCoingeckoDataSWR = async (tokenAddresses: any, chainId: any, timeFram
   )
 }
 
-export default function useBasicChartData(tokens: (Token | null | undefined)[], timeFrame: LiveDataTimeframeEnum) {
+type ChartData = { time: number; value: any }
+
+export default function useBasicChartData(
+  tokens: (Token | null | undefined)[],
+  timeFrame: LiveDataTimeframeEnum,
+): { data: ChartData[]; loading: boolean; error: any } {
   const { chainId, isEVM, networkInfo } = useActiveWeb3React()
+
   const isReverse = useMemo(() => {
     if (!tokens || !tokens[0] || !tokens[1] || tokens[0].equals(tokens[1]) || tokens[0].chainId !== tokens[1].chainId)
       return false
@@ -123,11 +133,17 @@ export default function useBasicChartData(tokens: (Token | null | undefined)[], 
     data: coingeckoData,
     error: coingeckoError,
     isValidating: coingeckoLoading,
-  } = useSWR(tokenAddresses[0] && tokenAddresses[1] && [tokenAddresses, chainId, timeFrame], fetchCoingeckoDataSWR, {
-    shouldRetryOnError: false,
-    revalidateOnFocus: false,
-    revalidateIfStale: false,
-  })
+  } = useSWR(
+    tokenAddresses[0] && tokenAddresses[1]
+      ? [tokenAddresses, [tokens[0]?.chainId, tokens[1]?.chainId], timeFrame]
+      : null,
+    fetchCoingeckoDataSWR,
+    {
+      shouldRetryOnError: false,
+      revalidateOnFocus: false,
+      revalidateIfStale: false,
+    },
+  )
 
   const {
     data: kyberData,
@@ -194,7 +210,7 @@ export default function useBasicChartData(tokens: (Token | null | undefined)[], 
   )
 
   const { data: liveCoingeckoData } = useSWR(
-    isKyberDataNotValid && coingeckoData ? [tokenAddresses, chainId, 'live'] : null,
+    isKyberDataNotValid && coingeckoData ? [tokenAddresses, [tokens[0]?.chainId, tokens[1]?.chainId], 'live'] : null,
     fetchCoingeckoDataSWR,
     {
       refreshInterval: 60000,

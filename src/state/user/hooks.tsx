@@ -3,9 +3,11 @@ import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useGetParticipantInfoQuery } from 'services/kyberAISubscription'
 
+import { ENV_LEVEL } from 'constants/env'
 import { TERM_FILES_PATH } from 'constants/index'
 import { SupportedLocale } from 'constants/locales'
 import { PINNED_PAIRS } from 'constants/tokens'
+import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import {
@@ -27,7 +29,9 @@ import {
   addSerializedPair,
   addSerializedToken,
   changeViewMode,
+  pinSlippageControl,
   removeSerializedToken,
+  setCrossChainSetting,
   toggleFavoriteToken as toggleFavoriteTokenAction,
   toggleHolidayMode,
   toggleKyberAIBanner,
@@ -45,7 +49,13 @@ import {
   updateUserLocale,
   updateUserSlippageTolerance,
 } from 'state/user/actions'
-import { VIEW_MODE, defaultShowLiveCharts, getFavoriteTokenDefault } from 'state/user/reducer'
+import {
+  CROSS_CHAIN_SETTING_DEFAULT,
+  CrossChainSetting,
+  VIEW_MODE,
+  defaultShowLiveCharts,
+  getFavoriteTokenDefault,
+} from 'state/user/reducer'
 import { isAddress, isChristmasTime } from 'utils'
 
 function serializeToken(token: Token | WrappedTokenInfo): SerializedToken {
@@ -444,6 +454,58 @@ export const useHolidayMode: () => [boolean, () => void] = () => {
   return [isChristmasTime() ? holidayMode : false, toggle]
 }
 
+export const useCrossChainSetting = () => {
+  const dispatch = useAppDispatch()
+  const setting = useAppSelector(state => state.user.crossChain) || CROSS_CHAIN_SETTING_DEFAULT
+  const setSetting = useCallback(
+    (data: CrossChainSetting) => {
+      dispatch(setCrossChainSetting(data))
+    },
+    [dispatch],
+  )
+  const setExpressExecutionMode = useCallback(
+    (enableExpressExecution: boolean) => {
+      setSetting({ ...setting, enableExpressExecution })
+    },
+    [setSetting, setting],
+  )
+
+  const setRawSlippage = useCallback(
+    (slippageTolerance: number) => {
+      setSetting({ ...setting, slippageTolerance })
+    },
+    [setSetting, setting],
+  )
+
+  const toggleSlippageControlPinned = useCallback(() => {
+    setSetting({ ...setting, isSlippageControlPinned: !setting.isSlippageControlPinned })
+  }, [setSetting, setting])
+
+  return { setting, setExpressExecutionMode, setRawSlippage, toggleSlippageControlPinned }
+}
+
+export const useSlippageSettingByPage = (isCrossChain = false) => {
+  const dispatch = useDispatch()
+  const isPinSlippageSwap = useAppSelector(state => state.user.isSlippageControlPinned)
+  const [rawSlippageSwap, setRawSlippageSwap] = useUserSlippageTolerance()
+  const togglePinSlippageSwap = () => {
+    dispatch(pinSlippageControl(!isSlippageControlPinned))
+  }
+
+  const {
+    setting: { slippageTolerance: rawSlippageSwapCrossChain, isSlippageControlPinned: isPinSlippageCrossChain },
+    setRawSlippage: setRawSlippageCrossChain,
+    toggleSlippageControlPinned: togglePinnedSlippageCrossChain,
+  } = useCrossChainSetting()
+
+  const isSlippageControlPinned = isCrossChain ? isPinSlippageCrossChain : isPinSlippageSwap
+  const rawSlippage = isCrossChain ? rawSlippageSwapCrossChain : rawSlippageSwap
+  const setRawSlippage = isCrossChain ? setRawSlippageCrossChain : setRawSlippageSwap
+  const togglePinSlippage = isCrossChain ? togglePinnedSlippageCrossChain : togglePinSlippageSwap
+
+  return { setRawSlippage, rawSlippage, isSlippageControlPinned, togglePinSlippage }
+}
+
 const participantDefault = { rankNo: 0, status: ParticipantStatus.UNKNOWN, referralCode: '', id: 0 }
 export const useGetParticipantKyberAIInfo = (): ParticipantInfo => {
   const { userInfo } = useSessionInfo()
@@ -465,6 +527,9 @@ export const useIsWhiteListKyberAI = () => {
   })
   const participantInfo = isError ? participantDefault : rawData
 
+  if (ENV_LEVEL === ENV_TYPE.LOCAL) {
+    return { loading: false, isWhiteList: true, isWaitList: true }
+  }
   return {
     loading: isFetching || pendingAuthentication,
     isWhiteList:
