@@ -1,4 +1,4 @@
-name: 'Cron Schedule'
+name: 'Cron Job Schedule'
 
 on:
   schedule:
