@@ -106,6 +106,7 @@ function InfoBox({ message, icon }: { message?: ReactNode; icon: ReactNode }) {
 }
 
 export default function LiquidityChartRangeInput({
+  poolAddress,
   currencyA,
   currencyB,
   feeAmount,
@@ -120,6 +121,7 @@ export default function LiquidityChartRangeInput({
   height,
   className,
 }: {
+  poolAddress?: string
   currencyA: Currency | undefined
   currencyB: Currency | undefined
   feeAmount?: FeeAmount
@@ -143,6 +145,7 @@ export default function LiquidityChartRangeInput({
   const isSorted = currencyA && currencyB && currencyA?.wrapped.sortsBefore(currencyB?.wrapped)
 
   const { isLoading, isUninitialized, isError, formattedData } = useDensityChartData({
+    poolAddress,
     currencyA,
     currencyB,
     feeAmount,

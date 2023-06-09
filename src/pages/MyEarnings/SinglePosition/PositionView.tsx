@@ -207,7 +207,7 @@ const PositionView: React.FC<CommonProps> = props => {
           flex: 1,
         }}
       >
-        <PriceRangeChart position={position} />
+        <PriceRangeChart position={position} poolAddress={positionEarning.pool.id} />
 
         <CollectFeesPanel
           feesEarnedTodayUSD={feesEarnedTodayUSD}
