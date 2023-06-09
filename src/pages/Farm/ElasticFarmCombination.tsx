@@ -75,6 +75,8 @@ export const ElasticFarmCombination: FC = () => {
     <>
       <FarmStepGuide version={showFarmStepGuide} onChangeVersion={setShowFarmStepGuide} />
       <ElasticFarms onShowStepGuide={() => setShowFarmStepGuide('v1')} />
+      {filteredFarmsV1.length && <div style={{ marginTop: '1rem' }} />}
+
       <ElasticFarmv2 onShowStepGuide={() => setShowFarmStepGuide('v2')} />
     </>
   )

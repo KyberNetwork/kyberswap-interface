@@ -20,12 +20,12 @@ const HorizontalScroll = ({
   backgroundColor?: string
   noShadow?: boolean
 }) => {
-  const scrollRef = useRef(null)
-  const contentRef: any = useRef(null)
-  const shadowRef: any = useRef(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const shadowRef = useRef<HTMLDivElement>(null)
 
   const handleShadow = useThrottle(() => {
-    if (noShadow) return
+    if (noShadow || !contentRef.current) return
     const element: any = scrollRef.current
     if (element?.scrollLeft > 0) {
       shadowRef.current?.classList.add('left-visible')

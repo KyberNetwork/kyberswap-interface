@@ -235,8 +235,8 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
               // => (farm.liquidity * qty0) equivalent to amount0 of position
               const position = new Position({
                 pool: p,
-                tickLower: +r.tickLower,
-                tickUpper: +r.tickUpper,
+                tickLower: +r.tickLower - (+r.tickLower % p.tickSpacing),
+                tickUpper: +r.tickUpper - (+r.tickUpper % p.tickSpacing),
                 liquidity: farm.liquidity,
               })
 
