@@ -114,7 +114,7 @@ export const APRTooltipContent = ({
         </Flex>
       )}
 
-      {!!farmV2APR && (
+      {!!farmV2APR && Number.isFinite(farmV2APR) && (
         <Flex
           sx={{
             flexDirection: 'column',

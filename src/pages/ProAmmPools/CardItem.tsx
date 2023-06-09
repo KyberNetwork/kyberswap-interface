@@ -205,8 +205,10 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
           {(maxFarmAPR + pool.apr).toFixed(2)}%
         </Text>
 
-        {isFarmingPool && <FarmTag version="v1" address={pool.address} />}
-        {isFarmV2 && <FarmTag version="v2" address={pool.address} />}
+        <Flex sx={{ gap: '4px' }}>
+          {isFarmingPool && <FarmTag version="v1" address={pool.address} />}
+          {isFarmV2 && <FarmTag version="v2" address={pool.address} />}
+        </Flex>
       </Flex>
 
       <Flex justifyContent="space-between" color={theme.subText} fontSize="12px" fontWeight="500" marginTop="1rem">
