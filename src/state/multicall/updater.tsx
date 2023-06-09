@@ -49,7 +49,10 @@ export async function fetchChunk(
       },
     )
 
-    resultsBlockNumber = res.blockNumber
+    // no longer uses res.blockNumber because:
+    // 1. res.blockNumber can be L1's block number in case this is zkSync
+    // 2. the function is called at a specific block (usage of blockTag)
+    resultsBlockNumber = minBlockNumber
     returnData = res.returnData.map((item: any) => item[1])
     // ;[resultsBlockNumber, returnData] = await multicallContract.aggregate(chunk.map(obj => [obj.address, obj.callData]))
   } catch (e) {
@@ -85,7 +88,7 @@ export async function fetchChunk(
   //   console.debug(`Fetched results for old block number: ${resultsBlockNumber.toString()} vs. ${minBlockNumber}`)
   //   throw new RetryableError('Fetched for old block number')
   // }
-  return { results: returnData, blockNumber: resultsBlockNumber.toNumber() }
+  return { results: returnData, blockNumber: resultsBlockNumber }
 }
 
 /**
