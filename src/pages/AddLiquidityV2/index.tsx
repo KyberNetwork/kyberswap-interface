@@ -219,7 +219,7 @@ export default function AddLiquidity() {
     !!farmV2 &&
     positions.some(pos => activeRanges.some(r => pos && pos.tickLower <= r.tickLower && pos.tickUpper >= r.tickUpper))
 
-  const farmPosWarning = isFarmAvailable && !canJoinFarm
+  const farmPosWarning = positions.every(Boolean) && isFarmAvailable && !canJoinFarm
 
   // TODO(viet-nv): remove
   console.log('Xin chào cô Đào Huyền bí: ', tickLower, tickUpper)
