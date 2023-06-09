@@ -1,4 +1,5 @@
 name: 'Cron Schedule'
+permissions: write-all
 
 on:
   pull_request:
