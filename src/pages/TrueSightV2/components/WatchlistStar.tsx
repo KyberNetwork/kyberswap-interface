@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { CSSProperties } from 'react'
 import { useTheme } from 'styled-components'
 
 export const StarWithAnimation = ({
@@ -7,12 +8,14 @@ export const StarWithAnimation = ({
   onClick,
   size,
   disabled,
+  wrapperStyle,
 }: {
   watched: boolean
   loading: boolean
   onClick?: (e: any) => void
   size?: number
   disabled?: boolean
+  wrapperStyle?: CSSProperties
 }) => {
   const theme = useTheme()
   const variants = {
@@ -25,13 +28,21 @@ export const StarWithAnimation = ({
       stroke: theme.primary,
     },
   }
+
   return (
     <motion.div
       initial={{ opacity: 1, scale: 1 }}
-      whileHover={{ scale: 1.07 }}
-      whileTap={{ scale: 0.8 }}
-      transition={{ scale: { type: 'spring', damping: 10, stiffness: 800, restDelta: 0.1 } }}
-      animate={disabled ? undefined : watched ? 'watched' : 'unWatched'}
+      whileTap={disabled ? undefined : { scale: 1 }}
+      whileHover={disabled ? undefined : { scale: 1.1 }}
+      transition={{ scale: { type: 'spring', damping: 10, stiffness: 800, restDelta: 0.2 } }}
+      style={{ ...wrapperStyle, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+      onClick={e => {
+        e.stopPropagation()
+        if (!disabled) {
+          onClick?.(e)
+        }
+      }}
+      animate={watched ? 'watched' : 'unWatched'}
     >
       <motion.svg
         width={size || '20'}
@@ -43,12 +54,6 @@ export const StarWithAnimation = ({
         strokeLinejoin="round"
         initial={{ opacity: 1, scale: 1 }}
         variants={variants}
-        onClick={e => {
-          e.stopPropagation()
-          if (!disabled) {
-            onClick?.(e)
-          }
-        }}
       >
         {loading ? (
           <motion.polygon

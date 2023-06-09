@@ -317,7 +317,7 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
           {/* Stop tradingview from rerender on isShowProChart change */}
           <div style={{ display: isShowProChart && !!poolAddress ? 'block' : 'none', height: '100%' }}>
             {commonPool && <TradingViewChart poolDetail={commonPool} isReverse={isReverse} label={label} />}
-            <Flex justifyContent="flex-end" sx={{ gap: '0.5rem' }}>
+            <Flex justifyContent="flex-end" sx={{ gap: '0.5rem', marginTop: '6px' }}>
               <Text color={theme.subText} fontSize="10px">
                 Powered by
               </Text>

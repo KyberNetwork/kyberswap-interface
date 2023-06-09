@@ -44,27 +44,23 @@ const KyberAITokenBanner = ({
   const token0 = currencyIn?.wrapped
   const token1 = currencyOut?.wrapped
 
-  const { data: tokenInputOverview, isFetching: fetching0 } = useTokenDetailQuery(
+  const { data: tokenInputOverview } = useTokenDetailQuery(
     { address: token0?.address, chain },
     { skip: !token0?.address || !account || !isWhiteList, refetchOnMountOrArgChange: true },
   )
 
-  const { data: tokenOutputOverview, isFetching: fetching1 } = useTokenDetailQuery(
+  const { data: tokenOutputOverview } = useTokenDetailQuery(
     { address: token1?.address, chain },
     { skip: !token1?.address || !account || !isWhiteList, refetchOnMountOrArgChange: true },
   )
 
-  const { data: tokenNativeOverview, isFetching: fetching2 } = useTokenDetailQuery(
+  const { data: tokenNativeOverview } = useTokenDetailQuery(
     { address: NativeCurrencies[chainId].wrapped.address, chain },
     { skip: !account || !isWhiteList, refetchOnMountOrArgChange: true },
   )
 
-  const isFetching = fetching0 || fetching1 || fetching2
-
   const token: { kyberScore?: number; label?: string; address?: string; logo?: string; symbol?: string } | undefined =
     useMemo(() => {
-      if (isFetching) return undefined
-
       if (staticMode) {
         return undefined
       }
@@ -76,7 +72,9 @@ const KyberAITokenBanner = ({
         : tokenNativeOverview?.kyberScore?.label
         ? tokenNativeOverview
         : undefined
-
+      if (!token) {
+        return undefined
+      }
       return {
         kyberScore: token?.kyberScore?.score,
         label: token?.kyberScore?.label,
@@ -84,9 +82,10 @@ const KyberAITokenBanner = ({
         logo: token?.logo,
         symbol: token?.symbol,
       }
-    }, [isFetching, tokenInputOverview, tokenOutputOverview, tokenNativeOverview, staticMode])
+    }, [tokenInputOverview, tokenOutputOverview, tokenNativeOverview, staticMode])
 
   if (!token && !staticMode) return null
+
   if (
     staticMode &&
     STABLE_COINS_ADDRESS[chainId].findIndex(
@@ -258,7 +257,6 @@ const KyberAITokenBanner = ({
 const Wrapper = styled.div`
   overflow: hidden;
   border-radius: 24px;
-  margin-bottom: 16px;
   cursor: pointer;
   :hover {
     filter: brightness(1.15);

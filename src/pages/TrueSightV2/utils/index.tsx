@@ -36,6 +36,8 @@ export const formatShortNum = (num: number, fixed = 1): string => {
     formattedNum = (+(absNum / 1000).toFixed(fixed)).toString() + 'K'
   } else if (absNum >= 1) {
     formattedNum = (+absNum.toFixed(fixed)).toString()
+  } else if (absNum > 0 && absNum <= 0.00001) {
+    return '0.00001'
   } else {
     formattedNum = (+absNum.toPrecision(fixed)).toString()
   }

@@ -292,20 +292,20 @@ const TokenNameGroup = ({ token, isLoading }: { token?: ITokenOverview; isLoadin
         text={isWatched ? t`Remove from watchlist` : reachedMaxLimit ? t`Reached 30 tokens limit` : t`Add to watchlist`}
         hideOnMobile
       >
-        <HeaderButton
-          style={{
+        <StarWithAnimation
+          watched={isWatched}
+          loading={loadingAddtoWatchlist || loadingRemovefromWatchlist}
+          size={16}
+          disabled={!isWatched && reachedMaxLimit}
+          onClick={handleStarClick}
+          wrapperStyle={{
             color: isWatched ? theme.primary : theme.subText,
-            backgroundColor: isWatched ? theme.primary + '33' : undefined,
+            backgroundColor: isWatched ? theme.primary + '33' : theme.darkMode ? theme.buttonGray : theme.background,
+            height: above768 ? '36px' : '32px',
+            width: above768 ? '36px' : '32px',
+            borderRadius: '100%',
           }}
-        >
-          <StarWithAnimation
-            watched={isWatched}
-            loading={loadingAddtoWatchlist || loadingRemovefromWatchlist}
-            size={16}
-            disabled={!isWatched && reachedMaxLimit}
-            onClick={handleStarClick}
-          />
-        </HeaderButton>
+        />
       </SimpleTooltip>
       <div style={{ position: 'relative' }}>
         <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
