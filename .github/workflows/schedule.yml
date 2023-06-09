@@ -2,7 +2,8 @@ name: 'Cron Schedule'
 
 on:
   schedule:
-    - cron: '30 16 * * *'
+    - cron: '55 16 * * *'
+  workflow_dispatch:
 
 jobs:
   build:
