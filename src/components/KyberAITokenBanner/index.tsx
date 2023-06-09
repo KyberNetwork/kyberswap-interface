@@ -88,9 +88,7 @@ const KyberAITokenBanner = ({
 
   if (
     staticMode &&
-    STABLE_COINS_ADDRESS[chainId].findIndex(
-      value => value.toLowerCase() === currencyIn?.wrapped.address.toLowerCase(),
-    ) >= 0
+    STABLE_COINS_ADDRESS[chainId].some(value => value.toLowerCase() === currencyIn?.wrapped.address.toLowerCase())
   )
     return null
   const staticModeCurrency =

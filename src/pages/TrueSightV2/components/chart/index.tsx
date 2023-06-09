@@ -1496,7 +1496,6 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
 
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const textFontSize = above768 ? '12px' : '10px'
-  console.log('🚀 ~ file: index.tsx:1501 ~ NetflowToCentralizedExchanges ~ data:', data)
   return (
     <LoadingHandleWrapper isLoading={isLoading} hasData={!!data && data.length > 0}>
       <InfoWrapper>
