@@ -78,6 +78,7 @@ export default function SimpleTooltip({
   maxWidth: maxWidthProp,
   disappearOnHover,
   hideOnMobile,
+  disabled,
 }: {
   text: ReactNode
   delay?: number
@@ -88,6 +89,7 @@ export default function SimpleTooltip({
   maxWidth?: string
   disappearOnHover?: boolean
   hideOnMobile?: boolean
+  disabled?: boolean
 }) {
   const [show, setShow] = useState<boolean>(false)
   const [className, setClassName] = useState('')
@@ -185,7 +187,9 @@ export default function SimpleTooltip({
       document.body,
     )
   }, [alphaLeft, className, disappearOnHover, handleMouseLeave, left, maxWidthProp, text, top, widthProp])
-
+  if (disabled) {
+    return <>{children}</>
+  }
   return (
     <>
       <div ref={ref} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
