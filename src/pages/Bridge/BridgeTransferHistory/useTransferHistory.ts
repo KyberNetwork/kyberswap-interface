@@ -1,19 +1,16 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useMemo, useState } from 'react'
+import { useGetListBridgeTxsQuery } from 'services/crossChain'
 
-import { BFF_API } from 'constants/env'
-import useGetBridgeTransfers from 'hooks/bridge/useGetBridgeTransfers'
 import { ITEMS_PER_PAGE } from 'pages/Bridge/consts'
-import { setHistoryURL } from 'state/crossChain/actions'
 
 const useTransferHistory = (account: string) => {
-  const dispatch = useDispatch()
   const [page, setPage] = useState(1)
 
-  const swrKey = account
-    ? `${BFF_API}/v1/multichain-transfers?walletAddress=${account}&page=${page}&pageSize=${ITEMS_PER_PAGE}`
-    : ''
-  const { data, isValidating, error } = useGetBridgeTransfers(swrKey)
+  const {
+    data,
+    isFetching: isValidating,
+    error,
+  } = useGetListBridgeTxsQuery({ walletAddress: account ?? '', page }, { skip: !account })
 
   const transfers = useMemo(() => {
     if (data) return data.data.transfers
@@ -44,10 +41,6 @@ const useTransferHistory = (account: string) => {
     () => [ITEMS_PER_PAGE * (page - 1) + 1, ITEMS_PER_PAGE * (page - 1) + Math.min(ITEMS_PER_PAGE, transfers.length)],
     [page, transfers.length],
   )
-
-  useEffect(() => {
-    dispatch(setHistoryURL(swrKey))
-  }, [dispatch, swrKey])
 
   return {
     range,
