@@ -14,7 +14,6 @@ import {
   setBridgePoolInfo,
   setBridgeState,
   setCrossChainState,
-  setHistoryURL,
   setInputAmountCrossChain,
   setRoute,
 } from './actions'
@@ -48,8 +47,6 @@ export type BridgeState = {
   loadingToken: boolean
 
   poolValueOutMap: PoolValueOutMap
-
-  historyURL: string
 }
 interface CrossChainState {
   bridge: BridgeState
@@ -76,7 +73,6 @@ const DEFAULT_STATE: CrossChainState = {
     loadingToken: true,
 
     poolValueOutMap: {},
-    historyURL: '',
   },
 
   crossChain: {
@@ -124,9 +120,6 @@ export default createReducer(DEFAULT_STATE, builder =>
       state.bridge.chainIdOut = undefined
       state.bridge.listTokenIn = []
       state.bridge.listTokenOut = []
-    })
-    .addCase(setHistoryURL, (state, action) => {
-      state.bridge.historyURL = action.payload
     })
     // for swap cross chain below
     .addCase(setCrossChainState, (state, { payload: { chains, tokens, loadingToken, squidInstance } }) => {

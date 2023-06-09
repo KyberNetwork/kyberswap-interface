@@ -71,12 +71,12 @@ function StatusIcon({
           isPending = cancellingOrdersIds.includes(orderId) || cancellingOrdersNonces.length > 0
           break
         case TRANSACTION_TYPE.BRIDGE: {
-          const { data: response } = await axios.get(`${BFF_API}/v1/multichain-transfers/${hash}`)
+          const { data: response } = await axios.get(`${BFF_API}/v1/cross-chain-history/multichain-transfers/${hash}`)
           isPending = response?.data?.status === MultichainTransferStatus.Processing
           break
         }
         case TRANSACTION_TYPE.CROSS_CHAIN_SWAP: {
-          const { data: response } = await axios.get(`${BFF_API}/v1/squid-transfers/${hash}`)
+          const { data: response } = await axios.get(`${BFF_API}/v1/cross-chain-history/squid-transfers/${hash}`)
           isPending = isCrossChainTxsPending(response?.data?.status)
           break
         }

@@ -18,7 +18,7 @@ const crossChainApi = createApi({
   reducerPath: 'crossChainApi',
   tagTypes: [RTK_QUERY_TAGS.GET_CROSS_CHAIN_HISTORY],
   baseQuery: fetchBaseQuery({
-    baseUrl: `${BFF_API}/v1`,
+    baseUrl: `${BFF_API}/v1/cross-chain-history`,
   }),
 
   endpoints: builder => ({
@@ -41,9 +41,28 @@ const crossChainApi = createApi({
       }),
       invalidatesTags: [RTK_QUERY_TAGS.GET_CROSS_CHAIN_HISTORY],
     }),
+    getListBridgeTxs: builder.query<any, { walletAddress: string; page: number }>({
+      query: ({ walletAddress, page }) => ({
+        url: '/multichain-transfers',
+        params: {
+          page,
+          pageSize: 10,
+          walletAddress,
+        },
+      }),
+      providesTags: [RTK_QUERY_TAGS.GET_BRIDGE_HISTORY],
+    }),
+    saveBridgeTxs: builder.mutation<CrossChainPayload, any>({
+      query: body => ({
+        url: `/multichain-transfers`,
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: [RTK_QUERY_TAGS.GET_BRIDGE_HISTORY],
+    }),
   }),
 })
 
-export const { useSaveCrossChainTxsMutation, useGetListCrossChainTxsQuery } = crossChainApi
+export const { useSaveCrossChainTxsMutation, useGetListCrossChainTxsQuery, useGetListBridgeTxsQuery } = crossChainApi
 
 export default crossChainApi
