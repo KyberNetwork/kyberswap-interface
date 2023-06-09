@@ -1,10 +1,8 @@
 name: 'Cron Schedule'
-permissions: write-all
 
 on:
-  pull_request:
   schedule:
-    - cron: '*/25 * * * *'
+    - cron: '30 16 * * *'
 
 jobs:
   build:
