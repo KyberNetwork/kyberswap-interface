@@ -22,6 +22,9 @@ export type TransactionExtraInfo2Token = {
   tokenAmountIn: string
   tokenAmountOut: string
 
+  tokenLogoURLIn?: string
+  tokenLogoURLOut?: string
+  rate?: string
   contract?: string // recipient, contract, spender, ...
   chainIdIn?: ChainId
   chainIdOut?: ChainId
@@ -119,6 +122,7 @@ export enum TRANSACTION_TYPE {
   UNWRAP_TOKEN = 'Unwrap Token',
   APPROVE = 'Approve',
   BRIDGE = 'Bridge Token',
+  CROSS_CHAIN_SWAP = 'Cross-Chain Swap',
   SWAP = 'Swap',
 
   CLASSIC_CREATE_POOL = 'Classic Create Pool',
@@ -158,6 +162,7 @@ export const GROUP_TRANSACTION_BY_TYPE = {
     TRANSACTION_TYPE.WRAP_TOKEN,
     TRANSACTION_TYPE.UNWRAP_TOKEN,
     TRANSACTION_TYPE.SETUP_SOLANA_SWAP,
+    TRANSACTION_TYPE.CROSS_CHAIN_SWAP,
   ],
   LIQUIDITY: [
     TRANSACTION_TYPE.CLASSIC_ADD_LIQUIDITY,

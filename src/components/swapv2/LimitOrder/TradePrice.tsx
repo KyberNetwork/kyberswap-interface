@@ -4,10 +4,10 @@ import { Repeat } from 'react-feather'
 import { Text } from 'rebass'
 
 import Dots from 'components/Dots'
+import { removeTrailingZero } from 'components/swapv2/LimitOrder/helpers'
 import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 import useTheme from 'hooks/useTheme'
-import { toFixed } from 'utils/numbers'
 
 interface TradePriceProps {
   price: BaseTradeInfo | undefined
@@ -36,8 +36,8 @@ export default function TradePrice({
   try {
     if (price) {
       formattedPrice = showInverted
-        ? toFixed(parseFloat(price?.invertRate.toPrecision(6)))
-        : toFixed(parseFloat(price?.marketRate.toPrecision(6)))
+        ? removeTrailingZero(price?.invertRate.toPrecision(6))
+        : removeTrailingZero(price?.marketRate.toPrecision(6))
     }
   } catch (error) {}
 

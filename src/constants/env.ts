@@ -13,6 +13,7 @@ const required = (envKey: string): string => {
 
 export const GOOGLE_RECAPTCHA_KEY = required('GOOGLE_RECAPTCHA_KEY')
 export const PRICE_API = required('PRICE_API')
+export const DEFAULT_AGGREGATOR_API = required('DEFAULT_AGGREGATOR_API')
 export const AGGREGATOR_API = required('AGGREGATOR_API')
 export const SENTRY_DNS = required('SENTRY_DNS')
 export const REWARD_SERVICE_API = required('REWARD_SERVICE_API')
@@ -45,6 +46,7 @@ export const LIMIT_ORDER_API_WRITE = required('LIMIT_ORDER_API_WRITE')
 export const KYBER_DAO_STATS_API = required('KYBER_DAO_STATS_API')
 
 export const PRICE_ALERT_API = required('PRICE_ALERT_API')
+
 export const OAUTH_CLIENT_ID = required('OAUTH_CLIENT_ID')
 export const BFF_API = required('BFF_API')
 export const KYBER_AI_REFERRAL_ID = required('KYBER_AI_REFERRAL_ID')
@@ -115,6 +117,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key: string]: { [type: string]: string } } =
     [PrivateAnnouncementType.PRICE_ALERT]: '44,45',
     [PrivateAnnouncementType.LIMIT_ORDER]: '8,9,10,11,33,34,35,36',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '37,38',
+    [PrivateAnnouncementType.CROSS_CHAIN]: '48,49',
     [PrivateAnnouncementType.KYBER_AI]: '46',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '39,40',
     EXCLUDE: '2,29,1,47,50',
@@ -123,6 +126,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key: string]: { [type: string]: string } } =
     [PrivateAnnouncementType.PRICE_ALERT]: '22,23',
     [PrivateAnnouncementType.LIMIT_ORDER]: '14,15,16,17',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '12,13',
+    [PrivateAnnouncementType.CROSS_CHAIN]: '25,26',
     [PrivateAnnouncementType.KYBER_AI]: '27',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '20,21',
     EXCLUDE: '2,11,1,28,29',
@@ -131,6 +135,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key: string]: { [type: string]: string } } =
     [PrivateAnnouncementType.PRICE_ALERT]: '21,22',
     [PrivateAnnouncementType.LIMIT_ORDER]: '12,13,14,15',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '10,11',
+    [PrivateAnnouncementType.CROSS_CHAIN]: '27,28',
     [PrivateAnnouncementType.KYBER_AI]: '26',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '17,18',
     EXCLUDE: '2,16,19,9,25,24',
@@ -146,3 +151,9 @@ export const getAnnouncementsTemplateIds = (type: PrivateAnnouncementType | 'EXC
 const mock = localStorage.getItem('mock')?.split(',') ?? []
 export const MOCK_ACCOUNT_EVM = mock[0] ?? ''
 export const MOCK_ACCOUNT_SOLANA = mock[1] ?? ''
+
+const isSupportTestNet = ENV_LEVEL < ENV_TYPE.PROD && new URLSearchParams(window.location.search).get('test')
+export const CROSS_CHAIN_CONFIG = {
+  AXELAR_SCAN_URL: isSupportTestNet ? 'https://testnet.axelarscan.io/gmp/' : 'https://axelarscan.io/gmp/',
+  API_DOMAIN: isSupportTestNet ? 'https://testnet.api.0xsquid.com' : 'https://api.0xsquid.com',
+}

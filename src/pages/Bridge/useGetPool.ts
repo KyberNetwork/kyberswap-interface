@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 
 import { useActiveWeb3React } from 'hooks'
 import { useMultichainPool } from 'hooks/bridge'
-import { useBridgeState } from 'state/bridge/hooks'
+import { useBridgeState } from 'state/crossChain/hooks'
 
 const useGetPool = () => {
   const { chainId } = useActiveWeb3React()

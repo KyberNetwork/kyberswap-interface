@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components'
 
-import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { ButtonLight, ButtonPrimary } from 'components/Button'
 import Input from 'components/NumericalInput'
 import Select from 'components/Select'
 
@@ -107,9 +107,6 @@ const shareStyleBtn = css`
 `}
 `
 
-export const ButtonCancel = styled(ButtonOutlined)`
-  ${shareStyleBtn}
-`
 export const ButtonSubmit = styled(ButtonPrimary)`
   ${shareStyleBtn}
   display: flex;

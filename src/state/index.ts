@@ -10,6 +10,7 @@ import { ENV_TYPE } from 'constants/type'
 import kyberAIApi from 'pages/TrueSightV2/hooks/useKyberAIData'
 
 import annoucementApi from '../services/announcement'
+import crosschainApi from '../services/crossChain'
 import earningApi from '../services/earning'
 import geckoTerminalApi from '../services/geckoTermial'
 import identifyApi from '../services/identity'
@@ -18,10 +19,10 @@ import notificationApi from '../services/notification'
 import socialApi from '../services/social'
 import application from './application/reducer'
 import authen from './authen/reducer'
-import bridge from './bridge/reducer'
 import burnProAmm from './burn/proamm/reducer'
 import burn from './burn/reducer'
 import campaigns from './campaigns/reducer'
+import crossChain from './crossChain/reducer'
 import customizeDexes from './customizeDexes'
 import farms from './farms/classic/reducer'
 import elasticFarm from './farms/elastic'
@@ -74,12 +75,13 @@ const store = configureStore({
     [identifyApi.reducerPath]: identifyApi.reducer,
     [notificationApi.reducerPath]: notificationApi.reducer,
     [ksSettingApi.reducerPath]: ksSettingApi.reducer,
+    [crosschainApi.reducerPath]: crosschainApi.reducer,
     [priceAlertApi.reducerPath]: priceAlertApi.reducer,
     [socialApi.reducerPath]: socialApi.reducer,
     campaigns,
     tutorial,
-    bridge,
     myEarnings,
+    crossChain,
     customizeDexes,
     elasticFarm,
     elasticFarmV2,
@@ -100,6 +102,7 @@ const store = configureStore({
       .concat(notificationApi.middleware)
       .concat(ksSettingApi.middleware)
       .concat(socialApi.middleware)
+      .concat(crosschainApi.middleware)
       .concat(annoucementApi.middleware)
       .concat(priceAlertApi.middleware)
       .concat(routeApi.middleware)

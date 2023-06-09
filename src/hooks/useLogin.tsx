@@ -7,7 +7,7 @@ import { ENV_KEY, OAUTH_CLIENT_ID } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useIsConnectedWallet } from 'hooks/useSyncNetworkParamWithStore'
-import { useSaveUserProfile, useSessionInfo, useSetPendingAuthentication } from 'state/authen/hooks'
+import { useSaveUserProfile, useSetPendingAuthentication } from 'state/authen/hooks'
 
 KyberOauth2.initialize({
   clientId: OAUTH_CLIENT_ID,
@@ -27,8 +27,6 @@ const useLogin = () => {
 
   const requestingSession = useRef<string>() // which wallet requesting
   const requestingSessionAnonymous = useRef(false)
-
-  const { anonymousUserInfo } = useSessionInfo()
 
   const setLoading = useSetPendingAuthentication()
 
@@ -56,10 +54,6 @@ const useLogin = () => {
   const signInAnonymous = useCallback(
     async (walletAddress: string | undefined) => {
       if (requestingSessionAnonymous.current) return
-      if (anonymousUserInfo) {
-        setProfile({ profile: anonymousUserInfo, isAnonymous: true }) // trigger reset account sign in
-        return
-      }
       try {
         requestingSessionAnonymous.current = true
         await KyberOauth2.loginAnonymous()
@@ -71,7 +65,7 @@ const useLogin = () => {
         getProfile(walletAddress, true)
       }
     },
-    [anonymousUserInfo, setProfile, setLoading, getProfile],
+    [setLoading, getProfile],
   )
 
   const signIn = useCallback(
@@ -94,9 +88,17 @@ const useLogin = () => {
     [setLoading, signInAnonymous, getProfile],
   )
 
+  const latestAccount = useRef<string | false | null>('')
   useEffect(() => {
     isConnectedWallet().then(wallet => {
-      if (wallet === null) return // pending
+      if (wallet === null || latestAccount.current === wallet) {
+        return // pending or not change
+      }
+      if (latestAccount.current && !wallet) {
+        // disconnect
+        requestingSession.current = undefined
+      }
+      latestAccount.current = wallet
       signIn(typeof wallet === 'string' ? wallet : undefined)
     })
   }, [account, signIn, isConnectedWallet])
