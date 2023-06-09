@@ -7,6 +7,26 @@ type ErrorBoundaryState = {
   error: Error | null
 }
 
+// use this component if you don't want to crash app (ex: is third party error)
+export class ErrorBoundaryV2 extends React.Component<PropsWithChildren<unknown>, ErrorBoundaryState> {
+  constructor(props: PropsWithChildren<unknown>) {
+    super(props)
+    this.state = { error: null }
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { error }
+  }
+
+  componentDidCatch(error: Error) {
+    console.log('error local component', error.name)
+  }
+
+  render() {
+    return this.props.children
+  }
+}
+
 export default class ErrorBoundary extends React.Component<PropsWithChildren<unknown>, ErrorBoundaryState> {
   constructor(props: PropsWithChildren<unknown>) {
     super(props)
