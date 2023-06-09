@@ -4,7 +4,7 @@ import axios from 'axios'
 import { useCallback, useMemo } from 'react'
 import { mutate } from 'swr'
 
-import { KS_SETTING_API } from 'constants/env'
+import { BFF_API } from 'constants/env'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useBridgeContract, useSwapETHContract } from 'hooks/useContract'
@@ -56,7 +56,7 @@ function useSendTxToKsSettingCallback() {
       srcAmount: string,
       dstAmount: string,
     ) => {
-      const url = `${KS_SETTING_API}/v1/multichain-transfers`
+      const url = `${BFF_API}/v1/multichain-transfers`
       const body = {
         walletAddress: account,
         srcChainId: srcChainId.toString(),
