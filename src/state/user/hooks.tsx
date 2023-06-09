@@ -3,9 +3,11 @@ import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useGetParticipantInfoQuery } from 'services/kyberAISubscription'
 
+import { ENV_LEVEL } from 'constants/env'
 import { TERM_FILES_PATH } from 'constants/index'
 import { SupportedLocale } from 'constants/locales'
 import { PINNED_PAIRS } from 'constants/tokens'
+import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import {
@@ -525,6 +527,9 @@ export const useIsWhiteListKyberAI = () => {
   })
   const participantInfo = isError ? participantDefault : rawData
 
+  if (ENV_LEVEL === ENV_TYPE.LOCAL) {
+    return { loading: false, isWhiteList: true, isWaitList: true }
+  }
   return {
     loading: isFetching || pendingAuthentication,
     isWhiteList:

@@ -501,7 +501,7 @@ export default function KyberAILandingPage() {
           <iframe
             width="315"
             height="560"
-            src="https://www.youtube.com/embed/ZKJuZQqWsHs"
+            src="https://www.youtube.com/embed/ZKJuZQqWsHs?rel=0&controls=0"
             title="Meet KyberAI | Now In Beta | KyberSwap"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
@@ -762,9 +762,9 @@ export default function KyberAILandingPage() {
               <Trans>
                 <p>
                   With advanced machine learning algorithms to help you stay ahead of the curve, KyberAI gives you the
-                  AI/ML edge by analyzing thousands of{' '}
-                  <span style={{ color: theme.text }}>analyze thousands of tokens and billions of data points</span>,
-                  putting you ahead of the curve.{' '}
+                  AI/ML edge by analyzing{' '}
+                  <span style={{ color: theme.text }}>thousands of tokens and billions of data points</span>, putting
+                  you ahead of the curve.{' '}
                 </p>
                 <p>
                   Whether you&apos;re a seasoned retail trader, just starting out or somewhere in between,{' '}
