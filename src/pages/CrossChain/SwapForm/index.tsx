@@ -342,7 +342,7 @@ export default function SwapForm() {
 
         {!!priceImpact && <PriceImpactNote priceImpact={Number(priceImpact)} isDegenMode={isDegenMode} />}
 
-        {inputError?.state && (
+        {inputError?.state && !gettingRoute && (
           <ErrorWarningPanel title={inputError?.tip} type={inputError?.state} desc={inputError?.desc} />
         )}
 
