@@ -1,9 +1,11 @@
 import { Interface } from '@ethersproject/abi'
 import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
-import { FeeAmount, Pool } from '@kyberswap/ks-sdk-elastic'
+import { FeeAmount, Pool, computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import ProAmmPoolStateABI from 'constants/abis/v2/ProAmmPoolState.json'
+import { NETWORKS_INFO, isEVM as isEVMNetwork } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { useMulticallContract } from 'hooks/useContract'
 import { PoolState } from 'hooks/usePools'
 
@@ -130,14 +132,17 @@ const useGetPool = (
 
 export function usePoolv2(
   chainId: ChainId,
-  poolAddress: string,
   currencyA: Currency | undefined,
   currencyB: Currency | undefined,
   feeAmount: FeeAmount | undefined,
 ): {
   poolState: PoolState
   pool: Pool | undefined
+  poolAddress: string | undefined
 } {
+  const isEVM = isEVMNetwork(chainId)
+  const networkInfo = NETWORKS_INFO[chainId]
+
   const values: [Token, Token, FeeAmount] | undefined = useMemo(() => {
     if (!currencyA || !currencyB || !feeAmount) {
       return undefined
@@ -153,12 +158,30 @@ export function usePoolv2(
     return [token0, token1, feeAmount]
   }, [currencyA, currencyB, feeAmount])
 
+  const poolAddress: string | undefined = useMemo(() => {
+    if (!isEVM || !values) {
+      return undefined
+    }
+
+    const proAmmCoreFactoryAddress = (networkInfo as EVMNetworkInfo).elastic.coreFactory
+    const param = {
+      factoryAddress: proAmmCoreFactoryAddress,
+      tokenA: values[0],
+      tokenB: values[1],
+      fee: values[2],
+      initCodeHashManualOverride: (networkInfo as EVMNetworkInfo).elastic.initCodeHash,
+    }
+
+    return computePoolAddress(param)
+  }, [isEVM, networkInfo, values])
+
   const [poolState, pool] = useGetPool(chainId, poolAddress, values?.[0], values?.[1], values?.[2])
 
   return useMemo(() => {
     return {
       poolState,
       pool,
+      poolAddress,
     }
-  }, [pool, poolState])
+  }, [pool, poolAddress, poolState])
 }
