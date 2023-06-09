@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Flex, Text } from 'rebass'
@@ -9,12 +10,10 @@ import CurrencyListBridge from 'components/SearchModal/bridge/CurrencyListBridge
 import { useTokenComparator } from 'components/SearchModal/sorting'
 import { PaddedColumn, SearchIcon, SearchInput, SearchWrapper, Separator } from 'components/SearchModal/styleds'
 import { Z_INDEXS } from 'constants/styles'
-import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import useToggle from 'hooks/useToggle'
-import { useBridgeState } from 'state/bridge/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { CloseIcon, ExternalLink } from 'theme'
 import { isAddress } from 'utils'
@@ -25,6 +24,9 @@ interface CurrencySearchBridgeProps {
   onDismiss: () => void
   isOutput?: boolean
   onCurrencySelect: (currency: WrappedTokenInfo) => void
+  tokens: WrappedTokenInfo[]
+  currency: WrappedTokenInfo | undefined
+  chainId: ChainId | undefined
 }
 
 export default function CurrencySearchBridge({
@@ -32,25 +34,24 @@ export default function CurrencySearchBridge({
   onCurrencySelect,
   onDismiss,
   isOpen,
+  tokens: fetchedTokens,
+  currency,
+  chainId,
 }: CurrencySearchBridgeProps) {
   const theme = useTheme()
-  const { chainId } = useActiveWeb3React()
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedQuery = useDebounce(searchQuery, 200)
 
-  const [{ listTokenIn, listTokenOut }] = useBridgeState()
+  const tokenComparator = useTokenComparator(false, chainId)
 
-  const fetchedTokens = isOutput ? listTokenOut : listTokenIn
-  const tokenComparator = useTokenComparator(false)
-
-  const isAddressSearch = isAddress(chainId, debouncedQuery)
+  const isAddressSearch = chainId ? isAddress(chainId, debouncedQuery) : false
 
   const filteredTokens: WrappedTokenInfo[] = useMemo(() => {
     if (isAddressSearch) {
       const find = fetchedTokens.find(e => e?.address?.toLowerCase() === debouncedQuery.toLowerCase())
       return find ? [find] : []
     }
-    return filterTokens(chainId, fetchedTokens, debouncedQuery)
+    return chainId ? filterTokens(chainId, fetchedTokens, debouncedQuery) : []
   }, [isAddressSearch, chainId, fetchedTokens, debouncedQuery])
 
   const visibleCurrencies: WrappedTokenInfo[] = useMemo(() => {
@@ -91,7 +92,7 @@ export default function CurrencySearchBridge({
   const handleInput = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       const input = event.target.value
-      const checksumInput = isAddress(chainId, input)
+      const checksumInput = chainId ? isAddress(chainId, input) : ''
       setSearchQuery(checksumInput || input)
       if (listTokenRef?.current) listTokenRef.current.scrollTop = 0
     },
@@ -173,10 +174,12 @@ export default function CurrencySearchBridge({
 
       {visibleCurrencies?.length ? (
         <CurrencyListBridge
+          chainId={chainId}
           listTokenRef={listTokenRef}
           isOutput={isOutput}
           currencies={visibleCurrencies}
           onCurrencySelect={handleCurrencySelect}
+          currency={currency}
         />
       ) : (
         <NoResult

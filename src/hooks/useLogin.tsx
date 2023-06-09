@@ -7,7 +7,7 @@ import { ENV_KEY, OAUTH_CLIENT_ID } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useIsConnectedWallet } from 'hooks/useSyncNetworkParamWithStore'
-import { useSaveUserProfile, useSessionInfo, useSetPendingAuthentication } from 'state/authen/hooks'
+import { useSaveUserProfile, useSetPendingAuthentication } from 'state/authen/hooks'
 
 KyberOauth2.initialize({
   clientId: OAUTH_CLIENT_ID,
@@ -25,10 +25,8 @@ const useLogin = () => {
   const [createProfile] = useGetOrCreateProfileMutation()
   const [connectWalletToProfile] = useConnectWalletToProfileMutation()
 
-  const requestingSession = useRef(false)
+  const requestingSession = useRef<string>() // which wallet requesting
   const requestingSessionAnonymous = useRef(false)
-
-  const { anonymousUserInfo } = useSessionInfo()
 
   const setLoading = useSetPendingAuthentication()
 
@@ -56,10 +54,6 @@ const useLogin = () => {
   const signInAnonymous = useCallback(
     async (walletAddress: string | undefined) => {
       if (requestingSessionAnonymous.current) return
-      if (anonymousUserInfo) {
-        setProfile({ profile: anonymousUserInfo, isAnonymous: true }) // trigger reset account sign in
-        return
-      }
       try {
         requestingSessionAnonymous.current = true
         await KyberOauth2.loginAnonymous()
@@ -71,34 +65,41 @@ const useLogin = () => {
         getProfile(walletAddress, true)
       }
     },
-    [anonymousUserInfo, setProfile, setLoading, getProfile],
+    [setLoading, getProfile],
   )
 
   const signIn = useCallback(
     async (walletAddress: string | undefined) => {
-      if (requestingSession.current) return
       try {
         if (!walletAddress) {
           throw new Error('Not found address.')
         }
-        requestingSession.current = true
-        await KyberOauth2.getSession({ method: LoginMethod.ETH, walletAddress })
-        await getProfile(walletAddress)
-        setLoading(false)
+        if (requestingSession.current !== walletAddress) {
+          requestingSession.current = walletAddress
+          await KyberOauth2.getSession({ method: LoginMethod.ETH, walletAddress })
+          await getProfile(walletAddress)
+          setLoading(false)
+        }
       } catch (error) {
         console.log('get session:', walletAddress, error.message)
         signInAnonymous(walletAddress)
-      } finally {
-        requestingSession.current = false
       }
     },
     [setLoading, signInAnonymous, getProfile],
   )
 
+  const latestAccount = useRef<string | false | null>('')
   useEffect(() => {
     isConnectedWallet().then(wallet => {
-      if (wallet === null) return // pending
-      signIn(typeof wallet === 'string' ? wallet : account || undefined)
+      if (wallet === null || latestAccount.current === wallet) {
+        return // pending or not change
+      }
+      if (latestAccount.current && !wallet) {
+        // disconnect
+        requestingSession.current = undefined
+      }
+      latestAccount.current = wallet
+      signIn(typeof wallet === 'string' ? wallet : undefined)
     })
   }, [account, signIn, isConnectedWallet])
 }

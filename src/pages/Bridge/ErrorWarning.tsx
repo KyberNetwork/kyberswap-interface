@@ -47,7 +47,7 @@ const ErrorWarningPanel = ({
       }
       style={{ background: rgba(color, 0.25), ...style }}
       header={
-        <Flex color={color} alignItems="center" sx={{ gap: 8 }}>
+        <Flex color={color} alignItems="center" sx={{ gap: '8px' }}>
           <div>
             <AlertTriangle size={16} style={{ minWidth: 16 }} />
           </div>
@@ -57,7 +57,7 @@ const ErrorWarningPanel = ({
         </Flex>
       }
     >
-      {desc && <div style={{ marginLeft: 22 }}>{desc}</div>}
+      {desc && <div style={{ marginLeft: 22, fontSize: 12 }}>{desc}</div>}
     </CollapseItem>
   )
 }

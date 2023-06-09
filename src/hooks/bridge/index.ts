@@ -1,6 +1,6 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import ERC20_INTERFACE from 'constants/abis/erc20'
 import { NativeCurrencies } from 'constants/tokens'
@@ -58,11 +58,17 @@ export const useTokensBalanceOfAnotherChain = (
   const { account } = useActiveWeb3React()
   const multicallContract = useMulticallContract(chainId)
   const [loading, setLoading] = useState(false)
+
+  const refBlockNumber = useRef<number>()
   const blockNumber = useBlockNumber()
+  useEffect(() => {
+    if (!refBlockNumber.current) refBlockNumber.current = blockNumber
+  }, [blockNumber])
 
   const getBalance = useCallback(async () => {
     try {
       setBalances(EMPTY_ARRAY)
+      const blockNumber = refBlockNumber.current
       if (!chainId || !account || !tokens.length || !multicallContract || !blockNumber) {
         return
       }
@@ -89,7 +95,7 @@ export const useTokensBalanceOfAnotherChain = (
     } finally {
       setLoading(false)
     }
-  }, [chainId, tokens, account, multicallContract, blockNumber])
+  }, [chainId, tokens, account, multicallContract])
 
   useEffect(() => {
     getBalance()
