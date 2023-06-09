@@ -82,6 +82,7 @@ const AnnouncementApi = createApi({
       transformResponse: (data: any) => data?.data?.result || [],
       providesTags: [RTK_QUERY_TAGS.GET_TOTAL_UNREAD_PRIVATE_ANN],
     }),
+    // todo refactor
     ackPrivateAnnouncements: builder.mutation<
       AnnouncementResponse,
       { action: 'read' | 'clear-all' | 'read-all'; ids?: number[] }

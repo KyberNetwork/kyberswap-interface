@@ -2,6 +2,7 @@ import { t } from '@lingui/macro'
 import { useEffect, useRef, useState } from 'react'
 import {
   useAckPrivateAnnouncementsByIdsMutation,
+  useAckPrivateAnnouncementsMutation,
   useClearAllPrivateAnnouncementByIdMutation,
   useGetPrivateAnnouncementsByIdsQuery,
   useGetPrivateAnnouncementsQuery,
@@ -78,11 +79,12 @@ export default function GeneralAnnouncement({ type }: { type?: PrivateAnnounceme
   }, [numberOfUnread, templateIds, account, ackAnnouncement, refetch, resetUnread])
 
   const totalAnnouncement = data?.notifications?.length ?? 0
+  const [clearAllRequest] = useAckPrivateAnnouncementsMutation()
 
   const [loading, setLoading] = useState(false)
   const clearAll = async () => {
     setLoading(true)
-    return clearAllAnnouncement({ templateIds })
+    return (templateIds ? clearAllAnnouncement({ templateIds }) : clearAllRequest({ action: 'clear-all' }))
       .then(() => {
         refetch()
       })

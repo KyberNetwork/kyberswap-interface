@@ -98,14 +98,17 @@ const useLogin = (autoLogin = false) => {
 
   const showNotiSuccess = useCallback(
     (walletAddress: string | undefined) =>
-      notify({
-        type: NotificationType.SUCCESS,
-        title: t`Logged in successfully`,
-        summary:
-          walletAddress?.toLowerCase() === account?.toLowerCase()
-            ? t`Logged in successfully with the current wallet address`
-            : t`Logged in successfully with wallet ${getShortenAddress(walletAddress ?? '')}`,
-      }),
+      notify(
+        {
+          type: NotificationType.SUCCESS,
+          title: t`Logged in successfully`,
+          summary:
+            walletAddress?.toLowerCase() === account?.toLowerCase()
+              ? t`Logged in successfully with the current wallet address`
+              : t`Logged in successfully with wallet ${getShortenAddress(walletAddress ?? '')}`,
+        },
+        10_000,
+      ),
     [account, notify],
   )
 
@@ -220,11 +223,14 @@ const useLogin = (autoLogin = false) => {
         onRedirectLogout()
       } else {
         KyberOauth2.removeTokensEthAccount(walletAddress)
-        notify({
-          type: NotificationType.SUCCESS,
-          title: t`Logged out successfully`,
-          summary: t`You had successfully logged out`,
-        })
+        notify(
+          {
+            type: NotificationType.SUCCESS,
+            title: t`Logged out successfully`,
+            summary: t`You had successfully logged out`,
+          },
+          10_000,
+        )
         removeProfile(walletAddress)
       }
     },
@@ -246,11 +252,14 @@ const useLogin = (autoLogin = false) => {
       signOut(signedWallet)
       return
     }
-    notify({
-      type: NotificationType.SUCCESS,
-      title: t`Logged out all accounts successfully`,
-      summary: t`You had successfully logged out`,
-    })
+    notify(
+      {
+        type: NotificationType.SUCCESS,
+        title: t`Logged out all accounts successfully`,
+        summary: t`You had successfully logged out`,
+      },
+      10_000,
+    )
   }, [notify, removeAllProfile, signedWallet, signOut])
 
   return { signOut, signIn, signInAnonymous: wrappedSignInAnonymous, signOutAll }
