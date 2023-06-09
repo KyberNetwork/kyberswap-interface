@@ -73,14 +73,16 @@ export default function SwapBrief({ route }: Props) {
 
   const { amountUsdIn, amountUsdOut, outputAmount, inputAmount } = getRouInfo(route)
 
-  const renderOutputAmount = () => {
-    return (
-      <TruncatedText>
-        {outputAmount
-          ? uint256ToFraction(outputAmount, currencyOut?.decimals).toSignificant(RESERVE_USD_DECIMALS)
-          : '--'}
-      </TruncatedText>
-    )
+  const renderAmount = (amount: string | undefined, decimals: number | undefined) => {
+    try {
+      return (
+        <TruncatedText>
+          {amount ? uint256ToFraction(amount, decimals).toSignificant(RESERVE_USD_DECIMALS) : '--'}
+        </TruncatedText>
+      )
+    } catch (error) {
+      return null
+    }
   }
 
   const renderAmountUsd = (amountUsdOut: string | undefined) => {
@@ -101,11 +103,7 @@ export default function SwapBrief({ route }: Props) {
           <Network chainId={chainId} />
         </RowBetween>
         <RowBetween>
-          <TruncatedText>
-            {inputAmount
-              ? uint256ToFraction(inputAmount, currencyIn?.decimals).toSignificant(RESERVE_USD_DECIMALS)
-              : '--'}
-          </TruncatedText>
+          {renderAmount(inputAmount, currencyIn?.decimals)}
           <Flex alignItems="center" sx={{ gap: '8px' }} minWidth="fit-content">
             {renderAmountUsd(amountUsdIn)}
             <CurrencyLogo currency={currencyIn} size="24px" />
@@ -128,7 +126,7 @@ export default function SwapBrief({ route }: Props) {
           <Network chainId={chainIdOut} />
         </RowBetween>
         <RowBetween>
-          {renderOutputAmount()}
+          {renderAmount(outputAmount, currencyOut?.decimals)}
           <Flex alignItems="center" sx={{ gap: '8px' }} minWidth="fit-content">
             {renderAmountUsd(amountUsdOut)}
             <CurrencyLogo currency={currencyOut} size="24px" />
