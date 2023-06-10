@@ -19,11 +19,12 @@ import SwapButtonWithPriceImpact from 'components/SwapForm/SwapActionButton/Swap
 import useCheckStablePairSwap from 'components/SwapForm/hooks/useCheckStablePairSwap'
 import { formatDurationCrossChain } from 'components/swapv2/AdvancedSwapDetails'
 import { AdvancedSwapDetailsDropdownCrossChain } from 'components/swapv2/AdvancedSwapDetailsDropdown'
-import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
+import { INPUT_DEBOUNCE_TIME, TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { captureExceptionCrossChain } from 'hooks/bridge/useBridgeCallback'
 import { useChangeNetwork } from 'hooks/useChangeNetwork'
+import useDebounce from 'hooks/useDebounce'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ConfirmCrossChainModal } from 'pages/Bridge/ComfirmBridgeModal'
@@ -77,14 +78,17 @@ export default function SwapForm() {
     setting: { enableExpressExecution, slippageTolerance },
   } = useCrossChainSetting()
   const isPairSupport = useIsTokensSupport()
+  const debouncedInput = useDebounce(inputAmount, INPUT_DEBOUNCE_TIME)
   const routeParams: GetRoute | undefined = useMemo(() => {
-    if (!currencyIn || !currencyOut || !chainIdOut || !Number(inputAmount) || !isPairSupport) return
+    if (!currencyIn || !currencyOut || !chainIdOut || !Number(debouncedInput) || !isPairSupport) return
+    const parseAmount = tryParseAmount(debouncedInput, currencyIn)
+    if (!parseAmount) return
     return {
       fromChain: chainId,
       toChain: chainIdOut,
       fromToken: getTokenAddress(currencyIn),
       toToken: getTokenAddress(currencyOut),
-      fromAmount: tryParseAmount(inputAmount, currencyIn)?.quotient.toString() ?? '',
+      fromAmount: parseAmount?.quotient.toString() ?? '',
       toAddress: account ?? '',
       slippage: slippageTolerance / 100,
       enableExpress: enableExpressExecution,
@@ -94,7 +98,7 @@ export default function SwapForm() {
     currencyIn,
     currencyOut,
     account,
-    inputAmount,
+    debouncedInput,
     chainId,
     chainIdOut,
     slippageTolerance,
@@ -119,7 +123,7 @@ export default function SwapForm() {
   // modal and loading
   const [swapState, setSwapState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
 
-  const inputError = useValidateInput({ inputAmount, route, errorGetRoute })
+  const inputError = useValidateInput({ inputAmount: debouncedInput, route, errorGetRoute })
 
   const handleTypeInput = useCallback(
     (value: string) => {
@@ -265,7 +269,7 @@ export default function SwapForm() {
   )
 
   const disableBtnSwap =
-    !!inputError || [inputAmount, currencyIn, currencyOut, chainIdOut].some(e => !e) || gettingRoute
+    !!inputError || [debouncedInput, currencyIn, currencyOut, chainIdOut].some(e => !e) || gettingRoute
 
   const priceImpactResult = checkPriceImpact(priceImpact || -1)
   const isStablePairSwap = useCheckStablePairSwap(currencyIn, currencyOut)
@@ -342,7 +346,7 @@ export default function SwapForm() {
 
         {!!priceImpact && <PriceImpactNote priceImpact={Number(priceImpact)} isDegenMode={isDegenMode} />}
 
-        {inputError?.state && !gettingRoute && (
+        {inputError?.state && (
           <ErrorWarningPanel title={inputError?.tip} type={inputError?.state} desc={inputError?.desc} />
         )}
 
