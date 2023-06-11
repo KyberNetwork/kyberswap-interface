@@ -11,7 +11,7 @@ import Menu from 'pages/NotificationCenter/Menu'
 import Overview from 'pages/NotificationCenter/Overview'
 import PriceAlerts from 'pages/NotificationCenter/PriceAlerts'
 import Profile from 'pages/NotificationCenter/Profile'
-import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
+import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { MEDIA_WIDTHS } from 'theme'
 
 import PrivateAnnouncement from './PrivateAnnouncement'
@@ -111,38 +111,38 @@ function NotificationCenter() {
         )}
         <RightColumn>
           <Routes>
-            <Route path={NOTIFICATION_ROUTES.PROFILE} element={<Profile />} />
-            <Route index path={NOTIFICATION_ROUTES.ALL_NOTIFICATION} element={<PrivateAnnouncement />} />
-            <Route path={NOTIFICATION_ROUTES.PREFERENCE} element={<Overview />} />
+            <Route path={PROFILE_MANAGE_ROUTES.PROFILE} element={<Profile />} />
+            <Route index path={PROFILE_MANAGE_ROUTES.ALL_NOTIFICATION} element={<PrivateAnnouncement />} />
+            <Route path={PROFILE_MANAGE_ROUTES.PREFERENCE} element={<Overview />} />
 
-            <Route path={NOTIFICATION_ROUTES.GENERAL} element={<GeneralAnnouncement />} />
-            <Route path={NOTIFICATION_ROUTES.PRICE_ALERTS} element={<PriceAlerts />} />
-            <Route path={`${NOTIFICATION_ROUTES.PRICE_ALERTS}/*`} element={<PriceAlerts />} />
+            <Route path={PROFILE_MANAGE_ROUTES.GENERAL} element={<GeneralAnnouncement />} />
+            <Route path={PROFILE_MANAGE_ROUTES.PRICE_ALERTS} element={<PriceAlerts />} />
+            <Route path={`${PROFILE_MANAGE_ROUTES.PRICE_ALERTS}/*`} element={<PriceAlerts />} />
             <Route
-              path={NOTIFICATION_ROUTES.MY_ELASTIC_POOLS}
+              path={PROFILE_MANAGE_ROUTES.MY_ELASTIC_POOLS}
               element={<PrivateAnnouncement type={PrivateAnnouncementType.ELASTIC_POOLS} />}
             />
             <Route
-              path={NOTIFICATION_ROUTES.LIMIT_ORDERS}
+              path={PROFILE_MANAGE_ROUTES.LIMIT_ORDERS}
               element={<PrivateAnnouncement type={PrivateAnnouncementType.LIMIT_ORDER} />}
             />
             <Route
-              path={NOTIFICATION_ROUTES.BRIDGE}
+              path={PROFILE_MANAGE_ROUTES.BRIDGE}
               element={<PrivateAnnouncement type={PrivateAnnouncementType.BRIDGE_ASSET} />}
             />
             <Route
-              path={NOTIFICATION_ROUTES.CROSS_CHAIN}
+              path={PROFILE_MANAGE_ROUTES.CROSS_CHAIN}
               element={<PrivateAnnouncement type={PrivateAnnouncementType.CROSS_CHAIN} />}
             />
             <Route
-              path={NOTIFICATION_ROUTES.KYBER_AI_TOKENS}
+              path={PROFILE_MANAGE_ROUTES.KYBER_AI_TOKENS}
               element={<PrivateAnnouncement type={PrivateAnnouncementType.KYBER_AI} />}
             />
-            <Route path={NOTIFICATION_ROUTES.CREATE_ALERT} element={<CreateAlert />} />
+            <Route path={PROFILE_MANAGE_ROUTES.CREATE_ALERT} element={<CreateAlert />} />
 
             <Route
               path="*"
-              element={<Navigate to={`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.ALL_NOTIFICATION}`} />}
+              element={<Navigate to={`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.ALL_NOTIFICATION}`} />}
             />
           </Routes>
         </RightColumn>

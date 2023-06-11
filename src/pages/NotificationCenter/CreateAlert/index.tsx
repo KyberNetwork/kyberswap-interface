@@ -8,7 +8,7 @@ import styled from 'styled-components'
 
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { ConfirmAlertModalData, NOTIFICATION_ROUTES, PriceAlertStat } from 'pages/NotificationCenter/const'
+import { ConfirmAlertModalData, PROFILE_MANAGE_ROUTES, PriceAlertStat } from 'pages/NotificationCenter/const'
 
 import ConfirmModal from './ConfirmModal'
 import CreateAlertForm from './CreateAlertForm'
@@ -69,7 +69,7 @@ export default function CreateAlert() {
   })
   const navigate = useNavigate()
   const goBack = () => {
-    navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PRICE_ALERTS}`)
+    navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PRICE_ALERTS}`)
   }
 
   return (

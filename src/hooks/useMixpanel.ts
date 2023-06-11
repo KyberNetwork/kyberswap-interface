@@ -1607,7 +1607,7 @@ export const useGlobalMixpanelEvents = () => {
         '/kyberdao/stake-knc': 'KyberDAO Stake',
         '/kyberdao/vote': 'KyberDAO Vote',
         limit: 'Limit Order',
-        'notification-center': 'Notification',
+        'notification-center': 'Notification', // todo
         '/KyberAI/About': 'KyberAI About',
         '/KyberAI/Rankings': 'KyberAI Rankings',
         '/KyberAI/Explore': 'KyberAI Explore',

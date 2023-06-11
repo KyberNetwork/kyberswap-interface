@@ -10,7 +10,7 @@ import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
+import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { useInputCurrency, useOutputCurrency, useSwapState } from 'state/swap/hooks'
 import { currencyId } from 'utils/currencyId'
 
@@ -44,7 +44,7 @@ export default function SlippageSettingGroup({
     <PriceAlertButton
       onClick={() =>
         navigate(
-          `${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.CREATE_ALERT}?${stringify({
+          `${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.CREATE_ALERT}?${stringify({
             amount: typedValue || undefined,
             inputCurrency: currencyId(currencyIn, chainId),
             outputCurrency: currencyId(currencyOut, chainId),

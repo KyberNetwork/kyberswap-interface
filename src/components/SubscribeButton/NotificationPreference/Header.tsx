@@ -8,7 +8,7 @@ import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import Row, { RowBetween } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
-import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
+import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 
 const CloseIcon = styled(X)`
   cursor: pointer;
@@ -26,7 +26,7 @@ export default function Header({ toggleModal }: { toggleModal: () => void }) {
           size={24}
           style={{ cursor: 'pointer' }}
           onClick={() => {
-            navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PREFERENCE}`)
+            navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PREFERENCE}`)
             toggleModal()
           }}
         />

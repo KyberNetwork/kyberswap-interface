@@ -221,7 +221,7 @@ export const APP_PATHS = {
   KYBERDAO_VOTE: '/kyberdao/vote',
   LIMIT: '/limit',
   GRANT_PROGRAMS: '/inter-project-trading-campaigns',
-  NOTIFICATION_CENTER: '/manage',
+  PROFILE_MANAGE: '/manage',
   ELASTIC_LEGACY: '/elastic-legacy',
   VERIFY_AUTH: '/auth',
 }

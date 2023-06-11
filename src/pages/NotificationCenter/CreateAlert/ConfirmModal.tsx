@@ -20,7 +20,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import {
   ConfirmAlertModalData,
-  NOTIFICATION_ROUTES,
+  PROFILE_MANAGE_ROUTES,
   PriceAlertStat,
   PriceAlertType,
 } from 'pages/NotificationCenter/const'
@@ -110,7 +110,7 @@ export default function ConfirmModal({
   const navigate = useNavigate()
   const onSave = async () => {
     onDismiss()
-    navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PRICE_ALERTS}`)
+    navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PRICE_ALERTS}`)
   }
 
   return (

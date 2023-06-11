@@ -13,7 +13,7 @@ import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import { Tab } from 'pages/NotificationCenter/PriceAlerts'
-import { NOTIFICATION_ROUTES, PriceAlertType } from 'pages/NotificationCenter/const'
+import { PROFILE_MANAGE_ROUTES, PriceAlertType } from 'pages/NotificationCenter/const'
 
 const DescriptionPriceAlert = (
   content: AnnouncementTemplatePriceAlert,
@@ -37,7 +37,7 @@ const DescriptionPriceAlert = (
   return {
     title: PRIVATE_ANN_TITLE[templateType] ?? '',
     type: NotificationType.SUCCESS,
-    link: `${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PRICE_ALERTS}?tab=${Tab.HISTORY}`,
+    link: `${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PRICE_ALERTS}?tab=${Tab.HISTORY}`,
     icon: <Clock size={20} />,
     summary: (
       <Row gap="6px" flexWrap={'wrap'} alignItems="center">

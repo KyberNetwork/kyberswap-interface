@@ -17,7 +17,7 @@ import { getAnnouncementsTemplateIds } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import MenuItem from 'pages/NotificationCenter/Menu/MenuItem'
-import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
+import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { useCacheProfile, useSignedWalletInfo } from 'state/authen/hooks'
@@ -49,57 +49,57 @@ export type MenuItemType = {
 
 const menuItems: MenuItemType[] = [
   {
-    route: NOTIFICATION_ROUTES.PROFILE,
+    route: PROFILE_MANAGE_ROUTES.PROFILE,
     icon: <ProfileIcon />,
     title: t`Profile`,
     childs: [],
   },
   {
-    route: NOTIFICATION_ROUTES.ALL_NOTIFICATION,
+    route: PROFILE_MANAGE_ROUTES.ALL_NOTIFICATION,
     icon: <NotificationIcon size="16px" />,
     title: t`Notifications`,
     type: 'ALL',
     defaultExpand: true,
     childs: [
       {
-        route: NOTIFICATION_ROUTES.PREFERENCE,
+        route: PROFILE_MANAGE_ROUTES.PREFERENCE,
         icon: <ListIcon size="16px" />,
         title: t`Notification Preferences`,
         divider: true,
       },
       {
-        route: NOTIFICATION_ROUTES.ALL_NOTIFICATION,
+        route: PROFILE_MANAGE_ROUTES.ALL_NOTIFICATION,
         icon: <AllIcon style={{ width: 16 }} />,
         title: t`All Notifications`,
         type: 'ALL',
       },
       {
-        route: NOTIFICATION_ROUTES.GENERAL,
+        route: PROFILE_MANAGE_ROUTES.GENERAL,
         icon: <MailIcon size={16} />,
         title: t`General`,
       },
       {
-        route: NOTIFICATION_ROUTES.PRICE_ALERTS,
+        route: PROFILE_MANAGE_ROUTES.PRICE_ALERTS,
         type: PrivateAnnouncementType.PRICE_ALERT,
       },
       {
-        route: NOTIFICATION_ROUTES.MY_ELASTIC_POOLS,
+        route: PROFILE_MANAGE_ROUTES.MY_ELASTIC_POOLS,
         type: PrivateAnnouncementType.ELASTIC_POOLS,
       },
       {
-        route: NOTIFICATION_ROUTES.LIMIT_ORDERS,
+        route: PROFILE_MANAGE_ROUTES.LIMIT_ORDERS,
         type: PrivateAnnouncementType.LIMIT_ORDER,
       },
       {
-        route: NOTIFICATION_ROUTES.BRIDGE,
+        route: PROFILE_MANAGE_ROUTES.BRIDGE,
         type: PrivateAnnouncementType.BRIDGE_ASSET,
       },
       {
-        route: NOTIFICATION_ROUTES.CROSS_CHAIN,
+        route: PROFILE_MANAGE_ROUTES.CROSS_CHAIN,
         type: PrivateAnnouncementType.CROSS_CHAIN,
       },
       {
-        route: NOTIFICATION_ROUTES.KYBER_AI_TOKENS,
+        route: PROFILE_MANAGE_ROUTES.KYBER_AI_TOKENS,
         type: PrivateAnnouncementType.KYBER_AI,
       },
     ],
@@ -108,7 +108,7 @@ const menuItems: MenuItemType[] = [
   return {
     ...el,
     childs:
-      el.route !== NOTIFICATION_ROUTES.ALL_NOTIFICATION
+      el.route !== PROFILE_MANAGE_ROUTES.ALL_NOTIFICATION
         ? el.childs
         : el.childs?.map((child: MenuItemType) => {
             const type = child.type as PrivateAnnouncementType
@@ -130,16 +130,16 @@ const MenuForDesktop = ({ unread, onChildrenClick }: PropsMenu) => {
 
   const menuItemDeskTop = useMemo(() => {
     return menuItems.map(el => {
-      if (el.route !== NOTIFICATION_ROUTES.PROFILE) return el
+      if (el.route !== PROFILE_MANAGE_ROUTES.PROFILE) return el
       const childs: MenuItemType[] = [
         isGuest
           ? {
-              route: NOTIFICATION_ROUTES.PROFILE,
+              route: PROFILE_MANAGE_ROUTES.PROFILE,
               icon: <Avatar url={profile?.avatarUrl} size={16} />,
               title: profile?.nickname ? `${shortString(profile?.nickname, 20)} (${t`Guest`})` : t`Guest`,
             }
           : {
-              route: NOTIFICATION_ROUTES.PROFILE,
+              route: PROFILE_MANAGE_ROUTES.PROFILE,
               icon: <Avatar url={profile?.avatarUrl} size={16} />,
               title: profile?.nickname ? shortString(profile?.nickname, 20) : getShortenAddress(signedWallet ?? ''),
             },

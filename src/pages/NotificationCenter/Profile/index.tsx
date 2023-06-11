@@ -24,7 +24,7 @@ import { useUploadImageToCloud } from 'hooks/social'
 import useLogin from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
 import WarningSignMessage from 'pages/NotificationCenter/Profile/WarningSignMessage'
-import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
+import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
 import { useNotify } from 'state/application/hooks'
 import { useRefreshProfile, useSessionInfo, useSignedWalletInfo } from 'state/authen/hooks'
@@ -260,7 +260,7 @@ export default function Profile() {
               <ButtonLogout
                 onClick={() => {
                   signOut(signedWallet)
-                  navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PROFILE}`)
+                  navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PROFILE}`)
                 }}
               >
                 <LogOut size={16} style={{ marginRight: '4px' }} />

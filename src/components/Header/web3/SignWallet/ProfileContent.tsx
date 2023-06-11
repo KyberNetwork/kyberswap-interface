@@ -17,7 +17,7 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useLogin from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
-import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
+import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
 import { ConnectedProfile, useAllProfileInfo, useSignedWalletInfo } from 'state/authen/hooks'
@@ -168,7 +168,7 @@ const ProfileItem = ({
             style={{ flex: 1 }}
             onClick={e => {
               e?.stopPropagation()
-              navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PROFILE}`)
+              navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PROFILE}`)
               toggleModal()
             }}
           >

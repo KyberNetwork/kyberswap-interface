@@ -11,7 +11,7 @@ import { APP_PATHS } from 'constants/index'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { MenuItemType, Unread } from 'pages/NotificationCenter/Menu'
-import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
+import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 
 const IconWrapper = styled.div`
   height: 16px;
@@ -79,11 +79,11 @@ const MenuItem: React.FC<Props> = ({ data, style, unread, isChildren, onChildren
   const location = useLocation()
   const theme = useTheme()
 
-  const path = `${APP_PATHS.NOTIFICATION_CENTER}${route}`
+  const path = `${APP_PATHS.PROFILE_MANAGE}${route}`
   const isActive = location.pathname === path || location.pathname === path.substring(0, path.length - 1)
   const canShowExpand = !isChildren && (childs?.length || 0) > 1
   const [expand, setIsExpand] = useState(
-    canShowExpand ? location.pathname.startsWith(`${APP_PATHS.NOTIFICATION_CENTER}${route}`) || defaultExpand : true,
+    canShowExpand ? location.pathname.startsWith(`${APP_PATHS.PROFILE_MANAGE}${route}`) || defaultExpand : true,
   )
   const canShowListChildren = expand && !isChildren
 
@@ -95,7 +95,7 @@ const MenuItem: React.FC<Props> = ({ data, style, unread, isChildren, onChildren
       onClick()
       return
     }
-    if (path.includes(NOTIFICATION_ROUTES.PRICE_ALERTS)) mixpanelHandler(MIXPANEL_TYPE.PA_CLICK_TAB_IN_NOTI_CENTER)
+    if (path.includes(PROFILE_MANAGE_ROUTES.PRICE_ALERTS)) mixpanelHandler(MIXPANEL_TYPE.PA_CLICK_TAB_IN_NOTI_CENTER)
     canShowExpand && setIsExpand(v => !v)
   }
 

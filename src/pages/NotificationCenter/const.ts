@@ -10,7 +10,7 @@ export enum PriceAlertType {
   BELOW = 'below',
 }
 
-export enum NOTIFICATION_ROUTES {
+export enum PROFILE_MANAGE_ROUTES {
   PROFILE = '/profile',
 
   CREATE_ALERT = '/create-alert',

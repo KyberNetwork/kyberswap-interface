@@ -9,7 +9,7 @@ import { APP_PATHS } from 'constants/index'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useNotification from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
-import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
+import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 
 import { ButtonPrimary } from '../Button'
 import { MouseoverTooltipDesktopOnly } from '../Tooltip'
@@ -75,7 +75,7 @@ export default function SubscribeNotificationButton({
 
   const navigate = useNavigate()
   const showNotificationModal = useCallback(() => {
-    navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PREFERENCE}`)
+    navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PREFERENCE}`)
   }, [navigate])
 
   const onClickBtn = () => {
