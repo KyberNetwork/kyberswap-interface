@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useLazyGetKyberswapConfigurationQuery } from 'services/ksSetting'
 
-import { useActiveWeb3React, useWeb3React, useWeb3Solana } from 'hooks'
+import { useActiveWeb3React, useWeb3Solana } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import useIsWindowVisible from 'hooks/useIsWindowVisible'
 import { useKyberSwapConfig } from 'state/application/hooks'
@@ -10,18 +10,7 @@ import { useKyberSwapConfig } from 'state/application/hooks'
 import { updateBlockNumber } from './actions'
 
 export default function Updater(): null {
-  const { chainId, isEVM, isSolana, networkInfo } = useActiveWeb3React()
-  const { library } = useWeb3React()
-
-  useEffect(() => {
-    const provider: any = library?.provider
-    if (provider?.isWalletConnect) {
-      // handling this issue: https://github.com/Uniswap/web3-react/issues/306
-      if (provider?.rpcUrl !== networkInfo.defaultRpcUrl && provider.chainId === chainId) {
-        window.location.reload()
-      }
-    }
-  }, [library, networkInfo.defaultRpcUrl, chainId])
+  const { chainId, isEVM, isSolana } = useActiveWeb3React()
 
   const { readProvider } = useKyberSwapConfig()
   const dispatch = useDispatch()
