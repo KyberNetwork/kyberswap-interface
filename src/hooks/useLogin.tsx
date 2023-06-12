@@ -93,12 +93,12 @@ const useLogin = () => {
       if (latestAccount.current === wallet) {
         return //  not change
       }
-      if (latestAccount.current && !wallet) {
+      if (latestAccount.current && !account) {
         // disconnect
         requestingSession.current = undefined
       }
       latestAccount.current = wallet
-      signIn(typeof wallet === 'string' ? wallet : undefined)
+      signIn(typeof wallet === 'string' ? wallet : account)
     })
   }, [account, signIn])
 }
