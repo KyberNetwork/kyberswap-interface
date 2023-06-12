@@ -72,7 +72,6 @@ const arbitrumInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'arbitrum-one',
   coingeckoNativeTokenId: 'ethereum',
   deBankSlug: 'arb',
-  trueSightId: NOT_SUPPORT,
   dexToCompare: 'uniswapv3',
   geckoTermialId: 'arbitrum',
 }
