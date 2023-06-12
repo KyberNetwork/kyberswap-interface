@@ -22,7 +22,8 @@ import ProchartShareContent from '../components/shareContent/ProchartShareConten
 import SupportResistanceShareContent from '../components/shareContent/SupportResistanceShareContent'
 import { FundingRateTable, LiveDEXTrades, SupportResistanceLevel } from '../components/table'
 import { KYBERAI_CHART_ID, NETWORK_TO_CHAINID } from '../constants'
-import { useChartingDataQuery, useTokenDetailQuery } from '../hooks/useKyberAIData'
+import { useChartingDataQuery } from '../hooks/useKyberAIData'
+import useKyberAITokenOverview from '../hooks/useKyberAITokenOverview'
 import { ChartTab, ISRLevel, OHLCData } from '../types'
 import { navigateToLimitPage } from '../utils'
 import { defaultExplorePageToken } from './SingleToken'
@@ -95,10 +96,8 @@ export default function TechnicalAnalysis() {
     currency: liveChartTab === ChartTab.First ? 'USD' : 'BTC',
   })
 
-  const { data: tokenOverview } = useTokenDetailQuery({
-    chain: chain || defaultExplorePageToken.chain,
-    address: address || defaultExplorePageToken.address,
-  })
+  const { data: tokenOverview } = useKyberAITokenOverview()
+
   const SRLevels: ISRLevel[] = useMemo(() => {
     if (isLoading && !data) return []
     const levels: ISRLevel[] = []

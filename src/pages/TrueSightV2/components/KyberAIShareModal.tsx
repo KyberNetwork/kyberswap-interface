@@ -21,7 +21,7 @@ import useTheme from 'hooks/useTheme'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 
 import { NETWORK_IMAGE_URL } from '../constants'
-import { useTokenDetailQuery } from '../hooks/useKyberAIData'
+import useKyberAITokenOverview from '../hooks/useKyberAITokenOverview'
 import KyberSwapShareLogo from './KyberSwapShareLogo'
 import LoadingTextAnimation from './LoadingTextAnimation'
 import { InfoWrapper, LegendWrapper } from './chart'
@@ -204,8 +204,8 @@ export default function KyberAIShareModal({
   onShareClick?: (network: string) => void
 }) {
   const theme = useTheme()
-  const { chain, address } = useParams()
-  const { data: tokenOverview } = useTokenDetailQuery({ chain, address }, { skip: !chain || !address })
+  const { chain } = useParams()
+  const { data: tokenOverview } = useKyberAITokenOverview()
 
   const ref = useRef<HTMLDivElement>(null)
   const refMobile = useRef<HTMLDivElement>(null)
