@@ -20,7 +20,7 @@ import MultipleChainSelect from 'pages/MyEarnings/MultipleChainSelect'
 import PoolFilteringBar from 'pages/MyEarnings/PoolFilteringBar'
 import SinglePool, { Props as SinglePoolProps } from 'pages/MyEarnings/SinglePool'
 import TotalEarningsAndChainSelect from 'pages/MyEarnings/TotalEarningsAndChainSelect'
-import { today } from 'pages/MyEarnings/utils'
+import { aggregateAccountEarnings, aggregatePoolEarnings, today } from 'pages/MyEarnings/utils'
 import { useAppSelector } from 'state/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { EarningStatsTick, EarningsBreakdown } from 'types/myEarnings'
@@ -135,7 +135,7 @@ const MyEarningsSection = () => {
 
   const searchText = useDebounce(originalSearchText, 300).toLowerCase().trim()
 
-  const earningResponse = getEarningData.data // aggregateAccountEarnings(aggregatePoolEarnings(getEarningData.data))
+  const earningResponse = aggregateAccountEarnings(aggregatePoolEarnings(getEarningData.data))
 
   const earningBreakdown: EarningsBreakdown | undefined = useMemo(() => {
     const dataByChainRoute = earningResponse || {}
@@ -355,7 +355,7 @@ const MyEarningsSection = () => {
     })
   }, [availableChainRoutes, earningResponse, searchText, shouldShowClosedPositions])
 
-  console.log({ pools, ticks })
+  console.log({ pools })
 
   const renderPools = () => {
     const isLoading = getEarningData.isFetching || !pools
