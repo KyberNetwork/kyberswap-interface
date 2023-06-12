@@ -21,7 +21,7 @@ export const [walletConnectV2, walletConnectV2Hooks] = initializeConnector<Walle
       options: {
         projectId: WALLETCONNECT_PROJECT_ID,
         chains: [ChainId.MAINNET],
-        optionalChains: WALLET_CONNECT_SUPPORTED_CHAIN_IDS,
+        optionalChains: WALLET_CONNECT_SUPPORTED_CHAIN_IDS.filter(chain => chain !== ChainId.MAINNET),
         showQrModal: true,
         methods: ['eth_sendTransaction', 'personal_sign'],
         events: ['chainChanged', 'accountsChanged'],
