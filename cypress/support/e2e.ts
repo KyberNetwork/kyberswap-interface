@@ -15,6 +15,8 @@
 import '@cypress/grep'
 import registerCypressGrep from '@cypress/grep/src/support'
 import { captureException } from '@sentry/react'
+import * as Sentry from '@sentry/react'
+import { BrowserTracing } from '@sentry/tracing'
 import '@synthetixio/synpress/support/index'
 
 import './commands'
@@ -22,6 +24,17 @@ import './connectWalletCommands'
 import './selectTokenCommands'
 
 registerCypressGrep()
+Sentry.init({
+  dsn: process.env.SENTRY_DNS,
+  environment: 'production',
+  ignoreErrors: ['AbortError'],
+  integrations: [new BrowserTracing()],
+  tracesSampleRate: 0.1,
+})
+Sentry.configureScope(scope => {
+  scope.setTag('request_id', Date.now())
+  scope.setTag('version', 'E2E')
+})
 
 Cypress.on('fail', (err, runable) => {
   const e = new Error('E2E Error: ' + runable.title)
