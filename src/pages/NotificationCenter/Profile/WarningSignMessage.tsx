@@ -37,7 +37,7 @@ const WarningSignMessage = () => {
   const theme = useTheme()
   if (
     pendingAuthentication ||
-    KyberOauth2.getConnectedEthAccounts().includes(account?.toLowerCase() ?? '') ||
+    KyberOauth2.getConnectedAccounts().includes(account?.toLowerCase() ?? '') ||
     account?.toLowerCase() === signedWallet?.toLowerCase()
   )
     return null
