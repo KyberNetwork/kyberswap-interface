@@ -2,6 +2,7 @@ import { Trans } from '@lingui/macro'
 import html2canvas from 'html2canvas'
 import { rgba } from 'polished'
 import { useEffect, useRef, useState } from 'react'
+import { isDesktop } from 'react-device-detect'
 import { CheckCircle, Copy, Download, X } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -107,7 +108,7 @@ type Props = {
 export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }: Props) {
   const toggle = () => setIsOpen(!isOpen)
   const theme = useTheme()
-  const [isSharePc, setIsSharePc] = useState(false)
+  const [isSharePc, setIsSharePc] = useState(isDesktop)
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const [isCopied, setIsCopy] = useCopyClipboard()
   const shareImage = useShareImage()
