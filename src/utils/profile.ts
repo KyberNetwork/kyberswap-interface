@@ -1,3 +1,5 @@
+import KyberOauth2 from '@kybernetwork/oauth2'
+
 import { EMPTY_OBJECT } from 'constants/index'
 
 const IMPORT_TOKENS_LOCAL_STORAGE_KEY = 'import_tokens'
@@ -40,13 +42,11 @@ export const removeImportToken = (account: string) => {
 }
 
 export const getGuestAccount = () => {
-  try {
-    const guestProfile = JSON.parse(localStorage.getItem('development_o2_anonymous') || '')
-    return {
-      account: guestProfile.acc,
-      password: guestProfile.pw,
-    }
-  } catch (e) {
-    return undefined
-  }
+  const guestProfile = KyberOauth2.getAnonymousAccount()
+  return guestProfile
+    ? {
+        account: guestProfile.username,
+        password: guestProfile.password,
+      }
+    : undefined
 }

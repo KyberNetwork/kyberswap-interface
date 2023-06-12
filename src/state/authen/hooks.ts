@@ -192,7 +192,7 @@ export const useAllProfileInfo = () => {
 
   const refresh = useCallback(() => {
     const listAddress = Object.keys(getProfileLocalStorage(ProfileLocalStorageKeys.PROFILE)?.wallet ?? {})
-    setConnectAccounts([...new Set(listAddress.concat(KyberOauth2.getConnectedEthAccounts()))])
+    setConnectAccounts([...new Set(listAddress.concat(KyberOauth2.getConnectedAccounts()))])
   }, [])
 
   const removeProfile = useCallback(

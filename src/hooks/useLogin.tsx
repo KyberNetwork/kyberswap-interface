@@ -119,7 +119,7 @@ const useLogin = (autoLogin = false) => {
           throw new Error('Not found address.')
         }
         setLoading(true)
-        await KyberOauth2.getSession({ method: LoginMethod.ETH, walletAddress })
+        await KyberOauth2.getSession({ method: LoginMethod.ETH, account: walletAddress })
         await getProfile(walletAddress)
         saveSignedWallet(walletAddress)
         setProfileLocalStorage(ProfileLocalStorageKeys.CONNECTING_WALLET, undefined)
@@ -157,7 +157,7 @@ const useLogin = (autoLogin = false) => {
         return
       }
 
-      const connectedAccounts = KyberOauth2.getConnectedEthAccounts()
+      const connectedAccounts = KyberOauth2.getConnectedAccounts()
       if (isSelectAccount && connectedAccounts.includes(walletAddress?.toLowerCase() || '')) {
         setProfileLocalStorage(ProfileLocalStorageKeys.CONNECTING_WALLET, walletAddress)
         requestSignIn(walletAddress, false)
@@ -222,7 +222,7 @@ const useLogin = (autoLogin = false) => {
       if (walletAddress?.toLowerCase() === signedWallet?.toLowerCase()) {
         onRedirectLogout()
       } else {
-        KyberOauth2.removeTokensEthAccount(walletAddress)
+        KyberOauth2.removeConnectedAccount(walletAddress)
         notify(
           {
             type: NotificationType.SUCCESS,
@@ -238,14 +238,14 @@ const useLogin = (autoLogin = false) => {
   )
 
   const signOutAll = useCallback(() => {
-    const connectedAccounts = KyberOauth2.getConnectedEthAccounts()
+    const connectedAccounts = KyberOauth2.getConnectedAccounts()
     let needRedirect = false
     connectedAccounts.forEach(address => {
       if (address?.toLowerCase() === signedWallet?.toLowerCase()) {
         needRedirect = true
         return
       }
-      KyberOauth2.removeTokensEthAccount(address)
+      KyberOauth2.removeConnectedAccount(address)
     })
     removeAllProfile()
     if (needRedirect) {

@@ -200,7 +200,7 @@ const ProfileContent = () => {
         </ListProfile>
       </Column>
       <ActionWrapper hasBorder={profiles.length > 1}>
-        {canSignInEth && !KyberOauth2.getConnectedEthAccounts().includes(connectedWallet?.toLowerCase() ?? '') && (
+        {canSignInEth && !KyberOauth2.getConnectedAccounts().includes(connectedWallet?.toLowerCase() ?? '') && (
           <ActionItem onClick={() => signIn()}>
             <UserPlus size={18} /> <Trans>Add Account with current wallet</Trans>
           </ActionItem>

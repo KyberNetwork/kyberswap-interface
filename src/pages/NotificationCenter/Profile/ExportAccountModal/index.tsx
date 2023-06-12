@@ -36,11 +36,11 @@ export default function ExportAccountModal({ isOpen, onDismiss }: Props) {
   const guestAccountStr = guestAccount ? JSON.stringify(guestAccount) : ''
 
   const [step, setStep] = useState(() => {
-    return getStep(guestAccount?.account)
+    return getStep(guestAccount?.account ?? '')
   })
 
   const [importToken, setImportToken] = useState(() => {
-    const storedImportToken = getImportToken(guestAccount?.account)
+    const storedImportToken = getImportToken(guestAccount?.account ?? '')
     if (storedImportToken) {
       return storedImportToken
     }
@@ -75,7 +75,7 @@ export default function ExportAccountModal({ isOpen, onDismiss }: Props) {
 
   useEffect(() => {
     if (isOpen) {
-      setStep(getStep(guestAccount?.account))
+      setStep(getStep(guestAccount?.account ?? ''))
     }
   }, [guestAccount?.account, isOpen])
 
