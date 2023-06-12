@@ -101,127 +101,148 @@ function ClassicElasticTab() {
       : theme.primary
     : theme.subText
 
-  const renderPoolButtons = () => {
+  const renderComboElasticPoolsButton = () => {
     return (
-      <>
-        <MouseoverTooltip
-          width="fit-content"
-          placement="bottom"
-          text={
-            notSupportedMsg ||
-            (!showLegacyPoolsExplicitly ? (
-              <Flex flexDirection="column" sx={{ gap: '16px', padding: '8px' }}>
-                <Flex
-                  role="button"
-                  color={tab === VERSION.ELASTIC ? theme.primary : theme.subText}
-                  sx={{ gap: '8px', cursor: 'pointer' }}
-                  fontSize="16px"
-                  fontWeight={500}
-                  onClick={handleClickElastic}
-                  alignItems="center"
-                >
-                  <PoolElasticIcon size={16} />
-                  <Trans>Elastic Pools</Trans>
-                </Flex>
-
-                <Flex
-                  role="button"
-                  color={tab === VERSION.ELASTIC_LEGACY ? theme.primary : theme.subText}
-                  sx={{ gap: '8px', cursor: 'pointer' }}
-                  fontWeight={500}
-                  fontSize="16px"
-                  onClick={handleClickElasticLegacy}
-                  alignItems="center"
-                >
-                  <PoolElasticIcon size={16} />
-                  <Trans>Elastic Pools</Trans>
-                  <LegacyTag isActive={tab === VERSION.ELASTIC_LEGACY} />
-                </Flex>
+      <MouseoverTooltip
+        width="fit-content"
+        placement="bottom"
+        text={
+          notSupportedMsg ||
+          (!showLegacyPoolsExplicitly ? (
+            <Flex flexDirection="column" sx={{ gap: '16px', padding: '8px' }}>
+              <Flex
+                role="button"
+                color={tab === VERSION.ELASTIC ? theme.primary : theme.subText}
+                sx={{ gap: '8px', cursor: 'pointer' }}
+                fontSize="16px"
+                fontWeight={500}
+                onClick={handleClickElastic}
+                alignItems="center"
+              >
+                <PoolElasticIcon size={16} />
+                <Trans>Elastic Pools</Trans>
               </Flex>
-            ) : null)
-          }
-          noArrow
-        >
-          <Flex
-            role="button"
-            alignItems={'center'}
-            color={
-              tab === VERSION.ELASTIC || tab === VERSION.ELASTIC_LEGACY
-                ? !!notSupportedMsg
-                  ? theme.disableText
-                  : theme.primary
-                : theme.subText
-            }
-            onClick={() => {
-              if (!!notSupportedMsg) {
-                return
-              }
-              const newQs = { ...qs, tab: VERSION.ELASTIC }
-              navigate({ search: stringify(newQs) }, { replace: true })
-            }}
-          >
-            <Flex
-              sx={{
-                flex: '0 0 20px',
-                height: '20px',
-              }}
-            >
-              <PoolElasticIcon
-                size={20}
-                color={
-                  tab === VERSION.ELASTIC || tab === VERSION.ELASTIC_LEGACY
-                    ? !!notSupportedMsg
-                      ? theme.disableText
-                      : theme.primary
-                    : theme.subText
-                }
-              />
+
+              <Flex
+                role="button"
+                color={tab === VERSION.ELASTIC_LEGACY ? theme.primary : theme.subText}
+                sx={{ gap: '8px', cursor: 'pointer' }}
+                fontWeight={500}
+                fontSize="16px"
+                onClick={handleClickElasticLegacy}
+                alignItems="center"
+              >
+                <PoolElasticIcon size={16} />
+                <Trans>Elastic Pools</Trans>
+                <LegacyTag isActive={tab === VERSION.ELASTIC_LEGACY} />
+              </Flex>
             </Flex>
-            <Text
-              fontWeight={500}
-              fontSize={[18, 20, 24]}
-              width={'auto'}
-              marginLeft="4px"
-              sx={{
-                whiteSpace: 'nowrap',
-                cursor: !!notSupportedMsg ? 'not-allowed' : 'pointer',
-              }}
-            >
-              <Trans>Elastic Pools</Trans>
-            </Text>
+          ) : null)
+        }
+        noArrow
+      >
+        {tab === VERSION.ELASTIC_LEGACY ? renderElasticLegacyPoolsButton() : renderElasticPoolsButton()}
+        {showLegacyPoolsExplicitly || <DropdownSVG style={{ color }} />}
+      </MouseoverTooltip>
+    )
+  }
 
-            {tab === VERSION.ELASTIC_LEGACY && <LegacyTag isActive />}
-
-            <DropdownSVG style={{ color }} />
-          </Flex>
-        </MouseoverTooltip>
-
-        <Separator />
-
-        <Flex
+  const renderElasticPoolsButton = () => {
+    return (
+      <Flex sx={{ position: 'relative' }} alignItems={'center'} onClick={handleClickElastic}>
+        <PoolElasticIcon size={20} color={tab === VERSION.ELASTIC ? theme.primary : theme.subText} />
+        <Text
+          fontWeight={500}
+          fontSize={[18, 20, 24]}
+          color={tab === VERSION.ELASTIC ? (!!notSupportedMsg ? theme.disableText : theme.primary) : theme.subText}
+          width={'auto'}
+          marginLeft="4px"
           role="button"
-          alignItems={'center'}
-          onClick={handleClickClassic}
-          color={tab === VERSION.CLASSIC ? theme.primary : theme.subText}
+          style={{
+            cursor: !!notSupportedMsg ? 'not-allowed' : 'pointer',
+          }}
         >
-          <Flex
-            sx={{
-              flex: '0 0 20px',
-              height: '20px',
-            }}
-          >
-            <PoolClassicIcon size={20} color={tab === VERSION.CLASSIC ? theme.primary : theme.subText} />
-          </Flex>
+          <Trans>Elastic Pools</Trans>
+        </Text>
+      </Flex>
+    )
+  }
+
+  const renderElasticLegacyPoolsButton = () => {
+    return (
+      <MouseoverTooltip text={notSupportedMsg || ''}>
+        <Flex sx={{ position: 'relative' }} alignItems={'center'} onClick={handleClickElasticLegacy}>
+          <PoolElasticIcon size={20} color={tab === VERSION.ELASTIC_LEGACY ? theme.primary : theme.subText} />
           <Text
             fontWeight={500}
             fontSize={[18, 20, 24]}
+            color={
+              tab === VERSION.ELASTIC_LEGACY ? (!!notSupportedMsg ? theme.disableText : theme.primary) : theme.subText
+            }
             width={'auto'}
             marginLeft="4px"
-            sx={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
+            role="button"
+            style={{
+              cursor: !!notSupportedMsg ? 'not-allowed' : 'pointer',
+            }}
           >
-            <Trans>Classic Pools</Trans>
+            <Trans>Elastic Pools</Trans>
           </Text>
+          <LegacyTag isActive={tab === VERSION.ELASTIC_LEGACY} />
         </Flex>
+      </MouseoverTooltip>
+    )
+  }
+
+  const renderClassicPoolsButton = () => {
+    return (
+      <Flex
+        role="button"
+        alignItems={'center'}
+        onClick={handleClickClassic}
+        color={tab === VERSION.CLASSIC ? theme.primary : theme.subText}
+      >
+        <Flex
+          sx={{
+            flex: '0 0 20px',
+            height: '20px',
+          }}
+        >
+          <PoolClassicIcon size={20} color={tab === VERSION.CLASSIC ? theme.primary : theme.subText} />
+        </Flex>
+        <Text
+          fontWeight={500}
+          fontSize={[18, 20, 24]}
+          width={'auto'}
+          marginLeft="4px"
+          sx={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
+        >
+          <Trans>Classic Pools</Trans>
+        </Text>
+      </Flex>
+    )
+  }
+
+  const renderPoolButtons = () => {
+    if (showLegacyPoolsExplicitly) {
+      return (
+        <>
+          {renderElasticPoolsButton()}
+          <Separator />
+          {renderElasticLegacyPoolsButton()}
+          <Separator />
+          {renderClassicPoolsButton()}
+        </>
+      )
+    }
+
+    return (
+      <>
+        {renderComboElasticPoolsButton()}
+
+        <Separator />
+
+        {renderClassicPoolsButton()}
       </>
     )
   }
@@ -290,15 +311,26 @@ function ClassicElasticTab() {
         }}
       >
         <Flex
-          width="max-content"
+          width="100%"
           sx={{
-            gap: '8px',
+            gap: '16px',
             flex: 1,
             justifyContent: 'space-between',
+            flexWrap: 'wrap',
           }}
         >
-          {renderPoolButtons()}
+          {renderElasticPoolsButton()}
+          {renderElasticLegacyPoolsButton()}
+          {renderClassicPoolsButton()}
         </Flex>
+
+        <Flex
+          sx={{
+            width: '100%',
+            height: '0',
+            borderBottom: `1px solid ${theme.border}`,
+          }}
+        />
 
         <Flex
           sx={{
