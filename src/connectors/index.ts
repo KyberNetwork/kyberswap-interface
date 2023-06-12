@@ -12,6 +12,7 @@ export const [coin98, coin98Hooks] = initializeConnector<MetaMask>(actions => ne
 export const [brave, braveHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
 export const [trustWallet, trustWalletHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
 
+const darkmode = Boolean(window.matchMedia('(prefers-color-scheme: dark)'))
 export const [walletConnectV2, walletConnectV2Hooks] = initializeConnector<WalletConnectV2>(
   actions =>
     new WalletConnectV2({
@@ -19,17 +20,26 @@ export const [walletConnectV2, walletConnectV2Hooks] = initializeConnector<Walle
       defaultChainId: ChainId.MAINNET,
       options: {
         projectId: WALLETCONNECT_PROJECT_ID,
-        chains: WALLET_CONNECT_SUPPORTED_CHAIN_IDS,
-        // optionalChains,
+        chains: [ChainId.MAINNET],
+        optionalChains: WALLET_CONNECT_SUPPORTED_CHAIN_IDS,
         showQrModal: true,
+        methods: ['eth_sendTransaction', 'personal_sign'],
+        events: ['chainChanged', 'accountsChanged'],
         rpcMap: SUPPORTED_NETWORKS.reduce((acc, cur) => {
           acc[cur] = NETWORKS_INFO[cur].defaultRpcUrl
           return acc
         }, {} as { [key in ChainId]: string }),
         qrModalOptions: {
+          themeMode: darkmode ? 'dark' : 'light',
           themeVariables: {
             '--w3m-z-index': '1000',
           },
+        },
+        metadata: {
+          name: 'Kyberswap',
+          description: 'Kyberswap - Trading smart',
+          url: 'https://kyberswap.com',
+          icons: ['https://kyberswap.com/favicon.svg'],
         },
       },
     }),
