@@ -61,9 +61,7 @@ export default function QRCodeContent({ dismissModal, importToken, forgotPasscod
   }, [importToken])
 
   let qrElement = null
-  let error = true
   try {
-    error = false
     qrElement = qrCodeProps ? <QRCode {...qrCodeProps} /> : <Flex sx={{ width: '228px', height: '228px' }} />
   } catch (e) {
     qrElement = (

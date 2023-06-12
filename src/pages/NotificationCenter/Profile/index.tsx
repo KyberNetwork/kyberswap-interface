@@ -241,7 +241,7 @@ export default function Profile() {
               <Save size={16} style={{ marginRight: '4px' }} />
               Save
             </ButtonSave>
-            {signedWallet && (
+            {signedWallet ? (
               <ButtonLogout
                 onClick={() => {
                   signOut(signedWallet)
@@ -251,9 +251,9 @@ export default function Profile() {
                 <LogOut size={16} style={{ marginRight: '4px' }} />
                 Log Out
               </ButtonLogout>
+            ) : (
+              <ExportAccountButton />
             )}
-
-            <ExportAccountButton />
           </ActionsWrapper>
         </LeftColum>
 
