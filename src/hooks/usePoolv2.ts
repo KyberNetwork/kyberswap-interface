@@ -135,10 +135,11 @@ export function usePoolv2(
   currencyA: Currency | undefined,
   currencyB: Currency | undefined,
   feeAmount: FeeAmount | undefined,
+  poolAddress?: string,
 ): {
   poolState: PoolState
   pool: Pool | undefined
-  poolAddress: string | undefined
+  computedPoolAddress: string | undefined
 } {
   const isEVM = isEVMNetwork(chainId)
   const networkInfo = NETWORKS_INFO[chainId]
@@ -158,7 +159,11 @@ export function usePoolv2(
     return [token0, token1, feeAmount]
   }, [currencyA, currencyB, feeAmount])
 
-  const poolAddress: string | undefined = useMemo(() => {
+  const computedPoolAddress: string | undefined = useMemo(() => {
+    if (poolAddress) {
+      return poolAddress
+    }
+
     if (!isEVM || !values) {
       return undefined
     }
@@ -173,15 +178,15 @@ export function usePoolv2(
     }
 
     return computePoolAddress(param)
-  }, [isEVM, networkInfo, values])
+  }, [isEVM, networkInfo, poolAddress, values])
 
-  const [poolState, pool] = useGetPool(chainId, poolAddress, values?.[0], values?.[1], values?.[2])
+  const [poolState, pool] = useGetPool(chainId, computedPoolAddress, values?.[0], values?.[1], values?.[2])
 
   return useMemo(() => {
     return {
       poolState,
       pool,
-      poolAddress,
+      computedPoolAddress,
     }
-  }, [pool, poolAddress, poolState])
+  }, [pool, computedPoolAddress, poolState])
 }

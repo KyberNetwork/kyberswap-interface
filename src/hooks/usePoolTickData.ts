@@ -67,11 +67,11 @@ export function usePoolActiveLiquidity(
   const { chainId: currentChainId } = useActiveWeb3React()
   const chainId = currencyA?.chainId || currentChainId
 
-  const { pool, poolState, poolAddress } = usePoolv2(chainId, currencyA, currencyB, feeAmount)
+  const { pool, poolState, computedPoolAddress } = usePoolv2(chainId, currencyA, currencyB, feeAmount)
 
   // Find nearest valid tick for pool in case tick is not initialized.
   const activeTick = useMemo(() => getActiveTick(pool?.tickCurrent, feeAmount), [pool, feeAmount])
-  const { isLoading, isUninitialized, isError, error, ticks } = useAllV3Ticks(chainId, poolAddress)
+  const { isLoading, isUninitialized, isError, error, ticks } = useAllV3Ticks(chainId, computedPoolAddress)
 
   return useMemo(() => {
     if (

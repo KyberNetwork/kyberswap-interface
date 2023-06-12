@@ -92,7 +92,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
     return [currency0, currency1]
   }, [chainId, poolEarning.token0.id, poolEarning.token1.id, tokensByChainId])
 
-  const { pool, poolState } = usePoolv2(chainId, currency0, currency1, feeAmount)
+  const { pool, poolState, computedPoolAddress } = usePoolv2(chainId, currency0, currency1, feeAmount, poolEarning.id)
   const isExpandable = !!pool && poolState !== PoolState.LOADING
 
   const toggleExpanded = useCallback(() => {
@@ -308,6 +308,12 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
         background: theme.background,
         border: `1px solid ${theme.border}`,
         borderRadius: '20px',
+      }}
+      onClick={() => {
+        console.log({
+          computedPoolAddress,
+          poolAddressFromEarning: poolEarning.id,
+        })
       }}
     >
       <Flex
