@@ -24,17 +24,6 @@ import './connectWalletCommands'
 import './selectTokenCommands'
 
 registerCypressGrep()
-Sentry.init({
-  dsn: process.env.SENTRY_DNS,
-  environment: 'production',
-  ignoreErrors: ['AbortError'],
-  integrations: [new BrowserTracing()],
-  tracesSampleRate: 0.1,
-})
-Sentry.configureScope(scope => {
-  scope.setTag('request_id', Date.now())
-  scope.setTag('version', 'E2E')
-})
 
 Cypress.on('fail', (err, runable) => {
   const e = new Error('E2E Error: ' + runable.title)
