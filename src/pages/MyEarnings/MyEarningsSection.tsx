@@ -428,8 +428,12 @@ const MyEarningsSection = () => {
           flexWrap: 'wrap',
         }}
       >
-        <EarningsBreakdownPanel isLoading={getEarningData.isLoading} data={earningBreakdown} />
-        <MyEarningsOverTimePanel isLoading={getEarningData.isLoading} ticks={ticks} isContainerSmall={upToExtraSmall} />
+        <EarningsBreakdownPanel isLoading={getEarningData.isFetching} data={earningBreakdown} />
+        <MyEarningsOverTimePanel
+          isLoading={getEarningData.isFetching}
+          ticks={ticks}
+          isContainerSmall={upToExtraSmall}
+        />
       </Flex>
 
       <Text
