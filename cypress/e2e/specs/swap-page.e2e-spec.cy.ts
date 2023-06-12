@@ -30,14 +30,14 @@ describe('Token Catalog', () => {
       cy.clickButton(token.tokenIn)
       cy.selectTokenInFavoriteTokensList(token.favoriteToken, tokenSymbol[1])
       cy.verifySelectedToken(token.tokenIn, tokenSymbol[1])
-      cy.verifyURL(token.tokenIn, token.tokenOut)
+      cy.verifyURL(tokenSymbol[1], 'ABCs')
     })
 
     it('Should be selected tokenOut in favorite tokens list successfully', { tags: 'regression' }, () => {
       cy.clickButton(token.tokenOut)
       cy.selectTokenInFavoriteTokensList(token.favoriteToken, tokenSymbol[1])
       cy.verifySelectedToken(token.tokenOut, tokenSymbol[1])
-      cy.verifyURL(token.tokenIn, token.tokenOut)
+      cy.verifyURL('', tokenSymbol[1])
     })
   })
 
@@ -80,14 +80,14 @@ describe('Token Catalog', () => {
       cy.clickButton(token.tokenIn)
       cy.selectTokenBySymbol(token.inputToken, tokenSymbol[0])
       cy.verifySelectedToken(token.tokenIn, tokenSymbol[0])
-      cy.verifyURL(token.tokenIn, token.tokenOut)
+      cy.verifyURL(tokenSymbol[0], '')
     })
 
     it('Should be selected tokenOut by symbol successfully', { tags: 'regression' }, () => {
       cy.clickButton(token.tokenOut)
       cy.selectTokenBySymbol(token.inputToken, tokenSymbol[1])
       cy.verifySelectedToken(token.tokenOut, tokenSymbol[1])
-      cy.verifyURL(token.tokenIn, token.tokenOut)
+      cy.verifyURL('', tokenSymbol[1])
     })
 
     it('Should be unselected tokenIn not exist in whitelist', { tags: 'regression' }, () => {
@@ -177,11 +177,10 @@ describe('Token Catalog', () => {
       cy.clickButton(token.tokenIn)
       cy.selectTokenInFavoriteTokensList(token.favoriteToken, tokenSymbol[1])
       cy.verifySelectedToken(token.tokenIn, tokenSymbol[1])
-      cy.verifyURL(token.tokenIn, token.tokenOut)
       //select tokenOut
       cy.importNewTokenByAddress(token.tokenOut, unWhiteListedToken.SCOOBY.address)
-      cy.verifySelectedToken(token.tokenOut, unWhiteListedToken.TUSD.name)
-      cy.verifyURL(token.tokenIn, token.tokenOut)
+      cy.verifySelectedToken(token.tokenOut, unWhiteListedToken.SCOOBY.name)
+      cy.verifyURL(tokenSymbol[1], unWhiteListedToken.SCOOBY.name)
       //delete imported tokenOut
       cy.clickButton(token.tokenOut)
       cy.clickButton(tab.import)

@@ -14,6 +14,7 @@
 // ***********************************************************
 import '@cypress/grep'
 import registerCypressGrep from '@cypress/grep/src/support'
+import { captureException } from '@sentry/react'
 import '@synthetixio/synpress/support/index'
 
 import './commands'
@@ -21,3 +22,9 @@ import './connectWalletCommands'
 import './selectTokenCommands'
 
 registerCypressGrep()
+
+Cypress.on('fail', (err, runable) => {
+  const e = new Error('E2E Error: ' + runable.title)
+  captureException(e)
+  throw err
+})
