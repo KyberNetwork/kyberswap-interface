@@ -53,7 +53,7 @@ import Verify from './Verify'
 const ElasticSwap = lazy(() => import('./ElasticSwap'))
 const SwapV2 = lazy(() => import('./SwapV2'))
 const SwapV3 = lazy(() => import('./SwapV3'))
-// const Bridge = lazy(() => import('./Bridge'))
+const Bridge = lazy(() => import('./Bridge'))
 const Pools = lazy(() => import('./Pools'))
 const Pool = lazy(() => import('./Pool'))
 
@@ -894,7 +894,7 @@ export default function App() {
                     <Route path={`${APP_PATHS.BUY_CRYPTO}`} element={<BuyCrypto />} />
                     <Route path={`${APP_PATHS.CAMPAIGN}`} element={<Campaign />} />
                     <Route path={`${APP_PATHS.CAMPAIGN}/:slug`} element={<Campaign />} />
-                    {/*<Route path={`${APP_PATHS.BRIDGE}`} element={<Bridge />} />*/}
+                    <Route path={`${APP_PATHS.BRIDGE}`} element={<Bridge />} />
                     <Route path={`${APP_PATHS.VERIFY_EXTERNAL}`} element={<Verify />} />
                     <Route path={`${APP_PATHS.NOTIFICATION_CENTER}`} element={<NotificationCenter />} />
                     <Route path={`${APP_PATHS.NOTIFICATION_CENTER}/*`} element={<NotificationCenter />} />

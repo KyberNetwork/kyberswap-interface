@@ -27,7 +27,7 @@ const GaugeValue = styled.div`
   justify-content: center;
   bottom: 6px;
 `
-function SmallKyberScoreMeter({ data }: { data?: IKyberScoreChart }) {
+function SmallKyberScoreMeter({ data, disabledTooltip }: { data?: IKyberScoreChart; disabledTooltip?: boolean }) {
   const value = data?.kyber_score
   const theme = useTheme()
   const emptyColor = theme.darkMode ? theme.subText + '30' : theme.border + '60'
@@ -74,6 +74,7 @@ function SmallKyberScoreMeter({ data }: { data?: IKyberScoreChart }) {
               </Text>
             )
           }
+          disabled={disabledTooltip}
         >
           <RowFit gap="2px">
             <Text fontSize="12px" lineHeight="16px" color={calculateValueToColor(value || 0, theme)}>

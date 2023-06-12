@@ -26,6 +26,7 @@ export default function useGetRouteCrossChain(params: GetRoute | undefined) {
       try {
         currentRequest.current = debounceParams
         setLoading(true)
+        setError(false)
         isRefresh && setTradeRoute(undefined)
         const resp = await squidInstance.getRoute({ ...debounceParams, prefer: ['KYBERSWAP_AGGREGATOR'] })
         route = resp.route

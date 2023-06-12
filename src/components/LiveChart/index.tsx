@@ -10,6 +10,7 @@ import styled from 'styled-components'
 import { ReactComponent as GeckoTerminalSVG } from 'assets/svg/geckoterminal.svg'
 import { ReactComponent as GeckoTerminalLightSVG } from 'assets/svg/geckoterminal_light.svg'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
+import ErrorBoundary from 'components/ErrorBoundary'
 import Loader from 'components/LocalLoader'
 import TradingViewChart from 'components/TradingViewChart'
 import { useActiveWeb3React } from 'hooks'
@@ -262,155 +263,157 @@ function LiveChart({
   const label = `${nativeInputCurrency?.symbol} / ${nativeOutputCurrency?.symbol}`
 
   return (
-    <LiveChartWrapper>
-      {isWrappedToken ? (
-        <Flex
-          minHeight={isMobile ? '380px' : '440px'}
-          flexDirection={'column'}
-          alignItems={'center'}
-          justifyContent={'center'}
-          color={theme.border}
-          sx={{ gap: '16px' }}
-        >
-          <CircleInfoIcon />
-          <Text fontSize={16} textAlign={'center'}>
-            {isUnwrapingWSOL ? (
-              <Trans>You can only swap all WSOL to SOL</Trans>
-            ) : (
-              <Trans>
-                You can swap {nativeInputCurrency?.symbol} for {nativeOutputCurrency?.symbol} (and vice versa)
-              </Trans>
-            )}
-            <br />
-            <Trans>Exchange rate is always 1 to 1.</Trans>
-          </Text>
-        </Flex>
-      ) : (
-        <>
-          <Flex justifyContent="space-between" alignItems="center" paddingY="4px">
-            <Flex flex={isMobile ? 2 : 1}>
-              <DoubleCurrencyLogo
-                currency0={nativeInputCurrency}
-                currency1={nativeOutputCurrency}
-                size={24}
-                margin={true}
-              />
-              <Flex alignItems="center" fontSize={isMobile ? 14 : 18} color={theme.subText}>
-                <Flex alignItems="center">
-                  <Text fontSize={isMobile ? 18 : 24} fontWeight={500} color={theme.text}>
-                    {nativeInputCurrency?.symbol}
-                  </Text>
-                  <Text marginLeft="4px" style={{ whiteSpace: 'nowrap' }}>
-                    {' / '}
-                    {nativeOutputCurrency?.symbol}
-                  </Text>
+    <ErrorBoundary captureError={false}>
+      <LiveChartWrapper>
+        {isWrappedToken ? (
+          <Flex
+            minHeight={isMobile ? '380px' : '440px'}
+            flexDirection={'column'}
+            alignItems={'center'}
+            justifyContent={'center'}
+            color={theme.border}
+            sx={{ gap: '16px' }}
+          >
+            <CircleInfoIcon />
+            <Text fontSize={16} textAlign={'center'}>
+              {isUnwrapingWSOL ? (
+                <Trans>You can only swap all WSOL to SOL</Trans>
+              ) : (
+                <Trans>
+                  You can swap {nativeInputCurrency?.symbol} for {nativeOutputCurrency?.symbol} (and vice versa)
+                </Trans>
+              )}
+              <br />
+              <Trans>Exchange rate is always 1 to 1.</Trans>
+            </Text>
+          </Flex>
+        ) : (
+          <>
+            <Flex justifyContent="space-between" alignItems="center" paddingY="4px">
+              <Flex flex={isMobile ? 2 : 1}>
+                <DoubleCurrencyLogo
+                  currency0={nativeInputCurrency}
+                  currency1={nativeOutputCurrency}
+                  size={24}
+                  margin={true}
+                />
+                <Flex alignItems="center" fontSize={isMobile ? 14 : 18} color={theme.subText}>
+                  <Flex alignItems="center">
+                    <Text fontSize={isMobile ? 18 : 24} fontWeight={500} color={theme.text}>
+                      {nativeInputCurrency?.symbol}
+                    </Text>
+                    <Text marginLeft="4px" style={{ whiteSpace: 'nowrap' }}>
+                      {' / '}
+                      {nativeOutputCurrency?.symbol}
+                    </Text>
+                  </Flex>
+                  <SwitchButtonWrapper
+                    onClick={() =>
+                      setCurrenciesState(prev => {
+                        return { INPUT: prev[Field.OUTPUT], OUTPUT: prev[Field.INPUT] }
+                      })
+                    }
+                  >
+                    <Repeat size={14} />
+                  </SwitchButtonWrapper>
                 </Flex>
-                <SwitchButtonWrapper
-                  onClick={() =>
-                    setCurrenciesState(prev => {
-                      return { INPUT: prev[Field.OUTPUT], OUTPUT: prev[Field.INPUT] }
-                    })
-                  }
-                >
-                  <Repeat size={14} />
-                </SwitchButtonWrapper>
+              </Flex>
+              <Flex flex={1} justifyContent="flex-end">
+                {toggle}
               </Flex>
             </Flex>
-            <Flex flex={1} justifyContent="flex-end">
-              {toggle}
-            </Flex>
-          </Flex>
 
-          {/* Stop tradingview from rerender on isShowProChart change */}
-          <div style={{ display: isShowProChart && !!poolAddress ? 'block' : 'none', height: '100%' }}>
-            {commonPool && <TradingViewChart poolDetail={commonPool} isReverse={isReverse} label={label} />}
-            <Flex justifyContent="flex-end" sx={{ gap: '0.5rem' }}>
-              <Text color={theme.subText} fontSize="10px">
-                Powered by
-              </Text>
-              {isDarkMode ? (
-                <GeckoTerminalSVG style={{ width: '75px' }} />
-              ) : (
-                <GeckoTerminalLightSVG style={{ width: '75px' }} />
-              )}
-            </Flex>
-          </div>
+            {/* Stop tradingview from rerender on isShowProChart change */}
+            <div style={{ display: isShowProChart && !!poolAddress ? 'block' : 'none', height: '100%' }}>
+              {commonPool && <TradingViewChart poolDetail={commonPool} isReverse={isReverse} label={label} />}
+              <Flex justifyContent="flex-end" sx={{ gap: '0.5rem', marginTop: '6px' }}>
+                <Text color={theme.subText} fontSize="10px">
+                  Powered by
+                </Text>
+                {isDarkMode ? (
+                  <GeckoTerminalSVG style={{ width: '75px' }} />
+                ) : (
+                  <GeckoTerminalLightSVG style={{ width: '75px' }} />
+                )}
+              </Flex>
+            </div>
 
-          {!isShowProChart && (
-            <>
-              <Flex justifyContent="space-between" alignItems="flex-start" marginTop="12px">
-                <Flex flexDirection="column" alignItems="flex-start">
-                  {showingValue === 0 || basicChartError ? (
-                    <Text fontSize={28} color={theme.subText}>
-                      --
-                    </Text>
-                  ) : (
-                    <AnimatingNumber
-                      value={showingValue}
-                      symbol={nativeOutputCurrency?.symbol}
-                      fontSize={isMobile ? 24 : 28}
-                    />
-                  )}
-                  <Flex marginTop="2px">
+            {!isShowProChart && (
+              <>
+                <Flex justifyContent="space-between" alignItems="flex-start" marginTop="12px">
+                  <Flex flexDirection="column" alignItems="flex-start">
                     {showingValue === 0 || basicChartError ? (
-                      <Text fontSize={12} color={theme.disableText}>
+                      <Text fontSize={28} color={theme.subText}>
                         --
                       </Text>
                     ) : (
-                      <>
-                        <Text fontSize={12} color={different >= 0 ? '#31CB9E' : '#FF537B'} marginRight="5px">
-                          {different} ({differentPercent}%)
+                      <AnimatingNumber
+                        value={showingValue}
+                        symbol={nativeOutputCurrency?.symbol}
+                        fontSize={isMobile ? 24 : 28}
+                      />
+                    )}
+                    <Flex marginTop="2px">
+                      {showingValue === 0 || basicChartError ? (
+                        <Text fontSize={12} color={theme.disableText}>
+                          --
                         </Text>
-                        {!hoverValue && (
-                          <Text fontSize={12} color={theme.disableText}>
-                            {getTimeFrameText(timeFrame)}
-                          </Text>
-                        )}
-                      </>
-                    )}
-                  </Flex>
-                </Flex>
-                {!isMobile && renderTimeframes()}
-              </Flex>
-              {isMobile && renderTimeframes()}
-              <div style={{ flex: 1, marginTop: '12px' }}>
-                {basicChartLoading || isBasicchartError ? (
-                  <Flex
-                    minHeight={isMobile ? '300px' : '370px'}
-                    flexDirection={'column'}
-                    alignItems={'center'}
-                    justifyContent={'center'}
-                    color={theme.disableText}
-                    style={{ gap: '16px' }}
-                  >
-                    {basicChartLoading ? (
-                      <Loader />
-                    ) : (
-                      isBasicchartError && (
+                      ) : (
                         <>
-                          <WarningIcon />
-                          <Text fontSize={16}>
-                            <Trans>Chart is unavailable right now</Trans>
+                          <Text fontSize={12} color={different >= 0 ? '#31CB9E' : '#FF537B'} marginRight="5px">
+                            {different} ({differentPercent}%)
                           </Text>
+                          {!hoverValue && (
+                            <Text fontSize={12} color={theme.disableText}>
+                              {getTimeFrameText(timeFrame)}
+                            </Text>
+                          )}
                         </>
-                      )
-                    )}
+                      )}
+                    </Flex>
                   </Flex>
-                ) : (
-                  <LineChart
-                    data={chartData}
-                    setHoverValue={setHoverValue}
-                    color={chartColor}
-                    timeFrame={timeFrame}
-                    minHeight={370}
-                  />
-                )}
-              </div>
-            </>
-          )}
-        </>
-      )}
-    </LiveChartWrapper>
+                  {!isMobile && renderTimeframes()}
+                </Flex>
+                {isMobile && renderTimeframes()}
+                <div style={{ flex: 1, marginTop: '12px' }}>
+                  {basicChartLoading || isBasicchartError ? (
+                    <Flex
+                      minHeight={isMobile ? '300px' : '370px'}
+                      flexDirection={'column'}
+                      alignItems={'center'}
+                      justifyContent={'center'}
+                      color={theme.disableText}
+                      style={{ gap: '16px' }}
+                    >
+                      {basicChartLoading ? (
+                        <Loader />
+                      ) : (
+                        isBasicchartError && (
+                          <>
+                            <WarningIcon />
+                            <Text fontSize={16}>
+                              <Trans>Chart is unavailable right now</Trans>
+                            </Text>
+                          </>
+                        )
+                      )}
+                    </Flex>
+                  ) : (
+                    <LineChart
+                      data={chartData}
+                      setHoverValue={setHoverValue}
+                      color={chartColor}
+                      timeFrame={timeFrame}
+                      minHeight={370}
+                    />
+                  )}
+                </div>
+              </>
+            )}
+          </>
+        )}
+      </LiveChartWrapper>
+    </ErrorBoundary>
   )
 }
 

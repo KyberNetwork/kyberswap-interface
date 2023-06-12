@@ -8,7 +8,6 @@ import styled from 'styled-components'
 
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import Banner from 'components/Banner'
-import KyberAITokenBanner from 'components/KyberAITokenBanner'
 import { SEOSwap } from 'components/SEO'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import TokenWarningModal from 'components/TokenWarningModal'
@@ -26,6 +25,7 @@ import TokenInfoV2 from 'components/swapv2/TokenInfoV2'
 import {
   Container,
   InfoComponentsWrapper,
+  KyberAIBannerWrapper,
   LiveChartWrapper,
   PageWrapper,
   RoutesWrapper,
@@ -39,6 +39,7 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { BodyWrapper } from 'pages/AppBody'
 import CrossChain from 'pages/CrossChain'
+import CrossChainLink from 'pages/CrossChain/CrossChainLink'
 import CrossChainTransfersHistory from 'pages/CrossChain/TransfersHistory'
 import Header from 'pages/SwapV3/Header'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
@@ -59,6 +60,8 @@ import PopulatedSwapForm from './PopulatedSwapForm'
 const TradeRouting = lazy(() => import('components/TradeRouting'))
 
 const LiveChart = lazy(() => import('components/LiveChart'))
+
+const KyberAITokenBanner = lazy(() => import('components/KyberAITokenBanner'))
 
 export const InfoComponents = ({ children }: { children: ReactNode[] }) => {
   return children.filter(Boolean).length ? <InfoComponentsWrapper>{children}</InfoComponentsWrapper> : null
@@ -279,10 +282,26 @@ export default function Swap() {
               )}
               {activeTab === TAB.CROSS_CHAIN && <CrossChain />}
             </AppBodyWrapped>
+            {isCrossChainPage && <CrossChainLink isBridge />}
           </SwapFormWrapper>
 
           <InfoComponents>
-            {isShowKyberAIBanner && <KyberAITokenBanner currencyIn={currencyIn} currencyOut={currencyOut} />}
+            {isShowKyberAIBanner && (
+              <KyberAIBannerWrapper>
+                <Suspense
+                  fallback={
+                    <Skeleton
+                      height="100%"
+                      baseColor={theme.background}
+                      highlightColor={theme.buttonGray}
+                      borderRadius="24px"
+                    />
+                  }
+                >
+                  <KyberAITokenBanner currencyIn={currencyIn} currencyOut={currencyOut} />
+                </Suspense>
+              </KyberAIBannerWrapper>
+            )}
             {isShowLiveChart && (
               <LiveChartWrapper>
                 <Suspense
