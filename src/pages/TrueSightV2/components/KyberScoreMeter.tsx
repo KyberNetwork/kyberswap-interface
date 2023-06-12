@@ -288,7 +288,8 @@ function KyberScoreMeter({
       if (frameTime > interval) {
         // render the next frame
         lastFrameTime = currentTime - (elapsedTime % interval)
-        currentValueRef.current = easeOutQuart(elapsedTime, prevValue, nextValue - prevValue, duration)
+        currentValueRef.current =
+          elapsedTime < duration ? easeOutQuart(elapsedTime, prevValue, nextValue - prevValue, duration) : nextValue
         const activeGaugeValue = (gaugeList.length * currentValueRef.current) / 100
         valueRef.current.innerText = hidden ? '??' : nextValue ? currentValueRef.current.toFixed(1) : '--'
         valueRef.current.setAttribute('style', 'color:' + calculateValueToColor(currentValueRef.current, theme))
@@ -333,10 +334,12 @@ function KyberScoreMeter({
           window.requestAnimationFrame(currentTime => step(currentTime, 1, 50))
         }, 5000)
       }
-      intervalFunc()
-      timeout = setInterval(() => {
+      setTimeout(() => {
         intervalFunc()
-      }, 12000)
+        timeout = setInterval(() => {
+          intervalFunc()
+        }, 12000)
+      }, 2000)
     } else {
       window.requestAnimationFrame(currentTime => step(currentTime, 0, valueProp))
     }

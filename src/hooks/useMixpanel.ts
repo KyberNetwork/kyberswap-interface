@@ -247,6 +247,14 @@ export enum MIXPANEL_TYPE {
   KYBERAI_JOIN_KYBER_WAITLIST_CLICK,
   KYBERAI_AWESOME_CLICK,
   KYBERAI_SWAP_CLICK,
+
+  // cross chain
+  CROSS_CHAIN_CLICK_DISCLAIMER,
+  CROSS_CHAIN_SWAP_INIT,
+  CROSS_CHAIN_SWAP_CONFIRMED,
+  CROSS_CHAIN_CLICK_DISCLAIMER_CHECKBOX,
+  CROSS_CHAIN_TXS_SUBMITTED,
+  CROSS_CHAIN_CLICK_SUBSCRIBE,
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES: readonly TRANSACTION_TYPE[] = [
@@ -1166,6 +1174,31 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
         }
         case MIXPANEL_TYPE.ACCEPT_NEW_AMOUNT: {
           mixpanel.track('Accept New Amount Button Click', payload)
+          break
+        }
+
+        case MIXPANEL_TYPE.CROSS_CHAIN_CLICK_DISCLAIMER: {
+          mixpanel.track('Cross-chain - Disclaimer click')
+          break
+        }
+        case MIXPANEL_TYPE.CROSS_CHAIN_CLICK_DISCLAIMER_CHECKBOX: {
+          mixpanel.track('Cross chain - Disclaimer checkbox click')
+          break
+        }
+        case MIXPANEL_TYPE.CROSS_CHAIN_CLICK_SUBSCRIBE: {
+          mixpanel.track('Cross chain - Subscribe click')
+          break
+        }
+        case MIXPANEL_TYPE.CROSS_CHAIN_SWAP_INIT: {
+          mixpanel.track('Cross chain - Swap Initiated', payload)
+          break
+        }
+        case MIXPANEL_TYPE.CROSS_CHAIN_SWAP_CONFIRMED: {
+          mixpanel.track('Cross chain - Swap Confirmed', payload)
+          break
+        }
+        case MIXPANEL_TYPE.CROSS_CHAIN_TXS_SUBMITTED: {
+          mixpanel.track('Cross chain - Transaction Submitted', payload)
           break
         }
         case MIXPANEL_TYPE.KYBERAI_SHARE_TOKEN_CLICK: {

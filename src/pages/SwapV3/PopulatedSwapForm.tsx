@@ -17,9 +17,16 @@ type Props = {
   routeSummary: DetailedRouteSummary | undefined
   setRouteSummary: React.Dispatch<React.SetStateAction<DetailedRouteSummary | undefined>>
   goToSettingsView: () => void
+  onSelectSuggestedPair: (fromToken: Currency | undefined, toToken: Currency | undefined, amount?: string) => void
   hidden: boolean
 }
-const PopulatedSwapForm: React.FC<Props> = ({ routeSummary, setRouteSummary, goToSettingsView, hidden }) => {
+const PopulatedSwapForm: React.FC<Props> = ({
+  routeSummary,
+  setRouteSummary,
+  goToSettingsView,
+  hidden,
+  onSelectSuggestedPair,
+}) => {
   const currencyIn = useInputCurrency()
   const currencyOut = useOutputCurrency()
 
@@ -32,20 +39,9 @@ const PopulatedSwapForm: React.FC<Props> = ({ routeSummary, setRouteSummary, goT
   const [slippage] = useUserSlippageTolerance()
   const permitData = usePermitData(currencyIn?.wrapped.address)
 
-  const { onUserInput, onCurrencySelection, onResetSelectCurrency } = useSwapActionHandlers()
+  const { onCurrencySelection, onResetSelectCurrency } = useSwapActionHandlers()
 
   useUpdateSlippageInStableCoinSwap()
-
-  const onSelectSuggestedPair = useCallback(
-    (fromToken: Currency | undefined, toToken: Currency | undefined, amount?: string) => {
-      if (fromToken) onCurrencySelection(Field.INPUT, fromToken)
-      if (toToken) onCurrencySelection(Field.OUTPUT, toToken)
-      if (amount) {
-        onUserInput(Field.INPUT, amount)
-      }
-    },
-    [onCurrencySelection, onUserInput],
-  )
 
   useSyncTokenSymbolToUrl(currencyIn, currencyOut, onSelectSuggestedPair, isSelectTokenManually)
   useResetCurrenciesOnRemoveImportedTokens(currencyIn, currencyOut, onResetSelectCurrency)

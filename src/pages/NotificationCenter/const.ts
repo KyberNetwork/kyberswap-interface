@@ -19,6 +19,7 @@ export enum NOTIFICATION_ROUTES {
   MY_ELASTIC_POOLS = '/elastic-pools',
   LIMIT_ORDERS = '/limit-orders',
   BRIDGE = '/bridge',
+  CROSS_CHAIN = '/cross-chain',
   KYBER_AI_TOKENS = '/kyber-ai',
 }
 

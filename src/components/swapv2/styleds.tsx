@@ -1,10 +1,9 @@
 import { transparentize } from 'polished'
 import { useState } from 'react'
 import { Text } from 'rebass'
-import styled, { CSSProperties, css } from 'styled-components'
+import styled, { CSSProperties, DefaultTheme, css, keyframes } from 'styled-components'
 
 import { ReactComponent as Alert } from 'assets/images/alert.svg'
-import { ButtonEmpty } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import Modal, { ModalProps } from 'components/Modal'
 import { Z_INDEXS } from 'constants/styles'
@@ -27,55 +26,6 @@ export const PageWrapper = styled.div`
     gap: 16px;
     padding: 20px 16px;
 `};
-`
-
-export const TabContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-
-  @media only screen and (min-width: 768px) {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-  }
-`
-
-export const TabWrapper = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  @media only screen and (min-width: 768px) {
-    margin-bottom: 0;
-  }
-`
-
-export const Tab = styled(ButtonEmpty)<{ isActive: boolean }>`
-  width: fit-content;
-  margin-right: 1.5rem;
-  font-weight: 400;
-  padding: 0;
-  padding-bottom: 4px;
-  color: ${({ theme, isActive }) => (isActive ? theme.primary : theme.subText)};
-  position: relative;
-  border-radius: 0;
-
-  &:hover {
-    text-decoration: none;
-  }
-
-  &:focus {
-    text-decoration: none;
-  }
-
-  &:last-child {
-    margin-right: 0;
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    margin-right: 12px;
-  `}
 `
 
 export const Container = styled.div`
@@ -214,14 +164,6 @@ export function SwapCallbackError({ error, style = {} }: { error: string; style?
   )
 }
 
-export const SwapShowAcceptChanges = styled(AutoColumn)`
-  background-color: ${({ theme }) => transparentize(0.9, theme.primary)};
-  color: ${({ theme }) => theme.primary};
-  padding: 0.5rem;
-  border-radius: 12px;
-  margin-top: 8px;
-`
-
 export const GroupButtonReturnTypes = styled.div`
   display: flex;
   border-radius: 999px;
@@ -242,33 +184,6 @@ export const ButtonReturnType = styled.div<{ active?: boolean }>`
   font-weight: 500;
   cursor: pointer;
   transition: color 300ms;
-`
-
-export const SwapFormActions = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-`
-
-export const KyberTag = styled.div`
-  position: absolute;
-  align-items: center;
-  display: flex;
-  top: 12px;
-  left: 12px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.apr};
-  font-size: 0.75rem;
-  z-index: 2;
-`
-
-export const PriceImpactHigh = styled.div<{ veryHigh?: boolean }>`
-  border-radius: 999px;
-  padding: 12px 16px;
-  background: ${({ theme, veryHigh }) => (veryHigh ? `${theme.red}66` : `${theme.warning}66`)};
-  display: flex;
-  align-items: center;
-  font-size: 12px;
 `
 
 export const SwapFormWrapper = styled.div<{ isShowTutorial?: boolean }>`
@@ -302,6 +217,16 @@ export const InfoComponentsWrapper = styled.div`
   ${({ theme }) => theme.mediaWidth.upToMedium`
     width: 100%;
   `};
+`
+
+export const KyberAIBannerWrapper = styled.div`
+  width: 100%;
+  height: 84px;
+  margin-bottom: 16px;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    height: 132px;
+  `}
 `
 
 export const LiveChartWrapper = styled.div`
@@ -378,5 +303,19 @@ export const IconButton = styled(StyledActionButtonSwapForm)<{ enableClickToRefr
   &:hover {
     cursor: default;
     background-color: transparent;
+  }
+`
+
+export const highlight = (theme: DefaultTheme) => keyframes`
+  0% {
+    box-shadow: 0 0 0 0 ${theme.primary};
+  }
+
+  70% {
+    box-shadow: 0 0 0 2px ${theme.primary};
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 ${theme.primary};
   }
 `
