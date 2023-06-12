@@ -21,10 +21,8 @@ export default class ErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.log('error.name', error.name)
     const { captureError = true } = this.props
     if (!captureError) {
-      console.log('error.name local', error.name)
       return
     }
     if (
