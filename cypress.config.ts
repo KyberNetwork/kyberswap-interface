@@ -17,6 +17,6 @@ export default defineConfig({
       require('@cypress/grep/src/plugin')(config)
       synpressPlugins(on, config)
     },
-    specPattern: 'cypress/e2e/**/**-spec.cy.ts',
+    specPattern: 'cypress/e2e/**/*-spec.cy.ts',
   },
 })
