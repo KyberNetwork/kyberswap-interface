@@ -4,7 +4,7 @@ import synpressPlugins from '@synthetixio/synpress/plugins'
 import { defineConfig } from 'cypress'
 
 Sentry.init({
-  dsn: process.env.SENTRY_DNS,
+  dsn: 'https://d94ee2d3c22043bdaec966758680b5a8@sentry.ops.kyberengineering.io/4',
   environment: 'production',
   ignoreErrors: ['AbortError'],
   integrations: [new BrowserTracing()],
