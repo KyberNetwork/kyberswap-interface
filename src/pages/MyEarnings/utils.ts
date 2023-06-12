@@ -362,16 +362,22 @@ export const calculateTicksOfAccountEarningsInMultipleChains = (
   const ticks = days.map(day => byDay[day])
 
   // fill ticks for unavailable days
-  const latestDay = ticks[0].day || today - 30 // fallback to 30 days ago
-  if (latestDay < today) {
-    for (let i = latestDay + 1; i <= today; i++) {
-      ticks.unshift({
-        day: i,
-        date: dayjs(i * 86400 * 1000).format('MMM DD'),
+  const latestDay = ticks[0]?.day || today - 365 // fallback to 30 days ago
+  const tickToFill: Omit<EarningStatsTick, 'day' | 'date'> = ticks[0]
+    ? ticks[0]
+    : {
         poolRewardsValue: 0,
         farmRewardsValue: 0,
         totalValue: 0,
         tokens: [],
+      }
+
+  if (latestDay < today) {
+    for (let i = latestDay + 1; i <= today; i++) {
+      ticks.unshift({
+        ...tickToFill,
+        day: i,
+        date: dayjs(i * 86400 * 1000).format('MMM DD'),
       })
     }
   }
