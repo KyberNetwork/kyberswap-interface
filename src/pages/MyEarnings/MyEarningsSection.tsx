@@ -135,7 +135,9 @@ const MyEarningsSection = () => {
 
   const searchText = useDebounce(originalSearchText, 300).toLowerCase().trim()
 
-  const earningResponse = aggregateAccountEarnings(aggregatePoolEarnings(getEarningData.data))
+  const earningResponse = useMemo(() => {
+    return aggregateAccountEarnings(aggregatePoolEarnings(getEarningData.data))
+  }, [getEarningData.data])
 
   const earningBreakdown: EarningsBreakdown | undefined = useMemo(() => {
     const dataByChainRoute = earningResponse || {}
@@ -354,8 +356,6 @@ const MyEarningsSection = () => {
       })
     })
   }, [availableChainRoutes, earningResponse, searchText, shouldShowClosedPositions])
-
-  console.log({ pools })
 
   const renderPools = () => {
     const isLoading = getEarningData.isFetching || !pools
