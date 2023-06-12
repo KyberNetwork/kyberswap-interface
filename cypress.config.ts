@@ -1,5 +1,19 @@
+import * as Sentry from '@sentry/react'
+import { BrowserTracing } from '@sentry/tracing'
 import synpressPlugins from '@synthetixio/synpress/plugins'
 import { defineConfig } from 'cypress'
+
+Sentry.init({
+  dsn: process.env.SENTRY_DNS,
+  environment: 'production',
+  ignoreErrors: ['AbortError'],
+  integrations: [new BrowserTracing()],
+  tracesSampleRate: 0.1,
+})
+Sentry.configureScope(scope => {
+  scope.setTag('request_id', Date.now())
+  scope.setTag('version', 'E2E')
+})
 
 export default defineConfig({
   component: {
