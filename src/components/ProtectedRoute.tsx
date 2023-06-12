@@ -16,7 +16,10 @@ type Props = {
 // wait utils sign in eth/anonymous done (error/success)
 const ProtectedRoute = ({ children }: Props) => {
   const { pendingAuthentication } = useSessionInfo()
-  return pendingAuthentication ? <LocalLoader /> : children
+  const loaded = useRef(false)
+  if (pendingAuthentication && !loaded.current) return <LocalLoader />
+  loaded.current = true
+  return children
 }
 
 export const ProtectedRouteKyberAI = ({
