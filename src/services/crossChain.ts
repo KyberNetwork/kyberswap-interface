@@ -18,7 +18,7 @@ const crossChainApi = createApi({
   reducerPath: 'crossChainApi',
   tagTypes: [RTK_QUERY_TAGS.GET_CROSS_CHAIN_HISTORY],
   baseQuery: fetchBaseQuery({
-    baseUrl: `${BFF_API}/v1/cross-chain-history`,
+    baseUrl: `${BFF_API}/v1`,
   }),
 
   endpoints: builder => ({
