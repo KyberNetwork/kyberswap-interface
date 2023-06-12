@@ -7,27 +7,10 @@ type ErrorBoundaryState = {
   error: Error | null
 }
 
-// use this component if you don't want to crash app (ex: is third party error)
-export class ErrorBoundaryV2 extends React.Component<PropsWithChildren<unknown>, ErrorBoundaryState> {
-  constructor(props: PropsWithChildren<unknown>) {
-    super(props)
-    this.state = { error: null }
-  }
-
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { error }
-  }
-
-  componentDidCatch(error: Error) {
-    console.log('error local component', error.name)
-  }
-
-  render() {
-    return this.props.children
-  }
-}
-
-export default class ErrorBoundary extends React.Component<PropsWithChildren<unknown>, ErrorBoundaryState> {
+export default class ErrorBoundary extends React.Component<
+  PropsWithChildren<{ captureError?: boolean }>,
+  ErrorBoundaryState
+> {
   constructor(props: PropsWithChildren<unknown>) {
     super(props)
     this.state = { error: null }
@@ -39,6 +22,11 @@ export default class ErrorBoundary extends React.Component<PropsWithChildren<unk
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.log('error.name', error.name)
+    const { captureError = true } = this.props
+    if (!captureError) {
+      console.log('error.name local', error.name)
+      return
+    }
     if (
       error.name === 'ChunkLoadError' ||
       /Loading .*?chunk .*? failed/.test(error.message) ||
@@ -62,8 +50,9 @@ export default class ErrorBoundary extends React.Component<PropsWithChildren<unk
 
   render() {
     const { error } = this.state
+    const { captureError = true } = this.props
 
-    if (error !== null) {
+    if (error !== null && captureError) {
       return <FallbackView error={error} />
     }
 

@@ -10,7 +10,7 @@ import styled from 'styled-components'
 import { ReactComponent as GeckoTerminalSVG } from 'assets/svg/geckoterminal.svg'
 import { ReactComponent as GeckoTerminalLightSVG } from 'assets/svg/geckoterminal_light.svg'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
-import { ErrorBoundaryV2 } from 'components/ErrorBoundary'
+import ErrorBoundary from 'components/ErrorBoundary'
 import Loader from 'components/LocalLoader'
 import TradingViewChart from 'components/TradingViewChart'
 import { useActiveWeb3React } from 'hooks'
@@ -263,7 +263,7 @@ function LiveChart({
   const label = `${nativeInputCurrency?.symbol} / ${nativeOutputCurrency?.symbol}`
 
   return (
-    <ErrorBoundaryV2>
+    <ErrorBoundary captureError={false}>
       <LiveChartWrapper>
         {isWrappedToken ? (
           <Flex
@@ -413,7 +413,7 @@ function LiveChart({
           </>
         )}
       </LiveChartWrapper>
-    </ErrorBoundaryV2>
+    </ErrorBoundary>
   )
 }
 
