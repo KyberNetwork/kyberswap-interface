@@ -6,6 +6,7 @@ import { useConnectWalletToProfileMutation, useGetOrCreateProfileMutation } from
 import { ENV_KEY, OAUTH_CLIENT_ID } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import { isAuthorized } from 'hooks/web3/useEagerConnect'
 import { useSaveUserProfile, useSetPendingAuthentication } from 'state/authen/hooks'
 
 KyberOauth2.initialize({
@@ -86,8 +87,19 @@ const useLogin = () => {
     [setLoading, signInAnonymous, getProfile],
   )
 
+  const latestAccount = useRef<string | boolean>('')
   useEffect(() => {
-    signIn(account)
+    isAuthorized(true).then(wallet => {
+      if (latestAccount.current === wallet) {
+        return //  not change
+      }
+      if (latestAccount.current && !wallet) {
+        // disconnect
+        requestingSession.current = undefined
+      }
+      latestAccount.current = wallet
+      signIn(typeof wallet === 'string' ? wallet : undefined)
+    })
   }, [account, signIn])
 }
 export default useLogin
