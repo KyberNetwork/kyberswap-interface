@@ -17,11 +17,13 @@ export type EarningStatsOverTime = {
 }
 
 export type EarningStatsTick = {
+  day: number
   date: string
   totalValue: number
   poolRewardsValue: number
   farmRewardsValue: number
   tokens: Array<{
+    chainId: ChainId
     logoUrl: string
     amount: number
     symbol: string

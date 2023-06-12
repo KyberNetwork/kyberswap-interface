@@ -1,11 +1,10 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import { Info } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { PositionEarningWithDetails, TokenEarning, useGetEarningDataQuery } from 'services/earning'
+import { PositionEarningWithDetails, useGetEarningDataQuery } from 'services/earning'
 import styled from 'styled-components'
 
 import LoaderWithKyberLogo from 'components/LocalLoader'
@@ -20,7 +19,12 @@ import MultipleChainSelect from 'pages/MyEarnings/MultipleChainSelect'
 import PoolFilteringBar from 'pages/MyEarnings/PoolFilteringBar'
 import SinglePool, { Props as SinglePoolProps } from 'pages/MyEarnings/SinglePool'
 import TotalEarningsAndChainSelect from 'pages/MyEarnings/TotalEarningsAndChainSelect'
-import { aggregateAccountEarnings, aggregatePoolEarnings, today } from 'pages/MyEarnings/utils'
+import {
+  aggregateAccountEarnings,
+  aggregatePoolEarnings,
+  calculateTicksOfAccountEarningsInMultipleChains,
+  today,
+} from 'pages/MyEarnings/utils'
 import { useAppSelector } from 'state/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { EarningStatsTick, EarningsBreakdown } from 'types/myEarnings'
@@ -98,27 +102,6 @@ const getPositionEarningsByPoolId = (
 
     return acc
   }, {} as Record<string, PositionEarningWithDetails[]>)
-}
-
-const sumTokenEarnings = (earnings: TokenEarning[]) => {
-  return earnings.reduce((sum, tokenEarning) => sum + Number(tokenEarning.amountUSD), 0)
-}
-
-function shuffle<T>(array: T[]): T[] {
-  let currentIndex = array.length,
-    randomIndex
-
-  // While there remain elements to shuffle.
-  while (currentIndex !== 0) {
-    // Pick a remaining element.
-    randomIndex = Math.floor(Math.random() * currentIndex)
-    currentIndex--
-
-    // And swap it with the current element.
-    ;[array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]]
-  }
-
-  return array
 }
 
 const MyEarningsSection = () => {
@@ -209,7 +192,7 @@ const MyEarningsSection = () => {
 
     return {
       totalValue,
-      breakdowns: breakdowns, // shuffle([...breakdowns, ...breakdowns, ...breakdowns].slice(0, 5)),
+      breakdowns: breakdowns,
     }
   }, [earningResponse, tokensByChainId])
 
@@ -217,90 +200,7 @@ const MyEarningsSection = () => {
   // format pool value
   // multiple chains
   const ticks: EarningStatsTick[] | undefined = useMemo(() => {
-    const data = earningResponse?.['ethereum']?.account
-    const chainRoute = 'ethereum'
-    const chainId = chainIdByRoute[chainRoute]
-
-    if (!data) {
-      return undefined
-    }
-
-    // TODO: check tick has more than 5 tokens
-    const ticks: EarningStatsTick[] = data.map(singlePointData => {
-      const poolRewardsValueUSD = sumTokenEarnings(singlePointData.fees || [])
-      const farmRewardsValueUSD = sumTokenEarnings(singlePointData.rewards || [])
-
-      // TODO: tokenEarningByAddress not in use
-      const tokenEarningByAddress: Record<string, any> = {}
-      ;[...(singlePointData.fees || []), ...(singlePointData.rewards || [])].forEach(tokenEarning => {
-        // TODO: check with native token
-        const tokenAddress = isAddress(chainId, tokenEarning.token)
-        if (!tokenAddress) {
-          return
-        }
-
-        const currency = tokensByChainId[chainId][tokenAddress]
-        if (!currency) {
-          return
-        }
-
-        if (!tokenEarningByAddress[tokenAddress]) {
-          tokenEarningByAddress[tokenAddress] = {
-            logoUrl: currency.logoURI,
-            amount: 0,
-            symbol: currency.symbol || 'NO SYMBOL',
-          }
-        }
-
-        tokenEarningByAddress[tokenAddress].amount += Number(tokenEarning.amountFloat)
-      })
-
-      const tick: EarningStatsTick = {
-        date: dayjs(singlePointData.day * 86400 * 1000).format('MMM DD'),
-        poolRewardsValue: poolRewardsValueUSD,
-        farmRewardsValue: farmRewardsValueUSD,
-        totalValue: poolRewardsValueUSD + farmRewardsValueUSD,
-        tokens: (singlePointData.total || [])
-          .filter(tokenEarning => {
-            // TODO: check with native token
-            const tokenAddress = isAddress(chainId, tokenEarning.token)
-            if (!tokenAddress) {
-              return false
-            }
-
-            const currency = tokensByChainId[chainId][tokenAddress]
-            return !!currency
-          })
-          .map(tokenEarning => {
-            const tokenAddress = isAddress(chainId, tokenEarning.token)
-            const currency = tokensByChainId[chainId][String(tokenAddress)]
-            return {
-              logoUrl: currency.logoURI || '',
-              amount: Number(tokenEarning.amountFloat),
-              symbol: currency.symbol || 'NO SYMBOL',
-            }
-          })
-          .sort((tokenEarning1, tokenEarning2) => tokenEarning2.amount - tokenEarning1.amount),
-      }
-
-      return tick
-    })
-
-    // fill ticks for unavailable days
-    const latestDay = data[0]?.day || today - 30 // fallback to 30 days ago
-    if (latestDay < today) {
-      for (let i = latestDay + 1; i <= today; i++) {
-        ticks.unshift({
-          date: dayjs(i * 86400 * 1000).format('MMM DD'),
-          poolRewardsValue: 0,
-          farmRewardsValue: 0,
-          totalValue: 0,
-          tokens: [],
-        })
-      }
-    }
-
-    return ticks
+    return calculateTicksOfAccountEarningsInMultipleChains(earningResponse, tokensByChainId)
   }, [earningResponse, tokensByChainId])
 
   const availableChainRoutes = useMemo(() => {
