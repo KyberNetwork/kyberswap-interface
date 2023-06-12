@@ -33,7 +33,7 @@ type Props = {
   hash: string | undefined
 }
 
-const getTxsUrl = (txHash: string) => `https://anyswap.net/explorer/tx?params=${txHash}`
+const getTxsUrl = (txHash: string) => `https://scan.multichain.org/#/tx?params=${txHash}`
 
 const ActionCell: React.FC<Props> = ({ hash }) => {
   const theme = useTheme()
