@@ -25,6 +25,7 @@ registerCypressGrep()
 
 Cypress.on('fail', (err, runable) => {
   const e = new Error('E2E Error: ' + runable.title)
+  console.log('test e2e: ', e)
   captureException(e)
   throw err
 })
