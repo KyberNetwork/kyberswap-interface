@@ -23,11 +23,15 @@ const HigherLogo = styled.div`
   z-index: 2;
   display: flex;
   align-items: center;
+  border-radius: 50%;
+  overflow: hidden;
 `
 const CoveredLogo = styled.div<{ sizeraw: number }>`
   z-index: 1;
   position: absolute;
   display: flex;
+  border-radius: 50%;
+  overflow: hidden;
   align-items: center;
   left: ${({ sizeraw }) => ((3 * sizeraw) / 4).toString() + 'px'} !important;
 `
