@@ -1,15 +1,12 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { captureException } from '@sentry/react'
-import axios from 'axios'
 import { useCallback, useMemo } from 'react'
-import { mutate } from 'swr'
+import { useSaveBridgeTxsMutation } from 'services/crossChain'
 
-import { KS_SETTING_API } from 'constants/env'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useBridgeContract, useSwapETHContract } from 'hooks/useContract'
 import { useBridgeOutputValue, useBridgeState } from 'state/crossChain/hooks'
-import { useAppSelector } from 'state/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -40,11 +37,7 @@ const NOT_APPLICABLE = {
 
 function useSendTxToKsSettingCallback() {
   const { account } = useActiveWeb3React()
-  const historyURL = useAppSelector(state => state.crossChain.bridge.historyURL)
-
-  const onSuccess = useCallback(() => {
-    mutate(historyURL)
-  }, [historyURL])
+  const [saveTxs] = useSaveBridgeTxsMutation()
 
   return useCallback(
     async (
@@ -56,7 +49,6 @@ function useSendTxToKsSettingCallback() {
       srcAmount: string,
       dstAmount: string,
     ) => {
-      const url = `${KS_SETTING_API}/v1/multichain-transfers`
       const body = {
         walletAddress: account,
         srcChainId: srcChainId.toString(),
@@ -70,13 +62,12 @@ function useSendTxToKsSettingCallback() {
         status: 0,
       }
       try {
-        await axios.post(url, body)
-        onSuccess()
+        await saveTxs(body).unwrap()
       } catch (err) {
         captureExceptionCrossChain(body, err, 'PostBridge')
       }
     },
-    [account, onSuccess],
+    [account, saveTxs],
   )
 }
 
