@@ -128,7 +128,8 @@ function Web3StatusInner() {
         </Text>
       </Web3StatusError>
     )
-  } else if (account) {
+  }
+  if (account) {
     return (
       <Web3StatusConnected
         id={TutorialIds.BUTTON_ADDRESS_WALLET}
@@ -161,18 +162,17 @@ function Web3StatusInner() {
         )}
       </Web3StatusConnected>
     )
-  } else {
-    return (
-      <ButtonLight
-        onClick={toggleWalletModal}
-        padding="10px 12px"
-        id={TutorialIds.BUTTON_CONNECT_WALLET}
-        data-testid="button-connect-wallet"
-      >
-        <Trans>Connect Wallet</Trans>
-      </ButtonLight>
-    )
   }
+  return (
+    <ButtonLight
+      onClick={toggleWalletModal}
+      padding="10px 12px"
+      id={TutorialIds.BUTTON_CONNECT_WALLET}
+      data-testid="button-connect-wallet"
+    >
+      <Trans>Connect Wallet</Trans>
+    </ButtonLight>
+  )
 }
 
 export default function SelectWallet() {

@@ -37,8 +37,8 @@ export const [walletConnectV2, walletConnectV2Hooks] = initializeConnector<Walle
         },
         metadata: {
           name: 'Kyberswap',
-          description: 'Kyberswap - Trading smart',
-          url: 'https://kyberswap.com',
+          description: document.title,
+          url: window.location.origin,
           icons: ['https://kyberswap.com/favicon.svg'],
         },
       },
