@@ -5,7 +5,7 @@ import { GetEarningDataResponse, HistoricalEarning, HistoricalSingleData, TokenE
 
 import { NETWORKS_INFO, SUPPORTED_NETWORKS_FOR_MY_EARNINGS } from 'constants/networks'
 import { TokenAddressMap } from 'state/lists/reducer'
-import { EarningStatsTick } from 'types/myEarnings'
+import { EarningStatsTick, EarningsBreakdown } from 'types/myEarnings'
 import { isAddress } from 'utils'
 
 // TODO: remove later
@@ -342,6 +342,27 @@ export const calculateTicksOfAccountEarningsInMultipleChains = (
       return tick
     })
 
+    // fill ticks for unavailable days
+    const latestDay = ticks[0]?.day || today - 365 // fallback to 30 days ago
+    const tickToFill: Omit<EarningStatsTick, 'day' | 'date'> = ticks[0]
+      ? ticks[0]
+      : {
+          poolRewardsValue: 0,
+          farmRewardsValue: 0,
+          totalValue: 0,
+          tokens: [],
+        }
+
+    if (latestDay < today) {
+      for (let i = latestDay + 1; i <= today; i++) {
+        ticks.unshift({
+          ...tickToFill,
+          day: i,
+          date: dayjs(i * 86400 * 1000).format('MMM DD'),
+        })
+      }
+    }
+
     ticks.forEach(tick => {
       const day = tick.day
       if (!byDay[day]) {
@@ -361,26 +382,80 @@ export const calculateTicksOfAccountEarningsInMultipleChains = (
 
   const ticks = days.map(day => byDay[day])
 
-  // fill ticks for unavailable days
-  const latestDay = ticks[0]?.day || today - 365 // fallback to 30 days ago
-  const tickToFill: Omit<EarningStatsTick, 'day' | 'date'> = ticks[0]
-    ? ticks[0]
-    : {
-        poolRewardsValue: 0,
-        farmRewardsValue: 0,
-        totalValue: 0,
-        tokens: [],
-      }
-
-  if (latestDay < today) {
-    for (let i = latestDay + 1; i <= today; i++) {
-      ticks.unshift({
-        ...tickToFill,
-        day: i,
-        date: dayjs(i * 86400 * 1000).format('MMM DD'),
-      })
-    }
-  }
-
   return ticks
+}
+
+export const calculateEarningBreakdowns = (
+  earningResponse: GetEarningDataResponse | undefined,
+  tokensByChainId: TokenAddressMap | undefined,
+): EarningsBreakdown | undefined => {
+  const dataByChainRoute = earningResponse || {}
+  const tokens = tokensByChainId || {}
+
+  const latestAggregatedData = Object.keys(dataByChainRoute)
+    .flatMap(chainRoute => {
+      const data = dataByChainRoute[chainRoute].account
+      const chainId = chainIdByRoute[chainRoute]
+
+      const latestData = data?.[0]?.total
+        ?.filter(tokenData => {
+          // TODO: check with native token
+          const tokenAddress = isAddress(chainId, tokenData.token)
+          if (!tokenAddress) {
+            return false
+          }
+
+          const currency = tokens[chainId][tokenAddress]
+          return !!currency
+        })
+        .map(tokenData => {
+          const tokenAddress = isAddress(chainId, tokenData.token)
+          const currency = tokens[chainId][String(tokenAddress)]
+          return {
+            address: tokenAddress,
+            symbol: currency.symbol || '',
+            amountUSD: Number(tokenData.amountUSD),
+            chainId,
+            logoUrl: currency.logoURI,
+          }
+        })
+
+      return latestData || []
+    })
+    .sort((data1, data2) => data2.amountUSD - data1.amountUSD)
+
+  const totalValue = latestAggregatedData.reduce((sum, { amountUSD }) => {
+    return sum + amountUSD
+  }, 0)
+
+  const totalValueOfOthers = latestAggregatedData.slice(9).reduce((acc, data) => acc + data.amountUSD, 0)
+
+  const breakdowns: EarningsBreakdown['breakdowns'] =
+    latestAggregatedData.length <= 10
+      ? latestAggregatedData.map(data => ({
+          chainId: data.chainId,
+          logoUrl: data.logoUrl,
+          symbol: data.symbol,
+          value: String(data.amountUSD),
+          percent: (data.amountUSD / totalValue) * 100,
+        }))
+      : [
+          ...latestAggregatedData.slice(0, 9).map(data => ({
+            chainId: data.chainId,
+            logoUrl: data.logoUrl,
+            symbol: data.symbol,
+            value: String(data.amountUSD),
+            percent: (data.amountUSD / totalValue) * 100,
+          })),
+          {
+            symbol: `Others`,
+            value: String(totalValueOfOthers),
+            percent: (totalValueOfOthers / totalValue) * 100,
+          },
+        ]
+
+  return {
+    totalValue,
+    breakdowns: breakdowns,
+  }
 }

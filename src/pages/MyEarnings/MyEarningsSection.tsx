@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { useMemo } from 'react'
 import { Info } from 'react-feather'
 import { useMedia } from 'react-use'
@@ -22,13 +22,12 @@ import TotalEarningsAndChainSelect from 'pages/MyEarnings/TotalEarningsAndChainS
 import {
   aggregateAccountEarnings,
   aggregatePoolEarnings,
+  calculateEarningBreakdowns,
   calculateTicksOfAccountEarningsInMultipleChains,
-  today,
 } from 'pages/MyEarnings/utils'
 import { useAppSelector } from 'state/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { EarningStatsTick, EarningsBreakdown } from 'types/myEarnings'
-import { isAddress } from 'utils'
 
 import OriginalEarningsBreakdownPanel from './EarningsBreakdownPanel'
 import OriginalMyEarningsOverTimePanel from './MyEarningsOverTimePanel'
@@ -123,77 +122,7 @@ const MyEarningsSection = () => {
   }, [getEarningData.data])
 
   const earningBreakdown: EarningsBreakdown | undefined = useMemo(() => {
-    const dataByChainRoute = earningResponse || {}
-    const latestAggregatedData = Object.keys(dataByChainRoute)
-      .flatMap(chainRoute => {
-        const data = dataByChainRoute[chainRoute].account
-        const chainId = chainIdByRoute[chainRoute]
-
-        if (data?.[0]?.day !== today) {
-          return []
-        }
-
-        const latestData = data?.[0]?.total
-          ?.filter(tokenData => {
-            // TODO: check with native token
-            const tokenAddress = isAddress(chainId, tokenData.token)
-            if (!tokenAddress) {
-              return false
-            }
-
-            const currency = tokensByChainId[chainId][tokenAddress]
-            return !!currency
-          })
-          .map(tokenData => {
-            const tokenAddress = isAddress(chainId, tokenData.token)
-            const currency = tokensByChainId[chainId][String(tokenAddress)]
-            return {
-              address: tokenAddress,
-              symbol: currency.symbol || '',
-              amountUSD: Number(tokenData.amountUSD),
-              chainId,
-              logoUrl: currency.logoURI,
-            }
-          })
-
-        return latestData || []
-      })
-      .sort((data1, data2) => data2.amountUSD - data1.amountUSD)
-
-    const totalValue = latestAggregatedData.reduce((sum, { amountUSD }) => {
-      return sum + amountUSD
-    }, 0)
-
-    const totalValueOfOthers = latestAggregatedData.slice(9).reduce((acc, data) => acc + data.amountUSD, 0)
-
-    const breakdowns: EarningsBreakdown['breakdowns'] =
-      latestAggregatedData.length <= 10
-        ? latestAggregatedData.map(data => ({
-            chainId: data.chainId,
-            logoUrl: data.logoUrl,
-            symbol: data.symbol,
-            value: String(data.amountUSD),
-            percent: (data.amountUSD / totalValue) * 100,
-          }))
-        : [
-            ...latestAggregatedData.slice(0, 9).map(data => ({
-              chainId: data.chainId,
-              logoUrl: data.logoUrl,
-              symbol: data.symbol,
-              value: String(data.amountUSD),
-              percent: (data.amountUSD / totalValue) * 100,
-            })),
-            {
-              symbol: t`Others`,
-              value: String(totalValueOfOthers),
-              percent: (totalValueOfOthers / totalValue) * 100,
-            },
-          ]
-
-    return {
-      totalValue,
-      breakdowns: breakdowns,
-    }
+    return calculateEarningBreakdowns(earningResponse, tokensByChainId)
   }, [earningResponse, tokensByChainId])
 
   // chop the data into the right duration
