@@ -27,12 +27,22 @@ export enum CrossChainTab {
   HISTORY = 'history',
 }
 
-const TabSelector = ({ activeTab, setTab }: { activeTab: CrossChainTab; setTab: (v: CrossChainTab) => void }) => {
+const TabSelector = ({
+  activeTab,
+  setTab,
+  isShowTradeRoutes,
+}: {
+  activeTab: CrossChainTab
+  setTab: (v: CrossChainTab) => void
+  isShowTradeRoutes: boolean
+}) => {
   return (
     <Row gap="4px">
-      <TabItem isActive={activeTab === CrossChainTab.ROUTE} onClick={() => setTab(CrossChainTab.ROUTE)}>
-        <Trans>Trade Route</Trans>
-      </TabItem>
+      {isShowTradeRoutes && (
+        <TabItem isActive={activeTab === CrossChainTab.ROUTE} onClick={() => setTab(CrossChainTab.ROUTE)}>
+          <Trans>Trade Route</Trans>
+        </TabItem>
+      )}
       <TabItem isActive={activeTab === CrossChainTab.HISTORY} onClick={() => setTab(CrossChainTab.HISTORY)}>
         <Trans>Transaction History</Trans>
       </TabItem>

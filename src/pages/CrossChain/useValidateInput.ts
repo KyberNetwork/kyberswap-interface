@@ -41,7 +41,13 @@ export default function useValidateInput({
     if (!listTokenOut.length && !listTokenIn.length && !loadingToken) {
       return { state: 'error', tip: t`Cannot get token info. Please try again later.` }
     }
-    if (errorGetRoute || (currencyIn && currencyOut && !isTokenSupport)) {
+    if (currencyIn && currencyOut && !isTokenSupport) {
+      return {
+        state: 'warn',
+        tip: t`This token is not supported yet for cross-chain swaps.`,
+      }
+    }
+    if (errorGetRoute) {
       return {
         state: 'warn',
         tip: t`We couldn't find a route for this trade. You can try changing the amount to swap, increasing the slippage, selecting a different chain or tokens, or try again later.`,
