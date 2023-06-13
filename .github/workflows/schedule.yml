@@ -2,7 +2,7 @@ name: 'E2E Testing Schedule'
 
 on:
   schedule:
-    - cron: '0 3,7 * * *' # run at 8AM and 12PM (GTM+7)
+    - cron: '0 1,5 * * *' # run at 8AM and 12PM (GTM+7)
   workflow_dispatch:
 
 jobs:
