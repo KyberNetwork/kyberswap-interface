@@ -1,4 +1,3 @@
-// import { Connection, ConnectionType } from 'connection/types'
 import { Connector } from '@web3-react/types'
 
 import { coinbaseWallet, walletConnectV2 } from 'connectors'

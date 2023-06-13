@@ -1,4 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { OPTIONAL_EVENTS, OPTIONAL_METHODS } from '@walletconnect/ethereum-provider'
 import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
 import { initializeConnector } from '@web3-react/core'
 import { MetaMask } from '@web3-react/metamask'
@@ -13,6 +14,7 @@ export const [brave, braveHooks] = initializeConnector<MetaMask>(actions => new 
 export const [trustWallet, trustWalletHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
 
 const darkmode = Boolean(window.matchMedia('(prefers-color-scheme: dark)'))
+const [defaultChain, ...optionalChains] = WALLET_CONNECT_SUPPORTED_CHAIN_IDS
 export const [walletConnectV2, walletConnectV2Hooks] = initializeConnector<WalletConnectV2>(
   actions =>
     new WalletConnectV2({
@@ -20,11 +22,11 @@ export const [walletConnectV2, walletConnectV2Hooks] = initializeConnector<Walle
       defaultChainId: ChainId.MAINNET,
       options: {
         projectId: WALLETCONNECT_PROJECT_ID,
-        chains: [ChainId.MAINNET],
-        optionalChains: WALLET_CONNECT_SUPPORTED_CHAIN_IDS.filter(chain => chain !== ChainId.MAINNET),
+        chains: [defaultChain],
+        optionalChains,
         showQrModal: true,
-        methods: ['eth_sendTransaction', 'personal_sign'],
-        events: ['chainChanged', 'accountsChanged'],
+        optionalMethods: OPTIONAL_METHODS,
+        optionalEvents: OPTIONAL_EVENTS,
         rpcMap: SUPPORTED_NETWORKS.reduce((acc, cur) => {
           acc[cur] = NETWORKS_INFO[cur].defaultRpcUrl
           return acc

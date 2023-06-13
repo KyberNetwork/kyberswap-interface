@@ -8,6 +8,7 @@
     "node": "~18.15.0",
     "yarn": ">=1.22"
   },
+  "packageManager": "yarn@1.22.19",
   "scripts": {
     "postinstall": "patch-package",
     "preview": "vite preview",
