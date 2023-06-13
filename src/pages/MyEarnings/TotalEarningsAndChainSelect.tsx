@@ -1,6 +1,7 @@
 import { rgba } from 'polished'
+import { useDispatch } from 'react-redux'
 import { Button, Flex } from 'rebass'
-import { useLazyGetEarningDataQuery } from 'services/earning'
+import earningApi, { useLazyGetEarningDataQuery } from 'services/earning'
 import styled from 'styled-components'
 
 import { ReactComponent as RefreshIcon } from 'assets/svg/refresh.svg'
@@ -47,6 +48,7 @@ const Value = styled.span`
 
 const RefreshButton = () => {
   const theme = useTheme()
+  const dispatch = useDispatch()
   const { account } = useActiveWeb3React()
   const selectedChainIds = useAppSelector(state => state.myEarnings.selectedChains)
   const [trigger, data] = useLazyGetEarningDataQuery()
@@ -56,6 +58,7 @@ const RefreshButton = () => {
       return
     }
 
+    dispatch(earningApi.util.resetApiState())
     trigger({ account, chainIds: selectedChainIds })
   }
 

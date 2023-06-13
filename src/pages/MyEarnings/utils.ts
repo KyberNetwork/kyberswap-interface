@@ -142,7 +142,7 @@ export const aggregatePoolEarnings = (
 
       positions.forEach(position => {
         const poolId = position.pool.id
-        const earnings = position.historicalEarning
+        const earnings = position.historicalEarning || []
         if (!byPool[poolId]) {
           byPool[poolId] = []
         }
@@ -221,7 +221,7 @@ export const aggregateAccountEarnings = (
       const byDay: Record<string, HistoricalSingleData> = {}
 
       positions.forEach(position => {
-        const earnings = position.historicalEarning
+        const earnings = position.historicalEarning || []
 
         earnings.forEach(earning => {
           const day = earning.day

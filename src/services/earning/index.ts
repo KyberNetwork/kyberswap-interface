@@ -101,6 +101,7 @@ const earningApi = createApi({
       transformResponse: (response: MetaResponse<GetEarningDataResponse>) => {
         return response.data as GetEarningDataResponse
       },
+      keepUnusedDataFor: 300, // 5 minutes
     }),
   }),
 })
