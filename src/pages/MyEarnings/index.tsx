@@ -7,7 +7,7 @@ import Placeholder from 'pages/MyEarnings/Placeholder'
 
 const PageWrapper = styled.div`
   width: 100%;
-  max-width: 1248px; // 1224px + 24px padding
+  max-width: 1500px;
 
   height: 100%;
 
