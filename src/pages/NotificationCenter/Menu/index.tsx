@@ -123,7 +123,7 @@ const menuItems: MenuItemType[] = [
 
 type PropsMenu = { unread: Unread; onChildrenClick?: () => void }
 const MenuForDesktop = ({ unread, onChildrenClick }: PropsMenu) => {
-  const { signedWallet, isGuest } = useSignedWalletInfo()
+  const { signedWallet, isGuest, isGuestDefault } = useSignedWalletInfo()
   const { cacheProfile } = useCacheProfile()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const profile = cacheProfile
@@ -131,12 +131,13 @@ const MenuForDesktop = ({ unread, onChildrenClick }: PropsMenu) => {
   const menuItemDeskTop = useMemo(() => {
     return menuItems.map(el => {
       if (el.route !== PROFILE_MANAGE_ROUTES.PROFILE) return el
+      const guestText = isGuestDefault ? t`Guest` : t`Imported`
       const childs: MenuItemType[] = [
         isGuest
           ? {
               route: PROFILE_MANAGE_ROUTES.PROFILE,
               icon: <Avatar url={profile?.avatarUrl} size={16} />,
-              title: profile?.nickname ? `${shortString(profile?.nickname, 20)} (${t`Guest`})` : t`Guest`,
+              title: profile?.nickname ? `${shortString(profile?.nickname, 20)} (${guestText})` : guestText,
             }
           : {
               route: PROFILE_MANAGE_ROUTES.PROFILE,
@@ -146,7 +147,7 @@ const MenuForDesktop = ({ unread, onChildrenClick }: PropsMenu) => {
       ]
       return { ...el, childs }
     })
-  }, [signedWallet, isGuest, profile])
+  }, [signedWallet, isGuest, profile, isGuestDefault])
 
   return (
     <Flex sx={{ flexDirection: 'column', padding: upToMedium ? '0px' : '24px' }}>

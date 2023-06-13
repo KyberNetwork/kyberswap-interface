@@ -1,6 +1,5 @@
 import { Trans, t } from '@lingui/macro'
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
-import { Lock } from 'react-feather'
 import { Text } from 'rebass'
 import { useAckTelegramSubscriptionStatusMutation } from 'services/identity'
 import styled from 'styled-components'
@@ -9,13 +8,12 @@ import { NotificationType } from 'components/Announcement/type'
 import Checkbox from 'components/CheckBox'
 import Column from 'components/Column'
 import MailIcon from 'components/Icons/MailIcon'
-import NotificationIcon from 'components/Icons/NotificationIcon'
 import Loader from 'components/Loader'
 import Row from 'components/Row'
 import ActionButtons from 'components/SubscribeButton/NotificationPreference/ActionButtons'
 import Header from 'components/SubscribeButton/NotificationPreference/Header'
 import InputEmail from 'components/SubscribeButton/NotificationPreference/InputEmail'
-import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useNotification, { Topic, TopicType } from 'hooks/useNotification'
@@ -94,13 +92,13 @@ const GroupColum = styled.div`
   width: 100%;
 `
 
-const LabelGroup = styled(TextDashed)`
-  color: ${({ theme }) => theme.subText};
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-`
+// const LabelGroup = styled(TextDashed)`
+//   color: ${({ theme }) => theme.subText};
+//   font-size: 14px;
+//   display: flex;
+//   align-items: center;
+//   gap: 4px;
+// `
 
 const EmailColum = styled(Column)`
   max-width: 50%;

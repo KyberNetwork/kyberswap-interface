@@ -117,7 +117,7 @@ const ProfileItem = ({
 
   const onClick = () => {
     if (active) return
-    guest ? signInAnonymous(key) : signIn(account, true)
+    guest ? signInAnonymous(key) : signIn(key, true)
     toggleModal()
   }
 
@@ -129,7 +129,7 @@ const ProfileItem = ({
         size={16}
         onClick={e => {
           e?.stopPropagation()
-          guest ? signOutAnonymous(key) : signOut(account)
+          guest ? signOutAnonymous(key) : signOut(key)
           refreshProfile()
         }}
       />
