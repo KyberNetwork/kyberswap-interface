@@ -10,7 +10,7 @@ declare global {
       clickButton(selector: string): Chainable<void>
       input(selector: string, value: string): Chainable<void>
       selectTokenBySymbol(selector: string, value: string): Chainable<void>
-      verifyURL(selectorTokenIn: string, selectorTokenOut: string): Chainable<void>
+      verifyURL(txtTokenIn: string, txtTokenOut: string): Chainable<void>
       verifySelectedToken(selector: string, value: string): Chainable<void>
       removeTokenInFavoriteTokensList(value: string): Chainable<void>
       verifyIcon(check: string): Chainable<void>
@@ -100,10 +100,6 @@ Cypress.Commands.add('clearAllImportedTokens', () => {
   cy.get(token.clearAll).click()
 })
 
-Cypress.Commands.add('verifyURL', (selectorTokenIn, selectorTokenOut) => {
-  getText(selectorTokenIn, (txtTokenIn: any) => {
-    getText(selectorTokenOut, (txtTokenOut: any) => {
-      cy.url().should('include', txtTokenIn.toLowerCase() + '-to-' + txtTokenOut.toLowerCase())
-    })
-  })
+Cypress.Commands.add('verifyURL', (txtTokenIn, txtTokenOut) => {
+  cy.url().should('contain', txtTokenIn.toLowerCase() + '-to-' + txtTokenOut.toLowerCase())
 })
