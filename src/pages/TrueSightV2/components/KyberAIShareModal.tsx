@@ -15,6 +15,7 @@ import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
 import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit } from 'components/Row'
+import { getSocialShareUrls } from 'components/ShareModal'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import useShareImage from 'hooks/useShareImage'
 import useTheme from 'hooks/useTheme'
@@ -390,6 +391,8 @@ export default function KyberAIShareModal({
     }
   }, [imageUrl])
 
+  const { facebook, telegram, discord, twitter } = getSocialShareUrls(sharingUrl)
+
   return (
     <Modal isOpen={isOpen} width="fit-content" maxWidth="100vw" maxHeight="80vh">
       <Wrapper>
@@ -404,22 +407,22 @@ export default function KyberAIShareModal({
             <Input value={sharingUrl} autoFocus={false} disabled={!sharingUrl} />
           </InputWrapper>
           <IconButton disabled={!sharingUrl} onClick={() => onShareClick?.('telegram')}>
-            <ExternalLink href={'https://telegram.me/share/url?url=' + encodeURIComponent(sharingUrl)}>
+            <ExternalLink href={telegram}>
               <Icon id="telegram" size={20} />
             </ExternalLink>
           </IconButton>
           <IconButton disabled={!sharingUrl} onClick={() => onShareClick?.('twitter')}>
-            <ExternalLink href={'https://twitter.com/intent/tweet?text=' + encodeURIComponent(sharingUrl)}>
+            <ExternalLink href={twitter}>
               <Icon id="twitter" size={20} />
             </ExternalLink>
           </IconButton>
           <IconButton disabled={!sharingUrl} onClick={() => onShareClick?.('facebook')}>
-            <ExternalLink href={'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(sharingUrl)}>
+            <ExternalLink href={facebook}>
               <Icon id="facebook" size={20} />
             </ExternalLink>
           </IconButton>
           <IconButton disabled={!sharingUrl} onClick={() => onShareClick?.('discord')}>
-            <ExternalLink href="https://discord.com/app/">
+            <ExternalLink href={discord}>
               <Icon id="discord" size={20} />
             </ExternalLink>
           </IconButton>
