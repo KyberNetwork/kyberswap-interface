@@ -125,6 +125,62 @@ const mergeTokenEarnings = (earnings: Array<TokenEarning>): Array<TokenEarning> 
   return Object.values(earningByTokenId)
 }
 
+export const fillEmptyDaysForPositionEarnings = (
+  earningResponse: GetEarningDataResponse | undefined,
+): GetEarningDataResponse | undefined => {
+  if (!earningResponse) {
+    return undefined
+  }
+
+  const aYearAgo = Math.floor(Date.now() / 1000 / 86400 - 365)
+
+  const result = produce(earningResponse, draft => {
+    const chainRoutes = Object.keys(draft)
+    chainRoutes.forEach(chainRoute => {
+      const { positions } = draft[chainRoute]
+      positions.forEach(position => {
+        if (!position.historicalEarning) {
+          position.historicalEarning = []
+        }
+
+        if (position.historicalEarning.length === 0) {
+          position.historicalEarning = Array.from({ length: 365 }).map((_, i) => {
+            return {
+              day: today - i,
+              block: 0,
+              fees: [],
+              rewards: [],
+              total: [],
+            }
+          })
+        } else {
+          const earlieastDay = position.historicalEarning.slice(-1)[0].day
+          const latestDay = position.historicalEarning[0].day
+          const latestEarning = position.historicalEarning[0]
+
+          for (let i = earlieastDay - 1; i > aYearAgo; i--) {
+            position.historicalEarning.push({
+              day: i,
+              block: 0,
+              fees: [],
+              rewards: [],
+              total: [],
+            })
+          }
+
+          for (let i = latestDay + 1; i <= today; i++) {
+            position.historicalEarning.unshift({
+              ...latestEarning,
+            })
+          }
+        }
+      })
+    })
+  })
+
+  return result
+}
+
 export const aggregatePoolEarnings = (
   earningResponse: GetEarningDataResponse | undefined,
 ): GetEarningDataResponse | undefined => {

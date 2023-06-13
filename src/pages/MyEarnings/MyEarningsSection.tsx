@@ -24,6 +24,7 @@ import {
   aggregatePoolEarnings,
   calculateEarningBreakdowns,
   calculateTicksOfAccountEarningsInMultipleChains,
+  fillEmptyDaysForPositionEarnings,
 } from 'pages/MyEarnings/utils'
 import { useAppSelector } from 'state/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -118,7 +119,7 @@ const MyEarningsSection = () => {
   const searchText = useDebounce(originalSearchText, 300).toLowerCase().trim()
 
   const earningResponse = useMemo(() => {
-    return aggregateAccountEarnings(aggregatePoolEarnings(getEarningData.data))
+    return aggregateAccountEarnings(aggregatePoolEarnings(fillEmptyDaysForPositionEarnings(getEarningData.data)))
   }, [getEarningData.data])
 
   // chop the data into the right duration
