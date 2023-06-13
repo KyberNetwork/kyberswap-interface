@@ -32,6 +32,7 @@ export const [walletConnectV2, walletConnectV2Hooks] = initializeConnector<Walle
           return acc
         }, {} as { [key in ChainId]: string }),
         qrModalOptions: {
+          chainImages: undefined,
           themeMode: darkmode ? 'dark' : 'light',
           themeVariables: {
             '--w3m-z-index': '1000',
