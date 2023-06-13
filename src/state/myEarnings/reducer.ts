@@ -1,6 +1,8 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createReducer } from '@reduxjs/toolkit'
 
+import { SUPPORTED_NETWORKS_FOR_MY_EARNINGS } from 'constants/networks'
+
 import { collapseAllPools, expandAllPools, selectChains, setSearchText, toggleShowClosedPositions } from './actions'
 
 export interface MyEarningsState {
@@ -11,7 +13,7 @@ export interface MyEarningsState {
 }
 
 const initialState: MyEarningsState = {
-  selectedChains: [ChainId.MAINNET],
+  selectedChains: SUPPORTED_NETWORKS_FOR_MY_EARNINGS,
   shouldShowClosedPositions: false,
   shouldExpandAllPools: false,
   searchText: '',

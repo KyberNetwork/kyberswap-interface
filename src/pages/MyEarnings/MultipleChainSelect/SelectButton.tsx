@@ -65,9 +65,14 @@ const SelectButton: React.FC<{ expanded: boolean; onClick: () => void }> = ({ ex
 
     return (
       <ButtonBodyWrapper>
-        <Label>
-          <Trans>Selected</Trans> {String(selectedChains.length).padStart(2, '0')}
-        </Label>
+        {selectedChains.slice(0, 3).map(chainId => {
+          const config = NETWORKS_INFO[chainId]
+          const iconSrc = theme.darkMode && config.iconDark ? config.iconDark : config.icon
+
+          return <StyledLogo src={iconSrc} key={chainId} />
+        })}
+
+        {selectedChains.length > 3 && `+${selectedChains.length - 3}`}
       </ButtonBodyWrapper>
     )
   }
