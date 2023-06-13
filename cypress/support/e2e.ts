@@ -12,8 +12,12 @@
 // You can read more here:
 // https://on.cypress.io/configuration
 // ***********************************************************
+import '@cypress/grep'
+import registerCypressGrep from '@cypress/grep/src/support'
 import '@synthetixio/synpress/support/index'
 
 import './commands'
 import './connectWalletCommands'
 import './selectTokenCommands'
+
+registerCypressGrep()

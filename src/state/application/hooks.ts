@@ -118,10 +118,6 @@ export function useRegisterCampaignSuccessModalToggle(): () => void {
   return useToggleModal(ApplicationModal.REGISTER_CAMPAIGN_SUCCESS)
 }
 
-export function useTrueSightNetworkModalToggle(): () => void {
-  return useToggleModal(ApplicationModal.TRUESIGHT_NETWORK)
-}
-
 // returns a function that allows adding a popup
 export function useAddPopup(): (
   content: PopupContent,

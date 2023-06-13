@@ -26,8 +26,8 @@ import getShortenAddress from 'utils/getShortenAddress'
 import { shortString } from 'utils/string'
 
 export const MENU_TITLE: Partial<{ [type in PrivateAnnouncementType]: string }> = {
-  [PrivateAnnouncementType.BRIDGE_ASSET]: t`Bridge Token`,
-  [PrivateAnnouncementType.CROSS_CHAIN]: t`Cross-Chain Swap`,
+  [PrivateAnnouncementType.BRIDGE_ASSET]: t`Cross-Chain Bridge`,
+  [PrivateAnnouncementType.CROSS_CHAIN]: t`Cross-Chain Swaps`,
   [PrivateAnnouncementType.LIMIT_ORDER]: t`Limit Orders`,
   [PrivateAnnouncementType.KYBER_AI]: t`Top Tokens by KyberAI`,
   [PrivateAnnouncementType.PRICE_ALERT]: t`Price Alerts`,
@@ -167,6 +167,7 @@ const MenuForMobile = ({ unread }: PropsMenu) => {
   const isOpen = useModalOpen(ApplicationModal.MENU_NOTI_CENTER)
   const toggleModal = useToggleModal(ApplicationModal.MENU_NOTI_CENTER)
   const theme = useTheme()
+
   return (
     <Drawer
       title={t`Your Profile`}

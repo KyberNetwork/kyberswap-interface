@@ -27,7 +27,6 @@ export interface NetworkInfo {
   readonly coingeckoNetworkId: string | null //https://api.coingecko.com/api/v3/asset_platforms
   readonly coingeckoNativeTokenId: string | null //https://api.coingecko.com/api/v3/coins/list
   readonly tokenListUrl: string
-  readonly trueSightId: string | null
   readonly dexToCompare: string | null
   readonly limitOrder: {
     development: string | null

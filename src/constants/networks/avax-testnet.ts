@@ -70,7 +70,6 @@ const avaxTestnetInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'avalanche',
   coingeckoNativeTokenId: 'avalanche-2',
   deBankSlug: EMPTY,
-  trueSightId: NOT_SUPPORT,
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: NOT_SUPPORT,
 }
