@@ -39,6 +39,7 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { BodyWrapper } from 'pages/AppBody'
 import CrossChain from 'pages/CrossChain'
+import CrossChainLink from 'pages/CrossChain/CrossChainLink'
 import CrossChainTransfersHistory from 'pages/CrossChain/TransfersHistory'
 import Header from 'pages/SwapV3/Header'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
@@ -281,6 +282,7 @@ export default function Swap() {
               )}
               {activeTab === TAB.CROSS_CHAIN && <CrossChain />}
             </AppBodyWrapped>
+            {isCrossChainPage && <CrossChainLink isBridge />}
           </SwapFormWrapper>
 
           <InfoComponents>

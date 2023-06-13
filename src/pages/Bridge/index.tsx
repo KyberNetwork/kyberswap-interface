@@ -37,6 +37,7 @@ const Content = styled.div`
   justify-content: center;
   gap: 48px;
   width: 100%;
+  margin-bottom: 24px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
     gap: 24px;
     flex-direction: column;
