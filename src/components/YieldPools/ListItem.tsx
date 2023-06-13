@@ -47,6 +47,7 @@ import { getTradingFeeAPR, useFarmApr, useFarmRewards, useFarmRewardsUSD } from 
 import { formatTokenBalance, getFullDisplayBalance } from 'utils/formatBalance'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import { formatDollarAmount } from 'utils/numbers'
+import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import { ModalContentWrapper } from './ElasticFarmModals/styled'
 import { APRTooltipContent } from './FarmingPoolAPRCell'
@@ -145,7 +146,13 @@ const ListItem = ({ farm }: ListItemProps) => {
 
   const amp = farm.amp / 10000
 
-  const pairSymbol = `${farm.token0.symbol}-${farm.token1.symbol} LP`
+  const pairSymbol =
+    currency0 && currency1
+      ? `${unwrappedToken(currency0).symbol}-${unwrappedToken(currency1).symbol} LP`
+      : `${farm.token0.symbol} - ${farm.token1.symbol} LP`
+  const symbol0 = currency0 ? unwrappedToken(currency0).symbol : farm.token0.symbol
+  const symbol1 = currency1 ? unwrappedToken(currency1).symbol : farm.token1.symbol
+
   const [depositValue, setDepositValue] = useState('')
   const [withdrawValue, setWithdrawValue] = useState('')
   const pairAddressChecksum = isAddressString(chainId, farm.id)
@@ -317,7 +324,7 @@ const ListItem = ({ farm }: ListItemProps) => {
                   )}/${farm.id}`}
                   style={{ textDecoration: 'none', marginRight: '6px' }}
                 >
-                  {farm.token0?.symbol} - {farm.token1?.symbol}
+                  {symbol0} - {symbol1}
                 </Link>
                 {/* <MouseoverTooltip text={farm.time} width="fit-content" placement="top">
                         <Clock size={14} style={{ marginLeft: '6px' }} />
@@ -789,9 +796,7 @@ const ListItem = ({ farm }: ListItemProps) => {
                   style={{ textDecoration: 'none' }}
                 >
                   <GetLP style={{ textAlign: 'right' }}>
-                    <Trans>
-                      Get {farm.token0?.symbol}-{farm.token1?.symbol} LP ↗
-                    </Trans>
+                    <Trans>Get {pairSymbol} ↗</Trans>
                   </GetLP>
                 </Link>
               </Flex>

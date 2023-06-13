@@ -15,6 +15,7 @@ import ENS_ABI from 'constants/abis/ens-registrar.json'
 import { ERC20_BYTES32_ABI } from 'constants/abis/erc20'
 import ERC20_ABI from 'constants/abis/erc20.json'
 import FAIRLAUNCH_V2_ABI from 'constants/abis/fairlaunch-v2.json'
+import FAIRLAUNCH_V3_ABI from 'constants/abis/fairlaunch-v3.json'
 import FAIRLAUNCH_ABI from 'constants/abis/fairlaunch.json'
 import KS_STATIC_FEE_FACTORY_ABI from 'constants/abis/ks-factory.json'
 import REWARD_LOCKER_V2_ABI from 'constants/abis/reward-locker-v2.json'
@@ -233,15 +234,30 @@ function useFairLaunchV2Contracts(withSignerIfPossible?: boolean): {
   )
 }
 
+function useFairLaunchV3Contracts(withSignerIfPossible?: boolean): {
+  [key: string]: Contract
+} | null {
+  const { networkInfo, isEVM } = useActiveWeb3React()
+
+  return useMultipleContracts(
+    isEVM && (networkInfo as EVMNetworkInfo).classic.fairlaunchV3?.length
+      ? (networkInfo as EVMNetworkInfo).classic.fairlaunchV3
+      : undefined,
+    FAIRLAUNCH_V3_ABI,
+    withSignerIfPossible,
+  )
+}
+
 export function useFairLaunchContracts(withSignerIfPossible?: boolean): {
   [key: string]: Contract
 } | null {
   const fairLaunchV1Contracts = useFairLaunchV1Contracts(withSignerIfPossible)
   const fairLaunchV2Contracts = useFairLaunchV2Contracts(withSignerIfPossible)
+  const fairLaunchV3Contracts = useFairLaunchV3Contracts(withSignerIfPossible)
 
   const fairLaunchContracts = useMemo(() => {
-    return { ...fairLaunchV1Contracts, ...fairLaunchV2Contracts }
-  }, [fairLaunchV1Contracts, fairLaunchV2Contracts])
+    return { ...fairLaunchV1Contracts, ...fairLaunchV2Contracts, ...fairLaunchV3Contracts }
+  }, [fairLaunchV1Contracts, fairLaunchV2Contracts, fairLaunchV3Contracts])
 
   return fairLaunchContracts
 }
@@ -256,11 +272,18 @@ export const useFairLaunchVersion = (address: string): FairLaunchVersion => {
     return a.toLowerCase() === address.toLowerCase()
   })
 
+  // Use .find to search with case insensitive
+  const isV3 = (networkInfo as EVMNetworkInfo).classic.fairlaunchV3?.find(a => {
+    return a.toLowerCase() === address.toLowerCase()
+  })
+
   // Even if we have V3 in the future, we can update it here
 
   if (isV2) {
     version = FairLaunchVersion.V2
   }
+
+  if (isV3) version = FairLaunchVersion.V3
 
   return version
 }
@@ -275,6 +298,9 @@ export function useFairLaunchContract(address: string, withSignerIfPossible?: bo
       break
     case FairLaunchVersion.V2:
       abi = FAIRLAUNCH_V2_ABI
+      break
+    case FairLaunchVersion.V3:
+      abi = FAIRLAUNCH_V3_ABI
       break
     default:
       abi = FAIRLAUNCH_ABI
