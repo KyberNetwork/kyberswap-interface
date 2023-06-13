@@ -36,7 +36,7 @@ const TokenAmount = ({
       color={isReceiveAnyToken ? theme.warning : plus ? theme.primary : theme.subText}
     >
       <Logo srcs={[logoUrl]} style={{ width: 16, height: 16, borderRadius: '50%' }} />
-      <Text>
+      <Text style={{ whiteSpace: 'nowrap' }}>
         {plus ? '+' : '-'} {formatAmountBridge(amount)}
       </Text>{' '}
       <span>{symbol}</span>{' '}
