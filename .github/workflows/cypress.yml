@@ -113,18 +113,6 @@ jobs:
         env:
             DISPLAY: :0.0
       
-      - name: Notify on failure
-        if: ${{ failure() }}
-        uses: rtCamp/action-slack-notify@v2
-        env:
-            SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-            SLACK_CHANEL: automation-test-bot
-            SLACK_COLOR: ${{ job.status }} # or a specific color like 'good' or '#ff00ff'
-            SLACK_ICON: https://icon-library.com/images/star-wars-icon-png/star-wars-icon-png-16.jpg?size=48
-            SLACK_TITLE: E2E Test ${{inputs.BASE_URL}}
-            SLACK_USERNAME: autoBot
-            SLACK_LINK_NAMES: true
-      
       - name: Archive e2e artifacts 
         uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
         if: always()
