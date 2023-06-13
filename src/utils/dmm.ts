@@ -12,7 +12,7 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import { useBlockNumber } from 'state/application/hooks'
-import { useRewardTokenPrices, useRewardTokens } from 'state/farms/classic/hooks'
+import { useRewardTokens } from 'state/farms/classic/hooks'
 import { Farm, Reward, RewardPerTimeUnit } from 'state/farms/classic/types'
 import { SubgraphPoolData, UserLiquidityPosition } from 'state/pools/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
@@ -479,7 +479,7 @@ export function useFarmRewards(farms?: Farm[], onlyCurrentUser = true): Reward[]
 
 export function useFarmRewardsUSD(rewards?: Reward[]): number {
   const { chainId } = useActiveWeb3React()
-  const tokenPrices = useRewardTokenPrices((rewards || []).map(item => item.token))
+  const tokenPrices = useTokenPrices((rewards || []).map(item => item.token.wrapped.address))
   if (!rewards) {
     return 0
   }
@@ -490,7 +490,9 @@ export function useFarmRewardsUSD(rewards?: Reward[]): number {
     }
 
     if (chainId && tokenPrices[index]) {
-      total += parseFloat(getFullDisplayBalance(reward.amount, reward.token.decimals)) * tokenPrices[index]
+      total +=
+        parseFloat(getFullDisplayBalance(reward.amount, reward.token.decimals)) *
+        tokenPrices[reward.token.wrapped.address]
     }
 
     return total

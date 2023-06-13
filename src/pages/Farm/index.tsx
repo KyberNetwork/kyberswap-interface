@@ -152,7 +152,7 @@ const Farm = () => {
           (blockNumber && item.endBlock && item.endBlock > blockNumber),
       )
       .forEach(current => {
-        current.rewardTokens.forEach(token => {
+        current.rewardTokens?.forEach(token => {
           if (token && token.chainId === chainId && !tokenMap[token.wrapped.address])
             tokenMap[token.wrapped.address] = token
         })

@@ -75,13 +75,14 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
               ),
               pid,
               fairLaunchVersion: isV3 ? FairLaunchVersion.V3 : FairLaunchVersion.V2,
-              rewardTokens: isV3
-                ? poolInfo.rewardTokens.map((rw: string) =>
-                    rw.toLowerCase() === ZERO_ADDRESS || rw.toLowerCase() === ETHER_ADDRESS.toLowerCase()
-                      ? NativeCurrencies[chainId]
-                      : allTokens[rw],
-                  )
-                : rewardTokens,
+              rewardTokens:
+                (isV3
+                  ? poolInfo.rewardTokens.map((rw: string) =>
+                      rw.toLowerCase() === ZERO_ADDRESS || rw.toLowerCase() === ETHER_ADDRESS.toLowerCase()
+                        ? NativeCurrencies[chainId]
+                        : allTokens[rw],
+                    )
+                  : rewardTokens) || [],
             }
           }
 
