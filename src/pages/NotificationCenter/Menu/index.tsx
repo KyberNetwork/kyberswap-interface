@@ -108,8 +108,8 @@ const MenuForDesktop = ({ unread }: { unread: Unread }) => {
 }
 
 export const MENU_TITLE: Partial<{ [type in PrivateAnnouncementType]: string }> = {
-  [PrivateAnnouncementType.BRIDGE_ASSET]: t`Bridge Token`,
-  [PrivateAnnouncementType.CROSS_CHAIN]: t`Cross-Chain Swap`,
+  [PrivateAnnouncementType.BRIDGE_ASSET]: t`Cross-Chain Bridge`,
+  [PrivateAnnouncementType.CROSS_CHAIN]: t`Cross-Chain Swaps`,
   [PrivateAnnouncementType.LIMIT_ORDER]: t`Limit Orders`,
   [PrivateAnnouncementType.KYBER_AI]: t`Top Tokens by KyberAI`,
   [PrivateAnnouncementType.PRICE_ALERT]: t`Price Alerts`,
