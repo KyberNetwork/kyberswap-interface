@@ -5,7 +5,7 @@ describe('Metamask Extension tests', () => {
     cy.visit('/')
     cy.clickButton(homePage.skipTutorial)
   })
-  it('connect metamask wallet', () => {
+  it('connect metamask wallet', { tags: 'regression' }, () => {
     cy.connectWallet()
   })
 })
