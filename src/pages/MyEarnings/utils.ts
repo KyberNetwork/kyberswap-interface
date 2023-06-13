@@ -76,6 +76,7 @@ export const calculateEarningStatsTick = (
           return {
             logoUrl: currency.logoURI || '',
             amount: Number(tokenEarning.amountFloat),
+            amountUSD: Number(tokenEarning.amountUSD),
             symbol: currency.symbol || 'NO SYMBOL',
             chainId,
           }
@@ -284,31 +285,6 @@ export const calculateTicksOfAccountEarningsInMultipleChains = (
       const poolRewardsValueUSD = sumTokenEarnings(singlePointData.fees || [])
       const farmRewardsValueUSD = sumTokenEarnings(singlePointData.rewards || [])
 
-      // TODO: tokenEarningByAddress not in use
-      const tokenEarningByAddress: Record<string, any> = {}
-      ;[...(singlePointData.fees || []), ...(singlePointData.rewards || [])].forEach(tokenEarning => {
-        // TODO: check with native token
-        const tokenAddress = isAddress(chainId, tokenEarning.token)
-        if (!tokenAddress) {
-          return
-        }
-
-        const currency = tokensByChainId[chainId][tokenAddress]
-        if (!currency) {
-          return
-        }
-
-        if (!tokenEarningByAddress[tokenAddress]) {
-          tokenEarningByAddress[tokenAddress] = {
-            logoUrl: currency.logoURI,
-            amount: 0,
-            symbol: currency.symbol || 'NO SYMBOL',
-          }
-        }
-
-        tokenEarningByAddress[tokenAddress].amount += Number(tokenEarning.amountFloat)
-      })
-
       const tick: EarningStatsTick = {
         day: singlePointData.day,
         date: dayjs(singlePointData.day * 86400 * 1000).format('MMM DD'),
@@ -332,6 +308,7 @@ export const calculateTicksOfAccountEarningsInMultipleChains = (
             return {
               logoUrl: currency.logoURI || '',
               amount: Number(tokenEarning.amountFloat),
+              amountUSD: Number(tokenEarning.amountUSD),
               symbol: currency.symbol || 'NO SYMBOL',
               chainId,
             }
@@ -371,7 +348,7 @@ export const calculateTicksOfAccountEarningsInMultipleChains = (
         byDay[day].farmRewardsValue += tick.farmRewardsValue
         byDay[day].poolRewardsValue += tick.poolRewardsValue
         byDay[day].totalValue += tick.totalValue
-        byDay[day].tokens.push(...tick.tokens)
+        byDay[day].tokens = [...byDay[day].tokens, ...tick.tokens]
       }
     })
   })
@@ -380,59 +357,27 @@ export const calculateTicksOfAccountEarningsInMultipleChains = (
     .map(d => Number(d))
     .sort((d1, d2) => d2 - d1)
 
-  const ticks = days.map(day => byDay[day])
+  const ticks = days.map(day => {
+    byDay[day].tokens.sort((token1, token2) => token2.amountUSD - token1.amountUSD)
+    return byDay[day]
+  })
 
   return ticks
 }
 
 export const calculateEarningBreakdowns = (
-  earningResponse: GetEarningDataResponse | undefined,
-  tokensByChainId: TokenAddressMap | undefined,
+  todayEarningTick: EarningStatsTick | undefined,
 ): EarningsBreakdown | undefined => {
-  const dataByChainRoute = earningResponse || {}
-  const tokens = tokensByChainId || {}
+  if (!todayEarningTick) {
+    return undefined
+  }
 
-  const latestAggregatedData = Object.keys(dataByChainRoute)
-    .flatMap(chainRoute => {
-      const data = dataByChainRoute[chainRoute].account
-      const chainId = chainIdByRoute[chainRoute]
-
-      const latestData = data?.[0]?.total
-        ?.filter(tokenData => {
-          // TODO: check with native token
-          const tokenAddress = isAddress(chainId, tokenData.token)
-          if (!tokenAddress) {
-            return false
-          }
-
-          const currency = tokens[chainId][tokenAddress]
-          return !!currency
-        })
-        .map(tokenData => {
-          const tokenAddress = isAddress(chainId, tokenData.token)
-          const currency = tokens[chainId][String(tokenAddress)]
-          return {
-            address: tokenAddress,
-            symbol: currency.symbol || '',
-            amountUSD: Number(tokenData.amountUSD),
-            chainId,
-            logoUrl: currency.logoURI,
-          }
-        })
-
-      return latestData || []
-    })
-    .sort((data1, data2) => data2.amountUSD - data1.amountUSD)
-
-  const totalValue = latestAggregatedData.reduce((sum, { amountUSD }) => {
-    return sum + amountUSD
-  }, 0)
-
-  const totalValueOfOthers = latestAggregatedData.slice(9).reduce((acc, data) => acc + data.amountUSD, 0)
-
+  const totalValue = todayEarningTick.totalValue
+  const tokens = todayEarningTick.tokens
+  const totalValueOfOthers = todayEarningTick.tokens.slice(9).reduce((acc, data) => acc + data.amountUSD, 0)
   const breakdowns: EarningsBreakdown['breakdowns'] =
-    latestAggregatedData.length <= 10
-      ? latestAggregatedData.map(data => ({
+    tokens.length <= 10
+      ? tokens.map(data => ({
           chainId: data.chainId,
           logoUrl: data.logoUrl,
           symbol: data.symbol,
@@ -440,7 +385,7 @@ export const calculateEarningBreakdowns = (
           percent: (data.amountUSD / totalValue) * 100,
         }))
       : [
-          ...latestAggregatedData.slice(0, 9).map(data => ({
+          ...tokens.slice(0, 9).map(data => ({
             chainId: data.chainId,
             logoUrl: data.logoUrl,
             symbol: data.symbol,
@@ -449,6 +394,7 @@ export const calculateEarningBreakdowns = (
           })),
           {
             symbol: `Others`,
+            chainId: undefined,
             value: String(totalValueOfOthers),
             percent: (totalValueOfOthers / totalValue) * 100,
           },
@@ -456,6 +402,6 @@ export const calculateEarningBreakdowns = (
 
   return {
     totalValue,
-    breakdowns: breakdowns,
+    breakdowns,
   }
 }

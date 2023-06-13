@@ -121,16 +121,16 @@ const MyEarningsSection = () => {
     return aggregateAccountEarnings(aggregatePoolEarnings(getEarningData.data))
   }, [getEarningData.data])
 
-  const earningBreakdown: EarningsBreakdown | undefined = useMemo(() => {
-    return calculateEarningBreakdowns(earningResponse, tokensByChainId)
-  }, [earningResponse, tokensByChainId])
-
   // chop the data into the right duration
   // format pool value
   // multiple chains
   const ticks: EarningStatsTick[] | undefined = useMemo(() => {
     return calculateTicksOfAccountEarningsInMultipleChains(earningResponse, tokensByChainId)
   }, [earningResponse, tokensByChainId])
+
+  const earningBreakdown: EarningsBreakdown | undefined = useMemo(() => {
+    return calculateEarningBreakdowns(ticks?.[0])
+  }, [ticks])
 
   const availableChainRoutes = useMemo(() => {
     if (!earningResponse) {

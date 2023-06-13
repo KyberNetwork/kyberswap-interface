@@ -3,7 +3,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 export type EarningsBreakdown = {
   totalValue: number
   breakdowns: Array<{
-    chainId?: ChainId
+    chainId: ChainId | undefined // undefined when this is 'Others'
     logoUrl?: string
     symbol: string
     value: string
@@ -26,6 +26,7 @@ export type EarningStatsTick = {
     chainId: ChainId
     logoUrl: string
     amount: number
+    amountUSD: number
     symbol: string
   }>
 }
