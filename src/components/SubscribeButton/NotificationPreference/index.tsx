@@ -426,16 +426,16 @@ function NotificationPreference({
         {renderTableHeader()}
         <ListGroupWrapper>
           <GroupColum>
-            <LabelGroup>
+            {/* <LabelGroup>
               <NotificationIcon size={16} />
               <MouseoverTooltip text={t`These topics can be subscribed by anyone`} placement="top">
                 <Trans>Common Topics</Trans>
               </MouseoverTooltip>
-            </LabelGroup>
+            </LabelGroup> */}
             {commons.map(topic => renderTopic(topic, disableCheckbox))}
           </GroupColum>
           <GroupColum>
-            <LabelGroup>
+            {/* <LabelGroup>
               <Lock size={15} />
               <MouseoverTooltip
                 placement="top"
@@ -443,7 +443,7 @@ function NotificationPreference({
               >
                 <Trans>Restricted Topics</Trans>
               </MouseoverTooltip>
-            </LabelGroup>
+            </LabelGroup> */}
             {restrict.map(topic => {
               const disableKyberAI = disableCheckbox || !isLogin || !userInfo?.data?.hasAccessToKyberAI
               return renderTopic(

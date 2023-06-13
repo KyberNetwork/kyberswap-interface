@@ -11,10 +11,7 @@ const getImportTokens = () => {
   let result = EMPTY_OBJECT as TokenByAccount
   try {
     result = JSON.parse(raw || '')
-  } catch (e) {
-    console.error(e)
-  }
-
+  } catch (e) {}
   return result
 }
 

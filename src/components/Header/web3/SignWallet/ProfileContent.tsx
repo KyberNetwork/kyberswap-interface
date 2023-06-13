@@ -20,7 +20,7 @@ import useTheme from 'hooks/useTheme'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
-import { ConnectedProfile, useAllProfileInfo, useSignedWalletInfo } from 'state/authen/hooks'
+import { ConnectedProfile, KEY_GUEST_DEFAULT, useAllProfileInfo, useSignedWalletInfo } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
 import { shortString } from 'utils/string'
@@ -103,7 +103,7 @@ const ProfileItemWrapper = styled(RowBetween)<{ active: boolean }>`
 `
 
 const ProfileItem = ({
-  data: { active, guest, address: account, profile },
+  data: { active, guest, address: account, profile, key, default: guestDefault },
   refreshProfile,
 }: {
   data: ConnectedProfile
@@ -113,27 +113,27 @@ const ProfileItem = ({
   const navigate = useNavigate()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
-  const { signIn, signInAnonymous, signOut } = useLogin()
-  const { isSignedWallet, isGuest } = useSignedWalletInfo()
+  const { signIn, signInAnonymous, signOut, signOutAnonymous } = useLogin()
 
   const onClick = () => {
     if (active) return
-    guest ? signInAnonymous() : signIn(account, true)
+    guest ? signInAnonymous(key) : signIn(account, true)
     toggleModal()
   }
 
-  const signOutBtn = !guest ? (
-    <LogOut
-      style={{ marginRight: active || upToMedium ? 0 : '10px' }}
-      color={active ? theme.text : theme.subText}
-      size={16}
-      onClick={e => {
-        e?.stopPropagation()
-        signOut(account)
-        refreshProfile()
-      }}
-    />
-  ) : null
+  const signOutBtn =
+    !active && !guestDefault ? (
+      <LogOut
+        style={{ marginRight: active || upToMedium ? 0 : '10px' }}
+        color={active ? theme.text : theme.subText}
+        size={16}
+        onClick={e => {
+          e?.stopPropagation()
+          guest ? signOutAnonymous(key) : signOut(account)
+          refreshProfile()
+        }}
+      />
+    ) : null
 
   return (
     <ProfileItemWrapper active={active} onClick={onClick}>
@@ -154,14 +154,14 @@ const ProfileItem = ({
               fontSize={active ? '16px' : profile?.nickname ? '12px' : '16px'}
               color={active ? theme.subText : theme.subText}
             >
-              {guest ? account : getShortenAddress(account)}
+              {guest ? shortString(account, 20) : getShortenAddress(account)}
             </Text>
           </Column>
           {active && signOutBtn}
         </Row>
         {!active && signOutBtn}
       </Row>
-      {(isSignedWallet(account) || (guest && isGuest)) && (
+      {active && (
         <Row width={'100%'}>
           <ButtonLight
             height={'36px'}
@@ -186,7 +186,7 @@ const ProfileContent = () => {
   const { canSignInEth } = useSignedWalletInfo()
   const { profiles, refresh } = useAllProfileInfo()
   const { account: connectedWallet } = useActiveWeb3React()
-  const totalSignedAccount = profiles.filter(e => !e.guest).length
+  const totalSignedAccount = profiles.filter(e => e.key !== KEY_GUEST_DEFAULT).length
   const listNotActive = profiles.slice(1)
 
   return (
