@@ -144,4 +144,12 @@ const earningApi = createApi({
 })
 
 export default earningApi
-export const { useGetEarningDataQuery, useLazyGetEarningDataQuery } = earningApi
+export const {
+  useGetEarningDataQuery,
+  useGetElasticEarningQuery,
+  useGetElasticLegacyEarningQuery,
+
+  useLazyGetEarningDataQuery,
+  useLazyGetElasticEarningQuery,
+  useLazyGetElasticLegacyEarningQuery,
+} = earningApi

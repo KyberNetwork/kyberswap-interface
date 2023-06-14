@@ -4,12 +4,17 @@ import { useMemo } from 'react'
 import { Info } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { PositionEarningWithDetails, useGetEarningDataQuery } from 'services/earning'
+import {
+  PositionEarningWithDetails,
+  useGetElasticEarningQuery,
+  useGetElasticLegacyEarningQuery,
+} from 'services/earning'
 import styled from 'styled-components'
 
 import LoaderWithKyberLogo from 'components/LocalLoader'
 import { EMPTY_ARRAY } from 'constants/index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS_FOR_MY_EARNINGS } from 'constants/networks'
+import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
@@ -101,55 +106,58 @@ const getPositionEarningsByPoolId = (
 const MyEarningsSection = () => {
   const { account = '' } = useActiveWeb3React()
   const theme = useTheme()
-
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
-
   const selectedChainIds = useAppSelector(state => state.myEarnings.selectedChains)
-  const getEarningData = useGetEarningDataQuery({ account, chainIds: selectedChainIds })
+  const activeTab = useAppSelector(state => state.myEarnings.activeTab)
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
   const shouldShowClosedPositions = useAppSelector(state => state.myEarnings.shouldShowClosedPositions)
   const originalSearchText = useAppSelector(state => state.myEarnings.searchText)
-
   const searchText = useDebounce(originalSearchText, 300).toLowerCase().trim()
 
-  const earningResponse = getEarningData.data
+  // const getEarningData = useGetEarningDataQuery({ account, chainIds: selectedChainIds })
+  const elasticEarningQueryResponse = useGetElasticEarningQuery({ account, chainIds: selectedChainIds })
+  const elasticLegacyEarningQueryResponse = useGetElasticLegacyEarningQuery({ account, chainIds: selectedChainIds })
+
+  const earningResponse = useMemo(() => {
+    let data = elasticEarningQueryResponse.data
+    if (activeTab === VERSION.ELASTIC_LEGACY) {
+      data = elasticLegacyEarningQueryResponse.data
+    } else if (activeTab === VERSION.CLASSIC) {
+      data = undefined
+    }
+
+    return data
+  }, [activeTab, elasticEarningQueryResponse, elasticLegacyEarningQueryResponse])
+
+  const isLoading = elasticEarningQueryResponse.isFetching || elasticLegacyEarningQueryResponse.isFetching
 
   // chop the data into the right duration
   // format pool value
   // multiple chains
   const ticks: EarningStatsTick[] | undefined = useMemo(() => {
-    return calculateTicksOfAccountEarningsInMultipleChains(earningResponse, tokensByChainId)
-  }, [earningResponse, tokensByChainId])
+    return calculateTicksOfAccountEarningsInMultipleChains(
+      [elasticEarningQueryResponse.data, elasticLegacyEarningQueryResponse.data],
+      tokensByChainId,
+    )
+  }, [elasticEarningQueryResponse, elasticLegacyEarningQueryResponse, tokensByChainId])
 
   const earningBreakdown: EarningsBreakdown | undefined = useMemo(() => {
     return calculateEarningBreakdowns(ticks?.[0])
   }, [ticks])
 
-  const availableChainRoutes = useMemo(() => {
+  const pools: SinglePoolProps[] = useMemo(() => {
     if (!earningResponse) {
       return []
     }
 
-    return Object.keys(earningResponse)
-  }, [earningResponse])
-
-  const pools: SinglePoolProps[] = useMemo(() => {
-    const data = earningResponse
-    return availableChainRoutes.flatMap(chainRoute => {
-      if (!data?.[chainRoute]) {
-        return []
-      }
-
+    return Object.entries(earningResponse).flatMap(([chainRoute, earningData]) => {
       const chainId = chainIdByRoute[chainRoute]
-      const positionEarningsByPoolId = getPositionEarningsByPoolId(
-        data[chainRoute].positions,
-        shouldShowClosedPositions,
-      )
+      const positionEarningsByPoolId = getPositionEarningsByPoolId(earningData.positions, shouldShowClosedPositions)
 
       const poolIdsThatHasPositions = Object.keys(positionEarningsByPoolId)
 
       const poolEarnings =
-        data[chainRoute].pools?.filter(pool => {
+        earningData.pools?.filter(pool => {
           if (!poolIdsThatHasPositions.includes(pool.id)) {
             return false
           }
@@ -177,12 +185,10 @@ const MyEarningsSection = () => {
         }
       })
     })
-  }, [availableChainRoutes, earningResponse, searchText, shouldShowClosedPositions])
+  }, [earningResponse, searchText, shouldShowClosedPositions])
 
   const renderPools = () => {
-    const isLoading = getEarningData.isFetching || !pools
-    const isEmpty = pools.length === 0
-
+    const isEmpty = pools?.length === 0
     if (isLoading || isEmpty) {
       return (
         <Flex
@@ -250,12 +256,8 @@ const MyEarningsSection = () => {
           flexWrap: 'wrap',
         }}
       >
-        <EarningsBreakdownPanel isLoading={getEarningData.isFetching} data={earningBreakdown} />
-        <MyEarningsOverTimePanel
-          isLoading={getEarningData.isFetching}
-          ticks={ticks}
-          isContainerSmall={upToExtraSmall}
-        />
+        <EarningsBreakdownPanel isLoading={isLoading} data={earningBreakdown} />
+        <MyEarningsOverTimePanel isLoading={isLoading} ticks={ticks} isContainerSmall={upToExtraSmall} />
       </Flex>
 
       <Text

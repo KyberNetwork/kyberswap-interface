@@ -2,14 +2,23 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createReducer } from '@reduxjs/toolkit'
 
 import { SUPPORTED_NETWORKS_FOR_MY_EARNINGS } from 'constants/networks'
+import { VERSION } from 'constants/v2'
 
-import { collapseAllPools, expandAllPools, selectChains, setSearchText, toggleShowClosedPositions } from './actions'
+import {
+  collapseAllPools,
+  expandAllPools,
+  selectChains,
+  setActiveTab,
+  setSearchText,
+  toggleShowClosedPositions,
+} from './actions'
 
 export interface MyEarningsState {
   readonly selectedChains: ChainId[]
   readonly shouldShowClosedPositions: boolean
   readonly searchText: string
   readonly shouldExpandAllPools: boolean
+  readonly activeTab: VERSION | undefined
 }
 
 const initialState: MyEarningsState = {
@@ -17,6 +26,7 @@ const initialState: MyEarningsState = {
   shouldShowClosedPositions: false,
   shouldExpandAllPools: false,
   searchText: '',
+  activeTab: undefined,
 }
 
 export default createReducer(initialState, builder =>
@@ -36,5 +46,8 @@ export default createReducer(initialState, builder =>
     })
     .addCase(collapseAllPools, state => {
       state.shouldExpandAllPools = false
+    })
+    .addCase(setActiveTab, (state, action) => {
+      state.activeTab = action.payload
     }),
 )

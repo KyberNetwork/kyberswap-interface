@@ -1,6 +1,8 @@
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
+import { useEffect } from 'react'
+import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -16,6 +18,7 @@ import { ELASTIC_NOT_SUPPORTED, VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
+import { setActiveTab } from 'state/myEarnings/actions'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { isInEnum } from 'utils/string'
 
@@ -55,6 +58,7 @@ const LegacyTag: React.FC<LegacyTagProps> = ({ isActive }) => {
 function ClassicElasticTab() {
   const { tab: tabQS = VERSION.ELASTIC, ...qs } = useParsedQueryString<{ tab: string }>()
   const tab = isInEnum(tabQS, VERSION) ? tabQS : VERSION.ELASTIC
+  const dispatch = useDispatch()
 
   const { chainId, account } = useActiveWeb3React()
   const notSupportedMsg = ELASTIC_NOT_SUPPORTED[chainId]
@@ -100,6 +104,10 @@ function ClassicElasticTab() {
       ? theme.disableText
       : theme.primary
     : theme.subText
+
+  useEffect(() => {
+    dispatch(setActiveTab(tab))
+  }, [dispatch, tab])
 
   const renderComboElasticPoolsButton = () => {
     return (
