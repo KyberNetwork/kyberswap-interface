@@ -102,7 +102,7 @@ export interface SolanaWalletInfo extends WalletInfo {
   readyStateSolana: () => WalletReadyState
 }
 
-export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
+export const SUPPORTED_WALLETS = {
   METAMASK: {
     connector: metaMask,
     hooks: metamaskHooks,
@@ -202,4 +202,5 @@ export const connections = Object.values(SUPPORTED_WALLETS).filter(wallet => 'co
 
 export type SUPPORTED_WALLET = keyof typeof SUPPORTED_WALLETS
 
-export const LOCALSTORAGE_LAST_WALLETKEY = 'last-wallet-key'
+export const LOCALSTORAGE_LAST_WALLETKEY_EVM = 'last-wallet-key-evm'
+export const LOCALSTORAGE_LAST_WALLETKEY_SOLANA = 'last-wallet-key-solana'

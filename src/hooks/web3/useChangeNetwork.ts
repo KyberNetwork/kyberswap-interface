@@ -5,22 +5,18 @@ import { useCallback } from 'react'
 import { NotificationType } from 'components/Announcement/type'
 import { didUserReject } from 'connectors/utils'
 import { NETWORKS_INFO, isEVM, isSolana } from 'constants/networks'
-import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useNotify } from 'state/application/hooks'
 import { useAppDispatch } from 'state/hooks'
 import { updateChainId } from 'state/user/actions'
-import { isEVMWallet, isSolanaWallet } from 'utils'
 import { wait } from 'utils/retry'
 
 import { useLazyKyberswapConfig } from '../useKyberSwapConfig'
-import { useActivationWallet } from './useActivationWallet'
 
 let latestChainId: ChainId
 export function useChangeNetwork() {
-  const { chainId, walletKey, walletEVM, walletSolana } = useActiveWeb3React()
+  const { chainId, walletEVM, walletSolana } = useActiveWeb3React()
   const { connector } = useWeb3React()
-  const { tryActivationEVM, tryActivationSolana } = useActivationWallet()
   const fetchKyberswapConfig = useLazyKyberswapConfig()
 
   const dispatch = useAppDispatch()
@@ -42,6 +38,7 @@ export function useChangeNetwork() {
       failureCallback?: () => void,
       waitUtilUpdatedChainId = false,
     ) => {
+      // if connected, nothing todo, success return
       if (desiredChainId === chainId) {
         successCb?.()
         return
@@ -58,36 +55,19 @@ export function useChangeNetwork() {
         successCb?.()
       }
 
-      const wallet = walletKey && SUPPORTED_WALLETS[walletKey]
-
+      // if changing to network not connected wallet, update redux and success return
       if (
-        wallet &&
-        isEVMWallet(wallet) &&
-        walletSolana.isConnected &&
-        !walletEVM.isConnected &&
-        !isSolana(desiredChainId)
+        (isSolana(desiredChainId) && !walletSolana.isConnected) ||
+        (isEVM(desiredChainId) && !walletEVM.isConnected)
       ) {
-        try {
-          await tryActivationEVM(wallet.connector)
-        } catch {}
-      }
-      if (
-        wallet &&
-        isSolanaWallet(wallet) &&
-        walletEVM.isConnected &&
-        !walletEVM.isConnected &&
-        !isEVM(desiredChainId)
-      ) {
-        try {
-          await tryActivationSolana(wallet.adapter)
-        } catch {}
+        changeNetworkHandler(desiredChainId, successCallback)
+        return
       }
 
       if (isEVM(desiredChainId)) {
-        if (desiredChainId === chainId) successCallback?.()
         try {
           await connector.activate(desiredChainId)
-          successCallback?.()
+          changeNetworkHandler(desiredChainId, successCallback)
         } catch (error) {
           const notifyFailed = () => {
             notify({
@@ -115,7 +95,7 @@ export function useChangeNetwork() {
           }
           try {
             await connector.activate(addChainParameter)
-            successCallback?.()
+            changeNetworkHandler(desiredChainId, successCallback)
           } catch (error) {
             if (didUserReject(connector, error)) {
               notifyFailed()
@@ -130,9 +110,6 @@ export function useChangeNetwork() {
       connector,
       notify,
       changeNetworkHandler,
-      tryActivationEVM,
-      tryActivationSolana,
-      walletKey,
       walletEVM.isConnected,
       walletSolana.isConnected,
       chainId,

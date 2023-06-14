@@ -128,7 +128,7 @@ enum WALLET_VIEWS {
 }
 
 type WalletInfoExtended = WalletInfo & {
-  key: string
+  key: SUPPORTED_WALLET
   readyState: WalletReadyState | undefined
   isSupportCurrentChain: boolean
   isOverridden: boolean
@@ -223,7 +223,7 @@ export default function WalletModal() {
 
   function getOptions() {
     // Generate list of wallets and states of it depend on current network
-    const parsedWalletList: WalletInfoExtended[] = Object.keys(SUPPORTED_WALLETS).map((k: string) => {
+    const parsedWalletList: WalletInfoExtended[] = (Object.keys(SUPPORTED_WALLETS) as SUPPORTED_WALLET[]).map(k => {
       const wallet = SUPPORTED_WALLETS[k]
       const readyState = (() => {
         const readyStateEVM = isEVMWallet(wallet) ? wallet.readyState() : undefined

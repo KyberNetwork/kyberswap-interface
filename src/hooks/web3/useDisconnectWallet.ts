@@ -2,9 +2,12 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import { Connector } from '@web3-react/types'
 import { useCallback } from 'react'
 
-import { SUPPORTED_WALLETS } from 'constants/wallets'
+import {
+  LOCALSTORAGE_LAST_WALLETKEY_EVM,
+  LOCALSTORAGE_LAST_WALLETKEY_SOLANA,
+  SUPPORTED_WALLETS,
+} from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useIsUserManuallyDisconnect } from 'state/user/hooks'
 import { isEVMWallet, isSolanaWallet } from 'utils'
 
 const disconnectEvmConnector: (connector: Connector | undefined) => void | Promise<void> = (
@@ -21,7 +24,6 @@ const disconnectEvmConnector: (connector: Connector | undefined) => void | Promi
 }
 
 const useDisconnectWallet = () => {
-  const [, setIsUserManuallyDisconnect] = useIsUserManuallyDisconnect()
   const { disconnect } = useWallet()
   const { walletKey, isEVM, isSolana } = useActiveWeb3React()
   const { connector } = useWeb3React()
@@ -30,14 +32,15 @@ const useDisconnectWallet = () => {
     // If wallet support both network, disconnect to both
     if (wallet && isEVMWallet(wallet) && isSolanaWallet(wallet)) {
       await Promise.allSettled([disconnectEvmConnector(connector), disconnect()])
-      setIsUserManuallyDisconnect(true)
+      localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY_EVM)
+      localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY_SOLANA)
     } else if (isEVM) {
       await disconnectEvmConnector(connector)
-      setIsUserManuallyDisconnect(true)
+      localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY_EVM)
     } else if (isSolana) {
       await disconnect()
-      setIsUserManuallyDisconnect(true)
+      localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY_SOLANA)
     }
-  }, [connector, disconnect, isEVM, isSolana, setIsUserManuallyDisconnect, walletKey])
+  }, [connector, disconnect, isEVM, isSolana, walletKey])
 }
 export default useDisconnectWallet

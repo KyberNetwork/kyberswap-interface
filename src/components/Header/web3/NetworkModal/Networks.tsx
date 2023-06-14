@@ -16,8 +16,6 @@ import { useActiveWeb3React } from 'hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { useAppDispatch } from 'state/hooks'
-import { updateChainId } from 'state/user/actions'
 import { useIsDarkMode } from 'state/user/hooks'
 
 const NewLabel = styled.span`
@@ -143,7 +141,6 @@ const Networks = ({
   const navigate = useNavigate()
   const isDarkMode = useIsDarkMode()
   const theme = useTheme()
-  const dispatch = useAppDispatch()
   const { walletEVM, walletSolana } = useActiveWeb3React()
   const onSelect = (chainId: ChainId) => {
     customToggleModal?.()
@@ -159,8 +156,6 @@ const Networks = ({
           { replace: true },
         )
         onChangedNetwork?.()
-
-        dispatch(updateChainId(chainId))
       })
     } else {
       changeNetwork(chainId, () => {
@@ -171,7 +166,6 @@ const Networks = ({
           { replace: true },
         )
         onChangedNetwork?.()
-        dispatch(updateChainId(chainId))
       })
     }
   }

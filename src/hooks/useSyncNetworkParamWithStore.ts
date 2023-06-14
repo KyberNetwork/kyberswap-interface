@@ -11,7 +11,7 @@ import { useChangeNetwork } from './web3/useChangeNetwork'
 export function useSyncNetworkParamWithStore() {
   const params = useParams<{ network?: string }>()
   const changeNetwork = useChangeNetwork()
-  const { networkInfo, walletEVM, walletSolana, chainId, account } = useActiveWeb3React()
+  const { networkInfo, chainId, account } = useActiveWeb3React()
   const isOnInit = useRef(true)
   const navigate = useNavigate()
   const triedEager = useEagerConnect()
@@ -53,16 +53,8 @@ export function useSyncNetworkParamWithStore() {
     } else {
       isOnInit.current = false
     }
-  }, [
-    location,
-    changeNetwork,
-    params?.network,
-    navigate,
-    networkInfo.route,
-    walletEVM.isConnected,
-    walletSolana.isConnected,
-    account,
-  ])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     if (NETWORKS_INFO[chainId].route === requestingNetwork) setRequestingNetwork(undefined)

@@ -20,8 +20,8 @@ export function useActiveWeb3React(): {
   chainId: ChainId
   account?: string
   walletKey: SUPPORTED_WALLET | undefined
-  walletEVM: { isConnected: boolean; walletKey?: string | number; connector?: Connector; chainId?: ChainId }
-  walletSolana: { isConnected: boolean; walletKey?: string | number; wallet: Wallet | null }
+  walletEVM: { isConnected: boolean; walletKey?: SUPPORTED_WALLET; connector?: Connector; chainId?: ChainId }
+  walletSolana: { isConnected: boolean; walletKey?: SUPPORTED_WALLET; wallet: Wallet | null }
   isEVM: boolean
   isSolana: boolean
   networkInfo: NetworkInfo

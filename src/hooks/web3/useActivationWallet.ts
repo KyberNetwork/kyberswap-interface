@@ -1,62 +1,74 @@
-import { BaseMessageSignerWalletAdapter } from '@solana/wallet-adapter-base'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { Connector } from '@web3-react/types'
 import { useCallback } from 'react'
 
-import { LOCALSTORAGE_LAST_WALLETKEY, SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
+import {
+  LOCALSTORAGE_LAST_WALLETKEY_EVM,
+  LOCALSTORAGE_LAST_WALLETKEY_SOLANA,
+  SUPPORTED_WALLETS,
+} from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
-import { useIsUserManuallyDisconnect } from 'state/user/hooks'
 import { isEVMWallet, isSolanaWallet } from 'utils'
 
 export const useActivationWallet: () => {
-  tryActivation: (walletKey: SUPPORTED_WALLET) => Promise<void>
-  tryActivationEVM: (connector: Connector) => Promise<void>
-  tryActivationSolana: (adapter: BaseMessageSignerWalletAdapter) => Promise<void>
+  tryActivation: (walletKey: string, isEagerly?: boolean) => Promise<void>
+  tryActivationEVM: (walletKey: string, isEagerly?: boolean) => Promise<void>
+  tryActivationSolana: (walletKey: string) => Promise<void>
 } = () => {
   const { select, wallet: solanaWallet } = useWallet()
   const { isSolana, isEVM } = useActiveWeb3React()
-  const [, setIsUserManuallyDisconnect] = useIsUserManuallyDisconnect()
 
-  const tryActivationEVM: (connector: Connector) => Promise<void> = useCallback(async (connector: Connector) => {
-    try {
-      await connector.activate()
-    } catch (error) {
-      console.error('Activate evm failed:', { connector, error })
-      throw error
-    }
-  }, [])
-
-  const tryActivationSolana: (adapter: BaseMessageSignerWalletAdapter) => Promise<void> = useCallback(
-    async (adapter: BaseMessageSignerWalletAdapter) => {
+  const tryActivationEVM: (walletKey: string, isEagerly?: boolean) => Promise<void> = useCallback(
+    async (walletKey: string, isEagerly = false) => {
+      const wallet = (SUPPORTED_WALLETS as any)[walletKey]
+      if (!isEVMWallet(wallet)) return
       try {
-        select(adapter.name)
+        if (isEagerly) {
+          if (wallet.connector.connectEagerly) {
+            await wallet.connector.connectEagerly()
+          } else {
+            await wallet.connector.activate()
+          }
+        } else {
+          await wallet.connector.activate()
+        }
+        localStorage.setItem(LOCALSTORAGE_LAST_WALLETKEY_EVM, walletKey.toString())
       } catch (error) {
+        localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY_EVM)
+        console.error('Activate EVM failed:', { walletKey, wallet, error, isEagerly })
+        throw error
+      }
+    },
+    [],
+  )
+
+  const tryActivationSolana: (walletKey: string) => Promise<void> = useCallback(
+    async (walletKey: string) => {
+      const wallet = (SUPPORTED_WALLETS as any)[walletKey]
+      if (!isSolanaWallet(wallet)) return
+
+      try {
+        await select(wallet.adapter.name)
+        localStorage.setItem(LOCALSTORAGE_LAST_WALLETKEY_SOLANA, walletKey.toString())
+      } catch (error) {
+        localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY_SOLANA)
+        console.error('Activate Solana failed:', { walletKey, wallet, error })
         throw error
       }
     },
     [select],
   )
 
-  const tryActivation: (walletKey: SUPPORTED_WALLET) => Promise<void> = useCallback(
-    async (walletKey: SUPPORTED_WALLET) => {
-      setIsUserManuallyDisconnect(false)
-      const wallet = SUPPORTED_WALLETS[walletKey]
-      try {
-        await (async () => {
-          if (isEVM && isEVMWallet(wallet) && !wallet.href) {
-            await tryActivationEVM(wallet.connector)
-          }
-          if (isSolana && isSolanaWallet(wallet) && wallet.adapter !== solanaWallet?.adapter) {
-            await tryActivationSolana(wallet.adapter)
-          }
-        })()
-        localStorage.setItem(LOCALSTORAGE_LAST_WALLETKEY, walletKey.toString())
-      } catch (error) {
-        localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY)
-        throw error
+  const tryActivation: (walletKey: string, isEagerly?: boolean) => Promise<void> = useCallback(
+    async (walletKey: string, isEagerly = false) => {
+      const wallet = (SUPPORTED_WALLETS as any)[walletKey]
+      if (isEVM && isEVMWallet(wallet) && !wallet.href) {
+        await tryActivationEVM(walletKey, isEagerly)
+      }
+      if (isSolana && isSolanaWallet(wallet) && wallet.adapter !== solanaWallet?.adapter) {
+        await tryActivationSolana(walletKey)
       }
     },
-    [setIsUserManuallyDisconnect, isSolana, isEVM, solanaWallet?.adapter, tryActivationEVM, tryActivationSolana],
+    [isSolana, isEVM, solanaWallet?.adapter, tryActivationEVM, tryActivationSolana],
   )
 
   return {
