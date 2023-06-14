@@ -57,7 +57,6 @@ export function useEagerConnect() {
           const lastWalletKeySolana = localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY_SOLANA)
           if (lastWalletKeyEVM) return await tryActivation(lastWalletKeyEVM, true)
           if (lastWalletKeySolana) return await tryActivation(lastWalletKeySolana)
-          await tryActivation('METAMASK', true)
         }
       } catch (e) {
         console.log('Eagerly connect: authorize error', e)
