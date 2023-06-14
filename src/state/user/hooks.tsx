@@ -13,9 +13,10 @@ import {
   useOldStaticFeeFactoryContract,
   useStaticFeeFactoryContract,
 } from 'hooks/useContract'
+import useDebounce from 'hooks/useDebounce'
 import { ParticipantInfo, ParticipantStatus } from 'pages/TrueSightV2/types'
 import { AppDispatch, AppState } from 'state'
-import { useSessionInfo } from 'state/authen/hooks'
+import { useIsConnectingWallet, useSessionInfo } from 'state/authen/hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useSingleContractMultipleData } from 'state/multicall/hooks'
@@ -520,16 +521,25 @@ export const useIsWhiteListKyberAI = () => {
     data: rawData,
     isFetching,
     isError,
+    refetch,
   } = useGetParticipantInfoQuery(undefined, {
     skip: !userInfo,
   })
-  const participantInfo = isError ? participantDefault : rawData
+
+  const { account } = useActiveWeb3React()
+  const [connectingWallet] = useIsConnectingWallet()
+
+  const isLoading = isFetching || pendingAuthentication
+  const loadingDebounced = useDebounce(isLoading, 500) || connectingWallet
+
+  const participantInfo = isError || loadingDebounced || !account ? participantDefault : rawData
 
   return {
-    loading: isFetching || pendingAuthentication,
+    loading: loadingDebounced,
     isWhiteList:
       isLogin && (participantInfo?.status === ParticipantStatus.WHITELISTED || userInfo?.data?.hasAccessToKyberAI),
     isWaitList: isLogin && participantInfo?.status === ParticipantStatus.WAITLISTED,
+    refetch,
   }
 }
 
