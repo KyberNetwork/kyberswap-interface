@@ -18,7 +18,7 @@ import WarningIcon from 'components/Icons/WarningIcon'
 import Modal from 'components/Modal'
 import { AutoRow, RowBetween, RowFixed } from 'components/Row'
 import WalletPopup from 'components/WalletPopup'
-import { APP_PATHS, EVENT_CUSTOM, TERM_FILES_PATH } from 'constants/index'
+import { APP_PATHS, TERM_FILES_PATH } from 'constants/index'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS, WalletInfo } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActivationWallet } from 'hooks/useActivationWallet'
@@ -32,6 +32,7 @@ import {
   useOpenNetworkModal,
   useWalletModalToggle,
 } from 'state/application/hooks'
+import { useIsConnectingWallet } from 'state/authen/hooks'
 import { useIsAcceptedTerm } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { isEVMWallet, isOverriddenWallet, isSolanaWallet } from 'utils'
@@ -214,22 +215,23 @@ export default function WalletModal() {
     }
   }, [connecting, connected, solanaWallet])
 
+  const [, setIsConnectingWallet] = useIsConnectingWallet()
   const handleWalletChange = useCallback(
     async (walletKey: SUPPORTED_WALLET) => {
       setPendingWalletKey(walletKey)
       setWalletView(WALLET_VIEWS.PENDING)
       setPendingError(false)
-      window.dispatchEvent(new Event(EVENT_CUSTOM.CONNECTING_WALLET))
+      setIsConnectingWallet(true)
       try {
         await tryActivation(walletKey)
       } catch {
         setPendingError(true)
       }
       setTimeout(() => {
-        window.dispatchEvent(new Event(EVENT_CUSTOM.CONNECTING_WALLET_END))
+        setIsConnectingWallet(false)
       }, 1000)
     },
-    [tryActivation],
+    [tryActivation, setIsConnectingWallet],
   )
 
   function getOptions() {

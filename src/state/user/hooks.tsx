@@ -1,9 +1,9 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useGetParticipantInfoQuery } from 'services/kyberAISubscription'
 
-import { EVENT_CUSTOM, TERM_FILES_PATH } from 'constants/index'
+import { TERM_FILES_PATH } from 'constants/index'
 import { SupportedLocale } from 'constants/locales'
 import { PINNED_PAIRS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -16,7 +16,7 @@ import {
 import useDebounce from 'hooks/useDebounce'
 import { ParticipantInfo, ParticipantStatus } from 'pages/TrueSightV2/types'
 import { AppDispatch, AppState } from 'state'
-import { useSessionInfo } from 'state/authen/hooks'
+import { useIsConnectingWallet, useSessionInfo } from 'state/authen/hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useSingleContractMultipleData } from 'state/multicall/hooks'
@@ -527,25 +527,10 @@ export const useIsWhiteListKyberAI = () => {
   })
 
   const { account } = useActiveWeb3React()
-  const [connectingWallet, setConnectingWallet] = useState(false)
+  const [connectingWallet] = useIsConnectingWallet()
 
   const isLoading = isFetching || pendingAuthentication
   const loadingDebounced = useDebounce(isLoading, 500) || connectingWallet
-
-  useEffect(() => {
-    const onStart = () => {
-      setConnectingWallet(true)
-    }
-    const onEnd = () => {
-      setConnectingWallet(false)
-    }
-    window.addEventListener(EVENT_CUSTOM.CONNECTING_WALLET, onStart)
-    window.addEventListener(EVENT_CUSTOM.CONNECTING_WALLET_END, onEnd)
-    return () => {
-      window.removeEventListener(EVENT_CUSTOM.CONNECTING_WALLET, onStart)
-      window.removeEventListener(EVENT_CUSTOM.CONNECTING_WALLET_END, onEnd)
-    }
-  }, [])
 
   const participantInfo = isError || loadingDebounced || !account ? participantDefault : rawData
 
