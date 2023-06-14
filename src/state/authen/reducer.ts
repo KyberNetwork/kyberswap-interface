@@ -1,5 +1,7 @@
 import { createReducer } from '@reduxjs/toolkit'
 
+import { ConnectedProfile } from 'state/authen/hooks'
+
 import {
   updateAllProfile,
   updateConnectingWallet,
