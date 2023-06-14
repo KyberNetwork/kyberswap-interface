@@ -1,9 +1,8 @@
 import { createReducer } from '@reduxjs/toolkit'
 
-import { ConnectedProfile } from 'state/authen/hooks'
-
 import {
   updateAllProfile,
+  updateConnectingWallet,
   updatePossibleWalletAddress,
   updateProcessingLogin,
   updateProfile,
@@ -29,6 +28,7 @@ export interface AuthenState {
   readonly signedUserInfo: UserProfile | undefined
   readonly isLogin: boolean // is sign in eth
   readonly pendingAuthentication: boolean
+  readonly isConnectingWallet: boolean
   readonly profiles: ConnectedProfile[]
 }
 
@@ -39,6 +39,7 @@ const DEFAULT_AUTHEN_STATE: AuthenState = {
   signedUserInfo: undefined,
   isLogin: false,
   pendingAuthentication: true,
+  isConnectingWallet: false,
   profiles: [],
 }
 
@@ -49,6 +50,9 @@ export default createReducer(DEFAULT_AUTHEN_STATE, builder =>
     })
     .addCase(updateSignedWallet, (state, { payload: signedWalletAddress }) => {
       state.signedWalletAddress = signedWalletAddress
+    })
+    .addCase(updateConnectingWallet, (state, { payload: connectingWallet }) => {
+      state.isConnectingWallet = connectingWallet
     })
     .addCase(updateProcessingLogin, (state, { payload: processing }) => {
       state.pendingAuthentication = processing

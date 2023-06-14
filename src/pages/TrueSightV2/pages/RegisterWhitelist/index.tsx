@@ -32,7 +32,7 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
   const { isLogin } = useSessionInfo()
   const { signIn } = useLogin()
 
-  const { isWhiteList, isWaitList } = useIsWhiteListKyberAI()
+  const { isWhiteList, isWaitList, loading: isCheckingPermission } = useIsWhiteListKyberAI()
 
   const [verifyModalState, setVerifyModalState] = useState({
     isOpen: false,
@@ -85,6 +85,13 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
       onDismiss={onDismiss}
     />
   )
+
+  if (isCheckingPermission)
+    return (
+      <ConnectWalletButton disabled>
+        <Trans>Checking data...</Trans>
+      </ConnectWalletButton>
+    )
 
   if (!account)
     return (

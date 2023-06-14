@@ -8,6 +8,7 @@ import { useActiveWeb3React } from 'hooks'
 import { AppState } from 'state'
 import {
   updateAllProfile,
+  updateConnectingWallet,
   updatePossibleWalletAddress,
   updateProcessingLogin,
   updateProfile,
@@ -68,6 +69,20 @@ export function useSignedWallet(): [string | undefined, (data: string | undefine
   )
 
   return [getProfileLocalStorage(ProfileLocalStorageKeys.CONNECTED_WALLET) || wallet, setWallet]
+}
+
+export function useIsConnectingWallet(): [boolean, (data: boolean) => void] {
+  const dispatch = useAppDispatch()
+  const connectingWallet = useSelector((state: AppState) => state.authen.isConnectingWallet)
+
+  const setConnectedWallet = useCallback(
+    (data: boolean) => {
+      dispatch(updateConnectingWallet(data))
+    },
+    [dispatch],
+  )
+
+  return [connectingWallet, setConnectedWallet]
 }
 
 // info relate wallet currently singed in
