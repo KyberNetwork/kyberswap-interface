@@ -107,7 +107,12 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
     )
 
   const btnGetStart = (
-    <ConnectWalletButton onClick={() => navigate(APP_PATHS.KYBERAI_RANKINGS)}>
+    <ConnectWalletButton
+      onClick={() => {
+        mixpanelHandler(MIXPANEL_TYPE.KYBERAI_GET_STARTED_CLICK)
+        navigate(APP_PATHS.KYBERAI_RANKINGS)
+      }}
+    >
       <Trans>Get Started</Trans>
     </ConnectWalletButton>
   )
