@@ -49,14 +49,29 @@ export function useEagerConnect() {
         return
       }
       try {
+        if (tried) return
         setTried()
-        if (isMobile && window.ethereum) {
-          await tryActivation('METAMASK', true)
-        } else {
-          const lastWalletKeyEVM = localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY_EVM)
-          const lastWalletKeySolana = localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY_SOLANA)
-          if (lastWalletKeyEVM) return await tryActivation(lastWalletKeyEVM, true)
-          if (lastWalletKeySolana) return await tryActivation(lastWalletKeySolana)
+        let activated = false
+        const lastWalletKeyEVM = localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY_EVM)
+        const lastWalletKeySolana = localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY_SOLANA)
+        await Promise.all([
+          (async () => {
+            if (lastWalletKeyEVM) {
+              await tryActivation(lastWalletKeyEVM, true)
+              activated = true
+            }
+          })(),
+          (async () => {
+            if (lastWalletKeySolana) {
+              await tryActivation(lastWalletKeySolana)
+              activated = true
+            }
+          })(),
+        ])
+        if (!activated) {
+          if (isMobile && window.ethereum) {
+            await tryActivation('METAMASK', true)
+          }
         }
       } catch (e) {
         console.log('Eagerly connect: authorize error', e)
