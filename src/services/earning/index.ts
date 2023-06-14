@@ -55,7 +55,7 @@ export type HistoricalEarning = {
 export type PoolEarningWithDetails = PoolDetails & HistoricalEarning
 
 export type PositionEarningWithDetails = {
-  id: number
+  id: string
   owner: string
   ownerOriginal: string
   pool: PoolDetails

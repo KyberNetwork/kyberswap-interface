@@ -313,6 +313,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
         console.log({
           computedPoolAddress,
           poolAddressFromEarning: poolEarning.id,
+          poolEarning,
         })
       }}
     >

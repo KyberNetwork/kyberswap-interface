@@ -27,6 +27,90 @@ export function shuffle<T>(array: T[]): T[] {
 }
 
 export const today = Math.floor(Date.now() / 1000 / 86400)
+const aYearAgo = Math.floor(Date.now() / 1000 / 86400 - 365)
+
+const fillHistoricalEarningsForEmptyDays = (
+  historicalEarnings: HistoricalSingleData[] | undefined,
+): HistoricalSingleData[] => {
+  if (!historicalEarnings?.length) {
+    return Array.from({ length: 365 }).map((_, i) => {
+      return {
+        day: today - i,
+        block: 0,
+        fees: [],
+        rewards: [],
+        total: [],
+      }
+    })
+  }
+
+  const results = [...historicalEarnings]
+  const earliestDay = historicalEarnings.slice(-1)[0].day
+  const latestDay = historicalEarnings[0].day
+  const latestEarning = historicalEarnings[0]
+
+  for (let i = earliestDay - 1; i > aYearAgo; i--) {
+    results.push({
+      day: i,
+      block: 0,
+      fees: [],
+      rewards: [],
+      total: [],
+    })
+  }
+
+  for (let i = latestDay + 1; i <= today; i++) {
+    results.unshift({
+      ...latestEarning,
+      day: i,
+    })
+  }
+
+  return results
+}
+
+const fillHistoricalEarningsForTicks = (ticks: EarningStatsTick[] | undefined): EarningStatsTick[] => {
+  if (!ticks?.length) {
+    return Array.from({ length: 365 }).map((_, i) => {
+      const day = today - i
+      return {
+        day,
+        date: dayjs(day * 86400 * 1000).format('MMM DD'),
+        poolRewardsValue: 0,
+        farmRewardsValue: 0,
+        totalValue: 0,
+        tokens: [],
+      }
+    })
+  }
+
+  const results = [...ticks]
+  const earliestDay = ticks.slice(-1)[0].day
+  const latestDay = ticks[0].day
+  const latestTick = ticks[0]
+
+  for (let i = earliestDay - 1; i > aYearAgo; i--) {
+    results.push({
+      day: i,
+      date: dayjs(i * 86400 * 1000).format('MMM DD'),
+      poolRewardsValue: 0,
+      farmRewardsValue: 0,
+      totalValue: 0,
+      tokens: [],
+    })
+  }
+
+  for (let i = latestDay + 1; i <= today; i++) {
+    results.unshift({
+      ...latestTick,
+      day: i,
+      date: dayjs(i * 86400 * 1000).format('MMM DD'),
+      tokens: [...latestTick.tokens],
+    })
+  }
+
+  return results
+}
 
 export const chainIdByRoute: Record<string, ChainId> = SUPPORTED_NETWORKS_FOR_MY_EARNINGS.map(chainId => ({
   route: NETWORKS_INFO[chainId].aggregatorRoute,
@@ -132,48 +216,12 @@ export const fillEmptyDaysForPositionEarnings = (
     return undefined
   }
 
-  const aYearAgo = Math.floor(Date.now() / 1000 / 86400 - 365)
-
   const result = produce(earningResponse, draft => {
     const chainRoutes = Object.keys(draft)
     chainRoutes.forEach(chainRoute => {
       const { positions } = draft[chainRoute]
       positions.forEach(position => {
-        if (!position.historicalEarning) {
-          position.historicalEarning = []
-        }
-
-        if (position.historicalEarning.length === 0) {
-          position.historicalEarning = Array.from({ length: 365 }).map((_, i) => {
-            return {
-              day: today - i,
-              block: 0,
-              fees: [],
-              rewards: [],
-              total: [],
-            }
-          })
-        } else {
-          const earlieastDay = position.historicalEarning.slice(-1)[0].day
-          const latestDay = position.historicalEarning[0].day
-          const latestEarning = position.historicalEarning[0]
-
-          for (let i = earlieastDay - 1; i > aYearAgo; i--) {
-            position.historicalEarning.push({
-              day: i,
-              block: 0,
-              fees: [],
-              rewards: [],
-              total: [],
-            })
-          }
-
-          for (let i = latestDay + 1; i <= today; i++) {
-            position.historicalEarning.unshift({
-              ...latestEarning,
-            })
-          }
-        }
+        position.historicalEarning = fillHistoricalEarningsForEmptyDays(position.historicalEarning)
       })
     })
   })
@@ -198,7 +246,7 @@ export const aggregatePoolEarnings = (
 
       positions.forEach(position => {
         const poolId = position.pool.id
-        const earnings = position.historicalEarning || []
+        const positionEarnings = position.historicalEarning || []
         if (!byPool[poolId]) {
           byPool[poolId] = []
         }
@@ -208,14 +256,14 @@ export const aggregatePoolEarnings = (
         poolEarnings.forEach(poolEarning => {
           const day = poolEarning.day
 
-          const dayEarning = earnings.find(e => e.day === day)
+          const dayEarning = positionEarnings.find(e => e.day === day)
           if (dayEarning) {
             poolEarning.fees = (poolEarning.fees || []).concat(dayEarning.fees || [])
             poolEarning.rewards = (poolEarning.rewards || []).concat(dayEarning.rewards || [])
           }
         })
 
-        earnings.forEach(earning => {
+        positionEarnings.forEach(earning => {
           const day = earning.day
           const poolEarning = poolEarnings.find(e => e.day === day)
           if (poolEarning) {
@@ -229,17 +277,7 @@ export const aggregatePoolEarnings = (
 
       Object.keys(byPool).forEach(poolId => {
         const poolEarnings = byPool[poolId]
-        poolEarnings.sort((earning1, earning2) => {
-          if (earning1.day < earning2.day) {
-            return -1
-          }
-
-          if (earning1.day > earning2.day) {
-            return 1
-          }
-
-          return 0
-        })
+        poolEarnings.sort((earning1, earning2) => earning2.day - earning1.day)
 
         poolEarnings.forEach(poolEarning => {
           const fees = mergeTokenEarnings(poolEarning.fees || [])
@@ -250,10 +288,37 @@ export const aggregatePoolEarnings = (
           poolEarning.rewards = rewards
           poolEarning.total = total
         })
+
+        byPool[poolId] = fillHistoricalEarningsForEmptyDays(poolEarnings)
       })
 
       draft[chain].pools.forEach(pool => {
         pool.historicalEarning = byPool[pool.id]
+        if (pool.historicalEarning.length !== 365) {
+          const days = pool.historicalEarning.map(e => e.day)
+          const missingDays = []
+          let curr = days[0]
+          for (let i = 1; i < days.length; i++) {
+            if (curr - days[i] !== 1) {
+              missingDays.push(
+                ...Array.from({ length: curr - days[i] })
+                  .map((_, i) => i + 1)
+                  .map(i => curr - i),
+              )
+            }
+
+            curr = days[i]
+          }
+
+          console.log(
+            'pool',
+            pool.id,
+            pool.historicalEarning.length,
+            pool.historicalEarning[0].day,
+            pool.historicalEarning.slice(-1)[0].day,
+            missingDays,
+          )
+        }
       })
     })
   })
@@ -327,7 +392,6 @@ export const calculateTicksOfAccountEarningsInMultipleChains = (
     return undefined
   }
 
-  const today = Math.floor(Date.now() / 1000 / 86400)
   const byDay: Record<string, EarningStatsTick> = {}
 
   const chainRoutes = Object.keys(earningResponse)
@@ -337,7 +401,7 @@ export const calculateTicksOfAccountEarningsInMultipleChains = (
     const data = earningResponse[chainRoute].account
 
     // TODO: check tick has more than 5 tokens
-    const ticks: EarningStatsTick[] = data.map(singlePointData => {
+    let ticks: EarningStatsTick[] = data.map(singlePointData => {
       const poolRewardsValueUSD = sumTokenEarnings(singlePointData.fees || [])
       const farmRewardsValueUSD = sumTokenEarnings(singlePointData.rewards || [])
 
@@ -375,36 +439,19 @@ export const calculateTicksOfAccountEarningsInMultipleChains = (
       return tick
     })
 
-    // fill ticks for unavailable days
-    const latestDay = ticks[0]?.day || today - 365 // fallback to 30 days ago
-    const tickToFill: Omit<EarningStatsTick, 'day' | 'date'> = ticks[0]
-      ? ticks[0]
-      : {
-          poolRewardsValue: 0,
-          farmRewardsValue: 0,
-          totalValue: 0,
-          tokens: [],
-        }
-
-    if (latestDay < today) {
-      for (let i = latestDay + 1; i <= today; i++) {
-        ticks.unshift({
-          ...tickToFill,
-          day: i,
-          date: dayjs(i * 86400 * 1000).format('MMM DD'),
-        })
-      }
-    }
+    ticks = fillHistoricalEarningsForTicks(ticks)
 
     ticks.forEach(tick => {
       const day = tick.day
       if (!byDay[day]) {
         byDay[day] = tick
       } else {
-        byDay[day].farmRewardsValue += tick.farmRewardsValue
-        byDay[day].poolRewardsValue += tick.poolRewardsValue
-        byDay[day].totalValue += tick.totalValue
-        byDay[day].tokens = [...byDay[day].tokens, ...tick.tokens]
+        byDay[day] = produce(byDay[day], draft => {
+          draft.farmRewardsValue += tick.farmRewardsValue
+          draft.poolRewardsValue += tick.poolRewardsValue
+          draft.totalValue += tick.totalValue
+          draft.tokens.push(...tick.tokens)
+        })
       }
     })
   })
@@ -414,7 +461,10 @@ export const calculateTicksOfAccountEarningsInMultipleChains = (
     .sort((d1, d2) => d2 - d1)
 
   const ticks = days.map(day => {
-    byDay[day].tokens.sort((token1, token2) => token2.amountUSD - token1.amountUSD)
+    byDay[day] = produce(byDay[day], draft => {
+      draft.tokens.sort((token1, token2) => token2.amountUSD - token1.amountUSD)
+    })
+
     return byDay[day]
   })
 
