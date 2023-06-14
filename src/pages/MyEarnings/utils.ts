@@ -1,3 +1,4 @@
+import { cloneDeep } from '@apollo/client/utilities'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
 import produce from 'immer'
@@ -61,8 +62,11 @@ const fillHistoricalEarningsForEmptyDays = (
 
   for (let i = latestDay + 1; i <= today; i++) {
     results.unshift({
-      ...latestEarning,
       day: i,
+      block: 0,
+      fees: cloneDeep(latestEarning.fees),
+      rewards: cloneDeep(latestEarning.rewards),
+      total: cloneDeep(latestEarning.total),
     })
   }
 
@@ -102,10 +106,12 @@ const fillHistoricalEarningsForTicks = (ticks: EarningStatsTick[] | undefined): 
 
   for (let i = latestDay + 1; i <= today; i++) {
     results.unshift({
-      ...latestTick,
       day: i,
       date: dayjs(i * 86400 * 1000).format('MMM DD'),
-      tokens: [...latestTick.tokens],
+      poolRewardsValue: latestTick.poolRewardsValue,
+      farmRewardsValue: latestTick.farmRewardsValue,
+      totalValue: latestTick.totalValue,
+      tokens: cloneDeep(latestTick.tokens),
     })
   }
 
@@ -195,7 +201,7 @@ const mergeTokenEarnings = (earnings: Array<TokenEarning>): Array<TokenEarning> 
   earnings.forEach(earning => {
     const tokenId = earning.token
     if (!earningByTokenId[tokenId]) {
-      earningByTokenId[tokenId] = earning
+      earningByTokenId[tokenId] = cloneDeep(earning)
     } else {
       earningByTokenId[tokenId].amountFloat = String(
         Number(earningByTokenId[tokenId].amountFloat) + Number(earning.amountFloat),
@@ -258,8 +264,10 @@ export const aggregatePoolEarnings = (
 
           const dayEarning = positionEarnings.find(e => e.day === day)
           if (dayEarning) {
-            poolEarning.fees = (poolEarning.fees || []).concat(dayEarning.fees || [])
-            poolEarning.rewards = (poolEarning.rewards || []).concat(dayEarning.rewards || [])
+            poolEarning.fees = (poolEarning.fees || []).concat(dayEarning.fees ? cloneDeep(dayEarning.fees) : [])
+            poolEarning.rewards = (poolEarning.rewards || []).concat(
+              dayEarning.rewards ? cloneDeep(dayEarning.rewards) : [],
+            )
           }
         })
 
@@ -267,10 +275,10 @@ export const aggregatePoolEarnings = (
           const day = earning.day
           const poolEarning = poolEarnings.find(e => e.day === day)
           if (poolEarning) {
-            earning.fees = (earning.fees || []).concat(poolEarning.fees || [])
-            earning.rewards = (earning.rewards || []).concat(poolEarning.rewards || [])
+            poolEarning.fees = (poolEarning.fees || []).concat(earning.fees ? cloneDeep(earning.fees) : [])
+            poolEarning.rewards = (poolEarning.rewards || []).concat(earning.rewards ? cloneDeep(earning.rewards) : [])
           } else {
-            poolEarnings.push(earning)
+            poolEarnings.push(cloneDeep(earning))
           }
         })
       })
@@ -310,14 +318,14 @@ export const aggregatePoolEarnings = (
             curr = days[i]
           }
 
-          console.log(
-            'pool',
-            pool.id,
-            pool.historicalEarning.length,
-            pool.historicalEarning[0].day,
-            pool.historicalEarning.slice(-1)[0].day,
-            missingDays,
-          )
+          // console.log(
+          //   'pool',
+          //   pool.id,
+          //   pool.historicalEarning.length,
+          //   pool.historicalEarning[0].day,
+          //   pool.historicalEarning.slice(-1)[0].day,
+          //   missingDays,
+          // )
         }
       })
     })
@@ -357,8 +365,8 @@ export const aggregateAccountEarnings = (
             }
           }
 
-          byDay[day].fees!.push(...(earning.fees || []))
-          byDay[day].rewards!.push(...(earning.rewards || []))
+          byDay[day].fees = (byDay[day].fees || []).concat(earning.fees ? cloneDeep(earning.fees) : [])
+          byDay[day].rewards = (byDay[day].rewards || []).concat(earning.rewards ? cloneDeep(earning.rewards) : [])
         })
       })
 
