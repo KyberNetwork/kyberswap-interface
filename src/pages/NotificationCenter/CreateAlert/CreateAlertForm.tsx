@@ -16,9 +16,11 @@ import Row, { RowBetween } from 'components/Row'
 import RefreshButton from 'components/SwapForm/RefreshButton'
 import { MouseoverTooltip } from 'components/Tooltip'
 import TradePrice from 'components/swapv2/TradePrice'
+import { PRICE_ALERT_TOPIC_ID } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import { useBaseTradeInfoWithAggregator } from 'hooks/useBaseTradeInfo'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useNotification from 'hooks/useNotification'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import InputNote from 'pages/NotificationCenter/CreateAlert/InputNote'
@@ -89,6 +91,8 @@ export default function CreateAlert({
   const [cooldown, setCooldown] = useState(DEFAULT_ALERT_COOLDOWN)
   const [alertType, setAlertType] = useState<PriceAlertType>(PriceAlertType.ABOVE)
 
+  const { subscribeOne } = useNotification()
+
   const { maxActiveAlerts, totalActiveAlerts, totalAlerts, maxAlerts } = priceAlertStat
 
   const parsedAmount = useMemo(
@@ -153,13 +157,15 @@ export default function CreateAlert({
         ...formInput,
         tokenInAmount: parsedAmount?.quotient?.toString() ?? '',
       }
-      const { data, error }: any = await createAlert(alert)
-      if (error || typeof data?.data?.id !== 'number') throw error
+      const data = await createAlert(alert).unwrap()
+      const id = data?.data?.id
+      if (!id) throw new Error('Missing id')
       showModalConfirm({
-        alert: { ...alert, id: data.data.id as number },
+        alert: { ...alert, id },
         currencyIn,
         currencyOut,
       })
+
       resetForm()
       mixpanelHandler(MIXPANEL_TYPE.PA_CREATE_SUCCESS, {
         input_token: currencyIn.symbol,
@@ -168,6 +174,7 @@ export default function CreateAlert({
         cooldown: formatTimeDuration(cooldown),
         disable_the_alert: disableAfterTrigger ? 'yes' : 'no',
       })
+      subscribeOne(+PRICE_ALERT_TOPIC_ID)
     } catch (error) {
       console.error('create alert err', error)
       const msg = error?.data?.message || t`Error occur, please try again`
