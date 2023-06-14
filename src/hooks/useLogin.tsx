@@ -75,6 +75,7 @@ const useLogin = () => {
         }
         if (requestingSession.current !== walletAddress) {
           requestingSession.current = walletAddress
+          setLoading(true)
           await KyberOauth2.getSession({ method: LoginMethod.ETH, walletAddress })
           await getProfile(walletAddress)
           setLoading(false)

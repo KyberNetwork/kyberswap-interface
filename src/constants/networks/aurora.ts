@@ -72,7 +72,6 @@ const auroraInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'aurora',
   coingeckoNativeTokenId: 'ethereum',
   deBankSlug: 'aurora',
-  trueSightId: NOT_SUPPORT,
   dexToCompare: 'trisolaris',
   geckoTermialId: 'aurora',
 }

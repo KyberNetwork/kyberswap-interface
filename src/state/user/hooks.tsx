@@ -3,11 +3,9 @@ import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useGetParticipantInfoQuery } from 'services/kyberAISubscription'
 
-import { ENV_LEVEL } from 'constants/env'
 import { TERM_FILES_PATH } from 'constants/index'
 import { SupportedLocale } from 'constants/locales'
 import { PINNED_PAIRS } from 'constants/tokens'
-import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import {
@@ -15,9 +13,10 @@ import {
   useOldStaticFeeFactoryContract,
   useStaticFeeFactoryContract,
 } from 'hooks/useContract'
+import useDebounce from 'hooks/useDebounce'
 import { ParticipantInfo, ParticipantStatus } from 'pages/TrueSightV2/types'
 import { AppDispatch, AppState } from 'state'
-import { useSessionInfo } from 'state/authen/hooks'
+import { useIsConnectingWallet, useSessionInfo } from 'state/authen/hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useSingleContractMultipleData } from 'state/multicall/hooks'
@@ -505,19 +504,25 @@ export const useIsWhiteListKyberAI = () => {
     data: rawData,
     isFetching,
     isError,
+    refetch,
   } = useGetParticipantInfoQuery(undefined, {
     skip: !userInfo,
   })
-  const participantInfo = isError ? participantDefault : rawData
 
-  if (ENV_LEVEL === ENV_TYPE.LOCAL) {
-    return { loading: false, isWhiteList: true, isWaitList: true }
-  }
+  const { account } = useActiveWeb3React()
+  const [connectingWallet] = useIsConnectingWallet()
+
+  const isLoading = isFetching || pendingAuthentication
+  const loadingDebounced = useDebounce(isLoading, 500) || connectingWallet
+
+  const participantInfo = isError || loadingDebounced || !account ? participantDefault : rawData
+
   return {
-    loading: isFetching || pendingAuthentication,
+    loading: loadingDebounced,
     isWhiteList:
       isLogin && (participantInfo?.status === ParticipantStatus.WHITELISTED || userInfo?.data?.hasAccessToKyberAI),
     isWaitList: isLogin && participantInfo?.status === ParticipantStatus.WAITLISTED,
+    refetch,
   }
 }
 

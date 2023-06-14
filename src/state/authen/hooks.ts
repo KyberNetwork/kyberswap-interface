@@ -3,9 +3,23 @@ import { useSelector } from 'react-redux'
 
 import { useActiveWeb3React } from 'hooks'
 import { AppState } from 'state'
-import { updateProcessingLogin, updateProfile } from 'state/authen/actions'
+import { updateConnectingWallet, updateProcessingLogin, updateProfile } from 'state/authen/actions'
 import { AuthenState, UserProfile } from 'state/authen/reducer'
 import { useAppDispatch } from 'state/hooks'
+
+export function useIsConnectingWallet(): [boolean, (data: boolean) => void] {
+  const dispatch = useAppDispatch()
+  const connectingWallet = useSelector((state: AppState) => state.authen.isConnectingWallet)
+
+  const setConnectedWallet = useCallback(
+    (data: boolean) => {
+      dispatch(updateConnectingWallet(data))
+    },
+    [dispatch],
+  )
+
+  return [connectingWallet, setConnectedWallet]
+}
 
 export function useSessionInfo(): AuthenState {
   const { account } = useActiveWeb3React()

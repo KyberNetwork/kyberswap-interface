@@ -76,7 +76,6 @@ const bnbTestnetInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'binance-smart-chain',
   coingeckoNativeTokenId: 'binancecoin',
   deBankSlug: EMPTY,
-  trueSightId: NOT_SUPPORT,
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: NOT_SUPPORT,
 }

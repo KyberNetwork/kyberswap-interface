@@ -13,8 +13,8 @@ export default defineConfig({
   viewportWidth: 1920,
   viewportHeight: 1080,
   e2e: {
-    baseUrl: `http://localhost:4173/`,
     setupNodeEvents(on, config) {
+      require('@cypress/grep/src/plugin')(config)
       synpressPlugins(on, config)
     },
     specPattern: 'cypress/e2e/**/*-spec.cy.ts',

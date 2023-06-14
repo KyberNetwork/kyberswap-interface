@@ -10,6 +10,7 @@ import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { ReactComponent as ChevronDown } from 'assets/svg/down.svg'
+import { OptionsContainer } from 'components'
 import { ButtonPrimary } from 'components/Button'
 import { REWARD_SERVICE_API } from 'constants/env'
 import { BIG_INT_ZERO, DEFAULT_SIGNIFICANT } from 'constants/index'
@@ -20,7 +21,6 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { Dots } from 'pages/Pool/styleds'
-import { OptionsContainer } from 'pages/TrueSight/styled'
 import { AppState } from 'state'
 import {
   CampaignData,

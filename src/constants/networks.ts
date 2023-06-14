@@ -116,19 +116,6 @@ export function isSupportedChainId(chainId?: number): chainId is ChainId {
   return !!(NETWORKS_INFO_CONFIG as any)[chainId]
 }
 
-type NetToChain = { [p: string]: ChainId }
-
-export const TRUESIGHT_NETWORK_TO_CHAINID: NetToChain = SUPPORTED_NETWORKS.reduce((acc, chainId) => {
-  const id = NETWORKS_INFO[chainId].trueSightId
-  if (id) {
-    return {
-      ...acc,
-      [id]: chainId,
-    }
-  }
-  return acc
-}, {} as NetToChain) as NetToChain
-
 export const FAUCET_NETWORKS = [ChainId.BTTC]
 export const CHAINS_SUPPORT_NEW_POOL_FARM_API: readonly ChainId[] = [
   ChainId.MAINNET,
