@@ -17,7 +17,7 @@ import {
   PROMM_GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
   PROMM_GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
 } from 'apollo/queries/promm'
-import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
+import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { AppDispatch, AppState } from 'state'
@@ -221,6 +221,7 @@ export enum MIXPANEL_TYPE {
 
   // KyberAI
   KYBERAI_SHARE_TOKEN_CLICK,
+  KYBERAI_GET_STARTED_CLICK,
   KYBERAI_RANKING_SWITCH_CHAIN_CLICK,
   KYBERAI_SEARCH_TOKEN_SUCCESS,
   KYBERAI_SUBSCRIBE_CLICK,
@@ -1226,6 +1227,10 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
             mixpanel.track('KyberAI - Share token click', payload)
             break
           }
+          case MIXPANEL_TYPE.KYBERAI_GET_STARTED_CLICK: {
+            mixpanel.track('KyberAI - Click Get Started', payload)
+            break
+          }
           case MIXPANEL_TYPE.KYBERAI_RANKING_SWITCH_CHAIN_CLICK: {
             mixpanel.track('KyberAI - Ranking - Switch chain click', payload)
             break
@@ -1303,7 +1308,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
         }
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    /* eslint-disable */
     [
       currencies,
       network,
@@ -1313,6 +1318,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
       ethPrice?.currentPrice,
       isWhiteList,
     ],
+    /* eslint-enable */
   )
   const subgraphMixpanelHandler = useCallback(
     async (transaction: TransactionDetails) => {
@@ -1615,9 +1621,9 @@ export const useGlobalMixpanelEvents = () => {
         'notification-center': 'Notification',
       }
       const protectedPaths: { [key: string]: string } = {
-        '/KyberAI/About': 'KyberAI About',
-        '/KyberAI/Rankings': 'KyberAI Rankings',
-        '/KyberAI/Explore': 'KyberAI Explore',
+        [APP_PATHS.KYBERAI_ABOUT]: 'KyberAI About',
+        [APP_PATHS.KYBERAI_RANKINGS]: 'KyberAI Rankings',
+        [APP_PATHS.KYBERAI_EXPLORE]: 'KyberAI Explore',
       }
       const pageName = map[pathName] || map[location.pathname]
       const protectedPageName = protectedPaths[pathName] || protectedPaths[location.pathname]
