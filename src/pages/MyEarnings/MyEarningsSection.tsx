@@ -19,13 +19,7 @@ import MultipleChainSelect from 'pages/MyEarnings/MultipleChainSelect'
 import PoolFilteringBar from 'pages/MyEarnings/PoolFilteringBar'
 import SinglePool, { Props as SinglePoolProps } from 'pages/MyEarnings/SinglePool'
 import TotalEarningsAndChainSelect from 'pages/MyEarnings/TotalEarningsAndChainSelect'
-import {
-  aggregateAccountEarnings,
-  aggregatePoolEarnings,
-  calculateEarningBreakdowns,
-  calculateTicksOfAccountEarningsInMultipleChains,
-  fillEmptyDaysForPositionEarnings,
-} from 'pages/MyEarnings/utils'
+import { calculateEarningBreakdowns, calculateTicksOfAccountEarningsInMultipleChains } from 'pages/MyEarnings/utils'
 import { useAppSelector } from 'state/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { EarningStatsTick, EarningsBreakdown } from 'types/myEarnings'
@@ -118,9 +112,7 @@ const MyEarningsSection = () => {
 
   const searchText = useDebounce(originalSearchText, 300).toLowerCase().trim()
 
-  const earningResponse = useMemo(() => {
-    return aggregateAccountEarnings(aggregatePoolEarnings(fillEmptyDaysForPositionEarnings(getEarningData.data)))
-  }, [getEarningData.data])
+  const earningResponse = getEarningData.data
 
   // chop the data into the right duration
   // format pool value

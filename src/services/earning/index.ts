@@ -2,6 +2,11 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import { NETWORKS_INFO } from 'constants/networks'
+import {
+  aggregateAccountEarnings,
+  aggregatePoolEarnings,
+  fillEmptyDaysForPositionEarnings,
+} from 'pages/MyEarnings/utils'
 
 export type TokenEarning = {
   token: string
@@ -99,7 +104,39 @@ const earningApi = createApi({
         },
       }),
       transformResponse: (response: MetaResponse<GetEarningDataResponse>) => {
-        return response.data as GetEarningDataResponse
+        return aggregateAccountEarnings(
+          aggregatePoolEarnings(fillEmptyDaysForPositionEarnings(response.data as GetEarningDataResponse)),
+        ) as GetEarningDataResponse
+      },
+      keepUnusedDataFor: 300, // 5 minutes
+    }),
+    getElasticEarning: builder.query<GetEarningDataResponse, Params>({
+      query: ({ account, chainIds }) => ({
+        url: `/all-chain/api/v1/elastic/portfolio`,
+        params: {
+          account,
+          chainNames: chainIds.map(chainId => NETWORKS_INFO[chainId].aggregatorRoute),
+        },
+      }),
+      transformResponse: (response: MetaResponse<GetEarningDataResponse>) => {
+        return aggregateAccountEarnings(
+          aggregatePoolEarnings(fillEmptyDaysForPositionEarnings(response.data as GetEarningDataResponse)),
+        ) as GetEarningDataResponse
+      },
+      keepUnusedDataFor: 300, // 5 minutes
+    }),
+    getElasticLegacyEarning: builder.query<GetEarningDataResponse, Params>({
+      query: ({ account, chainIds }) => ({
+        url: `/all-chain/api/v1/elastic-legacy/portfolio`,
+        params: {
+          account,
+          chainNames: chainIds.map(chainId => NETWORKS_INFO[chainId].aggregatorRoute),
+        },
+      }),
+      transformResponse: (response: MetaResponse<GetEarningDataResponse>) => {
+        return aggregateAccountEarnings(
+          aggregatePoolEarnings(fillEmptyDaysForPositionEarnings(response.data as GetEarningDataResponse)),
+        ) as GetEarningDataResponse
       },
       keepUnusedDataFor: 300, // 5 minutes
     }),
