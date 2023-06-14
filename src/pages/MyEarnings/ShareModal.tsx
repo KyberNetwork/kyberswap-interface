@@ -25,6 +25,7 @@ import useShareImage from 'hooks/useShareImage'
 import useTheme from 'hooks/useTheme'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { ButtonText, MEDIA_WIDTHS } from 'theme'
+import { getProxyTokenLogo } from 'utils/tokenInfo'
 
 const ButtonWrapper = styled.div`
   text-align: center;
@@ -219,11 +220,11 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
         <Flex alignItems="center">
           <Logo
             style={{ width: tokenLogoSize, height: tokenLogoSize, borderRadius: '999px', overflow: 'hidden' }}
-            srcs={[poolInfo.currency0.logoURI || '']}
+            srcs={[getProxyTokenLogo(poolInfo.currency0.logoURI)]}
           />
           <Logo
             style={{ width: tokenLogoSize, height: tokenLogoSize, borderRadius: '999px', overflow: 'hidden' }}
-            srcs={[poolInfo.currency1.logoURI || '']}
+            srcs={[getProxyTokenLogo(poolInfo.currency1.logoURI)]}
           />
         </Flex>
         <Text fontWeight="500" fontSize={isSharePc ? 16 : 12} color={theme.text}>

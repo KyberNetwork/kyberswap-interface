@@ -20,6 +20,7 @@ import useCopyClipboard from 'hooks/useCopyClipboard'
 import useShareImage from 'hooks/useShareImage'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
+import { getProxyTokenLogo } from 'utils/tokenInfo'
 
 import { NETWORK_IMAGE_URL } from '../constants'
 import useKyberAITokenOverview from '../hooks/useKyberAITokenOverview'
@@ -340,7 +341,7 @@ export default function KyberAIShareModal({
           <div style={{ position: 'relative' }}>
             <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
               <img
-                src={`https://proxy.kyberswap.com/token-logo?url=${tokenOverview.logo}`}
+                src={getProxyTokenLogo(tokenOverview.logo)}
                 width="36px"
                 height="36px"
                 style={{ background: 'white', display: 'block' }}

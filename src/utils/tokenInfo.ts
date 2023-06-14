@@ -96,3 +96,6 @@ export const getTokenSymbolWithHardcode = (
   }
   return defaultSymbol ?? ''
 }
+
+export const getProxyTokenLogo = (logoUrl: string | undefined) =>
+  logoUrl ? `https://proxy.kyberswap.com/token-logo?url=${logoUrl}` : ''
