@@ -1,9 +1,9 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useGetParticipantInfoQuery } from 'services/kyberAISubscription'
 
-import { TERM_FILES_PATH } from 'constants/index'
+import { EVENT_CUSTOM, TERM_FILES_PATH } from 'constants/index'
 import { SupportedLocale } from 'constants/locales'
 import { PINNED_PAIRS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -13,6 +13,7 @@ import {
   useOldStaticFeeFactoryContract,
   useStaticFeeFactoryContract,
 } from 'hooks/useContract'
+import useDebounce from 'hooks/useDebounce'
 import { ParticipantInfo, ParticipantStatus } from 'pages/TrueSightV2/types'
 import { AppDispatch, AppState } from 'state'
 import { useSessionInfo } from 'state/authen/hooks'
@@ -520,16 +521,40 @@ export const useIsWhiteListKyberAI = () => {
     data: rawData,
     isFetching,
     isError,
+    refetch,
   } = useGetParticipantInfoQuery(undefined, {
     skip: !userInfo,
   })
-  const participantInfo = isError ? participantDefault : rawData
+
+  const { account } = useActiveWeb3React()
+  const [connectingWallet, setConnectingWallet] = useState(false)
+
+  const isLoading = isFetching || pendingAuthentication
+  const loadingDebounced = useDebounce(isLoading, 500) || connectingWallet
+
+  useEffect(() => {
+    const onStart = () => {
+      setConnectingWallet(true)
+    }
+    const onEnd = () => {
+      setConnectingWallet(false)
+    }
+    window.addEventListener(EVENT_CUSTOM.CONNECTING_WALLET, onStart)
+    window.addEventListener(EVENT_CUSTOM.CONNECTING_WALLET_END, onEnd)
+    return () => {
+      window.removeEventListener(EVENT_CUSTOM.CONNECTING_WALLET, onStart)
+      window.removeEventListener(EVENT_CUSTOM.CONNECTING_WALLET_END, onEnd)
+    }
+  }, [])
+
+  const participantInfo = isError || loadingDebounced || !account ? participantDefault : rawData
 
   return {
-    loading: isFetching || pendingAuthentication,
+    loading: loadingDebounced,
     isWhiteList:
       isLogin && (participantInfo?.status === ParticipantStatus.WHITELISTED || userInfo?.data?.hasAccessToKyberAI),
     isWaitList: isLogin && participantInfo?.status === ParticipantStatus.WAITLISTED,
+    refetch,
   }
 }
 

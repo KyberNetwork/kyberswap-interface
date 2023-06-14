@@ -18,7 +18,7 @@ import WarningIcon from 'components/Icons/WarningIcon'
 import Modal from 'components/Modal'
 import { AutoRow, RowBetween, RowFixed } from 'components/Row'
 import WalletPopup from 'components/WalletPopup'
-import { APP_PATHS, TERM_FILES_PATH } from 'constants/index'
+import { APP_PATHS, EVENT_CUSTOM, TERM_FILES_PATH } from 'constants/index'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS, WalletInfo } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActivationWallet } from 'hooks/useActivationWallet'
@@ -219,11 +219,15 @@ export default function WalletModal() {
       setPendingWalletKey(walletKey)
       setWalletView(WALLET_VIEWS.PENDING)
       setPendingError(false)
+      window.dispatchEvent(new Event(EVENT_CUSTOM.CONNECTING_WALLET))
       try {
         await tryActivation(walletKey)
       } catch {
         setPendingError(true)
       }
+      setTimeout(() => {
+        window.dispatchEvent(new Event(EVENT_CUSTOM.CONNECTING_WALLET_END))
+      }, 1000)
     },
     [tryActivation],
   )

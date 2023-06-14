@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
@@ -5,9 +6,11 @@ import { Flex, Text } from 'rebass'
 import Column from 'components/Column'
 import Logo from 'components/Logo'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import { formatAmountBridge } from 'pages/Bridge/helpers'
 import { CrossChainTransfer } from 'pages/CrossChain/useTransferHistory'
+import { ExternalLink } from 'theme'
 
 type Props = {
   transfer: CrossChainTransfer
@@ -19,12 +22,14 @@ const TokenAmount = ({
   isReceiveAnyToken,
   logoUrl,
   plus,
+  dstChainId,
 }: {
   amount: string
   symbol: string
   isReceiveAnyToken?: boolean
   plus?: boolean
   logoUrl: string
+  dstChainId: ChainId
 }) => {
   const theme = useTheme()
   return (
@@ -42,11 +47,22 @@ const TokenAmount = ({
       <span>{symbol}</span>{' '}
       {isReceiveAnyToken && (
         <MouseoverTooltip
+          width="320px"
           text={
             <Text>
               <Trans>
-                The price changed during your transaction (and exceeded your max slippage), so you have received axlUSDC
-                on Avalanche instead. Check your wallet
+                Due to changing market conditions, Axelar was unable to guarantee the estimated output amount. As the
+                configured{' '}
+                <ExternalLink
+                  href={'https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/slippage'}
+                >
+                  slippage
+                </ExternalLink>{' '}
+                was exceeded, you have received axlUSDC on {NETWORKS_INFO[dstChainId].name}. Please check your wallet
+                for{' '}
+                <ExternalLink href={'https://docs.axelar.dev/dev/reference/mainnet-contract-addresses#assets'}>
+                  axlUSDC
+                </ExternalLink>
               </Trans>
             </Text>
           }
@@ -68,8 +84,10 @@ const TokenReceiveCell: React.FC<Props> = ({
     dstAmount,
     dstTokenSymbol,
     srcAmount,
+    dstChainId,
   },
 }) => {
+  const chainIdOut = Number(dstChainId) as ChainId
   return (
     <Column style={{ gap: '4px' }}>
       <TokenAmount
@@ -78,8 +96,9 @@ const TokenReceiveCell: React.FC<Props> = ({
         amount={dstAmount}
         symbol={shouldCheckAxelarscan ? 'axlUSDC' : dstTokenSymbol}
         isReceiveAnyToken={shouldCheckAxelarscan}
+        dstChainId={chainIdOut}
       />
-      <TokenAmount logoUrl={srcTokenLogoUrl} amount={srcAmount} symbol={srcTokenSymbol} />
+      <TokenAmount logoUrl={srcTokenLogoUrl} amount={srcAmount} symbol={srcTokenSymbol} dstChainId={chainIdOut} />
     </Column>
   )
 }
