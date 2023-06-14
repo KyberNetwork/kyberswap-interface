@@ -23,7 +23,6 @@ const COLLECTIONS = {
   LO_EXPIRED_ORDERS: 'expiredEvents',
   LO_FILLED_ORDERS: 'filledEvents',
 
-  TELEGRAM_SUBSCRIPTION: 'telegramSubscription',
   ANNOUNCEMENT: 'wallets',
   ANNOUNCEMENT_POPUP: 'broadcast',
 }
@@ -130,16 +129,6 @@ export function subscribeNotificationOrderExpired(
   callback: (data: ListOrderResponse) => void,
 ) {
   return subscribeListLimitOrder(COLLECTIONS.LO_EXPIRED_ORDERS, account, chainId, callback)
-}
-
-export function subscribeTelegramSubscription(
-  _account: string,
-  _callback: (data: { isSuccessfully: boolean }) => void,
-) {
-  // return subscribeDocument(COLLECTIONS.TELEGRAM_SUBSCRIPTION, [account.toLowerCase()], callback)
-  return () => {
-    //
-  }
 }
 
 export function subscribePrivateAnnouncement(

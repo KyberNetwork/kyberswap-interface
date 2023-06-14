@@ -1,7 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { Text } from 'rebass'
-import { useAckTelegramSubscriptionStatusMutation } from 'services/identity'
 import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -22,7 +21,6 @@ import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
 import { useNotify } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 import { pushUnique } from 'utils'
-import { subscribeTelegramSubscription } from 'utils/firebase'
 import { isEmailValid } from 'utils/string'
 
 const Wrapper = styled.div`
@@ -204,18 +202,6 @@ function NotificationPreference({
     [topicGroupsGlobal],
   )
 
-  const [ackTelegramSubscriptionStatus] = useAckTelegramSubscriptionStatusMutation()
-  useEffect(() => {
-    if (!account) return
-    const unsubscribe = subscribeTelegramSubscription(account, data => {
-      if (data?.isSuccessfully) {
-        refreshTopics()
-        ackTelegramSubscriptionStatus(account).catch(console.error)
-      }
-    })
-    return () => unsubscribe?.()
-  }, [account, refreshTopics, ackTelegramSubscriptionStatus])
-
   useEffect(() => {
     if (isOpen) {
       setEmailPendingVerified('')
@@ -295,12 +281,7 @@ function NotificationPreference({
         mixpanelHandler(MIXPANEL_TYPE.NOTIFICATION_DESELECT_TOPIC, { topics: unsubscribeNames })
       }
       if (inputEmail !== userInfo?.email) setEmailPendingVerified(inputEmail)
-      await saveNotification({
-        subscribeIds,
-        unsubscribeIds,
-        isEmail: true,
-        isTelegram: false,
-      })
+      await saveNotification({ subscribeIds, unsubscribeIds })
       updateTopicGroupsLocal(subscribeIds, unsubscribeIds)
       notify(
         {

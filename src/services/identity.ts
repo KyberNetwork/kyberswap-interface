@@ -64,30 +64,6 @@ const identityApi = createApi({
         method: 'POST',
       }),
     }),
-    // double check
-    ackTelegramSubscriptionStatus: builder.mutation<Response, string>({
-      query: wallet => ({
-        url: `/v1/subscription-result/telegram`,
-        method: 'DELETE',
-        body: { wallet },
-      }),
-    }),
-    buildTelegramVerification: builder.mutation<
-      string,
-      {
-        chainId: string
-        wallet: string
-        subscribe: number[]
-        unsubscribe: number[]
-      }
-    >({
-      query: body => ({
-        url: `/v1/topics/build-verification/telegram`,
-        method: 'POST',
-        body,
-      }),
-      transformResponse: (data: any) => data?.data?.verificationUrl,
-    }),
   }),
 })
 
@@ -98,8 +74,6 @@ export const {
   useVerifyOtpMutation,
   useGetSubscriptionTopicsQuery,
   useSubscribeTopicsMutation,
-  useAckTelegramSubscriptionStatusMutation,
-  useBuildTelegramVerificationMutation,
   useUpdateProfileMutation,
   useCreateWatchWalletMutation,
 } = identityApi

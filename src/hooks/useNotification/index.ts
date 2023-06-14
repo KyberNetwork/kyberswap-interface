@@ -1,7 +1,6 @@
 import { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
-  useBuildTelegramVerificationMutation,
   useCreateWatchWalletMutation,
   useGetSubscriptionTopicsQuery,
   useSubscribeTopicsMutation,
@@ -34,15 +33,13 @@ export type Topic = {
 type SaveNotificationParam = {
   subscribeIds: number[]
   unsubscribeIds: number[]
-  isEmail: boolean
-  isTelegram?: boolean
 }
 
 const useNotification = () => {
   const { isLoading, topicGroups } = useSelector((state: AppState) => state.application.notification)
   const { userInfo } = useSessionInfo()
 
-  const { account, chainId } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
   const dispatch = useDispatch()
 
   const setLoading = useCallback(
@@ -77,41 +74,28 @@ const useNotification = () => {
 
   const [requestWatchWallet] = useCreateWatchWalletMutation()
   const [callSubscribeTopic] = useSubscribeTopicsMutation()
-  const [buildTelegramVerification] = useBuildTelegramVerificationMutation()
 
   const saveNotification = useCallback(
-    async ({ subscribeIds, unsubscribeIds, isEmail, isTelegram }: SaveNotificationParam) => {
+    async ({ subscribeIds, unsubscribeIds }: SaveNotificationParam) => {
       try {
         setLoading(true)
-        if (isEmail) {
-          let topicIds = topicGroups.reduce(
-            (topics: number[], item) => [...topics, ...item.topics.filter(e => e.isSubscribed).map(e => e.id)],
-            [],
-          )
-          if (unsubscribeIds.length) {
-            topicIds = topicIds.filter(id => !unsubscribeIds.includes(id))
-          }
-          if (subscribeIds.length) {
-            topicIds = topicIds.concat(subscribeIds)
-          }
-          if (
-            (subscribeIds.includes(+PRICE_ALERT_TOPIC_ID) || subscribeIds.includes(+ELASTIC_POOL_TOPIC_ID)) &&
-            account
-          ) {
-            await requestWatchWallet({ walletAddress: account }).unwrap()
-          }
-          await callSubscribeTopic({ topicIds: [...new Set(topicIds)] }).unwrap()
-          return
+        let topicIds = topicGroups.reduce(
+          (topics: number[], item) => [...topics, ...item.topics.filter(e => e.isSubscribed).map(e => e.id)],
+          [],
+        )
+        if (unsubscribeIds.length) {
+          topicIds = topicIds.filter(id => !unsubscribeIds.includes(id))
         }
-        if (isTelegram) {
-          const data = await buildTelegramVerification({
-            chainId: chainId + '',
-            wallet: account ?? '',
-            subscribe: subscribeIds,
-            unsubscribe: unsubscribeIds,
-          })
-          return data
+        if (subscribeIds.length) {
+          topicIds = topicIds.concat(subscribeIds)
         }
+        if (
+          (subscribeIds.includes(+PRICE_ALERT_TOPIC_ID) || subscribeIds.includes(+ELASTIC_POOL_TOPIC_ID)) &&
+          account
+        ) {
+          await requestWatchWallet({ walletAddress: account }).unwrap()
+        }
+        await callSubscribeTopic({ topicIds: [...new Set(topicIds)] }).unwrap()
         return
       } catch (e) {
         return Promise.reject(e)
@@ -119,7 +103,14 @@ const useNotification = () => {
         setLoading(false)
       }
     },
-    [setLoading, account, chainId, topicGroups, callSubscribeTopic, buildTelegramVerification, requestWatchWallet],
+    [setLoading, account, topicGroups, callSubscribeTopic, requestWatchWallet],
+  )
+
+  const subscribeOne = useCallback(
+    (topic: number) => {
+      saveNotification({ subscribeIds: [topic], unsubscribeIds: [] })
+    },
+    [saveNotification],
   )
 
   const unsubscribeAll = useCallback(() => {
@@ -131,7 +122,7 @@ const useNotification = () => {
       })
     })
     if (!unsubscribeIds.length) return
-    saveNotification({ isEmail: true, unsubscribeIds, subscribeIds: [] })
+    saveNotification({ unsubscribeIds, subscribeIds: [] })
     setTimeout(() => {
       refreshTopics()
     }, 500)
@@ -143,6 +134,7 @@ const useNotification = () => {
     saveNotification,
     refreshTopics,
     unsubscribeAll,
+    subscribeOne,
   }
 }
 
