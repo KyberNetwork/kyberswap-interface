@@ -67,11 +67,7 @@ const kyberAIApi = createApi({
         method: 'POST',
         params,
       }),
-      invalidatesTags: (res, err, params) => [
-        { type: 'tokenOverview', id: params.tokenAddress },
-        'myWatchList',
-        'tokenList',
-      ],
+      invalidatesTags: (res, err, params) => [{ type: 'tokenOverview', id: params.tokenAddress }, 'myWatchList'],
     }),
     //3.
     removeFromWatchlist: builder.mutation({

@@ -9,6 +9,7 @@ import SubscribeNotificationButton from 'components/SubscribeButton'
 import { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
+import { useShowTradeRoutes } from 'state/user/hooks'
 
 import HistoryCrossChain from './History'
 import TabSelector, { CrossChainTab } from './TabSelector'
@@ -22,7 +23,7 @@ type Props = {
 const BridgeHistory: React.FC<Props> = ({ className }) => {
   const qs = useParsedQueryString<{ tab: CrossChainTab }>()
   const [activeTab, setTab] = useState<CrossChainTab>(qs.tab || CrossChainTab.ROUTE)
-
+  const isShowTradeRoutes = useShowTradeRoutes()
   const navigate = useNavigate()
   const onClickTab = (tab: CrossChainTab) => {
     navigate({ search: `tab=${tab}` }, { replace: true })
@@ -33,13 +34,15 @@ const BridgeHistory: React.FC<Props> = ({ className }) => {
   return (
     <div className={className}>
       <RowBetween>
-        <TabSelector activeTab={activeTab} setTab={onClickTab} />
+        <TabSelector activeTab={activeTab} setTab={onClickTab} isShowTradeRoutes={isShowTradeRoutes} />
         <SubscribeNotificationButton
           subscribeTooltip={t`Subscribe to receive notifications on your cross-chain transaction`}
           trackingEvent={MIXPANEL_TYPE.CROSS_CHAIN_CLICK_SUBSCRIBE}
         />
       </RowBetween>
-      {activeTab === CrossChainTab.ROUTE ? (
+      {activeTab === CrossChainTab.HISTORY || !isShowTradeRoutes ? (
+        <HistoryCrossChain />
+      ) : (
         <Suspense
           fallback={
             <Skeleton
@@ -52,8 +55,6 @@ const BridgeHistory: React.FC<Props> = ({ className }) => {
         >
           <Routing />
         </Suspense>
-      ) : (
-        <HistoryCrossChain />
       )}
     </div>
   )

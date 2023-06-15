@@ -118,10 +118,6 @@ export function useRegisterCampaignSuccessModalToggle(): () => void {
   return useToggleModal(ApplicationModal.REGISTER_CAMPAIGN_SUCCESS)
 }
 
-export function useTrueSightNetworkModalToggle(): () => void {
-  return useToggleModal(ApplicationModal.TRUESIGHT_NETWORK)
-}
-
 export function useNotificationModalToggle(): () => void {
   return useToggleModal(ApplicationModal.NOTIFICATION_SUBSCRIPTION)
 }

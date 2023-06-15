@@ -22,7 +22,6 @@ export const BLOCK_SERVICE_API = required('BLOCK_SERVICE_API')
 export const PRICE_CHART_API = required('PRICE_CHART_API')
 export const AGGREGATOR_STATS_API = required('AGGREGATOR_STATS_API')
 export const NOTIFICATION_API = required('NOTIFICATION_API')
-export const TRUESIGHT_API = required('TRUESIGHT_API')
 export const TRANSAK_URL = required('TRANSAK_URL')
 export const TRANSAK_API_KEY = required('TRANSAK_API_KEY')
 export const TYPE_AND_SWAP_URL = required('TYPE_AND_SWAP_URL')
@@ -74,12 +73,13 @@ export const FIREBASE: { [key: string]: { DEFAULT: FirebaseConfig; LIMIT_ORDER?:
       appId: '1:522790089501:web:524403003ae65c09c727f4',
     },
     DEFAULT: {
-      apiKey: 'AIzaSyCuEREEsq8e2eW9fs4FGhdPImekcLCG7bc',
-      authDomain: 'notification-dev-4a732.firebaseapp.com',
-      projectId: 'notification-dev-4a732',
-      storageBucket: 'notification-dev-4a732.appspot.com',
-      messagingSenderId: '38521816648',
-      appId: '1:38521816648:web:0daa7524ed7b53837fba7d',
+      apiKey: 'AIzaSyDszHtJ4CJq0mwjBJ1pTt5OOzG5tiooEsg',
+      authDomain: 'test-bace2.firebaseapp.com',
+      databaseURL: 'https://test-bace2-default-rtdb.asia-southeast1.firebasedatabase.app',
+      projectId: 'test-bace2',
+      storageBucket: 'test-bace2.appspot.com',
+      messagingSenderId: '337703820408',
+      appId: '1:337703820408:web:2fb16ef71941817dec618d',
     },
   },
   staging: {

@@ -14,6 +14,7 @@ import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import KyberScoreMeter from 'pages/TrueSightV2/components/KyberScoreMeter'
 import SimpleTooltip from 'pages/TrueSightV2/components/SimpleTooltip'
@@ -93,6 +94,7 @@ const enum TokenTabType {
 const KyberAIModalInPool = ({ currency0, currency1 }: { currency0?: Currency; currency1?: Currency }) => {
   const theme = useTheme()
   const { chainId } = useActiveWeb3React()
+  const { mixpanelHandler } = useMixpanel()
   const { isWhiteList } = useIsWhiteListKyberAI()
   const [tab, setTab] = useState<TokenTabType>(TokenTabType.First)
   const [openTruesightModal, setOpenTruesightModal] = useState(false)
@@ -114,7 +116,17 @@ const KyberAIModalInPool = ({ currency0, currency1 }: { currency0?: Currency; cu
   return (
     <>
       <SimpleTooltip text={t`Explore pool tokens in KyberAI`} hideOnMobile>
-        <RowFit gap="4px" style={{ cursor: 'pointer' }} onClick={() => setOpenTruesightModal(true)}>
+        <RowFit
+          gap="4px"
+          style={{ cursor: 'pointer' }}
+          onClick={() => {
+            mixpanelHandler(MIXPANEL_TYPE.KYBERAI_POOL_INSIGHT_CLICK, {
+              token_1: currency0?.wrapped?.symbol?.toUpperCase(),
+              token_2: currency1?.wrapped?.symbol?.toUpperCase(),
+            })
+            setOpenTruesightModal(true)
+          }}
+        >
           <Icon id="truesight-v2" size={14} />
           <Trans>KyberAI</Trans>
         </RowFit>
@@ -202,12 +214,15 @@ const KyberAIModalInPool = ({ currency0, currency1 }: { currency0?: Currency; cu
           </Row>
           <ButtonPrimary
             height="36px"
-            onClick={() =>
+            onClick={() => {
+              mixpanelHandler(MIXPANEL_TYPE.KYBERAI_POOL_EXPLORE_TOKEN_IN_POPUP_INSIGHT, {
+                token_name: token.symbol?.toUpperCase(),
+              })
               window.open(
                 APP_PATHS.KYBERAI_EXPLORE + '/' + SUPPORTED_NETWORK_KYBERAI[chainId] + '/' + token.address,
                 '_blank',
               )
-            }
+            }}
           >
             Explore {tab === TokenTabType.First ? currency0?.symbol : currency1?.symbol}
           </ButtonPrimary>
