@@ -163,13 +163,16 @@ export const calculateEarningStatsTick = (
         .map(tokenEarning => {
           const tokenAddress = isAddress(chainId, tokenEarning.token)
           const currency = tokensByChainId[chainId][String(tokenAddress)]
-          return {
+          const tokenInfo: EarningStatsTick['tokens'][number] = {
             logoUrl: currency.logoURI || '',
             amount: Number(tokenEarning.amountFloat),
             amountUSD: Number(tokenEarning.amountUSD),
             symbol: currency.symbol || 'NO SYMBOL',
             chainId,
+            address: String(tokenAddress),
           }
+
+          return tokenInfo
         })
         .sort((tokenEarning1, tokenEarning2) => tokenEarning2.amountUSD - tokenEarning1.amountUSD),
     }
@@ -213,6 +216,37 @@ const mergeTokenEarnings = (earnings: Array<TokenEarning>): Array<TokenEarning> 
   })
 
   return Object.values(earningByTokenId)
+}
+
+const mergeEarningStatsTick = (tick: EarningStatsTick): EarningStatsTick => {
+  const earnings: Record<string /* chainId */, Record<string /* address */, EarningStatsTick['tokens'][number]>> = {}
+
+  tick.tokens.forEach(tokenInfo => {
+    const { chainId, address } = tokenInfo
+    if (!earnings[chainId]) {
+      earnings[chainId] = {}
+    }
+
+    if (!earnings[chainId][address]) {
+      earnings[chainId][address] = cloneDeep(tokenInfo)
+    } else {
+      const existingTokenInfo = earnings[chainId][address]
+      existingTokenInfo.amount += tokenInfo.amount
+      existingTokenInfo.amountUSD += tokenInfo.amountUSD
+    }
+  })
+
+  const tokens = Object.values(earnings)
+    .map(each => Object.values(each))
+    .flat()
+    .sort((token1, token2) => token2.amountUSD - token1.amountUSD)
+
+  const newTick = {
+    ...tick,
+    tokens,
+  }
+
+  return newTick
 }
 
 export const fillEmptyDaysForPositionEarnings = (
@@ -435,13 +469,16 @@ export const calculateTicksOfAccountEarningsInMultipleChains = (
             .map(tokenEarning => {
               const tokenAddress = isAddress(chainId, tokenEarning.token)
               const currency = tokensByChainId[chainId][String(tokenAddress)]
-              return {
+              const tokenInfo: EarningStatsTick['tokens'][number] = {
                 logoUrl: currency.logoURI || '',
                 amount: Number(tokenEarning.amountFloat),
                 amountUSD: Number(tokenEarning.amountUSD),
                 symbol: currency.symbol || 'NO SYMBOL',
                 chainId,
+                address: String(tokenAddress),
               }
+
+              return tokenInfo
             })
             .sort((tokenEarning1, tokenEarning2) => tokenEarning2.amount - tokenEarning1.amount),
         }
@@ -470,11 +507,7 @@ export const calculateTicksOfAccountEarningsInMultipleChains = (
     .sort((d1, d2) => d2 - d1)
 
   let ticks = days.map(day => {
-    byDay[day] = produce(byDay[day], draft => {
-      draft.tokens.sort((token1, token2) => token2.amountUSD - token1.amountUSD)
-    })
-
-    return byDay[day]
+    return mergeEarningStatsTick(byDay[day])
   })
 
   ticks = fillHistoricalEarningsForTicks(ticks)

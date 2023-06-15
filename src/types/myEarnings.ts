@@ -24,6 +24,7 @@ export type EarningStatsTick = {
   farmRewardsValue: number
   tokens: Array<{
     chainId: ChainId
+    address: string
     logoUrl: string
     amount: number
     amountUSD: number
