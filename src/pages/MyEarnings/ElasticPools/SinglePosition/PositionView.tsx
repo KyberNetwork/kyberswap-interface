@@ -1,17 +1,15 @@
-import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useMemo } from 'react'
 import { ChevronsUp, Minus } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
-import { TokenEarning } from 'services/earning'
 import styled from 'styled-components'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import { formatUSDValue } from 'components/EarningAreaChart/utils'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { APP_PATHS, EMPTY_ARRAY } from 'constants/index'
+import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { VERSION } from 'constants/v2'
 import { ActionButton } from 'pages/MyEarnings/ElasticPools/SinglePosition/ActionButton'
@@ -20,9 +18,8 @@ import CommonView, { CommonProps } from 'pages/MyEarnings/ElasticPools/SinglePos
 import PriceRangeChart from 'pages/MyEarnings/ElasticPools/SinglePosition/PriceRangeChart'
 import { Column, Label, Row, Value, ValueAPR } from 'pages/MyEarnings/ElasticPools/SinglePosition/styleds'
 import HoverDropdown from 'pages/MyEarnings/HoverDropdown'
+import { useElasticFarms } from 'state/farms/elastic/hooks'
 import { useAppSelector } from 'state/hooks'
-import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
-import { isAddress } from 'utils'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 const ActionButtonsWrapper = styled.div`
@@ -77,7 +74,6 @@ const PositionView: React.FC<CommonProps> = props => {
   const token0 = unwrappedToken(position.pool.token0)
   const token1 = unwrappedToken(position.pool.token1)
 
-  const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
   const isElasticLegacyPosition = useAppSelector(state => state.myEarnings.activeTab === VERSION.ELASTIC_LEGACY)
 
   const feeReward0 = CurrencyAmount.fromRawAmount(position.pool.token0, pendingFee[0])
@@ -92,7 +88,45 @@ const PositionView: React.FC<CommonProps> = props => {
 
   const liquidityInUsdString = Number.isNaN(liquidityInUsd) ? '--' : formatUSDValue(liquidityInUsd, true)
 
-  const myStakedBalance = 0
+  const liquidityTime =
+    positionEarning.lastCollectedFeeAt && Date.now() / 1000 - Number(positionEarning.lastCollectedFeeAt)
+  const estimatedOneYearFee = liquidityTime && (feeUsd * 365 * 24 * 60 * 60) / liquidityTime
+  const positionAPR = liquidityTime ? ((estimatedOneYearFee || 0) * 100) / liquidityInUsd : 0
+
+  const { userFarmInfo = {} } = useElasticFarms()
+  const rewards: CurrencyAmount<Currency>[][] = []
+  Object.values(userFarmInfo).forEach(info => {
+    Object.keys(info.rewardByNft).forEach(key => {
+      if (key.split('_')[1] === positionEarning.id) {
+        rewards.push(info.rewardByNft[key])
+      }
+    })
+  })
+
+  const rewardUsd = rewards.reduce((total, item) => {
+    const temp = item.reduce((acc, cur) => {
+      return acc + +cur.toExact() * prices[cur.currency.wrapped.address]
+    }, 0)
+
+    return temp + total
+  }, 0)
+
+  const farmingTime =
+    positionEarning.lastHarvestedFarmRewardAt && Date.now() / 1000 - Number(positionEarning.lastHarvestedFarmRewardAt)
+
+  const estimatedOneYearFarmReward = farmingTime && (rewardUsd * 365 * 24 * 60 * 60) / farmingTime
+  const farmAPR =
+    rewardUsd && farmingTime && liquidityInUsd ? ((estimatedOneYearFarmReward || 0) * 100) / liquidityInUsd : 0
+
+  const nft = Object.values(userFarmInfo)
+    .map(info => Object.values(info.joinedPositions).flat())
+    .flat()
+    .find(item => item.nftId.toString() === positionEarning.id)
+
+  const myStakedBalance =
+    nft &&
+    +nft.amount0.toExact() * prices[nft.amount0.currency.wrapped.address] +
+      +nft.amount1.toExact() * prices[nft.amount1.currency.wrapped.address]
 
   const farm = (
     <Link
@@ -140,12 +174,22 @@ const PositionView: React.FC<CommonProps> = props => {
 
           {myStakedBalance ? (
             <HoverDropdown
-              anchor={<Value>--</Value>}
-              disabled
+              anchor={<Value>{formatUSDValue(myStakedBalance, true)}</Value>}
               text={
-                <Flex flexDirection="column" sx={{ gap: '8px' }} fontSize="14px">
-                  hehe
-                </Flex>
+                <>
+                  <Flex alignItems="center">
+                    <CurrencyLogo currency={nft.amount0.currency} size="16px" />
+                    <Text fontSize={12} marginLeft="4px">
+                      <FormattedCurrencyAmount currencyAmount={nft.amount0} />
+                    </Text>
+                  </Flex>
+                  <Flex alignItems="center" marginTop="8px">
+                    <CurrencyLogo currency={nft.amount1.currency} size="16px" />
+                    <Text fontSize={12} marginLeft="4px">
+                      <FormattedCurrencyAmount currencyAmount={nft.amount1} />
+                    </Text>
+                  </Flex>
+                </>
               }
             />
           ) : (
@@ -169,8 +213,8 @@ const PositionView: React.FC<CommonProps> = props => {
           </Label>
         </Row>
         <Row>
-          <ValueAPR>--</ValueAPR>
-          <ValueAPR>--</ValueAPR>
+          <ValueAPR>{positionAPR ? `${positionAPR.toFixed(2)}%` : '--'}</ValueAPR>
+          <ValueAPR>{farmAPR ? `${farmAPR.toFixed(2)}%` : '--'}</ValueAPR>
         </Row>
       </Column>
 
