@@ -13,6 +13,7 @@ import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS, EMPTY_ARRAY } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
+import { VERSION } from 'constants/v2'
 import HoverDropdown from 'pages/MyEarnings/HoverDropdown'
 import { ActionButton } from 'pages/MyEarnings/SinglePosition/ActionButton'
 import CollectFeesPanel from 'pages/MyEarnings/SinglePosition/CollectFeesPanel'
@@ -77,6 +78,7 @@ const PositionView: React.FC<CommonProps> = props => {
   const token1 = unwrappedToken(position.pool.token1)
 
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
+  const isElasticLegacyPosition = useAppSelector(state => state.myEarnings.activeTab === VERSION.ELASTIC_LEGACY)
 
   const { data: prices } = useTokenPricesWithLoading(
     [token0.wrapped.address || '', token1.wrapped.address || ''],
@@ -207,7 +209,7 @@ const PositionView: React.FC<CommonProps> = props => {
           flex: 1,
         }}
       >
-        <PriceRangeChart position={position} />
+        <PriceRangeChart position={position} disabled={isElasticLegacyPosition} />
 
         <CollectFeesPanel
           feesEarnedTodayUSD={feesEarnedTodayUSD}

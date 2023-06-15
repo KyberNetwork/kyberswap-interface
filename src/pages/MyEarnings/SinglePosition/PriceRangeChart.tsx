@@ -27,8 +27,9 @@ const Chart = styled(LiquidityChartRangeInput)`
 // TODO: merge with EarningView props
 type Props = {
   position: Position
+  disabled: boolean
 }
-const PriceRangeChart: React.FC<Props> = ({ position }) => {
+const PriceRangeChart: React.FC<Props> = ({ position, disabled }) => {
   const theme = useTheme()
 
   const token0 = unwrappedToken(position.pool.token0)
@@ -102,11 +103,11 @@ const PriceRangeChart: React.FC<Props> = ({ position }) => {
           minHeight: '180px',
           height: '180px',
         }}
-        currencyA={baseCurrency}
-        currencyB={quoteCurrency}
+        currencyA={baseCurrency && !disabled ? baseCurrency : undefined}
+        currencyB={quoteCurrency && !disabled ? quoteCurrency : undefined}
         feeAmount={position.pool.fee}
         ticksAtLimit={tickAtLimit}
-        price={price ? parseFloat(price.toSignificant(8)) : undefined}
+        price={price && !disabled ? parseFloat(price.toSignificant(8)) : undefined}
         leftPrice={priceLower}
         rightPrice={priceUpper}
         onLeftRangeInput={() => {

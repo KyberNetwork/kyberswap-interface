@@ -309,13 +309,6 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
         border: `1px solid ${theme.border}`,
         borderRadius: '20px',
       }}
-      onClick={() => {
-        console.log({
-          computedPoolAddress,
-          poolAddressFromEarning: poolEarning.id,
-          poolEarning,
-        })
-      }}
     >
       <Flex
         sx={{
