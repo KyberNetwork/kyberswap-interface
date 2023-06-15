@@ -186,9 +186,10 @@ const ProfileContent = () => {
   const { canSignInEth } = useSignedWalletInfo()
   const { profiles, refresh } = useAllProfileInfo()
   const { account: connectedWallet } = useActiveWeb3React()
+
   const totalSignedAccount = profiles.filter(e => e.key !== KEY_GUEST_DEFAULT).length
   const listNotActive = profiles.slice(1)
-
+  if (!profiles.length) return null
   return (
     <ContentWrapper>
       <Column>

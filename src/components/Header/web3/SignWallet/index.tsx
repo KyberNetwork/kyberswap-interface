@@ -31,11 +31,10 @@ const browserCustomStyle = css`
 `
 
 export default function SelectWallet() {
-  const { cacheProfile } = useCacheProfile()
+  const { cacheProfile: profile } = useCacheProfile()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const isOpen = useModalOpen(ApplicationModal.SWITCH_PROFILE_POPUP)
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
-  const profile = cacheProfile
   const theme = useTheme()
   const profileIcon = (
     <Flex alignItems={'center'}>
