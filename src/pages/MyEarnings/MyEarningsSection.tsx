@@ -177,6 +177,8 @@ const MyEarningsSection = () => {
           )
         }) || EMPTY_ARRAY
 
+      poolEarnings.sort((pool1, pool2) => Number(pool2.totalValueLockedUsd) - Number(pool1.totalValueLockedUsd))
+
       return poolEarnings.map(poolEarning => {
         return {
           poolEarning,
