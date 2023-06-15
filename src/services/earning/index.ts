@@ -95,21 +95,6 @@ const earningApi = createApi({
   reducerPath: 'earningApi',
   baseQuery: fetchBaseQuery({ baseUrl: 'https://pool-farm.dev.kyberengineering.io' }),
   endpoints: builder => ({
-    getEarningData: builder.query<GetEarningDataResponse, Params>({
-      query: ({ account, chainIds }) => ({
-        url: `/all-chain/api/v1/portfolio`,
-        params: {
-          account,
-          chainNames: chainIds.map(chainId => NETWORKS_INFO[chainId].aggregatorRoute),
-        },
-      }),
-      transformResponse: (response: MetaResponse<GetEarningDataResponse>) => {
-        return aggregateAccountEarnings(
-          aggregatePoolEarnings(fillEmptyDaysForPositionEarnings(response.data as GetEarningDataResponse)),
-        ) as GetEarningDataResponse
-      },
-      keepUnusedDataFor: 300, // 5 minutes
-    }),
     getElasticEarning: builder.query<GetEarningDataResponse, Params>({
       query: ({ account, chainIds }) => ({
         url: `/all-chain/api/v1/elastic/portfolio`,
@@ -145,11 +130,9 @@ const earningApi = createApi({
 
 export default earningApi
 export const {
-  useGetEarningDataQuery,
   useGetElasticEarningQuery,
   useGetElasticLegacyEarningQuery,
 
-  useLazyGetEarningDataQuery,
   useLazyGetElasticEarningQuery,
   useLazyGetElasticLegacyEarningQuery,
 } = earningApi

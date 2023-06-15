@@ -1,7 +1,7 @@
 import { rgba } from 'polished'
 import { useDispatch } from 'react-redux'
 import { Button, Flex } from 'rebass'
-import earningApi, { useLazyGetEarningDataQuery } from 'services/earning'
+import earningApi, { useLazyGetElasticEarningQuery, useLazyGetElasticLegacyEarningQuery } from 'services/earning'
 import styled from 'styled-components'
 
 import { ReactComponent as RefreshIcon } from 'assets/svg/refresh.svg'
@@ -51,15 +51,19 @@ const RefreshButton = () => {
   const dispatch = useDispatch()
   const { account } = useActiveWeb3React()
   const selectedChainIds = useAppSelector(state => state.myEarnings.selectedChains)
-  const [trigger, data] = useLazyGetEarningDataQuery()
+  const [elasticTrigger, elasticData] = useLazyGetElasticEarningQuery()
+  const [elasticLegacyTrigger, elasticLegacyData] = useLazyGetElasticLegacyEarningQuery()
+
+  const isFetching = elasticData.isFetching || elasticLegacyData.isFetching
 
   const handleClick = () => {
-    if (data.isFetching || !account) {
+    if (isFetching || !account) {
       return
     }
 
     dispatch(earningApi.util.resetApiState())
-    trigger({ account, chainIds: selectedChainIds })
+    elasticTrigger({ account, chainIds: selectedChainIds })
+    elasticLegacyTrigger({ account, chainIds: selectedChainIds })
   }
 
   return (
@@ -71,12 +75,12 @@ const RefreshButton = () => {
         justifyContent: 'center',
         height: '36px',
         borderRadius: '999px',
-        color: data.isFetching ? rgba(theme.subText, 0.4) : theme.subText,
+        color: isFetching ? rgba(theme.subText, 0.4) : theme.subText,
         background: theme.background,
         padding: '0',
         margin: '0',
       }}
-      disabled={data.isFetching}
+      disabled={isFetching}
       onClick={handleClick}
     >
       <RefreshIcon width="17px" height="17px" />
