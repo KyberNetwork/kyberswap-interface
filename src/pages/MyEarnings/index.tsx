@@ -2,8 +2,9 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { useActiveWeb3React } from 'hooks'
-import MyEarningsSection from 'pages/MyEarnings/MyEarningsSection'
+import MyEarningStats from 'pages/MyEarnings/MyEarningStats'
 import Placeholder from 'pages/MyEarnings/Placeholder'
+import Pools from 'pages/MyEarnings/Pools'
 
 const PageWrapper = styled.div`
   width: 100%;
@@ -42,7 +43,19 @@ const MyEarnings = () => {
           My Earnings
         </Text>
 
-        {account ? <MyEarningsSection /> : <Placeholder />}
+        {account ? (
+          <Flex
+            sx={{
+              flexDirection: 'column',
+              gap: '24px',
+            }}
+          >
+            <MyEarningStats />
+            <Pools />
+          </Flex>
+        ) : (
+          <Placeholder />
+        )}
       </Flex>
     </PageWrapper>
   )

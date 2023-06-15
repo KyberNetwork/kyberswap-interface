@@ -13,8 +13,8 @@ import { MEDIA_WIDTHS } from 'theme'
 import { EarningStatsTick, EarningsBreakdown } from 'types/myEarnings'
 import { isAddress } from 'utils'
 
-import OriginalEarningsBreakdownPanel from '../EarningsBreakdownPanel'
-import OriginalMyEarningsOverTimePanel from '../MyEarningsOverTimePanel'
+import OriginalEarningsBreakdownPanel from '../../EarningsBreakdownPanel'
+import OriginalMyEarningsOverTimePanel from '../../MyEarningsOverTimePanel'
 
 const VerticalSeparator = () => {
   const theme = useTheme()

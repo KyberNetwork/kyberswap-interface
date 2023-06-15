@@ -6,9 +6,9 @@ import { PositionEarningWithDetails } from 'services/earning'
 import styled from 'styled-components'
 
 import Background from 'assets/images/card-background2.png'
-import { CommonProps } from 'pages/MyEarnings/SinglePosition/CommonView'
-import EarningView from 'pages/MyEarnings/SinglePosition/EarningView'
-import PositionView from 'pages/MyEarnings/SinglePosition/PositionView'
+import { CommonProps } from 'pages/MyEarnings/ElasticPools/SinglePosition/CommonView'
+import EarningView from 'pages/MyEarnings/ElasticPools/SinglePosition/EarningView'
+import PositionView from 'pages/MyEarnings/ElasticPools/SinglePosition/PositionView'
 
 export const Wrapper = styled.div`
   display: flex;

@@ -10,7 +10,7 @@ import styled from 'styled-components'
 
 import { ButtonLight } from 'components/Button'
 import useTheme from 'hooks/useTheme'
-import SinglePosition from 'pages/MyEarnings/SinglePosition'
+import SinglePosition from 'pages/MyEarnings/ElasticPools/SinglePosition'
 import { useAppSelector } from 'state/hooks'
 
 const TitleWrapper = styled.div`

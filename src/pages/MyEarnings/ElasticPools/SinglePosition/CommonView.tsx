@@ -8,7 +8,7 @@ import styled from 'styled-components'
 
 import Background from 'assets/images/card-background2.png'
 import useTheme from 'hooks/useTheme'
-import PositionId from 'pages/MyEarnings/SinglePosition/PositionId'
+import PositionId from 'pages/MyEarnings/ElasticPools/SinglePosition/PositionId'
 
 export const ViewWrapper = styled.div`
   display: flex;
