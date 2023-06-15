@@ -26,7 +26,6 @@ import useTheme from 'hooks/useTheme'
 import InputNote from 'pages/NotificationCenter/CreateAlert/InputNote'
 import {
   ActionGroup,
-  ButtonConnectWallet,
   ButtonSubmit,
   Form,
   FormControl,
@@ -48,7 +47,7 @@ import {
   TYPE_OPTIONS,
   getCoolDownOptions,
 } from 'pages/NotificationCenter/const'
-import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { useNotify } from 'state/application/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { formatTimeDuration } from 'utils/time'
 import { getTokenAddress } from 'utils/tokenInfo'
@@ -72,7 +71,6 @@ export default function CreateAlert({
 
   const [createAlert] = useCreatePriceAlertMutation()
   const notify = useNotify()
-  const toggleWalletModal = useWalletModalToggle()
 
   const [selectedChain, setSelectedChain] = useState(chainId)
 
@@ -136,7 +134,7 @@ export default function CreateAlert({
 
   const isInputValid = () => {
     const fillAllInput = Boolean(
-      account && currencyIn && currencyOut && formInput.tokenInAmount && formInput.threshold && !isMaxQuota,
+      currencyIn && currencyOut && formInput.tokenInAmount && formInput.threshold && !isMaxQuota,
     )
     if (!fillAllInput || !parsedAmount) return false
     return true
@@ -373,20 +371,14 @@ export default function CreateAlert({
       </Form>
 
       <ActionGroup>
-        {account ? (
-          <ButtonSubmit onClick={onSubmitAlert} disabled={!isInputValid()}>
-            {isMaxQuota && (
-              <MouseoverTooltip text={`You have created the maximum number of alerts allowed`}>
-                <Info size={16} />
-              </MouseoverTooltip>
-            )}
-            <Trans>Create Alert</Trans>
-          </ButtonSubmit>
-        ) : (
-          <ButtonConnectWallet onClick={toggleWalletModal}>
-            <Trans>Connect Wallet</Trans>
-          </ButtonConnectWallet>
-        )}
+        <ButtonSubmit onClick={onSubmitAlert} disabled={!isInputValid()}>
+          {isMaxQuota && (
+            <MouseoverTooltip text={`You have created the maximum number of alerts allowed`}>
+              <Info size={16} />
+            </MouseoverTooltip>
+          )}
+          <Trans>Create Alert</Trans>
+        </ButtonSubmit>
       </ActionGroup>
     </>
   )

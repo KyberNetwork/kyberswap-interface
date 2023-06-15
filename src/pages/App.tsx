@@ -349,8 +349,22 @@ export default function App() {
                     <Route path={`${APP_PATHS.CAMPAIGN}`} element={<Campaign />} />
                     <Route path={`${APP_PATHS.CAMPAIGN}/:slug`} element={<Campaign />} />
                     <Route path={`${APP_PATHS.BRIDGE}`} element={<Bridge />} />
-                    <Route path={`${APP_PATHS.PROFILE_MANAGE}`} element={<NotificationCenter />} />
-                    <Route path={`${APP_PATHS.PROFILE_MANAGE}/*`} element={<NotificationCenter />} />
+                    <Route
+                      path={`${APP_PATHS.PROFILE_MANAGE}`}
+                      element={
+                        <ProtectedRoute>
+                          <NotificationCenter />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path={`${APP_PATHS.PROFILE_MANAGE}/*`}
+                      element={
+                        <ProtectedRoute>
+                          <NotificationCenter />
+                        </ProtectedRoute>
+                      }
+                    />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgramPage />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />
                     {ENV_LEVEL === ENV_TYPE.LOCAL && <Route path="/icons" element={<Icons />} />}

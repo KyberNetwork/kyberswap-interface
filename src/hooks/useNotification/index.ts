@@ -6,7 +6,7 @@ import {
   useSubscribeTopicsMutation,
 } from 'services/identity'
 
-import { ELASTIC_POOL_TOPIC_ID, KYBER_AI_TOPIC_ID, PRICE_ALERT_TOPIC_ID } from 'constants/env'
+import { ELASTIC_POOL_TOPIC_ID, KYBER_AI_TOPIC_ID } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import { AppState } from 'state'
 import { setLoadingNotification, setSubscribedNotificationTopic } from 'state/application/actions'
@@ -89,10 +89,7 @@ const useNotification = () => {
         if (subscribeIds.length) {
           topicIds = topicIds.concat(subscribeIds)
         }
-        if (
-          (subscribeIds.includes(+PRICE_ALERT_TOPIC_ID) || subscribeIds.includes(+ELASTIC_POOL_TOPIC_ID)) &&
-          account
-        ) {
+        if (subscribeIds.includes(+ELASTIC_POOL_TOPIC_ID) && account) {
           await requestWatchWallet({ walletAddress: account }).unwrap()
         }
         await callSubscribeTopic({ topicIds: [...new Set(topicIds)] }).unwrap()
