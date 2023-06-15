@@ -158,7 +158,7 @@ const LogoIcon = styled.div`
 `
 
 export default function Header() {
-  const { walletKey, networkInfo } = useActiveWeb3React()
+  const { networkInfo } = useActiveWeb3React()
   const isDark = useIsDarkMode()
   const [holidayMode] = useHolidayMode()
 

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 
 import { ReactComponent as DropdownSvg } from 'assets/svg/down.svg'
 import Card from 'components/Card'
