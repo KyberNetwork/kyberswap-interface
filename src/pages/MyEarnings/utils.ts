@@ -2,7 +2,13 @@ import { cloneDeep } from '@apollo/client/utilities'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
 import produce from 'immer'
-import { GetEarningDataResponse, HistoricalEarning, HistoricalSingleData, TokenEarning } from 'services/earning'
+import {
+  GetEarningDataResponse,
+  HistoricalEarning,
+  HistoricalSingleData,
+  PoolEarningWithDetails,
+  TokenEarning,
+} from 'services/earning'
 
 import { NETWORKS_INFO, SUPPORTED_NETWORKS_FOR_MY_EARNINGS } from 'constants/networks'
 import { TokenAddressMap } from 'state/lists/reducer'
@@ -218,6 +224,32 @@ const mergeTokenEarnings = (earnings: Array<TokenEarning>): Array<TokenEarning> 
   return Object.values(earningByTokenId)
 }
 
+const mergeHistoricalEarningsByDay = (historicalData: HistoricalSingleData[]): HistoricalSingleData[] => {
+  const dataByDay: Record<string, HistoricalSingleData> = {}
+
+  historicalData.forEach(singlePointData => {
+    const day = singlePointData.day
+    if (!dataByDay[day]) {
+      dataByDay[day] = cloneDeep(singlePointData)
+    } else {
+      const fees = mergeTokenEarnings([...(dataByDay[day].fees || []), ...(singlePointData.fees || [])])
+      const rewards = mergeTokenEarnings([...(dataByDay[day].rewards || []), ...(singlePointData.rewards || [])])
+
+      dataByDay[day].fees = fees
+      dataByDay[day].rewards = rewards
+    }
+  })
+
+  const days = Object.keys(dataByDay)
+    .map(d => Number(d))
+    .sort((d1, d2) => d2 - d1)
+
+  return days.map(day => {
+    dataByDay[day].total = mergeTokenEarnings([...(dataByDay[day].fees || []), ...(dataByDay[day].rewards || [])])
+    return dataByDay[day]
+  })
+}
+
 const mergeEarningStatsTick = (tick: EarningStatsTick): EarningStatsTick => {
   const earnings: Record<string /* chainId */, Record<string /* address */, EarningStatsTick['tokens'][number]>> = {}
 
@@ -282,86 +314,32 @@ export const aggregatePoolEarnings = (
     chains.forEach(chain => {
       const { positions } = draft[chain]
       // historical earning data only
-      const byPool: Record<string, HistoricalSingleData[]> = {}
+      const byPool: Record<string, PoolEarningWithDetails> = {}
 
       positions.forEach(position => {
         const poolId = position.pool.id
-        const positionEarnings = position.historicalEarning || []
+        const positionEarnings = position.historicalEarning ? cloneDeep(position.historicalEarning) : []
         if (!byPool[poolId]) {
-          byPool[poolId] = []
+          byPool[poolId] = {
+            ...cloneDeep(position.pool),
+            historicalEarning: positionEarnings,
+          }
+        } else {
+          byPool[poolId].historicalEarning.push(...positionEarnings)
         }
-
-        const poolEarnings = byPool[poolId]
-
-        poolEarnings.forEach(poolEarning => {
-          const day = poolEarning.day
-
-          const dayEarning = positionEarnings.find(e => e.day === day)
-          if (dayEarning) {
-            poolEarning.fees = (poolEarning.fees || []).concat(dayEarning.fees ? cloneDeep(dayEarning.fees) : [])
-            poolEarning.rewards = (poolEarning.rewards || []).concat(
-              dayEarning.rewards ? cloneDeep(dayEarning.rewards) : [],
-            )
-          }
-        })
-
-        positionEarnings.forEach(earning => {
-          const day = earning.day
-          const poolEarning = poolEarnings.find(e => e.day === day)
-          if (poolEarning) {
-            poolEarning.fees = (poolEarning.fees || []).concat(earning.fees ? cloneDeep(earning.fees) : [])
-            poolEarning.rewards = (poolEarning.rewards || []).concat(earning.rewards ? cloneDeep(earning.rewards) : [])
-          } else {
-            poolEarnings.push(cloneDeep(earning))
-          }
-        })
       })
 
-      Object.keys(byPool).forEach(poolId => {
-        const poolEarnings = byPool[poolId]
-        poolEarnings.sort((earning1, earning2) => earning2.day - earning1.day)
+      const poolIds = Object.keys(byPool)
+      const pools = poolIds.map(poolId => {
+        const historicalEarning = fillHistoricalEarningsForEmptyDays(
+          mergeHistoricalEarningsByDay(byPool[poolId].historicalEarning),
+        )
+        byPool[poolId].historicalEarning = historicalEarning
 
-        poolEarnings.forEach(poolEarning => {
-          const fees = mergeTokenEarnings(poolEarning.fees || [])
-          const rewards = mergeTokenEarnings(poolEarning.rewards || [])
-          const total = mergeTokenEarnings([...fees, ...rewards])
-
-          poolEarning.fees = fees
-          poolEarning.rewards = rewards
-          poolEarning.total = total
-        })
-
-        byPool[poolId] = fillHistoricalEarningsForEmptyDays(poolEarnings)
+        return byPool[poolId]
       })
 
-      // draft[chain].pools.forEach(pool => {
-      //   pool.historicalEarning = byPool[pool.id]
-      //   if (pool.historicalEarning.length !== 365) {
-      //     const days = pool.historicalEarning.map(e => e.day)
-      //     const missingDays = []
-      //     let curr = days[0]
-      //     for (let i = 1; i < days.length; i++) {
-      //       if (curr - days[i] !== 1) {
-      //         missingDays.push(
-      //           ...Array.from({ length: curr - days[i] })
-      //             .map((_, i) => i + 1)
-      //             .map(i => curr - i),
-      //         )
-      //       }
-
-      //       curr = days[i]
-      //     }
-
-      //     console.log(
-      //       'pool',
-      //       pool.id,
-      //       pool.historicalEarning.length,
-      //       pool.historicalEarning[0].day,
-      //       pool.historicalEarning.slice(-1)[0].day,
-      //       missingDays,
-      //     )
-      //   }
-      // })
+      draft[chain].pools = pools
     })
   })
 
