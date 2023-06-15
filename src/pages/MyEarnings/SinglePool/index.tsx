@@ -24,7 +24,6 @@ import Positions from 'pages/MyEarnings/Positions'
 import PoolEarningsSection from 'pages/MyEarnings/SinglePool/PoolEarningsSection'
 import SharePoolEarningsButton from 'pages/MyEarnings/SinglePool/SharePoolEarningsButton'
 import StatsRow from 'pages/MyEarnings/SinglePool/StatsRow'
-import { today } from 'pages/MyEarnings/utils'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { useAppSelector } from 'state/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -92,7 +91,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
     return [currency0, currency1]
   }, [chainId, poolEarning.token0.id, poolEarning.token1.id, tokensByChainId])
 
-  const { pool, poolState, computedPoolAddress } = usePoolv2(chainId, currency0, currency1, feeAmount, poolEarning.id)
+  const { pool, poolState } = usePoolv2(chainId, currency0, currency1, feeAmount, poolEarning.id)
   const isExpandable = !!pool && poolState !== PoolState.LOADING
 
   const toggleExpanded = useCallback(() => {
@@ -108,17 +107,15 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
   const isFarmingPool = poolEarning.farmApr && poolEarning.farmApr !== '0'
 
   const poolEarningToday = useMemo(() => {
-    if (poolEarning.historicalEarning[0]?.day !== today) {
-      return '$0'
-    }
-
     const earning = poolEarning.historicalEarning[0]?.total?.reduce(
       (acc, tokenEarning) => acc + Number(tokenEarning.amountUSD),
       0,
     )
 
-    return earning ? formatValue(earning) : '--'
+    return earning || 0
   }, [poolEarning.historicalEarning])
+
+  const poolEarningStr = formatValue(poolEarningToday)
 
   useEffect(() => {
     setExpanded(shouldExpandAllPools)
@@ -268,7 +265,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
                     color: theme.text,
                   }}
                 >
-                  {poolEarningToday}
+                  {poolEarningStr}
                 </Text>
 
                 <SharePoolEarningsButton
@@ -419,7 +416,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
                   color: theme.text,
                 }}
               >
-                {poolEarningToday}
+                {poolEarningStr}
               </Text>
 
               <SharePoolEarningsButton

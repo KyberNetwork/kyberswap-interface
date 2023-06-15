@@ -141,7 +141,7 @@ const TotalEarningsAndChainSelect: React.FC<Props> = ({ totalEarningToday, total
           </Flex>
         ) : null}
 
-        <ShareTotalEarningsButton totalValue={totalValue} />
+        <ShareTotalEarningsButton totalValue={totalEarningToday} />
         <RefreshButton />
       </Flex>
     </Flex>

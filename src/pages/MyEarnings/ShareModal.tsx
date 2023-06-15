@@ -27,6 +27,18 @@ import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { ButtonText, MEDIA_WIDTHS } from 'theme'
 import { getProxyTokenLogo } from 'utils/tokenInfo'
 
+const formatValue = (num: number, isSharePc: boolean) => {
+  const notation = (num > 1_000_000 && !isSharePc) || (num > 100_000_000 && isSharePc) ? 'compact' : 'standard'
+  const formatter = new Intl.NumberFormat('en-US', {
+    notation,
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  })
+  return formatter.format(num)
+}
+
 const ButtonWrapper = styled.div`
   text-align: center;
   background-color: ${({ theme }) => rgba(theme.subText, 0.2)};
@@ -98,7 +110,7 @@ type Props = {
   isOpen: boolean
   setIsOpen: (v: boolean) => void
   title: string
-  value: string
+  value: number
   poolInfo?: {
     currency0: WrappedTokenInfo
     currency1: WrappedTokenInfo
@@ -264,7 +276,7 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
             {renderPool()}
 
             <Text fontSize={isSharePc ? 50 : 30} fontWeight="500" color={theme.primary}>
-              {value}
+              {formatValue(value, isSharePc)}
             </Text>
           </InnerContent>
         </Content>

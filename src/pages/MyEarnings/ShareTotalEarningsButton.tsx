@@ -7,7 +7,7 @@ import useTheme from 'hooks/useTheme'
 import ShareModal from 'pages/MyEarnings/ShareModal'
 
 type Props = {
-  totalValue: string
+  totalValue: number
 }
 const ShareTotalEarningsButton: React.FC<Props> = ({ totalValue }) => {
   const theme = useTheme()

@@ -7,7 +7,7 @@ import ShareModal from 'pages/MyEarnings/ShareModal'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 type Props = {
-  totalValue: string
+  totalValue: number
   currency0: WrappedTokenInfo | undefined
   currency1: WrappedTokenInfo | undefined
   feePercent: string
