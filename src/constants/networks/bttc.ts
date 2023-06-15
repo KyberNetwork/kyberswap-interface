@@ -74,7 +74,6 @@ const bttcInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'tron',
   coingeckoNativeTokenId: 'bittorrent',
   deBankSlug: EMPTY,
-  trueSightId: NOT_SUPPORT,
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: 'bttc',
 }

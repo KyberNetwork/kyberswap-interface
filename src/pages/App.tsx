@@ -14,71 +14,67 @@ import snow from 'assets/images/snow.png'
 import Popups from 'components/Announcement/Popups'
 import TopBanner from 'components/Announcement/Popups/TopBanner'
 import AppHaveUpdate from 'components/AppHaveUpdate'
+import ModalConfirm from 'components/ConfirmModal'
 import ErrorBoundary from 'components/ErrorBoundary'
 import Footer from 'components/Footer/Footer'
 import Header from 'components/Header'
 import Loader from 'components/LocalLoader'
 import Modal from 'components/Modal'
+import ProtectedRoute, { ProtectedRouteKyberAI } from 'components/ProtectedRoute'
 import Snowfall from 'components/Snowflake/Snowfall'
 import Web3ReactManager from 'components/Web3ReactManager'
+import { ENV_LEVEL } from 'constants/env'
 import { APP_PATHS, BLACKLIST_WALLETS } from 'constants/index'
 import { NETWORKS_INFO_CONFIG } from 'constants/networks'
+import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
+import useLogin from 'hooks/useLogin'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
+import useSessionExpiredGlobal from 'hooks/useSessionExpire'
 import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useTheme from 'hooks/useTheme'
+import { RedirectPathToSwapV3Network } from 'pages/SwapV3/redirects'
+import KyberAIExplore from 'pages/TrueSightV2'
+import TruesightFooter from 'pages/TrueSightV2/components/TruesightFooter'
+import KyberAILandingPage from 'pages/TrueSightV2/pages/LandingPage'
 import Verify from 'pages/Verify'
 import { useHolidayMode } from 'state/user/hooks'
 import DarkModeQueryParamReader from 'theme/DarkModeQueryParamReader'
 import { getLimitOrderContract, isAddressString, shortenAddress } from 'utils'
 
-import { RedirectPathToSwapV3Network } from './SwapV3/redirects'
+import ElasticLegacyNotice from './ElasticLegacy/ElasticLegacyNotice'
+import Icons from './Icons'
 
 // test page for swap only through elastic
-const ElasticSwap = lazy(() => import(/* webpackChunkName: 'elastic-swap-page' */ './ElasticSwap'))
-const ElasticLegacy = lazy(() => import(/* webpackChunkName: 'elastic-legacy-page' */ './ElasticLegacy'))
+const ElasticSwap = lazy(() => import('./ElasticSwap'))
+const SwapV2 = lazy(() => import('./SwapV2'))
+const SwapV3 = lazy(() => import('./SwapV3'))
+const Bridge = lazy(() => import('./Bridge'))
+const Pools = lazy(() => import('./Pools'))
+const MyPools = lazy(() => import('./Pool'))
 
-const SwapV2 = lazy(() => import(/* webpackChunkName: 'swapv2-page' */ './SwapV2'))
-const SwapV3 = lazy(() => import(/* webpackChunkName: 'swapv3-page' */ './SwapV3'))
-const Bridge = lazy(() => import(/* webpackChunkName: 'bridge-page' */ './Bridge'))
-const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
-const MyPools = lazy(() => import(/* webpackChunkName: 'my-pool-page' */ './Pool'))
+const Farm = lazy(() => import('./Farm'))
 
-const Farm = lazy(() => import(/* webpackChunkName: 'yield-page' */ './Farm'))
+const PoolFinder = lazy(() => import('./PoolFinder'))
+const ElasticRemoveLiquidity = lazy(() => import('pages/RemoveLiquidityProAmm'))
+const RedirectCreatePool = lazy(() => import('pages/CreatePool/RedirectCreatePool'))
 
-const PoolFinder = lazy(() => import(/* webpackChunkName: 'pool-finder-page' */ './PoolFinder'))
-const ElasticRemoveLiquidity = lazy(
-  () => import(/* webpackChunkName: 'elastic-remove-liquidity-page' */ 'pages/RemoveLiquidityProAmm'),
-)
-const RedirectCreatePool = lazy(
-  () => import(/* webpackChunkName: 'redirect-create-pool-page' */ './CreatePool/RedirectCreatePool'),
-)
+const RedirectElasticCreatePool = lazy(() => import('pages/AddLiquidityV2/RedirectElasticCreatePool'))
 
-const RedirectElasticCreatePool = lazy(
-  () => import(/* webpackChunkName: 'elastic-create-pool-page' */ 'pages/AddLiquidityV2/RedirectElasticCreatePool'),
-)
+const AddLiquidity = lazy(() => import('pages/AddLiquidity'))
+const ElasticIncreaseLiquidity = lazy(() => import('pages/IncreaseLiquidity'))
 
-const AddLiquidity = lazy(() => import(/* webpackChunkName: 'add-liquidity-page' */ 'pages/AddLiquidity'))
-const ElasticIncreaseLiquidity = lazy(
-  () => import(/* webpackChunkName: 'elastic-increase-liquidity-page' */ 'pages/IncreaseLiquidity'),
-)
+const RemoveLiquidity = lazy(() => import('pages/RemoveLiquidity'))
 
-const RemoveLiquidity = lazy(() => import(/* webpackChunkName: 'remove-liquidity-page' */ 'pages/RemoveLiquidity'))
+const KyberDAOStakeKNC = lazy(() => import('pages/KyberDAO/StakeKNC'))
+const KyberDAOVote = lazy(() => import('pages/KyberDAO/Vote'))
+const AboutKyberSwap = lazy(() => import('pages//About/AboutKyberSwap'))
+const AboutKNC = lazy(() => import('pages/About/AboutKNC'))
+const BuyCrypto = lazy(() => import('pages/BuyCrypto'))
 
-const KyberDAOStakeKNC = lazy(() => import(/* webpackChunkName: 'stake-knc' */ './KyberDAO/StakeKNC'))
-const KyberDAOVote = lazy(() => import(/* webpackChunkName: 'vote' */ './KyberDAO/Vote'))
-const AboutKyberSwap = lazy(() => import(/* webpackChunkName: 'about-page' */ './About/AboutKyberSwap'))
-const AboutKNC = lazy(() => import(/* webpackChunkName: 'about-knc' */ './About/AboutKNC'))
-
-const CreateReferral = lazy(() => import(/* webpackChunkName: 'create-referral-page' */ './CreateReferral'))
-
-const TrueSight = lazy(() => import(/* webpackChunkName: 'true-sight-page' */ './TrueSight'))
-
-const BuyCrypto = lazy(() => import(/* webpackChunkName: 'true-sight-page' */ './BuyCrypto'))
-
-const Campaign = lazy(() => import(/* webpackChunkName: 'campaigns-page' */ './Campaign'))
-const GrantProgramPage = lazy(() => import(/* webpackChunkName: 'grant-program-page' */ './GrantProgram'))
-const NotificationCenter = lazy(() => import(/* webpackChunkName: 'notification-center-page' */ './NotificationCenter'))
+const Campaign = lazy(() => import('pages/Campaign'))
+const GrantProgramPage = lazy(() => import('pages/GrantProgram'))
+const NotificationCenter = lazy(() => import('pages/NotificationCenter'))
 
 const AppWrapper = styled.div`
   display: flex;
@@ -101,15 +97,27 @@ const BodyWrapper = styled.div`
   align-items: center;
   min-height: calc(100vh - 148px);
   flex: 1;
-
-  ${isMobile && `overflow-x: hidden;`}
+  z-index: 1;
 `
+
+const preloadImages = () => {
+  const imageList: (string | null)[] = [
+    ...Object.values(NETWORKS_INFO_CONFIG).map(network => network.icon),
+    ...Object.values(NETWORKS_INFO_CONFIG)
+      .map(network => network.iconDark)
+      .filter(Boolean),
+  ]
+  imageList.forEach(image => {
+    if (image) {
+      new Image().src = image
+    }
+  })
+}
 
 const SwapPage = () => {
   const { chainId } = useActiveWeb3React()
   useSyncNetworkParamWithStore()
-
-  return <>{chainId === ChainId.SOLANA ? <SwapV2 /> : <SwapV3 />}</>
+  return <ProtectedRoute>{chainId === ChainId.SOLANA ? <SwapV2 /> : <SwapV3 />}</ProtectedRoute>
 }
 
 const RedirectWithNetworkPrefix = () => {
@@ -191,9 +199,13 @@ const RoutesWithNetworkPrefix = () => {
 
 export default function App() {
   const { account, chainId, networkInfo } = useActiveWeb3React()
+  const { pathname } = useLocation()
 
+  useLogin()
   const { online } = useNetwork()
   const prevOnline = usePrevious(online)
+
+  useSessionExpiredGlobal()
 
   useEffect(() => {
     if (prevOnline === false && online && account) {
@@ -201,6 +213,10 @@ export default function App() {
       window.location.reload()
     }
   }, [online, prevOnline, account])
+
+  useEffect(() => {
+    preloadImages()
+  }, [])
 
   useEffect(() => {
     if (account) {
@@ -225,7 +241,7 @@ export default function App() {
   const theme = useTheme()
 
   useGlobalMixpanelEvents()
-  const { pathname } = window.location
+
   const showFooter = !pathname.includes(APP_PATHS.ABOUT)
   const [holidayMode] = useHolidayMode()
 
@@ -276,6 +292,7 @@ export default function App() {
       {(!account || !BLACKLIST_WALLETS.includes(account)) && (
         <>
           <AppWrapper>
+            <ElasticLegacyNotice />
             <TopBanner />
             <HeaderWrapper>
               <Header />
@@ -299,6 +316,7 @@ export default function App() {
 
                     {/* From react-router-dom@6.5.0, :fromCurrency-to-:toCurrency no long works, need to manually parse the params */}
                     <Route path={`${APP_PATHS.SWAP}/:network/:currency?`} element={<SwapPage />} />
+                    <Route path={`${APP_PATHS.CROSS_CHAIN}`} element={<SwapV3 />} />
 
                     {getLimitOrderContract(chainId) && (
                       <Route path={`${APP_PATHS.LIMIT}/:network/:currency?`} element={<SwapPage />} />
@@ -339,8 +357,39 @@ export default function App() {
                     <Route path={`${APP_PATHS.KYBERDAO_VOTE}`} element={<KyberDAOVote />} />
                     <Route path={`${APP_PATHS.ABOUT}/kyberswap`} element={<AboutKyberSwap />} />
                     <Route path={`${APP_PATHS.ABOUT}/knc`} element={<AboutKNC />} />
-                    <Route path={`${APP_PATHS.REFERRAL}`} element={<CreateReferral />} />
-                    <Route path={`${APP_PATHS.DISCOVER}`} element={<TrueSight />} />
+                    <Route path={`${APP_PATHS.KYBERAI}`} element={<Navigate to={APP_PATHS.KYBERAI_ABOUT} replace />} />
+                    <Route
+                      path={`${APP_PATHS.KYBERAI_ABOUT}`}
+                      element={
+                        <ProtectedRouteKyberAI waitUtilAuthenEndOnly>
+                          <KyberAILandingPage />
+                        </ProtectedRouteKyberAI>
+                      }
+                    />
+                    <Route
+                      path={`${APP_PATHS.KYBERAI_RANKINGS}`}
+                      element={
+                        <ProtectedRouteKyberAI redirectUrl={APP_PATHS.KYBERAI_ABOUT}>
+                          <KyberAIExplore />
+                        </ProtectedRouteKyberAI>
+                      }
+                    />
+                    <Route
+                      path={`${APP_PATHS.KYBERAI_EXPLORE}`}
+                      element={
+                        <ProtectedRouteKyberAI redirectUrl={APP_PATHS.KYBERAI_ABOUT}>
+                          <KyberAIExplore />
+                        </ProtectedRouteKyberAI>
+                      }
+                    />
+                    <Route
+                      path={`${APP_PATHS.KYBERAI_EXPLORE}/:chain/:address`}
+                      element={
+                        <ProtectedRouteKyberAI redirectUrl={APP_PATHS.KYBERAI_ABOUT}>
+                          <KyberAIExplore />
+                        </ProtectedRouteKyberAI>
+                      }
+                    />
                     <Route path={`${APP_PATHS.BUY_CRYPTO}`} element={<BuyCrypto />} />
                     <Route path={`${APP_PATHS.CAMPAIGN}`} element={<Campaign />} />
                     <Route path={`${APP_PATHS.CAMPAIGN}/:slug`} element={<Campaign />} />
@@ -350,8 +399,8 @@ export default function App() {
                     <Route path={`${APP_PATHS.NOTIFICATION_CENTER}/*`} element={<NotificationCenter />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgramPage />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />
+                    {ENV_LEVEL === ENV_TYPE.LOCAL && <Route path="/icons" element={<Icons />} />}
 
-                    <Route path={`${APP_PATHS.ELASTIC_LEGACY}`} element={<ElasticLegacy />} />
                     <Route path={`elastic-swap`} element={<ElasticSwap />} />
 
                     <Route path={`/:network/*`} element={<RoutesWithNetworkPrefix />} />
@@ -361,7 +410,9 @@ export default function App() {
                 </Web3ReactManager>
               </BodyWrapper>
               {showFooter && <Footer />}
+              <TruesightFooter />
             </Suspense>
+            <ModalConfirm />
           </AppWrapper>
         </>
       )}

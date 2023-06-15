@@ -6,7 +6,7 @@ import JSBI from 'jsbi'
 import { RESERVE_USD_DECIMALS } from 'constants/index'
 import { tryParseAmount } from 'state/swap/hooks'
 import { formatNumberWithPrecisionRange, formattedNum } from 'utils'
-import { toFixed, uint256ToFraction } from 'utils/numbers'
+import { uint256ToFraction } from 'utils/numbers'
 
 import { CreateOrderParam, LimitOrder, LimitOrderStatus } from './type'
 
@@ -14,7 +14,7 @@ export const isActiveStatus = (status: LimitOrderStatus) =>
   [LimitOrderStatus.ACTIVE, LimitOrderStatus.OPEN, LimitOrderStatus.PARTIALLY_FILLED].includes(status)
 
 // js number to fraction
-function parseFraction(value: string, decimals = RESERVE_USD_DECIMALS) {
+export function parseFraction(value: string, decimals = RESERVE_USD_DECIMALS) {
   try {
     return new Fraction(
       ethers.utils.parseUnits(value, decimals).toString(),
@@ -26,12 +26,19 @@ function parseFraction(value: string, decimals = RESERVE_USD_DECIMALS) {
 }
 
 // 1.00010000 => 1.0001
-export const removeTrailingZero = (value: string) => parseFloat(value).toString()
+export const removeTrailingZero = (num: string) => {
+  if (num === undefined || num === null) return ''
+  num = String(num)
+  /**
+   * 15.23000: $1 is 15, $2 is ., $3 is 23000 => '$1$2$3' => 15.23
+   */
+  return num.replace(/^([\d,]+)$|^([\d,]+)\.0*$|^([\d,]+\.[0-9]*?)0*$/, '$1$2$3')
+}
 
-export function calcOutput(input: string, rate: string, decimalsOut: number) {
+export function calcOutput(input: string, rate: string | Fraction, decimalsOut: number) {
   try {
-    const value = parseFraction(input).multiply(parseFraction(rate))
-    return toFixed(parseFloat(value.toFixed(decimalsOut)))
+    const value = parseFraction(input).multiply(typeof rate === 'string' ? parseFraction(rate) : rate)
+    return removeTrailingZero(value.toFixed(decimalsOut))
   } catch (error) {
     return ''
   }
@@ -41,7 +48,7 @@ export function calcRate(input: string, output: string, decimalsOut: number) {
   try {
     if (input && input === output) return '1'
     const rate = parseFraction(output, decimalsOut).divide(parseFraction(input))
-    return toFixed(parseFloat(rate.toFixed(16)))
+    return removeTrailingZero(rate.toFixed(16))
   } catch (error) {
     return ''
   }
@@ -51,7 +58,7 @@ export function calcRate(input: string, output: string, decimalsOut: number) {
 export function calcInvert(value: string) {
   try {
     if (parseFloat(value) === 1) return '1'
-    return toFixed(parseFloat(new Fraction(1).divide(parseFraction(value)).toFixed(16)))
+    return removeTrailingZero(new Fraction(1).divide(parseFraction(value)).toFixed(16))
   } catch (error) {
     return ''
   }

@@ -8,10 +8,11 @@ import styled from 'styled-components'
 
 import { MouseoverTooltip } from 'components/Tooltip'
 import { getNumberOfInsufficientFundOrders } from 'components/swapv2/LimitOrder/request'
-import { Tab } from 'components/swapv2/styleds'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { getLimitOrderContract } from 'utils'
+
+import { Tab } from './index'
 
 const WarningBadge = styled.span`
   display: inline-block;

@@ -31,6 +31,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useTheme from 'hooks/useTheme'
+import ElasticLegacy from 'pages/ElasticLegacy'
 import ProAmmPool from 'pages/ProAmmPool'
 import { useFarmsData, useTotalApr } from 'state/farms/classic/hooks'
 import { Farm } from 'state/farms/classic/types'
@@ -174,7 +175,13 @@ export default function PoolCombination() {
         <AutoColumn>
           <ClassicElasticTab />
         </AutoColumn>
-        {tab === VERSION.ELASTIC ? <ProAmmPool /> : <Pool />}
+        {tab === VERSION.ELASTIC ? (
+          <ProAmmPool />
+        ) : tab === VERSION.ELASTIC_LEGACY ? (
+          <ElasticLegacy tab="my_positions" />
+        ) : (
+          <Pool />
+        )}
       </PageWrapper>
       <SwitchLocaleLink />
     </>

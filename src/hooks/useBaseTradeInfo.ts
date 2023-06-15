@@ -19,11 +19,7 @@ export type BaseTradeInfo = {
 }
 
 // 1 knc = ?? usdt
-export default function useBaseTradeInfo(
-  currencyIn: Currency | undefined,
-  currencyOut: Currency | undefined,
-  customChain?: ChainId,
-) {
+function useBaseTradeInfo(currencyIn: Currency | undefined, currencyOut: Currency | undefined, customChain?: ChainId) {
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
 

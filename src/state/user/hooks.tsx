@@ -1,6 +1,7 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useGetParticipantInfoQuery } from 'services/kyberAISubscription'
 
 import { TERM_FILES_PATH } from 'constants/index'
 import { SupportedLocale } from 'constants/locales'
@@ -12,7 +13,10 @@ import {
   useOldStaticFeeFactoryContract,
   useStaticFeeFactoryContract,
 } from 'hooks/useContract'
+import useDebounce from 'hooks/useDebounce'
+import { ParticipantInfo, ParticipantStatus } from 'pages/TrueSightV2/types'
 import { AppDispatch, AppState } from 'state'
+import { useIsConnectingWallet, useSessionInfo } from 'state/authen/hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useSingleContractMultipleData } from 'state/multicall/hooks'
@@ -24,22 +28,33 @@ import {
   addSerializedPair,
   addSerializedToken,
   changeViewMode,
+  pinSlippageControl,
   removeSerializedToken,
+  setCrossChainSetting,
   toggleFavoriteToken as toggleFavoriteTokenAction,
   toggleHolidayMode,
+  toggleKyberAIBanner,
+  toggleKyberAIWidget,
   toggleLiveChart,
   toggleTokenInfo,
   toggleTopTrendingTokens,
   toggleTradeRoutes,
   updateAcceptedTermVersion,
   updateIsUserManuallyDisconnect,
+  updateTokenAnalysisSettings,
   updateUserDarkMode,
   updateUserDeadline,
   updateUserDegenMode,
   updateUserLocale,
   updateUserSlippageTolerance,
 } from 'state/user/actions'
-import { VIEW_MODE, defaultShowLiveCharts, getFavoriteTokenDefault } from 'state/user/reducer'
+import {
+  CROSS_CHAIN_SETTING_DEFAULT,
+  CrossChainSetting,
+  VIEW_MODE,
+  defaultShowLiveCharts,
+  getFavoriteTokenDefault,
+} from 'state/user/reducer'
 import { isAddress, isChristmasTime } from 'utils'
 
 function serializeToken(token: Token | WrappedTokenInfo): SerializedToken {
@@ -361,9 +376,17 @@ export function useShowTokenInfo(): boolean {
   return useSelector((state: AppState) => state.user.showTokenInfo) ?? true
 }
 
-export function useShowTopTrendingSoonTokens(): boolean {
-  const showTrendingSoon = useSelector((state: AppState) => state.user.showTopTrendingSoonTokens)
-  return showTrendingSoon ?? true
+export function useShowKyberAIBanner(): boolean {
+  return useSelector((state: AppState) => state.user.showKyberAIBanner) ?? true
+}
+
+export function useTokenAnalysisSettings(): { [k: string]: boolean } {
+  return useSelector((state: AppState) => state.user.kyberAIDisplaySettings) ?? null
+}
+
+export function useUpdateTokenAnalysisSettings(): (payload: string) => void {
+  const dispatch = useDispatch<AppDispatch>()
+  return useCallback((payload: string) => dispatch(updateTokenAnalysisSettings(payload)), [dispatch])
 }
 
 export function useToggleLiveChart(): () => void {
@@ -380,6 +403,10 @@ export function useToggleTradeRoutes(): () => void {
 export function useToggleTokenInfo(): () => void {
   const dispatch = useDispatch<AppDispatch>()
   return useCallback(() => dispatch(toggleTokenInfo()), [dispatch])
+}
+export function useToggleKyberAIBanner(): () => void {
+  const dispatch = useDispatch<AppDispatch>()
+  return useCallback(() => dispatch(toggleKyberAIBanner()), [dispatch])
 }
 
 export function useToggleTopTrendingTokens(): () => void {
@@ -424,6 +451,111 @@ export const useHolidayMode: () => [boolean, () => void] = () => {
   }, [dispatch])
 
   return [isChristmasTime() ? holidayMode : false, toggle]
+}
+
+export const useCrossChainSetting = () => {
+  const dispatch = useAppDispatch()
+  const setting = useAppSelector(state => state.user.crossChain) || CROSS_CHAIN_SETTING_DEFAULT
+  const setSetting = useCallback(
+    (data: CrossChainSetting) => {
+      dispatch(setCrossChainSetting(data))
+    },
+    [dispatch],
+  )
+  const setExpressExecutionMode = useCallback(
+    (enableExpressExecution: boolean) => {
+      setSetting({ ...setting, enableExpressExecution })
+    },
+    [setSetting, setting],
+  )
+
+  const setRawSlippage = useCallback(
+    (slippageTolerance: number) => {
+      setSetting({ ...setting, slippageTolerance })
+    },
+    [setSetting, setting],
+  )
+
+  const toggleSlippageControlPinned = useCallback(() => {
+    setSetting({ ...setting, isSlippageControlPinned: !setting.isSlippageControlPinned })
+  }, [setSetting, setting])
+
+  return { setting, setExpressExecutionMode, setRawSlippage, toggleSlippageControlPinned }
+}
+
+export const useSlippageSettingByPage = (isCrossChain = false) => {
+  const dispatch = useDispatch()
+  const isPinSlippageSwap = useAppSelector(state => state.user.isSlippageControlPinned)
+  const [rawSlippageSwap, setRawSlippageSwap] = useUserSlippageTolerance()
+  const togglePinSlippageSwap = () => {
+    dispatch(pinSlippageControl(!isSlippageControlPinned))
+  }
+
+  const {
+    setting: { slippageTolerance: rawSlippageSwapCrossChain, isSlippageControlPinned: isPinSlippageCrossChain },
+    setRawSlippage: setRawSlippageCrossChain,
+    toggleSlippageControlPinned: togglePinnedSlippageCrossChain,
+  } = useCrossChainSetting()
+
+  const isSlippageControlPinned = isCrossChain ? isPinSlippageCrossChain : isPinSlippageSwap
+  const rawSlippage = isCrossChain ? rawSlippageSwapCrossChain : rawSlippageSwap
+  const setRawSlippage = isCrossChain ? setRawSlippageCrossChain : setRawSlippageSwap
+  const togglePinSlippage = isCrossChain ? togglePinnedSlippageCrossChain : togglePinSlippageSwap
+
+  return { setRawSlippage, rawSlippage, isSlippageControlPinned, togglePinSlippage }
+}
+
+const participantDefault = { rankNo: 0, status: ParticipantStatus.UNKNOWN, referralCode: '', id: 0 }
+export const useGetParticipantKyberAIInfo = (): ParticipantInfo => {
+  const { userInfo } = useSessionInfo()
+  const { data: data = participantDefault, isError } = useGetParticipantInfoQuery(undefined, {
+    skip: !userInfo,
+  })
+  return isError ? participantDefault : data
+}
+
+export const useIsWhiteListKyberAI = () => {
+  const { userInfo } = useSessionInfo()
+  const { isLogin, pendingAuthentication } = useSessionInfo()
+  const {
+    data: rawData,
+    isFetching,
+    isError,
+    refetch,
+  } = useGetParticipantInfoQuery(undefined, {
+    skip: !userInfo,
+  })
+
+  const { account } = useActiveWeb3React()
+  const [connectingWallet] = useIsConnectingWallet()
+
+  const isLoading = isFetching || pendingAuthentication
+  const loadingDebounced = useDebounce(isLoading, 500) || connectingWallet
+
+  const participantInfo = isError || loadingDebounced || !account ? participantDefault : rawData
+
+  return {
+    loading: loadingDebounced,
+    isWhiteList:
+      isLogin && (participantInfo?.status === ParticipantStatus.WHITELISTED || userInfo?.data?.hasAccessToKyberAI),
+    isWaitList: isLogin && participantInfo?.status === ParticipantStatus.WAITLISTED,
+    refetch,
+  }
+}
+
+export const useKyberAIWidget: () => [boolean, () => void] = () => {
+  const dispatch = useAppDispatch()
+  const kyberAIWidget = useAppSelector(state =>
+    state.user.kyberAIWidget === undefined ? true : state.user.kyberAIWidget,
+  )
+
+  const { isWhiteList } = useIsWhiteListKyberAI()
+
+  const toggle = useCallback(() => {
+    dispatch(toggleKyberAIWidget())
+  }, [dispatch])
+
+  return [kyberAIWidget && !!isWhiteList, toggle]
 }
 
 export const usePermitData: (

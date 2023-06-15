@@ -8,8 +8,7 @@ import SlippageControl from 'components/SlippageControl'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { DEFAULT_SLIPPAGE, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import { useAppSelector } from 'state/hooks'
-import { useUserSlippageTolerance } from 'state/user/hooks'
+import { useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { checkWarningSlippage, formatSlippage } from 'utils/slippage'
 
@@ -24,14 +23,16 @@ const DropdownIcon = styled(DropdownSVG)`
 type Props = {
   isStablePairSwap: boolean
   rightComponent?: ReactNode
+  tooltip?: ReactNode
+  isCrossChain?: boolean
 }
-const SlippageSetting = ({ isStablePairSwap, rightComponent }: Props) => {
+const SlippageSetting = ({ isStablePairSwap, rightComponent, tooltip, isCrossChain }: Props) => {
   const theme = useTheme()
-  const isSlippageControlPinned = useAppSelector(state => state.user.isSlippageControlPinned)
   const [expanded, setExpanded] = useState(false)
-  const [rawSlippage, setRawSlippage] = useUserSlippageTolerance()
-  const isWarningSlippage = checkWarningSlippage(rawSlippage, isStablePairSwap)
 
+  const { setRawSlippage, rawSlippage, isSlippageControlPinned } = useSlippageSettingByPage(isCrossChain)
+
+  const isWarningSlippage = checkWarningSlippage(rawSlippage, isStablePairSwap)
   if (!isSlippageControlPinned) {
     return null
   }
@@ -67,14 +68,20 @@ const SlippageSetting = ({ isStablePairSwap, rightComponent }: Props) => {
             <MouseoverTooltip
               placement="right"
               text={
-                <Text>
-                  <Trans>
-                    During your swap if the price changes by more than this %, your transaction will revert. Read more{' '}
-                    <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/slippage">
-                      here ↗
-                    </ExternalLink>
-                  </Trans>
-                </Text>
+                tooltip || (
+                  <Text>
+                    <Trans>
+                      During your swap if the price changes by more than this %, your transaction will revert. Read more{' '}
+                      <ExternalLink
+                        href={
+                          'https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/slippage'
+                        }
+                      >
+                        here ↗
+                      </ExternalLink>
+                    </Trans>
+                  </Text>
+                )
               }
             >
               <Trans>Max Slippage</Trans>

@@ -1,8 +1,9 @@
 import { Currency, CurrencyAmount, Token, TradeType } from '@kyberswap/ks-sdk-core'
-import { FeeAmount, Pool, Route, SwapQuoter, SwapRouter, Trade } from '@kyberswap/ks-sdk-elastic'
+import { FeeAmount, Pool, Route, SwapQuoter, SwapRouter, Trade, computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { BigNumber, Contract } from 'ethers'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 import { abi as QuoterABI } from 'constants/abis/v2/ProAmmQuoter.json'
 import { INITIAL_ALLOWED_SLIPPAGE } from 'constants/index'
@@ -384,6 +385,9 @@ function useProAmmSwapPools(
   pools: Pool[]
   loading: boolean
 } {
+  const { networkInfo } = useActiveWeb3React()
+  const [searchParams] = useSearchParams()
+  const pool = searchParams.get('pool')
   const allCurrencyCombinations = useAllCurrencyCombinations(currencyIn, currencyOut)
   const allCurrencyCombinationsWithAllFees: [Token, Token, FeeAmount][] = useMemo(
     () =>
@@ -405,16 +409,33 @@ function useProAmmSwapPools(
   )
   const pools = usePools(allCurrencyCombinationsWithAllFees)
 
+  const initCodeHash = (networkInfo as EVMNetworkInfo).elastic.initCodeHash
+  const factoryAddress = (networkInfo as EVMNetworkInfo).elastic.coreFactory
+
   return useMemo(() => {
     return {
       pools: pools
         .filter((tuple): tuple is [PoolState.EXISTS, Pool] => {
           return tuple[0] === PoolState.EXISTS && tuple[1] !== null
         })
+        .filter(t => {
+          if (pool) {
+            const p = t[1]
+            return (
+              computePoolAddress({
+                factoryAddress,
+                tokenA: p.token0,
+                tokenB: p.token1,
+                fee: p.fee,
+                initCodeHashManualOverride: initCodeHash,
+              }).toLowerCase() === pool.toLowerCase()
+            )
+          } else return true
+        })
         .map(([, pool]) => pool),
       loading: pools.some(([state]) => state === PoolState.LOADING),
     }
-  }, [pools])
+  }, [pools, pool, initCodeHash, factoryAddress])
 }
 
 // returns a function that will execute a swap, if the parameters are all valid

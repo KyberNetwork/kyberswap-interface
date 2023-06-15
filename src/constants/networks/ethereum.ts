@@ -73,7 +73,6 @@ const ethereumInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'ethereum',
   coingeckoNativeTokenId: 'ethereum',
   deBankSlug: 'eth',
-  trueSightId: 'eth',
   dexToCompare: 'uniswapv3',
   kyberDAO: {
     staking: '0xeadb96F1623176144EBa2B24e35325220972b3bD',

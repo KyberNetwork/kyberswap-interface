@@ -1,4 +1,4 @@
-import { ChainId, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, NativeCurrency, Token, WETH } from '@kyberswap/ks-sdk-core'
 
 import { CHAINS_SUPPORT_FEE_CONFIGS, ETHER_ADDRESS } from './index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from './networks'
@@ -175,10 +175,11 @@ export const STABLE_COIN_ADDRESSES_TO_TAKE_FEE: Record<ChainId, string[]> = {
   [ChainId.ARBITRUM]: [],
 }
 
-// This is basically the same as STABLE_COIN_ADDRESSES_TO_TAKE_FEE, but with native token address
+// This is basically the same as STABLE_COIN_ADDRESSES_TO_TAKE_FEE,
+// but with native token address and wrapped native token address
 export const TOKENS_WITH_FEE_TIER_1: Record<ChainId, string[]> = CHAINS_SUPPORT_FEE_CONFIGS.reduce((acc, chainId) => {
   if (STABLE_COIN_ADDRESSES_TO_TAKE_FEE[chainId].length) {
-    acc[chainId] = [...STABLE_COIN_ADDRESSES_TO_TAKE_FEE[chainId], ETHER_ADDRESS]
+    acc[chainId] = [...STABLE_COIN_ADDRESSES_TO_TAKE_FEE[chainId], ETHER_ADDRESS, WETH[chainId].address]
   } else {
     acc[chainId] = []
   }

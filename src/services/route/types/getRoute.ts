@@ -1,4 +1,4 @@
-import { Route } from 'types/route'
+import { ChargeFeeBy, Route } from 'types/route'
 
 export type GetRouteParams = {
   tokenIn: string
@@ -10,7 +10,7 @@ export type GetRouteParams = {
   gasInclude: string
   gasPrice: string
   feeAmount: string
-  chargeFeeBy: string
+  chargeFeeBy: ChargeFeeBy
   isInBps: string
   feeReceiver: string
   debug?: string
@@ -32,7 +32,7 @@ export type RouteSummary = {
 
   extraFee: {
     feeAmount: string
-    chargeFeeBy: string
+    chargeFeeBy: ChargeFeeBy
     isInBps: boolean
     feeReceiver: string
     feeAmountUsd: string

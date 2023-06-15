@@ -1,12 +1,10 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { rgba } from 'polished'
 import { useState } from 'react'
 import { Info, Minus, Plus, Share2 } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ReactComponent as DropIcon } from 'assets/svg/drop.svg'
 import { ButtonEmpty } from 'components/Button'
@@ -33,20 +31,7 @@ import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 import { APRTooltipContent } from '../FarmingPoolAPRCell'
 import FeeTarget from './FeeTarget'
 import PositionDetail from './PostionDetail'
-import { Button, FeeTag, FlipCard, FlipCardBack, FlipCardFront } from './styleds'
-
-const Range = styled.div<{ inrange?: boolean }>`
-  align-self: flex-end;
-  align-items: center;
-  color: ${({ theme, inrange }) => (inrange ? theme.primary : theme.warning)};
-  padding: 3px 4px;
-  gap: 4px;
-  font-size: 12px;
-  font-weight: 500;
-  display: flex;
-  border-radius: 999px;
-  background: ${({ theme, inrange }) => rgba(inrange ? theme.primary : theme.warning, 0.3)};
-`
+import { Button, FeeTag, FlipCard, FlipCardBack, FlipCardFront, Range } from './styleds'
 
 interface Pool extends FarmingPool {
   tvl: number

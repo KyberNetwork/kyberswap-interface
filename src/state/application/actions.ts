@@ -2,6 +2,7 @@ import { createAction } from '@reduxjs/toolkit'
 
 import { AnnouncementTemplatePopup, PopupContent, PopupType } from 'components/Announcement/type'
 import { Topic } from 'hooks/useNotification'
+import { ConfirmModalState } from 'state/application/reducer'
 
 export enum ApplicationModal {
   NETWORK,
@@ -21,10 +22,8 @@ export enum ApplicationModal {
   MOBILE_TRADE_ROUTES,
   MOBILE_TOKEN_INFO,
 
-  REFERRAL_NETWORK,
   SHARE,
   TRENDING_SOON_SORTING,
-  TRUESIGHT_NETWORK,
   TRENDING_SOON_TOKEN_DETAIL,
   COMMUNITY,
   CONTRACT_ADDRESS,
@@ -45,6 +44,10 @@ export enum ApplicationModal {
 
   SWAP_APPROVAL,
   TIME_DROPDOWN,
+
+  TRUESIGHT_POOLS,
+
+  KYBERAI_TUTORIAL,
 }
 
 export const updateBlockNumber = createAction<{ chainId: number; blockNumber: number }>('application/updateBlockNumber')
@@ -87,3 +90,5 @@ export const setAnnouncementDetail = createAction<{
   announcements: AnnouncementTemplatePopup[]
   hasMore: boolean
 }>('application/setAnnouncementDetail')
+
+export const setConfirmData = createAction<ConfirmModalState>('application/setConfirmData')
