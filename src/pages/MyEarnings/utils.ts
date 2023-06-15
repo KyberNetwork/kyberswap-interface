@@ -300,34 +300,34 @@ export const aggregatePoolEarnings = (
         byPool[poolId] = fillHistoricalEarningsForEmptyDays(poolEarnings)
       })
 
-      draft[chain].pools.forEach(pool => {
-        pool.historicalEarning = byPool[pool.id]
-        if (pool.historicalEarning.length !== 365) {
-          const days = pool.historicalEarning.map(e => e.day)
-          const missingDays = []
-          let curr = days[0]
-          for (let i = 1; i < days.length; i++) {
-            if (curr - days[i] !== 1) {
-              missingDays.push(
-                ...Array.from({ length: curr - days[i] })
-                  .map((_, i) => i + 1)
-                  .map(i => curr - i),
-              )
-            }
+      // draft[chain].pools.forEach(pool => {
+      //   pool.historicalEarning = byPool[pool.id]
+      //   if (pool.historicalEarning.length !== 365) {
+      //     const days = pool.historicalEarning.map(e => e.day)
+      //     const missingDays = []
+      //     let curr = days[0]
+      //     for (let i = 1; i < days.length; i++) {
+      //       if (curr - days[i] !== 1) {
+      //         missingDays.push(
+      //           ...Array.from({ length: curr - days[i] })
+      //             .map((_, i) => i + 1)
+      //             .map(i => curr - i),
+      //         )
+      //       }
 
-            curr = days[i]
-          }
+      //       curr = days[i]
+      //     }
 
-          // console.log(
-          //   'pool',
-          //   pool.id,
-          //   pool.historicalEarning.length,
-          //   pool.historicalEarning[0].day,
-          //   pool.historicalEarning.slice(-1)[0].day,
-          //   missingDays,
-          // )
-        }
-      })
+      //     console.log(
+      //       'pool',
+      //       pool.id,
+      //       pool.historicalEarning.length,
+      //       pool.historicalEarning[0].day,
+      //       pool.historicalEarning.slice(-1)[0].day,
+      //       missingDays,
+      //     )
+      //   }
+      // })
     })
   })
 
