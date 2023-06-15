@@ -21,7 +21,7 @@ const NetworkSwitchContainer = styled.div`
   min-width: fit-content;
 `
 
-const NetworkCard = styled(Card)<{ disabled?: boolean }>`
+const NetworkCard = styled(Card)`
   position: relative;
   background-color: ${({ theme }) => theme.buttonBlack};
   color: ${({ theme }) => theme.text};
@@ -35,13 +35,7 @@ const NetworkCard = styled(Card)<{ disabled?: boolean }>`
     border: 1px solid ${({ theme }) => theme.primary};
     cursor: pointer;
   }
-  ${({ disabled }) =>
-    disabled &&
-    css`
-      cursor: none;
-      opacity: 0.5;
-      pointer-events: none;
-    `}
+
   ${({ theme }) => theme.mediaWidth.upToSmall`
     margin: 0;
     margin-right: 0.5rem;
@@ -67,7 +61,7 @@ const DropdownIcon = styled(DropdownSvg)<{ open: boolean }>`
   transition: transform 300ms;
 `
 
-function SelectNetwork({ disabled }: { disabled?: boolean }): JSX.Element | null {
+function SelectNetwork(): JSX.Element | null {
   const { chainId, networkInfo } = useActiveWeb3React()
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
   const isDarkMode = useIsDarkMode()
@@ -84,7 +78,7 @@ function SelectNetwork({ disabled }: { disabled?: boolean }): JSX.Element | null
     return `${balanceFixed} ${NativeCurrencies[chainId].symbol}`
   }, [userEthBalance, chainId, networkInfo])
   return (
-    <NetworkCard onClick={() => toggleNetworkModal()} role="button" id={TutorialIds.SELECT_NETWORK} disabled={disabled}>
+    <NetworkCard onClick={() => toggleNetworkModal()} role="button" id={TutorialIds.SELECT_NETWORK}>
       <NetworkSwitchContainer>
         <Row>
           <img
