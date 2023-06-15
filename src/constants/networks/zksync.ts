@@ -69,7 +69,6 @@ const zkSyncInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'zksync-ethereum',
   coingeckoNativeTokenId: 'ethereum',
   deBankSlug: '',
-  trueSightId: NOT_SUPPORT,
   dexToCompare: '',
   geckoTermialId: 'zksync',
 }
