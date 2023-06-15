@@ -15,15 +15,11 @@ import SingleAlert from './SingleAlert'
 const ActiveAlerts = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boolean) => void }) => {
   const { account } = useActiveWeb3React()
   const [page, setPage] = useState(1)
-  const { data, isLoading, refetch } = useGetListAlertsQuery(
-    {
-      walletAddress: account || '',
-      page,
-      pageSize: ITEMS_PER_PAGE,
-      sort: 'is_enabled:desc,created_at:desc',
-    },
-    { skip: !account },
-  )
+  const { data, isLoading, refetch } = useGetListAlertsQuery({
+    page,
+    pageSize: ITEMS_PER_PAGE,
+    sort: 'is_enabled:desc,created_at:desc',
+  })
   const { data: alertStat, refetch: refetchStat } = useGetAlertStatsQuery(account || '', { skip: !account })
   const isMaxQuotaActiveAlert = alertStat ? alertStat.totalActiveAlerts >= alertStat.maxActiveAlerts : false
 

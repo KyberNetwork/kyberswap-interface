@@ -1,6 +1,7 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { createApi } from '@reduxjs/toolkit/query/react'
+import baseQueryOauth from 'services/baseQueryOauth'
 
-import { PRICE_ALERT_API } from 'constants/env'
+import { BFF_API } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
 import { CreatePriceAlertPayload, PriceAlert, PriceAlertStat } from 'pages/NotificationCenter/const'
 
@@ -18,7 +19,6 @@ type GetListAlertsResponseData = {
 }
 
 type GetListAlertsParams = {
-  walletAddress: string
   page?: number
   pageSize?: number
   sort?: string
@@ -26,12 +26,12 @@ type GetListAlertsParams = {
 
 const priceAlertApi = createApi({
   reducerPath: 'priceAlertApi',
-  baseQuery: fetchBaseQuery({ baseUrl: PRICE_ALERT_API }),
+  baseQuery: baseQueryOauth({ baseUrl: BFF_API }),
   tagTypes: [RTK_QUERY_TAGS.GET_ALERTS, RTK_QUERY_TAGS.GET_ALERTS_STAT],
   endpoints: builder => ({
     getListAlerts: builder.query<GetListAlertsResponseData, GetListAlertsParams>({
       query: params => ({
-        url: `/v1/alerts`,
+        url: `/v1/price-alert`,
         params,
       }),
       transformResponse: (data: any) => {
@@ -41,7 +41,7 @@ const priceAlertApi = createApi({
     }),
     getAlertStats: builder.query<PriceAlertStat, string>({
       query: walletAddress => ({
-        url: `/v1/alerts/statistics`,
+        url: `/v1/price-alert/statistics`,
         params: {
           walletAddress,
         },
@@ -51,7 +51,7 @@ const priceAlertApi = createApi({
     }),
     createPriceAlert: builder.mutation<MetaResponse<{ id: number }>, CreatePriceAlertPayload>({
       query: body => ({
-        url: `/v1/alerts`,
+        url: `/v1/price-alert`,
         method: 'POST',
         body,
       }),
@@ -59,7 +59,7 @@ const priceAlertApi = createApi({
     }),
     updatePriceAlert: builder.mutation<void, { isEnabled: boolean; id: number }>({
       query: ({ isEnabled, id }) => ({
-        url: `/v1/alerts/${id}`,
+        url: `/v1/price-alert/${id}`,
         method: 'PATCH',
         body: { isEnabled },
       }),
@@ -67,7 +67,7 @@ const priceAlertApi = createApi({
     }),
     deleteAllAlerts: builder.mutation<void, { account: string }>({
       query: ({ account }) => ({
-        url: `/v1/alerts`,
+        url: `/v1/price-alert`,
         method: 'DELETE',
         body: { walletAddress: account },
       }),
@@ -75,7 +75,7 @@ const priceAlertApi = createApi({
     }),
     deleteSingleAlert: builder.mutation<void, number>({
       query: alertId => ({
-        url: `/v1/alerts/${alertId}`,
+        url: `/v1/price-alert/${alertId}`,
         method: 'DELETE',
       }),
       invalidatesTags: [RTK_QUERY_TAGS.GET_ALERTS, RTK_QUERY_TAGS.GET_ALERTS_STAT],
