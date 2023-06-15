@@ -205,12 +205,7 @@ export default function Header() {
       </HeaderRow>
       <HeaderControls>
         <HeaderElement>
-          <MouseoverTooltip
-            text={t`You are currently connected through WalletConnect. If you want to change the connected network, please disconnect your wallet before changing the network.`}
-            disableTooltip={walletKey !== 'WALLET_CONNECT'}
-          >
-            <SelectNetwork disabled={walletKey === 'WALLET_CONNECT'} />
-          </MouseoverTooltip>
+          <SelectNetwork />
           <SelectWallet />
         </HeaderElement>
         <HeaderElementWrap>
