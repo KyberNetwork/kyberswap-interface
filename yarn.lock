@@ -10948,6 +10948,11 @@ html2canvas@^1.4.1:
     css-line-break "^2.1.0"
     text-segmentation "^1.0.3"
 
+html5-qrcode@^2.3.8:
+  version "2.3.8"
+  resolved "https://registry.yarnpkg.com/html5-qrcode/-/html5-qrcode-2.3.8.tgz#0b0cdf7a9926cfd4be530e13a51db47592adfa0d"
+  integrity sha512-jsr4vafJhwoLVEDW3n1KvPnCCXWaQfRng0/EEYk1vNcQGcG/htAdhJX0be8YyqMoSz7+hZvOZSTAepsabiuhiQ==
+
 htmlparser2@^6.1.0:
   version "6.1.0"
   resolved "https://registry.yarnpkg.com/htmlparser2/-/htmlparser2-6.1.0.tgz#c4d762b6c3371a05dbe65e94ae43a9f845fb8fb7"
@@ -14286,11 +14291,6 @@ qrcode.react@^1.0.1:
     loose-envify "^1.4.0"
     prop-types "^15.6.0"
     qr.js "0.0.0"
-
-qrcode.react@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/qrcode.react/-/qrcode.react-3.1.0.tgz#5c91ddc0340f768316fbdb8fff2765134c2aecd8"
-  integrity sha512-oyF+Urr3oAMUG/OiOuONL3HXM+53wvuH3mtIWQrYmsXoAq0DkvZp2RYUWFSMFtbdOpuS++9v+WAkzNVkMlNW6Q==
 
 qrcode@1.4.4:
   version "1.4.4"

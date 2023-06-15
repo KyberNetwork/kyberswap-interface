@@ -7,6 +7,8 @@ import { Input } from 'components/Input'
 import useTheme from 'hooks/useTheme'
 import { ButtonExport } from 'pages/NotificationCenter/Profile/buttons'
 
+import { Label } from './styled'
+
 const ButtonNext = styled(ButtonPrimary)`
   flex: 1;
   height: 36px;
@@ -65,15 +67,7 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onEnterPasscode, dismissMod
           gap: '8px',
         }}
       >
-        <Text
-          sx={{
-            fontWeight: 400,
-            fontSize: '14px',
-            lineHeight: '20px',
-          }}
-        >
-          Your passcode
-        </Text>
+        <Label>Your passcode</Label>
 
         <Input
           color={theme.text}

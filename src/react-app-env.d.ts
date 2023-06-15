@@ -30,7 +30,6 @@ interface Window {
       isCoinbaseWallet: boolean
     }
   }
-  KyberOauth2: any
   tag?: string
   coin98?: any
   coinbaseWalletExtension?: any

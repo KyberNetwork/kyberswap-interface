@@ -1,6 +1,6 @@
 import { t } from '@lingui/macro'
-import { ReactNode, useMemo } from 'react'
-import { AlignJustify, List as ListIcon } from 'react-feather'
+import { ReactNode, useCallback, useMemo, useState } from 'react'
+import { AlignJustify, Download, List as ListIcon } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
 import { useGetTotalUnreadAnnouncementsQuery } from 'services/announcement'
@@ -17,6 +17,7 @@ import { getAnnouncementsTemplateIds } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import MenuItem from 'pages/NotificationCenter/Menu/MenuItem'
+import ImportAccountModal from 'pages/NotificationCenter/Profile/ImportAccountModal'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
@@ -40,7 +41,7 @@ export type MenuItemType = {
   route: string
   type?: string
   icon?: ReactNode
-  title?: string
+  title?: ReactNode
   divider?: boolean
   childs?: MenuItemType[]
   onClick?: () => void
@@ -121,8 +122,9 @@ const menuItems: MenuItemType[] = [
   }
 })
 
-type PropsMenu = { unread: Unread; onChildrenClick?: () => void }
-const MenuForDesktop = ({ unread, onChildrenClick }: PropsMenu) => {
+type PropsMenu = { unread: Unread; onChildrenClick?: () => void; toggleImportProfile: () => void }
+
+const MenuForDesktop = ({ unread, onChildrenClick, toggleImportProfile }: PropsMenu) => {
   const { signedWallet, isGuest, isGuestDefault } = useSignedWalletInfo()
   const { cacheProfile } = useCacheProfile()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
@@ -145,9 +147,15 @@ const MenuForDesktop = ({ unread, onChildrenClick }: PropsMenu) => {
               title: profile?.nickname ? shortString(profile?.nickname, 20) : getShortenAddress(signedWallet ?? ''),
             },
       ]
+      childs.push({
+        onClick: toggleImportProfile,
+        route: '#',
+        icon: <Download size={16} />,
+        title: t`Import`,
+      })
       return { ...el, childs }
     })
-  }, [signedWallet, isGuest, profile, isGuestDefault])
+  }, [signedWallet, isGuest, profile, isGuestDefault, toggleImportProfile])
 
   return (
     <Flex sx={{ flexDirection: 'column', padding: upToMedium ? '0px' : '24px' }}>
@@ -164,7 +172,7 @@ const MenuForDesktop = ({ unread, onChildrenClick }: PropsMenu) => {
   )
 }
 
-const MenuForMobile = ({ unread }: PropsMenu) => {
+const MenuForMobile = (props: PropsMenu) => {
   const isOpen = useModalOpen(ApplicationModal.MENU_NOTI_CENTER)
   const toggleModal = useToggleModal(ApplicationModal.MENU_NOTI_CENTER)
   const theme = useTheme()
@@ -176,7 +184,7 @@ const MenuForMobile = ({ unread }: PropsMenu) => {
       isOpen={isOpen}
       onDismiss={toggleModal}
     >
-      <MenuForDesktop unread={unread} onChildrenClick={toggleModal} />
+      <MenuForDesktop {...props} onChildrenClick={toggleModal} />
     </Drawer>
   )
 }
@@ -184,6 +192,7 @@ const MenuForMobile = ({ unread }: PropsMenu) => {
 const Menu = () => {
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const { account } = useActiveWeb3React()
+  const [showModalImport, setShowModalImport] = useState(false)
 
   const templateIds = Object.values(PrivateAnnouncementType)
     .filter(e => e !== PrivateAnnouncementType.DIRECT_MESSAGE)
@@ -204,7 +213,16 @@ const Menu = () => {
     return result
   }, [data])
 
-  return upToMedium ? <MenuForMobile unread={unread} /> : <MenuForDesktop unread={unread} />
+  const toggleImportProfile = useCallback(() => setShowModalImport(v => !v), [])
+
+  const props = { unread, toggleImportProfile }
+
+  return (
+    <>
+      {upToMedium ? <MenuForMobile {...props} /> : <MenuForDesktop {...props} />}
+      <ImportAccountModal isOpen={showModalImport} onDismiss={() => setShowModalImport(false)} />
+    </>
+  )
 }
 
 export default Menu

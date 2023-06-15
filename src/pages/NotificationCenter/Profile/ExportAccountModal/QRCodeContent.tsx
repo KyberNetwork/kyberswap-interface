@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { useMemo, useRef } from 'react'
 import { QRCode, IProps as QRCodeProps } from 'react-qrcode-logo'
-import { Flex, Text } from 'rebass'
+import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import KncLogo from 'assets/images/kyber_logo_for_qr.png'
@@ -11,6 +11,8 @@ import CopyHelper from 'components/Copy'
 import Deposit from 'components/Icons/Deposit'
 import useTheme from 'hooks/useTheme'
 import { ButtonExport } from 'pages/NotificationCenter/Profile/buttons'
+
+import { Label } from './styled'
 
 const QR_SIZE = 200
 const QR_ID = 'react-qrcode-logo'
@@ -127,15 +129,9 @@ export default function QRCodeContent({ dismissModal, importToken, forgotPasscod
           width: '100%',
         }}
       >
-        <Text
-          sx={{
-            fontWeight: 400,
-            fontSize: '14px',
-            lineHeight: '20px',
-          }}
-        >
+        <Label>
           <Trans>Your import token (click to copy)</Trans>
-        </Text>
+        </Label>
 
         <AddressInput
           onClick={() => {

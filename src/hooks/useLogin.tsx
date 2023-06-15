@@ -285,20 +285,11 @@ const useLogin = (autoLogin = false) => {
 
   const importGuestAccount = useCallback(
     async (accountInfo: AnonymousAccount) => {
-      try {
-        const accountId = accountInfo.username
-        await KyberOauth2.importAnonymousAccount(accountInfo)
-        signInAnonymous(account, accountId)
-      } catch (error) {
-        console.log('import error', error)
-        notify({
-          type: NotificationType.ERROR,
-          title: t`Import guest account error`,
-          summary: t`Import guest account error, please try again`,
-        })
-      }
+      const accountId = accountInfo.username
+      await KyberOauth2.importAnonymousAccount(accountInfo)
+      return signInAnonymous(account, accountId)
     },
-    [signInAnonymous, notify, account],
+    [signInAnonymous, account],
   )
 
   const signOutAnonymous = useCallback(
@@ -310,8 +301,6 @@ const useLogin = (autoLogin = false) => {
     [account, signInAnonymous, removeProfile],
   )
 
-  // todo remove and remove .d.ts as well
-  window.KyberOauth2 = importGuestAccount
   return { signOut, signIn, signInAnonymous: wrappedSignInAnonymous, signOutAll, importGuestAccount, signOutAnonymous }
 }
 

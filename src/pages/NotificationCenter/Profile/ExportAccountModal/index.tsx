@@ -36,11 +36,11 @@ export default function ExportAccountModal({ isOpen, onDismiss }: Props) {
   const guestAccountStr = guestAccount ? JSON.stringify(guestAccount) : ''
 
   const [step, setStep] = useState(() => {
-    return getStep(guestAccount?.account ?? '')
+    return getStep(guestAccount?.username ?? '')
   })
 
   const [importToken, setImportToken] = useState(() => {
-    const storedImportToken = getImportToken(guestAccount?.account ?? '')
+    const storedImportToken = getImportToken(guestAccount?.username ?? '')
     if (storedImportToken) {
       return storedImportToken
     }
@@ -49,14 +49,14 @@ export default function ExportAccountModal({ isOpen, onDismiss }: Props) {
   })
 
   const handleConfirmPasscode = (code: string) => {
-    if (!guestAccount?.account) {
+    if (!guestAccount?.username) {
       return
     }
 
     setStep(Step.QR_CODE)
 
     const importToken = encryptString(guestAccountStr, code)
-    saveImportToken(guestAccount.account, importToken)
+    saveImportToken(guestAccount.username, importToken)
     setImportToken(importToken)
 
     console.log({
@@ -65,19 +65,19 @@ export default function ExportAccountModal({ isOpen, onDismiss }: Props) {
   }
 
   const handleForgotPasscode = () => {
-    if (!guestAccount?.account) {
+    if (!guestAccount?.username) {
       return
     }
 
-    removeImportToken(guestAccount.account)
+    removeImportToken(guestAccount.username)
     setStep(Step.ENTER_PASSCODE)
   }
 
   useEffect(() => {
     if (isOpen) {
-      setStep(getStep(guestAccount?.account ?? ''))
+      setStep(getStep(guestAccount?.username ?? ''))
     }
-  }, [guestAccount?.account, isOpen])
+  }, [guestAccount?.username, isOpen])
 
   if (!guestAccountStr) {
     return null

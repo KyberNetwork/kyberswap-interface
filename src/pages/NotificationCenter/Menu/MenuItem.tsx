@@ -121,13 +121,13 @@ const MenuItem: React.FC<Props> = ({ data, style, unread, isChildren, onChildren
         </Wrapper>
         {canShowListChildren && (
           <Column style={{ padding: '8px 0', borderTop: `1px solid ${theme.border}`, marginLeft: '24px' }}>
-            {childs?.map(el => {
+            {childs?.map((el, i) => {
               return (
                 <>
                   <MenuItem
                     onChildrenClick={onChildrenClick}
                     isChildren
-                    key={el.title}
+                    key={i}
                     data={el}
                     unread={unread}
                     style={{

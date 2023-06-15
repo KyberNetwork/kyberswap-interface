@@ -40,10 +40,5 @@ export const removeImportToken = (account: string) => {
 
 export const getGuestAccount = () => {
   const guestProfile = KyberOauth2.getAnonymousAccount()
-  return guestProfile
-    ? {
-        account: guestProfile.username,
-        password: guestProfile.password,
-      }
-    : undefined
+  return guestProfile || undefined
 }

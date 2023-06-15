@@ -6,12 +6,14 @@ export default function FileInput({
   onImgChange,
   image,
   disabled,
+  width,
 }: {
   image?: boolean
   children: ReactNode
   onImgChange?: (imgUrl: string, file: File) => void
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void
   disabled?: boolean
+  width?: string
 }) {
   const fileRef = useRef<HTMLInputElement>(null)
   const onClick = () => fileRef.current?.click()
@@ -30,7 +32,7 @@ export default function FileInput({
     <>
       <div
         onClick={disabled ? undefined : onClick}
-        style={{ cursor: disabled ? 'default' : 'pointer', width: 'fit-content' }}
+        style={{ cursor: disabled ? 'default' : 'pointer', width: width || 'fit-content' }}
       >
         {children}
       </div>
