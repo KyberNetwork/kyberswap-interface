@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 import { Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import {
+  PoolEarningWithDetails,
   PositionEarningWithDetails,
   useGetElasticEarningQuery,
   useGetElasticLegacyEarningQuery,
@@ -15,9 +16,11 @@ import { NETWORKS_INFO, SUPPORTED_NETWORKS_FOR_MY_EARNINGS } from 'constants/net
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
+import { usePositionsFees } from 'hooks/usePositionsFees'
 import useTheme from 'hooks/useTheme'
-import SinglePool, { Props as SinglePoolProps } from 'pages/MyEarnings/ElasticPools/SinglePool'
+import SinglePool from 'pages/MyEarnings/ElasticPools/SinglePool'
 import { useAppSelector } from 'state/hooks'
+import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 
 const chainIdByRoute: Record<string, ChainId> = SUPPORTED_NETWORKS_FOR_MY_EARNINGS.map(chainId => ({
   route: NETWORKS_INFO[chainId].aggregatorRoute,
@@ -53,6 +56,12 @@ const getPositionEarningsByPoolId = (
   }, {} as Record<string, PositionEarningWithDetails[]>)
 }
 
+interface PoolType {
+  chainId: ChainId
+  poolEarning: PoolEarningWithDetails
+  positionEarnings: PositionEarningWithDetails[]
+}
+
 const ElasticPools = () => {
   const { account = '' } = useActiveWeb3React()
   const theme = useTheme()
@@ -79,7 +88,7 @@ const ElasticPools = () => {
 
   const isLoading = elasticEarningQueryResponse.isFetching || elasticLegacyEarningQueryResponse.isFetching
 
-  const pools: SinglePoolProps[] = useMemo(() => {
+  const pools: PoolType[] = useMemo(() => {
     if (!earningResponse) {
       return []
     }
@@ -149,6 +158,15 @@ const ElasticPools = () => {
     )
   }
 
+  const poolsByChainId = pools.reduce((acc, cur) => {
+    if (!acc[cur.chainId]) {
+      acc[cur.chainId] = [cur]
+    } else {
+      acc[cur.chainId].push(cur)
+    }
+    return acc
+  }, {} as { [id: string]: Array<PoolType> })
+
   return (
     <Flex
       sx={{
@@ -156,6 +174,24 @@ const ElasticPools = () => {
         gap: '24px',
       }}
     >
+      {Object.keys(poolsByChainId).map(chain => (
+        <PoolsByChainId pools={poolsByChainId[chain]} key={chain} chainId={Number(chain) as ChainId} />
+      ))}
+    </Flex>
+  )
+}
+
+const PoolsByChainId = ({ pools, chainId }: { chainId: ChainId; pools: PoolType[] }) => {
+  const allPositions = pools
+    .map(p => p.positionEarnings.map(pe => ({ id: pe.id, poolAddress: pe.pool.id })).flat())
+    .flat()
+
+  const pendingFees = usePositionsFees(allPositions, chainId)
+  const tokens = [...new Set(pools.map(p => p.positionEarnings.map(pe => [pe.token0, pe.token1]).flat()).flat())]
+  const { data: tokenPrices } = useTokenPricesWithLoading(tokens, chainId)
+
+  return (
+    <>
       {pools.map(pool => {
         return (
           <SinglePool
@@ -163,10 +199,12 @@ const ElasticPools = () => {
             poolEarning={pool.poolEarning}
             chainId={pool.chainId}
             positionEarnings={pool.positionEarnings}
+            pendingFees={pendingFees}
+            tokenPrices={tokenPrices}
           />
         )
       })}
-    </Flex>
+    </>
   )
 }
 

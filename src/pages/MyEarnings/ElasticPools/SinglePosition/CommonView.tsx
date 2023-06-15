@@ -27,6 +27,8 @@ export type CommonProps = {
   positionEarning: PositionEarningWithDetails
   position: Position
   chainId: ChainId
+  pendingFee: [string, string]
+  tokenPrices: { [id: string]: number }
 }
 
 type Props = {

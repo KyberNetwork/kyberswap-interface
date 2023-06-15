@@ -1,26 +1,24 @@
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { Flex, Text } from 'rebass'
 
 import { ButtonPrimary } from 'components/Button'
+import CurrencyLogo from 'components/CurrencyLogo'
 import { formatUSDValue } from 'components/EarningAreaChart/utils'
-import Logo from 'components/Logo'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import HoverDropdown from 'pages/MyEarnings/HoverDropdown'
 import { formattedNumLong } from 'utils'
 
 type Props = {
-  feesEarnedTodayUSD: number
-  feesEarnedTokens: Array<{
-    logoUrl: string
-    amount: number
-    symbol: string
-  }>
-  disabled: boolean
+  feeReward0: CurrencyAmount<Currency>
+  feeReward1: CurrencyAmount<Currency>
+  feeUsd: number
 }
-const CollectFeesPanel: React.FC<Props> = ({ feesEarnedTodayUSD, feesEarnedTokens, disabled }) => {
+const CollectFeesPanel: React.FC<Props> = ({ feeUsd, feeReward0, feeReward1 }) => {
   const theme = useTheme()
+  const disabled = !(feeReward0?.greaterThan(0) || feeReward1?.greaterThan(0))
 
   return (
     <Flex
@@ -61,13 +59,13 @@ const CollectFeesPanel: React.FC<Props> = ({ feesEarnedTodayUSD, feesEarnedToken
         <HoverDropdown
           anchor={
             <Text as="span" fontSize="16px" fontWeight={500} lineHeight={'20px'}>
-              {formatUSDValue(feesEarnedTodayUSD, true)}
+              {formatUSDValue(feeUsd, true)}
             </Text>
           }
-          disabled={!feesEarnedTokens.length}
+          disabled={disabled}
           text={
             <>
-              {feesEarnedTokens.map((token, index) => (
+              {[feeReward0, feeReward1].map((fee, index) => (
                 <Flex
                   alignItems="center"
                   key={index}
@@ -75,9 +73,9 @@ const CollectFeesPanel: React.FC<Props> = ({ feesEarnedTodayUSD, feesEarnedToken
                     gap: '4px',
                   }}
                 >
-                  <Logo srcs={[token.logoUrl]} style={{ flex: '0 0 16px', height: '16px', borderRadius: '999px' }} />
+                  <CurrencyLogo currency={fee.currency} />
                   <Text fontSize={12}>
-                    {formattedNumLong(token.amount, false)} {token.symbol}
+                    {formattedNumLong(+fee.toExact(), false)} {fee.currency.symbol}
                   </Text>
                 </Flex>
               ))}

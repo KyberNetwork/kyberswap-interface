@@ -291,7 +291,14 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
               }}
             />
 
-            <Positions positionEarnings={positionEarnings} chainId={chainId} pool={pool} />
+            <Positions
+              positionEarnings={positionEarnings}
+              chainId={chainId}
+              pool={pool}
+              //  TODO(viet-nv): update
+              pendingFees={{}}
+              tokenPrices={{}}
+            />
           </>
         )}
       </Flex>

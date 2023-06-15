@@ -1,4 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { useMemo, useState } from 'react'
 import { Flex } from 'rebass'
@@ -39,8 +40,10 @@ type Props = {
   chainId: ChainId
   positionEarning: PositionEarningWithDetails
   pool: Pool | undefined
+  pendingFee: [string, string]
+  tokenPrices: { [key: string]: number }
 }
-const SinglePosition: React.FC<Props> = ({ positionEarning, chainId, pool }) => {
+const SinglePosition: React.FC<Props> = ({ positionEarning, chainId, pool, pendingFee, tokenPrices }) => {
   const [isFlipped, setFlipped] = useState(false)
 
   const position = useMemo(() => {
@@ -69,6 +72,8 @@ const SinglePosition: React.FC<Props> = ({ positionEarning, chainId, pool }) => 
     positionEarning: positionEarning,
     onFlipView: toggleFlipped,
     position,
+    pendingFee,
+    tokenPrices
   }
 
   return (
