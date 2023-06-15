@@ -20,7 +20,7 @@ export type EarningStatsTick = {
   day: number
   date: string
   totalValue: number
-  poolRewardsValue: number
+  poolFeesValue: number
   farmRewardsValue: number
   tokens: Array<{
     chainId: ChainId

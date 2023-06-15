@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { darken, rgba } from 'polished'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -25,16 +25,29 @@ const formatTokenAmount = (a: number) => {
 }
 
 type TokensProps = {
-  tokens: Array<{
-    logoUrl: string
-    amount: number
-  }>
+  tokens: EarningStatsTick['tokens']
 }
 
 const Tokens: React.FC<TokensProps> = ({ tokens }) => {
+  const theme = useTheme()
+  const { visibleTokens, hasOthers } = useMemo(() => {
+    let visibleTokens = [...tokens]
+    let hasOthers = false
+
+    if (visibleTokens.length > 5) {
+      visibleTokens = visibleTokens.slice(0, 5)
+      hasOthers = true
+    }
+
+    return {
+      visibleTokens,
+      hasOthers,
+    }
+  }, [tokens])
+
   return (
     <TokensWrapper>
-      {tokens.map((token, i) => {
+      {visibleTokens.map((token, i) => {
         return (
           <Flex
             key={i}
@@ -57,6 +70,27 @@ const Tokens: React.FC<TokensProps> = ({ tokens }) => {
           </Flex>
         )
       })}
+
+      {hasOthers && (
+        <Flex
+          alignItems="center"
+          sx={{
+            gap: '4px',
+          }}
+        >
+          <Flex sx={{ width: 16, height: 16, borderRadius: '999px', bg: theme.subText }} />
+          <Text
+            as="span"
+            sx={{
+              fontWeight: 400,
+              fontSize: '12px',
+              lineHeight: '14px',
+            }}
+          >
+            <Trans>Others</Trans>
+          </Text>
+        </Flex>
+      )}
     </TokensWrapper>
   )
 }
@@ -117,7 +151,7 @@ const TooltipContent: React.FC<Props> = ({ dataEntry, setHoverValue }) => {
           whiteSpace: 'nowrap',
         }}
       >
-        <Trans>Pool Rewards</Trans>: <span>{formatUSDValue(dataEntry.poolRewardsValue)}</span>
+        <Trans>Pool Fees</Trans>: <span>{formatUSDValue(dataEntry.poolFeesValue)}</span>
       </Text>
 
       <Text

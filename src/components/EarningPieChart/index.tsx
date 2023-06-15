@@ -216,6 +216,7 @@ const LoadingData = [
 const EarningPieChart: React.FC<Props> = ({ data, totalValue = '', className, isLoading = false }) => {
   const [selectedIndex, setSelectedIndex] = useState<number>(-1)
   const [isHoveringChart, setHoveringChart] = useState(false)
+  const theme = useTheme()
 
   const chartData = useMemo(() => {
     if (isLoading || !data) {
@@ -227,7 +228,7 @@ const EarningPieChart: React.FC<Props> = ({ data, totalValue = '', className, is
         {
           title: 'empty',
           value: 100,
-          color: '#95a5a6',
+          color: theme.subText,
         },
       ]
     }
@@ -241,7 +242,7 @@ const EarningPieChart: React.FC<Props> = ({ data, totalValue = '', className, is
         color,
       }
     })
-  }, [data, selectedIndex, isLoading])
+  }, [isLoading, data, theme.subText, selectedIndex])
 
   const legendData: Array<DataEntry & { color: string }> = useMemo(() => {
     if (isLoading || !data) {

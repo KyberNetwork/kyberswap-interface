@@ -80,7 +80,7 @@ const fillHistoricalEarningsForTicks = (ticks: EarningStatsTick[] | undefined): 
       return {
         day,
         date: dayjs(day * 86400 * 1000).format('MMM DD'),
-        poolRewardsValue: 0,
+        poolFeesValue: 0,
         farmRewardsValue: 0,
         totalValue: 0,
         tokens: [],
@@ -97,7 +97,7 @@ const fillHistoricalEarningsForTicks = (ticks: EarningStatsTick[] | undefined): 
     results.push({
       day: i,
       date: dayjs(i * 86400 * 1000).format('MMM DD'),
-      poolRewardsValue: 0,
+      poolFeesValue: 0,
       farmRewardsValue: 0,
       totalValue: 0,
       tokens: [],
@@ -108,7 +108,7 @@ const fillHistoricalEarningsForTicks = (ticks: EarningStatsTick[] | undefined): 
     results.unshift({
       day: i,
       date: dayjs(i * 86400 * 1000).format('MMM DD'),
-      poolRewardsValue: latestTick.poolRewardsValue,
+      poolFeesValue: latestTick.poolFeesValue,
       farmRewardsValue: latestTick.farmRewardsValue,
       totalValue: latestTick.totalValue,
       tokens: cloneDeep(latestTick.tokens),
@@ -134,7 +134,7 @@ export const calculateEarningStatsTick = (
   data: HistoricalEarning['historicalEarning'],
   chainId: ChainId,
   tokensByChainId: TokenAddressMap,
-) => {
+): EarningStatsTick[] | undefined => {
   if (!data?.length) {
     return undefined
   }
@@ -146,7 +146,7 @@ export const calculateEarningStatsTick = (
     const tick: EarningStatsTick = {
       day: singlePointData.day,
       date: dayjs(singlePointData.day * 86400 * 1000).format('MMM DD'),
-      poolRewardsValue: poolRewardsValueUSD,
+      poolFeesValue: poolRewardsValueUSD,
       farmRewardsValue: farmRewardsValueUSD,
       totalValue: poolRewardsValueUSD + farmRewardsValueUSD,
       tokens: (singlePointData.total || [])
@@ -171,7 +171,7 @@ export const calculateEarningStatsTick = (
             chainId,
           }
         })
-        .sort((tokenEarning1, tokenEarning2) => tokenEarning2.amount - tokenEarning1.amount),
+        .sort((tokenEarning1, tokenEarning2) => tokenEarning2.amountUSD - tokenEarning1.amountUSD),
     }
 
     return tick
@@ -184,7 +184,7 @@ export const calculateEarningStatsTick = (
       ticks.unshift({
         day: i,
         date: dayjs(i * 86400 * 1000).format('MMM DD'),
-        poolRewardsValue: 0,
+        poolFeesValue: 0,
         farmRewardsValue: 0,
         totalValue: 0,
         tokens: [],
@@ -418,7 +418,7 @@ export const calculateTicksOfAccountEarningsInMultipleChains = (
         const tick: EarningStatsTick = {
           day: singleDataPoint.day,
           date: dayjs(singleDataPoint.day * 86400 * 1000).format('MMM DD'),
-          poolRewardsValue: poolRewardsValueUSD,
+          poolFeesValue: poolRewardsValueUSD,
           farmRewardsValue: farmRewardsValueUSD,
           totalValue: poolRewardsValueUSD + farmRewardsValueUSD,
           tokens: (singleDataPoint.total || [])
@@ -456,7 +456,7 @@ export const calculateTicksOfAccountEarningsInMultipleChains = (
         } else {
           byDay[day] = produce(byDay[day], draft => {
             draft.farmRewardsValue += tick.farmRewardsValue
-            draft.poolRewardsValue += tick.poolRewardsValue
+            draft.poolFeesValue += tick.poolFeesValue
             draft.totalValue += tick.totalValue
             draft.tokens.push(...tick.tokens)
           })
