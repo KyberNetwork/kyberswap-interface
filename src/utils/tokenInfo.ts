@@ -86,13 +86,13 @@ export const getTokenSymbolWithHardcode = (
   address: string | undefined,
   defaultSymbol: string | undefined,
 ) => {
+  const formatAddress = address?.toLowerCase()
   if (
-    (chainId === ChainId.OPTIMISM &&
-      address?.toLowerCase() === '0x4518231a8fdf6ac553b9bbd51bbb86825b583263'.toLowerCase()) ||
-    (chainId === ChainId.ARBITRUM &&
-      address?.toLowerCase() === '0x316772cFEc9A3E976FDE42C3Ba21F5A13aAaFf12'.toLowerCase())
+    (chainId === ChainId.OPTIMISM && formatAddress === '0x4518231a8fdf6ac553b9bbd51bbb86825b583263'.toLowerCase()) ||
+    (chainId === ChainId.ARBITRUM && formatAddress === '0x316772cFEc9A3E976FDE42C3Ba21F5A13aAaFf12'.toLowerCase())
   ) {
     return 'mKNC'
   }
+  if (chainId === ChainId.ARBITRUM && formatAddress === '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8') return 'USDC.e'
   return defaultSymbol ?? ''
 }
