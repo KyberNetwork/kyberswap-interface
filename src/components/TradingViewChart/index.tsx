@@ -12,7 +12,7 @@ import useTheme from 'hooks/useTheme'
 import { useUserLocale } from 'state/user/hooks'
 import { openFullscreen } from 'utils/index'
 
-import { ChartingLibraryWidgetOptions, LanguageCode, ResolutionString, Timezone } from './charting_library'
+import { ChartingLibraryWidgetOptions, LanguageCode, ResolutionString } from './charting_library'
 import { useDatafeed } from './datafeed'
 import { getTradingViewTimeZone } from './utils'
 
@@ -146,7 +146,7 @@ function ProLiveChart({
         { text: '1w', resolution: '1H' as ResolutionString, description: '1 Week' },
         { text: '1d', resolution: '15' as ResolutionString, description: '1 Day' },
       ],
-      timezone: getTradingViewTimeZone() as Timezone,
+      timezone: getTradingViewTimeZone(),
       auto_save_delay: 2,
       saved_data: localStorageState,
     }

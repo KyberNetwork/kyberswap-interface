@@ -1,12 +1,14 @@
+import { Timezone } from './charting_library/charting_library'
+
 export function getTradingViewTimeZone() {
   const offsetInHours = (new Date().getTimezoneOffset() / 60) * -1
   const tradingViewTimeZone = Object.keys(tradingViewTimeZones).find(
     timeZone => tradingViewTimeZones[timeZone] === offsetInHours,
   )
   if (!tradingViewTimeZone) {
-    return 'Etc/UTC'
+    return 'Etc/UTC' as Timezone
   }
-  return tradingViewTimeZone
+  return tradingViewTimeZone as Timezone
 }
 
 const tradingViewTimeZones: { [key: string]: number } = {

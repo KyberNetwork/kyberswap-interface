@@ -11,7 +11,6 @@ import {
   ResolutionString,
   ResolveCallback,
   SubscribeBarsCallback,
-  Timezone,
 } from './charting_library'
 import { getTradingViewTimeZone } from './utils'
 
@@ -53,7 +52,7 @@ export const useDatafeed = (poolDetail: PoolResponse, isReverse: boolean, label:
             description: label,
             type: 'crypto',
             session: '24x7',
-            timezone: getTradingViewTimeZone() as Timezone,
+            timezone: getTradingViewTimeZone(),
             exchange: '',
             minmov: 1,
             pricescale: 10000,

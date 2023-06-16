@@ -9,7 +9,6 @@ import {
   ResolutionString,
   ResolveCallback,
   SubscribeBarsCallback,
-  Timezone,
 } from 'components/TradingViewChart/charting_library'
 import { getTradingViewTimeZone } from 'components/TradingViewChart/utils'
 import { useLazyChartingDataQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
@@ -58,7 +57,7 @@ export const useDatafeed = (isBTC: boolean, token?: ITokenOverview) => {
             description: chartName,
             type: 'crypto',
             session: '24x7',
-            timezone: getTradingViewTimeZone() as Timezone,
+            timezone: getTradingViewTimeZone(),
             exchange: '',
             minmov: 1,
             pricescale: isBTC ? pricescale * 10000 : pricescale,

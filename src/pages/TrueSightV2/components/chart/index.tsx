@@ -34,7 +34,6 @@ import {
   IChartingLibraryWidget,
   LanguageCode,
   ResolutionString,
-  Timezone,
 } from 'components/TradingViewChart/charting_library'
 import { getTradingViewTimeZone } from 'components/TradingViewChart/utils'
 import { useActiveWeb3React } from 'hooks'
@@ -2659,7 +2658,7 @@ export const Prochart = ({
       locale: (userLocale ? userLocale.slice(0, 2) : 'en') as LanguageCode,
       auto_save_delay: 2,
       saved_data: localStorageState,
-      timezone: getTradingViewTimeZone() as Timezone,
+      timezone: getTradingViewTimeZone(),
     }
     const tvWidget = new window.TradingView.widget(widgetOptions)
 
