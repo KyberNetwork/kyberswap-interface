@@ -4,12 +4,19 @@ import { coinbaseWallet, walletConnectV2 } from 'constants/connectors/evm'
 
 export const getIsInjected = () => Boolean(window.ethereum)
 
-type NonMetaMaskFlag = 'isRabby' | 'isBraveWallet' | 'isTrustWallet' | 'isLedgerConnect'
-const allNonMetamaskFlags: NonMetaMaskFlag[] = ['isRabby', 'isBraveWallet', 'isTrustWallet', 'isLedgerConnect']
+type NonMetaMaskFlag = 'isRabby' | 'isBraveWallet' | 'isTrustWallet' | 'isLedgerConnect' | 'isCoin98'
+const allNonMetamaskFlags: NonMetaMaskFlag[] = [
+  'isRabby',
+  'isBraveWallet',
+  'isTrustWallet',
+  'isLedgerConnect',
+  'isCoin98',
+]
 export const getIsMetaMaskWallet = () =>
   Boolean(window.ethereum?.isMetaMask && !allNonMetamaskFlags.some(flag => window.ethereum?.[flag]))
 
-export const getIsCoinbaseWallet = () => Boolean(window.ethereum?.isCoinbaseWallet)
+export const getIsCoinbaseWallet = () =>
+  Boolean(window.ethereum?.isCoinbaseWallet || window.ethereum?.providers?.some(p => p?.isCoinbaseWallet))
 
 // https://eips.ethereum.org/EIPS/eip-1193#provider-errors
 export enum ErrorCode {

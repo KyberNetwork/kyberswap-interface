@@ -34,14 +34,11 @@ import {
   slopeAdapter,
   solflareAdapter,
 } from 'constants/connectors/solana'
-import { getIsMetaMaskWallet } from 'constants/connectors/utils'
+import { getIsCoinbaseWallet, getIsMetaMaskWallet } from 'constants/connectors/utils'
 import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
 const detectMetamask = (): WalletReadyState => {
-  if (!window.ethereum) return WalletReadyState.NotDetected
-
   if (getIsMetaMaskWallet()) return WalletReadyState.Installed
-  if (isMobile) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }
 
@@ -58,10 +55,9 @@ const detectCoin98 = (): WalletReadyState => {
 }
 
 const detectCoinbase = (): WalletReadyState => {
-  if (isMobile) return WalletReadyState.Unsupported
+  if (isMobile) return WalletReadyState.NotDetected
   // in NotDetected case, Coinbase show install link itself
-  if (window.ethereum?.isCoinbaseWallet || window.ethereum?.providers?.some(p => p?.isCoinbaseWallet))
-    return WalletReadyState.Installed
+  if (getIsCoinbaseWallet()) return WalletReadyState.Installed
   if (window.coinbaseWalletExtension) return WalletReadyState.Loadable
   return WalletReadyState.NotDetected
 }
@@ -71,15 +67,15 @@ const detectCoinBaseLink = (): WalletReadyState => {
   return WalletReadyState.Unsupported
 }
 
+const detectTrustWallet = (): WalletReadyState => {
+  if (window.ethereum?.isTrustWallet) return WalletReadyState.Installed
+  return WalletReadyState.NotDetected
+}
+
 const detectPhantomWallet = (): WalletReadyState => {
   // On Brave browser disable phantom
   if (window.solana?.isPhantom && window.solana?.isBraveWallet) return WalletReadyState.NotDetected
   return phantomAdapter.readyState
-}
-const detectTrustWallet = (): WalletReadyState => {
-  if (!window.ethereum) return WalletReadyState.Unsupported
-  if (window.ethereum?.isTrustWallet) return WalletReadyState.Installed
-  return WalletReadyState.NotDetected
 }
 
 export interface WalletInfo {
