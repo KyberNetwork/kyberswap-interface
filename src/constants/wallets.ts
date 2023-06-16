@@ -38,52 +38,46 @@ import {
   slopeAdapter,
   solflareAdapter,
 } from 'constants/connectors/solana'
-import { getIsCoinbaseWallet, getIsMetaMaskWallet } from 'constants/connectors/utils'
-import checkForBraveBrowser from 'utils/checkForBraveBrowser'
+import {
+  getIsBraveWallet,
+  getIsC98Wallet,
+  getIsCoinbaseWallet,
+  getIsGenericInjector,
+  getIsMetaMaskWallet,
+  getIsTrustWallet,
+} from 'constants/connectors/utils'
 
 const detectInjected = (): WalletReadyState => {
-  if (isMobile) {
-    if (window.ethereum) return WalletReadyState.Installed
-    return WalletReadyState.NotDetected
-  }
+  // used in mobile dapp
+  if (getIsGenericInjector()) return WalletReadyState.Installed
   return WalletReadyState.Unsupported
 }
 
 const detectMetamask = (): WalletReadyState => {
-  if (isMobile) {
-    return WalletReadyState.Unsupported
-  }
   if (getIsMetaMaskWallet()) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }
 
 const detectBrave = (): WalletReadyState => {
   //todo known issue: fail connect on mobile solana
-  if (checkForBraveBrowser() && window.ethereum?.isBraveWallet) return WalletReadyState.Installed
+  if (getIsBraveWallet()) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }
 
 const detectCoin98 = (): WalletReadyState => {
-  if (isMobile) return WalletReadyState.Unsupported // show metamask as injected option instead
-  if (window.ethereum && window.coin98) return WalletReadyState.Installed
+  if (getIsC98Wallet()) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }
 
 const detectCoinbase = (): WalletReadyState => {
-  if (isMobile) return WalletReadyState.NotDetected
-  // in NotDetected case, Coinbase show install link itself
   if (getIsCoinbaseWallet()) return WalletReadyState.Installed
+  // in NotDetected case, Coinbase show install link itself
   if (window.coinbaseWalletExtension) return WalletReadyState.Loadable
   return WalletReadyState.NotDetected
 }
 
-const detectCoinBaseLink = (): WalletReadyState => {
-  if (isMobile) return WalletReadyState.Loadable
-  return WalletReadyState.Unsupported
-}
-
 const detectTrustWallet = (): WalletReadyState => {
-  if (window.ethereum?.isTrustWallet) return WalletReadyState.Installed
+  if (getIsTrustWallet()) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }
 
@@ -165,14 +159,6 @@ export const SUPPORTED_WALLETS = {
     readyState: detectCoinbase,
     readyStateSolana: () => (isMobile ? WalletReadyState.Unsupported : coinbaseAdapter.readyState),
   } as EVMWalletInfo & SolanaWalletInfo,
-  COINBASE_LINK: {
-    // To get this link: go to Coinbase app -> Dapp Browser -> go to dmm.exchange -> click "..." button -> share -> copy link
-    href: 'https://go.cb-w.com/S7mannYpWjb',
-    name: 'Coinbase Wallet',
-    icon: COINBASE,
-    iconLight: COINBASE,
-    readyState: detectCoinBaseLink,
-  } as EVMWalletInfo,
   WALLET_CONNECT: {
     connector: walletConnectV2,
     hooks: walletConnectV2Hooks,
@@ -212,7 +198,7 @@ export const SUPPORTED_WALLETS = {
     name: 'Trust Wallet',
     icon: TRUSTWALLET,
     iconLight: TRUSTWALLET,
-    installLink: 'https://trustwallet.com/vi/deeplink/',
+    installLink: 'https://trustwallet.com/vi/deeplink',
     readyState: detectTrustWallet,
   } as EVMWalletInfo,
 } as const

@@ -1,6 +1,7 @@
 import { Connector } from '@web3-react/types'
 
 import { coinbaseWallet, walletConnectV2 } from 'constants/connectors/evm'
+import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
 export const getIsInjected = () => Boolean(window.ethereum)
 
@@ -17,6 +18,20 @@ export const getIsMetaMaskWallet = () =>
 
 export const getIsCoinbaseWallet = () =>
   Boolean(window.ethereum?.isCoinbaseWallet || window.ethereum?.providers?.some(p => p?.isCoinbaseWallet))
+
+export const getIsBraveWallet = () => Boolean(checkForBraveBrowser() && window.ethereum?.isBraveWallet)
+
+export const getIsC98Wallet = () => Boolean(window.ethereum?.isCoin98 && window.coin98)
+
+export const getIsTrustWallet = () => Boolean(window.ethereum?.isTrustWallet)
+
+export const getIsGenericInjector = () =>
+  getIsInjected() &&
+  !getIsMetaMaskWallet() &&
+  !getIsCoinbaseWallet() &&
+  !getIsBraveWallet() &&
+  !getIsC98Wallet() &&
+  !getIsTrustWallet()
 
 // https://eips.ethereum.org/EIPS/eip-1193#provider-errors
 export enum ErrorCode {
