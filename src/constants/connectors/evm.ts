@@ -48,6 +48,7 @@ export const [walletConnectV2, walletConnectV2Hooks] = initializeConnector<Walle
       },
     }),
 )
+walletConnectV2.provider?.on('chainChanged', () => window.location.reload())
 
 export const [coinbaseWallet, coinbaseWalletHooks] = initializeConnector<CoinbaseWallet>(
   actions =>
