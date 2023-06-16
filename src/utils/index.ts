@@ -539,3 +539,13 @@ export function openFullscreen(elem: any) {
     elem.msRequestFullscreen()
   }
 }
+
+export const downloadImgFromBlog = (blob: Blob | undefined, filename: string) => {
+  if (!blob) return
+  const link = document.createElement('a')
+  link.download = filename
+  link.href = URL.createObjectURL(blob)
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}

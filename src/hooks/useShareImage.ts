@@ -31,14 +31,13 @@ const useShareImage = () => {
               metaImageURL: imageUrl,
             }).unwrap()
             return resolve({ imageUrl, blob })
-          } else {
-            const shareUrl = await createShareLink({
-              metaImageURL: imageUrl,
-              redirectURL: window.location.href,
-              type,
-            }).unwrap()
-            return shareUrl ? resolve({ shareUrl, imageUrl, blob }) : reject()
           }
+          const shareUrl = await createShareLink({
+            metaImageURL: imageUrl,
+            redirectURL: window.location.href,
+            type,
+          }).unwrap()
+          return shareUrl ? resolve({ shareUrl, imageUrl, blob }) : reject()
         }, 'image/png')
       })
     },

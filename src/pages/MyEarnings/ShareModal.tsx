@@ -25,6 +25,7 @@ import useShareImage from 'hooks/useShareImage'
 import useTheme from 'hooks/useTheme'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { ButtonText, MEDIA_WIDTHS } from 'theme'
+import { downloadImgFromBlog } from 'utils'
 import { getProxyTokenLogo } from 'utils/tokenInfo'
 
 const formatValue = (num: number, isSharePc: boolean) => {
@@ -173,12 +174,16 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
     if (!ref.current || loading.current) return
     try {
       loading.current = true
-      const canvas: HTMLCanvasElement = await html2canvas(ref.current)
+      const canvas: HTMLCanvasElement = await html2canvas(ref.current, {
+        allowTaint: true,
+        useCORS: true,
+      })
       if (!canvas) return
-      const link = document.createElement('a')
-      link.download = 'your_earning.png'
-      link.href = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream')
-      link.click()
+
+      canvas.toBlob(async blob => {
+        if (!blob) throw new Error()
+        downloadImgFromBlog(blob, 'your_earning.png')
+      })
     } catch (error) {
       console.error(error)
     } finally {
