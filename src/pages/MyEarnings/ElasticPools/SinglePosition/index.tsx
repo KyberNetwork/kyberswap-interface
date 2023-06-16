@@ -1,5 +1,4 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { useMemo, useState } from 'react'
 import { Flex } from 'rebass'
@@ -73,7 +72,7 @@ const SinglePosition: React.FC<Props> = ({ positionEarning, chainId, pool, pendi
     onFlipView: toggleFlipped,
     position,
     pendingFee,
-    tokenPrices
+    tokenPrices,
   }
 
   return (
