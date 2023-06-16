@@ -38,10 +38,8 @@ import { getIsMetaMaskWallet } from 'constants/connectors/utils'
 import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
 const detectMetamask = (): WalletReadyState => {
-  if (!window.ethereum) {
-    return isMobile ? WalletReadyState.Unsupported : WalletReadyState.NotDetected
-  }
-  // In Brave browser, by default ethereum.isMetaMask and ethereum.isBraveWallet is true even Metamask not installed
+  if (!window.ethereum) return WalletReadyState.NotDetected
+
   if (getIsMetaMaskWallet()) return WalletReadyState.Installed
   if (isMobile) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
@@ -54,7 +52,7 @@ const detectBrave = (): WalletReadyState => {
 }
 
 const detectCoin98 = (): WalletReadyState => {
-  if (isMobile) return WalletReadyState.Unsupported
+  if (isMobile) return WalletReadyState.Unsupported // show metamask as injected option instead
   if (window.ethereum && window.coin98) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }
