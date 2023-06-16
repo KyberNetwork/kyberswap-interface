@@ -31,7 +31,7 @@ export default function useValidateInput({
 }) {
   const { loadingToken, listTokenIn, listTokenOut, currencyIn, chainIdOut, currencyOut } = useDefaultTokenChain()
   const balance = useCurrencyBalance(currencyIn)
-  const { chainId } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
   const { isEnoughEth } = useIsEnoughGas(route)
   const { amountUsdIn } = getRouInfo(route)
   const showErrorGas = !isEnoughEth && route
@@ -67,7 +67,7 @@ export default function useValidateInput({
 
     if (balance?.lessThan(parseAmount)) return { state: 'warn', tip: t`Insufficient ${currencyIn?.symbol} balance` }
 
-    if (showErrorGas) {
+    if (showErrorGas && account) {
       return {
         state: 'warn',
         tip: t`You do not have enough ${NativeCurrencies[chainId].symbol} to cover the estimated gas for this transaction.`,
@@ -88,6 +88,7 @@ export default function useValidateInput({
     errorGetRoute,
     amountUsdIn,
     isTokenSupport,
+    account,
   ])
   return inputError
 }

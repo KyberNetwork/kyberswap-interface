@@ -306,7 +306,7 @@ export function TradeSummaryCrossChain({
 }) {
   const theme = useTheme()
   const navigate = useNavigate()
-  const { chainId } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
 
   const [show, setShow] = useState(true)
   const { duration, minReceive, priceImpact, totalFeeUsd, gasFeeUsd, crossChainFeeUsd } = getRouInfo(route)
@@ -314,7 +314,7 @@ export function TradeSummaryCrossChain({
   const nativeToken = NativeCurrencies[chainId]
   const { isEnoughEth, gasFee, crossChainFee } = useIsEnoughGas(route)
 
-  const enoughGasFee = !route ? true : isEnoughEth
+  const enoughGasFee = !route || !account ? true : isEnoughEth
 
   const colorGasFee = enoughGasFee ? theme.subText : theme.warning
 
