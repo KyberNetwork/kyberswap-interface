@@ -70,7 +70,7 @@ export function useEagerConnect() {
         ])
         if (!activated) {
           if (isMobile && window.ethereum) {
-            await tryActivation('METAMASK', true)
+            await tryActivation('INJECTED', true)
           }
         }
       } catch (e) {

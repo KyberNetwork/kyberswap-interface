@@ -8,6 +8,7 @@ import { WalletConnect as WalletConnectV2 } from '@web3-react/walletconnect-v2'
 import { WALLETCONNECT_PROJECT_ID } from 'constants/env'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS, WALLET_CONNECT_SUPPORTED_CHAIN_IDS } from 'constants/networks'
 
+export const [injected, injectedHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
 export const [metaMask, metamaskHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
 export const [coin98, coin98Hooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
 export const [brave, braveHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))

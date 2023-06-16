@@ -12,6 +12,8 @@ import SLOPE from 'assets/wallets-connect/slope.svg'
 import SOLFLARE from 'assets/wallets-connect/solflare.svg'
 import TRUSTWALLET from 'assets/wallets-connect/trust-wallet.svg'
 import WALLETCONNECT from 'assets/wallets-connect/wallet-connect.svg'
+import INJECTED_DARK_ICON from 'assets/wallets/browser-wallet-dark.svg'
+import INJECTED_LIGHT_ICON from 'assets/wallets/browser-wallet-light.svg'
 import {
   brave,
   braveHooks,
@@ -19,6 +21,8 @@ import {
   coin98Hooks,
   coinbaseWallet,
   coinbaseWalletHooks,
+  injected,
+  injectedHooks,
   metaMask,
   metamaskHooks,
   trustWallet,
@@ -37,10 +41,17 @@ import {
 import { getIsCoinbaseWallet, getIsMetaMaskWallet } from 'constants/connectors/utils'
 import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
-const detectMetamask = (): WalletReadyState => {
+const detectInjected = (): WalletReadyState => {
   if (isMobile) {
     if (window.ethereum) return WalletReadyState.Installed
     return WalletReadyState.NotDetected
+  }
+  return WalletReadyState.Unsupported
+}
+
+const detectMetamask = (): WalletReadyState => {
+  if (isMobile) {
+    return WalletReadyState.Unsupported
   }
   if (getIsMetaMaskWallet()) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
@@ -102,6 +113,15 @@ export interface SolanaWalletInfo extends WalletInfo {
 }
 
 export const SUPPORTED_WALLETS = {
+  INJECTED: {
+    connector: injected,
+    hooks: injectedHooks,
+    name: 'Browser Wallet',
+    icon: INJECTED_DARK_ICON,
+    iconLight: INJECTED_LIGHT_ICON,
+    installLink: 'https://metamask.io/download',
+    readyState: detectInjected,
+  } as EVMWalletInfo,
   METAMASK: {
     connector: metaMask,
     hooks: metamaskHooks,
