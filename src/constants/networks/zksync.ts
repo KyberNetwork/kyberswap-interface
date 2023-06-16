@@ -62,8 +62,8 @@ const zkSyncInfo: EVMNetworkInfo = {
     farms: [],
   },
   limitOrder: {
-    development: '',
-    production: '',
+    development: NOT_SUPPORT,
+    production: NOT_SUPPORT,
   },
   averageBlockTimeInSeconds: 15,
   coingeckoNetworkId: 'zksync-ethereum',
