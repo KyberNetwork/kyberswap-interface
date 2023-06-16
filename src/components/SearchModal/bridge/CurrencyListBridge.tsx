@@ -47,7 +47,10 @@ const CurrencyListBridge = memo(function CurrencyListV2({
       const isSelected = isOutput
         ? tokenInfoOut?.sortId === currency?.multichainInfo?.sortId
         : selectedCurrency?.equals(currency)
-      const handleSelect = () => onCurrencySelect(currency)
+      const handleSelect = () => {
+        console.log({ currency })
+        onCurrencySelect(currency)
+      }
       const { symbol } = getDisplayTokenInfo(currency)
       const { sortId, type, anytoken } = (currency?.multichainInfo || {}) as Partial<MultiChainTokenInfo>
       const poolLiquidity = isOutput ? formatPoolValue(poolValueOutMap?.[anytoken?.address ?? '']) : undefined
