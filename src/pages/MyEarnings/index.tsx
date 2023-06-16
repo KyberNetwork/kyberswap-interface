@@ -5,6 +5,7 @@ import { useActiveWeb3React } from 'hooks'
 import MyEarningStats from 'pages/MyEarnings/MyEarningStats'
 import Placeholder from 'pages/MyEarnings/Placeholder'
 import Pools from 'pages/MyEarnings/Pools'
+import FarmUpdater from 'state/farms/elastic/updaters'
 
 const PageWrapper = styled.div`
   width: 100%;
@@ -57,6 +58,7 @@ const MyEarnings = () => {
           <Placeholder />
         )}
       </Flex>
+      <FarmUpdater interval={false} />
     </PageWrapper>
   )
 }
