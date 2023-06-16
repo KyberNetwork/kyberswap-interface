@@ -69,6 +69,15 @@ const FeeWrapper = styled.div<{ mobile: boolean }>`
 const Content = styled.div<{ width: string }>`
   position: relative;
   width: ${({ width }) => width};
+  overflow-y: scroll;
+  overflow-x: hidden;
+  &::-webkit-scrollbar {
+    display: block;
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: ${({ theme }) => theme.border};
+  }
 `
 const InnerContent = styled.div<{ mobile: boolean }>`
   position: absolute;
@@ -178,7 +187,6 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
       setLoading(undefined)
     }
   }
-  console.log('newwww')
 
   const containerWith = isSharePc ? '760px' : '220px'
   const tokenLogoSize = isSharePc ? 24 : 20
