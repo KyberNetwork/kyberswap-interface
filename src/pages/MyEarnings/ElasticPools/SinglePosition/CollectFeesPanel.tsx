@@ -73,7 +73,7 @@ const CollectFeesPanel: React.FC<Props> = ({ feeUsd, feeReward0, feeReward1 }) =
                     gap: '4px',
                   }}
                 >
-                  <CurrencyLogo currency={fee.currency} />
+                  <CurrencyLogo currency={fee.currency} size="14px" />
                   <Text fontSize={12}>
                     {formattedNumLong(+fee.toExact(), false)} {fee.currency.symbol}
                   </Text>

@@ -70,6 +70,8 @@ export type PositionEarningWithDetails = {
   tickUpper: string
   liquidity: string
   feeGrowthInsideLast: string
+  lastCollectedFeeAt: string
+  lastHarvestedFarmRewardAt: string
 } & HistoricalEarning
 
 type MetaResponse<T> = {
