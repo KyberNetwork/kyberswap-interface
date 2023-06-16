@@ -18,7 +18,7 @@ type Props = {
 }
 const ZoomOutModal: React.FC<Props> = ({ ticks, isLoading, isOpen, toggleOpen, isContainerSmall }) => {
   return (
-    <Modal isOpen={isOpen} onDismiss={toggleOpen} maxWidth="calc(100vw - 32px)" width="100%" height="100%">
+    <Modal isOpen={isOpen} onDismiss={toggleOpen} maxWidth="1200px" width="100%" height="100%">
       <Panel
         isZoomed
         isLoading={isLoading}
