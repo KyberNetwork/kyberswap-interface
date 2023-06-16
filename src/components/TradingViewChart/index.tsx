@@ -12,8 +12,9 @@ import useTheme from 'hooks/useTheme'
 import { useUserLocale } from 'state/user/hooks'
 import { openFullscreen } from 'utils/index'
 
-import { ChartingLibraryWidgetOptions, LanguageCode, ResolutionString, Timezone } from './charting_library'
+import { ChartingLibraryWidgetOptions, LanguageCode, ResolutionString } from './charting_library'
 import { useDatafeed } from './datafeed'
+import { getTradingViewTimeZone } from './utils'
 
 const ProLiveChartWrapper = styled.div<{ fullscreen: boolean }>`
   height: ${isMobile ? '100%' : 'calc(100% - 0px)'};
@@ -145,10 +146,11 @@ function ProLiveChart({
         { text: '1w', resolution: '1H' as ResolutionString, description: '1 Week' },
         { text: '1d', resolution: '15' as ResolutionString, description: '1 Day' },
       ],
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone as Timezone,
+      timezone: getTradingViewTimeZone(),
       auto_save_delay: 2,
       saved_data: localStorageState,
     }
+
     const tvWidget = new window.TradingView.widget(widgetOptions)
 
     tvWidget.onChartReady(() => {
