@@ -34,7 +34,9 @@ import {
   IChartingLibraryWidget,
   LanguageCode,
   ResolutionString,
+  Timezone,
 } from 'components/TradingViewChart/charting_library'
+import { getTradingViewTimeZone } from 'components/TradingViewChart/utils'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { KYBERAI_CHART_ID, NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
@@ -2657,6 +2659,7 @@ export const Prochart = ({
       locale: (userLocale ? userLocale.slice(0, 2) : 'en') as LanguageCode,
       auto_save_delay: 2,
       saved_data: localStorageState,
+      timezone: getTradingViewTimeZone() as Timezone,
     }
     const tvWidget = new window.TradingView.widget(widgetOptions)
 
