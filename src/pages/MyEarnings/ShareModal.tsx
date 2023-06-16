@@ -178,6 +178,7 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
       setLoading(undefined)
     }
   }
+  console.log('newwww')
 
   const containerWith = isSharePc ? '760px' : '220px'
   const tokenLogoSize = isSharePc ? 24 : 20
