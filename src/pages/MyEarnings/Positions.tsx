@@ -42,8 +42,10 @@ type Props = {
   chainId: ChainId
   positionEarnings: PositionEarningWithDetails[]
   pool: Pool | undefined
+  pendingFees: { [id: string]: [string, string] }
+  tokenPrices: { [id: string]: number }
 }
-const Positions: React.FC<Props> = ({ positionEarnings, chainId, pool }) => {
+const Positions: React.FC<Props> = ({ positionEarnings, chainId, pool, pendingFees, tokenPrices }) => {
   const theme = useTheme()
   const shouldShowClosedPositions = useAppSelector(state => state.myEarnings.shouldShowClosedPositions)
   const [numberOfVisiblePositions, setNumberOfVisiblePositions] = useState(3)
@@ -182,7 +184,14 @@ const Positions: React.FC<Props> = ({ positionEarnings, chainId, pool }) => {
 
       <ListPositions>
         {positionEarnings.slice(0, numberOfVisiblePositions).map(positionEarning => (
-          <SinglePosition chainId={chainId} key={positionEarning.id} positionEarning={positionEarning} pool={pool} />
+          <SinglePosition
+            chainId={chainId}
+            key={positionEarning.id}
+            positionEarning={positionEarning}
+            pool={pool}
+            pendingFee={pendingFees[positionEarning.id]}
+            tokenPrices={tokenPrices}
+          />
         ))}
       </ListPositions>
 

@@ -39,8 +39,10 @@ type Props = {
   chainId: ChainId
   positionEarning: PositionEarningWithDetails
   pool: Pool | undefined
+  pendingFee: [string, string]
+  tokenPrices: { [key: string]: number }
 }
-const SinglePosition: React.FC<Props> = ({ positionEarning, chainId, pool }) => {
+const SinglePosition: React.FC<Props> = ({ positionEarning, chainId, pool, pendingFee, tokenPrices }) => {
   const [isFlipped, setFlipped] = useState(false)
 
   const position = useMemo(() => {
@@ -69,6 +71,8 @@ const SinglePosition: React.FC<Props> = ({ positionEarning, chainId, pool }) => 
     positionEarning: positionEarning,
     onFlipView: toggleFlipped,
     position,
+    pendingFee,
+    tokenPrices,
   }
 
   return (

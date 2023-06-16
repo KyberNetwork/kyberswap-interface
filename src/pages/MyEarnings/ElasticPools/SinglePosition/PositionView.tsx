@@ -69,7 +69,7 @@ const ActionButtons = () => {
 }
 
 const PositionView: React.FC<CommonProps> = props => {
-  const { positionEarning, position } = props
+  const { positionEarning, position, pendingFee, tokenPrices: prices } = props
   const chainId = position.amount0.currency.chainId
   const liquidityValue0 = CurrencyAmount.fromRawAmount(unwrappedToken(position.pool.token0), position.amount0.quotient)
   const liquidityValue1 = CurrencyAmount.fromRawAmount(unwrappedToken(position.pool.token1), position.amount1.quotient)
@@ -80,10 +80,11 @@ const PositionView: React.FC<CommonProps> = props => {
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
   const isElasticLegacyPosition = useAppSelector(state => state.myEarnings.activeTab === VERSION.ELASTIC_LEGACY)
 
-  const { data: prices } = useTokenPricesWithLoading(
-    [token0.wrapped.address || '', token1.wrapped.address || ''],
-    chainId,
-  )
+  const feeReward0 = CurrencyAmount.fromRawAmount(position.pool.token0, pendingFee[0])
+  const feeReward1 = CurrencyAmount.fromRawAmount(position.pool.token1, pendingFee[1])
+  const feeUsd =
+    +feeReward0.toExact() * prices[position.pool.token0.address] +
+    +feeReward1.toExact() * prices[position.pool.token1.address]
 
   const liquidityInUsd =
     parseFloat(position.amount0.toExact() || '0') * prices[token0.wrapped.address || ''] +
@@ -91,36 +92,7 @@ const PositionView: React.FC<CommonProps> = props => {
 
   const liquidityInUsdString = Number.isNaN(liquidityInUsd) ? '--' : formatUSDValue(liquidityInUsd, true)
 
-  const feesEarnedToday: TokenEarning[] = positionEarning.historicalEarning?.[0].fees || EMPTY_ARRAY
-  const feesEarnedTodayUSD = feesEarnedToday ? feesEarnedToday.reduce((sum, fee) => sum + Number(fee.amountUSD), 0) : 0
-
   const myStakedBalance = 0
-
-  // TODO: check native token in pool
-  const feesEarnedTokens = useMemo(() => {
-    return feesEarnedToday
-      ? feesEarnedToday
-          .filter(fee => {
-            const tokenAddress = isAddress(chainId, fee.token)
-            if (!tokenAddress) {
-              return false
-            }
-
-            const currency = tokensByChainId[chainId][tokenAddress]
-            return !!currency
-          })
-          .map(fee => {
-            const tokenAddress = isAddress(chainId, fee.token)
-            const currency = tokensByChainId[chainId][String(tokenAddress)]
-
-            return {
-              logoUrl: currency.logoURI || '',
-              amount: Number(fee.amountFloat),
-              symbol: currency.symbol || 'NO SYMBOL',
-            }
-          })
-      : []
-  }, [chainId, feesEarnedToday, tokensByChainId])
 
   const farm = (
     <Link
@@ -211,12 +183,7 @@ const PositionView: React.FC<CommonProps> = props => {
       >
         <PriceRangeChart position={position} disabled={isElasticLegacyPosition} />
 
-        <CollectFeesPanel
-          feesEarnedTodayUSD={feesEarnedTodayUSD}
-          feesEarnedTokens={feesEarnedTokens}
-          // TODO: check disabled condition
-          disabled={false}
-        />
+        <CollectFeesPanel feeReward0={feeReward0} feeReward1={feeReward1} feeUsd={feeUsd} />
 
         <ActionButtons />
       </Flex>

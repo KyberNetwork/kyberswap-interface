@@ -67,8 +67,10 @@ export type Props = {
   chainId: ChainId
   poolEarning: PoolEarningWithDetails
   positionEarnings: PositionEarningWithDetails[]
+  pendingFees: { [id: string]: [string, string] }
+  tokenPrices: { [id: string]: number }
 }
-const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings }) => {
+const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, pendingFees, tokenPrices }) => {
   const theme = useTheme()
   const [isExpanded, setExpanded] = useState(false)
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
@@ -288,7 +290,13 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
               }}
             />
 
-            <Positions positionEarnings={positionEarnings} chainId={chainId} pool={pool} />
+            <Positions
+              positionEarnings={positionEarnings}
+              chainId={chainId}
+              pool={pool}
+              pendingFees={pendingFees}
+              tokenPrices={tokenPrices}
+            />
           </>
         )}
       </Flex>
@@ -428,7 +436,13 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
             </Flex>
           </Flex>
           <PoolEarningsSection poolEarning={poolEarning} chainId={chainId} />
-          <Positions positionEarnings={positionEarnings} chainId={chainId} pool={pool} />
+          <Positions
+            positionEarnings={positionEarnings}
+            chainId={chainId}
+            pool={pool}
+            pendingFees={pendingFees}
+            tokenPrices={tokenPrices}
+          />
         </>
       )}
     </Flex>
