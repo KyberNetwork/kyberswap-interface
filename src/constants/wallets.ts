@@ -25,7 +25,7 @@ import {
   trustWalletHooks,
   walletConnectV2,
   walletConnectV2Hooks,
-} from 'connectors'
+} from 'constants/connectors/evm'
 import {
   braveAdapter,
   coin98Adapter,
@@ -33,8 +33,8 @@ import {
   phantomAdapter,
   slopeAdapter,
   solflareAdapter,
-} from 'connectors/solana'
-import { getIsMetaMaskWallet } from 'connectors/utils'
+} from 'constants/connectors/solana'
+import { getIsMetaMaskWallet } from 'constants/connectors/utils'
 import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
 const detectMetamask = (): WalletReadyState => {

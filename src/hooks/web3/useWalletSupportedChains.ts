@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { WalletConnect as WalletConnectV2 } from '@web3-react/walletconnect-v2'
 
-import { walletConnectV2 } from 'connectors'
+import { walletConnectV2 } from 'constants/connectors/evm'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { useWeb3React } from 'hooks'
 

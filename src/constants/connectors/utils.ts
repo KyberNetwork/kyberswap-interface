@@ -1,6 +1,6 @@
 import { Connector } from '@web3-react/types'
 
-import { coinbaseWallet, walletConnectV2 } from 'connectors'
+import { coinbaseWallet, walletConnectV2 } from 'constants/connectors/evm'
 
 export const getIsInjected = () => Boolean(window.ethereum)
 

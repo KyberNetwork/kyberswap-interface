@@ -7,7 +7,7 @@ import { useEffect, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useSearchParams } from 'react-router-dom'
 
-import { coinbaseWallet, metaMask, walletConnectV2 } from 'connectors'
+import { coinbaseWallet, metaMask, walletConnectV2 } from 'constants/connectors/evm'
 import { MOCK_ACCOUNT_EVM, MOCK_ACCOUNT_SOLANA } from 'constants/env'
 import { NETWORKS_INFO, isSupportedChainId } from 'constants/networks'
 import { NetworkInfo } from 'constants/networks/type'
