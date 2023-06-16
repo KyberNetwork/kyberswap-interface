@@ -383,7 +383,7 @@ export function TradeSummaryCrossChain({
             <PriceImpactNote />
           </RowFixed>
           <TYPE.black color={theme.text} fontSize={12}>
-            <PriceImpactValue priceImpact={priceImpact || -1} />
+            <PriceImpactValue priceImpact={route ? priceImpact || 0 : -1} />
           </TYPE.black>
         </RowBetween>
         <RowBetween>
