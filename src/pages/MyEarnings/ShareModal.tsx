@@ -69,6 +69,8 @@ const FeeWrapper = styled.div<{ mobile: boolean }>`
 const Content = styled.div<{ width: string }>`
   position: relative;
   width: ${({ width }) => width};
+  height: fit-content;
+  transition: all 0.3s;
   overflow-y: scroll;
   overflow-x: hidden;
   &::-webkit-scrollbar {
@@ -87,6 +89,7 @@ const InnerContent = styled.div<{ mobile: boolean }>`
   height: fit-content;
   display: flex;
   flex-direction: column;
+  transition: all 0.3s;
   gap: 10px;
   ${({ mobile }) =>
     mobile &&
