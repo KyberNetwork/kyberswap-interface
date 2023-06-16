@@ -35,12 +35,10 @@ const Icon = styled.div`
 export default function EmailForm({
   style,
   desc,
-  showRanking = true,
   labelColor,
 }: {
   style?: CSSProperties
   desc: ReactNode
-  showRanking?: boolean
   labelColor?: string
 }) {
   const { userInfo } = useSessionInfo()
@@ -77,24 +75,29 @@ export default function EmailForm({
       </RowBetween>
 
       <RowBetween flexWrap={'wrap'} gap="12px">
-        <Column gap="6px">
-          {showRanking && (
-            <>
-              <Flex fontSize={14} color={theme.text} style={{ gap: '6px' }}>
-                <Users size={16} />
-                {rankNo === 1 ? (
-                  <Trans>You&apos;re first in line!</Trans>
-                ) : rankNo === 2 ? (
-                  <Trans>1 user is ahead of you</Trans>
-                ) : (
-                  <Trans>{rankNo ? formattedNum(rankNo - 1 + '') : t`Many`} users are ahead of you!</Trans>
-                )}
-              </Flex>
-              <Text fontSize={12} color={theme.subText}>
-                <Trans>The more you share, the sooner you&apos;ll get access!</Trans>
-              </Text>
-            </>
-          )}
+        <Column gap="6px" flex={1}>
+          <Flex fontSize={14} color={theme.text} style={{ gap: '6px' }}>
+            <Users size={16} />
+            {rankNo === 1 ? (
+              <Trans>You&apos;re first in line!</Trans>
+            ) : rankNo === 2 ? (
+              <Trans>1 user is ahead of you</Trans>
+            ) : (
+              <Trans>{rankNo ? formattedNum(rankNo - 1 + '') : t`Many`} users are ahead of you!</Trans>
+            )}
+          </Flex>
+          <Text fontSize={12} color={theme.subText}>
+            <Trans>
+              Refer your friends to KyberAI, and get rewarded with our exclusive NFTs!. Learn more{' '}
+              <a
+                href="https://blog.kyberswap.com/journey-through-kyberium-collect-the-kyberswap-signature-nfts/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                here ↗
+              </a>
+            </Trans>
+          </Text>
         </Column>
         <Row gap="12px" width={'fit-content'}>
           <ShareGroupButtons
