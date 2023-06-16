@@ -7,7 +7,7 @@ import { useEffect, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useSearchParams } from 'react-router-dom'
 
-import { coinbaseWallet, metaMask, walletConnectV2 } from 'constants/connectors/evm'
+import { metaMask, walletConnectV2 } from 'constants/connectors/evm'
 import { MOCK_ACCOUNT_EVM, MOCK_ACCOUNT_SOLANA } from 'constants/env'
 import { NETWORKS_INFO, isSupportedChainId } from 'constants/networks'
 import { NetworkInfo } from 'constants/networks/type'
@@ -58,12 +58,6 @@ export function useActiveWeb3React(): {
   const walletKeyEVM = useMemo(() => {
     if (!isConnectedEVM) return undefined
     const detectedWallet = detectInjectedType()
-    if (
-      detectedWallet !== 'COINBASE' &&
-      (connectedConnectorEVM === coinbaseWallet || !!(connectedConnectorEVM as any)?.walletLink)
-    ) {
-      return 'COINBASE_LINK'
-    }
     if (connectedConnectorEVM === walletConnectV2) {
       return 'WALLET_CONNECT'
     }
