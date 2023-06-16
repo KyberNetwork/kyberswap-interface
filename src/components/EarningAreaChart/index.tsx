@@ -1,9 +1,35 @@
-import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { isMobile } from 'react-device-detect'
+import { Area, AreaChart, Customized, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
 import useTheme from 'hooks/useTheme'
+import { TimePeriod } from 'pages/MyEarnings/MyEarningsOverTimePanel/TimePeriodSelect'
+import KyberLogo from 'pages/TrueSightV2/components/chart/KyberLogo'
 import { EarningStatsTick } from 'types/myEarnings'
 
 import TooltipContent from './TooltipContent'
+import { formatUSDValue } from './utils'
+
+const labelGapByTimePeriod: Record<TimePeriod, number> = {
+  ['7D']: isMobile ? 2 : 1,
+  ['1M']: isMobile ? 8 : 3,
+  ['6M']: isMobile ? 40 : 20,
+  ['1Y']: isMobile ? 90 : 30,
+}
+
+const CustomizedLabel = (props: any) => {
+  const theme = useTheme()
+  const { x, y, value, index, period } = props
+  const show = (index + 1) % (labelGapByTimePeriod[period as TimePeriod] || 1) === 0
+  return (
+    <>
+      {show && (
+        <text x={x} y={y} dy={-10} fontSize={12} fontWeight={500} fill={theme.subText} textAnchor="middle">
+          {formatUSDValue(value)}
+        </text>
+      )}
+    </>
+  )
+}
 
 const formatter = (value: string) => {
   const num = Number(value)
@@ -26,10 +52,11 @@ const noop = () => {
 }
 
 type Props = {
+  period: TimePeriod
   setHoverValue?: React.Dispatch<React.SetStateAction<number | null>>
   data: EarningStatsTick[]
 }
-const EarningAreaChart: React.FC<Props> = ({ data, setHoverValue = noop }) => {
+const EarningAreaChart: React.FC<Props> = ({ data, setHoverValue = noop, period }) => {
   const theme = useTheme()
 
   return (
@@ -38,6 +65,7 @@ const EarningAreaChart: React.FC<Props> = ({ data, setHoverValue = noop }) => {
         data={data}
         margin={{
           top: 20,
+          right: 25,
         }}
         onMouseLeave={() => setHoverValue(null)}
       >
@@ -56,6 +84,7 @@ const EarningAreaChart: React.FC<Props> = ({ data, setHoverValue = noop }) => {
           tickFormatter={(value: any, _index: number) => formatter(String(value))}
           width={48}
         />
+        <Customized component={KyberLogo} />
         <Tooltip
           content={(props: any) => {
             const payload = props.payload as Array<{
@@ -71,7 +100,14 @@ const EarningAreaChart: React.FC<Props> = ({ data, setHoverValue = noop }) => {
           }}
           cursor={true}
         />
-        <Area type="monotone" dataKey="totalValue" stroke={theme.primary} fill="url(#colorUv)" strokeWidth={2} />
+        <Area
+          type="monotone"
+          dataKey="totalValue"
+          stroke={theme.primary}
+          fill="url(#colorUv)"
+          strokeWidth={2}
+          label={<CustomizedLabel period={period} />}
+        />
       </AreaChart>
     </ResponsiveContainer>
   )

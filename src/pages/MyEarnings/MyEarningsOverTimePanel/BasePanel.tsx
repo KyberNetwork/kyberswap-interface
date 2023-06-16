@@ -136,7 +136,11 @@ const BasePanel: React.FC<Props> = ({
         </Flex>
       </Flex>
 
-      {isLoading || !displayTicks ? <LoaderWithKyberLogo /> : <MemoEarningAreaChart data={displayTicks} />}
+      {isLoading || !displayTicks ? (
+        <LoaderWithKyberLogo />
+      ) : (
+        <MemoEarningAreaChart data={displayTicks} period={period} />
+      )}
     </Wrapper>
   )
 }
