@@ -70,7 +70,6 @@ const Content = styled.div<{ width: string }>`
   position: relative;
   width: ${({ width }) => width};
   height: fit-content;
-  transition: all 0.3s;
   overflow-y: scroll;
   overflow-x: hidden;
   &::-webkit-scrollbar {
@@ -89,7 +88,6 @@ const InnerContent = styled.div<{ mobile: boolean }>`
   height: fit-content;
   display: flex;
   flex-direction: column;
-  transition: all 0.3s;
   gap: 10px;
   ${({ mobile }) =>
     mobile &&
@@ -266,7 +264,13 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
         </RowBetween>
 
         <Content width={containerWith} ref={ref}>
-          <img src={isSharePc ? BgShare : BgShareMobile} alt="my earning" width={containerWith} />
+          <img src={BgShare} style={{ display: isSharePc ? 'block' : 'none' }} alt="my earning" width={containerWith} />
+          <img
+            src={BgShareMobile}
+            style={{ display: !isSharePc ? 'block' : 'none' }}
+            alt="my earning"
+            width={containerWith}
+          />
           <InnerContent mobile={!isSharePc}>
             <Text fontSize={isSharePc ? 26 : 16} fontWeight="500" color={theme.text}>
               {title}
