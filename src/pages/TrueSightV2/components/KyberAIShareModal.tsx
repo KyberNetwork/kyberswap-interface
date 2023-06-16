@@ -20,7 +20,7 @@ import useCopyClipboard from 'hooks/useCopyClipboard'
 import useShareImage from 'hooks/useShareImage'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
-import { downloadImgFromBlog } from 'utils/index'
+import { downloadImage } from 'utils/index'
 import { getProxyTokenLogo } from 'utils/tokenInfo'
 
 import { NETWORK_IMAGE_URL } from '../constants'
@@ -324,7 +324,7 @@ export default function KyberAIShareModal({
     }
   }
   const handleDownloadClick = () => {
-    downloadImgFromBlog(blob, 'kyberAI_share_image.png')
+    downloadImage(blob, 'kyberAI_share_image.png')
   }
 
   const TokenInfo = () => (

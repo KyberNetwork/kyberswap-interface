@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import html2canvas from 'html2canvas'
 import { rgba } from 'polished'
 import { useEffect, useRef, useState } from 'react'
 import { isDesktop } from 'react-device-detect'
@@ -25,7 +24,7 @@ import useShareImage from 'hooks/useShareImage'
 import useTheme from 'hooks/useTheme'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { ButtonText, MEDIA_WIDTHS } from 'theme'
-import { downloadImgFromBlog } from 'utils'
+import { downloadImage } from 'utils'
 import { getProxyTokenLogo } from 'utils/tokenInfo'
 
 const formatValue = (num: number, isSharePc: boolean) => {
@@ -105,6 +104,7 @@ enum ShareType {
   DISCORD,
   TWITTER,
   COPY,
+  DOWNLOAD,
 }
 
 type Props = {
@@ -129,9 +129,11 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
   const loading = useRef(false)
   const ref = useRef<HTMLDivElement>(null)
   const [shareUrlState, setShareUrl] = useState('')
+  const [imageUrlState, setImageUrl] = useState('')
 
   useEffect(() => {
     setShareUrl('')
+    setImageUrl('')
   }, [isOpen, isSharePc])
 
   const generateImageUrlByMethod = async (type: ShareType) => {
@@ -139,13 +141,15 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
     try {
       loading.current = true
       let shareUrl: string | undefined = shareUrlState
+      let imageUrl: string | undefined = imageUrlState
       if (!shareUrl) {
         const data = await shareImage(ref.current, SHARE_TYPE.MY_EARNINGS)
         shareUrl = data.shareUrl
-        console.log(123, data.imageUrl)
+        imageUrl = data.imageUrl
       }
       if (!shareUrl) return
       setShareUrl(shareUrl)
+      setImageUrl(imageUrl)
       const { telegram, facebook, discord, twitter } = getSocialShareUrls(shareUrl)
       switch (type) {
         case ShareType.COPY:
@@ -163,30 +167,12 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
         case ShareType.TWITTER:
           window.open(twitter)
           break
+        case ShareType.DOWNLOAD:
+          downloadImage(imageUrl, 'your_earning.png')
+          break
       }
     } catch (error) {
       console.log('share err', error)
-    } finally {
-      loading.current = false
-    }
-  }
-
-  const downloadImage = async () => {
-    if (!ref.current || loading.current) return
-    try {
-      loading.current = true
-      const canvas: HTMLCanvasElement = await html2canvas(ref.current, {
-        allowTaint: true,
-        useCORS: true,
-      })
-      if (!canvas) return
-
-      canvas.toBlob(async blob => {
-        if (!blob) throw new Error()
-        downloadImgFromBlog(blob, 'your_earning.png')
-      })
-    } catch (error) {
-      console.error(error)
     } finally {
       loading.current = false
     }
@@ -213,8 +199,8 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
       icon: <Discord width={20} height={20} color={theme.subText} />,
     },
     {
+      onClick: () => generateImageUrlByMethod(ShareType.DOWNLOAD),
       icon: <Download width={20} height={20} color={theme.subText} />,
-      onClick: downloadImage,
     },
     {
       onClick: () => generateImageUrlByMethod(ShareType.COPY),

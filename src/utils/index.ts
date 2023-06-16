@@ -540,11 +540,11 @@ export function openFullscreen(elem: any) {
   }
 }
 
-export const downloadImgFromBlog = (blob: Blob | undefined, filename: string) => {
-  if (!blob) return
+export const downloadImage = (data: Blob | string | undefined, filename: string) => {
+  if (!data) return
   const link = document.createElement('a')
   link.download = filename
-  link.href = URL.createObjectURL(blob)
+  link.href = typeof data === 'string' ? data : URL.createObjectURL(data)
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
