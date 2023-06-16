@@ -70,7 +70,11 @@ export default function SubscribeNotificationButton({
   const { mixpanelHandler } = useMixpanel()
   const { topicGroups } = useNotification()
   const hasSubscribe = useMemo(() => {
-    return topicId ? topicGroups.some(group => group.topics.some(topic => String(topic.id) === String(topicId))) : false
+    return topicId
+      ? topicGroups.some(group =>
+          group.topics.some(topic => topic.isSubscribed === true && String(topic.id) === String(topicId)),
+        )
+      : false
   }, [topicGroups, topicId])
 
   const navigate = useNavigate()
