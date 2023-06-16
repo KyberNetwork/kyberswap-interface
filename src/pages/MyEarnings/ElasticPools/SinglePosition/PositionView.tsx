@@ -1,17 +1,15 @@
 import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useMemo } from 'react'
 import { ChevronsUp, Minus } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
-import { TokenEarning } from 'services/earning'
 import styled from 'styled-components'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import { formatUSDValue } from 'components/EarningAreaChart/utils'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { APP_PATHS, EMPTY_ARRAY } from 'constants/index'
+import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { VERSION } from 'constants/v2'
 import { ActionButton } from 'pages/MyEarnings/ElasticPools/SinglePosition/ActionButton'
@@ -21,8 +19,6 @@ import PriceRangeChart from 'pages/MyEarnings/ElasticPools/SinglePosition/PriceR
 import { Column, Label, Row, Value, ValueAPR } from 'pages/MyEarnings/ElasticPools/SinglePosition/styleds'
 import HoverDropdown from 'pages/MyEarnings/HoverDropdown'
 import { useAppSelector } from 'state/hooks'
-import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
-import { isAddress } from 'utils'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 const ActionButtonsWrapper = styled.div`
