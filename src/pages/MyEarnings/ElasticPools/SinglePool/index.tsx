@@ -28,6 +28,7 @@ import { ButtonIcon } from 'pages/Pools/styleds'
 import { useAppSelector } from 'state/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { isAddress, shortenAddress } from 'utils'
+import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 
 const formatValue = (value: number) => {
   const formatter = Intl.NumberFormat('en-US', {
@@ -345,7 +346,9 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
                 lineHeight: '24px',
               }}
             >
-              {poolEarning.token0.symbol} - {poolEarning.token1.symbol}
+              {/* Some tokens have different symbols in our system */}
+              {getTokenSymbolWithHardcode(chainId, poolEarning.token0.id, poolEarning.token0.symbol)} -{' '}
+              {getTokenSymbolWithHardcode(chainId, poolEarning.token1.id, poolEarning.token1.symbol)}
             </Text>
           </Flex>
 
