@@ -38,6 +38,10 @@ import { getIsCoinbaseWallet, getIsMetaMaskWallet } from 'constants/connectors/u
 import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
 const detectMetamask = (): WalletReadyState => {
+  if (isMobile) {
+    if (window.ethereum) return WalletReadyState.Installed
+    return WalletReadyState.NotDetected
+  }
   if (getIsMetaMaskWallet()) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }
