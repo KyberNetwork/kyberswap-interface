@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Flex } from 'rebass'
 import { PositionEarningWithDetails } from 'services/earning'
 import styled from 'styled-components'
@@ -9,6 +9,7 @@ import Background from 'assets/images/card-background2.png'
 import { CommonProps } from 'pages/MyEarnings/ElasticPools/SinglePosition/CommonView'
 import EarningView from 'pages/MyEarnings/ElasticPools/SinglePosition/EarningView'
 import PositionView from 'pages/MyEarnings/ElasticPools/SinglePosition/PositionView'
+import { useAppSelector } from 'state/hooks'
 
 export const Wrapper = styled.div`
   display: flex;
@@ -43,7 +44,8 @@ type Props = {
   tokenPrices: { [key: string]: number }
 }
 const SinglePosition: React.FC<Props> = ({ positionEarning, chainId, pool, pendingFee, tokenPrices }) => {
-  const [isFlipped, setFlipped] = useState(false)
+  const [isFlipped, setFlipped] = useState(false) // isFlipped === true => show EarningView
+  const shouldShowEarningView = useAppSelector(state => state.myEarnings.shouldShowEarningView)
 
   const position = useMemo(() => {
     if (pool) {
@@ -61,6 +63,12 @@ const SinglePosition: React.FC<Props> = ({ positionEarning, chainId, pool, pendi
   const toggleFlipped = () => {
     setFlipped(v => !v)
   }
+
+  useEffect(() => {
+    if (shouldShowEarningView) {
+      setFlipped(true)
+    }
+  }, [shouldShowEarningView])
 
   if (!position) {
     return null
