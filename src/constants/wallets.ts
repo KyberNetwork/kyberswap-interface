@@ -43,6 +43,7 @@ const detectMetamask = (): WalletReadyState => {
   }
   // In Brave browser, by default ethereum.isMetaMask and ethereum.isBraveWallet is true even Metamask not installed
   if (getIsMetaMaskWallet()) return WalletReadyState.Installed
+  if (isMobile) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }
 
