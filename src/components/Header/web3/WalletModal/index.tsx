@@ -32,6 +32,7 @@ import {
   useOpenNetworkModal,
   useWalletModalToggle,
 } from 'state/application/hooks'
+import { useIsConnectingWallet } from 'state/authen/hooks'
 import { useIsAcceptedTerm } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { isEVMWallet, isOverriddenWallet, isSolanaWallet } from 'utils'
@@ -214,18 +215,23 @@ export default function WalletModal() {
     }
   }, [connecting, connected, solanaWallet])
 
+  const [, setIsConnectingWallet] = useIsConnectingWallet()
   const handleWalletChange = useCallback(
     async (walletKey: SUPPORTED_WALLET) => {
       setPendingWalletKey(walletKey)
       setWalletView(WALLET_VIEWS.PENDING)
       setPendingError(false)
+      setIsConnectingWallet(true)
       try {
         await tryActivation(walletKey)
       } catch {
         setPendingError(true)
       }
+      setTimeout(() => {
+        setIsConnectingWallet(false)
+      }, 1000)
     },
-    [tryActivation],
+    [tryActivation, setIsConnectingWallet],
   )
 
   function getOptions() {

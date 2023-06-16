@@ -1,6 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit'
 
-import { updatePossibleWalletAddress, updateProcessingLogin, updateProfile } from './actions'
+import { updateConnectingWallet, updatePossibleWalletAddress, updateProcessingLogin, updateProfile } from './actions'
 
 export type UserProfile = { email: string; identityId: string; data: { hasAccessToKyberAI: boolean } }
 export interface AuthenState {
@@ -13,6 +13,7 @@ export interface AuthenState {
   readonly userInfo: UserProfile | undefined
   readonly isLogin: boolean
   readonly pendingAuthentication: boolean
+  readonly isConnectingWallet: boolean
 }
 
 const DEFAULT_AUTHEN_STATE: AuthenState = {
@@ -21,12 +22,16 @@ const DEFAULT_AUTHEN_STATE: AuthenState = {
   userInfo: undefined,
   isLogin: false,
   pendingAuthentication: true,
+  isConnectingWallet: false,
 }
 
 export default createReducer(DEFAULT_AUTHEN_STATE, builder =>
   builder
     .addCase(updatePossibleWalletAddress, (state, { payload: possibleConnectedWalletAddress }) => {
       state.possibleConnectedWalletAddress = possibleConnectedWalletAddress
+    })
+    .addCase(updateConnectingWallet, (state, { payload: connectingWallet }) => {
+      state.isConnectingWallet = connectingWallet
     })
     .addCase(updateProcessingLogin, (state, { payload: processing }) => {
       state.pendingAuthentication = processing
