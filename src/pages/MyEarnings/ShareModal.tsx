@@ -15,6 +15,7 @@ import { Telegram } from 'components/Icons'
 import Discord from 'components/Icons/Discord'
 import Facebook from 'components/Icons/Facebook'
 import TwitterIcon from 'components/Icons/TwitterIcon'
+import Loader from 'components/Loader'
 import Logo from 'components/Logo'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
@@ -126,10 +127,10 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const [isCopied, setIsCopy] = useCopyClipboard()
   const shareImage = useShareImage()
-  const loading = useRef(false)
   const ref = useRef<HTMLDivElement>(null)
   const [shareUrlState, setShareUrl] = useState('')
   const [imageUrlState, setImageUrl] = useState('')
+  const [loadingType, setLoading] = useState<ShareType>()
 
   useEffect(() => {
     setShareUrl('')
@@ -137,9 +138,9 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
   }, [isOpen, isSharePc])
 
   const generateImageUrlByMethod = async (type: ShareType) => {
-    if (loading.current) return
+    if (loadingType) return
     try {
-      loading.current = true
+      setLoading(type)
       let shareUrl: string | undefined = shareUrlState
       let imageUrl: string | undefined = imageUrlState
       if (!shareUrl) {
@@ -174,7 +175,7 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
     } catch (error) {
       console.log('share err', error)
     } finally {
-      loading.current = false
+      setLoading(undefined)
     }
   }
 
@@ -183,27 +184,27 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
 
   const listShare = [
     {
-      onClick: () => generateImageUrlByMethod(ShareType.TELEGRAM),
+      type: ShareType.TELEGRAM,
       icon: <Telegram size={20} color={theme.subText} />,
     },
     {
-      onClick: () => generateImageUrlByMethod(ShareType.TWITTER),
+      type: ShareType.TWITTER,
       icon: <TwitterIcon width={20} height={20} color={theme.subText} />,
     },
     {
-      onClick: () => generateImageUrlByMethod(ShareType.FB),
+      type: ShareType.FB,
       icon: <Facebook color={theme.subText} size={20} />,
     },
     {
-      onClick: () => generateImageUrlByMethod(ShareType.DISCORD),
+      type: ShareType.DISCORD,
       icon: <Discord width={20} height={20} color={theme.subText} />,
     },
     {
-      onClick: () => generateImageUrlByMethod(ShareType.DOWNLOAD),
+      type: ShareType.DOWNLOAD,
       icon: <Download width={20} height={20} color={theme.subText} />,
     },
     {
-      onClick: () => generateImageUrlByMethod(ShareType.COPY),
+      type: ShareType.COPY,
       icon: isCopied ? <CheckCircle size={20} color={theme.subText} /> : <Copy size={20} color={theme.subText} />,
     },
   ]
@@ -273,9 +274,9 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
             </ButtonWrapper>
           )}
           <ShareContainer>
-            {listShare.map(({ icon, onClick }, index) => (
-              <ButtonWrapper key={index} onClick={onClick}>
-                {icon}
+            {listShare.map(({ icon, type }, index) => (
+              <ButtonWrapper key={index} onClick={() => generateImageUrlByMethod(type)}>
+                {loadingType === type ? <Loader /> : icon}
               </ButtonWrapper>
             ))}
           </ShareContainer>
