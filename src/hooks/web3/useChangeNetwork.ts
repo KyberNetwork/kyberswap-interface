@@ -1,8 +1,10 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import { Connector } from '@web3-react/types'
 import { useCallback } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
+import { walletConnectV2 } from 'connectors'
 import { didUserReject } from 'connectors/utils'
 import { NETWORKS_INFO, isEVM, isSolana } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -69,18 +71,33 @@ export function useChangeNetwork() {
           await connector.activate(desiredChainId)
           changeNetworkHandler(desiredChainId, successCallback)
         } catch (error) {
-          const notifyFailed = () => {
+          const notifyFailed = (connector: Connector, error: any) => {
+            let message: string = t`Error when changing network.`
+
+            if (didUserReject(connector, error)) {
+              message = t`In order to use KyberSwap on ${NETWORKS_INFO[desiredChainId].name}, you must accept the network in your wallet.`
+            } else {
+              if (
+                /Cannot activate an optional chain \(\d+\), as the wallet is not connected to it\./.test(error?.message)
+              ) {
+                message = t`Wallet not support chain ${NETWORKS_INFO[desiredChainId].name}`
+              } else {
+                message = error?.message || message
+              }
+            }
             notify({
               title: t`Failed to switch network`,
               type: NotificationType.ERROR,
-              summary: t`In order to use KyberSwap on ${NETWORKS_INFO[desiredChainId].name}, you must accept the network in your wallet.`,
+              summary: message,
             })
             failureCallback?.()
           }
-          if (didUserReject(connector, error)) {
-            notifyFailed()
+          // walletconnect v2 not support add network, so halt execution here
+          if (didUserReject(connector, error) || connector === walletConnectV2) {
+            notifyFailed(connector, error)
             return
           }
+          console.error(`Change network step 1: activate chainID ${desiredChainId} failed`, { error })
           const { rpc } = await fetchKyberswapConfig(desiredChainId)
           const addChainParameter = {
             chainId: desiredChainId,
@@ -97,8 +114,9 @@ export function useChangeNetwork() {
             await connector.activate(addChainParameter)
             changeNetworkHandler(desiredChainId, successCallback)
           } catch (error) {
-            if (didUserReject(connector, error)) {
-              notifyFailed()
+            notifyFailed(connector, error)
+            if (!didUserReject(connector, error)) {
+              console.error(`Change network step 2: activate addChainParameter ${addChainParameter} failed`, { error })
             }
           }
         }

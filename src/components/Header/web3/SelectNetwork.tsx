@@ -1,3 +1,4 @@
+import { t } from '@lingui/macro'
 import { useMemo } from 'react'
 import styled from 'styled-components'
 
@@ -8,6 +9,7 @@ import Row from 'components/Row'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
+import { useWalletSupportedChains } from 'hooks/web3/useWalletSupportedChains'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
@@ -77,6 +79,8 @@ function SelectNetwork(): JSX.Element | null {
     const balanceFixed = Number(balanceFixedStr)
     return `${balanceFixed} ${NativeCurrencies[chainId].symbol}`
   }, [userEthBalance, chainId, networkInfo])
+  const walletSupportsChain = useWalletSupportedChains()
+
   return (
     <NetworkCard onClick={() => toggleNetworkModal()} role="button" id={TutorialIds.SELECT_NETWORK}>
       <NetworkSwitchContainer>
@@ -90,7 +94,11 @@ function SelectNetwork(): JSX.Element | null {
         </Row>
         <DropdownIcon open={networkModalOpen} />
       </NetworkSwitchContainer>
-      <NetworkModal selectedId={chainId} />
+      <NetworkModal
+        selectedId={chainId}
+        disabledMsg={t`Unsupported by your wallet`}
+        activeChainIds={walletSupportsChain}
+      />
     </NetworkCard>
   )
 }
