@@ -142,6 +142,7 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
       if (!shareUrl) {
         const data = await shareImage(ref.current, SHARE_TYPE.MY_EARNINGS)
         shareUrl = data.shareUrl
+        console.log(123, data.imageUrl)
       }
       if (!shareUrl) return
       setShareUrl(shareUrl)
@@ -196,32 +197,26 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
 
   const listShare = [
     {
-      name: 'Telegram',
       onClick: () => generateImageUrlByMethod(ShareType.TELEGRAM),
       icon: <Telegram size={20} color={theme.subText} />,
     },
     {
-      name: 'Twitter',
       onClick: () => generateImageUrlByMethod(ShareType.TWITTER),
       icon: <TwitterIcon width={20} height={20} color={theme.subText} />,
     },
     {
-      name: 'Facebook',
       onClick: () => generateImageUrlByMethod(ShareType.FB),
       icon: <Facebook color={theme.subText} size={20} />,
     },
     {
-      name: 'Discord',
       onClick: () => generateImageUrlByMethod(ShareType.DISCORD),
       icon: <Discord width={20} height={20} color={theme.subText} />,
     },
     {
-      name: 'Download',
       icon: <Download width={20} height={20} color={theme.subText} />,
       onClick: downloadImage,
     },
     {
-      name: 'Copy',
       onClick: () => generateImageUrlByMethod(ShareType.COPY),
       icon: isCopied ? <CheckCircle size={20} color={theme.subText} /> : <Copy size={20} color={theme.subText} />,
     },
@@ -292,8 +287,8 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
             </ButtonWrapper>
           )}
           <ShareContainer>
-            {listShare.map(({ name, icon, onClick }) => (
-              <ButtonWrapper key={name} onClick={onClick}>
+            {listShare.map(({ icon, onClick }, index) => (
+              <ButtonWrapper key={index} onClick={onClick}>
                 {icon}
               </ButtonWrapper>
             ))}
