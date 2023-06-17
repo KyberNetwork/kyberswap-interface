@@ -515,8 +515,7 @@ export const useGetParticipantKyberAIInfo = (): ParticipantInfo => {
 }
 
 export const useIsWhiteListKyberAI = () => {
-  const { userInfo } = useSessionInfo()
-  const { isLogin, pendingAuthentication } = useSessionInfo()
+  const { isLogin, pendingAuthentication, userInfo } = useSessionInfo()
   const {
     data: rawData,
     isFetching,

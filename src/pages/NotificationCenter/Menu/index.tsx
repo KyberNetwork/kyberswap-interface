@@ -21,7 +21,7 @@ import ImportAccountModal from 'pages/NotificationCenter/Profile/ImportAccountMo
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
-import { useCacheProfile, useSignedWalletInfo } from 'state/authen/hooks'
+import { useCacheProfile, useSignedAccountInfo } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
 import { shortString } from 'utils/string'
@@ -125,17 +125,16 @@ const menuItems: MenuItemType[] = [
 type PropsMenu = { unread: Unread; onChildrenClick?: () => void; toggleImportProfile: () => void }
 
 const MenuForDesktop = ({ unread, onChildrenClick, toggleImportProfile }: PropsMenu) => {
-  const { signedWallet, isGuest, isGuestDefault } = useSignedWalletInfo()
-  const { cacheProfile } = useCacheProfile()
+  const { isSigInGuest, isSignInGuestDefault, signedAccount } = useSignedAccountInfo()
+  const { profile } = useCacheProfile()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
-  const profile = cacheProfile
 
   const menuItemDeskTop = useMemo(() => {
     return menuItems.map(el => {
       if (el.route !== PROFILE_MANAGE_ROUTES.PROFILE) return el
-      const guestText = isGuestDefault ? t`Guest` : t`Imported`
+      const guestText = isSignInGuestDefault ? t`Guest` : t`Imported`
       const childs: MenuItemType[] = [
-        isGuest
+        isSigInGuest
           ? {
               route: PROFILE_MANAGE_ROUTES.PROFILE,
               icon: <Avatar url={profile?.avatarUrl} size={16} />,
@@ -144,7 +143,7 @@ const MenuForDesktop = ({ unread, onChildrenClick, toggleImportProfile }: PropsM
           : {
               route: PROFILE_MANAGE_ROUTES.PROFILE,
               icon: <Avatar url={profile?.avatarUrl} size={16} />,
-              title: profile?.nickname ? shortString(profile?.nickname, 20) : getShortenAddress(signedWallet ?? ''),
+              title: profile?.nickname ? shortString(profile?.nickname, 20) : getShortenAddress(signedAccount ?? ''),
             },
       ]
       childs.push({
@@ -155,7 +154,7 @@ const MenuForDesktop = ({ unread, onChildrenClick, toggleImportProfile }: PropsM
       })
       return { ...el, childs }
     })
-  }, [signedWallet, isGuest, profile, isGuestDefault, toggleImportProfile])
+  }, [signedAccount, isSigInGuest, profile, isSignInGuestDefault, toggleImportProfile])
 
   return (
     <Flex sx={{ flexDirection: 'column', padding: upToMedium ? '0px' : '24px' }}>

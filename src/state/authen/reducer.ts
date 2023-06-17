@@ -8,7 +8,7 @@ import {
   updatePossibleWalletAddress,
   updateProcessingLogin,
   updateProfile,
-  updateSignedWallet,
+  updateSignedAccount,
 } from './actions'
 
 export type UserProfile = {
@@ -25,7 +25,7 @@ export interface AuthenState {
    *  null is checking wallet address
    */
   readonly possibleConnectedWalletAddress: null | string | undefined
-  readonly signedWalletAddress: undefined | string
+  readonly signedAccount: undefined | string
   readonly anonymousUserInfo: UserProfile | undefined
   readonly signedUserInfo: UserProfile | undefined
   readonly isLogin: boolean // is sign in eth
@@ -36,7 +36,7 @@ export interface AuthenState {
 
 const DEFAULT_AUTHEN_STATE: AuthenState = {
   possibleConnectedWalletAddress: null,
-  signedWalletAddress: undefined,
+  signedAccount: undefined,
   anonymousUserInfo: undefined,
   signedUserInfo: undefined,
   isLogin: false,
@@ -50,8 +50,8 @@ export default createReducer(DEFAULT_AUTHEN_STATE, builder =>
     .addCase(updatePossibleWalletAddress, (state, { payload: possibleConnectedWalletAddress }) => {
       state.possibleConnectedWalletAddress = possibleConnectedWalletAddress
     })
-    .addCase(updateSignedWallet, (state, { payload: signedWalletAddress }) => {
-      state.signedWalletAddress = signedWalletAddress
+    .addCase(updateSignedAccount, (state, { payload: signedAccount }) => {
+      state.signedAccount = signedAccount
     })
     .addCase(updateConnectingWallet, (state, { payload: connectingWallet }) => {
       state.isConnectingWallet = connectingWallet

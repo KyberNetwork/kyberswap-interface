@@ -19,7 +19,8 @@ import useNotification, { Topic, TopicType } from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
 import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
 import { useNotify } from 'state/application/hooks'
-import { useSessionInfo } from 'state/authen/hooks'
+import { useSessionInfo, useSignedAccountInfo } from 'state/authen/hooks'
+import { useIsWhiteListKyberAI } from 'state/user/hooks'
 import { pushUnique } from 'utils'
 import { isEmailValid } from 'utils/string'
 
@@ -166,6 +167,8 @@ function NotificationPreference({
   } = useNotification()
 
   const { userInfo, isLogin } = useSessionInfo()
+  const { isSignInEmail } = useSignedAccountInfo()
+  const { isWhiteList } = useIsWhiteListKyberAI()
 
   const [isShowVerify, setIsShowVerify] = useState(false)
   const showVerifyModal = () => {
@@ -391,6 +394,7 @@ function NotificationPreference({
           <Trans>Enter your email address to receive notifications</Trans>
         </Label>
         <InputEmail
+          disabled={isSignInEmail}
           hasError={hasErrorInput}
           showVerifyModal={showVerifyModal}
           errorColor={errorColor}
@@ -424,7 +428,7 @@ function NotificationPreference({
               </MouseoverTooltip>
             </LabelGroup> */}
             {restrict.map(topic => {
-              const disableKyberAI = disableCheckbox || !isLogin || !userInfo?.data?.hasAccessToKyberAI
+              const disableKyberAI = disableCheckbox || !isLogin || !isWhiteList
               return renderTopic(
                 topic,
                 (() => (topic.isKyberAI ? disableKyberAI : disableCheckbox || !isLogin))(),

@@ -63,4 +63,7 @@ export const checkIamDown = (axiosErr: AxiosError) => {
       sendError('IAM API', apiUrl, trackData)
     }
   }
+  if (isRouteApiDie || isIamDie) {
+    console.error(`${apiUrl} was down`)
+  }
 }

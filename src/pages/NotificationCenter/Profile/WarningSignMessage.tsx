@@ -11,7 +11,7 @@ import Row from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import useLogin from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
-import { useSessionInfo, useSignedWalletInfo } from 'state/authen/hooks'
+import { useSessionInfo, useSignedAccountInfo } from 'state/authen/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 
 const WarningWrapper = styled.div`
@@ -30,7 +30,7 @@ const WarningWrapper = styled.div`
 const WarningSignMessage = () => {
   const { signIn } = useLogin()
   const { pendingAuthentication } = useSessionInfo()
-  const { signedWallet } = useSignedWalletInfo()
+  const { signedAccount } = useSignedAccountInfo()
   const { account } = useActiveWeb3React()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const btnWidth = upToMedium ? '45%' : '110px'
@@ -38,7 +38,7 @@ const WarningSignMessage = () => {
   if (
     pendingAuthentication ||
     KyberOauth2.getConnectedAccounts().includes(account?.toLowerCase() ?? '') ||
-    account?.toLowerCase() === signedWallet?.toLowerCase()
+    account?.toLowerCase() === signedAccount?.toLowerCase()
   )
     return null
   return (

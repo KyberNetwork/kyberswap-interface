@@ -20,7 +20,7 @@ import useLogin from 'hooks/useLogin'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useNetworkModalToggle, useWalletModalToggle } from 'state/application/hooks'
-import { useSignedWalletInfo } from 'state/authen/hooks'
+import { useSignedAccountInfo } from 'state/authen/hooks'
 import { isTransactionRecent, newTransactionsFirst, useAllTransactions } from 'state/transactions/hooks'
 import { TransactionDetails } from 'state/transactions/type'
 import { useIsDarkMode } from 'state/user/hooks'
@@ -127,7 +127,7 @@ function Web3StatusInner() {
   const hasPendingTransactions = !!pendingLength
   const toggleWalletModal = useWalletModalToggle()
   const toggleNetworkModal = useNetworkModalToggle()
-  const { signedDifferentWallet } = useSignedWalletInfo()
+  const { isSignInDifferentWallet } = useSignedAccountInfo()
 
   if (account) {
     return (
@@ -149,7 +149,7 @@ function Web3StatusInner() {
           </RowBetween>
         ) : (
           <>
-            {signedDifferentWallet ? (
+            {isSignInDifferentWallet ? (
               <MouseoverTooltip
                 placement="bottom"
                 text={

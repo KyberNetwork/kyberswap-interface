@@ -28,7 +28,7 @@ import { ButtonLogout, ButtonSave } from 'pages/NotificationCenter/Profile/butto
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
 import { useNotify } from 'state/application/hooks'
-import { useRefreshProfile, useSessionInfo, useSignedWalletInfo } from 'state/authen/hooks'
+import { useRefreshProfile, useSessionInfo, useSignedAccountInfo } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 
@@ -110,7 +110,7 @@ export default function Profile() {
   const [nickname, setNickName] = useState('')
   const { signOut } = useLogin()
   const navigate = useNavigate()
-  const { signedWallet } = useSignedWalletInfo()
+  const { isSignInEmail, isSignInEth, signedAccount, isSignInGuestDefault } = useSignedAccountInfo()
 
   const [file, setFile] = useState<File>()
   const [previewImage, setPreviewImage] = useState<string>()
@@ -204,6 +204,7 @@ export default function Profile() {
               value={nickname}
               onChange={e => onChangeNickname(e.target.value)}
               placeholder="Your nickname"
+              disabled={isSignInEmail}
             />
           </FormGroup>
 
@@ -218,11 +219,12 @@ export default function Profile() {
               errorColor={errorColor}
               onChange={onChangeEmail}
               value={inputEmail}
+              disabled={isSignInEmail}
               isVerifiedEmail={!!isVerifiedEmail}
             />
           </FormGroup>
 
-          {signedWallet && (
+          {signedAccount && isSignInEth && (
             <FormGroup>
               <Label>
                 <Trans>Wallet Address</Trans>
@@ -230,8 +232,8 @@ export default function Profile() {
               <StyledAddressInput
                 style={{ color: theme.subText, cursor: 'pointer' }}
                 disabled
-                value={shortenAddress(chainId, signedWallet, 17, false)}
-                icon={<CopyHelper toCopy={signedWallet} style={{ color: theme.subText }} />}
+                value={shortenAddress(chainId, signedAccount, 17, false)}
+                icon={<CopyHelper toCopy={signedAccount} style={{ color: theme.subText }} />}
               />
             </FormGroup>
           )}
@@ -241,10 +243,10 @@ export default function Profile() {
               <Save size={16} style={{ marginRight: '4px' }} />
               Save
             </ButtonSave>
-            {signedWallet ? (
+            {!isSignInGuestDefault ? (
               <ButtonLogout
                 onClick={() => {
-                  signOut(signedWallet)
+                  signOut(signedAccount)
                   navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PROFILE}`)
                 }}
               >
@@ -261,7 +263,7 @@ export default function Profile() {
           <Label style={{ textAlign: 'center' }}>
             <Trans>Profile Picture</Trans>
           </Label>
-          <FileInput onImgChange={handleFileChange} image>
+          <FileInput onImgChange={handleFileChange} image disabled={isSignInEmail}>
             <AvatarWrapper>
               <Avatar url={displayAvatar} size={isMobile ? 50 : 84} color={theme.subText} />
             </AvatarWrapper>

@@ -31,7 +31,7 @@ const browserCustomStyle = css`
 `
 
 export default function SelectWallet() {
-  const { cacheProfile: profile } = useCacheProfile()
+  const { profile } = useCacheProfile()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const isOpen = useModalOpen(ApplicationModal.SWITCH_PROFILE_POPUP)
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)

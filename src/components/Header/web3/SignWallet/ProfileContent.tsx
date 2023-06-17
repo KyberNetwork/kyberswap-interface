@@ -1,4 +1,3 @@
-import KyberOauth2 from '@kybernetwork/oauth2'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { LogOut, UserPlus } from 'react-feather'
@@ -14,16 +13,15 @@ import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import Row, { RowBetween } from 'components/Row'
 import CardBackground from 'components/WalletPopup/AccountInfo/CardBackground'
 import { APP_PATHS } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
 import useLogin from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
-import { ConnectedProfile, KEY_GUEST_DEFAULT, useAllProfileInfo, useSignedWalletInfo } from 'state/authen/hooks'
+import { ConnectedProfile, KEY_GUEST_DEFAULT, useAllProfileInfo } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
-import { shortString } from 'utils/string'
+import { isEmailValid, shortString } from 'utils/string'
 
 const ContentWrapper = styled.div`
   display: flex;
@@ -103,7 +101,7 @@ const ProfileItemWrapper = styled(RowBetween)<{ active: boolean }>`
 `
 
 const ProfileItem = ({
-  data: { active, guest, address: account, profile, key, default: guestDefault },
+  data: { active, guest, address: account, profile, id, default: guestDefault },
   refreshProfile,
 }: {
   data: ConnectedProfile
@@ -117,7 +115,7 @@ const ProfileItem = ({
 
   const onClick = () => {
     if (active) return
-    guest ? signInAnonymous(key) : signIn(key, true)
+    guest ? signInAnonymous(id) : signIn(id, true)
     toggleModal()
   }
 
@@ -129,7 +127,7 @@ const ProfileItem = ({
         size={16}
         onClick={e => {
           e?.stopPropagation()
-          guest ? signOutAnonymous(key) : signOut(key)
+          guest ? signOutAnonymous(id) : signOut(id)
           refreshProfile()
         }}
       />
@@ -154,7 +152,7 @@ const ProfileItem = ({
               fontSize={active ? '16px' : profile?.nickname ? '12px' : '16px'}
               color={active ? theme.subText : theme.subText}
             >
-              {guest ? shortString(account, 20) : getShortenAddress(account)}
+              {guest || isEmailValid(account) ? shortString(account, 20) : getShortenAddress(account)}
             </Text>
           </Column>
           {active && signOutBtn}
@@ -183,11 +181,9 @@ const ProfileItem = ({
 }
 const ProfileContent = () => {
   const { signIn, signOutAll } = useLogin()
-  const { canSignInEth } = useSignedWalletInfo()
   const { profiles, refresh } = useAllProfileInfo()
-  const { account: connectedWallet } = useActiveWeb3React()
 
-  const totalSignedAccount = profiles.filter(e => e.key !== KEY_GUEST_DEFAULT).length
+  const totalSignedAccount = profiles.filter(e => e.id !== KEY_GUEST_DEFAULT).length
   const listNotActive = profiles.slice(1)
   if (!profiles.length) return null
   return (
@@ -201,11 +197,9 @@ const ProfileContent = () => {
         </ListProfile>
       </Column>
       <ActionWrapper hasBorder={profiles.length > 1}>
-        {canSignInEth && !KyberOauth2.getConnectedAccounts().includes(connectedWallet?.toLowerCase() ?? '') && (
-          <ActionItem onClick={() => signIn()}>
-            <UserPlus size={18} /> <Trans>Add Account with current wallet</Trans>
-          </ActionItem>
-        )}
+        <ActionItem onClick={() => signIn()}>
+          <UserPlus size={18} /> <Trans>Add Account</Trans>
+        </ActionItem>
         {totalSignedAccount > 0 && (
           <ActionItem onClick={signOutAll}>
             <LogOut size={18} /> <Trans>Sign out of all accounts</Trans>

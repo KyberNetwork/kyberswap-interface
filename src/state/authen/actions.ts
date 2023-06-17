@@ -5,7 +5,7 @@ import { UserProfile } from 'state/authen/reducer'
 
 export const updatePossibleWalletAddress = createAction<null | string | undefined>('authen/updatePossibleWalletAddress')
 export const updateConnectingWallet = createAction<boolean>('authen/connectingWallet')
-export const updateSignedWallet = createAction<undefined | string>('authen/updateSignedWallet')
+export const updateSignedAccount = createAction<undefined | string>('authen/updateSignedAccount')
 
 export const updateProcessingLogin = createAction<boolean>('authen/updateProcessingLogin')
 
