@@ -5,7 +5,6 @@ import { BFF_API } from 'constants/env'
 import { Topic } from 'hooks/useNotification'
 import { UserProfile } from 'state/authen/reducer'
 
-const url = ENV_LEVEL === ENV_TYPE.LOCAL ? '/v1/profile/me' : '/v1/profiles'
 const identityApi = createApi({
   reducerPath: 'identityApi',
   baseQuery: baseQueryOauth({ baseUrl: BFF_API }),

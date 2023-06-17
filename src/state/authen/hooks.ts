@@ -222,7 +222,7 @@ export const useAllProfileInfo = () => {
   const getAllProfileFromLocal = useCallback(() => {
     const profileInfo = getProfileLocalStorage(ProfileLocalStorageKeys.PROFILE)
     const getAccountGuest = (account: string) => ({
-      address: account === KEY_GUEST_DEFAULT ? t`Guest` : `(Imported) ${account}`,
+      address: account === KEY_GUEST_DEFAULT ? t`Guest` : account,
       active: account === signedGuest?.toLowerCase(),
       key: account,
       profile: getCacheProfile(account, true),
