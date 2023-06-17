@@ -10,10 +10,8 @@ import styled from 'styled-components'
 
 import { AddressInput } from 'components/AddressInputPanel'
 import { NotificationType } from 'components/Announcement/type'
-import Avatar from 'components/Avatar'
 import Column from 'components/Column'
 import CopyHelper from 'components/Copy'
-import FileInput from 'components/FileInput'
 import { Input } from 'components/Input'
 import { useValidateEmail } from 'components/SubscribeButton/NotificationPreference'
 import InputEmail from 'components/SubscribeButton/NotificationPreference/InputEmail'
@@ -22,6 +20,7 @@ import { useActiveWeb3React } from 'hooks'
 import { useUploadImageToCloud } from 'hooks/social'
 import useLogin from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
+import AvatarEdit from 'pages/NotificationCenter/Profile/AvatarEdit'
 import ExportAccountButton from 'pages/NotificationCenter/Profile/ExportAccountButton'
 import WarningSignMessage from 'pages/NotificationCenter/Profile/WarningSignMessage'
 import { ButtonLogout, ButtonSave } from 'pages/NotificationCenter/Profile/buttons'
@@ -49,17 +48,7 @@ const Label = styled.label`
   color: ${({ theme }) => theme.subText};
 `
 
-const AVATAR_SIZE = isMobile ? '72px' : '120px'
-const AvatarWrapper = styled.div`
-  border-radius: 100%;
-  padding: 16px;
-  background-color: ${({ theme }) => theme.buttonBlack};
-  width: ${AVATAR_SIZE};
-  height: ${AVATAR_SIZE};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`
+const AVATAR_SIZE = isMobile ? '90px' : '120px'
 
 const FormGroup = styled.div`
   display: flex;
@@ -259,15 +248,16 @@ export default function Profile() {
           </ActionsWrapper>
         </LeftColum>
 
-        <FormGroup style={{ width: isMobile ? '100px' : AVATAR_SIZE, alignItems: 'center' }}>
+        <FormGroup style={{ width: isMobile ? '120px' : AVATAR_SIZE, alignItems: 'center' }}>
           <Label style={{ textAlign: 'center' }}>
             <Trans>Profile Picture</Trans>
           </Label>
-          <FileInput onImgChange={handleFileChange} image disabled={isSignInEmail}>
-            <AvatarWrapper>
-              <Avatar url={displayAvatar} size={isMobile ? 50 : 84} color={theme.subText} />
-            </AvatarWrapper>
-          </FileInput>
+          <AvatarEdit
+            avatar={displayAvatar}
+            disabled={isSignInEmail}
+            handleFileChange={handleFileChange}
+            size={AVATAR_SIZE}
+          />
         </FormGroup>
       </FormWrapper>
       <VerifyCodeModal

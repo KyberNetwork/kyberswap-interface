@@ -87,6 +87,7 @@ const useLogin = (autoLogin = false) => {
 
   const showSignInSuccess = useCallback(
     (desireAccount: string | undefined, guest = false) =>
+      !autoLogin &&
       notify(
         {
           type: NotificationType.SUCCESS,
@@ -104,7 +105,7 @@ const useLogin = (autoLogin = false) => {
         },
         10_000,
       ),
-    [account, notify],
+    [account, notify, autoLogin],
   )
 
   const signInAnonymous = useCallback(
@@ -144,7 +145,7 @@ const useLogin = (autoLogin = false) => {
           session: userInfo,
           account: respAccount,
         })
-        !autoLogin && showSignInSuccess(respAccount)
+        showSignInSuccess(respAccount)
       } catch (error) {
         console.log('sdk get session err:', desireAccount, error.message)
         if (loginAnonymousIfFailed) {
@@ -154,7 +155,7 @@ const useLogin = (autoLogin = false) => {
         setLoading(false)
       }
     },
-    [setLoading, signInAnonymous, getProfile, saveSignedAccount, autoLogin, showSignInSuccess],
+    [setLoading, signInAnonymous, getProfile, saveSignedAccount, showSignInSuccess],
   )
 
   const signIn = useCallback(
