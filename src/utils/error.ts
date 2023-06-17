@@ -27,10 +27,14 @@ const sendError = (name: string, apiUrl: string, trackData: any) => {
  */
 export const checkIamDown = (axiosErr: AxiosError) => {
   const statusCode = axiosErr?.response?.status
+  const response = axiosErr?.response?.data
+
   const isDie =
-    navigator.onLine &&
-    statusCode !== 401 &&
-    (!axiosErr?.response?.data || (statusCode === 404 && axiosErr?.response?.data === '404 page not found'))
+    navigator.onLine && // not track when internet issue
+    statusCode !== 401 && // not track when token expired
+    (!response || // block cors
+      (statusCode === 404 && response === '404 page not found') || // wrong path
+      (statusCode && statusCode >= 500 && statusCode <= 599)) // server down
 
   const trackData = {
     config: {
@@ -39,7 +43,7 @@ export const checkIamDown = (axiosErr: AxiosError) => {
       params: axiosErr?.config?.params,
       url: axiosErr?.config?.url,
     },
-    response: axiosErr?.response?.data,
+    response,
     statusCode,
   }
   const apiUrl = axiosErr?.config?.url ?? ''
@@ -64,6 +68,6 @@ export const checkIamDown = (axiosErr: AxiosError) => {
     }
   }
   if (isRouteApiDie || isIamDie) {
-    console.error(`${apiUrl} was down`)
+    console.error(`${apiUrl} was down`, trackData)
   }
 }
