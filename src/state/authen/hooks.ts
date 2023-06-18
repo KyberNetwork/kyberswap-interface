@@ -83,6 +83,7 @@ export const useSignedAccountInfo = () => {
   const isSignInGuestDefault = isSigInGuest && signedAccount === KEY_GUEST_DEFAULT
 
   return {
+    loginMethod,
     isSignInDifferentWallet,
     isSigInGuest,
     isSignInGuestDefault,

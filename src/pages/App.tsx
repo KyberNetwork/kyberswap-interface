@@ -133,8 +133,6 @@ export default function App() {
   const prevOnline = usePrevious(online)
   useSessionExpiredGlobal()
 
-  useSessionExpiredGlobal()
-
   useEffect(() => {
     if (prevOnline === false && online && account) {
       // refresh page when network back to normal to prevent some issues: ex: stale data, ...

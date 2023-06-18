@@ -1,4 +1,4 @@
-import KyberOauth2, { KyberOauth2Event } from '@kybernetwork/oauth2'
+import KyberOauth2, { KyberOauth2Event, LoginMethod } from '@kybernetwork/oauth2'
 import { t } from '@lingui/macro'
 import { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -8,13 +8,15 @@ import { APP_PATHS } from 'constants/index'
 import useLogin from 'hooks/useLogin'
 import { ConfirmModalState } from 'state/application/reducer'
 import { useSignedAccountInfo } from 'state/authen/hooks'
+import { ProfileLocalStorageKeys, getProfileLocalStorage } from 'utils/profile'
 
+// todo rename file
 export default function useSessionExpiredGlobal() {
   const { pathname } = useLocation()
   const showConfirm = useShowConfirm()
-  const { redirectSignIn } = useLogin()
+  const { redirectSignIn, signIn, signInAnonymous } = useLogin()
   const navigate = useNavigate()
-  const { signedAccount } = useSignedAccountInfo()
+  const { signedAccount, loginMethod } = useSignedAccountInfo()
 
   useEffect(() => {
     const listener = (event: CustomEvent) => {
@@ -39,4 +41,20 @@ export default function useSessionExpiredGlobal() {
     KyberOauth2.on(KyberOauth2Event.SESSION_EXPIRED, listener)
     return () => KyberOauth2.off(KyberOauth2Event.SESSION_EXPIRED, listener)
   }, [pathname, showConfirm, redirectSignIn, navigate, signedAccount])
+
+  useEffect(() => {
+    const listener = () => {
+      const newLoginMethod = getProfileLocalStorage(ProfileLocalStorageKeys.CONNECTED_METHOD)
+      const newSignedAccount = getProfileLocalStorage(ProfileLocalStorageKeys.CONNECTED_ACCOUNT)
+      const accountSignHasChanged = loginMethod != newLoginMethod || signedAccount !== newSignedAccount
+      if (document.visibilityState === 'visible' && accountSignHasChanged) {
+        if (newLoginMethod === LoginMethod.ANONYMOUS) signInAnonymous(newSignedAccount)
+        else signIn(newSignedAccount)
+      }
+    }
+    document.addEventListener('visibilitychange', listener)
+    return () => {
+      document.removeEventListener('visibilitychange', listener)
+    }
+  }, [signedAccount, loginMethod, signInAnonymous, signIn])
 }
