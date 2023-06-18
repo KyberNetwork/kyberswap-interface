@@ -5,13 +5,13 @@ import { ReactNode, useMemo } from 'react'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { getRouInfo } from 'pages/CrossChain/helpers'
-import useDefaultTokenChain from 'pages/CrossChain/useDefaultTokenChain'
 import { useIsEnoughGas } from 'pages/CrossChain/useIsEnoughGas'
+import { useCrossChainState } from 'state/crossChain/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 
 export const useIsTokensSupport = () => {
-  const { listTokenIn, listTokenOut, currencyIn, currencyOut } = useDefaultTokenChain()
+  const [{ listTokenIn, listTokenOut, currencyIn, currencyOut }] = useCrossChainState()
   return useMemo(
     () =>
       (listTokenIn.some(e => currencyIn?.equals(e)) || currencyIn?.isNative) &&
@@ -29,7 +29,7 @@ export default function useValidateInput({
   route: RouteData | undefined
   errorGetRoute: boolean
 }) {
-  const { loadingToken, listTokenIn, listTokenOut, currencyIn, chainIdOut, currencyOut } = useDefaultTokenChain()
+  const [{ loadingToken, listTokenIn, listTokenOut, currencyIn, chainIdOut, currencyOut }] = useCrossChainState()
   const balance = useCurrencyBalance(currencyIn)
   const { chainId, account } = useActiveWeb3React()
   const { isEnoughEth } = useIsEnoughGas(route)
