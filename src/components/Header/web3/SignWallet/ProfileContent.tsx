@@ -29,14 +29,29 @@ const ContentWrapper = styled.div`
   width: 100%;
   min-width: 320px;
   padding: 16px;
+
   ${({ theme }) => theme.mediaWidth.upToMedium`
       padding: 14px;
       gap: 8px;
   `}
 `
 
-const ListProfile = styled.div<{ hasData: boolean }>`
+const ListProfile = styled.div<{ hasData: boolean; scroll?: boolean }>`
   padding: ${({ hasData }) => hasData && `12px 0`};
+  ${({ scroll }) =>
+    scroll &&
+    css`
+      max-height: 400px;
+      overflow-y: scroll;
+      overflow-x: hidden;
+      &::-webkit-scrollbar {
+        display: block;
+        width: 4px;
+      }
+      &::-webkit-scrollbar-thumb {
+        background: ${({ theme }) => theme.border};
+      }
+    `};
 `
 
 const ActionItem = styled.div`
@@ -179,7 +194,7 @@ const ProfileItem = ({
     </ProfileItemWrapper>
   )
 }
-const ProfileContent = () => {
+const ProfileContent = ({ scroll }: { scroll?: boolean }) => {
   const { signIn, signOutAll } = useLogin()
   const { profiles, refresh } = useAllProfileInfo()
 
@@ -190,7 +205,7 @@ const ProfileContent = () => {
     <ContentWrapper>
       <Column>
         <ProfileItem data={profiles[0]} refreshProfile={refresh} />
-        <ListProfile hasData={!!listNotActive.length}>
+        <ListProfile hasData={!!listNotActive.length} scroll={scroll}>
           {listNotActive.map(data => (
             <ProfileItem key={data.address} data={data} refreshProfile={refresh} />
           ))}

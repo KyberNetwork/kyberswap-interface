@@ -58,7 +58,7 @@ export default function SelectWallet() {
         </>
       ) : (
         <MenuFlyout trigger={profileIcon} customStyle={browserCustomStyle} isOpen={isOpen} toggle={toggleModal}>
-          <ProfileContent />
+          <ProfileContent scroll />
         </MenuFlyout>
       )}
     </StyledMenu>
