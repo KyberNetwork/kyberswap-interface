@@ -4,7 +4,6 @@ import { Flex } from 'rebass'
 import { useGetListPriceAlertHistoryQuery } from 'services/announcement'
 
 import { AnnouncementTemplatePriceAlert, PrivateAnnouncement } from 'components/Announcement/type'
-import { useActiveWeb3React } from 'hooks'
 import NoData from 'pages/NotificationCenter/NoData'
 import CommonPagination from 'pages/NotificationCenter/PriceAlerts/CommonPagination'
 import { ITEMS_PER_PAGE } from 'pages/NotificationCenter/const'
@@ -12,15 +11,11 @@ import { ITEMS_PER_PAGE } from 'pages/NotificationCenter/const'
 import SingleAlert from './SingleAlert'
 
 const AlertsHistory = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boolean) => void }) => {
-  const { account } = useActiveWeb3React()
   const [page, setPage] = useState(1)
-  const { data, isLoading } = useGetListPriceAlertHistoryQuery(
-    {
-      page,
-      pageSize: ITEMS_PER_PAGE,
-    },
-    { skip: !account },
-  )
+  const { data, isLoading } = useGetListPriceAlertHistoryQuery({
+    page,
+    pageSize: ITEMS_PER_PAGE,
+  })
 
   const notifications = data?.notifications ?? []
 

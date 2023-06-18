@@ -32,7 +32,6 @@ type Params = {
 
 type ParamsPrivate = {
   page: number
-  account: string
   templateIds?: string
   pageSize?: number
 }
@@ -52,7 +51,7 @@ const AnnouncementApi = createApi({
   tagTypes: ANNOUNCEMENT_TAGS,
   endpoints: builder => ({
     getPrivateAnnouncements: builder.query<AnnouncementResponse<PrivateAnnouncement>, ParamsPrivate>({
-      query: ({ account, ...params }) => ({
+      query: params => ({
         url: `/v1/notification/me`,
         params: { ...params, excludedTemplateIds },
       }),
@@ -60,7 +59,7 @@ const AnnouncementApi = createApi({
       providesTags: [RTK_QUERY_TAGS.GET_ALL_PRIVATE_ANN],
     }),
     getPrivateAnnouncementsByIds: builder.query<AnnouncementResponse<PrivateAnnouncement>, ParamsPrivate>({
-      query: ({ account, templateIds, ...params }) => ({
+      query: ({ templateIds, ...params }) => ({
         url: `/v1/notification/me`,
         params: { ...params, templateIds },
       }),

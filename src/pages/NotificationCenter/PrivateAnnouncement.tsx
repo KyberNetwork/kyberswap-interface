@@ -39,18 +39,12 @@ export default function GeneralAnnouncement({ type }: { type?: PrivateAnnounceme
     data: respNotificationByType,
     refetch: refetchById,
     isLoading,
-  } = useGetPrivateAnnouncementsByIdsQuery(
-    { page, account: account ?? '', templateIds, pageSize: ITEMS_PER_PAGE },
-    { skip: !account || !templateIds },
-  )
+  } = useGetPrivateAnnouncementsByIdsQuery({ page, templateIds, pageSize: ITEMS_PER_PAGE }, { skip: !templateIds })
   const {
     data: dataAllNotification,
     refetch: refetchAll,
     isLoading: isLoadingAll,
-  } = useGetPrivateAnnouncementsQuery(
-    { page, account: account ?? '', pageSize: ITEMS_PER_PAGE },
-    { skip: !account || !!templateIds },
-  )
+  } = useGetPrivateAnnouncementsQuery({ page, pageSize: ITEMS_PER_PAGE }, { skip: !!templateIds })
 
   const [ackAnnouncement] = useAckPrivateAnnouncementsByIdsMutation()
   const [clearAllAnnouncement] = useClearAllPrivateAnnouncementByIdMutation()

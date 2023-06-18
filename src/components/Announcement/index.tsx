@@ -20,6 +20,7 @@ import useInterval from 'hooks/useInterval'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { ApplicationModal } from 'state/application/actions'
 import { useDetailAnnouncement, useModalOpen, useToggleNotificationCenter } from 'state/application/hooks'
+import { useSessionInfo } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 const StyledMenuButton = styled.button<{ active?: boolean }>`
@@ -110,11 +111,7 @@ export default function AnnouncementComponent() {
         const isMyInboxTab = tab === Tab.INBOX
         loadingAnnouncement.current = true
         const page = isReset ? 1 : curPage + 1
-        const promise = isMyInboxTab
-          ? account
-            ? fetchPrivateAnnouncement({ page, account })
-            : null
-          : fetchGeneralAnnouncement({ page })
+        const promise = isMyInboxTab ? fetchPrivateAnnouncement({ page }) : fetchGeneralAnnouncement({ page })
 
         if (!promise) return
         const { data } = await promise
@@ -136,15 +133,7 @@ export default function AnnouncementComponent() {
       }
       return
     },
-    [
-      account,
-      announcements,
-      privateAnnouncements,
-      curPage,
-      activeTab,
-      fetchGeneralAnnouncement,
-      fetchPrivateAnnouncement,
-    ],
+    [announcements, privateAnnouncements, curPage, activeTab, fetchGeneralAnnouncement, fetchPrivateAnnouncement],
   )
 
   const {
@@ -191,11 +180,12 @@ export default function AnnouncementComponent() {
   }
 
   const resetUnread = useInvalidateTagAnnouncement()
+  const { userInfo } = useSessionInfo()
 
   const prefetchPrivateAnnouncements = useCallback(async () => {
     try {
-      if (!account) return []
-      const { data } = await fetchPrivateAnnouncement({ account, page: 1 })
+      if (!userInfo?.identityId) return []
+      const { data } = await fetchPrivateAnnouncement({ page: 1 })
       const notifications = (data?.notifications ?? []) as PrivateAnnouncement[]
       const hasNewMsg = data?.numberOfUnread !== numberOfUnread
       if (hasNewMsg) {
@@ -209,7 +199,7 @@ export default function AnnouncementComponent() {
       setPrivateAnnouncements([])
       return []
     }
-  }, [account, fetchPrivateAnnouncement, resetUnread, numberOfUnread])
+  }, [fetchPrivateAnnouncement, resetUnread, numberOfUnread, userInfo?.identityId])
 
   const prevOpen = usePrevious(isOpenNotificationCenter)
   useEffect(() => {

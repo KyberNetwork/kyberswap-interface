@@ -82,7 +82,7 @@ const Header: React.FC<Props> = ({ currentTab, setCurrentTab, disabledClearAll }
   const theme = useTheme()
   const { account } = useActiveWeb3React()
 
-  const { data, isLoading } = useGetAlertStatsQuery(account || '', { skip: !account })
+  const { data, isLoading } = useGetAlertStatsQuery(account || '')
   const [deleteAllActive] = useDeleteAllAlertsMutation()
   const [clearAllHistory] = useClearAllPriceAlertHistoryMutation()
 

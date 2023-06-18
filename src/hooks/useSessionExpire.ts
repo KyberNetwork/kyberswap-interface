@@ -12,27 +12,31 @@ import { useSignedAccountInfo } from 'state/authen/hooks'
 export default function useSessionExpiredGlobal() {
   const { pathname } = useLocation()
   const showConfirm = useShowConfirm()
-  const { signIn, signInAnonymous } = useLogin()
-  const { signedAccount } = useSignedAccountInfo()
+  const { redirectSignIn } = useLogin()
   const navigate = useNavigate()
+  const { signedAccount } = useSignedAccountInfo()
 
   useEffect(() => {
-    const listener = () => {
-      const isKyberAI = pathname.toLowerCase().startsWith(APP_PATHS.KYBERAI.toLowerCase())
+    const listener = (event: CustomEvent) => {
+      const accountId = event?.detail?.accountId
       const data: ConfirmModalState = {
         isOpen: true,
         content: t`Your session has expired. Please sign-in to continue.`,
         title: t`Session Expired`,
         confirmText: t`Sign-in`,
-        onConfirm: () => signIn(signedAccount),
+        cancelText: t`Cancel`,
+        onConfirm: () => redirectSignIn(),
       }
-      if (!isKyberAI) {
-        data.cancelText = t`Use Guest Account`
-        data.onCancel = () => signInAnonymous()
+      const isKyberAIPage =
+        pathname.toLowerCase().startsWith(APP_PATHS.KYBERAI.toLowerCase()) &&
+        pathname.toLowerCase() !== APP_PATHS.KYBERAI_ABOUT.toLowerCase()
+
+      if (isKyberAIPage && accountId === signedAccount) {
+        delete data.cancelText
       }
       showConfirm(data)
     }
     KyberOauth2.on(KyberOauth2Event.SESSION_EXPIRED, listener)
     return () => KyberOauth2.off(KyberOauth2Event.SESSION_EXPIRED, listener)
-  }, [pathname, showConfirm, navigate, signedAccount, signIn, signInAnonymous])
+  }, [pathname, showConfirm, redirectSignIn, navigate, signedAccount])
 }

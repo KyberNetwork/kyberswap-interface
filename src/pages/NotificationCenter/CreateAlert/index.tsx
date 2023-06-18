@@ -64,9 +64,7 @@ export default function CreateAlert() {
     setModalData(undefined)
   }
 
-  const { data: priceAlertStat = {} as PriceAlertStat } = useGetAlertStatsQuery(account ?? '', {
-    skip: !account,
-  })
+  const { data: priceAlertStat = {} as PriceAlertStat } = useGetAlertStatsQuery(account ?? '')
   const navigate = useNavigate()
   const goBack = () => {
     navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PRICE_ALERTS}`)

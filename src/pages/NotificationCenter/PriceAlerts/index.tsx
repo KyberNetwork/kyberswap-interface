@@ -24,8 +24,8 @@ const useAckAnnouncement = (templateIds: string) => {
   const { account } = useActiveWeb3React()
   const [ackAnnouncement] = useAckPrivateAnnouncementsByIdsMutation()
   const { data, refetch } = useGetPrivateAnnouncementsByIdsQuery(
-    { page: 1, account: account ?? '', templateIds, pageSize: ITEMS_PER_PAGE },
-    { skip: !account || !templateIds },
+    { page: 1, templateIds, pageSize: ITEMS_PER_PAGE },
+    { skip: !templateIds },
   )
   const numberOfUnread = data?.numberOfUnread || 0
   const loadingRef = useRef(false)

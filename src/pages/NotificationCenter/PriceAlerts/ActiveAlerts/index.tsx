@@ -20,7 +20,7 @@ const ActiveAlerts = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boolea
     pageSize: ITEMS_PER_PAGE,
     sort: 'is_enabled:desc,created_at:desc',
   })
-  const { data: alertStat, refetch: refetchStat } = useGetAlertStatsQuery(account || '', { skip: !account })
+  const { data: alertStat, refetch: refetchStat } = useGetAlertStatsQuery(account || '')
   const isMaxQuotaActiveAlert = alertStat ? alertStat.totalActiveAlerts >= alertStat.maxActiveAlerts : false
 
   useEffect(() => {

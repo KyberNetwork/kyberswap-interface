@@ -40,11 +40,8 @@ const priceAlertApi = createApi({
       providesTags: [RTK_QUERY_TAGS.GET_ALERTS],
     }),
     getAlertStats: builder.query<PriceAlertStat, string>({
-      query: walletAddress => ({
+      query: () => ({
         url: `/v1/price-alert/statistics`,
-        params: {
-          walletAddress,
-        },
       }),
       transformResponse: (data: any) => data?.data?.statistics,
       providesTags: [RTK_QUERY_TAGS.GET_ALERTS_STAT],

@@ -14,14 +14,13 @@ import NotificationIcon from 'components/Icons/NotificationIcon'
 import ProfileIcon from 'components/Icons/Profile'
 import Drawer from 'components/Modal/Drawer'
 import { getAnnouncementsTemplateIds } from 'constants/env'
-import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import MenuItem from 'pages/NotificationCenter/Menu/MenuItem'
 import ImportAccountModal from 'pages/NotificationCenter/Profile/ImportAccountModal'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
-import { useCacheProfile, useSignedAccountInfo } from 'state/authen/hooks'
+import { useCacheProfile, useSessionInfo, useSignedAccountInfo } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
 import { shortString } from 'utils/string'
@@ -190,7 +189,6 @@ const MenuForMobile = (props: PropsMenu) => {
 
 const Menu = () => {
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
-  const { account } = useActiveWeb3React()
   const [showModalImport, setShowModalImport] = useState(false)
 
   const templateIds = Object.values(PrivateAnnouncementType)
@@ -199,7 +197,8 @@ const Menu = () => {
     .filter(Boolean)
     .join(',')
 
-  const { data = [] } = useGetTotalUnreadAnnouncementsQuery({ templateIds }, { skip: !account })
+  const { userInfo } = useSessionInfo()
+  const { data = [] } = useGetTotalUnreadAnnouncementsQuery({ templateIds }, { skip: !userInfo?.identityId })
 
   const unread = useMemo(() => {
     const result = {} as Unread

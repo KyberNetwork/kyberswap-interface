@@ -158,6 +158,11 @@ const useLogin = (autoLogin = false) => {
     [setLoading, signInAnonymous, getProfile, saveSignedAccount, showSignInSuccess],
   )
 
+  const redirectSignIn = useCallback(() => {
+    KyberOauth2.authenticate() // navigate to login page
+    setLoginRedirectUrl()
+  }, [])
+
   const signIn = useCallback(
     (desireAccount?: string, showSessionExpired = false) => {
       const isAddAccount = !desireAccount
@@ -179,25 +184,20 @@ const useLogin = (autoLogin = false) => {
         return
       }
 
-      const redirect = () => {
-        KyberOauth2.authenticate() // navigate to login page
-        setLoginRedirectUrl()
-      }
-
       if (showSessionExpired && isSelectAccount && !isTokenExist) {
         showConfirm({
           isOpen: true,
           content: t`Your session has expired. Please sign-in to continue.`,
           title: t`Session Expired`,
           confirmText: t`Sign-in`,
-          onConfirm: () => redirect(),
+          onConfirm: () => redirectSignIn(),
           cancelText: t`Cancel`,
         })
         return
       }
-      redirect()
+      redirectSignIn()
     },
-    [account, requestSignIn, toggleWalletModal, showConfirm],
+    [account, requestSignIn, toggleWalletModal, showConfirm, redirectSignIn],
   )
 
   // auto try sign in when the first visit app, call once
@@ -275,7 +275,7 @@ const useLogin = (autoLogin = false) => {
   const importGuestAccount = useCallback(
     async (accountInfo: AnonymousAccount) => {
       const accountId = accountInfo.username
-      await KyberOauth2.importAnonymousAccount(accountInfo)
+      KyberOauth2.importAnonymousAccount(accountInfo)
       return signInAnonymous(accountId)
     },
     [signInAnonymous],
@@ -291,7 +291,7 @@ const useLogin = (autoLogin = false) => {
     [signInAnonymous, removeProfile],
   )
 
-  return { signOut, signIn, signInAnonymous, signOutAll, importGuestAccount, signOutAnonymous }
+  return { signOut, signIn, redirectSignIn, signInAnonymous, signOutAll, importGuestAccount, signOutAnonymous }
 }
 
 export default useLogin
