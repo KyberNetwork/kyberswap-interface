@@ -160,6 +160,7 @@ const MenuForDesktop = ({ unread, onChildrenClick, toggleImportProfile }: PropsM
       {menuItemDeskTop.map((data, index) => (
         <MenuItem
           key={index}
+          index={index}
           style={{ paddingTop: index ? undefined : 0 }}
           data={data}
           unread={unread}

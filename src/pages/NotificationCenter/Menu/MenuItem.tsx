@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Flex } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
@@ -36,11 +36,11 @@ const Badge = styled.div`
   color: ${({ theme }) => theme.textReverse};
 `
 
-const StyledLink = styled(Link)<{ $isChildren?: boolean }>`
-  border-bottom: ${({ theme, $isChildren }) => !$isChildren && `1px solid ${theme.border}`};
-  :last-child {
-    border: none;
-  }
+const StyledLink = styled(Link)<{ $isChildren?: boolean; $expand?: boolean; $isFirstParent: boolean }>`
+  border-top: ${({ theme, $isChildren, $isFirstParent }) =>
+    $isChildren || $isFirstParent ? 'none' : `1px solid ${theme.border}`};
+  border-bottom: ${({ theme, $isChildren, $expand }) =>
+    $isChildren || !$expand ? 'none' : `1px solid ${theme.border}`};
 `
 
 type WrapperProps = {
@@ -72,9 +72,10 @@ type Props = {
   data: MenuItemType
   isChildren?: boolean
   onChildrenClick?: () => void
+  index?: number
 }
 
-const MenuItem: React.FC<Props> = ({ data, style, unread, isChildren, onChildrenClick }) => {
+const MenuItem: React.FC<Props> = ({ data, style, unread, isChildren, onChildrenClick, index }) => {
   const { icon, title, route, childs, type, onClick, defaultExpand } = data
   const location = useLocation()
   const theme = useTheme()
@@ -100,9 +101,16 @@ const MenuItem: React.FC<Props> = ({ data, style, unread, isChildren, onChildren
   }
 
   const totalUnread = type ? unread[type as PrivateAnnouncementType] : 0
+  const isFirstParent = Boolean(!isChildren && index === 0)
   return (
     <>
-      <StyledLink to={onClick ? '#' : path} onClick={onClickMenu} $isChildren={isChildren}>
+      <StyledLink
+        $isFirstParent={isFirstParent}
+        $expand={expand}
+        to={onClick ? '#' : path}
+        onClick={onClickMenu}
+        $isChildren={isChildren}
+      >
         <Wrapper $active={isActive} style={style}>
           <Flex
             sx={{
@@ -119,37 +127,33 @@ const MenuItem: React.FC<Props> = ({ data, style, unread, isChildren, onChildren
           {totalUnread ? <Badge>{formatNumberOfUnread(totalUnread)}</Badge> : null}
           {canShowExpand && <DropdownArrowIcon rotate={expand} />}
         </Wrapper>
-        {canShowListChildren && (
-          <Column style={{ padding: '8px 0', borderTop: `1px solid ${theme.border}`, marginLeft: '24px' }}>
-            {childs?.map((el, i) => {
-              return (
-                <>
-                  <MenuItem
-                    onChildrenClick={onChildrenClick}
-                    isChildren
-                    key={i}
-                    data={el}
-                    unread={unread}
+      </StyledLink>
+      {canShowListChildren && (
+        <Column style={{ padding: '8px 0', marginLeft: '24px' }}>
+          {childs?.map((el, i) => {
+            return (
+              <Fragment key={i}>
+                <MenuItem
+                  onChildrenClick={onChildrenClick}
+                  isChildren
+                  data={el}
+                  unread={unread}
+                  style={{ padding: '8px 0' }}
+                />
+                {el.divider && (
+                  <div
                     style={{
-                      padding: '8px 0',
-                      border: 'none',
+                      margin: '8px 0',
+                      width: '100%',
+                      borderBottom: `1px solid ${theme.border}`,
                     }}
                   />
-                  {el.divider && (
-                    <div
-                      style={{
-                        margin: '8px 0',
-                        width: '100%',
-                        borderBottom: `1px solid ${theme.border}`,
-                      }}
-                    />
-                  )}
-                </>
-              )
-            })}
-          </Column>
-        )}
-      </StyledLink>
+                )}
+              </Fragment>
+            )
+          })}
+        </Column>
+      )}
     </>
   )
 }
