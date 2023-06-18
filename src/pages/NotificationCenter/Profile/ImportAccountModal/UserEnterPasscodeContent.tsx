@@ -33,8 +33,9 @@ const ButtonCancel = styled(ButtonExport)`
 type Props = {
   dismissModal: () => void
   onImportToken: (data: { passcode: string; importToken: string }) => void
+  loading: boolean
 }
-const UserEnterPasscodeContent: React.FC<Props> = ({ onImportToken, dismissModal }) => {
+const UserEnterPasscodeContent: React.FC<Props> = ({ onImportToken, dismissModal, loading }) => {
   const [passcode, setPasscode] = useState('')
   const [importToken, setImportToken] = useState('')
   const theme = useTheme()
@@ -130,14 +131,16 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onImportToken, dismissModal
           gap: '16px',
         }}
       >
-        <ButtonCancel onClick={dismissModal}>Cancel</ButtonCancel>
+        <ButtonCancel onClick={dismissModal} disabled={loading}>
+          Cancel
+        </ButtonCancel>
         <ButtonNext
-          disabled={!passcode || !importToken}
+          disabled={!passcode || !importToken || loading}
           onClick={() => {
             onImportToken({ passcode, importToken })
           }}
         >
-          Import
+          {loading ? <Trans>Importing...</Trans> : <Trans>Import</Trans>}
         </ButtonNext>
       </Flex>
     </Flex>

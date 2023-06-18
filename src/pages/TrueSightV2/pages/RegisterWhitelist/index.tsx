@@ -30,7 +30,7 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const { isLogin } = useSessionInfo()
-  const { signIn } = useLogin()
+  const { redirectSignIn } = useLogin()
 
   const { isWhiteList, isWaitList, loading: isCheckingPermission } = useIsWhiteListKyberAI()
 
@@ -102,7 +102,7 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
 
   if (!isLogin)
     return (
-      <ConnectWalletButton onClick={() => signIn()}>
+      <ConnectWalletButton onClick={redirectSignIn}>
         <Trans>Sign-In to Continue</Trans>
       </ConnectWalletButton>
     )

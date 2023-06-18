@@ -28,7 +28,7 @@ const WarningWrapper = styled.div`
   `}
 `
 const WarningSignMessage = () => {
-  const { signIn } = useLogin()
+  const { redirectSignIn } = useLogin()
   const { pendingAuthentication } = useSessionInfo()
   const { signedAccount } = useSignedAccountInfo()
   const { account } = useActiveWeb3React()
@@ -66,7 +66,7 @@ const WarningSignMessage = () => {
             <Trans>Read More</Trans>
           </ButtonOutlined>
         )}
-        <ButtonPrimary width={btnWidth} height={'30px'} fontSize={'14px'} onClick={() => signIn()}>
+        <ButtonPrimary width={btnWidth} height={'30px'} fontSize={'14px'} onClick={redirectSignIn}>
           <Trans>Sign-in</Trans>
         </ButtonPrimary>
       </Row>

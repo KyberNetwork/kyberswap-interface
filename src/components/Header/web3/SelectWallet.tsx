@@ -160,7 +160,7 @@ function Web3StatusInner() {
                       style={{ cursor: 'pointer', fontSize: '12px', color: theme.primary }}
                       onClick={e => {
                         e.stopPropagation()
-                        signIn()
+                        signIn(account)
                       }}
                     >
                       Sign-In

@@ -99,7 +99,7 @@ const useLogin = (autoLogin = false) => {
                   isEmailValid(desireAccount)
                     ? `email ${desireAccount}`
                     : guest
-                    ? `guest account ${shortString(desireAccount, 25)}`
+                    ? `guest account ${desireAccount === KEY_GUEST_DEFAULT ? '' : shortString(desireAccount, 25)}`
                     : `wallet ${getShortenAddress(desireAccount ?? '')}`
                 }`,
         },
@@ -164,7 +164,7 @@ const useLogin = (autoLogin = false) => {
   }, [])
 
   const signIn = useCallback(
-    (desireAccount?: string, showSessionExpired = false) => {
+    async (desireAccount?: string, showSessionExpired = false) => {
       const isAddAccount = !desireAccount
       const isSelectAccount = !!desireAccount
 
@@ -178,9 +178,8 @@ const useLogin = (autoLogin = false) => {
 
       const connectedAccounts = KyberOauth2.getConnectedAccounts()
       const isTokenExist = connectedAccounts.includes(desireAccount?.toLowerCase() || '')
-
       if (isSelectAccount && isTokenExist) {
-        requestSignIn(desireAccount, false)
+        await requestSignIn(desireAccount, false)
         return
       }
 
@@ -282,8 +281,8 @@ const useLogin = (autoLogin = false) => {
   )
 
   const signOutAnonymous = useCallback(
-    (guestAccount: string) => {
-      if (guestAccount === KEY_GUEST_DEFAULT) return
+    (guestAccount: string | undefined) => {
+      if (!guestAccount || guestAccount === KEY_GUEST_DEFAULT) return
       signInAnonymous()
       KyberOauth2.removeAnonymousAccount(guestAccount)
       removeProfile(guestAccount, true)

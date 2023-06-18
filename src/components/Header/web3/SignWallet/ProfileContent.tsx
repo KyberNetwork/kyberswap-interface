@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
+import { useState } from 'react'
 import { LogOut, UserPlus } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -127,10 +128,13 @@ const ProfileItem = ({
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
   const { signIn, signInAnonymous, signOut, signOutAnonymous } = useLogin()
+  const [loading, setLoading] = useState(false)
 
-  const onClick = () => {
-    if (active) return
-    guest ? signInAnonymous(id) : signIn(id, true)
+  const onClick = async () => {
+    if (active || loading) return
+    setLoading(true)
+    await (guest ? signInAnonymous(id) : signIn(id, true))
+    setLoading(false)
     toggleModal()
   }
 
@@ -154,7 +158,12 @@ const ProfileItem = ({
       <Row width={'100%'} style={{ zIndex: 1 }}>
         <Row gap={active ? '16px' : '12px'} align="center">
           <Flex style={{ width: 54, minWidth: 54 }} justifyContent="center">
-            <Avatar url={profile?.avatarUrl} size={active ? 54 : 40} color={active ? theme.text : theme.subText} />
+            <Avatar
+              url={profile?.avatarUrl}
+              size={active ? 54 : 40}
+              color={active ? theme.text : theme.subText}
+              loading={loading}
+            />
           </Flex>
           <Column gap="8px" minWidth={'unset'} flex={1}>
             {profile?.nickname && (
@@ -195,7 +204,7 @@ const ProfileItem = ({
   )
 }
 const ProfileContent = ({ scroll }: { scroll?: boolean }) => {
-  const { signIn, signOutAll } = useLogin()
+  const { redirectSignIn, signOutAll } = useLogin()
   const { profiles, refresh } = useAllProfileInfo()
 
   const totalSignedAccount = profiles.filter(e => e.id !== KEY_GUEST_DEFAULT).length
@@ -212,7 +221,7 @@ const ProfileContent = ({ scroll }: { scroll?: boolean }) => {
         </ListProfile>
       </Column>
       <ActionWrapper hasBorder={profiles.length > 1}>
-        <ActionItem onClick={() => signIn()}>
+        <ActionItem onClick={redirectSignIn}>
           <UserPlus size={18} /> <Trans>Add Account</Trans>
         </ActionItem>
         {totalSignedAccount > 0 && (

@@ -1,5 +1,6 @@
 import KyberOauth2 from '@kybernetwork/oauth2'
 import { Trans, t } from '@lingui/macro'
+import { useState } from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 
@@ -20,6 +21,8 @@ type Props = {
 export default function ImportAccountModal({ isOpen, onDismiss }: Props) {
   const theme = useTheme()
   const notify = useNotify()
+  const [loading, setLoading] = useState(false)
+
   const { importGuestAccount } = useLogin()
   const handleImportToken = async ({ passcode, importToken }: { passcode: string; importToken: string }) => {
     try {
@@ -38,7 +41,7 @@ export default function ImportAccountModal({ isOpen, onDismiss }: Props) {
       if (KyberOauth2.getConnectedAnonymousAccounts().includes(username)) {
         throw new Error('This account is already imported')
       }
-
+      setLoading(true)
       await importGuestAccount(account)
       notify({
         type: NotificationType.SUCCESS,
@@ -53,6 +56,8 @@ export default function ImportAccountModal({ isOpen, onDismiss }: Props) {
         title: t`Imported unsuccessfully`,
         summary: error?.message || t`Error occur, please try again`,
       })
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -76,7 +81,7 @@ export default function ImportAccountModal({ isOpen, onDismiss }: Props) {
           </ButtonText>
         </Flex>
 
-        <UserEnterPasscodeContent dismissModal={onDismiss} onImportToken={handleImportToken} />
+        <UserEnterPasscodeContent dismissModal={onDismiss} onImportToken={handleImportToken} loading={loading} />
       </Flex>
     </Modal>
   )

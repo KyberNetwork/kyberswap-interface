@@ -27,7 +27,7 @@ export default function useSessionExpiredGlobal() {
         title: t`Session Expired`,
         confirmText: t`Sign-in`,
         cancelText: t`Cancel`,
-        onConfirm: () => redirectSignIn(),
+        onConfirm: redirectSignIn,
       }
       const isKyberAIPage =
         pathname.toLowerCase().startsWith(APP_PATHS.KYBERAI.toLowerCase()) &&
