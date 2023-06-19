@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { OPTIONAL_EVENTS } from '@walletconnect/ethereum-provider'
+import { OPTIONAL_EVENTS, OPTIONAL_METHODS } from '@walletconnect/ethereum-provider'
 import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
 import { initializeConnector } from '@web3-react/core'
 import { MetaMask } from '@web3-react/metamask'
@@ -26,7 +26,8 @@ export const [walletConnectV2, walletConnectV2Hooks] = initializeConnector<Walle
         chains: [defaultChain],
         optionalChains,
         showQrModal: true,
-        optionalMethods: ['eth_signTypedData', 'eth_signTypedData_v4', 'eth_sign'],
+        // optionalMethods: ['eth_signTypedData', 'eth_signTypedData_v4', 'eth_sign'],
+        optionalMethods: OPTIONAL_METHODS,
         optionalEvents: OPTIONAL_EVENTS,
         rpcMap: SUPPORTED_NETWORKS.reduce((acc, cur) => {
           acc[cur] = NETWORKS_INFO[cur].defaultRpcUrl
