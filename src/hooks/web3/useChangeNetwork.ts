@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import { captureException } from '@sentry/react'
 import { Connector } from '@web3-react/types'
 import { useCallback } from 'react'
 
@@ -76,14 +77,22 @@ export function useChangeNetwork() {
 
             if (didUserReject(connector, error)) {
               message = t`In order to use KyberSwap on ${NETWORKS_INFO[desiredChainId].name}, you must accept the network in your wallet.`
+            } else if (
+              [
+                /Cannot activate an optional chain \(\d+\), as the wallet is not connected to it\./,
+                /Chain 'eip155:\d+' not approved. Please use one of the following: eip155:\d+/,
+              ].some(regex => regex.test(error?.message))
+            ) {
+              message = t`Your wallet not support chain ${NETWORKS_INFO[desiredChainId].name}`
             } else {
-              if (
-                /Cannot activate an optional chain \(\d+\), as the wallet is not connected to it\./.test(error?.message)
-              ) {
-                message = t`Wallet not support chain ${NETWORKS_INFO[desiredChainId].name}`
-              } else {
-                message = error?.message || message
-              }
+              const e = new Error(`[Wallet] ${error.message}`)
+              e.name = 'Change chain step 1 Error'
+              e.stack = ''
+              captureException(e, {
+                level: 'warning',
+                extra: { error, wallet: walletEVM.walletKey, chainId, desiredChainId },
+              })
+              message = error?.message || message
             }
             notify({
               title: t`Failed to switch network`,
@@ -116,6 +125,13 @@ export function useChangeNetwork() {
           } catch (error) {
             notifyFailed(connector, error)
             if (!didUserReject(connector, error)) {
+              const e = new Error(`[Wallet] ${error.message}`)
+              e.name = 'Change chain step 2 Error'
+              e.stack = ''
+              captureException(e, {
+                level: 'warning',
+                extra: { error, wallet: walletEVM.walletKey, chainId, addChainParameter },
+              })
               console.error(`Change network step 2: activate addChainParameter ${addChainParameter} failed`, { error })
             }
           }
@@ -125,13 +141,14 @@ export function useChangeNetwork() {
       }
     },
     [
-      connector,
-      notify,
-      changeNetworkHandler,
-      walletEVM.isConnected,
-      walletSolana.isConnected,
       chainId,
+      walletSolana.isConnected,
+      walletEVM.isConnected,
+      walletEVM.walletKey,
+      changeNetworkHandler,
+      connector,
       fetchKyberswapConfig,
+      notify,
     ],
   )
 
