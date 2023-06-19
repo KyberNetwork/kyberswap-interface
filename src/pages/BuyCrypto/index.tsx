@@ -207,7 +207,6 @@ function BuyCrypto() {
     [ChainId.VELAS]: 'velasevm',
     [ChainId.SOLANA]: 'solana',
 
-    // TODO: check later
     [ChainId.ZKSYNC]: null,
     [ChainId.CRONOS]: null,
     [ChainId.GÖRLI]: null,

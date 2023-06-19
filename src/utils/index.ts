@@ -523,11 +523,6 @@ export const getLimitOrderContract = (chainId: ChainId) => {
   return ENV_KEY === 'production' || ENV_KEY === 'staging' ? production : development
 }
 
-export const getCrossChainSupport = (chainId: ChainId) => {
-  const { production, development } = NETWORKS_INFO_CONFIG[chainId]?.limitOrder ?? {}
-  return ENV_KEY === 'production' || ENV_KEY === 'staging' ? production : development
-}
-
 export function openFullscreen(elem: any) {
   if (elem.requestFullscreen) {
     elem.requestFullscreen()
