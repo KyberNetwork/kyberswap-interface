@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
+import { useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -66,23 +67,49 @@ function ClassicElasticTab() {
     navigate({ search: stringify(newQs) }, { replace: true })
   }
 
-  const color = !showLegacyExplicit
-    ? [VERSION.ELASTIC, VERSION.ELASTIC_LEGACY].includes(tab)
-      ? !!notSupportedMsg
-        ? theme.disableText
-        : theme.primary
-      : theme.subText
-    : tab === VERSION.ELASTIC
-    ? !!notSupportedMsg
-      ? theme.disableText
-      : theme.primary
-    : theme.subText
+  const getColorOfElasticTab = () => {
+    if (!!notSupportedMsg) {
+      return theme.disableText
+    }
+
+    if (!showLegacyExplicit) {
+      if ([VERSION.ELASTIC, VERSION.ELASTIC_LEGACY].includes(tab)) {
+        return theme.primary
+      }
+
+      return theme.subText
+    }
+
+    if (tab === VERSION.ELASTIC) {
+      return theme.primary
+    }
+
+    return theme.subText
+  }
+
+  const getColorOfLegacyElasticTab = () => {
+    if (!!notSupportedMsg) {
+      return theme.disableText
+    }
+
+    return tab === VERSION.ELASTIC_LEGACY ? theme.primary : theme.subText
+  }
+
+  const color = getColorOfElasticTab()
+  const legacyElasticColor = getColorOfLegacyElasticTab()
+
+  useEffect(() => {
+    if (!!notSupportedMsg && tab !== VERSION.CLASSIC) {
+      const newQs = { ...qs, tab: VERSION.CLASSIC }
+      navigate({ search: stringify(newQs) }, { replace: true })
+    }
+  }, [navigate, notSupportedMsg, qs, tab])
 
   return (
     <Flex width="max-content">
       <MouseoverTooltip
         width="fit-content"
-        placement="bottom"
+        placement="top"
         text={
           notSupportedMsg ||
           (!showLegacyExplicit ? (
@@ -114,7 +141,6 @@ function ClassicElasticTab() {
             </Flex>
           ) : null)
         }
-        noArrow={!showLegacyExplicit}
       >
         <Flex
           alignItems={'center'}
@@ -150,7 +176,7 @@ function ClassicElasticTab() {
 
       {showLegacyExplicit && (
         <>
-          <MouseoverTooltip text={notSupportedMsg || ''}>
+          <MouseoverTooltip text={notSupportedMsg || ''} placement="top">
             <Flex
               sx={{ position: 'relative' }}
               alignItems={'center'}
@@ -158,17 +184,11 @@ function ClassicElasticTab() {
                 handleSwitchTab(VERSION.ELASTIC_LEGACY)
               }}
             >
-              <PoolElasticIcon size={20} color={tab === VERSION.ELASTIC_LEGACY ? theme.primary : theme.subText} />
+              <PoolElasticIcon size={20} color={legacyElasticColor} />
               <Text
                 fontWeight={500}
                 fontSize={[18, 20, 24]}
-                color={
-                  tab === VERSION.ELASTIC_LEGACY
-                    ? !!notSupportedMsg
-                      ? theme.disableText
-                      : theme.primary
-                    : theme.subText
-                }
+                color={legacyElasticColor}
                 width={'auto'}
                 marginLeft="4px"
                 role="button"

@@ -44,9 +44,15 @@ export async function fetchChunk(
         callData: obj.callData,
         gasLimit: obj.gasRequired ?? 1_000_000,
       })),
+      {
+        blockTag: minBlockNumber,
+      },
     )
 
-    resultsBlockNumber = res.blockNumber
+    // no longer uses res.blockNumber because:
+    // 1. res.blockNumber can be L1's block number in case this is zkSync
+    // 2. the function is called at a specific block (usage of blockTag)
+    resultsBlockNumber = minBlockNumber
     returnData = res.returnData.map((item: any) => item[1])
     // ;[resultsBlockNumber, returnData] = await multicallContract.aggregate(chunk.map(obj => [obj.address, obj.callData]))
   } catch (e) {
@@ -76,11 +82,13 @@ export async function fetchChunk(
     console.debug('Failed to fetch chunk inside retry', error)
     throw error
   }
-  if (resultsBlockNumber.toNumber() < minBlockNumber) {
-    console.debug(`Fetched results for old block number: ${resultsBlockNumber.toString()} vs. ${minBlockNumber}`)
-    throw new RetryableError('Fetched for old block number')
-  }
-  return { results: returnData, blockNumber: resultsBlockNumber.toNumber() }
+
+  // Don't need this code anymore as we call the function at the specific block
+  // if (resultsBlockNumber.toNumber() < minBlockNumber) {
+  //   console.debug(`Fetched results for old block number: ${resultsBlockNumber.toString()} vs. ${minBlockNumber}`)
+  //   throw new RetryableError('Fetched for old block number')
+  // }
+  return { results: returnData, blockNumber: resultsBlockNumber }
 }
 
 /**
