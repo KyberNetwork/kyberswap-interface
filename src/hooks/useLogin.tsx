@@ -88,9 +88,9 @@ const useLogin = () => {
     [setLoading, signInAnonymous, getProfile],
   )
 
-  const latestAccount = useRef<string | boolean>('')
+  const latestAccount = useRef<string | boolean | undefined>('')
   useEffect(() => {
-    isAuthorized(true).then(wallet => {
+    const func = (wallet: string | boolean | undefined) => {
       if (latestAccount.current === wallet) {
         return //  not change
       }
@@ -100,6 +100,13 @@ const useLogin = () => {
       }
       latestAccount.current = wallet
       signIn(typeof wallet === 'string' ? wallet : account)
+    }
+    if (!account) {
+      func(account)
+      return
+    }
+    isAuthorized(true).then(wallet => {
+      func(wallet)
     })
   }, [account, signIn])
 }
