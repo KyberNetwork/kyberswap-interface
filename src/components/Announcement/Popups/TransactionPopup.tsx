@@ -76,7 +76,12 @@ const summaryLiquidity = (txs: TransactionDetails) => {
   return `${txs.type} ${
     tokenSymbol && tokenAmount
       ? `${tokenAmount} ${tokenSymbol}`
-      : `${tokenAmountIn} ${tokenSymbolIn} and ${tokenAmountOut} ${tokenSymbolOut}`
+      : [
+          tokenAmountIn ? `${tokenAmountIn} ${tokenSymbolIn}` : '',
+          tokenAmountOut ? `${tokenAmountOut} ${tokenSymbolOut}` : '',
+        ]
+          .filter(Boolean)
+          .join(' and ')
   }`
 }
 

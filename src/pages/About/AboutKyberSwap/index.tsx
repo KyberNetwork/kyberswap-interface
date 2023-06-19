@@ -61,6 +61,8 @@ import {
   VelasLogoFull,
 } from 'components/Icons'
 import AntiSnippingAttack from 'components/Icons/AntiSnippingAttack'
+import ZkSync from 'components/Icons/ZkSync'
+import ZkSyncFull from 'components/Icons/ZkSyncFull'
 import Loader from 'components/Loader'
 import { APP_PATHS } from 'constants/index'
 import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
@@ -521,6 +523,7 @@ function AboutKyberSwap() {
             <Bttc />
             <OptimismLogo />
             <Solana />
+            <ZkSync />
           </SupportedChain>
 
           <KyberSwapGeneralIntro />
@@ -1040,6 +1043,7 @@ function AboutKyberSwap() {
               <img src={isDarkMode ? BTTCDark : BTTCLight} alt="btt" width="100%" />
               <OptimismLogoFull />
               <SolanaLogoFull />
+              <ZkSyncFull />
             </Powered>
           </Text>
         </Wrapper>
