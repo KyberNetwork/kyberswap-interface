@@ -14,6 +14,7 @@ import {
   ethereum,
   fantom,
   görli,
+  lineaTestnet,
   matic,
   mumbai,
   oasis,
@@ -43,6 +44,7 @@ export const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.AURORA]: aurora,
   [ChainId.OASIS]: oasis,
   [ChainId.OPTIMISM]: optimism,
+  [ChainId.LINEA_TESTNET]: lineaTestnet,
   [ChainId.SOLANA]: solana,
 } as const
 

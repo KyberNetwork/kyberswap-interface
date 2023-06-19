@@ -132,6 +132,7 @@ export const STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
   [ChainId.MUMBAI]: [],
   [ChainId.BSCTESTNET]: [],
   [ChainId.AVAXTESTNET]: [],
+  [ChainId.LINEA_TESTNET]: [],
 }
 
 // This list is intentionally different from the list above
@@ -173,6 +174,7 @@ export const STABLE_COIN_ADDRESSES_TO_TAKE_FEE: Record<ChainId, string[]> = {
   [ChainId.FANTOM]: [],
   [ChainId.BSCMAINNET]: [],
   [ChainId.ARBITRUM]: [],
+  [ChainId.LINEA_TESTNET]: [],
 }
 
 // This is basically the same as STABLE_COIN_ADDRESSES_TO_TAKE_FEE,
@@ -268,6 +270,7 @@ export const SUPER_STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
   [ChainId.MUMBAI]: [],
   [ChainId.BSCTESTNET]: [],
   [ChainId.AVAXTESTNET]: [],
+  [ChainId.LINEA_TESTNET]: [],
 }
 
 export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
@@ -313,6 +316,7 @@ export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
   [ChainId.MUMBAI]: [],
   [ChainId.BSCTESTNET]: [],
   [ChainId.AVAXTESTNET]: [],
+  [ChainId.LINEA_TESTNET]: [],
 }
 
 export const DAI = {
@@ -457,6 +461,14 @@ export const USDC: { [chainId in ChainId]: Token } = {
   ),
   [ChainId.OPTIMISM]: new Token(ChainId.OPTIMISM, '0x7F5c764cBc14f9669B88837ca1490cCa17c31607', 6, 'USDC', 'USD Coin'),
   [ChainId.SOLANA]: new Token(ChainId.SOLANA, 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', 6, 'USDC', 'USD Coin'),
+  // TODO(viet-nv): not existed
+  [ChainId.LINEA_TESTNET]: new Token(
+    ChainId.LINEA_TESTNET,
+    '0xB12BFcA5A55806AaF64E99521918A4bf0fC40802',
+    6,
+    'USDC',
+    'USD Coin',
+  ),
 }
 
 export const USDT: { [chainId in ChainId]: Token } = {
@@ -513,6 +525,14 @@ export const USDT: { [chainId in ChainId]: Token } = {
     'Tether USD',
   ),
   [ChainId.SOLANA]: new Token(ChainId.SOLANA, 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB', 6, 'USDT', 'Tether USD'),
+  // TODO(viet-nv):
+  [ChainId.LINEA_TESTNET]: new Token(
+    ChainId.LINEA_TESTNET,
+    '0x6Cb9750a92643382e020eA9a170AbB83Df05F30B',
+    6,
+    'USDT',
+    'Tether USD',
+  ),
 }
 
 export const COMP = new Token(ChainId.MAINNET, '0xc00e94Cb662C3520282E6f5717214004A7f26888', 18, 'COMP', 'Compound')
@@ -604,6 +624,15 @@ export const KNC: { [chainId in ChainId]: Token } = {
     'KNC',
     'Kyber Network Crystal',
   ), // todo namgold: not exists yet
+
+  // TODO(viet-nv):
+  [ChainId.LINEA_TESTNET]: new Token(
+    ChainId.LINEA_TESTNET,
+    '0x6Cb9750a92643382e020eA9a170AbB83Df05F30B',
+    6,
+    'USDT',
+    'Tether USD',
+  ),
 }
 
 export const PINNED_PAIRS: { readonly [chainId in ChainId]?: [Token, Token][] } = {
