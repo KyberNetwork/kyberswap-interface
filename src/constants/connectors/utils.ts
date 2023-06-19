@@ -47,12 +47,14 @@ export enum ErrorCode {
 
   WC_MODAL_CLOSED = 'Error: User closed modal',
   CB_REJECTED_REQUEST = 'Error: User denied account authorization',
+  ALPHA_WALLET_REJECTED = 'Request rejected',
 }
 
 export function didUserReject(connector: Connector, error: any): boolean {
   return (
     error?.code === ErrorCode.USER_REJECTED_REQUEST ||
     (connector === walletConnectV2 && error?.toString?.() === ErrorCode.WC_MODAL_CLOSED) ||
+    (connector === walletConnectV2 && error?.message === ErrorCode.ALPHA_WALLET_REJECTED) ||
     (connector === coinbaseWallet && error?.toString?.() === ErrorCode.CB_REJECTED_REQUEST)
   )
 }
