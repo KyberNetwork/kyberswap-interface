@@ -88,11 +88,8 @@ export const EVM_MAINNET_NETWORKS = MAINNET_NETWORKS.filter(
 
 export const WALLET_CONNECT_SUPPORTED_CHAIN_IDS = [
   ChainId.MAINNET,
-  ChainId.MUMBAI,
   ChainId.MATIC,
-  ChainId.BSCTESTNET,
   ChainId.BSCMAINNET,
-  ChainId.AVAXTESTNET,
   ChainId.AVAXMAINNET,
   ChainId.FANTOM,
   ChainId.CRONOS,
@@ -102,7 +99,7 @@ export const WALLET_CONNECT_SUPPORTED_CHAIN_IDS = [
   ChainId.VELAS,
   ChainId.OASIS,
   ChainId.OPTIMISM,
-] as const
+]
 
 export function isEVM(chainId?: ChainId): chainId is EVM_NETWORK {
   if (!chainId) return false

@@ -6,7 +6,7 @@ import { MetaMask } from '@web3-react/metamask'
 import { WalletConnect as WalletConnectV2 } from '@web3-react/walletconnect-v2'
 
 import { WALLETCONNECT_PROJECT_ID } from 'constants/env'
-import { NETWORKS_INFO, SUPPORTED_NETWORKS, WALLET_CONNECT_SUPPORTED_CHAIN_IDS } from 'constants/networks'
+import { NETWORKS_INFO, WALLET_CONNECT_SUPPORTED_CHAIN_IDS } from 'constants/networks'
 
 export const [injected, injectedHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
 export const [metaMask, metamaskHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
@@ -15,7 +15,6 @@ export const [brave, braveHooks] = initializeConnector<MetaMask>(actions => new 
 export const [trustWallet, trustWalletHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
 
 const darkmode = Boolean(window.matchMedia('(prefers-color-scheme: dark)'))
-const [defaultChain, ...optionalChains] = WALLET_CONNECT_SUPPORTED_CHAIN_IDS
 export const [walletConnectV2, walletConnectV2Hooks] = initializeConnector<WalletConnectV2>(
   actions =>
     new WalletConnectV2({
@@ -23,13 +22,14 @@ export const [walletConnectV2, walletConnectV2Hooks] = initializeConnector<Walle
       defaultChainId: ChainId.MAINNET,
       options: {
         projectId: WALLETCONNECT_PROJECT_ID,
-        chains: [defaultChain],
-        optionalChains,
+        chains: WALLET_CONNECT_SUPPORTED_CHAIN_IDS as number[],
+        // chains: [defaultChain],
+        // optionalChains,
         showQrModal: true,
         // optionalMethods: ['eth_signTypedData', 'eth_signTypedData_v4', 'eth_sign'],
         optionalMethods: OPTIONAL_METHODS,
         optionalEvents: OPTIONAL_EVENTS,
-        rpcMap: SUPPORTED_NETWORKS.reduce((acc, cur) => {
+        rpcMap: WALLET_CONNECT_SUPPORTED_CHAIN_IDS.reduce((acc, cur) => {
           acc[cur] = NETWORKS_INFO[cur].defaultRpcUrl
           return acc
         }, {} as { [key in ChainId]: string }),
