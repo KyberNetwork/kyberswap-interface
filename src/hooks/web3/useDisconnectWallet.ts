@@ -2,6 +2,7 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import { Connector } from '@web3-react/types'
 import { useCallback } from 'react'
 
+import { coinbaseWallet } from 'constants/connectors/evm'
 import {
   LOCALSTORAGE_LAST_WALLETKEY_EVM,
   LOCALSTORAGE_LAST_WALLETKEY_SOLANA,
@@ -13,11 +14,16 @@ import { isEVMWallet, isSolanaWallet } from 'utils'
 const disconnectEvmConnector: (connector: Connector | undefined) => void | Promise<void> = (
   connector: Connector | undefined,
 ) => {
-  window.ethereum?.selectedProvider?.close?.() // for coinbase
   if (connector) {
+    if (connector === coinbaseWallet) {
+      return connector.resetState()
+    }
+
     if (connector.deactivate) {
       return connector.deactivate()
-    } else {
+    }
+
+    if (connector.resetState) {
       return connector.resetState()
     }
   }
