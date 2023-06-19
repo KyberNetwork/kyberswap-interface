@@ -136,7 +136,6 @@ const Option = ({
         onSelected &&
         !isConnected &&
         (readyState === WalletReadyState.Installed ||
-          (walletKey === 'COINBASE' && isEVM && readyState === WalletReadyState.NotDetected) ||
           (readyState === WalletReadyState.Loadable && isSolanaWallet(wallet))) &&
         isAcceptedTerm &&
         isSupportCurrentChain &&
@@ -218,7 +217,7 @@ const Option = ({
     }
   }
 
-  if (readyState === WalletReadyState.NotDetected && (walletKey !== 'COINBASE' || !isEVM)) {
+  if (readyState === WalletReadyState.NotDetected) {
     return (
       <MouseoverTooltip
         placement="bottom"

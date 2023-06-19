@@ -238,12 +238,6 @@ export default function WalletModal() {
       })()
       const isSupportCurrentChain = (isEVMWallet(wallet) && isEVM) || (isSolanaWallet(wallet) && isSolana) || false
       const overridden = isOverriddenWallet(k) || (walletKey === 'COIN98' && !window.ethereum?.isCoin98)
-      const installLink =
-        k === 'COINBASE' && isEVM
-          ? undefined
-          : readyState === WalletReadyState.NotDetected
-          ? wallet.installLink
-          : undefined
 
       return {
         ...wallet,
@@ -251,7 +245,7 @@ export default function WalletModal() {
         readyState,
         isSupportCurrentChain,
         isOverridden: overridden,
-        installLink: installLink,
+        installLink: readyState === WalletReadyState.NotDetected ? wallet.installLink : undefined,
       }
     })
 

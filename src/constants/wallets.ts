@@ -70,10 +70,15 @@ const detectCoin98 = (): WalletReadyState => {
 }
 
 const detectCoinbase = (): WalletReadyState => {
-  if (getIsCoinbaseWallet()) return WalletReadyState.Installed
-  // in NotDetected case, Coinbase show install link itself
-  if (window.coinbaseWalletExtension && !isMobile) return WalletReadyState.Loadable
-  return WalletReadyState.NotDetected
+  const detectCoinbase = (): WalletReadyState => {
+    if (getIsCoinbaseWallet()) return WalletReadyState.Installed
+    // in NotDetected case, Coinbase show install link itself
+    if (window.coinbaseWalletExtension && !isMobile) return WalletReadyState.Loadable
+    return WalletReadyState.NotDetected
+  }
+  const result = detectCoinbase()
+  // alert(`detectCoinbase ${result}`)
+  return result
 }
 
 const detectTrustWallet = (): WalletReadyState => {
