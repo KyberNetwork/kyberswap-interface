@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { OPTIONAL_EVENTS, OPTIONAL_METHODS } from '@walletconnect/ethereum-provider'
+import { OPTIONAL_EVENTS } from '@walletconnect/ethereum-provider'
 import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
 import { initializeConnector } from '@web3-react/core'
 import { MetaMask } from '@web3-react/metamask'
