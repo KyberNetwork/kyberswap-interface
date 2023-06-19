@@ -5,7 +5,7 @@ import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
-import { APP_PATHS } from 'constants/index'
+import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { TAB } from 'pages/SwapV3'
@@ -69,7 +69,7 @@ type Props = {
 }
 export default function Tabs({ activeTab }: Props) {
   const navigateFn = useNavigate()
-  const { networkInfo, chainId, isEVM } = useActiveWeb3React()
+  const { networkInfo, chainId } = useActiveWeb3React()
   const qs = useParsedQueryString<{
     outputCurrency: string
     inputCurrency: string
@@ -103,7 +103,7 @@ export default function Tabs({ activeTab }: Props) {
           </Text>
         </Tab>
         {getLimitOrderContract(chainId) && <LimitTab onClick={() => onClickTab(TAB.LIMIT)} />}
-        {isEVM && (
+        {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && (
           <Tab onClick={() => onClickTab(TAB.CROSS_CHAIN)} isActive={isCrossChainPage}>
             <Text fontSize={20} fontWeight={500}>
               <Trans>Cross-Chain</Trans>
