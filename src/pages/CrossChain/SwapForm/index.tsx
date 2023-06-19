@@ -272,7 +272,7 @@ export default function SwapForm() {
   const disableBtnSwap =
     !!inputError || [debouncedInput, currencyIn, currencyOut, chainIdOut].some(e => !e) || gettingRoute
 
-  const priceImpactResult = checkPriceImpact(priceImpact || -1)
+  const priceImpactResult = checkPriceImpact(priceImpact)
   const isStablePairSwap = useCheckStablePairSwap(currencyIn, currencyOut)
 
   return (
@@ -356,7 +356,7 @@ export default function SwapForm() {
             onClick={showPreview}
             disabled={disableBtnSwap}
             showLoading={gettingRoute}
-            priceImpact={priceImpact || -1}
+            priceImpact={priceImpact}
             isProcessingSwap={swapState.attemptingTxn}
             isApproved={true}
             route={route}
