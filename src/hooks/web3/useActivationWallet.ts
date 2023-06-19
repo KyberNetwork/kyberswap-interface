@@ -33,7 +33,8 @@ export const useActivationWallet: () => {
         } else {
           await wallet.connector.activate()
         }
-        localStorage.setItem(LOCALSTORAGE_LAST_WALLETKEY_EVM, walletKey.toString())
+        console.info('connect success', { walletKey, isEagerly })
+        localStorage.setItem(LOCALSTORAGE_LAST_WALLETKEY_EVM, walletKey)
       } catch (error) {
         localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY_EVM)
         const e = new Error(`[Wallet] ${error.message}`)
@@ -58,7 +59,7 @@ export const useActivationWallet: () => {
       try {
         localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY_SOLANA)
         await select(wallet.adapter.name)
-        localStorage.setItem(LOCALSTORAGE_LAST_WALLETKEY_SOLANA, walletKey.toString())
+        localStorage.setItem(LOCALSTORAGE_LAST_WALLETKEY_SOLANA, walletKey)
       } catch (error) {
         localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY_SOLANA)
         const e = new Error(`[Wallet] ${error.message}`)
