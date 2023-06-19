@@ -121,8 +121,10 @@ export const STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
     '0xdFA46478F9e5EA86d57387849598dbFB2e964b02', // MAI
     '0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B', // BOB
   ],
-  // TODO: fill here
-  [ChainId.ZKSYNC]: [],
+  [ChainId.ZKSYNC]: [
+    '0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4', // USDC
+    '0x4BEf76b6b7f2823C6c1f4FcfEACD85C24548ad7e', // Dai
+  ],
   [ChainId.SOLANA]: [
     'EjmyN6qEC1Tf1JxiG1ae7UTJhUxSwk1TCWNWqxWV4J6o', // Dai
     'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', // usdc
@@ -261,16 +263,12 @@ export const SUPER_STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
     '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58', // usdt
     '0x7F5c764cBc14f9669B88837ca1490cCa17c31607', // usdc
   ],
-  // TODO: fill here
-  [ChainId.ZKSYNC]: [
-    '0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4', // USDC
-    '0x4BEf76b6b7f2823C6c1f4FcfEACD85C24548ad7e', // Dai
-  ],
   [ChainId.SOLANA]: [
     'EjmyN6qEC1Tf1JxiG1ae7UTJhUxSwk1TCWNWqxWV4J6o', // Dai
     'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', // usdc
     'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB', // usdt
   ],
+  [ChainId.ZKSYNC]: [],
   [ChainId.GÖRLI]: [],
   [ChainId.MUMBAI]: [],
   [ChainId.BSCTESTNET]: [],
@@ -466,7 +464,6 @@ export const USDC: { [chainId in ChainId]: Token } = {
     'USD Coin (Multichain)',
   ),
   [ChainId.OPTIMISM]: new Token(ChainId.OPTIMISM, '0x7F5c764cBc14f9669B88837ca1490cCa17c31607', 6, 'USDC', 'USD Coin'),
-  // TODO: double check decimals
   [ChainId.ZKSYNC]: new Token(ChainId.ZKSYNC, '0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4', 6, 'USDC', 'USD Coin'),
   [ChainId.SOLANA]: new Token(ChainId.SOLANA, 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', 6, 'USDC', 'USD Coin'),
 }
@@ -524,7 +521,7 @@ export const USDT: { [chainId in ChainId]: Token } = {
     'USDT',
     'Tether USD',
   ),
-  // TODO: double check address, decimals
+  // TODO(viet-nv): this address doesn't exist. check again
   [ChainId.ZKSYNC]: new Token(ChainId.ZKSYNC, '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58', 6, 'USDT', 'Tether USD'),
   [ChainId.SOLANA]: new Token(ChainId.SOLANA, 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB', 6, 'USDT', 'Tether USD'),
 }
@@ -611,7 +608,7 @@ export const KNC: { [chainId in ChainId]: Token } = {
     'KNC',
     'Kyber Network Crystal',
   ),
-  // TODO: double check address, decimals
+  // TODO(viet-nv): this address doesn't exist. check again
   [ChainId.ZKSYNC]: new Token(
     ChainId.ZKSYNC,
     '0xa00e3a3511aac35ca78530c85007afcd31753819',

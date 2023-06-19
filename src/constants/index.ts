@@ -319,7 +319,7 @@ export const CHAINS_SUPPORT_CROSS_CHAIN =
         ChainId.AURORA,
         ChainId.OASIS,
         ChainId.OPTIMISM,
-        // ChainId.ZKSYNC,
+        ChainId.ZKSYNC,
         ChainId.SOLANA,
       ]
 
