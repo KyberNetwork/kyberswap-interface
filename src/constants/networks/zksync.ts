@@ -18,7 +18,7 @@ const zkSyncInfo: EVMNetworkInfo = {
   priceRoute: 'zksync',
   poolFarmRoute: 'zksync',
   aggregatorRoute: 'zksync',
-  name: 'zkSync',
+  name: 'zkSync Era',
   icon: zkSync,
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
