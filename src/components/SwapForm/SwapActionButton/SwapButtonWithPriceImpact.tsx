@@ -49,7 +49,7 @@ export const SwapButtonWithPriceImpact = ({
 }) => {
   const theme = useTheme()
   const [isDegenMode] = useDegenModeManager()
-  const priceImpactResult = checkPriceImpact(priceImpact ?? -1)
+  const priceImpactResult = checkPriceImpact(priceImpact)
 
   if (isProcessingSwap) {
     return (
