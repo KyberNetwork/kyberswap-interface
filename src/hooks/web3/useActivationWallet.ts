@@ -41,7 +41,7 @@ export const useActivationWallet: () => {
         e.stack = ''
         captureException(e, {
           level: 'warning',
-          extra: { error, walletKey, wallet, isEagerly },
+          extra: { error, walletKey, isEagerly },
         })
         console.error('Activate EVM failed:', { walletKey, wallet, error, isEagerly })
         throw error
@@ -66,7 +66,7 @@ export const useActivationWallet: () => {
         e.stack = ''
         captureException(e, {
           level: 'warning',
-          extra: { error, walletKey, wallet },
+          extra: { error, walletKey },
         })
         console.error('Activate Solana failed:', { walletKey, wallet, error })
         throw error
