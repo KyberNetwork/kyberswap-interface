@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Area, AreaChart, Customized, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
@@ -59,12 +59,11 @@ type Props = {
 }
 const EarningAreaChart: React.FC<Props> = ({ data, setHoverValue = noop, period }) => {
   const theme = useTheme()
-  const containerRef = useRef<HTMLDivElement>(null)
-
-  const shouldShowLabel = (containerRef.current?.getBoundingClientRect?.().width || 0) > 400
+  const [containerWidth, setContainerWidth] = useState(0)
+  const shouldShowLabel = containerWidth > 400
 
   return (
-    <ResponsiveContainer height="100%" width="100%" ref={containerRef}>
+    <ResponsiveContainer height="100%" width="100%" onResize={width => setContainerWidth(width)}>
       <AreaChart
         data={data}
         margin={{
