@@ -89,7 +89,7 @@ export const checkPriceImpact = (
   isVeryHigh: boolean
 } => {
   return {
-    isInvalid: typeof priceImpact === 'number' && !Number.isFinite(priceImpact),
+    isInvalid: typeof priceImpact === 'number' && (!Number.isFinite(priceImpact) || priceImpact < 0),
     isHigh: !!priceImpact && priceImpact > 2,
     isVeryHigh: !!priceImpact && priceImpact > 10,
   }

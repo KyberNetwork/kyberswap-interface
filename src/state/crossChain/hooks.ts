@@ -3,6 +3,7 @@ import { ChainId, NativeCurrency } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { useActiveWeb3React } from 'hooks'
 import { MultiChainTokenInfo } from 'pages/Bridge/type'
 import { AppDispatch, AppState } from 'state'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -89,11 +90,21 @@ export function useBridgeOutputValue(inputBridgeValue: string) {
   }, [inputBridgeValue, tokenInfoOut])
 }
 
-export function useCrossChainState(): [SwapCrossChainState, (value: CrossChainStateParams) => void] {
+export function useCrossChainState(): [
+  SwapCrossChainState & { listChainOut: ChainId[]; listTokenOut: WrappedTokenInfo[]; listTokenIn: WrappedTokenInfo[] },
+  (value: CrossChainStateParams) => void,
+] {
   const dispatch = useDispatch<AppDispatch>()
   const crossChain = useSelector((state: AppState) => state.crossChain.crossChain)
+  const { chains, tokens, chainIdOut } = crossChain
+  const { chainId } = useActiveWeb3React()
   const setState = useCallback((data: CrossChainStateParams) => dispatch(setCrossChainState(data)), [dispatch])
-  return [crossChain, setState]
+
+  const listChainOut = useMemo(() => chains.filter(e => e !== chainId), [chains, chainId])
+  const listTokenOut = useMemo(() => tokens.filter(e => e.chainId === chainIdOut), [tokens, chainIdOut])
+  const listTokenIn = useMemo(() => tokens.filter(e => e.chainId === chainId), [tokens, chainId])
+
+  return [{ ...crossChain, listChainOut, listTokenOut, listTokenIn }, setState]
 }
 
 export function useCrossChainHandlers() {
