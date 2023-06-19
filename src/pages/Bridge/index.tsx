@@ -12,7 +12,7 @@ import CrossChainLink from 'pages/CrossChain/CrossChainLink'
 import { useBridgeState } from 'state/crossChain/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { isAddress } from 'utils'
-import { isTokenNative } from 'utils/tokenInfo'
+import { getTokenInfoWithHardcode, isTokenNative } from 'utils/tokenInfo'
 
 import BridgeHistory from './BridgeTransfers'
 import Disclaimer from './Disclaimer'
@@ -71,7 +71,8 @@ export default function Bridge() {
       const result: WrappedTokenInfo[] = []
       Object.keys(tokens).forEach(key => {
         const token = { ...tokens[key] } as MultiChainTokenInfo
-        const { address, logoUrl, name, decimals, symbol } = token
+        const { address, name, decimals } = token
+        const { logoUrl, symbol } = getTokenInfoWithHardcode(chainIdRequest, token.address, token.symbol, token.logoUrl)
         if (!isAddress(chainId, address)) {
           return
         }

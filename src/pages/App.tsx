@@ -24,7 +24,7 @@ import ProtectedRoute, { ProtectedRouteKyberAI } from 'components/ProtectedRoute
 import Snowfall from 'components/Snowflake/Snowfall'
 import Web3ReactManager from 'components/Web3ReactManager'
 import { ENV_LEVEL } from 'constants/env'
-import { APP_PATHS, BLACKLIST_WALLETS } from 'constants/index'
+import { APP_PATHS, BLACKLIST_WALLETS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
 import { NETWORKS_INFO_CONFIG } from 'constants/networks'
 import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
@@ -245,7 +245,9 @@ export default function App() {
                     <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency-to-:toCurrency`} element={<SwapPage />} />
                     <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency`} element={<SwapPage />} />
                     <Route path={`${APP_PATHS.SWAP}/:network`} element={<SwapPage />} />
-                    <Route path={`${APP_PATHS.CROSS_CHAIN}`} element={<SwapV3 />} />
+                    {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && (
+                      <Route path={`${APP_PATHS.CROSS_CHAIN}`} element={<SwapV3 />} />
+                    )}
 
                     {getLimitOrderContract(chainId) && (
                       <>

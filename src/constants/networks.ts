@@ -20,6 +20,7 @@ import {
   optimism,
   solana,
   velas,
+  zksync,
 } from './networks/index'
 import { EVMNetworkInfo } from './networks/type'
 
@@ -43,6 +44,7 @@ export const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.AURORA]: aurora,
   [ChainId.OASIS]: oasis,
   [ChainId.OPTIMISM]: optimism,
+  [ChainId.ZKSYNC]: zksync,
   [ChainId.SOLANA]: solana,
 } as const
 
@@ -71,6 +73,7 @@ export const MAINNET_NETWORKS = [
   ChainId.CRONOS,
   ChainId.VELAS,
   ChainId.AURORA,
+  ChainId.ZKSYNC,
 ] as const
 
 export const EVM_NETWORKS = SUPPORTED_NETWORKS.filter(chainId => getChainType(chainId) === ChainType.EVM) as Exclude<
@@ -145,9 +148,17 @@ export const STATIC_FEE_OPTIONS: { [chainId: number]: number[] | undefined } = {
   [ChainId.CRONOS]: [8, 10, 50, 300, 500, 1000],
   [ChainId.BTTC]: [8, 10, 50, 300, 500, 1000],
   [ChainId.OPTIMISM]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.ZKSYNC]: [8, 10, 50, 300, 500, 1000],
 }
 
-export const ONLY_STATIC_FEE_CHAINS = [ChainId.ARBITRUM, ChainId.AURORA, ChainId.VELAS, ChainId.OASIS, ChainId.OPTIMISM]
+export const ONLY_STATIC_FEE_CHAINS = [
+  ChainId.ARBITRUM,
+  ChainId.AURORA,
+  ChainId.VELAS,
+  ChainId.OASIS,
+  ChainId.OPTIMISM,
+  ChainId.ZKSYNC,
+]
 
 // hardcode for unavailable subgraph
 export const ONLY_DYNAMIC_FEE_CHAINS: ChainId[] = []
