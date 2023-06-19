@@ -26,7 +26,7 @@ export const [walletConnectV2, walletConnectV2Hooks] = initializeConnector<Walle
         chains: [defaultChain],
         optionalChains,
         showQrModal: true,
-        optionalMethods: OPTIONAL_METHODS,
+        optionalMethods: ['eth_signTypedData', 'eth_signTypedData_v4', 'eth_sign'],
         optionalEvents: OPTIONAL_EVENTS,
         rpcMap: SUPPORTED_NETWORKS.reduce((acc, cur) => {
           acc[cur] = NETWORKS_INFO[cur].defaultRpcUrl
