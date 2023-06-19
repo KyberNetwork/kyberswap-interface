@@ -1,4 +1,4 @@
-import { Currency, Price } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import React, { useState } from 'react'
@@ -21,7 +21,6 @@ import useTheme from 'hooks/useTheme'
 import { ExternalLink, TYPE } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { formattedNum } from 'utils'
-import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
 import { calculateFeeFromBuildData } from 'utils/fee'
 import { checkPriceImpact, formatPriceImpact } from 'utils/prices'
 import { checkWarningSlippage, formatSlippage } from 'utils/slippage'
@@ -58,12 +57,13 @@ type Optional<T> = {
 export type Props = {
   isLoading: boolean
   buildData: BuildRouteData | undefined
-} & Optional<Pick<DetailedRouteSummary, 'gasUsd' | 'parsedAmountOut' | 'executionPrice' | 'priceImpact'>>
+  minimumAmountOut: CurrencyAmount<Currency> | undefined
+} & Optional<Pick<DetailedRouteSummary, 'gasUsd' | 'executionPrice' | 'priceImpact'>>
 
 export default function SwapDetails({
   isLoading,
   gasUsd,
-  parsedAmountOut,
+  minimumAmountOut,
   executionPrice,
   priceImpact,
   buildData,
@@ -76,7 +76,6 @@ export default function SwapDetails({
   const currencyIn = routeSummary?.parsedAmountIn?.currency
   const currencyOut = routeSummary?.parsedAmountOut?.currency
 
-  const minimumAmountOut = parsedAmountOut ? minimumAmountAfterSlippage(parsedAmountOut, slippage) : undefined
   const minimumAmountOutStr =
     minimumAmountOut && currencyOut ? (
       <Flex style={{ color: theme.text, fontWeight: 500, whiteSpace: 'nowrap' }}>
