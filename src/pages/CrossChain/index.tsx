@@ -1,16 +1,17 @@
 import { Squid } from '@0xsquid/sdk'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { memo, useEffect, useRef } from 'react'
+import { memo, useEffect, useMemo, useRef } from 'react'
 import { Navigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
 import WarningIcon from 'components/Icons/WarningIcon'
 import { CROSS_CHAIN_CONFIG } from 'constants/env'
 import { NETWORKS_INFO_CONFIG } from 'constants/networks'
+import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { useCrossChainState } from 'state/crossChain/hooks'
+import { useCrossChainHandlers, useCrossChainState } from 'state/crossChain/hooks'
 import { TokenInfo, WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 import { DisclaimerCrossChain } from '../Bridge/Disclaimer'
@@ -18,13 +19,30 @@ import SwapForm from './SwapForm'
 
 export const getAxelarScanUrl = (srcTxHash: string) => `${CROSS_CHAIN_CONFIG.AXELAR_SCAN_URL}${srcTxHash}`
 
-function CrossChain() {
+function CrossChain({ visible }: { visible: boolean }) {
   const theme = useTheme()
   const { chainId, isSolana } = useActiveWeb3React()
-  const [{ squidInstance }, setCrossChainState] = useCrossChainState()
+  const [{ squidInstance, chainIdOut, chains }, setCrossChainState] = useCrossChainState()
+  const listChainOut = useMemo(() => chains.filter(e => e !== chainId), [chains, chainId])
+
   const curChainId = useRef(chainId)
+
   curChainId.current = chainId
   const loading = useRef(false)
+  const { selectCurrencyIn, selectDestChain, selectCurrencyOut } = useCrossChainHandlers()
+
+  useEffect(() => {
+    selectCurrencyIn(NativeCurrencies[chainId])
+  }, [chainId, selectCurrencyIn])
+
+  useEffect(() => {
+    chainIdOut && selectCurrencyOut(NativeCurrencies[chainIdOut])
+  }, [selectCurrencyOut, chainIdOut])
+
+  useEffect(() => {
+    if (chainId === chainIdOut || !chainIdOut) selectDestChain(listChainOut[0])
+  }, [chainId, listChainOut, chainIdOut, selectDestChain])
+
   useEffect(() => {
     ;(async () => {
       try {
@@ -55,6 +73,7 @@ function CrossChain() {
     })()
   }, [squidInstance, setCrossChainState])
 
+  if (!visible) return null
   if (isSolana) return <Navigate to="/" />
   if (String(squidInstance?.isInMaintenanceMode) === 'true')
     return (
