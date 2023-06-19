@@ -73,6 +73,8 @@ export const MAINNET_NETWORKS = [
   ChainId.CRONOS,
   ChainId.VELAS,
   ChainId.AURORA,
+  // TODO(viet-nv): update when integrating LINEA MAINNET
+  ChainId.LINEA_TESTNET,
 ] as const
 
 export const EVM_NETWORKS = SUPPORTED_NETWORKS.filter(chainId => getChainType(chainId) === ChainType.EVM) as Exclude<

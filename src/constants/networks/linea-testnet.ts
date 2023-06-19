@@ -10,11 +10,11 @@ const NOT_SUPPORT = null
 
 const lineaTestnetInfo: EVMNetworkInfo = {
   chainId: ChainId.LINEA_TESTNET,
-  route: 'linea-testnet',
-  ksSettingRoute: 'linea-testnet',
-  priceRoute: 'linea-testnet',
-  poolFarmRoute: 'linea-testnet',
-  aggregatorRoute: 'linea-testnet',
+  route: 'linea-goerli',
+  ksSettingRoute: 'linea-goerli',
+  priceRoute: 'linea-goerli',
+  poolFarmRoute: 'linea-goerli',
+  aggregatorRoute: 'linea-goerli',
   name: 'Linea Testnet',
   icon: 'https://linea.build/apple-touch-icon.png',
   iconDark: NOT_SUPPORT,
