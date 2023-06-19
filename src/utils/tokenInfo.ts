@@ -96,26 +96,3 @@ export const getTokenSymbolWithHardcode = (
   if (chainId === ChainId.ARBITRUM && formatAddress === '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8') return 'USDC.e'
   return defaultSymbol ?? ''
 }
-
-export const getTokenInfoWithHardcode = (
-  chainId: ChainId | undefined,
-  address: string | undefined,
-  defaultSymbol: string | undefined,
-  defaultLogoUrl: string | undefined,
-): {
-  symbol: string
-  logoUrl: string
-} => {
-  const formatAddress = address?.toLowerCase()
-  if (chainId === ChainId.ZKSYNC && formatAddress === '0x9e2DFb9912DEbB2f8cdAFc05d4c1De6b57F4D404'.toLowerCase()) {
-    return {
-      symbol: 'WETH',
-      logoUrl: defaultLogoUrl || '',
-    }
-  }
-
-  return {
-    symbol: defaultSymbol || '',
-    logoUrl: defaultLogoUrl || '',
-  }
-}
