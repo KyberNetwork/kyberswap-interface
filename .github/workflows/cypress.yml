@@ -26,7 +26,7 @@ jobs:
       pr_number: ${{github.event.number}}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Extract branch
         shell: bash
@@ -68,10 +68,10 @@ jobs:
       - prepare
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Node.js 18.15.0
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 18.15.0
           registry-url: 'https://npm.pkg.github.com'
@@ -111,7 +111,7 @@ jobs:
           yarn preview &
           yarn test-e2e
         env:
-            DISPLAY: :0.0      
+            DISPLAY: :0.0
       
       - name: Archive e2e artifacts 
         uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8

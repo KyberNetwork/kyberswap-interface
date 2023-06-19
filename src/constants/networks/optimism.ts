@@ -67,7 +67,6 @@ const optimismInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'optimistic-ethereum',
   coingeckoNativeTokenId: 'ethereum',
   deBankSlug: 'op',
-  trueSightId: NOT_SUPPORT,
   dexToCompare: 'uniswapv3',
   geckoTermialId: 'optimism',
 }

@@ -280,7 +280,7 @@ export default function Swap() {
                   refreshListOrder={refreshListOrder}
                 />
               )}
-              {activeTab === TAB.CROSS_CHAIN && <CrossChain />}
+              {isCrossChainPage && <CrossChain visible={activeTab === TAB.CROSS_CHAIN} />}
             </AppBodyWrapped>
             {isCrossChainPage && <CrossChainLink isBridge />}
           </SwapFormWrapper>

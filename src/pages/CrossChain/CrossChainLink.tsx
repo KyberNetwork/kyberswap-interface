@@ -17,7 +17,7 @@ export default function CrossChainLink({ isBridge }: { isBridge?: boolean }) {
         placement="top"
         text={
           isBridge
-            ? t`Use the bridge when sending the same token between chains without swapping. Not every token token may be available for bridging`
+            ? t`Use the bridge when sending the same token between chains without swapping. Not every token may be available for bridging`
             : t`Use cross-chain swaps to swap between different tokens from one chain to another`
         }
       >
@@ -27,7 +27,7 @@ export default function CrossChainLink({ isBridge }: { isBridge?: boolean }) {
           color={theme.primary}
           onClick={() => navigate(isBridge ? APP_PATHS.BRIDGE : APP_PATHS.CROSS_CHAIN)}
         >
-          {isBridge ? 'Bridge' : 'Cross-Chain Swap'}
+          {isBridge ? 'Bridge' : 'Cross-Chain Swaps'}
           <ArrowUpRight size={12} color={theme.primary} />
         </Flex>
       </MouseoverTooltip>

@@ -81,7 +81,6 @@ const maticInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'polygon-pos',
   coingeckoNativeTokenId: 'matic-network',
   deBankSlug: 'matic',
-  trueSightId: 'polygon',
   dexToCompare: 'quickswap',
   geckoTermialId: 'polygon_pos',
 }

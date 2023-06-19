@@ -70,7 +70,6 @@ const fantomInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'fantom',
   coingeckoNativeTokenId: 'fantom',
   deBankSlug: 'ftm',
-  trueSightId: 'fantom',
   dexToCompare: 'spookyswap',
   geckoTermialId: 'fantom',
 }

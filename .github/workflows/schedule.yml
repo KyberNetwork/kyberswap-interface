@@ -1,0 +1,68 @@
+name: 'E2E Testing Schedule'
+
+on:
+  schedule:
+    - cron: '0 1,5 * * *' # run at 8AM and 12PM (GTM+7)
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Code Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js 18.15.0
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.15.0
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@kybernetwork'
+
+      - name: Install dependences
+        uses: bahmutov/npm-install@HEAD
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GH_PAT }} ### authen npm
+
+      - name: Install linux deps
+        run: |
+            sudo apt-get install --no-install-recommends -y \
+            fluxbox \
+            xvfb
+      
+      - name: Install cypress
+        run: yarn cypress install --force  
+        
+      - name: Run xvfb and fluxbox
+        run: Xvfb :0 -screen 0 1024x768x24 -listen tcp -ac &
+          fluxbox &
+        env:
+          DISPLAY: :0.0  
+
+      - name: Run Cypress Test
+        run: |+
+          #!/bin/bash
+          yarn test-schedule
+        env:
+            DISPLAY: :0.0
+            
+      - name: Notify on failure
+        if: ${{ failure() }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+            SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+            SLACK_CHANEL: automation-test-bot
+            SLACK_COLOR: ${{ job.status }} # or a specific color like 'good' or '#ff00ff'
+            SLACK_ICON: https://icon-library.com/images/star-wars-icon-png/star-wars-icon-png-16.jpg?size=48
+            SLACK_TITLE: E2E Test ${{inputs.BASE_URL}}
+            SLACK_USERNAME: autoBot
+            SLACK_LINK_NAMES: true
+      
+      - name: Archive e2e artifacts 
+        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
+        if: always()
+        with:
+            name: e2e-artifacts
+            path: |
+              cypress/videos
+        continue-on-error: true

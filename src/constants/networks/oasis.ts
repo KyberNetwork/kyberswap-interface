@@ -70,7 +70,6 @@ const oasisInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'oasis',
   coingeckoNativeTokenId: 'oasis-network',
   deBankSlug: EMPTY,
-  trueSightId: NOT_SUPPORT,
   dexToCompare: 'valleyswap-v2',
   geckoTermialId: 'oasis',
 }

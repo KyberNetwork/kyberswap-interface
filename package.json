@@ -24,8 +24,8 @@
     "start-dev": "vite --mode dev",
     "start-stg": "vite --mode stg",
     "start-prod": "vite --mode production",
-    "test-e2e": "synpress run -cf cypress.config.ts",
-    "test:open": "DEBUG=synpress:* synpress open -cf cypress.config.ts"
+    "test-e2e": "synpress run -cf cypress.config.ts -c baseUrl=http://127.0.0.1:4173/ -e grepTags=smoke,grepFilterSpecs=true,grepOmitFiltered=true",
+    "test-schedule": "synpress run -cf cypress.config.ts -c baseUrl=https://kyberswap.com/ -e grepTags=regression,grepFilterSpecs=true,grepOmitFiltered=true"
   },
   "browserslist": [
     "chrome >= 52",
@@ -44,7 +44,7 @@
     "@apollo/client": "^3.7.1",
     "@datadog/browser-rum": "^4.23.3",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
-    "@kybernetwork/oauth2": "0.0.3",
+    "@kybernetwork/oauth2": "0.0.6",
     "@kyberswap/ks-sdk-classic": "^1.0.3",
     "@kyberswap/ks-sdk-core": "^1.0.5",
     "@kyberswap/ks-sdk-elastic": "^1.1.2",
@@ -137,6 +137,7 @@
     "@babel/core": "^7.21.4",
     "@babel/preset-react": "^7.18.6",
     "@babel/preset-typescript": "^7.21.4",
+    "@cypress/grep": "^3.1.5",
     "@lingui/cli": "~3.14.0",
     "@lingui/vite-plugin": "~3.16.1",
     "@synthetixio/synpress": "^3.7.0",

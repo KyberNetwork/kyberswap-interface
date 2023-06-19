@@ -77,7 +77,6 @@ const bnbInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'binance-smart-chain',
   coingeckoNativeTokenId: 'binancecoin',
   deBankSlug: 'bsc',
-  trueSightId: 'bsc',
   dexToCompare: 'pancake',
   geckoTermialId: 'bsc',
 }
