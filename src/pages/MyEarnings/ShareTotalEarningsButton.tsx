@@ -23,6 +23,7 @@ const ShareTotalEarningsButton: React.FC<Props> = ({ totalValue }) => {
         borderRadius: '999px',
         color: theme.subText,
         background: theme.background,
+        cursor: 'pointer',
       }}
       role="button"
       onClick={() => {

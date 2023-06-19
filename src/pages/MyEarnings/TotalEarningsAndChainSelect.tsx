@@ -79,6 +79,7 @@ const RefreshButton = () => {
         background: theme.background,
         padding: '0',
         margin: '0',
+        cursor: 'pointer',
       }}
       disabled={isFetching}
       onClick={handleClick}
