@@ -90,24 +90,20 @@ const useLogin = () => {
 
   const latestAccount = useRef<string | boolean | undefined>('')
   useEffect(() => {
-    const func = (wallet: string | boolean | undefined) => {
+    const requestSignIn = (wallet: string | boolean | undefined) => {
       if (latestAccount.current === wallet) {
         return //  not change
-      }
-      if (latestAccount.current && !account) {
-        // disconnect
-        requestingSession.current = undefined
       }
       latestAccount.current = wallet
       signIn(typeof wallet === 'string' ? wallet : account)
     }
-    if (!account) {
-      func(account)
+    if (latestAccount.current && !account) {
+      // disconnect
+      requestingSession.current = undefined
+      requestSignIn(account)
       return
     }
-    isAuthorized(true).then(wallet => {
-      func(wallet)
-    })
+    isAuthorized(true).then(requestSignIn)
   }, [account, signIn])
 }
 export default useLogin
