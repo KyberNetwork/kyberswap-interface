@@ -71,7 +71,7 @@ const maticInfo: EVMNetworkInfo = {
     routers: '0xF9c2b5746c946EF883ab2660BbbB1f10A5bdeAb4',
     farms: ['0x7D5ba536ab244aAA1EA42aB88428847F25E3E676'],
     farmv2Quoter: '0xbBA293C22F7D2c377E7F1C0f490E64845F663FAc',
-    farmV2Contract: '0xbb62F365ECffbaca1d255Eed77c60c70F840f6E2',
+    farmV2Contract: '0xFAaA95096BdF8f9d2E31ED371097e874974226C7',
   },
   limitOrder: {
     development: '0x3C2E9227A6d3779e5b469E425CAa7067b40Ff124',
