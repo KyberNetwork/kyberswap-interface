@@ -1,3 +1,4 @@
+import { captureException } from '@sentry/react'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useCallback } from 'react'
 
@@ -34,6 +35,13 @@ export const useActivationWallet: () => {
         localStorage.setItem(LOCALSTORAGE_LAST_WALLETKEY_EVM, walletKey.toString())
       } catch (error) {
         localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY_EVM)
+        const e = new Error(`[Wallet] ${error.message}`)
+        e.name = 'Activate EVM failed'
+        e.stack = ''
+        captureException(e, {
+          level: 'warning',
+          extra: { error, walletKey, wallet, isEagerly },
+        })
         console.error('Activate EVM failed:', { walletKey, wallet, error, isEagerly })
         throw error
       }
@@ -51,6 +59,13 @@ export const useActivationWallet: () => {
         localStorage.setItem(LOCALSTORAGE_LAST_WALLETKEY_SOLANA, walletKey.toString())
       } catch (error) {
         localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY_SOLANA)
+        const e = new Error(`[Wallet] ${error.message}`)
+        e.name = 'Activate Solana failed'
+        e.stack = ''
+        captureException(e, {
+          level: 'warning',
+          extra: { error, walletKey, wallet },
+        })
         console.error('Activate Solana failed:', { walletKey, wallet, error })
         throw error
       }
