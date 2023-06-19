@@ -122,11 +122,13 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
     }
   })
 
-  const isFarmingPool = !!fairlaunchAddress && pid !== -1
+  const isFarmV1 = !!fairlaunchAddress && pid !== -1
   const farmV2 = elasticFarmV2s
     ?.filter(farm => farm.endTime > Date.now() / 1000 && !farm.isSettled)
     .find(farm => farm.poolAddress.toLowerCase() === pool.address.toLowerCase())
   const isFarmV2 = !!farmV2
+
+  const isFarmingPool = isFarmV1 || isFarmV2
 
   const maxFarmV2Apr = Math.max(...(farmV2?.ranges.map(item => item.apr || 0) || []), 0)
 
@@ -174,8 +176,7 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
             <FeeTag>Fee {(pool.feeTier * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
 
             <Flex alignItems="center" marginLeft="4px" sx={{ gap: '4px' }}>
-              {isFarmingPool && <FarmTag version="v1" address={pool.address} />}
-              {isFarmV2 && <FarmTag version="v2" address={pool.address} />}
+              {isFarmingPool && <FarmTag address={pool.address} />}
             </Flex>
           </Flex>
         </Link>

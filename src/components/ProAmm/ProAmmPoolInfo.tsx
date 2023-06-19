@@ -61,8 +61,7 @@ export default function ProAmmPoolInfo({
 
     return (
       <Flex sx={{ gap: '4px' }} alignItems="center">
-        {isFarmActive && <FarmTag version="v1" address={poolAddress} />}
-        {isFarmV2Active && <FarmTag version="v2" address={poolAddress} />}
+        {(isFarmActive || isFarmV2Active) && <FarmTag address={poolAddress} />}
       </Flex>
     )
   }

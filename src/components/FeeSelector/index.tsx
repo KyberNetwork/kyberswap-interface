@@ -107,8 +107,7 @@ const FeeOption = ({
           <Text as="span" fontWeight={500} fontSize="14px">
             {label}%
           </Text>
-          {hasFarmV1 && <FarmTag address={poolAddress} version="v1" noTooltip />}
-          {hasFarmV2 && <FarmTag address={poolAddress} version="v2" noTooltip />}
+          {(hasFarmV1 || hasFarmV2) && <FarmTag address={poolAddress} noTooltip />}
         </Flex>
 
         <Text as="span" color={theme.subText} marginTop="4px" fontSize="10px">
@@ -250,10 +249,9 @@ function FeeSelector({
       </Flex>
 
       <Flex alignItems="center" sx={{ gap: '8px' }}>
-        {tiersThatHasFarmV1.includes(feeAmount) && <FarmTag version="v1" address={poolByFeeAmount[feeAmount]} />}
-
-        {activeFarmV2s?.find(item => item.poolAddress === poolByFeeAmount[feeAmount].toLowerCase()) && (
-          <FarmTag version="v2" address={poolAddresses[feeAmount]} />
+        {(tiersThatHasFarmV1.includes(feeAmount) ||
+          activeFarmV2s?.find(item => item.poolAddress === poolByFeeAmount[feeAmount].toLowerCase())) && (
+          <FarmTag address={poolByFeeAmount[feeAmount]} />
         )}
 
         {showFeeDistribution && (

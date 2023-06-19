@@ -184,7 +184,7 @@ export default function ProAmmPoolStat({
         <Text fontSize="28px" fontWeight="500" color={theme.apr}>
           {((farmAPR || 0) + pool.apr).toFixed(2)}%
         </Text>
-        {isFarmingPool && <FarmTag version="v1" address={pool.address} />}
+        {isFarmingPool && <FarmTag address={pool.address} />}
       </Flex>
     </div>
   )

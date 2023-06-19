@@ -98,7 +98,7 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
 
   const maxFarmAPR = maxFarmV2Apr > (pool.farmAPR || 0) ? maxFarmV2Apr : pool.farmAPR || 0
 
-  const isFarmingPool: boolean = useMemo(() => {
+  const isFarmV1: boolean = useMemo(() => {
     let fairlaunchAddress = ''
     let pid = -1
 
@@ -115,6 +115,8 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
 
     return !!fairlaunchAddress && pid !== -1
   }, [farms, pool.address])
+
+  const isFarmingPool = isFarmV1 || isFarmV2
 
   return (
     <Wrapper key={pool.address} data-testid={pool.address}>
@@ -205,10 +207,7 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
           {(maxFarmAPR + pool.apr).toFixed(2)}%
         </Text>
 
-        <Flex sx={{ gap: '4px' }}>
-          {isFarmingPool && <FarmTag version="v1" address={pool.address} />}
-          {isFarmV2 && <FarmTag version="v2" address={pool.address} />}
-        </Flex>
+        <Flex sx={{ gap: '4px' }}>{isFarmingPool && <FarmTag address={pool.address} />}</Flex>
       </Flex>
 
       <Flex justifyContent="space-between" color={theme.subText} fontSize="12px" fontWeight="500" marginTop="1rem">
