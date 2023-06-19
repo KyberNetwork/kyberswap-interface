@@ -306,7 +306,7 @@ export function TradeSummaryCrossChain({
 }) {
   const theme = useTheme()
   const navigate = useNavigate()
-  const { chainId, account } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
 
   const [show, setShow] = useState(true)
   const { duration, minReceive, priceImpact, totalFeeUsd, gasFeeUsd, crossChainFeeUsd } = getRouInfo(route)
@@ -314,9 +314,7 @@ export function TradeSummaryCrossChain({
   const nativeToken = NativeCurrencies[chainId]
   const { isEnoughEth, gasFee, crossChainFee } = useIsEnoughGas(route)
 
-  const enoughGasFee = !route || !account ? true : isEnoughEth
-
-  const colorGasFee = enoughGasFee ? theme.subText : theme.warning
+  const colorGasFee = isEnoughEth ? theme.subText : theme.warning
 
   const [{ currencyOut }] = useCrossChainState()
 
@@ -396,7 +394,7 @@ export function TradeSummaryCrossChain({
                   totalFeeUsd && nativeToken ? (
                     <>
                       <Text fontSize={12}>
-                        {!enoughGasFee ? (
+                        {!isEnoughEth ? (
                           <div>
                             <Trans>
                               You do not have enough {nativeToken.symbol} to cover the estimated gas for this
@@ -442,7 +440,7 @@ export function TradeSummaryCrossChain({
               </MouseoverTooltip>
             </TextDashed>
           </RowFixed>
-          <TYPE.black color={enoughGasFee ? theme.text : theme.warning} fontSize={12}>
+          <TYPE.black color={isEnoughEth ? theme.text : theme.warning} fontSize={12}>
             {Number(totalFeeUsd) ? formattedNum(totalFeeUsd + '', true) : '--'}
           </TYPE.black>
         </RowBetween>

@@ -72,7 +72,7 @@ export default function SubscribeNotificationButton({
   const hasSubscribe = useMemo(() => {
     return topicId
       ? topicGroups.some(group =>
-          group.topics.some(topic => topic.isSubscribed === true && String(topic.id) === String(topicId)),
+          group.topics.some(topic => topic.isSubscribed && String(topic.id) === String(topicId)),
         )
       : false
   }, [topicGroups, topicId])
