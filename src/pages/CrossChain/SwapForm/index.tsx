@@ -32,11 +32,10 @@ import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
 import TradeTypeSelection from 'pages/CrossChain/SwapForm/TradeTypeSelection'
 import TradePrice from 'pages/CrossChain/TradePrice'
 import { getRouInfo } from 'pages/CrossChain/helpers'
-import useDefaultTokenChain from 'pages/CrossChain/useDefaultTokenChain'
 import useGetRouteCrossChain from 'pages/CrossChain/useGetRoute'
 import useValidateInput, { useIsTokensSupport } from 'pages/CrossChain/useValidateInput'
 import { useWalletModalToggle } from 'state/application/hooks'
-import { useCrossChainHandlers } from 'state/crossChain/hooks'
+import { useCrossChainHandlers, useCrossChainState } from 'state/crossChain/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -61,18 +60,20 @@ export default function SwapForm() {
   const changeNetwork = useChangeNetwork()
   const [isDegenMode] = useDegenModeManager()
 
-  const {
-    listTokenIn,
-    listChainOut,
-    listTokenOut,
-    chains,
-    currencyIn,
-    currencyOut,
-    loadingToken,
-    chainIdOut,
-    squidInstance,
-    inputAmount,
-  } = useDefaultTokenChain()
+  const [
+    {
+      listTokenIn,
+      listChainOut,
+      listTokenOut,
+      chains,
+      currencyIn,
+      currencyOut,
+      loadingToken,
+      chainIdOut,
+      squidInstance,
+      inputAmount,
+    },
+  ] = useCrossChainState()
 
   const {
     setting: { enableExpressExecution, slippageTolerance },
