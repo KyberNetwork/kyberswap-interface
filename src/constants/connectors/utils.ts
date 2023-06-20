@@ -19,7 +19,10 @@ export const getIsMetaMaskWallet = () =>
   Boolean(window.ethereum?.isMetaMask && !allNonMetamaskFlags.some(flag => window.ethereum?.[flag]))
 
 export const getIsCoinbaseWallet = () =>
-  Boolean(window.ethereum?.isCoinbaseWallet || window.ethereum?.providers?.some(p => p?.isCoinbaseWallet))
+  Boolean(
+    (window.ethereum?.isCoinbaseWallet || window.ethereum?.providers?.some(p => p?.isCoinbaseWallet)) &&
+      !window.ethereum.isKrystalWallet,
+  )
 
 export const getIsBraveWallet = () => Boolean(checkForBraveBrowser() && window.ethereum?.isBraveWallet)
 
