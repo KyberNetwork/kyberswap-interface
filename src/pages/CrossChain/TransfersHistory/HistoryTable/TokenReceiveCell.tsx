@@ -51,8 +51,11 @@ const TokenAmount = ({
           text={
             <Text>
               <Trans>
-                Due to changing market conditions, Axelar was unable to guarantee the estimated output amount. As the
-                configured{' '}
+                Due to changing market conditions, Squid{' '}
+                <ExternalLink href="https://docs.squidrouter.com/architecture/fallback-behaviour-on-failed-transactions">
+                  was unable to guarantee the estimated output amount
+                </ExternalLink>
+                . As the configured{' '}
                 <ExternalLink
                   href={'https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/slippage'}
                 >
@@ -63,6 +66,7 @@ const TokenAmount = ({
                 <ExternalLink href={'https://docs.axelar.dev/dev/reference/mainnet-contract-addresses#assets'}>
                   axlUSDC
                 </ExternalLink>
+                .
               </Trans>
             </Text>
           }

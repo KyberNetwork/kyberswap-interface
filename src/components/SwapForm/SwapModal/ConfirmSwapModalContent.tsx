@@ -27,7 +27,7 @@ import useTheme from 'hooks/useTheme'
 import { useEncodeSolana } from 'state/swap/hooks'
 import { useDegenModeManager } from 'state/user/hooks'
 import { CloseIcon } from 'theme/components'
-import { toCurrencyAmount } from 'utils/currencyAmount'
+import { minimumAmountAfterSlippage, toCurrencyAmount } from 'utils/currencyAmount'
 import { checkPriceImpact } from 'utils/prices'
 
 import SwapBrief from './SwapBrief'
@@ -136,8 +136,8 @@ export default function ConfirmSwapModalContent({
         isLoading: isBuildingRoute,
 
         gasUsd: undefined,
+        minimumAmountOut: undefined,
         executionPrice: undefined,
-        parsedAmountOut: undefined,
         priceImpact: undefined,
 
         buildData: undefined,
@@ -153,13 +153,15 @@ export default function ConfirmSwapModalContent({
       parsedAmountIn.quotient,
       parsedAmountOut.quotient,
     )
+    // Min amount out is calculated from get route api amount out.
+    const minimumAmountOut = minimumAmountAfterSlippage(routeSummary.parsedAmountOut, slippage)
 
     return {
       isLoading: isBuildingRoute,
 
       gasUsd,
       executionPrice,
-      parsedAmountOut,
+      minimumAmountOut,
       priceImpact: priceImpactFromBuild,
 
       buildData: buildResult.data,

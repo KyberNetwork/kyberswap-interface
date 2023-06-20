@@ -132,7 +132,6 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
         {btnGetStart}
         <div style={{ width: '100%', border: `1px solid ${theme.border}` }} />
         <WaitListForm
-          showRanking={false}
           desc={
             <Text fontSize={20} color={theme.text} fontWeight={'500'}>
               <Trans>Spread the word, and get rewarded for it! </Trans>
