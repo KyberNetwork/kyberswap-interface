@@ -14,18 +14,11 @@ type Props = {
   toggleOpen: () => void
   isLoading: boolean | undefined
   ticks: EarningStatsTick[] | undefined
-  isContainerSmall?: boolean
 }
-const ZoomOutModal: React.FC<Props> = ({ ticks, isLoading, isOpen, toggleOpen, isContainerSmall }) => {
+const ZoomOutModal: React.FC<Props> = ({ ticks, isLoading, isOpen, toggleOpen }) => {
   return (
     <Modal isOpen={isOpen} onDismiss={toggleOpen} maxWidth="1200px" width="100%" height="800px">
-      <Panel
-        isZoomed
-        isLoading={isLoading}
-        ticks={ticks}
-        toggleModal={toggleOpen}
-        isContainerSmall={isContainerSmall}
-      />
+      <Panel isZoomed isLoading={isLoading} ticks={ticks} toggleModal={toggleOpen} />
     </Modal>
   )
 }
