@@ -11,7 +11,7 @@ import { metaMask, walletConnectV2 } from 'constants/connectors/evm'
 import { MOCK_ACCOUNT_EVM, MOCK_ACCOUNT_SOLANA } from 'constants/env'
 import { NETWORKS_INFO, isSupportedChainId } from 'constants/networks'
 import { NetworkInfo } from 'constants/networks/type'
-import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
+import { LOCALSTORAGE_LAST_WALLETKEY_EVM, SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
 import { AppState } from 'state'
 import { useKyberSwapConfig } from 'state/application/hooks'
 import { detectInjectedType, isEVMWallet, isSolanaWallet } from 'utils'
@@ -36,9 +36,17 @@ export function useActiveWeb3React(): {
   const {
     connector: connectedConnectorEVM,
     active: isConnectedEVM,
-    account: evmAccount,
-    chainId: chainIdEVM,
+    account: rawEvmAccount,
+    chainId: rawChainIdEVM,
   } = useWeb3React()
+
+  const walletConnectConnector = SUPPORTED_WALLETS.WALLET_CONNECT.connector
+  const walletConnectProvider: any = walletConnectConnector.provider
+  const isWalletConnect = localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY_EVM) === 'WALLET_CONNECT'
+
+  const evmAccount = isWalletConnect ? walletConnectProvider?.accounts?.[0] || rawEvmAccount : rawEvmAccount
+  const chainIdEVM = isWalletConnect ? walletConnectProvider?.chainId || rawChainIdEVM : rawChainIdEVM
+
   /**Hook for Solana infos */
   const { wallet: connectedWalletSolana, connected: isConnectedSolana, publicKey } = useWallet()
 
