@@ -383,8 +383,9 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       data: calldata,
       value,
     }
-    library
-      .getSigner()
+    const signer = library.getSigner() //todo namgold: revert
+    console.log('namgold signer', { signer })
+    signer
       .estimateGas(txn)
       .then(async (estimate: BigNumber) => {
         const newTxn = {
