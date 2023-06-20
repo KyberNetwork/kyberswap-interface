@@ -123,7 +123,9 @@ export const STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
   ],
   [ChainId.ZKSYNC]: [
     '0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4', // USDC
-    '0x4BEf76b6b7f2823C6c1f4FcfEACD85C24548ad7e', // Dai
+    '0x8E86e46278518EFc1C5CEd245cBA2C7e3ef11557', // USD+
+    '0x2039bb4116B4EFc145Ec4f0e2eA75012D6C0f181', // BUSD
+    '0x493257fD37EDB34451f62EDf8D2a0C418852bA4C', // USDT
   ],
   [ChainId.SOLANA]: [
     'EjmyN6qEC1Tf1JxiG1ae7UTJhUxSwk1TCWNWqxWV4J6o', // Dai
@@ -546,9 +548,7 @@ export const USDT: { [chainId in ChainId]: Token } = {
     'USDT',
     'Tether USD',
   ),
-
-  // TODO(viet-nv): this address doesn't exist. check again
-  [ChainId.ZKSYNC]: new Token(ChainId.ZKSYNC, '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58', 6, 'USDT', 'Tether USD'),
+  [ChainId.ZKSYNC]: new Token(ChainId.ZKSYNC, '0x493257fd37edb34451f62edf8d2a0c418852ba4c', 6, 'USDT', 'Tether USD'),
   [ChainId.SOLANA]: new Token(ChainId.SOLANA, 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB', 6, 'USDT', 'Tether USD'),
 }
 

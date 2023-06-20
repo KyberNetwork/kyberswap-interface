@@ -12,7 +12,7 @@ import CrossChainLink from 'pages/CrossChain/CrossChainLink'
 import { useBridgeState } from 'state/crossChain/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { isAddress } from 'utils'
-import { getTokenInfoWithHardcode, isTokenNative } from 'utils/tokenInfo'
+import { isTokenNative } from 'utils/tokenInfo'
 
 import BridgeHistory from './BridgeTransfers'
 import Disclaimer from './Disclaimer'
@@ -26,6 +26,30 @@ import {
   setBridgeLocalstorage,
 } from './helpers'
 import { MultiChainTokenInfo } from './type'
+
+const getTokenInfoWithHardcode = (
+  chainId: ChainId | undefined,
+  address: string | undefined,
+  defaultSymbol: string | undefined,
+  defaultLogoUrl: string | undefined,
+): {
+  symbol: string
+  logoUrl: string
+} => {
+  const formatAddress = address?.toLowerCase()
+  // 0x9e2DFb9912DEbB2f8cdAFc05d4c1De6b57F4D404 is WETH of multichain. It's not the official WETH on zkSync
+  if (chainId === ChainId.ZKSYNC && formatAddress === '0x9e2DFb9912DEbB2f8cdAFc05d4c1De6b57F4D404'.toLowerCase()) {
+    return {
+      symbol: 'WETH',
+      logoUrl: defaultLogoUrl || '',
+    }
+  }
+
+  return {
+    symbol: defaultSymbol || '',
+    logoUrl: defaultLogoUrl || '',
+  }
+}
 
 const Container = styled.div`
   display: flex;
