@@ -5,14 +5,16 @@ import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
 export const getIsInjected = () => Boolean(window.ethereum)
 
-type NonMetaMaskFlag = 'isRabby' | 'isBraveWallet' | 'isTrustWallet' | 'isTrust' | 'isLedgerConnect' | 'isCoin98'
-const allNonMetamaskFlags: NonMetaMaskFlag[] = [
+const allNonMetamaskFlags = [
   'isRabby',
   'isBraveWallet',
+  'isTrust',
   'isTrustWallet',
   'isLedgerConnect',
   'isCoin98',
-]
+  'isKrystalWallet',
+] as const
+
 export const getIsMetaMaskWallet = () =>
   Boolean(window.ethereum?.isMetaMask && !allNonMetamaskFlags.some(flag => window.ethereum?.[flag]))
 
