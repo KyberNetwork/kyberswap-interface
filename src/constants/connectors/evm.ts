@@ -30,6 +30,7 @@ export const [walletConnectV2, walletConnectV2Hooks] = initializeConnector<Walle
         chains: WALLET_CONNECT_REQUIRED_CHAIN_IDS,
         optionalChains: WALLET_CONNECT_OPTIONAL_CHAIN_IDS,
         showQrModal: true,
+        methods: ['eth_sendTransaction', 'eth_accounts', 'eth_call', 'eth_estimateGas', 'eth_signTypedData_v4'],
         // optionalMethods: ['eth_signTypedData', 'eth_signTypedData_v4', 'eth_sign'],
         optionalMethods: OPTIONAL_METHODS,
         optionalEvents: OPTIONAL_EVENTS,
