@@ -240,6 +240,12 @@ export enum FARM_TAB {
   VESTING = 'vesting',
 }
 
+export enum ELASTIC_FARM_TYPE {
+  ALL = 'all',
+  DYNAMIC = 'dynamic',
+  STATIC = 'static',
+}
+
 export const EIP712Domain = [
   { name: 'name', type: 'string' },
   { name: 'version', type: 'string' },

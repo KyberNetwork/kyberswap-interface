@@ -19,10 +19,8 @@ export const ElasticFarmCombination: FC = () => {
   const { filteredFarms: filteredFarmsV1, loading: loadingV1 } = useFilteredFarms()
   const { filteredFarms: filteredFarmsV2, loading: loadingV2 } = useFilteredFarmsV2()
 
-  // const { networkInfo } = useActiveWeb3React()
   const [searchParams] = useSearchParams()
   const search: string = searchParams.get('search')?.toLowerCase() || ''
-  const stakedOnly = searchParams.get('stakedOnly') === 'true'
 
   const noFarms = !filteredFarmsV1.length && !filteredFarmsV2.length
   const loading = loadingV1 || loadingV2
@@ -65,7 +63,7 @@ export const ElasticFarmCombination: FC = () => {
     return (
       <Flex backgroundColor={theme.background} justifyContent="center" padding="32px" sx={{ borderRadius: '20px' }}>
         <Text color={theme.subText}>
-          {stakedOnly || search ? <Trans>No Farms found</Trans> : <Trans>Currently there are no Farms.</Trans>}
+          {search ? <Trans>No Farms found</Trans> : <Trans>Currently there are no Farms.</Trans>}
         </Text>
       </Flex>
     )
@@ -74,9 +72,8 @@ export const ElasticFarmCombination: FC = () => {
   return (
     <>
       <FarmStepGuide version={showFarmStepGuide} onChangeVersion={setShowFarmStepGuide} />
-      <ElasticFarms onShowStepGuide={() => setShowFarmStepGuide('v1')} />
-      {!!filteredFarmsV1.length && <div style={{ marginTop: '1rem' }} />}
-      <ElasticFarmv2 onShowStepGuide={() => setShowFarmStepGuide('v2')} />
+      <ElasticFarms onShowStepGuide={() => setShowFarmStepGuide('v1')} noStaticFarm={!filteredFarmsV2.length} />
+      <ElasticFarmv2 onShowStepGuide={() => setShowFarmStepGuide('v2')} noDynamicFarm={!filteredFarmsV1.length} />
     </>
   )
 }

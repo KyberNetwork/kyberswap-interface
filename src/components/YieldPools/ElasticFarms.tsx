@@ -20,7 +20,7 @@ import WithdrawModal from './ElasticFarmModals/WithdrawModal'
 
 type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest' | 'forcedWithdraw'
 
-function ElasticFarms({ onShowStepGuide }: { onShowStepGuide: () => void }) {
+function ElasticFarms({ onShowStepGuide, noStaticFarm }: { onShowStepGuide: () => void; noStaticFarm: boolean }) {
   const theme = useTheme()
   const { networkInfo } = useActiveWeb3React()
 
@@ -113,10 +113,9 @@ function ElasticFarms({ onShowStepGuide }: { onShowStepGuide: () => void }) {
       <Flex
         sx={{
           flexDirection: 'column',
-          rowGap: '48px',
         }}
       >
-        {filteredFarms.map(farm => {
+        {filteredFarms.map((farm, index) => {
           return (
             <ElasticFarmGroup
               onShowStepGuide={onShowStepGuide}
@@ -130,6 +129,8 @@ function ElasticFarms({ onShowStepGuide }: { onShowStepGuide: () => void }) {
               pools={farm.pools}
               userInfo={userFarmInfo?.[farm.id]}
               tokenPrices={tokenPrices}
+              borderTop={index === 0}
+              borderBottom={index === filteredFarms.length - 1 && noStaticFarm}
             />
           )
         })}

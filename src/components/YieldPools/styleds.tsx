@@ -104,30 +104,18 @@ export const TabContainer = styled.div`
   `};
 `
 
+export const TabGroup = styled.div`
+  display: flex;
+  padding: 2px;
+  border-radius: 999px;
+  border: 1px solid ${({ theme }) => theme.border};
+  background: transparent;
+  align-items: center;
+`
+
 export const PoolTitleContainer = styled.div`
   display: flex;
   align-items: center;
-`
-
-export const StakedOnlyToggleWrapper = styled.div`
-  display: flex;
-  align-items: center;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    width: 100%;
-    justify-content: space-between;
-  `}
-`
-
-export const StakedOnlyToggleText = styled.div`
-  font-size: 14px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.subText};
-  margin-right: 8px;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    margin-left: 4px;
-  `}
 `
 
 export const HeadingContainer = styled.div`

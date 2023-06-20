@@ -9,12 +9,10 @@ import { Flex, Text } from 'rebass'
 
 import { ReactComponent as TutorialIcon } from 'assets/svg/play_circle_outline.svg'
 import ClassicElasticTab from 'components/ClassicElasticTab'
-import Loader from 'components/Loader'
 import PoolsCurrencyInputPanel from 'components/PoolsCurrencyInputPanel'
 import RewardTokenPrices from 'components/RewardTokenPrices'
 import Row, { RowFit } from 'components/Row'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
-import Toggle from 'components/Toggle'
 import Tutorial, { TutorialType } from 'components/Tutorial'
 import Vesting from 'components/Vesting'
 import YieldPools from 'components/YieldPools'
@@ -29,12 +27,11 @@ import {
   PoolTitleContainer,
   SearchContainer,
   SearchInput,
-  StakedOnlyToggleText,
-  StakedOnlyToggleWrapper,
   TabContainer,
+  TabGroup,
   TopBar,
 } from 'components/YieldPools/styleds'
-import { FARM_TAB } from 'constants/index'
+import { ELASTIC_FARM_TYPE, FARM_TAB } from 'constants/index'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
@@ -65,9 +62,9 @@ const Farm = () => {
 
   const [searchParams, setSearchParams] = useSearchParams()
   const type: string = searchParams.get('type') || FARM_TAB.ACTIVE
+  const elasticType: string = searchParams.get('elasticType') || ELASTIC_FARM_TYPE.ALL
   const tab: string = searchParams.get('tab') || VERSION.ELASTIC
   const search: string = searchParams.get('search') || ''
-  const stakedOnly: boolean = searchParams.get('stakedOnly') === 'true'
   const farmType = isInEnum(tab, VERSION) ? tab : VERSION.ELASTIC
 
   const above1000 = useMedia('(min-width: 1000px)')
@@ -78,7 +75,11 @@ const Farm = () => {
 
   const navigateTab = (nextTab: FARM_TAB) => {
     searchParams.set('type', nextTab)
-    searchParams.set('stakedOnly', nextTab === FARM_TAB.ENDED ? 'true' : 'false')
+    setSearchParams(searchParams)
+  }
+
+  const handleElasticFarmChange = (nextTab: ELASTIC_FARM_TYPE) => {
+    searchParams.set('elasticType', nextTab)
     setSearchParams(searchParams)
   }
 
@@ -296,7 +297,7 @@ const Farm = () => {
         ) : (
           <div>
             <TabContainer>
-              <Flex sx={{ gap: '8px' }}>
+              <TabGroup>
                 <Tab
                   onClick={() => {
                     if (type && type !== 'active') {
@@ -349,38 +350,44 @@ const Farm = () => {
                       <Text>
                         <Trans>Vesting</Trans>
                       </Text>
-                      {vestingLoading && <Loader style={{ marginLeft: '4px' }} />}
                     </Row>
                   </Tab>
                 )}
-              </Flex>
+              </TabGroup>
+
+              {farmType === VERSION.ELASTIC && (
+                <TabGroup>
+                  <Tab
+                    active={elasticType === ELASTIC_FARM_TYPE.ALL}
+                    onClick={() => handleElasticFarmChange(ELASTIC_FARM_TYPE.ALL)}
+                  >
+                    <Trans>All</Trans>
+                  </Tab>
+                  <Tab
+                    active={elasticType === ELASTIC_FARM_TYPE.DYNAMIC}
+                    onClick={() => handleElasticFarmChange(ELASTIC_FARM_TYPE.DYNAMIC)}
+                  >
+                    <Trans>Dynamic</Trans>
+                  </Tab>
+                  <Tab
+                    active={elasticType === ELASTIC_FARM_TYPE.STATIC}
+                    onClick={() => handleElasticFarmChange(ELASTIC_FARM_TYPE.STATIC)}
+                  >
+                    <Trans>Static</Trans>
+                  </Tab>
+                </TabGroup>
+              )}
 
               <HeadingContainer>
-                <StakedOnlyToggleWrapper>
-                  <Row gap="12px">
-                    {above1000 && (
-                      <RowFit>
-                        <ListGridViewGroup />
-                      </RowFit>
-                    )}
+                <Row gap="12px">
+                  {above1000 && (
+                    <RowFit>
+                      <ListGridViewGroup />
+                    </RowFit>
+                  )}
 
-                    {type !== FARM_TAB.MY_FARMS && (
-                      <>
-                        <StakedOnlyToggleText>
-                          <Trans>Staked Only</Trans>
-                        </StakedOnlyToggleText>
-                        <Toggle
-                          isActive={stakedOnly}
-                          toggle={() => {
-                            searchParams.set('stakedOnly', stakedOnly ? 'false' : 'true')
-                            setSearchParams(searchParams)
-                          }}
-                        />
-                      </>
-                    )}
-                    <FarmSort />
-                  </Row>
-                </StakedOnlyToggleWrapper>
+                  <FarmSort />
+                </Row>
                 <HeadingRight>
                   {selectTokenFilter}
                   <SearchContainer>

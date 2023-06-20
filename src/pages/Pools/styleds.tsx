@@ -54,13 +54,11 @@ export const ButtonIcon = styled(ButtonEmpty)`
 `
 
 export const Tab = styled.div<{ active?: boolean }>`
-  height: 36px;
-  padding: 8px 12px;
-  border: 1px solid ${({ theme, active }) => (active ? theme.primary : theme.subText)};
-  background: ${({ theme, active }) => (active ? theme.primary + '33' : 'transparent')};
+  padding: 6px 12px;
+  background: ${({ theme, active }) => (active ? theme.tabActive : 'transparent')};
   border-radius: 999px;
   cursor: pointer;
-  color: ${({ active, theme }) => (active ? theme.primary : theme.subText)};
+  color: ${({ active, theme }) => (active ? theme.text : theme.subText)};
   font-weight: 500;
   font-size: 14px;
   display: flex;

@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { BigNumber } from 'ethers'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { Flex, Text } from 'rebass'
 
 import LocalLoader from 'components/LocalLoader'
@@ -26,16 +26,10 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
   const { search = '', ...qs } = useParsedQueryString<{ search: string }>()
   const { data: farmsByFairLaunch } = useFarmsData()
 
-  const [stakedOnly, setStakedOnly] = useState({
-    active: false,
-    ended: false,
-  })
-  const [isCheckUserStaked, setIsCheckUserStaked] = useState(false)
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>()
   useOnClickOutside(ref, open ? () => setOpen(prev => !prev) : undefined)
 
-  const activeTab = active ? 'active' : 'ended'
   const currentTimestampRef = useRef(0)
   currentTimestampRef.current = Math.floor(Date.now() / 1000)
   const debouncedSearchText = useDebounce(search.trim().toLowerCase(), 200)
@@ -57,8 +51,7 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
               farm.token1?.symbol.toLowerCase().includes(debouncedSearchText) ||
               farm.id === debouncedSearchText
             : true) &&
-          // stakedOnly
-          (stakedOnly[activeTab] || qs.type === FARM_TAB.MY_FARMS
+          (qs.type === FARM_TAB.MY_FARMS
             ? farm.userData?.stakedBalance && BigNumber.from(farm.userData.stakedBalance).gt(0)
             : true)
         )
@@ -77,14 +70,13 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
               farm.token1?.symbol.toLowerCase().includes(debouncedSearchText) ||
               farm.id === debouncedSearchText
             : true) &&
-          // stakedOnly
-          (stakedOnly[activeTab] || qs.type === FARM_TAB.MY_FARMS
+          (qs.type === FARM_TAB.MY_FARMS
             ? farm.userData?.stakedBalance && BigNumber.from(farm.userData.stakedBalance).gt(0)
             : true)
         )
       }
     },
-    [active, activeTab, debouncedSearchText, stakedOnly, qs.type],
+    [active, debouncedSearchText, qs.type],
   )
 
   const farms = useMemo(
@@ -98,36 +90,6 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
   )
 
   const noFarms = !Object.keys(farms).length
-
-  useEffect(() => {
-    // auto enable stakedOnly if user have rewards on ended farms
-    if (!active && !stakedOnly['ended'] && !isCheckUserStaked) {
-      const staked = Object.keys(farmsByFairLaunch).filter(address => {
-        return !!farmsByFairLaunch[address].filter(farm => {
-          if (farm.rewardPerSeconds) {
-            return (
-              currentTimestampRef.current &&
-              farm.endTime < currentTimestampRef.current &&
-              farm.userData?.stakedBalance &&
-              BigNumber.from(farm.userData.stakedBalance).gt(0)
-            )
-          } else {
-            return (
-              blockNumberRef.current &&
-              farm.endBlock < blockNumberRef.current &&
-              farm.userData?.stakedBalance &&
-              BigNumber.from(farm.userData.stakedBalance).gt(0)
-            )
-          }
-        }).length
-      })
-
-      if (staked.length) {
-        setIsCheckUserStaked(true)
-        setStakedOnly(prev => ({ ...prev, ended: true }))
-      }
-    }
-  }, [active, stakedOnly, farmsByFairLaunch, isCheckUserStaked])
 
   return (
     <>
@@ -145,11 +107,7 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
           style={{ borderBottomLeftRadius: '20px', borderBottomRightRadius: '20px' }}
         >
           <Text color={theme.subText}>
-            {stakedOnly[activeTab] || debouncedSearchText ? (
-              <Trans>No Farms found</Trans>
-            ) : (
-              <Trans>Currently there are no Farms.</Trans>
-            )}
+            {debouncedSearchText ? <Trans>No Farms found</Trans> : <Trans>Currently there are no Farms.</Trans>}
           </Text>
         </Flex>
       ) : (

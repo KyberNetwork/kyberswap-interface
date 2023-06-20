@@ -37,11 +37,14 @@ import StakeWithNFTsModal from './components/StakeWithNFTsModal'
 import UnstakeWithNFTsModal from './components/UnstakeWithNFTsModal'
 import UpdateLiquidityModal from './components/UpdateLiquidityModal'
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ noDynamicFarm?: boolean }>`
   padding: 24px;
   border: 1px solid ${({ theme }) => theme.border};
+  border-top: 1px solid ${({ theme, noDynamicFarm }) => (!noDynamicFarm ? theme.border : 'transparent')};
   background-color: ${({ theme }) => theme.background};
   border-radius: 24px;
+  border-top-left-radius: ${({ noDynamicFarm }) => (noDynamicFarm ? '24px' : 0)};
+  border-top-right-radius: ${({ noDynamicFarm }) => (noDynamicFarm ? '24px' : 0)};
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -55,7 +58,13 @@ const Wrapper = styled.div`
   `}
 `
 
-export default function ElasticFarmv2({ onShowStepGuide }: { onShowStepGuide: () => void }) {
+export default function ElasticFarmv2({
+  onShowStepGuide,
+  noDynamicFarm,
+}: {
+  onShowStepGuide: () => void
+  noDynamicFarm: boolean
+}) {
   const theme = useTheme()
   const { chainId, account } = useActiveWeb3React()
   const farmAddress = (NETWORKS_INFO[chainId] as EVMNetworkInfo).elastic?.farmV2Contract
@@ -278,11 +287,11 @@ export default function ElasticFarmv2({ onShowStepGuide }: { onShowStepGuide: ()
 
   const listMode = above1000 && viewMode === VIEW_MODE.LIST
   return (
-    <Wrapper>
+    <Wrapper noDynamicFarm={noDynamicFarm}>
       {!!updatedFarms?.length && <NewRangesNotiModal updatedFarms={updatedFarms} />}
       <RowBetween>
         <Flex fontSize="16px" alignItems="center" color={theme.text} sx={{ gap: '6px' }}>
-          <Trans>Elastic Farm V2</Trans>
+          <Trans>Static Farms</Trans>
 
           <Text
             color={theme.subText}

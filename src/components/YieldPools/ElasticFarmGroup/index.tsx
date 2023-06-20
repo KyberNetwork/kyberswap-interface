@@ -50,10 +50,14 @@ import {
   RewardDetailContainer,
 } from './styleds'
 
-const FarmContent = styled.div`
+const FarmContent = styled.div<{ borderBottom: boolean; borderTop: boolean }>`
   background: ${({ theme }) => theme.background};
   border: 1px solid ${({ theme }) => theme.border};
-  border-radius: 20px;
+  border-bottom: 1px solid ${({ theme, borderBottom }) => (borderBottom ? theme.border : 'transparent')};
+  border-top-left-radius: ${({ borderTop }) => (borderTop ? '20px' : 0)};
+  border-top-right-radius: ${({ borderTop }) => (borderTop ? '20px' : 0)};
+  border-bottom-left-radius: ${({ borderBottom }) => (borderBottom ? '20px' : 0)};
+  border-bottom-right-radius: ${({ borderBottom }) => (borderBottom ? '20px' : 0)};
   overflow: hidden;
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
@@ -76,6 +80,8 @@ type Props = {
   userInfo?: UserInfo
   onShowStepGuide: () => void
   tokenPrices: { [key: string]: number }
+  borderTop: boolean
+  borderBottom: boolean
 }
 
 enum SORT_FIELD {
@@ -92,7 +98,16 @@ enum SORT_DIRECTION {
   DESC = 'desc',
 }
 
-const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo, onShowStepGuide, tokenPrices }) => {
+const ProMMFarmGroup: React.FC<Props> = ({
+  address,
+  onOpenModal,
+  pools,
+  userInfo,
+  onShowStepGuide,
+  tokenPrices,
+  borderTop,
+  borderBottom,
+}) => {
   const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
   const above1000 = useMedia('(min-width: 1000px)')
@@ -343,7 +358,7 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
     return (
       <Flex justifyContent="space-between" alignItems="center" padding={upToExtraSmall ? '1rem' : '1.25rem 24px'}>
         <Text fontSize="16px" fontWeight="500" display="flex" alignItems="center" sx={{ gap: '6px' }}>
-          <Trans>Elastic Farm V1</Trans>
+          <Trans>Dynamic Farms</Trans>
 
           <Text
             color={theme.subText}
@@ -664,7 +679,7 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
   }
 
   return (
-    <FarmContent data-testid="farm-block">
+    <FarmContent data-testid="farm-block" borderTop={borderTop} borderBottom={borderBottom}>
       {renderFarmGroupHeader()}
       {summaryRewardAndDepositInfo()}
 

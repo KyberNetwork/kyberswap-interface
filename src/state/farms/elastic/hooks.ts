@@ -6,7 +6,7 @@ import { BigNumber } from 'ethers'
 import { useCallback, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { FARM_TAB } from 'constants/index'
+import { ELASTIC_FARM_TYPE, FARM_TAB } from 'constants/index'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
@@ -47,9 +47,10 @@ export const useFilteredFarms = () => {
   const activeTab: string = type || FARM_TAB.ACTIVE
 
   const search: string = searchParams.get('search')?.toLowerCase() || ''
-  const stakedOnly = searchParams.get('stakedOnly') === 'true'
+  const elasticType: string = searchParams.get('elasticType') || ELASTIC_FARM_TYPE.ALL
 
   const filteredFarms = useMemo(() => {
+    if (elasticType === ELASTIC_FARM_TYPE.STATIC) return []
     const now = Date.now() / 1000
 
     // filter active/ended farm
@@ -125,7 +126,7 @@ export const useFilteredFarms = () => {
       }
     }
 
-    if ((stakedOnly || activeTab === FARM_TAB.MY_FARMS) && isEVM) {
+    if (activeTab === FARM_TAB.MY_FARMS && isEVM) {
       result = result?.map(item => {
         if (!userFarmInfo?.[item.id].depositedPositions.length) {
           return { ...item, pools: [] }
@@ -149,7 +150,6 @@ export const useFilteredFarms = () => {
   }, [
     farms,
     search,
-    stakedOnly,
     activeTab,
     chainId,
     userFarmInfo,
@@ -157,6 +157,7 @@ export const useFilteredFarms = () => {
     networkInfo,
     filteredToken0Id,
     filteredToken1Id,
+    elasticType,
   ])
 
   return {

@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { useLocalStorage } from 'react-use'
 
 import FarmV2ABI from 'constants/abis/v2/farmv2.json'
-import { FARM_TAB } from 'constants/index'
+import { ELASTIC_FARM_TYPE, FARM_TAB } from 'constants/index'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
@@ -51,9 +51,9 @@ export const useFilteredFarmsV2 = () => {
   const type = searchParams.get('type')
   const activeTab: string = type || FARM_TAB.ACTIVE
   const search: string = searchParams.get('search')?.toLowerCase() || ''
+  const elasticType: string = searchParams.get('elasticType')?.toLowerCase() || ELASTIC_FARM_TYPE.ALL
   const filteredToken0Id = searchParams.get('token0') || undefined
   const filteredToken1Id = searchParams.get('token1') || undefined
-  const stakedOnly = searchParams.get('stakedOnly') === 'true'
 
   const sortField = searchParams.get('orderBy') || SORT_FIELD.MY_DEPOSIT
   const sortDirection = searchParams.get('orderDirection') || SORT_DIRECTION.DESC
@@ -89,6 +89,7 @@ export const useFilteredFarmsV2 = () => {
   }, [farms, lastUpdatedTimestamp, userInfo])
 
   const filteredFarms = useMemo(() => {
+    if (elasticType === ELASTIC_FARM_TYPE.DYNAMIC) return []
     const now = Date.now() / 1000
 
     // Filter Active/Ended farms
@@ -142,9 +143,6 @@ export const useFilteredFarmsV2 = () => {
       }
     }
 
-    if (stakedOnly) {
-      result = result?.filter(item => userInfo?.map(i => i.fId).includes(item.fId))
-    }
     return (result || []).sort((a, b) => {
       const apr_a = a.ranges.reduce((m, cur) => (m > (cur.apr || 0) ? m : cur.apr || 0), 0)
       const apr_b = b.ranges.reduce((m, cur) => (m > (cur.apr || 0) ? m : cur.apr || 0), 0)
@@ -181,7 +179,6 @@ export const useFilteredFarmsV2 = () => {
   }, [
     sortDirection,
     sortField,
-    stakedOnly,
     userInfo,
     farms,
     activeTab,
@@ -190,6 +187,7 @@ export const useFilteredFarmsV2 = () => {
     filteredToken1Id,
     isEVM,
     search,
+    elasticType,
   ])
 
   return {
