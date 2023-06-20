@@ -6,7 +6,12 @@ import { MetaMask } from '@web3-react/metamask'
 import { WalletConnect as WalletConnectV2 } from '@web3-react/walletconnect-v2'
 
 import { WALLETCONNECT_PROJECT_ID } from 'constants/env'
-import { NETWORKS_INFO, WALLET_CONNECT_SUPPORTED_CHAIN_IDS } from 'constants/networks'
+import {
+  NETWORKS_INFO,
+  WALLET_CONNECT_OPTIONAL_CHAIN_IDS,
+  WALLET_CONNECT_REQUIRED_CHAIN_IDS,
+  WALLET_CONNECT_SUPPORTED_CHAIN_IDS,
+} from 'constants/networks'
 
 export const [injected, injectedHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
 export const [metaMask, metamaskHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
@@ -22,9 +27,8 @@ export const [walletConnectV2, walletConnectV2Hooks] = initializeConnector<Walle
       defaultChainId: ChainId.MAINNET,
       options: {
         projectId: WALLETCONNECT_PROJECT_ID,
-        chains: WALLET_CONNECT_SUPPORTED_CHAIN_IDS as number[],
-        // chains: [defaultChain],
-        // optionalChains,
+        chains: WALLET_CONNECT_REQUIRED_CHAIN_IDS,
+        optionalChains: WALLET_CONNECT_OPTIONAL_CHAIN_IDS,
         showQrModal: true,
         // optionalMethods: ['eth_signTypedData', 'eth_signTypedData_v4', 'eth_sign'],
         optionalMethods: OPTIONAL_METHODS,
