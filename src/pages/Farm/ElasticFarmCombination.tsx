@@ -3,6 +3,7 @@ import { FC, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
+import Divider from 'components/Divider'
 import LocalLoader from 'components/LocalLoader'
 import ElasticFarms from 'components/YieldPools/ElasticFarms'
 import FarmStepGuide from 'components/YieldPools/FarmStepGuide'
@@ -73,6 +74,7 @@ export const ElasticFarmCombination: FC = () => {
     <>
       <FarmStepGuide version={showFarmStepGuide} onChangeVersion={setShowFarmStepGuide} />
       <ElasticFarms onShowStepGuide={() => setShowFarmStepGuide('v1')} noStaticFarm={!filteredFarmsV2.length} />
+      {!!filteredFarmsV1.length && !!filteredFarmsV2.length && <Divider />}
       <ElasticFarmv2 onShowStepGuide={() => setShowFarmStepGuide('v2')} noDynamicFarm={!filteredFarmsV1.length} />
     </>
   )

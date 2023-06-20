@@ -63,4 +63,5 @@ export const Tab = styled.div<{ active?: boolean }>`
   font-size: 14px;
   display: flex;
   align-items: center;
+  justify-content: center;
 `

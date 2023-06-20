@@ -40,7 +40,7 @@ import UpdateLiquidityModal from './components/UpdateLiquidityModal'
 const Wrapper = styled.div<{ noDynamicFarm?: boolean }>`
   padding: 24px;
   border: 1px solid ${({ theme }) => theme.border};
-  border-top: 1px solid ${({ theme, noDynamicFarm }) => (!noDynamicFarm ? theme.border : 'transparent')};
+  border-top: 1px solid ${({ theme, noDynamicFarm }) => (noDynamicFarm ? theme.border : 'transparent')};
   background-color: ${({ theme }) => theme.background};
   border-radius: 24px;
   border-top-left-radius: ${({ noDynamicFarm }) => (noDynamicFarm ? '24px' : 0)};

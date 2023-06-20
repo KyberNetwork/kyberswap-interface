@@ -96,7 +96,7 @@ export const TabContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
-  gap: 24px;
+  gap: 20px;
 
   ${({ theme }) => theme.mediaWidth.upToXL`
     flex-direction: column;
@@ -111,6 +111,13 @@ export const TabGroup = styled.div`
   border: 1px solid ${({ theme }) => theme.border};
   background: transparent;
   align-items: center;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    width: 100%;
+    > div {
+      flex: 1
+    }
+  `};
 `
 
 export const PoolTitleContainer = styled.div`
@@ -128,7 +135,7 @@ export const HeadingContainer = styled.div`
     width: 100%;
   `}
 
-  ${({ theme }) => theme.mediaWidth.upToLarge`
+  ${({ theme }) => theme.mediaWidth.upToMedium`
     flex-direction: column;
     align-items: flex-start;
   `}

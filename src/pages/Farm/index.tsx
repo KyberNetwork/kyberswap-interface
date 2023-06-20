@@ -162,6 +162,7 @@ const Farm = () => {
   const { farmPositions } = useElasticLegacy(false)
   const { claimInfo } = useElasticCompensationData(false)
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const shouldShowFarmTab = !!farmPositions.length || !!claimInfo
   const explicit3Tab = shouldShowFarmTab && !upToMedium
 
@@ -297,99 +298,102 @@ const Farm = () => {
         ) : (
           <div>
             <TabContainer>
-              <TabGroup>
-                <Tab
-                  onClick={() => {
-                    if (type && type !== 'active') {
-                      mixpanelHandler(MIXPANEL_TYPE.FARMS_ACTIVE_VIEWED)
-                    }
-                    navigateTab(FARM_TAB.ACTIVE)
-                  }}
-                  active={!type || type === 'active'}
-                >
-                  <PoolTitleContainer>
-                    <Trans>Active</Trans>
-                  </PoolTitleContainer>
-                </Tab>
-                <Tab
-                  onClick={() => {
-                    if (type !== 'ended') {
-                      mixpanelHandler(MIXPANEL_TYPE.FARMS_ENDING_VIEWED)
-                    }
-                    navigateTab(FARM_TAB.ENDED)
-                  }}
-                  active={type === FARM_TAB.ENDED}
-                >
-                  <PoolTitleContainer>
-                    <Trans>Ended</Trans>
-                  </PoolTitleContainer>
-                </Tab>
-
-                <Tab
-                  onClick={() => {
-                    navigateTab(FARM_TAB.MY_FARMS)
-                  }}
-                  active={type === FARM_TAB.MY_FARMS}
-                >
-                  <Row>
-                    <Trans>My Farms</Trans>
-                  </Row>
-                </Tab>
-
-                {farmType === VERSION.CLASSIC && (
-                  <Tab
-                    onClick={() => {
-                      if (type !== 'vesting') {
-                        mixpanelHandler(MIXPANEL_TYPE.FARMS_MYVESTING_VIEWED)
-                      }
-                      navigateTab(FARM_TAB.VESTING)
-                    }}
-                    active={type === FARM_TAB.VESTING}
-                  >
-                    <Row>
-                      <Text>
-                        <Trans>Vesting</Trans>
-                      </Text>
-                    </Row>
-                  </Tab>
-                )}
-              </TabGroup>
-
-              {farmType === VERSION.ELASTIC && (
+              <Flex sx={{ gap: '24px', flexDirection: upToExtraSmall ? 'column' : 'row', width: '100%' }}>
                 <TabGroup>
                   <Tab
-                    active={elasticType === ELASTIC_FARM_TYPE.ALL}
-                    onClick={() => handleElasticFarmChange(ELASTIC_FARM_TYPE.ALL)}
+                    onClick={() => {
+                      if (type && type !== 'active') {
+                        mixpanelHandler(MIXPANEL_TYPE.FARMS_ACTIVE_VIEWED)
+                      }
+                      navigateTab(FARM_TAB.ACTIVE)
+                    }}
+                    active={!type || type === 'active'}
                   >
-                    <Trans>All</Trans>
+                    <PoolTitleContainer>
+                      <Trans>Active</Trans>
+                    </PoolTitleContainer>
                   </Tab>
                   <Tab
-                    active={elasticType === ELASTIC_FARM_TYPE.DYNAMIC}
-                    onClick={() => handleElasticFarmChange(ELASTIC_FARM_TYPE.DYNAMIC)}
+                    onClick={() => {
+                      if (type !== 'ended') {
+                        mixpanelHandler(MIXPANEL_TYPE.FARMS_ENDING_VIEWED)
+                      }
+                      navigateTab(FARM_TAB.ENDED)
+                    }}
+                    active={type === FARM_TAB.ENDED}
                   >
-                    <Trans>Dynamic</Trans>
+                    <PoolTitleContainer>
+                      <Trans>Ended</Trans>
+                    </PoolTitleContainer>
                   </Tab>
+
                   <Tab
-                    active={elasticType === ELASTIC_FARM_TYPE.STATIC}
-                    onClick={() => handleElasticFarmChange(ELASTIC_FARM_TYPE.STATIC)}
+                    onClick={() => {
+                      navigateTab(FARM_TAB.MY_FARMS)
+                    }}
+                    active={type === FARM_TAB.MY_FARMS}
                   >
-                    <Trans>Static</Trans>
+                    <Row>
+                      <Trans>My Farms</Trans>
+                    </Row>
                   </Tab>
+
+                  {farmType === VERSION.CLASSIC && (
+                    <Tab
+                      onClick={() => {
+                        if (type !== 'vesting') {
+                          mixpanelHandler(MIXPANEL_TYPE.FARMS_MYVESTING_VIEWED)
+                        }
+                        navigateTab(FARM_TAB.VESTING)
+                      }}
+                      active={type === FARM_TAB.VESTING}
+                    >
+                      <Row>
+                        <Text>
+                          <Trans>Vesting</Trans>
+                        </Text>
+                      </Row>
+                    </Tab>
+                  )}
                 </TabGroup>
-              )}
+
+                {farmType === VERSION.ELASTIC && (
+                  <TabGroup>
+                    <Tab
+                      active={elasticType === ELASTIC_FARM_TYPE.ALL}
+                      onClick={() => handleElasticFarmChange(ELASTIC_FARM_TYPE.ALL)}
+                    >
+                      <Trans>All</Trans>
+                    </Tab>
+                    <Tab
+                      active={elasticType === ELASTIC_FARM_TYPE.DYNAMIC}
+                      onClick={() => handleElasticFarmChange(ELASTIC_FARM_TYPE.DYNAMIC)}
+                    >
+                      <Trans>Dynamic</Trans>
+                    </Tab>
+                    <Tab
+                      active={elasticType === ELASTIC_FARM_TYPE.STATIC}
+                      onClick={() => handleElasticFarmChange(ELASTIC_FARM_TYPE.STATIC)}
+                    >
+                      <Trans>Static</Trans>
+                    </Tab>
+                  </TabGroup>
+                )}
+              </Flex>
 
               <HeadingContainer>
-                <Row gap="12px">
-                  {above1000 && (
-                    <RowFit>
-                      <ListGridViewGroup />
-                    </RowFit>
-                  )}
+                {above1000 && (
+                  <RowFit>
+                    <ListGridViewGroup />
+                  </RowFit>
+                )}
 
-                  <FarmSort />
-                </Row>
+                {!upToMedium && <FarmSort />}
                 <HeadingRight>
-                  {selectTokenFilter}
+                  <Flex justifyContent="space-between" sx={{ gap: '6px' }}>
+                    {selectTokenFilter}
+                    {upToMedium && <FarmSort />}
+                  </Flex>
                   <SearchContainer>
                     <SearchInput
                       placeholder={t`Search by token name or pool address`}
