@@ -42,11 +42,7 @@ const lineaTestnetInfo: EVMNetworkInfo = {
       factory: '0x7d1EDa469a4b6BFe4DB07fABC75da65F2b90DE6E',
     },
     oldStatic: NOT_SUPPORT,
-    dynamic: {
-      zap: '',
-      router: '',
-      factory: '',
-    },
+    dynamic: NOT_SUPPORT,
     claimReward: NOT_SUPPORT,
     fairlaunch: EMPTY_ARRAY,
     fairlaunchV2: EMPTY_ARRAY,

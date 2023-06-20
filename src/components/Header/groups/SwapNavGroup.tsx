@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { Repeat } from 'react-feather'
 import { useLocation } from 'react-router-dom'
@@ -124,7 +125,7 @@ const SwapNavGroup = () => {
             </StyledNavLink>
           )}
 
-          {isSolana || (
+          {(isSolana || chainId !== ChainId.LINEA_TESTNET) && (
             <StyledNavLink
               id="bridge-nav-link"
               to={APP_PATHS.BRIDGE}
