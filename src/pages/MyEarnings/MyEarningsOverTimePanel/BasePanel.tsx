@@ -34,7 +34,6 @@ const Wrapper = styled.div`
   flex-direction: column;
   padding: 16px;
   padding-bottom: 6px;
-  border-radius: 20px;
   background-color: ${({ theme }) => theme.background};
   border: 1px solid ${({ theme }) => theme.border};
 `

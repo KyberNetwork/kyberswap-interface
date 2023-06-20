@@ -20,6 +20,7 @@ import OriginalMyEarningsOverTimePanel from '../MyEarningsOverTimePanel'
 
 const MyEarningsOverTimePanel = styled(OriginalMyEarningsOverTimePanel)`
   flex: 1 0 640px;
+  border-radius: 20px;
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     flex: 1 1 100%;
