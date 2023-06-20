@@ -21,18 +21,19 @@ const chainList = [
 describe('Metamask Extension tests', () => {
   beforeEach(() => {
     cy.visit('/')
-    cy.wait(50000)
     cy.clickButton(homePage.skipTutorial)
-
     cy.get(wallet.btnConnectWallet).should('be.visible').click()
     cy.connectWallet()
   })
 
   it('Redirects to swap page when a user has already connected a wallet', { tags: tag.smoke }, () => {
+    cy.acceptMetamaskAccess()
+    cy.get(wallet.statusConnected, { timeout: 5000 }).should('be.visible')
     cy.url().should('include', '/swap')
   })
 
   it('Should approve permission to switch network', { tags: tag.smoke }, () => {
+    cy.get(wallet.statusConnected, { timeout: 5000 }).should('be.visible')
     chainList.forEach(element => {
       cy.get(network.btnSelectNetwork).click()
       cy.get(network.btnNetwork).contains(element).click()

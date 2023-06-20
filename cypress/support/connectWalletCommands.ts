@@ -13,6 +13,4 @@ declare global {
 Cypress.Commands.add('connectWallet', () => {
   cy.get(wallet.checkboxAcceptTerm).click()
   cy.get(wallet.btnMetaMask).click()
-  cy.acceptMetamaskAccess()
-  cy.get(wallet.statusConnected, { timeout: 5000 }).should('be.visible')
 })
