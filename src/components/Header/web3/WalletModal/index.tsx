@@ -320,16 +320,13 @@ export default function WalletModal() {
               <Trans>Accept </Trans>{' '}
               <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
                 <Trans>KyberSwap&lsquo;s Terms of Use</Trans>
-              </ExternalLink>
-              {', '}
-              <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY} onClick={e => e.stopPropagation()}>
-                <Trans>Privacy Policy</Trans>
               </ExternalLink>{' '}
               <Trans>and</Trans>{' '}
-              <ExternalLink href={TERM_FILES_PATH.KYBER_DAO_TERMS} onClick={e => e.stopPropagation()}>
-                <Trans>KyberDAO&lsquo;s Terms of Use.</Trans>
+              <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY} onClick={e => e.stopPropagation()}>
+                <Trans>Privacy Policy</Trans>
               </ExternalLink>
-              <Text fontSize={10}>
+              {'. '}
+              <Text fontSize={10} as="span">
                 <Trans>Last updated: {dayjs(TERM_FILES_PATH.VERSION).format('DD MMM YYYY')}</Trans>
               </Text>
             </Text>
