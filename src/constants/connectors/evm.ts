@@ -61,7 +61,7 @@ export const [coinbaseWallet, coinbaseWalletHooks] = initializeConnector<Coinbas
       actions,
       options: {
         url: NETWORKS_INFO[ChainId.MAINNET].defaultRpcUrl,
-        appName: 'kyberswap',
+        appName: 'Kyberswap',
       },
     }),
 )
