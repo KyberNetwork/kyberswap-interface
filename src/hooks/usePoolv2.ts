@@ -103,12 +103,10 @@ const useGetPool = (
     }
 
     if (!data.slot0State || !data.liquidityState) {
-      console.log('PoolState.NOT_EXISTS 0')
       return [PoolState.NOT_EXISTS, undefined]
     }
 
     if (!data.slot0State.sqrtP || data.slot0State.sqrtP.eq(0)) {
-      console.log('PoolState.NOT_EXISTS 1')
       return [PoolState.NOT_EXISTS, undefined]
     }
 

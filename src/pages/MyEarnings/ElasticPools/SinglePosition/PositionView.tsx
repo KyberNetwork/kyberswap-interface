@@ -65,9 +65,10 @@ const ActionButtons = () => {
   )
 }
 
+const defaultPendingFee = ['0', '0']
+
 const PositionView: React.FC<CommonProps> = props => {
-  const { positionEarning, position, pendingFee, tokenPrices: prices } = props
-  const chainId = position.amount0.currency.chainId
+  const { positionEarning, position, pendingFee = defaultPendingFee, tokenPrices: prices, chainId } = props
   const liquidityValue0 = CurrencyAmount.fromRawAmount(unwrappedToken(position.pool.token0), position.amount0.quotient)
   const liquidityValue1 = CurrencyAmount.fromRawAmount(unwrappedToken(position.pool.token1), position.amount1.quotient)
 
@@ -76,6 +77,13 @@ const PositionView: React.FC<CommonProps> = props => {
 
   const isElasticLegacyPosition = useAppSelector(state => state.myEarnings.activeTab === VERSION.ELASTIC_LEGACY)
 
+  if (!pendingFee?.length) {
+    console.log({
+      positionEarning,
+      position,
+      pendingFee,
+    })
+  }
   const feeReward0 = CurrencyAmount.fromRawAmount(position.pool.token0, pendingFee[0])
   const feeReward1 = CurrencyAmount.fromRawAmount(position.pool.token1, pendingFee[1])
   const feeUsd =
@@ -94,11 +102,13 @@ const PositionView: React.FC<CommonProps> = props => {
   const positionAPR = liquidityTime ? ((estimatedOneYearFee || 0) * 100) / liquidityInUsd : 0
 
   const { userFarmInfo = {} } = useElasticFarms()
+  let farmAddress = ''
   const rewards: CurrencyAmount<Currency>[][] = []
-  Object.values(userFarmInfo).forEach(info => {
+  Object.entries(userFarmInfo).forEach(([address, info]) => {
     Object.keys(info.rewardByNft).forEach(key => {
       if (key.split('_')[1] === positionEarning.id) {
         rewards.push(info.rewardByNft[key])
+        farmAddress = address
       }
     })
   })
@@ -227,7 +237,17 @@ const PositionView: React.FC<CommonProps> = props => {
       >
         <PriceRangeChart position={position} disabled={isElasticLegacyPosition} />
 
-        <CollectFeesPanel feeReward0={feeReward0} feeReward1={feeReward1} feeUsd={feeUsd} />
+        <CollectFeesPanel
+          nftId={positionEarning.id}
+          chainId={chainId}
+          feeUsd={feeUsd}
+          feeValue0={feeReward0}
+          feeValue1={feeReward1}
+          hasUserDepositedInFarm={!!nft}
+          farmAddress={farmAddress}
+          poolAddress={positionEarning.pool.id}
+          position={position}
+        />
 
         <ActionButtons />
       </Flex>

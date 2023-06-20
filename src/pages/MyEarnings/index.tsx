@@ -5,6 +5,7 @@ import { useActiveWeb3React } from 'hooks'
 import MyEarningStats from 'pages/MyEarnings/MyEarningStats'
 import Placeholder from 'pages/MyEarnings/Placeholder'
 import Pools from 'pages/MyEarnings/Pools'
+import TransactionConfirmationModal from 'pages/MyEarnings/TransactionConfirmationModal'
 import FarmUpdater from 'state/farms/elastic/updaters'
 
 const PageWrapper = styled.div`
@@ -59,6 +60,8 @@ const MyEarnings = () => {
         )}
       </Flex>
       <FarmUpdater interval={false} />
+
+      <TransactionConfirmationModal />
     </PageWrapper>
   )
 }

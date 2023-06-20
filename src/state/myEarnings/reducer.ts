@@ -9,7 +9,11 @@ import {
   expandAllPools,
   selectChains,
   setActiveTab,
+  setAttemptingTxn,
+  setCollectFeeError,
   setSearchText,
+  setShowPendingModal,
+  setTxnHash,
   showEarningView,
   toggleShowClosedPositions,
 } from './actions'
@@ -21,6 +25,11 @@ export interface MyEarningsState {
   readonly searchText: string
   readonly shouldExpandAllPools: boolean
   readonly activeTab: VERSION | undefined
+
+  readonly txnHash: string
+  readonly attemptingTxn: boolean
+  readonly showPendingModal: boolean
+  readonly collectFeeError: string
 }
 
 const initialState: MyEarningsState = {
@@ -30,6 +39,11 @@ const initialState: MyEarningsState = {
   shouldShowEarningView: 0,
   searchText: '',
   activeTab: undefined,
+
+  txnHash: '',
+  attemptingTxn: false,
+  showPendingModal: false,
+  collectFeeError: '',
 }
 
 export default createReducer(initialState, builder =>
@@ -55,5 +69,17 @@ export default createReducer(initialState, builder =>
     })
     .addCase(setActiveTab, (state, action) => {
       state.activeTab = action.payload
+    })
+    .addCase(setCollectFeeError, (state, action) => {
+      state.collectFeeError = action.payload
+    })
+    .addCase(setAttemptingTxn, (state, action) => {
+      state.attemptingTxn = action.payload
+    })
+    .addCase(setTxnHash, (state, action) => {
+      state.txnHash = action.payload
+    })
+    .addCase(setShowPendingModal, (state, action) => {
+      state.showPendingModal = action.payload
     }),
 )
