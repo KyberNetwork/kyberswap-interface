@@ -505,7 +505,7 @@ function AboutKyberSwap() {
               <Text fontWeight="500" color={theme.primary} as="span">
                 Earn
               </Text>{' '}
-              Tokens at the Best Rates
+              Tokens at Excellent Rates
             </Trans>
           </Text>
 
@@ -636,7 +636,7 @@ function AboutKyberSwap() {
                 <Trans>FOR TRADERS</Trans>
               </Text>
               <Text as="h2" marginTop="12px" fontSize={['28px', '36px']} fontWeight="500">
-                <Trans>Swap your tokens at the best rates. No limits</Trans>
+                <Trans>Swap your tokens at excellent rates. No limits</Trans>
               </Text>
               <Text
                 fontSize="16px"
@@ -647,14 +647,14 @@ function AboutKyberSwap() {
               >
                 <Trans>
                   With our Dynamic Trade Routing technology, we aggregate liquidity from multiple DEXs (including
-                  KyberSwap) and identify the best trade route for you.
+                  KyberSwap) and identify excellent trade routes for you.
                 </Trans>
               </Text>
 
               <Flex marginTop="20px" alignItems="center">
                 <BestPrice />
                 <Text marginLeft="12px">
-                  <Trans>Best price guaranteed</Trans>
+                  <Trans>Excellent price guaranteed</Trans>
                 </Text>
               </Flex>
               <Flex marginTop="20px" alignItems="center">
