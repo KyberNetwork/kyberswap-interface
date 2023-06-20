@@ -25,6 +25,7 @@ const WETH_ONLY: ChainTokenList = {
   [ChainId.VELAS]: [WETH[ChainId.VELAS]],
   [ChainId.OASIS]: [WETH[ChainId.OASIS]],
   [ChainId.OPTIMISM]: [WETH[ChainId.OPTIMISM]],
+  [ChainId.ZKSYNC]: [WETH[ChainId.ZKSYNC]],
   [ChainId.SOLANA]: [WETH[ChainId.SOLANA]],
   [ChainId.LINEA_TESTNET]: [WETH[ChainId.LINEA_TESTNET]],
 }
@@ -162,7 +163,14 @@ export const SUGGESTED_BASES: ChainTokenList = {
     new Token(ChainId.OPTIMISM, '0x4200000000000000000000000000000000000042', 18, 'OP', 'Optimism'),
     USDT[ChainId.OPTIMISM],
     DAI[ChainId.OPTIMISM],
-    new Token(ChainId.OPTIMISM, '0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb', 18, 'wstETH', 'Lido Wrapped Staked ETH"'),
+    new Token(ChainId.OPTIMISM, '0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb', 18, 'wstETH', 'Lido Wrapped Staked ETH'),
   ],
   [ChainId.SOLANA]: [...WETH_ONLY[ChainId.SOLANA], USDC[ChainId.SOLANA], USDT[ChainId.SOLANA]],
+  [ChainId.ZKSYNC]: [...WETH_ONLY[ChainId.ZKSYNC], USDC[ChainId.ZKSYNC]],
+  [ChainId.LINEA_TESTNET]: [
+    ...WETH_ONLY[ChainId.LINEA_TESTNET],
+    USDC[ChainId.LINEA_TESTNET],
+    USDT[ChainId.LINEA_TESTNET],
+    DAI[ChainId.LINEA_TESTNET],
+  ],
 }

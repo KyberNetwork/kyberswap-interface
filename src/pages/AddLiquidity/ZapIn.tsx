@@ -258,7 +258,9 @@ const ZapIn = ({
                 tokenAddressOut: cB.wrapped.address,
                 tokenSymbolIn: cA.symbol,
                 tokenSymbolOut: cB.symbol,
-                tokenAmountIn: tokenAmount,
+                [userInCurrencyAmount?.currency?.wrapped.address === cA.wrapped.address
+                  ? 'tokenAmountIn'
+                  : 'tokenAmountOut']: tokenAmount,
                 contract: pairAddress,
                 arbitrary: {
                   poolAddress: pairAddress,

@@ -1,4 +1,4 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { ReactNode, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Skeleton from 'react-loading-skeleton'
@@ -238,7 +238,7 @@ export default function Swap() {
           <SwapFormWrapper isShowTutorial={isShowTutorial}>
             <Header activeTab={activeTab} setActiveTab={setActiveTab} />
 
-            {(isLimitPage || isSwapPage) && (
+            {(isLimitPage || isSwapPage) && chainId !== ChainId.ZKSYNC && (
               <PairSuggestion
                 ref={refSuggestPair}
                 onSelectSuggestedPair={onSelectSuggestedPair}
@@ -280,7 +280,7 @@ export default function Swap() {
                   refreshListOrder={refreshListOrder}
                 />
               )}
-              {activeTab === TAB.CROSS_CHAIN && <CrossChain />}
+              {isCrossChainPage && <CrossChain visible={activeTab === TAB.CROSS_CHAIN} />}
             </AppBodyWrapped>
             {isCrossChainPage && <CrossChainLink isBridge />}
           </SwapFormWrapper>

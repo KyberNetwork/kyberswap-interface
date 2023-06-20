@@ -66,6 +66,7 @@ const TokenAmount = ({
                 <ExternalLink href={'https://docs.axelar.dev/dev/reference/mainnet-contract-addresses#assets'}>
                   axlUSDC
                 </ExternalLink>
+                .
               </Trans>
             </Text>
           }
