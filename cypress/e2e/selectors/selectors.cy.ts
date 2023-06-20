@@ -33,6 +33,6 @@ export const wallet = {
 }
 
 export const network = {
-  btnSelectNetwork: '[data-testid=select-network',
+  btnSelectNetwork: '[data-testid=select-network]',
   btnNetwork: '[data-testid=network-button]',
 }

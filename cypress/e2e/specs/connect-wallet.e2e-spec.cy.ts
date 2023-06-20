@@ -1,7 +1,7 @@
 import { forEachChild } from 'typescript'
 
 import { tag } from '../pages/swap-page.po.cy'
-import { homePage, network, token, wallet } from '../selectors/selectors.cy'
+import { homePage, network, wallet } from '../selectors/selectors.cy'
 
 const chainList = [
   'BNB Chain',
