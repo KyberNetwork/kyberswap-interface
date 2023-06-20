@@ -194,6 +194,7 @@ const Networks = ({
           >
             <SelectNetworkButton
               key={i}
+              data-testid="network-button"
               padding="0"
               onClick={() => !selected && onSelect(key)}
               disabled={disabledAll || disabled}
