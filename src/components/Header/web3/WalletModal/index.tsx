@@ -419,7 +419,15 @@ export default function WalletModal() {
   }
 
   return (
-    <Modal isOpen={walletModalOpen} onDismiss={closeWalletModal} minHeight={false} maxHeight={90} maxWidth={600}>
+    <Modal
+      isOpen={walletModalOpen}
+      onDismiss={closeWalletModal}
+      minHeight={false}
+      maxHeight={90}
+      maxWidth={600}
+      bypassScrollLock={walletView === WALLET_VIEWS.PENDING && pendingWalletKey === 'WALLET_CONNECT'}
+      bypassFocusLock={walletView === WALLET_VIEWS.PENDING && pendingWalletKey === 'WALLET_CONNECT'}
+    >
       <Wrapper>{getModalContent()}</Wrapper>
     </Modal>
   )
