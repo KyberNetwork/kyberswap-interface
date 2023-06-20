@@ -23,7 +23,7 @@ export const useActivationWallet: () => {
       const wallet = (SUPPORTED_WALLETS as any)[walletKey]
       if (!isEVMWallet(wallet)) return
       try {
-        localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY_EVM)
+        // localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY_EVM)
         if (isEagerly) {
           if (wallet.connector.connectEagerly) {
             await wallet.connector.connectEagerly()
