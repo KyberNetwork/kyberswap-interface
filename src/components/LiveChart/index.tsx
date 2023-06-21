@@ -7,18 +7,15 @@ import { Flex, Text } from 'rebass'
 import { useTokenTopPoolsQuery } from 'services/geckoTermial'
 import styled from 'styled-components'
 
-import { ReactComponent as GeckoTerminalSVG } from 'assets/svg/geckoterminal.svg'
-import { ReactComponent as GeckoTerminalLightSVG } from 'assets/svg/geckoterminal_light.svg'
+import DextoolsWidget from 'components/DextoolsWidget'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import ErrorBoundary from 'components/ErrorBoundary'
 import Loader from 'components/LocalLoader'
-import TradingViewChart from 'components/TradingViewChart'
 import { useActiveWeb3React } from 'hooks'
 import useBasicChartData, { LiveDataTimeframeEnum } from 'hooks/useBasicChartData'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { Field } from 'state/swap/actions'
-import { useIsDarkMode } from 'state/user/hooks'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 
 import AnimatingNumber from './AnimatingNumber'
@@ -114,7 +111,6 @@ function LiveChart({
   enableProChart?: boolean
 }) {
   const { isSolana, networkInfo } = useActiveWeb3React()
-  const isDarkMode = useIsDarkMode()
   const theme = useTheme()
   const [currenciesState, setCurrenciesState] = useState(currencies)
 
@@ -256,12 +252,6 @@ function LiveChart({
     ) : null
   }, [isBasicchartError, isProchartError, isShowProChart, bothChartError, mixpanelHandler, enableProChart])
 
-  const isReverse =
-    commonPool?.relationships?.base_token.data.id ===
-    networkInfo.geckoTermialId + '_' + nativeOutputCurrency?.wrapped?.address.toLowerCase()
-
-  const label = `${nativeInputCurrency?.symbol} / ${nativeOutputCurrency?.symbol}`
-
   return (
     <ErrorBoundary captureError={false}>
       <LiveChartWrapper>
@@ -325,17 +315,7 @@ function LiveChart({
 
             {/* Stop tradingview from rerender on isShowProChart change */}
             <div style={{ display: isShowProChart && !!poolAddress ? 'block' : 'none', height: '100%' }}>
-              {commonPool && <TradingViewChart poolDetail={commonPool} isReverse={isReverse} label={label} />}
-              <Flex justifyContent="flex-end" sx={{ gap: '0.5rem', marginTop: '6px' }}>
-                <Text color={theme.subText} fontSize="10px">
-                  Powered by
-                </Text>
-                {isDarkMode ? (
-                  <GeckoTerminalSVG style={{ width: '75px' }} />
-                ) : (
-                  <GeckoTerminalLightSVG style={{ width: '75px' }} />
-                )}
-              </Flex>
+              {commonPool && <DextoolsWidget />}
             </div>
 
             {!isShowProChart && (
