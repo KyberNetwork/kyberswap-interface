@@ -11,7 +11,7 @@ import { ShareGroupButtons } from 'components/ShareModal'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { useSessionInfo } from 'state/authen/hooks'
-import { useGetParticipantKyberAIInfo } from 'state/user/hooks'
+import { useGetParticipantKyberAIInfo, useIsWhiteListKyberAI } from 'state/user/hooks'
 import { formattedNum } from 'utils'
 
 import { FormWrapper, Input, InputWithCopy, Label } from './styled'
@@ -43,6 +43,7 @@ export default function EmailForm({
 }) {
   const { userInfo } = useSessionInfo()
   const { rankNo, referralCode } = useGetParticipantKyberAIInfo()
+  const { isWhiteList } = useIsWhiteListKyberAI()
 
   const theme = useTheme()
   const shareLink = `${window.location.origin}${APP_PATHS.KYBERAI_ABOUT}?referrer=${referralCode}`
@@ -76,16 +77,18 @@ export default function EmailForm({
 
       <RowBetween flexWrap={'wrap'} gap="12px">
         <Column gap="6px" flex={1}>
-          <Flex fontSize={14} color={theme.text} style={{ gap: '6px' }}>
-            <Users size={16} />
-            {rankNo === 1 ? (
-              <Trans>You&apos;re first in line!</Trans>
-            ) : rankNo === 2 ? (
-              <Trans>1 user is ahead of you</Trans>
-            ) : (
-              <Trans>{rankNo ? formattedNum(rankNo - 1 + '') : t`Many`} users are ahead of you!</Trans>
-            )}
-          </Flex>
+          {!isWhiteList && (
+            <Flex fontSize={14} color={theme.text} style={{ gap: '6px' }}>
+              <Users size={16} />
+              {rankNo === 1 ? (
+                <Trans>You&apos;re first in line!</Trans>
+              ) : rankNo === 2 ? (
+                <Trans>1 user is ahead of you</Trans>
+              ) : (
+                <Trans>{rankNo ? formattedNum(rankNo - 1 + '') : t`Many`} users are ahead of you!</Trans>
+              )}
+            </Flex>
+          )}
           <Text fontSize={12} color={theme.subText}>
             <Trans>
               Refer your friends to KyberAI, and get rewarded with our exclusive NFTs!. Learn more{' '}
