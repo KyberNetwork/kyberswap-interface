@@ -35,8 +35,8 @@ describe('Metamask Extension tests', () => {
   it('Should approve permission to switch network', { tags: tag.smoke }, () => {
     cy.get(wallet.statusConnected, { timeout: 5000 }).should('be.visible')
     chainList.forEach(element => {
-      cy.get(network.btnSelectNetwork).click()
-      cy.get(network.btnNetwork).contains(element).click()
+      cy.clickButton(network.btnSelectNetwork)
+      cy.get(network.btnNetwork).contains(element).click({ force: true })
       cy.allowMetamaskToAddAndSwitchNetwork().then(approved => {
         expect(approved).to.be.true
       })
