@@ -21,7 +21,7 @@ const lineaTestnetInfo: EVMNetworkInfo = {
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
   defaultBlockSubgraph: 'https://thegraph.goerli.zkevm.consensys.net/subgraphs/name/kybernetwork/linea-blocks',
-  etherscanUrl: 'https://explorer.goerli.linea.build/',
+  etherscanUrl: 'https://goerli.lineascan.build',
   etherscanName: 'Linea Explorer',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.LINEA_TESTNET}&isWhitelisted=${true}`,
   bridgeURL: EMPTY,
