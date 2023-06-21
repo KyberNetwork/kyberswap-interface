@@ -23,13 +23,13 @@ describe('Metamask Extension tests', () => {
     cy.connectWallet()
   })
 
-  it('Redirects to swap page when a user has already connected a wallet', { tags: tag.smoke }, () => {
+  it('Redirects to swap page when a user has already connected a wallet', { tags: tag.regression }, () => {
     cy.acceptMetamaskAccess()
     cy.get(wallet.statusConnected, { timeout: 5000 }).should('be.visible')
     cy.url().should('include', '/swap')
   })
 
-  it('Should approve permission to switch network', { tags: tag.smoke }, () => {
+  it('Should approve permission to switch network', { tags: tag.regression }, () => {
     cy.get(wallet.statusConnected, { timeout: 5000 }).should('be.visible')
     chainList.forEach(element => {
       cy.clickButton(network.btnSelectNetwork)
