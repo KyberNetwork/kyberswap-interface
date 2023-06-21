@@ -4,7 +4,7 @@ import axios from 'axios'
 import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import { stringify } from 'querystring'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
 import useSWR, { mutate } from 'swr'
@@ -22,7 +22,8 @@ import {
   CampaignState,
   CampaignStatus,
   RewardDistribution,
-  setCampaignData,
+  setCampaignDataV2,
+  setLastTimeRefreshData,
   setLoadingCampaignData,
   setLoadingCampaignDataError,
   setLoadingSelectedCampaignLeaderboard,
@@ -37,7 +38,7 @@ import { getCampaignIdFromSlug, getSlugUrlCampaign } from 'utils/campaign'
 
 import CampaignPage from './CampaignPage'
 
-const MAXIMUM_ITEMS_PER_REQUEST = 20 // todo bi call 2 lan lan dau
+const MAXIMUM_ITEMS_PER_REQUEST = 20
 
 const getCampaignStatus = ({ endTime, startTime }: CampaignData) => {
   const now = Date.now()
@@ -116,31 +117,146 @@ const LEADERBOARD_DEFAULT: CampaignLeaderboard = {
   rewards: [],
 }
 
+const formatListCampaign = (response: CampaignData[]) => {
+  const campaigns: CampaignData[] = response.map((item: CampaignData) => ({
+    ...item,
+    startTime: item.startTime * 1000,
+    endTime: item.endTime * 1000,
+  }))
+  const formattedCampaigns: CampaignData[] = campaigns.map((campaign: any) => {
+    const rewardDistribution: RewardDistribution[] = []
+    if (campaign.rewardDistribution.single) {
+      campaign.rewardDistribution.single.forEach(
+        ({
+          amount,
+          rank,
+          token,
+          rewardInUSD,
+        }: {
+          amount: string
+          rank: number
+          token: SerializedToken
+          rewardInUSD: boolean
+        }) => {
+          rewardDistribution.push({
+            type: 'Single',
+            amount,
+            rank,
+            token,
+            rewardInUSD,
+          })
+        },
+      )
+    }
+    if (campaign.rewardDistribution.range) {
+      campaign.rewardDistribution.range.forEach(
+        ({
+          from,
+          to,
+          amount,
+          token,
+          rewardInUSD,
+        }: {
+          from: number
+          to: number
+          amount: string
+          token: SerializedToken
+          rewardInUSD: boolean
+        }) => {
+          rewardDistribution.push({
+            type: 'Range',
+            from,
+            to,
+            amount,
+            token,
+            rewardInUSD,
+          })
+        },
+      )
+    }
+    if (campaign.rewardDistribution.random) {
+      campaign.rewardDistribution.random.forEach(
+        ({
+          from,
+          to,
+          amount,
+          numberOfWinners,
+          token,
+          rewardInUSD,
+        }: {
+          from: number
+          to: number
+          amount: string
+          numberOfWinners: number
+          token: SerializedToken
+          rewardInUSD: boolean
+        }) => {
+          rewardDistribution.push({
+            type: 'Random',
+            from,
+            to,
+            amount,
+            nWinners: numberOfWinners,
+            token,
+            rewardInUSD,
+          })
+        },
+      )
+    }
+    if (campaign?.userInfo?.tradingVolume) campaign.userInfo.tradingVolume = Number(campaign.userInfo.tradingVolume)
+    if (campaign.userInfo) campaign.userInfo.rewards = formatRewards(campaign.userInfo.rewards)
+    return {
+      ...campaign,
+      rewardDistribution,
+      status: getCampaignStatus(campaign),
+      eligibleTokens: campaign.eligibleTokens.map(
+        ({ chainId, name, symbol, address, logoURI, decimals }: SerializedToken) => {
+          return {
+            chainId,
+            name,
+            symbol,
+            address,
+            logoURI,
+            decimals,
+          }
+        },
+      ),
+    }
+  })
+  return formattedCampaigns
+}
+
+const getQueryDefault = (userAddress: string | undefined) => ({
+  campaignName: '',
+  userAddress,
+  offset: 0,
+  limit: MAXIMUM_ITEMS_PER_REQUEST,
+})
+
 export default function CampaignsUpdater() {
   const dispatch = useDispatch()
   const { account } = useActiveWeb3React()
   const { pathname } = useLocation()
 
   /**********************CAMPAIGN DATA**********************/
-  const [page, setPage] = useState(1)
-  const [query, setQuery] = useState('')
+  const [queryParams, setQueryParams] = useState(getQueryDefault(account))
   const [hasMoreCampaign, setHasMoreCampaign] = useState(false)
 
+  const onSearchCampaign = useCallback((campaignName: string) => {
+    return setQueryParams(pre => ({ ...pre, campaignName, offset: 0 }))
+  }, [])
+
   const { data: currentCampaigns } = useSelector((state: AppState) => state.campaigns)
-  const getCampaignUrl = useCallback(
-    () =>
-      `${SWR_KEYS.getListCampaign}?${stringify({
-        limit: MAXIMUM_ITEMS_PER_REQUEST,
-        offset: (page - 1) * MAXIMUM_ITEMS_PER_REQUEST,
-        userAddress: account,
-        campaignName: query,
-      })}`,
-    [account, page, query],
-  )
+  const getCampaignUrl = useCallback(() => `${SWR_KEYS.getListCampaign}?${stringify(queryParams)}`, [queryParams])
+
+  const loadMoreCampaign = useCallback(() => {
+    if (!currentCampaigns.length) return
+    return setQueryParams(pre => ({ ...pre, offset: pre.offset + MAXIMUM_ITEMS_PER_REQUEST }))
+  }, [currentCampaigns.length])
 
   useEffect(() => {
-    setPage(1)
-  }, [query])
+    setQueryParams(getQueryDefault(account))
+  }, [account, setQueryParams])
 
   const {
     data: campaignData,
@@ -149,142 +265,32 @@ export default function CampaignsUpdater() {
   } = useSWR<CampaignData[]>(
     getCampaignUrl(),
     async url => {
-      const { data: response } = await axios.get(url)
-      const campaigns: CampaignData[] = response.data.map((item: CampaignData) => ({
-        ...item,
-        startTime: item.startTime * 1000,
-        endTime: item.endTime * 1000,
-      }))
-      setHasMoreCampaign(campaigns.length === MAXIMUM_ITEMS_PER_REQUEST)
-      const formattedCampaigns: CampaignData[] = campaigns.map((campaign: any) => {
-        const rewardDistribution: RewardDistribution[] = []
-        if (campaign.rewardDistribution.single) {
-          campaign.rewardDistribution.single.forEach(
-            ({
-              amount,
-              rank,
-              token,
-              rewardInUSD,
-            }: {
-              amount: string
-              rank: number
-              token: SerializedToken
-              rewardInUSD: boolean
-            }) => {
-              rewardDistribution.push({
-                type: 'Single',
-                amount,
-                rank,
-                token,
-                rewardInUSD,
-              })
-            },
-          )
-        }
-        if (campaign.rewardDistribution.range) {
-          campaign.rewardDistribution.range.forEach(
-            ({
-              from,
-              to,
-              amount,
-              token,
-              rewardInUSD,
-            }: {
-              from: number
-              to: number
-              amount: string
-              token: SerializedToken
-              rewardInUSD: boolean
-            }) => {
-              rewardDistribution.push({
-                type: 'Range',
-                from,
-                to,
-                amount,
-                token,
-                rewardInUSD,
-              })
-            },
-          )
-        }
-        if (campaign.rewardDistribution.random) {
-          campaign.rewardDistribution.random.forEach(
-            ({
-              from,
-              to,
-              amount,
-              numberOfWinners,
-              token,
-              rewardInUSD,
-            }: {
-              from: number
-              to: number
-              amount: string
-              numberOfWinners: number
-              token: SerializedToken
-              rewardInUSD: boolean
-            }) => {
-              rewardDistribution.push({
-                type: 'Random',
-                from,
-                to,
-                amount,
-                nWinners: numberOfWinners,
-                token,
-                rewardInUSD,
-              })
-            },
-          )
-        }
-        if (campaign?.userInfo?.tradingVolume) campaign.userInfo.tradingVolume = Number(campaign.userInfo.tradingVolume)
-        if (campaign.userInfo) campaign.userInfo.rewards = formatRewards(campaign.userInfo.rewards)
-        return {
-          ...campaign,
-          rewardDistribution,
-          status: getCampaignStatus(campaign),
-          eligibleTokens: campaign.eligibleTokens.map(
-            ({ chainId, name, symbol, address, logoURI, decimals }: SerializedToken) => {
-              return {
-                chainId,
-                name,
-                symbol,
-                address,
-                logoURI,
-                decimals,
-              }
-            },
-          ),
-        }
-      })
-      return formattedCampaigns
+      try {
+        const { data: response } = await axios.get(url)
+        const campaigns: CampaignData[] = response.data
+        setHasMoreCampaign(campaigns.length === MAXIMUM_ITEMS_PER_REQUEST)
+        return formatListCampaign(campaigns)
+      } catch (error) {
+        return []
+      }
     },
     { revalidateOnFocus: false },
   )
 
-  const onSearchCampaign = useCallback((query: string) => {
-    setQuery(query)
-  }, [])
-
-  const refreshListCampaign = useCallback(() => {
-    mutate(getCampaignUrl())
-  }, [getCampaignUrl])
-
-  const loadMoreCampaign = useCallback(() => {
-    if (isLoadingCampaignData) return
-    setPage(page => page + 1)
-  }, [isLoadingCampaignData])
+  const refreshListCampaign = useCallback(async () => {
+    await mutate(getCampaignUrl())
+    dispatch(setLastTimeRefreshData())
+  }, [getCampaignUrl, dispatch])
 
   const slug = pathname.replace(APP_PATHS.CAMPAIGN, '')
   const { selectedCampaignId = getCampaignIdFromSlug(slug) } = useParsedQueryString<{ selectedCampaignId: string }>()
 
   const navigate = useNavigate()
-  const currentRef = useRef(currentCampaigns)
-  currentRef.current = currentCampaigns
 
   useEffect(() => {
     const newData = campaignData || []
-    dispatch(setCampaignData({ campaigns: page === 1 ? newData : currentRef.current.concat(newData) }))
-  }, [campaignData, dispatch, page])
+    dispatch(setCampaignDataV2({ campaigns: newData, isReset: queryParams.offset === 0 }))
+  }, [campaignData, dispatch, queryParams.offset])
 
   useEffect(() => {
     if (currentCampaigns?.length) {

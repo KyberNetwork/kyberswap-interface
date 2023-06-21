@@ -1,22 +1,22 @@
 import { Trans, t } from '@lingui/macro'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { FixedSizeList } from 'react-window'
+import { VariableSizeList } from 'react-window'
 import InfiniteLoader from 'react-window-infinite-loader'
 import { Flex, Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
 
-import Loader from 'components/Loader'
 import Row from 'components/Row'
 import Search from 'components/Search'
 import { INPUT_DEBOUNCE_TIME } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 import { AppState } from 'state'
 import { CampaignData } from 'state/campaigns/actions'
 
-import CampaignItem from './CampaignItem'
+import CampaignItem, { getCampaignInfo } from './CampaignItem'
 
 const CampaignListAndSearchContainer = styled.div`
   width: 100%;
@@ -64,6 +64,8 @@ type CampaignListAndSearchProps = {
   onSearchCampaign: (v: string) => void
 }
 
+const ITEM_HEIGHT = 180
+
 const CampaignListAndSearch = ({
   onSelectCampaign,
   loadMoreCampaign,
@@ -79,17 +81,35 @@ const CampaignListAndSearch = ({
     onSearchCampaign(debounceSearch)
   }, [debounceSearch, onSearchCampaign])
 
+  const scroll = useRef<HTMLDivElement | null>(null)
   const onRefChange = useCallback((node: HTMLDivElement) => {
+    scroll.current = node
     if (!node?.classList.contains('scrollbar')) {
       node?.classList.add('scrollbar')
     }
   }, [])
 
+  const { account } = useActiveWeb3React()
+  const scrollToTop = useCallback(() => {
+    if (scroll.current) scroll.current.scrollTop = 0
+  }, [])
+
+  useEffect(() => {
+    scrollToTop()
+  }, [account, debounceSearch, scrollToTop])
+
   const isItemLoaded = (index: number) => !hasMoreCampaign || index < campaigns.length
   const itemCount = hasMoreCampaign ? campaigns.length + 1 : campaigns.length
 
+  function getRowHeight(index: number) {
+    const { showProgressBarNumberTrade, showProgressBarVolume } = getCampaignInfo(campaigns[index], account)
+    const progressbarNum = +showProgressBarNumberTrade + +showProgressBarVolume
+    return ITEM_HEIGHT + progressbarNum * 24
+  }
+
+  const { lastTimeRefreshData } = useSelector((state: AppState) => state.campaigns)
   return (
-    <CampaignListAndSearchContainer>
+    <CampaignListAndSearchContainer key={lastTimeRefreshData}>
       <Flex
         sx={{
           flexDirection: 'column',
@@ -102,7 +122,9 @@ const CampaignListAndSearch = ({
         </Text>
         <Search
           searchValue={searchCampaign}
-          onSearch={(newSearchCampaign: string) => setSearchCampaign(newSearchCampaign)}
+          onSearch={(newSearchCampaign: string) => {
+            setSearchCampaign(newSearchCampaign)
+          }}
           style={{ background: theme.buttonBlack, width: '100%' }}
           placeholder={t`Search for campaign`}
         />
@@ -110,14 +132,19 @@ const CampaignListAndSearch = ({
       <CampaignList>
         <AutoSizer>
           {({ height, width }) => (
-            <InfiniteLoader isItemLoaded={isItemLoaded} itemCount={itemCount} loadMoreItems={loadMoreCampaign}>
+            <InfiniteLoader
+              isItemLoaded={isItemLoaded}
+              itemCount={itemCount}
+              loadMoreItems={loadMoreCampaign}
+              threshold={2}
+            >
               {({ onItemsRendered, ref }) => (
-                <FixedSizeList
+                <VariableSizeList
                   outerRef={onRefChange}
                   height={height}
                   width={width}
                   itemCount={itemCount}
-                  itemSize={180}
+                  itemSize={getRowHeight}
                   onItemsRendered={onItemsRendered}
                   ref={ref}
                 >
@@ -126,7 +153,6 @@ const CampaignListAndSearch = ({
                     if (!campaign)
                       return (
                         <Row style={style} gap="6px" justify="center" color={theme.subText} fontSize={'12px'}>
-                          <Loader />
                           <Trans>Loading Campaigns ...</Trans>
                         </Row>
                       )
@@ -136,11 +162,12 @@ const CampaignListAndSearch = ({
                         campaign={campaign}
                         onSelectCampaign={onSelectCampaign}
                         key={index}
+                        index={index}
                         isSelected={Boolean(selectedCampaign && selectedCampaign.id === campaign.id)}
                       />
                     )
                   }}
-                </FixedSizeList>
+                </VariableSizeList>
               )}
             </InfiniteLoader>
           )}

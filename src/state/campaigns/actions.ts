@@ -126,7 +126,14 @@ export interface CampaignProofData {
 }
 
 export const setCampaignData = createAction<{ campaigns: CampaignData[] }>('campaigns/setCampaignData')
+export const setCampaignDataV2 = createAction<{ campaigns: CampaignData[]; isReset: boolean }>(
+  'campaigns/setCampaignDataV2',
+)
+
 export const setLoadingCampaignData = createAction<boolean>('campaigns/setLoadingCampaignData')
+
+export const setLastTimeRefreshData = createAction('campaigns/setLastTimeRefreshData')
+
 export const setLoadingCampaignDataError = createAction<Error | undefined>('campaigns/setLoadingCampaignDataError')
 
 export const setSelectedCampaign = createAction<{ campaign: CampaignData }>('campaigns/setSelectedCampaign')

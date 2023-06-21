@@ -23,6 +23,7 @@ import CampaignActions from './CampaignActions'
 const CampaignItemWrapper = styled.div<{ selected?: boolean }>`
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 12px;
   padding: 20px;
   cursor: pointer;
@@ -76,9 +77,21 @@ interface CampaignItemProps {
   campaign: CampaignData
   onSelectCampaign: (data: CampaignData) => void
   style: CSSProperties
+  index: number
 }
 
-const CampaignItem = ({ campaign, onSelectCampaign, isSelected, style }: CampaignItemProps) => {
+/// todo refactor txs item
+export const getCampaignInfo = (campaign: CampaignData, account: string | undefined | null) => {
+  if (!campaign) return { showProgressBarVolume: false, showProgressBarNumberTrade: false, isShowProgressBar: false }
+  const { tradingNumberRequired, tradingVolumeRequired } = campaign
+  const isOngoing = campaign.status === CampaignStatus.ONGOING
+  const isShowProgressBar = isOngoing && account && campaign?.userInfo?.status === CampaignUserInfoStatus.Eligible
+  const showProgressBarVolume = Boolean(isShowProgressBar && tradingVolumeRequired > 0)
+  const showProgressBarNumberTrade = Boolean(isShowProgressBar && tradingNumberRequired > 1)
+  return { showProgressBarVolume, showProgressBarNumberTrade, isShowProgressBar }
+}
+
+function CampaignItem({ campaign, onSelectCampaign, isSelected, style }: CampaignItemProps) {
   const { account } = useWeb3React()
   const theme = useTheme()
   const isDarkMode = useIsDarkMode()
@@ -128,7 +141,6 @@ const CampaignItem = ({ campaign, onSelectCampaign, isSelected, style }: Campaig
     : totalRewardAmount.toSignificant(DEFAULT_SIGNIFICANT, { groupSeparator: ',' })
   const tokenSymbol = campaign.rewardDistribution[0]?.token?.symbol
 
-  const isShowProgressBar = isOngoing && account && campaign?.userInfo?.status === CampaignUserInfoStatus.Eligible
   const percentTradingNumber = !tradingNumberRequired ? 0 : Math.floor((tradingNumber / tradingNumberRequired) * 100)
   const isPassedVolume = percentTradingVolume >= 100
   const isPassedNumberOfTrade = percentTradingNumber >= 100
@@ -136,9 +148,7 @@ const CampaignItem = ({ campaign, onSelectCampaign, isSelected, style }: Campaig
     (isPassedVolume && isPassedNumberOfTrade) ||
     (isPassedVolume && !tradingNumberRequired) ||
     (isPassedNumberOfTrade && !tradingVolumeRequired)
-
-  const showProgressBarVolume = tradingVolumeRequired > 0
-  const showProgressBarNumberTrade = tradingNumberRequired > 1
+  const { showProgressBarVolume, showProgressBarNumberTrade, isShowProgressBar } = getCampaignInfo(campaign, account)
 
   return (
     <CampaignItemWrapper
@@ -208,7 +218,7 @@ const CampaignItem = ({ campaign, onSelectCampaign, isSelected, style }: Campaig
             </CampaignStatusText>
           </Flex>
         </Flex>
-      ) : isShowProgressBar && (showProgressBarVolume || showProgressBarNumberTrade) ? (
+      ) : showProgressBarVolume || showProgressBarNumberTrade ? (
         <Flex style={{ gap: 10 }} flexDirection="column">
           <Text fontSize={12}>
             <Trans>Condition(s) to qualify:</Trans>
