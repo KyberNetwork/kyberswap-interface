@@ -65,4 +65,5 @@ jobs:
             name: e2e-artifacts
             path: |
               cypress/videos
+              cypress/screenshots
         continue-on-error: true
