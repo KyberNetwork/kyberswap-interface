@@ -137,8 +137,9 @@ export function HowToSwap({
       <SwapInstruction>
         <Text as="span">
           {fromName} ({symbol1}) can be exchanged to {toName} ({symbol1} to {symbol2}) on KyberSwap, a cryptocurrency
-          decentralized exchange. By using KyberSwap, users can trade {symbol1} to {symbol2} on networks at the best
-          rates, and earn more with your {symbol1} token without needing to check rates across multiple platforms.
+          decentralized exchange. By using KyberSwap, users can trade {symbol1} to {symbol2} on networks at the
+          excellent rates, and earn more with your {symbol1} token without needing to check rates across multiple
+          platforms.
         </Text>
       </SwapInstruction>
     </CollapseItemWrapper>

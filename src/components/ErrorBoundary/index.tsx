@@ -7,7 +7,10 @@ type ErrorBoundaryState = {
   error: Error | null
 }
 
-export default class ErrorBoundary extends React.Component<PropsWithChildren<unknown>, ErrorBoundaryState> {
+export default class ErrorBoundary extends React.Component<
+  PropsWithChildren<{ captureError?: boolean }>,
+  ErrorBoundaryState
+> {
   constructor(props: PropsWithChildren<unknown>) {
     super(props)
     this.state = { error: null }
@@ -18,8 +21,16 @@ export default class ErrorBoundary extends React.Component<PropsWithChildren<unk
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.log('error.name', error.name)
-    if (error.name === 'ChunkLoadError' || /Loading .*?chunk .*? failed/.test(error.message)) {
+    const { captureError = true } = this.props
+    if (!captureError) {
+      return
+    }
+    if (
+      error.name === 'ChunkLoadError' ||
+      /Loading .*?chunk .*? failed/.test(error.message) ||
+      error.message.includes('Failed to fetch dynamically imported module') ||
+      error.stack?.includes('Failed to fetch dynamically imported module')
+    ) {
       const e = new Error(`[ChunkLoadError] ${error.message}`)
       e.name = 'ChunkLoadError'
       e.stack = ''
@@ -37,8 +48,9 @@ export default class ErrorBoundary extends React.Component<PropsWithChildren<unk
 
   render() {
     const { error } = this.state
+    const { captureError = true } = this.props
 
-    if (error !== null) {
+    if (error !== null && captureError) {
       return <FallbackView error={error} />
     }
 

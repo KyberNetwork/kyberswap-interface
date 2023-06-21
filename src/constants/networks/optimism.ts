@@ -33,7 +33,7 @@ const optimismInfo: EVMNetworkInfo = {
     decimal: 18,
     minForGas: 10 ** 16,
   },
-  defaultRpcUrl: 'https://opt-mainnet.g.alchemy.com/v2/N7gZFcuMkhLTTpdsRLEcDXYIJssj6GsI',
+  defaultRpcUrl: 'https://optimism.kyberengineering.io',
   multicall: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
   classic: {
     defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-optimism',
@@ -57,7 +57,7 @@ const optimismInfo: EVMNetworkInfo = {
     initCodeHash: '0x00e263aaa3a2c06a89b53217a9e7aad7e15613490a72e0f95f303c4de2dc7045',
     quoter: '0x4d47fd5a29904Dae0Ef51b1c450C9750F15D7856',
     routers: '0xF9c2b5746c946EF883ab2660BbbB1f10A5bdeAb4',
-    farms: [],
+    farms: ['0x7D5ba536ab244aAA1EA42aB88428847F25E3E676'],
   },
   limitOrder: {
     development: '0xAF800D3EB207BAFBadE540554DF8bDCe561166f8',
@@ -67,7 +67,6 @@ const optimismInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'optimistic-ethereum',
   coingeckoNativeTokenId: 'ethereum',
   deBankSlug: 'op',
-  trueSightId: NOT_SUPPORT,
   dexToCompare: 'uniswapv3',
   geckoTermialId: 'optimism',
 }

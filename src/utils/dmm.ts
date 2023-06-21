@@ -18,6 +18,7 @@ import { SubgraphPoolData, UserLiquidityPosition } from 'state/pools/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { formattedNum } from 'utils'
+import { isTokenNative } from 'utils/tokenInfo'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import { getFullDisplayBalance } from './formatBalance'
@@ -396,7 +397,7 @@ export function useFarmApr(farm: Farm, poolLiquidityUsd: string): number {
 export function useCurrencyConvertedToNative(currency?: Currency): Currency | undefined {
   return useMemo(() => {
     if (!!currency) {
-      return currency.isNative ? NativeCurrencies[currency.chainId] : currency
+      return isTokenNative(currency, currency.chainId) ? NativeCurrencies[currency.chainId] : currency
     }
     return undefined
   }, [currency])

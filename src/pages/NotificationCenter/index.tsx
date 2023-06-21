@@ -61,7 +61,7 @@ const Title = styled.h2`
 `
 
 const LeftColumn = styled.div`
-  width: 280px;
+  width: 290px;
 
   background-color: ${({ theme }) => theme.tableHeader};
   border-radius: 24px 0px 0px 24px;
@@ -110,7 +110,7 @@ function NotificationCenter() {
             <Route path={`${NOTIFICATION_ROUTES.PRICE_ALERTS}/*`} element={<PriceAlerts />} />
             <Route
               path={NOTIFICATION_ROUTES.MY_ELASTIC_POOLS}
-              element={<PrivateAnnouncement type={PrivateAnnouncementType.POOL_POSITION} />}
+              element={<PrivateAnnouncement type={PrivateAnnouncementType.ELASTIC_POOLS} />}
             />
             <Route
               path={NOTIFICATION_ROUTES.LIMIT_ORDERS}
@@ -118,11 +118,15 @@ function NotificationCenter() {
             />
             <Route
               path={NOTIFICATION_ROUTES.BRIDGE}
-              element={<PrivateAnnouncement type={PrivateAnnouncementType.BRIDGE} />}
+              element={<PrivateAnnouncement type={PrivateAnnouncementType.BRIDGE_ASSET} />}
             />
             <Route
-              path={NOTIFICATION_ROUTES.TRENDING_SOON_TOKENS}
-              element={<PrivateAnnouncement type={PrivateAnnouncementType.TRENDING_SOON_TOKEN} />}
+              path={NOTIFICATION_ROUTES.CROSS_CHAIN}
+              element={<PrivateAnnouncement type={PrivateAnnouncementType.CROSS_CHAIN} />}
+            />
+            <Route
+              path={NOTIFICATION_ROUTES.KYBER_AI_TOKENS}
+              element={<PrivateAnnouncement type={PrivateAnnouncementType.KYBER_AI} />}
             />
             <Route path={NOTIFICATION_ROUTES.CREATE_ALERT} element={<CreateAlert />} />
 

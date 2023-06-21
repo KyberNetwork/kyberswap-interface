@@ -1,22 +1,19 @@
 import { t } from '@lingui/macro'
+import { useMemo } from 'react'
 import { List as ListIcon } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
-import { useGetPrivateAnnouncementsByIdsQuery, useGetPrivateAnnouncementsQuery } from 'services/announcement'
+import { useGetTotalUnreadAnnouncementsQuery } from 'services/announcement'
 import styled from 'styled-components'
 
-import { ReactComponent as AlarmIcon } from 'assets/svg/alarm.svg'
-import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
-import { ReactComponent as DropIcon } from 'assets/svg/drop.svg'
-import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
+import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { PrivateAnnouncementType } from 'components/Announcement/type'
-import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import MailIcon from 'components/Icons/MailIcon'
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import { getAnnouncementsTemplateIds } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import MenuItem from 'pages/NotificationCenter/Menu/MenuItem'
-import { ITEMS_PER_PAGE, NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
+import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import { MEDIA_WIDTHS } from 'theme'
 
 const Divider = styled.div<{ $margin?: string }>`
@@ -28,93 +25,95 @@ const Divider = styled.div<{ $margin?: string }>`
 `
 
 type Unread = Partial<{ [type in PrivateAnnouncementType]: number | undefined }> & { ALL: number | undefined }
-
+const menuItems = [
+  {
+    route: NOTIFICATION_ROUTES.OVERVIEW,
+    icon: <NotificationIcon size="16px" />,
+    title: t`Notification Overview`,
+    type: '',
+    parent: true,
+  },
+  {
+    route: NOTIFICATION_ROUTES.ALL,
+    icon: <ListIcon size="16px" />,
+    title: t`All Notifications`,
+    type: 'ALL',
+    parent: true,
+  },
+  {
+    route: NOTIFICATION_ROUTES.GENERAL,
+    icon: <MailIcon size={16} />,
+    title: t`General`,
+    type: '',
+  },
+  {
+    route: NOTIFICATION_ROUTES.PRICE_ALERTS,
+    type: PrivateAnnouncementType.PRICE_ALERT,
+  },
+  {
+    route: NOTIFICATION_ROUTES.MY_ELASTIC_POOLS,
+    type: PrivateAnnouncementType.ELASTIC_POOLS,
+  },
+  {
+    route: NOTIFICATION_ROUTES.LIMIT_ORDERS,
+    type: PrivateAnnouncementType.LIMIT_ORDER,
+  },
+  {
+    route: NOTIFICATION_ROUTES.BRIDGE,
+    type: PrivateAnnouncementType.BRIDGE_ASSET,
+  },
+  {
+    route: NOTIFICATION_ROUTES.CROSS_CHAIN,
+    type: PrivateAnnouncementType.CROSS_CHAIN,
+  },
+  {
+    route: NOTIFICATION_ROUTES.KYBER_AI_TOKENS,
+    type: PrivateAnnouncementType.KYBER_AI,
+  },
+]
 const MenuForDesktop = ({ unread }: { unread: Unread }) => {
   return (
     <Flex
       sx={{
         flexDirection: 'column',
         padding: '24px',
-        gap: '16px',
       }}
     >
-      <MenuItem
-        href={NOTIFICATION_ROUTES.OVERVIEW}
-        icon={<NotificationIcon size="16px" />}
-        text={t`Notification Overview`}
-      />
-      <Divider $margin="4px 0" />
-      <Flex
-        sx={{
-          flexDirection: 'column',
-          gap: '16px',
-        }}
-      >
-        <MenuItem
-          href={NOTIFICATION_ROUTES.ALL}
-          icon={<ListIcon size="16px" />}
-          text={t`All Notifications`}
-          unread={unread.ALL}
-        />
-        <Flex
-          sx={{
-            flexDirection: 'column',
-            paddingLeft: '24px',
-            gap: '16px',
-          }}
-        >
-          <Flex
-            sx={{
-              flexDirection: 'column',
-              gap: '8px',
-            }}
-          >
-            <MenuItem href={NOTIFICATION_ROUTES.GENERAL} icon={<MailIcon size={16} />} text={t`General`} />
-            <Divider />
+      {menuItems.map(({ type, route, icon, title, parent }, index) => {
+        const paddingVertical = parent ? '14px' : '8px'
+        const paddingLeft = parent ? 0 : '24px'
+        const formatType = type as PrivateAnnouncementType
+        return (
+          <>
             <MenuItem
-              href={NOTIFICATION_ROUTES.PRICE_ALERTS}
-              icon={<AlarmIcon width={16} height={16} />}
-              text={MENU_TITLE.PRICE_ALERT}
-              unread={unread.PRICE_ALERT}
+              style={{
+                paddingLeft,
+                paddingTop: index && route !== NOTIFICATION_ROUTES.GENERAL ? paddingVertical : 0,
+                paddingBottom: paddingVertical,
+              }}
+              key={route}
+              href={route}
+              icon={icon || <InboxIcon type={formatType} />}
+              text={title || MENU_TITLE[formatType]}
+              unread={unread[formatType]}
             />
-          </Flex>
-
-          <MenuItem
-            href={NOTIFICATION_ROUTES.MY_ELASTIC_POOLS}
-            icon={<DropIcon width="16px" height="16px" />}
-            text={MENU_TITLE.ELASTIC_POOLS}
-            unread={unread.ELASTIC_POOLS}
-          />
-          <MenuItem
-            href={NOTIFICATION_ROUTES.LIMIT_ORDERS}
-            icon={<LimitOrderIcon />}
-            text={MENU_TITLE.LIMIT_ORDER}
-            unread={unread.LIMIT_ORDER}
-          />
-          <MenuItem
-            href={NOTIFICATION_ROUTES.BRIDGE}
-            icon={<BridgeIcon width="16px" height="16px" />}
-            text={MENU_TITLE.BRIDGE_ASSET}
-            unread={unread.BRIDGE_ASSET}
-          />
-          <MenuItem
-            href={NOTIFICATION_ROUTES.TRENDING_SOON_TOKENS}
-            icon={<DiscoverIcon size={16} />}
-            text={MENU_TITLE.TRENDING_SOON}
-            unread={unread.TRENDING_SOON}
-          />
-        </Flex>
-      </Flex>
+            {[NOTIFICATION_ROUTES.OVERVIEW, NOTIFICATION_ROUTES.GENERAL].includes(route) && (
+              <Divider style={{ marginLeft: paddingLeft, width: `calc(100% - ${paddingLeft})` }} />
+            )}
+          </>
+        )
+      })}
     </Flex>
   )
 }
 
 export const MENU_TITLE: Partial<{ [type in PrivateAnnouncementType]: string }> = {
-  [PrivateAnnouncementType.BRIDGE]: t`Cross-Chain Bridge`,
+  [PrivateAnnouncementType.BRIDGE_ASSET]: t`Cross-Chain Bridge`,
+  [PrivateAnnouncementType.CROSS_CHAIN]: t`Cross-Chain Swaps`,
   [PrivateAnnouncementType.LIMIT_ORDER]: t`Limit Orders`,
-  [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: t`Trending Soon Tokens`,
+  [PrivateAnnouncementType.KYBER_AI]: t`Top Tokens by KyberAI`,
   [PrivateAnnouncementType.PRICE_ALERT]: t`Price Alerts`,
-  [PrivateAnnouncementType.POOL_POSITION]: t`Elastic Liquidity Positions`,
+  [PrivateAnnouncementType.ELASTIC_POOLS]: t`Elastic Liquidity Positions`,
 }
 
 const MenuForMobile = ({ unread }: { unread: Unread }) => {
@@ -127,55 +126,19 @@ const MenuForMobile = ({ unread }: { unread: Unread }) => {
         gap: '8px',
       }}
     >
-      <MenuItem
-        isMobile
-        href={NOTIFICATION_ROUTES.OVERVIEW}
-        icon={<NotificationIcon size="16px" />}
-        text={t`Notification Overview`}
-      />
-      <MenuItem
-        isMobile
-        href={NOTIFICATION_ROUTES.ALL}
-        icon={<ListIcon size="16px" />}
-        text={t`All Notifications`}
-        unread={unread.ALL}
-      />
-      <MenuItem isMobile href={NOTIFICATION_ROUTES.GENERAL} icon={<MailIcon size={16} />} text={t`General`} />
-      <MenuItem
-        isMobile
-        href={NOTIFICATION_ROUTES.PRICE_ALERTS}
-        icon={<AlarmIcon width={16} height={16} />}
-        text={MENU_TITLE.PRICE_ALERT}
-        unread={unread.PRICE_ALERT}
-      />
-      <MenuItem
-        isMobile
-        href={NOTIFICATION_ROUTES.MY_ELASTIC_POOLS}
-        icon={<DropIcon width="16px" height="16px" />}
-        text={MENU_TITLE.ELASTIC_POOLS}
-        unread={unread.ELASTIC_POOLS}
-      />
-      <MenuItem
-        isMobile
-        href={NOTIFICATION_ROUTES.LIMIT_ORDERS}
-        icon={<LimitOrderIcon />}
-        text={MENU_TITLE.LIMIT_ORDER}
-        unread={unread.LIMIT_ORDER}
-      />
-      <MenuItem
-        isMobile
-        href={NOTIFICATION_ROUTES.BRIDGE}
-        icon={<BridgeIcon width="16px" height="16px" />}
-        text={MENU_TITLE.BRIDGE_ASSET}
-        unread={unread.BRIDGE_ASSET}
-      />
-      <MenuItem
-        isMobile
-        href={NOTIFICATION_ROUTES.TRENDING_SOON_TOKENS}
-        icon={<DiscoverIcon size={16} />}
-        text={MENU_TITLE.TRENDING_SOON}
-        unread={unread.TRENDING_SOON}
-      />
+      {menuItems.map(({ type, route, icon, title }) => {
+        const formatType = type as PrivateAnnouncementType
+        return (
+          <MenuItem
+            isMobile
+            key={route}
+            href={route}
+            icon={icon || <InboxIcon type={formatType} />}
+            text={title || MENU_TITLE[formatType]}
+            unread={unread[formatType]}
+          />
+        )
+      })}
     </Flex>
   )
 }
@@ -183,42 +146,25 @@ const MenuForMobile = ({ unread }: { unread: Unread }) => {
 const Menu = () => {
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const { account } = useActiveWeb3React()
-  const templates = getAnnouncementsTemplateIds()
 
-  // todo danh remind BE refactor this by using 1 api
-  const params = { account: account ?? '', page: 1, pageSize: ITEMS_PER_PAGE }
-  const skip = { skip: !account }
-  const { data: dataAll } = useGetPrivateAnnouncementsQuery({ ...params, pageSize: undefined }, skip)
+  const templateIds = Object.values(PrivateAnnouncementType)
+    .filter(e => e !== PrivateAnnouncementType.DIRECT_MESSAGE)
+    .map(getAnnouncementsTemplateIds)
+    .filter(Boolean)
+    .join(',')
 
-  const { data: dataPriceAlert } = useGetPrivateAnnouncementsByIdsQuery(
-    { ...params, templateIds: templates.PRICE_ALERT },
-    skip,
-  )
-  const { data: dataBridge } = useGetPrivateAnnouncementsByIdsQuery(
-    { ...params, templateIds: templates.BRIDGE_ASSET },
-    skip,
-  )
-  const { data: dataLimitOrder } = useGetPrivateAnnouncementsByIdsQuery(
-    { ...params, templateIds: templates.LIMIT_ORDER },
-    skip,
-  )
-  const { data: dataTrendingSoon } = useGetPrivateAnnouncementsByIdsQuery(
-    { ...params, templateIds: templates.TRENDING_SOON },
-    skip,
-  )
-  const { data: dataPool } = useGetPrivateAnnouncementsByIdsQuery(
-    { ...params, templateIds: templates.ELASTIC_POOLS },
-    skip,
-  )
+  const { data = [] } = useGetTotalUnreadAnnouncementsQuery({ account: account ?? '', templateIds }, { skip: !account })
 
-  const unread: Unread = {
-    [PrivateAnnouncementType.PRICE_ALERT]: dataPriceAlert?.numberOfUnread,
-    [PrivateAnnouncementType.BRIDGE]: dataBridge?.numberOfUnread,
-    [PrivateAnnouncementType.LIMIT_ORDER]: dataLimitOrder?.numberOfUnread,
-    [PrivateAnnouncementType.POOL_POSITION]: dataPool?.numberOfUnread,
-    [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: dataTrendingSoon?.numberOfUnread,
-    ALL: dataAll?.numberOfUnread,
-  }
+  const unread = useMemo(() => {
+    const result = {} as Unread
+    let all = 0
+    data.forEach(({ templateType, numberOfUnread }) => {
+      result[templateType] = (result[templateType] || 0) + numberOfUnread
+      all += numberOfUnread
+    })
+    result.ALL = all
+    return result
+  }, [data])
 
   if (upToMedium) {
     return <MenuForMobile unread={unread} />

@@ -208,10 +208,14 @@ export const APP_PATHS = {
   ELASTIC_REMOVE_POOL: '/elastic/remove',
   FARMS: '/farms',
   MY_POOLS: '/myPools',
-  REFERRAL: '/referral',
   DISCOVER: '/discover',
+  KYBERAI: '/KyberAI',
+  KYBERAI_ABOUT: '/KyberAI/About',
+  KYBERAI_RANKINGS: '/KyberAI/Rankings',
+  KYBERAI_EXPLORE: '/KyberAI/Explore',
   BUY_CRYPTO: '/buy-crypto',
   BRIDGE: '/bridge',
+  CROSS_CHAIN: '/cross-chain',
   KYBERDAO: '/kyberdao',
   KYBERDAO_STAKE: '/kyberdao/stake-knc',
   KYBERDAO_VOTE: '/kyberdao/vote',
@@ -223,11 +227,10 @@ export const APP_PATHS = {
 }
 
 export const TERM_FILES_PATH = {
-  KYBERSWAP_TERMS: '/files/23022023KyberSwapTermsofUse.pdf',
+  KYBERSWAP_TERMS: '/files/Kyber - Terms of Service - 14 June 2023.pdf',
   PRIVACY_POLICY: '/files/privacy.pdf',
-  KYBER_DAO_TERMS: '/files/dao-tac.pdf',
   // Timestamp of changed date, update this to latest timestamp whenever change any above files. This also used to check on client side for updated to force user to disconnect and re-accept terms.
-  VERSION: 1677129615161,
+  VERSION: 1687160930660,
 }
 
 export enum FARM_TAB {
@@ -261,11 +264,21 @@ export const TIMES_IN_SECS = {
 }
 
 export const RTK_QUERY_TAGS = {
+  // announcement
   GET_PRIVATE_ANN_BY_ID: 'GET_PRIVATE_ANN_BY_ID',
   GET_ALL_PRIVATE_ANN: 'GET_ALL_PRIVATE_ANN',
+  GET_TOTAL_UNREAD_PRIVATE_ANN: 'GET_TOTAL_UNREAD_PRIVATE_ANN',
+
+  // price alert
   GET_ALERTS: 'GET_ALERTS',
   GET_ALERTS_HISTORY: 'GET_ALERTS_HISTORY',
   GET_ALERTS_STAT: 'GET_ALERTS_STAT',
+
+  GET_CROSS_CHAIN_HISTORY: 'GET_CROSS_CHAIN_HISTORY',
+  GET_BRIDGE_HISTORY: 'GET_BRIDGE_HISTORY',
+
+  // kyber ai
+  GET_PARTICIPANT_INFO_KYBER_AI: 'GET_PARTICIPANT_INFO_KYBER_AI',
 }
 
 export const TRANSACTION_STATE_DEFAULT: TransactionFlowState = {
@@ -277,6 +290,37 @@ export const TRANSACTION_STATE_DEFAULT: TransactionFlowState = {
 }
 
 export const CHAINS_SUPPORT_FEE_CONFIGS = [ChainId.OASIS, ChainId.VELAS, ChainId.AURORA, ChainId.CRONOS]
+export const CHAINS_SUPPORT_CROSS_CHAIN =
+  ENV.ENV_KEY === 'production' || ENV.ENV_KEY === 'staging'
+    ? [
+        ChainId.MAINNET,
+        ChainId.BSCMAINNET,
+        ChainId.MATIC,
+        ChainId.AVAXMAINNET,
+        ChainId.ARBITRUM,
+        ChainId.OPTIMISM,
+        ChainId.FANTOM,
+      ]
+    : [
+        ChainId.MAINNET,
+        ChainId.GÖRLI,
+        ChainId.MATIC,
+        ChainId.MUMBAI,
+        ChainId.BSCTESTNET,
+        ChainId.BSCMAINNET,
+        ChainId.AVAXTESTNET,
+        ChainId.AVAXMAINNET,
+        ChainId.FANTOM,
+        ChainId.CRONOS,
+        ChainId.ARBITRUM,
+        ChainId.BTTC,
+        ChainId.VELAS,
+        ChainId.AURORA,
+        ChainId.OASIS,
+        ChainId.OPTIMISM,
+        ChainId.ZKSYNC,
+        ChainId.SOLANA,
+      ]
 
 export const SWAP_FEE_RECEIVER_ADDRESS = '0x4f82e73EDb06d29Ff62C91EC8f5Ff06571bdeb29'
 

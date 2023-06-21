@@ -25,6 +25,7 @@ const WETH_ONLY: ChainTokenList = {
   [ChainId.VELAS]: [WETH[ChainId.VELAS]],
   [ChainId.OASIS]: [WETH[ChainId.OASIS]],
   [ChainId.OPTIMISM]: [WETH[ChainId.OPTIMISM]],
+  [ChainId.ZKSYNC]: [WETH[ChainId.ZKSYNC]],
   [ChainId.SOLANA]: [WETH[ChainId.SOLANA]],
 }
 

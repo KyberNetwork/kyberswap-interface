@@ -26,7 +26,7 @@ jobs:
       pr_number: ${{github.event.number}}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Extract branch
         shell: bash
@@ -68,10 +68,10 @@ jobs:
       - prepare
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Node.js 18.15.0
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 18.15.0
           registry-url: 'https://npm.pkg.github.com'
@@ -82,9 +82,12 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GH_PAT }} ### authen npm
 
-      - name: Install cypress
-        run: yarn cypress install --force
-
+      - name: Install linux deps
+        run: |
+            sudo apt-get install --no-install-recommends -y \
+            fluxbox \
+            xvfb
+  
       - name: Yarn Build
         env:
           CI: false
@@ -92,10 +95,29 @@ jobs:
           CURRENT_BRANCH: ${{ needs.prepare.outputs.current_branch }}
           NODE_OPTIONS: '--max_old_space_size=4096'
         run: yarn build-adpr
+      
+      - name: Install cypress
+        run: yarn cypress install --force  
+        
+      - name: Run xvfb and fluxbox
+        run: Xvfb :0 -screen 0 1024x768x24 -listen tcp -ac &
+          fluxbox &
+        env:
+          DISPLAY: :0.0  
 
       - name: Run Cypress Test
         run: |+
           #!/bin/bash
-
           yarn preview &
           yarn test-e2e
+        env:
+            DISPLAY: :0.0
+      
+      - name: Archive e2e artifacts 
+        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
+        if: always()
+        with:
+            name: e2e-artifacts
+            path: |
+              cypress/videos
+        continue-on-error: true    

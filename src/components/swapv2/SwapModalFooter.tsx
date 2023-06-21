@@ -1,22 +1,20 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
-import React, { useMemo, useState } from 'react'
+import { Trans } from '@lingui/macro'
+import { useMemo, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { Flex, Text } from 'rebass'
 
+import { TruncatedText } from 'components'
 import { ButtonError } from 'components/Button'
 import { GreyCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
-import InfoHelper from 'components/InfoHelper'
 import { AutoRow, RowBetween, RowFixed } from 'components/Row'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { Dots } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
-import { FeeConfig } from 'hooks/useSwapV2Callback'
 import useTheme from 'hooks/useTheme'
-import { TruncatedText } from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
 import { Field } from 'state/swap/actions'
 import { useCheckStablePairSwap, useEncodeSolana } from 'state/swap/hooks'
 import { useDegenModeManager } from 'state/user/hooks'
@@ -24,7 +22,6 @@ import { ExternalLink, TYPE } from 'theme'
 import { formattedNum } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
-import { getFormattedFeeAmountUsd } from 'utils/fee'
 import { checkPriceImpact, computeSlippageAdjustedAmounts, formatExecutionPrice, formatPriceImpact } from 'utils/prices'
 import { checkWarningSlippage, formatSlippage } from 'utils/slippage'
 
@@ -37,7 +34,6 @@ export default function SwapModalFooter({
   allowedSlippage,
   swapErrorMessage,
   disabledConfirm,
-  feeConfig,
   startedTime,
 }: {
   trade: Aggregator
@@ -45,7 +41,6 @@ export default function SwapModalFooter({
   onConfirm: () => void
   swapErrorMessage: string | undefined
   disabledConfirm: boolean
-  feeConfig: FeeConfig | undefined
   startedTime: number | undefined
 }) {
   const isStablePairSwap = useCheckStablePairSwap()
@@ -62,7 +57,6 @@ export default function SwapModalFooter({
 
   const nativeOutput = useCurrencyConvertedToNative(trade.outputAmount.currency as Currency)
 
-  const formattedFeeAmountUsd = useMemo(() => getFormattedFeeAmountUsd(trade, feeConfig), [trade, feeConfig])
   const { priceImpact } = trade
   const priceImpactResult = checkPriceImpact(priceImpact)
 
@@ -173,20 +167,6 @@ export default function SwapModalFooter({
             {formatSlippage(allowedSlippage)}
           </TYPE.black>
         </RowBetween>
-
-        {feeConfig && (
-          <RowBetween>
-            <RowFixed>
-              <TYPE.black fontSize={14} fontWeight={400} color={theme.subText}>
-                <Trans>Referral Fee</Trans>
-              </TYPE.black>
-              <InfoHelper size={14} text={t`Commission fee to be paid directly to your referrer`} />
-            </RowFixed>
-            <TYPE.black color={theme.text} fontSize={14}>
-              {formattedFeeAmountUsd}
-            </TYPE.black>
-          </RowBetween>
-        )}
       </AutoColumn>
 
       <Flex

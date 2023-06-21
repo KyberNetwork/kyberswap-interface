@@ -1,5 +1,5 @@
-import { notification, tab, token } from '../e2e/swap/swap-page-selectors.cy'
-import { getText, getTokenList } from './swap-page.po.cy'
+import { getText, getTokenList } from '../e2e/pages/swap-page.po.cy'
+import { notification, tab, token } from '../e2e/selectors/selectors.cy'
 
 export {}
 
@@ -10,7 +10,7 @@ declare global {
       clickButton(selector: string): Chainable<void>
       input(selector: string, value: string): Chainable<void>
       selectTokenBySymbol(selector: string, value: string): Chainable<void>
-      verifyURL(selectorTokenIn: string, selectorTokenOut: string): Chainable<void>
+      verifyURL(txtTokenIn: string, txtTokenOut: string): Chainable<void>
       verifySelectedToken(selector: string, value: string): Chainable<void>
       removeTokenInFavoriteTokensList(value: string): Chainable<void>
       verifyIcon(check: string): Chainable<void>
@@ -46,7 +46,8 @@ Cypress.Commands.add('selectTokenInFavoriteTokensList', (selector, value) => {
 
 Cypress.Commands.add('selectTokenBySymbol', (selector, value) => {
   cy.input(selector, value)
-  cy.get(token.rowInWhiteList, { timeout: 10000 }).eq(0).click({ force: true })
+  cy.get(token.rowInWhiteList, { timeout: 10000 }).eq(0).should('contain', value)
+  cy.get(token.rowInWhiteList).eq(0).click({ force: true })
 })
 
 Cypress.Commands.add('removeTokenInFavoriteTokensList', value => {
@@ -74,6 +75,7 @@ Cypress.Commands.add('verifyIcon', checked => {
 Cypress.Commands.add('addTokenToFavoriteTokensList', value => {
   cy.input(token.inputToken, value)
   cy.verifyIcon('false')
+  cy.get(token.rowInWhiteList).eq(0).should('contain', value)
   cy.get(token.rowInWhiteList).find(token.iconFavorite).eq(0).click()
 })
 
@@ -98,10 +100,6 @@ Cypress.Commands.add('clearAllImportedTokens', () => {
   cy.get(token.clearAll).click()
 })
 
-Cypress.Commands.add('verifyURL', (selectorTokenIn, selectorTokenOut) => {
-  getText(selectorTokenIn, (txtTokenIn: any) => {
-    getText(selectorTokenOut, (txtTokenOut: any) => {
-      cy.url().should('include', txtTokenIn.toLowerCase() + '-to-' + txtTokenOut.toLowerCase())
-    })
-  })
+Cypress.Commands.add('verifyURL', (txtTokenIn, txtTokenOut) => {
+  cy.url().should('contain', txtTokenIn.toLowerCase() + '-to-' + txtTokenOut.toLowerCase())
 })

@@ -32,6 +32,7 @@ import {
   useOpenNetworkModal,
   useWalletModalToggle,
 } from 'state/application/hooks'
+import { useIsConnectingWallet } from 'state/authen/hooks'
 import { useIsAcceptedTerm } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { isEVMWallet, isOverriddenWallet, isSolanaWallet } from 'utils'
@@ -214,18 +215,23 @@ export default function WalletModal() {
     }
   }, [connecting, connected, solanaWallet])
 
+  const [, setIsConnectingWallet] = useIsConnectingWallet()
   const handleWalletChange = useCallback(
     async (walletKey: SUPPORTED_WALLET) => {
       setPendingWalletKey(walletKey)
       setWalletView(WALLET_VIEWS.PENDING)
       setPendingError(false)
+      setIsConnectingWallet(true)
       try {
         await tryActivation(walletKey)
       } catch {
         setPendingError(true)
       }
+      setTimeout(() => {
+        setIsConnectingWallet(false)
+      }, 1000)
     },
-    [tryActivation],
+    [tryActivation, setIsConnectingWallet],
   )
 
   function getOptions() {
@@ -337,22 +343,20 @@ export default function WalletModal() {
               }}
               type="checkbox"
               checked={isAcceptedTerm}
-              style={{ marginRight: '12px', height: '14px', width: '14px', cursor: 'pointer' }}
+              data-testid="accept-term"
+              style={{ marginRight: '12px', height: '14px', width: '14px', minWidth: '14px', cursor: 'pointer' }}
             />
             <Text color={theme.subText}>
               <Trans>Accept </Trans>{' '}
               <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
                 <Trans>KyberSwap&lsquo;s Terms of Use</Trans>
-              </ExternalLink>
-              {', '}
-              <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY} onClick={e => e.stopPropagation()}>
-                <Trans>Privacy Policy</Trans>
               </ExternalLink>{' '}
               <Trans>and</Trans>{' '}
-              <ExternalLink href={TERM_FILES_PATH.KYBER_DAO_TERMS} onClick={e => e.stopPropagation()}>
-                <Trans>KyberDAO&lsquo;s Terms of Use.</Trans>
+              <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY} onClick={e => e.stopPropagation()}>
+                <Trans>Privacy Policy</Trans>
               </ExternalLink>
-              <Text fontSize={10}>
+              {'. '}
+              <Text fontSize={10} as="span">
                 <Trans>Last updated: {dayjs(TERM_FILES_PATH.VERSION).format('DD MMM YYYY')}</Trans>
               </Text>
             </Text>

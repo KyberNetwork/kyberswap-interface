@@ -55,13 +55,15 @@ function getTokenComparator(
     }
   }
 }
+
+const EMPTY_OBJECT = {}
 export function useTokenComparator(inverted: boolean, customChain?: ChainId): (tokenA: Token, tokenB: Token) => number {
-  const balances = useAllTokenBalances()
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
-  const ethBalance = useNativeBalance(customChain)
+  const balances = useAllTokenBalances(chainId)
+  const ethBalance = useNativeBalance(chainId)
   return useMemo(() => {
-    const comparator = getTokenComparator(balances ?? {}, ethBalance, chainId)
+    const comparator = getTokenComparator(balances ?? EMPTY_OBJECT, ethBalance, chainId)
     if (inverted) {
       return (tokenA: Token, tokenB: Token) => comparator(tokenA, tokenB) * -1
     }

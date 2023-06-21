@@ -8,8 +8,6 @@ import {
   ARGENT_WALLET_DETECTOR_MAINNET_ADDRESS,
 } from 'constants/abis/argent-wallet-detector'
 import RouterSwapAction from 'constants/abis/bridge/RouterSwapAction.json'
-import RouterSwapActionV2 from 'constants/abis/bridge/RouterSwapActionV2.json'
-import swapBTCABI from 'constants/abis/bridge/swapBTCABI.json'
 import swapETHABI from 'constants/abis/bridge/swapETHABI.json'
 import FACTORY_ABI from 'constants/abis/dmm-factory.json'
 import ENS_PUBLIC_RESOLVER_ABI from 'constants/abis/ens-public-resolver.json'
@@ -26,6 +24,7 @@ import TickReaderABI from 'constants/abis/v2/ProAmmTickReader.json'
 import PROMM_FARM_ABI from 'constants/abis/v2/farm.json'
 import WETH_ABI from 'constants/abis/weth.json'
 import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
+import ZAP_ZKSYNC_ABI from 'constants/abis/zap-zksync.json'
 import ZAP_ABI from 'constants/abis/zap.json'
 import { MULTICALL_ABI } from 'constants/multicall'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
@@ -194,7 +193,8 @@ export function useDynamicFeeFactoryContract(): Contract | null {
 }
 
 export function useZapContract(isStaticFeeContract: boolean, isOldStaticFeeContract: boolean): Contract | null {
-  const { isEVM, networkInfo } = useActiveWeb3React()
+  const { isEVM, networkInfo, chainId } = useActiveWeb3React()
+
   return useContract(
     isEVM
       ? isStaticFeeContract
@@ -203,7 +203,11 @@ export function useZapContract(isStaticFeeContract: boolean, isOldStaticFeeContr
           : (networkInfo as EVMNetworkInfo).classic.static.zap
         : (networkInfo as EVMNetworkInfo).classic.dynamic?.zap
       : undefined,
-    isStaticFeeContract && !isOldStaticFeeContract ? ZAP_STATIC_FEE_ABI : ZAP_ABI,
+    isStaticFeeContract && !isOldStaticFeeContract
+      ? ZAP_STATIC_FEE_ABI
+      : chainId === ChainId.ZKSYNC
+      ? ZAP_ZKSYNC_ABI
+      : ZAP_ABI,
   )
 }
 
@@ -339,17 +343,9 @@ export function useProAmmTickReader(withSignerIfPossible?: boolean): Contract | 
 }
 
 // bridge
-export function useSwapBTCContract(tokenAddress?: string, withSignerIfPossible?: boolean): Contract | null {
-  return useContract(tokenAddress, swapBTCABI, withSignerIfPossible)
-}
-
 export function useSwapETHContract(tokenAddress?: string, withSignerIfPossible?: boolean): Contract | null {
   return useContract(tokenAddress, swapETHABI, withSignerIfPossible)
 }
-export function useBridgeContract(routerToken?: any, version?: any, withSignerIfPossible?: boolean): Contract | null {
-  return useContract(
-    routerToken ? routerToken : undefined,
-    version ? RouterSwapActionV2 : RouterSwapAction,
-    withSignerIfPossible,
-  )
+export function useBridgeContract(routerToken?: any): Contract | null {
+  return useContract(routerToken ? routerToken : undefined, RouterSwapAction, undefined)
 }

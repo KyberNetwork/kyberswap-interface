@@ -3,7 +3,7 @@ import { createAction } from '@reduxjs/toolkit'
 
 import { SupportedLocale } from 'constants/locales'
 
-import { VIEW_MODE } from './reducer'
+import { CrossChainSetting, VIEW_MODE } from './reducer'
 
 export interface SerializedToken {
   chainId: number
@@ -39,6 +39,7 @@ export const toggleLiveChart = createAction<{ chainId: number }>('user/toggleLiv
 
 export const toggleTradeRoutes = createAction<void>('user/toggleTradeRoutes')
 export const toggleTokenInfo = createAction<void>('user/toggleTokenInfo')
+export const toggleKyberAIBanner = createAction<void>('user/toggleKyberAIBanner')
 
 export const toggleTopTrendingTokens = createAction<void>('user/toggleTopTrendingTokens')
 
@@ -48,6 +49,7 @@ export type ToggleFavoriteTokenPayload = {
 export const toggleFavoriteToken = createAction<ToggleFavoriteTokenPayload>('user/toggleFavoriteToken')
 export const updateChainId = createAction<ChainId>('user/updateChainId')
 export const updateIsUserManuallyDisconnect = createAction<boolean>('user/updateIsUserManuallyDisconnect')
+export const updateTokenAnalysisSettings = createAction<string>('user/updateTokenAnalysisSettings')
 export const updateAcceptedTermVersion = createAction<number | null>('user/updateAcceptedTermVersion')
 export const changeViewMode = createAction<VIEW_MODE>('user/changeViewMode')
 export const toggleHolidayMode = createAction<void>('user/toggleHolidayMode')
@@ -62,3 +64,6 @@ export const permitUpdate = createAction<{
 export const revokePermit = createAction<{ chainId: number; address: string; account: string }>('user/revokePermit')
 export const permitError = createAction<{ chainId: number; address: string; account: string }>('user/permitError')
 export const pinSlippageControl = createAction<boolean>('user/pinSlippageControl')
+export const toggleKyberAIWidget = createAction<void>('user/toggleKyberAIWidget')
+
+export const setCrossChainSetting = createAction<CrossChainSetting>('user/setCrossChainSetting')

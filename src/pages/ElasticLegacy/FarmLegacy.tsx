@@ -1,5 +1,4 @@
-import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
-import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
+import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -16,7 +15,7 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import { useProMMFarmContract } from 'hooks/useContract'
-import { Position as SubgraphPosition, config } from 'hooks/useElasticLegacy'
+import { Position as SubgraphPosition, config, parsePosition } from 'hooks/useElasticLegacy'
 import useTheme from 'hooks/useTheme'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -24,34 +23,6 @@ import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { ExternalLink } from 'theme'
 import { calculateGasMargin } from 'utils'
 import { formatDollarAmount } from 'utils/numbers'
-
-export const parsePosition = (item: SubgraphPosition, chainId: number, tokenPrices: { [key: string]: number }) => {
-  const token0 = new Token(chainId, item.token0.id, Number(item.token0.decimals), item.token0.symbol, item.token0.name)
-  const token1 = new Token(chainId, item.token1.id, Number(item.token1.decimals), item.token1.symbol, item.token1.name)
-
-  const pool = new Pool(
-    token0,
-    token1,
-    +item.pool.feeTier,
-    item.pool.sqrtPrice,
-    item.pool.liquidity,
-    item.pool.reinvestL,
-    +item.pool.tick,
-  )
-
-  const position = new Position({
-    pool,
-    liquidity: item.liquidity,
-    tickLower: +item.tickLower.tickIdx,
-    tickUpper: +item.tickUpper.tickIdx,
-  })
-
-  const usd =
-    (tokenPrices[position.amount0.currency.wrapped.address] || 0) * +position.amount0.toExact() +
-    (tokenPrices[position.amount1.currency.wrapped.address] || 0) * +position.amount1.toExact()
-
-  return { token0, token1, pool, position, usd }
-}
 
 const Wrapper = styled.div`
   border-radius: 1rem;

@@ -1,4 +1,4 @@
-import { ChainId, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, NativeCurrency, Token, WETH } from '@kyberswap/ks-sdk-core'
 
 import { CHAINS_SUPPORT_FEE_CONFIGS, ETHER_ADDRESS } from './index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from './networks'
@@ -121,6 +121,12 @@ export const STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
     '0xdFA46478F9e5EA86d57387849598dbFB2e964b02', // MAI
     '0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B', // BOB
   ],
+  [ChainId.ZKSYNC]: [
+    '0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4', // USDC
+    '0x8E86e46278518EFc1C5CEd245cBA2C7e3ef11557', // USD+
+    '0x2039bb4116B4EFc145Ec4f0e2eA75012D6C0f181', // BUSD
+    '0x493257fD37EDB34451f62EDf8D2a0C418852bA4C', // USDT
+  ],
   [ChainId.SOLANA]: [
     'EjmyN6qEC1Tf1JxiG1ae7UTJhUxSwk1TCWNWqxWV4J6o', // Dai
     'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', // usdc
@@ -159,7 +165,7 @@ export const STABLE_COIN_ADDRESSES_TO_TAKE_FEE: Record<ChainId, string[]> = {
     '0xC74D59A548ecf7fc1754bb7810D716E9Ac3e3AE5', // busd
     '0x2Ae35c8E3D4bD57e8898FF7cd2bBff87166EF8cb', // MAI
   ],
-
+  [ChainId.ZKSYNC]: [],
   [ChainId.BTTC]: [],
   [ChainId.MATIC]: [],
   [ChainId.OPTIMISM]: [],
@@ -175,10 +181,11 @@ export const STABLE_COIN_ADDRESSES_TO_TAKE_FEE: Record<ChainId, string[]> = {
   [ChainId.ARBITRUM]: [],
 }
 
-// This is basically the same as STABLE_COIN_ADDRESSES_TO_TAKE_FEE, but with native token address
+// This is basically the same as STABLE_COIN_ADDRESSES_TO_TAKE_FEE,
+// but with native token address and wrapped native token address
 export const TOKENS_WITH_FEE_TIER_1: Record<ChainId, string[]> = CHAINS_SUPPORT_FEE_CONFIGS.reduce((acc, chainId) => {
   if (STABLE_COIN_ADDRESSES_TO_TAKE_FEE[chainId].length) {
-    acc[chainId] = [...STABLE_COIN_ADDRESSES_TO_TAKE_FEE[chainId], ETHER_ADDRESS]
+    acc[chainId] = [...STABLE_COIN_ADDRESSES_TO_TAKE_FEE[chainId], ETHER_ADDRESS, WETH[chainId].address]
   } else {
     acc[chainId] = []
   }
@@ -263,6 +270,7 @@ export const SUPER_STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
     'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', // usdc
     'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB', // usdt
   ],
+  [ChainId.ZKSYNC]: [],
   [ChainId.GÖRLI]: [],
   [ChainId.MUMBAI]: [],
   [ChainId.BSCTESTNET]: [],
@@ -299,6 +307,8 @@ export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
       '0x2b2C81e08f1Af8835a78Bb2A90AE924ACE0eA4bE', //sAVAX
     ],
   ],
+  // TODO: fill here
+  [ChainId.ZKSYNC]: [],
   [ChainId.FANTOM]: [],
   [ChainId.CRONOS]: [],
   [ChainId.ARBITRUM]: [],
@@ -314,7 +324,7 @@ export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
   [ChainId.AVAXTESTNET]: [],
 }
 
-export const DAI = {
+export const DAI: { [chainId in ChainId]: Token } = {
   [ChainId.MAINNET]: new Token(
     ChainId.MAINNET,
     '0x6B175474E89094C44Da98b954EedeAC495271d0F',
@@ -399,6 +409,7 @@ export const DAI = {
     'DAI',
     'Dai Stablecoin',
   ),
+  [ChainId.ZKSYNC]: new Token(ChainId.ZKSYNC, '0x4BEf76b6b7f2823C6c1f4FcfEACD85C24548ad7e', 18, 'DAI', 'Dai'),
   [ChainId.SOLANA]: new Token(
     ChainId.SOLANA,
     'EjmyN6qEC1Tf1JxiG1ae7UTJhUxSwk1TCWNWqxWV4J6o',
@@ -455,6 +466,7 @@ export const USDC: { [chainId in ChainId]: Token } = {
     'USD Coin (Multichain)',
   ),
   [ChainId.OPTIMISM]: new Token(ChainId.OPTIMISM, '0x7F5c764cBc14f9669B88837ca1490cCa17c31607', 6, 'USDC', 'USD Coin'),
+  [ChainId.ZKSYNC]: new Token(ChainId.ZKSYNC, '0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4', 6, 'USDC', 'USD Coin'),
   [ChainId.SOLANA]: new Token(ChainId.SOLANA, 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', 6, 'USDC', 'USD Coin'),
 }
 
@@ -511,6 +523,7 @@ export const USDT: { [chainId in ChainId]: Token } = {
     'USDT',
     'Tether USD',
   ),
+  [ChainId.ZKSYNC]: new Token(ChainId.ZKSYNC, '0x493257fd37edb34451f62edf8d2a0c418852ba4c', 6, 'USDT', 'Tether USD'),
   [ChainId.SOLANA]: new Token(ChainId.SOLANA, 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB', 6, 'USDT', 'Tether USD'),
 }
 
@@ -596,6 +609,14 @@ export const KNC: { [chainId in ChainId]: Token } = {
     'KNC',
     'Kyber Network Crystal',
   ),
+  // TODO(viet-nv): this address doesn't exist. check again
+  [ChainId.ZKSYNC]: new Token(
+    ChainId.ZKSYNC,
+    '0xa00e3a3511aac35ca78530c85007afcd31753819',
+    18,
+    'KNC',
+    'Kyber Network Crystal',
+  ),
   [ChainId.SOLANA]: new Token(
     ChainId.SOLANA,
     'KNCkfGAnBUvoG5EJipAzSBjjaF8iNL4ivYsBS14DKdg',
@@ -631,6 +652,7 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   [ChainId.BTTC]: USDT[ChainId.BTTC], // USDT_b
   [ChainId.SOLANA]: USDC[ChainId.SOLANA],
   [ChainId.GÖRLI]: KNC[ChainId.GÖRLI],
+  [ChainId.ZKSYNC]: USDC[ChainId.ZKSYNC],
 }
 
 export const DEFAULT_SWAP_FEE_STABLE_PAIRS = 4

@@ -69,7 +69,7 @@ const useNotification = () => {
         setLoading(true)
         if (isEmail) {
           if (unsubscribeIds.length) {
-            await callUnSubscribeTopic({ walletAddress: account ?? '', topicIDs: unsubscribeIds })
+            await callUnSubscribeTopic({ walletAddress: account ?? '', topicIDs: unsubscribeIds }).unwrap()
           }
           if (subscribeIds.length || isChangeEmailOnly) {
             const allTopicSubscribed = topicGroups.reduce(
@@ -80,7 +80,7 @@ const useNotification = () => {
               email,
               walletAddress: account ?? '',
               topicIDs: isChangeEmailOnly ? allTopicSubscribed : subscribeIds,
-            })
+            }).unwrap()
           }
           return
         }

@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
@@ -23,7 +23,6 @@ import { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useFarmPositions, useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
-import Notice from 'pages/ElasticLegacy/Notice'
 import { FilterRow, InstructionText, PageWrapper, PositionCardGrid, Tab } from 'pages/Pool'
 import { FarmUpdater } from 'state/farms/elastic/hooks'
 import { ExternalLink, StyledInternalLink, TYPE } from 'theme'
@@ -118,7 +117,7 @@ export default function ProAmmPool() {
 
   const debouncedSearchText = useDebounce(searchValueInQs.trim().toLowerCase(), 300)
 
-  const [showClosed, setShowClosed] = useState(true)
+  const [showClosed, setShowClosed] = useState(false)
 
   const filteredFarmPositions = useMemo(
     () =>
@@ -136,14 +135,22 @@ export default function ProAmmPool() {
     [debouncedSearchText, farmPositions],
   )
 
+  const sortFn = useCallback(
+    (a: PositionDetails, b: PositionDetails) => +a.tokenId.toString() - +b.tokenId.toString(),
+    [],
+  )
+
+  const openFarmPositions = useMemo(() => {
+    return filteredFarmPositions.filter(pos => pos.liquidity.gt('0')).sort(sortFn)
+  }, [filteredFarmPositions, sortFn])
+
+  const closedFarmPositions = useMemo(() => {
+    return filteredFarmPositions.filter(pos => pos.liquidity.eq('0')).sort(sortFn)
+  }, [filteredFarmPositions, sortFn])
+
   const filteredPositions = useMemo(() => {
-    const sortFn = (a: PositionDetails, b: PositionDetails) => +a.tokenId.toString() - +b.tokenId.toString()
-
-    const farmOpenPos = filteredFarmPositions.filter(pos => pos.liquidity.gt('0'))
-    const farmClosedPos = filteredFarmPositions.filter(pos => pos.liquidity.eq('0'))
-
-    const opens = [...openPositions, ...farmOpenPos].sort(sortFn)
-    const closeds = [...closedPositions, ...farmClosedPos].sort(sortFn)
+    const opens = [...openPositions, ...openFarmPositions].sort(sortFn)
+    const closeds = [...closedPositions, ...closedFarmPositions].sort(sortFn)
 
     return (!showClosed ? opens : [...opens, ...closeds])
       .filter(position => {
@@ -159,23 +166,35 @@ export default function ProAmmPool() {
         )
       })
       .filter((pos, index, array) => array.findIndex(pos2 => pos2.tokenId.eq(pos.tokenId)) === index)
-  }, [showClosed, openPositions, closedPositions, debouncedSearchText, filteredFarmPositions, nftId])
+  }, [
+    showClosed,
+    openPositions,
+    closedPositions,
+    debouncedSearchText,
+    nftId,
+    openFarmPositions,
+    closedFarmPositions,
+    sortFn,
+  ])
 
   const [showStaked, setShowStaked] = useState(false)
   const positionList = useMemo(
-    () => (showStaked ? filteredFarmPositions : filteredPositions),
-    [showStaked, filteredPositions, filteredFarmPositions],
+    () =>
+      showStaked
+        ? showClosed
+          ? [...openFarmPositions, ...closedFarmPositions]
+          : openFarmPositions
+        : filteredPositions,
+    [showStaked, filteredPositions, openFarmPositions, closedFarmPositions, showClosed],
   )
 
   const upToSmall = useMedia('(max-width: 768px)')
 
   if (!isEVM) return <Navigate to="/" />
+
   return (
     <>
       <PageWrapper style={{ padding: 0, marginTop: '24px' }}>
-        <div style={{ marginBottom: '1rem' }}>
-          <Notice />
-        </div>
         <AutoColumn gap="lg" style={{ width: '100%' }}>
           <InstructionText>
             <Trans>Here you can view all your liquidity and staked balances in the Elastic Pools</Trans>
@@ -261,7 +280,7 @@ export default function ProAmmPool() {
                 <Trans>Connect to a wallet to view your liquidity.</Trans>
               </TYPE.body>
             </Card>
-          ) : (positionsLoading && !positions) || (loading && !userFarmInfo) ? (
+          ) : (positionsLoading && !positions) || (loading && !userFarmInfo && !positions?.length) ? (
             <PositionCardGrid>
               <ContentLoader />
               <ContentLoader />

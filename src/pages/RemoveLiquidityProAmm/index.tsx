@@ -158,7 +158,8 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     ? (networkInfo as EVMNetworkInfo).elastic.farms.flat().includes(isAddressString(chainId, owner))
     : false
 
-  const ownsNFT = owner === account || ownByFarm
+  // TODO(viet-nv): temporary disabled
+  const ownsNFT = owner === account // || ownByFarm
 
   const navigate = useNavigate()
   const prevChainId = usePrevious(chainId)
@@ -749,7 +750,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
 
                     <Flex alignItems="center" sx={{ gap: '12px' }} marginTop="0.75rem">
                       <Text fontSize="12px" fontWeight="500">
-                        Claim Your Fees Earning
+                        Claim Your Fees Earned
                       </Text>
                       <Toggle
                         isActive={claimFee}

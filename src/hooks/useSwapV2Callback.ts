@@ -23,13 +23,6 @@ enum SwapCallbackState {
   VALID,
 }
 
-export interface FeeConfig {
-  chargeFeeBy: 'currency_in' | 'currency_out'
-  feeReceiver: string
-  isInBps: boolean
-  feeAmount: string
-}
-
 // returns a function that will execute a swap, if the parameters are all valid
 // and the user has approved the slippage adjusted input amount for the trade
 export function useSwapV2Callback(
@@ -41,7 +34,7 @@ export function useSwapV2Callback(
   const provider = useProvider()
   const [encodeSolana] = useEncodeSolana()
 
-  const { typedValue, feeConfig, saveGas, recipient: recipientAddressOrName } = useSwapState()
+  const { saveGas, recipient: recipientAddressOrName } = useSwapState()
 
   const [allowedSlippage] = useUserSlippageTolerance()
 
@@ -65,9 +58,6 @@ export function useSwapV2Callback(
     const inputAmount = formatCurrencyAmount(trade.inputAmount, 6)
     const outputAmount = formatCurrencyAmount(trade.outputAmount, 6)
 
-    const inputAmountFormat =
-      feeConfig && feeConfig.chargeFeeBy === 'currency_in' && feeConfig.isInBps ? typedValue : inputAmount
-
     const withRecipient =
       recipient === account
         ? undefined
@@ -81,7 +71,7 @@ export function useSwapV2Callback(
       hash: '',
       type: TRANSACTION_TYPE.SWAP,
       extraInfo: {
-        tokenAmountIn: inputAmountFormat,
+        tokenAmountIn: inputAmount,
         tokenAmountOut: outputAmount,
         tokenSymbolIn: inputSymbol,
         tokenSymbolOut: outputSymbol,
@@ -102,7 +92,7 @@ export function useSwapV2Callback(
         },
       } as TransactionExtraInfo2Token,
     }
-  }, [account, allowedSlippage, chainId, feeConfig, recipient, recipientAddressOrName, saveGas, trade, typedValue])
+  }, [account, allowedSlippage, chainId, recipient, recipientAddressOrName, saveGas, trade])
 
   return useMemo(() => {
     if (!trade || !account) {

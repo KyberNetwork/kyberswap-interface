@@ -24,16 +24,19 @@ import {
   removeSerializedPair,
   removeSerializedToken,
   revokePermit,
+  setCrossChainSetting,
   toggleFavoriteToken,
   toggleHolidayMode,
+  toggleKyberAIBanner,
+  toggleKyberAIWidget,
   toggleLiveChart,
   toggleTokenInfo,
-  toggleTopTrendingTokens,
   toggleTradeRoutes,
   updateAcceptedTermVersion,
   updateChainId,
   updateIsUserManuallyDisconnect,
   updateMatchesDarkMode,
+  updateTokenAnalysisSettings,
   updateUserDarkMode,
   updateUserDeadline,
   updateUserDegenMode,
@@ -47,6 +50,12 @@ const AUTO_DISABLE_DEGEN_MODE_MINUTES = 30
 export enum VIEW_MODE {
   GRID = 'grid',
   LIST = 'list',
+}
+
+export type CrossChainSetting = {
+  isSlippageControlPinned: boolean
+  slippageTolerance: number
+  enableExpressExecution: boolean
 }
 
 interface UserState {
@@ -86,8 +95,10 @@ interface UserState {
   }
   showTradeRoutes: boolean
   showTokenInfo: boolean
-  showTopTrendingSoonTokens: boolean
-
+  showKyberAIBanner: boolean
+  kyberAIDisplaySettings: {
+    [k: string]: boolean
+  }
   favoriteTokensByChainId: Partial<
     Record<
       ChainId,
@@ -116,6 +127,9 @@ interface UserState {
   }
 
   isSlippageControlPinned: boolean
+  kyberAIWidget: boolean
+
+  crossChain: CrossChainSetting
 }
 
 function pairKey(token0Address: string, token1Address: string) {
@@ -141,11 +155,18 @@ export const defaultShowLiveCharts: { [chainId in ChainId]: boolean } = {
   [ChainId.OASIS]: true,
   [ChainId.OPTIMISM]: true,
   [ChainId.SOLANA]: true,
+  [ChainId.ZKSYNC]: true,
 
   [ChainId.GÖRLI]: false,
   [ChainId.MUMBAI]: false,
   [ChainId.BSCTESTNET]: false,
   [ChainId.AVAXTESTNET]: false,
+}
+
+export const CROSS_CHAIN_SETTING_DEFAULT = {
+  isSlippageControlPinned: true,
+  slippageTolerance: INITIAL_ALLOWED_SLIPPAGE,
+  enableExpressExecution: false,
 }
 
 const initialState: UserState = {
@@ -162,7 +183,22 @@ const initialState: UserState = {
   showLiveCharts: { ...defaultShowLiveCharts },
   showTradeRoutes: true,
   showTokenInfo: true,
-  showTopTrendingSoonTokens: true,
+  showKyberAIBanner: true,
+  kyberAIDisplaySettings: {
+    numberOfTrades: true,
+    numberOfHolders: true,
+    tradingVolume: true,
+    netflowToWhaleWallets: true,
+    netflowToCEX: true,
+    volumeOfTransfers: true,
+    top10Holders: true,
+    top25Holders: true,
+    liveCharts: true,
+    supportResistanceLevels: true,
+    liveDEXTrades: true,
+    fundingRateOnCEX: true,
+    liquidationsOnCEX: true,
+  },
   favoriteTokensByChainId: {},
   chainId: ChainId.MAINNET,
   isUserManuallyDisconnect: false,
@@ -171,6 +207,8 @@ const initialState: UserState = {
   holidayMode: true,
   permitData: {},
   isSlippageControlPinned: true,
+  kyberAIWidget: true,
+  crossChain: CROSS_CHAIN_SETTING_DEFAULT,
 }
 
 export default createReducer(initialState, builder =>
@@ -273,8 +311,8 @@ export default createReducer(initialState, builder =>
     .addCase(toggleTokenInfo, state => {
       state.showTokenInfo = !state.showTokenInfo
     })
-    .addCase(toggleTopTrendingTokens, state => {
-      state.showTopTrendingSoonTokens = !state.showTopTrendingSoonTokens
+    .addCase(toggleKyberAIBanner, state => {
+      state.showKyberAIBanner = !state.showKyberAIBanner
     })
     .addCase(toggleFavoriteToken, (state, { payload: { chainId, isNative, address } }) => {
       if (!state.favoriteTokensByChainId) {
@@ -311,6 +349,12 @@ export default createReducer(initialState, builder =>
     })
     .addCase(updateAcceptedTermVersion, (state, { payload: acceptedTermVersion }) => {
       state.acceptedTermVersion = acceptedTermVersion
+    })
+    .addCase(updateTokenAnalysisSettings, (state, { payload }) => {
+      if (!state.kyberAIDisplaySettings) {
+        state.kyberAIDisplaySettings = {}
+      }
+      state.kyberAIDisplaySettings[payload] = !state.kyberAIDisplaySettings[payload] ?? false
     })
     .addCase(changeViewMode, (state, { payload: viewType }) => {
       state.viewMode = viewType
@@ -353,5 +397,12 @@ export default createReducer(initialState, builder =>
     })
     .addCase(pinSlippageControl, (state, { payload }) => {
       state.isSlippageControlPinned = payload
+    })
+    .addCase(setCrossChainSetting, (state, { payload }) => {
+      const setting = state.crossChain || CROSS_CHAIN_SETTING_DEFAULT
+      state.crossChain = { ...setting, ...payload }
+    })
+    .addCase(toggleKyberAIWidget, state => {
+      state.kyberAIWidget = !state.kyberAIWidget
     }),
 )

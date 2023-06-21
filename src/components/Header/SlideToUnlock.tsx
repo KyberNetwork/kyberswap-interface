@@ -4,11 +4,8 @@ const shine = keyframes`
   0% {
     background-position: 0;
   }
-  60% {
-    background-position: 40px;
-  }
   100% {
-    background-position: 65px;
+    background-position: 80px;
   }
 `
 
