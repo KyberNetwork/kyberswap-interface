@@ -6,9 +6,9 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { NotificationType } from 'components/Announcement/type'
 import { APP_PATHS } from 'constants/index'
-import { useActiveWeb3React, useWeb3React, useWeb3Solana } from 'hooks'
+import { useActiveWeb3React, useWeb3Solana } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE, NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES } from 'hooks/useMixpanel'
-import { useBlockNumber, useTransactionNotify } from 'state/application/hooks'
+import { useBlockNumber, useKyberSwapConfig, useTransactionNotify } from 'state/application/hooks'
 import { useSetClaimingCampaignRewardId } from 'state/campaigns/hooks'
 import { AppDispatch, AppState } from 'state/index'
 import { revokePermit } from 'state/user/actions'
@@ -42,7 +42,7 @@ function shouldCheck(
 
 export default function Updater(): null {
   const { chainId, isEVM, isSolana, account } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { readProvider } = useKyberSwapConfig(chainId)
   const { connection } = useWeb3Solana()
 
   const lastBlockNumber = useBlockNumber()
@@ -60,7 +60,7 @@ export default function Updater(): null {
   const setClaimingCampaignRewardId = useSetClaimingCampaignRewardId()[1]
 
   useEffect(() => {
-    if (!library || !lastBlockNumber) return
+    if (!readProvider || !lastBlockNumber) return
     const uniqueTransactions = [
       ...new Set(
         Object.values(transactions)
@@ -77,7 +77,7 @@ export default function Updater(): null {
       .forEach(hash => {
         if (isEVM) {
           // Check if tx was replaced
-          library
+          readProvider
             .getTransaction(hash)
             .then(res => {
               const transaction = findTx(transactions, hash)
@@ -86,7 +86,7 @@ export default function Updater(): null {
               // this mean tx was drop
               if (res === null) {
                 if (sentAtBlock && from && to && nonce && data)
-                  findReplacementTx(library, sentAtBlock, {
+                  findReplacementTx(readProvider, sentAtBlock, {
                     from,
                     to,
                     nonce,
@@ -112,7 +112,7 @@ export default function Updater(): null {
               }
             })
             .catch(console.warn)
-          library
+          readProvider
             .getTransactionReceipt(hash)
             .then(receipt => {
               if (receipt) {
@@ -265,7 +265,7 @@ export default function Updater(): null {
       })
 
     // eslint-disable-next-line
-  }, [chainId, library, transactions, lastBlockNumber, dispatch, connection])
+  }, [chainId, readProvider, transactions, lastBlockNumber, dispatch, connection])
 
   return null
 }
