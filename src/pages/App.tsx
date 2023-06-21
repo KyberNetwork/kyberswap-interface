@@ -28,6 +28,7 @@ import { APP_PATHS, BLACKLIST_WALLETS, CHAINS_SUPPORT_CROSS_CHAIN } from 'consta
 import { NETWORKS_INFO_CONFIG } from 'constants/networks'
 import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
+// import { useContract } from 'hooks/useContract'
 import useLogin from 'hooks/useLogin'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
 import useSessionExpiredGlobal from 'hooks/useSessionExpire'
@@ -176,7 +177,7 @@ export default function App() {
   const snowflake = new Image()
   snowflake.src = snow
 
-  // const c = useContract('0x179A3d2e958D185F47D1Db046b796C5242d68981', [
+  // const c = useContract('0xdd463A7a71122D0248f3Fa1eF975202bAEe74B46', [
   //   {
   //     inputs: [
   //       { internalType: 'contract IERC721', name: '_nft', type: 'address' },
@@ -720,9 +721,22 @@ export default function App() {
   //   },
   //   { stateMutability: 'payable', type: 'receive' },
   // ])
-  //
+
   return (
     <ErrorBoundary>
+      {/*
+      <button
+        onClick={() => {
+          c?.addPhase(1, [
+            1687335000,
+            1687355000,
+            [['0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE', '500000000000000000'],["0x48f6D7dAE56623Dde5a0D56B283165cAE1753D70", "10000000000000000"]],
+          ])
+        }}
+      >
+        aaa
+      </button>
+      */}
       <AppHaveUpdate />
       {(BLACKLIST_WALLETS.includes(isAddressString(chainId, account)) ||
         BLACKLIST_WALLETS.includes(account?.toLowerCase() || '')) && (

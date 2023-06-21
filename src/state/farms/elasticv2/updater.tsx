@@ -3,7 +3,7 @@ import { defaultAbiCoder } from '@ethersproject/abi'
 import { getCreate2Address } from '@ethersproject/address'
 import { keccak256 } from '@ethersproject/solidity'
 import { CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
-import { FeeAmount, Pool, Position } from '@kyberswap/ks-sdk-elastic'
+import { FeeAmount, Pool, Position, TickMath } from '@kyberswap/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import { useEffect } from 'react'
@@ -233,10 +233,17 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
               // qty0 = (sqrt(upper) - sqrt(lower)) / (sqrt(upper) * sqrt(lower))
               // qty1 = (sqrt(upper) - sqrt(lower)
               // => (farm.liquidity * qty0) equivalent to amount0 of position
+
               const position = new Position({
                 pool: p,
-                tickLower: +r.tickLower - (+r.tickLower % p.tickSpacing),
-                tickUpper: +r.tickUpper - (+r.tickUpper % p.tickSpacing),
+                tickLower:
+                  +r.tickLower % p.tickSpacing === 0
+                    ? +r.tickLower
+                    : Math.max(TickMath.MIN_TICK, Math.floor(+r.tickLower / p.tickSpacing) * p.tickSpacing),
+                tickUpper:
+                  +r.tickUpper % p.tickSpacing === 0
+                    ? +r.tickUpper
+                    : Math.min(TickMath.MAX_TICK, Math.ceil(+r.tickUpper / p.tickSpacing) * p.tickSpacing),
                 liquidity: farm.liquidity,
               })
 

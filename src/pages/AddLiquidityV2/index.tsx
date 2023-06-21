@@ -1,13 +1,20 @@
 import { TransactionResponse } from '@ethersproject/providers'
 import { ONE } from '@kyberswap/ks-sdk-classic'
 import { Currency, CurrencyAmount, WETH } from '@kyberswap/ks-sdk-core'
-import { FeeAmount, NonfungiblePositionManager, Position, TickMath, tickToPrice } from '@kyberswap/ks-sdk-elastic'
+import {
+  FeeAmount,
+  NonfungiblePositionManager,
+  Position,
+  TICK_SPACINGS,
+  TickMath,
+  tickToPrice,
+} from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle, Repeat } from 'react-feather'
-import { Navigate, useNavigate, useParams } from 'react-router-dom'
+import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -16,11 +23,9 @@ import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { OutlineCard, SubTextCard, WarningCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
-import ElasticDisclaimerModal from 'components/ElasticDisclaimerModal'
 import FeeSelector from 'components/FeeSelector'
 import HoverInlineText from 'components/HoverInlineText'
 import { Swap as SwapIcon } from 'components/Icons'
-import InfoHelper from 'components/InfoHelper'
 import LiquidityChartRangeInput from 'components/LiquidityChartRangeInput'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
 import ChartPositions from 'components/ProAmm/ChartPositions'
@@ -36,7 +41,7 @@ import Rating from 'components/Rating'
 import Row, { RowBetween, RowFixed } from 'components/Row'
 import ShareModal from 'components/ShareModal'
 import { SLIPPAGE_EXPLANATION_URL } from 'components/SlippageWarningNote'
-import Tooltip from 'components/Tooltip'
+import Tooltip, { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
 import { Dots } from 'components/swapv2/styleds'
@@ -55,6 +60,7 @@ import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 import useProAmmPreviousTicks, { useProAmmMultiplePreviousTicks } from 'hooks/useProAmmPreviousTicks'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
+import { convertTickToPrice } from 'pages/Farm/ElasticFarmv2/utils'
 import { ApplicationModal } from 'state/application/actions'
 import { useOpenModal, useWalletModalToggle } from 'state/application/hooks'
 import { FarmUpdater } from 'state/farms/elastic/hooks'
@@ -96,6 +102,7 @@ import {
   FlexLeft,
   PageWrapper,
   RangeBtn,
+  RangeTab,
   RightContainer,
   StackedContainer,
   StackedItem,
@@ -214,12 +221,22 @@ export default function AddLiquidity() {
 
   const activeRanges = farmV2?.ranges.filter(r => !r.isRemoved) || []
 
-  const isFarmAvailable = !!farmV2
+  const isFarmV2Available = !!farmV2
+
+  const [showFarmRangeSelect, setShowFarmRangeSelect] = useState(() => isFarmV2Available)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const activeRangeIndex = Number(searchParams.get('farmRange') || '0')
+
+  useEffect(() => {
+    if (isFarmV2Available) setShowFarmRangeSelect(true)
+    else setShowFarmRangeSelect(false)
+  }, [isFarmV2Available])
+
   const canJoinFarm =
-    !!farmV2 &&
+    isFarmV2Available &&
     positions.some(pos => activeRanges.some(r => pos && pos.tickLower <= r.tickLower && pos.tickUpper >= r.tickUpper))
 
-  const farmPosWarning = positions.every(Boolean) && isFarmAvailable && !canJoinFarm
+  const farmPosWarning = positions.every(Boolean) && isFarmV2Available && !canJoinFarm
 
   // TODO(viet-nv): remove
   console.log('Xin chào cô Đào Huyền bí: ', tickLower, tickUpper)
@@ -898,6 +915,9 @@ export default function AddLiquidity() {
   const disableAmountSelect = disableRangeSelect || tickLower === undefined || tickUpper === undefined || invalidRange
   const [shownTooltip, setShownTooltip] = useState<RANGE | null>(null)
   const pairFactor = usePairFactor([tokenA, tokenB])
+
+  const isReverseWithFarm = baseCurrency?.wrapped.address !== farmV2?.token0.wrapped.address
+
   const chart = (
     <ChartWrapper ref={chartRef}>
       {hasTab && (
@@ -927,41 +947,100 @@ export default function AddLiquidity() {
         {hasTab && showChart ? null : (
           <>
             <DynamicSection gap="md" disabled={disableRangeSelect}>
-              <Text fontWeight="500" style={{ display: 'flex' }} fontSize={12}>
-                <Trans>Select Range</Trans>
-                <InfoHelper
-                  size={14}
+              <Flex sx={{ gap: '6px' }} alignItems="center" lineHeight={1.5}>
+                <MouseoverTooltip
                   text={t`Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees`}
-                />
-              </Text>
-              {(() => {
-                const gap = '16px'
-                const buttonColumn = upToMedium ? 2 : 4
-                const buttonWidth = `calc((100% - ${gap} * (${buttonColumn} - 1)) / ${buttonColumn})`
-                return (
-                  <Row gap={gap} flexWrap="wrap">
-                    {RANGE_LIST.map(range => (
-                      <Flex key={rangeData[range].title} width={buttonWidth}>
-                        <Tooltip
-                          text={rangeData[range].tooltip[pairFactor]}
-                          containerStyle={{ width: '100%' }}
-                          show={shownTooltip === range}
-                          placement="bottom"
-                        >
-                          <RangeBtn
-                            onClick={() => setRange(range)}
-                            isSelected={range === activeRange}
-                            onMouseEnter={() => setShownTooltip(range)}
-                            onMouseLeave={() => setShownTooltip(null)}
+                >
+                  <RangeTab active={!showFarmRangeSelect} role="button" onClick={() => setShowFarmRangeSelect(false)}>
+                    {isFarmV2Available ? <Trans>Custom Ranges</Trans> : <Trans>Select a Range</Trans>}
+                  </RangeTab>
+                </MouseoverTooltip>
+
+                {isFarmV2Available && (
+                  <>
+                    <Text fontWeight="500" fontSize="12px" color={theme.subText}>
+                      |
+                    </Text>
+
+                    <MouseoverTooltip
+                      text={t`Add your liquidity into one of the farming ranges to participate in Elastic Static Farm. Only positions that cover the range of the farm will earn maximum rewards. Learn more here ↗`}
+                    >
+                      <RangeTab active={showFarmRangeSelect} role="button" onClick={() => setShowFarmRangeSelect(true)}>
+                        <Trans>Farming Ranges</Trans>
+                      </RangeTab>
+                    </MouseoverTooltip>
+                  </>
+                )}
+              </Flex>
+              {showFarmRangeSelect && !!farmV2 && (
+                <Flex sx={{ gap: '8px' }} flexWrap="wrap">
+                  {farmV2.ranges.map(range => {
+                    if (range.isRemoved) return null
+                    return (
+                      <RangeBtn
+                        style={{ width: 'fit-content' }}
+                        key={range.index}
+                        onClick={() => {
+                          searchParams.set('farmRange', range.index.toString())
+                          setSearchParams(searchParams)
+                          onFarmRangeSelected(range.tickLower, range.tickUpper)
+                        }}
+                        isSelected={activeRangeIndex === range.index}
+                      >
+                        <Flex alignItems="center" sx={{ gap: '2px' }}>
+                          {convertTickToPrice(
+                            isReverseWithFarm ? farmV2.token1 : farmV2.token0,
+                            isReverseWithFarm ? farmV2.token0 : farmV2.token1,
+                            isReverseWithFarm ? range.tickUpper : range.tickLower,
+                            farmV2.pool.fee,
+                          )}
+                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" display="block">
+                            <path
+                              d="M11.3405 8.66669L11.3405 9.86002C11.3405 10.16 11.7005 10.3067 11.9071 10.0934L13.7605 8.23335C13.8871 8.10002 13.8871 7.89335 13.7605 7.76002L11.9071 5.90669C11.7005 5.69335 11.3405 5.84002 11.3405 6.14002L11.3405 7.33335L4.66047 7.33335L4.66047 6.14002C4.66047 5.84002 4.30047 5.69335 4.0938 5.90669L2.24047 7.76669C2.1138 7.90002 2.1138 8.10669 2.24047 8.24002L4.0938 10.1C4.30047 10.3134 4.66047 10.16 4.66047 9.86669L4.66047 8.66669L11.3405 8.66669Z"
+                              fill="currentcolor"
+                            />
+                          </svg>
+                          {convertTickToPrice(
+                            isReverseWithFarm ? farmV2.token1 : farmV2.token0,
+                            isReverseWithFarm ? farmV2.token0 : farmV2.token1,
+                            isReverseWithFarm ? range.tickLower : range.tickUpper,
+                            farmV2.pool.fee,
+                          )}
+                        </Flex>
+                      </RangeBtn>
+                    )
+                  })}
+                </Flex>
+              )}
+              {!showFarmRangeSelect &&
+                (() => {
+                  const gap = '16px'
+                  const buttonColumn = upToMedium ? 2 : 4
+                  const buttonWidth = `calc((100% - ${gap} * (${buttonColumn} - 1)) / ${buttonColumn})`
+                  return (
+                    <Row gap={gap} flexWrap="wrap">
+                      {RANGE_LIST.map(range => (
+                        <Flex key={rangeData[range].title} width={buttonWidth}>
+                          <Tooltip
+                            text={rangeData[range].tooltip[pairFactor]}
+                            containerStyle={{ width: '100%' }}
+                            show={shownTooltip === range}
+                            placement="bottom"
                           >
-                            {rangeData[range].title}
-                          </RangeBtn>
-                        </Tooltip>
-                      </Flex>
-                    ))}
-                  </Row>
-                )
-              })()}
+                            <RangeBtn
+                              onClick={() => setRange(range)}
+                              isSelected={range === activeRange}
+                              onMouseEnter={() => setShownTooltip(range)}
+                              onMouseLeave={() => setShownTooltip(null)}
+                            >
+                              {rangeData[range].title}
+                            </RangeBtn>
+                          </Tooltip>
+                        </Flex>
+                      ))}
+                    </Row>
+                  )
+                })()}
 
               <Box
                 sx={{
@@ -1179,24 +1258,35 @@ export default function AddLiquidity() {
 
   const onFarmRangeSelected = useCallback(
     (tickLower: number, tickUpper: number) => {
+      const tickSpacing = TICK_SPACINGS[feeAmount]
+      const usableTickLower =
+        tickLower % tickSpacing === 0
+          ? tickLower
+          : Math.max(TickMath.MIN_TICK, Math.floor(tickLower / tickSpacing) * tickSpacing)
+
+      const usableTickUpper =
+        tickUpper % tickSpacing === 0
+          ? tickUpper
+          : Math.min(TickMath.MAX_TICK, Math.ceil(tickUpper / tickSpacing) * tickSpacing)
+
       if (baseCurrency && quoteCurrency) {
-        onLeftRangeInput(
-          tickToPrice(
-            baseCurrency.wrapped,
-            quoteCurrency.wrapped,
-            tickLower < TickMath.MIN_TICK ? TickMath.MIN_TICK : tickLower,
-          ).toSignificant(18),
-        )
-        onRightRangeInput(
-          tickToPrice(
-            baseCurrency.wrapped,
-            quoteCurrency.wrapped,
-            tickUpper > TickMath.MAX_TICK ? TickMath.MAX_TICK : tickUpper,
-          ).toSignificant(18),
-        )
+        const leftPrice = tickToPrice(
+          baseCurrency.wrapped,
+          quoteCurrency.wrapped,
+          isReverseWithFarm ? usableTickUpper : usableTickLower,
+        ).toSignificant(18)
+
+        const rightPrice = tickToPrice(
+          baseCurrency.wrapped,
+          quoteCurrency.wrapped,
+          isReverseWithFarm ? usableTickLower : usableTickUpper,
+        ).toSignificant(18)
+
+        onLeftRangeInput(leftPrice)
+        onRightRangeInput(rightPrice)
       }
     },
-    [baseCurrency, quoteCurrency, onLeftRangeInput, onRightRangeInput],
+    [baseCurrency, quoteCurrency, onLeftRangeInput, onRightRangeInput, feeAmount, isReverseWithFarm],
   )
 
   if (!isEVM) return <Navigate to="/" />
@@ -1432,7 +1522,6 @@ export default function AddLiquidity() {
                         <Trans>Pool Stats</Trans>
                       </Text>
                       <ProAmmPoolStat
-                        onFarmRangeSelected={onFarmRangeSelected}
                         pool={poolStatRef.current}
                         onShared={openShareModal}
                         userPositions={userPositions}
@@ -1468,7 +1557,6 @@ export default function AddLiquidity() {
           </Row>
         </Container>
       </PageWrapper>
-      <ElasticDisclaimerModal isOpen={false} />
       <FarmUpdater interval={false} />
       <ElasticFarmV2Updater interval={false} />
     </>

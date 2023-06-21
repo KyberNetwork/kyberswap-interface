@@ -1,7 +1,7 @@
 import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
-import { useEffect, useMemo, useState } from 'react'
-import { BarChart2, MoreHorizontal, Share2 } from 'react-feather'
+import { Trans } from '@lingui/macro'
+import { useMemo } from 'react'
+import { BarChart2, Share2 } from 'react-feather'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -12,11 +12,8 @@ import bgimg from 'assets/images/card-background.png'
 import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
-import { FarmTag } from 'components/FarmTag'
 import CircleInfoIcon from 'components/LiveChart/CircleInfoIcon'
 import { Circle } from 'components/Rating'
-import { RowBetween } from 'components/Row'
-import Tabs from 'components/Tabs'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { APRTooltipContent } from 'components/YieldPools/FarmingPoolAPRCell'
@@ -26,13 +23,11 @@ import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import usePoolTransactionsStat from 'hooks/usePoolTransactionsStat'
 import useTheme from 'hooks/useTheme'
-import { convertTickToPrice } from 'pages/Farm/ElasticFarmv2/utils'
-import { useElasticFarms } from 'state/farms/elastic/hooks'
 import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { ElasticPoolDetail } from 'types/pool'
-import { isAddressString } from 'utils'
+import { isAddressString, shortenAddress } from 'utils'
 import { formatDollarAmount } from 'utils/numbers'
 
 import { POOL_TRANSACTION_TYPE } from './type'
@@ -53,17 +48,11 @@ interface ListItemProps {
   onShared: (id: string) => void
   userPositions: { [key: string]: number }
   onClickPoolAnalytics?: () => void
-  onFarmRangeSelected: (tickLower: number, tickUpper: number) => void
 }
 
 const getPrommAnalyticLink = (chainId: ChainId, poolAddress: string) => {
   return `${PROMM_ANALYTICS_URL[chainId]}/pool/${poolAddress.toLowerCase()}`
 }
-
-const StyledTabs = styled(Tabs)`
-  border: 1px solid ${({ theme }) => theme.border};
-  border-radius: 12px;
-`
 
 const Wrapper = styled.div`
   padding: 16px;
@@ -82,18 +71,11 @@ const Wrapper = styled.div`
   font-weight: 500;
 `
 
-export default function ProAmmPoolStat({
-  pool,
-  onShared,
-  userPositions,
-  onClickPoolAnalytics,
-  onFarmRangeSelected,
-}: ListItemProps) {
+export default function ProAmmPoolStat({ pool, onShared, userPositions, onClickPoolAnalytics }: ListItemProps) {
   const { chainId } = useActiveWeb3React()
   const theme = useTheme()
 
   const allTokens = useAllTokens()
-  const { farms } = useElasticFarms()
   const { farms: farmsV2 } = useElasticFarmsV2()
   const activeFarmV2s = useMemo(
     () => farmsV2?.filter(farm => farm.endTime > Date.now() / 1000 && !farm.isSettled),
@@ -120,24 +102,6 @@ export default function ProAmmPoolStat({
 
   const myLiquidity = userPositions[pool.address]
 
-  const isFarmingPool: boolean = useMemo(() => {
-    let fairlaunchAddress = ''
-    let pid = -1
-
-    farms?.forEach(farm => {
-      const p = farm.pools
-        .filter(item => item.endTime > Date.now() / 1000)
-        .find(item => item.poolAddress.toLowerCase() === pool.address.toLowerCase())
-
-      if (p) {
-        fairlaunchAddress = farm.id
-        pid = Number(p.pid)
-      }
-    })
-
-    return !!fairlaunchAddress && pid !== -1
-  }, [farms, pool.address])
-
   const farmV2 = useMemo(
     () => activeFarmV2s?.find(item => item.poolAddress.toLowerCase() === pool.address.toLowerCase()),
     [activeFarmV2s, pool.address],
@@ -149,17 +113,10 @@ export default function ProAmmPoolStat({
 
   const isDarkMode = useIsDarkMode()
   const [searchParams] = useSearchParams()
-  const [activeRangeIndex, setActiveRangeIndex] = useState(Number(searchParams.get('farmRange') || '0'))
+
+  const activeRangeIndex = Number(searchParams.get('farmRange') || '0')
 
   const range = farmV2?.ranges.find(item => item.index === activeRangeIndex)
-  useEffect(() => {
-    if (range) {
-      onFarmRangeSelected(range.tickLower, range.tickUpper)
-    }
-    // Only run once
-    // eslint-disable-next-line
-  }, [])
-
   const farmAPR = isFarmV2 ? range?.apr : pool.farmAPR
 
   const APR = (
@@ -184,7 +141,14 @@ export default function ProAmmPoolStat({
         <Text fontSize="28px" fontWeight="500" color={theme.apr}>
           {((farmAPR || 0) + pool.apr).toFixed(2)}%
         </Text>
-        {isFarmingPool && <FarmTag address={pool.address} />}
+        <StyledLink href={getPrommAnalyticLink(chainId, pool.address)} onClick={onClickPoolAnalytics}>
+          <Flex alignItems="flex-end">
+            <BarChart2 size="16px" color={theme.subText} />
+            <Text fontSize="12px" fontWeight="500" marginLeft="4px" color={theme.subText}>
+              Pool Analytics ↗
+            </Text>
+          </Flex>
+        </StyledLink>
       </Flex>
     </div>
   )
@@ -200,21 +164,15 @@ export default function ProAmmPoolStat({
         </Text>
       </Flex>
 
-      <Flex
-        justifyContent="space-between"
-        fontSize="16px"
-        fontWeight="500"
-        marginTop="0.25rem"
-        marginBottom={isFarmV2 ? '0' : '1rem'}
-      >
+      <Flex justifyContent="space-between" fontSize="16px" fontWeight="500" marginTop="0.25rem">
         <Text>{formatDollarAmount(pool.volumeUSDLast24h)}</Text>
         <Text>{formatDollarAmount(pool.volumeUSDLast24h * (pool.feeTier / ELASTIC_BASE_FEE_UNIT))}</Text>
       </Flex>
     </div>
   )
 
-  const header = (
-    <Flex alignItems="center" justifyContent="space-between">
+  return (
+    <Wrapper key={pool.address}>
       <Link
         to={`${APP_PATHS.ELASTIC_CREATE_POOL}/${token0Slug}/${token1Slug}/${pool.feeTier}`}
         style={{
@@ -235,155 +193,54 @@ export default function ProAmmPoolStat({
           </FeeTag>
         </Flex>
       </Link>
-      <Flex alignItems="center" sx={{ gap: '6px' }} color={theme.subText}>
-        <CopyHelper toCopy={pool.address} />
+      <Flex
+        marginTop="-6px"
+        marginLeft="-4px"
+        alignItems="center"
+        sx={{ gap: '6px' }}
+        fontSize="12px"
+        color={theme.subText}
+        width="max-content"
+        fontWeight="500"
+      >
+        <Flex alignItems="center" sx={{ gap: '4px' }}>
+          <CopyHelper toCopy={pool.address} />
+          <Text>{shortenAddress(chainId, pool.address)}</Text>
+        </Flex>
 
-        <MouseoverTooltip
-          width="fit-content"
-          placement="bottom"
-          text={
-            <div>
-              <Flex
-                sx={{ gap: '4px', cursor: 'pointer' }}
-                role="button"
-                alignItems="center"
-                marginBottom="0.5rem"
-                color={theme.subText}
-                onClick={() => {
-                  onShared(pool.address)
-                }}
-              >
-                <Share2 size="14px" color={theme.subText} />
-                <Trans>Share</Trans>
-              </Flex>
-
-              <StyledLink href={getPrommAnalyticLink(chainId, pool.address)} onClick={onClickPoolAnalytics}>
-                <Flex alignItems="center">
-                  <BarChart2 size="16px" color={theme.subText} />
-                  <Text fontSize="12px" fontWeight="500" marginLeft="4px" color={theme.subText}>
-                    Pool Analytics ↗
-                  </Text>
-                </Flex>
-              </StyledLink>
-            </div>
-          }
+        <Flex
+          marginLeft="8px"
+          onClick={() => {
+            onShared(pool.address)
+          }}
+          sx={{
+            cursor: 'pointer',
+            gap: '4px',
+          }}
+          role="button"
+          color={theme.subText}
         >
-          <MoreHorizontal size={16} />
-        </MouseoverTooltip>
+          <Share2 size="14px" color={theme.subText} />
+          <Trans>Share</Trans>
+        </Flex>
       </Flex>
-    </Flex>
-  )
 
-  return (
-    <Wrapper key={pool.address}>
-      {header}
-
-      {isFarmV2 ? (
-        <>
-          <div>
-            <Flex justifyContent="space-between" color={theme.subText} fontSize="12px" fontWeight="500">
-              <Text>Staked TVL</Text>
-              <Text>My Deposit</Text>
-            </Flex>
-
-            <Flex justifyContent="space-between" fontSize="16px" fontWeight="500" marginTop="0.25rem">
-              <Text>{farmV2?.tvl ? formatDollarAmount(farmV2.tvl) : '--'}</Text>
-              <Text>{myLiquidity ? formatDollarAmount(Number(myLiquidity)) : '-'}</Text>
-            </Flex>
-          </div>
-
-          <StyledTabs
-            activeKey={activeRangeIndex}
-            onChange={key => {
-              setActiveRangeIndex(+key)
-              const r = farmV2?.ranges.find(item => item.index === +key)
-              if (r) onFarmRangeSelected(r.tickLower, r.tickUpper)
-            }}
-            items={farmV2.ranges.map(item => ({
-              key: item.index,
-              label: (
-                <Flex alignItems="center" sx={{ gap: '2px' }}>
-                  {convertTickToPrice(farmV2.token0, farmV2.token1, item.tickLower, farmV2.pool.fee)}
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" display="block">
-                    <path
-                      d="M11.3405 8.66669L11.3405 9.86002C11.3405 10.16 11.7005 10.3067 11.9071 10.0934L13.7605 8.23335C13.8871 8.10002 13.8871 7.89335 13.7605 7.76002L11.9071 5.90669C11.7005 5.69335 11.3405 5.84002 11.3405 6.14002L11.3405 7.33335L4.66047 7.33335L4.66047 6.14002C4.66047 5.84002 4.30047 5.69335 4.0938 5.90669L2.24047 7.76669C2.1138 7.90002 2.1138 8.10669 2.24047 8.24002L4.0938 10.1C4.30047 10.3134 4.66047 10.16 4.66047 9.86669L4.66047 8.66669L11.3405 8.66669Z"
-                      fill="currentcolor"
-                    />
-                  </svg>
-
-                  {convertTickToPrice(farmV2.token0, farmV2.token1, item.tickUpper, farmV2.pool.fee)}
-                </Flex>
-              ),
-              children: (
-                <Flex padding="12px" flexDirection="column">
-                  <RowBetween>
-                    <MouseoverTooltip text={t`Active Range: Current active farming range`} placement="top">
-                      <Text
-                        fontSize="12px"
-                        color={theme.subText}
-                        style={{ borderBottom: `1px dotted ${theme.subText}` }}
-                      >
-                        APR
-                      </Text>
-                    </MouseoverTooltip>
-
-                    <MouseoverTooltip
-                      text={
-                        range?.isRemoved ? (
-                          <Trans>
-                            This indicates that range is idle. Staked positions in this range is still earning small
-                            amount of rewards.
-                          </Trans>
-                        ) : (
-                          ''
-                        )
-                      }
-                    >
-                      <Text
-                        fontSize="12px"
-                        color={range?.isRemoved ? theme.warning : theme.primary}
-                        alignSelf="flex-end"
-                        sx={{
-                          borderBottom: range?.isRemoved ? `1px dotted ${theme.warning}` : undefined,
-                        }}
-                      >
-                        {range?.isRemoved && <Trans>Idle Range</Trans>}
-                      </Text>
-                    </MouseoverTooltip>
-                  </RowBetween>
-
-                  <Text fontSize="28px" marginTop="2px" color={theme.apr}>
-                    {(pool.apr + (range?.apr || 0)).toFixed(2)}%
-                  </Text>
-                </Flex>
-              ),
-            }))}
-          />
-        </>
-      ) : (
-        <>
-          {APR}
-          {volumeAndFee}
-        </>
-      )}
-
-      {isFarmV2 ? (
-        volumeAndFee
-      ) : (
-        <div>
-          <Flex justifyContent="space-between" color={theme.subText} fontSize="12px" fontWeight="500">
-            <Text>TVL</Text>
-            <Text>My Liquidity</Text>
-          </Flex>
-
-          <Flex justifyContent="space-between" fontSize="16px" fontWeight="500" marginTop="0.25rem">
-            <Text>{formatDollarAmount(pool.tvlUSD)}</Text>
-            <Text>{myLiquidity ? formatDollarAmount(Number(myLiquidity)) : '-'}</Text>
-          </Flex>
-        </div>
-      )}
+      {APR}
+      {volumeAndFee}
 
       <Divider />
+
+      <div>
+        <Flex justifyContent="space-between" color={theme.subText} fontSize="12px" fontWeight="500">
+          <Text>TVL</Text>
+          <Text>My Liquidity</Text>
+        </Flex>
+
+        <Flex justifyContent="space-between" fontSize="16px" fontWeight="500" marginTop="0.25rem">
+          <Text>{formatDollarAmount(pool.tvlUSD)}</Text>
+          <Text>{myLiquidity ? formatDollarAmount(Number(myLiquidity)) : '-'}</Text>
+        </Flex>
+      </div>
 
       {poolTransactionsStat !== undefined && (
         <Flex sx={{ gap: '16px' }} flexDirection="column">

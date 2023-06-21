@@ -200,3 +200,12 @@ export const Spin = ({ spinning, countdown }: { spinning: boolean; countdown?: n
     </WrappedSvg>
   )
 }
+
+export const RangeTab = styled.div<{ active: boolean }>`
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1.5;
+  border-bottom: 1px dotted ${({ theme, active }) => (!active ? theme.border : theme.primary)};
+  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
+  cursor: pointer;
+`
