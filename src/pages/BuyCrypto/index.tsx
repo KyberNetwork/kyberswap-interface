@@ -628,7 +628,7 @@ function BuyCrypto() {
                 <Text color={theme.subText} lineHeight={1.5} marginTop={upToMedium ? '40px' : '48px'}>
                   <Trans>
                     Now that you have purchased your crypto, you can trade from over 20,000+ tokens on KyberSwap! We
-                    give you the best trading rates in the market!
+                    give you excellent rates!
                   </Trans>
                 </Text>
 
