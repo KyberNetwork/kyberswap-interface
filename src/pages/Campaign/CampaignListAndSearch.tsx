@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
@@ -45,13 +45,15 @@ const CampaignList = styled.div`
     flex: 1;
     overflow-x: hidden;
   `}
-  &::-webkit-scrollbar {
-    display: block;
-    width: 4px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: ${({ theme }) => theme.disableText};
+  .scrollbar {
+    &::-webkit-scrollbar {
+      display: block;
+      width: 4px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: ${({ theme }) => theme.disableText};
+    }
+    overflow-x: hidden !important;
   }
 `
 
@@ -76,6 +78,12 @@ const CampaignListAndSearch = ({
   useEffect(() => {
     onSearchCampaign(debounceSearch)
   }, [debounceSearch, onSearchCampaign])
+
+  const onRefChange = useCallback((node: HTMLDivElement) => {
+    if (!node?.classList.contains('scrollbar')) {
+      node?.classList.add('scrollbar')
+    }
+  }, [])
 
   const isItemLoaded = (index: number) => !hasMoreCampaign || index < campaigns.length
   const itemCount = hasMoreCampaign ? campaigns.length + 1 : campaigns.length
@@ -105,6 +113,7 @@ const CampaignListAndSearch = ({
             <InfiniteLoader isItemLoaded={isItemLoaded} itemCount={itemCount} loadMoreItems={loadMoreCampaign}>
               {({ onItemsRendered, ref }) => (
                 <FixedSizeList
+                  outerRef={onRefChange}
                   height={height}
                   width={width}
                   itemCount={itemCount}
