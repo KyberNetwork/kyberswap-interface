@@ -20,8 +20,6 @@ type TokenSymbolParams = {
   network: string
 }
 
-const DoubleCurrencyParamRegex = /^(\w+)-to-(\w+)$/
-const SingleCurrencyParamRegex = /^(\w+)$/
 const getUrlMatchParams = (params: Params): TokenSymbolParams => {
   const currencyParam = (params.currency || '').toLowerCase()
   const network: string = convertToSlug(params.network || '')
@@ -29,23 +27,9 @@ const getUrlMatchParams = (params: Params): TokenSymbolParams => {
   let fromCurrency = '',
     toCurrency = ''
 
-  {
-    const matches = currencyParam.match(DoubleCurrencyParamRegex)
-    if (matches) {
-      fromCurrency = matches[1]
-      toCurrency = matches[2]
-      return { fromCurrency, toCurrency, network }
-    }
-  }
-
-  {
-    const matches = currencyParam.match(SingleCurrencyParamRegex)
-    if (matches) {
-      fromCurrency = matches[1]
-      return { fromCurrency, toCurrency, network }
-    }
-  }
-
+  const matches = currencyParam.split('-to-')
+  fromCurrency ||= matches[0]
+  toCurrency ||= matches[1]
   return { fromCurrency, toCurrency, network }
 }
 
