@@ -117,7 +117,7 @@ const CampaignListAndSearch = ({
                   height={height}
                   width={width}
                   itemCount={itemCount}
-                  itemSize={150}
+                  itemSize={180}
                   onItemsRendered={onItemsRendered}
                   ref={ref}
                 >

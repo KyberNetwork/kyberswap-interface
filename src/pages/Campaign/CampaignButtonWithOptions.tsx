@@ -272,8 +272,6 @@ export const StyledPrimaryButton = styled(ButtonPrimary)<{ size: Size }>`
   font-weight: 500;
   color: ${({ theme }) => theme.textReverse};
   border: none;
-  z-index: unset;
-
   ${({ theme }) => theme.mediaWidth.upToSmall`
     ${css`
       flex: 1;
