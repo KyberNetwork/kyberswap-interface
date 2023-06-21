@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react'
 
 import BasePanel from 'pages/MyEarnings/MyEarningsOverTimePanel/BasePanel'
+import { TimePeriod } from 'pages/MyEarnings/MyEarningsOverTimePanel/TimePeriodSelect'
 import { EarningStatsTick } from 'types/myEarnings'
 
 import ZoomOutModal from './ZoomOutModal'
@@ -25,6 +26,7 @@ export type Props = {
 
 const MyEarningsOverTimePanel: React.FC<Props> = props => {
   const [isModalOpen, setModalOpen] = useState(false)
+  const [period, setPeriod] = useState<TimePeriod>('7D')
 
   const { isLoading, ticks } = props
 
@@ -34,8 +36,14 @@ const MyEarningsOverTimePanel: React.FC<Props> = props => {
 
   return (
     <>
-      <BasePanel {...props} toggleModal={toggleModal} />
-      <ZoomOutModal isOpen={isModalOpen} toggleOpen={toggleModal} isLoading={isLoading} ticks={ticks} />
+      <BasePanel {...props} toggleModal={toggleModal} period={period} setPeriod={setPeriod} />
+      <ZoomOutModal
+        isOpen={isModalOpen}
+        toggleOpen={toggleModal}
+        isLoading={isLoading}
+        ticks={ticks}
+        initialPeriod={period}
+      />
     </>
   )
 }

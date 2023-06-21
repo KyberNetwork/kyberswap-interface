@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import React, { useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { Maximize, Minimize2 } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -48,6 +48,9 @@ const numberOfTicksByTimePeriod: Record<TimePeriod, number> = {
 type Props = CommonProps & {
   isZoomed?: boolean
   toggleModal: () => void
+  initialPeriod?: TimePeriod
+  period: TimePeriod
+  setPeriod: (p: TimePeriod) => void
 }
 
 const BasePanel: React.FC<Props> = ({
@@ -57,9 +60,10 @@ const BasePanel: React.FC<Props> = ({
   ticks,
   isContainerSmall,
   toggleModal,
+  period,
+  setPeriod,
 }) => {
   const theme = useTheme()
-  const [period, setPeriod] = useState<TimePeriod>('7D')
 
   const displayTicks = useMemo(() => {
     if (!ticks) {
