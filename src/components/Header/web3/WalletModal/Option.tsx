@@ -168,6 +168,14 @@ const Option = ({
     return <StyledLink href={wallet.href}>{content}</StyledLink>
   }
 
+  if (walletKey === 'WALLET_CONNECT') {
+    return (
+      <MouseoverTooltip placement="bottom" text={<Trans>Under development and unsupported by most wallets</Trans>}>
+        {content}
+      </MouseoverTooltip>
+    )
+  }
+
   if (walletKey === 'BRAVE') {
     // Brave wallet only can use in Brave browser
     if (!isBraveBrowser) {
