@@ -22,7 +22,6 @@ import 'swiper/swiper.min.css'
 import SolanaWalletContext from 'components/SolanaWalletContext'
 import { ENV_LEVEL, GTM_ID, MIXPANEL_PROJECT_TOKEN, SENTRY_DNS, TAG } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
-import useLogin from 'hooks/useLogin'
 
 // import { updateServiceWorker } from 'state/application/actions'
 import SEO from './components/SEO'
