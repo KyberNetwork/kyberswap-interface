@@ -16,7 +16,7 @@ env:
 
 jobs:
   prepare:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     outputs:
       current_branch: ${{ steps.current_branch.outputs.value }}
       head_sha: ${{ github.event.pull_request.head.sha }}
@@ -63,7 +63,7 @@ jobs:
           echo "::set-output name=image_tag::adpr-$short_sha"
 
   cypress-test:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     needs:
       - prepare
     steps:
