@@ -109,7 +109,7 @@ function ClassicElasticTab() {
     <Flex width="max-content">
       <MouseoverTooltip
         width="fit-content"
-        placement="top"
+        placement="bottom"
         text={
           notSupportedMsg ||
           (!showLegacyExplicit ? (
