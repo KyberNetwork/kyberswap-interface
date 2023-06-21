@@ -315,7 +315,7 @@ function LiveChart({
 
             {/* Stop tradingview from rerender on isShowProChart change */}
             <div style={{ display: isShowProChart && !!poolAddress ? 'block' : 'none', height: '100%' }}>
-              {commonPool && <DextoolsWidget />}
+              {commonPool && <DextoolsWidget currencies={currencies} />}
             </div>
 
             {!isShowProChart && (
