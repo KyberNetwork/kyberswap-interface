@@ -47,6 +47,7 @@ import {
   Fantom,
   FantomLogoFull,
   FarmIcon,
+  LineaFull,
   LowestSlippage,
   MoneyBagOutline,
   Oasis,
@@ -168,7 +169,7 @@ export const KSStatistic = () => {
         <ForTraderInfoRow>
           <ForTraderInfoCell>
             <Text fontWeight="600" fontSize="24px">
-              {MAINNET_NETWORKS.length - 1}+
+              {MAINNET_NETWORKS.length}+
             </Text>
             <Text color={theme.subText} marginTop="4px" fontSize="14px">
               <Trans>Chains</Trans>
@@ -524,6 +525,7 @@ function AboutKyberSwap() {
             <OptimismLogo />
             <Solana />
             <ZkSync />
+            <img src="https://linea.build/apple-touch-icon.png" width="36px" height="36px" alt="Linea" />
           </SupportedChain>
 
           <KyberSwapGeneralIntro />
@@ -1044,6 +1046,7 @@ function AboutKyberSwap() {
               <OptimismLogoFull />
               <SolanaLogoFull />
               <ZkSyncFull />
+              <LineaFull />
             </Powered>
           </Text>
         </Wrapper>

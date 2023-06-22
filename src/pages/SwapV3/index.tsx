@@ -1,4 +1,4 @@
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { ReactNode, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Skeleton from 'react-loading-skeleton'
@@ -32,7 +32,7 @@ import {
   SwapFormWrapper,
   highlight,
 } from 'components/swapv2/styleds'
-import { APP_PATHS } from 'constants/index'
+import { APP_PATHS, TYPE_AND_SWAP_NOT_SUPPORTED_CHAINS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens, useIsLoadedTokenDefault } from 'hooks/Tokens'
 import useParsedQueryString from 'hooks/useParsedQueryString'
@@ -238,7 +238,7 @@ export default function Swap() {
           <SwapFormWrapper isShowTutorial={isShowTutorial}>
             <Header activeTab={activeTab} setActiveTab={setActiveTab} />
 
-            {(isLimitPage || isSwapPage) && chainId !== ChainId.ZKSYNC && (
+            {(isLimitPage || isSwapPage) && !TYPE_AND_SWAP_NOT_SUPPORTED_CHAINS.includes(chainId) && (
               <PairSuggestion
                 ref={refSuggestPair}
                 onSelectSuggestedPair={onSelectSuggestedPair}
