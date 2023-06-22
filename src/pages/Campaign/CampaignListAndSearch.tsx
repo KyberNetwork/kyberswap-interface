@@ -14,7 +14,7 @@ import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 import { AppState } from 'state'
-import { CampaignData } from 'state/campaigns/actions'
+import { CampaignData, CampaignStatus } from 'state/campaigns/actions'
 
 import CampaignItem, { getCampaignInfo } from './CampaignItem'
 
@@ -64,8 +64,6 @@ type CampaignListAndSearchProps = {
   onSearchCampaign: (v: string) => void
 }
 
-const ITEM_HEIGHT = 180
-
 const CampaignListAndSearch = ({
   onSelectCampaign,
   loadMoreCampaign,
@@ -104,7 +102,7 @@ const CampaignListAndSearch = ({
   function getRowHeight(index: number) {
     const { showProgressBarNumberTrade, showProgressBarVolume } = getCampaignInfo(campaigns[index], account)
     const progressbarNum = +showProgressBarNumberTrade + +showProgressBarVolume
-    return ITEM_HEIGHT + progressbarNum * 24
+    return campaigns[index]?.status === CampaignStatus.ENDED ? 140 : 160 + progressbarNum * 24
   }
 
   const { lastTimeRefreshData } = useSelector((state: AppState) => state.campaigns)
