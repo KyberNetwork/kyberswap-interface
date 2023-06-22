@@ -86,7 +86,14 @@ export const EVM_MAINNET_NETWORKS = MAINNET_NETWORKS.filter(
   chainId => getChainType(chainId) === ChainType.EVM,
 ) as Exclude<typeof MAINNET_NETWORKS[number], ChainId.SOLANA>[]
 
-export const WALLET_CONNECT_REQUIRED_CHAIN_IDS = [ChainId.MAINNET, ChainId.MATIC, ChainId.OPTIMISM, ChainId.ARBITRUM]
+export const WALLET_CONNECT_REQUIRED_CHAIN_IDS = [
+  ChainId.MAINNET,
+  ChainId.MATIC,
+  ChainId.BSCMAINNET,
+  ChainId.ARBITRUM,
+  ChainId.AVAXMAINNET,
+  ChainId.OPTIMISM,
+]
 export const WALLET_CONNECT_SUPPORTED_CHAIN_IDS = EVM_MAINNET_NETWORKS
 export const WALLET_CONNECT_OPTIONAL_CHAIN_IDS = WALLET_CONNECT_SUPPORTED_CHAIN_IDS.filter(
   chain => !WALLET_CONNECT_REQUIRED_CHAIN_IDS.includes(chain),
