@@ -84,7 +84,13 @@ function SelectNetwork({ disabled }: { disabled?: boolean }): JSX.Element | null
     return `${balanceFixed} ${NativeCurrencies[chainId].symbol}`
   }, [userEthBalance, chainId, networkInfo])
   return (
-    <NetworkCard onClick={() => toggleNetworkModal()} role="button" id={TutorialIds.SELECT_NETWORK} disabled={disabled}>
+    <NetworkCard
+      onClick={() => toggleNetworkModal()}
+      role="button"
+      id={TutorialIds.SELECT_NETWORK}
+      data-testid="select-network"
+      disabled={disabled}
+    >
       <NetworkSwitchContainer>
         <Row>
           <img

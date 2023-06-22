@@ -16,7 +16,7 @@ env:
 
 jobs:
   prepare:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     outputs:
       current_branch: ${{ steps.current_branch.outputs.value }}
       head_sha: ${{ github.event.pull_request.head.sha }}
@@ -63,7 +63,7 @@ jobs:
           echo "::set-output name=image_tag::adpr-$short_sha"
 
   cypress-test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs:
       - prepare
     steps:
@@ -100,7 +100,8 @@ jobs:
         run: yarn cypress install --force  
         
       - name: Run xvfb and fluxbox
-        run: Xvfb :0 -screen 0 1024x768x24 -listen tcp -ac &
+        run: |
+          Xvfb :0 -screen 0 1024x768x24 -listen tcp -ac &
           fluxbox &
         env:
           DISPLAY: :0.0  
@@ -120,4 +121,5 @@ jobs:
             name: e2e-artifacts
             path: |
               cypress/videos
+              cypress/screenshots
         continue-on-error: true    
