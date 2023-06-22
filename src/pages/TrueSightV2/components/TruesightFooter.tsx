@@ -2,7 +2,7 @@ import { Trans } from '@lingui/macro'
 import { Flex, Text } from 'rebass'
 import styled, { keyframes } from 'styled-components'
 
-import { ReactComponent as WalletIcon } from 'assets/svg/wallet_icon.svg'
+import WalletIcon from 'components/Icons/Wallet'
 import Row from 'components/Row'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
