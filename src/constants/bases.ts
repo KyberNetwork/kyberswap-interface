@@ -28,6 +28,7 @@ const WETH_ONLY: ChainTokenList = {
   [ChainId.ZKSYNC]: [WETH[ChainId.ZKSYNC]],
   [ChainId.SOLANA]: [WETH[ChainId.SOLANA]],
   [ChainId.LINEA_TESTNET]: [WETH[ChainId.LINEA_TESTNET]],
+  [ChainId.SOLANA_TESTNET]: [WETH[ChainId.SOLANA_TESTNET]],
 }
 
 // used to construct intermediary pairs for trading

@@ -20,13 +20,16 @@ import {
   oasis,
   optimism,
   solana,
+  solanaTestnet,
   velas,
   zksync,
 } from './networks/index'
 import { EVMNetworkInfo } from './networks/type'
 
+type SOLANA_NETWORK = ChainId.SOLANA | ChainId.SOLANA_TESTNET
+
 type NETWORKS_INFO_CONFIG_TYPE = { [chainId in EVM_NETWORK]: EVMNetworkInfo } & {
-  [chainId in ChainId.SOLANA]: SolanaNetworkInfo
+  [chainId in SOLANA_NETWORK]: SolanaNetworkInfo
 }
 export const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.MAINNET]: ethereum,
@@ -48,6 +51,7 @@ export const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.ZKSYNC]: zksync,
   [ChainId.LINEA_TESTNET]: lineaTestnet,
   [ChainId.SOLANA]: solana,
+  [ChainId.SOLANA_TESTNET]: solanaTestnet,
 } as const
 
 //this Proxy helps fallback undefined ChainId by Ethereum info
@@ -82,8 +86,9 @@ export const MAINNET_NETWORKS = [
 
 export const EVM_NETWORKS = SUPPORTED_NETWORKS.filter(chainId => getChainType(chainId) === ChainType.EVM) as Exclude<
   ChainId,
-  ChainId.SOLANA
+  SOLANA_NETWORK
 >[]
+
 export type EVM_NETWORK = typeof EVM_NETWORKS[number]
 
 export const EVM_MAINNET_NETWORKS = MAINNET_NETWORKS.filter(
