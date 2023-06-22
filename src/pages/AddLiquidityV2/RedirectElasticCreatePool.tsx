@@ -6,10 +6,10 @@ import { useActiveWeb3React } from 'hooks'
 
 import ProAmmAddLiquidity from './index'
 
-export function RedirectDuplicateTokenIds() {
+export default function RedirectElasticCreatePool() {
   const { currencyIdA, currencyIdB } = useParams()
 
-  const { chainId } = useActiveWeb3React()
+  const { chainId, networkInfo } = useActiveWeb3React()
 
   // prevent weth + eth
   const isETHOrWETHA = currencyIdA === 'ETH' || currencyIdA === WETH[chainId].address
@@ -20,7 +20,8 @@ export function RedirectDuplicateTokenIds() {
     currencyIdB &&
     (currencyIdA.toLowerCase() === currencyIdB.toLowerCase() || (isETHOrWETHA && isETHOrWETHB))
   ) {
-    return <Navigate to={`${APP_PATHS.ELASTIC_CREATE_POOL}/${currencyIdA}`} replace />
+    return <Navigate to={`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${currencyIdA}`} replace />
   }
+
   return <ProAmmAddLiquidity />
 }

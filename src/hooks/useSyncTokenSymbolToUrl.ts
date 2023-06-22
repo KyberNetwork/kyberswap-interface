@@ -19,10 +19,17 @@ type TokenSymbolParams = {
   toCurrency: string
   network: string
 }
+
 const getUrlMatchParams = (params: Params): TokenSymbolParams => {
-  const fromCurrency = (params.fromCurrency || '').toLowerCase()
-  const toCurrency = (params.toCurrency || '').toLowerCase()
+  const currencyParam = (params.currency || '').toLowerCase()
   const network: string = convertToSlug(params.network || '')
+
+  let fromCurrency = '',
+    toCurrency = ''
+
+  const matches = currencyParam.split('-to-')
+  fromCurrency ||= matches[0]
+  toCurrency ||= matches[1]
   return { fromCurrency, toCurrency, network }
 }
 
