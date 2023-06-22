@@ -23,7 +23,6 @@ import { getSocialShareUrls } from 'components/ShareModal'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import useShareImage from 'hooks/useShareImage'
 import useTheme from 'hooks/useTheme'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { ButtonText, MEDIA_WIDTHS } from 'theme'
 import { downloadImage } from 'utils'
 import { getProxyTokenLogo } from 'utils/tokenInfo'
@@ -124,8 +123,14 @@ type Props = {
   title: string
   value: number
   poolInfo?: {
-    currency0: WrappedTokenInfo
-    currency1: WrappedTokenInfo
+    token0: {
+      symbol: string
+      logoURI: string
+    }
+    token1: {
+      symbol: string
+      logoURI: string
+    }
     feePercent: string
   }
 }
@@ -229,16 +234,16 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
         <Flex alignItems="center">
           <Logo
             style={{ width: tokenLogoSize, height: tokenLogoSize, borderRadius: '999px', overflow: 'hidden' }}
-            srcs={[getProxyTokenLogo(poolInfo.currency0.logoURI)]}
+            srcs={[getProxyTokenLogo(poolInfo.token0.logoURI)]}
           />
           <Logo
             style={{ width: tokenLogoSize, height: tokenLogoSize, borderRadius: '999px', overflow: 'hidden' }}
-            srcs={[getProxyTokenLogo(poolInfo.currency1.logoURI)]}
+            srcs={[getProxyTokenLogo(poolInfo.token1.logoURI)]}
           />
         </Flex>
-        <Text fontWeight="500" fontSize={isSharePc ? 16 : 12} color={theme.text}>
+        <Text fontWeight="500" fontSize={isSharePc ? 16 : 12} color={theme.white}>
           <Trans>
-            {poolInfo.currency0.symbol} - {poolInfo.currency1.symbol}
+            {poolInfo.token0.symbol} - {poolInfo.token1.symbol}
           </Trans>
         </Text>
         <FeeWrapper mobile={!isSharePc}>Fee {poolInfo.feePercent}</FeeWrapper>
@@ -272,7 +277,7 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
             width={containerWith}
           />
           <InnerContent mobile={!isSharePc}>
-            <Text fontSize={isSharePc ? 26 : 16} fontWeight="500" color={theme.text}>
+            <Text fontSize={isSharePc ? 26 : 16} fontWeight="500" color={theme.white}>
               {title}
             </Text>
 

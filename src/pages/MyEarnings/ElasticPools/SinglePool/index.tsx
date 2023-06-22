@@ -99,6 +99,10 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
   const { pool, poolState } = usePoolv2(chainId, currency0, currency1, feeAmount, poolEarning.id)
   const isExpandable = !!pool && poolState !== PoolState.LOADING
 
+  /* Some tokens have different symbols in our system */
+  const displaySymbolOfToken0 = getTokenSymbolWithHardcode(chainId, poolEarning.token0.id, poolEarning.token0.symbol)
+  const displaySymbolOfToken1 = getTokenSymbolWithHardcode(chainId, poolEarning.token1.id, poolEarning.token1.symbol)
+
   const toggleExpanded = useCallback(() => {
     setExpanded(e => !e)
   }, [])
@@ -122,13 +126,13 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
 
   const poolEarningStr = formatValue(poolEarningToday)
 
-  useEffect(() => {
-    setExpanded(shouldExpandAllPools)
-  }, [shouldExpandAllPools])
-
   const feePercent = (Number(poolEarning.feeTier) * 100) / ELASTIC_BASE_FEE_UNIT + '%'
 
   const analyticUrl = PROMM_ANALYTICS_URL[chainId] + '/pool/' + poolEarning.id
+
+  useEffect(() => {
+    setExpanded(shouldExpandAllPools)
+  }, [shouldExpandAllPools])
 
   const renderStatsRow = () => {
     return (
@@ -159,6 +163,31 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
             </ButtonIcon>
           )
         }}
+      />
+    )
+  }
+
+  const renderSharePoolEarningsButton = () => {
+    return (
+      <SharePoolEarningsButton
+        totalValue={poolEarningToday}
+        token0={
+          currency0?.logoURI && displaySymbolOfToken0
+            ? {
+                logoURI: currency0?.logoURI,
+                symbol: displaySymbolOfToken0,
+              }
+            : undefined
+        }
+        token1={
+          currency1?.logoURI && displaySymbolOfToken1
+            ? {
+                logoURI: currency1?.logoURI,
+                symbol: displaySymbolOfToken1,
+              }
+            : undefined
+        }
+        feePercent={feePercent}
       />
     )
   }
@@ -276,12 +305,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
                   {poolEarningStr}
                 </Text>
 
-                <SharePoolEarningsButton
-                  totalValue={poolEarningToday}
-                  currency0={currency0}
-                  currency1={currency1}
-                  feePercent={feePercent}
-                />
+                {renderSharePoolEarningsButton()}
               </Flex>
             </Flex>
             <PoolEarningsSection poolEarning={poolEarning} chainId={chainId} />
@@ -351,9 +375,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
                 lineHeight: '24px',
               }}
             >
-              {/* Some tokens have different symbols in our system */}
-              {getTokenSymbolWithHardcode(chainId, poolEarning.token0.id, poolEarning.token0.symbol)} -{' '}
-              {getTokenSymbolWithHardcode(chainId, poolEarning.token1.id, poolEarning.token1.symbol)}
+              {displaySymbolOfToken0} - {displaySymbolOfToken1}
             </Text>
           </Flex>
 
@@ -435,12 +457,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
                 {poolEarningStr}
               </Text>
 
-              <SharePoolEarningsButton
-                totalValue={poolEarningToday}
-                currency0={currency0}
-                currency1={currency1}
-                feePercent={feePercent}
-              />
+              {renderSharePoolEarningsButton()}
             </Flex>
           </Flex>
           <PoolEarningsSection poolEarning={poolEarning} chainId={chainId} />

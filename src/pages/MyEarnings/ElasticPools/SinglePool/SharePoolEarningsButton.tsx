@@ -4,15 +4,24 @@ import { Share2 } from 'react-feather'
 import { Flex } from 'rebass'
 
 import ShareModal from 'pages/MyEarnings/ShareModal'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 type Props = {
   totalValue: number
-  currency0: WrappedTokenInfo | undefined
-  currency1: WrappedTokenInfo | undefined
+  token0:
+    | {
+        symbol: string
+        logoURI: string
+      }
+    | undefined
+  token1:
+    | {
+        symbol: string
+        logoURI: string
+      }
+    | undefined
   feePercent: string
 }
-const SharePoolEarningsButton: React.FC<Props> = ({ totalValue, currency0, currency1, feePercent }) => {
+const SharePoolEarningsButton: React.FC<Props> = ({ totalValue, token0, token1, feePercent }) => {
   const [isOpen, setOpen] = useState(false)
 
   return (
@@ -37,10 +46,10 @@ const SharePoolEarningsButton: React.FC<Props> = ({ totalValue, currency0, curre
         isOpen={isOpen}
         setIsOpen={setOpen}
         poolInfo={
-          currency0 && currency1 && feePercent
+          token0 && token1 && feePercent
             ? {
-                currency0,
-                currency1,
+                token0,
+                token1,
                 feePercent,
               }
             : undefined
