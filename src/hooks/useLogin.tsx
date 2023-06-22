@@ -73,8 +73,8 @@ const useLogin = () => {
         if (!walletAddress) {
           throw new Error('Not found address.')
         }
-        if (requestingSession.current?.toLowerCase() !== walletAddress?.toLowerCase()) {
-          requestingSession.current = walletAddress?.toLowerCase()
+        if (requestingSession.current?.toLowerCase?.() !== walletAddress?.toLowerCase?.()) {
+          requestingSession.current = walletAddress?.toLowerCase?.()
           setLoading(true)
           await KyberOauth2.getSession({ method: LoginMethod.ETH, walletAddress })
           await getProfile(walletAddress)
@@ -91,10 +91,10 @@ const useLogin = () => {
   const latestAccount = useRef<any>('')
   useEffect(() => {
     const requestSignIn = (wallet: any) => {
-      if (latestAccount.current?.toLowerCase() === wallet?.toLowerCase()) {
+      if (latestAccount.current?.toLowerCase?.() === wallet?.toLowerCase?.()) {
         return //  not change
       }
-      latestAccount.current = wallet?.toLowerCase()
+      latestAccount.current = wallet?.toLowerCase?.()
       signIn(typeof wallet === 'string' ? wallet : account)
     }
     if (latestAccount.current && !account) {
