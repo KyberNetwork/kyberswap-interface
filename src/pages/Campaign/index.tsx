@@ -262,20 +262,16 @@ export default function CampaignsUpdater() {
     data: campaignData,
     isValidating: isLoadingCampaignData,
     error: loadingCampaignDataError,
-  } = useSWR<CampaignData[]>(
-    getCampaignUrl(),
-    async url => {
-      try {
-        const { data: response } = await axios.get(url)
-        const campaigns: CampaignData[] = response.data
-        setHasMoreCampaign(campaigns.length === MAXIMUM_ITEMS_PER_REQUEST)
-        return formatListCampaign(campaigns)
-      } catch (error) {
-        return []
-      }
-    },
-    { revalidateOnFocus: false },
-  )
+  } = useSWR<CampaignData[]>(getCampaignUrl(), async url => {
+    try {
+      const { data: response } = await axios.get(url)
+      const campaigns: CampaignData[] = response.data
+      setHasMoreCampaign(campaigns.length === MAXIMUM_ITEMS_PER_REQUEST)
+      return formatListCampaign(campaigns)
+    } catch (error) {
+      return []
+    }
+  })
 
   const refreshListCampaign = useCallback(async () => {
     await mutate(getCampaignUrl())
