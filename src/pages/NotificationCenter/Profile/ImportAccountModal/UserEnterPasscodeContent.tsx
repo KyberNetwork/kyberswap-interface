@@ -11,6 +11,7 @@ import { Input } from 'components/Input'
 import useTheme from 'hooks/useTheme'
 import { ButtonExport } from 'pages/NotificationCenter/Profile/buttons'
 import { useNotify } from 'state/application/hooks'
+import { ExternalLink } from 'theme'
 
 import { Label } from '../ExportAccountModal/styled'
 
@@ -72,7 +73,7 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onImportToken, dismissModal
         }}
       >
         You can keep your information synced across all of your devices by importing your profile. Learn more about
-        profiles here
+        profiles <ExternalLink href="#">here</ExternalLink> {/** // todo */}
       </Text>
 
       <Flex

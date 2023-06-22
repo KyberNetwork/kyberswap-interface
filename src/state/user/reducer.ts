@@ -155,11 +155,13 @@ export const defaultShowLiveCharts: { [chainId in ChainId]: boolean } = {
   [ChainId.OASIS]: true,
   [ChainId.OPTIMISM]: true,
   [ChainId.SOLANA]: true,
+  [ChainId.ZKSYNC]: true,
 
   [ChainId.GÖRLI]: false,
   [ChainId.MUMBAI]: false,
   [ChainId.BSCTESTNET]: false,
   [ChainId.AVAXTESTNET]: false,
+  [ChainId.LINEA_TESTNET]: false,
 }
 
 export const CROSS_CHAIN_SETTING_DEFAULT = {

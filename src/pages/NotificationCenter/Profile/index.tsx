@@ -141,8 +141,11 @@ export default function Profile() {
   const refreshProfile = useRefreshProfile()
   const notify = useNotify()
   const uploadFile = useUploadImageToCloud()
+  const [loading, setLoading] = useState(false)
   const saveProfile = async () => {
+    if (loading) return
     try {
+      setLoading(true)
       let avatarURL
       if (file) {
         avatarURL = await uploadFile(file)
@@ -165,13 +168,14 @@ export default function Profile() {
         summary: t`Error occur, please try again`,
       })
     }
+    setLoading(false)
   }
 
   const displayAvatar = previewImage || userInfo?.avatarUrl
   const isVerifiedEmail = userInfo?.email && inputEmail === userInfo?.email
 
   const hasChangeProfile = file || (userInfo?.nickname && !nickname ? false : nickname !== userInfo?.nickname)
-  const disableBtnSave = !hasChangeProfile || hasErrorInput
+  const disableBtnSave = loading || !hasChangeProfile || hasErrorInput
 
   return (
     <Wrapper>
@@ -185,7 +189,7 @@ export default function Profile() {
         <LeftColum>
           <FormGroup>
             <Label>
-              <Trans>User Name</Trans>
+              <Trans>User Name (Optional)</Trans>
             </Label>
             <Input
               color={theme.text}
@@ -199,7 +203,7 @@ export default function Profile() {
 
           <FormGroup>
             <Label>
-              <Trans>Email Address</Trans>
+              <Trans>Email Address (Optional)</Trans>
             </Label>
             <InputEmail
               color={theme.text}
@@ -230,7 +234,7 @@ export default function Profile() {
           <ActionsWrapper>
             <ButtonSave onClick={saveProfile} disabled={disableBtnSave}>
               <Save size={16} style={{ marginRight: '4px' }} />
-              Save
+              {loading ? <Trans>Saving...</Trans> : <Trans>Save</Trans>}
             </ButtonSave>
             {!isSignInGuestDefault ? (
               <ButtonLogout
@@ -240,7 +244,7 @@ export default function Profile() {
                 }}
               >
                 <LogOut size={16} style={{ marginRight: '4px' }} />
-                Log Out
+                Sign Out
               </ButtonLogout>
             ) : (
               <ExportAccountButton />

@@ -31,3 +31,8 @@ export const wallet = {
   checkboxAcceptTerm: '[data-testid=accept-term]',
   statusConnected: '[data-testid=web3-status-connected]',
 }
+
+export const network = {
+  btnSelectNetwork: '[data-testid=select-network]',
+  btnNetwork: '[data-testid=network-button]',
+}

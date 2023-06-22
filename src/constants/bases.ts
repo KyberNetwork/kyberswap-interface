@@ -25,7 +25,9 @@ const WETH_ONLY: ChainTokenList = {
   [ChainId.VELAS]: [WETH[ChainId.VELAS]],
   [ChainId.OASIS]: [WETH[ChainId.OASIS]],
   [ChainId.OPTIMISM]: [WETH[ChainId.OPTIMISM]],
+  [ChainId.ZKSYNC]: [WETH[ChainId.ZKSYNC]],
   [ChainId.SOLANA]: [WETH[ChainId.SOLANA]],
+  [ChainId.LINEA_TESTNET]: [WETH[ChainId.LINEA_TESTNET]],
 }
 
 // used to construct intermediary pairs for trading
@@ -161,7 +163,22 @@ export const SUGGESTED_BASES: ChainTokenList = {
     new Token(ChainId.OPTIMISM, '0x4200000000000000000000000000000000000042', 18, 'OP', 'Optimism'),
     USDT[ChainId.OPTIMISM],
     DAI[ChainId.OPTIMISM],
-    new Token(ChainId.OPTIMISM, '0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb', 18, 'wstETH', 'Lido Wrapped Staked ETH"'),
+    new Token(ChainId.OPTIMISM, '0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb', 18, 'wstETH', 'Lido Wrapped Staked ETH'),
   ],
   [ChainId.SOLANA]: [...WETH_ONLY[ChainId.SOLANA], USDC[ChainId.SOLANA], USDT[ChainId.SOLANA]],
+  [ChainId.ZKSYNC]: [
+    ...WETH_ONLY[ChainId.ZKSYNC],
+    USDC[ChainId.ZKSYNC],
+    USDT[ChainId.ZKSYNC],
+    new Token(ChainId.ZKSYNC, '0xfC7E56298657B002b3e656400E746b7212912757', 6, 'zkUSD', 'zkUSD'),
+    new Token(ChainId.ZKSYNC, '0x8e86e46278518efc1c5ced245cba2c7e3ef11557', 6, 'USD+', 'USD+'),
+    new Token(ChainId.ZKSYNC, '0x503234f203fc7eb888eec8513210612a43cf6115', 18, 'LUSD', 'LUSD'),
+    new Token(ChainId.ZKSYNC, '0xbbeb516fb02a01611cbbe0453fe3c580d7281011', 8, 'wBTC', 'wBTC'),
+  ],
+  [ChainId.LINEA_TESTNET]: [
+    ...WETH_ONLY[ChainId.LINEA_TESTNET],
+    USDC[ChainId.LINEA_TESTNET],
+    USDT[ChainId.LINEA_TESTNET],
+    DAI[ChainId.LINEA_TESTNET],
+  ],
 }

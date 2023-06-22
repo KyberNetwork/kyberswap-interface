@@ -23,7 +23,7 @@ import TransactionConfirmationModal, {
   ConfirmationModalContent,
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
-import { AMP_HINT } from 'constants/index'
+import { AMP_HINT, APP_PATHS } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { PairState } from 'data/Reserves'
@@ -447,7 +447,7 @@ const TokenPair = ({
                     <StyledInternalLink
                       onClick={handleDismissConfirmation}
                       id="unamplified-pool-link"
-                      to={`/add/${currencyIdA}/${currencyIdB}/${unAmplifiedPairAddress}`}
+                      to={`/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${currencyIdA}/${currencyIdB}/${unAmplifiedPairAddress}`}
                     >
                       Go to unamplified pool
                     </StyledInternalLink>
@@ -483,7 +483,7 @@ const TokenPair = ({
                 onSwitchCurrency={() => {
                   chainId &&
                     navigate(
-                      `/add/${
+                      `/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${
                         currencyAIsETHER ? WETH[chainId].address : NativeCurrencies[chainId].symbol
                       }/${currencyIdB}/${pairAddress}`,
                       { replace: true },
@@ -521,7 +521,7 @@ const TokenPair = ({
                 {pairAddress && chainId && (currencyBIsWETH || currencyBIsETHER) && (
                   <StyledInternalLink
                     replace
-                    to={`/add/${currencyIdA}/${
+                    to={`/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${currencyIdA}/${
                       currencyBIsETHER ? WETH[chainId].address : NativeCurrencies[chainId].symbol
                     }/${pairAddress}`}
                   >

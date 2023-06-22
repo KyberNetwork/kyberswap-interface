@@ -87,7 +87,13 @@ function SelectNetwork({ disabled }: { disabled?: boolean }): JSX.Element | null
   }, [userEthBalance, chainId, networkInfo])
 
   return (
-    <NetworkCard onClick={() => toggleNetworkModal()} role="button" id={TutorialIds.SELECT_NETWORK} disabled={disabled}>
+    <NetworkCard
+      onClick={() => toggleNetworkModal()}
+      role="button"
+      id={TutorialIds.SELECT_NETWORK}
+      data-testid="select-network"
+      disabled={disabled}
+    >
       <NetworkSwitchContainer>
         <Row gap="10px">
           <img

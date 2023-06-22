@@ -5,7 +5,7 @@ import { rgba } from 'polished'
 import React from 'react'
 import { AlertTriangle, Info, Minus, Plus, Share2 } from 'react-feather'
 import { useDispatch } from 'react-redux'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
 import { ButtonEmpty } from 'components/Button'
@@ -42,8 +42,6 @@ const ListItem = ({ poolData, userLiquidityPositions }: ListItemGroupProps) => {
   const togglePoolDetailModal = usePoolDetailModalToggle()
 
   const amp = new Fraction(poolData.amp).divide(JSBI.BigInt(10000))
-
-  const navigate = useNavigate()
 
   const { data: uniqueAndActiveFarms } = useActiveAndUniqueFarmsData()
   const farm = uniqueAndActiveFarms.find(f => f.id.toLowerCase() === poolData.id.toLowerCase())
@@ -196,10 +194,13 @@ const ListItem = ({ poolData, userLiquidityPositions }: ListItemGroupProps) => {
             width: '28px',
             height: '28px',
           }}
+          as={Link}
+          to={`/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${currencyId(currency0, chainId)}/${currencyId(
+            currency1,
+            chainId,
+          )}/${poolData.id}`}
           onClick={(e: React.MouseEvent) => {
             e.stopPropagation()
-            const url = `/add/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${poolData.id}`
-            navigate(url)
           }}
         >
           <Plus size={16} color={theme.primary} />
@@ -208,7 +209,10 @@ const ListItem = ({ poolData, userLiquidityPositions }: ListItemGroupProps) => {
           <ButtonEmpty
             padding="0"
             as={Link}
-            to={`/remove/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${poolData.id}`}
+            to={`/${networkInfo.route}${APP_PATHS.CLASSIC_REMOVE_POOL}/${currencyId(currency0, chainId)}/${currencyId(
+              currency1,
+              chainId,
+            )}/${poolData.id}`}
             style={{
               background: rgba(theme.red, 0.2),
               minWidth: '28px',

@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { Repeat } from 'react-feather'
 import { useLocation } from 'react-router-dom'
@@ -16,7 +17,7 @@ import { ReactComponent as BuyCrypto } from 'assets/svg/buy_crypto.svg'
 import { ReactComponent as CrossChainIcon } from 'assets/svg/cross_chain_icon.svg'
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { APP_PATHS } from 'constants/index'
+import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
@@ -106,43 +107,44 @@ const SwapNavGroup = () => {
             </StyledNavLink>
           )}
 
-          {isSolana || (
-            <>
-              <StyledNavLink
-                id="cross-chain-nav-link"
-                to={APP_PATHS.CROSS_CHAIN}
-                style={{ flexDirection: 'column', width: '100%' }}
-              >
-                <Flex alignItems="center" sx={{ gap: '12px' }} justifyContent="space-between">
-                  <IconWrapper>
-                    <CrossChainIcon height={15} />
-                  </IconWrapper>
-                  <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
-                    <Trans>Cross-Chain</Trans>
-                    <img src={isDark ? SquidLogoLight : SquidLogoDark} alt="kyberswap with Squid" height={16} />
-                  </Flex>
+          {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && (
+            <StyledNavLink
+              id="cross-chain-nav-link"
+              to={APP_PATHS.CROSS_CHAIN}
+              style={{ flexDirection: 'column', width: '100%' }}
+            >
+              <Flex alignItems="center" sx={{ gap: '12px' }} justifyContent="space-between">
+                <IconWrapper>
+                  <CrossChainIcon height={15} />
+                </IconWrapper>
+                <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
+                  <Trans>Cross-Chain</Trans>
+                  <img src={isDark ? SquidLogoLight : SquidLogoDark} alt="kyberswap with Squid" height={16} />
                 </Flex>
-              </StyledNavLink>
-              <StyledNavLink
-                id="bridge-nav-link"
-                to={APP_PATHS.BRIDGE}
-                style={{ flexDirection: 'column', width: '100%' }}
-              >
-                <Flex alignItems="center" sx={{ gap: '12px' }} justifyContent="space-between">
-                  <IconWrapper>
-                    <StyledBridgeIcon height={15} />
-                  </IconWrapper>
-                  <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
-                    <Trans>Bridge</Trans>
-                    <img
-                      src={isDark ? MultichainLogoLight : MultichainLogoDark}
-                      alt="kyberswap with multichain"
-                      height={10}
-                    />
-                  </Flex>
+              </Flex>
+            </StyledNavLink>
+          )}
+
+          {!(isSolana || chainId === ChainId.LINEA_TESTNET) && (
+            <StyledNavLink
+              id="bridge-nav-link"
+              to={APP_PATHS.BRIDGE}
+              style={{ flexDirection: 'column', width: '100%' }}
+            >
+              <Flex alignItems="center" sx={{ gap: '12px' }} justifyContent="space-between">
+                <IconWrapper>
+                  <StyledBridgeIcon height={15} />
+                </IconWrapper>
+                <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
+                  <Trans>Bridge</Trans>
+                  <img
+                    src={isDark ? MultichainLogoLight : MultichainLogoDark}
+                    alt="kyberswap with multichain"
+                    height={10}
+                  />
                 </Flex>
-              </StyledNavLink>
-            </>
+              </Flex>
+            </StyledNavLink>
           )}
 
           <StyledNavLink

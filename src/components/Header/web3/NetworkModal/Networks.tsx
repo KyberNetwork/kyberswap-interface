@@ -194,6 +194,7 @@ const Networks = ({
           >
             <SelectNetworkButton
               key={i}
+              data-testid="network-button"
               padding="0"
               onClick={() => !selected && onSelect(key)}
               disabled={disabledAll || disabled}
@@ -210,7 +211,7 @@ const Networks = ({
                     {name}
                   </Text>
                 </Flex>
-                {key === ChainId.SOLANA && (
+                {key === ChainId.ZKSYNC && (
                   <NewLabel>
                     <Trans>New</Trans>
                   </NewLabel>

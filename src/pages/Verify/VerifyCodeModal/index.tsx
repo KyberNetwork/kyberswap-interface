@@ -125,7 +125,7 @@ export default function VerifyCodeModal({
       withNotify &&
         notify({
           title: t`Email Verified`,
-          summary: t`Your email have been verified successfully. You can now select notification preference`,
+          summary: t`Your email has been verified successfully! You can now customize your preferences`,
           type: NotificationType.SUCCESS,
         })
     },
