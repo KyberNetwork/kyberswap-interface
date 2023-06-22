@@ -103,7 +103,7 @@ const useLogin = () => {
       requestSignIn(account)
       return
     }
-    isAuthorized().then(requestSignIn)
+    isAuthorized().then(wallet => requestSignIn(account || wallet))
   }, [account, signIn])
 }
 export default useLogin
