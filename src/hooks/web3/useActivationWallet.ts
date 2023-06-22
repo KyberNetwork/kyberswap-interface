@@ -12,8 +12,6 @@ import { isEVMWallet, isSolanaWallet } from 'utils'
 
 export const useActivationWallet: () => {
   tryActivation: (walletKey: string, isEagerly?: boolean) => Promise<void>
-  tryActivationEVM: (walletKey: string, isEagerly?: boolean) => Promise<void>
-  tryActivationSolana: (walletKey: string) => Promise<void>
 } = () => {
   const { select, wallet: solanaWallet } = useWallet()
   const { isSolana, isEVM } = useActiveWeb3React()
@@ -23,7 +21,8 @@ export const useActivationWallet: () => {
       const wallet = (SUPPORTED_WALLETS as any)[walletKey]
       if (!isEVMWallet(wallet)) return
       try {
-        // localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY_EVM)
+        console.info('Activate EVM start', { wallet, isEagerly })
+        localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY_EVM)
         if (isEagerly) {
           if (wallet.connector.connectEagerly) {
             await wallet.connector.connectEagerly()
@@ -33,7 +32,7 @@ export const useActivationWallet: () => {
         } else {
           await wallet.connector.activate()
         }
-        console.info('connect success', { walletKey, isEagerly })
+        console.info('Activate EVM success', { walletKey, isEagerly })
         localStorage.setItem(LOCALSTORAGE_LAST_WALLETKEY_EVM, walletKey)
       } catch (error) {
         localStorage.removeItem(LOCALSTORAGE_LAST_WALLETKEY_EVM)
@@ -91,7 +90,5 @@ export const useActivationWallet: () => {
 
   return {
     tryActivation,
-    tryActivationEVM,
-    tryActivationSolana,
   }
 }
