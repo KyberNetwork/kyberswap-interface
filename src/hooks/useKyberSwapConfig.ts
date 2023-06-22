@@ -65,8 +65,7 @@ const parseGlobalResponse = (
   chainId: ChainId,
 ): KyberswapGlobalConfig => {
   const data = responseData?.data?.config
-  const aggregatorDomain =
-    chainId === ChainId.LINEA_TESTNET ? DEFAULT_AGGREGATOR_API : data?.aggregator ?? DEFAULT_AGGREGATOR_API
+  const aggregatorDomain = data?.aggregator ?? DEFAULT_AGGREGATOR_API
   const isEnableAuthenAggregator = !data ? true : !!data?.isEnableAuthenAggregator
   return {
     aggregatorDomain,
