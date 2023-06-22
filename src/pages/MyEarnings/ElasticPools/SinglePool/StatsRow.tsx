@@ -1,7 +1,6 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
-import { Copy } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
@@ -147,6 +146,9 @@ type Props = {
   currency0: Currency | undefined
   currency1: Currency | undefined
   feeAmount: FeeAmount
+
+  analyticUrl: string
+
   renderToggleExpandButton: () => React.ReactNode
 }
 const StatsRow: React.FC<Props> = ({
@@ -159,6 +161,8 @@ const StatsRow: React.FC<Props> = ({
   currency0,
   currency1,
   feeAmount,
+
+  analyticUrl,
 
   renderToggleExpandButton,
 }) => {
@@ -220,16 +224,6 @@ const StatsRow: React.FC<Props> = ({
               height: '36px',
             }}
           >
-            <Copy width="18px" height="18px" />
-          </ButtonIcon>
-
-          <ButtonIcon
-            style={{
-              flex: '0 0 36px',
-              width: '36px',
-              height: '36px',
-            }}
-          >
             <BarChart />
           </ButtonIcon>
 
@@ -282,6 +276,9 @@ const StatsRow: React.FC<Props> = ({
             width: '36px',
             height: '36px',
           }}
+          as="a"
+          href={analyticUrl}
+          target="_blank"
         >
           <BarChart />
         </ButtonIcon>
