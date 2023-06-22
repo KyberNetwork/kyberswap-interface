@@ -1,6 +1,6 @@
 import { useState } from 'react'
+import { Download } from 'react-feather'
 
-import Withdraw from 'components/Icons/Withdraw'
 import ExportAccountModal from 'pages/NotificationCenter/Profile/ExportAccountModal'
 import { ButtonExport } from 'pages/NotificationCenter/Profile/buttons'
 
@@ -16,13 +16,7 @@ export default function ExportAccountButton() {
           setOpen(true)
         }}
       >
-        <Withdraw
-          width={18}
-          height={18}
-          style={{
-            marginRight: '4px',
-          }}
-        />
+        <Download size={16} style={{ marginRight: '4px' }} />
         Export
       </ButtonExport>
       <ExportAccountModal isOpen={isOpen} onDismiss={onDismiss} />

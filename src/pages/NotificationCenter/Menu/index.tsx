@@ -1,6 +1,6 @@
 import { t } from '@lingui/macro'
 import { ReactNode, useCallback, useMemo, useState } from 'react'
-import { AlignJustify, Download, List as ListIcon } from 'react-feather'
+import { AlignJustify, List as ListIcon } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
 import { useGetTotalUnreadAnnouncementsQuery } from 'services/announcement'
@@ -12,6 +12,7 @@ import Avatar from 'components/Avatar'
 import MailIcon from 'components/Icons/MailIcon'
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import ProfileIcon from 'components/Icons/Profile'
+import Withdraw from 'components/Icons/Withdraw'
 import Drawer from 'components/Modal/Drawer'
 import { getAnnouncementsTemplateIds } from 'constants/env'
 import useTheme from 'hooks/useTheme'
@@ -148,7 +149,7 @@ const MenuForDesktop = ({ unread, onChildrenClick, toggleImportProfile }: PropsM
       childs.push({
         onClick: toggleImportProfile,
         route: '#',
-        icon: <Download size={16} />,
+        icon: <Withdraw width={16} height={16} />,
         title: t`Import`,
       })
       return { ...el, childs }
