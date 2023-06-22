@@ -1,4 +1,5 @@
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { ChevronsUp, Minus } from 'react-feather'
 import { Link } from 'react-router-dom'
@@ -20,6 +21,7 @@ import { Column, Label, Row, Value, ValueAPR } from 'pages/MyEarnings/ElasticPoo
 import HoverDropdown from 'pages/MyEarnings/HoverDropdown'
 import { useElasticFarms } from 'state/farms/elastic/hooks'
 import { useAppSelector } from 'state/hooks'
+import { currencyId } from 'utils/currencyId'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 const ActionButtonsWrapper = styled.div`
@@ -38,26 +40,39 @@ const ActionButtonsWrapper = styled.div`
   `}
 `
 
-const ActionButtons = () => {
+type ActionButtonsProps = {
+  chainId: ChainId
+  nftId: string
+  currency0: Currency
+  currency1: Currency
+  feeAmount: FeeAmount
+}
+const ActionButtons: React.FC<ActionButtonsProps> = ({ chainId, nftId, currency0, currency1, feeAmount }) => {
+  const chainRoute = NETWORKS_INFO[chainId].route
   return (
     <ActionButtonsWrapper>
       <ActionButton
         $variant="red"
-        disabled={false}
         style={{
           flex: 1,
           gap: '4px',
         }}
+        as={Link}
+        to={`/${chainRoute}${APP_PATHS.ELASTIC_REMOVE_POOL}/${nftId}`}
       >
         <Minus size="16px" /> <Trans>Remove Liquidity</Trans>
       </ActionButton>
       <ActionButton
         $variant="green"
-        disabled={false}
         style={{
           flex: 1,
           gap: '4px',
         }}
+        as={Link}
+        to={`/${chainRoute}${APP_PATHS.ELASTIC_INCREASE_LIQ}/${currencyId(currency0, chainId)}/${currencyId(
+          currency1,
+          chainId,
+        )}/${feeAmount}/${nftId}`}
       >
         <ChevronsUp size="16px" /> <Trans>Increase Liquidity</Trans>
       </ActionButton>
@@ -249,7 +264,13 @@ const PositionView: React.FC<CommonProps> = props => {
           position={position}
         />
 
-        <ActionButtons />
+        <ActionButtons
+          chainId={chainId}
+          nftId={positionEarning.id}
+          currency0={position.amount0.currency}
+          currency1={position.amount1.currency}
+          feeAmount={position.pool.fee}
+        />
       </Flex>
     </CommonView>
   )
