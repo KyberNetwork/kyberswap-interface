@@ -181,7 +181,7 @@ const SwapActionButton: React.FC<Props> = ({
       <Trans>
         You need to first allow KyberSwap&apos;s smart contract to use your {currencyIn?.symbol}.{' '}
         <a
-          href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/user-guides/instantly-swap-at-the-best-rates#step-4-approve-contract-to-swap-tokens"
+          href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/user-guides/instantly-swap-at-superior-rates#step-4-approve-contract-to-swap-tokens"
           target="_blank"
           rel="noreferrer"
         >

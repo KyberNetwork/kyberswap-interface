@@ -72,7 +72,7 @@ const FarmCard = ({
   targetPercent,
   targetPercentByNFT,
 }: Props) => {
-  const { chainId } = useActiveWeb3React()
+  const { chainId, networkInfo } = useActiveWeb3React()
   const [isRevertPrice, setIsRevertPrice] = useState(false)
   const theme = useTheme()
   const currentTimestamp = Math.floor(Date.now() / 1000)
@@ -84,7 +84,7 @@ const FarmCard = ({
   const [, setFarmAddress] = useShareFarmAddress()
   const [showPosition, setShowPosition] = useState(false)
 
-  const addliquidityElasticPool = `${APP_PATHS.ELASTIC_CREATE_POOL}/${
+  const addLiquidityElasticPoolUrl = `/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${
     pool.token0.isNative ? pool.token0.symbol : pool.token0.address
   }/${pool.token1.isNative ? pool.token1.symbol : pool.token1.address}/${pool.pool.fee}`
 
@@ -114,7 +114,7 @@ const FarmCard = ({
             <Flex alignItems="center">
               <DoubleCurrencyLogo currency0={pool.token0} currency1={pool.token1} size={20} />
               <Link
-                to={addliquidityElasticPool}
+                to={addLiquidityElasticPoolUrl}
                 style={{
                   textDecoration: 'none',
                 }}
@@ -362,7 +362,7 @@ const FarmCard = ({
           <Flex alignItems="center" height="36px">
             <DoubleCurrencyLogo currency0={pool.token0} currency1={pool.token1} size={20} />
             <Link
-              to={`${APP_PATHS.ELASTIC_CREATE_POOL}/${
+              to={`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${
                 pool.token0.isNative ? pool.token0.symbol : pool.token0.address
               }/${pool.token1.isNative ? pool.token1.symbol : pool.token1.address}/${pool.pool.fee}`}
               style={{

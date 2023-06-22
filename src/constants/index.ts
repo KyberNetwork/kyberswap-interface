@@ -228,11 +228,10 @@ export const APP_PATHS = {
 }
 
 export const TERM_FILES_PATH = {
-  KYBERSWAP_TERMS: '/files/23022023KyberSwapTermsofUse.pdf',
+  KYBERSWAP_TERMS: '/files/Kyber - Terms of Service - 14 June 2023.pdf',
   PRIVACY_POLICY: '/files/privacy.pdf',
-  KYBER_DAO_TERMS: '/files/dao-tac.pdf',
   // Timestamp of changed date, update this to latest timestamp whenever change any above files. This also used to check on client side for updated to force user to disconnect and re-accept terms.
-  VERSION: 1677129615161,
+  VERSION: 1686700800000,
 }
 
 export enum FARM_TAB {
@@ -323,6 +322,8 @@ export const CHAINS_SUPPORT_CROSS_CHAIN =
         ChainId.ZKSYNC,
         ChainId.SOLANA,
       ]
+
+export const TYPE_AND_SWAP_NOT_SUPPORTED_CHAINS: ChainId[] = [ChainId.ZKSYNC, ChainId.LINEA_TESTNET]
 
 export const SWAP_FEE_RECEIVER_ADDRESS = '0x4f82e73EDb06d29Ff62C91EC8f5Ff06571bdeb29'
 

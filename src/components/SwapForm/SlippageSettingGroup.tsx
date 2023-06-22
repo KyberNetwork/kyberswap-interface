@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
@@ -40,7 +41,7 @@ export default function SlippageSettingGroup({
   const { typedValue } = useSwapState()
   const { chainId } = useActiveWeb3React()
 
-  const priceAlert = (
+  const priceAlert = chainId !== ChainId.LINEA_TESTNET && (
     <PriceAlertButton
       onClick={() =>
         navigate(

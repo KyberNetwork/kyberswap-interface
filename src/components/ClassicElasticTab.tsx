@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
@@ -42,6 +43,8 @@ function ClassicElasticTab() {
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   const showLegacyExplicit = upToMedium ? false : isFarmpage ? shouldShowFarmTab : shouldShowPositionTab
+
+  const dontShowLegacy = chainId === ChainId.LINEA_TESTNET
 
   const legacyTag = (small?: boolean) => (
     <Text
@@ -109,44 +112,46 @@ function ClassicElasticTab() {
     <Flex width="max-content">
       <MouseoverTooltip
         width="fit-content"
-        placement="top"
+        placement="bottom"
         text={
-          notSupportedMsg ||
-          (!showLegacyExplicit ? (
-            <Flex flexDirection="column" sx={{ gap: '16px', padding: '8px' }}>
-              <Flex
-                role="button"
-                color={tab === VERSION.ELASTIC ? theme.primary : theme.subText}
-                sx={{ gap: '8px', cursor: 'pointer' }}
-                fontSize="14px"
-                fontWeight={500}
-                onClick={() => handleSwitchTab(VERSION.ELASTIC)}
-              >
-                <PoolElasticIcon size={16} />
-                {isFarmpage ? <Trans>Elastic Farms</Trans> : <Trans>Elastic Pools</Trans>}
-              </Flex>
+          dontShowLegacy
+            ? ''
+            : notSupportedMsg ||
+              (!showLegacyExplicit ? (
+                <Flex flexDirection="column" sx={{ gap: '16px', padding: '8px' }}>
+                  <Flex
+                    role="button"
+                    color={tab === VERSION.ELASTIC ? theme.primary : theme.subText}
+                    sx={{ gap: '8px', cursor: 'pointer' }}
+                    fontSize="14px"
+                    fontWeight={500}
+                    onClick={() => handleSwitchTab(VERSION.ELASTIC)}
+                  >
+                    <PoolElasticIcon size={16} />
+                    {isFarmpage ? <Trans>Elastic Farms</Trans> : <Trans>Elastic Pools</Trans>}
+                  </Flex>
 
-              <Flex
-                role="button"
-                color={tab === VERSION.ELASTIC_LEGACY ? theme.primary : theme.subText}
-                sx={{ gap: '8px', cursor: 'pointer' }}
-                fontWeight={500}
-                fontSize="14px"
-                onClick={() => handleSwitchTab(VERSION.ELASTIC_LEGACY)}
-              >
-                <PoolElasticIcon size={16} />
-                {isFarmpage ? <Trans>Elastic Farms</Trans> : <Trans>Elastic Pools</Trans>}
-                {legacyTag(true)}
-              </Flex>
-            </Flex>
-          ) : null)
+                  <Flex
+                    role="button"
+                    color={tab === VERSION.ELASTIC_LEGACY ? theme.primary : theme.subText}
+                    sx={{ gap: '8px', cursor: 'pointer' }}
+                    fontWeight={500}
+                    fontSize="14px"
+                    onClick={() => handleSwitchTab(VERSION.ELASTIC_LEGACY)}
+                  >
+                    <PoolElasticIcon size={16} />
+                    {isFarmpage ? <Trans>Elastic Farms</Trans> : <Trans>Elastic Pools</Trans>}
+                    {legacyTag(true)}
+                  </Flex>
+                </Flex>
+              ) : null)
         }
       >
         <Flex
           alignItems={'center'}
           onClick={() => {
             if (isMobile) {
-              if (showLegacyExplicit) handleSwitchTab(VERSION.ELASTIC)
+              if (showLegacyExplicit || dontShowLegacy) handleSwitchTab(VERSION.ELASTIC)
             } else handleSwitchTab(VERSION.ELASTIC)
           }}
         >
@@ -167,7 +172,7 @@ function ClassicElasticTab() {
 
           {!showLegacyExplicit && tab === VERSION.ELASTIC_LEGACY && legacyTag()}
 
-          {!showLegacyExplicit && <DropdownSVG style={{ color }} />}
+          {!dontShowLegacy && !showLegacyExplicit && <DropdownSVG style={{ color }} />}
         </Flex>
       </MouseoverTooltip>
       <Text fontWeight={500} fontSize={[18, 20, 24]} color={theme.subText} marginX={'12px'}>
