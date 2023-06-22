@@ -167,6 +167,7 @@ const StatsRow: React.FC<Props> = ({
   renderToggleExpandButton,
 }) => {
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  const chainRoute = NETWORKS_INFO[chainId].route
 
   // TODO: check native currencies
   const currency0Slug = currency0?.wrapped.address || ''
@@ -210,7 +211,7 @@ const StatsRow: React.FC<Props> = ({
             // TODO: use new format of Elastic routes
             to={
               currency0Slug && currency1Slug
-                ? `${APP_PATHS.ELASTIC_CREATE_POOL}/${currency0Slug}/${currency1Slug}/${feeAmount}`
+                ? `/${chainRoute}${APP_PATHS.ELASTIC_CREATE_POOL}/${currency0Slug}/${currency1Slug}/${feeAmount}`
                 : '#'
             }
           >
@@ -264,7 +265,7 @@ const StatsRow: React.FC<Props> = ({
           // TODO: use new format of Elastic routes
           to={
             currency0Slug && currency1Slug
-              ? `${APP_PATHS.ELASTIC_CREATE_POOL}/${currency0Slug}/${currency1Slug}/${feeAmount}`
+              ? `/${chainRoute}${APP_PATHS.ELASTIC_CREATE_POOL}/${currency0Slug}/${currency1Slug}/${feeAmount}`
               : '#'
           }
         >
