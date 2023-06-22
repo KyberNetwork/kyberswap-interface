@@ -46,7 +46,7 @@
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@kybernetwork/oauth2": "0.0.6",
     "@kyberswap/ks-sdk-classic": "^1.0.3",
-    "@kyberswap/ks-sdk-core": "1.0.6-rc",
+    "@kyberswap/ks-sdk-core": "^1.0.6",
     "@kyberswap/ks-sdk-elastic": "^1.1.2",
     "@kyberswap/ks-sdk-solana": "^1.0.2",
     "@lingui/loader": "~3.14.0",
@@ -109,7 +109,7 @@
     "react-qrcode-logo": "^2.8.0",
     "react-redux": "^7.2.9",
     "react-rnd": "10.4.1",
-    "react-router-dom": "^6.4.3",
+    "react-router-dom": "6.5.0",
     "react-spring": "^9.6.1",
     "react-use": "^15.3.4",
     "react-use-gesture": "^6.0.14",
@@ -188,7 +188,7 @@
     "vite-tsconfig-paths": "^4.0.8"
   },
   "resolutions": {
-    "@kyberswap/ks-sdk-core": "1.0.6-rc",
+    "@kyberswap/ks-sdk-core": "^1.0.6",
     "react-error-overlay": "6.0.9",
     "@lingui/babel-plugin-extract-messages": "3.14.0",
     "@lingui/cli": "3.14.0",

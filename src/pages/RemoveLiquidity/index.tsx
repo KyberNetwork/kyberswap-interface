@@ -19,6 +19,7 @@ import { Container, LiquidityProviderModeWrapper, PageWrapper, PoolName, TopBar 
 
 export default function RemoveLiquidity() {
   const { currencyIdA = '', currencyIdB = '', pairAddress = '' } = useParams()
+
   const currencyA = useCurrency(currencyIdA) ?? undefined
   const currencyB = useCurrency(currencyIdB) ?? undefined
   const { chainId, isEVM } = useActiveWeb3React()
