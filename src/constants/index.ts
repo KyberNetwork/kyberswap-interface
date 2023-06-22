@@ -322,6 +322,8 @@ export const CHAINS_SUPPORT_CROSS_CHAIN =
         ChainId.SOLANA,
       ]
 
+export const TYPE_AND_SWAP_NOT_SUPPORTED_CHAINS: ChainId[] = [ChainId.ZKSYNC, ChainId.LINEA_TESTNET]
+
 export const SWAP_FEE_RECEIVER_ADDRESS = '0x4f82e73EDb06d29Ff62C91EC8f5Ff06571bdeb29'
 
 export const TOKEN_SCORE_TTL = 86400

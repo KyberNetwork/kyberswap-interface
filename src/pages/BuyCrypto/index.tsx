@@ -196,7 +196,7 @@ function BuyCrypto() {
   const step2Ref = useRef<HTMLDivElement>(null)
   const step3Ref = useRef<HTMLDivElement>(null)
 
-  const supportedNetworks: { [chain in ChainId]: string | null } = {
+  const supportedNetworks: { [chain in ChainId]?: string | null } = {
     [ChainId.MAINNET]: 'ethereum',
     [ChainId.MATIC]: 'polygon',
     [ChainId.ARBITRUM]: 'arbitrum',
