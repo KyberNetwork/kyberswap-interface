@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
+import { ButtonOutlined } from 'components/Button'
 import SubscribeNotificationButton from 'components/SubscribeButton'
 import useTheme from 'hooks/useTheme'
 import ClosedPositionsToggle from 'pages/MyEarnings/PoolFilteringBar/ClosedPositionsToggle'
@@ -19,19 +20,14 @@ const ExpandCollapseAll = () => {
   const theme = useTheme()
 
   return (
-    <Flex
-      sx={{
+    <ButtonOutlined
+      style={{
+        flex: '0 0 130px',
+        height: '36px',
         alignItems: 'center',
+        justifyContent: 'flex-start',
         gap: '4px',
-        flexWrap: 'nowrap',
-        cursor: 'pointer',
-        color: theme.subText,
-        fontWeight: 500,
-        fontSize: '14px',
-        lineHeight: '20px',
-        userSelect: 'none',
       }}
-      role="button"
       onClick={() => {
         if (shouldExpandAllPools) {
           dispatch(collapseAllPools())
@@ -42,19 +38,17 @@ const ExpandCollapseAll = () => {
     >
       <Flex
         sx={{
-          flex: '0 0 16px',
-          height: '16px',
+          flex: '0 0 18px',
+          height: '18px',
           transition: 'all 150ms linear',
-          background: theme.subText,
-          borderRadius: '999px',
           justifyContent: 'center',
           alignItems: 'center',
         }}
       >
         <ChevronUp
-          size={12}
+          size={18}
           strokeWidth={2}
-          color={theme.buttonBlack}
+          color={theme.subText}
           style={{
             transition: 'all 150ms linear',
             transform: shouldExpandAllPools ? undefined : 'rotate(180deg)',
@@ -68,7 +62,7 @@ const ExpandCollapseAll = () => {
       >
         {shouldExpandAllPools ? <Trans>Collapse All</Trans> : <Trans>Expand All</Trans>}
       </Text>
-    </Flex>
+    </ButtonOutlined>
   )
 }
 
