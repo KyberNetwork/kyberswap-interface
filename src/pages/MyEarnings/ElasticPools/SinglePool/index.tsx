@@ -17,7 +17,6 @@ import Logo from 'components/Logo'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT, PROMM_ANALYTICS_URL } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
-import { VERSION } from 'constants/v2'
 import { PoolState } from 'hooks/usePools'
 import { usePoolv2 } from 'hooks/usePoolv2'
 import useTheme from 'hooks/useTheme'
@@ -78,7 +77,6 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const shouldExpandAllPools = useAppSelector(state => state.myEarnings.shouldExpandAllPools)
-  const isElasticLegacy = useAppSelector(state => state.myEarnings.activeTab === VERSION.ELASTIC_LEGACY)
 
   const feeAmount = Number(poolEarning.feeTier) as FeeAmount
 

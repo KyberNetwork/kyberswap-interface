@@ -21,7 +21,6 @@ import { PoolState } from 'hooks/usePools'
 import { usePoolv2 } from 'hooks/usePoolv2'
 import useTheme from 'hooks/useTheme'
 import PoolEarningsSection from 'pages/MyEarnings/ElasticPools/SinglePool/PoolEarningsSection'
-import SharePoolEarningsButton from 'pages/MyEarnings/ElasticPools/SinglePool/SharePoolEarningsButton'
 import Positions from 'pages/MyEarnings/Positions'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { useAppSelector } from 'state/hooks'
@@ -271,12 +270,13 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
                   {poolEarningStr}
                 </Text>
 
-                <SharePoolEarningsButton
+                {/* TODO */}
+                {/* <SharePoolEarningsButton
                   totalValue={poolEarningToday}
                   currency0={currency0}
                   currency1={currency1}
                   feePercent={feePercent}
-                />
+                /> */}
               </Flex>
             </Flex>
             <PoolEarningsSection poolEarning={poolEarning} chainId={chainId} />
@@ -429,12 +429,27 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
                 {poolEarningStr}
               </Text>
 
-              <SharePoolEarningsButton
+              {/* TODO */}
+              {/* <SharePoolEarningsButton
                 totalValue={poolEarningToday}
-                currency0={currency0}
-                currency1={currency1}
+                token0={
+                  currency0?.logoURI && displaySymbolOfToken0
+                    ? {
+                        logoURI: currency0?.logoURI,
+                        symbol: displaySymbolOfToken0,
+                      }
+                    : undefined
+                }
+                token1={
+                  currency1?.logoURI && displaySymbolOfToken1
+                    ? {
+                        logoURI: currency1?.logoURI,
+                        symbol: displaySymbolOfToken1,
+                      }
+                    : undefined
+                }
                 feePercent={feePercent}
-              />
+              /> */}
             </Flex>
           </Flex>
           <PoolEarningsSection poolEarning={poolEarning} chainId={chainId} />

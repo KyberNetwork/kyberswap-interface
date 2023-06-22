@@ -47,7 +47,7 @@ const CollectFeesPanel: React.FC<Props> = ({
   position,
 }) => {
   const theme = useTheme()
-  const { isEVM, account, chainId: currentChainId } = useActiveWeb3React()
+  const { account, chainId: currentChainId } = useActiveWeb3React()
   const { library } = useWeb3React()
   const dispatch = useDispatch()
   const hasNoFeeToCollect = !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0))
