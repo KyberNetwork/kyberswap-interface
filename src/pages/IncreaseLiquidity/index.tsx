@@ -602,7 +602,7 @@ export default function IncreaseLiquidity() {
                           onSwitchCurrency={() => {
                             chainId &&
                               navigate(
-                                `/elastic/increase/${
+                                `/${networkInfo.route}${APP_PATHS.ELASTIC_INCREASE_LIQ}/${
                                   baseCurrencyIsETHER ? WETH[chainId].address : NativeCurrencies[chainId].symbol
                                 }/${currencyIdB}/${feeAmount}/${tokenId}`,
                                 {
@@ -641,7 +641,7 @@ export default function IncreaseLiquidity() {
                           onSwitchCurrency={() => {
                             chainId &&
                               navigate(
-                                `/elastic/increase/${currencyIdA}/${
+                                `/${networkInfo.route}${APP_PATHS.ELASTIC_INCREASE_LIQ}/${currencyIdA}/${
                                   quoteCurrencyIsETHER ? WETH[chainId].address : NativeCurrencies[chainId].symbol
                                 }/${feeAmount}/${tokenId}`,
                                 { replace: true },
