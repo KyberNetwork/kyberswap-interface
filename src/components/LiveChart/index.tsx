@@ -118,14 +118,18 @@ function LiveChart({
   useEffect(() => {
     checkPairHasDextoolsData(currencies, chainId)
       .then(res => {
-        res.pairAddress && setPairAddress(res.pairAddress)
+        setPairAddress(res.pairAddress || '')
         setProchartLoading(false)
       })
-      .catch(() => setProchartLoading(false))
+      .catch(() => {
+        setPairAddress('')
+        setProchartLoading(false)
+      })
   }, [currencies, chainId])
 
   useEffect(() => {
     setCurrenciesState(currencies)
+    setProchartLoading(true)
   }, [currencies])
 
   const nativeInputCurrency = useCurrencyConvertedToNative(currenciesState[Field.INPUT] || undefined)

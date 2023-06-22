@@ -189,21 +189,22 @@ export const checkPairHasDextoolsData = async (
   // }
   /// ETH pair
   if (isNativeToken(chainId, currencyA) || isNativeToken(chainId, currencyB)) {
-    const token = (isNativeToken(chainId, currencyA) ? currencyB : currencyA) as Token
-    if (token?.address) {
-      const data1: { id: string }[] = await searchTokenPair(token.address, chainId)
-      if (data1.length > 0 && data1[0].id) {
-        // const ver = (await getHistoryCandleStatus(data1[0].id, chainId)) || 0
+    // const token = (isNativeToken(chainId, currencyA) ? currencyB : currencyA) as Token
+    // if (token?.address) {
+    //   const data1: { id: string }[] = await searchTokenPair(token.address, chainId)
+    //   if (data1.length > 0 && data1[0].id) {
+    //     // const ver = (await getHistoryCandleStatus(data1[0].id, chainId)) || 0
 
-        // const ts = Math.floor(new Date().getTime() / monthTs) * monthTs
-        // const { data } = await getCandlesApi(chainId, data1[0].id, ver, ts, 'month')
-        // if (data?.candles?.length) {
-        //   res.ver = ver
-        //   res.pairAddress = data1[0].id
-        //   updateLocalstorageCheckedPair(key, res)
-        return Promise.resolve({ pairAddress: data1[0].id })
-      }
-    }
+    //     // const ts = Math.floor(new Date().getTime() / monthTs) * monthTs
+    //     // const { data } = await getCandlesApi(chainId, data1[0].id, ver, ts, 'month')
+    //     // if (data?.candles?.length) {
+    //     //   res.ver = ver
+    //     //   res.pairAddress = data1[0].id
+    //     //   updateLocalstorageCheckedPair(key, res)
+    //     return Promise.resolve({ pairAddress: data1[0].id })
+    //   }
+    // }
+    return Promise.reject()
   } else {
     /// USD pair
     if (isUSDToken(chainId, currencyA) || isUSDToken(chainId, currencyB)) {
