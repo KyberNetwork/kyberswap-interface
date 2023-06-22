@@ -151,7 +151,7 @@ function ClassicElasticTab() {
           alignItems={'center'}
           onClick={() => {
             if (isMobile) {
-              if (showLegacyExplicit) handleSwitchTab(VERSION.ELASTIC)
+              if (showLegacyExplicit || dontShowLegacy) handleSwitchTab(VERSION.ELASTIC)
             } else handleSwitchTab(VERSION.ELASTIC)
           }}
         >
