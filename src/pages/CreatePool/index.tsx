@@ -441,6 +441,9 @@ export default function CreatePool() {
               token_2: nativeB?.symbol,
             })
           }}
+          onBack={() => {
+            navigate(`${APP_PATHS.POOLS}/${networkInfo.route}?tab=classic`)
+          }}
         />
         <Wrapper>
           <TransactionConfirmationModal

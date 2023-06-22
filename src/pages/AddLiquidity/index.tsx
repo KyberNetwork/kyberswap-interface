@@ -2,15 +2,17 @@ import { Fraction, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { useEffect, useState } from 'react'
-import { Navigate, useParams } from 'react-router-dom'
+import { Navigate, useNavigate, useParams } from 'react-router-dom'
 
 import LiquidityProviderMode from 'components/LiquidityProviderMode'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
 import { MinimalPositionCard } from 'components/PositionCard'
 import { TutorialType } from 'components/Tutorial'
+import { APP_PATHS } from 'constants/index'
 import { PairState } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
+import useGetBackUrl from 'hooks/useGetBackUrl'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useDerivedMintInfo } from 'state/mint/hooks'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
@@ -21,9 +23,11 @@ import { Container, LiquidityProviderModeWrapper, PageWrapper, PoolName, TopBar 
 
 export default function AddLiquidity() {
   const { currencyIdA = '', currencyIdB = '', pairAddress = '' } = useParams()
-  const { chainId, isEVM } = useActiveWeb3React()
+  const { chainId, isEVM, networkInfo } = useActiveWeb3React()
   const currencyA = useCurrency(currencyIdA) ?? undefined
   const currencyB = useCurrency(currencyIdB) ?? undefined
+  const getBackUrl = useGetBackUrl()
+  const navigate = useNavigate()
 
   const nativeA = useCurrencyConvertedToNative(currencyA)
   const nativeB = useCurrencyConvertedToNative(currencyB)
@@ -53,7 +57,13 @@ export default function AddLiquidity() {
     <>
       <PageWrapper>
         <Container>
-          <AddRemoveTabs action={LiquidityAction.ADD} tutorialType={TutorialType.CLASSIC_ADD_LIQUIDITY} />
+          <AddRemoveTabs
+            action={LiquidityAction.ADD}
+            tutorialType={TutorialType.CLASSIC_ADD_LIQUIDITY}
+            onBack={() => {
+              navigate(`${APP_PATHS.POOLS}/${networkInfo.route}?tab=classic`)
+            }}
+          />
 
           <TopBar>
             <LiquidityProviderModeWrapper>

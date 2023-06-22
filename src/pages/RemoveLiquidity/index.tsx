@@ -2,11 +2,12 @@ import { Fraction, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { useEffect, useState } from 'react'
-import { Navigate, useParams } from 'react-router-dom'
+import { Navigate, useNavigate, useParams } from 'react-router-dom'
 
 import LiquidityProviderMode from 'components/LiquidityProviderMode'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
 import { MinimalPositionCard } from 'components/PositionCard'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -22,7 +23,8 @@ export default function RemoveLiquidity() {
 
   const currencyA = useCurrency(currencyIdA) ?? undefined
   const currencyB = useCurrency(currencyIdB) ?? undefined
-  const { chainId, isEVM } = useActiveWeb3React()
+  const { chainId, isEVM, networkInfo } = useActiveWeb3React()
+  const navigate = useNavigate()
 
   const nativeA = useCurrencyConvertedToNative(currencyA)
   const nativeB = useCurrencyConvertedToNative(currencyB)
@@ -49,7 +51,12 @@ export default function RemoveLiquidity() {
     <>
       <PageWrapper>
         <Container>
-          <AddRemoveTabs action={LiquidityAction.REMOVE} />
+          <AddRemoveTabs
+            action={LiquidityAction.REMOVE}
+            onBack={() => {
+              navigate(`${APP_PATHS.POOLS}/${networkInfo.route}?tab=classic`)
+            }}
+          />
 
           <TopBar>
             <LiquidityProviderModeWrapper>
