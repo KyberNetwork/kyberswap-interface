@@ -82,7 +82,12 @@ function SelectNetwork(): JSX.Element | null {
   const walletSupportsChain = useWalletSupportedChains()
 
   return (
-    <NetworkCard onClick={() => toggleNetworkModal()} role="button" id={TutorialIds.SELECT_NETWORK}>
+    <NetworkCard
+      onClick={() => toggleNetworkModal()}
+      role="button"
+      id={TutorialIds.SELECT_NETWORK}
+      data-testid="select-network"
+    >
       <NetworkSwitchContainer>
         <Row>
           <img

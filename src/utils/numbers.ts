@@ -12,10 +12,10 @@ export const formatDollarAmount = (num: number | undefined, digits = 2) => {
   }
   const fractionDigits = num > 1000 ? 2 : digits
   return Intl.NumberFormat('en-US', {
-    notation: 'compact',
+    notation: num < 10_000_000 ? 'standard' : 'compact',
     style: 'currency',
     currency: 'USD',
-    minimumFractionDigits: fractionDigits,
+    minimumFractionDigits: 0,
     maximumFractionDigits: fractionDigits,
   })
     .format(num)

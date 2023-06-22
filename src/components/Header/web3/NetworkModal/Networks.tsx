@@ -178,7 +178,13 @@ const Networks = ({
           key === ChainId.SOLANA ? walletSolana.walletKey : walletEVM.chainId === key ? walletEVM.walletKey : null
         return (
           <MouseoverTooltip style={{ zIndex: Z_INDEXS.MODAL + 1 }} key={key} text={disabled ? disabledMsg : ''}>
-            <SelectNetworkButton key={i} padding="0" onClick={() => !selected && onSelect(key)} disabled={disabled}>
+            <SelectNetworkButton
+              key={i}
+              padding="0"
+              onClick={() => !selected && onSelect(key)}
+              data-testid="network-button"
+              disabled={disabled}
+            >
               <ListItem selected={selected}>
                 <img src={imgSrc} alt="Switch Network" style={{ height: '20px', width: '20px', marginRight: '8px' }} />
                 <Flex

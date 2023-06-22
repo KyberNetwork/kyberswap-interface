@@ -53,7 +53,8 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { ExternalLink, MEDIA_WIDTHS, TYPE } from 'theme'
-import { basisPointsToPercent, calculateGasMargin, formattedNum, formattedNumLong, isAddressString } from 'utils'
+import { basisPointsToPercent, calculateGasMargin, formattedNum, isAddressString } from 'utils'
+import { formatDollarAmount } from 'utils/numbers'
 import { ErrorName } from 'utils/sentry'
 import { SLIPPAGE_STATUS, checkRangeSlippage, checkWarningSlippage, formatSlippage } from 'utils/slippage'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
@@ -607,7 +608,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                       <Text>
                         <Trans>My Liquidity</Trans>
                       </Text>
-                      <Text>{formattedNumLong(totalPooledUSD, true)}</Text>
+                      <Text>{formatDollarAmount(totalPooledUSD)}</Text>
                     </Flex>
 
                     <Divider />
@@ -641,7 +642,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                       marginBottom="0.75rem"
                     >
                       <Text>My Fee Earnings</Text>
-                      {loadingFee && !feeValue0 ? <Loader /> : <Text>{formattedNumLong(totalFeeRewardUSD, true)}</Text>}
+                      {loadingFee && !feeValue0 ? <Loader /> : <Text>{formatDollarAmount(totalFeeRewardUSD)}</Text>}
                     </Flex>
 
                     <Divider />
