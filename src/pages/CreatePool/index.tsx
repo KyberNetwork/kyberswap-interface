@@ -29,6 +29,7 @@ import { PairState } from 'data/Reserves'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
+import { BACK_URL_PARAM_KEY } from 'hooks/useGetBackUrl'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
@@ -473,7 +474,7 @@ export default function CreatePool() {
                         <StyledInternalLink
                           onClick={handleDismissConfirmation}
                           id="unamplified-pool-link"
-                          to={`/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${currencyIdA}/${currencyIdB}/${unAmplifiedPairAddress}`}
+                          to={`/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${currencyIdA}/${currencyIdB}/${unAmplifiedPairAddress}?${BACK_URL_PARAM_KEY}=${window.location.href}`}
                         >
                           Go to unamplified pool
                         </StyledInternalLink>

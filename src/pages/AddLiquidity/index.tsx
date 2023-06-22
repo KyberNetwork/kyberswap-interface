@@ -12,7 +12,6 @@ import { APP_PATHS } from 'constants/index'
 import { PairState } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
-import useGetBackUrl from 'hooks/useGetBackUrl'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useDerivedMintInfo } from 'state/mint/hooks'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
@@ -26,7 +25,6 @@ export default function AddLiquidity() {
   const { chainId, isEVM, networkInfo } = useActiveWeb3React()
   const currencyA = useCurrency(currencyIdA) ?? undefined
   const currencyB = useCurrency(currencyIdB) ?? undefined
-  const getBackUrl = useGetBackUrl()
   const navigate = useNavigate()
 
   const nativeA = useCurrencyConvertedToNative(currencyA)

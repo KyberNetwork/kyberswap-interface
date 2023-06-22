@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-const BACK_URL_PARAM_KEY = 'back_url'
+export const BACK_URL_PARAM_KEY = 'back_url'
 
 const useGetBackUrl = (): (() => URL | undefined) => {
   const [searchParams] = useSearchParams()

@@ -23,6 +23,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS, DMM_ANALYTICS_URL, ONE_BIPS } from 'constants/index'
 import { useTotalSupply } from 'data/TotalSupply'
 import { useActiveWeb3React } from 'hooks'
+import { BACK_URL_PARAM_KEY } from 'hooks/useGetBackUrl'
 import useTheme from 'hooks/useTheme'
 import { TokenWrapper } from 'pages/AddLiquidity/styled'
 import { IconWrapper } from 'pages/Pools/styleds'
@@ -751,7 +752,7 @@ export default function FullPositionCard({
             to={`/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${currencyId(currency0, chainId)}/${currencyId(
               currency1,
               chainId,
-            )}/${pair.address}`}
+            )}/${pair.address}?${BACK_URL_PARAM_KEY}=${window.location.href}`}
           >
             <Text width="max-content">
               <Trans>Add Liquidity</Trans>
