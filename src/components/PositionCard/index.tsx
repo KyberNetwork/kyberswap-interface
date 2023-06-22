@@ -725,7 +725,7 @@ export default function FullPositionCard({
               to={`/${networkInfo.route}${APP_PATHS.CLASSIC_REMOVE_POOL}/${currencyId(currency0, chainId)}/${currencyId(
                 currency1,
                 chainId,
-              )}/${pair.address}`}
+              )}/${pair.address}?${BACK_URL_PARAM_KEY}=${window.location.href}`}
             >
               <Text width="max-content">
                 <Trans>Remove Liquidity</Trans>
@@ -740,7 +740,7 @@ export default function FullPositionCard({
               }}
             >
               <Text width="max-content">
-                <Trans>Remove Liquidity</Trans>
+                <Trans>Remove Liquidity 123</Trans>
               </Text>
             </ButtonPrimary>
           )}

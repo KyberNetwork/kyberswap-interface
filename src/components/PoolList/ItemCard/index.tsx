@@ -31,6 +31,7 @@ import { APP_PATHS, DMM_ANALYTICS_URL, ONE_BIPS, SUBGRAPH_AMP_MULTIPLIER } from 
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
+import { BACK_URL_PARAM_KEY } from 'hooks/useGetBackUrl'
 import useTheme from 'hooks/useTheme'
 import { IconWrapper } from 'pages/Pools/styleds'
 import { useActiveAndUniqueFarmsData } from 'state/farms/classic/hooks'
@@ -185,11 +186,11 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
             ? `/${networkInfo.route}${APP_PATHS.CLASSIC_REMOVE_POOL}/${currencyId(currency0, chainId)}/${currencyId(
                 currency1,
                 chainId,
-              )}/${poolData.id}`
+              )}/${poolData.id}?${BACK_URL_PARAM_KEY}=${window.location.href}`
             : `${APP_PATHS.SWAP}/${networkInfo.route}?inputCurrency=${currencyId(
                 currency0,
                 chainId,
-              )}&outputCurrency=${currencyId(currency1, chainId)}`
+              )}&outputCurrency=${currencyId(currency1, chainId)}?${BACK_URL_PARAM_KEY}=${window.location.href}`
         }
         style={{
           padding: '10px',

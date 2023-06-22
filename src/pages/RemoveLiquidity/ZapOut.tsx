@@ -42,6 +42,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { usePairContract } from 'hooks/useContract'
+import { BACK_URL_PARAM_KEY } from 'hooks/useGetBackUrl'
 import useIsArgentWallet from 'hooks/useIsArgentWallet'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
@@ -734,7 +735,10 @@ export default function ZapOut({
                                 selectedCurrencyIsETHER
                                   ? currencyId(WETH[chainId], chainId)
                                   : currencyId(NativeCurrencies[chainId], chainId)
-                              }/${currencyId(currencies[dependentTokenField] as Currency, chainId)}/${pairAddress}`
+                              }/${currencyId(
+                                currencies[dependentTokenField] as Currency,
+                                chainId,
+                              )}/${pairAddress}?${BACK_URL_PARAM_KEY}=${window.location.href}`
                             : `/${networkInfo.route}${APP_PATHS.CLASSIC_REMOVE_POOL}/${currencyId(
                                 currencies[dependentTokenField] as Currency,
                                 chainId,
@@ -742,7 +746,7 @@ export default function ZapOut({
                                 selectedCurrencyIsETHER
                                   ? currencyId(WETH[chainId], chainId)
                                   : currencyId(NativeCurrencies[chainId], chainId)
-                              }/${pairAddress}`
+                              }/${pairAddress}?${BACK_URL_PARAM_KEY}=${window.location.href}`
                         }
                       >
                         {selectedCurrencyIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}

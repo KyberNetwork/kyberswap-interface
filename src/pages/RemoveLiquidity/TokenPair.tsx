@@ -31,6 +31,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { usePairContract } from 'hooks/useContract'
+import { BACK_URL_PARAM_KEY } from 'hooks/useGetBackUrl'
 import useIsArgentWallet from 'hooks/useIsArgentWallet'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
@@ -668,7 +669,7 @@ export default function TokenPair({
                         replace
                         to={`/${networkInfo.route}${APP_PATHS.CLASSIC_REMOVE_POOL}/${
                           currencyAIsETHER ? currencyId(WETH[chainId], chainId) : NativeCurrencies[chainId].symbol
-                        }/${currencyIdB}/${pairAddress}`}
+                        }/${currencyIdB}/${pairAddress}?${BACK_URL_PARAM_KEY}=${window.location.href}`}
                       >
                         {currencyAIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
                       </StyledInternalLink>
@@ -694,7 +695,7 @@ export default function TokenPair({
                         replace
                         to={`/${networkInfo.route}${APP_PATHS.CLASSIC_REMOVE_POOL}/${currencyIdA}/${
                           currencyBIsETHER ? currencyId(WETH[chainId], chainId) : NativeCurrencies[chainId].symbol
-                        }/${pairAddress}`}
+                        }/${pairAddress}?${BACK_URL_PARAM_KEY}=${window.location.href}`}
                       >
                         {currencyBIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
                       </StyledInternalLink>

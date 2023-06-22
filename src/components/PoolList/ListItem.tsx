@@ -19,6 +19,7 @@ import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { ClassicFarmingPoolAPRCell } from 'components/YieldPools/FarmingPoolAPRCell'
 import { APP_PATHS, MAX_ALLOW_APY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import { BACK_URL_PARAM_KEY } from 'hooks/useGetBackUrl'
 import useTheme from 'hooks/useTheme'
 import { IconWrapper } from 'pages/Pools/styleds'
 import { usePoolDetailModalToggle } from 'state/application/hooks'
@@ -216,7 +217,7 @@ const ListItem = ({ poolData, userLiquidityPositions }: ListItemGroupProps) => {
             to={`/${networkInfo.route}${APP_PATHS.CLASSIC_REMOVE_POOL}/${currencyId(currency0, chainId)}/${currencyId(
               currency1,
               chainId,
-            )}/${poolData.id}`}
+            )}/${poolData.id}?${BACK_URL_PARAM_KEY}=${window.location.href}`}
             style={{
               background: rgba(theme.red, 0.2),
               minWidth: '28px',
