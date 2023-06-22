@@ -1,8 +1,8 @@
 import { Trans } from '@lingui/macro'
-import { Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import styled, { keyframes } from 'styled-components'
 
-import { ButtonPrimary } from 'components/Button'
+import { ReactComponent as WalletIcon } from 'assets/svg/wallet_icon.svg'
 import Row from 'components/Row'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
@@ -18,8 +18,8 @@ const slideInFromBottom = keyframes`
   }
 `
 const Wrapper = styled(Row)`
-  background-color: ${({ theme }) => theme.primary30};
-  height: 60px;
+  background-color: ${({ theme }) => theme.background};
+  height: 44px;
   position: sticky;
   bottom: 0;
   left: 0;
@@ -41,14 +41,12 @@ export default function TruesightFooter() {
   if (account) return <></>
   return (
     <Wrapper>
-      <Text>
-        <Trans>
-          KyberSwap offers excellent rates for traders, attractive rewards & smart trading insights! Get started now.
-        </Trans>
-      </Text>
-      <ButtonPrimary onClick={toggle} width="fit-content" height="36px">
-        <Trans>Connect Wallet</Trans>
-      </ButtonPrimary>
+      <Flex onClick={toggle} alignItems={'center'} style={{ gap: '6px', cursor: 'pointer', userSelect: 'none' }}>
+        <WalletIcon />
+        <Text fontSize={'14px'} fontWeight={'500'}>
+          <Trans>Connect your wallet to start trading</Trans>
+        </Text>
+      </Flex>
     </Wrapper>
   )
 }
