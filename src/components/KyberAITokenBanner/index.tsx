@@ -65,13 +65,14 @@ const KyberAITokenBanner = ({
         return undefined
       }
 
-      const token = tokenInputOverview?.kyberScore?.label
-        ? tokenInputOverview
-        : tokenOutputOverview?.kyberScore?.label
-        ? tokenOutputOverview
-        : tokenNativeOverview?.kyberScore?.label
-        ? tokenNativeOverview
-        : undefined
+      const token =
+        tokenInputOverview?.kyberScore?.label && tokenInputOverview?.symbol !== 'KNC'
+          ? tokenInputOverview
+          : tokenOutputOverview?.kyberScore?.label && tokenOutputOverview?.symbol !== 'KNC'
+          ? tokenOutputOverview
+          : tokenNativeOverview?.kyberScore?.label
+          ? tokenNativeOverview
+          : undefined
       if (!token) {
         return undefined
       }

@@ -61,8 +61,9 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useDegenModeManager, useUserSlippageTolerance } from 'state/user/hooks'
 import { MEDIA_WIDTHS, TYPE } from 'theme'
-import { calculateGasMargin, formattedNum, formattedNumLong, isAddressString } from 'utils'
+import { calculateGasMargin, formattedNum, isAddressString } from 'utils'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
+import { formatDollarAmount } from 'utils/numbers'
 import { SLIPPAGE_STATUS, checkRangeSlippage } from 'utils/slippage'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
@@ -513,7 +514,7 @@ export default function IncreaseLiquidity() {
                       <Text>
                         <Trans>My Liquidity</Trans>
                       </Text>
-                      <Text>{formattedNumLong(totalPooledUSD, true)}</Text>
+                      <Text>{formatDollarAmount(totalPooledUSD)}</Text>
                     </Flex>
 
                     <Divider />
