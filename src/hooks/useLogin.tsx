@@ -73,8 +73,8 @@ const useLogin = () => {
         if (!walletAddress) {
           throw new Error('Not found address.')
         }
-        if (requestingSession.current !== walletAddress) {
-          requestingSession.current = walletAddress
+        if (requestingSession.current?.toLowerCase() !== walletAddress?.toLowerCase()) {
+          requestingSession.current = walletAddress?.toLowerCase()
           setLoading(true)
           await KyberOauth2.getSession({ method: LoginMethod.ETH, walletAddress })
           await getProfile(walletAddress)
@@ -88,13 +88,13 @@ const useLogin = () => {
     [setLoading, signInAnonymous, getProfile],
   )
 
-  const latestAccount = useRef<string | boolean | undefined>('')
+  const latestAccount = useRef<any>('')
   useEffect(() => {
-    const requestSignIn = (wallet: string | boolean | undefined) => {
-      if (latestAccount.current === wallet) {
+    const requestSignIn = (wallet: any) => {
+      if (latestAccount.current?.toLowerCase() === wallet?.toLowerCase()) {
         return //  not change
       }
-      latestAccount.current = wallet
+      latestAccount.current = wallet?.toLowerCase()
       signIn(typeof wallet === 'string' ? wallet : account)
     }
     if (latestAccount.current && !account) {
@@ -103,7 +103,7 @@ const useLogin = () => {
       requestSignIn(account)
       return
     }
-    isAuthorized().then(requestSignIn)
+    isAuthorized().then(wallet => requestSignIn(account || wallet))
   }, [account, signIn])
 }
 export default useLogin
