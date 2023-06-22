@@ -1,12 +1,40 @@
 import { ChainId, Currency, Token, WETH } from '@kyberswap/ks-sdk-core'
-import { useEffect, useState } from 'react'
 import styled, { useTheme } from 'styled-components'
 
 import { DAI, STABLE_COINS_ADDRESS, USDC, USDT } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { Field } from 'state/swap/actions'
 
-const getNetworkString = (chainId: ChainId | undefined) => {
+const getNetworkStringWidget = (chainId: ChainId | undefined) => {
+  switch (chainId) {
+    case ChainId.MAINNET:
+      return 'ether'
+    case ChainId.BSCMAINNET:
+      return 'bnb'
+    case ChainId.MATIC:
+      return 'polygon'
+    case ChainId.CRONOS:
+      return 'cronos'
+    case ChainId.AVAXMAINNET:
+      return 'avalanche'
+    case ChainId.FANTOM:
+      return 'fantom'
+    case ChainId.ARBITRUM:
+      return 'arbitrum'
+    case ChainId.VELAS:
+      return 'velas'
+    case ChainId.AURORA:
+      return 'aurora'
+    case ChainId.OASIS:
+      return 'oasis'
+    case ChainId.OPTIMISM:
+      return 'optimism'
+    default:
+      return ''
+  }
+}
+
+const getNetworkStringAPISearch = (chainId: ChainId | undefined) => {
   switch (chainId) {
     case ChainId.MAINNET:
       return 'chain-ethereum'
@@ -82,7 +110,8 @@ export const searchTokenPair = (address: string, chainId: ChainId | undefined) =
       resolve([{ id: TOKEN_PAIRS_ADDRESS_MAPPING[address.toLowerCase()] }])
     })
   }
-  return fetcherDextools(`${getNetworkString(chainId)}/api/pair/search?s=${address}`)
+
+  return fetcherDextools(`${getNetworkStringAPISearch(chainId)}/api/pair/search?s=${address}`)
 }
 
 const Iframe = styled.iframe`
@@ -202,25 +231,18 @@ export const checkPairHasDextoolsData = async (
   return Promise.resolve(res)
 }
 
-export default function DextoolsWidget({ currencies }: { currencies: { [field in Field]?: Currency } }) {
+export default function DextoolsWidget({ pairAddress }: { pairAddress?: string }) {
   const { chainId } = useActiveWeb3React()
   const theme = useTheme()
-  const [pairAddress, setPairAddress] = useState('0xa29fe6ef9592b5d408cca961d0fb9b1faf497d6d')
-  console.log('🚀 ~ file: index.tsx:210 ~ DextoolsWidget ~ pairAddress:', pairAddress)
-  useEffect(() => {
-    checkPairHasDextoolsData(currencies, chainId).then(res => {
-      res.pairAddress && setPairAddress(res.pairAddress)
-    })
-  }, [currencies, chainId])
   return (
     <Iframe
       id="dextools-widget"
       title="DEXTools Trading Chart"
       width="100%"
       height="100%"
-      src={`https://www.dextools.io/widgets/en/ether/pe-light/${pairAddress}?theme=${
+      src={`https://www.dextools.io/widgets/en/${getNetworkStringWidget(chainId)}/pe-light/${pairAddress}?theme=${
         theme.darkMode ? 'dark' : 'light'
-      }&chartType=1&chartResolution=30&drawingToolbars=true`}
-    ></Iframe>
+      }&chartType=1&chartResolution=60&drawingToolbars=true`}
+    />
   )
 }

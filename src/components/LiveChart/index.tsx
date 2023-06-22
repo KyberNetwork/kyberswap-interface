@@ -4,10 +4,9 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Repeat } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import { useTokenTopPoolsQuery } from 'services/geckoTermial'
 import styled from 'styled-components'
 
-import DextoolsWidget from 'components/DextoolsWidget'
+import DextoolsWidget, { checkPairHasDextoolsData } from 'components/DextoolsWidget'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import ErrorBoundary from 'components/ErrorBoundary'
 import Loader from 'components/LocalLoader'
@@ -75,7 +74,7 @@ const getDifferentValues = (chartData: any, hoverValue: number | null) => {
     const compareValue = hoverValue !== null ? lastValue : firstValue
     return {
       chartColor: lastValue - firstValue >= 0 ? '#31CB9E' : '#FF537B',
-      different: differentValue.toPrecision(6),
+      different: +differentValue.toPrecision(6),
       differentPercent: compareValue === 0 ? 100 : ((differentValue / compareValue) * 100).toFixed(2),
     }
   }
@@ -110,67 +109,20 @@ function LiveChart({
   currencies: { [field in Field]?: Currency }
   enableProChart?: boolean
 }) {
-  const { isSolana, networkInfo } = useActiveWeb3React()
+  const { isSolana, chainId } = useActiveWeb3React()
   const theme = useTheme()
   const [currenciesState, setCurrenciesState] = useState(currencies)
-
-  const {
-    data: dataToken0,
-    isLoading: prochartLoading1,
-    error: errorToken0,
-  } = useTokenTopPoolsQuery(
-    {
-      network: networkInfo.geckoTermialId || '',
-      address: currencies[Field.INPUT]?.wrapped.address || '',
-    },
-    {
-      skip: !enableProChart || !networkInfo.geckoTermialId || !currencies[Field.INPUT]?.wrapped.address,
-    },
-  )
-  const {
-    data: dataToken1,
-    isLoading: prochartLoading2,
-    error: errorToken1,
-  } = useTokenTopPoolsQuery(
-    {
-      network: networkInfo.geckoTermialId || '',
-      address: currencies[Field.OUTPUT]?.wrapped.address || '',
-    },
-    {
-      skip: !enableProChart || !networkInfo.geckoTermialId || !currencies[Field.OUTPUT]?.wrapped.address,
-    },
-  )
-
-  const prochartLoading = prochartLoading1 || prochartLoading2
-
-  const isError = !!errorToken0 && !!errorToken1
-
-  let commonPool = isError
-    ? null
-    : dataToken0?.data.find(
-        item => item.attributes.name.split('/').length === 2 && dataToken1?.data.map(i => i.id).includes(item.id),
-      )
-
-  if (!commonPool && !isError) {
-    const token0 = `${networkInfo.geckoTermialId || ''}_${currencies[Field.INPUT]?.wrapped.address.toLowerCase() || ''}`
-    const token1 = `${networkInfo.geckoTermialId || ''}_${
-      currencies[Field.OUTPUT]?.wrapped.address.toLowerCase() || ''
-    }`
-
-    commonPool =
-      dataToken0?.data.find(
-        (item =>
-          item.relationships.base_token.data.id === token0 && item.relationships.quote_token.data.id === token1) ||
-          (item =>
-            item.relationships.quote_token.data.id === token0 && item.relationships.base_token.data.id === token1),
-      ) ||
-      dataToken1?.data.find(
-        (item =>
-          item.relationships.base_token.data.id === token0 && item.relationships.quote_token.data.id === token1) ||
-          (item =>
-            item.relationships.quote_token.data.id === token0 && item.relationships.base_token.data.id === token1),
-      )
-  }
+  const [pairAddress, setPairAddress] = useState('')
+  console.log('🚀 ~ file: index.tsx:116 ~ pairAddress:', pairAddress)
+  const [prochartLoading, setProchartLoading] = useState(true)
+  useEffect(() => {
+    checkPairHasDextoolsData(currencies, chainId)
+      .then(res => {
+        res.pairAddress && setPairAddress(res.pairAddress)
+        setProchartLoading(false)
+      })
+      .catch(() => setProchartLoading(false))
+  }, [currencies, chainId])
 
   useEffect(() => {
     setCurrenciesState(currencies)
@@ -190,7 +142,7 @@ function LiveChart({
 
   const { data: chartData, error: basicChartError, loading: basicChartLoading } = useBasicChartData(tokens, timeFrame)
 
-  const isProchartError = !commonPool
+  const isProchartError = !pairAddress
   const isBasicchartError = basicChartError && !basicChartLoading
   const bothChartError = isProchartError && isBasicchartError
   const { mixpanelHandler } = useMixpanel()
@@ -209,11 +161,10 @@ function LiveChart({
   const [isManualChange, setIsManualChange] = useState(false)
   const [isShowProChart, setIsShowProChart] = useState(false)
 
-  const poolAddress = commonPool?.attributes.address
   useEffect(() => {
-    if (!!poolAddress && !isManualChange) setIsShowProChart(true)
-    if (!prochartLoading && !poolAddress) setIsShowProChart(false)
-  }, [isShowProChart, isManualChange, poolAddress, prochartLoading])
+    if (!!pairAddress && !isManualChange) setIsShowProChart(true)
+    if (!prochartLoading && !pairAddress) setIsShowProChart(false)
+  }, [isShowProChart, isManualChange, pairAddress, prochartLoading])
 
   const renderTimeframes = () => {
     return (
@@ -314,8 +265,8 @@ function LiveChart({
             </Flex>
 
             {/* Stop tradingview from rerender on isShowProChart change */}
-            <div style={{ display: isShowProChart && !!poolAddress ? 'block' : 'none', height: '100%' }}>
-              {commonPool && <DextoolsWidget currencies={currencies} />}
+            <div style={{ display: isShowProChart && !!pairAddress ? 'block' : 'none', height: '100%' }}>
+              {pairAddress && <DextoolsWidget pairAddress={pairAddress} />}
             </div>
 
             {!isShowProChart && (
