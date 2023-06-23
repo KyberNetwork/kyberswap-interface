@@ -69,7 +69,9 @@ export type ElasticPositionEarningWithDetails = {
 export type ClassicPositionEarningWithDetails = {
   id: string
   ownerOriginal: string
-  pool: string
+  pool: {
+    id: string
+  }
 } & HistoricalEarning
 
 export type ClassicPoolEarningWithDetails = ClassicPositionEarningWithDetails

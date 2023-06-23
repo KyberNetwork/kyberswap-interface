@@ -376,8 +376,8 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
               gap: '4px',
             }}
           >
-            <CopyHelper toCopy={poolEarning.pool} />
-            <Text>{shortenAddress(chainId, poolEarning.pool, 4)}</Text>
+            <CopyHelper toCopy={poolEarning.pool.id} />
+            <Text>{shortenAddress(chainId, poolEarning.pool.id, 4)}</Text>
           </Flex>
         </Flex>
 

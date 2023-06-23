@@ -67,8 +67,7 @@ const earningApi = createApi({
         const data = produce(response.data, draft => {
           Object.keys(draft).forEach(chainRoute => {
             draft[chainRoute].positions.forEach(position => {
-              // TODO: remove reverse() when BE returns in the right order
-              const earnings = fillHistoricalEarningsForEmptyDays(position.historicalEarning.reverse())
+              const earnings = fillHistoricalEarningsForEmptyDays(position.historicalEarning)
               position.historicalEarning = earnings
             })
           })
