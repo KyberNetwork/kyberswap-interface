@@ -67,6 +67,8 @@ const SinglePosition: React.FC<Props> = ({ positionEarning, chainId, pool, pendi
   useEffect(() => {
     if (shouldShowEarningView) {
       setFlipped(true)
+    } else {
+      setFlipped(false)
     }
   }, [shouldShowEarningView])
 

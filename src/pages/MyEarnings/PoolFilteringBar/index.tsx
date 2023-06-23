@@ -3,21 +3,68 @@ import { ChevronUp } from 'react-feather'
 import { useDispatch } from 'react-redux'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
+import styled from 'styled-components'
 
 import { ButtonOutlined } from 'components/Button'
 import SubscribeNotificationButton from 'components/SubscribeButton'
 import useTheme from 'hooks/useTheme'
 import ClosedPositionsToggle from 'pages/MyEarnings/PoolFilteringBar/ClosedPositionsToggle'
 import SearchInput from 'pages/MyEarnings/PoolFilteringBar/SearchInput'
-import ViewEarningsButton from 'pages/MyEarnings/PoolFilteringBar/ViewEarningsButton'
+import ViewEarningOrPositionButton from 'pages/MyEarnings/PoolFilteringBar/ViewEarningOrPositionButton'
 import { useAppSelector } from 'state/hooks'
 import { collapseAllPools, expandAllPools } from 'state/myEarnings/actions'
 import { MEDIA_WIDTHS } from 'theme'
 
-const ExpandCollapseAll = () => {
+const ViewEarningOrPositionButtonForSmallScreens = styled(ViewEarningOrPositionButton)`
+  flex: 1 1 100%;
+`
+
+const ExpandCollapseAll: React.FC<{ iconOnly?: boolean }> = ({ iconOnly = false }) => {
   const dispatch = useDispatch()
   const shouldExpandAllPools = useAppSelector(state => state.myEarnings.shouldExpandAllPools)
   const theme = useTheme()
+
+  if (iconOnly) {
+    return (
+      <ButtonOutlined
+        style={{
+          flex: '0 0 36px',
+          height: '36px',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '4px',
+          borderRadius: '12px',
+        }}
+        onClick={() => {
+          if (shouldExpandAllPools) {
+            dispatch(collapseAllPools())
+          } else {
+            dispatch(expandAllPools())
+          }
+        }}
+      >
+        <Flex
+          sx={{
+            flex: '0 0 20px',
+            height: '20px',
+            transition: 'all 150ms linear',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <ChevronUp
+            size={20}
+            strokeWidth={2}
+            color={theme.subText}
+            style={{
+              transition: 'all 150ms linear',
+              transform: shouldExpandAllPools ? undefined : 'rotate(180deg)',
+            }}
+          />
+        </Flex>
+      </ButtonOutlined>
+    )
+  }
 
   return (
     <ButtonOutlined
@@ -38,15 +85,15 @@ const ExpandCollapseAll = () => {
     >
       <Flex
         sx={{
-          flex: '0 0 18px',
-          height: '18px',
+          flex: '0 0 20px',
+          height: '20px',
           transition: 'all 150ms linear',
           justifyContent: 'center',
           alignItems: 'center',
         }}
       >
         <ChevronUp
-          size={18}
+          size={20}
           strokeWidth={2}
           color={theme.subText}
           style={{
@@ -55,13 +102,15 @@ const ExpandCollapseAll = () => {
           }}
         />
       </Flex>
-      <Text
-        sx={{
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {shouldExpandAllPools ? <Trans>Collapse All</Trans> : <Trans>Expand All</Trans>}
-      </Text>
+      {iconOnly || (
+        <Text
+          sx={{
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {shouldExpandAllPools ? <Trans>Collapse All</Trans> : <Trans>Expand All</Trans>}
+        </Text>
+      )}
     </ButtonOutlined>
   )
 }
@@ -78,14 +127,20 @@ const PoolFilteringBar = () => {
           gap: '16px',
         }}
       >
-        <Flex alignItems="center" justifyContent="space-between">
-          <ExpandCollapseAll />
-          <ViewEarningsButton />
+        <Flex
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{
+            gap: '16px',
+          }}
+        >
+          <ExpandCollapseAll iconOnly />
+          <ViewEarningOrPositionButtonForSmallScreens />
         </Flex>
 
         <Flex alignItems="center" justifyContent="space-between">
           <ClosedPositionsToggle />
-          <SubscribeNotificationButton trackingEvent={undefined} />
+          <SubscribeNotificationButton iconOnly={false} trackingEvent={undefined} />
         </Flex>
 
         <SearchInput />
@@ -103,20 +158,26 @@ const PoolFilteringBar = () => {
         color: theme.subText,
       }}
     >
-      <ExpandCollapseAll />
       <Flex
         sx={{
           justifyContent: 'space-between',
           gap: '16px',
         }}
       >
-        <ViewEarningsButton />
-
+        <ExpandCollapseAll />
+        <ViewEarningOrPositionButton />
+      </Flex>
+      <Flex
+        sx={{
+          justifyContent: 'space-between',
+          gap: '16px',
+        }}
+      >
         <ClosedPositionsToggle />
 
         <SearchInput />
 
-        <SubscribeNotificationButton trackingEvent={undefined} />
+        <SubscribeNotificationButton iconOnly={false} trackingEvent={undefined} />
       </Flex>
     </Flex>
   )
