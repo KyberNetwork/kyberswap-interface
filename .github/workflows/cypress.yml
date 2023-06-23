@@ -112,7 +112,7 @@ jobs:
         with:
           name: "credentials.json"
           json: ${{ secrets.GG_AUTH }}
-      - run: node ./node_modules/gmail-tester/init.js credentials.json token-cypress-example.json kyberqa@gmail.com
+      - run: sudo node ./node_modules/gmail-tester/init.js credentials.json token-cypress-example.json kyberqa@gmail.com
 
       - name: Run Cypress Test
         run: |+
