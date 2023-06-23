@@ -3,37 +3,25 @@ import { Trans } from '@lingui/macro'
 import { useMemo } from 'react'
 import { Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import {
-  PoolEarningWithDetails,
-  PositionEarningWithDetails,
-  useGetElasticEarningQuery,
-  useGetElasticLegacyEarningQuery,
-} from 'services/earning'
+import { useGetElasticEarningQuery, useGetElasticLegacyEarningQuery } from 'services/earning'
+import { ElasticPoolEarningWithDetails, ElasticPositionEarningWithDetails } from 'services/earning/types'
 
 import LoaderWithKyberLogo from 'components/LocalLoader'
 import { EMPTY_ARRAY } from 'constants/index'
-import { NETWORKS_INFO, SUPPORTED_NETWORKS_FOR_MY_EARNINGS } from 'constants/networks'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import { usePositionsFees } from 'hooks/usePositionsFees'
 import useTheme from 'hooks/useTheme'
 import SinglePool from 'pages/MyEarnings/ElasticPools/SinglePool'
+import { chainIdByRoute } from 'pages/MyEarnings/utils'
 import { useAppSelector } from 'state/hooks'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 
-const chainIdByRoute: Record<string, ChainId> = SUPPORTED_NETWORKS_FOR_MY_EARNINGS.map(chainId => ({
-  route: NETWORKS_INFO[chainId].aggregatorRoute,
-  chainId,
-})).reduce((acc, { route, chainId }) => {
-  acc[route] = chainId
-  return acc
-}, {} as Record<string, ChainId>)
-
 const getPositionEarningsByPoolId = (
-  earnings: PositionEarningWithDetails[] | undefined,
+  earnings: ElasticPositionEarningWithDetails[] | undefined,
   includeClosedPositions = false,
-): Record<string, PositionEarningWithDetails[]> => {
+): Record<string, ElasticPositionEarningWithDetails[]> => {
   const data = earnings || []
 
   return data.reduce((acc, positionEarning) => {
@@ -53,13 +41,13 @@ const getPositionEarningsByPoolId = (
     }
 
     return acc
-  }, {} as Record<string, PositionEarningWithDetails[]>)
+  }, {} as Record<string, ElasticPositionEarningWithDetails[]>)
 }
 
 interface PoolType {
   chainId: ChainId
-  poolEarning: PoolEarningWithDetails
-  positionEarnings: PositionEarningWithDetails[]
+  poolEarning: ElasticPoolEarningWithDetails
+  positionEarnings: ElasticPositionEarningWithDetails[]
 }
 
 const ElasticPools = () => {

@@ -3,7 +3,7 @@ import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { Repeat } from 'react-feather'
 import { Flex } from 'rebass'
-import { PositionEarningWithDetails } from 'services/earning'
+import { ElasticPositionEarningWithDetails } from 'services/earning/types'
 import styled from 'styled-components'
 
 import Background from 'assets/images/card-background2.png'
@@ -24,7 +24,7 @@ export const ViewWrapper = styled.div`
 
 export type CommonProps = {
   onFlipView: () => void
-  positionEarning: PositionEarningWithDetails
+  positionEarning: ElasticPositionEarningWithDetails
   position: Position
   chainId: ChainId
   pendingFee: [string, string]

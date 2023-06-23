@@ -5,7 +5,7 @@ import { rgba } from 'polished'
 import { useMemo, useState } from 'react'
 import { Eye, Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import { PositionEarningWithDetails } from 'services/earning'
+import { ElasticPositionEarningWithDetails } from 'services/earning/types'
 import styled from 'styled-components'
 
 import { ButtonLight } from 'components/Button'
@@ -40,7 +40,7 @@ const ListPositions = styled.div`
 
 type Props = {
   chainId: ChainId
-  positionEarnings: PositionEarningWithDetails[]
+  positionEarnings: ElasticPositionEarningWithDetails[]
   pool: Pool | undefined
   pendingFees: { [id: string]: [string, string] }
   tokenPrices: { [id: string]: number }

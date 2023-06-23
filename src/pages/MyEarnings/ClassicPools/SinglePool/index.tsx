@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
-import { PoolEarningWithDetails, PositionEarningWithDetails } from 'services/earning'
+import { ClassicPositionEarningWithDetails } from 'services/earning/types'
 import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
@@ -17,15 +17,13 @@ import Logo from 'components/Logo'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
-import { PoolState } from 'hooks/usePools'
-import { usePoolv2 } from 'hooks/usePoolv2'
 import useTheme from 'hooks/useTheme'
-import PoolEarningsSection from 'pages/MyEarnings/ElasticPools/SinglePool/PoolEarningsSection'
-import Positions from 'pages/MyEarnings/Positions'
+import SharePoolEarningsButton from 'pages/MyEarnings/ElasticPools/SinglePool/SharePoolEarningsButton'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { useAppSelector } from 'state/hooks'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { MEDIA_WIDTHS } from 'theme'
-import { isAddress, shortenAddress } from 'utils'
+import { shortenAddress } from 'utils'
 
 import StatsRow from './StatsRow'
 
@@ -65,34 +63,26 @@ const Badge = styled.div<{ $color?: string }>`
 
 export type Props = {
   chainId: ChainId
-  poolEarning: PoolEarningWithDetails
-  positionEarnings: PositionEarningWithDetails[]
+  poolEarning: ClassicPositionEarningWithDetails
 }
-const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings }) => {
+const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
   const theme = useTheme()
   const [isExpanded, setExpanded] = useState(false)
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const shouldExpandAllPools = useAppSelector(state => state.myEarnings.shouldExpandAllPools)
+  /* Some tokens have different symbols in our system */
+  const displaySymbolOfToken0 = 'TOKEN' // getTokenSymbolWithHardcode(chainId, poolEarning.token0.id, poolEarning.token0.symbol)
+  const displaySymbolOfToken1 = 'TOKEN' // getTokenSymbolWithHardcode(chainId, poolEarning.token1.id, poolEarning.token1.symbol)
 
-  const feeAmount = Number(poolEarning.feeTier) as FeeAmount
+  // TODO
+  const feeAmount = FeeAmount.STABLE
 
   const [currency0, currency1] = useMemo(() => {
-    const tokenAddress0 = isAddress(chainId, poolEarning.token0.id)
-    const tokenAddress1 = isAddress(chainId, poolEarning.token1.id)
+    return [undefined, undefined] as Array<WrappedTokenInfo | undefined>
+  }, [])
 
-    if (!tokenAddress0 || !tokenAddress1) {
-      return []
-    }
-
-    const currency0 = tokensByChainId[chainId][tokenAddress0]
-    const currency1 = tokensByChainId[chainId][tokenAddress1]
-
-    return [currency0, currency1]
-  }, [chainId, poolEarning.token0.id, poolEarning.token1.id, tokensByChainId])
-
-  const { pool, poolState } = usePoolv2(chainId, currency0, currency1, feeAmount, poolEarning.id)
-  const isExpandable = !!pool && poolState !== PoolState.LOADING
+  const isExpandable = true //!!pool && poolState !== PoolState.LOADING
 
   const toggleExpanded = useCallback(() => {
     setExpanded(e => !e)
@@ -104,7 +94,8 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
     </Link>
   )
 
-  const isFarmingPool = poolEarning.farmApr && poolEarning.farmApr !== '0'
+  // TODO
+  const isFarmingPool = false // poolEarning.farmApr && poolEarning.farmApr !== '0'
 
   const poolEarningToday = useMemo(() => {
     const earning = poolEarning.historicalEarning[0]?.total?.reduce(
@@ -121,7 +112,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
     setExpanded(shouldExpandAllPools)
   }, [shouldExpandAllPools])
 
-  const feePercent = (Number(poolEarning.feeTier) * 100) / ELASTIC_BASE_FEE_UNIT + '%'
+  const feePercent = (Number(feeAmount) * 100) / ELASTIC_BASE_FEE_UNIT + '%'
 
   const renderStatsRow = () => {
     return (
@@ -130,12 +121,12 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
         currency1={currency1}
         feeAmount={feeAmount}
         chainId={chainId}
-        totalValueLockedUsd={poolEarning.totalValueLockedUsd}
-        poolApr={poolEarning.apr}
-        farmApr={poolEarning.apr}
+        totalValueLockedUsd={'--'}
+        poolApr={'--'}
+        farmApr={'--'}
         ampLiquidity={'12345678'}
-        volume24hUsd={Number(poolEarning.volumeUsd) - Number(poolEarning.volumeUsdOneDayAgo)}
-        fees24hUsd={Number(poolEarning.feesUsd) - Number(poolEarning.feesUsdOneDayAgo)}
+        volume24hUsd={123456789}
+        fees24hUsd={123456789}
         renderToggleExpandButton={() => {
           return (
             <ButtonIcon
@@ -146,10 +137,9 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
                 transform: isExpanded ? 'rotate(180deg)' : undefined,
                 transition: 'all 150ms ease',
               }}
-              disabled={!pool || poolState === PoolState.LOADING}
               onClick={toggleExpanded}
             >
-              {poolState === PoolState.LOADING ? <Loader /> : <DropdownSVG />}
+              {1 + 1 === 1 + 2 ? <Loader /> : <DropdownSVG />}
             </ButtonIcon>
           )
         }}
@@ -200,7 +190,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
                   lineHeight: '20px',
                 }}
               >
-                {poolEarning.token0.symbol} - {poolEarning.token1.symbol}
+                TOKEN - TOKEN {/* TODO {poolEarning.token0.symbol} - {poolEarning.token1.symbol} */}
               </Text>
             </Flex>
 
@@ -279,7 +269,6 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
                 /> */}
               </Flex>
             </Flex>
-            <PoolEarningsSection poolEarning={poolEarning} chainId={chainId} />
 
             <Box
               sx={{
@@ -289,15 +278,6 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
                 borderBottom: '1px solid transparent',
                 borderBottomColor: theme.border,
               }}
-            />
-
-            <Positions
-              positionEarnings={positionEarnings}
-              chainId={chainId}
-              pool={pool}
-              //  TODO(viet-nv): update
-              pendingFees={{}}
-              tokenPrices={{}}
             />
           </>
         )}
@@ -347,7 +327,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
                 lineHeight: '24px',
               }}
             >
-              {poolEarning.token0.symbol} - {poolEarning.token1.symbol}
+              {displaySymbolOfToken0} - {displaySymbolOfToken1}
             </Text>
           </Flex>
 
@@ -378,8 +358,8 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
             gap: '4px',
           }}
         >
-          <CopyHelper toCopy={poolEarning.id} />
-          <Text>{shortenAddress(chainId, poolEarning.id, 4)}</Text>
+          <CopyHelper toCopy={poolEarning.pool} />
+          <Text>{shortenAddress(chainId, poolEarning.pool, 4)}</Text>
         </Flex>
       </Flex>
 
@@ -429,8 +409,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
                 {poolEarningStr}
               </Text>
 
-              {/* TODO */}
-              {/* <SharePoolEarningsButton
+              <SharePoolEarningsButton
                 totalValue={poolEarningToday}
                 token0={
                   currency0?.logoURI && displaySymbolOfToken0
@@ -449,10 +428,9 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings })
                     : undefined
                 }
                 feePercent={feePercent}
-              /> */}
+              />
             </Flex>
           </Flex>
-          <PoolEarningsSection poolEarning={poolEarning} chainId={chainId} />
         </>
       )}
     </Flex>

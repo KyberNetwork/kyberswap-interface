@@ -3,7 +3,7 @@ import { t } from '@lingui/macro'
 import { useMemo } from 'react'
 import { useMedia } from 'react-use'
 import { Box, Flex } from 'rebass'
-import { PoolEarningWithDetails } from 'services/earning'
+import { ElasticPoolEarningWithDetails } from 'services/earning/types'
 import styled from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
@@ -81,7 +81,7 @@ const MyEarningsOverTimePanel = styled(OriginalMyEarningsOverTimePanel)`
 
 type Props = {
   chainId: ChainId
-  poolEarning: PoolEarningWithDetails
+  poolEarning: ElasticPoolEarningWithDetails
 }
 const PoolEarningsSection: React.FC<Props> = ({ poolEarning, chainId }) => {
   const theme = useTheme()

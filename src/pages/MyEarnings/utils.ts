@@ -3,12 +3,12 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
 import produce from 'immer'
 import {
-  GetEarningDataResponse,
+  ElasticPoolEarningWithDetails,
+  GetElasticEarningResponse,
   HistoricalEarning,
   HistoricalSingleData,
-  PoolEarningWithDetails,
   TokenEarning,
-} from 'services/earning'
+} from 'services/earning/types'
 
 import { NETWORKS_INFO, SUPPORTED_NETWORKS_FOR_MY_EARNINGS } from 'constants/networks'
 import { TokenAddressMap } from 'state/lists/reducer'
@@ -282,8 +282,8 @@ const mergeEarningStatsTick = (tick: EarningStatsTick): EarningStatsTick => {
 }
 
 export const fillEmptyDaysForPositionEarnings = (
-  earningResponse: GetEarningDataResponse | undefined,
-): GetEarningDataResponse | undefined => {
+  earningResponse: GetElasticEarningResponse | undefined,
+): GetElasticEarningResponse | undefined => {
   if (!earningResponse) {
     return undefined
   }
@@ -302,8 +302,8 @@ export const fillEmptyDaysForPositionEarnings = (
 }
 
 export const aggregatePoolEarnings = (
-  earningResponse: GetEarningDataResponse | undefined,
-): GetEarningDataResponse | undefined => {
+  earningResponse: GetElasticEarningResponse | undefined,
+): GetElasticEarningResponse | undefined => {
   if (!earningResponse) {
     return undefined
   }
@@ -314,7 +314,7 @@ export const aggregatePoolEarnings = (
     chains.forEach(chain => {
       const { positions } = draft[chain]
       // historical earning data only
-      const byPool: Record<string, PoolEarningWithDetails> = {}
+      const byPool: Record<string, ElasticPoolEarningWithDetails> = {}
 
       positions.forEach(position => {
         const poolId = position.pool.id
@@ -347,8 +347,8 @@ export const aggregatePoolEarnings = (
 }
 
 export const aggregateAccountEarnings = (
-  earningResponse: GetEarningDataResponse | undefined,
-): GetEarningDataResponse | undefined => {
+  earningResponse: GetElasticEarningResponse | undefined,
+): GetElasticEarningResponse | undefined => {
   if (!earningResponse) {
     return undefined
   }
@@ -405,7 +405,7 @@ export const aggregateAccountEarnings = (
 }
 
 export const calculateTicksOfAccountEarningsInMultipleChains = (
-  earningResponses: Array<GetEarningDataResponse | undefined>,
+  earningResponses: Array<GetElasticEarningResponse | undefined>,
   tokensByChainId: TokenAddressMap | undefined,
 ): EarningStatsTick[] | undefined => {
   if (!tokensByChainId) {
@@ -414,7 +414,7 @@ export const calculateTicksOfAccountEarningsInMultipleChains = (
 
   const byDay: Record<string, EarningStatsTick> = {}
 
-  const responses = earningResponses.filter(Boolean) as GetEarningDataResponse[]
+  const responses = earningResponses.filter(Boolean) as GetElasticEarningResponse[]
 
   responses.forEach(earningResponse => {
     const chainRoutes = Object.keys(earningResponse)

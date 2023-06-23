@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
-import { PoolEarningWithDetails, PositionEarningWithDetails } from 'services/earning'
+import { ElasticPoolEarningWithDetails, ElasticPositionEarningWithDetails } from 'services/earning/types'
 import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
@@ -66,8 +66,8 @@ const Badge = styled.div<{ $color?: string }>`
 
 export type Props = {
   chainId: ChainId
-  poolEarning: PoolEarningWithDetails
-  positionEarnings: PositionEarningWithDetails[]
+  poolEarning: ElasticPoolEarningWithDetails
+  positionEarnings: ElasticPositionEarningWithDetails[]
   pendingFees: { [id: string]: [string, string] }
   tokenPrices: { [id: string]: number }
 }

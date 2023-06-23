@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { useEffect, useMemo, useState } from 'react'
 import { Flex } from 'rebass'
-import { PositionEarningWithDetails } from 'services/earning'
+import { ElasticPositionEarningWithDetails } from 'services/earning/types'
 import styled from 'styled-components'
 
 import Background from 'assets/images/card-background2.png'
@@ -38,7 +38,7 @@ const FlipCard = styled.div<{ flip: boolean; joined?: boolean }>`
 
 type Props = {
   chainId: ChainId
-  positionEarning: PositionEarningWithDetails
+  positionEarning: ElasticPositionEarningWithDetails
   pool: Pool | undefined
   pendingFee: [string, string]
   tokenPrices: { [key: string]: number }

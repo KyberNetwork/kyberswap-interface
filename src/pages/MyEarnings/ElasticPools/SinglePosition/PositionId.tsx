@@ -2,13 +2,13 @@ import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import { PositionEarningWithDetails } from 'services/earning'
+import { ElasticPositionEarningWithDetails } from 'services/earning/types'
 
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 
 type Props = {
-  positionEarning: PositionEarningWithDetails
+  positionEarning: ElasticPositionEarningWithDetails
 }
 const PositionId: React.FC<Props> = ({ positionEarning }) => {
   const theme = useTheme()

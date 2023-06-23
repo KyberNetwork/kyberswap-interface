@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import { NETWORKS_INFO } from 'constants/networks'
@@ -8,96 +7,19 @@ import {
   fillEmptyDaysForPositionEarnings,
 } from 'pages/MyEarnings/utils'
 
-export type TokenEarning = {
-  token: string
-  amount: string
-  decimals: string
-  amountUSD: string
-  amountFloat: string
-}
+import {
+  GetClassicEarningParams,
+  GetClassicEarningResponse,
+  GetElasticEarningParams,
+  GetElasticEarningResponse,
+  MetaResponse,
+} from './types'
 
-export type HistoricalSingleData = {
-  day: number
-  block: number
-  fees: Array<TokenEarning> | null
-  rewards: Array<TokenEarning> | null
-  total: Array<TokenEarning> | null
-}
-
-export type PoolDetails = {
-  id: string
-  token0: {
-    id: string
-    symbol: string
-    name: string
-    decimals: string
-  }
-  token1: {
-    id: string
-    symbol: string
-    name: string
-    decimals: string
-  }
-  feeTier: string
-  liquidity: string
-  reinvestL: string
-  sqrtPrice: string
-  tick: string
-  volumeUsd: string
-  feesUsd: string
-  totalValueLockedUsd: string
-  feesUsdOneDayAgo: string
-  volumeUsdOneDayAgo: string
-  totalValueLockedUsdInRange: string
-  apr: string
-  farmApr: string
-}
-
-export type HistoricalEarning = {
-  historicalEarning: HistoricalSingleData[]
-}
-
-export type PoolEarningWithDetails = PoolDetails & HistoricalEarning
-
-export type PositionEarningWithDetails = {
-  id: string
-  owner: string
-  ownerOriginal: string
-  pool: PoolDetails
-  token0: string
-  token1: string
-  tickLower: string
-  tickUpper: string
-  liquidity: string
-  feeGrowthInsideLast: string
-  lastCollectedFeeAt: string
-  lastHarvestedFarmRewardAt: string
-} & HistoricalEarning
-
-type MetaResponse<T> = {
-  code: number
-  message: string
-  data?: T
-}
-
-export type GetEarningDataResponse = Record<
-  string,
-  {
-    positions: PositionEarningWithDetails[]
-    pools: PoolEarningWithDetails[]
-    account: HistoricalSingleData[]
-  }
->
-
-type Params = {
-  account: string
-  chainIds: ChainId[]
-}
 const earningApi = createApi({
   reducerPath: 'earningApi',
   baseQuery: fetchBaseQuery({ baseUrl: 'https://pool-farm.dev.kyberengineering.io' }),
   endpoints: builder => ({
-    getElasticEarning: builder.query<GetEarningDataResponse, Params>({
+    getElasticEarning: builder.query<GetElasticEarningResponse, GetElasticEarningParams>({
       query: ({ account, chainIds }) => ({
         url: `/all-chain/api/v1/elastic/portfolio`,
         params: {
@@ -105,14 +27,14 @@ const earningApi = createApi({
           chainNames: chainIds.map(chainId => NETWORKS_INFO[chainId].aggregatorRoute),
         },
       }),
-      transformResponse: (response: MetaResponse<GetEarningDataResponse>) => {
+      transformResponse: (response: MetaResponse<GetElasticEarningResponse>) => {
         return aggregateAccountEarnings(
-          aggregatePoolEarnings(fillEmptyDaysForPositionEarnings(response.data as GetEarningDataResponse)),
-        ) as GetEarningDataResponse
+          aggregatePoolEarnings(fillEmptyDaysForPositionEarnings(response.data as GetElasticEarningResponse)),
+        ) as GetElasticEarningResponse
       },
       keepUnusedDataFor: 300, // 5 minutes
     }),
-    getElasticLegacyEarning: builder.query<GetEarningDataResponse, Params>({
+    getElasticLegacyEarning: builder.query<GetElasticEarningResponse, GetElasticEarningParams>({
       query: ({ account, chainIds }) => ({
         url: `/all-chain/api/v1/elastic-legacy/portfolio`,
         params: {
@@ -120,10 +42,23 @@ const earningApi = createApi({
           chainNames: chainIds.map(chainId => NETWORKS_INFO[chainId].aggregatorRoute),
         },
       }),
-      transformResponse: (response: MetaResponse<GetEarningDataResponse>) => {
+      transformResponse: (response: MetaResponse<GetElasticEarningResponse>) => {
         return aggregateAccountEarnings(
-          aggregatePoolEarnings(fillEmptyDaysForPositionEarnings(response.data as GetEarningDataResponse)),
-        ) as GetEarningDataResponse
+          aggregatePoolEarnings(fillEmptyDaysForPositionEarnings(response.data as GetElasticEarningResponse)),
+        ) as GetElasticEarningResponse
+      },
+      keepUnusedDataFor: 300, // 5 minutes
+    }),
+    getClassicEarning: builder.query<GetClassicEarningResponse, GetClassicEarningParams>({
+      query: ({ account, chainIds }) => ({
+        url: `/all-chain/api/v1/classic/portfolio`,
+        params: {
+          account,
+          chainNames: chainIds.map(chainId => NETWORKS_INFO[chainId].aggregatorRoute),
+        },
+      }),
+      transformResponse: (response: MetaResponse<GetClassicEarningResponse>) => {
+        return response.data as GetClassicEarningResponse
       },
       keepUnusedDataFor: 300, // 5 minutes
     }),
@@ -134,7 +69,9 @@ export default earningApi
 export const {
   useGetElasticEarningQuery,
   useGetElasticLegacyEarningQuery,
+  useGetClassicEarningQuery,
 
   useLazyGetElasticEarningQuery,
   useLazyGetElasticLegacyEarningQuery,
+  useLazyGetClassicEarningQuery,
 } = earningApi
