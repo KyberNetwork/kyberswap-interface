@@ -105,6 +105,14 @@ jobs:
           fluxbox &
         env:
           DISPLAY: :0.0  
+      
+      - name: Create credentials
+        id: create-json
+        uses: jsdaniell/create-json@v1.2.2
+        with:
+          name: "credentials.json"
+          json: ${{ secrets.GG_AUTH }}
+      - run: node ./node_modules/gmail-tester/init.js credentials.json token-cypress-example.json kyberqa@gmail.com
 
       - name: Run Cypress Test
         run: |+
