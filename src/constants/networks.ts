@@ -95,7 +95,7 @@ export const EVM_MAINNET_NETWORKS = MAINNET_NETWORKS.filter(
 // - Zerion ios only enable those chains which we pass to `chains` option, completely ignoring `optionalChains`
 // - Metamask android only accept [1], ignore `optionalChains`
 // - Metamask ios not live yet as 24/6/23
-// - Alpha wallet behaves like Zerion ios
+// - Alpha wallet behaves like Zerion ios, but is able to edit chains list on wallet after connected.
 // - Zerion android enable some chains in `optionalChains`
 // - Rainbow wallet: ??
 // Ideally, we would have to pass {chains: [1], optionalChains: [...rest]} to walletconnect
