@@ -3,7 +3,7 @@ import { t } from '@lingui/macro'
 import { useMemo } from 'react'
 import { useMedia } from 'react-use'
 import { Box, Flex } from 'rebass'
-import { ElasticPoolEarningWithDetails } from 'services/earning/types'
+import { HistoricalSingleData } from 'services/earning/types'
 import styled from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
@@ -81,15 +81,15 @@ const MyEarningsOverTimePanel = styled(OriginalMyEarningsOverTimePanel)`
 
 type Props = {
   chainId: ChainId
-  poolEarning: ElasticPoolEarningWithDetails
+  historicalEarning: HistoricalSingleData[]
 }
-const PoolEarningsSection: React.FC<Props> = ({ poolEarning, chainId }) => {
+const PoolEarningsSection: React.FC<Props> = ({ historicalEarning, chainId }) => {
   const theme = useTheme()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
 
   const earningBreakdown: EarningsBreakdown | undefined = useMemo(() => {
-    const data = poolEarning.historicalEarning
+    const data = historicalEarning
 
     const latestData =
       data?.[0]?.day === today
@@ -150,12 +150,12 @@ const PoolEarningsSection: React.FC<Props> = ({ poolEarning, chainId }) => {
       totalValue,
       breakdowns,
     }
-  }, [chainId, poolEarning.historicalEarning, tokensByChainId])
+  }, [chainId, historicalEarning, tokensByChainId])
 
   // format pool value
   const ticks: EarningStatsTick[] | undefined = useMemo(() => {
-    return calculateEarningStatsTick(poolEarning.historicalEarning, chainId, tokensByChainId)
-  }, [chainId, poolEarning.historicalEarning, tokensByChainId])
+    return calculateEarningStatsTick(historicalEarning, chainId, tokensByChainId)
+  }, [chainId, historicalEarning, tokensByChainId])
 
   if (upToExtraSmall) {
     return (

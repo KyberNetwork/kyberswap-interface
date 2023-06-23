@@ -18,6 +18,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
+import PoolEarningsSection from 'pages/MyEarnings/ElasticPools/SinglePool/PoolEarningsSection'
 import SharePoolEarningsButton from 'pages/MyEarnings/ElasticPools/SinglePool/SharePoolEarningsButton'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { useAppSelector } from 'state/hooks'
@@ -431,6 +432,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
               />
             </Flex>
           </Flex>
+          <PoolEarningsSection historicalEarning={poolEarning.historicalEarning} chainId={chainId} />
         </>
       )}
     </Flex>

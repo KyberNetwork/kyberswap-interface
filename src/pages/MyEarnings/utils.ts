@@ -36,7 +36,7 @@ export function shuffle<T>(array: T[]): T[] {
 export const today = Math.floor(Date.now() / 1000 / 86400)
 const aYearAgo = Math.floor(Date.now() / 1000 / 86400 - 365)
 
-const fillHistoricalEarningsForEmptyDays = (
+export const fillHistoricalEarningsForEmptyDays = (
   historicalEarnings: HistoricalSingleData[] | undefined,
 ): HistoricalSingleData[] => {
   if (!historicalEarnings?.length) {

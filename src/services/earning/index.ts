@@ -1,10 +1,12 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import produce from 'immer'
 
 import { NETWORKS_INFO } from 'constants/networks'
 import {
   aggregateAccountEarnings,
   aggregatePoolEarnings,
   fillEmptyDaysForPositionEarnings,
+  fillHistoricalEarningsForEmptyDays,
 } from 'pages/MyEarnings/utils'
 
 import {
@@ -58,7 +60,21 @@ const earningApi = createApi({
         },
       }),
       transformResponse: (response: MetaResponse<GetClassicEarningResponse>) => {
-        return response.data as GetClassicEarningResponse
+        if (!response.data) {
+          return {} as GetClassicEarningResponse
+        }
+
+        const data = produce(response.data, draft => {
+          Object.keys(draft).forEach(chainRoute => {
+            draft[chainRoute].positions.forEach(position => {
+              // TODO: remove reverse() when BE returns in the right order
+              const earnings = fillHistoricalEarningsForEmptyDays(position.historicalEarning.reverse())
+              position.historicalEarning = earnings
+            })
+          })
+        })
+
+        return data as GetClassicEarningResponse
       },
       keepUnusedDataFor: 300, // 5 minutes
     }),

@@ -306,7 +306,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
                 {renderSharePoolEarningsButton()}
               </Flex>
             </Flex>
-            <PoolEarningsSection poolEarning={poolEarning} chainId={chainId} />
+            <PoolEarningsSection historicalEarning={poolEarning.historicalEarning} chainId={chainId} />
 
             <Box
               sx={{
@@ -458,7 +458,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
               {renderSharePoolEarningsButton()}
             </Flex>
           </Flex>
-          <PoolEarningsSection poolEarning={poolEarning} chainId={chainId} />
+          <PoolEarningsSection historicalEarning={poolEarning.historicalEarning} chainId={chainId} />
           <Positions
             positionEarnings={positionEarnings}
             chainId={chainId}
