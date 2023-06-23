@@ -90,14 +90,18 @@ export const EVM_MAINNET_NETWORKS = MAINNET_NETWORKS.filter(
   chainId => getChainType(chainId) === ChainType.EVM,
 ) as Exclude<typeof MAINNET_NETWORKS[number], ChainId.SOLANA>[]
 
-export const WALLET_CONNECT_REQUIRED_CHAIN_IDS = [
-  ChainId.MAINNET,
-  ChainId.MATIC,
-  ChainId.BSCMAINNET,
-  // ChainId.ARBITRUM, //metamask default not support this
-  ChainId.AVAXMAINNET,
-  ChainId.OPTIMISM,
-]
+// These option of walletconnect is not support by wallets properly
+// E.g:
+// - Zerion ios only enable those chains which we pass to `chains` option, completely ignoring `optionalChains`
+// - Metamask android only accept [1], ignore `optionalChains`
+// - Metamask ios not live yet as 24/6/23
+// - Alpha wallet behaves like Zerion ios
+// - Zerion android enable some chains in `optionalChains`
+// - Rainbow wallet: ??
+// Ideally, we would have to pass {chains: [1], optionalChains: [...rest]} to walletconnect
+// But most wallets not respecting `optionalChains`, causing some inconveniences that we can only use Ethereum through Walletconnect
+// Note: this const is use for wallets connecting through walletconnect, not directly through injected method
+export const WALLET_CONNECT_REQUIRED_CHAIN_IDS = [ChainId.MAINNET]
 export const WALLET_CONNECT_SUPPORTED_CHAIN_IDS = EVM_MAINNET_NETWORKS
 export const WALLET_CONNECT_OPTIONAL_CHAIN_IDS = WALLET_CONNECT_SUPPORTED_CHAIN_IDS.filter(
   chain => !WALLET_CONNECT_REQUIRED_CHAIN_IDS.includes(chain),
