@@ -2,6 +2,7 @@ import { rgba } from 'polished'
 import styled, { css } from 'styled-components'
 
 const baseButtonCSS = css`
+  gap: 4px;
   padding: 8px 12px;
   margin: unset;
   font-weight: 500;

@@ -36,8 +36,6 @@ const ClassicPools = () => {
     return pools
   }, [data])
 
-  console.log({ pools })
-
   return (
     <Flex
       sx={{

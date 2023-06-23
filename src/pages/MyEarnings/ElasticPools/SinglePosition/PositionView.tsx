@@ -13,7 +13,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { VERSION } from 'constants/v2'
-import { ActionButton } from 'pages/MyEarnings/ElasticPools/SinglePosition/ActionButton'
+import { ActionButton } from 'pages/MyEarnings/ActionButton'
 import CollectFeesPanel from 'pages/MyEarnings/ElasticPools/SinglePosition/CollectFeesPanel'
 import CommonView, { CommonProps } from 'pages/MyEarnings/ElasticPools/SinglePosition/CommonView'
 import PriceRangeChart from 'pages/MyEarnings/ElasticPools/SinglePosition/PriceRangeChart'
@@ -29,6 +29,11 @@ const ActionButtonsWrapper = styled.div`
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+
+  ${ActionButton} {
+    flex: 1;
+    gap: 4px;
+  }
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     gap: 8px;
@@ -51,23 +56,11 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ chainId, nftId, currency0
   const chainRoute = NETWORKS_INFO[chainId].route
   return (
     <ActionButtonsWrapper>
-      <ActionButton
-        $variant="red"
-        style={{
-          flex: 1,
-          gap: '4px',
-        }}
-        as={Link}
-        to={`/${chainRoute}${APP_PATHS.ELASTIC_REMOVE_POOL}/${nftId}`}
-      >
+      <ActionButton $variant="red" as={Link} to={`/${chainRoute}${APP_PATHS.ELASTIC_REMOVE_POOL}/${nftId}`}>
         <Minus size="16px" /> <Trans>Remove Liquidity</Trans>
       </ActionButton>
       <ActionButton
         $variant="green"
-        style={{
-          flex: 1,
-          gap: '4px',
-        }}
         as={Link}
         to={`/${chainRoute}${APP_PATHS.ELASTIC_INCREASE_LIQ}/${currencyId(currency0, chainId)}/${currencyId(
           currency1,

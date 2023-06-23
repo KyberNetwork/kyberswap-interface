@@ -1,5 +1,6 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { Copy } from 'react-feather'
+import { Copy, Minus, Plus } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
@@ -8,9 +9,15 @@ import styled from 'styled-components'
 import { ReactComponent as BarChart } from 'assets/svg/barchart.svg'
 import { ButtonLight } from 'components/Button'
 import { APP_PATHS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
+import { ActionButton } from 'pages/MyEarnings/ActionButton'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { MEDIA_WIDTHS } from 'theme'
+
+const CustomActionButton = styled(ActionButton)`
+  flex: 1;
+`
 
 const formatValue = (value: string | number) => {
   const num = Number(value)
@@ -113,7 +120,10 @@ const ColumnForMobile: React.FC<ColumnProps & { align?: 'left' | 'right' }> = ({
   )
 }
 
-const Position: React.FC = () => {
+type Props = {
+  chainId: ChainId
+}
+const Position: React.FC<Props> = ({ chainId }) => {
   const theme = useTheme()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
@@ -187,12 +197,14 @@ const Position: React.FC = () => {
   return (
     <Box
       sx={{
-        flex: 1,
+        width: '100%',
         display: 'grid',
-        gridTemplateColumns: '150px repeat(4, 100px) auto',
+        gridTemplateColumns: 'repeat(5, 1fr) 320px',
         justifyContent: 'space-between',
         background: theme.buttonBlack,
         borderRadius: '20px',
+        padding: '24px',
+        gap: '8px',
       }}
     >
       <Column label={t`My Liquidity Balance`} value={formatValue('231231')} />
@@ -209,33 +221,26 @@ const Position: React.FC = () => {
         sx={{
           alignItems: 'center',
           gap: '12px',
+          flex: '0 0 fit-content',
         }}
       >
-        <ButtonLight
-          height="36px"
+        <CustomActionButton
+          $variant="red"
           as={Link}
-          // TODO: use new format of Elastic routes
-          to={
-            currency0Slug && currency1Slug
-              ? `${APP_PATHS.ELASTIC_CREATE_POOL}/${currency0Slug}/${currency1Slug}/${12345}`
-              : '#'
-          }
+          // TODO: update link
+          to={`/${NETWORKS_INFO[chainId].route}${APP_PATHS.CLASSIC_REMOVE_POOL}`}
         >
-          - <Trans>Remove Liquidity</Trans>
-        </ButtonLight>
+          <Minus size="16px" /> <Trans>Remove Liquidity</Trans>
+        </CustomActionButton>
 
-        <ButtonLight
-          height="36px"
+        <CustomActionButton
+          $variant="green"
           as={Link}
-          // TODO: use new format of Elastic routes
-          to={
-            currency0Slug && currency1Slug
-              ? `${APP_PATHS.ELASTIC_CREATE_POOL}/${currency0Slug}/${currency1Slug}/${12345}`
-              : '#'
-          }
+          // TODO: update link
+          to={`/${NETWORKS_INFO[chainId].route}${APP_PATHS.CLASSIC_ADD_LIQ}`}
         >
-          + <Trans>Add Liquidity</Trans>
-        </ButtonLight>
+          <Plus size="16px" /> <Trans>Add Liquidity</Trans>
+        </CustomActionButton>
       </Flex>
     </Box>
   )
