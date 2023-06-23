@@ -20,12 +20,12 @@ const disconnectEvmConnector: (connector: Connector | undefined) => void | Promi
     }
     connector.deactivate?.()
     connector.resetState?.()
-    // if (connector === walletConnectV2) {
-    //   // There is an issue that walletconnectV2 not completely disconnect & clear old state.
-    //   // Then it reuse old state to connect in the next time => can't connect
-    //   // Try connect-disconnect 3-4 times to reproduce this bug.
-    //   location.reload()
-    // }
+    if (connector === walletConnectV2) {
+      // There is an issue that walletconnectV2 not completely disconnect & clear old state.
+      // Then it reuse old state to connect in the next time => can't connect
+      // Try connect-disconnect 3-4 times to reproduce this bug.
+      localStorage.removeItem('wc@2:client:0.3//session')
+    }
   }
 }
 
