@@ -8,6 +8,7 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import useTheme from 'hooks/useTheme'
+import { ExternalLink } from 'theme'
 
 import v1Step1 from './images/v1/step1.png'
 import v1Step2 from './images/v1/step2.png'
@@ -16,6 +17,7 @@ import v1Step4 from './images/v1/step4.png'
 import v1Step5 from './images/v1/step5.png'
 import v1Step6 from './images/v1/step6.png'
 import v1Step7 from './images/v1/step7.png'
+import v2example from './images/v2/example.png'
 import step1 from './images/v2/step_1.png'
 import step2 from './images/v2/step_2.png'
 import step3 from './images/v2/step_3.png'
@@ -64,23 +66,18 @@ const Image = styled.img`
 `
 
 const Tabs = styled.div`
+  margin-top: 0.75rem;
   border-radius: 999px;
-  background: ${({ theme }) => theme.buttonBlack};
-  padding: 2px;
   display: flex;
-  width: 116px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
+  gap: 8px;
+  align-items: center;
+  color: ${({ theme }) => theme.subText};
 `
 const Tab = styled.div<{ isActive: boolean }>`
-  border-radius: 999px;
-  background: ${({ theme, isActive }) => (isActive ? theme.tableHeader : theme.buttonBlack)};
   cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex: 1;
-  padding: 4px;
+  color: ${({ isActive, theme }) => (!isActive ? theme.subText : theme.primary)};
 `
 
 const Row = styled.div`
@@ -108,6 +105,22 @@ const FarmStepGuide: FC<FarmStepGuideProps> = ({ version, onChangeVersion }) => 
   const theme = useTheme()
 
   const v2Steps = [
+    {
+      title: t`About Static Farms`,
+      img: step1,
+      description: (
+        <Text fontSize="12px" color={theme.subText} paddingTop="12px">
+          <Trans>
+            Static farms incentivize farmers that provide liquidity to a pool in a pre-configured farming price range
+            that is set by the farm administrator. Learn more{' '}
+            <ExternalLink href="https://docs.kyberswap.com/liquidity-solutions/kyberswap-elastic/user-guides/yield-farming-on-static-farms">
+              here ↗
+            </ExternalLink>
+          </Trans>
+        </Text>
+      ),
+    },
+
     {
       title: t`Step 1: Select the Farm`,
       img: step1,
@@ -212,9 +225,51 @@ const FarmStepGuide: FC<FarmStepGuideProps> = ({ version, onChangeVersion }) => 
         </Text>
       ),
     },
+
+    {
+      title: t`Example`,
+      img: v2example,
+      description: (
+        <Text fontSize="12px" color={theme.subText} paddingTop="12px" lineHeight="1rem">
+          <Trans>
+            For a farm with a pre-configured price range of 0.6-0.8, your liquidity positions lower range must be ≤0.6
+            and upper range must be ≥0.8
+          </Trans>
+          <Flex marginTop="12px" sx={{ gap: '4px' }}>
+            <Text color={theme.primary} fontWeight="500">
+              <Trans>Eligible</Trans>:
+            </Text>
+            <Text>0.6-0.8, 0.5-0.8, 0.5-0.9</Text>
+          </Flex>
+          <Flex marginTop="12px" sx={{ gap: '4px' }}>
+            <Text color={theme.warning} fontWeight="500">
+              <Trans>Not Eligible</Trans>:
+            </Text>
+            <Text>0.6-0.7, 0.7-0.8, 0.65-0.75</Text>
+          </Flex>
+        </Text>
+      ),
+    },
   ]
 
   const v1Steps = [
+    {
+      title: t`About Dynamic Farms`,
+      img: step1,
+      description: (
+        <Text fontSize="12px" color={theme.subText} paddingTop="12px">
+          <Trans>
+            Dynamic farms incentivize farmers that provide liquidity to a pool in a customizable price range that
+            supports the current price of the pool. Each farmer can choose their own price range. Learn more hereLearn
+            more{' '}
+            <ExternalLink href="https://docs.kyberswap.com/liquidity-solutions/kyberswap-elastic/user-guides/yield-farming-on-dynamic-farms">
+              here ↗
+            </ExternalLink>
+          </Trans>
+        </Text>
+      ),
+    },
+
     {
       title: t`Step 1: Select the Farm`,
       description: (
@@ -360,20 +415,20 @@ const FarmStepGuide: FC<FarmStepGuideProps> = ({ version, onChangeVersion }) => 
         overflowY="scroll"
       >
         <Left>
-          <Flex alignItems="center" sx={{ gap: '0.5rem' }}>
-            <Text fontSize="1rem" fontWeight="500">
-              <Trans>Farming Guide</Trans>
-            </Text>
+          <Text fontSize="1rem" fontWeight="500">
+            <Trans>Farming Guide</Trans>
+          </Text>
 
-            <Tabs>
-              <Tab isActive={version === 'v2'} onClick={() => onChangeVersion('v2')} role="button">
-                V2
-              </Tab>
-              <Tab isActive={version === 'v1'} onClick={() => onChangeVersion('v1')} role="button">
-                V1
-              </Tab>
-            </Tabs>
-          </Flex>
+          <Tabs>
+            <Tab isActive={version === 'v1'} onClick={() => onChangeVersion('v1')} role="button">
+              <Trans>Dynamic Farm</Trans>
+            </Tab>
+
+            <Text>|</Text>
+            <Tab isActive={version === 'v2'} onClick={() => onChangeVersion('v2')} role="button">
+              <Trans>Static Farm</Trans>
+            </Tab>
+          </Tabs>
 
           {steps.map((item, index) => (
             <Row key={index}>

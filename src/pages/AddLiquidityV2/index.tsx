@@ -793,7 +793,7 @@ export default function AddLiquidity() {
                   {amountUnlocks[Field.CURRENCY_B].toSignificant(6)} {amountUnlocks[Field.CURRENCY_B].currency.symbol})
                 </Text>{' '}
                 will be used to first initialize the pool. Read more{' '}
-                <ExternalLink href="https://docs.kyberswap.com/liquidity-solutions/kyberswap-elastic/concepts/pool-process-flows#pool-unlocking--initialization">
+                <ExternalLink href="https://docs.kyberswap.com/liquidity-solutions/kyberswap-elastic/user-guides/yield-farming-on-static-farms">
                   here↗
                 </ExternalLink>
               </Trans>

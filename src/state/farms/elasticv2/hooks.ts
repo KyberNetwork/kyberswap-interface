@@ -218,7 +218,7 @@ export const useFarmV2Action = () => {
       hash: tx.hash,
       type: TRANSACTION_TYPE.APPROVE,
       extraInfo: {
-        summary: `Elastic Farm v2`,
+        summary: `Elastic Static Farm`,
         contract: address,
       },
     })

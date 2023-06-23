@@ -172,7 +172,15 @@ const Farm = () => {
       flex={1}
       width={
         below1500
-          ? `calc(100vw - ${explicit3Tab ? '1064px' : farmType === VERSION.ELASTIC_LEGACY ? '794px' : '730px'})`
+          ? `calc(100vw - ${
+              upToExtraSmall
+                ? '100px'
+                : explicit3Tab
+                ? '1064px'
+                : farmType === VERSION.ELASTIC_LEGACY
+                ? '794px'
+                : '730px'
+            })`
           : explicit3Tab
           ? '544px'
           : '796px'
@@ -374,7 +382,7 @@ const Farm = () => {
                             Dynamic farms incentivize farmers that provide liquidity to a pool in a customizable  price
                             range that supports the current price of the pool. Each farmer can choose  their own price
                             range. Learn more{' '}
-                            <ExternalLink href="https://docs.kyberswap.com/liquidity-solutions/kyberswap-elastic/user-guides/yield-farming-on-elastic">
+                            <ExternalLink href="https://docs.kyberswap.com/liquidity-solutions/kyberswap-elastic/user-guides/yield-farming-on-dynamic-farms">
                               here ↗
                             </ExternalLink>
                           </Trans>
@@ -394,7 +402,7 @@ const Farm = () => {
                           <Trans>
                             Static farms incentivize farmers that provide liquidity to a pool in a pre-configured
                             farming price range that is set by the farm administrator. Learn more{' '}
-                            <ExternalLink href="https://docs.kyberswap.com/liquidity-solutions/kyberswap-elastic/user-guides/yield-farming-on-elastic">
+                            <ExternalLink href="https://docs.kyberswap.com/liquidity-solutions/kyberswap-elastic/user-guides/yield-farming-on-static-farms">
                               here ↗
                             </ExternalLink>
                           </Trans>
