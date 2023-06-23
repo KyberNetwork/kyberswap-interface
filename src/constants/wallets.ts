@@ -77,7 +77,6 @@ const detectCoinbase = (): WalletReadyState => {
     return WalletReadyState.NotDetected
   }
   const result = detectCoinbase()
-  // alert(`detectCoinbase ${result}`)
   return result
 }
 

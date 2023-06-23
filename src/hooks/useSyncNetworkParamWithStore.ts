@@ -11,7 +11,7 @@ import { useChangeNetwork } from './web3/useChangeNetwork'
 export function useSyncNetworkParamWithStore() {
   const params = useParams<{ network?: string }>()
   const changeNetwork = useChangeNetwork()
-  const { networkInfo, chainId, account } = useActiveWeb3React()
+  const { networkInfo, chainId } = useActiveWeb3React()
   const isOnInit = useRef(true)
   const navigate = useNavigate()
   const triedEager = useEagerConnect()
@@ -33,9 +33,6 @@ export function useSyncNetworkParamWithStore() {
       ;(async () => {
         if (!paramChainId) {
           isOnInit.current = false
-          return
-        }
-        if (!account) {
           return
         }
         setRequestingNetwork(params?.network)
