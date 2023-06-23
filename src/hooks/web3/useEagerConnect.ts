@@ -1,4 +1,3 @@
-import { useWallet } from '@solana/wallet-adapter-react'
 import { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 
@@ -7,6 +6,7 @@ import { useWeb3React } from 'hooks'
 import { useIsAcceptedTerm } from 'state/user/hooks'
 
 import { useActivationWallet } from './useActivationWallet'
+import useDisconnectWallet from './useDisconnectWallet'
 
 export async function isAuthorized(): Promise<string | boolean> {
   if (localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY_EVM) === 'WALLET_CONNECT') {
@@ -36,7 +36,7 @@ export async function isAuthorized(): Promise<string | boolean> {
 let tried = false
 export function useEagerConnect() {
   const { active } = useWeb3React()
-  const { disconnect } = useWallet()
+  const disconnect = useDisconnectWallet()
   const [, reRender] = useState({})
   const [isAcceptedTerm] = useIsAcceptedTerm()
   const { tryActivation } = useActivationWallet()
@@ -86,7 +86,7 @@ export function useEagerConnect() {
     }
     func()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []) // intentionally only running on mount (make sure it's only mounted once :))
+  }, []) // intentionally only running on mount
 
   // if the connection worked, wait until we get confirmation of that to flip the flag
   useEffect(() => {

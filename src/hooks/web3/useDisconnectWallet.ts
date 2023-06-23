@@ -2,7 +2,7 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import { Connector } from '@web3-react/types'
 import { useCallback } from 'react'
 
-import { coinbaseWallet } from 'constants/connectors/evm'
+import { coinbaseWallet, walletConnectV2 } from 'constants/connectors/evm'
 import {
   LOCALSTORAGE_LAST_WALLETKEY_EVM,
   LOCALSTORAGE_LAST_WALLETKEY_SOLANA,
@@ -18,13 +18,13 @@ const disconnectEvmConnector: (connector: Connector | undefined) => void | Promi
     if (connector === coinbaseWallet) {
       return connector.resetState()
     }
-
-    if (connector.deactivate) {
-      return connector.deactivate()
-    }
-
-    if (connector.resetState) {
-      return connector.resetState()
+    connector.deactivate?.()
+    connector.resetState?.()
+    if (connector === walletConnectV2) {
+      // There is an issue that walletconnectV2 not completely disconnect & clear old state.
+      // Then it reuse old state to connect in the next time => can't connect
+      // Try connect-disconnect 3-4 times to reproduce this bug.
+      location.reload()
     }
   }
 }
