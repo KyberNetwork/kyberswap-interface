@@ -86,7 +86,8 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
 
   const isExpandable = true //!!pool && poolState !== PoolState.LOADING
 
-  const toggleExpanded = useCallback(() => {
+  const toggleExpanded: React.MouseEventHandler<HTMLButtonElement> = useCallback(e => {
+    e.stopPropagation()
     setExpanded(e => !e)
   }, [])
 
@@ -301,71 +302,87 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
     >
       <Flex
         sx={{
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          width: '100%',
+          flexDirection: 'column',
+          gap: '24px',
+          cursor: 'pointer',
+        }}
+        onClick={() => {
+          if (!isExpandable) {
+            return
+          }
+
+          setExpanded(e => !e)
         }}
       >
         <Flex
           sx={{
             alignItems: 'center',
-            gap: '8px',
+            justifyContent: 'space-between',
           }}
         >
           <Flex
-            alignItems={'center'}
             sx={{
+              alignItems: 'center',
+              gap: '8px',
+            }}
+          >
+            <Flex
+              alignItems={'center'}
+              sx={{
+                gap: '4px',
+              }}
+            >
+              <Flex alignItems={'center'}>
+                <Logo srcs={[currency0?.logoURI || '']} style={{ width: 24, height: 24, borderRadius: '999px' }} />
+                <Logo srcs={[currency1?.logoURI || '']} style={{ width: 24, height: 24, borderRadius: '999px' }} />
+              </Flex>
+
+              <Text
+                sx={{
+                  fontWeight: 500,
+                  fontSize: '20px',
+                  lineHeight: '24px',
+                }}
+              >
+                {displaySymbolOfToken0} - {displaySymbolOfToken1}
+              </Text>
+            </Flex>
+
+            <Badge $color={theme.blue}>FEE {feePercent}</Badge>
+
+            {isFarmingPool && (
+              <MouseoverTooltip
+                noArrow
+                placement="top"
+                text={
+                  <Text>
+                    <Trans>Available for yield farming. Click {here} to go to the farm.</Trans>
+                  </Text>
+                }
+              >
+                <Badge $color={theme.apr}>
+                  <MoneyBag size={16} /> Farm
+                </Badge>
+              </MouseoverTooltip>
+            )}
+          </Flex>
+
+          <Flex
+            sx={{
+              alignItems: 'center',
+              color: theme.subText,
+              fontSize: '14px',
               gap: '4px',
             }}
           >
-            <Flex alignItems={'center'}>
-              <Logo srcs={[currency0?.logoURI || '']} style={{ width: 24, height: 24, borderRadius: '999px' }} />
-              <Logo srcs={[currency1?.logoURI || '']} style={{ width: 24, height: 24, borderRadius: '999px' }} />
-            </Flex>
-
-            <Text
-              sx={{
-                fontWeight: 500,
-                fontSize: '20px',
-                lineHeight: '24px',
-              }}
-            >
-              {displaySymbolOfToken0} - {displaySymbolOfToken1}
-            </Text>
+            <CopyHelper toCopy={poolEarning.pool} />
+            <Text>{shortenAddress(chainId, poolEarning.pool, 4)}</Text>
           </Flex>
-
-          <Badge $color={theme.blue}>FEE {feePercent}</Badge>
-
-          {isFarmingPool && (
-            <MouseoverTooltip
-              noArrow
-              placement="top"
-              text={
-                <Text>
-                  <Trans>Available for yield farming. Click {here} to go to the farm.</Trans>
-                </Text>
-              }
-            >
-              <Badge $color={theme.apr}>
-                <MoneyBag size={16} /> Farm
-              </Badge>
-            </MouseoverTooltip>
-          )}
         </Flex>
 
-        <Flex
-          sx={{
-            alignItems: 'center',
-            color: theme.subText,
-            fontSize: '14px',
-            gap: '4px',
-          }}
-        >
-          <CopyHelper toCopy={poolEarning.pool} />
-          <Text>{shortenAddress(chainId, poolEarning.pool, 4)}</Text>
-        </Flex>
+        {renderStatsRow()}
       </Flex>
-
-      {renderStatsRow()}
 
       {isExpanded && isExpandable && (
         <>
