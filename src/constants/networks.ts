@@ -94,7 +94,7 @@ export const WALLET_CONNECT_REQUIRED_CHAIN_IDS = [
   ChainId.MAINNET,
   ChainId.MATIC,
   ChainId.BSCMAINNET,
-  ChainId.ARBITRUM,
+  // ChainId.ARBITRUM, //metamask default not support this
   ChainId.AVAXMAINNET,
   ChainId.OPTIMISM,
 ]
