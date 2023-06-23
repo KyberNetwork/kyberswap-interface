@@ -21,9 +21,10 @@ const disconnectEvmConnector: (connector: Connector | undefined) => void | Promi
     connector.deactivate?.()
     connector.resetState?.()
     if (connector === walletConnectV2) {
-      // There is an issue that walletconnectV2 not completely disconnect & clear old state.
-      // Then it reuse old state to connect in the next time => can't connect
-      // Try connect-disconnect 3-4 times to reproduce this bug.
+      // This key should be deleted when disconnected by walletconnect library
+      // But it was deleted slowly, if user call connector.active() again before this key cleared, bug will appear
+      // So we force remove it right after disconnected to preventing bug
+      // todo: deep dive rootcause why it slowly delete
       localStorage.removeItem('wc@2:client:0.3//session')
     }
   }
