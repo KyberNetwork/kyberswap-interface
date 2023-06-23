@@ -48,6 +48,7 @@ export default function AddLiquidity() {
   }, [])
 
   if (!isEVM) return <Navigate to="/" />
+
   return (
     <>
       <PageWrapper>

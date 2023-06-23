@@ -13,6 +13,7 @@ import PoolsCurrencyInputPanel from 'components/PoolsCurrencyInputPanel'
 import RewardTokenPrices from 'components/RewardTokenPrices'
 import Row, { RowFit } from 'components/Row'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
+import { MouseoverTooltip } from 'components/Tooltip'
 import Tutorial, { TutorialType } from 'components/Tutorial'
 import Vesting from 'components/Vesting'
 import YieldPools from 'components/YieldPools'
@@ -50,7 +51,7 @@ import ClassicFarmUpdater from 'state/farms/classic/updater'
 import { FarmUpdater, useElasticFarms } from 'state/farms/elastic/hooks'
 import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import ElasticFarmV2Updater from 'state/farms/elasticv2/updater'
-import { MEDIA_WIDTHS } from 'theme'
+import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { isInEnum } from 'utils/string'
 
 import { ElasticFarmCombination } from './ElasticFarmCombination'
@@ -365,18 +366,48 @@ const Farm = () => {
                     >
                       <Trans>All</Trans>
                     </Tab>
-                    <Tab
-                      active={elasticType === ELASTIC_FARM_TYPE.DYNAMIC}
-                      onClick={() => handleElasticFarmChange(ELASTIC_FARM_TYPE.DYNAMIC)}
+                    <MouseoverTooltip
+                      placement="bottom"
+                      text={
+                        <Text>
+                          <Trans>
+                            Dynamic farms incentivize farmers that provide liquidity to a pool in a customizable  price
+                            range that supports the current price of the pool. Each farmer can choose  their own price
+                            range. Learn more{' '}
+                            <ExternalLink href="https://docs.kyberswap.com/liquidity-solutions/kyberswap-elastic/user-guides/yield-farming-on-elastic">
+                              here ↗
+                            </ExternalLink>
+                          </Trans>
+                        </Text>
+                      }
                     >
-                      <Trans>Dynamic</Trans>
-                    </Tab>
-                    <Tab
-                      active={elasticType === ELASTIC_FARM_TYPE.STATIC}
-                      onClick={() => handleElasticFarmChange(ELASTIC_FARM_TYPE.STATIC)}
+                      <Tab
+                        active={elasticType === ELASTIC_FARM_TYPE.DYNAMIC}
+                        onClick={() => handleElasticFarmChange(ELASTIC_FARM_TYPE.DYNAMIC)}
+                      >
+                        <Trans>Dynamic</Trans>
+                      </Tab>
+                    </MouseoverTooltip>
+                    <MouseoverTooltip
+                      text={
+                        <Text>
+                          <Trans>
+                            Static farms incentivize farmers that provide liquidity to a pool in a pre-configured
+                            farming price range that is set by the farm administrator. Learn more{' '}
+                            <ExternalLink href="https://docs.kyberswap.com/liquidity-solutions/kyberswap-elastic/user-guides/yield-farming-on-elastic">
+                              here ↗
+                            </ExternalLink>
+                          </Trans>
+                        </Text>
+                      }
                     >
-                      <Trans>Static</Trans>
-                    </Tab>
+                      <Tab
+                        active={elasticType === ELASTIC_FARM_TYPE.STATIC}
+                        onClick={() => handleElasticFarmChange(ELASTIC_FARM_TYPE.STATIC)}
+                      >
+                        <Trans>Static</Trans>
+                      </Tab>
+                    </MouseoverTooltip>
                   </TabGroup>
                 )}
               </Flex>

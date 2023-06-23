@@ -122,7 +122,7 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
     <Wrapper key={pool.address} data-testid={pool.address}>
       <Flex alignItems="center" justifyContent="space-between">
         <Link
-          to={`${APP_PATHS.ELASTIC_CREATE_POOL}/${token0Slug}/${token1Slug}/${pool.feeTier}`}
+          to={`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${token0Slug}/${token1Slug}/${pool.feeTier}`}
           style={{
             textDecoration: 'none',
           }}
@@ -255,7 +255,7 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
           padding="10px"
           style={{ height: '36px' }}
           onClick={() => {
-            const url = `${APP_PATHS.ELASTIC_CREATE_POOL}/${token0Slug}/${token1Slug}/${pool.feeTier}`
+            const url = `/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${token0Slug}/${token1Slug}/${pool.feeTier}`
             navigate(url)
           }}
         >

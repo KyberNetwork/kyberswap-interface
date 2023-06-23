@@ -72,7 +72,7 @@ const Wrapper = styled.div`
 `
 
 export default function ProAmmPoolStat({ pool, onShared, userPositions, onClickPoolAnalytics }: ListItemProps) {
-  const { chainId } = useActiveWeb3React()
+  const { chainId, networkInfo } = useActiveWeb3React()
   const theme = useTheme()
 
   const allTokens = useAllTokens()
@@ -174,7 +174,7 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions, onClickP
   return (
     <Wrapper key={pool.address}>
       <Link
-        to={`${APP_PATHS.ELASTIC_CREATE_POOL}/${token0Slug}/${token1Slug}/${pool.feeTier}`}
+        to={`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${token0Slug}/${token1Slug}/${pool.feeTier}`}
         style={{
           textDecoration: 'none',
         }}

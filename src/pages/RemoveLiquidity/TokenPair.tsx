@@ -24,7 +24,7 @@ import TransactionConfirmationModal, {
   ConfirmationModalContent,
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
-import { EIP712Domain } from 'constants/index'
+import { APP_PATHS, EIP712Domain } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -660,7 +660,7 @@ export default function TokenPair({
                     {pairAddress && chainId && (currencyAIsETHER || currencyAIsWETH) && (
                       <StyledInternalLink
                         replace
-                        to={`/remove/${
+                        to={`/${networkInfo.route}${APP_PATHS.CLASSIC_REMOVE_POOL}/${
                           currencyAIsETHER ? currencyId(WETH[chainId], chainId) : NativeCurrencies[chainId].symbol
                         }/${currencyIdB}/${pairAddress}`}
                       >
@@ -686,7 +686,7 @@ export default function TokenPair({
                     {pairAddress && chainId && (currencyBIsWETH || currencyBIsETHER) && (
                       <StyledInternalLink
                         replace
-                        to={`/remove/${currencyIdA}/${
+                        to={`/${networkInfo.route}${APP_PATHS.CLASSIC_REMOVE_POOL}/${currencyIdA}/${
                           currencyBIsETHER ? currencyId(WETH[chainId], chainId) : NativeCurrencies[chainId].symbol
                         }/${pairAddress}`}
                       >

@@ -30,6 +30,13 @@ const Content = styled.div`
   gap: 1rem;
 
   grid-template-columns: 1fr 1fr 1fr;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    grid-template-columns: 1fr 1fr;
+  `}
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    grid-template-columns: 1fr;
+  `}
 `
 
 const RangeItem = styled.div`

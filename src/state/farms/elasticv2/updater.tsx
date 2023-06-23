@@ -230,8 +230,8 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
               // APR = sharePerLiquidity / totalShare * (365 * totalRewards/farmDurationInDays)
               // totalShare = SUM(weight * liquidity) = farm.liquidity
               // sharePerLiquidity = weight / (price0*qty0 + price1*qty1)
-              // qty0 = (sqrt(upper) - sqrt(lower)) / (sqrt(upper) * sqrt(lower))
-              // qty1 = (sqrt(upper) - sqrt(lower)
+              // qty0 = (sqrt(upper) - sqrt(current)) / (sqrt(upper) * sqrt(lower))
+              // qty1 = (sqrt(current) - sqrt(lower)
               // => (farm.liquidity * qty0) equivalent to amount0 of position
 
               const position = new Position({

@@ -87,10 +87,15 @@ export default function ProAmmPoolInfo({
       {poolAddress && (
         <AutoColumn>
           <Flex alignItems={upToSmall ? undefined : 'center'} justifyContent="space-between" sx={{ gap: '8px' }}>
-            <Flex alignItems="center">
+            <Flex alignItems="center" flex={1}>
               <DoubleCurrencyLogo currency0={token0Shown} currency1={token1Shown} size={20} />
-              <Text fontSize="16px" fontWeight="500">
-                {token0Shown.symbol} - {token1Shown.symbol}
+              <Text
+                fontSize="16px"
+                fontWeight="500"
+                flex={1}
+                sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+              >
+                {token0Shown.symbol} - st{token1Shown.symbol}
               </Text>
               <FeeTag>FEE {(position?.pool.fee * 100) / ELASTIC_BASE_FEE_UNIT}% </FeeTag>
             </Flex>

@@ -102,18 +102,13 @@ export const useTokenPricesWithLoading = (
         if (prices?.length) {
           const formattedPrices = list.map(address => {
             const price = prices.find(
-              (p: {
-                address: string
-                marketPrice: number
-                price: number
-                preferPriceSource: 'kyberswap' | 'coingecko'
-              }) => getAddress(p.address, isEVM) === address,
+              (p: { address: string; marketPrice: number; price: number }) => getAddress(p.address, isEVM) === address,
             )
 
             return {
               address,
               chainId: chainId,
-              price: price?.preferPriceSource === 'kyberswap' ? price?.price || 0 : price?.marketPrice || 0,
+              price: price?.marketPrice || price?.price || 0,
             }
           })
 

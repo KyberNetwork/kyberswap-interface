@@ -226,11 +226,7 @@ export default function AddLiquidity() {
   const [showFarmRangeSelect, setShowFarmRangeSelect] = useState(() => isFarmV2Available)
   const [searchParams, setSearchParams] = useSearchParams()
   const activeRangeIndex = Number(searchParams.get('farmRange') || '0')
-
-  useEffect(() => {
-    if (isFarmV2Available) setShowFarmRangeSelect(true)
-    else setShowFarmRangeSelect(false)
-  }, [isFarmV2Available])
+  const range = activeRanges.find(i => i.index === activeRangeIndex)
 
   const canJoinFarm =
     isFarmV2Available &&
@@ -561,33 +557,33 @@ export default function AddLiquidity() {
     (currencyANew: Currency) => {
       const [idA, idB] = handleCurrencySelect(currencyANew, currencyIdB)
       if (idB === undefined) {
-        navigate(`${APP_PATHS.ELASTIC_CREATE_POOL}/${idA}`)
+        navigate(`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${idA}`)
       } else {
-        navigate(`${APP_PATHS.ELASTIC_CREATE_POOL}/${idA}/${idB}`)
+        navigate(`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${idA}/${idB}`)
       }
     },
-    [handleCurrencySelect, currencyIdB, navigate],
+    [handleCurrencySelect, currencyIdB, navigate, networkInfo.route],
   )
 
   const handleCurrencyBSelect = useCallback(
     (currencyBNew: Currency) => {
       const [idB, idA] = handleCurrencySelect(currencyBNew, currencyIdA)
       if (idA === undefined) {
-        navigate(`${APP_PATHS.ELASTIC_CREATE_POOL}/${idB}`)
+        navigate(`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${idB}`)
       } else {
-        navigate(`${APP_PATHS.ELASTIC_CREATE_POOL}/${idA}/${idB}`)
+        navigate(`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${idA}/${idB}`)
       }
     },
-    [handleCurrencySelect, currencyIdA, navigate],
+    [handleCurrencySelect, currencyIdA, navigate, networkInfo.route],
   )
 
   const handleFeePoolSelect = useCallback(
     (newFeeAmount: FeeAmount) => {
       onLeftRangeInput('')
       onRightRangeInput('')
-      navigate(`${APP_PATHS.ELASTIC_CREATE_POOL}/${currencyIdA}/${currencyIdB}/${newFeeAmount}`)
+      navigate(`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${currencyIdA}/${currencyIdB}/${newFeeAmount}`)
     },
-    [currencyIdA, currencyIdB, navigate, onLeftRangeInput, onRightRangeInput],
+    [currencyIdA, currencyIdB, navigate, networkInfo.route, onLeftRangeInput, onRightRangeInput],
   )
 
   const handleDismissConfirmation = useCallback(() => {
@@ -963,9 +959,26 @@ export default function AddLiquidity() {
                     </Text>
 
                     <MouseoverTooltip
-                      text={t`Add your liquidity into one of the farming ranges to participate in Elastic Static Farm. Only positions that cover the range of the farm will earn maximum rewards. Learn more here ↗`}
+                      text={
+                        <Text>
+                          <Trans>
+                            Add your liquidity into one of the farming ranges to participate in Elastic Static Farm.
+                            Only positions that cover the range of the farm will earn maximum rewards. Learn more{' '}
+                            <ExternalLink href="https://docs.kyberswap.com/liquidity-solutions/kyberswap-elastic/user-guides/yield-farming-on-elastic">
+                              here ↗
+                            </ExternalLink>
+                          </Trans>
+                        </Text>
+                      }
                     >
-                      <RangeTab active={showFarmRangeSelect} role="button" onClick={() => setShowFarmRangeSelect(true)}>
+                      <RangeTab
+                        active={showFarmRangeSelect}
+                        role="button"
+                        onClick={() => {
+                          range && onFarmRangeSelected(range.tickLower, range.tickUpper)
+                          setShowFarmRangeSelect(true)
+                        }}
+                      >
                         <Trans>Farming Ranges</Trans>
                       </RangeTab>
                     </MouseoverTooltip>
@@ -983,7 +996,6 @@ export default function AddLiquidity() {
                         onClick={() => {
                           searchParams.set('farmRange', range.index.toString())
                           setSearchParams(searchParams)
-                          onFarmRangeSelected(range.tickLower, range.tickUpper)
                         }}
                         isSelected={activeRangeIndex === range.index}
                       >
@@ -1134,7 +1146,7 @@ export default function AddLiquidity() {
                     onSwitchCurrency={() => {
                       chainId &&
                         navigate(
-                          `${APP_PATHS.ELASTIC_CREATE_POOL}/${
+                          `/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${
                             baseCurrencyIsETHER ? WETH[chainId].address : NativeCurrencies[chainId].symbol
                           }/${currencyIdB}/${feeAmount}`,
                           { replace: true },
@@ -1164,7 +1176,7 @@ export default function AddLiquidity() {
                     onSwitchCurrency={() => {
                       chainId &&
                         navigate(
-                          `${APP_PATHS.ELASTIC_CREATE_POOL}/${currencyIdA}/${
+                          `/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${currencyIdA}/${
                             quoteCurrencyIsETHER ? WETH[chainId].address : NativeCurrencies[chainId].symbol
                           }/${feeAmount}`,
                           { replace: true },
@@ -1289,6 +1301,13 @@ export default function AddLiquidity() {
     [baseCurrency, quoteCurrency, onLeftRangeInput, onRightRangeInput, feeAmount, isReverseWithFarm],
   )
 
+  useEffect(() => {
+    if (isFarmV2Available && range?.tickUpper && range?.tickUpper) {
+      setShowFarmRangeSelect(true)
+      onFarmRangeSelected(range.tickLower, range.tickUpper)
+    } else setShowFarmRangeSelect(false)
+  }, [isFarmV2Available, range?.tickUpper, range?.tickLower, onFarmRangeSelected])
+
   if (!isEVM) return <Navigate to="/" />
 
   return (
@@ -1336,7 +1355,7 @@ export default function AddLiquidity() {
           onCleared={() => {
             onFieldAInput('0')
             onFieldBInput('0')
-            navigate(APP_PATHS.ELASTIC_CREATE_POOL)
+            navigate(`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}`)
           }}
           onBack={() => {
             navigate(`${APP_PATHS.POOLS}/${networkInfo.route}?tab=elastic`)
@@ -1410,7 +1429,7 @@ export default function AddLiquidity() {
                   ) : (
                     <StyledInternalLink
                       replace
-                      to={`${APP_PATHS.ELASTIC_CREATE_POOL}/${currencyIdB}/${currencyIdA}/${feeAmount}`}
+                      to={`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${currencyIdB}/${currencyIdA}/${feeAmount}`}
                       style={{ color: 'inherit', display: 'flex' }}
                     >
                       <SwapIcon size={24} color={theme.subText} />

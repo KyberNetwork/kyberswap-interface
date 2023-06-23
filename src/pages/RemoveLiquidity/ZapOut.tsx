@@ -35,7 +35,7 @@ import TransactionConfirmationModal, {
 } from 'components/TransactionConfirmationModal'
 import ZapError from 'components/ZapError'
 import FormattedPriceImpact from 'components/swapv2/FormattedPriceImpact'
-import { EIP712Domain } from 'constants/index'
+import { APP_PATHS, EIP712Domain } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -724,12 +724,15 @@ export default function ZapOut({
                         replace
                         to={
                           independentTokenField === Field.CURRENCY_A
-                            ? `/remove/${
+                            ? `/${networkInfo.route}${APP_PATHS.CLASSIC_REMOVE_POOL}/${
                                 selectedCurrencyIsETHER
                                   ? currencyId(WETH[chainId], chainId)
                                   : currencyId(NativeCurrencies[chainId], chainId)
                               }/${currencyId(currencies[dependentTokenField] as Currency, chainId)}/${pairAddress}`
-                            : `/remove/${currencyId(currencies[dependentTokenField] as Currency, chainId)}/${
+                            : `/${networkInfo.route}${APP_PATHS.CLASSIC_REMOVE_POOL}/${currencyId(
+                                currencies[dependentTokenField] as Currency,
+                                chainId,
+                              )}/${
                                 selectedCurrencyIsETHER
                                   ? currencyId(WETH[chainId], chainId)
                                   : currencyId(NativeCurrencies[chainId], chainId)
