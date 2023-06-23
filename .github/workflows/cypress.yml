@@ -116,7 +116,7 @@ jobs:
       - name: Gcloud Auth
         uses: google-github-actions/auth@v0
         with:
-          credentials_json: '${{ secrets.GG_AUTH }}'
+          credentials_json: '${{ secrets.GCR_CREDENTIALS }}'
 
       - name: Gmail setting
         run: sudo node ./node_modules/gmail-tester/init.js credentials.json token-cypress-example.json kyberqa@gmail.com
