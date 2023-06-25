@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useMedia, usePrevious } from 'react-use'
 import {
-  useAckPrivateAnnouncementsMutation,
+  ANNOUNCEMENT_TAGS,
+  useAckPrivateAnnouncementsByIdsMutation,
   useLazyGetAnnouncementsQuery,
   useLazyGetPrivateAnnouncementsQuery,
 } from 'services/announcement'
@@ -81,7 +82,7 @@ const browserCustomStyle = css`
 const responseDefault = { numberOfUnread: 0, pagination: { totalItems: 0 }, notifications: [] }
 
 export default function AnnouncementComponent() {
-  const { account, chainId } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
   const [activeTab, setActiveTab] = useState(Tab.ANNOUNCEMENT)
   const { mixpanelHandler } = useMixpanel()
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -98,8 +99,6 @@ export default function AnnouncementComponent() {
   const [fetchGeneralAnnouncement, { data: respAnnouncement = responseDefault }] = useLazyGetAnnouncementsQuery()
   const [fetchPrivateAnnouncement, { data: respPrivateAnnouncement = responseDefault, isError }] =
     useLazyGetPrivateAnnouncementsQuery()
-
-  const [ackAnnouncement] = useAckPrivateAnnouncementsMutation()
 
   const isMyInboxTab = activeTab === Tab.INBOX
   const loadingAnnouncement = useRef(false)
@@ -179,7 +178,7 @@ export default function AnnouncementComponent() {
     tab !== activeTab && fetchAnnouncementsByTab(true, tab)
   }
 
-  const resetUnread = useInvalidateTagAnnouncement()
+  const invalidateTag = useInvalidateTagAnnouncement()
   const { userInfo } = useSessionInfo()
 
   const prefetchPrivateAnnouncements = useCallback(async () => {
@@ -189,8 +188,8 @@ export default function AnnouncementComponent() {
       const notifications = (data?.notifications ?? []) as PrivateAnnouncement[]
       const hasNewMsg = data?.numberOfUnread !== numberOfUnread
       if (hasNewMsg) {
-        resetUnread(RTK_QUERY_TAGS.GET_PRIVATE_ANN_BY_ID)
-        resetUnread(RTK_QUERY_TAGS.GET_TOTAL_UNREAD_PRIVATE_ANN)
+        invalidateTag(RTK_QUERY_TAGS.GET_PRIVATE_ANN_BY_ID)
+        invalidateTag(RTK_QUERY_TAGS.GET_TOTAL_UNREAD_PRIVATE_ANN)
         if (scrollRef.current) scrollRef.current.scrollTop = 0
       }
       setPrivateAnnouncements(prevData => (hasNewMsg || !prevData.length ? notifications : prevData))
@@ -199,7 +198,7 @@ export default function AnnouncementComponent() {
       setPrivateAnnouncements([])
       return []
     }
-  }, [fetchPrivateAnnouncement, resetUnread, numberOfUnread, userInfo?.identityId])
+  }, [fetchPrivateAnnouncement, invalidateTag, numberOfUnread, userInfo?.identityId])
 
   const prevOpen = usePrevious(isOpenNotificationCenter)
   useEffect(() => {
@@ -225,17 +224,16 @@ export default function AnnouncementComponent() {
   }, [account, prefetchPrivateAnnouncements, fetchGeneralAnnouncement, prevOpen, isOpenNotificationCenter])
 
   useEffect(() => {
-    if (!account) {
-      setPrivateAnnouncements([])
-    }
-  }, [account, chainId])
+    if (userInfo?.identityId) invalidateTag(ANNOUNCEMENT_TAGS)
+  }, [userInfo?.identityId, invalidateTag])
 
   useInterval(prefetchPrivateAnnouncements, 10_000)
 
+  const [readAllAnnouncement] = useAckPrivateAnnouncementsByIdsMutation()
   const togglePopupWithAckAllMessage = () => {
     toggleNotificationCenter()
-    if (isOpenNotificationCenter && numberOfUnread && account) {
-      ackAnnouncement({ action: 'read-all' })
+    if (isOpenNotificationCenter && numberOfUnread) {
+      readAllAnnouncement({})
     }
   }
 

@@ -91,14 +91,6 @@ const GroupColum = styled.div`
   width: 100%;
 `
 
-// const LabelGroup = styled(TextDashed)`
-//   color: ${({ theme }) => theme.subText};
-//   font-size: 14px;
-//   display: flex;
-//   align-items: center;
-//   gap: 4px;
-// `
-
 const EmailColum = styled(Column)`
   max-width: 50%;
   ${({ theme }) => theme.mediaWidth.upToMedium`
@@ -408,25 +400,8 @@ function NotificationPreference({
       <Column gap="16px">
         {renderTableHeader()}
         <ListGroupWrapper>
+          <GroupColum>{commons.map(topic => renderTopic(topic, disableCheckbox))}</GroupColum>
           <GroupColum>
-            {/* <LabelGroup>
-              <NotificationIcon size={16} />
-              <MouseoverTooltip text={t`These topics can be subscribed by anyone`} placement="top">
-                <Trans>Common Topics</Trans>
-              </MouseoverTooltip>
-            </LabelGroup> */}
-            {commons.map(topic => renderTopic(topic, disableCheckbox))}
-          </GroupColum>
-          <GroupColum>
-            {/* <LabelGroup>
-              <Lock size={15} />
-              <MouseoverTooltip
-                placement="top"
-                text={t`These topics can only be subscribed by a signed-in profile. Go to Profile tab to sign-in with your wallet`}
-              >
-                <Trans>Restricted Topics</Trans>
-              </MouseoverTooltip>
-            </LabelGroup> */}
             {restrict.map(topic => {
               const disableKyberAI = disableCheckbox || !isLogin || !isWhiteList
               return renderTopic(

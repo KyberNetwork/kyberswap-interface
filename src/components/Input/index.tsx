@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-export const Input = styled.input<{ $borderColor?: string; color?: string }>`
+const Input = styled.input<{ $borderColor?: string; color?: string }>`
   display: flex;
   align-items: center;
   white-space: nowrap;
@@ -19,3 +19,5 @@ export const Input = styled.input<{ $borderColor?: string; color?: string }>`
     font-size: 12px;
   }
 `
+
+export default Input

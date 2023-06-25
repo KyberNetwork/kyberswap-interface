@@ -4,7 +4,7 @@ import baseQueryOauth from 'services/baseQueryOauth'
 import { BFF_API, KYBER_AI_REFERRAL_ID } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
 
-// import { ParticipantInfo } from '../pages/TrueSightV2/types'
+import { ParticipantInfo } from '../pages/TrueSightV2/types'
 
 const kyberAIApi = createApi({
   reducerPath: 'kyberAIApiV2',
@@ -13,7 +13,7 @@ const kyberAIApi = createApi({
     baseUrl: BFF_API,
   }),
   endpoints: builder => ({
-    getParticipantInfo: builder.query<any, void>({
+    getParticipantInfo: builder.query<ParticipantInfo, void>({
       query: () => ({
         url: '/v1/referral/participants',
         params: { referralProgramId: KYBER_AI_REFERRAL_ID },

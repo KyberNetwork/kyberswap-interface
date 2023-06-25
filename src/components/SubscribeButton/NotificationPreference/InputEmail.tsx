@@ -3,7 +3,7 @@ import { Check } from 'react-feather'
 import styled, { CSSProperties } from 'styled-components'
 
 import { ButtonLight } from 'components/Button'
-import { Input } from 'components/Input'
+import Input from 'components/Input'
 import Tooltip from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 

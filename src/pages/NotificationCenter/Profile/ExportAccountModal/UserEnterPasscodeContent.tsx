@@ -1,9 +1,10 @@
+import { Trans } from '@lingui/macro'
 import { useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
-import { Input } from 'components/Input'
+import Input from 'components/Input'
 import useTheme from 'hooks/useTheme'
 import { ButtonExport } from 'pages/NotificationCenter/Profile/buttons'
 
@@ -48,8 +49,10 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onEnterPasscode, dismissMod
           lineHeight: '20px',
         }}
       >
-        Exported profiles will not be associated with your wallet. Your export code is unique. Learn more about profile
-        here.
+        <Trans>
+          Exported profiles will not be associated with your wallet. Your export code is unique. Learn more about
+          profile here.
+        </Trans>
       </Text>
       <Text
         sx={{
@@ -58,7 +61,7 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onEnterPasscode, dismissMod
           lineHeight: '20px',
         }}
       >
-        First, you will need to create a passcode
+        <Trans>First, you will need to create a passcode</Trans>
       </Text>
 
       <Flex
@@ -67,7 +70,9 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onEnterPasscode, dismissMod
           gap: '8px',
         }}
       >
-        <Label>Your passcode</Label>
+        <Label>
+          <Trans>Your passcode</Trans>
+        </Label>
 
         <Input
           color={theme.text}
@@ -85,7 +90,7 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onEnterPasscode, dismissMod
             fontStyle: 'italic',
           }}
         >
-          Your passcode must be at least 6 characters long
+          <Trans>Your passcode must be at least 6 characters long</Trans>
         </Text>
       </Flex>
 
@@ -104,7 +109,7 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onEnterPasscode, dismissMod
             onEnterPasscode(passcode)
           }}
         >
-          Next
+          <Trans>Next</Trans>
         </ButtonNext>
       </Flex>
     </Flex>

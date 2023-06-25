@@ -7,7 +7,7 @@ import styled from 'styled-components'
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import FileInput from 'components/FileInput'
-import { Input } from 'components/Input'
+import Input from 'components/Input'
 import useTheme from 'hooks/useTheme'
 import { ButtonExport } from 'pages/NotificationCenter/Profile/buttons'
 import { useNotify } from 'state/application/hooks'
@@ -72,8 +72,10 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onImportToken, dismissModal
           lineHeight: '20px',
         }}
       >
-        You can keep your information synced across all of your devices by importing your profile. Learn more about
-        profiles <ExternalLink href="#">here</ExternalLink> {/** // todo */}
+        <Trans>
+          You can keep your information synced across all of your devices by importing your profile. Learn more about
+          profiles <ExternalLink href="#">here</ExternalLink> {/** // todo */}
+        </Trans>
       </Text>
 
       <Flex
@@ -82,7 +84,9 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onImportToken, dismissModal
           gap: '8px',
         }}
       >
-        <Label>Your passcode</Label>
+        <Label>
+          <Trans>Your passcode</Trans>
+        </Label>
 
         <Input
           color={theme.text}
@@ -99,13 +103,15 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onImportToken, dismissModal
           gap: '8px',
         }}
       >
-        <Label>Your import token</Label>
+        <Label>
+          <Trans>Your import token</Trans>
+        </Label>
 
         <Input
           color={theme.text}
           value={importToken}
           onChange={e => setImportToken(e.target.value)}
-          placeholder="Enter your Code"
+          placeholder={t`Enter your Code`}
         />
       </Flex>
 

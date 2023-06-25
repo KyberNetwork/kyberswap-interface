@@ -81,14 +81,10 @@ const AnnouncementApi = createApi({
       transformResponse: (data: any) => data?.data?.result || [],
       providesTags: [RTK_QUERY_TAGS.GET_TOTAL_UNREAD_PRIVATE_ANN],
     }),
-    // todo refactor
-    ackPrivateAnnouncements: builder.mutation<
-      AnnouncementResponse,
-      { action: 'read' | 'clear-all' | 'read-all'; ids?: number[] }
-    >({
+    ackPrivateAnnouncements: builder.mutation<AnnouncementResponse, { action: 'read' | 'clear-all'; ids?: number[] }>({
       query: ({ action, ids }) => {
         const body: { excludedTemplateIds?: number[]; ids?: number[] } = { ids }
-        if (action === 'read-all' || action === 'clear-all') {
+        if (action === 'clear-all') {
           body.excludedTemplateIds = excludedTemplateIds.split(',').map(Number)
         }
         return {

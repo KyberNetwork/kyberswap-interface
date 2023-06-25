@@ -181,13 +181,11 @@ export const useRefreshProfile = () => {
   const setProfile = useSaveUserProfile()
   const [getProfile] = useGetOrCreateProfileMutation()
   const { signedAccount } = useSignedAccountInfo()
-  return useCallback(
-    async (isAnonymous: boolean) => {
-      const profile = await getProfile().unwrap()
-      setProfile({ profile, isAnonymous, account: signedAccount })
-    },
-    [getProfile, setProfile, signedAccount],
-  )
+  const { isLogin } = useSessionInfo()
+  return useCallback(async () => {
+    const profile = await getProfile().unwrap()
+    setProfile({ profile, isAnonymous: !isLogin, account: signedAccount })
+  }, [getProfile, setProfile, signedAccount, isLogin])
 }
 
 export type ConnectedProfile = {

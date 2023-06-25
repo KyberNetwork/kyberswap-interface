@@ -10,7 +10,6 @@ import { ConfirmModalState } from 'state/application/reducer'
 import { useSignedAccountInfo } from 'state/authen/hooks'
 import { ProfileLocalStorageKeys, getProfileLocalStorage } from 'utils/profile'
 
-// todo rename file
 export default function useSessionExpiredGlobal() {
   const { pathname } = useLocation()
   const showConfirm = useShowConfirm()

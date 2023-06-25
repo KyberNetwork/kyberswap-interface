@@ -1,3 +1,4 @@
+import KyberOauth2 from '@kybernetwork/oauth2'
 import { Trans } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
 import { X } from 'react-feather'
@@ -8,8 +9,8 @@ import useTheme from 'hooks/useTheme'
 import QRCodeContent from 'pages/NotificationCenter/Profile/ExportAccountModal/QRCodeContent'
 import UserEnterPasscodeContent from 'pages/NotificationCenter/Profile/ExportAccountModal/UserEnterPasscodeContent'
 import { ButtonText } from 'theme/components'
-import { decryptString, encryptString } from 'utils/cryptography'
-import { getGuestAccount, getImportToken, removeImportToken, saveImportToken } from 'utils/profile'
+import { encryptString } from 'utils/cryptography'
+import { getImportToken, removeImportToken, saveImportToken } from 'utils/profile'
 
 enum Step {
   ENTER_PASSCODE,
@@ -32,7 +33,7 @@ type Props = {
 }
 export default function ExportAccountModal({ isOpen, onDismiss }: Props) {
   const theme = useTheme()
-  const guestAccount = useMemo(() => getGuestAccount(), [])
+  const guestAccount = useMemo(() => KyberOauth2.getAnonymousAccount(), [])
   const guestAccountStr = guestAccount ? JSON.stringify(guestAccount) : ''
 
   const [step, setStep] = useState(() => {
@@ -58,10 +59,6 @@ export default function ExportAccountModal({ isOpen, onDismiss }: Props) {
     const importToken = encryptString(guestAccountStr, code)
     saveImportToken(guestAccount.username, importToken)
     setImportToken(importToken)
-
-    console.log({
-      text: decryptString(importToken, code),
-    })
   }
 
   const handleForgotPasscode = () => {

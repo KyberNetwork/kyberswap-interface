@@ -39,7 +39,7 @@ const priceAlertApi = createApi({
       },
       providesTags: [RTK_QUERY_TAGS.GET_ALERTS],
     }),
-    getAlertStats: builder.query<PriceAlertStat, string>({
+    getAlertStats: builder.query<PriceAlertStat, void>({
       query: () => ({
         url: `/v1/price-alert/statistics`,
       }),

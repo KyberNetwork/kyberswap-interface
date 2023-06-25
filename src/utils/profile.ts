@@ -1,5 +1,3 @@
-import KyberOauth2 from '@kybernetwork/oauth2'
-
 import { EMPTY_OBJECT } from 'constants/index'
 
 export const ProfileLocalStorageKeys = {
@@ -48,8 +46,4 @@ export const removeImportToken = (account: string) => {
   delete importTokens[account]
 
   saveImportTokens(importTokens)
-}
-
-export const getGuestAccount = () => {
-  return KyberOauth2.getAnonymousAccount() || undefined
 }

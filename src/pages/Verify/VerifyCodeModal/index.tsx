@@ -13,19 +13,10 @@ import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import { TIMES_IN_SECS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
+import { getErrorMessage } from 'pages/TrueSightV2/utils'
 import OTPInput from 'pages/Verify/VerifyCodeModal/OtpInput'
 import { useNotify } from 'state/application/hooks'
-import { useRefreshProfile, useSessionInfo } from 'state/authen/hooks'
-
-const getErrorMessage = (error: any) => {
-  const mapErr: { [key: number]: string } = {
-    4004: t`Verification code is wrong or expired. Please try again.`,
-    4040: t`Referral code is invalid`,
-    4090: t`This email address is already registered`,
-  }
-  const code = error?.data?.code
-  return mapErr[code] || t`Error occur, please try again`
-}
+import { useRefreshProfile } from 'state/authen/hooks'
 
 const Wrapper = styled.div`
   display: flex;
@@ -168,14 +159,13 @@ export default function VerifyCodeModal({
   }, [isOpen, showNotiSuccess, showVerifySuccess, sendEmailWhenInit])
 
   const refreshProfile = useRefreshProfile()
-  const { isLogin } = useSessionInfo()
 
   const verify = async () => {
     try {
       if (!email) return
       await verifyOtp({ code: otp, email }).unwrap()
       await onVerifySuccess?.()
-      await refreshProfile(!isLogin)
+      await refreshProfile()
       showNotiSuccess()
     } catch (error) {
       setError(ErrorType.VALIDATE_ERROR)
@@ -262,6 +252,12 @@ export default function VerifyCodeModal({
                   hasError={isVerifyMailError}
                   placeholder="-"
                   type="number"
+                  onFocus={() => {
+                    isIOS && setIsTypingIos(true)
+                    setTimeout(() => {
+                      window.scrollTo({ top: 0 })
+                    }, 100)
+                  }}
                   onBlur={() => isIOS && setIsTypingIos(false)}
                 />
               )}

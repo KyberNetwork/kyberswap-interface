@@ -67,7 +67,7 @@ export interface ModalProps {
   trigger: ReactNode
   title: string
 }
-export default function Modal({
+export default function Drawer({
   isOpen,
   onDismiss = () => {
     // when not pass prop onDismiss, we stop close Modal when click outside Modal

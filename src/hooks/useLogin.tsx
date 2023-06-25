@@ -2,10 +2,8 @@ import KyberOauth2, { AnonymousAccount, LoginMethod } from '@kybernetwork/oauth2
 import { t } from '@lingui/macro'
 import { captureException } from '@sentry/react'
 import { useCallback, useEffect, useRef } from 'react'
-import { ANNOUNCEMENT_TAGS } from 'services/announcement'
 import { useConnectWalletToProfileMutation, useGetOrCreateProfileMutation } from 'services/identity'
 
-import { useInvalidateTagAnnouncement } from 'components/Announcement/helper'
 import { NotificationType } from 'components/Announcement/type'
 import { useShowConfirm } from 'components/ConfirmModal'
 import { ENV_KEY, OAUTH_CLIENT_ID } from 'constants/env'
@@ -46,7 +44,6 @@ const useLogin = (autoLogin = false) => {
   const qs = useParsedQueryString()
   const setLoading = useSetPendingAuthentication()
   const setProfile = useSaveUserProfile()
-  const invalidateTag = useInvalidateTagAnnouncement()
 
   const getProfile = useCallback(
     async ({
@@ -62,7 +59,6 @@ const useLogin = (autoLogin = false) => {
     }) => {
       try {
         const profile = await createProfile().unwrap()
-        invalidateTag(ANNOUNCEMENT_TAGS) // todo find the best way
         if (walletAddress && isAddress(chainId, walletAddress)) {
           await connectWalletToProfile({ walletAddress })
         }
@@ -82,7 +78,7 @@ const useLogin = (autoLogin = false) => {
         setProfile({ profile: undefined, isAnonymous, account })
       }
     },
-    [connectWalletToProfile, createProfile, setProfile, invalidateTag, chainId],
+    [connectWalletToProfile, createProfile, setProfile, chainId],
   )
 
   const showSignInSuccess = useCallback(

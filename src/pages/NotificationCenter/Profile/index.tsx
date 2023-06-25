@@ -12,7 +12,7 @@ import { AddressInput } from 'components/AddressInputPanel'
 import { NotificationType } from 'components/Announcement/type'
 import Column from 'components/Column'
 import CopyHelper from 'components/Copy'
-import { Input } from 'components/Input'
+import Input from 'components/Input'
 import { useValidateEmail } from 'components/SubscribeButton/NotificationPreference'
 import InputEmail from 'components/SubscribeButton/NotificationPreference/InputEmail'
 import { APP_PATHS } from 'constants/index'
@@ -94,7 +94,7 @@ export default function Profile() {
   const theme = useTheme()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const { chainId } = useActiveWeb3React()
-  const { userInfo, isLogin } = useSessionInfo()
+  const { userInfo } = useSessionInfo()
   const { inputEmail, onChangeEmail, errorColor, hasErrorInput } = useValidateEmail(userInfo?.email)
   const [nickname, setNickName] = useState('')
   const { signOut, signOutAnonymous } = useLogin()
@@ -154,7 +154,7 @@ export default function Profile() {
         nickname,
         avatarURL,
       }).unwrap()
-      await refreshProfile(!isLogin)
+      await refreshProfile()
       notify({
         type: NotificationType.SUCCESS,
         title: t`Profile updated`,
