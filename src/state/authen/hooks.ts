@@ -16,7 +16,13 @@ import {
 } from 'state/authen/actions'
 import { AuthenState, UserProfile } from 'state/authen/reducer'
 import { useAppDispatch } from 'state/hooks'
-import { ProfileLocalStorageKeys, getProfileLocalStorage, setProfileLocalStorage } from 'utils/profile'
+import {
+  ProfileLocalStorageKeys,
+  getConnectedProfile,
+  getProfileLocalStorage,
+  setConnectedProfile,
+  setProfileLocalStorage,
+} from 'utils/profile'
 
 // wallet connected: same as account of useActiveWeb3React but quickly return value
 export function useConnectedWallet(): [string | null | undefined, (data: string | null | undefined) => void] {
@@ -57,13 +63,13 @@ export function useSignedAccount(): [string | undefined, (data: Param) => void] 
   const setAccount = useCallback(
     ({ account, method }: Param) => {
       dispatch(updateSignedAccount(account))
-      setProfileLocalStorage(ProfileLocalStorageKeys.CONNECTED_ACCOUNT, account)
-      setProfileLocalStorage(ProfileLocalStorageKeys.CONNECTED_METHOD, method)
+      setConnectedProfile(account, method)
     },
     [dispatch],
   )
 
-  return [getProfileLocalStorage(ProfileLocalStorageKeys.CONNECTED_ACCOUNT) || wallet, setAccount]
+  const { connectedAccount } = getConnectedProfile()
+  return [connectedAccount || wallet, setAccount]
 }
 
 // info relate account currently signed in
@@ -71,19 +77,19 @@ export const useSignedAccountInfo = () => {
   const [signedAccount] = useSignedAccount()
   const { account } = useActiveWeb3React()
 
-  const loginMethod = getProfileLocalStorage(ProfileLocalStorageKeys.CONNECTED_METHOD)
+  const { connectedMethod } = getConnectedProfile()
 
-  const isSigInGuest = loginMethod === LoginMethod.ANONYMOUS
-  const isSignInEmail = loginMethod === LoginMethod.GOOGLE
+  const isSigInGuest = connectedMethod === LoginMethod.ANONYMOUS
+  const isSignInEmail = connectedMethod === LoginMethod.GOOGLE
 
-  const isSignInEth = loginMethod === LoginMethod.ETH
+  const isSignInEth = connectedMethod === LoginMethod.ETH
   const isSignInDifferentWallet =
     (isSignInEth && account?.toLowerCase() !== signedAccount?.toLowerCase()) || isSigInGuest || isSignInEmail
 
   const isSignInGuestDefault = isSigInGuest && signedAccount === KEY_GUEST_DEFAULT
 
   return {
-    loginMethod,
+    loginMethod: connectedMethod,
     isSignInDifferentWallet,
     isSigInGuest,
     isSignInGuestDefault,

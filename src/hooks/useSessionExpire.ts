@@ -8,7 +8,7 @@ import { APP_PATHS } from 'constants/index'
 import useLogin from 'hooks/useLogin'
 import { ConfirmModalState } from 'state/application/reducer'
 import { useSignedAccountInfo } from 'state/authen/hooks'
-import { ProfileLocalStorageKeys, getProfileLocalStorage } from 'utils/profile'
+import { getConnectedProfile } from 'utils/profile'
 
 export default function useSessionExpiredGlobal() {
   const { pathname } = useLocation()
@@ -43,8 +43,7 @@ export default function useSessionExpiredGlobal() {
 
   useEffect(() => {
     const listener = () => {
-      const newLoginMethod = getProfileLocalStorage(ProfileLocalStorageKeys.CONNECTED_METHOD)
-      const newSignedAccount = getProfileLocalStorage(ProfileLocalStorageKeys.CONNECTED_ACCOUNT)
+      const { connectedMethod: newLoginMethod, connectedAccount: newSignedAccount } = getConnectedProfile()
       const accountSignHasChanged = loginMethod != newLoginMethod || signedAccount !== newSignedAccount
       if (document.visibilityState === 'visible' && accountSignHasChanged) {
         signIn(newSignedAccount, newLoginMethod === LoginMethod.ANONYMOUS)

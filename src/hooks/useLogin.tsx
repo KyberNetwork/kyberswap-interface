@@ -20,7 +20,7 @@ import {
 } from 'state/authen/hooks'
 import { filterTruthy, isAddress } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
-import { ProfileLocalStorageKeys, getProfileLocalStorage } from 'utils/profile'
+import { getConnectedProfile } from 'utils/profile'
 import { setLoginRedirectUrl } from 'utils/redirectUponLogin'
 import { isEmailValid, shortString } from 'utils/string'
 
@@ -281,7 +281,7 @@ const useLogin = (autoLogin = false) => {
   useEffect(() => {
     if (!autoLogin || isInit.current) return
     isInit.current = true
-    const connectedMethod = getProfileLocalStorage(ProfileLocalStorageKeys.CONNECTED_METHOD)
+    const { connectedMethod } = getConnectedProfile()
     if (qs.code) {
       // redirect from server
       checkSessionSignIn(undefined)

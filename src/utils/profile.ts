@@ -19,6 +19,17 @@ export const setProfileLocalStorage = (key: string, value: any) => {
   localStorage.setItem(ProfileLocalStorageKeys.PROFILE_INFO, JSON.stringify({ ...info, [key]: value }))
 }
 
+export const getConnectedProfile = () => {
+  const connectedMethod = getProfileLocalStorage(ProfileLocalStorageKeys.CONNECTED_METHOD)
+  const connectedAccount = getProfileLocalStorage(ProfileLocalStorageKeys.CONNECTED_ACCOUNT)
+  return { connectedMethod, connectedAccount }
+}
+
+export const setConnectedProfile = (account: string | undefined, method: string) => {
+  setProfileLocalStorage(ProfileLocalStorageKeys.CONNECTED_ACCOUNT, account)
+  setProfileLocalStorage(ProfileLocalStorageKeys.CONNECTED_METHOD, method)
+}
+
 type TokenByAccount = Record<string /* account */, string /* import token */>
 
 const getImportTokens = () => {
