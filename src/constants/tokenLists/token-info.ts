@@ -84,7 +84,7 @@ export const TOKEN_INFO_DESCRIPTION: { [key: string]: string } = {
     
     <p>Corey Wilton, Pegaxy's chief marketing officer (CMO) and co-founder, is responsible for the strategy, development, and execution of marketing and advertising activities. He has extensive experience in digital marketing, blockchain, and gaming.</p>`,
   knc: `<h3>What is Kyber Network Crystal (KNC)?</h3>
-      <p>The Kyber Network is a multi-chain crypto trading and liquidity hub that connects liquidity from different sources to provide secure and instant transactions on any decentralized application (DApp). The primary objective of Kyber Network is to provide an easy access to liquidity pools at excellent rates for DeFi DApps, decentralized exchanges (DEXs), and other users.</p>
+      <p>The Kyber Network is a multi-chain crypto trading and liquidity hub that connects liquidity from different sources to provide secure and instant transactions on any decentralized application (DApp). The primary objective of Kyber Network is to provide an easy access to liquidity pools at superior rates for DeFi DApps, decentralized exchanges (DEXs), and other users.</p>
       
       <p>The utility token, known as Kyber Network Crystal (KNC), serves as the glue that binds various stakeholders in Kyber's ecosystem. Holders of KNC tokens can vote on significant proposals and participate in platform governance by staking their tokens in the KyberDAO, and earning staking rewards in Ethereum (ETH) earning from trading fees.</p>
       
