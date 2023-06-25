@@ -1,13 +1,13 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import ERC20_INTERFACE from 'constants/abis/erc20'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useMulticallContract } from 'hooks/useContract'
 import useInterval from 'hooks/useInterval'
-import { useBlockNumber, useKyberSwapConfig } from 'state/application/hooks'
+import { useKyberSwapConfig } from 'state/application/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { fetchChunk } from 'state/multicall/updater'
 import { TokenAmountLoading } from 'state/wallet/hooks'
@@ -59,17 +59,10 @@ export const useTokensBalanceOfAnotherChain = (
   const multicallContract = useMulticallContract(chainId)
   const [loading, setLoading] = useState(false)
 
-  const refBlockNumber = useRef<number>()
-  const blockNumber = useBlockNumber()
-  useEffect(() => {
-    if (!refBlockNumber.current) refBlockNumber.current = blockNumber
-  }, [blockNumber])
-
   const getBalance = useCallback(async () => {
     try {
       setBalances(EMPTY_ARRAY)
-      const blockNumber = refBlockNumber.current
-      if (!chainId || !account || !tokens.length || !multicallContract || !blockNumber) {
+      if (!chainId || !account || !tokens.length || !multicallContract) {
         return
       }
       setLoading(true)
@@ -79,11 +72,13 @@ export const useTokensBalanceOfAnotherChain = (
         fragment: 'balanceOf',
         key: token.wrapped.address,
       }))
+
       const { results } = await fetchChunk(
         multicallContract,
         calls.map(e => ({ address: e.target, callData: e.callData })),
-        blockNumber,
+        undefined as any,
       )
+
       const result = formatResult(results, calls)
       const balances = tokens.map(token => {
         const balance = result[token.wrapped.address]
@@ -92,6 +87,7 @@ export const useTokensBalanceOfAnotherChain = (
       setBalances(balances as TokenAmountLoading[])
       return
     } catch (error) {
+      console.error('get balance chain err', chainId, error)
     } finally {
       setLoading(false)
     }
