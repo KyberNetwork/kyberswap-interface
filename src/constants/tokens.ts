@@ -685,7 +685,7 @@ export const KNC: { [chainId in ChainId]: Token } = {
     18,
     'KNC',
     'Kyber Network Crystal',
-  ), // todo namgold: not exists yet
+  ),
 
   // TODO(viet-nv):
   [ChainId.LINEA_TESTNET]: new Token(

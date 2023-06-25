@@ -80,7 +80,6 @@ interface CampaignItemProps {
   index: number
 }
 
-/// todo refactor txs item
 export const getCampaignInfo = (campaign: CampaignData, account: string | undefined | null) => {
   if (!campaign) return { showProgressBarVolume: false, showProgressBarNumberTrade: false, isShowProgressBar: false }
   const { tradingNumberRequired, tradingVolumeRequired } = campaign

@@ -22,7 +22,7 @@ import {
   CampaignState,
   CampaignStatus,
   RewardDistribution,
-  setCampaignDataV2,
+  setCampaignDataByPage,
   setLastTimeRefreshData,
   setLoadingCampaignData,
   setLoadingCampaignDataError,
@@ -36,7 +36,7 @@ import { AppState } from 'state/index'
 import { SerializedToken } from 'state/user/actions'
 import { getCampaignIdFromSlug, getSlugUrlCampaign } from 'utils/campaign'
 
-import CampaignPage from './CampaignPage'
+import CampaignContent from './CampaignContent'
 
 const MAXIMUM_ITEMS_PER_REQUEST = 20
 
@@ -284,27 +284,25 @@ export default function CampaignsUpdater() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    const newData = campaignData || []
-    dispatch(setCampaignDataV2({ campaigns: newData, isReset: queryParams.offset === 0 }))
+    dispatch(setCampaignDataByPage({ campaigns: campaignData || [], isReset: queryParams.offset === 0 }))
   }, [campaignData, dispatch, queryParams.offset])
 
   useEffect(() => {
-    if (currentCampaigns?.length) {
-      const navigateFirsOne = () => {
-        navigate(getSlugUrlCampaign(currentCampaigns[0].id, currentCampaigns[0].name), {
-          replace: true,
-        })
-      }
-      if (selectedCampaignId === undefined) {
-        navigateFirsOne()
-      } else {
-        const selectedCampaign = currentCampaigns.find(campaign => campaign.id.toString() === selectedCampaignId)
-        if (selectedCampaign) {
-          dispatch(setSelectedCampaign({ campaign: selectedCampaign }))
-        } else {
-          navigateFirsOne()
-        }
-      }
+    if (!currentCampaigns?.length) return
+    const navigateFirsOne = () => {
+      navigate(getSlugUrlCampaign(currentCampaigns[0].id, currentCampaigns[0].name), {
+        replace: true,
+      })
+    }
+    if (selectedCampaignId === undefined) {
+      navigateFirsOne()
+      return
+    }
+    const selectedCampaign = currentCampaigns.find(campaign => campaign.id.toString() === selectedCampaignId)
+    if (selectedCampaign) {
+      dispatch(setSelectedCampaign({ campaign: selectedCampaign }))
+    } else {
+      navigateFirsOne()
     }
   }, [currentCampaigns, dispatch, selectedCampaignId, navigate])
 
@@ -316,13 +314,10 @@ export default function CampaignsUpdater() {
     dispatch(setLoadingCampaignDataError(loadingCampaignDataError))
   }, [dispatch, loadingCampaignDataError])
 
-  const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
-
   /**********************CAMPAIGN LEADERBOARD**********************/
 
-  const { selectedCampaignLeaderboardPageNumber, selectedCampaignLeaderboardLookupAddress } = useSelector(
-    (state: AppState) => state.campaigns,
-  )
+  const { selectedCampaignLeaderboardPageNumber, selectedCampaignLeaderboardLookupAddress, selectedCampaign } =
+    useSelector((state: AppState) => state.campaigns)
 
   const { data: leaderboard, isValidating: isLoadingLeaderboard } = useSWRImmutable(
     selectedCampaign
@@ -379,8 +374,7 @@ export default function CampaignsUpdater() {
         ]
       : null,
     async () => {
-      if (selectedCampaign === undefined || selectedCampaign.campaignState === CampaignState.CampaignStateReady)
-        return []
+      if (!selectedCampaign || selectedCampaign.campaignState === CampaignState.CampaignStateReady) return []
 
       try {
         const response = await axios({
@@ -422,7 +416,7 @@ export default function CampaignsUpdater() {
   }, [dispatch, isLoadingLuckyWinners])
 
   return (
-    <CampaignPage
+    <CampaignContent
       refreshListCampaign={refreshListCampaign}
       loadMoreCampaign={loadMoreCampaign}
       hasMoreCampaign={hasMoreCampaign}

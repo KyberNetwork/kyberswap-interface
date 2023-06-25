@@ -5,7 +5,7 @@ import {
   CampaignLeaderboard,
   CampaignLuckyWinner,
   setCampaignData,
-  setCampaignDataV2,
+  setCampaignDataByPage,
   setClaimingCampaignRewardId,
   setLastTimeRefreshData,
   setLoadingCampaignData,
@@ -85,7 +85,7 @@ export default createReducer<CampaignsState>(initialState, builder =>
         data: campaigns,
       }
     })
-    .addCase(setCampaignDataV2, (state, { payload: { campaigns, isReset } }) => {
+    .addCase(setCampaignDataByPage, (state, { payload: { campaigns, isReset } }) => {
       return {
         ...state,
         data: isReset ? campaigns : state.data.concat(campaigns),

@@ -46,7 +46,7 @@ import {
   setSelectedCampaign,
 } from 'state/campaigns/actions'
 import { useAppDispatch } from 'state/hooks'
-import { HideMedium, MediumOnly } from 'theme'
+import { HideMedium, MEDIA_WIDTHS, MediumOnly } from 'theme'
 // This is needed to make sure the UI looks just like in Editor
 import 'theme/CKEditor/CKEditor5.css'
 import 'theme/CKEditor/CKEditor5_custom.css'
@@ -145,13 +145,20 @@ type CampaignProps = {
   onSearchCampaign: (v: string) => void
   refreshListCampaign: () => void
 }
+
+enum CampaignTab {
+  HOW_TO_WIN = 'how_to_win',
+  REWARDS = 'rewards',
+  LEADERBOARD = 'leaderboard',
+  LUCKY_WINNER = 'lucky_winners',
+}
 export default function Campaign({ refreshListCampaign, ...props }: CampaignProps) {
   const { account } = useActiveWeb3React()
   const theme = useTheme()
 
   const toggleYourCampaignTransactionModal = useToggleYourCampaignTransactionsModal()
 
-  const [activeTab, setActiveTab] = useState<'how_to_win' | 'rewards' | 'leaderboard' | 'lucky_winners'>('how_to_win')
+  const [activeTab, setActiveTab] = useState<CampaignTab>(CampaignTab.HOW_TO_WIN)
 
   const toggleWalletModal = useWalletModalToggle()
   const toggleShareModal = useToggleModal(ApplicationModal.SHARE)
@@ -169,7 +176,7 @@ export default function Campaign({ refreshListCampaign, ...props }: CampaignProp
 
   const { mixpanelHandler } = useMixpanel()
 
-  const above768 = useMedia('(min-width: 768px)')
+  const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const campaignDetailImageRef = useRef<HTMLImageElement>(null)
   const [campaignDetailMediaLoadedMap, setCampaignDetailMediaLoadedMap] = useState<{ [id: string]: boolean }>({})
@@ -179,22 +186,13 @@ export default function Campaign({ refreshListCampaign, ...props }: CampaignProp
 
   useEffect(() => {
     if (selectedCampaign?.status === CampaignStatus.ENDED) {
-      setActiveTab('leaderboard')
+      setActiveTab(CampaignTab.LEADERBOARD)
     }
   }, [selectedCampaign])
 
   useEffect(() => {
-    if (selectedCampaign === undefined) return
-
-    if (campaignDetailMediaLoadedMap[selectedCampaign.id]) {
-      if (campaignDetailImageRef && campaignDetailImageRef.current) {
-        campaignDetailImageRef.current.style.display = 'unset'
-      }
-    } else {
-      if (campaignDetailImageRef && campaignDetailImageRef.current) {
-        campaignDetailImageRef.current.style.display = 'none'
-      }
-    }
+    if (!selectedCampaign || !campaignDetailImageRef?.current) return
+    campaignDetailImageRef.current.style.display = campaignDetailMediaLoadedMap[selectedCampaign.id] ? 'unset' : 'none'
   }, [campaignDetailMediaLoadedMap, selectedCampaign])
 
   const TabHowToWinContent = useMemo(
@@ -335,45 +333,36 @@ export default function Campaign({ refreshListCampaign, ...props }: CampaignProp
   const dispatch = useAppDispatch()
   useInterval(
     () => {
-      if (
-        selectedCampaign &&
-        selectedCampaign.status === CampaignStatus.UPCOMING &&
-        selectedCampaign.startTime < now + 1000
-      ) {
+      const updateCampaignStatus = (status: CampaignStatus) => {
+        if (!selectedCampaign) return
         dispatch(
           setCampaignData({
             campaigns: campaigns.map(campaign => {
               if (campaign.id === selectedCampaign.id) {
                 return {
                   ...campaign,
-                  status: CampaignStatus.ONGOING,
+                  status,
                 }
               }
               return campaign
             }),
           }),
         )
-        dispatch(setSelectedCampaign({ campaign: { ...selectedCampaign, status: CampaignStatus.ONGOING } }))
+        dispatch(setSelectedCampaign({ campaign: { ...selectedCampaign, status } }))
       }
       if (
         selectedCampaign &&
-        selectedCampaign.status === CampaignStatus.ONGOING &&
-        selectedCampaign.endTime < now + 1000
+        selectedCampaign.startTime < now + 1000 &&
+        selectedCampaign.status === CampaignStatus.UPCOMING
       ) {
-        dispatch(
-          setCampaignData({
-            campaigns: campaigns.map(campaign => {
-              if (campaign.id === selectedCampaign.id) {
-                return {
-                  ...campaign,
-                  status: CampaignStatus.ENDED,
-                }
-              }
-              return campaign
-            }),
-          }),
-        )
-        dispatch(setSelectedCampaign({ campaign: { ...selectedCampaign, status: CampaignStatus.ENDED } }))
+        updateCampaignStatus(CampaignStatus.ONGOING)
+      }
+      if (
+        selectedCampaign &&
+        selectedCampaign.endTime < now + 1000 &&
+        selectedCampaign.status === CampaignStatus.ONGOING
+      ) {
+        updateCampaignStatus(CampaignStatus.ENDED)
       }
       setCampaignsRefreshIn(prev => {
         if (prev === 0) {
@@ -382,7 +371,7 @@ export default function Campaign({ refreshListCampaign, ...props }: CampaignProp
         return prev - 1
       })
     },
-    selectedCampaign && selectedCampaign.campaignState === CampaignState.CampaignStateReady ? 1000 : null,
+    selectedCampaign?.campaignState === CampaignState.CampaignStateReady ? 1000 : null,
     true,
   )
 
@@ -592,27 +581,41 @@ export default function Campaign({ refreshListCampaign, ...props }: CampaignProp
             </CampaignDetailBoxGroup>
 
             <CampaignDetailTabRow>
-              <CampaignDetailTab active={activeTab === 'how_to_win'} onClick={() => setActiveTab('how_to_win')}>
+              <CampaignDetailTab
+                active={activeTab === CampaignTab.HOW_TO_WIN}
+                onClick={() => setActiveTab(CampaignTab.HOW_TO_WIN)}
+              >
                 <Trans>How to win</Trans>
               </CampaignDetailTab>
-              <CampaignDetailTab active={activeTab === 'rewards'} onClick={() => setActiveTab('rewards')}>
+              <CampaignDetailTab
+                active={activeTab === CampaignTab.REWARDS}
+                onClick={() => setActiveTab(CampaignTab.REWARDS)}
+              >
                 <Trans>Rewards</Trans>
               </CampaignDetailTab>
-              <CampaignDetailTab active={activeTab === 'leaderboard'} onClick={() => setActiveTab('leaderboard')}>
+              <CampaignDetailTab
+                active={activeTab === CampaignTab.LEADERBOARD}
+                onClick={() => setActiveTab(CampaignTab.LEADERBOARD)}
+              >
                 <Trans>Leaderboard</Trans>
               </CampaignDetailTab>
               {selectedCampaign && selectedCampaign.campaignState === CampaignState.CampaignStateDistributedRewards && (
-                <CampaignDetailTab active={activeTab === 'lucky_winners'} onClick={() => setActiveTab('lucky_winners')}>
+                <CampaignDetailTab
+                  active={activeTab === CampaignTab.LUCKY_WINNER}
+                  onClick={() => setActiveTab(CampaignTab.LUCKY_WINNER)}
+                >
                   <Trans>Lucky Winners</Trans>
                 </CampaignDetailTab>
               )}
             </CampaignDetailTabRow>
 
             <CampaignDetailContent>
-              {activeTab === 'how_to_win' && <TabHowToWinContent />}
-              {activeTab === 'rewards' && <TabRewardsContent />}
-              {activeTab === 'leaderboard' && <LeaderboardLayout type="leaderboard" refreshIn={campaignsRefreshIn} />}
-              {activeTab === 'lucky_winners' && (
+              {activeTab === CampaignTab.HOW_TO_WIN && <TabHowToWinContent />}
+              {activeTab === CampaignTab.REWARDS && <TabRewardsContent />}
+              {activeTab === CampaignTab.LEADERBOARD && (
+                <LeaderboardLayout type="leaderboard" refreshIn={campaignsRefreshIn} />
+              )}
+              {activeTab === CampaignTab.LUCKY_WINNER && (
                 <LeaderboardLayout type="lucky_winner" refreshIn={campaignsRefreshIn} />
               )}
             </CampaignDetailContent>
@@ -761,7 +764,6 @@ const PageWrapper = styled.div`
 const CampaignContainer = styled.div`
   display: flex;
   gap: 24px;
-  //height: calc(100vh - 84.34px - 24px - 24px - 62px);
   min-height: calc(100vh - 84.34px - 24px - 24px - 62px);
   overflow: auto;
 `

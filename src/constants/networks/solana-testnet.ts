@@ -10,7 +10,7 @@ export const SelectedNetwork = WalletAdapterNetwork.Mainnet
 
 const NOT_SUPPORT = null
 const solanaInfo: SolanaNetworkInfo = {
-  chainId: ChainId.SOLANA,
+  chainId: ChainId.SOLANA_TESTNET,
   route: 'solana',
   ksSettingRoute: 'solana',
   priceRoute: 'solana',
@@ -36,11 +36,6 @@ const solanaInfo: SolanaNetworkInfo = {
     minForGas: 10 ** 7,
   },
   aggregatorProgramAddress: 'GmgkeeJtcjHgeiSDdT5gxznUDr5ygq9jo8tmA4ny7ziv',
-  // classic: {
-  //   factory: 'CwzigBwGVn25LdyLsqzSX3iwhPwQXoxYcXxSM4sjWoBU',
-  //   pool: 'EKdy97aMrjjxtq4CJh9vN24WuHVsuLz4qtDjyYqttviN',
-  //   router: '6VdLuZvVxdgFYQiCQ1VDBBdE27RahXzv2wCxwG4FAzAn',
-  // },
   limitOrder: { development: NOT_SUPPORT, production: NOT_SUPPORT },
   coingeckoNetworkId: 'solana',
   coingeckoNativeTokenId: 'solana',

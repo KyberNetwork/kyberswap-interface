@@ -71,9 +71,11 @@ const CampaignListAndSearch = ({
   onSearchCampaign,
 }: CampaignListAndSearchProps) => {
   const [searchCampaign, setSearchCampaign] = useState('')
+  const { account } = useActiveWeb3React()
   const theme = useTheme()
 
-  const { data: campaigns, selectedCampaign } = useSelector((state: AppState) => state.campaigns)
+  const { data: campaigns, selectedCampaign, lastTimeRefreshData } = useSelector((state: AppState) => state.campaigns)
+
   const debounceSearch = useDebounce(searchCampaign, INPUT_DEBOUNCE_TIME)
   useEffect(() => {
     onSearchCampaign(debounceSearch)
@@ -87,17 +89,12 @@ const CampaignListAndSearch = ({
     }
   }, [])
 
-  const { account } = useActiveWeb3React()
-  const scrollToTop = useCallback(() => {
-    if (scroll.current) scroll.current.scrollTop = 0
-  }, [])
-
   useEffect(() => {
-    scrollToTop()
-  }, [account, debounceSearch, scrollToTop])
+    if (scroll.current) scroll.current.scrollTop = 0
+  }, [account, debounceSearch])
 
   const isItemLoaded = (index: number) => !hasMoreCampaign || index < campaigns.length
-  const itemCount = hasMoreCampaign ? campaigns.length + 1 : campaigns.length
+  const itemCount = campaigns.length + Number(hasMoreCampaign)
 
   function getRowHeight(index: number) {
     const { showProgressBarNumberTrade, showProgressBarVolume } = getCampaignInfo(campaigns[index], account)
@@ -105,7 +102,6 @@ const CampaignListAndSearch = ({
     return campaigns[index]?.status === CampaignStatus.ENDED ? 140 : 160 + progressbarNum * 24
   }
 
-  const { lastTimeRefreshData } = useSelector((state: AppState) => state.campaigns)
   return (
     <CampaignListAndSearchContainer key={lastTimeRefreshData}>
       <Flex
@@ -161,7 +157,7 @@ const CampaignListAndSearch = ({
                         onSelectCampaign={onSelectCampaign}
                         key={index}
                         index={index}
-                        isSelected={Boolean(selectedCampaign && selectedCampaign.id === campaign.id)}
+                        isSelected={Boolean(selectedCampaign?.id === campaign.id)}
                       />
                     )
                   }}

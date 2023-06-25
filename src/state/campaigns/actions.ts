@@ -126,8 +126,8 @@ export interface CampaignProofData {
 }
 
 export const setCampaignData = createAction<{ campaigns: CampaignData[] }>('campaigns/setCampaignData')
-export const setCampaignDataV2 = createAction<{ campaigns: CampaignData[]; isReset: boolean }>(
-  'campaigns/setCampaignDataV2',
+export const setCampaignDataByPage = createAction<{ campaigns: CampaignData[]; isReset: boolean }>(
+  'campaigns/setCampaignDataByPage',
 )
 
 export const setLoadingCampaignData = createAction<boolean>('campaigns/setLoadingCampaignData')
