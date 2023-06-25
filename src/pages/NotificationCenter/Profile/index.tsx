@@ -97,7 +97,7 @@ export default function Profile() {
   const { userInfo } = useSessionInfo()
   const { inputEmail, onChangeEmail, errorColor, hasErrorInput } = useValidateEmail(userInfo?.email)
   const [nickname, setNickName] = useState('')
-  const { signOut, signOutAnonymous } = useLogin()
+  const { signOut } = useLogin()
   const navigate = useNavigate()
   const { isSignInEmail, isSignInEth, signedAccount, isSignInGuestDefault, isSigInGuest } = useSignedAccountInfo()
 
@@ -239,7 +239,7 @@ export default function Profile() {
             {!isSignInGuestDefault ? (
               <ButtonLogout
                 onClick={() => {
-                  isSigInGuest ? signOutAnonymous(signedAccount) : signOut(signedAccount)
+                  signOut(signedAccount, isSigInGuest)
                   navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PROFILE}`)
                 }}
               >

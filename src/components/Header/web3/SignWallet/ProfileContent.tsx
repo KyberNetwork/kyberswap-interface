@@ -127,13 +127,13 @@ const ProfileItem = ({
   const navigate = useNavigate()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
-  const { signIn, signInAnonymous, signOut, signOutAnonymous } = useLogin()
+  const { signIn, signOut } = useLogin()
   const [loading, setLoading] = useState(false)
 
   const onClick = async () => {
     if (active || loading) return
     setLoading(true)
-    await (guest ? signInAnonymous(id) : signIn(id, true))
+    await signIn(id, guest, true)
     setLoading(false)
     toggleModal()
   }
@@ -146,7 +146,7 @@ const ProfileItem = ({
         size={16}
         onClick={e => {
           e?.stopPropagation()
-          guest ? signOutAnonymous(id) : signOut(id)
+          signOut(id, guest)
           refreshProfile()
         }}
       />
@@ -204,7 +204,7 @@ const ProfileItem = ({
   )
 }
 const ProfileContent = ({ scroll }: { scroll?: boolean }) => {
-  const { redirectSignIn, signOutAll } = useLogin()
+  const { signIn, signOutAll } = useLogin()
   const { profiles, refresh } = useAllProfileInfo()
 
   const totalSignedAccount = profiles.filter(e => e.id !== KEY_GUEST_DEFAULT).length
@@ -221,7 +221,7 @@ const ProfileContent = ({ scroll }: { scroll?: boolean }) => {
         </ListProfile>
       </Column>
       <ActionWrapper hasBorder={profiles.length > 1}>
-        <ActionItem onClick={redirectSignIn}>
+        <ActionItem onClick={() => signIn()}>
           <UserPlus size={18} /> <Trans>Add Account</Trans>
         </ActionItem>
         {totalSignedAccount > 0 && (

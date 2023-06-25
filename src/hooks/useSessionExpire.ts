@@ -13,7 +13,7 @@ import { ProfileLocalStorageKeys, getProfileLocalStorage } from 'utils/profile'
 export default function useSessionExpiredGlobal() {
   const { pathname } = useLocation()
   const showConfirm = useShowConfirm()
-  const { redirectSignIn, signIn, signInAnonymous } = useLogin()
+  const { signIn } = useLogin()
   const navigate = useNavigate()
   const { signedAccount, loginMethod } = useSignedAccountInfo()
 
@@ -26,7 +26,7 @@ export default function useSessionExpiredGlobal() {
         title: t`Session Expired`,
         confirmText: t`Sign-in`,
         cancelText: t`Cancel`,
-        onConfirm: redirectSignIn,
+        onConfirm: () => signIn(),
       }
       const isKyberAIPage =
         pathname.toLowerCase().startsWith(APP_PATHS.KYBERAI.toLowerCase()) &&
@@ -39,7 +39,7 @@ export default function useSessionExpiredGlobal() {
     }
     KyberOauth2.on(KyberOauth2Event.SESSION_EXPIRED, listener)
     return () => KyberOauth2.off(KyberOauth2Event.SESSION_EXPIRED, listener)
-  }, [pathname, showConfirm, redirectSignIn, navigate, signedAccount])
+  }, [pathname, showConfirm, signIn, navigate, signedAccount])
 
   useEffect(() => {
     const listener = () => {
@@ -47,13 +47,12 @@ export default function useSessionExpiredGlobal() {
       const newSignedAccount = getProfileLocalStorage(ProfileLocalStorageKeys.CONNECTED_ACCOUNT)
       const accountSignHasChanged = loginMethod != newLoginMethod || signedAccount !== newSignedAccount
       if (document.visibilityState === 'visible' && accountSignHasChanged) {
-        if (newLoginMethod === LoginMethod.ANONYMOUS) signInAnonymous(newSignedAccount)
-        else signIn(newSignedAccount)
+        signIn(newSignedAccount, newLoginMethod === LoginMethod.ANONYMOUS)
       }
     }
     document.addEventListener('visibilitychange', listener)
     return () => {
       document.removeEventListener('visibilitychange', listener)
     }
-  }, [signedAccount, loginMethod, signInAnonymous, signIn])
+  }, [signedAccount, loginMethod, signIn])
 }

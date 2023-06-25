@@ -124,7 +124,8 @@ const useLogin = (autoLogin = false) => {
     [getProfile, setLoading, account, saveSignedAccount, showSignInSuccess],
   )
 
-  const requestSignIn = useCallback(
+  // check session when sign in eth/email
+  const checkSessionSignIn = useCallback(
     async (desireAccount: string | undefined, loginAnonymousIfFailed = true) => {
       try {
         setLoading(true)
@@ -154,11 +155,7 @@ const useLogin = (autoLogin = false) => {
     [setLoading, signInAnonymous, getProfile, saveSignedAccount, showSignInSuccess],
   )
 
-  const redirectSignIn = useCallback(() => {
-    KyberOauth2.authenticate() // navigate to login page
-    setLoginRedirectUrl()
-  }, [])
-
+  // check account info and redirect if needed
   const signIn = useCallback(
     async (desireAccount?: string, showSessionExpired = false) => {
       const isAddAccount = !desireAccount
@@ -175,10 +172,14 @@ const useLogin = (autoLogin = false) => {
       const connectedAccounts = KyberOauth2.getConnectedAccounts()
       const isTokenExist = connectedAccounts.includes(desireAccount?.toLowerCase() || '')
       if (isSelectAccount && isTokenExist) {
-        await requestSignIn(desireAccount, false)
+        await checkSessionSignIn(desireAccount, false)
         return
       }
 
+      const redirectSignIn = () => {
+        KyberOauth2.authenticate() // navigate to login page
+        setLoginRedirectUrl()
+      }
       if (showSessionExpired && isSelectAccount && !isTokenExist) {
         showConfirm({
           isOpen: true,
@@ -192,33 +193,8 @@ const useLogin = (autoLogin = false) => {
       }
       redirectSignIn()
     },
-    [account, requestSignIn, toggleWalletModal, showConfirm, redirectSignIn],
+    [account, checkSessionSignIn, toggleWalletModal, showConfirm],
   )
-
-  // auto try sign in when the first visit app, call once
-  const isInit = useRef(false)
-  useEffect(() => {
-    if (!autoLogin || isInit.current) return
-    isInit.current = true
-    const connectedMethod = getProfileLocalStorage(ProfileLocalStorageKeys.CONNECTED_METHOD)
-    if (qs.code) {
-      // redirect from server
-      requestSignIn(undefined)
-      return
-    }
-    if (connectedMethod === LoginMethod.ANONYMOUS) {
-      signInAnonymous(signedAccount)
-      return
-    }
-    requestSignIn(signedAccount || undefined)
-  }, [requestSignIn, autoLogin, signedAccount, signInAnonymous, qs.code])
-
-  // auto sign in after connect wallet
-  useEffect(() => {
-    if (autoLogin || !account || !needSignInAfterConnectWallet) return
-    signIn(accountSignAfterConnectedWallet)
-    needSignInAfterConnectWallet = false
-  }, [account, signIn, autoLogin])
 
   const signOut = useCallback(
     (desireAccount?: string) => {
@@ -267,15 +243,6 @@ const useLogin = (autoLogin = false) => {
     )
   }, [notify, removeAllProfile, signedAccount, signOut])
 
-  const importGuestAccount = useCallback(
-    async (accountInfo: AnonymousAccount) => {
-      const accountId = accountInfo.username
-      KyberOauth2.importAnonymousAccount(accountInfo)
-      return signInAnonymous(accountId)
-    },
-    [signInAnonymous],
-  )
-
   const signOutAnonymous = useCallback(
     (guestAccount: string | undefined) => {
       if (!guestAccount || guestAccount === KEY_GUEST_DEFAULT) return
@@ -286,7 +253,55 @@ const useLogin = (autoLogin = false) => {
     [signInAnonymous, removeProfile],
   )
 
-  return { signOut, signIn, redirectSignIn, signInAnonymous, signOutAll, importGuestAccount, signOutAnonymous }
+  const importGuestAccount = useCallback(
+    async (accountInfo: AnonymousAccount) => {
+      const accountId = accountInfo.username
+      KyberOauth2.importAnonymousAccount(accountInfo)
+      return signInAnonymous(accountId)
+    },
+    [signInAnonymous],
+  )
+
+  const signOutWrapped = useCallback(
+    (desireAccount: string | undefined, isGuest: boolean) => {
+      return isGuest ? signOutAnonymous(desireAccount) : signOut(desireAccount)
+    },
+    [signOutAnonymous, signOut],
+  )
+
+  const signInWrapped = useCallback(
+    (desireAccount: string | undefined = undefined, isGuest = false, showSessionExpired = false) => {
+      return isGuest ? signInAnonymous(desireAccount) : signIn(desireAccount, showSessionExpired)
+    },
+    [signInAnonymous, signIn],
+  )
+
+  // auto try sign in when the first visit app, call once
+  const isInit = useRef(false)
+  useEffect(() => {
+    if (!autoLogin || isInit.current) return
+    isInit.current = true
+    const connectedMethod = getProfileLocalStorage(ProfileLocalStorageKeys.CONNECTED_METHOD)
+    if (qs.code) {
+      // redirect from server
+      checkSessionSignIn(undefined)
+      return
+    }
+    if (connectedMethod === LoginMethod.ANONYMOUS) {
+      signInAnonymous(signedAccount)
+      return
+    }
+    checkSessionSignIn(signedAccount || undefined)
+  }, [checkSessionSignIn, autoLogin, signedAccount, signInAnonymous, qs.code])
+
+  // auto sign in after connect wallet
+  useEffect(() => {
+    if (autoLogin || !account || !needSignInAfterConnectWallet) return
+    signIn(accountSignAfterConnectedWallet)
+    needSignInAfterConnectWallet = false
+  }, [account, signIn, autoLogin])
+
+  return { signOut: signOutWrapped, signIn: signInWrapped, signOutAll, importGuestAccount }
 }
 
 export default useLogin
