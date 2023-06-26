@@ -2,7 +2,7 @@ import { Trans } from '@lingui/macro'
 import { useMemo } from 'react'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { useGetElasticEarningQuery, useGetElasticLegacyEarningQuery } from 'services/earning'
+import { useGetClassicEarningQuery, useGetElasticEarningQuery, useGetElasticLegacyEarningQuery } from 'services/earning'
 import styled from 'styled-components'
 
 import { useActiveWeb3React } from 'hooks'
@@ -66,6 +66,7 @@ const MyEarningStats = () => {
   // const getEarningData = useGetEarningDataQuery({ account, chainIds: selectedChainIds })
   const elasticEarningQueryResponse = useGetElasticEarningQuery({ account, chainIds: selectedChainIds })
   const elasticLegacyEarningQueryResponse = useGetElasticLegacyEarningQuery({ account, chainIds: selectedChainIds })
+  const classicEarningQueryResponse = useGetClassicEarningQuery({ account, chainIds: selectedChainIds })
 
   const isLoading = elasticEarningQueryResponse.isFetching || elasticLegacyEarningQueryResponse.isFetching
 
@@ -74,10 +75,10 @@ const MyEarningStats = () => {
   // multiple chains
   const ticks: EarningStatsTick[] | undefined = useMemo(() => {
     return calculateTicksOfAccountEarningsInMultipleChains(
-      [elasticEarningQueryResponse.data, elasticLegacyEarningQueryResponse.data],
+      [elasticEarningQueryResponse.data, elasticLegacyEarningQueryResponse.data, classicEarningQueryResponse.data],
       tokensByChainId,
     )
-  }, [elasticEarningQueryResponse, elasticLegacyEarningQueryResponse, tokensByChainId])
+  }, [elasticEarningQueryResponse, elasticLegacyEarningQueryResponse, classicEarningQueryResponse, tokensByChainId])
 
   const earningBreakdown: EarningsBreakdown | undefined = useMemo(() => {
     return calculateEarningBreakdowns(ticks?.[0])

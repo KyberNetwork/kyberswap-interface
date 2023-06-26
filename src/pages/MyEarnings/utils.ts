@@ -346,9 +346,17 @@ export const aggregatePoolEarnings = (
   return result
 }
 
-export const aggregateAccountEarnings = (
-  earningResponse: GetElasticEarningResponse | undefined,
-): GetElasticEarningResponse | undefined => {
+export const aggregateAccountEarnings = <
+  T extends Record<
+    string,
+    {
+      positions: { historicalEarning: HistoricalSingleData[] }[]
+      account: HistoricalSingleData[]
+    }
+  >,
+>(
+  earningResponse: T | undefined,
+): T | undefined => {
   if (!earningResponse) {
     return undefined
   }
@@ -405,7 +413,15 @@ export const aggregateAccountEarnings = (
 }
 
 export const calculateTicksOfAccountEarningsInMultipleChains = (
-  earningResponses: Array<GetElasticEarningResponse | undefined>,
+  earningResponses: Array<
+    | Record<
+        string,
+        {
+          account: HistoricalSingleData[]
+        }
+      >
+    | undefined
+  >,
   tokensByChainId: TokenAddressMap | undefined,
 ): EarningStatsTick[] | undefined => {
   if (!tokensByChainId) {
@@ -532,40 +548,4 @@ export const calculateEarningBreakdowns = (
     totalValue,
     breakdowns,
   }
-}
-
-// TODO: not in use, can remove later
-export const mergeAccountEarningsInChains = (
-  listEarnings: Array<HistoricalSingleData[] | undefined>,
-): HistoricalSingleData[] | undefined => {
-  const earnings = listEarnings.filter(Boolean).flat() as HistoricalSingleData[]
-
-  const byDay: Record<string, HistoricalSingleData> = {}
-
-  earnings.forEach(earning => {
-    const day = earning.day
-    if (!byDay[day]) {
-      byDay[day] = cloneDeep(earning)
-    } else {
-      byDay[day].fees = (byDay[day].fees || []).concat(earning.fees ? cloneDeep(earning.fees) : [])
-      byDay[day].rewards = (byDay[day].rewards || []).concat(earning.rewards ? cloneDeep(earning.rewards) : [])
-    }
-  })
-
-  Object.keys(byDay).forEach(day => {
-    const fees = mergeTokenEarnings(byDay[day].fees || [])
-    const rewards = mergeTokenEarnings(byDay[day].rewards || [])
-    const total = mergeTokenEarnings(byDay[day].total || [])
-
-    byDay[day].fees = fees
-    byDay[day].rewards = rewards
-    byDay[day].total = total
-  })
-
-  const aggregatedEarnings = Object.keys(byDay)
-    .map(dayStr => Number(dayStr))
-    .sort((day1, day2) => day2 - day1)
-    .map(day => byDay[day])
-
-  return fillHistoricalEarningsForEmptyDays(aggregatedEarnings)
 }

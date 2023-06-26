@@ -73,7 +73,7 @@ const earningApi = createApi({
           })
         })
 
-        return data as GetClassicEarningResponse
+        return aggregateAccountEarnings(data) as GetClassicEarningResponse
       },
       keepUnusedDataFor: 300, // 5 minutes
     }),

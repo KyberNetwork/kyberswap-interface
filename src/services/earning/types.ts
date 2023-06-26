@@ -100,6 +100,7 @@ export type GetClassicEarningResponse = Record<
   string,
   {
     positions: ClassicPositionEarningWithDetails[]
+    account: HistoricalSingleData[]
   }
 >
 
