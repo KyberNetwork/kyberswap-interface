@@ -1,5 +1,4 @@
-import { Trans, t } from '@lingui/macro'
-import { UnsupportedChainIdError } from '@web3-react/core'
+import { Trans } from '@lingui/macro'
 import { darken, lighten } from 'polished'
 import { useMemo } from 'react'
 import { Activity } from 'react-feather'
@@ -14,7 +13,7 @@ import { RowBetween } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import useENSName from 'hooks/useENSName'
 import useLogin from 'hooks/useLogin'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -104,8 +103,7 @@ const AccountElement = styled.div`
 `
 
 function Web3StatusInner() {
-  const { chainId, account, walletKey, isEVM } = useActiveWeb3React()
-  const { error } = useWeb3React()
+  const { chainId, account, walletKey, isEVM, isWrongNetwork } = useActiveWeb3React()
   const isDarkMode = useIsDarkMode()
   const { mixpanelHandler } = useMixpanel()
   const uptoMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
@@ -129,6 +127,16 @@ function Web3StatusInner() {
   const toggleNetworkModal = useNetworkModalToggle()
   const { isSignInDifferentWallet } = useSignedAccountInfo()
 
+  if (isWrongNetwork) {
+    return (
+      <Web3StatusError onClick={toggleNetworkModal}>
+        <NetworkIcon />
+        <Text>
+          <Trans>Wrong Network</Trans>
+        </Text>
+      </Web3StatusError>
+    )
+  }
   if (account) {
     return (
       <Web3StatusConnected
@@ -187,20 +195,12 @@ function Web3StatusInner() {
       </Web3StatusConnected>
     )
   }
-  if (error) {
-    return (
-      <Web3StatusError onClick={toggleNetworkModal}>
-        <NetworkIcon />
-        <Text>{error instanceof UnsupportedChainIdError ? t`Wrong Network` : t`Error`}</Text>
-      </Web3StatusError>
-    )
-  }
   return (
     <ButtonLight
       onClick={toggleWalletModal}
-      data-testid="button-connect-wallet"
       padding="10px 12px"
       id={TutorialIds.BUTTON_CONNECT_WALLET}
+      data-testid="button-connect-wallet"
     >
       <Trans>Connect Wallet</Trans>
     </ButtonLight>

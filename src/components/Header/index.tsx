@@ -176,7 +176,7 @@ const LogoIcon = styled.div`
 `
 
 export default function Header() {
-  const { walletKey, networkInfo } = useActiveWeb3React()
+  const { networkInfo, walletKey } = useActiveWeb3React()
   const isDark = useIsDarkMode()
   const [holidayMode] = useHolidayMode()
   const theme = useTheme()
@@ -187,7 +187,7 @@ export default function Header() {
       text={t`You are currently connected through WalletConnect. If you want to change the connected network, please disconnect your wallet before changing the network.`}
       disableTooltip={walletKey !== 'WALLET_CONNECT'}
     >
-      <SelectNetwork disabled={walletKey === 'WALLET_CONNECT'} />
+      <SelectNetwork />
     </MouseoverTooltip>
   )
   const menu = (

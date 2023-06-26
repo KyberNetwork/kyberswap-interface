@@ -9,7 +9,6 @@ import { AppState } from 'state'
 import {
   updateAllProfile,
   updateConnectingWallet,
-  updatePossibleWalletAddress,
   updateProcessingLogin,
   updateProfile,
   updateSignedAccount,
@@ -24,22 +23,6 @@ import {
   setProfileLocalStorage,
 } from 'utils/profile'
 
-// wallet connected: same as account of useActiveWeb3React but quickly return value
-export function useConnectedWallet(): [string | null | undefined, (data: string | null | undefined) => void] {
-  const dispatch = useAppDispatch()
-  const wallet = useSelector((state: AppState) => state.authen.possibleConnectedWalletAddress)
-
-  const setConnectedWallet = useCallback(
-    (data: string | null | undefined) => {
-      dispatch(updatePossibleWalletAddress(data))
-    },
-    [dispatch],
-  )
-
-  return [wallet, setConnectedWallet]
-}
-
-// is connecting metamask/brave/... , trigger when selecting wallet
 export function useIsConnectingWallet(): [boolean, (data: boolean) => void] {
   const dispatch = useAppDispatch()
   const connectingWallet = useSelector((state: AppState) => state.authen.isConnectingWallet)

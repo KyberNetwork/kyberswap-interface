@@ -48,7 +48,6 @@ export type ToggleFavoriteTokenPayload = {
 } & ({ isNative?: false; address: string } | { isNative: true; address?: never })
 export const toggleFavoriteToken = createAction<ToggleFavoriteTokenPayload>('user/toggleFavoriteToken')
 export const updateChainId = createAction<ChainId>('user/updateChainId')
-export const updateIsUserManuallyDisconnect = createAction<boolean>('user/updateIsUserManuallyDisconnect')
 export const updateTokenAnalysisSettings = createAction<string>('user/updateTokenAnalysisSettings')
 export const updateAcceptedTermVersion = createAction<number | null>('user/updateAcceptedTermVersion')
 export const changeViewMode = createAction<VIEW_MODE>('user/changeViewMode')

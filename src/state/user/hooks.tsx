@@ -40,7 +40,6 @@ import {
   toggleTopTrendingTokens,
   toggleTradeRoutes,
   updateAcceptedTermVersion,
-  updateIsUserManuallyDisconnect,
   updateTokenAnalysisSettings,
   updateUserDarkMode,
   updateUserDeadline,
@@ -121,22 +120,6 @@ export function useUserLocaleManager(): [SupportedLocale | null, (newLocale: Sup
   )
 
   return [locale, setLocale]
-}
-
-export function useIsUserManuallyDisconnect(): [boolean, (isUserManuallyDisconnect: boolean) => void] {
-  const dispatch = useAppDispatch()
-  const isUserManuallyDisconnect = useSelector<AppState, AppState['user']['isUserManuallyDisconnect']>(
-    state => state.user.isUserManuallyDisconnect,
-  )
-
-  const setIsUserManuallyDisconnect = useCallback(
-    (isUserManuallyDisconnect: boolean) => {
-      dispatch(updateIsUserManuallyDisconnect(isUserManuallyDisconnect))
-    },
-    [dispatch],
-  )
-
-  return [isUserManuallyDisconnect, setIsUserManuallyDisconnect]
 }
 
 export function useIsAcceptedTerm(): [boolean, (isAcceptedTerm: boolean) => void] {
