@@ -121,7 +121,7 @@ function Welcome() {
       <Desc>
         <Trans>
           KyberSwap is a decentralized exchange (DEX) aggregator and an automated market maker (AMM). We provide our
-          traders with the <HighlightText>excellent token prices</HighlightText> by analyzing rates across hundreds of
+          traders with the <HighlightText>superior token prices</HighlightText> by analyzing rates across hundreds of
           exchanges instantly! On the other hand, our liquidity providers can add liquidity to our pools to{' '}
           <HighlightText>earn fees and rewards!</HighlightText>
         </Trans>
@@ -182,7 +182,7 @@ function SwapForm() {
     <Layout title={LIST_TITLE.START_TRADING}>
       <Desc>
         <Trans>
-          Select from over thousands of tokens and start trading. KyberSwap finds you excellent prices across multiple
+          Select from over thousands of tokens and start trading. KyberSwap finds you superior prices across multiple
           exchanges & combines them into one trade!
         </Trans>
       </Desc>
