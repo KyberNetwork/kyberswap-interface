@@ -87,11 +87,11 @@ const useLogin = (autoLogin = false) => {
       notify(
         {
           type: NotificationType.SUCCESS,
-          title: t`Logged in successfully`,
+          title: t`Signed in successfully`,
           summary:
             desireAccount?.toLowerCase() === account?.toLowerCase()
-              ? t`Logged in successfully with the current wallet address`
-              : t`Logged in successfully with ${
+              ? t`Signed in successfully with the current wallet address`
+              : t`Signed in successfully with ${
                   isEmailValid(desireAccount)
                     ? `email ${desireAccount}`
                     : guest
@@ -208,8 +208,8 @@ const useLogin = (autoLogin = false) => {
       notify(
         {
           type: NotificationType.SUCCESS,
-          title: t`Logged out successfully`,
-          summary: t`You had successfully logged out`,
+          title: t`Signed out successfully`,
+          summary: t`You had successfully signed out`,
         },
         10_000,
       )
@@ -236,8 +236,8 @@ const useLogin = (autoLogin = false) => {
     notify(
       {
         type: NotificationType.SUCCESS,
-        title: t`Logged out all accounts successfully`,
-        summary: t`You had successfully logged out`,
+        title: t`Signed out all accounts successfully`,
+        summary: t`You had successfully signed out`,
       },
       10_000,
     )
