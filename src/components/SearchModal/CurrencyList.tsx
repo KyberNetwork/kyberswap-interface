@@ -20,6 +20,7 @@ import { useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { formattedNum } from 'utils'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
+import { isTokenNative } from 'utils/tokenInfo'
 
 import ImportRow from './ImportRow'
 
@@ -83,7 +84,7 @@ const DescText = styled.div`
 `
 export const getDisplayTokenInfo = (currency: Currency) => {
   return {
-    symbol: currency.isNative ? currency.symbol : currency?.wrapped?.symbol || currency.symbol,
+    symbol: isTokenNative(currency, currency.chainId) ? currency.symbol : currency?.wrapped?.symbol || currency.symbol,
   }
 }
 export function CurrencyRow({
@@ -135,7 +136,7 @@ export function CurrencyRow({
       return false
     }
 
-    if (currency.isNative) {
+    if (isTokenNative(currency, currency.chainId)) {
       return !!favoriteTokens.includeNativeToken
     }
 
@@ -254,7 +255,7 @@ function CurrencyList({
         token &&
         !extendCurrency?.isWhitelisted &&
         !tokenImports.find(importedToken => importedToken.address === token.address) &&
-        !currency.isNative
+        !isTokenNative(currency, currency.chainId)
 
       if (showImport && token && setImportToken) {
         return <ImportRow style={style} token={token} setImportToken={setImportToken} dim={true} />
