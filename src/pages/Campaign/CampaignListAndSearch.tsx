@@ -97,6 +97,7 @@ const CampaignListAndSearch = ({
   const itemCount = campaigns.length + Number(hasMoreCampaign)
 
   function getRowHeight(index: number) {
+    // react-window VariableSizeList don't support dynamic height, so this is a good solution to set height of item for now.
     const { showProgressBarNumberTrade, showProgressBarVolume } = getCampaignInfo(campaigns[index], account)
     const progressbarNum = +showProgressBarNumberTrade + +showProgressBarVolume
     return campaigns[index]?.status === CampaignStatus.ENDED ? 140 : 160 + progressbarNum * 24

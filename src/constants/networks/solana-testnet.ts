@@ -39,7 +39,7 @@ const solanaInfo: SolanaNetworkInfo = {
   limitOrder: { development: NOT_SUPPORT, production: NOT_SUPPORT },
   coingeckoNetworkId: 'solana',
   coingeckoNativeTokenId: 'solana',
-  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.SOLANA}&isWhitelisted=${true}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.SOLANA_TESTNET}&isWhitelisted=${true}`,
   defaultRpcUrl: 'https://api.devnet.solana.com',
   openBookAddress: new PublicKey('srmqPvymJeFKQ4zGQed1GFppgkRHL9kaELCbyksJtPX'),
   dexToCompare: 'OrcaV2',
