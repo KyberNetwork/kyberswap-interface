@@ -15,7 +15,7 @@ const solanaInfo: SolanaNetworkInfo = {
   ksSettingRoute: 'solana',
   priceRoute: 'solana',
   aggregatorRoute: 'solana',
-  name: 'Solana Testnet',
+  name: 'Solana Devnet',
   icon: Solana,
   iconSelected: Solana,
   iconDark: NOT_SUPPORT,
