@@ -1,6 +1,7 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, Fraction } from '@kyberswap/ks-sdk-core'
 import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
+import JSBI from 'jsbi'
 import { rgba } from 'polished'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -15,19 +16,30 @@ import { MoneyBag } from 'components/Icons'
 import Loader from 'components/Loader'
 import Logo from 'components/Logo'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
+import { APP_PATHS, ELASTIC_BASE_FEE_UNIT, SUBGRAPH_AMP_MULTIPLIER } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import Position from 'pages/MyEarnings/ClassicPools/SinglePool/Position'
 import PoolEarningsSection from 'pages/MyEarnings/ElasticPools/SinglePool/PoolEarningsSection'
 import SharePoolEarningsButton from 'pages/MyEarnings/ElasticPools/SinglePool/SharePoolEarningsButton'
+import { ClassicPoolData } from 'pages/MyEarnings/hooks'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { useAppSelector } from 'state/hooks'
+import { TokenAddressMap } from 'state/lists/reducer'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { UserLiquidityPosition } from 'state/pools/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-import { shortenAddress } from 'utils'
+import { isAddress, shortenAddress } from 'utils'
+import { getTradingFeeAPR } from 'utils/dmm'
+import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 
 import StatsRow from './StatsRow'
+
+const calculateAmpLiquidity = (rawAmp: string, reserveUSD: string) => {
+  const amp = new Fraction(rawAmp).divide(JSBI.BigInt(SUBGRAPH_AMP_MULTIPLIER))
+  const ampLiquidity = parseFloat(amp.toSignificant(5)) * parseFloat(reserveUSD)
+  return ampLiquidity
+}
 
 const formatValue = (value: number) => {
   const formatter = Intl.NumberFormat('en-US', {
@@ -63,26 +75,44 @@ const Badge = styled.div<{ $color?: string }>`
   `}
 `
 
+const getCurrencyFromTokenAddress = (
+  tokensByChainId: TokenAddressMap,
+  chainId: ChainId,
+  address: string,
+): WrappedTokenInfo | undefined => {
+  const tokenAddress = isAddress(chainId, address)
+  if (!tokenAddress) {
+    return undefined
+  }
+
+  const currency = tokensByChainId[chainId][tokenAddress]
+  return currency
+}
+
 export type Props = {
   chainId: ChainId
   poolEarning: ClassicPositionEarningWithDetails
+  poolData: ClassicPoolData
+  userLiquidity: UserLiquidityPosition | undefined
 }
-const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
+const SinglePool: React.FC<Props> = ({ poolEarning, chainId, poolData, userLiquidity }) => {
   const theme = useTheme()
   const [isExpanded, setExpanded] = useState(false)
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const shouldExpandAllPools = useAppSelector(state => state.myEarnings.shouldExpandAllPools)
+
+  const currency0 = getCurrencyFromTokenAddress(tokensByChainId, chainId, poolData.token0.id)
+  const currency1 = getCurrencyFromTokenAddress(tokensByChainId, chainId, poolData.token1.id)
+
+  const hasLiquidity = userLiquidity && userLiquidity.liquidityTokenBalance !== '0'
+
   /* Some tokens have different symbols in our system */
-  const displaySymbolOfToken0 = 'TOKEN' // getTokenSymbolWithHardcode(chainId, poolEarning.token0.id, poolEarning.token0.symbol)
-  const displaySymbolOfToken1 = 'TOKEN' // getTokenSymbolWithHardcode(chainId, poolEarning.token1.id, poolEarning.token1.symbol)
+  const displaySymbolOfToken0 = getTokenSymbolWithHardcode(chainId, poolData.token0.id, poolData.token0.symbol)
+  const displaySymbolOfToken1 = getTokenSymbolWithHardcode(chainId, poolData.token1.id, poolData.token1.symbol)
 
   // TODO
   const feeAmount = FeeAmount.STABLE
-
-  const [currency0, currency1] = useMemo(() => {
-    return [undefined, undefined] as Array<WrappedTokenInfo | undefined>
-  }, [])
 
   const isExpandable = true //!!pool && poolState !== PoolState.LOADING
 
@@ -115,7 +145,12 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
     setExpanded(shouldExpandAllPools)
   }, [shouldExpandAllPools])
 
+  const tvl = Number(poolData.reserveUSD)
   const feePercent = (Number(feeAmount) * 100) / ELASTIC_BASE_FEE_UNIT + '%'
+  const ampLiquidity = calculateAmpLiquidity(poolData.amp, poolData.reserveUSD)
+
+  const fee24H = poolData.oneDayFeeUSD ? poolData.oneDayFeeUSD : poolData.oneDayFeeUntracked
+  const poolApr = getTradingFeeAPR(poolData.reserveUSD, fee24H).toFixed(2)
 
   const renderStatsRow = () => {
     return (
@@ -124,12 +159,12 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
         currency1={currency1}
         feeAmount={feeAmount}
         chainId={chainId}
-        totalValueLockedUsd={'--'}
-        poolApr={'--'}
+        totalValueLockedUsd={tvl}
+        poolApr={poolApr}
         farmApr={'--'}
-        ampLiquidity={'12345678'}
-        volume24hUsd={123456789}
-        fees24hUsd={123456789}
+        ampLiquidity={ampLiquidity}
+        volume24hUsd={Number(poolData.oneDayVolumeUSD)}
+        fees24hUsd={Number(poolData.oneDayFeeUSD)}
         renderToggleExpandButton={() => {
           return (
             <ButtonIcon
@@ -299,6 +334,9 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
         border: `1px solid ${theme.border}`,
         borderRadius: '20px',
       }}
+      onClick={() => {
+        console.log({ poolData })
+      }}
     >
       <Flex
         sx={{
@@ -451,7 +489,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
             </Flex>
           </Flex>
           <PoolEarningsSection historicalEarning={poolEarning.historicalEarning} chainId={chainId} />
-          <Position chainId={chainId} />
+          <Position chainId={chainId} userLiquidity={userLiquidity} />
         </>
       )}
     </Flex>

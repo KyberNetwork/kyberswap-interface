@@ -136,10 +136,10 @@ const ColumnForMobile: React.FC<ColumnProps & { align?: 'left' | 'right' }> = ({
 
 type Props = {
   chainId: ChainId
-  totalValueLockedUsd: string
+  totalValueLockedUsd: number
   poolApr: string
   farmApr: string | undefined
-  ampLiquidity: string
+  ampLiquidity: number
   volume24hUsd: number
   fees24hUsd: number
 
@@ -245,7 +245,7 @@ const StatsRow: React.FC<Props> = ({
 
       <Column label={t`APR`} value={formatPercent(poolApr)} />
 
-      {farmApr ? <Column label={t`APR`} value={formatPercent(poolApr)} /> : null}
+      {farmApr ? <Column label={t`FARM APR`} value={'--'} /> : null}
 
       <Column label={t`VOLUME (24H)`} value={formatValue(volume24hUsd)} />
 

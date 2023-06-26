@@ -13,7 +13,9 @@ import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import { ActionButton } from 'pages/MyEarnings/ActionButton'
 import { ButtonIcon } from 'pages/Pools/styleds'
+import { UserLiquidityPosition } from 'state/pools/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { getMyLiquidity } from 'utils/dmm'
 
 const CustomActionButton = styled(ActionButton)`
   flex: 1;
@@ -122,10 +124,13 @@ const ColumnForMobile: React.FC<ColumnProps & { align?: 'left' | 'right' }> = ({
 
 type Props = {
   chainId: ChainId
+  userLiquidity: UserLiquidityPosition | undefined
 }
-const Position: React.FC<Props> = ({ chainId }) => {
+const Position: React.FC<Props> = ({ chainId, userLiquidity }) => {
   const theme = useTheme()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+
+  const myLiquidityBalance = userLiquidity ? getMyLiquidity(userLiquidity) : '--'
 
   // TODO: check native currencies
   const currency0Slug = ''
@@ -207,7 +212,7 @@ const Position: React.FC<Props> = ({ chainId }) => {
         gap: '8px',
       }}
     >
-      <Column label={t`My Liquidity Balance`} value={formatValue('231231')} />
+      <Column label={t`My Liquidity Balance`} value={myLiquidityBalance} />
 
       <Column label={t`Total LP Tokens`} value={formatValue('12345')} />
 
