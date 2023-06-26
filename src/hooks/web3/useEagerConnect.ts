@@ -33,6 +33,7 @@ export async function isAuthorized(): Promise<string | boolean> {
 }
 
 // make sure this hook will be ran only once globally
+let trying = false
 let tried = false
 export function useEagerConnect() {
   const { active } = useWeb3React()
@@ -55,8 +56,8 @@ export function useEagerConnect() {
         return
       }
       try {
-        if (tried) return
-        setTried()
+        if (trying || tried) return
+        trying = true
         let activated = false
         const lastWalletKeyEVM = localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY_EVM)
         const lastWalletKeySolana = localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY_SOLANA)

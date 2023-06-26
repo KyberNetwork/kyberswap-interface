@@ -9,49 +9,44 @@ import { getChainIdFromSlug } from 'utils/string'
 import { useChangeNetwork } from './useChangeNetwork'
 
 export function useSyncNetworkParamWithStore() {
-  const params = useParams<{ network?: string }>()
+  const { network: networkParam } = useParams<{ network?: string }>()
+  const paramChainId = getChainIdFromSlug(networkParam)
   const changeNetwork = useChangeNetwork()
   const { networkInfo, chainId } = useActiveWeb3React()
-  const isOnInit = useRef(true)
   const navigate = useNavigate()
   const triedEager = useEagerConnect()
   const location = useLocation()
   const [requestingNetwork, setRequestingNetwork] = useState<string>()
+  const triedSync = useRef(false)
 
   useEffect(() => {
-    if (!params?.network) {
-      isOnInit.current = false
+    if (!paramChainId) {
+      triedSync.current = true
       return
     }
-    if (isOnInit.current) {
-      const paramChainId = getChainIdFromSlug(params?.network)
-      /**
-       * Try to change to network on route param on init. Exp: /swap/ethereum => try to connect to ethereum on init
-       * @param isOnInit.current: make sure only run 1 time after init
-       * @param triedEager: only run after tried to connect injected wallet
-       */
-      ;(async () => {
-        if (!paramChainId) {
-          isOnInit.current = false
-          return
-        }
-        setRequestingNetwork(params?.network)
-        if (!isOnInit.current) return
-        isOnInit.current = false
-        await changeNetwork(paramChainId, undefined, () => {
-          if (params.network) {
-            navigate(
-              { ...location, pathname: location.pathname.replace(params.network, networkInfo.route) },
-              { replace: true },
-            )
-          }
-        })
-      })()
-    } else {
-      isOnInit.current = false
+    if (!triedEager) {
+      return
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+
+    /**
+     * Try to change to network on route param on init. Exp: /swap/ethereum => try to connect to ethereum on init
+     * @param isOnInit.current: make sure only run 1 time after init
+     * @param triedEager: only run after tried to connect injected wallet
+     */
+    ;(async () => {
+      if (triedSync.current) return
+      triedSync.current = true
+      setRequestingNetwork(networkParam)
+      await changeNetwork(paramChainId, undefined, () => {
+        if (networkParam) {
+          navigate(
+            { ...location, pathname: location.pathname.replace(networkParam, networkInfo.route) },
+            { replace: true },
+          )
+        }
+      })
+    })()
+  }, [changeNetwork, location, navigate, networkInfo.route, networkParam, paramChainId, triedEager])
 
   useEffect(() => {
     if (NETWORKS_INFO[chainId].route === requestingNetwork) setRequestingNetwork(undefined)
@@ -62,16 +57,13 @@ export function useSyncNetworkParamWithStore() {
      * Sync network route param with current active network, only after eager tried
      */
     if (
-      ((requestingNetwork && requestingNetwork !== params?.network) || !requestingNetwork) &&
-      params.network &&
-      networkInfo.route !== params?.network &&
-      !isOnInit.current &&
+      ((requestingNetwork && requestingNetwork !== networkParam) || !requestingNetwork) &&
+      networkParam &&
+      networkInfo.route !== networkParam &&
+      triedSync.current &&
       triedEager
     ) {
-      navigate(
-        { ...location, pathname: location.pathname.replace(params.network, networkInfo.route) },
-        { replace: true },
-      )
+      navigate({ ...location, pathname: location.pathname.replace(networkParam, networkInfo.route) }, { replace: true })
     }
-  }, [location, networkInfo.route, navigate, triedEager, params?.network, requestingNetwork])
+  }, [location, networkInfo.route, navigate, triedEager, networkParam, requestingNetwork])
 }
