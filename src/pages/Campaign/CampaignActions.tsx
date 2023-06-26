@@ -11,34 +11,26 @@ import useTemporaryClaimedRefsManager from 'hooks/campaigns/useTemporaryClaimedR
 import CampaignButtonEnterNow from 'pages/Campaign/CampaignButtonEnterNow'
 import CampaignButtonWithOptions, { StyledPrimaryButton } from 'pages/Campaign/CampaignButtonWithOptions'
 import { AppState } from 'state'
-import {
-  CampaignData,
-  CampaignLeaderboard,
-  CampaignState,
-  CampaignStatus,
-  CampaignUserInfoStatus,
-} from 'state/campaigns/actions'
+import { CampaignData, CampaignState, CampaignStatus, CampaignUserInfoStatus } from 'state/campaigns/actions'
 
 type Size = 'small' | 'large'
 
 interface CampaignActionsProps {
   campaign?: CampaignData
-  leaderboard?: CampaignLeaderboard
   size?: Size
   hideWhenDisabled?: boolean
 }
 
-const CampaignActions = ({ campaign, leaderboard, size = 'large', hideWhenDisabled = false }: CampaignActionsProps) => {
+const CampaignActions = ({ campaign, size = 'large', hideWhenDisabled = false }: CampaignActionsProps) => {
   const { account } = useActiveWeb3React()
 
-  const { selectedCampaign, selectedCampaignLeaderboard } = useSelector((state: AppState) => state.campaigns)
+  const { selectedCampaign } = useSelector((state: AppState) => state.campaigns)
 
   const campaignInfo = campaign || selectedCampaign
-  const leaderboardInfo = leaderboard || campaign?.leaderboard || selectedCampaignLeaderboard
 
   const [temporaryClaimedRefs, addTemporaryClaimedRefs] = useTemporaryClaimedRefsManager()
 
-  if (!campaignInfo || !account || !leaderboardInfo) return null
+  if (!campaignInfo || !account) return null
 
   if (campaignInfo?.userInfo?.status === CampaignUserInfoStatus.Banned) {
     return (
@@ -60,9 +52,7 @@ const CampaignActions = ({ campaign, leaderboard, size = 'large', hideWhenDisabl
   }
 
   if (campaignInfo.status === CampaignStatus.ONGOING) {
-    return (
-      <CampaignButtonWithOptions size={size} campaign={campaignInfo} leaderboard={leaderboardInfo} type="swap_now" />
-    )
+    return <CampaignButtonWithOptions size={size} campaign={campaignInfo} type="swap_now" />
   }
 
   if (
@@ -71,19 +61,13 @@ const CampaignActions = ({ campaign, leaderboard, size = 'large', hideWhenDisabl
       campaignInfo.campaignState === CampaignState.CampaignStateFinalizedLeaderboard)
   ) {
     return hideWhenDisabled ? null : (
-      <CampaignButtonWithOptions
-        size={size}
-        campaign={campaignInfo}
-        leaderboard={leaderboardInfo}
-        type="claim_rewards"
-        disabled
-      />
+      <CampaignButtonWithOptions size={size} campaign={campaignInfo} type="claim_rewards" disabled />
     )
   }
 
   if (campaignInfo.campaignState === CampaignState.CampaignStateDistributedRewards) {
     let isUserClaimedRewardsInThisCampaign = true
-    leaderboardInfo?.rewards?.forEach(reward => {
+    campaignInfo?.userInfo?.rewards?.forEach(reward => {
       if (
         reward.rewardAmount.greaterThan(BIG_INT_ZERO) &&
         !reward.claimed &&
@@ -97,7 +81,6 @@ const CampaignActions = ({ campaign, leaderboard, size = 'large', hideWhenDisabl
       <CampaignButtonWithOptions
         size={size}
         campaign={campaignInfo}
-        leaderboard={leaderboardInfo}
         type="claim_rewards"
         disabled={isUserClaimedRewardsInThisCampaign}
         addTemporaryClaimedRefs={addTemporaryClaimedRefs}

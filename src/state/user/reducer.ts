@@ -162,6 +162,7 @@ export const defaultShowLiveCharts: { [chainId in ChainId]: boolean } = {
   [ChainId.BSCTESTNET]: false,
   [ChainId.AVAXTESTNET]: false,
   [ChainId.LINEA_TESTNET]: false,
+  [ChainId.SOLANA_DEVNET]: false,
 }
 
 export const CROSS_CHAIN_SETTING_DEFAULT = {
