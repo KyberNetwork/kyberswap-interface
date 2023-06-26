@@ -267,7 +267,7 @@ export default function VerifyCodeModal({
               <Label style={{ width: '100%', textAlign: 'center' }}>
                 {showExpiredTime && (
                   <Trans>
-                    Code will be expired in {formatTime(expiredDuration)}
+                    Code will expire in {formatTime(expiredDuration)}
                     {canShowResend ? '.' : ''}
                   </Trans>
                 )}

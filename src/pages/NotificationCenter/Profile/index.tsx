@@ -103,10 +103,11 @@ export default function Profile() {
 
   const [file, setFile] = useState<File>()
   const [previewImage, setPreviewImage] = useState<string>()
-  const cacheData = useRef<{ nickname: string; file: File | undefined; avatar: string }>({
+  const cacheData = useRef<{ nickname: string; file: File | undefined; avatar: string; email: string }>({
     nickname: '',
     file: undefined,
     avatar: '',
+    email: '',
   })
 
   const onChangeNickname = useCallback((value: string) => {
@@ -114,9 +115,17 @@ export default function Profile() {
     cacheData.current.nickname = value
   }, [])
 
+  const onChangeEmailWrapp = useCallback(
+    (value: string) => {
+      onChangeEmail(value)
+      cacheData.current.email = value
+    },
+    [onChangeEmail],
+  )
+
   useEffect(() => {
-    const { file, nickname, avatar } = cacheData.current
-    onChangeEmail(userInfo?.email ?? '')
+    const { file, nickname, avatar, email } = cacheData.current
+    onChangeEmail(email || userInfo?.email || '')
     setNickName(nickname || userInfo?.nickname || '')
     setPreviewImage(avatar || userInfo?.avatarUrl)
     file && setFile(file)
@@ -175,7 +184,7 @@ export default function Profile() {
   const isVerifiedEmail = userInfo?.email && inputEmail === userInfo?.email
 
   const hasChangeProfile = file || (userInfo?.nickname && !nickname ? false : nickname !== userInfo?.nickname)
-  const disableBtnSave = loading || !hasChangeProfile || hasErrorInput
+  const disableBtnSave = loading || !hasChangeProfile
 
   return (
     <Wrapper>
@@ -214,7 +223,7 @@ export default function Profile() {
               hasError={hasErrorInput}
               showVerifyModal={showVerifyModal}
               errorColor={errorColor}
-              onChange={onChangeEmail}
+              onChange={onChangeEmailWrapp}
               value={inputEmail}
               disabled={isSignInEmail}
               isVerifiedEmail={!!isVerifiedEmail}

@@ -93,6 +93,7 @@ const ProfileItemWrapper = styled(RowBetween)<{ active: boolean }>`
           flex-direction: column;
           gap: 16px;
           border-radius: 20px;
+          cursor: unset;
         `
       : css`
           padding: 10px 0px;
