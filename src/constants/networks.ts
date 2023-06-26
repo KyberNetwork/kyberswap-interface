@@ -26,7 +26,7 @@ import {
 } from './networks/index'
 import { EVMNetworkInfo } from './networks/type'
 
-type SOLANA_NETWORK = ChainId.SOLANA | ChainId.SOLANA_TESTNET
+type SOLANA_NETWORK = ChainId.SOLANA | ChainId.SOLANA_DEVNET
 
 type NETWORKS_INFO_CONFIG_TYPE = { [chainId in EVM_NETWORK]: EVMNetworkInfo } & {
   [chainId in SOLANA_NETWORK]: SolanaNetworkInfo
@@ -51,7 +51,7 @@ export const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.ZKSYNC]: zksync,
   [ChainId.LINEA_TESTNET]: lineaTestnet,
   [ChainId.SOLANA]: solana,
-  [ChainId.SOLANA_TESTNET]: solanaTestnet,
+  [ChainId.SOLANA_DEVNET]: solanaTestnet,
 } as const
 
 //this Proxy helps fallback undefined ChainId by Ethereum info
