@@ -82,6 +82,7 @@ export function useEagerConnect() {
         }
       } catch (e) {
         console.log('Eagerly connect: authorize error', e)
+      } finally {
         setTried()
       }
     }
