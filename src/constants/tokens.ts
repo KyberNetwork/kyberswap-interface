@@ -144,7 +144,7 @@ export const STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
   [ChainId.MUMBAI]: [],
   [ChainId.BSCTESTNET]: [],
   [ChainId.AVAXTESTNET]: [],
-  [ChainId.LINEA_TESTNET]: [],
+  [ChainId.SOLANA_DEVNET]: [],
 }
 
 // This list is intentionally different from the list above
@@ -187,6 +187,7 @@ export const STABLE_COIN_ADDRESSES_TO_TAKE_FEE: Record<ChainId, string[]> = {
   [ChainId.BSCMAINNET]: [],
   [ChainId.ARBITRUM]: [],
   [ChainId.LINEA_TESTNET]: [],
+  [ChainId.SOLANA_DEVNET]: [],
 }
 
 // This is basically the same as STABLE_COIN_ADDRESSES_TO_TAKE_FEE,
@@ -284,6 +285,7 @@ export const SUPER_STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
   [ChainId.BSCTESTNET]: [],
   [ChainId.AVAXTESTNET]: [],
   [ChainId.LINEA_TESTNET]: [],
+  [ChainId.SOLANA_DEVNET]: [],
 }
 
 export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
@@ -332,6 +334,7 @@ export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
   [ChainId.BSCTESTNET]: [],
   [ChainId.AVAXTESTNET]: [],
   [ChainId.LINEA_TESTNET]: [],
+  [ChainId.SOLANA_DEVNET]: [],
 }
 
 export const DAI: { [chainId in ChainId]: Token } = {
@@ -434,6 +437,13 @@ export const DAI: { [chainId in ChainId]: Token } = {
     'DAI',
     'Dai Stablecoin (Wormhole)',
   ),
+  [ChainId.SOLANA_DEVNET]: new Token(
+    ChainId.SOLANA_DEVNET,
+    'EjmyN6qEC1Tf1JxiG1ae7UTJhUxSwk1TCWNWqxWV4J6o',
+    8,
+    'DAI',
+    'Dai Stablecoin (Wormhole)',
+  ),
 }
 
 export const USDC: { [chainId in ChainId]: Token } = {
@@ -485,6 +495,13 @@ export const USDC: { [chainId in ChainId]: Token } = {
   [ChainId.OPTIMISM]: new Token(ChainId.OPTIMISM, '0x7F5c764cBc14f9669B88837ca1490cCa17c31607', 6, 'USDC', 'USD Coin'),
   [ChainId.ZKSYNC]: new Token(ChainId.ZKSYNC, '0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4', 6, 'USDC', 'USD Coin'),
   [ChainId.SOLANA]: new Token(ChainId.SOLANA, 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', 6, 'USDC', 'USD Coin'),
+  [ChainId.SOLANA_DEVNET]: new Token(
+    ChainId.SOLANA_DEVNET,
+    'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+    6,
+    'USDC',
+    'USD Coin',
+  ),
   [ChainId.LINEA_TESTNET]: new Token(
     ChainId.LINEA_TESTNET,
     '0xf56dc6695cF1f5c364eDEbC7Dc7077ac9B586068',
@@ -556,6 +573,13 @@ export const USDT: { [chainId in ChainId]: Token } = {
   ),
   [ChainId.ZKSYNC]: new Token(ChainId.ZKSYNC, '0x493257fd37edb34451f62edf8d2a0c418852ba4c', 6, 'USDT', 'Tether USD'),
   [ChainId.SOLANA]: new Token(ChainId.SOLANA, 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB', 6, 'USDT', 'Tether USD'),
+  [ChainId.SOLANA_DEVNET]: new Token(
+    ChainId.SOLANA_DEVNET,
+    'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB',
+    6,
+    'USDT',
+    'Tether USD',
+  ),
 }
 
 export const COMP = new Token(ChainId.MAINNET, '0xc00e94Cb662C3520282E6f5717214004A7f26888', 18, 'COMP', 'Compound')
@@ -655,6 +679,13 @@ export const KNC: { [chainId in ChainId]: Token } = {
     'KNC',
     'Kyber Network Crystal',
   ), // todo namgold: not exists yet
+  [ChainId.SOLANA_DEVNET]: new Token(
+    ChainId.SOLANA_DEVNET,
+    'KNCkfGAnBUvoG5EJipAzSBjjaF8iNL4ivYsBS14DKdg',
+    18,
+    'KNC',
+    'Kyber Network Crystal',
+  ),
 
   // TODO(viet-nv):
   [ChainId.LINEA_TESTNET]: new Token(
