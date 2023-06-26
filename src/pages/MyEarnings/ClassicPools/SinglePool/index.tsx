@@ -489,7 +489,13 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, poolData, userLiqui
             </Flex>
           </Flex>
           <PoolEarningsSection historicalEarning={poolEarning.historicalEarning} chainId={chainId} />
-          <Position chainId={chainId} userLiquidity={userLiquidity} />
+          <Position
+            poolAddress={poolEarning.pool.id}
+            currency0={currency0}
+            currency1={currency1}
+            chainId={chainId}
+            userLiquidity={userLiquidity}
+          />
         </>
       )}
     </Flex>

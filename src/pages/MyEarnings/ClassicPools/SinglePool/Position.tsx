@@ -1,4 +1,4 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { Copy, Minus, Plus } from 'react-feather'
 import { Link } from 'react-router-dom'
@@ -15,6 +15,7 @@ import { ActionButton } from 'pages/MyEarnings/ActionButton'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { UserLiquidityPosition } from 'state/pools/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { currencyId } from 'utils/currencyId'
 import { getMyLiquidity } from 'utils/dmm'
 
 const CustomActionButton = styled(ActionButton)`
@@ -123,12 +124,16 @@ const ColumnForMobile: React.FC<ColumnProps & { align?: 'left' | 'right' }> = ({
 }
 
 type Props = {
+  currency0: Currency | undefined
+  currency1: Currency | undefined
+  poolAddress: string
   chainId: ChainId
   userLiquidity: UserLiquidityPosition | undefined
 }
-const Position: React.FC<Props> = ({ chainId, userLiquidity }) => {
+const Position: React.FC<Props> = ({ chainId, userLiquidity, currency0, currency1, poolAddress }) => {
   const theme = useTheme()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  const networkInfo = NETWORKS_INFO[chainId]
 
   const myLiquidityBalance = userLiquidity ? getMyLiquidity(userLiquidity) : '--'
 
@@ -232,8 +237,10 @@ const Position: React.FC<Props> = ({ chainId, userLiquidity }) => {
         <CustomActionButton
           $variant="red"
           as={Link}
-          // TODO: update link
-          to={`/${NETWORKS_INFO[chainId].route}${APP_PATHS.CLASSIC_REMOVE_POOL}`}
+          to={`/${networkInfo.route}${APP_PATHS.CLASSIC_REMOVE_POOL}/${currencyId(currency0, chainId)}/${currencyId(
+            currency1,
+            chainId,
+          )}/${poolAddress}`}
         >
           <Minus size="16px" /> <Trans>Remove Liquidity</Trans>
         </CustomActionButton>
@@ -241,8 +248,10 @@ const Position: React.FC<Props> = ({ chainId, userLiquidity }) => {
         <CustomActionButton
           $variant="green"
           as={Link}
-          // TODO: update link
-          to={`/${NETWORKS_INFO[chainId].route}${APP_PATHS.CLASSIC_ADD_LIQ}`}
+          to={`/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${currencyId(currency0, chainId)}/${currencyId(
+            currency1,
+            chainId,
+          )}/${poolAddress}`}
         >
           <Plus size="16px" /> <Trans>Add Liquidity</Trans>
         </CustomActionButton>
