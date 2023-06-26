@@ -34,35 +34,6 @@ const getNetworkStringWidget = (chainId: ChainId | undefined) => {
   }
 }
 
-const getNetworkStringAPISearch = (chainId: ChainId | undefined) => {
-  switch (chainId) {
-    case ChainId.MAINNET:
-      return 'chain-ethereum'
-    case ChainId.BSCMAINNET:
-      return 'chain-bsc'
-    case ChainId.MATIC:
-      return 'chain-polygon'
-    case ChainId.CRONOS:
-      return 'chain-cronos'
-    case ChainId.AVAXMAINNET:
-      return 'chain-avalanche'
-    case ChainId.FANTOM:
-      return 'chain-fantom'
-    case ChainId.ARBITRUM:
-      return 'chain-arbitrum'
-    case ChainId.VELAS:
-      return 'chain-velas'
-    case ChainId.AURORA:
-      return 'chain-aurora'
-    case ChainId.OASIS:
-      return 'chain-oasis'
-    case ChainId.OPTIMISM:
-      return 'chain-optimism'
-    default:
-      return ''
-  }
-}
-
 const TOKEN_PAIRS_ADDRESS_MAPPING: {
   [key: string]: string
 } = {
@@ -104,14 +75,14 @@ const fetcherDextools = (url: string) => {
     .catch(error => console.log(error))
 }
 
-export const searchTokenPair = (address: string, chainId: ChainId | undefined) => {
+export const searchTokenPair = (address: string) => {
   if (TOKEN_PAIRS_ADDRESS_MAPPING[address.toLowerCase()]) {
     return new Promise(resolve => {
       resolve([{ id: TOKEN_PAIRS_ADDRESS_MAPPING[address.toLowerCase()] }])
     })
   }
 
-  return fetcherDextools(`${getNetworkStringAPISearch(chainId)}/api/pair/search?s=${address}`)
+  return fetcherDextools(`/shared/search/pair?query=${address}`)
 }
 
 const Iframe = styled.iframe`
@@ -210,7 +181,7 @@ export const checkPairHasDextoolsData = async (
     if (isUSDToken(chainId, currencyA) || isUSDToken(chainId, currencyB)) {
       const token = (isUSDToken(chainId, currencyA) ? currencyB : currencyA) as Token
       if (token?.address) {
-        const data1 = await searchTokenPair(token.address, chainId)
+        const data1 = await searchTokenPair(token.address)
         if (data1.length > 0 && data1[0].id) {
           // const ver = await getHistoryCandleStatus(data1[0].id, chainId)
           // if (ver) {
