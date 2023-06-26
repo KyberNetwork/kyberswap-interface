@@ -34,7 +34,6 @@ import {
   toggleTradeRoutes,
   updateAcceptedTermVersion,
   updateChainId,
-  updateIsUserManuallyDisconnect,
   updateMatchesDarkMode,
   updateTokenAnalysisSettings,
   updateUserDarkMode,
@@ -109,7 +108,6 @@ interface UserState {
     >
   >
   readonly chainId: ChainId
-  isUserManuallyDisconnect: boolean
   acceptedTermVersion: number | null
   viewMode: VIEW_MODE
   holidayMode: boolean
@@ -162,6 +160,7 @@ export const defaultShowLiveCharts: { [chainId in ChainId]: boolean } = {
   [ChainId.BSCTESTNET]: false,
   [ChainId.AVAXTESTNET]: false,
   [ChainId.LINEA_TESTNET]: false,
+  [ChainId.SOLANA_DEVNET]: false,
 }
 
 export const CROSS_CHAIN_SETTING_DEFAULT = {
@@ -202,7 +201,6 @@ const initialState: UserState = {
   },
   favoriteTokensByChainId: {},
   chainId: ChainId.MAINNET,
-  isUserManuallyDisconnect: false,
   acceptedTermVersion: null,
   viewMode: VIEW_MODE.GRID,
   holidayMode: true,
@@ -344,9 +342,6 @@ export default createReducer(initialState, builder =>
     })
     .addCase(updateChainId, (state, { payload: chainId }) => {
       state.chainId = chainId
-    })
-    .addCase(updateIsUserManuallyDisconnect, (state, { payload: isUserManuallyDisconnect }) => {
-      state.isUserManuallyDisconnect = isUserManuallyDisconnect
     })
     .addCase(updateAcceptedTermVersion, (state, { payload: acceptedTermVersion }) => {
       state.acceptedTermVersion = acceptedTermVersion

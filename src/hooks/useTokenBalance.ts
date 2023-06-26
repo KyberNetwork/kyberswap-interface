@@ -3,9 +3,10 @@ import { BigNumber, Contract } from 'ethers'
 import { useCallback, useEffect, useState } from 'react'
 
 import ERC20_ABI from 'constants/abis/erc20.json'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import { useContract } from 'hooks/useContract'
 import useTransactionStatus from 'hooks/useTransactionStatus'
+import { useKyberSwapConfig } from 'state/application/hooks'
 import { isAddress } from 'utils'
 
 interface BalanceProps {
@@ -16,7 +17,7 @@ interface BalanceProps {
 function useTokenBalance(tokenAddress: string) {
   const [balance, setBalance] = useState<BalanceProps>({ value: BigNumber.from(0), decimals: 18 })
   const { account, chainId } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { readProvider } = useKyberSwapConfig(chainId)
   //const currentBlockNumber = useBlockNumber()
   // allows balance to update given transaction updates
   const currentTransactionStatus = useTransactionStatus()
@@ -26,8 +27,8 @@ function useTokenBalance(tokenAddress: string) {
   const fetchBalance = useCallback(async () => {
     const getBalance = async (contract: Contract | null, owner: string | null | undefined): Promise<BalanceProps> => {
       try {
-        if (account && chainId && contract?.address === WETH[chainId].address) {
-          const ethBalance = await library?.getBalance(account)
+        if (account && chainId && readProvider && contract?.address === WETH[chainId].address) {
+          const ethBalance = await readProvider.getBalance(account)
           return { value: BigNumber.from(ethBalance), decimals: 18 }
         }
 
@@ -44,7 +45,7 @@ function useTokenBalance(tokenAddress: string) {
 
     const balance = await getBalance(tokenContract, account)
     setBalance(balance)
-  }, [account, tokenContract, chainId, library])
+  }, [account, tokenContract, chainId, readProvider])
 
   useEffect(() => {
     if (account && tokenContract) {

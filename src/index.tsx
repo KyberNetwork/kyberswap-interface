@@ -1,7 +1,8 @@
 import { datadogRum } from '@datadog/browser-rum'
 import * as Sentry from '@sentry/react'
 import { BrowserTracing } from '@sentry/tracing'
-import { Web3ReactProvider, createWeb3ReactRoot } from '@web3-react/core'
+import { Web3ReactHooks, Web3ReactProvider } from '@web3-react/core'
+import { Connector } from '@web3-react/types'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 import dayjs from 'dayjs'
@@ -10,7 +11,7 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import utc from 'dayjs/plugin/utc'
 import 'inter-ui'
 import mixpanel from 'mixpanel-browser'
-import { StrictMode, useEffect } from 'react'
+import { StrictMode, useEffect, useMemo } from 'react'
 import { createRoot } from 'react-dom/client'
 import TagManager from 'react-gtm-module'
 import 'react-loading-skeleton/dist/skeleton.css'
@@ -22,11 +23,10 @@ import 'swiper/swiper.min.css'
 import SolanaWalletContext from 'components/SolanaWalletContext'
 import { ENV_LEVEL, GTM_ID, MIXPANEL_PROJECT_TOKEN, SENTRY_DNS, TAG } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
-// import { updateServiceWorker } from 'state/application/actions'
-import CampaignsUpdater from 'state/campaigns/updater'
+import { connections } from 'constants/wallets'
 
 import SEO from './components/SEO'
-import { NetworkContextName, sentryRequestId } from './constants'
+import { sentryRequestId } from './constants'
 import { LanguageProvider } from './i18n'
 import App from './pages/App'
 import * as serviceWorkerRegistration from './serviceWorkerRegistration'
@@ -38,7 +38,6 @@ import MulticallUpdater from './state/multicall/updater'
 import TransactionUpdater from './state/transactions/updater'
 import UserUpdater from './state/user/updater'
 import ThemeProvider, { FixedGlobalStyle, ThemedGlobalStyle } from './theme'
-import getLibrary from './utils/getLibrary'
 
 dayjs.extend(utc)
 dayjs.extend(duration)
@@ -86,8 +85,6 @@ if (ENV_LEVEL > ENV_TYPE.LOCAL) {
 
 AOS.init()
 
-const Web3ProviderNetwork = createWeb3ReactRoot(NetworkContextName)
-
 if (window.ethereum) {
   window.ethereum.autoRefreshOnNetworkChange = false
 }
@@ -100,7 +97,6 @@ function Updaters() {
       <ApplicationUpdater />
       <TransactionUpdater />
       <MulticallUpdater />
-      <CampaignsUpdater />
       <CustomizeDexesUpdater />
     </>
   )
@@ -123,6 +119,11 @@ window.recaptchaOptions = {
 
 const ReactApp = () => {
   useEffect(hideLoader, [])
+  const connectors: [Connector, Web3ReactHooks][] = useMemo(
+    () => connections.map(({ hooks, connector }) => [connector, hooks]),
+    [],
+  )
+  const key = useMemo(() => connections.map(connection => connection.name).join('-'), [])
 
   return (
     <StrictMode>
@@ -135,14 +136,12 @@ const ReactApp = () => {
         <SolanaWalletContext>
           <BrowserRouter>
             <LanguageProvider>
-              <Web3ReactProvider getLibrary={getLibrary}>
-                <Web3ProviderNetwork getLibrary={getLibrary}>
-                  <Updaters />
-                  <ThemeProvider>
-                    <ThemedGlobalStyle />
-                    <App />
-                  </ThemeProvider>
-                </Web3ProviderNetwork>
+              <Web3ReactProvider connectors={connectors} key={key}>
+                <Updaters />
+                <ThemeProvider>
+                  <ThemedGlobalStyle />
+                  <App />
+                </ThemeProvider>
               </Web3ReactProvider>
             </LanguageProvider>
           </BrowserRouter>

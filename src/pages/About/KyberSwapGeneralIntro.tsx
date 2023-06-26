@@ -29,8 +29,8 @@ const KyberSwapGeneralIntro = () => {
         }}
       >
         <Trans>
-          KyberSwap is a decentralized exchange (DEX) aggregator. We provide our traders with the{' '}
-          <b>excellent token prices</b> by analyzing rates across thousands of exchanges instantly!
+          KyberSwap is a decentralized exchange (DEX) aggregator. We provide our traders with{' '}
+          <b>superior token prices</b> by analyzing rates across thousands of exchanges instantly!
         </Trans>
       </Text>
     )
@@ -116,7 +116,7 @@ const KyberSwapGeneralIntro = () => {
         >
           <Trans>
             KyberSwap is a decentralized exchange (DEX) aggregator. We provide our traders with{' '}
-            <b>excellent token prices</b> by analyzing rates across thousands of exchanges instantly!
+            <b>superior token prices</b> by analyzing rates across thousands of exchanges instantly!
           </Trans>{' '}
           <Trans>
             KyberSwap is also an automated market maker (AMM) with industry-leading liquidity protocols and{' '}

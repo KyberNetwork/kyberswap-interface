@@ -445,9 +445,8 @@ export const deleteUnique = <T>(array: T[] | undefined, element: T): T[] => {
   return array
 }
 
-export const isEVMWallet = (wallet: WalletInfo): wallet is EVMWalletInfo =>
-  !!(wallet as EVMWalletInfo).connector || !!(wallet as EVMWalletInfo).href
-export const isSolanaWallet = (wallet: WalletInfo): wallet is SolanaWalletInfo => !!(wallet as SolanaWalletInfo).adapter
+export const isEVMWallet = (wallet?: WalletInfo): wallet is EVMWalletInfo => !!wallet && 'connector' in wallet
+export const isSolanaWallet = (wallet?: WalletInfo): wallet is SolanaWalletInfo => !!wallet && 'adapter' in wallet
 
 enum WALLET_KEYS {
   COIN98 = 'COIN98',

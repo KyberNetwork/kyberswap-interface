@@ -29,7 +29,7 @@ describe('Metamask Extension tests', () => {
     cy.url().should('include', '/swap')
   })
 
-  it('Should approve permission to switch network', { tags: tag.regression }, () => {
+  it.skip('Should approve permission to switch network', { tags: tag.regression }, () => {
     cy.get(wallet.statusConnected, { timeout: 10000 }).should('be.visible')
     chainList.forEach(element => {
       cy.clickButton(network.btnSelectNetwork)

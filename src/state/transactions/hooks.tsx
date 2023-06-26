@@ -2,8 +2,8 @@ import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useBlockNumber } from 'state/application/hooks'
+import { useActiveWeb3React } from 'hooks'
+import { useBlockNumber, useKyberSwapConfig } from 'state/application/hooks'
 import { AppDispatch, AppState } from 'state/index'
 import { findTx } from 'utils'
 
@@ -13,7 +13,7 @@ import { GroupedTxsByHash, TransactionDetails, TransactionExtraInfo1Token, Trans
 // helper that can take a ethers library transaction response and add it to the list of transactions
 export function useTransactionAdder(): (tx: TransactionHistory) => void {
   const { chainId, account, isEVM } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { readProvider } = useKyberSwapConfig(chainId)
   const dispatch = useDispatch<AppDispatch>()
   const blockNumber = useBlockNumber()
 
@@ -27,8 +27,8 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
       if (!account) return
 
       let tx: TransactionResponse | undefined
-      if (isEVM) {
-        tx = await library?.getTransaction(hash)
+      if (isEVM && readProvider) {
+        tx = await readProvider.getTransaction(hash)
       }
 
       dispatch(
@@ -46,7 +46,7 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
         }),
       )
     },
-    [account, chainId, dispatch, library, isEVM],
+    [account, chainId, dispatch, readProvider, isEVM],
   )
 }
 
