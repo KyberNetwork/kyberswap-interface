@@ -293,15 +293,19 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
 
   const mixpanelHandler = useCallback(
     (type: MIXPANEL_TYPE, payload?: any) => {
-      if (!account) {
-        return
-      }
+      // Anonymous events
       switch (type) {
         case MIXPANEL_TYPE.PAGE_VIEWED: {
           const { page } = payload
           page && mixpanel.track(page + ' Page Viewed')
           break
         }
+      }
+      if (!account) {
+        return
+      }
+      // Need connect wallet events
+      switch (type) {
         case MIXPANEL_TYPE.WALLET_CONNECTED:
           mixpanel.register({ wallet_address: account, platform: isMobile ? 'Mobile' : 'Web', network })
           mixpanel.track('Wallet Connected', { source: location.pathname })
