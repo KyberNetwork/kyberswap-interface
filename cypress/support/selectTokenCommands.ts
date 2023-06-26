@@ -25,7 +25,7 @@ declare global {
 }
 
 Cypress.Commands.add('clickButton', selector => {
-  cy.get(selector, { timeout: 30000 }).should('be.visible').click({ force: true })
+  cy.get(selector, { timeout: 30000 }).should('be.visible').click()
 })
 
 Cypress.Commands.add('verifySelectedToken', (selector, value) => {
