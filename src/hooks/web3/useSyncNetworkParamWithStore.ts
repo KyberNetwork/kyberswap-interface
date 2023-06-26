@@ -6,7 +6,7 @@ import { useActiveWeb3React } from 'hooks'
 import { useEagerConnect } from 'hooks/web3/useEagerConnect'
 import { getChainIdFromSlug } from 'utils/string'
 
-import { useChangeNetwork } from './web3/useChangeNetwork'
+import { useChangeNetwork } from './useChangeNetwork'
 
 export function useSyncNetworkParamWithStore() {
   const params = useParams<{ network?: string }>()
