@@ -15,6 +15,7 @@ import CopyHelper from 'components/Copy'
 import Input from 'components/Input'
 import { useValidateEmail } from 'components/SubscribeButton/NotificationPreference'
 import InputEmail from 'components/SubscribeButton/NotificationPreference/InputEmail'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useUploadImageToCloud } from 'hooks/social'
@@ -22,7 +23,6 @@ import useLogin from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
 import AvatarEdit from 'pages/NotificationCenter/Profile/AvatarEdit'
 import ExportAccountButton from 'pages/NotificationCenter/Profile/ExportAccountButton'
-import WarningSignMessage from 'pages/NotificationCenter/Profile/WarningSignMessage'
 import { ButtonLogout, ButtonSave } from 'pages/NotificationCenter/Profile/buttons'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
@@ -184,7 +184,6 @@ export default function Profile() {
           <Trans>Profile Details</Trans>
         </Text>
       )}
-      <WarningSignMessage />
       <FormWrapper>
         <LeftColum>
           <FormGroup>
@@ -202,8 +201,13 @@ export default function Profile() {
           </FormGroup>
 
           <FormGroup>
-            <Label>
-              <Trans>Email Address (Optional)</Trans>
+            <Label style={{ borderBottom: '1px dotted', width: 'fit-content' }}>
+              <MouseoverTooltip
+                text={t`If you wish to receive notifications from KyberSwap on your trades, liquidity positions and more, you can provide your email!`}
+                placement="top"
+              >
+                <Trans>Email Address (Optional)</Trans>
+              </MouseoverTooltip>
             </Label>
             <InputEmail
               color={theme.text}
