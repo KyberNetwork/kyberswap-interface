@@ -14,24 +14,24 @@ import { TokenAmountLoading } from 'state/wallet/hooks'
 import { isTokenNative } from 'utils/tokenInfo'
 
 export const useEthBalanceOfAnotherChain = (chainId: ChainId | undefined) => {
-  const { provider } = useKyberSwapConfig(chainId)
+  const { readProvider } = useKyberSwapConfig(chainId)
   const { account } = useActiveWeb3React()
   const [balance, setBalance] = useState<CurrencyAmount<Currency>>()
   useEffect(() => {
     async function getBalance() {
       try {
-        if (!provider || !account || !chainId) {
+        if (!readProvider || !account || !chainId) {
           setBalance(undefined)
           return
         }
-        const balance = await provider.getBalance(account)
+        const balance = await readProvider.getBalance(account)
         setBalance(CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], JSBI.BigInt(balance)))
       } catch (error) {
         setBalance(undefined)
       }
     }
     getBalance()
-  }, [chainId, provider, account])
+  }, [chainId, readProvider, account])
 
   return balance
 }

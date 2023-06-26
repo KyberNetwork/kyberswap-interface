@@ -47,7 +47,7 @@ const parseResponse = (
     elasticClient: isEVM(defaultChainId)
       ? createClient(data?.elasticSubgraph || NETWORKS_INFO[defaultChainId].elastic.defaultSubgraph)
       : createClient(ethereumInfo.elastic.defaultSubgraph),
-    provider: isEVM(defaultChainId) ? provider : undefined,
+    readProvider: isEVM(defaultChainId) ? provider : undefined,
     connection: isSolana(defaultChainId)
       ? new Connection(data?.rpc || solanaInfo.defaultRpcUrl, { commitment: 'confirmed' })
       : undefined,

@@ -52,6 +52,7 @@ export default function AddTokenToMetaMask({ token }: { token: Token }) {
     }
   }
   if (!walletKey) return null
+  if (walletKey === 'WALLET_CONNECT') return null
   if (isEVM && walletKey === 'COINBASE') return null // Coinbase wallet no need to add since it automatically track token
   return (
     <ButtonEmpty mt="12px" padding="0" width="fit-content" onClick={addToMetaMask}>

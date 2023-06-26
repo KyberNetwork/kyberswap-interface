@@ -5,9 +5,12 @@
   "homepage": "/",
   "license": "GPL-3.0-or-later",
   "engines": {
-    "node": "~18.15.0"
+    "node": "~18.15.0",
+    "yarn": ">=1.22"
   },
+  "packageManager": "yarn@1.22.19",
   "scripts": {
+    "postinstall": "patch-package",
     "preview": "vite preview",
     "build": "yarn i18n && tsc && vite build",
     "build-adpr": "yarn i18n && tsc && vite build --mode adpr",
@@ -66,9 +69,11 @@
     "@solana/wallet-adapter-wallets": "^0.19.5",
     "@solana/web3.js": "^1.66.2",
     "@use-gesture/react": "^10.2.27",
-    "@web3-react/core": "^6.1.9",
-    "@web3-react/injected-connector": "^6.0.7",
-    "@web3-react/walletconnect-connector": "^7.0.2-alpha.0",
+    "@web3-react/coinbase-wallet": "^8.2.0",
+    "@web3-react/core": "^8.2.0",
+    "@web3-react/metamask": "^8.2.1",
+    "@web3-react/types": "^8.2.0",
+    "@web3-react/walletconnect-v2": "^8.3.3",
     "@web3-react/walletlink-connector": "^6.2.14",
     "aos": "^2.3.4",
     "axios": "1.2.1",
@@ -93,7 +98,9 @@
     "multihashes": "^3.1.2",
     "node-vibrant": "^3.1.6",
     "numeral": "^2.0.6",
+    "patch-package": "^7.0.0",
     "polished": "^3.7.2",
+    "postinstall-postinstall": "^2.1.0",
     "process": "^0.11.10",
     "react": "^18.2.0",
     "react-date-picker": "^9.1.0",

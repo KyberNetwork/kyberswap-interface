@@ -1,5 +1,6 @@
+import { t } from '@lingui/macro'
 import { useMemo } from 'react'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 
 import { ReactComponent as DropdownSvg } from 'assets/svg/down.svg'
 import Card from 'components/Card'
@@ -8,6 +9,7 @@ import Row from 'components/Row'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
+import { useWalletSupportedChains } from 'hooks/web3/useWalletSupportedChains'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
@@ -21,7 +23,7 @@ const NetworkSwitchContainer = styled.div`
   min-width: fit-content;
 `
 
-const NetworkCard = styled(Card)<{ disabled?: boolean }>`
+const NetworkCard = styled(Card)`
   position: relative;
   background-color: ${({ theme }) => theme.buttonBlack};
   color: ${({ theme }) => theme.text};
@@ -35,13 +37,7 @@ const NetworkCard = styled(Card)<{ disabled?: boolean }>`
     border: 1px solid ${({ theme }) => theme.primary};
     cursor: pointer;
   }
-  ${({ disabled }) =>
-    disabled &&
-    css`
-      cursor: none;
-      opacity: 0.5;
-      pointer-events: none;
-    `}
+
   ${({ theme }) => theme.mediaWidth.upToSmall`
     margin: 0;
     margin-right: 0.5rem;
@@ -67,7 +63,7 @@ const DropdownIcon = styled(DropdownSvg)<{ open: boolean }>`
   transition: transform 300ms;
 `
 
-function SelectNetwork({ disabled }: { disabled?: boolean }): JSX.Element | null {
+function SelectNetwork(): JSX.Element | null {
   const { chainId, networkInfo } = useActiveWeb3React()
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
   const isDarkMode = useIsDarkMode()
@@ -83,13 +79,14 @@ function SelectNetwork({ disabled }: { disabled?: boolean }): JSX.Element | null
     const balanceFixed = Number(balanceFixedStr)
     return `${balanceFixed} ${NativeCurrencies[chainId].symbol}`
   }, [userEthBalance, chainId, networkInfo])
+  const walletSupportsChain = useWalletSupportedChains()
+
   return (
     <NetworkCard
       onClick={() => toggleNetworkModal()}
       role="button"
       id={TutorialIds.SELECT_NETWORK}
       data-testid="select-network"
-      disabled={disabled}
     >
       <NetworkSwitchContainer>
         <Row>
@@ -102,7 +99,11 @@ function SelectNetwork({ disabled }: { disabled?: boolean }): JSX.Element | null
         </Row>
         <DropdownIcon open={networkModalOpen} />
       </NetworkSwitchContainer>
-      <NetworkModal selectedId={chainId} />
+      <NetworkModal
+        selectedId={chainId}
+        disabledMsg={t`Unsupported by your wallet`}
+        activeChainIds={walletSupportsChain}
+      />
     </NetworkCard>
   )
 }
