@@ -87,7 +87,7 @@ export const useTokensBalanceOfAnotherChain = (
       setBalances(balances as TokenAmountLoading[])
       return
     } catch (error) {
-      console.error('get balance chain err', chainId, error)
+      console.error('get balance chain err', { chainId, error })
     } finally {
       setLoading(false)
     }
