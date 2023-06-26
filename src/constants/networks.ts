@@ -20,7 +20,7 @@ import {
   oasis,
   optimism,
   solana,
-  solanaTestnet,
+  solanaDevnet,
   velas,
   zksync,
 } from './networks/index'
@@ -51,7 +51,7 @@ export const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.ZKSYNC]: zksync,
   [ChainId.LINEA_TESTNET]: lineaTestnet,
   [ChainId.SOLANA]: solana,
-  [ChainId.SOLANA_DEVNET]: solanaTestnet,
+  [ChainId.SOLANA_DEVNET]: solanaDevnet,
 } as const
 
 //this Proxy helps fallback undefined ChainId by Ethereum info
