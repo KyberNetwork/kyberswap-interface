@@ -1580,11 +1580,7 @@ export const useGlobalMixpanelEvents = () => {
 
       mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECTED)
     }
-    return () => {
-      if (mixpanel.hasOwnProperty('persistence')) {
-        mixpanel.reset()
-      }
-    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account])
 
