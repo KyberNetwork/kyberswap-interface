@@ -234,7 +234,7 @@ function AboutKNC() {
           >
             <Trans>
               KNC is a utility and governance token and an integral part of Kyber Network and its product KyberSwap -
-              the multi-chain decentralized exchange (DEX) protocol that provides the best rates for traders and
+              the multi-chain decentralized exchange (DEX) protocol that provides superior rates for traders and
               maximizes earnings for liquidity providers.
             </Trans>
           </Text>

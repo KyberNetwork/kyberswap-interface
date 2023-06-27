@@ -240,7 +240,7 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
               )}
 
               {displayFarms.map(farm => {
-                return <ListItem key={`${farm.fairLaunchAddress}_${farm.stakeToken}`} farm={farm} />
+                return <ListItem key={`${farm.fairLaunchAddress}_${farm.stakeToken}_${farm.pid}`} farm={farm} />
               })}
             </ConditionListWrapper>
           </ExpandableWrapper>

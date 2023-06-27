@@ -1,3 +1,8 @@
+export enum tag {
+  smoke = 'smoke',
+  regression = 'regression',
+}
+
 export function getText(selector: string, callback: any) {
   const text = cy.get(selector).invoke('text')
   text.then($text => {

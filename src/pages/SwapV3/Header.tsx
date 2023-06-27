@@ -48,7 +48,7 @@ export default function Header({
             {isLimitPage
               ? t`Buy or sell any token at a specific price`
               : isSwapPage
-              ? t`Buy or sell any token instantly at the best price`
+              ? t`Buy or sell any token instantly at superior price`
               : t`Swap a token directly from one chain to another`}
           </Text>
         </RowBetween>

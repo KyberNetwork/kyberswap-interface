@@ -89,6 +89,7 @@ export const checkPriceImpact = (
   isVeryHigh: boolean
 } => {
   return {
+    // priceImpact < 0 is still VALID. That's when you swap $10, but receive back $12
     isInvalid: typeof priceImpact === 'number' && !Number.isFinite(priceImpact),
     isHigh: !!priceImpact && priceImpact > 2,
     isVeryHigh: !!priceImpact && priceImpact > 10,

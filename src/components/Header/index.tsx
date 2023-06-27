@@ -1,4 +1,4 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
@@ -8,7 +8,6 @@ import SelectNetwork from 'components/Header/web3/SelectNetwork'
 import SelectWallet from 'components/Header/web3/SelectWallet'
 import Menu from 'components/Menu'
 import Row, { RowFixed } from 'components/Row'
-import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
@@ -159,7 +158,7 @@ const LogoIcon = styled.div`
 `
 
 export default function Header() {
-  const { walletKey, networkInfo } = useActiveWeb3React()
+  const { networkInfo } = useActiveWeb3React()
   const isDark = useIsDarkMode()
   const [holidayMode] = useHolidayMode()
 
@@ -205,12 +204,7 @@ export default function Header() {
       </HeaderRow>
       <HeaderControls>
         <HeaderElement>
-          <MouseoverTooltip
-            text={t`You are currently connected through WalletConnect. If you want to change the connected network, please disconnect your wallet before changing the network.`}
-            disableTooltip={walletKey !== 'WALLET_CONNECT'}
-          >
-            <SelectNetwork disabled={walletKey === 'WALLET_CONNECT'} />
-          </MouseoverTooltip>
+          <SelectNetwork />
           <SelectWallet />
         </HeaderElement>
         <HeaderElementWrap>

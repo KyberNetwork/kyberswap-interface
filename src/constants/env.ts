@@ -22,7 +22,6 @@ export const BLOCK_SERVICE_API = required('BLOCK_SERVICE_API')
 export const PRICE_CHART_API = required('PRICE_CHART_API')
 export const AGGREGATOR_STATS_API = required('AGGREGATOR_STATS_API')
 export const NOTIFICATION_API = required('NOTIFICATION_API')
-export const TRUESIGHT_API = required('TRUESIGHT_API')
 export const TRANSAK_URL = required('TRANSAK_URL')
 export const TRANSAK_API_KEY = required('TRANSAK_API_KEY')
 export const TYPE_AND_SWAP_URL = required('TYPE_AND_SWAP_URL')
@@ -46,12 +45,12 @@ export const LIMIT_ORDER_API_WRITE = required('LIMIT_ORDER_API_WRITE')
 export const KYBER_DAO_STATS_API = required('KYBER_DAO_STATS_API')
 
 export const PRICE_ALERT_API = required('PRICE_ALERT_API')
-
 export const OAUTH_CLIENT_ID = required('OAUTH_CLIENT_ID')
 export const BFF_API = required('BFF_API')
 export const KYBER_AI_REFERRAL_ID = required('KYBER_AI_REFERRAL_ID')
 export const KYBER_AI_TOPIC_ID = required('KYBER_AI_TOPIC_ID')
 export const BUCKET_NAME = required('BUCKET_NAME')
+export const WALLETCONNECT_PROJECT_ID = required('WALLETCONNECT_PROJECT_ID')
 
 type FirebaseConfig = {
   apiKey: string

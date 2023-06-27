@@ -4,11 +4,10 @@ import { createRef, memo, useCallback } from 'react'
 import ReCAPTCHA from 'react-google-recaptcha'
 import { Text } from 'rebass'
 import styled from 'styled-components'
-import { mutate } from 'swr'
 
 import { ModalCenter } from 'components/Modal'
 import { GOOGLE_RECAPTCHA_KEY } from 'constants/env'
-import { CAMPAIGN_BASE_URL, SWR_KEYS } from 'constants/index'
+import { CAMPAIGN_BASE_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
@@ -36,7 +35,7 @@ const Background = styled.div`
   `}
 `
 
-const ModalRegisterCampaignCaptcha = () => {
+const ModalRegisterCampaignCaptcha = ({ refreshListCampaign }: { refreshListCampaign: () => void }) => {
   const recaptchaRef = createRef<ReCAPTCHA>()
 
   const isRegisterCampaignCaptchaModalOpen = useModalOpen(ApplicationModal.REGISTER_CAMPAIGN_CAPTCHA)
@@ -76,7 +75,7 @@ const ModalRegisterCampaignCaptcha = () => {
         },
       })
       if (response.status === 200) {
-        await mutate([SWR_KEYS.getListCampaign, account])
+        refreshListCampaign()
         toggleRegisterCampaignSuccessModal()
       }
     } catch (err) {
@@ -93,6 +92,7 @@ const ModalRegisterCampaignCaptcha = () => {
     toggleRegisterCampaignSuccessModal,
     updateRecaptchaCampaignId,
     updateRecaptchaCampaignLoading,
+    refreshListCampaign,
   ])
 
   return (

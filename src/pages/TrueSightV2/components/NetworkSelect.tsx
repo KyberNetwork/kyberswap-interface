@@ -6,11 +6,11 @@ import { Flex, Image, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as ChevronDown } from 'assets/svg/down.svg'
+import { OptionsContainer } from 'components'
 import Kyber from 'components/Icons/Kyber'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
-import { OptionsContainer } from 'pages/TrueSight/styled'
 
 import { SUPPORTED_NETWORK_KYBERAI } from '../constants'
 

@@ -1,4 +1,4 @@
-import { Currency, Price } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import React, { useState } from 'react'
@@ -6,6 +6,7 @@ import { Repeat } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { BuildRouteData } from 'services/route/types/buildRoute'
 
+import { TruncatedText } from 'components'
 import { AutoColumn } from 'components/Column'
 import { RowBetween, RowFixed } from 'components/Row'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
@@ -17,11 +18,9 @@ import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
 import { CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { TruncatedText } from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
 import { ExternalLink, TYPE } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { formattedNum } from 'utils'
-import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
 import { calculateFeeFromBuildData } from 'utils/fee'
 import { checkPriceImpact, formatPriceImpact } from 'utils/prices'
 import { checkWarningSlippage, formatSlippage } from 'utils/slippage'
@@ -58,12 +57,13 @@ type Optional<T> = {
 export type Props = {
   isLoading: boolean
   buildData: BuildRouteData | undefined
-} & Optional<Pick<DetailedRouteSummary, 'gasUsd' | 'parsedAmountOut' | 'executionPrice' | 'priceImpact'>>
+  minimumAmountOut: CurrencyAmount<Currency> | undefined
+} & Optional<Pick<DetailedRouteSummary, 'gasUsd' | 'executionPrice' | 'priceImpact'>>
 
 export default function SwapDetails({
   isLoading,
   gasUsd,
-  parsedAmountOut,
+  minimumAmountOut,
   executionPrice,
   priceImpact,
   buildData,
@@ -76,7 +76,6 @@ export default function SwapDetails({
   const currencyIn = routeSummary?.parsedAmountIn?.currency
   const currencyOut = routeSummary?.parsedAmountOut?.currency
 
-  const minimumAmountOut = parsedAmountOut ? minimumAmountAfterSlippage(parsedAmountOut, slippage) : undefined
   const minimumAmountOutStr =
     minimumAmountOut && currencyOut ? (
       <Flex style={{ color: theme.text, fontWeight: 500, whiteSpace: 'nowrap' }}>

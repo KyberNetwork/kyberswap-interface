@@ -9,7 +9,7 @@ import Column from 'components/Column'
 import MenuFlyout from 'components/MenuFlyout'
 import { PROMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useDisconnectWallet from 'hooks/useDisconnectWallet'
+import useDisconnectWallet from 'hooks/web3/useDisconnectWallet'
 import { ExternalLink } from 'theme'
 
 const shareStyleMenuItem = css`

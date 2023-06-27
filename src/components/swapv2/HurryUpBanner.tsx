@@ -39,7 +39,7 @@ function HurryUpBanner({ startedTime }: { startedTime: number | undefined }) {
           <Loader size="28px" stroke={color} />
         </ConfirmedIcon>
 
-        <Trans>We&apos;ve got you the best price! Confirm soon to lock-in this rate</Trans>
+        <Trans>We&apos;ve got you the superior price! Confirm soon to lock-in this rate</Trans>
       </RowFixed>
     </GreyCard>
   )

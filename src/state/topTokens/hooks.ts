@@ -61,7 +61,9 @@ const useTopTokens = (): {
 }
 
 export const usePairFactor = (tokens: [Token | undefined | null, Token | undefined | null]): PairFactor => {
+  // super stable: - super stable/super stable
   // stable: - stable/stable
+  //         - super stable/stable
   //         - correlated
   // normal: - token/token in top 50 & not stable
   // exotic: other cases

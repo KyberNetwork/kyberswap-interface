@@ -7,7 +7,7 @@ import { getRouInfo } from 'pages/CrossChain/helpers'
 import { useNativeBalance } from 'state/wallet/hooks'
 
 export function useIsEnoughGas(route: RouteData | undefined) {
-  const { chainId } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
   const nativeToken = NativeCurrencies[chainId]
   const { gasCosts, feeCosts } = getRouInfo(route)
 
@@ -18,6 +18,9 @@ export function useIsEnoughGas(route: RouteData | undefined) {
   return {
     gasFee,
     crossChainFee,
-    isEnoughEth: nativeToken && crossChainFee && gasFee && ethBalance?.greaterThan(crossChainFee?.add(gasFee)),
+    isEnoughEth:
+      !route || !account
+        ? true
+        : nativeToken && crossChainFee && gasFee && ethBalance?.greaterThan(crossChainFee?.add(gasFee)),
   }
 }

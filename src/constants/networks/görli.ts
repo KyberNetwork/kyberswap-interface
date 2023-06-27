@@ -67,7 +67,6 @@ const görliInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'ethereum',
   coingeckoNativeTokenId: 'ethereum',
   deBankSlug: EMPTY,
-  trueSightId: NOT_SUPPORT,
   dexToCompare: NOT_SUPPORT,
   kyberDAO: {
     staking: '0x9bc1214E28005e9c3f5E99Ff01C23D42796702CF',

@@ -417,7 +417,7 @@ function PositionListItem({
                 <ButtonOutlined
                   padding="8px"
                   as={Link}
-                  to={`/elastic/remove/${positionDetails.tokenId}`}
+                  to={`/${networkInfo.route}${APP_PATHS.ELASTIC_REMOVE_POOL}/${positionDetails.tokenId}`}
                   onClick={() => {
                     mixpanelHandler(MIXPANEL_TYPE.ELASTIC_REMOVE_LIQUIDITY_INITIATED, {
                       token_1: token0?.symbol || '',
@@ -440,10 +440,10 @@ function PositionListItem({
                   fontSize: '14px',
                 }}
                 as={Link}
-                to={`/elastic/increase/${currencyId(currency0, chainId)}/${currencyId(
-                  currency1,
+                to={`/${networkInfo.route}${APP_PATHS.ELASTIC_INCREASE_LIQ}/${currencyId(
+                  currency0,
                   chainId,
-                )}/${feeAmount}/${positionDetails.tokenId}`}
+                )}/${currencyId(currency1, chainId)}/${feeAmount}/${positionDetails.tokenId}`}
                 onClick={() => {
                   mixpanelHandler(MIXPANEL_TYPE.ELASTIC_INCREASE_LIQUIDITY_INITIATED, {
                     token_1: token0?.symbol || '',

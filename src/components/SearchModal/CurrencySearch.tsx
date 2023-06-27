@@ -33,7 +33,7 @@ import { useRemoveUserAddedToken, useUserAddedTokens, useUserFavoriteTokens } fr
 import { ButtonText, CloseIcon, TYPE } from 'theme'
 import { filterTruthy, isAddress } from 'utils'
 import { filterTokens } from 'utils/filtering'
-import { importTokensToKsSettings } from 'utils/tokenInfo'
+import { importTokensToKsSettings, isTokenNative } from 'utils/tokenInfo'
 
 import CommonBases from './CommonBases'
 import CurrencyList from './CurrencyList'
@@ -181,9 +181,9 @@ export function CurrencySearch({
   const filterWrapFunc = useCallback(
     (token: Currency | undefined) => {
       if (filterWrap && otherSelectedCurrency?.equals(WETH[chainId])) {
-        return !token?.isNative
+        return !isTokenNative(token, token?.chainId)
       }
-      if (filterWrap && otherSelectedCurrency?.isNative) {
+      if (filterWrap && otherSelectedCurrency && isTokenNative(otherSelectedCurrency, otherSelectedCurrency?.chainId)) {
         return !token?.equals(WETH[chainId])
       }
       return true
@@ -196,20 +196,16 @@ export function CurrencySearch({
   }, [commonTokens, debouncedQuery, chainId, filterWrapFunc])
 
   const filteredSortedTokens: Token[] = useMemo(() => {
-    const nativeToken = NativeCurrencies[chainId]
-    const tokensWithNative = [nativeToken, ...fetchedTokens] as Token[]
     if (!debouncedQuery) {
       // whitelist token
-      return tokensWithNative.sort(tokenComparator).filter(filterWrapFunc)
+      return fetchedTokens.sort(tokenComparator).filter(filterWrapFunc)
     }
-
-    const isMatchNative = nativeToken?.symbol?.toLowerCase().startsWith(debouncedQuery.toLowerCase().trim())
-    return (isMatchNative ? tokensWithNative : fetchedTokens).filter(filterWrapFunc)
-  }, [fetchedTokens, debouncedQuery, tokenComparator, filterWrapFunc, chainId])
+    return fetchedTokens.filter(filterWrapFunc)
+  }, [fetchedTokens, debouncedQuery, tokenComparator, filterWrapFunc])
 
   const handleCurrencySelect = useCallback(
     (currency: Currency) => {
-      onCurrencySelect(currency)
+      onCurrencySelect(isTokenNative(currency, currency.chainId) ? NativeCurrencies[currency.chainId] : currency)
       onDismiss()
     },
     [onDismiss, onCurrencySelect],
@@ -263,14 +259,14 @@ export function CurrencySearch({
       if (!address) return
 
       const currentList = favoriteTokens?.addresses || []
-      const isAddFavorite = currency.isNative
+      const isAddFavorite = isTokenNative(currency, currency.chainId)
         ? !favoriteTokens?.includeNativeToken
         : !currentList.find(el => el === address) // else remove favorite
       const curTotal =
         currentList.filter(address => !!defaultTokens[address]).length + (favoriteTokens?.includeNativeToken ? 1 : 0)
       if (isAddFavorite && curTotal === MAX_FAVORITE_PAIR) return
 
-      if (currency.isNative) {
+      if (isTokenNative(currency, currency.chainId)) {
         toggleFavoriteToken({
           chainId,
           isNative: true,

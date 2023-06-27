@@ -31,7 +31,7 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
   const toggleWalletModal = useWalletModalToggle()
   const { isLogin } = useSessionInfo()
 
-  const { isWhiteList, isWaitList } = useIsWhiteListKyberAI()
+  const { isWhiteList, isWaitList, loading: isCheckingPermission } = useIsWhiteListKyberAI()
 
   const [verifyModalState, setVerifyModalState] = useState({
     isOpen: false,
@@ -85,6 +85,13 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
     />
   )
 
+  if (isCheckingPermission)
+    return (
+      <ConnectWalletButton disabled>
+        <Trans>Checking data...</Trans>
+      </ConnectWalletButton>
+    )
+
   if (!account)
     return (
       <ConnectWalletButton onClick={toggleWalletModal}>
@@ -100,7 +107,12 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
     )
 
   const btnGetStart = (
-    <ConnectWalletButton onClick={() => navigate(APP_PATHS.KYBERAI_RANKINGS)}>
+    <ConnectWalletButton
+      onClick={() => {
+        mixpanelHandler(MIXPANEL_TYPE.KYBERAI_GET_STARTED_CLICK)
+        navigate(APP_PATHS.KYBERAI_RANKINGS)
+      }}
+    >
       <Trans>Get Started</Trans>
     </ConnectWalletButton>
   )
@@ -120,7 +132,6 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
         {btnGetStart}
         <div style={{ width: '100%', border: `1px solid ${theme.border}` }} />
         <WaitListForm
-          showRanking={false}
           desc={
             <Text fontSize={20} color={theme.text} fontWeight={'500'}>
               <Trans>Spread the word, and get rewarded for it! </Trans>

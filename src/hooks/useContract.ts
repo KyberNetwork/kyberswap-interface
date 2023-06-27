@@ -25,6 +25,7 @@ import TickReaderABI from 'constants/abis/v2/ProAmmTickReader.json'
 import PROMM_FARM_ABI from 'constants/abis/v2/farm.json'
 import WETH_ABI from 'constants/abis/weth.json'
 import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
+import ZAP_ZKSYNC_ABI from 'constants/abis/zap-zksync.json'
 import ZAP_ABI from 'constants/abis/zap.json'
 import { MULTICALL_ABI } from 'constants/multicall'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
@@ -64,17 +65,17 @@ export function useContractForReading(
 ): Contract | null {
   const { chainId: curChainId } = useActiveWeb3React()
   const chainId = customChainId || curChainId
-  const { provider } = useKyberSwapConfig(chainId)
+  const { readProvider } = useKyberSwapConfig(chainId)
 
   return useMemo(() => {
-    if (!address || !isEVM(chainId) || !provider) return null
+    if (!address || !isEVM(chainId) || !readProvider) return null
     try {
-      return getContractForReading(address, ABI, provider)
+      return getContractForReading(address, ABI, readProvider)
     } catch (error) {
       console.error('Failed to get contract', error)
       return null
     }
-  }, [address, ABI, chainId, provider])
+  }, [address, ABI, chainId, readProvider])
 }
 
 // returns null on errors
@@ -87,10 +88,18 @@ export function useMultipleContracts(
 } | null {
   const { account, isEVM } = useActiveWeb3React()
   const { library } = useWeb3React()
-  const { provider } = useKyberSwapConfig()
+  const { readProvider } = useKyberSwapConfig()
 
   return useMemo(() => {
-    if (!isEVM || !addresses || !Array.isArray(addresses) || addresses.length === 0 || !ABI || !library || !provider)
+    if (
+      !isEVM ||
+      !addresses ||
+      !Array.isArray(addresses) ||
+      addresses.length === 0 ||
+      !ABI ||
+      !library ||
+      !readProvider
+    )
       return null
 
     const result: {
@@ -102,7 +111,7 @@ export function useMultipleContracts(
         if (address) {
           result[address] = withSignerIfPossible
             ? getContract(address, ABI, library, withSignerIfPossible && account ? account : undefined)
-            : getContractForReading(address, ABI, provider)
+            : getContractForReading(address, ABI, readProvider)
         }
       })
 
@@ -116,7 +125,7 @@ export function useMultipleContracts(
 
       return null
     }
-  }, [addresses, ABI, library, withSignerIfPossible, account, isEVM, provider])
+  }, [addresses, ABI, library, withSignerIfPossible, account, isEVM, readProvider])
 }
 
 export function useTokenContract(tokenAddress?: string, withSignerIfPossible?: boolean): Contract | null {
@@ -193,7 +202,8 @@ export function useDynamicFeeFactoryContract(): Contract | null {
 }
 
 export function useZapContract(isStaticFeeContract: boolean, isOldStaticFeeContract: boolean): Contract | null {
-  const { isEVM, networkInfo } = useActiveWeb3React()
+  const { isEVM, networkInfo, chainId } = useActiveWeb3React()
+
   return useContract(
     isEVM
       ? isStaticFeeContract
@@ -202,7 +212,11 @@ export function useZapContract(isStaticFeeContract: boolean, isOldStaticFeeContr
           : (networkInfo as EVMNetworkInfo).classic.static.zap
         : (networkInfo as EVMNetworkInfo).classic.dynamic?.zap
       : undefined,
-    isStaticFeeContract && !isOldStaticFeeContract ? ZAP_STATIC_FEE_ABI : ZAP_ABI,
+    isStaticFeeContract && !isOldStaticFeeContract
+      ? ZAP_STATIC_FEE_ABI
+      : chainId === ChainId.ZKSYNC
+      ? ZAP_ZKSYNC_ABI
+      : ZAP_ABI,
   )
 }
 

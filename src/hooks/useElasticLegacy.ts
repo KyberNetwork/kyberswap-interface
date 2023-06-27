@@ -404,7 +404,7 @@ export const useRemoveLiquidityLegacy = (
         recipient: account,
         deadline: deadline.toString(),
         isRemovingLiquid: true,
-        havingFee: !(feeValue0.equalTo(JSBI.BigInt('0')) && feeValue1.equalTo(JSBI.BigInt('0'))),
+        havingFee: collectFee && !(feeValue0.equalTo(JSBI.BigInt('0')) && feeValue1.equalTo(JSBI.BigInt('0'))),
       },
     })
 
