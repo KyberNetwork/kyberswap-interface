@@ -142,7 +142,7 @@ const ProfileItem = ({
   }
 
   const signOutBtn =
-    !active && totalGuest > 1 ? (
+    !active && (guest ? totalGuest > 1 : true) ? (
       <LogOut
         style={{ marginRight: active || upToMedium ? 0 : '10px' }}
         color={active ? theme.text : theme.subText}
