@@ -386,7 +386,7 @@ const Farm = () => {
                         />
                       </>
                     )}
-                    <FarmSort />
+                    {farmType !== VERSION.CLASSIC && <FarmSort />}
                   </Row>
                 </StakedOnlyToggleWrapper>
                 <HeadingRight>
