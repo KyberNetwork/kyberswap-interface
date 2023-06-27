@@ -89,13 +89,8 @@ const Iframe = styled.iframe`
   border: 1px solid #1c1c1c;
   border-radius: 8px;
 
-  .p-menubar {
-    background: #0f0f0f !important;
-    border-color: #1c1c1c !important;
-  }
-  .chart-page,
-  .loading-indicator {
-    background: #0f0f0f !important;
+  .header-pair {
+    display: none;
   }
 `
 

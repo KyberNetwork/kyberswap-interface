@@ -7,9 +7,11 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import DextoolsWidget, { checkPairHasDextoolsData } from 'components/DextoolsWidget'
+import DextoolSVG from 'components/DextoolsWidget/DextoolSVG'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import ErrorBoundary from 'components/ErrorBoundary'
 import Loader from 'components/LocalLoader'
+import Row from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import useBasicChartData, { LiveDataTimeframeEnum } from 'hooks/useBasicChartData'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -112,17 +114,17 @@ function LiveChart({
   const { isSolana, chainId } = useActiveWeb3React()
   const theme = useTheme()
   const [currenciesState, setCurrenciesState] = useState(currencies)
-  const [pairAddress, setPairAddress] = useState('')
+  const [pairAddress, setPairAddress] = useState('123')
   console.log('🚀 ~ file: index.tsx:116 ~ pairAddress:', pairAddress)
   const [prochartLoading, setProchartLoading] = useState(true)
   useEffect(() => {
     checkPairHasDextoolsData(currencies, chainId)
       .then(res => {
-        setPairAddress(res.pairAddress || '')
+        setPairAddress(res.pairAddress || '123')
         setProchartLoading(false)
       })
       .catch(() => {
-        setPairAddress('')
+        setPairAddress('123')
         setProchartLoading(false)
       })
   }, [currencies, chainId])
@@ -163,7 +165,7 @@ function LiveChart({
   const { chartColor, different, differentPercent } = getDifferentValues(chartData, hoverValue)
 
   const [isManualChange, setIsManualChange] = useState(false)
-  const [isShowProChart, setIsShowProChart] = useState(false)
+  const [isShowProChart, setIsShowProChart] = useState(true)
 
   useEffect(() => {
     if (!!pairAddress && !isManualChange) setIsShowProChart(true)
@@ -271,6 +273,12 @@ function LiveChart({
             {/* Stop tradingview from rerender on isShowProChart change */}
             <div style={{ display: isShowProChart && !!pairAddress ? 'block' : 'none', height: '100%' }}>
               {pairAddress && <DextoolsWidget pairAddress={pairAddress} />}
+              <Row gap="8px" justify="flex-end">
+                <Text color={theme.subText} fontSize="10px">
+                  Powered by
+                </Text>
+                {theme.darkMode ? <DextoolSVG /> : <DextoolSVG />}
+              </Row>
             </div>
 
             {!isShowProChart && (
