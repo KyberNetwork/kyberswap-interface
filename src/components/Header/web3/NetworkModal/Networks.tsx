@@ -13,11 +13,9 @@ import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
-import { useChangeNetwork } from 'hooks/useChangeNetwork'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
-import { useAppDispatch } from 'state/hooks'
-import { updateChainId } from 'state/user/actions'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useIsDarkMode } from 'state/user/hooks'
 
 const NewLabel = styled.span`
@@ -122,8 +120,6 @@ const Networks = ({
   customOnSelectNetwork,
   customToggleModal,
   disabledMsg,
-  disabledAll,
-  disabledAllMsg,
 }: {
   onChangedNetwork?: () => void
   mt?: number
@@ -134,16 +130,13 @@ const Networks = ({
   customOnSelectNetwork?: (chainId: ChainId) => void
   customToggleModal?: () => void
   disabledMsg?: string
-  disabledAll?: boolean
-  disabledAllMsg?: string
 }) => {
-  const { chainId: currentChainId } = useActiveWeb3React()
+  const { chainId: currentChainId, isWrongNetwork } = useActiveWeb3React()
   const changeNetwork = useChangeNetwork()
   const qs = useParsedQueryString()
   const navigate = useNavigate()
   const isDarkMode = useIsDarkMode()
   const theme = useTheme()
-  const dispatch = useAppDispatch()
   const { walletEVM, walletSolana } = useActiveWeb3React()
   const onSelect = (chainId: ChainId) => {
     customToggleModal?.()
@@ -159,8 +152,6 @@ const Networks = ({
           { replace: true },
         )
         onChangedNetwork?.()
-
-        dispatch(updateChainId(chainId))
       })
     } else {
       changeNetwork(chainId, () => {
@@ -171,7 +162,6 @@ const Networks = ({
           { replace: true },
         )
         onChangedNetwork?.()
-        dispatch(updateChainId(chainId))
       })
     }
   }
@@ -181,23 +171,19 @@ const Networks = ({
       {MAINNET_NETWORKS.map((key: ChainId, i: number) => {
         const { iconDark, icon, name } = NETWORKS_INFO[key]
         const disabled = !isAcceptedTerm || (activeChainIds ? !activeChainIds?.includes(key) : false)
-        const selected = selectedId === key
+        const selected = selectedId === key && !isWrongNetwork
 
         const imgSrc = (isDarkMode ? iconDark : icon) || icon
         const walletKey =
           key === ChainId.SOLANA ? walletSolana.walletKey : walletEVM.chainId === key ? walletEVM.walletKey : null
         return (
-          <MouseoverTooltip
-            style={{ zIndex: Z_INDEXS.MODAL + 1 }}
-            key={key}
-            text={disabled ? disabledMsg : disabledAll ? disabledAllMsg : ''}
-          >
+          <MouseoverTooltip style={{ zIndex: Z_INDEXS.MODAL + 1 }} key={key} text={disabled ? disabledMsg : ''}>
             <SelectNetworkButton
               key={i}
-              data-testid="network-button"
               padding="0"
               onClick={() => !selected && onSelect(key)}
-              disabled={disabledAll || disabled}
+              data-testid="network-button"
+              disabled={disabled}
             >
               <ListItem selected={selected}>
                 <img src={imgSrc} alt="Switch Network" style={{ height: '20px', width: '20px', marginRight: '8px' }} />

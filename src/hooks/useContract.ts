@@ -64,17 +64,17 @@ export function useContractForReading(
 ): Contract | null {
   const { chainId: curChainId } = useActiveWeb3React()
   const chainId = customChainId || curChainId
-  const { provider } = useKyberSwapConfig(chainId)
+  const { readProvider } = useKyberSwapConfig(chainId)
 
   return useMemo(() => {
-    if (!address || !isEVM(chainId) || !provider) return null
+    if (!address || !isEVM(chainId) || !readProvider) return null
     try {
-      return getContractForReading(address, ABI, provider)
+      return getContractForReading(address, ABI, readProvider)
     } catch (error) {
       console.error('Failed to get contract', error)
       return null
     }
-  }, [address, ABI, chainId, provider])
+  }, [address, ABI, chainId, readProvider])
 }
 
 // returns null on errors
@@ -87,10 +87,18 @@ export function useMultipleContracts(
 } | null {
   const { account, isEVM } = useActiveWeb3React()
   const { library } = useWeb3React()
-  const { provider } = useKyberSwapConfig()
+  const { readProvider } = useKyberSwapConfig()
 
   return useMemo(() => {
-    if (!isEVM || !addresses || !Array.isArray(addresses) || addresses.length === 0 || !ABI || !library || !provider)
+    if (
+      !isEVM ||
+      !addresses ||
+      !Array.isArray(addresses) ||
+      addresses.length === 0 ||
+      !ABI ||
+      !library ||
+      !readProvider
+    )
       return null
 
     const result: {
@@ -102,7 +110,7 @@ export function useMultipleContracts(
         if (address) {
           result[address] = withSignerIfPossible
             ? getContract(address, ABI, library, withSignerIfPossible && account ? account : undefined)
-            : getContractForReading(address, ABI, provider)
+            : getContractForReading(address, ABI, readProvider)
         }
       })
 
@@ -116,7 +124,7 @@ export function useMultipleContracts(
 
       return null
     }
-  }, [addresses, ABI, library, withSignerIfPossible, account, isEVM, provider])
+  }, [addresses, ABI, library, withSignerIfPossible, account, isEVM, readProvider])
 }
 
 export function useTokenContract(tokenAddress?: string, withSignerIfPossible?: boolean): Contract | null {

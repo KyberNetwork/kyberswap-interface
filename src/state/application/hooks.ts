@@ -529,8 +529,8 @@ export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => 
 
   const config = useAppSelector(state => state.application.config[chainId] || getDefaultConfig(chainId))
 
-  const provider = useMemo(
-    () => cacheCalc('rpc', config.rpc, subgraph => new ethers.providers.JsonRpcProvider(subgraph)),
+  const readProvider = useMemo(
+    () => cacheCalc('rpc', config.rpc, rpc => new ethers.providers.JsonRpcProvider(rpc)),
     [config.rpc],
   )
   const blockClient = useMemo(
@@ -550,7 +550,7 @@ export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => 
     return {
       rpc: config.rpc,
       isEnableBlockService: config.isEnableBlockService,
-      provider,
+      readProvider,
       prochart: config.prochart,
       blockClient,
       elasticClient,
@@ -561,7 +561,7 @@ export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => 
     config.rpc,
     config.isEnableBlockService,
     config.prochart,
-    provider,
+    readProvider,
     blockClient,
     elasticClient,
     classicClient,

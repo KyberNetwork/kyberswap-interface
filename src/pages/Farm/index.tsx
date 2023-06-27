@@ -39,8 +39,8 @@ import { useCurrency } from 'hooks/Tokens'
 import useElasticCompensationData from 'hooks/useElasticCompensationData'
 import useElasticLegacy from 'hooks/useElasticLegacy'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useTheme from 'hooks/useTheme'
+import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
 import ElasticLegacy from 'pages/ElasticLegacy'
 import { CurrencyWrapper, Tab } from 'pages/Pools/styleds'
 import { AppState } from 'state'
@@ -379,8 +379,8 @@ const Farm = () => {
                       text={
                         <Text>
                           <Trans>
-                            Dynamic farms incentivize farmers that provide liquidity to a pool in a customizable  price
-                            range that supports the current price of the pool. Each farmer can choose  their own price
+                            Dynamic farms incentivize farmers that provide liquidity to a pool in a customizable price
+                            range that supports the current price of the pool. Each farmer can choose their own price
                             range. Learn more{' '}
                             <ExternalLink href="https://docs.kyberswap.com/liquidity-solutions/kyberswap-elastic/user-guides/yield-farming-on-dynamic-farms">
                               here ↗
@@ -400,8 +400,8 @@ const Farm = () => {
                       text={
                         <Text>
                           <Trans>
-                            Static farms incentivize farmers that provide liquidity to a pool in a pre-configured
-                            farming price range that is set by the farm administrator. Learn more{' '}
+                            Static farms incentivize farmers that provide liquidityto a pool in a pre-configured farming
+                            price range thatis set by the farm administrator. Learn more{' '}
                             <ExternalLink href="https://docs.kyberswap.com/liquidity-solutions/kyberswap-elastic/user-guides/yield-farming-on-static-farms">
                               here ↗
                             </ExternalLink>

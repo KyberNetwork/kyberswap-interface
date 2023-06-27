@@ -121,6 +121,7 @@ function AddTokenToInjectedWallet({ token, chainId }: { token: Token; chainId: C
 
   if (!walletKey) return null
   if (!isEVM) return null
+  if (walletKey === 'WALLET_CONNECT') return null
   const walletConfig = SUPPORTED_WALLETS[walletKey]
 
   return (

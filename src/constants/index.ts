@@ -142,7 +142,7 @@ export const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3'
 export const KNC_COINGECKO_ID = 'kyber-network-crystal'
 
 export const ETHER_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-export const ETHER_ADDRESS_SOLANA = 'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
+export const ETHER_ADDRESS_SOLANA = 'So11111111111111111111111111111111111111111'
 
 export const KYBER_NETWORK_DISCORD_URL = 'https://discord.com/invite/NB3vc8J9uv'
 export const KYBER_NETWORK_TWITTER_URL = 'https://twitter.com/KyberNetwork'

@@ -396,6 +396,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       data: calldata,
       value,
     }
+
     library
       .getSigner()
       .estimateGas(txn)
