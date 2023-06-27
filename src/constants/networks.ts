@@ -213,3 +213,6 @@ export const SUPPORTED_NETWORKS_FOR_MY_EARNINGS = [
   ChainId.OASIS,
   ChainId.OPTIMISM,
 ]
+
+// by pass invalid price impact/unable to calculate price impact/price impact too large
+export const CHAINS_BYPASS_PRICE_IMPACT = [ChainId.LINEA_TESTNET]
