@@ -147,7 +147,7 @@ const CampaignListAndSearch = ({
                     const campaign = campaigns[index]
                     if (!campaign)
                       return (
-                        <Row style={style} gap="6px" justify="center" color={theme.subText} fontSize={'12px'}>
+                        <Row style={style} gap="6px" justify="center" color={theme.subText} fontSize={'14px'}>
                           <Trans>Loading Campaigns ...</Trans>
                         </Row>
                       )

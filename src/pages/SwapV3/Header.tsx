@@ -46,10 +46,10 @@ export default function Header({
         <RowBetween>
           <Text fontSize={12} color={theme.subText}>
             {isLimitPage
-              ? t`Buy or sell any token at a specific price`
+              ? t`Buy or sell tokens at customized prices`
               : isSwapPage
-              ? t`Buy or sell any token instantly at superior price`
-              : t`Swap a token directly from one chain to another`}
+              ? t`Instantly buy or sell tokens at superior prices`
+              : t`Swap between tokens on different chains`}
           </Text>
         </RowBetween>
       </ColumnCenter>
