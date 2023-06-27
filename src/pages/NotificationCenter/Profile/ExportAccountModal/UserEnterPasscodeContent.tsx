@@ -7,6 +7,7 @@ import { ButtonPrimary } from 'components/Button'
 import Input from 'components/Input'
 import useTheme from 'hooks/useTheme'
 import { ButtonExport } from 'pages/NotificationCenter/Profile/buttons'
+import { ExternalLink } from 'theme'
 
 import { Label } from './styled'
 
@@ -51,7 +52,7 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onEnterPasscode, dismissMod
       >
         <Trans>
           Exported profiles will not be associated with your wallet. Your export code is unique. Learn more about
-          profile here.
+          profile <ExternalLink href="/todo">here</ExternalLink>. {/** // todo */}
         </Trans>
       </Text>
       <Text
@@ -75,6 +76,7 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onEnterPasscode, dismissMod
         </Label>
 
         <Input
+          type="password"
           color={theme.text}
           maxLength={50}
           value={passcode}

@@ -9,7 +9,7 @@ import Modal from 'components/Modal'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
-import { useCacheProfile } from 'state/authen/hooks'
+import { useCacheProfile, useSessionInfo } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 const StyledMenu = styled.div`
@@ -32,6 +32,7 @@ const browserCustomStyle = css`
 
 export default function SelectWallet() {
   const { profile } = useCacheProfile()
+  const { pendingAuthentication } = useSessionInfo()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const isOpen = useModalOpen(ApplicationModal.SWITCH_PROFILE_POPUP)
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
@@ -47,17 +48,22 @@ export default function SelectWallet() {
       />
     </Flex>
   )
+
+  const onClickProfile = () => {
+    if (!isOpen && pendingAuthentication) return
+    toggleModal()
+  }
   return (
     <StyledMenu>
       {isMobile ? (
         <>
           {profileIcon}
-          <Modal isOpen={isOpen} onDismiss={toggleModal}>
+          <Modal isOpen={isOpen} onDismiss={onClickProfile}>
             <ProfileContent />
           </Modal>
         </>
       ) : (
-        <MenuFlyout trigger={profileIcon} customStyle={browserCustomStyle} isOpen={isOpen} toggle={toggleModal}>
+        <MenuFlyout trigger={profileIcon} customStyle={browserCustomStyle} isOpen={isOpen} toggle={onClickProfile}>
           <ProfileContent scroll />
         </MenuFlyout>
       )}

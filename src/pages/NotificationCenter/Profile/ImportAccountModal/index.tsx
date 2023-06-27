@@ -1,4 +1,3 @@
-import KyberOauth2 from '@kybernetwork/oauth2'
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
 import { X } from 'react-feather'
@@ -33,21 +32,16 @@ export default function ImportAccountModal({ isOpen, onDismiss }: Props) {
         throw new Error(t`Your passcode or Import Token is invalid`)
       }
 
-      const username = account.username
-
-      if (username === KyberOauth2.getAnonymousAccount()?.username) {
-        throw new Error('You can not import your default Guest account')
-      }
-      if (KyberOauth2.getConnectedAnonymousAccounts().includes(username)) {
-        throw new Error('This account is already imported')
-      }
       setLoading(true)
       await importGuestAccount(account)
-      notify({
-        type: NotificationType.SUCCESS,
-        title: t`Imported successfully`,
-        summary: t`You had successfully import this profile`,
-      })
+      notify(
+        {
+          type: NotificationType.SUCCESS,
+          title: t`Imported successfully`,
+          summary: t`You had successfully import this profile. You are now signed in with this guest account`,
+        },
+        10_000,
+      )
       onDismiss()
     } catch (error) {
       console.log(error)

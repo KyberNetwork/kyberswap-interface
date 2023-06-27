@@ -89,6 +89,7 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onImportToken, dismissModal
         </Label>
 
         <Input
+          type="password"
           color={theme.text}
           maxLength={50}
           value={passcode}
@@ -142,7 +143,7 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onImportToken, dismissModal
           Cancel
         </ButtonCancel>
         <ButtonNext
-          disabled={!passcode || !importToken || loading}
+          disabled={!passcode || passcode.length < 6 || !importToken || loading}
           onClick={() => {
             onImportToken({ passcode, importToken })
           }}

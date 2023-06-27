@@ -22,7 +22,7 @@ import { filterTruthy, isAddress } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
 import { getConnectedProfile } from 'utils/profile'
 import { setLoginRedirectUrl } from 'utils/redirectUponLogin'
-import { isEmailValid, shortString } from 'utils/string'
+import { isEmailValid } from 'utils/string'
 
 KyberOauth2.initialize({
   clientId: OAUTH_CLIENT_ID,
@@ -39,7 +39,7 @@ const useLogin = (autoLogin = false) => {
   const notify = useNotify()
   const toggleWalletModal = useWalletModalToggle()
   const [signedAccount, saveSignedAccount] = useSignedAccount()
-  const { removeProfile, removeAllProfile } = useAllProfileInfo()
+  const { removeProfile, removeAllProfile, totalGuest } = useAllProfileInfo()
   const showConfirm = useShowConfirm()
   const qs = useParsedQueryString()
   const setLoading = useSetPendingAuthentication()
@@ -95,7 +95,7 @@ const useLogin = (autoLogin = false) => {
                   isEmailValid(desireAccount)
                     ? `email ${desireAccount}`
                     : guest
-                    ? `guest account ${desireAccount === KEY_GUEST_DEFAULT ? '' : shortString(desireAccount, 25)}`
+                    ? `guest account`
                     : `wallet ${getShortenAddress(desireAccount ?? '')}`
                 }`,
         },
@@ -105,7 +105,7 @@ const useLogin = (autoLogin = false) => {
   )
 
   const signInAnonymous = useCallback(
-    async (guestAccountParam?: string) => {
+    async (guestAccountParam?: string, showSuccessMsg = true) => {
       let userInfo
       const guestAccount = guestAccountParam || KEY_GUEST_DEFAULT
       try {
@@ -118,7 +118,7 @@ const useLogin = (autoLogin = false) => {
       } finally {
         setLoading(false)
         await getProfile({ walletAddress: account, isAnonymous: true, account: guestAccount, session: userInfo })
-        showSignInSuccess(guestAccount, true)
+        showSuccessMsg && showSignInSuccess(guestAccount, true)
       }
     },
     [getProfile, setLoading, account, saveSignedAccount, showSignInSuccess],
@@ -146,7 +146,7 @@ const useLogin = (autoLogin = false) => {
       } catch (error) {
         console.log('sdk get session err:', desireAccount, error.message)
         if (loginAnonymousIfFailed) {
-          await signInAnonymous()
+          await signInAnonymous(KyberOauth2.getConnectedAnonymousAccounts()[0])
         }
       } finally {
         setLoading(false)
@@ -227,7 +227,13 @@ const useLogin = (autoLogin = false) => {
       }
       KyberOauth2.removeConnectedAccount(acc)
     })
-    KyberOauth2.getConnectedAnonymousAccounts().forEach(e => KyberOauth2.removeAnonymousAccount(e))
+    const guestAccounts = KyberOauth2.getConnectedAnonymousAccounts()
+    guestAccounts.forEach(e => {
+      if (e?.toLowerCase() === signedAccount?.toLowerCase() || guestAccounts.length === 1) {
+        return
+      }
+      KyberOauth2.removeAnonymousAccount(e)
+    })
     removeAllProfile()
     if (needRedirect) {
       signOut(signedAccount)
@@ -245,19 +251,23 @@ const useLogin = (autoLogin = false) => {
 
   const signOutAnonymous = useCallback(
     (guestAccount: string | undefined) => {
-      if (!guestAccount || guestAccount === KEY_GUEST_DEFAULT) return
-      signInAnonymous()
+      if (!guestAccount || totalGuest <= 1) return
+      const { connectedAccount, connectedMethod } = getConnectedProfile()
+
       KyberOauth2.removeAnonymousAccount(guestAccount)
+      if (connectedMethod === LoginMethod.ANONYMOUS && connectedAccount === guestAccount) {
+        signInAnonymous(KyberOauth2.getConnectedAnonymousAccounts()[0])
+      }
       removeProfile(guestAccount, true)
     },
-    [signInAnonymous, removeProfile],
+    [signInAnonymous, removeProfile, totalGuest],
   )
 
   const importGuestAccount = useCallback(
     async (accountInfo: AnonymousAccount) => {
       const accountId = accountInfo.username
       KyberOauth2.importAnonymousAccount(accountInfo)
-      return signInAnonymous(accountId)
+      return signInAnonymous(accountId, false)
     },
     [signInAnonymous],
   )

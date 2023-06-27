@@ -55,10 +55,88 @@ export function useSignedAccount(): [string | undefined, (data: Param) => void] 
   return [connectedAccount || wallet, setAccount]
 }
 
+export type ConnectedProfile = {
+  active: boolean
+  address: string
+  profile: UserProfile | undefined
+  guest: boolean
+  id: string
+  default?: boolean
+}
+export const useAllProfileInfo = () => {
+  const { signedAccount } = useSignedAccountInfo()
+  const { getCacheProfile, saveCacheProfile, removeAllProfile: removeAllProfileLocal } = useCacheProfile()
+
+  const getAllProfileFromLocal = useCallback(() => {
+    const profileInfo = getProfileLocalStorage(ProfileLocalStorageKeys.PROFILE)
+    const getAccountGuest = (account: string) => ({
+      address: account === KEY_GUEST_DEFAULT ? t`Guest` : t`Imported Guest`,
+      active: account === signedAccount?.toLowerCase(),
+      id: account,
+      profile: getCacheProfile(account, true),
+      guest: true,
+      default: account === KEY_GUEST_DEFAULT,
+    })
+    const getAccountSignIn = (account: string) => ({
+      active: account === signedAccount?.toLowerCase(),
+      address: account,
+      id: account,
+      profile: getCacheProfile(account, false),
+      guest: false,
+    })
+
+    const profiles = Object.keys(profileInfo?.wallet ?? {})
+      .map(getAccountSignIn)
+      .concat(Object.keys(profileInfo?.guest ?? {}).map(getAccountGuest))
+
+    KyberOauth2.getConnectedAccounts().forEach(acc => {
+      if (profiles.some(account => account.id === acc)) return
+      profiles.push(getAccountSignIn(acc))
+    })
+    KyberOauth2.getConnectedAnonymousAccounts().forEach(acc => {
+      if (profiles.some(account => account.id === acc)) return
+      profiles.push(getAccountGuest(acc))
+    })
+
+    return profiles.sort(a => (a.active ? -1 : 1))
+  }, [getCacheProfile, signedAccount])
+
+  const [profiles, setAllProfile] = useState(getAllProfileFromLocal())
+  const profilesState = useSelector((state: AppState) => state.authen.profiles)
+
+  const refresh = useCallback(() => {
+    setAllProfile(getAllProfileFromLocal())
+  }, [getAllProfileFromLocal])
+
+  const removeProfile = useCallback(
+    (account: string | undefined, isAnonymous = false) => {
+      if (!account) return
+      saveCacheProfile({ isAnonymous, profile: undefined, id: account })
+      refresh()
+    },
+    [refresh, saveCacheProfile],
+  )
+
+  const removeAllProfile = useCallback(() => {
+    removeAllProfileLocal(signedAccount || KEY_GUEST_DEFAULT)
+    setAllProfile(getAllProfileFromLocal().filter(el => el.id !== signedAccount))
+  }, [removeAllProfileLocal, getAllProfileFromLocal, signedAccount])
+
+  const dispatch = useAppDispatch()
+  useEffect(() => {
+    dispatch(updateAllProfile(profiles))
+  }, [profiles, dispatch])
+  const totalGuest = profilesState.reduce((total, cur) => total + (cur.guest ? 1 : 0), 0)
+  return { profiles: profilesState, totalGuest, refresh, removeProfile, removeAllProfile }
+}
+
 // info relate account currently signed in
 export const useSignedAccountInfo = () => {
   const [signedAccount] = useSignedAccount()
   const { account } = useActiveWeb3React()
+
+  const profilesState = useSelector((state: AppState) => state.authen.profiles)
+  const totalGuest = profilesState.reduce((total, cur) => total + (cur.guest ? 1 : 0), 0) // todo
 
   const { connectedMethod } = getConnectedProfile()
 
@@ -79,6 +157,7 @@ export const useSignedAccountInfo = () => {
     isSignInEmail,
     isSignInEth,
     signedAccount,
+    canSignOut: !isSigInGuest || (isSigInGuest && totalGuest > 1),
   }
 }
 
@@ -146,10 +225,10 @@ export const useCacheProfile = () => {
     [],
   )
 
-  const removeAllProfile = useCallback(() => {
+  const removeAllProfile = useCallback((activeAccount: string) => {
     const profileMap = getProfileLocalStorage(ProfileLocalStorageKeys.PROFILE) || {}
     profileMap.wallet = {}
-    profileMap.guest = { [KEY_GUEST_DEFAULT]: profileMap.guest[KEY_GUEST_DEFAULT] }
+    profileMap.guest = { [activeAccount]: profileMap.guest[activeAccount] }
     setProfileLocalStorage(ProfileLocalStorageKeys.PROFILE, profileMap)
   }, [])
 
@@ -175,89 +254,6 @@ export const useRefreshProfile = () => {
     const profile = await getProfile().unwrap()
     setProfile({ profile, isAnonymous: !isLogin, account: signedAccount })
   }, [getProfile, setProfile, signedAccount, isLogin])
-}
-
-export type ConnectedProfile = {
-  active: boolean
-  address: string
-  profile: UserProfile | undefined
-  guest: boolean
-  id: string
-  default?: boolean
-}
-export const useAllProfileInfo = () => {
-  const { signedAccount } = useSignedAccountInfo()
-  const { getCacheProfile, saveCacheProfile, removeAllProfile: removeAllProfileLocal } = useCacheProfile()
-
-  const getAllProfileFromLocal = useCallback(() => {
-    const profileInfo = getProfileLocalStorage(ProfileLocalStorageKeys.PROFILE)
-    const getAccountGuest = (account: string) => ({
-      address: account === KEY_GUEST_DEFAULT ? t`Guest` : account,
-      active: account === signedAccount?.toLowerCase(),
-      id: account,
-      profile: getCacheProfile(account, true),
-      guest: true,
-      default: account === KEY_GUEST_DEFAULT,
-    })
-    const getAccountSignIn = (account: string) => ({
-      active: account === signedAccount?.toLowerCase(),
-      address: account,
-      id: account,
-      profile: getCacheProfile(account, false),
-      guest: false,
-    })
-
-    const profiles = Object.keys(profileInfo?.wallet ?? {})
-      .map(getAccountSignIn)
-      .concat(Object.keys(profileInfo?.guest ?? {}).map(getAccountGuest))
-
-    KyberOauth2.getConnectedAccounts().forEach(acc => {
-      if (profiles.some(account => account.id === acc)) return
-      profiles.push(getAccountSignIn(acc))
-    })
-    KyberOauth2.getConnectedAnonymousAccounts().forEach(acc => {
-      if (profiles.some(account => account.id === acc)) return
-      profiles.push(getAccountGuest(acc))
-    })
-
-    return profiles.sort(a => (a.active ? -1 : 1))
-  }, [getCacheProfile, signedAccount])
-
-  const [profiles, setAllProfile] = useState(getAllProfileFromLocal())
-  const profilesState = useSelector((state: AppState) => state.authen.profiles)
-
-  const refresh = useCallback(() => {
-    setAllProfile(getAllProfileFromLocal())
-  }, [getAllProfileFromLocal])
-
-  const removeProfile = useCallback(
-    (account: string | undefined, isAnonymous = false) => {
-      if (!account) return
-      saveCacheProfile({ isAnonymous, profile: undefined, id: account })
-      refresh()
-    },
-    [refresh, saveCacheProfile],
-  )
-
-  const removeAllProfile = useCallback(() => {
-    removeAllProfileLocal()
-    setAllProfile([
-      {
-        address: t`Guest`,
-        active: true,
-        id: KEY_GUEST_DEFAULT,
-        profile: getCacheProfile(KEY_GUEST_DEFAULT, true),
-        guest: true,
-      },
-    ])
-  }, [removeAllProfileLocal, getCacheProfile])
-
-  const dispatch = useAppDispatch()
-  useEffect(() => {
-    dispatch(updateAllProfile(profiles))
-  }, [profiles, dispatch])
-
-  return { profiles: profilesState, refresh, removeProfile, removeAllProfile }
 }
 
 export const useSetPendingAuthentication = () => {

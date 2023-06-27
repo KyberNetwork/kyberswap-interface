@@ -12,6 +12,7 @@ const shareButtonStyle = css`
   `}
 `
 export const ButtonLogout = styled(ButtonOutlined)`
+  white-space: nowrap;
   ${shareButtonStyle}
 `
 export const ButtonSave = styled(ButtonPrimary)`

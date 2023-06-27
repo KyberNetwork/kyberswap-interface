@@ -125,20 +125,20 @@ const menuItems: MenuItemType[] = [
 type PropsMenu = { unread: Unread; onChildrenClick?: () => void; toggleImportProfile: () => void }
 
 const MenuForDesktop = ({ unread, onChildrenClick, toggleImportProfile }: PropsMenu) => {
-  const { isSigInGuest, isSignInGuestDefault, signedAccount } = useSignedAccountInfo()
+  const { isSigInGuest, signedAccount, isSignInGuestDefault } = useSignedAccountInfo()
   const { profile } = useCacheProfile()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   const menuItemDeskTop = useMemo(() => {
     return menuItems.map(el => {
       if (el.route !== PROFILE_MANAGE_ROUTES.PROFILE) return el
-      const guestText = isSignInGuestDefault ? t`Guest` : t`Imported`
+      const guestText = isSignInGuestDefault ? t`Guest` : t`Imported Guest`
       const childs: MenuItemType[] = [
         isSigInGuest
           ? {
               route: PROFILE_MANAGE_ROUTES.PROFILE,
               icon: <Avatar url={profile?.avatarUrl} size={16} />,
-              title: profile?.nickname ? `${shortString(profile?.nickname, 20)} (${guestText})` : guestText,
+              title: profile?.nickname ? `${shortString(profile?.nickname, 20)}` : guestText,
             }
           : {
               route: PROFILE_MANAGE_ROUTES.PROFILE,
@@ -154,7 +154,7 @@ const MenuForDesktop = ({ unread, onChildrenClick, toggleImportProfile }: PropsM
       })
       return { ...el, childs }
     })
-  }, [signedAccount, isSigInGuest, profile, isSignInGuestDefault, toggleImportProfile])
+  }, [signedAccount, isSigInGuest, profile, toggleImportProfile, isSignInGuestDefault])
 
   return (
     <Flex sx={{ flexDirection: 'column', padding: upToMedium ? '0px' : '24px' }}>

@@ -19,7 +19,7 @@ import useTheme from 'hooks/useTheme'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
-import { ConnectedProfile, KEY_GUEST_DEFAULT, useAllProfileInfo } from 'state/authen/hooks'
+import { ConnectedProfile, useAllProfileInfo } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
 import { isEmailValid, shortString } from 'utils/string'
@@ -118,11 +118,13 @@ const ProfileItemWrapper = styled(RowBetween)<{ active: boolean }>`
 `
 
 const ProfileItem = ({
-  data: { active, guest, address: account, profile, id, default: guestDefault },
+  data: { active, guest, address: account, profile, id },
   refreshProfile,
+  totalGuest,
 }: {
   data: ConnectedProfile
   refreshProfile: () => void
+  totalGuest: number
 }) => {
   const theme = useTheme()
   const navigate = useNavigate()
@@ -140,7 +142,7 @@ const ProfileItem = ({
   }
 
   const signOutBtn =
-    !active && !guestDefault ? (
+    !active && totalGuest > 1 ? (
       <LogOut
         style={{ marginRight: active || upToMedium ? 0 : '10px' }}
         color={active ? theme.text : theme.subText}
@@ -206,18 +208,19 @@ const ProfileItem = ({
 }
 const ProfileContent = ({ scroll }: { scroll?: boolean }) => {
   const { signIn, signOutAll } = useLogin()
-  const { profiles, refresh } = useAllProfileInfo()
+  const { profiles, refresh, totalGuest } = useAllProfileInfo()
 
-  const totalSignedAccount = profiles.filter(e => e.id !== KEY_GUEST_DEFAULT).length
-  const listNotActive = profiles.slice(1)
   if (!profiles.length) return null
+  const listNotActive = profiles.slice(1)
+  const totalAccount = profiles.length
+
   return (
     <ContentWrapper>
       <Column>
-        <ProfileItem data={profiles[0]} refreshProfile={refresh} />
+        <ProfileItem data={profiles[0]} refreshProfile={refresh} totalGuest={totalGuest} />
         <ListProfile hasData={!!listNotActive.length} scroll={scroll}>
           {listNotActive.map(data => (
-            <ProfileItem key={data.address} data={data} refreshProfile={refresh} />
+            <ProfileItem key={data.address} data={data} refreshProfile={refresh} totalGuest={totalGuest} />
           ))}
         </ListProfile>
       </Column>
@@ -225,7 +228,7 @@ const ProfileContent = ({ scroll }: { scroll?: boolean }) => {
         <ActionItem onClick={() => signIn()}>
           <UserPlus size={18} /> <Trans>Add Account</Trans>
         </ActionItem>
-        {totalSignedAccount > 0 && (
+        {totalAccount > 1 && (
           <ActionItem onClick={signOutAll}>
             <LogOut size={18} /> <Trans>Sign out of all accounts</Trans>
           </ActionItem>

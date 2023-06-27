@@ -87,6 +87,7 @@ const ActionsWrapper = styled.div`
   gap: 20px;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     justify-content: space-between;
+    gap: 12px;
   `}
 `
 
@@ -99,7 +100,7 @@ export default function Profile() {
   const [nickname, setNickName] = useState('')
   const { signOut } = useLogin()
   const navigate = useNavigate()
-  const { isSignInEmail, isSignInEth, signedAccount, isSignInGuestDefault, isSigInGuest } = useSignedAccountInfo()
+  const { isSignInEmail, isSignInEth, signedAccount, isSigInGuest, canSignOut } = useSignedAccountInfo()
 
   const [file, setFile] = useState<File>()
   const [previewImage, setPreviewImage] = useState<string>()
@@ -249,7 +250,8 @@ export default function Profile() {
               <Save size={16} style={{ marginRight: '4px' }} />
               {loading ? <Trans>Saving...</Trans> : <Trans>Save</Trans>}
             </ButtonSave>
-            {!isSignInGuestDefault ? (
+            {isSigInGuest && <ExportAccountButton />}
+            {canSignOut && (
               <ButtonLogout
                 onClick={() => {
                   signOut(signedAccount, isSigInGuest)
@@ -259,8 +261,6 @@ export default function Profile() {
                 <LogOut size={16} style={{ marginRight: '4px' }} />
                 Sign Out
               </ButtonLogout>
-            ) : (
-              <ExportAccountButton />
             )}
           </ActionsWrapper>
         </LeftColum>
