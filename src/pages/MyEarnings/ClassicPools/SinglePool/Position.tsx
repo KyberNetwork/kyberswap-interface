@@ -11,12 +11,14 @@ import { ReactComponent as BarChart } from 'assets/svg/barchart.svg'
 import { ButtonLight } from 'components/Button'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
+import { useTotalSupplyV2 } from 'data/TotalSupply'
 import useTheme from 'hooks/useTheme'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { ActionButton } from 'pages/MyEarnings/ActionButton'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { UserLiquidityPosition } from 'state/pools/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { getMyLiquidity } from 'utils/dmm'
 
@@ -136,6 +138,7 @@ const Position: React.FC<Props> = ({ chainId, userLiquidity, currency0, currency
   const theme = useTheme()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const networkInfo = NETWORKS_INFO[chainId]
+  const totalSupply = useTotalSupplyV2(chainId, poolAddress)
 
   const myLiquidityBalance = userLiquidity ? getMyLiquidity(userLiquidity, '0') : '--'
   const { decimals, value: rawBalance } = useTokenBalance(poolAddress, chainId)
@@ -225,9 +228,9 @@ const Position: React.FC<Props> = ({ chainId, userLiquidity, currency0, currency
     >
       <Column label={t`My Liquidity Balance`} value={myLiquidityBalance} />
 
-      <Column label={t`Total LP Tokens`} value={balance} />
+      <Column label={t`Total LP Tokens`} value={balance.toFixed(8) || formattedNum(balance.toFixed(8), false, 6)} />
 
-      <Column label={t`Share of Pool`} value={formatPercent('1.23')} />
+      <Column label={t`Share of Pool`} value={totalSupply ? ((balance / totalSupply) * 100).toFixed(2) + '%' : '--'} />
 
       <Column label={t`My Staked Balance`} value={formatValue('123456')} />
 
