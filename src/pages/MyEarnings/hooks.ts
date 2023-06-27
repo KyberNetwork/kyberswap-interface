@@ -1,13 +1,11 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import { useEffect, useMemo, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 
 import { POOLS_BULK_WITH_PAGINATION, POOLS_HISTORICAL_BULK_WITH_PAGINATION, POOL_COUNT } from 'apollo/queries'
 import { NETWORKS_INFO, ONLY_DYNAMIC_FEE_CHAINS, isEVM as isEVMChain } from 'constants/networks'
-import { useETHPrice, useKyberSwapConfig } from 'state/application/hooks'
-import { AppState } from 'state/index'
-import { setError, setLoading, updatePools } from 'state/pools/actions'
+import { useKyberSwapConfig } from 'state/application/hooks'
+import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 import { get24hValue, getBlocksFromTimestamps, getPercentChange, getTimestampsForChanges } from 'utils'
 
 export type ClassicPoolData = {
@@ -177,20 +175,19 @@ function usePoolCountInSubgraph(chainId: ChainId): number {
 }
 
 export function useAllPoolsData(chainId: ChainId): {
-  loading: AppState['pools']['loading']
-  error: AppState['pools']['error']
-  data: AppState['pools']['pools']
+  isLoading: boolean
+  error: Error | undefined
+  data: ClassicPoolData[]
 } {
-  const dispatch = useDispatch()
-  // const { chainId, isEVM, networkInfo } = useActiveWeb3React()
-  const networkInfo = NETWORKS_INFO[chainId]
+  const [isLoading, setLoading] = useState(false)
+  const [error, setError] = useState<Error | undefined>(undefined)
+  const [data, setData] = useState<ClassicPoolData[]>([])
+
+  const wrappedNativeTokenAddress = WETH[chainId].wrapped.address
   const isEVM = isEVMChain(chainId)
 
-  const poolsData = useSelector((state: AppState) => state.pools.pools)
-  const loading = useSelector((state: AppState) => state.pools.loading)
-  const error = useSelector((state: AppState) => state.pools.error)
-
-  const { currentPrice: ethPrice } = useETHPrice()
+  const { data: tokenPrices } = useTokenPricesWithLoading([wrappedNativeTokenAddress], chainId)
+  const ethPrice = tokenPrices?.[wrappedNativeTokenAddress]
   const { classicClient, blockClient, isEnableBlockService } = useKyberSwapConfig(chainId)
 
   const poolCountSubgraph = usePoolCountInSubgraph(chainId)
@@ -200,8 +197,8 @@ export function useAllPoolsData(chainId: ChainId): {
 
     const getPoolsData = async () => {
       try {
-        if (poolCountSubgraph > 0 && poolsData.length === 0 && !error && ethPrice) {
-          dispatch(setLoading(true))
+        if (poolCountSubgraph > 0 && data.length === 0 && !error && ethPrice) {
+          setLoading(true)
           const ITEM_PER_CHUNK = Math.min(1000, poolCountSubgraph) // GraphNode can handle max 1000 records per query.
           const promises = []
           for (let i = 0, j = poolCountSubgraph; i < j; i += ITEM_PER_CHUNK) {
@@ -212,18 +209,18 @@ export function useAllPoolsData(chainId: ChainId): {
                 i,
                 classicClient,
                 blockClient,
-                ethPrice,
+                String(ethPrice),
                 chainId,
               ),
             )
           }
           const pools = (await Promise.all(promises.map(callback => callback()))).flat()
-          !cancelled && dispatch(updatePools({ pools }))
-          !cancelled && dispatch(setLoading(false))
+          !cancelled && setData(pools)
+          !cancelled && setLoading(false)
         }
       } catch (error) {
-        !cancelled && dispatch(setError(error as Error))
-        !cancelled && dispatch(setLoading(false))
+        !cancelled && setError(error as Error)
+        !cancelled && setLoading(false)
       }
     }
 
@@ -233,18 +230,16 @@ export function useAllPoolsData(chainId: ChainId): {
       cancelled = true
     }
   }, [
+    blockClient,
     chainId,
-    dispatch,
+    classicClient,
+    data?.length,
     error,
     ethPrice,
-    poolCountSubgraph,
-    poolsData.length,
     isEVM,
-    networkInfo,
-    classicClient,
-    blockClient,
     isEnableBlockService,
+    poolCountSubgraph,
   ])
 
-  return useMemo(() => ({ loading, error, data: poolsData }), [error, loading, poolsData])
+  return useMemo(() => ({ isLoading, error, data }), [data, error, isLoading])
 }

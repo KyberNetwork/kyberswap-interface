@@ -1,4 +1,5 @@
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { JSBI } from '@kyberswap/ks-sdk-classic'
+import { ChainId, Currency, Fraction } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { Copy, Minus, Plus } from 'react-feather'
 import { Link } from 'react-router-dom'
@@ -11,6 +12,7 @@ import { ButtonLight } from 'components/Button'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
+import useTokenBalance from 'hooks/useTokenBalance'
 import { ActionButton } from 'pages/MyEarnings/ActionButton'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { UserLiquidityPosition } from 'state/pools/hooks'
@@ -22,7 +24,7 @@ const CustomActionButton = styled(ActionButton)`
   flex: 1;
 `
 
-const formatValue = (value: string | number) => {
+const formatValue = (value: string | number, usd?: boolean) => {
   const num = Number(value)
 
   if (!Number.isFinite(num)) {
@@ -135,7 +137,11 @@ const Position: React.FC<Props> = ({ chainId, userLiquidity, currency0, currency
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const networkInfo = NETWORKS_INFO[chainId]
 
-  const myLiquidityBalance = userLiquidity ? getMyLiquidity(userLiquidity) : '--'
+  const myLiquidityBalance = userLiquidity ? getMyLiquidity(userLiquidity, '0') : '--'
+  const { decimals, value: rawBalance } = useTokenBalance(poolAddress, chainId)
+  const balance = Number(
+    new Fraction(rawBalance.toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals))).toFixed(8),
+  )
 
   // TODO: check native currencies
   const currency0Slug = ''
@@ -219,7 +225,7 @@ const Position: React.FC<Props> = ({ chainId, userLiquidity, currency0, currency
     >
       <Column label={t`My Liquidity Balance`} value={myLiquidityBalance} />
 
-      <Column label={t`Total LP Tokens`} value={formatValue('12345')} />
+      <Column label={t`Total LP Tokens`} value={balance} />
 
       <Column label={t`Share of Pool`} value={formatPercent('1.23')} />
 
