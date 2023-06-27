@@ -340,9 +340,8 @@ const ListItem = ({ farm }: ListItemProps) => {
                     backgroundColor: theme.blue + '20',
                     color: theme.blue,
                     borderRadius: '16px',
-                    padding: '2px 4px',
+                    padding: '2px 8px',
                     whiteSpace: 'nowrap',
-                    flex: '0 0 71px',
                   }}
                 >
                   AMP = {amp}

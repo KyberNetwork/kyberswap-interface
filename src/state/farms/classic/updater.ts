@@ -90,6 +90,7 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
             ...poolInfo,
             pid,
             fairLaunchVersion: FairLaunchVersion.V1,
+            rewardTokens,
           }
         }),
       )

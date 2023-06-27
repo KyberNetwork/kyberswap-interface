@@ -91,16 +91,9 @@ export function useMultipleContracts(
   const { readProvider } = useKyberSwapConfig()
 
   return useMemo(() => {
-    if (
-      !isEVM ||
-      !addresses ||
-      !Array.isArray(addresses) ||
-      addresses.length === 0 ||
-      !ABI ||
-      !library ||
-      !readProvider
-    )
-      return null
+    const lib = withSignerIfPossible ? library : readProvider
+
+    if (!isEVM || !addresses || !Array.isArray(addresses) || addresses.length === 0 || !ABI || !lib) return null
 
     const result: {
       [key: string]: Contract
@@ -110,8 +103,8 @@ export function useMultipleContracts(
       addresses.forEach(address => {
         if (address) {
           result[address] = withSignerIfPossible
-            ? getContract(address, ABI, library, withSignerIfPossible && account ? account : undefined)
-            : getContractForReading(address, ABI, readProvider)
+            ? getContract(address, ABI, lib as any, withSignerIfPossible && account ? account : undefined)
+            : getContractForReading(address, ABI, lib)
         }
       })
 
