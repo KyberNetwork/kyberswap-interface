@@ -21,6 +21,7 @@ import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import { MouseoverTooltip } from 'components/Tooltip'
 import WarningNote from 'components/WarningNote'
 import { Dots } from 'components/swapv2/styleds'
+import { CHAINS_BYPASS_PRICE_IMPACT } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -79,7 +80,7 @@ export default function ConfirmSwapModalContent({
   onSwap,
 }: Props) {
   const theme = useTheme()
-  const { isSolana } = useActiveWeb3React()
+  const { isSolana, chainId } = useActiveWeb3React()
   const [encodeSolana] = useEncodeSolana()
   const { routeSummary, slippage, isStablePairSwap, isAdvancedMode } = useSwapFormContext()
   const [hasAcceptedNewAmount, setHasAcceptedNewAmount] = useState(false)
@@ -217,7 +218,9 @@ export default function ConfirmSwapModalContent({
   const warningStyle =
     priceImpactResult.isVeryHigh || priceImpactResult.isInvalid ? { background: theme.red } : undefined
 
-  const disableByPriceImpact = !isAdvancedMode && (priceImpactResult.isVeryHigh || priceImpactResult.isInvalid)
+  const disableByPriceImpact = CHAINS_BYPASS_PRICE_IMPACT.includes(chainId)
+    ? false
+    : !isAdvancedMode && (priceImpactResult.isVeryHigh || priceImpactResult.isInvalid)
   const isShowAcceptNewAmount =
     outputChangePercent < SHOW_ACCEPT_NEW_AMOUNT_THRESHOLD || (isStablePairSwap && outputChangePercent < 0)
   const disableSwap =
