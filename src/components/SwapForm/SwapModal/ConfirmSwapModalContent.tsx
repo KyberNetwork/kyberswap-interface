@@ -21,7 +21,6 @@ import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import { MouseoverTooltip } from 'components/Tooltip'
 import WarningNote from 'components/WarningNote'
 import { Dots } from 'components/swapv2/styleds'
-import { CHAINS_BYPASS_PRICE_IMPACT } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -29,6 +28,7 @@ import { useEncodeSolana } from 'state/swap/hooks'
 import { useDegenModeManager } from 'state/user/hooks'
 import { CloseIcon } from 'theme/components'
 import { minimumAmountAfterSlippage, toCurrencyAmount } from 'utils/currencyAmount'
+import { checkShouldDisableByPriceImpact } from 'utils/priceImpact'
 import { checkPriceImpact } from 'utils/prices'
 
 import SwapBrief from './SwapBrief'
@@ -218,13 +218,12 @@ export default function ConfirmSwapModalContent({
   const warningStyle =
     priceImpactResult.isVeryHigh || priceImpactResult.isInvalid ? { background: theme.red } : undefined
 
-  const disableByPriceImpact = CHAINS_BYPASS_PRICE_IMPACT.includes(chainId)
-    ? false
-    : !isAdvancedMode && (priceImpactResult.isVeryHigh || priceImpactResult.isInvalid)
+  const shouldDisableByPriceImpact = checkShouldDisableByPriceImpact(chainId, isAdvancedMode, priceImpactFromBuild)
+
   const isShowAcceptNewAmount =
     outputChangePercent < SHOW_ACCEPT_NEW_AMOUNT_THRESHOLD || (isStablePairSwap && outputChangePercent < 0)
   const disableSwap =
-    (isShowAcceptNewAmount && !hasAcceptedNewAmount) || shouldDisableConfirmButton || disableByPriceImpact
+    (isShowAcceptNewAmount && !hasAcceptedNewAmount) || shouldDisableConfirmButton || shouldDisableByPriceImpact
 
   const { mixpanelHandler } = useMixpanel()
 
@@ -360,7 +359,7 @@ export default function ConfirmSwapModalContent({
                   </Text>
                 ) : disableSwap ? (
                   <>
-                    {disableByPriceImpact && (
+                    {shouldDisableByPriceImpact && (
                       <MouseoverTooltip
                         text={
                           <Trans>
@@ -373,7 +372,7 @@ export default function ConfirmSwapModalContent({
                       </MouseoverTooltip>
                     )}
                     <Text>
-                      <Trans>{disableByPriceImpact ? 'Swap Disabled' : 'Confirm Swap'}</Trans>
+                      <Trans>{shouldDisableByPriceImpact ? 'Swap Disabled' : 'Confirm Swap'}</Trans>
                     </Text>
                   </>
                 ) : (
