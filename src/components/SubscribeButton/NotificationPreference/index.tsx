@@ -13,7 +13,6 @@ import ActionButtons from 'components/SubscribeButton/NotificationPreference/Act
 import Header from 'components/SubscribeButton/NotificationPreference/Header'
 import InputEmail from 'components/SubscribeButton/NotificationPreference/InputEmail'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useNotification, { Topic, TopicType } from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
@@ -149,7 +148,6 @@ function NotificationPreference({
   toggleModal?: () => void
 }) {
   const theme = useTheme()
-  const { account } = useActiveWeb3React()
   const {
     isLoading,
     saveNotification,
@@ -316,7 +314,7 @@ function NotificationPreference({
     return !getDiffChangeTopics(topicGroups).hasChanged
   }, [getDiffChangeTopics, isLoading, notFillEmail, topicGroups, hasErrorInput, needVerifyEmail])
 
-  const disableCheckbox = needVerifyEmail || !account || notFillEmail || hasErrorInput
+  const disableCheckbox = needVerifyEmail || notFillEmail || hasErrorInput
 
   const subscribeAtLeast1Topic = topicGroupsGlobal.some(e => e.isSubscribed)
   const onUnsubscribeAll = () => {

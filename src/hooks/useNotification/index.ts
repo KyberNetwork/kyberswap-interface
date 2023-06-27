@@ -64,9 +64,9 @@ const useNotification = () => {
 
   const refreshTopics = useCallback(() => {
     try {
-      account && refetch()
+      refetch() // todo use invalidate tag
     } catch (error) {}
-  }, [refetch, account])
+  }, [refetch])
 
   useEffect(() => {
     refreshTopics()
