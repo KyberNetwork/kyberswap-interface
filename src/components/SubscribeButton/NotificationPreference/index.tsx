@@ -411,7 +411,14 @@ function NotificationPreference({
         {renderTableHeader()}
         <ListGroupWrapper>
           <GroupColum>
-            {commons.map(topic => renderTopic(topic, topic.isPriceAlert ? false : disableCheckbox))}
+            {commons.map(topic => {
+              const isDisabled = topic.isPriceAlert ? false : disableCheckbox
+              return renderTopic(
+                topic,
+                isDisabled,
+                isDisabled ? t`You must connect wallet and fill an email first` : '',
+              )
+            })}
           </GroupColum>
           <GroupColum>
             {restrict.map(topic => {
@@ -421,7 +428,7 @@ function NotificationPreference({
                 (() => (topic.isKyberAI ? disableKyberAI : disableCheckbox || !isLogin))(),
                 topic.isKyberAI && disableKyberAI
                   ? t`You must be whitelisted to subscribe/unsubscribe this topic`
-                  : t`These topics can only be subscribed by a signed-in profile. Go to Profile tab to sign-in with your wallet
+                  : t`These notifications can only be subscribed by a signed-in profile. Go to Profile tab to sign-in with your wallet
                 `,
               )
             })}
