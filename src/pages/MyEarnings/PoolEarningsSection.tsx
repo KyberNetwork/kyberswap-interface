@@ -13,8 +13,8 @@ import { MEDIA_WIDTHS } from 'theme'
 import { EarningStatsTick, EarningsBreakdown } from 'types/myEarnings'
 import { isAddress } from 'utils'
 
-import OriginalEarningsBreakdownPanel from '../../EarningsBreakdownPanel'
-import OriginalMyEarningsOverTimePanel from '../../MyEarningsOverTimePanel'
+import OriginalEarningsBreakdownPanel from './EarningsBreakdownPanel'
+import OriginalMyEarningsOverTimePanel from './MyEarningsOverTimePanel'
 
 const VerticalSeparator = () => {
   const theme = useTheme()
@@ -124,13 +124,17 @@ const PoolEarningsSection: React.FC<Props> = ({ historicalEarning, chainId }) =>
 
     const totalValueOfOthers = latestData.slice(9).reduce((acc, data) => acc + data.amountUSD, 0)
 
+    const isAllZero = latestData.every(data => data.amountUSD === 0)
+
+    const visibleItems = latestData.length <= 10 ? latestData.length : 10
+
     const breakdowns: EarningsBreakdown['breakdowns'] =
       latestData.length <= 10
         ? latestData.map(data => ({
             logoUrl: data.logoUrl,
             symbol: data.symbol,
             value: String(data.amountUSD),
-            percent: (data.amountUSD / totalValue) * 100,
+            percent: isAllZero ? (1 / visibleItems) * 100 : (data.amountUSD / totalValue) * 100,
           }))
         : [
             ...latestData.slice(0, 9).map(data => ({
@@ -142,7 +146,7 @@ const PoolEarningsSection: React.FC<Props> = ({ historicalEarning, chainId }) =>
             {
               symbol: t`Others`,
               value: String(totalValueOfOthers),
-              percent: (totalValueOfOthers / totalValue) * 100,
+              percent: isAllZero ? (1 / visibleItems) * 100 : (totalValueOfOthers / totalValue) * 100,
             },
           ]
 
