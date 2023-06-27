@@ -2,13 +2,11 @@ import { Trans } from '@lingui/macro'
 import { Save } from 'react-feather'
 import styled, { css } from 'styled-components'
 
-import { ButtonConfirmed, ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { XCircle } from 'components/Icons'
 import Loader from 'components/Loader'
 import Row from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { useActiveWeb3React } from 'hooks'
-import { useWalletModalToggle } from 'state/application/hooks'
 
 const ButtonText = styled.div`
   font-size: 14px;
@@ -60,47 +58,34 @@ export default function ActionButtons({
   onUnsubscribeAll: () => void
   tooltipSave: string
 }) {
-  const { account } = useActiveWeb3React()
-  const toggleWalletModal = useWalletModalToggle()
-
   return (
     <ActionWrapper>
-      {!account ? (
-        <ButtonConfirmed confirmed onClick={toggleWalletModal}>
-          <ButtonText>
-            <Trans>Connect Wallet</Trans>
-          </ButtonText>
-        </ButtonConfirmed>
-      ) : (
-        <>
-          <ButtonUnSub onClick={onUnsubscribeAll} disabled={!subscribeAtLeast1Topic}>
-            <XCircle size={'14px'} />
-            &nbsp;
-            <Trans>Opt-out</Trans>
-          </ButtonUnSub>
+      <ButtonUnSub onClick={onUnsubscribeAll} disabled={!subscribeAtLeast1Topic}>
+        <XCircle size={'14px'} />
+        &nbsp;
+        <Trans>Opt-out</Trans>
+      </ButtonUnSub>
 
-          <ButtonSave disabled={disableButtonSave} onClick={onSave}>
-            <Save size={14} />
-            &nbsp;
-            <MouseoverTooltip text={tooltipSave}>
-              <ButtonText>
-                {(() => {
-                  if (isLoading) {
-                    return (
-                      <Row>
-                        <Loader />
-                        &nbsp;
-                        <Trans>Saving ...</Trans>
-                      </Row>
-                    )
-                  }
-                  return <Trans>Save</Trans>
-                })()}
-              </ButtonText>
-            </MouseoverTooltip>
-          </ButtonSave>
-        </>
-      )}
+      <ButtonSave disabled={disableButtonSave} onClick={onSave}>
+        <Save size={14} />
+        &nbsp;
+        <MouseoverTooltip text={tooltipSave}>
+          <ButtonText>
+            {(() => {
+              if (isLoading) {
+                return (
+                  <Row>
+                    <Loader />
+                    &nbsp;
+                    <Trans>Saving ...</Trans>
+                  </Row>
+                )
+              }
+              return <Trans>Save</Trans>
+            })()}
+          </ButtonText>
+        </MouseoverTooltip>
+      </ButtonSave>
     </ActionWrapper>
   )
 }
