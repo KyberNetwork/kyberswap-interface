@@ -21,8 +21,6 @@ import { formattedNum } from 'utils'
 import { isTokenNative } from 'utils/tokenInfo'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
-import { getFullDisplayBalance } from './formatBalance'
-
 export function priceRangeCalc(
   price?: Price<Currency, Currency> | Fraction,
   amp?: Fraction,
@@ -484,14 +482,14 @@ export function useFarmRewardsUSD(rewards?: Reward[]): number {
     return 0
   }
 
-  const rewardUSD = rewards.reduce((total, reward, index) => {
+  const rewardUSD = rewards.reduce((total, reward) => {
     if (!reward || !reward.amount || !reward.token) {
       return total
     }
 
-    if (chainId && tokenPrices[index]) {
+    if (chainId && tokenPrices[reward.token.wrapped.address]) {
       total +=
-        parseFloat(getFullDisplayBalance(reward.amount, reward.token.decimals)) *
+        +CurrencyAmount.fromRawAmount(reward.token, reward.amount.toString()).toExact() *
         tokenPrices[reward.token.wrapped.address]
     }
 
