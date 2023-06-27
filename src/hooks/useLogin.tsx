@@ -196,6 +196,17 @@ const useLogin = (autoLogin = false) => {
     [account, checkSessionSignIn, toggleWalletModal, showConfirm],
   )
 
+  const showSignOutSuccess = useCallback(() => {
+    notify(
+      {
+        type: NotificationType.SUCCESS,
+        title: t`Signed out successfully`,
+        summary: t`You had successfully signed out`,
+      },
+      10_000,
+    )
+  }, [notify])
+
   const signOut = useCallback(
     (desireAccount?: string) => {
       if (!desireAccount || desireAccount?.toLowerCase() === signedAccount?.toLowerCase()) {
@@ -205,17 +216,10 @@ const useLogin = (autoLogin = false) => {
         return
       }
       KyberOauth2.removeConnectedAccount(desireAccount)
-      notify(
-        {
-          type: NotificationType.SUCCESS,
-          title: t`Signed out successfully`,
-          summary: t`You had successfully signed out`,
-        },
-        10_000,
-      )
+      showSignOutSuccess()
       removeProfile(desireAccount)
     },
-    [signedAccount, notify, removeProfile],
+    [signedAccount, showSignOutSuccess, removeProfile],
   )
 
   const signOutAll = useCallback(() => {
@@ -259,8 +263,9 @@ const useLogin = (autoLogin = false) => {
         signInAnonymous(KyberOauth2.getConnectedAnonymousAccounts()[0])
       }
       removeProfile(guestAccount, true)
+      showSignOutSuccess()
     },
-    [signInAnonymous, removeProfile, totalGuest],
+    [signInAnonymous, removeProfile, totalGuest, showSignOutSuccess],
   )
 
   const importGuestAccount = useCallback(
