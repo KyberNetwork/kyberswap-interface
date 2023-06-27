@@ -15,8 +15,10 @@ import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
 import Toggle from 'components/Toggle'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { PRICE_ALERT_TOPIC_ID } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
+import useNotification from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
 import {
   ConfirmAlertModalData,
@@ -90,12 +92,14 @@ export default function ConfirmModal({
 
   const selectChain = Number(chainId) as ChainId
   const [enablePriceAlert] = useUpdatePriceAlertMutation()
+  const { subscribeOne } = useNotification()
   const isLoading = useRef(false)
   const toggleEnable = async () => {
     try {
       if (!id || isLoading.current || !canUpdateEnable) return
       isLoading.current = true
       const { error }: any = await enablePriceAlert({ id, isEnabled: !isEnabled })
+      if (!isEnabled) subscribeOne(+PRICE_ALERT_TOPIC_ID)
       if (error) throw error
       setEnable(v => !v)
     } catch (error) {
