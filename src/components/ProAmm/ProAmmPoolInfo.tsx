@@ -92,10 +92,11 @@ export default function ProAmmPoolInfo({
               <Text
                 fontSize="16px"
                 fontWeight="500"
+                maxWidth="fit-content"
                 flex={1}
                 sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
               >
-                {token0Shown.symbol} - st{token1Shown.symbol}
+                {token0Shown.symbol} - {token1Shown.symbol}
               </Text>
               <FeeTag>FEE {(position?.pool.fee * 100) / ELASTIC_BASE_FEE_UNIT}% </FeeTag>
             </Flex>

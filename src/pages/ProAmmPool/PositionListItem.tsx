@@ -157,7 +157,6 @@ function PositionListItem({
     liquidity,
     tickLower,
     tickUpper,
-    stakedLiquidity,
   } = positionDetails
 
   const { farms } = useElasticFarms()
@@ -302,9 +301,6 @@ function PositionListItem({
   const reasonToDisableRemoveLiquidity = (() => {
     if (removed) {
       return t`You have zero liquidity to remove`
-    }
-    if (stakedLiquidity) {
-      return t`You need to withdraw your deposited liquidity position from the farms first`
     }
     return ''
   })()
