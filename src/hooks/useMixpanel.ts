@@ -32,6 +32,7 @@ import { useIsWhiteListKyberAI, useUserSlippageTolerance } from 'state/user/hook
 export enum MIXPANEL_TYPE {
   PAGE_VIEWED,
   WALLET_CONNECTED,
+  WALLET_CONNECT_CLICK,
   SWAP_INITIATED,
   SWAP_CONFIRMED,
   SWAP_COMPLETED,
@@ -298,6 +299,10 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
         case MIXPANEL_TYPE.PAGE_VIEWED: {
           const { page } = payload
           page && mixpanel.track(page + ' Page Viewed')
+          break
+        }
+        case MIXPANEL_TYPE.WALLET_CONNECT_CLICK: {
+          mixpanel.track('Wallet Connected Button Click')
           break
         }
       }
