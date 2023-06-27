@@ -157,7 +157,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const [removeLiquidityError, setRemoveLiquidityError] = useState<string>('')
 
   const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId.toNumber()]).result?.[0]
-  const isFarmV2 = (networkInfo as EVMNetworkInfo).elastic.farmV2Contract?.toLowerCase() === owner.toLowerCase()
+  const isFarmV2 = (networkInfo as EVMNetworkInfo).elastic.farmV2Contract?.toLowerCase() === owner?.toLowerCase()
 
   const ownByFarm = isEVM
     ? (networkInfo as EVMNetworkInfo).elastic.farms.flat().includes(isAddressString(chainId, owner)) || isFarmV2
