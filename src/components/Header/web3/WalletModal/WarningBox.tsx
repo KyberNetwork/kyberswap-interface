@@ -182,7 +182,7 @@ export const WarningBox = ({ walletKey }: { walletKey?: SUPPORTED_WALLET }) => {
   }
 
   if (isOverriddenWallet(walletKey)) {
-    return <C98OverrideGuide walletKey={walletKey} isOpened={false} />
+    return <C98OverrideGuide walletKey={walletKey} isOpened={true} />
   }
 
   return null

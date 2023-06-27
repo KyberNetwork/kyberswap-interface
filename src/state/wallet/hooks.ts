@@ -212,6 +212,7 @@ export const useTokensHasBalance = (includesImportToken = false) => {
     if (!loadingBalance && ethBalance) {
       // call once per chain
       const list: Currency[] = currencies.filter(currency => {
+        if (isTokenNative(currency, currency.chainId)) return false
         const hasBalance = !currencyBalances[currency.wrapped.address]?.equalTo(
           CurrencyAmount.fromRawAmount(currency, '0'),
         )

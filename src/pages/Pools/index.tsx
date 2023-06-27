@@ -26,8 +26,8 @@ import { useCurrency } from 'hooks/Tokens'
 import useDebounce from 'hooks/useDebounce'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useTheme from 'hooks/useTheme'
+import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
 import ElasticLegacy from 'pages/ElasticLegacy'
 import { Instruction } from 'pages/Pools/InstructionAndGlobalData'
 import ProAmmPoolList from 'pages/ProAmmPools'
@@ -154,16 +154,15 @@ const Pools = () => {
       mixpanelHandler(MIXPANEL_TYPE.ELASTIC_CREATE_POOL_INITIATED)
     }
 
-    const url =
-      tab === VERSION.CLASSIC
-        ? `/create/${currencyIdA === '' ? undefined : currencyIdA}/${currencyIdB === '' ? undefined : currencyIdB}`
-        : `${APP_PATHS.ELASTIC_CREATE_POOL}${
-            currencyIdA && currencyIdB
-              ? `/${currencyIdA}/${currencyIdB}`
-              : currencyIdA || currencyIdB
-              ? `/${currencyIdA || currencyIdB}`
-              : ''
-          }`
+    const path = tab === VERSION.CLASSIC ? APP_PATHS.CLASSIC_CREATE_POOL : APP_PATHS.ELASTIC_CREATE_POOL
+    let url = `/${networkInfo.route}${path}`
+
+    if (currencyIdA) {
+      url += `/${currencyIdA}`
+      if (currencyIdB) {
+        url += `/${currencyIdB}`
+      }
+    }
 
     navigate(url)
   }
