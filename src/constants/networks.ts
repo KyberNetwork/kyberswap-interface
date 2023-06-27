@@ -200,3 +200,6 @@ export const CLAIM_REWARDS_DATA_URL: { [chainId: number]: string } = {
 export const DEFAULT_REWARDS: { [key: string]: string[] } = {
   [ChainId.MAINNET]: ['0x9F52c8ecbEe10e00D9faaAc5Ee9Ba0fF6550F511'],
 }
+
+// by pass invalid price impact/unable to calculate price impact/price impact too large
+export const CHAINS_BYPASS_PRICE_IMPACT = [ChainId.LINEA_TESTNET]
