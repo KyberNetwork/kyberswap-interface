@@ -450,7 +450,13 @@ function NotificationPreference({
           subscribeAtLeast1Topic={subscribeAtLeast1Topic}
           onUnsubscribeAll={onUnsubscribeAll}
           isLoading={isLoading}
-          tooltipSave={needVerifyEmail || !userInfo?.email ? t`You will need to verify your email address first` : ''}
+          tooltipSave={
+            !getDiffChangeTopics(topicGroups).hasChanged
+              ? ''
+              : (needVerifyEmail || !userInfo?.email) && !isIncludePriceAlert()
+              ? t`You will need to verify your email address first`
+              : ''
+          }
         />
       )}
       <VerifyCodeModal
