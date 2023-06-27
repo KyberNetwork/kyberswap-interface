@@ -13,6 +13,7 @@ import ActionButtons from 'components/SubscribeButton/NotificationPreference/Act
 import Header from 'components/SubscribeButton/NotificationPreference/Header'
 import InputEmail from 'components/SubscribeButton/NotificationPreference/InputEmail'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { PRICE_ALERT_TOPIC_ID } from 'constants/env'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useNotification, { Topic, TopicType } from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
@@ -255,15 +256,6 @@ function NotificationPreference({
     [selectedTopic, inputEmail, userInfo, emailPendingVerified, hasErrorInput],
   )
 
-  const checkProfileAndSave = () => {
-    if (isLoading || hasErrorInput || notFillEmail) return
-    if (!userInfo?.email) {
-      showVerifyModal()
-      return
-    }
-    onSave()
-  }
-
   const onSave = async () => {
     try {
       const { unsubscribeIds, subscribeIds, subscribeNames, unsubscribeNames } = getDiffChangeTopics(topicGroupsGlobal)
@@ -309,12 +301,32 @@ function NotificationPreference({
   const isVerifiedEmail = userInfo?.email && inputEmail === userInfo?.email
   const needVerifyEmail = inputEmail && inputEmail !== userInfo?.email
 
-  const disableButtonSave = useMemo(() => {
-    if (isLoading || notFillEmail || hasErrorInput || needVerifyEmail) return true
-    return !getDiffChangeTopics(topicGroups).hasChanged
-  }, [getDiffChangeTopics, isLoading, notFillEmail, topicGroups, hasErrorInput, needVerifyEmail])
-
   const disableCheckbox = needVerifyEmail || notFillEmail || hasErrorInput
+  const isIncludePriceAlert = useCallback(() => {
+    const changedData = getDiffChangeTopics(topicGroups)
+    return (
+      changedData.subscribeIds.includes(+PRICE_ALERT_TOPIC_ID) ||
+      changedData.unsubscribeIds.includes(+PRICE_ALERT_TOPIC_ID)
+    )
+  }, [topicGroups, getDiffChangeTopics])
+
+  const disableButtonSave = useMemo(() => {
+    if (isLoading) return true
+    const changedData = getDiffChangeTopics(topicGroups)
+    if (!isIncludePriceAlert() && disableCheckbox) {
+      return true
+    }
+    return !changedData.hasChanged
+  }, [getDiffChangeTopics, isIncludePriceAlert, isLoading, topicGroups, disableCheckbox])
+
+  const checkProfileAndSave = () => {
+    if (disableButtonSave) return
+    if (!userInfo?.email && !isIncludePriceAlert()) {
+      showVerifyModal()
+      return
+    }
+    onSave()
+  }
 
   const subscribeAtLeast1Topic = topicGroupsGlobal.some(e => e.isSubscribed)
   const onUnsubscribeAll = () => {
@@ -398,7 +410,9 @@ function NotificationPreference({
       <Column gap="16px">
         {renderTableHeader()}
         <ListGroupWrapper>
-          <GroupColum>{commons.map(topic => renderTopic(topic, disableCheckbox))}</GroupColum>
+          <GroupColum>
+            {commons.map(topic => renderTopic(topic, topic.isPriceAlert ? false : disableCheckbox))}
+          </GroupColum>
           <GroupColum>
             {restrict.map(topic => {
               const disableKyberAI = disableCheckbox || !isLogin || !isWhiteList
