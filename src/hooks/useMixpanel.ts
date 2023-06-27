@@ -1531,7 +1531,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
 }
 
 export const useGlobalMixpanelEvents = () => {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, isEVM } = useActiveWeb3React()
   const { mixpanelHandler } = useMixpanel()
   const { isWhiteList } = useIsWhiteListKyberAI()
   const oldNetwork = usePrevious(chainId)
@@ -1542,7 +1542,7 @@ export const useGlobalMixpanelEvents = () => {
   }, [location])
 
   useEffect(() => {
-    if (account && isAddress(account)) {
+    if (isEVM ? account && isAddress(account) : account) {
       mixpanel.identify(account)
 
       const getQueryParam = (url: string, param: string) => {
@@ -1580,7 +1580,11 @@ export const useGlobalMixpanelEvents = () => {
 
       mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECTED)
     }
-
+    return () => {
+      if (mixpanel.hasOwnProperty('persistence')) {
+        mixpanel.reset()
+      }
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account])
 
