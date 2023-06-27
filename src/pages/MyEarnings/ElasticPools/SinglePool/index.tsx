@@ -11,9 +11,9 @@ import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import CopyHelper from 'components/Copy'
+import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { MoneyBag } from 'components/Icons'
 import Loader from 'components/Loader'
-import Logo from 'components/Logo'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT, PROMM_ANALYTICS_URL } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -29,6 +29,7 @@ import { useAppSelector } from 'state/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { isAddress, shortenAddress } from 'utils'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
+import { unwrappedToken } from 'utils/wrappedCurrency'
 
 const formatValue = (value: number) => {
   const formatter = Intl.NumberFormat('en-US', {
@@ -97,9 +98,21 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
   const { pool, poolState } = usePoolv2(chainId, currency0, currency1, feeAmount, poolEarning.id)
   const isExpandable = !!pool && poolState !== PoolState.LOADING
 
+  // Need these because we'll display native tokens instead of wrapped tokens
+  const visibleCurrency0 = currency0 ? unwrappedToken(currency0) : undefined
+  const visibleCurrency1 = currency1 ? unwrappedToken(currency1) : undefined
+
   /* Some tokens have different symbols in our system */
-  const displaySymbolOfToken0 = getTokenSymbolWithHardcode(chainId, poolEarning.token0.id, poolEarning.token0.symbol)
-  const displaySymbolOfToken1 = getTokenSymbolWithHardcode(chainId, poolEarning.token1.id, poolEarning.token1.symbol)
+  const visibleCurrency0Symbol = getTokenSymbolWithHardcode(
+    chainId,
+    poolEarning.token0.id,
+    visibleCurrency0?.symbol || poolEarning.token0.symbol,
+  )
+  const visibleCurrency1Symbol = getTokenSymbolWithHardcode(
+    chainId,
+    poolEarning.token1.id,
+    visibleCurrency1?.symbol || poolEarning.token1.symbol,
+  )
 
   const toggleExpanded: React.MouseEventHandler<HTMLButtonElement> = useCallback(e => {
     e.stopPropagation()
@@ -136,8 +149,8 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
   const renderStatsRow = () => {
     return (
       <StatsRow
-        currency0={currency0}
-        currency1={currency1}
+        currency0={visibleCurrency0}
+        currency1={visibleCurrency1}
         feeAmount={feeAmount}
         chainId={chainId}
         totalValueLockedUsd={poolEarning.totalValueLockedUsd}
@@ -170,22 +183,10 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
     return (
       <SharePoolEarningsButton
         totalValue={poolEarningToday}
-        token0={
-          currency0?.logoURI && displaySymbolOfToken0
-            ? {
-                logoURI: currency0?.logoURI,
-                symbol: displaySymbolOfToken0,
-              }
-            : undefined
-        }
-        token1={
-          currency1?.logoURI && displaySymbolOfToken1
-            ? {
-                logoURI: currency1?.logoURI,
-                symbol: displaySymbolOfToken1,
-              }
-            : undefined
-        }
+        currency0={visibleCurrency0}
+        currency1={visibleCurrency1}
+        currency0Symbol={visibleCurrency0Symbol}
+        currency1Symbol={visibleCurrency1Symbol}
         feePercent={feePercent}
       />
     )
@@ -216,16 +217,8 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
               gap: '8px',
             }}
           >
-            <Flex
-              alignItems={'center'}
-              sx={{
-                gap: '4px',
-              }}
-            >
-              <Flex alignItems={'center'}>
-                <Logo srcs={[currency0?.logoURI || '']} style={{ width: 20, height: 20, borderRadius: '999px' }} />
-                <Logo srcs={[currency1?.logoURI || '']} style={{ width: 20, height: 20, borderRadius: '999px' }} />
-              </Flex>
+            <Flex alignItems={'center'}>
+              <DoubleCurrencyLogo currency0={visibleCurrency0} currency1={visibleCurrency1} size={18} />
 
               <Text
                 sx={{
@@ -234,7 +227,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
                   lineHeight: '20px',
                 }}
               >
-                {poolEarning.token0.symbol} - {poolEarning.token1.symbol}
+                {visibleCurrency0Symbol} - {visibleCurrency1Symbol}
               </Text>
             </Flex>
 
@@ -371,16 +364,8 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
               gap: '8px',
             }}
           >
-            <Flex
-              alignItems={'center'}
-              sx={{
-                gap: '4px',
-              }}
-            >
-              <Flex alignItems={'center'}>
-                <Logo srcs={[currency0?.logoURI || '']} style={{ width: 24, height: 24, borderRadius: '999px' }} />
-                <Logo srcs={[currency1?.logoURI || '']} style={{ width: 24, height: 24, borderRadius: '999px' }} />
-              </Flex>
+            <Flex alignItems={'center'}>
+              <DoubleCurrencyLogo currency0={visibleCurrency0} currency1={visibleCurrency1} size={20} />
 
               <Text
                 sx={{
@@ -389,7 +374,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
                   lineHeight: '24px',
                 }}
               >
-                {displaySymbolOfToken0} - {displaySymbolOfToken1}
+                {visibleCurrency0Symbol} - {visibleCurrency1Symbol}
               </Text>
             </Flex>
 

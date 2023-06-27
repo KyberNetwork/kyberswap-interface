@@ -12,9 +12,9 @@ import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import CopyHelper from 'components/Copy'
+import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { MoneyBag } from 'components/Icons'
 import Loader from 'components/Loader'
-import Logo from 'components/Logo'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT, SUBGRAPH_AMP_MULTIPLIER } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -32,6 +32,7 @@ import { MEDIA_WIDTHS } from 'theme'
 import { isAddress, shortenAddress } from 'utils'
 import { getTradingFeeAPR } from 'utils/dmm'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
+import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import StatsRow from './StatsRow'
 
@@ -105,11 +106,23 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, poolData, userLiqui
   const currency0 = getCurrencyFromTokenAddress(tokensByChainId, chainId, poolData.token0.id)
   const currency1 = getCurrencyFromTokenAddress(tokensByChainId, chainId, poolData.token1.id)
 
-  const hasLiquidity = userLiquidity && userLiquidity.liquidityTokenBalance !== '0'
+  // Need these because we'll display native tokens instead of wrapped tokens
+  const visibleCurrency0 = currency0 ? unwrappedToken(currency0) : undefined
+  const visibleCurrency1 = currency1 ? unwrappedToken(currency1) : undefined
 
   /* Some tokens have different symbols in our system */
-  const displaySymbolOfToken0 = getTokenSymbolWithHardcode(chainId, poolData.token0.id, poolData.token0.symbol)
-  const displaySymbolOfToken1 = getTokenSymbolWithHardcode(chainId, poolData.token1.id, poolData.token1.symbol)
+  const visibleCurrency0Symbol = getTokenSymbolWithHardcode(
+    chainId,
+    poolData.token0.id,
+    visibleCurrency0?.symbol || poolData.token0.symbol,
+  )
+  const visibleCurrency1Symbol = getTokenSymbolWithHardcode(
+    chainId,
+    poolData.token1.id,
+    visibleCurrency1?.symbol || poolData.token1.symbol,
+  )
+
+  const hasLiquidity = userLiquidity && userLiquidity.liquidityTokenBalance !== '0'
 
   // TODO
   const feeAmount = FeeAmount.STABLE
@@ -185,6 +198,19 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, poolData, userLiqui
     )
   }
 
+  const renderShareButton = () => {
+    return (
+      <SharePoolEarningsButton
+        totalValue={poolEarningToday}
+        currency0={visibleCurrency0}
+        currency1={visibleCurrency1}
+        currency0Symbol={visibleCurrency0Symbol}
+        currency1Symbol={visibleCurrency1Symbol}
+        feePercent={feePercent}
+      />
+    )
+  }
+
   if (upToExtraSmall) {
     return (
       <Flex
@@ -210,16 +236,8 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, poolData, userLiqui
               gap: '8px',
             }}
           >
-            <Flex
-              alignItems={'center'}
-              sx={{
-                gap: '4px',
-              }}
-            >
-              <Flex alignItems={'center'}>
-                <Logo srcs={[currency0?.logoURI || '']} style={{ width: 20, height: 20, borderRadius: '999px' }} />
-                <Logo srcs={[currency1?.logoURI || '']} style={{ width: 20, height: 20, borderRadius: '999px' }} />
-              </Flex>
+            <Flex alignItems={'center'}>
+              <DoubleCurrencyLogo currency0={visibleCurrency0} currency1={visibleCurrency1} size={20} />
 
               <Text
                 sx={{
@@ -228,7 +246,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, poolData, userLiqui
                   lineHeight: '20px',
                 }}
               >
-                TOKEN - TOKEN {/* TODO {poolEarning.token0.symbol} - {poolEarning.token1.symbol} */}
+                {visibleCurrency0Symbol} - {visibleCurrency1Symbol}
               </Text>
             </Flex>
 
@@ -298,13 +316,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, poolData, userLiqui
                   {poolEarningStr}
                 </Text>
 
-                {/* TODO */}
-                {/* <SharePoolEarningsButton
-                  totalValue={poolEarningToday}
-                  currency0={currency0}
-                  currency1={currency1}
-                  feePercent={feePercent}
-                /> */}
+                {renderShareButton()}
               </Flex>
             </Flex>
 
@@ -365,16 +377,8 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, poolData, userLiqui
               gap: '8px',
             }}
           >
-            <Flex
-              alignItems={'center'}
-              sx={{
-                gap: '4px',
-              }}
-            >
-              <Flex alignItems={'center'}>
-                <Logo srcs={[currency0?.logoURI || '']} style={{ width: 24, height: 24, borderRadius: '999px' }} />
-                <Logo srcs={[currency1?.logoURI || '']} style={{ width: 24, height: 24, borderRadius: '999px' }} />
-              </Flex>
+            <Flex alignItems={'center'}>
+              <DoubleCurrencyLogo currency0={visibleCurrency0} currency1={visibleCurrency1} size={24} />
 
               <Text
                 sx={{
@@ -383,7 +387,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, poolData, userLiqui
                   lineHeight: '24px',
                 }}
               >
-                {displaySymbolOfToken0} - {displaySymbolOfToken1}
+                {visibleCurrency0Symbol} - {visibleCurrency1Symbol}
               </Text>
             </Flex>
 
@@ -466,26 +470,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, poolData, userLiqui
                 {poolEarningStr}
               </Text>
 
-              <SharePoolEarningsButton
-                totalValue={poolEarningToday}
-                token0={
-                  currency0?.logoURI && displaySymbolOfToken0
-                    ? {
-                        logoURI: currency0?.logoURI,
-                        symbol: displaySymbolOfToken0,
-                      }
-                    : undefined
-                }
-                token1={
-                  currency1?.logoURI && displaySymbolOfToken1
-                    ? {
-                        logoURI: currency1?.logoURI,
-                        symbol: displaySymbolOfToken1,
-                      }
-                    : undefined
-                }
-                feePercent={feePercent}
-              />
+              {renderShareButton()}
             </Flex>
           </Flex>
           <PoolEarningsSection historicalEarning={poolEarning.historicalEarning} chainId={chainId} />

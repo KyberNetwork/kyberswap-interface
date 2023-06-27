@@ -1,3 +1,4 @@
+import { Currency } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useState } from 'react'
 import { Share2 } from 'react-feather'
@@ -7,21 +8,20 @@ import ShareModal from 'pages/MyEarnings/ShareModal'
 
 type Props = {
   totalValue: number
-  token0:
-    | {
-        symbol: string
-        logoURI: string
-      }
-    | undefined
-  token1:
-    | {
-        symbol: string
-        logoURI: string
-      }
-    | undefined
+  currency0: Currency | undefined
+  currency1: Currency | undefined
+  currency0Symbol: string
+  currency1Symbol: string
   feePercent: string
 }
-const SharePoolEarningsButton: React.FC<Props> = ({ totalValue, token0, token1, feePercent }) => {
+const SharePoolEarningsButton: React.FC<Props> = ({
+  totalValue,
+  currency0,
+  currency1,
+  currency0Symbol,
+  currency1Symbol,
+  feePercent,
+}) => {
   const [isOpen, setOpen] = useState(false)
 
   return (
@@ -46,10 +46,12 @@ const SharePoolEarningsButton: React.FC<Props> = ({ totalValue, token0, token1, 
         isOpen={isOpen}
         setIsOpen={setOpen}
         poolInfo={
-          token0 && token1 && feePercent
+          currency0 && currency1 && feePercent
             ? {
-                token0,
-                token1,
+                currency0,
+                currency1,
+                currency0Symbol,
+                currency1Symbol,
                 feePercent,
               }
             : undefined

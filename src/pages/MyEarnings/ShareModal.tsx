@@ -1,3 +1,4 @@
+import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useEffect, useRef, useState } from 'react'
@@ -11,12 +12,12 @@ import styled, { css } from 'styled-components'
 import BgShare from 'assets/images/bg_share_my_earning.png'
 import BgShareMobile from 'assets/images/bg_share_my_earning_mb.png'
 import { ReactComponent as DesktopIcon } from 'assets/svg/desktop_mobile_icon.svg'
+import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { Telegram } from 'components/Icons'
 import Discord from 'components/Icons/Discord'
 import Facebook from 'components/Icons/Facebook'
 import TwitterIcon from 'components/Icons/TwitterIcon'
 import Loader from 'components/Loader'
-import Logo from 'components/Logo'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import { getSocialShareUrls } from 'components/ShareModal'
@@ -25,7 +26,6 @@ import useShareImage from 'hooks/useShareImage'
 import useTheme from 'hooks/useTheme'
 import { ButtonText, MEDIA_WIDTHS } from 'theme'
 import { downloadImage } from 'utils'
-import { getProxyTokenLogo } from 'utils/tokenInfo'
 
 const formatValue = (num: number, isSharePc: boolean) => {
   const notation = (num > 1_000_000 && !isSharePc) || (num > 100_000_000 && isSharePc) ? 'compact' : 'standard'
@@ -123,14 +123,10 @@ type Props = {
   title: string
   value: number
   poolInfo?: {
-    token0: {
-      symbol: string
-      logoURI: string
-    }
-    token1: {
-      symbol: string
-      logoURI: string
-    }
+    currency0: Currency
+    currency1: Currency
+    currency0Symbol: string
+    currency1Symbol: string
     feePercent: string
   }
 }
@@ -231,21 +227,14 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
 
     return (
       <Flex alignItems="center" sx={{ gap: isSharePc ? '8px' : '4px' }} flexWrap="wrap">
-        <Flex alignItems="center">
-          <Logo
-            style={{ width: tokenLogoSize, height: tokenLogoSize, borderRadius: '999px', overflow: 'hidden' }}
-            srcs={[getProxyTokenLogo(poolInfo.token0.logoURI)]}
-          />
-          <Logo
-            style={{ width: tokenLogoSize, height: tokenLogoSize, borderRadius: '999px', overflow: 'hidden' }}
-            srcs={[getProxyTokenLogo(poolInfo.token1.logoURI)]}
-          />
+        <Flex alignItems="center" flexWrap="wrap">
+          <DoubleCurrencyLogo currency0={poolInfo.currency0} currency1={poolInfo.currency1} size={tokenLogoSize} />
+          <Text fontWeight="500" fontSize={isSharePc ? 16 : 12} color={theme.white}>
+            <Trans>
+              {poolInfo.currency0Symbol} - {poolInfo.currency1Symbol}
+            </Trans>
+          </Text>
         </Flex>
-        <Text fontWeight="500" fontSize={isSharePc ? 16 : 12} color={theme.white}>
-          <Trans>
-            {poolInfo.token0.symbol} - {poolInfo.token1.symbol}
-          </Trans>
-        </Text>
         <FeeWrapper mobile={!isSharePc}>Fee {poolInfo.feePercent}</FeeWrapper>
       </Flex>
     )
