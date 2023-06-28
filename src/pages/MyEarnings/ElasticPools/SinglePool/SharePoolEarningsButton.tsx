@@ -32,6 +32,7 @@ const SharePoolEarningsButton: React.FC<Props> = ({
         justifyContent: 'center',
         height: '24px',
         borderRadius: '999px',
+        cursor: 'pointer',
       }}
       role="button"
       onClick={() => {
