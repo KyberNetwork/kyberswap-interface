@@ -4,6 +4,7 @@ import { Token } from '@kyberswap/ks-sdk-core'
 export enum FairLaunchVersion {
   V1,
   V2,
+  V3,
 }
 
 export enum RewardLockerVersion {
