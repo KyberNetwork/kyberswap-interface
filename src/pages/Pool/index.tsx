@@ -33,6 +33,7 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
 import ElasticLegacy from 'pages/ElasticLegacy'
+import DeprecationBanner from 'pages/Pool/DeprecationBanner'
 import ProAmmPool from 'pages/ProAmmPool'
 import { useFarmsData, useTotalApr } from 'state/farms/classic/hooks'
 import { Farm } from 'state/farms/classic/types'
@@ -173,8 +174,9 @@ export default function PoolCombination() {
   return (
     <>
       <PageWrapper style={{ paddingBottom: '24px' }}>
-        <AutoColumn>
+        <AutoColumn gap="24px">
           <ClassicElasticTab />
+          <DeprecationBanner />
         </AutoColumn>
         {tab === VERSION.ELASTIC ? (
           <ProAmmPool />
@@ -324,7 +326,7 @@ function Pool() {
           <AutoColumn gap="lg" style={{ width: '100%' }}>
             <AutoRow>
               <InstructionText>
-                <Trans>Here you can view all your liquidity and staked balances in the Classic Pools</Trans>
+                <Trans>Here you can view all your 123 liquidity and staked balances in the Classic Pools</Trans>
                 {!upToSmall && (
                   <ExternalLink href={`${DMM_ANALYTICS_URL[chainId]}/account/${account}`}>
                     <Flex alignItems="center">
