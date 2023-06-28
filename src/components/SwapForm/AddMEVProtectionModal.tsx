@@ -102,7 +102,7 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
   return (
     <Modal isOpen={isOpen} width="fit-content" maxWidth="600px" maxHeight="80vh" onDismiss={onClose}>
       <Wrapper>
-        <RowBetween>
+        <RowBetween align="start">
           <Text fontSize={24} fontWeight={500}>
             <Trans>Add Custom RPC Endpoint</Trans>
           </Text>

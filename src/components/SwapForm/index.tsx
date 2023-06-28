@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
@@ -51,6 +51,10 @@ const PriceAlertButton = styled.div`
   cursor: pointer;
   user-select: none;
   font-weight: 500;
+  font-size: 12px;
+  color: ${({ theme }) => theme.subText};
+  align-items: center;
+  height: fit-content;
 `
 export type SwapFormProps = {
   hidden: boolean
@@ -209,7 +213,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               </Flex>
 
               <Flex sx={{ gap: '12px' }}>
-                <Flex alignItems="flex-start" fontSize={12} color={theme.subText} justifyContent="space-between">
+                {chainId === ChainId.LINEA_TESTNET ? null : (
                   <PriceAlertButton
                     onClick={() =>
                       navigate(
@@ -226,8 +230,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
                       <Trans>Price Alert</Trans>
                     </Text>
                   </PriceAlertButton>
-                </Flex>
-
+                )}
                 <ReverseTokenSelectionButton onClick={() => currencyIn && handleChangeCurrencyOut(currencyIn)} />
               </Flex>
             </AutoRow>

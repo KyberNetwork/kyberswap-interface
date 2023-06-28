@@ -1,7 +1,8 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useCallback, useState } from 'react'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -10,7 +11,7 @@ import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { ExternalLink } from 'theme'
+import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 
 import AddMEVProtectionModal from './AddMEVProtectionModal'
 
@@ -33,6 +34,7 @@ export default function SlippageSettingGroup({
   isStablePairSwap: boolean
   isWrapOrUnwrap: boolean
 }) {
+  const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const theme = useTheme()
   const { chainId } = useActiveWeb3React()
   const [showMevModal, setShowMevModal] = useState(false)
@@ -54,9 +56,11 @@ export default function SlippageSettingGroup({
       >
         <PriceAlertButton onClick={addMevProtectionHandler}>
           <Shield size={14} color={theme.subText} />
-          <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>
-            <Trans>Add MEV Protection</Trans>
-          </Text>
+          {upToXXSmall ? null : (
+            <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>
+              <Trans>Add MEV Protection</Trans>
+            </Text>
+          )}
         </PriceAlertButton>
       </MouseoverTooltip>
     ) : null
