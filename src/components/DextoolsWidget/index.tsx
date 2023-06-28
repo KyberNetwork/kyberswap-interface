@@ -209,9 +209,7 @@ export default function DextoolsWidget({ pairAddress }: { pairAddress?: string }
       {
         headers: {
           'X-API-Key': 'e866e717297d333c84d05ec2d0e84b0c',
-          accept: 'application/json',
         },
-        mode: 'no-cors',
       },
     ).then(res => console.log('🚀 ~ file: index.tsx:212 ~ useEffect ~ res:', res))
   }, [])
