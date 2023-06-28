@@ -1628,9 +1628,9 @@ export const useGlobalMixpanelEvents = () => {
         '/kyberdao/vote': 'KyberDAO Vote',
         limit: 'Limit Order',
         'notification-center': 'Notification',
+        [APP_PATHS.KYBERAI_ABOUT]: 'KyberAI About',
       }
       const protectedPaths: { [key: string]: string } = {
-        [APP_PATHS.KYBERAI_ABOUT]: 'KyberAI About',
         [APP_PATHS.KYBERAI_RANKINGS]: 'KyberAI Rankings',
         [APP_PATHS.KYBERAI_EXPLORE]: 'KyberAI Explore',
       }
