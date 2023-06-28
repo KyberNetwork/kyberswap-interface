@@ -138,9 +138,11 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
           ))}
         </Row>
         <Row gap="16px" flexDirection={upToExtraSmall ? 'column' : 'row'}>
-          <ButtonOutlined onClick={onClose}>No, go back</ButtonOutlined>
+          <ButtonOutlined onClick={onClose}>
+            <Trans>No, go back</Trans>
+          </ButtonOutlined>
           <ButtonPrimary onClick={onAdd} disabled={!selectedOption}>
-            Yes
+            <Trans>Yes</Trans>
           </ButtonPrimary>
         </Row>
       </Wrapper>
