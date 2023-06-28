@@ -43,6 +43,8 @@ const HarvestAll = ({ totalRewards, onHarvestAll }: { totalRewards: Reward[]; on
 
   const [show, setShow] = useState(false)
 
+  const rwLength = totalRewards.filter(rw => rw.amount.toString() !== '0').length
+
   return (
     <>
       <Modal isOpen={show} onDismiss={() => setShow(false)}>
@@ -66,17 +68,19 @@ const HarvestAll = ({ totalRewards, onHarvestAll }: { totalRewards: Reward[]; on
           </Flex>
 
           <RewardBalanceWrapper>
-            {totalRewards.map((reward, index) => {
-              return (
-                <Fragment key={reward.token.wrapped.address}>
-                  <Flex alignItems="center" fontSize="12px" sx={{ gap: '4px' }}>
-                    {chainId && reward.token.wrapped.address && <CurrencyLogo currency={reward.token} size="16px" />}
-                    {getFullDisplayBalance(reward.amount, reward.token.decimals)}
-                  </Flex>
-                  {index !== totalRewards.length - 1 && <Text color={theme.subText}>|</Text>}
-                </Fragment>
-              )
-            })}
+            {totalRewards
+              .filter(rw => rw.amount.toString() !== '0')
+              .map((reward, index) => {
+                return (
+                  <Fragment key={reward.token.wrapped.address}>
+                    <Flex alignItems="center" fontSize="12px" sx={{ gap: '4px' }}>
+                      {chainId && reward.token.wrapped.address && <CurrencyLogo currency={reward.token} size="16px" />}
+                      {getFullDisplayBalance(reward.amount, reward.token.decimals)}
+                    </Flex>
+                    {index !== rwLength - 1 && <Text color={theme.subText}>|</Text>}
+                  </Fragment>
+                )
+              })}
           </RewardBalanceWrapper>
 
           <ButtonPrimary

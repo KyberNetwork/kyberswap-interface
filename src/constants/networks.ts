@@ -160,6 +160,7 @@ export const STATIC_FEE_OPTIONS: { [chainId: number]: number[] | undefined } = {
   [ChainId.CRONOS]: [8, 10, 50, 300, 500, 1000],
   [ChainId.BTTC]: [8, 10, 50, 300, 500, 1000],
   [ChainId.OPTIMISM]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.GÖRLI]: [8, 10, 50, 300, 500, 1000],
   [ChainId.ZKSYNC]: [8, 10, 50, 300, 500, 1000],
   [ChainId.LINEA_TESTNET]: [8, 10, 50, 300, 500, 1000],
 }
@@ -170,6 +171,7 @@ export const ONLY_STATIC_FEE_CHAINS = [
   ChainId.VELAS,
   ChainId.OASIS,
   ChainId.OPTIMISM,
+  ChainId.GÖRLI,
   ChainId.ZKSYNC,
   ChainId.LINEA_TESTNET,
 ]

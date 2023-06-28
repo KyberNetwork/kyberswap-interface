@@ -12,7 +12,7 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import { useBlockNumber } from 'state/application/hooks'
-import { useRewardTokenPrices, useRewardTokens } from 'state/farms/classic/hooks'
+import { useRewardTokens } from 'state/farms/classic/hooks'
 import { Farm, Reward, RewardPerTimeUnit } from 'state/farms/classic/types'
 import { SubgraphPoolData, UserLiquidityPosition } from 'state/pools/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
@@ -20,8 +20,6 @@ import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { formattedNum } from 'utils'
 import { isTokenNative } from 'utils/tokenInfo'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-
-import { getFullDisplayBalance } from './formatBalance'
 
 export function priceRangeCalc(
   price?: Price<Currency, Currency> | Fraction,
@@ -479,18 +477,20 @@ export function useFarmRewards(farms?: Farm[], onlyCurrentUser = true): Reward[]
 
 export function useFarmRewardsUSD(rewards?: Reward[]): number {
   const { chainId } = useActiveWeb3React()
-  const tokenPrices = useRewardTokenPrices((rewards || []).map(item => item.token))
+  const tokenPrices = useTokenPrices((rewards || []).map(item => item.token.wrapped.address))
   if (!rewards) {
     return 0
   }
 
-  const rewardUSD = rewards.reduce((total, reward, index) => {
+  const rewardUSD = rewards.reduce((total, reward) => {
     if (!reward || !reward.amount || !reward.token) {
       return total
     }
 
-    if (chainId && tokenPrices[index]) {
-      total += parseFloat(getFullDisplayBalance(reward.amount, reward.token.decimals)) * tokenPrices[index]
+    if (chainId && tokenPrices[reward.token.wrapped.address]) {
+      total +=
+        +CurrencyAmount.fromRawAmount(reward.token, reward.amount.toString()).toExact() *
+        tokenPrices[reward.token.wrapped.address]
     }
 
     return total
