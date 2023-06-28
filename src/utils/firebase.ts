@@ -24,6 +24,7 @@ const COLLECTIONS = {
   LO_FILLED_ORDERS: 'filledEvents',
 
   ANNOUNCEMENT: 'wallets',
+  IDENTITY: 'identities',
   ANNOUNCEMENT_POPUP: 'broadcast',
 }
 
@@ -141,6 +142,16 @@ export function subscribePrivateAnnouncement(
     COLLECTIONS.ANNOUNCEMENT,
     [account.toLowerCase(), 'metaMessages'],
     data => callback(data ?? []),
+  )
+}
+
+export function subscribePrivateAnnouncementProfile(
+  identityID: string | undefined,
+  callback: (data: PopupContentAnnouncement[]) => void,
+) {
+  if (!identityID) return
+  return subscribeListDocument(dbNotification, COLLECTIONS.IDENTITY, [identityID.toLowerCase(), 'metaMessages'], data =>
+    callback(data ?? []),
   )
 }
 

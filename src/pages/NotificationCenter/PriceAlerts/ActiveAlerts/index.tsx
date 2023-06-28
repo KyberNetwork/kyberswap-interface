@@ -4,16 +4,16 @@ import { Flex } from 'rebass'
 import { useGetAlertStatsQuery, useGetListAlertsQuery } from 'services/priceAlert'
 
 import { PrivateAnnouncementType } from 'components/Announcement/type'
-import { useActiveWeb3React } from 'hooks'
 import NoData from 'pages/NotificationCenter/NoData'
 import CommonPagination from 'pages/NotificationCenter/PriceAlerts/CommonPagination'
 import { ITEMS_PER_PAGE } from 'pages/NotificationCenter/const'
-import { subscribePrivateAnnouncement } from 'utils/firebase'
+import { useSessionInfo } from 'state/authen/hooks'
+import { subscribePrivateAnnouncementProfile } from 'utils/firebase'
 
 import SingleAlert from './SingleAlert'
 
 const ActiveAlerts = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boolean) => void }) => {
-  const { account } = useActiveWeb3React()
+  const { userInfo } = useSessionInfo()
   const [page, setPage] = useState(1)
   const { data, isLoading, refetch } = useGetListAlertsQuery({
     page,
@@ -28,8 +28,8 @@ const ActiveAlerts = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boolea
   }, [data?.alerts?.length, setDisabledClearAll])
 
   useEffect(() => {
-    if (!account) return
-    const unsubscribePrivate = subscribePrivateAnnouncement(account, data => {
+    if (!userInfo?.identityId) return
+    const unsubscribePrivate = subscribePrivateAnnouncementProfile(userInfo?.identityId, data => {
       data.forEach(item => {
         if (item.templateType === PrivateAnnouncementType.PRICE_ALERT) {
           refetch()
@@ -38,7 +38,7 @@ const ActiveAlerts = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boolea
       })
     })
     return () => unsubscribePrivate?.()
-  }, [account, refetch, refetchStat])
+  }, [userInfo?.identityId, refetch, refetchStat])
 
   const totalAlert = data?.alerts?.length ?? 0
 
