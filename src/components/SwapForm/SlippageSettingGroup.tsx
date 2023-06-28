@@ -36,14 +36,14 @@ export default function SlippageSettingGroup({
 }) {
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const theme = useTheme()
-  const { chainId } = useActiveWeb3React()
+  const { chainId, walletEVM } = useActiveWeb3React()
   const [showMevModal, setShowMevModal] = useState(false)
   const addMevProtectionHandler = useCallback(() => {
     setShowMevModal(true)
   }, [])
 
   const rightButton =
-    chainId === ChainId.MAINNET ? (
+    chainId === ChainId.MAINNET && walletEVM.isConnected ? (
       <MouseoverTooltip
         text={
           <Trans>
