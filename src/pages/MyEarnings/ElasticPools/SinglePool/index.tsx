@@ -157,6 +157,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
         apr={poolEarning.apr}
         volume24hUsd={Number(poolEarning.volumeUsd) - Number(poolEarning.volumeUsdOneDayAgo)}
         fees24hUsd={Number(poolEarning.feesUsd) - Number(poolEarning.feesUsdOneDayAgo)}
+        poolAddress={poolEarning.id}
         analyticUrl={analyticUrl}
         renderToggleExpandButton={() => {
           return (

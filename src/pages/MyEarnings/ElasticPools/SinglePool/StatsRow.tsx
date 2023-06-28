@@ -8,9 +8,11 @@ import styled from 'styled-components'
 
 import { ReactComponent as BarChart } from 'assets/svg/barchart.svg'
 import { ButtonLight } from 'components/Button'
+import CopyIcon from 'components/Icons/CopyIcon'
 import { NetworkLogo } from 'components/Logo'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
+import useCopyClipboard from 'hooks/useCopyClipboard'
 import useTheme from 'hooks/useTheme'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { MEDIA_WIDTHS } from 'theme'
@@ -146,6 +148,7 @@ type Props = {
   currency0: Currency | undefined
   currency1: Currency | undefined
   feeAmount: FeeAmount
+  poolAddress: string
 
   analyticUrl: string
 
@@ -161,6 +164,7 @@ const StatsRow: React.FC<Props> = ({
   currency0,
   currency1,
   feeAmount,
+  poolAddress,
 
   analyticUrl,
 
@@ -168,10 +172,59 @@ const StatsRow: React.FC<Props> = ({
 }) => {
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const chainRoute = NETWORKS_INFO[chainId].route
+  const [, copy] = useCopyClipboard()
 
   // TODO: check native currencies
   const currency0Slug = currency0?.wrapped.address || ''
   const currency1Slug = currency1?.wrapped.address || ''
+
+  const renderAddLiquidityButton = () => {
+    return (
+      <ButtonLight
+        height="36px"
+        as={Link}
+        to={
+          currency0Slug && currency1Slug
+            ? `/${chainRoute}${APP_PATHS.ELASTIC_CREATE_POOL}/${currency0Slug}/${currency1Slug}/${feeAmount}`
+            : '#'
+        }
+      >
+        + <Trans>Add Liquidity</Trans>
+      </ButtonLight>
+    )
+  }
+
+  const renderCopyButton = () => {
+    return (
+      <ButtonIcon
+        style={{
+          flex: '0 0 36px',
+          width: '36px',
+          height: '36px',
+        }}
+        onClick={() => copy(poolAddress)}
+      >
+        <CopyIcon size={20} />
+      </ButtonIcon>
+    )
+  }
+
+  const renderAnalyticsButton = () => {
+    return (
+      <ButtonIcon
+        style={{
+          flex: '0 0 36px',
+          width: '36px',
+          height: '36px',
+        }}
+        as="a"
+        href={analyticUrl}
+        target="_blank"
+      >
+        <BarChart />
+      </ButtonIcon>
+    )
+  }
 
   if (upToExtraSmall) {
     return (
@@ -205,29 +258,9 @@ const StatsRow: React.FC<Props> = ({
             gap: '12px',
           }}
         >
-          <ButtonLight
-            height="36px"
-            as={Link}
-            // TODO: use new format of Elastic routes
-            to={
-              currency0Slug && currency1Slug
-                ? `/${chainRoute}${APP_PATHS.ELASTIC_CREATE_POOL}/${currency0Slug}/${currency1Slug}/${feeAmount}`
-                : '#'
-            }
-          >
-            + <Trans>Add Liquidity</Trans>
-          </ButtonLight>
-
-          <ButtonIcon
-            style={{
-              flex: '0 0 36px',
-              width: '36px',
-              height: '36px',
-            }}
-          >
-            <BarChart />
-          </ButtonIcon>
-
+          {renderAddLiquidityButton()}
+          {renderCopyButton()}
+          {renderAnalyticsButton()}
           {renderToggleExpandButton()}
         </Flex>
       </Flex>
@@ -259,31 +292,8 @@ const StatsRow: React.FC<Props> = ({
           gap: '12px',
         }}
       >
-        <ButtonLight
-          height="36px"
-          as={Link}
-          // TODO: use new format of Elastic routes
-          to={
-            currency0Slug && currency1Slug
-              ? `/${chainRoute}${APP_PATHS.ELASTIC_CREATE_POOL}/${currency0Slug}/${currency1Slug}/${feeAmount}`
-              : '#'
-          }
-        >
-          + <Trans>Add Liquidity</Trans>
-        </ButtonLight>
-        <ButtonIcon
-          style={{
-            flex: '0 0 36px',
-            width: '36px',
-            height: '36px',
-          }}
-          as="a"
-          href={analyticUrl}
-          target="_blank"
-        >
-          <BarChart />
-        </ButtonIcon>
-
+        {renderAddLiquidityButton()}
+        {renderAnalyticsButton()}
         {renderToggleExpandButton()}
       </Flex>
     </Box>

@@ -11,7 +11,7 @@ export default function CopyIcon({ size }: { size?: string | number }) {
       </g>
       <defs>
         <clipPath id="clip0_1805_60134">
-          <rect width={size || '24'} height={size || '24'} fill="transparent" />
+          <rect width={24} height={24} fill="transparent" />
         </clipPath>
       </defs>
     </svg>
