@@ -4,6 +4,7 @@ import { rgba } from 'polished'
 import { stringify } from 'querystring'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import { parseGetRouteResponse } from 'services/route/utils'
 import styled from 'styled-components'
@@ -31,6 +32,7 @@ import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import { Field } from 'state/swap/actions'
 import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { currencyId } from 'utils/currencyId'
 
@@ -101,6 +103,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   const [recipient, setRecipient] = useState<string | null>(null)
   const [isSaveGas, setSaveGas] = useState(false)
   const theme = useTheme()
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
   const { onUserInput: updateInputAmount } = useSwapActionHandlers()
   const onUserInput = useCallback(
@@ -226,9 +229,11 @@ const SwapForm: React.FC<SwapFormProps> = props => {
                     }
                   >
                     <Clock size={14} color={theme.subText} />
-                    <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>
-                      <Trans>Price Alert</Trans>
-                    </Text>
+                    {upToExtraSmall ? null : (
+                      <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>
+                        <Trans>Price Alert</Trans>
+                      </Text>
+                    )}
                   </PriceAlertButton>
                 )}
                 <ReverseTokenSelectionButton onClick={() => currencyIn && handleChangeCurrencyOut(currencyIn)} />
