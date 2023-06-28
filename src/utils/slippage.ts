@@ -1,7 +1,19 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
+
+import { DEFAULT_SLIPPAGE, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP, DEFAULT_SLIPPAGE_TESTNET } from 'constants/index'
+
 export enum SLIPPAGE_STATUS {
   NORMAL,
   LOW,
   HIGH,
+}
+
+export const getDefaultSlippage = (chainId: ChainId, isStablePairSwap: boolean): number => {
+  if (chainId === ChainId.LINEA_TESTNET) {
+    return DEFAULT_SLIPPAGE_TESTNET
+  }
+
+  return isStablePairSwap ? DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP : DEFAULT_SLIPPAGE
 }
 
 export const checkRangeSlippage = (slippage: number, isStablePairSwap: boolean): SLIPPAGE_STATUS => {
