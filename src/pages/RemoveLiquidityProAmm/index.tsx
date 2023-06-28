@@ -315,7 +315,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
             amount1Min.quotient.toString(),
             deadline.toString(),
             !receiveWETH,
-            [claimFee && feeValue0?.greaterThan('0'), false],
+            [claimFee && feeValue0?.greaterThan('0'), true],
           ]
 
       const gasEstimation = await contract.estimateGas.removeLiquidity(...params)
