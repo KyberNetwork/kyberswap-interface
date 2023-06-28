@@ -1,4 +1,5 @@
 import { ChainId, Currency, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { useEffect } from 'react'
 import styled, { useTheme } from 'styled-components'
 
 import { DAI, STABLE_COINS_ADDRESS, USDC, USDT } from 'constants/tokens'
@@ -201,6 +202,19 @@ export const checkPairHasDextoolsData = async (
 export default function DextoolsWidget({ pairAddress }: { pairAddress?: string }) {
   const { chainId } = useActiveWeb3React()
   const theme = useTheme()
+
+  useEffect(() => {
+    fetch(
+      'https://api.dextools.io/v1/token?chain=ether&address=0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202&page=0&pageSize=10',
+      {
+        headers: {
+          'X-API-Key': 'e866e717297d333c84d05ec2d0e84b0c',
+          accept: 'application/json',
+        },
+        mode: 'no-cors',
+      },
+    ).then(res => console.log('🚀 ~ file: index.tsx:212 ~ useEffect ~ res:', res))
+  }, [])
   return (
     <Iframe
       id="dextools-widget"
