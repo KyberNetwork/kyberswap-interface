@@ -2,14 +2,13 @@ import { useDispatch } from 'react-redux'
 import styled from 'styled-components'
 
 import { ButtonLight } from 'components/Button'
-import useTheme from 'hooks/useTheme'
 import { useAppSelector } from 'state/hooks'
 import { showEarningView, showPositionView } from 'state/myEarnings/actions'
 
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
-  flex: 0 0 260px;
+  flex: 0 0 280px;
   gap: 4px;
   border: 1px solid ${({ theme }) => theme.border};
   border-radius: 20px;
@@ -55,23 +54,11 @@ const CustomButton = styled(ButtonLight)`
 `
 
 const ViewEarningOrPositionButton: React.FC = () => {
-  const theme = useTheme()
   const dispatch = useDispatch()
   const shouldShowEarningView = useAppSelector(state => state.myEarnings.shouldShowEarningView)
 
   return (
     <Wrapper>
-      <CustomButton
-        onClick={() => {
-          if (!shouldShowEarningView) {
-            dispatch(showEarningView())
-          }
-        }}
-        data-active={shouldShowEarningView}
-      >
-        View Earning
-      </CustomButton>
-
       <CustomButton
         onClick={() => {
           if (shouldShowEarningView) {
@@ -80,7 +67,18 @@ const ViewEarningOrPositionButton: React.FC = () => {
         }}
         data-active={!shouldShowEarningView}
       >
-        View Position
+        View Positions
+      </CustomButton>
+
+      <CustomButton
+        onClick={() => {
+          if (!shouldShowEarningView) {
+            dispatch(showEarningView())
+          }
+        }}
+        data-active={shouldShowEarningView}
+      >
+        View Earnings
       </CustomButton>
     </Wrapper>
   )
