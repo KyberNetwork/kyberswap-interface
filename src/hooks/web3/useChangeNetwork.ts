@@ -19,7 +19,7 @@ import { useLazyKyberswapConfig } from '../useKyberSwapConfig'
 let latestChainId: ChainId
 export function useChangeNetwork() {
   const { chainId, walletEVM, walletSolana } = useActiveWeb3React()
-  const { connector } = useWeb3React()
+  const { connector, library } = useWeb3React()
   const fetchKyberswapConfig = useLazyKyberswapConfig()
 
   const dispatch = useAppDispatch()
@@ -110,7 +110,7 @@ export function useChangeNetwork() {
 
       const { rpc } = customRpc ? { rpc: customRpc } : await fetchKyberswapConfig(desiredChainId)
       const addChainParameter = {
-        chainId: desiredChainId,
+        chainId: '0x' + desiredChainId.toString(16),
         rpcUrls: [rpc],
         chainName: customName || NETWORKS_INFO[desiredChainId].name,
         nativeCurrency: {
@@ -120,26 +120,32 @@ export function useChangeNetwork() {
         },
         blockExplorerUrls: [NETWORKS_INFO[desiredChainId].etherscanUrl],
       }
-      try {
-        console.info('Add new network', { addChainParameter })
-        await connector.activate(addChainParameter)
-        console.info('Add new network success', { addChainParameter })
-        changeNetworkHandler(desiredChainId, wrappedSuccessCallback)
-      } catch (error) {
-        console.error('Add new network failed', { addChainParameter, error })
-        failureCallback(connector, desiredChainId, error, customFailureCallback, customName)
-        if (!didUserReject(connector, error)) {
-          const e = new Error(`[Wallet] ${error.message}`)
-          e.name = 'Add new network Error'
-          e.stack = ''
-          captureException(e, {
-            level: 'warning',
-            extra: { error, wallet: walletEVM.walletKey, chainId, addChainParameter },
+      console.info('Add new network', { addChainParameter })
+      const activeProvider = library?.provider ?? window.ethereum
+      if (activeProvider && activeProvider.request) {
+        try {
+          await activeProvider.request({
+            method: 'wallet_addEthereumChain',
+            params: [addChainParameter],
           })
+          changeNetworkHandler(desiredChainId, wrappedSuccessCallback)
+        } catch (error) {
+          console.error('Add new network failed', { addChainParameter, error })
+          failureCallback(connector, desiredChainId, error, customFailureCallback, customName)
+          if (!didUserReject(connector, error)) {
+            const e = new Error(`[Wallet] ${error.message}`)
+            e.name = 'Add new network Error'
+            e.stack = ''
+            captureException(e, {
+              level: 'warning',
+              extra: { error, wallet: walletEVM.walletKey, chainId, addChainParameter },
+            })
+          }
         }
       }
     },
     [
+      library?.provider,
       chainId,
       changeNetworkHandler,
       connector,

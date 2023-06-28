@@ -89,26 +89,14 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
 
   const onAdd = useCallback(() => {
     if (!selectedOption) return
-    addNewNetwork(
-      ChainId.MAINNET,
-      selectedOption.rpc,
-      selectedOption.name,
-      () => {
-        notify({
-          title: t`MEV Protection Mode is on`,
-          type: NotificationType.SUCCESS,
-          summary: t`You have successfully turned on MEV Protection Mode. All transactions on Ethereum will go through the custom RPC endpoint unless you change it`,
-        })
-        onClose?.()
-      },
-      () => {
-        notify({
-          title: t`Cant add MEV Protection`,
-          type: NotificationType.ERROR,
-          summary: t`Cant add MEV Protection`,
-        })
-      },
-    )
+    addNewNetwork(ChainId.MAINNET, selectedOption.rpc, selectedOption.name, () => {
+      notify({
+        title: t`MEV Protection Mode is on`,
+        type: NotificationType.SUCCESS,
+        summary: t`You have successfully turned on MEV Protection Mode. All transactions on Ethereum will go through the custom RPC endpoint unless you change it`,
+      })
+      onClose?.()
+    })
   }, [addNewNetwork, notify, onClose, selectedOption])
 
   return (
