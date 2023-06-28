@@ -335,7 +335,7 @@ function FarmCard({
                       text={
                         farm.ranges[activeRangeIndex].isRemoved ? (
                           <Trans>
-                            This indicates that range is idle. Staked positions in this range is still earning small
+                            This indicates that range is idle. Staked positions in this range is still earning small
                             amount of rewards.
                           </Trans>
                         ) : (
