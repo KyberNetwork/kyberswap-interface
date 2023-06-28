@@ -32,6 +32,7 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
 import ElasticLegacy from 'pages/ElasticLegacy'
+import DeprecationBanner from 'pages/Pool/DeprecationBanner'
 import ProAmmPool from 'pages/ProAmmPool'
 import { useFarmsData, useTotalApr } from 'state/farms/classic/hooks'
 import { Farm } from 'state/farms/classic/types'
@@ -172,8 +173,9 @@ export default function PoolCombination() {
   return (
     <>
       <PageWrapper style={{ paddingBottom: '24px' }}>
-        <AutoColumn>
+        <AutoColumn gap="24px">
           <ClassicElasticTab />
+          <DeprecationBanner />
         </AutoColumn>
         {tab === VERSION.ELASTIC ? (
           <ProAmmPool />
