@@ -83,18 +83,34 @@ export const useTokenPricesWithLoading = (
             },
             {
               address: '0x1bbeeedcf32dc2c1ebc2f138e3fc7f3decd44d6a',
-              price: 0.99,
+              price: 1,
               preferPriceSource: 'kyberswap',
             },
             {
               address: '0x2bf64acf7ead856209749d0d125e9ade2d908e7f',
-              price: 1.01,
+              price: 1,
               preferPriceSource: 'kyberswap',
             },
             {
               address: '0x48f6d7dae56623dde5a0d56b283165cae1753d70',
-              price: 1800,
+              price: 1740,
               preferPriceSource: 'kyberswap',
+            },
+            {
+              address: '0x3e0e7dbb7dd24934ffe06e16fbcad11bed2c65e2',
+              price: 1.74,
+            },
+            {
+              address: '0xd6c528a95f68f1ea923d3af97064c5c931d5106f',
+              price: 0.5,
+            },
+            {
+              address: '0x620791f237fb2233e2d5868ffcdcaa69ec468aba',
+              price: 30423,
+            },
+            {
+              address: '0x8d890dda6535aa3b6c2a00dad0baa0977722dbb0',
+              price: 0.00100587,
             },
           ])
         }

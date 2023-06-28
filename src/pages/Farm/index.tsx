@@ -134,7 +134,7 @@ const Farm = () => {
           (blockNumber && item.endBlock && item.endBlock > blockNumber),
       )
       .forEach(current => {
-        current.rewardTokens.forEach(token => {
+        current.rewardTokens?.forEach(token => {
           if (token && token.chainId === chainId && !tokenMap[token.wrapped.address])
             tokenMap[token.wrapped.address] = token
         })
@@ -401,7 +401,7 @@ const Farm = () => {
                         <Text>
                           <Trans>
                             Static farms incentivize farmers that provide liquidityto a pool in a pre-configured farming
-                            price range thatis set by the farm administrator. Learn more{' '}
+                            price range that is set by the farm administrator. Learn more{' '}
                             <ExternalLink href="https://docs.kyberswap.com/liquidity-solutions/kyberswap-elastic/user-guides/yield-farming-on-static-farms">
                               here ↗
                             </ExternalLink>
@@ -427,11 +427,11 @@ const Farm = () => {
                   </RowFit>
                 )}
 
-                {!upToMedium && <FarmSort />}
+                {!upToMedium && farmType !== VERSION.CLASSIC && <FarmSort />}
                 <HeadingRight>
                   <Flex justifyContent="space-between" sx={{ gap: '6px' }}>
                     {selectTokenFilter}
-                    {upToMedium && <FarmSort />}
+                    {upToMedium && farmType !== VERSION.CLASSIC && <FarmSort />}
                   </Flex>
                   <SearchContainer>
                     <SearchInput

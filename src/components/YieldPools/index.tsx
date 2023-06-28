@@ -23,7 +23,12 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
   // todo: fix spam rpc and remove this ref, add blockNumber into deps list
   const blockNumberRef = useRef(blockNumber)
   blockNumberRef.current = blockNumber
-  const { search = '', ...qs } = useParsedQueryString<{ search: string }>()
+  const {
+    search = '',
+    token0,
+    token1,
+    ...qs
+  } = useParsedQueryString<{ search: string; token0?: string; token1?: string }>()
   const { data: farmsByFairLaunch } = useFarmsData()
 
   const [open, setOpen] = useState(false)
@@ -36,47 +41,43 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
 
   const filterFarm = useCallback(
     (farm: Farm) => {
-      if (farm.rewardPerSeconds) {
-        // for active/ended farms
-        return (
-          currentTimestampRef.current &&
+      const filterByTime = farm.rewardPerSeconds
+        ? currentTimestampRef.current &&
           (qs.type === FARM_TAB.MY_FARMS
             ? true
             : active
             ? farm.endTime >= currentTimestampRef.current
-            : farm.endTime < currentTimestampRef.current) &&
-          // search farms
-          (debouncedSearchText
-            ? farm.token0?.symbol.toLowerCase().includes(debouncedSearchText) ||
-              farm.token1?.symbol.toLowerCase().includes(debouncedSearchText) ||
-              farm.id === debouncedSearchText
-            : true) &&
-          (qs.type === FARM_TAB.MY_FARMS
-            ? farm.userData?.stakedBalance && BigNumber.from(farm.userData.stakedBalance).gt(0)
-            : true)
-        )
-      } else {
-        // for active/ended farms
-        return (
-          blockNumberRef.current &&
+            : farm.endTime < currentTimestampRef.current)
+        : blockNumberRef.current &&
           (qs.type === FARM_TAB.MY_FARMS
             ? true
             : active
             ? farm.endBlock >= blockNumberRef.current
-            : farm.endBlock < blockNumberRef.current) &&
-          // search farms
-          (debouncedSearchText
-            ? farm.token0?.symbol.toLowerCase().includes(debouncedSearchText) ||
-              farm.token1?.symbol.toLowerCase().includes(debouncedSearchText) ||
-              farm.id === debouncedSearchText
-            : true) &&
-          (qs.type === FARM_TAB.MY_FARMS
-            ? farm.userData?.stakedBalance && BigNumber.from(farm.userData.stakedBalance).gt(0)
-            : true)
-        )
-      }
+            : farm.endBlock < blockNumberRef.current)
+
+      const filterBySearchText = debouncedSearchText
+        ? farm.token0?.symbol.toLowerCase().includes(debouncedSearchText) ||
+          farm.token1?.symbol.toLowerCase().includes(debouncedSearchText) ||
+          farm.id === debouncedSearchText
+        : true
+
+      const filterByStakedOnly =
+        qs.type === FARM_TAB.MY_FARMS
+          ? farm.userData?.stakedBalance && BigNumber.from(farm.userData.stakedBalance).gt(0)
+          : true
+
+      const filterByToken0 = token0
+        ? farm.token0?.id.toLowerCase() === token0.toLowerCase() ||
+          farm.token1?.id.toLowerCase() === token0.toLowerCase()
+        : true
+      const filterByToken1 = token1
+        ? farm.token0?.id.toLowerCase() === token1.toLowerCase() ||
+          farm.token1?.id.toLowerCase() === token1.toLowerCase()
+        : true
+
+      return filterByTime && filterBySearchText && filterByStakedOnly && filterByToken0 && filterByToken1
     },
-    [active, debouncedSearchText, qs.type],
+    [active, debouncedSearchText, qs.type, token0, token1],
   )
 
   const farms = useMemo(
