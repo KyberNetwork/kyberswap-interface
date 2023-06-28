@@ -133,6 +133,7 @@ function FarmCard({
   const myDepositUSD = stakedPos.reduce((total, item) => item.stakedUsdValue + total, 0)
 
   const isEnded = currentTimestamp > farm.endTime
+  const isAllRangesInactive = !farm.ranges.some(item => !item.isRemoved)
 
   const canUpdateLiquidity =
     !isEnded &&
@@ -560,7 +561,7 @@ function FarmCard({
               onClick={() => {
                 onStake()
               }}
-              disabled={!account || !isApproved || isEnded || farm.isSettled}
+              disabled={!account || !isApproved || isEnded || farm.isSettled || isAllRangesInactive}
               padding="10px 12px"
               width={canUnstake ? 'fit-content' : undefined}
             >

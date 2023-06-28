@@ -2,7 +2,7 @@ import { gql, useLazyQuery } from '@apollo/client'
 import { defaultAbiCoder } from '@ethersproject/abi'
 import { getCreate2Address } from '@ethersproject/address'
 import { keccak256 } from '@ethersproject/solidity'
-import { CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount, Fraction, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Pool, Position, TickMath } from '@kyberswap/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
@@ -212,6 +212,8 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
             Number(tvlToken1.toExact() || '0') * (prices[farm.pool.token1.id] || 0)
 
           const totalRewards = farm.rewards.map(item => CurrencyAmount.fromRawAmount(getToken(item.token), item.amount))
+
+          console.log(farm.ranges)
           return {
             id: farm.id,
             fId: +farm.id.split('_')[1],
@@ -227,40 +229,51 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
             tvlToken1,
             tvl,
             ranges: farm.ranges.map(r => {
-              // APR = sharePerLiquidity / totalShare * (365 * totalRewards/farmDurationInDays)
-              // totalShare = SUM(weight * liquidity) = farm.liquidity
-              // sharePerLiquidity = weight / (price0*qty0 + price1*qty1)
-              // qty0 = (sqrt(upper) - sqrt(current)) / (sqrt(upper) * sqrt(lower))
-              // qty1 = (sqrt(current) - sqrt(lower)
-              // => (farm.liquidity * qty0) equivalent to amount0 of position
+              // https://www.notion.so/kybernetwork/LM-v2-APR-Formula-15b8606e820745b59a5a3aded8bf46e0
 
-              const position = new Position({
-                pool: p,
-                tickLower:
-                  +r.tickLower % p.tickSpacing === 0
-                    ? +r.tickLower
-                    : Math.max(TickMath.MIN_TICK, Math.floor(+r.tickLower / p.tickSpacing) * p.tickSpacing),
-                tickUpper:
-                  +r.tickUpper % p.tickSpacing === 0
-                    ? +r.tickUpper
-                    : Math.min(TickMath.MAX_TICK, Math.ceil(+r.tickUpper / p.tickSpacing) * p.tickSpacing),
-                liquidity: farm.liquidity,
-              })
-
-              const sharePerLiquidity =
-                r.weight /
-                (+position.amount0.toExact() * (prices[farm.pool.token0.id] || 0) +
-                  +position.amount1.toExact() * (prices[farm.pool.token1.id] || 0))
-
+              // t_0
               const totalFarmingTime = (+farm.endTime - +farm.startTime) / 60 / 60 / 24 // in days
+              // r
               const totalFarmRewardUsd = totalRewards.reduce(
                 (total, item) => total + +item.toExact() * (prices[item.currency.wrapped.address] || 0),
                 0,
               )
+              // w_f = r.weight
+              // l_f = farm.liquidity
+              // f(r_min, r_max, p_c)
+
+              const sqrtLowerX96 = TickMath.getSqrtRatioAtTick(+r.tickLower).toString()
+              const sqrtUpperX96 = TickMath.getSqrtRatioAtTick(+r.tickUpper).toString()
+              const sqrtCurrentX96 = TickMath.getSqrtRatioAtTick(p.tickCurrent).toString()
+
+              const X96 = '79228162514264337593543950336'
+
+              const price0 = (prices[farm.pool.token0.id] || 0) / 10 ** +farm.pool.token0.decimals
+              const price1 = (prices[farm.pool.token1.id] || 0) / 10 ** +farm.pool.token1.decimals
+
+              let f
+              if (p.tickCurrent < +r.tickLower)
+                f =
+                  +new Fraction(X96, sqrtLowerX96).subtract(new Fraction(X96, sqrtUpperX96)).toSignificant(100) * price0
+              else if (p.tickCurrent >= +r.tickUpper)
+                f =
+                  +BigNumber.from(sqrtUpperX96).sub(BigNumber.from(sqrtLowerX96)).div(BigNumber.from(X96)).toString() *
+                  price1
+              else
+                f =
+                  +new Fraction(X96, sqrtCurrentX96).subtract(new Fraction(X96, sqrtUpperX96)).toSignificant(100) *
+                    price0 +
+                  +BigNumber.from(sqrtCurrentX96)
+                    .sub(BigNumber.from(sqrtLowerX96))
+                    .div(BigNumber.from(X96))
+                    .toString() *
+                    price1
+
               const apr =
                 farm.isSettled || +farm.endTime < Date.now() / 1000 || farm.liquidity === '0'
                   ? 0
-                  : (365 * sharePerLiquidity * totalFarmRewardUsd) / totalFarmingTime
+                  : (100 * (totalFarmRewardUsd * r.weight * 365)) / totalFarmingTime / +farm.liquidity / f
+              console.log(apr)
 
               return {
                 ...r,

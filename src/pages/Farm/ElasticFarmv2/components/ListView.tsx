@@ -88,6 +88,7 @@ export const ListView = ({
   const myDepositUSD = stakedPos.reduce((total, item) => item.stakedUsdValue + total, 0)
 
   const isEnded = currentTimestamp > farm.endTime
+  const isAllRangesInactive = !farm.ranges.some(item => !item.isRemoved)
 
   const canUpdateLiquidity =
     !isEnded &&
@@ -395,7 +396,10 @@ export const ListView = ({
 
         <Flex justifyContent="flex-end" sx={{ gap: '4px' }}>
           <MouseoverTooltipDesktopOnly text={t`Stake`} placement="top" width="fit-content">
-            <MinimalActionButton disabled={!account || !isApproved || isEnded || farm.isSettled} onClick={onStake}>
+            <MinimalActionButton
+              disabled={!account || !isApproved || isEnded || farm.isSettled || isAllRangesInactive}
+              onClick={onStake}
+            >
               <Plus size={16} />
             </MinimalActionButton>
           </MouseoverTooltipDesktopOnly>

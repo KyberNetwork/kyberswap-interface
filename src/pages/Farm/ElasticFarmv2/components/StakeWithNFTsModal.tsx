@@ -211,7 +211,7 @@ const StakeWithNFTsModal = ({
   isOpen: boolean
   onDismiss: () => void
 }) => {
-  const [activeRange, setActiveRange] = useState(farm.ranges[0])
+  const [activeRange, setActiveRange] = useState(farm.ranges.filter(item => !item.isRemoved)[0])
 
   const theme = useTheme()
   const { account } = useActiveWeb3React()
