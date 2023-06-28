@@ -80,10 +80,8 @@ const Content = styled.div<{ width: string }>`
   }
 `
 const InnerContent = styled.div<{ mobile: boolean }>`
-  position: absolute;
-  top: 28%;
-  left: 30px;
-  margin: auto;
+  width: 100%;
+  padding: 0 30px;
   height: fit-content;
   display: flex;
   flex-direction: column;
@@ -91,9 +89,21 @@ const InnerContent = styled.div<{ mobile: boolean }>`
   ${({ mobile }) =>
     mobile &&
     css`
-      left: 16px;
-      top: 18%;
+      padding: 0 16px;
       gap: 20px;
+    `};
+`
+
+const InnerContentWrapper = styled.div<{ mobile: boolean }>`
+  position: absolute;
+  top: 28%;
+  left: 0;
+  width: 100%;
+  height: fit-content;
+  ${({ mobile }) =>
+    mobile &&
+    css`
+      top: 18%;
     `};
 `
 
@@ -265,17 +275,19 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
             alt="my earning"
             width={containerWith}
           />
-          <InnerContent mobile={!isSharePc}>
-            <Text fontSize={isSharePc ? 26 : 16} fontWeight="500" color={theme.white}>
-              {title}
-            </Text>
+          <InnerContentWrapper mobile={!isSharePc}>
+            <InnerContent mobile={!isSharePc}>
+              <Text fontSize={isSharePc ? 26 : 16} fontWeight="500" color={theme.white}>
+                {title}
+              </Text>
 
-            {renderPool()}
+              {renderPool()}
 
-            <Text fontSize={isSharePc ? 50 : 30} fontWeight="500" color={theme.primary}>
-              {formatValue(value, isSharePc)}
-            </Text>
-          </InnerContent>
+              <Text fontSize={isSharePc ? 50 : 30} fontWeight="500" color={theme.primary}>
+                {formatValue(value, isSharePc)}
+              </Text>
+            </InnerContent>
+          </InnerContentWrapper>
         </Content>
         <RowBetween>
           {!isMobile && (
