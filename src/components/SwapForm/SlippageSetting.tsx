@@ -6,11 +6,11 @@ import styled from 'styled-components'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import SlippageControl from 'components/SlippageControl'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
-import { DEFAULT_SLIPPAGE, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
-import { checkWarningSlippage, formatSlippage } from 'utils/slippage'
+import { checkWarningSlippage, formatSlippage, getDefaultSlippage } from 'utils/slippage'
 
 const DropdownIcon = styled(DropdownSVG)`
   transition: transform 300ms;
@@ -28,9 +28,11 @@ type Props = {
 }
 const SlippageSetting = ({ isStablePairSwap, rightComponent, tooltip, isCrossChain }: Props) => {
   const theme = useTheme()
+  const { chainId } = useActiveWeb3React()
   const [expanded, setExpanded] = useState(false)
 
   const { setRawSlippage, rawSlippage, isSlippageControlPinned } = useSlippageSettingByPage(isCrossChain)
+  const defaultRawSlippage = getDefaultSlippage(chainId, isStablePairSwap)
 
   const isWarningSlippage = checkWarningSlippage(rawSlippage, isStablePairSwap)
   if (!isSlippageControlPinned) {
@@ -126,7 +128,7 @@ const SlippageSetting = ({ isStablePairSwap, rightComponent, tooltip, isCrossCha
           rawSlippage={rawSlippage}
           setRawSlippage={setRawSlippage}
           isWarning={isWarningSlippage}
-          defaultRawSlippage={isStablePairSwap ? DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP : DEFAULT_SLIPPAGE}
+          defaultRawSlippage={defaultRawSlippage}
         />
       </Flex>
     </Flex>

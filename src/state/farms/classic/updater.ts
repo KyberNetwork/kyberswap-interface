@@ -3,7 +3,7 @@ import { Contract } from '@ethersproject/contracts'
 import { useEffect, useRef } from 'react'
 import { useSelector } from 'react-redux'
 
-import { ZERO_ADDRESS } from 'constants/index'
+import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -41,8 +41,11 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
     let cancelled = false
 
     async function getListFarmsForContract(contract: Contract): Promise<Farm[]> {
+      const isV3 = (networkInfo as EVMNetworkInfo).classic.fairlaunchV3?.includes(contract.address)
+
       if (!isEVM) return []
-      const rewardTokenAddresses: string[] = await contract?.getRewardTokens()
+      let rewardTokenAddresses: string[] = []
+      if (!isV3) rewardTokenAddresses = await contract?.getRewardTokens()
       if (cancelled) throw new Error('canceled')
       const poolLength = await contract?.poolLength()
       if (cancelled) throw new Error('canceled')
@@ -50,21 +53,36 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
       const pids = [...Array(BigNumber.from(poolLength).toNumber()).keys()]
 
       const isV2 = (networkInfo as EVMNetworkInfo).classic.fairlaunchV2.includes(contract.address)
+
+      const rewardTokens = rewardTokenAddresses
+        .map(address =>
+          address.toLowerCase() === ZERO_ADDRESS.toLowerCase() ? NativeCurrencies[chainId] : allTokens[address],
+        )
+        .filter(Boolean)
+
       const poolInfos = await Promise.all(
         pids.map(async (pid: number) => {
           const poolInfo = await contract?.getPoolInfo(pid)
           if (cancelled) throw new Error('canceled')
-          if (isV2) {
+          if (isV2 || isV3) {
             return {
               ...poolInfo,
               accRewardPerShares: poolInfo.accRewardPerShares.map((accRewardPerShare: BigNumber, index: number) =>
-                accRewardPerShare.div(poolInfo.rewardMultipliers[index]),
+                accRewardPerShare.div(isV3 ? poolInfo.multipliers[index] : poolInfo.rewardMultipliers[index]),
               ),
               rewardPerSeconds: poolInfo.rewardPerSeconds.map((accRewardPerShare: BigNumber, index: number) =>
-                accRewardPerShare.div(poolInfo.rewardMultipliers[index]),
+                accRewardPerShare.div(isV3 ? poolInfo.multipliers[index] : poolInfo.rewardMultipliers[index]),
               ),
               pid,
-              fairLaunchVersion: FairLaunchVersion.V2,
+              fairLaunchVersion: isV3 ? FairLaunchVersion.V3 : FairLaunchVersion.V2,
+              rewardTokens:
+                (isV3
+                  ? poolInfo.rewardTokens.map((rw: string) =>
+                      rw.toLowerCase() === ZERO_ADDRESS || rw.toLowerCase() === ETHER_ADDRESS.toLowerCase()
+                        ? NativeCurrencies[chainId]
+                        : allTokens[rw],
+                    )
+                  : rewardTokens) || [],
             }
           }
 
@@ -72,6 +90,7 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
             ...poolInfo,
             pid,
             fairLaunchVersion: FairLaunchVersion.V1,
+            rewardTokens,
           }
         }),
       )
@@ -108,29 +127,24 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
       )
       if (cancelled) throw new Error('canceled')
 
-      const rewardTokens = rewardTokenAddresses
-        .map(address =>
-          address.toLowerCase() === ZERO_ADDRESS.toLowerCase() ? NativeCurrencies[chainId] : allTokens[address],
-        )
-        .filter(Boolean)
-
       const farms: Farm[] = poolInfos.map((poolInfo, index) => {
         return {
           ...farmsData.find(
             (farmData: Farm) => farmData && farmData.id.toLowerCase() === poolInfo.stakeToken.toLowerCase(),
           ),
           ...poolInfo,
-          rewardTokens,
+          rewardTokens: poolInfo.rewardTokens,
           fairLaunchAddress: contract.address,
           userData: {
             stakedBalance: stakedBalances[index],
-            rewards:
-              poolInfo.fairLaunchVersion === FairLaunchVersion.V2
-                ? pendingRewards[index] &&
-                  pendingRewards[index].map((pendingReward: BigNumber, pendingRewardIndex: number) =>
-                    pendingReward.div(poolInfo.rewardMultipliers[pendingRewardIndex]),
-                  )
-                : pendingRewards[index],
+            rewards: [FairLaunchVersion.V2, FairLaunchVersion.V3].includes(poolInfo.fairLaunchVersion)
+              ? pendingRewards[index] &&
+                pendingRewards[index].map((pendingReward: BigNumber, pendingRewardIndex: number) =>
+                  pendingReward.div(
+                    isV3 ? poolInfo.multipliers[pendingRewardIndex] : poolInfo.rewardMultipliers[pendingRewardIndex],
+                  ),
+                )
+              : pendingRewards[index],
           },
         }
       })
