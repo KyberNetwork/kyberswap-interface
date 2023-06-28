@@ -19,11 +19,12 @@ import { useLazyKyberswapConfig } from '../useKyberSwapConfig'
 let latestChainId: ChainId
 export function useChangeNetwork() {
   const { chainId, walletEVM, walletSolana } = useActiveWeb3React()
-  const { connector } = useWeb3React()
+  const { connector, library } = useWeb3React()
   const fetchKyberswapConfig = useLazyKyberswapConfig()
 
   const dispatch = useAppDispatch()
   const notify = useNotify()
+  latestChainId = chainId
 
   const changeNetworkHandler = useCallback(
     (desiredChainId: ChainId, successCallback?: () => void) => {
@@ -33,29 +34,141 @@ export function useChangeNetwork() {
     [dispatch],
   )
 
-  latestChainId = chainId
+  const successCallback = useCallback(
+    async (desiredChainId: ChainId, waitUtilUpdatedChainId: boolean, customSuccessCallback?: () => void) => {
+      const initialChainId = latestChainId
+      /** although change chain successfully, but it take 1-2s for chainId has a new value
+       * => this option will wait util chainId has actually update to new value to prevent some edge case
+       */
+      while (waitUtilUpdatedChainId) {
+        await wait(300)
+        if (desiredChainId === latestChainId) {
+          customSuccessCallback?.()
+          return
+        }
+        if (initialChainId !== latestChainId) {
+          return
+        }
+      }
+      customSuccessCallback?.()
+    },
+    [],
+  )
+
+  const failureCallback = useCallback(
+    (
+      connector: Connector,
+      desiredChainId: ChainId,
+      error: any,
+      customFailureCallback?: (error: Error) => void,
+      customName?: string,
+    ) => {
+      let message: string = t`Error when changing network.`
+
+      if (didUserReject(connector, error)) {
+        message = t`In order to use KyberSwap on ${
+          customName || NETWORKS_INFO[desiredChainId].name
+        }, you must accept the network in your wallet.`
+      } else if (
+        [
+          /Cannot activate an optional chain \(\d+\), as the wallet is not connected to it\./,
+          /Chain 'eip155:\d+' not approved. Please use one of the following: eip155:\d+/,
+        ].some(regex => regex.test(error?.message))
+      ) {
+        message = t`Your wallet not support chain ${customName || NETWORKS_INFO[desiredChainId].name}`
+      } else {
+        message = error?.message || message
+        const e = new Error(`[Wallet] ${error.message}`)
+        e.name = 'Activate chain fail'
+        e.stack = ''
+        captureException(e, {
+          level: 'warning',
+          extra: { error, wallet: walletEVM.walletKey, chainId, desiredChainId, message },
+        })
+      }
+      notify({
+        title: t`Failed to switch network`,
+        type: NotificationType.ERROR,
+        summary: message,
+      })
+      customFailureCallback?.(error)
+    },
+    [chainId, notify, walletEVM.walletKey],
+  )
+
+  const addNewNetwork = useCallback(
+    async (
+      desiredChainId: ChainId,
+      customRpc?: string,
+      customName?: string,
+      customSuccessCallback?: () => void,
+      customFailureCallback?: (error: Error) => void,
+      waitUtilUpdatedChainId = false,
+    ) => {
+      const wrappedSuccessCallback = () =>
+        successCallback(desiredChainId, waitUtilUpdatedChainId, customSuccessCallback)
+
+      const { rpc } = customRpc ? { rpc: customRpc } : await fetchKyberswapConfig(desiredChainId)
+      const addChainParameter = {
+        chainId: '0x' + desiredChainId.toString(16),
+        rpcUrls: [rpc],
+        chainName: customName || NETWORKS_INFO[desiredChainId].name,
+        nativeCurrency: {
+          name: NETWORKS_INFO[desiredChainId].nativeToken.name,
+          symbol: NETWORKS_INFO[desiredChainId].nativeToken.symbol,
+          decimals: NETWORKS_INFO[desiredChainId].nativeToken.decimal,
+        },
+        blockExplorerUrls: [NETWORKS_INFO[desiredChainId].etherscanUrl],
+      }
+      console.info('Add new network', { addChainParameter })
+      const activeProvider = library?.provider ?? window.ethereum
+      if (activeProvider && activeProvider.request) {
+        try {
+          await activeProvider.request({
+            method: 'wallet_addEthereumChain',
+            params: [addChainParameter],
+          })
+          changeNetworkHandler(desiredChainId, wrappedSuccessCallback)
+        } catch (error) {
+          console.error('Add new network failed', { addChainParameter, error })
+          failureCallback(connector, desiredChainId, error, customFailureCallback, customName)
+          if (!didUserReject(connector, error)) {
+            const e = new Error(`[Wallet] ${error.message}`)
+            e.name = 'Add new network Error'
+            e.stack = ''
+            captureException(e, {
+              level: 'warning',
+              extra: { error, wallet: walletEVM.walletKey, chainId, addChainParameter },
+            })
+          }
+        }
+      }
+    },
+    [
+      library?.provider,
+      chainId,
+      changeNetworkHandler,
+      connector,
+      failureCallback,
+      fetchKyberswapConfig,
+      successCallback,
+      walletEVM.walletKey,
+    ],
+  )
+
   const changeNetwork = useCallback(
     async (
       desiredChainId: ChainId,
-      successCb?: () => void,
-      failureCallback?: () => void,
+      customSuccessCallback?: () => void,
+      customFailureCallback?: (error: Error) => void,
       waitUtilUpdatedChainId = false,
     ) => {
+      const wrappedSuccessCallback = () =>
+        successCallback(desiredChainId, waitUtilUpdatedChainId, customSuccessCallback)
       // if connected, nothing todo, success return
       if (desiredChainId === chainId) {
-        successCb?.()
+        customSuccessCallback?.()
         return
-      }
-
-      const successCallback = async () => {
-        /** although change chain successfully, but it take 1-2s for chainId has a new value
-         * => this option will wait util chainId has actually update to new value to prevent some edge case
-         */
-        while (waitUtilUpdatedChainId) {
-          await wait(1000)
-          if (desiredChainId === latestChainId) break
-        }
-        successCb?.()
       }
 
       // if changing to network not connected wallet, update redux and success return
@@ -63,94 +176,49 @@ export function useChangeNetwork() {
         (isSolana(desiredChainId) && !walletSolana.isConnected) ||
         (isEVM(desiredChainId) && !walletEVM.isConnected)
       ) {
-        changeNetworkHandler(desiredChainId, successCallback)
+        changeNetworkHandler(desiredChainId, wrappedSuccessCallback)
         return
       }
 
       if (isEVM(desiredChainId)) {
         try {
+          console.info('Switch network', { desiredChainId })
           await connector.activate(desiredChainId)
-          changeNetworkHandler(desiredChainId, successCallback)
+          console.info('Switch network success', { desiredChainId })
+          changeNetworkHandler(desiredChainId, wrappedSuccessCallback)
         } catch (error) {
-          const notifyFailed = (connector: Connector, error: any) => {
-            let message: string = t`Error when changing network.`
+          console.error('Switch network failed', { desiredChainId, error })
 
-            if (didUserReject(connector, error)) {
-              message = t`In order to use KyberSwap on ${NETWORKS_INFO[desiredChainId].name}, you must accept the network in your wallet.`
-            } else if (
-              [
-                /Cannot activate an optional chain \(\d+\), as the wallet is not connected to it\./,
-                /Chain 'eip155:\d+' not approved. Please use one of the following: eip155:\d+/,
-              ].some(regex => regex.test(error?.message))
-            ) {
-              message = t`Your wallet not support chain ${NETWORKS_INFO[desiredChainId].name}`
-            } else {
-              const e = new Error(`[Wallet] ${error.message}`)
-              e.name = 'Change chain step 1 Error'
-              e.stack = ''
-              captureException(e, {
-                level: 'warning',
-                extra: { error, wallet: walletEVM.walletKey, chainId, desiredChainId },
-              })
-              message = error?.message || message
-            }
-            notify({
-              title: t`Failed to switch network`,
-              type: NotificationType.ERROR,
-              summary: message,
-            })
-            failureCallback?.()
-          }
           // walletconnect v2 not support add network, so halt execution here
           if (didUserReject(connector, error) || connector === walletConnectV2) {
-            notifyFailed(connector, error)
+            failureCallback(connector, desiredChainId, error, customFailureCallback)
             return
           }
-          console.error(`Change network step 1: activate chainID ${desiredChainId} failed`, { error })
-          const { rpc } = await fetchKyberswapConfig(desiredChainId)
-          const addChainParameter = {
-            chainId: desiredChainId,
-            rpcUrls: [rpc],
-            chainName: NETWORKS_INFO[desiredChainId].name,
-            nativeCurrency: {
-              name: NETWORKS_INFO[desiredChainId].nativeToken.name,
-              symbol: NETWORKS_INFO[desiredChainId].nativeToken.symbol,
-              decimals: NETWORKS_INFO[desiredChainId].nativeToken.decimal,
-            },
-            blockExplorerUrls: [NETWORKS_INFO[desiredChainId].etherscanUrl],
-          }
-          try {
-            await connector.activate(addChainParameter)
-            changeNetworkHandler(desiredChainId, successCallback)
-          } catch (error) {
-            notifyFailed(connector, error)
-            if (!didUserReject(connector, error)) {
-              const e = new Error(`[Wallet] ${error.message}`)
-              e.name = 'Change chain step 2 Error'
-              e.stack = ''
-              captureException(e, {
-                level: 'warning',
-                extra: { error, wallet: walletEVM.walletKey, chainId, addChainParameter },
-              })
-              console.error(`Change network step 2: activate addChainParameter ${addChainParameter} failed`, { error })
-            }
-          }
+
+          addNewNetwork(
+            desiredChainId,
+            undefined,
+            undefined,
+            customSuccessCallback,
+            customFailureCallback,
+            waitUtilUpdatedChainId,
+          )
         }
       } else {
-        changeNetworkHandler(desiredChainId, successCallback)
+        changeNetworkHandler(desiredChainId, wrappedSuccessCallback)
       }
     },
     [
       chainId,
       walletSolana.isConnected,
       walletEVM.isConnected,
-      walletEVM.walletKey,
-      changeNetworkHandler,
       connector,
-      fetchKyberswapConfig,
-      notify,
+      changeNetworkHandler,
+      successCallback,
+      failureCallback,
+      addNewNetwork,
     ],
   )
 
-  return changeNetwork
+  return { changeNetwork, addNewNetwork }
 }
