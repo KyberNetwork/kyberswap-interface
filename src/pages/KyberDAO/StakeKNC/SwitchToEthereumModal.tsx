@@ -46,7 +46,7 @@ export default function SwitchToEthereumModal({ featureText }: { featureText: st
   const theme = useTheme()
   const modalOpen = useModalOpen(ApplicationModal.SWITCH_TO_ETHEREUM)
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_TO_ETHEREUM)
-  const changeNetwork = useChangeNetwork()
+  const { changeNetwork } = useChangeNetwork()
 
   const handleChangeToEthereum = useCallback(async () => {
     if (![ChainId.GÖRLI, ChainId.MAINNET].includes(chainId)) {
