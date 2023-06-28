@@ -1,4 +1,4 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
@@ -8,14 +8,13 @@ import SelectNetwork from 'components/Header/web3/SelectNetwork'
 import SelectWallet from 'components/Header/web3/SelectWallet'
 import Menu from 'components/Menu'
 import Row, { RowFixed } from 'components/Row'
-import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useHolidayMode, useIsDarkMode } from 'state/user/hooks'
 
-import DiscoverNavItem from './DiscoverNavItem'
+import KyberAINavItem from './KyberAINavItem'
 import AboutNavGroup from './groups/AboutNavGroup'
 import AnalyticNavGroup from './groups/AnalyticNavGroup'
 import EarnNavGroup from './groups/EarnNavGroup'
@@ -104,6 +103,10 @@ const HeaderLinks = styled(Row)`
   ${({ theme }) => theme.mediaWidth.upToLarge`
     justify-content: flex-end;
   `};
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+     gap: 0px;
+  `}
 `
 
 const IconImage = styled.img<{ isChristmas?: boolean }>`
@@ -115,9 +118,9 @@ const IconImage = styled.img<{ isChristmas?: boolean }>`
     margin-top: ${isChristmas ? '-10px' : '1px'};
   `};
 
-  @media only screen and (max-width: 400px) {
-    width: 100px;
-  }
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    width:100px;
+  `}
 `
 
 const BlogWrapper = styled.span`
@@ -155,7 +158,7 @@ const LogoIcon = styled.div`
 `
 
 export default function Header() {
-  const { walletKey, networkInfo } = useActiveWeb3React()
+  const { networkInfo } = useActiveWeb3React()
   const isDark = useIsDarkMode()
   const [holidayMode] = useHolidayMode()
 
@@ -181,8 +184,8 @@ export default function Header() {
         <HeaderLinks>
           <SwapNavGroup />
           <EarnNavGroup />
+          <KyberAINavItem />
           <CampaignNavGroup />
-          <DiscoverNavItem />
           <KyberDAONavGroup />
           <AnalyticNavGroup />
           <AboutNavGroup />
@@ -201,12 +204,7 @@ export default function Header() {
       </HeaderRow>
       <HeaderControls>
         <HeaderElement>
-          <MouseoverTooltip
-            text={t`You are currently connected through WalletConnect. If you want to change the connected network, please disconnect your wallet before changing the network.`}
-            disableTooltip={walletKey !== 'WALLET_CONNECT'}
-          >
-            <SelectNetwork disabled={walletKey === 'WALLET_CONNECT'} />
-          </MouseoverTooltip>
+          <SelectNetwork />
           <SelectWallet />
         </HeaderElement>
         <HeaderElementWrap>

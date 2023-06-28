@@ -40,11 +40,13 @@ import { FARM_TAB } from 'constants/index'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
+import useElasticCompensationData from 'hooks/useElasticCompensationData'
+import useElasticLegacy from 'hooks/useElasticLegacy'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useTheme from 'hooks/useTheme'
-import Notice from 'pages/ElasticLegacy/Notice'
+import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
+import ElasticLegacy from 'pages/ElasticLegacy'
 import { CurrencyWrapper, Tab } from 'pages/Pools/styleds'
 import { AppState } from 'state'
 import { ApplicationModal } from 'state/application/actions'
@@ -52,6 +54,7 @@ import { useBlockNumber, useOpenModal } from 'state/application/hooks'
 import { useFarmsData } from 'state/farms/classic/hooks'
 import ClassicFarmUpdater from 'state/farms/classic/updater'
 import { FarmUpdater, useElasticFarms } from 'state/farms/elastic/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 import { isInEnum } from 'utils/string'
 
 const Farm = () => {
@@ -107,13 +110,13 @@ const Farm = () => {
         return farmType === VERSION.ELASTIC ? (
           <ElasticFarms stakedOnly={stakedOnly} />
         ) : (
-          <YieldPools loading={loading} active />
+          <YieldPools loading={loading} active stakedOnly={stakedOnly} />
         )
       case FARM_TAB.ENDED:
         return farmType === VERSION.ELASTIC ? (
           <ElasticFarms stakedOnly={stakedOnly} />
         ) : (
-          <YieldPools loading={loading} active={false} />
+          <YieldPools loading={loading} active={false} stakedOnly={stakedOnly} />
         )
       case FARM_TAB.VESTING:
         return farmType === VERSION.ELASTIC ? null : <Vesting loading={vestingLoading} />
@@ -121,11 +124,11 @@ const Farm = () => {
         return farmType === VERSION.ELASTIC ? (
           <ElasticFarms stakedOnly={stakedOnly} />
         ) : (
-          <YieldPools loading={loading} active={false} />
+          <YieldPools loading={loading} active={false} stakedOnly={stakedOnly} />
         )
 
       default:
-        return <YieldPools loading={loading} active />
+        return <YieldPools loading={loading} active stakedOnly={stakedOnly} />
     }
   }
   const { mixpanelHandler } = useMixpanel()
@@ -149,7 +152,7 @@ const Farm = () => {
           (blockNumber && item.endBlock && item.endBlock > blockNumber),
       )
       .forEach(current => {
-        current.rewardTokens.forEach(token => {
+        current.rewardTokens?.forEach(token => {
           if (token && token.chainId === chainId && !tokenMap[token.wrapped.address])
             tokenMap[token.wrapped.address] = token
         })
@@ -167,10 +170,22 @@ const Farm = () => {
     return Object.values(tokenMap)
   }, [farmsByFairLaunch, blockNumber, elasticFarms, chainId])
 
+  const { farmPositions } = useElasticLegacy(false)
+  const { claimInfo } = useElasticCompensationData(false)
+  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+  const shouldShowFarmTab = !!farmPositions.length || !!claimInfo
+  const explicit3Tab = shouldShowFarmTab && !upToMedium
+
   const rewardPrice = !!rewardTokens.length && (
     <Flex
       flex={1}
-      width={below1500 ? 'calc(100vw - 706px)' : '796px'}
+      width={
+        below1500
+          ? `calc(100vw - ${explicit3Tab ? '1064px' : farmType === VERSION.ELASTIC_LEGACY ? '794px' : '730px'})`
+          : explicit3Tab
+          ? '544px'
+          : '796px'
+      }
       sx={{ gap: '4px' }}
       alignItems="center"
       justifyContent="flex-end"
@@ -270,15 +285,9 @@ const Farm = () => {
             )}
           </TopBar>
 
-          {farmType === VERSION.ELASTIC && (
-            <div style={{ marginTop: '1rem' }}>
-              <Notice />
-            </div>
-          )}
-
-          <FarmGuide farmType={farmType} />
+          {farmType !== VERSION.ELASTIC_LEGACY && <FarmGuide farmType={farmType} />}
         </div>
-        {below992 && (
+        {below992 && farmType !== VERSION.ELASTIC_LEGACY && (
           <Flex sx={{ gap: '1rem' }}>
             {rewardPrice}
             <Flex alignItems="center" sx={{ gap: '6px' }}>
@@ -293,107 +302,111 @@ const Farm = () => {
           </Flex>
         )}
 
-        <div>
-          <TabContainer>
-            <Flex sx={{ gap: '8px' }}>
-              <Tab
-                onClick={() => {
-                  if (type && type !== 'active') {
-                    mixpanelHandler(MIXPANEL_TYPE.FARMS_ACTIVE_VIEWED)
-                  }
-                  navigateTab(FARM_TAB.ACTIVE)
-                }}
-                active={!type || type === 'active'}
-              >
-                <PoolTitleContainer>
-                  <Trans>Active</Trans>
-                </PoolTitleContainer>
-              </Tab>
-              <Tab
-                onClick={() => {
-                  if (type !== 'ended') {
-                    mixpanelHandler(MIXPANEL_TYPE.FARMS_ENDING_VIEWED)
-                  }
-                  navigateTab(FARM_TAB.ENDED)
-                }}
-                active={type === FARM_TAB.ENDED}
-              >
-                <PoolTitleContainer>
-                  <Trans>Ended</Trans>
-                </PoolTitleContainer>
-              </Tab>
-
-              <Tab
-                onClick={() => {
-                  navigateTab(FARM_TAB.MY_FARMS)
-                }}
-                active={type === FARM_TAB.MY_FARMS}
-              >
-                <Row>
-                  <Trans>My Farms</Trans>
-                </Row>
-              </Tab>
-
-              {farmType === VERSION.CLASSIC && (
+        {farmType === VERSION.ELASTIC_LEGACY ? (
+          <ElasticLegacy tab="farm" />
+        ) : (
+          <div>
+            <TabContainer>
+              <Flex sx={{ gap: '8px' }}>
                 <Tab
                   onClick={() => {
-                    if (type !== 'vesting') {
-                      mixpanelHandler(MIXPANEL_TYPE.FARMS_MYVESTING_VIEWED)
+                    if (type && type !== 'active') {
+                      mixpanelHandler(MIXPANEL_TYPE.FARMS_ACTIVE_VIEWED)
                     }
-                    navigateTab(FARM_TAB.VESTING)
+                    navigateTab(FARM_TAB.ACTIVE)
                   }}
-                  active={type === FARM_TAB.VESTING}
+                  active={!type || type === 'active'}
+                >
+                  <PoolTitleContainer>
+                    <Trans>Active</Trans>
+                  </PoolTitleContainer>
+                </Tab>
+                <Tab
+                  onClick={() => {
+                    if (type !== 'ended') {
+                      mixpanelHandler(MIXPANEL_TYPE.FARMS_ENDING_VIEWED)
+                    }
+                    navigateTab(FARM_TAB.ENDED)
+                  }}
+                  active={type === FARM_TAB.ENDED}
+                >
+                  <PoolTitleContainer>
+                    <Trans>Ended</Trans>
+                  </PoolTitleContainer>
+                </Tab>
+
+                <Tab
+                  onClick={() => {
+                    navigateTab(FARM_TAB.MY_FARMS)
+                  }}
+                  active={type === FARM_TAB.MY_FARMS}
                 >
                   <Row>
-                    <Text>
-                      <Trans>Vesting</Trans>
-                    </Text>
-                    {vestingLoading && <Loader style={{ marginLeft: '4px' }} />}
+                    <Trans>My Farms</Trans>
                   </Row>
                 </Tab>
-              )}
-            </Flex>
 
-            <HeadingContainer>
-              <StakedOnlyToggleWrapper>
-                <Row gap="12px">
-                  {above1000 && (
-                    <RowFit>
-                      <ListGridViewGroup />
-                    </RowFit>
-                  )}
+                {farmType === VERSION.CLASSIC && (
+                  <Tab
+                    onClick={() => {
+                      if (type !== 'vesting') {
+                        mixpanelHandler(MIXPANEL_TYPE.FARMS_MYVESTING_VIEWED)
+                      }
+                      navigateTab(FARM_TAB.VESTING)
+                    }}
+                    active={type === FARM_TAB.VESTING}
+                  >
+                    <Row>
+                      <Text>
+                        <Trans>Vesting</Trans>
+                      </Text>
+                      {vestingLoading && <Loader style={{ marginLeft: '4px' }} />}
+                    </Row>
+                  </Tab>
+                )}
+              </Flex>
 
-                  {type !== FARM_TAB.MY_FARMS && (
-                    <>
-                      <StakedOnlyToggleText>
-                        <Trans>Staked Only</Trans>
-                      </StakedOnlyToggleText>
-                      <Toggle
-                        isActive={stakedOnly[stakedOnlyKey]}
-                        toggle={() => setStakedOnly(prev => ({ ...prev, [type]: !prev[stakedOnlyKey] }))}
-                      />
-                    </>
-                  )}
-                  <FarmSort />
-                </Row>
-              </StakedOnlyToggleWrapper>
-              <HeadingRight>
-                {selectTokenFilter}
-                <SearchContainer>
-                  <SearchInput
-                    placeholder={t`Search by token name or pool address`}
-                    maxLength={255}
-                    value={search}
-                    onChange={e => handleSearch(e.target.value)}
-                  />
-                  <Search color={theme.subText} size={16} />
-                </SearchContainer>
-              </HeadingRight>
-            </HeadingContainer>
-          </TabContainer>
+              <HeadingContainer>
+                <StakedOnlyToggleWrapper>
+                  <Row gap="12px">
+                    {above1000 && (
+                      <RowFit>
+                        <ListGridViewGroup />
+                      </RowFit>
+                    )}
 
-          {renderTabContent()}
-        </div>
+                    {type !== FARM_TAB.MY_FARMS && (
+                      <>
+                        <StakedOnlyToggleText>
+                          <Trans>Staked Only</Trans>
+                        </StakedOnlyToggleText>
+                        <Toggle
+                          isActive={stakedOnly[stakedOnlyKey]}
+                          toggle={() => setStakedOnly(prev => ({ ...prev, [type]: !prev[stakedOnlyKey] }))}
+                        />
+                      </>
+                    )}
+                    {farmType !== VERSION.CLASSIC && <FarmSort />}
+                  </Row>
+                </StakedOnlyToggleWrapper>
+                <HeadingRight>
+                  {selectTokenFilter}
+                  <SearchContainer>
+                    <SearchInput
+                      placeholder={t`Search by token name or pool address`}
+                      maxLength={255}
+                      value={search}
+                      onChange={e => handleSearch(e.target.value)}
+                    />
+                    <Search color={theme.subText} size={16} />
+                  </SearchContainer>
+                </HeadingRight>
+              </HeadingContainer>
+            </TabContainer>
+
+            {renderTabContent()}
+          </div>
+        )}
       </PageWrapper>
       <SwitchLocaleLink />
     </>

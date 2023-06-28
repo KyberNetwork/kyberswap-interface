@@ -2,7 +2,8 @@ import { ChainId, Currency, NativeCurrency, Token, WETH } from '@kyberswap/ks-sd
 import axios from 'axios'
 
 import { KS_SETTING_API } from 'constants/env'
-import { NETWORKS_INFO } from 'constants/networks'
+import { ETHER_ADDRESS, ETHER_ADDRESS_SOLANA } from 'constants/index'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { MAP_TOKEN_HAS_MULTI_BY_NETWORK, WHITE_LIST_TOKEN_INFO_PAIR } from 'constants/tokenLists/token-info'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
@@ -58,7 +59,8 @@ export const isTokenNative = (
   currency: Currency | WrappedTokenInfo | undefined,
   chainId: ChainId | undefined,
 ): currency is NativeCurrency => {
-  if (currency?.isNative) return true
+  if (currency?.isNative || currency?.address === ETHER_ADDRESS || currency?.address === ETHER_ADDRESS_SOLANA)
+    return true
   // case multichain token
   return chainId
     ? WETH[chainId]?.address === currency?.address &&
@@ -66,6 +68,9 @@ export const isTokenNative = (
         currency.multichainInfo?.tokenType === 'NATIVE'
     : false
 }
+
+export const getTokenAddress = (currency: Currency) =>
+  currency.isNative ? (isEVM(currency.chainId) ? ETHER_ADDRESS : ETHER_ADDRESS_SOLANA) : currency?.wrapped.address ?? ''
 
 export const importTokensToKsSettings = async (tokens: Array<{ chainId: string; address: string }>) => {
   try {
@@ -82,13 +87,13 @@ export const getTokenSymbolWithHardcode = (
   address: string | undefined,
   defaultSymbol: string | undefined,
 ) => {
+  const formatAddress = address?.toLowerCase()
   if (
-    (chainId === ChainId.OPTIMISM &&
-      address?.toLowerCase() === '0x4518231a8fdf6ac553b9bbd51bbb86825b583263'.toLowerCase()) ||
-    (chainId === ChainId.ARBITRUM &&
-      address?.toLowerCase() === '0x316772cFEc9A3E976FDE42C3Ba21F5A13aAaFf12'.toLowerCase())
+    (chainId === ChainId.OPTIMISM && formatAddress === '0x4518231a8fdf6ac553b9bbd51bbb86825b583263'.toLowerCase()) ||
+    (chainId === ChainId.ARBITRUM && formatAddress === '0x316772cFEc9A3E976FDE42C3Ba21F5A13aAaFf12'.toLowerCase())
   ) {
     return 'mKNC'
   }
+  if (chainId === ChainId.ARBITRUM && formatAddress === '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8') return 'USDC.e'
   return defaultSymbol ?? ''
 }

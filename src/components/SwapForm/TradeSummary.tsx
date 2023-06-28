@@ -81,7 +81,7 @@ type TooltipTextOfSwapFeeProps = {
 export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({ feeBips, feeAmountText }) => {
   const feePercent = formatPercent(Number(feeBips) / Number(BIPS_BASE.toString()))
   const hereLink = (
-    <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/user-guides/instantly-swap-at-the-best-rates#swap-fees-supporting-transactions-on-low-trading-volume-chains">
+    <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/user-guides/instantly-swap-at-superior-rates#swap-fees-supporting-transactions-on-low-trading-volume-chains">
       <b>
         <Trans>here</Trans> ↗
       </b>

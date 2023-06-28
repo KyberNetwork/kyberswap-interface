@@ -12,7 +12,7 @@ import {
   useLazyGetKyberswapConfigurationQuery,
 } from 'services/ksSetting'
 
-import { AGGREGATOR_API } from 'constants/env'
+import { DEFAULT_AGGREGATOR_API } from 'constants/env'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM, isSolana } from 'constants/networks'
 import ethereumInfo from 'constants/networks/ethereum'
 import solanaInfo from 'constants/networks/solana'
@@ -47,7 +47,7 @@ const parseResponse = (
     elasticClient: isEVM(defaultChainId)
       ? createClient(data?.elasticSubgraph || NETWORKS_INFO[defaultChainId].elastic.defaultSubgraph)
       : createClient(ethereumInfo.elastic.defaultSubgraph),
-    provider: isEVM(defaultChainId) ? provider : undefined,
+    readProvider: isEVM(defaultChainId) ? provider : undefined,
     connection: isSolana(defaultChainId)
       ? new Connection(data?.rpc || solanaInfo.defaultRpcUrl, { commitment: 'confirmed' })
       : undefined,
@@ -65,8 +65,8 @@ const parseGlobalResponse = (
   chainId: ChainId,
 ): KyberswapGlobalConfig => {
   const data = responseData?.data?.config
-  const aggregatorDomain = data?.aggregator ?? AGGREGATOR_API
-  const isEnableAuthenAggregator = !!data?.isEnableAuthenAggregator
+  const aggregatorDomain = data?.aggregator ?? DEFAULT_AGGREGATOR_API
+  const isEnableAuthenAggregator = !data ? true : !!data?.isEnableAuthenAggregator
   return {
     aggregatorDomain,
     aggregatorAPI: `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}/route/encode`,

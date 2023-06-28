@@ -161,7 +161,7 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
     <TableRow key={pool.address} data-testid={pool.address}>
       <div>
         <Link
-          to={`${APP_PATHS.ELASTIC_CREATE_POOL}/${token0Slug}/${token1Slug}/${pool.feeTier}`}
+          to={`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${token0Slug}/${token1Slug}/${pool.feeTier}`}
           style={{
             textDecoration: 'none',
           }}
@@ -178,7 +178,6 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
             <FeeTag>Fee {(pool.feeTier * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
           </Flex>
         </Link>
-
         <Flex
           marginTop="0.5rem"
           alignItems="center"
@@ -233,7 +232,7 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
             onClick={(e: React.MouseEvent) => {
               e.stopPropagation()
 
-              const url = `${APP_PATHS.ELASTIC_CREATE_POOL}/${token0Slug}/${token1Slug}/${pool.feeTier}`
+              const url = `/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${token0Slug}/${token1Slug}/${pool.feeTier}`
               mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_IN_LIST_INITIATED, {
                 token_1: token0Symbol,
                 token_2: token1Symbol,

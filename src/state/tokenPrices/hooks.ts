@@ -63,23 +63,69 @@ const useTokenPricesLocal = (
           : fetch(`${aggregatorDomain}/solana/prices?${stringify(payload)}`)
 
         const res = await promise.then(res => res.json())
-        const prices = res?.data?.prices || res
+        let prices = res?.data?.prices || res
+
+        if (chainId === ChainId.GÖRLI) {
+          prices = prices.concat([
+            {
+              address: '0x325697956767826a1ddf0ee8d5eb0f8ae3a2c171',
+              price: 1.012345,
+              preferPriceSource: 'kyberswap',
+            },
+            {
+              address: '0xeac23a03f26df44fe3bb67bde1ecaecbee0daaa9',
+              price: 0.98765,
+              preferPriceSource: 'kyberswap',
+            },
+            {
+              address: '0x543c9d27ee4ef9b405d7b41f264fa777f445ae88',
+              price: 13,
+              preferPriceSource: 'kyberswap',
+            },
+            {
+              address: '0x1bbeeedcf32dc2c1ebc2f138e3fc7f3decd44d6a',
+              price: 1,
+              preferPriceSource: 'kyberswap',
+            },
+            {
+              address: '0x2bf64acf7ead856209749d0d125e9ade2d908e7f',
+              price: 1,
+              preferPriceSource: 'kyberswap',
+            },
+            {
+              address: '0x48f6d7dae56623dde5a0d56b283165cae1753d70',
+              price: 1740,
+              preferPriceSource: 'kyberswap',
+            },
+            {
+              address: '0x3e0e7dbb7dd24934ffe06e16fbcad11bed2c65e2',
+              price: 1.74,
+            },
+            {
+              address: '0xd6c528a95f68f1ea923d3af97064c5c931d5106f',
+              price: 0.5,
+            },
+            {
+              address: '0x620791f237fb2233e2d5868ffcdcaa69ec468aba',
+              price: 30423,
+            },
+            {
+              address: '0x8d890dda6535aa3b6c2a00dad0baa0977722dbb0',
+              price: 0.00100587,
+            },
+          ])
+        }
 
         if (prices?.length) {
           const formattedPrices = list.map(address => {
             const price = prices.find(
-              (p: {
-                address: string
-                marketPrice: number
-                price: number
-                preferPriceSource: 'kyberswap' | 'coingecko'
-              }) => getAddress(p.address, isEVM) === address,
+              (p: { address: string; marketPrice: number; price: number }) => getAddress(p.address, isEVM) === address,
             )
 
             return {
               address,
               chainId: chainId,
-              price: price.preferPriceSource === 'kyberswap' ? price?.price || 0 : price?.marketPrice || 0,
+              price: price?.marketPrice || price?.price || 0,
             }
           })
 

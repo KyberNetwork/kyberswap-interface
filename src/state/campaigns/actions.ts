@@ -27,6 +27,7 @@ type CampaignUserInfo = {
   tradingNumber: number
   rankNo: number
   status: CampaignUserInfoStatus
+  rewards: CampaignLeaderboardReward[]
 }
 
 type RewardSingle = {
@@ -112,7 +113,6 @@ export interface CampaignData {
   tradingVolumeRequired: number
   userInfo?: CampaignUserInfo
   tradingNumberRequired: number
-  leaderboard: CampaignLeaderboard | undefined
   competitionId?: number
   competitorId?: number
 }
@@ -126,7 +126,14 @@ export interface CampaignProofData {
 }
 
 export const setCampaignData = createAction<{ campaigns: CampaignData[] }>('campaigns/setCampaignData')
+export const setCampaignDataByPage = createAction<{ campaigns: CampaignData[]; isReset: boolean }>(
+  'campaigns/setCampaignDataByPage',
+)
+
 export const setLoadingCampaignData = createAction<boolean>('campaigns/setLoadingCampaignData')
+
+export const setLastTimeRefreshData = createAction('campaigns/setLastTimeRefreshData')
+
 export const setLoadingCampaignDataError = createAction<Error | undefined>('campaigns/setLoadingCampaignDataError')
 
 export const setSelectedCampaign = createAction<{ campaign: CampaignData }>('campaigns/setSelectedCampaign')

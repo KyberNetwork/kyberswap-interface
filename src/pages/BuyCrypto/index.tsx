@@ -42,6 +42,8 @@ import { useWalletModalToggle } from 'state/application/hooks'
 import { useDarkModeManager } from 'state/user/hooks'
 import { ButtonText, ExternalLink } from 'theme'
 
+import KyberAIWidget from '../TrueSightV2/components/KyberAIWidget'
+
 const LedgerSVG = styled(Ledger)`
   path {
     fill: currentColor;
@@ -51,7 +53,7 @@ const LedgerSVG = styled(Ledger)`
 const IntroWrapper = styled.div`
   background: radial-gradient(88.77% 152.19% at 12.8% -49.11%, #237c71 0%, #251c72 31%, #0f054c 100%);
   width: 100%;
-  min-height: 100vh;
+  min-height: calc(100vh - 120px);
   display: flex;
 `
 
@@ -113,6 +115,7 @@ const DownloadWalletWrapper = styled.div`
 
 const DownloadWalletContent = styled(IntroContent)`
   padding: 120px 24px 48px;
+  overflow-x: hidden;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     flex-direction: column;
@@ -193,7 +196,7 @@ function BuyCrypto() {
   const step2Ref = useRef<HTMLDivElement>(null)
   const step3Ref = useRef<HTMLDivElement>(null)
 
-  const supportedNetworks: { [chain in ChainId]: string | null } = {
+  const supportedNetworks: { [chain in ChainId]?: string | null } = {
     [ChainId.MAINNET]: 'ethereum',
     [ChainId.MATIC]: 'polygon',
     [ChainId.ARBITRUM]: 'arbitrum',
@@ -204,6 +207,7 @@ function BuyCrypto() {
     [ChainId.VELAS]: 'velasevm',
     [ChainId.SOLANA]: 'solana',
 
+    [ChainId.ZKSYNC]: null,
     [ChainId.CRONOS]: null,
     [ChainId.GÖRLI]: null,
     [ChainId.MUMBAI]: null,
@@ -624,7 +628,7 @@ function BuyCrypto() {
                 <Text color={theme.subText} lineHeight={1.5} marginTop={upToMedium ? '40px' : '48px'}>
                   <Trans>
                     Now that you have purchased your crypto, you can trade from over 20,000+ tokens on KyberSwap! We
-                    give you the best trading rates in the market!
+                    give you superior rates!
                   </Trans>
                 </Text>
 
@@ -656,6 +660,7 @@ function BuyCrypto() {
           </Flex>
         </DownloadWalletContent>
       </DownloadWalletWrapper>
+      <KyberAIWidget />
     </>
   )
 }

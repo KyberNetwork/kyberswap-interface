@@ -8,8 +8,6 @@ import {
   ARGENT_WALLET_DETECTOR_MAINNET_ADDRESS,
 } from 'constants/abis/argent-wallet-detector'
 import RouterSwapAction from 'constants/abis/bridge/RouterSwapAction.json'
-import RouterSwapActionV2 from 'constants/abis/bridge/RouterSwapActionV2.json'
-import swapBTCABI from 'constants/abis/bridge/swapBTCABI.json'
 import swapETHABI from 'constants/abis/bridge/swapETHABI.json'
 import FACTORY_ABI from 'constants/abis/dmm-factory.json'
 import ENS_PUBLIC_RESOLVER_ABI from 'constants/abis/ens-public-resolver.json'
@@ -17,6 +15,7 @@ import ENS_ABI from 'constants/abis/ens-registrar.json'
 import { ERC20_BYTES32_ABI } from 'constants/abis/erc20'
 import ERC20_ABI from 'constants/abis/erc20.json'
 import FAIRLAUNCH_V2_ABI from 'constants/abis/fairlaunch-v2.json'
+import FAIRLAUNCH_V3_ABI from 'constants/abis/fairlaunch-v3.json'
 import FAIRLAUNCH_ABI from 'constants/abis/fairlaunch.json'
 import KS_STATIC_FEE_FACTORY_ABI from 'constants/abis/ks-factory.json'
 import REWARD_LOCKER_V2_ABI from 'constants/abis/reward-locker-v2.json'
@@ -26,6 +25,7 @@ import TickReaderABI from 'constants/abis/v2/ProAmmTickReader.json'
 import PROMM_FARM_ABI from 'constants/abis/v2/farm.json'
 import WETH_ABI from 'constants/abis/weth.json'
 import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
+import ZAP_ZKSYNC_ABI from 'constants/abis/zap-zksync.json'
 import ZAP_ABI from 'constants/abis/zap.json'
 import { MULTICALL_ABI } from 'constants/multicall'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
@@ -65,17 +65,17 @@ export function useContractForReading(
 ): Contract | null {
   const { chainId: curChainId } = useActiveWeb3React()
   const chainId = customChainId || curChainId
-  const { provider } = useKyberSwapConfig(chainId)
+  const { readProvider } = useKyberSwapConfig(chainId)
 
   return useMemo(() => {
-    if (!address || !isEVM(chainId) || !provider) return null
+    if (!address || !isEVM(chainId) || !readProvider) return null
     try {
-      return getContractForReading(address, ABI, provider)
+      return getContractForReading(address, ABI, readProvider)
     } catch (error) {
       console.error('Failed to get contract', error)
       return null
     }
-  }, [address, ABI, chainId, provider])
+  }, [address, ABI, chainId, readProvider])
 }
 
 // returns null on errors
@@ -88,11 +88,12 @@ export function useMultipleContracts(
 } | null {
   const { account, isEVM } = useActiveWeb3React()
   const { library } = useWeb3React()
-  const { provider } = useKyberSwapConfig()
+  const { readProvider } = useKyberSwapConfig()
 
   return useMemo(() => {
-    if (!isEVM || !addresses || !Array.isArray(addresses) || addresses.length === 0 || !ABI || !library || !provider)
-      return null
+    const lib = withSignerIfPossible ? library : readProvider
+
+    if (!isEVM || !addresses || !Array.isArray(addresses) || addresses.length === 0 || !ABI || !lib) return null
 
     const result: {
       [key: string]: Contract
@@ -102,8 +103,8 @@ export function useMultipleContracts(
       addresses.forEach(address => {
         if (address) {
           result[address] = withSignerIfPossible
-            ? getContract(address, ABI, library, withSignerIfPossible && account ? account : undefined)
-            : getContractForReading(address, ABI, provider)
+            ? getContract(address, ABI, lib as any, withSignerIfPossible && account ? account : undefined)
+            : getContractForReading(address, ABI, lib)
         }
       })
 
@@ -117,7 +118,7 @@ export function useMultipleContracts(
 
       return null
     }
-  }, [addresses, ABI, library, withSignerIfPossible, account, isEVM, provider])
+  }, [addresses, ABI, library, withSignerIfPossible, account, isEVM, readProvider])
 }
 
 export function useTokenContract(tokenAddress?: string, withSignerIfPossible?: boolean): Contract | null {
@@ -194,7 +195,8 @@ export function useDynamicFeeFactoryContract(): Contract | null {
 }
 
 export function useZapContract(isStaticFeeContract: boolean, isOldStaticFeeContract: boolean): Contract | null {
-  const { isEVM, networkInfo } = useActiveWeb3React()
+  const { isEVM, networkInfo, chainId } = useActiveWeb3React()
+
   return useContract(
     isEVM
       ? isStaticFeeContract
@@ -203,7 +205,11 @@ export function useZapContract(isStaticFeeContract: boolean, isOldStaticFeeContr
           : (networkInfo as EVMNetworkInfo).classic.static.zap
         : (networkInfo as EVMNetworkInfo).classic.dynamic?.zap
       : undefined,
-    isStaticFeeContract && !isOldStaticFeeContract ? ZAP_STATIC_FEE_ABI : ZAP_ABI,
+    isStaticFeeContract && !isOldStaticFeeContract
+      ? ZAP_STATIC_FEE_ABI
+      : chainId === ChainId.ZKSYNC
+      ? ZAP_ZKSYNC_ABI
+      : ZAP_ABI,
   )
 }
 
@@ -235,15 +241,30 @@ function useFairLaunchV2Contracts(withSignerIfPossible?: boolean): {
   )
 }
 
+function useFairLaunchV3Contracts(withSignerIfPossible?: boolean): {
+  [key: string]: Contract
+} | null {
+  const { networkInfo, isEVM } = useActiveWeb3React()
+
+  return useMultipleContracts(
+    isEVM && (networkInfo as EVMNetworkInfo).classic.fairlaunchV3?.length
+      ? (networkInfo as EVMNetworkInfo).classic.fairlaunchV3
+      : undefined,
+    FAIRLAUNCH_V3_ABI,
+    withSignerIfPossible,
+  )
+}
+
 export function useFairLaunchContracts(withSignerIfPossible?: boolean): {
   [key: string]: Contract
 } | null {
   const fairLaunchV1Contracts = useFairLaunchV1Contracts(withSignerIfPossible)
   const fairLaunchV2Contracts = useFairLaunchV2Contracts(withSignerIfPossible)
+  const fairLaunchV3Contracts = useFairLaunchV3Contracts(withSignerIfPossible)
 
   const fairLaunchContracts = useMemo(() => {
-    return { ...fairLaunchV1Contracts, ...fairLaunchV2Contracts }
-  }, [fairLaunchV1Contracts, fairLaunchV2Contracts])
+    return { ...fairLaunchV1Contracts, ...fairLaunchV2Contracts, ...fairLaunchV3Contracts }
+  }, [fairLaunchV1Contracts, fairLaunchV2Contracts, fairLaunchV3Contracts])
 
   return fairLaunchContracts
 }
@@ -258,11 +279,18 @@ export const useFairLaunchVersion = (address: string): FairLaunchVersion => {
     return a.toLowerCase() === address.toLowerCase()
   })
 
+  // Use .find to search with case insensitive
+  const isV3 = (networkInfo as EVMNetworkInfo).classic.fairlaunchV3?.find(a => {
+    return a.toLowerCase() === address.toLowerCase()
+  })
+
   // Even if we have V3 in the future, we can update it here
 
   if (isV2) {
     version = FairLaunchVersion.V2
   }
+
+  if (isV3) version = FairLaunchVersion.V3
 
   return version
 }
@@ -277,6 +305,9 @@ export function useFairLaunchContract(address: string, withSignerIfPossible?: bo
       break
     case FairLaunchVersion.V2:
       abi = FAIRLAUNCH_V2_ABI
+      break
+    case FairLaunchVersion.V3:
+      abi = FAIRLAUNCH_V3_ABI
       break
     default:
       abi = FAIRLAUNCH_ABI
@@ -339,17 +370,9 @@ export function useProAmmTickReader(withSignerIfPossible?: boolean): Contract | 
 }
 
 // bridge
-export function useSwapBTCContract(tokenAddress?: string, withSignerIfPossible?: boolean): Contract | null {
-  return useContract(tokenAddress, swapBTCABI, withSignerIfPossible)
-}
-
 export function useSwapETHContract(tokenAddress?: string, withSignerIfPossible?: boolean): Contract | null {
   return useContract(tokenAddress, swapETHABI, withSignerIfPossible)
 }
-export function useBridgeContract(routerToken?: any, version?: any, withSignerIfPossible?: boolean): Contract | null {
-  return useContract(
-    routerToken ? routerToken : undefined,
-    version ? RouterSwapActionV2 : RouterSwapAction,
-    withSignerIfPossible,
-  )
+export function useBridgeContract(routerToken?: any): Contract | null {
+  return useContract(routerToken ? routerToken : undefined, RouterSwapAction, undefined)
 }

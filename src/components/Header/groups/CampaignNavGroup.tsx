@@ -11,11 +11,11 @@ import { DropdownTextAnchor, StyledNavLink } from '../styleds'
 import NavGroup from './NavGroup'
 
 const CampaignNavGroup = () => {
-  const upTo420 = useMedia('(max-width: 420px)')
+  const upTo560 = useMedia('(max-width: 560px)')
   const { pathname } = useLocation()
   const isActive = [APP_PATHS.CAMPAIGN, APP_PATHS.GRANT_PROGRAMS].some(path => pathname.includes(path))
 
-  if (upTo420) {
+  if (upTo560) {
     return null
   }
 

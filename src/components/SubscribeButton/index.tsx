@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { ReactNode, useEffect, useRef } from 'react'
+import { ReactNode, useEffect, useMemo, useRef } from 'react'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -54,16 +54,28 @@ export default function SubscribeNotificationButton({
   subscribeTooltip,
   iconOnly = false,
   trackingEvent,
+  onClick,
+  topicId,
 }: {
   subscribeTooltip?: ReactNode
   iconOnly?: boolean
   trackingEvent?: MIXPANEL_TYPE
+  onClick?: () => void
+  topicId?: string
 }) {
   const theme = useTheme()
   const { account } = useWeb3React()
 
   const { mixpanelHandler } = useMixpanel()
-  const { showNotificationModal } = useNotification()
+  const { showNotificationModal, topicGroups } = useNotification()
+
+  const hasSubscribe = useMemo(() => {
+    return topicId
+      ? topicGroups.some(group =>
+          group.topics.some(topic => topic.isSubscribed && String(topic.id) === String(topicId)),
+        )
+      : false
+  }, [topicGroups, topicId])
 
   const showModalWhenConnected = useRef(false)
 
@@ -76,6 +88,7 @@ export default function SubscribeNotificationButton({
 
   const onClickBtn = () => {
     showNotificationModal()
+    onClick?.()
     if (trackingEvent)
       setTimeout(() => {
         mixpanelHandler(trackingEvent)
@@ -86,9 +99,9 @@ export default function SubscribeNotificationButton({
   return (
     <MouseoverTooltipDesktopOnly text={subscribeTooltip} width="400px">
       <SubscribeBtn bgColor={theme.primary} onClick={onClickBtn} iconOnly={iconOnly}>
-        <NotificationIcon />
+        <NotificationIcon size={16} />
         <ButtonText iconOnly={iconOnly}>
-          <Trans>Subscribe</Trans>
+          {hasSubscribe ? <Trans>Unsubscribe</Trans> : <Trans>Subscribe</Trans>}
         </ButtonText>
       </SubscribeBtn>
     </MouseoverTooltipDesktopOnly>

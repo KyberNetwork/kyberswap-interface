@@ -189,10 +189,10 @@ export function useCurrencyBalance(currency?: Currency): CurrencyAmount<Currency
 }
 
 // mimics useAllBalances
-export function useAllTokenBalances(): { [tokenAddress: string]: TokenAmount | undefined } {
-  const allTokens = useAllTokens()
+export function useAllTokenBalances(chainId?: ChainId): { [tokenAddress: string]: TokenAmount | undefined } {
+  const allTokens = useAllTokens(false, chainId)
   const allTokensArray = useMemo(() => Object.values(allTokens ?? {}), [allTokens])
-  return useTokenBalances(allTokensArray) ?? EMPTY_OBJECT
+  return useTokenBalances(allTokensArray, chainId) ?? EMPTY_OBJECT
 }
 
 // return list token has balance
@@ -212,6 +212,7 @@ export const useTokensHasBalance = (includesImportToken = false) => {
     if (!loadingBalance && ethBalance) {
       // call once per chain
       const list: Currency[] = currencies.filter(currency => {
+        if (isTokenNative(currency, currency.chainId)) return false
         const hasBalance = !currencyBalances[currency.wrapped.address]?.equalTo(
           CurrencyAmount.fromRawAmount(currency, '0'),
         )

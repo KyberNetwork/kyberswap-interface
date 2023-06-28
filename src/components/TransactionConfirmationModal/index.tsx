@@ -7,7 +7,7 @@ import styled from 'styled-components'
 
 import { ReactComponent as Alert } from 'assets/images/alert.svg'
 import Banner from 'components/Banner'
-import { ButtonLight, ButtonPrimary } from 'components/Button'
+import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { AutoColumn, ColumnCenter } from 'components/Column'
 import Loader from 'components/Loader'
 import Modal from 'components/Modal'
@@ -121,6 +121,7 @@ function AddTokenToInjectedWallet({ token, chainId }: { token: Token; chainId: C
 
   if (!walletKey) return null
   if (!isEVM) return null
+  if (walletKey === 'WALLET_CONNECT') return null
   const walletConfig = SUPPORTED_WALLETS[walletKey]
 
   return (
@@ -247,7 +248,17 @@ const StyledAlert = styled(Alert)`
   height: 108px;
   width: 108px;
 `
-export function TransactionErrorContent({ message, onDismiss }: { message: string; onDismiss: () => void }) {
+export function TransactionErrorContent({
+  message,
+  onDismiss,
+  confirmAction,
+  confirmText,
+}: {
+  message: string
+  onDismiss: () => void
+  confirmAction?: () => void
+  confirmText?: string
+}) {
   const theme = useTheme()
   const [showDetail, setShowDetail] = useState<boolean>(true)
 
@@ -289,9 +300,18 @@ export function TransactionErrorContent({ message, onDismiss }: { message: strin
         </AutoColumn>
       </Section>
       <BottomSection gap="12px">
-        <ButtonPrimary onClick={onDismiss}>
-          <Trans>Dismiss</Trans>
-        </ButtonPrimary>
+        <Flex sx={{ gap: '1rem' }}>
+          {confirmAction && confirmText ? (
+            <ButtonOutlined onClick={onDismiss}>
+              <Trans>Dismiss</Trans>
+            </ButtonOutlined>
+          ) : (
+            <ButtonPrimary onClick={onDismiss}>
+              <Trans>Dismiss</Trans>
+            </ButtonPrimary>
+          )}
+          {confirmAction && confirmText && <ButtonPrimary onClick={confirmAction}>{confirmText}</ButtonPrimary>}
+        </Flex>
       </BottomSection>
     </Wrapper>
   )

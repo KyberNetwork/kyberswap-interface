@@ -26,9 +26,9 @@ import { useCurrency } from 'hooks/Tokens'
 import useDebounce from 'hooks/useDebounce'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useTheme from 'hooks/useTheme'
-import Notice from 'pages/ElasticLegacy/Notice'
+import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
+import ElasticLegacy from 'pages/ElasticLegacy'
 import { Instruction } from 'pages/Pools/InstructionAndGlobalData'
 import ProAmmPoolList from 'pages/ProAmmPools'
 import { ApplicationModal } from 'state/application/actions'
@@ -154,16 +154,15 @@ const Pools = () => {
       mixpanelHandler(MIXPANEL_TYPE.ELASTIC_CREATE_POOL_INITIATED)
     }
 
-    const url =
-      tab === VERSION.CLASSIC
-        ? `/create/${currencyIdA === '' ? undefined : currencyIdA}/${currencyIdB === '' ? undefined : currencyIdB}`
-        : `${APP_PATHS.ELASTIC_CREATE_POOL}${
-            currencyIdA && currencyIdB
-              ? `/${currencyIdA}/${currencyIdB}`
-              : currencyIdA || currencyIdB
-              ? `/${currencyIdA || currencyIdB}`
-              : ''
-          }`
+    const path = tab === VERSION.CLASSIC ? APP_PATHS.CLASSIC_CREATE_POOL : APP_PATHS.ELASTIC_CREATE_POOL
+    let url = `/${networkInfo.route}${path}`
+
+    if (currencyIdA) {
+      url += `/${currencyIdA}`
+      if (currencyIdB) {
+        url += `/${currencyIdB}`
+      }
+    }
 
     navigate(url)
   }
@@ -259,96 +258,98 @@ const Pools = () => {
           {!upToSmall && TutorialAndShare}
         </Flex>
 
-        {tab === VERSION.ELASTIC && <Notice />}
+        {tab !== VERSION.ELASTIC_LEGACY && (
+          <>
+            <Instruction />
 
-        <Instruction />
+            <Flex justifyContent="space-between" flexDirection={upToXL ? 'column' : 'row'} sx={{ gap: '24px' }}>
+              <Flex justifyContent="space-between">
+                <Flex sx={{ gap: '8px' }}>
+                  <Tab
+                    role="button"
+                    active={!onlyShowStable && !isShowOnlyActiveFarmPools}
+                    onClick={() => {
+                      setOnlyShowStable(false)
+                      setIsShowOnlyActiveFarmPools(false)
+                    }}
+                  >
+                    <Trans>All</Trans>
+                  </Tab>
 
-        <Flex justifyContent="space-between" flexDirection={upToXL ? 'column' : 'row'} sx={{ gap: '24px' }}>
-          <Flex justifyContent="space-between">
-            <Flex sx={{ gap: '8px' }}>
-              <Tab
-                role="button"
-                active={!onlyShowStable && !isShowOnlyActiveFarmPools}
-                onClick={() => {
-                  setOnlyShowStable(false)
-                  setIsShowOnlyActiveFarmPools(false)
-                }}
-              >
-                <Trans>All</Trans>
-              </Tab>
+                  <Tab
+                    role="button"
+                    onClick={() => {
+                      setOnlyShowStable(true)
+                      setIsShowOnlyActiveFarmPools(false)
+                    }}
+                    active={onlyShowStable}
+                  >
+                    <StableIcon style={{ width: '16px' }} />
+                    <Text marginLeft="4px">
+                      <Trans>Stablecoins</Trans>
+                    </Text>
+                  </Tab>
 
-              <Tab
-                role="button"
-                onClick={() => {
-                  setOnlyShowStable(true)
-                  setIsShowOnlyActiveFarmPools(false)
-                }}
-                active={onlyShowStable}
-              >
-                <StableIcon style={{ width: '16px' }} />
-                <Text marginLeft="4px">
-                  <Trans>Stablecoins</Trans>
-                </Text>
-              </Tab>
+                  <Tab
+                    role="button"
+                    onClick={() => {
+                      setIsShowOnlyActiveFarmPools(true)
+                      setOnlyShowStable(false)
+                    }}
+                    active={isShowOnlyActiveFarmPools}
+                  >
+                    <MoneyBag size={16} />
+                    <Text marginLeft="4px">
+                      <Trans>Farming</Trans>
+                    </Text>
+                  </Tab>
+                </Flex>
 
-              <Tab
-                role="button"
-                onClick={() => {
-                  setIsShowOnlyActiveFarmPools(true)
-                  setOnlyShowStable(false)
-                }}
-                active={isShowOnlyActiveFarmPools}
-              >
-                <MoneyBag size={16} />
-                <Text marginLeft="4px">
-                  <Trans>Farming</Trans>
-                </Text>
-              </Tab>
-            </Flex>
+                {upToSmall && createPoolBtn}
+              </Flex>
 
-            {upToSmall && createPoolBtn}
-          </Flex>
+              {(() => {
+                if (upToMedium)
+                  return (
+                    <>
+                      <Flex sx={{ gap: '1rem' }} justifyContent="space-between">
+                        {selectTokenFilter}
+                        {upToSmall ? TutorialAndShare : createPoolBtn}
+                      </Flex>
+                      <Flex sx={{ gap: '1rem' }} justifyContent="space-between">
+                        <PoolSort />
+                        {searchFilter}
+                      </Flex>
+                    </>
+                  )
 
-          {(() => {
-            if (upToMedium)
-              return (
-                <>
-                  <Flex sx={{ gap: '1rem' }} justifyContent="space-between">
-                    {selectTokenFilter}
-                    {upToSmall ? TutorialAndShare : createPoolBtn}
-                  </Flex>
-                  <Flex sx={{ gap: '1rem' }} justifyContent="space-between">
-                    <PoolSort />
-                    {searchFilter}
-                  </Flex>
-                </>
-              )
+                if (upToXL)
+                  return (
+                    <Flex sx={{ gap: '1rem' }} justifyContent="space-between">
+                      {selectTokenFilter}
 
-            if (upToXL)
-              return (
-                <Flex sx={{ gap: '1rem' }} justifyContent="space-between">
-                  {selectTokenFilter}
+                      <Flex sx={{ gap: '1rem' }}>
+                        <ListGridViewGroup />
+                        <PoolSort />
+                        {searchFilter}
+                        {createPoolBtn}
+                      </Flex>
+                    </Flex>
+                  )
 
+                return (
                   <Flex sx={{ gap: '1rem' }}>
                     <ListGridViewGroup />
                     <PoolSort />
+                    {selectTokenFilter}
                     {searchFilter}
                     {createPoolBtn}
                   </Flex>
-                </Flex>
-              )
-
-            return (
-              <Flex sx={{ gap: '1rem' }}>
-                <ListGridViewGroup />
-                <PoolSort />
-                {selectTokenFilter}
-                {searchFilter}
-                {createPoolBtn}
-              </Flex>
-            )
-          })()}
-        </Flex>
+                )
+              })()}
+            </Flex>
+          </>
+        )}
 
         {tab === VERSION.CLASSIC ? (
           <PoolList
@@ -357,6 +358,8 @@ const Pools = () => {
             isShowOnlyActiveFarmPools={isShowOnlyActiveFarmPools}
             onlyShowStable={onlyShowStable}
           />
+        ) : tab === VERSION.ELASTIC_LEGACY ? (
+          <ElasticLegacy tab="position" />
         ) : (
           <ProAmmPoolList
             currencies={currencies}

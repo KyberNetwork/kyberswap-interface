@@ -5,7 +5,7 @@ import AnnouncementApi from 'services/announcement'
 
 import { AnnouncementTemplatePopup, PopupContentAnnouncement, PopupItemType } from 'components/Announcement/type'
 import { useActiveWeb3React } from 'hooks'
-import { useChangeNetwork } from 'hooks/useChangeNetwork'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useAppDispatch } from 'state/hooks'
 
 const LsKey = 'ack-announcements'
@@ -82,15 +82,19 @@ export const useNavigateToUrl = () => {
   )
 }
 
-export const useInvalidateTagAnnouncement = () => {
+export const useInvalidateTags = (reducerPath: string) => {
   const dispatch = useAppDispatch()
   return useCallback(
     (tag: string) => {
       dispatch({
-        type: `${AnnouncementApi.reducerPath}/invalidateTags`,
+        type: `${reducerPath}/invalidateTags`,
         payload: [tag],
       })
     },
-    [dispatch],
+    [dispatch, reducerPath],
   )
+}
+
+export const useInvalidateTagAnnouncement = () => {
+  return useInvalidateTags(AnnouncementApi.reducerPath)
 }

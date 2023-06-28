@@ -148,7 +148,7 @@ const ApprovalModal = ({
             <Trans>
               Choose between Infinite or Custom allowance.{' '}
               <a
-                href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/user-guides/instantly-swap-at-the-best-rates#step-4-approve-contract-to-swap-tokens"
+                href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/user-guides/instantly-swap-at-superior-rates#step-4-approve-contract-to-swap-tokens"
                 target="_blank"
                 rel="noreferrer"
               >

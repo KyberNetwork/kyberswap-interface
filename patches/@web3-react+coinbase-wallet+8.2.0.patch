@@ -1,0 +1,22 @@
+diff --git a/node_modules/@web3-react/coinbase-wallet/dist/index.js b/node_modules/@web3-react/coinbase-wallet/dist/index.js
+index f38d06e..584c5a5 100644
+--- a/node_modules/@web3-react/coinbase-wallet/dist/index.js
++++ b/node_modules/@web3-react/coinbase-wallet/dist/index.js
+@@ -136,7 +136,7 @@ class CoinbaseWallet extends types_1.Connector {
+                     params: [{ chainId: desiredChainIdHex }],
+                 })
+                     .catch((error) => __awaiter(this, void 0, void 0, function* () {
+-                    if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
++                    if ((error.code === 4902 || error.code === -32603) && typeof desiredChainIdOrChainParameters !== 'number') {
+                         if (!this.provider)
+                             throw new Error('No provider');
+                         // if we're here, we can try to add a new network
+@@ -166,7 +166,7 @@ class CoinbaseWallet extends types_1.Connector {
+                     method: 'wallet_switchEthereumChain',
+                     params: [{ chainId: desiredChainIdHex }],
+                 }).catch((error) => __awaiter(this, void 0, void 0, function* () {
+-                    if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
++                    if ((error.code === 4902 || error.code === -32603) && typeof desiredChainIdOrChainParameters !== 'number') {
+                         if (!this.provider)
+                             throw new Error('No provider');
+                         // if we're here, we can try to add a new network

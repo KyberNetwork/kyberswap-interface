@@ -23,7 +23,7 @@ import Harvest from 'components/Icons/Harvest'
 import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { DMM_ANALYTICS_URL, MAX_ALLOW_APY } from 'constants/index'
+import { APP_PATHS, DMM_ANALYTICS_URL, MAX_ALLOW_APY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -47,6 +47,7 @@ import { getTradingFeeAPR, useFarmApr, useFarmRewards, useFarmRewardsUSD } from 
 import { formatTokenBalance, getFullDisplayBalance } from 'utils/formatBalance'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import { formatDollarAmount } from 'utils/numbers'
+import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import { ModalContentWrapper } from './ElasticFarmModals/styled'
 import { APRTooltipContent } from './FarmingPoolAPRCell'
@@ -67,7 +68,7 @@ interface ListItemProps {
 }
 
 const ListItem = ({ farm }: ListItemProps) => {
-  const { account, chainId, isEVM } = useActiveWeb3React()
+  const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const currentTimestamp = Math.floor(Date.now() / 1000)
   const [viewMode] = useViewMode()
@@ -145,7 +146,13 @@ const ListItem = ({ farm }: ListItemProps) => {
 
   const amp = farm.amp / 10000
 
-  const pairSymbol = `${farm.token0.symbol}-${farm.token1.symbol} LP`
+  const pairSymbol =
+    currency0 && currency1
+      ? `${unwrappedToken(currency0).symbol}-${unwrappedToken(currency1).symbol} LP`
+      : `${farm.token0.symbol} - ${farm.token1.symbol} LP`
+  const symbol0 = currency0 ? unwrappedToken(currency0).symbol : farm.token0.symbol
+  const symbol1 = currency1 ? unwrappedToken(currency1).symbol : farm.token1.symbol
+
   const [depositValue, setDepositValue] = useState('')
   const [withdrawValue, setWithdrawValue] = useState('')
   const pairAddressChecksum = isAddressString(chainId, farm.id)
@@ -155,17 +162,7 @@ const ListItem = ({ farm }: ListItemProps) => {
 
   const isNotStaked = !staked.value.gt(0)
 
-  const amountToApprove = useMemo(
-    () =>
-      TokenAmount.fromRawAmount(
-        new Token(chainId, pairAddressChecksum, balance.decimals, pairSymbol, ''),
-        MaxUint256.toString(),
-      ),
-    [balance.decimals, chainId, pairAddressChecksum, pairSymbol],
-  )
-  const [approvalState, approve] = useApproveCallback(amountToApprove, isEVM ? farm.fairLaunchAddress : undefined)
-
-  let isStakeInvalidAmount
+  let isStakeInvalidAmount = false
 
   try {
     isStakeInvalidAmount =
@@ -175,6 +172,19 @@ const ListItem = ({ farm }: ListItemProps) => {
   } catch (err) {
     isStakeInvalidAmount = true
   }
+
+  const amountToApprove = useMemo(
+    () =>
+      TokenAmount.fromRawAmount(
+        new Token(chainId, pairAddressChecksum, balance.decimals, pairSymbol, ''),
+        isStakeInvalidAmount
+          ? MaxUint256.toString()
+          : ethers.utils.parseUnits(depositValue, balance.decimals).toString(), // This causes error if number of decimals > 18
+      ),
+    [balance.decimals, chainId, depositValue, pairAddressChecksum, pairSymbol, isStakeInvalidAmount],
+  )
+
+  const [approvalState, approve] = useApproveCallback(amountToApprove, isEVM ? farm.fairLaunchAddress : undefined)
 
   let isUnstakeInvalidAmount
 
@@ -311,13 +321,13 @@ const ListItem = ({ farm }: ListItemProps) => {
               <Row>
                 <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} />
                 <Link
-                  to={`/add/${currencyIdFromAddress(farm.token0?.id, chainId)}/${currencyIdFromAddress(
-                    farm.token1?.id,
+                  to={`/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${currencyIdFromAddress(
+                    farm.token0?.id,
                     chainId,
-                  )}/${farm.id}`}
+                  )}/${currencyIdFromAddress(farm.token1?.id, chainId)}/${farm.id}`}
                   style={{ textDecoration: 'none', marginRight: '6px' }}
                 >
-                  {farm.token0?.symbol} - {farm.token1?.symbol}
+                  {symbol0} - {symbol1}
                 </Link>
                 {/* <MouseoverTooltip text={farm.time} width="fit-content" placement="top">
                         <Clock size={14} style={{ marginLeft: '6px' }} />
@@ -330,9 +340,8 @@ const ListItem = ({ farm }: ListItemProps) => {
                     backgroundColor: theme.blue + '20',
                     color: theme.blue,
                     borderRadius: '16px',
-                    padding: '2px 4px',
+                    padding: '2px 8px',
                     whiteSpace: 'nowrap',
-                    flex: '0 0 71px',
                   }}
                 >
                   AMP = {amp}
@@ -465,9 +474,18 @@ const ListItem = ({ farm }: ListItemProps) => {
         <FarmCard joined={!!userStakedBalanceUSD}>
           <Row marginBottom="12px">
             <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={20} />
-            <Text fontSize="16px" fontWeight="500" marginRight="4px" color={theme.green}>
-              {currency0?.symbol} - {currency1?.symbol}
-            </Text>
+            <Link
+              to={`/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${currencyIdFromAddress(
+                farm.token0?.id,
+                chainId,
+              )}/${currencyIdFromAddress(farm.token1?.id, chainId)}/${farm.id}`}
+              style={{ textDecoration: 'none', marginRight: '6px' }}
+            >
+              <Text fontSize="16px" fontWeight="500" marginRight="4px" color={theme.green}>
+                {currency0?.symbol} - {currency1?.symbol}
+              </Text>
+            </Link>
+
             <Text
               fontSize={12}
               lineHeight="16px"
@@ -695,85 +713,77 @@ const ListItem = ({ farm }: ListItemProps) => {
                 ) : (
                   approvalState === ApprovalState.UNKNOWN && <Dots></Dots>
                 )}
-                {(approvalState === ApprovalState.NOT_APPROVED || approvalState === ApprovalState.PENDING) && (
-                  <ButtonPrimary
-                    color="blue"
-                    disabled={approvalState === ApprovalState.PENDING}
-                    onClick={approve}
-                    padding="12px"
-                  >
-                    {approvalState === ApprovalState.PENDING ? (
-                      <Dots>
-                        <Trans>Approving </Trans>
-                      </Dots>
-                    ) : (
-                      <Trans>Approve</Trans>
-                    )}
-                  </ButtonPrimary>
+                {chainId && modalType === 'stake' && (
+                  <CurrencyInputPanel
+                    value={depositValue}
+                    onUserInput={value => {
+                      setDepositValue(value)
+                    }}
+                    onMax={() => {
+                      setDepositValue(fixedFormatting(balance.value, balance.decimals))
+                    }}
+                    onHalf={() => {
+                      setDepositValue(fixedFormatting(balance.value.div(2), balance.decimals))
+                    }}
+                    currency={new Token(chainId, farm.id, balance.decimals, `${pairSymbol}`, `${pairSymbol}`)}
+                    id="stake-lp-input"
+                    disableCurrencySelect
+                    positionMax="top"
+                    hideLogo={true}
+                    fontSize="14px"
+                    customCurrencySelect={
+                      <ButtonPrimary
+                        disabled={isStakeInvalidAmount || approvalState === ApprovalState.PENDING}
+                        padding="8px 12px"
+                        width="max-content"
+                        style={{ minWidth: '80px' }}
+                        onClick={() => {
+                          if (approvalState === ApprovalState.NOT_APPROVED) {
+                            approve()
+                          } else handleStake(farm.pid)
+                        }}
+                      >
+                        {depositValue && isStakeInvalidAmount
+                          ? 'Invalid Amount'
+                          : approvalState === ApprovalState.NOT_APPROVED
+                          ? 'Approve'
+                          : approvalState === ApprovalState.PENDING
+                          ? 'Approving'
+                          : 'Stake'}
+                      </ButtonPrimary>
+                    }
+                  />
                 )}
-                {approvalState === ApprovalState.APPROVED && chainId && (
-                  <>
-                    {modalType === 'stake' ? (
-                      <CurrencyInputPanel
-                        value={depositValue}
-                        onUserInput={value => {
-                          setDepositValue(value)
-                        }}
-                        onMax={() => {
-                          setDepositValue(fixedFormatting(balance.value, balance.decimals))
-                        }}
-                        onHalf={() => {
-                          setDepositValue(fixedFormatting(balance.value.div(2), balance.decimals))
-                        }}
-                        currency={new Token(chainId, farm.id, balance.decimals, `${pairSymbol}`, `${pairSymbol}`)}
-                        id="stake-lp-input"
-                        disableCurrencySelect
-                        positionMax="top"
-                        hideLogo={true}
-                        fontSize="14px"
-                        customCurrencySelect={
-                          <ButtonPrimary
-                            disabled={isStakeInvalidAmount}
-                            padding="8px 12px"
-                            width="max-content"
-                            style={{ minWidth: '80px' }}
-                            onClick={() => handleStake(farm.pid)}
-                          >
-                            {depositValue && isStakeInvalidAmount ? 'Invalid Amount' : 'Stake'}
-                          </ButtonPrimary>
-                        }
-                      />
-                    ) : (
-                      <CurrencyInputPanel
-                        value={withdrawValue}
-                        onUserInput={setWithdrawValue}
-                        onMax={() => {
-                          setWithdrawValue(fixedFormatting(staked.value, staked.decimals))
-                        }}
-                        onHalf={() => {
-                          setWithdrawValue(fixedFormatting(staked.value.div(2), staked.decimals))
-                        }}
-                        currency={new Token(chainId, farm.id, balance.decimals, `${pairSymbol}`, `${pairSymbol}`)}
-                        id="unstake-lp-input"
-                        disableCurrencySelect
-                        customBalanceText={`${fixedFormatting(staked.value, staked.decimals)}`}
-                        positionMax="top"
-                        hideLogo={true}
-                        fontSize="14px"
-                        customCurrencySelect={
-                          <ButtonPrimary
-                            disabled={isUnstakeInvalidAmount}
-                            padding="8px 12px"
-                            width="max-content"
-                            style={{ minWidth: '80px' }}
-                            onClick={() => handleUnstake(farm.pid)}
-                          >
-                            {withdrawValue && isUnstakeInvalidAmount ? 'Invalid Amount' : 'Unstake'}
-                          </ButtonPrimary>
-                        }
-                      />
-                    )}
-                  </>
+
+                {modalType === 'unstake' && (
+                  <CurrencyInputPanel
+                    value={withdrawValue}
+                    onUserInput={setWithdrawValue}
+                    onMax={() => {
+                      setWithdrawValue(fixedFormatting(staked.value, staked.decimals))
+                    }}
+                    onHalf={() => {
+                      setWithdrawValue(fixedFormatting(staked.value.div(2), staked.decimals))
+                    }}
+                    currency={new Token(chainId, farm.id, balance.decimals, `${pairSymbol}`, `${pairSymbol}`)}
+                    id="unstake-lp-input"
+                    disableCurrencySelect
+                    customBalanceText={`${fixedFormatting(staked.value, staked.decimals)}`}
+                    positionMax="top"
+                    hideLogo={true}
+                    fontSize="14px"
+                    customCurrencySelect={
+                      <ButtonPrimary
+                        disabled={isUnstakeInvalidAmount}
+                        padding="8px 12px"
+                        width="max-content"
+                        style={{ minWidth: '80px' }}
+                        onClick={() => handleUnstake(farm.pid)}
+                      >
+                        {withdrawValue && isUnstakeInvalidAmount ? 'Invalid Amount' : 'Unstake'}
+                      </ButtonPrimary>
+                    }
+                  />
                 )}
               </Flex>
               <Flex justifyContent="space-between" sx={{ gap: '8px' }} alignItems="center" marginTop="20px">
@@ -783,16 +793,14 @@ const ListItem = ({ farm }: ListItemProps) => {
                   </GetLP>
                 </ExternalLink>
                 <Link
-                  to={`/add/${currencyIdFromAddress(farm.token0?.id, chainId)}/${currencyIdFromAddress(
-                    farm.token1?.id,
+                  to={`/${networkInfo.route}${APP_PATHS.CLASSIC_ADD_LIQ}/${currencyIdFromAddress(
+                    farm.token0?.id,
                     chainId,
-                  )}/${farm.id}`}
+                  )}/${currencyIdFromAddress(farm.token1?.id, chainId)}/${farm.id}`}
                   style={{ textDecoration: 'none' }}
                 >
                   <GetLP style={{ textAlign: 'right' }}>
-                    <Trans>
-                      Get {farm.token0?.symbol}-{farm.token1?.symbol} LP ↗
-                    </Trans>
+                    <Trans>Get {pairSymbol} ↗</Trans>
                   </GetLP>
                 </Link>
               </Flex>

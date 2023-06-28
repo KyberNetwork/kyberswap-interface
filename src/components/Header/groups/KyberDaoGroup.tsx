@@ -7,6 +7,7 @@ import LightBulb from 'components/Icons/LightBulb'
 import StakeIcon from 'components/Icons/Stake'
 import UtilityIcon from 'components/Icons/Utility'
 import VoteIcon from 'components/Icons/Vote'
+import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS } from 'constants/index'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
@@ -26,7 +27,7 @@ const KyberDAONavGroup = () => {
   const { mixpanelHandler } = useMixpanel()
 
   return (
-    <KyberDaoWrapper>
+    <KyberDaoWrapper id={TutorialIds.KYBER_DAO_LINK}>
       <NavGroup
         isActive={isActive}
         anchor={

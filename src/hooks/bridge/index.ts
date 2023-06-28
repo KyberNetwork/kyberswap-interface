@@ -7,31 +7,31 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useMulticallContract } from 'hooks/useContract'
 import useInterval from 'hooks/useInterval'
-import { useBlockNumber, useKyberSwapConfig } from 'state/application/hooks'
+import { useKyberSwapConfig } from 'state/application/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { fetchChunk } from 'state/multicall/updater'
 import { TokenAmountLoading } from 'state/wallet/hooks'
 import { isTokenNative } from 'utils/tokenInfo'
 
 export const useEthBalanceOfAnotherChain = (chainId: ChainId | undefined) => {
-  const { provider } = useKyberSwapConfig(chainId)
+  const { readProvider } = useKyberSwapConfig(chainId)
   const { account } = useActiveWeb3React()
   const [balance, setBalance] = useState<CurrencyAmount<Currency>>()
   useEffect(() => {
     async function getBalance() {
       try {
-        if (!provider || !account || !chainId) {
+        if (!readProvider || !account || !chainId) {
           setBalance(undefined)
           return
         }
-        const balance = await provider.getBalance(account)
+        const balance = await readProvider.getBalance(account)
         setBalance(CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], JSBI.BigInt(balance)))
       } catch (error) {
         setBalance(undefined)
       }
     }
     getBalance()
-  }, [chainId, provider, account])
+  }, [chainId, readProvider, account])
 
   return balance
 }
@@ -58,12 +58,11 @@ export const useTokensBalanceOfAnotherChain = (
   const { account } = useActiveWeb3React()
   const multicallContract = useMulticallContract(chainId)
   const [loading, setLoading] = useState(false)
-  const blockNumber = useBlockNumber()
 
   const getBalance = useCallback(async () => {
     try {
       setBalances(EMPTY_ARRAY)
-      if (!chainId || !account || !tokens.length || !multicallContract || !blockNumber) {
+      if (!chainId || !account || !tokens.length || !multicallContract) {
         return
       }
       setLoading(true)
@@ -73,11 +72,13 @@ export const useTokensBalanceOfAnotherChain = (
         fragment: 'balanceOf',
         key: token.wrapped.address,
       }))
+
       const { results } = await fetchChunk(
         multicallContract,
         calls.map(e => ({ address: e.target, callData: e.callData })),
-        blockNumber,
+        undefined as any,
       )
+
       const result = formatResult(results, calls)
       const balances = tokens.map(token => {
         const balance = result[token.wrapped.address]
@@ -86,10 +87,11 @@ export const useTokensBalanceOfAnotherChain = (
       setBalances(balances as TokenAmountLoading[])
       return
     } catch (error) {
+      console.error('get balance chain err', { chainId, error })
     } finally {
       setLoading(false)
     }
-  }, [chainId, tokens, account, multicallContract, blockNumber])
+  }, [chainId, tokens, account, multicallContract])
 
   useEffect(() => {
     getBalance()

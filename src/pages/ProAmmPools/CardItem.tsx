@@ -30,6 +30,8 @@ import { ElasticPoolDetail } from 'types/pool'
 import { isAddressString, shortenAddress } from 'utils'
 import { formatDollarAmount } from 'utils/numbers'
 
+import KyberAIModalInPool from './KyberAIModalInPool'
+
 const StyledLink = styled(ExternalLink)`
   :hover {
     text-decoration: none;
@@ -105,7 +107,7 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
   return (
     <Wrapper key={pool.address} data-testid={pool.address}>
       <Link
-        to={`${APP_PATHS.ELASTIC_CREATE_POOL}/${token0Slug}/${token1Slug}/${pool.feeTier}`}
+        to={`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${token0Slug}/${token1Slug}/${pool.feeTier}`}
         style={{
           textDecoration: 'none',
         }}
@@ -149,7 +151,7 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
       <Flex
         marginTop="0.75rem"
         alignItems="center"
-        sx={{ gap: '6px' }}
+        sx={{ gap: '18px' }}
         fontSize="12px"
         color={theme.subText}
         width="max-content"
@@ -161,7 +163,6 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
         </Flex>
 
         <Flex
-          marginLeft="12px"
           onClick={() => {
             onShared(pool.address)
           }}
@@ -175,6 +176,10 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
           <Share2 size="14px" color={theme.subText} />
           <Trans>Share</Trans>
         </Flex>
+        <KyberAIModalInPool
+          currency0={isToken0WETH ? nativeToken : token0}
+          currency1={isToken1WETH ? nativeToken : token1}
+        />
       </Flex>
 
       <Text
@@ -255,7 +260,7 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
           padding="10px"
           style={{ height: '36px' }}
           onClick={() => {
-            const url = `${APP_PATHS.ELASTIC_CREATE_POOL}/${token0Slug}/${token1Slug}/${pool.feeTier}`
+            const url = `/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${token0Slug}/${token1Slug}/${pool.feeTier}`
             navigate(url)
           }}
         >

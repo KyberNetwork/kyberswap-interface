@@ -15,7 +15,6 @@ import useCheckStablePairSwap from 'components/SwapForm/hooks/useCheckStablePair
 import useGetInputError from 'components/SwapForm/hooks/useGetInputError'
 import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
-import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import TradePrice from 'components/swapv2/TradePrice'
 import { Wrapper } from 'components/swapv2/styleds'
@@ -23,7 +22,7 @@ import { useActiveWeb3React } from 'hooks'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { Field } from 'state/swap/actions'
 import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
-import { DetailedRouteSummary, FeeConfig } from 'types/route'
+import { DetailedRouteSummary } from 'types/route'
 
 import PriceImpactNote from './PriceImpactNote'
 import RefreshButton from './RefreshButton'
@@ -46,7 +45,6 @@ export type SwapFormProps = {
 
   isDegenMode: boolean
   slippage: number
-  feeConfig: FeeConfig | undefined
   transactionTimeout: number
   permit?: string
 
@@ -65,7 +63,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     setRouteSummary,
     isDegenMode,
     slippage,
-    feeConfig,
     transactionTimeout,
     permit,
     onChangeCurrencyIn,
@@ -99,7 +96,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   const { fetcher: getRoute, result } = useGetRoute({
     currencyIn,
     currencyOut,
-    feeConfig,
     isSaveGas,
     parsedAmount,
     isProcessingSwap,
@@ -155,7 +151,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
 
   return (
     <SwapFormContextProvider
-      feeConfig={feeConfig}
       slippage={slippage}
       routeSummary={routeSummary}
       typedValue={typedValue}
@@ -212,8 +207,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
         </Wrapper>
         <Flex flexDirection="column" style={{ gap: '1.25rem' }}>
           <TradeTypeSelection isSaveGas={isSaveGas} setSaveGas={setSaveGas} />
-
-          <TrendingSoonTokenBanner currencyIn={currencyIn} currencyOut={currencyOut} />
 
           {!isWrapOrUnwrap && <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={isStablePairSwap} />}
 

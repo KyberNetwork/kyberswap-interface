@@ -1,7 +1,7 @@
 import { darken } from 'polished'
 import { CSSProperties, forwardRef } from 'react'
 import { NavLink as BaseNavLink, NavLinkProps } from 'react-router-dom'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import { ExternalLink } from 'theme/components'
 
@@ -10,6 +10,7 @@ const activeClassName = 'ACTIVE'
 interface Props extends NavLinkProps {
   activeClassName?: string
   activeStyle?: CSSProperties
+  $disabled?: boolean
 }
 // fix warning of activeClassName: https://reactrouter.com/en/6.4.5/upgrading/v5#remove-activeclassname-and-activestyle-props-from-navlink-
 const NavLink = forwardRef(({ activeClassName, activeStyle, ...props }: Props, ref: any) => {
@@ -30,7 +31,7 @@ NavLink.displayName = 'NavLink'
 
 export const StyledNavLink = styled(NavLink).attrs({
   activeClassName,
-})`
+})<{ $disabled?: boolean }>`
   ${({ theme }) => theme.flexRowNoWrap}
   align-items: left;
   border-radius: 3rem;
@@ -52,6 +53,13 @@ export const StyledNavLink = styled(NavLink).attrs({
   :hover {
     color: ${({ theme }) => darken(0.1, theme.primary)};
   }
+
+  ${({ theme, $disabled }) =>
+    $disabled &&
+    css`
+      pointer-events: none;
+      color: ${theme.border};
+    `};
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 8px 6px;

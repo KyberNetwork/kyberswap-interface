@@ -11,8 +11,8 @@ import {
   ResolutionString,
   ResolveCallback,
   SubscribeBarsCallback,
-  Timezone,
 } from './charting_library'
+import { getTradingViewTimeZone } from './utils'
 
 const configurationData = {
   supported_resolutions: ['1', '5', '15', '1H', '4H', '12H', '1D'],
@@ -52,12 +52,12 @@ export const useDatafeed = (poolDetail: PoolResponse, isReverse: boolean, label:
             description: label,
             type: 'crypto',
             session: '24x7',
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone as Timezone,
+            timezone: getTradingViewTimeZone(),
             exchange: '',
             minmov: 1,
             pricescale: 10000,
             has_intraday: true,
-            // has_empty_bars: true,
+            has_empty_bars: true,
             has_weekly_and_monthly: true,
             has_daily: true,
             supported_resolutions: configurationData.supported_resolutions as ResolutionString[],

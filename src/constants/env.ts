@@ -13,16 +13,15 @@ const required = (envKey: string): string => {
 
 export const GOOGLE_RECAPTCHA_KEY = required('GOOGLE_RECAPTCHA_KEY')
 export const PRICE_API = required('PRICE_API')
+export const DEFAULT_AGGREGATOR_API = required('DEFAULT_AGGREGATOR_API')
 export const AGGREGATOR_API = required('AGGREGATOR_API')
 export const SENTRY_DNS = required('SENTRY_DNS')
 export const REWARD_SERVICE_API = required('REWARD_SERVICE_API')
 export const KS_SETTING_API = required('KS_SETTING_API')
-export const BFF_API = required('BFF_API')
 export const BLOCK_SERVICE_API = required('BLOCK_SERVICE_API')
 export const PRICE_CHART_API = required('PRICE_CHART_API')
 export const AGGREGATOR_STATS_API = required('AGGREGATOR_STATS_API')
 export const NOTIFICATION_API = required('NOTIFICATION_API')
-export const TRUESIGHT_API = required('TRUESIGHT_API')
 export const TRANSAK_URL = required('TRANSAK_URL')
 export const TRANSAK_API_KEY = required('TRANSAK_API_KEY')
 export const TYPE_AND_SWAP_URL = required('TYPE_AND_SWAP_URL')
@@ -47,7 +46,11 @@ export const KYBER_DAO_STATS_API = required('KYBER_DAO_STATS_API')
 
 export const PRICE_ALERT_API = required('PRICE_ALERT_API')
 export const OAUTH_CLIENT_ID = required('OAUTH_CLIENT_ID')
+export const BFF_API = required('BFF_API')
+export const KYBER_AI_REFERRAL_ID = required('KYBER_AI_REFERRAL_ID')
+export const KYBER_AI_TOPIC_ID = required('KYBER_AI_TOPIC_ID')
 export const BUCKET_NAME = required('BUCKET_NAME')
+export const WALLETCONNECT_PROJECT_ID = required('WALLETCONNECT_PROJECT_ID')
 
 type FirebaseConfig = {
   apiKey: string
@@ -70,12 +73,13 @@ export const FIREBASE: { [key: string]: { DEFAULT: FirebaseConfig; LIMIT_ORDER?:
       appId: '1:522790089501:web:524403003ae65c09c727f4',
     },
     DEFAULT: {
-      apiKey: 'AIzaSyCuEREEsq8e2eW9fs4FGhdPImekcLCG7bc',
-      authDomain: 'notification-dev-4a732.firebaseapp.com',
-      projectId: 'notification-dev-4a732',
-      storageBucket: 'notification-dev-4a732.appspot.com',
-      messagingSenderId: '38521816648',
-      appId: '1:38521816648:web:0daa7524ed7b53837fba7d',
+      apiKey: 'AIzaSyDszHtJ4CJq0mwjBJ1pTt5OOzG5tiooEsg',
+      authDomain: 'test-bace2.firebaseapp.com',
+      databaseURL: 'https://test-bace2-default-rtdb.asia-southeast1.firebasedatabase.app',
+      projectId: 'test-bace2',
+      storageBucket: 'test-bace2.appspot.com',
+      messagingSenderId: '337703820408',
+      appId: '1:337703820408:web:2fb16ef71941817dec618d',
     },
   },
   staging: {
@@ -112,35 +116,44 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key: string]: { [type: string]: string } } =
   development: {
     [PrivateAnnouncementType.PRICE_ALERT]: '44,45',
     [PrivateAnnouncementType.LIMIT_ORDER]: '8,9,10,11,33,34,35,36',
-    [PrivateAnnouncementType.BRIDGE]: '37,38',
-    [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: '1',
-    [PrivateAnnouncementType.POOL_POSITION]: '39,40',
-    EXCLUDE: '2,29',
+    [PrivateAnnouncementType.BRIDGE_ASSET]: '37,38',
+    [PrivateAnnouncementType.CROSS_CHAIN]: '48,49',
+    [PrivateAnnouncementType.KYBER_AI]: '46',
+    [PrivateAnnouncementType.ELASTIC_POOLS]: '39,40',
+    EXCLUDE: '2,29,1,47,50',
   },
   staging: {
     [PrivateAnnouncementType.PRICE_ALERT]: '22,23',
     [PrivateAnnouncementType.LIMIT_ORDER]: '14,15,16,17',
-    [PrivateAnnouncementType.BRIDGE]: '12,13',
-    [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: '1',
-    [PrivateAnnouncementType.POOL_POSITION]: '20,21',
-    EXCLUDE: '2,11',
+    [PrivateAnnouncementType.BRIDGE_ASSET]: '12,13',
+    [PrivateAnnouncementType.CROSS_CHAIN]: '25,26',
+    [PrivateAnnouncementType.KYBER_AI]: '27',
+    [PrivateAnnouncementType.ELASTIC_POOLS]: '20,21',
+    EXCLUDE: '2,11,1,28,29',
   },
   production: {
     [PrivateAnnouncementType.PRICE_ALERT]: '21,22',
     [PrivateAnnouncementType.LIMIT_ORDER]: '12,13,14,15',
-    [PrivateAnnouncementType.BRIDGE]: '10,11',
-    [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: '9',
-    [PrivateAnnouncementType.POOL_POSITION]: '17,18',
-    EXCLUDE: '2,16',
+    [PrivateAnnouncementType.BRIDGE_ASSET]: '10,11',
+    [PrivateAnnouncementType.CROSS_CHAIN]: '27,28',
+    [PrivateAnnouncementType.KYBER_AI]: '26',
+    [PrivateAnnouncementType.ELASTIC_POOLS]: '17,18',
+    EXCLUDE: '2,16,19,9,25,24',
   },
 }
 
 export const ENV_KEY: 'production' | 'staging' | 'development' = import.meta.env.VITE_ENV
 
-export const getAnnouncementsTemplateIds = () => {
-  return ANNOUNCEMENT_TEMPLATE_IDS[ENV_KEY]
+export const getAnnouncementsTemplateIds = (type: PrivateAnnouncementType | 'EXCLUDE') => {
+  return ANNOUNCEMENT_TEMPLATE_IDS[ENV_KEY]?.[type]
 }
 
 const mock = localStorage.getItem('mock')?.split(',') ?? []
 export const MOCK_ACCOUNT_EVM = mock[0] ?? ''
 export const MOCK_ACCOUNT_SOLANA = mock[1] ?? ''
+
+const isSupportTestNet = ENV_LEVEL < ENV_TYPE.PROD && new URLSearchParams(window.location.search).get('test')
+export const CROSS_CHAIN_CONFIG = {
+  AXELAR_SCAN_URL: isSupportTestNet ? 'https://testnet.axelarscan.io/gmp/' : 'https://axelarscan.io/gmp/',
+  API_DOMAIN: isSupportTestNet ? 'https://testnet.api.0xsquid.com' : 'https://api.0xsquid.com',
+}

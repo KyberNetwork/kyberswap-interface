@@ -58,3 +58,43 @@ export default function Disclaimer() {
     </ModalCenter>
   )
 }
+
+export function DisclaimerCrossChain() {
+  const showed = getBridgeLocalstorage(BridgeLocalStorageKeys.SHOWED_DISCLAIMED_CROSS_CHAIN)
+  const [show, setShow] = useState(!showed)
+  const theme = useTheme()
+  const { mixpanelHandler } = useMixpanel()
+  const handleClickUnderstand = () => {
+    setBridgeLocalstorage(BridgeLocalStorageKeys.SHOWED_DISCLAIMED_CROSS_CHAIN, '1')
+    setShow(false)
+    mixpanelHandler(MIXPANEL_TYPE.CROSS_CHAIN_CLICK_DISCLAIMER)
+  }
+  return (
+    <ModalCenter isOpen={show}>
+      <Container>
+        <Flex justifyContent={'space-between'}>
+          <Flex color={theme.warning} alignItems="center" style={{ gap: 8 }}>
+            <AlertTriangle size={20} /> <Text fontSize={20}>{t`Disclaimer`}</Text>
+          </Flex>
+        </Flex>
+        <TextWrapper>
+          <Trans>
+            KyberSwap strives to offer its users the best DeFi experience on a single platform. In order to do that,
+            KyberSwap partners with 3rd party platforms like{' '}
+            <ExternalLink href="https://axelar.network/">Axelar</ExternalLink> and{' '}
+            <ExternalLink href="https://www.squidrouter.com/">Squid</ExternalLink>.
+          </Trans>
+        </TextWrapper>
+        <TextWrapper>
+          <Trans>
+            However, in the event of a security breach on our partners platform, KyberSwap won&apos;t assume any
+            liability for any losses incurred.
+          </Trans>
+        </TextWrapper>
+        <ButtonWarning style={{ marginTop: 20 }} onClick={handleClickUnderstand}>
+          <Trans>I Understand</Trans>
+        </ButtonWarning>
+      </Container>
+    </ModalCenter>
+  )
+}

@@ -72,7 +72,6 @@ const cronosInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'cronos',
   coingeckoNativeTokenId: 'crypto-com-chain',
   deBankSlug: 'cro',
-  trueSightId: 'cronos',
   dexToCompare: 'vvs',
   geckoTermialId: 'cronos',
 }

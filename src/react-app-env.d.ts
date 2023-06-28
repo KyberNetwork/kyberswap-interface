@@ -11,7 +11,11 @@ interface Window {
     isCoin98?: boolean
     isBraveWallet?: any
     isCoinbaseWallet?: boolean
+    isTrust?: boolean
     isTrustWallet?: boolean
+    isRabby?: boolean
+    isLedgerConnect?: boolean
+    isKrystalWallet?: boolean
     on?: (...args: any[]) => void
     removeListener?: (...args: any[]) => void
     request: (params: { method: string; params?: any }) => Promise<any>
@@ -19,6 +23,7 @@ interface Window {
       isCoinbaseBrowser: boolean
       isCoinbaseWallet: boolean
       isMetaMask: boolean
+      close?: () => void
     }
     providers?: any[]
     autoRefreshOnNetworkChange?: boolean

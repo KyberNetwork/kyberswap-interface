@@ -5,7 +5,7 @@ import {
   useDeleteAllAlertsMutation,
   useGetAlertStatsQuery,
 } from 'services/priceAlert'
-import styled, { useTheme } from 'styled-components'
+import styled, { CSSProperties, useTheme } from 'styled-components'
 
 import { ButtonLight, ButtonOutlined } from 'components/Button'
 import Loader from 'components/Loader'
@@ -19,22 +19,18 @@ const TabButton: React.FC<{ isActive: boolean; onClick: () => void; children: Re
   onClick,
   children,
 }) => {
-  const Button = isActive ? ButtonLight : ButtonOutlined
-
-  return (
-    <Button
-      style={{
-        flex: '0 0 fit-content',
-        height: '36px',
-        padding: '0 8px',
-        whiteSpace: 'nowrap',
-        flexWrap: 'nowrap',
-      }}
-      onClick={onClick}
-    >
-      {children}
-    </Button>
-  )
+  const props = {
+    onClick,
+    style: {
+      flex: '0 0 fit-content',
+      height: '36px',
+      padding: '0 8px',
+      whiteSpace: 'nowrap',
+      flexWrap: 'nowrap',
+    } as CSSProperties,
+  }
+  if (isActive) return <ButtonLight {...props}> {children}</ButtonLight>
+  return <ButtonOutlined {...props}>{children}</ButtonOutlined>
 }
 
 type StatItemProps = {

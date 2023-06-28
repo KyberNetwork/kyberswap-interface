@@ -118,10 +118,6 @@ export function useRegisterCampaignSuccessModalToggle(): () => void {
   return useToggleModal(ApplicationModal.REGISTER_CAMPAIGN_SUCCESS)
 }
 
-export function useTrueSightNetworkModalToggle(): () => void {
-  return useToggleModal(ApplicationModal.TRUESIGHT_NETWORK)
-}
-
 export function useNotificationModalToggle(): () => void {
   return useToggleModal(ApplicationModal.NOTIFICATION_SUBSCRIPTION)
 }
@@ -533,8 +529,8 @@ export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => 
 
   const config = useAppSelector(state => state.application.config[chainId] || getDefaultConfig(chainId))
 
-  const provider = useMemo(
-    () => cacheCalc('rpc', config.rpc, subgraph => new ethers.providers.JsonRpcProvider(subgraph)),
+  const readProvider = useMemo(
+    () => cacheCalc('rpc', config.rpc, rpc => new ethers.providers.JsonRpcProvider(rpc)),
     [config.rpc],
   )
   const blockClient = useMemo(
@@ -554,7 +550,7 @@ export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => 
     return {
       rpc: config.rpc,
       isEnableBlockService: config.isEnableBlockService,
-      provider,
+      readProvider,
       prochart: config.prochart,
       blockClient,
       elasticClient,
@@ -565,7 +561,7 @@ export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => 
     config.rpc,
     config.isEnableBlockService,
     config.prochart,
-    provider,
+    readProvider,
     blockClient,
     elasticClient,
     classicClient,

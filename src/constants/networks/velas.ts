@@ -70,7 +70,6 @@ const velasInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'velas',
   coingeckoNativeTokenId: 'velas',
   deBankSlug: EMPTY,
-  trueSightId: NOT_SUPPORT,
   dexToCompare: 'wagyuswap',
   geckoTermialId: 'velas',
 }
