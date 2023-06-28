@@ -110,13 +110,13 @@ const Farm = () => {
         return farmType === VERSION.ELASTIC ? (
           <ElasticFarms stakedOnly={stakedOnly} />
         ) : (
-          <YieldPools loading={loading} active />
+          <YieldPools loading={loading} active stakedOnly={stakedOnly} />
         )
       case FARM_TAB.ENDED:
         return farmType === VERSION.ELASTIC ? (
           <ElasticFarms stakedOnly={stakedOnly} />
         ) : (
-          <YieldPools loading={loading} active={false} />
+          <YieldPools loading={loading} active={false} stakedOnly={stakedOnly} />
         )
       case FARM_TAB.VESTING:
         return farmType === VERSION.ELASTIC ? null : <Vesting loading={vestingLoading} />
@@ -124,11 +124,11 @@ const Farm = () => {
         return farmType === VERSION.ELASTIC ? (
           <ElasticFarms stakedOnly={stakedOnly} />
         ) : (
-          <YieldPools loading={loading} active={false} />
+          <YieldPools loading={loading} active={false} stakedOnly={stakedOnly} />
         )
 
       default:
-        return <YieldPools loading={loading} active />
+        return <YieldPools loading={loading} active stakedOnly={stakedOnly} />
     }
   }
   const { mixpanelHandler } = useMixpanel()
@@ -152,7 +152,7 @@ const Farm = () => {
           (blockNumber && item.endBlock && item.endBlock > blockNumber),
       )
       .forEach(current => {
-        current.rewardTokens.forEach(token => {
+        current.rewardTokens?.forEach(token => {
           if (token && token.chainId === chainId && !tokenMap[token.wrapped.address])
             tokenMap[token.wrapped.address] = token
         })
@@ -386,7 +386,7 @@ const Farm = () => {
                         />
                       </>
                     )}
-                    <FarmSort />
+                    {farmType !== VERSION.CLASSIC && <FarmSort />}
                   </Row>
                 </StakedOnlyToggleWrapper>
                 <HeadingRight>

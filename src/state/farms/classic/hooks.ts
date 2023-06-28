@@ -1,5 +1,5 @@
 import { Interface } from '@ethersproject/abi'
-import { Fraction, Token } from '@kyberswap/ks-sdk-core'
+import { Fraction } from '@kyberswap/ks-sdk-core'
 import { ethers } from 'ethers'
 import JSBI from 'jsbi'
 import { useCallback, useMemo } from 'react'
@@ -10,12 +10,10 @@ import FAIRLAUNCH_ABI from 'constants/abis/fairlaunch.json'
 import { MAX_ALLOW_APY } from 'constants/index'
 import { DEFAULT_REWARDS } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
-import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useTokenBalance from 'hooks/useTokenBalance'
-import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
 import { AppState } from 'state'
-import { useBlockNumber, useTokensPrice } from 'state/application/hooks'
+import { useBlockNumber } from 'state/application/hooks'
 import { setFarmAddressToShare } from 'state/farms/classic/actions'
 import { FairLaunchVersion, Farm } from 'state/farms/classic/types'
 import { useAppSelector } from 'state/hooks'
@@ -58,16 +56,6 @@ export const useRewardTokens = () => {
 
     return [...defaultRewards, ...result]
   }, [rewardTokensMulticallResult, rewardTokensV2MulticallResult, defaultRewards])
-}
-
-export const useRewardTokenPrices = (tokens: (Token | undefined | null)[], version?: VERSION) => {
-  const tokenPrices = useTokensPrice(tokens, version)
-  const marketPrices = useTokensMarketPrice(tokens)
-
-  return useMemo(
-    () => tokenPrices.map((price, index) => marketPrices[index] || price || 0),
-    [tokenPrices, marketPrices],
-  )
 }
 
 export const useFarmsData = () => {

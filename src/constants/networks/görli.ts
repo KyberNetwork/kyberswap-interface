@@ -36,7 +36,7 @@ const görliInfo: EVMNetworkInfo = {
   defaultRpcUrl: 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
   multicall: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
   classic: {
-    defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-ethereum',
+    defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-classic-goerli',
     static: {
       zap: EMPTY,
       router: '0x4F4994415B72FE87E01345f522D0A62A584D19b4',
@@ -47,6 +47,7 @@ const görliInfo: EVMNetworkInfo = {
     claimReward: NOT_SUPPORT,
     fairlaunch: EMPTY_ARRAY,
     fairlaunchV2: EMPTY_ARRAY,
+    fairlaunchV3: ['0xd47AbBEAE91043e4FC195b9416D4f0A24Bb52718'],
   },
   elastic: {
     defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-elastic-goerli',
