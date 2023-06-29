@@ -1,6 +1,6 @@
 import { ChainId, Currency, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { stringify } from 'querystring'
-import { useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import styled, { useTheme } from 'styled-components'
 
 import { DAI, STABLE_COINS_ADDRESS, USDC, USDT } from 'constants/tokens'
@@ -91,7 +91,7 @@ const Iframe = styled.iframe`
   border: 1px solid #1c1c1c;
   border-radius: 8px;
 
-  .header-pair {
+  app-header-pair {
     display: none !important;
   }
 `
@@ -203,6 +203,7 @@ export const checkPairHasDextoolsData = async (
 export default function DextoolsWidget({ pairAddress }: { pairAddress?: string }) {
   const { chainId } = useActiveWeb3React()
   const theme = useTheme()
+  const ref = useRef<HTMLIFrameElement>(null)
 
   useEffect(() => {
     fetch(
@@ -213,6 +214,13 @@ export default function DextoolsWidget({ pairAddress }: { pairAddress?: string }
         },
       },
     ).then(res => console.log('🚀 ~ file: index.tsx:212 ~ useEffect ~ res:', res))
+  }, [])
+
+  const onLoad = useCallback((el: React.SyntheticEvent<HTMLIFrameElement, Event>) => {
+    const doc = el.currentTarget.contentDocument
+    if (doc) {
+      doc.body.innerHTML += '<style>app-header-pair {display: none !important;}</style>'
+    }
   }, [])
 
   const url = useMemo(() => {
@@ -230,5 +238,15 @@ export default function DextoolsWidget({ pairAddress }: { pairAddress?: string }
     )}`
   }, [chainId, pairAddress, theme.darkMode])
 
-  return <Iframe id="dextools-widget" title="DEXTools Trading Chart" width="100%" height="100%" src={url} />
+  return (
+    <Iframe
+      onLoad={onLoad}
+      ref={ref}
+      id="dextools-widget"
+      title="DEXTools Trading Chart"
+      width="100%"
+      height="100%"
+      src={url}
+    />
+  )
 }

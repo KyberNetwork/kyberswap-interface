@@ -114,17 +114,21 @@ function LiveChart({
   const { isSolana, chainId } = useActiveWeb3React()
   const theme = useTheme()
   const [currenciesState, setCurrenciesState] = useState(currencies)
-  const [pairAddress, setPairAddress] = useState('123')
+  const [pairAddress, setPairAddress] = useState('')
   console.log('🚀 ~ file: index.tsx:116 ~ pairAddress:', pairAddress)
   const [prochartLoading, setProchartLoading] = useState(true)
   useEffect(() => {
     checkPairHasDextoolsData(currencies, chainId)
       .then(res => {
-        setPairAddress(res.pairAddress || '123')
+        if (!res?.pairAddress || res.pairAddress === 'nodata') {
+          setPairAddress('')
+        } else {
+          setPairAddress(res.pairAddress)
+        }
         setProchartLoading(false)
       })
       .catch(() => {
-        setPairAddress('123')
+        setPairAddress('')
         setProchartLoading(false)
       })
   }, [currencies, chainId])
