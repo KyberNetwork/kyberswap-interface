@@ -1,9 +1,8 @@
 import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { rgba } from 'polished'
 import { useMemo } from 'react'
 import { BarChart2, Share2 } from 'react-feather'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { Cell, Pie, PieChart, Tooltip } from 'recharts'
@@ -13,7 +12,6 @@ import bgimg from 'assets/images/card-background.png'
 import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
-import { MoneyBag } from 'components/Icons'
 import CircleInfoIcon from 'components/LiveChart/CircleInfoIcon'
 import { Circle } from 'components/Rating'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -25,8 +23,7 @@ import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import usePoolTransactionsStat from 'hooks/usePoolTransactionsStat'
 import useTheme from 'hooks/useTheme'
-import { IconWrapper } from 'pages/Pools/styleds'
-import { useElasticFarms } from 'state/farms/elastic/hooks'
+import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { ElasticPoolDetail } from 'types/pool'
@@ -58,19 +55,32 @@ const getPrommAnalyticLink = (chainId: ChainId, poolAddress: string) => {
 }
 
 const Wrapper = styled.div`
-  border-radius: 20px;
   padding: 16px;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 16px;
   background-image: url(${bgimg});
+  background-repeat: repeat-y;
   background-size: cover;
-  background-repeat: no-repeat;
+
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
   background-color: ${({ theme }) => theme.buttonBlack};
+
+  border-radius: 24px;
+  font-weight: 500;
 `
+
 export default function ProAmmPoolStat({ pool, onShared, userPositions, onClickPoolAnalytics }: ListItemProps) {
   const { chainId, networkInfo } = useActiveWeb3React()
   const theme = useTheme()
 
   const allTokens = useAllTokens()
-  const { farms } = useElasticFarms()
+  const { farms: farmsV2 } = useElasticFarmsV2()
+  const activeFarmV2s = useMemo(
+    () => farmsV2?.filter(farm => farm.endTime > Date.now() / 1000 && !farm.isSettled),
+    [farmsV2],
+  )
 
   const token0 =
     allTokens[isAddressString(chainId, pool.token0.address)] ||
@@ -92,28 +102,75 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions, onClickP
 
   const myLiquidity = userPositions[pool.address]
 
-  const isFarmingPool: boolean = useMemo(() => {
-    let fairlaunchAddress = ''
-    let pid = -1
-
-    farms?.forEach(farm => {
-      const p = farm.pools
-        .filter(item => item.endTime > Date.now() / 1000)
-        .find(item => item.poolAddress.toLowerCase() === pool.address.toLowerCase())
-
-      if (p) {
-        fairlaunchAddress = farm.id
-        pid = Number(p.pid)
-      }
-    })
-
-    return !!fairlaunchAddress && pid !== -1
-  }, [farms, pool.address])
+  const farmV2 = useMemo(
+    () => activeFarmV2s?.find(item => item.poolAddress.toLowerCase() === pool.address.toLowerCase()),
+    [activeFarmV2s, pool.address],
+  )
+  const isFarmV2 = !!farmV2
 
   const poolTransactionsStat = usePoolTransactionsStat(pool.address)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
   const isDarkMode = useIsDarkMode()
+  const [searchParams] = useSearchParams()
+
+  const activeRangeIndex = Number(searchParams.get('farmRange') || '0')
+
+  const range = farmV2?.ranges.find(item => item.index === activeRangeIndex)
+  const farmAPR = isFarmV2 ? range?.apr : pool.farmAPR
+
+  const APR = (
+    <div>
+      <Text
+        width="fit-content"
+        lineHeight="16px"
+        fontSize="12px"
+        fontWeight="500"
+        color={theme.subText}
+        sx={{ borderBottom: `1px dashed ${theme.border}` }}
+      >
+        <MouseoverTooltip
+          width="fit-content"
+          placement="right"
+          text={<APRTooltipContent farmV2APR={range?.apr} farmAPR={pool.farmAPR || 0} poolAPR={pool.apr} />}
+        >
+          <Trans>Avg APR</Trans>
+        </MouseoverTooltip>
+      </Text>
+      <Flex justifyContent="space-between" alignItems="center">
+        <Text fontSize="28px" fontWeight="500" color={theme.apr}>
+          {((farmAPR || 0) + pool.apr).toFixed(2)}%
+        </Text>
+        <StyledLink href={getPrommAnalyticLink(chainId, pool.address)} onClick={onClickPoolAnalytics}>
+          <Flex alignItems="flex-end">
+            <BarChart2 size="16px" color={theme.subText} />
+            <Text fontSize="12px" fontWeight="500" marginLeft="4px" color={theme.subText}>
+              Pool Analytics ↗
+            </Text>
+          </Flex>
+        </StyledLink>
+      </Flex>
+    </div>
+  )
+
+  const volumeAndFee = (
+    <div>
+      <Flex justifyContent="space-between" color={theme.subText} fontSize="12px" fontWeight="500">
+        <Text>
+          <Trans>Volume (24H)</Trans>
+        </Text>
+        <Text>
+          <Trans>Fees (24H)</Trans>
+        </Text>
+      </Flex>
+
+      <Flex justifyContent="space-between" fontSize="16px" fontWeight="500" marginTop="0.25rem">
+        <Text>{formatDollarAmount(pool.volumeUSDLast24h)}</Text>
+        <Text>{formatDollarAmount(pool.volumeUSDLast24h * (pool.feeTier / ELASTIC_BASE_FEE_UNIT))}</Text>
+      </Flex>
+    </div>
+  )
+
   return (
     <Wrapper key={pool.address}>
       <Link
@@ -134,32 +191,11 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions, onClickP
           <FeeTag style={{ fontSize: '12px', marginRight: '4px' }}>
             Fee {(pool.feeTier * 100) / ELASTIC_BASE_FEE_UNIT}%
           </FeeTag>
-
-          {isFarmingPool && (
-            <MouseoverTooltip
-              noArrow
-              text={
-                <Text>
-                  <Trans>
-                    Available for yield farming. Click{' '}
-                    <Link to={`${APP_PATHS.FARMS}/${networkInfo.route}?tab=elastic&type=active&search=${pool.address}`}>
-                      here
-                    </Link>{' '}
-                    to go to the farm.
-                  </Trans>
-                </Text>
-              }
-            >
-              <IconWrapper style={{ background: rgba(theme.primary, 0.2), width: '20px', height: '20px' }}>
-                <MoneyBag size={12} color={theme.apr} />
-              </IconWrapper>
-            </MouseoverTooltip>
-          )}
         </Flex>
       </Link>
-
       <Flex
-        marginTop="0.75rem"
+        marginTop="-6px"
+        marginLeft="-4px"
         alignItems="center"
         sx={{ gap: '6px' }}
         fontSize="12px"
@@ -169,11 +205,11 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions, onClickP
       >
         <Flex alignItems="center" sx={{ gap: '4px' }}>
           <CopyHelper toCopy={pool.address} />
-          <Text>{shortenAddress(chainId, pool.address, 2)}</Text>
+          <Text>{shortenAddress(chainId, pool.address)}</Text>
         </Flex>
 
         <Flex
-          marginLeft="12px"
+          marginLeft="8px"
           onClick={() => {
             onShared(pool.address)
           }}
@@ -189,67 +225,25 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions, onClickP
         </Flex>
       </Flex>
 
-      <Text
-        width="fit-content"
-        lineHeight="16px"
-        fontSize="12px"
-        fontWeight="500"
-        color={theme.subText}
-        sx={{ borderBottom: `1px dashed ${theme.border}` }}
-        marginTop="16px"
-      >
-        <MouseoverTooltip
-          width="fit-content"
-          placement="right"
-          text={<APRTooltipContent farmAPR={pool.farmAPR || 0} poolAPR={pool.apr} />}
-        >
-          <Trans>Avg APR</Trans>
-        </MouseoverTooltip>
-      </Text>
-
-      <Flex justifyContent="space-between" alignItems="center">
-        <Text fontSize="28px" fontWeight="500" color={theme.apr}>
-          {((pool.farmAPR || 0) + pool.apr).toFixed(2)}%
-        </Text>
-
-        <StyledLink href={getPrommAnalyticLink(chainId, pool.address)} onClick={onClickPoolAnalytics}>
-          <Flex alignItems="flex-end">
-            <BarChart2 size="16px" color={theme.subText} />
-            <Text fontSize="12px" fontWeight="500" marginLeft="4px" color={theme.subText}>
-              Pool Analytics ↗
-            </Text>
-          </Flex>
-        </StyledLink>
-      </Flex>
-
-      <Flex justifyContent="space-between" color={theme.subText} fontSize="12px" fontWeight="500" marginTop="1rem">
-        <Text>
-          <Trans>Volume (24H)</Trans>
-        </Text>
-        <Text>
-          <Trans>Fees (24H)</Trans>
-        </Text>
-      </Flex>
-
-      <Flex justifyContent="space-between" fontSize="16px" fontWeight="500" marginTop="0.25rem" marginBottom="1rem">
-        <Text>{formatDollarAmount(pool.volumeUSDLast24h)}</Text>
-        <Text>{formatDollarAmount(pool.volumeUSDLast24h * (pool.feeTier / ELASTIC_BASE_FEE_UNIT))}</Text>
-      </Flex>
+      {APR}
+      {volumeAndFee}
 
       <Divider />
 
-      <Flex justifyContent="space-between" color={theme.subText} fontSize="12px" fontWeight="500" marginTop="1rem">
-        <Text>TVL</Text>
-        <Text>My Liquidity</Text>
-      </Flex>
+      <div>
+        <Flex justifyContent="space-between" color={theme.subText} fontSize="12px" fontWeight="500">
+          <Text>TVL</Text>
+          <Text>My Liquidity</Text>
+        </Flex>
 
-      <Flex justifyContent="space-between" fontSize="16px" fontWeight="500" marginTop="0.25rem" marginBottom="1rem">
-        <Text>{formatDollarAmount(pool.tvlUSD)}</Text>
-        <Text>{myLiquidity ? formatDollarAmount(Number(myLiquidity)) : '-'}</Text>
-      </Flex>
+        <Flex justifyContent="space-between" fontSize="16px" fontWeight="500" marginTop="0.25rem">
+          <Text>{formatDollarAmount(pool.tvlUSD)}</Text>
+          <Text>{myLiquidity ? formatDollarAmount(Number(myLiquidity)) : '-'}</Text>
+        </Flex>
+      </div>
 
       {poolTransactionsStat !== undefined && (
-        <Flex marginTop="20px" sx={{ gap: '16px' }} flexDirection="column">
+        <Flex sx={{ gap: '16px' }} flexDirection="column">
           <Text color={theme.subText} fontSize="12px" fontWeight="500">
             <Trans>Last 24H Transactions</Trans>
           </Text>

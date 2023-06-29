@@ -1,11 +1,14 @@
 import { defaultAbiCoder } from '@ethersproject/abi'
 import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
-import { FeeAmount, Position } from '@kyberswap/ks-sdk-elastic'
+import { FeeAmount, Position, computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { useCallback, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
+import { ELASTIC_FARM_TYPE, FARM_TAB } from 'constants/index'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useTokens } from 'hooks/Tokens'
 import { useProAmmNFTPositionManagerContract, useProMMFarmContract } from 'hooks/useContract'
@@ -19,7 +22,7 @@ import {
   TransactionExtraInfoStakeFarm,
 } from 'state/transactions/type'
 import { PositionDetails } from 'types/position'
-import { calculateGasMargin } from 'utils'
+import { calculateGasMargin, isAddressString } from 'utils'
 
 import { defaultChainData } from '.'
 
@@ -29,6 +32,140 @@ export const useElasticFarms = () => {
   const { chainId, isEVM } = useActiveWeb3React()
   const elasticFarm = useAppSelector(state => state.elasticFarm[chainId])
   return useMemo(() => (isEVM ? elasticFarm || defaultChainData : defaultChainData), [isEVM, elasticFarm])
+}
+
+export const useFilteredFarms = () => {
+  const { isEVM, networkInfo, chainId } = useActiveWeb3React()
+
+  const [searchParams] = useSearchParams()
+  const filteredToken0Id = searchParams.get('token0') || undefined
+  const filteredToken1Id = searchParams.get('token1') || undefined
+
+  const { farms, loading, userFarmInfo } = useElasticFarms()
+
+  const type = searchParams.get('type')
+  const activeTab: string = type || FARM_TAB.ACTIVE
+
+  const search: string = searchParams.get('search')?.toLowerCase() || ''
+  const elasticType: string = searchParams.get('elasticType') || ELASTIC_FARM_TYPE.ALL
+
+  const filteredFarms = useMemo(() => {
+    if (elasticType === ELASTIC_FARM_TYPE.STATIC) return []
+    const now = Date.now() / 1000
+
+    // filter active/ended farm
+    let result = farms
+      ?.map(farm => {
+        const pools = farm.pools.filter(pool =>
+          activeTab === FARM_TAB.MY_FARMS
+            ? true
+            : activeTab === FARM_TAB.ACTIVE
+            ? pool.endTime >= now
+            : pool.endTime < now,
+        )
+        return { ...farm, pools }
+      })
+      .filter(farm => !!farm.pools.length)
+
+    const searchAddress = isAddressString(chainId, search)
+    // filter by address
+    if (searchAddress) {
+      if (isEVM)
+        result = result?.map(farm => {
+          farm.pools = farm.pools.filter(pool => {
+            const poolAddress = computePoolAddress({
+              factoryAddress: (networkInfo as EVMNetworkInfo).elastic.coreFactory,
+              tokenA: pool.token0.wrapped,
+              tokenB: pool.token1.wrapped,
+              fee: pool.pool.fee,
+              initCodeHashManualOverride: (networkInfo as EVMNetworkInfo).elastic.initCodeHash,
+            })
+            return [poolAddress, pool.pool.token1.address, pool.pool.token0.address].includes(searchAddress)
+          })
+          return farm
+        })
+    } else {
+      // filter by symbol and name of token
+      result = result?.map(farm => {
+        farm.pools = farm.pools.filter(pool => {
+          return (
+            pool.token0.symbol?.toLowerCase().includes(search) ||
+            pool.token1.symbol?.toLowerCase().includes(search) ||
+            pool.token0.name?.toLowerCase().includes(search) ||
+            pool.token1.name?.toLowerCase().includes(search)
+          )
+        })
+        return farm
+      })
+    }
+
+    if (filteredToken0Id || filteredToken1Id) {
+      if (filteredToken1Id && filteredToken0Id) {
+        result = result?.map(farm => {
+          farm.pools = farm.pools.filter(pool => {
+            return (
+              (pool.token0.wrapped.address.toLowerCase() === filteredToken0Id.toLowerCase() &&
+                pool.token1.wrapped.address.toLowerCase() === filteredToken1Id.toLowerCase()) ||
+              (pool.token1.wrapped.address.toLowerCase() === filteredToken0Id.toLowerCase() &&
+                pool.token0.wrapped.address.toLowerCase() === filteredToken1Id.toLowerCase())
+            )
+          })
+          return farm
+        })
+      } else {
+        const address = filteredToken1Id || filteredToken0Id
+        result = result?.map(farm => {
+          farm.pools = farm.pools.filter(pool => {
+            return (
+              pool.token0.wrapped.address.toLowerCase() === address?.toLowerCase() ||
+              pool.token1.wrapped.address.toLowerCase() === address?.toLowerCase()
+            )
+          })
+          return farm
+        })
+      }
+    }
+
+    if (activeTab === FARM_TAB.MY_FARMS && isEVM) {
+      result = result?.map(item => {
+        if (!userFarmInfo?.[item.id].depositedPositions.length) {
+          return { ...item, pools: [] }
+        }
+        const stakedPools = userFarmInfo?.[item.id].depositedPositions.map(pos =>
+          computePoolAddress({
+            factoryAddress: (networkInfo as EVMNetworkInfo).elastic.coreFactory,
+            tokenA: pos.pool.token0,
+            tokenB: pos.pool.token1,
+            fee: pos.pool.fee,
+            initCodeHashManualOverride: (networkInfo as EVMNetworkInfo).elastic.initCodeHash,
+          }).toLowerCase(),
+        )
+
+        const pools = item.pools.filter(pool => stakedPools.includes(pool.poolAddress.toLowerCase()))
+        return { ...item, pools }
+      })
+    }
+
+    return result?.filter(farm => !!farm.pools.length) || []
+  }, [
+    farms,
+    search,
+    activeTab,
+    chainId,
+    userFarmInfo,
+    isEVM,
+    networkInfo,
+    filteredToken0Id,
+    filteredToken1Id,
+    elasticType,
+  ])
+
+  return {
+    farms,
+    loading,
+    userFarmInfo,
+    filteredFarms,
+  }
 }
 
 export type StakeParam = {

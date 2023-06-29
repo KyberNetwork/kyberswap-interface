@@ -398,6 +398,15 @@ export const get24hValue = (valueNow: string, value24HoursAgo: string | undefine
 }
 
 export const getTokenLogoURL = (inputAddress: string, chainId: ChainId): string => {
+  //  hardcode for testing in goerli
+  if (chainId === ChainId.GÖRLI) {
+    switch (inputAddress.toLowerCase()) {
+      case '0x1bbeeedcf32dc2c1ebc2f138e3fc7f3decd44d6a':
+        return 'https://s2.coinmarketcap.com/static/img/coins/64x64/4943.png'
+      case '0x2bf64acf7ead856209749d0d125e9ade2d908e7f':
+        return 'https://seeklogo.com/images/T/tether-usdt-logo-FA55C7F397-seeklogo.com.png'
+    }
+  }
   let address = inputAddress
   if (address === ZERO_ADDRESS) {
     address = WETH[chainId].address

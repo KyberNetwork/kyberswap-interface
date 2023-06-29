@@ -1,298 +1,318 @@
-import { gql, useLazyQuery } from '@apollo/client'
-import { defaultAbiCoder } from '@ethersproject/abi'
-import { getCreate2Address } from '@ethersproject/address'
-import { keccak256 } from '@ethersproject/solidity'
-import { CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
-import { FeeAmount, Pool, Position } from '@kyberswap/ks-sdk-elastic'
-import { BigNumber } from 'ethers'
-import { Interface } from 'ethers/lib/utils'
-import { useEffect } from 'react'
+import { useCallback, useMemo } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { useLocalStorage } from 'react-use'
 
-import FarmV2QuoterABI from 'constants/abis/farmv2Quoter.json'
-import NFTPositionManagerABI from 'constants/abis/v2/ProAmmNFTPositionManager.json'
+import FarmV2ABI from 'constants/abis/v2/farmv2.json'
+import { ELASTIC_FARM_TYPE, FARM_TAB } from 'constants/index'
+import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
+import { NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
-import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { useContract, useMulticallContract } from 'hooks/useContract'
-import { useKyberSwapConfig } from 'state/application/hooks'
-import { useAppDispatch, useAppSelector } from 'state/hooks'
-import { isAddressString } from 'utils'
+import { useContract, useProAmmNFTPositionManagerContract } from 'hooks/useContract'
+import { useAppSelector } from 'state/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { calculateGasMargin, isAddressString } from 'utils'
 
-import { defaultChainData, setFarms, setLoading, setUserFarmInfo } from '.'
-import { ElasticFarmV2, SubgraphFarmV2, SubgraphToken, UserFarmV2Info } from './types'
+import { defaultChainData } from '.'
+import { UserFarmV2Info } from './types'
 
-const queryFarms = gql`
-  {
-    farmV2S(first: 1000) {
-      id
-      startTime
-      endTime
-      pool {
-        id
-        feeTier
-        tick
-        sqrtPrice
-        liquidity
-        reinvestL
-        token0 {
-          id
-          symbol
-          name
-          decimals
-        }
-        token1 {
-          id
-          symbol
-          name
-          decimals
-        }
-      }
-      rewards(orderBy: index, orderDirection: asc) {
-        token {
-          id
-          symbol
-          name
-          decimals
-        }
-        amount
-        index
-      }
-      ranges {
-        id
-        index
-        isRemoved
-        tickUpper
-        tickLower
-        weight
-      }
-
-      depositedPositions {
-        id
-        position {
-          id
-          liquidity
-          tickLower {
-            tickIdx
-          }
-          tickUpper {
-            tickIdx
-          }
-          token0 {
-            id
-            symbol
-            name
-            decimals
-          }
-          token1 {
-            id
-            symbol
-            name
-            decimals
-          }
-        }
-      }
-    }
-  }
-`
-
-let isSubscribed = false
-
-const positionManagerInterface = new Interface(NFTPositionManagerABI.abi)
-
-export const useElasticFarmsV2 = (subscribe = false) => {
-  const dispatch = useAppDispatch()
-  const { networkInfo, isEVM, chainId, account } = useActiveWeb3React()
+export const useElasticFarmsV2 = () => {
+  const { chainId } = useActiveWeb3React()
   const elasticFarm = useAppSelector(state => state.elasticFarmV2[chainId] || defaultChainData)
-  const { elasticClient } = useKyberSwapConfig()
+  return elasticFarm || {}
+}
 
-  const multicallContract = useMulticallContract()
-  const farmv2QuoterContract = useContract(
-    isEVM ? (networkInfo as EVMNetworkInfo).elastic.farmv2Quoter : undefined,
-    FarmV2QuoterABI,
-  )
+export const useUserFarmV2Info = (fId: number): UserFarmV2Info[] => {
+  const { userInfo } = useElasticFarmsV2()
+  return useMemo(() => userInfo?.filter(item => item.fId === fId) || [], [fId, userInfo])
+}
 
-  const [getElasticFarmV2, { data, error }] = useLazyQuery(queryFarms, {
-    client: elasticClient,
-    fetchPolicy: 'network-only',
-  })
+export enum SORT_FIELD {
+  FID = 'fId',
+  STAKED_TVL = 'staked_tvl',
+  APR = 'apr',
+  END_TIME = 'end_time',
+  MY_DEPOSIT = 'my_deposit',
+  MY_REWARD = 'my_reward',
+}
 
-  useEffect(() => {
-    if (isEVM && !elasticFarm.farms && !elasticFarm.loading) {
-      dispatch(setLoading({ chainId, loading: true }))
-      getElasticFarmV2().finally(() => {
-        dispatch(setLoading({ chainId, loading: false }))
+export enum SORT_DIRECTION {
+  ASC = 'asc',
+  DESC = 'desc',
+}
+
+export const useFilteredFarmsV2 = () => {
+  const { isEVM, chainId } = useActiveWeb3React()
+
+  const [searchParams] = useSearchParams()
+  const { farms, userInfo, loading } = useElasticFarmsV2()
+
+  const type = searchParams.get('type')
+  const activeTab: string = type || FARM_TAB.ACTIVE
+  const search: string = searchParams.get('search')?.toLowerCase() || ''
+  const elasticType: string = searchParams.get('elasticType')?.toLowerCase() || ELASTIC_FARM_TYPE.ALL
+  const filteredToken0Id = searchParams.get('token0') || undefined
+  const filteredToken1Id = searchParams.get('token1') || undefined
+
+  const sortField = searchParams.get('orderBy') || SORT_FIELD.MY_DEPOSIT
+  const sortDirection = searchParams.get('orderDirection') || SORT_DIRECTION.DESC
+
+  const [lastUpdatedTimestamp] = useLocalStorage('elasticFarmV2LastUpdatedTimeStamp', null)
+
+  const updatedFarms = useMemo(() => {
+    const newFarms = farms
+      ?.filter(farm => {
+        if (farm?.endTime < Date.now() / 1000) return false
+        const isUserJoinThisFarm = userInfo?.find(item => item.fId === farm.fId)
+        if (!isUserJoinThisFarm) return false
+
+        const minTimestamp = lastUpdatedTimestamp
+          ? +lastUpdatedTimestamp
+          : Math.min(...farm.ranges.map(range => range.updatedAt))
+
+        const ranges = farm.ranges.filter(range => range.updatedAt > minTimestamp)
+        return !!ranges.length
       })
-    }
-  }, [isEVM, chainId, dispatch, getElasticFarmV2, elasticFarm])
-
-  useEffect(() => {
-    const i =
-      subscribe && !isSubscribed
-        ? setInterval(() => {
-            isSubscribed = true
-            getElasticFarmV2()
-          }, 20_000)
-        : undefined
-    return () => {
-      i && clearInterval(i)
-      isSubscribed = false
-    }
-  }, [subscribe, dispatch, getElasticFarmV2])
-
-  useEffect(() => {
-    if (error && chainId) {
-      dispatch(setFarms({ chainId, farms: [] }))
-      dispatch(setLoading({ chainId, loading: false }))
-    }
-  }, [error, dispatch, chainId])
-
-  useEffect(() => {
-    if (data?.farmV2S && chainId) {
-      const formattedData: ElasticFarmV2[] = data.farmV2S.map((farm: SubgraphFarmV2) => {
-        const getToken = (t: SubgraphToken) => {
-          const address = isAddressString(chainId, t.id)
-          return address === WETH[chainId].address
-            ? NativeCurrencies[chainId]
-            : new Token(
-                chainId,
-                address,
-                Number(t.decimals),
-                t.symbol.toLowerCase() === 'mimatic' ? 'MAI' : t.symbol,
-                t.name,
-              )
-        }
-        const token0 = getToken(farm.pool.token0)
-        const token1 = getToken(farm.pool.token1)
-        const p = new Pool(
-          token0.wrapped,
-          token1.wrapped,
-          Number(farm.pool.feeTier) as FeeAmount,
-          farm.pool.sqrtPrice,
-          farm.pool.liquidity,
-          farm.pool.reinvestL,
-          Number(farm.pool.tick),
-        )
-
-        let tvlToken0 = TokenAmount.fromRawAmount(token0.wrapped, 0)
-        let tvlToken1 = TokenAmount.fromRawAmount(token1.wrapped, 0)
-        farm.depositedPositions.forEach(pos => {
-          const position = new Position({
-            pool: p,
-            liquidity: pos.position.liquidity,
-            tickLower: Number(pos.position.tickLower.tickIdx),
-            tickUpper: Number(pos.position.tickUpper.tickIdx),
-          })
-          tvlToken0 = tvlToken0.add(position.amount0)
-          tvlToken1 = tvlToken1.add(position.amount1)
-        })
+      .map(farm => {
+        const minTimestamp = lastUpdatedTimestamp
+          ? lastUpdatedTimestamp
+          : Math.min(...farm.ranges.map(range => range.updatedAt))
 
         return {
-          id: farm.id,
-          startTime: Number(farm.startTime),
-          endTime: Number(farm.endTime),
-          poolAddress: farm.pool.id,
-          pool: p,
-          token0,
-          token1,
-          totalRewards: farm.rewards.map(item => CurrencyAmount.fromRawAmount(getToken(item.token), item.amount)),
-          ranges: farm.ranges,
-          tvlToken0,
-          tvlToken1,
+          ...farm,
+          ranges: farm.ranges.filter(range => range.updatedAt > minTimestamp),
         }
       })
 
-      dispatch(setFarms({ chainId, farms: formattedData }))
-      if (account && farmv2QuoterContract && multicallContract) {
-        farmv2QuoterContract.getUserInfo(account).then(
-          async (
-            res: {
-              nftId: BigNumber
-              fId: BigNumber
-              rangeId: BigNumber
-              liquidity: BigNumber
-              currentUnclaimedRewards: BigNumber[]
-            }[],
-          ) => {
-            const nftIds = res.map(item => item.nftId)
-            const nftDetailFragment = positionManagerInterface.getFunction('positions')
-            const nftDetailChunks = nftIds.map(id => ({
-              target: (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager,
-              callData: positionManagerInterface.encodeFunctionData(nftDetailFragment, [id]),
-            }))
+    return newFarms
+  }, [farms, lastUpdatedTimestamp, userInfo])
 
-            const detailNFTMultiCallData = (
-              await multicallContract.callStatic.tryBlockAndAggregate(false, nftDetailChunks)
-            ).returnData
+  const filteredFarms = useMemo(() => {
+    if (elasticType === ELASTIC_FARM_TYPE.DYNAMIC) return []
+    const now = Date.now() / 1000
 
-            const nftDetailResult = detailNFTMultiCallData.map((data: [boolean, string]) =>
-              data[0] ? positionManagerInterface.decodeFunctionResult(nftDetailFragment, data[1]) : null,
-            )
+    // Filter Active/Ended farms
+    let result = farms?.filter(farm =>
+      activeTab === FARM_TAB.MY_FARMS
+        ? userInfo?.some(item => item.poolAddress.toLowerCase() === farm.poolAddress.toLowerCase())
+        : activeTab === FARM_TAB.ACTIVE
+        ? farm.endTime >= now && !farm.isSettled
+        : farm.endTime < now || farm.isSettled,
+    )
 
-            type NFT_INFO = {
-              [id: string]: {
-                poolAddress: string
-                liquidity: BigNumber
-                tickLower: BigNumber
-                tickUpper: BigNumber
-              }
-            }
-            const nftInfos = nftDetailResult.reduce((acc: NFT_INFO, item: any, index: number) => {
-              if (!item) return acc
-              return {
-                ...acc,
-                [nftIds[index].toString()]: {
-                  poolAddress: getCreate2Address(
-                    (networkInfo as EVMNetworkInfo).elastic.coreFactory,
-                    keccak256(
-                      ['bytes'],
-                      [
-                        defaultAbiCoder.encode(
-                          ['address', 'address', 'uint24'],
-                          [item.info.token0, item.info.token1, item.info.fee],
-                        ),
-                      ],
-                    ),
-                    (networkInfo as EVMNetworkInfo).elastic.initCodeHash,
-                  ),
-                  liquidity: item.pos.liquidity,
-                  tickLower: item.pos.tickLower,
-                  tickUpper: item.pos.tickUpper,
-                },
-              }
-            }, {} as NFT_INFO)
-
-            const infos = res.reduce((acc: UserFarmV2Info[], item) => {
-              const farm = formattedData.find(
-                farm => farm.poolAddress.toLowerCase() === nftInfos[item.nftId.toString()].poolAddress.toLowerCase(),
-              )
-              if (!farm) return acc
-
-              return [
-                ...acc,
-                {
-                  nftId: item.nftId,
-                  position: new Position({
-                    pool: farm.pool,
-                    liquidity: nftInfos[item.nftId.toString()].liquidity,
-                    tickLower: nftInfos[item.nftId.toString()].tickLower,
-                    tickUpper: nftInfos[item.nftId.toString()].tickUpper,
-                  }),
-                  fId: Number(item.fId.toString()),
-                  rangeId: Number(item.rangeId.toString()),
-                  liquidity: item.liquidity,
-                  unclaimedRewards: farm.totalRewards.map((rw, i) =>
-                    CurrencyAmount.fromRawAmount(rw.currency, item.currentUnclaimedRewards[i].toString()),
-                  ),
-                },
-              ]
-            }, [] as UserFarmV2Info[])
-
-            dispatch(setUserFarmInfo({ chainId, userInfo: infos }))
-          },
+    // Filter by search value
+    const searchAddress = isAddressString(chainId, search)
+    if (searchAddress) {
+      if (isEVM)
+        result = result?.filter(farm => {
+          return [farm.poolAddress, farm.token0.wrapped.address, farm.token1.wrapped.address]
+            .map(item => item.toLowerCase())
+            .includes(searchAddress.toLowerCase())
+        })
+    } else {
+      result = result?.filter(farm => {
+        return (
+          farm.token0.symbol?.toLowerCase().includes(search) ||
+          farm.token1.symbol?.toLowerCase().includes(search) ||
+          farm.token0.name?.toLowerCase().includes(search) ||
+          farm.token1.name?.toLowerCase().includes(search)
         )
+      })
+    }
+
+    // Filter by input output token
+    if (filteredToken0Id || filteredToken1Id) {
+      if (filteredToken1Id && filteredToken0Id) {
+        result = result?.filter(farm => {
+          return (
+            (farm.token0.wrapped.address.toLowerCase() === filteredToken0Id.toLowerCase() &&
+              farm.token1.wrapped.address.toLowerCase() === filteredToken1Id.toLowerCase()) ||
+            (farm.token0.wrapped.address.toLowerCase() === filteredToken1Id.toLowerCase() &&
+              farm.token1.wrapped.address.toLowerCase() === filteredToken0Id.toLowerCase())
+          )
+        })
+      } else {
+        const address = filteredToken1Id || filteredToken0Id
+        result = result?.filter(farm => {
+          return (
+            farm.token0.wrapped.address.toLowerCase() === address?.toLowerCase() ||
+            farm.token1.wrapped.address.toLowerCase() === address?.toLowerCase()
+          )
+        })
       }
     }
-  }, [networkInfo, chainId, dispatch, data, account, farmv2QuoterContract, multicallContract])
 
-  return elasticFarm
+    return (result || []).sort((a, b) => {
+      const apr_a = a.ranges.reduce((m, cur) => (m > (cur.apr || 0) ? m : cur.apr || 0), 0)
+      const apr_b = b.ranges.reduce((m, cur) => (m > (cur.apr || 0) ? m : cur.apr || 0), 0)
+
+      const userDepositedUsdInA =
+        userInfo?.filter(item => item.fId === a.fId).reduce((total, item) => item.stakedUsdValue + total, 0) || 0
+      const userDepositedUsdInB =
+        userInfo?.filter(item => item.fId === b.fId).reduce((total, item) => item.stakedUsdValue + total, 0) || 0
+
+      const userRewardsInA =
+        userInfo?.filter(item => item.fId === a.fId).reduce((total, item) => item.unclaimedRewardsUsd + total, 0) || 0
+      const userRewardsInB =
+        userInfo?.filter(item => item.fId === b.fId).reduce((total, item) => item.unclaimedRewardsUsd + total, 0) || 0
+
+      switch (sortField) {
+        case SORT_FIELD.STAKED_TVL:
+          return sortDirection === SORT_DIRECTION.DESC ? b.tvl - a.tvl : a.tvl - b.tvl
+        case SORT_FIELD.END_TIME:
+          return sortDirection === SORT_DIRECTION.DESC ? b.endTime - a.endTime : a.endTime - b.endTime
+        case SORT_FIELD.APR:
+          return sortDirection === SORT_DIRECTION.DESC ? apr_b - apr_a : apr_a - apr_b
+        case SORT_FIELD.MY_DEPOSIT:
+          return sortDirection === SORT_DIRECTION.DESC
+            ? userDepositedUsdInB - userDepositedUsdInA
+            : userDepositedUsdInA - userDepositedUsdInB
+        case SORT_FIELD.MY_REWARD:
+          return sortDirection === SORT_DIRECTION.DESC
+            ? userRewardsInB - userRewardsInA
+            : userRewardsInA - userRewardsInB
+        default:
+          return sortDirection === SORT_DIRECTION.DESC ? apr_b - apr_a : apr_a - apr_b
+      }
+    })
+  }, [
+    sortDirection,
+    sortField,
+    userInfo,
+    farms,
+    activeTab,
+    chainId,
+    filteredToken0Id,
+    filteredToken1Id,
+    isEVM,
+    search,
+    elasticType,
+  ])
+
+  return {
+    filteredFarms,
+    farms,
+    userInfo,
+    loading,
+    updatedFarms,
+  }
+}
+
+export const useFarmV2Action = () => {
+  const { chainId, account } = useActiveWeb3React()
+  const address = (NETWORKS_INFO[chainId] as EVMNetworkInfo).elastic?.farmV2Contract
+  const addTransactionWithType = useTransactionAdder()
+  const farmContract = useContract(address, FarmV2ABI)
+  const posManager = useProAmmNFTPositionManagerContract()
+
+  const approve = useCallback(async () => {
+    if (!posManager) {
+      throw new Error(CONTRACT_NOT_FOUND_MSG)
+    }
+    const estimateGas = await posManager.estimateGas.setApprovalForAll(address, true)
+    const tx = await posManager.setApprovalForAll(address, true, {
+      gasLimit: calculateGasMargin(estimateGas),
+    })
+    addTransactionWithType({
+      hash: tx.hash,
+      type: TRANSACTION_TYPE.APPROVE,
+      extraInfo: {
+        summary: `Elastic Static Farm`,
+        contract: address,
+      },
+    })
+    return tx.hash
+  }, [posManager, address, addTransactionWithType])
+
+  //Deposit
+  const deposit = useCallback(
+    async (fId: number, rangeId: number, nftIds: number[]) => {
+      if (!farmContract) {
+        throw new Error(CONTRACT_NOT_FOUND_MSG)
+      }
+      try {
+        const estimateGas = await farmContract.estimateGas.deposit(fId, rangeId, nftIds, account)
+        const tx = await farmContract.deposit(fId, rangeId, nftIds, account, {
+          gasLimit: calculateGasMargin(estimateGas),
+        })
+        addTransactionWithType({
+          hash: tx.hash,
+          type: TRANSACTION_TYPE.ELASTIC_DEPOSIT_LIQUIDITY,
+        })
+        return tx.hash
+      } catch (e) {
+        throw e
+      }
+    },
+    [farmContract, addTransactionWithType, account],
+  )
+
+  const updateLiquidity = useCallback(
+    async (fId: number, rangeId: number, nftIds: number[]) => {
+      if (!farmContract) {
+        throw new Error(CONTRACT_NOT_FOUND_MSG)
+      }
+      try {
+        const estimateGas = await farmContract.estimateGas.addLiquidity(fId, rangeId, nftIds)
+        const tx = await farmContract.addLiquidity(fId, rangeId, nftIds, {
+          gasLimit: calculateGasMargin(estimateGas),
+        })
+        addTransactionWithType({
+          hash: tx.hash,
+          type: TRANSACTION_TYPE.ELASTIC_DEPOSIT_LIQUIDITY,
+        })
+        return tx.hash
+      } catch (e) {
+        throw e
+      }
+    },
+    [addTransactionWithType, farmContract],
+  )
+
+  const withdraw = useCallback(
+    async (fId: number, nftIds: number[]) => {
+      if (!farmContract) {
+        throw new Error(CONTRACT_NOT_FOUND_MSG)
+      }
+      try {
+        const estimateGas = await farmContract.estimateGas.withdraw(fId, nftIds)
+        const tx = await farmContract.withdraw(fId, nftIds, {
+          gasLimit: calculateGasMargin(estimateGas),
+        })
+
+        addTransactionWithType({
+          hash: tx.hash,
+          type: TRANSACTION_TYPE.ELASTIC_WITHDRAW_LIQUIDITY,
+        })
+        return tx.hash
+      } catch (e) {
+        throw e
+      }
+    },
+    [addTransactionWithType, farmContract],
+  )
+
+  const harvest = useCallback(
+    async (fId: number, nftIds: number[]) => {
+      if (!farmContract) {
+        throw new Error("Farm contract doesn't exist")
+      }
+
+      try {
+        const estimateGas = await farmContract.estimateGas.claimReward(fId, nftIds)
+        const tx = await farmContract.claimReward(fId, nftIds, {
+          gasLimit: calculateGasMargin(estimateGas),
+        })
+
+        addTransactionWithType({ hash: tx.hash, type: TRANSACTION_TYPE.HARVEST })
+        return tx
+      } catch (e) {
+        throw e
+      }
+    },
+    [addTransactionWithType, farmContract],
+  )
+
+  return { approve, deposit, withdraw, harvest, updateLiquidity }
 }
