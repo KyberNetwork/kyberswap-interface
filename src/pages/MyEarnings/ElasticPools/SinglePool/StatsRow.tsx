@@ -174,9 +174,8 @@ const StatsRow: React.FC<Props> = ({
   const chainRoute = NETWORKS_INFO[chainId].route
   const [, copy] = useCopyClipboard()
 
-  // TODO: check native currencies
-  const currency0Slug = currency0?.wrapped.address || ''
-  const currency1Slug = currency1?.wrapped.address || ''
+  const currency0Slug = currency0?.isNative ? currency0.symbol : currency0?.wrapped.address || ''
+  const currency1Slug = currency1?.isNative ? currency1.symbol : currency1?.wrapped.address || ''
 
   const renderAddLiquidityButton = () => {
     return (

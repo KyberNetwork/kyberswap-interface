@@ -21,7 +21,6 @@ import { Column, Label, Row, Value, ValueAPR } from 'pages/MyEarnings/ElasticPoo
 import HoverDropdown from 'pages/MyEarnings/HoverDropdown'
 import { useElasticFarms } from 'state/farms/elastic/hooks'
 import { useAppSelector } from 'state/hooks'
-import { currencyId } from 'utils/currencyId'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 const ActionButtonsWrapper = styled.div`
@@ -54,6 +53,10 @@ type ActionButtonsProps = {
 }
 const ActionButtons: React.FC<ActionButtonsProps> = ({ chainId, nftId, currency0, currency1, feeAmount }) => {
   const chainRoute = NETWORKS_INFO[chainId].route
+
+  const currency0Slug = currency0.isNative ? currency0.symbol : currency0.wrapped.address
+  const currency1Slug = currency1.isNative ? currency1.symbol : currency1.wrapped.address
+
   return (
     <ActionButtonsWrapper>
       <ActionButton $variant="red" as={Link} to={`/${chainRoute}${APP_PATHS.ELASTIC_REMOVE_POOL}/${nftId}`}>
@@ -62,10 +65,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ chainId, nftId, currency0
       <ActionButton
         $variant="green"
         as={Link}
-        to={`/${chainRoute}${APP_PATHS.ELASTIC_INCREASE_LIQ}/${currencyId(currency0, chainId)}/${currencyId(
-          currency1,
-          chainId,
-        )}/${feeAmount}/${nftId}`}
+        to={`/${chainRoute}${APP_PATHS.ELASTIC_INCREASE_LIQ}/${currency0Slug}/${currency1Slug}/${feeAmount}/${nftId}`}
       >
         <ChevronsUp size="16px" /> <Trans>Increase Liquidity</Trans>
       </ActionButton>
@@ -77,21 +77,16 @@ const defaultPendingFee = ['0', '0']
 
 const PositionView: React.FC<CommonProps> = props => {
   const { positionEarning, position, pendingFee = defaultPendingFee, tokenPrices: prices, chainId } = props
-  const liquidityValue0 = CurrencyAmount.fromRawAmount(unwrappedToken(position.pool.token0), position.amount0.quotient)
-  const liquidityValue1 = CurrencyAmount.fromRawAmount(unwrappedToken(position.pool.token1), position.amount1.quotient)
 
-  const token0 = unwrappedToken(position.pool.token0)
-  const token1 = unwrappedToken(position.pool.token1)
+  // Need these because we'll display native tokens instead of wrapped tokens
+  const visibleCurrency0 = unwrappedToken(position.pool.token0)
+  const visibleCurrency1 = unwrappedToken(position.pool.token1)
+
+  const liquidityValue0 = CurrencyAmount.fromRawAmount(visibleCurrency0, position.amount0.quotient)
+  const liquidityValue1 = CurrencyAmount.fromRawAmount(visibleCurrency1, position.amount1.quotient)
 
   const isElasticLegacyPosition = useAppSelector(state => state.myEarnings.activeTab === VERSION.ELASTIC_LEGACY)
 
-  if (!pendingFee?.length) {
-    console.log({
-      positionEarning,
-      position,
-      pendingFee,
-    })
-  }
   const feeReward0 = CurrencyAmount.fromRawAmount(position.pool.token0, pendingFee[0])
   const feeReward1 = CurrencyAmount.fromRawAmount(position.pool.token1, pendingFee[1])
   const feeUsd =
@@ -99,8 +94,8 @@ const PositionView: React.FC<CommonProps> = props => {
     +feeReward1.toExact() * prices[position.pool.token1.address]
 
   const liquidityInUsd =
-    parseFloat(position.amount0.toExact() || '0') * prices[token0.wrapped.address || ''] +
-    parseFloat(position.amount1.toExact() || '0') * prices[token1.wrapped.address || '']
+    parseFloat(position.amount0.toExact() || '0') * prices[visibleCurrency0.wrapped.address || ''] +
+    parseFloat(position.amount1.toExact() || '0') * prices[visibleCurrency1.wrapped.address || '']
 
   const liquidityInUsdString = Number.isNaN(liquidityInUsd) ? '--' : formatUSDValue(liquidityInUsd, true)
 
@@ -260,8 +255,8 @@ const PositionView: React.FC<CommonProps> = props => {
         <ActionButtons
           chainId={chainId}
           nftId={positionEarning.id}
-          currency0={position.amount0.currency}
-          currency1={position.amount1.currency}
+          currency0={visibleCurrency0}
+          currency1={visibleCurrency1}
           feeAmount={position.pool.fee}
         />
       </Flex>
