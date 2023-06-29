@@ -288,7 +288,7 @@ export function TransactionErrorContent({
                 color={theme.primary}
                 fontSize="14px"
                 sx={{ cursor: `pointer` }}
-                onClick={() => setShowDetail(!showDetail)}
+                onClick={() => setShowDetail(prev => !prev)}
               >
                 {showDetail ? 'Show less' : 'Show more details'}
               </Text>

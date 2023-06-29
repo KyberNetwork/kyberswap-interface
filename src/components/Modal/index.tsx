@@ -52,7 +52,7 @@ const StyledDialogContent = styled(
     ${({ minHeight }) =>
       minHeight &&
       `
-        min-height: ${minHeight}vh;
+        min-height: ${!isNaN(minHeight) ? `${minHeight}vh` : minHeight};
       `}
     display: flex;
     ${({ borderRadius }) =>
@@ -82,7 +82,7 @@ const StyledDialogContent = styled(
 export interface ModalProps {
   isOpen: boolean
   onDismiss?: () => void
-  minHeight?: number | false
+  minHeight?: number | string | false
   maxHeight?: number | string
   maxWidth?: number | string
   borderRadius?: number | string

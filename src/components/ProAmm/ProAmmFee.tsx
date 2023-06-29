@@ -15,12 +15,16 @@ import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import QuestionHelper from 'components/QuestionHelper'
 import { RowBetween, RowFixed } from 'components/Row'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
+import FarmV2ABI from 'constants/abis/v2/farmv2.json'
+import { NETWORKS_INFO } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useProAmmNFTPositionManagerContract, useProMMFarmContract } from 'hooks/useContract'
+import { useContract, useProAmmNFTPositionManagerContract, useProMMFarmContract } from 'hooks/useContract'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
+import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
@@ -48,7 +52,7 @@ export default function ProAmmFee({
   feeValue0: CurrencyAmount<Currency> | undefined
   feeValue1: CurrencyAmount<Currency> | undefined
 }) {
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const { library } = useWeb3React()
   const theme = useTheme()
   const token0Shown = feeValue0?.currency || position.pool.token0
@@ -103,9 +107,17 @@ export default function ProAmmFee({
 
   const farmContract = useProMMFarmContract(farmAddress || '')
   const poolAddress = useProAmmPoolInfo(position.pool.token0, position.pool.token1, position.pool.fee as FeeAmount)
+  const { userInfo } = useElasticFarmsV2()
+  const address = (NETWORKS_INFO[chainId] as EVMNetworkInfo).elastic?.farmV2Contract
+  const farmV2Contract = useContract(address, FarmV2ABI)
+  const info = userInfo?.find(item => item.nftId.toString() === tokenId.toString())
 
   const collectFeeFromFarmContract = async () => {
-    if (!farmContract || !feeValue0 || !feeValue1) {
+    const isInFarmV2 = !!info
+
+    const contract = isInFarmV2 ? farmV2Contract : farmContract
+
+    if (!contract || !feeValue0 || !feeValue1) {
       setAttemptingTxn(false)
       setCollectFeeError('Something went wrong!')
       return
@@ -114,26 +126,29 @@ export default function ProAmmFee({
     const amount0Min = feeValue0.subtract(feeValue0.multiply(basisPointsToPercent(allowedSlippage)))
     const amount1Min = feeValue1.subtract(feeValue1.multiply(basisPointsToPercent(allowedSlippage)))
     try {
-      const gasEstimation = await farmContract.estimateGas.claimFee(
-        [tokenId.toString()],
-        amount0Min.quotient.toString(),
-        amount1Min.quotient.toString(),
-        poolAddress,
-        true,
-        deadline?.toString(),
-      )
+      const params = isInFarmV2
+        ? [
+            info.fId,
+            [tokenId.toString()],
+            amount0Min.quotient.toString(),
+            amount1Min.quotient.toString(),
+            deadline?.toString(),
+            true,
+          ]
+        : [
+            [tokenId.toString()],
+            amount0Min.quotient.toString(),
+            amount1Min.quotient.toString(),
+            poolAddress,
+            true,
+            deadline?.toString(),
+          ]
 
-      const tx = await farmContract.claimFee(
-        [tokenId.toString()],
-        amount0Min.quotient.toString(),
-        amount1Min.quotient.toString(),
-        poolAddress,
-        true,
-        deadline?.toString(),
-        {
-          gasLimit: calculateGasMargin(gasEstimation),
-        },
-      )
+      const gasEstimation = await contract.estimateGas.claimFee(...params)
+
+      const tx = await contract.claimFee(...params, {
+        gasLimit: calculateGasMargin(gasEstimation),
+      })
 
       handleBroadcastClaimSuccess(tx)
     } catch (e) {

@@ -129,14 +129,14 @@ export function isSupportedChainId(chainId?: number): chainId is ChainId {
 
 export const FAUCET_NETWORKS = [ChainId.BTTC]
 export const CHAINS_SUPPORT_NEW_POOL_FARM_API: readonly ChainId[] = [
-  // ChainId.MAINNET,
+  ChainId.MAINNET,
   // ChainId.MUMBAI,
-  // ChainId.MATIC,
+  ChainId.MATIC,
   // ChainId.BSCTESTNET,
   ChainId.BSCMAINNET,
   // ChainId.AVAXTESTNET,
   ChainId.AVAXMAINNET,
-  // ChainId.FANTOM,
+  ChainId.FANTOM,
   ChainId.CRONOS,
   ChainId.BTTC,
   ChainId.ARBITRUM,

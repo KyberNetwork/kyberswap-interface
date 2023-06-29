@@ -18,6 +18,8 @@ import { SelectPairInstructionWrapper } from 'pages/Pools/styleds'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useOpenModal } from 'state/application/hooks'
 import { FarmUpdater, useElasticFarms } from 'state/farms/elastic/hooks'
+import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
+import ElasticFarmV2Updater from 'state/farms/elasticv2/updater'
 import { Field } from 'state/mint/proamm/type'
 import { useTopPoolAddresses, useUserProMMPositions } from 'state/prommPools/hooks'
 import useGetElasticPools from 'state/prommPools/useGetElasticPools'
@@ -52,7 +54,7 @@ const PageWrapper = styled.div`
 const TableHeader = styled.div`
   display: grid;
   grid-gap: 1rem;
-  grid-template-columns: 2fr 1.25fr 1.25fr 1.25fr 1.25fr 1.25fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1fr;
   padding: 16px;
   font-size: 12px;
   align-items: center;
@@ -127,6 +129,7 @@ export default function ProAmmPoolList({
   const { isLoading: poolDataLoading, data: poolDatas } = useGetElasticPools(addresses || [])
 
   const { farms } = useElasticFarms()
+  const { farms: elasticFarmV2s } = useElasticFarmsV2()
   const farmTokens = [
     ...new Set(
       farms
@@ -239,7 +242,13 @@ export default function ProAmmPoolList({
           .flat()
           .filter(item => item.endTime > +new Date() / 1000)
           .map(item => item.poolAddress.toLowerCase()) || []
-      filteredPools = filteredPools.filter(pool => activePoolFarmAddress.includes(pool.address.toLowerCase()))
+      const activeFarmV2Addresses =
+        elasticFarmV2s
+          ?.filter(item => item.endTime > Date.now() / 1000 && !item.isSettled)
+          .map(farm => farm.poolAddress) || []
+      filteredPools = filteredPools.filter(pool =>
+        [...activePoolFarmAddress, ...activeFarmV2Addresses].includes(pool.address.toLowerCase()),
+      )
     }
 
     if (caId && cbId && caId === cbId) filteredPools = []
@@ -267,6 +276,7 @@ export default function ProAmmPoolList({
       })
       .sort(listComparator)
   }, [
+    elasticFarmV2s,
     poolDatas,
     totalFarmRewardUSDByPoolId,
     isShowOnlyActiveFarmPools,
@@ -460,6 +470,7 @@ export default function ProAmmPoolList({
         title={sharedPoolId ? t`Share this pool with your friends!` : t`Share this list of pools with your friends`}
       />
       <FarmUpdater interval={false} />
+      <ElasticFarmV2Updater interval={false} />
     </PageWrapper>
   )
 }
