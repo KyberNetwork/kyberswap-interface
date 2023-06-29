@@ -56,7 +56,7 @@ const ButtonText = styled(Text)<{ iconOnly?: boolean }>`
 `
 export default function SubscribeNotificationButton({
   subscribeTooltip,
-  iconOnly = false,
+  iconOnly,
   trackingEvent,
   onClick,
   topicId,
