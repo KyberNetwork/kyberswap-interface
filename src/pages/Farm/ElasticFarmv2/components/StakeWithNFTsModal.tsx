@@ -339,55 +339,57 @@ const StakeWithNFTsModal = ({
                   children: loading ? (
                     <LocalLoader />
                   ) : !positions?.length ? (
-                    <Flex flexDirection="column" marginTop="20px" sx={{ gap: '20px' }}>
-                      <Flex fontSize={14} color={theme.subText} padding="16px" alignItems="center" margin="auto">
-                        <Info size="36px" />
-                        <Text lineHeight={1.5} marginLeft="1rem" flex={1}>
-                          <Trans>
-                            You don&apos;t have any relevant liquidity positions that cover this price range.
-                            <br />
-                            Add liquidity to this pool with the current range{' '}
-                            <StyledInternalLink to={addliquidityElasticPool}>here ↗</StyledInternalLink>{' '}
-                          </Trans>
-                        </Text>
-                      </Flex>
-                      <Divider />
-                      <Flex
-                        paddingX="24px"
-                        sx={{ gap: '1rem' }}
-                        flexDirection="column"
-                        marginBottom="24px"
-                        fontSize="12px"
-                      >
-                        <Text fontSize="12px" fontWeight="500">
-                          <Trans>Example</Trans>
-                        </Text>
+                    <div style={{ overflowY: 'scroll' }}>
+                      <Flex flexDirection="column" marginTop="20px" sx={{ gap: '20px' }}>
+                        <Flex fontSize={14} color={theme.subText} padding="16px" alignItems="center" margin="auto">
+                          <Info size="36px" />
+                          <Text lineHeight={1.5} marginLeft="1rem" flex={1}>
+                            <Trans>
+                              You don&apos;t have any relevant liquidity positions that cover this price range.
+                              <br />
+                              Add liquidity to this pool with the current range{' '}
+                              <StyledInternalLink to={addliquidityElasticPool}>here ↗</StyledInternalLink>{' '}
+                            </Trans>
+                          </Text>
+                        </Flex>
+                        <Divider />
+                        <Flex
+                          paddingX="24px"
+                          sx={{ gap: '1rem' }}
+                          flexDirection="column"
+                          marginBottom="24px"
+                          fontSize="12px"
+                        >
+                          <Text fontSize="12px" fontWeight="500">
+                            <Trans>Example</Trans>
+                          </Text>
 
-                        <img src={upToMedium ? ExampleImageMobile : ExampleImage} width="100%" />
+                          <img src={upToMedium ? ExampleImageMobile : ExampleImage} width="100%" />
 
-                        <Text color={theme.subText}>
-                          <Trans>
-                            For a farm with a pre-configured price range of 0.6-0.8, your liquidity positions lower
-                            range must be ≤0.6 and upper range must be ≥0.8
-                          </Trans>
-                        </Text>
+                          <Text color={theme.subText}>
+                            <Trans>
+                              For a farm with a pre-configured price range of 0.6-0.8, your liquidity positions lower
+                              range must be ≤0.6 and upper range must be ≥0.8
+                            </Trans>
+                          </Text>
 
-                        <Flex sx={{ gap: '1rem' }} flexDirection={upToMedium ? 'column' : 'row'}>
-                          <Flex sx={{ gap: '4px' }}>
-                            <Text color={theme.primary} fontWeight="500">
-                              <Trans>Eligible</Trans>:
-                            </Text>
-                            <Text color={theme.subText}>0.6-0.8, 0.5-0.8, 0.5-0.9</Text>
-                          </Flex>
-                          <Flex sx={{ gap: '4px' }}>
-                            <Text color={theme.warning} fontWeight="500">
-                              <Trans>Not Eligible</Trans>:
-                            </Text>
-                            <Text color={theme.subText}>0.6-0.7, 0.7-0.8, 0.65-0.75</Text>
+                          <Flex sx={{ gap: '1rem' }} flexDirection={upToMedium ? 'column' : 'row'}>
+                            <Flex sx={{ gap: '4px' }}>
+                              <Text color={theme.primary} fontWeight="500">
+                                <Trans>Eligible</Trans>:
+                              </Text>
+                              <Text color={theme.subText}>0.6-0.8, 0.5-0.8, 0.5-0.9</Text>
+                            </Flex>
+                            <Flex sx={{ gap: '4px' }}>
+                              <Text color={theme.warning} fontWeight="500">
+                                <Trans>Not Eligible</Trans>:
+                              </Text>
+                              <Text color={theme.subText}>0.6-0.7, 0.7-0.8, 0.65-0.75</Text>
+                            </Flex>
                           </Flex>
                         </Flex>
                       </Flex>
-                    </Flex>
+                    </div>
                   ) : (
                     <ContentWrapper>
                       {positions.map(pos => {
