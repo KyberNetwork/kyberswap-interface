@@ -1,5 +1,5 @@
 import { cloneDeep } from '@apollo/client/utilities'
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
 import produce from 'immer'
 import {
@@ -11,6 +11,7 @@ import {
 } from 'services/earning/types'
 
 import { NETWORKS_INFO, SUPPORTED_NETWORKS_FOR_MY_EARNINGS } from 'constants/networks'
+import { NativeCurrencies } from 'constants/tokens'
 import { TokenAddressMap } from 'state/lists/reducer'
 import { EarningStatsTick, EarningsBreakdown } from 'types/myEarnings'
 import { isAddress } from 'utils'
@@ -157,7 +158,6 @@ export const calculateEarningStatsTick = (
       totalValue: poolRewardsValueUSD + farmRewardsValueUSD,
       tokens: (singlePointData.total || [])
         .filter(tokenEarning => {
-          // TODO: check with native token
           const tokenAddress = isAddress(chainId, tokenEarning.token)
           if (!tokenAddress) {
             return false
@@ -169,11 +169,15 @@ export const calculateEarningStatsTick = (
         .map(tokenEarning => {
           const tokenAddress = isAddress(chainId, tokenEarning.token)
           const currency = tokensByChainId[chainId][String(tokenAddress)]
+          const isNative = currency.isNative || tokenAddress === WETH[chainId].address
+          const symbol = (isNative ? NativeCurrencies[chainId].symbol : currency.symbol) || 'NO SYMBOL'
+          const logoUrl = (isNative ? NETWORKS_INFO[chainId].nativeToken.logo : currency.logoURI) || ''
+
           const tokenInfo: EarningStatsTick['tokens'][number] = {
-            logoUrl: currency.logoURI || '',
+            logoUrl,
             amount: Number(tokenEarning.amountFloat),
             amountUSD: Number(tokenEarning.amountUSD),
-            symbol: currency.symbol || 'NO SYMBOL',
+            symbol,
             chainId,
             address: String(tokenAddress),
           }
@@ -463,11 +467,15 @@ export const calculateTicksOfAccountEarningsInMultipleChains = (
             .map(tokenEarning => {
               const tokenAddress = isAddress(chainId, tokenEarning.token)
               const currency = tokensByChainId[chainId][String(tokenAddress)]
+              const isNative = currency.isNative || tokenAddress === WETH[chainId].address
+              const symbol = (isNative ? NativeCurrencies[chainId].symbol : currency.symbol) || 'NO SYMBOL'
+              const logoUrl = (isNative ? NETWORKS_INFO[chainId].nativeToken.logo : currency.logoURI) || ''
+
               const tokenInfo: EarningStatsTick['tokens'][number] = {
-                logoUrl: currency.logoURI || '',
+                logoUrl,
                 amount: Number(tokenEarning.amountFloat),
                 amountUSD: Number(tokenEarning.amountUSD),
-                symbol: currency.symbol || 'NO SYMBOL',
+                symbol,
                 chainId,
                 address: String(tokenAddress),
               }

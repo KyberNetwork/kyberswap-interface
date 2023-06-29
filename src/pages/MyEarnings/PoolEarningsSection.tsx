@@ -1,4 +1,4 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useMemo } from 'react'
 import { useMedia } from 'react-use'
@@ -6,6 +6,8 @@ import { Box, Flex } from 'rebass'
 import { HistoricalSingleData } from 'services/earning/types'
 import styled from 'styled-components'
 
+import { NETWORKS_INFO } from 'constants/networks'
+import { NativeCurrencies } from 'constants/tokens'
 import useTheme from 'hooks/useTheme'
 import { calculateEarningStatsTick, today } from 'pages/MyEarnings/utils'
 import { useAppSelector } from 'state/hooks'
@@ -107,10 +109,14 @@ const PoolEarningsSection: React.FC<Props> = ({ historicalEarning, chainId }) =>
             .map(tokenData => {
               const tokenAddress = isAddress(chainId, tokenData.token)
               const currency = tokensByChainId[chainId][String(tokenAddress)]
+              const isNative = currency.isNative || tokenAddress === WETH[chainId].address
+              const symbol = (isNative ? NativeCurrencies[chainId].symbol : currency.symbol) || 'NO SYMBOL'
+              const logoUrl = (isNative ? NETWORKS_INFO[chainId].nativeToken.logo : currency.logoURI) || ''
+
               return {
                 address: tokenAddress,
-                logoUrl: currency.logoURI,
-                symbol: currency.symbol || '',
+                logoUrl,
+                symbol,
                 amountUSD: Number(tokenData.amountUSD),
                 chainId,
               }
