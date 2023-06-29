@@ -17,6 +17,7 @@ import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import HorizontalScroll from 'components/HorizontalScroll'
 import HoverInlineText from 'components/HoverInlineText'
+import { TwoWayArrow } from 'components/Icons'
 import Harvest from 'components/Icons/Harvest'
 import { RowBetween } from 'components/Row'
 import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
@@ -62,7 +63,7 @@ export const ListView = ({
 }) => {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const theme = useTheme()
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
 
   const [, setSharePoolAddress] = useShareFarmAddress()
 
@@ -145,7 +146,7 @@ export const ListView = ({
 
   const { pool } = farm
 
-  const addliquidityElasticPool = `${APP_PATHS.ELASTIC_CREATE_POOL}/${
+  const addliquidityElasticPool = `/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${
     pool.token0.isNative ? pool.token0.symbol : pool.token0.address
   }/${pool.token1.isNative ? pool.token1.symbol : pool.token1.address}/${pool.fee}`
 
@@ -214,13 +215,7 @@ export const ListView = ({
                 fontWeight="500"
               >
                 {convertTickToPrice(farm.token0, farm.token1, range.tickLower, farm.pool.fee)}
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" display="block">
-                  <path
-                    d="M11.3405 8.66669L11.3405 9.86002C11.3405 10.16 11.7005 10.3067 11.9071 10.0934L13.7605 8.23335C13.8871 8.10002 13.8871 7.89335 13.7605 7.76002L11.9071 5.90669C11.7005 5.69335 11.3405 5.84002 11.3405 6.14002L11.3405 7.33335L4.66047 7.33335L4.66047 6.14002C4.66047 5.84002 4.30047 5.69335 4.0938 5.90669L2.24047 7.76669C2.1138 7.90002 2.1138 8.10669 2.24047 8.24002L4.0938 10.1C4.30047 10.3134 4.66047 10.16 4.66047 9.86669L4.66047 8.66669L11.3405 8.66669Z"
-                    fill="currentcolor"
-                  />
-                </svg>
-
+                <TwoWayArrow />
                 {convertTickToPrice(farm.token0, farm.token1, range.tickUpper, farm.pool.fee)}
 
                 {index !== farm.ranges.length && (

@@ -219,7 +219,7 @@ const StakeWithNFTsModal = ({
   const [activeRange, setActiveRange] = useState(farm.ranges.filter(item => !item.isRemoved)[0])
 
   const theme = useTheme()
-  const { account } = useActiveWeb3React()
+  const { account, networkInfo } = useActiveWeb3React()
   const { loading, positions: allPositions } = useProAmmPositions(account)
 
   const positions = useMemo(() => {
@@ -297,7 +297,7 @@ const StakeWithNFTsModal = ({
       })
   }, [farm, activeRange, deposit, selectedPosArray])
 
-  const addliquidityElasticPool = `${APP_PATHS.ELASTIC_CREATE_POOL}/${
+  const addliquidityElasticPool = `/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${
     farm.token0.isNative ? farm.token0.symbol : farm.token0.address
   }/${farm.token1.isNative ? farm.token1.symbol : farm.token1.address}/${farm.pool.fee}?farmRange=${activeRange.index}`
 

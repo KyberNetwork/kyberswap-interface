@@ -14,6 +14,7 @@ import PriceVisualize from 'components/ProAmm/PriceVisualize'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { ElasticFarmV2 } from 'state/farms/elasticv2/types'
 import { Bound } from 'state/mint/proamm/type'
@@ -49,6 +50,7 @@ export default function NewRangesNotiModal({ updatedFarms }: { updatedFarms: Ela
   const [open, setIsOpen] = useState(true)
   const [, setLastUpdatedTimestamp] = useLocalStorage<number | null>('elasticFarmV2LastUpdatedTimeStamp', null)
   const theme = useTheme()
+  const { networkInfo } = useActiveWeb3React()
 
   const hasIdleRange = updatedFarms.some(farm => farm.ranges.some(item => item.isRemoved))
   const hasNewRange = updatedFarms.some(farm => farm.ranges.some(item => !item.isRemoved))
@@ -98,7 +100,7 @@ export default function NewRangesNotiModal({ updatedFarms }: { updatedFarms: Ela
 
         <Content>
           {ranges.map(range => {
-            const addliquidityElasticPool = `${APP_PATHS.ELASTIC_CREATE_POOL}/${
+            const addliquidityElasticPool = `/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${
               range.farm.token0.isNative ? range.farm.token0.symbol : range.farm.token0.address
             }/${range.farm.token1.isNative ? range.farm.token1.symbol : range.farm.token1.address}/${
               range.farm.pool.fee

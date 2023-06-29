@@ -75,7 +75,7 @@ const ListItem = ({ farm }: ListItemProps) => {
   const { mixpanelHandler } = useMixpanel()
   const [, setFarmAddress] = useShareFarmAddress()
 
-  const { type = 'actve' } = useParsedQueryString<{ type: string }>()
+  const { type = 'active' } = useParsedQueryString<{ type: string }>()
   const above1200 = useMedia('(min-width: 1200px)')
   const dispatch = useAppDispatch()
 

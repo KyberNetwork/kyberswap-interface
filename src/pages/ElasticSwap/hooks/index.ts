@@ -448,7 +448,6 @@ export function useSwapCallback(
   const { library } = useWeb3React()
 
   const swapCalls = useSwapCallArguments(trade, allowedSlippage)
-  console.log(swapCalls)
 
   const addTransactionWithType = useTransactionAdder()
 
