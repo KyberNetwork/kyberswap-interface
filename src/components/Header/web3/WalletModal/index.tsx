@@ -229,7 +229,7 @@ export default function WalletModal() {
         setIsConnectingWallet(false)
       }, 1000)
     },
-    [tryActivation, setIsConnectingWallet],
+    [tryActivation, setIsConnectingWallet, mixpanelHandler],
   )
 
   function getOptions() {
