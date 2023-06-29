@@ -14,6 +14,6 @@ export const checkShouldDisableByPriceImpact = (
     : !isDegenMode && (priceImpactResult.isVeryHigh || priceImpactResult.isInvalid)
 }
 
-const checkAllowBypassPriceImpactRestriction = (chainId: ChainId) => {
+export const checkAllowBypassPriceImpactRestriction = (chainId: ChainId) => {
   return CHAINS_BYPASS_PRICE_IMPACT.includes(chainId)
 }
