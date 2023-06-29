@@ -9,10 +9,14 @@ import TransactionConfirmationModal from 'pages/MyEarnings/TransactionConfirmati
 import FarmUpdater from 'state/farms/elastic/updaters'
 
 const PageWrapper = styled.div`
+  flex: 1;
+
   width: 100%;
   max-width: 1500px;
-
   height: 100%;
+
+  display: flex;
+  flex-direction: column;
 
   padding: 32px 24px 100px;
 
@@ -31,6 +35,8 @@ const MyEarnings = () => {
         sx={{
           flexDirection: 'column',
           gap: '24px',
+          flex: 1,
+          height: '100%',
         }}
       >
         <Text

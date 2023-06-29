@@ -11,12 +11,13 @@ const Placeholder = () => {
   return (
     <Flex
       sx={{
+        flex: 1,
         width: '100%',
         height: '100%',
         position: 'relative',
+        background: `url(${PlaceholderImage})`,
       }}
     >
-      <img src={PlaceholderImage} />
       <Flex
         sx={{
           flexDirection: 'column',

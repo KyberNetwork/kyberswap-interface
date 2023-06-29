@@ -109,10 +109,6 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, poolData, userLiqui
     new Fraction(rawBalance.toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals))).toFixed(8),
   )
 
-  console.log({
-    balance,
-  })
-
   const currency0 = getCurrencyFromTokenAddress(tokensByChainId, chainId, poolData.token0.id)
   const currency1 = getCurrencyFromTokenAddress(tokensByChainId, chainId, poolData.token1.id)
 
@@ -174,8 +170,6 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, poolData, userLiqui
 
   const fee24H = poolData.oneDayFeeUSD ? poolData.oneDayFeeUSD : poolData.oneDayFeeUntracked
   const poolApr = getTradingFeeAPR(poolData.reserveUSD, fee24H).toFixed(2)
-
-  console.log({ userLiquidity })
 
   const renderStatsRow = () => {
     return (
@@ -357,9 +351,6 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, poolData, userLiqui
         background: theme.background,
         border: `1px solid ${theme.border}`,
         borderRadius: '20px',
-      }}
-      onClick={() => {
-        console.log({ poolData })
       }}
     >
       <Flex

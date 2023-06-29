@@ -100,10 +100,6 @@ export default function SubscribeNotificationButton({
     if (!account) showModalWhenConnected.current = true
   }
 
-  console.log({
-    iconOnly,
-  })
-
   return (
     <MouseoverTooltipDesktopOnly text={subscribeTooltip} width="400px">
       <SubscribeBtn bgColor={theme.primary} onClick={onClickBtn} iconOnly={iconOnly}>
