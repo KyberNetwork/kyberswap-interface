@@ -415,6 +415,7 @@ export default function App() {
                 </Web3ReactManager>
               </BodyWrapper>
               {showFooter && <Footer />}
+
               <TruesightFooter />
             </Suspense>
             <ModalConfirm />
