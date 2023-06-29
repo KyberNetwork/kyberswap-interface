@@ -19,6 +19,7 @@ const DescriptionPriceAlert = (
   content: AnnouncementTemplatePriceAlert,
   templateType: PrivateAnnouncementType,
 ): SimplePopupProps => {
+  const theme = useTheme()
   const {
     chainId: rawChainId,
     tokenInAmount,
@@ -28,10 +29,9 @@ const DescriptionPriceAlert = (
     tokenOutLogoURL,
     threshold,
     type,
-  } = content.alert
+  } = content?.alert || {}
   const chainId = Number(rawChainId) as ChainId
   const logoStyle: CSSProperties = { width: 14, height: 14, borderRadius: '50%' }
-  const theme = useTheme()
   const isAbove = type === PriceAlertType.ABOVE
 
   return {
