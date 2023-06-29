@@ -12,7 +12,7 @@ import styled, { css } from 'styled-components'
 import BgShare from 'assets/images/bg_share_my_earning.png'
 import BgShareMobile from 'assets/images/bg_share_my_earning_mb.png'
 import { ReactComponent as DesktopIcon } from 'assets/svg/desktop_mobile_icon.svg'
-import DoubleCurrencyLogo from 'components/DoubleLogo'
+import CurrencyLogo from 'components/CurrencyLogo'
 import { Telegram } from 'components/Icons'
 import Discord from 'components/Icons/Discord'
 import Facebook from 'components/Icons/Facebook'
@@ -237,14 +237,15 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
 
     return (
       <Flex alignItems="center" sx={{ gap: isSharePc ? '8px' : '4px' }} flexWrap="wrap">
-        <Flex alignItems="center" flexWrap="wrap">
-          <DoubleCurrencyLogo currency0={poolInfo.currency0} currency1={poolInfo.currency1} size={tokenLogoSize} />
-          <Text fontWeight="500" fontSize={isSharePc ? 16 : 12} color={theme.white}>
-            <Trans>
-              {poolInfo.currency0Symbol} - {poolInfo.currency1Symbol}
-            </Trans>
-          </Text>
+        <Flex>
+          <CurrencyLogo currency={poolInfo.currency0} size={tokenLogoSize + 'px'} />
+          <CurrencyLogo currency={poolInfo.currency1} size={tokenLogoSize + 'px'} />
         </Flex>
+        <Text fontWeight="500" fontSize={isSharePc ? 16 : 12} color={theme.white}>
+          <Trans>
+            {poolInfo.currency0Symbol} - {poolInfo.currency1Symbol}
+          </Trans>
+        </Text>
         <FeeWrapper mobile={!isSharePc}>Fee {poolInfo.feePercent}</FeeWrapper>
       </Flex>
     )
