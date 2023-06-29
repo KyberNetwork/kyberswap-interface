@@ -1,5 +1,6 @@
 import { ChainId, Currency, Token, WETH } from '@kyberswap/ks-sdk-core'
-import { useEffect } from 'react'
+import { stringify } from 'querystring'
+import { useEffect, useMemo } from 'react'
 import styled, { useTheme } from 'styled-components'
 
 import { DAI, STABLE_COINS_ADDRESS, USDC, USDT } from 'constants/tokens'
@@ -91,7 +92,7 @@ const Iframe = styled.iframe`
   border-radius: 8px;
 
   .header-pair {
-    display: none;
+    display: none !important;
   }
 `
 
@@ -213,15 +214,21 @@ export default function DextoolsWidget({ pairAddress }: { pairAddress?: string }
       },
     ).then(res => console.log('🚀 ~ file: index.tsx:212 ~ useEffect ~ res:', res))
   }, [])
-  return (
-    <Iframe
-      id="dextools-widget"
-      title="DEXTools Trading Chart"
-      width="100%"
-      height="100%"
-      src={`https://www.dextools.io/widgets/en/${getNetworkStringWidget(chainId)}/pe-light/${pairAddress}?theme=${
-        theme.darkMode ? 'dark' : 'light'
-      }&chartType=1&chartResolution=60&drawingToolbars=true`}
-    />
-  )
+
+  const url = useMemo(() => {
+    const params = {
+      theme: theme.darkMode ? 'dark' : 'light',
+      chartType: 1,
+      chartResolution: 60,
+      drawingToolbars: true,
+      tvPlatformColor: theme.darkMode ? '1c1c1c' : 'f5f5f5',
+      tvPaneColor: theme.darkMode ? '0f0f0f' : 'ffffff',
+      chartInUsd: true,
+    }
+    return `https://www.dextools.io/widgets/en/${getNetworkStringWidget(chainId)}/pe-light/${pairAddress}?${stringify(
+      params,
+    )}`
+  }, [chainId, pairAddress, theme.darkMode])
+
+  return <Iframe id="dextools-widget" title="DEXTools Trading Chart" width="100%" height="100%" src={url} />
 }
