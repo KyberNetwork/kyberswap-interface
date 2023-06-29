@@ -49,7 +49,7 @@ export const isPopupCanShow = (
 export const useNavigateToUrl = () => {
   const navigate = useNavigate()
   const { chainId: currentChain } = useActiveWeb3React()
-  const { changeNetwork } = useChangeNetwork()
+  const changeNetwork = useChangeNetwork()
 
   const redirect = useCallback(
     (actionURL: string) => {
