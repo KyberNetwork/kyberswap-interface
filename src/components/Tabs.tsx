@@ -1,6 +1,6 @@
 import { rgba } from 'polished'
 import { FC, ReactNode } from 'react'
-import styled from 'styled-components'
+import styled, { CSSProperties } from 'styled-components'
 
 import HorizontalScroll from './HorizontalScroll'
 
@@ -13,6 +13,7 @@ interface TabsProps {
   }>
   onChange: (activeKey: string | number) => void
   className?: string
+  horizontalWrapperStyle?: CSSProperties
 }
 
 const Wrapper = styled.div(({ theme }) => ({
@@ -40,12 +41,12 @@ const TabHeaderItem = styled.div<{ active: boolean }>(({ theme, active }) => ({
   cursor: 'pointer',
 }))
 
-const Tabs: FC<TabsProps> = ({ activeKey, items, className, onChange }) => {
+const Tabs: FC<TabsProps> = ({ activeKey, items, className, onChange, horizontalWrapperStyle = {} }) => {
   return (
     <Wrapper className={className}>
       <TabHeader>
         <HorizontalScroll
-          style={{ gap: 0 }}
+          style={{ gap: 0, ...horizontalWrapperStyle }}
           items={items.map(item => item.key.toString())}
           renderItem={key => {
             const label = items.find(i => +i.key === +key)?.label || ''

@@ -288,6 +288,7 @@ function FarmCard({
         </div>
 
         <StyledTabs
+          horizontalWrapperStyle={{ maxWidth: 'calc(100vw - 64px)' }}
           activeKey={activeRangeIndex}
           onChange={key => {
             setActiveRangeIndex(+key)
