@@ -249,12 +249,34 @@ const EarningPieChart: React.FC<Props> = ({ data, totalValue = '', className, is
       return EMPTY_ARRAY
     }
 
-    return data.map((entry, i) => {
+    const coloredData = data.map((entry, i) => {
       return {
         ...entry,
         color: COLORS[i],
       }
     })
+
+    if (coloredData.length <= 5) {
+      return coloredData
+    }
+
+    // The code below is used to shuffle the data quite a bit
+    // We have the sorted data like this: 1, 2, 3, 4, 5, 6, 7
+    // We need to shuffle it to:   1, 5, 2, 6, 3, 7, 4
+    // So when we display this to a grid, it becomes:
+    /**
+     * 1 | 5
+     * 2 | 6
+     * 3 | 7
+     * 4 |
+     */
+    const half = Math.ceil(coloredData.length / 2)
+    const shuffledData = coloredData.slice(0, half)
+    coloredData.slice(half).forEach((entry, i) => {
+      shuffledData.splice(2 * i + 1, 0, entry)
+    })
+
+    return shuffledData
   }, [data, isLoading])
 
   const handleMouseOver = useCallback(
