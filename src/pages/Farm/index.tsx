@@ -1,25 +1,22 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { stringify } from 'querystring'
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Search, Share2 } from 'react-feather'
 import { useSelector } from 'react-redux'
-import { Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { Navigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
 import { ReactComponent as TutorialIcon } from 'assets/svg/play_circle_outline.svg'
 import ClassicElasticTab from 'components/ClassicElasticTab'
-import Loader from 'components/Loader'
 import PoolsCurrencyInputPanel from 'components/PoolsCurrencyInputPanel'
 import RewardTokenPrices from 'components/RewardTokenPrices'
 import Row, { RowFit } from 'components/Row'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
-import Toggle from 'components/Toggle'
+import { MouseoverTooltip } from 'components/Tooltip'
 import Tutorial, { TutorialType } from 'components/Tutorial'
 import Vesting from 'components/Vesting'
 import YieldPools from 'components/YieldPools'
-import ElasticFarms from 'components/YieldPools/ElasticFarms'
 import FarmGuide from 'components/YieldPools/FarmGuide'
 import FarmSort from 'components/YieldPools/FarmPoolSort'
 import ListGridViewGroup from 'components/YieldPools/ListGridViewGroup'
@@ -31,19 +28,17 @@ import {
   PoolTitleContainer,
   SearchContainer,
   SearchInput,
-  StakedOnlyToggleText,
-  StakedOnlyToggleWrapper,
   TabContainer,
+  TabGroup,
   TopBar,
 } from 'components/YieldPools/styleds'
-import { FARM_TAB } from 'constants/index'
+import { ELASTIC_FARM_TYPE, FARM_TAB } from 'constants/index'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import useElasticCompensationData from 'hooks/useElasticCompensationData'
 import useElasticLegacy from 'hooks/useElasticLegacy'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
 import ElasticLegacy from 'pages/ElasticLegacy'
@@ -54,19 +49,21 @@ import { useBlockNumber, useOpenModal } from 'state/application/hooks'
 import { useFarmsData } from 'state/farms/classic/hooks'
 import ClassicFarmUpdater from 'state/farms/classic/updater'
 import { FarmUpdater, useElasticFarms } from 'state/farms/elastic/hooks'
-import { MEDIA_WIDTHS } from 'theme'
+import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
+import ElasticFarmV2Updater from 'state/farms/elasticv2/updater'
+import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { isInEnum } from 'utils/string'
+
+import { ElasticFarmCombination } from './ElasticFarmCombination'
 
 const Farm = () => {
   const { isEVM, chainId } = useActiveWeb3React()
   const { loading, data: farmsByFairLaunch } = useFarmsData()
   const theme = useTheme()
-  const qs = useParsedQueryString<{ type: string; tab: string }>()
-  // const { type = FARM_TAB.ACTIVE, tab = VERSION.ELASTIC } = qs
-  const navigate = useNavigate()
 
   const [searchParams, setSearchParams] = useSearchParams()
   const type: string = searchParams.get('type') || FARM_TAB.ACTIVE
+  const elasticType: string = searchParams.get('elasticType') || ELASTIC_FARM_TYPE.ALL
   const tab: string = searchParams.get('tab') || VERSION.ELASTIC
   const search: string = searchParams.get('search') || ''
   const farmType = isInEnum(tab, VERSION) ? tab : VERSION.ELASTIC
@@ -77,58 +74,42 @@ const Farm = () => {
 
   const vestingLoading = useSelector<AppState, boolean>(state => state.vesting.loading)
 
-  const [stakedOnly, setStakedOnly] = useState({
-    active: false,
-    ended: true,
-  })
-
-  const stakedOnlyKey = type === FARM_TAB.ACTIVE ? 'active' : 'ended'
-
   const navigateTab = (nextTab: FARM_TAB) => {
-    const newQs = { ...qs, type: nextTab }
-    navigate({
-      search: stringify(newQs),
-    })
+    searchParams.set('type', nextTab)
+    setSearchParams(searchParams)
   }
 
-  const location = useLocation()
-  const handleSearch = useCallback(
-    (search: string) => {
-      const target = {
-        ...location,
-        search: stringify({ ...qs, search }),
-      }
+  const handleElasticFarmChange = (nextTab: ELASTIC_FARM_TYPE) => {
+    searchParams.set('elasticType', nextTab)
+    setSearchParams(searchParams)
+  }
 
-      navigate(target, { replace: true })
-    },
-    [navigate, location, qs],
-  )
+  const handleSearch = (search: string) => {
+    searchParams.set('search', search)
+    setSearchParams(searchParams, { replace: true })
+  }
 
   const renderTabContent = () => {
     switch (type) {
       case FARM_TAB.ACTIVE:
-        return farmType === VERSION.ELASTIC ? (
-          <ElasticFarms stakedOnly={stakedOnly} />
-        ) : (
-          <YieldPools loading={loading} active stakedOnly={stakedOnly} />
-        )
+        return farmType === VERSION.ELASTIC ? <ElasticFarmCombination /> : <YieldPools loading={loading} active />
       case FARM_TAB.ENDED:
         return farmType === VERSION.ELASTIC ? (
-          <ElasticFarms stakedOnly={stakedOnly} />
+          <ElasticFarmCombination />
         ) : (
-          <YieldPools loading={loading} active={false} stakedOnly={stakedOnly} />
+          <YieldPools loading={loading} active={false} />
         )
       case FARM_TAB.VESTING:
         return farmType === VERSION.ELASTIC ? null : <Vesting loading={vestingLoading} />
       case FARM_TAB.MY_FARMS:
         return farmType === VERSION.ELASTIC ? (
-          <ElasticFarms stakedOnly={stakedOnly} />
+          <ElasticFarmCombination />
         ) : (
-          <YieldPools loading={loading} active={false} stakedOnly={stakedOnly} />
+          <YieldPools loading={loading} active={false} />
         )
 
       default:
-        return <YieldPools loading={loading} active stakedOnly={stakedOnly} />
+        return <YieldPools loading={loading} active />
     }
   }
   const { mixpanelHandler } = useMixpanel()
@@ -140,6 +121,7 @@ const Farm = () => {
   const blockNumber = useBlockNumber()
 
   const { farms: elasticFarms } = useElasticFarms()
+  const { farms: elasticFarmsV2 } = useElasticFarmsV2()
 
   const rewardTokens = useMemo(() => {
     const tokenMap: { [address: string]: Currency } = {}
@@ -167,12 +149,21 @@ const Farm = () => {
       })
     })
 
+    elasticFarmsV2?.forEach(farm => {
+      if (farm.endTime > Date.now() / 1000 && !farm.isSettled) {
+        farm.totalRewards.forEach(rw => {
+          tokenMap[rw.currency.wrapped.address] = rw.currency
+        })
+      }
+    })
+
     return Object.values(tokenMap)
-  }, [farmsByFairLaunch, blockNumber, elasticFarms, chainId])
+  }, [farmsByFairLaunch, blockNumber, elasticFarms, chainId, elasticFarmsV2])
 
   const { farmPositions } = useElasticLegacy(false)
   const { claimInfo } = useElasticCompensationData(false)
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const shouldShowFarmTab = !!farmPositions.length || !!claimInfo
   const explicit3Tab = shouldShowFarmTab && !upToMedium
 
@@ -181,7 +172,15 @@ const Farm = () => {
       flex={1}
       width={
         below1500
-          ? `calc(100vw - ${explicit3Tab ? '1064px' : farmType === VERSION.ELASTIC_LEGACY ? '794px' : '730px'})`
+          ? `calc(100vw - ${
+              upToExtraSmall
+                ? '100px'
+                : explicit3Tab
+                ? '1064px'
+                : farmType === VERSION.ELASTIC_LEGACY
+                ? '794px'
+                : '730px'
+            })`
           : explicit3Tab
           ? '544px'
           : '796px'
@@ -239,6 +238,7 @@ const Farm = () => {
 
   return (
     <>
+      <ElasticFarmV2Updater />
       <ClassicFarmUpdater isInterval />
       <FarmUpdater />
       <ShareFarmAddressModal />
@@ -307,90 +307,132 @@ const Farm = () => {
         ) : (
           <div>
             <TabContainer>
-              <Flex sx={{ gap: '8px' }}>
-                <Tab
-                  onClick={() => {
-                    if (type && type !== 'active') {
-                      mixpanelHandler(MIXPANEL_TYPE.FARMS_ACTIVE_VIEWED)
-                    }
-                    navigateTab(FARM_TAB.ACTIVE)
-                  }}
-                  active={!type || type === 'active'}
-                >
-                  <PoolTitleContainer>
-                    <Trans>Active</Trans>
-                  </PoolTitleContainer>
-                </Tab>
-                <Tab
-                  onClick={() => {
-                    if (type !== 'ended') {
-                      mixpanelHandler(MIXPANEL_TYPE.FARMS_ENDING_VIEWED)
-                    }
-                    navigateTab(FARM_TAB.ENDED)
-                  }}
-                  active={type === FARM_TAB.ENDED}
-                >
-                  <PoolTitleContainer>
-                    <Trans>Ended</Trans>
-                  </PoolTitleContainer>
-                </Tab>
-
-                <Tab
-                  onClick={() => {
-                    navigateTab(FARM_TAB.MY_FARMS)
-                  }}
-                  active={type === FARM_TAB.MY_FARMS}
-                >
-                  <Row>
-                    <Trans>My Farms</Trans>
-                  </Row>
-                </Tab>
-
-                {farmType === VERSION.CLASSIC && (
+              <Flex sx={{ gap: '24px', flexDirection: upToExtraSmall ? 'column' : 'row', width: '100%' }}>
+                <TabGroup>
                   <Tab
                     onClick={() => {
-                      if (type !== 'vesting') {
-                        mixpanelHandler(MIXPANEL_TYPE.FARMS_MYVESTING_VIEWED)
+                      if (type && type !== 'active') {
+                        mixpanelHandler(MIXPANEL_TYPE.FARMS_ACTIVE_VIEWED)
                       }
-                      navigateTab(FARM_TAB.VESTING)
+                      navigateTab(FARM_TAB.ACTIVE)
                     }}
-                    active={type === FARM_TAB.VESTING}
+                    active={!type || type === 'active'}
+                  >
+                    <PoolTitleContainer>
+                      <Trans>Active</Trans>
+                    </PoolTitleContainer>
+                  </Tab>
+                  <Tab
+                    onClick={() => {
+                      if (type !== 'ended') {
+                        mixpanelHandler(MIXPANEL_TYPE.FARMS_ENDING_VIEWED)
+                      }
+                      navigateTab(FARM_TAB.ENDED)
+                    }}
+                    active={type === FARM_TAB.ENDED}
+                  >
+                    <PoolTitleContainer>
+                      <Trans>Ended</Trans>
+                    </PoolTitleContainer>
+                  </Tab>
+
+                  <Tab
+                    onClick={() => {
+                      navigateTab(FARM_TAB.MY_FARMS)
+                    }}
+                    active={type === FARM_TAB.MY_FARMS}
                   >
                     <Row>
-                      <Text>
-                        <Trans>Vesting</Trans>
-                      </Text>
-                      {vestingLoading && <Loader style={{ marginLeft: '4px' }} />}
+                      <Trans>My Farms</Trans>
                     </Row>
                   </Tab>
+
+                  {farmType === VERSION.CLASSIC && (
+                    <Tab
+                      onClick={() => {
+                        if (type !== 'vesting') {
+                          mixpanelHandler(MIXPANEL_TYPE.FARMS_MYVESTING_VIEWED)
+                        }
+                        navigateTab(FARM_TAB.VESTING)
+                      }}
+                      active={type === FARM_TAB.VESTING}
+                    >
+                      <Row>
+                        <Text>
+                          <Trans>Vesting</Trans>
+                        </Text>
+                      </Row>
+                    </Tab>
+                  )}
+                </TabGroup>
+
+                {farmType === VERSION.ELASTIC && (
+                  <TabGroup>
+                    <Tab
+                      active={elasticType === ELASTIC_FARM_TYPE.ALL}
+                      onClick={() => handleElasticFarmChange(ELASTIC_FARM_TYPE.ALL)}
+                    >
+                      <Trans>All</Trans>
+                    </Tab>
+                    <Tab
+                      active={elasticType === ELASTIC_FARM_TYPE.DYNAMIC}
+                      onClick={() => handleElasticFarmChange(ELASTIC_FARM_TYPE.DYNAMIC)}
+                    >
+                      <MouseoverTooltip
+                        placement="bottom"
+                        text={
+                          <Text>
+                            <Trans>
+                              Dynamic farms incentivize farmers that provide liquidity to a pool in a customizable price
+                              range that supports the current price of the pool. Each farmer can choose their own price
+                              range. Learn more{' '}
+                              <ExternalLink href="https://docs.kyberswap.com/liquidity-solutions/kyberswap-elastic/user-guides/yield-farming-on-dynamic-farms">
+                                here ↗
+                              </ExternalLink>
+                            </Trans>
+                          </Text>
+                        }
+                      >
+                        <Trans>Dynamic</Trans>
+                      </MouseoverTooltip>
+                    </Tab>
+                    <Tab
+                      active={elasticType === ELASTIC_FARM_TYPE.STATIC}
+                      onClick={() => handleElasticFarmChange(ELASTIC_FARM_TYPE.STATIC)}
+                    >
+                      <MouseoverTooltip
+                        text={
+                          <Text>
+                            <Trans>
+                              Static farms incentivize farmers that provide liquidityto a pool in a pre-configured
+                              farming price range that is set by the farm administrator. Learn more{' '}
+                              <ExternalLink href="https://docs.kyberswap.com/liquidity-solutions/kyberswap-elastic/user-guides/yield-farming-on-static-farms">
+                                here ↗
+                              </ExternalLink>
+                            </Trans>
+                          </Text>
+                        }
+                      >
+                        <Trans>Static</Trans>
+                      </MouseoverTooltip>
+                    </Tab>
+                  </TabGroup>
                 )}
               </Flex>
 
               <HeadingContainer>
-                <StakedOnlyToggleWrapper>
-                  <Row gap="12px">
-                    {above1000 && (
-                      <RowFit>
-                        <ListGridViewGroup />
-                      </RowFit>
-                    )}
+                {above1000 && (
+                  <RowFit>
+                    <ListGridViewGroup />
+                  </RowFit>
+                )}
 
-                    {type !== FARM_TAB.MY_FARMS && (
-                      <>
-                        <StakedOnlyToggleText>
-                          <Trans>Staked Only</Trans>
-                        </StakedOnlyToggleText>
-                        <Toggle
-                          isActive={stakedOnly[stakedOnlyKey]}
-                          toggle={() => setStakedOnly(prev => ({ ...prev, [type]: !prev[stakedOnlyKey] }))}
-                        />
-                      </>
-                    )}
-                    {farmType !== VERSION.CLASSIC && <FarmSort />}
-                  </Row>
-                </StakedOnlyToggleWrapper>
+                {!upToMedium && farmType !== VERSION.CLASSIC && <FarmSort />}
                 <HeadingRight>
-                  {selectTokenFilter}
+                  <Flex justifyContent="space-between" sx={{ gap: '6px' }}>
+                    {selectTokenFilter}
+                    {upToMedium && farmType !== VERSION.CLASSIC && <FarmSort />}
+                  </Flex>
                   <SearchContainer>
                     <SearchInput
                       placeholder={t`Search by token name or pool address`}
