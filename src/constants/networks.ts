@@ -129,14 +129,14 @@ export function isSupportedChainId(chainId?: number): chainId is ChainId {
 
 export const FAUCET_NETWORKS = [ChainId.BTTC]
 export const CHAINS_SUPPORT_NEW_POOL_FARM_API: readonly ChainId[] = [
-  ChainId.MAINNET,
+  // ChainId.MAINNET,
   // ChainId.MUMBAI,
   // ChainId.MATIC,
   // ChainId.BSCTESTNET,
   ChainId.BSCMAINNET,
   // ChainId.AVAXTESTNET,
   ChainId.AVAXMAINNET,
-  ChainId.FANTOM,
+  // ChainId.FANTOM,
   ChainId.CRONOS,
   ChainId.BTTC,
   ChainId.ARBITRUM,
@@ -160,6 +160,7 @@ export const STATIC_FEE_OPTIONS: { [chainId: number]: number[] | undefined } = {
   [ChainId.CRONOS]: [8, 10, 50, 300, 500, 1000],
   [ChainId.BTTC]: [8, 10, 50, 300, 500, 1000],
   [ChainId.OPTIMISM]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.GÖRLI]: [8, 10, 50, 300, 500, 1000],
   [ChainId.ZKSYNC]: [8, 10, 50, 300, 500, 1000],
   [ChainId.LINEA_TESTNET]: [8, 10, 50, 300, 500, 1000],
 }
@@ -170,6 +171,7 @@ export const ONLY_STATIC_FEE_CHAINS = [
   ChainId.VELAS,
   ChainId.OASIS,
   ChainId.OPTIMISM,
+  ChainId.GÖRLI,
   ChainId.ZKSYNC,
   ChainId.LINEA_TESTNET,
 ]

@@ -1,6 +1,7 @@
 import { JSBI, Pair } from '@kyberswap/ks-sdk-classic'
 import { Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { BigNumber } from 'ethers'
 import { rgba } from 'polished'
 import { useMemo, useState } from 'react'
 import { Info } from 'react-feather'
@@ -208,13 +209,42 @@ function Pool() {
     setSearchParams(searchParams)
   }
 
-  const userFarms = useMemo(
+  const allUserFarms = useMemo(
     () =>
       Object.values(farms)
         .flat()
         .filter(farm => JSBI.greaterThan(JSBI.BigInt(farm.userData?.stakedBalance || 0), JSBI.BigInt(0))),
     [farms],
   )
+
+  // Group by stakeToken
+  const userFarmByStakeToken = useMemo(
+    () =>
+      allUserFarms.reduce((acc, cur) => {
+        if (!acc[cur.stakeToken]) {
+          acc[cur.stakeToken] = cur
+        } else {
+          const totalStake = acc[cur.stakeToken].totalStake.add(cur.totalStake)
+          const currentStakedBalance = cur.userData?.stakedBalance || BigNumber.from('0')
+          const totalStakedBalance = BigNumber.from(acc[cur.stakeToken].userData?.stakedBalance?.toString() || '0').add(
+            currentStakedBalance,
+          )
+
+          acc[cur.stakeToken] = {
+            ...acc[cur.stakeToken],
+            totalStake,
+            userData: {
+              ...(acc[cur.stakeToken].userData || {}),
+              stakedBalance: totalStakedBalance.toString(),
+            },
+          }
+        }
+
+        return acc
+      }, {} as { [stakeToken: string]: Farm }),
+    [allUserFarms],
+  )
+  const userFarms = useMemo(() => Object.values(userFarmByStakeToken), [userFarmByStakeToken])
 
   const tokenPairsWithLiquidityTokens = useToV2LiquidityTokens(liquidityPositionTokenPairs)
 

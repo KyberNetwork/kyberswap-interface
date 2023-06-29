@@ -38,7 +38,7 @@ import { getCampaignIdFromSlug, getSlugUrlCampaign } from 'utils/campaign'
 
 import CampaignContent from './CampaignContent'
 
-const MAXIMUM_ITEMS_PER_REQUEST = 20
+const MAXIMUM_ITEMS_PER_REQUEST = 10
 
 const getCampaignStatus = ({ endTime, startTime }: CampaignData) => {
   const now = Date.now()
