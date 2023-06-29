@@ -7,6 +7,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import useHttpLocations from 'hooks/useHttpLocations'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { getTokenLogoURL } from 'utils'
+import { getProxyTokenLogo } from 'utils/tokenInfo'
 
 const StyledNativeCurrencyLogo = styled.img<{ size: string }>`
   width: ${({ size }) => size};
@@ -33,16 +34,16 @@ function CurrencyLogo({
   style?: React.CSSProperties
 }) {
   const logoURI = currency instanceof WrappedTokenInfo ? currency?.logoURI : undefined
-  const uriLocations = useHttpLocations(logoURI)
+  const uriLocations = useHttpLocations(getProxyTokenLogo(logoURI))
 
   const srcs: string[] = useMemo(() => {
     if (currency?.isNative) return []
 
     if (currency?.isToken) {
       if (logoURI) {
-        return [...uriLocations, getTokenLogoURL(currency.address, currency.chainId)]
+        return [...uriLocations, getProxyTokenLogo(getTokenLogoURL(currency.address, currency.chainId))]
       }
-      return [getTokenLogoURL((currency as any)?.address, currency.chainId)]
+      return [getProxyTokenLogo(getTokenLogoURL((currency as any)?.address, currency.chainId))]
     }
 
     return []
