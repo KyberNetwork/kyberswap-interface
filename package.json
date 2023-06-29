@@ -23,7 +23,7 @@
     "i18n:extract": "lingui extract",
     "lint": "eslint --ext ts,tsx src",
     "start": "vite --mode production",
-    "start-adpr": "vite --mode adpr",
+    "start-adpr": "vite --mode adpr --host",
     "start-dev": "vite --mode dev",
     "start-stg": "vite --mode stg",
     "start-prod": "vite --mode production",

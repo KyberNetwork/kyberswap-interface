@@ -28,6 +28,7 @@ import { usePool } from 'hooks/usePools'
 import useTheme from 'hooks/useTheme'
 import { useElasticFarms } from 'state/farms/elastic/hooks'
 import { UserPositionFarm } from 'state/farms/elastic/types'
+import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { ExternalLink, StyledInternalLink } from 'theme'
 import { PositionDetails } from 'types/position'
@@ -116,7 +117,6 @@ interface PositionListItemProps {
   hasUserDepositedInFarm?: boolean
   stakedLayout?: boolean
   refe?: React.MutableRefObject<any>
-  hasActiveFarm: boolean
 }
 
 function getPriceOrderingFromPositionForUI(position?: Position): {
@@ -144,7 +144,6 @@ function PositionListItem({
   hasUserDepositedInFarm,
   positionDetails,
   refe,
-  hasActiveFarm,
   rawFeeRewards,
   liquidityTime,
   farmingTime,
@@ -158,24 +157,35 @@ function PositionListItem({
     liquidity,
     tickLower,
     tickUpper,
-    stakedLiquidity,
   } = positionDetails
 
   const { farms } = useElasticFarms()
+  const { farms: farmV2s, userInfo } = useElasticFarmsV2()
 
   let farmAddress = ''
   let pid = ''
   let rewardTokens: Currency[] = []
 
+  let hasActiveFarm = false
   farms?.forEach(farm => {
     farm.pools.forEach(pool => {
       if (pool.poolAddress.toLowerCase() === positionDetails.poolId.toLowerCase()) {
         farmAddress = farm.id
         pid = pool.pid
         rewardTokens = pool.rewardTokens
+        if (pool.endTime > Date.now() / 1000) {
+          hasActiveFarm = true
+        }
       }
     })
   })
+
+  const hasActiveFarmV2 = !!farmV2s?.filter(
+    f =>
+      f.endTime > Date.now() / 1000 &&
+      f.poolAddress.toLowerCase() === positionDetails.poolId.toLowerCase() &&
+      f.ranges.some(r => positionDetails.tickLower <= r.tickLower && positionDetails.tickUpper >= r.tickUpper),
+  ).length
 
   const farmContract = useProMMFarmContract(farmAddress)
 
@@ -271,6 +281,12 @@ function PositionListItem({
 
   const tickAtLimit = useIsTickAtLimit(feeAmount, tickLower, tickUpper)
 
+  const v2Reward = userInfo?.find(item => item.nftId.toString() === tokenId.toString())
+  const estimatedOneYearFarmV2Reward =
+    farmingTime && ((v2Reward?.unclaimedRewardsUsd || 0) * 365 * 24 * 60 * 60) / farmingTime
+  const farmV2APR =
+    v2Reward?.unclaimedRewardsUsd && farmingTime && usd ? ((estimatedOneYearFarmV2Reward || 0) * 100) / usd : 0
+
   // prices
   const { priceLower, priceUpper } = getPriceOrderingFromPositionForUI(position)
 
@@ -286,17 +302,20 @@ function PositionListItem({
     if (removed) {
       return t`You have zero liquidity to remove`
     }
-    if (stakedLiquidity) {
-      return t`You need to withdraw your deposited liquidity position from the farms first`
-    }
     return ''
   })()
 
   if (!position || !priceLower || !priceUpper) return <ContentLoader />
+
   return (
     <StyledPositionCard>
       <>
-        <ProAmmPoolInfo position={position} tokenId={positionDetails.tokenId.toString()} isFarmActive={hasActiveFarm} />
+        <ProAmmPoolInfo
+          position={position}
+          tokenId={positionDetails.tokenId.toString()}
+          isFarmActive={hasActiveFarm}
+          isFarmV2Active={hasActiveFarmV2}
+        />
         <TabContainer style={{ marginTop: '1rem' }}>
           <Tab isActive={activeTab === TAB.MY_LIQUIDITY} padding="0" onClick={() => setActiveTab(TAB.MY_LIQUIDITY)}>
             <Trans>My Liquidity</Trans>
@@ -311,8 +330,8 @@ function PositionListItem({
               <ProAmmPooledTokens
                 positionAPR={positionAPR}
                 createdAt={createdAt}
-                farmAPR={farmAPR}
-                farmRewardAmount={farmRewardAmount}
+                farmAPR={farmAPR || farmV2APR}
+                farmRewardAmount={v2Reward?.unclaimedRewards || farmRewardAmount}
                 valueUSD={usd}
                 stakedUsd={stakedUsd}
                 liquidityValue0={CurrencyAmount.fromRawAmount(
@@ -352,7 +371,7 @@ function PositionListItem({
                   <Text color={theme.subText}>
                     <Trans>My Farm APR</Trans>
                   </Text>
-                  <Text color={theme.apr}>{farmAPR ? farmAPR.toFixed(2) + '%' : '--'}</Text>
+                  <Text color={theme.apr}>{farmAPR || farmV2APR ? (farmAPR || farmV2APR).toFixed(2) + '%' : '--'}</Text>
                 </StakedRow>
               </StakedInfo>
             )}
@@ -469,7 +488,7 @@ function PositionListItem({
               </ExternalLink>
             </ButtonEmpty>
 
-            {hasUserDepositedInFarm && (
+            {(hasUserDepositedInFarm || hasActiveFarm || hasActiveFarmV2) && (
               <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0">
                 <StyledInternalLink
                   style={{ width: '100%', textAlign: 'center' }}

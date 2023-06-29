@@ -75,8 +75,6 @@ export const updateETHPrice = createAction<{
   pricePercentChange: number
 }>('application/updateETHPrice')
 
-export const updateKNCPrice = createAction<string | undefined>('application/updateKNCPrice')
-
 export const updateServiceWorker = createAction<ServiceWorkerRegistration>('application/updateServiceWorker')
 
 export const setSubscribedNotificationTopic = createAction<{
