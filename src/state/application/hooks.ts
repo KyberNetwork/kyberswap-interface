@@ -21,11 +21,12 @@ import {
 import { ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, isEVM, isSolana } from 'constants/networks'
 import ethereumInfo from 'constants/networks/ethereum'
-import { KNC } from 'constants/tokens'
+import { KNC, KNC_ADDRESS } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks/index'
 import { useAppSelector } from 'state/hooks'
 import { AppDispatch, AppState } from 'state/index'
+import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 import { getBlockFromTimestamp, getPercentChange } from 'utils'
 import { createClient } from 'utils/client'
 
@@ -37,7 +38,6 @@ import {
   setAnnouncementDetail,
   setOpenModal,
   updateETHPrice,
-  updateKNCPrice,
   updatePrommETHPrice,
 } from './actions'
 
@@ -370,26 +370,10 @@ export const getKNCPriceByETH = async (chainId: ChainId, apolloClient: ApolloCli
   return kncPriceByETH
 }
 
-export function useKNCPrice(): AppState['application']['kncPrice'] {
-  const dispatch = useDispatch()
-  const ethPrice = useETHPrice()
-  const { isEVM, chainId } = useActiveWeb3React()
-  const blockNumber = useBlockNumber()
-  const { classicClient } = useKyberSwapConfig()
-
-  const kncPrice = useSelector((state: AppState) => state.application.kncPrice)
-
-  useEffect(() => {
-    if (!isEVM) return
-    async function checkForKNCPrice() {
-      const kncPriceByETH = await getKNCPriceByETH(chainId, classicClient)
-      const kncPrice = ethPrice.currentPrice && kncPriceByETH * parseFloat(ethPrice.currentPrice)
-      dispatch(updateKNCPrice(kncPrice?.toString()))
-    }
-    checkForKNCPrice()
-  }, [kncPrice, dispatch, ethPrice.currentPrice, isEVM, classicClient, chainId, blockNumber])
-
-  return kncPrice
+export function useKNCPrice() {
+  const { data } = useTokenPricesWithLoading([KNC_ADDRESS], ChainId.MAINNET)
+  if (!data) return 0
+  return data[KNC_ADDRESS]
 }
 
 /**

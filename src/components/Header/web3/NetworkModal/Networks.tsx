@@ -132,7 +132,7 @@ const Networks = ({
   disabledMsg?: string
 }) => {
   const { chainId: currentChainId, isWrongNetwork } = useActiveWeb3React()
-  const { changeNetwork } = useChangeNetwork()
+  const changeNetwork = useChangeNetwork()
   const qs = useParsedQueryString()
   const navigate = useNavigate()
   const isDarkMode = useIsDarkMode()
