@@ -387,7 +387,7 @@ export default function KyberAIShareModal({
   const { facebook, telegram, discord, twitter } = getSocialShareUrls(sharingUrl)
 
   return (
-    <Modal isOpen={isOpen} width="fit-content" maxWidth="100vw" maxHeight="80vh" onDismiss={onClose}>
+    <Modal isOpen={isOpen} width="fit-content" maxWidth="100vw" maxHeight="80vh">
       <Wrapper>
         <RowBetween>
           <Text>
