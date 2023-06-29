@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import mixpanel from 'mixpanel-browser'
 import { useCallback, useMemo, useState } from 'react'
 import { Info, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
@@ -283,6 +284,7 @@ const UpdateLiquidityModal = ({
     setSelectedPos(prev => {
       return { ...prev, [tokenId]: !prev[tokenId] }
     })
+    mixpanel.track('ElasticFarmV2 - Update Liquidity Modal - NFT Clicked', { nftId: tokenId })
   }, [])
 
   const { updateLiquidity } = useFarmV2Action()
@@ -309,10 +311,24 @@ const UpdateLiquidityModal = ({
         setSelectedPos({})
         setAttemptingTxn(false)
         setTxHash(txHash || '')
+        mixpanel.track('ElasticFarmV2 - Update Liquidity Submitted', {
+          farm_id: farm.id,
+          range: activeRange.index,
+          farm_fid: farm.fId,
+          nft_ids: selectedPosArray,
+          tx_hash: txHash,
+        })
       })
       .catch(e => {
         setAttemptingTxn(false)
         setErrorMessage(e?.message || JSON.stringify(e))
+        mixpanel.track('ElasticFarmV2 - Update Liquidity Failed', {
+          farm_id: farm.id,
+          farm_fid: farm.fId,
+          range: activeRange.index,
+          nft_ids: selectedPosArray,
+          error: e?.message || JSON.stringify(e),
+        })
       })
   }, [updateLiquidity, activeRange.index, farm, selectedPosArray])
 

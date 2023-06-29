@@ -1,6 +1,7 @@
 import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
+import mixpanel from 'mixpanel-browser'
 import { rgba } from 'polished'
 import { useCallback, useState } from 'react'
 import { Info, Minus, Plus, RefreshCw, Share2 } from 'react-feather'
@@ -169,11 +170,21 @@ function FarmCard({
       .then(txHash => {
         setAttemptingTxn(false)
         setTxHash(txHash)
+        mixpanel.track('ElasticFarmV2 - Harvest Submitted', {
+          farm_id: farm.id,
+          farm_fid: farm.fId,
+          tx_hash: txHash,
+        })
       })
       .catch(e => {
         console.log(e)
         setAttemptingTxn(false)
         setErrorMessage(e?.message || JSON.stringify(e))
+        mixpanel.track('ElasticFarmV2 - Harvest Failed', {
+          farm_id: farm.id,
+          farm_fid: farm.fId,
+          error: JSON.stringify(e),
+        })
       })
   }, [farm, harvest, stakedPos])
 
@@ -182,6 +193,8 @@ function FarmCard({
   const addliquidityElasticPool = `${APP_PATHS.ELASTIC_CREATE_POOL}/${
     farm.token0.isNative ? farm.token0.symbol : farm.token0.address
   }/${farm.token1.isNative ? farm.token1.symbol : pool.token1.address}/${pool.fee}`
+
+  const mixpanelPayload = { farm_pool_address: farm.poolAddress, farm_id: farm.id, farm_fid: farm.fId }
 
   return (
     <>
@@ -297,7 +310,14 @@ function FarmCard({
             return {
               key: item.index,
               label: (
-                <Flex alignItems="center" sx={{ gap: '2px' }} color={item.isRemoved ? theme.warning : theme.subText}>
+                <Flex
+                  alignItems="center"
+                  sx={{ gap: '2px' }}
+                  color={item.isRemoved ? theme.warning : theme.subText}
+                  onClick={() => {
+                    mixpanel.track('ElasticFarmV2 - Range Selected', mixpanelPayload)
+                  }}
+                >
                   {convertTickToPrice(farm.token0, farm.token1, item.tickLower, pool.fee)}
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" display="block">
                     <path
@@ -408,7 +428,10 @@ function FarmCard({
           <ButtonLight
             width="fit-content"
             disabled={!hasRewards}
-            onClick={handleHarvest}
+            onClick={() => {
+              handleHarvest()
+              mixpanel.track('ElasticFarmV2 - Harvest Clicked', mixpanelPayload)
+            }}
             color={theme.apr}
             padding="10px 12px"
           >
@@ -511,13 +534,26 @@ function FarmCard({
                       </Text>
 
                       <Flex sx={{ gap: '12px' }}>
-                        <ButtonLight padding="8px 12px" onClick={onUpdateFarmClick}>
+                        <ButtonLight
+                          padding="8px 12px"
+                          onClick={() => {
+                            onUpdateFarmClick()
+                            mixpanel.track('ElasticFarmV2 - Manage Clicked', mixpanelPayload)
+                          }}
+                        >
                           <RefreshCw size={14} />
                           <Text marginLeft="6px" fontSize={['12px', '14px']}>
                             <Trans>Update</Trans>
                           </Text>
                         </ButtonLight>
-                        <ButtonOutlined color={theme.red} padding="8px 12px" onClick={onUnstake}>
+                        <ButtonOutlined
+                          color={theme.red}
+                          padding="8px 12px"
+                          onClick={() => {
+                            onUnstake()
+                            mixpanel.track('ElasticFarmV2 - Unstake Clicked', mixpanelPayload)
+                          }}
+                        >
                           <Minus size={14} />
                           <Text marginLeft="6px" fontSize={['12px', '14px']}>
                             <Trans>Unstake</Trans>
@@ -532,7 +568,12 @@ function FarmCard({
               >
                 <UnstakeButton
                   color={canUpdateLiquidity ? theme.warning : theme.red}
-                  onClick={() => !canUpdateLiquidity && onUnstake()}
+                  onClick={() => {
+                    if (!canUpdateLiquidity) {
+                      onUnstake()
+                      mixpanel.track('ElasticFarmV2 - Unstake Clicked', mixpanelPayload)
+                    }
+                  }}
                 >
                   {canUpdateLiquidity ? (
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -561,6 +602,7 @@ function FarmCard({
             <ButtonLight
               onClick={() => {
                 onStake()
+                mixpanel.track('ElasticFarmV2 - Stake Clicked', mixpanelPayload)
               }}
               disabled={!account || !isApproved || isEnded || farm.isSettled || isAllRangesInactive}
               padding="10px 12px"

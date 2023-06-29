@@ -1,4 +1,5 @@
 import { Trans, t } from '@lingui/macro'
+import mixpanel from 'mixpanel-browser'
 import { useState } from 'react'
 import { ArrowDown, ArrowUp, Info } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
@@ -88,6 +89,7 @@ export default function ElasticFarmv2({
     if (!isApprovedForAll) {
       const tx = await approve()
       setApprovalTx(tx)
+      mixpanel.track('ElasticFarmv2 - Approve Farming contract V2', { tx_hash: tx })
     }
   }
 

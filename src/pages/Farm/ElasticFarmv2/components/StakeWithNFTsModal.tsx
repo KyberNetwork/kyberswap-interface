@@ -1,5 +1,6 @@
 import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
+import mixpanel from 'mixpanel-browser'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Info, Plus, X } from 'react-feather'
 import { useMedia } from 'react-use'
@@ -249,6 +250,7 @@ const StakeWithNFTsModal = ({
     setSelectedPos(prev => {
       return { ...prev, [tokenId]: !prev[tokenId] }
     })
+    mixpanel.track('ElasticFarmV2 - StakeModal - NFT Clicked', { nftId: tokenId })
   }, [])
   const { deposit } = useFarmV2Action()
 
@@ -274,10 +276,24 @@ const StakeWithNFTsModal = ({
         setSelectedPos({})
         setAttemptingTxn(false)
         setTxHash(txHash || '')
+        mixpanel.track('ElasticFarmV2 - Stake Submitted', {
+          farm_id: farm.id,
+          farm_fid: farm.fId,
+          range: activeRange.index,
+          nft_ids: selectedPosArray,
+          tx_hash: txHash,
+        })
       })
       .catch(e => {
         setAttemptingTxn(false)
         setErrorMessage(e?.message || JSON.stringify(e))
+        mixpanel.track('ElasticFarmV2 - Stake Submitted', {
+          farm_id: farm.id,
+          farm_fid: farm.fId,
+          range: activeRange.index,
+          nft_ids: selectedPosArray,
+          error: e?.message || JSON.stringify(e),
+        })
       })
   }, [farm, activeRange, deposit, selectedPosArray])
 

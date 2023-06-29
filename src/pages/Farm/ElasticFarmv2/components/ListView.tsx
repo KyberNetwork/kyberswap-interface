@@ -1,6 +1,7 @@
 import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
+import mixpanel from 'mixpanel-browser'
 import { rgba } from 'polished'
 import { useCallback, useState } from 'react'
 import { Info, Minus, Plus, RefreshCw, Share2 } from 'react-feather'
@@ -124,11 +125,21 @@ export const ListView = ({
       .then(txHash => {
         setAttemptingTxn(false)
         setTxHash(txHash)
+        mixpanel.track('ElasticFarmV2 - Harvest Submitted', {
+          farm_id: farm.id,
+          farm_fid: farm.fId,
+          tx_hash: txHash,
+        })
       })
       .catch(e => {
         console.log(e)
         setAttemptingTxn(false)
         setErrorMessage(e?.message || JSON.stringify(e))
+        mixpanel.track('ElasticFarmV2 - Harvest Failed', {
+          farm_id: farm.id,
+          farm_fid: farm.fId,
+          error: JSON.stringify(e),
+        })
       })
   }, [farm, harvest, stakedPos])
 
@@ -140,6 +151,8 @@ export const ListView = ({
 
   const minFarmAPR = Math.min(...farm.ranges.map(r => r.apr || 0))
   const maxFarmAPR = Math.max(...farm.ranges.map(r => r.apr || 0))
+
+  const mixpanelPayload = { farm_pool_address: farm.poolAddress, farm_id: farm.id, farm_fid: farm.fId }
 
   return (
     <Wrapper isDeposited={!!stakedPos.length}>
@@ -398,27 +411,50 @@ export const ListView = ({
           <MouseoverTooltipDesktopOnly text={t`Stake`} placement="top" width="fit-content">
             <MinimalActionButton
               disabled={!account || !isApproved || isEnded || farm.isSettled || isAllRangesInactive}
-              onClick={onStake}
+              onClick={() => {
+                onStake()
+                mixpanel.track('ElasticFarmV2 - Stake Clicked', mixpanelPayload)
+              }}
             >
               <Plus size={16} />
             </MinimalActionButton>
           </MouseoverTooltipDesktopOnly>
           {canUpdateLiquidity && (
             <MouseoverTooltipDesktopOnly text={t`Update Liquidity`} placement="top" width="fit-content">
-              <MinimalActionButton onClick={onUpdateFarmClick} colorScheme={ButtonColorScheme.Gray}>
+              <MinimalActionButton
+                onClick={() => {
+                  onUpdateFarmClick()
+                  mixpanel.track('ElasticFarmV2 - Manage Clicked', mixpanelPayload)
+                }}
+                colorScheme={ButtonColorScheme.Gray}
+              >
                 <RefreshCw size={16} />
               </MinimalActionButton>
             </MouseoverTooltipDesktopOnly>
           )}
 
           <MouseoverTooltipDesktopOnly text={t`Unstake`} placement="top" width="fit-content">
-            <MinimalActionButton colorScheme={ButtonColorScheme.Red} disabled={!canUnstake} onClick={onUnstake}>
+            <MinimalActionButton
+              colorScheme={ButtonColorScheme.Red}
+              disabled={!canUnstake}
+              onClick={() => {
+                onUnstake()
+                mixpanel.track('ElasticFarmV2 - Unstake Clicked', mixpanelPayload)
+              }}
+            >
               <Minus size={16} />
             </MinimalActionButton>
           </MouseoverTooltipDesktopOnly>
 
           <MouseoverTooltipDesktopOnly text={t`Harvest`} placement="top" width="fit-content">
-            <MinimalActionButton colorScheme={ButtonColorScheme.APR} disabled={!hasRewards} onClick={handleHarvest}>
+            <MinimalActionButton
+              colorScheme={ButtonColorScheme.APR}
+              disabled={!hasRewards}
+              onClick={() => {
+                handleHarvest()
+                mixpanel.track('ElasticFarmV2 - Harvest Clicked', mixpanelPayload)
+              }}
+            >
               <Harvest />
             </MinimalActionButton>
           </MouseoverTooltipDesktopOnly>
