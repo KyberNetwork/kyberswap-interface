@@ -147,12 +147,12 @@ const PoolEarningsSection: React.FC<Props> = ({ historicalEarning, chainId }) =>
               logoUrl: data.logoUrl,
               symbol: data.symbol,
               value: String(data.amountUSD),
-              percent: (data.amountUSD / totalValue) * 100,
+              percent: isAllZero ? 10 : (data.amountUSD / totalValue) * 100,
             })),
             {
               symbol: t`Others`,
               value: String(totalValueOfOthers),
-              percent: isAllZero ? (1 / visibleItems) * 100 : (totalValueOfOthers / totalValue) * 100,
+              percent: isAllZero ? 10 : (totalValueOfOthers / totalValue) * 100,
             },
           ]
 

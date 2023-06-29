@@ -526,6 +526,8 @@ export const calculateEarningBreakdowns = (
 
   const totalValue = todayEarningTick.totalValue
   const tokens = todayEarningTick.tokens
+  const isAllZero = tokens.every(token => token.amountUSD === 0)
+  const visibleItems = tokens.length <= 10 ? tokens.length : 10
   const totalValueOfOthers = todayEarningTick.tokens.slice(9).reduce((acc, data) => acc + data.amountUSD, 0)
   const breakdowns: EarningsBreakdown['breakdowns'] =
     tokens.length <= 10
@@ -534,7 +536,7 @@ export const calculateEarningBreakdowns = (
           logoUrl: data.logoUrl,
           symbol: data.symbol,
           value: String(data.amountUSD),
-          percent: (data.amountUSD / totalValue) * 100,
+          percent: isAllZero ? (1 / visibleItems) * 100 : (data.amountUSD / totalValue) * 100,
         }))
       : [
           ...tokens.slice(0, 9).map(data => ({
@@ -542,13 +544,13 @@ export const calculateEarningBreakdowns = (
             logoUrl: data.logoUrl,
             symbol: data.symbol,
             value: String(data.amountUSD),
-            percent: (data.amountUSD / totalValue) * 100,
+            percent: isAllZero ? 10 : (data.amountUSD / totalValue) * 100,
           })),
           {
             symbol: `Others`,
             chainId: undefined,
             value: String(totalValueOfOthers),
-            percent: (totalValueOfOthers / totalValue) * 100,
+            percent: isAllZero ? 10 : (totalValueOfOthers / totalValue) * 100,
           },
         ]
 
