@@ -213,6 +213,7 @@ export default function WalletModal() {
   const [, setIsConnectingWallet] = useIsConnectingWallet()
   const handleWalletChange = useCallback(
     async (walletKey: SUPPORTED_WALLET) => {
+      mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECT_WALLET_CLICK, { wallet: walletKey })
       setPendingWalletKey(walletKey)
       setWalletView(WALLET_VIEWS.PENDING)
       setIsConnectingWallet(true)
@@ -310,7 +311,14 @@ export default function WalletModal() {
           </CloseIcon>
         </RowBetween>
         {(walletView === WALLET_VIEWS.ACCOUNT || walletView === WALLET_VIEWS.CHANGE_WALLET) && (
-          <TermAndCondition onClick={() => setIsAcceptedTerm(!isAcceptedTerm)}>
+          <TermAndCondition
+            onClick={() => {
+              if (!isAcceptedTerm) {
+                mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECT_ACCEPT_TERM_CLICK)
+              }
+              setIsAcceptedTerm(!isAcceptedTerm)
+            }}
+          >
             <input
               onChange={() => {
                 //

@@ -34,6 +34,7 @@ export enum MIXPANEL_TYPE {
   WALLET_CONNECTED,
   WALLET_CONNECT_CLICK,
   WALLET_CONNECT_ACCEPT_TERM_CLICK,
+  WALLET_CONNECT_WALLET_CLICK,
   SWAP_INITIATED,
   SWAP_CONFIRMED,
   SWAP_COMPLETED,
@@ -308,6 +309,10 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
         }
         case MIXPANEL_TYPE.WALLET_CONNECT_ACCEPT_TERM_CLICK: {
           mixpanel.track('Wallet Connect - Accept term button click')
+          break
+        }
+        case MIXPANEL_TYPE.WALLET_CONNECT_WALLET_CLICK: {
+          mixpanel.track('Wallet Connect - Wallet click', payload)
           break
         }
         case MIXPANEL_TYPE.CHAIN_SWITCHED: {
