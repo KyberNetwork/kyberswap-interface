@@ -402,6 +402,8 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
               dispatch(setUserFarmInfo({ chainId, userInfo: infos }))
             },
           )
+        } else {
+          dispatch(setUserFarmInfo({ chainId, userInfo: [] }))
         }
       }
     }

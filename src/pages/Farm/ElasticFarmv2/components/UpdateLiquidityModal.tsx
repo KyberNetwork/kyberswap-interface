@@ -337,7 +337,7 @@ const UpdateLiquidityModal = ({
           activeKey={activeRange.index}
           onChange={key => {
             setSelectedPos({})
-            const range = farm.ranges.find(item => item.index === key)
+            const range = ranges.find(item => +item.index === +key)
             if (range) setActiveRange(range)
           }}
           items={ranges.map(range => {

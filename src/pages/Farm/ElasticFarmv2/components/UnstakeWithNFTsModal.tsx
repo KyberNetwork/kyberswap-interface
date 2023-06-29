@@ -103,6 +103,7 @@ const NFTItem = ({
   pos: UserFarmV2Info
   onClick?: (tokenId: string) => void
 }) => {
+  console.log(pos.nftId.toString(), pos.unclaimedRewardsUsd)
   const priceLower = getTickToPrice(
     pos.position.pool.token0.wrapped,
     pos.position.pool.token1.wrapped,

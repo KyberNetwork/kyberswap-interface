@@ -2,12 +2,16 @@ import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Info, Plus, X } from 'react-feather'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
+import ExampleImage from 'assets/images/elastic_farm_v2_example.png'
+import ExampleImageMobile from 'assets/images/elastic_farm_v2_example_mobile.png'
 import RangeBadge from 'components/Badge/RangeBadge'
 import { ButtonPrimary } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
+import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import HoverInlineText from 'components/HoverInlineText'
 import LocalLoader from 'components/LocalLoader'
@@ -27,7 +31,7 @@ import { useFarmV2Action } from 'state/farms/elasticv2/hooks'
 import { ElasticFarmV2 } from 'state/farms/elasticv2/types'
 import { Bound } from 'state/mint/proamm/type'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
-import { StyledInternalLink } from 'theme'
+import { MEDIA_WIDTHS, StyledInternalLink } from 'theme'
 import { PositionDetails } from 'types/position'
 import { formatTickPrice } from 'utils/formatTickPrice'
 import { getTickToPrice } from 'utils/getTickToPrice'
@@ -281,6 +285,8 @@ const StakeWithNFTsModal = ({
     farm.token0.isNative ? farm.token0.symbol : farm.token0.address
   }/${farm.token1.isNative ? farm.token1.symbol : farm.token1.address}/${farm.pool.fee}?farmRange=${activeRange.index}`
 
+  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+
   return (
     <>
       <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth="min(900px, 100vw)" width="900px">
@@ -333,23 +339,54 @@ const StakeWithNFTsModal = ({
                   children: loading ? (
                     <LocalLoader />
                   ) : !positions?.length ? (
-                    <Flex
-                      sx={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
-                      fontSize={14}
-                      color={theme.subText}
-                      padding="16px"
-                      marginTop="20px"
-                      marginBottom="44px"
-                    >
-                      <Info size="48px" />
-                      <Text marginTop="16px" textAlign="center" lineHeight={1.5}>
-                        <Trans>
-                          You don&apos;t have any relevant liquidity positions yet.
-                          <br />
-                          Add liquidity to this pool with the current{' '}
-                          <StyledInternalLink to={addliquidityElasticPool}>Active Farm Range ↗</StyledInternalLink>{' '}
-                        </Trans>
-                      </Text>
+                    <Flex flexDirection="column" marginTop="20px" sx={{ gap: '20px' }}>
+                      <Flex fontSize={14} color={theme.subText} padding="16px" alignItems="center" margin="auto">
+                        <Info size="36px" />
+                        <Text lineHeight={1.5} marginLeft="1rem" flex={1}>
+                          <Trans>
+                            You don&apos;t have any relevant liquidity positions that cover this price range.
+                            <br />
+                            Add liquidity to this pool with the current range{' '}
+                            <StyledInternalLink to={addliquidityElasticPool}>here ↗</StyledInternalLink>{' '}
+                          </Trans>
+                        </Text>
+                      </Flex>
+                      <Divider />
+                      <Flex
+                        paddingX="24px"
+                        sx={{ gap: '1rem' }}
+                        flexDirection="column"
+                        marginBottom="24px"
+                        fontSize="12px"
+                      >
+                        <Text fontSize="12px" fontWeight="500">
+                          <Trans>Example</Trans>
+                        </Text>
+
+                        <img src={upToMedium ? ExampleImageMobile : ExampleImage} width="100%" />
+
+                        <Text color={theme.subText}>
+                          <Trans>
+                            For a farm with a pre-configured price range of 0.6-0.8, your liquidity positions lower
+                            range must be ≤0.6 and upper range must be ≥0.8
+                          </Trans>
+                        </Text>
+
+                        <Flex sx={{ gap: '1rem' }} flexDirection={upToMedium ? 'column' : 'row'}>
+                          <Flex sx={{ gap: '4px' }}>
+                            <Text color={theme.primary} fontWeight="500">
+                              <Trans>Eligible</Trans>:
+                            </Text>
+                            <Text color={theme.subText}>0.6-0.8, 0.5-0.8, 0.5-0.9</Text>
+                          </Flex>
+                          <Flex sx={{ gap: '4px' }}>
+                            <Text color={theme.warning} fontWeight="500">
+                              <Trans>Not Eligible</Trans>:
+                            </Text>
+                            <Text color={theme.subText}>0.6-0.7, 0.7-0.8, 0.65-0.75</Text>
+                          </Flex>
+                        </Flex>
+                      </Flex>
                     </Flex>
                   ) : (
                     <ContentWrapper>
