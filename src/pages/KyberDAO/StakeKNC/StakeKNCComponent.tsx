@@ -389,7 +389,7 @@ export default function StakeKNCComponent() {
   const kncPrice = useKNCPrice()
   const kncValueInUsd = useMemo(() => {
     if (!kncPrice || !inputValue) return 0
-    return (parseFloat(kncPrice) * parseFloat(inputValue)).toFixed(2)
+    return (kncPrice * parseFloat(inputValue)).toFixed(2)
   }, [kncPrice, inputValue])
 
   const handleMaxClick = useCallback(

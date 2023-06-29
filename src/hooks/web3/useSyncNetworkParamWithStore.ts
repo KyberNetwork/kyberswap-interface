@@ -11,7 +11,7 @@ import { useChangeNetwork } from './useChangeNetwork'
 export function useSyncNetworkParamWithStore() {
   const { network: networkParam } = useParams<{ network?: string }>()
   const paramChainId = getChainIdFromSlug(networkParam)
-  const { changeNetwork } = useChangeNetwork()
+  const changeNetwork = useChangeNetwork()
   const { networkInfo, chainId } = useActiveWeb3React()
   const navigate = useNavigate()
   const triedEager = useEagerConnect()

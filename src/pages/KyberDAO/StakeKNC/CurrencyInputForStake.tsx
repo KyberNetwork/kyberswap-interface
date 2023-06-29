@@ -44,7 +44,7 @@ export default function CurrencyInputForStake({
   const kncPrice = useKNCPrice()
   const kncValueInUsd = useMemo(() => {
     if (!kncPrice || !value) return 0
-    return (parseFloat(kncPrice) * parseFloat(value)).toFixed(2)
+    return (kncPrice * parseFloat(value)).toFixed(2)
   }, [kncPrice, value])
   return (
     <InnerCard>
