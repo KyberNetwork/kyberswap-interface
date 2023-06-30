@@ -23,22 +23,21 @@ const formatUSDValue = (v: string) => {
   return formatter.format(Number(v))
 }
 
-type WrapperProps = { $twoColumns?: boolean }
-const LegendsWrapper = styled.div.attrs<WrapperProps>(({ $twoColumns }) => ({
-  'data-two-columns': $twoColumns,
-}))<WrapperProps>`
-  display: grid;
-  align-items: center;
-  gap: 4px 16px;
+const LegendsWrapper = styled.div`
+  display: flex;
+  gap: 4px;
+`
 
-  &[data-two-columns='true'] {
-    grid-template-columns: repeat(2, auto);
-  }
+const LegendsColumn = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 `
 
 const LoadingSkeletonForLegends = () => {
   return (
-    <LegendsWrapper>
+    <LegendsColumn>
       {Array(4)
         .fill(0)
         .map((_, i) => {
@@ -61,7 +60,7 @@ const LoadingSkeletonForLegends = () => {
             </Flex>
           )
         })}
-    </LegendsWrapper>
+    </LegendsColumn>
   )
 }
 
@@ -244,9 +243,9 @@ const EarningPieChart: React.FC<Props> = ({ data, totalValue = '', className, is
     })
   }, [isLoading, data, theme.subText, selectedIndex])
 
-  const legendData: Array<DataEntry & { color: string }> = useMemo(() => {
+  const legendData: Array<Array<DataEntry & { color: string }>> = useMemo(() => {
     if (isLoading || !data) {
-      return EMPTY_ARRAY
+      return [EMPTY_ARRAY]
     }
 
     const coloredData = data.map((entry, i) => {
@@ -257,26 +256,11 @@ const EarningPieChart: React.FC<Props> = ({ data, totalValue = '', className, is
     })
 
     if (coloredData.length <= 5) {
-      return coloredData
+      return [coloredData]
     }
 
-    // The code below is used to shuffle the data quite a bit
-    // We have the sorted data like this: 1, 2, 3, 4, 5, 6, 7
-    // We need to shuffle it to:   1, 5, 2, 6, 3, 7, 4
-    // So when we display this to a grid, it becomes:
-    /**
-     * 1 | 5
-     * 2 | 6
-     * 3 | 7
-     * 4 |
-     */
     const half = Math.ceil(coloredData.length / 2)
-    const shuffledData = coloredData.slice(0, half)
-    coloredData.slice(half).forEach((entry, i) => {
-      shuffledData.splice(2 * i + 1, 0, entry)
-    })
-
-    return shuffledData
+    return [coloredData.slice(0, half), coloredData.slice(half)]
   }, [data, isLoading])
 
   const handleMouseOver = useCallback(
@@ -352,20 +336,31 @@ const EarningPieChart: React.FC<Props> = ({ data, totalValue = '', className, is
       {isLoading ? (
         <LoadingSkeletonForLegends />
       ) : (
-        <LegendsWrapper $twoColumns={legendData.length > 5}>
-          {legendData.map((entry, i) => {
+        <LegendsWrapper>
+          {legendData.map((columnData, columnIndex) => {
+            if (!columnData.length) {
+              return null
+            }
+
             return (
-              <Legend
-                active={selectedIndex === i}
-                key={i}
-                chainId={entry.chainId}
-                logoUrl={entry.logoUrl}
-                label={entry.symbol}
-                value={entry.value}
-                percent={entry.percent}
-                onMouseOver={() => setSelectedIndex(i)}
-                onMouseOut={() => setSelectedIndex(-1)}
-              />
+              <LegendsColumn key={columnIndex}>
+                {columnData.map((entry, i) => {
+                  const index = (legendData?.[columnIndex - 1]?.length || 0) + i
+                  return (
+                    <Legend
+                      active={selectedIndex === index}
+                      key={index}
+                      chainId={entry.chainId}
+                      logoUrl={entry.logoUrl}
+                      label={entry.symbol}
+                      value={entry.value}
+                      percent={entry.percent}
+                      onMouseOver={() => setSelectedIndex(index)}
+                      onMouseOut={() => setSelectedIndex(-1)}
+                    />
+                  )
+                })}
+              </LegendsColumn>
             )
           })}
         </LegendsWrapper>
