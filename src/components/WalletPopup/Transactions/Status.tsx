@@ -71,7 +71,9 @@ function StatusIcon({
           isPending = cancellingOrdersIds.includes(orderId) || cancellingOrdersNonces.length > 0
           break
         case TRANSACTION_TYPE.BRIDGE: {
-          const { data: response } = await axios.get(`${BFF_API}/v1/multichain-transfers/${hash}`)
+          const { data: response } = await axios.get(
+            `https://cross-chain-history.stg.kyberengineering.io/v1/multichain-transfers/${hash}`,
+          )
           isPending = response?.data?.status === MultichainTransferStatus.Processing
           break
         }
