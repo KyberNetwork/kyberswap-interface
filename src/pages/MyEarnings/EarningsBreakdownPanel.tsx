@@ -45,9 +45,10 @@ type Props = {
   isLoading?: boolean
   data?: EarningsBreakdown
   className?: string
+  horizontalLayout?: boolean
 }
 
-const EarningsBreakdownPanel: React.FC<Props> = ({ isLoading, data, className }) => {
+const EarningsBreakdownPanel: React.FC<Props> = ({ isLoading, data, className, horizontalLayout }) => {
   const theme = useTheme()
 
   const numberOfTokens = data?.breakdowns.length || 0
@@ -80,9 +81,13 @@ const EarningsBreakdownPanel: React.FC<Props> = ({ isLoading, data, className })
       </Flex>
 
       {isLoading || !data ? (
-        <EarningPieChart isLoading />
+        <EarningPieChart horizontalLayout={horizontalLayout} isLoading />
       ) : (
-        <EarningPieChart data={data.breakdowns} totalValue={formatValue(data.totalValue)} />
+        <EarningPieChart
+          horizontalLayout={horizontalLayout}
+          data={data.breakdowns}
+          totalValue={formatValue(data.totalValue)}
+        />
       )}
     </Wrapper>
   )

@@ -22,6 +22,10 @@ const MyEarningsOverTimePanel = styled(OriginalMyEarningsOverTimePanel)`
   flex: 1 0 640px;
   border-radius: 20px;
 
+  @media screen and (max-width: 1225px) {
+    flex: 0 0 480px;
+  }
+
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     flex: 1 1 100%;
     height: 480px;
@@ -29,6 +33,15 @@ const MyEarningsOverTimePanel = styled(OriginalMyEarningsOverTimePanel)`
 `
 
 const EarningsBreakdownPanel = styled(OriginalEarningsBreakdownPanel)`
+  @media screen and (max-width: 1225px) {
+    width: 100%;
+
+    &[data-columns='2'] {
+      width: 100%;
+      flex: 1;
+    }
+  }
+
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     flex: 1;
 
@@ -60,6 +73,7 @@ const MyEarningStats = () => {
   const { account = '' } = useActiveWeb3React()
   const theme = useTheme()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  const upTo1225px = useMedia(`(max-width: 1225px)`)
   const selectedChainIds = useAppSelector(state => state.myEarnings.selectedChains)
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
 
@@ -105,10 +119,15 @@ const MyEarningStats = () => {
       <Flex
         sx={{
           gap: '24px',
-          flexWrap: 'wrap',
+          flexDirection: upTo1225px && !upToExtraSmall ? 'column' : 'row',
+          flexWrap: upToExtraSmall ? 'wrap' : 'nowrap',
         }}
       >
-        <EarningsBreakdownPanel isLoading={isLoading} data={earningBreakdown} />
+        <EarningsBreakdownPanel
+          horizontalLayout={upTo1225px && !upToExtraSmall}
+          isLoading={isLoading}
+          data={earningBreakdown}
+        />
         <MyEarningsOverTimePanel isLoading={isLoading} ticks={ticks} isContainerSmall={upToExtraSmall} />
       </Flex>
 

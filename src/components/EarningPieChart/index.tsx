@@ -200,6 +200,7 @@ type Props = {
   isLoading?: boolean
   totalValue?: string
   data?: DataEntry[]
+  horizontalLayout?: boolean
 }
 
 const customStyles: React.CSSProperties = { transition: 'all .3s', cursor: 'pointer' }
@@ -212,7 +213,13 @@ const LoadingData = [
   },
 ]
 
-const EarningPieChart: React.FC<Props> = ({ data, totalValue = '', className, isLoading = false }) => {
+const EarningPieChart: React.FC<Props> = ({
+  data,
+  totalValue = '',
+  className,
+  isLoading = false,
+  horizontalLayout,
+}) => {
   const [selectedIndex, setSelectedIndex] = useState<number>(-1)
   const [isHoveringChart, setHoveringChart] = useState(false)
   const theme = useTheme()
@@ -282,13 +289,96 @@ const EarningPieChart: React.FC<Props> = ({ data, totalValue = '', className, is
     setHoveringChart(false)
   }, [])
 
+  if (horizontalLayout) {
+    return (
+      <Flex
+        className={className}
+        sx={{
+          flexDirection: horizontalLayout ? 'row' : 'column',
+          alignItems: 'center',
+          justifyContent: 'space-around',
+        }}
+      >
+        <Flex
+          sx={{
+            position: 'relative',
+            maxHeight: '200px',
+            justifyContent: 'center',
+          }}
+        >
+          <Flex
+            sx={{
+              maxWidth: '200px',
+              maxHeight: '200px',
+            }}
+          >
+            <PieChart
+              key={String(isLoading)}
+              data={chartData}
+              lineWidth={20}
+              radius={pieChartDefaultProps.radius - 10}
+              segmentsStyle={isLoading ? undefined : customStyles}
+              paddingAngle={isLoading || chartData.length < 2 ? 0 : 1}
+              segmentsShift={index => (!isHoveringChart && index === selectedIndex && chartData.length >= 2 ? 2 : 0)}
+              onMouseOver={handleMouseOver}
+              onMouseOut={handleMouseOut}
+            />
+          </Flex>
+
+          <Text
+            as="span"
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate3d(-50%, -50%, 0)',
+              fontWeight: 500,
+              fontSize: '24px',
+              lineHeight: '28px',
+            }}
+          >
+            {isLoading ? <Trans>loading...</Trans> : totalValue}
+          </Text>
+        </Flex>
+
+        {isLoading ? (
+          <LoadingSkeletonForLegends />
+        ) : (
+          <LegendsWrapper>
+            {legendData.map((columnData, columnIndex) => {
+              if (!columnData.length) {
+                return null
+              }
+
+              return (
+                <LegendsColumn key={columnIndex}>
+                  {columnData.map((entry, i) => {
+                    const index = (legendData?.[columnIndex - 1]?.length || 0) + i
+                    return (
+                      <Legend
+                        active={selectedIndex === index}
+                        key={index}
+                        chainId={entry.chainId}
+                        logoUrl={entry.logoUrl}
+                        label={entry.symbol}
+                        value={entry.value}
+                        percent={entry.percent}
+                        onMouseOver={() => setSelectedIndex(index)}
+                        onMouseOut={() => setSelectedIndex(-1)}
+                      />
+                    )
+                  })}
+                </LegendsColumn>
+              )
+            })}
+          </LegendsWrapper>
+        )}
+      </Flex>
+    )
+  }
+
   return (
-    <Flex
-      className={className}
-      sx={{
-        flexDirection: 'column',
-      }}
-    >
+    <Flex className={className} flexDirection="column">
       <Flex
         sx={{
           position: 'relative',
