@@ -45,23 +45,52 @@ const ActionButtonsWrapper = styled.div`
 `
 
 type ActionButtonsProps = {
+  liquidity: number | undefined
   chainId: ChainId
   nftId: string
   currency0: Currency
   currency1: Currency
   feeAmount: FeeAmount
 }
-const ActionButtons: React.FC<ActionButtonsProps> = ({ chainId, nftId, currency0, currency1, feeAmount }) => {
+const ActionButtons: React.FC<ActionButtonsProps> = ({
+  chainId,
+  nftId,
+  currency0,
+  currency1,
+  feeAmount,
+  liquidity,
+}) => {
   const chainRoute = NETWORKS_INFO[chainId].route
 
   const currency0Slug = currency0.isNative ? currency0.symbol : currency0.wrapped.address
   const currency1Slug = currency1.isNative ? currency1.symbol : currency1.wrapped.address
 
-  return (
-    <ActionButtonsWrapper>
+  const renderRemoveButton = () => {
+    if (!liquidity) {
+      return (
+        <ActionButton $variant="red" disabled={!liquidity}>
+          <Minus size="16px" /> <Trans>Remove Liquidity</Trans>
+        </ActionButton>
+      )
+    }
+
+    return (
       <ActionButton $variant="red" as={Link} to={`/${chainRoute}${APP_PATHS.ELASTIC_REMOVE_POOL}/${nftId}`}>
         <Minus size="16px" /> <Trans>Remove Liquidity</Trans>
       </ActionButton>
+    )
+  }
+
+  const renderIncreaseButton = () => {
+    if (!liquidity) {
+      return (
+        <ActionButton $variant="green" disabled={!liquidity}>
+          <ChevronsUp size="16px" /> <Trans>Increase Liquidity</Trans>
+        </ActionButton>
+      )
+    }
+
+    return (
       <ActionButton
         $variant="green"
         as={Link}
@@ -69,6 +98,13 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ chainId, nftId, currency0
       >
         <ChevronsUp size="16px" /> <Trans>Increase Liquidity</Trans>
       </ActionButton>
+    )
+  }
+
+  return (
+    <ActionButtonsWrapper>
+      {renderRemoveButton()}
+      {renderIncreaseButton()}
     </ActionButtonsWrapper>
   )
 }
@@ -258,6 +294,7 @@ const PositionView: React.FC<CommonProps> = props => {
           currency0={visibleCurrency0}
           currency1={visibleCurrency1}
           feeAmount={position.pool.fee}
+          liquidity={Number(position.liquidity || '0')}
         />
       </Flex>
     </CommonView>
