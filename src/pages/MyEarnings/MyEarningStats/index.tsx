@@ -87,10 +87,6 @@ const MyEarningStats = () => {
     return calculateEarningBreakdowns(ticks?.[0])
   }, [ticks])
 
-  console.log({
-    tick: ticks?.[0],
-  })
-
   return (
     <Flex
       sx={{
