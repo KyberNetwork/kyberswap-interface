@@ -36,13 +36,12 @@ type LegacyTagProps = {
 }
 const LegacyTag: React.FC<LegacyTagProps> = ({ isActive }) => {
   const theme = useTheme()
-  const small = false
   return (
     <Text
       sx={{
-        fontSize: small ? '10px' : '14px',
+        fontSize: '12px',
         fontWeight: '500',
-        padding: '2px 8px',
+        padding: '2px 6px',
         borderRadius: '999px',
         color: isActive ? theme.primary : theme.subText,
         background: isActive ? rgba(theme.primary, 0.2) : rgba(theme.subText, 0.2),
