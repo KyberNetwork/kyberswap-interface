@@ -51,6 +51,7 @@ type ActionButtonsProps = {
   currency0: Currency
   currency1: Currency
   feeAmount: FeeAmount
+  isIncreaseDisabled: boolean
 }
 const ActionButtons: React.FC<ActionButtonsProps> = ({
   chainId,
@@ -59,6 +60,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
   currency1,
   feeAmount,
   liquidity,
+  isIncreaseDisabled,
 }) => {
   const chainRoute = NETWORKS_INFO[chainId].route
 
@@ -68,7 +70,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
   const renderRemoveButton = () => {
     if (!liquidity) {
       return (
-        <ActionButton $variant="red" disabled={!liquidity}>
+        <ActionButton $variant="red" disabled>
           <Minus size="16px" /> <Trans>Remove Liquidity</Trans>
         </ActionButton>
       )
@@ -82,9 +84,9 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
   }
 
   const renderIncreaseButton = () => {
-    if (!liquidity) {
+    if (!liquidity || isIncreaseDisabled) {
       return (
-        <ActionButton $variant="green" disabled={!liquidity}>
+        <ActionButton $variant="green" disabled>
           <ChevronsUp size="16px" /> <Trans>Increase Liquidity</Trans>
         </ActionButton>
       )
@@ -113,6 +115,7 @@ const defaultPendingFee = ['0', '0']
 
 const PositionView: React.FC<CommonProps> = props => {
   const { positionEarning, position, pendingFee = defaultPendingFee, tokenPrices: prices, chainId } = props
+  const isLegacyPosition = useAppSelector(state => state.myEarnings.activeTab === VERSION.ELASTIC_LEGACY)
 
   // Need these because we'll display native tokens instead of wrapped tokens
   const visibleCurrency0 = unwrappedToken(position.pool.token0)
@@ -295,6 +298,7 @@ const PositionView: React.FC<CommonProps> = props => {
           currency1={visibleCurrency1}
           feeAmount={position.pool.fee}
           liquidity={Number(position.liquidity || '0')}
+          isIncreaseDisabled={isLegacyPosition}
         />
       </Flex>
     </CommonView>
