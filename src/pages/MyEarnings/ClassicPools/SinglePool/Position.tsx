@@ -26,7 +26,7 @@ const CustomActionButton = styled(ActionButton)`
   flex: 1;
 `
 
-const formatValue = (value: string | number, usd?: boolean) => {
+const formatValue = (value: string | number) => {
   const num = Number(value)
 
   if (!Number.isFinite(num)) {

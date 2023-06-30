@@ -173,6 +173,7 @@ const StatsRow: React.FC<Props> = ({
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const chainRoute = NETWORKS_INFO[chainId].route
   const [, copy] = useCopyClipboard()
+  const theme = useTheme()
 
   const currency0Slug = currency0?.isNative ? currency0.symbol : currency0?.wrapped.address || ''
   const currency1Slug = currency1?.isNative ? currency1.symbol : currency1?.wrapped.address || ''
@@ -220,7 +221,7 @@ const StatsRow: React.FC<Props> = ({
         href={analyticUrl}
         target="_blank"
       >
-        <BarChart />
+        <BarChart color={theme.subText} />
       </ButtonIcon>
     )
   }
