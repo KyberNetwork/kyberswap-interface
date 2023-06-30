@@ -164,8 +164,8 @@ export default function WalletModal() {
   const { mixpanelHandler } = useMixpanel()
 
   useEffect(() => {
-    walletModalOpen && mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECT_CLICK)
-  }, [mixpanelHandler, walletModalOpen])
+    !account && walletModalOpen && mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECT_CLICK)
+  }, [mixpanelHandler, walletModalOpen, account])
 
   // close on connection, when logged out before
   useEffect(() => {

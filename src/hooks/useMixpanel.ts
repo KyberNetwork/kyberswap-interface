@@ -304,7 +304,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           break
         }
         case MIXPANEL_TYPE.WALLET_CONNECT_CLICK: {
-          mixpanel.track('Wallet Connect - Connect Wallet Button Clickk')
+          mixpanel.track('Wallet Connect - Connect Wallet Button Click')
           break
         }
         case MIXPANEL_TYPE.WALLET_CONNECT_ACCEPT_TERM_CLICK: {
@@ -1637,6 +1637,7 @@ export const useGlobalMixpanelEvents = () => {
         '/kyberdao/stake-knc': 'KyberDAO Stake',
         '/kyberdao/vote': 'KyberDAO Vote',
         limit: 'Limit Order',
+        'cross-chain': 'Cross Chain',
         'notification-center': 'Notification',
         [APP_PATHS.KYBERAI_ABOUT]: 'KyberAI About',
       }
