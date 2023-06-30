@@ -3,7 +3,7 @@ import { rgba } from 'polished'
 import { stringify } from 'querystring'
 import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
@@ -13,7 +13,7 @@ import { PoolClassicIcon, PoolElasticIcon } from 'components/Icons'
 import Wallet from 'components/Icons/Wallet'
 import { MouseoverTooltip } from 'components/Tooltip'
 import Tutorial, { TutorialType } from 'components/Tutorial'
-import { PROMM_ANALYTICS_URL } from 'constants/index'
+import { APP_PATHS, PROMM_ANALYTICS_URL } from 'constants/index'
 import { ELASTIC_NOT_SUPPORTED, VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
@@ -244,31 +244,38 @@ function ClassicElasticTab() {
   }
 
   const renderClassicPoolsButton = () => {
+    const color = tab === VERSION.CLASSIC ? theme.primary : theme.disableText
     return (
-      <Flex
-        role="button"
-        alignItems={'center'}
-        onClick={handleClickClassic}
-        color={tab === VERSION.CLASSIC ? theme.primary : theme.subText}
+      <MouseoverTooltip
+        text={
+          <Text>
+            Coming soon. In the meantime, you can still manage your Classic liquidity positions{' '}
+            <Link to={`${APP_PATHS.MY_POOLS}?tab=classic`}>here</Link>
+          </Text>
+        }
+        placement="top"
       >
         <Flex
-          sx={{
-            flex: '0 0 20px',
-            height: '20px',
+          role="button"
+          alignItems={'center'}
+          color={color}
+          style={{
+            cursor: 'not-allowed',
           }}
         >
-          <PoolClassicIcon size={20} color={tab === VERSION.CLASSIC ? theme.primary : theme.subText} />
+          <Flex
+            sx={{
+              flex: '0 0 20px',
+              height: '20px',
+            }}
+          >
+            <PoolClassicIcon size={20} color={color} />
+          </Flex>
+          <Text fontWeight={500} fontSize={[18, 20, 24]} width={'auto'} marginLeft="4px" sx={{ whiteSpace: 'nowrap' }}>
+            <Trans>Classic Pools</Trans>
+          </Text>
         </Flex>
-        <Text
-          fontWeight={500}
-          fontSize={[18, 20, 24]}
-          width={'auto'}
-          marginLeft="4px"
-          sx={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
-        >
-          <Trans>Classic Pools</Trans>
-        </Text>
-      </Flex>
+      </MouseoverTooltip>
     )
   }
 
