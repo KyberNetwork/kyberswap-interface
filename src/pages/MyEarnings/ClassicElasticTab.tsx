@@ -46,8 +46,7 @@ const LegacyTag: React.FC<LegacyTagProps> = ({ isActive }) => {
         borderRadius: '999px',
         color: isActive ? theme.primary : theme.subText,
         background: isActive ? rgba(theme.primary, 0.2) : rgba(theme.subText, 0.2),
-        marginTop: small ? 0 : '-12px',
-        marginLeft: '2px',
+        marginLeft: '4px',
       }}
     >
       Legacy
@@ -103,11 +102,11 @@ function ClassicElasticTab() {
   }, [dispatch, tab])
 
   useEffect(() => {
-    if (isNotSupportedElastic && tab !== VERSION.CLASSIC) {
-      const newQs = { ...qs, tab: VERSION.CLASSIC }
+    if (tab !== VERSION.ELASTIC && tab !== VERSION.ELASTIC_LEGACY) {
+      const newQs = { ...qs, tab: VERSION.ELASTIC }
       navigate({ search: stringify(newQs) }, { replace: true })
     }
-  }, [navigate, isNotSupportedElastic, qs, tab])
+  }, [navigate, qs, tab])
 
   const renderComboPoolButtonsForMobile = () => {
     return (
@@ -115,6 +114,7 @@ function ClassicElasticTab() {
         width="fit-content"
         placement={'bottom'}
         noArrow={!isNotSupportedElastic}
+        opacity={1}
         text={
           notSupportedElasticMessage || (
             <Flex flexDirection="column" sx={{ gap: '16px', padding: '8px' }}>
@@ -148,8 +148,8 @@ function ClassicElasticTab() {
               <Flex
                 role="button"
                 alignItems={'center'}
-                onClick={handleClickClassic}
-                color={tab === VERSION.CLASSIC ? theme.primary : theme.subText}
+                // onClick={handleClickClassic}
+                color={tab === VERSION.CLASSIC ? theme.primary : theme.disableText}
                 sx={{
                   cursor: 'pointer',
                   gap: '8px',
@@ -161,7 +161,7 @@ function ClassicElasticTab() {
                     height: '16px',
                   }}
                 >
-                  <PoolClassicIcon size={16} color={tab === VERSION.CLASSIC ? theme.primary : theme.subText} />
+                  <PoolClassicIcon size={16} color={tab === VERSION.CLASSIC ? theme.primary : theme.disableText} />
                 </Flex>
                 <Text fontWeight={500} fontSize={'16px'} width={'auto'}>
                   <Trans>Classic Pools</Trans>
@@ -355,6 +355,7 @@ function ClassicElasticTab() {
         width="fit-content"
         placement={isNotSupportedElastic ? 'top' : 'bottom'}
         noArrow={!isNotSupportedElastic}
+        opacity={1}
         text={
           notSupportedElasticMessage || (
             <Flex flexDirection="column" sx={{ gap: '16px', padding: '8px' }}>
