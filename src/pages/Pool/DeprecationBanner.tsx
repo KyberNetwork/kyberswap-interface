@@ -1,7 +1,8 @@
+import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
+import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import { LinkStyledButton } from 'theme'
 
 if (Date.now() > new Date('2023-08-12T00:00:00Z').getTime()) {
   console.warn('Remove DeprecationBanner')
@@ -28,7 +29,7 @@ const DeprecationBanner = () => {
         }}
       >
         View your earnings & manage your liquidity positions through your new earnings dashboard! Access this dashboard
-        anytime from<LinkStyledButton>My Earnings</LinkStyledButton>under the &apos;Earn&apos; section.
+        anytime from <Link to={APP_PATHS.MY_EARNINGS}>My Earnings</Link> under the &apos;Earn&apos; section.
       </Text>
       <Text
         as="span"
