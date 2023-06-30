@@ -12,9 +12,11 @@ import CopyIcon from 'components/Icons/CopyIcon'
 import { NetworkLogo } from 'components/Logo'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
+import { VERSION } from 'constants/v2'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import useTheme from 'hooks/useTheme'
 import { ButtonIcon } from 'pages/Pools/styleds'
+import { useAppSelector } from 'state/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 const formatValue = (value: string | number) => {
@@ -174,11 +176,20 @@ const StatsRow: React.FC<Props> = ({
   const chainRoute = NETWORKS_INFO[chainId].route
   const [, copy] = useCopyClipboard()
   const theme = useTheme()
+  const isLegacyPool = useAppSelector(state => state.myEarnings.activeTab === VERSION.ELASTIC_LEGACY)
 
   const currency0Slug = currency0?.isNative ? currency0.symbol : currency0?.wrapped.address || ''
   const currency1Slug = currency1?.isNative ? currency1.symbol : currency1?.wrapped.address || ''
 
   const renderAddLiquidityButton = () => {
+    if (isLegacyPool) {
+      return (
+        <ButtonLight height="36px" disabled>
+          + <Trans>Add Liquidity</Trans>
+        </ButtonLight>
+      )
+    }
+
     return (
       <ButtonLight
         height="36px"
