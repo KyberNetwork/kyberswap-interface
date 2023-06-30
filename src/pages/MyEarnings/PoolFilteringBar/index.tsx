@@ -118,6 +118,7 @@ const ExpandCollapseAll: React.FC<{ iconOnly?: boolean }> = ({ iconOnly = false 
 const PoolFilteringBar = () => {
   const theme = useTheme()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  const upTo1225px = useMedia(`(max-width: 1225px)`)
 
   if (upToExtraSmall) {
     return (
@@ -144,6 +145,58 @@ const PoolFilteringBar = () => {
         </Flex>
 
         <SearchInput />
+      </Flex>
+    )
+  }
+
+  if (upTo1225px) {
+    return (
+      <Flex
+        flexDirection={'column'}
+        sx={{
+          gap: '16px',
+        }}
+      >
+        <Flex
+          sx={{
+            justifyContent: 'space-between',
+            fontWeight: 500,
+            fontSize: '14px',
+            lineHeight: '20px',
+            color: theme.subText,
+          }}
+        >
+          <Flex
+            sx={{
+              width: '100%',
+              justifyContent: 'space-between',
+              gap: '16px',
+            }}
+          >
+            <Flex
+              sx={{
+                alignItems: 'center',
+                flex: '0 0 fit-content',
+                gap: '16px',
+              }}
+            >
+              <ExpandCollapseAll />
+              <ViewEarningOrPositionButton />
+            </Flex>
+
+            <SubscribeNotificationButton iconOnly={false} trackingEvent={undefined} />
+          </Flex>
+        </Flex>
+
+        <Flex
+          sx={{
+            justifyContent: 'space-between',
+            gap: '16px',
+          }}
+        >
+          <ClosedPositionsToggle />
+          <SearchInput />
+        </Flex>
       </Flex>
     )
   }

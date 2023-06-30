@@ -418,7 +418,7 @@ function ClassicElasticTab() {
           }}
           href={`${PROMM_ANALYTICS_URL[chainId]}/account/${account}`}
         >
-          <Wallet />
+          <Wallet size={20} />
           <Text
             as="span"
             sx={{
