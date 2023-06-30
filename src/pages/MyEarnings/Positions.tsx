@@ -31,20 +31,14 @@ const TitleWrapper = styled.div`
 const ListPositions = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, 360px);
-  justify-content: center;
   gap: 24px;
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 24px;
   `}
-`
-
-const Placeholder = styled.div`
-  display: flex;
-  width: 100%;
-  height: 100%;
 `
 
 type Props = {
@@ -73,20 +67,6 @@ const Positions: React.FC<Props> = ({ positionEarnings, chainId, pool, pendingFe
 
     return [nActive, positionEarnings.length - nClosed - nActive, nClosed]
   }, [positionEarnings])
-
-  const renderPlaceholder = () => {
-    let defaultNumberOfVisiblePositions = 1
-    if (upToMedium) {
-      defaultNumberOfVisiblePositions = 3
-    }
-
-    if (upToXXL) {
-      defaultNumberOfVisiblePositions = 4
-    }
-
-    const left = numberOfVisiblePositions % defaultNumberOfVisiblePositions
-    return Array.from({ length: defaultNumberOfVisiblePositions - left }).map((_, i) => <Placeholder key={i} />)
-  }
 
   useEffect(() => {
     let newNumberOfVisiblePositions = 1
@@ -238,8 +218,6 @@ const Positions: React.FC<Props> = ({ positionEarnings, chainId, pool, pendingFe
             tokenPrices={tokenPrices}
           />
         ))}
-
-        {renderPlaceholder()}
       </ListPositions>
 
       {numberOfVisiblePositions < positionEarnings.length && (

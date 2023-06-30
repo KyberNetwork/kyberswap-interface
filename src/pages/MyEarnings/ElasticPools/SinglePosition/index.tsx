@@ -5,29 +5,17 @@ import { Flex } from 'rebass'
 import { ElasticPositionEarningWithDetails } from 'services/earning/types'
 import styled from 'styled-components'
 
-import Background from 'assets/images/card-background2.png'
 import { CommonProps } from 'pages/MyEarnings/ElasticPools/SinglePosition/CommonView'
 import EarningView from 'pages/MyEarnings/ElasticPools/SinglePosition/EarningView'
 import PositionView from 'pages/MyEarnings/ElasticPools/SinglePosition/PositionView'
 import { useAppSelector } from 'state/hooks'
-
-export const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
-  gap: 16px;
-  width: 100%;
-  height: 100%;
-  background: url(${Background});
-  background-size: cover;
-  background-position: center;
-`
 
 const FlipCard = styled.div<{ flip: boolean; joined?: boolean }>`
   overflow: hidden;
 
   border-radius: 20px;
   width: 100%;
+  max-width: 360px;
   height: 600px;
   background-color: ${({ theme }) => theme.buttonBlack};
   position: relative;

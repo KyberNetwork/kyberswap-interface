@@ -173,6 +173,7 @@ const StatsRow: React.FC<Props> = ({
   renderToggleExpandButton,
 }) => {
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  const upTo1225px = useMedia(`(max-width: 1225px)`)
   const chainRoute = NETWORKS_INFO[chainId].route
   const [, copy] = useCopyClipboard()
   const theme = useTheme()
@@ -184,7 +185,13 @@ const StatsRow: React.FC<Props> = ({
   const renderAddLiquidityButton = () => {
     if (isLegacyPool) {
       return (
-        <ButtonLight height="36px" disabled>
+        <ButtonLight
+          style={{
+            flex: '0 0 fit-content',
+          }}
+          height="36px"
+          disabled
+        >
           + <Trans>Add Liquidity</Trans>
         </ButtonLight>
       )
@@ -192,6 +199,9 @@ const StatsRow: React.FC<Props> = ({
 
     return (
       <ButtonLight
+        style={{
+          flex: '0 0 fit-content',
+        }}
         height="36px"
         as={Link}
         to={
@@ -273,6 +283,55 @@ const StatsRow: React.FC<Props> = ({
           {renderCopyButton()}
           {renderAnalyticsButton()}
           {renderToggleExpandButton()}
+        </Flex>
+      </Flex>
+    )
+  }
+
+  if (upTo1225px) {
+    return (
+      <Flex
+        flexDirection={'column'}
+        sx={{
+          gap: '8px',
+        }}
+      >
+        <Box
+          sx={{
+            flex: 1,
+            display: 'grid',
+            gridTemplateColumns: '150px repeat(4, 100px)',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Column label={t`CHAIN`} value={<ChainDisplay chainId={chainId} />} />
+
+          <Column label={t`TVL`} value={formatValue(totalValueLockedUsd)} />
+
+          <Column label={t`APR`} value={formatPercent(apr)} />
+
+          <Column label={t`VOLUME (24H)`} value={formatValue(volume24hUsd)} />
+
+          <Column label={t`FEES (24H)`} value={formatValue(fees24hUsd)} />
+        </Box>
+
+        <Flex
+          sx={{
+            alignItems: 'center',
+            gap: '12px',
+            justifyContent: 'space-between',
+          }}
+        >
+          {renderAddLiquidityButton()}
+          <Flex
+            sx={{
+              alignItems: 'center',
+              gap: '12px',
+            }}
+          >
+            {renderAnalyticsButton()}
+            {renderToggleExpandButton()}
+          </Flex>
         </Flex>
       </Flex>
     )

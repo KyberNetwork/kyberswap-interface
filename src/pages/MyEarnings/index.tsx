@@ -10,7 +10,7 @@ import FarmUpdater from 'state/farms/elastic/updaters'
 
 const PageWrapper = styled.div`
   flex: 1;
-  width: 100%;
+  width: 1610px;
   max-width: 1610px;
   height: 100%;
 
@@ -19,9 +19,19 @@ const PageWrapper = styled.div`
 
   padding: 32px 24px 100px;
 
-  ${({ theme }) => theme.mediaWidth.upToXL`
+  @media (max-width: 1609px) {
+    width: 1226px;
     max-width: 1226px;
-  `}
+  }
+
+  @media (max-width: 1225px) {
+    width: 842px;
+    max-width: 842px;
+  }
+
+  @media (max-width: 841px) {
+    width: 100%;
+  }
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     padding-left: 16px;
