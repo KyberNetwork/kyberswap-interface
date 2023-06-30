@@ -1,6 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
-import { BFF_API } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
 
 type CrossChainPayload = {
@@ -18,7 +17,7 @@ const crossChainApi = createApi({
   reducerPath: 'crossChainApi',
   tagTypes: [RTK_QUERY_TAGS.GET_CROSS_CHAIN_HISTORY, RTK_QUERY_TAGS.GET_BRIDGE_HISTORY],
   baseQuery: fetchBaseQuery({
-    baseUrl: `${BFF_API}/v1`,
+    baseUrl: `https://cross-chain-history.stg.kyberengineering.io/api/v1`,
   }),
 
   endpoints: builder => ({

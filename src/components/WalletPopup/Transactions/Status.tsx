@@ -72,7 +72,7 @@ function StatusIcon({
           break
         case TRANSACTION_TYPE.BRIDGE: {
           const { data: response } = await axios.get(
-            `https://cross-chain-history.stg.kyberengineering.io/v1/multichain-transfers/${hash}`,
+            `https://cross-chain-history.stg.kyberengineering.io/api/v1/multichain-transfers/${hash}`,
           )
           isPending = response?.data?.status === MultichainTransferStatus.Processing
           break
