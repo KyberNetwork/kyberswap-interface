@@ -2,8 +2,9 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Pool } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Eye, Info } from 'react-feather'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { ElasticPositionEarningWithDetails } from 'services/earning/types'
 import styled from 'styled-components'
@@ -12,6 +13,7 @@ import { ButtonLight } from 'components/Button'
 import useTheme from 'hooks/useTheme'
 import SinglePosition from 'pages/MyEarnings/ElasticPools/SinglePosition'
 import { useAppSelector } from 'state/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 
 const TitleWrapper = styled.div`
   display: flex;
@@ -29,6 +31,7 @@ const TitleWrapper = styled.div`
 const ListPositions = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, 360px);
+  justify-content: center;
   gap: 24px;
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
@@ -36,6 +39,12 @@ const ListPositions = styled.div`
     flex-direction: column;
     gap: 24px;
   `}
+`
+
+const Placeholder = styled.div`
+  display: flex;
+  width: 100%;
+  height: 100%;
 `
 
 type Props = {
@@ -48,7 +57,10 @@ type Props = {
 const Positions: React.FC<Props> = ({ positionEarnings, chainId, pool, pendingFees, tokenPrices }) => {
   const theme = useTheme()
   const shouldShowClosedPositions = useAppSelector(state => state.myEarnings.shouldShowClosedPositions)
-  const [numberOfVisiblePositions, setNumberOfVisiblePositions] = useState(3)
+  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+  const upToXXL = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXL}px)`)
+
+  const [numberOfVisiblePositions, setNumberOfVisiblePositions] = useState(1)
 
   const [numOfActivePositions, numOfInactivePositions, numOfClosedPositions] = useMemo(() => {
     const nClosed = positionEarnings.filter(pos => !pos.liquidity || pos.liquidity === '0').length
@@ -61,6 +73,39 @@ const Positions: React.FC<Props> = ({ positionEarnings, chainId, pool, pendingFe
 
     return [nActive, positionEarnings.length - nClosed - nActive, nClosed]
   }, [positionEarnings])
+
+  const renderPlaceholder = () => {
+    let defaultNumberOfVisiblePositions = 1
+    if (upToMedium) {
+      defaultNumberOfVisiblePositions = 3
+    }
+
+    if (upToXXL) {
+      defaultNumberOfVisiblePositions = 4
+    }
+
+    const left = numberOfVisiblePositions % defaultNumberOfVisiblePositions
+    return Array.from({ length: defaultNumberOfVisiblePositions - left }).map((_, i) => <Placeholder key={i} />)
+  }
+
+  useEffect(() => {
+    let newNumberOfVisiblePositions = 1
+    if (upToMedium) {
+      newNumberOfVisiblePositions = 3
+    }
+
+    if (upToXXL) {
+      newNumberOfVisiblePositions = 4
+    }
+
+    setNumberOfVisiblePositions(existingValue => {
+      if (existingValue < newNumberOfVisiblePositions) {
+        return newNumberOfVisiblePositions
+      }
+
+      return existingValue
+    })
+  }, [upToMedium, upToXXL])
 
   return (
     <Flex
@@ -193,6 +238,8 @@ const Positions: React.FC<Props> = ({ positionEarnings, chainId, pool, pendingFe
             tokenPrices={tokenPrices}
           />
         ))}
+
+        {renderPlaceholder()}
       </ListPositions>
 
       {numberOfVisiblePositions < positionEarnings.length && (

@@ -10,15 +10,18 @@ import FarmUpdater from 'state/farms/elastic/updaters'
 
 const PageWrapper = styled.div`
   flex: 1;
-
   width: 100%;
-  max-width: 1500px;
+  max-width: 1610px;
   height: 100%;
 
   display: flex;
   flex-direction: column;
 
   padding: 32px 24px 100px;
+
+  ${({ theme }) => theme.mediaWidth.upToXL`
+    max-width: 1226px;
+  `}
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     padding-left: 16px;
