@@ -45,7 +45,7 @@ const ActionCell: React.FC<Props> = ({ hash }) => {
     const newScanUrl = `https://scan.multichain.org/#/tx?params=${hash}`
     const oldScanUrl = `https://anyswap.net/explorer/tx?params=${hash}`
     try {
-      const { data } = await getTxsDetail(hash)
+      const { data } = await getTxsDetail(hash) // get txs detail via NEW api from Multichain
       return data?.error ? oldScanUrl : newScanUrl
     } catch (error) {
       return newScanUrl
