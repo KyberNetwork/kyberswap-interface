@@ -12,7 +12,6 @@ import {
   useLazyGetKyberswapConfigurationQuery,
 } from 'services/ksSetting'
 
-import { DEFAULT_AGGREGATOR_API } from 'constants/env'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM, isSolana } from 'constants/networks'
 import ethereumInfo from 'constants/networks/ethereum'
 import solanaInfo from 'constants/networks/solana'
@@ -65,7 +64,7 @@ const parseGlobalResponse = (
   chainId: ChainId,
 ): KyberswapGlobalConfig => {
   const data = responseData?.data?.config
-  const aggregatorDomain = data?.aggregator ?? DEFAULT_AGGREGATOR_API
+  const aggregatorDomain = 'https://aggregator-api.dev.kyberengineering.io'
   const isEnableAuthenAggregator = !data ? true : !!data?.isEnableAuthenAggregator
   return {
     aggregatorDomain,
