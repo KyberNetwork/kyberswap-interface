@@ -1596,7 +1596,7 @@ export const useGlobalMixpanelEvents = () => {
       mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECTED)
     }
     return () => {
-      if (mixpanel.hasOwnProperty('persistence')) {
+      if (account) {
         mixpanel.reset()
       }
     }
