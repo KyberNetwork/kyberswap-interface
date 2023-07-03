@@ -116,6 +116,15 @@ type Web3React = {
 
 export function useWeb3React(): Web3React {
   const { connector, chainId, account, isActive: active, provider } = useWeb3ReactCore<Web3Provider>()
+
+  useEffect(() => {
+    provider?.getNetwork().then(res => {
+      if (res.chainId !== chainId) {
+        window.location.reload()
+      }
+    })
+  }, [chainId, provider])
+
   return {
     connector,
     library: provider,
