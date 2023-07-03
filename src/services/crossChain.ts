@@ -59,6 +59,11 @@ const crossChainApi = createApi({
       }),
       invalidatesTags: [RTK_QUERY_TAGS.GET_BRIDGE_HISTORY],
     }),
+    getBridgeTransactionDetail: builder.query<{ error?: string }, string>({
+      query: (hash: string) => ({
+        url: `https://scanapi.multichain.org/v3/tx/${hash}`,
+      }),
+    }),
   }),
 })
 
@@ -67,6 +72,7 @@ export const {
   useGetListCrossChainTxsQuery,
   useGetListBridgeTxsQuery,
   useSaveBridgeTxsMutation,
+  useLazyGetBridgeTransactionDetailQuery,
 } = crossChainApi
 
 export default crossChainApi
