@@ -32,6 +32,9 @@ import { useIsWhiteListKyberAI, useUserSlippageTolerance } from 'state/user/hook
 export enum MIXPANEL_TYPE {
   PAGE_VIEWED,
   WALLET_CONNECTED,
+  WALLET_CONNECT_CLICK,
+  WALLET_CONNECT_ACCEPT_TERM_CLICK,
+  WALLET_CONNECT_WALLET_CLICK,
   SWAP_INITIATED,
   SWAP_CONFIRMED,
   SWAP_COMPLETED,
@@ -293,15 +296,39 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
 
   const mixpanelHandler = useCallback(
     (type: MIXPANEL_TYPE, payload?: any) => {
-      if (!account) {
-        return
-      }
+      // Anonymous events
       switch (type) {
         case MIXPANEL_TYPE.PAGE_VIEWED: {
           const { page } = payload
           page && mixpanel.track(page + ' Page Viewed')
           break
         }
+        case MIXPANEL_TYPE.WALLET_CONNECT_CLICK: {
+          mixpanel.track('Wallet Connect - Connect Wallet Button Click')
+          break
+        }
+        case MIXPANEL_TYPE.WALLET_CONNECT_ACCEPT_TERM_CLICK: {
+          mixpanel.track('Wallet Connect - Accept term button click')
+          break
+        }
+        case MIXPANEL_TYPE.WALLET_CONNECT_WALLET_CLICK: {
+          mixpanel.track('Wallet Connect - Wallet click', payload)
+          break
+        }
+        case MIXPANEL_TYPE.CHAIN_SWITCHED: {
+          const { old_network, new_network } = payload
+          mixpanel.track('Chain Switched', {
+            old_network,
+            new_network,
+          })
+          break
+        }
+      }
+      if (!account) {
+        return
+      }
+      // Need connect wallet events
+      switch (type) {
         case MIXPANEL_TYPE.WALLET_CONNECTED:
           mixpanel.register({ wallet_address: account, platform: isMobile ? 'Mobile' : 'Web', network })
           mixpanel.track('Wallet Connected', { source: location.pathname })
@@ -500,14 +527,6 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           mixpanel.track('Token Swap Link Shared', {
             input_token: inputSymbol,
             output_token: outputSymbol,
-          })
-          break
-        }
-        case MIXPANEL_TYPE.CHAIN_SWITCHED: {
-          const { old_network, new_network } = payload
-          mixpanel.track('Chain Switched', {
-            old_network,
-            new_network,
           })
           break
         }
@@ -1527,7 +1546,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
 }
 
 export const useGlobalMixpanelEvents = () => {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, isEVM } = useActiveWeb3React()
   const { mixpanelHandler } = useMixpanel()
   const { isWhiteList } = useIsWhiteListKyberAI()
   const oldNetwork = usePrevious(chainId)
@@ -1538,7 +1557,7 @@ export const useGlobalMixpanelEvents = () => {
   }, [location])
 
   useEffect(() => {
-    if (account && isAddress(account)) {
+    if (isEVM ? account && isAddress(account) : account) {
       mixpanel.identify(account)
 
       const getQueryParam = (url: string, param: string) => {
@@ -1618,10 +1637,11 @@ export const useGlobalMixpanelEvents = () => {
         '/kyberdao/stake-knc': 'KyberDAO Stake',
         '/kyberdao/vote': 'KyberDAO Vote',
         limit: 'Limit Order',
+        'cross-chain': 'Cross Chain',
         'notification-center': 'Notification',
+        [APP_PATHS.KYBERAI_ABOUT]: 'KyberAI About',
       }
       const protectedPaths: { [key: string]: string } = {
-        [APP_PATHS.KYBERAI_ABOUT]: 'KyberAI About',
         [APP_PATHS.KYBERAI_RANKINGS]: 'KyberAI Rankings',
         [APP_PATHS.KYBERAI_EXPLORE]: 'KyberAI Explore',
       }
