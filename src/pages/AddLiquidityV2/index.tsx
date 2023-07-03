@@ -209,6 +209,13 @@ export default function AddLiquidity() {
   const { [Bound.LOWER]: tickLower, [Bound.UPPER]: tickUpper } = ticks
   const { [Bound.LOWER]: priceLower, [Bound.UPPER]: priceUpper } = pricesAtTicks
 
+  // show this for Zohar can get tick to add farm
+  useEffect(() => {
+    console.log('-------------------')
+    console.log('tickLower: ', tickLower)
+    console.log('tickUpper: ', tickUpper)
+  }, [tickLower, tickUpper])
+
   const poolAddress = useProAmmPoolInfo(baseCurrency, currencyB, feeAmount)
 
   const { farms } = useElasticFarmsV2()
