@@ -234,9 +234,6 @@ export default function AddLiquidity() {
 
   const farmPosWarning = positions.every(Boolean) && isFarmV2Available && !canJoinFarm
 
-  // TODO(viet-nv): remove
-  console.log('Xin chào cô Đào Huyền bí: ', tickLower, tickUpper)
-
   const previousTicks: number[] | undefined = useProAmmPreviousTicks(pool, position)
   const mutiplePreviousTicks: number[][] | undefined = useProAmmMultiplePreviousTicks(pool, positions)
   const {
