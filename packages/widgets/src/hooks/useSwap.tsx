@@ -243,6 +243,7 @@ const useSwap = ({
     feeAmount,
     isInBps,
     feeReceiver,
+    balances,
   ])
 
   useEffect(() => {

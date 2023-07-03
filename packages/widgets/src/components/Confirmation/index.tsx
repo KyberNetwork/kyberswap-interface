@@ -152,6 +152,7 @@ function Confirmation({
   onClose,
   deadline,
   client,
+  onTxSubmit,
 }: {
   trade: Trade
   tokenInInfo: TokenInfo
@@ -164,6 +165,7 @@ function Confirmation({
   onClose: () => void
   deadline: number
   client: string
+  onTxSubmit?: (txHash: string, data: any) => void
 }) {
   const theme = useTheme()
 
@@ -246,6 +248,7 @@ function Confirmation({
       })
 
       setTxHash(res?.hash || '')
+      onTxSubmit?.(res?.hash || '', res)
       setAttempTx(false)
     } catch (e) {
       setAttempTx(false)

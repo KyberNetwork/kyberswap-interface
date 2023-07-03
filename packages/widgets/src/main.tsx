@@ -100,7 +100,15 @@ const App = () => {
 
   return (
     <div className="App">
-      <Widget client="viet-nv" tokenList={[]} provider={ethersProvider} defaultTokenOut={defaultTokenOut[chainId]} />
+      <Widget
+        client="viet-nv"
+        tokenList={[]}
+        provider={ethersProvider}
+        defaultTokenOut={defaultTokenOut[chainId]}
+        onTxSubmit={(hash, data) => {
+          console.log(hash, data)
+        }}
+      />
       <h1>Vite + React</h1>
       <div className="card">
         <button onClick={() => (wallet ? disconnect(wallet) : connect())}>
