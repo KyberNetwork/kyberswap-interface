@@ -163,6 +163,10 @@ export default function WalletModal() {
   const location = useLocation()
   const { mixpanelHandler } = useMixpanel()
 
+  useEffect(() => {
+    !account && walletModalOpen && mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECT_CLICK)
+  }, [mixpanelHandler, walletModalOpen, account])
+
   // close on connection, when logged out before
   useEffect(() => {
     if (account && !previousAccount && walletModalOpen) {
@@ -209,6 +213,7 @@ export default function WalletModal() {
   const [, setIsConnectingWallet] = useIsConnectingWallet()
   const handleWalletChange = useCallback(
     async (walletKey: SUPPORTED_WALLET) => {
+      mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECT_WALLET_CLICK, { wallet: walletKey })
       setPendingWalletKey(walletKey)
       setWalletView(WALLET_VIEWS.PENDING)
       setIsConnectingWallet(true)
@@ -224,7 +229,7 @@ export default function WalletModal() {
         setIsConnectingWallet(false)
       }, 1000)
     },
-    [tryActivation, setIsConnectingWallet],
+    [tryActivation, setIsConnectingWallet, mixpanelHandler],
   )
 
   function getOptions() {
@@ -306,7 +311,14 @@ export default function WalletModal() {
           </CloseIcon>
         </RowBetween>
         {(walletView === WALLET_VIEWS.ACCOUNT || walletView === WALLET_VIEWS.CHANGE_WALLET) && (
-          <TermAndCondition onClick={() => setIsAcceptedTerm(!isAcceptedTerm)}>
+          <TermAndCondition
+            onClick={() => {
+              if (!isAcceptedTerm) {
+                mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECT_ACCEPT_TERM_CLICK)
+              }
+              setIsAcceptedTerm(!isAcceptedTerm)
+            }}
+          >
             <input
               onChange={() => {
                 //

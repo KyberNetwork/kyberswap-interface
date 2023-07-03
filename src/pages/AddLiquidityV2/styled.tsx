@@ -70,7 +70,7 @@ export const ChartBody = styled.div`
 export const FlexLeft = styled(Flex)`
   flex-shrink: 0;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 
   width: calc(100vw / 26 * 9 - 64px);
   max-width: 425px;
@@ -200,3 +200,12 @@ export const Spin = ({ spinning, countdown }: { spinning: boolean; countdown?: n
     </WrappedSvg>
   )
 }
+
+export const RangeTab = styled.div<{ active: boolean }>`
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1.5;
+  border-bottom: 1px dotted ${({ theme, active }) => (!active ? theme.border : theme.primary)};
+  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
+  cursor: pointer;
+`

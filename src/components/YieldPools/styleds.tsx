@@ -96,7 +96,7 @@ export const TabContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
-  gap: 24px;
+  gap: 20px;
 
   ${({ theme }) => theme.mediaWidth.upToXL`
     flex-direction: column;
@@ -104,30 +104,25 @@ export const TabContainer = styled.div`
   `};
 `
 
+export const TabGroup = styled.div`
+  display: flex;
+  padding: 2px;
+  border-radius: 999px;
+  border: 1px solid ${({ theme }) => theme.border};
+  background: transparent;
+  align-items: center;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    width: 100%;
+    > div {
+      flex: 1
+    }
+  `};
+`
+
 export const PoolTitleContainer = styled.div`
   display: flex;
   align-items: center;
-`
-
-export const StakedOnlyToggleWrapper = styled.div`
-  display: flex;
-  align-items: center;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    width: 100%;
-    justify-content: space-between;
-  `}
-`
-
-export const StakedOnlyToggleText = styled.div`
-  font-size: 14px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.subText};
-  margin-right: 8px;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    margin-left: 4px;
-  `}
 `
 
 export const HeadingContainer = styled.div`
@@ -140,7 +135,7 @@ export const HeadingContainer = styled.div`
     width: 100%;
   `}
 
-  ${({ theme }) => theme.mediaWidth.upToLarge`
+  ${({ theme }) => theme.mediaWidth.upToMedium`
     flex-direction: column;
     align-items: flex-start;
   `}
@@ -230,6 +225,24 @@ export const ProMMFarmTableRow = styled(ProMMFarmTableHeader)<{ isOpen: boolean 
   background-color: ${({ theme, isOpen }) => (isOpen ? theme.buttonGray : theme.buttonBlack)};
   border-radius: 0;
   box-shadow: none;
+`
+
+export const ElasticFarmV2TableHeader = styled(ProMMFarmTableHeader)`
+  grid-template-columns: 1fr 1.5fr 2fr 1fr 1fr 1fr;
+  grid-template-areas: 'staked_tvl ending_in apr my_deposit reward action';
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    grid-gap: 1rem;
+  `};
+`
+
+export const ElasticFarmV2TableRow = styled(ElasticFarmV2TableHeader)`
+  background-color: transparent;
+  font-size: 14px;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  margin-top: 12px;
 `
 
 export const ClickableText = styled(Text)`
