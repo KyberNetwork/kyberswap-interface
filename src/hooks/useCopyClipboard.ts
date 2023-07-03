@@ -3,13 +3,13 @@ import { useCopyToClipboard } from 'react-use'
 
 export default function useCopyClipboard(timeout = 500): [boolean, (toCopy: string) => void] {
   const [isCopied, setIsCopied] = useState(false)
-  const [, copy] = useCopyToClipboard()
+  const [didCopy, copy] = useCopyToClipboard()
   const staticCopy = useCallback(
     (text: string) => {
       copy(text)
-      setIsCopied(Boolean(text))
+      setIsCopied(Boolean(didCopy.value))
     },
-    [copy],
+    [copy, didCopy.value],
   )
 
   useEffect(() => {
@@ -23,7 +23,7 @@ export default function useCopyClipboard(timeout = 500): [boolean, (toCopy: stri
       }
     }
     return undefined
-  }, [isCopied, timeout])
+  }, [isCopied, setIsCopied, timeout])
 
   return [isCopied, staticCopy]
 }

@@ -89,12 +89,12 @@ export const FarmList = styled.div<{ gridMode: boolean }>`
     gridMode &&
     css`
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 24px;
       background: ${({ theme }) => theme.background};
 
       ${({ theme }) => theme.mediaWidth.upToLarge`
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: 1fr 1fr;
       `};
 
       ${({ theme }) => theme.mediaWidth.upToSmall`
@@ -104,19 +104,18 @@ export const FarmList = styled.div<{ gridMode: boolean }>`
 `
 
 export const FeeTag = styled.div`
-  width: fit-content;
   border-radius: 999px;
   background: ${({ theme }) => theme.darkBlue + '33'};
   color: ${({ theme }) => theme.darkBlue};
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 500;
-  padding: 2px 6px;
+  padding: 3px 4px;
   margin-left: 6px;
   min-width: 36px;
   display: flex;
   align-items: center;
   gap: 4px;
-  height: 20px;
+  height: max-content;
 `
 
 export const NFTWrapper = styled.div`

@@ -1,6 +1,13 @@
 import { BaseMessageSignerWalletAdapter, WalletReadyState } from '@solana/wallet-adapter-base'
-import { Web3ReactHooks } from '@web3-react/core'
-import { Connector } from '@web3-react/types'
+import {
+  BraveWalletAdapter,
+  Coin98WalletAdapter,
+  CoinbaseWalletAdapter,
+  PhantomWalletAdapter,
+  SlopeWalletAdapter,
+  SolflareWalletAdapter,
+} from '@solana/wallet-adapter-wallets'
+import { AbstractConnector } from '@web3-react/abstract-connector'
 import { isMobile } from 'react-device-detect'
 
 import BRAVE from 'assets/wallets-connect/brave.svg'
@@ -12,83 +19,69 @@ import SLOPE from 'assets/wallets-connect/slope.svg'
 import SOLFLARE from 'assets/wallets-connect/solflare.svg'
 import TRUSTWALLET from 'assets/wallets-connect/trust-wallet.svg'
 import WALLETCONNECT from 'assets/wallets-connect/wallet-connect.svg'
-import INJECTED_DARK_ICON from 'assets/wallets/browser-wallet-dark.svg'
-import INJECTED_LIGHT_ICON from 'assets/wallets/browser-wallet-light.svg'
 import {
-  brave,
-  braveHooks,
-  coin98,
-  coin98Hooks,
-  coinbaseWallet,
-  coinbaseWalletHooks,
+  braveInjectedConnector,
+  coin98InjectedConnector,
   injected,
-  injectedHooks,
-  metaMask,
-  metamaskHooks,
-  trustWallet,
-  trustWalletHooks,
-  walletConnectV2,
-  walletConnectV2Hooks,
-} from 'constants/connectors/evm'
-import {
-  braveAdapter,
-  coin98Adapter,
-  coinbaseAdapter,
-  phantomAdapter,
-  slopeAdapter,
-  solflareAdapter,
-} from 'constants/connectors/solana'
-import {
-  getIsBraveWallet,
-  getIsC98Wallet,
-  getIsCoinbaseWallet,
-  getIsGenericInjector,
-  getIsMetaMaskWallet,
-  getIsTrustWallet,
-} from 'constants/connectors/utils'
+  trustWalletConnector,
+  walletconnect,
+  walletlink,
+} from 'connectors'
+import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
-const detectInjected = (): WalletReadyState => {
-  // used in mobile dapp
-  if (getIsGenericInjector()) return WalletReadyState.Installed
-  return WalletReadyState.Unsupported
-}
+import { SelectedNetwork } from './networks/solana'
+
+const braveAdapter = new BraveWalletAdapter()
+const coinbaseAdapter = new CoinbaseWalletAdapter()
+const coin98Adapter = new Coin98WalletAdapter()
+const solflareAdapter = new SolflareWalletAdapter({ network: SelectedNetwork })
+const phantomAdapter = new PhantomWalletAdapter({ network: SelectedNetwork })
+const slopeAdapter = new SlopeWalletAdapter({ network: SelectedNetwork })
 
 const detectMetamask = (): WalletReadyState => {
-  if (getIsMetaMaskWallet()) return WalletReadyState.Installed
+  if (!window.ethereum) {
+    return isMobile ? WalletReadyState.Unsupported : WalletReadyState.NotDetected
+  }
+  // In Brave browser, by default ethereum.isMetaMask and ethereum.isBraveWallet is true even Metamask not installed
+  if (window.ethereum?.isMetaMask && !window.ethereum?.isBraveWallet) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }
 
 const detectBrave = (): WalletReadyState => {
   //todo known issue: fail connect on mobile solana
-  if (getIsBraveWallet()) return WalletReadyState.Installed
+  if (checkForBraveBrowser() && window.ethereum?.isBraveWallet) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }
 
 const detectCoin98 = (): WalletReadyState => {
-  if (getIsC98Wallet()) return WalletReadyState.Installed
+  if (isMobile) return WalletReadyState.Unsupported
+  if (window.ethereum && window.coin98) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }
 
 const detectCoinbase = (): WalletReadyState => {
-  const detectCoinbase = (): WalletReadyState => {
-    if (getIsCoinbaseWallet()) return WalletReadyState.Installed
-    // in NotDetected case, Coinbase show install link itself
-    if (window.coinbaseWalletExtension && !isMobile) return WalletReadyState.Loadable
-    return WalletReadyState.NotDetected
-  }
-  const result = detectCoinbase()
-  return result
+  if (isMobile) return WalletReadyState.Unsupported
+  // in NotDetected case, Coinbase show install link itself
+  if (window.ethereum?.isCoinbaseWallet || window.ethereum?.providers?.some(p => p?.isCoinbaseWallet))
+    return WalletReadyState.Installed
+  if (window.coinbaseWalletExtension) return WalletReadyState.Loadable
+  return WalletReadyState.NotDetected
 }
 
-const detectTrustWallet = (): WalletReadyState => {
-  if (getIsTrustWallet()) return WalletReadyState.Installed
-  return WalletReadyState.NotDetected
+const detectCoinBaseLink = (): WalletReadyState => {
+  if (isMobile) return WalletReadyState.Loadable
+  return WalletReadyState.Unsupported
 }
 
 const detectPhantomWallet = (): WalletReadyState => {
   // On Brave browser disable phantom
   if (window.solana?.isPhantom && window.solana?.isBraveWallet) return WalletReadyState.NotDetected
   return phantomAdapter.readyState
+}
+const detectTrustWallet = (): WalletReadyState => {
+  if (!window.ethereum) return WalletReadyState.Unsupported
+  if (window.ethereum?.isTrustWallet) return WalletReadyState.Installed
+  return WalletReadyState.NotDetected
 }
 
 export interface WalletInfo {
@@ -100,8 +93,7 @@ export interface WalletInfo {
 }
 
 export interface EVMWalletInfo extends WalletInfo {
-  connector: Connector
-  hooks: Web3ReactHooks
+  connector: AbstractConnector
   readyState: () => WalletReadyState
 }
 
@@ -110,19 +102,9 @@ export interface SolanaWalletInfo extends WalletInfo {
   readyStateSolana: () => WalletReadyState
 }
 
-export const SUPPORTED_WALLETS = {
-  INJECTED: {
-    connector: injected,
-    hooks: injectedHooks,
-    name: 'Browser Wallet',
-    icon: INJECTED_DARK_ICON,
-    iconLight: INJECTED_LIGHT_ICON,
-    installLink: 'https://metamask.io/download',
-    readyState: detectInjected,
-  } as EVMWalletInfo,
+export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
   METAMASK: {
-    connector: metaMask,
-    hooks: metamaskHooks,
+    connector: injected,
     name: 'MetaMask',
     icon: METAMASK,
     iconLight: METAMASK,
@@ -130,8 +112,7 @@ export const SUPPORTED_WALLETS = {
     readyState: detectMetamask,
   } as EVMWalletInfo,
   BRAVE: {
-    connector: brave,
-    hooks: braveHooks,
+    connector: braveInjectedConnector,
     adapter: braveAdapter,
     name: 'Brave Wallet',
     icon: BRAVE,
@@ -142,8 +123,7 @@ export const SUPPORTED_WALLETS = {
     readyStateSolana: () => (window.solana?.isBraveWallet ? braveAdapter.readyState : WalletReadyState.NotDetected),
   } as EVMWalletInfo & SolanaWalletInfo,
   COIN98: {
-    connector: coin98,
-    hooks: coin98Hooks,
+    connector: coin98InjectedConnector,
     adapter: coin98Adapter,
     name: 'Coin98',
     icon: COIN98,
@@ -153,8 +133,7 @@ export const SUPPORTED_WALLETS = {
     readyStateSolana: () => coin98Adapter.readyState,
   } as EVMWalletInfo & SolanaWalletInfo,
   COINBASE: {
-    connector: coinbaseWallet,
-    hooks: coinbaseWalletHooks,
+    connector: walletlink,
     adapter: coinbaseAdapter,
     name: 'Coinbase',
     icon: COINBASE,
@@ -163,9 +142,16 @@ export const SUPPORTED_WALLETS = {
     readyState: detectCoinbase,
     readyStateSolana: () => (isMobile ? WalletReadyState.Unsupported : coinbaseAdapter.readyState),
   } as EVMWalletInfo & SolanaWalletInfo,
+  COINBASE_LINK: {
+    // To get this link: go to Coinbase app -> Dapp Browser -> go to dmm.exchange -> click "..." button -> share -> copy link
+    href: 'https://go.cb-w.com/S7mannYpWjb',
+    name: 'Coinbase Wallet',
+    icon: COINBASE,
+    iconLight: COINBASE,
+    readyState: detectCoinBaseLink,
+  } as EVMWalletInfo,
   WALLET_CONNECT: {
-    connector: walletConnectV2,
-    hooks: walletConnectV2Hooks,
+    connector: walletconnect,
     name: 'WalletConnect',
     icon: WALLETCONNECT,
     iconLight: WALLETCONNECT,
@@ -197,19 +183,16 @@ export const SUPPORTED_WALLETS = {
     readyStateSolana: () => (isMobile ? WalletReadyState.Unsupported : slopeAdapter.readyState),
   } as SolanaWalletInfo,
   TRUST_WALLET: {
-    connector: trustWallet,
-    hooks: trustWalletHooks,
+    connector: trustWalletConnector,
     name: 'Trust Wallet',
     icon: TRUSTWALLET,
     iconLight: TRUSTWALLET,
-    installLink: 'https://trustwallet.com/vi/deeplink',
+    installLink: 'https://trustwallet.com/vi/deeplink/',
     readyState: detectTrustWallet,
   } as EVMWalletInfo,
 } as const
 
-export const connections = Object.values(SUPPORTED_WALLETS).filter(wallet => 'connector' in wallet) as EVMWalletInfo[]
-
 export type SUPPORTED_WALLET = keyof typeof SUPPORTED_WALLETS
 
-export const LOCALSTORAGE_LAST_WALLETKEY_EVM = 'last-wallet-key-evm'
-export const LOCALSTORAGE_LAST_WALLETKEY_SOLANA = 'last-wallet-key-solana'
+export const WALLETLINK_LOCALSTORAGE_NAME = '-walletlink:https://www.walletlink.org:Addresses'
+export const LOCALSTORAGE_LAST_WALLETKEY = 'last-wallet-key'

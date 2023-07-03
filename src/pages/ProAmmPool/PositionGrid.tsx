@@ -78,7 +78,15 @@ const queryPositionLastCollectedTimes = gql`
   }
 `
 
-function PositionGrid({ positions, refe }: { positions: PositionDetails[]; refe?: React.MutableRefObject<any> }) {
+function PositionGrid({
+  positions,
+  refe,
+  activeFarmAddress,
+}: {
+  positions: PositionDetails[]
+  refe?: React.MutableRefObject<any>
+  activeFarmAddress: string[]
+}) {
   const { isEVM, networkInfo, chainId } = useActiveWeb3React()
   const multicallContract = useMulticallContract()
   const { elasticClient } = useKyberSwapConfig(chainId)
@@ -177,7 +185,15 @@ function PositionGrid({ positions, refe }: { positions: PositionDetails[]; refe?
     getPositionFee()
   }, [getPositionFee])
 
-  const itemData = createItemData(positions, liquidityTimes, farmingTimes, feeRewards, createdAts, refe)
+  const itemData = createItemData(
+    positions,
+    activeFarmAddress,
+    liquidityTimes,
+    farmingTimes,
+    feeRewards,
+    createdAts,
+    refe,
+  )
 
   const columnCount = upToSmall ? 1 : upToLarge ? 2 : 3
   return (
@@ -199,20 +215,24 @@ function PositionGrid({ positions, refe }: { positions: PositionDetails[]; refe?
 interface RowData {
   positions: PositionDetails[]
   refe?: React.MutableRefObject<any>
+  activeFarmAddress: string[]
   liquidityTimes: { [key: string]: number }
   farmingTimes: { [key: string]: number }
   feeRewards: { [key: string]: [string, string] }
   createdAts: { [key: string]: number }
 }
 
-const createItemData = memoizeOne((positions, liquidityTimes, farmingTimes, feeRewards, createdAts, refe) => ({
-  positions,
-  liquidityTimes,
-  farmingTimes,
-  feeRewards,
-  createdAts,
-  refe,
-}))
+const createItemData = memoizeOne(
+  (positions, activeFarmAddress, liquidityTimes, farmingTimes, feeRewards, createdAts, refe) => ({
+    positions,
+    activeFarmAddress,
+    liquidityTimes,
+    farmingTimes,
+    feeRewards,
+    createdAts,
+    refe,
+  }),
+)
 
 const Row = memo(
   ({
@@ -226,8 +246,7 @@ const Row = memo(
     style: CSSProperties
     data: RowData
   }) => {
-    const { positions, refe, feeRewards, liquidityTimes, farmingTimes, createdAts } = data
-
+    const { positions, refe, feeRewards, liquidityTimes, farmingTimes, createdAts, activeFarmAddress } = data
     const styles = {
       ...style,
       left: columnIndex === 0 ? style.left : Number(style.left) + columnIndex * 24,
@@ -252,6 +271,7 @@ const Row = memo(
           farmingTime={farmingTimes?.[p.tokenId.toString()]}
           createdAt={createdAts?.[p.tokenId.toString()]}
           hasUserDepositedInFarm={!!p.stakedLiquidity}
+          hasActiveFarm={activeFarmAddress.includes(p.poolId.toLowerCase())}
         />
       </div>
     )

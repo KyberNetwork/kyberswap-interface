@@ -54,14 +54,15 @@ export const ButtonIcon = styled(ButtonEmpty)`
 `
 
 export const Tab = styled.div<{ active?: boolean }>`
-  padding: 6px 12px;
-  background: ${({ theme, active }) => (active ? theme.tabActive : 'transparent')};
+  height: 36px;
+  padding: 8px 12px;
+  border: 1px solid ${({ theme, active }) => (active ? theme.primary : theme.subText)};
+  background: ${({ theme, active }) => (active ? theme.primary + '33' : 'transparent')};
   border-radius: 999px;
   cursor: pointer;
-  color: ${({ active, theme }) => (active ? theme.text : theme.subText)};
+  color: ${({ active, theme }) => (active ? theme.primary : theme.subText)};
   font-weight: 500;
   font-size: 14px;
   display: flex;
   align-items: center;
-  justify-content: center;
 `

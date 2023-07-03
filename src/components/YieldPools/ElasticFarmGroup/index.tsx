@@ -8,7 +8,6 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import { ReactComponent as QuestionSquareIcon } from 'assets/svg/question_icon_square.svg'
 import { ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
@@ -50,24 +49,11 @@ import {
   RewardDetailContainer,
 } from './styleds'
 
-const FarmContent = styled.div<{ borderBottom: boolean; borderTop: boolean }>`
+const FarmContent = styled.div`
   background: ${({ theme }) => theme.background};
   border: 1px solid ${({ theme }) => theme.border};
-  border-bottom: 1px solid ${({ theme, borderBottom }) => (borderBottom ? theme.border : 'transparent')};
-  border-top-left-radius: ${({ borderTop }) => (borderTop ? '20px' : 0)};
-  border-top-right-radius: ${({ borderTop }) => (borderTop ? '20px' : 0)};
-  border-bottom-left-radius: ${({ borderBottom }) => (borderBottom ? '20px' : 0)};
-  border-bottom-right-radius: ${({ borderBottom }) => (borderBottom ? '20px' : 0)};
+  border-radius: 20px;
   overflow: hidden;
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    padding: 1rem;
-    margin-left: -1rem;
-    margin-right: -1rem;
-    border: none;
-    padding: 0;
-    border-radius: 0;
-  `}
 `
 
 type Props = {
@@ -78,10 +64,7 @@ type Props = {
   ) => void
   pools: FarmingPool[]
   userInfo?: UserInfo
-  onShowStepGuide: () => void
   tokenPrices: { [key: string]: number }
-  borderTop: boolean
-  borderBottom: boolean
 }
 
 enum SORT_FIELD {
@@ -98,16 +81,7 @@ enum SORT_DIRECTION {
   DESC = 'desc',
 }
 
-const ProMMFarmGroup: React.FC<Props> = ({
-  address,
-  onOpenModal,
-  pools,
-  userInfo,
-  onShowStepGuide,
-  tokenPrices,
-  borderTop,
-  borderBottom,
-}) => {
+const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo, tokenPrices }) => {
   const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
   const above1000 = useMedia('(min-width: 1000px)')
@@ -357,19 +331,8 @@ const ProMMFarmGroup: React.FC<Props> = ({
   const renderFarmGroupHeader = () => {
     return (
       <Flex justifyContent="space-between" alignItems="center" padding={upToExtraSmall ? '1rem' : '1.25rem 24px'}>
-        <Text fontSize="16px" fontWeight="500" display="flex" alignItems="center" sx={{ gap: '6px' }}>
-          <Trans>Dynamic Farms</Trans>
-
-          <Text
-            color={theme.subText}
-            display="flex"
-            alignItems="center"
-            role="button"
-            sx={{ cursor: 'pointer' }}
-            onClick={onShowStepGuide}
-          >
-            <QuestionSquareIcon />
-          </Text>
+        <Text fontSize="16px" fontWeight="500" color={theme.subText}>
+          <Trans>Farming Contract</Trans>
         </Text>
 
         {!isApprovedForAll && res?.loading ? (
@@ -679,7 +642,7 @@ const ProMMFarmGroup: React.FC<Props> = ({
   }
 
   return (
-    <FarmContent data-testid="farm-block" borderTop={borderTop} borderBottom={borderBottom}>
+    <FarmContent data-testid="farm-block">
       {renderFarmGroupHeader()}
       {summaryRewardAndDepositInfo()}
 

@@ -31,6 +31,7 @@ import ListItem from './ListItem'
 import {
   ClassicFarmGridWrapper,
   ClassicFarmWrapper,
+  ClickableText,
   ExpandableWrapper,
   ListItemWrapper,
   TableHeader,
@@ -190,20 +191,20 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
               {viewMode === VIEW_MODE.LIST && above1200 && (
                 <TableHeader>
                   <Row>
-                    <Text color={theme.subText}>
-                      <Trans>POOLS | AMP</Trans>
-                    </Text>
+                    <ClickableText>
+                      <Trans>Pools | AMP</Trans>
+                    </ClickableText>
                     <InfoHelper text={AMP_HINT} />
                   </Row>
                   <Row>
-                    <Text color={theme.subText}>
-                      <Trans>STAKED TVL</Trans>
-                    </Text>
+                    <ClickableText>
+                      <Trans>Staked TVL</Trans>
+                    </ClickableText>
                   </Row>
                   <Row>
-                    <Text color={theme.subText}>
+                    <ClickableText>
                       <Trans>AVG APR</Trans>
-                    </Text>
+                    </ClickableText>
                     <InfoHelper
                       text={
                         active
@@ -213,33 +214,33 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
                     />
                   </Row>
                   <Row>
-                    <Text color={theme.subText}>
-                      <Trans>ENDING IN</Trans>
-                    </Text>
+                    <ClickableText>
+                      <Trans>Ending in</Trans>
+                    </ClickableText>
                     <InfoHelper
                       text={t`After harvesting, your rewards will unlock linearly over the indicated time period`}
                     />
                   </Row>
                   <Row>
-                    <Text color={theme.subText}>
-                      <Trans>MY DEPOSIT</Trans>
-                    </Text>
+                    <ClickableText>
+                      <Trans>My Deposit | Target Volume</Trans>
+                    </ClickableText>
                   </Row>
                   <Row justify="flex-end">
-                    <Text color={theme.subText}>
+                    <ClickableText>
                       <Trans>My Rewards</Trans>
-                    </Text>
+                    </ClickableText>
                   </Row>
                   <Row justify="flex-end">
-                    <Text color={theme.subText}>
-                      <Trans>ACTIONS</Trans>
-                    </Text>
+                    <ClickableText>
+                      <Trans>Actions</Trans>
+                    </ClickableText>
                   </Row>
                 </TableHeader>
               )}
 
               {displayFarms.map(farm => {
-                return <ListItem key={`${farm.fairLaunchAddress}_${farm.stakeToken}_${farm.pid}`} farm={farm} />
+                return <ListItem key={`${farm.fairLaunchAddress}_${farm.stakeToken}`} farm={farm} />
               })}
             </ConditionListWrapper>
           </ExpandableWrapper>

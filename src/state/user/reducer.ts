@@ -6,7 +6,6 @@ import {
   DEFAULT_DEADLINE_FROM_NOW,
   DEFAULT_SLIPPAGE,
   DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP,
-  DEFAULT_SLIPPAGE_TESTNET,
   INITIAL_ALLOWED_SLIPPAGE,
   MAX_NORMAL_SLIPPAGE_IN_BIPS,
 } from 'constants/index'
@@ -35,6 +34,7 @@ import {
   toggleTradeRoutes,
   updateAcceptedTermVersion,
   updateChainId,
+  updateIsUserManuallyDisconnect,
   updateMatchesDarkMode,
   updateTokenAnalysisSettings,
   updateUserDarkMode,
@@ -42,7 +42,6 @@ import {
   updateUserDegenMode,
   updateUserLocale,
   updateUserSlippageTolerance,
-  updateUserSlippageToleranceForLineaTestnet,
 } from './actions'
 
 const currentTimestamp = () => new Date().getTime()
@@ -73,8 +72,6 @@ interface UserState {
 
   // user defined slippage tolerance in bips, used in all txns
   userSlippageTolerance: number
-
-  userSlippageToleranceForLineaTestnet: number
 
   // deadline set by user in minutes, used in all txns
   userDeadline: number
@@ -112,6 +109,7 @@ interface UserState {
     >
   >
   readonly chainId: ChainId
+  isUserManuallyDisconnect: boolean
   acceptedTermVersion: number | null
   viewMode: VIEW_MODE
   holidayMode: boolean
@@ -164,7 +162,6 @@ export const defaultShowLiveCharts: { [chainId in ChainId]: boolean } = {
   [ChainId.BSCTESTNET]: false,
   [ChainId.AVAXTESTNET]: false,
   [ChainId.LINEA_TESTNET]: false,
-  [ChainId.SOLANA_DEVNET]: false,
 }
 
 export const CROSS_CHAIN_SETTING_DEFAULT = {
@@ -180,7 +177,6 @@ const initialState: UserState = {
   userDegenModeAutoDisableTimestamp: 0,
   userLocale: null,
   userSlippageTolerance: INITIAL_ALLOWED_SLIPPAGE,
-  userSlippageToleranceForLineaTestnet: DEFAULT_SLIPPAGE_TESTNET,
   userDeadline: DEFAULT_DEADLINE_FROM_NOW,
   tokens: {},
   pairs: {},
@@ -206,6 +202,7 @@ const initialState: UserState = {
   },
   favoriteTokensByChainId: {},
   chainId: ChainId.MAINNET,
+  isUserManuallyDisconnect: false,
   acceptedTermVersion: null,
   viewMode: VIEW_MODE.GRID,
   holidayMode: true,
@@ -268,10 +265,6 @@ export default createReducer(initialState, builder =>
     })
     .addCase(updateUserSlippageTolerance, (state, action) => {
       state.userSlippageTolerance = action.payload.userSlippageTolerance
-      state.timestamp = currentTimestamp()
-    })
-    .addCase(updateUserSlippageToleranceForLineaTestnet, (state, action) => {
-      state.userSlippageToleranceForLineaTestnet = action.payload.userSlippageTolerance
       state.timestamp = currentTimestamp()
     })
     .addCase(updateUserDeadline, (state, action) => {
@@ -351,6 +344,9 @@ export default createReducer(initialState, builder =>
     })
     .addCase(updateChainId, (state, { payload: chainId }) => {
       state.chainId = chainId
+    })
+    .addCase(updateIsUserManuallyDisconnect, (state, { payload: isUserManuallyDisconnect }) => {
+      state.isUserManuallyDisconnect = isUserManuallyDisconnect
     })
     .addCase(updateAcceptedTermVersion, (state, { payload: acceptedTermVersion }) => {
       state.acceptedTermVersion = acceptedTermVersion

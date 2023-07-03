@@ -1,12 +1,13 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { UnsupportedChainIdError } from '@web3-react/core'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import Modal from 'components/Modal'
 import { Z_INDEXS } from 'constants/styles'
-import { useActiveWeb3React } from 'hooks'
+import { useWeb3React } from 'hooks'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 import { TYPE } from 'theme'
@@ -33,7 +34,8 @@ export default function NetworkModal({
   customToggleModal?: () => void
   disabledMsg?: string
 }): JSX.Element | null {
-  const { isWrongNetwork } = useActiveWeb3React()
+  const { error } = useWeb3React()
+  const isWrongNetwork = error instanceof UnsupportedChainIdError
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
   const toggleNetworkModalGlobal = useNetworkModalToggle()
   const toggleNetworkModal = customToggleModal || toggleNetworkModalGlobal

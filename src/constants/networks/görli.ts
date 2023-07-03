@@ -36,7 +36,7 @@ const görliInfo: EVMNetworkInfo = {
   defaultRpcUrl: 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
   multicall: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
   classic: {
-    defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-classic-goerli',
+    defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-ethereum',
     static: {
       zap: EMPTY,
       router: '0x4F4994415B72FE87E01345f522D0A62A584D19b4',
@@ -47,7 +47,6 @@ const görliInfo: EVMNetworkInfo = {
     claimReward: NOT_SUPPORT,
     fairlaunch: EMPTY_ARRAY,
     fairlaunchV2: EMPTY_ARRAY,
-    fairlaunchV3: ['0xd47AbBEAE91043e4FC195b9416D4f0A24Bb52718'],
   },
   elastic: {
     defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-elastic-goerli',
@@ -59,8 +58,8 @@ const görliInfo: EVMNetworkInfo = {
     quoter: '0x032c677619f72c670e4DA64126B48d906dfa952F',
     routers: '0x45a5B8Cf524EC574b40e80274F0F3856A679C5c4',
     farms: [],
-    farmv2Quoter: '0x1e9C12303855433052A31815Dc28C146aF3e9C1F',
-    farmV2Contract: '0xdd463A7a71122D0248f3Fa1eF975202bAEe74B46',
+    farmv2Quoter: '0xa5AcF9c5A97c1c291fA73BE8D388A9cA7F4809fb',
+    farmV2Contract: '0x0D8Edeca7e4d01410B47709310aB8420B8406eEB',
   },
   limitOrder: { development: '0x43E49489dD38dbFF4Aef0d7FC34026aBEF0e1134', production: NOT_SUPPORT },
   averageBlockTimeInSeconds: 13.13,

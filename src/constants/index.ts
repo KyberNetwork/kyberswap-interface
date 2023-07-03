@@ -142,7 +142,7 @@ export const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3'
 export const KNC_COINGECKO_ID = 'kyber-network-crystal'
 
 export const ETHER_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-export const ETHER_ADDRESS_SOLANA = 'So11111111111111111111111111111111111111111'
+export const ETHER_ADDRESS_SOLANA = 'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
 
 export const KYBER_NETWORK_DISCORD_URL = 'https://discord.com/invite/NB3vc8J9uv'
 export const KYBER_NETWORK_TWITTER_URL = 'https://twitter.com/KyberNetwork'
@@ -189,10 +189,8 @@ export const EPSILON = 0.000000000008854
 export const MAX_NORMAL_SLIPPAGE_IN_BIPS = 1999
 export const MAX_DEGEN_SLIPPAGE_IN_BIPS = 5000
 export const DEFAULT_SLIPPAGES = [5, 10, 50, 100]
-
 export const DEFAULT_SLIPPAGE = 50
 export const DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP = 5
-export const DEFAULT_SLIPPAGE_TESTNET = 1000
 
 export const AGGREGATOR_WAITING_TIME = 1700 // 1700 means that we at least show '.' '..' '...' '.' '..' '...'
 
@@ -240,12 +238,6 @@ export enum FARM_TAB {
   ENDED = 'ended',
   MY_FARMS = 'my_farms',
   VESTING = 'vesting',
-}
-
-export enum ELASTIC_FARM_TYPE {
-  ALL = 'all',
-  DYNAMIC = 'dynamic',
-  STATIC = 'static',
 }
 
 export const EIP712Domain = [

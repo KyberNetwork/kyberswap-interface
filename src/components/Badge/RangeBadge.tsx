@@ -34,16 +34,12 @@ export default function RangeBadge({
     <BadgeWrapper>
       {removed ? (
         <MouseoverTooltip text={<Trans>Your position has 0 liquidity, and is not earning fees</Trans>}>
-          <Badge variant={BadgeVariant.NEGATIVE} style={{ padding: hideText ? '4px' : undefined }}>
+          <Badge variant={BadgeVariant.NEGATIVE}>
             <AlertCircle width={size} height={size} />
-            {!hideText && (
-              <>
-                &nbsp;
-                <BadgeText>
-                  <Trans>Closed</Trans>
-                </BadgeText>
-              </>
-            )}
+            &nbsp;
+            <BadgeText>
+              <Trans>Closed</Trans>
+            </BadgeText>
           </Badge>
         </MouseoverTooltip>
       ) : inRange ? (

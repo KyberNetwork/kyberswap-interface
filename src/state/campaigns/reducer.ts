@@ -5,9 +5,7 @@ import {
   CampaignLeaderboard,
   CampaignLuckyWinner,
   setCampaignData,
-  setCampaignDataByPage,
   setClaimingCampaignRewardId,
-  setLastTimeRefreshData,
   setLoadingCampaignData,
   setLoadingCampaignDataError,
   setLoadingSelectedCampaignLeaderboard,
@@ -46,13 +44,11 @@ interface CampaignsState {
     id: number | undefined
     loading: boolean
   }
-
-  readonly lastTimeRefreshData: number
 }
 
 const initialState: CampaignsState = {
   data: [],
-  loadingCampaignData: true,
+  loadingCampaignData: false,
   loadingCampaignDataError: undefined,
 
   selectedCampaign: undefined,
@@ -73,8 +69,6 @@ const initialState: CampaignsState = {
     id: undefined,
     loading: false,
   },
-
-  lastTimeRefreshData: Date.now(),
 }
 
 export default createReducer<CampaignsState>(initialState, builder =>
@@ -83,12 +77,6 @@ export default createReducer<CampaignsState>(initialState, builder =>
       return {
         ...state,
         data: campaigns,
-      }
-    })
-    .addCase(setCampaignDataByPage, (state, { payload: { campaigns, isReset } }) => {
-      return {
-        ...state,
-        data: isReset ? campaigns : state.data.concat(campaigns),
       }
     })
     .addCase(setLoadingCampaignData, (state, { payload: loading }) => {
@@ -176,12 +164,6 @@ export default createReducer<CampaignsState>(initialState, builder =>
           ...state.recaptchaCampaign,
           loading,
         },
-      }
-    })
-    .addCase(setLastTimeRefreshData, state => {
-      return {
-        ...state,
-        lastTimeRefreshData: Date.now(),
       }
     }),
 )

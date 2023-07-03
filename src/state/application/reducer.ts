@@ -19,6 +19,7 @@ import {
   setSubscribedNotificationTopic,
   updateBlockNumber,
   updateETHPrice,
+  updateKNCPrice,
   updatePrommETHPrice,
   updateServiceWorker,
 } from './actions'
@@ -45,6 +46,7 @@ interface ApplicationState {
   readonly openModal: ApplicationModal | null
   readonly ethPrice: ETHPrice
   readonly prommEthPrice: ETHPrice
+  readonly kncPrice?: string
   readonly serviceWorkerRegistration: ServiceWorkerRegistration | null
 
   readonly notification: {
@@ -91,6 +93,7 @@ const initialState: ApplicationState = {
   openModal: null,
   ethPrice: {},
   prommEthPrice: {},
+  kncPrice: '',
   serviceWorkerRegistration: null,
   notification: initialStateNotification,
   config: {},
@@ -141,7 +144,9 @@ export default createReducer(initialState, builder =>
       state.ethPrice.oneDayBackPrice = oneDayBackPrice
       state.ethPrice.pricePercentChange = pricePercentChange
     })
-
+    .addCase(updateKNCPrice, (state, { payload: kncPrice }) => {
+      state.kncPrice = kncPrice
+    })
     .addCase(updateServiceWorker, (state, { payload }) => {
       state.serviceWorkerRegistration = payload
     })

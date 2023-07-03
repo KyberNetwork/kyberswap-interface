@@ -16,13 +16,11 @@ const getTransactionExtraInfo = (farm: Farm | null, farmRewards: Reward[]): Tran
     tokenAddressOut: farm?.token1?.id,
     tokenSymbolIn: farm?.token0?.symbol,
     tokenSymbolOut: farm?.token1?.symbol,
-    rewards: farmRewards
-      .filter(rw => rw.amount.toString() !== '0')
-      .map(reward => ({
-        tokenSymbol: reward.token.symbol ?? '',
-        tokenAmount: getFullDisplayBalance(reward.amount, reward.token.decimals),
-        tokenAddress: reward.token.address,
-      })),
+    rewards: farmRewards.map(reward => ({
+      tokenSymbol: reward.token.symbol ?? '',
+      tokenAmount: getFullDisplayBalance(reward.amount, reward.token.decimals),
+      tokenAddress: reward.token.address,
+    })),
   }
 }
 

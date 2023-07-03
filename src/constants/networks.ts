@@ -20,16 +20,13 @@ import {
   oasis,
   optimism,
   solana,
-  solanaDevnet,
   velas,
   zksync,
 } from './networks/index'
 import { EVMNetworkInfo } from './networks/type'
 
-type SOLANA_NETWORK = ChainId.SOLANA | ChainId.SOLANA_DEVNET
-
 type NETWORKS_INFO_CONFIG_TYPE = { [chainId in EVM_NETWORK]: EVMNetworkInfo } & {
-  [chainId in SOLANA_NETWORK]: SolanaNetworkInfo
+  [chainId in ChainId.SOLANA]: SolanaNetworkInfo
 }
 export const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.MAINNET]: ethereum,
@@ -51,7 +48,6 @@ export const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.ZKSYNC]: zksync,
   [ChainId.LINEA_TESTNET]: lineaTestnet,
   [ChainId.SOLANA]: solana,
-  [ChainId.SOLANA_DEVNET]: solanaDevnet,
 } as const
 
 //this Proxy helps fallback undefined ChainId by Ethereum info
@@ -86,31 +82,31 @@ export const MAINNET_NETWORKS = [
 
 export const EVM_NETWORKS = SUPPORTED_NETWORKS.filter(chainId => getChainType(chainId) === ChainType.EVM) as Exclude<
   ChainId,
-  SOLANA_NETWORK
+  ChainId.SOLANA
 >[]
-
 export type EVM_NETWORK = typeof EVM_NETWORKS[number]
 
 export const EVM_MAINNET_NETWORKS = MAINNET_NETWORKS.filter(
   chainId => getChainType(chainId) === ChainType.EVM,
 ) as Exclude<typeof MAINNET_NETWORKS[number], ChainId.SOLANA>[]
 
-// These option of walletconnect is not support by wallets properly
-// E.g:
-// - Zerion ios only enable those chains which we pass to `chains` option, completely ignoring `optionalChains`
-// - Metamask android only accept [1], ignore `optionalChains`
-// - Metamask ios not live yet as 24/6/23
-// - Alpha wallet behaves like Zerion ios, but is able to edit chains list on wallet after connected.
-// - Zerion android enable some chains in `optionalChains`
-// - Rainbow wallet: ??
-// Ideally, we would have to pass {chains: [1], optionalChains: [...rest]} to walletconnect
-// But most wallets not respecting `optionalChains`, causing some inconveniences that we can only use Ethereum through Walletconnect
-// Note: this const is use for wallets connecting through walletconnect, not directly through injected method
-export const WALLET_CONNECT_REQUIRED_CHAIN_IDS = [ChainId.MAINNET]
-export const WALLET_CONNECT_SUPPORTED_CHAIN_IDS = EVM_MAINNET_NETWORKS
-export const WALLET_CONNECT_OPTIONAL_CHAIN_IDS = WALLET_CONNECT_SUPPORTED_CHAIN_IDS.filter(
-  chain => !WALLET_CONNECT_REQUIRED_CHAIN_IDS.includes(chain),
-)
+export const WALLET_CONNECT_SUPPORTED_CHAIN_IDS: ChainId[] = [
+  ChainId.MAINNET,
+  ChainId.MUMBAI,
+  ChainId.MATIC,
+  ChainId.BSCTESTNET,
+  ChainId.BSCMAINNET,
+  ChainId.AVAXTESTNET,
+  ChainId.AVAXMAINNET,
+  ChainId.FANTOM,
+  ChainId.CRONOS,
+  ChainId.BTTC,
+  ChainId.ARBITRUM,
+  ChainId.AURORA,
+  ChainId.VELAS,
+  ChainId.OASIS,
+  ChainId.OPTIMISM,
+]
 
 export function isEVM(chainId?: ChainId): chainId is EVM_NETWORK {
   if (!chainId) return false
@@ -121,10 +117,6 @@ export function isSolana(chainId?: ChainId): chainId is ChainId.SOLANA {
   if (!chainId) return false
   const chainType = getChainType(chainId)
   return chainType === ChainType.SOLANA
-}
-export function isSupportedChainId(chainId?: number): chainId is ChainId {
-  if (!chainId) return false
-  return !!(NETWORKS_INFO_CONFIG as any)[chainId]
 }
 
 export const FAUCET_NETWORKS = [ChainId.BTTC]
@@ -160,7 +152,6 @@ export const STATIC_FEE_OPTIONS: { [chainId: number]: number[] | undefined } = {
   [ChainId.CRONOS]: [8, 10, 50, 300, 500, 1000],
   [ChainId.BTTC]: [8, 10, 50, 300, 500, 1000],
   [ChainId.OPTIMISM]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.GÖRLI]: [8, 10, 50, 300, 500, 1000],
   [ChainId.ZKSYNC]: [8, 10, 50, 300, 500, 1000],
   [ChainId.LINEA_TESTNET]: [8, 10, 50, 300, 500, 1000],
 }
@@ -171,7 +162,6 @@ export const ONLY_STATIC_FEE_CHAINS = [
   ChainId.VELAS,
   ChainId.OASIS,
   ChainId.OPTIMISM,
-  ChainId.GÖRLI,
   ChainId.ZKSYNC,
   ChainId.LINEA_TESTNET,
 ]
@@ -200,6 +190,3 @@ export const CLAIM_REWARDS_DATA_URL: { [chainId: number]: string } = {
 export const DEFAULT_REWARDS: { [key: string]: string[] } = {
   [ChainId.MAINNET]: ['0x9F52c8ecbEe10e00D9faaAc5Ee9Ba0fF6550F511'],
 }
-
-// by pass invalid price impact/unable to calculate price impact/price impact too large
-export const CHAINS_BYPASS_PRICE_IMPACT = [ChainId.LINEA_TESTNET]

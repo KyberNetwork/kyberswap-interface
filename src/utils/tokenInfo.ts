@@ -59,8 +59,7 @@ export const isTokenNative = (
   currency: Currency | WrappedTokenInfo | undefined,
   chainId: ChainId | undefined,
 ): currency is NativeCurrency => {
-  if (currency?.isNative || currency?.address === ETHER_ADDRESS || currency?.address === ETHER_ADDRESS_SOLANA)
-    return true
+  if (currency?.isNative || currency?.address === ETHER_ADDRESS) return true
   // case multichain token
   return chainId
     ? WETH[chainId]?.address === currency?.address &&

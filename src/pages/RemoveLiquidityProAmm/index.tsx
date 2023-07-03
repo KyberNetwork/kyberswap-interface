@@ -36,11 +36,9 @@ import TransactionConfirmationModal, {
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
-import FarmV2ABI from 'constants/abis/v2/farmv2.json'
-import { NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useContract, useProAmmNFTPositionManagerContract, useProMMFarmContract } from 'hooks/useContract'
+import { useProAmmNFTPositionManagerContract, useProMMFarmContract } from 'hooks/useContract'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 import { useProAmmPositionsFromTokenId } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
@@ -157,13 +155,12 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const [removeLiquidityError, setRemoveLiquidityError] = useState<string>('')
 
   const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId.toNumber()]).result?.[0]
-  const isFarmV2 = (networkInfo as EVMNetworkInfo).elastic.farmV2Contract?.toLowerCase() === owner?.toLowerCase()
-
   const ownByFarm = isEVM
-    ? (networkInfo as EVMNetworkInfo).elastic.farms.flat().includes(isAddressString(chainId, owner)) || isFarmV2
+    ? (networkInfo as EVMNetworkInfo).elastic.farms.flat().includes(isAddressString(chainId, owner))
     : false
 
-  const ownsNFT = owner === account || ownByFarm
+  // TODO(viet-nv): temporary disabled
+  const ownsNFT = owner === account // || ownByFarm
 
   const navigate = useNavigate()
   const prevChainId = usePrevious(chainId)
@@ -259,10 +256,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const [txnHash, setTxnHash] = useState<string | undefined>()
   const addTransactionWithType = useTransactionAdder()
 
-  const farmV1Contract = useProMMFarmContract(owner)
-
-  const farmV2Address = (NETWORKS_INFO[chainId] as EVMNetworkInfo).elastic?.farmV2Contract
-  const farmV2Contract = useContract(farmV2Address, FarmV2ABI)
+  const farmContract = useProMMFarmContract(owner)
 
   const handleBroadcastRemoveSuccess = (response: TransactionResponse) => {
     setAttemptingTxn(false)
@@ -286,11 +280,8 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     })
     setTxnHash(response.hash)
   }
-
   const burnFromFarm = async () => {
-    const contract = isFarmV2 ? farmV2Contract : farmV1Contract
-
-    if (!contract || !liquidityValue0 || !liquidityValue1 || !deadline || !positionSDK || !liquidityPercentage) {
+    if (!farmContract || !liquidityValue0 || !liquidityValue1 || !deadline || !positionSDK || !liquidityPercentage) {
       return
     }
 
@@ -298,31 +289,28 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       const amount0Min = liquidityValue0?.subtract(liquidityValue0.multiply(basisPointsToPercent(allowedSlippage)))
       const amount1Min = liquidityValue1?.subtract(liquidityValue1.multiply(basisPointsToPercent(allowedSlippage)))
 
-      const params = isFarmV2
-        ? [
-            tokenId.toString(),
-            liquidityPercentage.multiply(positionSDK.liquidity).quotient.toString(),
-            amount0Min.quotient.toString(),
-            amount1Min.quotient.toString(),
-            deadline.toString(),
-            claimFee && feeValue0?.greaterThan('0'),
-            !receiveWETH,
-          ]
-        : [
-            tokenId.toString(),
-            liquidityPercentage.multiply(positionSDK.liquidity).quotient.toString(),
-            amount0Min.quotient.toString(),
-            amount1Min.quotient.toString(),
-            deadline.toString(),
-            !receiveWETH,
-            [claimFee && feeValue0?.greaterThan('0'), true],
-          ]
+      const gasEstimation = await farmContract.estimateGas.removeLiquidity(
+        tokenId.toString(),
+        liquidityPercentage.multiply(positionSDK.liquidity).quotient.toString(),
+        amount0Min.quotient.toString(),
+        amount1Min.quotient.toString(),
+        deadline.toString(),
+        !receiveWETH,
+        [claimFee && feeValue0?.greaterThan('0'), false],
+      )
 
-      const gasEstimation = await contract.estimateGas.removeLiquidity(...params)
-
-      const tx = await contract.removeLiquidity(...params, {
-        gasLimit: calculateGasMargin(gasEstimation),
-      })
+      const tx = await farmContract.removeLiquidity(
+        tokenId.toString(),
+        liquidityPercentage.multiply(positionSDK.liquidity).quotient.toString(),
+        amount0Min.quotient.toString(),
+        amount1Min.quotient.toString(),
+        deadline.toString(),
+        !receiveWETH,
+        [claimFee && feeValue0?.greaterThan('0'), false],
+        {
+          gasLimit: calculateGasMargin(gasEstimation),
+        },
+      )
 
       handleBroadcastRemoveSuccess(tx)
     } catch (e) {
@@ -396,7 +384,6 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       data: calldata,
       value,
     }
-
     library
       .getSigner()
       .estimateGas(txn)

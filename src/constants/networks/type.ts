@@ -65,7 +65,6 @@ export interface EVMNetworkInfo extends NetworkInfo {
     readonly claimReward: string | null
     readonly fairlaunch: string[]
     readonly fairlaunchV2: string[]
-    readonly fairlaunchV3?: string[]
   }
   readonly elastic: {
     readonly defaultSubgraph: string

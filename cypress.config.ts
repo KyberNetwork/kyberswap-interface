@@ -1,5 +1,7 @@
 import synpressPlugins from '@synthetixio/synpress/plugins'
 import { defineConfig } from 'cypress'
+import gmail from 'gmail-tester'
+import path from 'path'
 
 export default defineConfig({
   component: {
@@ -16,7 +18,18 @@ export default defineConfig({
     setupNodeEvents(on, config) {
       require('@cypress/grep/src/plugin')(config)
       synpressPlugins(on, config)
+      on('task', {
+        'gmail:get-messages': async args => {
+          const email = await gmail.get_messages(
+            path.resolve(__dirname, 'credentials.json'),
+            path.resolve(__dirname, 'token.json'),
+            args.options,
+          )
+          console.log('email: ', email)
+          return email
+        },
+      })
     },
-    specPattern: 'cypress/e2e/**/*-spec.cy.ts',
+    specPattern: 'cypress/e2e/**/signin.e2e-spec.cy.ts',
   },
 })

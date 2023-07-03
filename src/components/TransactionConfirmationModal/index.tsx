@@ -121,7 +121,6 @@ function AddTokenToInjectedWallet({ token, chainId }: { token: Token; chainId: C
 
   if (!walletKey) return null
   if (!isEVM) return null
-  if (walletKey === 'WALLET_CONNECT') return null
   const walletConfig = SUPPORTED_WALLETS[walletKey]
 
   return (
@@ -288,7 +287,7 @@ export function TransactionErrorContent({
                 color={theme.primary}
                 fontSize="14px"
                 sx={{ cursor: `pointer` }}
-                onClick={() => setShowDetail(prev => !prev)}
+                onClick={() => setShowDetail(!showDetail)}
               >
                 {showDetail ? 'Show less' : 'Show more details'}
               </Text>

@@ -136,6 +136,17 @@ export const useFarmPositions = () => {
 
   const farmingPools = useMemo(() => farms?.map(farm => farm.pools).flat() || [], [farms])
 
+  const activeFarmAddress = useMemo(() => {
+    const now = Date.now() / 1000
+    return (
+      farms
+        ?.map(farm => farm.pools)
+        .flat()
+        ?.filter(farm => farm.endTime >= now)
+        .map(farm => farm.poolAddress.toLowerCase()) || []
+    )
+  }, [farms])
+
   const farmPositions = useMemo(() => {
     if (!isEVM) return []
     return Object.values(userFarmInfo || {})
@@ -192,8 +203,9 @@ export const useFarmPositions = () => {
     return {
       farms,
       userFarmInfo,
+      activeFarmAddress,
       farmPositions,
       loading: loadingUserInfo || loading,
     }
-  }, [loading, loadingUserInfo, farmPositions, farms, userFarmInfo])
+  }, [loading, loadingUserInfo, farmPositions, activeFarmAddress, farms, userFarmInfo])
 }

@@ -5,8 +5,6 @@ import styled from 'styled-components'
 
 import Row from 'components/Row'
 import WarningNote from 'components/WarningNote'
-import { useActiveWeb3React } from 'hooks'
-import { checkAllowBypassPriceImpactRestriction } from 'utils/priceImpact'
 import { checkPriceImpact } from 'utils/prices'
 
 const TextUnderlineColor = styled(Text)`
@@ -33,11 +31,9 @@ type Props = {
 }
 
 const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact }) => {
-  const { chainId } = useActiveWeb3React()
   const priceImpactResult = checkPriceImpact(priceImpact)
-  const shouldHide = checkAllowBypassPriceImpactRestriction(chainId)
 
-  if (typeof priceImpact !== 'number' || shouldHide) {
+  if (typeof priceImpact !== 'number') {
     return null
   }
 

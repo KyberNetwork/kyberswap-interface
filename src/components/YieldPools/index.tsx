@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { BigNumber } from 'ethers'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Flex, Text } from 'rebass'
 
 import LocalLoader from 'components/LocalLoader'
@@ -23,61 +23,68 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
   // todo: fix spam rpc and remove this ref, add blockNumber into deps list
   const blockNumberRef = useRef(blockNumber)
   blockNumberRef.current = blockNumber
-  const {
-    search = '',
-    token0,
-    token1,
-    ...qs
-  } = useParsedQueryString<{ search: string; token0?: string; token1?: string }>()
+  const { search = '', ...qs } = useParsedQueryString<{ search: string }>()
   const { data: farmsByFairLaunch } = useFarmsData()
 
+  const [stakedOnly, setStakedOnly] = useState({
+    active: false,
+    ended: false,
+  })
+  const [isCheckUserStaked, setIsCheckUserStaked] = useState(false)
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>()
   useOnClickOutside(ref, open ? () => setOpen(prev => !prev) : undefined)
 
+  const activeTab = active ? 'active' : 'ended'
   const currentTimestampRef = useRef(0)
   currentTimestampRef.current = Math.floor(Date.now() / 1000)
   const debouncedSearchText = useDebounce(search.trim().toLowerCase(), 200)
 
   const filterFarm = useCallback(
     (farm: Farm) => {
-      const filterByTime = farm.rewardPerSeconds
-        ? currentTimestampRef.current &&
+      if (farm.rewardPerSeconds) {
+        // for active/ended farms
+        return (
+          currentTimestampRef.current &&
           (qs.type === FARM_TAB.MY_FARMS
             ? true
             : active
             ? farm.endTime >= currentTimestampRef.current
-            : farm.endTime < currentTimestampRef.current)
-        : blockNumberRef.current &&
+            : farm.endTime < currentTimestampRef.current) &&
+          // search farms
+          (debouncedSearchText
+            ? farm.token0?.symbol.toLowerCase().includes(debouncedSearchText) ||
+              farm.token1?.symbol.toLowerCase().includes(debouncedSearchText) ||
+              farm.id === debouncedSearchText
+            : true) &&
+          // stakedOnly
+          (stakedOnly[activeTab] || qs.type === FARM_TAB.MY_FARMS
+            ? farm.userData?.stakedBalance && BigNumber.from(farm.userData.stakedBalance).gt(0)
+            : true)
+        )
+      } else {
+        // for active/ended farms
+        return (
+          blockNumberRef.current &&
           (qs.type === FARM_TAB.MY_FARMS
             ? true
             : active
             ? farm.endBlock >= blockNumberRef.current
-            : farm.endBlock < blockNumberRef.current)
-
-      const filterBySearchText = debouncedSearchText
-        ? farm.token0?.symbol.toLowerCase().includes(debouncedSearchText) ||
-          farm.token1?.symbol.toLowerCase().includes(debouncedSearchText) ||
-          farm.id === debouncedSearchText
-        : true
-
-      const filterByStakedOnly =
-        qs.type === FARM_TAB.MY_FARMS
-          ? farm.userData?.stakedBalance && BigNumber.from(farm.userData.stakedBalance).gt(0)
-          : true
-
-      const filterByToken0 = token0
-        ? farm.token0?.id.toLowerCase() === token0.toLowerCase() ||
-          farm.token1?.id.toLowerCase() === token0.toLowerCase()
-        : true
-      const filterByToken1 = token1
-        ? farm.token0?.id.toLowerCase() === token1.toLowerCase() ||
-          farm.token1?.id.toLowerCase() === token1.toLowerCase()
-        : true
-
-      return filterByTime && filterBySearchText && filterByStakedOnly && filterByToken0 && filterByToken1
+            : farm.endBlock < blockNumberRef.current) &&
+          // search farms
+          (debouncedSearchText
+            ? farm.token0?.symbol.toLowerCase().includes(debouncedSearchText) ||
+              farm.token1?.symbol.toLowerCase().includes(debouncedSearchText) ||
+              farm.id === debouncedSearchText
+            : true) &&
+          // stakedOnly
+          (stakedOnly[activeTab] || qs.type === FARM_TAB.MY_FARMS
+            ? farm.userData?.stakedBalance && BigNumber.from(farm.userData.stakedBalance).gt(0)
+            : true)
+        )
+      }
     },
-    [active, debouncedSearchText, qs.type, token0, token1],
+    [active, activeTab, debouncedSearchText, stakedOnly, qs.type],
   )
 
   const farms = useMemo(
@@ -91,6 +98,36 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
   )
 
   const noFarms = !Object.keys(farms).length
+
+  useEffect(() => {
+    // auto enable stakedOnly if user have rewards on ended farms
+    if (!active && !stakedOnly['ended'] && !isCheckUserStaked) {
+      const staked = Object.keys(farmsByFairLaunch).filter(address => {
+        return !!farmsByFairLaunch[address].filter(farm => {
+          if (farm.rewardPerSeconds) {
+            return (
+              currentTimestampRef.current &&
+              farm.endTime < currentTimestampRef.current &&
+              farm.userData?.stakedBalance &&
+              BigNumber.from(farm.userData.stakedBalance).gt(0)
+            )
+          } else {
+            return (
+              blockNumberRef.current &&
+              farm.endBlock < blockNumberRef.current &&
+              farm.userData?.stakedBalance &&
+              BigNumber.from(farm.userData.stakedBalance).gt(0)
+            )
+          }
+        }).length
+      })
+
+      if (staked.length) {
+        setIsCheckUserStaked(true)
+        setStakedOnly(prev => ({ ...prev, ended: true }))
+      }
+    }
+  }, [active, stakedOnly, farmsByFairLaunch, isCheckUserStaked])
 
   return (
     <>
@@ -108,7 +145,11 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
           style={{ borderBottomLeftRadius: '20px', borderBottomRightRadius: '20px' }}
         >
           <Text color={theme.subText}>
-            {debouncedSearchText ? <Trans>No Farms found</Trans> : <Trans>Currently there are no Farms.</Trans>}
+            {stakedOnly[activeTab] || debouncedSearchText ? (
+              <Trans>No Farms found</Trans>
+            ) : (
+              <Trans>Currently there are no Farms.</Trans>
+            )}
           </Text>
         </Flex>
       ) : (

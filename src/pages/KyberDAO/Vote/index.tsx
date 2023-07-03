@@ -1,4 +1,6 @@
 import { Trans, t } from '@lingui/macro'
+import dayjs from 'dayjs'
+import RelativeTime from 'dayjs/plugin/relativeTime'
 import { transparentize } from 'polished'
 import { useCallback, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -29,6 +31,8 @@ import SwitchToEthereumModal, { useSwitchToEthereum } from '../StakeKNC/SwitchTo
 import KNCLogo from '../kncLogo'
 import ClaimConfirmModal from './ClaimConfirmModal'
 import ProposalListComponent from './ProposalListComponent'
+
+dayjs.extend(RelativeTime)
 
 const Wrapper = styled.div`
   width: 100%;

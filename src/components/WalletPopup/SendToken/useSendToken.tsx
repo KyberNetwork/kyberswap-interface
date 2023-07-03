@@ -74,7 +74,7 @@ export default function useSendToken(currency: Currency | undefined, recipient: 
           return
         }
         const promise = currency?.isNative
-          ? library.getSigner().estimateGas({
+          ? library.estimateGas({
               from: account,
               to: recipient,
               value: ethers.utils.parseEther(amount),

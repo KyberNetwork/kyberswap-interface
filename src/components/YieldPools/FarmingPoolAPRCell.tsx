@@ -3,7 +3,6 @@ import { Trans } from '@lingui/macro'
 import { Placement } from '@popperjs/core'
 import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
-import { Info } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 
@@ -18,26 +17,15 @@ import { useFarmApr } from 'utils/dmm'
 
 type Props = {
   poolAPR: number
-  farmV1APR?: number
-  farmV2APR?: number
   fairlaunchAddress: string
   pid: number
   tooltipPlacement?: Placement
 }
 
-export const APRTooltipContent = ({
-  poolAPR,
-  farmAPR,
-  farmV2APR = 0,
-}: {
-  poolAPR: number
-  farmAPR: number
-  farmV2APR?: number
-}) => {
+export const APRTooltipContent = ({ poolAPR, farmAPR }: { poolAPR: number; farmAPR: number }) => {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const maxFarmAPR = farmAPR > farmV2APR ? farmAPR : farmV2APR
   return (
     <Flex
       sx={{
@@ -47,23 +35,18 @@ export const APRTooltipContent = ({
         width: upToSmall ? '300px' : 'fit-content',
       }}
     >
-      {(!!farmAPR || !!farmV2APR) && (
-        <>
-          <Text as="span" fontSize={'14px'}>
-            Total APR:{' '}
-            <Text as="span" color={theme.text} fontWeight={500}>
-              {(poolAPR + maxFarmAPR).toFixed(2)}%
-            </Text>
-          </Text>
-          <Box
-            sx={{
-              width: '100%',
-              borderBottom: `1px solid ${theme.border}`,
-            }}
-          ></Box>
-        </>
-      )}
-
+      <Text as="span" fontSize={'14px'}>
+        Total APR:{' '}
+        <Text as="span" color={theme.text} fontWeight={500}>
+          {(poolAPR + farmAPR).toFixed(2)}%
+        </Text>
+      </Text>
+      <Box
+        sx={{
+          width: '100%',
+          borderBottom: `1px solid ${theme.border}`,
+        }}
+      ></Box>
       <Flex
         sx={{
           flexDirection: 'column',
@@ -88,71 +71,37 @@ export const APRTooltipContent = ({
         </Text>
       </Flex>
 
-      {!!farmAPR && (
-        <Flex
+      <Flex
+        sx={{
+          flexDirection: 'column',
+          fontSize: '12px',
+          lineHeight: '16px',
+        }}
+      >
+        <Text as="span" color={theme.warning}>
+          Farm APR:{' '}
+          <Text as="span" fontWeight={500}>
+            {farmAPR.toFixed(2)}%
+          </Text>
+        </Text>
+        <Text
+          as="span"
+          fontStyle="italic"
           sx={{
-            flexDirection: 'column',
-            fontSize: '12px',
-            lineHeight: '16px',
+            whiteSpace: upToSmall ? 'wrap' : 'nowrap',
           }}
         >
-          <Text as="span" color={theme.warning}>
-            Farm V1 APR:{' '}
-            <Text as="span" fontWeight={500}>
-              {farmAPR.toFixed(2)}%
-            </Text>
-          </Text>
-          <Text
-            as="span"
-            fontStyle="italic"
-            sx={{
-              whiteSpace: upToSmall ? 'wrap' : 'nowrap',
-            }}
-          >
-            <Trans>Estimated return from additional rewards if you also participate in the farm</Trans>
-          </Text>
-        </Flex>
-      )}
-
-      {!!farmV2APR && Number.isFinite(farmV2APR) && (
-        <Flex
-          sx={{
-            flexDirection: 'column',
-            fontSize: '12px',
-            lineHeight: '16px',
-          }}
-        >
-          <Text as="span" color={theme.warning}>
-            Farm V2 APR:{' '}
-            <Text as="span" fontWeight={500}>
-              {farmV2APR.toFixed(2)}%
-            </Text>
-          </Text>
-          <Text
-            as="span"
-            fontStyle="italic"
-            sx={{
-              whiteSpace: upToSmall ? 'wrap' : 'nowrap',
-            }}
-          >
-            <Trans>Estimated return from additional rewards if you also participate in the farm</Trans>
-          </Text>
-        </Flex>
-      )}
+          <Trans>Estimated return from additional rewards if you also participate in the farm</Trans>
+        </Text>
+      </Flex>
     </Flex>
   )
 }
 
-const FarmingPoolAPRCell: React.FC<Props> = ({
-  poolAPR,
-  farmV1APR,
-  farmV2APR = 0,
-  fairlaunchAddress,
-  pid,
-  tooltipPlacement = 'right',
-}) => {
-  const { farms } = useElasticFarms()
+const FarmingPoolAPRCell: React.FC<Props> = ({ poolAPR, fairlaunchAddress, pid, tooltipPlacement = 'right' }) => {
+  const theme = useTheme()
 
+  const { farms } = useElasticFarms()
   const pool = farms
     ?.find(farm => farm.id.toLowerCase() === fairlaunchAddress.toLowerCase())
     ?.pools.find(pool => Number(pool.pid) === Number(pid))
@@ -161,12 +110,12 @@ const FarmingPoolAPRCell: React.FC<Props> = ({
     [
       pool?.token0.wrapped.address,
       pool?.token1.wrapped.address,
-      ...(pool?.rewardTokens.map(rw => rw.wrapped.address) || []),
+      ...(pool?.rewardTokens.map(rw => rw.wrapped.address) as string[]),
     ].filter(address => !!address) as string[],
   )
 
-  let farmAPR = farmV1APR || 0
-  if (pool && !farmV1APR) {
+  let farmAPR = 0
+  if (pool) {
     const totalRewardValue = pool.totalRewards.reduce(
       (total, rw) => total + Number(rw.toExact()) * tokenPrices[rw.currency.wrapped.address],
       0,
@@ -176,8 +125,6 @@ const FarmingPoolAPRCell: React.FC<Props> = ({
     farmAPR = (365 * 100 * (totalRewardValue || 0)) / farmDuration / pool.poolTvl
   }
 
-  const maxFarmAPR = farmAPR > farmV2APR ? farmAPR : farmV2APR
-
   return (
     <Flex
       alignItems={'center'}
@@ -185,15 +132,13 @@ const FarmingPoolAPRCell: React.FC<Props> = ({
         gap: '4px',
       }}
     >
+      <Text as="span">{(poolAPR + farmAPR).toFixed(2)}%</Text>
       <MouseoverTooltip
         width="fit-content"
         placement={tooltipPlacement}
-        text={<APRTooltipContent farmAPR={farmAPR} farmV2APR={farmV2APR} poolAPR={poolAPR} />}
+        text={<APRTooltipContent farmAPR={farmAPR} poolAPR={poolAPR} />}
       >
-        <Text as="span" marginRight="4px">
-          {(poolAPR + maxFarmAPR).toFixed(2)}%
-        </Text>
-        <Info size={14} />
+        <MoneyBag size={16} color={theme.apr} />
       </MouseoverTooltip>
     </Flex>
   )

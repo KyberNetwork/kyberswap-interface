@@ -6,7 +6,7 @@ import { useConnectWalletToProfileMutation, useGetOrCreateProfileMutation } from
 import { ENV_KEY, OAUTH_CLIENT_ID } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { isAuthorized } from 'hooks/web3/useEagerConnect'
+import { useIsConnectedWallet } from 'hooks/useSyncNetworkParamWithStore'
 import { useSaveUserProfile, useSetPendingAuthentication } from 'state/authen/hooks'
 
 KyberOauth2.initialize({
@@ -21,6 +21,7 @@ KyberOauth2.initialize({
  */
 const useLogin = () => {
   const { account } = useActiveWeb3React()
+  const isConnectedWallet = useIsConnectedWallet()
   const [createProfile] = useGetOrCreateProfileMutation()
   const [connectWalletToProfile] = useConnectWalletToProfileMutation()
 
@@ -73,8 +74,8 @@ const useLogin = () => {
         if (!walletAddress) {
           throw new Error('Not found address.')
         }
-        if (requestingSession.current?.toLowerCase?.() !== walletAddress?.toLowerCase?.()) {
-          requestingSession.current = walletAddress?.toLowerCase?.()
+        if (requestingSession.current !== walletAddress) {
+          requestingSession.current = walletAddress
           setLoading(true)
           await KyberOauth2.getSession({ method: LoginMethod.ETH, walletAddress })
           await getProfile(walletAddress)
@@ -88,22 +89,19 @@ const useLogin = () => {
     [setLoading, signInAnonymous, getProfile],
   )
 
-  const latestAccount = useRef<any>('')
+  const latestAccount = useRef<string | false | null>('')
   useEffect(() => {
-    const requestSignIn = (wallet: any) => {
-      if (latestAccount.current?.toLowerCase?.() === wallet?.toLowerCase?.()) {
-        return //  not change
+    isConnectedWallet().then(wallet => {
+      if (wallet === null || latestAccount.current === wallet) {
+        return // pending or not change
       }
-      latestAccount.current = wallet?.toLowerCase?.()
-      signIn(typeof wallet === 'string' ? wallet : account)
-    }
-    if (latestAccount.current && !account) {
-      // disconnect
-      requestingSession.current = undefined
-      requestSignIn(account)
-      return
-    }
-    isAuthorized().then(wallet => requestSignIn(account || wallet))
-  }, [account, signIn])
+      if (latestAccount.current && !wallet) {
+        // disconnect
+        requestingSession.current = undefined
+      }
+      latestAccount.current = wallet
+      signIn(typeof wallet === 'string' ? wallet : undefined)
+    })
+  }, [account, signIn, isConnectedWallet])
 }
 export default useLogin

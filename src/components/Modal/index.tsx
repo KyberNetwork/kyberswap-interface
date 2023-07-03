@@ -52,7 +52,7 @@ const StyledDialogContent = styled(
     ${({ minHeight }) =>
       minHeight &&
       `
-        min-height: ${!isNaN(minHeight) ? `${minHeight}vh` : minHeight};
+        min-height: ${minHeight}vh;
       `}
     display: flex;
     ${({ borderRadius }) =>
@@ -82,7 +82,7 @@ const StyledDialogContent = styled(
 export interface ModalProps {
   isOpen: boolean
   onDismiss?: () => void
-  minHeight?: number | string | false
+  minHeight?: number | false
   maxHeight?: number | string
   maxWidth?: number | string
   borderRadius?: number | string
@@ -96,8 +96,6 @@ export interface ModalProps {
   children?: React.ReactNode
   transition?: boolean
   enableSwipeGesture?: boolean
-  bypassScrollLock?: boolean
-  bypassFocusLock?: boolean
 }
 export default function Modal({
   isOpen,
@@ -118,8 +116,6 @@ export default function Modal({
   zindex = 100,
   borderRadius = '20px',
   enableSwipeGesture = true,
-  bypassScrollLock = false,
-  bypassFocusLock = false,
 }: ModalProps) {
   const fadeTransition = useTransition(isOpen, {
     config: { duration: transition ? 200 : 0 },
@@ -144,13 +140,7 @@ export default function Modal({
       {fadeTransition(
         (style, item) =>
           item && (
-            <StyledDialogOverlay
-              zindex={zindex}
-              style={style}
-              onDismiss={onDismiss}
-              dangerouslyBypassScrollLock={bypassScrollLock}
-              dangerouslyBypassFocusLock={bypassFocusLock}
-            >
+            <StyledDialogOverlay zindex={zindex} style={style} onDismiss={onDismiss}>
               <StyledDialogContent
                 {...(isMobile && enableSwipeGesture
                   ? {

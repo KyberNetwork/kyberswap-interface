@@ -1,5 +1,5 @@
 import { Currency, Price } from '@kyberswap/ks-sdk-core'
-import React, { useCallback, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -42,7 +42,6 @@ const PriceVisualize = ({
   showTooltip,
   ticksAtLimit,
   center,
-  warning,
 }: {
   priceLower: Price<Currency, Currency>
   priceUpper: Price<Currency, Currency>
@@ -52,7 +51,6 @@ const PriceVisualize = ({
     [bound in Bound]: boolean | undefined
   }
   center?: boolean
-  warning?: boolean
 }) => {
   const theme = useTheme()
   const reverted = priceUpperProp.lessThan(priceLowerProp)
@@ -86,21 +84,15 @@ const PriceVisualize = ({
   return (
     <PriceVisualizeWrapper onMouseEnter={onFocus} onMouseLeave={onLeave} center={center}>
       <Flex width="20%" />
-      <Dot isCurrentPrice={minPrice.equalTo(price)} outOfRange={outOfRange || warning} />
+      <Dot isCurrentPrice={minPrice.equalTo(price)} outOfRange={outOfRange} />
       <Flex
         height="2px"
         width={(delta * 60).toString() + '%'}
         backgroundColor={
-          middlePrice.equalTo(priceUpper)
-            ? theme.warning
-            : middlePrice.equalTo(price)
-            ? warning
-              ? theme.warning
-              : theme.primary
-            : theme.border
+          middlePrice.equalTo(priceUpper) ? theme.warning : middlePrice.equalTo(price) ? theme.primary : theme.border
         }
       />
-      <Dot isCurrentPrice={middlePrice.equalTo(price)} outOfRange={outOfRange || warning}>
+      <Dot isCurrentPrice={middlePrice.equalTo(price)} outOfRange={outOfRange}>
         {showTooltip && (
           <Tooltip
             text={
@@ -121,19 +113,13 @@ const PriceVisualize = ({
         height="2px"
         flex={1}
         backgroundColor={
-          middlePrice.equalTo(priceLower)
-            ? theme.warning
-            : middlePrice.equalTo(price)
-            ? warning
-              ? theme.warning
-              : theme.primary
-            : theme.border
+          middlePrice.equalTo(priceLower) ? theme.warning : middlePrice.equalTo(price) ? theme.primary : theme.border
         }
       />
-      <Dot isCurrentPrice={maxPrice.equalTo(price)} outOfRange={outOfRange || warning} />
+      <Dot isCurrentPrice={maxPrice.equalTo(price)} outOfRange={outOfRange} />
       <Flex width="20%" />
     </PriceVisualizeWrapper>
   )
 }
 
-export default React.memo(PriceVisualize)
+export default PriceVisualize

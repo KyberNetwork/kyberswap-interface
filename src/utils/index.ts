@@ -398,15 +398,6 @@ export const get24hValue = (valueNow: string, value24HoursAgo: string | undefine
 }
 
 export const getTokenLogoURL = (inputAddress: string, chainId: ChainId): string => {
-  //  hardcode for testing in goerli
-  if (chainId === ChainId.GÖRLI) {
-    switch (inputAddress.toLowerCase()) {
-      case '0x1bbeeedcf32dc2c1ebc2f138e3fc7f3decd44d6a':
-        return 'https://s2.coinmarketcap.com/static/img/coins/64x64/4943.png'
-      case '0x2bf64acf7ead856209749d0d125e9ade2d908e7f':
-        return 'https://seeklogo.com/images/T/tether-usdt-logo-FA55C7F397-seeklogo.com.png'
-    }
-  }
   let address = inputAddress
   if (address === ZERO_ADDRESS) {
     address = WETH[chainId].address
@@ -454,8 +445,9 @@ export const deleteUnique = <T>(array: T[] | undefined, element: T): T[] => {
   return array
 }
 
-export const isEVMWallet = (wallet?: WalletInfo): wallet is EVMWalletInfo => !!wallet && 'connector' in wallet
-export const isSolanaWallet = (wallet?: WalletInfo): wallet is SolanaWalletInfo => !!wallet && 'adapter' in wallet
+export const isEVMWallet = (wallet: WalletInfo): wallet is EVMWalletInfo =>
+  !!(wallet as EVMWalletInfo).connector || !!(wallet as EVMWalletInfo).href
+export const isSolanaWallet = (wallet: WalletInfo): wallet is SolanaWalletInfo => !!(wallet as SolanaWalletInfo).adapter
 
 enum WALLET_KEYS {
   COIN98 = 'COIN98',

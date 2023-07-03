@@ -10,11 +10,7 @@ import { useModalOpen, useSelectCampaignModalToggle } from 'state/application/ho
 import { CampaignData } from 'state/campaigns/actions'
 import { getSlugUrlCampaign } from 'utils/campaign'
 
-const ModalSelectCampaign = (props: {
-  loadMoreCampaign: () => void
-  hasMoreCampaign: boolean
-  onSearchCampaign: (v: string) => void
-}) => {
+const ModalSelectCampaign = () => {
   const isSelectCampaignModalOpen = useModalOpen(ApplicationModal.SELECT_CAMPAIGN)
   const toggleSelectCampaignModal = useSelectCampaignModalToggle()
   const theme = useTheme()
@@ -26,12 +22,13 @@ const ModalSelectCampaign = (props: {
       toggleSelectCampaignModal()
     }, 200)
   }
+
   return (
     <Modal isOpen={isSelectCampaignModalOpen} onDismiss={toggleSelectCampaignModal} maxHeight={70} minHeight={50}>
       <div style={{ position: 'absolute', top: '24px', right: '20px' }}>
         <X color={theme.subText} size={24} onClick={toggleSelectCampaignModal} />
       </div>
-      <CampaignListAndSearch onSelectCampaign={onSelectCampaign} {...props} />
+      <CampaignListAndSearch onSelectCampaign={onSelectCampaign} />
     </Modal>
   )
 }

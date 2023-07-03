@@ -13,7 +13,7 @@ export type KyberSwapConfig = {
   blockClient: ApolloClient<NormalizedCacheObject>
   classicClient: ApolloClient<NormalizedCacheObject>
   elasticClient: ApolloClient<NormalizedCacheObject>
-  readProvider: ethers.providers.JsonRpcProvider | undefined
+  provider: ethers.providers.JsonRpcProvider | undefined
   connection: Connection | undefined
 }
 
