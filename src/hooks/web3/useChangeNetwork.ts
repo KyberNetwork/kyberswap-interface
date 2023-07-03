@@ -60,7 +60,7 @@ export function useChangeNetwork() {
       connector: Connector,
       desiredChainId: ChainId,
       error: any,
-      customFailureCallback?: (error: Error) => void,
+      customFailureCallback?: (connector: Connector, error: Error) => void,
       customTexts?: {
         name?: string
         title?: string
@@ -99,7 +99,7 @@ export function useChangeNetwork() {
         type: NotificationType.ERROR,
         summary: message,
       })
-      customFailureCallback?.(error)
+      customFailureCallback?.(connector, error)
     },
     [chainId, notify, walletEVM.walletKey],
   )
@@ -115,7 +115,7 @@ export function useChangeNetwork() {
         default?: string
       },
       customSuccessCallback?: () => void,
-      customFailureCallback?: (error: Error) => void,
+      customFailureCallback?: (connector: Connector, error: Error) => void,
       waitUtilUpdatedChainId = false,
     ) => {
       const wrappedSuccessCallback = () =>
@@ -173,7 +173,7 @@ export function useChangeNetwork() {
     async (
       desiredChainId: ChainId,
       customSuccessCallback?: () => void,
-      customFailureCallback?: (error: Error) => void,
+      customFailureCallback?: (connector: Connector, error: Error) => void,
       waitUtilUpdatedChainId = false,
     ) => {
       const wrappedSuccessCallback = () =>

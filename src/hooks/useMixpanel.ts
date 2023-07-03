@@ -143,7 +143,8 @@ export enum MIXPANEL_TYPE {
 
   // MEV Protection
   MEV_CLICK_ADD_MEV,
-  MEV_ADD_SUCCESS,
+  MEV_ADD_CLICK_MODAL,
+  MEV_ADD_RESULT,
 
   // type and swap
   TAS_TYPING_KEYWORD,
@@ -538,8 +539,12 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           mixpanel.track('MEV Protection - Click add MEV protection')
           break
         }
-        case MIXPANEL_TYPE.MEV_ADD_SUCCESS: {
-          mixpanel.track('MEV Protection - Add MEV protection success in Kyperswap page (not in wallet)', payload)
+        case MIXPANEL_TYPE.MEV_ADD_CLICK_MODAL: {
+          mixpanel.track('MEV Protection -  MEV protection type click', payload)
+          break
+        }
+        case MIXPANEL_TYPE.MEV_ADD_RESULT: {
+          mixpanel.track('MEV Protection -  Add MEV protection result', payload)
           break
         }
         case MIXPANEL_TYPE.CREATE_POOL_INITITATED: {

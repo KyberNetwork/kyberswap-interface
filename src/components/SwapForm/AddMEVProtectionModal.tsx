@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { Connector } from '@web3-react/types'
 import { darken } from 'polished'
 import { useCallback, useState } from 'react'
 import { X } from 'react-feather'
@@ -13,6 +14,7 @@ import { NotificationType } from 'components/Announcement/type'
 import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
+import { didUserReject } from 'constants/connectors/utils'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useNotify } from 'state/application/hooks'
@@ -92,6 +94,7 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
   const onAdd = useCallback(() => {
     if (!selectedOption) return
     const addingOption = selectedOption
+    mixpanelHandler(MIXPANEL_TYPE.MEV_ADD_CLICK_MODAL, { type: addingOption.name })
     addNewNetwork(
       ChainId.MAINNET,
       addingOption.rpc,
@@ -107,7 +110,12 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
           summary: t`You have successfully turned on MEV Protection Mode. All transactions on Ethereum will go through the custom RPC endpoint unless you change it`,
         })
         onClose?.()
-        mixpanelHandler(MIXPANEL_TYPE.MEV_ADD_SUCCESS, { type: addingOption.name })
+        mixpanelHandler(MIXPANEL_TYPE.MEV_ADD_RESULT, { type: addingOption.name, result: 'success' })
+      },
+      (connector: Connector, error: Error) => {
+        let reason = error?.message || 'Unknown reason'
+        if (didUserReject(connector, error)) reason = 'User rejected'
+        mixpanelHandler(MIXPANEL_TYPE.MEV_ADD_RESULT, { type: addingOption.name, result: 'fail', reason })
       },
     )
   }, [addNewNetwork, notify, onClose, selectedOption, mixpanelHandler])
