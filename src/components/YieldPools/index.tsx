@@ -16,15 +16,7 @@ import { Farm } from 'state/farms/classic/types'
 
 import ConfirmHarvestingModal from './ConfirmHarvestingModal'
 
-const YieldPools = ({
-  loading,
-  active,
-  stakedOnly,
-}: {
-  loading: boolean
-  active?: boolean
-  stakedOnly: { active: boolean; ended: boolean }
-}) => {
+const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean }) => {
   const theme = useTheme()
   const blockNumber = useBlockNumber()
   // temporary use ref for prevent re-render when block change since farm page is spamming rpc calls
@@ -43,7 +35,6 @@ const YieldPools = ({
   const ref = useRef<HTMLDivElement>()
   useOnClickOutside(ref, open ? () => setOpen(prev => !prev) : undefined)
 
-  const activeTab = active ? 'active' : 'ended'
   const currentTimestampRef = useRef(0)
   currentTimestampRef.current = Math.floor(Date.now() / 1000)
   const debouncedSearchText = useDebounce(search.trim().toLowerCase(), 200)
@@ -71,7 +62,7 @@ const YieldPools = ({
         : true
 
       const filterByStakedOnly =
-        stakedOnly[activeTab] || qs.type === FARM_TAB.MY_FARMS
+        qs.type === FARM_TAB.MY_FARMS
           ? farm.userData?.stakedBalance && BigNumber.from(farm.userData.stakedBalance).gt(0)
           : true
 
@@ -86,7 +77,7 @@ const YieldPools = ({
 
       return filterByTime && filterBySearchText && filterByStakedOnly && filterByToken0 && filterByToken1
     },
-    [active, activeTab, debouncedSearchText, stakedOnly, qs.type, token0, token1],
+    [active, debouncedSearchText, qs.type, token0, token1],
   )
 
   const farms = useMemo(
@@ -117,11 +108,7 @@ const YieldPools = ({
           style={{ borderBottomLeftRadius: '20px', borderBottomRightRadius: '20px' }}
         >
           <Text color={theme.subText}>
-            {stakedOnly[activeTab] || debouncedSearchText ? (
-              <Trans>No Farms found</Trans>
-            ) : (
-              <Trans>Currently there are no Farms.</Trans>
-            )}
+            {debouncedSearchText ? <Trans>No Farms found</Trans> : <Trans>Currently there are no Farms.</Trans>}
           </Text>
         </Flex>
       ) : (

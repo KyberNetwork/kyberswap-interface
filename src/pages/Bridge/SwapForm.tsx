@@ -114,7 +114,7 @@ type PoolValueType = {
 
 export default function SwapForm() {
   const { account, chainId } = useActiveWeb3React()
-  const { changeNetwork } = useChangeNetwork()
+  const changeNetwork = useChangeNetwork()
   const [
     {
       tokenInfoIn,

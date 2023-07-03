@@ -57,7 +57,7 @@ const ArrowWrapper = styled.div`
 export default function SwapForm() {
   const { account, chainId } = useActiveWeb3React()
   const { library } = useWeb3React()
-  const { changeNetwork } = useChangeNetwork()
+  const changeNetwork = useChangeNetwork()
   const [isDegenMode] = useDegenModeManager()
 
   const [

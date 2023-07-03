@@ -1,4 +1,5 @@
 import { Trans, t } from '@lingui/macro'
+import { BigNumber } from 'ethers'
 import { rgba } from 'polished'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -25,6 +26,8 @@ import { useFarmPositions, useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
 import { FilterRow, InstructionText, PageWrapper, PositionCardGrid, Tab } from 'pages/Pool'
 import { FarmUpdater } from 'state/farms/elastic/hooks'
+import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
+import ElasticFarmV2Updater from 'state/farms/elasticv2/updater'
 import { ExternalLink, StyledInternalLink, TYPE } from 'theme'
 import { PositionDetails } from 'types/position'
 
@@ -83,8 +86,32 @@ export default function ProAmmPool() {
   const tokenAddressSymbolMap = useRef<AddressSymbolMapInterface>({})
   const { positions, loading: positionsLoading } = useProAmmPositions(account)
 
-  const { farmPositions, loading, activeFarmAddress, userFarmInfo } = useFarmPositions()
+  const { userInfo } = useElasticFarmsV2()
 
+  const farmV2Positions = useMemo(
+    () =>
+      userInfo?.map(item => ({
+        nonce: BigNumber.from('1'),
+        tokenId: item.nftId,
+        operator: '0x0000000000000000000000000000000000000000',
+        poolId: item.poolAddress,
+        tickLower: item.position.tickLower,
+        tickUpper: item.position.tickUpper,
+        liquidity: BigNumber.from(item.position.liquidity.toString()),
+        // not used
+        feeGrowthInsideLast: BigNumber.from(0),
+        stakedLiquidity: item.stakedLiquidity,
+        // not used
+        rTokenOwed: BigNumber.from(0),
+        token0: item.position.pool.token0.wrapped.address,
+        token1: item.position.pool.token1.wrapped.address,
+        fee: item.position.pool.fee,
+        // endTime: pool?.[0]?.endTime,
+        // rewardPendings: [],
+      })) || [],
+    [userInfo],
+  )
+  const { farmPositions, loading, userFarmInfo } = useFarmPositions()
   const [openPositions, closedPositions] = useMemo(
     () =>
       positions?.reduce<[PositionDetails[], PositionDetails[]]>(
@@ -119,21 +146,24 @@ export default function ProAmmPool() {
 
   const [showClosed, setShowClosed] = useState(false)
 
-  const filteredFarmPositions = useMemo(
-    () =>
-      farmPositions.filter(pos => {
-        return (
-          debouncedSearchText.trim().length === 0 ||
-          (!!tokenAddressSymbolMap.current[pos.token0.toLowerCase()] &&
-            tokenAddressSymbolMap.current[pos.token0.toLowerCase()].includes(debouncedSearchText)) ||
-          (!!tokenAddressSymbolMap.current[pos.token1.toLowerCase()] &&
-            tokenAddressSymbolMap.current[pos.token1.toLowerCase()].includes(debouncedSearchText)) ||
-          pos.poolId.toLowerCase() === debouncedSearchText ||
-          pos.tokenId.toString() === debouncedSearchText
-        )
-      }),
-    [debouncedSearchText, farmPositions],
+  const filter = useCallback(
+    (pos: PositionDetails): boolean => {
+      return (
+        debouncedSearchText.trim().length === 0 ||
+        (!!tokenAddressSymbolMap.current[pos.token0.toLowerCase()] &&
+          tokenAddressSymbolMap.current[pos.token0.toLowerCase()].includes(debouncedSearchText)) ||
+        (!!tokenAddressSymbolMap.current[pos.token1.toLowerCase()] &&
+          tokenAddressSymbolMap.current[pos.token1.toLowerCase()].includes(debouncedSearchText)) ||
+        pos.poolId.toLowerCase() === debouncedSearchText ||
+        pos.tokenId.toString() === debouncedSearchText
+      )
+    },
+    [debouncedSearchText],
   )
+
+  const filteredFarmPositions = useMemo(() => {
+    return [...farmPositions, ...farmV2Positions].filter(filter)
+  }, [filter, farmPositions, farmV2Positions])
 
   const sortFn = useCallback(
     (a: PositionDetails, b: PositionDetails) => +a.tokenId.toString() - +b.tokenId.toString(),
@@ -288,11 +318,7 @@ export default function ProAmmPool() {
             </PositionCardGrid>
           ) : filteredPositions.length > 0 || filteredFarmPositions.length > 0 ? (
             <>
-              <PositionGrid
-                positions={positionList}
-                refe={tokenAddressSymbolMap}
-                activeFarmAddress={activeFarmAddress}
-              />
+              <PositionGrid positions={positionList} refe={tokenAddressSymbolMap} />
             </>
           ) : (
             <Flex flexDirection="column" alignItems="center" marginTop="60px">
@@ -310,6 +336,7 @@ export default function ProAmmPool() {
         </AutoColumn>
       </PageWrapper>
       <FarmUpdater />
+      <ElasticFarmV2Updater />
     </>
   )
 }
