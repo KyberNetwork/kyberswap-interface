@@ -45,8 +45,8 @@ const PositionView: React.FC<CommonProps> = props => {
 
   const isElasticLegacyPosition = useAppSelector(state => state.myEarnings.activeTab === VERSION.ELASTIC_LEGACY)
 
-  const feeReward0 = CurrencyAmount.fromRawAmount(position.pool.token0, pendingFee[0])
-  const feeReward1 = CurrencyAmount.fromRawAmount(position.pool.token1, pendingFee[1])
+  const feeReward0 = CurrencyAmount.fromRawAmount(visibleCurrency0, pendingFee[0])
+  const feeReward1 = CurrencyAmount.fromRawAmount(visibleCurrency1, pendingFee[1])
   const feeUsd =
     +feeReward0.toExact() * prices[position.pool.token0.address] +
     +feeReward1.toExact() * prices[position.pool.token1.address]
@@ -163,13 +163,13 @@ const PositionView: React.FC<CommonProps> = props => {
             text={
               <>
                 <Flex alignItems="center">
-                  <CurrencyLogo currency={position.pool.token0} size="16px" />
+                  <CurrencyLogo currency={visibleCurrency0} size="16px" />
                   <Text fontSize={12} marginLeft="4px">
                     {liquidityValue0 && <FormattedCurrencyAmount currencyAmount={liquidityValue0} />}
                   </Text>
                 </Flex>
                 <Flex alignItems="center" marginTop="8px">
-                  <CurrencyLogo currency={position.pool.token1} size="16px" />
+                  <CurrencyLogo currency={visibleCurrency1} size="16px" />
                   <Text fontSize={12} marginLeft="4px">
                     {liquidityValue1 && <FormattedCurrencyAmount currencyAmount={liquidityValue1} />}
                   </Text>

@@ -170,11 +170,12 @@ const ElasticPools = () => {
 }
 
 const PoolsByChainId = ({ pools, chainId }: { chainId: ChainId; pools: PoolType[] }) => {
+  const isLegacy = useAppSelector(state => state.myEarnings.activeTab === VERSION.ELASTIC_LEGACY)
   const allPositions = pools
     .map(p => p.positionEarnings.map(pe => ({ id: pe.id, poolAddress: pe.pool.id })).flat())
     .flat()
 
-  const pendingFees = usePositionsFees(allPositions, chainId)
+  const pendingFees = usePositionsFees(allPositions, isLegacy, chainId)
   const tokens = [...new Set(pools.map(p => p.positionEarnings.map(pe => [pe.token0, pe.token1]).flat()).flat())]
   const { data: tokenPrices } = useTokenPricesWithLoading(tokens, chainId)
 
