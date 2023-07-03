@@ -61,21 +61,29 @@ export function useChangeNetwork() {
       desiredChainId: ChainId,
       error: any,
       customFailureCallback?: (error: Error) => void,
-      customName?: string,
+      customTexts?: {
+        name?: string
+        title?: string
+        rejected?: string
+        default?: string
+      },
     ) => {
-      let message: string = t`Error when changing network.`
+      const title = customTexts?.title || t`Failed to switch network`
+      let message: string = customTexts?.default || t`Error when changing network.`
 
       if (didUserReject(connector, error)) {
-        message = t`In order to use KyberSwap on ${
-          customName || NETWORKS_INFO[desiredChainId].name
-        }, you must accept the network in your wallet.`
+        message =
+          customTexts?.rejected ||
+          t`In order to use KyberSwap on ${
+            customTexts?.name || NETWORKS_INFO[desiredChainId].name
+          }, you must accept the network in your wallet.`
       } else if (
         [
           /Cannot activate an optional chain \(\d+\), as the wallet is not connected to it\./,
           /Chain 'eip155:\d+' not approved. Please use one of the following: eip155:\d+/,
         ].some(regex => regex.test(error?.message))
       ) {
-        message = t`Your wallet not support chain ${customName || NETWORKS_INFO[desiredChainId].name}`
+        message = t`Your wallet not support chain ${NETWORKS_INFO[desiredChainId].name}`
       } else {
         message = error?.message || message
         const e = new Error(`[Wallet] ${error.message}`)
@@ -87,7 +95,7 @@ export function useChangeNetwork() {
         })
       }
       notify({
-        title: t`Failed to switch network`,
+        title,
         type: NotificationType.ERROR,
         summary: message,
       })
@@ -100,7 +108,12 @@ export function useChangeNetwork() {
     async (
       desiredChainId: ChainId,
       customRpc?: string,
-      customName?: string,
+      customTexts?: {
+        name?: string
+        title?: string
+        rejected?: string
+        default?: string
+      },
       customSuccessCallback?: () => void,
       customFailureCallback?: (error: Error) => void,
       waitUtilUpdatedChainId = false,
@@ -112,7 +125,7 @@ export function useChangeNetwork() {
       const addChainParameter = {
         chainId: '0x' + desiredChainId.toString(16),
         rpcUrls: [rpc],
-        chainName: customName || NETWORKS_INFO[desiredChainId].name,
+        chainName: customTexts?.name || NETWORKS_INFO[desiredChainId].name,
         nativeCurrency: {
           name: NETWORKS_INFO[desiredChainId].nativeToken.name,
           symbol: NETWORKS_INFO[desiredChainId].nativeToken.symbol,
@@ -131,7 +144,7 @@ export function useChangeNetwork() {
           changeNetworkHandler(desiredChainId, wrappedSuccessCallback)
         } catch (error) {
           console.error('Add new network failed', { addChainParameter, error })
-          failureCallback(connector, desiredChainId, error, customFailureCallback, customName)
+          failureCallback(connector, desiredChainId, error, customFailureCallback, customTexts)
           if (!didUserReject(connector, error)) {
             const e = new Error(`[Wallet] ${error.message}`)
             e.name = 'Add new network Error'

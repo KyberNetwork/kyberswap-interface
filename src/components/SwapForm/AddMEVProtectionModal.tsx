@@ -13,6 +13,7 @@ import { NotificationType } from 'components/Announcement/type'
 import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useNotify } from 'state/application/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
@@ -86,18 +87,30 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
   const { addNewNetwork } = useChangeNetwork()
   const selectedOption = rpcOptions.find(option => option.name === selectedRpc)
   const notify = useNotify()
+  const { mixpanelHandler } = useMixpanel()
 
   const onAdd = useCallback(() => {
     if (!selectedOption) return
-    addNewNetwork(ChainId.MAINNET, selectedOption.rpc, selectedOption.name, () => {
-      notify({
-        title: t`MEV Protection Mode is on`,
-        type: NotificationType.SUCCESS,
-        summary: t`You have successfully turned on MEV Protection Mode. All transactions on Ethereum will go through the custom RPC endpoint unless you change it`,
-      })
-      onClose?.()
-    })
-  }, [addNewNetwork, notify, onClose, selectedOption])
+    const addingOption = selectedOption
+    addNewNetwork(
+      ChainId.MAINNET,
+      addingOption.rpc,
+      {
+        name: addingOption.name,
+        title: t`Failed to switch to ${addingOption.name} RPC Endpoint`,
+        rejected: t`In order to enable MEV Protection with ${addingOption.name}, you must change the RPC endpoint in your wallet`,
+      },
+      () => {
+        notify({
+          title: t`MEV Protection Mode is on`,
+          type: NotificationType.SUCCESS,
+          summary: t`You have successfully turned on MEV Protection Mode. All transactions on Ethereum will go through the custom RPC endpoint unless you change it`,
+        })
+        onClose?.()
+        mixpanelHandler(MIXPANEL_TYPE.MEV_ADD_SUCCESS, { type: addingOption.name })
+      },
+    )
+  }, [addNewNetwork, notify, onClose, selectedOption, mixpanelHandler])
 
   return (
     <Modal isOpen={isOpen} width="fit-content" maxWidth="600px" maxHeight="80vh" onDismiss={onClose}>

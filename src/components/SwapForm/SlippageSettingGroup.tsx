@@ -10,6 +10,7 @@ import { Shield } from 'components/Icons'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 
@@ -38,8 +39,15 @@ export default function SlippageSettingGroup({
   const theme = useTheme()
   const { chainId, walletEVM } = useActiveWeb3React()
   const [showMevModal, setShowMevModal] = useState(false)
+  const { mixpanelHandler } = useMixpanel()
+
   const addMevProtectionHandler = useCallback(() => {
     setShowMevModal(true)
+    mixpanelHandler(MIXPANEL_TYPE.MEV_CLICK_ADD_MEV)
+  }, [mixpanelHandler])
+
+  const onClose = useCallback(() => {
+    setShowMevModal(false)
   }, [])
 
   const rightButton =
@@ -75,7 +83,7 @@ export default function SlippageSettingGroup({
       ) : (
         <SlippageSetting isStablePairSwap={isStablePairSwap} rightComponent={rightButton} />
       )}
-      <AddMEVProtectionModal isOpen={showMevModal} onClose={() => setShowMevModal(false)} />
+      <AddMEVProtectionModal isOpen={showMevModal} onClose={onClose} />
     </Flex>
   )
 }
