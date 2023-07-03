@@ -63,7 +63,7 @@ export const PERMITTABLE_TOKENS: {
   },
   [ChainId.ARBITRUM]: {
     // '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1': { type: PermitType.SALT, version: '1' },
-    '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8': { type: PermitType.AMOUNT, version: '1' }, //USDC
+    '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8': { type: PermitType.SALT, version: '1' }, //USDC
     '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9': { type: PermitType.AMOUNT, version: '1' }, //USDT
     '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1': { type: PermitType.AMOUNT, version: '1' }, //WETH
     '0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f': { type: PermitType.AMOUNT, version: '1' }, //WBTC
