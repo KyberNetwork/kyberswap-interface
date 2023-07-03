@@ -10,9 +10,9 @@ import {
   selectChains,
   setActiveTab,
   setAttemptingTxn,
-  setCollectFeeError,
   setSearchText,
   setShowPendingModal,
+  setTxError,
   setTxnHash,
   showEarningView,
   showPositionView,
@@ -30,7 +30,7 @@ export interface MyEarningsState {
   readonly txnHash: string
   readonly attemptingTxn: boolean
   readonly showPendingModal: boolean
-  readonly collectFeeError: string
+  readonly txError: string
 }
 
 const initialState: MyEarningsState = {
@@ -44,7 +44,7 @@ const initialState: MyEarningsState = {
   txnHash: '',
   attemptingTxn: false,
   showPendingModal: false,
-  collectFeeError: '',
+  txError: '',
 }
 
 export default createReducer(initialState, builder =>
@@ -74,8 +74,8 @@ export default createReducer(initialState, builder =>
     .addCase(setActiveTab, (state, action) => {
       state.activeTab = action.payload
     })
-    .addCase(setCollectFeeError, (state, action) => {
-      state.collectFeeError = action.payload
+    .addCase(setTxError, (state, action) => {
+      state.txError = action.payload
     })
     .addCase(setAttemptingTxn, (state, action) => {
       state.attemptingTxn = action.payload

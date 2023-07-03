@@ -1,12 +1,34 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
-import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
+import { TransactionResponse } from '@ethersproject/abstract-provider'
+import { ChainId, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-sdk-core'
+import { NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic'
+import { captureException } from '@sentry/react'
+import { BigNumber } from 'ethers'
+import JSBI from 'jsbi'
 import { useEffect, useMemo, useState } from 'react'
+import { useDispatch } from 'react-redux'
 
 import { POOLS_BULK_WITH_PAGINATION, POOLS_HISTORICAL_BULK_WITH_PAGINATION, POOL_COUNT } from 'apollo/queries'
 import { NETWORKS_INFO, ONLY_DYNAMIC_FEE_CHAINS, isEVM as isEVMChain } from 'constants/networks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { Position as SubgraphLegacyPosition, config, parsePosition } from 'hooks/useElasticLegacy'
+import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useKyberSwapConfig } from 'state/application/hooks'
+import { setAttemptingTxn, setShowPendingModal, setTxError, setTxnHash } from 'state/myEarnings/actions'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
-import { get24hValue, getBlocksFromTimestamps, getPercentChange, getTimestampsForChanges } from 'utils'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { useUserSlippageTolerance } from 'state/user/hooks'
+import {
+  basisPointsToPercent,
+  calculateGasMargin,
+  get24hValue,
+  getBlocksFromTimestamps,
+  getPercentChange,
+  getTimestampsForChanges,
+} from 'utils'
+import { ErrorName } from 'utils/sentry'
+import { unwrappedToken } from 'utils/wrappedCurrency'
 
 export type ClassicPoolData = {
   id: string
@@ -242,4 +264,114 @@ export function useAllPoolsData(chainId: ChainId): {
   ])
 
   return useMemo(() => ({ isLoading, error, data }), [data, error, isLoading])
+}
+
+export function useRemoveLiquidityFromLegacyPosition(
+  subgraphPosition: SubgraphLegacyPosition,
+  tokenPrices: Record<string, number>,
+  feeRewards: [string, string],
+) {
+  const { chainId, account } = useActiveWeb3React()
+  const { library } = useWeb3React()
+  const dispatch = useDispatch()
+  const collectFee = true
+
+  const { token0, token1, position } = parsePosition(subgraphPosition, chainId, tokenPrices)
+  const feeValue0 = CurrencyAmount.fromRawAmount(unwrappedToken(token0), feeRewards[0])
+  const feeValue1 = CurrencyAmount.fromRawAmount(unwrappedToken(token1), feeRewards[1])
+
+  const [allowedSlippage] = useUserSlippageTolerance()
+  const deadline = useTransactionDeadline()
+
+  const addTransactionWithType = useTransactionAdder()
+
+  const removeLiquidity = () => {
+    dispatch(setShowPendingModal(true))
+    dispatch(setAttemptingTxn(true))
+
+    if (!deadline || !account || !library) {
+      dispatch(setTxError('Something went wrong!'))
+      return
+    }
+    const { calldata, value } = NonfungiblePositionManager.removeCallParameters(position, {
+      tokenId: subgraphPosition.id,
+      liquidityPercentage: new Percent('100', '100'),
+      slippageTolerance: basisPointsToPercent(allowedSlippage),
+      deadline: deadline.toString(),
+      collectOptions: {
+        expectedCurrencyOwed0: collectFee
+          ? feeValue0.subtract(feeValue0.multiply(basisPointsToPercent(allowedSlippage)))
+          : CurrencyAmount.fromRawAmount(feeValue0.currency, 0),
+        expectedCurrencyOwed1: collectFee
+          ? feeValue1.subtract(feeValue1.multiply(basisPointsToPercent(allowedSlippage)))
+          : CurrencyAmount.fromRawAmount(feeValue1.currency, 0),
+        recipient: account,
+        deadline: deadline.toString(),
+        isRemovingLiquid: true,
+        havingFee: collectFee && !(feeValue0.equalTo(JSBI.BigInt('0')) && feeValue1.equalTo(JSBI.BigInt('0'))),
+      },
+    })
+
+    const txn = {
+      to: config[chainId].positionManagerContract,
+      data: calldata,
+      value,
+    }
+
+    library
+      .getSigner()
+      .estimateGas(txn)
+      .then(async (estimate: BigNumber) => {
+        const newTxn = {
+          ...txn,
+          gasLimit: calculateGasMargin(estimate),
+        }
+        return library
+          .getSigner()
+          .sendTransaction(newTxn)
+          .then((response: TransactionResponse) => {
+            const tokenAmountIn = position.amount0.toSignificant(6)
+            const tokenAmountOut = position.amount1.toSignificant(6)
+            const tokenSymbolIn = token0.symbol
+            const tokenSymbolOut = token1.symbol
+
+            addTransactionWithType({
+              hash: response.hash,
+              type: TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY,
+              extraInfo: {
+                tokenAmountIn,
+                tokenAmountOut,
+                tokenSymbolIn,
+                tokenSymbolOut,
+                tokenAddressIn: token0.wrapped.address,
+                tokenAddressOut: token1.wrapped.address,
+                contract: subgraphPosition.pool.id,
+                nftId: subgraphPosition.id,
+              },
+            })
+            dispatch(setAttemptingTxn(false))
+            dispatch(setTxnHash(response.hash))
+          })
+      })
+      .catch((error: any) => {
+        dispatch(setShowPendingModal(true))
+        dispatch(setAttemptingTxn(false))
+
+        if (error?.code !== 'ACTION_REJECTED') {
+          const e = new Error('Remove Legacy Elastic Liquidity Error', { cause: error })
+          e.name = ErrorName.RemoveElasticLiquidityError
+          captureException(e, {
+            extra: {
+              calldata,
+              value,
+              to: config[chainId].positionManagerContract,
+            },
+          })
+        }
+
+        dispatch(setTxError(error?.message || JSON.stringify(error)))
+      })
+  }
+
+  return removeLiquidity
 }

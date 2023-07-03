@@ -37,7 +37,8 @@ type ActionButtonsProps = {
   currency0: Currency
   currency1: Currency
   feeAmount: FeeAmount
-  isIncreaseDisabled: boolean
+  isLegacy: boolean
+  onRemoveLiquidityFromLegacyPosition: () => void
 }
 const ActionButtons: React.FC<ActionButtonsProps> = ({
   chainId,
@@ -46,7 +47,8 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
   currency1,
   feeAmount,
   liquidity,
-  isIncreaseDisabled,
+  isLegacy,
+  onRemoveLiquidityFromLegacyPosition,
 }) => {
   const chainRoute = NETWORKS_INFO[chainId].route
 
@@ -54,9 +56,9 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
   const currency1Slug = currency1.isNative ? currency1.symbol : currency1.wrapped.address
 
   const renderRemoveButton = () => {
-    if (!liquidity) {
+    if (!liquidity || isLegacy) {
       return (
-        <ActionButton $variant="red" disabled>
+        <ActionButton $variant="red" disabled={!liquidity} onClick={onRemoveLiquidityFromLegacyPosition}>
           <Minus size="16px" /> <Trans>Remove Liquidity</Trans>
         </ActionButton>
       )
@@ -70,7 +72,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
   }
 
   const renderIncreaseButton = () => {
-    if (!liquidity || isIncreaseDisabled) {
+    if (!liquidity || isLegacy) {
       return (
         <ActionButton $variant="green" disabled>
           <ChevronsUp size="16px" /> <Trans>Increase Liquidity</Trans>

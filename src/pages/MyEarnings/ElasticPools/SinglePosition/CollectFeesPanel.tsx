@@ -16,7 +16,7 @@ import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import HoverDropdown from 'pages/MyEarnings/HoverDropdown'
-import { setAttemptingTxn, setCollectFeeError, setShowPendingModal, setTxnHash } from 'state/myEarnings/actions'
+import { setAttemptingTxn, setShowPendingModal, setTxError, setTxnHash } from 'state/myEarnings/actions'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { updateChainId } from 'state/user/actions'
@@ -92,7 +92,7 @@ const CollectFeesPanel: React.FC<Props> = ({
   const collectFeeFromFarmContract = async () => {
     if (!farmContract || !feeValue0 || !feeValue1) {
       dispatch(setAttemptingTxn(false))
-      dispatch(setCollectFeeError('Something went wrong!'))
+      dispatch(setTxError('Something went wrong!'))
       return
     }
 
@@ -124,7 +124,7 @@ const CollectFeesPanel: React.FC<Props> = ({
     } catch (e) {
       dispatch(setShowPendingModal(true))
       dispatch(setAttemptingTxn(false))
-      dispatch(setCollectFeeError(e?.message || JSON.stringify(e)))
+      dispatch(setTxError(e?.message || JSON.stringify(e)))
     }
   }
 
@@ -135,7 +135,7 @@ const CollectFeesPanel: React.FC<Props> = ({
     if (!feeValue0 || !feeValue1 || !positionManager || !account || !library || !deadline) {
       //|| !layout || !token
       dispatch(setAttemptingTxn(false))
-      dispatch(setCollectFeeError('Something went wrong!'))
+      dispatch(setTxError('Something went wrong!'))
       return
     }
 
@@ -178,7 +178,7 @@ const CollectFeesPanel: React.FC<Props> = ({
       .catch((error: any) => {
         dispatch(setShowPendingModal(true))
         dispatch(setAttemptingTxn(false))
-        dispatch(setCollectFeeError(error?.message || JSON.stringify(error)))
+        dispatch(setTxError(error?.message || JSON.stringify(error)))
         console.error(error)
       })
   }

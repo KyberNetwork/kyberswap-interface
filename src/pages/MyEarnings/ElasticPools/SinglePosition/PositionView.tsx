@@ -1,5 +1,6 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
@@ -10,13 +11,18 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { VERSION } from 'constants/v2'
+import { useActiveWeb3React } from 'hooks'
+import { Position as SubgraphLegacyPosition } from 'hooks/useElasticLegacy'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import CollectFeesPanel from 'pages/MyEarnings/ElasticPools/SinglePosition/CollectFeesPanel'
 import CommonView, { CommonProps } from 'pages/MyEarnings/ElasticPools/SinglePosition/CommonView'
 import PriceRangeChart from 'pages/MyEarnings/ElasticPools/SinglePosition/PriceRangeChart'
 import { Column, Label, Row, Value, ValueAPR } from 'pages/MyEarnings/ElasticPools/SinglePosition/styleds'
 import HoverDropdown from 'pages/MyEarnings/HoverDropdown'
+import { useRemoveLiquidityFromLegacyPosition } from 'pages/MyEarnings/hooks'
 import { useElasticFarms } from 'state/farms/elastic/hooks'
 import { useAppSelector } from 'state/hooks'
+import { updateChainId } from 'state/user/actions'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import ActionButtons from './ActionButtons'
@@ -25,6 +31,9 @@ const defaultPendingFee = ['0', '0']
 
 const PositionView: React.FC<CommonProps> = props => {
   const { positionEarning, position, pendingFee = defaultPendingFee, tokenPrices: prices, chainId } = props
+  const { chainId: currentChainId } = useActiveWeb3React()
+  const changeNetwork = useChangeNetwork()
+  const dispatch = useDispatch()
   const isLegacyPosition = useAppSelector(state => state.myEarnings.activeTab === VERSION.ELASTIC_LEGACY)
 
   // Need these because we'll display native tokens instead of wrapped tokens
@@ -97,6 +106,41 @@ const PositionView: React.FC<CommonProps> = props => {
       <Trans>farm</Trans>
     </Link>
   )
+
+  const legacyPosition: SubgraphLegacyPosition = {
+    id: positionEarning.id,
+    owner: positionEarning.owner,
+    liquidity: positionEarning.liquidity,
+    token0: positionEarning.pool.token0,
+    token1: positionEarning.pool.token1,
+    tickLower: {
+      tickIdx: positionEarning.tickLower,
+    },
+    tickUpper: {
+      tickIdx: positionEarning.tickUpper,
+    },
+    pool: {
+      id: positionEarning.pool.id,
+      feeTier: positionEarning.pool.feeTier,
+      sqrtPrice: positionEarning.pool.sqrtPrice,
+      liquidity: positionEarning.pool.liquidity,
+      reinvestL: positionEarning.pool.reinvestL,
+      tick: positionEarning.pool.tick,
+    },
+  }
+
+  const removeLiquidity = useRemoveLiquidityFromLegacyPosition(legacyPosition, prices, pendingFee as [string, string])
+
+  const onRemoveLiquidityFromLegacyPosition = async () => {
+    if (currentChainId !== chainId) {
+      changeNetwork(chainId, () => {
+        dispatch(updateChainId(chainId))
+        removeLiquidity()
+      })
+    } else {
+      removeLiquidity()
+    }
+  }
 
   return (
     <CommonView isEarningView={false} {...props}>
@@ -208,7 +252,8 @@ const PositionView: React.FC<CommonProps> = props => {
           currency1={visibleCurrency1}
           feeAmount={position.pool.fee}
           liquidity={Number(position.liquidity || '0')}
-          isIncreaseDisabled={isLegacyPosition}
+          isLegacy={isLegacyPosition}
+          onRemoveLiquidityFromLegacyPosition={onRemoveLiquidityFromLegacyPosition}
         />
       </Flex>
     </CommonView>

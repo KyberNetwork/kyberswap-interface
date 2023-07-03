@@ -4,7 +4,7 @@ import { Flex } from 'rebass'
 
 import BaseTransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useAppSelector } from 'state/hooks'
-import { setAttemptingTxn, setCollectFeeError, setShowPendingModal, setTxnHash } from 'state/myEarnings/actions'
+import { setAttemptingTxn, setShowPendingModal, setTxError, setTxnHash } from 'state/myEarnings/actions'
 
 const TransactionConfirmationModal = () => {
   const dispatch = useDispatch()
@@ -12,13 +12,13 @@ const TransactionConfirmationModal = () => {
   const showPendingModal = useAppSelector(state => state.myEarnings.showPendingModal)
   const txnHash = useAppSelector(state => state.myEarnings.txnHash)
   const attemptingTxn = useAppSelector(state => state.myEarnings.attemptingTxn)
-  const collectFeeError = useAppSelector(state => state.myEarnings.collectFeeError)
+  const collectFeeError = useAppSelector(state => state.myEarnings.txError)
 
   const handleDismiss = useCallback(() => {
     dispatch(setShowPendingModal(false))
     dispatch(setTxnHash(''))
     dispatch(setAttemptingTxn(false))
-    dispatch(setCollectFeeError(''))
+    dispatch(setTxError(''))
   }, [dispatch])
 
   useEffect(() => {
