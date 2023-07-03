@@ -9,7 +9,6 @@ import { Flex, Text } from 'rebass'
 
 import { ButtonPrimary } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
-import { formatUSDValue } from 'components/EarningAreaChart/utils'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerContract, useProMMFarmContract } from 'hooks/useContract'
@@ -22,7 +21,8 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { updateChainId } from 'state/user/actions'
 import { useUserSlippageTolerance } from 'state/user/hooks'
-import { basisPointsToPercent, calculateGasMargin, formattedNumLong } from 'utils'
+import { basisPointsToPercent, calculateGasMargin } from 'utils'
+import { formatDollarAmount } from 'utils/numbers'
 
 type Props = {
   nftId: string
@@ -233,7 +233,7 @@ const CollectFeesPanel: React.FC<Props> = ({
         <HoverDropdown
           anchor={
             <Text as="span" fontSize="16px" fontWeight={500} lineHeight={'20px'}>
-              {formatUSDValue(feeUsd, true)}
+              {formatDollarAmount(feeUsd)}
             </Text>
           }
           disabled={hasNoFeeToCollect}
@@ -249,7 +249,7 @@ const CollectFeesPanel: React.FC<Props> = ({
                 >
                   <CurrencyLogo currency={fee.currency} size="14px" />
                   <Text fontSize={12}>
-                    {formattedNumLong(+fee.toExact(), false)} {fee.currency.symbol}
+                    {+fee.toSignificant(8)} {fee.currency.symbol}
                   </Text>
                 </Flex>
               ))}
