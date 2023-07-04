@@ -31,6 +31,10 @@ const Wrapper = styled.div.attrs<WrapperProps>(({ $columns }) => ({
 
 const formatValue = (v: string | number) => {
   const num = Number(v)
+  if (num === 0) {
+    return '$0'
+  }
+
   if (num < 0.01) {
     return '< $0.01'
   }
