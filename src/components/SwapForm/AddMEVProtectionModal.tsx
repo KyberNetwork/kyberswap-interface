@@ -133,7 +133,7 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
           <Text fontSize={12} lineHeight="16px">
             <Trans>
               We suggest using the{' '}
-              <ExternalLink href="https://docs.kyberswap.com/getting-started/quickstart/faq#how-to-change-rpc-in-metamask">
+              <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-technologies/rpc">
                 RPC endpoint
               </ExternalLink>{' '}
               of trusted third-parties like{' '}
