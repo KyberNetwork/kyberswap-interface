@@ -1,19 +1,20 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { stringify } from 'querystring'
-import { useNavigate } from 'react-router-dom'
+import { useCallback, useState } from 'react'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import { Clock } from 'components/Icons'
+import { Shield } from 'components/Icons'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
-import { APP_PATHS } from 'constants/index'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
-import { useInputCurrency, useOutputCurrency, useSwapState } from 'state/swap/hooks'
-import { currencyId } from 'utils/currencyId'
+import { ExternalLink, MEDIA_WIDTHS } from 'theme'
+
+import AddMEVProtectionModal from './AddMEVProtectionModal'
 
 const PriceAlertButton = styled.div`
   background: ${({ theme }) => rgba(theme.subText, 0.2)};
@@ -34,35 +35,55 @@ export default function SlippageSettingGroup({
   isStablePairSwap: boolean
   isWrapOrUnwrap: boolean
 }) {
+  const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const theme = useTheme()
-  const navigate = useNavigate()
-  const currencyIn = useInputCurrency()
-  const currencyOut = useOutputCurrency()
-  const { typedValue } = useSwapState()
-  const { chainId } = useActiveWeb3React()
+  const { chainId, walletEVM } = useActiveWeb3React()
+  const [showMevModal, setShowMevModal] = useState(false)
+  const { mixpanelHandler } = useMixpanel()
 
-  const priceAlert = chainId !== ChainId.LINEA_TESTNET && (
-    <PriceAlertButton
-      onClick={() =>
-        navigate(
-          `${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.CREATE_ALERT}?${stringify({
-            amount: typedValue || undefined,
-            inputCurrency: currencyId(currencyIn, chainId),
-            outputCurrency: currencyId(currencyOut, chainId),
-          })}`,
-        )
-      }
-    >
-      <Clock size={14} color={theme.subText} />
-      <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>
-        <Trans>Price Alert</Trans>
-      </Text>
-    </PriceAlertButton>
-  )
+  const addMevProtectionHandler = useCallback(() => {
+    setShowMevModal(true)
+    mixpanelHandler(MIXPANEL_TYPE.MEV_CLICK_ADD_MEV)
+  }, [mixpanelHandler])
+
+  const onClose = useCallback(() => {
+    setShowMevModal(false)
+  }, [])
+
+  const rightButton =
+    chainId === ChainId.MAINNET && walletEVM.isConnected ? (
+      <MouseoverTooltip
+        text={
+          <Trans>
+            MEV Protection will protect you from front-running and sandwich attacks on Ethereum. Learn more{' '}
+            <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/maximal-extractable-value-mev">
+              here ↗
+            </ExternalLink>
+          </Trans>
+        }
+      >
+        <PriceAlertButton onClick={addMevProtectionHandler}>
+          <Shield size={14} color={theme.subText} />
+          {upToXXSmall ? null : (
+            <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>
+              <Trans>Add MEV Protection</Trans>
+            </Text>
+          )}
+        </PriceAlertButton>
+      </MouseoverTooltip>
+    ) : null
+
   return (
     <Flex alignItems="flex-start" fontSize={12} color={theme.subText} justifyContent="space-between">
-      {isWrapOrUnwrap ? <div /> : <SlippageSetting isStablePairSwap={isStablePairSwap} rightComponent={priceAlert} />}
-      {isWrapOrUnwrap && priceAlert}
+      {isWrapOrUnwrap ? (
+        <>
+          <div />
+          {rightButton}
+        </>
+      ) : (
+        <SlippageSetting isStablePairSwap={isStablePairSwap} rightComponent={rightButton} />
+      )}
+      <AddMEVProtectionModal isOpen={showMevModal} onClose={onClose} />
     </Flex>
   )
 }

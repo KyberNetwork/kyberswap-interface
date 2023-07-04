@@ -50,7 +50,7 @@ export default function CampaignButtonWithOptions({
 }) {
   const theme = useTheme()
   const [isShowNetworks, setIsShowNetworks] = useState(false)
-  const changeNetwork = useChangeNetwork()
+  const { changeNetwork } = useChangeNetwork()
   const containerRef = useRef<HTMLButtonElement>(null)
   useOnClickOutside(containerRef, () => setIsShowNetworks(false))
   const { mixpanelHandler } = useMixpanel()

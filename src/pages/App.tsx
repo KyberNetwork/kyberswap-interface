@@ -168,7 +168,7 @@ const RoutesWithNetworkPrefix = () => {
 
   const chainInfoFromParam = Object.values(NETWORKS_INFO_CONFIG).find(info => info.route === network)
   if (!chainInfoFromParam) {
-    return <Navigate to={location.pathname.replace(network, networkInfo.route)} replace />
+    return <Navigate to={'/'} replace />
   }
 
   return (
