@@ -1,5 +1,6 @@
 import { t } from '@lingui/macro'
 import { rgba } from 'polished'
+import { useCallback, useEffect, useRef } from 'react'
 import { useDispatch } from 'react-redux'
 import { Button, Flex } from 'rebass'
 import earningApi, { useLazyGetElasticEarningQuery, useLazyGetElasticLegacyEarningQuery } from 'services/earning'
@@ -55,10 +56,11 @@ const RefreshButton = () => {
   const selectedChainIds = useAppSelector(state => state.myEarnings.selectedChains)
   const [elasticTrigger, elasticData] = useLazyGetElasticEarningQuery()
   const [elasticLegacyTrigger, elasticLegacyData] = useLazyGetElasticLegacyEarningQuery()
+  // const [classicTrigger, classicData] = useLazyGetClassicEarningQuery()
 
   const isFetching = elasticData.isFetching || elasticLegacyData.isFetching
 
-  const handleClick = () => {
+  const refetch = useCallback(() => {
     if (isFetching || !account) {
       return
     }
@@ -66,7 +68,19 @@ const RefreshButton = () => {
     dispatch(earningApi.util.resetApiState())
     elasticTrigger({ account, chainIds: selectedChainIds })
     elasticLegacyTrigger({ account, chainIds: selectedChainIds })
-  }
+    // classicTrigger({ account, chainIds: selectedChainIds })
+
+    setTimeout(refetch, 300_000)
+  }, [account, dispatch, elasticLegacyTrigger, elasticTrigger, isFetching, selectedChainIds])
+
+  const refetchRef = useRef(refetch)
+  refetchRef.current = refetch
+
+  useEffect(() => {
+    setTimeout(() => {
+      refetchRef.current()
+    }, 300_000)
+  }, [])
 
   return (
     <Button
@@ -84,7 +98,7 @@ const RefreshButton = () => {
         cursor: 'pointer',
       }}
       disabled={isFetching}
-      onClick={handleClick}
+      onClick={refetch}
     >
       <RefreshIcon width="17px" height="17px" />
     </Button>
