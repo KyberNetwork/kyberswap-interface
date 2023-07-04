@@ -3,21 +3,15 @@ import { ChevronUp } from 'react-feather'
 import { useDispatch } from 'react-redux'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonOutlined } from 'components/Button'
 import SubscribeNotificationButton from 'components/SubscribeButton'
 import useTheme from 'hooks/useTheme'
 import ClosedPositionsToggle from 'pages/MyEarnings/PoolFilteringBar/ClosedPositionsToggle'
 import SearchInput from 'pages/MyEarnings/PoolFilteringBar/SearchInput'
-import ViewEarningOrPositionButton from 'pages/MyEarnings/PoolFilteringBar/ViewEarningOrPositionButton'
 import { useAppSelector } from 'state/hooks'
 import { collapseAllPools, expandAllPools } from 'state/myEarnings/actions'
 import { MEDIA_WIDTHS } from 'theme'
-
-const ViewEarningOrPositionButtonForSmallScreens = styled(ViewEarningOrPositionButton)`
-  flex: 1 1 100%;
-`
 
 const ExpandCollapseAll: React.FC<{ iconOnly?: boolean }> = ({ iconOnly = false }) => {
   const dispatch = useDispatch()
@@ -136,14 +130,17 @@ const PoolFilteringBar = () => {
           }}
         >
           <ExpandCollapseAll iconOnly />
-          <ViewEarningOrPositionButtonForSmallScreens />
-        </Flex>
 
-        <Flex alignItems="center" justifyContent="space-between">
-          <ClosedPositionsToggle />
-          <SubscribeNotificationButton iconOnly={false} trackingEvent={undefined} />
+          <Flex
+            alignItems="center"
+            sx={{
+              gap: '16px',
+            }}
+          >
+            <ClosedPositionsToggle />
+            <SubscribeNotificationButton iconOnly={true} trackingEvent={undefined} />
+          </Flex>
         </Flex>
-
         <SearchInput />
       </Flex>
     )
@@ -181,7 +178,6 @@ const PoolFilteringBar = () => {
               }}
             >
               <ExpandCollapseAll />
-              <ViewEarningOrPositionButton />
             </Flex>
 
             <SubscribeNotificationButton iconOnly={false} trackingEvent={undefined} />
@@ -218,7 +214,6 @@ const PoolFilteringBar = () => {
         }}
       >
         <ExpandCollapseAll />
-        <ViewEarningOrPositionButton />
       </Flex>
       <Flex
         sx={{

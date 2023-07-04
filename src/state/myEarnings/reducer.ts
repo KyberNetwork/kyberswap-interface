@@ -14,15 +14,12 @@ import {
   setShowPendingModal,
   setTxError,
   setTxnHash,
-  showEarningView,
-  showPositionView,
   toggleShowClosedPositions,
 } from './actions'
 
 export interface MyEarningsState {
   readonly selectedChains: ChainId[]
   readonly shouldShowClosedPositions: boolean
-  readonly shouldShowEarningView: boolean
   readonly searchText: string
   readonly shouldExpandAllPools: boolean
   readonly activeTab: VERSION | undefined
@@ -37,7 +34,6 @@ const initialState: MyEarningsState = {
   selectedChains: SUPPORTED_NETWORKS_FOR_MY_EARNINGS,
   shouldShowClosedPositions: false,
   shouldExpandAllPools: false,
-  shouldShowEarningView: false,
   searchText: '',
   activeTab: undefined,
 
@@ -55,12 +51,6 @@ export default createReducer(initialState, builder =>
     })
     .addCase(toggleShowClosedPositions, state => {
       state.shouldShowClosedPositions = !state.shouldShowClosedPositions
-    })
-    .addCase(showEarningView, state => {
-      state.shouldShowEarningView = true
-    })
-    .addCase(showPositionView, state => {
-      state.shouldShowEarningView = false
     })
     .addCase(setSearchText, (state, action) => {
       state.searchText = action.payload

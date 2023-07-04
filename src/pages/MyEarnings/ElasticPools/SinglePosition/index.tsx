@@ -8,7 +8,6 @@ import styled from 'styled-components'
 import { CommonProps } from 'pages/MyEarnings/ElasticPools/SinglePosition/CommonView'
 import EarningView from 'pages/MyEarnings/ElasticPools/SinglePosition/EarningView'
 import PositionView from 'pages/MyEarnings/ElasticPools/SinglePosition/PositionView'
-import { useAppSelector } from 'state/hooks'
 
 const FlipCard = styled.div<{ flip: boolean; joined?: boolean }>`
   overflow: hidden;
@@ -25,15 +24,22 @@ const FlipCard = styled.div<{ flip: boolean; joined?: boolean }>`
 `
 
 type Props = {
+  isInitiallyViewEarnings: boolean
   chainId: ChainId
   positionEarning: ElasticPositionEarningWithDetails
   pool: Pool | undefined
   pendingFee: [string, string]
   tokenPrices: { [key: string]: number }
 }
-const SinglePosition: React.FC<Props> = ({ positionEarning, chainId, pool, pendingFee, tokenPrices }) => {
-  const [isFlipped, setFlipped] = useState(false) // isFlipped === true => show EarningView
-  const shouldShowEarningView = useAppSelector(state => state.myEarnings.shouldShowEarningView)
+const SinglePosition: React.FC<Props> = ({
+  positionEarning,
+  chainId,
+  pool,
+  pendingFee,
+  tokenPrices,
+  isInitiallyViewEarnings,
+}) => {
+  const [isViewEarnings, setViewEarnings] = useState(isInitiallyViewEarnings)
 
   const position = useMemo(() => {
     if (pool) {
@@ -49,16 +55,16 @@ const SinglePosition: React.FC<Props> = ({ positionEarning, chainId, pool, pendi
   }, [pool, positionEarning.liquidity, positionEarning.tickLower, positionEarning.tickUpper])
 
   const toggleFlipped = () => {
-    setFlipped(v => !v)
+    setViewEarnings(v => !v)
   }
 
   useEffect(() => {
-    if (shouldShowEarningView) {
-      setFlipped(true)
+    if (isInitiallyViewEarnings) {
+      setViewEarnings(true)
     } else {
-      setFlipped(false)
+      setViewEarnings(false)
     }
-  }, [shouldShowEarningView])
+  }, [isInitiallyViewEarnings])
 
   if (!position) {
     return null
@@ -74,8 +80,8 @@ const SinglePosition: React.FC<Props> = ({ positionEarning, chainId, pool, pendi
   }
 
   return (
-    <FlipCard flip={isFlipped}>
-      {isFlipped && (
+    <FlipCard flip={isViewEarnings}>
+      {isViewEarnings && (
         <Flex
           sx={{
             width: '100%',
@@ -87,7 +93,7 @@ const SinglePosition: React.FC<Props> = ({ positionEarning, chainId, pool, pendi
         </Flex>
       )}
 
-      {!isFlipped && <PositionView {...props} />}
+      {!isViewEarnings && <PositionView {...props} />}
     </FlipCard>
   )
 }
