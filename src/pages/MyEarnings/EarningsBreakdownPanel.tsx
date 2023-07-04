@@ -30,6 +30,11 @@ const Wrapper = styled.div.attrs<WrapperProps>(({ $columns }) => ({
 `
 
 const formatValue = (v: string | number) => {
+  const num = Number(v)
+  if (num < 0.01) {
+    return '< $0.01'
+  }
+
   const formatter = Intl.NumberFormat('en-US', {
     notation: 'compact',
     style: 'currency',
@@ -38,7 +43,7 @@ const formatValue = (v: string | number) => {
     maximumFractionDigits: 2,
   })
 
-  return formatter.format(Number(v))
+  return formatter.format(num)
 }
 
 type Props = {
