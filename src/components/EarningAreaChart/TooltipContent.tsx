@@ -4,7 +4,7 @@ import { useEffect, useMemo } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import Logo from 'components/Logo'
+import Logo, { NetworkLogo } from 'components/Logo'
 import useTheme from 'hooks/useTheme'
 import { EarningStatsTick } from 'types/myEarnings'
 import { formattedNum } from 'utils'
@@ -56,7 +56,27 @@ const Tokens: React.FC<TokensProps> = ({ tokens }) => {
               gap: '4px',
             }}
           >
-            <Logo srcs={[token.logoUrl]} style={{ width: 16, height: 16, borderRadius: '999px' }} />
+            <Flex
+              sx={{
+                position: 'relative',
+                flex: '0 0 14px',
+                height: '14px',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Logo srcs={[token.logoUrl]} style={{ width: 14, height: 14 }} />
+              <NetworkLogo
+                chainId={token.chainId}
+                style={{
+                  position: 'absolute',
+                  top: '-4px',
+                  right: '-4px',
+                  width: '10px',
+                  height: '10px',
+                }}
+              />
+            </Flex>
             <Text
               as="span"
               sx={{

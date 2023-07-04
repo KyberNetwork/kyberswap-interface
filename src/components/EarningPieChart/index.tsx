@@ -130,7 +130,7 @@ const Legend: React.FC<LegendProps> = ({
         }}
       >
         {logoUrl ? (
-          <Logo srcs={[logoUrl]} style={{ width: 14, height: 14, borderRadius: '999px' }} />
+          <Logo srcs={[logoUrl]} style={{ width: 14, height: 14 }} />
         ) : (
           <Flex
             sx={{
