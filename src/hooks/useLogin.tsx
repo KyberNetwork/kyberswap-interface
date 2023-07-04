@@ -316,6 +316,15 @@ const useLogin = (autoLogin = false) => {
     needSignInAfterConnectWallet = false
   }, [account, signIn, autoLogin])
 
+  useEffect(() => {
+    const { connectedMethod } = getConnectedProfile()
+    if (connectedMethod === LoginMethod.ANONYMOUS && account && autoLogin) {
+      try {
+        connectWalletToProfile({ walletAddress: account })
+      } catch (error) {}
+    }
+  }, [account, connectWalletToProfile, autoLogin])
+
   return { signOut: signOutWrapped, signIn: signInWrapped, signOutAll, importGuestAccount }
 }
 
