@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 import { Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { useGetElasticEarningQuery, useGetElasticLegacyEarningQuery } from 'services/earning'
@@ -52,6 +52,15 @@ interface PoolType {
 
 const ElasticPools = () => {
   const { account = '' } = useActiveWeb3React()
+
+  // need to store last account because when user switch to another chain
+  // `account` can be '' in one of the renders
+  // and if `account` = '', this page is no longer visible (we have a condition for this in MyEarnings/index.tsx)
+  const lastAccountRef = useRef(account)
+  if (account) {
+    lastAccountRef.current = account
+  }
+
   const theme = useTheme()
   const selectedChainIds = useAppSelector(state => state.myEarnings.selectedChains)
   const activeTab = useAppSelector(state => state.myEarnings.activeTab)
@@ -60,8 +69,14 @@ const ElasticPools = () => {
   const searchText = useDebounce(originalSearchText, 300).toLowerCase().trim()
 
   // const getEarningData = useGetEarningDataQuery({ account, chainIds: selectedChainIds })
-  const elasticEarningQueryResponse = useGetElasticEarningQuery({ account, chainIds: selectedChainIds })
-  const elasticLegacyEarningQueryResponse = useGetElasticLegacyEarningQuery({ account, chainIds: selectedChainIds })
+  const elasticEarningQueryResponse = useGetElasticEarningQuery({
+    account: lastAccountRef.current,
+    chainIds: selectedChainIds,
+  })
+  const elasticLegacyEarningQueryResponse = useGetElasticLegacyEarningQuery({
+    account: lastAccountRef.current,
+    chainIds: selectedChainIds,
+  })
 
   const earningResponse = useMemo(() => {
     let data = elasticEarningQueryResponse.data

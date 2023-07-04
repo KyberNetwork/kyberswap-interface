@@ -1,6 +1,8 @@
+import { useEffect, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import { EMPTY_FUNCTION } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import MyEarningStats from 'pages/MyEarnings/MyEarningStats'
 import Placeholder from 'pages/MyEarnings/Placeholder'
@@ -46,6 +48,27 @@ const PageWrapper = styled.div`
 
 const MyEarnings = () => {
   const { account = '' } = useActiveWeb3React()
+  const [localAccount, setLocalAccount] = useState(account)
+
+  useEffect(() => {
+    // this effect is a hack
+    // when user switch to another chain
+    // `account` can be '' in one of the renders
+    // this effect and localAccount help make sure the UI won't flash in that render
+
+    if (account) {
+      setLocalAccount(account)
+      return EMPTY_FUNCTION
+    } else {
+      const timeOut = setTimeout(() => {
+        setLocalAccount('')
+      }, 1_000)
+
+      return () => {
+        clearTimeout(timeOut)
+      }
+    }
+  }, [account])
 
   return (
     <PageWrapper>
@@ -69,7 +92,7 @@ const MyEarnings = () => {
           My Earnings
         </Text>
 
-        {account ? (
+        {localAccount ? (
           <Flex
             sx={{
               flexDirection: 'column',
