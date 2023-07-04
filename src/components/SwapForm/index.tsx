@@ -1,9 +1,16 @@
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Trans } from '@lingui/macro'
+import { rgba } from 'polished'
+import { stringify } from 'querystring'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Box, Flex } from 'rebass'
+import { useNavigate } from 'react-router-dom'
+import { useMedia } from 'react-use'
+import { Box, Flex, Text } from 'rebass'
 import { parseGetRouteResponse } from 'services/route/utils'
+import styled from 'styled-components'
 
 import AddressInputPanel from 'components/AddressInputPanel'
+import { Clock } from 'components/Icons'
 import { AutoRow } from 'components/Row'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import InputCurrencyPanel from 'components/SwapForm/InputCurrencyPanel'
@@ -18,11 +25,16 @@ import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import TradePrice from 'components/swapv2/TradePrice'
 import { Wrapper } from 'components/swapv2/styleds'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
+import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { Field } from 'state/swap/actions'
 import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
+import { currencyId } from 'utils/currencyId'
 
 import PriceImpactNote from './PriceImpactNote'
 import RefreshButton from './RefreshButton'
@@ -31,6 +43,21 @@ import SwapActionButton from './SwapActionButton'
 import TradeSummary from './TradeSummary'
 import TradeTypeSelection from './TradeTypeSelection'
 
+const PriceAlertButton = styled.div`
+  background: ${({ theme }) => rgba(theme.subText, 0.2)};
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  cursor: pointer;
+  user-select: none;
+  font-weight: 500;
+  font-size: 12px;
+  color: ${({ theme }) => theme.subText};
+  align-items: center;
+  height: fit-content;
+`
 export type SwapFormProps = {
   hidden: boolean
 
@@ -69,12 +96,14 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     onChangeCurrencyOut,
   } = props
 
-  const { isEVM, isSolana } = useActiveWeb3React()
-
+  const { isEVM, isSolana, chainId } = useActiveWeb3React()
+  const navigate = useNavigate()
   const [isProcessingSwap, setProcessingSwap] = useState(false)
   const { typedValue } = useSwapState()
   const [recipient, setRecipient] = useState<string | null>(null)
   const [isSaveGas, setSaveGas] = useState(false)
+  const theme = useTheme()
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
   const { onUserInput: updateInputAmount } = useSwapActionHandlers()
   const onUserInput = useCallback(
@@ -186,7 +215,29 @@ const SwapForm: React.FC<SwapFormProps> = props => {
                 )}
               </Flex>
 
-              <ReverseTokenSelectionButton onClick={() => currencyIn && handleChangeCurrencyOut(currencyIn)} />
+              <Flex sx={{ gap: '12px' }}>
+                {chainId === ChainId.LINEA_TESTNET ? null : (
+                  <PriceAlertButton
+                    onClick={() =>
+                      navigate(
+                        `${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.CREATE_ALERT}?${stringify({
+                          amount: typedValue || undefined,
+                          inputCurrency: currencyId(currencyIn, chainId),
+                          outputCurrency: currencyId(currencyOut, chainId),
+                        })}`,
+                      )
+                    }
+                  >
+                    <Clock size={14} color={theme.subText} />
+                    {upToExtraSmall ? null : (
+                      <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>
+                        <Trans>Price Alert</Trans>
+                      </Text>
+                    )}
+                  </PriceAlertButton>
+                )}
+                <ReverseTokenSelectionButton onClick={() => currencyIn && handleChangeCurrencyOut(currencyIn)} />
+              </Flex>
             </AutoRow>
 
             <OutputCurrencyPanel

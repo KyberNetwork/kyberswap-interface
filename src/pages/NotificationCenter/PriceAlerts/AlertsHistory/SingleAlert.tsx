@@ -13,7 +13,7 @@ const SingleAlert: React.FC<Props> = ({ announcement }) => {
   const { account } = useActiveWeb3React()
   const [clearAlert, result] = useClearSinglePriceAlertHistoryMutation()
   const { templateBody, sentAt, id } = announcement
-  const historicalAlert = templateBody.alert
+  const historicalAlert = templateBody?.alert || {}
   return (
     <CommonSingleAlert
       renderDeleteButton={() => (

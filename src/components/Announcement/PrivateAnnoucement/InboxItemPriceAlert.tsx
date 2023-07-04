@@ -42,7 +42,7 @@ function InboxItemBridge({
     chainId: rawChainId,
     tokenInAmount,
     threshold,
-  } = templateBody.alert
+  } = templateBody?.alert || {}
   const chainId = Number(rawChainId) as ChainId
 
   const navigate = useNavigateToUrl()

@@ -33,7 +33,7 @@ function InboxItemBridge({
   title,
 }: PrivateAnnouncementProp<AnnouncementTemplatePopup>) {
   const { templateBody, isRead, templateType } = announcement
-  const { ctaURL } = templateBody
+  const { ctaURL } = templateBody || {}
   const navigate = useNavigateToUrl()
   const onClick = () => {
     navigate(ctaURL)

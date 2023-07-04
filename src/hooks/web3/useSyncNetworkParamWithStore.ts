@@ -11,7 +11,7 @@ import { useChangeNetwork } from './useChangeNetwork'
 export function useSyncNetworkParamWithStore() {
   const { network: networkParam } = useParams<{ network?: string }>()
   const paramChainId = getChainIdFromSlug(networkParam)
-  const changeNetwork = useChangeNetwork()
+  const { changeNetwork } = useChangeNetwork()
   const { networkInfo, chainId } = useActiveWeb3React()
   const navigate = useNavigate()
   const triedEager = useEagerConnect()
@@ -63,7 +63,10 @@ export function useSyncNetworkParamWithStore() {
       triedSync.current &&
       triedEager
     ) {
-      navigate({ ...location, pathname: location.pathname.replace(networkParam, networkInfo.route) }, { replace: true })
+      navigate(
+        { ...location, pathname: location.pathname.replace(encodeURIComponent(networkParam), networkInfo.route) },
+        { replace: true },
+      )
     }
   }, [location, networkInfo.route, navigate, triedEager, networkParam, requestingNetwork])
 }

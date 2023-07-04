@@ -1283,7 +1283,7 @@ export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; no
               <Bar
                 dataKey="inflow"
                 stackId="a"
-                fill={rgba(theme.primary, 0.6)}
+                fill={rgba(theme.red, 0.6)}
                 isAnimationActive={noAnimation ? false : true}
                 animationBegin={ANIMATION_DELAY}
                 animationDuration={ANIMATION_DURATION}
@@ -1292,7 +1292,7 @@ export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; no
               <Bar
                 dataKey="outflow"
                 stackId="a"
-                fill={rgba(theme.red, 0.6)}
+                fill={rgba(theme.primary, 0.6)}
                 isAnimationActive={noAnimation ? false : true}
                 animationBegin={ANIMATION_DELAY}
                 animationDuration={ANIMATION_DURATION}
@@ -1321,7 +1321,7 @@ export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; no
         <Row justify="center" gap="16px" style={{ position: 'absolute', bottom: 0 }}>
           <LegendButton
             text="Inflow"
-            iconStyle={{ backgroundColor: rgba(theme.primary, 0.6) }}
+            iconStyle={{ backgroundColor: rgba(theme.red, 0.6) }}
             enabled={showInflow}
             onClick={() =>
               dispatch({ type: CHART_STATES_ACTION_TYPE.TOGGLE_OPTION, payload: { option: 'showInflow' } })
@@ -1329,7 +1329,7 @@ export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; no
           />
           <LegendButton
             text="Outflow"
-            iconStyle={{ backgroundColor: rgba(theme.red, 0.6) }}
+            iconStyle={{ backgroundColor: rgba(theme.primary, 0.6) }}
             enabled={showOutflow}
             onClick={() =>
               dispatch({ type: CHART_STATES_ACTION_TYPE.TOGGLE_OPTION, payload: { option: 'showOutflow' } })
@@ -1530,7 +1530,7 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
           <>
             <LegendButton
               text="Inflow"
-              iconStyle={{ backgroundColor: rgba(theme.primary, 0.6) }}
+              iconStyle={{ backgroundColor: rgba(theme.red, 0.6) }}
               enabled={showInflow}
               onClick={() =>
                 dispatch({ type: CHART_STATES_ACTION_TYPE.TOGGLE_OPTION, payload: { option: 'showInflow' } })
@@ -1538,7 +1538,7 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
             />
             <LegendButton
               text="Outflow"
-              iconStyle={{ backgroundColor: rgba(theme.red, 0.6) }}
+              iconStyle={{ backgroundColor: rgba(theme.primary, 0.6) }}
               enabled={showOutflow}
               onClick={() =>
                 dispatch({ type: CHART_STATES_ACTION_TYPE.TOGGLE_OPTION, payload: { option: 'showOutflow' } })
@@ -1665,7 +1665,7 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
           <Bar
             dataKey="totalInflow"
             stackId="a"
-            fill={rgba(theme.primary, 0.6)}
+            fill={rgba(theme.red, 0.6)}
             isAnimationActive={noAnimation ? false : true}
             animationBegin={ANIMATION_DELAY}
             animationDuration={ANIMATION_DURATION}
@@ -1674,7 +1674,7 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
           <Bar
             dataKey="totalOutflow"
             stackId="a"
-            fill={rgba(theme.red, 0.6)}
+            fill={rgba(theme.primary, 0.6)}
             isAnimationActive={noAnimation ? false : true}
             animationBegin={ANIMATION_DELAY}
             animationDuration={ANIMATION_DURATION}
@@ -1699,7 +1699,7 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
         <Row justify="center" gap="16px" style={{ position: 'absolute', bottom: 0 }}>
           <LegendButton
             text="Inflow"
-            iconStyle={{ backgroundColor: rgba(theme.primary, 0.6) }}
+            iconStyle={{ backgroundColor: rgba(theme.red, 0.6) }}
             enabled={showInflow}
             onClick={() =>
               dispatch({ type: CHART_STATES_ACTION_TYPE.TOGGLE_OPTION, payload: { option: 'showInflow' } })
@@ -1707,7 +1707,7 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
           />
           <LegendButton
             text="Outflow"
-            iconStyle={{ backgroundColor: rgba(theme.red, 0.6) }}
+            iconStyle={{ backgroundColor: rgba(theme.primary, 0.6) }}
             enabled={showOutflow}
             onClick={() =>
               dispatch({ type: CHART_STATES_ACTION_TYPE.TOGGLE_OPTION, payload: { option: 'showOutflow' } })
