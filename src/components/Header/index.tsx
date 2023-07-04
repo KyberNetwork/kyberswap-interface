@@ -1,4 +1,4 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { lighten } from 'polished'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -11,7 +11,6 @@ import SelectWallet from 'components/Header/web3/SelectWallet'
 import SignWallet from 'components/Header/web3/SignWallet'
 import Menu from 'components/Menu'
 import Row, { RowFixed } from 'components/Row'
-import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
@@ -176,20 +175,12 @@ const LogoIcon = styled.div`
 `
 
 export default function Header() {
-  const { networkInfo, walletKey } = useActiveWeb3React()
+  const { networkInfo } = useActiveWeb3React()
   const isDark = useIsDarkMode()
   const [holidayMode] = useHolidayMode()
   const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
   const uptoSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const chainSelect = (
-    <MouseoverTooltip
-      text={t`You are currently connected through WalletConnect. If you want to change the connected network, please disconnect your wallet before changing the network.`}
-      disableTooltip={walletKey !== 'WALLET_CONNECT'}
-    >
-      <SelectNetwork />
-    </MouseoverTooltip>
-  )
   const menu = (
     <HeaderElementWrap>
       <Announcement />
@@ -239,7 +230,7 @@ export default function Header() {
       <HeaderControls>
         {uptoSmall ? (
           <HeaderElement>
-            {chainSelect}
+            <SelectNetwork />
             <SelectWallet />
             {menu}
             <SignWallet />
@@ -247,7 +238,7 @@ export default function Header() {
         ) : (
           <>
             <HeaderElement style={{ justifyContent: 'flex-start' }}>
-              {chainSelect}
+              <SelectNetwork />
               <SelectWallet />
             </HeaderElement>
             <HeaderElement style={{ justifyContent: 'flex-end' }}>
