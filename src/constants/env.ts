@@ -122,7 +122,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key: string]: { [type: string]: string } } =
     [PrivateAnnouncementType.CROSS_CHAIN]: '48,49',
     [PrivateAnnouncementType.KYBER_AI]: '46',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '39,40',
-    EXCLUDE: '2,29,1,47,50',
+    EXCLUDE: '2,29,1,47,50,44,45',
   },
   staging: {
     [PrivateAnnouncementType.PRICE_ALERT]: '22,23',
