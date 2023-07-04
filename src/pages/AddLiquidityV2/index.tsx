@@ -209,6 +209,13 @@ export default function AddLiquidity() {
   const { [Bound.LOWER]: tickLower, [Bound.UPPER]: tickUpper } = ticks
   const { [Bound.LOWER]: priceLower, [Bound.UPPER]: priceUpper } = pricesAtTicks
 
+  // show this for Zohar can get tick to add farm
+  useEffect(() => {
+    console.log('-------------------')
+    console.log('tickLower: ', tickLower)
+    console.log('tickUpper: ', tickUpper)
+  }, [tickLower, tickUpper])
+
   const poolAddress = useProAmmPoolInfo(baseCurrency, currencyB, feeAmount)
 
   const { farms } = useElasticFarmsV2()
@@ -233,9 +240,6 @@ export default function AddLiquidity() {
     positions.some(pos => activeRanges.some(r => pos && pos.tickLower <= r.tickLower && pos.tickUpper >= r.tickUpper))
 
   const farmPosWarning = positions.every(Boolean) && isFarmV2Available && !canJoinFarm
-
-  // TODO(viet-nv): remove
-  console.log('Xin chào cô Đào Huyền bí: ', tickLower, tickUpper)
 
   const previousTicks: number[] | undefined = useProAmmPreviousTicks(pool, position)
   const mutiplePreviousTicks: number[][] | undefined = useProAmmMultiplePreviousTicks(pool, positions)

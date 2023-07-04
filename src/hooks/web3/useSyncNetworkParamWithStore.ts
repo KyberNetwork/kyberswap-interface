@@ -63,7 +63,10 @@ export function useSyncNetworkParamWithStore() {
       triedSync.current &&
       triedEager
     ) {
-      navigate({ ...location, pathname: location.pathname.replace(networkParam, networkInfo.route) }, { replace: true })
+      navigate(
+        { ...location, pathname: location.pathname.replace(encodeURIComponent(networkParam), networkInfo.route) },
+        { replace: true },
+      )
     }
   }, [location, networkInfo.route, navigate, triedEager, networkParam, requestingNetwork])
 }
