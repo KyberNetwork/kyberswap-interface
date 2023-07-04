@@ -249,7 +249,7 @@ const CollectFeesPanel: React.FC<Props> = ({
                 >
                   <CurrencyLogo currency={fee.currency} size="14px" />
                   <Text fontSize={12}>
-                    {+fee.toSignificant(8)} {fee.currency.symbol}
+                    {fee.toSignificant(8)} {fee.currency.symbol}
                   </Text>
                 </Flex>
               ))}
