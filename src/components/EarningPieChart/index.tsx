@@ -12,6 +12,12 @@ import useTheme from 'hooks/useTheme'
 import { Loading } from 'pages/ProAmmPool/ContentLoader'
 
 const formatUSDValue = (v: string) => {
+  const num = Number(v)
+
+  if (num < 0.1) {
+    return '< $0.1'
+  }
+
   const formatter = Intl.NumberFormat('en-US', {
     notation: 'compact',
     style: 'currency',
@@ -20,7 +26,20 @@ const formatUSDValue = (v: string) => {
     maximumFractionDigits: 1,
   })
 
-  return formatter.format(Number(v))
+  return formatter.format(num)
+}
+
+const formatPercent = (num: number) => {
+  if (num < 0.01) {
+    return '< 0.01%'
+  }
+
+  const formatter = Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  })
+
+  return formatter.format(num) + '%'
 }
 
 const LegendsWrapper = styled.div`
@@ -166,7 +185,7 @@ const Legend: React.FC<LegendProps> = ({
             whiteSpace: 'nowrap',
           }}
         >
-          {formatUSDValue(value)} ({percent.toFixed(2)}%)
+          {formatUSDValue(value)} ({formatPercent(percent)})
         </Text>
       </Flex>
     </Flex>

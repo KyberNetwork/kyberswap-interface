@@ -7,7 +7,7 @@ import styled from 'styled-components'
 import Logo from 'components/Logo'
 import useTheme from 'hooks/useTheme'
 import { EarningStatsTick } from 'types/myEarnings'
-import { formattedNumLong } from 'utils'
+import { formattedNum } from 'utils'
 
 import { formatUSDValue } from './utils'
 
@@ -20,8 +20,8 @@ const TokensWrapper = styled.div`
   font-weight: 500;
 `
 
-const formatTokenAmount = (a: number) => {
-  return formattedNumLong(a, false)
+const formatTokenAmount = (a: number | string) => {
+  return formattedNum(String(a), false)
 }
 
 type TokensProps = {

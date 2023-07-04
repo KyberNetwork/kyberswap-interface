@@ -416,6 +416,48 @@ export const aggregateAccountEarnings = <
   return result
 }
 
+export const removeEmptyTokenEarnings = <
+  T extends Record<
+    string,
+    {
+      positions: { historicalEarning: HistoricalSingleData[] }[]
+    }
+  >,
+>(
+  earningResponse: T,
+): T => {
+  const filter = (tokenEarnings: TokenEarning[]): TokenEarning[] => {
+    return tokenEarnings.filter(tokenEarning => {
+      return (
+        !!tokenEarning.amount &&
+        tokenEarning.amount !== '0' &&
+        !!tokenEarning.amountFloat &&
+        tokenEarning.amountFloat !== '0'
+      )
+    })
+  }
+
+  const result = produce(earningResponse, draft => {
+    const chains = Object.keys(draft)
+
+    chains.forEach(chain => {
+      const { positions } = draft[chain]
+
+      positions.forEach(position => {
+        const earnings = position.historicalEarning || []
+
+        earnings.forEach(earning => {
+          earning.fees = filter(earning.fees || [])
+          earning.rewards = filter(earning.rewards || [])
+          earning.total = filter(earning.total || [])
+        })
+      })
+    })
+  })
+
+  return result
+}
+
 export const calculateTicksOfAccountEarningsInMultipleChains = (
   earningResponses: Array<
     | Record<
