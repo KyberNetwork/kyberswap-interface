@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
-import { KS_SETTING_API, NOTIFICATION_API } from 'constants/env'
+import { NOTIFICATION_API } from 'constants/env'
 import { Topic } from 'hooks/useNotification'
 
 const NotificationApi = createApi({
@@ -12,7 +12,7 @@ const NotificationApi = createApi({
       string | null | undefined
     >({
       query: walletAddress => ({
-        url: `${KS_SETTING_API}/v1/topic-groups`,
+        url: `${'https://ks-setting.stg.kyberengineering.io/api'}/v1/topic-groups`,
         params: walletAddress ? { walletAddress } : {},
       }),
       transformResponse: (data: any) => data?.data,
