@@ -6,12 +6,14 @@ import MyEarningStats from 'pages/MyEarnings/MyEarningStats'
 import Placeholder from 'pages/MyEarnings/Placeholder'
 import Pools from 'pages/MyEarnings/Pools'
 import TransactionConfirmationModal from 'pages/MyEarnings/TransactionConfirmationModal'
+import { WIDTHS } from 'pages/MyEarnings/constants'
 import FarmUpdater from 'state/farms/elastic/updaters'
 
 const PageWrapper = styled.div`
   flex: 1;
-  width: 1610px;
-  max-width: 1610px;
+  /* show 4 positions */
+  width: ${WIDTHS[4]}px;
+  max-width: ${WIDTHS[4]}px;
   height: 100%;
 
   display: flex;
@@ -19,17 +21,20 @@ const PageWrapper = styled.div`
 
   padding: 32px 24px 100px;
 
-  @media (max-width: 1609px) {
-    width: 1226px;
-    max-width: 1226px;
+  @media (max-width: ${WIDTHS[4] - 1}px) {
+    /* show 3 positions */
+    width: ${WIDTHS[3]}px;
+    max-width: ${WIDTHS[3]}px;
   }
 
-  @media (max-width: 1225px) {
-    width: 842px;
-    max-width: 842px;
+  @media (max-width: ${WIDTHS[3] - 1}px) {
+    /* show 2 positions */
+    width: ${WIDTHS[2]}px;
+    max-width: ${WIDTHS[2]}px;
   }
 
-  @media (max-width: 841px) {
+  @media (max-width: ${WIDTHS[2] - 1}px) {
+    /* show 1 positions */
     width: 100%;
   }
 

@@ -2,9 +2,8 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Pool } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Eye, Info } from 'react-feather'
-import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { ElasticPositionEarningWithDetails } from 'services/earning/types'
 import styled from 'styled-components'
@@ -13,8 +12,8 @@ import { ButtonLight } from 'components/Button'
 import useTheme from 'hooks/useTheme'
 import SinglePosition from 'pages/MyEarnings/ElasticPools/SinglePosition'
 import ViewEarningOrPositionButton from 'pages/MyEarnings/PoolFilteringBar/ViewEarningOrPositionButton'
+import { WIDTHS } from 'pages/MyEarnings/constants'
 import { useAppSelector } from 'state/hooks'
-import { MEDIA_WIDTHS } from 'theme'
 
 const TitleWrapper = styled.div`
   width: 100%;
@@ -44,7 +43,6 @@ const ListPositions = styled.div`
     gap: 24px;
   `}
 `
-
 type Props = {
   chainId: ChainId
   positionEarnings: ElasticPositionEarningWithDetails[]
@@ -54,10 +52,19 @@ type Props = {
 }
 const Positions: React.FC<Props> = ({ positionEarnings, chainId, pool, pendingFees, tokenPrices }) => {
   const [isViewEarnings, setViewEarnings] = useState(false)
-  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
-  const upToXXL = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXL}px)`)
 
-  const [numberOfVisiblePositions, setNumberOfVisiblePositions] = useState(1)
+  const [numberOfVisiblePositions, setNumberOfVisiblePositions] = useState(() => {
+    // don't use window.screen.width
+    // window.screen.width returns the screen'size instead of viewport's width
+    const width = document.body.clientWidth
+
+    let num = 1
+    while (width >= WIDTHS[num + 1]) {
+      num += 1
+    }
+
+    return num
+  })
 
   const [numOfActivePositions, numOfInactivePositions, numOfClosedPositions] = useMemo(() => {
     const nClosed = positionEarnings.filter(pos => !pos.liquidity || pos.liquidity === '0').length
@@ -70,25 +77,6 @@ const Positions: React.FC<Props> = ({ positionEarnings, chainId, pool, pendingFe
 
     return [nActive, positionEarnings.length - nClosed - nActive, nClosed]
   }, [positionEarnings])
-
-  useEffect(() => {
-    let newNumberOfVisiblePositions = 1
-    if (upToMedium) {
-      newNumberOfVisiblePositions = 3
-    }
-
-    if (upToXXL) {
-      newNumberOfVisiblePositions = 4
-    }
-
-    setNumberOfVisiblePositions(existingValue => {
-      if (existingValue < newNumberOfVisiblePositions) {
-        return newNumberOfVisiblePositions
-      }
-
-      return existingValue
-    })
-  }, [upToMedium, upToXXL])
 
   return (
     <Flex
