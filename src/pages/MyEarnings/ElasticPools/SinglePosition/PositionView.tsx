@@ -32,7 +32,7 @@ const defaultPendingFee = ['0', '0']
 const PositionView: React.FC<CommonProps> = props => {
   const { positionEarning, position, pendingFee = defaultPendingFee, tokenPrices: prices, chainId } = props
   const { chainId: currentChainId } = useActiveWeb3React()
-  const changeNetwork = useChangeNetwork()
+  const { changeNetwork } = useChangeNetwork()
   const dispatch = useDispatch()
   const isLegacyPosition = useAppSelector(state => state.myEarnings.activeTab === VERSION.ELASTIC_LEGACY)
 
