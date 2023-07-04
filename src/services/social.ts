@@ -14,7 +14,7 @@ const SocialApi = createApi({
   endpoints: builder => ({
     uploadImage: builder.mutation({
       query: body => ({
-        url: '/v1/ks-setting/buckets/signed-url-put',
+        url: '/v1/buckets/signed-url-put',
         method: 'POST',
         body,
       }),
