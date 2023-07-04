@@ -50,6 +50,7 @@ const EarningView: React.FC<CommonProps> = props => {
         </Label>
 
         <HoverDropdown
+          disabled={!earningToday?.totalValue}
           anchor={<Value>{earningToday ? formatUSDValue(earningToday.totalValue, false) : '--'}</Value>}
           text={
             <>
