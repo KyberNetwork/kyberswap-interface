@@ -1,3 +1,4 @@
+import { t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useDispatch } from 'react-redux'
 import { Button, Flex } from 'rebass'
@@ -5,6 +6,7 @@ import earningApi, { useLazyGetElasticEarningQuery, useLazyGetElasticLegacyEarni
 import styled from 'styled-components'
 
 import { ReactComponent as RefreshIcon } from 'assets/svg/refresh.svg'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import ShareTotalEarningsButton from 'pages/MyEarnings/ShareTotalEarningsButton'
@@ -127,23 +129,28 @@ const TotalEarningsAndChainSelect: React.FC<Props> = ({ totalEarningToday, total
         }}
       >
         {diffPercent ? (
-          <Flex
-            sx={{
-              flex: '0 0 content',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '36px',
-              padding: '0 12px',
-              fontWeight: 500,
-              fontSize: '14px',
-              lineHeight: '20px',
-              color: diffPercent.startsWith('-') ? theme.red : theme.primary,
-              background: rgba(diffPercent.startsWith('-') ? theme.red : theme.primary, 0.3),
-              borderRadius: '999px',
-            }}
+          <MouseoverTooltip
+            text={t`This indicates change in the value of your earnings in the last 24H`}
+            placement="top"
           >
-            <span>{diffPercent}</span>
-          </Flex>
+            <Flex
+              sx={{
+                flex: '0 0 content',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '36px',
+                padding: '0 12px',
+                fontWeight: 500,
+                fontSize: '14px',
+                lineHeight: '20px',
+                color: diffPercent.startsWith('-') ? theme.red : theme.primary,
+                background: rgba(diffPercent.startsWith('-') ? theme.red : theme.primary, 0.3),
+                borderRadius: '999px',
+              }}
+            >
+              <span>{diffPercent}</span>
+            </Flex>
+          </MouseoverTooltip>
         ) : null}
 
         <ShareTotalEarningsButton totalValue={totalEarningToday} />
