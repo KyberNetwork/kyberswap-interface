@@ -69,7 +69,7 @@ const CommonView: React.FC<Props> = ({ onFlipView, positionEarning, isEarningVie
         }}
       >
         <Repeat size={12} />
-        {isEarningView ? <Trans>View Position</Trans> : <Trans>View Earnings</Trans>}
+        {isEarningView ? <Trans>View Positions</Trans> : <Trans>View Earnings</Trans>}
       </Flex>
     </ViewWrapper>
   )
