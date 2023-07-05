@@ -9,6 +9,7 @@ import { ReactComponent as LogoKyber } from 'assets/svg/logo_kyber.svg'
 import { ButtonPrimary } from 'components/Button'
 import Checkbox from 'components/CheckBox'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS_FOR_MY_EARNINGS } from 'constants/networks'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { AppState } from 'state'
 import { selectChains } from 'state/myEarnings/actions'
@@ -92,6 +93,7 @@ const ApplyButton: React.FC<ApplyButtonProps> = ({ disabled, onClick, numOfChain
 type Props = { onClose: () => void }
 const PopoverBody: React.FC<Props> = ({ onClose }) => {
   const theme = useTheme()
+  const { mixpanelHandler } = useMixpanel()
   const selectAllRef = useRef<HTMLInputElement>(null)
   const selectedChains = useSelector((state: AppState) => state.myEarnings.selectedChains)
   const dispatch = useDispatch()
@@ -146,6 +148,7 @@ const PopoverBody: React.FC<Props> = ({ onClose }) => {
             if (isAllSelected) {
               setLocalSelectedChains([])
             } else {
+              mixpanelHandler(MIXPANEL_TYPE.EARNING_DASHBOARD_CLICK_ALL_CHAINS_BUTTON)
               setLocalSelectedChains(SUPPORTED_NETWORKS_FOR_MY_EARNINGS)
             }
           }}

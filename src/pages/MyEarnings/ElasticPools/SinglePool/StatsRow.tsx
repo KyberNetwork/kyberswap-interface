@@ -14,6 +14,7 @@ import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { VERSION } from 'constants/v2'
 import useCopyClipboard from 'hooks/useCopyClipboard'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { useAppSelector } from 'state/hooks'
@@ -172,6 +173,7 @@ const StatsRow: React.FC<Props> = ({
 
   renderToggleExpandButton,
 }) => {
+  const { mixpanelHandler } = useMixpanel()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const upTo1225px = useMedia(`(max-width: 1225px)`)
   const chainRoute = NETWORKS_INFO[chainId].route
@@ -204,6 +206,9 @@ const StatsRow: React.FC<Props> = ({
         }}
         height="36px"
         as={Link}
+        onClick={() => {
+          mixpanelHandler(MIXPANEL_TYPE.EARNING_DASHBOARD_CLICK_ADD_LIQUIDITY_BUTTON)
+        }}
         to={
           currency0Slug && currency1Slug
             ? `/${chainRoute}${APP_PATHS.ELASTIC_CREATE_POOL}/${currency0Slug}/${currency1Slug}/${feeAmount}`

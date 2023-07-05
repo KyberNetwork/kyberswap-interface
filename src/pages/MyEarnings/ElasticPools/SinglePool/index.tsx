@@ -17,6 +17,7 @@ import Loader from 'components/Loader'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT, PROMM_ANALYTICS_URL } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { PoolState } from 'hooks/usePools'
 import { usePoolv2 } from 'hooks/usePoolv2'
 import useTheme from 'hooks/useTheme'
@@ -74,6 +75,7 @@ export type Props = {
 }
 const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, pendingFees, tokenPrices }) => {
   const theme = useTheme()
+  const { mixpanelHandler } = useMixpanel()
   const [isExpanded, setExpanded] = useState(false)
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
@@ -114,10 +116,20 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
     visibleCurrency1?.symbol || poolEarning.token1.symbol,
   )
 
-  const toggleExpanded: React.MouseEventHandler<HTMLButtonElement> = useCallback(e => {
-    e.stopPropagation()
-    setExpanded(e => !e)
-  }, [])
+  const poolName = `${visibleCurrency0Symbol} - ${visibleCurrency1Symbol}`
+
+  const toggleExpanded: React.MouseEventHandler<HTMLButtonElement> = useCallback(
+    e => {
+      mixpanelHandler(MIXPANEL_TYPE.EARNING_DASHBOARD_CLICK_POOL_EXPAND, {
+        pool_name: poolName,
+        pool_address: poolEarning.id,
+      })
+
+      e.stopPropagation()
+      setExpanded(e => !e)
+    },
+    [mixpanelHandler, poolEarning.id, poolName],
+  )
 
   const here = (
     <Link to={`${APP_PATHS.FARMS}/${NETWORKS_INFO[chainId].route}?tab=elastic&type=active&search=${poolEarning.id}`}>
@@ -228,7 +240,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
                   lineHeight: '20px',
                 }}
               >
-                {visibleCurrency0Symbol} - {visibleCurrency1Symbol}
+                {poolName}
               </Text>
             </Flex>
 
@@ -375,7 +387,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
                   lineHeight: '24px',
                 }}
               >
-                {visibleCurrency0Symbol} - {visibleCurrency1Symbol}
+                {poolName}
               </Text>
             </Flex>
 

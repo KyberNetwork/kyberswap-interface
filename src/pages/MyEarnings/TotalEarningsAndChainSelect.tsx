@@ -9,6 +9,7 @@ import styled from 'styled-components'
 import { ReactComponent as RefreshIcon } from 'assets/svg/refresh.svg'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import ShareTotalEarningsButton from 'pages/MyEarnings/ShareTotalEarningsButton'
 import { useAppSelector } from 'state/hooks'
@@ -51,6 +52,7 @@ const Value = styled.span`
 
 const RefreshButton = () => {
   const theme = useTheme()
+  const { mixpanelHandler } = useMixpanel()
   const dispatch = useDispatch()
   const { account } = useActiveWeb3React()
   const selectedChainIds = useAppSelector(state => state.myEarnings.selectedChains)
@@ -98,7 +100,10 @@ const RefreshButton = () => {
         cursor: 'pointer',
       }}
       disabled={isFetching}
-      onClick={refetch}
+      onClick={() => {
+        mixpanelHandler(MIXPANEL_TYPE.EARNING_DASHBOARD_CLICK_REFRESH_BUTTON)
+        refetch()
+      }}
     >
       <RefreshIcon width="17px" height="17px" />
     </Button>

@@ -1,5 +1,7 @@
 import styled from 'styled-components'
 
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+
 export const timePeriods = ['7D', '1M', '6M', '1Y'] as const
 export type TimePeriod = typeof timePeriods[number]
 
@@ -41,11 +43,21 @@ type Props = {
 }
 
 const TimePeriodSelect: React.FC<Props> = ({ period: selectedPeriod, setPeriod }) => {
+  const { mixpanelHandler } = useMixpanel()
+
   return (
     <Wrapper>
       {timePeriods.map(period => {
         return (
-          <TimeButton key={period} role="button" onClick={() => setPeriod(period)} active={period === selectedPeriod}>
+          <TimeButton
+            key={period}
+            role="button"
+            onClick={() => {
+              mixpanelHandler(MIXPANEL_TYPE.EARNING_DASHBOARD_CLICK_CHANGE_TIMEFRAME_EARNING_CHART)
+              setPeriod(period)
+            }}
+            active={period === selectedPeriod}
+          >
             {period}
           </TimeButton>
         )

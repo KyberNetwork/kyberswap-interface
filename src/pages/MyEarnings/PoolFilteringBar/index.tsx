@@ -6,6 +6,7 @@ import { Flex, Text } from 'rebass'
 
 import { ButtonOutlined } from 'components/Button'
 import SubscribeNotificationButton from 'components/SubscribeButton'
+import { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import ClosedPositionsToggle from 'pages/MyEarnings/PoolFilteringBar/ClosedPositionsToggle'
 import SearchInput from 'pages/MyEarnings/PoolFilteringBar/SearchInput'
@@ -138,7 +139,10 @@ const PoolFilteringBar = () => {
             }}
           >
             <ClosedPositionsToggle />
-            <SubscribeNotificationButton iconOnly={true} trackingEvent={undefined} />
+            <SubscribeNotificationButton
+              iconOnly={true}
+              trackingEvent={MIXPANEL_TYPE.EARNING_DASHBOARD_CLICK_SUBSCRIBE}
+            />
           </Flex>
         </Flex>
         <SearchInput />
@@ -180,7 +184,10 @@ const PoolFilteringBar = () => {
               <ExpandCollapseAll />
             </Flex>
 
-            <SubscribeNotificationButton iconOnly={false} trackingEvent={undefined} />
+            <SubscribeNotificationButton
+              iconOnly={false}
+              trackingEvent={MIXPANEL_TYPE.EARNING_DASHBOARD_CLICK_SUBSCRIBE}
+            />
           </Flex>
         </Flex>
 
@@ -225,7 +232,7 @@ const PoolFilteringBar = () => {
 
         <SearchInput />
 
-        <SubscribeNotificationButton iconOnly={false} trackingEvent={undefined} />
+        <SubscribeNotificationButton iconOnly={false} trackingEvent={MIXPANEL_TYPE.EARNING_DASHBOARD_CLICK_SUBSCRIBE} />
       </Flex>
     </Flex>
   )

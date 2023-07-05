@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Share2 } from 'react-feather'
 import { Flex } from 'rebass'
 
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import ShareModal from 'pages/MyEarnings/ShareModal'
 
@@ -12,6 +13,7 @@ type Props = {
 const ShareTotalEarningsButton: React.FC<Props> = ({ totalValue }) => {
   const theme = useTheme()
   const [isOpen, setOpen] = useState(false)
+  const { mixpanelHandler } = useMixpanel()
 
   return (
     <Flex
@@ -27,6 +29,7 @@ const ShareTotalEarningsButton: React.FC<Props> = ({ totalValue }) => {
       }}
       role="button"
       onClick={() => {
+        mixpanelHandler(MIXPANEL_TYPE.EARNING_DASHBOARD_CLICK_TOP_LEVEL_SHARE_BUTTON)
         setOpen(true)
       }}
     >

@@ -261,6 +261,18 @@ export enum MIXPANEL_TYPE {
   CROSS_CHAIN_CLICK_DISCLAIMER_CHECKBOX,
   CROSS_CHAIN_TXS_SUBMITTED,
   CROSS_CHAIN_CLICK_SUBSCRIBE,
+
+  // earning dashboard
+  EARNING_DASHBOARD_CLICK_TOP_LEVEL_SHARE_BUTTON,
+  EARNING_DASHBOARD_SHARE_SUCCESSFULLY,
+  EARNING_DASHBOARD_CLICK_POOL_EXPAND,
+  EARNING_DASHBOARD_CLICK_ALL_CHAINS_BUTTON,
+  EARNING_DASHBOARD_CLICK_REFRESH_BUTTON,
+  EARNING_DASHBOARD_CLICK_CHANGE_TIMEFRAME_EARNING_CHART,
+  EARNING_DASHBOARD_CLICK_ADD_LIQUIDITY_BUTTON,
+  EARNING_DASHBOARD_CLICK_CURRENT_CHAIN_BUTTON,
+  EARNING_DASHBOARD_VIEW_PAGE,
+  EARNING_DASHBOARD_CLICK_SUBSCRIBE,
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES: readonly TRANSACTION_TYPE[] = [
@@ -1252,6 +1264,63 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
         }
         case MIXPANEL_TYPE.KYBERAI_AWESOME_CLICK: {
           mixpanel.track('KyberAI - Click Awesome Button', payload)
+          break
+        }
+
+        case MIXPANEL_TYPE.EARNING_DASHBOARD_CLICK_TOP_LEVEL_SHARE_BUTTON: {
+          mixpanel.track('Earning Dashboard - Share button click')
+          break
+        }
+
+        case MIXPANEL_TYPE.EARNING_DASHBOARD_SHARE_SUCCESSFULLY: {
+          mixpanel.track('Earning Dashboard - Share success', {
+            option: payload,
+          })
+          break
+        }
+
+        case MIXPANEL_TYPE.EARNING_DASHBOARD_CLICK_POOL_EXPAND: {
+          const { pool_name, pool_address } = payload as {
+            pool_name: string
+            pool_address: string
+          }
+
+          mixpanel.track('Earning Dashboard - Pool expand click', { pool_name, pool_address })
+          break
+        }
+
+        case MIXPANEL_TYPE.EARNING_DASHBOARD_CLICK_ALL_CHAINS_BUTTON: {
+          mixpanel.track('Earning Dashboard - All Chain button click')
+          break
+        }
+
+        case MIXPANEL_TYPE.EARNING_DASHBOARD_CLICK_REFRESH_BUTTON: {
+          mixpanel.track('Earning Dashboard - Refresh button click')
+          break
+        }
+
+        case MIXPANEL_TYPE.EARNING_DASHBOARD_CLICK_CHANGE_TIMEFRAME_EARNING_CHART: {
+          mixpanel.track('Earning Dashboard - Multi chain earning chart - Change timeframe')
+          break
+        }
+
+        case MIXPANEL_TYPE.EARNING_DASHBOARD_CLICK_ADD_LIQUIDITY_BUTTON: {
+          mixpanel.track('Earning Dashboard - Add liquidity button click')
+          break
+        }
+
+        case MIXPANEL_TYPE.EARNING_DASHBOARD_CLICK_CURRENT_CHAIN_BUTTON: {
+          mixpanel.track('Earning Dashboard - Current chain button click')
+          break
+        }
+
+        case MIXPANEL_TYPE.EARNING_DASHBOARD_VIEW_PAGE: {
+          mixpanel.track('Earning Dashboard - Page View')
+          break
+        }
+
+        case MIXPANEL_TYPE.EARNING_DASHBOARD_CLICK_SUBSCRIBE: {
+          mixpanel.track('Earning Dashboard - Subscribe Click')
           break
         }
       }

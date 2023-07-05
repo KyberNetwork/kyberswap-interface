@@ -22,6 +22,7 @@ import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import { getSocialShareUrls } from 'components/ShareModal'
 import useCopyClipboard from 'hooks/useCopyClipboard'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useShareImage from 'hooks/useShareImage'
 import useTheme from 'hooks/useTheme'
 import { ButtonText, MEDIA_WIDTHS } from 'theme'
@@ -119,12 +120,12 @@ const ShareContainer = styled.div`
 `
 
 enum ShareType {
-  TELEGRAM,
-  FB,
-  DISCORD,
-  TWITTER,
-  COPY,
-  DOWNLOAD,
+  TELEGRAM = 'telegram',
+  FB = 'facebook',
+  DISCORD = 'discord',
+  TWITTER = 'twitter',
+  COPY = 'copy',
+  DOWNLOAD = 'save',
 }
 
 type Props = {
@@ -152,6 +153,7 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
   const [shareUrlState, setShareUrl] = useState('')
   const [imageUrlState, setImageUrl] = useState('')
   const [loadingType, setLoading] = useState<ShareType>()
+  const { mixpanelHandler } = useMixpanel()
 
   useEffect(() => {
     setShareUrl('')
@@ -298,7 +300,13 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
           )}
           <ShareContainer>
             {listShare.map(({ icon, type }, index) => (
-              <ButtonWrapper key={index} onClick={() => generateImageUrlByMethod(type)}>
+              <ButtonWrapper
+                key={index}
+                onClick={() => {
+                  mixpanelHandler(MIXPANEL_TYPE.EARNING_DASHBOARD_SHARE_SUCCESSFULLY, type)
+                  generateImageUrlByMethod(type)
+                }}
+              >
                 {loadingType === type ? <Loader /> : icon}
               </ButtonWrapper>
             ))}
