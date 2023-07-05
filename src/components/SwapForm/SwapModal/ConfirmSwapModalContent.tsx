@@ -251,7 +251,7 @@ export default function ConfirmSwapModalContent({
       <Wrapper>
         <AutoColumn>
           <RowBetween>
-            <Text fontWeight={400} fontSize={20}>
+            <Text fontWeight={500} fontSize={20}>
               <Trans>Confirm Swap Details</Trans>
             </Text>
             <CloseIcon onClick={onDismiss} />
