@@ -14,8 +14,12 @@ import { Loading } from 'pages/ProAmmPool/ContentLoader'
 const formatUSDValue = (v: string) => {
   const num = Number(v)
 
-  if (num < 0.1) {
-    return '< $0.1'
+  if (num === 0) {
+    return '$0'
+  }
+
+  if (num < 0.01) {
+    return '< $0.01'
   }
 
   const formatter = Intl.NumberFormat('en-US', {
@@ -23,7 +27,7 @@ const formatUSDValue = (v: string) => {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 0,
-    maximumFractionDigits: 1,
+    maximumFractionDigits: num < 0.1 ? 2 : 1,
   })
 
   return formatter.format(num)

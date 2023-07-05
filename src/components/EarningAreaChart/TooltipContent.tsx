@@ -9,7 +9,24 @@ import useTheme from 'hooks/useTheme'
 import { EarningStatsTick } from 'types/myEarnings'
 import { formattedNum } from 'utils'
 
-import { formatUSDValue } from './utils'
+const formatUSDValue = (v: number) => {
+  if (v === 0) {
+    return '$0'
+  }
+
+  if (v < 0.0001) {
+    return '< $0.0001'
+  }
+
+  const formatter = Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    notation: 'compact',
+    maximumSignificantDigits: 4,
+  })
+
+  return formatter.format(v)
+}
 
 const TokensWrapper = styled.div`
   display: flex;
