@@ -33,13 +33,13 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useTheme from 'hooks/useTheme'
-import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { Dots, Wrapper } from 'pages/Pool/styleds'
-import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
+import { useWalletModalToggle } from 'state/application/hooks'
 import { Field } from 'state/mint/actions'
 import { useDerivedZapInInfo, useMintState, useZapInActionHandlers } from 'state/mint/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useDegenModeManager, useUserSlippageTolerance } from 'state/user/hooks'
@@ -328,8 +328,13 @@ const ZapIn = ({
     [currencies, dependentField, independentField],
   )
 
-  const usdPrices = useTokensPrice(tokens)
-  const marketPrices = useTokensMarketPrice(tokens)
+  const tokenAddresses: string[] = useMemo(
+    () => tokens.map(token => token?.address as string).filter(item => !!item),
+    [tokens],
+  )
+
+  const marketPriceMap = useTokenPrices(tokenAddresses)
+  const marketPrices = tokens.map(item => marketPriceMap[item?.address || ''] || 0)
 
   const poolPrice =
     independentField === Field.CURRENCY_A ? Number(price?.toSignificant(6)) : Number(price?.invert().toSignificant(6))
@@ -342,19 +347,19 @@ const ZapIn = ({
   }, [onSwitchField])
 
   const estimatedUsd =
-    userInCurrencyAmount && usdPrices[0] ? parseFloat(userInCurrencyAmount.toSignificant(6)) * usdPrices[0] : 0
+    userInCurrencyAmount && marketPrices[0] ? parseFloat(userInCurrencyAmount.toSignificant(6)) * marketPrices[0] : 0
 
   const tokenAPoolAllocUsd =
-    usdPrices[0] &&
+    marketPrices[0] &&
     parsedAmounts &&
     parsedAmounts[independentField] &&
-    usdPrices[0] * parseFloat((parsedAmounts[independentField] as CurrencyAmount<Currency>).toSignificant(6))
+    marketPrices[0] * parseFloat((parsedAmounts[independentField] as CurrencyAmount<Currency>).toSignificant(6))
 
   const tokenBPoolAllocUsd =
-    usdPrices[1] &&
+    marketPrices[1] &&
     parsedAmounts &&
     parsedAmounts[dependentField] &&
-    usdPrices[1] * parseFloat((parsedAmounts[dependentField] as CurrencyAmount<Currency>).toSignificant(6))
+    marketPrices[1] * parseFloat((parsedAmounts[dependentField] as CurrencyAmount<Currency>).toSignificant(6))
 
   const estimatedUsdForPair: [number, number] =
     independentField === Field.CURRENCY_A
@@ -484,8 +489,8 @@ const ZapIn = ({
               />
               <Flex justifyContent="space-between" alignItems="center" marginTop="0.5rem">
                 <USDPrice>
-                  {usdPrices[0] ? (
-                    `1 ${independentToken?.symbol} = ${formattedNum(usdPrices[0].toString(), true)}`
+                  {marketPrices[0] ? (
+                    `1 ${independentToken?.symbol} = ${formattedNum(marketPrices[0].toString(), true)}`
                   ) : (
                     <Loader />
                   )}
