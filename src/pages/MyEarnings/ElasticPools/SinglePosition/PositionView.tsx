@@ -157,9 +157,9 @@ const PositionView: React.FC<CommonProps> = props => {
         </Row>
 
         <Row>
-          {/* TODO: check if there're more than 10 tokens */}
           <HoverDropdown
             anchor={<Value>{liquidityInUsdString}</Value>}
+            disabled={!liquidityInUsd || Number.isNaN(liquidityInUsd)}
             text={
               <>
                 <Flex alignItems="center">
