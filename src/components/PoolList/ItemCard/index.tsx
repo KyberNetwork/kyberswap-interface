@@ -49,6 +49,7 @@ import {
   priceRangeCalcBySubgraphPool,
   useFarmApr,
 } from 'utils/dmm'
+import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 
 const StyledLink = styled(ExternalLink)`
   :hover {
@@ -128,11 +129,14 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
   const yourShareOfPool =
     liquidityTokenBalance && totalSupply ? new Percent(liquidityTokenBalance.quotient, totalSupply.quotient) : undefined
 
+  const currency0Symbol = getTokenSymbolWithHardcode(chainId, currency0.wrapped.address, currency0.symbol)
+  const currency1Symbol = getTokenSymbolWithHardcode(chainId, currency1.wrapped.address, currency1.symbol)
+
   const poolTitle = (
     <Flex alignItems="center">
       <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={20} />
       <Text fontSize="16px" fontWeight="500">
-        {poolData.token0.symbol} - {poolData.token1.symbol}
+        {currency0Symbol} - {currency1Symbol}
       </Text>
       <FeeTag style={{ fontSize: '12px' }}>AMP {formattedNum(amp.toSignificant(5))}</FeeTag>
 
@@ -368,11 +372,11 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
             <TokenRatioGrid>
               <CurrencyLogo currency={currency0} size="32px" />
               <Flex flexDirection="column">
-                <TokenRatioName>{poolData.token0.symbol}</TokenRatioName>
+                <TokenRatioName>{currency0Symbol}</TokenRatioName>
                 <TokenRatioPercent>{percentToken0}%</TokenRatioPercent>
               </Flex>
               <Flex flexDirection="column" alignItems="flex-end">
-                <TokenRatioName>{poolData.token1.symbol}</TokenRatioName>
+                <TokenRatioName>{currency1Symbol}</TokenRatioName>
                 <TokenRatioPercent>{percentToken1}%</TokenRatioPercent>
               </Flex>
               <CurrencyLogo currency={currency1} size="32px" />
@@ -381,19 +385,27 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
 
           <Flex justifyContent="space-between" color={theme.subText} fontSize="12px" fontWeight="500" marginTop="1rem">
             <Text>
-              {poolData.token0.symbol}/{poolData.token1.symbol}
+              {currency0Symbol}/{currency1Symbol}
             </Text>
             <Text>
-              {poolData.token1.symbol}/{poolData.token0.symbol}
+              {currency1Symbol}/{currency0Symbol}
             </Text>
           </Flex>
 
-          <Flex justifyContent="space-between" fontSize="16px" fontWeight="500" marginTop="0.25rem">
+          <Flex
+            justifyContent="space-between"
+            fontSize="16px"
+            fontWeight="500"
+            marginTop="0.25rem"
+            sx={{
+              gap: '16px',
+            }}
+          >
             <Text>
               {formatPriceMin(priceRangeCalcBySubgraphPool(poolData)[0][0])} -{' '}
               {formatPriceMax(priceRangeCalcBySubgraphPool(poolData)[0][1])}
             </Text>
-            <Text>
+            <Text textAlign={'end'}>
               {formatPriceMin(priceRangeCalcBySubgraphPool(poolData)[1][0])} -{' '}
               {formatPriceMax(priceRangeCalcBySubgraphPool(poolData)[1][1])}
             </Text>
@@ -409,7 +421,7 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
               {poolData.fee
                 ? factories?.[0]?.result !== undefined
                   ? poolData.fee / (isNewStaticFeePool ? 1000 : 100) + '%'
-                  : ''
+                  : '-'
                 : feeRangeCalc(+amp.toSignificant(5))}
             </Text>
             <Text>{ampLiquidity}</Text>
