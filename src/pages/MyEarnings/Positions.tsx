@@ -1,4 +1,4 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { Pool } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
@@ -49,8 +49,18 @@ type Props = {
   pool: Pool | undefined
   pendingFees: { [id: string]: [string, string] }
   tokenPrices: { [id: string]: number }
+  currency0: Currency
+  currency1: Currency
 }
-const Positions: React.FC<Props> = ({ positionEarnings, chainId, pool, pendingFees, tokenPrices }) => {
+const Positions: React.FC<Props> = ({
+  positionEarnings,
+  chainId,
+  pool,
+  pendingFees,
+  tokenPrices,
+  currency0,
+  currency1,
+}) => {
   const [isViewEarnings, setViewEarnings] = useState(false)
 
   const [numberOfVisiblePositions, setNumberOfVisiblePositions] = useState(() => {
@@ -124,6 +134,8 @@ const Positions: React.FC<Props> = ({ positionEarnings, chainId, pool, pendingFe
             pendingFee={pendingFees[positionEarning.id]}
             tokenPrices={tokenPrices}
             isInitiallyViewEarnings={isViewEarnings}
+            currency0={currency0}
+            currency1={currency1}
           />
         ))}
       </ListPositions>

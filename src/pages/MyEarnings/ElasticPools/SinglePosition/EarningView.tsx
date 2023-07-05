@@ -22,7 +22,7 @@ const MyEarningsOverTimePanel = styled(OriginalMyEarningsOverTimePanel)`
 `
 
 const EarningView: React.FC<CommonProps> = props => {
-  const { positionEarning, chainId } = props
+  const { positionEarning, chainId, myFarmAPR, myPoolAPR } = props
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
 
   // format pool value
@@ -84,8 +84,8 @@ const EarningView: React.FC<CommonProps> = props => {
         </Row>
 
         <Row>
-          <ValueAPR>--</ValueAPR>
-          <ValueAPR>--</ValueAPR>
+          <ValueAPR>{myPoolAPR}</ValueAPR>
+          <ValueAPR>{myFarmAPR}</ValueAPR>
         </Row>
       </Column>
 

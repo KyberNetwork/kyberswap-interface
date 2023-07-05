@@ -194,6 +194,24 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
     )
   }
 
+  if (!visibleCurrency0 || !visibleCurrency1) {
+    return null
+  }
+
+  const renderPositions = () => {
+    return (
+      <Positions
+        positionEarnings={positionEarnings}
+        chainId={chainId}
+        pool={pool}
+        pendingFees={pendingFees}
+        tokenPrices={tokenPrices}
+        currency0={visibleCurrency0}
+        currency1={visibleCurrency1}
+      />
+    )
+  }
+
   if (upToExtraSmall) {
     return (
       <Flex
@@ -314,13 +332,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
               }}
             />
 
-            <Positions
-              positionEarnings={positionEarnings}
-              chainId={chainId}
-              pool={pool}
-              pendingFees={pendingFees}
-              tokenPrices={tokenPrices}
-            />
+            {renderPositions()}
           </>
         )}
       </Flex>
@@ -465,13 +477,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
             </Flex>
           </Flex>
           <PoolEarningsSection historicalEarning={poolEarning.historicalEarning} chainId={chainId} />
-          <Positions
-            positionEarnings={positionEarnings}
-            chainId={chainId}
-            pool={pool}
-            pendingFees={pendingFees}
-            tokenPrices={tokenPrices}
-          />
+          {renderPositions()}
         </>
       )}
     </Flex>

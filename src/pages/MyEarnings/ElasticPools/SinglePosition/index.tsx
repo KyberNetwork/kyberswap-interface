@@ -1,4 +1,4 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { useEffect, useMemo, useState } from 'react'
 import { Flex } from 'rebass'
@@ -8,6 +8,9 @@ import styled from 'styled-components'
 import { CommonProps } from 'pages/MyEarnings/ElasticPools/SinglePosition/CommonView'
 import EarningView from 'pages/MyEarnings/ElasticPools/SinglePosition/EarningView'
 import PositionView from 'pages/MyEarnings/ElasticPools/SinglePosition/PositionView'
+import { calculateMyFarmAPR, calculateMyPoolAPR } from 'pages/MyEarnings/utils'
+import { useElasticFarms } from 'state/farms/elastic/hooks'
+import { formattedNum } from 'utils'
 
 const FlipCard = styled.div<{ flip: boolean; joined?: boolean }>`
   overflow: hidden;
@@ -30,6 +33,8 @@ type Props = {
   pool: Pool | undefined
   pendingFee: [string, string]
   tokenPrices: { [key: string]: number }
+  currency0: Currency
+  currency1: Currency
 }
 const SinglePosition: React.FC<Props> = ({
   positionEarning,
@@ -38,6 +43,8 @@ const SinglePosition: React.FC<Props> = ({
   pendingFee,
   tokenPrices,
   isInitiallyViewEarnings,
+  currency0,
+  currency1,
 }) => {
   const [isViewEarnings, setViewEarnings] = useState(isInitiallyViewEarnings)
 
@@ -54,6 +61,44 @@ const SinglePosition: React.FC<Props> = ({
     return undefined
   }, [pool, positionEarning.liquidity, positionEarning.tickLower, positionEarning.tickUpper])
 
+  const { userFarmInfo = {} } = useElasticFarms()
+
+  const myPoolAPR = useMemo(() => {
+    if (!position || !currency0 || !currency1) {
+      return undefined
+    }
+
+    return calculateMyPoolAPR(positionEarning, position, tokenPrices, currency0, currency1, pendingFee)
+  }, [pendingFee, position, positionEarning, tokenPrices, currency0, currency1])
+
+  const farmAddress = useMemo(() => {
+    let farmAddress = ''
+    Object.entries(userFarmInfo).forEach(([address, info]) => {
+      Object.keys(info.rewardByNft).forEach(key => {
+        if (key.split('_')[1] === positionEarning.id) {
+          farmAddress = address
+        }
+      })
+    })
+
+    return farmAddress
+  }, [positionEarning.id, userFarmInfo])
+
+  const myFarmAPR = useMemo(() => {
+    if (!position || !currency0 || !currency1) {
+      return undefined
+    }
+
+    return calculateMyFarmAPR(positionEarning, position, tokenPrices, currency0, currency1, userFarmInfo)
+  }, [position, positionEarning, tokenPrices, userFarmInfo, currency0, currency1])
+
+  const nft = useMemo(() => {
+    return Object.values(userFarmInfo)
+      .map(info => Object.values(info.joinedPositions).flat())
+      .flat()
+      .find(item => item.nftId.toString() === positionEarning.id)
+  }, [positionEarning.id, userFarmInfo])
+
   const toggleFlipped = () => {
     setViewEarnings(v => !v)
   }
@@ -66,7 +111,7 @@ const SinglePosition: React.FC<Props> = ({
     }
   }, [isInitiallyViewEarnings])
 
-  if (!position) {
+  if (!position || !currency0 || !currency1) {
     return null
   }
 
@@ -77,6 +122,12 @@ const SinglePosition: React.FC<Props> = ({
     position,
     pendingFee,
     tokenPrices,
+    myPoolAPR: myPoolAPR ? `${formattedNum(myPoolAPR, false, 4)}%` : '--',
+    myFarmAPR: myFarmAPR ? `${formattedNum(myFarmAPR, false, 4)}%` : '--',
+    farmAddress,
+    currency0,
+    currency1,
+    nft,
   }
 
   return (

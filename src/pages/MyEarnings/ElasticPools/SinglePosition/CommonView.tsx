@@ -1,4 +1,4 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { Repeat } from 'react-feather'
@@ -9,6 +9,7 @@ import styled from 'styled-components'
 import Background from 'assets/images/card-background2.png'
 import useTheme from 'hooks/useTheme'
 import PositionId from 'pages/MyEarnings/ElasticPools/SinglePosition/PositionId'
+import { NFTPosition } from 'state/farms/elastic/types'
 
 export const ViewWrapper = styled.div`
   display: flex;
@@ -29,6 +30,12 @@ export type CommonProps = {
   chainId: ChainId
   pendingFee: [string, string]
   tokenPrices: { [id: string]: number }
+  myPoolAPR: string
+  myFarmAPR: string
+  farmAddress: string
+  currency0: Currency
+  currency1: Currency
+  nft: NFTPosition | undefined
 }
 
 type Props = {

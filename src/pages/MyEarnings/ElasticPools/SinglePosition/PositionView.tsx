@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom'
@@ -20,79 +20,49 @@ import PriceRangeChart from 'pages/MyEarnings/ElasticPools/SinglePosition/PriceR
 import { Column, Label, Row, Value, ValueAPR } from 'pages/MyEarnings/ElasticPools/SinglePosition/styleds'
 import HoverDropdown from 'pages/MyEarnings/HoverDropdown'
 import { useRemoveLiquidityFromLegacyPosition } from 'pages/MyEarnings/hooks'
-import { useElasticFarms } from 'state/farms/elastic/hooks'
 import { useAppSelector } from 'state/hooks'
 import { updateChainId } from 'state/user/actions'
-import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import ActionButtons from './ActionButtons'
 
 const defaultPendingFee = ['0', '0']
 
 const PositionView: React.FC<CommonProps> = props => {
-  const { positionEarning, position, pendingFee = defaultPendingFee, tokenPrices: prices, chainId } = props
+  const {
+    positionEarning,
+    position,
+    pendingFee = defaultPendingFee,
+    tokenPrices: prices,
+    chainId,
+    currency0,
+    currency1,
+    myFarmAPR,
+    myPoolAPR,
+    farmAddress,
+    nft,
+  } = props
+
   const { chainId: currentChainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const dispatch = useDispatch()
   const isLegacyPosition = useAppSelector(state => state.myEarnings.activeTab === VERSION.ELASTIC_LEGACY)
 
-  // Need these because we'll display native tokens instead of wrapped tokens
-  const visibleCurrency0 = unwrappedToken(position.pool.token0)
-  const visibleCurrency1 = unwrappedToken(position.pool.token1)
-
-  const liquidityValue0 = CurrencyAmount.fromRawAmount(visibleCurrency0, position.amount0.quotient)
-  const liquidityValue1 = CurrencyAmount.fromRawAmount(visibleCurrency1, position.amount1.quotient)
+  const liquidityValue0 = CurrencyAmount.fromRawAmount(currency0, position.amount0.quotient)
+  const liquidityValue1 = CurrencyAmount.fromRawAmount(currency1, position.amount1.quotient)
 
   const isElasticLegacyPosition = useAppSelector(state => state.myEarnings.activeTab === VERSION.ELASTIC_LEGACY)
 
-  const feeReward0 = CurrencyAmount.fromRawAmount(visibleCurrency0, pendingFee[0])
-  const feeReward1 = CurrencyAmount.fromRawAmount(visibleCurrency1, pendingFee[1])
+  const feeReward0 = CurrencyAmount.fromRawAmount(currency0, pendingFee[0])
+  const feeReward1 = CurrencyAmount.fromRawAmount(currency1, pendingFee[1])
   const feeUsd =
     +feeReward0.toExact() * prices[position.pool.token0.address] +
     +feeReward1.toExact() * prices[position.pool.token1.address]
 
   const liquidityInUsd =
-    parseFloat(position.amount0.toExact() || '0') * prices[visibleCurrency0.wrapped.address || ''] +
-    parseFloat(position.amount1.toExact() || '0') * prices[visibleCurrency1.wrapped.address || '']
+    parseFloat(position.amount0.toExact() || '0') * prices[currency0.wrapped.address || ''] +
+    parseFloat(position.amount1.toExact() || '0') * prices[currency1.wrapped.address || '']
 
   const liquidityInUsdString = Number.isNaN(liquidityInUsd) ? '--' : formatUSDValue(liquidityInUsd, true)
-
-  const liquidityTime =
-    positionEarning.lastCollectedFeeAt && Date.now() / 1000 - Number(positionEarning.lastCollectedFeeAt)
-  const estimatedOneYearFee = liquidityTime && (feeUsd * 365 * 24 * 60 * 60) / liquidityTime
-  const positionAPR = liquidityTime ? ((estimatedOneYearFee || 0) * 100) / liquidityInUsd : 0
-
-  const { userFarmInfo = {} } = useElasticFarms()
-  let farmAddress = ''
-  const rewards: CurrencyAmount<Currency>[][] = []
-  Object.entries(userFarmInfo).forEach(([address, info]) => {
-    Object.keys(info.rewardByNft).forEach(key => {
-      if (key.split('_')[1] === positionEarning.id) {
-        rewards.push(info.rewardByNft[key])
-        farmAddress = address
-      }
-    })
-  })
-
-  const rewardUsd = rewards.reduce((total, item) => {
-    const temp = item.reduce((acc, cur) => {
-      return acc + +cur.toExact() * prices[cur.currency.wrapped.address]
-    }, 0)
-
-    return temp + total
-  }, 0)
-
-  const farmingTime =
-    positionEarning.lastHarvestedFarmRewardAt && Date.now() / 1000 - Number(positionEarning.lastHarvestedFarmRewardAt)
-
-  const estimatedOneYearFarmReward = farmingTime && (rewardUsd * 365 * 24 * 60 * 60) / farmingTime
-  const farmAPR =
-    rewardUsd && farmingTime && liquidityInUsd ? ((estimatedOneYearFarmReward || 0) * 100) / liquidityInUsd : 0
-
-  const nft = Object.values(userFarmInfo)
-    .map(info => Object.values(info.joinedPositions).flat())
-    .flat()
-    .find(item => item.nftId.toString() === positionEarning.id)
 
   const myStakedBalance =
     nft &&
@@ -163,13 +133,13 @@ const PositionView: React.FC<CommonProps> = props => {
             text={
               <>
                 <Flex alignItems="center">
-                  <CurrencyLogo currency={visibleCurrency0} size="16px" />
+                  <CurrencyLogo currency={currency0} size="16px" />
                   <Text fontSize={12} marginLeft="4px">
                     {liquidityValue0 && <FormattedCurrencyAmount currencyAmount={liquidityValue0} />}
                   </Text>
                 </Flex>
                 <Flex alignItems="center" marginTop="8px">
-                  <CurrencyLogo currency={visibleCurrency1} size="16px" />
+                  <CurrencyLogo currency={currency1} size="16px" />
                   <Text fontSize={12} marginLeft="4px">
                     {liquidityValue1 && <FormattedCurrencyAmount currencyAmount={liquidityValue1} />}
                   </Text>
@@ -219,8 +189,8 @@ const PositionView: React.FC<CommonProps> = props => {
           </Label>
         </Row>
         <Row>
-          <ValueAPR>{positionAPR ? `${positionAPR.toFixed(2)}%` : '--'}</ValueAPR>
-          <ValueAPR>{farmAPR ? `${farmAPR.toFixed(2)}%` : '--'}</ValueAPR>
+          <ValueAPR>{myPoolAPR}</ValueAPR>
+          <ValueAPR>{myFarmAPR}</ValueAPR>
         </Row>
       </Column>
 
@@ -248,8 +218,8 @@ const PositionView: React.FC<CommonProps> = props => {
         <ActionButtons
           chainId={chainId}
           nftId={positionEarning.id}
-          currency0={visibleCurrency0}
-          currency1={visibleCurrency1}
+          currency0={currency0}
+          currency1={currency1}
           feeAmount={position.pool.fee}
           liquidity={Number(position.liquidity || '0')}
           isLegacy={isLegacyPosition}
