@@ -1,9 +1,9 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
-import { ChainId, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Connection } from '@solana/web3.js'
 import dayjs from 'dayjs'
 import { ethers } from 'ethers'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { KyberSwapConfig, KyberSwapConfigResponse } from 'services/ksSetting'
 
@@ -18,7 +18,6 @@ import {
   PopupItemType,
   PopupType,
 } from 'components/Announcement/type'
-import { ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, isEVM, isSolana } from 'constants/networks'
 import ethereumInfo from 'constants/networks/ethereum'
 import { KNC, KNC_ADDRESS } from 'constants/tokens'
@@ -374,80 +373,6 @@ export function useKNCPrice() {
   const { data } = useTokenPricesWithLoading([KNC_ADDRESS], ChainId.MAINNET)
   if (!data) return 0
   return data[KNC_ADDRESS]
-}
-
-/**
- * Gets the current price of KNC by ETH
- */
-const getTokenPriceByETH = async (tokenAddress: string, apolloClient: ApolloClient<NormalizedCacheObject>) => {
-  let tokenPriceByETH = 0
-
-  try {
-    const result = await apolloClient.query({
-      query: TOKEN_DERIVED_ETH(tokenAddress),
-      fetchPolicy: 'no-cache',
-    })
-
-    const derivedETH = result?.data?.tokens[0]?.derivedETH
-
-    tokenPriceByETH = parseFloat(derivedETH)
-  } catch (e) {
-    console.log(e)
-  }
-
-  return tokenPriceByETH
-}
-
-const cache: { [key: string]: number } = {}
-
-export function useTokensPrice(tokens: (Token | NativeCurrency | null | undefined)[], version?: string): number[] {
-  const ethPrice = useETHPrice(version)
-
-  const { chainId, isEVM } = useActiveWeb3React()
-  const [prices, setPrices] = useState<number[]>([])
-  const { elasticClient, classicClient } = useKyberSwapConfig()
-
-  const ethPriceParsed = ethPrice?.currentPrice ? parseFloat(ethPrice.currentPrice) : undefined
-
-  useEffect(() => {
-    if (!isEVM) return
-    const client = version !== VERSION.ELASTIC ? classicClient : elasticClient
-
-    async function checkForTokenPrice() {
-      const tokensPrice = tokens.map(async token => {
-        if (!token) {
-          return 0
-        }
-
-        if (!ethPriceParsed) {
-          return 0
-        }
-
-        if (token.isNative || token?.address === ZERO_ADDRESS) {
-          return ethPriceParsed
-        }
-
-        const key = `${token.address}_${chainId}_${version}`
-        if (cache[key]) return cache[key]
-
-        const tokenPriceByETH = await getTokenPriceByETH(token?.address, client)
-        const tokenPrice = tokenPriceByETH * ethPriceParsed
-
-        if (tokenPrice) cache[key] = tokenPrice
-
-        return tokenPrice || 0
-      })
-
-      const result = await Promise.all(tokensPrice)
-
-      setPrices(result)
-    }
-
-    checkForTokenPrice()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ethPriceParsed, chainId, isEVM, elasticClient, classicClient, JSON.stringify(tokens), version])
-
-  return prices
 }
 
 export const useServiceWorkerRegistration = () => {
