@@ -15,6 +15,7 @@ import {
   KEY_GUEST_DEFAULT,
   useAllProfileInfo,
   useSaveUserProfile,
+  useSessionInfo,
   useSetPendingAuthentication,
   useSignedAccount,
 } from 'state/authen/hooks'
@@ -34,6 +35,7 @@ let needSignInAfterConnectWallet = false
 let accountSignAfterConnectedWallet: string | undefined
 const useLogin = (autoLogin = false) => {
   const { account, chainId } = useActiveWeb3React()
+  const { userInfo } = useSessionInfo()
   const [createProfile] = useGetOrCreateProfileMutation()
   const [connectWalletToProfile] = useConnectWalletToProfileMutation()
   const notify = useNotify()
@@ -318,12 +320,12 @@ const useLogin = (autoLogin = false) => {
 
   useEffect(() => {
     const { connectedMethod } = getConnectedProfile()
-    if (connectedMethod === LoginMethod.ANONYMOUS && account && autoLogin) {
+    if (connectedMethod === LoginMethod.ANONYMOUS && account && autoLogin && userInfo?.identityId) {
       try {
         connectWalletToProfile({ walletAddress: account })
       } catch (error) {}
     }
-  }, [account, connectWalletToProfile, autoLogin])
+  }, [account, connectWalletToProfile, autoLogin, userInfo?.identityId])
 
   return { signOut: signOutWrapped, signIn: signInWrapped, signOutAll, importGuestAccount }
 }
