@@ -89,7 +89,7 @@ const ElasticPools = () => {
     return data
   }, [activeTab, elasticEarningQueryResponse, elasticLegacyEarningQueryResponse])
 
-  const isLoading = elasticEarningQueryResponse.isFetching || elasticLegacyEarningQueryResponse.isFetching
+  const isLoading = elasticEarningQueryResponse.isLoading || elasticLegacyEarningQueryResponse.isLoading
 
   const pools: PoolType[] = useMemo(() => {
     if (!earningResponse) {

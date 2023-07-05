@@ -2,7 +2,6 @@ import { Flex } from 'rebass'
 
 import { VERSION } from 'constants/v2'
 import ClassicElasticTab from 'pages/MyEarnings/ClassicElasticTab'
-import ClassicPools from 'pages/MyEarnings/ClassicPools'
 import ElasticPools from 'pages/MyEarnings/ElasticPools'
 import PoolFilteringBar from 'pages/MyEarnings/PoolFilteringBar'
 import { useAppSelector } from 'state/hooks'
@@ -15,7 +14,7 @@ const Pools = () => {
       return <ElasticPools />
     }
 
-    return <ClassicPools />
+    return null
   }
 
   return (
