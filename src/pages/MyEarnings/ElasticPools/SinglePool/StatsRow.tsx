@@ -206,7 +206,8 @@ const StatsRow: React.FC<Props> = ({
         }}
         height="36px"
         as={Link}
-        onClick={() => {
+        onClick={e => {
+          e.stopPropagation()
           mixpanelHandler(MIXPANEL_TYPE.EARNING_DASHBOARD_CLICK_ADD_LIQUIDITY_BUTTON)
         }}
         to={
@@ -228,7 +229,10 @@ const StatsRow: React.FC<Props> = ({
           width: '36px',
           height: '36px',
         }}
-        onClick={() => copy(poolAddress)}
+        onClick={e => {
+          e.stopPropagation()
+          copy(poolAddress)
+        }}
       >
         <CopyIcon size={20} />
       </ButtonIcon>
@@ -246,6 +250,9 @@ const StatsRow: React.FC<Props> = ({
         as="a"
         href={analyticUrl}
         target="_blank"
+        onClick={e => {
+          e.stopPropagation()
+        }}
       >
         <BarChart color={theme.subText} />
       </ButtonIcon>
@@ -282,12 +289,20 @@ const StatsRow: React.FC<Props> = ({
           sx={{
             alignItems: 'center',
             gap: '12px',
+            justifyContent: 'space-between',
           }}
         >
           {renderAddLiquidityButton()}
-          {renderCopyButton()}
-          {renderAnalyticsButton()}
-          {renderToggleExpandButton()}
+          <Flex
+            sx={{
+              alignItems: 'center',
+              gap: '12px',
+            }}
+          >
+            {renderCopyButton()}
+            {renderAnalyticsButton()}
+            {renderToggleExpandButton()}
+          </Flex>
         </Flex>
       </Flex>
     )
@@ -334,6 +349,7 @@ const StatsRow: React.FC<Props> = ({
               gap: '12px',
             }}
           >
+            {renderCopyButton()}
             {renderAnalyticsButton()}
             {renderToggleExpandButton()}
           </Flex>

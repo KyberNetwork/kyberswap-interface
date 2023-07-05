@@ -417,9 +417,11 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
               fontSize: '14px',
               gap: '4px',
             }}
+            onClick={e => {
+              e.stopPropagation()
+            }}
           >
-            <CopyHelper toCopy={poolEarning.id} />
-            <Text>{shortenAddress(chainId, poolEarning.id, 4)}</Text>
+            <CopyHelper toCopy={poolEarning.id} text={shortenAddress(chainId, poolEarning.id, 4)} />
           </Flex>
         </Flex>
 
