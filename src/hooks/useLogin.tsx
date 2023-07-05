@@ -105,7 +105,5 @@ const useLogin = () => {
     }
     isAuthorized().then(wallet => requestSignIn(account || wallet))
   }, [account, signIn])
-
-  console.log(KyberOauth2)
 }
 export default useLogin

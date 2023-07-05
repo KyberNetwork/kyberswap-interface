@@ -240,8 +240,16 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
     return (
       <Flex alignItems="center" sx={{ gap: isSharePc ? '8px' : '4px' }} flexWrap="wrap">
         <Flex>
-          <CurrencyLogo currency={poolInfo.currency0} size={tokenLogoSize + 'px'} />
-          <CurrencyLogo currency={poolInfo.currency1} size={tokenLogoSize + 'px'} />
+          <CurrencyLogo
+            currency={poolInfo.currency0}
+            size={tokenLogoSize + 'px'}
+            style={{ maxWidth: tokenLogoSize, maxHeight: tokenLogoSize }}
+          />
+          <CurrencyLogo
+            currency={poolInfo.currency1}
+            size={tokenLogoSize + 'px'}
+            style={{ maxWidth: tokenLogoSize, maxHeight: tokenLogoSize }}
+          />
         </Flex>
         <Text fontWeight="500" fontSize={isSharePc ? 16 : 12} color={theme.white}>
           <Trans>
