@@ -49,7 +49,7 @@ export default function RangeSelector({
     <Flex sx={{ gap: '16px' }} flexDirection={upToMedium ? 'column' : 'row'}>
       <StepCounter
         value={
-          ticksAtLimit[isSorted ? Bound.LOWER : Bound.UPPER] ? '0' : toSignificantOrMaxIntegerPart(leftPrice, 5) ?? ''
+          ticksAtLimit[isSorted ? Bound.LOWER : Bound.UPPER] ? '0' : toSignificantOrMaxIntegerPart(leftPrice, 6) ?? ''
         }
         onUserInput={onLeftRangeInput}
         width="100%"
@@ -65,7 +65,7 @@ export default function RangeSelector({
       />
       <StepCounter
         value={
-          ticksAtLimit[isSorted ? Bound.UPPER : Bound.LOWER] ? '∞' : toSignificantOrMaxIntegerPart(rightPrice, 5) ?? ''
+          ticksAtLimit[isSorted ? Bound.UPPER : Bound.LOWER] ? '∞' : toSignificantOrMaxIntegerPart(rightPrice, 6) ?? ''
         }
         onUserInput={onRightRangeInput}
         width="100%"
