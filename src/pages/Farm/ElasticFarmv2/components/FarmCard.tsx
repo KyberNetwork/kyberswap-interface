@@ -191,7 +191,7 @@ function FarmCard({
 
   const { pool } = farm
 
-  const addliquidityElasticPool = `${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${
+  const addliquidityElasticPool = `/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${
     farm.token0.isNative ? farm.token0.symbol : farm.token0.address
   }/${farm.token1.isNative ? farm.token1.symbol : pool.token1.address}/${pool.fee}`
 

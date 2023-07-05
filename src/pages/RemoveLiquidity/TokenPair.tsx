@@ -35,9 +35,10 @@ import useIsArgentWallet from 'hooks/useIsArgentWallet'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { Wrapper } from 'pages/Pool/styleds'
-import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
+import { useWalletModalToggle } from 'state/application/hooks'
 import { Field } from 'state/burn/actions'
 import { useBurnActionHandlers, useBurnState, useDerivedBurnInfo } from 'state/burn/hooks'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
@@ -413,7 +414,12 @@ export default function TokenPair({
     }
   }
 
-  const usdPrices = useTokensPrice([tokenA, tokenB])
+  const tokenAddresses: string[] = useMemo(
+    () => [tokenA, tokenB].map(token => token?.address as string).filter(item => !!item),
+    [tokenA, tokenB],
+  )
+  const marketPriceMap = useTokenPrices(tokenAddresses)
+  const usdPrices = [tokenA, tokenB].map(item => marketPriceMap[item?.address || ''] || 0)
 
   const estimatedUsdCurrencyA =
     parsedAmounts[Field.CURRENCY_A] && usdPrices[0]
