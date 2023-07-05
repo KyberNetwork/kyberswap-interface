@@ -305,27 +305,38 @@ const Row = ({
     </Flex>
   )
 
+  const symbol0 = getTokenSymbolWithHardcode(chainId, farmingPool.token0.wrapped.address, farmingPool.token0.symbol)
+  const symbol1 = getTokenSymbolWithHardcode(chainId, farmingPool.token1.wrapped.address, farmingPool.token1.symbol)
+
   return (
     <RowWrapper isOpen={rowOpen && !!depositedPositions.length} data-testid={farmingPool.id}>
       <ProMMFarmTableRow isOpen={rowOpen && !!depositedPositions.length}>
         <div>
           <Flex alignItems="center">
             <DoubleCurrencyLogo currency0={farmingPool.token0} currency1={farmingPool.token1} />
-            <Link
-              to={`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${
-                farmingPool.token0.isNative ? farmingPool.token0.symbol : farmingPool.token0.address
-              }/${farmingPool.token1.isNative ? farmingPool.token1.symbol : farmingPool.token1.address}/${
-                farmingPool.pool.fee
-              }`}
-              style={{
-                textDecoration: 'none',
-              }}
-            >
-              <Text fontSize={14} fontWeight={500}>
-                {getTokenSymbolWithHardcode(chainId, farmingPool.token0.wrapped.address, farmingPool.token0.symbol)} -{' '}
-                {getTokenSymbolWithHardcode(chainId, farmingPool.token1.wrapped.address, farmingPool.token1.symbol)}
-              </Text>
-            </Link>
+            <Text fontSize={14} fontWeight={500} flex={1} maxWidth="fit-content">
+              <Link
+                to={`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${
+                  farmingPool.token0.isNative ? farmingPool.token0.symbol : farmingPool.token0.address
+                }/${farmingPool.token1.isNative ? farmingPool.token1.symbol : farmingPool.token1.address}/${
+                  farmingPool.pool.fee
+                }`}
+                style={{
+                  textDecoration: 'none',
+                }}
+              >
+                <MouseoverTooltip
+                  text={`${symbol0} - ${symbol1}`}
+                  width="fit-content"
+                  containerStyle={{ maxWidth: '100%' }}
+                  placement="top"
+                >
+                  <Text sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {symbol0} - {symbol1}
+                  </Text>
+                </MouseoverTooltip>
+              </Link>
+            </Text>
 
             <FeeTag>FEE {(farmingPool.pool.fee * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
           </Flex>

@@ -170,8 +170,22 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
               currency0={isToken0WETH ? nativeToken : token0}
               currency1={isToken1WETH ? nativeToken : token1}
             />
-            <Text fontSize={14} fontWeight="500">
-              {token0Symbol} - {token1Symbol}
+            <Text flex={1} maxWidth="fit-content">
+              <MouseoverTooltip
+                text={`${token0Symbol} - ${token1Symbol}`}
+                width="fit-content"
+                containerStyle={{ maxWidth: '100%' }}
+                placement="top"
+              >
+                <Text
+                  fontSize={14}
+                  fontWeight="500"
+                  flex={1}
+                  sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                >
+                  {token0Symbol} - {token1Symbol}
+                </Text>
+              </MouseoverTooltip>
             </Text>
             <FeeTag>Fee {(pool.feeTier * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
 

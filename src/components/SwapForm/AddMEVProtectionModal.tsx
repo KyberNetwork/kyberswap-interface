@@ -15,6 +15,7 @@ import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
 import { didUserReject } from 'constants/connectors/utils'
+import { Z_INDEXS } from 'constants/styles'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useNotify } from 'state/application/hooks'
@@ -121,7 +122,14 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
   }, [addNewNetwork, notify, onClose, selectedOption, mixpanelHandler])
 
   return (
-    <Modal isOpen={isOpen} width="fit-content" maxWidth="600px" maxHeight="80vh" onDismiss={onClose}>
+    <Modal
+      isOpen={isOpen}
+      width="fit-content"
+      maxWidth="600px"
+      maxHeight="80vh"
+      onDismiss={onClose}
+      zindex={Z_INDEXS.POPOVER_CONTAINER + 1}
+    >
       <Wrapper>
         <RowBetween align="start">
           <Text fontSize={24} fontWeight={500}>
@@ -133,7 +141,7 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
           <Text fontSize={12} lineHeight="16px">
             <Trans>
               We suggest using the{' '}
-              <ExternalLink href="https://docs.kyberswap.com/getting-started/quickstart/faq#how-to-change-rpc-in-metamask">
+              <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-technologies/rpc">
                 RPC endpoint
               </ExternalLink>{' '}
               of trusted third-parties like{' '}
