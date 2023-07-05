@@ -7,6 +7,7 @@ import earningApi, { useLazyGetElasticEarningQuery, useLazyGetElasticLegacyEarni
 import styled from 'styled-components'
 
 import { ReactComponent as RefreshIcon } from 'assets/svg/refresh.svg'
+import { formatUSDValue } from 'components/EarningAreaChart/utils'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -21,18 +22,6 @@ const formatPercent = (value: number) => {
     style: 'percent',
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
-  })
-
-  return formatter.format(value)
-}
-
-const formatValue = (value: number) => {
-  const formatter = Intl.NumberFormat('en-US', {
-    notation: 'standard',
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 8,
   })
 
   return formatter.format(value)
@@ -121,7 +110,7 @@ const TotalEarningsAndChainSelect: React.FC<Props> = ({ totalEarningToday, total
     return <Value>--</Value>
   }
 
-  const totalValue = formatValue(totalEarningToday)
+  const totalValue = formatUSDValue(totalEarningToday)
 
   const diffPercent =
     totalEarningYesterday && !Number.isNaN(totalEarningYesterday)

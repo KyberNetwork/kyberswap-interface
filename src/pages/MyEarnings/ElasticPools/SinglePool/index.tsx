@@ -12,6 +12,7 @@ import styled from 'styled-components'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import CopyHelper from 'components/Copy'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
+import { formatUSDValue } from 'components/EarningAreaChart/utils'
 import { MoneyBag } from 'components/Icons'
 import Loader from 'components/Loader'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -31,18 +32,6 @@ import { MEDIA_WIDTHS } from 'theme'
 import { isAddress, shortenAddress } from 'utils'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-
-const formatValue = (value: number) => {
-  const formatter = Intl.NumberFormat('en-US', {
-    notation: 'standard',
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 8,
-  })
-
-  return formatter.format(value)
-}
 
 const Badge = styled.div<{ $color?: string }>`
   display: flex;
@@ -148,7 +137,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
     return earning || 0
   }, [poolEarning.historicalEarning])
 
-  const poolEarningStr = formatValue(poolEarningToday)
+  const poolEarningStr = formatUSDValue(poolEarningToday)
 
   const feePercent = (Number(poolEarning.feeTier) * 100) / ELASTIC_BASE_FEE_UNIT + '%'
 

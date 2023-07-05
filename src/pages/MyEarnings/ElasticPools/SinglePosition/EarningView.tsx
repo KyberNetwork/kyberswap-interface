@@ -13,7 +13,7 @@ import OriginalMyEarningsOverTimePanel from 'pages/MyEarnings/MyEarningsOverTime
 import { calculateEarningStatsTick } from 'pages/MyEarnings/utils'
 import { useAppSelector } from 'state/hooks'
 import { EarningStatsTick } from 'types/myEarnings'
-import { formattedNumLong } from 'utils'
+import { formattedNum } from 'utils'
 
 const MyEarningsOverTimePanel = styled(OriginalMyEarningsOverTimePanel)`
   padding: 0;
@@ -64,7 +64,7 @@ const EarningView: React.FC<CommonProps> = props => {
                 >
                   <Logo srcs={[token.logoUrl]} style={{ flex: '0 0 16px', height: '16px', borderRadius: '999px' }} />
                   <Text fontSize={12}>
-                    {formattedNumLong(token.amount, false)} {token.symbol}
+                    {formattedNum(token.amount, false)} {token.symbol}
                   </Text>
                 </Flex>
               ))}
