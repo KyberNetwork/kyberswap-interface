@@ -29,7 +29,7 @@ const formatValue = (value: string | number) => {
     return '--'
   }
   const formatter = Intl.NumberFormat('en-US', {
-    notation: num > 100_000 ? 'compact' : 'standard',
+    notation: num > 1_000_000 ? 'compact' : 'standard',
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 0,

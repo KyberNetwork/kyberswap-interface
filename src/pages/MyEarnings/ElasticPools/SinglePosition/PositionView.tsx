@@ -131,20 +131,25 @@ const PositionView: React.FC<CommonProps> = props => {
             anchor={<Value>{liquidityInUsdString}</Value>}
             disabled={!liquidityInUsd || Number.isNaN(liquidityInUsd)}
             text={
-              <>
+              <Flex
+                sx={{
+                  flexDirection: 'column',
+                  gap: '8px',
+                }}
+              >
                 <Flex alignItems="center">
                   <CurrencyLogo currency={currency0} size="16px" />
                   <Text fontSize={12} marginLeft="4px">
                     {liquidityValue0 && <FormattedCurrencyAmount currencyAmount={liquidityValue0} />}
                   </Text>
                 </Flex>
-                <Flex alignItems="center" marginTop="8px">
+                <Flex alignItems="center">
                   <CurrencyLogo currency={currency1} size="16px" />
                   <Text fontSize={12} marginLeft="4px">
                     {liquidityValue1 && <FormattedCurrencyAmount currencyAmount={liquidityValue1} />}
                   </Text>
                 </Flex>
-              </>
+              </Flex>
             }
           />
 
@@ -152,20 +157,25 @@ const PositionView: React.FC<CommonProps> = props => {
             <HoverDropdown
               anchor={<Value>{formatUSDValue(myStakedBalance, true)}</Value>}
               text={
-                <>
+                <Flex
+                  sx={{
+                    flexDirection: 'column',
+                    gap: '8px',
+                  }}
+                >
                   <Flex alignItems="center">
-                    <CurrencyLogo currency={nft.amount0.currency} size="16px" />
+                    <CurrencyLogo currency={currency0} size="16px" />
                     <Text fontSize={12} marginLeft="4px">
                       <FormattedCurrencyAmount currencyAmount={nft.amount0} />
                     </Text>
                   </Flex>
-                  <Flex alignItems="center" marginTop="8px">
-                    <CurrencyLogo currency={nft.amount1.currency} size="16px" />
+                  <Flex alignItems="center">
+                    <CurrencyLogo currency={currency1} size="16px" />
                     <Text fontSize={12} marginLeft="4px">
                       <FormattedCurrencyAmount currencyAmount={nft.amount1} />
                     </Text>
                   </Flex>
-                </>
+                </Flex>
               }
             />
           ) : (

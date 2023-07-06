@@ -14,6 +14,7 @@ export const Row = styled.div`
 `
 
 export const Value = styled.span`
+  white-space: nowrap;
   font-weight: 500;
   font-size: 16px;
   line-height: 20px;

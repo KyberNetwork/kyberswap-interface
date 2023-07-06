@@ -190,15 +190,15 @@ function ClassicElasticTab() {
   }
 
   const renderElasticPoolsButton = () => {
+    const color =
+      tab === VERSION.ELASTIC ? (!!notSupportedElasticMessage ? theme.disableText : theme.primary) : theme.subText
     return (
       <Flex sx={{ position: 'relative' }} alignItems={'center'} onClick={handleClickElastic}>
-        <PoolElasticIcon size={20} color={tab === VERSION.ELASTIC ? theme.primary : theme.subText} />
+        <PoolElasticIcon size={20} color={color} />
         <Text
           fontWeight={500}
           fontSize={[18, 20, 24]}
-          color={
-            tab === VERSION.ELASTIC ? (!!notSupportedElasticMessage ? theme.disableText : theme.primary) : theme.subText
-          }
+          color={color}
           width={'auto'}
           marginLeft="4px"
           role="button"
