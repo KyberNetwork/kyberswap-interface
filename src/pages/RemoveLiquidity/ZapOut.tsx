@@ -624,6 +624,12 @@ export default function ZapOut({
     )
   }
 
+  const lpToken = useMemo(() => {
+    return (
+      pair && new Token(chainId, pair.liquidityToken?.address, pair.liquidityToken?.decimals, `LP Tokens`, `LP Tokens`)
+    )
+  }, [chainId, pair])
+
   return (
     <>
       <Wrapper>
@@ -689,15 +695,7 @@ export default function ZapOut({
                   onMax={null}
                   onHalf={null}
                   disableCurrencySelect
-                  currency={
-                    new Token(
-                      chainId,
-                      pair.liquidityToken?.address,
-                      pair.liquidityToken?.decimals,
-                      `LP Tokens`,
-                      `LP Tokens`,
-                    )
-                  }
+                  currency={lpToken}
                   id="liquidity-amount"
                 />
               )}
