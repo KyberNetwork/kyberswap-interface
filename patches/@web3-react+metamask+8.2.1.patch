@@ -1,0 +1,20 @@
+diff --git a/node_modules/@web3-react/metamask/dist/index.js b/node_modules/@web3-react/metamask/dist/index.js
+index c8476dd..a613ed1 100644
+--- a/node_modules/@web3-react/metamask/dist/index.js
++++ b/node_modules/@web3-react/metamask/dist/index.js
+@@ -64,7 +64,14 @@ class MetaMask extends types_1.Connector {
+                         this.provider = (_b = this.provider.providers.find((p) => p.isMetaMask)) !== null && _b !== void 0 ? _b : this.provider.providers[0];
+                     }
+                     this.provider.on('connect', ({ chainId }) => {
+-                        this.actions.update({ chainId: parseChainId(chainId) });
++                        this.provider
++                            .request({ method: 'eth_chainId' })
++                            .then(chainId => {
++                                this.actions.update({ chainId: parseChainId(chainId) })
++                            })
++                            .catch(() => {
++                                this.actions.update({ chainId: parseChainId(chainId) })
++                            })
+                     });
+                     this.provider.on('disconnect', (error) => {
+                         var _a;

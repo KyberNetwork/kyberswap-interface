@@ -16,7 +16,7 @@ const TooltipContainer = styled.div<{ width?: string; maxWidth?: string; size?: 
 
 export const TextDashed = styled(Text)<{ color?: string; underlineColor?: string }>`
   width: fit-content;
-  border-bottom: 1px dashed ${({ theme, underlineColor }) => underlineColor || theme.border};
+  border-bottom: 1px dotted ${({ theme, underlineColor }) => underlineColor || theme.border};
 `
 
 export const TextDotted = styled(Text)<{ $underlineColor?: string }>`

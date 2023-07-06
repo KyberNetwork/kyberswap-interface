@@ -56,7 +56,7 @@ export default function SlippageSettingGroup({
         text={
           <Trans>
             MEV Protection will protect you from front-running and sandwich attacks on Ethereum. Learn more{' '}
-            <ExternalLink href="https://docs.kyberswap.com/getting-started/quickstart/faq#how-to-change-rpc-in-metamask">
+            <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/maximal-extractable-value-mev">
               here ↗
             </ExternalLink>
           </Trans>
