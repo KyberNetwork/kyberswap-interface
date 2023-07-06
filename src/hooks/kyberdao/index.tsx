@@ -16,13 +16,24 @@ import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useContract, useContractForReading, useTokenContractForReading } from 'hooks/useContract'
 import useTokenBalance from 'hooks/useTokenBalance'
+import { KNCUtilityTabs } from 'pages/KyberDAO/KNCUtility/type'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { calculateGasMargin } from 'utils'
 
-import { REFUND_AMOUNTS } from './const'
-import { GasRefundTier, ProposalDetail, ProposalStatus, RewardStats, StakerAction, StakerInfo, VoteInfo } from './types'
+import {
+  EligibleTxsInfo,
+  GasRefundTierInfo,
+  ProposalDetail,
+  ProposalStatus,
+  RewardInfo,
+  RewardStats,
+  StakerAction,
+  StakerInfo,
+  TransactionInfo,
+  VoteInfo,
+} from './types'
 
 export function isSupportKyberDao(chainId: ChainId) {
   return isEVM(chainId) && (NETWORKS_INFO_CONFIG[chainId] as EVMNetworkInfo).kyberDAO
@@ -350,20 +361,6 @@ export function useStakingInfo() {
   }
 }
 
-export function useGasRefundInfo() {
-  const { stakedBalance } = useStakingInfo()
-  const tier: GasRefundTier =
-    stakedBalance >= 10000 * 10 ** 18
-      ? GasRefundTier.Tier3
-      : stakedBalance >= 5000 * 10 ** 18
-      ? GasRefundTier.Tier2
-      : stakedBalance >= 500 * 10 ** 18
-      ? GasRefundTier.Tier1
-      : GasRefundTier.Tier0
-  const refundAmount = REFUND_AMOUNTS[tier] // in %
-  return { tier, refundAmount }
-}
-
 export function useVotingInfo() {
   const { account } = useActiveWeb3React()
   const kyberDaoInfo = useKyberDAOInfo()
@@ -531,6 +528,168 @@ export function useVotingInfo() {
       usd: rewardStats ? +rewardStats.pending?.totalAmountInUSD + +rewardStats.liquidated?.totalAmountInUSD : 0,
     },
   }
+}
+
+const aggregateValue = <T extends string>(
+  values: ({ [key in T]: string | number } | undefined)[],
+  field: T,
+): number => {
+  return values.reduce((acc, cur) => {
+    const value = cur?.[field] ?? 0
+    return (typeof value === 'number' ? value : parseFloat(value)) + acc
+  }, 0)
+}
+
+export function useGasRefundTier(): GasRefundTierInfo {
+  const { account } = useActiveWeb3React()
+  const kyberDaoInfo = useKyberDAOInfo()
+
+  const { data } = useSWR<GasRefundTierInfo>(
+    account && kyberDaoInfo?.daoStatsApi + '/api/v1/stakers/' + account + '/refund-info',
+    url => fetcher(url).then(res => res.refundInfo),
+  )
+
+  return data || { userTier: 0, gasRefundPerCentage: 0 }
+}
+
+export function useGasRefundInfo({ rewardStatus = KNCUtilityTabs.Available }: { rewardStatus?: KNCUtilityTabs }) {
+  const { account } = useActiveWeb3React()
+  const kyberDaoInfo = useKyberDAOInfo()
+
+  const { data: claimableReward } = useSWR<RewardInfo>(
+    account && kyberDaoInfo?.daoStatsApi + '/api/v1/stakers/' + account + '/refunds/total?rewardStatus=claimable',
+    url =>
+      fetcher(url)
+        .then(res => res.total)
+        .then(({ knc, usd }) => ({ knc: parseFloat(knc), usd: parseFloat(usd) })),
+  )
+  const { data: pendingReward } = useSWR<RewardInfo>(
+    account && kyberDaoInfo?.daoStatsApi + '/api/v1/stakers/' + account + '/refunds/total?rewardStatus=pending',
+    url =>
+      fetcher(url)
+        .then(res => res.total)
+        .then(({ knc, usd }) => ({ knc: parseFloat(knc), usd: parseFloat(usd) })),
+  )
+  const { data: claimedReward } = useSWR<RewardInfo>(
+    account && kyberDaoInfo?.daoStatsApi + '/api/v1/stakers/' + account + '/refunds/total?rewardStatus=claimed',
+    url =>
+      fetcher(url)
+        .then(res => res.total)
+        .then(({ knc, usd }) => ({ knc: parseFloat(knc), usd: parseFloat(usd) })),
+  )
+  return {
+    reward:
+      rewardStatus === KNCUtilityTabs.Available
+        ? claimableReward
+        : rewardStatus === KNCUtilityTabs.Pending
+        ? pendingReward
+        : rewardStatus === KNCUtilityTabs.Claimed
+        ? claimedReward
+        : undefined,
+    claimableReward,
+    totalReward: {
+      usd: aggregateValue([claimableReward, pendingReward, claimedReward], 'usd'),
+      knc: aggregateValue([claimableReward, pendingReward, claimedReward], 'knc'),
+    },
+  }
+}
+
+export const useEligibleTransactions = (page = 1, pageSize = 100): EligibleTxsInfo | undefined => {
+  const { account } = useActiveWeb3React()
+  const kyberDaoInfo = useKyberDAOInfo()
+
+  const { data: eligibleTransactions } = useSWR<EligibleTxsInfo>(
+    account &&
+      kyberDaoInfo?.daoStatsApi +
+        '/api/v1/stakers/' +
+        account +
+        `/refunds/eligible-transactions?pageSize=${pageSize}&page=${page}`,
+    fetcher,
+  )
+  const mockData = null
+  // { // todo namgold: rm this
+  //   transactions: [
+  //     {
+  //       tx: '0x3c2da10bfa8eb91392af39017a3a9ae2ce4a6389b8179f72a13a33a3a09aa17b',
+  //       timestamp: 1688464079,
+  //       gasRefundInKNC: '2.0049242244407566',
+  //       gasRefundInUSD: '1.1380751867615510496',
+  //       gasFeeInUSD: '5.690375933807755248',
+  //       gasFeeInNativeToken: '0.0029110355919948',
+  //       epoch: 58,
+  //       userTier: 3,
+  //       gasRefundPerCentage: '0.2',
+  //       userWallet: '0xa2dfeb674d997b68ec5adb0a6fb9136bd45c2d2d',
+  //     },
+  //     {
+  //       tx: '0x337281cda0e96ac85763006ab93ceeb1bade9e28508ede29c9069127f8ccf9ab',
+  //       timestamp: 1688441807,
+  //       gasRefundInKNC: '1.0175163053595487',
+  //       gasRefundInUSD: '0.5842059692058795312',
+  //       gasFeeInUSD: '5.842059692058795312',
+  //       gasFeeInNativeToken: '0.0029852424102744',
+  //       epoch: 57,
+  //       userTier: 1,
+  //       gasRefundPerCentage: '0.1',
+  //       userWallet: '0xa2dfeb674d997b68ec5adb0a6fb9136bd45c2d2d',
+  //     },
+  //     {
+  //       tx: '0x1f83b77c1f89027ce5521c3edf9a5468ccc3044cef13251d522102842299463f',
+  //       timestamp: 1688441339,
+  //       gasRefundInKNC: '1.9452476443758978',
+  //       gasRefundInUSD: '1.1168619897707773384',
+  //       gasFeeInUSD: '5.584309948853886692',
+  //       gasFeeInNativeToken: '0.0028535345015554',
+  //       epoch: 57,
+  //       userTier: 3,
+  //       gasRefundPerCentage: '0.2',
+  //       userWallet: '0xa2dfeb674d997b68ec5adb0a6fb9136bd45c2d2d',
+  //     },
+  //     {
+  //       tx: '0x10d45294d5eef72f154ee0169f9026d9f5cffd38d13b7fcd2d1aa08e024f9b67',
+  //       timestamp: 1688441075,
+  //       gasRefundInKNC: '1.6159547416511324',
+  //       gasRefundInUSD: '0.927798798964256016',
+  //       gasFeeInUSD: '6.18532532642837344',
+  //       gasFeeInNativeToken: '0.003160648206128',
+  //       epoch: 57,
+  //       userTier: 2,
+  //       gasRefundPerCentage: '0.15',
+  //       userWallet: '0xa2dfeb674d997b68ec5adb0a6fb9136bd45c2d2d',
+  //     },
+  //     {
+  //       tx: '0x310291331db3be611e53db1f16f4702ab9e7b3ee5d093c81a535d6097ce46810',
+  //       timestamp: 1688440955,
+  //       gasRefundInKNC: '1.8711979899166949',
+  //       gasRefundInUSD: '1.0690303812233271369',
+  //       gasFeeInUSD: '7.126869208155514246',
+  //       gasFeeInNativeToken: '0.0036417690564827',
+  //       epoch: 57,
+  //       userTier: 2,
+  //       gasRefundPerCentage: '0.15',
+  //       userWallet: '0xa2dfeb674d997b68ec5adb0a6fb9136bd45c2d2d',
+  //     },
+  //     {
+  //       tx: '0x4ceceb4a95fc07c7ea51b7f064d38abe584a3471dcd2d9fcc09e41b2873d4a14',
+  //       timestamp: 1688439443,
+  //       gasRefundInKNC: '1.4705842323759179',
+  //       gasRefundInUSD: '0.8400918309239963826',
+  //       gasFeeInUSD: '5.600612206159975884',
+  //       gasFeeInNativeToken: '0.0028645727937068',
+  //       epoch: 57,
+  //       userTier: 2,
+  //       gasRefundPerCentage: '0.15',
+  //       userWallet: '0xa2dfeb674d997b68ec5adb0a6fb9136bd45c2d2d',
+  //     },
+  //   ],
+  //   pagination: {
+  //     totalOfPages: 10,
+  //     currentPage: 1,
+  //     pageSize: 20,
+  //     hasMore: false,
+  //   },
+  // }
+  return mockData || eligibleTransactions
 }
 
 export function useProposalInfoById(id?: number): { proposalInfo?: ProposalDetail } {

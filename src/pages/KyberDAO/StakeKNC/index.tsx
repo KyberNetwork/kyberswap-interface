@@ -21,9 +21,7 @@ import Divider from 'components/Divider'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
-import { useGasRefundInfo, useStakingInfo } from 'hooks/kyberdao'
-import { REFUND_AMOUNTS } from 'hooks/kyberdao/const'
-import { GasRefundTier } from 'hooks/kyberdao/types'
+import { useGasRefundTier, useStakingInfo } from 'hooks/kyberdao'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
@@ -134,7 +132,7 @@ export default function StakeKNC() {
     })
   }
   const kncPrice = useKNCPrice()
-  const { tier } = useGasRefundInfo()
+  const { userTier, gasRefundPerCentage } = useGasRefundTier()
 
   return (
     <Wrapper>
@@ -233,13 +231,7 @@ export default function StakeKNC() {
               Migrate
             </ButtonLight>
           </Card>
-          <Card
-            background={
-              [GasRefundTier.Tier1, GasRefundTier.Tier2, GasRefundTier.Tier3].includes(tier)
-                ? 'linear-gradient(90deg, #1F3435 0%, #162F28 100%)'
-                : undefined
-            }
-          >
+          <Card background={userTier > 1 ? 'linear-gradient(90deg, #1F3435 0%, #162F28 100%)' : undefined}>
             <Image src={migratePNG} alt="Migrate" />
             <CardInfo>
               <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text}>
@@ -257,24 +249,16 @@ export default function StakeKNC() {
             <MouseoverTooltip
               text={
                 <Trans>
-                  Tier{' '}
-                  {tier === GasRefundTier.Tier1
-                    ? `1`
-                    : tier === GasRefundTier.Tier2
-                    ? `2`
-                    : tier === GasRefundTier.Tier3
-                    ? `3`
-                    : ''}{' '}
-                  - You are eligible for{' '}
-                  <NavLink to={APP_PATHS.KYBERDAO_KNC_UTILITY}>{REFUND_AMOUNTS[tier]}% gas refund</NavLink>.
+                  Tier {userTier} - You are eligible for{' '}
+                  <NavLink to={APP_PATHS.KYBERDAO_KNC_UTILITY}>{gasRefundPerCentage * 100}% gas refund</NavLink>.
                 </Trans>
               }
             >
-              {tier === GasRefundTier.Tier1 ? (
+              {userTier === 1 ? (
                 <img src={GasRefundTier1} />
-              ) : tier === GasRefundTier.Tier2 ? (
+              ) : userTier === 2 ? (
                 <img src={GasRefundTier2} />
-              ) : tier === GasRefundTier.Tier3 ? (
+              ) : userTier === 3 ? (
                 <img src={GasRefundTier3} />
               ) : null}
             </MouseoverTooltip>

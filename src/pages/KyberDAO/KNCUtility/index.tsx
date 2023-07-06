@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { formatUnits } from 'ethers/lib/utils'
+import { transparentize } from 'polished'
 import { NavLink } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -10,7 +11,6 @@ import bgimg from 'assets/images/about_background.png'
 import gasrefund from 'assets/images/gasrefund.png'
 import ringwave from 'assets/images/ringwave.png'
 import crystals from 'assets/svg/crystals.svg'
-import { ButtonError } from 'components/Button'
 import Column from 'components/Column'
 import { RowBetween } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
@@ -65,6 +65,15 @@ const Row = styled.div`
     flex: 1 1 0px;
     max-width: 700px;
   }
+`
+const EndedTag = styled.div`
+  padding: 2px 12px;
+  width: fit-content;
+  border-radius: 12px;
+  background: ${({ theme }) => transparentize(0.8, theme.red)};
+  color: ${({ theme }) => theme.red};
+  font-size: 12px;
+  font-weight: 500;
 `
 
 const FormWrapper = styled.div`
@@ -171,9 +180,11 @@ export default function KNCUtility() {
             <Text fontSize={36} fontWeight={400} id="gas-refund-program" alignSelf="start">
               <Trans>Gas Refund Program</Trans>
             </Text>
-            <ButtonError padding="2px 12px" disabled width="fit-content">
-              Ended
-            </ButtonError>
+            <EndedTag>
+              <Text>
+                <Trans>Ended</Trans>
+              </Text>
+            </EndedTag>
           </RowBetween>
           <div />
         </Row>
@@ -244,7 +255,7 @@ export default function KNCUtility() {
           </Column>
         </Row>
         <Row>
-          <Column gap="16px">
+          <Column gap="16px" width="100%">
             <Text fontSize={20} lineHeight="32px" fontWeight={400} id="faq">
               <Trans>FAQ</Trans>
             </Text>

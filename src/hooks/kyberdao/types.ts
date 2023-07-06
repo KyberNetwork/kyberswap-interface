@@ -66,6 +66,39 @@ export interface StakerInfo {
   stake_amount: number
 }
 
+export interface GasRefundTierInfo {
+  userTier: number
+  gasRefundPerCentage: number
+}
+
+export interface RewardInfo {
+  knc: number
+  usd: number
+}
+
+export interface TransactionInfo {
+  tx: string
+  timestamp: number
+  gasRefundInKNC: string
+  gasRefundInUSD: string
+  gasFeeInUSD: string
+  gasFeeInNativeToken: string
+  epoch: number
+  userTier: number
+  gasRefundPerCentage: string
+  userWallet: string
+}
+
+export interface EligibleTxsInfo {
+  transactions: TransactionInfo[]
+  pagination: {
+    totalOfPages: number
+    currentPage: number
+    pageSize: number
+    hasMore: boolean
+  }
+}
+
 export interface StakerAction {
   timestamp: number
   epoch: number
@@ -97,11 +130,4 @@ export interface RewardStats {
     totalAmountInKNC: string
     totalAmountInUSD: string
   }
-}
-
-export enum GasRefundTier {
-  Tier0 = 'Tier0',
-  Tier1 = 'Tier1',
-  Tier2 = 'Tier2',
-  Tier3 = 'Tier3',
 }

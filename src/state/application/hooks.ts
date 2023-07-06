@@ -121,6 +121,10 @@ export function useNotificationModalToggle(): () => void {
   return useToggleModal(ApplicationModal.NOTIFICATION_SUBSCRIPTION)
 }
 
+export function useEligibleTxToggle(): () => void {
+  return useToggleModal(ApplicationModal.ELIGIBLE_TX)
+}
+
 // returns a function that allows adding a popup
 export function useAddPopup(): (
   content: PopupContent,

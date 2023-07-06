@@ -1,19 +1,36 @@
-import { Trans } from '@lingui/macro'
-import { formatUnits } from 'ethers/lib/utils'
+import { ChainId } from '@kyberswap/ks-sdk-core'
+import { Trans, t } from '@lingui/macro'
+import axios from 'axios'
+import { BigNumber } from 'ethers'
 import { darken } from 'polished'
 import { useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
+import { NotificationType } from 'components/Announcement/type'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
+import Dots from 'components/Dots'
 import { RowBetween } from 'components/Row'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import { REWARD_SERVICE_API } from 'constants/env'
+import { KNC } from 'constants/tokens'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useEligibleTransactions, useGasRefundInfo } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
+import { useEligibleTxToggle, useNotify, useOpenNetworkModal, useWalletModalToggle } from 'state/application/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { LinkStyledButton } from 'theme'
+import { formattedNum } from 'utils'
+import { sendEVMTransaction } from 'utils/sendTransaction'
+
+import EligibleTxModal from './EligibleTxModal'
+import { KNCUtilityTabs } from './type'
 
 const TotalReward = styled.div`
-  padding-bottom: 16px;
-  margin-bottom: 16px;
-  border-bottom: 1px solid ${({ theme }) => theme.border};
+  padding-top: 16px;
+  margin-top: 16px;
+  border-top: 1px solid ${({ theme }) => theme.border};
 `
 
 const Wrapper = styled.div`
@@ -22,12 +39,6 @@ const Wrapper = styled.div`
   padding: 24px 24px 30px;
   background-color: ${({ theme }) => theme.background};
 `
-
-enum Tabs {
-  Available,
-  Pending,
-  Claimed,
-}
 
 const Tab = styled(Text)<{ active?: boolean }>`
   ${({ theme }) => theme.flexRowNoWrap}
@@ -55,38 +66,86 @@ const Tab = styled(Text)<{ active?: boolean }>`
 `
 
 export default function GasRefundBox() {
+  const { account, chainId } = useActiveWeb3React()
+  const { library } = useWeb3React()
+  const [selectedTab, setSelectedTab] = useState<KNCUtilityTabs>(KNCUtilityTabs.Available)
   const theme = useTheme()
-  const totalReward = 20000000000000
-  const totalRewardUSD = 2
-  const [selectedTab, setSelectedTab] = useState<Tabs>(Tabs.Available)
+  const { totalReward, reward, claimableReward } = useGasRefundInfo({ rewardStatus: selectedTab })
+  const toggleWalletModal = useWalletModalToggle()
+  const toggleEligibleTxModal = useEligibleTxToggle()
+  const openNetworkModal = useOpenNetworkModal()
+  const notify = useNotify()
+  const [claiming, setClaiming] = useState(false)
+  const addTransactionWithType = useTransactionAdder()
+  const eligibleTxs = useEligibleTransactions(1, 1)
+
+  const claimRewards = async () => {
+    if (!account || !library || !claimableReward || claimableReward.knc <= 0) return
+
+    setClaiming(true)
+
+    const url = REWARD_SERVICE_API + '/rewards/claim'
+    const data = {
+      wallet: account,
+      chainId: chainId.toString(),
+      clientCode: 'gas-refund',
+      ref: '',
+    }
+    let response: any
+    try {
+      response = await axios({ method: 'POST', url, data })
+      if (response?.data?.code !== 200000) throw new Error(response?.data?.message)
+    } catch (error) {
+      console.error('Claim error:', { error })
+      notify({
+        title: t`Claim Error`,
+        summary: error?.response?.data?.message || error?.message || 'Unknown error',
+        type: NotificationType.ERROR,
+      })
+      setClaiming(false)
+      return
+    }
+
+    const rewardContractAddress = response.data.data.ContractAddress
+    const encodedData = response.data.data.EncodedData
+    try {
+      const tx = await sendEVMTransaction(
+        account,
+        library,
+        rewardContractAddress,
+        encodedData,
+        BigNumber.from(0),
+        async transactionResponse => {
+          const transactionReceipt = await transactionResponse.wait()
+          if (transactionReceipt.status === 1) {
+            setClaiming(false)
+          }
+        },
+      )
+      if (!tx) throw new Error()
+      addTransactionWithType({
+        hash: tx.hash,
+        type: TRANSACTION_TYPE.CLAIM_REWARD,
+        extraInfo: {
+          tokenAddress: KNC[chainId].address,
+          tokenAmount: claimableReward.knc.toString(),
+          tokenSymbol: 'KNC',
+        },
+      })
+    } catch (error) {
+      console.error('Claim error:', { error })
+      notify({
+        title: t`Claim Error`,
+        summary: error.message || 'Unknown error',
+        type: NotificationType.ERROR,
+      })
+    } finally {
+      setClaiming(false)
+    }
+  }
+
   return (
     <Wrapper>
-      <TotalReward>
-        <RowBetween>
-          <Flex flexDirection="column" sx={{ gap: '16px' }}>
-            <TextDashed fontSize={14} lineHeight="20px" fontWeight={500} color={theme.subText}>
-              <MouseoverTooltip
-                width="fit-content"
-                text={<Trans>Your Total Rewards = Available Reward + Pending Reward + Claimed Reward</Trans>}
-                placement="top"
-              >
-                <Trans>Your Total Rewards</Trans>
-              </MouseoverTooltip>
-            </TextDashed>
-            <Flex flexDirection="column" sx={{ gap: '8px' }}>
-              <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text} alignItems="center">
-                {formatUnits(totalReward)} KNC
-              </Text>
-              <Text fontSize={12} lineHeight="16px" fontWeight={500} color={theme.subText} alignItems="center">
-                ${totalRewardUSD}
-              </Text>
-            </Flex>
-          </Flex>
-          <Flex alignSelf="end">
-            <ButtonLight padding="2px 12px">Your Transactions</ButtonLight>
-          </Flex>
-        </RowBetween>
-      </TotalReward>
       <RowBetween>
         <Flex flexDirection="column" sx={{ gap: '16px' }}>
           <Flex>
@@ -95,8 +154,11 @@ export default function GasRefundBox() {
               text={<Trans>Available rewards: Claimable rewards in this epoch.</Trans>}
               placement="top"
             >
-              <Tab active={selectedTab === Tabs.Available} onClick={() => setSelectedTab(Tabs.Available)}>
-                Available
+              <Tab
+                active={selectedTab === KNCUtilityTabs.Available}
+                onClick={() => setSelectedTab(KNCUtilityTabs.Available)}
+              >
+                <Trans>Available</Trans>
               </Tab>
             </MouseoverTooltip>
             &nbsp;|&nbsp;
@@ -109,8 +171,11 @@ export default function GasRefundBox() {
               }
               placement="top"
             >
-              <Tab active={selectedTab === Tabs.Pending} onClick={() => setSelectedTab(Tabs.Pending)}>
-                Pending
+              <Tab
+                active={selectedTab === KNCUtilityTabs.Pending}
+                onClick={() => setSelectedTab(KNCUtilityTabs.Pending)}
+              >
+                <Trans>Pending</Trans>
               </Tab>
             </MouseoverTooltip>
             &nbsp;|&nbsp;
@@ -119,24 +184,92 @@ export default function GasRefundBox() {
               text={<Trans>Claimed rewards: Rewards claimed and transferred to user wallet.</Trans>}
               placement="top"
             >
-              <Tab active={selectedTab === Tabs.Claimed} onClick={() => setSelectedTab(Tabs.Claimed)}>
-                Claimed
+              <Tab
+                active={selectedTab === KNCUtilityTabs.Claimed}
+                onClick={() => setSelectedTab(KNCUtilityTabs.Claimed)}
+              >
+                <Trans>Claimed</Trans>
               </Tab>
             </MouseoverTooltip>
           </Flex>
           <Flex flexDirection="column" sx={{ gap: '8px' }}>
             <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text} alignItems="center">
-              {formatUnits(totalReward)} KNC
+              {formattedNum(reward?.knc.toString() || '0')} KNC
             </Text>
             <Text fontSize={12} lineHeight="16px" fontWeight={500} color={theme.subText} alignItems="center">
-              ${totalRewardUSD}
+              {formattedNum(reward?.usd.toString() || '0', true)}
             </Text>
           </Flex>
         </Flex>
         <Flex alignSelf="end">
-          <ButtonPrimary padding="8px 45px">Claim</ButtonPrimary>
+          {account ? (
+            chainId === ChainId.MAINNET ? (
+              claiming ? (
+                <ButtonPrimary padding="8px 45px" onClick={claimRewards}>
+                  <Dots>
+                    <Trans>Claiming</Trans>
+                  </Dots>
+                </ButtonPrimary>
+              ) : (
+                <ButtonPrimary padding="8px 45px" onClick={claimRewards} disabled={(claimableReward?.knc ?? 0) <= 0}>
+                  <Trans>Claim</Trans>
+                </ButtonPrimary>
+              )
+            ) : (
+              <MouseoverTooltip
+                text={
+                  <Trans>
+                    Gas Refund Rewards is only available on Ethereum chain. Switch your network to continue{' '}
+                    <LinkStyledButton onClick={openNetworkModal}>here</LinkStyledButton>
+                  </Trans>
+                }
+                width="244px"
+              >
+                <div>
+                  <ButtonPrimary padding="8px 45px" $disabled>
+                    <Trans>Claim</Trans>
+                  </ButtonPrimary>
+                </div>
+              </MouseoverTooltip>
+            )
+          ) : (
+            <ButtonLight onClick={toggleWalletModal} padding="10px 12px">
+              <Trans>Connect Wallet</Trans>
+            </ButtonLight>
+          )}
         </Flex>
       </RowBetween>
+      <TotalReward>
+        <RowBetween>
+          <Flex flexDirection="column" sx={{ gap: '16px' }}>
+            <TextDashed fontSize={14} lineHeight="20px" fontWeight={500} color={theme.subText}>
+              <MouseoverTooltip
+                width="fit-content"
+                text={<Trans>Total Gas Refund = Available + Pending + Claimed</Trans>}
+                placement="top"
+              >
+                <Trans>Total Gas Refund</Trans>
+              </MouseoverTooltip>
+            </TextDashed>
+            <Flex flexDirection="column" sx={{ gap: '8px' }}>
+              <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text} alignItems="center">
+                {formattedNum(totalReward?.knc.toString() ?? '0')} KNC
+              </Text>
+              <Text fontSize={12} lineHeight="16px" fontWeight={500} color={theme.subText} alignItems="center">
+                {formattedNum(totalReward?.usd.toString() ?? '0', true)}
+              </Text>
+            </Flex>
+          </Flex>
+          <Flex alignSelf="end">
+            {account && eligibleTxs?.transactions.length && (
+              <ButtonLight padding="2px 12px" onClick={toggleEligibleTxModal}>
+                <Trans>Your Transactions</Trans>
+              </ButtonLight>
+            )}
+          </Flex>
+        </RowBetween>
+      </TotalReward>
+      <EligibleTxModal />
     </Wrapper>
   )
 }

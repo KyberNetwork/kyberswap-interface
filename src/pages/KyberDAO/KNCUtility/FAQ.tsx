@@ -17,11 +17,12 @@ const Title = styled.span`
 `
 
 enum Panel {
-  Q1,
-  Q2,
-  Q3,
-  Q4,
-  Q5,
+  Q_Join,
+  Q_Calc,
+  Q_When,
+  Q_Limit,
+  Q_Term,
+  Q_Other,
 }
 
 type PanelProps = {
@@ -106,50 +107,62 @@ const FAQ: React.FC = () => {
     <DetailsContainer>
       <DetailPanel
         toggleExpand={() => {
-          handleToggleExpand(Panel.Q1)
+          handleToggleExpand(Panel.Q_Join)
         }}
-        isExpanded={expandedPanel === Panel.Q1}
+        isExpanded={expandedPanel === Panel.Q_Join}
         title={t`Can I participate in the Gas Refund Program if I am not staking in KyberDAO?`}
         content={
           <Trans>
             No, only participants who are staking KNC in KyberDAO with a minimum of 500 KNC and meet the eligibility
-            criteria by completing a minimum trading volume of <b>≥$200</b> and with least 1 swap on KyberSwap.
+            criteria by completing a minimum trading volume of ≥$200 and with least 1 swap on KyberSwap.
           </Trans>
         }
       />
       <Separator />
       <DetailPanel
         toggleExpand={() => {
-          handleToggleExpand(Panel.Q2)
+          handleToggleExpand(Panel.Q_Calc)
         }}
-        isExpanded={expandedPanel === Panel.Q2}
+        isExpanded={expandedPanel === Panel.Q_Calc}
         title={t`How are rewards calculated?`}
-        content={t`Gas refund rewards is based accordingly on the user's staked KNC and tier, and will be converted to KNC at the time of the transaction gas cost.`}
+        content={
+          <Trans>
+            Gas refund rewards is based accordingly on the user&apos;s staked KNC and tier, and will be converted to KNC
+            at the time of the transaction gas cost.
+          </Trans>
+        }
       />
       <Separator />
       <DetailPanel
         toggleExpand={() => {
-          handleToggleExpand(Panel.Q3)
+          handleToggleExpand(Panel.Q_When)
         }}
-        isExpanded={expandedPanel === Panel.Q3}
+        isExpanded={expandedPanel === Panel.Q_When}
         title={t`When will rewards be available to claim?`}
         content={
           <Trans>
             There is a countdown timer for rewards for available rewards to claim. Rewards will only be available at the
-            start of n+2 epoch.
-            <br />
-            <br />
-            You can claim your rewards in the KNC Utility page or in the Wallet UI.
+            start of n+2 epoch. You can claim your rewards in the KNC Utility page or in the Wallet UI.
           </Trans>
         }
-        // content={t`You can claim your rewards in the KNC Utility page or in the Wallet UI.`}
       />
       <Separator />
       <DetailPanel
         toggleExpand={() => {
-          handleToggleExpand(Panel.Q4)
+          handleToggleExpand(Panel.Q_Limit)
         }}
-        isExpanded={expandedPanel === Panel.Q4}
+        isExpanded={expandedPanel === Panel.Q_Limit}
+        title={t`What is the maximum gas refund limit for a user?`}
+        content={
+          <Trans>Each user wallet address is eligible for a gas refund of up to $200 within two epoch cycles.</Trans>
+        }
+      />
+      <Separator />
+      <DetailPanel
+        toggleExpand={() => {
+          handleToggleExpand(Panel.Q_Term)
+        }}
+        isExpanded={expandedPanel === Panel.Q_Term}
         title={t`Terms and Conditions`}
         content={
           <>
@@ -181,9 +194,9 @@ const FAQ: React.FC = () => {
       <Separator />
       <DetailPanel
         toggleExpand={() => {
-          handleToggleExpand(Panel.Q5)
+          handleToggleExpand(Panel.Q_Other)
         }}
-        isExpanded={expandedPanel === Panel.Q5}
+        isExpanded={expandedPanel === Panel.Q_Other}
         title={t`Other Details`}
         content={
           <>

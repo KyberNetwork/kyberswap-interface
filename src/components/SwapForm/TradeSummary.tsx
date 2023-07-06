@@ -13,7 +13,7 @@ import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { APP_PATHS, BIPS_BASE, CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { useGasRefundInfo } from 'hooks/kyberdao'
+import { useGasRefundTier } from 'hooks/kyberdao'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink, TYPE } from 'theme'
@@ -147,7 +147,7 @@ type Props = {
 }
 const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
   const theme = useTheme()
-  const { refundAmount } = useGasRefundInfo()
+  const { gasRefundPerCentage } = useGasRefundTier()
   const [expanded, setExpanded] = useState(true)
   const [alreadyVisible, setAlreadyVisible] = useState(false)
   const { parsedAmountOut, priceImpact, gasUsd } = routeSummary || {}
@@ -286,7 +286,7 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
             </RowFixed>
             <NavLink to={APP_PATHS.KYBERDAO_KNC_UTILITY}>
               <ButtonLight padding="0px 8px" width="fit-content" fontSize={10} fontWeight={500} lineHeight="16px">
-                {refundAmount}% Refund
+                {gasRefundPerCentage * 100}% Refund
               </ButtonLight>
             </NavLink>
           </RowBetween>
