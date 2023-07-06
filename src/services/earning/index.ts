@@ -5,6 +5,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import {
   aggregateAccountEarnings,
   aggregatePoolEarnings,
+  aggregatePositionEarnings,
   fillEmptyDaysForPositionEarnings,
   fillHistoricalEarningsForEmptyDays,
   removeEmptyTokenEarnings,
@@ -34,7 +35,9 @@ const earningApi = createApi({
       transformResponse: (response: MetaResponse<GetElasticEarningResponse>) => {
         return aggregateAccountEarnings(
           aggregatePoolEarnings(
-            fillEmptyDaysForPositionEarnings(removeEmptyTokenEarnings(response.data as GetElasticEarningResponse)),
+            fillEmptyDaysForPositionEarnings(
+              aggregatePositionEarnings(removeEmptyTokenEarnings(response.data as GetElasticEarningResponse)),
+            ),
           ),
         ) as GetElasticEarningResponse
       },
@@ -50,7 +53,9 @@ const earningApi = createApi({
       transformResponse: (response: MetaResponse<GetElasticEarningResponse>) => {
         return aggregateAccountEarnings(
           aggregatePoolEarnings(
-            fillEmptyDaysForPositionEarnings(removeEmptyTokenEarnings(response.data as GetElasticEarningResponse)),
+            fillEmptyDaysForPositionEarnings(
+              aggregatePositionEarnings(removeEmptyTokenEarnings(response.data as GetElasticEarningResponse)),
+            ),
           ),
         ) as GetElasticEarningResponse
       },
@@ -68,7 +73,7 @@ const earningApi = createApi({
           return {} as GetClassicEarningResponse
         }
 
-        const cleanedData = removeEmptyTokenEarnings(response.data)
+        const cleanedData = aggregatePositionEarnings(removeEmptyTokenEarnings(response.data))
 
         const data = produce(cleanedData, draft => {
           Object.keys(draft).forEach(chainRoute => {

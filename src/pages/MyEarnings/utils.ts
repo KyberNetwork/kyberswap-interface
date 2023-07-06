@@ -308,6 +308,40 @@ export const fillEmptyDaysForPositionEarnings = (
   return result
 }
 
+export const aggregatePositionEarnings = <
+  T extends Record<
+    string,
+    {
+      positions: { historicalEarning: HistoricalSingleData[] }[]
+    }
+  >,
+>(
+  earningResponse: T,
+): T => {
+  const result = produce(earningResponse, draft => {
+    const chains = Object.keys(draft)
+
+    chains.forEach(chain => {
+      const { positions } = draft[chain]
+
+      positions.forEach(position => {
+        const earnings = position.historicalEarning || []
+
+        earnings.forEach(earning => {
+          const fees = mergeTokenEarnings(earning.fees || [])
+          const rewards = mergeTokenEarnings(earning.rewards || [])
+          const total = mergeTokenEarnings([...fees, ...rewards])
+          earning.fees = fees
+          earning.rewards = rewards
+          earning.total = total
+        })
+      })
+    })
+  })
+
+  return result
+}
+
 export const aggregatePoolEarnings = (
   earningResponse: GetElasticEarningResponse | undefined,
 ): GetElasticEarningResponse | undefined => {
