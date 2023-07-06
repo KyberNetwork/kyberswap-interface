@@ -156,18 +156,9 @@ const StatsRow: React.FC<Props> = ({
   ampLiquidity,
   volume24hUsd,
   fees24hUsd,
-
-  currency0,
-  currency1,
-  feeAmount,
-
   renderToggleExpandButton,
 }) => {
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
-
-  // TODO: check native currencies
-  const currency0Slug = currency0?.wrapped.address || ''
-  const currency1Slug = currency1?.wrapped.address || ''
 
   if (upToExtraSmall) {
     return (

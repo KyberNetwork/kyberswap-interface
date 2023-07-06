@@ -19,7 +19,6 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT, SUBGRAPH_AMP_MULTIPLIER } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
-import useTokenBalance from 'hooks/useTokenBalance'
 import Position from 'pages/MyEarnings/ClassicPools/SinglePool/Position'
 import SharePoolEarningsButton from 'pages/MyEarnings/ElasticPools/SinglePool/SharePoolEarningsButton'
 import PoolEarningsSection from 'pages/MyEarnings/PoolEarningsSection'
@@ -104,10 +103,10 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, poolData, userLiqui
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const shouldExpandAllPools = useAppSelector(state => state.myEarnings.shouldExpandAllPools)
 
-  const { decimals, value: rawBalance } = useTokenBalance(poolEarning.pool.id, chainId)
-  const balance = Number(
-    new Fraction(rawBalance.toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals))).toFixed(8),
-  )
+  // const { decimals, value: rawBalance } = useTokenBalance(poolEarning.pool.id, chainId)
+  // const balance = Number(
+  //   new Fraction(rawBalance.toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals))).toFixed(8),
+  // )
 
   const currency0 = getCurrencyFromTokenAddress(tokensByChainId, chainId, poolData.token0.id)
   const currency1 = getCurrencyFromTokenAddress(tokensByChainId, chainId, poolData.token1.id)
@@ -127,8 +126,6 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, poolData, userLiqui
     poolData.token1.id,
     visibleCurrency1?.symbol || poolData.token1.symbol,
   )
-
-  const hasLiquidity = userLiquidity && userLiquidity.liquidityTokenBalance !== '0'
 
   // TODO
   const feeAmount = FeeAmount.STABLE

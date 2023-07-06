@@ -82,13 +82,13 @@ function ClassicElasticTab() {
     navigate({ search: stringify(newQs) }, { replace: true })
   }
 
-  const handleClickClassic = () => {
-    if (!!notSupportedElasticMessage) {
-      return
-    }
-    const newQs = { ...qs, tab: VERSION.CLASSIC }
-    navigate({ search: stringify(newQs) }, { replace: true })
-  }
+  // const handleClickClassic = () => {
+  //   if (!!notSupportedElasticMessage) {
+  //     return
+  //   }
+  //   const newQs = { ...qs, tab: VERSION.CLASSIC }
+  //   navigate({ search: stringify(newQs) }, { replace: true })
+  // }
 
   const color = [VERSION.ELASTIC, VERSION.ELASTIC_LEGACY].includes(tab)
     ? !!notSupportedElasticMessage
