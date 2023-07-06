@@ -1,5 +1,5 @@
 import { defaultAbiCoder } from '@ethersproject/abi'
-import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Position, computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
@@ -8,6 +8,7 @@ import { useSearchParams } from 'react-router-dom'
 
 import { ELASTIC_FARM_TYPE, FARM_TAB } from 'constants/index'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
+import { isEVM as isEVMNetwork } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useTokens } from 'hooks/Tokens'
@@ -28,8 +29,10 @@ import { defaultChainData } from '.'
 
 export { default as FarmUpdater } from './updaters'
 
-export const useElasticFarms = () => {
-  const { chainId, isEVM } = useActiveWeb3React()
+export const useElasticFarms = (customChainId?: ChainId) => {
+  const { chainId: activeChainId } = useActiveWeb3React()
+  const chainId = customChainId || activeChainId
+  const isEVM = isEVMNetwork(chainId)
   const elasticFarm = useAppSelector(state => state.elasticFarm[chainId])
   return useMemo(() => (isEVM ? elasticFarm || defaultChainData : defaultChainData), [isEVM, elasticFarm])
 }

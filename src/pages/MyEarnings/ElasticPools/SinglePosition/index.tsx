@@ -61,7 +61,7 @@ const SinglePosition: React.FC<Props> = ({
     return undefined
   }, [pool, positionEarning.liquidity, positionEarning.tickLower, positionEarning.tickUpper])
 
-  const { userFarmInfo = {} } = useElasticFarms()
+  const { userFarmInfo = {} } = useElasticFarms(chainId)
 
   const myPoolAPR = useMemo(() => {
     if (!position || !currency0 || !currency1) {
