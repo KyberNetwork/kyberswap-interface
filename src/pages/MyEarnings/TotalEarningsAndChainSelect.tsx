@@ -1,6 +1,6 @@
 import { t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useCallback, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useDispatch } from 'react-redux'
 import { Button, Flex } from 'rebass'
 import earningApi, { useLazyGetElasticEarningQuery, useLazyGetElasticLegacyEarningQuery } from 'services/earning'
@@ -9,6 +9,7 @@ import styled from 'styled-components'
 import { ReactComponent as RefreshIcon } from 'assets/svg/refresh.svg'
 import { formatUSDValue } from 'components/EarningAreaChart/utils'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { EMPTY_FUNCTION } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -43,6 +44,8 @@ const RefreshButton = () => {
   const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
   const dispatch = useDispatch()
+  const refetchRef = useRef(EMPTY_FUNCTION)
+  const timeOutRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const { account } = useActiveWeb3React()
   const selectedChainIds = useAppSelector(state => state.myEarnings.selectedChains)
   const [elasticTrigger, elasticData] = useLazyGetElasticEarningQuery()
@@ -51,8 +54,18 @@ const RefreshButton = () => {
 
   const isFetching = elasticData.isFetching || elasticLegacyData.isFetching
 
-  const refetch = useCallback(() => {
+  refetchRef.current = () => {
+    const refetch = () => {
+      if (timeOutRef.current) {
+        clearTimeout(timeOutRef.current)
+      }
+      timeOutRef.current = setTimeout(() => {
+        refetchRef.current()
+      }, 300_000)
+    }
+
     if (isFetching || !account) {
+      refetch()
       return
     }
 
@@ -61,16 +74,19 @@ const RefreshButton = () => {
     elasticLegacyTrigger({ account, chainIds: selectedChainIds })
     // classicTrigger({ account, chainIds: selectedChainIds })
 
-    setTimeout(refetch, 300_000)
-  }, [account, dispatch, elasticLegacyTrigger, elasticTrigger, isFetching, selectedChainIds])
-
-  const refetchRef = useRef(refetch)
-  refetchRef.current = refetch
+    refetch()
+  }
 
   useEffect(() => {
     setTimeout(() => {
       refetchRef.current()
     }, 300_000)
+
+    return () => {
+      if (timeOutRef.current) {
+        clearTimeout(timeOutRef.current)
+      }
+    }
   }, [])
 
   return (
@@ -91,7 +107,7 @@ const RefreshButton = () => {
       disabled={isFetching}
       onClick={() => {
         mixpanelHandler(MIXPANEL_TYPE.EARNING_DASHBOARD_CLICK_REFRESH_BUTTON)
-        refetch()
+        refetchRef.current()
       }}
     >
       <RefreshIcon width="17px" height="17px" />
