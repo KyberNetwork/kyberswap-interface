@@ -51,12 +51,13 @@ const CustomButton = styled(ButtonLight)`
 `
 
 type Props = {
+  className?: string
   isViewEarnings: boolean
   setViewEarnings: (value: boolean) => void
 }
-const ViewEarningOrPositionButton: React.FC<Props> = ({ isViewEarnings, setViewEarnings }) => {
+const ViewEarningOrPositionButton: React.FC<Props> = ({ isViewEarnings, setViewEarnings, className }) => {
   return (
-    <Wrapper>
+    <Wrapper className={className}>
       <CustomButton
         onClick={() => {
           if (isViewEarnings) {

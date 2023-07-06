@@ -1,5 +1,5 @@
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
-import { Pool } from '@kyberswap/ks-sdk-elastic'
+import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useMemo, useState } from 'react'
@@ -9,8 +9,12 @@ import { ElasticPositionEarningWithDetails } from 'services/earning/types'
 import styled from 'styled-components'
 
 import { ButtonLight } from 'components/Button'
+import CurrencyLogo from 'components/CurrencyLogo'
+import { formatUSDValue } from 'components/EarningAreaChart/utils'
+import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import useTheme from 'hooks/useTheme'
 import SinglePosition from 'pages/MyEarnings/ElasticPools/SinglePosition'
+import HoverDropdown from 'pages/MyEarnings/HoverDropdown'
 import ViewEarningOrPositionButton from 'pages/MyEarnings/PoolFilteringBar/ViewEarningOrPositionButton'
 import { WIDTHS } from 'pages/MyEarnings/constants'
 import { useAppSelector } from 'state/hooks'
@@ -19,8 +23,7 @@ const TitleWrapper = styled.div`
   width: 100%;
   max-width: 100%;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   flex-wrap: wrap;
   gap: 12px;
 
@@ -43,6 +46,7 @@ const ListPositions = styled.div`
     gap: 24px;
   `}
 `
+
 type Props = {
   chainId: ChainId
   positionEarnings: ElasticPositionEarningWithDetails[]
@@ -88,6 +92,38 @@ const Positions: React.FC<Props> = ({
     return [nActive, positionEarnings.length - nClosed - nActive, nClosed]
   }, [positionEarnings])
 
+  const { totalLiquidityBalance, liquidityValue0, liquidityValue1 } = useMemo(() => {
+    if (!pool || !currency0 || !currency1) {
+      return { totalLiquidityBalance: 0, liquidityValue0: undefined, liquidityValue1: undefined }
+    }
+
+    let total = 0
+    let liquidityValue0 = CurrencyAmount.fromRawAmount(currency0, 0)
+    let liquidityValue1 = CurrencyAmount.fromRawAmount(currency1, 0)
+    const token0Price = tokenPrices[currency0.wrapped.address || '']
+    const token1Price = tokenPrices[currency1.wrapped.address || '']
+
+    positionEarnings.forEach(positionEarning => {
+      const position = new Position({
+        pool,
+        liquidity: positionEarning.liquidity,
+        tickLower: Number(positionEarning.tickLower),
+        tickUpper: Number(positionEarning.tickUpper),
+      })
+
+      const liquidityInUsd =
+        parseFloat(position.amount0.toExact() || '0') * token0Price +
+        parseFloat(position.amount1.toExact() || '0') * token1Price
+
+      liquidityValue0 = liquidityValue0.add(CurrencyAmount.fromRawAmount(currency0, position.amount0.quotient))
+      liquidityValue1 = liquidityValue1.add(CurrencyAmount.fromRawAmount(currency1, position.amount1.quotient))
+
+      total += liquidityInUsd
+    })
+
+    return { totalLiquidityBalance: total, liquidityValue0, liquidityValue1 }
+  }, [pool, positionEarnings, tokenPrices, currency0, currency1])
+
   return (
     <Flex
       sx={{
@@ -96,21 +132,34 @@ const Positions: React.FC<Props> = ({
       }}
     >
       <TitleWrapper>
-        <Text
+        <Flex
+          alignItems="center"
+          justifyContent="space-between"
           sx={{
-            fontWeight: 500,
-            fontSize: '20px',
-            lineHeight: '24px',
+            gap: '12px 16px',
+            flexWrap: 'wrap',
           }}
         >
-          My Liquidity Positions
-        </Text>
+          <Text
+            sx={{
+              fontWeight: 500,
+              fontSize: '20px',
+              lineHeight: '24px',
+            }}
+          >
+            My Liquidity Positions
+          </Text>
+
+          {liquidityValue0 && liquidityValue1 ? (
+            <PoolLiquidityBalance total={totalLiquidityBalance} liq0={liquidityValue0} liq1={liquidityValue1} />
+          ) : null}
+        </Flex>
 
         <Flex
           sx={{
             alignItems: 'center',
             gap: '12px 16px',
-            flex: '1 0 auto',
+            width: '100%',
             flexWrap: 'wrap',
             justifyContent: 'space-between',
           }}
@@ -275,6 +324,66 @@ function PositionStats({
           </Flex>
         </Flex>
       ) : null}
+    </Flex>
+  )
+}
+
+function PoolLiquidityBalance({
+  total,
+  liq0,
+  liq1,
+}: {
+  total: number
+  liq0: CurrencyAmount<Currency>
+  liq1: CurrencyAmount<Currency>
+}) {
+  const theme = useTheme()
+  return (
+    <Flex
+      alignItems="center"
+      sx={{
+        gap: '8px',
+      }}
+    >
+      <Text
+        sx={{
+          fontSize: '14px',
+          fontWeight: 500,
+          color: theme.subText,
+        }}
+      >
+        <Trans>My Liquidity Balance</Trans>
+      </Text>
+      <HoverDropdown
+        anchor={
+          <Text
+            sx={{
+              fontSize: '20px',
+              fontWeight: 500,
+              lineHeight: '28px',
+            }}
+          >
+            {formatUSDValue(total)}
+          </Text>
+        }
+        disabled={!total}
+        text={
+          <>
+            <Flex alignItems="center">
+              <CurrencyLogo currency={liq0.currency} size="16px" />
+              <Text fontSize={12} marginLeft="4px">
+                {liq0 && <FormattedCurrencyAmount currencyAmount={liq0} />}
+              </Text>
+            </Flex>
+            <Flex alignItems="center" marginTop="8px">
+              <CurrencyLogo currency={liq1.currency} size="16px" />
+              <Text fontSize={12} marginLeft="4px">
+                {liq1 && <FormattedCurrencyAmount currencyAmount={liq1} />}
+              </Text>
+            </Flex>
+          </>
+        }
+      />
     </Flex>
   )
 }
