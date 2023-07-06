@@ -56,19 +56,3 @@ describe('Intercept', { tags: tag.regression }, () => {
     })
   })
 })
-
-/* it('Test', () => {
-    cy.visit('/')
-    cy.wait(60000)
-    cy.clickButton(homePage.skipTutorial)
-    cy.get('#earningLinks').click({ force: true })
-    cy.get('#pools-nav-link').click({ force: true })
-    cy.get('.css-1bns6n0 button', { timeout: 60000 }).eq(0).click()
-    cy.wait(5000)
-    cy.get('[data-testid=test-tvl]').should('have.length', 8)
-    getTokenList('[data-testid=test-tvl]', (arr: any) => {
-      console.log('test arr: ', arr)
-      cy.get('.sc-ciRuMe span', { timeout: 20000 }).eq(0).click()
-    })
-  }) */
-// })

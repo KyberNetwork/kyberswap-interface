@@ -28,6 +28,7 @@ describe('Metamask Extension tests', () => {
     cy.get(wallet.statusConnected, { timeout: 10000 }).should('be.visible')
     cy.url().should('include', '/swap')
   })
+
   it.skip('Should approve permission to switch network', { tags: tag.regression }, () => {
     cy.get(wallet.statusConnected, { timeout: 10000 }).should('be.visible')
     chainList.forEach(element => {
