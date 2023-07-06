@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
 import CurrencyLogo from 'components/CurrencyLogo'
-import { formatUSDValue } from 'components/EarningAreaChart/utils'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
@@ -26,6 +25,24 @@ import { updateChainId } from 'state/user/actions'
 import ActionButtons from './ActionButtons'
 
 const defaultPendingFee = ['0', '0']
+
+const formatValue = (value: string | number) => {
+  const num = Number(value)
+
+  if (!Number.isFinite(num)) {
+    return '--'
+  }
+
+  const formatter = Intl.NumberFormat('en-US', {
+    notation: num > 1_000_000 ? 'compact' : 'standard',
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  })
+
+  return formatter.format(num)
+}
 
 const PositionView: React.FC<CommonProps> = props => {
   const {
@@ -61,8 +78,6 @@ const PositionView: React.FC<CommonProps> = props => {
   const liquidityInUsd =
     parseFloat(position.amount0.toExact() || '0') * prices[currency0.wrapped.address || ''] +
     parseFloat(position.amount1.toExact() || '0') * prices[currency1.wrapped.address || '']
-
-  const liquidityInUsdString = Number.isNaN(liquidityInUsd) ? '--' : formatUSDValue(liquidityInUsd, true)
 
   const myStakedBalance =
     nft &&
@@ -128,7 +143,7 @@ const PositionView: React.FC<CommonProps> = props => {
 
         <Row>
           <HoverDropdown
-            anchor={<Value>{liquidityInUsdString}</Value>}
+            anchor={<Value>{formatValue(liquidityInUsd)}</Value>}
             disabled={!liquidityInUsd || Number.isNaN(liquidityInUsd)}
             text={
               <Flex
@@ -155,7 +170,7 @@ const PositionView: React.FC<CommonProps> = props => {
 
           {myStakedBalance ? (
             <HoverDropdown
-              anchor={<Value>{formatUSDValue(myStakedBalance, true)}</Value>}
+              anchor={<Value>{formatValue(myStakedBalance)}</Value>}
               text={
                 <Flex
                   sx={{
