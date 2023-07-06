@@ -57,7 +57,7 @@ type Props = {
   currency1: Currency
 }
 const Positions: React.FC<Props> = ({
-  positionEarnings,
+  positionEarnings: unsortedPositionEarnings,
   chainId,
   pool,
   pendingFees,
@@ -81,20 +81,25 @@ const Positions: React.FC<Props> = ({
   })
 
   const [numOfActivePositions, numOfInactivePositions, numOfClosedPositions] = useMemo(() => {
-    const nClosed = positionEarnings.filter(pos => !pos.liquidity || pos.liquidity === '0').length
-    const nActive = positionEarnings.filter(pos => {
+    const nClosed = unsortedPositionEarnings.filter(pos => !pos.liquidity || pos.liquidity === '0').length
+    const nActive = unsortedPositionEarnings.filter(pos => {
       const isNotClosed = pos.liquidity && pos.liquidity !== '0'
       const isActive = Number(pos.tickLower) <= Number(pos.pool.tick) && Number(pos.pool.tick) < Number(pos.tickUpper)
 
       return isNotClosed && isActive
     }).length
 
-    return [nActive, positionEarnings.length - nClosed - nActive, nClosed]
-  }, [positionEarnings])
+    return [nActive, unsortedPositionEarnings.length - nClosed - nActive, nClosed]
+  }, [unsortedPositionEarnings])
 
-  const { totalLiquidityBalance, liquidityValue0, liquidityValue1 } = useMemo(() => {
+  const { totalLiquidityBalance, liquidityValue0, liquidityValue1, positionEarnings } = useMemo(() => {
     if (!pool || !currency0 || !currency1) {
-      return { totalLiquidityBalance: 0, liquidityValue0: undefined, liquidityValue1: undefined }
+      return {
+        totalLiquidityBalance: 0,
+        liquidityValue0: undefined,
+        liquidityValue1: undefined,
+        positionEarnings: unsortedPositionEarnings,
+      }
     }
 
     let total = 0
@@ -103,7 +108,12 @@ const Positions: React.FC<Props> = ({
     const token0Price = tokenPrices[currency0.wrapped.address || '']
     const token1Price = tokenPrices[currency1.wrapped.address || '']
 
-    positionEarnings.forEach(positionEarning => {
+    const positionEarningsWithLiquidityUSD: Array<{
+      positionEarning: ElasticPositionEarningWithDetails
+      liquidityInUsd: number
+    }> = []
+
+    unsortedPositionEarnings.forEach(positionEarning => {
       const position = new Position({
         pool,
         liquidity: positionEarning.liquidity,
@@ -119,10 +129,19 @@ const Positions: React.FC<Props> = ({
       liquidityValue1 = liquidityValue1.add(CurrencyAmount.fromRawAmount(currency1, position.amount1.quotient))
 
       total += liquidityInUsd
+
+      positionEarningsWithLiquidityUSD.push({
+        positionEarning,
+        liquidityInUsd,
+      })
     })
 
-    return { totalLiquidityBalance: total, liquidityValue0, liquidityValue1 }
-  }, [pool, positionEarnings, tokenPrices, currency0, currency1])
+    const positionEarnings = positionEarningsWithLiquidityUSD
+      .sort((v1, v2) => v2.liquidityInUsd - v1.liquidityInUsd)
+      .map(({ positionEarning }) => positionEarning)
+
+    return { totalLiquidityBalance: total, liquidityValue0, liquidityValue1, positionEarnings }
+  }, [pool, unsortedPositionEarnings, tokenPrices, currency0, currency1])
 
   return (
     <Flex
