@@ -10,6 +10,8 @@ import { ReactComponent as BarChart } from 'assets/svg/barchart.svg'
 import { ButtonLight } from 'components/Button'
 import CopyIcon from 'components/Icons/CopyIcon'
 import { NetworkLogo } from 'components/Logo'
+import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import { APRTooltipContent } from 'components/YieldPools/FarmingPoolAPRCell'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { VERSION } from 'constants/v2'
@@ -37,7 +39,7 @@ const formatValue = (value: string | number) => {
   return formatter.format(num)
 }
 
-const formatPercent = (value: string) => {
+const formatPercent = (value: string | number) => {
   const num = Number(value)
 
   const formatter = Intl.NumberFormat('en-US', {
@@ -76,7 +78,7 @@ const ChainDisplay: React.FC<{ chainId: ChainId }> = ({ chainId }) => {
 }
 
 type ColumnProps = {
-  label: string
+  label: React.ReactNode
   value: React.ReactNode
 }
 const Column: React.FC<ColumnProps> = ({ label, value }) => {
@@ -144,7 +146,8 @@ const ColumnForMobile: React.FC<ColumnProps & { align?: 'left' | 'right' }> = ({
 type Props = {
   chainId: ChainId
   totalValueLockedUsd: string
-  apr: string
+  poolAPR: number
+  farmAPR: number
   volume24hUsd: number
   fees24hUsd: number
 
@@ -160,7 +163,8 @@ type Props = {
 const StatsRow: React.FC<Props> = ({
   chainId,
   totalValueLockedUsd,
-  apr,
+  poolAPR,
+  farmAPR,
   volume24hUsd,
   fees24hUsd,
 
@@ -183,6 +187,8 @@ const StatsRow: React.FC<Props> = ({
 
   const currency0Slug = currency0?.isNative ? currency0.symbol : currency0?.wrapped.address || ''
   const currency1Slug = currency1?.isNative ? currency1.symbol : currency1?.wrapped.address || ''
+
+  const totalAPR = poolAPR + farmAPR
 
   const renderAddLiquidityButton = () => {
     if (isLegacyPool) {
@@ -259,6 +265,33 @@ const StatsRow: React.FC<Props> = ({
     )
   }
 
+  const renderTotalAPRLabel = () => {
+    return (
+      <MouseoverTooltip
+        width="fit-content"
+        placement={'top'}
+        text={<APRTooltipContent farmAPR={farmAPR} poolAPR={poolAPR} />}
+      >
+        <TextDashed>
+          <Trans>TOTAL APR</Trans>
+        </TextDashed>
+      </MouseoverTooltip>
+    )
+  }
+
+  const renderTotalAPR = () => {
+    return (
+      <Column
+        label={renderTotalAPRLabel()}
+        value={
+          <Text as="span" color={theme.apr}>
+            {formatPercent(totalAPR)}
+          </Text>
+        }
+      />
+    )
+  }
+
   if (upToExtraSmall) {
     return (
       <Flex
@@ -275,7 +308,15 @@ const StatsRow: React.FC<Props> = ({
 
         <Flex justifyContent={'space-between'}>
           <ColumnForMobile label={t`TVL`} value={formatValue(totalValueLockedUsd)} />
-          <ColumnForMobile align="right" label={t`APR`} value={formatPercent(apr)} />
+          <ColumnForMobile
+            align="right"
+            label={renderTotalAPRLabel()}
+            value={
+              <Text as="span" color={theme.apr}>
+                {formatPercent(totalAPR)}
+              </Text>
+            }
+          />
         </Flex>
 
         <MobileSeparator />
@@ -328,7 +369,7 @@ const StatsRow: React.FC<Props> = ({
 
           <Column label={t`TVL`} value={formatValue(totalValueLockedUsd)} />
 
-          <Column label={t`APR`} value={formatPercent(apr)} />
+          {renderTotalAPR()}
 
           <Column label={t`VOLUME (24H)`} value={formatValue(volume24hUsd)} />
 
@@ -371,7 +412,7 @@ const StatsRow: React.FC<Props> = ({
 
       <Column label={t`TVL`} value={formatValue(totalValueLockedUsd)} />
 
-      <Column label={t`APR`} value={formatPercent(apr)} />
+      {renderTotalAPR()}
 
       <Column label={t`VOLUME (24H)`} value={formatValue(volume24hUsd)} />
 
