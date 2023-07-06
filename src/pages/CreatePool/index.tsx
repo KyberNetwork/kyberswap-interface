@@ -31,13 +31,13 @@ import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { Dots, Wrapper } from 'pages/Pool/styleds'
-import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
+import { useWalletModalToggle } from 'state/application/hooks'
 import { Field } from 'state/mint/actions'
 import { useDerivedMintInfo, useMintActionHandlers, useMintState } from 'state/mint/hooks'
 import { useDerivedPairInfo } from 'state/pair/hooks'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useDegenModeManager, usePairAdderByTokens, useUserSlippageTolerance } from 'state/user/hooks'
@@ -408,8 +408,13 @@ export default function CreatePool() {
     [currencies],
   )
 
-  const usdPrices = useTokensPrice(tokens)
-  const marketPrices = useTokensMarketPrice(tokens)
+  const tokenAddresses: string[] = useMemo(
+    () => tokens.map(token => token?.address as string).filter(item => !!item),
+    [tokens],
+  )
+
+  const marketPriceMap = useTokenPrices(tokenAddresses)
+  const marketPrices = tokens.map(item => marketPriceMap[item?.address || ''] || 0)
 
   const poolRatio = Number(price?.toSignificant(6))
   const marketRatio = marketPrices[1] && marketPrices[0] / marketPrices[1]
@@ -523,8 +528,8 @@ export default function CreatePool() {
                   />
                   <Flex justifyContent="space-between" alignItems="center" marginTop="0.5rem">
                     <USDPrice>
-                      {usdPrices[0] ? (
-                        `1 ${nativeA?.symbol} = ${formattedNum(usdPrices[0].toString(), true)}`
+                      {marketPrices[0] ? (
+                        `1 ${nativeA?.symbol} = ${formattedNum(marketPrices[0].toString(), true)}`
                       ) : (
                         <Loader />
                       )}
@@ -566,8 +571,8 @@ export default function CreatePool() {
                   />
                   <Flex justifyContent="space-between" alignItems="center" marginTop="0.5rem">
                     <USDPrice>
-                      {usdPrices[1] ? (
-                        `1 ${nativeB?.symbol} = ${formattedNum(usdPrices[1].toString(), true)}`
+                      {marketPrices[1] ? (
+                        `1 ${nativeB?.symbol} = ${formattedNum(marketPrices[1].toString(), true)}`
                       ) : (
                         <Loader />
                       )}

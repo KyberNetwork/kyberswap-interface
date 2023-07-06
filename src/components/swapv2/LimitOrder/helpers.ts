@@ -138,7 +138,6 @@ export const getErrorMessage = (error: any) => {
     4001: t`User denied message signature`,
     4002: t`You don't have sufficient fund for this transaction.`,
     4004: t`Invalid signature`,
-    '-32603': t`Error occurred. Please check your device.`,
   }
   const msg = mapErrorMessageByErrCode[errorCode]
   return msg?.toString?.() || error?.message || 'Error occur. Please try again.'

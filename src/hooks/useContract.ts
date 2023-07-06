@@ -25,7 +25,6 @@ import TickReaderABI from 'constants/abis/v2/ProAmmTickReader.json'
 import PROMM_FARM_ABI from 'constants/abis/v2/farm.json'
 import WETH_ABI from 'constants/abis/weth.json'
 import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
-import ZAP_ZKSYNC_ABI from 'constants/abis/zap-zksync.json'
 import ZAP_ABI from 'constants/abis/zap.json'
 import { MULTICALL_ABI } from 'constants/multicall'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
@@ -195,7 +194,7 @@ export function useDynamicFeeFactoryContract(): Contract | null {
 }
 
 export function useZapContract(isStaticFeeContract: boolean, isOldStaticFeeContract: boolean): Contract | null {
-  const { isEVM, networkInfo, chainId } = useActiveWeb3React()
+  const { isEVM, networkInfo } = useActiveWeb3React()
 
   return useContract(
     isEVM
@@ -205,11 +204,7 @@ export function useZapContract(isStaticFeeContract: boolean, isOldStaticFeeContr
           : (networkInfo as EVMNetworkInfo).classic.static.zap
         : (networkInfo as EVMNetworkInfo).classic.dynamic?.zap
       : undefined,
-    isStaticFeeContract && !isOldStaticFeeContract
-      ? ZAP_STATIC_FEE_ABI
-      : chainId === ChainId.ZKSYNC
-      ? ZAP_ZKSYNC_ABI
-      : ZAP_ABI,
+    isStaticFeeContract && !isOldStaticFeeContract ? ZAP_STATIC_FEE_ABI : ZAP_ABI,
   )
 }
 
