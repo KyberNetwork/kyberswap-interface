@@ -28,6 +28,7 @@ export interface MyEarningsState {
   readonly attemptingTxn: boolean
   readonly showPendingModal: boolean
   readonly txError: string
+  readonly pendingText: string
 }
 
 const initialState: MyEarningsState = {
@@ -41,6 +42,7 @@ const initialState: MyEarningsState = {
   attemptingTxn: false,
   showPendingModal: false,
   txError: '',
+  pendingText: '',
 }
 
 export default createReducer(initialState, builder =>
@@ -74,6 +76,12 @@ export default createReducer(initialState, builder =>
       state.txnHash = action.payload
     })
     .addCase(setShowPendingModal, (state, action) => {
-      state.showPendingModal = action.payload
+      if (action.payload) {
+        state.showPendingModal = true
+        state.pendingText = action.payload
+      } else {
+        state.showPendingModal = false
+        state.pendingText = ''
+      }
     }),
 )

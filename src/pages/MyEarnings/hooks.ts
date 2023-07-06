@@ -13,6 +13,7 @@ import { NETWORKS_INFO, ONLY_DYNAMIC_FEE_CHAINS, isEVM as isEVMChain } from 'con
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { Position as SubgraphLegacyPosition, config, parsePosition } from 'hooks/useElasticLegacy'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
+import { MODAL_PENDING_TEXTS } from 'pages/MyEarnings/constants'
 import { useKyberSwapConfig } from 'state/application/hooks'
 import { setAttemptingTxn, setShowPendingModal, setTxError, setTxnHash } from 'state/myEarnings/actions'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
@@ -286,7 +287,7 @@ export function useRemoveLiquidityFromLegacyPosition(
   const addTransactionWithType = useTransactionAdder()
 
   const removeLiquidity = () => {
-    dispatch(setShowPendingModal(true))
+    dispatch(setShowPendingModal(MODAL_PENDING_TEXTS.REMOVE_LIQUIDITY))
     dispatch(setAttemptingTxn(true))
 
     if (!deadline || !account || !library) {
@@ -354,7 +355,7 @@ export function useRemoveLiquidityFromLegacyPosition(
           })
       })
       .catch((error: any) => {
-        dispatch(setShowPendingModal(true))
+        dispatch(setShowPendingModal(MODAL_PENDING_TEXTS.REMOVE_LIQUIDITY))
         dispatch(setAttemptingTxn(false))
 
         if (error?.code !== 'ACTION_REJECTED') {

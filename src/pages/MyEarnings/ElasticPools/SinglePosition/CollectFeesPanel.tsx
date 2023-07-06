@@ -18,6 +18,7 @@ import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import HoverDropdown from 'pages/MyEarnings/HoverDropdown'
+import { MODAL_PENDING_TEXTS } from 'pages/MyEarnings/constants'
 import { setAttemptingTxn, setShowPendingModal, setTxError, setTxnHash } from 'state/myEarnings/actions'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -115,7 +116,7 @@ const CollectFeesPanel: React.FC<Props> = ({
           })
       })
       .catch((error: any) => {
-        dispatch(setShowPendingModal(true))
+        dispatch(setShowPendingModal(MODAL_PENDING_TEXTS.COLLECT_FEES))
         dispatch(setAttemptingTxn(false))
         dispatch(setTxError(error?.message || JSON.stringify(error)))
         console.error(error)
@@ -158,14 +159,14 @@ const CollectFeesPanel: React.FC<Props> = ({
       dispatch(setAttemptingTxn(false))
       dispatch(setTxnHash(txResponse.hash))
     } catch (e) {
-      dispatch(setShowPendingModal(true))
+      dispatch(setShowPendingModal(MODAL_PENDING_TEXTS.COLLECT_FEES))
       dispatch(setAttemptingTxn(false))
       dispatch(setTxError(e?.message || JSON.stringify(e)))
     }
   }
 
   const collectFeesForElasticPosition = () => {
-    dispatch(setShowPendingModal(true))
+    dispatch(setShowPendingModal(MODAL_PENDING_TEXTS.COLLECT_FEES))
     dispatch(setAttemptingTxn(true))
 
     if (!feeValue0 || !feeValue1 || !positionManager || !account || !library || !deadline) {
@@ -198,7 +199,7 @@ const CollectFeesPanel: React.FC<Props> = ({
   }
 
   const collectFeesForElasticLegacyPosition = () => {
-    dispatch(setShowPendingModal(true))
+    dispatch(setShowPendingModal(MODAL_PENDING_TEXTS.COLLECT_FEES))
     dispatch(setAttemptingTxn(true))
 
     if (!feeValue0 || !feeValue1 || !positionManager || !account || !library || !deadline) {

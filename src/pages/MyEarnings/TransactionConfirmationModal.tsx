@@ -13,6 +13,7 @@ const TransactionConfirmationModal = () => {
   const txnHash = useAppSelector(state => state.myEarnings.txnHash)
   const attemptingTxn = useAppSelector(state => state.myEarnings.attemptingTxn)
   const collectFeeError = useAppSelector(state => state.myEarnings.txError)
+  const pendingText = useAppSelector(state => state.myEarnings.pendingText)
 
   const handleDismiss = useCallback(() => {
     dispatch(setShowPendingModal(false))
@@ -31,7 +32,7 @@ const TransactionConfirmationModal = () => {
       onDismiss={handleDismiss}
       hash={txnHash}
       attemptingTxn={attemptingTxn}
-      pendingText={`Collecting fee rewards`}
+      pendingText={pendingText}
       content={() => (
         <Flex flexDirection={'column'} width="100%">
           {collectFeeError ? <TransactionErrorContent onDismiss={handleDismiss} message={collectFeeError} /> : null}
