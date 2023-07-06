@@ -238,6 +238,7 @@ const PositionView: React.FC<CommonProps> = props => {
           farmAddress={farmAddress}
           poolAddress={positionEarning.pool.id}
           position={position}
+          isLegacy={isLegacyPosition}
         />
 
         <ActionButtons

@@ -1,3 +1,4 @@
+import { TransactionRequest } from '@ethersproject/abstract-provider'
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
@@ -12,6 +13,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerContract, useProMMFarmContract } from 'hooks/useContract'
+import { config } from 'hooks/useElasticLegacy'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
@@ -34,6 +36,7 @@ type Props = {
   poolAddress: string
   farmAddress?: string
   position: Position
+  isLegacy: boolean
 }
 const CollectFeesPanel: React.FC<Props> = ({
   nftId,
@@ -45,6 +48,7 @@ const CollectFeesPanel: React.FC<Props> = ({
   farmAddress,
   poolAddress,
   position,
+  isLegacy,
 }) => {
   const theme = useTheme()
   const { account, chainId: currentChainId } = useActiveWeb3React()
@@ -85,8 +89,37 @@ const CollectFeesPanel: React.FC<Props> = ({
         },
       },
     })
-    dispatch(setAttemptingTxn(false))
-    dispatch(setTxnHash(response.hash))
+  }
+
+  const sendTransaction = (txn: TransactionRequest) => {
+    if (!library) {
+      return
+    }
+
+    library
+      .getSigner()
+      .estimateGas(txn)
+      .then((estimate: BigNumber) => {
+        const newTxn = {
+          ...txn,
+          gasLimit: calculateGasMargin(estimate),
+        }
+        return library
+          .getSigner()
+          .sendTransaction(newTxn)
+          .then((response: TransactionResponse) => {
+            handleBroadcastClaimSuccess(response)
+
+            dispatch(setAttemptingTxn(false))
+            dispatch(setTxnHash(response.hash))
+          })
+      })
+      .catch((error: any) => {
+        dispatch(setShowPendingModal(true))
+        dispatch(setAttemptingTxn(false))
+        dispatch(setTxError(error?.message || JSON.stringify(error)))
+        console.error(error)
+      })
   }
 
   const collectFeeFromFarmContract = async () => {
@@ -108,7 +141,7 @@ const CollectFeesPanel: React.FC<Props> = ({
         deadline?.toString(),
       )
 
-      const tx = await farmContract.claimFee(
+      const txResponse = await farmContract.claimFee(
         [nftId],
         amount0Min.quotient.toString(),
         amount1Min.quotient.toString(),
@@ -120,7 +153,10 @@ const CollectFeesPanel: React.FC<Props> = ({
         },
       )
 
-      handleBroadcastClaimSuccess(tx)
+      handleBroadcastClaimSuccess(txResponse)
+
+      dispatch(setAttemptingTxn(false))
+      dispatch(setTxnHash(txResponse.hash))
     } catch (e) {
       dispatch(setShowPendingModal(true))
       dispatch(setAttemptingTxn(false))
@@ -128,7 +164,7 @@ const CollectFeesPanel: React.FC<Props> = ({
     }
   }
 
-  const collect = () => {
+  const collectFeesForElasticPosition = () => {
     dispatch(setShowPendingModal(true))
     dispatch(setAttemptingTxn(true))
 
@@ -154,46 +190,64 @@ const CollectFeesPanel: React.FC<Props> = ({
       isPositionClosed: liquidity === '0',
     })
 
-    const txn = {
+    sendTransaction({
       to: positionManager.address,
       data: calldata,
       value,
+    })
+  }
+
+  const collectFeesForElasticLegacyPosition = () => {
+    dispatch(setShowPendingModal(true))
+    dispatch(setAttemptingTxn(true))
+
+    if (!feeValue0 || !feeValue1 || !positionManager || !account || !library || !deadline) {
+      //|| !layout || !token
+      dispatch(setAttemptingTxn(false))
+      dispatch(setTxError('Something went wrong!'))
+      return
     }
 
-    library
-      .getSigner()
-      .estimateGas(txn)
-      .then((estimate: BigNumber) => {
-        const newTxn = {
-          ...txn,
-          gasLimit: calculateGasMargin(estimate),
-        }
-        return library
-          .getSigner()
-          .sendTransaction(newTxn)
-          .then((response: TransactionResponse) => {
-            handleBroadcastClaimSuccess(response)
-          })
-      })
-      .catch((error: any) => {
-        dispatch(setShowPendingModal(true))
-        dispatch(setAttemptingTxn(false))
-        dispatch(setTxError(error?.message || JSON.stringify(error)))
-        console.error(error)
-      })
+    if (hasUserDepositedInFarm) {
+      collectFeeFromFarmContract()
+      return
+    }
+
+    const { calldata, value } = NonfungiblePositionManager.collectCallParameters({
+      tokenId: nftId,
+      expectedCurrencyOwed0: feeValue0.subtract(feeValue0.multiply(basisPointsToPercent(allowedSlippage))),
+      expectedCurrencyOwed1: feeValue1.subtract(feeValue1.multiply(basisPointsToPercent(allowedSlippage))),
+      recipient: account,
+      deadline: deadline.toString(),
+      havingFee: true,
+      isPositionClosed: liquidity === '0',
+      legacyMode: true,
+    })
+    sendTransaction({
+      to: config[chainId].positionManagerContract,
+      data: calldata,
+      value,
+    })
+  }
+
+  const collectFees = () => {
+    if (isLegacy) {
+      collectFeesForElasticLegacyPosition()
+    } else {
+      collectFeesForElasticPosition()
+    }
   }
 
   const handleClickCollectFees = async () => {
     if (currentChainId !== chainId) {
       changeNetwork(chainId, () => {
         dispatch(updateChainId(chainId))
-        collect()
+        collectFees()
       })
     } else {
-      collect()
+      collectFees()
     }
   }
-
   return (
     <Flex
       sx={{
