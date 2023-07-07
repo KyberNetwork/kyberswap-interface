@@ -380,6 +380,7 @@ function PoolLiquidityBalance({
               fontSize: '20px',
               fontWeight: 500,
               lineHeight: '28px',
+              whiteSpace: 'nowrap',
             }}
           >
             {formatUSDValue(total)}

@@ -313,6 +313,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
                     fontSize: '24px',
                     lineHeight: '28px',
                     color: theme.text,
+                    whiteSpace: 'nowrap',
                   }}
                 >
                   {poolEarningStr}
