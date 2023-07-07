@@ -483,7 +483,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
             <Text
               color={theme.red}
               fontSize="12px"
-              backgroundColor={rgba(theme.red, 0.2)}
+              backgroundColor={rgba(data && data.price24hChangePercent > 0 ? theme.primary : theme.red, 0.2)}
               display="inline"
               padding="4px 8px"
               style={{ borderRadius: '16px' }}

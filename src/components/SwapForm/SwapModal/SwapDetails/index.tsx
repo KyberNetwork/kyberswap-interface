@@ -1,13 +1,15 @@
 import { Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import React, { useState } from 'react'
-import { Repeat } from 'react-feather'
+import { useState } from 'react'
+import { ExternalLink as ExternalLinkIcon, Repeat } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { BuildRouteData } from 'services/route/types/buildRoute'
 
 import { TruncatedText } from 'components'
 import { AutoColumn } from 'components/Column'
+import CopyHelper from 'components/Copy'
+import Divider from 'components/Divider'
 import { RowBetween, RowFixed } from 'components/Row'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import ValueWithLoadingSkeleton from 'components/SwapForm/SwapModal/SwapDetails/ValueWithLoadingSkeleton'
@@ -18,9 +20,10 @@ import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
 import { CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink, TYPE } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
-import { formattedNum } from 'utils'
+import { formattedNum, shortenAddress } from 'utils'
 import { calculateFeeFromBuildData } from 'utils/fee'
 import { checkPriceImpact, formatPriceImpact } from 'utils/prices'
 import { checkWarningSlippage, formatSlippage } from 'utils/slippage'
@@ -68,9 +71,10 @@ export default function SwapDetails({
   priceImpact,
   buildData,
 }: Props) {
-  const { isEVM, chainId } = useActiveWeb3React()
+  const { isEVM, chainId, networkInfo } = useActiveWeb3React()
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const theme = useTheme()
+  const isDarkMode = useIsDarkMode()
   const { slippage, routeSummary } = useSwapFormContext()
 
   const currencyIn = routeSummary?.parsedAmountIn?.currency
@@ -319,6 +323,51 @@ export default function SwapDetails({
           <TYPE.black fontSize={12} color={checkWarningSlippage(slippage, isStablePair) ? theme.warning : undefined}>
             {formatSlippage(slippage)}
           </TYPE.black>
+        </RowBetween>
+
+        <Divider />
+        <RowBetween>
+          <TextDashed fontSize={12} color={theme.subText}>
+            <MouseoverTooltip text={<Trans>Chain on which the swap will be executed</Trans>}>
+              <Trans>Chain</Trans>
+            </MouseoverTooltip>
+          </TextDashed>
+          <Flex fontSize={12} fontWeight="501" alignItems="center" sx={{ gap: '4px' }}>
+            <img
+              src={isDarkMode && networkInfo.iconDark ? networkInfo.iconDark : networkInfo.icon}
+              alt="network icon"
+              width="12px"
+              height="12px"
+            />
+            {networkInfo.name}
+          </Flex>
+        </RowBetween>
+
+        <RowBetween>
+          <TextDashed fontSize={12} color={theme.subText}>
+            <MouseoverTooltip
+              text={
+                <Trans>
+                  The contract address that will be executing the swap. You can verify the contract in the block
+                  explorer
+                </Trans>
+              }
+            >
+              <Trans>Contract Address</Trans>
+            </MouseoverTooltip>
+          </TextDashed>
+          {buildData?.routerAddress && (
+            <Flex alignItems="center">
+              <ExternalLink href={`${networkInfo.etherscanUrl}/address/${buildData.routerAddress}`}>
+                <Flex color={theme.text} sx={{ gap: '4px' }}>
+                  <Text fontSize={12}>{shortenAddress(chainId, buildData.routerAddress)}</Text>
+                  <ExternalLinkIcon size={12} />
+                </Flex>
+              </ExternalLink>
+
+              <CopyHelper toCopy={buildData.routerAddress} size="12px" />
+            </Flex>
+          )}
         </RowBetween>
       </AutoColumn>
     </>

@@ -141,6 +141,11 @@ export enum MIXPANEL_TYPE {
   TUTORIAL_CLICK_DENY,
   TUTORIAL_VIEW_VIDEO_SWAP,
 
+  // MEV Protection
+  MEV_CLICK_ADD_MEV,
+  MEV_ADD_CLICK_MODAL,
+  MEV_ADD_RESULT,
+
   // type and swap
   TAS_TYPING_KEYWORD,
   TAS_SELECT_PAIR,
@@ -528,6 +533,18 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
             input_token: inputSymbol,
             output_token: outputSymbol,
           })
+          break
+        }
+        case MIXPANEL_TYPE.MEV_CLICK_ADD_MEV: {
+          mixpanel.track('MEV Protection - Click add MEV protection')
+          break
+        }
+        case MIXPANEL_TYPE.MEV_ADD_CLICK_MODAL: {
+          mixpanel.track('MEV Protection -  MEV protection type click', payload)
+          break
+        }
+        case MIXPANEL_TYPE.MEV_ADD_RESULT: {
+          mixpanel.track('MEV Protection -  Add MEV protection result', payload)
           break
         }
         case MIXPANEL_TYPE.CREATE_POOL_INITITATED: {
@@ -1596,7 +1613,7 @@ export const useGlobalMixpanelEvents = () => {
       mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECTED)
     }
     return () => {
-      if (mixpanel.hasOwnProperty('persistence')) {
+      if (account) {
         mixpanel.reset()
       }
     }

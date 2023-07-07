@@ -49,7 +49,7 @@ import Icons from './Icons'
 const ElasticSwap = lazy(() => import('./ElasticSwap'))
 const SwapV2 = lazy(() => import('./SwapV2'))
 const SwapV3 = lazy(() => import('./SwapV3'))
-const Bridge = lazy(() => import('./Bridge'))
+// const Bridge = lazy(() => import('./Bridge'))
 const Pools = lazy(() => import('./Pools'))
 const MyPools = lazy(() => import('./Pool'))
 
@@ -80,6 +80,7 @@ const AppWrapper = styled.div`
   display: flex;
   flex-flow: column;
   align-items: flex-start;
+  overflow-x: hidden;
 `
 
 const HeaderWrapper = styled.div`
@@ -167,7 +168,7 @@ const RoutesWithNetworkPrefix = () => {
 
   const chainInfoFromParam = Object.values(NETWORKS_INFO_CONFIG).find(info => info.route === network)
   if (!chainInfoFromParam) {
-    return <Navigate to={location.pathname.replace(network, networkInfo.route)} replace />
+    return <Navigate to={'/'} replace />
   }
 
   return (
@@ -395,7 +396,7 @@ export default function App() {
                     <Route path={`${APP_PATHS.BUY_CRYPTO}`} element={<BuyCrypto />} />
                     <Route path={`${APP_PATHS.CAMPAIGN}`} element={<Campaign />} />
                     <Route path={`${APP_PATHS.CAMPAIGN}/:slug`} element={<Campaign />} />
-                    <Route path={`${APP_PATHS.BRIDGE}`} element={<Bridge />} />
+                    {/*<Route path={`${APP_PATHS.BRIDGE}`} element={<Bridge />} />*/}
                     <Route path={`${APP_PATHS.VERIFY_EXTERNAL}`} element={<Verify />} />
                     <Route path={`${APP_PATHS.NOTIFICATION_CENTER}`} element={<NotificationCenter />} />
                     <Route path={`${APP_PATHS.NOTIFICATION_CENTER}/*`} element={<NotificationCenter />} />

@@ -28,6 +28,7 @@ import { SubgraphPoolData, UserLiquidityPosition, useSharedPoolIdManager } from 
 import { formattedNum, shortenAddress } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { getMyLiquidity, getTradingFeeAPR, parseSubgraphPoolData } from 'utils/dmm'
+import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 
 interface ListItemGroupProps {
   poolData: SubgraphPoolData
@@ -54,6 +55,9 @@ const ListItem = ({ poolData, userLiquidityPositions }: ListItemGroupProps) => {
     poolData,
     chainId,
   )
+  const currency0Symbol = getTokenSymbolWithHardcode(chainId, currency0.wrapped.address, currency0.symbol)
+  const currency1Symbol = getTokenSymbolWithHardcode(chainId, currency1.wrapped.address, currency1.symbol)
+
   const realPercentToken0 =
     reserve0 && virtualReserve0 && reserve1 && virtualReserve1
       ? reserve0.asFraction
@@ -118,7 +122,7 @@ const ListItem = ({ poolData, userLiquidityPositions }: ListItemGroupProps) => {
         <Flex alignItems="center">
           <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={20} />
           <Text fontSize="14px" fontWeight="500">
-            {poolData.token0.symbol} - {poolData.token1.symbol}
+            {currency0Symbol} - {currency1Symbol}
           </Text>
           <FeeTag style={{ padding: '4px 6px' }}>AMP {formattedNum(amp.toSignificant(5))}</FeeTag>
           {isFarmingPool && (

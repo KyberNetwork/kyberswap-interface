@@ -124,7 +124,7 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
 }
 
 export function usePairsByAddress(
-  pairInfo: { address: string | undefined; currencies: [Currency | undefined, Currency | undefined] }[],
+  pairInfo: { address: string | undefined; currencies: [Currency | Token | undefined, Currency | Token | undefined] }[],
 ): [PairState, Pair | null, boolean?, boolean?][] {
   const { isEVM, networkInfo } = useActiveWeb3React()
 
@@ -182,7 +182,11 @@ export function usePairByAddress(
   tokenB?: Token,
   address?: string,
 ): [PairState, Pair | null, boolean?, boolean?] {
-  return usePairsByAddress([{ address, currencies: [tokenA, tokenB] }])[0]
+  const pairInfo = useMemo(
+    () => [{ address, currencies: [tokenA, tokenB] as [Token | undefined, Token | undefined] }],
+    [address, tokenA, tokenB],
+  )
+  return usePairsByAddress(pairInfo)[0]
 }
 
 function useUnAmplifiedPairs(currencies: [Currency | undefined, Currency | undefined][]): string[] {

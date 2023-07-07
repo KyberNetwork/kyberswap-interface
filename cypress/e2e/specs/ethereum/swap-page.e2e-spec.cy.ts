@@ -1,7 +1,7 @@
-import { homePage, tab, token } from '../selectors/selectors.cy'
+import { homePage, tab, token } from '../../selectors/selectors.cy'
 
 const mainPage = 'swap/ethereum'
-const tokenSymbol = ['KNC', 'DAI', 'USDT', 'USDC']
+const tokenSymbol = ['BAND', 'DAI', 'USDT', 'USDC']
 const unListedToken = ['KNNC', 'KCCN']
 
 const unWhiteListedToken = {
