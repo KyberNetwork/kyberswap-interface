@@ -191,7 +191,10 @@ const PoolsByChainId = ({ pools, chainId }: { chainId: ChainId; pools: PoolType[
     .flat()
 
   const pendingFees = usePositionsFees(allPositions, isLegacy, chainId)
-  const tokens = [...new Set(pools.map(p => p.positionEarnings.map(pe => [pe.token0, pe.token1]).flat()).flat())]
+  const tokens = useMemo(() => {
+    return [...new Set(pools.map(p => p.positionEarnings.map(pe => [pe.token0, pe.token1]).flat()).flat())]
+  }, [pools])
+
   const { data: tokenPrices } = useTokenPricesWithLoading(tokens, chainId)
 
   return (

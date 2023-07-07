@@ -24,7 +24,6 @@ const Chart = styled(LiquidityChartRangeInput)`
   }
 `
 
-// TODO: merge with EarningView props
 type Props = {
   position: Position
   disabled: boolean

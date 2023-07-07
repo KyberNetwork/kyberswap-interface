@@ -48,8 +48,6 @@ export function usePools(
         initCodeHashManualOverride: (networkInfo as EVMNetworkInfo).elastic.initCodeHash,
       }
 
-      console.log({ param })
-
       return computePoolAddress(param)
     })
   }, [transformed, isEVM, networkInfo])

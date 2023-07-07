@@ -34,7 +34,7 @@ const TimeButton = styled.div<{ active?: boolean }>`
   cursor: pointer;
 
   color: ${({ theme, active }) => (active ? theme.text : theme.subText)};
-  background-color: ${({ theme, active }) => (active ? theme.tableHeader : '')}; ;
+  background-color: ${({ theme, active }) => (active ? theme.tableHeader : '')};
 `
 
 type Props = {

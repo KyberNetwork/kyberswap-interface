@@ -175,7 +175,7 @@ const TooltipContent: React.FC<Props> = ({ dataEntry, setHoverValue }) => {
           whiteSpace: 'nowrap',
         }}
       >
-        <Trans>My Total Earnings</Trans>: <span>{formatUSDValue(dataEntry.totalValue)}</span>
+        <Trans>My Total Earnings</Trans>: {formatUSDValue(dataEntry.totalValue)}
       </Text>
 
       <Text
@@ -188,7 +188,7 @@ const TooltipContent: React.FC<Props> = ({ dataEntry, setHoverValue }) => {
           whiteSpace: 'nowrap',
         }}
       >
-        <Trans>Pool Fees</Trans>: <span>{formatUSDValue(dataEntry.poolFeesValue)}</span>
+        <Trans>Pool Fees</Trans>: {formatUSDValue(dataEntry.poolFeesValue)}
       </Text>
 
       <Text
@@ -201,7 +201,7 @@ const TooltipContent: React.FC<Props> = ({ dataEntry, setHoverValue }) => {
           whiteSpace: 'nowrap',
         }}
       >
-        <Trans>Farm Rewards</Trans>: <span>{formatUSDValue(dataEntry.farmRewardsValue)}</span>
+        <Trans>Farm Rewards</Trans>: {formatUSDValue(dataEntry.farmRewardsValue)}
       </Text>
 
       <Flex

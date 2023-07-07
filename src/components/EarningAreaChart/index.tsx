@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Area, AreaChart, Customized, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
+import { EMPTY_FUNCTION } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { TimePeriod } from 'pages/MyEarnings/MyEarningsOverTimePanel/TimePeriodSelect'
 import KyberLogo from 'pages/TrueSightV2/components/chart/KyberLogo'
@@ -48,16 +49,12 @@ const formatter = (value: string) => {
   return formatter.format(num)
 }
 
-const noop = () => {
-  // empty
-}
-
 type Props = {
   period: TimePeriod
   setHoverValue?: React.Dispatch<React.SetStateAction<number | null>>
   data: EarningStatsTick[]
 }
-const EarningAreaChart: React.FC<Props> = ({ data, setHoverValue = noop, period }) => {
+const EarningAreaChart: React.FC<Props> = ({ data, setHoverValue = EMPTY_FUNCTION, period }) => {
   const theme = useTheme()
   const [containerWidth, setContainerWidth] = useState(0)
   const shouldShowLabel = containerWidth > 400

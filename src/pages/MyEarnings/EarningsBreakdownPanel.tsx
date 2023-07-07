@@ -2,11 +2,11 @@ import { Trans } from '@lingui/macro'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import { formatUSDValue } from 'components/EarningAreaChart/utils'
 import EarningPieChart from 'components/EarningPieChart'
 import useTheme from 'hooks/useTheme'
 import { EarningsBreakdown } from 'types/myEarnings'
 
-// TODO: remove transition of background when switching dark modes
 type WrapperProps = { $columns: 1 | 2 }
 const Wrapper = styled.div.attrs<WrapperProps>(({ $columns }) => ({
   'data-columns': $columns,
@@ -28,27 +28,6 @@ const Wrapper = styled.div.attrs<WrapperProps>(({ $columns }) => ({
     flex: 0 0 400px;
   }
 `
-
-const formatValue = (v: string | number) => {
-  const num = Number(v)
-  if (num === 0) {
-    return '$0'
-  }
-
-  if (num < 0.01) {
-    return '< $0.01'
-  }
-
-  const formatter = Intl.NumberFormat('en-US', {
-    notation: 'compact',
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  })
-
-  return formatter.format(num)
-}
 
 type Props = {
   isLoading?: boolean
@@ -95,7 +74,7 @@ const EarningsBreakdownPanel: React.FC<Props> = ({ isLoading, data, className, h
         <EarningPieChart
           horizontalLayout={horizontalLayout}
           data={data.breakdowns}
-          totalValue={formatValue(data.totalValue)}
+          totalValue={formatUSDValue(data.totalValue, true)}
         />
       )}
     </Wrapper>

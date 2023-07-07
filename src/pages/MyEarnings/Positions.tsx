@@ -274,7 +274,7 @@ function PositionStats({
             whiteSpace: 'nowrap',
           }}
         >
-          {numOfActivePositions} Active
+          <Trans>{numOfActivePositions} Active</Trans>
         </Text>
       </Flex>
 
@@ -305,7 +305,7 @@ function PositionStats({
               whiteSpace: 'nowrap',
             }}
           >
-            {numOfInactivePositions} Inactive
+            <Trans>{numOfInactivePositions} Inactive</Trans>
           </Text>
         </Flex>
       ) : null}
@@ -339,7 +339,7 @@ function PositionStats({
               flex: '1 0 auto',
             }}
           >
-            {numOfClosedPositions} Closed
+            <Trans>{numOfClosedPositions} Closed</Trans>
           </Flex>
         </Flex>
       ) : null}

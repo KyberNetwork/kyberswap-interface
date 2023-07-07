@@ -78,9 +78,6 @@ const MyEarningsOverTimePanel = styled(OriginalMyEarningsOverTimePanel)`
   `}
 `
 
-// TODO: handle empty data in a specific chain
-// TODO: update the data to pool's data
-
 type Props = {
   chainId: ChainId
   historicalEarning: HistoricalSingleData[]
@@ -97,7 +94,6 @@ const PoolEarningsSection: React.FC<Props> = ({ historicalEarning, chainId }) =>
       data?.[0]?.day === today
         ? data?.[0].total
             ?.filter(tokenData => {
-              // TODO: check with native token
               const tokenAddress = isAddress(chainId, tokenData.token)
               if (!tokenAddress) {
                 return false

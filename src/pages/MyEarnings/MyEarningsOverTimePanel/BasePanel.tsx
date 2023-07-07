@@ -11,17 +11,6 @@ import useTheme from 'hooks/useTheme'
 import { Props as CommonProps } from '.'
 import TimePeriodSelect, { TimePeriod } from './TimePeriodSelect'
 
-//TODO: move to common
-export const formatPercent = (value: number) => {
-  const formatter = Intl.NumberFormat('en-US', {
-    notation: 'standard',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  })
-
-  return formatter.format(value) + '%'
-}
-
 const MemoEarningAreaChart = React.memo(EarningAreaChart)
 
 const Wrapper = styled.div`

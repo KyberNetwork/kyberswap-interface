@@ -534,7 +534,6 @@ export const calculateTicksOfAccountEarningsInMultipleChains = (
           totalValue: poolRewardsValueUSD + farmRewardsValueUSD,
           tokens: (singleDataPoint.total || [])
             .filter(tokenEarning => {
-              // TODO: check with native token
               const tokenAddress = isAddress(chainId, tokenEarning.token)
               if (!tokenAddress) {
                 return false

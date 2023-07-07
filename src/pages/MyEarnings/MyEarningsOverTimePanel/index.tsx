@@ -6,17 +6,6 @@ import { EarningStatsTick } from 'types/myEarnings'
 
 import ZoomOutModal from './ZoomOutModal'
 
-//TODO: move to common
-export const formatPercent = (value: number) => {
-  const formatter = Intl.NumberFormat('en-US', {
-    notation: 'standard',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  })
-
-  return formatter.format(value) + '%'
-}
-
 export type Props = {
   className?: string
   isLoading?: boolean

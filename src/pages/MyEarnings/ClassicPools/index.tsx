@@ -1,4 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { Trans } from '@lingui/macro'
 import produce from 'immer'
 import { useEffect, useMemo, useReducer } from 'react'
 import { Flex } from 'rebass'
@@ -30,7 +31,11 @@ const ClassicPools = () => {
 
   const renderPools = () => {
     if (!data) {
-      return <span>empty data</span>
+      return (
+        <span>
+          <Trans>No liquidity found</Trans>
+        </span>
+      )
     }
 
     return Object.keys(data).map(chainRoute => {

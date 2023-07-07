@@ -146,7 +146,6 @@ const Position: React.FC<Props> = ({ chainId, userLiquidity, currency0, currency
     new Fraction(rawBalance.toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals))).toFixed(8),
   )
 
-  // TODO: check native currencies
   const currency0Slug = ''
   const currency1Slug = ''
 
