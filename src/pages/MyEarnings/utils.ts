@@ -511,7 +511,6 @@ export const calculateTicksOfAccountEarningsInMultipleChains = (
       const chainId = chainIdByRoute[chainRoute]
       const data = earningResponse[chainRoute].account
 
-      // TODO: check tick has more than 5 tokens
       const ticks: EarningStatsTick[] = data.map(singleDataPoint => {
         const poolRewardsValueUSD = sumTokenEarnings(singleDataPoint.fees || [])
         const farmRewardsValueUSD = sumTokenEarnings(singleDataPoint.rewards || [])
