@@ -261,7 +261,7 @@ export default function GasRefundBox() {
             </Flex>
           </Flex>
           <Flex alignSelf="end">
-            {account && eligibleTxs?.transactions.length && (
+            {!!account && !!eligibleTxs?.transactions.length && (
               <ButtonLight padding="2px 12px" onClick={toggleEligibleTxModal}>
                 <Trans>Your Transactions</Trans>
               </ButtonLight>
