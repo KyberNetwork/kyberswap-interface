@@ -55,17 +55,7 @@ const RefreshButton = () => {
   const isFetching = elasticData.isFetching || elasticLegacyData.isFetching
 
   refetchRef.current = () => {
-    const refetch = () => {
-      if (timeOutRef.current) {
-        clearTimeout(timeOutRef.current)
-      }
-      timeOutRef.current = setTimeout(() => {
-        refetchRef.current()
-      }, 300_000)
-    }
-
     if (isFetching || !account) {
-      refetch()
       return
     }
 
@@ -73,21 +63,25 @@ const RefreshButton = () => {
     elasticTrigger({ account, chainIds: selectedChainIds })
     elasticLegacyTrigger({ account, chainIds: selectedChainIds })
     // classicTrigger({ account, chainIds: selectedChainIds })
-
-    refetch()
   }
 
   useEffect(() => {
-    setTimeout(() => {
-      refetchRef.current()
-    }, 300_000)
-
-    return () => {
+    const cleanUp = () => {
       if (timeOutRef.current) {
         clearTimeout(timeOutRef.current)
       }
     }
-  }, [])
+
+    if (isFetching || !account) {
+      return cleanUp
+    }
+
+    timeOutRef.current = setTimeout(() => {
+      refetchRef.current()
+    }, 60_000)
+
+    return cleanUp
+  }, [account, isFetching])
 
   return (
     <Button
