@@ -8,11 +8,9 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
-import { ReactComponent as TutorialIcon } from 'assets/svg/play_circle_outline.svg'
 import { PoolClassicIcon, PoolElasticIcon } from 'components/Icons'
 import Wallet from 'components/Icons/Wallet'
 import { MouseoverTooltip } from 'components/Tooltip'
-import Tutorial, { TutorialType } from 'components/Tutorial'
 import { APP_PATHS, PROMM_ANALYTICS_URL } from 'constants/index'
 import { ELASTIC_NOT_SUPPORTED, VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
@@ -280,36 +278,18 @@ function ClassicElasticTab() {
 
   const renderHelperButtonsForMobile = () => {
     return (
-      <>
-        <ExternalLink
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '4px',
-            color: theme.subText,
-            fontSize: '14px',
-          }}
-          href={`${PROMM_ANALYTICS_URL[chainId]}/account/${account}`}
-        >
-          <Wallet size={20} />
-        </ExternalLink>
-
-        <Tutorial
-          type={tab === VERSION.ELASTIC ? TutorialType.ELASTIC_POOLS : TutorialType.CLASSIC_POOLS}
-          customIcon={
-            <Flex
-              sx={{ gap: '4px', cursor: 'pointer' }}
-              fontSize="14px"
-              alignItems="center"
-              fontWeight="500"
-              color={theme.subText}
-              role="button"
-            >
-              <TutorialIcon />
-            </Flex>
-          }
-        />
-      </>
+      <ExternalLink
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '4px',
+          color: theme.subText,
+          fontSize: '14px',
+        }}
+        href={`${PROMM_ANALYTICS_URL[chainId]}/account/${account}`}
+      >
+        <Wallet size={20} />
+      </ExternalLink>
     )
   }
 
@@ -406,52 +386,26 @@ function ClassicElasticTab() {
 
   const renderHelperButtons = () => {
     return (
-      <>
-        <ExternalLink
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '4px',
-            color: theme.subText,
-            fontSize: '14px',
+      <ExternalLink
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '4px',
+          color: theme.subText,
+          fontSize: '14px',
+        }}
+        href={`${PROMM_ANALYTICS_URL[chainId]}/account/${account}`}
+      >
+        <Wallet size={20} />
+        <Text
+          as="span"
+          sx={{
+            whiteSpace: 'nowrap',
           }}
-          href={`${PROMM_ANALYTICS_URL[chainId]}/account/${account}`}
         >
-          <Wallet size={20} />
-          <Text
-            as="span"
-            sx={{
-              whiteSpace: 'nowrap',
-            }}
-          >
-            <Trans>Wallet Analytics</Trans> ↗
-          </Text>
-        </ExternalLink>
-
-        <Tutorial
-          type={tab === VERSION.ELASTIC ? TutorialType.ELASTIC_POOLS : TutorialType.CLASSIC_POOLS}
-          customIcon={
-            <Flex
-              sx={{ gap: '4px', cursor: 'pointer' }}
-              fontSize="14px"
-              alignItems="center"
-              fontWeight="500"
-              color={theme.subText}
-              role="button"
-            >
-              <TutorialIcon />
-              <Text
-                as="span"
-                sx={{
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                <Trans>Video Tutorial</Trans>
-              </Text>
-            </Flex>
-          }
-        />
-      </>
+          <Trans>Wallet Analytics</Trans> ↗
+        </Text>
+      </ExternalLink>
     )
   }
 
