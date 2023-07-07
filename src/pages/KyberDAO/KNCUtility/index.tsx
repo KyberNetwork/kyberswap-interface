@@ -1,6 +1,5 @@
 import { Trans } from '@lingui/macro'
 import { formatUnits } from 'ethers/lib/utils'
-import { transparentize } from 'polished'
 import { NavLink } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -66,15 +65,17 @@ const Row = styled.div`
     max-width: 700px;
   }
 `
-const EndedTag = styled.div`
-  padding: 2px 12px;
-  width: fit-content;
-  border-radius: 12px;
-  background: ${({ theme }) => transparentize(0.8, theme.red)};
-  color: ${({ theme }) => theme.red};
-  font-size: 12px;
-  font-weight: 500;
-`
+
+// todo: will again, dont remove this
+// const EndedTag = styled.div`
+//   padding: 2px 12px;
+//   width: fit-content;
+//   border-radius: 12px;
+//   background: ${({ theme }) => transparentize(0.8, theme.red)};
+//   color: ${({ theme }) => theme.red};
+//   font-size: 12px;
+//   font-weight: 500;
+// `
 
 const FormWrapper = styled.div`
   background-color: ${({ theme }) => theme.background};
@@ -177,11 +178,11 @@ export default function KNCUtility() {
             <Text fontSize={upToMedium ? 20 : 36} fontWeight={400} id="gas-refund-program" alignSelf="start">
               <Trans>Gas Refund Program</Trans>
             </Text>
-            <EndedTag>
+            {/* <EndedTag>
               <Text>
                 <Trans>Ended</Trans>
               </Text>
-            </EndedTag>
+            </EndedTag> */}
           </RowBetween>
           {upToMedium || <div />}
         </Row>
