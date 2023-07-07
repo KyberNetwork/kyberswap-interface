@@ -158,4 +158,5 @@ const isSupportTestNet = ENV_LEVEL < ENV_TYPE.PROD && new URLSearchParams(window
 export const CROSS_CHAIN_CONFIG = {
   AXELAR_SCAN_URL: isSupportTestNet ? 'https://testnet.axelarscan.io/gmp/' : 'https://axelarscan.io/gmp/',
   API_DOMAIN: isSupportTestNet ? 'https://testnet.api.0xsquid.com' : 'https://api.0xsquid.com',
+  INTEGRATOR_ID: 'kyberswap-api',
 }

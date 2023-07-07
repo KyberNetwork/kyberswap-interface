@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { Repeat } from 'react-feather'
 import { useLocation } from 'react-router-dom'
@@ -8,11 +7,11 @@ import styled from 'styled-components'
 
 import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
 import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
-import MultichainLogoDark from 'assets/images/multichain_black.png'
-import MultichainLogoLight from 'assets/images/multichain_white.png'
+// import MultichainLogoDark from 'assets/images/multichain_black.png'
+// import MultichainLogoLight from 'assets/images/multichain_white.png'
 import SquidLogoDark from 'assets/images/squid_dark.png'
 import SquidLogoLight from 'assets/images/squid_light.png'
-import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
+// import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
 import { ReactComponent as BuyCrypto } from 'assets/svg/buy_crypto.svg'
 import { ReactComponent as CrossChainIcon } from 'assets/svg/cross_chain_icon.svg'
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
@@ -41,11 +40,11 @@ const VisaSVG = styled(Visa)`
   }
 `
 
-const StyledBridgeIcon = styled(BridgeIcon)`
-  path {
-    fill: currentColor;
-  }
-`
+// const StyledBridgeIcon = styled(BridgeIcon)`
+//   path {
+//     fill: currentColor;
+//   }
+// `
 const StyledBuyCrypto = styled(BuyCrypto)`
   path {
     fill: currentColor;
@@ -53,7 +52,7 @@ const StyledBuyCrypto = styled(BuyCrypto)`
 `
 
 const SwapNavGroup = () => {
-  const { networkInfo, chainId, isSolana } = useActiveWeb3React()
+  const { networkInfo, chainId } = useActiveWeb3React()
   const isDark = useIsDarkMode()
   const { pathname } = useLocation()
   const upTo420 = useMedia('(max-width: 420px)')
@@ -125,7 +124,8 @@ const SwapNavGroup = () => {
             </StyledNavLink>
           )}
 
-          {!(isSolana || chainId === ChainId.LINEA_TESTNET) && (
+          {/*
+          !(isSolana || chainId === ChainId.LINEA_TESTNET) && (
             <StyledNavLink
               id="bridge-nav-link"
               to={APP_PATHS.BRIDGE}
@@ -145,7 +145,8 @@ const SwapNavGroup = () => {
                 </Flex>
               </Flex>
             </StyledNavLink>
-          )}
+          )
+          */}
 
           <StyledNavLink
             id="buy-crypto-nav-link"
