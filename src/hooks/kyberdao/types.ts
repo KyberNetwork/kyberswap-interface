@@ -76,7 +76,7 @@ export interface RewardInfo {
   usd: number
 }
 
-export interface TransactionInfo {
+interface TransactionInfo {
   tx: string
   timestamp: number
   gasRefundInKNC: string

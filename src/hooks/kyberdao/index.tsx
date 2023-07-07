@@ -31,7 +31,6 @@ import {
   RewardStats,
   StakerAction,
   StakerInfo,
-  TransactionInfo,
   VoteInfo,
 } from './types'
 
