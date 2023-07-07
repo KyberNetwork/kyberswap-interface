@@ -550,27 +550,32 @@ export function useGasRefundTier(): GasRefundTierInfo {
 
   return data || { userTier: 0, gasRefundPerCentage: 0 }
 }
-
 export function useGasRefundInfo({ rewardStatus = KNCUtilityTabs.Available }: { rewardStatus?: KNCUtilityTabs }) {
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const kyberDaoInfo = useKyberDAOInfo()
 
   const { data: claimableReward } = useSWR<RewardInfo>(
-    account && kyberDaoInfo?.daoStatsApi + '/api/v1/stakers/' + account + '/refunds/total?rewardStatus=claimable',
+    account &&
+      chainId === ChainId.MAINNET &&
+      kyberDaoInfo?.daoStatsApi + '/api/v1/stakers/' + account + '/refunds/total?rewardStatus=claimable',
     url =>
       fetcher(url)
         .then(res => res.total)
         .then(({ knc, usd }) => ({ knc: parseFloat(knc), usd: parseFloat(usd) })),
   )
   const { data: pendingReward } = useSWR<RewardInfo>(
-    account && kyberDaoInfo?.daoStatsApi + '/api/v1/stakers/' + account + '/refunds/total?rewardStatus=pending',
+    account &&
+      chainId === ChainId.MAINNET &&
+      kyberDaoInfo?.daoStatsApi + '/api/v1/stakers/' + account + '/refunds/total?rewardStatus=pending',
     url =>
       fetcher(url)
         .then(res => res.total)
         .then(({ knc, usd }) => ({ knc: parseFloat(knc), usd: parseFloat(usd) })),
   )
   const { data: claimedReward } = useSWR<RewardInfo>(
-    account && kyberDaoInfo?.daoStatsApi + '/api/v1/stakers/' + account + '/refunds/total?rewardStatus=claimed',
+    account &&
+      chainId === ChainId.MAINNET &&
+      kyberDaoInfo?.daoStatsApi + '/api/v1/stakers/' + account + '/refunds/total?rewardStatus=claimed',
     url =>
       fetcher(url)
         .then(res => res.total)
@@ -594,11 +599,12 @@ export function useGasRefundInfo({ rewardStatus = KNCUtilityTabs.Available }: { 
 }
 
 export const useEligibleTransactions = (page = 1, pageSize = 100): EligibleTxsInfo | undefined => {
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const kyberDaoInfo = useKyberDAOInfo()
 
   const { data: eligibleTransactions } = useSWR<EligibleTxsInfo>(
     account &&
+      chainId === ChainId.MAINNET &&
       kyberDaoInfo?.daoStatsApi +
         '/api/v1/stakers/' +
         account +

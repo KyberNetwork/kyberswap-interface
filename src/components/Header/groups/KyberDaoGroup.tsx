@@ -45,6 +45,10 @@ const KyberDAONavGroup = () => {
               <VoteIcon />
               <Trans>Vote</Trans>
             </StyledNavLink>
+            <StyledNavLink id="knc-utility" to={APP_PATHS.KYBERDAO_KNC_UTILITY} style={{ gap: '4px' }}>
+              <UtilityIcon />
+              <Trans>KNC Utility</Trans>
+            </StyledNavLink>
             <StyledNavExternalLink
               id="kyberdao-feature-request"
               href="https://kyberswap.canny.io/feature-request"
@@ -57,10 +61,6 @@ const KyberDAONavGroup = () => {
               <LightBulb />
               <Trans>Feature Request</Trans>
             </StyledNavExternalLink>
-            <StyledNavLink id="knc-utility" to={APP_PATHS.KYBERDAO_KNC_UTILITY} style={{ gap: '4px' }}>
-              <UtilityIcon />
-              <Trans>KNC Utility</Trans>
-            </StyledNavLink>
           </Column>
         }
       />

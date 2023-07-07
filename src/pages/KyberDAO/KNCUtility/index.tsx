@@ -37,7 +37,7 @@ const Wrapper = styled.div`
 
   padding: 24px 48px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 24px;
+    padding: 16px;
   `}
 `
 
@@ -148,7 +148,7 @@ export default function KNCUtility() {
               </Flex>
 
               <Trans>
-                <Text as="span" fontSize={16} fontWeight={500} color={theme.subText}>
+                <Text as="span" fontSize={16} fontWeight={500} color={theme.subText} lineHeight="24px">
                   Stake your KNC (Kyber Network Crystal) tokens to vote on KIP proposals, plus enjoy multiple benefits
                   such as saving on gas fees, earning rewards, and more.
                 </Text>
@@ -159,11 +159,11 @@ export default function KNCUtility() {
             refundImg
           ) : (
             <Flex flexDirection="column" alignItems="center">
-              <img src={crystals} width="30%" />
+              <img src={crystals} width="25%" />
               <img
                 src={ringwaveGif}
                 width="100%"
-                style={{ marginTop: '-20px', maxWidth: '533px' }}
+                style={{ marginTop: '-60px', maxWidth: '533px' }}
                 onError={({ currentTarget }) => {
                   currentTarget.onerror = null // prevents looping
                   currentTarget.src = ringwave
@@ -172,9 +172,9 @@ export default function KNCUtility() {
             </Flex>
           )}
         </Row>
-        <Row>
+        <Row style={{ paddingBottom: upToMedium ? '0' : undefined }}>
           <RowBetween flexDirection="row" gap="16px">
-            <Text fontSize={36} fontWeight={400} id="gas-refund-program" alignSelf="start">
+            <Text fontSize={upToMedium ? 20 : 36} fontWeight={400} id="gas-refund-program" alignSelf="start">
               <Trans>Gas Refund Program</Trans>
             </Text>
             <EndedTag>
@@ -183,9 +183,9 @@ export default function KNCUtility() {
               </Text>
             </EndedTag>
           </RowBetween>
-          <div />
+          {upToMedium || <div />}
         </Row>
-        <Row>
+        <Row style={{ padding: upToMedium ? '16px 0 12px' : undefined }}>
           <Column gap="48px">
             <GasRefundBox />
             <Text fontSize={16} fontWeight={400} lineHeight="24px" color={theme.subText}>
@@ -206,9 +206,9 @@ export default function KNCUtility() {
             </Text>
             <Text fontSize={16} fontWeight={400} lineHeight="24px" color={theme.subText}>
               <Trans>
-                To participate in KyberSwap&apos;s Gas Refund Program, you are required to stake KNC and fulfil the
-                following requirements. The percentage of gas refunded is based on your staking Tier.{' '}
-                <NavLink to={APP_PATHS.KYBERDAO_STAKE}>Read More ↗</NavLink>
+                To participate in KyberSwap&apos;s Gas Refund Program, you must stake KNC and meet the necessary
+                requirements. The amount of gas refunded will depend on your staking Tier.{' '}
+                <NavLink to="//temp link">Read More ↗</NavLink>
               </Trans>
             </Text>
             <Table>
@@ -243,11 +243,6 @@ export default function KNCUtility() {
               <li>
                 <Trans>Value of each trade on KyberSwap has to be ≥ $200; calculated at the point of trade.</Trans>
               </li>
-            </Text>
-            <Text fontSize={16} fontWeight={400} lineHeight="24px" color={theme.subText}>
-              Once you have met these eligibility criteria, you will be eligible to receive gas fee refunds for your
-              Swap transactions based on your staked KNC tier.{' '}
-              <NavLink to={APP_PATHS.KYBERDAO_STAKE}>Read More ↗</NavLink>
             </Text>
           </Column>
         </Row>

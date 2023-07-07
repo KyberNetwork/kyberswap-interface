@@ -14,6 +14,7 @@ const Title = styled.span`
   font-size: 16px;
   line-height: 20px;
   color: ${({ theme }) => theme.text};
+  max-width: calc(100% - 20px - 8px);
 `
 
 enum Panel {
