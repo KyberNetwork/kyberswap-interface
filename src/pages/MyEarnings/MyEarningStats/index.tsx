@@ -143,8 +143,8 @@ const MyEarningStats = () => {
         }}
       >
         <Trans>
-          Note: Your earnings may fluctuate due to the increase or decrease in price of the tokens earned. These
-          earnings include both claimed and unclaimed pool and farm rewards
+          Note: Your earnings will fluctuate according to the dollar value of the tokens earned. These earnings include
+          both claimed and unclaimed fees as well as accrued farming rewards.
         </Trans>
       </Text>
     </Flex>
