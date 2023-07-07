@@ -62,7 +62,8 @@ const MyEarnings = () => {
     } else {
       const timeOut = setTimeout(() => {
         setLocalAccount('')
-      }, 1_000)
+        // 3s seems too much, but this page is quite slow...
+      }, 3_000)
 
       return () => {
         clearTimeout(timeOut)

@@ -5,6 +5,7 @@ import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { NonfungiblePositionManager, Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
+import { useRef } from 'react'
 import { useDispatch } from 'react-redux'
 import { Flex, Text } from 'rebass'
 
@@ -62,6 +63,8 @@ const CollectFeesPanel: React.FC<Props> = ({
   const [allowedSlippage] = useUserSlippageTolerance()
   const token0Shown = feeValue0?.currency || position.pool.token0
   const token1Shown = feeValue1?.currency || position.pool.token1
+  const libraryRef = useRef(library)
+  libraryRef.current = library
 
   const liquidity = position.liquidity.toString()
   const farmContract = useProMMFarmContract(farmAddress || '')
@@ -93,6 +96,7 @@ const CollectFeesPanel: React.FC<Props> = ({
   }
 
   const sendTransaction = (txn: TransactionRequest) => {
+    const library = libraryRef.current
     if (!library) {
       return
     }
