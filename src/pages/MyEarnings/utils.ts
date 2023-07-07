@@ -19,30 +19,17 @@ import { TokenAddressMap } from 'state/lists/reducer'
 import { EarningStatsTick, EarningsBreakdown } from 'types/myEarnings'
 import { isAddress } from 'utils'
 
-// TODO: remove later
-export function shuffle<T>(array: T[]): T[] {
-  let currentIndex = array.length,
-    randomIndex
-
-  // While there remain elements to shuffle.
-  while (currentIndex !== 0) {
-    // Pick a remaining element.
-    randomIndex = Math.floor(Math.random() * currentIndex)
-    currentIndex--
-
-    // And swap it with the current element.
-    ;[array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]]
-  }
-
-  return array
+export const getToday = () => {
+  return Math.floor(Date.now() / 1000 / 86400)
 }
 
-export const today = Math.floor(Date.now() / 1000 / 86400)
 const aYearAgo = Math.floor(Date.now() / 1000 / 86400 - 365)
 
 export const fillHistoricalEarningsForEmptyDays = (
   historicalEarnings: HistoricalSingleData[] | undefined,
 ): HistoricalSingleData[] => {
+  const today = getToday()
+
   if (!historicalEarnings?.length) {
     return Array.from({ length: 365 }).map((_, i) => {
       return {
@@ -84,6 +71,8 @@ export const fillHistoricalEarningsForEmptyDays = (
 }
 
 const fillHistoricalEarningsForTicks = (ticks: EarningStatsTick[] | undefined): EarningStatsTick[] => {
+  const today = getToday()
+
   if (!ticks?.length) {
     return Array.from({ length: 365 }).map((_, i) => {
       const day = today - i
@@ -149,6 +138,7 @@ export const calculateEarningStatsTick = (
     return undefined
   }
 
+  const today = getToday()
   const ticks: EarningStatsTick[] = data.map(singlePointData => {
     const poolRewardsValueUSD = sumTokenEarnings(singlePointData.fees || [])
     const farmRewardsValueUSD = sumTokenEarnings(singlePointData.rewards || [])

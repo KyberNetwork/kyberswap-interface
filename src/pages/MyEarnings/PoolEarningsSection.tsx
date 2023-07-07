@@ -9,7 +9,7 @@ import styled from 'styled-components'
 import { NETWORKS_INFO } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import useTheme from 'hooks/useTheme'
-import { calculateEarningStatsTick, today } from 'pages/MyEarnings/utils'
+import { calculateEarningStatsTick, getToday } from 'pages/MyEarnings/utils'
 import { useAppSelector } from 'state/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { EarningStatsTick, EarningsBreakdown } from 'types/myEarnings'
@@ -89,6 +89,7 @@ const PoolEarningsSection: React.FC<Props> = ({ historicalEarning, chainId }) =>
 
   const earningBreakdown: EarningsBreakdown | undefined = useMemo(() => {
     const data = historicalEarning
+    const today = getToday()
 
     const latestData =
       data?.[0]?.day === today
