@@ -29,6 +29,7 @@ import useTheme from 'hooks/useTheme'
 import { useElasticFarms } from 'state/farms/elastic/hooks'
 import { UserPositionFarm } from 'state/farms/elastic/types'
 import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
+import { NEVER_RELOAD, useSingleCallResult } from 'state/multicall/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { ExternalLink, StyledInternalLink } from 'theme'
 import { PositionDetails } from 'types/position'
@@ -171,9 +172,9 @@ function PositionListItem({
     farm.pools.forEach(pool => {
       if (pool.poolAddress.toLowerCase() === positionDetails.poolId.toLowerCase()) {
         farmAddress = farm.id
-        pid = pool.pid
         rewardTokens = pool.rewardTokens
         if (pool.endTime > Date.now() / 1000) {
+          pid = pool.pid
           hasActiveFarm = true
         }
       }
@@ -192,22 +193,15 @@ function PositionListItem({
   const tokenId = positionDetails.tokenId.toString()
 
   const [farmReward, setFarmReward] = useState<BigNumber[] | null>(null)
-  useEffect(() => {
-    const getReward = async () => {
-      if (farmContract && farmingTime) {
-        await farmContract
-          .getUserInfo(tokenId, pid)
-          .then((res: any) => {
-            setFarmReward(res.rewardPending)
-          })
-          .catch(() => {
-            setFarmReward(null)
-          })
-      }
-    }
 
-    getReward()
-  }, [farmContract, tokenId, pid, farmingTime])
+  const res = useSingleCallResult(farmContract, 'getUserInfo', [tokenId, pid], NEVER_RELOAD)
+  useEffect(() => {
+    if (res?.result?.rewardPending) {
+      setFarmReward(res.result.rewardPending)
+    } else {
+      setFarmReward(null)
+    }
+  }, [res])
 
   const token0 = useToken(token0Address)
   const token1 = useToken(token1Address)
