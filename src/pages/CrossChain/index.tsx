@@ -51,6 +51,8 @@ function CrossChain({ visible }: { visible: boolean }) {
         loading.current = true
         if (!squid) {
           squid = new Squid({ baseUrl: CROSS_CHAIN_CONFIG.API_DOMAIN, integratorId: CROSS_CHAIN_CONFIG.INTEGRATOR_ID })
+        } else {
+          squid.setConfig({ baseUrl: CROSS_CHAIN_CONFIG.API_DOMAIN, integratorId: CROSS_CHAIN_CONFIG.INTEGRATOR_ID })
         }
         await squid.init()
         const { chains = [], tokens = [] } = squid
