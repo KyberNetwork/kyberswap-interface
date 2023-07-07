@@ -21,7 +21,6 @@ import { APP_PATHS, PROMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
 import { useProMMFarmContract } from 'hooks/useContract'
-// import { useProMMFarmContract } from 'hooks/useContract'
 import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { usePool } from 'hooks/usePools'
@@ -194,7 +193,12 @@ function PositionListItem({
 
   const [farmReward, setFarmReward] = useState<BigNumber[] | null>(null)
 
-  const res = useSingleCallResult(farmContract, 'getUserInfo', [tokenId, pid], NEVER_RELOAD)
+  const res = useSingleCallResult(
+    pid !== '' ? farmContract : undefined,
+    'getUserInfo',
+    pid !== '' ? [tokenId, pid] : undefined,
+    NEVER_RELOAD,
+  )
   useEffect(() => {
     if (res?.result?.rewardPending) {
       setFarmReward(res.result.rewardPending)
