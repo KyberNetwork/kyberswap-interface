@@ -149,11 +149,8 @@ export default function KNCUtility() {
 
               <Trans>
                 <Text as="span" fontSize={16} fontWeight={500} color={theme.subText}>
-                  Introducing KNC Utility, the program exclusively launched for loyal KNC holders that offers multiple
-                  benefits to help you save on gas fees, earn rewards, and much more.{' '}
-                  <Text as="span" color={theme.text}>
-                    Discover the power of KNC Utility today!
-                  </Text>
+                  Stake your KNC (Kyber Network Crystal) tokens to vote on KIP proposals, plus enjoy multiple benefits
+                  such as saving on gas fees, earning rewards, and more.
                 </Text>
               </Trans>
             </Column>
