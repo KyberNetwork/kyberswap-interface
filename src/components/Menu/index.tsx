@@ -397,8 +397,8 @@ export default function Menu() {
                   options={[
                     { link: '/kyberdao/stake-knc', label: t`Stake KNC` },
                     { link: '/kyberdao/vote', label: t`Vote` },
-                    { link: 'https://kyberswap.canny.io/feature-request', label: t`Feature Request`, external: true },
                     { link: APP_PATHS.KYBERDAO_KNC_UTILITY, label: t`KNC Utility` },
+                    { link: 'https://kyberswap.canny.io/feature-request', label: t`Feature Request`, external: true },
                   ]}
                 />
               </MenuItem>
