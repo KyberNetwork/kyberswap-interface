@@ -195,10 +195,10 @@ export default function GasRefundBox() {
         >
           <Flex flexDirection="column" sx={{ gap: '8px' }}>
             <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text} alignItems="center">
-              {formattedNum(reward?.knc.toString() || '0')} KNC
+              {account ? formattedNum(reward?.knc.toString() || '0') : '--'} KNC
             </Text>
             <Text fontSize={12} lineHeight="16px" fontWeight={500} color={theme.subText} alignItems="center">
-              {reward?.usd ? '~' + formattedNum(reward?.usd.toString() || '0', true) : '$ --'}
+              {account ? (reward?.usd ? '~' : '') + formattedNum(reward?.usd.toString() || '0', true) : '$ --'}
             </Text>
           </Flex>
           <Flex width="fit-content">
@@ -258,10 +258,12 @@ export default function GasRefundBox() {
             </TextDashed>
             <Flex flexDirection="column" sx={{ gap: '8px' }}>
               <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text} alignItems="center">
-                {formattedNum(totalReward?.knc.toString() ?? '0')} KNC
+                {account ? formattedNum(totalReward?.knc.toString() ?? '0') : '--'} KNC
               </Text>
               <Text fontSize={12} lineHeight="16px" fontWeight={500} color={theme.subText} alignItems="center">
-                {totalReward?.usd ? '~' + formattedNum(totalReward?.usd.toString() ?? '0', true) : '$ --'}
+                {account
+                  ? (totalReward?.usd ? '~' : '') + formattedNum(totalReward?.usd.toString() ?? '0', true)
+                  : '$ --'}
               </Text>
             </Flex>
           </Flex>
