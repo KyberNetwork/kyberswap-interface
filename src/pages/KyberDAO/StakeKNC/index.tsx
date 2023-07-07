@@ -232,7 +232,7 @@ export default function StakeKNC() {
             </ButtonLight>
           </Card>
           <Card background={userTier > 1 ? 'linear-gradient(90deg, #1F3435 0%, #162F28 100%)' : undefined}>
-            <Image src={migratePNG} alt="Migrate" />
+            <Image src={kncUtilityPNG} alt="KNC Utility" />
             <CardInfo>
               <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text}>
                 <Trans>KNC Utility</Trans>
@@ -276,17 +276,6 @@ export default function StakeKNC() {
                     here ↗
                   </a>
                 </Trans>
-              </Text>
-            </CardInfo>
-          </Card>
-          <Card>
-            <Image src={kncUtilityPNG} alt="KNC Utility" />
-            <CardInfo>
-              <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text}>
-                <Trans>KNC Utility</Trans>
-              </Text>
-              <Text fontSize={12} lineHeight="16px" fontWeight={500} color={theme.subText}>
-                <Trans>Coming soon</Trans>
               </Text>
             </CardInfo>
           </Card>
