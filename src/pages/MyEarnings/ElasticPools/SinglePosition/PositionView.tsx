@@ -24,8 +24,6 @@ import { updateChainId } from 'state/user/actions'
 
 import ActionButtons from './ActionButtons'
 
-const defaultPendingFee = ['0', '0']
-
 const formatValue = (value: string | number) => {
   const num = Number(value)
 
@@ -48,7 +46,7 @@ const PositionView: React.FC<CommonProps> = props => {
   const {
     positionEarning,
     position,
-    pendingFee = defaultPendingFee,
+    pendingFee,
     tokenPrices: prices,
     chainId,
     currency0,

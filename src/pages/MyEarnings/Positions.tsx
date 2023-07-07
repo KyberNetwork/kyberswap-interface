@@ -113,7 +113,16 @@ const Positions: React.FC<Props> = ({
       liquidityInUsd: number
     }> = []
 
-    unsortedPositionEarnings.forEach(positionEarning => {
+    const closedPositionEarnings = unsortedPositionEarnings
+      .filter(position => !position.liquidity || position.liquidity === '0')
+      // sort closed positions by nft id, desc
+      .sort((p1, p2) => Number(p2.id) - Number(p1.id))
+
+    const openPositionEarnings = unsortedPositionEarnings.filter(
+      position => position.liquidity && position.liquidity !== '0',
+    )
+
+    openPositionEarnings.forEach(positionEarning => {
       const position = new Position({
         pool,
         liquidity: positionEarning.liquidity,
@@ -137,8 +146,10 @@ const Positions: React.FC<Props> = ({
     })
 
     const positionEarnings = positionEarningsWithLiquidityUSD
+      // sort open positions by liquidity usd
       .sort((v1, v2) => v2.liquidityInUsd - v1.liquidityInUsd)
       .map(({ positionEarning }) => positionEarning)
+      .concat(closedPositionEarnings)
 
     return { totalLiquidityBalance: total, liquidityValue0, liquidityValue1, positionEarnings }
   }, [pool, unsortedPositionEarnings, tokenPrices, currency0, currency1])

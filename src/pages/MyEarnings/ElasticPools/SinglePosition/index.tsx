@@ -26,6 +26,8 @@ const FlipCard = styled.div<{ flip: boolean; joined?: boolean }>`
   transform: rotateY(${({ flip }) => (flip ? '-180deg' : '0')});
 `
 
+const defaultPendingFee = ['0', '0'] as [string, string]
+
 type Props = {
   isInitiallyViewEarnings: boolean
   chainId: ChainId
@@ -40,7 +42,7 @@ const SinglePosition: React.FC<Props> = ({
   positionEarning,
   chainId,
   pool,
-  pendingFee,
+  pendingFee = defaultPendingFee,
   tokenPrices,
   isInitiallyViewEarnings,
   currency0,
