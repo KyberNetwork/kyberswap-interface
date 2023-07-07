@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import React, { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
@@ -146,6 +147,7 @@ type Props = {
   slippage: number
 }
 const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
+  const { chainId } = useActiveWeb3React()
   const theme = useTheme()
   const { gasRefundPerCentage } = useGasRefundTier()
   const [expanded, setExpanded] = useState(true)
@@ -265,31 +267,33 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
             </TYPE.black>
           </RowBetween>
 
-          <RowBetween>
-            <RowFixed>
-              <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
-                <MouseoverTooltip
-                  text={
-                    <Trans>
-                      Stake KNC in KyberDAO to get gas refund.{' '}
-                      <a href="//some-link" target="_blank" rel="noreferrer">
-                        {/* todo namgold: fill the link */}
-                        Read more ↗
-                      </a>
-                    </Trans>
-                  }
-                  placement="right"
-                >
-                  <Trans>Gas Refund</Trans>
-                </MouseoverTooltip>
-              </TextDashed>
-            </RowFixed>
-            <NavLink to={APP_PATHS.KYBERDAO_KNC_UTILITY}>
-              <ButtonLight padding="0px 8px" width="fit-content" fontSize={10} fontWeight={500} lineHeight="16px">
-                {gasRefundPerCentage * 100}% Refund
-              </ButtonLight>
-            </NavLink>
-          </RowBetween>
+          {chainId === ChainId.MAINNET && (
+            <RowBetween>
+              <RowFixed>
+                <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+                  <MouseoverTooltip
+                    text={
+                      <Trans>
+                        Stake KNC in KyberDAO to get gas refund.{' '}
+                        <a href="//some-link" target="_blank" rel="noreferrer">
+                          {/* todo namgold: fill the link */}
+                          Read more ↗
+                        </a>
+                      </Trans>
+                    }
+                    placement="right"
+                  >
+                    <Trans>Gas Refund</Trans>
+                  </MouseoverTooltip>
+                </TextDashed>
+              </RowFixed>
+              <NavLink to={APP_PATHS.KYBERDAO_KNC_UTILITY}>
+                <ButtonLight padding="0px 8px" width="fit-content" fontSize={10} fontWeight={500} lineHeight="16px">
+                  {gasRefundPerCentage * 100}% Refund
+                </ButtonLight>
+              </NavLink>
+            </RowBetween>
+          )}
           <SwapFee />
         </ContentWrapper>
       </AutoColumn>
