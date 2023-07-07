@@ -271,7 +271,7 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
                 <MouseoverTooltip
                   text={
                     <Trans>
-                      Stake KNC in KyberDAO to get gas refund.
+                      Stake KNC in KyberDAO to get gas refund.{' '}
                       <a href="//some-link" target="_blank" rel="noreferrer">
                         {/* todo namgold: fill the link */}
                         Read more ↗
