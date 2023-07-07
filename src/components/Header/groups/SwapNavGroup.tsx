@@ -11,7 +11,7 @@ import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
 // import MultichainLogoLight from 'assets/images/multichain_white.png'
 import SquidLogoDark from 'assets/images/squid_dark.png'
 import SquidLogoLight from 'assets/images/squid_light.png'
-import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
+// import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
 import { ReactComponent as BuyCrypto } from 'assets/svg/buy_crypto.svg'
 import { ReactComponent as CrossChainIcon } from 'assets/svg/cross_chain_icon.svg'
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
@@ -52,7 +52,7 @@ const StyledBuyCrypto = styled(BuyCrypto)`
 `
 
 const SwapNavGroup = () => {
-  const { networkInfo, chainId, isSolana } = useActiveWeb3React()
+  const { networkInfo, chainId } = useActiveWeb3React()
   const isDark = useIsDarkMode()
   const { pathname } = useLocation()
   const upTo420 = useMedia('(max-width: 420px)')
