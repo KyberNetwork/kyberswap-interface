@@ -77,6 +77,7 @@ export const useTokensBalanceOfAnotherChain = (
         multicallContract,
         calls.map(e => ({ address: e.target, callData: e.callData })),
         undefined as any,
+        chainId,
       )
 
       const result = formatResult(results, calls)
