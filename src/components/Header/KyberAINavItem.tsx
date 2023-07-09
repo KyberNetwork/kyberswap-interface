@@ -109,12 +109,12 @@ const KyberAINavItem = () => {
       anchor={
         <DropdownTextAnchor>
           <RowFit>
-            <CustomSlideToUnlock data-active={isActive}>
-              <RowFit gap="4px">
-                <ApeIcon />
-                <Trans>KyberAI</Trans>
-              </RowFit>
-            </CustomSlideToUnlock>
+            {/*<CustomSlideToUnlock data-active={isActive}>*/}
+            <RowFit gap="4px">
+              <ApeIcon />
+              <Trans>KyberAI</Trans>
+            </RowFit>
+            {/*</CustomSlideToUnlock>*/}
             <BetaTag />
           </RowFit>
         </DropdownTextAnchor>
