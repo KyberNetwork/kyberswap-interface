@@ -142,14 +142,14 @@ const Row = ({
     getFeeTargetInfo()
   }, [contract, farmingPool.feeTarget, fairlaunchAddress, farmingPool.pid, userFarmInfo])
 
-  const canStake =
-    farmingPool.endTime > currentTimestamp &&
-    depositedPositions.some(pos => {
-      const stakedPos = joinedPositions.find(j => j.nftId.toString() === pos.nftId.toString())
-      return !stakedPos
-        ? true
-        : BigNumber.from(pos.liquidity.toString()).gt(BigNumber.from(stakedPos.liquidity.toString()))
-    })
+  const canStake = farmingPool.endTime > currentTimestamp
+  // &&
+  // depositedPositions.some(pos => {
+  //   const stakedPos = joinedPositions.find(j => j.nftId.toString() === pos.nftId.toString())
+  //   return !stakedPos
+  //     ? true
+  //     : BigNumber.from(pos.liquidity.toString()).gt(BigNumber.from(stakedPos.liquidity.toString()))
+  // })
 
   const canHarvest = rewardPendings.some(amount => amount.greaterThan(0))
 

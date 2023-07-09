@@ -245,7 +245,7 @@ const useGetUserFarmingInfo = (interval?: boolean) => {
     const i = interval
       ? setInterval(() => {
           getUserFarmInfoRef.current()
-        }, 10_000)
+        }, 10_0000)
       : undefined
     return () => {
       i && clearInterval(i)

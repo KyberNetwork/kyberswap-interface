@@ -20,8 +20,9 @@ import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
-import { StakeParam, useElasticFarms, useFarmAction } from 'state/farms/elastic/hooks'
+import { StakeParam, useElasticFarms, useFarmAction, usePositionFilter } from 'state/farms/elastic/hooks'
 import { NFTPosition } from 'state/farms/elastic/types'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { StyledInternalLink } from 'theme'
@@ -226,12 +227,16 @@ function StakeModal({
 }) {
   const theme = useTheme()
   const checkboxGroupRef = useRef<any>()
-  const { chainId, networkInfo } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
+
+  const { positions, loading: positionsLoading } = useProAmmPositions(account)
+
+  const { eligiblePositions } = usePositionFilter(positions || [], [poolAddress])
 
   const { farms, userFarmInfo } = useElasticFarms()
   const selectedFarm = farms?.find(farm => farm.id.toLowerCase() === selectedFarmAddress.toLowerCase())
 
-  const { stake, unstake, emergencyWithdraw } = useFarmAction(selectedFarmAddress)
+  const { stake, unstake, emergencyWithdraw, depositAndJoin } = useFarmAction(selectedFarmAddress)
 
   const selectedPool = selectedFarm?.pools.find(pool => Number(pool.pid) === Number(poolId))
 
@@ -254,7 +259,7 @@ function StakeModal({
         )
       }) || []
 
-    return depositedPositions
+    const depositedNfts = depositedPositions
       .map(item => {
         const stakedLiquidity = BigNumber.from(
           joinedPositions.find(pos => pos.nftId.toString() === item.nftId.toString())?.liquidity.toString() || 0,
@@ -284,7 +289,29 @@ function StakeModal({
         }
         return BigNumber.from(item.staked.liquidity.toString()).gt(BigNumber.from(0))
       })
-  }, [type, selectedPool, chainId, poolId, poolAddress, selectedFarmAddress, userFarmInfo])
+
+    return depositedNfts.concat(
+      selectedPool
+        ? eligiblePositions.map(item => ({
+            available: new NFTPosition({
+              nftId: item.tokenId,
+              pool: selectedPool.pool,
+              liquidity: item.liquidity.toString(),
+              tickLower: item.tickLower,
+              tickUpper: item.tickUpper,
+            }),
+            poolAddress,
+            staked: new NFTPosition({
+              nftId: item.tokenId,
+              pool: selectedPool.pool,
+              liquidity: '0',
+              tickLower: item.tickLower,
+              tickUpper: item.tickUpper,
+            }),
+          }))
+        : [],
+    )
+  }, [type, selectedPool, chainId, poolId, poolAddress, selectedFarmAddress, userFarmInfo, eligiblePositions])
 
   const [selectedNFTs, setSeletedNFTs] = useState<ExplicitNFT[]>([])
   const { mixpanelHandler } = useMixpanel()
@@ -310,7 +337,7 @@ function StakeModal({
       stakedLiquidity: e.staked.liquidity.toString(),
     }))
     if (type === 'stake') {
-      const txhash = await stake(BigNumber.from(poolId), params)
+      const txhash = await depositAndJoin(BigNumber.from(poolId), params)
       if (txhash) {
         mixpanelHandler(MIXPANEL_TYPE.ELASTIC_STAKE_LIQUIDITY_COMPLETED, {
           token_1: token0?.symbol,
@@ -318,16 +345,12 @@ function StakeModal({
         })
       }
     } else {
-      if (chainId === ChainId.AVAXMAINNET && Number(poolId) === 125) {
-        await emergencyWithdraw(params.map(item => item.nftId))
-      } else {
-        const txhash = await unstake(BigNumber.from(poolId), params)
-        if (txhash) {
-          mixpanelHandler(MIXPANEL_TYPE.ELASTIC_UNSTAKE_LIQUIDITY_COMPLETED, {
-            token_1: token0?.symbol,
-            token_2: token1?.symbol,
-          })
-        }
+      const txhash = await unstake(BigNumber.from(poolId), params)
+      if (txhash) {
+        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_UNSTAKE_LIQUIDITY_COMPLETED, {
+          token_1: token0?.symbol,
+          token_2: token1?.symbol,
+        })
       }
     }
     onDismiss()
