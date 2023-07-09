@@ -68,7 +68,7 @@ const BetaTag = () => {
         marginTop: '-16px',
       }}
     >
-      maintain
+      maintenance
     </RowFit>
   )
 }
