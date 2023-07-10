@@ -186,7 +186,7 @@ const useLogin = (autoLogin = false) => {
       }
 
       const redirectSignIn = () => {
-        KyberOauth2.authenticate() // navigate to login page
+        KyberOauth2.authenticate({ wallet_address: desireAccount ?? '' }) // navigate to login page
         setLoginRedirectUrl()
       }
       if (showSessionExpired && isSelectAccount && !isTokenExist) {
