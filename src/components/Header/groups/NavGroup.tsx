@@ -96,9 +96,9 @@ const NavGroup: React.FC<Props> = ({
         }}
       >
         {anchor}
-        <DropdownIcon />
+        {dropdownContent && <DropdownIcon />}
       </Flex>
-      <Dropdown $align={dropdownAlign}>{dropdownContent}</Dropdown>
+      {dropdownContent && <Dropdown $align={dropdownAlign}>{dropdownContent}</Dropdown>}
     </HoverDropdown>
   )
 }
