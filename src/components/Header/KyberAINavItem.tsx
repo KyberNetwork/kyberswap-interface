@@ -1,10 +1,11 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { darken } from 'polished'
 import { useLocation } from 'react-router-dom'
 import styled from 'styled-components'
 
 import ApeIcon from 'components/Icons/ApeIcon'
 import { RowFit } from 'components/Row'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
@@ -68,7 +69,7 @@ const BetaTag = () => {
         marginTop: '-16px',
       }}
     >
-      maintenance
+      Beta
     </RowFit>
   )
 }
@@ -108,15 +109,17 @@ const KyberAINavItem = () => {
       isActive={isActive}
       anchor={
         <DropdownTextAnchor>
-          <RowFit>
-            {/*<CustomSlideToUnlock data-active={isActive}>*/}
-            <RowFit gap="4px">
-              <ApeIcon />
-              <Trans>KyberAI</Trans>
+          <MouseoverTooltip text={t`KyberAI is currently under maintenance. We'll notify you once its back online`}>
+            <RowFit style={{ cursor: 'not-allowed' }}>
+              {/*<CustomSlideToUnlock data-active={isActive}>*/}
+              <RowFit gap="4px">
+                <ApeIcon />
+                <Trans>KyberAI</Trans>
+              </RowFit>
+              {/*</CustomSlideToUnlock>*/}
+              <BetaTag />
             </RowFit>
-            {/*</CustomSlideToUnlock>*/}
-            <BetaTag />
-          </RowFit>
+          </MouseoverTooltip>
         </DropdownTextAnchor>
       }
       dropdownContent={null}
