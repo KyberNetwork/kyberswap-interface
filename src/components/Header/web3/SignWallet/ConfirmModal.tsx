@@ -103,7 +103,9 @@ const ModalConfirmProfile: React.FC = () => {
           <Trans>
             or switch to{' '}
             {desiredAccountExist ? (
-              <Highlight>profile {desiredProfileName || getShortenAddress(account ?? '')}</Highlight>
+              <>
+                profile <Highlight> {desiredProfileName || getShortenAddress(account ?? '')}</Highlight>
+              </>
             ) : (
               t`a guest profile`
             )}{' '}
@@ -134,7 +136,7 @@ const ModalConfirmProfile: React.FC = () => {
             color={theme.primary}
             onClick={() => {
               navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PROFILE}`)
-              hideModal()
+              onConfirm(true)
             }}
           >
             user profile
