@@ -186,8 +186,10 @@ const useLogin = (autoLogin = false) => {
       }
 
       const redirectSignIn = () => {
-        KyberOauth2.authenticate({ wallet_address: desireAccount ?? '' }) // navigate to login page
         setLoginRedirectUrl(window.location.href)
+        setTimeout(() => {
+          KyberOauth2.authenticate({ wallet_address: desireAccount ?? '' }) // navigate to login page
+        }, 500)
       }
       if (showSessionExpired && isSelectAccount && !isTokenExist) {
         showConfirm({
@@ -221,7 +223,9 @@ const useLogin = (autoLogin = false) => {
       if (!desireAccount || desireAccount?.toLowerCase() === signedAccount?.toLowerCase()) {
         setLoginRedirectUrl(window.location.href)
         removeProfile(desireAccount)
-        KyberOauth2.logout()
+        setTimeout(() => {
+          KyberOauth2.logout()
+        }, 500)
         return
       }
       KyberOauth2.removeConnectedAccount(desireAccount)
@@ -249,9 +253,7 @@ const useLogin = (autoLogin = false) => {
     })
     removeAllProfile()
     if (needRedirect) {
-      setTimeout(() => {
-        signOut(signedAccount)
-      }, 500)
+      signOut(signedAccount)
       return
     }
     notify(
