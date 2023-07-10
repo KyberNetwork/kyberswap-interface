@@ -249,8 +249,9 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
               const price1 = (prices[farm.pool.token1.id] || 0) / 10 ** +farm.pool.token1.decimals
 
               let f
-              if (p.tickCurrent < +r.tickLower) f = (1 / sqrtUpper - 1 / sqrtLower) * price0
-              else if (p.tickCurrent >= +r.tickUpper) f = (sqrtUpper - sqrtLower) * price1
+              if (p.tickCurrent < +r.tickLower) {
+                f = (1 / sqrtLower - 1 / sqrtUpper) * price0
+              } else if (p.tickCurrent >= +r.tickUpper) f = (sqrtUpper - sqrtLower) * price1
               else f = (1 / sqrtCurrent - 1 / sqrtUpper) * price0 + (sqrtCurrent - sqrtLower) * price1
               const denominator = +farm.liquidity * f
 

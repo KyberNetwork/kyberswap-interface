@@ -183,7 +183,7 @@ export function getTradeComposition(
     const pools: SwapPool[] = []
     sorMultiSwap.forEach((hop: any, index: number) => {
       pools.push({
-        id: hop.pool,
+        id: hop.pool + '-' + hop.tokenIn + '-' + hop.tokenOut,
         exchange: hop.exchange,
         swapAmount: JSBI.BigInt(hop.swapAmount),
         swapPercentage: index === 0 ? calcSwapPercentage(hop.tokenIn, hop.swapAmount) : 100,
