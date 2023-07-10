@@ -1,9 +1,9 @@
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
-import { isMobile } from 'react-device-detect'
 import { LogIn, X } from 'react-feather'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -20,6 +20,7 @@ import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { AppState } from 'state'
 import { useProfileInfo, useSessionInfo, useSetConfirmProfile, useSignedAccountInfo } from 'state/authen/hooks'
 import { useIsKeepCurrentProfile } from 'state/profile/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
 
 const Wrapper = styled.div`
@@ -49,6 +50,7 @@ const ModalConfirmProfile: React.FC = () => {
   const [, setKeepCurrentProfile] = useIsKeepCurrentProfile()
   const { getCacheProfile } = useProfileInfo()
   const navigate = useNavigate()
+  const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
   useEffect(() => {
     if (!isOpen)
@@ -198,7 +200,7 @@ const ModalConfirmProfile: React.FC = () => {
                 flex="1 1 100%"
                 onClick={() => onConfirm(false)}
               >
-                <Trans>Keep Current Profile</Trans>
+                {isMobile ? <Trans>Keep Profile</Trans> : <Trans>Keep Current Profile</Trans>}
               </ButtonPrimary>
             </>
           )}
