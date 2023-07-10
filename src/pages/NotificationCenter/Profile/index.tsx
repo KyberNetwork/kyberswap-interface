@@ -186,6 +186,7 @@ export default function Profile() {
         title: t`Profile updated`,
         summary: t`Your profile has been successfully updated`,
       })
+      cacheData.current.file = undefined
       setFile(undefined)
     } catch (error) {
       notify({
