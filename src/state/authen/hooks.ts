@@ -1,28 +1,18 @@
 import KyberOauth2, { LoginMethod } from '@kybernetwork/oauth2'
 import { t } from '@lingui/macro'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useGetOrCreateProfileMutation } from 'services/identity'
 
 import { useActiveWeb3React } from 'hooks'
 import { AppState } from 'state'
-import {
-  updateAllProfile,
-  updateConnectingWallet,
-  updateProcessingLogin,
-  updateProfile,
-  updateSignedAccount,
-} from 'state/authen/actions'
-import { AuthenState, UserProfile } from 'state/authen/reducer'
+import { setConfirmProfile, updateConnectingWallet, updateProcessingLogin, updateProfile } from 'state/authen/actions'
+import { AuthenState, ConfirmProfile, UserProfile } from 'state/authen/reducer'
 import { useAppDispatch } from 'state/hooks'
-import {
-  ProfileLocalStorageKeys,
-  getConnectedProfile,
-  getProfileLocalStorage,
-  setConnectedProfile,
-  setProfileLocalStorage,
-} from 'utils/profile'
+import { setProfileMap } from 'state/profile/actions'
+import { CacheProfile, ProfileMap } from 'state/profile/reducer'
 
+// connecting metamask ...
 export function useIsConnectingWallet(): [boolean, (data: boolean) => void] {
   const dispatch = useAppDispatch()
   const connectingWallet = useSelector((state: AppState) => state.authen.isConnectingWallet)
@@ -37,24 +27,6 @@ export function useIsConnectingWallet(): [boolean, (data: boolean) => void] {
   return [connectingWallet, setConnectedWallet]
 }
 
-// account signed in
-type Param = { account: string | undefined; method: LoginMethod }
-export function useSignedAccount(): [string | undefined, (data: Param) => void] {
-  const dispatch = useAppDispatch()
-  const wallet = useSelector((state: AppState) => state.authen.signedAccount)
-
-  const setAccount = useCallback(
-    ({ account, method }: Param) => {
-      dispatch(updateSignedAccount(account))
-      setConnectedProfile(account, method)
-    },
-    [dispatch],
-  )
-
-  const { connectedAccount } = getConnectedProfile()
-  return [connectedAccount || wallet, setAccount]
-}
-
 export type ConnectedProfile = {
   active: boolean
   address: string
@@ -63,12 +35,63 @@ export type ConnectedProfile = {
   id: string
   default?: boolean
 }
-export const useAllProfileInfo = () => {
-  const { signedAccount } = useSignedAccountInfo()
-  const { getCacheProfile, saveCacheProfile, removeAllProfile: removeAllProfileLocal } = useCacheProfile()
 
-  const getAllProfileFromLocal = useCallback(() => {
-    const profileInfo = getProfileLocalStorage(ProfileLocalStorageKeys.PROFILE)
+// todo move hook
+export const useProfileInfo = (): {
+  profiles: ConnectedProfile[]
+  profile: UserProfile | undefined
+  totalGuest: number
+  removeProfile: (id: string | undefined, isAnonymous?: boolean) => void
+  removeAllProfile: () => void
+  getCacheProfile: (key: string, isAnonymous: boolean) => UserProfile | undefined
+  saveCacheProfile: (data: { isAnonymous: boolean; profile: UserProfile | undefined; id: string }) => void
+} => {
+  const profileInfo = useSelector((state: AppState) => state.profile.profileMap)
+  const dispatch = useAppDispatch()
+  const { userInfo } = useSessionInfo()
+  const { isSigInGuest, signedAccount } = useSignedAccountInfo()
+  const profileMap = useSelector((state: AppState) => state.profile.profileMap)
+  const setProfile = useCallback(
+    (v: CacheProfile) => {
+      dispatch(setProfileMap(v))
+    },
+    [dispatch],
+  )
+
+  const saveCacheProfile = useCallback(
+    ({ isAnonymous, id, profile }: { isAnonymous: boolean; profile: UserProfile | undefined; id: string }) => {
+      const key = id.toLowerCase()
+      const newData = { ...profileMap }
+      const guest: ProfileMap = { ...newData.guest }
+      const wallet: ProfileMap = { ...newData.wallet }
+      if (isAnonymous) {
+        if (profile) guest[key] = profile
+        else delete guest[key]
+      } else {
+        if (profile) wallet[key] = profile
+        else delete wallet[key]
+      }
+      setProfile({ guest, wallet })
+    },
+    [profileMap, setProfile],
+  )
+
+  const removeAllProfile = useCallback(() => {
+    const activeAccount = signedAccount || KEY_GUEST_DEFAULT
+    setProfile({ wallet: {}, guest: { [activeAccount]: profileMap.guest[activeAccount] } })
+  }, [setProfile, profileMap, signedAccount])
+
+  const getCacheProfile = useCallback(
+    (key: string, isAnonymous: boolean): UserProfile | undefined => {
+      const id = key.toLowerCase()
+      return isAnonymous ? profileMap?.guest?.[id] : profileMap?.wallet?.[id]
+    },
+    [profileMap],
+  )
+
+  const profile = userInfo || getCacheProfile(signedAccount ? signedAccount : KEY_GUEST_DEFAULT, isSigInGuest)
+
+  const profiles = useMemo(() => {
     const getAccountGuest = (account: string) => ({
       address: account === KEY_GUEST_DEFAULT ? t`Guest` : t`Imported Guest`,
       active: account === signedAccount?.toLowerCase(),
@@ -85,79 +108,58 @@ export const useAllProfileInfo = () => {
       guest: false,
     })
 
-    const profiles = Object.keys(profileInfo?.wallet ?? {})
+    const results = Object.keys(profileInfo?.wallet ?? {})
       .map(getAccountSignIn)
       .concat(Object.keys(profileInfo?.guest ?? {}).map(getAccountGuest))
 
     KyberOauth2.getConnectedAccounts().forEach(acc => {
-      if (profiles.some(account => account.id === acc)) return
-      profiles.push(getAccountSignIn(acc))
+      if (results.some(account => account.id === acc)) return
+      results.push(getAccountSignIn(acc))
     })
     KyberOauth2.getConnectedAnonymousAccounts().forEach(acc => {
-      if (profiles.some(account => account.id === acc)) return
-      profiles.push(getAccountGuest(acc))
+      if (results.some(account => account.id === acc)) return
+      results.push(getAccountGuest(acc))
     })
 
-    return profiles.sort(a => (a.active ? -1 : 1))
-  }, [getCacheProfile, signedAccount])
-
-  const [profiles, setAllProfile] = useState(getAllProfileFromLocal())
-  const profilesState = useSelector((state: AppState) => state.authen.profiles)
-
-  const refresh = useCallback(() => {
-    setAllProfile(getAllProfileFromLocal())
-  }, [getAllProfileFromLocal])
+    return results.sort(a => (a.active ? -1 : 1))
+  }, [getCacheProfile, signedAccount, profileInfo])
 
   const removeProfile = useCallback(
     (account: string | undefined, isAnonymous = false) => {
       if (!account) return
       saveCacheProfile({ isAnonymous, profile: undefined, id: account })
-      refresh()
     },
-    [refresh, saveCacheProfile],
+    [saveCacheProfile],
   )
 
-  const removeAllProfile = useCallback(() => {
-    removeAllProfileLocal(signedAccount || KEY_GUEST_DEFAULT)
-    setAllProfile(getAllProfileFromLocal().filter(el => el.id !== signedAccount))
-  }, [removeAllProfileLocal, getAllProfileFromLocal, signedAccount])
-
-  const dispatch = useAppDispatch()
-  useEffect(() => {
-    dispatch(updateAllProfile(profiles))
-  }, [profiles, dispatch])
-  const totalGuest = profilesState.reduce((total, cur) => total + (cur.guest ? 1 : 0), 0)
-  return { profiles: profilesState, totalGuest, refresh, removeProfile, removeAllProfile }
+  const totalGuest = profiles.reduce((total, cur) => total + (cur.guest ? 1 : 0), 0)
+  return { profiles, totalGuest, profile, removeProfile, removeAllProfile, getCacheProfile, saveCacheProfile }
 }
 
 // info relate account currently signed in
 export const useSignedAccountInfo = () => {
-  const [signedAccount] = useSignedAccount()
+  const signedAccount = useSelector((state: AppState) => state.profile.signedAccount)
+  const signedMethod = useSelector((state: AppState) => state.profile.signedMethod)
+
   const { account } = useActiveWeb3React()
 
-  const profilesState = useSelector((state: AppState) => state.authen.profiles)
-  const totalGuest = profilesState.reduce((total, cur) => total + (cur.guest ? 1 : 0), 0) // todo
+  const isSigInGuest = signedMethod === LoginMethod.ANONYMOUS
+  const isSignInEmail = signedMethod === LoginMethod.GOOGLE
 
-  const { connectedMethod } = getConnectedProfile()
-
-  const isSigInGuest = connectedMethod === LoginMethod.ANONYMOUS
-  const isSignInEmail = connectedMethod === LoginMethod.GOOGLE
-
-  const isSignInEth = connectedMethod === LoginMethod.ETH
+  const isSignInEth = signedMethod === LoginMethod.ETH
   const isSignInDifferentWallet =
     (isSignInEth && account?.toLowerCase() !== signedAccount?.toLowerCase()) || isSigInGuest || isSignInEmail
 
   const isSignInGuestDefault = isSigInGuest && signedAccount === KEY_GUEST_DEFAULT
 
   return {
-    loginMethod: connectedMethod,
+    signedMethod,
+    signedAccount,
     isSignInDifferentWallet,
     isSigInGuest,
     isSignInGuestDefault,
     isSignInEmail,
     isSignInEth,
-    signedAccount,
-    canSignOut: !isSigInGuest || (isSigInGuest && totalGuest > 1),
   }
 }
 
@@ -172,11 +174,10 @@ export function useSessionInfo(): AuthenState & { userInfo: UserProfile | undefi
 }
 
 export const KEY_GUEST_DEFAULT = 'default'
-// save to store and local storage as well
+
 export const useSaveUserProfile = () => {
   const dispatch = useAppDispatch()
-  const { saveCacheProfile } = useCacheProfile()
-  const { refresh: refreshListProfile } = useAllProfileInfo()
+  const { saveCacheProfile } = useProfileInfo()
   return useCallback(
     ({
       profile,
@@ -193,56 +194,9 @@ export const useSaveUserProfile = () => {
         profile,
         id: isAnonymous ? account || KEY_GUEST_DEFAULT : account ?? '',
       })
-      refreshListProfile()
     },
-    [dispatch, saveCacheProfile, refreshListProfile],
+    [dispatch, saveCacheProfile],
   )
-}
-
-type ProfileMap = { [address: string]: UserProfile }
-type CacheProfile = {
-  wallet: ProfileMap
-  guest: ProfileMap
-}
-
-export const useCacheProfile = () => {
-  const saveCacheProfile = useCallback(
-    ({ isAnonymous, id, profile }: { isAnonymous: boolean; profile: UserProfile | undefined; id: string }) => {
-      const key = id.toLowerCase()
-      const profileMap = getProfileLocalStorage(ProfileLocalStorageKeys.PROFILE) || {}
-      const newData = { ...profileMap } as CacheProfile
-      if (isAnonymous) {
-        if (!newData.guest) newData.guest = {}
-        if (profile) newData.guest[key] = profile
-        else delete newData.guest[key]
-      } else {
-        if (!newData.wallet) newData.wallet = {}
-        if (profile) newData.wallet[key] = profile
-        else delete newData.wallet[key]
-      }
-      setProfileLocalStorage(ProfileLocalStorageKeys.PROFILE, newData)
-    },
-    [],
-  )
-
-  const removeAllProfile = useCallback((activeAccount: string) => {
-    const profileMap = getProfileLocalStorage(ProfileLocalStorageKeys.PROFILE) || {}
-    profileMap.wallet = {}
-    profileMap.guest = { [activeAccount]: profileMap.guest[activeAccount] }
-    setProfileLocalStorage(ProfileLocalStorageKeys.PROFILE, profileMap)
-  }, [])
-
-  const getCacheProfile = useCallback((key: string, isAnonymous: boolean): UserProfile | undefined => {
-    const profileMap = getProfileLocalStorage(ProfileLocalStorageKeys.PROFILE) || {}
-    const id = key.toLowerCase()
-    return isAnonymous ? profileMap?.guest?.[id] : profileMap?.wallet?.[id]
-  }, [])
-
-  const { userInfo } = useSessionInfo()
-  const { isSigInGuest, signedAccount } = useSignedAccountInfo()
-  const profile = userInfo || getCacheProfile(signedAccount ? signedAccount : KEY_GUEST_DEFAULT, isSigInGuest)
-
-  return { saveCacheProfile, getCacheProfile, removeAllProfile, profile }
 }
 
 export const useRefreshProfile = () => {
@@ -261,6 +215,16 @@ export const useSetPendingAuthentication = () => {
   return useCallback(
     (value: boolean) => {
       dispatch(updateProcessingLogin(value))
+    },
+    [dispatch],
+  )
+}
+
+export const useSetConfirmProfile = () => {
+  const dispatch = useAppDispatch()
+  return useCallback(
+    (value: ConfirmProfile) => {
+      dispatch(setConfirmProfile(value))
     },
     [dispatch],
   )

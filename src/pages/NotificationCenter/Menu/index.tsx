@@ -21,7 +21,7 @@ import ImportAccountModal from 'pages/NotificationCenter/Profile/ImportAccountMo
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
-import { useCacheProfile, useSessionInfo, useSignedAccountInfo } from 'state/authen/hooks'
+import { useProfileInfo, useSessionInfo, useSignedAccountInfo } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
 import { shortString } from 'utils/string'
@@ -126,7 +126,7 @@ type PropsMenu = { unread: Unread; onChildrenClick?: () => void; toggleImportPro
 
 const MenuForDesktop = ({ unread, onChildrenClick, toggleImportProfile }: PropsMenu) => {
   const { isSigInGuest, signedAccount, isSignInGuestDefault } = useSignedAccountInfo()
-  const { profile } = useCacheProfile()
+  const { profile } = useProfileInfo()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   const menuItemDeskTop = useMemo(() => {

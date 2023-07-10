@@ -1,15 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit'
 
-import { ConnectedProfile } from 'state/authen/hooks'
-
-import {
-  updateAllProfile,
-  updateConnectingWallet,
-  updatePossibleWalletAddress,
-  updateProcessingLogin,
-  updateProfile,
-  updateSignedAccount,
-} from './actions'
+import { setConfirmProfile, updateConnectingWallet, updateProcessingLogin, updateProfile } from './actions'
 
 export type UserProfile = {
   email: string
@@ -19,40 +10,32 @@ export type UserProfile = {
   avatarUrl: string
   data: { hasAccessToKyberAI: boolean }
 }
+export type ConfirmProfile = {
+  showModal: boolean
+}
+
 export interface AuthenState {
-  /**
-   * useActiveWeb3React slow return account, this wallet is same as account of useActiveWeb3React, when we migrate to web3-react v8, we can remove it
-   *  null is checking wallet address
-   */
-  readonly possibleConnectedWalletAddress: null | string | undefined
-  readonly signedAccount: undefined | string
   readonly anonymousUserInfo: UserProfile | undefined
   readonly signedUserInfo: UserProfile | undefined
   readonly isLogin: boolean // is sign in eth
   readonly pendingAuthentication: boolean
   readonly isConnectingWallet: boolean
-  readonly profiles: ConnectedProfile[]
+  readonly confirmProfile: ConfirmProfile
 }
 
 const DEFAULT_AUTHEN_STATE: AuthenState = {
-  possibleConnectedWalletAddress: null,
-  signedAccount: undefined,
   anonymousUserInfo: undefined,
   signedUserInfo: undefined,
   isLogin: false,
   pendingAuthentication: true,
   isConnectingWallet: false,
-  profiles: [],
+  confirmProfile: {
+    showModal: false, // todo
+  },
 }
 
 export default createReducer(DEFAULT_AUTHEN_STATE, builder =>
   builder
-    .addCase(updatePossibleWalletAddress, (state, { payload: possibleConnectedWalletAddress }) => {
-      state.possibleConnectedWalletAddress = possibleConnectedWalletAddress
-    })
-    .addCase(updateSignedAccount, (state, { payload: signedAccount }) => {
-      state.signedAccount = signedAccount
-    })
     .addCase(updateConnectingWallet, (state, { payload: connectingWallet }) => {
       state.isConnectingWallet = connectingWallet
     })
@@ -69,7 +52,7 @@ export default createReducer(DEFAULT_AUTHEN_STATE, builder =>
       }
       state.isLogin = !isAnonymous
     })
-    .addCase(updateAllProfile, (state, { payload }) => {
-      state.profiles = payload
+    .addCase(setConfirmProfile, (state, { payload }) => {
+      state.confirmProfile = payload
     }),
 )

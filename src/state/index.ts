@@ -33,6 +33,7 @@ import mint from './mint/reducer'
 import multicall from './multicall/reducer'
 import pair from './pair/reducer'
 import pools from './pools/reducer'
+import profile from './profile/reducer'
 import swap from './swap/reducer'
 import tokenPrices from './tokenPrices'
 import topTokens from './topTokens'
@@ -41,7 +42,7 @@ import tutorial from './tutorial/reducer'
 import user from './user/reducer'
 import vesting from './vesting/reducer'
 
-const PERSISTED_KEYS: string[] = ['user', 'transactions']
+const PERSISTED_KEYS: string[] = ['user', 'transactions', 'profile']
 ENV_LEVEL < ENV_TYPE.PROD && PERSISTED_KEYS.push('customizeDexes')
 // ENV_LEVEL < ENV_TYPE.PROD && PERSISTED_KEYS.push('mintV2')
 
@@ -50,6 +51,7 @@ const store = configureStore({
   reducer: {
     application,
     authen,
+    profile,
     user,
     transactions,
     swap,

@@ -3,13 +3,14 @@ import { Flex } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import Avatar from 'components/Avatar'
+import ModalConfirmProfile from 'components/Header/web3/SignWallet/ConfirmModal'
 import ProfileContent from 'components/Header/web3/SignWallet/ProfileContent'
 import MenuFlyout from 'components/MenuFlyout'
 import Modal from 'components/Modal'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
-import { useCacheProfile, useSessionInfo } from 'state/authen/hooks'
+import { useProfileInfo, useSessionInfo } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 const StyledMenu = styled.div`
@@ -31,7 +32,7 @@ const browserCustomStyle = css`
 `
 
 export default function SelectWallet() {
-  const { profile } = useCacheProfile()
+  const { profile } = useProfileInfo()
   const { pendingAuthentication } = useSessionInfo()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const isOpen = useModalOpen(ApplicationModal.SWITCH_PROFILE_POPUP)
@@ -67,6 +68,7 @@ export default function SelectWallet() {
           <ProfileContent scroll />
         </MenuFlyout>
       )}
+      <ModalConfirmProfile />
     </StyledMenu>
   )
 }

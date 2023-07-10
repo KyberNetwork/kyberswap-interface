@@ -4,12 +4,13 @@ import { isMobile } from 'react-device-detect'
 import { LogOut, Save } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import { useUpdateProfileMutation } from 'services/identity'
 import styled from 'styled-components'
 
 import { AddressInput } from 'components/AddressInputPanel'
 import { NotificationType } from 'components/Announcement/type'
+import CheckBox from 'components/CheckBox'
 import Column from 'components/Column'
 import CopyHelper from 'components/Copy'
 import Input from 'components/Input'
@@ -23,11 +24,13 @@ import useLogin from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
 import AvatarEdit from 'pages/NotificationCenter/Profile/AvatarEdit'
 import ExportAccountButton from 'pages/NotificationCenter/Profile/ExportAccountButton'
+import WarningSignMessage from 'pages/NotificationCenter/Profile/WarningSignMessage'
 import { ButtonLogout, ButtonSave } from 'pages/NotificationCenter/Profile/buttons'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
 import { useNotify } from 'state/application/hooks'
-import { useRefreshProfile, useSessionInfo, useSignedAccountInfo } from 'state/authen/hooks'
+import { useProfileInfo, useRefreshProfile, useSessionInfo, useSignedAccountInfo } from 'state/authen/hooks'
+import { useIsKeepCurrentProfile } from 'state/profile/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 
@@ -36,7 +39,6 @@ const Wrapper = styled.div`
   flex-direction: column;
   padding: 30px 24px;
   gap: 20px;
-  max-width: 630px;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     align-items: center;
     max-width: 100%;
@@ -58,7 +60,7 @@ const FormGroup = styled.div`
 
 const LeftColum = styled(Column)`
   gap: 28px;
-  flex: 1;
+  width: 420px;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 100%;
   `}
@@ -72,14 +74,14 @@ const StyledAddressInput = styled(AddressInput)`
 
 const FormWrapper = styled.div`
   display: flex;
-  gap: 32px;
+  gap: 30px;
   align-items: flex-start;
   justify-content: space-between;
+  flex-direction: column;
+  width: 100%;
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    flex-direction: column-reverse;
     align-items: center;
-    width: 100%; 
-    gap: 0px;
+    gap: 20px;
   `}
 `
 const ActionsWrapper = styled.div`
@@ -87,6 +89,18 @@ const ActionsWrapper = styled.div`
   gap: 20px;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     justify-content: space-between;
+    gap: 12px;
+  `}
+`
+
+const ProfileContent = styled.div`
+  display: flex;
+  gap: 20px;
+  justify-content: flex-start;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex-direction: column-reverse;
+    width: 100%;
+    align-items: center;
     gap: 12px;
   `}
 `
@@ -100,7 +114,9 @@ export default function Profile() {
   const [nickname, setNickName] = useState('')
   const { signOut } = useLogin()
   const navigate = useNavigate()
-  const { isSignInEmail, isSignInEth, signedAccount, isSigInGuest, canSignOut } = useSignedAccountInfo()
+  const { isSignInEmail, isSignInEth, signedAccount, isSigInGuest } = useSignedAccountInfo()
+  const { totalGuest } = useProfileInfo()
+  const canSignOut = !isSigInGuest || (isSigInGuest && totalGuest > 1)
 
   const [file, setFile] = useState<File>()
   const [previewImage, setPreviewImage] = useState<string>()
@@ -187,6 +203,8 @@ export default function Profile() {
   const hasChangeProfile = file || (userInfo?.nickname && !nickname ? false : nickname !== userInfo?.nickname)
   const disableBtnSave = loading || !hasChangeProfile
 
+  const [isKeepCurrentProfile, toggleKeepCurrentProfile] = useIsKeepCurrentProfile()
+
   return (
     <Wrapper>
       {!isMobile && (
@@ -195,43 +213,9 @@ export default function Profile() {
         </Text>
       )}
       <FormWrapper>
-        <LeftColum>
-          <FormGroup>
-            <Label>
-              <Trans>User Name (Optional)</Trans>
-            </Label>
-            <Input
-              color={theme.text}
-              maxLength={50}
-              value={nickname}
-              onChange={e => onChangeNickname(e.target.value)}
-              placeholder="Your nickname"
-              disabled={isSignInEmail}
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <Label style={{ borderBottom: '1px dotted', width: 'fit-content' }}>
-              <MouseoverTooltip
-                text={t`If you wish to receive notifications from KyberSwap on your trades, liquidity positions and more, you can provide your email!`}
-                placement="top"
-              >
-                <Trans>Email Address (Optional)</Trans>
-              </MouseoverTooltip>
-            </Label>
-            <InputEmail
-              color={theme.text}
-              hasError={hasErrorInput}
-              showVerifyModal={showVerifyModal}
-              errorColor={errorColor}
-              onChange={onChangeEmailWrapp}
-              value={inputEmail}
-              disabled={isSignInEmail}
-              isVerifiedEmail={!!isVerifiedEmail}
-            />
-          </FormGroup>
-
-          {signedAccount && isSignInEth && (
+        <WarningSignMessage />
+        {signedAccount && isSignInEth && (
+          <LeftColum>
             <FormGroup>
               <Label>
                 <Trans>Wallet Address</Trans>
@@ -243,39 +227,99 @@ export default function Profile() {
                 icon={<CopyHelper toCopy={signedAccount} style={{ color: theme.subText }} />}
               />
             </FormGroup>
+
+            <FormGroup>
+              <Flex alignItems={'flex-start'} style={{ gap: '6px' }}>
+                <CheckBox
+                  borderStyle
+                  style={{ width: 15, height: 15 }}
+                  onChange={toggleKeepCurrentProfile}
+                  checked={isKeepCurrentProfile}
+                />
+                <Column gap="6px">
+                  <Text fontSize={'14px'} fontWeight={'500'} color={theme.text}>
+                    <Trans>Keep Current Profile</Trans>
+                  </Text>
+                  <Text fontSize={'12px'} color={theme.subText}>
+                    <Trans>Keep this profile active whenever you switch wallet</Trans>
+                  </Text>
+                </Column>
+              </Flex>
+            </FormGroup>
+          </LeftColum>
+        )}
+
+        <div style={{ borderBottom: `1px solid ${theme.border}`, width: '100%' }} />
+
+        <ProfileContent>
+          <LeftColum>
+            <FormGroup>
+              <Label>
+                <Trans>User Name (Optional)</Trans>
+              </Label>
+              <Input
+                color={theme.text}
+                maxLength={50}
+                value={nickname}
+                onChange={e => onChangeNickname(e.target.value)}
+                placeholder="Your nickname"
+                disabled={isSignInEmail}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <Label style={{ borderBottom: '1px dotted', width: 'fit-content' }}>
+                <MouseoverTooltip
+                  text={t`If you wish to receive notifications from KyberSwap on your trades, liquidity positions and more, you can provide your email!`}
+                  placement="top"
+                >
+                  <Trans>Email Address (Optional)</Trans>
+                </MouseoverTooltip>
+              </Label>
+              <InputEmail
+                color={theme.text}
+                hasError={hasErrorInput}
+                showVerifyModal={showVerifyModal}
+                errorColor={errorColor}
+                onChange={onChangeEmailWrapp}
+                value={inputEmail}
+                disabled={isSignInEmail}
+                isVerifiedEmail={!!isVerifiedEmail}
+              />
+            </FormGroup>
+          </LeftColum>
+
+          <FormGroup style={{ width: isMobile ? '120px' : AVATAR_SIZE, alignItems: 'center' }}>
+            <Label style={{ textAlign: 'center' }}>
+              <Trans>Profile Picture</Trans>
+            </Label>
+            <AvatarEdit
+              avatar={displayAvatar}
+              disabled={isSignInEmail}
+              handleFileChange={handleFileChange}
+              size={AVATAR_SIZE}
+            />
+          </FormGroup>
+        </ProfileContent>
+
+        <ActionsWrapper>
+          <ButtonSave onClick={saveProfile} disabled={disableBtnSave}>
+            <Save size={16} style={{ marginRight: '4px' }} />
+            {loading ? <Trans>Saving...</Trans> : <Trans>Save</Trans>}
+          </ButtonSave>
+          {isSigInGuest && <ExportAccountButton />}
+          {canSignOut && (
+            <ButtonLogout
+              onClick={() => {
+                signOut(signedAccount, isSigInGuest)
+                navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PROFILE}`)
+              }}
+            >
+              <LogOut size={16} style={{ marginRight: '4px' }} />
+              Sign Out
+            </ButtonLogout>
           )}
-
-          <ActionsWrapper>
-            <ButtonSave onClick={saveProfile} disabled={disableBtnSave}>
-              <Save size={16} style={{ marginRight: '4px' }} />
-              {loading ? <Trans>Saving...</Trans> : <Trans>Save</Trans>}
-            </ButtonSave>
-            {isSigInGuest && <ExportAccountButton />}
-            {canSignOut && (
-              <ButtonLogout
-                onClick={() => {
-                  signOut(signedAccount, isSigInGuest)
-                  navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PROFILE}`)
-                }}
-              >
-                <LogOut size={16} style={{ marginRight: '4px' }} />
-                Sign Out
-              </ButtonLogout>
-            )}
-          </ActionsWrapper>
-        </LeftColum>
-
-        <FormGroup style={{ width: isMobile ? '120px' : AVATAR_SIZE, alignItems: 'center' }}>
-          <Label style={{ textAlign: 'center' }}>
-            <Trans>Profile Picture</Trans>
-          </Label>
-          <AvatarEdit
-            avatar={displayAvatar}
-            disabled={isSignInEmail}
-            handleFileChange={handleFileChange}
-            size={AVATAR_SIZE}
-          />
-        </FormGroup>
+        </ActionsWrapper>
       </FormWrapper>
       <VerifyCodeModal
         isOpen={isShowVerify}

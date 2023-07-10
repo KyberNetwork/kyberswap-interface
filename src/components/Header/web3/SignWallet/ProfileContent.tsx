@@ -1,3 +1,4 @@
+import KyberOauth2 from '@kybernetwork/oauth2'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useState } from 'react'
@@ -14,12 +15,13 @@ import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import Row, { RowBetween } from 'components/Row'
 import CardBackground from 'components/WalletPopup/AccountInfo/CardBackground'
 import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import useLogin from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
-import { ConnectedProfile, useAllProfileInfo } from 'state/authen/hooks'
+import { ConnectedProfile, useProfileInfo } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
 import { isEmailValid, shortString } from 'utils/string'
@@ -119,11 +121,9 @@ const ProfileItemWrapper = styled(RowBetween)<{ active: boolean }>`
 
 const ProfileItem = ({
   data: { active, guest, address: account, profile, id },
-  refreshProfile,
   totalGuest,
 }: {
   data: ConnectedProfile
-  refreshProfile: () => void
   totalGuest: number
 }) => {
   const theme = useTheme()
@@ -150,7 +150,6 @@ const ProfileItem = ({
         onClick={e => {
           e?.stopPropagation()
           signOut(id, guest)
-          refreshProfile()
         }}
       />
     ) : null
@@ -208,7 +207,8 @@ const ProfileItem = ({
 }
 const ProfileContent = ({ scroll }: { scroll?: boolean }) => {
   const { signIn, signOutAll } = useLogin()
-  const { profiles, refresh, totalGuest } = useAllProfileInfo()
+  const { profiles, totalGuest } = useProfileInfo()
+  const { account } = useActiveWeb3React()
 
   if (!profiles.length) return null
   const listNotActive = profiles.slice(1)
@@ -217,17 +217,19 @@ const ProfileContent = ({ scroll }: { scroll?: boolean }) => {
   return (
     <ContentWrapper>
       <Column>
-        <ProfileItem data={profiles[0]} refreshProfile={refresh} totalGuest={totalGuest} />
+        <ProfileItem data={profiles[0]} totalGuest={totalGuest} />
         <ListProfile hasData={!!listNotActive.length} scroll={scroll}>
           {listNotActive.map(data => (
-            <ProfileItem key={data.address} data={data} refreshProfile={refresh} totalGuest={totalGuest} />
+            <ProfileItem key={data.address} data={data} totalGuest={totalGuest} />
           ))}
         </ListProfile>
       </Column>
       <ActionWrapper hasBorder={profiles.length > 1}>
-        <ActionItem onClick={() => signIn()}>
-          <UserPlus size={18} /> <Trans>Add Account</Trans>
-        </ActionItem>
+        {!KyberOauth2.getConnectedAccounts().includes(account?.toLowerCase() ?? '') && (
+          <ActionItem onClick={() => signIn()}>
+            <UserPlus size={18} /> <Trans>Add Account</Trans>
+          </ActionItem>
+        )}
         {totalAccount > 1 && (
           <ActionItem onClick={signOutAll}>
             <LogOut size={18} /> <Trans>Sign out of all accounts</Trans>

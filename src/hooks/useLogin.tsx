@@ -2,6 +2,7 @@ import KyberOauth2, { AnonymousAccount, LoginMethod } from '@kybernetwork/oauth2
 import { t } from '@lingui/macro'
 import { captureException } from '@sentry/react'
 import { useCallback, useEffect, useRef } from 'react'
+import { usePrevious } from 'react-use'
 import { useConnectWalletToProfileMutation, useGetOrCreateProfileMutation } from 'services/identity'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -13,16 +14,16 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import {
   KEY_GUEST_DEFAULT,
-  useAllProfileInfo,
+  useProfileInfo,
   useSaveUserProfile,
   useSessionInfo,
+  useSetConfirmProfile,
   useSetPendingAuthentication,
-  useSignedAccount,
+  useSignedAccountInfo,
 } from 'state/authen/hooks'
+import { useIsKeepCurrentProfile, useLoginRedirectUrl, useSaveConnectedProfile } from 'state/profile/hooks'
 import { filterTruthy, isAddress } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
-import { getConnectedProfile } from 'utils/profile'
-import { setLoginRedirectUrl } from 'utils/redirectUponLogin'
 import { isEmailValid } from 'utils/string'
 
 KyberOauth2.initialize({
@@ -36,12 +37,16 @@ let accountSignAfterConnectedWallet: string | undefined
 const useLogin = (autoLogin = false) => {
   const { account, chainId } = useActiveWeb3React()
   const { userInfo } = useSessionInfo()
+  const [isKeepCurrentProfile] = useIsKeepCurrentProfile()
+
   const [createProfile] = useGetOrCreateProfileMutation()
   const [connectWalletToProfile] = useConnectWalletToProfileMutation()
   const notify = useNotify()
   const toggleWalletModal = useWalletModalToggle()
-  const [signedAccount, saveSignedAccount] = useSignedAccount()
-  const { removeProfile, removeAllProfile, totalGuest } = useAllProfileInfo()
+  const [, setLoginRedirectUrl] = useLoginRedirectUrl()
+  const { signedMethod, signedAccount } = useSignedAccountInfo()
+  const saveSignedAccount = useSaveConnectedProfile()
+  const { removeProfile, removeAllProfile, totalGuest } = useProfileInfo()
   const showConfirm = useShowConfirm()
   const qs = useParsedQueryString()
   const setLoading = useSetPendingAuthentication()
@@ -110,6 +115,7 @@ const useLogin = (autoLogin = false) => {
     async (guestAccountParam?: string, showSuccessMsg = true) => {
       let userInfo
       const guestAccount = guestAccountParam || KEY_GUEST_DEFAULT
+      let hasError = false
       try {
         setLoading(true)
         const resp = await KyberOauth2.loginAnonymous(guestAccount === KEY_GUEST_DEFAULT ? undefined : guestAccount)
@@ -117,10 +123,11 @@ const useLogin = (autoLogin = false) => {
         saveSignedAccount({ account: guestAccount, method: LoginMethod.ANONYMOUS })
       } catch (error) {
         console.log('sign in anonymous err', error)
+        hasError = true
       } finally {
         setLoading(false)
         await getProfile({ walletAddress: account, isAnonymous: true, account: guestAccount, session: userInfo })
-        showSuccessMsg && showSignInSuccess(guestAccount, true)
+        !hasError && showSuccessMsg && showSignInSuccess(guestAccount, true)
       }
     },
     [getProfile, setLoading, account, saveSignedAccount, showSignInSuccess],
@@ -195,7 +202,7 @@ const useLogin = (autoLogin = false) => {
       }
       redirectSignIn()
     },
-    [account, checkSessionSignIn, toggleWalletModal, showConfirm],
+    [account, checkSessionSignIn, toggleWalletModal, showConfirm, setLoginRedirectUrl],
   )
 
   const showSignOutSuccess = useCallback(() => {
@@ -221,7 +228,7 @@ const useLogin = (autoLogin = false) => {
       showSignOutSuccess()
       removeProfile(desireAccount)
     },
-    [signedAccount, showSignOutSuccess, removeProfile],
+    [signedAccount, showSignOutSuccess, removeProfile, setLoginRedirectUrl],
   )
 
   const signOutAll = useCallback(() => {
@@ -258,16 +265,15 @@ const useLogin = (autoLogin = false) => {
   const signOutAnonymous = useCallback(
     (guestAccount: string | undefined) => {
       if (!guestAccount || totalGuest <= 1) return
-      const { connectedAccount, connectedMethod } = getConnectedProfile()
 
       KyberOauth2.removeAnonymousAccount(guestAccount)
-      if (connectedMethod === LoginMethod.ANONYMOUS && connectedAccount === guestAccount) {
+      if (signedMethod === LoginMethod.ANONYMOUS && signedAccount === guestAccount) {
         signInAnonymous(KyberOauth2.getConnectedAnonymousAccounts()[0])
       }
       removeProfile(guestAccount, true)
       showSignOutSuccess()
     },
-    [signInAnonymous, removeProfile, totalGuest, showSignOutSuccess],
+    [signInAnonymous, removeProfile, totalGuest, showSignOutSuccess, signedAccount, signedMethod],
   )
 
   const importGuestAccount = useCallback(
@@ -292,24 +298,26 @@ const useLogin = (autoLogin = false) => {
     },
     [signInAnonymous, signIn],
   )
+  // todo split to 2 hook???
+  // todo move all localstorage to redux persist
 
   // auto try sign in when the first visit app, call once
   const isInit = useRef(false)
+
   useEffect(() => {
     if (!autoLogin || isInit.current) return
     isInit.current = true
-    const { connectedMethod } = getConnectedProfile()
     if (qs.code) {
       // redirect from server
       checkSessionSignIn(undefined)
       return
     }
-    if (connectedMethod === LoginMethod.ANONYMOUS) {
+    if (signedMethod === LoginMethod.ANONYMOUS) {
       signInAnonymous(signedAccount)
       return
     }
     checkSessionSignIn(signedAccount || undefined)
-  }, [checkSessionSignIn, autoLogin, signedAccount, signInAnonymous, qs.code])
+  }, [checkSessionSignIn, autoLogin, signedAccount, signedMethod, signInAnonymous, qs.code])
 
   // auto sign in after connect wallet
   useEffect(() => {
@@ -319,13 +327,30 @@ const useLogin = (autoLogin = false) => {
   }, [account, signIn, autoLogin])
 
   useEffect(() => {
-    const { connectedMethod } = getConnectedProfile()
-    if (connectedMethod === LoginMethod.ANONYMOUS && account && autoLogin && userInfo?.identityId) {
+    if (signedMethod === LoginMethod.ANONYMOUS && account && autoLogin && userInfo?.identityId) {
       try {
         connectWalletToProfile({ walletAddress: account })
       } catch (error) {}
     }
-  }, [account, connectWalletToProfile, autoLogin, userInfo?.identityId])
+  }, [account, connectWalletToProfile, autoLogin, userInfo?.identityId, signedMethod])
+
+  const setConfirm = useSetConfirmProfile()
+
+  // only run when change wallet
+  const prevAccount = usePrevious(account)
+  useEffect(() => {
+    if (
+      !isKeepCurrentProfile &&
+      prevAccount &&
+      account &&
+      account !== prevAccount &&
+      autoLogin &&
+      signedMethod === LoginMethod.ETH &&
+      signedAccount?.toLowerCase() !== account?.toLowerCase()
+    ) {
+      setConfirm({ showModal: true })
+    }
+  }, [account, autoLogin, setConfirm, signedAccount, isKeepCurrentProfile, prevAccount, signedMethod])
 
   return { signOut: signOutWrapped, signIn: signInWrapped, signOutAll, importGuestAccount }
 }

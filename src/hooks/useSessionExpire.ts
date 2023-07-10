@@ -8,14 +8,13 @@ import { APP_PATHS } from 'constants/index'
 import useLogin from 'hooks/useLogin'
 import { ConfirmModalState } from 'state/application/reducer'
 import { useSignedAccountInfo } from 'state/authen/hooks'
-import { getConnectedProfile } from 'utils/profile'
 
 export default function useSessionExpiredGlobal() {
   const { pathname } = useLocation()
   const showConfirm = useShowConfirm()
   const { signIn } = useLogin()
   const navigate = useNavigate()
-  const { signedAccount, loginMethod } = useSignedAccountInfo()
+  const { signedAccount, signedMethod } = useSignedAccountInfo()
 
   useEffect(() => {
     const listener = (event: CustomEvent) => {
@@ -43,15 +42,19 @@ export default function useSessionExpiredGlobal() {
 
   useEffect(() => {
     const listener = () => {
-      const { connectedMethod: newLoginMethod, connectedAccount: newSignedAccount } = getConnectedProfile()
-      const accountSignHasChanged = loginMethod != newLoginMethod || signedAccount !== newSignedAccount
-      if (document.visibilityState === 'visible' && accountSignHasChanged) {
-        signIn(newSignedAccount, newLoginMethod === LoginMethod.ANONYMOUS)
-      }
+      try {
+        const { signedAccount: newSignedAccount, signedMethod: newLoginMethod } = JSON.parse(
+          localStorage.redux_localstorage_simple_profile, // todo
+        )
+        const accountSignHasChanged = signedMethod != newLoginMethod || signedAccount !== newSignedAccount
+        if (document.visibilityState === 'visible' && accountSignHasChanged) {
+          signIn(newSignedAccount, newLoginMethod === LoginMethod.ANONYMOUS)
+        }
+      } catch (error) {}
     }
     document.addEventListener('visibilitychange', listener)
     return () => {
       document.removeEventListener('visibilitychange', listener)
     }
-  }, [signedAccount, loginMethod, signIn])
+  }, [signedAccount, signedMethod, signIn])
 }

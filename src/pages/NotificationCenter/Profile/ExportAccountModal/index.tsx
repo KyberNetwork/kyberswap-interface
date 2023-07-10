@@ -1,6 +1,6 @@
 import KyberOauth2 from '@kybernetwork/oauth2'
 import { Trans } from '@lingui/macro'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 
@@ -8,23 +8,13 @@ import Modal from 'components/Modal'
 import useTheme from 'hooks/useTheme'
 import QRCodeContent from 'pages/NotificationCenter/Profile/ExportAccountModal/QRCodeContent'
 import UserEnterPasscodeContent from 'pages/NotificationCenter/Profile/ExportAccountModal/UserEnterPasscodeContent'
+import { useImportToken } from 'state/profile/hooks'
 import { ButtonText } from 'theme/components'
 import { encryptString } from 'utils/cryptography'
-import { getImportToken, removeImportToken, saveImportToken } from 'utils/profile'
 
 enum Step {
   ENTER_PASSCODE,
   QR_CODE,
-}
-
-const getStep = (account: string) => {
-  const storedImportToken = getImportToken(account)
-
-  if (storedImportToken) {
-    return Step.QR_CODE
-  }
-
-  return Step.ENTER_PASSCODE
 }
 
 type Props = {
@@ -35,6 +25,20 @@ export default function ExportAccountModal({ isOpen, onDismiss }: Props) {
   const theme = useTheme()
   const guestAccount = useMemo(() => KyberOauth2.getAnonymousAccount(), [])
   const guestAccountStr = guestAccount ? JSON.stringify(guestAccount) : ''
+  const { getImportToken, removeImportToken, saveImportToken } = useImportToken()
+
+  const getStep = useCallback(
+    (account: string) => {
+      const storedImportToken = getImportToken(account)
+
+      if (storedImportToken) {
+        return Step.QR_CODE
+      }
+
+      return Step.ENTER_PASSCODE
+    },
+    [getImportToken],
+  )
 
   const [step, setStep] = useState(() => {
     return getStep(guestAccount?.username ?? '')
@@ -74,7 +78,7 @@ export default function ExportAccountModal({ isOpen, onDismiss }: Props) {
     if (isOpen) {
       setStep(getStep(guestAccount?.username ?? ''))
     }
-  }, [guestAccount?.username, isOpen])
+  }, [guestAccount?.username, isOpen, getStep])
 
   if (!guestAccountStr) {
     return null
