@@ -60,7 +60,7 @@ const MobileSeparator = styled.div`
 const ChainDisplay: React.FC<{ chainId: ChainId }> = ({ chainId }) => {
   return (
     <Flex
-      alignItems={'center'}
+      alignItems="center"
       sx={{
         gap: '4px',
       }}

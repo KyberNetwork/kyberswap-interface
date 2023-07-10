@@ -238,7 +238,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
               gap: '8px',
             }}
           >
-            <Flex alignItems={'center'}>
+            <Flex alignItems="center">
               <DoubleCurrencyLogo currency0={visibleCurrency0} currency1={visibleCurrency1} size={18} />
 
               <Text
@@ -380,7 +380,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
               gap: '8px',
             }}
           >
-            <Flex alignItems={'center'}>
+            <Flex alignItems="center">
               <DoubleCurrencyLogo currency0={visibleCurrency0} currency1={visibleCurrency1} size={20} />
 
               <Text

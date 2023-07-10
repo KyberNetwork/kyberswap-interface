@@ -81,7 +81,7 @@ const PriceRangeChart: React.FC<Props> = ({ position, disabled }) => {
         </Text>
 
         <Flex
-          alignItems={'center'}
+          alignItems="center"
           sx={{
             flex: '0 0 fit-content',
             gap: '2px',

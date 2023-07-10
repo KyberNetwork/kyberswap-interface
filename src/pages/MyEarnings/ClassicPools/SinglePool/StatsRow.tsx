@@ -51,7 +51,7 @@ const MobileSeparator = styled.div`
 const ChainDisplay: React.FC<{ chainId: ChainId }> = ({ chainId }) => {
   return (
     <Flex
-      alignItems={'center'}
+      alignItems="center"
       sx={{
         gap: '4px',
       }}
@@ -192,7 +192,6 @@ const StatsRow: React.FC<Props> = ({
             gap: '12px',
           }}
         >
-          {/* TODO onClick */}
           <ButtonIcon
             style={{
               flex: '0 0 36px',

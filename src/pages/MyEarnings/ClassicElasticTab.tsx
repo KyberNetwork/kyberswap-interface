@@ -144,7 +144,7 @@ function ClassicElasticTab() {
 
               <Flex
                 role="button"
-                alignItems={'center'}
+                alignItems="center"
                 // onClick={handleClickClassic}
                 color={tab === VERSION.CLASSIC ? theme.primary : theme.disableText}
                 sx={{
@@ -191,7 +191,7 @@ function ClassicElasticTab() {
     const color =
       tab === VERSION.ELASTIC ? (!!notSupportedElasticMessage ? theme.disableText : theme.primary) : theme.subText
     return (
-      <Flex sx={{ position: 'relative' }} alignItems={'center'} onClick={handleClickElastic}>
+      <Flex sx={{ position: 'relative' }} alignItems="center" onClick={handleClickElastic}>
         <PoolElasticIcon size={20} color={color} />
         <Text
           fontWeight={500}
@@ -213,7 +213,7 @@ function ClassicElasticTab() {
   const renderElasticLegacyPoolsButton = () => {
     return (
       <MouseoverTooltip text={notSupportedElasticMessage || ''}>
-        <Flex sx={{ position: 'relative' }} alignItems={'center'} onClick={handleClickElasticLegacy}>
+        <Flex sx={{ position: 'relative' }} alignItems="center" onClick={handleClickElasticLegacy}>
           <PoolElasticIcon size={20} color={tab === VERSION.ELASTIC_LEGACY ? theme.primary : theme.subText} />
           <Text
             fontWeight={500}
@@ -242,19 +242,19 @@ function ClassicElasticTab() {
 
   const renderClassicPoolsButton = () => {
     const color = tab === VERSION.CLASSIC ? theme.primary : theme.disableText
+    const here = <Link to={`${APP_PATHS.MY_POOLS}?tab=classic`}>here</Link>
     return (
       <MouseoverTooltip
         text={
           <Text>
-            Coming soon. In the meantime, you can still manage your Classic liquidity positions{' '}
-            <Link to={`${APP_PATHS.MY_POOLS}?tab=classic`}>here</Link>
+            <Trans>Coming soon. In the meantime, you can still manage your Classic liquidity positions {here}</Trans>
           </Text>
         }
         placement="top"
       >
         <Flex
           role="button"
-          alignItems={'center'}
+          alignItems="center"
           color={color}
           style={{
             cursor: 'not-allowed',

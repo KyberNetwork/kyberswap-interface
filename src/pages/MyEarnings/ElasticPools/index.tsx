@@ -142,7 +142,7 @@ const ElasticPools = () => {
         flexDirection={'column'}
         width="100%"
         height="240px"
-        alignItems={'center'}
+        alignItems="center"
         justifyContent={'center'}
         sx={{ gap: '8px' }}
         color={theme.subText}
