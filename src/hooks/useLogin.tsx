@@ -102,7 +102,7 @@ const useLogin = (autoLogin = false) => {
                   isEmailValid(desireAccount)
                     ? `email ${desireAccount}`
                     : guest
-                    ? `guest account`
+                    ? `Guest Profile`
                     : `wallet ${getShortenAddress(desireAccount ?? '')}`
                 }`,
         },
@@ -237,6 +237,7 @@ const useLogin = (autoLogin = false) => {
 
   const signOutAll = useCallback(() => {
     let needRedirect = false
+    removeAllProfile()
     KyberOauth2.getConnectedAccounts().forEach(acc => {
       if (acc?.toLowerCase() === signedAccount?.toLowerCase()) {
         needRedirect = true
@@ -251,7 +252,6 @@ const useLogin = (autoLogin = false) => {
       }
       KyberOauth2.removeAnonymousAccount(e)
     })
-    removeAllProfile()
     if (needRedirect) {
       signOut(signedAccount)
       return

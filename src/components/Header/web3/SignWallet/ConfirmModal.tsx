@@ -190,7 +190,7 @@ const ModalConfirmProfile: React.FC = () => {
                 ) : desiredAccountExist ? (
                   <Trans>Switch Profile</Trans>
                 ) : (
-                  <Trans>Use Guest profile</Trans>
+                  <Trans>Use Guest Profile</Trans>
                 )}
               </ButtonOutlined>
               <ButtonPrimary
