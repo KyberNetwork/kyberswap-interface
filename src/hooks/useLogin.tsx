@@ -46,7 +46,7 @@ const useLogin = (autoLogin = false) => {
   const [, setLoginRedirectUrl] = useLoginRedirectUrl()
   const { signedMethod, signedAccount } = useSignedAccountInfo()
   const saveSignedAccount = useSaveConnectedProfile()
-  const { removeProfile, removeAllProfile, totalGuest } = useProfileInfo()
+  const { removeProfile, removeAllProfile, totalGuest, getCacheProfile } = useProfileInfo()
   const showConfirm = useShowConfirm()
   const qs = useParsedQueryString()
   const setLoading = useSetPendingAuthentication()
@@ -97,18 +97,20 @@ const useLogin = (autoLogin = false) => {
           title: t`Signed in successfully`,
           summary:
             desireAccount?.toLowerCase() === account?.toLowerCase()
-              ? t`Signed in successfully with the current wallet address`
-              : t`Signed in successfully with ${
+              ? t`Connected successfully with the current wallet address`
+              : t`Connected successfully with ${
                   isEmailValid(desireAccount)
                     ? `email ${desireAccount}`
                     : guest
                     ? `Guest Profile`
-                    : `wallet ${getShortenAddress(desireAccount ?? '')}`
+                    : `profile ${
+                        getCacheProfile(desireAccount ?? '', guest)?.nickname || getShortenAddress(desireAccount ?? '')
+                      }`
                 }`,
         },
         10_000,
       ),
-    [account, notify, autoLogin],
+    [account, notify, autoLogin, getCacheProfile],
   )
 
   const signInAnonymous = useCallback(
