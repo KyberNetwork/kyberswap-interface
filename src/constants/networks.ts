@@ -203,12 +203,24 @@ export const DEFAULT_REWARDS: { [key: string]: string[] } = {
 
 export const SUPPORTED_NETWORKS_FOR_MY_EARNINGS = [
   ChainId.MAINNET,
+  ChainId.ARBITRUM,
+  // ChainId.MATIC,
+  // ChainId.BSCMAINNET,
+  // ChainId.AVAXMAINNET,
+  // ChainId.FANTOM,
+  // ChainId.CRONOS,
+  // ChainId.BTTC,
+  // ChainId.VELAS,
+  // ChainId.AURORA,
+  // ChainId.OASIS,
+  // ChainId.OPTIMISM,
+]
+export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS = [
   ChainId.MATIC,
   ChainId.BSCMAINNET,
   ChainId.AVAXMAINNET,
   ChainId.FANTOM,
   ChainId.CRONOS,
-  ChainId.ARBITRUM,
   ChainId.BTTC,
   ChainId.VELAS,
   ChainId.AURORA,
