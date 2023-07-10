@@ -47,7 +47,10 @@ const ModalConfirmProfile: React.FC = () => {
   const { getCacheProfile } = useProfileInfo()
 
   useEffect(() => {
-    setConnectSuccess(false)
+    if (!isOpen)
+      setTimeout(() => {
+        setConnectSuccess(false)
+      }, 300)
   }, [isOpen])
 
   const desiredProfile = getCacheProfile(account ?? '', false)
