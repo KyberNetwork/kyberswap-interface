@@ -3,7 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import axios from 'axios'
 import { BigNumber } from 'ethers'
 import { darken } from 'polished'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -81,7 +81,7 @@ export default function GasRefundBox() {
   const eligibleTxs = useEligibleTransactions(1, 1)
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
 
-  const claimRewards = async () => {
+  const claimRewards = useCallback(async () => {
     if (!account || !library || !claimableReward || claimableReward.knc <= 0) return
 
     setClaiming(true)
@@ -144,7 +144,7 @@ export default function GasRefundBox() {
     } finally {
       setClaiming(false)
     }
-  }
+  }, [account, addTransactionWithType, chainId, claimableReward, library, notify])
 
   return (
     <Wrapper>
@@ -202,7 +202,7 @@ export default function GasRefundBox() {
             </Text>
           </Flex>
           <Flex width="fit-content">
-            {account ? (
+            {selectedTab !== KNCUtilityTabs.Available ? null : account ? (
               chainId === ChainId.MAINNET ? (
                 claiming ? (
                   <ButtonPrimary padding="8px 45px" onClick={claimRewards}>
