@@ -22,12 +22,12 @@ export function useIsKeepCurrentProfile(): [boolean, () => void] {
   return [isKeepCurrentProfile, toggle]
 }
 
-export function useLoginRedirectUrl(): [string, (v?: string) => void] {
+export function useLoginRedirectUrl(): [string, (v: string) => void] {
   const dispatch = useAppDispatch()
   const loginRedirectUrl = useSelector((state: AppState) => state.profile.loginRedirectUrl)
 
   const setValue = useCallback(
-    (v: string = window.location.href) => {
+    (v: string) => {
       dispatch(setLoginRedirectUrl(v))
     },
     [dispatch],

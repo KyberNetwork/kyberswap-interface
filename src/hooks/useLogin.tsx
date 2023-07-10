@@ -187,7 +187,7 @@ const useLogin = (autoLogin = false) => {
 
       const redirectSignIn = () => {
         KyberOauth2.authenticate({ wallet_address: desireAccount ?? '' }) // navigate to login page
-        setLoginRedirectUrl()
+        setLoginRedirectUrl(window.location.href)
       }
       if (showSessionExpired && isSelectAccount && !isTokenExist) {
         showConfirm({
@@ -219,7 +219,7 @@ const useLogin = (autoLogin = false) => {
   const signOut = useCallback(
     (desireAccount?: string) => {
       if (!desireAccount || desireAccount?.toLowerCase() === signedAccount?.toLowerCase()) {
-        setLoginRedirectUrl()
+        setLoginRedirectUrl(window.location.href)
         removeProfile(desireAccount)
         KyberOauth2.logout()
         return
@@ -249,7 +249,9 @@ const useLogin = (autoLogin = false) => {
     })
     removeAllProfile()
     if (needRedirect) {
-      signOut(signedAccount)
+      setTimeout(() => {
+        signOut(signedAccount)
+      }, 500)
       return
     }
     notify(
