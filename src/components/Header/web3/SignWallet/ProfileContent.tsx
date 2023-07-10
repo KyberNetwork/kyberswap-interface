@@ -205,7 +205,7 @@ const ProfileItem = ({
     </ProfileItemWrapper>
   )
 }
-const ProfileContent = ({ scroll }: { scroll?: boolean }) => {
+const ProfileContent = ({ scroll, toggleModal }: { scroll?: boolean; toggleModal: () => void }) => {
   const { signIn, signOutAll } = useLogin()
   const { profiles, totalGuest } = useProfileInfo()
   const { account } = useActiveWeb3React()
@@ -231,7 +231,12 @@ const ProfileContent = ({ scroll }: { scroll?: boolean }) => {
           </ActionItem>
         )}
         {totalAccount > 1 && (
-          <ActionItem onClick={signOutAll}>
+          <ActionItem
+            onClick={() => {
+              signOutAll()
+              toggleModal()
+            }}
+          >
             <LogOut size={18} /> <Trans>Sign out of all accounts</Trans>
           </ActionItem>
         )}

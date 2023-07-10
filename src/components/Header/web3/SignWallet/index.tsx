@@ -60,12 +60,12 @@ export default function SelectWallet() {
         <>
           {profileIcon}
           <Modal isOpen={isOpen} onDismiss={onClickProfile}>
-            <ProfileContent />
+            <ProfileContent toggleModal={toggleModal} />
           </Modal>
         </>
       ) : (
         <MenuFlyout trigger={profileIcon} customStyle={browserCustomStyle} isOpen={isOpen} toggle={onClickProfile}>
-          <ProfileContent scroll />
+          <ProfileContent scroll toggleModal={toggleModal} />
         </MenuFlyout>
       )}
       <ModalConfirmProfile />
