@@ -237,7 +237,6 @@ const useLogin = (autoLogin = false) => {
 
   const signOutAll = useCallback(() => {
     let needRedirect = false
-    removeAllProfile()
     KyberOauth2.getConnectedAccounts().forEach(acc => {
       if (acc?.toLowerCase() === signedAccount?.toLowerCase()) {
         needRedirect = true
@@ -254,8 +253,10 @@ const useLogin = (autoLogin = false) => {
     })
     if (needRedirect) {
       signOut(signedAccount)
+      removeAllProfile()
       return
     }
+    removeAllProfile()
     notify(
       {
         type: NotificationType.SUCCESS,
