@@ -5,9 +5,9 @@ import Profile from 'components/Icons/Profile'
 import Loader from 'components/Loader'
 
 const StyledAvatar = styled.img<{ $size: number }>`
-  width: ${({ $size }) => $size}px;
-  min-width: ${({ $size }) => $size}px;
   height: ${({ $size }) => $size}px;
+  width: ${({ $size }) => $size}px;
+  object-fit: cover;
   border-radius: 100%;
 `
 const Wrapper = styled.div<{ $size: number }>`
