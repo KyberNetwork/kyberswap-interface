@@ -242,7 +242,7 @@ export default function Profile() {
                     <Trans>Keep Current Profile</Trans>
                   </Text>
                   <Text fontSize={'12px'} color={theme.subText}>
-                    <Trans>Keep this profile active whenever you switch wallet</Trans>
+                    <Trans>Keep this profile active whenever you switch wallets</Trans>
                   </Text>
                 </Column>
               </Flex>
@@ -256,7 +256,7 @@ export default function Profile() {
           <LeftColum>
             <FormGroup>
               <Label>
-                <Trans>User Name (Optional)</Trans>
+                <Trans>Username (Optional)</Trans>
               </Label>
               <Input
                 color={theme.text}
