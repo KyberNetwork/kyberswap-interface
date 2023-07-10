@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { LogIn, X } from 'react-feather'
 import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -11,9 +12,11 @@ import Column from 'components/Column'
 import Loader from 'components/Loader'
 import { ModalCenter } from 'components/Modal'
 import { RowBetween } from 'components/Row'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useLogin from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
+import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { AppState } from 'state'
 import { useProfileInfo, useSessionInfo, useSetConfirmProfile, useSignedAccountInfo } from 'state/authen/hooks'
 import { useIsKeepCurrentProfile } from 'state/profile/hooks'
@@ -45,6 +48,7 @@ const ModalConfirmProfile: React.FC = () => {
   const { signedAccount } = useSignedAccountInfo()
   const [, setKeepCurrentProfile] = useIsKeepCurrentProfile()
   const { getCacheProfile } = useProfileInfo()
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (!isOpen)
@@ -85,15 +89,17 @@ const ModalConfirmProfile: React.FC = () => {
           <Trans>
             You are connected to KyberSwap with wallet <Highlight>{getShortenAddress(account ?? '')}</Highlight> while
             your connected profile <Highlight>{currentProfileName}</Highlight> was created by wallet{' '}
-            <Highlight>{getShortenAddress(signedAccount ?? '')}</Highlight>. Do you wish to keep using{' '}
+            <Highlight>{getShortenAddress(signedAccount ?? '')}</Highlight>. Do you wish to keep using
           </Trans>
+          &nbsp;
           {currentProfileName ? (
             <Trans>
               profile <Highlight>{currentProfileName}</Highlight>
             </Trans>
           ) : (
-            <Trans>this profile</Trans>
-          )}{' '}
+            <Trans> this profile</Trans>
+          )}
+          &nbsp;
           <Trans>
             or switch to{' '}
             {desiredAccountExist ? (
@@ -121,7 +127,19 @@ const ModalConfirmProfile: React.FC = () => {
       <Text as="p" lineHeight={'20px'}>
         <Trans>
           Since you have chosen to keep your current profile connected, we will keep it active whenever you switch
-          wallets. If you ever wish to modify this setting, you can do so in your user profile.
+          wallets. If you ever wish to modify this setting, you can do so in your{' '}
+          <Text
+            as="span"
+            style={{ cursor: 'pointer' }}
+            color={theme.primary}
+            onClick={() => {
+              navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PROFILE}`)
+              hideModal()
+            }}
+          >
+            user profile
+          </Text>
+          .
         </Trans>
       </Text>
     )

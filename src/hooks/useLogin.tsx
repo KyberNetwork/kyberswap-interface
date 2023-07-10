@@ -189,7 +189,7 @@ const useLogin = (autoLogin = false) => {
         setLoginRedirectUrl(window.location.href)
         setTimeout(() => {
           KyberOauth2.authenticate({ wallet_address: desireAccount ?? '' }) // navigate to login page
-        }, 500)
+        }, 300)
       }
       if (showSessionExpired && isSelectAccount && !isTokenExist) {
         showConfirm({
@@ -225,7 +225,7 @@ const useLogin = (autoLogin = false) => {
         removeProfile(desireAccount)
         setTimeout(() => {
           KyberOauth2.logout()
-        }, 500)
+        }, 300)
         return
       }
       KyberOauth2.removeConnectedAccount(desireAccount)
