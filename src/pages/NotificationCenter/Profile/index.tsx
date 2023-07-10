@@ -231,13 +231,14 @@ export default function Profile() {
             <FormGroup>
               <Flex alignItems={'flex-start'} style={{ gap: '6px' }}>
                 <CheckBox
+                  id="keep-profile"
                   borderStyle
                   style={{ width: 15, height: 15 }}
                   onChange={toggleKeepCurrentProfile}
                   checked={isKeepCurrentProfile}
                 />
                 <Column gap="6px">
-                  <Text fontSize={'14px'} fontWeight={'500'} color={theme.text}>
+                  <Text as="label" htmlFor="keep-profile" fontSize={'14px'} fontWeight={'500'} color={theme.text}>
                     <Trans>Keep Current Profile</Trans>
                   </Text>
                   <Text fontSize={'12px'} color={theme.subText}>

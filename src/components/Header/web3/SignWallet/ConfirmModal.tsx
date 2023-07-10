@@ -103,11 +103,11 @@ const ModalConfirmProfile: React.FC = () => {
           <Trans>
             or switch to{' '}
             {desiredAccountExist ? (
-              <Highlight>{desiredProfileName || getShortenAddress(account ?? '')}</Highlight>
+              <Highlight>profile {desiredProfileName || getShortenAddress(account ?? '')}</Highlight>
             ) : (
-              t`a guest`
+              t`a guest profile`
             )}{' '}
-            profile instead?
+            instead?
           </Trans>
         </Text>
         {!desiredAccountExist && (
