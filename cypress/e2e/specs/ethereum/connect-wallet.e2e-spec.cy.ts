@@ -1,5 +1,5 @@
-import { tag } from '../pages/swap-page.po.cy'
-import { homePage, network, wallet } from '../selectors/selectors.cy'
+import { tag } from '../../pages/swap-page.po.cy'
+import { homePage, network, wallet } from '../../selectors/selectors.cy'
 
 const chainList = [
   'BNB',

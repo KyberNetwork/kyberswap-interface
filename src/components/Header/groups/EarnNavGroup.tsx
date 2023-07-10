@@ -29,7 +29,7 @@ const EarnNavGroup = () => {
       id={TutorialIds.EARNING_LINKS}
       isActive={isActive}
       anchor={
-        <DropdownTextAnchor>
+        <DropdownTextAnchor data-testid="earn-menu">
           <Trans>Earn</Trans>
         </DropdownTextAnchor>
       }
@@ -39,11 +39,20 @@ const EarnNavGroup = () => {
             flexDirection: 'column',
           }}
         >
-          <StyledNavLink id="pools-nav-link" to={`${APP_PATHS.POOLS}/${networkInfo.route}`} style={{ width: '100%' }}>
+          <StyledNavLink
+            id="pools-nav-link"
+            data-testid="pools-nav-link"
+            to={`${APP_PATHS.POOLS}/${networkInfo.route}`}
+            style={{ width: '100%' }}
+          >
             <Trans>Pools</Trans>
           </StyledNavLink>
 
-          <StyledNavLink id="my-pools-nav-link" to={`${APP_PATHS.MY_POOLS}/${networkInfo.route}`}>
+          <StyledNavLink
+            id="my-pools-nav-link"
+            data-testid="my-pools-nav-link"
+            to={`${APP_PATHS.MY_POOLS}/${networkInfo.route}`}
+          >
             <Trans>My Pools</Trans>
           </StyledNavLink>
 
@@ -56,6 +65,7 @@ const EarnNavGroup = () => {
               mixpanelHandler(MIXPANEL_TYPE.FARM_UNDER_EARN_TAB_CLICK)
             }}
             id="farms-nav-link"
+            data-testid="farms-nav-link"
             to={`${APP_PATHS.FARMS}/${networkInfo.route}`}
           >
             <Trans>Farms</Trans>
