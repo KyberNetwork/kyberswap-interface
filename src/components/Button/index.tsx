@@ -72,9 +72,10 @@ const Base = styled(RebassButton)<{
 const disabledPrimary = css<{
   altDisabledStyle?: boolean
 }>`
-  background-color: ${({ theme, altDisabledStyle }) => (altDisabledStyle ? theme.primary : theme.buttonGray)};
+  background-color: ${({ theme, altDisabledStyle }) =>
+    altDisabledStyle ? theme.primary : theme.buttonGray} !important;
   color: ${({ theme, altDisabledStyle }) => (altDisabledStyle ? 'white' : theme.border)};
-  box-shadow: none;
+  box-shadow: none !important;
   border: 1px solid transparent;
   outline: none;
   opacity: ${({ altDisabledStyle }) => (altDisabledStyle ? '0.7' : '1')};

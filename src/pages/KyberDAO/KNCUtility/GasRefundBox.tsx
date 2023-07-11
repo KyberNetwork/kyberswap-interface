@@ -225,11 +225,9 @@ export default function GasRefundBox() {
                   }
                   width="244px"
                 >
-                  <div>
-                    <ButtonPrimary padding="8px 45px" $disabled>
-                      <Trans>Claim</Trans>
-                    </ButtonPrimary>
-                  </div>
+                  <ButtonPrimary padding="8px 45px" $disabled>
+                    <Trans>Claim</Trans>
+                  </ButtonPrimary>
                 </MouseoverTooltip>
               )
             ) : (
