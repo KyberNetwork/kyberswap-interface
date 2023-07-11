@@ -91,7 +91,11 @@ const useNotification = () => {
         if (subscribeIds.length) {
           topicIds = topicIds.concat(subscribeIds)
         }
-        if (subscribeIds.includes(+ELASTIC_POOL_TOPIC_ID) && account) {
+        const hasElasticBool = (() => {
+          const topicPools = ELASTIC_POOL_TOPIC_ID.split(',').map(Number)
+          return subscribeIds.some(id => topicPools.includes(id))
+        })()
+        if (hasElasticBool && account) {
           await requestWatchWallet({ walletAddress: account }).unwrap()
         }
         await callSubscribeTopic({ topicIds: [...new Set(topicIds)] }).unwrap()

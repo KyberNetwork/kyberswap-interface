@@ -125,22 +125,22 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key: string]: { [type: string]: string } } =
     EXCLUDE: '2,29,1,47,50,44,45',
   },
   staging: {
-    [PrivateAnnouncementType.PRICE_ALERT]: '22,23',
+    [PrivateAnnouncementType.PRICE_ALERT]: '30',
     [PrivateAnnouncementType.LIMIT_ORDER]: '14,15,16,17',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '12,13',
     [PrivateAnnouncementType.CROSS_CHAIN]: '25,26',
     [PrivateAnnouncementType.KYBER_AI]: '27',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '20,21',
-    EXCLUDE: '2,11,1,28,29',
+    EXCLUDE: '2,11,1,28,29,22,23',
   },
   production: {
-    [PrivateAnnouncementType.PRICE_ALERT]: '21,22',
+    [PrivateAnnouncementType.PRICE_ALERT]: '21,22', // todo
     [PrivateAnnouncementType.LIMIT_ORDER]: '12,13,14,15',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '10,11',
     [PrivateAnnouncementType.CROSS_CHAIN]: '27,28',
     [PrivateAnnouncementType.KYBER_AI]: '26',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '17,18',
-    EXCLUDE: '2,16,19,9,25,24',
+    EXCLUDE: '2,16,19,9,25,24', // todo
   },
 }
 
