@@ -203,7 +203,7 @@ export default function GasRefundBox() {
           </Flex>
           <Flex width="fit-content">
             {selectedTab !== KNCUtilityTabs.Available ? null : account ? (
-              chainId === ChainId.MAINNET ? (
+              chainId === ChainId.MAINNET || chainId === ChainId.GÖRLI ? (
                 claiming ? (
                   <ButtonPrimary padding="8px 45px" onClick={claimRewards}>
                     <Dots>
