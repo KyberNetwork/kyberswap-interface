@@ -1,18 +1,20 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { darken } from 'polished'
 import { useLocation } from 'react-router-dom'
 import styled from 'styled-components'
 
+import Column from 'components/Column'
 import ApeIcon from 'components/Icons/ApeIcon'
-import { RowFit } from 'components/Row'
-import { MouseoverTooltip } from 'components/Tooltip'
+import Icon from 'components/Icons/Icon'
+import Row, { RowFit } from 'components/Row'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
+import { useIsWhiteListKyberAI } from 'state/user/hooks'
 
 import SlideToUnlock from './SlideToUnlock'
 import NavGroup from './groups/NavGroup'
-import { DropdownTextAnchor } from './styleds'
+import { DropdownTextAnchor, StyledNavLink } from './styleds'
 
 const CustomSlideToUnlock = styled(SlideToUnlock)`
   background: linear-gradient(
@@ -69,7 +71,7 @@ const BetaTag = () => {
         marginTop: '-16px',
       }}
     >
-      Beta
+      beta
     </RowFit>
   )
 }
@@ -77,52 +79,47 @@ const BetaTag = () => {
 const KyberAINavItem = () => {
   const { pathname } = useLocation()
   const isActive = pathname.includes(APP_PATHS.KYBERAI)
-  // const { isWhiteList } = useIsWhiteListKyberAI()
-
-  // const dropdownContent = (
-  //   <Column>
-  //     <StyledNavLink id="kyberai_about" to={APP_PATHS.KYBERAI_ABOUT}>
-  //       <Row gap="12px">
-  //         <Icon id="info" size={16} />
-  //         <Trans>About</Trans>
-  //       </Row>
-  //     </StyledNavLink>
-  //     <StyledNavLink id="kyberai_ranking" to={APP_PATHS.KYBERAI_RANKINGS} $disabled={!isWhiteList}>
-  //       <Row gap="12px">
-  //         <Icon id="leaderboard" size={16} />
-  //         <Trans>Rankings</Trans>
-  //       </Row>
-  //     </StyledNavLink>
-  //
-  //     <StyledNavLink id="kyberai_explore" to={APP_PATHS.KYBERAI_EXPLORE} $disabled={!isWhiteList}>
-  //       <Row gap="12px">
-  //         <Icon id="truesight-v2" size={16} />
-  //         <Trans>Explore</Trans>
-  //       </Row>
-  //     </StyledNavLink>
-  //   </Column>
-  // )
-
+  const { isWhiteList } = useIsWhiteListKyberAI()
   return (
     <KyberAIWrapper
       id={TutorialIds.DISCOVER_LINK}
       isActive={isActive}
       anchor={
         <DropdownTextAnchor>
-          <MouseoverTooltip text={t`KyberAI is currently under maintenance. We'll notify you once its back online`}>
-            <RowFit style={{ cursor: 'not-allowed' }}>
-              {/*<CustomSlideToUnlock data-active={isActive}>*/}
+          <RowFit>
+            <CustomSlideToUnlock data-active={isActive}>
               <RowFit gap="4px">
                 <ApeIcon />
                 <Trans>KyberAI</Trans>
               </RowFit>
-              {/*</CustomSlideToUnlock>*/}
-              <BetaTag />
-            </RowFit>
-          </MouseoverTooltip>
+            </CustomSlideToUnlock>
+            <BetaTag />
+          </RowFit>
         </DropdownTextAnchor>
       }
-      dropdownContent={null}
+      dropdownContent={
+        <Column>
+          <StyledNavLink id="kyberai_about" to={APP_PATHS.KYBERAI_ABOUT}>
+            <Row gap="12px">
+              <Icon id="info" size={16} />
+              <Trans>About</Trans>
+            </Row>
+          </StyledNavLink>
+          <StyledNavLink id="kyberai_ranking" to={APP_PATHS.KYBERAI_RANKINGS} $disabled={!isWhiteList}>
+            <Row gap="12px">
+              <Icon id="leaderboard" size={16} />
+              <Trans>Rankings</Trans>
+            </Row>
+          </StyledNavLink>
+
+          <StyledNavLink id="kyberai_explore" to={APP_PATHS.KYBERAI_EXPLORE} $disabled={!isWhiteList}>
+            <Row gap="12px">
+              <Icon id="truesight-v2" size={16} />
+              <Trans>Explore</Trans>
+            </Row>
+          </StyledNavLink>
+        </Column>
+      }
     />
   )
 }
