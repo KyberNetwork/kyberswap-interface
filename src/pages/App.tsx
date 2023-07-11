@@ -361,6 +361,7 @@ export default function App() {
                     <Route path={`${APP_PATHS.ABOUT}/kyberswap`} element={<AboutKyberSwap />} />
                     <Route path={`${APP_PATHS.ABOUT}/knc`} element={<AboutKNC />} />
                     <Route path={`${APP_PATHS.KYBERAI}`} element={<Navigate to={APP_PATHS.KYBERAI_ABOUT} replace />} />
+                    <Route path={`${APP_PATHS.KYBERAI}`} element={<Navigate to={APP_PATHS.KYBERAI_ABOUT} replace />} />
                     <Route
                       path={`${APP_PATHS.KYBERAI_ABOUT}`}
                       element={
