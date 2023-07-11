@@ -209,7 +209,7 @@ export default function KNCUtility() {
               <Trans>
                 To participate in KyberSwap&apos;s Gas Refund Program, you must stake KNC and meet the necessary
                 requirements. The amount of gas refunded will depend on your staking Tier.{' '}
-                <NavLink to="//temp link">Read More ↗</NavLink>
+                <NavLink to="/temp-link">Read More ↗</NavLink>
               </Trans>
             </Text>
             <Table>

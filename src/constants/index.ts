@@ -227,7 +227,7 @@ export const APP_PATHS = {
   GRANT_PROGRAMS: '/inter-project-trading-campaigns',
   NOTIFICATION_CENTER: '/notification-center',
   ELASTIC_LEGACY: '/elastic-legacy',
-}
+} as const
 
 export const TERM_FILES_PATH = {
   KYBERSWAP_TERMS: '/files/Kyber - Terms of Service - 14 June 2023.pdf',
