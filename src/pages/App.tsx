@@ -20,7 +20,7 @@ import Footer from 'components/Footer/Footer'
 import Header from 'components/Header'
 import Loader from 'components/LocalLoader'
 import Modal from 'components/Modal'
-import ProtectedRoute from 'components/ProtectedRoute'
+import ProtectedRoute, { ProtectedRouteKyberAI } from 'components/ProtectedRoute'
 import Snowfall from 'components/Snowflake/Snowfall'
 import Web3ReactManager from 'components/Web3ReactManager'
 import { ENV_LEVEL } from 'constants/env'
@@ -34,7 +34,9 @@ import useSessionExpiredGlobal from 'hooks/useSessionExpire'
 import useTheme from 'hooks/useTheme'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
 import { RedirectPathToSwapV3Network } from 'pages/SwapV3/redirects'
+import KyberAIExplore from 'pages/TrueSightV2'
 import TruesightFooter from 'pages/TrueSightV2/components/TruesightFooter'
+import KyberAILandingPage from 'pages/TrueSightV2/pages/LandingPage'
 import Verify from 'pages/Verify'
 import { useHolidayMode } from 'state/user/hooks'
 import DarkModeQueryParamReader from 'theme/DarkModeQueryParamReader'
@@ -360,39 +362,40 @@ export default function App() {
                     <Route path={`${APP_PATHS.KYBERDAO_KNC_UTILITY}`} element={<KNCUtility />} />
                     <Route path={`${APP_PATHS.ABOUT}/kyberswap`} element={<AboutKyberSwap />} />
                     <Route path={`${APP_PATHS.ABOUT}/knc`} element={<AboutKNC />} />
-                    {/*<Route path={`${APP_PATHS.KYBERAI}`} element={<Navigate to={APP_PATHS.KYBERAI_ABOUT} replace />} />*/}
-                    {/*<Route*/}
-                    {/*  path={`${APP_PATHS.KYBERAI_ABOUT}`}*/}
-                    {/*  element={*/}
-                    {/*    <ProtectedRouteKyberAI waitUtilAuthenEndOnly>*/}
-                    {/*      <KyberAILandingPage />*/}
-                    {/*    </ProtectedRouteKyberAI>*/}
-                    {/*  }*/}
-                    {/*/>*/}
-                    {/*<Route*/}
-                    {/*  path={`${APP_PATHS.KYBERAI_RANKINGS}`}*/}
-                    {/*  element={*/}
-                    {/*    <ProtectedRouteKyberAI redirectUrl={APP_PATHS.KYBERAI_ABOUT}>*/}
-                    {/*      <KyberAIExplore />*/}
-                    {/*    </ProtectedRouteKyberAI>*/}
-                    {/*  }*/}
-                    {/*/>*/}
-                    {/*<Route*/}
-                    {/*  path={`${APP_PATHS.KYBERAI_EXPLORE}`}*/}
-                    {/*  element={*/}
-                    {/*    <ProtectedRouteKyberAI redirectUrl={APP_PATHS.KYBERAI_ABOUT}>*/}
-                    {/*      <KyberAIExplore />*/}
-                    {/*    </ProtectedRouteKyberAI>*/}
-                    {/*  }*/}
-                    {/*/>*/}
-                    {/*<Route*/}
-                    {/*  path={`${APP_PATHS.KYBERAI_EXPLORE}/:chain/:address`}*/}
-                    {/*  element={*/}
-                    {/*    <ProtectedRouteKyberAI redirectUrl={APP_PATHS.KYBERAI_ABOUT}>*/}
-                    {/*      <KyberAIExplore />*/}
-                    {/*    </ProtectedRouteKyberAI>*/}
-                    {/*  }*/}
-                    {/*/>*/}
+                    <Route path={`${APP_PATHS.KYBERAI}`} element={<Navigate to={APP_PATHS.KYBERAI_ABOUT} replace />} />
+                    <Route path={`${APP_PATHS.KYBERAI}`} element={<Navigate to={APP_PATHS.KYBERAI_ABOUT} replace />} />
+                    <Route
+                      path={`${APP_PATHS.KYBERAI_ABOUT}`}
+                      element={
+                        <ProtectedRouteKyberAI waitUtilAuthenEndOnly>
+                          <KyberAILandingPage />
+                        </ProtectedRouteKyberAI>
+                      }
+                    />
+                    <Route
+                      path={`${APP_PATHS.KYBERAI_RANKINGS}`}
+                      element={
+                        <ProtectedRouteKyberAI redirectUrl={APP_PATHS.KYBERAI_ABOUT}>
+                          <KyberAIExplore />
+                        </ProtectedRouteKyberAI>
+                      }
+                    />
+                    <Route
+                      path={`${APP_PATHS.KYBERAI_EXPLORE}`}
+                      element={
+                        <ProtectedRouteKyberAI redirectUrl={APP_PATHS.KYBERAI_ABOUT}>
+                          <KyberAIExplore />
+                        </ProtectedRouteKyberAI>
+                      }
+                    />
+                    <Route
+                      path={`${APP_PATHS.KYBERAI_EXPLORE}/:chain/:address`}
+                      element={
+                        <ProtectedRouteKyberAI redirectUrl={APP_PATHS.KYBERAI_ABOUT}>
+                          <KyberAIExplore />
+                        </ProtectedRouteKyberAI>
+                      }
+                    />
                     <Route path={`${APP_PATHS.BUY_CRYPTO}`} element={<BuyCrypto />} />
                     <Route path={`${APP_PATHS.CAMPAIGN}`} element={<Campaign />} />
                     <Route path={`${APP_PATHS.CAMPAIGN}/:slug`} element={<Campaign />} />
