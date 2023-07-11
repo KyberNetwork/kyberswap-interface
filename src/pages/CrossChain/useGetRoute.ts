@@ -55,7 +55,7 @@ export default function useGetRouteCrossChain(params: GetRoute | undefined) {
   useEffect(() => {
     const controller = new AbortController()
     getRoute(controller.signal)
-    return () => abortController.abort()
+    return () => controller.abort()
   }, [getRoute])
 
   return { route, getRoute: getRouteDebounce, error, loading }
