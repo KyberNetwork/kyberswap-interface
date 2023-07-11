@@ -556,7 +556,7 @@ export function useGasRefundInfo({ rewardStatus = KNCUtilityTabs.Available }: { 
 
   const { data: claimableReward } = useSWR<RewardInfo>(
     account &&
-      chainId === ChainId.MAINNET &&
+      (chainId === ChainId.MAINNET || chainId === ChainId.GÖRLI) &&
       kyberDaoInfo?.daoStatsApi + '/api/v1/stakers/' + account + '/refunds/total?rewardStatus=claimable',
     url =>
       fetcher(url)
@@ -565,7 +565,7 @@ export function useGasRefundInfo({ rewardStatus = KNCUtilityTabs.Available }: { 
   )
   const { data: pendingReward } = useSWR<RewardInfo>(
     account &&
-      chainId === ChainId.MAINNET &&
+      (chainId === ChainId.MAINNET || chainId === ChainId.GÖRLI) &&
       kyberDaoInfo?.daoStatsApi + '/api/v1/stakers/' + account + '/refunds/total?rewardStatus=pending',
     url =>
       fetcher(url)
@@ -574,7 +574,7 @@ export function useGasRefundInfo({ rewardStatus = KNCUtilityTabs.Available }: { 
   )
   const { data: claimedReward } = useSWR<RewardInfo>(
     account &&
-      chainId === ChainId.MAINNET &&
+      (chainId === ChainId.MAINNET || chainId === ChainId.GÖRLI) &&
       kyberDaoInfo?.daoStatsApi + '/api/v1/stakers/' + account + '/refunds/total?rewardStatus=claimed',
     url =>
       fetcher(url)
@@ -604,97 +604,15 @@ export const useEligibleTransactions = (page = 1, pageSize = 100): EligibleTxsIn
 
   const { data: eligibleTransactions } = useSWR<EligibleTxsInfo>(
     account &&
-      chainId === ChainId.MAINNET &&
+      (chainId === ChainId.MAINNET || chainId === ChainId.GÖRLI) &&
       kyberDaoInfo?.daoStatsApi +
         '/api/v1/stakers/' +
         account +
         `/refunds/eligible-transactions?pageSize=${pageSize}&page=${page}`,
     fetcher,
   )
-  const mockData = null
-  // { // todo namgold: rm this
-  //   transactions: [
-  //     {
-  //       tx: '0x3c2da10bfa8eb91392af39017a3a9ae2ce4a6389b8179f72a13a33a3a09aa17b',
-  //       timestamp: 1688464079,
-  //       gasRefundInKNC: '2.0049242244407566',
-  //       gasRefundInUSD: '1.1380751867615510496',
-  //       gasFeeInUSD: '5.690375933807755248',
-  //       gasFeeInNativeToken: '0.0029110355919948',
-  //       epoch: 58,
-  //       userTier: 3,
-  //       gasRefundPerCentage: '0.2',
-  //       userWallet: '0xa2dfeb674d997b68ec5adb0a6fb9136bd45c2d2d',
-  //     },
-  //     {
-  //       tx: '0x337281cda0e96ac85763006ab93ceeb1bade9e28508ede29c9069127f8ccf9ab',
-  //       timestamp: 1688441807,
-  //       gasRefundInKNC: '1.0175163053595487',
-  //       gasRefundInUSD: '0.5842059692058795312',
-  //       gasFeeInUSD: '5.842059692058795312',
-  //       gasFeeInNativeToken: '0.0029852424102744',
-  //       epoch: 57,
-  //       userTier: 1,
-  //       gasRefundPerCentage: '0.1',
-  //       userWallet: '0xa2dfeb674d997b68ec5adb0a6fb9136bd45c2d2d',
-  //     },
-  //     {
-  //       tx: '0x1f83b77c1f89027ce5521c3edf9a5468ccc3044cef13251d522102842299463f',
-  //       timestamp: 1688441339,
-  //       gasRefundInKNC: '1.9452476443758978',
-  //       gasRefundInUSD: '1.1168619897707773384',
-  //       gasFeeInUSD: '5.584309948853886692',
-  //       gasFeeInNativeToken: '0.0028535345015554',
-  //       epoch: 57,
-  //       userTier: 3,
-  //       gasRefundPerCentage: '0.2',
-  //       userWallet: '0xa2dfeb674d997b68ec5adb0a6fb9136bd45c2d2d',
-  //     },
-  //     {
-  //       tx: '0x10d45294d5eef72f154ee0169f9026d9f5cffd38d13b7fcd2d1aa08e024f9b67',
-  //       timestamp: 1688441075,
-  //       gasRefundInKNC: '1.6159547416511324',
-  //       gasRefundInUSD: '0.927798798964256016',
-  //       gasFeeInUSD: '6.18532532642837344',
-  //       gasFeeInNativeToken: '0.003160648206128',
-  //       epoch: 57,
-  //       userTier: 2,
-  //       gasRefundPerCentage: '0.15',
-  //       userWallet: '0xa2dfeb674d997b68ec5adb0a6fb9136bd45c2d2d',
-  //     },
-  //     {
-  //       tx: '0x310291331db3be611e53db1f16f4702ab9e7b3ee5d093c81a535d6097ce46810',
-  //       timestamp: 1688440955,
-  //       gasRefundInKNC: '1.8711979899166949',
-  //       gasRefundInUSD: '1.0690303812233271369',
-  //       gasFeeInUSD: '7.126869208155514246',
-  //       gasFeeInNativeToken: '0.0036417690564827',
-  //       epoch: 57,
-  //       userTier: 2,
-  //       gasRefundPerCentage: '0.15',
-  //       userWallet: '0xa2dfeb674d997b68ec5adb0a6fb9136bd45c2d2d',
-  //     },
-  //     {
-  //       tx: '0x4ceceb4a95fc07c7ea51b7f064d38abe584a3471dcd2d9fcc09e41b2873d4a14',
-  //       timestamp: 1688439443,
-  //       gasRefundInKNC: '1.4705842323759179',
-  //       gasRefundInUSD: '0.8400918309239963826',
-  //       gasFeeInUSD: '5.600612206159975884',
-  //       gasFeeInNativeToken: '0.0028645727937068',
-  //       epoch: 57,
-  //       userTier: 2,
-  //       gasRefundPerCentage: '0.15',
-  //       userWallet: '0xa2dfeb674d997b68ec5adb0a6fb9136bd45c2d2d',
-  //     },
-  //   ],
-  //   pagination: {
-  //     totalOfPages: 10,
-  //     currentPage: 1,
-  //     pageSize: 20,
-  //     hasMore: false,
-  //   },
-  // }
-  return mockData || eligibleTransactions
+
+  return eligibleTransactions
 }
 
 export function useProposalInfoById(id?: number): { proposalInfo?: ProposalDetail } {
