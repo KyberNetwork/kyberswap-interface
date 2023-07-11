@@ -1,7 +1,7 @@
 {
   "name": "@kyberswap/widgets",
   "license": "MIT",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -14,8 +14,6 @@
     "@reach/portal": "^0.18.0",
     "eslint-plugin-better-styled-components": "^1.1.2",
     "ethers": "^5.7.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "react-popper": "^2.3.0",
     "styled-components": "^5.3.5",
     "vite-plugin-eslint": "^1.8.1",
@@ -39,8 +37,8 @@
     "vite-plugin-dts": "^1.4.1"
   },
   "peerDependencies": {
-    "react": "^16.8.0 || 17.x",
-    "react-dom": "^16.8.0 || 17.x"
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
   },
   "files": [
     "dist"

@@ -2088,6 +2088,38 @@
     "@jridgewell/resolve-uri" "3.1.0"
     "@jridgewell/sourcemap-codec" "1.4.14"
 
+"@kyberswap/widgets@1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@kyberswap/widgets/-/widgets-1.0.3.tgz#7d48647ef32037f3e886967af00501998f553b68"
+  integrity sha512-UKRV25i55SXBaEBfMOcNBLLeZqrEriwnuwwKAsDSgU+uFKqOL+BFW6lMvwqoXAvWeakmIC/9hWj1evcEc7Iggg==
+  dependencies:
+    "@popperjs/core" "^2.11.6"
+    "@reach/portal" "^0.18.0"
+    eslint-plugin-better-styled-components "^1.1.2"
+    ethers "^5.7.0"
+    react "^18.2.0"
+    react-dom "^18.2.0"
+    react-popper "^2.3.0"
+    styled-components "^5.3.5"
+    vite-plugin-eslint "^1.8.1"
+    vite-plugin-svgr "^2.2.1"
+
+"@kyberswap/widgets@1.0.4-rc":
+  version "1.0.4-rc"
+  resolved "https://registry.yarnpkg.com/@kyberswap/widgets/-/widgets-1.0.4-rc.tgz#b20adacc93c4741b6546e06265c1d95d9e01fe69"
+  integrity sha512-+GG2lcc0q8bGDohCHZ2G3I8yXr1NHsUUYhOMSmOzAwhENBKIfgo0giEc1ICE6096pglZE7GltpxDUWm+PoBZbQ==
+  dependencies:
+    "@popperjs/core" "^2.11.6"
+    "@reach/portal" "^0.18.0"
+    eslint-plugin-better-styled-components "^1.1.2"
+    ethers "^5.7.0"
+    react "^18.2.0"
+    react-dom "^18.2.0"
+    react-popper "^2.3.0"
+    styled-components "^5.3.5"
+    vite-plugin-eslint "^1.8.1"
+    vite-plugin-svgr "^2.2.1"
+
 "@lerna/add@6.3.0":
   version "6.3.0"
   resolved "https://registry.yarnpkg.com/@lerna/add/-/add-6.3.0.tgz#4ff2b34298ff97f4d015b091441874efc1e95964"
