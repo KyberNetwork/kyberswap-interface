@@ -17,7 +17,7 @@ export default function useGetRouteCrossChain(params: GetRoute | undefined) {
   const debounceParams = useDebounce(params, INPUT_DEBOUNCE_TIME)
 
   const getRoute = useCallback(
-    async (isRefresh = true) => {
+    async (signal: AbortSignal, isRefresh = true) => {
       if (!squidInstance || !debounceParams) {
         setTradeRoute(undefined)
         return
@@ -29,12 +29,13 @@ export default function useGetRouteCrossChain(params: GetRoute | undefined) {
         setError(false)
         isRefresh && setTradeRoute(undefined)
         const resp = await squidInstance.getRoute({ ...debounceParams, prefer: ['KYBERSWAP_AGGREGATOR'] })
+        if (signal.aborted) return
         route = resp.route
-        if (currentRequest.current !== debounceParams) return
       } catch (error) {}
       try {
         if (!route) {
           const resp = await squidInstance.getRoute(debounceParams)
+          if (signal.aborted) return
           route = resp.route
         }
         setTradeRoute(route)
@@ -52,7 +53,9 @@ export default function useGetRouteCrossChain(params: GetRoute | undefined) {
   const getRouteDebounce = useMemo(() => debounce(() => getRoute(false), INPUT_DEBOUNCE_TIME), [getRoute])
 
   useEffect(() => {
-    getRoute()
+    const controller = new AbortController()
+    getRoute(controller.signal)
+    return () => abortController.abort()
   }, [getRoute])
 
   return { route, getRoute: getRouteDebounce, error, loading }
