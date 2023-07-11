@@ -37,6 +37,7 @@ export default function useGetRouteCrossChain(params: GetRoute | undefined) {
           const resp = await squidInstance.getRoute(debounceParams)
           route = resp.route
         }
+        if (currentRequest.current !== debounceParams) return
         setTradeRoute(route)
         setError(false)
         setLoading(false)
