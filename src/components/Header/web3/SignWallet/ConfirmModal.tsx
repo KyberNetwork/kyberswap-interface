@@ -18,8 +18,8 @@ import useLogin from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { AppState } from 'state'
-import { useProfileInfo, useSessionInfo, useSetConfirmProfile, useSignedAccountInfo } from 'state/authen/hooks'
-import { useIsKeepCurrentProfile } from 'state/profile/hooks'
+import { useSessionInfo, useSetConfirmChangeProfile } from 'state/authen/hooks'
+import { useIsKeepCurrentProfile, useProfileInfo, useSignedAccountInfo } from 'state/profile/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
 
@@ -40,7 +40,7 @@ const Highlight = styled.span`
 const ModalConfirmProfile: React.FC = () => {
   const theme = useTheme()
   const { showModal: isOpen } = useSelector((state: AppState) => state.authen.confirmProfile)
-  const setConfirm = useSetConfirmProfile()
+  const setConfirm = useSetConfirmChangeProfile()
 
   const [connectSuccess, setConnectSuccess] = useState(false)
   const { signIn } = useLogin()

@@ -10,7 +10,8 @@ import Row from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import useLogin from 'hooks/useLogin'
 import useTheme from 'hooks/useTheme'
-import { useSessionInfo, useSignedAccountInfo } from 'state/authen/hooks'
+import { useSessionInfo } from 'state/authen/hooks'
+import { useSignedAccountInfo } from 'state/profile/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 
 const WarningWrapper = styled.div`

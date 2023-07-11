@@ -7,7 +7,7 @@ import { useShowConfirm } from 'components/ConfirmModal'
 import { APP_PATHS } from 'constants/index'
 import useLogin from 'hooks/useLogin'
 import { ConfirmModalState } from 'state/application/reducer'
-import { useSignedAccountInfo } from 'state/authen/hooks'
+import { useSignedAccountInfo } from 'state/profile/hooks'
 
 export default function useSessionExpiredGlobal() {
   const { pathname } = useLocation()

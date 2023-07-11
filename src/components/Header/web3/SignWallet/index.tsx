@@ -10,7 +10,8 @@ import Modal from 'components/Modal'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
-import { useProfileInfo, useSessionInfo } from 'state/authen/hooks'
+import { useSessionInfo } from 'state/authen/hooks'
+import { useProfileInfo } from 'state/profile/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 const StyledMenu = styled.div`

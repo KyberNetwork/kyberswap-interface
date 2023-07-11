@@ -16,7 +16,7 @@ import useTheme from 'hooks/useTheme'
 import { getErrorMessage } from 'pages/TrueSightV2/utils'
 import OTPInput from 'pages/Verify/VerifyCodeModal/OtpInput'
 import { useNotify } from 'state/application/hooks'
-import { useRefreshProfile } from 'state/authen/hooks'
+import { useRefreshProfile } from 'state/profile/hooks'
 
 const Wrapper = styled.div`
   display: flex;

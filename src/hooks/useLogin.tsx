@@ -12,16 +12,16 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { useSessionInfo, useSetConfirmChangeProfile, useSetPendingAuthentication } from 'state/authen/hooks'
 import {
   KEY_GUEST_DEFAULT,
+  useIsKeepCurrentProfile,
+  useLoginRedirectUrl,
   useProfileInfo,
+  useSaveConnectedProfile,
   useSaveUserProfile,
-  useSessionInfo,
-  useSetConfirmProfile,
-  useSetPendingAuthentication,
   useSignedAccountInfo,
-} from 'state/authen/hooks'
-import { useIsKeepCurrentProfile, useLoginRedirectUrl, useSaveConnectedProfile } from 'state/profile/hooks'
+} from 'state/profile/hooks'
 import { filterTruthy, isAddress } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
 import { isEmailValid } from 'utils/string'
@@ -104,7 +104,7 @@ const useLogin = (autoLogin = false) => {
                     : guest
                     ? `Guest Profile`
                     : `profile ${
-                        getCacheProfile(desireAccount ?? '', guest)?.nickname || getShortenAddress(desireAccount ?? '')
+                        getCacheProfile(desireAccount ?? '', guest)?.nickname || getShortenAddress(desireAccount ?? '') // todo utls
                       }`
                 }`,
         },
@@ -341,7 +341,7 @@ const useLogin = (autoLogin = false) => {
     }
   }, [account, connectWalletToProfile, autoLogin, userInfo?.identityId, signedMethod])
 
-  const setConfirm = useSetConfirmProfile()
+  const setConfirm = useSetConfirmChangeProfile()
 
   // only run when change wallet
   const prevAccount = usePrevious(account)

@@ -29,8 +29,8 @@ import { ButtonLogout, ButtonSave } from 'pages/NotificationCenter/Profile/butto
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
 import { useNotify } from 'state/application/hooks'
-import { useProfileInfo, useRefreshProfile, useSessionInfo, useSignedAccountInfo } from 'state/authen/hooks'
-import { useIsKeepCurrentProfile } from 'state/profile/hooks'
+import { useSessionInfo } from 'state/authen/hooks'
+import { useIsKeepCurrentProfile, useProfileInfo, useRefreshProfile, useSignedAccountInfo } from 'state/profile/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 
