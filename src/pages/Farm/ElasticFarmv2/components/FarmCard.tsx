@@ -133,6 +133,7 @@ function FarmCard({
   })
 
   const myDepositUSD = stakedPos.reduce((total, item) => item.stakedUsdValue + total, 0)
+  const rewardUsd = stakedPos.reduce((total, item) => item.unclaimedRewardsUsd + total, 0)
 
   const isEnded = currentTimestamp > farm.endTime
   const isAllRangesInactive = !farm.ranges.some(item => !item.isRemoved)
@@ -395,9 +396,17 @@ function FarmCard({
 
         <RowBetween>
           <Column style={{ width: 'fit-content' }} gap="4px">
-            <Text fontSize="12px" color={theme.subText}>
-              {hasRewards ? <Trans>My Rewards</Trans> : <Trans>Rewards</Trans>}
-            </Text>
+            <Flex alignItems="center">
+              <Text fontSize="12px" color={theme.subText}>
+                {hasRewards ? <Trans>My Rewards</Trans> : <Trans>Rewards</Trans>}
+              </Text>
+
+              {rewardUsd > 0 && (
+                <Text color={theme.text} fontWeight="500" marginLeft="8px">
+                  {formatDollarAmount(rewardUsd)}
+                </Text>
+              )}
+            </Flex>
             <RowFit gap="8px">
               {farm.totalRewards.map((rw, index: number) => (
                 <>

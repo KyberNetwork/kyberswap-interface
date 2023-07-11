@@ -539,7 +539,12 @@ const ProMMFarmGroup: React.FC<Props> = ({
 
   const summaryRewardAndDepositInfo = () => {
     return (
-      <>
+      <Flex
+        alignItems="center"
+        sx={{ gap: '1rem' }}
+        flexDirection={upToMedium ? 'column' : 'row'}
+        width={upToMedium ? '100%' : undefined}
+      >
         <Flex
           alignItems="center"
           sx={{ gap: '8px' }}
@@ -645,7 +650,7 @@ const ProMMFarmGroup: React.FC<Props> = ({
           </Flex>
           <HarvestAllButton onClick={() => onOpenModal('harvest')} disabled={!account || !canHarvest} />
         </Flex>
-      </>
+      </Flex>
     )
   }
 

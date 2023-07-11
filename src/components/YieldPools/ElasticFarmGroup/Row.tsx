@@ -77,14 +77,15 @@ const Row = ({
   const depositedPositions =
     userFarmInfo?.[fairlaunchAddress]?.depositedPositions.filter(pos => {
       return (
+        pos.liquidity.toString() !== '0' &&
         farmingPool.poolAddress.toLowerCase() ===
-        computePoolAddress({
-          factoryAddress: NETWORKS_INFO[isEVM(chainId) ? chainId : ChainId.MAINNET].elastic.coreFactory,
-          tokenA: pos.pool.token0,
-          tokenB: pos.pool.token1,
-          fee: pos.pool.fee,
-          initCodeHashManualOverride: NETWORKS_INFO[isEVM(chainId) ? chainId : ChainId.MAINNET].elastic.initCodeHash,
-        }).toLowerCase()
+          computePoolAddress({
+            factoryAddress: NETWORKS_INFO[isEVM(chainId) ? chainId : ChainId.MAINNET].elastic.coreFactory,
+            tokenA: pos.pool.token0,
+            tokenB: pos.pool.token1,
+            fee: pos.pool.fee,
+            initCodeHashManualOverride: NETWORKS_INFO[isEVM(chainId) ? chainId : ChainId.MAINNET].elastic.initCodeHash,
+          }).toLowerCase()
       )
     }) || []
 
@@ -143,14 +144,6 @@ const Row = ({
   }, [contract, farmingPool.feeTarget, fairlaunchAddress, farmingPool.pid, userFarmInfo])
 
   const canStake = farmingPool.endTime > currentTimestamp
-  // &&
-  // depositedPositions.some(pos => {
-  //   const stakedPos = joinedPositions.find(j => j.nftId.toString() === pos.nftId.toString())
-  //   return !stakedPos
-  //     ? true
-  //     : BigNumber.from(pos.liquidity.toString()).gt(BigNumber.from(stakedPos.liquidity.toString()))
-  // })
-
   const canHarvest = rewardPendings.some(amount => amount.greaterThan(0))
 
   const canUnstake = !!joinedPositions.length

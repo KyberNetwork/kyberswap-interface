@@ -304,7 +304,6 @@ export const useFarmAction = (address: string) => {
 
       const nftIds = selectedNFTs.map(item => item.nftId)
 
-      console.log(pid.toString(), nftIds)
       const estimateGas = await contract.estimateGas.depositAndJoin(pid, nftIds)
       const tx = await contract.depositAndJoin(pid, nftIds, {
         gasLimit: calculateGasMargin(estimateGas),
