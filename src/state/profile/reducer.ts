@@ -1,14 +1,6 @@
-import { createReducer } from '@reduxjs/toolkit'
+import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 
 import { UserProfile } from 'state/authen/reducer'
-
-import {
-  setImportToken,
-  setKeepCurrentProfile,
-  setLoginRedirectUrl,
-  setProfileMap,
-  updateSignedAccount,
-} from './actions'
 
 export type ProfileMap = { [address: string]: UserProfile }
 export type CacheProfile = {
@@ -39,22 +31,30 @@ const DEFAULT_PROFILE_STATE: ProfileState = {
   },
 }
 
-export default createReducer(DEFAULT_PROFILE_STATE, builder =>
-  builder
-    .addCase(updateSignedAccount, (state, { payload: { account, method } }) => {
+export type SignedAccountParams = { account: undefined | string; method: string }
+
+const slice = createSlice({
+  name: 'profile',
+  initialState: DEFAULT_PROFILE_STATE,
+  reducers: {
+    updateSignedAccount: (state, { payload: { account, method } }: PayloadAction<SignedAccountParams>) => {
       state.signedAccount = account
       state.signedMethod = method
-    })
-    .addCase(setKeepCurrentProfile, (state, { payload }) => {
+    },
+    setKeepCurrentProfile: (state, { payload }: PayloadAction<boolean>) => {
       state.isKeepCurrentProfile = payload
-    })
-    .addCase(setLoginRedirectUrl, (state, { payload }) => {
+    },
+    setLoginRedirectUrl: (state, { payload }: PayloadAction<string>) => {
       state.loginRedirectUrl = payload
-    })
-    .addCase(setImportToken, (state, { payload }) => {
+    },
+    setImportToken: (state, { payload }: PayloadAction<Record<string, string>>) => {
       state.importToken = payload
-    })
-    .addCase(setProfileMap, (state, { payload }) => {
+    },
+    setProfileMap: (state, { payload }: PayloadAction<CacheProfile>) => {
       state.profileMap = payload
-    }),
-)
+    },
+  },
+})
+
+export const profileActions = slice.actions
+export default slice.reducer

@@ -10,15 +10,10 @@ import { updateProfile } from 'state/authen/actions'
 import { useSessionInfo } from 'state/authen/hooks'
 import { UserProfile } from 'state/authen/reducer'
 import { useAppDispatch } from 'state/hooks'
-import {
-  SignedAccountParams,
-  setImportToken,
-  setKeepCurrentProfile,
-  setLoginRedirectUrl,
-  setProfileMap,
-  updateSignedAccount,
-} from 'state/profile/actions'
-import { CacheProfile, ProfileMap } from 'state/profile/reducer'
+import { CacheProfile, ProfileMap, SignedAccountParams, profileActions } from 'state/profile/reducer'
+
+const { setImportToken, setKeepCurrentProfile, setLoginRedirectUrl, setProfileMap, updateSignedAccount } =
+  profileActions
 
 export function useIsKeepCurrentProfile(): [boolean, () => void] {
   const dispatch = useAppDispatch()
