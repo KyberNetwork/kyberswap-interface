@@ -72,7 +72,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
   }
 
   const renderIncreaseButton = () => {
-    if (!liquidity || isLegacy) {
+    if (isLegacy) {
       return (
         <ActionButton $variant="green" disabled>
           <ChevronsUp size="16px" /> <Trans>Increase Liquidity</Trans>

@@ -585,7 +585,6 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
           alignTitle="left"
           action={LiquidityAction.REMOVE}
           showTooltip={false}
-          onBack={() => navigate(-1)}
           tutorialType={TutorialType.ELASTIC_REMOVE_LIQUIDITY}
           owner={owner}
           showOwner={owner && account && !ownsNFT}

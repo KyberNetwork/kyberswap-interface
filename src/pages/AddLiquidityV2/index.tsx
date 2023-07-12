@@ -14,7 +14,7 @@ import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle, Repeat } from 'react-feather'
-import { Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -127,7 +127,6 @@ const TextUnderlineTransparent = styled(Text)`
 export default function AddLiquidity() {
   const { currencyIdA, currencyIdB, feeAmount: feeAmountFromUrl } = useParams()
   const navigate = useNavigate()
-  const location = useLocation()
   const [rotate, setRotate] = useState(false)
   const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
   const { library } = useWeb3React()
@@ -1357,11 +1356,6 @@ export default function AddLiquidity() {
             onFieldAInput('0')
             onFieldBInput('0')
             navigate(`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}`)
-          }}
-          onBack={() => {
-            // https://github.com/remix-run/react-router/discussions/9922
-            if (location.key === 'default') navigate('/')
-            else navigate(-1)
           }}
           tutorialType={TutorialType.ELASTIC_ADD_LIQUIDITY}
         />
