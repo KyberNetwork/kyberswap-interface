@@ -355,7 +355,7 @@ const useLogin = (autoLogin = false) => {
       signedMethod === LoginMethod.ETH &&
       signedAccount?.toLowerCase() !== account?.toLowerCase()
     ) {
-      setConfirm({ showModal: true })
+      setConfirm(true)
     }
   }, [account, autoLogin, setConfirm, signedAccount, isKeepCurrentProfile, prevAccount, signedMethod])
 

@@ -39,7 +39,7 @@ const Highlight = styled.span`
 
 const ModalConfirmProfile: React.FC = () => {
   const theme = useTheme()
-  const { showModal: isOpen } = useSelector((state: AppState) => state.authen.confirmProfile)
+  const isOpen = useSelector((state: AppState) => state.authen.showConfirmProfile)
   const setConfirm = useSetConfirmChangeProfile()
 
   const [connectSuccess, setConnectSuccess] = useState(false)
@@ -67,7 +67,7 @@ const ModalConfirmProfile: React.FC = () => {
   const currentProfileName = currentProfile?.nickname
 
   const hideModal = () => {
-    setConfirm({ showModal: false })
+    setConfirm(false)
   }
 
   const onCancel = async () => {
