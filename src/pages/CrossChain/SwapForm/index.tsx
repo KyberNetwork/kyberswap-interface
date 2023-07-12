@@ -47,6 +47,7 @@ import { ExternalLink } from 'theme'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import { uint256ToFraction } from 'utils/numbers'
 import { checkPriceImpact } from 'utils/prices'
+import { wait } from 'utils/retry'
 import { getTokenAddress } from 'utils/tokenInfo'
 
 const ArrowWrapper = styled.div`
@@ -227,8 +228,10 @@ export default function SwapForm() {
         requestId,
         integratorId: CROSS_CHAIN_CONFIG.INTEGRATOR_ID,
       }
+      await wait(2000)
       squidInstance.getStatus(params).catch(() => {
         setTimeout(() => {
+          // retry
           squidInstance.getStatus(params).catch(e => {
             console.error('fire squid err', e)
           })
