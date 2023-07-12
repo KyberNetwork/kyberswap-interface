@@ -53,7 +53,7 @@ const Wrapper = styled.div.attrs<WrapperProps>(props => ({
   align-items: center;
   gap: 8px;
   color: ${({ theme }) => theme.subText};
-  padding: 14px 0;
+  padding: 16px 0;
   cursor: pointer;
 
   &[data-active='true'] {

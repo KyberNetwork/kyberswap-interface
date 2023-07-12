@@ -1,4 +1,4 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { LogIn, X } from 'react-feather'
 import { useSelector } from 'react-redux'
@@ -24,8 +24,7 @@ import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
 
 const Wrapper = styled.div`
-  margin: 0;
-  padding: 24px 24px;
+  padding: 24px;
   width: 100%;
   display: flex;
   gap: 20px;
@@ -102,17 +101,15 @@ const ModalConfirmProfile: React.FC = () => {
             <Trans> this profile</Trans>
           )}
           &nbsp;
-          <Trans>
-            or switch to{' '}
-            {desiredAccountExist ? (
-              <>
-                profile <Highlight> {desiredProfileName || getShortenAddress(account ?? '')}</Highlight>
-              </>
-            ) : (
-              t`a guest profile`
-            )}{' '}
-            instead?
-          </Trans>
+          <Trans>or switch to </Trans>{' '}
+          {desiredAccountExist ? (
+            <Trans>
+              profile <Highlight> {desiredProfileName || getShortenAddress(account ?? '')}</Highlight>
+            </Trans>
+          ) : (
+            <Trans>a guest profile</Trans>
+          )}{' '}
+          <Trans>instead?</Trans>
         </Text>
         {!desiredAccountExist && (
           <Text as="p" lineHeight={'20px'}>
