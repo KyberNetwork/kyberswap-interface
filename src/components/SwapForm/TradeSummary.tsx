@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import React, { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'

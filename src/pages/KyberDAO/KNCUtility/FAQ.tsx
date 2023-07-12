@@ -24,6 +24,7 @@ enum Panel {
   Q_When,
   Q_Deadline,
   Q_Vote,
+  Q_LimitOrder,
   Q_Limit,
   Q_Term,
   Q_Other,
