@@ -26,7 +26,6 @@ export interface ProfileState {
   }
   readonly profileMap: CacheProfile
 }
-// todo review all unused state
 const DEFAULT_PROFILE_STATE: ProfileState = {
   signedAccount: undefined,
   signedMethod: undefined,

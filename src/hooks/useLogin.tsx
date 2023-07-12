@@ -306,7 +306,6 @@ const useLogin = (autoLogin = false) => {
     [signInAnonymous, signIn],
   )
   // todo split to 2 hook???
-  // todo move all localstorage to redux persist
 
   // auto try sign in when the first visit app, call once
   const isInit = useRef(false)
