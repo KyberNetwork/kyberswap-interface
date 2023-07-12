@@ -19,6 +19,7 @@ import SwapButtonWithPriceImpact from 'components/SwapForm/SwapActionButton/Swap
 import useCheckStablePairSwap from 'components/SwapForm/hooks/useCheckStablePairSwap'
 import { formatDurationCrossChain } from 'components/swapv2/AdvancedSwapDetails'
 import { AdvancedSwapDetailsDropdownCrossChain } from 'components/swapv2/AdvancedSwapDetailsDropdown'
+import { CROSS_CHAIN_CONFIG } from 'constants/env'
 import { INPUT_DEBOUNCE_TIME, TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -112,6 +113,7 @@ export default function SwapForm() {
     getRoute: refreshRoute,
     error: errorGetRoute,
     loading: gettingRoute,
+    requestId,
   } = useGetRouteCrossChain(routeParams)
   const { outputAmount, amountUsdIn, amountUsdOut, exchangeRate, priceImpact, duration, totalFeeUsd } =
     getRouInfo(route)
@@ -218,6 +220,18 @@ export default function SwapForm() {
         srcAmount: inputAmount,
         dstAmount: tokenAmountOut,
       }
+
+      // trigger for partner
+      squidInstance
+        .getStatus({
+          transactionId: tx.hash,
+          requestId,
+          integratorId: CROSS_CHAIN_CONFIG.INTEGRATOR_ID,
+        })
+        .catch(e => {
+          console.error('fire squid err', e)
+        })
+
       saveTxsToDb(payload)
         .unwrap()
         .catch(e => {
@@ -243,6 +257,7 @@ export default function SwapForm() {
     saveTxsToDb,
     account,
     onTracking,
+    requestId,
   ])
 
   const maxAmountInput = useCurrencyBalance(currencyIn)?.toExact()
