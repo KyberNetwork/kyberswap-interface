@@ -7,7 +7,7 @@ import { useGetOrCreateProfileMutation } from 'services/identity'
 import { useActiveWeb3React } from 'hooks'
 import { AppState } from 'state'
 import { updateProfile } from 'state/authen/actions'
-import { ConnectedProfile, useSessionInfo } from 'state/authen/hooks'
+import { useSessionInfo } from 'state/authen/hooks'
 import { UserProfile } from 'state/authen/reducer'
 import { useAppDispatch } from 'state/hooks'
 import {
@@ -84,6 +84,15 @@ export function useSaveConnectedProfile() {
     [dispatch],
   )
   return saveSignedAccount
+}
+
+export type ConnectedProfile = {
+  active: boolean
+  address: string
+  profile: UserProfile | undefined
+  guest: boolean
+  id: string
+  default?: boolean
 }
 
 export const useProfileInfo = (): {

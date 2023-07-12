@@ -21,15 +21,6 @@ export function useIsConnectingWallet(): [boolean, (data: boolean) => void] {
   return [connectingWallet, setConnectedWallet]
 }
 
-export type ConnectedProfile = {
-  active: boolean
-  address: string
-  profile: UserProfile | undefined
-  guest: boolean
-  id: string
-  default?: boolean
-}
-
 // info relate profile, session
 export function useSessionInfo(): AuthenState & { userInfo: UserProfile | undefined } {
   const authen = useSelector((state: AppState) => state.authen)
