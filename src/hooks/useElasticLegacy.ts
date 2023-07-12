@@ -97,7 +97,7 @@ export const config: {
 
 const query = (user: string) => `
 {
-  depositedPositions(first: 1000, where: {user: "${user.toLowerCase()}"}) {
+  depositedPositions(subgraphError: allow,first: 1000, where: {user: "${user.toLowerCase()}"}) {
     user
     farm {
       id
@@ -134,7 +134,7 @@ const query = (user: string) => `
       }
     }
   }
-  positions(first: 1000, where: {owner: "${user.toLowerCase()}"}) {
+  positions(subgraphError: allow, first: 1000, where: {owner: "${user.toLowerCase()}"}) {
     id
     liquidity
     owner
