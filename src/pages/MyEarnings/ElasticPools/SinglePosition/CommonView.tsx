@@ -43,8 +43,13 @@ type Props = {
   children: React.ReactNode
 } & CommonProps
 
-const CommonView: React.FC<Props> = ({ onFlipView, positionEarning, isEarningView, children }) => {
+const CommonView: React.FC<Props> = ({ onFlipView, positionEarning, isEarningView, position, children }) => {
   const theme = useTheme()
+
+  const isClosed = position.liquidity.toString() === '0'
+  const isActive =
+    Number(position.tickLower) <= Number(position.pool.tickCurrent) &&
+    Number(position.pool.tickCurrent) < Number(position.tickUpper)
 
   return (
     <ViewWrapper>
@@ -55,7 +60,7 @@ const CommonView: React.FC<Props> = ({ onFlipView, positionEarning, isEarningVie
           flex: 1,
         }}
       >
-        <PositionId positionEarning={positionEarning} />
+        <PositionId nftId={positionEarning.id} isActive={isActive} isClosed={isClosed} />
 
         {children}
       </Flex>

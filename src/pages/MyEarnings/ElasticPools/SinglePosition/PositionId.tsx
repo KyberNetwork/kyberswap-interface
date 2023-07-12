@@ -2,21 +2,18 @@ import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import { ElasticPositionEarningWithDetails } from 'services/earning/types'
 
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 
 type Props = {
-  positionEarning: ElasticPositionEarningWithDetails
+  nftId: string
+  isClosed: boolean
+  isActive: boolean
 }
-const PositionId: React.FC<Props> = ({ positionEarning }) => {
-  const theme = useTheme()
-  const isClosed = !positionEarning.liquidity || positionEarning.liquidity === '0'
-  const isActive =
-    Number(positionEarning.tickLower) <= Number(positionEarning.pool.tick) &&
-    Number(positionEarning.pool.tick) < Number(positionEarning.tickUpper)
 
+const PositionId: React.FC<Props> = ({ nftId, isClosed, isActive }) => {
+  const theme = useTheme()
   const color = isClosed ? theme.red : isActive ? theme.primary : theme.warning
 
   return (
@@ -34,7 +31,7 @@ const PositionId: React.FC<Props> = ({ positionEarning }) => {
           lineHeight: '20px',
         }}
       >
-        #{positionEarning.id}
+        #{nftId}
       </Text>
 
       <MouseoverTooltip
