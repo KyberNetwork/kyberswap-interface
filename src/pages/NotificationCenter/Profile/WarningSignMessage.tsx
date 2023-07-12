@@ -27,6 +27,7 @@ const WarningWrapper = styled.div`
     padding: 12px 14px;
   `}
 `
+const DOC_URL = 'https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/profiles/profile-customization'
 const WarningSignMessage = () => {
   const { signIn } = useLogin()
   const { pendingAuthentication } = useSessionInfo()
@@ -48,7 +49,7 @@ const WarningSignMessage = () => {
             {!upToMedium ? (
               <>
                 {' '}
-                Read more <ExternalLink href="#">here ↗</ExternalLink>
+                Read more <ExternalLink href={DOC_URL}>here ↗</ExternalLink>
               </>
             ) : (
               ''
@@ -58,7 +59,7 @@ const WarningSignMessage = () => {
       </Row>
       <Row justify="space-between" width={upToMedium ? '100%' : 'fit-content'}>
         {upToMedium && (
-          <ButtonOutlined width={btnWidth} height={'30px'} fontSize={'14px'} onClick={() => alert('// todo: in dev')}>
+          <ButtonOutlined width={btnWidth} height={'30px'} fontSize={'14px'} onClick={() => window.open(DOC_URL)}>
             <Trans>Read More</Trans>
           </ButtonOutlined>
         )}
