@@ -28,7 +28,7 @@ import { APP_PATHS, BLACKLIST_WALLETS, CHAINS_SUPPORT_CROSS_CHAIN } from 'consta
 import { NETWORKS_INFO_CONFIG } from 'constants/networks'
 import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
-import useLogin from 'hooks/useLogin'
+import { useAutoLogin } from 'hooks/useLogin'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
 import useSessionExpiredGlobal from 'hooks/useSessionExpire'
 import useTheme from 'hooks/useTheme'
@@ -201,7 +201,7 @@ const RoutesWithNetworkPrefix = () => {
 export default function App() {
   const { account, chainId, networkInfo } = useActiveWeb3React()
   const { pathname } = useLocation()
-  useLogin(true)
+  useAutoLogin()
   const { online } = useNetwork()
   const prevOnline = usePrevious(online)
   useSessionExpiredGlobal()

@@ -36,8 +36,6 @@ let needSignInAfterConnectWallet = false
 let accountSignAfterConnectedWallet: string | undefined
 const useLogin = (autoLogin = false) => {
   const { account, chainId } = useActiveWeb3React()
-  const { userInfo } = useSessionInfo()
-  const [isKeepCurrentProfile] = useIsKeepCurrentProfile()
 
   const [createProfile] = useGetOrCreateProfileMutation()
   const [connectWalletToProfile] = useConnectWalletToProfileMutation()
@@ -48,7 +46,6 @@ const useLogin = (autoLogin = false) => {
   const saveSignedAccount = useSaveConnectedProfile()
   const { removeProfile, removeAllProfile, totalGuest, getCacheProfile } = useProfileInfo()
   const showConfirm = useShowConfirm()
-  const qs = useParsedQueryString()
   const setLoading = useSetPendingAuthentication()
   const setProfile = useSaveUserProfile()
 
@@ -304,13 +301,30 @@ const useLogin = (autoLogin = false) => {
     },
     [signInAnonymous, signIn],
   )
-  // todo split to 2 hook???
+
+  return {
+    signOut: signOutWrapped,
+    signIn: signInWrapped,
+    signOutAll,
+    importGuestAccount,
+    checkSessionSignIn,
+    signInAnonymous,
+  }
+}
+
+export const useAutoLogin = () => {
+  const { signedMethod, signedAccount } = useSignedAccountInfo()
+  const qs = useParsedQueryString()
+  const { account } = useActiveWeb3React()
+  const { userInfo } = useSessionInfo()
+  const [isKeepCurrentProfile] = useIsKeepCurrentProfile()
+  const [connectWalletToProfile] = useConnectWalletToProfileMutation()
+  const { signIn, checkSessionSignIn, signInAnonymous } = useLogin(true)
 
   // auto try sign in when the first visit app, call once
   const isInit = useRef(false)
-
   useEffect(() => {
-    if (!autoLogin || isInit.current) return
+    if (isInit.current) return
     isInit.current = true
     if (qs.code) {
       // redirect from server
@@ -322,26 +336,27 @@ const useLogin = (autoLogin = false) => {
       return
     }
     checkSessionSignIn(signedAccount || undefined)
-  }, [checkSessionSignIn, autoLogin, signedAccount, signedMethod, signInAnonymous, qs.code])
+  }, [checkSessionSignIn, signedAccount, signedMethod, signInAnonymous, qs.code])
 
   // auto sign in after connect wallet
   useEffect(() => {
-    if (autoLogin || !account || !needSignInAfterConnectWallet) return
+    if (!account || !needSignInAfterConnectWallet) return
     signIn(accountSignAfterConnectedWallet)
     needSignInAfterConnectWallet = false
-  }, [account, signIn, autoLogin])
+  }, [account, signIn])
 
+  // call api connect-wallet to guest profile
   useEffect(() => {
-    if (signedMethod === LoginMethod.ANONYMOUS && account && autoLogin && userInfo?.identityId) {
+    if (signedMethod === LoginMethod.ANONYMOUS && account && userInfo?.identityId) {
       try {
         connectWalletToProfile({ walletAddress: account })
       } catch (error) {}
     }
-  }, [account, connectWalletToProfile, autoLogin, userInfo?.identityId, signedMethod])
+  }, [account, connectWalletToProfile, userInfo?.identityId, signedMethod])
 
   const setConfirm = useSetConfirmChangeProfile()
 
-  // only run when change wallet
+  // show confirm change profile when change wallet
   const prevAccount = usePrevious(account)
   useEffect(() => {
     if (
@@ -349,15 +364,12 @@ const useLogin = (autoLogin = false) => {
       prevAccount &&
       account &&
       account !== prevAccount &&
-      autoLogin &&
       signedMethod === LoginMethod.ETH &&
       signedAccount?.toLowerCase() !== account?.toLowerCase()
     ) {
       setConfirm(true)
     }
-  }, [account, autoLogin, setConfirm, signedAccount, isKeepCurrentProfile, prevAccount, signedMethod])
-
-  return { signOut: signOutWrapped, signIn: signInWrapped, signOutAll, importGuestAccount }
+  }, [account, setConfirm, signedAccount, isKeepCurrentProfile, prevAccount, signedMethod])
 }
 
 export default useLogin
