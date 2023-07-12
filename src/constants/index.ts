@@ -336,7 +336,7 @@ export const SWAP_FEE_RECEIVER_ADDRESS = '0x4f82e73EDb06d29Ff62C91EC8f5Ff06571bd
 
 export const TOKEN_SCORE_TTL = 86400
 
-export const ROUTES_API_PATHS = {
+export const AGGREGATOR_API_PATHS = {
   BUILD_ROUTE: '/api/v1/route/build',
   GET_ROUTE: '/api/v1/routes',
 }

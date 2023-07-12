@@ -2,7 +2,7 @@ import { captureException } from '@sentry/react'
 import { AxiosError } from 'axios'
 
 import { BFF_API, ENV_LEVEL } from 'constants/env'
-import { ROUTES_API_PATHS } from 'constants/index'
+import { AGGREGATOR_API_PATHS } from 'constants/index'
 import { ENV_TYPE } from 'constants/type'
 
 const ErrorInfo = {
@@ -51,7 +51,7 @@ export const checkIamDown = (axiosErr: AxiosError) => {
   const apiUrl = axiosErr?.config?.url ?? ''
 
   const isRouteApiDie =
-    isDie && (apiUrl.endsWith(ROUTES_API_PATHS.GET_ROUTE) || apiUrl.endsWith(ROUTES_API_PATHS.BUILD_ROUTE))
+    isDie && (apiUrl.endsWith(AGGREGATOR_API_PATHS.GET_ROUTE) || apiUrl.endsWith(AGGREGATOR_API_PATHS.BUILD_ROUTE))
 
   const isIamDie = isDie && apiUrl.startsWith(BFF_API)
 

@@ -162,18 +162,20 @@ function Web3StatusInner() {
                 placement="bottom"
                 text={
                   <Text style={{ fontSize: '12px', textAlign: 'left', whiteSpace: 'normal' }}>
-                    <Trans>You are not signed in with this wallet address. </Trans> If you wish, you can
-                    <Text
-                      as="span"
-                      style={{ cursor: 'pointer', fontSize: '12px', color: theme.primary }}
-                      onClick={e => {
-                        e.stopPropagation()
-                        signIn(account)
-                      }}
-                    >
-                      sign-in
-                    </Text>
-                    <Trans>to link your wallet to a profile. This will allow us to offer you a better experience</Trans>
+                    <Trans>
+                      You are not signed in with this wallet address. If you wish, you can
+                      <Text
+                        as="span"
+                        style={{ cursor: 'pointer', fontSize: '12px', color: theme.primary }}
+                        onClick={e => {
+                          e.stopPropagation()
+                          signIn(account)
+                        }}
+                      >
+                        sign-in
+                      </Text>
+                      to link your wallet to a profile. This will allow us to offer you a better experience
+                    </Trans>
                   </Text>
                 }
               >

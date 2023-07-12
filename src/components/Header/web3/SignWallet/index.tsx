@@ -35,7 +35,7 @@ const browserCustomStyle = css`
 export default function SelectWallet() {
   const { profile } = useProfileInfo()
   const { pendingAuthentication } = useSessionInfo()
-  const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const isOpen = useModalOpen(ApplicationModal.SWITCH_PROFILE_POPUP)
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_PROFILE_POPUP)
   const theme = useTheme()
@@ -57,7 +57,7 @@ export default function SelectWallet() {
   }
   return (
     <StyledMenu>
-      {isMobile ? (
+      {upToSmall ? (
         <>
           {profileIcon}
           <Modal isOpen={isOpen} onDismiss={onClickProfile}>

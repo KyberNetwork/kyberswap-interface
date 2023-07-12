@@ -12,7 +12,7 @@ const StyledAvatar = styled.img<{ $size: number }>`
 `
 const Wrapper = styled.div<{ $size: number }>`
   position: relative;
-  height: ${({ $size }) => $size}px;
+  width: ${({ $size }) => $size}px;
   height: ${({ $size }) => $size}px;
 `
 
