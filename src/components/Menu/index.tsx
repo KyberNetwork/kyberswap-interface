@@ -329,10 +329,7 @@ export default function Menu() {
                   icon={<Award />}
                   title={
                     <Text>
-                      <Trans>Campaigns</Trans>{' '}
-                      <NewLabel>
-                        <Trans>New</Trans>
-                      </NewLabel>
+                      <Trans>Campaigns</Trans>
                     </Text>
                   }
                   link={'#'}
@@ -342,10 +339,7 @@ export default function Menu() {
                       link: APP_PATHS.GRANT_PROGRAMS,
                       label: (
                         <Text as="span">
-                          <Trans>Trading Grant Campaign</Trans>{' '}
-                          <NewLabel>
-                            <Trans>New</Trans>
-                          </NewLabel>
+                          <Trans>Trading Grant Campaign</Trans>
                         </Text>
                       ),
                     },
