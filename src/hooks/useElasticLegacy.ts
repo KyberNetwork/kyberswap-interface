@@ -97,7 +97,7 @@ export const config: {
 
 const query = (user: string) => `
 {
-  depositedPositions(subgraphError: allow,first: 1000, where: {user: "${user.toLowerCase()}"}) {
+  depositedPositions(subgraphError: allow, first: 1000, where: {user: "${user.toLowerCase()}"}) {
     user
     farm {
       id
