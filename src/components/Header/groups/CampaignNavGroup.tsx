@@ -3,7 +3,6 @@ import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
 
-import { NewLabel } from 'components/Menu'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS } from 'constants/index'
 
@@ -39,10 +38,7 @@ const CampaignNavGroup = () => {
           </StyledNavLink>
 
           <StyledNavLink id="project-trading-grant" to={APP_PATHS.GRANT_PROGRAMS}>
-            <Trans>Trading Grant Campaign</Trans>{' '}
-            <NewLabel>
-              <Trans>New</Trans>
-            </NewLabel>
+            <Trans>Trading Grant Campaign</Trans>
           </StyledNavLink>
         </Flex>
       }

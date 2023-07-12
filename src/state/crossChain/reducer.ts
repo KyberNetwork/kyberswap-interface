@@ -31,6 +31,7 @@ export type SwapCrossChainState = {
   loadingToken: boolean
   squidInstance: Squid | undefined
   route: RouteData | undefined
+  requestId: string
   inputAmount: string
 }
 
@@ -85,6 +86,7 @@ const DEFAULT_STATE: CrossChainState = {
     loadingToken: true,
     squidInstance: undefined,
     route: undefined,
+    requestId: '',
   },
 }
 
@@ -138,7 +140,8 @@ export default createReducer(DEFAULT_STATE, builder =>
     .addCase(selectDestChainCrossChain, (state, { payload: chainIdOut }) => {
       state.crossChain.chainIdOut = chainIdOut
     })
-    .addCase(setRoute, (state, { payload: route }) => {
-      state.crossChain.route = route
+    .addCase(setRoute, (state, { payload }) => {
+      state.crossChain.route = payload?.route
+      state.crossChain.requestId = payload?.requestId || ''
     }),
 )
