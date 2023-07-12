@@ -44,10 +44,11 @@ export default function useSessionExpiredGlobal() {
     const listener = () => {
       try {
         const { signedAccount: newSignedAccount, signedMethod: newLoginMethod } = JSON.parse(
-          localStorage.redux_localstorage_simple_profile, // todo
+          localStorage.redux_localstorage_simple_profile, // this is the good one for now. when change window tab, localstorage changed but redux not change
         )
         const accountSignHasChanged = signedMethod !== newLoginMethod || signedAccount !== newSignedAccount
         if (document.visibilityState === 'visible' && accountSignHasChanged) {
+          // sync account in multi window tab
           signIn(newSignedAccount, newLoginMethod === LoginMethod.ANONYMOUS)
         }
       } catch (error) {}

@@ -6,12 +6,11 @@ import {
   useLazyGetAnnouncementsQuery,
   useLazyGetPrivateAnnouncementsQuery,
 } from 'services/announcement'
-import priceAlertApi from 'services/priceAlert'
 import styled, { css } from 'styled-components'
 
 import AnnouncementView, { Tab } from 'components/Announcement/AnnoucementView'
 import DetailAnnouncementPopup from 'components/Announcement/Popups/DetailAnnouncementPopup'
-import { formatNumberOfUnread, useInvalidateTagAnnouncement, useInvalidateTags } from 'components/Announcement/helper'
+import { formatNumberOfUnread, useInvalidateTagAnnouncement } from 'components/Announcement/helper'
 import { Announcement, PrivateAnnouncement } from 'components/Announcement/type'
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import MenuFlyout from 'components/MenuFlyout'
@@ -180,7 +179,6 @@ export default function AnnouncementComponent() {
   }
 
   const invalidateTag = useInvalidateTagAnnouncement()
-  const invalidateTagGlobal = useInvalidateTags(priceAlertApi.reducerPath) // todo move to the good place
   const { userInfo } = useSessionInfo()
 
   const prefetchPrivateAnnouncements = useCallback(async () => {
@@ -228,9 +226,8 @@ export default function AnnouncementComponent() {
   useEffect(() => {
     if (userInfo?.identityId) {
       invalidateTag(ANNOUNCEMENT_TAGS)
-      invalidateTagGlobal([RTK_QUERY_TAGS.GET_ALERTS, RTK_QUERY_TAGS.GET_ALERTS_STAT])
     }
-  }, [userInfo?.identityId, invalidateTag, invalidateTagGlobal])
+  }, [userInfo?.identityId, invalidateTag])
 
   useInterval(prefetchPrivateAnnouncements, 10_000)
 
