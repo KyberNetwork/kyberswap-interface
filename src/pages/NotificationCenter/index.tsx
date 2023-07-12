@@ -67,6 +67,7 @@ const Title = styled.h2`
 
 const LeftColumn = styled.div`
   width: 290px;
+  min-width: 290px;
 
   background-color: ${({ theme }) => theme.tableHeader};
   border-radius: 24px 0px 0px 24px;
