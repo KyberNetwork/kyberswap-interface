@@ -67,18 +67,18 @@ const Positions: React.FC<Props> = ({
 }) => {
   const [isViewEarnings, setViewEarnings] = useState(false)
 
-  const [numberOfVisiblePositions, setNumberOfVisiblePositions] = useState(() => {
-    // don't use window.screen.width
-    // window.screen.width returns the screen'size instead of viewport's width
-    const width = document.body.clientWidth
+  const getDefaultNumberPos = () => {
+    const width = document.getElementById('my-earning-wrapper')?.offsetWidth || 1610
 
     let num = 1
-    while (width >= WIDTHS[num + 1]) {
+    while (width > WIDTHS[num + 1]) {
       num += 1
     }
 
     return num
-  })
+  }
+
+  const [numberOfVisiblePositions, setNumberOfVisiblePositions] = useState(getDefaultNumberPos())
 
   const [numOfActivePositions, numOfInactivePositions, numOfClosedPositions] = useMemo(() => {
     const nClosed = unsortedPositionEarnings.filter(pos => !pos.liquidity || pos.liquidity === '0').length
@@ -219,10 +219,12 @@ const Positions: React.FC<Props> = ({
         ))}
       </ListPositions>
 
-      {numberOfVisiblePositions < positionEarnings.length && (
+      {positionEarnings.length > 4 && (
         <ButtonLight
           onClick={() => {
-            setNumberOfVisiblePositions(positionEarnings.length)
+            setNumberOfVisiblePositions(
+              numberOfVisiblePositions < positionEarnings.length ? positionEarnings.length : getDefaultNumberPos(),
+            )
           }}
           style={{
             gap: '4px',
@@ -232,9 +234,13 @@ const Positions: React.FC<Props> = ({
           }}
         >
           <Eye size={16} />
-          <span>
-            <Trans>View All</Trans> ({positionEarnings.length - numberOfVisiblePositions})
-          </span>
+          {numberOfVisiblePositions < positionEarnings.length ? (
+            <span>
+              <Trans>View All</Trans> ({positionEarnings.length - numberOfVisiblePositions})
+            </span>
+          ) : (
+            <Trans>View Less</Trans>
+          )}
         </ButtonLight>
       )}
     </Flex>

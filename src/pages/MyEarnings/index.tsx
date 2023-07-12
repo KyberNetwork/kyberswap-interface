@@ -72,7 +72,7 @@ const MyEarnings = () => {
   }, [account])
 
   return (
-    <PageWrapper>
+    <PageWrapper id="my-earning-wrapper">
       <Flex
         sx={{
           flexDirection: 'column',
