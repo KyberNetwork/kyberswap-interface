@@ -46,7 +46,7 @@ export default function useSessionExpiredGlobal() {
         const { signedAccount: newSignedAccount, signedMethod: newLoginMethod } = JSON.parse(
           localStorage.redux_localstorage_simple_profile, // todo
         )
-        const accountSignHasChanged = signedMethod != newLoginMethod || signedAccount !== newSignedAccount
+        const accountSignHasChanged = signedMethod !== newLoginMethod || signedAccount !== newSignedAccount
         if (document.visibilityState === 'visible' && accountSignHasChanged) {
           signIn(newSignedAccount, newLoginMethod === LoginMethod.ANONYMOUS)
         }

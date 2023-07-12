@@ -134,7 +134,7 @@ const ModalConfirmProfile: React.FC = () => {
           wallets. If you ever wish to modify this setting, you can do so in your{' '}
           <Text
             as="span"
-            style={{ cursor: 'pointer' }}
+            sx={{ cursor: 'pointer' }}
             color={theme.primary}
             onClick={() => {
               navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PROFILE}`)
