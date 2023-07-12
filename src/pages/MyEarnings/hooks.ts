@@ -5,7 +5,7 @@ import { NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic'
 import { captureException } from '@sentry/react'
 import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch } from 'react-redux'
 
 import { POOLS_BULK_WITH_PAGINATION, POOLS_HISTORICAL_BULK_WITH_PAGINATION, POOL_COUNT } from 'apollo/queries'
@@ -266,6 +266,8 @@ export function useRemoveLiquidityFromLegacyPosition(
   const { library } = useWeb3React()
   const dispatch = useDispatch()
   const collectFee = true
+  const libraryRef = useRef(library)
+  libraryRef.current = library
 
   const { token0, token1, position } = parsePosition(subgraphPosition, chainId, tokenPrices)
   const feeValue0 = CurrencyAmount.fromRawAmount(unwrappedToken(token0), feeRewards[0])
@@ -279,6 +281,11 @@ export function useRemoveLiquidityFromLegacyPosition(
   const removeLiquidity = () => {
     dispatch(setShowPendingModal(MODAL_PENDING_TEXTS.REMOVE_LIQUIDITY))
     dispatch(setAttemptingTxn(true))
+
+    const library = libraryRef.current
+    if (!library) {
+      return
+    }
 
     if (!deadline || !account || !library) {
       dispatch(setTxError('Something went wrong!'))
