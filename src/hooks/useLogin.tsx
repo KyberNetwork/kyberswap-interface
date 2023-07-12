@@ -286,8 +286,7 @@ const useLogin = (autoLogin = false) => {
   const importGuestAccount = useCallback(
     async (accountInfo: AnonymousAccount) => {
       const accountId = accountInfo.username
-      KyberOauth2.importAnonymousAccount(accountInfo)
-      return signInAnonymous(accountId, false)
+      return KyberOauth2.importAnonymousAccount(accountInfo).then(() => signInAnonymous(accountId, false))
     },
     [signInAnonymous],
   )
