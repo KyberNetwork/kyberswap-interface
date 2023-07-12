@@ -1,10 +1,8 @@
 import { Trans } from '@lingui/macro'
-import { useEffect } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import NotificationPreference from 'components/SubscribeButton/NotificationPreference'
-import useNotification from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
 
 const StyledPreference = styled.div`
@@ -15,10 +13,6 @@ const StyledPreference = styled.div`
 
 export default function Overview() {
   const theme = useTheme()
-  const { refreshTopics } = useNotification()
-  useEffect(() => {
-    refreshTopics()
-  }, [refreshTopics])
   return (
     <StyledPreference>
       <NotificationPreference

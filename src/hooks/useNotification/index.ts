@@ -64,15 +64,11 @@ const useNotification = () => {
     dispatch(setSubscribedNotificationTopic({ topicGroups }))
   }, [resp, dispatch])
 
-  const refreshTopics = useCallback(() => {
-    try {
-      refetch() // todo use invalidate tag
-    } catch (error) {}
-  }, [refetch])
-
   useEffect(() => {
-    refreshTopics()
-  }, [userInfo?.identityId, refreshTopics])
+    try {
+      refetch()
+    } catch (error) {}
+  }, [userInfo?.identityId, refetch])
 
   const [requestWatchWallet] = useCreateWatchWalletMutation()
   const [callSubscribeTopic] = useSubscribeTopicsMutation()
@@ -126,16 +122,12 @@ const useNotification = () => {
     })
     if (!unsubscribeIds.length) return
     saveNotification({ unsubscribeIds, subscribeIds: [] })
-    setTimeout(() => {
-      refreshTopics()
-    }, 500)
-  }, [topicGroups, saveNotification, refreshTopics])
+  }, [topicGroups, saveNotification])
 
   return {
     topicGroups,
     isLoading,
     saveNotification,
-    refreshTopics,
     unsubscribeAll,
     subscribeOne,
   }

@@ -150,13 +150,7 @@ function NotificationPreference({
   toggleModal?: () => void
 }) {
   const theme = useTheme()
-  const {
-    isLoading,
-    saveNotification,
-    refreshTopics,
-    topicGroups: topicGroupsGlobal,
-    unsubscribeAll,
-  } = useNotification()
+  const { isLoading, saveNotification, topicGroups: topicGroupsGlobal, unsubscribeAll } = useNotification()
 
   const { userInfo, isLogin } = useSessionInfo()
   const { isSignInEmail } = useSignedAccountInfo()
@@ -279,7 +273,6 @@ function NotificationPreference({
         10000,
       )
       toggleModal()
-      refreshTopics()
     } catch (error) {
       notify({
         title: t`Save Error`,
@@ -365,7 +358,7 @@ function NotificationPreference({
   const totalTopic = commons.length + restrict.length
   const renderTopic = (topic: Topic, disabled: boolean, disableTooltip?: string) => {
     return (
-      <MouseoverTooltip text={disabled ? disableTooltip : ''}>
+      <MouseoverTooltip text={disabled ? disableTooltip : ''} key={topic.id}>
         <TopicItem key={topic.id} htmlFor={`topic${topic.id}`} style={{ alignItems: 'flex-start' }}>
           <Checkbox
             disabled={disabled}
