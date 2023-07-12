@@ -1,12 +1,13 @@
 import { Trans, t } from '@lingui/macro'
 import axios from 'axios'
 import { BigNumber } from 'ethers'
-import { darken } from 'polished'
+import { darken, transparentize } from 'polished'
 import { useCallback, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
+import { ReactComponent as StopWatch } from 'assets/svg/stopwatch.svg'
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
@@ -15,7 +16,13 @@ import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { REWARD_SERVICE_API } from 'constants/env'
 import { KNC } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { isSupportKyberDao, useEligibleTransactions, useGasRefundInfo, useGasRefundTier } from 'hooks/kyberdao'
+import {
+  isSupportKyberDao,
+  useEligibleTransactions,
+  useGasRefundInfo,
+  useGasRefundTier,
+  useVotingInfo,
+} from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
 import { useEligibleTxToggle, useNotify, useOpenNetworkModal, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -24,6 +31,7 @@ import { LinkStyledButton, MEDIA_WIDTHS } from 'theme'
 import { formattedNum } from 'utils'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 
+import { readableTime } from '../Vote'
 import EligibleTxModal from './EligibleTxModal'
 import { KNCUtilityTabs } from './type'
 
@@ -69,6 +77,17 @@ const Tab = styled(Text)<{ active?: boolean }>`
   }
 `
 
+const Highlight = styled.span`
+  border-radius: 12px;
+  background: ${({ theme }) => transparentize(0.8, theme.primary)};
+  color: ${({ theme }) => theme.primary};
+  padding: 2px 8px;
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 8px;
+`
+
 export default function GasRefundBox() {
   const { account, chainId } = useActiveWeb3React()
   const { library } = useWeb3React()
@@ -85,6 +104,7 @@ export default function GasRefundBox() {
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const { userTier, gasRefundPerCentage } = useGasRefundTier()
+  const { daoInfo } = useVotingInfo()
 
   const claimRewards = useCallback(async () => {
     if (!account || !library || !claimableReward || claimableReward.knc <= 0) return
@@ -216,43 +236,65 @@ export default function GasRefundBox() {
             </Text>
           </Flex>
           <Flex width="fit-content">
-            {selectedTab !== KNCUtilityTabs.Available ? null : account ? (
-              isSupportKyberDao(chainId) ? (
-                claiming ? (
-                  <ButtonPrimary padding={upToXXSmall ? '8px 28px' : '8px 45px'} onClick={claimRewards}>
-                    <Dots>
-                      <Trans>Claiming</Trans>
-                    </Dots>
-                  </ButtonPrimary>
+            {selectedTab === KNCUtilityTabs.Available ? (
+              account ? (
+                isSupportKyberDao(chainId) ? (
+                  claiming ? (
+                    <ButtonPrimary padding={upToXXSmall ? '8px 28px' : '8px 45px'} onClick={claimRewards}>
+                      <Dots>
+                        <Trans>Claiming</Trans>
+                      </Dots>
+                    </ButtonPrimary>
+                  ) : (
+                    <ButtonPrimary
+                      padding={upToXXSmall ? '8px 28px' : '8px 45px'}
+                      onClick={claimRewards}
+                      disabled={(claimableReward?.knc ?? 0) <= 0}
+                    >
+                      <Trans>Claim</Trans>
+                    </ButtonPrimary>
+                  )
                 ) : (
-                  <ButtonPrimary
-                    padding={upToXXSmall ? '8px 28px' : '8px 45px'}
-                    onClick={claimRewards}
-                    disabled={(claimableReward?.knc ?? 0) <= 0}
+                  <MouseoverTooltip
+                    text={
+                      <Trans>
+                        Gas Refund Rewards is only available on Ethereum chain. Switch your network to continue{' '}
+                        <LinkStyledButton onClick={openNetworkModal}>here</LinkStyledButton>
+                      </Trans>
+                    }
+                    width="244px"
                   >
-                    <Trans>Claim</Trans>
-                  </ButtonPrimary>
+                    <ButtonPrimary padding={upToXXSmall ? '8px 28px' : '8px 45px'} $disabled>
+                      <Trans>Claim</Trans>
+                    </ButtonPrimary>
+                  </MouseoverTooltip>
                 )
               ) : (
-                <MouseoverTooltip
-                  text={
-                    <Trans>
-                      Gas Refund Rewards is only available on Ethereum chain. Switch your network to continue{' '}
-                      <LinkStyledButton onClick={openNetworkModal}>here</LinkStyledButton>
-                    </Trans>
-                  }
-                  width="244px"
-                >
-                  <ButtonPrimary padding={upToXXSmall ? '8px 28px' : '8px 45px'} $disabled>
-                    <Trans>Claim</Trans>
-                  </ButtonPrimary>
-                </MouseoverTooltip>
+                <ButtonLight onClick={toggleWalletModal} padding="10px 12px">
+                  <Trans>Connect Wallet</Trans>
+                </ButtonLight>
               )
-            ) : (
-              <ButtonLight onClick={toggleWalletModal} padding="10px 12px">
-                <Trans>Connect Wallet</Trans>
-              </ButtonLight>
-            )}
+            ) : selectedTab === KNCUtilityTabs.Pending ? (
+              <Flex>
+                <Text fontSize={12} fontWeight={500} lineHeight="16px" as="span">
+                  <Trans>
+                    {' '}
+                    Available to claim in{' '}
+                    <Highlight>
+                      <StopWatch width={10} height={11} />
+                      {daoInfo
+                        ? readableTime(
+                            daoInfo.first_epoch_start_timestamp +
+                              daoInfo.current_epoch * daoInfo.epoch_period_in_seconds -
+                              Date.now() / 1000,
+                            2,
+                          )
+                        : '--:--:--'}
+                    </Highlight>
+                  </Trans>
+                </Text>
+              </Flex>
+            ) : null}
           </Flex>
         </RowBetween>
       </Flex>

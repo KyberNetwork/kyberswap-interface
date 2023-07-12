@@ -94,19 +94,21 @@ const TabReward = styled.span<{ active?: boolean }>`
   }
 `
 
-export function readableTime(seconds: number) {
+export function readableTime(seconds: number, maxLength = Number.MAX_SAFE_INTEGER) {
   if (seconds < 60) return Math.floor(seconds) + 's'
 
   const levels = [
-    [Math.floor(seconds / 31536000), 'years'],
+    [Math.floor(seconds / 31536000), ' years'],
     [Math.floor((seconds % 31536000) / 86400), ' days'],
     [Math.floor(((seconds % 31536000) % 86400) / 3600), 'h'],
     [Math.floor((((seconds % 31536000) % 86400) % 3600) / 60), 'm'],
   ]
 
   let returntext = ''
-  for (let i = 0, max = levels.length; i < max; i++) {
+  let count = 0
+  for (let i = 0; i < levels.length && count < maxLength; i++) {
     if (levels[i][0] === 0) continue
+    count++
     returntext +=
       ' ' +
       levels[i][0] +
