@@ -1,6 +1,4 @@
-import { createReducer } from '@reduxjs/toolkit'
-
-import { setConfirmChangeProfile, updateConnectingWallet, updateProcessingLogin, updateProfile } from './actions'
+import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 
 export type UserProfile = {
   email: string
@@ -14,6 +12,10 @@ export type ConfirmProfile = {
   showModal: boolean
 }
 
+export type AutoSignIn = {
+  value: boolean
+  account: string | undefined
+}
 export interface AuthenState {
   readonly anonymousUserInfo: UserProfile | undefined
   readonly signedUserInfo: UserProfile | undefined
@@ -21,6 +23,7 @@ export interface AuthenState {
   readonly pendingAuthentication: boolean
   readonly isConnectingWallet: boolean
   readonly showConfirmProfile: boolean
+  readonly autoSignIn: AutoSignIn // auto sign in after connect wallet
 }
 
 const DEFAULT_AUTHEN_STATE: AuthenState = {
@@ -30,17 +33,26 @@ const DEFAULT_AUTHEN_STATE: AuthenState = {
   pendingAuthentication: true,
   isConnectingWallet: false,
   showConfirmProfile: false,
+  autoSignIn: {
+    value: false,
+    account: undefined,
+  },
 }
 
-export default createReducer(DEFAULT_AUTHEN_STATE, builder =>
-  builder
-    .addCase(updateConnectingWallet, (state, { payload: connectingWallet }) => {
+const slice = createSlice({
+  name: 'authen',
+  initialState: DEFAULT_AUTHEN_STATE,
+  reducers: {
+    updateConnectingWallet: (state, { payload: connectingWallet }: PayloadAction<boolean>) => {
       state.isConnectingWallet = connectingWallet
-    })
-    .addCase(updateProcessingLogin, (state, { payload: processing }) => {
+    },
+    updateProcessingLogin: (state, { payload: processing }: PayloadAction<boolean>) => {
       state.pendingAuthentication = processing
-    })
-    .addCase(updateProfile, (state, { payload: { profile, isAnonymous } }) => {
+    },
+    updateProfile: (
+      state,
+      { payload: { profile, isAnonymous } }: PayloadAction<{ profile: UserProfile | undefined; isAnonymous: boolean }>,
+    ) => {
       if (isAnonymous) {
         state.anonymousUserInfo = profile
         state.signedUserInfo = undefined
@@ -49,8 +61,16 @@ export default createReducer(DEFAULT_AUTHEN_STATE, builder =>
         state.anonymousUserInfo = undefined
       }
       state.isLogin = !isAnonymous
-    })
-    .addCase(setConfirmChangeProfile, (state, { payload }) => {
+    },
+    setConfirmChangeProfile: (state, { payload }: PayloadAction<boolean>) => {
       state.showConfirmProfile = payload
-    }),
-)
+    },
+    setAutoSignIn: (state, { payload }: PayloadAction<{ value: boolean; account: string | undefined }>) => {
+      state.autoSignIn = payload
+    },
+  },
+})
+
+export const authenActions = slice.actions
+
+export default slice.reducer

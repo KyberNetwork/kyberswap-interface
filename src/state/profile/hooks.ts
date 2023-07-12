@@ -6,11 +6,11 @@ import { useGetOrCreateProfileMutation } from 'services/identity'
 
 import { useActiveWeb3React } from 'hooks'
 import { AppState } from 'state'
-import { updateProfile } from 'state/authen/actions'
 import { useSessionInfo } from 'state/authen/hooks'
-import { UserProfile } from 'state/authen/reducer'
+import { UserProfile, authenActions } from 'state/authen/reducer'
 import { useAppDispatch } from 'state/hooks'
 import { CacheProfile, ProfileMap, SignedAccountParams, profileActions } from 'state/profile/reducer'
+import getShortenAddress from 'utils/getShortenAddress'
 
 const { setImportToken, setKeepCurrentProfile, setLoginRedirectUrl, setProfileMap, updateSignedAccount } =
   profileActions
@@ -242,7 +242,7 @@ export const useSaveUserProfile = () => {
       isAnonymous?: boolean
       account: string | undefined
     }) => {
-      dispatch(updateProfile({ profile, isAnonymous }))
+      dispatch(authenActions.updateProfile({ profile, isAnonymous }))
       saveCacheProfile({
         isAnonymous,
         profile,
@@ -250,5 +250,15 @@ export const useSaveUserProfile = () => {
       })
     },
     [dispatch, saveCacheProfile],
+  )
+}
+
+export const useGetProfileDisplayName = () => {
+  const { getCacheProfile } = useProfileInfo()
+  return useCallback(
+    (desireAccount: string | undefined, guest: boolean) => {
+      return getCacheProfile(desireAccount ?? '', guest)?.nickname || getShortenAddress(desireAccount ?? '')
+    },
+    [getCacheProfile],
   )
 }

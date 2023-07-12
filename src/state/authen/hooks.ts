@@ -2,9 +2,10 @@ import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 
 import { AppState } from 'state'
-import { setConfirmChangeProfile, updateConnectingWallet, updateProcessingLogin } from 'state/authen/actions'
-import { AuthenState, UserProfile } from 'state/authen/reducer'
+import { AuthenState, AutoSignIn, UserProfile, authenActions } from 'state/authen/reducer'
 import { useAppDispatch } from 'state/hooks'
+
+const { setConfirmChangeProfile, updateConnectingWallet, updateProcessingLogin, setAutoSignIn } = authenActions
 
 // connecting metamask ...
 export function useIsConnectingWallet(): [boolean, (data: boolean) => void] {
@@ -49,4 +50,18 @@ export const useSetConfirmChangeProfile = () => {
     },
     [dispatch],
   )
+}
+
+export function useIsAutoLoginAfterConnectWallet(): [AutoSignIn, (v: AutoSignIn) => void] {
+  const dispatch = useAppDispatch()
+  const autoSignIn = useSelector((state: AppState) => state.authen.autoSignIn)
+
+  const setAutoSignInAfterConnect = useCallback(
+    (data: AutoSignIn) => {
+      dispatch(setAutoSignIn(data))
+    },
+    [dispatch],
+  )
+
+  return [autoSignIn, setAutoSignInAfterConnect]
 }

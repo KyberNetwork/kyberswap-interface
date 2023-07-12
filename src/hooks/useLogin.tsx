@@ -12,9 +12,15 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
-import { useSessionInfo, useSetConfirmChangeProfile, useSetPendingAuthentication } from 'state/authen/hooks'
+import {
+  useIsAutoLoginAfterConnectWallet,
+  useSessionInfo,
+  useSetConfirmChangeProfile,
+  useSetPendingAuthentication,
+} from 'state/authen/hooks'
 import {
   KEY_GUEST_DEFAULT,
+  useGetProfileDisplayName,
   useIsKeepCurrentProfile,
   useLoginRedirectUrl,
   useProfileInfo,
@@ -23,7 +29,6 @@ import {
   useSignedAccountInfo,
 } from 'state/profile/hooks'
 import { filterTruthy, isAddress } from 'utils'
-import getShortenAddress from 'utils/getShortenAddress'
 import { isEmailValid } from 'utils/string'
 
 KyberOauth2.initialize({
@@ -32,8 +37,6 @@ KyberOauth2.initialize({
   mode: ENV_KEY,
 })
 
-let needSignInAfterConnectWallet = false
-let accountSignAfterConnectedWallet: string | undefined
 const useLogin = (autoLogin = false) => {
   const { account, chainId } = useActiveWeb3React()
 
@@ -44,7 +47,8 @@ const useLogin = (autoLogin = false) => {
   const [, setLoginRedirectUrl] = useLoginRedirectUrl()
   const { signedMethod, signedAccount } = useSignedAccountInfo()
   const saveSignedAccount = useSaveConnectedProfile()
-  const { removeProfile, removeAllProfile, totalGuest, getCacheProfile } = useProfileInfo()
+  const { removeProfile, removeAllProfile, totalGuest } = useProfileInfo()
+  const getProfileName = useGetProfileDisplayName()
   const showConfirm = useShowConfirm()
   const setLoading = useSetPendingAuthentication()
   const setProfile = useSaveUserProfile()
@@ -100,14 +104,12 @@ const useLogin = (autoLogin = false) => {
                     ? `email ${desireAccount}`
                     : guest
                     ? `Guest Profile`
-                    : `profile ${
-                        getCacheProfile(desireAccount ?? '', guest)?.nickname || getShortenAddress(desireAccount ?? '') // todo utls
-                      }`
+                    : `profile ${getProfileName(desireAccount, guest)}`
                 }`,
         },
         10_000,
       ),
-    [account, notify, autoLogin, getCacheProfile],
+    [account, notify, autoLogin, getProfileName],
   )
 
   const signInAnonymous = useCallback(
@@ -164,6 +166,7 @@ const useLogin = (autoLogin = false) => {
   )
 
   // check account info and redirect if needed
+  const [, setAutoSignIn] = useIsAutoLoginAfterConnectWallet()
   const signIn = useCallback(
     async (desireAccount?: string, showSessionExpired = false) => {
       const isAddAccount = !desireAccount
@@ -171,11 +174,10 @@ const useLogin = (autoLogin = false) => {
 
       if (isAddAccount && !account) {
         toggleWalletModal()
-        needSignInAfterConnectWallet = true
-        accountSignAfterConnectedWallet = desireAccount
+        setAutoSignIn({ value: true, account: desireAccount })
         return
       }
-      needSignInAfterConnectWallet = false
+      setAutoSignIn({ value: false, account: undefined })
 
       const connectedAccounts = KyberOauth2.getConnectedAccounts()
       const isTokenExist = connectedAccounts.includes(desireAccount?.toLowerCase() || '')
@@ -203,7 +205,7 @@ const useLogin = (autoLogin = false) => {
       }
       redirectSignIn()
     },
-    [account, checkSessionSignIn, toggleWalletModal, showConfirm, setLoginRedirectUrl],
+    [account, checkSessionSignIn, toggleWalletModal, showConfirm, setLoginRedirectUrl, setAutoSignIn],
   )
 
   const showSignOutSuccess = useCallback(() => {
@@ -339,11 +341,13 @@ export const useAutoLogin = () => {
   }, [checkSessionSignIn, signedAccount, signedMethod, signInAnonymous, qs.code])
 
   // auto sign in after connect wallet
+  const [{ value: needSignInAfterConnectWallet, account: accountSignAfterConnectedWallet }, setAutoSignIn] =
+    useIsAutoLoginAfterConnectWallet()
   useEffect(() => {
     if (!account || !needSignInAfterConnectWallet) return
     signIn(accountSignAfterConnectedWallet)
-    needSignInAfterConnectWallet = false
-  }, [account, signIn])
+    setAutoSignIn({ value: false, account: undefined })
+  }, [account, needSignInAfterConnectWallet, accountSignAfterConnectedWallet, signIn, setAutoSignIn])
 
   // call api connect-wallet to guest profile
   useEffect(() => {
