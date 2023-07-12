@@ -14,7 +14,7 @@ import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { APP_PATHS, BIPS_BASE, CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { useGasRefundTier } from 'hooks/kyberdao'
+import { isSupportKyberDao, useGasRefundTier } from 'hooks/kyberdao'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink, TYPE } from 'theme'
@@ -267,7 +267,7 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
             </TYPE.black>
           </RowBetween>
 
-          {chainId === ChainId.MAINNET && (
+          {isSupportKyberDao(chainId) && (
             <RowBetween>
               <RowFixed>
                 <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
@@ -275,10 +275,9 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
                     text={
                       <Trans>
                         Stake KNC in KyberDAO to get gas refund.{' '}
-                        <a href="//some-link" target="_blank" rel="noreferrer">
-                          {/* todo namgold: fill the link */}
+                        <ExternalLink href="https://kyberswap.com/governance/knc-token/gas-refund-program">
                           Read more ↗
-                        </a>
+                        </ExternalLink>
                       </Trans>
                     }
                     placement="right"

@@ -10,6 +10,7 @@ import bgimg from 'assets/images/about_background.png'
 import gasrefund from 'assets/images/gasrefund.png'
 import ringwave from 'assets/images/ringwave.png'
 import crystals from 'assets/svg/crystals.svg'
+import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
 import { RowBetween } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
@@ -41,7 +42,7 @@ const Wrapper = styled.div`
 `
 
 const Container = styled.div`
-  max-width: 1400px;
+  max-width: 1224px;
 `
 
 const Row = styled.div`
@@ -49,7 +50,7 @@ const Row = styled.div`
   margin: auto;
   display: flex;
   justify-content: space-between;
-  gap: 8vw;
+  gap: min(max(50px, calc(100vw - 1136px)), 184px);
   padding: 24px 0;
   align-items: flex-start;
 
@@ -62,11 +63,15 @@ const Row = styled.div`
 
   & > * {
     flex: 1 1 0px;
-    max-width: 700px;
+    max-width: 520px;
+    ${({ theme }) => theme.mediaWidth.upToMedium`
+      max-width: 700px;
+    `}
+    width: 100%;
   }
 `
 
-// todo: will again, dont remove this
+// todo: will add again, dont remove this
 // const EndedTag = styled.div`
 //   padding: 2px 12px;
 //   width: fit-content;
@@ -89,6 +94,7 @@ const YourStakedKNC = styled(FormWrapper)`
   justify-content: space-between;
   align-items: center;
   gap: 8px;
+  border: 1px solid ${({ theme }) => theme.primary};
 `
 
 export default function KNCUtility() {
@@ -117,35 +123,35 @@ export default function KNCUtility() {
     <Wrapper>
       <Container>
         <Row>
-          <Column gap="48px">
-            <Text fontSize={48} fontWeight={400} id="knc-utility">
+          <Column gap="24px">
+            <Text fontSize={24} fontWeight={400} id="knc-utility">
               <Trans>KNC Utility</Trans>
             </Text>
-            <Column gap="28px">
-              <Flex sx={{ gap: '12px' }} flexDirection="column">
-                <YourStakedKNC>
-                  <Text fontSize={12} lineHeight="16px" color={theme.subText}>
-                    <Trans>Your Staked KNC</Trans>
-                  </Text>
-                  <Text
-                    fontSize={16}
-                    lineHeight="20px"
-                    color={theme.text}
-                    display="flex"
-                    alignItems="center"
-                    style={{ gap: '8px' }}
-                  >
-                    <KNCLogo size={20} /> {formatUnits(stakedBalance)} KNC
-                  </Text>
-                </YourStakedKNC>
-                <Flex alignSelf="flex-end">
-                  <NavLink
-                    to={APP_PATHS.KYBERDAO_STAKE}
-                    style={{ fontSize: '12px', lineHeight: '16px', fontWeight: 500 }}
-                  >
-                    Stake here ↗
-                  </NavLink>
-                </Flex>
+            <Column gap="16px">
+              <YourStakedKNC>
+                <Text fontSize={14} lineHeight="20px" color={theme.subText}>
+                  <Trans>Your Staked KNC</Trans>
+                </Text>
+                <Text
+                  fontSize={16}
+                  lineHeight="20px"
+                  color={theme.text}
+                  display="flex"
+                  alignItems="center"
+                  style={{ gap: '8px' }}
+                  fontWeight={500}
+                >
+                  <KNCLogo size={20} /> {formatUnits(stakedBalance)} KNC
+                </Text>
+              </YourStakedKNC>
+              <Flex alignSelf="flex-end">
+                <NavLink to={APP_PATHS.KYBERDAO_STAKE}>
+                  <ButtonLight padding="2px 12px">
+                    <Text fontSize={12} lineHeight="16px" fontWeight={500}>
+                      <Trans>Stake here ↗</Trans>
+                    </Text>
+                  </ButtonLight>
+                </NavLink>
               </Flex>
 
               <Trans>
@@ -160,11 +166,11 @@ export default function KNCUtility() {
             refundImg
           ) : (
             <Flex flexDirection="column" alignItems="center">
-              <img src={crystals} width="25%" />
+              <img src={crystals} width="20%" />
               <img
                 src={ringwaveGif}
-                width="100%"
-                style={{ marginTop: '-60px', maxWidth: '533px' }}
+                width="75%"
+                style={{ marginTop: '-40px', maxWidth: '533px' }}
                 onError={({ currentTarget }) => {
                   currentTarget.onerror = null // prevents looping
                   currentTarget.src = ringwave
@@ -187,19 +193,8 @@ export default function KNCUtility() {
           {upToMedium || <div />}
         </Row>
         <Row style={{ padding: upToMedium ? '16px 0 12px' : undefined }}>
-          <Column gap="48px">
+          <Column>
             <GasRefundBox />
-            <Text fontSize={16} fontWeight={400} lineHeight="24px" color={theme.subText}>
-              <Trans>
-                By staking KNC, you are rewarded with tier-based gas refunds in the form of KNC whenever you make an
-                eligible trade on KyberSwap. <b>Stake KNC and trade on KyberSwap today!</b>
-                <br />
-                <br />
-                <Text fontSize={12} fontStyle="italic">
-                  *Note: Gas Refund is currently only available on Ethereum.
-                </Text>
-              </Trans>
-            </Text>
           </Column>
           <Column gap="16px">
             <Text fontSize={20} fontWeight={400} lineHeight="32px" color={theme.text} id="how-to-participate">
@@ -208,8 +203,9 @@ export default function KNCUtility() {
             <Text fontSize={16} fontWeight={400} lineHeight="24px" color={theme.subText}>
               <Trans>
                 To participate in KyberSwap&apos;s Gas Refund Program, you must stake KNC and meet the necessary
-                requirements. The amount of gas refunded will depend on your staking Tier.{' '}
-                <NavLink to="/temp-link">Read More ↗</NavLink>
+                requirements. The amount of gas refunded will depend on your staking Tier. Read more{' '}
+                <NavLink to="/">here ↗</NavLink>
+                {/* todo namgold: add link */}
               </Trans>
             </Text>
             <Table>
@@ -240,10 +236,29 @@ export default function KNCUtility() {
                 <HeaderCell textAlign="center">20%</HeaderCell>
               </TableRow>
             </Table>
-            <Text fontSize={16} fontWeight={400} lineHeight="24px" color={theme.text}>
-              <li>
-                <Trans>Value of each trade on KyberSwap has to be ≥ $200; calculated at the point of trade.</Trans>
-              </li>
+            <Text fontSize={16} fontWeight={400} lineHeight="24px" color={theme.text} fontStyle="italic">
+              <Trans>Value of each trade on KyberSwap has to be ≥ $200; calculated at the point of trade.</Trans>
+            </Text>
+            <Text fontSize={16} fontWeight={400} lineHeight="24px" color={theme.subText} as="span">
+              <Trans>
+                By staking KNC, you are rewarded with tier-based gas refunds in the form of KNC whenever you make an
+                eligible trade on KyberSwap.{' '}
+                <Text fontSize={16} fontWeight={400} lineHeight="24px" color={theme.text} as="span">
+                  Stake KNC and trade on KyberSwap today!
+                </Text>
+                <br />
+                <br />
+                <Text
+                  fontSize={12}
+                  fontWeight={400}
+                  lineHeight="24px"
+                  color={theme.warning}
+                  fontStyle="italic"
+                  as="span"
+                >
+                  Gas refund is currently only available for swaps made on Ethereum
+                </Text>
+              </Trans>
             </Text>
           </Column>
         </Row>

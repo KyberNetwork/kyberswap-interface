@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import axios from 'axios'
 import { BigNumber } from 'ethers'
@@ -16,7 +15,7 @@ import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { REWARD_SERVICE_API } from 'constants/env'
 import { KNC } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useEligibleTransactions, useGasRefundInfo } from 'hooks/kyberdao'
+import { isSupportKyberDao, useEligibleTransactions, useGasRefundInfo, useGasRefundTier } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
 import { useEligibleTxToggle, useNotify, useOpenNetworkModal, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -28,17 +27,21 @@ import { sendEVMTransaction } from 'utils/sendTransaction'
 import EligibleTxModal from './EligibleTxModal'
 import { KNCUtilityTabs } from './type'
 
-const TotalReward = styled.div`
-  padding-top: 16px;
-  margin-top: 16px;
-  border-top: 1px solid ${({ theme }) => theme.border};
+const Hr = styled.hr`
+  width: 100%;
+  border: none;
+  height: 1px;
+  background-color: ${({ theme }) => theme.border};
+  margin: 0;
 `
 
-const Wrapper = styled.div`
+const Wrapper = styled(Flex)`
   width: 100%;
   border-radius: 20px;
-  padding: 24px 24px 30px;
-  background-color: ${({ theme }) => theme.background};
+  padding: 20px;
+  background-color: ${({ theme }) => theme.tableHeader};
+  gap: 28px;
+  flex-direction: column;
 `
 
 const Tab = styled(Text)<{ active?: boolean }>`
@@ -80,6 +83,8 @@ export default function GasRefundBox() {
   const addTransactionWithType = useTransactionAdder()
   const eligibleTxs = useEligibleTransactions(1, 1)
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  const { userTier, gasRefundPerCentage } = useGasRefundTier()
 
   const claimRewards = useCallback(async () => {
     if (!account || !library || !claimableReward || claimableReward.knc <= 0) return
@@ -149,50 +154,59 @@ export default function GasRefundBox() {
   return (
     <Wrapper>
       <Flex flexDirection="column" sx={{ gap: '16px' }}>
-        <Flex>
-          <MouseoverTooltip
-            width="fit-content"
-            text={<Trans>Available rewards: Claimable rewards in this epoch.</Trans>}
-            placement="top"
-          >
-            <Tab
-              active={selectedTab === KNCUtilityTabs.Available}
-              onClick={() => setSelectedTab(KNCUtilityTabs.Available)}
-            >
-              <Trans>Available</Trans>
-            </Tab>
-          </MouseoverTooltip>
-          &nbsp;|&nbsp;
-          <MouseoverTooltip
-            width="fit-content"
-            text={
-              <Trans>
-                Pending rewards: Cumulative rewards not yet can be claim. Will be able to claim in next epoch.
-              </Trans>
-            }
-            placement="top"
-          >
-            <Tab active={selectedTab === KNCUtilityTabs.Pending} onClick={() => setSelectedTab(KNCUtilityTabs.Pending)}>
-              <Trans>Pending</Trans>
-            </Tab>
-          </MouseoverTooltip>
-          &nbsp;|&nbsp;
-          <MouseoverTooltip
-            width="fit-content"
-            text={<Trans>Claimed rewards: Rewards claimed and transferred to user wallet.</Trans>}
-            placement="top"
-          >
-            <Tab active={selectedTab === KNCUtilityTabs.Claimed} onClick={() => setSelectedTab(KNCUtilityTabs.Claimed)}>
-              <Trans>Claimed</Trans>
-            </Tab>
-          </MouseoverTooltip>
-        </Flex>
         <RowBetween
           width="100%"
-          flexDirection={upToXXSmall ? 'column' : 'row'}
+          flexDirection={upToExtraSmall ? 'column' : 'row'}
+          align={upToExtraSmall ? 'start' : 'center'}
           sx={{ gap: '16px' }}
-          align={upToXXSmall ? 'start' : 'end'}
         >
+          <Flex>
+            <TextDashed>
+              <MouseoverTooltip width="fit-content" text={<Trans>Rewards available to claim</Trans>} placement="top">
+                <Tab
+                  active={selectedTab === KNCUtilityTabs.Available}
+                  onClick={() => setSelectedTab(KNCUtilityTabs.Available)}
+                >
+                  <Trans>Available</Trans>
+                </Tab>
+              </MouseoverTooltip>
+            </TextDashed>
+            &nbsp;|&nbsp;
+            <TextDashed>
+              <MouseoverTooltip
+                width="fit-content"
+                text={<Trans>Rewards to claim after the end of the countdown period</Trans>}
+                placement="top"
+              >
+                <Tab
+                  active={selectedTab === KNCUtilityTabs.Pending}
+                  onClick={() => setSelectedTab(KNCUtilityTabs.Pending)}
+                >
+                  <Trans>Pending</Trans>
+                </Tab>
+              </MouseoverTooltip>
+            </TextDashed>
+            &nbsp;|&nbsp;
+            <TextDashed>
+              <MouseoverTooltip width="fit-content" text={<Trans>Rewards successfully claimed</Trans>} placement="top">
+                <Tab
+                  active={selectedTab === KNCUtilityTabs.Claimed}
+                  onClick={() => setSelectedTab(KNCUtilityTabs.Claimed)}
+                >
+                  <Trans>Claimed</Trans>
+                </Tab>
+              </MouseoverTooltip>
+            </TextDashed>
+          </Flex>
+          {!!userTier && !!gasRefundPerCentage && (
+            <Text fontSize={12} fontWeight={400} lineHeight="16px" width="fit-content">
+              <Trans>
+                Tier {userTier} - {gasRefundPerCentage * 100}% Gas Refund
+              </Trans>
+            </Text>
+          )}
+        </RowBetween>
+        <RowBetween width="100%" flexDirection="row" sx={{ gap: '16px' }} align="end">
           <Flex flexDirection="column" sx={{ gap: '8px' }}>
             <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text} alignItems="center">
               {account ? formattedNum(reward?.knc.toString() || '0') : '--'} KNC
@@ -203,15 +217,19 @@ export default function GasRefundBox() {
           </Flex>
           <Flex width="fit-content">
             {selectedTab !== KNCUtilityTabs.Available ? null : account ? (
-              chainId === ChainId.MAINNET || chainId === ChainId.GÖRLI ? (
+              isSupportKyberDao(chainId) ? (
                 claiming ? (
-                  <ButtonPrimary padding="8px 45px" onClick={claimRewards}>
+                  <ButtonPrimary padding={upToXXSmall ? '8px 28px' : '8px 45px'} onClick={claimRewards}>
                     <Dots>
                       <Trans>Claiming</Trans>
                     </Dots>
                   </ButtonPrimary>
                 ) : (
-                  <ButtonPrimary padding="8px 45px" onClick={claimRewards} disabled={(claimableReward?.knc ?? 0) <= 0}>
+                  <ButtonPrimary
+                    padding={upToXXSmall ? '8px 28px' : '8px 45px'}
+                    onClick={claimRewards}
+                    disabled={(claimableReward?.knc ?? 0) <= 0}
+                  >
                     <Trans>Claim</Trans>
                   </ButtonPrimary>
                 )
@@ -225,7 +243,7 @@ export default function GasRefundBox() {
                   }
                   width="244px"
                 >
-                  <ButtonPrimary padding="8px 45px" $disabled>
+                  <ButtonPrimary padding={upToXXSmall ? '8px 28px' : '8px 45px'} $disabled>
                     <Trans>Claim</Trans>
                   </ButtonPrimary>
                 </MouseoverTooltip>
@@ -238,42 +256,44 @@ export default function GasRefundBox() {
           </Flex>
         </RowBetween>
       </Flex>
-      <TotalReward>
-        <RowBetween
-          flexDirection={upToXXSmall ? 'column' : 'row'}
-          sx={{ gap: '16px' }}
-          align={upToXXSmall ? 'start' : 'end'}
-        >
-          <Flex flexDirection="column" sx={{ gap: '16px' }}>
-            <TextDashed fontSize={14} lineHeight="20px" fontWeight={500} color={theme.subText}>
-              <MouseoverTooltip
-                width="fit-content"
-                text={<Trans>Total Gas Refund = Available + Pending + Claimed</Trans>}
-                placement="top"
-              >
-                <Trans>Total Gas Refund</Trans>
-              </MouseoverTooltip>
-            </TextDashed>
-            <Flex flexDirection="column" sx={{ gap: '8px' }}>
-              <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text} alignItems="center">
-                {account ? formattedNum(totalReward?.knc.toString() ?? '0') : '--'} KNC
-              </Text>
-              <Text fontSize={12} lineHeight="16px" fontWeight={500} color={theme.subText} alignItems="center">
-                {account
-                  ? (totalReward?.usd ? '~' : '') + formattedNum(totalReward?.usd.toString() ?? '0', true)
-                  : '$ --'}
-              </Text>
-            </Flex>
+      <Hr />
+      <RowBetween flexDirection="row" sx={{ gap: '16px' }}>
+        <Flex flexDirection="column" sx={{ gap: '16px' }}>
+          <TextDashed fontSize={14} lineHeight="20px" fontWeight={500} color={theme.subText}>
+            <MouseoverTooltip
+              width="fit-content"
+              text={<Trans>Total Gas Refund = Available + Pending + Claimed Gas Refund</Trans>}
+              placement="top"
+            >
+              <Trans>Total Gas Refund</Trans>
+            </MouseoverTooltip>
+          </TextDashed>
+          <Flex flexDirection="column" sx={{ gap: '8px' }}>
+            <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text} alignItems="center">
+              {account ? formattedNum(totalReward?.knc.toString() ?? '0') : '--'} KNC
+            </Text>
+            <Text fontSize={12} lineHeight="16px" fontWeight={500} color={theme.subText} alignItems="center">
+              {account
+                ? (totalReward?.usd ? '~' : '') + formattedNum(totalReward?.usd.toString() ?? '0', true)
+                : '$ --'}
+            </Text>
           </Flex>
-          <Flex alignSelf={upToXXSmall ? 'start' : 'end'}>
-            {!!account && !!eligibleTxs?.transactions.length && (
-              <ButtonLight padding="2px 12px" onClick={toggleEligibleTxModal}>
+        </Flex>
+        <Flex alignSelf="end">
+          {!!account && !!eligibleTxs?.transactions.length && (
+            <ButtonLight
+              padding="2px 12px"
+              onClick={toggleEligibleTxModal}
+              style={{ whiteSpace: 'nowrap' }}
+              width="max-content"
+            >
+              <Text fontSize={12} fontWeight={500} lineHeight="16px">
                 <Trans>Your Transactions</Trans>
-              </ButtonLight>
-            )}
-          </Flex>
-        </RowBetween>
-      </TotalReward>
+              </Text>
+            </ButtonLight>
+          )}
+        </Flex>
+      </RowBetween>
       <EligibleTxModal />
     </Wrapper>
   )

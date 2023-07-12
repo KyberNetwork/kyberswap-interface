@@ -2,10 +2,11 @@ import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { ReactNode, useState } from 'react'
 import { ChevronDown } from 'react-feather'
+import { NavLink } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import { TERM_FILES_PATH } from 'constants/index'
+import { APP_PATHS, TERM_FILES_PATH } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
 
@@ -19,8 +20,10 @@ const Title = styled.span`
 
 enum Panel {
   Q_Join,
-  Q_Calc,
+  Q_Chain,
   Q_When,
+  Q_Deadline,
+  Q_Vote,
   Q_Limit,
   Q_Term,
   Q_Other,
@@ -89,7 +92,6 @@ const Separator = styled.div`
   width: 100%;
   height: 0;
   border-bottom: 1px solid ${({ theme }) => theme.border};
-
   margin: 8px 0;
 `
 
@@ -107,133 +109,135 @@ const FAQ: React.FC = () => {
   return (
     <DetailsContainer>
       <DetailPanel
-        toggleExpand={() => {
-          handleToggleExpand(Panel.Q_Join)
-        }}
+        toggleExpand={() => handleToggleExpand(Panel.Q_Join)}
         isExpanded={expandedPanel === Panel.Q_Join}
         title={t`Can I participate in the Gas Refund Program if I am not staking in KyberDAO?`}
         content={
           <Trans>
-            No, only participants who are staking KNC in KyberDAO with a minimum of 500 KNC and meet the eligibility
-            criteria by completing a minimum trading volume of ≥$200 and with least 1 swap on KyberSwap.
+            No. You have to stake a minimum of 500 KNC in KyberDAO (on Ethereum) here, and meet the eligibility criteria
+            by completing swap(s) on KyberSwap, with a minimum trading volume of ≥$200 per swap.
           </Trans>
         }
       />
       <Separator />
       <DetailPanel
-        toggleExpand={() => {
-          handleToggleExpand(Panel.Q_Calc)
-        }}
-        isExpanded={expandedPanel === Panel.Q_Calc}
-        title={t`How are rewards calculated?`}
+        toggleExpand={() => handleToggleExpand(Panel.Q_Chain)}
+        isExpanded={expandedPanel === Panel.Q_Chain}
+        title={t`Are swaps on all chains eligible for gas refunds?`}
         content={
           <Trans>
-            Gas refund rewards is based accordingly on the user&apos;s staked KNC and tier, and will be converted to KNC
-            at the time of the transaction gas cost.
+            During this beta phase, only swaps on Ethereum are eligible for gas refunds. We may expand the gas refund
+            program to other chains in the future.
           </Trans>
         }
       />
       <Separator />
       <DetailPanel
-        toggleExpand={() => {
-          handleToggleExpand(Panel.Q_When)
-        }}
+        toggleExpand={() => handleToggleExpand(Panel.Q_When)}
         isExpanded={expandedPanel === Panel.Q_When}
         title={t`When will rewards be available to claim?`}
         content={
           <Trans>
-            There is a countdown timer for rewards for available rewards to claim. Rewards will only be available at the
-            start of n+2 epoch. You can claim your rewards in the KNC Utility page or in the Wallet UI.
+            On the “Pending” tab, there is a countdown timer showing when pending refunds become available for claiming.
+            Refunds become available for claiming at the start of n+2 epoch. Each epoch lasts approximately 2 weeks. You
+            can claim your rewards in the KNC Utility page or in the Wallet widget.
           </Trans>
         }
       />
       <Separator />
       <DetailPanel
-        toggleExpand={() => {
-          handleToggleExpand(Panel.Q_Limit)
-        }}
-        isExpanded={expandedPanel === Panel.Q_Limit}
-        title={t`What is the maximum gas refund limit for a user?`}
+        toggleExpand={() => handleToggleExpand(Panel.Q_Deadline)}
+        isExpanded={expandedPanel === Panel.Q_Deadline}
+        title={t`Is there a deadline to claim your gas refunds?`}
         content={
-          <Trans>Each user wallet address is eligible for a gas refund of up to $200 within two epoch cycles.</Trans>
+          <Trans>
+            There is no deadline to claim your gas refunds. You can wait for more KNC to be accumulated before claiming
+            them in order to save on gas fees.
+          </Trans>
         }
       />
       <Separator />
       <DetailPanel
-        toggleExpand={() => {
-          handleToggleExpand(Panel.Q_Term)
-        }}
+        toggleExpand={() => handleToggleExpand(Panel.Q_LimitOrder)}
+        isExpanded={expandedPanel === Panel.Q_LimitOrder}
+        title={t`Are limit orders and cross-chain swaps eligible for gas refunds?`}
+        content={
+          <Trans>
+            No. Limit orders and cross-chain swaps are not eligible for gas refunds. Only standard swaps on KyberSwap
+            are eligible.
+          </Trans>
+        }
+      />
+      <Separator />
+      <DetailPanel
+        toggleExpand={() => handleToggleExpand(Panel.Q_Vote)}
+        isExpanded={expandedPanel === Panel.Q_Vote}
+        title={t`How can I vote on KIPs with my staked KNC to earn voting rewards?`}
+        content={
+          <Trans>
+            Once you have staked KNC, you can vote on active KyberDAO KIPs (Kyber Improvement Proposals) on the{' '}
+            <NavLink to={APP_PATHS.KYBERDAO_VOTE}>Vote page</NavLink> to earn voting rewards. Users who stake KNC can
+            enjoy gas refunds + vote on KIPs to and earn even more rewards. For more information on how to vote, please
+            visit{' '}
+            <ExternalLink href="https://docs.kyberswap.com/governance/kyberdao">
+              https://docs.kyberswap.com/governance/kyberdao
+            </ExternalLink>
+            .
+          </Trans>
+        }
+      />
+      <Separator />
+      <DetailPanel
+        toggleExpand={() => handleToggleExpand(Panel.Q_Limit)}
+        isExpanded={expandedPanel === Panel.Q_Limit}
+        title={t`What is the maximum gas refund limit for a user?`}
+        content={
+          <Trans>Each user wallet address is eligible for gas refund of up to $200 within two epoch cycles.</Trans>
+        }
+      />
+      <Separator />
+      <DetailPanel
+        toggleExpand={() => handleToggleExpand(Panel.Q_Term)}
         isExpanded={expandedPanel === Panel.Q_Term}
         title={t`Terms and Conditions`}
         content={
           <>
             <li>
               <Trans>
-                These Terms and Conditions (&quot;
-                <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS}>Terms</ExternalLink>&quot;) should be read in
-                conjunction with the KyberSwap Terms of Use, which lay out the terms and conditions that apply to all
-                KyberSwap activities.
+                These Terms and Conditions (<ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS}>Terms</ExternalLink>)
+                should be read in conjunction with the KyberSwap Terms of Use, which lay out the terms and conditions
+                that apply to all KyberSwap activities.
               </Trans>
             </li>
             <br />
             <li>
               <Trans>
-                Kyberswap is set to launch a pilot gas refund program, and retains the right to amend the program&apos;s
-                end date with reasonable notice.
+                Currently, only trades on Ethereum are eligible for gas refunds. Gas refunds amount is based on the
+                users’ KNC staking tier and the value of each trade.
               </Trans>
             </li>
             <br />
             <li>
               <Trans>
-                KyberSwap maintains the right, at its sole discretion, to remove rewards for any user who{' '}
-                <i>violates, cheats, or exploits the program</i>.
+                For a trade to be eligible for gas refunds (after staking KNC), the trade value has to be ≥$200;
+                calculated by KyberSwap at the point of trade.
               </Trans>
             </li>
-          </>
-        }
-      />
-      <Separator />
-      <DetailPanel
-        toggleExpand={() => {
-          handleToggleExpand(Panel.Q_Other)
-        }}
-        isExpanded={expandedPanel === Panel.Q_Other}
-        title={t`Other Details`}
-        content={
-          <>
+            <br />
+            <li>
+              <Trans>Each address has a maximum limit of $200 in gas refunds per month.</Trans>
+            </li>
+            <br />
             <li>
               <Trans>
-                By visiting Kyberswap and participating in the program, You are deemed to have read, understood, and
-                agreed to the Terms stated here in.
+                KyberSwap retains the right to amend the gas refund program&apos;s end date with reasonable notice.
               </Trans>
             </li>
             <br />
             <li>
               <Trans>
-                Kyberswap shall be entitled to take any form of action against the User who violates the Kyberswap Terms
-                of Use and/or abuses the program, including but not limited to, any suspicious activities, or any
-                attempts to circumvent these Terms.
-              </Trans>
-            </li>
-            <br />
-            <li>
-              <Trans>
-                Any and all decisions made by Kyberswap in relation to every aspect of the Campaign shall be final and
-                conclusive. Any subsequent correspondences, protests, appeals, or inquiries will not be entertained.
-              </Trans>
-            </li>
-            <br />
-            <li>
-              <Trans>
-                Kyberswap reserves the right to cancel, terminate or suspend the Campaign upon giving adequate notice.
-              </Trans>
-            </li>
-            <br />
-            <li>
-              <Trans>
-                Kyberswap reserves the right to amend, waive, suspend, terminate or interpret any portion of these Terms
-                in its sole discretion, and at any time without prior notice. In such an event, Kyberswap will make
-                reasonable efforts to notify you.
+                KyberSwap maintains the right, at its sole discretion, to remove rewards for any user who violates,
+                cheats, or exploits the program.
               </Trans>
             </li>
           </>

@@ -2,10 +2,10 @@ import { Trans } from '@lingui/macro'
 import { useLocation } from 'react-router-dom'
 import styled from 'styled-components'
 
+import { ReactComponent as KyberLogo } from 'assets/svg/kyber_logo.svg'
 import Column from 'components/Column'
 import LightBulb from 'components/Icons/LightBulb'
 import StakeIcon from 'components/Icons/Stake'
-import UtilityIcon from 'components/Icons/Utility'
 import VoteIcon from 'components/Icons/Vote'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS } from 'constants/index'
@@ -46,7 +46,7 @@ const KyberDAONavGroup = () => {
               <Trans>Vote</Trans>
             </StyledNavLink>
             <StyledNavLink id="knc-utility" to={APP_PATHS.KYBERDAO_KNC_UTILITY} style={{ gap: '4px' }}>
-              <UtilityIcon />
+              <KyberLogo width={16} height={16} />
               <Trans>KNC Utility</Trans>
             </StyledNavLink>
             <StyledNavExternalLink
