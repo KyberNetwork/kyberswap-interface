@@ -61,7 +61,7 @@ export default function InputEmail({
         <Input
           color={color}
           disabled={disabled}
-          $borderColor={errorColor}
+          borderColor={errorColor}
           value={value}
           placeholder="example@email.com"
           onChange={e => onChange(e.target.value)}

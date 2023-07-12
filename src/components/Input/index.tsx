@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-const Input = styled.input<{ $borderColor?: string; color?: string }>`
+const InputWrapper = styled.input<{ $borderColor?: string; color?: string }>`
   display: flex;
   align-items: center;
   white-space: nowrap;
@@ -20,4 +20,18 @@ const Input = styled.input<{ $borderColor?: string; color?: string }>`
   }
 `
 
-export default Input
+export default function Input({
+  borderColor,
+  ...props
+}: React.InputHTMLAttributes<HTMLInputElement> & { borderColor?: string }) {
+  return (
+    <InputWrapper
+      autoComplete="off"
+      autoCorrect="off"
+      autoCapitalize="off"
+      spellCheck="false"
+      {...props}
+      $borderColor={borderColor}
+    />
+  )
+}
