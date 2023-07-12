@@ -52,7 +52,11 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onEnterPasscode, dismissMod
       >
         <Trans>
           Exported profiles will not be associated with your wallet. Your export code is unique. Learn more about
-          profile <ExternalLink href="/todo">here</ExternalLink>. {/** // todo */}
+          profile{' '}
+          <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/profiles/sync-profile-across-devices">
+            here
+          </ExternalLink>
+          .
         </Trans>
       </Text>
       <Text

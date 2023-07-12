@@ -1,6 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit'
 
-import { setConfirmProfile, updateConnectingWallet, updateProcessingLogin, updateProfile } from './actions'
+import { setConfirmChangeProfile, updateConnectingWallet, updateProcessingLogin, updateProfile } from './actions'
 
 export type UserProfile = {
   email: string
@@ -20,7 +20,7 @@ export interface AuthenState {
   readonly isLogin: boolean // is sign in eth
   readonly pendingAuthentication: boolean
   readonly isConnectingWallet: boolean
-  readonly confirmProfile: ConfirmProfile
+  readonly showConfirmProfile: boolean
 }
 
 const DEFAULT_AUTHEN_STATE: AuthenState = {
@@ -29,9 +29,7 @@ const DEFAULT_AUTHEN_STATE: AuthenState = {
   isLogin: false,
   pendingAuthentication: true,
   isConnectingWallet: false,
-  confirmProfile: {
-    showModal: false, // todo
-  },
+  showConfirmProfile: false,
 }
 
 export default createReducer(DEFAULT_AUTHEN_STATE, builder =>
@@ -52,7 +50,7 @@ export default createReducer(DEFAULT_AUTHEN_STATE, builder =>
       }
       state.isLogin = !isAnonymous
     })
-    .addCase(setConfirmProfile, (state, { payload }) => {
-      state.confirmProfile = payload
+    .addCase(setConfirmChangeProfile, (state, { payload }) => {
+      state.showConfirmProfile = payload
     }),
 )

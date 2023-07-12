@@ -2,8 +2,8 @@ import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 
 import { AppState } from 'state'
-import { setConfirmProfile, updateConnectingWallet, updateProcessingLogin } from 'state/authen/actions'
-import { AuthenState, ConfirmProfile, UserProfile } from 'state/authen/reducer'
+import { setConfirmChangeProfile, updateConnectingWallet, updateProcessingLogin } from 'state/authen/actions'
+import { AuthenState, UserProfile } from 'state/authen/reducer'
 import { useAppDispatch } from 'state/hooks'
 
 // connecting metamask ...
@@ -19,15 +19,6 @@ export function useIsConnectingWallet(): [boolean, (data: boolean) => void] {
   )
 
   return [connectingWallet, setConnectedWallet]
-}
-
-export type ConnectedProfile = {
-  active: boolean
-  address: string
-  profile: UserProfile | undefined
-  guest: boolean
-  id: string
-  default?: boolean
 }
 
 // info relate profile, session
@@ -53,8 +44,8 @@ export const useSetPendingAuthentication = () => {
 export const useSetConfirmChangeProfile = () => {
   const dispatch = useAppDispatch()
   return useCallback(
-    (value: ConfirmProfile) => {
-      dispatch(setConfirmProfile(value))
+    (value: boolean) => {
+      dispatch(setConfirmChangeProfile(value))
     },
     [dispatch],
   )

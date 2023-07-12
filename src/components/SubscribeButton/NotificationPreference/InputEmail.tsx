@@ -50,7 +50,13 @@ export default function InputEmail({
 }) {
   const theme = useTheme()
   return (
-    <Tooltip text={t`Invalid email address`} show={!!hasError} placement="top" width="fit-content">
+    <Tooltip
+      text={t`Invalid email address`}
+      style={{ zIndex: 1 }}
+      show={!!hasError}
+      placement="top"
+      width="fit-content"
+    >
       <InputWrapper style={style}>
         <Input
           color={color}

@@ -74,7 +74,10 @@ const UserEnterPasscodeContent: React.FC<Props> = ({ onImportToken, dismissModal
       >
         <Trans>
           You can keep your information synced across all of your devices by importing your profile. Learn more about
-          profiles <ExternalLink href="#">here</ExternalLink> {/** // todo */}
+          profiles{' '}
+          <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/profiles/sync-profile-across-devices">
+            here
+          </ExternalLink>
         </Trans>
       </Text>
 

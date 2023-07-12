@@ -1,8 +1,9 @@
 import { captureException } from '@sentry/react'
 import { AxiosError } from 'axios'
 
-import { BFF_API } from 'constants/env'
+import { BFF_API, ENV_LEVEL } from 'constants/env'
 import { ROUTES_API_PATHS } from 'constants/index'
+import { ENV_TYPE } from 'constants/type'
 
 const ErrorInfo = {
   routeApiError: 0,
@@ -16,6 +17,7 @@ const isIamApiDown = () => ErrorInfo.iamApoError >= ErrorInfo.errorThreshold
 const isRouteApiDown = () => ErrorInfo.routeApiError >= ErrorInfo.errorThreshold
 
 const sendError = (name: string, apiUrl: string, trackData: any) => {
+  if (ENV_LEVEL < ENV_TYPE.STG) return
   const error = new Error(`${name} Error: ${apiUrl}`)
   error.name = `${name} was down`
   captureException(error, { level: 'fatal', extra: { args: JSON.stringify(trackData, null, 2) } })

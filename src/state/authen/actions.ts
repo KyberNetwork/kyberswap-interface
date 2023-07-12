@@ -1,6 +1,6 @@
 import { createAction } from '@reduxjs/toolkit'
 
-import { ConfirmProfile, UserProfile } from 'state/authen/reducer'
+import { UserProfile } from 'state/authen/reducer'
 
 export const updateConnectingWallet = createAction<boolean>('authen/connectingWallet')
 
@@ -10,4 +10,4 @@ export const updateProfile = createAction<{ profile: UserProfile | undefined; is
   'authen/updateProfile',
 )
 
-export const setConfirmProfile = createAction<ConfirmProfile>('authen/setConfirmProfile')
+export const setConfirmChangeProfile = createAction<boolean>('authen/setConfirmChangeProfile')
