@@ -227,11 +227,13 @@ export default function SwapForm() {
         requestId,
         integratorId: CROSS_CHAIN_CONFIG.INTEGRATOR_ID,
       }
-      setTimeout(() => {
-        squidInstance.getStatus(params).catch(e => {
-          console.error('fire squid err', e)
-        })
-      }, 3000)
+      squidInstance.getStatus(params).catch(() => {
+        setTimeout(() => {
+          squidInstance.getStatus(params).catch(e => {
+            console.error('fire squid err', e)
+          })
+        }, 3000)
+      })
 
       saveTxsToDb(payload)
         .unwrap()
