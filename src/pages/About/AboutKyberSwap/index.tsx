@@ -103,7 +103,8 @@ import {
   VerticalDivider,
   Wrapper,
 } from '../styleds'
-import MeetTheTeam from './MeetTheTeam'
+
+// import MeetTheTeam from './MeetTheTeam'
 
 const KNCBlack = styled(KNCSVG)`
   path {
@@ -1025,7 +1026,7 @@ function AboutKyberSwap() {
             </Flex>
           </AboutKNC>
 
-          <MeetTheTeam />
+          {/* <MeetTheTeam /> */}
 
           <Text as="h2" marginTop={['100px', '160px']} fontSize={['28px', '36px']} fontWeight="500" textAlign="center">
             <Trans>Powered by</Trans>
