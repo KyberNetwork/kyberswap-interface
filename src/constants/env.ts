@@ -134,13 +134,13 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key: string]: { [type: string]: string } } =
     EXCLUDE: '2,11,1,28,29,22,23',
   },
   production: {
-    [PrivateAnnouncementType.PRICE_ALERT]: '21,22', // todo
+    [PrivateAnnouncementType.PRICE_ALERT]: '29',
     [PrivateAnnouncementType.LIMIT_ORDER]: '12,13,14,15',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '10,11',
     [PrivateAnnouncementType.CROSS_CHAIN]: '27,28',
     [PrivateAnnouncementType.KYBER_AI]: '26',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '17,18',
-    EXCLUDE: '2,16,19,9,25,24', // todo
+    EXCLUDE: '2,16,19,9,25,24,21,22',
   },
 }
 
