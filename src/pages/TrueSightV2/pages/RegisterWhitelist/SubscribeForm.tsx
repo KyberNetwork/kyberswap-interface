@@ -4,7 +4,6 @@ import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 're
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import { useLazyCheckReferralCodeQuery, useRequestWhiteListMutation } from 'services/kyberAISubscription'
-import { useLazyGetConnectedWalletQuery } from 'services/notification'
 
 import { ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
@@ -34,31 +33,14 @@ export default function EmailForm({
   const { userInfo } = useSessionInfo()
   const [requestWaitList] = useRequestWhiteListMutation()
 
-  const [getConnectedWallet, { isFetching }] = useLazyGetConnectedWalletQuery()
-  const [checkReferralCode] = useLazyCheckReferralCodeQuery()
+  const [checkReferalCode] = useLazyCheckReferralCodeQuery()
   const checkingInput = useRef(false)
-
-  const checkEmailExist = useCallback(
-    async (email: string) => {
-      try {
-        if (!isEmailValid(email) || (userInfo?.email && userInfo.email === email)) return
-        const { data: walletAddress } = await getConnectedWallet(email)
-        if (walletAddress) {
-          setErrorInput(prev => ({ ...prev, email: t`This email address is already registered` }))
-        }
-      } catch (error) {
-      } finally {
-        checkingInput.current = false
-      }
-    },
-    [getConnectedWallet, userInfo?.email],
-  )
 
   const checkReferCodeExist = useCallback(
     async (code: string) => {
       try {
         if (!code?.trim()) return
-        const { data } = await checkReferralCode(code.trim())
+        const { data } = await checkReferalCode(code.trim())
         if (!data?.isValid) {
           setErrorInput(prev => ({ ...prev, referredByCode: t`Referral code is invalid` }))
         }
@@ -67,7 +49,7 @@ export default function EmailForm({
         checkingInput.current = false
       }
     },
-    [checkReferralCode],
+    [checkReferalCode],
   )
 
   useEffect(() => {
@@ -81,18 +63,15 @@ export default function EmailForm({
     setErrorInput(prev => ({ ...prev, email: msg ? msg : '' }))
   }, [])
 
-  const debouncedCheckEmail = useMemo(() => debounce((email: string) => checkEmailExist(email), 500), [checkEmailExist])
   const debouncedCheckReferCode = useMemo(
     () => debounce((code: string) => checkReferCodeExist(code), 500),
     [checkReferCodeExist],
   )
 
   const onChangeInput = (e: React.FormEvent<HTMLInputElement>) => {
-    checkingInput.current = true
     const value = e.currentTarget.value
     setInputEmail(value)
     validateInput(value)
-    debouncedCheckEmail(value)
   }
 
   const onChangeCode = (e: FormEvent<HTMLInputElement>) => {
@@ -108,7 +87,7 @@ export default function EmailForm({
   const joinWaitList = async () => {
     mixpanelHandler(MIXPANEL_TYPE.KYBERAI_JOIN_KYBER_WAITLIST_CLICK)
     try {
-      if (hasErrorInput || !inputEmail || isFetching || checkingInput.current) return
+      if (hasErrorInput || !inputEmail || checkingInput.current) return
       if (userInfo?.email) {
         await requestWaitList({ referredByCode }).unwrap()
       }

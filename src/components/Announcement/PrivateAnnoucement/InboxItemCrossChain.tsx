@@ -55,7 +55,7 @@ function InboxItemBridge({
     dstTokenSymbol,
     dstTxHash,
     srcTxHash,
-  } = templateBody.transaction
+  } = templateBody?.transaction || {}
   const isSuccess = isCrossChainTxsSuccess(status)
   const chainIdIn = Number(srcChainId) as ChainId
   const chainIdOut = Number(dstChainId) as ChainId

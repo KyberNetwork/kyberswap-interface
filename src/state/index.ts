@@ -9,12 +9,11 @@ import { ENV_LEVEL } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
 import kyberAIApi from 'pages/TrueSightV2/hooks/useKyberAIData'
 
-import annoucementApi from '../services/announcement'
+import announcementApi, { publicAnnouncementApi } from '../services/announcement'
 import crosschainApi from '../services/crossChain'
 import geckoTerminalApi from '../services/geckoTermial'
 import identifyApi from '../services/identity'
 import ksSettingApi from '../services/ksSetting'
-import notificationApi from '../services/notification'
 import socialApi from '../services/social'
 import application from './application/reducer'
 import authen from './authen/reducer'
@@ -34,6 +33,7 @@ import mint from './mint/reducer'
 import multicall from './multicall/reducer'
 import pair from './pair/reducer'
 import pools from './pools/reducer'
+import profile from './profile/reducer'
 import swap from './swap/reducer'
 import tokenPrices from './tokenPrices'
 import topTokens from './topTokens'
@@ -42,7 +42,7 @@ import tutorial from './tutorial/reducer'
 import user from './user/reducer'
 import vesting from './vesting/reducer'
 
-const PERSISTED_KEYS: string[] = ['user', 'transactions']
+const PERSISTED_KEYS: string[] = ['user', 'transactions', 'profile']
 ENV_LEVEL < ENV_TYPE.PROD && PERSISTED_KEYS.push('customizeDexes')
 // ENV_LEVEL < ENV_TYPE.PROD && PERSISTED_KEYS.push('mintV2')
 
@@ -51,6 +51,7 @@ const store = configureStore({
   reducer: {
     application,
     authen,
+    profile,
     user,
     transactions,
     swap,
@@ -65,12 +66,12 @@ const store = configureStore({
     pools,
     farms,
     vesting,
-    [annoucementApi.reducerPath]: annoucementApi.reducer,
+    [announcementApi.reducerPath]: announcementApi.reducer,
+    [publicAnnouncementApi.reducerPath]: publicAnnouncementApi.reducer,
     [geckoTerminalApi.reducerPath]: geckoTerminalApi.reducer,
     [kyberAIApi.reducerPath]: kyberAIApi.reducer,
     [kyberAISubscriptionApi.reducerPath]: kyberAISubscriptionApi.reducer,
     [identifyApi.reducerPath]: identifyApi.reducer,
-    [notificationApi.reducerPath]: notificationApi.reducer,
     [ksSettingApi.reducerPath]: ksSettingApi.reducer,
     [crosschainApi.reducerPath]: crosschainApi.reducer,
     [priceAlertApi.reducerPath]: priceAlertApi.reducer,
@@ -85,19 +86,21 @@ const store = configureStore({
     topTokens,
     [routeApi.reducerPath]: routeApi.reducer,
     [tokenApi.reducerPath]: tokenApi.reducer,
+    [socialApi.reducerPath]: socialApi.reducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
       .concat(save({ states: PERSISTED_KEYS, debounce: 100 }))
       .concat(geckoTerminalApi.middleware)
-      .concat(annoucementApi.middleware)
       .concat(kyberAIApi.middleware)
       .concat(kyberAISubscriptionApi.middleware)
       .concat(identifyApi.middleware)
-      .concat(notificationApi.middleware)
+      .concat(announcementApi.middleware)
+      .concat(publicAnnouncementApi.middleware)
+      .concat(kyberAISubscriptionApi.middleware)
+      .concat(identifyApi.middleware)
       .concat(ksSettingApi.middleware)
       .concat(crosschainApi.middleware)
-      .concat(annoucementApi.middleware)
       .concat(priceAlertApi.middleware)
       .concat(routeApi.middleware)
       .concat(socialApi.middleware)

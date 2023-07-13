@@ -3,7 +3,8 @@ import dayjs from 'dayjs'
 
 // ex: 60 => 1 minute
 export const formatTimeDuration = (t: number) => {
-  return dayjs.duration(t, 'seconds').humanize().replace('a ', '1 ').replace('an ', '1 ')
+  const str = dayjs.duration(t, 'seconds').humanize()
+  return str.includes('few') ? str : str.replace('a ', '1 ').replace('an ', '1 ')
 }
 
 const formatMulti = (n: number, str: string) => (n === 1 ? str : str + 's')

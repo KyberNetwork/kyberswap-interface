@@ -10,17 +10,20 @@ export enum PriceAlertType {
   BELOW = 'below',
 }
 
-export enum NOTIFICATION_ROUTES {
+export enum PROFILE_MANAGE_ROUTES {
+  PROFILE = '/profile',
+
   CREATE_ALERT = '/create-alert',
-  OVERVIEW = '/overview',
-  ALL = '/',
-  GENERAL = '/general',
-  PRICE_ALERTS = '/price-alerts',
-  MY_ELASTIC_POOLS = '/elastic-pools',
-  LIMIT_ORDERS = '/limit-orders',
-  BRIDGE = '/bridge',
+
+  ALL_NOTIFICATION = '/notification',
+  PREFERENCE = '/notification/preferences',
+  GENERAL = '/notification/general',
+  PRICE_ALERTS = '/notification/price-alerts',
+  MY_ELASTIC_POOLS = '/notification/elastic-pools',
+  LIMIT_ORDERS = '/notification/limit-orders',
+  BRIDGE = '/notification/bridge',
+  KYBER_AI_TOKENS = '/notification/kyber-ai',
   CROSS_CHAIN = '/cross-chain',
-  KYBER_AI_TOKENS = '/kyber-ai',
 }
 
 export type CreatePriceAlertPayload = {

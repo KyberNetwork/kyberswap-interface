@@ -37,7 +37,7 @@ const DeleteAllAlertsButton: React.FC<Props> = ({ onClear, disabled, notificatio
   const [isLoading, setLoading] = useState(false)
 
   const handleClickDeleteAll = async () => {
-    if (!account || isLoading) {
+    if (isLoading) {
       return
     }
     try {
@@ -73,7 +73,7 @@ const DeleteAllAlertsButton: React.FC<Props> = ({ onClear, disabled, notificatio
         onClick={() => {
           setModalOpen(true)
         }}
-        disabled={isLoading || !account || disabled}
+        disabled={isLoading || disabled}
       >
         <Trash size="16px" /> <Trans>Clear All</Trans>
       </ButtonEmpty>
