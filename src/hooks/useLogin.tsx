@@ -38,7 +38,7 @@ KyberOauth2.initialize({
 })
 
 const useLogin = (autoLogin = false) => {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, isEVM } = useActiveWeb3React()
 
   const [createProfile] = useGetOrCreateProfileMutation()
   // const [connectWalletToProfile] = useConnectWalletToProfileMutation()
@@ -189,7 +189,7 @@ const useLogin = (autoLogin = false) => {
       const redirectSignIn = () => {
         setLoginRedirectUrl(window.location.href)
         setTimeout(() => {
-          KyberOauth2.authenticate({ wallet_address: desireAccount || account || '' }) // navigate to login page
+          KyberOauth2.authenticate(isEVM ? { wallet_address: desireAccount || account || '' } : {}) // navigate to login page
         }, 1000)
       }
       if (showSessionExpired && isSelectAccount && !isTokenExist) {
@@ -205,7 +205,7 @@ const useLogin = (autoLogin = false) => {
       }
       redirectSignIn()
     },
-    [account, checkSessionSignIn, toggleWalletModal, showConfirm, setLoginRedirectUrl, setAutoSignIn],
+    [account, isEVM, checkSessionSignIn, toggleWalletModal, showConfirm, setLoginRedirectUrl, setAutoSignIn],
   )
 
   const showSignOutSuccess = useCallback(() => {
