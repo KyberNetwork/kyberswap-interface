@@ -219,28 +219,30 @@ const Positions: React.FC<Props> = ({
         ))}
       </ListPositions>
 
-      <ButtonLight
-        onClick={() => {
-          setNumberOfVisiblePositions(
-            numberOfVisiblePositions < positionEarnings.length ? positionEarnings.length : getDefaultNumberPos(),
-          )
-        }}
-        style={{
-          gap: '4px',
-          alignItems: 'center',
-          padding: 0,
-          height: '36px',
-        }}
-      >
-        <Eye size={16} />
-        {numberOfVisiblePositions < positionEarnings.length ? (
-          <span>
-            <Trans>View All</Trans> ({positionEarnings.length - numberOfVisiblePositions})
-          </span>
-        ) : (
-          <Trans>View Less</Trans>
-        )}
-      </ButtonLight>
+      {positionEarnings.length > getDefaultNumberPos() && (
+        <ButtonLight
+          onClick={() => {
+            setNumberOfVisiblePositions(
+              numberOfVisiblePositions < positionEarnings.length ? positionEarnings.length : getDefaultNumberPos(),
+            )
+          }}
+          style={{
+            gap: '4px',
+            alignItems: 'center',
+            padding: 0,
+            height: '36px',
+          }}
+        >
+          <Eye size={16} />
+          {numberOfVisiblePositions < positionEarnings.length ? (
+            <span>
+              <Trans>View All</Trans> ({positionEarnings.length - numberOfVisiblePositions})
+            </span>
+          ) : (
+            <Trans>View Less</Trans>
+          )}
+        </ButtonLight>
+      )}
     </Flex>
   )
 }
