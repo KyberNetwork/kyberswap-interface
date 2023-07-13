@@ -10,15 +10,16 @@ import { useTokenAnalysisSettings } from 'state/user/hooks'
 import { SectionWrapper } from '../components'
 import RequireConnectWalletWrapper from '../components/RequireConnectWallet'
 import {
-  // HoldersChartWrapper,
+  HoldersChartWrapper,
   NetflowToCentralizedExchanges,
-  NetflowToWhaleWallets, // NumberofHolders,
+  NetflowToWhaleWallets,
+  NumberofHolders,
   NumberofTradesChart,
   NumberofTransfers,
   TradingVolumeChart,
 } from '../components/chart'
-// import { Top10HoldersShareContent } from '../components/shareContent/Top10HoldersShareContent'
-// import { Top10HoldersTable } from '../components/table'
+import { Top10HoldersShareContent } from '../components/shareContent/Top10HoldersShareContent'
+import { Top10HoldersTable } from '../components/table'
 import { KYBERAI_CHART_ID } from '../constants'
 import { useChartNoData } from '../hooks/useChartStatesReducer'
 import { ChartTab } from '../types'
@@ -40,8 +41,8 @@ export default function OnChainAnalysis() {
   const netflowToWhaleWalletNodata = useChartNoData(KYBERAI_CHART_ID.NETFLOW_TO_WHALE_WALLET)
   const netflowToCEXNodata = useChartNoData(KYBERAI_CHART_ID.NETFLOW_TO_CEX)
   const numberOfTranfersNodata = useChartNoData(KYBERAI_CHART_ID.NUMBER_OF_TRANSFERS)
-  // const numberOfHoldersNodata = useChartNoData(KYBERAI_CHART_ID.NUMBER_OF_HOLDERS)
-  // const holderPieChartNodata = useChartNoData(KYBERAI_CHART_ID.HOLDER_PIE_CHART)
+  const numberOfHoldersNodata = useChartNoData(KYBERAI_CHART_ID.NUMBER_OF_HOLDERS)
+  const holderPieChartNodata = useChartNoData(KYBERAI_CHART_ID.HOLDER_PIE_CHART)
 
   useEffect(() => {
     if (!window.location.hash) return
@@ -175,7 +176,7 @@ export default function OnChainAnalysis() {
           <NumberofTransfers tab={numberOfTransfers} />
         </RequireConnectWalletWrapper>
       </SectionWrapper>
-      {/* <SectionWrapper
+      <SectionWrapper
         show={tokenAnalysisSettings?.numberOfHolders}
         title={t`Number of Holders`}
         description={t`Indicates the number of addresses that hold a token. An increase in the number of holders may indicate more interest in the token and vice-versa. Number of holders may also indicate the distribution of the token. High number of holders may reduce the impact an individual (like a whale) can have on the price.`}
@@ -213,7 +214,7 @@ export default function OnChainAnalysis() {
         <RequireConnectWalletWrapper>
           <HoldersChartWrapper />
         </RequireConnectWalletWrapper>
-      </SectionWrapper> */}
+      </SectionWrapper>
     </Wrapper>
   )
 }
