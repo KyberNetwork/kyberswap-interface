@@ -251,7 +251,7 @@ export default function KNCUtility() {
                 <Text
                   fontSize={12}
                   fontWeight={400}
-                  lineHeight="24px"
+                  lineHeight="16px"
                   color={theme.warning}
                   fontStyle="italic"
                   as="span"

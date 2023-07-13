@@ -2,7 +2,7 @@ import { Trans } from '@lingui/macro'
 import { useLocation } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { ReactComponent as KyberLogo } from 'assets/svg/kyber_logo.svg'
+import { ReactComponent as KyberLogo } from 'assets/svg/knc_black.svg'
 import Column from 'components/Column'
 import LightBulb from 'components/Icons/LightBulb'
 import StakeIcon from 'components/Icons/Stake'
