@@ -240,7 +240,7 @@ export default function GasRefundBox() {
               account ? (
                 isSupportKyberDao(chainId) ? (
                   claiming ? (
-                    <ButtonPrimary padding={upToXXSmall ? '8px 28px' : '8px 45px'} onClick={claimRewards}>
+                    <ButtonPrimary padding={upToXXSmall ? '8px 28px' : '8px 45px'} onClick={claimRewards} $disabled>
                       <Dots>
                         <Trans>Claiming</Trans>
                       </Dots>
