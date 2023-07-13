@@ -50,6 +50,7 @@ const ActiveAlerts = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boolea
   }, [userInfo?.identityId, refetch, refetchStat])
 
   const totalAlert = data?.alerts?.length ?? 0
+  console.log({ isFetching })
 
   if (!totalAlert || isFetching) {
     return <NoData msg={t`No price alerts created yet`} isLoading={isFetching} />
