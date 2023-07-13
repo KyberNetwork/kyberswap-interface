@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { LogOut, Save } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
-import { useMedia } from 'react-use'
+import { useMedia, usePrevious } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useUpdateProfileMutation } from 'services/identity'
 import styled from 'styled-components'
@@ -104,6 +104,15 @@ const ProfileContent = styled.div`
     gap: 12px;
   `}
 `
+const getCacheDataDefault = () =>
+  JSON.parse(
+    JSON.stringify({
+      nickname: '',
+      file: undefined,
+      avatar: '',
+      email: '',
+    }),
+  )
 
 export default function Profile() {
   const theme = useTheme()
@@ -120,12 +129,9 @@ export default function Profile() {
 
   const [file, setFile] = useState<File>()
   const [previewImage, setPreviewImage] = useState<string>()
-  const cacheData = useRef<{ nickname: string; file: File | undefined; avatar: string; email: string }>({
-    nickname: '',
-    file: undefined,
-    avatar: '',
-    email: '',
-  })
+  const cacheData = useRef<{ nickname: string; file: File | undefined; avatar: string; email: string }>(
+    getCacheDataDefault(),
+  )
 
   const onChangeNickname = useCallback((value: string) => {
     setNickName(value)
@@ -140,13 +146,17 @@ export default function Profile() {
     [onChangeEmail],
   )
 
+  const prevIdentity = usePrevious(userInfo?.identityId)
   useEffect(() => {
+    if (prevIdentity && prevIdentity !== userInfo?.identityId) {
+      cacheData.current = getCacheDataDefault()
+    }
     const { file, nickname, avatar, email } = cacheData.current
     onChangeEmail(email || userInfo?.email || '')
     setNickName(nickname || userInfo?.nickname || '')
     setPreviewImage(avatar || userInfo?.avatarUrl)
     file && setFile(file)
-  }, [userInfo?.email, userInfo?.nickname, userInfo?.avatarUrl, onChangeEmail])
+  }, [userInfo, onChangeEmail, prevIdentity])
 
   const [isShowVerify, setIsShowVerify] = useState(false)
   const showVerifyModal = () => {
