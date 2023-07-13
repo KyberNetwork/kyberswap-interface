@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-const InputWrapper = styled.input<{ $borderColor?: string; color?: string }>`
+const InputWrapper = styled.input<{ $borderColor?: string; color?: string; $isPassword: boolean }>`
   display: flex;
   align-items: center;
   white-space: nowrap;
@@ -18,10 +18,12 @@ const InputWrapper = styled.input<{ $borderColor?: string; color?: string }>`
     color: ${({ theme }) => theme.border};
     font-size: 12px;
   }
+  ${({ $isPassword }) => $isPassword && `-webkit-text-security: disc !important;`};
 `
 
 export default function Input({
   borderColor,
+  type,
   ...props
 }: React.InputHTMLAttributes<HTMLInputElement> & { borderColor?: string }) {
   return (
@@ -31,6 +33,8 @@ export default function Input({
       autoCapitalize="off"
       spellCheck="false"
       {...props}
+      $isPassword={type === 'password'}
+      type={type === 'password' ? 'text' : type}
       $borderColor={borderColor}
     />
   )
