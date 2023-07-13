@@ -16,7 +16,7 @@ import { RowBetween } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import { useStakingInfo } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
-import { MEDIA_WIDTHS } from 'theme'
+import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 
 import KNCLogo from '../kncLogo'
 import FAQ from './FAQ'
@@ -204,8 +204,9 @@ export default function KNCUtility() {
               <Trans>
                 To participate in KyberSwap&apos;s Gas Refund Program, you must stake KNC and meet the necessary
                 requirements. The amount of gas refunded will depend on your staking Tier. Read more{' '}
-                <NavLink to="/">here ↗</NavLink>
-                {/* todo namgold: add link */}
+                <ExternalLink href="https://docs.kyberswap.com/governance/knc-token/gas-refund-program">
+                  here ↗
+                </ExternalLink>
               </Trans>
             </Text>
             <Table>

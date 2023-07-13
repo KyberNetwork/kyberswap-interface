@@ -274,7 +274,7 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
                     text={
                       <Trans>
                         Stake KNC in KyberDAO to get gas refund.{' '}
-                        <ExternalLink href="https://kyberswap.com/governance/knc-token/gas-refund-program">
+                        <ExternalLink href="https://docs.kyberswap.com/governance/knc-token/gas-refund-program">
                           Read more ↗
                         </ExternalLink>
                       </Trans>
