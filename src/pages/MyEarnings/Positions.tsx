@@ -71,7 +71,7 @@ const Positions: React.FC<Props> = ({
     const width = document.getElementById('my-earning-wrapper')?.offsetWidth || 1610
 
     let num = 1
-    while (width > WIDTHS[num + 1]) {
+    while (width >= WIDTHS[num + 1]) {
       num += 1
     }
 
@@ -219,7 +219,7 @@ const Positions: React.FC<Props> = ({
         ))}
       </ListPositions>
 
-      {positionEarnings.length > 4 && (
+      {positionEarnings.length > numberOfVisiblePositions && (
         <ButtonLight
           onClick={() => {
             setNumberOfVisiblePositions(
