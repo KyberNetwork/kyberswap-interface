@@ -23,7 +23,7 @@ const earningApi = createApi({
   reducerPath: 'earningApi',
   // TODO: update env
   baseQuery: fetchBaseQuery({ baseUrl: 'https://pool-farm.dev.kyberengineering.io' }),
-  keepUnusedDataFor: 10, // 3 minutes
+  keepUnusedDataFor: 180, // 3 minutes
   endpoints: builder => ({
     getElasticEarning: builder.query<GetElasticEarningResponse, GetElasticEarningParams>({
       query: ({ account, chainIds }) => ({
