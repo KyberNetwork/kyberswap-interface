@@ -13,7 +13,6 @@ import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
-import { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
@@ -101,7 +100,7 @@ const Row = memo(
     const theme = useTheme()
     const [tab, setTab] = useState<'liquidity' | 'price_range'>('liquidity')
 
-    const { chainId, account } = useActiveWeb3React()
+    const { chainId } = useActiveWeb3React()
 
     const sortedPositions = positions.sort((a, b) => +b.liquidity - +a.liquidity)
     const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -136,8 +135,6 @@ const Row = memo(
     const price = position.pool.priceOf(position.pool.token0)
     const priceLower = position.token0PriceLower
     const priceUpper = position.token0PriceUpper
-
-    const isOwner = p.owner.toLowerCase() === account?.toLowerCase()
 
     return (
       <div style={styles}>
@@ -270,32 +267,19 @@ const Row = memo(
           <Flex marginTop="1rem" sx={{ gap: '12px' }}>
             <ButtonPrimary
               style={{ height: '36px' }}
-              disabled={p.liquidity === '0' || !isOwner}
+              disabled={p.liquidity === '0'}
               onClick={() => removeLiquidity(true)}
             >
-              <MouseoverTooltip text={!isOwner ? t`Please withdraw your liquidity from farm contract first` : ''}>
-                <Text sx={{ borderBottom: !isOwner ? `1px dotted ${theme.border}` : undefined }}>Remove Liquidity</Text>
-              </MouseoverTooltip>
+              Remove Liquidity
             </ButtonPrimary>
             <ButtonOutlined
               style={{ height: '36px' }}
-              disabled={(feeValue0.equalTo('0') && feeValue1.equalTo('0')) || !isOwner}
+              disabled={feeValue0.equalTo('0') && feeValue1.equalTo('0')}
               onClick={() => {
                 collectFee()
               }}
             >
-              <MouseoverTooltip text={!isOwner ? t`Please withdraw your liquidity from farm contract first` : ''}>
-                <Text
-                  sx={{
-                    borderBottom:
-                      !isOwner && (feeValue0.greaterThan('0') || feeValue1.greaterThan('0'))
-                        ? `1px dotted ${theme.border}`
-                        : undefined,
-                  }}
-                >
-                  Collect Fees
-                </Text>
-              </MouseoverTooltip>
+              Collect Fees
             </ButtonOutlined>
           </Flex>
         </Item>
