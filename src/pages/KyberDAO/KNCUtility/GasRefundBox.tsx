@@ -278,7 +278,6 @@ export default function GasRefundBox() {
               <Flex>
                 <Text fontSize={12} fontWeight={500} lineHeight="16px" as="span">
                   <Trans>
-                    {' '}
                     Available to claim in{' '}
                     <Highlight>
                       <StopWatch width={10} height={11} />

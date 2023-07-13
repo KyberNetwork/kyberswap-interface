@@ -118,6 +118,7 @@ export default function KNCUtility() {
                 width: '100%',
               }),
         }}
+        alt="Gas Refund"
       />
     </Flex>
   )

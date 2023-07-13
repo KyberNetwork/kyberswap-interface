@@ -255,11 +255,11 @@ export default function StakeKNC() {
               }
             >
               {userTier === 1 ? (
-                <img src={GasRefundTier1} />
+                <img src={GasRefundTier1} alt="Tier 1" />
               ) : userTier === 2 ? (
-                <img src={GasRefundTier2} />
+                <img src={GasRefundTier2} alt="Tier 2" />
               ) : userTier === 3 ? (
-                <img src={GasRefundTier3} />
+                <img src={GasRefundTier3} alt="Tier 3" />
               ) : null}
             </MouseoverTooltip>
           </Card>
