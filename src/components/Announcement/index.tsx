@@ -143,9 +143,9 @@ export default function AnnouncementComponent() {
     numberOfUnread,
     pagination: { totalItems: totalPrivateAnnouncement },
   } = isError ? responseDefault : respPrivateAnnouncement
-  const refreshAnnouncement = () => {
+  const refreshAnnouncement = useCallback(() => {
     fetchAnnouncementsByTab(true)
-  }
+  }, [fetchAnnouncementsByTab])
 
   const loadMoreAnnouncements = useCallback(() => {
     fetchAnnouncementsByTab()
@@ -226,8 +226,9 @@ export default function AnnouncementComponent() {
   useEffect(() => {
     if (userInfo?.identityId) {
       invalidateTag(ANNOUNCEMENT_TAGS)
+      refreshAnnouncement()
     }
-  }, [userInfo?.identityId, invalidateTag])
+  }, [userInfo?.identityId, invalidateTag, refreshAnnouncement])
 
   useInterval(prefetchPrivateAnnouncements, 10_000)
 
