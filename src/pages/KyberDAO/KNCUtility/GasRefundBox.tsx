@@ -191,7 +191,7 @@ export default function GasRefundBox() {
                 </Tab>
               </MouseoverTooltip>
             </TextDashed>
-            &nbsp;|&nbsp;
+            <Text sx={{ userSelect: 'none' }}>&nbsp;|&nbsp;</Text>
             <TextDashed>
               <MouseoverTooltip
                 width="fit-content"
@@ -206,7 +206,7 @@ export default function GasRefundBox() {
                 </Tab>
               </MouseoverTooltip>
             </TextDashed>
-            &nbsp;|&nbsp;
+            <Text sx={{ userSelect: 'none' }}>&nbsp;|&nbsp;</Text>
             <TextDashed>
               <MouseoverTooltip width="fit-content" text={<Trans>Rewards successfully claimed</Trans>} placement="top">
                 <Tab
