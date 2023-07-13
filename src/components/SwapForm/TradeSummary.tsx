@@ -287,7 +287,7 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
               </RowFixed>
               <NavLink to={APP_PATHS.KYBERDAO_KNC_UTILITY}>
                 <ButtonLight padding="0px 8px" width="fit-content" fontSize={10} fontWeight={500} lineHeight="16px">
-                  {account ? gasRefundPerCentage * 100 : '-- '}% Refund
+                  {account ? gasRefundPerCentage * 100 : '--'}% Refund
                 </ButtonLight>
               </NavLink>
             </RowBetween>

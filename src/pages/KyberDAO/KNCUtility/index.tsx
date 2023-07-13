@@ -14,6 +14,7 @@ import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
 import { RowBetween } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import { useStakingInfo } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
@@ -98,6 +99,7 @@ const YourStakedKNC = styled(FormWrapper)`
 `
 
 export default function KNCUtility() {
+  const { account } = useActiveWeb3React()
   const theme = useTheme()
   const { stakedBalance } = useStakingInfo()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
@@ -141,7 +143,7 @@ export default function KNCUtility() {
                   style={{ gap: '8px' }}
                   fontWeight={500}
                 >
-                  <KNCLogo size={20} /> {formatUnits(stakedBalance)} KNC
+                  <KNCLogo size={20} /> {account ? formatUnits(stakedBalance) : '--'} KNC
                 </Text>
               </YourStakedKNC>
               <Flex alignSelf="flex-end">
