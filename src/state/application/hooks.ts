@@ -117,10 +117,6 @@ export function useRegisterCampaignSuccessModalToggle(): () => void {
   return useToggleModal(ApplicationModal.REGISTER_CAMPAIGN_SUCCESS)
 }
 
-export function useEligibleTxToggle(): () => void {
-  return useToggleModal(ApplicationModal.ELIGIBLE_TX)
-}
-
 // returns a function that allows adding a popup
 export function useAddPopup(): (
   content: PopupContent,

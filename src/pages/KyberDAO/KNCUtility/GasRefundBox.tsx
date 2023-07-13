@@ -24,7 +24,7 @@ import {
   useVotingInfo,
 } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
-import { useEligibleTxToggle, useNotify, useOpenNetworkModal, useWalletModalToggle } from 'state/application/hooks'
+import { useNotify, useOpenNetworkModal, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { LinkStyledButton, MEDIA_WIDTHS } from 'theme'
@@ -95,7 +95,7 @@ export default function GasRefundBox() {
   const theme = useTheme()
   const { totalReward, reward, claimableReward } = useGasRefundInfo({ rewardStatus: selectedTab })
   const toggleWalletModal = useWalletModalToggle()
-  const toggleEligibleTxModal = useEligibleTxToggle()
+  const [isShowEligibleTx, setShowEligibleTx] = useState(false)
   const openNetworkModal = useOpenNetworkModal()
   const notify = useNotify()
   const [claiming, setClaiming] = useState(false)
@@ -324,7 +324,7 @@ export default function GasRefundBox() {
           {!!account && !!eligibleTxs?.transactions.length && (
             <ButtonLight
               padding="2px 12px"
-              onClick={toggleEligibleTxModal}
+              onClick={isShowEligibleTx => setShowEligibleTx(!isShowEligibleTx)}
               style={{ whiteSpace: 'nowrap' }}
               width="max-content"
             >
@@ -335,7 +335,7 @@ export default function GasRefundBox() {
           )}
         </Flex>
       </RowBetween>
-      <EligibleTxModal />
+      <EligibleTxModal isOpen={isShowEligibleTx} closeModal={() => setShowEligibleTx(false)} />
     </Wrapper>
   )
 }

@@ -41,10 +41,8 @@ const IconWrapper = styled.div`
   `};
 `
 
-export default function EligibleTxModal() {
+export default function EligibleTxModal({ isOpen, closeModal }: { isOpen: boolean; closeModal: () => void }) {
   const { chainId, networkInfo } = useActiveWeb3React()
-  const isOpen = useModalOpen(ApplicationModal.ELIGIBLE_TX)
-  const closeModal = useCloseModal(ApplicationModal.ELIGIBLE_TX)
   const [currentPage, setCurrentPage] = useState(1)
   const eligibleTxs = useEligibleTransactions(currentPage, 10)
   const theme = useTheme()
