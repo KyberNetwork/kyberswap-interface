@@ -63,7 +63,7 @@ const ModalConfirm: React.FC = () => {
             gap: '16px',
           }}
         >
-          {onCancel && (
+          {cancelText && (
             <ButtonOutlined
               borderRadius="24px"
               height="36px"
@@ -73,7 +73,7 @@ const ModalConfirm: React.FC = () => {
                 handleDismiss()
               }}
             >
-              {cancelText || <Trans>Cancel</Trans>}
+              {cancelText}
             </ButtonOutlined>
           )}
 

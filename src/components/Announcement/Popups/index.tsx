@@ -15,8 +15,13 @@ import {
   useRemoveAllPopupByType,
   useToggleNotificationCenter,
 } from 'state/application/hooks'
+import { useSessionInfo } from 'state/authen/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import { subscribeAnnouncement, subscribePrivateAnnouncement } from 'utils/firebase'
+import {
+  subscribeAnnouncement,
+  subscribePrivateAnnouncement,
+  subscribePrivateAnnouncementProfile,
+} from 'utils/firebase'
 
 import TopRightPopup from './TopRightPopup'
 
@@ -65,6 +70,7 @@ export default function Popups() {
   const { topRightPopups, centerPopups, snippetPopups, topPopups } = useActivePopups()
   const centerPopup = centerPopups[centerPopups.length - 1]
   const { account, chainId } = useActiveWeb3React()
+  const { userInfo } = useSessionInfo()
 
   const toggleNotificationCenter = useToggleNotificationCenter()
   const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
@@ -94,10 +100,6 @@ export default function Popups() {
     const unsubscribePrivate = subscribePrivateAnnouncement(account, data => {
       data.forEach(item => {
         switch (item.templateType) {
-          case PrivateAnnouncementType.PRICE_ALERT:
-            const mins = (Date.now() / 1000 - item.createdAt) / TIMES_IN_SECS.ONE_MIN
-            if (mins <= 5) addPopup(item, PopupType.TOP_RIGHT, item.metaMessageId, 15_000)
-            break
           case PrivateAnnouncementType.CROSS_CHAIN:
             addPopup(item, PopupType.TOP_RIGHT, item.metaMessageId, 15_000)
             break
@@ -109,11 +111,22 @@ export default function Popups() {
         }
       })
     })
+    const unsubscribePrivateProfile = subscribePrivateAnnouncementProfile(userInfo?.identityId, data => {
+      data.forEach(item => {
+        switch (item.templateType) {
+          case PrivateAnnouncementType.PRICE_ALERT:
+            const mins = (Date.now() / 1000 - item.createdAt) / TIMES_IN_SECS.ONE_MIN
+            if (mins <= 5) addPopup(item, PopupType.TOP_RIGHT, item.metaMessageId, 15_000)
+            break
+        }
+      })
+    })
     return () => {
       unsubscribe?.()
       unsubscribePrivate?.()
+      unsubscribePrivateProfile?.()
     }
-  }, [account, isShowTutorial, addPopup, chainId])
+  }, [account, isShowTutorial, addPopup, chainId, userInfo?.identityId])
 
   const totalTopRightPopup = topRightPopups.length
 

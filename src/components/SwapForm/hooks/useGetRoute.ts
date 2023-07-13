@@ -6,7 +6,13 @@ import { GetRouteParams } from 'services/route/types/getRoute'
 
 import useGetSwapFeeConfig, { SwapFeeConfig } from 'components/SwapForm/hooks/useGetSwapFeeConfig'
 import useSelectedDexes from 'components/SwapForm/hooks/useSelectedDexes'
-import { ETHER_ADDRESS, INPUT_DEBOUNCE_TIME, SWAP_FEE_RECEIVER_ADDRESS, ZERO_ADDRESS_SOLANA } from 'constants/index'
+import {
+  AGGREGATOR_API_PATHS,
+  ETHER_ADDRESS,
+  INPUT_DEBOUNCE_TIME,
+  SWAP_FEE_RECEIVER_ADDRESS,
+  ZERO_ADDRESS_SOLANA,
+} from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
@@ -159,8 +165,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
         delete params[key]
       }
     })
-
-    const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}/api/v1/routes`
+    const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}${AGGREGATOR_API_PATHS.GET_ROUTE}`
 
     triggerDebounced({
       url,

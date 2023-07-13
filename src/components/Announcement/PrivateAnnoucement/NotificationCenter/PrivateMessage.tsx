@@ -14,7 +14,7 @@ export default function AnnouncementItem({
   title,
 }: PrivateAnnouncementPropCenter<AnnouncementTemplatePopup>) {
   const { sentAt, templateType, templateBody } = announcement
-  const { ctaURL } = templateBody
+  const { ctaURL } = templateBody || {}
   const navigate = useNavigateToUrl()
 
   return (

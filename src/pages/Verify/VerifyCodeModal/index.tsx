@@ -16,14 +16,13 @@ import useTheme from 'hooks/useTheme'
 import { getErrorMessage } from 'pages/TrueSightV2/utils'
 import OTPInput from 'pages/Verify/VerifyCodeModal/OtpInput'
 import { useNotify } from 'state/application/hooks'
-import { useSaveUserProfile, useSessionInfo } from 'state/authen/hooks'
-import { UserProfile } from 'state/authen/reducer'
+import { useRefreshProfile } from 'state/profile/hooks'
 
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   padding: 20px;
-  max-width: 100%;
+  width: 100%;
 `
 
 const Content = styled.div`
@@ -53,7 +52,7 @@ const Input = styled.input<{ hasError: boolean }>`
     font-size: 28px;
     width: 46px;
     height: 60px;
-  `};
+  `}
 `
 
 const formatTime = (secs: number) => {
@@ -64,6 +63,11 @@ const formatTime = (secs: number) => {
 
 const timeExpire = 5
 const defaultTime = timeExpire * TIMES_IN_SECS.ONE_MIN
+enum ErrorType {
+  VALIDATE_ERROR = 'VALIDATE_ERROR',
+  SEND_EMAIL_ERROR = 'SEND_EMAIL_ERROR',
+  RATE_LIMIT = 'RATE_LIMIT',
+}
 export default function VerifyCodeModal({
   isOpen,
   onDismiss,
@@ -73,26 +77,30 @@ export default function VerifyCodeModal({
   verifySuccessTitle,
   verifySuccessContent,
 }: {
-  onVerifySuccess: () => Promise<any>
+  onVerifySuccess?: (() => Promise<any>) | (() => void)
   isOpen: boolean
   onDismiss: () => void
   email: string
   showVerifySuccess?: boolean
-  verifySuccessTitle: string
-  verifySuccessContent: ReactNode
+  verifySuccessTitle?: string
+  verifySuccessContent?: ReactNode
 }) {
   const theme = useTheme()
   const [otp, setOtp] = useState<string>('')
   const [verifyOtp] = useVerifyOtpMutation()
   const [sendOtp] = useSendOtpMutation()
   const [verifySuccess, setVerifySuccess] = useState(false)
-  const [error, setError] = useState(false)
+  const [error, setError] = useState<ErrorType>()
   const notify = useNotify()
   const [isTypingIos, setIsTypingIos] = useState(false)
   const isTypingAndroid = useMedia(`(max-height: 450px)`)
 
   const [expiredDuration, setExpireDuration] = useState(defaultTime)
-  const canShowResend = expiredDuration < (timeExpire - 1) * TIMES_IN_SECS.ONE_MIN
+  const isSendMailError = error === ErrorType.SEND_EMAIL_ERROR
+  const isVerifyMailError = error === ErrorType.VALIDATE_ERROR
+  const isRateLimitError = error === ErrorType.RATE_LIMIT
+  const canShowResend =
+    !isSendMailError && !isRateLimitError && expiredDuration < (timeExpire - 1) * TIMES_IN_SECS.ONE_MIN
 
   const interval = useRef<NodeJS.Timeout>()
   useEffect(() => {
@@ -108,7 +116,7 @@ export default function VerifyCodeModal({
       withNotify &&
         notify({
           title: t`Email Verified`,
-          summary: t`Your email have been verified successfully. You can now select notification preference`,
+          summary: t`Your email has been verified successfully! You can now customize your preferences`,
           type: NotificationType.SUCCESS,
         })
     },
@@ -116,9 +124,18 @@ export default function VerifyCodeModal({
   )
 
   const sendEmail = useCallback(() => {
-    email && sendOtp({ email })
     interval.current && clearInterval(interval.current)
-    setExpireDuration(defaultTime)
+    if (!email) return
+    sendOtp({ email })
+      .unwrap()
+      .then(() => {
+        setExpireDuration(defaultTime)
+        setError(undefined)
+      })
+      .catch(data => {
+        setExpireDuration(0)
+        setError(!data?.status ? ErrorType.RATE_LIMIT : ErrorType.SEND_EMAIL_ERROR)
+      })
   }, [email, sendOtp])
 
   const checkedRegisterStatus = useRef(false) // prevent spam
@@ -131,28 +148,27 @@ export default function VerifyCodeModal({
   useEffect(() => {
     if (!isOpen) {
       setTimeout(() => {
-        setError(false)
+        setError(undefined)
         setOtp('')
         setVerifySuccess(false)
-      }, 1000)
+      }, 300)
       checkedRegisterStatus.current = false
     } else {
       showVerifySuccess ? showNotiSuccess(false) : sendEmailWhenInit()
     }
   }, [isOpen, showNotiSuccess, showVerifySuccess, sendEmailWhenInit])
 
-  const setProfile = useSaveUserProfile()
-  const { userInfo } = useSessionInfo()
+  const refreshProfile = useRefreshProfile()
 
   const verify = async () => {
     try {
       if (!email) return
       await verifyOtp({ code: otp, email }).unwrap()
-      await onVerifySuccess()
-      setProfile({ profile: { ...userInfo, email } as UserProfile })
+      await onVerifySuccess?.()
+      await refreshProfile()
       showNotiSuccess()
     } catch (error) {
-      setError(true)
+      setError(ErrorType.VALIDATE_ERROR)
       notify({
         title: t`Error`,
         summary: getErrorMessage(error),
@@ -162,7 +178,7 @@ export default function VerifyCodeModal({
   }
 
   const onChange = (value: string) => {
-    setError(false)
+    isVerifyMailError && setError(undefined)
     setOtp(value)
   }
 
@@ -174,6 +190,8 @@ export default function VerifyCodeModal({
       <X color={theme.text} cursor="pointer" onClick={onDismiss} />
     </RowBetween>
   )
+
+  const showExpiredTime = !isSendMailError && !isRateLimitError && expiredDuration > 0
 
   return (
     <Modal
@@ -201,14 +219,26 @@ export default function VerifyCodeModal({
         ) : (
           <Content>
             {header}
-            <Label>
-              <Trans>
-                We have sent a verification code to{' '}
-                <Text as="span" color={theme.text}>
-                  {email}
-                </Text>
-                . Please enter the code in the field below:
-              </Trans>
+            <Label style={{ color: isSendMailError || isRateLimitError ? theme.red : theme.subText }}>
+              {isRateLimitError ? (
+                <Trans>You reached limit quota. Please try after a few minutes.</Trans>
+              ) : isSendMailError ? (
+                <Trans>
+                  Failed to send a verification code to{' '}
+                  <Text as="span" color={theme.text}>
+                    {email}
+                  </Text>
+                  . Please click Resend to try again
+                </Trans>
+              ) : (
+                <Trans>
+                  We have sent a verification code to{' '}
+                  <Text as="span" color={theme.text}>
+                    {email}
+                  </Text>
+                  . Please enter the code in the field below:
+                </Trans>
+              )}
             </Label>
 
             <OTPInput
@@ -219,7 +249,7 @@ export default function VerifyCodeModal({
               renderInput={props => (
                 <Input
                   {...props}
-                  hasError={error}
+                  hasError={isVerifyMailError}
                   placeholder="-"
                   type="number"
                   onFocus={() => {
@@ -233,26 +263,34 @@ export default function VerifyCodeModal({
               )}
             />
 
-            <Label style={{ width: '100%', textAlign: 'center' }}>
-              {expiredDuration > 0 && (
-                <Trans>
-                  Code will be expired in {formatTime(expiredDuration)}
-                  {canShowResend ? '.' : ''}
-                </Trans>
-              )}
-              &nbsp;
-              {canShowResend && (
-                <Trans>
-                  Didn&apos;t receive code?{' '}
-                  <Text as="span" color={theme.primary} style={{ cursor: 'pointer' }} onClick={sendEmail}>
-                    Resend
-                  </Text>
-                </Trans>
-              )}
-            </Label>
-            <ButtonPrimary height={'36px'} disabled={otp.length < 6} onClick={verify}>
-              <Trans>Verify</Trans>
-            </ButtonPrimary>
+            {(showExpiredTime || canShowResend) && (
+              <Label style={{ width: '100%', textAlign: 'center' }}>
+                {showExpiredTime && (
+                  <Trans>
+                    Code will expire in {formatTime(expiredDuration)}
+                    {canShowResend ? '.' : ''}
+                  </Trans>
+                )}
+                &nbsp;
+                {canShowResend && (
+                  <Trans>
+                    Didn&apos;t receive code?{' '}
+                    <Text as="span" color={theme.primary} style={{ cursor: 'pointer' }} onClick={sendEmail}>
+                      Resend
+                    </Text>
+                  </Trans>
+                )}
+              </Label>
+            )}
+            {isSendMailError ? (
+              <ButtonPrimary height={'36px'} onClick={sendEmail}>
+                <Trans>Resend</Trans>
+              </ButtonPrimary>
+            ) : (
+              <ButtonPrimary height={'36px'} disabled={otp.length < 6 || isRateLimitError} onClick={verify}>
+                <Trans>Verify</Trans>
+              </ButtonPrimary>
+            )}
           </Content>
         )}
       </Wrapper>

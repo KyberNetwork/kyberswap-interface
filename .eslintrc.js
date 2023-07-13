@@ -64,5 +64,7 @@ module.exports = {
       'warn',
       { ignoreRestSiblings: true, argsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
     ],
+    'no-empty-function': 'off',
+    '@typescript-eslint/no-empty-function': 'off',
   },
 }

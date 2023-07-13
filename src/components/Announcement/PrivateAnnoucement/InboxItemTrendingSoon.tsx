@@ -36,7 +36,7 @@ export const TokenInfo = ({
     trendingSoonTokenLogoURL,
     trendingSoonTokenScore,
     trendingSoonTokenSymbol,
-  } = templateBody
+  } = templateBody || {}
   switch (type) {
     case 'bullish':
       return (

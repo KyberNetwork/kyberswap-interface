@@ -41,7 +41,7 @@ function InboxItemBridge({
     poolAddress,
     type,
     chainId: rawChain,
-  } = templateBody.position
+  } = templateBody?.position || {}
 
   const chainId = Number(rawChain) as ChainId
   const isInRange = type === 'IN_RANGE'

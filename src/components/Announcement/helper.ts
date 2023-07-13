@@ -85,10 +85,10 @@ export const useNavigateToUrl = () => {
 export const useInvalidateTags = (reducerPath: string) => {
   const dispatch = useAppDispatch()
   return useCallback(
-    (tag: string) => {
+    (tag: string | string[]) => {
       dispatch({
         type: `${reducerPath}/invalidateTags`,
-        payload: [tag],
+        payload: Array.isArray(tag) ? tag : [tag],
       })
     },
     [dispatch, reducerPath],

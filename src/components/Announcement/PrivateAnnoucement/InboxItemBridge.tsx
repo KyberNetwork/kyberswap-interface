@@ -38,7 +38,7 @@ function InboxItemBridge({
   title,
 }: PrivateAnnouncementProp<AnnouncementTemplateBridge>) {
   const { templateBody, isRead, templateType } = announcement
-  const { status, srcTokenSymbol, srcAmount, dstChainId, srcChainId } = templateBody.transaction
+  const { status, srcTokenSymbol, srcAmount, dstChainId, srcChainId } = templateBody?.transaction || {}
   const isSuccess = Number(status) === MultichainTransferStatus.Success
   const chainIdIn = Number(srcChainId) as ChainId
   const chainIdOut = Number(dstChainId) as ChainId

@@ -1,4 +1,4 @@
-import { RouteData } from '@0xsquid/sdk'
+import { RouteResponse } from '@0xsquid/sdk'
 import { ChainId, NativeCurrency } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -128,7 +128,7 @@ export function useCrossChainHandlers() {
     [dispatch],
   )
 
-  const setTradeRoute = useCallback((data: RouteData | undefined) => dispatch(setRoute(data)), [dispatch])
+  const setTradeRoute = useCallback((data: RouteResponse | undefined) => dispatch(setRoute(data)), [dispatch])
   const setInputAmount = useCallback((data: string) => dispatch(setInputAmountCrossChain(data)), [dispatch])
 
   return { selectDestChain, setTradeRoute, setInputAmount, selectCurrencyIn, selectCurrencyOut }

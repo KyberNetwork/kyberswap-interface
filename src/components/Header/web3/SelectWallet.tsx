@@ -5,19 +5,25 @@ import { Activity } from 'react-feather'
 import { useMedia } from 'react-use'
 import styled from 'styled-components'
 
+import { ReactComponent as WarningInfo } from 'assets/svg/wallet_warning_icon.svg'
 import { ButtonLight } from 'components/Button'
 import WalletModal from 'components/Header/web3/WalletModal'
 import Loader from 'components/Loader'
 import { RowBetween } from 'components/Row'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
 import useENSName from 'hooks/useENSName'
+import useLogin from 'hooks/useLogin'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useTheme from 'hooks/useTheme'
 import { useNetworkModalToggle, useWalletModalToggle } from 'state/application/hooks'
+import { useSignedAccountInfo } from 'state/profile/hooks'
 import { isTransactionRecent, newTransactionsFirst, useAllTransactions } from 'state/transactions/hooks'
 import { TransactionDetails } from 'state/transactions/type'
 import { useIsDarkMode } from 'state/user/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 
 const IconWrapper = styled.div<{ size?: number }>`
@@ -32,7 +38,7 @@ const IconWrapper = styled.div<{ size?: number }>`
 
 const Web3StatusGeneric = styled.button`
   ${({ theme }) => theme.flexRowNoWrap}
-  width: 100%;
+  width: fit-content;
   align-items: center;
   padding: 10px 12px;
   border-radius: 999px;
@@ -54,14 +60,14 @@ const Web3StatusError = styled(Web3StatusGeneric)`
 `
 
 const Web3StatusConnected = styled(Web3StatusGeneric)<{ pending?: boolean }>`
-  background-color: ${({ pending, theme }) => (pending ? theme.primary : theme.buttonGray)};
-  border: 1px solid ${({ pending, theme }) => (pending ? theme.primary : theme.buttonGray)};
+  background-color: ${({ pending, theme }) => (pending ? theme.primary : theme.background)};
+  border: 1px solid ${({ pending, theme }) => (pending ? theme.primary : theme.background)};
   color: ${({ pending, theme }) => (pending ? theme.white : theme.subText)};
   font-weight: 500;
   :hover,
   :focus {
     background-color: ${({ pending, theme }) =>
-      pending ? darken(0.05, theme.primary) : lighten(0.05, theme.buttonGray)};
+      pending ? darken(0.05, theme.primary) : lighten(0.05, theme.background)};
     border: 1px solid ${({ theme }) => theme.primary};
   }
 `
@@ -90,7 +96,7 @@ const AccountElement = styled.div`
   align-items: center;
   border-radius: 999px;
   white-space: nowrap;
-  width: 100%;
+  width: fit-content;
   cursor: pointer;
   pointer-events: auto;
   height: 42px;
@@ -100,8 +106,10 @@ function Web3StatusInner() {
   const { chainId, account, walletKey, isEVM, isWrongNetwork } = useActiveWeb3React()
   const isDarkMode = useIsDarkMode()
   const { mixpanelHandler } = useMixpanel()
-
+  const uptoMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+  const { signIn } = useLogin()
   const { ENSName } = useENSName(isEVM ? account ?? undefined : undefined)
+  const theme = useTheme()
 
   const allTransactions = useAllTransactions()
 
@@ -117,8 +125,8 @@ function Web3StatusInner() {
   const hasPendingTransactions = !!pendingLength
   const toggleWalletModal = useWalletModalToggle()
   const toggleNetworkModal = useNetworkModalToggle()
+  const { isSignInDifferentWallet } = useSignedAccountInfo()
 
-  const above369 = useMedia('(min-width: 369px)')
   if (isWrongNetwork) {
     return (
       <Web3StatusError onClick={toggleNetworkModal}>
@@ -149,15 +157,41 @@ function Web3StatusInner() {
           </RowBetween>
         ) : (
           <>
-            {walletKey && (
-              <IconWrapper size={16}>
-                <img
-                  src={isDarkMode ? SUPPORTED_WALLETS[walletKey].icon : SUPPORTED_WALLETS[walletKey].iconLight}
-                  alt={SUPPORTED_WALLETS[walletKey].name + ' icon'}
-                />
-              </IconWrapper>
+            {isSignInDifferentWallet ? (
+              <MouseoverTooltip
+                placement="bottom"
+                text={
+                  <Text style={{ fontSize: '12px', textAlign: 'left', whiteSpace: 'normal' }}>
+                    <Trans>
+                      You are not signed in with this wallet address. If you wish, you can
+                      <Text
+                        as="span"
+                        style={{ cursor: 'pointer', fontSize: '12px', color: theme.primary }}
+                        onClick={e => {
+                          e.stopPropagation()
+                          signIn(account)
+                        }}
+                      >
+                        sign-in
+                      </Text>
+                      to link your wallet to a profile. This will allow us to offer you a better experience
+                    </Trans>
+                  </Text>
+                }
+              >
+                <WarningInfo width={20} height={20} />
+              </MouseoverTooltip>
+            ) : (
+              walletKey && (
+                <IconWrapper size={16}>
+                  <img
+                    src={isDarkMode ? SUPPORTED_WALLETS[walletKey].icon : SUPPORTED_WALLETS[walletKey].iconLight}
+                    alt={SUPPORTED_WALLETS[walletKey].name + ' icon'}
+                  />
+                </IconWrapper>
+              )
             )}
-            <Text>{ENSName || shortenAddress(chainId, account, above369 ? undefined : 2)}</Text>
+            <Text>{ENSName || shortenAddress(chainId, account, uptoMedium ? 2 : undefined)}</Text>
           </>
         )}
       </Web3StatusConnected>

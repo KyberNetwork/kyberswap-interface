@@ -1,5 +1,4 @@
-import { GetRoute } from '@0xsquid/sdk'
-import { RouteData } from '@sentry/react/types/types'
+import { GetRoute, RouteResponse } from '@0xsquid/sdk'
 import { debounce } from 'lodash'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -8,12 +7,11 @@ import useDebounce from 'hooks/useDebounce'
 import { useCrossChainHandlers, useCrossChainState } from 'state/crossChain/hooks'
 
 export default function useGetRouteCrossChain(params: GetRoute | undefined) {
-  const [{ squidInstance, route }] = useCrossChainState()
+  const [{ squidInstance, route, requestId }] = useCrossChainState()
   const { setTradeRoute } = useCrossChainHandlers()
   const [error, setError] = useState(false)
   const [loading, setLoading] = useState(false)
-  const currentRequest = useRef<GetRoute>()
-
+  const controller = useRef(new AbortController())
   const debounceParams = useDebounce(params, INPUT_DEBOUNCE_TIME)
 
   const getRoute = useCallback(
@@ -22,21 +20,24 @@ export default function useGetRouteCrossChain(params: GetRoute | undefined) {
         setTradeRoute(undefined)
         return
       }
-      let route: RouteData | undefined
+      let signal: AbortSignal | undefined
+      let route: RouteResponse | undefined
       try {
-        currentRequest.current = debounceParams
+        controller.current?.abort?.()
+        controller.current = new AbortController()
+        signal = controller.current.signal
         setLoading(true)
         setError(false)
         isRefresh && setTradeRoute(undefined)
-        const resp = await squidInstance.getRoute({ ...debounceParams, prefer: ['KYBERSWAP_AGGREGATOR'] })
-        route = resp.route
-        if (currentRequest.current !== debounceParams) return
+        route = await squidInstance.getRoute({ ...debounceParams, prefer: ['KYBERSWAP_AGGREGATOR'] })
+
+        if (signal?.aborted) return
       } catch (error) {}
       try {
         if (!route) {
-          const resp = await squidInstance.getRoute(debounceParams)
-          route = resp.route
+          route = await squidInstance.getRoute(debounceParams)
         }
+        if (signal?.aborted) return
         setTradeRoute(route)
         setError(false)
         setLoading(false)
@@ -55,5 +56,5 @@ export default function useGetRouteCrossChain(params: GetRoute | undefined) {
     getRoute()
   }, [getRoute])
 
-  return { route, getRoute: getRouteDebounce, error, loading }
+  return { route, requestId, getRoute: getRouteDebounce, error, loading }
 }

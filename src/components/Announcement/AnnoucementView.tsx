@@ -20,7 +20,6 @@ import { RowBetween } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 const Wrapper = styled.div`
@@ -148,7 +147,6 @@ export default function AnnouncementView({
   const { account } = useActiveWeb3React()
 
   const theme = useTheme()
-  const toggleWalletModal = useWalletModalToggle()
 
   const [ackAnnouncement] = useAckPrivateAnnouncementsMutation()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
@@ -164,7 +162,7 @@ export default function AnnouncementView({
       toggleNotificationCenter()
       return
     }
-    ackAnnouncement({ account, action: 'read', ids: [item.id] })
+    ackAnnouncement({ action: 'read', ids: [item.id] })
       .then(() => {
         refreshAnnouncement()
         toggleNotificationCenter()
@@ -185,7 +183,7 @@ export default function AnnouncementView({
 
   const clearAll = () => {
     if (!announcements.length || !account) return
-    ackAnnouncement({ account, action: 'clear-all' })
+    ackAnnouncement({ action: 'clear-all' })
       .then(() => {
         refreshAnnouncement()
       })
@@ -288,20 +286,9 @@ export default function AnnouncementView({
       ) : (
         <Column style={{ alignItems: 'center', margin: '24px 0px 32px 0px' }} gap="8px">
           <Info color={theme.subText} size={27} />
-          {!account && isMyInboxTab ? (
-            <>
-              <Text color={theme.primary} sx={{ cursor: 'pointer' }} textAlign="center" onClick={toggleWalletModal}>
-                <Trans>Connect Wallet</Trans>
-              </Text>
-              <Text color={theme.subText} textAlign="center">
-                <Trans>to view My inbox</Trans>
-              </Text>
-            </>
-          ) : (
-            <Text color={theme.subText} textAlign="center">
-              <Trans>No notifications found</Trans>
-            </Text>
-          )}
+          <Text color={theme.subText} textAlign="center">
+            <Trans>No notifications found</Trans>
+          </Text>
         </Column>
       )}
     </Wrapper>
