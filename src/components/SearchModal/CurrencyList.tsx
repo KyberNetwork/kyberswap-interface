@@ -304,7 +304,7 @@ function CurrencyList({
     <div style={{ flex: 1 }}>
       <AutoSizer>
         {({ height, width }) => (
-          <InfiniteLoader isItemLoaded={isItemLoaded} itemCount={itemCount} loadMoreItems={loadMoreItems}>
+          <InfiniteLoader isItemLoaded={isItemLoaded} itemCount={itemCount} loadMoreItems={loadMoreItems} threshold={3}>
             {({ onItemsRendered, ref }) => (
               <FixedSizeList
                 height={height}
