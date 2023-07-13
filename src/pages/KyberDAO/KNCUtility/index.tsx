@@ -127,7 +127,7 @@ export default function KNCUtility() {
       <Container>
         <Row>
           <Column gap="24px">
-            <Text fontSize={24} fontWeight={400} id="knc-utility">
+            <Text fontSize={24} fontWeight={500} id="knc-utility">
               <Trans>KNC Utility</Trans>
             </Text>
             <Column gap="16px">
@@ -184,7 +184,7 @@ export default function KNCUtility() {
         </Row>
         <Row style={{ paddingBottom: upToMedium ? '0' : undefined }}>
           <RowBetween flexDirection="row" gap="16px">
-            <Text fontSize={upToMedium ? 20 : 36} fontWeight={400} id="gas-refund-program" alignSelf="start">
+            <Text fontSize={upToMedium ? 20 : 24} fontWeight={500} id="gas-refund-program" alignSelf="start">
               <Trans>Gas Refund Program</Trans>
             </Text>
             {/* <EndedTag>

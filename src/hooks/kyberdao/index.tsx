@@ -348,7 +348,7 @@ export function useStakingInfo() {
     kncContract
       ?.totalSupply()
       .then((res: any) => setTotalSupply(res))
-      .catch((err: any) => console.log(err))
+      .catch((error: any) => console.error('Get KNC totalSupply error:', { error }))
   }, [kncContract])
 
   return {
