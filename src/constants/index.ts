@@ -226,10 +226,10 @@ export const APP_PATHS = {
   KYBERDAO_STAKE: '/kyberdao/stake-knc',
   KYBERDAO_VOTE: '/kyberdao/vote',
   LIMIT: '/limit',
-  VERIFY_EXTERNAL: '/verify-external',
   GRANT_PROGRAMS: '/inter-project-trading-campaigns',
-  NOTIFICATION_CENTER: '/notification-center',
+  PROFILE_MANAGE: '/manage',
   ELASTIC_LEGACY: '/elastic-legacy',
+  VERIFY_AUTH: '/auth',
 }
 
 export const TERM_FILES_PATH = {
@@ -280,12 +280,14 @@ export const RTK_QUERY_TAGS = {
   GET_PRIVATE_ANN_BY_ID: 'GET_PRIVATE_ANN_BY_ID',
   GET_ALL_PRIVATE_ANN: 'GET_ALL_PRIVATE_ANN',
   GET_TOTAL_UNREAD_PRIVATE_ANN: 'GET_TOTAL_UNREAD_PRIVATE_ANN',
+  GET_ALL_TOPICS_GROUP: 'GET_ALL_TOPICS_GROUP',
 
   // price alert
   GET_ALERTS: 'GET_ALERTS',
   GET_ALERTS_HISTORY: 'GET_ALERTS_HISTORY',
   GET_ALERTS_STAT: 'GET_ALERTS_STAT',
 
+  // cross chain
   GET_CROSS_CHAIN_HISTORY: 'GET_CROSS_CHAIN_HISTORY',
   GET_BRIDGE_HISTORY: 'GET_BRIDGE_HISTORY',
 
@@ -339,3 +341,8 @@ export const TYPE_AND_SWAP_NOT_SUPPORTED_CHAINS: ChainId[] = [ChainId.ZKSYNC, Ch
 export const SWAP_FEE_RECEIVER_ADDRESS = '0x4f82e73EDb06d29Ff62C91EC8f5Ff06571bdeb29'
 
 export const TOKEN_SCORE_TTL = 86400
+
+export const AGGREGATOR_API_PATHS = {
+  BUILD_ROUTE: '/api/v1/route/build',
+  GET_ROUTE: '/api/v1/routes',
+}

@@ -73,6 +73,7 @@ const DropdownIcon = styled(DropdownSVG)<{ $rotated: boolean }>`
 `
 
 type Props = {
+  pattern?: string | null
   error?: boolean
   value: string | null
   placeholder?: string
@@ -80,12 +81,13 @@ type Props = {
   disabled?: boolean
   className?: string
   style?: CSSProperties
-} & Pick<DOMAttributes<HTMLInputElement>, 'onBlur' | 'onFocus' | 'onChange'>
+} & Pick<DOMAttributes<HTMLInputElement>, 'onBlur' | 'onFocus' | 'onChange' | 'onClick'>
 
-export const AddressInput = function AddressInput({
+const AddressInputComponent = function AddressInput({
   onChange,
   onFocus,
   onBlur,
+  onClick,
   value,
   error = false,
   placeholder,
@@ -93,9 +95,10 @@ export const AddressInput = function AddressInput({
   disabled = false,
   style = {},
   className,
+  pattern = '^(0x[a-fA-F0-9]{40})$',
 }: Props) {
   return (
-    <ContainerRow error={error} className={className}>
+    <ContainerRow error={error} className={className} onClick={onClick}>
       <InputContainer>
         <Row gap="5px">
           <Input
@@ -109,7 +112,7 @@ export const AddressInput = function AddressInput({
             spellCheck="false"
             placeholder={placeholder || t`Wallet Address or ENS name`}
             error={error}
-            pattern="^(0x[a-fA-F0-9]{40})$"
+            pattern={pattern || undefined}
             onBlur={onBlur}
             onFocus={onFocus}
             onChange={onChange}
@@ -121,6 +124,8 @@ export const AddressInput = function AddressInput({
     </ContainerRow>
   )
 }
+
+export const AddressInput = styled(AddressInputComponent)``
 
 export default function AddressInputPanel({
   id,

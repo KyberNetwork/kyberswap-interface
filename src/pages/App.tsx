@@ -28,7 +28,7 @@ import { APP_PATHS, BLACKLIST_WALLETS, CHAINS_SUPPORT_CROSS_CHAIN } from 'consta
 import { NETWORKS_INFO_CONFIG } from 'constants/networks'
 import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
-import useLogin from 'hooks/useLogin'
+import { useAutoLogin } from 'hooks/useLogin'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
 import useSessionExpiredGlobal from 'hooks/useSessionExpire'
 import useTheme from 'hooks/useTheme'
@@ -37,13 +37,13 @@ import { RedirectPathToSwapV3Network } from 'pages/SwapV3/redirects'
 import KyberAIExplore from 'pages/TrueSightV2'
 import TruesightFooter from 'pages/TrueSightV2/components/TruesightFooter'
 import KyberAILandingPage from 'pages/TrueSightV2/pages/LandingPage'
-import Verify from 'pages/Verify'
 import { useHolidayMode } from 'state/user/hooks'
 import DarkModeQueryParamReader from 'theme/DarkModeQueryParamReader'
 import { getLimitOrderContract, isAddressString, shortenAddress } from 'utils'
 
 import ElasticLegacyNotice from './ElasticLegacy/ElasticLegacyNotice'
 import Icons from './Icons'
+import VerifyAuth from './VerifyAuth'
 
 // test page for swap only through elastic
 const ElasticSwap = lazy(() => import('./ElasticSwap'))
@@ -202,11 +202,9 @@ const RoutesWithNetworkPrefix = () => {
 export default function App() {
   const { account, chainId, networkInfo } = useActiveWeb3React()
   const { pathname } = useLocation()
-
-  useLogin()
+  useAutoLogin()
   const { online } = useNetwork()
   const prevOnline = usePrevious(online)
-
   useSessionExpiredGlobal()
 
   useEffect(() => {
@@ -243,7 +241,6 @@ export default function App() {
   const theme = useTheme()
 
   useGlobalMixpanelEvents()
-
   const showFooter = !pathname.includes(APP_PATHS.ABOUT)
   const [holidayMode] = useHolidayMode()
 
@@ -400,10 +397,23 @@ export default function App() {
                     <Route path={`${APP_PATHS.BUY_CRYPTO}`} element={<BuyCrypto />} />
                     <Route path={`${APP_PATHS.CAMPAIGN}`} element={<Campaign />} />
                     <Route path={`${APP_PATHS.CAMPAIGN}/:slug`} element={<Campaign />} />
-                    {/*<Route path={`${APP_PATHS.BRIDGE}`} element={<Bridge />} />*/}
-                    <Route path={`${APP_PATHS.VERIFY_EXTERNAL}`} element={<Verify />} />
-                    <Route path={`${APP_PATHS.NOTIFICATION_CENTER}`} element={<NotificationCenter />} />
-                    <Route path={`${APP_PATHS.NOTIFICATION_CENTER}/*`} element={<NotificationCenter />} />
+                    {/* <Route path={`${APP_PATHS.BRIDGE}`} element={<Bridge />} /> */}
+                    <Route
+                      path={`${APP_PATHS.PROFILE_MANAGE}`}
+                      element={
+                        <ProtectedRoute>
+                          <NotificationCenter />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path={`${APP_PATHS.PROFILE_MANAGE}/*`}
+                      element={
+                        <ProtectedRoute>
+                          <NotificationCenter />
+                        </ProtectedRoute>
+                      }
+                    />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgramPage />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />
                     {ENV_LEVEL === ENV_TYPE.LOCAL && <Route path="/icons" element={<Icons />} />}
@@ -411,6 +421,8 @@ export default function App() {
                     <Route path={`elastic-swap`} element={<ElasticSwap />} />
 
                     <Route path={`/:network/*`} element={<RoutesWithNetworkPrefix />} />
+
+                    <Route path={APP_PATHS.VERIFY_AUTH} element={<VerifyAuth />} />
 
                     <Route path="*" element={<RedirectPathToSwapV3Network />} />
                   </Routes>

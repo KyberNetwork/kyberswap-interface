@@ -1,17 +1,22 @@
 import { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
-  useBuildTelegramVerificationMutation,
-  useGetNotificationTopicsQuery,
-  useSubscribeTopicMutation,
-  useUnsubscribeTopicMutation,
-} from 'services/notification'
+  useCreateWatchWalletMutation,
+  useGetSubscriptionTopicsQuery,
+  useSubscribeTopicsMutation,
+} from 'services/identity'
 
+import { ELASTIC_POOL_TOPIC_ID, KYBER_AI_TOPIC_ID, PRICE_ALERT_TOPIC_ID } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import { AppState } from 'state'
 import { setLoadingNotification, setSubscribedNotificationTopic } from 'state/application/actions'
-import { useNotificationModalToggle } from 'state/application/hooks'
+import { useSessionInfo } from 'state/authen/hooks'
 import { pushUnique } from 'utils'
+
+export enum TopicType {
+  RESTRICT = 'restricted',
+  NORMAL = 'common',
+}
 
 export type Topic = {
   id: number
@@ -21,22 +26,21 @@ export type Topic = {
   isSubscribed: boolean
   topics: Topic[]
   priority: number
+  type: TopicType
+  isKyberAI: boolean
+  isPriceAlert: boolean
 }
 
 type SaveNotificationParam = {
   subscribeIds: number[]
   unsubscribeIds: number[]
-  email: string
-  isChangeEmailOnly?: boolean
-  isEmail: boolean
-  isTelegram?: boolean
 }
 
 const useNotification = () => {
-  const { isLoading, topicGroups, userInfo } = useSelector((state: AppState) => state.application.notification)
+  const { isLoading, topicGroups } = useSelector((state: AppState) => state.application.notification)
+  const { userInfo } = useSessionInfo()
 
-  const { account, chainId } = useActiveWeb3React()
-  const toggleSubscribeModal = useNotificationModalToggle()
+  const { account } = useActiveWeb3React()
   const dispatch = useDispatch()
 
   const setLoading = useCallback(
@@ -46,53 +50,51 @@ const useNotification = () => {
     [dispatch],
   )
 
-  const { data: resp, refetch } = useGetNotificationTopicsQuery(account)
+  const { data: resp, refetch } = useGetSubscriptionTopicsQuery(undefined, { skip: !userInfo })
 
   useEffect(() => {
     if (!resp) return
-    const topicGroups: Topic[] = (resp?.topicGroups ?? []).map((e: Topic, i) => ({
+    const topicGroups: Topic[] = (resp?.topicGroups ?? []).map((e: Topic, i: number) => ({
       ...e,
       id: Date.now() + i,
       isSubscribed: e?.topics?.every(e => e.isSubscribed),
+      isKyberAI: e?.topics?.some(e => e.id + '' === KYBER_AI_TOPIC_ID),
+      isPriceAlert: e?.topics?.some(e => e.id + '' === PRICE_ALERT_TOPIC_ID),
     }))
-    dispatch(setSubscribedNotificationTopic({ topicGroups, userInfo: resp?.user ?? { email: '', telegram: '' } }))
+    dispatch(setSubscribedNotificationTopic({ topicGroups }))
   }, [resp, dispatch])
 
-  const refreshTopics = useCallback(() => account && refetch(), [refetch, account])
-  const [callSubscribeTopic] = useSubscribeTopicMutation()
-  const [callUnSubscribeTopic] = useUnsubscribeTopicMutation()
-  const [buildTelegramVerification] = useBuildTelegramVerificationMutation()
+  useEffect(() => {
+    try {
+      refetch()
+    } catch (error) {}
+  }, [userInfo?.identityId, refetch])
+
+  const [requestWatchWallet] = useCreateWatchWalletMutation()
+  const [callSubscribeTopic] = useSubscribeTopicsMutation()
 
   const saveNotification = useCallback(
-    async ({ subscribeIds, unsubscribeIds, email, isEmail, isChangeEmailOnly, isTelegram }: SaveNotificationParam) => {
+    async ({ subscribeIds, unsubscribeIds }: SaveNotificationParam) => {
       try {
         setLoading(true)
-        if (isEmail) {
-          if (unsubscribeIds.length) {
-            await callUnSubscribeTopic({ walletAddress: account ?? '', topicIDs: unsubscribeIds }).unwrap()
-          }
-          if (subscribeIds.length || isChangeEmailOnly) {
-            const allTopicSubscribed = topicGroups.reduce(
-              (topics: number[], item) => [...topics, ...item.topics.filter(e => e.isSubscribed).map(e => e.id)],
-              [],
-            )
-            await callSubscribeTopic({
-              email,
-              walletAddress: account ?? '',
-              topicIDs: isChangeEmailOnly ? allTopicSubscribed : subscribeIds,
-            }).unwrap()
-          }
-          return
+        let topicIds = topicGroups.reduce(
+          (topics: number[], item) => [...topics, ...item.topics.filter(e => e.isSubscribed).map(e => e.id)],
+          [],
+        )
+        if (unsubscribeIds.length) {
+          topicIds = topicIds.filter(id => !unsubscribeIds.includes(id))
         }
-        if (isTelegram) {
-          const data = await buildTelegramVerification({
-            chainId: chainId + '',
-            wallet: account ?? '',
-            subscribe: subscribeIds,
-            unsubscribe: unsubscribeIds,
-          })
-          return data
+        if (subscribeIds.length) {
+          topicIds = topicIds.concat(subscribeIds)
         }
+        const hasElasticBool = (() => {
+          const topicPools = ELASTIC_POOL_TOPIC_ID.split(',').map(Number)
+          return subscribeIds.some(id => topicPools.includes(id))
+        })()
+        if (hasElasticBool && account) {
+          await requestWatchWallet({ walletAddress: account }).unwrap()
+        }
+        await callSubscribeTopic({ topicIds: [...new Set(topicIds)] }).unwrap()
         return
       } catch (e) {
         return Promise.reject(e)
@@ -100,7 +102,14 @@ const useNotification = () => {
         setLoading(false)
       }
     },
-    [setLoading, account, chainId, topicGroups, callSubscribeTopic, callUnSubscribeTopic, buildTelegramVerification],
+    [setLoading, account, topicGroups, callSubscribeTopic, requestWatchWallet],
+  )
+
+  const subscribeOne = useCallback(
+    (topic: number) => {
+      saveNotification({ subscribeIds: [topic], unsubscribeIds: [] })
+    },
+    [saveNotification],
   )
 
   const unsubscribeAll = useCallback(() => {
@@ -112,25 +121,15 @@ const useNotification = () => {
       })
     })
     if (!unsubscribeIds.length) return
-    saveNotification({ isEmail: true, unsubscribeIds, subscribeIds: [], email: userInfo.email })
-    setTimeout(() => {
-      refreshTopics()
-    }, 500)
-  }, [topicGroups, saveNotification, userInfo?.email, refreshTopics])
-
-  const showNotificationModal = useCallback(() => {
-    refreshTopics()
-    toggleSubscribeModal()
-  }, [refreshTopics, toggleSubscribeModal])
+    saveNotification({ unsubscribeIds, subscribeIds: [] })
+  }, [topicGroups, saveNotification])
 
   return {
     topicGroups,
     isLoading,
-    userInfo,
     saveNotification,
-    showNotificationModal,
-    refreshTopics,
     unsubscribeAll,
+    subscribeOne,
   }
 }
 

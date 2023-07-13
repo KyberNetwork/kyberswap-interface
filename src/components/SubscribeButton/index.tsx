@@ -1,13 +1,15 @@
 import { Trans } from '@lingui/macro'
-import { ReactNode, useEffect, useMemo, useRef } from 'react'
+import { ReactNode, useCallback, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import NotificationIcon from 'components/Icons/NotificationIcon'
-import { useWeb3React } from 'hooks'
+import { APP_PATHS } from 'constants/index'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useNotification from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
+import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 
 import { ButtonPrimary } from '../Button'
 import { MouseoverTooltipDesktopOnly } from '../Tooltip'
@@ -36,9 +38,7 @@ const SubscribeBtn = styled(ButtonPrimary)<{
     background: ${({ bgColor }) => bgColor};
   }
   ${({ iconOnly, bgColor }) => iconOnly && cssSubscribeBtnSmall(bgColor)};
-  ${({ theme, bgColor, iconOnly }) =>
-    iconOnly !== false &&
-    theme.mediaWidth.upToExtraSmall`
+  ${({ theme, bgColor }) => theme.mediaWidth.upToExtraSmall`
    ${cssSubscribeBtnSmall(bgColor)}
   `}
 `
@@ -48,15 +48,13 @@ const ButtonText = styled(Text)<{ iconOnly?: boolean }>`
   font-weight: 500;
   margin-left: 6px !important;
   ${({ iconOnly }) => iconOnly && `display: none`};
-  ${({ theme, iconOnly }) =>
-    iconOnly !== false &&
-    theme.mediaWidth.upToExtraSmall`
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     display: none;
   `}
 `
 export default function SubscribeNotificationButton({
   subscribeTooltip,
-  iconOnly,
+  iconOnly = false,
   trackingEvent,
   onClick,
   topicId,
@@ -68,11 +66,9 @@ export default function SubscribeNotificationButton({
   topicId?: string
 }) {
   const theme = useTheme()
-  const { account } = useWeb3React()
 
   const { mixpanelHandler } = useMixpanel()
-  const { showNotificationModal, topicGroups } = useNotification()
-
+  const { topicGroups } = useNotification()
   const hasSubscribe = useMemo(() => {
     return topicId
       ? topicGroups.some(group =>
@@ -81,14 +77,10 @@ export default function SubscribeNotificationButton({
       : false
   }, [topicGroups, topicId])
 
-  const showModalWhenConnected = useRef(false)
-
-  useEffect(() => {
-    if (account && showModalWhenConnected.current) {
-      showNotificationModal()
-      showModalWhenConnected.current = false
-    }
-  }, [account, showNotificationModal])
+  const navigate = useNavigate()
+  const showNotificationModal = useCallback(() => {
+    navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PREFERENCE}`)
+  }, [navigate])
 
   const onClickBtn = () => {
     showNotificationModal()
@@ -97,7 +89,6 @@ export default function SubscribeNotificationButton({
       setTimeout(() => {
         mixpanelHandler(trackingEvent)
       }, 100)
-    if (!account) showModalWhenConnected.current = true
   }
 
   return (

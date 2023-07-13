@@ -50,10 +50,6 @@ interface ApplicationState {
   readonly notification: {
     isLoading: boolean
     topicGroups: Topic[]
-    userInfo: {
-      email: string
-      telegram: string
-    }
     announcementDetail: {
       selectedIndex: number | null // current announcement
       announcements: AnnouncementTemplatePopup[]
@@ -68,7 +64,6 @@ interface ApplicationState {
 const initialStateNotification = {
   isLoading: false,
   topicGroups: [],
-  userInfo: { email: '', telegram: '' },
   announcementDetail: {
     selectedIndex: null,
     announcements: [],
@@ -85,6 +80,7 @@ export const initialStateConfirmModal = {
   onConfirm: undefined,
   onCancel: undefined,
 }
+
 const initialState: ApplicationState = {
   blockNumber: {},
   popupList: [],
@@ -148,17 +144,17 @@ export default createReducer(initialState, builder =>
     .addCase(setConfirmData, (state, { payload }) => {
       state.confirmModal = payload
     })
+
     // ------ notification subscription ------
     .addCase(setLoadingNotification, (state, { payload: isLoading }) => {
       const notification = state.notification ?? initialStateNotification
       state.notification = { ...notification, isLoading }
     })
-    .addCase(setSubscribedNotificationTopic, (state, { payload: { topicGroups, userInfo } }) => {
+    .addCase(setSubscribedNotificationTopic, (state, { payload: { topicGroups } }) => {
       const notification = state.notification ?? initialStateNotification
       state.notification = {
         ...notification,
         topicGroups: topicGroups ?? notification.topicGroups,
-        userInfo: userInfo ?? notification.userInfo,
       }
     })
     .addCase(setAnnouncementDetail, (state, { payload }) => {

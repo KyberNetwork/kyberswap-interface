@@ -1,17 +1,18 @@
 import { Trans } from '@lingui/macro'
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import styled from 'styled-components'
 
 import { PrivateAnnouncementType } from 'components/Announcement/type'
-import MailIcon from 'components/Icons/MailIcon'
 import { APP_PATHS } from 'constants/index'
 import CreateAlert from 'pages/NotificationCenter/CreateAlert'
 import GeneralAnnouncement from 'pages/NotificationCenter/GeneralAnnouncement'
 import Menu from 'pages/NotificationCenter/Menu'
 import Overview from 'pages/NotificationCenter/Overview'
 import PriceAlerts from 'pages/NotificationCenter/PriceAlerts'
-import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
-import VerifyComponent from 'pages/Verify/VerifyComponent'
+import Profile from 'pages/NotificationCenter/Profile'
+import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
+import { MEDIA_WIDTHS } from 'theme'
 
 import PrivateAnnouncement from './PrivateAnnouncement'
 
@@ -50,7 +51,8 @@ const HeaderWrapper = styled.div`
   align-items: center;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 0 16px;
+    padding: 0;
+    padding-left: 16px;
   `}
 `
 
@@ -58,6 +60,9 @@ const Title = styled.h2`
   margin-left: 12px;
   font-size: 24px;
   font-weight: 500;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    font-size: 20px;
+  `}
 `
 
 const LeftColumn = styled.div`
@@ -90,52 +95,59 @@ const RightColumn = styled.div`
 `
 
 function NotificationCenter() {
+  const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   return (
     <PageWrapper>
       <HeaderWrapper>
-        <MailIcon />
+        {isMobile && <Menu />}
         <Title>
-          <Trans>Notification Center</Trans>
+          <Trans>Your Profile</Trans>
         </Title>
       </HeaderWrapper>
       <Wrapper>
-        <LeftColumn>
-          <Menu />
-        </LeftColumn>
+        {!isMobile && (
+          <LeftColumn>
+            <Menu />
+          </LeftColumn>
+        )}
         <RightColumn>
           <Routes>
-            <Route index path={NOTIFICATION_ROUTES.ALL} element={<PrivateAnnouncement />} />
-            <Route path={NOTIFICATION_ROUTES.OVERVIEW} element={<Overview />} />
-            <Route path={NOTIFICATION_ROUTES.GENERAL} element={<GeneralAnnouncement />} />
-            <Route path={NOTIFICATION_ROUTES.PRICE_ALERTS} element={<PriceAlerts />} />
-            <Route path={`${NOTIFICATION_ROUTES.PRICE_ALERTS}/*`} element={<PriceAlerts />} />
+            <Route path={PROFILE_MANAGE_ROUTES.PROFILE} element={<Profile />} />
+            <Route index path={PROFILE_MANAGE_ROUTES.ALL_NOTIFICATION} element={<PrivateAnnouncement />} />
+            <Route path={PROFILE_MANAGE_ROUTES.PREFERENCE} element={<Overview />} />
+
+            <Route path={PROFILE_MANAGE_ROUTES.GENERAL} element={<GeneralAnnouncement />} />
+            <Route path={PROFILE_MANAGE_ROUTES.PRICE_ALERTS} element={<PriceAlerts />} />
+            <Route path={`${PROFILE_MANAGE_ROUTES.PRICE_ALERTS}/*`} element={<PriceAlerts />} />
             <Route
-              path={NOTIFICATION_ROUTES.MY_ELASTIC_POOLS}
+              path={PROFILE_MANAGE_ROUTES.MY_ELASTIC_POOLS}
               element={<PrivateAnnouncement type={PrivateAnnouncementType.ELASTIC_POOLS} />}
             />
             <Route
-              path={NOTIFICATION_ROUTES.LIMIT_ORDERS}
+              path={PROFILE_MANAGE_ROUTES.LIMIT_ORDERS}
               element={<PrivateAnnouncement type={PrivateAnnouncementType.LIMIT_ORDER} />}
             />
             <Route
-              path={NOTIFICATION_ROUTES.BRIDGE}
+              path={PROFILE_MANAGE_ROUTES.BRIDGE}
               element={<PrivateAnnouncement type={PrivateAnnouncementType.BRIDGE_ASSET} />}
             />
             <Route
-              path={NOTIFICATION_ROUTES.CROSS_CHAIN}
+              path={PROFILE_MANAGE_ROUTES.CROSS_CHAIN}
               element={<PrivateAnnouncement type={PrivateAnnouncementType.CROSS_CHAIN} />}
             />
             <Route
-              path={NOTIFICATION_ROUTES.KYBER_AI_TOKENS}
+              path={PROFILE_MANAGE_ROUTES.KYBER_AI_TOKENS}
               element={<PrivateAnnouncement type={PrivateAnnouncementType.KYBER_AI} />}
             />
-            <Route path={NOTIFICATION_ROUTES.CREATE_ALERT} element={<CreateAlert />} />
+            <Route path={PROFILE_MANAGE_ROUTES.CREATE_ALERT} element={<CreateAlert />} />
 
-            <Route path="*" element={<Navigate to={`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.ALL}`} />} />
+            <Route
+              path="*"
+              element={<Navigate to={`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.ALL_NOTIFICATION}`} />}
+            />
           </Routes>
         </RightColumn>
       </Wrapper>
-      <VerifyComponent />
     </PageWrapper>
   )
 }
