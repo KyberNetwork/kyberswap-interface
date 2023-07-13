@@ -10,8 +10,6 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useEligibleTransactions } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
-import { ApplicationModal } from 'state/application/actions'
-import { useCloseModal, useModalOpen } from 'state/application/hooks'
 import { ExternalLinkIcon } from 'theme'
 import { formattedNum, getEtherscanLink } from 'utils'
 
