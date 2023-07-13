@@ -1,24 +1,46 @@
 import { Trans } from '@lingui/macro'
-import { Text } from 'rebass'
-import styled from 'styled-components'
+import { Save } from 'react-feather'
+import styled, { css } from 'styled-components'
 
-import { ButtonConfirmed, ButtonPrimary } from 'components/Button'
+import { ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { XCircle } from 'components/Icons'
 import Loader from 'components/Loader'
 import Row from 'components/Row'
-import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
-import { useWalletModalToggle } from 'state/application/hooks'
+import { MouseoverTooltip } from 'components/Tooltip'
 
 const ButtonText = styled.div`
   font-size: 14px;
   font-weight: 500;
 `
+
+const shareStyle = css`
+  width: 100%;
+  justify-content: space-around;
+  margin-top: 4px;
+`
 const ActionWrapper = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 14px;
+  gap: 20px;
+  flex-direction: row;
   align-items: center;
-  justify-content: space-between;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    ${shareStyle}
+`};
+`
+
+const shareStyleBtn = css`
+  width: 120px;
+  height: 36px;
+  border-radius: 46px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    width: 45%;
+`};
+`
+const ButtonUnSub = styled(ButtonOutlined)`
+  ${shareStyleBtn}
+`
+const ButtonSave = styled(ButtonPrimary)`
+  ${shareStyleBtn}
 `
 
 export default function ActionButtons({
@@ -26,56 +48,28 @@ export default function ActionButtons({
   isLoading,
   onSave,
   onUnsubscribeAll,
-  isTelegramTab,
   subscribeAtLeast1Topic,
-  isHorizontal,
+  tooltipSave,
 }: {
   disableButtonSave: boolean
   subscribeAtLeast1Topic: boolean
-  isTelegramTab: boolean
   isLoading: boolean
   onSave: () => void
   onUnsubscribeAll: () => void
-  isHorizontal: boolean
+  tooltipSave: string
 }) {
-  const { account } = useActiveWeb3React()
-  const toggleWalletModal = useWalletModalToggle()
-  const theme = useTheme()
-  const unSubButton = subscribeAtLeast1Topic ? (
-    <Text
-      style={{
-        cursor: 'pointer',
-        color: theme.subText,
-        fontWeight: '500',
-        fontSize: '14px',
-      }}
-      onClick={onUnsubscribeAll}
-    >
-      <Trans>Opt out from all future emails</Trans>
-    </Text>
-  ) : (
-    isHorizontal && <div />
-  )
-
-  const heightBtn = isHorizontal ? '36px' : '44px'
-  const widthBtn = isHorizontal ? '160px' : '100%'
   return (
-    <ActionWrapper style={{ flexDirection: isHorizontal ? 'row' : 'column' }}>
-      {isHorizontal && unSubButton}
-      {!account ? (
-        <ButtonConfirmed confirmed onClick={toggleWalletModal} height={heightBtn} width={widthBtn}>
-          <ButtonText>
-            <Trans>Connect Wallet</Trans>
-          </ButtonText>
-        </ButtonConfirmed>
-      ) : (
-        <ButtonPrimary
-          disabled={disableButtonSave}
-          borderRadius="46px"
-          height={heightBtn}
-          width={widthBtn}
-          onClick={onSave}
-        >
+    <ActionWrapper>
+      <ButtonUnSub onClick={onUnsubscribeAll} disabled={!subscribeAtLeast1Topic}>
+        <XCircle size={'14px'} />
+        &nbsp;
+        <Trans>Opt-out</Trans>
+      </ButtonUnSub>
+
+      <ButtonSave disabled={disableButtonSave} onClick={onSave}>
+        <Save size={14} />
+        &nbsp;
+        <MouseoverTooltip text={tooltipSave}>
           <ButtonText>
             {(() => {
               if (isLoading) {
@@ -83,16 +77,15 @@ export default function ActionButtons({
                   <Row>
                     <Loader />
                     &nbsp;
-                    {isTelegramTab ? <Trans>Generating Verification Link ...</Trans> : <Trans>Saving ...</Trans>}
+                    <Trans>Saving ...</Trans>
                   </Row>
                 )
               }
-              return isTelegramTab ? <Trans>Get Started</Trans> : <Trans>Save</Trans>
+              return <Trans>Save</Trans>
             })()}
           </ButtonText>
-        </ButtonPrimary>
-      )}
-      {!isHorizontal && unSubButton}
+        </MouseoverTooltip>
+      </ButtonSave>
     </ActionWrapper>
   )
 }

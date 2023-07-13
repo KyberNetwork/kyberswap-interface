@@ -1,3 +1,4 @@
+import React from 'react'
 import { CSSProperties } from 'styled-components'
 
 const TransactionSettingsIcon = ({
@@ -9,7 +10,7 @@ const TransactionSettingsIcon = ({
   size?: number
   fill?: string
   style?: CSSProperties
-  onClick?: () => void
+  onClick?: (e?: React.MouseEvent) => void
 }) => {
   return (
     <svg

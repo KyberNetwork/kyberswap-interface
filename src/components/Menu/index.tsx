@@ -1,23 +1,13 @@
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import {
-  Award,
-  BookOpen,
-  Edit,
-  FileText,
-  HelpCircle,
-  Info,
-  Menu as MenuIcon,
-  MessageCircle,
-  PieChart,
-  Share2,
-} from 'react-feather'
+import { Award, BookOpen, Edit, FileText, HelpCircle, Info, MessageCircle, PieChart, Share2 } from 'react-feather'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
+import { ReactComponent as MenuIcon } from 'assets/svg/all_icon.svg'
 import { ReactComponent as BlogIcon } from 'assets/svg/blog.svg'
 import { ReactComponent as LightIcon } from 'assets/svg/light.svg'
 import { ReactComponent as RoadMapIcon } from 'assets/svg/roadmap.svg'
@@ -31,7 +21,6 @@ import LanguageSelector from 'components/LanguageSelector'
 import Loader from 'components/Loader'
 import MenuFlyout from 'components/MenuFlyout'
 import Row, { AutoRow } from 'components/Row'
-import NotificationModal from 'components/SubscribeButton/NotificationModal'
 import Toggle from 'components/Toggle'
 import ThemeToggle from 'components/Toggle/ThemeToggle'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
@@ -44,7 +33,7 @@ import { useActiveWeb3React } from 'hooks'
 import useClaimReward from 'hooks/useClaimReward'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
+import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
@@ -98,12 +87,6 @@ const MenuItem = styled.li`
   }
 `
 
-const StyledMenuIcon = styled(MenuIcon)`
-  path {
-    stroke: ${({ theme }) => theme.text};
-  }
-`
-
 const KyberAIWrapper = styled(MenuItem)`
   display: none;
 
@@ -141,15 +124,13 @@ const StyledMenuButton = styled.button<{ active?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${({ theme }) => theme.text};
+  color: ${({ theme }) => theme.subText};
 
   border-radius: 999px;
 
   :hover {
     cursor: pointer;
     outline: none;
-    background-color: ${({ theme }) => theme.buttonBlack};
-    border: 1px solid ${({ theme }) => theme.primary};
   }
 
   ${({ active }) =>
@@ -157,7 +138,7 @@ const StyledMenuButton = styled.button<{ active?: boolean }>`
     css`
       cursor: pointer;
       outline: none;
-      background-color: ${({ theme }) => theme.buttonBlack};
+      color: ${({ theme }) => theme.text};
     `}
 `
 
@@ -214,9 +195,7 @@ const Title = styled(MenuItem)`
   font-size: 16px;
   color: ${({ theme }) => theme.text};
 `
-const noop = () => {
-  //
-}
+const noop = () => {}
 
 export default function Menu() {
   const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
@@ -268,7 +247,7 @@ export default function Menu() {
       <MenuFlyout
         trigger={
           <StyledMenuButton active={open} onClick={toggle} aria-label="Menu" id={TutorialIds.BUTTON_MENU_HEADER}>
-            <StyledMenuIcon />
+            <MenuIcon width={18} height={18} />
           </StyledMenuButton>
         }
         customStyle={MenuFlyoutBrowserStyle}
@@ -546,7 +525,7 @@ export default function Menu() {
             </NavLinkBetween>
             <NavLinkBetween
               onClick={() => {
-                navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.OVERVIEW}`)
+                navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PREFERENCE}`)
                 mixpanelHandler(MIXPANEL_TYPE.NOTIFICATION_CLICK_MENU)
                 handlePreferenceClickMixpanel('Notifications')
                 toggle()
@@ -600,7 +579,6 @@ export default function Menu() {
       </MenuFlyout>
 
       <ClaimRewardModal />
-      <NotificationModal />
       {FAUCET_NETWORKS.includes(chainId) && <FaucetModal />}
     </StyledMenu>
   )

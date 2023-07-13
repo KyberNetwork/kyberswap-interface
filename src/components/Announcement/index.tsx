@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useMedia, usePrevious } from 'react-use'
 import {
-  useAckPrivateAnnouncementsMutation,
+  ANNOUNCEMENT_TAGS,
+  useAckPrivateAnnouncementsByIdsMutation,
   useLazyGetAnnouncementsQuery,
   useLazyGetPrivateAnnouncementsQuery,
 } from 'services/announcement'
@@ -20,6 +21,7 @@ import useInterval from 'hooks/useInterval'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { ApplicationModal } from 'state/application/actions'
 import { useDetailAnnouncement, useModalOpen, useToggleNotificationCenter } from 'state/application/hooks'
+import { useSessionInfo } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 const StyledMenuButton = styled.button<{ active?: boolean }>`
@@ -31,7 +33,7 @@ const StyledMenuButton = styled.button<{ active?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${({ theme }) => theme.text};
+  color: ${({ theme }) => theme.subText};
   border-radius: 999px;
   position: relative;
   outline: none;
@@ -39,20 +41,15 @@ const StyledMenuButton = styled.button<{ active?: boolean }>`
   border: 1px solid transparent;
   :hover {
     cursor: pointer;
-    background-color: ${({ theme }) => theme.buttonBlack};
-    border: 1px solid ${({ theme }) => theme.primary};
   }
-
   ${({ active }) =>
-    active
-      ? css`
-          background-color: ${({ theme }) => theme.buttonBlack};
-        `
-      : ''}
+    active &&
+    css`
+      color: ${({ theme }) => theme.text};
+    `}
 `
 
 const StyledMenu = styled.div`
-  margin-left: 0.5rem;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -85,7 +82,7 @@ const browserCustomStyle = css`
 const responseDefault = { numberOfUnread: 0, pagination: { totalItems: 0 }, notifications: [] }
 
 export default function AnnouncementComponent() {
-  const { account, chainId } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
   const [activeTab, setActiveTab] = useState(Tab.ANNOUNCEMENT)
   const { mixpanelHandler } = useMixpanel()
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -103,8 +100,6 @@ export default function AnnouncementComponent() {
   const [fetchPrivateAnnouncement, { data: respPrivateAnnouncement = responseDefault, isError }] =
     useLazyGetPrivateAnnouncementsQuery()
 
-  const [ackAnnouncement] = useAckPrivateAnnouncementsMutation()
-
   const isMyInboxTab = activeTab === Tab.INBOX
   const loadingAnnouncement = useRef(false)
 
@@ -115,11 +110,7 @@ export default function AnnouncementComponent() {
         const isMyInboxTab = tab === Tab.INBOX
         loadingAnnouncement.current = true
         const page = isReset ? 1 : curPage + 1
-        const promise = isMyInboxTab
-          ? account
-            ? fetchPrivateAnnouncement({ page, account })
-            : null
-          : fetchGeneralAnnouncement({ page })
+        const promise = isMyInboxTab ? fetchPrivateAnnouncement({ page }) : fetchGeneralAnnouncement({ page })
 
         if (!promise) return
         const { data } = await promise
@@ -141,15 +132,7 @@ export default function AnnouncementComponent() {
       }
       return
     },
-    [
-      account,
-      announcements,
-      privateAnnouncements,
-      curPage,
-      activeTab,
-      fetchGeneralAnnouncement,
-      fetchPrivateAnnouncement,
-    ],
+    [announcements, privateAnnouncements, curPage, activeTab, fetchGeneralAnnouncement, fetchPrivateAnnouncement],
   )
 
   const {
@@ -195,17 +178,18 @@ export default function AnnouncementComponent() {
     tab !== activeTab && fetchAnnouncementsByTab(true, tab)
   }
 
-  const resetUnread = useInvalidateTagAnnouncement()
+  const invalidateTag = useInvalidateTagAnnouncement()
+  const { userInfo } = useSessionInfo()
 
   const prefetchPrivateAnnouncements = useCallback(async () => {
     try {
-      if (!account) return []
-      const { data } = await fetchPrivateAnnouncement({ account, page: 1 })
+      if (!userInfo?.identityId) return []
+      const { data } = await fetchPrivateAnnouncement({ page: 1 })
       const notifications = (data?.notifications ?? []) as PrivateAnnouncement[]
       const hasNewMsg = data?.numberOfUnread !== numberOfUnread
       if (hasNewMsg) {
-        resetUnread(RTK_QUERY_TAGS.GET_PRIVATE_ANN_BY_ID)
-        resetUnread(RTK_QUERY_TAGS.GET_TOTAL_UNREAD_PRIVATE_ANN)
+        invalidateTag(RTK_QUERY_TAGS.GET_PRIVATE_ANN_BY_ID)
+        invalidateTag(RTK_QUERY_TAGS.GET_TOTAL_UNREAD_PRIVATE_ANN)
         if (scrollRef.current) scrollRef.current.scrollTop = 0
       }
       setPrivateAnnouncements(prevData => (hasNewMsg || !prevData.length ? notifications : prevData))
@@ -214,7 +198,7 @@ export default function AnnouncementComponent() {
       setPrivateAnnouncements([])
       return []
     }
-  }, [account, fetchPrivateAnnouncement, resetUnread, numberOfUnread])
+  }, [fetchPrivateAnnouncement, invalidateTag, numberOfUnread, userInfo?.identityId])
 
   const prevOpen = usePrevious(isOpenNotificationCenter)
   useEffect(() => {
@@ -240,17 +224,18 @@ export default function AnnouncementComponent() {
   }, [account, prefetchPrivateAnnouncements, fetchGeneralAnnouncement, prevOpen, isOpenNotificationCenter])
 
   useEffect(() => {
-    if (!account) {
-      setPrivateAnnouncements([])
+    if (userInfo?.identityId) {
+      invalidateTag(ANNOUNCEMENT_TAGS)
     }
-  }, [account, chainId])
+  }, [userInfo?.identityId, invalidateTag])
 
   useInterval(prefetchPrivateAnnouncements, 10_000)
 
+  const [readAllAnnouncement] = useAckPrivateAnnouncementsByIdsMutation()
   const togglePopupWithAckAllMessage = () => {
     toggleNotificationCenter()
-    if (isOpenNotificationCenter && numberOfUnread && account) {
-      ackAnnouncement({ account, action: 'read-all' })
+    if (isOpenNotificationCenter && numberOfUnread) {
+      readAllAnnouncement({})
     }
   }
 

@@ -48,7 +48,7 @@ export default function AnnouncementItem({
 }: PrivateAnnouncementPropCenter<AnnouncementTemplatePoolPosition>) {
   const [expand, setExpand] = useState(false)
   const { sentAt, templateType } = announcement
-  const { position } = announcement.templateBody
+  const { position } = announcement.templateBody || {}
   const {
     token0LogoURL,
     token0Symbol,
@@ -60,7 +60,7 @@ export default function AnnouncementItem({
     minPrice,
     currentPrice,
     poolAddress,
-  } = position
+  } = position || {}
   const isInRange = type === 'IN_RANGE'
   const statusMessage = isInRange ? t`Back in range` : t`Out of range`
   const chainId = Number(rawChain) as ChainId

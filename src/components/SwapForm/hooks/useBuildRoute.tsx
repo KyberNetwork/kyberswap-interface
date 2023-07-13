@@ -4,6 +4,7 @@ import routeApi from 'services/route'
 import { BuildRouteData, BuildRoutePayload } from 'services/route/types/buildRoute'
 import { RouteSummary } from 'services/route/types/getRoute'
 
+import { AGGREGATOR_API_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
@@ -61,7 +62,7 @@ const useBuildRoute = (args: Args) => {
       abortControllerRef.current.abort()
       abortControllerRef.current = new AbortController()
 
-      const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}/api/v1/route/build`
+      const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}${AGGREGATOR_API_PATHS.BUILD_ROUTE}`
 
       const response = await buildRoute({
         url,

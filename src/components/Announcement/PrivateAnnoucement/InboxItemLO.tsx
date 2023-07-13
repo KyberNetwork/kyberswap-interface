@@ -43,7 +43,7 @@ function InboxItemBridge({
     increasedFilledPercent,
     takingAmountRate,
     chainId: rawChainId,
-  } = templateBody.order
+  } = templateBody?.order || {}
   const isFilled = status === LimitOrderStatus.FILLED
   const isPartialFilled = status === LimitOrderStatus.PARTIALLY_FILLED
   const chainId = rawChainId && rawChainId !== '{{.chainId}}' ? (Number(rawChainId) as ChainId) : undefined

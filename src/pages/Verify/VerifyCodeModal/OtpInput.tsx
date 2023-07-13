@@ -172,8 +172,6 @@ const OTPInput = ({
       .slice(0, numInputs - activeInput)
       .split('')
 
-    if (isInputNum && pastedData.some(el => isNaN(+el))) return
-
     // Prevent pasting if the clipboard data contains non-numeric values for number inputs
     if (isInputNum && pastedData.some(value => isNaN(Number(value)))) {
       return
