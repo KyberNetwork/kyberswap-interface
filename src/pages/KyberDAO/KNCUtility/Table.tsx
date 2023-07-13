@@ -1,4 +1,4 @@
-import { rgba } from 'polished'
+import { rgba, transparentize } from 'polished'
 import styled from 'styled-components'
 
 export const TableWrapper = styled.div`
@@ -42,7 +42,12 @@ export const Row = styled.div<{ $background?: string }>`
 
 export const TableHeader = styled(Row)`
   border-top: none;
-  background: linear-gradient(345.9deg, #31cb9e -165.01%, rgba(4, 45, 33, 0.2) 139.18%);
+  background: linear-gradient(0deg, #134134 0%, #0f221e 100%);
+  background: linear-gradient(
+    0deg,
+    ${({ theme }) => transparentize(0.5, theme.primary)} 0%,
+    ${({ theme }) => transparentize(0.8, theme.primary)} 100%
+  );
 `
 export const TableRow = styled(Row)``
 
