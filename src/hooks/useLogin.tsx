@@ -3,7 +3,7 @@ import { t } from '@lingui/macro'
 import { captureException } from '@sentry/react'
 import { useCallback, useEffect, useRef } from 'react'
 import { usePrevious } from 'react-use'
-import { useConnectWalletToProfileMutation, useGetOrCreateProfileMutation } from 'services/identity'
+import { useGetOrCreateProfileMutation } from 'services/identity'
 
 import { NotificationType } from 'components/Announcement/type'
 import { useShowConfirm } from 'components/ConfirmModal'
@@ -41,7 +41,7 @@ const useLogin = (autoLogin = false) => {
   const { account, chainId } = useActiveWeb3React()
 
   const [createProfile] = useGetOrCreateProfileMutation()
-  const [connectWalletToProfile] = useConnectWalletToProfileMutation()
+  // const [connectWalletToProfile] = useConnectWalletToProfileMutation()
   const notify = useNotify()
   const toggleWalletModal = useWalletModalToggle()
   const [, setLoginRedirectUrl] = useLoginRedirectUrl()
@@ -68,7 +68,7 @@ const useLogin = (autoLogin = false) => {
       try {
         const profile = await createProfile().unwrap()
         if (walletAddress && isAddress(chainId, walletAddress)) {
-          await connectWalletToProfile({ walletAddress })
+          // await connectWalletToProfile({ walletAddress }) // temp off
         }
 
         const formatProfile = { ...profile }
@@ -86,7 +86,7 @@ const useLogin = (autoLogin = false) => {
         setProfile({ profile: undefined, isAnonymous, account })
       }
     },
-    [connectWalletToProfile, createProfile, setProfile, chainId],
+    [createProfile, setProfile, chainId],
   )
 
   const showSignInSuccess = useCallback(
@@ -320,7 +320,7 @@ export const useAutoLogin = () => {
   const { account } = useActiveWeb3React()
   const { userInfo } = useSessionInfo()
   const [isKeepCurrentProfile] = useIsKeepCurrentProfile()
-  const [connectWalletToProfile] = useConnectWalletToProfileMutation()
+  // const [connectWalletToProfile] = useConnectWalletToProfileMutation()
   const { signIn, checkSessionSignIn, signInAnonymous } = useLogin(true)
 
   // auto try sign in when the first visit app, call once
@@ -353,10 +353,10 @@ export const useAutoLogin = () => {
   useEffect(() => {
     if (signedMethod === LoginMethod.ANONYMOUS && account && userInfo?.identityId) {
       try {
-        connectWalletToProfile({ walletAddress: account })
+        // connectWalletToProfile({ walletAddress: account })
       } catch (error) {}
     }
-  }, [account, connectWalletToProfile, userInfo?.identityId, signedMethod])
+  }, [account, userInfo?.identityId, signedMethod])
 
   const setConfirm = useSetConfirmChangeProfile()
 
