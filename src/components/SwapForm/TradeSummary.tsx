@@ -146,7 +146,7 @@ type Props = {
   slippage: number
 }
 const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
-  const { chainId } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const theme = useTheme()
   const { gasRefundPerCentage } = useGasRefundTier()
   const [expanded, setExpanded] = useState(true)
@@ -287,7 +287,7 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
               </RowFixed>
               <NavLink to={APP_PATHS.KYBERDAO_KNC_UTILITY}>
                 <ButtonLight padding="0px 8px" width="fit-content" fontSize={10} fontWeight={500} lineHeight="16px">
-                  {gasRefundPerCentage * 100}% Refund
+                  {account ? gasRefundPerCentage * 100 : '-- '}% Refund
                 </ButtonLight>
               </NavLink>
             </RowBetween>
