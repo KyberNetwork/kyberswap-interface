@@ -226,7 +226,12 @@ const ProfileContent = ({ scroll, toggleModal }: { scroll?: boolean; toggleModal
       </Column>
       <ActionWrapper hasBorder={profiles.length > 1}>
         {!KyberOauth2.getConnectedAccounts().includes(account?.toLowerCase() ?? '') && isEVM && (
-          <ActionItem onClick={() => signIn()}>
+          <ActionItem
+            onClick={() => {
+              toggleModal()
+              signIn()
+            }}
+          >
             <UserPlus size={18} /> <Trans>Add Account</Trans>
           </ActionItem>
         )}
