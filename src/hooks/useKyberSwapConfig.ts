@@ -80,7 +80,7 @@ export const useLazyKyberswapConfig = (): ((customChainId?: ChainId) => Promise<
     async (customChainId?: ChainId) => {
       const chainId = customChainId ?? storeChainId
       try {
-        const { data } = await getKyberswapConfiguration({ chainId: chainId })
+        const { data } = await getKyberswapConfiguration(chainId)
         return parseResponse(data, chainId)
       } catch {
         return parseResponse(undefined, chainId)
@@ -113,7 +113,7 @@ export const useAllKyberswapConfig = (): {
     const run = async () => {
       const fetches = SUPPORTED_NETWORKS.map(async chainId => {
         try {
-          const { data } = await getKyberswapConfiguration({ chainId })
+          const { data } = await getKyberswapConfiguration(chainId)
           return {
             chainId,
             result: parseResponse(data, chainId),
