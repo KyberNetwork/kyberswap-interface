@@ -504,8 +504,8 @@ function StakeModal({
               ))}
             </ScrollContainer>
 
-            <Flex justifyContent="space-between" marginTop="24px">
-              <div></div>
+            <Flex justifyContent="space-between">
+              <div />
               <ButtonPrimary
                 id="stake-selected-button"
                 fontSize="14px"

@@ -108,7 +108,7 @@ function FarmCard({
 }) {
   const theme = useTheme()
   const { account, networkInfo } = useActiveWeb3React()
-  const [activeRangeIndex, setActiveRangeIndex] = useState(0)
+  const [activeRangeIndex, setActiveRangeIndex] = useState(farm.ranges[0].index)
 
   const [, setSharePoolAddress] = useShareFarmAddress()
 
@@ -197,6 +197,8 @@ function FarmCard({
   }/${farm.token1.isNative ? farm.token1.symbol : pool.token1.address}/${pool.fee}`
 
   const mixpanelPayload = { farm_pool_address: farm.poolAddress, farm_id: farm.id, farm_fid: farm.fId }
+
+  const range = farm.ranges.find(range => range.index === activeRangeIndex)
 
   return (
     <>
@@ -330,13 +332,7 @@ function FarmCard({
                   <RowBetween>
                     <MouseoverTooltip
                       width="fit-content"
-                      text={
-                        <APRTooltipContent
-                          farmV2APR={farm.ranges[activeRangeIndex].apr || 0}
-                          farmAPR={0}
-                          poolAPR={poolAPR}
-                        />
-                      }
+                      text={<APRTooltipContent farmV2APR={range?.apr || 0} farmAPR={0} poolAPR={poolAPR} />}
                       placement="top"
                     >
                       <Text
@@ -350,7 +346,7 @@ function FarmCard({
 
                     <MouseoverTooltip
                       text={
-                        farm.ranges[activeRangeIndex].isRemoved ? (
+                        range?.isRemoved ? (
                           <Trans>
                             This indicates that range is idle. Staked positions in this range is still earning small
                             amount of rewards.
@@ -362,15 +358,13 @@ function FarmCard({
                     >
                       <Text
                         fontSize="12px"
-                        color={farm.ranges[activeRangeIndex].isRemoved ? theme.warning : theme.primary}
+                        color={range?.isRemoved ? theme.warning : theme.primary}
                         alignSelf="flex-end"
                         sx={{
-                          borderBottom: farm.ranges[activeRangeIndex].isRemoved
-                            ? `1px dotted ${theme.warning}`
-                            : undefined,
+                          borderBottom: range?.isRemoved ? `1px dotted ${theme.warning}` : undefined,
                         }}
                       >
-                        {farm.ranges[activeRangeIndex].isRemoved ? (
+                        {range?.isRemoved ? (
                           <Trans>Idle Range</Trans>
                         ) : (
                           <Link to={`${addliquidityElasticPool}?farmRange=${activeRangeIndex}`}>
@@ -381,12 +375,8 @@ function FarmCard({
                     </MouseoverTooltip>
                   </RowBetween>
 
-                  <Text
-                    fontSize="28px"
-                    marginTop="2px"
-                    color={farm.ranges[activeRangeIndex].isRemoved ? theme.warning : theme.apr}
-                  >
-                    {(poolAPR + (farm.ranges[activeRangeIndex].apr || 0)).toFixed(2)}%
+                  <Text fontSize="28px" marginTop="2px" color={theme.apr}>
+                    {(poolAPR + (range?.apr || 0)).toFixed(2)}%
                   </Text>
                 </Flex>
               ),

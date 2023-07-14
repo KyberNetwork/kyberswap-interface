@@ -163,7 +163,7 @@ const FarmUpdaterV1: React.FC<CommonProps> = ({ interval }) => {
     const i = interval
       ? setInterval(() => {
           getElasticFarms()
-        }, 10_0000)
+        }, 10_000)
       : undefined
     return () => {
       i && clearInterval(i)

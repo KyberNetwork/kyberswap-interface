@@ -88,7 +88,7 @@ const queryFarms = gql`
         amount
         index
       }
-      ranges {
+      ranges(orderBy: isRemoved) {
         id
         index
         isRemoved
