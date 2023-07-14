@@ -12,7 +12,7 @@ import { useSignedAccountInfo } from 'state/profile/hooks'
 export default function useSessionExpiredGlobal() {
   const { pathname } = useLocation()
   const showConfirm = useShowConfirm()
-  const { signIn } = useLogin()
+  const { signIn, redirectSignIn } = useLogin()
   const navigate = useNavigate()
   const { signedAccount, signedMethod } = useSignedAccountInfo()
 
@@ -25,7 +25,7 @@ export default function useSessionExpiredGlobal() {
         title: t`Session Expired`,
         confirmText: t`Sign-in`,
         cancelText: t`Cancel`,
-        onConfirm: () => signIn(),
+        onConfirm: () => redirectSignIn(accountId || signedAccount),
       }
       const isKyberAIPage =
         pathname.toLowerCase().startsWith(APP_PATHS.KYBERAI.toLowerCase()) &&
@@ -38,7 +38,7 @@ export default function useSessionExpiredGlobal() {
     }
     KyberOauth2.on(KyberOauth2Event.SESSION_EXPIRED, listener)
     return () => KyberOauth2.off(KyberOauth2Event.SESSION_EXPIRED, listener)
-  }, [pathname, showConfirm, signIn, navigate, signedAccount])
+  }, [pathname, showConfirm, redirectSignIn, navigate, signedAccount])
 
   useEffect(() => {
     const listener = () => {
