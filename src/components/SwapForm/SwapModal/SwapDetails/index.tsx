@@ -329,7 +329,7 @@ export default function SwapDetails({
           </TYPE.black>
         </RowBetween>
 
-        {isSupportKyberDao(chainId) && account && routeSummary?.amountInUsd > 200 && (
+        {isSupportKyberDao(chainId) && account && Number(routeSummary?.amountInUsd || 0) > 200 && (
           <RowBetween height="20px" style={{ gap: '16px' }}>
             <RowFixed>
               <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
