@@ -5,10 +5,11 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import ringwaveGif from 'assets/gif/ringwave.gif'
 import bgimg from 'assets/images/about_background.png'
-import gasrefund from 'assets/images/gasrefund.png'
-import ringwave from 'assets/images/ringwave.png'
+import kncDropping from 'assets/images/gas-refund/knc-dropping.png'
+import kncs from 'assets/images/gas-refund/kncs.png'
+import ringwaveGif from 'assets/images/gas-refund/ringwave.gif'
+import ringwave from 'assets/images/gas-refund/ringwave.png'
 import crystals from 'assets/svg/crystals.svg'
 import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
@@ -51,7 +52,7 @@ const Row = styled.div`
   margin: auto;
   display: flex;
   justify-content: space-between;
-  gap: min(max(50px, calc(100vw - 1136px)), 184px);
+  gap: 48px;
   padding: 24px 0;
   align-items: flex-start;
 
@@ -64,7 +65,7 @@ const Row = styled.div`
 
   & > * {
     flex: 1 1 0px;
-    max-width: 520px;
+    max-width: 588px;
     ${({ theme }) => theme.mediaWidth.upToMedium`
       max-width: 700px;
     `}
@@ -103,25 +104,7 @@ export default function KNCUtility() {
   const theme = useTheme()
   const { stakedBalance } = useStakingInfo()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
-  const refundImg = (
-    <Flex alignItems="center" justifyContent="center" width="100%" sx={{ position: 'relative' }}>
-      <img
-        src={gasrefund}
-        style={{
-          ...(upToMedium
-            ? {
-                maxHeight: '300px',
-                maxWidth: '100%',
-              }
-            : {
-                maxWidth: '700px',
-                width: '100%',
-              }),
-        }}
-        alt="Gas Refund"
-      />
-    </Flex>
-  )
+
   return (
     <Wrapper>
       <Container>
@@ -165,22 +148,18 @@ export default function KNCUtility() {
               </Trans>
             </Column>
           </Column>
-          {upToMedium ? (
-            refundImg
-          ) : (
-            <Flex flexDirection="column" alignItems="center">
-              <img src={crystals} width="20%" />
-              <img
-                src={ringwaveGif}
-                width="75%"
-                style={{ marginTop: '-40px', maxWidth: '533px' }}
-                onError={({ currentTarget }) => {
-                  currentTarget.onerror = null // prevents looping
-                  currentTarget.src = ringwave
-                }}
-              />
-            </Flex>
-          )}
+          <Flex flexDirection="column" alignItems="center">
+            <img src={crystals} width="20%" />
+            <img
+              src={ringwaveGif}
+              width="75%"
+              style={{ marginTop: '-40px', maxWidth: '533px' }}
+              onError={({ currentTarget }) => {
+                currentTarget.onerror = null // prevents looping
+                currentTarget.src = ringwave
+              }}
+            />
+          </Flex>
         </Row>
         <Row style={{ paddingBottom: upToMedium ? '0' : undefined }}>
           <RowBetween flexDirection="row" gap="16px">
@@ -196,8 +175,9 @@ export default function KNCUtility() {
           {upToMedium || <div />}
         </Row>
         <Row style={{ padding: upToMedium ? '16px 0 12px' : undefined }}>
-          <Column>
+          <Column sx={{ gap: 80 }}>
             <GasRefundBox />
+            {upToMedium || <img src={kncs} alt="kncs" />}
           </Column>
           <Column gap="16px">
             <Text fontSize={20} fontWeight={400} lineHeight="32px" color={theme.text} id="how-to-participate">
@@ -205,13 +185,50 @@ export default function KNCUtility() {
             </Text>
             <Text fontSize={16} fontWeight={400} lineHeight="24px" color={theme.subText}>
               <Trans>
-                To participate in KyberSwap&apos;s Gas Refund Program, you must stake KNC and meet the necessary
-                requirements. The amount of gas refunded will depend on your staking Tier. Read more{' '}
-                <ExternalLink href="https://docs.kyberswap.com/governance/knc-token/gas-refund-program">
-                  here ↗
-                </ExternalLink>
+                To participate in KyberSwap&apos;s Gas Refund Program, you must first stake KNC and then meet the
+                necessary trading requirements:
               </Trans>
             </Text>
+            <Text fontSize={16} fontWeight={400} lineHeight="24px" color={theme.text} fontStyle="italic">
+              <Trans>
+                Step 1 - Stake KNC on KyberDAO
+                <br />
+                Step 2 - Trade on KyberSwap
+              </Trans>
+            </Text>
+            <ul
+              style={{
+                listStylePosition: 'outside',
+                paddingInlineStart: '30px',
+                display: 'flex',
+                gap: '16px',
+                flexDirection: 'column',
+                margin: 0,
+              }}
+            >
+              <li>
+                <Text fontSize={16} fontWeight={400} lineHeight="24px" color={theme.subText} as="span">
+                  <Trans>
+                    Value of each trade (calculated at the point of the trade) on KyberSwap has to be ≥ $200
+                  </Trans>
+                </Text>
+              </li>
+              <li>
+                <Text fontSize={16} fontWeight={400} lineHeight="24px" color={theme.subText} as="span">
+                  <Trans>Trades only on Ethereum chain are applicable</Trans>
+                </Text>
+              </li>
+              <li>
+                <Text fontSize={16} fontWeight={400} lineHeight="24px" color={theme.subText} as="span">
+                  <Trans>
+                    The amount of the gas refunded will depend on your tier displayed below. Read more{' '}
+                    <ExternalLink href="https://docs.kyberswap.com/governance/knc-token/gas-refund-program">
+                      here ↗
+                    </ExternalLink>
+                  </Trans>
+                </Text>
+              </li>
+            </ul>
             <Table>
               <TableHeader>
                 <HeaderCell>
@@ -240,30 +257,6 @@ export default function KNCUtility() {
                 <HeaderCell textAlign="center">20%</HeaderCell>
               </TableRow>
             </Table>
-            <Text fontSize={16} fontWeight={400} lineHeight="24px" color={theme.text} fontStyle="italic">
-              <Trans>Value of each trade on KyberSwap has to be ≥ $200; calculated at the point of trade.</Trans>
-            </Text>
-            <Text fontSize={16} fontWeight={400} lineHeight="24px" color={theme.subText} as="span">
-              <Trans>
-                By staking KNC, you are rewarded with tier-based gas refunds in the form of KNC whenever you make an
-                eligible trade on KyberSwap.{' '}
-                <Text fontSize={16} fontWeight={400} lineHeight="24px" color={theme.text} as="span">
-                  Stake KNC and trade on KyberSwap today!
-                </Text>
-                <br />
-                <br />
-                <Text
-                  fontSize={12}
-                  fontWeight={400}
-                  lineHeight="16px"
-                  color={theme.warning}
-                  fontStyle="italic"
-                  as="span"
-                >
-                  Gas refund is currently only available for swaps made on Ethereum
-                </Text>
-              </Trans>
-            </Text>
           </Column>
         </Row>
         <Row>
@@ -275,7 +268,18 @@ export default function KNCUtility() {
               <FAQ />
             </Column>
           </Column>
-          {upToMedium || refundImg}
+          {upToMedium ? null : (
+            <Flex alignItems="center" justifyContent="center" width="100%" sx={{ position: 'relative' }}>
+              <img
+                src={kncDropping}
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '713px',
+                }}
+                alt="Gas Refund"
+              />
+            </Flex>
+          )}
         </Row>
       </Container>
     </Wrapper>
