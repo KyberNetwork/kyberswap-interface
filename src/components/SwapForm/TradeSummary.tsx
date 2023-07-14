@@ -273,9 +273,9 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
                   <MouseoverTooltip
                     text={
                       <Trans>
-                        Stake KNC in KyberDAO to get gas refund.{' '}
+                        Stake KNC in KyberDAO to get gas refund. Read more{' '}
                         <ExternalLink href="https://docs.kyberswap.com/governance/knc-token/gas-refund-program">
-                          Read more ↗
+                          here ↗
                         </ExternalLink>
                       </Trans>
                     }
