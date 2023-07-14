@@ -231,7 +231,7 @@ export default function StakeKNC() {
               Migrate
             </ButtonLight>
           </Card>
-          <Card background={userTier > 1 ? 'linear-gradient(90deg, #1F3435 0%, #162F28 100%)' : undefined}>
+          <Card>
             <Image src={kncUtilityPNG} alt="KNC Utility" />
             <CardInfo>
               <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text}>
@@ -279,9 +279,6 @@ export default function StakeKNC() {
               </Text>
             </CardInfo>
           </Card>
-          <Text fontSize={12} lineHeight="14px" fontWeight={400} color={theme.subText} fontStyle="italic">
-            <Trans>Note: Staking KNC is only available on Ethereum chain</Trans>
-          </Text>
         </CardGroup>
         <StakeKNCComponent />
       </Container>
