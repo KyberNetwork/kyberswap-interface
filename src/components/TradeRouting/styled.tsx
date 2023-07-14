@@ -256,7 +256,6 @@ export const StyledExchangeStatic = styled.div`
   & > .img--sm {
     width: 14px;
     height: 14px;
-    border-radius: 100%;
     margin-right: 4px;
   }
 
