@@ -109,14 +109,6 @@ const NavLinkBetween = styled(MenuItem)`
   }
 `
 
-const CampaignWrapper = styled.div`
-  display: none;
-
-  @media (max-width: 560px) {
-    display: flex;
-  }
-`
-
 const StyledMenuButton = styled.button<{ active?: boolean }>`
   border: none;
   background-color: transparent;
@@ -376,30 +368,28 @@ export default function Menu() {
               />
             </KyberAIWrapper>
 
-            <CampaignWrapper>
-              <MenuItem>
-                <NavDropDown
-                  icon={<Award />}
-                  title={
-                    <Text>
-                      <Trans>Campaigns</Trans>
-                    </Text>
-                  }
-                  link={'#'}
-                  options={[
-                    { link: APP_PATHS.CAMPAIGN, label: t`Trading Campaigns` },
-                    {
-                      link: APP_PATHS.GRANT_PROGRAMS,
-                      label: (
-                        <Text as="span">
-                          <Trans>Trading Grant Campaign</Trans>
-                        </Text>
-                      ),
-                    },
-                  ]}
-                />
-              </MenuItem>
-            </CampaignWrapper>
+            <MenuItem>
+              <NavDropDown
+                icon={<Award />}
+                title={
+                  <Text>
+                    <Trans>Campaigns</Trans>
+                  </Text>
+                }
+                link={'#'}
+                options={[
+                  { link: APP_PATHS.CAMPAIGN, label: t`Trading Campaigns` },
+                  {
+                    link: APP_PATHS.GRANT_PROGRAMS,
+                    label: (
+                      <Text as="span">
+                        <Trans>Trading Grant Campaign</Trans>
+                      </Text>
+                    ),
+                  },
+                ]}
+              />
+            </MenuItem>
 
             {under1440 && (
               <MenuItem>
