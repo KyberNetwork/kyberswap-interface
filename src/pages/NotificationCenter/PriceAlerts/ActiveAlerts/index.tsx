@@ -1,11 +1,9 @@
 import { t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { Flex } from 'rebass'
-import priceAlertApi, { useGetAlertStatsQuery, useGetListAlertsQuery } from 'services/priceAlert'
+import { useGetAlertStatsQuery, useGetListAlertsQuery } from 'services/priceAlert'
 
-import { useInvalidateTags } from 'components/Announcement/helper'
 import { PrivateAnnouncementType } from 'components/Announcement/type'
-import { RTK_QUERY_TAGS } from 'constants/index'
 import NoData from 'pages/NotificationCenter/NoData'
 import CommonPagination from 'pages/NotificationCenter/PriceAlerts/CommonPagination'
 import { ITEMS_PER_PAGE } from 'pages/NotificationCenter/const'
@@ -25,12 +23,12 @@ const ActiveAlerts = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boolea
   const { data: alertStat, refetch: refetchStat } = useGetAlertStatsQuery()
   const isMaxQuotaActiveAlert = alertStat ? alertStat.totalActiveAlerts >= alertStat.maxActiveAlerts : false
 
-  const invalidateTag = useInvalidateTags(priceAlertApi.reducerPath)
   useEffect(() => {
-    if (userInfo?.identityId) {
-      invalidateTag([RTK_QUERY_TAGS.GET_ALERTS, RTK_QUERY_TAGS.GET_ALERTS_STAT])
-    }
-  }, [userInfo?.identityId, invalidateTag])
+    try {
+      refetch()
+      refetchStat()
+    } catch (error) {}
+  }, [userInfo?.identityId, refetch, refetchStat])
 
   useEffect(() => {
     setDisabledClearAll(!data?.alerts?.length)
