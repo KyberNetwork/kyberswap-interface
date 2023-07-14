@@ -23,12 +23,13 @@ export default function TimerCountdown({
       const seconds = endTime - Math.floor(Date.now() / 1000)
       if (seconds < 0) return setTimeString('')
       if (seconds < 60) return setTimeString(Math.floor(seconds) + 's')
+
       const levels = [
         [Math.floor(seconds / 31536000), 'years'],
         [Math.floor((seconds % 31536000) / 86400), ' days'],
-        [Math.floor(((seconds % 31536000) % 86400) / 3600), 'h'],
-        [Math.floor((((seconds % 31536000) % 86400) % 3600) / 60), 'm'],
-        [seconds - Math.floor(seconds / 60) * 60, 's'],
+        [Math.floor((seconds % 86400) / 3600), 'h'],
+        [Math.floor((seconds % 3600) / 60), 'm'],
+        [seconds % 60, 's'],
       ]
 
       const texts: string[] = []
@@ -40,7 +41,7 @@ export default function TimerCountdown({
           hideZero = false
         }
         count++
-        texts.push(levels[i][0] + levels[i][1])
+        texts.push(String(levels[i][0]) + levels[i][1])
       }
 
       setTimeString(texts.join(' '))
