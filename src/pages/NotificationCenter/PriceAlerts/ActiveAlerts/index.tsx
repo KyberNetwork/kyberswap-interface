@@ -4,6 +4,7 @@ import { Flex } from 'rebass'
 import { useGetAlertStatsQuery, useGetListAlertsQuery } from 'services/priceAlert'
 
 import { PrivateAnnouncementType } from 'components/Announcement/type'
+import useDebounce from 'hooks/useDebounce'
 import NoData from 'pages/NotificationCenter/NoData'
 import CommonPagination from 'pages/NotificationCenter/PriceAlerts/CommonPagination'
 import { ITEMS_PER_PAGE } from 'pages/NotificationCenter/const'
@@ -15,11 +16,12 @@ import SingleAlert from './SingleAlert'
 const ActiveAlerts = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boolean) => void }) => {
   const { userInfo } = useSessionInfo()
   const [page, setPage] = useState(1)
-  const { data, isFetching, isLoading, refetch } = useGetListAlertsQuery({
+  const { data, isFetching, refetch } = useGetListAlertsQuery({
     page,
     pageSize: ITEMS_PER_PAGE,
     sort: 'is_enabled:desc,created_at:desc',
   })
+  const isLoading = useDebounce(isFetching, 300)
   const { data: alertStat, refetch: refetchStat } = useGetAlertStatsQuery()
   const isMaxQuotaActiveAlert = alertStat ? alertStat.totalActiveAlerts >= alertStat.maxActiveAlerts : false
 
@@ -48,10 +50,9 @@ const ActiveAlerts = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boolea
   }, [userInfo?.identityId, refetch, refetchStat])
 
   const totalAlert = data?.alerts?.length ?? 0
-  console.log({ isFetching, data, isLoading })
 
-  if (!totalAlert || isFetching) {
-    return <NoData msg={t`No price alerts created yet`} isLoading={isFetching} />
+  if (!totalAlert || isLoading) {
+    return <NoData msg={t`No price alerts created yet`} isLoading={isLoading} />
   }
 
   return (
