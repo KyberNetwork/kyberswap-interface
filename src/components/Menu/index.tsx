@@ -628,7 +628,7 @@ export default function Menu() {
               kyberswap@{TAG}
             </Text>
             <ScrollEnd show={showScroll}>
-              <ChevronDown color={theme.subText} />
+              <ChevronDown color={theme.text4} />
             </ScrollEnd>
           </ListWrapper>
         )}
