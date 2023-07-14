@@ -329,7 +329,7 @@ export default function SwapDetails({
           </TYPE.black>
         </RowBetween>
 
-        {isSupportKyberDao(chainId) && (
+        {isSupportKyberDao(chainId) && account && routeSummary?.amountInUsd > 200 && (
           <RowBetween height="20px" style={{ gap: '16px' }}>
             <RowFixed>
               <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
@@ -353,7 +353,7 @@ export default function SwapDetails({
 
             <NavLink to="#">
               <ButtonLight padding="0px 8px" width="fit-content" fontSize={10} fontWeight={500} lineHeight="16px">
-                <Trans>{account ? gasRefundPerCentage * 100 : '--'}% Refund</Trans>
+                <Trans>{gasRefundPerCentage * 100}% Refund</Trans>
               </ButtonLight>
             </NavLink>
           </RowBetween>
