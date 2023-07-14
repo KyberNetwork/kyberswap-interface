@@ -320,7 +320,7 @@ function StakeModal({
     [selectedPool, eligiblePositions, poolAddress],
   )
 
-  const [tab, setTab] = useState<'stake' | 'deposit'>('deposit')
+  const [tab, setTab] = useState<'stake' | 'deposit'>(() => (type === 'stake' ? 'deposit' : 'stake'))
 
   useEffect(() => {
     if (eligiblePositions.length && !depositedNfts.length) {
@@ -414,7 +414,7 @@ function StakeModal({
           )}
         </Text>
 
-        {positionsLoading ? (
+        {positionsLoading && type === 'stake' ? (
           <LocalLoader />
         ) : !eligibleNfts.length ? (
           type === 'stake' ? (
@@ -444,7 +444,7 @@ function StakeModal({
           )
         ) : (
           <>
-            {!!eligiblePositions.length && !!eligibleNfts.length && (
+            {!!eligiblePositions.length && !!depositedNfts.length && type === 'stake' && (
               <TabGroup style={{ width: isMobile ? '100%' : 'fit-content', marginTop: '16px' }}>
                 <Tab active={tab === 'deposit'} onClick={() => setTab('deposit')}>
                   <Trans>New Positions</Trans>

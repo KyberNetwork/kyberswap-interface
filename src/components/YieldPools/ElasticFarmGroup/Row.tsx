@@ -23,9 +23,10 @@ import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { TOBE_EXTENDED_FARMING_POOLS } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useProMMFarmContract } from 'hooks/useContract'
+import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
 import { useShareFarmAddress } from 'state/farms/classic/hooks'
-import { useElasticFarms } from 'state/farms/elastic/hooks'
+import { useElasticFarms, usePositionFilter } from 'state/farms/elastic/hooks'
 import { FarmingPool, NFTPosition } from 'state/farms/elastic/types'
 import { useViewMode } from 'state/user/hooks'
 import { VIEW_MODE } from 'state/user/reducer'
@@ -65,7 +66,7 @@ const Row = ({
   onHarvest: () => void
   tokenPrices: { [key: string]: number }
 }) => {
-  const { chainId, networkInfo } = useActiveWeb3React()
+  const { chainId, networkInfo, account } = useActiveWeb3React()
   const theme = useTheme()
   const currentTimestamp = Math.floor(Date.now() / 1000)
   const [viewMode] = useViewMode()
@@ -74,6 +75,7 @@ const Row = ({
   const [isRevertPrice, setIsRevertPrice] = useState(false)
   const { userFarmInfo } = useElasticFarms()
   const joinedPositions = userFarmInfo?.[fairlaunchAddress]?.joinedPositions[farmingPool.pid] || []
+
   const depositedPositions =
     userFarmInfo?.[fairlaunchAddress]?.depositedPositions.filter(pos => {
       return (
@@ -143,7 +145,17 @@ const Row = ({
     getFeeTargetInfo()
   }, [contract, farmingPool.feeTarget, fairlaunchAddress, farmingPool.pid, userFarmInfo])
 
-  const canStake = farmingPool.endTime > currentTimestamp
+  const { positions } = useProAmmPositions(account)
+
+  const { eligiblePositions } = usePositionFilter(positions || [], [farmingPool.poolAddress.toLowerCase()])
+
+  const canUpdateLiquidity = depositedPositions.some(pos => {
+    const stakedPos = joinedPositions.find(j => j.nftId.toString() === pos.nftId.toString())
+    return !stakedPos
+      ? true
+      : BigNumber.from(pos.liquidity.toString()).gt(BigNumber.from(stakedPos.liquidity.toString()))
+  })
+  const canStake = farmingPool.endTime > currentTimestamp && (eligiblePositions.length > 0 || canUpdateLiquidity)
   const canHarvest = rewardPendings.some(amount => amount.greaterThan(0))
 
   const canUnstake = !!joinedPositions.length
