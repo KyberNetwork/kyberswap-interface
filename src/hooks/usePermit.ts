@@ -54,7 +54,7 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
       permitData.rawSignature &&
       transactionDeadline &&
       permitData.deadline &&
-      permitData.deadline >= transactionDeadline?.toNumber() &&
+      permitData.deadline >= Date.now() / 1000 &&
       permitData.value !== undefined &&
       currencyAmount?.equalTo(permitData.value)
     ) {
@@ -96,7 +96,7 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
     if (permitState !== PermitState.NOT_SIGNED) {
       return
     }
-    const deadline = transactionDeadline.toNumber() + PERMIT_VALIDITY_BUFFER
+    const deadline = Math.floor(Date.now() / 1000) + PERMIT_VALIDITY_BUFFER
     const message = {
       owner: account,
       spender: routerAddress,
