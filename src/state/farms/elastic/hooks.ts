@@ -296,6 +296,33 @@ export const useFarmAction = (address: string) => {
     [addTransactionWithType, contract, address],
   )
 
+  const depositAndJoin = useCallback(
+    async (pid: BigNumber, selectedNFTs: StakeParam[]) => {
+      if (!contract) {
+        throw new Error(CONTRACT_NOT_FOUND_MSG)
+      }
+
+      const nftIds = selectedNFTs.map(item => item.nftId)
+
+      const estimateGas = await contract.estimateGas.depositAndJoin(pid, nftIds)
+      const tx = await contract.depositAndJoin(pid, nftIds, {
+        gasLimit: calculateGasMargin(estimateGas),
+      })
+      addTransactionWithType({
+        hash: tx.hash,
+        type: TRANSACTION_TYPE.STAKE,
+        extraInfo: getTransactionExtraInfo(
+          selectedNFTs.map(e => e.position),
+          selectedNFTs.map(e => e.poolAddress),
+          nftIds.map(e => e.toString()),
+        ),
+      })
+
+      return tx.hash
+    },
+    [addTransactionWithType, contract],
+  )
+
   const stake = useCallback(
     async (pid: BigNumber, selectedNFTs: StakeParam[]) => {
       if (!contract) {
@@ -392,7 +419,7 @@ export const useFarmAction = (address: string) => {
     [addTransactionWithType, contract],
   )
 
-  return { deposit, withdraw, approve, stake, unstake, harvest, emergencyWithdraw }
+  return { deposit, withdraw, approve, stake, unstake, harvest, emergencyWithdraw, depositAndJoin }
 }
 
 const filterOptions = [

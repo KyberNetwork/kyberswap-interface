@@ -5,6 +5,11 @@
         "internalType": "contract IERC721",
         "name": "_nft",
         "type": "address"
+      },
+      {
+        "internalType": "contract IKSElasticLMHelper",
+        "name": "_helper",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -303,6 +308,19 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "bool",
+        "name": "enableOrDisable",
+        "type": "bool"
+      }
+    ],
+    "name": "UpdateSpecialFeatureEnabled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
         "internalType": "address",
         "name": "sender",
         "type": "address"
@@ -415,6 +433,24 @@
       }
     ],
     "name": "deposit",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "pId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "nftIds",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "depositAndJoin",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -954,6 +990,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "specialFeatureEnabled",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -1027,6 +1076,19 @@
       }
     ],
     "name": "updateOperator",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bool",
+        "name": "enableOrDisable",
+        "type": "bool"
+      }
+    ],
+    "name": "updateSpecialFeatureEnabled",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

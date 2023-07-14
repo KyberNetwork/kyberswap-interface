@@ -1,8 +1,8 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { Info, X } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -14,20 +14,24 @@ import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import Checkbox from 'components/CheckBox'
 import CurrencyLogo from 'components/CurrencyLogo'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
+import LocalLoader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
-import { StakeParam, useElasticFarms, useFarmAction } from 'state/farms/elastic/hooks'
+import { Tab } from 'pages/Pools/styleds'
+import { StakeParam, useElasticFarms, useFarmAction, usePositionFilter } from 'state/farms/elastic/hooks'
 import { NFTPosition } from 'state/farms/elastic/types'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { StyledInternalLink } from 'theme'
 import { formatDollarAmount } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
+import { TabGroup } from '../styleds'
 import { ModalContentWrapper, TableHeader, TableRow, Title } from './styled'
 
 const generateCommonCSS = (isUnstake: boolean) => {
@@ -226,18 +230,22 @@ function StakeModal({
 }) {
   const theme = useTheme()
   const checkboxGroupRef = useRef<any>()
-  const { chainId, networkInfo } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
+
+  const { positions, loading: positionsLoading } = useProAmmPositions(account)
+
+  const { eligiblePositions } = usePositionFilter(positions || [], [poolAddress])
 
   const { farms, userFarmInfo } = useElasticFarms()
   const selectedFarm = farms?.find(farm => farm.id.toLowerCase() === selectedFarmAddress.toLowerCase())
 
-  const { stake, unstake, emergencyWithdraw } = useFarmAction(selectedFarmAddress)
+  const { stake, unstake, depositAndJoin } = useFarmAction(selectedFarmAddress)
 
   const selectedPool = selectedFarm?.pools.find(pool => Number(pool.pid) === Number(poolId))
 
   const { token0, token1 } = selectedPool || {}
 
-  const eligibleNfts: ExplicitNFT[] = useMemo(() => {
+  const depositedNfts: ExplicitNFT[] = useMemo(() => {
     if (!isEVM(chainId)) return []
     const joinedPositions = userFarmInfo?.[selectedFarmAddress]?.joinedPositions?.[poolId] || []
     const depositedPositions =
@@ -254,7 +262,7 @@ function StakeModal({
         )
       }) || []
 
-    return depositedPositions
+    const depositedNfts = depositedPositions
       .map(item => {
         const stakedLiquidity = BigNumber.from(
           joinedPositions.find(pos => pos.nftId.toString() === item.nftId.toString())?.liquidity.toString() || 0,
@@ -284,7 +292,49 @@ function StakeModal({
         }
         return BigNumber.from(item.staked.liquidity.toString()).gt(BigNumber.from(0))
       })
+
+    return depositedNfts
   }, [type, selectedPool, chainId, poolId, poolAddress, selectedFarmAddress, userFarmInfo])
+
+  const depositAndJoinNfts = useMemo(
+    () =>
+      selectedPool
+        ? eligiblePositions.map(item => ({
+            available: new NFTPosition({
+              nftId: item.tokenId,
+              pool: selectedPool.pool,
+              liquidity: item.liquidity.toString(),
+              tickLower: item.tickLower,
+              tickUpper: item.tickUpper,
+            }),
+            poolAddress,
+            staked: new NFTPosition({
+              nftId: item.tokenId,
+              pool: selectedPool.pool,
+              liquidity: '0',
+              tickLower: item.tickLower,
+              tickUpper: item.tickUpper,
+            }),
+          }))
+        : [],
+    [selectedPool, eligiblePositions, poolAddress],
+  )
+
+  const [tab, setTab] = useState<'stake' | 'deposit'>(() => (type === 'stake' ? 'deposit' : 'stake'))
+
+  useEffect(() => {
+    if (eligiblePositions.length && !depositedNfts.length) {
+      setTab('deposit')
+    } else if (!eligiblePositions.length && depositedNfts.length) {
+      setTab('stake')
+    }
+  }, [eligiblePositions.length, depositedNfts.length])
+
+  const eligibleNfts = tab === 'stake' ? depositedNfts : depositAndJoinNfts
+
+  useEffect(() => {
+    setSeletedNFTs([])
+  }, [tab])
 
   const [selectedNFTs, setSeletedNFTs] = useState<ExplicitNFT[]>([])
   const { mixpanelHandler } = useMixpanel()
@@ -310,7 +360,10 @@ function StakeModal({
       stakedLiquidity: e.staked.liquidity.toString(),
     }))
     if (type === 'stake') {
-      const txhash = await stake(BigNumber.from(poolId), params)
+      let txhash = ''
+      if (tab === 'deposit') txhash = await depositAndJoin(BigNumber.from(poolId), params)
+      else txhash = await stake(BigNumber.from(poolId), params)
+
       if (txhash) {
         mixpanelHandler(MIXPANEL_TYPE.ELASTIC_STAKE_LIQUIDITY_COMPLETED, {
           token_1: token0?.symbol,
@@ -318,16 +371,12 @@ function StakeModal({
         })
       }
     } else {
-      if (chainId === ChainId.AVAXMAINNET && Number(poolId) === 125) {
-        await emergencyWithdraw(params.map(item => item.nftId))
-      } else {
-        const txhash = await unstake(BigNumber.from(poolId), params)
-        if (txhash) {
-          mixpanelHandler(MIXPANEL_TYPE.ELASTIC_UNSTAKE_LIQUIDITY_COMPLETED, {
-            token_1: token0?.symbol,
-            token_2: token1?.symbol,
-          })
-        }
+      const txhash = await unstake(BigNumber.from(poolId), params)
+      if (txhash) {
+        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_UNSTAKE_LIQUIDITY_COMPLETED, {
+          token_1: token0?.symbol,
+          token_2: token1?.symbol,
+        })
       }
     }
     onDismiss()
@@ -365,7 +414,9 @@ function StakeModal({
           )}
         </Text>
 
-        {!eligibleNfts.length ? (
+        {positionsLoading && type === 'stake' ? (
+          <LocalLoader />
+        ) : !eligibleNfts.length ? (
           type === 'stake' ? (
             <Flex
               sx={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
@@ -377,12 +428,12 @@ function StakeModal({
               <Info size="48px" />
               <Text marginTop="16px" textAlign="center" lineHeight={1.5}>
                 <Trans>
-                  You haven&apos;t deposited any liquidity positions (NFT tokens) for this farming pair yet.
+                  You don&apos;t have any liquidity positions (NFT tokens) for this farming pair yet.
                   <br />
                   <br />
-                  Add liquidity to this pool first in our{' '}
-                  <StyledInternalLink to={`${APP_PATHS.POOLS}/${networkInfo.route}`}>Pools</StyledInternalLink> page. If
-                  you&apos;ve done that, deposit your liquidity position (NFT tokens) before you stake
+                  Add liquidity to this pool first on our{' '}
+                  <StyledInternalLink to={`${APP_PATHS.POOLS}/${networkInfo.route}`}>Pools</StyledInternalLink> page,
+                  then stake your liquidity positions (NFT tokens) to start earning rewards
                 </Trans>
               </Text>
             </Flex>
@@ -393,6 +444,16 @@ function StakeModal({
           )
         ) : (
           <>
+            {!!eligiblePositions.length && !!depositedNfts.length && type === 'stake' && (
+              <TabGroup style={{ width: isMobile ? '100%' : 'fit-content', marginTop: '16px' }}>
+                <Tab active={tab === 'deposit'} onClick={() => setTab('deposit')}>
+                  <Trans>New Positions</Trans>
+                </Tab>
+                <Tab active={tab === 'stake'} onClick={() => setTab('stake')}>
+                  <Trans>Deposited Positions</Trans>
+                </Tab>
+              </TabGroup>
+            )}
             <StakeTableHeader isUnstake={type === 'unstake'}>
               <Checkbox
                 ref={checkboxGroupRef}
@@ -443,8 +504,8 @@ function StakeModal({
               ))}
             </ScrollContainer>
 
-            <Flex justifyContent="space-between" marginTop="24px">
-              <div></div>
+            <Flex justifyContent="space-between">
+              <div />
               <ButtonPrimary
                 id="stake-selected-button"
                 fontSize="14px"

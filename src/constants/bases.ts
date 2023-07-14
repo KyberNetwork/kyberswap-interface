@@ -149,8 +149,9 @@ export const SUGGESTED_BASES: ChainTokenList = {
   ],
   [ChainId.ARBITRUM]: [
     ...WETH_ONLY[ChainId.ARBITRUM],
+    new Token(ChainId.ARBITRUM, '0xaf88d065e77c8cC2239327C5EDb3A432268e5831', 6, 'USDC', 'USDC'),
     DAI[ChainId.ARBITRUM],
-    USDC[ChainId.ARBITRUM],
+    USDC[ChainId.ARBITRUM], // USDC.e
     USDT[ChainId.ARBITRUM],
     WBTC_ARBITRUM,
     new Token(ChainId.ARBITRUM, '0x5979D7b546E38E414F7E9822514be443A4800529', 18, 'wstETH', 'Lido Wrapped Staked ETH'),

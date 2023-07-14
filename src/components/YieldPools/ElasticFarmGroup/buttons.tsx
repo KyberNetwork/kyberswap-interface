@@ -114,8 +114,6 @@ export const WithdrawButton: React.FC<React.ComponentPropsWithoutRef<'button'>> 
   style,
   ...others
 }) => {
-  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
-
   const renderButton = () => {
     return (
       <ButtonOutlined
@@ -123,7 +121,7 @@ export const WithdrawButton: React.FC<React.ComponentPropsWithoutRef<'button'>> 
         onClick={onClick}
         disabled={disabled}
         style={{
-          width: upToExtraSmall ? '100%' : 'max-content',
+          width: 'max-content',
           height: '38px',
           padding: '12px',
           ...style,
@@ -158,8 +156,6 @@ export const HarvestAllButton: React.FC<React.ComponentPropsWithoutRef<'button'>
   style,
   ...others
 }) => {
-  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
-
   return (
     <ButtonPrimary
       onClick={onClick}
@@ -167,7 +163,7 @@ export const HarvestAllButton: React.FC<React.ComponentPropsWithoutRef<'button'>
       style={{
         boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.16)',
         whiteSpace: 'nowrap',
-        width: upToExtraSmall ? '100%' : 'max-content',
+        width: 'max-content',
         height: '38px',
         ...style,
       }}
