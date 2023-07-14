@@ -21,7 +21,7 @@ import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
 import { APP_PATHS, CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { useGasRefundTier } from 'hooks/kyberdao'
+import { isSupportKyberDao, useGasRefundTier } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
 import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink, TYPE } from 'theme'
@@ -329,33 +329,35 @@ export default function SwapDetails({
           </TYPE.black>
         </RowBetween>
 
-        <RowBetween height="20px" style={{ gap: '16px' }}>
-          <RowFixed>
-            <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
-              <MouseoverTooltip
-                text={
-                  <Text>
-                    <Trans>
-                      Stake KNC in KyberDAO to get gas refund. Read more{' '}
-                      <ExternalLink href="https://docs.kyberswap.com/governance/knc-token/gas-refund-program">
-                        here ↗
-                      </ExternalLink>
-                    </Trans>
-                  </Text>
-                }
-                placement="right"
-              >
-                <Trans>Gas Refund</Trans>
-              </MouseoverTooltip>
-            </TextDashed>
-          </RowFixed>
+        {isSupportKyberDao(chainId) && (
+          <RowBetween height="20px" style={{ gap: '16px' }}>
+            <RowFixed>
+              <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+                <MouseoverTooltip
+                  text={
+                    <Text>
+                      <Trans>
+                        Stake KNC in KyberDAO to get gas refund. Read more{' '}
+                        <ExternalLink href="https://docs.kyberswap.com/governance/knc-token/gas-refund-program">
+                          here ↗
+                        </ExternalLink>
+                      </Trans>
+                    </Text>
+                  }
+                  placement="right"
+                >
+                  <Trans>Gas Refund</Trans>
+                </MouseoverTooltip>
+              </TextDashed>
+            </RowFixed>
 
-          <ExternalLink href={APP_PATHS.KYBERDAO_KNC_UTILITY}>
-            <ButtonLight padding="0px 8px" width="fit-content" fontSize={10} fontWeight={500} lineHeight="16px">
-              <Trans>{account ? gasRefundPerCentage * 100 : '--'}% Refund</Trans>
-            </ButtonLight>
-          </ExternalLink>
-        </RowBetween>
+            <ExternalLink href={APP_PATHS.KYBERDAO_KNC_UTILITY}>
+              <ButtonLight padding="0px 8px" width="fit-content" fontSize={10} fontWeight={500} lineHeight="16px">
+                <Trans>{account ? gasRefundPerCentage * 100 : '--'}% Refund</Trans>
+              </ButtonLight>
+            </ExternalLink>
+          </RowBetween>
+        )}
 
         <Divider />
         <RowBetween>
