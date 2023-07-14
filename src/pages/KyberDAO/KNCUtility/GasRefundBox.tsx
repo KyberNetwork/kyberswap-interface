@@ -1,13 +1,12 @@
 import { Trans, t } from '@lingui/macro'
 import axios from 'axios'
 import { BigNumber } from 'ethers'
-import { darken, transparentize } from 'polished'
+import { darken } from 'polished'
 import { useCallback, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
-import { ReactComponent as StopWatch } from 'assets/svg/stopwatch.svg'
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
@@ -31,7 +30,7 @@ import { LinkStyledButton, MEDIA_WIDTHS } from 'theme'
 import { formattedNum } from 'utils'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 
-import { readableTime } from '../Vote'
+import TimerCountdown from '../TimerCountdown'
 import EligibleTxModal from './EligibleTxModal'
 import { KNCUtilityTabs } from './type'
 
@@ -77,17 +76,6 @@ const Tab = styled(Text)<{ active?: boolean }>`
   }
 `
 
-const Highlight = styled.span`
-  border-radius: 12px;
-  background: ${({ theme }) => transparentize(0.8, theme.primary)};
-  color: ${({ theme }) => theme.primary};
-  padding: 2px 8px;
-  display: inline-flex;
-  width: fit-content;
-  align-items: center;
-  gap: 8px;
-`
-
 export default function GasRefundBox() {
   const { account, chainId } = useActiveWeb3React()
   const { library } = useWeb3React()
@@ -104,7 +92,9 @@ export default function GasRefundBox() {
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const { userTier, gasRefundPerCentage } = useGasRefundTier()
-  const { daoInfo } = useVotingInfo()
+  const {
+    daoInfo: { first_epoch_start_timestamp, current_epoch, epoch_period_in_seconds },
+  } = useVotingInfo()
 
   const claimRewards = useCallback(async () => {
     if (!account || !library || !claimableReward || claimableReward.knc <= 0) return
@@ -275,24 +265,16 @@ export default function GasRefundBox() {
                 </ButtonLight>
               )
             ) : selectedTab === KNCUtilityTabs.Pending ? (
-              <Flex>
-                <Text fontSize={12} fontWeight={500} lineHeight="16px" as="span">
-                  <Trans>
-                    Available to claim in{' '}
-                    <Highlight>
-                      <StopWatch width={10} height={11} />
-                      {daoInfo
-                        ? readableTime(
-                            daoInfo.first_epoch_start_timestamp +
-                              daoInfo.current_epoch * daoInfo.epoch_period_in_seconds -
-                              Date.now() / 1000,
-                            2,
-                          )
-                        : '--:--:--'}
-                    </Highlight>
-                  </Trans>
-                </Text>
-              </Flex>
+              <Text fontSize={12} fontWeight={500} lineHeight="16px" as="span">
+                <Trans>
+                  Available to claim in{' '}
+                  <TimerCountdown
+                    endTime={first_epoch_start_timestamp + current_epoch * epoch_period_in_seconds}
+                    maxLength={2}
+                    sx={{ display: 'inline-flex !important' }}
+                  />
+                </Trans>
+              </Text>
             ) : null}
           </Flex>
         </RowBetween>

@@ -2,8 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import { transparentize } from 'polished'
 import { useCallback, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Clock } from 'react-feather'
-import { Box, Text } from 'rebass'
+import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import bgimg from 'assets/images/about_background.png'
@@ -26,6 +25,7 @@ import { formattedNumLong } from 'utils'
 import { formatUnitsToFixed } from 'utils/formatBalance'
 
 import SwitchToEthereumModal, { useSwitchToEthereum } from '../StakeKNC/SwitchToEthereumModal'
+import TimerCountdown from '../TimerCountdown'
 import KNCLogo from '../kncLogo'
 import ClaimConfirmModal from './ClaimConfirmModal'
 import ProposalListComponent from './ProposalListComponent'
@@ -93,32 +93,6 @@ const TabReward = styled.span<{ active?: boolean }>`
     filter: brightness(1.2);
   }
 `
-
-export function readableTime(seconds: number, maxLength = Number.MAX_SAFE_INTEGER) {
-  if (seconds < 60) return Math.floor(seconds) + 's'
-
-  const levels = [
-    [Math.floor(seconds / 31536000), ' years'],
-    [Math.floor((seconds % 31536000) / 86400), ' days'],
-    [Math.floor(((seconds % 31536000) % 86400) / 3600), 'h'],
-    [Math.floor((((seconds % 31536000) % 86400) % 3600) / 60), 'm'],
-  ]
-
-  let returntext = ''
-  let count = 0
-  for (let i = 0; i < levels.length && count < maxLength; i++) {
-    if (levels[i][0] === 0) continue
-    count++
-    returntext +=
-      ' ' +
-      levels[i][0] +
-      (levels[i][0] === 1 && levels[i][1] > 1
-        ? levels[i][1].toString().substring(0, levels[i][1].toString().length - 1)
-        : levels[i][1])
-  }
-
-  return returntext.trim()
-}
 
 const formatVotingPower = (votingPowerNumber: number) => {
   if (votingPowerNumber === undefined) return '--'
@@ -481,22 +455,11 @@ export default function Vote() {
             <Text>
               <Trans>In Progress: Epoch {daoInfo ? daoInfo.current_epoch : '--'}</Trans>
             </Text>
-            <Box
-              backgroundColor={transparentize(0.8, theme.primary)}
-              color={theme.primary}
-              padding="2px 8px"
-              margin="0px 4px"
-              style={{ borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '3px' }}
-            >
-              <Clock size="12px" />{' '}
-              {daoInfo
-                ? readableTime(
-                    daoInfo.first_epoch_start_timestamp +
-                      daoInfo.current_epoch * daoInfo.epoch_period_in_seconds -
-                      Date.now() / 1000,
-                  ) + ' left'
-                : '--:--:--'}
-            </Box>
+            {daoInfo && (
+              <TimerCountdown
+                endTime={daoInfo.first_epoch_start_timestamp + daoInfo.current_epoch * daoInfo.epoch_period_in_seconds}
+              />
+            )}
           </RowFit>
           <Text>
             <Trans>Vote on current epoch proposals to get your full reward.</Trans>
