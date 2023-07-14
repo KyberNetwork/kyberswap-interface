@@ -19,7 +19,7 @@ import { TooltipTextOfSwapFee } from 'components/SwapForm/TradeSummary'
 import useCheckStablePairSwap from 'components/SwapForm/hooks/useCheckStablePairSwap'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
-import { APP_PATHS, CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/index'
+import { CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { isSupportKyberDao, useGasRefundTier } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
@@ -351,11 +351,11 @@ export default function SwapDetails({
               </TextDashed>
             </RowFixed>
 
-            <ExternalLink href={APP_PATHS.KYBERDAO_KNC_UTILITY}>
+            <NavLink to="#">
               <ButtonLight padding="0px 8px" width="fit-content" fontSize={10} fontWeight={500} lineHeight="16px">
                 <Trans>{account ? gasRefundPerCentage * 100 : '--'}% Refund</Trans>
               </ButtonLight>
-            </ExternalLink>
+            </NavLink>
           </RowBetween>
         )}
 
