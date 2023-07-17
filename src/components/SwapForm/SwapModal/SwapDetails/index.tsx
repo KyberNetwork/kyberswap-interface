@@ -3,7 +3,6 @@ import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useState } from 'react'
 import { ExternalLink as ExternalLinkIcon, Repeat } from 'react-feather'
-import { NavLink } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { BuildRouteData } from 'services/route/types/buildRoute'
 
