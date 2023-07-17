@@ -293,7 +293,7 @@ function NotificationPreference({
   const isVerifiedEmail = userInfo?.email && inputEmail === userInfo?.email
   const needVerifyEmail = inputEmail && inputEmail !== userInfo?.email
 
-  const disableCheckbox = false // needVerifyEmail || notFillEmail || hasErrorInput
+  const disableCheckbox = hasErrorInput
   const isIncludePriceAlert = useCallback(() => {
     const changedData = getDiffChangeTopics(topicGroups)
     return (
@@ -313,7 +313,7 @@ function NotificationPreference({
 
   const checkProfileAndSave = () => {
     if (disableButtonSave) return
-    if (!userInfo?.email && !isIncludePriceAlert()) {
+    if (needVerifyEmail && !isIncludePriceAlert()) {
       showVerifyModal()
       return
     }
