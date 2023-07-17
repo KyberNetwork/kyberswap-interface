@@ -426,16 +426,26 @@ export const ConfirmCrossChainModal = memo(function ConfirmCrossChainModal({
         outputAmount &&
         currencyIn &&
         currencyOut && (
-          <Flex alignItems={'center'} color={theme.text} sx={{ gap: '4px' }}>
-            <TokenLogoWithChain currency={currencyIn} size={16} />
-            &nbsp;
-            {uint256ToFraction(inputAmount, currencyIn?.decimals).toSignificant(RESERVE_USD_DECIMALS)}
-            <Text as="span"> {currencyIn?.symbol}</Text>
+          <Flex
+            alignItems={'center'}
+            color={theme.text}
+            sx={{ rowGap: '6px', columnGap: '4px', flexWrap: 'wrap', justifyContent: 'center' }}
+          >
+            <Flex sx={{ gap: '4px' }}>
+              <TokenLogoWithChain currency={currencyIn} size={16} />
+              &nbsp;
+              {uint256ToFraction(inputAmount, currencyIn?.decimals).toSignificant(RESERVE_USD_DECIMALS)}
+              <Text as="span"> {currencyIn?.symbol}</Text>
+            </Flex>
+
             <ArrowRight size={14} />
-            <TokenLogoWithChain currency={currencyOut} size={16} />
-            &nbsp;
-            {uint256ToFraction(outputAmount, currencyOut?.decimals).toSignificant(RESERVE_USD_DECIMALS)}
-            <Text as="span">{currencyOut?.symbol}</Text>
+
+            <Flex sx={{ gap: '4px' }}>
+              <TokenLogoWithChain currency={currencyOut} size={16} />
+              &nbsp;
+              {uint256ToFraction(outputAmount, currencyOut?.decimals).toSignificant(RESERVE_USD_DECIMALS)}
+              <Text as="span">{currencyOut?.symbol}</Text>
+            </Flex>
           </Flex>
         )
       }

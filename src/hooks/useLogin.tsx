@@ -165,6 +165,16 @@ const useLogin = (autoLogin = false) => {
     [setLoading, signInAnonymous, getProfile, saveSignedAccount, showSignInSuccess],
   )
 
+  const redirectSignIn = useCallback(
+    (account: string) => {
+      setLoginRedirectUrl(window.location.href)
+      setTimeout(() => {
+        KyberOauth2.authenticate(isEVM ? { wallet_address: account } : {}) // navigate to login page
+      }, 1000)
+    },
+    [isEVM, setLoginRedirectUrl],
+  )
+
   // check account info and redirect if needed
   const [, setAutoSignIn] = useIsAutoLoginAfterConnectWallet()
   const signIn = useCallback(
@@ -186,26 +196,21 @@ const useLogin = (autoLogin = false) => {
         return
       }
 
-      const redirectSignIn = () => {
-        setLoginRedirectUrl(window.location.href)
-        setTimeout(() => {
-          KyberOauth2.authenticate(isEVM ? { wallet_address: desireAccount || account || '' } : {}) // navigate to login page
-        }, 1000)
-      }
+      const formatAccount = desireAccount || account || ''
       if (showSessionExpired && isSelectAccount && !isTokenExist) {
         showConfirm({
           isOpen: true,
           content: t`Your session has expired. Please sign-in to continue.`,
           title: t`Session Expired`,
           confirmText: t`Sign-in`,
-          onConfirm: () => redirectSignIn(),
+          onConfirm: () => redirectSignIn(formatAccount),
           cancelText: t`Cancel`,
         })
         return
       }
-      redirectSignIn()
+      redirectSignIn(formatAccount)
     },
-    [account, isEVM, checkSessionSignIn, toggleWalletModal, showConfirm, setLoginRedirectUrl, setAutoSignIn],
+    [account, checkSessionSignIn, toggleWalletModal, showConfirm, setAutoSignIn, redirectSignIn],
   )
 
   const showSignOutSuccess = useCallback(() => {
@@ -307,6 +312,7 @@ const useLogin = (autoLogin = false) => {
   return {
     signOut: signOutWrapped,
     signIn: signInWrapped,
+    redirectSignIn,
     signOutAll,
     importGuestAccount,
     checkSessionSignIn,
