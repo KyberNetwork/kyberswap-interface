@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { useState } from 'react'
+import { X } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -7,6 +8,7 @@ import styled from 'styled-components'
 import CopyHelper from 'components/Copy'
 import Modal from 'components/Modal'
 import Pagination from 'components/Pagination'
+import { RowBetween } from 'components/Row'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useEligibleTransactions } from 'hooks/kyberdao'
@@ -43,22 +45,35 @@ const IconWrapper = styled.div`
   `};
 `
 
+const CloseButton = styled.div`
+  svg {
+    display: block;
+  }
+  :hover {
+    filter: brightness(0.8);
+  }
+`
+
 export default function EligibleTxModal({ isOpen, closeModal }: { isOpen: boolean; closeModal: () => void }) {
   const { chainId, networkInfo } = useActiveWeb3React()
   const [currentPage, setCurrentPage] = useState(1)
   const eligibleTxs = useEligibleTransactions(currentPage, 10)
   const theme = useTheme()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
-  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   return (
     <Modal isOpen={isOpen} onDismiss={closeModal} maxWidth="800px" width="70vw">
       <Wrapper>
         <Flex sx={{ gap: '16px' }} flexDirection="column">
           <Flex sx={{ gap: '26px' }} flexDirection="column">
-            <Text fontSize={20} fontWeight={500} lineHeight="24px">
-              <Trans>Your transactions</Trans>
-            </Text>
+            <RowBetween>
+              <Text fontSize={20} fontWeight={500} lineHeight="24px">
+                <Trans>Your transactions</Trans>
+              </Text>
+              <CloseButton onClick={closeModal}>
+                <X style={{ cursor: 'pointer' }} />
+              </CloseButton>
+            </RowBetween>
             <Table>
               <TableHeader>
                 <HeaderCell>
