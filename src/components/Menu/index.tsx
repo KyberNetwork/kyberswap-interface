@@ -102,6 +102,7 @@ const NavLinkBetween = styled(MenuItem)`
   justify-content: space-between;
   position: unset !important;
   max-height: 40px;
+  cursor: pointer;
   svg {
     margin: 0;
     width: unset;
