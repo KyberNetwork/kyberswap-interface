@@ -180,7 +180,7 @@ export default function Header() {
   const [holidayMode] = useHolidayMode()
   const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
-  const uptoSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const menu = (
     <HeaderElementWrap>
       <Announcement />
@@ -228,7 +228,7 @@ export default function Header() {
         </HeaderLinks>
       </HeaderRow>
       <HeaderControls>
-        {uptoSmall ? (
+        {upToExtraSmall ? (
           <HeaderElement>
             <SelectNetwork />
             <SelectWallet />

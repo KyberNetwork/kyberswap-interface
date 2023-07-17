@@ -653,7 +653,7 @@ const LimitOrderForm = function LimitOrderForm({
       messages.push(
         <Text>
           <Trans>
-            Your order may only be filled when market price of {currencyIn?.symbol} to {currencyOut?.symbol} is &lt;
+            Your order may only be filled when market price of {currencyIn?.symbol} to {currencyOut?.symbol} is &lt;{' '}
             <HightLight>{formattedNum(String(tradeInfo?.marketRate), true)}</HightLight>, as estimated gas fee to fill
             your order is ~<HightLight>${removeTrailingZero(tradeInfo?.gasFee?.toPrecision(6) ?? '0')}</HightLight>.
           </Trans>
