@@ -47,6 +47,8 @@ export const checkIamDown = (axiosErr: AxiosError) => {
     },
     response,
     statusCode,
+    message: axiosErr?.message,
+    code: axiosErr?.code,
   }
   const apiUrl = axiosErr?.config?.url ?? ''
 
