@@ -160,7 +160,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
       }
     })
 
-    const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}/api/v1/routes`
+    const url = `https://aggregator-api.dev.kyberengineering.io/${NETWORKS_INFO[chainId].aggregatorRoute}/api/v1/routes`
 
     triggerDebounced({
       url,
