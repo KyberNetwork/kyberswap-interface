@@ -92,9 +92,8 @@ export default function GasRefundBox() {
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const { userTier, gasRefundPerCentage } = useGasRefundTier()
-  const {
-    daoInfo: { first_epoch_start_timestamp, current_epoch, epoch_period_in_seconds },
-  } = useVotingInfo()
+  const { daoInfo: { first_epoch_start_timestamp = 0, current_epoch = 0, epoch_period_in_seconds = 0 } = {} } =
+    useVotingInfo()
 
   const claimRewards = useCallback(async () => {
     if (!account || !library || !claimableReward || claimableReward.knc <= 0) return
@@ -306,7 +305,7 @@ export default function GasRefundBox() {
           {!!account && !!eligibleTxs?.transactions.length && (
             <ButtonLight
               padding="2px 12px"
-              onClick={isShowEligibleTx => setShowEligibleTx(!isShowEligibleTx)}
+              onClick={() => setShowEligibleTx(isShowEligibleTx => !isShowEligibleTx)}
               style={{ whiteSpace: 'nowrap' }}
               width="max-content"
             >
