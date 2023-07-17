@@ -351,11 +351,16 @@ export default function SwapDetails({
               </TextDashed>
             </RowFixed>
 
-            <NavLink to="#">
-              <ButtonLight padding="0px 8px" width="fit-content" fontSize={10} fontWeight={500} lineHeight="16px">
-                <Trans>{gasRefundPerCentage * 100}% Refund</Trans>
-              </ButtonLight>
-            </NavLink>
+            <ButtonLight
+              padding="0px 8px"
+              width="fit-content"
+              fontSize={10}
+              fontWeight={500}
+              lineHeight="16px"
+              style={{ pointerEvents: 'none' }}
+            >
+              <Trans>{gasRefundPerCentage * 100}% Refund</Trans>
+            </ButtonLight>
           </RowBetween>
         )}
 
