@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { useState } from 'react'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -10,7 +11,7 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useEligibleTransactions } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
-import { ExternalLinkIcon } from 'theme'
+import { ExternalLinkIcon, MEDIA_WIDTHS } from 'theme'
 import { formattedNum, getEtherscanLink } from 'utils'
 
 import { HeaderCell, Table, TableHeader, TableRow } from './TxTable'
@@ -21,6 +22,9 @@ const Wrapper = styled.div`
   padding: 24px 24px 30px;
   background-color: ${({ theme }) => theme.tableHeader};
   min-width: 550px;
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    min-width: unset;
+  `}
 `
 
 const IconWrapper = styled.div`
@@ -44,6 +48,8 @@ export default function EligibleTxModal({ isOpen, closeModal }: { isOpen: boolea
   const [currentPage, setCurrentPage] = useState(1)
   const eligibleTxs = useEligibleTransactions(currentPage, 10)
   const theme = useTheme()
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   return (
     <Modal isOpen={isOpen} onDismiss={closeModal} maxWidth="800px" width="70vw">
@@ -58,12 +64,16 @@ export default function EligibleTxModal({ isOpen, closeModal }: { isOpen: boolea
                 <HeaderCell>
                   <Trans>TXN HASH</Trans>
                 </HeaderCell>
-                <HeaderCell>
-                  <Trans>LOCAL TIME</Trans>
-                </HeaderCell>
-                <HeaderCell>
-                  <Trans>GAS FEE</Trans>
-                </HeaderCell>
+                {upToExtraSmall ? null : (
+                  <>
+                    <HeaderCell>
+                      <Trans>LOCAL TIME</Trans>
+                    </HeaderCell>
+                    <HeaderCell>
+                      <Trans>GAS FEE</Trans>
+                    </HeaderCell>
+                  </>
+                )}
                 <HeaderCell textAlign="right">
                   <Trans>GAS REFUND REWARDS</Trans>
                 </HeaderCell>
@@ -87,24 +97,29 @@ export default function EligibleTxModal({ isOpen, closeModal }: { isOpen: boolea
                         />
                       </Flex>
                     </HeaderCell>
-                    <HeaderCell>
-                      <Flex flexDirection="column" sx={{ gap: '4px' }}>
-                        <Text>{time.toLocaleDateString()}</Text>
-                        <Text fontWeight={400} color={theme.subText}>
-                          {time.toLocaleTimeString()}
-                        </Text>
-                      </Flex>
-                    </HeaderCell>
-                    <HeaderCell>
-                      <Flex flexDirection="column" sx={{ gap: '4px' }}>
-                        <Text>
-                          {formattedNum(tx.gasFeeInNativeToken)} {NativeCurrencies[chainId].symbol}
-                        </Text>
-                        <Text fontWeight={400} color={theme.subText}>
-                          {formattedNum(tx.gasFeeInUSD, true)}
-                        </Text>
-                      </Flex>
-                    </HeaderCell>
+                    {upToExtraSmall ? null : (
+                      <>
+                        <HeaderCell>
+                          <Flex flexDirection="column" sx={{ gap: '4px' }}>
+                            <Text>{time.toLocaleDateString()}</Text>
+                            <Text fontWeight={400} color={theme.subText}>
+                              {time.toLocaleTimeString()}
+                            </Text>
+                          </Flex>
+                        </HeaderCell>
+                        <HeaderCell>
+                          <Flex flexDirection="column" sx={{ gap: '4px' }}>
+                            <Text>
+                              {formattedNum(tx.gasFeeInNativeToken)} {NativeCurrencies[chainId].symbol}
+                            </Text>
+                            <Text fontWeight={400} color={theme.subText}>
+                              {formattedNum(tx.gasFeeInUSD, true)}
+                            </Text>
+                          </Flex>
+                        </HeaderCell>
+                      </>
+                    )}
+
                     <HeaderCell textAlign="right">
                       <Flex flexDirection="column" sx={{ gap: '4px' }}>
                         <Text>{formattedNum(tx.gasRefundInKNC)} KNC</Text>

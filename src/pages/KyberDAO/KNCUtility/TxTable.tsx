@@ -27,12 +27,17 @@ export const Row = styled.div<{ $background?: string }>`
 
   display: grid;
   align-items: center;
-  grid-template-columns: 2fr 1fr 1fr 2fr;
+  grid-template-columns: 2fr 1fr 1fr 1.5fr;
   column-gap: 16px;
   border-top: 1px solid ${({ theme }) => theme.border};
 
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    grid-template-columns: 2fr 1fr 1fr 1fr;
     column-gap: 8px;
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    grid-template-columns: 1fr 1fr;
   `}
 
   &[role="button"] {
