@@ -17,7 +17,7 @@ import { formatDollarAmount } from 'utils/numbers'
 const formatRemainTime = (numberOfSeconds: number) => {
   if (numberOfSeconds < 0) return t`Full unlocked`
   const days = numberOfSeconds / 60 / 60 / 24
-  if (days > 1) return days + ' Days left'
+  if (days > 1) return days.toFixed(2) + ' Days left'
 
   const hours = numberOfSeconds / 60 / 60
   if (hours < 24 && hours > 1) return hours.toFixed(0) + ' Hours left'
