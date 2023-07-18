@@ -53,7 +53,9 @@ export function useGlobalData() {
     }
     const getResultByChainIds = async (chainIds: readonly ChainId[]) => {
       // todo namgold: add aggregator API for solana
-      const elasticChains = chainIds.filter(isEVM).filter(id => !ELASTIC_NOT_SUPPORTED[id])
+      const elasticChains = chainIds
+        .filter(id => isEVM(id))
+        .filter(id => !ELASTIC_NOT_SUPPORTED[id] && id !== ChainId.LINEA_TESTNET)
 
       const elasticPromises = elasticChains.map(chain =>
         allKyberswapConfig[chain].elasticClient.query({
@@ -70,12 +72,14 @@ export function useGlobalData() {
         return total + parseFloat(item?.data?.factories?.[0]?.totalValueLockedUSD || '0')
       }, 0)
 
-      const allChainPromises = chainIds.filter(isEVM).map(chain =>
-        allKyberswapConfig[chain].classicClient.query({
-          query: GLOBAL_DATA(),
-          fetchPolicy: 'cache-first',
-        }),
-      )
+      const allChainPromises = chainIds
+        .filter(id => isEVM(id) && id !== ChainId.LINEA_TESTNET)
+        .map(chain =>
+          allKyberswapConfig[chain].classicClient.query({
+            query: GLOBAL_DATA(),
+            fetchPolicy: 'cache-first',
+          }),
+        )
 
       const queryResult = (await Promise.all(allChainPromises.map(promises => promises.catch(e => e)))).filter(
         res => !(res instanceof Error),
