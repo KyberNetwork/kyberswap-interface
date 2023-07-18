@@ -13,7 +13,7 @@ import {
   PieChart,
   Share2,
 } from 'react-feather'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -35,11 +35,12 @@ import Row, { AutoRow } from 'components/Row'
 import Toggle from 'components/Toggle'
 import ThemeToggle from 'components/Toggle/ThemeToggle'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { TAG } from 'constants/env'
+import { ENV_LEVEL, TAG } from 'constants/env'
 import { AGGREGATOR_ANALYTICS_URL, APP_PATHS, DMM_ANALYTICS_URL, TERM_FILES_PATH } from 'constants/index'
 import { getLocaleLabel } from 'constants/locales'
 import { FAUCET_NETWORKS } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
+import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
 import useClaimReward from 'hooks/useClaimReward'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -414,6 +415,7 @@ export default function Menu() {
                   options={[
                     { link: '/kyberdao/stake-knc', label: t`Stake KNC` },
                     { link: '/kyberdao/vote', label: t`Vote` },
+                    { link: APP_PATHS.KYBERDAO_KNC_UTILITY, label: t`KNC Utility` },
                     { link: 'https://kyberswap.canny.io/feature-request', label: t`Feature Request`, external: true },
                   ]}
                 />
@@ -517,7 +519,14 @@ export default function Menu() {
                 <Trans>Help</Trans>
               </ExternalLink>
             </MenuItem>
-
+            {ENV_LEVEL === ENV_TYPE.LOCAL && (
+              <MenuItem>
+                <NavLink to="/icons">
+                  <BookOpen />
+                  <Trans>Icons</Trans>
+                </NavLink>
+              </MenuItem>
+            )}
             <Divider />
 
             <Title>

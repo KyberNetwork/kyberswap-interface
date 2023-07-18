@@ -55,7 +55,6 @@ export default function Tooltip({ text, width, maxWidth, size, onMouseEnter, onM
 export function MouseoverTooltip({ children, disableTooltip, delay, ...rest }: Omit<TooltipProps, 'show'>) {
   const [show, setShow] = useState(false)
   const [closeTimeout, setCloseTimeout] = useState<NodeJS.Timeout | null>(null)
-  const ref = useRef(null)
   const hovering = useRef(false)
   const open = useCallback(() => {
     if (!!rest.text) {
@@ -83,7 +82,7 @@ export function MouseoverTooltip({ children, disableTooltip, delay, ...rest }: O
   if (disableTooltip) return <>{children}</>
   return (
     <Tooltip {...rest} show={show} onMouseEnter={open} onMouseLeave={close}>
-      <Flex ref={ref} onMouseOver={open} onMouseLeave={close} alignItems="center">
+      <Flex onMouseOver={open} onMouseLeave={close} alignItems="center">
         {children}
       </Flex>
     </Tooltip>
