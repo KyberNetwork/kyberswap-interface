@@ -69,7 +69,9 @@ export default function FeedbackSurvey() {
   const [isOpenWidget, setIsOpenWidget] = useState(false)
   const theme = useTheme()
   const { updatedAt, status } = useGetParticipantKyberAIInfo()
+
   const isValid = useMemo(() => updatedAt < 1689768000 && status === ParticipantStatus.WHITELISTED, [updatedAt, status])
+
   useEffect(() => {
     if (!isValid) return
     if (!localStorage.getItem(LOCALSTORAGE_MODAL_SHOWED)) {
@@ -80,6 +82,8 @@ export default function FeedbackSurvey() {
       setIsOpenWidget(true)
     }
   }, [isValid])
+
+  if (!isValid) return null
 
   return (
     <>
