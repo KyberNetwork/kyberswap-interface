@@ -23,6 +23,9 @@ const sendError = (name: string, apiUrl: string, trackData: any) => {
   captureException(error, { level: 'fatal', extra: { args: JSON.stringify(trackData, null, 2) } })
 }
 
+// hot fix to prevent spam for now.
+const blacklistPathBff = ['/v1/notification/me']
+
 /**
  * check error status: blocked, maybe cors issues or  server down
  * only check bff api + 2 route apis
@@ -47,13 +50,15 @@ export const checkIamDown = (axiosErr: AxiosError) => {
     },
     response,
     statusCode,
+    message: axiosErr?.message,
+    code: axiosErr?.code,
   }
   const apiUrl = axiosErr?.config?.url ?? ''
 
   const isRouteApiDie =
     isDie && (apiUrl.endsWith(AGGREGATOR_API_PATHS.GET_ROUTE) || apiUrl.endsWith(AGGREGATOR_API_PATHS.BUILD_ROUTE))
 
-  const isIamDie = isDie && apiUrl.startsWith(BFF_API)
+  const isIamDie = isDie && apiUrl.startsWith(BFF_API) && !blacklistPathBff.some(path => apiUrl.endsWith(path))
 
   if (isRouteApiDie) {
     ErrorInfo.routeApiError++

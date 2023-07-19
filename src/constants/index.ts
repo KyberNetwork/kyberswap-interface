@@ -225,12 +225,13 @@ export const APP_PATHS = {
   KYBERDAO: '/kyberdao',
   KYBERDAO_STAKE: '/kyberdao/stake-knc',
   KYBERDAO_VOTE: '/kyberdao/vote',
+  KYBERDAO_KNC_UTILITY: '/kyberdao/knc-utility',
   LIMIT: '/limit',
   GRANT_PROGRAMS: '/inter-project-trading-campaigns',
   PROFILE_MANAGE: '/manage',
   ELASTIC_LEGACY: '/elastic-legacy',
   VERIFY_AUTH: '/auth',
-}
+} as const
 
 export const TERM_FILES_PATH = {
   KYBERSWAP_TERMS: '/files/Kyber - Terms of Service - 14 June 2023.pdf',

@@ -8,7 +8,7 @@ import useCopyClipboard from 'hooks/useCopyClipboard'
 
 const Wrapper = styled.div<{ margin?: string; size?: string }>`
   flex-shrink: 0;
-  margin-left: 4px;
+  margin-left: ${({ margin }) => margin || '4px'};
   text-decoration: none;
   cursor: pointer;
   position: relative;

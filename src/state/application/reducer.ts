@@ -167,7 +167,7 @@ export default createReducer(initialState, builder =>
     })
 
     .addMatcher(ksSettingApi.endpoints.getKyberswapConfiguration.matchFulfilled, (state, action) => {
-      const { chainId } = action.meta.arg.originalArgs
+      const chainId = action.meta.arg.originalArgs
       const evm = isEVM(chainId)
       const data = action.payload.data.config
       const rpc = data?.rpc || NETWORKS_INFO[chainId].defaultRpcUrl

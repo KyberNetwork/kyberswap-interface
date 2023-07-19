@@ -1,11 +1,10 @@
 import { t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { Flex } from 'rebass'
-import priceAlertApi, { useGetAlertStatsQuery, useGetListAlertsQuery } from 'services/priceAlert'
+import { useGetAlertStatsQuery, useGetListAlertsQuery } from 'services/priceAlert'
 
-import { useInvalidateTags } from 'components/Announcement/helper'
 import { PrivateAnnouncementType } from 'components/Announcement/type'
-import { RTK_QUERY_TAGS } from 'constants/index'
+import useDebounce from 'hooks/useDebounce'
 import NoData from 'pages/NotificationCenter/NoData'
 import CommonPagination from 'pages/NotificationCenter/PriceAlerts/CommonPagination'
 import { ITEMS_PER_PAGE } from 'pages/NotificationCenter/const'
@@ -17,20 +16,21 @@ import SingleAlert from './SingleAlert'
 const ActiveAlerts = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boolean) => void }) => {
   const { userInfo } = useSessionInfo()
   const [page, setPage] = useState(1)
-  const { data, isLoading, refetch } = useGetListAlertsQuery({
+  const { data, isFetching, refetch } = useGetListAlertsQuery({
     page,
     pageSize: ITEMS_PER_PAGE,
     sort: 'is_enabled:desc,created_at:desc',
   })
+  const isLoading = useDebounce(isFetching, 300)
   const { data: alertStat, refetch: refetchStat } = useGetAlertStatsQuery()
   const isMaxQuotaActiveAlert = alertStat ? alertStat.totalActiveAlerts >= alertStat.maxActiveAlerts : false
 
-  const invalidateTag = useInvalidateTags(priceAlertApi.reducerPath)
   useEffect(() => {
-    if (userInfo?.identityId) {
-      invalidateTag([RTK_QUERY_TAGS.GET_ALERTS, RTK_QUERY_TAGS.GET_ALERTS_STAT])
-    }
-  }, [userInfo?.identityId, invalidateTag])
+    try {
+      refetch()
+      refetchStat()
+    } catch (error) {}
+  }, [userInfo?.identityId, refetch, refetchStat])
 
   useEffect(() => {
     setDisabledClearAll(!data?.alerts?.length)

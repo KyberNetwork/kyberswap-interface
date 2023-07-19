@@ -1,8 +1,19 @@
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Award, BookOpen, Edit, FileText, HelpCircle, Info, MessageCircle, PieChart, Share2 } from 'react-feather'
-import { useLocation, useNavigate } from 'react-router-dom'
+import {
+  Award,
+  BookOpen,
+  ChevronDown,
+  Edit,
+  FileText,
+  HelpCircle,
+  Info,
+  MessageCircle,
+  PieChart,
+  Share2,
+} from 'react-feather'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -24,11 +35,12 @@ import Row, { AutoRow } from 'components/Row'
 import Toggle from 'components/Toggle'
 import ThemeToggle from 'components/Toggle/ThemeToggle'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { TAG } from 'constants/env'
+import { ENV_LEVEL, TAG } from 'constants/env'
 import { AGGREGATOR_ANALYTICS_URL, APP_PATHS, DMM_ANALYTICS_URL, TERM_FILES_PATH } from 'constants/index'
 import { getLocaleLabel } from 'constants/locales'
 import { FAUCET_NETWORKS } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
+import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
 import useClaimReward from 'hooks/useClaimReward'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -62,14 +74,6 @@ const MenuItem = styled.li`
   color: ${({ theme }) => theme.subText};
   font-size: 15px;
 
-  :hover {
-    color: ${({ theme }) => theme.text};
-    cursor: pointer;
-    a {
-      color: ${({ theme }) => theme.text};
-    }
-  }
-
   svg {
     margin-right: 8px;
     height: 16px;
@@ -99,18 +103,11 @@ const NavLinkBetween = styled(MenuItem)`
   justify-content: space-between;
   position: unset !important;
   max-height: 40px;
+  cursor: pointer;
   svg {
     margin: 0;
     width: unset;
     height: unset;
-  }
-`
-
-const CampaignWrapper = styled.div`
-  display: none;
-
-  @media (max-width: 560px) {
-    display: flex;
   }
 `
 
@@ -149,6 +146,11 @@ const StyledMenu = styled.div`
   position: relative;
   border: none;
   text-align: left;
+`
+
+const ListWrapper = styled.div`
+  max-height: calc(100vh - 150px);
+  overflow-y: scroll;
 `
 
 const MenuFlyoutBrowserStyle = css`
@@ -195,6 +197,28 @@ const Title = styled(MenuItem)`
   font-size: 16px;
   color: ${({ theme }) => theme.text};
 `
+
+const ScrollEnd = styled.div<{ show: boolean }>`
+  visibility: ${({ show }) => (show ? 'initial' : 'hidden')};
+  position: sticky !important;
+  width: 100%;
+  text-align: center;
+  z-index: 2;
+  @keyframes floating {
+    from {
+      bottom: 10px;
+    }
+    to {
+      bottom: -10px;
+    }
+  }
+  animation-name: floating;
+  animation-duration: 1s;
+  animation-timing-function: ease;
+  animation-iteration-count: infinite;
+  animation-direction: alternate-reverse;
+`
+
 const noop = () => {}
 
 export default function Menu() {
@@ -242,6 +266,29 @@ export default function Menu() {
     mixpanelHandler(MIXPANEL_TYPE.MENU_PREFERENCE_CLICK, { menu: name })
   }
 
+  const wrapperNode = useRef<HTMLDivElement>(null)
+  const [showScroll, setShowScroll] = useState<boolean>(false)
+
+  useEffect(() => {
+    const wrapper = wrapperNode.current
+    if (wrapper) {
+      const abortController = new AbortController()
+      const onScroll = () => {
+        if (abortController.signal.aborted) return
+        setShowScroll(Math.abs(wrapper.offsetHeight + wrapper.scrollTop - wrapper.scrollHeight) > 10) //no need to show scroll down when scrolled to last 10px
+      }
+      onScroll()
+      wrapper.addEventListener('scroll', onScroll)
+      window.addEventListener('resize', onScroll)
+      return () => {
+        abortController.abort()
+        wrapper.removeEventListener('scroll', onScroll)
+        window.removeEventListener('resize', onScroll)
+      }
+    }
+    return
+  }, [])
+
   return (
     <StyledMenu>
       <MenuFlyout
@@ -261,7 +308,7 @@ export default function Menu() {
             <LanguageSelector setIsSelectingLanguage={setIsSelectingLanguage} />
           </AutoColumn>
         ) : (
-          <>
+          <ListWrapper ref={wrapperNode}>
             <Title style={{ paddingTop: 0 }}>
               <Trans>Menu</Trans>
             </Title>
@@ -323,30 +370,28 @@ export default function Menu() {
               />
             </KyberAIWrapper>
 
-            <CampaignWrapper>
-              <MenuItem>
-                <NavDropDown
-                  icon={<Award />}
-                  title={
-                    <Text>
-                      <Trans>Campaigns</Trans>
-                    </Text>
-                  }
-                  link={'#'}
-                  options={[
-                    { link: APP_PATHS.CAMPAIGN, label: t`Trading Campaigns` },
-                    {
-                      link: APP_PATHS.GRANT_PROGRAMS,
-                      label: (
-                        <Text as="span">
-                          <Trans>Trading Grant Campaign</Trans>
-                        </Text>
-                      ),
-                    },
-                  ]}
-                />
-              </MenuItem>
-            </CampaignWrapper>
+            <MenuItem>
+              <NavDropDown
+                icon={<Award />}
+                title={
+                  <Text>
+                    <Trans>Campaigns</Trans>
+                  </Text>
+                }
+                link={'#'}
+                options={[
+                  { link: APP_PATHS.CAMPAIGN, label: t`Trading Campaigns` },
+                  {
+                    link: APP_PATHS.GRANT_PROGRAMS,
+                    label: (
+                      <Text as="span">
+                        <Trans>Trading Grant Campaign</Trans>
+                      </Text>
+                    ),
+                  },
+                ]}
+              />
+            </MenuItem>
 
             {under1440 && (
               <MenuItem>
@@ -370,6 +415,7 @@ export default function Menu() {
                   options={[
                     { link: '/kyberdao/stake-knc', label: t`Stake KNC` },
                     { link: '/kyberdao/vote', label: t`Vote` },
+                    { link: APP_PATHS.KYBERDAO_KNC_UTILITY, label: t`KNC Utility` },
                     { link: 'https://kyberswap.canny.io/feature-request', label: t`Feature Request`, external: true },
                   ]}
                 />
@@ -473,7 +519,14 @@ export default function Menu() {
                 <Trans>Help</Trans>
               </ExternalLink>
             </MenuItem>
-
+            {ENV_LEVEL === ENV_TYPE.LOCAL && (
+              <MenuItem>
+                <NavLink to="/icons">
+                  <BookOpen />
+                  <Trans>Icons</Trans>
+                </NavLink>
+              </MenuItem>
+            )}
             <Divider />
 
             <Title>
@@ -574,7 +627,10 @@ export default function Menu() {
             <Text fontSize="10px" fontWeight={300} color={theme.subText} mt="16px" textAlign={'center'}>
               kyberswap@{TAG}
             </Text>
-          </>
+            <ScrollEnd show={showScroll}>
+              <ChevronDown color={theme.text4} />
+            </ScrollEnd>
+          </ListWrapper>
         )}
       </MenuFlyout>
 

@@ -1,16 +1,19 @@
 import { Trans } from '@lingui/macro'
 import React, { useEffect, useState } from 'react'
+import { NavLink } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import { ButtonLight } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import Divider from 'components/Divider'
 import { RowBetween, RowFixed } from 'components/Row'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
-import { BIPS_BASE, CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/index'
+import { APP_PATHS, BIPS_BASE, CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import { isSupportKyberDao, useGasRefundTier } from 'hooks/kyberdao'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink, TYPE } from 'theme'
@@ -143,7 +146,9 @@ type Props = {
   slippage: number
 }
 const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
+  const { account, chainId } = useActiveWeb3React()
   const theme = useTheme()
+  const { gasRefundPerCentage } = useGasRefundTier()
   const [expanded, setExpanded] = useState(true)
   const [alreadyVisible, setAlreadyVisible] = useState(false)
   const { parsedAmountOut, priceImpact, gasUsd } = routeSummary || {}
@@ -261,6 +266,32 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
             </TYPE.black>
           </RowBetween>
 
+          {isSupportKyberDao(chainId) && (
+            <RowBetween>
+              <RowFixed>
+                <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+                  <MouseoverTooltip
+                    text={
+                      <Trans>
+                        Stake KNC in KyberDAO to get gas refund. Read more{' '}
+                        <ExternalLink href="https://docs.kyberswap.com/governance/knc-token/gas-refund-program">
+                          here ↗
+                        </ExternalLink>
+                      </Trans>
+                    }
+                    placement="right"
+                  >
+                    <Trans>Gas Refund</Trans>
+                  </MouseoverTooltip>
+                </TextDashed>
+              </RowFixed>
+              <NavLink to={APP_PATHS.KYBERDAO_KNC_UTILITY}>
+                <ButtonLight padding="0px 8px" width="fit-content" fontSize={10} fontWeight={500} lineHeight="16px">
+                  <Trans>{account ? gasRefundPerCentage * 100 : '--'}% Refund</Trans>
+                </ButtonLight>
+              </NavLink>
+            </RowBetween>
+          )}
           <SwapFee />
         </ContentWrapper>
       </AutoColumn>

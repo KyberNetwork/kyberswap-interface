@@ -5,6 +5,7 @@ import { Connection } from '@solana/web3.js'
 import { ethers } from 'ethers'
 
 import { KS_SETTING_API } from 'constants/env'
+import { TokenInfo } from 'state/lists/wrappedTokenInfo'
 
 export type KyberSwapConfig = {
   rpc: string
@@ -41,14 +42,23 @@ export type KyberswapGlobalConfigurationResponse = {
   }
 }
 
+export interface TokenListResponse {
+  data: {
+    pageination: {
+      totalItems: number
+    }
+    tokens: Array<TokenInfo>
+  }
+}
+
 const ksSettingApi = createApi({
   reducerPath: 'ksSettingConfigurationApi',
   baseQuery: fetchBaseQuery({
     baseUrl: `${KS_SETTING_API}/v1`,
   }),
   endpoints: builder => ({
-    getKyberswapConfiguration: builder.query<KyberswapConfigurationResponse, { chainId: ChainId }>({
-      query: ({ chainId }) => ({
+    getKyberswapConfiguration: builder.query<KyberswapConfigurationResponse, ChainId>({
+      query: chainId => ({
         url: '/configurations/fetch',
         params: {
           serviceCode: `kyberswap-${chainId}`,
@@ -64,9 +74,29 @@ const ksSettingApi = createApi({
         },
       }),
     }),
+
+    getTokenList: builder.query<
+      TokenListResponse,
+      { chainId: number; page: number; pageSize: number; isWhitelisted: boolean }
+    >({
+      query: ({ chainId, page, pageSize, isWhitelisted }) => ({
+        url: `/tokens`,
+        params: {
+          chainIds: chainId,
+          page,
+          pageSize,
+          isWhitelisted,
+        },
+      }),
+    }),
   }),
 })
 
-export const { useLazyGetKyberswapConfigurationQuery, useGetKyberswapGlobalConfigurationQuery } = ksSettingApi
+export const {
+  useGetKyberswapConfigurationQuery,
+  useLazyGetKyberswapConfigurationQuery,
+  useGetKyberswapGlobalConfigurationQuery,
+  useLazyGetTokenListQuery,
+} = ksSettingApi
 
 export default ksSettingApi

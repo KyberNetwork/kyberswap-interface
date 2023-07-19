@@ -16,9 +16,9 @@ import { useVotingInfo } from 'hooks/kyberdao'
 import { ProposalDetail, ProposalStatus, ProposalType } from 'hooks/kyberdao/types'
 import useTheme from 'hooks/useTheme'
 import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
+import TimerCountdown from 'pages/KyberDAO/TimerCountdown'
 import { useWalletModalToggle } from 'state/application/hooks'
 
-import { readableTime } from '..'
 import VoteConfirmModal from '../VoteConfirmModal'
 import OptionButton from './OptionButton'
 import Participants from './Participants'
@@ -358,9 +358,7 @@ function ProposalItem({
                 <Text color={theme.subText} fontSize={12}>
                   <Trans>Voting ends in: </Trans>
                 </Text>
-                <StatusBadged color={theme.primary}>
-                  {readableTime(proposal.end_timestamp - Date.now() / 1000)}
-                </StatusBadged>
+                <TimerCountdown endTime={proposal.end_timestamp} />
               </RowFit>
             )}
           </RowBetween>
@@ -381,9 +379,7 @@ function ProposalItem({
               <Text color={theme.subText} fontSize={12}>
                 <Trans>Voting starts in: </Trans>
               </Text>
-              <StatusBadged color={theme.primary}>
-                {readableTime(proposal.start_timestamp - Date.now() / 1000)}
-              </StatusBadged>
+              <TimerCountdown endTime={proposal.start_timestamp} />
             </RowFit>
           ) : (
             <Text color={theme.subText} fontSize={12}>
@@ -403,9 +399,7 @@ function ProposalItem({
                   <Text color={theme.subText} fontSize={12}>
                     <Trans>Voting ends in: </Trans>
                   </Text>
-                  <StatusBadged color={theme.primary}>
-                    {readableTime(proposal.end_timestamp - Date.now() / 1000)}
-                  </StatusBadged>
+                  <TimerCountdown endTime={proposal.end_timestamp} />
                 </Row>
               )}
             </Column>
