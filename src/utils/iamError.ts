@@ -1,7 +1,7 @@
 import { captureException } from '@sentry/react'
 import { AxiosError } from 'axios'
 
-import { BFF_API, ENV_LEVEL } from 'constants/env'
+import { BFF_API, ENV_KEY, ENV_LEVEL } from 'constants/env'
 import { AGGREGATOR_API_PATHS } from 'constants/index'
 import { ENV_TYPE } from 'constants/type'
 
@@ -24,7 +24,7 @@ const sendError = (name: string, apiUrl: string, trackData: any) => {
 }
 
 // hot fix to prevent spam for now.
-const blacklistPathBff = ['/v1/notification/me']
+const blacklistPathBff = ['/v1/notification/me', '/v1/tokens/score']
 
 /**
  * check error status: blocked, maybe cors issues or  server down
@@ -52,6 +52,9 @@ export const checkIamDown = (axiosErr: AxiosError) => {
     statusCode,
     message: axiosErr?.message,
     code: axiosErr?.code,
+    tokenInfoSignIn: localStorage[`${ENV_KEY}_o2_sign_in`],
+    tokenInfoGuest: localStorage[`${ENV_KEY}_o2_guest`],
+    profileInfo: localStorage.redux_localstorage_simple_profile,
   }
   const apiUrl = axiosErr?.config?.url ?? ''
 
