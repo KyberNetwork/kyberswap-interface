@@ -148,7 +148,6 @@ export default function FeedbackSurvey() {
             'https://docs.google.com/forms/d/e/1FAIpQLSebHPpIP0mqtMb57v3N3rmUCzo87ur86ruTF5QchJiJ2sRmfw/viewform?pli=1',
             '_blank',
           )
-          setIsShowWidgetLS('1')
         }}
       >
         <RowFit gap="4px">
@@ -172,6 +171,7 @@ export default function FeedbackSurvey() {
             onClick={e => {
               e.stopPropagation()
               setIsOpenWidget(false)
+              setIsShowWidgetLS('1')
             }}
           >
             <X size={14} />
