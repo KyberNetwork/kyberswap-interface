@@ -21,6 +21,7 @@ export interface AuthenState {
   readonly signedUserInfo: UserProfile | undefined
   readonly isLogin: boolean // is sign in eth
   readonly pendingAuthentication: boolean
+  readonly authenticationSuccess: boolean
   readonly isConnectingWallet: boolean
   readonly showConfirmProfile: boolean
   readonly autoSignIn: AutoSignIn // auto sign in after connect wallet
@@ -31,6 +32,7 @@ const DEFAULT_AUTHEN_STATE: AuthenState = {
   signedUserInfo: undefined,
   isLogin: false,
   pendingAuthentication: true,
+  authenticationSuccess: false,
   isConnectingWallet: false,
   showConfirmProfile: false,
   autoSignIn: {
@@ -61,6 +63,7 @@ const slice = createSlice({
         state.anonymousUserInfo = undefined
       }
       state.isLogin = !isAnonymous
+      if (profile) state.authenticationSuccess = true
     },
     setConfirmChangeProfile: (state, { payload }: PayloadAction<boolean>) => {
       state.showConfirmProfile = payload
