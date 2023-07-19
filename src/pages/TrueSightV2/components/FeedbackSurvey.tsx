@@ -126,7 +126,7 @@ export default function FeedbackSurvey() {
           </Text>
           <RowBetween gap="20px">
             <ButtonOutlined onClick={() => setIsOpen(false)}>
-              <Trans>May be later</Trans>
+              <Trans>Maybe later</Trans>
             </ButtonOutlined>
             <ButtonPrimary
               onClick={() =>
