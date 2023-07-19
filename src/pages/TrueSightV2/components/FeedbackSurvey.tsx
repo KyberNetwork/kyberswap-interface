@@ -63,14 +63,17 @@ const XWrapper = styled.span`
 
 const LOCALSTORAGE_MODAL_SHOWED = 'showedKyberAIFeedbackSurvey'
 const LOCALSTORAGE_WIDGET_SHOWED = 'showedKyberAIFeedbackSurveyWidget'
-
+const MOMENT_THIS_SURVEY_RELEASE = 1689768000
 export default function FeedbackSurvey() {
   const [isOpen, setIsOpen] = useState(false)
   const [isOpenWidget, setIsOpenWidget] = useState(false)
   const theme = useTheme()
   const { updatedAt, status } = useGetParticipantKyberAIInfo()
 
-  const isValid = useMemo(() => updatedAt < 1689768000 && status === ParticipantStatus.WHITELISTED, [updatedAt, status])
+  const isValid = useMemo(
+    () => updatedAt < MOMENT_THIS_SURVEY_RELEASE && status === ParticipantStatus.WHITELISTED,
+    [updatedAt, status],
+  )
 
   useEffect(() => {
     if (!isValid) return
