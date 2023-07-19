@@ -274,7 +274,7 @@ export default function StakeKNCComponent() {
             18,
             'KNC',
           ),
-          parseUnits((+inputValue).toFixed(18).toString(), 18).toString(),
+          parseUnits(inputValue, 18).toString(),
         )
       : undefined,
     kyberDAOInfo?.staking,

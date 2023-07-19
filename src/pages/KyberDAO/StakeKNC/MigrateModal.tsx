@@ -58,7 +58,7 @@ export default function MigrateModal({
             18,
             'KNCL',
           ),
-          parseUnits((+value).toFixed(18).toString(), 18).toString(),
+          parseUnits(value, 18).toString(),
         )
       : undefined,
     kyberDAOInfo?.KNCAddress,
