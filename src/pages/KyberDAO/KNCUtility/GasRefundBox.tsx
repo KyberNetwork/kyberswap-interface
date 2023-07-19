@@ -94,7 +94,6 @@ export default function GasRefundBox() {
   const { userTier, gasRefundPerCentage } = useGasRefundTier()
   const { daoInfo: { first_epoch_start_timestamp = 0, current_epoch = 0, epoch_period_in_seconds = 0 } = {} } =
     useVotingInfo()
-  console.log('namgold aaa', { first_epoch_start_timestamp, current_epoch, epoch_period_in_seconds })
   const claimRewards = useCallback(async () => {
     if (!account || !library || !claimableReward || claimableReward.knc <= 0) return
 
