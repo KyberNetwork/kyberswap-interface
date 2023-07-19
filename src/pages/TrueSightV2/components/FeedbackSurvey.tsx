@@ -89,7 +89,7 @@ export default function FeedbackSurvey() {
     if (!isShowWidgetLS) {
       setIsOpenWidget(true)
     }
-  }, [isValid])
+  }, [isValid, isShowModalLS, isShowWidgetLS, setIsShowModalLS])
 
   if (!isValid) return null
 
