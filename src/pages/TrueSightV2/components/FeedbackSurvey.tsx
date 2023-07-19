@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import { useLocalStorage } from '@solana/wallet-adapter-react'
 import { useEffect, useMemo, useState } from 'react'
 import { X } from 'react-feather'
 import { Text } from 'rebass'
@@ -64,24 +65,28 @@ const XWrapper = styled.span`
 const LOCALSTORAGE_MODAL_SHOWED = 'showedKyberAIFeedbackSurvey'
 const LOCALSTORAGE_WIDGET_SHOWED = 'showedKyberAIFeedbackSurveyWidget'
 const MOMENT_THIS_SURVEY_RELEASE = 1689768000
+const END_DATE = 1691020800000 // Aug 3
+
 export default function FeedbackSurvey() {
   const [isOpen, setIsOpen] = useState(false)
   const [isOpenWidget, setIsOpenWidget] = useState(false)
   const theme = useTheme()
   const { updatedAt, status } = useGetParticipantKyberAIInfo()
+  const [isShowModalLS, setIsShowModalLS] = useLocalStorage<string | undefined>(LOCALSTORAGE_MODAL_SHOWED, undefined)
+  const [isShowWidgetLS, setIsShowWidgetLS] = useLocalStorage<string | undefined>(LOCALSTORAGE_WIDGET_SHOWED, undefined)
 
   const isValid = useMemo(
-    () => updatedAt < MOMENT_THIS_SURVEY_RELEASE && status === ParticipantStatus.WHITELISTED,
+    () => updatedAt < MOMENT_THIS_SURVEY_RELEASE && status === ParticipantStatus.WHITELISTED && Date.now() < END_DATE,
     [updatedAt, status],
   )
 
   useEffect(() => {
     if (!isValid) return
-    if (!localStorage.getItem(LOCALSTORAGE_MODAL_SHOWED)) {
+    if (!isShowModalLS) {
       setIsOpen(true)
-      localStorage.setItem(LOCALSTORAGE_MODAL_SHOWED, '1')
+      setIsShowModalLS('1')
     }
-    if (!localStorage.getItem(LOCALSTORAGE_WIDGET_SHOWED)) {
+    if (!isShowWidgetLS) {
       setIsOpenWidget(true)
     }
   }, [isValid])
@@ -121,7 +126,7 @@ export default function FeedbackSurvey() {
           </Text>
           <RowBetween gap="20px">
             <ButtonOutlined onClick={() => setIsOpen(false)}>
-              <Trans>Mabe later</Trans>
+              <Trans>May be later</Trans>
             </ButtonOutlined>
             <ButtonPrimary
               onClick={() =>
@@ -143,7 +148,7 @@ export default function FeedbackSurvey() {
             'https://docs.google.com/forms/d/e/1FAIpQLSebHPpIP0mqtMb57v3N3rmUCzo87ur86ruTF5QchJiJ2sRmfw/viewform?pli=1',
             '_blank',
           )
-          localStorage.setItem(LOCALSTORAGE_WIDGET_SHOWED, '1')
+          setIsShowWidgetLS('1')
         }}
       >
         <RowFit gap="4px">
