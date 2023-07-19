@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Connection } from '@solana/web3.js'
-import { ethers } from 'ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import {
@@ -16,10 +15,11 @@ import { DEFAULT_AGGREGATOR_API } from 'constants/env'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM, isSolana } from 'constants/networks'
 import ethereumInfo from 'constants/networks/ethereum'
 import solanaInfo from 'constants/networks/solana'
+import { AppJsonRpcProvider } from 'constants/providers'
 import { AppState } from 'state'
 import { createClient } from 'utils/client'
 
-const cacheRPC: { [chainId in ChainId]?: { [rpc: string]: ethers.providers.JsonRpcProvider } } = {}
+const cacheRPC: { [chainId in ChainId]?: { [rpc: string]: AppJsonRpcProvider } } = {}
 
 const parseResponse = (
   responseData: KyberswapConfigurationResponse | undefined,
@@ -30,7 +30,7 @@ const parseResponse = (
 
   if (!cacheRPC[defaultChainId]?.[rpc]) {
     if (!cacheRPC[defaultChainId]) cacheRPC[defaultChainId] = {}
-    cacheRPC[defaultChainId]![rpc] = new ethers.providers.JsonRpcProvider(rpc)
+    cacheRPC[defaultChainId]![rpc] = new AppJsonRpcProvider(rpc, defaultChainId)
   }
   const provider = cacheRPC[defaultChainId]![rpc]
 
@@ -65,7 +65,7 @@ const parseGlobalResponse = (
   chainId: ChainId,
 ): KyberswapGlobalConfig => {
   const data = responseData?.data?.config
-  const aggregatorDomain = data?.aggregator ?? DEFAULT_AGGREGATOR_API
+  const aggregatorDomain = 'https://aggregator-api.kyberswap.com' ?? data?.aggregator ?? DEFAULT_AGGREGATOR_API
   const isEnableAuthenAggregator = !data ? true : !!data?.isEnableAuthenAggregator
   return {
     aggregatorDomain,

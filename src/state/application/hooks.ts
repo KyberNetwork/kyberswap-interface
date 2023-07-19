@@ -2,7 +2,6 @@ import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Connection } from '@solana/web3.js'
 import dayjs from 'dayjs'
-import { ethers } from 'ethers'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { KyberSwapConfig, KyberSwapConfigResponse } from 'services/ksSetting'
@@ -20,6 +19,7 @@ import {
 } from 'components/Announcement/type'
 import { NETWORKS_INFO, isEVM, isSolana } from 'constants/networks'
 import ethereumInfo from 'constants/networks/ethereum'
+import { AppJsonRpcProvider } from 'constants/providers'
 import { KNC, KNC_ADDRESS } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks/index'
@@ -394,7 +394,7 @@ export const useDetailAnnouncement = (): [DetailAnnouncementParam, (v: DetailAnn
 }
 
 const cacheConfig: {
-  rpc: { [rpc: string]: ethers.providers.JsonRpcProvider }
+  rpc: { [rpc: string]: AppJsonRpcProvider }
   client: { [subgraphLink: string]: ApolloClient<NormalizedCacheObject> }
 } = {
   rpc: {},
@@ -434,10 +434,9 @@ export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => 
 
   const config = useAppSelector(state => state.application.config[chainId] || getDefaultConfig(chainId))
 
-  const readProvider = useMemo(
-    () => cacheCalc('rpc', config.rpc, rpc => new ethers.providers.JsonRpcProvider(rpc)),
-    [config.rpc],
-  )
+  const readProvider = useMemo(() => {
+    return cacheCalc('rpc', config.rpc, rpc => new AppJsonRpcProvider(rpc, chainId))
+  }, [config.rpc, chainId])
   const blockClient = useMemo(
     () => cacheCalc('client', config.blockSubgraph, subgraph => createClient(subgraph)),
     [config.blockSubgraph],
