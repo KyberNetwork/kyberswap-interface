@@ -27,6 +27,7 @@ import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 
 import ChevronIcon from '../components/ChevronIcon'
+import FeedbackSurvey from '../components/FeedbackSurvey'
 import KyberAIShareModal from '../components/KyberAIShareModal'
 import MultipleChainDropdown from '../components/MultipleChainDropdown'
 import NetworkSelect from '../components/NetworkSelect'
@@ -1102,6 +1103,7 @@ export default function TokenAnalysisList() {
           })
         }
       />
+      <FeedbackSurvey />
     </>
   )
 }

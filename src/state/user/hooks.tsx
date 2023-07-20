@@ -497,7 +497,14 @@ export const useSlippageSettingByPage = (isCrossChain = false) => {
   return { setRawSlippage, rawSlippage, isSlippageControlPinned, togglePinSlippage }
 }
 
-const participantDefault = { rankNo: 0, status: ParticipantStatus.UNKNOWN, referralCode: '', id: 0 }
+const participantDefault = {
+  rankNo: 0,
+  status: ParticipantStatus.UNKNOWN,
+  referralCode: '',
+  id: 0,
+  updatedAt: 0,
+  createdAt: 0,
+}
 export const useGetParticipantKyberAIInfo = (): ParticipantInfo => {
   const { userInfo } = useSessionInfo()
   const { data: data = participantDefault, isError } = useGetParticipantInfoQuery(undefined, {

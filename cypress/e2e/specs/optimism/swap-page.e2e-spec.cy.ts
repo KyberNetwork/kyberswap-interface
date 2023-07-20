@@ -1,27 +1,27 @@
 import { homePage, tab, token } from '../../selectors/selectors.cy'
 
-const mainPage = 'swap/ethereum'
-const tokenSymbol = ['BAND', 'DAI', 'USDT', 'USDC']
+const mainPage = 'swap/optimism'
+const tokenSymbol = ['BOB', 'DAI', 'USDT', 'USDC']
 const unListedToken = ['KNNC', 'KCCN']
 
 const unWhiteListedToken = {
-  SCOOBY: {
-    name: 'SCOOBY',
-    address: '0xAd497eE6a70aCcC3Cbb5eB874e60d87593B86F2F',
+  CHI: {
+    name: 'CHI',
+    address: '0xca0e54b636db823847b29f506bffee743f57729d',
   },
-  UNIBOT: {
-    name: 'UNIBOT',
-    address: '0x25127685dc35d4dc96c7feac7370749d004c5040',
+  ACX: {
+    name: 'ACX',
+    address: '0xFf733b2A3557a7ed6697007ab5D11B79FdD1b76B',
   },
-  BGB: {
-    name: 'BGB',
-    address: '0x19de6b897ed14a376dda0fe53a5420d2ac828a28',
+  PSP: {
+    name: 'PSP',
+    address: '0xd3594e879b358f430e20f82bea61e83562d49d48',
   },
 }
 
-describe('Token Catalog', () => {
+describe('Token Catalog', { tags: 'regression' }, () => {
   beforeEach(() => {
-    cy.visit('/')
+    cy.visit('/optimism')
     cy.url().should('include', mainPage)
     cy.clickButton(homePage.skipTutorial)
   })
@@ -107,50 +107,50 @@ describe('Token Catalog', () => {
 
   describe('Import token', () => {
     it('Should be imported tokenIn successfully', { tags: 'regression' }, () => {
-      cy.importNewTokenByAddress(token.tokenIn, unWhiteListedToken.SCOOBY.address)
-      cy.verifySelectedToken(token.tokenIn, unWhiteListedToken.SCOOBY.name)
+      cy.importNewTokenByAddress(token.tokenIn, unWhiteListedToken.CHI.address)
+      cy.verifySelectedToken(token.tokenIn, unWhiteListedToken.CHI.name)
       cy.clickButton(token.tokenIn)
       cy.clickButton(tab.import)
-      cy.verifyValueInList(token.rowInWhiteList, [unWhiteListedToken.SCOOBY.name], true)
+      cy.verifyValueInList(token.rowInWhiteList, [unWhiteListedToken.CHI.name], true)
     })
 
     it('Should be imported tokenOut successfully', { tags: 'regression' }, () => {
-      cy.importNewTokenByAddress(token.tokenOut, unWhiteListedToken.UNIBOT.address)
-      cy.verifySelectedToken(token.tokenOut, unWhiteListedToken.UNIBOT.name)
+      cy.importNewTokenByAddress(token.tokenOut, unWhiteListedToken.ACX.address)
+      cy.verifySelectedToken(token.tokenOut, unWhiteListedToken.ACX.name)
       cy.clickButton(token.tokenOut)
       cy.clickButton(tab.import)
-      cy.verifyValueInList(token.rowInWhiteList, [unWhiteListedToken.UNIBOT.name], true)
+      cy.verifyValueInList(token.rowInWhiteList, [unWhiteListedToken.ACX.name], true)
     })
   })
 
   describe('Delete token', () => {
     it('Should be deleted the imported tokenIn successfully', { tags: 'regression' }, () => {
-      cy.importNewTokenByAddress(token.tokenIn, unWhiteListedToken.SCOOBY.address)
+      cy.importNewTokenByAddress(token.tokenIn, unWhiteListedToken.CHI.address)
       cy.clickButton(token.tokenIn)
       cy.clickButton(tab.import)
-      cy.verifyValueInList(token.rowInWhiteList, [unWhiteListedToken.SCOOBY.name], true)
-      cy.deleteImportedToken(unWhiteListedToken.SCOOBY.address)
+      cy.verifyValueInList(token.rowInWhiteList, [unWhiteListedToken.CHI.name], true)
+      cy.deleteImportedToken(unWhiteListedToken.CHI.address)
       cy.verifyNoResultFound()
     })
 
     it('Should be deleted the imported tokenOut successfully', { tags: 'regression' }, () => {
-      cy.importNewTokenByAddress(token.tokenOut, unWhiteListedToken.SCOOBY.address)
+      cy.importNewTokenByAddress(token.tokenOut, unWhiteListedToken.CHI.address)
       cy.clickButton(token.tokenOut)
       cy.clickButton(tab.import)
-      cy.verifyValueInList(token.rowInWhiteList, [unWhiteListedToken.SCOOBY.name], true)
-      cy.deleteImportedToken(unWhiteListedToken.SCOOBY.address)
+      cy.verifyValueInList(token.rowInWhiteList, [unWhiteListedToken.CHI.name], true)
+      cy.deleteImportedToken(unWhiteListedToken.CHI.address)
       cy.verifyNoResultFound()
     })
 
     it('Should be cleared all the imported tokenIn successfully', { tags: 'regression' }, () => {
-      cy.importNewTokenByAddress(token.tokenIn, unWhiteListedToken.SCOOBY.address)
-      cy.importNewTokenByAddress(token.tokenIn, unWhiteListedToken.BGB.address)
-      cy.importNewTokenByAddress(token.tokenIn, unWhiteListedToken.UNIBOT.address)
+      cy.importNewTokenByAddress(token.tokenIn, unWhiteListedToken.CHI.address)
+      cy.importNewTokenByAddress(token.tokenIn, unWhiteListedToken.ACX.address)
+      cy.importNewTokenByAddress(token.tokenIn, unWhiteListedToken.PSP.address)
       cy.clickButton(token.tokenIn)
       cy.clickButton(tab.import)
       cy.verifyValueInList(
         token.rowInWhiteList,
-        [unWhiteListedToken.SCOOBY.name, unWhiteListedToken.BGB.name, unWhiteListedToken.UNIBOT.name],
+        [unWhiteListedToken.CHI.name, unWhiteListedToken.ACX.name, unWhiteListedToken.PSP.name],
         true,
       )
       cy.clearAllImportedTokens()
@@ -158,14 +158,14 @@ describe('Token Catalog', () => {
     })
 
     it('Should be cleared all the imported tokenOut successfully', { tags: 'regression' }, () => {
-      cy.importNewTokenByAddress(token.tokenOut, unWhiteListedToken.SCOOBY.address)
-      cy.importNewTokenByAddress(token.tokenOut, unWhiteListedToken.BGB.address)
-      cy.importNewTokenByAddress(token.tokenOut, unWhiteListedToken.UNIBOT.address)
+      cy.importNewTokenByAddress(token.tokenOut, unWhiteListedToken.CHI.address)
+      cy.importNewTokenByAddress(token.tokenOut, unWhiteListedToken.ACX.address)
+      cy.importNewTokenByAddress(token.tokenOut, unWhiteListedToken.PSP.address)
       cy.clickButton(token.tokenOut)
       cy.clickButton(tab.import)
       cy.verifyValueInList(
         token.rowInWhiteList,
-        [unWhiteListedToken.SCOOBY.name, unWhiteListedToken.BGB.name, unWhiteListedToken.UNIBOT.name],
+        [unWhiteListedToken.CHI.name, unWhiteListedToken.ACX.name, unWhiteListedToken.ACX.name],
         true,
       )
       cy.clearAllImportedTokens()
@@ -180,14 +180,14 @@ describe('Token Catalog', () => {
       cy.selectTokenInFavoriteTokensList(token.favoriteToken, tokenSymbol[1])
       cy.verifySelectedToken(token.tokenIn, tokenSymbol[1])
       //select tokenOut
-      cy.importNewTokenByAddress(token.tokenOut, unWhiteListedToken.SCOOBY.address)
-      cy.verifySelectedToken(token.tokenOut, unWhiteListedToken.SCOOBY.name)
-      cy.verifyURL(tokenSymbol[1], unWhiteListedToken.SCOOBY.name)
+      cy.importNewTokenByAddress(token.tokenOut, unWhiteListedToken.CHI.address)
+      cy.verifySelectedToken(token.tokenOut, unWhiteListedToken.CHI.name)
+      cy.verifyURL(tokenSymbol[1], unWhiteListedToken.CHI.name)
       //delete imported tokenOut
       cy.clickButton(token.tokenOut)
       cy.clickButton(tab.import)
-      cy.verifyValueInList(token.rowInWhiteList, [unWhiteListedToken.SCOOBY.name], true)
-      cy.deleteImportedToken(unWhiteListedToken.SCOOBY.address)
+      cy.verifyValueInList(token.rowInWhiteList, [unWhiteListedToken.CHI.name], true)
+      cy.deleteImportedToken(unWhiteListedToken.CHI.address)
       cy.verifyNoResultFound()
       cy.get(token.tokenOut).should('include.text', 'Select a token')
     })

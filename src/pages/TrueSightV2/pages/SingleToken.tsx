@@ -20,6 +20,7 @@ import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { MEDIA_WIDTHS } from 'theme'
 
 import DisplaySettings from '../components/DisplaySettings'
+import FeedbackSurvey from '../components/FeedbackSurvey'
 import KyberAIShareModal from '../components/KyberAIShareModal'
 import SimpleTooltip from '../components/SimpleTooltip'
 import { TokenOverview } from '../components/TokenOverview'
@@ -612,6 +613,7 @@ export default function SingleToken() {
           })
         }
       />
+      <FeedbackSurvey />
     </Wrapper>
   )
 }
