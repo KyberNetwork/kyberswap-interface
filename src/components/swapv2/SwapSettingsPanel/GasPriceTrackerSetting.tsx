@@ -4,7 +4,7 @@ import { isMobile } from 'react-device-detect'
 import { ChevronRight } from 'react-feather'
 import styled from 'styled-components'
 
-import SettingLabel from 'components/swapv2/SwapSettingsPanel/SettingLabel'
+import { TextDashed } from 'components/Tooltip'
 import useGasPriceFromDeBank, { GasLevel } from 'hooks/useGasPriceFromDeBank'
 import useTheme from 'hooks/useTheme'
 
@@ -62,9 +62,9 @@ const GasPriceTrackerSetting: React.FC<Props> = ({ onClick }) => {
 
   return (
     <Container onClick={onClick}>
-      <SettingLabel>
+      <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
         <Trans>Gas Price Tracker</Trans>
-      </SettingLabel>
+      </TextDashed>
 
       <Group>
         <PriceInWei>{getPriceInGweiText(data[GasLevel.NORMAL].gasPriceInGwei)}</PriceInWei>
