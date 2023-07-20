@@ -22,13 +22,13 @@ import {
   KEY_GUEST_DEFAULT,
   useGetProfileDisplayName,
   useIsKeepCurrentProfile,
-  useLoginRedirectUrl,
   useProfileInfo,
   useSaveConnectedProfile,
   useSaveUserProfile,
   useSignedAccountInfo,
 } from 'state/profile/hooks'
 import { filterTruthy, isAddress } from 'utils'
+import { setLoginRedirectUrl } from 'utils/redirectUponLogin'
 import { isEmailValid } from 'utils/string'
 
 KyberOauth2.initialize({
@@ -44,7 +44,6 @@ const useLogin = (autoLogin = false) => {
   // const [connectWalletToProfile] = useConnectWalletToProfileMutation()
   const notify = useNotify()
   const toggleWalletModal = useWalletModalToggle()
-  const [, setLoginRedirectUrl] = useLoginRedirectUrl()
   const { signedMethod, signedAccount } = useSignedAccountInfo()
   const saveSignedAccount = useSaveConnectedProfile()
   const { removeProfile, removeAllProfile, totalGuest } = useProfileInfo()
@@ -168,11 +167,9 @@ const useLogin = (autoLogin = false) => {
   const redirectSignIn = useCallback(
     (account: string) => {
       setLoginRedirectUrl(window.location.href)
-      setTimeout(() => {
-        KyberOauth2.authenticate(isEVM ? { wallet_address: account } : {}) // navigate to login page
-      }, 1000)
+      KyberOauth2.authenticate(isEVM ? { wallet_address: account } : {}) // navigate to login page
     },
-    [isEVM, setLoginRedirectUrl],
+    [isEVM],
   )
 
   // check account info and redirect if needed
@@ -238,7 +235,7 @@ const useLogin = (autoLogin = false) => {
       showSignOutSuccess()
       removeProfile(desireAccount)
     },
-    [signedAccount, showSignOutSuccess, removeProfile, setLoginRedirectUrl],
+    [signedAccount, showSignOutSuccess, removeProfile],
   )
 
   const signOutAll = useCallback(() => {
