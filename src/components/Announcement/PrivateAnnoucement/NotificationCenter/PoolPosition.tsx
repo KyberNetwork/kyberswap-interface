@@ -60,6 +60,7 @@ export default function AnnouncementItem({
     minPrice,
     currentPrice,
     poolAddress,
+    token2Symbol,
   } = position || {}
   const isInRange = type === 'IN_RANGE'
   const statusMessage = isInRange ? t`Back in range` : t`Out of range`
@@ -97,13 +98,19 @@ export default function AnnouncementItem({
       {expand && (
         <Detail>
           <Text>
-            <Trans>Current Market Price is {currentPrice} USDT per stMatic</Trans>
+            <Trans>
+              Current Market Price is {currentPrice} {token1Symbol} per {token2Symbol}
+            </Trans>
           </Text>
           <Text>
-            <Trans>Min Price of your range is {minPrice} USDT per stMatic</Trans>
+            <Trans>
+              Min Price of your range is {minPrice} {token1Symbol} per {token2Symbol}
+            </Trans>
           </Text>
           <Text>
-            <Trans>Max Price of your range is {maxPrice} USDT per stMatic</Trans>
+            <Trans>
+              Max Price of your range is {maxPrice} {token1Symbol} per {token2Symbol}
+            </Trans>
           </Text>
         </Detail>
       )}
