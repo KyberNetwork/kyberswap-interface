@@ -1,4 +1,4 @@
-import { ChainId, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { parseUnits } from 'ethers/lib/utils'
 import { useEffect, useState } from 'react'
@@ -10,6 +10,7 @@ import { ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import Modal from 'components/Modal'
 import Row, { AutoRow, RowBetween } from 'components/Row'
+import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import { useActiveWeb3React } from 'hooks'
 import { useKyberDAOInfo, useKyberDaoStakeActions } from 'hooks/kyberdao'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -49,20 +50,13 @@ export default function MigrateModal({
   const { migrate } = useKyberDaoStakeActions()
   const [value, setValue] = useState('1')
   const [error, setError] = useState('')
-  const [approval, approveCallback] = useApproveCallback(
-    value
-      ? TokenAmount.fromRawAmount(
-          new Token(
-            chainId === ChainId.GÖRLI ? ChainId.GÖRLI : ChainId.MAINNET,
-            kyberDAOInfo?.KNCLAddress || '',
-            18,
-            'KNCL',
-          ),
-          parseUnits(value, 18).toString(),
-        )
-      : undefined,
-    kyberDAOInfo?.KNCAddress,
+  const parsedAmount = useParsedAmount(
+    new Token(chainId === ChainId.GÖRLI ? ChainId.GÖRLI : ChainId.MAINNET, kyberDAOInfo?.KNCLAddress || '', 18, 'KNCL'),
+    value,
   )
+
+  const [approval, approveCallback] = useApproveCallback(parsedAmount, kyberDAOInfo?.KNCAddress)
+
   const oldKNCBalance = useTokenBalance(kyberDAOInfo?.KNCLAddress || '')
   useEffect(() => {
     // Check if too many decimals

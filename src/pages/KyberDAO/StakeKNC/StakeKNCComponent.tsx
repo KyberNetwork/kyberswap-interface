@@ -1,4 +1,4 @@
-import { ChainId, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { lighten } from 'polished'
@@ -18,6 +18,7 @@ import WarningIcon from 'components/Icons/WarningIcon'
 import InfoHelper from 'components/InfoHelper'
 import Input from 'components/NumericalInput'
 import Row, { AutoRow, RowBetween, RowFit } from 'components/Row'
+import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useActiveWeb3React } from 'hooks'
@@ -265,18 +266,13 @@ export default function StakeKNCComponent() {
   const toggleYourTransactions = useToggleModal(ApplicationModal.YOUR_TRANSACTIONS_STAKE_KNC)
   const { switchToEthereum } = useSwitchToEthereum()
   const { mixpanelHandler } = useMixpanel()
+  const parsedAmount = useParsedAmount(
+    new Token(chainId === ChainId.GÖRLI ? ChainId.GÖRLI : ChainId.MAINNET, kyberDAOInfo?.KNCAddress || '', 18, 'KNC'),
+    inputValue,
+  )
+
   const [approvalKNC, approveCallback] = useApproveCallback(
-    activeTab === STAKE_TAB.Stake && inputValue
-      ? TokenAmount.fromRawAmount(
-          new Token(
-            chainId === ChainId.GÖRLI ? ChainId.GÖRLI : ChainId.MAINNET,
-            kyberDAOInfo?.KNCAddress || '',
-            18,
-            'KNC',
-          ),
-          parseUnits(inputValue, 18).toString(),
-        )
-      : undefined,
+    activeTab === STAKE_TAB.Stake && inputValue ? parsedAmount : undefined,
     kyberDAOInfo?.staking,
   )
 
