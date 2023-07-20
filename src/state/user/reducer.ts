@@ -93,9 +93,7 @@ interface UserState {
   }
 
   timestamp: number
-  showLiveCharts: {
-    [chainId: number]: boolean
-  }
+  showLiveChart: boolean
   showTradeRoutes: boolean
   showTokenInfo: boolean
   showKyberAIBanner: boolean
@@ -185,7 +183,7 @@ const initialState: UserState = {
   tokens: {},
   pairs: {},
   timestamp: currentTimestamp(),
-  showLiveCharts: { ...defaultShowLiveCharts },
+  showLiveChart: true,
   showTradeRoutes: true,
   showTokenInfo: true,
   showKyberAIBanner: true,
@@ -307,11 +305,8 @@ export default createReducer(initialState, builder =>
       }
       state.timestamp = currentTimestamp()
     })
-    .addCase(toggleLiveChart, (state, { payload: { chainId } }) => {
-      if (typeof state.showLiveCharts?.[chainId] !== 'boolean') {
-        state.showLiveCharts = { ...defaultShowLiveCharts }
-      }
-      state.showLiveCharts[chainId] = !state.showLiveCharts[chainId]
+    .addCase(toggleLiveChart, state => {
+      state.showLiveChart = !state.showLiveChart
     })
     .addCase(toggleTradeRoutes, state => {
       state.showTradeRoutes = !state.showTradeRoutes
