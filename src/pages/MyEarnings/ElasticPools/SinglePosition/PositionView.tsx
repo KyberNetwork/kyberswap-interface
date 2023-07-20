@@ -1,14 +1,12 @@
 import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useDispatch } from 'react-redux'
-import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
 import CurrencyLogo from 'components/CurrencyLogo'
+import Divider from 'components/Divider'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { APP_PATHS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { Position as SubgraphLegacyPosition } from 'hooks/useElasticLegacy'
@@ -16,31 +14,14 @@ import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import CollectFeesPanel from 'pages/MyEarnings/ElasticPools/SinglePosition/CollectFeesPanel'
 import CommonView, { CommonProps } from 'pages/MyEarnings/ElasticPools/SinglePosition/CommonView'
 import PriceRangeChart from 'pages/MyEarnings/ElasticPools/SinglePosition/PriceRangeChart'
-import { Column, Label, Row, Value, ValueAPR } from 'pages/MyEarnings/ElasticPools/SinglePosition/styleds'
+import { Column, Label, Row, Value } from 'pages/MyEarnings/ElasticPools/SinglePosition/styleds'
 import HoverDropdown from 'pages/MyEarnings/HoverDropdown'
 import { useRemoveLiquidityFromLegacyPosition } from 'pages/MyEarnings/hooks'
 import { useAppSelector } from 'state/hooks'
 import { updateChainId } from 'state/user/actions'
+import { formatDollarAmount } from 'utils/numbers'
 
 import ActionButtons from './ActionButtons'
-
-const formatValue = (value: string | number) => {
-  const num = Number(value)
-
-  if (!Number.isFinite(num)) {
-    return '--'
-  }
-
-  const formatter = Intl.NumberFormat('en-US', {
-    notation: num > 1_000_000 ? 'compact' : 'standard',
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  })
-
-  return formatter.format(num)
-}
 
 const PositionView: React.FC<CommonProps> = props => {
   const {
@@ -51,8 +32,8 @@ const PositionView: React.FC<CommonProps> = props => {
     chainId,
     currency0,
     currency1,
-    myFarmAPR,
-    myPoolAPR,
+    // myFarmAPR,
+    // myPoolAPR,
     farmAddress,
     nft,
   } = props
@@ -82,13 +63,13 @@ const PositionView: React.FC<CommonProps> = props => {
     +nft.amount0.toExact() * prices[nft.amount0.currency.wrapped.address] +
       +nft.amount1.toExact() * prices[nft.amount1.currency.wrapped.address]
 
-  const farm = (
-    <Link
-      to={`${APP_PATHS.FARMS}/${NETWORKS_INFO[chainId].route}?tab=elastic&type=active&search=${positionEarning.pool.id}`}
-    >
-      <Trans>farm</Trans>
-    </Link>
-  )
+  // const farm = (
+  //   <Link
+  //     to={`${APP_PATHS.FARMS}/${NETWORKS_INFO[chainId].route}?tab=elastic&type=active&search=${positionEarning.pool.id}`}
+  //   >
+  //     <Trans>farm</Trans>
+  //   </Link>
+  // )
 
   const legacyPosition: SubgraphLegacyPosition = {
     id: positionEarning.id,
@@ -141,54 +122,44 @@ const PositionView: React.FC<CommonProps> = props => {
 
         <Row>
           <HoverDropdown
-            anchor={<Value>{formatValue(liquidityInUsd)}</Value>}
+            anchor={<Value>{formatDollarAmount(liquidityInUsd)}</Value>}
             disabled={!liquidityInUsd || Number.isNaN(liquidityInUsd)}
             text={
-              <Flex
-                sx={{
-                  flexDirection: 'column',
-                  gap: '8px',
-                }}
-              >
+              <div>
                 <Flex alignItems="center">
                   <CurrencyLogo currency={currency0} size="16px" />
                   <Text fontSize={12} marginLeft="4px">
                     {liquidityValue0 && <FormattedCurrencyAmount currencyAmount={liquidityValue0} />}
                   </Text>
                 </Flex>
-                <Flex alignItems="center">
+                <Flex alignItems="center" marginTop="8px">
                   <CurrencyLogo currency={currency1} size="16px" />
                   <Text fontSize={12} marginLeft="4px">
                     {liquidityValue1 && <FormattedCurrencyAmount currencyAmount={liquidityValue1} />}
                   </Text>
                 </Flex>
-              </Flex>
+              </div>
             }
           />
 
           {myStakedBalance ? (
             <HoverDropdown
-              anchor={<Value>{formatValue(myStakedBalance)}</Value>}
+              anchor={<Value>{formatDollarAmount(myStakedBalance)}</Value>}
               text={
-                <Flex
-                  sx={{
-                    flexDirection: 'column',
-                    gap: '8px',
-                  }}
-                >
+                <div>
                   <Flex alignItems="center">
                     <CurrencyLogo currency={currency0} size="16px" />
                     <Text fontSize={12} marginLeft="4px">
                       <FormattedCurrencyAmount currencyAmount={nft.amount0} />
                     </Text>
                   </Flex>
-                  <Flex alignItems="center">
+                  <Flex alignItems="center" marginTop="9px">
                     <CurrencyLogo currency={currency1} size="16px" />
                     <Text fontSize={12} marginLeft="4px">
                       <FormattedCurrencyAmount currencyAmount={nft.amount1} />
                     </Text>
                   </Flex>
-                </Flex>
+                </div>
               }
             />
           ) : (
@@ -197,6 +168,7 @@ const PositionView: React.FC<CommonProps> = props => {
         </Row>
       </Column>
 
+      {/*
       <Column>
         <Row>
           <Label>
@@ -216,40 +188,50 @@ const PositionView: React.FC<CommonProps> = props => {
           <ValueAPR>{myFarmAPR}</ValueAPR>
         </Row>
       </Column>
+      */}
 
-      <Flex
-        sx={{
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          flex: 1,
-        }}
-      >
-        <PriceRangeChart position={position} disabled={isElasticLegacyPosition} />
+      <PriceRangeChart position={position} disabled={isElasticLegacyPosition} />
 
-        <CollectFeesPanel
-          nftId={positionEarning.id}
-          chainId={chainId}
-          feeUsd={feeUsd}
-          feeValue0={feeReward0}
-          feeValue1={feeReward1}
-          hasUserDepositedInFarm={!!nft}
-          farmAddress={farmAddress}
-          poolAddress={positionEarning.pool.id}
-          position={position}
-          isLegacy={isLegacyPosition}
-        />
+      <Divider />
 
-        <ActionButtons
-          chainId={chainId}
-          nftId={positionEarning.id}
-          currency0={currency0}
-          currency1={currency1}
-          feeAmount={position.pool.fee}
-          liquidity={Number(position.liquidity || '0')}
-          isLegacy={isLegacyPosition}
-          onRemoveLiquidityFromLegacyPosition={onRemoveLiquidityFromLegacyPosition}
-        />
-      </Flex>
+      <CollectFeesPanel
+        nftId={positionEarning.id}
+        chainId={chainId}
+        feeUsd={feeUsd}
+        feeValue0={feeReward0}
+        feeValue1={feeReward1}
+        hasUserDepositedInFarm={!!nft}
+        farmAddress={farmAddress}
+        poolAddress={positionEarning.pool.id}
+        position={position}
+        isLegacy={isLegacyPosition}
+      />
+
+      <Divider />
+
+      <CollectFeesPanel
+        nftId={positionEarning.id}
+        chainId={chainId}
+        feeUsd={feeUsd}
+        feeValue0={feeReward0}
+        feeValue1={feeReward1}
+        hasUserDepositedInFarm={!!nft}
+        farmAddress={farmAddress}
+        poolAddress={positionEarning.pool.id}
+        position={position}
+        isLegacy={isLegacyPosition}
+      />
+
+      <ActionButtons
+        chainId={chainId}
+        nftId={positionEarning.id}
+        currency0={currency0}
+        currency1={currency1}
+        feeAmount={position.pool.fee}
+        liquidity={Number(position.liquidity || '0')}
+        isLegacy={isLegacyPosition}
+        onRemoveLiquidityFromLegacyPosition={onRemoveLiquidityFromLegacyPosition}
+      />
     </CommonView>
   )
 }

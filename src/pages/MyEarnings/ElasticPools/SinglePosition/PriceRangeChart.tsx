@@ -1,5 +1,5 @@
 import { Position } from '@kyberswap/ks-sdk-elastic'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useCallback, useState } from 'react'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -7,6 +7,7 @@ import styled from 'styled-components'
 import LiquidityChartRangeInput from 'components/LiquidityChartRangeInput'
 import Zoom from 'components/LiquidityChartRangeInput/Zoom'
 import { RotateSwapIcon } from 'components/ProAmm/styles'
+import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import useTheme from 'hooks/useTheme'
 import { Bound } from 'state/mint/proamm/type'
@@ -118,41 +119,29 @@ const PriceRangeChart: React.FC<Props> = ({ position, disabled }) => {
         interactive={false}
       />
 
-      <Box
-        sx={{
-          flex: '0 0 fit-content',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, auto)',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          gap: '4x',
-          fontWeight: 500,
-          fontSize: '12px',
-          lineHeight: '20px',
-          color: theme.text,
-        }}
-      >
-        <span>
-          <Text as="span" color={theme.subText}>
+      <Flex justifyContent="space-between" fontSize={12} fontWeight="500">
+        <MouseoverTooltip text={t`Your position will be 100% composed of ${baseCurrency?.symbol} at this price`}>
+          <TextDashed color={theme.subText}>
             <Trans>Min Price</Trans>:{' '}
-          </Text>
-          <span>{formatTickPrice(priceLower, tickAtLimit, Bound.LOWER)}</span>
-        </span>
+          </TextDashed>
+        </MouseoverTooltip>
 
-        <span>
-          <Text as="span" color={theme.subText}>
+        <Text>
+          {formatTickPrice(priceLower, tickAtLimit, Bound.LOWER)} {quoteCurrency.symbol}/{baseCurrency.symbol}
+        </Text>
+      </Flex>
+
+      <Flex justifyContent="space-between" fontSize={12} fontWeight="500" marginTop="12px">
+        <MouseoverTooltip text={t`Your position will be 100% composed of ${quoteCurrency?.symbol} at this price`}>
+          <TextDashed color={theme.subText}>
             <Trans>Max Price</Trans>:{' '}
-          </Text>
-          <span>{formatTickPrice(priceUpper, tickAtLimit, Bound.UPPER)}</span>
-        </span>
+          </TextDashed>
+        </MouseoverTooltip>
 
-        <Text as="span" justifySelf="flex-start">
-          {quoteCurrency.symbol}/{baseCurrency.symbol}
+        <Text>
+          {formatTickPrice(priceLower, tickAtLimit, Bound.LOWER)} {quoteCurrency.symbol}/{baseCurrency.symbol}
         </Text>
-        <Text as="span" justifySelf="flex-end">
-          {quoteCurrency.symbol}/{baseCurrency.symbol}
-        </Text>
-      </Box>
+      </Flex>
     </Flex>
   )
 }

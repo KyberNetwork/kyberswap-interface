@@ -5,49 +5,33 @@ import { rgba } from 'polished'
 import { useMemo, useState } from 'react'
 import { Eye, Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import { ElasticPositionEarningWithDetails } from 'services/earning/types'
+import { ElasticPoolEarningWithDetails, ElasticPositionEarningWithDetails } from 'services/earning/types'
 import styled from 'styled-components'
 
 import { ButtonLight } from 'components/Button'
-import CurrencyLogo from 'components/CurrencyLogo'
-import { formatUSDValue } from 'components/EarningAreaChart/utils'
-import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import useTheme from 'hooks/useTheme'
 import SinglePosition from 'pages/MyEarnings/ElasticPools/SinglePosition'
-import HoverDropdown from 'pages/MyEarnings/HoverDropdown'
 import ViewEarningOrPositionButton from 'pages/MyEarnings/PoolFilteringBar/ViewEarningOrPositionButton'
 import { WIDTHS } from 'pages/MyEarnings/constants'
 import { useAppSelector } from 'state/hooks'
+import { useShowMyEarningChart } from 'state/user/hooks'
 
-const TitleWrapper = styled.div`
-  width: 100%;
-  max-width: 100%;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  gap: 12px;
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    flex-direction: column;
-    align-items: initial;
-    justify-content: initial;
-  `}
-`
+import PoolEarningsSection from './PoolEarningsSection'
 
 const ListPositions = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, 360px);
-  gap: 24px;
+  gap: 1rem;
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 24px;
   `}
 `
 
 type Props = {
+  poolEarning: ElasticPoolEarningWithDetails
   chainId: ChainId
   positionEarnings: ElasticPositionEarningWithDetails[]
   pool: Pool | undefined
@@ -56,7 +40,18 @@ type Props = {
   currency0: Currency
   currency1: Currency
 }
+
+const getDefaultNumberPos = () => {
+  const width = document.getElementById('my-earning-wrapper')?.offsetWidth || 1610
+  let num = 1
+  while (width >= WIDTHS[num + 1]) {
+    num += 1
+  }
+  return num
+}
+
 const Positions: React.FC<Props> = ({
+  poolEarning,
   positionEarnings: unsortedPositionEarnings,
   chainId,
   pool,
@@ -66,18 +61,6 @@ const Positions: React.FC<Props> = ({
   currency1,
 }) => {
   const [isViewEarnings, setViewEarnings] = useState(false)
-
-  const getDefaultNumberPos = () => {
-    const width = document.getElementById('my-earning-wrapper')?.offsetWidth || 1610
-
-    let num = 1
-    while (width >= WIDTHS[num + 1]) {
-      num += 1
-    }
-
-    return num
-  }
-
   const [numberOfVisiblePositions, setNumberOfVisiblePositions] = useState(getDefaultNumberPos())
 
   const [numOfActivePositions, numOfInactivePositions, numOfClosedPositions] = useMemo(() => {
@@ -92,17 +75,11 @@ const Positions: React.FC<Props> = ({
     return [nActive, unsortedPositionEarnings.length - nClosed - nActive, nClosed]
   }, [unsortedPositionEarnings])
 
-  const { totalLiquidityBalance, liquidityValue0, liquidityValue1, positionEarnings } = useMemo(() => {
+  const positionEarnings = useMemo(() => {
     if (!pool || !currency0 || !currency1) {
-      return {
-        totalLiquidityBalance: 0,
-        liquidityValue0: undefined,
-        liquidityValue1: undefined,
-        positionEarnings: unsortedPositionEarnings,
-      }
+      return unsortedPositionEarnings
     }
 
-    let total = 0
     let liquidityValue0 = CurrencyAmount.fromRawAmount(currency0, 0)
     let liquidityValue1 = CurrencyAmount.fromRawAmount(currency1, 0)
     const token0Price = tokenPrices[currency0.wrapped.address || '']
@@ -137,8 +114,6 @@ const Positions: React.FC<Props> = ({
       liquidityValue0 = liquidityValue0.add(CurrencyAmount.fromRawAmount(currency0, position.amount0.quotient))
       liquidityValue1 = liquidityValue1.add(CurrencyAmount.fromRawAmount(currency1, position.amount1.quotient))
 
-      total += liquidityInUsd
-
       positionEarningsWithLiquidityUSD.push({
         positionEarning,
         liquidityInUsd,
@@ -151,57 +126,34 @@ const Positions: React.FC<Props> = ({
       .map(({ positionEarning }) => positionEarning)
       .concat(closedPositionEarnings)
 
-    return { totalLiquidityBalance: total, liquidityValue0, liquidityValue1, positionEarnings }
+    return positionEarnings
   }, [pool, unsortedPositionEarnings, tokenPrices, currency0, currency1])
+
+  const theme = useTheme()
+  const [showEarningChart] = useShowMyEarningChart()
 
   return (
     <Flex
-      sx={{
-        flexDirection: 'column',
-        gap: '24px',
-      }}
+      flexDirection="column"
+      backgroundColor={theme.background}
+      padding="1rem"
+      margin="0 0.75rem 0.75rem"
+      sx={{ borderRadius: '1rem', gap: '1rem' }}
     >
-      <TitleWrapper>
-        <Flex
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{
-            gap: '12px 16px',
-            flexWrap: 'wrap',
-          }}
-        >
-          <Text
-            sx={{
-              fontWeight: 500,
-              fontSize: '20px',
-              lineHeight: '24px',
-            }}
-          >
-            My Liquidity Positions
-          </Text>
+      <Text fontSize={16} fontWeight="500">
+        <Trans>My Liquidity Positions</Trans>
+      </Text>
 
-          {liquidityValue0 && liquidityValue1 ? (
-            <PoolLiquidityBalance total={totalLiquidityBalance} liq0={liquidityValue0} liq1={liquidityValue1} />
-          ) : null}
-        </Flex>
+      <Flex justifyContent="space-between" alignItems="center">
+        <ViewEarningOrPositionButton isViewEarnings={isViewEarnings} setViewEarnings={setViewEarnings} />
+        <PositionStats
+          numOfActivePositions={numOfActivePositions}
+          numOfInactivePositions={numOfInactivePositions}
+          numOfClosedPositions={numOfClosedPositions}
+        />
+      </Flex>
 
-        <Flex
-          sx={{
-            alignItems: 'center',
-            gap: '12px 16px',
-            width: '100%',
-            flexWrap: 'wrap',
-            justifyContent: 'space-between',
-          }}
-        >
-          <ViewEarningOrPositionButton isViewEarnings={isViewEarnings} setViewEarnings={setViewEarnings} />
-          <PositionStats
-            numOfActivePositions={numOfActivePositions}
-            numOfInactivePositions={numOfInactivePositions}
-            numOfClosedPositions={numOfClosedPositions}
-          />
-        </Flex>
-      </TitleWrapper>
+      {showEarningChart && <PoolEarningsSection historicalEarning={poolEarning.historicalEarning} chainId={chainId} />}
 
       <ListPositions>
         {positionEarnings.slice(0, numberOfVisiblePositions).map(positionEarning => (
@@ -247,6 +199,17 @@ const Positions: React.FC<Props> = ({
   )
 }
 
+const IconWrapper = styled.div<{ color: string }>`
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  background: ${({ color }) => rgba(color, 0.2)};
+  color: ${({ color }) => color};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
+
 function PositionStats({
   numOfActivePositions,
   numOfInactivePositions,
@@ -260,167 +223,37 @@ function PositionStats({
   const shouldShowClosedPositions = useAppSelector(state => state.myEarnings.shouldShowClosedPositions)
 
   return (
-    <Flex
-      sx={{
-        gap: '12px',
-      }}
-    >
-      <Flex
-        sx={{
-          gap: '4px',
-        }}
-      >
-        <Flex
-          sx={{
-            width: '16px',
-            height: '16px',
-            borderRadius: '999px',
-            justifyContent: 'center',
-            alignItems: 'center',
-            background: rgba(theme.primary, 0.3),
-          }}
-        >
-          <Info size={10} color={theme.primary} style={{ minWidth: '24px' }} />
-        </Flex>
-        <Text
-          fontSize={14}
-          fontWeight="500"
-          width="max-content"
-          as="span"
-          sx={{
-            whiteSpace: 'nowrap',
-          }}
-        >
+    <Flex sx={{ gap: '1rem' }}>
+      <Flex sx={{ gap: '4px' }}>
+        <IconWrapper color={theme.primary}>
+          <Info size={10} />
+        </IconWrapper>
+        <Text fontSize={14} fontWeight="500">
           <Trans>{numOfActivePositions} Active</Trans>
         </Text>
       </Flex>
 
       {numOfInactivePositions ? (
-        <Flex
-          sx={{
-            gap: '4px',
-          }}
-        >
-          <Flex
-            sx={{
-              width: '16px',
-              height: '16px',
-              borderRadius: '999px',
-              justifyContent: 'center',
-              alignItems: 'center',
-              background: rgba(theme.warning, 0.3),
-            }}
-          >
-            <Info size={10} color={theme.warning} />
-          </Flex>
-
-          <Text
-            fontSize={14}
-            fontWeight="500"
-            width="max-content"
-            sx={{
-              whiteSpace: 'nowrap',
-            }}
-          >
+        <Flex sx={{ gap: '4px' }}>
+          <IconWrapper color={theme.warning}>
+            <Info size={10} />
+          </IconWrapper>
+          <Text fontSize={14} fontWeight="500">
             <Trans>{numOfInactivePositions} Inactive</Trans>
           </Text>
         </Flex>
       ) : null}
 
       {numOfClosedPositions || shouldShowClosedPositions ? (
-        <Flex
-          sx={{
-            gap: '4px',
-            alignItems: 'center',
-          }}
-        >
-          <Flex
-            sx={{
-              flex: '0 0 16px',
-              height: '16px',
-              borderRadius: '999px',
-              justifyContent: 'center',
-              alignItems: 'center',
-              background: rgba(theme.red, 0.3),
-            }}
-          >
-            <Info size={10} color={theme.red} />
-          </Flex>
-
-          <Flex
-            sx={{
-              fontWeight: 500,
-              fontSize: '14px',
-              lineHeight: '20px',
-              whiteSpace: 'nowrap',
-              flex: '1 0 auto',
-            }}
-          >
+        <Flex sx={{ gap: '4px' }}>
+          <IconWrapper color={theme.red}>
+            <Info size={10} />
+          </IconWrapper>
+          <Text fontSize={14} fontWeight="500">
             <Trans>{numOfClosedPositions} Closed</Trans>
-          </Flex>
+          </Text>
         </Flex>
       ) : null}
-    </Flex>
-  )
-}
-
-function PoolLiquidityBalance({
-  total,
-  liq0,
-  liq1,
-}: {
-  total: number
-  liq0: CurrencyAmount<Currency>
-  liq1: CurrencyAmount<Currency>
-}) {
-  const theme = useTheme()
-  return (
-    <Flex
-      alignItems="center"
-      sx={{
-        gap: '8px',
-      }}
-    >
-      <Text
-        sx={{
-          fontSize: '14px',
-          fontWeight: 500,
-          color: theme.subText,
-        }}
-      >
-        <Trans>My Liquidity Balance</Trans>
-      </Text>
-      <HoverDropdown
-        anchor={
-          <Text
-            sx={{
-              fontSize: '20px',
-              fontWeight: 500,
-              lineHeight: '28px',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {formatUSDValue(total)}
-          </Text>
-        }
-        disabled={!total}
-        text={
-          <>
-            <Flex alignItems="center">
-              <CurrencyLogo currency={liq0.currency} size="16px" />
-              <Text fontSize={12} marginLeft="4px">
-                {liq0 && <FormattedCurrencyAmount currencyAmount={liq0} />}
-              </Text>
-            </Flex>
-            <Flex alignItems="center" marginTop="8px">
-              <CurrencyLogo currency={liq1.currency} size="16px" />
-              <Text fontSize={12} marginLeft="4px">
-                {liq1 && <FormattedCurrencyAmount currencyAmount={liq1} />}
-              </Text>
-            </Flex>
-          </>
-        }
-      />
     </Flex>
   )
 }

@@ -18,7 +18,7 @@ const FlipCard = styled.div<{ flip: boolean; joined?: boolean }>`
   border-radius: 20px;
   width: 100%;
   max-width: 360px;
-  height: 600px;
+  height: 582px;
   background-color: ${({ theme }) => theme.buttonBlack};
   position: relative;
   transition: transform 0.6s;

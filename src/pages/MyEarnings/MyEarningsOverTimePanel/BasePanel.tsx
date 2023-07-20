@@ -23,8 +23,9 @@ const Wrapper = styled.div`
   flex-direction: column;
   padding: 16px;
   padding-bottom: 6px;
-  background-color: ${({ theme }) => theme.background};
+  background-color: ${({ theme }) => theme.buttonBlack};
   border: 1px solid ${({ theme }) => theme.border};
+  border-radius: 20px;
 `
 
 const numberOfTicksByTimePeriod: Record<TimePeriod, number> = {
@@ -87,7 +88,7 @@ const BasePanel: React.FC<Props> = ({
             as="span"
             sx={{
               fontWeight: 400,
-              fontSize: '14px',
+              fontSize: '12px',
               lineHeight: '20px',
               color: theme.subText,
             }}
@@ -98,7 +99,7 @@ const BasePanel: React.FC<Props> = ({
           <Text
             sx={{
               fontWeight: 500,
-              fontSize: '14px',
+              fontSize: '12px',
               lineHeight: '20px',
               color: theme.text,
             }}

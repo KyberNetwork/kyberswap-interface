@@ -10,9 +10,15 @@ const DropdownIcon = styled(DropdownSVG)`
 
   &[data-disabled='false'] {
     color: ${({ theme }) => theme.text};
+  }
+`
 
-    &:hover {
-      transform: rotate(180deg);
+const Wrapper = styled(Flex)`
+  align-items: center;
+
+  &:hover {
+    ${DropdownIcon} {
+      transform: rotate(-180deg);
     }
   }
 `
@@ -24,19 +30,12 @@ type Props = {
 }
 const HoverDropdown: React.FC<Props> = ({ anchor, text, disabled = false }) => {
   return (
-    <Flex
-      sx={{
-        alignItems: 'center',
-        gap: '4px',
-        flex: '0 0 min-content',
-      }}
-    >
-      {anchor}
-
-      <MouseoverTooltip noArrow placement="bottom" width="fit-content" text={text} disableTooltip={disabled}>
+    <MouseoverTooltip placement="bottom" width="fit-content" text={text} disableTooltip={disabled}>
+      <Wrapper>
+        {anchor}
         <DropdownIcon data-disabled={disabled} />
-      </MouseoverTooltip>
-    </Flex>
+      </Wrapper>
+    </MouseoverTooltip>
   )
 }
 

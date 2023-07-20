@@ -2,9 +2,10 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useMemo } from 'react'
 import { Info } from 'react-feather'
-import { Flex, Text } from 'rebass'
+import { Box, Flex, Text } from 'rebass'
 import { useGetElasticEarningQuery, useGetElasticLegacyEarningQuery } from 'services/earning'
 import { ElasticPoolEarningWithDetails, ElasticPositionEarningWithDetails } from 'services/earning/types'
+import styled from 'styled-components'
 
 import LoaderWithKyberLogo from 'components/LocalLoader'
 import { EMPTY_ARRAY } from 'constants/index'
@@ -17,6 +18,19 @@ import SinglePool from 'pages/MyEarnings/ElasticPools/SinglePool'
 import { chainIdByRoute } from 'pages/MyEarnings/utils'
 import { useAppSelector } from 'state/hooks'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
+
+const Header = styled.div`
+  background: ${({ theme }) => theme.tableHeader};
+  color: ${({ theme }) => theme.subText};
+  text-transform: uppercase;
+  padding: 16px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  display: grid;
+  grid-template-columns: 3fr repeat(7, 1fr);
+`
 
 const getPositionEarningsByPoolId = (
   earnings: ElasticPositionEarningWithDetails[] | undefined,
@@ -173,16 +187,34 @@ const ElasticPools = () => {
   }, {} as { [id: string]: Array<PoolType> })
 
   return (
-    <Flex
-      sx={{
-        flexDirection: 'column',
-        gap: '24px',
-      }}
-    >
+    <Box sx={{ border: `1px solid ${theme.border}`, borderRadius: '1rem' }}>
+      <Header>
+        <Text>
+          <Trans>Token Pair | Fee</Trans>
+        </Text>
+        <Text>TVL</Text>
+        <Text>APR</Text>
+        <Text>
+          <Trans>Volume (24h)</Trans>
+        </Text>
+        <Text>
+          <Trans>Fees (24h)</Trans>
+        </Text>
+        <Text>
+          <Trans>My Liquidity</Trans>
+        </Text>
+        <Text>
+          <Trans>My Earnings</Trans>
+        </Text>
+        <Text textAlign="right">
+          <Trans>Actions</Trans>
+        </Text>
+      </Header>
+
       {Object.keys(poolsByChainId).map(chain => (
         <PoolsByChainId pools={poolsByChainId[chain]} key={chain} chainId={Number(chain) as ChainId} />
       ))}
-    </Flex>
+    </Box>
   )
 }
 

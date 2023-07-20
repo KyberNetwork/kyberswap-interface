@@ -408,16 +408,6 @@ const StatsRow: React.FC<Props> = ({
         justifyContent: 'space-between',
       }}
     >
-      <Column label={t`CHAIN`} value={<ChainDisplay chainId={chainId} />} />
-
-      <Column label={t`TVL`} value={formatValue(totalValueLockedUsd)} />
-
-      {renderTotalAPR()}
-
-      <Column label={t`VOLUME (24H)`} value={formatValue(volume24hUsd)} />
-
-      <Column label={t`FEES (24H)`} value={formatValue(fees24hUsd)} />
-
       <Flex
         sx={{
           alignItems: 'center',

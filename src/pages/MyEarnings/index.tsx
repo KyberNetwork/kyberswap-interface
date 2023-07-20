@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -90,7 +91,7 @@ const MyEarnings = () => {
             whiteSpace: 'nowrap',
           }}
         >
-          My Earnings
+          <Trans>My Earnings</Trans>
         </Text>
 
         {localAccount ? (

@@ -1,8 +1,8 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { t } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
 import { Share2 } from 'react-feather'
-import { Flex } from 'rebass'
+import { Flex, Text } from 'rebass'
 
 import ShareModal from 'pages/MyEarnings/ShareModal'
 
@@ -27,19 +27,19 @@ const SharePoolEarningsButton: React.FC<Props> = ({
   return (
     <Flex
       sx={{
-        flex: '0 0 24px',
         alignItems: 'center',
-        justifyContent: 'center',
-        height: '24px',
-        borderRadius: '999px',
         cursor: 'pointer',
+        gap: '4px',
       }}
       role="button"
       onClick={() => {
         setOpen(true)
       }}
     >
-      <Share2 size="16px" />
+      <Share2 size="12px" />
+      <Text>
+        <Trans>Share</Trans>
+      </Text>
 
       <ShareModal
         title={t`My Pool Earnings`}

@@ -4,12 +4,11 @@ import { TransactionResponse } from '@ethersproject/providers'
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { NonfungiblePositionManager, Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
-import { rgba } from 'polished'
 import { useRef } from 'react'
 import { useDispatch } from 'react-redux'
 import { Flex, Text } from 'rebass'
 
-import { ButtonPrimary } from 'components/Button'
+import { ButtonOutlined } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -174,7 +173,6 @@ const CollectFeesPanel: React.FC<Props> = ({
     dispatch(setAttemptingTxn(true))
 
     if (!feeValue0 || !feeValue1 || !positionManager || !account || !library || !deadline) {
-      //|| !layout || !token
       dispatch(setAttemptingTxn(false))
       dispatch(setTxError('Something went wrong!'))
       return
@@ -254,20 +252,8 @@ const CollectFeesPanel: React.FC<Props> = ({
     }
   }
   return (
-    <Flex
-      sx={{
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        borderRadius: '20px',
-        background: hasNoFeeToCollect ? theme.background : rgba(theme.apr, 0.3),
-        padding: '16px',
-      }}
-    >
-      <Flex
-        sx={{
-          flexDirection: 'column',
-        }}
-      >
+    <Flex alignItems="center" justifyContent="space-between">
+      <Flex flexDirection="column" sx={{ gap: '4px' }}>
         <Text
           as="span"
           sx={{
@@ -317,7 +303,7 @@ const CollectFeesPanel: React.FC<Props> = ({
         />
       </Flex>
 
-      <ButtonPrimary
+      <ButtonOutlined
         disabled={hasNoFeeToCollect}
         style={{
           height: '36px',
@@ -328,7 +314,7 @@ const CollectFeesPanel: React.FC<Props> = ({
         onClick={handleClickCollectFees}
       >
         Collect Fees
-      </ButtonPrimary>
+      </ButtonOutlined>
     </Flex>
   )
 }
