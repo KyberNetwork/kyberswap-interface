@@ -84,7 +84,7 @@ const RightColumn = styled.div`
   background-color: ${({ theme }) => theme.background};
   flex: 1;
   border-radius: 0px 24px 24px 0px;
-
+  min-height: 200px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
     width: 100%;
     border-radius: 0px;
