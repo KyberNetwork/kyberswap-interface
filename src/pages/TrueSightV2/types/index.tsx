@@ -197,6 +197,8 @@ export type ParticipantInfo = {
   referralCode: string
   status: ParticipantStatus
   rankNo: number
+  updatedAt: number
+  createdAt: number
 }
 
 export enum KyberAIListType {
