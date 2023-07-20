@@ -12,8 +12,7 @@ import { useAppDispatch } from 'state/hooks'
 import { CacheProfile, ProfileMap, SignedAccountParams, profileActions } from 'state/profile/reducer'
 import getShortenAddress from 'utils/getShortenAddress'
 
-const { setImportToken, setKeepCurrentProfile, setLoginRedirectUrl, setProfileMap, updateSignedAccount } =
-  profileActions
+const { setImportToken, setKeepCurrentProfile, setProfileMap, updateSignedAccount } = profileActions
 
 export function useIsKeepCurrentProfile(): [boolean, () => void] {
   const dispatch = useAppDispatch()
@@ -24,20 +23,6 @@ export function useIsKeepCurrentProfile(): [boolean, () => void] {
   }, [dispatch, isKeepCurrentProfile])
 
   return [isKeepCurrentProfile, toggle]
-}
-
-export function useLoginRedirectUrl(): [string, (v: string) => void] {
-  const dispatch = useAppDispatch()
-  const loginRedirectUrl = useSelector((state: AppState) => state.profile.loginRedirectUrl)
-
-  const setValue = useCallback(
-    (v: string) => {
-      dispatch(setLoginRedirectUrl(v))
-    },
-    [dispatch],
-  )
-
-  return [loginRedirectUrl, setValue]
 }
 
 export function useImportToken() {
