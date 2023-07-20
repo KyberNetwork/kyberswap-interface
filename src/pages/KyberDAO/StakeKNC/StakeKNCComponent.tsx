@@ -205,6 +205,7 @@ export default function StakeKNCComponent() {
   const { account, chainId } = useActiveWeb3React()
   const kyberDAOInfo = useKyberDAOInfo()
   const { stakedBalance, KNCBalance, delegatedAddress } = useStakingInfo()
+  console.log('🚀 ~ file: StakeKNCComponent.tsx:208 ~ StakeKNCComponent ~ KNCBalance:', KNCBalance)
   const { calculateVotingPower } = useVotingInfo()
   const isDelegated = !!delegatedAddress && delegatedAddress !== account
   const { stake, unstake, delegate, undelegate } = useKyberDaoStakeActions()
@@ -236,8 +237,8 @@ export default function StakeKNCComponent() {
     if (!inputValue || isNaN(parseFloat(inputValue)) || parseFloat(inputValue) <= 0) {
       setErrorMessage(t`Invalid amount`)
     } else if (
-      (parseFloat(inputValue) > parseFloat(formatUnits(KNCBalance)) && activeTab === STAKE_TAB.Stake) ||
-      (parseFloat(inputValue) > parseFloat(formatUnits(stakedBalance)) && activeTab === STAKE_TAB.Unstake)
+      (parseUnits(inputValue, 18).gt(KNCBalance) && activeTab === STAKE_TAB.Stake) ||
+      (parseUnits(inputValue, 18).gt(stakedBalance) && activeTab === STAKE_TAB.Unstake)
     ) {
       setErrorMessage(t`Insufficient amount`)
     } else if (activeTab === STAKE_TAB.Delegate && !isAddress(chainId, delegateAddress)) {
