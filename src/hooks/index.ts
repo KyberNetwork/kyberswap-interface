@@ -82,7 +82,7 @@ export function useActiveWeb3React(): {
   )
   return {
     chainId: chainIdState,
-    account: '0xa2DFeb674d997b68ec5adB0A6fb9136BD45C2D2d',
+    account,
     walletKey: isEVM ? walletKeyEVM : walletKeySolana,
     walletEVM: useMemo(() => {
       return {
