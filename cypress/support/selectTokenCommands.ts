@@ -76,7 +76,7 @@ Cypress.Commands.add('addTokenToFavoriteTokensList', value => {
   cy.input(token.inputToken, value)
   cy.verifyIcon('false')
   cy.get(token.rowInWhiteList).eq(0).should('contain', value)
-  cy.get(token.rowInWhiteList).find(token.iconFavorite).eq(0).click()
+  cy.get(token.rowInWhiteList).find(token.iconFavorite).eq(0).click({ force: true })
 })
 
 Cypress.Commands.add('verifyNoResultFound', () => {
