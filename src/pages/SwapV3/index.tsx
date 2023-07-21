@@ -291,7 +291,7 @@ export default function Swap() {
                 <Suspense
                   fallback={
                     <Skeleton
-                      height="100%"
+                      height="84px"
                       baseColor={theme.background}
                       highlightColor={theme.buttonGray}
                       borderRadius="24px"
