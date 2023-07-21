@@ -266,11 +266,11 @@ export default function Menu() {
     mixpanelHandler(MIXPANEL_TYPE.MENU_PREFERENCE_CLICK, { menu: name })
   }
 
-  const wrapperNode = useRef<HTMLDivElement>(null)
+  const [wrapperNode, setWrapperNode] = useState<HTMLDivElement | null>(null)
   const [showScroll, setShowScroll] = useState<boolean>(false)
 
   useEffect(() => {
-    const wrapper = wrapperNode.current
+    const wrapper = wrapperNode
     if (wrapper) {
       const abortController = new AbortController()
       const onScroll = () => {
@@ -287,7 +287,7 @@ export default function Menu() {
       }
     }
     return
-  }, [])
+  }, [wrapperNode])
 
   return (
     <StyledMenu>
@@ -308,7 +308,7 @@ export default function Menu() {
             <LanguageSelector setIsSelectingLanguage={setIsSelectingLanguage} />
           </AutoColumn>
         ) : (
-          <ListWrapper ref={wrapperNode}>
+          <ListWrapper ref={wrapperNode => setWrapperNode(wrapperNode)}>
             <Title style={{ paddingTop: 0 }}>
               <Trans>Menu</Trans>
             </Title>
