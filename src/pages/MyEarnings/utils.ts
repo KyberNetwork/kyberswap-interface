@@ -627,6 +627,7 @@ export const calculateEarningBreakdowns = (
   }
 }
 
+// TODO(viet-nv): get from api, this should be removed
 export const calculateMyPoolAPR = (
   positionEarning: ElasticPositionEarningWithDetails,
   position: Position,
@@ -653,6 +654,7 @@ export const calculateMyPoolAPR = (
   return positionAPR
 }
 
+// TODO(viet-nv): get from api, this should be removed
 export const calculateMyFarmAPR = (
   positionEarning: ElasticPositionEarningWithDetails,
   position: Position,

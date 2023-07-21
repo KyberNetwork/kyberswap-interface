@@ -79,25 +79,8 @@ const ElasticPools = () => {
   const originalSearchText = useAppSelector(state => state.myEarnings.searchText)
   const searchText = useDebounce(originalSearchText, 300).toLowerCase().trim()
 
-  // const getEarningData = useGetEarningDataQuery({ account, chainIds: selectedChainIds })
-  const elasticEarningQueryResponse = useGetElasticEarningQuery(
-    {
-      account,
-      chainIds: selectedChainIds,
-    },
-    {
-      skip: !account,
-    },
-  )
-  const elasticLegacyEarningQueryResponse = useGetElasticLegacyEarningQuery(
-    {
-      account,
-      chainIds: selectedChainIds,
-    },
-    {
-      skip: !account,
-    },
-  )
+  const elasticEarningQueryResponse = useGetElasticEarningQuery({ account, chainIds: selectedChainIds })
+  const elasticLegacyEarningQueryResponse = useGetElasticLegacyEarningQuery({ account, chainIds: selectedChainIds })
 
   const earningResponse = useMemo(() => {
     let data = elasticEarningQueryResponse.data
