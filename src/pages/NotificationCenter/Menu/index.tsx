@@ -92,10 +92,10 @@ const menuItems: MenuItemType[] = [
         route: PROFILE_MANAGE_ROUTES.LIMIT_ORDERS,
         type: PrivateAnnouncementType.LIMIT_ORDER,
       },
-      {
-        route: PROFILE_MANAGE_ROUTES.BRIDGE,
-        type: PrivateAnnouncementType.BRIDGE_ASSET,
-      },
+      // {
+      //   route: PROFILE_MANAGE_ROUTES.BRIDGE,
+      //   type: PrivateAnnouncementType.BRIDGE_ASSET,
+      // },
       {
         route: PROFILE_MANAGE_ROUTES.CROSS_CHAIN,
         type: PrivateAnnouncementType.CROSS_CHAIN,
