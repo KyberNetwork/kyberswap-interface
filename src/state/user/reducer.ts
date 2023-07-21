@@ -93,9 +93,7 @@ interface UserState {
   }
 
   timestamp: number
-  showLiveCharts: {
-    [chainId: number]: boolean
-  }
+  showLiveChart: boolean
   showTradeRoutes: boolean
   showTokenInfo: boolean
   showKyberAIBanner: boolean
@@ -143,30 +141,6 @@ export const getFavoriteTokenDefault = (chainId: ChainId) => ({
   includeNativeToken: true,
 })
 
-export const defaultShowLiveCharts: { [chainId in ChainId]: boolean } = {
-  [ChainId.MAINNET]: true,
-  [ChainId.MATIC]: true,
-  [ChainId.BSCMAINNET]: true,
-  [ChainId.CRONOS]: true,
-  [ChainId.AVAXMAINNET]: true,
-  [ChainId.FANTOM]: true,
-  [ChainId.ARBITRUM]: true,
-  [ChainId.AURORA]: true,
-  [ChainId.BTTC]: false,
-  [ChainId.VELAS]: true,
-  [ChainId.OASIS]: true,
-  [ChainId.OPTIMISM]: true,
-  [ChainId.SOLANA]: true,
-  [ChainId.ZKSYNC]: true,
-
-  [ChainId.GÖRLI]: false,
-  [ChainId.MUMBAI]: false,
-  [ChainId.BSCTESTNET]: false,
-  [ChainId.AVAXTESTNET]: false,
-  [ChainId.LINEA_TESTNET]: false,
-  [ChainId.SOLANA_DEVNET]: false,
-}
-
 export const CROSS_CHAIN_SETTING_DEFAULT = {
   isSlippageControlPinned: true,
   slippageTolerance: INITIAL_ALLOWED_SLIPPAGE,
@@ -185,7 +159,7 @@ const initialState: UserState = {
   tokens: {},
   pairs: {},
   timestamp: currentTimestamp(),
-  showLiveCharts: { ...defaultShowLiveCharts },
+  showLiveChart: true,
   showTradeRoutes: true,
   showTokenInfo: true,
   showKyberAIBanner: true,
@@ -307,11 +281,8 @@ export default createReducer(initialState, builder =>
       }
       state.timestamp = currentTimestamp()
     })
-    .addCase(toggleLiveChart, (state, { payload: { chainId } }) => {
-      if (typeof state.showLiveCharts?.[chainId] !== 'boolean') {
-        state.showLiveCharts = { ...defaultShowLiveCharts }
-      }
-      state.showLiveCharts[chainId] = !state.showLiveCharts[chainId]
+    .addCase(toggleLiveChart, state => {
+      state.showLiveChart = !state.showLiveChart
     })
     .addCase(toggleTradeRoutes, state => {
       state.showTradeRoutes = !state.showTradeRoutes

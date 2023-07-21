@@ -6,6 +6,7 @@ import styled, { CSSProperties, css } from 'styled-components'
 import NotificationImage from 'assets/images/notification_default.png'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import CtaButton from 'components/Announcement/Popups/CtaButton'
+import { formatCtaName } from 'components/Announcement/Popups/DetailAnnouncementPopup'
 import { useNavigateToUrl } from 'components/Announcement/helper'
 import { Announcement } from 'components/Announcement/type'
 import { MEDIA_WIDTHS } from 'theme'
@@ -138,7 +139,8 @@ export default function AnnouncementItem({
   const [expand, setExpand] = useState(false)
   const { templateBody } = announcement
 
-  const { name, startAt, content, thumbnailImageURL, ctaURL, ctaName } = templateBody
+  const { name, startAt, content, thumbnailImageURL, ctaURL } = templateBody
+  const ctaName = formatCtaName(templateBody.ctaName, ctaURL)
   const navigate = useNavigateToUrl()
   const onClickCta: React.MouseEventHandler<HTMLButtonElement> = e => {
     e.stopPropagation()
