@@ -97,13 +97,19 @@ export default function AnnouncementItem({
       {expand && (
         <Detail>
           <Text>
-            <Trans>Current Market Price is {currentPrice} USDT per stMatic</Trans>
+            <Trans>
+              Current Market Price is {currentPrice} {token0Symbol} per {token1Symbol}
+            </Trans>
           </Text>
           <Text>
-            <Trans>Min Price of your range is {minPrice} USDT per stMatic</Trans>
+            <Trans>
+              Min Price of your range is {minPrice} {token0Symbol} per {token1Symbol}
+            </Trans>
           </Text>
           <Text>
-            <Trans>Max Price of your range is {maxPrice} USDT per stMatic</Trans>
+            <Trans>
+              Max Price of your range is {maxPrice} {token0Symbol} per {token1Symbol}
+            </Trans>
           </Text>
         </Detail>
       )}

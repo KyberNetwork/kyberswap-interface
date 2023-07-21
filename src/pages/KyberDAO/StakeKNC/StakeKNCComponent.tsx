@@ -1,4 +1,4 @@
-import { ChainId, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { lighten } from 'polished'
@@ -18,6 +18,7 @@ import WarningIcon from 'components/Icons/WarningIcon'
 import InfoHelper from 'components/InfoHelper'
 import Input from 'components/NumericalInput'
 import Row, { AutoRow, RowBetween, RowFit } from 'components/Row'
+import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useActiveWeb3React } from 'hooks'
@@ -204,6 +205,7 @@ export default function StakeKNCComponent() {
   const { account, chainId } = useActiveWeb3React()
   const kyberDAOInfo = useKyberDAOInfo()
   const { stakedBalance, KNCBalance, delegatedAddress } = useStakingInfo()
+  console.log('🚀 ~ file: StakeKNCComponent.tsx:208 ~ StakeKNCComponent ~ KNCBalance:', KNCBalance)
   const { calculateVotingPower } = useVotingInfo()
   const isDelegated = !!delegatedAddress && delegatedAddress !== account
   const { stake, unstake, delegate, undelegate } = useKyberDaoStakeActions()
@@ -235,8 +237,8 @@ export default function StakeKNCComponent() {
     if (!inputValue || isNaN(parseFloat(inputValue)) || parseFloat(inputValue) <= 0) {
       setErrorMessage(t`Invalid amount`)
     } else if (
-      (parseFloat(inputValue) > parseFloat(formatUnits(KNCBalance)) && activeTab === STAKE_TAB.Stake) ||
-      (parseFloat(inputValue) > parseFloat(formatUnits(stakedBalance)) && activeTab === STAKE_TAB.Unstake)
+      (parseUnits(inputValue, 18).gt(KNCBalance) && activeTab === STAKE_TAB.Stake) ||
+      (parseUnits(inputValue, 18).gt(stakedBalance) && activeTab === STAKE_TAB.Unstake)
     ) {
       setErrorMessage(t`Insufficient amount`)
     } else if (activeTab === STAKE_TAB.Delegate && !isAddress(chainId, delegateAddress)) {
@@ -265,18 +267,13 @@ export default function StakeKNCComponent() {
   const toggleYourTransactions = useToggleModal(ApplicationModal.YOUR_TRANSACTIONS_STAKE_KNC)
   const { switchToEthereum } = useSwitchToEthereum()
   const { mixpanelHandler } = useMixpanel()
+  const parsedAmount = useParsedAmount(
+    new Token(chainId === ChainId.GÖRLI ? ChainId.GÖRLI : ChainId.MAINNET, kyberDAOInfo?.KNCAddress || '', 18, 'KNC'),
+    inputValue,
+  )
+
   const [approvalKNC, approveCallback] = useApproveCallback(
-    activeTab === STAKE_TAB.Stake && inputValue
-      ? TokenAmount.fromRawAmount(
-          new Token(
-            chainId === ChainId.GÖRLI ? ChainId.GÖRLI : ChainId.MAINNET,
-            kyberDAOInfo?.KNCAddress || '',
-            18,
-            'KNC',
-          ),
-          parseUnits((+inputValue).toFixed(18).toString(), 18).toString(),
-        )
-      : undefined,
+    activeTab === STAKE_TAB.Stake && inputValue ? parsedAmount : undefined,
     kyberDAOInfo?.staking,
   )
 

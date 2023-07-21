@@ -225,10 +225,10 @@ export default function AnnouncementComponent() {
 
   useEffect(() => {
     if (userInfo?.identityId) {
+      setPrivateAnnouncements([])
       invalidateTag(ANNOUNCEMENT_TAGS)
-      refreshAnnouncement()
     }
-  }, [userInfo?.identityId, invalidateTag, refreshAnnouncement])
+  }, [userInfo?.identityId, invalidateTag])
 
   useInterval(prefetchPrivateAnnouncements, 10_000)
 

@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import {
   Award,
@@ -266,28 +266,27 @@ export default function Menu() {
     mixpanelHandler(MIXPANEL_TYPE.MENU_PREFERENCE_CLICK, { menu: name })
   }
 
-  const wrapperNode = useRef<HTMLDivElement>(null)
+  const [wrapperNode, setWrapperNode] = useState<HTMLDivElement | null>(null)
   const [showScroll, setShowScroll] = useState<boolean>(false)
 
   useEffect(() => {
-    const wrapper = wrapperNode.current
-    if (wrapper) {
+    if (wrapperNode) {
       const abortController = new AbortController()
       const onScroll = () => {
         if (abortController.signal.aborted) return
-        setShowScroll(Math.abs(wrapper.offsetHeight + wrapper.scrollTop - wrapper.scrollHeight) > 10) //no need to show scroll down when scrolled to last 10px
+        setShowScroll(Math.abs(wrapperNode.offsetHeight + wrapperNode.scrollTop - wrapperNode.scrollHeight) > 10) //no need to show scroll down when scrolled to last 10px
       }
       onScroll()
-      wrapper.addEventListener('scroll', onScroll)
+      wrapperNode.addEventListener('scroll', onScroll)
       window.addEventListener('resize', onScroll)
       return () => {
         abortController.abort()
-        wrapper.removeEventListener('scroll', onScroll)
+        wrapperNode.removeEventListener('scroll', onScroll)
         window.removeEventListener('resize', onScroll)
       }
     }
     return
-  }, [])
+  }, [wrapperNode])
 
   return (
     <StyledMenu>
@@ -308,7 +307,7 @@ export default function Menu() {
             <LanguageSelector setIsSelectingLanguage={setIsSelectingLanguage} />
           </AutoColumn>
         ) : (
-          <ListWrapper ref={wrapperNode}>
+          <ListWrapper ref={wrapperNode => setWrapperNode(wrapperNode)}>
             <Title style={{ paddingTop: 0 }}>
               <Trans>Menu</Trans>
             </Title>
