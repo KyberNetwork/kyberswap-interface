@@ -247,7 +247,7 @@ export default function Swap() {
             )}
 
             <AppBodyWrapped data-highlight={shouldHighlightSwapBox} id={TutorialIds.SWAP_FORM}>
-              {activeTab === TAB.SWAP && (
+              {isSwapPage && (
                 <PopulatedSwapForm
                   onSelectSuggestedPair={onSelectSuggestedPair}
                   routeSummary={routeSummary}

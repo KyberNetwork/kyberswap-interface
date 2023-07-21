@@ -39,7 +39,7 @@ export const addSerializedPair = createAction<{ serializedPair: SerializedPair }
 export const removeSerializedPair = createAction<{ chainId: number; tokenAAddress: string; tokenBAddress: string }>(
   'user/removeSerializedPair',
 )
-export const toggleLiveChart = createAction<{ chainId: number }>('user/toggleLiveChart')
+export const toggleLiveChart = createAction('user/toggleLiveChart')
 
 export const toggleTradeRoutes = createAction<void>('user/toggleTradeRoutes')
 export const toggleTokenInfo = createAction<void>('user/toggleTokenInfo')
