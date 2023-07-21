@@ -48,13 +48,7 @@ import {
   updateUserSlippageTolerance,
   updateUserSlippageToleranceForLineaTestnet,
 } from 'state/user/actions'
-import {
-  CROSS_CHAIN_SETTING_DEFAULT,
-  CrossChainSetting,
-  VIEW_MODE,
-  defaultShowLiveCharts,
-  getFavoriteTokenDefault,
-} from 'state/user/reducer'
+import { CROSS_CHAIN_SETTING_DEFAULT, CrossChainSetting, VIEW_MODE, getFavoriteTokenDefault } from 'state/user/reducer'
 import { isAddress, isChristmasTime } from 'utils'
 
 function serializeToken(token: Token | WrappedTokenInfo): SerializedToken {
@@ -348,9 +342,8 @@ export function useLiquidityPositionTokenPairs(): [Token, Token][] {
 }
 
 export function useShowLiveChart(): boolean {
-  const { chainId } = useActiveWeb3React()
   const showLiveChart = useSelector((state: AppState) => state.user.showLiveChart)
-  return typeof showLiveChart !== 'boolean' ? defaultShowLiveCharts[chainId] : showLiveChart
+  return typeof showLiveChart !== 'boolean' || showLiveChart
 }
 
 export function useShowTradeRoutes(): boolean {
