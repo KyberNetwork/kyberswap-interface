@@ -2,7 +2,8 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useMemo } from 'react'
 import { Info } from 'react-feather'
-import { Box, Flex, Text } from 'rebass'
+import { useMedia } from 'react-use'
+import { Flex, Text } from 'rebass'
 import { useGetElasticEarningQuery, useGetElasticLegacyEarningQuery } from 'services/earning'
 import { ElasticPoolEarningWithDetails, ElasticPositionEarningWithDetails } from 'services/earning/types'
 import styled from 'styled-components'
@@ -18,6 +19,8 @@ import SinglePool from 'pages/MyEarnings/ElasticPools/SinglePool'
 import { chainIdByRoute } from 'pages/MyEarnings/utils'
 import { useAppSelector } from 'state/hooks'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
+
+import { WIDTHS } from '../constants'
 
 const Header = styled.div`
   background: ${({ theme }) => theme.tableHeader};
@@ -66,6 +69,8 @@ interface PoolType {
 
 const ElasticPools = () => {
   const { account = '' } = useActiveWeb3React()
+  const tabletView = useMedia(`(max-width: ${WIDTHS[3]}px)`)
+  const mobileView = useMedia(`(max-width: ${WIDTHS[2]}px)`)
 
   const theme = useTheme()
   const selectedChainIds = useAppSelector(state => state.myEarnings.selectedChains)
@@ -187,34 +192,43 @@ const ElasticPools = () => {
   }, {} as { [id: string]: Array<PoolType> })
 
   return (
-    <Box sx={{ border: `1px solid ${theme.border}`, borderRadius: '1rem' }}>
-      <Header>
-        <Text>
-          <Trans>Token Pair | Fee</Trans>
-        </Text>
-        <Text>TVL</Text>
-        <Text>APR</Text>
-        <Text>
-          <Trans>Volume (24h)</Trans>
-        </Text>
-        <Text>
-          <Trans>Fees (24h)</Trans>
-        </Text>
-        <Text>
-          <Trans>My Liquidity</Trans>
-        </Text>
-        <Text>
-          <Trans>My Earnings</Trans>
-        </Text>
-        <Text textAlign="right">
-          <Trans>Actions</Trans>
-        </Text>
-      </Header>
+    <Flex
+      flexDirection="column"
+      sx={{
+        border: tabletView ? undefined : `1px solid ${theme.border}`,
+        borderRadius: '1rem',
+        gap: tabletView && !mobileView ? '1rem' : undefined,
+      }}
+    >
+      {!tabletView && (
+        <Header>
+          <Text>
+            <Trans>Token Pair | Fee</Trans>
+          </Text>
+          <Text>TVL</Text>
+          <Text>APR</Text>
+          <Text>
+            <Trans>Volume (24h)</Trans>
+          </Text>
+          <Text>
+            <Trans>Fees (24h)</Trans>
+          </Text>
+          <Text>
+            <Trans>My Liquidity</Trans>
+          </Text>
+          <Text>
+            <Trans>My Earnings</Trans>
+          </Text>
+          <Text textAlign="right">
+            <Trans>Actions</Trans>
+          </Text>
+        </Header>
+      )}
 
       {Object.keys(poolsByChainId).map(chain => (
         <PoolsByChainId pools={poolsByChainId[chain]} key={chain} chainId={Number(chain) as ChainId} />
       ))}
-    </Box>
+    </Flex>
   )
 }
 

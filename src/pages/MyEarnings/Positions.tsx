@@ -4,6 +4,7 @@ import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useMemo, useState } from 'react'
 import { Eye, Info } from 'react-feather'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { ElasticPoolEarningWithDetails, ElasticPositionEarningWithDetails } from 'services/earning/types'
 import styled from 'styled-components'
@@ -131,20 +132,26 @@ const Positions: React.FC<Props> = ({
 
   const theme = useTheme()
   const [showEarningChart] = useShowMyEarningChart()
+  const mobileView = useMedia(`(max-width: ${WIDTHS[2]}px)`)
 
   return (
     <Flex
       flexDirection="column"
-      backgroundColor={theme.background}
-      padding="1rem"
-      margin="0 0.75rem 0.75rem"
+      backgroundColor={mobileView ? 'transparent' : theme.background}
+      padding={mobileView ? '1rem 0' : '1rem'}
+      margin={mobileView ? 0 : '0 0.75rem 0.75rem'}
       sx={{ borderRadius: '1rem', gap: '1rem' }}
     >
       <Text fontSize={16} fontWeight="500">
         <Trans>My Liquidity Positions</Trans>
       </Text>
 
-      <Flex justifyContent="space-between" alignItems="center">
+      <Flex
+        justifyContent="space-between"
+        alignItems="center"
+        flexDirection={mobileView ? 'column' : 'row'}
+        sx={{ gap: '0.75rem' }}
+      >
         <ViewEarningOrPositionButton isViewEarnings={isViewEarnings} setViewEarnings={setViewEarnings} />
         <PositionStats
           numOfActivePositions={numOfActivePositions}

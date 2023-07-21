@@ -1,7 +1,6 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { useEffect, useMemo, useState } from 'react'
-import { Flex } from 'rebass'
 import { ElasticPositionEarningWithDetails } from 'services/earning/types'
 import styled from 'styled-components'
 
@@ -12,18 +11,39 @@ import { calculateMyFarmAPR, calculateMyPoolAPR } from 'pages/MyEarnings/utils'
 import { useElasticFarms } from 'state/farms/elastic/hooks'
 import { formattedNum } from 'utils'
 
-const FlipCard = styled.div<{ flip: boolean; joined?: boolean }>`
+const FlipCard = styled.div`
   overflow: hidden;
-
   border-radius: 20px;
   width: 100%;
   max-width: 360px;
   height: 582px;
-  background-color: ${({ theme }) => theme.buttonBlack};
+  perspective: 1000px;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    max-width: 100%;
+  `};
+`
+
+const FlipCardInner = styled.div<{ flip: boolean }>`
   position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
   transition: transform 0.6s;
   transform-style: preserve-3d;
   transform: rotateY(${({ flip }) => (flip ? '-180deg' : '0')});
+`
+
+const FlipCardFront = styled.div`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+`
+
+const FlipCardBack = styled(FlipCardFront)`
+  transform: rotateY(-180deg);
 `
 
 const defaultPendingFee = ['0', '0'] as [string, string]
@@ -133,20 +153,15 @@ const SinglePosition: React.FC<Props> = ({
   }
 
   return (
-    <FlipCard flip={isViewEarnings}>
-      {isViewEarnings && (
-        <Flex
-          sx={{
-            width: '100%',
-            height: '100%',
-            transform: 'scale(-1, 1)',
-          }}
-        >
+    <FlipCard>
+      <FlipCardInner flip={!isViewEarnings}>
+        <FlipCardFront>
           <EarningView {...props} />
-        </Flex>
-      )}
-
-      {!isViewEarnings && <PositionView {...props} />}
+        </FlipCardFront>
+        <FlipCardBack>
+          <PositionView {...props} />
+        </FlipCardBack>
+      </FlipCardInner>
     </FlipCard>
   )
 }

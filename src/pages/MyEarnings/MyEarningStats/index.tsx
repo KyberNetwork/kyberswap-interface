@@ -59,7 +59,7 @@ const ChainSelectAndEarningsWrapper = styled.div`
   justify-content: space-between;
   gap: 16px;
 
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
     flex-direction: column;
     align-items: initial;
     justify-content: initial;

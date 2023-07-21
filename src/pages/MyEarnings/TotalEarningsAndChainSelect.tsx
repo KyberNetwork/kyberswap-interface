@@ -131,7 +131,7 @@ const TotalEarningsAndChainSelect: React.FC<Props> = ({ totalEarningToday, total
     <Flex
       sx={{
         alignItems: 'center',
-        gap: '12px',
+        gap: '0.5rem',
         flexWrap: 'wrap',
         maxWidth: '100%',
       }}
