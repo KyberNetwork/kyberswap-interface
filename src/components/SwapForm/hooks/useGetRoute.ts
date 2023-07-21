@@ -79,7 +79,7 @@ const getFeeConfigParams = (
 }
 
 // default use aggregator, utils the first time sign-in successfully (guest/sign in eth) => use meta
-export const useGetRouteApiDomain = () => {
+export const useRouteApiDomain = () => {
   const { aggregatorDomain } = useKyberswapGlobalConfig()
   const { authenticationSuccess } = useSessionInfo()
   return authenticationSuccess ? aggregatorDomain : AGGREGATOR_API
@@ -92,7 +92,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
   const chainId = customChain || currentChain
 
   const [trigger, _result] = routeApi.useLazyGetRouteQuery()
-  const aggregatorDomain = useGetRouteApiDomain()
+  const aggregatorDomain = useRouteApiDomain()
 
   const getSwapFeeConfig = useGetSwapFeeConfig()
 
