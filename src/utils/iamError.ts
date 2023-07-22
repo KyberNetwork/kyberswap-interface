@@ -13,6 +13,8 @@ const ErrorInfo = {
   sentAlertRouteApi: false,
 }
 
+const apiDowns: string[] = []
+
 const isIamApiDown = () => ErrorInfo.iamApoError >= ErrorInfo.errorThreshold
 const isRouteApiDown = () => ErrorInfo.routeApiError >= ErrorInfo.errorThreshold
 
@@ -41,6 +43,9 @@ export const checkIamDown = (axiosErr: AxiosError) => {
       (statusCode === 404 && response === '404 page not found') || // wrong path
       (statusCode && statusCode >= 500 && statusCode <= 599)) // server down
 
+  const apiUrl = axiosErr?.config?.url ?? ''
+  if (isDie) apiDowns.push(apiUrl)
+
   const trackData = {
     config: {
       data: axiosErr?.config?.data,
@@ -55,8 +60,8 @@ export const checkIamDown = (axiosErr: AxiosError) => {
     tokenInfoSignIn: localStorage.o2_sign_in,
     tokenInfoGuest: localStorage.o2_guest,
     profileInfo: localStorage.redux_localstorage_simple_profile,
+    apiDowns,
   }
-  const apiUrl = axiosErr?.config?.url ?? ''
 
   const isRouteApiDie =
     isDie && (apiUrl.endsWith(AGGREGATOR_API_PATHS.GET_ROUTE) || apiUrl.endsWith(AGGREGATOR_API_PATHS.BUILD_ROUTE))
