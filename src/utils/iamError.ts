@@ -28,6 +28,16 @@ const sendError = (name: string, apiUrl: string, trackData: any) => {
 // hot fix to prevent spam for now.
 const blacklistPathBff = ['/v1/notification/me', '/v1/tokens/score']
 
+let isOnline = true
+function onConnect() {
+  isOnline = true
+}
+function onDisconnect() {
+  isOnline = false
+}
+window.addEventListener('online', onConnect, false)
+window.addEventListener('offline', onDisconnect, false)
+
 /**
  * check error status: blocked, maybe cors issues or  server down
  * only check bff api + 2 route apis
@@ -37,7 +47,7 @@ export const checkIamDown = (axiosErr: AxiosError) => {
   const response = axiosErr?.response?.data
 
   const isDie =
-    navigator.onLine && // not track when internet issue
+    isOnline && // not track when internet issue
     statusCode !== 401 && // not track when token expired
     (!response || // block cors
       (statusCode === 404 && response === '404 page not found') || // wrong path
