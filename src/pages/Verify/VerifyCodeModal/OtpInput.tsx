@@ -160,29 +160,27 @@ const OTPInput = ({
     onChange(otpValue)
   }
 
-  const onPaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
+  const onPaste = (event: React.ClipboardEvent<HTMLInputElement>, index: number) => {
     event.preventDefault()
 
     const otp = getOTPValue()
-    let nextActiveInput = activeInput
+    let nextActiveInput = index
 
-    // Get pastedData in an array of max size (num of inputs - current position)
-    const pastedData = event.clipboardData
-      .getData('text/plain')
-      .slice(0, numInputs - activeInput)
-      .split('')
+    const pastedData = event.clipboardData.getData('text/plain').split('').slice(0, numInputs)
 
     // Prevent pasting if the clipboard data contains non-numeric values for number inputs
     if (isInputNum && pastedData.some(value => isNaN(Number(value)))) {
       return
     }
 
+    let count = 0
     // Paste data from focused input onwards
     for (let pos = 0; pos < numInputs; ++pos) {
-      if (pos >= activeInput && pastedData.length > 0) {
-        otp[pos] = pastedData.shift() ?? ''
-        nextActiveInput++
+      if (pos >= index) {
+        otp[pos] = pastedData[count++] ?? ''
+        otp[pos] && nextActiveInput++
       }
+      otp[pos] ||= ''
     }
 
     focusInput(nextActiveInput)
@@ -201,7 +199,7 @@ const OTPInput = ({
               onFocus: () => handleFocus()(index),
               onBlur: handleBlur,
               onKeyDown,
-              onPaste,
+              onPaste: e => onPaste(e, index),
               autoComplete: 'off',
               maxLength: 1,
               'aria-label': `Please enter OTP character ${index + 1}`,
