@@ -8,7 +8,6 @@ import styled from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
 import PositionId from 'pages/MyEarnings/ElasticPools/SinglePosition/PositionId'
-import { NFTPosition } from 'state/farms/elastic/types'
 
 export const ViewWrapper = styled.div<{ viewEarning: boolean }>`
   display: flex;
@@ -32,12 +31,8 @@ export type CommonProps = {
   chainId: ChainId
   pendingFee: [string, string]
   tokenPrices: { [id: string]: number }
-  myPoolAPR: string
-  myFarmAPR: string
-  farmAddress: string
   currency0: Currency
   currency1: Currency
-  nft: NFTPosition | undefined
 }
 
 type Props = {

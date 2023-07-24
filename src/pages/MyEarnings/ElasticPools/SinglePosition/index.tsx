@@ -7,9 +7,6 @@ import styled from 'styled-components'
 import { CommonProps } from 'pages/MyEarnings/ElasticPools/SinglePosition/CommonView'
 import EarningView from 'pages/MyEarnings/ElasticPools/SinglePosition/EarningView'
 import PositionView from 'pages/MyEarnings/ElasticPools/SinglePosition/PositionView'
-import { calculateMyFarmAPR, calculateMyPoolAPR } from 'pages/MyEarnings/utils'
-import { useElasticFarms } from 'state/farms/elastic/hooks'
-import { formattedNum } from 'utils'
 
 const FlipCard = styled.div`
   overflow: hidden;
@@ -83,47 +80,7 @@ const SinglePosition: React.FC<Props> = ({
     return undefined
   }, [pool, positionEarning.liquidity, positionEarning.tickLower, positionEarning.tickUpper])
 
-  const { userFarmInfo = {} } = useElasticFarms(chainId)
-
-  const myPoolAPR = useMemo(() => {
-    if (!position || !currency0 || !currency1) {
-      return undefined
-    }
-
-    return calculateMyPoolAPR(positionEarning, position, tokenPrices, currency0, currency1, pendingFee)
-  }, [pendingFee, position, positionEarning, tokenPrices, currency0, currency1])
-
-  const farmAddress = useMemo(() => {
-    let farmAddress = ''
-    Object.entries(userFarmInfo).forEach(([address, info]) => {
-      Object.keys(info.rewardByNft).forEach(key => {
-        if (key.split('_')[1] === positionEarning.id) {
-          farmAddress = address
-        }
-      })
-    })
-
-    return farmAddress
-  }, [positionEarning.id, userFarmInfo])
-
-  const myFarmAPR = useMemo(() => {
-    if (!position || !currency0 || !currency1) {
-      return undefined
-    }
-
-    return calculateMyFarmAPR(positionEarning, position, tokenPrices, currency0, currency1, userFarmInfo)
-  }, [position, positionEarning, tokenPrices, userFarmInfo, currency0, currency1])
-
-  const nft = useMemo(() => {
-    return Object.values(userFarmInfo)
-      .map(info => Object.values(info.joinedPositions).flat())
-      .flat()
-      .find(item => item.nftId.toString() === positionEarning.id)
-  }, [positionEarning.id, userFarmInfo])
-
-  const toggleFlipped = () => {
-    setViewEarnings(v => !v)
-  }
+  const onFlipView = () => setViewEarnings(v => !v)
 
   useEffect(() => {
     if (isInitiallyViewEarnings) {
@@ -140,16 +97,12 @@ const SinglePosition: React.FC<Props> = ({
   const props: CommonProps = {
     chainId: chainId,
     positionEarning: positionEarning,
-    onFlipView: toggleFlipped,
+    onFlipView,
     position,
     pendingFee,
     tokenPrices,
-    myPoolAPR: myPoolAPR ? `${formattedNum(myPoolAPR, false, 2)}%` : '--',
-    myFarmAPR: myFarmAPR ? `${formattedNum(myFarmAPR, false, 2)}%` : '--',
-    farmAddress,
     currency0,
     currency1,
-    nft,
   }
 
   return (

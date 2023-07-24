@@ -10,7 +10,6 @@ import Placeholder from 'pages/MyEarnings/Placeholder'
 import Pools from 'pages/MyEarnings/Pools'
 import TransactionConfirmationModal from 'pages/MyEarnings/TransactionConfirmationModal'
 import { WIDTHS } from 'pages/MyEarnings/constants'
-import FarmUpdater from 'state/farms/elastic/updaters'
 
 const PageWrapper = styled.div`
   flex: 1;
@@ -108,7 +107,6 @@ const MyEarnings = () => {
           <Placeholder />
         )}
       </Flex>
-      <FarmUpdater interval={false} />
 
       <TransactionConfirmationModal />
     </PageWrapper>

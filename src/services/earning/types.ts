@@ -64,6 +64,22 @@ export type ElasticPositionEarningWithDetails = {
   feeGrowthInsideLast: string
   lastCollectedFeeAt: string
   lastHarvestedFarmRewardAt: string
+  pendingFee0: string
+  pendingFee1: string
+  pendingFeeUSD: string
+  pendingRewardUSD: string
+  myPoolApr?: string
+  myFarmApr?: string
+  joinedPositions?: {
+    farmId: string
+    farmingPool: {
+      rewardTokensIds: string[]
+    }
+    pendingRewards: string[]
+    pid: string
+    pendingRewardUSD: string[]
+    liquidity: string
+  }[]
 } & HistoricalEarning
 
 export type ClassicPositionEarningWithDetails = {

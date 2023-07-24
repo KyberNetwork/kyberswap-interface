@@ -222,6 +222,7 @@ const PoolsByChainId = ({ pools, chainId }: { chainId: ChainId; pools: PoolType[
     .flat()
 
   const pendingFees = usePositionsFees(allPositions, isLegacy, chainId)
+
   const tokens = useMemo(() => {
     return [...new Set(pools.map(p => p.positionEarnings.map(pe => [pe.token0, pe.token1]).flat()).flat())]
   }, [pools])

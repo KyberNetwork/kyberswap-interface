@@ -6,5 +6,6 @@ export const WIDTHS: Record<number /* X: number of positions */, number /* min w
 
 export const MODAL_PENDING_TEXTS = {
   COLLECT_FEES: 'Collecting fee rewards',
+  HARVEST: 'Harvesting farm rewards',
   REMOVE_LIQUIDITY: 'Removing liquidity',
 }

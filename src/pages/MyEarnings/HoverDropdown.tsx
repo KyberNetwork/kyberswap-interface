@@ -6,11 +6,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 
 const DropdownIcon = styled(DropdownSVG)`
   transition: transform 300ms;
-  color: ${({ theme }) => theme.subText};
-
-  &[data-disabled='false'] {
-    color: ${({ theme }) => theme.text};
-  }
+  color: ${({ theme }) => theme.text};
 `
 
 const Wrapper = styled(Flex)`
@@ -33,7 +29,7 @@ const HoverDropdown: React.FC<Props> = ({ anchor, text, disabled = false }) => {
     <MouseoverTooltip placement="bottom" width="fit-content" text={text} disableTooltip={disabled}>
       <Wrapper>
         {anchor}
-        <DropdownIcon data-disabled={disabled} />
+        {!disabled && <DropdownIcon />}
       </Wrapper>
     </MouseoverTooltip>
   )

@@ -4,6 +4,7 @@ import { TransactionResponse } from '@ethersproject/providers'
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { NonfungiblePositionManager, Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
+import { Interface } from 'ethers/lib/utils'
 import { useRef } from 'react'
 import { useDispatch } from 'react-redux'
 import { Flex, Text } from 'rebass'
@@ -11,8 +12,9 @@ import { Flex, Text } from 'rebass'
 import { ButtonOutlined } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { MouseoverTooltip } from 'components/Tooltip'
+import PROMM_FARM_ABI from 'constants/abis/v2/farm.json'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useProAmmNFTPositionManagerContract, useProMMFarmContract } from 'hooks/useContract'
+import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import { config } from 'hooks/useElasticLegacy'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
@@ -39,6 +41,9 @@ type Props = {
   position: Position
   isLegacy: boolean
 }
+
+const FarmInterface = new Interface(PROMM_FARM_ABI)
+
 const CollectFeesPanel: React.FC<Props> = ({
   nftId,
   chainId,
@@ -66,7 +71,7 @@ const CollectFeesPanel: React.FC<Props> = ({
   libraryRef.current = library
 
   const liquidity = position.liquidity.toString()
-  const farmContract = useProMMFarmContract(farmAddress || '')
+
   const addTransactionWithType = useTransactionAdder()
 
   const handleBroadcastClaimSuccess = (response: TransactionResponse) => {
@@ -113,7 +118,6 @@ const CollectFeesPanel: React.FC<Props> = ({
           .sendTransaction(newTxn)
           .then((response: TransactionResponse) => {
             handleBroadcastClaimSuccess(response)
-
             dispatch(setAttemptingTxn(false))
             dispatch(setTxnHash(response.hash))
           })
@@ -127,7 +131,7 @@ const CollectFeesPanel: React.FC<Props> = ({
   }
 
   const collectFeeFromFarmContract = async () => {
-    if (!farmContract || !feeValue0 || !feeValue1) {
+    if (!farmAddress || !feeValue0 || !feeValue1) {
       dispatch(setAttemptingTxn(false))
       dispatch(setTxError('Something went wrong!'))
       return
@@ -136,31 +140,19 @@ const CollectFeesPanel: React.FC<Props> = ({
     const amount0Min = feeValue0.subtract(feeValue0.multiply(basisPointsToPercent(allowedSlippage)))
     const amount1Min = feeValue1.subtract(feeValue1.multiply(basisPointsToPercent(allowedSlippage)))
     try {
-      const gasEstimation = await farmContract.estimateGas.claimFee(
+      const encoded = FarmInterface.encodeFunctionData('claimFee', [
         [nftId],
         amount0Min.quotient.toString(),
         amount1Min.quotient.toString(),
         poolAddress,
         true,
         deadline?.toString(),
-      )
+      ])
 
-      const txResponse = await farmContract.claimFee(
-        [nftId],
-        amount0Min.quotient.toString(),
-        amount1Min.quotient.toString(),
-        poolAddress,
-        true,
-        deadline?.toString(),
-        {
-          gasLimit: calculateGasMargin(gasEstimation),
-        },
-      )
-
-      handleBroadcastClaimSuccess(txResponse)
-
-      dispatch(setAttemptingTxn(false))
-      dispatch(setTxnHash(txResponse.hash))
+      sendTransaction({
+        to: farmAddress,
+        data: encoded,
+      })
     } catch (e) {
       dispatch(setShowPendingModal(MODAL_PENDING_TEXTS.COLLECT_FEES))
       dispatch(setAttemptingTxn(false))
@@ -313,7 +305,7 @@ const CollectFeesPanel: React.FC<Props> = ({
         }}
         onClick={handleClickCollectFees}
       >
-        Collect Fees
+        <Trans>Collect Fees</Trans>
       </ButtonOutlined>
     </Flex>
   )
