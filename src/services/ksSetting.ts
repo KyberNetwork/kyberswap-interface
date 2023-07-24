@@ -2,9 +2,9 @@ import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { Connection } from '@solana/web3.js'
-import { ethers } from 'ethers'
 
 import { KS_SETTING_API } from 'constants/env'
+import { AppJsonRpcProvider } from 'constants/providers'
 import { TokenInfo } from 'state/lists/wrappedTokenInfo'
 
 export type KyberSwapConfig = {
@@ -14,7 +14,7 @@ export type KyberSwapConfig = {
   blockClient: ApolloClient<NormalizedCacheObject>
   classicClient: ApolloClient<NormalizedCacheObject>
   elasticClient: ApolloClient<NormalizedCacheObject>
-  readProvider: ethers.providers.JsonRpcProvider | undefined
+  readProvider: AppJsonRpcProvider | undefined
   connection: Connection | undefined
   commonTokens?: string[]
 }
