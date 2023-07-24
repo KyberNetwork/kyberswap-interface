@@ -46,17 +46,17 @@ const KyberAITokenBanner = ({
 
   const { data: tokenInputOverview } = useTokenDetailQuery(
     { address: token0?.address, chain },
-    { skip: !token0?.address || !account || !isWhiteList, refetchOnMountOrArgChange: true },
+    { skip: !token0?.address || !account || !isWhiteList || !chain, refetchOnMountOrArgChange: true },
   )
 
   const { data: tokenOutputOverview } = useTokenDetailQuery(
     { address: token1?.address, chain },
-    { skip: !token1?.address || !account || !isWhiteList, refetchOnMountOrArgChange: true },
+    { skip: !token1?.address || !account || !isWhiteList || !chain, refetchOnMountOrArgChange: true },
   )
 
   const { data: tokenNativeOverview } = useTokenDetailQuery(
     { address: NativeCurrencies[chainId].wrapped.address, chain },
-    { skip: !account || !isWhiteList, refetchOnMountOrArgChange: true },
+    { skip: !account || !isWhiteList || !chain, refetchOnMountOrArgChange: true },
   )
 
   const token: { kyberScore?: number; label?: string; address?: string; logo?: string; symbol?: string } | undefined =

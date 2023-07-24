@@ -151,19 +151,13 @@ export default function FeedbackSurvey() {
         }}
       >
         <RowFit gap="4px">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <g clipPath="url(#clip0_7500_352677)">
-              <path
-                d="M4.66675 2.66669L4.66675 9.33335L6.00008 9.33335L6.00008 2.66669L14.0001 2.66669L14.0001 13.3334L6.00008 13.3334L6.00008 12L8.66675 12L8.66675 10.6667L3.33341 10.6667L3.33341 6.66669L0.666748 6.66669L0.666748 12L4.66675 12L4.66675 13.3334C4.66675 14.0667 5.26675 14.6667 6.00008 14.6667L14.0001 14.6667C14.7334 14.6667 15.3334 14.0667 15.3334 13.3334L15.3334 2.66669C15.3334 1.93335 14.7334 1.33335 14.0001 1.33335L6.00008 1.33335C5.26675 1.33335 4.66675 1.93335 4.66675 2.66669Z"
-                fill="#31CB9E"
-              />
-            </g>
-            <defs>
-              <clipPath id="clip0_7500_352677">
-                <rect width="16" height="16" fill="white" transform="translate(0 16) rotate(-90)" />
-              </clipPath>
-            </defs>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M20 7H10V9H20V21H4V9H6V13H8V5H14V1H6V7H4C2.9 7 2 7.9 2 9V21C2 22.1 2.9 23 4 23H20C21.1 23 22 22.1 22 21V9C22 7.9 21.1 7 20 7Z"
+              fill="currentcolor"
+            />
           </svg>
+
           <Text fontSize="12px" lineHeight="16px">
             <Trans>Feedback</Trans>
           </Text>
