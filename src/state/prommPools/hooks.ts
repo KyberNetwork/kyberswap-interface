@@ -239,20 +239,26 @@ export const usePoolBlocks = () => {
   const utcCurrentTime = dayjs()
   const last24h = utcCurrentTime.subtract(1, 'day').startOf('minute').unix()
 
-  const [blocks, setBlocks] = useState<{ number: number }[]>([])
+  const [block, setBlock] = useState<number | undefined>(undefined)
 
   useEffect(() => {
+    const controller = new AbortController()
     const getBlocks = async () => {
-      const blocks = await getBlocksFromTimestamps(isEnableBlockService, blockClient, [last24h], chainId)
-      setBlocks(blocks)
+      const [block] = await getBlocksFromTimestamps(
+        isEnableBlockService,
+        blockClient,
+        [last24h],
+        chainId,
+        controller.signal,
+      )
+      setBlock(block?.number)
     }
 
     getBlocks()
+    return () => controller.abort()
   }, [chainId, last24h, blockClient, isEnableBlockService])
 
-  const [blockLast24h] = blocks ?? []
-
-  return { blockLast24h: blockLast24h?.number }
+  return { blockLast24h: block }
 }
 
 export function useSelectedPool() {

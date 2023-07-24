@@ -26,7 +26,7 @@ import { useActiveWeb3React } from 'hooks/index'
 import { useAppSelector } from 'state/hooks'
 import { AppDispatch, AppState } from 'state/index'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
-import { getBlockFromTimestamp, getPercentChange } from 'utils'
+import { getBlocksFromTimestamps, getPercentChange } from 'utils'
 import { createClient } from 'utils/client'
 
 import {
@@ -228,9 +228,11 @@ export function useActivePopups() {
  * Gets the current price  of ETH, 24 hour price, and % change between them
  */
 export const getEthPrice = async (
+  isEnableBlockService: boolean,
   chainId: ChainId,
   apolloClient: ApolloClient<NormalizedCacheObject>,
   blockClient: ApolloClient<NormalizedCacheObject>,
+  signal: AbortSignal,
 ) => {
   const utcCurrentTime = dayjs()
   const utcOneDayBack = utcCurrentTime.subtract(1, 'day').startOf('minute').unix()
@@ -240,7 +242,9 @@ export const getEthPrice = async (
   let priceChangeETH = 0
 
   try {
-    const oneDayBlock = await getBlockFromTimestamp(utcOneDayBack, chainId, blockClient)
+    const oneDayBlock = (
+      await getBlocksFromTimestamps(isEnableBlockService, blockClient, [utcOneDayBack], chainId, signal)
+    )?.[0]?.number
     const result = await apolloClient.query({
       query: ETH_PRICE(),
       fetchPolicy: 'network-only',
@@ -264,9 +268,11 @@ export const getEthPrice = async (
 }
 
 const getPrommEthPrice = async (
+  isEnableBlockService: boolean,
   chainId: ChainId,
   apolloClient: ApolloClient<NormalizedCacheObject>,
   blockClient: ApolloClient<NormalizedCacheObject>,
+  signal: AbortSignal,
 ) => {
   const utcCurrentTime = dayjs()
   const utcOneDayBack = utcCurrentTime.subtract(1, 'day').startOf('minute').unix()
@@ -276,7 +282,9 @@ const getPrommEthPrice = async (
   let priceChangeETH = 0
 
   try {
-    const oneDayBlock = await getBlockFromTimestamp(utcOneDayBack, chainId, blockClient)
+    const oneDayBlock = (
+      await getBlocksFromTimestamps(isEnableBlockService, blockClient, [utcOneDayBack], chainId, signal)
+    )?.[0]?.number
     const result = await apolloClient.query({
       query: PROMM_ETH_PRICE(),
       fetchPolicy: 'network-only',
@@ -303,13 +311,14 @@ let fetchingETHPrice = false
 export function useETHPrice(version: string = VERSION.CLASSIC): AppState['application']['ethPrice'] {
   const dispatch = useDispatch()
   const { isEVM, chainId } = useActiveWeb3React()
-  const { elasticClient, classicClient, blockClient } = useKyberSwapConfig()
+  const { elasticClient, classicClient, blockClient, isEnableBlockService } = useKyberSwapConfig()
 
   const ethPrice = useSelector((state: AppState) =>
     version === VERSION.ELASTIC ? state.application.prommEthPrice : state.application.ethPrice,
   )
 
   useEffect(() => {
+    const controller = new AbortController()
     if (!isEVM) return
 
     async function checkForEthPrice() {
@@ -317,8 +326,8 @@ export function useETHPrice(version: string = VERSION.CLASSIC): AppState['applic
       fetchingETHPrice = true
       try {
         const [newPrice, oneDayBackPrice, pricePercentChange] = await (version === VERSION.ELASTIC
-          ? getPrommEthPrice(chainId, elasticClient, blockClient)
-          : getEthPrice(chainId, classicClient, blockClient))
+          ? getPrommEthPrice(isEnableBlockService, chainId, elasticClient, blockClient, controller.signal)
+          : getEthPrice(isEnableBlockService, chainId, classicClient, blockClient, controller.signal))
 
         dispatch(
           version === VERSION.ELASTIC
@@ -338,7 +347,10 @@ export function useETHPrice(version: string = VERSION.CLASSIC): AppState['applic
       }
     }
     checkForEthPrice()
-  }, [dispatch, chainId, version, isEVM, elasticClient, classicClient, blockClient])
+    return () => {
+      controller.abort()
+    }
+  }, [dispatch, chainId, version, isEVM, elasticClient, classicClient, blockClient, isEnableBlockService])
 
   return ethPrice
 }
