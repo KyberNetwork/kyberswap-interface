@@ -43,7 +43,7 @@ import { getLimitOrderContract, isAddressString, shortenAddress } from 'utils'
 
 import ElasticLegacyNotice from './ElasticLegacy/ElasticLegacyNotice'
 import Icons from './Icons'
-import VerifyAuth from './VerifyAuth'
+import VerifyAuth from './Verify/VerifyAuth'
 
 // test page for swap only through elastic
 const ElasticSwap = lazy(() => import('./ElasticSwap'))
