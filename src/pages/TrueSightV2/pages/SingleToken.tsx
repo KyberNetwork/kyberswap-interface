@@ -582,8 +582,8 @@ export default function SingleToken() {
                   <Icon
                     id={
                       {
-                        [DiscoverTokenTab.OnChainAnalysis]: 'on-chain',
-                        [DiscoverTokenTab.TechnicalAnalysis]: 'technical-analysis',
+                        [DiscoverTokenTab.OnChainAnalysis]: 'on-chain' as const,
+                        [DiscoverTokenTab.TechnicalAnalysis]: 'technical-analysis' as const,
                       }[tab]
                     }
                     size={20}

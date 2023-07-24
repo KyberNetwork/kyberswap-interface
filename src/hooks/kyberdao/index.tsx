@@ -1,4 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { t } from '@lingui/macro'
+import axios from 'axios'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -6,22 +8,30 @@ import { useLocalStorage } from 'react-use'
 import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
 
+import { NotificationType } from 'components/Announcement/type'
 import DaoABI from 'constants/abis/kyberdao/dao.json'
 import MigrateABI from 'constants/abis/kyberdao/migrate.json'
 import RewardDistributorABI from 'constants/abis/kyberdao/reward_distributor.json'
 import StakingABI from 'constants/abis/kyberdao/staking.json'
+import { didUserReject } from 'constants/connectors/utils'
+import { REWARD_SERVICE_API } from 'constants/env'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { NETWORKS_INFO_CONFIG, isEVM } from 'constants/networks'
 import ethereumInfo from 'constants/networks/ethereum'
 import { EVMNetworkInfo } from 'constants/networks/type'
-import { useActiveWeb3React } from 'hooks'
+import { KNC } from 'constants/tokens'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useContract, useContractForReading, useTokenContractForReading } from 'hooks/useContract'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { KNCUtilityTabs } from 'pages/KyberDAO/KNCUtility/type'
+import { useNotify } from 'state/application/hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { calculateGasMargin } from 'utils'
+import { aggregateValue } from 'utils/array'
+import { formatUnitsToFixed } from 'utils/formatBalance'
+import { sendEVMTransaction } from 'utils/sendTransaction'
 
 import {
   EligibleTxsInfo,
@@ -205,85 +215,73 @@ export function useKyberDaoStakeActions() {
   return { stake, unstake, migrate, delegate, undelegate }
 }
 
-export function useClaimRewardActions() {
+export function useClaimVotingRewards() {
+  const { account } = useActiveWeb3React()
+  const { userRewards, remainingCumulativeAmount } = useVotingInfo()
   const kyberDaoInfo = useKyberDAOInfo()
   const rewardDistributorContract = useContract(kyberDaoInfo?.rewardsDistributor, RewardDistributorABI)
   const addTransactionWithType = useTransactionAdder()
 
-  const claim = useCallback(
-    async ({
-      cycle,
-      index,
-      address,
-      tokens,
-      cumulativeAmounts,
-      merkleProof,
-      formatAmount,
-    }: {
-      cycle: number
-      index: number
-      address: string
-      tokens: string[]
-      cumulativeAmounts: string[]
-      merkleProof: string[]
-      formatAmount: string
-    }) => {
-      if (!rewardDistributorContract) {
-        throw new Error(CONTRACT_NOT_FOUND_MSG)
+  const claimVotingRewards = useCallback(async () => {
+    if (!userRewards || !userRewards.userReward || !account) throw new Error(t`Invalid claim`)
+    const { cycle, userReward } = userRewards
+    const { index, tokens, cumulativeAmounts, proof } = userReward
+    const address = account
+    const merkleProof = proof
+    const formatAmount = formatUnitsToFixed(remainingCumulativeAmount)
+
+    if (!rewardDistributorContract) {
+      throw new Error(CONTRACT_NOT_FOUND_MSG)
+    }
+    try {
+      const isValidClaim = await rewardDistributorContract.isValidClaim(
+        cycle,
+        index,
+        address,
+        tokens,
+        cumulativeAmounts,
+        merkleProof,
+      )
+      if (!isValidClaim) throw new Error(t`Invalid claim`)
+      const estimateGas = await rewardDistributorContract.estimateGas.claim(
+        cycle,
+        index,
+        address,
+        tokens,
+        cumulativeAmounts,
+        merkleProof,
+      )
+      const tx = await rewardDistributorContract.claim(cycle, index, address, tokens, cumulativeAmounts, merkleProof, {
+        gasLimit: calculateGasMargin(estimateGas),
+      })
+      addTransactionWithType({
+        hash: tx.hash,
+        type: TRANSACTION_TYPE.KYBERDAO_CLAIM,
+        extraInfo: {
+          contract: kyberDaoInfo?.rewardsDistributor,
+          tokenAmount: formatAmount,
+          tokenSymbol: 'KNC',
+          tokenAddress: kyberDaoInfo?.KNCAddress,
+        },
+      })
+      return tx.hash as string
+    } catch (error) {
+      if (error?.code === 4001 || error?.code === 'ACTION_REJECTED') {
+        throw new Error('Transaction rejected.')
+      } else {
+        throw error
       }
-      try {
-        const isValidClaim = await rewardDistributorContract.isValidClaim(
-          cycle,
-          index,
-          address,
-          tokens,
-          cumulativeAmounts,
-          merkleProof,
-        )
-        if (!isValidClaim) {
-          throw new Error('Invalid claim')
-        }
-        const estimateGas = await rewardDistributorContract.estimateGas.claim(
-          cycle,
-          index,
-          address,
-          tokens,
-          cumulativeAmounts,
-          merkleProof,
-        )
-        const tx = await rewardDistributorContract.claim(
-          cycle,
-          index,
-          address,
-          tokens,
-          cumulativeAmounts,
-          merkleProof,
-          {
-            gasLimit: calculateGasMargin(estimateGas),
-          },
-        )
-        addTransactionWithType({
-          hash: tx.hash,
-          type: TRANSACTION_TYPE.KYBERDAO_CLAIM,
-          extraInfo: {
-            contract: kyberDaoInfo?.rewardsDistributor,
-            tokenAmount: formatAmount,
-            tokenSymbol: 'KNC',
-            tokenAddress: kyberDaoInfo?.KNCAddress,
-          },
-        })
-        return tx.hash
-      } catch (error) {
-        if (error?.code === 4001 || error?.code === 'ACTION_REJECTED') {
-          throw new Error('Transaction rejected.')
-        } else {
-          throw error
-        }
-      }
-    },
-    [rewardDistributorContract, addTransactionWithType, kyberDaoInfo],
-  )
-  return { claim }
+    }
+  }, [
+    userRewards,
+    account,
+    remainingCumulativeAmount,
+    rewardDistributorContract,
+    addTransactionWithType,
+    kyberDaoInfo?.rewardsDistributor,
+    kyberDaoInfo?.KNCAddress,
+  ])
+  return claimVotingRewards
 }
 
 export const useVotingActions = () => {
@@ -426,15 +424,8 @@ export function useVotingInfo() {
     if (!userRewards?.userReward?.tokens || !claimedRewardAmounts?.[0]) return BigNumber.from(0)
     return (
       userRewards?.userReward?.tokens?.map((_: string, index: number) => {
-        const cummulativeAmount =
-          userRewards.userReward &&
-          userRewards.userReward.cumulativeAmounts &&
-          userRewards.userReward.cumulativeAmounts[index]
-
-        if (!cummulativeAmount) {
-          return BigNumber.from(0)
-        }
-
+        const cummulativeAmount = userRewards.userReward?.cumulativeAmounts?.[index]
+        if (cummulativeAmount) return BigNumber.from(0)
         return BigNumber.from(cummulativeAmount).sub(BigNumber.from(claimedRewardAmounts[0]))
       })[0] || BigNumber.from(0)
     )
@@ -512,7 +503,7 @@ export function useVotingInfo() {
     fetcher(url).then(res => res.rewardStats),
   )
 
-  return {
+  const result = {
     daoInfo: daoInfo || localStoredDaoInfo || undefined,
     userRewards,
     calculateVotingPower,
@@ -528,16 +519,7 @@ export function useVotingInfo() {
       usd: rewardStats ? +rewardStats.pending?.totalAmountInUSD + +rewardStats.liquidated?.totalAmountInUSD : 0,
     },
   }
-}
-
-const aggregateValue = <T extends string>(
-  values: ({ [key in T]: string | number } | undefined)[],
-  field: T,
-): number => {
-  return values.reduce((acc, cur) => {
-    const value = cur?.[field] ?? 0
-    return (typeof value === 'number' ? value : parseFloat(value)) + acc
-  }, 0)
+  return result
 }
 
 export function useGasRefundTier(): GasRefundTierInfo {
@@ -598,6 +580,74 @@ export function useGasRefundInfo({ rewardStatus = KNCUtilityTabs.Available }: { 
       knc: aggregateValue([claimableReward, pendingReward, claimedReward], 'knc'),
     },
   }
+}
+
+export function useClaimGasRefundRewards() {
+  const { account, chainId } = useActiveWeb3React()
+  const { library, connector } = useWeb3React()
+  const addTransactionWithType = useTransactionAdder()
+  const { claimableReward } = useGasRefundInfo({})
+  const notify = useNotify()
+
+  const claimGasRefundRewards = useCallback(async (): Promise<string> => {
+    if (!account || !library || !claimableReward || claimableReward.knc <= 0) throw new Error(t`Invalid claim`)
+
+    const url = REWARD_SERVICE_API + '/rewards/claim'
+    const data = {
+      wallet: account,
+      chainId: chainId.toString(),
+      clientCode: 'gas-refund',
+      ref: '',
+    }
+    let response: any
+    try {
+      response = await axios({ method: 'POST', url, data })
+      if (response?.data?.code !== 200000) throw new Error(response?.data?.message)
+    } catch (error) {
+      console.error('Claim error:', { error })
+      notify({
+        title: t`Claim Error`,
+        summary: error?.response?.data?.message || error?.message || 'Unknown error',
+        type: NotificationType.ERROR,
+      })
+      throw error
+    }
+
+    const rewardContractAddress = response.data.data.ContractAddress
+    const encodedData = response.data.data.EncodedData
+    try {
+      const tx = await sendEVMTransaction(account, library, rewardContractAddress, encodedData, BigNumber.from(0))
+      if (!tx) throw new Error()
+      addTransactionWithType({
+        hash: tx.hash,
+        type: TRANSACTION_TYPE.KYBERDAO_CLAIM_GAS_REFUND,
+        extraInfo: {
+          tokenAddress: KNC[chainId].address,
+          tokenAmount: claimableReward.knc.toString(),
+          tokenSymbol: 'KNC',
+        },
+      })
+      return tx.hash as string
+    } catch (error) {
+      if (didUserReject(connector, error)) {
+        notify({
+          title: t`Transaction rejected`,
+          summary: t`In order to claim, you must accept in your wallet.`,
+          type: NotificationType.ERROR,
+        })
+        throw new Error('Transaction rejected.')
+      } else {
+        console.error('Claim error:', { error })
+        notify({
+          title: t`Claim Error`,
+          summary: error.message || 'Unknown error',
+          type: NotificationType.ERROR,
+        })
+        throw error
+      }
+    }
+  }, [account, addTransactionWithType, chainId, claimableReward, library, notify, connector])
+  return claimGasRefundRewards
 }
 
 export const useEligibleTransactions = (page = 1, pageSize = 100): EligibleTxsInfo | undefined => {

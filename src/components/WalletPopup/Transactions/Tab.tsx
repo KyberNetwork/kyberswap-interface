@@ -1,12 +1,7 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
-import { t } from '@lingui/macro'
-import { memo, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useLayoutEffect, useState } from 'react'
 import styled, { css } from 'styled-components'
 
 import Row from 'components/Row'
-import { useActiveWeb3React } from 'hooks'
-import { isSupportKyberDao } from 'hooks/kyberdao'
-import { TRANSACTION_GROUP } from 'state/transactions/type'
 
 const ListTab = styled.div`
   display: flex;
@@ -31,7 +26,7 @@ const TabWrapper = styled(Row).attrs<WrapperProps>(props => ({
   position: relative;
 
   width: 100%;
-  background-color: ${({ theme }) => theme.background};
+  background-color: ${({ theme }) => theme.buttonBlack};
   border-radius: 20px;
   justify-content: center;
 
@@ -93,13 +88,8 @@ const TabWrapper = styled(Row).attrs<WrapperProps>(props => ({
   }
 `
 
-const tabActiveCSS = css`
-  border-radius: 20px;
-  color: ${({ theme }) => theme.text};
-  background-color: ${({ theme }) => (theme.darkMode ? theme.tabActive : theme.buttonGray)};
-`
-
 const TabItem = styled.div<{ active: boolean }>`
+  width: 100%;
   padding: 6px;
   font-weight: 500;
   font-size: 12px;
@@ -108,92 +98,67 @@ const TabItem = styled.div<{ active: boolean }>`
   cursor: pointer;
   user-select: none;
   color: ${({ theme }) => theme.subText};
+  border-radius: 20px;
   :hover {
-    ${tabActiveCSS}
+    color: ${({ theme }) => theme.text};
+    background-color: ${({ theme }) => theme.tabActive};
   }
-  ${({ active }) => (active ? tabActiveCSS : '')}
+  ${({ active }) =>
+    active
+      ? css`
+          color: ${({ theme }) => theme.text};
+          background-color: ${({ theme }) => theme.border} !important;
+        `
+      : null}
 `
-const listTab = [
-  { text: t`All`, value: '' },
-  { text: t`Swaps`, value: TRANSACTION_GROUP.SWAP },
-  { text: t`Liquidity`, value: TRANSACTION_GROUP.LIQUIDITY },
-  { text: t`KyberDAO`, value: TRANSACTION_GROUP.KYBERDAO },
-  { text: t`Others`, value: TRANSACTION_GROUP.OTHER },
-] as const
 
-type Props = {
-  activeTab: string
-  setActiveTab: React.Dispatch<React.SetStateAction<string>>
+interface TabProps<T extends string> {
+  activeTab: T
+  setActiveTab: React.Dispatch<React.SetStateAction<T>>
+  tabs: readonly { readonly title: string; readonly value: T }[]
 }
-const Tab: React.FC<Props> = ({ activeTab, setActiveTab }) => {
+function Tab<T extends string>({ activeTab, setActiveTab, tabs }: TabProps<T>) {
   const [isScrollable, setScrollable] = useState(false)
   const [scrollLeft, setScrollLeft] = useState(false)
   const [scrollRight, setScrollRight] = useState(false)
 
-  const { chainId } = useActiveWeb3React()
+  const [listRef, setListRef] = useState<HTMLDivElement | null>(null)
 
-  const listRef = useRef<HTMLDivElement>(null)
-
-  const handleScroll = () => {
-    const node = listRef.current
-    if (!node) {
-      return
-    }
-
-    const { clientWidth, scrollWidth, scrollLeft } = node
+  const handleScroll = useCallback(() => {
+    if (!listRef) return
+    const { clientWidth, scrollWidth, scrollLeft } = listRef
     setScrollable(clientWidth < scrollWidth)
     setScrollLeft(scrollLeft > 0)
     setScrollRight(scrollLeft < scrollWidth - clientWidth)
-  }
+  }, [listRef])
 
   useLayoutEffect(() => {
-    const { ResizeObserver } = window
-    const node = listRef.current
-    if (!node) {
-      return
-    }
-
+    if (!listRef) return
     const resizeHandler = () => {
-      const { clientWidth, scrollWidth, scrollLeft } = node
+      const { clientWidth, scrollWidth, scrollLeft } = listRef
       setScrollable(clientWidth < scrollWidth)
       setScrollLeft(scrollLeft > 0)
       setScrollRight(scrollLeft < scrollWidth - clientWidth)
     }
 
+    const { ResizeObserver } = window
     if (typeof ResizeObserver === 'function') {
       const resizeObserver = new ResizeObserver(resizeHandler)
-      resizeObserver.observe(node)
+      resizeObserver.observe(listRef)
 
       return () => resizeObserver.disconnect()
     } else {
       window.addEventListener('resize', resizeHandler)
       return () => window.removeEventListener('resize', resizeHandler)
     }
-  }, [])
-
-  const filterTab = useMemo(() => {
-    return listTab.filter(tab => {
-      if (tab.value === TRANSACTION_GROUP.KYBERDAO) {
-        return isSupportKyberDao(chainId)
-      }
-      if (tab.value === TRANSACTION_GROUP.LIQUIDITY) {
-        return chainId !== ChainId.SOLANA
-      }
-      return true
-    })
-  }, [chainId])
+  }, [listRef])
 
   return (
     <TabWrapper $scrollable={isScrollable} $scrollLeft={scrollLeft} $scrollRight={scrollRight}>
-      <ListTab ref={listRef} onScroll={handleScroll}>
-        {filterTab.map(tab => (
-          <TabItem
-            style={{ width: `${100 / filterTab.length}%` }}
-            key={tab.text}
-            active={activeTab === tab.value}
-            onClick={() => setActiveTab(tab.value)}
-          >
-            {tab.text}
+      <ListTab ref={listRef => setListRef(listRef)} onScroll={handleScroll}>
+        {tabs.map(tab => (
+          <TabItem key={tab.title} active={activeTab === tab.value} onClick={() => setActiveTab(tab.value)}>
+            {tab.title}
           </TabItem>
         ))}
       </ListTab>
@@ -201,4 +166,4 @@ const Tab: React.FC<Props> = ({ activeTab, setActiveTab }) => {
   )
 }
 
-export default memo(Tab)
+export default Tab

@@ -174,6 +174,8 @@ export enum MIXPANEL_TYPE {
   KYBER_DAO_VOTE_CLICK,
   KYBER_DAO_CLAIM_CLICK,
   KYBER_DAO_FEATURE_REQUEST_CLICK,
+  GAS_REFUND_CLAIM_CLICK,
+  GAS_REFUND_SOURCE_CLICK,
 
   // notification
   NOTIFICATION_CLICK_MENU,
@@ -1067,6 +1069,16 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           mixpanel.track('KyberDAO - Feature Request Click', payload)
           break
         }
+        case MIXPANEL_TYPE.GAS_REFUND_CLAIM_CLICK: {
+          const { token_amount, source } = payload
+          mixpanel.track('Gas refund - Click claim reward', { token_amount, source })
+          break
+        }
+        case MIXPANEL_TYPE.GAS_REFUND_SOURCE_CLICK: {
+          const { source } = payload
+          mixpanel.track('Gas refund - KNC Utility source click', { source })
+          break
+        }
         case MIXPANEL_TYPE.LO_CLICK_PLACE_ORDER: {
           mixpanel.track('Limit Order -  Place Order Click', payload)
           break
@@ -1726,6 +1738,7 @@ export const useGlobalMixpanelEvents = () => {
         'cross-chain': 'Cross Chain',
         'notification-center': 'Notification',
         [APP_PATHS.KYBERAI_ABOUT]: 'KyberAI About',
+        [APP_PATHS.KYBERDAO_KNC_UTILITY]: 'Gas refund - KNC Utility',
       }
       const protectedPaths: { [key: string]: string } = {
         [APP_PATHS.KYBERAI_RANKINGS]: 'KyberAI Rankings',

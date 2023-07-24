@@ -166,6 +166,7 @@ const SUMMARY: { [type in TRANSACTION_TYPE]: SummaryFunction } = {
   [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: summaryCancelLimitOrder,
   [TRANSACTION_TYPE.TRANSFER_TOKEN]: summaryTransferToken,
 
+  [TRANSACTION_TYPE.KYBERDAO_CLAIM_GAS_REFUND]: summary1Token, //todo namgold
   [TRANSACTION_TYPE.KYBERDAO_CLAIM]: summary1Token,
   [TRANSACTION_TYPE.KYBERDAO_UNDELEGATE]: summaryDelegateDao,
   [TRANSACTION_TYPE.KYBERDAO_MIGRATE]: summary2Token,
