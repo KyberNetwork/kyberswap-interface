@@ -43,7 +43,7 @@ import { getLimitOrderContract, isAddressString, shortenAddress } from 'utils'
 
 import ElasticLegacyNotice from './ElasticLegacy/ElasticLegacyNotice'
 import Icons from './Icons'
-import VerifyAuth from './VerifyAuth'
+import VerifyAuth from './Verify/VerifyAuth'
 
 // test page for swap only through elastic
 const ElasticSwap = lazy(() => import('./ElasticSwap'))
@@ -119,7 +119,7 @@ const preloadImages = () => {
 const SwapPage = () => {
   const { chainId } = useActiveWeb3React()
   useSyncNetworkParamWithStore()
-  return <ProtectedRoute>{chainId === ChainId.SOLANA ? <SwapV2 /> : <SwapV3 />}</ProtectedRoute>
+  return chainId === ChainId.SOLANA ? <SwapV2 /> : <SwapV3 />
 }
 
 const RedirectWithNetworkPrefix = () => {

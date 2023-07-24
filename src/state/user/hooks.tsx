@@ -48,13 +48,7 @@ import {
   updateUserSlippageTolerance,
   updateUserSlippageToleranceForLineaTestnet,
 } from 'state/user/actions'
-import {
-  CROSS_CHAIN_SETTING_DEFAULT,
-  CrossChainSetting,
-  VIEW_MODE,
-  defaultShowLiveCharts,
-  getFavoriteTokenDefault,
-} from 'state/user/reducer'
+import { CROSS_CHAIN_SETTING_DEFAULT, CrossChainSetting, VIEW_MODE, getFavoriteTokenDefault } from 'state/user/reducer'
 import { isAddress, isChristmasTime } from 'utils'
 
 function serializeToken(token: Token | WrappedTokenInfo): SerializedToken {
@@ -348,15 +342,8 @@ export function useLiquidityPositionTokenPairs(): [Token, Token][] {
 }
 
 export function useShowLiveChart(): boolean {
-  const { chainId } = useActiveWeb3React()
-  let showLiveChart = useSelector((state: AppState) => state.user.showLiveCharts)
-  if (typeof showLiveChart?.[chainId] !== 'boolean') {
-    showLiveChart = defaultShowLiveCharts
-  }
-
-  const show = showLiveChart[chainId]
-
-  return !!show
+  const showLiveChart = useSelector((state: AppState) => state.user.showLiveChart)
+  return typeof showLiveChart !== 'boolean' || showLiveChart
 }
 
 export function useShowTradeRoutes(): boolean {
@@ -383,8 +370,7 @@ export function useUpdateTokenAnalysisSettings(): (payload: string) => void {
 
 export function useToggleLiveChart(): () => void {
   const dispatch = useDispatch<AppDispatch>()
-  const { chainId } = useActiveWeb3React()
-  return useCallback(() => dispatch(toggleLiveChart({ chainId: chainId })), [dispatch, chainId])
+  return useCallback(() => dispatch(toggleLiveChart()), [dispatch])
 }
 
 export function useToggleTradeRoutes(): () => void {
@@ -497,7 +483,14 @@ export const useSlippageSettingByPage = (isCrossChain = false) => {
   return { setRawSlippage, rawSlippage, isSlippageControlPinned, togglePinSlippage }
 }
 
-const participantDefault = { rankNo: 0, status: ParticipantStatus.UNKNOWN, referralCode: '', id: 0 }
+const participantDefault = {
+  rankNo: 0,
+  status: ParticipantStatus.UNKNOWN,
+  referralCode: '',
+  id: 0,
+  updatedAt: 0,
+  createdAt: 0,
+}
 export const useGetParticipantKyberAIInfo = (): ParticipantInfo => {
   const { userInfo } = useSessionInfo()
   const { data: data = participantDefault, isError } = useGetParticipantInfoQuery(undefined, {

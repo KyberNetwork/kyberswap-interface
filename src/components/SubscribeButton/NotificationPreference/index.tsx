@@ -175,8 +175,6 @@ function NotificationPreference({
 
   const [selectedTopic, setSelectedTopic] = useState<number[]>([])
 
-  const notFillEmail = !inputEmail
-
   const updateTopicGroupsLocal = useCallback(
     (subIds: number[], unsubIds: number[]) => {
       const newTopicGroups = topicGroupsGlobal.map(group => {
@@ -295,7 +293,7 @@ function NotificationPreference({
   const isVerifiedEmail = userInfo?.email && inputEmail === userInfo?.email
   const needVerifyEmail = inputEmail && inputEmail !== userInfo?.email
 
-  const disableCheckbox = needVerifyEmail || notFillEmail || hasErrorInput
+  const disableCheckbox = hasErrorInput
   const isIncludePriceAlert = useCallback(() => {
     const changedData = getDiffChangeTopics(topicGroups)
     return (
@@ -315,7 +313,7 @@ function NotificationPreference({
 
   const checkProfileAndSave = () => {
     if (disableButtonSave) return
-    if (!userInfo?.email && !isIncludePriceAlert()) {
+    if (needVerifyEmail && !isIncludePriceAlert()) {
       showVerifyModal()
       return
     }
