@@ -6,6 +6,7 @@ import { GetRouteParams } from 'services/route/types/getRoute'
 
 import useGetSwapFeeConfig, { SwapFeeConfig } from 'components/SwapForm/hooks/useGetSwapFeeConfig'
 import useSelectedDexes from 'components/SwapForm/hooks/useSelectedDexes'
+import { AGGREGATOR_API } from 'constants/env'
 import {
   AGGREGATOR_API_PATHS,
   ETHER_ADDRESS,
@@ -17,6 +18,7 @@ import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
+import { useSessionInfo } from 'state/authen/hooks'
 import { useAppDispatch } from 'state/hooks'
 import { ChargeFeeBy } from 'types/route'
 import { Aggregator } from 'utils/aggregator'
@@ -76,13 +78,21 @@ const getFeeConfigParams = (
   }
 }
 
+// default use aggregator, utils the first time sign-in successfully (guest/sign in eth) => use meta
+export const useRouteApiDomain = () => {
+  const { aggregatorDomain } = useKyberswapGlobalConfig()
+  const { authenticationSuccess } = useSessionInfo()
+  return authenticationSuccess ? aggregatorDomain : AGGREGATOR_API
+}
+
 const useGetRoute = (args: ArgsGetRoute) => {
-  const { aggregatorDomain, isEnableAuthenAggregator } = useKyberswapGlobalConfig()
+  const { isEnableAuthenAggregator } = useKyberswapGlobalConfig()
   const { isSaveGas, parsedAmount, currencyIn, currencyOut, customChain, isProcessingSwap } = args
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
 
   const [trigger, _result] = routeApi.useLazyGetRouteQuery()
+  const aggregatorDomain = useRouteApiDomain()
 
   const getSwapFeeConfig = useGetSwapFeeConfig()
 

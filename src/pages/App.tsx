@@ -119,7 +119,7 @@ const preloadImages = () => {
 const SwapPage = () => {
   const { chainId } = useActiveWeb3React()
   useSyncNetworkParamWithStore()
-  return <ProtectedRoute>{chainId === ChainId.SOLANA ? <SwapV2 /> : <SwapV3 />}</ProtectedRoute>
+  return chainId === ChainId.SOLANA ? <SwapV2 /> : <SwapV3 />
 }
 
 const RedirectWithNetworkPrefix = () => {
