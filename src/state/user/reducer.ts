@@ -293,14 +293,14 @@ export default createReducer(initialState, builder =>
     .addCase(toggleKyberAIBanner, state => {
       state.showKyberAIBanner = !state.showKyberAIBanner
     })
-    .addCase(toggleFavoriteToken, (state, { payload: { chainId, isNative, address } }) => {
+    .addCase(toggleFavoriteToken, (state, { payload: { chainId, isNative, address, defaultCommonTokens } }) => {
       if (!state.favoriteTokensByChainId) {
         state.favoriteTokensByChainId = {}
       }
 
       let favoriteTokens = state.favoriteTokensByChainId[chainId]
       if (!favoriteTokens) {
-        favoriteTokens = getFavoriteTokenDefault(chainId)
+        favoriteTokens = defaultCommonTokens
         state.favoriteTokensByChainId[chainId] = favoriteTokens
       }
 

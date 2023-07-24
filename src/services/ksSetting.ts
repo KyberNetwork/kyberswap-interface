@@ -16,6 +16,7 @@ export type KyberSwapConfig = {
   elasticClient: ApolloClient<NormalizedCacheObject>
   readProvider: ethers.providers.JsonRpcProvider | undefined
   connection: Connection | undefined
+  commonTokens?: string[]
 }
 
 export type KyberSwapConfigResponse = {
@@ -25,6 +26,7 @@ export type KyberSwapConfigResponse = {
   blockSubgraph: string
   classicSubgraph: string
   elasticSubgraph: string
+  commonTokens?: string[]
 }
 
 export type KyberswapConfigurationResponse = {
