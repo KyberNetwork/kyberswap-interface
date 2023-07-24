@@ -64,7 +64,7 @@ const arbitrumInfo: EVMNetworkInfo = {
     routers: '0xF9c2b5746c946EF883ab2660BbbB1f10A5bdeAb4',
     farms: ['0x7D5ba536ab244aAA1EA42aB88428847F25E3E676'],
     farmv2Quoter: '0x6AFeb9EDd6Cf44fA8E89b1eee28284e6dD7705C8',
-    farmV2Contract: '0xE44ec65521B85612fa7BC45d842645Fb4B690E4b',
+    farmV2S: ['0xE44ec65521B85612fa7BC45d842645Fb4B690E4b'],
   },
   limitOrder: {
     production: '0x227B0c196eA8db17A665EA6824D972A64202E936',

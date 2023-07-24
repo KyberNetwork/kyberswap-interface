@@ -216,6 +216,7 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
           return {
             id: farm.id,
             fId: +farm.id.split('_')[1],
+            farmAddress: farm.id.split('_')[0],
             startTime: Number(farm.startTime),
             endTime: Number(farm.endTime),
             isSettled: farm.isSettled,
@@ -275,20 +276,26 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
 
         dispatch(setFarms({ chainId, farms: formattedData }))
 
-        const farmAddress = (networkInfo as EVMNetworkInfo)?.elastic?.farmV2Contract
+        const farmAddresses = [...new Set(formattedData.map(item => item.farmAddress))]
+
+        type UserInfoRes = {
+          nftId: BigNumber
+          fId: BigNumber
+          rangeId: BigNumber
+          liquidity: BigNumber
+          currentUnclaimedRewards: BigNumber[]
+        }
 
         // get user deposit info
-        if (account && farmv2QuoterContract && multicallContract && farmAddress) {
-          farmv2QuoterContract.getUserInfo(farmAddress, account).then(
-            async (
-              res: {
-                nftId: BigNumber
-                fId: BigNumber
-                rangeId: BigNumber
-                liquidity: BigNumber
-                currentUnclaimedRewards: BigNumber[]
-              }[],
-            ) => {
+        if (account && farmv2QuoterContract && multicallContract && farmAddresses.length) {
+          const userInfos: UserInfoRes[][] = await Promise.all(
+            farmAddresses.map(farmAddress => {
+              return farmv2QuoterContract.getUserInfo(farmAddress, account)
+            }),
+          )
+
+          const userFarmInfos = await Promise.all(
+            userInfos.map(async (res: UserInfoRes[], index) => {
               const nftIds = res.map(item => {
                 return item.nftId
               })
@@ -314,6 +321,7 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
                   tickUpper: BigNumber
                 }
               }
+
               const nftInfos = nftDetailResult.reduce((acc: NFT_INFO, item: any, index: number) => {
                 if (!item) return acc
                 return {
@@ -396,13 +404,16 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
                     positionUsdValue,
                     stakedUsdValue,
                     unclaimedRewardsUsd,
+                    farmAddress: farmAddresses[index],
                   },
                 ]
               }, [] as UserFarmV2Info[])
 
-              dispatch(setUserFarmInfo({ chainId, userInfo: infos }))
-            },
+              return infos
+            }),
           )
+
+          dispatch(setUserFarmInfo({ chainId, userInfo: userFarmInfos.flat() }))
         } else {
           dispatch(setUserFarmInfo({ chainId, userInfo: [] }))
         }

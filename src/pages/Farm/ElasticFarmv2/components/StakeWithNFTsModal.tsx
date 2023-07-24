@@ -211,10 +211,12 @@ const StakeWithNFTsModal = ({
   isOpen,
   onDismiss,
   farm,
+  farmAddress,
 }: {
   farm: ElasticFarmV2
   isOpen: boolean
   onDismiss: () => void
+  farmAddress: string
 }) => {
   const [activeRange, setActiveRange] = useState(farm.ranges.filter(item => !item.isRemoved)[0])
 
@@ -252,7 +254,7 @@ const StakeWithNFTsModal = ({
     })
     mixpanel.track('ElasticFarmV2 - StakeModal - NFT Clicked', { nftId: tokenId })
   }, [])
-  const { deposit } = useFarmV2Action()
+  const { deposit } = useFarmV2Action(farmAddress)
 
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [txHash, setTxHash] = useState('')

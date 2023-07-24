@@ -20,8 +20,6 @@ import { MouseoverTooltip, MouseoverTooltipDesktopOnly, TextDashed } from 'compo
 import { ConnectWalletButton } from 'components/YieldPools/ElasticFarmGroup/buttons'
 import { FarmList } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { ClickableText, ElasticFarmV2TableHeader } from 'components/YieldPools/styleds'
-import { NETWORKS_INFO } from 'constants/networks'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
@@ -44,14 +42,9 @@ import StakeWithNFTsModal from './components/StakeWithNFTsModal'
 import UnstakeWithNFTsModal from './components/UnstakeWithNFTsModal'
 import UpdateLiquidityModal from './components/UpdateLiquidityModal'
 
-const Wrapper = styled.div<{ noDynamicFarm?: boolean }>`
+const Wrapper = styled.div`
   padding: 24px;
-  border: 1px solid ${({ theme }) => theme.border};
-  border-top: 1px solid ${({ theme, noDynamicFarm }) => (noDynamicFarm ? theme.border : 'transparent')};
   background-color: ${({ theme }) => theme.background};
-  border-radius: 24px;
-  border-top-left-radius: ${({ noDynamicFarm }) => (noDynamicFarm ? '24px' : 0)};
-  border-top-right-radius: ${({ noDynamicFarm }) => (noDynamicFarm ? '24px' : 0)};
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -67,14 +60,13 @@ const Wrapper = styled.div<{ noDynamicFarm?: boolean }>`
 
 export default function ElasticFarmv2({
   onShowStepGuide,
-  noDynamicFarm,
+  farmAddress,
 }: {
   onShowStepGuide: () => void
-  noDynamicFarm: boolean
+  farmAddress: string
 }) {
   const theme = useTheme()
-  const { chainId, account } = useActiveWeb3React()
-  const farmAddress = (NETWORKS_INFO[chainId] as EVMNetworkInfo).elastic?.farmV2Contract
+  const { account } = useActiveWeb3React()
   const above1000 = useMedia('(min-width: 1000px)')
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
@@ -83,7 +75,7 @@ export default function ElasticFarmv2({
   const sortField = searchParams.get('orderBy') || SORT_FIELD.MY_DEPOSIT
   const sortDirection = searchParams.get('orderDirection') || SORT_DIRECTION.DESC
 
-  const { filteredFarms, farms, updatedFarms, userInfo } = useFilteredFarmsV2()
+  const { filteredFarms, farms, updatedFarms, userInfo } = useFilteredFarmsV2(farmAddress)
   const depositedUsd = userInfo?.reduce((acc, cur) => acc + cur.positionUsdValue, 0) || 0
 
   const depositedTokenAmounts: { [address: string]: CurrencyAmount<Currency> } = {}
@@ -97,7 +89,7 @@ export default function ElasticFarmv2({
     else depositedTokenAmounts[address1] = depositedTokenAmounts[address1].add(item.position.amount1)
   })
 
-  const { approve } = useFarmV2Action()
+  const { approve } = useFarmV2Action(farmAddress)
   const posManager = useProAmmNFTPositionManagerContract()
   const [approvalTx, setApprovalTx] = useState('')
   const isApprovalTxPending = useIsTransactionPending(approvalTx)
@@ -352,7 +344,7 @@ export default function ElasticFarmv2({
   const listMode = above1000 && viewMode === VIEW_MODE.LIST
 
   return (
-    <Wrapper noDynamicFarm={noDynamicFarm}>
+    <Wrapper>
       {!!updatedFarms?.length && <NewRangesNotiModal updatedFarms={updatedFarms} />}
       <Flex
         justifyContent="space-between"
@@ -408,13 +400,19 @@ export default function ElasticFarmv2({
       </FarmList>
 
       {!!selectedFarm && (
-        <StakeWithNFTsModal farm={selectedFarm} isOpen={!!selectedFarm} onDismiss={() => setSelectedFarm(null)} />
+        <StakeWithNFTsModal
+          farm={selectedFarm}
+          isOpen={!!selectedFarm}
+          onDismiss={() => setSelectedFarm(null)}
+          farmAddress={farmAddress}
+        />
       )}
       {!!selectedUnstakeFarm && (
         <UnstakeWithNFTsModal
           farm={selectedUnstakeFarm}
           isOpen={!!selectedUnstakeFarm}
           onDismiss={() => setSelectedUnstakeFarm(null)}
+          farmAddress={farmAddress}
         />
       )}
       {!!selectedUpdateFarm && (
@@ -422,6 +420,7 @@ export default function ElasticFarmv2({
           farm={selectedUpdateFarm}
           isOpen={!!selectedUpdateFarm}
           onDismiss={() => setSelectedUpdateFarm(null)}
+          farmAddress={farmAddress}
         />
       )}
     </Wrapper>

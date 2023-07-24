@@ -113,7 +113,7 @@ function FarmCard({
   const [, setSharePoolAddress] = useShareFarmAddress()
 
   const currentTimestamp = Math.floor(Date.now() / 1000)
-  const stakedPos = useUserFarmV2Info(farm.fId)
+  const stakedPos = useUserFarmV2Info(farm.farmAddress, farm.fId)
   let amountToken0 = CurrencyAmount.fromRawAmount(farm.token0.wrapped, 0)
   let amountToken1 = CurrencyAmount.fromRawAmount(farm.token1.wrapped, 0)
 
@@ -162,7 +162,7 @@ function FarmCard({
     setAttemptingTxn(false)
   }
 
-  const { harvest } = useFarmV2Action()
+  const { harvest } = useFarmV2Action(farm.farmAddress)
 
   const handleHarvest = useCallback(() => {
     setShowConfirmModal(true)

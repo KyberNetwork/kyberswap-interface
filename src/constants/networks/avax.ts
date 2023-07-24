@@ -73,7 +73,7 @@ const avaxInfo: EVMNetworkInfo = {
     routers: '0xF9c2b5746c946EF883ab2660BbbB1f10A5bdeAb4',
     farms: ['0x7D5ba536ab244aAA1EA42aB88428847F25E3E676'],
     farmv2Quoter: '0x6AFeb9EDd6Cf44fA8E89b1eee28284e6dD7705C8',
-    farmV2Contract: '0xA70a1Ad0F91c52c79e177c5A18a7C9E1C4360e0e',
+    farmV2S: ['0xA70a1Ad0F91c52c79e177c5A18a7C9E1C4360e0e'],
   },
   limitOrder: {
     development: '0x1877Ec0770901cc6886FDA7E7525a78c2Ed4e975',
