@@ -87,7 +87,7 @@ export default createReducer(initialState, builder =>
       txGroup[txIndex].hash = newHash
       if (chainTxs[oldHash]) {
         chainTxs[newHash] = txGroup
-        delete chainTxs[oldHash]
+        if (oldHash !== newHash) delete chainTxs[oldHash]
       }
       transactions[chainId] = chainTxs
     })
