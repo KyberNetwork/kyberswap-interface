@@ -182,7 +182,7 @@ export default createReducer(initialState, builder =>
         : ethereumInfo.classic.defaultSubgraph
 
       const elasticSubgraph = evm
-        ? 'https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-elastic-matic' ||
+        ? NETWORKS_INFO[chainId].elastic.defaultSubgraph ||
           data?.elasticSubgraph ||
           NETWORKS_INFO[chainId].elastic.defaultSubgraph
         : ethereumInfo.elastic.defaultSubgraph

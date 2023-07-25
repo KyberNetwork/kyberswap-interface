@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { FC, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
 import Divider from 'components/Divider'
@@ -16,7 +17,7 @@ import { useModalOpen, useOpenModal } from 'state/application/hooks'
 import { useFilteredFarms } from 'state/farms/elastic/hooks'
 import { useFilteredFarmsV2 } from 'state/farms/elasticv2/hooks'
 import { ElasticFarmV2 } from 'state/farms/elasticv2/types'
-import { StyledInternalLink } from 'theme'
+import { MEDIA_WIDTHS, StyledInternalLink } from 'theme'
 
 import ElasticFarmv2 from './ElasticFarmv2'
 
@@ -66,6 +67,8 @@ export const ElasticFarmCombination: FC = () => {
       return addr
     })
   }, [isShareModalOpen])
+
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
   if (loading && noFarms) {
     return (
@@ -122,7 +125,11 @@ export const ElasticFarmCombination: FC = () => {
 
       <Flex
         flexDirection="column"
-        sx={{ border: `1px solid ${theme.border}`, borderRadius: '24px', overflow: 'hidden' }}
+        sx={{
+          border: upToExtraSmall ? undefined : `1px solid ${theme.border}`,
+          borderRadius: '24px',
+          overflow: upToExtraSmall ? undefined : 'hidden',
+        }}
       >
         <ElasticFarms onShowStepGuide={() => setShowFarmStepGuide('v1')} />
 

@@ -76,7 +76,8 @@ export default function ElasticFarmv2({
   const sortDirection = searchParams.get('orderDirection') || SORT_DIRECTION.DESC
 
   const { filteredFarms, farms, updatedFarms, userInfo } = useFilteredFarmsV2(farmAddress)
-  const depositedUsd = userInfo?.reduce((acc, cur) => acc + cur.positionUsdValue, 0) || 0
+  const depositedUsd =
+    userInfo?.reduce((acc, cur) => (cur.farmAddress === farmAddress ? acc + cur.positionUsdValue : acc), 0) || 0
 
   const depositedTokenAmounts: { [address: string]: CurrencyAmount<Currency> } = {}
   userInfo?.map(item => {
