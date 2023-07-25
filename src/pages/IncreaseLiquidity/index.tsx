@@ -112,7 +112,8 @@ export default function IncreaseLiquidity() {
 
   const ownsNFT = owner === account || existingPositionDetails?.operator === account
   const ownByFarm = isEVM
-    ? (networkInfo as EVMNetworkInfo).elastic.farms.flat().includes(isAddressString(chainId, owner))
+    ? (networkInfo as EVMNetworkInfo).elastic.farms.flat().includes(isAddressString(chainId, owner)) ||
+      (networkInfo as EVMNetworkInfo).elastic.farmV2S?.map(item => item.toLowerCase()).includes(owner.toLowerCase())
     : false
 
   const { position: existingPosition } = useProAmmDerivedPositionInfo(existingPositionDetails)

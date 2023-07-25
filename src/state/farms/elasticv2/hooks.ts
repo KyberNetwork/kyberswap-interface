@@ -24,7 +24,10 @@ export const useElasticFarmsV2 = () => {
 export const useUserFarmV2Info = (farmAddress: string, fId: number): UserFarmV2Info[] => {
   const { userInfo } = useElasticFarmsV2()
   return useMemo(
-    () => userInfo?.filter(item => item.fId === fId && item.farmAddress === farmAddress) || [],
+    () =>
+      userInfo?.filter(
+        item => item.fId === fId && item.farmAddress === farmAddress && item.liquidity.toString() !== '0',
+      ) || [],
     [fId, userInfo, farmAddress],
   )
 }

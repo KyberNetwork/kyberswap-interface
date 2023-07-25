@@ -350,7 +350,6 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
               const infos = res.reduce((acc: UserFarmV2Info[], item) => {
                 const farm = formattedData.find(
                   farm =>
-                    nftInfos[item.nftId.toString()].liquidity.toString() !== '0' &&
                     farm.poolAddress.toLowerCase() === nftInfos[item.nftId.toString()].poolAddress.toLowerCase() &&
                     +farm.fId === +item.fId.toString(),
                 )

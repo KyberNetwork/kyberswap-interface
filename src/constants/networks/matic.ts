@@ -58,8 +58,7 @@ const maticInfo: EVMNetworkInfo = {
     fairlaunchV2: ['0xFFD22921947D75342BFE1f8efAcEE4B8B3b5183F', '0x0bAF410dcfCf168f659f46bF1e28D29f68a25E77'],
   },
   elastic: {
-    // TODO(viet-nv): revert
-    defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-elastic-matic',
+    defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-matic',
     startBlock: 42880805,
     coreFactory: '0xC7a590291e07B9fe9E64b86c58fD8fC764308C4A',
     nonfungiblePositionManager: '0xe222fBE074A436145b255442D919E4E3A6c6a480',
@@ -69,7 +68,7 @@ const maticInfo: EVMNetworkInfo = {
     routers: '0xF9c2b5746c946EF883ab2660BbbB1f10A5bdeAb4',
     farms: ['0x7D5ba536ab244aAA1EA42aB88428847F25E3E676'],
     farmv2Quoter: '0x6AFeb9EDd6Cf44fA8E89b1eee28284e6dD7705C8',
-    farmV2S: ['0xA70a1Ad0F91c52c79e177c5A18a7C9E1C4360e0e'],
+    farmV2S: ['0xA70a1Ad0F91c52c79e177c5A18a7C9E1C4360e0e', '0x3d6afe2fb73ffed2e3dd00c501a174554e147a43'],
   },
   limitOrder: {
     development: '0x3C2E9227A6d3779e5b469E425CAa7067b40Ff124',
