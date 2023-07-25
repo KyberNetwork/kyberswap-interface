@@ -32,7 +32,6 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
         try {
           tx = await library?.getTransaction(hash)
           if (!tx) tx = await readProvider?.getTransaction(hash)
-          console.log(tx)
         } catch (error) {}
       }
 
