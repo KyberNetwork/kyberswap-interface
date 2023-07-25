@@ -133,6 +133,9 @@ export const STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
     '0x8741Ba6225A6BF91f9D73531A98A89807857a2B3', // DAI
     '0x7d43AABC515C356145049227CeE54B608342c0ad', // BUSD
   ],
+  [ChainId.LINEA]: [
+    '0x7d43aabc515c356145049227cee54b608342c0ad', // BUSD
+  ],
   [ChainId.SOLANA]: [
     'EjmyN6qEC1Tf1JxiG1ae7UTJhUxSwk1TCWNWqxWV4J6o', // Dai
     'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', // usdc
@@ -187,6 +190,7 @@ export const STABLE_COIN_ADDRESSES_TO_TAKE_FEE: Record<ChainId, string[]> = {
   [ChainId.BSCMAINNET]: [],
   [ChainId.ARBITRUM]: [],
   [ChainId.LINEA_TESTNET]: [],
+  [ChainId.LINEA]: [],
   [ChainId.SOLANA_DEVNET]: [],
 }
 
@@ -285,6 +289,7 @@ export const SUPER_STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
   [ChainId.BSCTESTNET]: [],
   [ChainId.AVAXTESTNET]: [],
   [ChainId.LINEA_TESTNET]: [],
+  [ChainId.LINEA]: [],
   [ChainId.SOLANA_DEVNET]: [],
 }
 
@@ -334,6 +339,7 @@ export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
   [ChainId.BSCTESTNET]: [],
   [ChainId.AVAXTESTNET]: [],
   [ChainId.LINEA_TESTNET]: [],
+  [ChainId.LINEA]: [],
   [ChainId.SOLANA_DEVNET]: [],
 }
 
@@ -418,6 +424,10 @@ export const DAI: { [chainId in ChainId]: Token } = {
     'DAI',
     'Dai',
   ),
+
+  //not existing
+  [ChainId.LINEA]: new Token(ChainId.LINEA, '0x8741Ba6225A6BF91f9D73531A98A89807857a2B3', 18, 'DAI', 'Dai'),
+
   //not existing on Velas
   [ChainId.VELAS]: new Token(ChainId.VELAS, '0xe7dC549AE8DB61BDE71F22097BEcc8dB542cA100', 18, 'DAI', 'Dai Stablecoin'),
   //not existing on Oasis
@@ -509,6 +519,9 @@ export const USDC: { [chainId in ChainId]: Token } = {
     'USDC',
     'USD Coin',
   ),
+
+  // not existing
+  [ChainId.LINEA]: new Token(ChainId.LINEA, '0xf56dc6695cF1f5c364eDEbC7Dc7077ac9B586068', 6, 'USDC', 'USD Coin'),
 }
 
 export const USDT: { [chainId in ChainId]: Token } = {
@@ -564,6 +577,7 @@ export const USDT: { [chainId in ChainId]: Token } = {
     'USDT',
     'Tether USD',
   ),
+
   [ChainId.LINEA_TESTNET]: new Token(
     ChainId.LINEA_TESTNET,
     '0x1990BC6dfe2ef605Bfc08f5A23564dB75642Ad73',
@@ -571,6 +585,10 @@ export const USDT: { [chainId in ChainId]: Token } = {
     'USDT',
     'Tether USD',
   ),
+
+  // not existing
+  [ChainId.LINEA]: new Token(ChainId.LINEA, '0x1990BC6dfe2ef605Bfc08f5A23564dB75642Ad73', 6, 'USDT', 'Tether USD'),
+
   [ChainId.ZKSYNC]: new Token(ChainId.ZKSYNC, '0x493257fd37edb34451f62edf8d2a0c418852ba4c', 6, 'USDT', 'Tether USD'),
   [ChainId.SOLANA]: new Token(ChainId.SOLANA, 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB', 6, 'USDT', 'Tether USD'),
   [ChainId.SOLANA_DEVNET]: new Token(
@@ -687,14 +705,16 @@ export const KNC: { [chainId in ChainId]: Token } = {
     'Kyber Network Crystal',
   ),
 
-  // TODO(viet-nv):
+  // not existing
   [ChainId.LINEA_TESTNET]: new Token(
     ChainId.LINEA_TESTNET,
     '0x6Cb9750a92643382e020eA9a170AbB83Df05F30B',
     6,
-    'USDT',
-    'Tether USD',
+    'KNC',
+    'KNC',
   ),
+  // not existing
+  [ChainId.LINEA]: new Token(ChainId.LINEA, '0x6Cb9750a92643382e020eA9a170AbB83Df05F30B', 6, 'KNC', 'KNC'),
 }
 
 export const PINNED_PAIRS: { readonly [chainId in ChainId]?: [Token, Token][] } = {
@@ -725,6 +745,7 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   [ChainId.GÖRLI]: KNC[ChainId.GÖRLI],
   [ChainId.ZKSYNC]: USDC[ChainId.ZKSYNC],
   [ChainId.LINEA_TESTNET]: USDC[ChainId.LINEA_TESTNET],
+  [ChainId.LINEA]: new Token(ChainId.LINEA, '0x7d43aabc515c356145049227cee54b608342c0ad', 18, 'BUSD', 'BUSD'),
 }
 
 export const DEFAULT_SWAP_FEE_STABLE_PAIRS = 4
