@@ -115,7 +115,7 @@ const EarningAreaChart: React.FC<Props> = ({ data, setHoverValue = EMPTY_FUNCTIO
           tickLine={false}
           stroke={theme.subText}
           tickFormatter={(value: any, _index: number) => formatter(String(value))}
-          width={48}
+          width={52}
         />
         <Customized component={KyberLogo} />
         <Tooltip

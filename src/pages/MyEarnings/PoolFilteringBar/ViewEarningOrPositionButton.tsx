@@ -22,6 +22,7 @@ const CustomButton = styled.div<{ isActive: boolean }>`
   font-weight: 500;
   font-size: 12px;
   transition: all 0.2s ease;
+  height: 32px;
   display: flex;
   align-items: center;
   gap: 2px;

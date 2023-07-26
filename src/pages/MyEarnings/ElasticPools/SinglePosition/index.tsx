@@ -35,7 +35,6 @@ const FlipCardFront = styled.div`
   position: absolute;
   width: 100%;
   height: 100%;
-  -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 `
 
@@ -103,6 +102,13 @@ const SinglePosition: React.FC<Props> = ({
     tokenPrices,
     currency0,
     currency1,
+  }
+
+  // Can not interact with flipcard on safari. fuck apple
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+
+  if (isSafari) {
+    return <FlipCard>{isViewEarnings ? <EarningView {...props} /> : <PositionView {...props} />}</FlipCard>
   }
 
   return (

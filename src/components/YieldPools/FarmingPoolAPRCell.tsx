@@ -88,7 +88,7 @@ export const APRTooltipContent = ({
           }}
         >
           <Text as="span" color={theme.warning}>
-            Dynamic Farm APR:{' '}
+            Farm APR:{' '}
             <Text as="span" fontWeight={500}>
               {farmAPR.toFixed(2)}%
             </Text>
@@ -114,7 +114,7 @@ export const APRTooltipContent = ({
           }}
         >
           <Text as="span" color={theme.warning}>
-            Static Farm APR:{' '}
+            Farm APR:{' '}
             <Text as="span" fontWeight={500}>
               {farmV2APR.toFixed(2)}%
             </Text>
