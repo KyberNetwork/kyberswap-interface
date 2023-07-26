@@ -182,7 +182,9 @@ export default createReducer(initialState, builder =>
         : ethereumInfo.classic.defaultSubgraph
 
       const elasticSubgraph = evm
-        ? data?.elasticSubgraph || NETWORKS_INFO[chainId].elastic.defaultSubgraph
+        ? NETWORKS_INFO[chainId].elastic.defaultSubgraph ||
+          data?.elasticSubgraph ||
+          NETWORKS_INFO[chainId].elastic.defaultSubgraph
         : ethereumInfo.elastic.defaultSubgraph
 
       if (!state.config) state.config = {}

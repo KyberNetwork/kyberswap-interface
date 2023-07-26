@@ -141,7 +141,7 @@ const Desc = styled.div`
   }
 `
 
-const formatCtaName = (ctaName: string, ctaUrl: string) => {
+export const formatCtaName = (ctaName: string, ctaUrl: string) => {
   const formatName = ctaName.replace('{{.ctaName}}', '') // fallback backend return empty data
   if (!ctaUrl) return formatName || t`Close`
   return formatName || t`Detail`

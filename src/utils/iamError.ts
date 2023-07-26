@@ -1,7 +1,7 @@
 import { captureException } from '@sentry/react'
 import { AxiosError } from 'axios'
 
-import { BFF_API, ENV_KEY, ENV_LEVEL } from 'constants/env'
+import { BFF_API, ENV_LEVEL } from 'constants/env'
 import { AGGREGATOR_API_PATHS } from 'constants/index'
 import { ENV_TYPE } from 'constants/type'
 
@@ -12,6 +12,8 @@ const ErrorInfo = {
   sentAlertIamApi: false,
   sentAlertRouteApi: false,
 }
+
+const apiDowns: string[] = []
 
 const isIamApiDown = () => ErrorInfo.iamApoError >= ErrorInfo.errorThreshold
 const isRouteApiDown = () => ErrorInfo.routeApiError >= ErrorInfo.errorThreshold
@@ -26,6 +28,16 @@ const sendError = (name: string, apiUrl: string, trackData: any) => {
 // hot fix to prevent spam for now.
 const blacklistPathBff = ['/v1/notification/me', '/v1/tokens/score']
 
+let isOnline = true
+function onConnect() {
+  isOnline = true
+}
+function onDisconnect() {
+  isOnline = false
+}
+window.addEventListener('online', onConnect, false)
+window.addEventListener('offline', onDisconnect, false)
+
 /**
  * check error status: blocked, maybe cors issues or  server down
  * only check bff api + 2 route apis
@@ -35,11 +47,14 @@ export const checkIamDown = (axiosErr: AxiosError) => {
   const response = axiosErr?.response?.data
 
   const isDie =
-    navigator.onLine && // not track when internet issue
+    isOnline && // not track when internet issue
     statusCode !== 401 && // not track when token expired
     (!response || // block cors
       (statusCode === 404 && response === '404 page not found') || // wrong path
       (statusCode && statusCode >= 500 && statusCode <= 599)) // server down
+
+  const apiUrl = axiosErr?.config?.url ?? ''
+  if (isDie) apiDowns.push(apiUrl)
 
   const trackData = {
     config: {
@@ -52,11 +67,11 @@ export const checkIamDown = (axiosErr: AxiosError) => {
     statusCode,
     message: axiosErr?.message,
     code: axiosErr?.code,
-    tokenInfoSignIn: localStorage[`${ENV_KEY}_o2_sign_in`],
-    tokenInfoGuest: localStorage[`${ENV_KEY}_o2_guest`],
+    tokenInfoSignIn: localStorage.o2_sign_in,
+    tokenInfoGuest: localStorage.o2_guest,
     profileInfo: localStorage.redux_localstorage_simple_profile,
+    apiDowns,
   }
-  const apiUrl = axiosErr?.config?.url ?? ''
 
   const isRouteApiDie =
     isDie && (apiUrl.endsWith(AGGREGATOR_API_PATHS.GET_ROUTE) || apiUrl.endsWith(AGGREGATOR_API_PATHS.BUILD_ROUTE))

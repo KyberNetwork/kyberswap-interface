@@ -40,14 +40,8 @@ import {
 } from './buttons'
 import { FarmList } from './styleds'
 
-const FarmContent = styled.div<{ borderBottom: boolean; borderTop: boolean }>`
+const FarmContent = styled.div`
   background: ${({ theme }) => theme.background};
-  border: 1px solid ${({ theme }) => theme.border};
-  border-bottom: 1px solid ${({ theme, borderBottom }) => (borderBottom ? theme.border : 'transparent')};
-  border-top-left-radius: ${({ borderTop }) => (borderTop ? '20px' : 0)};
-  border-top-right-radius: ${({ borderTop }) => (borderTop ? '20px' : 0)};
-  border-bottom-left-radius: ${({ borderBottom }) => (borderBottom ? '20px' : 0)};
-  border-bottom-right-radius: ${({ borderBottom }) => (borderBottom ? '20px' : 0)};
   overflow: hidden;
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
@@ -70,8 +64,6 @@ type Props = {
   userInfo?: UserInfo
   onShowStepGuide: () => void
   tokenPrices: { [key: string]: number }
-  borderTop: boolean
-  borderBottom: boolean
 }
 
 enum SORT_FIELD {
@@ -88,16 +80,7 @@ enum SORT_DIRECTION {
   DESC = 'desc',
 }
 
-const ProMMFarmGroup: React.FC<Props> = ({
-  address,
-  onOpenModal,
-  pools,
-  userInfo,
-  onShowStepGuide,
-  tokenPrices,
-  borderTop,
-  borderBottom,
-}) => {
+const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo, onShowStepGuide, tokenPrices }) => {
   const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
   const above1000 = useMedia('(min-width: 1000px)')
@@ -680,7 +663,7 @@ const ProMMFarmGroup: React.FC<Props> = ({
   }
 
   return (
-    <FarmContent data-testid="farm-block" borderTop={borderTop} borderBottom={borderBottom}>
+    <FarmContent data-testid="farm-block">
       {renderFarmGroupHeader()}
 
       {tab === FARM_TAB.MY_FARMS ? (

@@ -1,17 +1,10 @@
-import { Trans } from '@lingui/macro'
 import { useRef, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
+import { Flex } from 'rebass'
 
-import { APP_PATHS, FARM_TAB } from 'constants/index'
-import { VERSION } from 'constants/v2'
-import { useActiveWeb3React } from 'hooks'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
-import useTheme from 'hooks/useTheme'
 import { useFilteredFarms } from 'state/farms/elastic/hooks'
 import { FarmingPool } from 'state/farms/elastic/types'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
-import { StyledInternalLink } from 'theme'
 
 import ElasticFarmGroup from './ElasticFarmGroup'
 import { DepositModal, StakeUnstakeModal } from './ElasticFarmModals'
@@ -20,19 +13,10 @@ import WithdrawModal from './ElasticFarmModals/WithdrawModal'
 
 type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest' | 'forcedWithdraw'
 
-function ElasticFarms({ onShowStepGuide, noStaticFarm }: { onShowStepGuide: () => void; noStaticFarm: boolean }) {
-  const theme = useTheme()
-  const { networkInfo } = useActiveWeb3React()
-
-  const [searchParams] = useSearchParams()
-
+function ElasticFarms({ onShowStepGuide }: { onShowStepGuide: () => void }) {
   const ref = useRef<HTMLDivElement>()
   const [open, setOpen] = useState(false)
   useOnClickOutside(ref, open ? () => setOpen(prev => !prev) : undefined)
-
-  const type = searchParams.get('type')
-
-  const tab = searchParams.get('tab')
 
   const { filteredFarms, farms, userFarmInfo } = useFilteredFarms()
 
@@ -84,38 +68,12 @@ function ElasticFarms({ onShowStepGuide, noStaticFarm }: { onShowStepGuide: () =
         <HarvestModal farmsAddress={selectedFarm} poolId={selectedPoolId} onDismiss={onDismiss} />
       )}
 
-      {type === FARM_TAB.ENDED && tab !== VERSION.CLASSIC && (
-        <Text fontStyle="italic" fontSize={12} marginBottom="1rem" color={theme.subText}>
-          <Trans>
-            Your rewards may be automatically harvested a few days after the farm ends. Please check the{' '}
-            <StyledInternalLink to={`${APP_PATHS.FARMS}/${networkInfo.route}?type=vesting`}>Vesting</StyledInternalLink>{' '}
-            tab to see your rewards
-          </Trans>
-        </Text>
-      )}
-
-      {(!type || type === FARM_TAB.ACTIVE) && tab !== VERSION.CLASSIC && (
-        <Text fontSize={12} color={theme.subText} marginBottom="1.5rem">
-          <Trans>
-            Note: Farms will run in{' '}
-            <Text as="span" color={theme.warning}>
-              multiple phases
-            </Text>
-            . Once the current phase ends, you can harvest your rewards from the farm in the{' '}
-            <StyledInternalLink to={`${APP_PATHS.FARMS}/${networkInfo.route}?type=${FARM_TAB.ENDED}`}>
-              Ended
-            </StyledInternalLink>{' '}
-            tab. To continue earning rewards in the new phase, you must restake your NFT position into the active farm
-          </Trans>
-        </Text>
-      )}
-
       <Flex
         sx={{
           flexDirection: 'column',
         }}
       >
-        {filteredFarms.map((farm, index) => {
+        {filteredFarms.map(farm => {
           return (
             <ElasticFarmGroup
               onShowStepGuide={onShowStepGuide}
@@ -129,8 +87,6 @@ function ElasticFarms({ onShowStepGuide, noStaticFarm }: { onShowStepGuide: () =
               pools={farm.pools}
               userInfo={userFarmInfo?.[farm.id]}
               tokenPrices={tokenPrices}
-              borderTop={index === 0}
-              borderBottom={index === filteredFarms.length - 1 && noStaticFarm}
             />
           )
         })}

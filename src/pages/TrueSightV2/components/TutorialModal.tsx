@@ -114,8 +114,8 @@ const steps = [
         <p>
           For traders who are in discovery mode, start with the Rankings section. Here you will see top tokens under
           each of the 7 categories -{' '}
-          <b>Bullish, Bearish, Top CEX Inflow, Top CEX Outflow, Top Traded, Trending Soon, Currently Trending.</b>
-          We update the token rankings multiple times a day!
+          <b>Bullish, Bearish, Top CEX Inflow, Top CEX Outflow, Top Traded, Trending Soon, Currently Trending.</b> We
+          update the token rankings multiple times a day!
         </p>{' '}
         <p>
           For traders looking to spot alpha on specific tokens, start with the Explore section. You will find a number

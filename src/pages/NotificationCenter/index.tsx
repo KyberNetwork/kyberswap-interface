@@ -64,10 +64,11 @@ const Title = styled.h2`
     font-size: 20px;
   `}
 `
+const LEFT_MENU_SIZE = '290px'
 
 const LeftColumn = styled.div`
-  width: 290px;
-  min-width: 290px;
+  width: ${LEFT_MENU_SIZE};
+  min-width: ${LEFT_MENU_SIZE};
 
   background-color: ${({ theme }) => theme.tableHeader};
   border-radius: 24px 0px 0px 24px;
@@ -83,12 +84,13 @@ const LeftColumn = styled.div`
 const RightColumn = styled.div`
   background-color: ${({ theme }) => theme.background};
   flex: 1;
+  max-width: calc(100% - ${LEFT_MENU_SIZE});
   border-radius: 0px 24px 24px 0px;
-
+  min-height: 200px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
     width: 100%;
     border-radius: 0px;
-
+    max-width: 100%;
     display: flex;
     flex-direction: column;
   `}

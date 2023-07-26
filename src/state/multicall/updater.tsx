@@ -26,21 +26,16 @@ const CALL_CHUNK_SIZE = 100
  * Fetches a chunk of calls, enforcing a minimum block number constraint
  * @param multicallContract multicall contract to fetch against
  * @param chunk chunk of calls to make
- * @param minBlockNumber minimum block number of the result set
+ * @param blockNumber block number passed as the block tag in the eth_call
  */
 export async function fetchChunk(
   multicallContract: Contract,
   chunk: Call[],
-  minBlockNumber: number,
-  chainId: ChainId,
+  blockNumber: number,
 ): Promise<{ results: string[]; blockNumber: number }> {
-  console.debug('Fetching chunk', { multicallContract, chunk, minBlockNumber })
-  let resultsBlockNumber, returnData
+  console.debug('Fetching chunk', { multicallContract, chunk, blockNumber })
+  let returnData
 
-  // ZkSync does not return L2 chain Id from multicallContract like other L2
-  // ex: on arbitrum https://developer.arbitrum.io/time#case-study-multicall
-  // Then we will using timestapm for zksync
-  const isZkSync = chainId === ChainId.ZKSYNC
   try {
     const res = await multicallContract.callStatic.tryBlockAndAggregate(
       false, // requireSuccess
@@ -50,11 +45,10 @@ export async function fetchChunk(
         gasLimit: obj.gasRequired ?? 1_000_000,
       })),
       {
-        blockTag: isZkSync ? minBlockNumber : undefined,
+        blockTag: blockNumber,
       },
     )
 
-    resultsBlockNumber = isZkSync ? minBlockNumber : res.blockNumber
     returnData = res.returnData.map((item: any) => item[1])
   } catch (e) {
     const error: any = e
@@ -63,16 +57,16 @@ export async function fetchChunk(
       (error?.data?.message && error?.data?.message?.indexOf('header not found') !== -1) ||
       error.message?.indexOf('header not found') !== -1
     ) {
-      throw new RetryableError(`header not found for block number ${minBlockNumber}`)
-    } else {
+      throw new RetryableError(`header not found for block number ${blockNumber}`)
+    } else if (error.code === -32603 || error.message?.indexOf('execution ran out of gas') !== -1) {
       if (chunk.length > 1) {
         if (import.meta.env.DEV) {
           console.debug('Splitting a chunk in 2', chunk)
         }
         const half = Math.floor(chunk.length / 2)
         const [c0, c1] = await Promise.all([
-          fetchChunk(multicallContract, chunk.slice(0, half), minBlockNumber, chainId),
-          fetchChunk(multicallContract, chunk.slice(half, chunk.length), minBlockNumber, chainId),
+          fetchChunk(multicallContract, chunk.slice(0, half), blockNumber),
+          fetchChunk(multicallContract, chunk.slice(half, chunk.length), blockNumber),
         ])
         return {
           results: c0.results.concat(c1.results),
@@ -84,11 +78,7 @@ export async function fetchChunk(
     throw error
   }
 
-  if (!isZkSync && resultsBlockNumber.toNumber() < minBlockNumber) {
-    console.debug(`Fetched results for old block number: ${resultsBlockNumber.toString()} vs. ${minBlockNumber}`)
-    throw new RetryableError('Fetched for old block number')
-  }
-  return { results: returnData, blockNumber: isZkSync ? minBlockNumber : resultsBlockNumber.toNumber() }
+  return { results: returnData, blockNumber }
 }
 
 /**
@@ -204,7 +194,7 @@ export default function Updater(): null {
     cancellations.current = {
       blockNumber: latestBlockNumber,
       cancellations: chunkedCalls.map((chunk, index) => {
-        const { cancel, promise } = retry(() => fetchChunk(multicallContract, chunk, latestBlockNumber, chainId), {
+        const { cancel, promise } = retry(() => fetchChunk(multicallContract, chunk, latestBlockNumber), {
           n: Infinity,
           minWait: 2500,
           maxWait: 3500,

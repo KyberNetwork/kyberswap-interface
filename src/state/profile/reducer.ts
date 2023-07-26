@@ -12,7 +12,6 @@ export interface ProfileState {
   readonly signedAccount: undefined | string
   readonly signedMethod: undefined | string
   readonly isKeepCurrentProfile: boolean
-  readonly loginRedirectUrl: string
   readonly importToken: {
     [key: string]: string
   }
@@ -23,7 +22,6 @@ const DEFAULT_PROFILE_STATE: ProfileState = {
   signedMethod: undefined,
 
   isKeepCurrentProfile: false,
-  loginRedirectUrl: '',
   importToken: {},
   profileMap: {
     wallet: {},
@@ -43,9 +41,6 @@ const slice = createSlice({
     },
     setKeepCurrentProfile: (state, { payload }: PayloadAction<boolean>) => {
       state.isKeepCurrentProfile = payload
-    },
-    setLoginRedirectUrl: (state, { payload }: PayloadAction<string>) => {
-      state.loginRedirectUrl = payload
     },
     setImportToken: (state, { payload }: PayloadAction<Record<string, string>>) => {
       state.importToken = payload
