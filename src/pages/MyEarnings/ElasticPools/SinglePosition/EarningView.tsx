@@ -40,6 +40,7 @@ const EarningView: React.FC<CommonProps> = props => {
       <Flex
         sx={{
           flexDirection: 'column',
+          width: 'fit-content',
           gap: '4px 16px',
         }}
       >
@@ -81,7 +82,7 @@ const EarningView: React.FC<CommonProps> = props => {
           <Label>
             <Trans>My Pool APR</Trans>
           </Label>
-          <Label $hasTooltip>
+          <Label>
             <Trans>My Farm APR</Trans>
           </Label>
         </Row>

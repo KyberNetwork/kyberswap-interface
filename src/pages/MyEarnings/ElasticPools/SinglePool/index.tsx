@@ -76,6 +76,11 @@ const Row = styled.div`
   font-weight: 500;
   display: grid;
   grid-template-columns: 3fr repeat(7, 1fr);
+
+  :hover {
+    cursor: pointer;
+    background: ${({ theme }) => rgba(theme.primary, 0.15)};
+  }
 `
 
 const Badge = styled.div<{ $color?: string }>`
@@ -320,7 +325,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
                 {poolName}
               </Text>
               <Badge $color={theme.blue}>FEE {feePercent}</Badge>
-              {isFarmingPool && <FarmTag noText address={poolEarning.id} />}
+              {isFarmingPool && <FarmTag noText address={poolEarning.id} chainId={chainId} />}
             </Flex>
             {share}
           </Flex>
@@ -452,7 +457,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
             >
               <Text>{poolName}</Text>
               <Badge $color={theme.blue}>FEE {feePercent}</Badge>
-              {isFarmingPool && <FarmTag noText address={poolEarning.id} />}
+              {isFarmingPool && <FarmTag noText address={poolEarning.id} chainId={chainId} />}
             </Flex>
 
             {share}
@@ -499,22 +504,28 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
             <BarChart2 color={theme.subText} size={18} />
           </ButtonIcon>
 
-          <ButtonIcon
-            color={theme.primary}
-            style={{
-              width: '24px',
-              height: '24px',
-            }}
-            as={Link}
-            to={
-              currency0Slug && currency1Slug
-                ? `/${NETWORKS_INFO[chainId].route}${APP_PATHS.ELASTIC_CREATE_POOL}/${currency0Slug}/${currency1Slug}/${feeAmount}`
-                : '#'
-            }
-            onClick={e => e.stopPropagation()}
-          >
-            <Plus color={theme.primary} size={18} />
-          </ButtonIcon>
+          {isLegacyPool ? (
+            <ButtonIcon disabled>
+              <Plus color={theme.subText} size={18} />
+            </ButtonIcon>
+          ) : (
+            <ButtonIcon
+              color={theme.primary}
+              style={{
+                width: '24px',
+                height: '24px',
+              }}
+              as={Link}
+              to={
+                currency0Slug && currency1Slug
+                  ? `/${NETWORKS_INFO[chainId].route}${APP_PATHS.ELASTIC_CREATE_POOL}/${currency0Slug}/${currency1Slug}/${feeAmount}`
+                  : '#'
+              }
+              onClick={e => e.stopPropagation()}
+            >
+              <Plus color={theme.primary} size={18} />
+            </ButtonIcon>
+          )}
         </Flex>
       </Row>
       {isExpanded && isExpandable && positions}

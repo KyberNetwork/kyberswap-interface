@@ -117,7 +117,7 @@ const PositionView: React.FC<CommonProps> = props => {
   const farmRewards = positionEarning.joinedPositions?.[0]?.farmingPool?.rewardTokensIds?.map((rwId, index) => {
     const token = tokens[rwId] || new Token(chainId, rwId, 18, '', '')
 
-    return CurrencyAmount.fromRawAmount(token, positionEarning.joinedPositions?.[0]?.pendingRewards[index] || '0')
+    return CurrencyAmount.fromRawAmount(token, positionEarning.joinedPositions?.[0]?.pendingRewards?.[index] || '0')
   })
 
   const addTransactionWithType = useTransactionAdder()
@@ -299,7 +299,7 @@ const PositionView: React.FC<CommonProps> = props => {
         </Flex>
 
         <ButtonOutlined
-          disabled={!positionEarning.joinedPositions?.[0]?.pendingRewards.some(item => item !== '0')}
+          disabled={!positionEarning.joinedPositions?.[0]?.pendingRewards?.some(item => item !== '0')}
           style={{
             height: '36px',
             width: 'fit-content',

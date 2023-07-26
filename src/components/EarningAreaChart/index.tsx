@@ -26,7 +26,16 @@ const CustomizedLabel = (props: any) => {
   return (
     <>
       {show && (
-        <text x={x} y={y} dy={-10} fontSize={12} fontWeight={500} fill={theme.subText} textAnchor="middle">
+        <text
+          x={x}
+          y={y}
+          dx={index ? undefined : 20}
+          dy={-10}
+          fontSize={12}
+          fontWeight={500}
+          fill={theme.subText}
+          textAnchor="middle"
+        >
           {formatUSDValue(value)}
         </text>
       )}
@@ -51,13 +60,13 @@ const formatter = (value: string) => {
   const num = Number(value)
   const numberOfZero = -Math.floor(Math.log10(num) + 1)
 
-  if (num > 0 && num < 1 && numberOfZero > 3) {
+  if (num > 0 && num < 1 && numberOfZero > 2) {
     const temp = Number(toFixed(num).split('.')[1])
     return `0.0${numberOfZero
       .toString()
       .split('')
       .map(item => subscriptMap[item])
-      .join('')}${temp}`
+      .join('')}${temp > 10 ? (temp / 10).toFixed(0) : temp}`
   }
 
   const formatter = Intl.NumberFormat('en-US', {
@@ -99,7 +108,7 @@ const EarningAreaChart: React.FC<Props> = ({ data, setHoverValue = EMPTY_FUNCTIO
             <stop offset="100%" stopColor={theme.primary} stopOpacity={0} />
           </linearGradient>
         </defs>
-        <XAxis dataKey="date" fontSize="12px" axisLine={false} tickLine={false} stroke={theme.subText} />
+        <XAxis angle={-30} dataKey="date" fontSize="12px" axisLine={false} tickLine={false} stroke={theme.subText} />
         <YAxis
           fontSize="12px"
           axisLine={false}

@@ -146,6 +146,8 @@ const Positions: React.FC<Props> = ({
         <Trans>My Liquidity Positions</Trans>
       </Text>
 
+      {showEarningChart && <PoolEarningsSection historicalEarning={poolEarning.historicalEarning} chainId={chainId} />}
+
       <Flex
         justifyContent="space-between"
         alignItems="center"
@@ -159,8 +161,6 @@ const Positions: React.FC<Props> = ({
           numOfClosedPositions={numOfClosedPositions}
         />
       </Flex>
-
-      {showEarningChart && <PoolEarningsSection historicalEarning={poolEarning.historicalEarning} chainId={chainId} />}
 
       <ListPositions>
         {positionEarnings.slice(0, numberOfVisiblePositions).map(positionEarning => (

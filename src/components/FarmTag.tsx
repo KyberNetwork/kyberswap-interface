@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { transparentize } from 'polished'
 import { Link } from 'react-router-dom'
@@ -5,6 +6,7 @@ import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import { APP_PATHS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 
 import { MoneyBag } from './Icons'
@@ -27,12 +29,14 @@ export const FarmTag = ({
   address,
   noTooltip,
   noText,
+  chainId,
 }: {
   address?: string
   noTooltip?: boolean
   noText?: boolean
+  chainId?: ChainId
 }) => {
-  const { networkInfo } = useActiveWeb3React()
+  const { chainId: currentChainId } = useActiveWeb3React()
 
   const tag = (
     <FarmAvailableTag padding={noText ? '2px 4px' : '4px 8px'}>
@@ -49,7 +53,13 @@ export const FarmTag = ({
         <Text>
           <Trans>
             Participate in the Elastic farm to earn more rewards. Click{' '}
-            <Link to={`${APP_PATHS.FARMS}/${networkInfo.route}?tab=elastic&type=active&search=${address}`}>here</Link>{' '}
+            <Link
+              to={`${APP_PATHS.FARMS}/${
+                NETWORKS_INFO[chainId || currentChainId].route
+              }?tab=elastic&type=active&search=${address}`}
+            >
+              here
+            </Link>{' '}
             to go to the farm.
           </Trans>
         </Text>

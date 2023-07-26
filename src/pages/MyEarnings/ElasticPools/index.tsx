@@ -118,12 +118,12 @@ const ElasticPools = () => {
 
           return (
             pool.id.toLowerCase() === searchText ||
-            pool.token0.id.toLowerCase() === searchText ||
-            pool.token0.symbol.toLowerCase() === searchText ||
-            pool.token0.name.toLowerCase() === searchText ||
+            pool.token0.id.toLowerCase().includes(searchText) ||
+            pool.token0.symbol.toLowerCase().includes(searchText) ||
+            pool.token0.name.toLowerCase().includes(searchText) ||
             pool.token1.id.toLowerCase() === searchText ||
-            pool.token1.symbol.toLowerCase() === searchText ||
-            pool.token1.name.toLowerCase() === searchText
+            pool.token1.symbol.toLowerCase().includes(searchText) ||
+            pool.token1.name.toLowerCase().includes(searchText)
           )
         }) || EMPTY_ARRAY
 

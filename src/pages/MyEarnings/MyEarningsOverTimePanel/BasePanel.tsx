@@ -113,13 +113,13 @@ const BasePanel: React.FC<Props> = ({
             alignItems: 'center',
             gap: '8px',
             height: 'fit-content',
-            flexWrap: 'nowrap',
             flex: isContainerSmall ? '1 1 100%' : '0 0 240px',
           }}
         >
           <TimePeriodSelect period={period} setPeriod={setPeriod} />
           <Flex
             onClick={toggleModal}
+            marginRight="2px"
             sx={{
               cursor: 'pointer',
             }}

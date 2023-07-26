@@ -138,7 +138,7 @@ function ClassicElasticTab() {
                 role="button"
                 alignItems="center"
                 // onClick={handleClickClassic}
-                color={tab === VERSION.CLASSIC ? theme.primary : theme.disableText}
+                color={tab === VERSION.CLASSIC ? theme.primary : rgba(theme.subText, 0.5)}
                 sx={{
                   cursor: 'pointer',
                   gap: '8px',
@@ -150,7 +150,10 @@ function ClassicElasticTab() {
                     height: '16px',
                   }}
                 >
-                  <PoolClassicIcon size={16} color={tab === VERSION.CLASSIC ? theme.primary : theme.disableText} />
+                  <PoolClassicIcon
+                    size={16}
+                    color={tab === VERSION.CLASSIC ? theme.primary : rgba(theme.subText, 0.5)}
+                  />
                 </Flex>
                 <Text fontWeight={500} fontSize={'16px'} width={'auto'}>
                   <Trans>Classic Pools</Trans>

@@ -139,7 +139,7 @@ const PriceRangeChart: React.FC<Props> = ({ position, disabled }) => {
         </MouseoverTooltip>
 
         <Text>
-          {formatTickPrice(priceLower, tickAtLimit, Bound.LOWER)} {quoteCurrency.symbol}/{baseCurrency.symbol}
+          {formatTickPrice(priceUpper, tickAtLimit, Bound.LOWER)} {quoteCurrency.symbol}/{baseCurrency.symbol}
         </Text>
       </Flex>
     </Flex>
