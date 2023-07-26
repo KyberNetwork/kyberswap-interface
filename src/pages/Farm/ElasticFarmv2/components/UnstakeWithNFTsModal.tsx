@@ -104,7 +104,6 @@ const NFTItem = ({
   pos: UserFarmV2Info
   onClick?: (tokenId: string) => void
 }) => {
-  console.log(pos.nftId.toString(), pos.unclaimedRewardsUsd)
   const priceLower = getTickToPrice(
     pos.position.pool.token0.wrapped,
     pos.position.pool.token1.wrapped,
@@ -250,12 +249,14 @@ const UnstakeWithNFTsModal = ({
   isOpen,
   onDismiss,
   farm,
+  farmAddress,
 }: {
   isOpen: boolean
   onDismiss: () => void
   farm: ElasticFarmV2
+  farmAddress: string
 }) => {
-  const stakedPos = useUserFarmV2Info(farm.fId)
+  const stakedPos = useUserFarmV2Info(farmAddress, farm.fId)
   const theme = useTheme()
   const [selectedPos, setSelectedPos] = useState<{ [tokenId: string]: boolean }>({})
 
@@ -278,7 +279,7 @@ const UnstakeWithNFTsModal = ({
     mixpanel.track('ElasticFarmV2 - Unstake Modal - NFT Clicked', { nftId: tokenId })
   }, [])
 
-  const { withdraw } = useFarmV2Action()
+  const { withdraw } = useFarmV2Action(farmAddress)
 
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [txHash, setTxHash] = useState('')

@@ -173,6 +173,7 @@ export default function PopupItem({ popup, hasOverlay }: { popup: PopupItemType;
       break
     }
   }
+  if (!popupContent) return null
   return isRestartAnimation ? (
     <div />
   ) : (

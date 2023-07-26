@@ -252,12 +252,14 @@ const UpdateLiquidityModal = ({
   isOpen,
   onDismiss,
   farm,
+  farmAddress,
 }: {
   isOpen: boolean
   onDismiss: () => void
   farm: ElasticFarmV2
+  farmAddress: string
 }) => {
-  const stakedPos = useUserFarmV2Info(farm.fId)
+  const stakedPos = useUserFarmV2Info(farmAddress, farm.fId)
 
   const allEligiblePositions = stakedPos.filter(item => {
     const range = farm.ranges.find(r => r.index === item.rangeId)
@@ -287,7 +289,7 @@ const UpdateLiquidityModal = ({
     mixpanel.track('ElasticFarmV2 - Update Liquidity Modal - NFT Clicked', { nftId: tokenId })
   }, [])
 
-  const { updateLiquidity } = useFarmV2Action()
+  const { updateLiquidity } = useFarmV2Action(farmAddress)
 
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [txHash, setTxHash] = useState('')

@@ -15,7 +15,7 @@ import { revokePermit } from 'state/user/actions'
 import { findTx } from 'utils'
 import { includes } from 'utils/array'
 
-import { checkedTransaction, finalizeTransaction, removeTx, replaceTx } from './actions'
+import { checkedTransaction, finalizeTransaction, replaceTx } from './actions'
 import { SerializableTransactionReceipt, TRANSACTION_TYPE, TransactionDetails } from './type'
 
 function shouldCheck(
@@ -103,10 +103,10 @@ export default function Updater(): null {
                     }
                   })
                   .catch(() => {
-                    dispatch(removeTx({ chainId, hash }))
+                    // dispatch(removeTx({ chainId, hash }))
                   })
               else {
-                dispatch(removeTx({ chainId, hash }))
+                // dispatch(removeTx({ chainId, hash }))
               }
             })
             .catch(console.warn)
