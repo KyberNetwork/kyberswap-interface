@@ -18,6 +18,7 @@ export interface ElasticFarmV2Range {
 export interface ElasticFarmV2 {
   id: string
   fId: number
+  farmAddress: string
   startTime: number
   endTime: number
   isSettled: boolean
@@ -33,6 +34,7 @@ export interface ElasticFarmV2 {
 }
 
 export interface UserFarmV2Info {
+  farmAddress: string
   poolAddress: string
   nftId: BigNumber
   position: Position

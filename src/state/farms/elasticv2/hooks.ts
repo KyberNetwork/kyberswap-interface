@@ -5,8 +5,6 @@ import { useLocalStorage } from 'react-use'
 import FarmV2ABI from 'constants/abis/v2/farmv2.json'
 import { ELASTIC_FARM_TYPE, FARM_TAB } from 'constants/index'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
-import { NETWORKS_INFO } from 'constants/networks'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useContract, useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import { useAppSelector } from 'state/hooks'
@@ -23,9 +21,15 @@ export const useElasticFarmsV2 = () => {
   return elasticFarm || {}
 }
 
-export const useUserFarmV2Info = (fId: number): UserFarmV2Info[] => {
+export const useUserFarmV2Info = (farmAddress: string, fId: number): UserFarmV2Info[] => {
   const { userInfo } = useElasticFarmsV2()
-  return useMemo(() => userInfo?.filter(item => item.fId === fId) || [], [fId, userInfo])
+  return useMemo(
+    () =>
+      userInfo?.filter(
+        item => item.fId === fId && item.farmAddress === farmAddress && item.liquidity.toString() !== '0',
+      ) || [],
+    [fId, userInfo, farmAddress],
+  )
 }
 
 export enum SORT_FIELD {
@@ -42,7 +46,7 @@ export enum SORT_DIRECTION {
   DESC = 'desc',
 }
 
-export const useFilteredFarmsV2 = () => {
+export const useFilteredFarmsV2 = (farmAddress?: string) => {
   const { isEVM, chainId } = useActiveWeb3React()
 
   const [searchParams] = useSearchParams()
@@ -95,11 +99,15 @@ export const useFilteredFarmsV2 = () => {
     // Filter Active/Ended farms
     let result = farms?.filter(farm =>
       activeTab === FARM_TAB.MY_FARMS
-        ? userInfo?.some(item => item.poolAddress.toLowerCase() === farm.poolAddress.toLowerCase())
+        ? userInfo?.some(
+            item => item.poolAddress.toLowerCase() === farm.poolAddress.toLowerCase() && +item.fId === +farm.fId,
+          )
         : activeTab === FARM_TAB.ACTIVE
         ? farm.endTime >= now && !farm.isSettled
         : farm.endTime < now || farm.isSettled,
     )
+
+    if (farmAddress) result = result?.filter(item => item.farmAddress === farmAddress)
 
     // Filter by search value
     const searchAddress = isAddressString(chainId, search)
@@ -188,6 +196,7 @@ export const useFilteredFarmsV2 = () => {
     isEVM,
     search,
     elasticType,
+    farmAddress,
   ])
 
   return {
@@ -199,19 +208,18 @@ export const useFilteredFarmsV2 = () => {
   }
 }
 
-export const useFarmV2Action = () => {
-  const { chainId, account } = useActiveWeb3React()
-  const address = (NETWORKS_INFO[chainId] as EVMNetworkInfo).elastic?.farmV2Contract
+export const useFarmV2Action = (farmAddress: string) => {
+  const { account } = useActiveWeb3React()
   const addTransactionWithType = useTransactionAdder()
-  const farmContract = useContract(address, FarmV2ABI)
+  const farmContract = useContract(farmAddress, FarmV2ABI)
   const posManager = useProAmmNFTPositionManagerContract()
 
   const approve = useCallback(async () => {
     if (!posManager) {
       throw new Error(CONTRACT_NOT_FOUND_MSG)
     }
-    const estimateGas = await posManager.estimateGas.setApprovalForAll(address, true)
-    const tx = await posManager.setApprovalForAll(address, true, {
+    const estimateGas = await posManager.estimateGas.setApprovalForAll(farmAddress, true)
+    const tx = await posManager.setApprovalForAll(farmAddress, true, {
       gasLimit: calculateGasMargin(estimateGas),
     })
     addTransactionWithType({
@@ -219,11 +227,11 @@ export const useFarmV2Action = () => {
       type: TRANSACTION_TYPE.APPROVE,
       extraInfo: {
         summary: `Elastic Static Farm`,
-        contract: address,
+        contract: farmAddress,
       },
     })
     return tx.hash
-  }, [posManager, address, addTransactionWithType])
+  }, [posManager, farmAddress, addTransactionWithType])
 
   //Deposit
   const deposit = useCallback(

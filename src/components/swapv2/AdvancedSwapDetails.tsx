@@ -239,7 +239,7 @@ export function TradeSummaryBridge({ outputInfo }: { outputInfo: OutputBridgeInf
                       <Trans>{tokenInfoOut?.SwapFeeRatePerMillion}% Transaction Fee</Trans>
                     </Text>
                     {tokenInfoOut?.MinimumSwapFee === tokenInfoOut?.MaximumSwapFee ? (
-                      outputInfo.fee > 0 && (
+                      Number(outputInfo.fee) > 0 && (
                         <Text marginTop={'5px'}>
                           <Trans>
                             Gas Fee: {`${fee} ${tokenInfoOut.symbol} `}

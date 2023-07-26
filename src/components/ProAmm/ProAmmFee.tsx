@@ -16,8 +16,6 @@ import QuestionHelper from 'components/QuestionHelper'
 import { RowBetween, RowFixed } from 'components/Row'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import FarmV2ABI from 'constants/abis/v2/farmv2.json'
-import { NETWORKS_INFO } from 'constants/networks'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useContract, useProAmmNFTPositionManagerContract, useProMMFarmContract } from 'hooks/useContract'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -52,7 +50,7 @@ export default function ProAmmFee({
   feeValue0: CurrencyAmount<Currency> | undefined
   feeValue1: CurrencyAmount<Currency> | undefined
 }) {
-  const { account, chainId } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
   const { library } = useWeb3React()
   const theme = useTheme()
   const token0Shown = feeValue0?.currency || position.pool.token0
@@ -108,9 +106,9 @@ export default function ProAmmFee({
   const farmContract = useProMMFarmContract(farmAddress || '')
   const poolAddress = useProAmmPoolInfo(position.pool.token0, position.pool.token1, position.pool.fee as FeeAmount)
   const { userInfo } = useElasticFarmsV2()
-  const address = (NETWORKS_INFO[chainId] as EVMNetworkInfo).elastic?.farmV2Contract
-  const farmV2Contract = useContract(address, FarmV2ABI)
   const info = userInfo?.find(item => item.nftId.toString() === tokenId.toString())
+  const address = info?.farmAddress
+  const farmV2Contract = useContract(address, FarmV2ABI)
 
   const collectFeeFromFarmContract = async () => {
     const isInFarmV2 = !!info
