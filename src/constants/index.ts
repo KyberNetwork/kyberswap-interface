@@ -358,6 +358,8 @@ export const ICON_IDS = [
   'download',
   'upload',
   'coin-bag',
+  'check',
+  'pig',
   'speaker',
   'share',
   'liquid-outline',
