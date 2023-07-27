@@ -295,7 +295,7 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
         <RowBetween>
           {!isMobile && (
             <ButtonWrapper onClick={() => setIsSharePc(!isSharePc)}>
-              <Icon id="devices" size={20} />
+              <Icon id="devices" size={20} style={{ color: theme.subText }} />
             </ButtonWrapper>
           )}
           <ShareContainer>

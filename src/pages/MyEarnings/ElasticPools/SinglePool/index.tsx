@@ -17,7 +17,7 @@ import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { FarmTag } from 'components/FarmTag'
 import Loader from 'components/Loader'
-import { MouseoverTooltip } from 'components/Tooltip'
+import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { APRTooltipContent } from 'components/YieldPools/FarmingPoolAPRCell'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT, PROMM_ANALYTICS_URL } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -333,7 +333,13 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
           <MobileStat mobileView={mobileView}>
             <StatItem label="TVL" value={formatDollarAmount(+poolEarning.totalValueLockedUsd)} />
             <StatItem
-              label="APR"
+              label={
+                <MouseoverTooltip
+                  text={t`Average estimated return based on yearly trading fees from the pool & additional bonus rewards if you participate in the farm`}
+                >
+                  <TextDashed>APR</TextDashed>
+                </MouseoverTooltip>
+              }
               value={
                 <MouseoverTooltip
                   width="fit-content"

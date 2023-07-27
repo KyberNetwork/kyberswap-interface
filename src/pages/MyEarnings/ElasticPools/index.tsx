@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useMemo } from 'react'
 import { Info } from 'react-feather'
 import { useMedia } from 'react-use'
@@ -8,6 +8,7 @@ import { useGetElasticEarningQuery, useGetElasticLegacyEarningQuery } from 'serv
 import { ElasticPoolEarningWithDetails, ElasticPositionEarningWithDetails } from 'services/earning/types'
 import styled from 'styled-components'
 
+import InfoHelper from 'components/InfoHelper'
 import LoaderWithKyberLogo from 'components/LocalLoader'
 import { EMPTY_ARRAY } from 'constants/index'
 import { VERSION } from 'constants/v2'
@@ -189,7 +190,12 @@ const ElasticPools = () => {
             <Trans>Token Pair | Fee</Trans>
           </Text>
           <Text>TVL</Text>
-          <Text>APR</Text>
+          <Text>
+            APR
+            <InfoHelper
+              text={t`Average estimated return based on yearly trading fees from the pool & additional bonus rewards if you participate in the farm`}
+            />
+          </Text>
           <Text>
             <Trans>Volume (24h)</Trans>
           </Text>
