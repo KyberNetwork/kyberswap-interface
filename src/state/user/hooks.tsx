@@ -401,7 +401,7 @@ export const useUserFavoriteTokens = (chainId: ChainId) => {
   const { favoriteTokensByChainIdv2: favoriteTokensByChainId } = useSelector((state: AppState) => state.user)
   const { commonTokens } = useKyberSwapConfig(chainId)
   const defaultTokens = useMemo(() => {
-    return commonTokens || SUGGESTED_BASES[chainId || 1].map(e => e.address)
+    return commonTokens || SUGGESTED_BASES[chainId || ChainId.MAINNET].map(e => e.address)
   }, [commonTokens, chainId])
 
   const favoriteTokens = useMemo(() => {

@@ -46,9 +46,9 @@ const PERSISTED_KEYS: string[] = ['user', 'transactions', 'profile']
 ENV_LEVEL < ENV_TYPE.PROD && PERSISTED_KEYS.push('customizeDexes')
 
 // Migrate from old version to new version, prevent lost favorite tokens of user
-const storedState: any = load({ states: PERSISTED_KEYS })
-if ('user' in storedState) {
-  const userState: UserState = storedState.user
+const preloadedState: any = load({ states: PERSISTED_KEYS })
+if ('user' in preloadedState) {
+  const userState: UserState = preloadedState.user
   if (userState.favoriteTokensByChainId) {
     userState.favoriteTokensByChainIdv2 = Object.entries(userState.favoriteTokensByChainId).reduce(
       (acc, [chainId, obj]) => {
@@ -123,7 +123,7 @@ const store = configureStore({
       .concat(routeApi.middleware)
       .concat(socialApi.middleware)
       .concat(tokenApi.middleware),
-  preloadedState: storedState,
+  preloadedState,
 })
 
 const PREFIX_REDUX_PERSIST = 'redux_localstorage_simple_'
