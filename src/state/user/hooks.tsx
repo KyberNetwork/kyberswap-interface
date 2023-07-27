@@ -396,27 +396,28 @@ export function useToggleTopTrendingTokens(): () => void {
 
 export const useUserFavoriteTokens = (chainId: ChainId) => {
   const dispatch = useDispatch<AppDispatch>()
-  const { favoriteTokensByChainId } = useSelector((state: AppState) => state.user)
+  const { favoriteTokensByChainIdv2: favoriteTokensByChainId } = useSelector((state: AppState) => state.user)
   const { commonTokens } = useKyberSwapConfig(chainId)
   const defaultTokens = useMemo(() => {
-    return { addresses: commonTokens || SUGGESTED_BASES[chainId || 1].map(e => e.address), includeNativeToken: true }
+    return commonTokens || SUGGESTED_BASES[chainId || 1].map(e => e.address)
   }, [commonTokens, chainId])
 
   const favoriteTokens = useMemo(() => {
-    if (!chainId) return undefined
-    return favoriteTokensByChainId?.[chainId] || defaultTokens
+    if (!chainId || !defaultTokens) return undefined
+    const favoritedToken = favoriteTokensByChainId?.[chainId]
+    const favoritedTokenAddresses = favoritedToken
+      ? defaultTokens
+          .filter(address => favoritedToken[address] !== false)
+          .concat(Object.keys(favoritedToken).filter(address => favoritedToken[address]))
+      : []
+    return [...new Set(favoritedTokenAddresses)]
   }, [chainId, favoriteTokensByChainId, defaultTokens])
 
   const toggleFavoriteToken = useCallback(
     (payload: ToggleFavoriteTokenPayload) => {
-      dispatch(
-        toggleFavoriteTokenAction({
-          ...payload,
-          defaultCommonTokens: defaultTokens,
-        }),
-      )
+      dispatch(toggleFavoriteTokenAction(payload))
     },
-    [dispatch, defaultTokens],
+    [dispatch],
   )
 
   return { favoriteTokens, toggleFavoriteToken }

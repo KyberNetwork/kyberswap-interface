@@ -100,7 +100,7 @@ interface UserState {
   kyberAIDisplaySettings: {
     [k: string]: boolean
   }
-  favoriteTokensByChainId: Partial<
+  favoriteTokensByChainId?: Partial<
     Record<
       ChainId,
       {
@@ -109,6 +109,15 @@ interface UserState {
       }
     >
   >
+  // favoriteTokensByChainIdv2: Partial<
+  //   Record<
+  //     ChainId,
+  //     {
+  //       [address: string]: boolean
+  //     }
+  //   >
+  // >
+  favoriteTokensByChainIdv2: any
   readonly chainId: ChainId
   acceptedTermVersion: number | null
   viewMode: VIEW_MODE
@@ -179,6 +188,7 @@ const initialState: UserState = {
     liquidationsOnCEX: true,
   },
   favoriteTokensByChainId: {},
+  favoriteTokensByChainIdv2: {},
   chainId: ChainId.MAINNET,
   acceptedTermVersion: null,
   viewMode: VIEW_MODE.GRID,
@@ -293,32 +303,57 @@ export default createReducer(initialState, builder =>
     .addCase(toggleKyberAIBanner, state => {
       state.showKyberAIBanner = !state.showKyberAIBanner
     })
-    .addCase(toggleFavoriteToken, (state, { payload: { chainId, isNative, address, defaultCommonTokens } }) => {
-      if (!state.favoriteTokensByChainId) {
-        state.favoriteTokensByChainId = {}
+    .addCase(toggleFavoriteToken, (state, { payload: { chainId, address } }) => {
+      if (!state.favoriteTokensByChainIdv2) {
+        state.favoriteTokensByChainIdv2 = {}
       }
 
-      let favoriteTokens = state.favoriteTokensByChainId[chainId]
-      if (!favoriteTokens) {
-        favoriteTokens = defaultCommonTokens
-        state.favoriteTokensByChainId[chainId] = favoriteTokens
+      // Migrate from old version to new version, prevent lost favorite tokens of user
+      if (state.favoriteTokensByChainId) {
+        state.favoriteTokensByChainIdv2 = Object.entries(state.favoriteTokensByChainId).reduce(
+          (acc, [chainId, obj]) => {
+            acc[chainId] = {}
+            obj.addresses.forEach(address => {
+              acc[chainId][address] = true
+            })
+            return acc
+          },
+          {} as any,
+        )
+        state.favoriteTokensByChainId = undefined
       }
 
-      if (isNative) {
-        const previousValue = favoriteTokens.includeNativeToken
-        favoriteTokens.includeNativeToken = !previousValue
-        return
+      if (!state.favoriteTokensByChainIdv2[chainId]) {
+        state.favoriteTokensByChainIdv2[chainId] = {}
       }
 
-      if (address) {
-        // this is intentionally added, to remove compiler error
-        const index = favoriteTokens.addresses.findIndex(addr => addr === address)
-        if (index === -1) {
-          favoriteTokens.addresses.push(address)
-          return
-        }
-        favoriteTokens.addresses.splice(index, 1)
-      }
+      state.favoriteTokensByChainIdv2[chainId][address] = !state.favoriteTokensByChainIdv2[chainId][address]
+
+      // if (!state.favoriteTokensByChainId) {
+      //   state.favoriteTokensByChainId = {}
+      // }
+
+      // let favoriteTokens = state.favoriteTokensByChainId[chainId]
+      // if (!favoriteTokens) {
+      //   favoriteTokens = defaultCommonTokens
+      //   state.favoriteTokensByChainId[chainId] = favoriteTokens
+      // }
+
+      // if (isNative) {
+      //   const previousValue = favoriteTokens.includeNativeToken
+      //   favoriteTokens.includeNativeToken = !previousValue
+      //   return
+      // }
+
+      // if (address) {
+      //   // this is intentionally added, to remove compiler error
+      //   const index = favoriteTokens.addresses.findIndex(addr => addr === address)
+      //   if (index === -1) {
+      //     favoriteTokens.addresses.push(address)
+      //     return
+      //   }
+      //   favoriteTokens.addresses.splice(index, 1)
+      // }
     })
     .addCase(updateChainId, (state, { payload: chainId }) => {
       state.chainId = chainId

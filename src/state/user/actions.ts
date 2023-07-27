@@ -49,12 +49,9 @@ export const toggleTopTrendingTokens = createAction<void>('user/toggleTopTrendin
 
 export type ToggleFavoriteTokenPayload = {
   chainId: ChainId
-} & ({ isNative?: false; address: string } | { isNative: true; address?: never })
-export const toggleFavoriteToken = createAction<
-  ToggleFavoriteTokenPayload & {
-    defaultCommonTokens: { addresses: string[]; includeNativeToken: boolean }
-  }
->('user/toggleFavoriteToken')
+  address: string
+}
+export const toggleFavoriteToken = createAction<ToggleFavoriteTokenPayload>('user/toggleFavoriteToken')
 export const updateChainId = createAction<ChainId>('user/updateChainId')
 export const updateTokenAnalysisSettings = createAction<string>('user/updateTokenAnalysisSettings')
 export const updateAcceptedTermVersion = createAction<number | null>('user/updateAcceptedTermVersion')

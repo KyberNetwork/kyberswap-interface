@@ -76,7 +76,7 @@ const ButtonClear = styled.div`
   gap: 5px;
   cursor: pointer;
 `
-const MAX_FAVORITE_PAIR = 12
+// const MAX_FAVORITE_PAIR = 12
 
 interface CurrencySearchProps {
   isOpen: boolean
@@ -169,6 +169,7 @@ export function CurrencySearch({
   const tokenComparator = useTokenComparator(false, customChainId)
 
   const [commonTokens, setCommonTokens] = useState<(Token | Currency)[]>([])
+  console.log('🚀 ~ file: CurrencySearch.tsx:172 ~ commonTokens:', commonTokens)
   const [loadingCommon, setLoadingCommon] = useState(true)
 
   const tokenImportsFiltered = useMemo(() => {
@@ -254,32 +255,15 @@ export function CurrencySearch({
   const handleClickFavorite = useCallback(
     (e: React.MouseEvent, currency: any) => {
       e.stopPropagation()
-
       const address = currency?.wrapped?.address || currency.address
       if (!address) return
-
-      const currentList = favoriteTokens?.addresses || []
-      const isAddFavorite = isTokenNative(currency, currency.chainId)
-        ? !favoriteTokens?.includeNativeToken
-        : !currentList.find(el => el === address) // else remove favorite
-      const curTotal =
-        currentList.filter(address => !!defaultTokens[address]).length + (favoriteTokens?.includeNativeToken ? 1 : 0)
-      if (isAddFavorite && curTotal === MAX_FAVORITE_PAIR) return
-
-      if (isTokenNative(currency, currency.chainId)) {
-        toggleFavoriteToken({
-          chainId,
-          isNative: true,
-        })
-        return
-      }
 
       toggleFavoriteToken({
         chainId,
         address,
       })
     },
-    [chainId, favoriteTokens, toggleFavoriteToken, defaultTokens],
+    [chainId, toggleFavoriteToken],
   )
 
   // menu ui
@@ -292,20 +276,23 @@ export function CurrencySearch({
       if (!Object.keys(defaultTokens).length) return
       setLoadingCommon(true)
       let result: (Token | Currency)[] = []
-      if (favoriteTokens?.includeNativeToken) {
-        result.push(NativeCurrencies[chainId])
-      }
       const addressesToFetch: string[] = []
-      favoriteTokens?.addresses.forEach(address => {
+
+      favoriteTokens?.forEach(address => {
         if (defaultTokens[address]) {
           result.push(defaultTokens[address])
           return
         }
         addressesToFetch.push(address)
       })
+
       if (addressesToFetch.length) {
         const tokens = await fetchListTokenByAddresses(addressesToFetch, chainId)
-        result = result.concat(tokens)
+        result = result.concat(
+          tokens.sort((x, y) => {
+            return addressesToFetch.indexOf(x.wrapped.address) - addressesToFetch.indexOf(y.wrapped.address)
+          }),
+        )
       }
       setCommonTokens(result)
     } catch (error) {
@@ -393,14 +380,13 @@ export function CurrencySearch({
   const removeImportedToken = useCallback(
     (token: Token) => {
       removeToken(chainId, token.address)
-      if (favoriteTokens?.addresses?.includes(token.address))
-        // remove in favorite too
-        toggleFavoriteToken({
-          chainId,
-          address: token.address,
-        })
+
+      toggleFavoriteToken({
+        chainId,
+        address: token.address,
+      })
     },
-    [chainId, toggleFavoriteToken, removeToken, favoriteTokens?.addresses],
+    [chainId, toggleFavoriteToken, removeToken],
   )
 
   const removeAllImportToken = () => {
