@@ -197,7 +197,7 @@ const Networks = ({
                     {name}
                   </Text>
                 </Flex>
-                {key === ChainId.ZKSYNC && (
+                {key === ChainId.LINEA && (
                   <NewLabel>
                     <Trans>New</Trans>
                   </NewLabel>
