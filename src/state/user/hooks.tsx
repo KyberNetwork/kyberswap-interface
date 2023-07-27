@@ -423,7 +423,6 @@ export const useUserFavoriteTokens = (chainId: ChainId) => {
         return
       }
       const newValue = favoriteTokens.indexOf(address) < 0
-      console.log('🚀 ~ file: hooks.tsx:425 ~ useUserFavoriteTokens ~ newValue:', newValue, address, favoriteTokens)
 
       dispatch(toggleFavoriteTokenAction({ ...payload, newValue }))
     },
