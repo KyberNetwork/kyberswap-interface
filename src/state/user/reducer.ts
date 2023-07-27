@@ -109,15 +109,14 @@ interface UserState {
       }
     >
   >
-  // favoriteTokensByChainIdv2: Partial<
-  //   Record<
-  //     ChainId,
-  //     {
-  //       [address: string]: boolean
-  //     }
-  //   >
-  // >
-  favoriteTokensByChainIdv2: any
+  favoriteTokensByChainIdv2: Partial<
+    Record<
+      ChainId,
+      {
+        [address: string]: boolean
+      }
+    >
+  >
   readonly chainId: ChainId
   acceptedTermVersion: number | null
   viewMode: VIEW_MODE
@@ -323,37 +322,13 @@ export default createReducer(initialState, builder =>
         state.favoriteTokensByChainId = undefined
       }
 
-      if (!state.favoriteTokensByChainIdv2[chainId]) {
-        state.favoriteTokensByChainIdv2[chainId] = {}
+      let favoriteTokens = state.favoriteTokensByChainIdv2[chainId]
+
+      if (!favoriteTokens) {
+        favoriteTokens = {}
       }
 
-      state.favoriteTokensByChainIdv2[chainId][address] = !state.favoriteTokensByChainIdv2[chainId][address]
-
-      // if (!state.favoriteTokensByChainId) {
-      //   state.favoriteTokensByChainId = {}
-      // }
-
-      // let favoriteTokens = state.favoriteTokensByChainId[chainId]
-      // if (!favoriteTokens) {
-      //   favoriteTokens = defaultCommonTokens
-      //   state.favoriteTokensByChainId[chainId] = favoriteTokens
-      // }
-
-      // if (isNative) {
-      //   const previousValue = favoriteTokens.includeNativeToken
-      //   favoriteTokens.includeNativeToken = !previousValue
-      //   return
-      // }
-
-      // if (address) {
-      //   // this is intentionally added, to remove compiler error
-      //   const index = favoriteTokens.addresses.findIndex(addr => addr === address)
-      //   if (index === -1) {
-      //     favoriteTokens.addresses.push(address)
-      //     return
-      //   }
-      //   favoriteTokens.addresses.splice(index, 1)
-      // }
+      favoriteTokens[address] = !favoriteTokens[address]
     })
     .addCase(updateChainId, (state, { payload: chainId }) => {
       state.chainId = chainId

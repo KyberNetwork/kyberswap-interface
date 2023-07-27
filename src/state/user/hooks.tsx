@@ -53,6 +53,8 @@ import {
 import { CROSS_CHAIN_SETTING_DEFAULT, CrossChainSetting, VIEW_MODE } from 'state/user/reducer'
 import { isAddress, isChristmasTime } from 'utils'
 
+const MAX_FAVORITE_LIMIT = 12
+
 function serializeToken(token: Token | WrappedTokenInfo): SerializedToken {
   return {
     chainId: token.chainId,
@@ -404,20 +406,27 @@ export const useUserFavoriteTokens = (chainId: ChainId) => {
 
   const favoriteTokens = useMemo(() => {
     if (!chainId || !defaultTokens) return undefined
-    const favoritedToken = favoriteTokensByChainId?.[chainId]
-    const favoritedTokenAddresses = favoritedToken
-      ? defaultTokens
-          .filter(address => favoritedToken[address] !== false)
-          .concat(Object.keys(favoritedToken).filter(address => favoritedToken[address]))
-      : []
+    const favoritedTokens = favoriteTokensByChainId?.[chainId] || {}
+    const favoritedTokenAddresses = defaultTokens
+      .filter(address => favoritedTokens[address] !== false)
+      .concat(Object.keys(favoritedTokens).filter(address => favoritedTokens[address]))
+
     return [...new Set(favoritedTokenAddresses)]
   }, [chainId, favoriteTokensByChainId, defaultTokens])
 
   const toggleFavoriteToken = useCallback(
     (payload: ToggleFavoriteTokenPayload) => {
+      // Is adding favorite and reached max limit
+      if (
+        favoriteTokens &&
+        favoriteTokens?.indexOf(payload.address) < 0 &&
+        favoriteTokens.length >= MAX_FAVORITE_LIMIT
+      ) {
+        return
+      }
       dispatch(toggleFavoriteTokenAction(payload))
     },
-    [dispatch],
+    [dispatch, favoriteTokens],
   )
 
   return { favoriteTokens, toggleFavoriteToken }

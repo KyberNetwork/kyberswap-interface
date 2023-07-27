@@ -76,7 +76,6 @@ const ButtonClear = styled.div`
   gap: 5px;
   cursor: pointer;
 `
-// const MAX_FAVORITE_PAIR = 12
 
 interface CurrencySearchProps {
   isOpen: boolean
@@ -169,7 +168,6 @@ export function CurrencySearch({
   const tokenComparator = useTokenComparator(false, customChainId)
 
   const [commonTokens, setCommonTokens] = useState<(Token | Currency)[]>([])
-  console.log('🚀 ~ file: CurrencySearch.tsx:172 ~ commonTokens:', commonTokens)
   const [loadingCommon, setLoadingCommon] = useState(true)
 
   const tokenImportsFiltered = useMemo(() => {
@@ -288,6 +286,7 @@ export function CurrencySearch({
 
       if (addressesToFetch.length) {
         const tokens = await fetchListTokenByAddresses(addressesToFetch, chainId)
+        // Sort the returned token list to match the order of the passed address list
         result = result.concat(
           tokens.sort((x, y) => {
             return addressesToFetch.indexOf(x.wrapped.address) - addressesToFetch.indexOf(y.wrapped.address)

@@ -136,10 +136,6 @@ export function CurrencyRow({
       return false
     }
 
-    // if (isTokenNative(currency, currency.chainId)) {
-    //   return !!favoriteTokens.includeNativeToken
-    // }
-
     if (currency.isToken) {
       const addr = (currency as Token).address ?? ''
       const addresses = favoriteTokens ?? []
@@ -148,6 +144,7 @@ export function CurrencyRow({
 
     return false
   })()
+
   const balanceComponent = hideBalance ? (
     '******'
   ) : currencyBalance ? (
