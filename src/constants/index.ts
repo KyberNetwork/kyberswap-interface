@@ -360,6 +360,7 @@ export const ICON_IDS = [
   'coin-bag',
   'speaker',
   'share',
+  'liquid-outline',
   'refund',
   'swap',
   'copy',

@@ -534,11 +534,19 @@ export function useGasRefundTier(): GasRefundTierInfo {
   return data || { userTier: 0, gasRefundPerCentage: 0 }
 }
 
-export function useGasRefundInfo({ rewardStatus = KNCUtilityTabs.Available }: { rewardStatus?: KNCUtilityTabs }) {
+export function useGasRefundInfo({ rewardStatus = KNCUtilityTabs.Available }: { rewardStatus?: KNCUtilityTabs }): {
+  reward: RewardInfo | undefined
+  claimableReward: RewardInfo | undefined
+  totalReward: {
+    usd: number
+    knc: number
+  }
+  refetch: () => void
+} {
   const { account, chainId } = useActiveWeb3React()
   const kyberDaoInfo = useKyberDAOInfo()
 
-  const { data: claimableReward } = useSWR<RewardInfo>(
+  const { data: claimableReward, mutate: mutate0 } = useSWR<RewardInfo>(
     account &&
       isSupportKyberDao(chainId) &&
       kyberDaoInfo?.daoStatsApi + '/api/v1/stakers/' + account + '/refunds/total?rewardStatus=claimable',
@@ -547,7 +555,7 @@ export function useGasRefundInfo({ rewardStatus = KNCUtilityTabs.Available }: { 
         .then(res => res.total)
         .then(({ knc, usd }) => ({ knc: parseFloat(knc), usd: parseFloat(usd) })),
   )
-  const { data: pendingReward } = useSWR<RewardInfo>(
+  const { data: pendingReward, mutate: mutate1 } = useSWR<RewardInfo>(
     account &&
       isSupportKyberDao(chainId) &&
       kyberDaoInfo?.daoStatsApi + '/api/v1/stakers/' + account + '/refunds/total?rewardStatus=pending',
@@ -556,7 +564,7 @@ export function useGasRefundInfo({ rewardStatus = KNCUtilityTabs.Available }: { 
         .then(res => res.total)
         .then(({ knc, usd }) => ({ knc: parseFloat(knc), usd: parseFloat(usd) })),
   )
-  const { data: claimedReward } = useSWR<RewardInfo>(
+  const { data: claimedReward, mutate: mutate2 } = useSWR<RewardInfo>(
     account &&
       isSupportKyberDao(chainId) &&
       kyberDaoInfo?.daoStatsApi + '/api/v1/stakers/' + account + '/refunds/total?rewardStatus=claimed',
@@ -565,6 +573,13 @@ export function useGasRefundInfo({ rewardStatus = KNCUtilityTabs.Available }: { 
         .then(res => res.total)
         .then(({ knc, usd }) => ({ knc: parseFloat(knc), usd: parseFloat(usd) })),
   )
+
+  const refetch = useCallback(() => {
+    mutate0()
+    mutate1()
+    mutate2()
+  }, [mutate0, mutate1, mutate2])
+
   return {
     reward:
       rewardStatus === KNCUtilityTabs.Available
@@ -579,6 +594,7 @@ export function useGasRefundInfo({ rewardStatus = KNCUtilityTabs.Available }: { 
       usd: aggregateValue([claimableReward, pendingReward, claimedReward], 'usd'),
       knc: aggregateValue([claimableReward, pendingReward, claimedReward], 'knc'),
     },
+    refetch,
   }
 }
 
@@ -586,11 +602,12 @@ export function useClaimGasRefundRewards() {
   const { account, chainId } = useActiveWeb3React()
   const { library, connector } = useWeb3React()
   const addTransactionWithType = useTransactionAdder()
-  const { claimableReward } = useGasRefundInfo({})
+  const { claimableReward, refetch } = useGasRefundInfo({})
   const notify = useNotify()
 
   const claimGasRefundRewards = useCallback(async (): Promise<string> => {
     if (!account || !library || !claimableReward || claimableReward.knc <= 0) throw new Error(t`Invalid claim`)
+    refetch()
 
     const url = REWARD_SERVICE_API + '/rewards/claim'
     const data = {
@@ -627,6 +644,7 @@ export function useClaimGasRefundRewards() {
           tokenSymbol: 'KNC',
         },
       })
+      refetch()
       return tx.hash as string
     } catch (error) {
       if (didUserReject(connector, error)) {
@@ -646,7 +664,7 @@ export function useClaimGasRefundRewards() {
         throw error
       }
     }
-  }, [account, addTransactionWithType, chainId, claimableReward, library, notify, connector])
+  }, [account, addTransactionWithType, chainId, claimableReward, library, notify, connector, refetch])
   return claimGasRefundRewards
 }
 
