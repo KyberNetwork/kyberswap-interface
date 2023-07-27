@@ -3,6 +3,7 @@ import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useGetParticipantInfoQuery } from 'services/kyberAISubscription'
 
+import { SUGGESTED_BASES } from 'constants/bases'
 import { DEFAULT_SLIPPAGE_TESTNET, TERM_FILES_PATH } from 'constants/index'
 import { SupportedLocale } from 'constants/locales'
 import { PINNED_PAIRS } from 'constants/tokens'
@@ -16,6 +17,7 @@ import {
 import useDebounce from 'hooks/useDebounce'
 import { ParticipantInfo, ParticipantStatus } from 'pages/TrueSightV2/types'
 import { AppDispatch, AppState } from 'state'
+import { useKyberSwapConfig } from 'state/application/hooks'
 import { useIsConnectingWallet, useSessionInfo } from 'state/authen/hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -49,8 +51,10 @@ import {
   updateUserSlippageTolerance,
   updateUserSlippageToleranceForLineaTestnet,
 } from 'state/user/actions'
-import { CROSS_CHAIN_SETTING_DEFAULT, CrossChainSetting, VIEW_MODE, getFavoriteTokenDefault } from 'state/user/reducer'
+import { CROSS_CHAIN_SETTING_DEFAULT, CrossChainSetting, VIEW_MODE } from 'state/user/reducer'
 import { isAddress, isChristmasTime } from 'utils'
+
+const MAX_FAVORITE_LIMIT = 12
 
 function serializeToken(token: Token | WrappedTokenInfo): SerializedToken {
   return {
@@ -395,18 +399,35 @@ export function useToggleTopTrendingTokens(): () => void {
 
 export const useUserFavoriteTokens = (chainId: ChainId) => {
   const dispatch = useDispatch<AppDispatch>()
-  const { favoriteTokensByChainId } = useSelector((state: AppState) => state.user)
+  const { favoriteTokensByChainIdv2: favoriteTokensByChainId } = useSelector((state: AppState) => state.user)
+  const { commonTokens } = useKyberSwapConfig(chainId)
+  const defaultTokens = useMemo(() => {
+    return commonTokens || SUGGESTED_BASES[chainId || ChainId.MAINNET].map(e => e.address)
+  }, [commonTokens, chainId])
 
   const favoriteTokens = useMemo(() => {
     if (!chainId) return undefined
-    return favoriteTokensByChainId
-      ? favoriteTokensByChainId[chainId] || getFavoriteTokenDefault(chainId)
-      : getFavoriteTokenDefault(chainId)
-  }, [chainId, favoriteTokensByChainId])
+    const favoritedTokens = favoriteTokensByChainId?.[chainId] || {}
+    const favoritedTokenAddresses = defaultTokens
+      .filter(address => favoritedTokens[address.toLowerCase()] !== false)
+      .concat(Object.keys(favoritedTokens).filter(address => favoritedTokens[address]))
+
+    return [...new Set(favoritedTokenAddresses.map(a => a.toLowerCase()))]
+  }, [chainId, favoriteTokensByChainId, defaultTokens])
 
   const toggleFavoriteToken = useCallback(
-    (payload: ToggleFavoriteTokenPayload) => dispatch(toggleFavoriteTokenAction(payload)),
-    [dispatch],
+    (payload: ToggleFavoriteTokenPayload) => {
+      if (!favoriteTokens) return
+      const address = payload.address.toLowerCase()
+      // Is adding favorite and reached max limit
+      if (favoriteTokens.indexOf(address) < 0 && favoriteTokens.length >= MAX_FAVORITE_LIMIT) {
+        return
+      }
+      const newValue = favoriteTokens.indexOf(address) < 0
+
+      dispatch(toggleFavoriteTokenAction({ ...payload, newValue }))
+    },
+    [dispatch, favoriteTokens],
   )
 
   return { favoriteTokens, toggleFavoriteToken }

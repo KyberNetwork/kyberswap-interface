@@ -434,6 +434,7 @@ function getDefaultConfig(chainId: ChainId): KyberSwapConfigResponse {
     blockSubgraph: (evm ? NETWORKS_INFO[chainId] : ethereumInfo).defaultBlockSubgraph,
     elasticSubgraph: (evm ? NETWORKS_INFO[chainId] : ethereumInfo).elastic.defaultSubgraph,
     classicSubgraph: (evm ? NETWORKS_INFO[chainId] : ethereumInfo).classic.defaultSubgraph,
+    commonTokens: undefined,
   }
 }
 
@@ -469,11 +470,13 @@ export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => 
       elasticClient,
       classicClient,
       connection: isSolana(chainId) ? new Connection(config.rpc, { commitment: 'confirmed' }) : undefined,
+      commonTokens: config.commonTokens,
     }
   }, [
     config.rpc,
     config.isEnableBlockService,
     config.prochart,
+    config.commonTokens,
     readProvider,
     blockClient,
     elasticClient,
