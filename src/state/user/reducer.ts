@@ -59,7 +59,7 @@ export type CrossChainSetting = {
   enableExpressExecution: boolean
 }
 
-interface UserState {
+export interface UserState {
   // the timestamp of the last updateVersion action
   lastUpdateVersionTimestamp?: number
 
@@ -305,21 +305,6 @@ export default createReducer(initialState, builder =>
     .addCase(toggleFavoriteToken, (state, { payload: { chainId, address } }) => {
       if (!state.favoriteTokensByChainIdv2) {
         state.favoriteTokensByChainIdv2 = {}
-      }
-
-      // Migrate from old version to new version, prevent lost favorite tokens of user
-      if (state.favoriteTokensByChainId) {
-        state.favoriteTokensByChainIdv2 = Object.entries(state.favoriteTokensByChainId).reduce(
-          (acc, [chainId, obj]) => {
-            acc[chainId] = {}
-            obj.addresses.forEach(address => {
-              acc[chainId][address] = true
-            })
-            return acc
-          },
-          {} as any,
-        )
-        state.favoriteTokensByChainId = undefined
       }
 
       let favoriteTokens = state.favoriteTokensByChainIdv2[chainId]

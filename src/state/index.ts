@@ -39,11 +39,30 @@ import tokenPrices from './tokenPrices'
 import topTokens from './topTokens'
 import transactions from './transactions/reducer'
 import tutorial from './tutorial/reducer'
-import user from './user/reducer'
+import user, { UserState } from './user/reducer'
 import vesting from './vesting/reducer'
 
 const PERSISTED_KEYS: string[] = ['user', 'transactions', 'profile']
 ENV_LEVEL < ENV_TYPE.PROD && PERSISTED_KEYS.push('customizeDexes')
+
+// Migrate from old version to new version, prevent lost favorite tokens of user
+const storedState: any = load({ states: PERSISTED_KEYS })
+if ('user' in storedState) {
+  const userState: UserState = storedState.user
+  if (userState.favoriteTokensByChainId) {
+    userState.favoriteTokensByChainIdv2 = Object.entries(userState.favoriteTokensByChainId).reduce(
+      (acc, [chainId, obj]) => {
+        acc[chainId] = {}
+        obj.addresses.forEach((address: string) => {
+          acc[chainId][address] = true
+        })
+        return acc
+      },
+      {} as any,
+    )
+    userState.favoriteTokensByChainId = undefined
+  }
+}
 
 const store = configureStore({
   devTools: process.env.NODE_ENV !== 'production',
@@ -104,7 +123,7 @@ const store = configureStore({
       .concat(routeApi.middleware)
       .concat(socialApi.middleware)
       .concat(tokenApi.middleware),
-  preloadedState: load({ states: PERSISTED_KEYS }),
+  preloadedState: storedState,
 })
 
 const PREFIX_REDUX_PERSIST = 'redux_localstorage_simple_'
