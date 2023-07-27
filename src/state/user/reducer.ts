@@ -302,18 +302,20 @@ export default createReducer(initialState, builder =>
     .addCase(toggleKyberAIBanner, state => {
       state.showKyberAIBanner = !state.showKyberAIBanner
     })
-    .addCase(toggleFavoriteToken, (state, { payload: { chainId, address } }) => {
+    .addCase(toggleFavoriteToken, (state, { payload: { chainId, address, newValue } }) => {
       if (!state.favoriteTokensByChainIdv2) {
         state.favoriteTokensByChainIdv2 = {}
       }
 
-      let favoriteTokens = state.favoriteTokensByChainIdv2[chainId]
-
-      if (!favoriteTokens) {
-        favoriteTokens = {}
+      if (!state.favoriteTokensByChainIdv2[chainId]) {
+        state.favoriteTokensByChainIdv2[chainId] = {}
       }
 
-      favoriteTokens[address] = !favoriteTokens[address]
+      const favoriteTokens = state.favoriteTokensByChainIdv2[chainId]
+      const lowercaseAddress = address.toLowerCase()
+      if (favoriteTokens) {
+        favoriteTokens[lowercaseAddress] = newValue !== undefined ? newValue : !favoriteTokens[lowercaseAddress]
+      }
     })
     .addCase(updateChainId, (state, { payload: chainId }) => {
       state.chainId = chainId

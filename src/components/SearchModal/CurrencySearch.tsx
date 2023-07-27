@@ -277,8 +277,14 @@ export function CurrencySearch({
       const addressesToFetch: string[] = []
 
       favoriteTokens?.forEach(address => {
-        if (defaultTokens[address]) {
-          result.push(defaultTokens[address])
+        let token
+        Object.entries(defaultTokens).forEach(([add, t]) => {
+          if (add.toLowerCase() === address.toLowerCase()) {
+            token = t
+          }
+        })
+        if (token) {
+          result.push(token)
           return
         }
         addressesToFetch.push(address)

@@ -405,26 +405,27 @@ export const useUserFavoriteTokens = (chainId: ChainId) => {
   }, [commonTokens, chainId])
 
   const favoriteTokens = useMemo(() => {
-    if (!chainId || !defaultTokens) return undefined
+    if (!chainId) return undefined
     const favoritedTokens = favoriteTokensByChainId?.[chainId] || {}
     const favoritedTokenAddresses = defaultTokens
-      .filter(address => favoritedTokens[address] !== false)
+      .filter(address => favoritedTokens[address.toLowerCase()] !== false)
       .concat(Object.keys(favoritedTokens).filter(address => favoritedTokens[address]))
 
-    return [...new Set(favoritedTokenAddresses)]
+    return [...new Set(favoritedTokenAddresses.map(a => a.toLowerCase()))]
   }, [chainId, favoriteTokensByChainId, defaultTokens])
 
   const toggleFavoriteToken = useCallback(
     (payload: ToggleFavoriteTokenPayload) => {
+      if (!favoriteTokens) return
+      const address = payload.address.toLowerCase()
       // Is adding favorite and reached max limit
-      if (
-        favoriteTokens &&
-        favoriteTokens?.indexOf(payload.address) < 0 &&
-        favoriteTokens.length >= MAX_FAVORITE_LIMIT
-      ) {
+      if (favoriteTokens.indexOf(address) < 0 && favoriteTokens.length >= MAX_FAVORITE_LIMIT) {
         return
       }
-      dispatch(toggleFavoriteTokenAction(payload))
+      const newValue = favoriteTokens.indexOf(address) < 0
+      console.log('🚀 ~ file: hooks.tsx:425 ~ useUserFavoriteTokens ~ newValue:', newValue, address, favoriteTokens)
+
+      dispatch(toggleFavoriteTokenAction({ ...payload, newValue }))
     },
     [dispatch, favoriteTokens],
   )

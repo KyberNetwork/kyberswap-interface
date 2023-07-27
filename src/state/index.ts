@@ -54,7 +54,7 @@ if ('user' in preloadedState) {
       (acc, [chainId, obj]) => {
         acc[chainId] = {}
         obj.addresses.forEach((address: string) => {
-          acc[chainId][address] = true
+          acc[chainId][address.toLowerCase()] = true
         })
         return acc
       },
