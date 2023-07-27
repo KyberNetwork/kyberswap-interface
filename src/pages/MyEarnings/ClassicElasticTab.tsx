@@ -12,7 +12,7 @@ import { PoolClassicIcon, PoolElasticIcon } from 'components/Icons'
 import Wallet from 'components/Icons/Wallet'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS, PROMM_ANALYTICS_URL } from 'constants/index'
-import { ELASTIC_NOT_SUPPORTED, VERSION } from 'constants/v2'
+import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
@@ -57,34 +57,22 @@ function ClassicElasticTab() {
   const dispatch = useDispatch()
 
   const { chainId, account } = useActiveWeb3React()
-  const notSupportedElasticMessage = ELASTIC_NOT_SUPPORTED[chainId]
-  const isNotSupportedElastic = !!notSupportedElasticMessage
 
   const theme = useTheme()
   const navigate = useNavigate()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
   const handleClickElastic = () => {
-    if (!!notSupportedElasticMessage) {
-      return
-    }
     const newQs = { ...qs, tab: VERSION.ELASTIC }
     navigate({ search: stringify(newQs) }, { replace: true })
   }
 
   const handleClickElasticLegacy = () => {
-    if (!!notSupportedElasticMessage) {
-      return
-    }
     const newQs = { ...qs, tab: VERSION.ELASTIC_LEGACY }
     navigate({ search: stringify(newQs) }, { replace: true })
   }
 
-  const color = [VERSION.ELASTIC, VERSION.ELASTIC_LEGACY].includes(tab)
-    ? !!notSupportedElasticMessage
-      ? theme.disableText
-      : theme.primary
-    : theme.subText
+  const color = [VERSION.ELASTIC, VERSION.ELASTIC_LEGACY].includes(tab) ? theme.primary : theme.subText
 
   useEffect(() => {
     dispatch(setActiveTab(tab))
@@ -102,65 +90,60 @@ function ClassicElasticTab() {
       <MouseoverTooltip
         width="fit-content"
         placement={'bottom'}
-        noArrow={!isNotSupportedElastic}
+        noArrow
         opacity={1}
         text={
-          notSupportedElasticMessage || (
-            <Flex flexDirection="column" sx={{ gap: '16px', padding: '8px' }}>
-              <Flex
-                role="button"
-                color={tab === VERSION.ELASTIC ? theme.primary : theme.subText}
-                sx={{ gap: '8px', cursor: 'pointer' }}
-                fontSize="16px"
-                fontWeight={500}
-                onClick={handleClickElastic}
-                alignItems="center"
-              >
-                <PoolElasticIcon size={16} />
-                <Trans>Elastic Pools</Trans>
-              </Flex>
+          <Flex flexDirection="column" sx={{ gap: '16px', padding: '8px' }}>
+            <Flex
+              role="button"
+              color={tab === VERSION.ELASTIC ? theme.primary : theme.subText}
+              sx={{ gap: '8px', cursor: 'pointer' }}
+              fontSize="16px"
+              fontWeight={500}
+              onClick={handleClickElastic}
+              alignItems="center"
+            >
+              <PoolElasticIcon size={16} />
+              <Trans>Elastic Pools</Trans>
+            </Flex>
 
-              <Flex
-                role="button"
-                color={tab === VERSION.ELASTIC_LEGACY ? theme.primary : theme.subText}
-                sx={{ gap: '8px', cursor: 'pointer' }}
-                fontWeight={500}
-                fontSize="16px"
-                onClick={handleClickElasticLegacy}
-                alignItems="center"
-              >
-                <PoolElasticIcon size={16} />
-                <Trans>Elastic Pools</Trans>
-                <LegacyTag isActive={tab === VERSION.ELASTIC_LEGACY} />
-              </Flex>
+            <Flex
+              role="button"
+              color={tab === VERSION.ELASTIC_LEGACY ? theme.primary : theme.subText}
+              sx={{ gap: '8px', cursor: 'pointer' }}
+              fontWeight={500}
+              fontSize="16px"
+              onClick={handleClickElasticLegacy}
+              alignItems="center"
+            >
+              <PoolElasticIcon size={16} />
+              <Trans>Elastic Pools</Trans>
+              <LegacyTag isActive={tab === VERSION.ELASTIC_LEGACY} />
+            </Flex>
 
+            <Flex
+              role="button"
+              alignItems="center"
+              // onClick={handleClickClassic}
+              color={tab === VERSION.CLASSIC ? theme.primary : rgba(theme.subText, 0.5)}
+              sx={{
+                cursor: 'pointer',
+                gap: '8px',
+              }}
+            >
               <Flex
-                role="button"
-                alignItems="center"
-                // onClick={handleClickClassic}
-                color={tab === VERSION.CLASSIC ? theme.primary : rgba(theme.subText, 0.5)}
                 sx={{
-                  cursor: 'pointer',
-                  gap: '8px',
+                  flex: '0 0 16px',
+                  height: '16px',
                 }}
               >
-                <Flex
-                  sx={{
-                    flex: '0 0 16px',
-                    height: '16px',
-                  }}
-                >
-                  <PoolClassicIcon
-                    size={16}
-                    color={tab === VERSION.CLASSIC ? theme.primary : rgba(theme.subText, 0.5)}
-                  />
-                </Flex>
-                <Text fontWeight={500} fontSize={'16px'} width={'auto'}>
-                  <Trans>Classic Pools</Trans>
-                </Text>
+                <PoolClassicIcon size={16} color={tab === VERSION.CLASSIC ? theme.primary : rgba(theme.subText, 0.5)} />
               </Flex>
+              <Text fontWeight={500} fontSize={'16px'} width={'auto'}>
+                <Trans>Classic Pools</Trans>
+              </Text>
             </Flex>
-          )
+          </Flex>
         }
       >
         <Flex
@@ -183,8 +166,7 @@ function ClassicElasticTab() {
   }
 
   const renderElasticPoolsButton = () => {
-    const color =
-      tab === VERSION.ELASTIC ? (!!notSupportedElasticMessage ? theme.disableText : theme.primary) : theme.subText
+    const color = tab === VERSION.ELASTIC ? theme.primary : theme.subText
     return (
       <Flex sx={{ position: 'relative' }} alignItems="center" onClick={handleClickElastic}>
         <PoolElasticIcon size={20} color={color} />
@@ -196,7 +178,7 @@ function ClassicElasticTab() {
           marginLeft="4px"
           role="button"
           style={{
-            cursor: !!notSupportedElasticMessage ? 'not-allowed' : 'pointer',
+            cursor: 'pointer',
           }}
         >
           <Trans>Elastic Pools</Trans>
@@ -207,31 +189,23 @@ function ClassicElasticTab() {
 
   const renderElasticLegacyPoolsButton = () => {
     return (
-      <MouseoverTooltip text={notSupportedElasticMessage || ''}>
-        <Flex sx={{ position: 'relative' }} alignItems="center" onClick={handleClickElasticLegacy}>
-          <PoolElasticIcon size={20} color={tab === VERSION.ELASTIC_LEGACY ? theme.primary : theme.subText} />
-          <Text
-            fontWeight={500}
-            fontSize={[18, 20, 24]}
-            color={
-              tab === VERSION.ELASTIC_LEGACY
-                ? !!notSupportedElasticMessage
-                  ? theme.disableText
-                  : theme.primary
-                : theme.subText
-            }
-            width={'auto'}
-            marginLeft="4px"
-            role="button"
-            style={{
-              cursor: !!notSupportedElasticMessage ? 'not-allowed' : 'pointer',
-            }}
-          >
-            <Trans>Elastic Pools</Trans>
-          </Text>
-          <LegacyTag isActive={tab === VERSION.ELASTIC_LEGACY} />
-        </Flex>
-      </MouseoverTooltip>
+      <Flex sx={{ position: 'relative' }} alignItems="center" onClick={handleClickElasticLegacy}>
+        <PoolElasticIcon size={20} color={tab === VERSION.ELASTIC_LEGACY ? theme.primary : theme.subText} />
+        <Text
+          fontWeight={500}
+          fontSize={[18, 20, 24]}
+          color={tab === VERSION.ELASTIC_LEGACY ? theme.primary : theme.subText}
+          width={'auto'}
+          marginLeft="4px"
+          role="button"
+          style={{
+            cursor: 'pointer',
+          }}
+        >
+          <Trans>Elastic Pools</Trans>
+        </Text>
+        <LegacyTag isActive={tab === VERSION.ELASTIC_LEGACY} />
+      </Flex>
     )
   }
 
@@ -327,40 +301,38 @@ function ClassicElasticTab() {
     return (
       <MouseoverTooltip
         width="fit-content"
-        placement={isNotSupportedElastic ? 'top' : 'bottom'}
-        noArrow={!isNotSupportedElastic}
+        placement={'bottom'}
+        noArrow
         opacity={1}
         text={
-          notSupportedElasticMessage || (
-            <Flex flexDirection="column" sx={{ gap: '16px', padding: '8px' }}>
-              <Flex
-                role="button"
-                color={tab === VERSION.ELASTIC ? theme.primary : theme.subText}
-                sx={{ gap: '8px', cursor: 'pointer' }}
-                fontSize="16px"
-                fontWeight={500}
-                onClick={handleClickElastic}
-                alignItems="center"
-              >
-                <PoolElasticIcon size={16} />
-                <Trans>Elastic Pools</Trans>
-              </Flex>
-
-              <Flex
-                role="button"
-                color={tab === VERSION.ELASTIC_LEGACY ? theme.primary : theme.subText}
-                sx={{ gap: '8px', cursor: 'pointer' }}
-                fontWeight={500}
-                fontSize="16px"
-                onClick={handleClickElasticLegacy}
-                alignItems="center"
-              >
-                <PoolElasticIcon size={16} />
-                <Trans>Elastic Pools</Trans>
-                <LegacyTag isActive={tab === VERSION.ELASTIC_LEGACY} />
-              </Flex>
+          <Flex flexDirection="column" sx={{ gap: '16px', padding: '8px' }}>
+            <Flex
+              role="button"
+              color={tab === VERSION.ELASTIC ? theme.primary : theme.subText}
+              sx={{ gap: '8px', cursor: 'pointer' }}
+              fontSize="16px"
+              fontWeight={500}
+              onClick={handleClickElastic}
+              alignItems="center"
+            >
+              <PoolElasticIcon size={16} />
+              <Trans>Elastic Pools</Trans>
             </Flex>
-          )
+
+            <Flex
+              role="button"
+              color={tab === VERSION.ELASTIC_LEGACY ? theme.primary : theme.subText}
+              sx={{ gap: '8px', cursor: 'pointer' }}
+              fontWeight={500}
+              fontSize="16px"
+              onClick={handleClickElasticLegacy}
+              alignItems="center"
+            >
+              <PoolElasticIcon size={16} />
+              <Trans>Elastic Pools</Trans>
+              <LegacyTag isActive={tab === VERSION.ELASTIC_LEGACY} />
+            </Flex>
+          </Flex>
         }
       >
         {tab === VERSION.ELASTIC_LEGACY ? renderElasticLegacyPoolsButton() : renderElasticPoolsButton()}

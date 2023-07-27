@@ -13,7 +13,6 @@ import {
 } from 'pages/MyEarnings/utils'
 
 import {
-  // ElasticPositionEarningWithDetails,
   GetClassicEarningParams,
   GetClassicEarningResponse,
   GetElasticEarningParams,
@@ -24,6 +23,7 @@ import {
 const earningApi = createApi({
   reducerPath: 'earningApi',
   baseQuery: fetchBaseQuery({ baseUrl: POOL_FARM_BASE_URL }),
+  keepUnusedDataFor: 180,
   endpoints: builder => ({
     getElasticEarning: builder.query<GetElasticEarningResponse, GetElasticEarningParams>({
       async queryFn({ account, chainIds }, _queryApi, _extraOptions, fetchWithBQ) {
@@ -112,7 +112,7 @@ const earningApi = createApi({
             ...acc,
             [chainName]: {
               positions: positionData?.[chainName].positions.map(pos => {
-                const historicalEarning = ((earningRes?.data as any)?.data?.[chainName]?.[pos.id] || []).reverse
+                const historicalEarning = ((earningRes?.data as any)?.data?.[chainName]?.[pos.id] || []).reverse()
                 return {
                   ...pos,
                   historicalEarning,

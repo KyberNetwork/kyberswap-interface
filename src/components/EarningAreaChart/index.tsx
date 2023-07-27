@@ -62,7 +62,7 @@ const formatter = (value: string) => {
 
   if (num > 0 && num < 1 && numberOfZero > 2) {
     const temp = Number(toFixed(num).split('.')[1])
-    return `0.0${numberOfZero
+    return `$0.0${numberOfZero
       .toString()
       .split('')
       .map(item => subscriptMap[item])

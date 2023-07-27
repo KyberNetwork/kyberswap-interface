@@ -225,6 +225,7 @@ export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS = [
   ChainId.VELAS,
   ChainId.AURORA,
   ChainId.OASIS,
+  ChainId.ZKSYNC,
 ]
 
 // by pass invalid price impact/unable to calculate price impact/price impact too large
