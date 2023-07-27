@@ -38,6 +38,7 @@ import {
   toggleKyberAIBanner,
   toggleKyberAIWidget,
   toggleLiveChart,
+  toggleMyEarningChart,
   toggleTokenInfo,
   toggleTopTrendingTokens,
   toggleTradeRoutes,
@@ -572,4 +573,16 @@ export const usePermitData: (
   const permitData = useAppSelector(state => state.user.permitData)
 
   return address && account && permitData ? permitData[account]?.[chainId]?.[address] : null
+}
+
+export const useShowMyEarningChart: () => [boolean, () => void] = () => {
+  const dispatch = useAppDispatch()
+
+  const isShowMyEarningChart = useAppSelector(state =>
+    state.user.myEarningChart === undefined ? true : state.user.myEarningChart,
+  )
+  const toggle = useCallback(() => {
+    dispatch(toggleMyEarningChart())
+  }, [dispatch])
+  return [isShowMyEarningChart, toggle]
 }

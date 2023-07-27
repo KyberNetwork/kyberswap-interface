@@ -234,9 +234,10 @@ export function useToken(tokenAddress?: string): Token | NativeCurrency | undefi
 }
 
 // This function is intended to use for EVM chains only
-export function useFetchERC20TokenFromRPC() {
-  const { chainId } = useActiveWeb3React()
-  const multicallContract = useMulticallContract()
+export function useFetchERC20TokenFromRPC(customChainId?: ChainId) {
+  const { chainId: activeChainId } = useActiveWeb3React()
+  const chainId = customChainId || activeChainId
+  const multicallContract = useMulticallContract(chainId)
 
   const fetcher = useCallback(
     async (tokenAddress: string) => {

@@ -254,9 +254,12 @@ export const getTradingFeeAPR = (liquidity?: string, feeOneDay?: string): number
 
 const DEFAULT_MY_LIQUIDITY = '-'
 
-export const getMyLiquidity = (liquidityPosition?: UserLiquidityPosition): string | 0 => {
+export const getMyLiquidity = (
+  liquidityPosition?: UserLiquidityPosition,
+  defaultValue = DEFAULT_MY_LIQUIDITY,
+): string | 0 => {
   if (!liquidityPosition || parseFloat(liquidityPosition.pool.totalSupply) === 0) {
-    return DEFAULT_MY_LIQUIDITY
+    return defaultValue
   }
 
   const myLiquidity =
@@ -264,7 +267,7 @@ export const getMyLiquidity = (liquidityPosition?: UserLiquidityPosition): strin
     parseFloat(liquidityPosition.pool.totalSupply)
 
   if (myLiquidity === 0) {
-    return DEFAULT_MY_LIQUIDITY
+    return defaultValue
   }
 
   return formattedNum(myLiquidity.toString(), true)

@@ -1,16 +1,17 @@
 import { useQuery } from '@apollo/client'
-import { Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, TICK_SPACINGS, tickToPrice } from '@kyberswap/ks-sdk-elastic'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
 
 import { ALL_TICKS, Tick } from 'apollo/queries/promm'
+import { isEVM as isEVMNetwork } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import { usePoolv2 } from 'hooks/usePoolv2'
 import { useKyberSwapConfig } from 'state/application/hooks'
 import computeSurroundingTicks from 'utils/computeSurroundingTicks'
 
-import { PoolState, usePool } from './usePools'
-import useProAmmPoolInfo from './useProAmmPoolInfo'
+import { PoolState } from './usePools'
 
 const PRICE_FIXED_DIGITS = 8
 
@@ -27,33 +28,20 @@ const getActiveTick = (tickCurrent: number | undefined, feeAmount: FeeAmount | u
     ? Math.floor(tickCurrent / TICK_SPACINGS[feeAmount]) * TICK_SPACINGS[feeAmount]
     : undefined
 
-const useAllTicks = (poolAddress: string) => {
-  const { isEVM } = useActiveWeb3React()
-  const { elasticClient } = useKyberSwapConfig()
+// Fetches all ticks for a given pool
+function useAllV3Ticks(chainId: ChainId, poolAddress = '') {
+  const { elasticClient } = useKyberSwapConfig(chainId)
+  const isEVM = isEVMNetwork(chainId)
 
-  return useQuery(ALL_TICKS(poolAddress?.toLowerCase()), {
+  const {
+    loading: isLoading,
+    data,
+    error,
+  } = useQuery(ALL_TICKS(poolAddress.toLowerCase()), {
     client: elasticClient,
     pollInterval: 30_000,
     skip: !isEVM || !poolAddress,
   })
-}
-
-// Fetches all ticks for a given pool
-function useAllV3Ticks(
-  currencyA: Currency | undefined,
-  currencyB: Currency | undefined,
-  feeAmount: FeeAmount | undefined,
-) {
-  const poolAddress = useProAmmPoolInfo(currencyA?.wrapped, currencyB?.wrapped, feeAmount)
-
-  const { loading: isLoading, data, error } = useAllTicks(poolAddress)
-
-  // const { isLoading, isError, error, isUninitialized, data } = useAllV3TicksQuery(
-  //   poolAddress ? { poolAddress: poolAddress?.toLowerCase(), skip: 0 } : skipToken,
-  //   {
-  //     pollingInterval: 30_000,
-  //   },
-  // )
 
   return {
     isLoading,
@@ -76,25 +64,28 @@ export function usePoolActiveLiquidity(
   activeTick: number | undefined
   data: TickProcessed[] | undefined
 } {
-  const pool = usePool(currencyA, currencyB, feeAmount)
+  const { chainId: currentChainId } = useActiveWeb3React()
+  const chainId = currencyA?.chainId || currentChainId
+
+  const { pool, poolState, computedPoolAddress } = usePoolv2(chainId, currencyA, currencyB, feeAmount)
 
   // Find nearest valid tick for pool in case tick is not initialized.
-  const activeTick = useMemo(() => getActiveTick(pool[1]?.tickCurrent, feeAmount), [pool, feeAmount])
-  const { isLoading, isUninitialized, isError, error, ticks } = useAllV3Ticks(currencyA, currencyB, feeAmount)
+  const activeTick = useMemo(() => getActiveTick(pool?.tickCurrent, feeAmount), [pool, feeAmount])
+  const { isLoading, isUninitialized, isError, error, ticks } = useAllV3Ticks(chainId, computedPoolAddress)
 
   return useMemo(() => {
     if (
       !currencyA ||
       !currencyB ||
       activeTick === undefined ||
-      pool[0] !== PoolState.EXISTS ||
+      poolState !== PoolState.EXISTS ||
       !ticks ||
       ticks.length === 0 ||
       isLoading ||
       isUninitialized
     ) {
       return {
-        isLoading: isLoading || pool[0] === PoolState.LOADING,
+        isLoading: isLoading || poolState === PoolState.LOADING,
         isUninitialized,
         isError,
         error,
@@ -125,7 +116,7 @@ export function usePoolActiveLiquidity(
     }
 
     const activeTickProcessed: TickProcessed = {
-      liquidityActive: JSBI.BigInt(pool[1]?.liquidity ?? 0),
+      liquidityActive: JSBI.BigInt(pool?.liquidity ?? 0),
       tickIdx: activeTick,
       liquidityNet:
         Number(ticks[pivot].tickIdx) === activeTick ? JSBI.BigInt(ticks[pivot].liquidityNet) : JSBI.BigInt(0),
@@ -146,5 +137,5 @@ export function usePoolActiveLiquidity(
       activeTick,
       data: ticksProcessed,
     }
-  }, [currencyA, currencyB, activeTick, pool, ticks, isLoading, isUninitialized, isError, error])
+  }, [activeTick, currencyA, currencyB, error, isError, isLoading, isUninitialized, pool?.liquidity, poolState, ticks])
 }

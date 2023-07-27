@@ -484,9 +484,6 @@ export default function IncreaseLiquidity() {
           alignTitle="left"
           action={LiquidityAction.INCREASE}
           showTooltip={false}
-          onBack={() => {
-            navigate(`${APP_PATHS.POOLS}/${networkInfo.route}?tab=elastic`)
-          }}
           tutorialType={TutorialType.ELASTIC_INCREASE_LIQUIDITY}
           owner={owner}
           showOwner={owner && account && !ownsNFT && !ownByFarm}
