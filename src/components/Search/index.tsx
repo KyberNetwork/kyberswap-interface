@@ -79,7 +79,7 @@ const Search = ({ searchValue, onSearch, placeholder, minWidth, style }: SearchP
             <X color={theme.subText} size={14} style={{ minWidth: '14px' }} />
           </ButtonEmpty>
         )}
-        <SearchIcon color={theme.subText} />
+        <SearchIcon color={theme.subText} onClick={() => onSearch(searchValue)} />
       </Wrapper>
     </Container>
   )

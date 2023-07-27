@@ -38,18 +38,18 @@ export const IconWrapper = styled.div`
   align-items: center;
 `
 
-export const ButtonIcon = styled(ButtonEmpty)`
-  background: ${({ theme }) => rgba(theme.subText, 0.2)};
+export const ButtonIcon = styled(ButtonEmpty)<{ color?: string }>`
+  background: ${({ theme, color }) => rgba(color || theme.subText, 0.2)};
   width: 28px;
   min-width: 28px;
   height: 28px;
   min-height: 28px;
   border-radius: 50%;
   padding: 0;
-  color: ${({ theme }) => theme.subText} !important;
+  color: ${({ theme, color }) => color || theme.subText} !important;
 
   :hover {
-    background: ${({ theme }) => lighten(0.4, rgba(theme.subText, 0.2))};
+    background: ${({ theme, color }) => lighten(0.4, rgba(color || theme.subText, 0.2))};
   }
 `
 

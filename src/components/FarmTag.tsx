@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { transparentize } from 'polished'
 import { Link } from 'react-router-dom'
@@ -5,14 +6,15 @@ import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import { APP_PATHS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 
 import { MoneyBag } from './Icons'
 import { MouseoverTooltip } from './Tooltip'
 
-const FarmAvailableTag = styled.div`
+const FarmAvailableTag = styled.div<{ padding: string }>`
   border-radius: 999px;
-  padding: 4px 8px;
+  padding: ${({ padding }) => padding};
   height: 20px;
   background: ${({ theme }) => transparentize(0.7, theme.primary)};
   color: ${({ theme }) => theme.primary};
@@ -23,13 +25,23 @@ const FarmAvailableTag = styled.div`
   gap: 4px;
 `
 
-export const FarmTag = ({ address, noTooltip }: { address?: string; noTooltip?: boolean }) => {
-  const { networkInfo } = useActiveWeb3React()
+export const FarmTag = ({
+  address,
+  noTooltip,
+  noText,
+  chainId,
+}: {
+  address?: string
+  noTooltip?: boolean
+  noText?: boolean
+  chainId?: ChainId
+}) => {
+  const { chainId: currentChainId } = useActiveWeb3React()
 
   const tag = (
-    <FarmAvailableTag>
+    <FarmAvailableTag padding={noText ? '2px 4px' : '4px 8px'}>
       <MoneyBag size={12} />
-      <Trans>Farming</Trans>
+      {!noText && <Trans>Farming</Trans>}
     </FarmAvailableTag>
   )
 
@@ -41,7 +53,13 @@ export const FarmTag = ({ address, noTooltip }: { address?: string; noTooltip?: 
         <Text>
           <Trans>
             Participate in the Elastic farm to earn more rewards. Click{' '}
-            <Link to={`${APP_PATHS.FARMS}/${networkInfo.route}?tab=elastic&type=active&search=${address}`}>here</Link>{' '}
+            <Link
+              to={`${APP_PATHS.FARMS}/${
+                NETWORKS_INFO[chainId || currentChainId].route
+              }?tab=elastic&type=active&search=${address}`}
+            >
+              here
+            </Link>{' '}
             to go to the farm.
           </Trans>
         </Text>

@@ -115,6 +115,8 @@ export const ShareGroupButtons = ({
   renderItem?: (props: PropsItem) => JSX.Element
   size?: number
 }) => {
+  const { telegram, twitter, facebook, discord } = getSocialShareUrls(shareUrl)
+
   const ShareItem = (props: PropsItem) => (
     <ButtonWithHoverEffect renderItem={renderItem} onClick={onShared}>
       {props.children}
@@ -122,14 +124,11 @@ export const ShareGroupButtons = ({
   )
 
   return (
-    <>
+    <Flex justifyContent="space-between" padding="32px 0" width="100%">
       <ShareItem onClick={onShared}>
         {(color: string) => (
           <>
-            <ExternalLink
-              href={'https://telegram.me/share/url?url=' + encodeURIComponent(shareUrl)}
-              style={{ display: 'flex' }}
-            >
+            <ExternalLink href={telegram} style={{ display: 'flex' }}>
               <Telegram size={size} color={color} />
             </ExternalLink>
             {showLabel && <Text>Telegram</Text>}
@@ -139,10 +138,7 @@ export const ShareGroupButtons = ({
       <ShareItem onClick={onShared}>
         {(color: string) => (
           <>
-            <ExternalLink
-              href={'https://twitter.com/intent/tweet?text=' + encodeURIComponent(shareUrl)}
-              style={{ display: 'flex' }}
-            >
+            <ExternalLink href={twitter} style={{ display: 'flex' }}>
               <TwitterIcon width={size} height={size} color={color} />
             </ExternalLink>
             {showLabel && <Text>Twitter</Text>}
@@ -152,10 +148,7 @@ export const ShareGroupButtons = ({
       <ShareItem onClick={onShared}>
         {(color: string) => (
           <>
-            <ExternalLink
-              href={'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl)}
-              style={{ display: 'flex' }}
-            >
+            <ExternalLink href={facebook} style={{ display: 'flex' }}>
               <Facebook color={color} size={size} />
             </ExternalLink>
             {showLabel && <Text>Facebook</Text>}
@@ -165,15 +158,24 @@ export const ShareGroupButtons = ({
       <ShareItem onClick={onShared}>
         {(color: string) => (
           <>
-            <ExternalLink href="https://discord.com/app/" style={{ display: 'flex' }}>
+            <ExternalLink href={discord} style={{ display: 'flex' }}>
               <Discord width={size} height={size} color={color} />
             </ExternalLink>
             {showLabel && <Text>Discord</Text>}
           </>
         )}
       </ShareItem>
-    </>
+    </Flex>
   )
+}
+
+export const getSocialShareUrls = (shareUrl: string) => {
+  return {
+    telegram: 'https://telegram.me/share/url?url=' + encodeURIComponent(shareUrl),
+    twitter: 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(shareUrl),
+    facebook: 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl),
+    discord: 'https://discord.com/app/',
+  }
 }
 
 const noop = () => {
@@ -218,9 +220,9 @@ export default function ShareModal({
             <X color={theme.text} />
           </ButtonText>
         </RowBetween>
-        <Flex justifyContent="space-between" padding="32px 0" width="100%">
-          <ShareGroupButtons shareUrl={shareUrl} onShared={onShared} />
-        </Flex>
+
+        <ShareGroupButtons shareUrl={shareUrl} onShared={onShared} />
+
         <InputWrapper>
           <input type="text" value={shareUrl} onChange={noop} />
           <ButtonPrimary onClick={handleCopyClick} fontSize={14} padding="8px 12px" width="auto">

@@ -12,6 +12,9 @@ import { ENV_TYPE } from './type'
 
 export const EMPTY_OBJECT: any = {}
 export const EMPTY_ARRAY: any[] = []
+export const EMPTY_FUNCTION = () => {
+  // empty
+}
 
 export const BAD_RECIPIENT_ADDRESSES: string[] = [
   NETWORKS_INFO[ChainId.MAINNET].classic.static.factory,
@@ -210,6 +213,7 @@ export const APP_PATHS = {
   ELASTIC_REMOVE_POOL: '/elastic/remove',
   FARMS: '/farms',
   MY_POOLS: '/myPools',
+  MY_EARNINGS: '/my-earnings',
   DISCOVER: '/discover',
   KYBERAI: '/KyberAI',
   KYBERAI_ABOUT: '/KyberAI/About',

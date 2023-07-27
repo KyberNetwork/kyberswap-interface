@@ -42,6 +42,7 @@ import {
 } from 'pages/TrueSightV2/utils'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink, shortenAddress } from 'utils'
+import { getProxyTokenLogo } from 'utils/tokenInfo'
 
 import ChevronIcon from '../ChevronIcon'
 import { WidgetTab } from '../KyberAIWidget'
@@ -1220,7 +1221,7 @@ export const TokenListInShareModalTable = ({
                 <RowFit gap="6px" align="center">
                   <img
                     alt="tokenInList"
-                    src={`https://proxy.kyberswap.com/token-logo?url=${token.tokens[0].logo}`}
+                    src={getProxyTokenLogo(token.tokens[0].logo)}
                     width="18px"
                     height="18px"
                     loading="lazy"

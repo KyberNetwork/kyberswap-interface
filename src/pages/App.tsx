@@ -52,6 +52,7 @@ const SwapV3 = lazy(() => import('./SwapV3'))
 // const Bridge = lazy(() => import('./Bridge'))
 const Pools = lazy(() => import('./Pools'))
 const MyPools = lazy(() => import('./Pool'))
+const MyEarnings = lazy(() => import('./MyEarnings'))
 
 const Farm = lazy(() => import('./Farm'))
 
@@ -325,6 +326,8 @@ export default function App() {
 
                     <Route path={`${APP_PATHS.FIND_POOL}`} element={<PoolFinder />} />
 
+                    <Route path={`${APP_PATHS.MY_EARNINGS}`} element={<MyEarnings />} />
+
                     <>
                       {/* Pools Routes  */}
                       <Route path={`${APP_PATHS.POOLS}`} element={<RedirectWithNetworkSuffix />} />
@@ -428,6 +431,7 @@ export default function App() {
                 </Web3ReactManager>
               </BodyWrapper>
               {showFooter && <Footer />}
+
               <TruesightFooter />
             </Suspense>
             <ModalConfirm />

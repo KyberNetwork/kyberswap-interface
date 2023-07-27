@@ -97,3 +97,6 @@ export const getTokenSymbolWithHardcode = (
   if (chainId === ChainId.ARBITRUM && formatAddress === '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8') return 'USDC.e'
   return defaultSymbol ?? ''
 }
+
+export const getProxyTokenLogo = (logoUrl: string | undefined) =>
+  logoUrl ? `https://proxy.kyberswap.com/token-logo?url=${logoUrl}` : ''
