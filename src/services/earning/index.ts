@@ -58,7 +58,7 @@ const earningApi = createApi({
             ...acc,
             [chainName]: {
               positions: positionData?.[chainName].positions.map(pos => {
-                const historicalEarning = (earningRes?.data as any)?.data?.[chainName]?.[pos.id] || {}
+                const historicalEarning = ((earningRes?.data as any)?.data?.[chainName]?.[pos.id] || []).reverse()
                 return {
                   ...pos,
                   historicalEarning,
@@ -112,7 +112,7 @@ const earningApi = createApi({
             ...acc,
             [chainName]: {
               positions: positionData?.[chainName].positions.map(pos => {
-                const historicalEarning = (earningRes?.data as any)?.data?.[chainName]?.[pos.id] || {}
+                const historicalEarning = ((earningRes?.data as any)?.data?.[chainName]?.[pos.id] || []).reverse
                 return {
                   ...pos,
                   historicalEarning,
