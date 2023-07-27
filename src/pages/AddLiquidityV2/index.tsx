@@ -1357,9 +1357,6 @@ export default function AddLiquidity() {
             onFieldBInput('0')
             navigate(`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}`)
           }}
-          onBack={() => {
-            navigate(`${APP_PATHS.POOLS}/${networkInfo.route}?tab=elastic`)
-          }}
           tutorialType={TutorialType.ELASTIC_ADD_LIQUIDITY}
         />
         <Container>

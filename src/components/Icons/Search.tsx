@@ -1,6 +1,7 @@
-function Search({ size = 24, color }: { size?: number; color?: string }) {
+function Search({ size = 24, color, onClick }: { size?: number; color?: string; onClick?: () => void }) {
   return (
     <svg
+      onClick={onClick}
       width={size || 24}
       height={size || 24}
       viewBox={`0 0 24 24`}

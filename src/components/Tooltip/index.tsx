@@ -19,6 +19,11 @@ export const TextDashed = styled(Text)<{ color?: string; underlineColor?: string
   border-bottom: 1px dotted ${({ theme, underlineColor }) => underlineColor || theme.border};
 `
 
+export const TextDotted = styled(Text)<{ $underlineColor?: string }>`
+  width: fit-content;
+  border-bottom: 1px dotted ${({ theme, $underlineColor }) => $underlineColor || theme.border};
+`
+
 interface TooltipProps extends Omit<PopoverProps, 'content'> {
   text: string | ReactNode
   delay?: number

@@ -15,10 +15,13 @@ import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
 import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit } from 'components/Row'
+import { getSocialShareUrls } from 'components/ShareModal'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import useShareImage from 'hooks/useShareImage'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
+import { downloadImage } from 'utils/index'
+import { getProxyTokenLogo } from 'utils/tokenInfo'
 
 import { NETWORK_IMAGE_URL } from '../constants'
 import useKyberAITokenOverview from '../hooks/useKyberAITokenOverview'
@@ -209,7 +212,6 @@ export default function KyberAIShareModal({
 
   const ref = useRef<HTMLDivElement>(null)
   const refMobile = useRef<HTMLDivElement>(null)
-  const tokenImgRef = useRef<HTMLImageElement>(null)
   const [loading, setLoading] = useState(true)
   const [isError, setIsError] = useState(false)
   const [isMobileMode, setIsMobileMode] = useState(isMobile)
@@ -322,14 +324,7 @@ export default function KyberAIShareModal({
     }
   }
   const handleDownloadClick = () => {
-    if (blob) {
-      const link = document.createElement('a')
-      link.download = 'kyberAI_share_image.png'
-      link.href = URL.createObjectURL(blob)
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-    }
+    downloadImage(blob, 'kyberAI_share_image.png')
   }
 
   const TokenInfo = () => (
@@ -339,11 +334,10 @@ export default function KyberAIShareModal({
           <div style={{ position: 'relative' }}>
             <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
               <img
-                src={`https://proxy.kyberswap.com/token-logo?url=${tokenOverview.logo}`}
+                src={getProxyTokenLogo(tokenOverview.logo)}
                 width="36px"
                 height="36px"
                 style={{ background: 'white', display: 'block' }}
-                ref={tokenImgRef}
               />
             </div>
             <div
@@ -390,6 +384,8 @@ export default function KyberAIShareModal({
     }
   }, [imageUrl])
 
+  const { facebook, telegram, discord, twitter } = getSocialShareUrls(sharingUrl)
+
   return (
     <Modal isOpen={isOpen} width="fit-content" maxWidth="100vw" maxHeight="80vh" onDismiss={onClose}>
       <Wrapper>
@@ -404,22 +400,22 @@ export default function KyberAIShareModal({
             <Input value={sharingUrl} autoFocus={false} disabled={!sharingUrl} />
           </InputWrapper>
           <IconButton disabled={!sharingUrl} onClick={() => onShareClick?.('telegram')}>
-            <ExternalLink href={'https://telegram.me/share/url?url=' + encodeURIComponent(sharingUrl)}>
+            <ExternalLink href={telegram}>
               <Icon id="telegram" size={20} />
             </ExternalLink>
           </IconButton>
           <IconButton disabled={!sharingUrl} onClick={() => onShareClick?.('twitter')}>
-            <ExternalLink href={'https://twitter.com/intent/tweet?text=' + encodeURIComponent(sharingUrl)}>
+            <ExternalLink href={twitter}>
               <Icon id="twitter" size={20} />
             </ExternalLink>
           </IconButton>
           <IconButton disabled={!sharingUrl} onClick={() => onShareClick?.('facebook')}>
-            <ExternalLink href={'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(sharingUrl)}>
+            <ExternalLink href={facebook}>
               <Icon id="facebook" size={20} />
             </ExternalLink>
           </IconButton>
           <IconButton disabled={!sharingUrl} onClick={() => onShareClick?.('discord')}>
-            <ExternalLink href="https://discord.com/app/">
+            <ExternalLink href={discord}>
               <Icon id="discord" size={20} />
             </ExternalLink>
           </IconButton>

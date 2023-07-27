@@ -307,7 +307,6 @@ const getPrommEthPrice = async (
   return [ethPrice, ethPriceOneDay, priceChangeETH]
 }
 
-let fetchingETHPrice = false
 export function useETHPrice(version: string = VERSION.CLASSIC): AppState['application']['ethPrice'] {
   const dispatch = useDispatch()
   const { isEVM, chainId } = useActiveWeb3React()
@@ -322,8 +321,6 @@ export function useETHPrice(version: string = VERSION.CLASSIC): AppState['applic
     if (!isEVM) return
 
     async function checkForEthPrice() {
-      if (fetchingETHPrice) return
-      fetchingETHPrice = true
       try {
         const [newPrice, oneDayBackPrice, pricePercentChange] = await (version === VERSION.ELASTIC
           ? getPrommEthPrice(isEnableBlockService, chainId, elasticClient, blockClient, controller.signal)
@@ -342,8 +339,8 @@ export function useETHPrice(version: string = VERSION.CLASSIC): AppState['applic
                 pricePercentChange,
               }),
         )
-      } finally {
-        fetchingETHPrice = false
+      } catch (error) {
+        console.error('useETHPrice error:', { error })
       }
     }
     checkForEthPrice()

@@ -31,6 +31,7 @@ import {
   toggleKyberAIBanner,
   toggleKyberAIWidget,
   toggleLiveChart,
+  toggleMyEarningChart,
   toggleTokenInfo,
   toggleTradeRoutes,
   updateAcceptedTermVersion,
@@ -130,6 +131,7 @@ interface UserState {
   kyberAIWidget: boolean
 
   crossChain: CrossChainSetting
+  myEarningChart: boolean
 }
 
 function pairKey(token0Address: string, token1Address: string) {
@@ -187,6 +189,7 @@ const initialState: UserState = {
   isSlippageControlPinned: true,
   kyberAIWidget: true,
   crossChain: CROSS_CHAIN_SETTING_DEFAULT,
+  myEarningChart: true,
 }
 
 export default createReducer(initialState, builder =>
@@ -380,5 +383,8 @@ export default createReducer(initialState, builder =>
     })
     .addCase(toggleKyberAIWidget, state => {
       state.kyberAIWidget = !state.kyberAIWidget
+    })
+    .addCase(toggleMyEarningChart, state => {
+      state.myEarningChart = !state.myEarningChart
     }),
 )

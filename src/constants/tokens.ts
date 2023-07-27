@@ -390,7 +390,7 @@ export const DAI: { [chainId in ChainId]: Token } = {
   ),
   [ChainId.FANTOM]: new Token(
     ChainId.FANTOM,
-    '0x8D11eC38a3EB5E956B052f67Da8Bdc9bef8Abf3E',
+    '0x91a40C733c97a6e1BF876EaF9ed8c08102eB491f',
     18,
     'DAI',
     'Dai Stablecoin',
@@ -489,7 +489,7 @@ export const USDC: { [chainId in ChainId]: Token } = {
     'USDC.e',
     'USD Coin',
   ),
-  [ChainId.FANTOM]: new Token(ChainId.FANTOM, '0x04068DA6C83AFCFA0e13ba15A6696662335D5B75', 6, 'USDC', 'USD Coin'),
+  [ChainId.FANTOM]: new Token(ChainId.FANTOM, '0x28a92dde19D9989F39A49905d7C9C2FAc7799bDf', 6, 'USDC', 'USD Coin'),
   [ChainId.CRONOS]: new Token(ChainId.CRONOS, '0xc21223249CA28397B4B6541dfFaEcC539BfF0c59', 6, 'USDC', 'USD Coin'),
   [ChainId.ARBITRUM]: new Token(ChainId.ARBITRUM, '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8', 6, 'USDC', 'USD Coin'),
   [ChainId.BTTC]: new Token(ChainId.BTTC, '0xCa424b845497f7204D9301bd13Ff87C0E2e86FCF', 18, 'USDC_b', 'USD Coin_BSC'),
@@ -557,7 +557,7 @@ export const USDT: { [chainId in ChainId]: Token } = {
     'USDT.e',
     'Tether USD',
   ),
-  [ChainId.FANTOM]: new Token(ChainId.FANTOM, '0x049d68029688eAbF473097a2fC38ef61633A3C7A', 6, 'fUSDT', 'Tether USD'),
+  [ChainId.FANTOM]: new Token(ChainId.FANTOM, '0xcc1b99dDAc1a33c201a742A1851662E87BC7f22C', 6, 'fUSDT', 'Tether USD'),
   [ChainId.CRONOS]: new Token(ChainId.CRONOS, '0x66e428c3f67a68878562e79A0234c1F83c208770', 6, 'USDT', 'Tether USD'),
   [ChainId.ARBITRUM]: new Token(
     ChainId.ARBITRUM,

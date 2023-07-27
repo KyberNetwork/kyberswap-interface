@@ -83,9 +83,9 @@ interface UserLiquidityPositionResult {
  *
  * @param user string
  */
-export function useUserLiquidityPositions(): UserLiquidityPositionResult {
+export function useUserLiquidityPositions(chainId?: ChainId): UserLiquidityPositionResult {
   const { isEVM, account } = useActiveWeb3React()
-  const { classicClient } = useKyberSwapConfig()
+  const { classicClient } = useKyberSwapConfig(chainId)
   const { loading, error, data } = useQuery(USER_POSITIONS, {
     client: classicClient,
     variables: {

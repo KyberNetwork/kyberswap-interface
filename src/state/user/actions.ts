@@ -68,5 +68,6 @@ export const revokePermit = createAction<{ chainId: number; address: string; acc
 export const permitError = createAction<{ chainId: number; address: string; account: string }>('user/permitError')
 export const pinSlippageControl = createAction<boolean>('user/pinSlippageControl')
 export const toggleKyberAIWidget = createAction<void>('user/toggleKyberAIWidget')
+export const toggleMyEarningChart = createAction<void>('user/toggleMyEarningChart')
 
 export const setCrossChainSetting = createAction<CrossChainSetting>('user/setCrossChainSetting')
