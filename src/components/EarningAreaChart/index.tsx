@@ -70,7 +70,7 @@ const formatter = (value: string) => {
   }
 
   const formatter = Intl.NumberFormat('en-US', {
-    notation: num > 1000 ? 'compact' : 'standard',
+    notation: num >= 1000 ? 'compact' : 'standard',
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 0,
