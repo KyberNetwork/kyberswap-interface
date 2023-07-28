@@ -49,7 +49,9 @@ export const toggleTopTrendingTokens = createAction<void>('user/toggleTopTrendin
 
 export type ToggleFavoriteTokenPayload = {
   chainId: ChainId
-} & ({ isNative?: false; address: string } | { isNative: true; address?: never })
+  address: string
+  newValue?: boolean
+}
 export const toggleFavoriteToken = createAction<ToggleFavoriteTokenPayload>('user/toggleFavoriteToken')
 export const updateChainId = createAction<ChainId>('user/updateChainId')
 export const updateTokenAnalysisSettings = createAction<string>('user/updateTokenAnalysisSettings')

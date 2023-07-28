@@ -164,6 +164,7 @@ export const STATIC_FEE_OPTIONS: { [chainId: number]: number[] | undefined } = {
   [ChainId.GÖRLI]: [8, 10, 50, 300, 500, 1000],
   [ChainId.ZKSYNC]: [8, 10, 50, 300, 500, 1000],
   [ChainId.LINEA_TESTNET]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.LINEA]: [8, 10, 50, 300, 500, 1000],
 }
 
 export const ONLY_STATIC_FEE_CHAINS = [
@@ -175,6 +176,7 @@ export const ONLY_STATIC_FEE_CHAINS = [
   ChainId.GÖRLI,
   ChainId.ZKSYNC,
   ChainId.LINEA_TESTNET,
+  ChainId.LINEA,
 ]
 
 // hardcode for unavailable subgraph
