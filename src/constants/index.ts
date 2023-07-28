@@ -141,7 +141,9 @@ export const BLOCKED_PRICE_IMPACT_NON_DEGEN: Percent = new Percent(JSBI.BigInt(1
 
 export const BUNDLE_ID = '1'
 
-export const COINGECKO_API_URL = `${ENV.BFF_API}/v1/coingecko/api/v3`
+export const COINGECKO_BFF_API_URL = `${ENV.BFF_API}/v1/coingecko/api/v3`
+export const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3'
+
 export const KNC_COINGECKO_ID = 'kyber-network-crystal'
 
 export const ETHER_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'

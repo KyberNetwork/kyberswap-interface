@@ -1,9 +1,11 @@
+import { KyberOauth2Api } from '@kybernetwork/oauth2'
 import { Token, WETH } from '@kyberswap/ks-sdk-core'
 import useSWR from 'swr'
 
-import { COINGECKO_API_URL } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+
+import useCoingeckoAPI from './useCoingeckoAPI'
 
 export interface TokenInfo {
   price: number
@@ -21,8 +23,20 @@ export interface TokenInfo {
 export default function useTokenInfo(token: Token | undefined): { data: TokenInfo; loading: boolean; error: any } {
   const { isSolana, chainId: currentChain } = useActiveWeb3React()
   const chainId = token?.chainId || currentChain
-
-  const fetcher = (url: string) => (url ? fetch(url).then(r => r.json()) : Promise.reject({ data: {}, error: '' }))
+  const coingeckoAPI = useCoingeckoAPI()
+  const fetcher = (url: string) =>
+    url
+      ? KyberOauth2Api.get(url)
+          .then(res => {
+            if (res.status === 204) {
+              throw new Error('No content')
+            }
+            return res.data
+          })
+          .catch(error => {
+            throw error
+          })
+      : Promise.reject({ data: {}, error: '' })
 
   const tokenAddress = isSolana ? token?.address || '' : (token?.address || '').toLowerCase()
 
@@ -30,9 +44,9 @@ export default function useTokenInfo(token: Token | undefined): { data: TokenInf
 
   if (tokenAddress.toLowerCase() === WETH[chainId].address.toLowerCase()) {
     // If the token is native token, we have to use different endpoint
-    url = `${COINGECKO_API_URL}/coins/${NETWORKS_INFO[chainId].coingeckoNativeTokenId}`
+    url = `${coingeckoAPI}/coins/${NETWORKS_INFO[chainId].coingeckoNativeTokenId}`
   } else if (tokenAddress) {
-    url = `${COINGECKO_API_URL}/coins/${NETWORKS_INFO[chainId].coingeckoNetworkId}/contract/${tokenAddress}`
+    url = `${coingeckoAPI}/coins/${NETWORKS_INFO[chainId].coingeckoNetworkId}/contract/${tokenAddress}`
   }
 
   const { data, error } = useSWR(url, fetcher, {
