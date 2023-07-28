@@ -5,7 +5,7 @@ import * as Sentry from '@sentry/react'
 import { Suspense, lazy, useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { AlertTriangle } from 'react-feather'
-import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
 import { useNetwork, usePrevious } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -14,7 +14,6 @@ import snow from 'assets/images/snow.png'
 import Popups from 'components/Announcement/Popups'
 import TopBanner from 'components/Announcement/Popups/TopBanner'
 import AppHaveUpdate from 'components/AppHaveUpdate'
-import { ButtonPrimary } from 'components/Button'
 import ModalConfirm from 'components/ConfirmModal'
 import ErrorBoundary from 'components/ErrorBoundary'
 import Footer from 'components/Footer/Footer'
@@ -45,22 +44,6 @@ import { getLimitOrderContract, isAddressString, shortenAddress } from 'utils'
 import ElasticLegacyNotice from './ElasticLegacy/ElasticLegacyNotice'
 import Icons from './Icons'
 import VerifyAuth from './Verify/VerifyAuth'
-
-// THIS IS ONLY TEMPORARY, WILL REMOVE IN NEXT VERSION
-const CommingSoonModal = () => {
-  const navigate = useNavigate()
-  return (
-    <Modal isOpen onDismiss={() => navigate('/')}>
-      <Flex flexDirection="column" padding="24px" sx={{ gap: '2rem' }} justifyContent="center" alignItems="center">
-        <Text fontSize={14}>Our pools and farms will be available soon!</Text>
-
-        <ButtonPrimary style={{ width: '160px', height: '32px' }} onClick={() => navigate('/')}>
-          Ok
-        </ButtonPrimary>
-      </Flex>
-    </Modal>
-  )
-}
 
 // test page for swap only through elastic
 const ElasticSwap = lazy(() => import('./ElasticSwap'))
@@ -348,28 +331,19 @@ export default function App() {
                     <>
                       {/* Pools Routes  */}
                       <Route path={`${APP_PATHS.POOLS}`} element={<RedirectWithNetworkSuffix />} />
-                      <Route
-                        path={`${APP_PATHS.POOLS}/:network/:currencyIdA?/:currencyIdB?`}
-                        element={chainId === ChainId.LINEA ? <CommingSoonModal /> : <Pools />}
-                      />
+                      <Route path={`${APP_PATHS.POOLS}/:network/:currencyIdA?/:currencyIdB?`} element={<Pools />} />
                     </>
 
                     <>
                       {/* Farms Routes */}
                       <Route path={`${APP_PATHS.FARMS}`} element={<RedirectWithNetworkSuffix />} />
-                      <Route
-                        path={`${APP_PATHS.FARMS}/:network`}
-                        element={chainId === ChainId.LINEA ? <CommingSoonModal /> : <Farm />}
-                      />
+                      <Route path={`${APP_PATHS.FARMS}/:network`} element={<Farm />} />
                     </>
 
                     <>
                       {/* My Pools Routes */}
                       <Route path={`${APP_PATHS.MY_POOLS}`} element={<RedirectWithNetworkSuffix />} />
-                      <Route
-                        path={`${APP_PATHS.MY_POOLS}/:network`}
-                        element={chainId === ChainId.LINEA ? <CommingSoonModal /> : <MyPools />}
-                      />
+                      <Route path={`${APP_PATHS.MY_POOLS}/:network`} element={<MyPools />} />
                     </>
 
                     <>
