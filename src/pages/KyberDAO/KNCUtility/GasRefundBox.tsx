@@ -169,25 +169,19 @@ export default function GasRefundBox() {
             {selectedTab === KNCUtilityTabs.Available ? (
               account ? (
                 isSupportKyberDao(chainId) ? (
-                  claiming ? (
-                    <ButtonPrimary
-                      padding={upToXXSmall ? '8px 28px' : '8px 45px'}
-                      onClick={handleClaimReward}
-                      $disabled
-                    >
+                  <ButtonPrimary
+                    padding={upToXXSmall ? '8px 28px' : '8px 45px'}
+                    onClick={claiming ? undefined : handleClaimReward}
+                    disabled={claiming || (claimableReward?.knc ?? 0) <= 0}
+                  >
+                    {claiming ? (
                       <Dots>
                         <Trans>Claiming</Trans>
                       </Dots>
-                    </ButtonPrimary>
-                  ) : (
-                    <ButtonPrimary
-                      padding={upToXXSmall ? '8px 28px' : '8px 45px'}
-                      onClick={handleClaimReward}
-                      disabled={(claimableReward?.knc ?? 0) <= 0}
-                    >
+                    ) : (
                       <Trans>Claim</Trans>
-                    </ButtonPrimary>
-                  )
+                    )}
+                  </ButtonPrimary>
                 ) : (
                   <MouseoverTooltip
                     text={

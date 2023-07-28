@@ -5,6 +5,7 @@ import styled from 'styled-components'
 
 import { ReactComponent as DollarIcon } from 'assets/svg/dollar.svg'
 import { ButtonPrimary } from 'components/Button'
+import Dots from 'components/Dots'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useRewards } from 'hooks/useRewards'
 import useTheme from 'hooks/useTheme'
@@ -141,10 +142,10 @@ export default function RewardCenter() {
             padding="4px 15px"
             minWidth="unset"
             onClick={claimRewards}
-            disabled={!currentReward.knc || claiming}
+            disabled={claiming || !currentReward.knc}
           >
             <Text fontSize={14} fontWeight={500} lineHeight="20px">
-              <Trans>Claim</Trans>
+              {claiming ? <Trans>Claiming</Trans> : <Trans>Claim</Trans>}
             </Text>
           </ButtonPrimary>
         </Flex>
