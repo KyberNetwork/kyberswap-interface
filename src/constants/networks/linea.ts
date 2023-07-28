@@ -8,7 +8,7 @@ const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const lineaTestnetInfo: EVMNetworkInfo = {
+const lineaInfo: EVMNetworkInfo = {
   chainId: ChainId.LINEA,
   route: 'linea',
   ksSettingRoute: 'linea',
@@ -70,4 +70,4 @@ const lineaTestnetInfo: EVMNetworkInfo = {
   geckoTermialId: NOT_SUPPORT,
 }
 
-export default lineaTestnetInfo
+export default lineaInfo
