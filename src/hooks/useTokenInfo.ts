@@ -26,16 +26,12 @@ export default function useTokenInfo(token: Token | undefined): { data: TokenInf
   const coingeckoAPI = useCoingeckoAPI()
   const fetcher = (url: string) =>
     url
-      ? KyberOauth2Api.get(url)
-          .then(res => {
-            if (res.status === 204) {
-              throw new Error('No content')
-            }
-            return res.data
-          })
-          .catch(error => {
-            throw error
-          })
+      ? KyberOauth2Api.get(url).then(res => {
+          if (res.status === 204) {
+            throw new Error('No content')
+          }
+          return res.data
+        })
       : Promise.reject({ data: {}, error: '' })
 
   const tokenAddress = isSolana ? token?.address || '' : (token?.address || '').toLowerCase()
