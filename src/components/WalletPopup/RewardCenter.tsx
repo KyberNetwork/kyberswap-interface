@@ -5,7 +5,7 @@ import styled from 'styled-components'
 
 import { ReactComponent as DollarIcon } from 'assets/svg/dollar.svg'
 import { ButtonPrimary } from 'components/Button'
-import Dots from 'components/Dots'
+import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useRewards } from 'hooks/useRewards'
 import useTheme from 'hooks/useTheme'
@@ -19,7 +19,7 @@ const ContentWrapper = styled.div`
   position: relative;
   width: 100%;
 `
-const BalanceTitle = styled.span`
+const BalanceTitle = styled(TextDashed)`
   font-size: 12px;
   font-weight: 500;
   line-height: 16px;
@@ -112,9 +112,13 @@ export default function RewardCenter() {
               }}
             >
               <Flex width="fit-content" sx={{ gap: '4px' }}>
-                <BalanceTitle>
-                  <Trans>Total Available Rewards</Trans>
-                </BalanceTitle>
+                <MouseoverTooltip
+                  text={t`Total Available Rewards = Total Available Voting Rewards + Total Available Gas Refund`}
+                >
+                  <BalanceTitle>
+                    <Trans>Total Available Rewards</Trans>
+                  </BalanceTitle>
+                </MouseoverTooltip>
               </Flex>
 
               <BalanceValue>{formatNumberWithPrecisionRange(totalReward.knc, 0, 8)} KNC</BalanceValue>
