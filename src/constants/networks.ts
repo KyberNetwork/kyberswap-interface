@@ -215,18 +215,7 @@ export const SUPPORTED_NETWORKS_FOR_MY_EARNINGS = [
   ChainId.AURORA,
   ChainId.OASIS,
 ]
-export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS = [
-  ChainId.MATIC,
-  ChainId.BSCMAINNET,
-  ChainId.AVAXMAINNET,
-  ChainId.FANTOM,
-  ChainId.CRONOS,
-  ChainId.BTTC,
-  ChainId.VELAS,
-  ChainId.AURORA,
-  ChainId.OASIS,
-  ChainId.ZKSYNC,
-]
+export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS = []
 
 // by pass invalid price impact/unable to calculate price impact/price impact too large
 export const CHAINS_BYPASS_PRICE_IMPACT = [ChainId.LINEA_TESTNET]
