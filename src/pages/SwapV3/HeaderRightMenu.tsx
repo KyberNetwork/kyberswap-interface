@@ -104,7 +104,9 @@ export default function HeaderRightMenu({
               type={TutorialType.SWAP}
               customIcon={
                 <StyledActionButtonSwapForm onClick={() => mixpanelHandler(MIXPANEL_TYPE.SWAP_TUTORIAL_CLICK)}>
-                  <TutorialIcon />
+                  <MouseoverTooltip text={t`Tutorial`} placement="top" width="fit-content" disableTooltip={isMobile}>
+                    <TutorialIcon />
+                  </MouseoverTooltip>
                 </StyledActionButtonSwapForm>
               }
             />
@@ -130,12 +132,7 @@ export default function HeaderRightMenu({
               }}
               aria-label="Swap Settings"
             >
-              <MouseoverTooltip
-                text={<Trans>Settings</Trans>}
-                placement="top"
-                width="fit-content"
-                disableTooltip={isMobile}
-              >
+              <MouseoverTooltip text={t`Settings`} placement="top" width="fit-content" disableTooltip={isMobile}>
                 <TransactionSettingsIconWrapper id={TutorialIds.BUTTON_SETTING_SWAP_FORM}>
                   <TransactionSettingsIcon fill={theme.subText} />
                 </TransactionSettingsIconWrapper>
