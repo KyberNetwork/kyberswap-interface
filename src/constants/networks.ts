@@ -14,6 +14,7 @@ import {
   ethereum,
   fantom,
   görli,
+  linea,
   lineaTestnet,
   matic,
   mumbai,
@@ -50,6 +51,7 @@ export const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.OPTIMISM]: optimism,
   [ChainId.ZKSYNC]: zksync,
   [ChainId.LINEA_TESTNET]: lineaTestnet,
+  [ChainId.LINEA]: linea,
   [ChainId.SOLANA]: solana,
   [ChainId.SOLANA_DEVNET]: solanaDevnet,
 } as const
@@ -80,8 +82,7 @@ export const MAINNET_NETWORKS = [
   ChainId.VELAS,
   ChainId.AURORA,
   ChainId.ZKSYNC,
-  // TODO(viet-nv): update when integrating LINEA MAINNET
-  ChainId.LINEA_TESTNET,
+  ChainId.LINEA,
 ] as const
 
 export const EVM_NETWORKS = SUPPORTED_NETWORKS.filter(chainId => getChainType(chainId) === ChainType.EVM) as Exclude<
@@ -215,7 +216,7 @@ export const SUPPORTED_NETWORKS_FOR_MY_EARNINGS = [
   ChainId.AURORA,
   ChainId.OASIS,
 ]
-export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS = []
+export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS: ChainId[] = []
 
 // by pass invalid price impact/unable to calculate price impact/price impact too large
 export const CHAINS_BYPASS_PRICE_IMPACT = [ChainId.LINEA_TESTNET]
