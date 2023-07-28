@@ -37,9 +37,9 @@ const lineaTestnetInfo: EVMNetworkInfo = {
   classic: {
     defaultSubgraph: '', // TODO
     static: {
-      zap: '',
-      router: '',
-      factory: '',
+      zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
+      router: '0x5649B4DD00780e99Bab7Abb4A3d581Ea1aEB23D0',
+      factory: '0x1c758aF0688502e49140230F6b0EBd376d429be5',
     },
     oldStatic: NOT_SUPPORT,
     dynamic: NOT_SUPPORT,
