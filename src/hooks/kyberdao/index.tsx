@@ -30,6 +30,7 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { calculateGasMargin } from 'utils'
 import { aggregateValue } from 'utils/array'
+import { formatWalletErrorMessage } from 'utils/errorMessage'
 import { formatUnitsToFixed } from 'utils/formatBalance'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 
@@ -624,7 +625,7 @@ export function useClaimGasRefundRewards() {
       console.error('Claim error:', { error })
       notify({
         title: t`Claim Error`,
-        summary: error?.response?.data?.message || error?.message || 'Unknown error',
+        summary: error?.response?.data?.message || error?.message || t`Unknown error`,
         type: NotificationType.ERROR,
       })
       throw error
@@ -647,6 +648,7 @@ export function useClaimGasRefundRewards() {
       refetch()
       return tx.hash as string
     } catch (error) {
+      refetch()
       if (didUserReject(connector, error)) {
         notify({
           title: t`Transaction rejected`,
@@ -655,10 +657,11 @@ export function useClaimGasRefundRewards() {
         })
         throw new Error('Transaction rejected.')
       } else {
-        console.error('Claim error:', { error })
+        const message = formatWalletErrorMessage(error)
+        console.error('Claim error:', { error, message })
         notify({
           title: t`Claim Error`,
-          summary: error.message || 'Unknown error',
+          summary: message,
           type: NotificationType.ERROR,
         })
         throw error
