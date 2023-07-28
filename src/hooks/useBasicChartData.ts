@@ -75,8 +75,6 @@ const fetchKyberDataSWRWithHeader = async (url: string) => {
     headers: {
       'accept-version': 'Latest',
     },
-  }).catch(error => {
-    throw error
   })
 
   if (res.status === 204) {
@@ -93,16 +91,14 @@ const fetchCoingeckoDataSWR = async ([tokenAddresses, chainIds, timeFrame, coing
 ]): Promise<any> => {
   return await Promise.all(
     [tokenAddresses[0], tokenAddresses[1]].map((address, i) =>
-      KyberOauth2Api.get(generateCoingeckoUrl(coingeckoAPI, chainIds[i], address, timeFrame), { timeout: 5000 })
-        .then(res => {
+      KyberOauth2Api.get(generateCoingeckoUrl(coingeckoAPI, chainIds[i], address, timeFrame), { timeout: 5000 }).then(
+        res => {
           if (res.status === 204) {
             throw new Error('No content')
           }
           return res.data
-        })
-        .catch(error => {
-          throw error
-        }),
+        },
+      ),
     ),
   )
 }
