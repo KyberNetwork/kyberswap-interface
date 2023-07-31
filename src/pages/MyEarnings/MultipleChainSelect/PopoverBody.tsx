@@ -11,12 +11,15 @@ import Checkbox from 'components/CheckBox'
 import { MouseoverTooltip } from 'components/Tooltip'
 import {
   COMING_SOON_NETWORKS_FOR_MY_EARNINGS,
+  COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY,
   NETWORKS_INFO,
   SUPPORTED_NETWORKS_FOR_MY_EARNINGS,
 } from 'constants/networks'
+import { VERSION } from 'constants/v2'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { AppState } from 'state'
+import { useAppSelector } from 'state/hooks'
 import { selectChains } from 'state/myEarnings/actions'
 
 import { StyledLogo } from '.'
@@ -103,9 +106,17 @@ const PopoverBody: React.FC<Props> = ({ onClose }) => {
   const selectedChains = useSelector((state: AppState) => state.myEarnings.selectedChains)
   const dispatch = useDispatch()
 
-  const [localSelectedChains, setLocalSelectedChains] = useState(selectedChains)
+  const isLegacy = useAppSelector(state => state.myEarnings.activeTab === VERSION.ELASTIC_LEGACY)
 
-  const isAllSelected = localSelectedChains.length === SUPPORTED_NETWORKS_FOR_MY_EARNINGS.length
+  const comingSoonList = isLegacy ? COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY : COMING_SOON_NETWORKS_FOR_MY_EARNINGS
+
+  const [localSelectedChains, setLocalSelectedChains] = useState(() =>
+    selectedChains.filter(item => !comingSoonList.includes(item)),
+  )
+
+  const networkList = SUPPORTED_NETWORKS_FOR_MY_EARNINGS.filter(item => !comingSoonList.includes(item))
+
+  const isAllSelected = localSelectedChains.length === networkList.length
   const handleChangeChains = (chains: ChainId[]) => {
     dispatch(selectChains(chains))
   }
@@ -124,7 +135,8 @@ const PopoverBody: React.FC<Props> = ({ onClose }) => {
     selectAllRef.current.indeterminate = indeterminate
   }, [localSelectedChains])
 
-  const allNetworks = [...SUPPORTED_NETWORKS_FOR_MY_EARNINGS, ...COMING_SOON_NETWORKS_FOR_MY_EARNINGS]
+  const allNetworks = [...networkList, ...comingSoonList]
+
   return (
     <Flex
       sx={{
@@ -155,7 +167,7 @@ const PopoverBody: React.FC<Props> = ({ onClose }) => {
               setLocalSelectedChains([])
             } else {
               mixpanelHandler(MIXPANEL_TYPE.EARNING_DASHBOARD_CLICK_ALL_CHAINS_BUTTON)
-              setLocalSelectedChains(SUPPORTED_NETWORKS_FOR_MY_EARNINGS)
+              setLocalSelectedChains(networkList)
             }
           }}
         />
@@ -180,7 +192,8 @@ const PopoverBody: React.FC<Props> = ({ onClose }) => {
       <ChainListWrapper>
         {allNetworks.map((network, i) => {
           const config = NETWORKS_INFO[network]
-          const isComingSoon = COMING_SOON_NETWORKS_FOR_MY_EARNINGS.includes(network)
+
+          const isComingSoon = comingSoonList.includes(network)
           const isSelected = isComingSoon ? false : localSelectedChains.includes(network)
 
           const handleClick = () => {
