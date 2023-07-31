@@ -5,6 +5,7 @@ import { Flex, Text } from 'rebass'
 import { useGetElasticEarningQuery, useGetElasticLegacyEarningQuery } from 'services/earning'
 import styled from 'styled-components'
 
+import { COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import ChainSelect from 'pages/MyEarnings/ChainSelect'
@@ -79,7 +80,10 @@ const MyEarningStats = () => {
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
 
   const elasticEarningQueryResponse = useGetElasticEarningQuery({ account, chainIds: selectedChainIds })
-  const elasticLegacyEarningQueryResponse = useGetElasticLegacyEarningQuery({ account, chainIds: selectedChainIds })
+  const elasticLegacyEarningQueryResponse = useGetElasticLegacyEarningQuery({
+    account,
+    chainIds: selectedChainIds.filter(item => !COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY.includes(item)),
+  })
   // const classicEarningQueryResponse = useGetClassicEarningQuery({ account, chainIds: selectedChainIds })
 
   const isLoading = elasticEarningQueryResponse.isFetching || elasticLegacyEarningQueryResponse.isFetching
