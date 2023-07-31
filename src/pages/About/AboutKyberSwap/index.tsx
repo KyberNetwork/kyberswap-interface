@@ -56,8 +56,6 @@ import {
   OptimismLogoFull,
   Polygon,
   PolygonLogoFull,
-  Solana,
-  SolanaLogoFull,
   Velas,
   VelasLogoFull,
 } from 'components/Icons'
@@ -524,7 +522,7 @@ function AboutKyberSwap() {
             <Oasis />
             <Bttc />
             <OptimismLogo />
-            <Solana />
+            {/* <Solana /> */}
             <ZkSync />
             <img src="https://linea.build/apple-touch-icon.png" width="36px" height="36px" alt="Linea" />
           </SupportedChain>
@@ -1045,7 +1043,7 @@ function AboutKyberSwap() {
               <OasisLogoFull />
               <img src={isDarkMode ? BTTCDark : BTTCLight} alt="btt" width="100%" />
               <OptimismLogoFull />
-              <SolanaLogoFull />
+              {/* <SolanaLogoFull /> */}
               <ZkSyncFull />
               <LineaFull />
             </Powered>

@@ -11,6 +11,7 @@ import styled from 'styled-components'
 import InfoHelper from 'components/InfoHelper'
 import LoaderWithKyberLogo from 'components/LocalLoader'
 import { EMPTY_ARRAY } from 'constants/index'
+import { COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY } from 'constants/networks'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
@@ -81,7 +82,10 @@ const ElasticPools = () => {
   const searchText = useDebounce(originalSearchText, 300).toLowerCase().trim()
 
   const elasticEarningQueryResponse = useGetElasticEarningQuery({ account, chainIds: selectedChainIds })
-  const elasticLegacyEarningQueryResponse = useGetElasticLegacyEarningQuery({ account, chainIds: selectedChainIds })
+  const elasticLegacyEarningQueryResponse = useGetElasticLegacyEarningQuery({
+    account,
+    chainIds: selectedChainIds.filter(item => !COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY.includes(item)),
+  })
 
   const earningResponse = useMemo(() => {
     let data = elasticEarningQueryResponse.data
