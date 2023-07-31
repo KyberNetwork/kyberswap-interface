@@ -1,7 +1,7 @@
-import { Currency, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { parse } from 'querystring'
 
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 
 /**
  * ex:  nguyen hoai danh => nguyen-hoai-danh
@@ -39,6 +39,6 @@ export const escapeScriptHtml = (str: string) => {
 
 export const isEmailValid = (value: string | undefined) => value?.match(/^\w+([\.-]?\w)*@\w+([\.-]?\w)*(\.\w{2,10})+$/)
 
-export const getChainIdFromSlug = (network: string | undefined) => {
-  return Object.values(NETWORKS_INFO).find(n => n.route === network)?.chainId
+export const getChainIdFromSlug = (network: string | undefined): ChainId | undefined => {
+  return SUPPORTED_NETWORKS.find(chainId => NETWORKS_INFO[chainId].route === network)
 }

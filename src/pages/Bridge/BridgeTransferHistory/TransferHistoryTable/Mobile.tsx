@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { ArrowDown } from 'react-feather'
 import { Flex } from 'rebass'
@@ -6,12 +5,13 @@ import styled from 'styled-components'
 
 import InfoHelper from 'components/InfoHelper'
 import { NetworkLogo } from 'components/Logo'
-import { NETWORKS_INFO_CONFIG } from 'constants/networks'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import ActionCell from 'pages/Bridge/BridgeTransferHistory/ActionCell'
 import StatusBadge from 'pages/Bridge/BridgeTransferHistory/StatusBadge'
 import TimeStatusCell from 'pages/Bridge/BridgeTransferHistory/TimeStatusCell'
 import TokenReceiveCell from 'pages/Bridge/BridgeTransferHistory/TokenReceiveCell'
+import { includes } from 'utils/array'
 
 import { Props } from './index'
 
@@ -58,9 +58,9 @@ const ChainWrapper = styled.div`
 
   color: ${({ theme }) => theme.subText};
 `
-const ChainDisplay: React.FC<{ chainId: ChainId }> = ({ chainId }) => {
-  const chainInfo = NETWORKS_INFO_CONFIG[chainId]
-  if (chainInfo) {
+const ChainDisplay: React.FC<{ chainId: number }> = ({ chainId }) => {
+  if (includes(SUPPORTED_NETWORKS, chainId)) {
+    const chainInfo = NETWORKS_INFO[chainId]
     return (
       <ChainWrapper>
         <NetworkLogo chainId={chainId} style={{ width: 18, height: 18 }} />
@@ -125,7 +125,7 @@ const Mobile: React.FC<Props> = ({ transfers }) => {
                 justifyContent: 'space-between',
               }}
             >
-              <ChainDisplay chainId={Number(transfer.srcChainId) as ChainId} />
+              <ChainDisplay chainId={Number(transfer.srcChainId)} />
               <TokenReceiveCell transfer={transfer} />
             </Flex>
 
@@ -145,7 +145,7 @@ const Mobile: React.FC<Props> = ({ transfers }) => {
                 justifyContent: 'space-between',
               }}
             >
-              <ChainDisplay chainId={Number(transfer.dstChainId) as ChainId} />
+              <ChainDisplay chainId={Number(transfer.dstChainId)} />
               <TimeStatusCell timestamp={transfer.createdAt * 1000} />
             </Flex>
           </Flex>

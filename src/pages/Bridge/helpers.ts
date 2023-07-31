@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import axios from 'axios'
 
-import { NETWORKS_INFO_CONFIG } from 'constants/networks'
+import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { MultichainTransferStatus } from 'hooks/bridge/useGetBridgeTransfers'
 import { PoolBridgeValue } from 'state/crossChain/reducer'
 import { formatNumberWithPrecisionRange, isAddress } from 'utils'
@@ -74,7 +74,7 @@ const filterTokenList = (tokens: { [key: string]: MultiChainTokenInfo }) => {
             delete destChains[chain][address]
           }
         })
-        if (NETWORKS_INFO_CONFIG[chain as unknown as keyof typeof NETWORKS_INFO_CONFIG]) {
+        if (SUPPORTED_NETWORKS.includes(Number(chain))) {
           hasChainSupport = true
         }
         if (!Object.keys(destChains[chain]).length) {
@@ -133,7 +133,7 @@ export async function getChainlist(isStaleData: boolean) {
     const tokens = await fetchListChainSupport()
     const filter = Object.keys(tokens)
       .map(Number)
-      .filter(id => !!NETWORKS_INFO_CONFIG[id as ChainId])
+      .filter(id => SUPPORTED_NETWORKS.includes(id))
     setBridgeLocalstorage(BridgeLocalStorageKeys.CHAINS_SUPPORTED, filter)
     return filter
   } catch (e) {
