@@ -252,7 +252,7 @@ export async function splitQuery<ResultType, T, U>(
   localClient: ApolloClient<NormalizedCacheObject>,
   list: T[],
   vars: U[],
-  signal: AbortSignal,
+  _signal: AbortSignal,
   skipCount = 100,
 ): Promise<
   | {
@@ -273,11 +273,12 @@ export async function splitQuery<ResultType, T, U>(
     const result = await localClient.query({
       query: query(sliced, ...vars),
       fetchPolicy: 'no-cache',
-      context: {
-        fetchOptions: {
-          signal,
-        },
-      },
+      // We dont need signal here, apollo handle it very well
+      // context: {
+      //   fetchOptions: {
+      //     signal,
+      //   },
+      // },
     })
     fetchedData = {
       ...fetchedData,
