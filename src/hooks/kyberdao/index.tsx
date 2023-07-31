@@ -16,7 +16,7 @@ import StakingABI from 'constants/abis/kyberdao/staking.json'
 import { didUserReject } from 'constants/connectors/utils'
 import { REWARD_SERVICE_API } from 'constants/env'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
-import { NETWORKS_INFO_CONFIG, isEVM } from 'constants/networks'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from 'constants/networks'
 import ethereumInfo from 'constants/networks/ethereum'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { KNC } from 'constants/tokens'
@@ -47,7 +47,7 @@ import {
 } from './types'
 
 export function isSupportKyberDao(chainId: ChainId) {
-  return isEVM(chainId) && NETWORKS_INFO_CONFIG[chainId].kyberDAO
+  return isEVM(chainId) && SUPPORTED_NETWORKS.includes(chainId) && NETWORKS_INFO[chainId].kyberDAO
 }
 
 export function useKyberDAOInfo() {
