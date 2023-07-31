@@ -32,7 +32,7 @@ type SOLANA_NETWORK = ChainId.SOLANA | ChainId.SOLANA_DEVNET
 type NETWORKS_INFO_CONFIG_TYPE = { [chainId in EVM_NETWORK]: EVMNetworkInfo } & {
   [chainId in SOLANA_NETWORK]: SolanaNetworkInfo
 }
-export const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
+const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.MAINNET]: ethereum,
   [ChainId.GÖRLI]: görli,
   [ChainId.MATIC]: matic,
@@ -65,7 +65,9 @@ export const NETWORKS_INFO = new Proxy(NETWORKS_INFO_CONFIG, {
   },
 })
 
-export const SUPPORTED_NETWORKS = Object.keys(NETWORKS_INFO).map(Number) as ChainId[]
+// temporary disable Solana
+// todo: either enable back or completely remove Solana from codebase
+export const SUPPORTED_NETWORKS = Object.keys(NETWORKS_INFO).map(Number).filter(isEVM) as ChainId[]
 
 export const MAINNET_NETWORKS = [
   ChainId.MAINNET,
@@ -74,7 +76,7 @@ export const MAINNET_NETWORKS = [
   ChainId.AVAXMAINNET,
   ChainId.ARBITRUM,
   ChainId.OPTIMISM,
-  ChainId.SOLANA,
+  // ChainId.SOLANA,
   ChainId.BTTC,
   ChainId.OASIS,
   ChainId.FANTOM,
@@ -179,15 +181,6 @@ export const ONLY_STATIC_FEE_CHAINS = [
 
 // hardcode for unavailable subgraph
 export const ONLY_DYNAMIC_FEE_CHAINS: ChainId[] = []
-
-// Keys are present_on_chains' value.
-export const TRENDING_SOON_SUPPORTED_NETWORKS: { [p: string]: ChainId } = {
-  eth: ChainId.MAINNET,
-  bsc: ChainId.BSCMAINNET,
-  polygon: ChainId.MATIC,
-  avax: ChainId.AVAXMAINNET,
-  fantom: ChainId.FANTOM,
-}
 
 export const CLAIM_REWARDS_DATA_URL: { [chainId: number]: string } = {
   [ChainId.AVAXMAINNET]:
