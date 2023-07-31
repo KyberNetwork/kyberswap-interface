@@ -20,7 +20,7 @@ const lineaInfo: EVMNetworkInfo = {
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
-  defaultBlockSubgraph: '', // TODO
+  defaultBlockSubgraph: 'https://graph-query.linea.build/subgraphs/name/kybernetwork/linea-blocks',
   etherscanUrl: 'https://lineascan.build',
   etherscanName: 'Linea Explorer',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.LINEA}&isWhitelisted=${true}`,
@@ -35,7 +35,7 @@ const lineaInfo: EVMNetworkInfo = {
   defaultRpcUrl: 'https://rpc.linea.build',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',
   classic: {
-    defaultSubgraph: '', // TODO
+    defaultSubgraph: 'https://graph-query.linea.build/subgraphs/name/kybernetwork/kyberswap-classic-linea',
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
       router: '0x5649B4DD00780e99Bab7Abb4A3d581Ea1aEB23D0',
@@ -48,7 +48,7 @@ const lineaInfo: EVMNetworkInfo = {
     fairlaunchV2: EMPTY_ARRAY,
   },
   elastic: {
-    defaultSubgraph: '', // TODO
+    defaultSubgraph: 'https://graph-query.linea.build/subgraphs/name/kybernetwork/kyberswap-elastic-linea',
     startBlock: 1769,
     coreFactory: '0xC7a590291e07B9fe9E64b86c58fD8fC764308C4A',
     nonfungiblePositionManager: '0xe222fBE074A436145b255442D919E4E3A6c6a480',
