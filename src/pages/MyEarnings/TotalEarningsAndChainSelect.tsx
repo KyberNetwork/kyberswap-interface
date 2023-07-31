@@ -10,6 +10,7 @@ import { ReactComponent as RefreshIcon } from 'assets/svg/refresh.svg'
 import { formatUSDValue } from 'components/EarningAreaChart/utils'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { EMPTY_FUNCTION } from 'constants/index'
+import { COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -61,7 +62,10 @@ const RefreshButton = () => {
 
     dispatch(earningApi.util.resetApiState())
     elasticTrigger({ account, chainIds: selectedChainIds })
-    elasticLegacyTrigger({ account, chainIds: selectedChainIds })
+    elasticLegacyTrigger({
+      account,
+      chainIds: selectedChainIds.filter(item => !COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY.includes(item)),
+    })
     // classicTrigger({ account, chainIds: selectedChainIds })
   }
 
