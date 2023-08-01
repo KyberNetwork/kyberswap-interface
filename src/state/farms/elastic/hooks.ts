@@ -8,6 +8,7 @@ import { useSearchParams } from 'react-router-dom'
 
 import { ELASTIC_FARM_TYPE, FARM_TAB } from 'constants/index'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
+import { isEVM as isEVMNetwork } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useTokens } from 'hooks/Tokens'
@@ -29,7 +30,8 @@ import { defaultChainData } from '.'
 export { default as FarmUpdater } from './updaters'
 
 export const useElasticFarms = () => {
-  const { chainId, isEVM } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
+  const isEVM = isEVMNetwork(chainId)
   const elasticFarm = useAppSelector(state => state.elasticFarm[chainId])
   return useMemo(() => (isEVM ? elasticFarm || defaultChainData : defaultChainData), [isEVM, elasticFarm])
 }

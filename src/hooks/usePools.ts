@@ -39,13 +39,16 @@ export function usePools(
 
     return transformed.map(value => {
       if (!proAmmCoreFactoryAddress || !value || value[0].equals(value[1])) return undefined
-      return computePoolAddress({
+
+      const param = {
         factoryAddress: proAmmCoreFactoryAddress,
         tokenA: value[0],
         tokenB: value[1],
         fee: value[2],
         initCodeHashManualOverride: (networkInfo as EVMNetworkInfo).elastic.initCodeHash,
-      })
+      }
+
+      return computePoolAddress(param)
     })
   }, [transformed, isEVM, networkInfo])
 

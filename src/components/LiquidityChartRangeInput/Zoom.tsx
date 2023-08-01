@@ -40,7 +40,7 @@ export const ZoomOverlay = styled.rect`
   }
 `
 
-export default function Zoom({
+function Zoom({
   svg,
   xScale,
   setZoom,
@@ -50,6 +50,7 @@ export default function Zoom({
   showResetButton,
   zoomLevels,
   style,
+  className,
 }: {
   svg: SVGElement | null
   xScale: ScaleLinear<number, number>
@@ -60,6 +61,7 @@ export default function Zoom({
   showResetButton: boolean
   zoomLevels: ZoomLevels
   style?: CSSProperties
+  className?: string
 }) {
   const zoomBehavior = useRef<ZoomBehavior<Element, unknown>>()
 
@@ -114,7 +116,7 @@ export default function Zoom({
   }, [zoomInitial, zoomLevels])
 
   return (
-    <Wrapper count={showResetButton ? 3 : 2} style={style}>
+    <Wrapper count={showResetButton ? 3 : 2} style={style} className={className}>
       {showResetButton && (
         <Button
           onClick={() => {
@@ -135,3 +137,5 @@ export default function Zoom({
     </Wrapper>
   )
 }
+
+export default styled(Zoom)``

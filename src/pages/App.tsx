@@ -5,7 +5,7 @@ import * as Sentry from '@sentry/react'
 import { Suspense, lazy, useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { AlertTriangle } from 'react-feather'
-import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useNetwork, usePrevious } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -14,6 +14,7 @@ import snow from 'assets/images/snow.png'
 import Popups from 'components/Announcement/Popups'
 import TopBanner from 'components/Announcement/Popups/TopBanner'
 import AppHaveUpdate from 'components/AppHaveUpdate'
+import { ButtonPrimary } from 'components/Button'
 import ModalConfirm from 'components/ConfirmModal'
 import ErrorBoundary from 'components/ErrorBoundary'
 import Footer from 'components/Footer/Footer'
@@ -25,7 +26,7 @@ import Snowfall from 'components/Snowflake/Snowfall'
 import Web3ReactManager from 'components/Web3ReactManager'
 import { ENV_LEVEL } from 'constants/env'
 import { APP_PATHS, BLACKLIST_WALLETS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
-import { NETWORKS_INFO_CONFIG } from 'constants/networks'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
 import { useAutoLogin } from 'hooks/useLogin'
@@ -45,6 +46,22 @@ import ElasticLegacyNotice from './ElasticLegacy/ElasticLegacyNotice'
 import Icons from './Icons'
 import VerifyAuth from './Verify/VerifyAuth'
 
+// THIS IS ONLY TEMPORARY, WILL REMOVE IN NEXT VERSION
+const CommingSoonModal = () => {
+  const navigate = useNavigate()
+  return (
+    <Modal isOpen onDismiss={() => navigate('/')}>
+      <Flex flexDirection="column" padding="24px" sx={{ gap: '2rem' }} justifyContent="center" alignItems="center">
+        <Text fontSize={14}>Our pools and farms will be available soon!</Text>
+
+        <ButtonPrimary style={{ width: '160px', height: '32px' }} onClick={() => navigate('/')}>
+          Ok
+        </ButtonPrimary>
+      </Flex>
+    </Modal>
+  )
+}
+
 // test page for swap only through elastic
 const ElasticSwap = lazy(() => import('./ElasticSwap'))
 const SwapV2 = lazy(() => import('./SwapV2'))
@@ -52,6 +69,7 @@ const SwapV3 = lazy(() => import('./SwapV3'))
 // const Bridge = lazy(() => import('./Bridge'))
 const Pools = lazy(() => import('./Pools'))
 const MyPools = lazy(() => import('./Pool'))
+const MyEarnings = lazy(() => import('./MyEarnings'))
 
 const Farm = lazy(() => import('./Farm'))
 
@@ -103,12 +121,13 @@ const BodyWrapper = styled.div`
 `
 
 const preloadImages = () => {
-  const imageList: (string | null)[] = [
-    ...Object.values(NETWORKS_INFO_CONFIG).map(network => network.icon),
-    ...Object.values(NETWORKS_INFO_CONFIG)
-      .map(network => network.iconDark)
-      .filter(Boolean),
-  ]
+  const imageList: string[] = SUPPORTED_NETWORKS.map(chainId => [
+    NETWORKS_INFO[chainId].icon,
+    NETWORKS_INFO[chainId].iconDark,
+  ])
+    .flat()
+    .filter(Boolean) as string[]
+
   imageList.forEach(image => {
     if (image) {
       new Image().src = image
@@ -163,11 +182,11 @@ const RoutesWithNetworkPrefix = () => {
     return <Navigate to={`/${networkInfo.route}${location.pathname}`} replace />
   }
 
-  if (network === NETWORKS_INFO_CONFIG[ChainId.SOLANA].route) {
+  if (network === NETWORKS_INFO[ChainId.SOLANA].route) {
     return <Navigate to="/" />
   }
 
-  const chainInfoFromParam = Object.values(NETWORKS_INFO_CONFIG).find(info => info.route === network)
+  const chainInfoFromParam = SUPPORTED_NETWORKS.find(chain => NETWORKS_INFO[chain].route === network)
   if (!chainInfoFromParam) {
     return <Navigate to={'/'} replace />
   }
@@ -325,22 +344,33 @@ export default function App() {
 
                     <Route path={`${APP_PATHS.FIND_POOL}`} element={<PoolFinder />} />
 
+                    <Route path={`${APP_PATHS.MY_EARNINGS}`} element={<MyEarnings />} />
+
                     <>
                       {/* Pools Routes  */}
                       <Route path={`${APP_PATHS.POOLS}`} element={<RedirectWithNetworkSuffix />} />
-                      <Route path={`${APP_PATHS.POOLS}/:network/:currencyIdA?/:currencyIdB?`} element={<Pools />} />
+                      <Route
+                        path={`${APP_PATHS.POOLS}/:network/:currencyIdA?/:currencyIdB?`}
+                        element={chainId === ChainId.LINEA ? <CommingSoonModal /> : <Pools />}
+                      />
                     </>
 
                     <>
                       {/* Farms Routes */}
                       <Route path={`${APP_PATHS.FARMS}`} element={<RedirectWithNetworkSuffix />} />
-                      <Route path={`${APP_PATHS.FARMS}/:network`} element={<Farm />} />
+                      <Route
+                        path={`${APP_PATHS.FARMS}/:network`}
+                        element={chainId === ChainId.LINEA ? <CommingSoonModal /> : <Farm />}
+                      />
                     </>
 
                     <>
                       {/* My Pools Routes */}
                       <Route path={`${APP_PATHS.MY_POOLS}`} element={<RedirectWithNetworkSuffix />} />
-                      <Route path={`${APP_PATHS.MY_POOLS}/:network`} element={<MyPools />} />
+                      <Route
+                        path={`${APP_PATHS.MY_POOLS}/:network`}
+                        element={chainId === ChainId.LINEA ? <CommingSoonModal /> : <MyPools />}
+                      />
                     </>
 
                     <>
@@ -428,6 +458,7 @@ export default function App() {
                 </Web3ReactManager>
               </BodyWrapper>
               {showFooter && <Footer />}
+
               <TruesightFooter />
             </Suspense>
             <ModalConfirm />

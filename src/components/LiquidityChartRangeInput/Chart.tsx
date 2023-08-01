@@ -1,5 +1,6 @@
 import { ZoomTransform, max, scaleLinear } from 'd3'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
+import styled from 'styled-components'
 
 import { Bound } from 'state/mint/proamm/type'
 
@@ -7,14 +8,17 @@ import { Area } from './Area'
 import { AxisBottom } from './AxisBottom'
 import { Brush } from './Brush'
 import { Line } from './Line'
-import Zoom, { ZoomOverlay } from './Zoom'
+import OriginalZoom, { ZoomOverlay } from './Zoom'
 import { ChartEntry, LiquidityChartRangeInputProps } from './types'
 
 const xAccessor = (d: ChartEntry) => d.price0
 const yAccessor = (d: ChartEntry) => d.activeLiquidity
 
+const Zoom = styled(OriginalZoom)<{ $interactive: boolean }>`
+  ${({ $interactive }) => (!$interactive ? 'top: -46px;' : '')}
+`
+
 export function Chart({
-  id = 'liquidityChartRangeInput',
   data: { series, current },
   ticksAtLimit,
   styles,
@@ -26,6 +30,8 @@ export function Chart({
   onBrushDomainChange,
   zoomLevels,
 }: LiquidityChartRangeInputProps) {
+  const id = useId()
+
   const viewBoxHeight = 200
   const zoomRef = useRef<SVGRectElement | null>(null)
 
@@ -79,9 +85,9 @@ export function Chart({
   return (
     <>
       <Zoom
+        $interactive={!!interactive}
         svg={zoomRef.current}
         xScale={xScale}
-        style={{ top: !interactive ? '-56px' : undefined }}
         setZoom={setZoom}
         width={innerWidth}
         height={

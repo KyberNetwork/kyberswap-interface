@@ -106,7 +106,7 @@ export function PoolPriceBar({
               {nativeB?.symbol} <Trans>per</Trans> {nativeA?.symbol}
             </Text>
             <TYPE.black fontWeight={400} fontSize={14} color={theme.text}>
-              {price?.toSignificant(6) ?? '-'}
+              {price?.toSignificant(10) ?? '-'}
             </TYPE.black>
           </PoolPriceBarItem>
 
@@ -115,7 +115,7 @@ export function PoolPriceBar({
               {nativeA?.symbol} <Trans>per</Trans> {nativeB?.symbol}
             </Text>
             <TYPE.black fontWeight={400} fontSize={14} color={theme.text}>
-              {price?.invert()?.toSignificant(6) ?? '-'}
+              {price?.invert()?.toSignificant(10) ?? '-'}
             </TYPE.black>
           </PoolPriceBarItem>
         </>

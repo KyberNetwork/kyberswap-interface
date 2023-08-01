@@ -62,8 +62,8 @@ const XWrapper = styled.span`
   }
 `
 
-const LOCALSTORAGE_MODAL_SHOWED = 'showedKyberAIFeedbackSurvey'
-const LOCALSTORAGE_WIDGET_SHOWED = 'showedKyberAIFeedbackSurveyWidget'
+const LOCALSTORAGE_MODAL_SHOWED = 'showedKyberAIFeedbackSurvey_2'
+const LOCALSTORAGE_WIDGET_SHOWED = 'showedKyberAIFeedbackSurveyWidget_2'
 const MOMENT_THIS_SURVEY_RELEASE = 1689768000
 const END_DATE = 1691020800000 // Aug 3
 

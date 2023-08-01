@@ -9,7 +9,7 @@ import Numeral from 'numeral'
 import { GET_BLOCKS } from 'apollo/queries'
 import { BLOCK_SERVICE_API, ENV_KEY } from 'constants/env'
 import { DEFAULT_GAS_LIMIT_MARGIN, ZERO_ADDRESS } from 'constants/index'
-import { NETWORKS_INFO, NETWORKS_INFO_CONFIG, isEVM } from 'constants/networks'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from 'constants/networks'
 import { KNC, KNCL_ADDRESS } from 'constants/tokens'
 import { EVMWalletInfo, SUPPORTED_WALLET, SolanaWalletInfo, WalletInfo } from 'constants/wallets'
 import store from 'state'
@@ -165,12 +165,12 @@ const truncateFloatNumber = (num: number, maximumFractionDigits = 6) => {
   return `${wholePart}.${fractionalPart.slice(0, maximumFractionDigits)}`
 }
 
-export function formattedNum(number: string, usd = false, fractionDigits = 5): string {
-  if (number === '' || number === undefined) {
+export function formattedNum(number: string | number, usd = false, fractionDigits = 5): string {
+  if (number === 0 || number === '' || number === undefined) {
     return usd ? '$0' : '0'
   }
 
-  const num = parseFloat(number)
+  const num = parseFloat(String(number))
 
   if (num > 500000000) {
     return (usd ? '$' : '') + toK(num.toFixed(0))
@@ -519,8 +519,9 @@ export const isChristmasTime = () => {
   return currentTime.month() === 11 && currentTime.date() >= 15
 }
 
-export const getLimitOrderContract = (chainId: ChainId) => {
-  const { production, development } = NETWORKS_INFO_CONFIG[chainId]?.limitOrder ?? {}
+export const getLimitOrderContract = (chainId: ChainId): string | null => {
+  if (!SUPPORTED_NETWORKS.includes(chainId)) return null
+  const { production, development } = NETWORKS_INFO[chainId]?.limitOrder ?? {}
   return ENV_KEY === 'production' || ENV_KEY === 'staging' ? production : development
 }
 
@@ -539,4 +540,14 @@ export function openFullscreen(elem: any) {
     /* IE11 */
     elem.msRequestFullscreen()
   }
+}
+
+export const downloadImage = (data: Blob | string | undefined, filename: string) => {
+  if (!data) return
+  const link = document.createElement('a')
+  link.download = filename
+  link.href = typeof data === 'string' ? data : URL.createObjectURL(data)
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
 }

@@ -31,6 +31,7 @@ import {
   toggleKyberAIBanner,
   toggleKyberAIWidget,
   toggleLiveChart,
+  toggleMyEarningChart,
   toggleTokenInfo,
   toggleTradeRoutes,
   updateAcceptedTermVersion,
@@ -59,7 +60,7 @@ export type CrossChainSetting = {
   enableExpressExecution: boolean
 }
 
-interface UserState {
+export interface UserState {
   // the timestamp of the last updateVersion action
   lastUpdateVersionTimestamp?: number
 
@@ -100,12 +101,20 @@ interface UserState {
   kyberAIDisplaySettings: {
     [k: string]: boolean
   }
-  favoriteTokensByChainId: Partial<
+  favoriteTokensByChainId?: Partial<
     Record<
       ChainId,
       {
         includeNativeToken: boolean
         addresses: string[]
+      }
+    >
+  >
+  favoriteTokensByChainIdv2: Partial<
+    Record<
+      ChainId,
+      {
+        [address: string]: boolean
       }
     >
   >
@@ -130,6 +139,7 @@ interface UserState {
   kyberAIWidget: boolean
 
   crossChain: CrossChainSetting
+  myEarningChart: boolean
 }
 
 function pairKey(token0Address: string, token1Address: string) {
@@ -179,6 +189,7 @@ const initialState: UserState = {
     liquidationsOnCEX: true,
   },
   favoriteTokensByChainId: {},
+  favoriteTokensByChainIdv2: {},
   chainId: ChainId.MAINNET,
   acceptedTermVersion: null,
   viewMode: VIEW_MODE.GRID,
@@ -187,6 +198,7 @@ const initialState: UserState = {
   isSlippageControlPinned: true,
   kyberAIWidget: true,
   crossChain: CROSS_CHAIN_SETTING_DEFAULT,
+  myEarningChart: true,
 }
 
 export default createReducer(initialState, builder =>
@@ -293,31 +305,19 @@ export default createReducer(initialState, builder =>
     .addCase(toggleKyberAIBanner, state => {
       state.showKyberAIBanner = !state.showKyberAIBanner
     })
-    .addCase(toggleFavoriteToken, (state, { payload: { chainId, isNative, address } }) => {
-      if (!state.favoriteTokensByChainId) {
-        state.favoriteTokensByChainId = {}
+    .addCase(toggleFavoriteToken, (state, { payload: { chainId, address, newValue } }) => {
+      if (!state.favoriteTokensByChainIdv2) {
+        state.favoriteTokensByChainIdv2 = {}
       }
 
-      let favoriteTokens = state.favoriteTokensByChainId[chainId]
-      if (!favoriteTokens) {
-        favoriteTokens = getFavoriteTokenDefault(chainId)
-        state.favoriteTokensByChainId[chainId] = favoriteTokens
+      if (!state.favoriteTokensByChainIdv2[chainId]) {
+        state.favoriteTokensByChainIdv2[chainId] = {}
       }
 
-      if (isNative) {
-        const previousValue = favoriteTokens.includeNativeToken
-        favoriteTokens.includeNativeToken = !previousValue
-        return
-      }
-
-      if (address) {
-        // this is intentionally added, to remove compiler error
-        const index = favoriteTokens.addresses.findIndex(addr => addr === address)
-        if (index === -1) {
-          favoriteTokens.addresses.push(address)
-          return
-        }
-        favoriteTokens.addresses.splice(index, 1)
+      const favoriteTokens = state.favoriteTokensByChainIdv2[chainId]
+      const lowercaseAddress = address.toLowerCase()
+      if (favoriteTokens) {
+        favoriteTokens[lowercaseAddress] = newValue !== undefined ? newValue : !favoriteTokens[lowercaseAddress]
       }
     })
     .addCase(updateChainId, (state, { payload: chainId }) => {
@@ -380,5 +380,8 @@ export default createReducer(initialState, builder =>
     })
     .addCase(toggleKyberAIWidget, state => {
       state.kyberAIWidget = !state.kyberAIWidget
+    })
+    .addCase(toggleMyEarningChart, state => {
+      state.myEarningChart = !state.myEarningChart
     }),
 )

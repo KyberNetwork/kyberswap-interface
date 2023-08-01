@@ -1,3 +1,4 @@
+import { rgba } from 'polished'
 import { Flex } from 'rebass'
 import styled, { keyframes } from 'styled-components'
 
@@ -24,13 +25,13 @@ const StyledPositionCard = styled.div`
 export const Loading = styled.div`
   background: linear-gradient(
     90deg,
-    ${({ theme }) => theme.tableHeader} 8%,
-    ${({ theme }) => theme.tableHeader} 18%,
-    ${({ theme }) => theme.tableHeader} 33%
+    ${({ theme }) => theme.buttonGray} 8%,
+    ${({ theme }) => rgba(theme.buttonGray, 0.6)} 18%,
+    ${({ theme }) => theme.buttonGray} 33%
   );
   border-radius: 20px;
   background-size: 200% 100%;
-  animation: 1.5s ${shine} linear infinite;
+  animation: ${shine} 1.5s linear infinite;
 `
 
 const Title = styled(Loading)`

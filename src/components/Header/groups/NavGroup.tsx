@@ -1,4 +1,6 @@
 import { darken } from 'polished'
+import { useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { Flex } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -51,7 +53,7 @@ const cssDropDown = css`
     color: ${({ theme }) => darken(0.1, theme.primary)};
   }
 `
-const HoverDropdown = styled.div<{ active: boolean; forceShowDropdown?: boolean }>`
+const HoverDropdown = styled.div<{ active: boolean; forceShowDropdown?: boolean; isHovered?: boolean }>`
   position: relative;
   display: inline-block;
   width: fit-content;
@@ -64,9 +66,7 @@ const HoverDropdown = styled.div<{ active: boolean; forceShowDropdown?: boolean 
 
   ${({ forceShowDropdown }) => forceShowDropdown && cssDropDown}
 
-  &:hover {
-    ${cssDropDown}
-  }
+  ${({ isHovered }) => isHovered && cssDropDown}
 `
 
 type Props = {
@@ -87,8 +87,20 @@ const NavGroup: React.FC<Props> = ({
   dropdownAlign = 'left',
   className,
 }) => {
+  const [isHovered, setIsHovered] = useState(false)
   return (
-    <HoverDropdown id={id} forceShowDropdown={forceOpen} active={!!isActive} className={className}>
+    <HoverDropdown
+      id={id}
+      forceShowDropdown={forceOpen}
+      isHovered={isHovered}
+      active={!!isActive}
+      className={className}
+      onMouseEnter={() => setIsHovered(true)}
+      onClick={() => {
+        setIsHovered(true)
+      }}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <Flex
         alignItems="center"
         sx={{
@@ -98,7 +110,17 @@ const NavGroup: React.FC<Props> = ({
         {anchor}
         {dropdownContent && <DropdownIcon />}
       </Flex>
-      {dropdownContent && <Dropdown $align={dropdownAlign}>{dropdownContent}</Dropdown>}
+      {dropdownContent && (
+        <Dropdown
+          onClick={e => {
+            e.stopPropagation()
+            isMobile && setIsHovered(false)
+          }}
+          $align={dropdownAlign}
+        >
+          {dropdownContent}
+        </Dropdown>
+      )}
     </HoverDropdown>
   )
 }

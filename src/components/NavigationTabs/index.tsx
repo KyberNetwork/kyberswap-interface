@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { ArrowLeft, ChevronLeft, Trash } from 'react-feather'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -89,9 +89,11 @@ export const StyledMenuButton = styled.button<{ active?: boolean }>`
 
 export function FindPoolTabs() {
   const navigate = useNavigate()
-
+  const location = useLocation()
   const goBack = () => {
-    navigate(-1)
+    // https://github.com/remix-run/react-router/discussions/9922
+    if (location.key === 'default') navigate('/')
+    else navigate(-1)
   }
 
   return (
@@ -143,9 +145,12 @@ export function AddRemoveTabs({
 }) {
   const { chainId } = useActiveWeb3React()
   const navigate = useNavigate()
+  const location = useLocation()
   const below768 = useMedia('(max-width: 768px)')
   const goBack = () => {
-    navigate(-1)
+    // https://github.com/remix-run/react-router/discussions/9922
+    if (location.key === 'default') navigate('/')
+    else navigate(-1)
   }
 
   const theme = useTheme()

@@ -12,6 +12,9 @@ import { ENV_TYPE } from './type'
 
 export const EMPTY_OBJECT: any = {}
 export const EMPTY_ARRAY: any[] = []
+export const EMPTY_FUNCTION = () => {
+  // empty
+}
 
 export const BAD_RECIPIENT_ADDRESSES: string[] = [
   NETWORKS_INFO[ChainId.MAINNET].classic.static.factory,
@@ -138,7 +141,9 @@ export const BLOCKED_PRICE_IMPACT_NON_DEGEN: Percent = new Percent(JSBI.BigInt(1
 
 export const BUNDLE_ID = '1'
 
+export const COINGECKO_BFF_API_URL = `${ENV.BFF_API}/v1/coingecko/api/v3`
 export const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3'
+
 export const KNC_COINGECKO_ID = 'kyber-network-crystal'
 
 export const ETHER_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
@@ -210,6 +215,7 @@ export const APP_PATHS = {
   ELASTIC_REMOVE_POOL: '/elastic/remove',
   FARMS: '/farms',
   MY_POOLS: '/myPools',
+  MY_EARNINGS: '/my-earnings',
   DISCOVER: '/discover',
   KYBERAI: '/KyberAI',
   KYBERAI_ABOUT: '/KyberAI/About',
@@ -333,7 +339,7 @@ export const CHAINS_SUPPORT_CROSS_CHAIN =
         ChainId.SOLANA,
       ]
 
-export const TYPE_AND_SWAP_NOT_SUPPORTED_CHAINS: ChainId[] = [ChainId.ZKSYNC, ChainId.LINEA_TESTNET]
+export const TYPE_AND_SWAP_NOT_SUPPORTED_CHAINS: ChainId[] = [ChainId.ZKSYNC, ChainId.LINEA_TESTNET, ChainId.LINEA]
 
 export const SWAP_FEE_RECEIVER_ADDRESS = '0x4f82e73EDb06d29Ff62C91EC8f5Ff06571bdeb29'
 

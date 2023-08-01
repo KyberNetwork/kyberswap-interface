@@ -118,6 +118,7 @@ export default function LiquidityChartRangeInput({
   interactive,
   style = {},
   height,
+  className,
 }: {
   currencyA: Currency | undefined
   currencyB: Currency | undefined
@@ -131,6 +132,7 @@ export default function LiquidityChartRangeInput({
   interactive: boolean
   style?: CSSProperties
   height?: string
+  className?: string
 }) {
   const theme = useTheme()
   const ref = useRef<HTMLDivElement>(null)
@@ -220,7 +222,7 @@ export default function LiquidityChartRangeInput({
   }, [height, clientWidth])
 
   return (
-    <AutoColumn ref={ref} gap="md" style={{ minHeight: '237px', ...style }}>
+    <AutoColumn ref={ref} gap="md" style={{ minHeight: '237px', ...style }} className={className}>
       {isUninitialized ? (
         <InfoBox
           message={<Trans>Your position will appear here.</Trans>}

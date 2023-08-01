@@ -197,6 +197,7 @@ export default createReducer(initialState, builder =>
           blockSubgraph,
           elasticSubgraph,
           classicSubgraph,
+          commonTokens: data.commonTokens,
         },
       }
     }),
