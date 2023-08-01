@@ -26,7 +26,7 @@ const MAP_ICON_BY_GROUP: { [group in TRANSACTION_GROUP]: ReactNode } = {
 const MAP_ICON_BY_TYPE: (theme: DefaultTheme) => Partial<Record<TRANSACTION_TYPE, ReactNode>> = (
   theme: DefaultTheme,
 ) => ({
-  [TRANSACTION_TYPE.KYBERDAO_CLAIM_GAS_REFUND]: <IconSprite id="refund" size={16} color={theme.subText} />, //todo namgold: test this
+  [TRANSACTION_TYPE.KYBERDAO_CLAIM_GAS_REFUND]: <IconSprite id="refund" size={16} color={theme.subText} />,
   [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: <IconFailure size={18} />,
   [TRANSACTION_TYPE.BRIDGE]: <BridgeIcon />,
   [TRANSACTION_TYPE.CROSS_CHAIN_SWAP]: <CrossChain />,
