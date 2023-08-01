@@ -91,7 +91,12 @@ export default function Popups() {
         const { popupType } = item.templateBody
         if ((!isInit.current && popupType === PopupType.CENTER) || popupType !== PopupType.CENTER) {
           // only show PopupType.CENTER when the first visit app
-          addPopup(item, popupType, item.metaMessageId, null)
+          addPopup({
+            content: item,
+            popupType,
+            key: item.metaMessageId,
+            removeAfterMs: null,
+          })
         }
       })
       isInit.current = true
@@ -101,11 +106,21 @@ export default function Popups() {
       data.forEach(item => {
         switch (item.templateType) {
           case PrivateAnnouncementType.CROSS_CHAIN:
-            addPopup(item, PopupType.TOP_RIGHT, item.metaMessageId, 15_000)
+            addPopup({
+              content: item,
+              popupType: PopupType.TOP_RIGHT,
+              key: item.metaMessageId,
+              removeAfterMs: 15_000,
+            })
             break
           case PrivateAnnouncementType.DIRECT_MESSAGE: {
             const { templateBody, metaMessageId } = item
-            addPopup(item, templateBody.popupType, metaMessageId, undefined, account)
+            addPopup({
+              content: item,
+              popupType: templateBody.popupType,
+              key: metaMessageId,
+              account,
+            })
             break
           }
         }
@@ -116,7 +131,13 @@ export default function Popups() {
         switch (item.templateType) {
           case PrivateAnnouncementType.PRICE_ALERT:
             const mins = (Date.now() / 1000 - item.createdAt) / TIMES_IN_SECS.ONE_MIN
-            if (mins <= 5) addPopup(item, PopupType.TOP_RIGHT, item.metaMessageId, 15_000)
+            if (mins <= 5)
+              addPopup({
+                content: item,
+                popupType: PopupType.TOP_RIGHT,
+                key: item.metaMessageId,
+                removeAfterMs: 15_000,
+              })
             break
         }
       })

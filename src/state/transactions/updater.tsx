@@ -135,6 +135,7 @@ export default function Updater(): null {
               transactionNotify({
                 hash: receipt.transactionHash,
                 type: receipt.status === 1 ? NotificationType.SUCCESS : NotificationType.ERROR,
+                account: account ?? '',
               })
               if (receipt.status === 1) {
                 const arbitrary = transaction.extraInfo?.arbitrary
@@ -223,6 +224,7 @@ export default function Updater(): null {
                 transactionNotify({
                   hash,
                   type: tx.meta?.err ? NotificationType.ERROR : NotificationType.SUCCESS,
+                  account: account ?? '',
                 })
                 if (!tx.meta?.err && transaction) {
                   const arbitrary = transaction.extraInfo?.arbitrary
