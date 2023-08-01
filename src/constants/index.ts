@@ -141,7 +141,9 @@ export const BLOCKED_PRICE_IMPACT_NON_DEGEN: Percent = new Percent(JSBI.BigInt(1
 
 export const BUNDLE_ID = '1'
 
+export const COINGECKO_BFF_API_URL = `${ENV.BFF_API}/v1/coingecko/api/v3`
 export const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3'
+
 export const KNC_COINGECKO_ID = 'kyber-network-crystal'
 
 export const ETHER_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
@@ -225,18 +227,19 @@ export const APP_PATHS = {
   KYBERDAO: '/kyberdao',
   KYBERDAO_STAKE: '/kyberdao/stake-knc',
   KYBERDAO_VOTE: '/kyberdao/vote',
+  KYBERDAO_KNC_UTILITY: '/kyberdao/knc-utility',
   LIMIT: '/limit',
-  VERIFY_EXTERNAL: '/verify-external',
   GRANT_PROGRAMS: '/inter-project-trading-campaigns',
-  NOTIFICATION_CENTER: '/notification-center',
+  PROFILE_MANAGE: '/manage',
   ELASTIC_LEGACY: '/elastic-legacy',
-}
+  VERIFY_AUTH: '/auth',
+} as const
 
 export const TERM_FILES_PATH = {
-  KYBERSWAP_TERMS: '/files/Kyber - Terms of Service - 14 June 2023.pdf',
+  KYBERSWAP_TERMS: '/files/Kyber - Terms of Service - 1 August 2023.pdf',
   PRIVACY_POLICY: '/files/privacy.pdf',
   // Timestamp of changed date, update this to latest timestamp whenever change any above files. This also used to check on client side for updated to force user to disconnect and re-accept terms.
-  VERSION: 1686700800000,
+  VERSION: 1690848000000,
 }
 
 export enum FARM_TAB {
@@ -280,12 +283,14 @@ export const RTK_QUERY_TAGS = {
   GET_PRIVATE_ANN_BY_ID: 'GET_PRIVATE_ANN_BY_ID',
   GET_ALL_PRIVATE_ANN: 'GET_ALL_PRIVATE_ANN',
   GET_TOTAL_UNREAD_PRIVATE_ANN: 'GET_TOTAL_UNREAD_PRIVATE_ANN',
+  GET_ALL_TOPICS_GROUP: 'GET_ALL_TOPICS_GROUP',
 
   // price alert
   GET_ALERTS: 'GET_ALERTS',
   GET_ALERTS_HISTORY: 'GET_ALERTS_HISTORY',
   GET_ALERTS_STAT: 'GET_ALERTS_STAT',
 
+  // cross chain
   GET_CROSS_CHAIN_HISTORY: 'GET_CROSS_CHAIN_HISTORY',
   GET_BRIDGE_HISTORY: 'GET_BRIDGE_HISTORY',
 
@@ -334,8 +339,13 @@ export const CHAINS_SUPPORT_CROSS_CHAIN =
         ChainId.SOLANA,
       ]
 
-export const TYPE_AND_SWAP_NOT_SUPPORTED_CHAINS: ChainId[] = [ChainId.ZKSYNC, ChainId.LINEA_TESTNET]
+export const TYPE_AND_SWAP_NOT_SUPPORTED_CHAINS: ChainId[] = [ChainId.ZKSYNC, ChainId.LINEA_TESTNET, ChainId.LINEA]
 
 export const SWAP_FEE_RECEIVER_ADDRESS = '0x4f82e73EDb06d29Ff62C91EC8f5Ff06571bdeb29'
 
 export const TOKEN_SCORE_TTL = 86400
+
+export const AGGREGATOR_API_PATHS = {
+  BUILD_ROUTE: '/api/v1/route/build',
+  GET_ROUTE: '/api/v1/routes',
+}

@@ -16,10 +16,11 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
+import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { MEDIA_WIDTHS } from 'theme'
 
 import DisplaySettings from '../components/DisplaySettings'
+import FeedbackSurvey from '../components/FeedbackSurvey'
 import KyberAIShareModal from '../components/KyberAIShareModal'
 import SimpleTooltip from '../components/SimpleTooltip'
 import { TokenOverview } from '../components/TokenOverview'
@@ -360,7 +361,7 @@ const SettingButtons = ({ token, onShareClick }: { token?: ITokenOverview; onSha
         <HeaderButton
           onClick={() =>
             navigate(
-              `${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.CREATE_ALERT}?${stringify({
+              `${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.CREATE_ALERT}?${stringify({
                 inputCurrency: token?.address ?? '',
                 chainId: chain ? NETWORK_TO_CHAINID[chain] : '',
               })}`,
@@ -612,6 +613,7 @@ export default function SingleToken() {
           })
         }
       />
+      <FeedbackSurvey />
     </Wrapper>
   )
 }

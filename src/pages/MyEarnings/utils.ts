@@ -1,11 +1,9 @@
 import { cloneDeep } from '@apollo/client/utilities'
-import { ChainId, Currency, CurrencyAmount, WETH } from '@kyberswap/ks-sdk-core'
-import { Position } from '@kyberswap/ks-sdk-elastic'
+import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
 import produce from 'immer'
 import {
   ElasticPoolEarningWithDetails,
-  ElasticPositionEarningWithDetails,
   GetElasticEarningResponse,
   HistoricalEarning,
   HistoricalSingleData,
@@ -14,7 +12,6 @@ import {
 
 import { NETWORKS_INFO, SUPPORTED_NETWORKS_FOR_MY_EARNINGS } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
-import { UserFarmInfo } from 'state/farms/elastic/types'
 import { TokenAddressMap } from 'state/lists/reducer'
 import { EarningStatsTick, EarningsBreakdown } from 'types/myEarnings'
 import { isAddress } from 'utils'
@@ -625,70 +622,4 @@ export const calculateEarningBreakdowns = (
     totalValue,
     breakdowns,
   }
-}
-
-export const calculateMyPoolAPR = (
-  positionEarning: ElasticPositionEarningWithDetails,
-  position: Position,
-  prices: Record<string, number>,
-  currency0: Currency,
-  currency1: Currency,
-  pendingFee: string[],
-): number => {
-  const feeReward0 = CurrencyAmount.fromRawAmount(currency0, pendingFee[0])
-  const feeReward1 = CurrencyAmount.fromRawAmount(currency1, pendingFee[1])
-  const feeUsd =
-    +feeReward0.toExact() * prices[position.pool.token0.address] +
-    +feeReward1.toExact() * prices[position.pool.token1.address]
-
-  const liquidityInUsd =
-    parseFloat(position.amount0.toExact() || '0') * prices[currency0.wrapped.address || ''] +
-    parseFloat(position.amount1.toExact() || '0') * prices[currency1.wrapped.address || '']
-
-  const liquidityTime =
-    positionEarning.lastCollectedFeeAt && Date.now() / 1000 - Number(positionEarning.lastCollectedFeeAt)
-  const estimatedOneYearFee = liquidityTime && (feeUsd * 365 * 24 * 60 * 60) / liquidityTime
-  const positionAPR = liquidityTime ? ((estimatedOneYearFee || 0) * 100) / liquidityInUsd : 0
-
-  return positionAPR
-}
-
-export const calculateMyFarmAPR = (
-  positionEarning: ElasticPositionEarningWithDetails,
-  position: Position,
-  prices: Record<string, number>,
-  currency0: Currency,
-  currency1: Currency,
-  userFarmInfo: UserFarmInfo,
-): number => {
-  const rewards: CurrencyAmount<Currency>[][] = []
-
-  Object.values(userFarmInfo).forEach(info => {
-    Object.keys(info.rewardByNft).forEach(key => {
-      if (key.split('_')[1] === positionEarning.id) {
-        rewards.push(info.rewardByNft[key])
-      }
-    })
-  })
-
-  const liquidityInUsd =
-    parseFloat(position.amount0.toExact() || '0') * prices[currency0.wrapped.address || ''] +
-    parseFloat(position.amount1.toExact() || '0') * prices[currency1.wrapped.address || '']
-
-  const rewardUsd = rewards.reduce((total, item) => {
-    const temp = item.reduce((acc, cur) => {
-      return acc + +cur.toExact() * prices[cur.currency.wrapped.address]
-    }, 0)
-
-    return temp + total
-  }, 0)
-
-  const farmingTime =
-    positionEarning.lastHarvestedFarmRewardAt && Date.now() / 1000 - Number(positionEarning.lastHarvestedFarmRewardAt)
-
-  const estimatedOneYearFarmReward = farmingTime && (rewardUsd * 365 * 24 * 60 * 60) / farmingTime
-  const farmAPR =
-    rewardUsd && farmingTime && liquidityInUsd ? ((estimatedOneYearFarmReward || 0) * 100) / liquidityInUsd : 0
-
-  return farmAPR
 }

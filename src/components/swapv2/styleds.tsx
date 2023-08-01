@@ -221,11 +221,11 @@ export const InfoComponentsWrapper = styled.div`
 
 export const KyberAIBannerWrapper = styled.div`
   width: 100%;
-  height: 84px;
+  max-height: 84px;
   margin-bottom: 16px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    height: 132px;
+    max-height: 132px;
   `}
 `
 

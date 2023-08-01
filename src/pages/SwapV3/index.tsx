@@ -247,7 +247,7 @@ export default function Swap() {
             )}
 
             <AppBodyWrapped data-highlight={shouldHighlightSwapBox} id={TutorialIds.SWAP_FORM}>
-              {activeTab === TAB.SWAP && (
+              {isSwapPage && (
                 <PopulatedSwapForm
                   onSelectSuggestedPair={onSelectSuggestedPair}
                   routeSummary={routeSummary}
@@ -291,7 +291,7 @@ export default function Swap() {
                 <Suspense
                   fallback={
                     <Skeleton
-                      height="100%"
+                      height="84px"
                       baseColor={theme.background}
                       highlightColor={theme.buttonGray}
                       borderRadius="24px"

@@ -1,4 +1,5 @@
 import { t } from '@lingui/macro'
+import { lighten } from 'polished'
 import { useMemo } from 'react'
 import styled from 'styled-components'
 
@@ -25,27 +26,34 @@ const NetworkSwitchContainer = styled.div`
 
 const NetworkCard = styled(Card)`
   position: relative;
-  background-color: ${({ theme }) => theme.buttonBlack};
+  background-color: ${({ theme }) => theme.background};
   color: ${({ theme }) => theme.text};
   border-radius: 999px;
   padding: 8px 12px;
   border: 1px solid transparent;
-  min-width: fit-content;
+  width: fit-content;
 
   &:hover {
     text-decoration: none;
     border: 1px solid ${({ theme }) => theme.primary};
     cursor: pointer;
+    background-color: ${({ theme }) => lighten(0.05, theme.background)};
   }
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     margin: 0;
-    margin-right: 0.5rem;
     width: initial;
     text-overflow: ellipsis;
     flex-shrink: 1;
     min-width: auto;
   `};
+`
+
+const DropdownIcon = styled(DropdownSvg)<{ open: boolean }>`
+  color: ${({ theme }) => theme.text};
+  transform: rotate(${({ open }) => (open ? '180deg' : '0')});
+  transition: transform 300ms;
+  min-width: 24px;
 `
 
 const NetworkLabel = styled.div`
@@ -55,12 +63,6 @@ const NetworkLabel = styled.div`
   ${({ theme }) => theme.mediaWidth.upToSmall`
     display: none;
   `};
-`
-
-const DropdownIcon = styled(DropdownSvg)<{ open: boolean }>`
-  color: ${({ theme }) => theme.text};
-  transform: rotate(${({ open }) => (open ? '180deg' : '0')});
-  transition: transform 300ms;
 `
 
 function SelectNetwork(): JSX.Element | null {
@@ -89,11 +91,11 @@ function SelectNetwork(): JSX.Element | null {
       data-testid="select-network"
     >
       <NetworkSwitchContainer>
-        <Row>
+        <Row gap="10px">
           <img
             src={(isDarkMode && networkInfo.iconDark) || networkInfo.icon}
             alt={networkInfo.name + ' logo'}
-            style={{ width: 20, height: 20, marginRight: '12px' }}
+            style={{ width: 20, height: 20 }}
           />
           <NetworkLabel>{labelContent}</NetworkLabel>
         </Row>

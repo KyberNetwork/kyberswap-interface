@@ -11,25 +11,37 @@ import MigrateABI from 'constants/abis/kyberdao/migrate.json'
 import RewardDistributorABI from 'constants/abis/kyberdao/reward_distributor.json'
 import StakingABI from 'constants/abis/kyberdao/staking.json'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
-import { NETWORKS_INFO, NETWORKS_INFO_CONFIG, isEVM } from 'constants/networks'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from 'constants/networks'
+import ethereumInfo from 'constants/networks/ethereum'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useContract, useContractForReading, useTokenContractForReading } from 'hooks/useContract'
 import useTokenBalance from 'hooks/useTokenBalance'
+import { KNCUtilityTabs } from 'pages/KyberDAO/KNCUtility/type'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { calculateGasMargin } from 'utils'
 
-import { ProposalDetail, ProposalStatus, RewardStats, StakerAction, StakerInfo, VoteInfo } from './types'
+import {
+  EligibleTxsInfo,
+  GasRefundTierInfo,
+  ProposalDetail,
+  ProposalStatus,
+  RewardInfo,
+  RewardStats,
+  StakerAction,
+  StakerInfo,
+  VoteInfo,
+} from './types'
 
 export function isSupportKyberDao(chainId: ChainId) {
-  return isEVM(chainId) && (NETWORKS_INFO_CONFIG[chainId] as EVMNetworkInfo).kyberDAO
+  return isEVM(chainId) && SUPPORTED_NETWORKS.includes(chainId) && NETWORKS_INFO[chainId].kyberDAO
 }
 
 export function useKyberDAOInfo() {
-  const { chainId } = useActiveWeb3React()
-  const kyberDaoInfo = NETWORKS_INFO[chainId !== ChainId.GÖRLI ? ChainId.MAINNET : ChainId.GÖRLI].kyberDAO
+  const { chainId, networkInfo } = useActiveWeb3React()
+  const kyberDaoInfo = (isSupportKyberDao(chainId) ? (networkInfo as EVMNetworkInfo) : ethereumInfo).kyberDAO
   return kyberDaoInfo
 }
 
@@ -336,7 +348,7 @@ export function useStakingInfo() {
     kncContract
       ?.totalSupply()
       .then((res: any) => setTotalSupply(res))
-      .catch((err: any) => console.log(err))
+      .catch((error: any) => console.error('Get KNC totalSupply error:', { error }))
   }, [kncContract])
 
   return {
@@ -516,6 +528,93 @@ export function useVotingInfo() {
       usd: rewardStats ? +rewardStats.pending?.totalAmountInUSD + +rewardStats.liquidated?.totalAmountInUSD : 0,
     },
   }
+}
+
+const aggregateValue = <T extends string>(
+  values: ({ [key in T]: string | number } | undefined)[],
+  field: T,
+): number => {
+  return values.reduce((acc, cur) => {
+    const value = cur?.[field] ?? 0
+    return (typeof value === 'number' ? value : parseFloat(value)) + acc
+  }, 0)
+}
+
+export function useGasRefundTier(): GasRefundTierInfo {
+  const { account, chainId } = useActiveWeb3React()
+  const kyberDaoInfo = useKyberDAOInfo()
+
+  const { data } = useSWR<GasRefundTierInfo>(
+    account && isSupportKyberDao(chainId) && kyberDaoInfo?.daoStatsApi + '/api/v1/stakers/' + account + '/refund-info',
+    url => fetcher(url).then(res => res.refundInfo),
+  )
+
+  return data || { userTier: 0, gasRefundPerCentage: 0 }
+}
+
+export function useGasRefundInfo({ rewardStatus = KNCUtilityTabs.Available }: { rewardStatus?: KNCUtilityTabs }) {
+  const { account, chainId } = useActiveWeb3React()
+  const kyberDaoInfo = useKyberDAOInfo()
+
+  const { data: claimableReward } = useSWR<RewardInfo>(
+    account &&
+      isSupportKyberDao(chainId) &&
+      kyberDaoInfo?.daoStatsApi + '/api/v1/stakers/' + account + '/refunds/total?rewardStatus=claimable',
+    url =>
+      fetcher(url)
+        .then(res => res.total)
+        .then(({ knc, usd }) => ({ knc: parseFloat(knc), usd: parseFloat(usd) })),
+  )
+  const { data: pendingReward } = useSWR<RewardInfo>(
+    account &&
+      isSupportKyberDao(chainId) &&
+      kyberDaoInfo?.daoStatsApi + '/api/v1/stakers/' + account + '/refunds/total?rewardStatus=pending',
+    url =>
+      fetcher(url)
+        .then(res => res.total)
+        .then(({ knc, usd }) => ({ knc: parseFloat(knc), usd: parseFloat(usd) })),
+  )
+  const { data: claimedReward } = useSWR<RewardInfo>(
+    account &&
+      isSupportKyberDao(chainId) &&
+      kyberDaoInfo?.daoStatsApi + '/api/v1/stakers/' + account + '/refunds/total?rewardStatus=claimed',
+    url =>
+      fetcher(url)
+        .then(res => res.total)
+        .then(({ knc, usd }) => ({ knc: parseFloat(knc), usd: parseFloat(usd) })),
+  )
+  return {
+    reward:
+      rewardStatus === KNCUtilityTabs.Available
+        ? claimableReward
+        : rewardStatus === KNCUtilityTabs.Pending
+        ? pendingReward
+        : rewardStatus === KNCUtilityTabs.Claimed
+        ? claimedReward
+        : undefined,
+    claimableReward,
+    totalReward: {
+      usd: aggregateValue([claimableReward, pendingReward, claimedReward], 'usd'),
+      knc: aggregateValue([claimableReward, pendingReward, claimedReward], 'knc'),
+    },
+  }
+}
+
+export const useEligibleTransactions = (page = 1, pageSize = 100): EligibleTxsInfo | undefined => {
+  const { account, chainId } = useActiveWeb3React()
+  const kyberDaoInfo = useKyberDAOInfo()
+
+  const { data: eligibleTransactions } = useSWR<EligibleTxsInfo>(
+    account &&
+      isSupportKyberDao(chainId) &&
+      kyberDaoInfo?.daoStatsApi +
+        '/api/v1/stakers/' +
+        account +
+        `/refunds/eligible-transactions?pageSize=${pageSize}&page=${page}`,
+    fetcher,
+  )
+
+  return eligibleTransactions
 }
 
 export function useProposalInfoById(id?: number): { proposalInfo?: ProposalDetail } {

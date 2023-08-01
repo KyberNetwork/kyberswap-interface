@@ -28,6 +28,7 @@ const WETH_ONLY: ChainTokenList = {
   [ChainId.ZKSYNC]: [WETH[ChainId.ZKSYNC]],
   [ChainId.SOLANA]: [WETH[ChainId.SOLANA]],
   [ChainId.LINEA_TESTNET]: [WETH[ChainId.LINEA_TESTNET]],
+  [ChainId.LINEA]: [WETH[ChainId.LINEA]],
   [ChainId.SOLANA_DEVNET]: [WETH[ChainId.SOLANA_DEVNET]],
 }
 
@@ -149,8 +150,9 @@ export const SUGGESTED_BASES: ChainTokenList = {
   ],
   [ChainId.ARBITRUM]: [
     ...WETH_ONLY[ChainId.ARBITRUM],
+    new Token(ChainId.ARBITRUM, '0xaf88d065e77c8cC2239327C5EDb3A432268e5831', 6, 'USDC', 'USDC'),
     DAI[ChainId.ARBITRUM],
-    USDC[ChainId.ARBITRUM],
+    USDC[ChainId.ARBITRUM], // USDC.e
     USDT[ChainId.ARBITRUM],
     WBTC_ARBITRUM,
     new Token(ChainId.ARBITRUM, '0x5979D7b546E38E414F7E9822514be443A4800529', 18, 'wstETH', 'Lido Wrapped Staked ETH'),
@@ -181,5 +183,9 @@ export const SUGGESTED_BASES: ChainTokenList = {
     USDC[ChainId.LINEA_TESTNET],
     USDT[ChainId.LINEA_TESTNET],
     DAI[ChainId.LINEA_TESTNET],
+  ],
+  [ChainId.LINEA]: [
+    ...WETH_ONLY[ChainId.LINEA],
+    new Token(ChainId.LINEA, '0x7d43aabc515c356145049227cee54b608342c0ad', 18, 'BUSD', 'BUSD'),
   ],
 }

@@ -8,7 +8,7 @@ import styled from 'styled-components'
 import InfoHelper from 'components/InfoHelper'
 import { NetworkLogo } from 'components/Logo'
 import { RowBetween } from 'components/Row'
-import { NETWORKS_INFO, NETWORKS_INFO_CONFIG } from 'constants/networks'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import StatusBadge from 'pages/Bridge/BridgeTransferHistory/StatusBadge'
 import TimeStatusCell from 'pages/Bridge/BridgeTransferHistory/TimeStatusCell'
@@ -16,6 +16,7 @@ import ActionButtons from 'pages/CrossChain/TransfersHistory/HistoryTable/Action
 import { DetailTransaction } from 'pages/CrossChain/TransfersHistory/HistoryTable/DetailTransaction'
 import { useGetTransactionStatus } from 'pages/CrossChain/TransfersHistory/HistoryTable/TransactionItem'
 import { CrossChainTransfer } from 'pages/CrossChain/useTransferHistory'
+import { includes } from 'utils/array'
 
 import TokenReceiveCell from './TokenReceiveCell'
 import { Props } from './index'
@@ -63,9 +64,9 @@ const ChainWrapper = styled.div`
 
   color: ${({ theme }) => theme.subText};
 `
-const ChainDisplay: React.FC<{ chainId: ChainId }> = ({ chainId }) => {
-  const chainInfo = NETWORKS_INFO_CONFIG[chainId]
-  if (chainInfo) {
+const ChainDisplay: React.FC<{ chainId: number }> = ({ chainId }) => {
+  if (includes(SUPPORTED_NETWORKS, chainId)) {
+    const chainInfo = NETWORKS_INFO[chainId]
     return (
       <ChainWrapper>
         <NetworkLogo chainId={chainId} style={{ width: 18, height: 18 }} />
@@ -123,9 +124,9 @@ const TransactionItemMobile = ({ transfer }: { transfer: CrossChainTransfer }) =
               gap: '4px',
             }}
           >
-            <ChainDisplay chainId={Number(transfer.srcChainId) as ChainId} />
+            <ChainDisplay chainId={Number(transfer.srcChainId)} />
             <ArrowDown width="8px" height="8px" color={theme.subText} style={{ marginLeft: 5 }} />
-            <ChainDisplay chainId={Number(transfer.dstChainId) as ChainId} />
+            <ChainDisplay chainId={Number(transfer.dstChainId)} />
           </Flex>
 
           <Flex sx={{ flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'space-between', gap: '6px' }}>

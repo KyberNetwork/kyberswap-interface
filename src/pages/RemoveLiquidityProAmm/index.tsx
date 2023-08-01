@@ -37,7 +37,6 @@ import TransactionConfirmationModal, {
 } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
 import FarmV2ABI from 'constants/abis/v2/farmv2.json'
-import { NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useContract, useProAmmNFTPositionManagerContract, useProMMFarmContract } from 'hooks/useContract'
@@ -157,7 +156,9 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const [removeLiquidityError, setRemoveLiquidityError] = useState<string>('')
 
   const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId.toNumber()]).result?.[0]
-  const isFarmV2 = (networkInfo as EVMNetworkInfo).elastic.farmV2Contract?.toLowerCase() === owner?.toLowerCase()
+  const isFarmV2 = (networkInfo as EVMNetworkInfo).elastic.farmV2S
+    ?.map(item => item.toLowerCase())
+    .includes(owner?.toLowerCase())
 
   const ownByFarm = isEVM
     ? (networkInfo as EVMNetworkInfo).elastic.farms.flat().includes(isAddressString(chainId, owner)) || isFarmV2
@@ -261,7 +262,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
 
   const farmV1Contract = useProMMFarmContract(owner)
 
-  const farmV2Address = (NETWORKS_INFO[chainId] as EVMNetworkInfo).elastic?.farmV2Contract
+  const farmV2Address = isFarmV2 ? owner : undefined
   const farmV2Contract = useContract(farmV2Address, FarmV2ABI)
 
   const handleBroadcastRemoveSuccess = (response: TransactionResponse) => {
@@ -585,7 +586,6 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
           alignTitle="left"
           action={LiquidityAction.REMOVE}
           showTooltip={false}
-          onBack={() => navigate(-1)}
           tutorialType={TutorialType.ELASTIC_REMOVE_LIQUIDITY}
           owner={owner}
           showOwner={owner && account && !ownsNFT}

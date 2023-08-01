@@ -16,15 +16,16 @@ import Row, { RowBetween } from 'components/Row'
 import RefreshButton from 'components/SwapForm/RefreshButton'
 import { MouseoverTooltip } from 'components/Tooltip'
 import TradePrice from 'components/swapv2/TradePrice'
+import { PRICE_ALERT_TOPIC_ID } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import { useBaseTradeInfoWithAggregator } from 'hooks/useBaseTradeInfo'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useNotification from 'hooks/useNotification'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import InputNote from 'pages/NotificationCenter/CreateAlert/InputNote'
 import {
   ActionGroup,
-  ButtonConnectWallet,
   ButtonSubmit,
   Form,
   FormControl,
@@ -46,7 +47,7 @@ import {
   TYPE_OPTIONS,
   getCoolDownOptions,
 } from 'pages/NotificationCenter/const'
-import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { useNotify } from 'state/application/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { formatTimeDuration } from 'utils/time'
 import { getTokenAddress } from 'utils/tokenInfo'
@@ -70,7 +71,6 @@ export default function CreateAlert({
 
   const [createAlert] = useCreatePriceAlertMutation()
   const notify = useNotify()
-  const toggleWalletModal = useWalletModalToggle()
 
   const [selectedChain, setSelectedChain] = useState(chainId)
 
@@ -88,6 +88,8 @@ export default function CreateAlert({
   const [disableAfterTrigger, setDisableAfterTrigger] = useState(false)
   const [cooldown, setCooldown] = useState(DEFAULT_ALERT_COOLDOWN)
   const [alertType, setAlertType] = useState<PriceAlertType>(PriceAlertType.ABOVE)
+
+  const { subscribeOne } = useNotification()
 
   const { maxActiveAlerts, totalActiveAlerts, totalAlerts, maxAlerts } = priceAlertStat
 
@@ -132,7 +134,7 @@ export default function CreateAlert({
 
   const isInputValid = () => {
     const fillAllInput = Boolean(
-      account && currencyIn && currencyOut && formInput.tokenInAmount && formInput.threshold && !isMaxQuota,
+      currencyIn && currencyOut && formInput.tokenInAmount && formInput.threshold && !isMaxQuota,
     )
     if (!fillAllInput || !parsedAmount) return false
     return true
@@ -153,13 +155,15 @@ export default function CreateAlert({
         ...formInput,
         tokenInAmount: parsedAmount?.quotient?.toString() ?? '',
       }
-      const { data, error }: any = await createAlert(alert)
-      if (error || typeof data?.data?.id !== 'number') throw error
+      const data = await createAlert(alert).unwrap()
+      const id = data?.data?.id
+      if (!id) throw new Error('Missing id')
       showModalConfirm({
-        alert: { ...alert, id: data.data.id as number },
+        alert: { ...alert, id },
         currencyIn,
         currencyOut,
       })
+
       resetForm()
       mixpanelHandler(MIXPANEL_TYPE.PA_CREATE_SUCCESS, {
         input_token: currencyIn.symbol,
@@ -168,6 +172,7 @@ export default function CreateAlert({
         cooldown: formatTimeDuration(cooldown),
         disable_the_alert: disableAfterTrigger ? 'yes' : 'no',
       })
+      subscribeOne(+PRICE_ALERT_TOPIC_ID)
     } catch (error) {
       console.error('create alert err', error)
       const msg = error?.data?.message || t`Error occur, please try again`
@@ -366,20 +371,14 @@ export default function CreateAlert({
       </Form>
 
       <ActionGroup>
-        {account ? (
-          <ButtonSubmit onClick={onSubmitAlert} disabled={!isInputValid()}>
-            {isMaxQuota && (
-              <MouseoverTooltip text={`You have created the maximum number of alerts allowed`}>
-                <Info size={16} />
-              </MouseoverTooltip>
-            )}
-            <Trans>Create Alert</Trans>
-          </ButtonSubmit>
-        ) : (
-          <ButtonConnectWallet onClick={toggleWalletModal}>
-            <Trans>Connect Wallet</Trans>
-          </ButtonConnectWallet>
-        )}
+        <ButtonSubmit onClick={onSubmitAlert} disabled={!isInputValid()}>
+          {isMaxQuota && (
+            <MouseoverTooltip text={`You have created the maximum number of alerts allowed`}>
+              <Info size={16} />
+            </MouseoverTooltip>
+          )}
+          <Trans>Create Alert</Trans>
+        </ButtonSubmit>
       </ActionGroup>
     </>
   )

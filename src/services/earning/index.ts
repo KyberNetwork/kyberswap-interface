@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import produce from 'immer'
 
+import { POOL_FARM_BASE_URL } from 'constants/env'
 import { NETWORKS_INFO } from 'constants/networks'
 import {
   aggregateAccountEarnings,
@@ -21,43 +22,115 @@ import {
 
 const earningApi = createApi({
   reducerPath: 'earningApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'https://pool-farm.dev.kyberengineering.io' }),
-  keepUnusedDataFor: 180, // 3 minutes
+  baseQuery: fetchBaseQuery({ baseUrl: POOL_FARM_BASE_URL }),
+  keepUnusedDataFor: 180,
   endpoints: builder => ({
     getElasticEarning: builder.query<GetElasticEarningResponse, GetElasticEarningParams>({
-      query: ({ account, chainIds }) => ({
-        url: `/all-chain/api/v1/elastic/portfolio`,
-        params: {
+      async queryFn({ account, chainIds }, _queryApi, _extraOptions, fetchWithBQ) {
+        const params = {
           account,
           chainNames: chainIds.map(chainId => NETWORKS_INFO[chainId].aggregatorRoute),
-        },
-      }),
-      transformResponse: (response: MetaResponse<GetElasticEarningResponse>) => {
-        return aggregateAccountEarnings(
+          includeMyPoolApr: true,
+          includeMyFarmApr: true,
+          perPage: 1000,
+          page: 1,
+        }
+
+        const [positionsRes, earningRes] = await Promise.all([
+          fetchWithBQ({
+            url: '/all-chain/api/v1/elastic-new/positions',
+            params,
+          }),
+
+          fetchWithBQ({
+            url: '/all-chain/api/v1/elastic-new/earnings',
+            params: {
+              account,
+              chainNames: chainIds.map(chainId => NETWORKS_INFO[chainId].aggregatorRoute),
+            },
+          }),
+        ])
+
+        const positionData: GetElasticEarningResponse = (positionsRes?.data as any).data as GetElasticEarningResponse
+
+        const aggregateData = Object.keys(positionData).reduce((acc, chainName) => {
+          return {
+            ...acc,
+            [chainName]: {
+              positions: positionData?.[chainName].positions.map(pos => {
+                const historicalEarning = ((earningRes?.data as any)?.data?.[chainName]?.[pos.id] || []).reverse()
+                return {
+                  ...pos,
+                  historicalEarning,
+                }
+              }),
+            },
+          }
+        }, {})
+
+        const data = aggregateAccountEarnings(
           aggregatePoolEarnings(
             fillEmptyDaysForPositionEarnings(
-              aggregatePositionEarnings(removeEmptyTokenEarnings(response.data as GetElasticEarningResponse)),
+              aggregatePositionEarnings(removeEmptyTokenEarnings(aggregateData as GetElasticEarningResponse)),
             ),
           ),
         ) as GetElasticEarningResponse
+
+        return { data }
       },
     }),
     getElasticLegacyEarning: builder.query<GetElasticEarningResponse, GetElasticEarningParams>({
-      query: ({ account, chainIds }) => ({
-        url: `/all-chain/api/v1/elastic-legacy/portfolio`,
-        params: {
+      async queryFn({ account, chainIds }, _queryApi, _extraOptions, fetchWithBQ) {
+        const params = {
           account,
           chainNames: chainIds.map(chainId => NETWORKS_INFO[chainId].aggregatorRoute),
-        },
-      }),
-      transformResponse: (response: MetaResponse<GetElasticEarningResponse>) => {
-        return aggregateAccountEarnings(
+          includeMyPoolApr: true,
+          includeMyFarmApr: true,
+          perPage: 1000,
+          page: 1,
+        }
+
+        const [positionsRes, earningRes] = await Promise.all([
+          fetchWithBQ({
+            url: '/all-chain/api/v1/elastic-legacy/positions',
+            params,
+          }),
+
+          fetchWithBQ({
+            url: '/all-chain/api/v1/elastic-legacy/earnings',
+            params: {
+              account,
+              chainNames: chainIds.map(chainId => NETWORKS_INFO[chainId].aggregatorRoute),
+            },
+          }),
+        ])
+
+        const positionData: GetElasticEarningResponse = (positionsRes?.data as any).data as GetElasticEarningResponse
+
+        const aggregateData = Object.keys(positionData).reduce((acc, chainName) => {
+          return {
+            ...acc,
+            [chainName]: {
+              positions: positionData?.[chainName].positions.map(pos => {
+                const historicalEarning = ((earningRes?.data as any)?.data?.[chainName]?.[pos.id] || []).reverse()
+                return {
+                  ...pos,
+                  historicalEarning,
+                }
+              }),
+            },
+          }
+        }, {})
+
+        const data = aggregateAccountEarnings(
           aggregatePoolEarnings(
             fillEmptyDaysForPositionEarnings(
-              aggregatePositionEarnings(removeEmptyTokenEarnings(response.data as GetElasticEarningResponse)),
+              aggregatePositionEarnings(removeEmptyTokenEarnings(aggregateData as GetElasticEarningResponse)),
             ),
           ),
         ) as GetElasticEarningResponse
+
+        return { data }
       },
     }),
     getClassicEarning: builder.query<GetClassicEarningResponse, GetClassicEarningParams>({

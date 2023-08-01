@@ -48,7 +48,7 @@ const DeprecationBanner = () => {
         >
           My Pools
         </Text>{' '}
-        by Aug 11.
+        by Aug 25.
       </Text>
     </Flex>
   )

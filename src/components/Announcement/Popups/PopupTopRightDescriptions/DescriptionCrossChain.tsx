@@ -14,7 +14,8 @@ const DescriptionCrossChain = (
   content: AnnouncementTemplateCrossChain,
   templateType: PrivateAnnouncementType,
 ): SimplePopupProps => {
-  const { srcAmount, srcChainId, dstAmount, dstChainId, srcTokenSymbol, dstTokenSymbol, status } = content.transaction
+  const { srcAmount, srcChainId, dstAmount, dstChainId, srcTokenSymbol, dstTokenSymbol, status } =
+    content?.transaction || {}
   const chainId = Number(srcChainId) as ChainId
   const chainIdOut = Number(dstChainId) as ChainId
   const isSuccess = isCrossChainTxsSuccess(status)

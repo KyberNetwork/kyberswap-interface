@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -9,7 +10,6 @@ import Placeholder from 'pages/MyEarnings/Placeholder'
 import Pools from 'pages/MyEarnings/Pools'
 import TransactionConfirmationModal from 'pages/MyEarnings/TransactionConfirmationModal'
 import { WIDTHS } from 'pages/MyEarnings/constants'
-import FarmUpdater from 'state/farms/elastic/updaters'
 
 const PageWrapper = styled.div`
   flex: 1;
@@ -72,7 +72,7 @@ const MyEarnings = () => {
   }, [account])
 
   return (
-    <PageWrapper>
+    <PageWrapper id="my-earning-wrapper">
       <Flex
         sx={{
           flexDirection: 'column',
@@ -90,7 +90,7 @@ const MyEarnings = () => {
             whiteSpace: 'nowrap',
           }}
         >
-          My Earnings
+          <Trans>My Earnings</Trans>
         </Text>
 
         {localAccount ? (
@@ -107,7 +107,6 @@ const MyEarnings = () => {
           <Placeholder />
         )}
       </Flex>
-      <FarmUpdater interval={false} />
 
       <TransactionConfirmationModal />
     </PageWrapper>

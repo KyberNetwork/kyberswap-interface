@@ -17,7 +17,6 @@ import { usePermitData } from 'state/user/hooks'
 
 import { useContract } from './useContract'
 import useMixpanel, { MIXPANEL_TYPE } from './useMixpanel'
-import useTransactionDeadline from './useTransactionDeadline'
 
 // 24 hours
 const PERMIT_VALIDITY_BUFFER = 24 * 60 * 60
@@ -37,8 +36,6 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
   const eipContract = useContract(currency?.address, EIP_2612, false)
   const tokenNonceState = useSingleCallResult(eipContract, 'nonces', [account])
 
-  const transactionDeadline = useTransactionDeadline()
-
   const permitData = usePermitData(currency?.address)
 
   const { mixpanelHandler } = useMixpanel()
@@ -52,16 +49,15 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
     if (
       permitData &&
       permitData.rawSignature &&
-      transactionDeadline &&
       permitData.deadline &&
-      permitData.deadline >= transactionDeadline?.toNumber() &&
+      permitData.deadline >= Date.now() / 1000 &&
       permitData.value !== undefined &&
       currencyAmount?.equalTo(permitData.value)
     ) {
       return PermitState.SIGNED
     }
     return PermitState.NOT_SIGNED
-  }, [permitData, transactionDeadline, currencyAmount, overwritedPermitData])
+  }, [permitData, currencyAmount, overwritedPermitData])
   const prevErrorCount = usePrevious(permitData?.errorCount)
   useEffect(() => {
     if (prevErrorCount === 2 && permitData?.errorCount === 3) {
@@ -82,21 +78,13 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
     }
   }, [permitData?.errorCount, notify, mixpanelHandler, currency, prevErrorCount])
   const signPermitCallback = useCallback(async (): Promise<void> => {
-    if (
-      !library ||
-      !routerAddress ||
-      !transactionDeadline ||
-      !currency ||
-      !account ||
-      !overwritedPermitData ||
-      !tokenNonceState?.result?.[0]
-    ) {
+    if (!library || !routerAddress || !currency || !account || !overwritedPermitData || !tokenNonceState?.result?.[0]) {
       return
     }
     if (permitState !== PermitState.NOT_SIGNED) {
       return
     }
-    const deadline = transactionDeadline.toNumber() + PERMIT_VALIDITY_BUFFER
+    const deadline = Math.floor(Date.now() / 1000) + PERMIT_VALIDITY_BUFFER
     const message = {
       owner: account,
       spender: routerAddress,
@@ -181,7 +169,6 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
     routerAddress,
     currency,
     currencyAmount,
-    transactionDeadline,
     dispatch,
     tokenNonceState.result,
     overwritedPermitData,

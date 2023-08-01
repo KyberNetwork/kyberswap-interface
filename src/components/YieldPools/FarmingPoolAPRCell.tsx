@@ -16,15 +16,6 @@ import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { useFarmApr } from 'utils/dmm'
 
-type Props = {
-  poolAPR: number
-  farmV1APR?: number
-  farmV2APR?: number
-  fairlaunchAddress: string
-  pid: number
-  tooltipPlacement?: Placement
-}
-
 export const APRTooltipContent = ({
   poolAPR,
   farmAPR,
@@ -97,7 +88,7 @@ export const APRTooltipContent = ({
           }}
         >
           <Text as="span" color={theme.warning}>
-            Farm V1 APR:{' '}
+            Farm APR:{' '}
             <Text as="span" fontWeight={500}>
               {farmAPR.toFixed(2)}%
             </Text>
@@ -123,7 +114,7 @@ export const APRTooltipContent = ({
           }}
         >
           <Text as="span" color={theme.warning}>
-            Farm V2 APR:{' '}
+            Farm APR:{' '}
             <Text as="span" fontWeight={500}>
               {farmV2APR.toFixed(2)}%
             </Text>
@@ -141,6 +132,15 @@ export const APRTooltipContent = ({
       )}
     </Flex>
   )
+}
+
+type Props = {
+  poolAPR: number
+  farmV1APR?: number
+  farmV2APR?: number
+  fairlaunchAddress: string
+  pid: number
+  tooltipPlacement?: Placement
 }
 
 const FarmingPoolAPRCell: React.FC<Props> = ({

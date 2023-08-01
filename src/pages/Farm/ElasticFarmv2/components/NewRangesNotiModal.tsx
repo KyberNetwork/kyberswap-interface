@@ -80,9 +80,9 @@ export default function NewRangesNotiModal({ updatedFarms }: { updatedFarms: Ela
         <Text color={theme.subText} fontSize="14px" textAlign="justify" lineHeight={1.5}>
           {hasIdleRange && hasNewRange ? (
             <Trans>
-              One or more of the Elastic v2 farm ranges you were participating in have become idle and have new farming
-              ranges. You are still earning farming rewards from this idle farm range. However, to continue earning more
-              rewards, please stake your liquidity into the other ranges instead
+              One or more of the Elastic static farm ranges you were participating in have become idle and have new
+              farming ranges. You are still earning farming rewards from this idle farm range. However, to continue
+              earning more rewards, please stake your liquidity into the other ranges instead
             </Trans>
           ) : hasNewRange ? (
             <Trans>
@@ -91,7 +91,7 @@ export default function NewRangesNotiModal({ updatedFarms }: { updatedFarms: Ela
             </Trans>
           ) : (
             <Trans>
-              One or more of the Elastic v2 farm ranges you were participating in have become idle. You are still
+              One or more of the Elastic static farm ranges you were participating in have become idle. You are still
               earning farming rewards from this idle farm range. However, to continue earning more rewards, please stake
               your liquidity into the other active ranges instead
             </Trans>

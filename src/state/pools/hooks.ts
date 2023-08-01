@@ -137,7 +137,8 @@ export async function getBulkPoolDataFromPoolList(
   apolloClient: ApolloClient<NormalizedCacheObject>,
   blockClient: ApolloClient<NormalizedCacheObject>,
   chainId: ChainId,
-  ethPrice?: string,
+  ethPrice: string | undefined,
+  signal: AbortSignal,
 ): Promise<any> {
   try {
     const current = await apolloClient.query({
@@ -146,7 +147,7 @@ export async function getBulkPoolDataFromPoolList(
     })
     let poolData
     const [t1] = getTimestampsForChanges()
-    const blocks = await getBlocksFromTimestamps(isEnableBlockService, blockClient, [t1], chainId)
+    const blocks = await getBlocksFromTimestamps(isEnableBlockService, blockClient, [t1], chainId, signal)
     if (!blocks.length) {
       return current.data.pools
     } else {
@@ -205,10 +206,11 @@ export async function getBulkPoolDataWithPagination(
   blockClient: ApolloClient<NormalizedCacheObject>,
   ethPrice: string,
   chainId: ChainId,
+  signal: AbortSignal,
 ): Promise<any> {
   try {
     const [t1] = getTimestampsForChanges()
-    const blocks = await getBlocksFromTimestamps(isEnableBlockService, blockClient, [t1], chainId)
+    const blocks = await getBlocksFromTimestamps(isEnableBlockService, blockClient, [t1], chainId, signal)
 
     // In case we can't get the block one day ago then we set it to 0 which is fine
     // because our subgraph never syncs from block 0 => response is empty
@@ -322,7 +324,7 @@ export function useAllPoolsData(): {
   const poolCountSubgraph = usePoolCountInSubgraph()
   useEffect(() => {
     if (!isEVM) return
-    let cancelled = false
+    const controller = new AbortController()
 
     const getPoolsData = async () => {
       try {
@@ -340,24 +342,25 @@ export function useAllPoolsData(): {
                 blockClient,
                 ethPrice,
                 chainId,
+                controller.signal,
               ),
             )
           }
           const pools = (await Promise.all(promises.map(callback => callback()))).flat()
-          !cancelled && dispatch(updatePools({ pools }))
-          !cancelled && dispatch(setLoading(false))
+          if (controller.signal.aborted) return
+          dispatch(updatePools({ pools }))
+          dispatch(setLoading(false))
         }
       } catch (error) {
-        !cancelled && dispatch(setError(error as Error))
-        !cancelled && dispatch(setLoading(false))
+        if (controller.signal.aborted) return
+        dispatch(setError(error as Error))
+        dispatch(setLoading(false))
       }
     }
 
     getPoolsData()
 
-    return () => {
-      cancelled = true
-    }
+    return () => controller.abort()
   }, [
     chainId,
     dispatch,
@@ -396,7 +399,8 @@ export function useSinglePoolData(
 
   useEffect(() => {
     if (!isEVM) return
-    let isCanceled = false
+    const controller = new AbortController()
+
     async function checkForPools() {
       setLoading(true)
 
@@ -409,14 +413,16 @@ export function useSinglePoolData(
             blockClient,
             chainId,
             ethPrice,
+            controller.signal,
           )
-
+          if (controller.signal.aborted) return
           if (pools.length > 0) {
-            !isCanceled && setPoolData(pools[0])
+            setPoolData(pools[0])
           }
         }
       } catch (error) {
-        !isCanceled && setError(error as Error)
+        if (controller.signal.aborted) return
+        setError(error as Error)
       }
 
       setLoading(false)
@@ -424,9 +430,7 @@ export function useSinglePoolData(
 
     checkForPools()
 
-    return () => {
-      isCanceled = true
-    }
+    return () => controller.abort()
   }, [ethPrice, error, poolAddress, chainId, isEVM, networkInfo, classicClient, blockClient, isEnableBlockService])
 
   return { loading, error, data: poolData }

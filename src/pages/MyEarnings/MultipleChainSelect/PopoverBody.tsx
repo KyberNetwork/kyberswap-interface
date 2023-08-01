@@ -8,10 +8,18 @@ import styled from 'styled-components'
 import { ReactComponent as LogoKyber } from 'assets/svg/logo_kyber.svg'
 import { ButtonPrimary } from 'components/Button'
 import Checkbox from 'components/CheckBox'
-import { NETWORKS_INFO, SUPPORTED_NETWORKS_FOR_MY_EARNINGS } from 'constants/networks'
+import { MouseoverTooltip } from 'components/Tooltip'
+import {
+  COMING_SOON_NETWORKS_FOR_MY_EARNINGS,
+  COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY,
+  NETWORKS_INFO,
+  SUPPORTED_NETWORKS_FOR_MY_EARNINGS,
+} from 'constants/networks'
+import { VERSION } from 'constants/v2'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { AppState } from 'state'
+import { useAppSelector } from 'state/hooks'
 import { selectChains } from 'state/myEarnings/actions'
 
 import { StyledLogo } from '.'
@@ -98,9 +106,17 @@ const PopoverBody: React.FC<Props> = ({ onClose }) => {
   const selectedChains = useSelector((state: AppState) => state.myEarnings.selectedChains)
   const dispatch = useDispatch()
 
-  const [localSelectedChains, setLocalSelectedChains] = useState(selectedChains)
+  const isLegacy = useAppSelector(state => state.myEarnings.activeTab === VERSION.ELASTIC_LEGACY)
 
-  const isAllSelected = localSelectedChains.length === SUPPORTED_NETWORKS_FOR_MY_EARNINGS.length
+  const comingSoonList = isLegacy ? COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY : COMING_SOON_NETWORKS_FOR_MY_EARNINGS
+
+  const [localSelectedChains, setLocalSelectedChains] = useState(() =>
+    selectedChains.filter(item => !comingSoonList.includes(item)),
+  )
+
+  const networkList = SUPPORTED_NETWORKS_FOR_MY_EARNINGS.filter(item => !comingSoonList.includes(item))
+
+  const isAllSelected = localSelectedChains.length === networkList.length
   const handleChangeChains = (chains: ChainId[]) => {
     dispatch(selectChains(chains))
   }
@@ -118,6 +134,8 @@ const PopoverBody: React.FC<Props> = ({ onClose }) => {
       0 < localSelectedChains.length && localSelectedChains.length < SUPPORTED_NETWORKS_FOR_MY_EARNINGS.length
     selectAllRef.current.indeterminate = indeterminate
   }, [localSelectedChains])
+
+  const allNetworks = [...networkList, ...comingSoonList]
 
   return (
     <Flex
@@ -149,7 +167,7 @@ const PopoverBody: React.FC<Props> = ({ onClose }) => {
               setLocalSelectedChains([])
             } else {
               mixpanelHandler(MIXPANEL_TYPE.EARNING_DASHBOARD_CLICK_ALL_CHAINS_BUTTON)
-              setLocalSelectedChains(SUPPORTED_NETWORKS_FOR_MY_EARNINGS)
+              setLocalSelectedChains(networkList)
             }
           }}
         />
@@ -172,11 +190,14 @@ const PopoverBody: React.FC<Props> = ({ onClose }) => {
       </Flex>
 
       <ChainListWrapper>
-        {SUPPORTED_NETWORKS_FOR_MY_EARNINGS.map((network, i) => {
+        {allNetworks.map((network, i) => {
           const config = NETWORKS_INFO[network]
-          const isSelected = localSelectedChains.includes(network)
+
+          const isComingSoon = comingSoonList.includes(network)
+          const isSelected = isComingSoon ? false : localSelectedChains.includes(network)
 
           const handleClick = () => {
+            if (isComingSoon) return
             if (isSelected) {
               setLocalSelectedChains(localSelectedChains.filter(chain => chain !== network))
             } else {
@@ -185,33 +206,41 @@ const PopoverBody: React.FC<Props> = ({ onClose }) => {
           }
 
           return (
-            <Flex
+            <MouseoverTooltip
               key={i}
-              onClick={handleClick}
-              sx={{
-                alignItems: 'center',
-                gap: '8px',
-                padding: '4px',
-                cursor: 'pointer',
-                userSelect: 'none',
-              }}
+              text={isComingSoon ? 'Coming soon' : ''}
+              width="fit-content"
+              placement="top"
+              containerStyle={{ width: 'fit-content' }}
             >
-              <Checkbox type="checkbox" checked={isSelected} onChange={handleClick} />
-
-              <StyledLogo src={theme.darkMode && config.iconDark ? config.iconDark : config.icon} />
-
-              <Text
-                as="span"
+              <Flex
+                onClick={handleClick}
                 sx={{
-                  fontWeight: 500,
-                  fontSize: '14px',
-                  lineHeight: '20px',
-                  color: theme.text,
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '4px',
+                  cursor: isComingSoon ? 'not-allowed' : 'pointer',
+                  userSelect: 'none',
+                  opacity: isComingSoon ? 0.6 : 1,
                 }}
               >
-                {config.name}
-              </Text>
-            </Flex>
+                <Checkbox type="checkbox" checked={isSelected} onChange={handleClick} />
+
+                <StyledLogo src={theme.darkMode && config.iconDark ? config.iconDark : config.icon} />
+
+                <Text
+                  as="span"
+                  sx={{
+                    fontWeight: 500,
+                    fontSize: '14px',
+                    lineHeight: '20px',
+                    color: theme.text,
+                  }}
+                >
+                  {config.name}
+                </Text>
+              </Flex>
+            </MouseoverTooltip>
           )
         })}
       </ChainListWrapper>

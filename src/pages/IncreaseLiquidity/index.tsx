@@ -108,11 +108,14 @@ export default function IncreaseLiquidity() {
     tokenId ? BigNumber.from(tokenId) : undefined,
   )
 
+  const removed = existingPositionDetails?.liquidity?.eq(0)
+
   const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
 
   const ownsNFT = owner === account || existingPositionDetails?.operator === account
   const ownByFarm = isEVM
-    ? (networkInfo as EVMNetworkInfo).elastic.farms.flat().includes(isAddressString(chainId, owner))
+    ? (networkInfo as EVMNetworkInfo).elastic.farms.flat().includes(isAddressString(chainId, owner)) ||
+      (networkInfo as EVMNetworkInfo).elastic.farmV2S?.map(item => item.toLowerCase()).includes(owner?.toLowerCase())
     : false
 
   const { position: existingPosition } = useProAmmDerivedPositionInfo(existingPositionDetails)
@@ -481,9 +484,6 @@ export default function IncreaseLiquidity() {
           alignTitle="left"
           action={LiquidityAction.INCREASE}
           showTooltip={false}
-          onBack={() => {
-            navigate(`${APP_PATHS.POOLS}/${networkInfo.route}?tab=elastic`)
-          }}
           tutorialType={TutorialType.ELASTIC_INCREASE_LIQUIDITY}
           owner={owner}
           showOwner={owner && account && !ownsNFT && !ownByFarm}
@@ -498,9 +498,11 @@ export default function IncreaseLiquidity() {
 
                   <BlackCard style={{ borderRadius: '1rem', padding: '1rem' }}>
                     <Flex alignItems="center" sx={{ gap: '4px' }}>
-                      <TokenId color={outOfRange ? theme.warning : theme.primary}>#{tokenId?.toString()}</TokenId>
+                      <TokenId color={removed ? theme.red : outOfRange ? theme.warning : theme.primary}>
+                        #{tokenId?.toString()}
+                      </TokenId>
                       {/* dont show removed when increasing liquidity*/}
-                      <RangeBadge removed={false} inRange={!outOfRange} hideText size={14} />
+                      <RangeBadge removed={removed} inRange={!outOfRange} hideText size={14} />
                     </Flex>
 
                     <Flex

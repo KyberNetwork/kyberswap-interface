@@ -1,5 +1,5 @@
 import { defaultAbiCoder } from '@ethersproject/abi'
-import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Position, computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
@@ -29,9 +29,8 @@ import { defaultChainData } from '.'
 
 export { default as FarmUpdater } from './updaters'
 
-export const useElasticFarms = (customChainId?: ChainId) => {
-  const { chainId: activeChainId } = useActiveWeb3React()
-  const chainId = customChainId || activeChainId
+export const useElasticFarms = () => {
+  const { chainId } = useActiveWeb3React()
   const isEVM = isEVMNetwork(chainId)
   const elasticFarm = useAppSelector(state => state.elasticFarm[chainId])
   return useMemo(() => (isEVM ? elasticFarm || defaultChainData : defaultChainData), [isEVM, elasticFarm])
@@ -299,6 +298,33 @@ export const useFarmAction = (address: string) => {
     [addTransactionWithType, contract, address],
   )
 
+  const depositAndJoin = useCallback(
+    async (pid: BigNumber, selectedNFTs: StakeParam[]) => {
+      if (!contract) {
+        throw new Error(CONTRACT_NOT_FOUND_MSG)
+      }
+
+      const nftIds = selectedNFTs.map(item => item.nftId)
+
+      const estimateGas = await contract.estimateGas.depositAndJoin(pid, nftIds)
+      const tx = await contract.depositAndJoin(pid, nftIds, {
+        gasLimit: calculateGasMargin(estimateGas),
+      })
+      addTransactionWithType({
+        hash: tx.hash,
+        type: TRANSACTION_TYPE.STAKE,
+        extraInfo: getTransactionExtraInfo(
+          selectedNFTs.map(e => e.position),
+          selectedNFTs.map(e => e.poolAddress),
+          nftIds.map(e => e.toString()),
+        ),
+      })
+
+      return tx.hash
+    },
+    [addTransactionWithType, contract],
+  )
+
   const stake = useCallback(
     async (pid: BigNumber, selectedNFTs: StakeParam[]) => {
       if (!contract) {
@@ -395,7 +421,7 @@ export const useFarmAction = (address: string) => {
     [addTransactionWithType, contract],
   )
 
-  return { deposit, withdraw, approve, stake, unstake, harvest, emergencyWithdraw }
+  return { deposit, withdraw, approve, stake, unstake, harvest, emergencyWithdraw, depositAndJoin }
 }
 
 const filterOptions = [

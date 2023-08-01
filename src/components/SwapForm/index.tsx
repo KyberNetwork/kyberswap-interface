@@ -29,7 +29,7 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
-import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
+import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { Field } from 'state/swap/actions'
 import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -220,7 +220,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
                   <PriceAlertButton
                     onClick={() =>
                       navigate(
-                        `${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.CREATE_ALERT}?${stringify({
+                        `${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.CREATE_ALERT}?${stringify({
                           amount: typedValue || undefined,
                           inputCurrency: currencyId(currencyIn, chainId),
                           outputCurrency: currencyId(currencyOut, chainId),

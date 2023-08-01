@@ -7,8 +7,7 @@ import { useGetAlertStatsQuery } from 'services/priceAlert'
 import styled from 'styled-components'
 
 import { APP_PATHS } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
-import { ConfirmAlertModalData, NOTIFICATION_ROUTES, PriceAlertStat } from 'pages/NotificationCenter/const'
+import { ConfirmAlertModalData, PROFILE_MANAGE_ROUTES, PriceAlertStat } from 'pages/NotificationCenter/const'
 
 import ConfirmModal from './ConfirmModal'
 import CreateAlertForm from './CreateAlertForm'
@@ -54,8 +53,6 @@ const Headline = styled.div`
 `
 
 export default function CreateAlert() {
-  const { account } = useActiveWeb3React()
-
   const [modalData, setModalData] = useState<ConfirmAlertModalData>()
   const showModalConfirm = (data: ConfirmAlertModalData) => {
     setModalData(data)
@@ -64,12 +61,10 @@ export default function CreateAlert() {
     setModalData(undefined)
   }
 
-  const { data: priceAlertStat = {} as PriceAlertStat } = useGetAlertStatsQuery(account ?? '', {
-    skip: !account,
-  })
+  const { data: priceAlertStat = {} as PriceAlertStat } = useGetAlertStatsQuery()
   const navigate = useNavigate()
   const goBack = () => {
-    navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PRICE_ALERTS}`)
+    navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PRICE_ALERTS}`)
   }
 
   return (

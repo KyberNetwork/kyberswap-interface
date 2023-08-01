@@ -34,7 +34,7 @@ const MenuMoreAction = ({
 }) => {
   const navigate = useNavigate()
   const showAllNotification = () => {
-    navigate(APP_PATHS.NOTIFICATION_CENTER)
+    navigate(APP_PATHS.PROFILE_MANAGE)
     toggleModal()
   }
   return (

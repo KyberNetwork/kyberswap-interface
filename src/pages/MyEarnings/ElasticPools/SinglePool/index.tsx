@@ -1,37 +1,87 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
-import { Trans } from '@lingui/macro'
+import { FeeAmount, Pool, Position } from '@kyberswap/ks-sdk-elastic'
+import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
+import { BarChart2, Info, Plus } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import { ElasticPoolEarningWithDetails, ElasticPositionEarningWithDetails } from 'services/earning/types'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import { ButtonLight } from 'components/Button'
 import CopyHelper from 'components/Copy'
+import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
-import { formatUSDValue } from 'components/EarningAreaChart/utils'
-import { MoneyBag } from 'components/Icons'
+import { FarmTag } from 'components/FarmTag'
 import Loader from 'components/Loader'
-import { MouseoverTooltip } from 'components/Tooltip'
+import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import { APRTooltipContent } from 'components/YieldPools/FarmingPoolAPRCell'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT, PROMM_ANALYTICS_URL } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
+import { VERSION } from 'constants/v2'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import { PoolState } from 'hooks/usePools'
-import { usePoolv2 } from 'hooks/usePoolv2'
 import useTheme from 'hooks/useTheme'
 import SharePoolEarningsButton from 'pages/MyEarnings/ElasticPools/SinglePool/SharePoolEarningsButton'
-import StatsRow from 'pages/MyEarnings/ElasticPools/SinglePool/StatsRow'
-import PoolEarningsSection from 'pages/MyEarnings/PoolEarningsSection'
 import Positions from 'pages/MyEarnings/Positions'
+import { WIDTHS } from 'pages/MyEarnings/constants'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { useAppSelector } from 'state/hooks'
-import { MEDIA_WIDTHS } from 'theme'
 import { isAddress, shortenAddress } from 'utils'
+import { formatDollarAmount } from 'utils/numbers'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 import { unwrappedToken } from 'utils/wrappedCurrency'
+
+const DownIcon = styled(DropdownSVG)<{ isOpen: boolean }>`
+  transform: rotate(${({ isOpen }) => (!isOpen ? '-90deg' : '0')});
+  transition: transform 0.3s;
+`
+
+const Wrapper = styled.div`
+  border-bottom: 1px solid ${({ theme }) => theme.border};
+
+  :last-child {
+    border-bottom: none;
+  }
+`
+
+const MobileStatWrapper = styled(Flex)`
+  flex-direction: column;
+  gap: 1rem;
+`
+
+const MobileStat = styled.div<{ mobileView: boolean }>`
+  display: flex;
+  justify-content: space-between;
+
+  ${({ mobileView }) =>
+    mobileView &&
+    css`
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+
+      > *:nth-child(2n) {
+        align-items: flex-end;
+      }
+    `}
+`
+
+const Row = styled.div`
+  align-items: center;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  display: grid;
+  grid-template-columns: 3fr repeat(7, 1fr);
+
+  :hover {
+    cursor: pointer;
+    background: ${({ theme }) => rgba(theme.primary, 0.15)};
+  }
+`
 
 const Badge = styled.div<{ $color?: string }>`
   display: flex;
@@ -62,12 +112,28 @@ export type Props = {
   pendingFees: { [id: string]: [string, string] }
   tokenPrices: { [id: string]: number }
 }
+
+const StatItem = ({ label, value }: { label: ReactNode | string; value: ReactNode | string }) => {
+  const theme = useTheme()
+  return (
+    <Flex flexDirection="column" sx={{ gap: '6px' }}>
+      <Text fontSize={12} color={theme.subText} fontWeight="500" sx={{ textTransform: 'uppercase' }}>
+        {label}
+      </Text>
+      <Text fontWeight="500" fontSize={16}>
+        {value}
+      </Text>
+    </Flex>
+  )
+}
 const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, pendingFees, tokenPrices }) => {
   const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
   const [isExpanded, setExpanded] = useState(false)
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
-  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  const tabletView = useMedia(`(max-width: ${WIDTHS[3]}px)`)
+  const mobileView = useMedia(`(max-width: ${WIDTHS[2]}px)`)
+
   const shouldExpandAllPools = useAppSelector(state => state.myEarnings.shouldExpandAllPools)
 
   const feeAmount = Number(poolEarning.feeTier) as FeeAmount
@@ -86,8 +152,21 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
     return [currency0, currency1]
   }, [chainId, poolEarning.token0.id, poolEarning.token1.id, tokensByChainId])
 
-  const { pool, poolState } = usePoolv2(chainId, currency0, currency1, feeAmount, poolEarning.id)
-  const isExpandable = !!pool && poolState !== PoolState.LOADING
+  const pool = useMemo(() => {
+    if (currency0 && currency1)
+      return new Pool(
+        currency0.wrapped,
+        currency1.wrapped,
+        feeAmount,
+        poolEarning.sqrtPrice,
+        poolEarning.liquidity,
+        poolEarning.reinvestL,
+        +poolEarning.tick,
+      )
+    return undefined
+  }, [currency0, currency1, feeAmount, poolEarning])
+
+  const isExpandable = !!pool
 
   // Need these because we'll display native tokens instead of wrapped tokens
   const visibleCurrency0 = currency0 ? unwrappedToken(currency0) : undefined
@@ -120,12 +199,6 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
     [mixpanelHandler, poolEarning.id, poolName],
   )
 
-  const here = (
-    <Link to={`${APP_PATHS.FARMS}/${NETWORKS_INFO[chainId].route}?tab=elastic&type=active&search=${poolEarning.id}`}>
-      <Trans>here</Trans>
-    </Link>
-  )
-
   const isFarmingPool = poolEarning.farmApr && poolEarning.farmApr !== '0'
 
   const poolEarningToday = useMemo(() => {
@@ -137,8 +210,6 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
     return earning || 0
   }, [poolEarning.historicalEarning])
 
-  const poolEarningStr = formatUSDValue(poolEarningToday)
-
   const feePercent = (Number(poolEarning.feeTier) * 100) / ELASTIC_BASE_FEE_UNIT + '%'
 
   const analyticUrl = PROMM_ANALYTICS_URL[chainId] + '/pool/' + poolEarning.id
@@ -147,40 +218,28 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
     setExpanded(shouldExpandAllPools)
   }, [shouldExpandAllPools])
 
-  const renderStatsRow = () => {
-    return (
-      <StatsRow
-        currency0={visibleCurrency0}
-        currency1={visibleCurrency1}
-        feeAmount={feeAmount}
-        chainId={chainId}
-        totalValueLockedUsd={poolEarning.totalValueLockedUsd}
-        poolAPR={Number(poolEarning.apr || 0)}
-        farmAPR={Number(poolEarning.farmApr || 0)}
-        volume24hUsd={Number(poolEarning.volumeUsd) - Number(poolEarning.volumeUsdOneDayAgo)}
-        fees24hUsd={Number(poolEarning.feesUsd) - Number(poolEarning.feesUsdOneDayAgo)}
-        poolAddress={poolEarning.id}
-        analyticUrl={analyticUrl}
-        renderToggleExpandButton={() => {
-          return (
-            <ButtonIcon
-              style={{
-                flex: '0 0 36px',
-                width: '36px',
-                height: '36px',
-                transform: isExpanded ? 'rotate(180deg)' : undefined,
-                transition: 'all 150ms ease',
-              }}
-              disabled={!pool || poolState === PoolState.LOADING}
-              onClick={toggleExpanded}
-            >
-              {poolState === PoolState.LOADING ? <Loader /> : <DropdownSVG />}
-            </ButtonIcon>
-          )
-        }}
-      />
-    )
-  }
+  const farmAPR = Number(poolEarning.farmApr || 0)
+  const poolAPR = Number(poolEarning.apr || 0)
+
+  const myLiquidityUsd = positionEarnings.reduce((total, position) => {
+    if (!pool) return total
+    const pos = new Position({
+      pool,
+      liquidity: position.liquidity,
+      tickLower: +position.tickLower,
+      tickUpper: +position.tickUpper,
+    })
+
+    const token0Price = tokenPrices[visibleCurrency0?.wrapped.address || '']
+    const token1Price = tokenPrices[visibleCurrency1?.wrapped.address || '']
+
+    const liquidityInUsd =
+      parseFloat(pos.amount0.toExact() || '0') * token0Price + parseFloat(pos.amount1.toExact() || '0') * token1Price
+
+    return total + liquidityInUsd
+  }, 0)
+
+  const isLegacyPool = useAppSelector(state => state.myEarnings.activeTab === VERSION.ELASTIC_LEGACY)
 
   const renderSharePoolEarningsButton = () => {
     return (
@@ -199,290 +258,284 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
     return null
   }
 
-  const renderPositions = () => {
-    return (
-      <Positions
-        positionEarnings={positionEarnings}
-        chainId={chainId}
-        pool={pool}
-        pendingFees={pendingFees}
-        tokenPrices={tokenPrices}
-        currency0={visibleCurrency0}
-        currency1={visibleCurrency1}
-      />
-    )
-  }
+  const share = (
+    <Flex
+      sx={{ gap: '8px' }}
+      fontSize={12}
+      color={theme.subText}
+      alignItems="center"
+      onClick={e => {
+        e.stopPropagation()
+      }}
+    >
+      <CopyHelper toCopy={poolEarning.id} text={shortenAddress(chainId, poolEarning.id, 4)} />
+      {renderSharePoolEarningsButton()}
+    </Flex>
+  )
 
-  if (upToExtraSmall) {
+  const positions = (
+    <Positions
+      poolEarning={poolEarning}
+      positionEarnings={positionEarnings}
+      chainId={chainId}
+      pool={pool}
+      pendingFees={pendingFees}
+      tokenPrices={tokenPrices}
+      currency0={visibleCurrency0}
+      currency1={visibleCurrency1}
+    />
+  )
+
+  const currency0Slug = visibleCurrency0?.isNative ? visibleCurrency0.symbol : visibleCurrency0?.wrapped.address || ''
+  const currency1Slug = visibleCurrency1?.isNative ? visibleCurrency1.symbol : visibleCurrency1?.wrapped.address || ''
+
+  if (tabletView) {
     return (
-      <Flex
+      <Box
         sx={{
-          flexDirection: 'column',
-          gap: '16px',
-          width: '100%',
-          padding: '16px',
-          background: theme.background,
-          border: `1px solid ${theme.border}`,
-          borderRadius: '20px',
+          border: mobileView ? undefined : `1px solid ${theme.border}`,
+          borderBottom: mobileView ? `1px solid ${theme.border}` : undefined,
+          borderRadius: mobileView ? 0 : '1rem',
         }}
       >
-        <Flex
-          sx={{
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
+        <MobileStatWrapper padding={mobileView ? '1rem 0' : '1rem'}>
           <Flex
-            sx={{
-              alignItems: 'center',
-              gap: '8px',
-            }}
+            alignItems={mobileView ? 'flex-start' : 'center'}
+            justifyContent="space-between"
+            flexDirection={mobileView ? 'column' : 'row'}
+            sx={{ gap: '0.5rem' }}
           >
-            <Flex alignItems="center">
-              <DoubleCurrencyLogo currency0={visibleCurrency0} currency1={visibleCurrency1} size={18} />
-
-              <Text
-                sx={{
-                  fontWeight: 500,
-                  fontSize: '16px',
-                  lineHeight: '20px',
-                }}
-              >
+            <Flex alignItems="center" sx={{ gap: '0.25rem' }}>
+              <Box sx={{ position: 'relative' }}>
+                <DoubleCurrencyLogo currency0={visibleCurrency0} currency1={visibleCurrency1} size={18} />
+                <img
+                  src={NETWORKS_INFO[chainId].icon}
+                  alt={NETWORKS_INFO[chainId].name}
+                  width={12}
+                  height={12}
+                  style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    right: 0,
+                    zIndex: 1,
+                  }}
+                />
+              </Box>
+              <Text fontSize={16} fontWeight="500">
                 {poolName}
               </Text>
+              <Badge $color={theme.blue}>FEE {feePercent}</Badge>
+              {isFarmingPool && <FarmTag noText address={poolEarning.id} chainId={chainId} />}
             </Flex>
+            {share}
+          </Flex>
 
-            <Badge $color={theme.blue}>FEE {feePercent}</Badge>
-
-            {isFarmingPool && (
-              <MouseoverTooltip
-                noArrow
-                placement="top"
-                text={
-                  <Text>
-                    <Trans>Available for yield farming. Click {here} to go to the farm.</Trans>
+          <MobileStat mobileView={mobileView}>
+            <StatItem label="TVL" value={formatDollarAmount(+poolEarning.totalValueLockedUsd)} />
+            <StatItem
+              label={
+                <MouseoverTooltip
+                  text={t`Average estimated return based on yearly trading fees from the pool & additional bonus rewards if you participate in the farm`}
+                >
+                  <TextDashed>APR</TextDashed>
+                </MouseoverTooltip>
+              }
+              value={
+                <MouseoverTooltip
+                  width="fit-content"
+                  placement="top"
+                  text={
+                    <APRTooltipContent
+                      farmAPR={farmAPR}
+                      farmV2APR={
+                        // TODO
+                        0
+                      }
+                      poolAPR={poolAPR}
+                    />
+                  }
+                >
+                  <Text as="span" marginRight="4px" color={theme.apr}>
+                    {(poolAPR + farmAPR).toFixed(2)}%
                   </Text>
+                  <Info size={14} color={theme.apr} />
+                </MouseoverTooltip>
+              }
+            />
+            <StatItem
+              label={t`Volume (24h)`}
+              value={formatDollarAmount(Number(poolEarning.volumeUsd) - Number(poolEarning.volumeUsdOneDayAgo))}
+            />
+            <StatItem
+              label={t`Fees (24h)`}
+              value={formatDollarAmount(Number(poolEarning.feesUsd) - Number(poolEarning.feesUsdOneDayAgo))}
+            />
+            <StatItem label={t`My Liquidity`} value={formatDollarAmount(myLiquidityUsd)} />
+            <StatItem label={t`My Earnings`} value={formatDollarAmount(poolEarningToday)} />
+          </MobileStat>
+
+          <Flex justifyContent="space-between" alignItems="center">
+            {isLegacyPool ? (
+              <ButtonLight width="fit-content" height="36px" disabled>
+                + <Trans>Add Liquidity</Trans>
+              </ButtonLight>
+            ) : (
+              <ButtonLight
+                width="fit-content"
+                height="36px"
+                as={Link}
+                onClick={e => {
+                  e.stopPropagation()
+                }}
+                to={
+                  currency0Slug && currency1Slug
+                    ? `/${NETWORKS_INFO[chainId].route}${APP_PATHS.ELASTIC_CREATE_POOL}/${currency0Slug}/${currency1Slug}/${feeAmount}`
+                    : '#'
                 }
               >
-                <Badge $color={theme.apr}>
-                  <MoneyBag size={12} /> V2
-                </Badge>
-              </MouseoverTooltip>
+                + <Trans>Add Liquidity</Trans>
+              </ButtonLight>
             )}
-          </Flex>
-        </Flex>
 
-        {renderStatsRow()}
-
-        {isExpanded && isExpandable && (
-          <>
-            <Flex
-              sx={{
-                width: '100%',
-                height: 0,
-                borderBottom: `1px solid transparent`,
-                borderBottomColor: theme.border,
-              }}
-            />
-            <Flex
-              sx={{
-                flexDirection: 'column',
-                gap: '12px',
-              }}
-            >
-              <Text
-                sx={{
-                  fontWeight: 500,
-                  fontSize: '16px',
-                  lineHeight: '20px',
-                  color: theme.subText,
+            <Flex sx={{ gap: '0.75rem' }}>
+              <ButtonIcon
+                style={{
+                  width: '36px',
+                  height: '36px',
+                }}
+                as="a"
+                href={analyticUrl}
+                target="_blank"
+                onClick={e => {
+                  e.stopPropagation()
                 }}
               >
-                <Trans>Total Earnings</Trans>
-              </Text>
+                <BarChart2 color={theme.subText} />
+              </ButtonIcon>
 
-              <Flex
-                alignItems="center"
-                sx={{
-                  gap: '16px',
+              <ButtonIcon
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  transform: isExpanded ? 'rotate(-180deg)' : undefined,
+                  transition: 'transform 150ms ease',
                 }}
+                disabled={!pool}
+                onClick={toggleExpanded}
               >
-                <Text
-                  sx={{
-                    fontWeight: 500,
-                    fontSize: '24px',
-                    lineHeight: '28px',
-                    color: theme.text,
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {poolEarningStr}
-                </Text>
-
-                {renderSharePoolEarningsButton()}
-              </Flex>
+                {!pool ? <Loader /> : <DropdownSVG />}
+              </ButtonIcon>
             </Flex>
-            <PoolEarningsSection historicalEarning={poolEarning.historicalEarning} chainId={chainId} />
-
-            <Box
-              sx={{
-                flex: '0 0 1px',
-                alignSelf: 'stretch',
-                width: '100%',
-                borderBottom: '1px solid transparent',
-                borderBottomColor: theme.border,
-              }}
-            />
-
-            {renderPositions()}
-          </>
-        )}
-      </Flex>
+          </Flex>
+        </MobileStatWrapper>
+        {isExpanded && mobileView && <Divider />}
+        {isExpanded && isExpandable && positions}
+      </Box>
     )
   }
 
   return (
-    <Flex
-      sx={{
-        flexDirection: 'column',
-        gap: '24px',
-        width: '100%',
-        padding: '24px',
-        background: theme.background,
-        border: `1px solid ${theme.border}`,
-        borderRadius: '20px',
-      }}
-    >
-      <Flex
-        sx={{
-          width: '100%',
-          flexDirection: 'column',
-          gap: '24px',
-          cursor: 'pointer',
-        }}
-        onClick={() => {
-          if (!isExpandable) {
-            return
-          }
-
-          setExpanded(e => !e)
-        }}
-      >
-        <Flex
-          sx={{
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <Flex
-            sx={{
-              alignItems: 'center',
-              gap: '8px',
-            }}
-          >
-            <Flex alignItems="center">
-              <DoubleCurrencyLogo currency0={visibleCurrency0} currency1={visibleCurrency1} size={20} />
-
-              <Text
-                sx={{
-                  fontWeight: 500,
-                  fontSize: '20px',
-                  lineHeight: '24px',
-                }}
-              >
-                {poolName}
-              </Text>
+    <Wrapper>
+      <Row onClick={() => isExpandable && setExpanded(e => !e)}>
+        <Flex alignItems="center">
+          <DownIcon isOpen={isExpanded} role="button" />
+          <Box sx={{ position: 'relative' }}>
+            <DoubleCurrencyLogo currency0={visibleCurrency0} currency1={visibleCurrency1} size={32} />
+            <img
+              src={NETWORKS_INFO[chainId].icon}
+              alt={NETWORKS_INFO[chainId].name}
+              width={18}
+              height={18}
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                right: 0,
+                zIndex: 1,
+              }}
+            />
+          </Box>
+          <Flex flexDirection="column" sx={{ gap: '4px' }}>
+            <Flex
+              sx={{
+                alignItems: 'center',
+                gap: '8px',
+              }}
+            >
+              <Text>{poolName}</Text>
+              <Badge $color={theme.blue}>FEE {feePercent}</Badge>
+              {isFarmingPool && <FarmTag noText address={poolEarning.id} chainId={chainId} />}
             </Flex>
 
-            <Badge $color={theme.blue}>FEE {feePercent}</Badge>
-
-            {isFarmingPool && (
-              <MouseoverTooltip
-                noArrow
-                placement="top"
-                text={
-                  <Text>
-                    <Trans>Available for yield farming. Click {here} to go to the farm.</Trans>
-                  </Text>
-                }
-              >
-                <Badge $color={theme.apr}>
-                  <MoneyBag size={16} /> Farm
-                </Badge>
-              </MouseoverTooltip>
-            )}
-          </Flex>
-
-          <Flex
-            sx={{
-              alignItems: 'center',
-              color: theme.subText,
-              fontSize: '14px',
-              gap: '4px',
-            }}
-            onClick={e => {
-              e.stopPropagation()
-            }}
-          >
-            <CopyHelper toCopy={poolEarning.id} text={shortenAddress(chainId, poolEarning.id, 4)} />
+            {share}
           </Flex>
         </Flex>
+        <Text>{formatDollarAmount(+poolEarning.totalValueLockedUsd)}</Text>
 
-        {renderStatsRow()}
-      </Flex>
+        <MouseoverTooltip
+          width="fit-content"
+          placement="top"
+          text={
+            <APRTooltipContent
+              farmAPR={farmAPR}
+              farmV2APR={
+                // TODO
+                0
+              }
+              poolAPR={poolAPR}
+            />
+          }
+        >
+          <Text as="span" marginRight="4px" color={theme.apr}>
+            {(poolAPR + farmAPR).toFixed(2)}%
+          </Text>
+          <Info size={14} color={theme.apr} />
+        </MouseoverTooltip>
 
-      {isExpanded && isExpandable && (
-        <>
-          <Flex
-            sx={{
-              width: '100%',
-              height: 0,
-              borderBottom: `1px solid transparent`,
-              borderBottomColor: theme.border,
+        <Text>{formatDollarAmount(Number(poolEarning.volumeUsd) - Number(poolEarning.volumeUsdOneDayAgo))}</Text>
+        <Text>{formatDollarAmount(Number(poolEarning.feesUsd) - Number(poolEarning.feesUsdOneDayAgo))}</Text>
+        <Text>{formatDollarAmount(myLiquidityUsd)}</Text>
+        <Text>{formatDollarAmount(poolEarningToday)}</Text>
+
+        <Flex sx={{ gap: '8px' }} justifyContent="flex-end">
+          <ButtonIcon
+            style={{
+              width: '24px',
+              height: '24px',
             }}
-          />
-          <Flex
-            sx={{
-              flexDirection: 'column',
-              gap: '12px',
-            }}
+            as="a"
+            href={analyticUrl}
+            target="_blank"
+            onClick={e => e.stopPropagation()}
           >
-            <Text
-              sx={{
-                fontWeight: 500,
-                fontSize: '16px',
-                lineHeight: '20px',
-                color: theme.text,
-              }}
-            >
-              <Trans>Total Earnings</Trans>
-            </Text>
+            <BarChart2 color={theme.subText} size={18} />
+          </ButtonIcon>
 
-            <Flex
-              alignItems="center"
-              sx={{
-                gap: '16px',
+          {isLegacyPool ? (
+            <ButtonIcon disabled>
+              <Plus color={theme.subText} size={18} />
+            </ButtonIcon>
+          ) : (
+            <ButtonIcon
+              color={theme.primary}
+              style={{
+                width: '24px',
+                height: '24px',
               }}
+              as={Link}
+              to={
+                currency0Slug && currency1Slug
+                  ? `/${NETWORKS_INFO[chainId].route}${APP_PATHS.ELASTIC_CREATE_POOL}/${currency0Slug}/${currency1Slug}/${feeAmount}`
+                  : '#'
+              }
+              onClick={e => e.stopPropagation()}
             >
-              <Text
-                sx={{
-                  fontWeight: 500,
-                  fontSize: '24px',
-                  lineHeight: '28px',
-                  color: theme.text,
-                }}
-              >
-                {poolEarningStr}
-              </Text>
-
-              {renderSharePoolEarningsButton()}
-            </Flex>
-          </Flex>
-          <PoolEarningsSection historicalEarning={poolEarning.historicalEarning} chainId={chainId} />
-          {renderPositions()}
-        </>
-      )}
-    </Flex>
+              <Plus color={theme.primary} size={18} />
+            </ButtonIcon>
+          )}
+        </Flex>
+      </Row>
+      {isExpanded && isExpandable && positions}
+    </Wrapper>
   )
 }
 

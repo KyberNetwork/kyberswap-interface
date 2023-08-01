@@ -1,13 +1,17 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
-import { useMemo, useRef } from 'react'
+import { Trans, t } from '@lingui/macro'
+import { useMemo } from 'react'
 import { Info } from 'react-feather'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useGetElasticEarningQuery, useGetElasticLegacyEarningQuery } from 'services/earning'
 import { ElasticPoolEarningWithDetails, ElasticPositionEarningWithDetails } from 'services/earning/types'
+import styled from 'styled-components'
 
+import InfoHelper from 'components/InfoHelper'
 import LoaderWithKyberLogo from 'components/LocalLoader'
 import { EMPTY_ARRAY } from 'constants/index'
+import { COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY } from 'constants/networks'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
@@ -17,6 +21,21 @@ import SinglePool from 'pages/MyEarnings/ElasticPools/SinglePool'
 import { chainIdByRoute } from 'pages/MyEarnings/utils'
 import { useAppSelector } from 'state/hooks'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
+
+import { WIDTHS } from '../constants'
+
+const Header = styled.div`
+  background: ${({ theme }) => theme.tableHeader};
+  color: ${({ theme }) => theme.subText};
+  text-transform: uppercase;
+  padding: 16px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  display: grid;
+  grid-template-columns: 3fr repeat(7, 1fr);
+`
 
 const getPositionEarningsByPoolId = (
   earnings: ElasticPositionEarningWithDetails[] | undefined,
@@ -52,14 +71,8 @@ interface PoolType {
 
 const ElasticPools = () => {
   const { account = '' } = useActiveWeb3React()
-
-  // need to store last account because when user switch to another chain
-  // `account` can be '' in one of the renders
-  // and if `account` = '', this page is no longer visible (we have a condition for this in MyEarnings/index.tsx)
-  const lastAccountRef = useRef(account)
-  if (account) {
-    lastAccountRef.current = account
-  }
+  const tabletView = useMedia(`(max-width: ${WIDTHS[3]}px)`)
+  const mobileView = useMedia(`(max-width: ${WIDTHS[2]}px)`)
 
   const theme = useTheme()
   const selectedChainIds = useAppSelector(state => state.myEarnings.selectedChains)
@@ -68,14 +81,10 @@ const ElasticPools = () => {
   const originalSearchText = useAppSelector(state => state.myEarnings.searchText)
   const searchText = useDebounce(originalSearchText, 300).toLowerCase().trim()
 
-  // const getEarningData = useGetEarningDataQuery({ account, chainIds: selectedChainIds })
-  const elasticEarningQueryResponse = useGetElasticEarningQuery({
-    account: lastAccountRef.current,
-    chainIds: selectedChainIds,
-  })
+  const elasticEarningQueryResponse = useGetElasticEarningQuery({ account, chainIds: selectedChainIds })
   const elasticLegacyEarningQueryResponse = useGetElasticLegacyEarningQuery({
-    account: lastAccountRef.current,
-    chainIds: selectedChainIds,
+    account,
+    chainIds: selectedChainIds.filter(item => !COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY.includes(item)),
   })
 
   const earningResponse = useMemo(() => {
@@ -114,12 +123,12 @@ const ElasticPools = () => {
 
           return (
             pool.id.toLowerCase() === searchText ||
-            pool.token0.id.toLowerCase() === searchText ||
-            pool.token0.symbol.toLowerCase() === searchText ||
-            pool.token0.name.toLowerCase() === searchText ||
+            pool.token0.id.toLowerCase().includes(searchText) ||
+            pool.token0.symbol.toLowerCase().includes(searchText) ||
+            pool.token0.name.toLowerCase().includes(searchText) ||
             pool.token1.id.toLowerCase() === searchText ||
-            pool.token1.symbol.toLowerCase() === searchText ||
-            pool.token1.name.toLowerCase() === searchText
+            pool.token1.symbol.toLowerCase().includes(searchText) ||
+            pool.token1.name.toLowerCase().includes(searchText)
           )
         }) || EMPTY_ARRAY
 
@@ -172,11 +181,43 @@ const ElasticPools = () => {
 
   return (
     <Flex
+      flexDirection="column"
       sx={{
-        flexDirection: 'column',
-        gap: '24px',
+        border: tabletView ? undefined : `1px solid ${theme.border}`,
+        borderRadius: '1rem',
+        gap: tabletView && !mobileView ? '1rem' : undefined,
       }}
     >
+      {!tabletView && (
+        <Header>
+          <Text>
+            <Trans>Token Pair | Fee</Trans>
+          </Text>
+          <Text>TVL</Text>
+          <Text>
+            APR
+            <InfoHelper
+              text={t`Average estimated return based on yearly trading fees from the pool & additional bonus rewards if you participate in the farm`}
+            />
+          </Text>
+          <Text>
+            <Trans>Volume (24h)</Trans>
+          </Text>
+          <Text>
+            <Trans>Fees (24h)</Trans>
+          </Text>
+          <Text>
+            <Trans>My Liquidity</Trans>
+          </Text>
+          <Text>
+            <Trans>My Earnings</Trans>
+          </Text>
+          <Text textAlign="right">
+            <Trans>Actions</Trans>
+          </Text>
+        </Header>
+      )}
+
       {Object.keys(poolsByChainId).map(chain => (
         <PoolsByChainId pools={poolsByChainId[chain]} key={chain} chainId={Number(chain) as ChainId} />
       ))}

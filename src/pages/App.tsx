@@ -5,7 +5,7 @@ import * as Sentry from '@sentry/react'
 import { Suspense, lazy, useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { AlertTriangle } from 'react-feather'
-import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useNetwork, usePrevious } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -14,6 +14,7 @@ import snow from 'assets/images/snow.png'
 import Popups from 'components/Announcement/Popups'
 import TopBanner from 'components/Announcement/Popups/TopBanner'
 import AppHaveUpdate from 'components/AppHaveUpdate'
+import { ButtonPrimary } from 'components/Button'
 import ModalConfirm from 'components/ConfirmModal'
 import ErrorBoundary from 'components/ErrorBoundary'
 import Footer from 'components/Footer/Footer'
@@ -25,10 +26,10 @@ import Snowfall from 'components/Snowflake/Snowfall'
 import Web3ReactManager from 'components/Web3ReactManager'
 import { ENV_LEVEL } from 'constants/env'
 import { APP_PATHS, BLACKLIST_WALLETS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
-import { NETWORKS_INFO_CONFIG } from 'constants/networks'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
-import useLogin from 'hooks/useLogin'
+import { useAutoLogin } from 'hooks/useLogin'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
 import useSessionExpiredGlobal from 'hooks/useSessionExpire'
 import useTheme from 'hooks/useTheme'
@@ -37,19 +38,35 @@ import { RedirectPathToSwapV3Network } from 'pages/SwapV3/redirects'
 import KyberAIExplore from 'pages/TrueSightV2'
 import TruesightFooter from 'pages/TrueSightV2/components/TruesightFooter'
 import KyberAILandingPage from 'pages/TrueSightV2/pages/LandingPage'
-import Verify from 'pages/Verify'
 import { useHolidayMode } from 'state/user/hooks'
 import DarkModeQueryParamReader from 'theme/DarkModeQueryParamReader'
 import { getLimitOrderContract, isAddressString, shortenAddress } from 'utils'
 
 import ElasticLegacyNotice from './ElasticLegacy/ElasticLegacyNotice'
 import Icons from './Icons'
+import VerifyAuth from './Verify/VerifyAuth'
+
+// THIS IS ONLY TEMPORARY, WILL REMOVE IN NEXT VERSION
+const CommingSoonModal = () => {
+  const navigate = useNavigate()
+  return (
+    <Modal isOpen onDismiss={() => navigate('/')}>
+      <Flex flexDirection="column" padding="24px" sx={{ gap: '2rem' }} justifyContent="center" alignItems="center">
+        <Text fontSize={14}>Our pools and farms will be available soon!</Text>
+
+        <ButtonPrimary style={{ width: '160px', height: '32px' }} onClick={() => navigate('/')}>
+          Ok
+        </ButtonPrimary>
+      </Flex>
+    </Modal>
+  )
+}
 
 // test page for swap only through elastic
 const ElasticSwap = lazy(() => import('./ElasticSwap'))
 const SwapV2 = lazy(() => import('./SwapV2'))
 const SwapV3 = lazy(() => import('./SwapV3'))
-const Bridge = lazy(() => import('./Bridge'))
+// const Bridge = lazy(() => import('./Bridge'))
 const Pools = lazy(() => import('./Pools'))
 const MyPools = lazy(() => import('./Pool'))
 const MyEarnings = lazy(() => import('./MyEarnings'))
@@ -69,6 +86,7 @@ const RemoveLiquidity = lazy(() => import('pages/RemoveLiquidity'))
 
 const KyberDAOStakeKNC = lazy(() => import('pages/KyberDAO/StakeKNC'))
 const KyberDAOVote = lazy(() => import('pages/KyberDAO/Vote'))
+const KNCUtility = lazy(() => import('pages/KyberDAO/KNCUtility'))
 const AboutKyberSwap = lazy(() => import('pages//About/AboutKyberSwap'))
 const AboutKNC = lazy(() => import('pages/About/AboutKNC'))
 const BuyCrypto = lazy(() => import('pages/BuyCrypto'))
@@ -103,12 +121,13 @@ const BodyWrapper = styled.div`
 `
 
 const preloadImages = () => {
-  const imageList: (string | null)[] = [
-    ...Object.values(NETWORKS_INFO_CONFIG).map(network => network.icon),
-    ...Object.values(NETWORKS_INFO_CONFIG)
-      .map(network => network.iconDark)
-      .filter(Boolean),
-  ]
+  const imageList: string[] = SUPPORTED_NETWORKS.map(chainId => [
+    NETWORKS_INFO[chainId].icon,
+    NETWORKS_INFO[chainId].iconDark,
+  ])
+    .flat()
+    .filter(Boolean) as string[]
+
   imageList.forEach(image => {
     if (image) {
       new Image().src = image
@@ -119,7 +138,7 @@ const preloadImages = () => {
 const SwapPage = () => {
   const { chainId } = useActiveWeb3React()
   useSyncNetworkParamWithStore()
-  return <ProtectedRoute>{chainId === ChainId.SOLANA ? <SwapV2 /> : <SwapV3 />}</ProtectedRoute>
+  return chainId === ChainId.SOLANA ? <SwapV2 /> : <SwapV3 />
 }
 
 const RedirectWithNetworkPrefix = () => {
@@ -163,11 +182,11 @@ const RoutesWithNetworkPrefix = () => {
     return <Navigate to={`/${networkInfo.route}${location.pathname}`} replace />
   }
 
-  if (network === NETWORKS_INFO_CONFIG[ChainId.SOLANA].route) {
+  if (network === NETWORKS_INFO[ChainId.SOLANA].route) {
     return <Navigate to="/" />
   }
 
-  const chainInfoFromParam = Object.values(NETWORKS_INFO_CONFIG).find(info => info.route === network)
+  const chainInfoFromParam = SUPPORTED_NETWORKS.find(chain => NETWORKS_INFO[chain].route === network)
   if (!chainInfoFromParam) {
     return <Navigate to={'/'} replace />
   }
@@ -202,11 +221,9 @@ const RoutesWithNetworkPrefix = () => {
 export default function App() {
   const { account, chainId, networkInfo } = useActiveWeb3React()
   const { pathname } = useLocation()
-
-  useLogin()
+  useAutoLogin()
   const { online } = useNetwork()
   const prevOnline = usePrevious(online)
-
   useSessionExpiredGlobal()
 
   useEffect(() => {
@@ -243,7 +260,6 @@ export default function App() {
   const theme = useTheme()
 
   useGlobalMixpanelEvents()
-
   const showFooter = !pathname.includes(APP_PATHS.ABOUT)
   const [holidayMode] = useHolidayMode()
 
@@ -333,19 +349,28 @@ export default function App() {
                     <>
                       {/* Pools Routes  */}
                       <Route path={`${APP_PATHS.POOLS}`} element={<RedirectWithNetworkSuffix />} />
-                      <Route path={`${APP_PATHS.POOLS}/:network/:currencyIdA?/:currencyIdB?`} element={<Pools />} />
+                      <Route
+                        path={`${APP_PATHS.POOLS}/:network/:currencyIdA?/:currencyIdB?`}
+                        element={chainId === ChainId.LINEA ? <CommingSoonModal /> : <Pools />}
+                      />
                     </>
 
                     <>
                       {/* Farms Routes */}
                       <Route path={`${APP_PATHS.FARMS}`} element={<RedirectWithNetworkSuffix />} />
-                      <Route path={`${APP_PATHS.FARMS}/:network`} element={<Farm />} />
+                      <Route
+                        path={`${APP_PATHS.FARMS}/:network`}
+                        element={chainId === ChainId.LINEA ? <CommingSoonModal /> : <Farm />}
+                      />
                     </>
 
                     <>
                       {/* My Pools Routes */}
                       <Route path={`${APP_PATHS.MY_POOLS}`} element={<RedirectWithNetworkSuffix />} />
-                      <Route path={`${APP_PATHS.MY_POOLS}/:network`} element={<MyPools />} />
+                      <Route
+                        path={`${APP_PATHS.MY_POOLS}/:network`}
+                        element={chainId === ChainId.LINEA ? <CommingSoonModal /> : <MyPools />}
+                      />
                     </>
 
                     <>
@@ -361,8 +386,10 @@ export default function App() {
 
                     <Route path={`${APP_PATHS.KYBERDAO_STAKE}`} element={<KyberDAOStakeKNC />} />
                     <Route path={`${APP_PATHS.KYBERDAO_VOTE}`} element={<KyberDAOVote />} />
+                    <Route path={`${APP_PATHS.KYBERDAO_KNC_UTILITY}`} element={<KNCUtility />} />
                     <Route path={`${APP_PATHS.ABOUT}/kyberswap`} element={<AboutKyberSwap />} />
                     <Route path={`${APP_PATHS.ABOUT}/knc`} element={<AboutKNC />} />
+                    <Route path={`${APP_PATHS.KYBERAI}`} element={<Navigate to={APP_PATHS.KYBERAI_ABOUT} replace />} />
                     <Route path={`${APP_PATHS.KYBERAI}`} element={<Navigate to={APP_PATHS.KYBERAI_ABOUT} replace />} />
                     <Route
                       path={`${APP_PATHS.KYBERAI_ABOUT}`}
@@ -399,10 +426,23 @@ export default function App() {
                     <Route path={`${APP_PATHS.BUY_CRYPTO}`} element={<BuyCrypto />} />
                     <Route path={`${APP_PATHS.CAMPAIGN}`} element={<Campaign />} />
                     <Route path={`${APP_PATHS.CAMPAIGN}/:slug`} element={<Campaign />} />
-                    <Route path={`${APP_PATHS.BRIDGE}`} element={<Bridge />} />
-                    <Route path={`${APP_PATHS.VERIFY_EXTERNAL}`} element={<Verify />} />
-                    <Route path={`${APP_PATHS.NOTIFICATION_CENTER}`} element={<NotificationCenter />} />
-                    <Route path={`${APP_PATHS.NOTIFICATION_CENTER}/*`} element={<NotificationCenter />} />
+                    {/* <Route path={`${APP_PATHS.BRIDGE}`} element={<Bridge />} /> */}
+                    <Route
+                      path={`${APP_PATHS.PROFILE_MANAGE}`}
+                      element={
+                        <ProtectedRoute>
+                          <NotificationCenter />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path={`${APP_PATHS.PROFILE_MANAGE}/*`}
+                      element={
+                        <ProtectedRoute>
+                          <NotificationCenter />
+                        </ProtectedRoute>
+                      }
+                    />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgramPage />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />
                     {ENV_LEVEL === ENV_TYPE.LOCAL && <Route path="/icons" element={<Icons />} />}
@@ -410,6 +450,8 @@ export default function App() {
                     <Route path={`elastic-swap`} element={<ElasticSwap />} />
 
                     <Route path={`/:network/*`} element={<RoutesWithNetworkPrefix />} />
+
+                    <Route path={APP_PATHS.VERIFY_AUTH} element={<VerifyAuth />} />
 
                     <Route path="*" element={<RedirectPathToSwapV3Network />} />
                   </Routes>

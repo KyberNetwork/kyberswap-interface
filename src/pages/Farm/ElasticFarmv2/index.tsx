@@ -1,3 +1,4 @@
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import mixpanel from 'mixpanel-browser'
 import { useState } from 'react'
@@ -9,15 +10,16 @@ import styled from 'styled-components'
 
 import { ReactComponent as QuestionSquareIcon } from 'assets/svg/question_icon_square.svg'
 import { ButtonPrimary } from 'components/Button'
+import { AutoColumn } from 'components/Column'
+import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
+import HoverDropdown from 'components/HoverDropdown'
 import InfoHelper from 'components/InfoHelper'
-import { RowBetween, RowFit } from 'components/Row'
-import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import { RowFit } from 'components/Row'
+import { MouseoverTooltip, MouseoverTooltipDesktopOnly, TextDashed } from 'components/Tooltip'
 import { ConnectWalletButton } from 'components/YieldPools/ElasticFarmGroup/buttons'
 import { FarmList } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { ClickableText, ElasticFarmV2TableHeader } from 'components/YieldPools/styleds'
-import { NETWORKS_INFO } from 'constants/networks'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
@@ -30,6 +32,8 @@ import useGetElasticPools from 'state/prommPools/useGetElasticPools'
 import { useIsTransactionPending } from 'state/transactions/hooks'
 import { useViewMode } from 'state/user/hooks'
 import { VIEW_MODE } from 'state/user/reducer'
+import { MEDIA_WIDTHS } from 'theme'
+import { formatDollarAmount } from 'utils/numbers'
 
 import FarmCard from './components/FarmCard'
 import { ListView } from './components/ListView'
@@ -38,14 +42,9 @@ import StakeWithNFTsModal from './components/StakeWithNFTsModal'
 import UnstakeWithNFTsModal from './components/UnstakeWithNFTsModal'
 import UpdateLiquidityModal from './components/UpdateLiquidityModal'
 
-const Wrapper = styled.div<{ noDynamicFarm?: boolean }>`
+const Wrapper = styled.div`
   padding: 24px;
-  border: 1px solid ${({ theme }) => theme.border};
-  border-top: 1px solid ${({ theme, noDynamicFarm }) => (noDynamicFarm ? theme.border : 'transparent')};
   background-color: ${({ theme }) => theme.background};
-  border-radius: 24px;
-  border-top-left-radius: ${({ noDynamicFarm }) => (noDynamicFarm ? '24px' : 0)};
-  border-top-right-radius: ${({ noDynamicFarm }) => (noDynamicFarm ? '24px' : 0)};
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -61,24 +60,37 @@ const Wrapper = styled.div<{ noDynamicFarm?: boolean }>`
 
 export default function ElasticFarmv2({
   onShowStepGuide,
-  noDynamicFarm,
+  farmAddress,
 }: {
   onShowStepGuide: () => void
-  noDynamicFarm: boolean
+  farmAddress: string
 }) {
   const theme = useTheme()
-  const { chainId, account } = useActiveWeb3React()
-  const farmAddress = (NETWORKS_INFO[chainId] as EVMNetworkInfo).elastic?.farmV2Contract
+  const { account } = useActiveWeb3React()
   const above1000 = useMedia('(min-width: 1000px)')
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
   const [searchParams, setSearchParams] = useSearchParams()
 
   const sortField = searchParams.get('orderBy') || SORT_FIELD.MY_DEPOSIT
   const sortDirection = searchParams.get('orderDirection') || SORT_DIRECTION.DESC
 
-  const { filteredFarms, farms, updatedFarms } = useFilteredFarmsV2()
+  const { filteredFarms, farms, updatedFarms, userInfo } = useFilteredFarmsV2(farmAddress)
+  const depositedUsd =
+    userInfo?.reduce((acc, cur) => (cur.farmAddress === farmAddress ? acc + cur.positionUsdValue : acc), 0) || 0
 
-  const { approve } = useFarmV2Action()
+  const depositedTokenAmounts: { [address: string]: CurrencyAmount<Currency> } = {}
+  userInfo?.map(item => {
+    const address0 = item.position.amount0.currency.wrapped.address
+    const address1 = item.position.amount1.currency.wrapped.address
+    if (!depositedTokenAmounts[address0]) depositedTokenAmounts[address0] = item.position.amount0
+    else depositedTokenAmounts[address0] = depositedTokenAmounts[address0].add(item.position.amount0)
+
+    if (!depositedTokenAmounts[address1]) depositedTokenAmounts[address1] = item.position.amount1
+    else depositedTokenAmounts[address1] = depositedTokenAmounts[address1].add(item.position.amount1)
+  })
+
+  const { approve } = useFarmV2Action(farmAddress)
   const posManager = useProAmmNFTPositionManagerContract()
   const [approvalTx, setApprovalTx] = useState('')
   const isApprovalTxPending = useIsTransactionPending(approvalTx)
@@ -103,7 +115,50 @@ export default function ElasticFarmv2({
     if (res?.loading) return <Dots />
 
     if (isApprovedForAll) {
-      return null
+      return (
+        <Flex sx={{ gap: '8px' }} alignItems="center">
+          <MouseoverTooltip
+            text={t`Total value of liquidity positions (i.e. NFT tokens) you've deposited into the farming contract`}
+          >
+            <TextDashed fontSize="12px" fontWeight="500" color={theme.subText}>
+              <Trans>Deposited Liquidity</Trans>
+            </TextDashed>
+          </MouseoverTooltip>
+
+          <HoverDropdown
+            style={{ padding: '0', color: theme.text }}
+            content={
+              account ? (
+                <Text as="span" fontSize="20px" fontWeight="500">
+                  {formatDollarAmount(depositedUsd)}
+                </Text>
+              ) : (
+                '--'
+              )
+            }
+            hideIcon={!account || !depositedUsd}
+            dropdownContent={
+              Object.values(depositedTokenAmounts).some(amount => amount.greaterThan(0)) ? (
+                <AutoColumn>
+                  {Object.values(depositedTokenAmounts).map(
+                    amount =>
+                      amount.greaterThan(0) && (
+                        <Flex alignItems="center" key={amount.currency.wrapped.address}>
+                          <CurrencyLogo currency={amount.currency} size="16px" />
+                          <Text fontSize="12px" marginLeft="4px" fontWeight="500">
+                            {amount.toSignificant(8)} {amount.currency.symbol}
+                          </Text>
+                        </Flex>
+                      ),
+                  )}
+                </AutoColumn>
+              ) : (
+                ''
+              )
+            }
+          />
+        </Flex>
+      )
     }
 
     if (approvalTx && isApprovalTxPending) {
@@ -288,10 +343,15 @@ export default function ElasticFarmv2({
   if (!filteredFarms?.length) return null
 
   const listMode = above1000 && viewMode === VIEW_MODE.LIST
+
   return (
-    <Wrapper noDynamicFarm={noDynamicFarm}>
+    <Wrapper>
       {!!updatedFarms?.length && <NewRangesNotiModal updatedFarms={updatedFarms} />}
-      <RowBetween>
+      <Flex
+        justifyContent="space-between"
+        sx={{ gap: '1rem' }}
+        flexDirection={isApprovedForAll && upToExtraSmall ? 'column' : 'row'}
+      >
         <Flex fontSize="16px" alignItems="center" color={theme.text} sx={{ gap: '6px' }}>
           <Trans>Static Farms</Trans>
 
@@ -307,7 +367,7 @@ export default function ElasticFarmv2({
           </Text>
         </Flex>
         <RowFit>{renderApproveButton()}</RowFit>
-      </RowBetween>
+      </Flex>
       <Divider />
       <FarmList
         gridMode={viewMode === VIEW_MODE.GRID || !above1000}
@@ -341,13 +401,19 @@ export default function ElasticFarmv2({
       </FarmList>
 
       {!!selectedFarm && (
-        <StakeWithNFTsModal farm={selectedFarm} isOpen={!!selectedFarm} onDismiss={() => setSelectedFarm(null)} />
+        <StakeWithNFTsModal
+          farm={selectedFarm}
+          isOpen={!!selectedFarm}
+          onDismiss={() => setSelectedFarm(null)}
+          farmAddress={farmAddress}
+        />
       )}
       {!!selectedUnstakeFarm && (
         <UnstakeWithNFTsModal
           farm={selectedUnstakeFarm}
           isOpen={!!selectedUnstakeFarm}
           onDismiss={() => setSelectedUnstakeFarm(null)}
+          farmAddress={farmAddress}
         />
       )}
       {!!selectedUpdateFarm && (
@@ -355,6 +421,7 @@ export default function ElasticFarmv2({
           farm={selectedUpdateFarm}
           isOpen={!!selectedUpdateFarm}
           onDismiss={() => setSelectedUpdateFarm(null)}
+          farmAddress={farmAddress}
         />
       )}
     </Wrapper>

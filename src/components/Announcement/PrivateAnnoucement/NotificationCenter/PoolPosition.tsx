@@ -48,7 +48,7 @@ export default function AnnouncementItem({
 }: PrivateAnnouncementPropCenter<AnnouncementTemplatePoolPosition>) {
   const [expand, setExpand] = useState(false)
   const { sentAt, templateType } = announcement
-  const { position } = announcement.templateBody
+  const { position } = announcement.templateBody || {}
   const {
     token0LogoURL,
     token0Symbol,
@@ -60,7 +60,7 @@ export default function AnnouncementItem({
     minPrice,
     currentPrice,
     poolAddress,
-  } = position
+  } = position || {}
   const isInRange = type === 'IN_RANGE'
   const statusMessage = isInRange ? t`Back in range` : t`Out of range`
   const chainId = Number(rawChain) as ChainId
@@ -97,13 +97,19 @@ export default function AnnouncementItem({
       {expand && (
         <Detail>
           <Text>
-            <Trans>Current Market Price is {currentPrice} USDT per stMatic</Trans>
+            <Trans>
+              Current Market Price is {currentPrice} {token0Symbol} per {token1Symbol}
+            </Trans>
           </Text>
           <Text>
-            <Trans>Min Price of your range is {minPrice} USDT per stMatic</Trans>
+            <Trans>
+              Min Price of your range is {minPrice} {token0Symbol} per {token1Symbol}
+            </Trans>
           </Text>
           <Text>
-            <Trans>Max Price of your range is {maxPrice} USDT per stMatic</Trans>
+            <Trans>
+              Max Price of your range is {maxPrice} {token0Symbol} per {token1Symbol}
+            </Trans>
           </Text>
         </Detail>
       )}

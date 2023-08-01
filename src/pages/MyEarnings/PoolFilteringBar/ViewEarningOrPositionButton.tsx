@@ -1,53 +1,31 @@
+import { Trans } from '@lingui/macro'
 import styled from 'styled-components'
 
-import { ButtonLight } from 'components/Button'
+import { ReactComponent as NftIcon } from 'assets/svg/nft_icon.svg'
+import { MoneyFill } from 'components/Icons'
 
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
-  flex: 0 0 280px;
-  gap: 4px;
   border: 1px solid ${({ theme }) => theme.border};
-  border-radius: 20px;
-  padding: 2px;
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    flex: 1 1 100%;
-  `}
+  border-radius: 999px;
+  padding: 1px;
+  background: ${({ theme }) => theme.buttonBlack};
 `
 
-const CustomButton = styled(ButtonLight)`
-  background-color: unset;
-  color: ${({ theme }) => theme.subText};
+const CustomButton = styled.div<{ isActive: boolean }>`
+  background: ${({ theme, isActive }) => (isActive ? theme.tableHeader : 'transparent')};
+  color: ${({ theme, isActive }) => (isActive ? theme.text : theme.subText)};
+  cursor: pointer;
+  padding: 8px 10px;
+  border-radius: 999px;
+  font-weight: 500;
+  font-size: 12px;
+  transition: all 0.2s ease;
   height: 32px;
-  flex: 1 1 50%;
-
-  &:hover {
-    filter: unset;
-    background-color: unset;
-    color: ${({ theme }) => theme.text};
-  }
-  &:active {
-    filter: unset;
-    box-shadow: unset;
-    background-color: unset;
-    color: ${({ theme }) => theme.text};
-  }
-
-  &[data-active='true'] {
-    background-color: ${({ theme }) => theme.tableHeader};
-    color: ${({ theme }) => theme.text};
-
-    &:hover {
-      filter: unset;
-      background-color: ${({ theme }) => theme.tableHeader};
-    }
-    &:active {
-      filter: unset;
-      box-shadow: unset;
-      background-color: ${({ theme }) => theme.tableHeader};
-    }
-  }
+  display: flex;
+  align-items: center;
+  gap: 2px;
 `
 
 type Props = {
@@ -58,26 +36,14 @@ type Props = {
 const ViewEarningOrPositionButton: React.FC<Props> = ({ isViewEarnings, setViewEarnings, className }) => {
   return (
     <Wrapper className={className}>
-      <CustomButton
-        onClick={() => {
-          if (isViewEarnings) {
-            setViewEarnings(false)
-          }
-        }}
-        data-active={!isViewEarnings}
-      >
-        View Positions
+      <CustomButton onClick={() => setViewEarnings(false)} isActive={!isViewEarnings} role="button">
+        <NftIcon />
+        <Trans>View Positions</Trans>
       </CustomButton>
 
-      <CustomButton
-        onClick={() => {
-          if (!isViewEarnings) {
-            setViewEarnings(true)
-          }
-        }}
-        data-active={isViewEarnings}
-      >
-        View Earnings
+      <CustomButton onClick={() => setViewEarnings(true)} isActive={isViewEarnings} role="button">
+        <MoneyFill size={16} />
+        <Trans>View Earnings</Trans>
       </CustomButton>
     </Wrapper>
   )

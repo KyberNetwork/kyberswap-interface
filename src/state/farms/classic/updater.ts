@@ -3,7 +3,7 @@ import { Contract } from '@ethersproject/contracts'
 import { useEffect, useRef } from 'react'
 import { useSelector } from 'react-redux'
 
-import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
+import { AbortedError, ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -38,7 +38,7 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
   useEffect(() => {
     if (!isEVM) return
     console.count('running farm updater')
-    let cancelled = false
+    const abortController = new AbortController()
 
     async function getListFarmsForContract(contract: Contract): Promise<Farm[]> {
       const isV3 = (networkInfo as EVMNetworkInfo).classic.fairlaunchV3?.includes(contract.address)
@@ -46,9 +46,9 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
       if (!isEVM) return []
       let rewardTokenAddresses: string[] = []
       if (!isV3) rewardTokenAddresses = await contract?.getRewardTokens()
-      if (cancelled) throw new Error('canceled')
+      if (abortController.signal.aborted) throw new AbortedError()
       const poolLength = await contract?.poolLength()
-      if (cancelled) throw new Error('canceled')
+      if (abortController.signal.aborted) throw new AbortedError()
 
       const pids = [...Array(BigNumber.from(poolLength).toNumber()).keys()]
 
@@ -63,7 +63,7 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
       const poolInfos = await Promise.all(
         pids.map(async (pid: number) => {
           const poolInfo = await contract?.getPoolInfo(pid)
-          if (cancelled) throw new Error('canceled')
+          if (abortController.signal.aborted) throw new AbortedError()
           if (isV2 || isV3) {
             return {
               ...poolInfo,
@@ -98,22 +98,22 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
       const stakedBalances = await Promise.all(
         pids.map(async (pid: number) => {
           const stakedBalance = account ? await contract?.getUserInfo(pid, account as string) : { amount: 0 }
-          if (cancelled) throw new Error('canceled')
+          if (abortController.signal.aborted) throw new AbortedError()
 
           return stakedBalance.amount
         }),
       )
-      if (cancelled) throw new Error('canceled')
+      if (abortController.signal.aborted) throw new AbortedError()
 
       const pendingRewards = await Promise.all(
         pids.map(async (pid: number) => {
           const pendingRewards = account ? await contract?.pendingRewards(pid, account as string) : null
-          if (cancelled) throw new Error('canceled')
+          if (abortController.signal.aborted) throw new AbortedError()
 
           return pendingRewards
         }),
       )
-      if (cancelled) throw new Error('canceled')
+      if (abortController.signal.aborted) throw new AbortedError()
 
       const poolAddresses = poolInfos.map(poolInfo => poolInfo.stakeToken.toLowerCase())
 
@@ -124,8 +124,9 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
         blockClient,
         chainId,
         ethPriceRef.current,
+        abortController.signal,
       )
-      if (cancelled) throw new Error('canceled')
+      if (abortController.signal.aborted) throw new AbortedError()
 
       const farms: Farm[] = poolInfos.map((poolInfo, index) => {
         return {
@@ -169,19 +170,19 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
         )
 
         const promiseResult = await Promise.all(promises)
-        if (cancelled) throw new Error('canceled')
+        if (abortController.signal.aborted) throw new AbortedError()
         fairLaunchAddresses.forEach((address, index) => {
           result[address] = promiseResult[index]
         })
 
-        if (latestChainId.current === chainId && (Object.keys(farmsDataRef.current).length === 0 || !cancelled)) {
+        if (latestChainId.current === chainId && Object.keys(farmsDataRef.current).length === 0) {
           dispatch(setFarmsData(result))
         }
       } catch (err) {
-        if (!cancelled) {
-          console.error(err)
-          dispatch(setYieldPoolsError(err as Error))
-        }
+        if (err instanceof AbortedError) return
+        if (abortController.signal.aborted) return
+        console.error(err)
+        dispatch(setYieldPoolsError(err as Error))
       }
 
       dispatch(setLoading(false))
@@ -196,7 +197,7 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
       }, 30_000)
 
     return () => {
-      cancelled = true
+      abortController.abort()
       i && clearInterval(i)
     }
   }, [

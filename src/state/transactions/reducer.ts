@@ -32,8 +32,8 @@ export default createReducer(initialState, builder =>
       ) => {
         const chainTxs = transactions[chainId] ?? {}
         const txs = (firstTxHash && chainTxs[firstTxHash]) || []
-        if (txs.find(e => e.hash === hash)) {
-          // duplicate
+        if (!hash || txs.find(e => e.hash === hash)) {
+          // duplicate or not found hash
           return
         }
         txs.push({
@@ -87,7 +87,7 @@ export default createReducer(initialState, builder =>
       txGroup[txIndex].hash = newHash
       if (chainTxs[oldHash]) {
         chainTxs[newHash] = txGroup
-        delete chainTxs[oldHash]
+        if (oldHash !== newHash) delete chainTxs[oldHash]
       }
       transactions[chainId] = chainTxs
     })

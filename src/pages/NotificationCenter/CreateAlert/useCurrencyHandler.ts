@@ -16,7 +16,7 @@ export default function useCurrencyHandler(chainId: ChainId) {
   const { inputCurrency, outputCurrency } = useDefaultsTokenFromURLSearch(
     currencyIn,
     currencyOut,
-    APP_PATHS.NOTIFICATION_CENTER,
+    APP_PATHS.PROFILE_MANAGE,
     chainId,
   )
 

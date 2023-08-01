@@ -5,7 +5,7 @@ import { NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic'
 import { captureException } from '@sentry/react'
 import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch } from 'react-redux'
 
 import { POOLS_BULK_WITH_PAGINATION, POOLS_HISTORICAL_BULK_WITH_PAGINATION, POOL_COUNT } from 'apollo/queries'
@@ -106,10 +106,11 @@ async function getBulkPoolDataWithPagination(
   blockClient: ApolloClient<NormalizedCacheObject>,
   ethPrice: string,
   chainId: ChainId,
+  signal: AbortSignal,
 ): Promise<any> {
   try {
     const [t1] = getTimestampsForChanges()
-    const blocks = await getBlocksFromTimestamps(isEnableBlockService, blockClient, [t1], chainId)
+    const blocks = await getBlocksFromTimestamps(isEnableBlockService, blockClient, [t1], chainId, signal)
 
     // In case we can't get the block one day ago then we set it to 0 which is fine
     // because our subgraph never syncs from block 0 => response is empty
@@ -206,7 +207,7 @@ export function useAllPoolsData(chainId: ChainId): {
   const poolCountSubgraph = usePoolCountInSubgraph(chainId)
   useEffect(() => {
     if (!isEVM) return
-    let cancelled = false
+    const controller = new AbortController()
 
     const getPoolsData = async () => {
       try {
@@ -224,23 +225,27 @@ export function useAllPoolsData(chainId: ChainId): {
                 blockClient,
                 String(ethPrice),
                 chainId,
+                controller.signal,
               ),
             )
           }
           const pools = (await Promise.all(promises.map(callback => callback()))).flat()
-          !cancelled && setData(pools)
-          !cancelled && setLoading(false)
+
+          if (controller.signal.aborted) return
+          setData(pools)
+          setLoading(false)
         }
       } catch (error) {
-        !cancelled && setError(error as Error)
-        !cancelled && setLoading(false)
+        if (controller.signal.aborted) return
+        setError(error as Error)
+        setLoading(false)
       }
     }
 
     getPoolsData()
 
     return () => {
-      cancelled = true
+      controller.abort()
     }
   }, [
     blockClient,
@@ -266,6 +271,8 @@ export function useRemoveLiquidityFromLegacyPosition(
   const { library } = useWeb3React()
   const dispatch = useDispatch()
   const collectFee = true
+  const libraryRef = useRef(library)
+  libraryRef.current = library
 
   const { token0, token1, position } = parsePosition(subgraphPosition, chainId, tokenPrices)
   const feeValue0 = CurrencyAmount.fromRawAmount(unwrappedToken(token0), feeRewards[0])
@@ -279,6 +286,11 @@ export function useRemoveLiquidityFromLegacyPosition(
   const removeLiquidity = () => {
     dispatch(setShowPendingModal(MODAL_PENDING_TEXTS.REMOVE_LIQUIDITY))
     dispatch(setAttemptingTxn(true))
+
+    const library = libraryRef.current
+    if (!library) {
+      return
+    }
 
     if (!deadline || !account || !library) {
       dispatch(setTxError('Something went wrong!'))

@@ -18,7 +18,7 @@ const Wrapper = styled.div.attrs<WrapperProps>(({ $columns }) => ({
   flex-direction: column;
   padding: 16px;
   border-radius: 24px;
-  background-color: ${({ theme }) => theme.background};
+  background-color: ${({ theme }) => theme.buttonBlack};
   border: 1px solid ${({ theme }) => theme.border};
 
   transition: all 500ms ease, background 0s, border 0s, color 0s;

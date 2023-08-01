@@ -1,26 +1,28 @@
 import { Trans, t } from '@lingui/macro'
-import { debounce } from 'lodash'
-import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Check } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import { useAckTelegramSubscriptionStatusMutation, useLazyGetConnectedWalletQuery } from 'services/notification'
-import styled, { css } from 'styled-components'
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
+import { Text } from 'rebass'
+import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
 import Checkbox from 'components/CheckBox'
 import Column from 'components/Column'
-import { Telegram } from 'components/Icons'
 import MailIcon from 'components/Icons/MailIcon'
+import Loader from 'components/Loader'
 import Row from 'components/Row'
 import ActionButtons from 'components/SubscribeButton/NotificationPreference/ActionButtons'
 import Header from 'components/SubscribeButton/NotificationPreference/Header'
-import { useActiveWeb3React } from 'hooks'
+import InputEmail from 'components/SubscribeButton/NotificationPreference/InputEmail'
+import { MouseoverTooltip } from 'components/Tooltip'
+import { PRICE_ALERT_TOPIC_ID } from 'constants/env'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import useNotification, { Topic } from 'hooks/useNotification'
+import useNotification, { Topic, TopicType } from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
+import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
 import { useNotify } from 'state/application/hooks'
+import { useSessionInfo } from 'state/authen/hooks'
+import { useSignedAccountInfo } from 'state/profile/hooks'
+import { useIsWhiteListKyberAI } from 'state/user/hooks'
 import { pushUnique } from 'utils'
-import { subscribeTelegramSubscription } from 'utils/firebase'
 import { isEmailValid } from 'utils/string'
 
 const Wrapper = styled.div`
@@ -30,6 +32,7 @@ const Wrapper = styled.div`
   display: flex;
   gap: 18px;
   flex-direction: column;
+  width: 100%;
   ${({ theme }) => theme.mediaWidth.upToMedium`
      gap: 14px;
      padding: 24px 16px;
@@ -43,50 +46,12 @@ const Label = styled.p`
   color: ${({ theme }) => theme.subText};
 `
 
-const InputWrapper = styled.div<{ isInNotificationCenter: boolean }>`
-  position: relative;
-  ${({ isInNotificationCenter }) =>
-    isInNotificationCenter &&
-    css`
-      max-width: 50%;
-      ${({ theme }) => theme.mediaWidth.upToMedium`
-        max-width: 100%;
-      `}
-    `};
-`
-const CheckIcon = styled(Check)`
-  position: absolute;
-  right: 13px;
-  top: 0;
-  bottom: 0;
-  margin: auto;
-`
-const Input = styled.input<{ $borderColor: string }>`
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-  background: none;
-  outline: none;
-  border-radius: 20px;
-  width: 100%;
-  padding: 12px 14px;
-  color: ${({ theme }) => theme.subText};
-  font-size: 14px;
-  background-color: ${({ theme }) => theme.buttonBlack};
-  transition: border 0.5s;
-  border: ${({ theme, $borderColor }) => `1px solid ${$borderColor || theme.border}`};
-  ::placeholder {
-    color: ${({ theme }) => theme.border};
-    font-size: 12px;
-  }
-`
-
 const TopicItem = styled.label`
   display: flex;
   gap: 14px;
   font-weight: 500;
   align-items: center;
-  flex-basis: 45%;
+  width: 100%;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
      flex-basis: unset;
@@ -107,47 +72,32 @@ const TopicItemHeader = styled.label`
   justify-content: space-between;
 `
 
-const ListGroupWrapper = styled.div<{ isInNotificationCenter: boolean }>`
+const ListGroupWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  width: 100%;
   gap: 16px;
-  ${({ isInNotificationCenter }) =>
-    isInNotificationCenter &&
-    css`
-      flex-direction: row;
-      flex-wrap: wrap;
-      justify-content: space-between;
-    `}
+  flex-direction: row;
+  justify-content: space-between;
   ${({ theme }) => theme.mediaWidth.upToMedium`
      flex-direction: column;
+     gap: 24px;
   `}
 `
 
-// const Option = styled(Row)<{ active: boolean }>`
-//   padding: 10px 16px;
-//   gap: 10px;
-//   color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
-//   :hover {
-//     color: ${({ theme }) => theme.primary};
-//     background: ${({ theme }) => rgba(theme.subText, 0.1)};
-//   }
-// `
+const GroupColum = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+`
 
-enum TAB {
-  EMAIL,
-  TELEGRAM,
-}
-
-// const NOTIFICATION_OPTIONS = [
-//   {
-//     label: 'Email',
-//     value: TAB.EMAIL,
-//   },
-//   {
-//     label: 'Telegram',
-//     value: TAB.TELEGRAM,
-//   },
-// ]
+const EmailColum = styled(Column)`
+  max-width: 50%;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+     max-width: 100%;
+  `}
+`
 
 const noop = () => {
   //
@@ -155,54 +105,75 @@ const noop = () => {
 
 const sortGroup = (arr: Topic[]) => [...arr].sort((x, y) => y.priority - x.priority)
 
+export const useValidateEmail = (defaultEmail?: string) => {
+  const [inputEmail, setInputEmail] = useState(defaultEmail || '')
+  const [errorInput, setErrorInput] = useState<string | null>(null)
+
+  const theme = useTheme()
+
+  const validateInput = useCallback((value: string) => {
+    const isValid = isEmailValid(value)
+    const errMsg = t`Please input a valid email address`
+    const msg = value.length && !isValid ? errMsg : ''
+    setErrorInput(msg ? msg : null)
+  }, [])
+
+  const onChangeEmail = useCallback(
+    (value: string) => {
+      setInputEmail(value)
+      validateInput(value)
+    },
+    [validateInput],
+  )
+
+  const hasErrorInput = !!errorInput
+  const errorColor = hasErrorInput ? theme.red : theme.border
+
+  const reset = useCallback(
+    (email: string | undefined) => {
+      setErrorInput(null)
+      setInputEmail(email || defaultEmail || '')
+    },
+    [defaultEmail],
+  )
+
+  return { inputEmail, onChangeEmail, errorInput, errorColor, hasErrorInput, reset }
+}
+
 function NotificationPreference({
   header,
   isOpen,
-  isInNotificationCenter = false,
   toggleModal = noop,
 }: {
   header?: ReactNode
   isOpen: boolean
-  isInNotificationCenter?: boolean
   toggleModal?: () => void
 }) {
   const theme = useTheme()
-  const { account } = useActiveWeb3React()
-  const {
-    isLoading,
-    saveNotification,
-    refreshTopics,
-    topicGroups: topicGroupsGlobal,
-    userInfo,
-    unsubscribeAll,
-  } = useNotification()
+  const { isLoading, saveNotification, topicGroups: topicGroupsGlobal, unsubscribeAll } = useNotification()
+
+  const { userInfo, isLogin } = useSessionInfo()
+  const { isSignInEmail } = useSignedAccountInfo()
+  const { isWhiteList } = useIsWhiteListKyberAI()
+
+  const [isShowVerify, setIsShowVerify] = useState(false)
+  const showVerifyModal = () => {
+    setIsShowVerify(true)
+  }
+  const onDismissVerifyModal = () => {
+    setIsShowVerify(false)
+    onSave()
+  }
 
   const [topicGroups, setTopicGroups] = useState<Topic[]>([])
 
   const notify = useNotify()
   const { mixpanelHandler } = useMixpanel()
 
-  const [inputEmail, setInputEmail] = useState('')
   const [emailPendingVerified, setEmailPendingVerified] = useState('')
-  const [errorInput, setErrorInput] = useState<{ msg: string; type: 'error' | 'warn' } | null>(null)
+  const { inputEmail, errorInput, onChangeEmail, errorColor, reset, hasErrorInput } = useValidateEmail(userInfo?.email)
 
-  const [activeTab] = useState<TAB>(TAB.EMAIL)
   const [selectedTopic, setSelectedTopic] = useState<number[]>([])
-
-  const isEmailTab = activeTab === TAB.EMAIL
-  const isTelegramTab = activeTab === TAB.TELEGRAM
-
-  const hasErrorInput = errorInput?.type === 'error'
-
-  const isNewUserQualified = !userInfo.email && !userInfo.telegram && !!inputEmail && !hasErrorInput
-  const notFillEmail = !inputEmail && isEmailTab
-
-  const validateInput = useCallback((value: string, required = false) => {
-    const isValid = isEmailValid(value)
-    const errMsg = t`Please input a valid email address`
-    const msg = (value.length && !isValid) || (required && !value.length) ? errMsg : ''
-    setErrorInput(msg ? { msg, type: 'error' } : null)
-  }, [])
 
   const updateTopicGroupsLocal = useCallback(
     (subIds: number[], unsubIds: number[]) => {
@@ -218,25 +189,12 @@ function NotificationPreference({
     [topicGroupsGlobal],
   )
 
-  const [ackTelegramSubscriptionStatus] = useAckTelegramSubscriptionStatusMutation()
-  useEffect(() => {
-    if (!account) return
-    const unsubscribe = subscribeTelegramSubscription(account, data => {
-      if (data?.isSuccessfully) {
-        refreshTopics()
-        ackTelegramSubscriptionStatus(account).catch(console.error)
-      }
-    })
-    return () => unsubscribe?.()
-  }, [account, refreshTopics, ackTelegramSubscriptionStatus])
-
   useEffect(() => {
     if (isOpen) {
       setEmailPendingVerified('')
-      setErrorInput(null)
-      setInputEmail(userInfo.email)
+      reset(userInfo?.email)
     }
-  }, [userInfo, activeTab, isOpen])
+  }, [userInfo, isOpen, reset])
 
   useEffect(() => {
     setTimeout(
@@ -277,7 +235,7 @@ function NotificationPreference({
       const isChangeEmail =
         !hasErrorInput &&
         inputEmail &&
-        userInfo.email !== inputEmail &&
+        userInfo?.email !== inputEmail &&
         selectedTopic.length &&
         inputEmail !== emailPendingVerified
       return {
@@ -293,9 +251,6 @@ function NotificationPreference({
 
   const onSave = async () => {
     try {
-      if (isEmailTab) validateInput(inputEmail, true)
-      if (isLoading || hasErrorInput || notFillEmail) return
-
       const { unsubscribeIds, subscribeIds, subscribeNames, unsubscribeNames } = getDiffChangeTopics(topicGroupsGlobal)
       if (subscribeNames.length) {
         mixpanelHandler(MIXPANEL_TYPE.NOTIFICATION_SELECT_TOPIC, { topics: subscribeNames })
@@ -303,72 +258,30 @@ function NotificationPreference({
       if (unsubscribeNames.length) {
         mixpanelHandler(MIXPANEL_TYPE.NOTIFICATION_DESELECT_TOPIC, { topics: unsubscribeNames })
       }
-      const isChangeEmailOnly = !unsubscribeIds.length && !subscribeIds.length && inputEmail !== userInfo.email
-      if (inputEmail !== userInfo.email) setEmailPendingVerified(inputEmail)
-      const verificationUrl = await saveNotification({
-        subscribeIds,
-        unsubscribeIds,
-        email: inputEmail,
-        isEmail: isEmailTab,
-        isChangeEmailOnly,
-        isTelegram: isTelegramTab,
-      })
+      if (inputEmail !== userInfo?.email) setEmailPendingVerified(inputEmail)
+      await saveNotification({ subscribeIds, unsubscribeIds })
       updateTopicGroupsLocal(subscribeIds, unsubscribeIds)
-      if (isTelegramTab && verificationUrl) {
-        window.open(`https://${verificationUrl}`)
-        return
-      }
-
-      const needVerify = subscribeIds.length || (userInfo.email && userInfo.email !== inputEmail)
       notify(
         {
-          title: needVerify ? t`Verify Your Email Address` : t`Notification Preferences`,
-          summary: needVerify
-            ? t`A verification email has been sent to your email address. Please check your inbox to verify your email.`
-            : t`Your notification preferences have been saved successfully`,
-          type: needVerify ? NotificationType.WARNING : NotificationType.SUCCESS,
-          icon: <MailIcon color={needVerify ? theme.warning : theme.primary} />,
+          title: t`Notification Preferences`,
+          summary: t`Your notification preferences have been saved successfully`,
+          type: NotificationType.SUCCESS,
+          icon: <MailIcon color={theme.primary} />,
         },
         10000,
       )
       toggleModal()
-      if (isInNotificationCenter) {
-        refreshTopics()
-      }
     } catch (error) {
       notify({
         title: t`Save Error`,
-        summary: t`Error occur, please try again`,
+        summary:
+          error.status === 403
+            ? t`Some topics that you need to be whitelist to subscribe`
+            : t`Error occur, please try again`,
         type: NotificationType.ERROR,
       })
       console.log(error)
     }
-  }
-
-  const [getConnectedWallet] = useLazyGetConnectedWalletQuery()
-  const checkEmailExist = useCallback(
-    async (email: string) => {
-      try {
-        if (!isEmailValid(email) || email === userInfo?.email) return
-        const { data: walletAddress } = await getConnectedWallet(email)
-        if (walletAddress) {
-          setErrorInput({
-            msg: t`Your email has already been linked to wallet ${walletAddress}, it will be unlinked automatically if you proceed`,
-            type: 'warn',
-          })
-        }
-      } catch (error) {}
-    },
-    [getConnectedWallet, userInfo?.email],
-  )
-
-  const debouncedCheckEmail = useMemo(() => debounce((email: string) => checkEmailExist(email), 500), [checkEmailExist])
-
-  const onChangeInput = (e: React.FormEvent<HTMLInputElement>) => {
-    const value = e.currentTarget.value
-    setInputEmail(value)
-    validateInput(value)
-    debouncedCheckEmail(value)
   }
 
   const onChangeTopic = (topicId: number) => {
@@ -377,32 +290,35 @@ function NotificationPreference({
     )
   }
 
-  const onToggleAllTopic = () => {
-    setSelectedTopic(selectedTopic.length === topicGroups.length ? [] : topicGroups.map(e => e.id))
-  }
-
-  const autoSelect = useRef(false)
-  useEffect(() => {
-    if (isNewUserQualified && !autoSelect.current) {
-      // auto select all checkbox when user no register any topic before and fill a valid email
-      // this effect will call once
-      setSelectedTopic(topicGroups.map(e => e.id))
-      autoSelect.current = true
-    }
-  }, [isNewUserQualified, topicGroups])
-
   const isVerifiedEmail = userInfo?.email && inputEmail === userInfo?.email
-  const isVerifiedTelegram = userInfo?.telegram
-  const hasTopicSubscribed = topicGroups.some(e => e.isSubscribed)
+  const needVerifyEmail = inputEmail && inputEmail !== userInfo?.email
+
+  const disableCheckbox = hasErrorInput
+  const isIncludePriceAlert = useCallback(() => {
+    const changedData = getDiffChangeTopics(topicGroups)
+    return (
+      changedData.subscribeIds.includes(+PRICE_ALERT_TOPIC_ID) ||
+      changedData.unsubscribeIds.includes(+PRICE_ALERT_TOPIC_ID)
+    )
+  }, [topicGroups, getDiffChangeTopics])
 
   const disableButtonSave = useMemo(() => {
-    if (isTelegramTab) return isLoading
-    if (isLoading || notFillEmail || hasErrorInput) return true
-    return !getDiffChangeTopics(topicGroups).hasChanged
-  }, [getDiffChangeTopics, isLoading, notFillEmail, isTelegramTab, topicGroups, hasErrorInput])
+    if (isLoading) return true
+    const changedData = getDiffChangeTopics(topicGroups)
+    if (!isIncludePriceAlert() && disableCheckbox) {
+      return true
+    }
+    return !changedData.hasChanged
+  }, [getDiffChangeTopics, isIncludePriceAlert, isLoading, topicGroups, disableCheckbox])
 
-  const disableCheckbox = !account || notFillEmail || hasErrorInput
-  const errorColor = hasErrorInput ? theme.red : errorInput?.type === 'warn' ? theme.warning : theme.border
+  const checkProfileAndSave = () => {
+    if (disableButtonSave) return
+    if (needVerifyEmail && !isIncludePriceAlert()) {
+      showVerifyModal()
+      return
+    }
+    onSave()
+  }
 
   const subscribeAtLeast1Topic = topicGroupsGlobal.some(e => e.isSubscribed)
   const onUnsubscribeAll = () => {
@@ -426,137 +342,120 @@ function NotificationPreference({
         <Text fontSize={'14px'}>
           <Trans>Notification Preferences</Trans>
         </Text>
-        <Flex style={{ gap: '4px', alignItems: 'center' }}>
-          <Checkbox
-            disabled={disableCheckbox}
-            id="selectAll"
-            borderStyle
-            onChange={onToggleAllTopic}
-            style={{ width: 14, height: 14 }}
-            checked={topicGroups.length === selectedTopic.length}
-          />
-          <Text color={theme.subText} fontSize={'12px'}>
-            <Trans>Select All</Trans>
-          </Text>
-        </Flex>
       </TopicItemHeader>
+    )
+  }
+
+  const { commons, restrict } = useMemo(() => {
+    return {
+      commons: topicGroupsGlobal.filter(el => el.type === TopicType.NORMAL),
+      restrict: topicGroupsGlobal.filter(el => el.type === TopicType.RESTRICT),
+    }
+  }, [topicGroupsGlobal])
+
+  const totalTopic = commons.length + restrict.length
+  const renderTopic = (topic: Topic, disabled: boolean, disableTooltip?: string) => {
+    return (
+      <MouseoverTooltip text={disabled ? disableTooltip : ''} key={topic.id}>
+        <TopicItem key={topic.id} htmlFor={`topic${topic.id}`} style={{ alignItems: 'flex-start' }}>
+          <Checkbox
+            disabled={disabled}
+            borderStyle
+            checked={selectedTopic.includes(topic.id)}
+            id={`topic${topic.id}`}
+            style={{ width: 14, height: 14, minWidth: 14 }}
+            onChange={() => onChangeTopic(topic.id)}
+          />
+          <Column gap="10px">
+            <Text color={disabled ? theme.border : theme.text} fontSize={14}>
+              <Trans>{topic.name}</Trans>
+            </Text>
+            <Text color={disabled ? theme.border : theme.subText} fontSize={12}>
+              <Trans>{topic.description}</Trans>
+            </Text>
+          </Column>
+        </TopicItem>
+      </MouseoverTooltip>
     )
   }
 
   return (
     <Wrapper>
       {header || <Header toggleModal={toggleModal} />}
-      {/* <RowBetween gap="14px">
-          <Label>
-            <Trans>Select mode of notification</Trans>
-          </Label>
-          <Select
-            style={{
-              flex: 1,
-              borderRadius: 40,
-              color: theme.text,
-              fontSize: 14,
-              fontWeight: 500,
-              height: 38,
-              paddingLeft: 20,
-            }}
-            menuStyle={{ background: theme.background }}
-            options={NOTIFICATION_OPTIONS}
-            value={activeTab}
-            optionRender={option => (
-              <Option active={activeTab === option?.value} key={option?.value}>
-                {option?.value === TAB.EMAIL ? <Mail size={15} /> : <Telegram size={15} />} {option?.label}
-              </Option>
-            )}
-            onChange={setActiveTab}
-          />
-        </RowBetween> */}
 
-      {isEmailTab ? (
-        <Column>
-          <Label>
-            <Trans>Enter your email address to receive notifications</Trans>
-          </Label>
-          <InputWrapper isInNotificationCenter={isInNotificationCenter}>
-            <Input
-              $borderColor={errorColor}
-              value={inputEmail}
-              placeholder="example@email.com"
-              onChange={onChangeInput}
-              disabled={!!userInfo.email}
-            />
-            {isVerifiedEmail && hasTopicSubscribed && <CheckIcon color={theme.primary} />}
-          </InputWrapper>
-          {errorInput?.msg && <Label style={{ color: errorColor, margin: '7px 0px 0px 0px' }}>{errorInput?.msg}</Label>}
-        </Column>
-      ) : (
-        <Flex
-          flexDirection="column"
-          alignItems={'center'}
-          color={theme.subText}
-          style={{ gap: 10, margin: '10px 0px' }}
-        >
-          <Telegram size={24} />
-
-          {isVerifiedTelegram ? (
-            <Row align="center" justify="center" gap="3px">
-              <Text fontSize={15}>
-                <Trans>
-                  Your Verified Account:{' '}
-                  <Text as="span" color={theme.text}>
-                    @{userInfo?.telegram}
-                  </Text>
-                </Trans>
-              </Text>
-              <Check color={theme.primary} />
-            </Row>
-          ) : (
-            <Text fontSize={15}>
-              <Trans>Click Get Started to subscribe to Telegram</Trans>
-            </Text>
-          )}
-        </Flex>
-      )}
+      <EmailColum>
+        <Label>
+          <Trans>Enter your email address to receive notifications</Trans>
+        </Label>
+        <InputEmail
+          disabled={isSignInEmail}
+          hasError={hasErrorInput}
+          showVerifyModal={showVerifyModal}
+          errorColor={errorColor}
+          onChange={onChangeEmail}
+          value={inputEmail}
+          isVerifiedEmail={!!isVerifiedEmail}
+        />
+        {errorInput && <Label style={{ color: errorColor, margin: '7px 0px 0px 0px' }}>{errorInput}</Label>}
+      </EmailColum>
       <Divider />
       <Column gap="16px">
         {renderTableHeader()}
-        <ListGroupWrapper isInNotificationCenter={!!isInNotificationCenter}>
-          {topicGroups.map(topic => (
-            <TopicItem
-              key={topic.id}
-              htmlFor={`topic${topic.id}`}
-              style={{ alignItems: isInNotificationCenter ? 'flex-start' : 'center' }}
-            >
-              <Checkbox
-                disabled={disableCheckbox}
-                borderStyle
-                checked={selectedTopic.includes(topic.id)}
-                id={`topic${topic.id}`}
-                style={{ width: 14, height: 14, minWidth: 14 }}
-                onChange={() => onChangeTopic(topic.id)}
-              />
-              <Column gap="10px">
-                <Text color={theme.text} fontSize={14}>
-                  <Trans>{topic.name}</Trans>
-                </Text>
-                {isInNotificationCenter && (
-                  <Text color={theme.subText} fontSize={12}>
-                    <Trans>{topic.description}</Trans>
-                  </Text>
-                )}
-              </Column>
-            </TopicItem>
-          ))}
+        <ListGroupWrapper>
+          <GroupColum>
+            {commons.map(topic => {
+              const isDisabled = topic.isPriceAlert ? false : disableCheckbox
+              return renderTopic(
+                topic,
+                isDisabled,
+                isDisabled ? t`You must connect wallet and fill an email first` : '',
+              )
+            })}
+          </GroupColum>
+          <GroupColum>
+            {restrict.map(topic => {
+              const disableKyberAI = disableCheckbox || !isLogin || !isWhiteList
+              return renderTopic(
+                topic,
+                (() => (topic.isKyberAI ? disableKyberAI : disableCheckbox || !isLogin))(),
+                topic.isKyberAI && disableKyberAI
+                  ? t`You must be whitelisted to subscribe/unsubscribe this topic`
+                  : t`These notifications can only be subscribed by a signed-in profile. Go to Profile tab to sign-in with your wallet
+                `,
+              )
+            })}
+          </GroupColum>
         </ListGroupWrapper>
+        {totalTopic === 0 && (
+          <Row justify="center" align="center" gap="6px" marginTop={'20px'} width={'100%'}>
+            <Loader />
+            <Text color={theme.subText} fontSize={14}>
+              <Trans>Loading topics ...</Trans>
+            </Text>
+          </Row>
+        )}
       </Column>
-      <ActionButtons
-        isHorizontal={!!isInNotificationCenter}
-        disableButtonSave={disableButtonSave}
-        onSave={onSave}
-        isTelegramTab={isTelegramTab}
-        subscribeAtLeast1Topic={subscribeAtLeast1Topic}
-        onUnsubscribeAll={onUnsubscribeAll}
-        isLoading={isLoading}
+      {totalTopic > 0 && (
+        <ActionButtons
+          disableButtonSave={disableButtonSave}
+          onSave={checkProfileAndSave}
+          subscribeAtLeast1Topic={subscribeAtLeast1Topic}
+          onUnsubscribeAll={onUnsubscribeAll}
+          isLoading={isLoading}
+          tooltipSave={
+            !getDiffChangeTopics(topicGroups).hasChanged
+              ? ''
+              : (needVerifyEmail || !userInfo?.email) && !isIncludePriceAlert()
+              ? t`You will need to verify your email address first`
+              : ''
+          }
+        />
+      )}
+      <VerifyCodeModal
+        isOpen={isShowVerify}
+        onDismiss={onDismissVerifyModal}
+        email={inputEmail}
+        onVerifySuccess={onDismissVerifyModal}
       />
     </Wrapper>
   )

@@ -136,18 +136,15 @@ export function CurrencyRow({
       return false
     }
 
-    if (isTokenNative(currency, currency.chainId)) {
-      return !!favoriteTokens.includeNativeToken
-    }
-
     if (currency.isToken) {
       const addr = (currency as Token).address ?? ''
-      const addresses = favoriteTokens?.addresses ?? []
+      const addresses = favoriteTokens ?? []
       return !!addresses?.includes(addr) || !!addresses?.includes(addr.toLowerCase())
     }
 
     return false
   })()
+
   const balanceComponent = hideBalance ? (
     '******'
   ) : currencyBalance ? (
@@ -304,7 +301,7 @@ function CurrencyList({
     <div style={{ flex: 1 }}>
       <AutoSizer>
         {({ height, width }) => (
-          <InfiniteLoader isItemLoaded={isItemLoaded} itemCount={itemCount} loadMoreItems={loadMoreItems}>
+          <InfiniteLoader isItemLoaded={isItemLoaded} itemCount={itemCount} loadMoreItems={loadMoreItems} threshold={3}>
             {({ onItemsRendered, ref }) => (
               <FixedSizeList
                 height={height}

@@ -2,6 +2,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { Token } from '@kyberswap/ks-sdk-core'
 
 import { ZERO_ADDRESS } from 'constants/index'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -28,7 +29,7 @@ const RewardLockerSchedules = ({
   const dispatch = useAppDispatch()
   const currentBlockNumber = useBlockNumber()
   const currentTimestamp = Math.round(Date.now() / 1000)
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
   const { vestMultipleTokensAtIndices } = useVesting(rewardLockerAddress)
   const { mixpanelHandler } = useMixpanel()
   if (!schedules) {
@@ -173,6 +174,8 @@ const RewardLockerSchedules = ({
     return acc
   }, currentBlockNumber)
 
+  const blockDiff = (maxEndBlock || 0) - (currentBlockNumber || 0)
+
   const endTimestampFromBlock = useTimestampFromBlock(maxEndBlock)
 
   const endTime = schedules.reduce((acc, cur) => {
@@ -183,7 +186,7 @@ const RewardLockerSchedules = ({
     }
 
     return acc
-  }, endTimestampFromBlock || 0)
+  }, endTimestampFromBlock || currentTimestamp + blockDiff * ((networkInfo as EVMNetworkInfo).averageBlockTimeInSeconds || 0))
 
   return <VestingCard info={info} endTime={endTime} remainTime={endTime - currentTimestamp} onClaimAll={onClaimAll} />
 }

@@ -14,6 +14,7 @@ import {
   ethereum,
   fantom,
   görli,
+  linea,
   lineaTestnet,
   matic,
   mumbai,
@@ -31,7 +32,7 @@ type SOLANA_NETWORK = ChainId.SOLANA | ChainId.SOLANA_DEVNET
 type NETWORKS_INFO_CONFIG_TYPE = { [chainId in EVM_NETWORK]: EVMNetworkInfo } & {
   [chainId in SOLANA_NETWORK]: SolanaNetworkInfo
 }
-export const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
+const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.MAINNET]: ethereum,
   [ChainId.GÖRLI]: görli,
   [ChainId.MATIC]: matic,
@@ -50,6 +51,7 @@ export const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.OPTIMISM]: optimism,
   [ChainId.ZKSYNC]: zksync,
   [ChainId.LINEA_TESTNET]: lineaTestnet,
+  [ChainId.LINEA]: linea,
   [ChainId.SOLANA]: solana,
   [ChainId.SOLANA_DEVNET]: solanaDevnet,
 } as const
@@ -63,7 +65,9 @@ export const NETWORKS_INFO = new Proxy(NETWORKS_INFO_CONFIG, {
   },
 })
 
-export const SUPPORTED_NETWORKS = Object.keys(NETWORKS_INFO).map(Number) as ChainId[]
+// temporary disable Solana
+// todo: either enable back or completely remove Solana from codebase
+export const SUPPORTED_NETWORKS = Object.keys(NETWORKS_INFO).map(Number).filter(isEVM) as ChainId[]
 
 export const MAINNET_NETWORKS = [
   ChainId.MAINNET,
@@ -72,7 +76,7 @@ export const MAINNET_NETWORKS = [
   ChainId.AVAXMAINNET,
   ChainId.ARBITRUM,
   ChainId.OPTIMISM,
-  ChainId.SOLANA,
+  // ChainId.SOLANA,
   ChainId.BTTC,
   ChainId.OASIS,
   ChainId.FANTOM,
@@ -80,8 +84,7 @@ export const MAINNET_NETWORKS = [
   ChainId.VELAS,
   ChainId.AURORA,
   ChainId.ZKSYNC,
-  // TODO(viet-nv): update when integrating LINEA MAINNET
-  ChainId.LINEA_TESTNET,
+  ChainId.LINEA,
 ] as const
 
 export const EVM_NETWORKS = SUPPORTED_NETWORKS.filter(chainId => getChainType(chainId) === ChainType.EVM) as Exclude<
@@ -131,7 +134,7 @@ export const FAUCET_NETWORKS = [ChainId.BTTC]
 export const CHAINS_SUPPORT_NEW_POOL_FARM_API: readonly ChainId[] = [
   ChainId.MAINNET,
   // ChainId.MUMBAI,
-  ChainId.MATIC,
+  // ChainId.MATIC,
   // ChainId.BSCTESTNET,
   ChainId.BSCMAINNET,
   // ChainId.AVAXTESTNET,
@@ -179,15 +182,6 @@ export const ONLY_STATIC_FEE_CHAINS = [
 // hardcode for unavailable subgraph
 export const ONLY_DYNAMIC_FEE_CHAINS: ChainId[] = []
 
-// Keys are present_on_chains' value.
-export const TRENDING_SOON_SUPPORTED_NETWORKS: { [p: string]: ChainId } = {
-  eth: ChainId.MAINNET,
-  bsc: ChainId.BSCMAINNET,
-  polygon: ChainId.MATIC,
-  avax: ChainId.AVAXMAINNET,
-  fantom: ChainId.FANTOM,
-}
-
 export const CLAIM_REWARDS_DATA_URL: { [chainId: number]: string } = {
   [ChainId.AVAXMAINNET]:
     'https://raw.githubusercontent.com/KyberNetwork/avax-trading-contest-reward-distribution/develop/results/reward_proof.json',
@@ -203,18 +197,20 @@ export const DEFAULT_REWARDS: { [key: string]: string[] } = {
 
 export const SUPPORTED_NETWORKS_FOR_MY_EARNINGS = [
   ChainId.MAINNET,
+  ChainId.ARBITRUM,
+  ChainId.OPTIMISM,
   ChainId.MATIC,
   ChainId.BSCMAINNET,
   ChainId.AVAXMAINNET,
   ChainId.FANTOM,
   ChainId.CRONOS,
-  ChainId.ARBITRUM,
   ChainId.BTTC,
   ChainId.VELAS,
   ChainId.AURORA,
   ChainId.OASIS,
-  ChainId.OPTIMISM,
 ]
+export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS: ChainId[] = []
+export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY: ChainId[] = [ChainId.MATIC]
 
 // by pass invalid price impact/unable to calculate price impact/price impact too large
 export const CHAINS_BYPASS_PRICE_IMPACT = [ChainId.LINEA_TESTNET]

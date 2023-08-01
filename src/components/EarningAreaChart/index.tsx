@@ -7,6 +7,7 @@ import useTheme from 'hooks/useTheme'
 import { TimePeriod } from 'pages/MyEarnings/MyEarningsOverTimePanel/TimePeriodSelect'
 import KyberLogo from 'pages/TrueSightV2/components/chart/KyberLogo'
 import { EarningStatsTick } from 'types/myEarnings'
+import { toFixed } from 'utils/numbers'
 
 import TooltipContent from './TooltipContent'
 import { formatUSDValue } from './utils'
@@ -25,7 +26,16 @@ const CustomizedLabel = (props: any) => {
   return (
     <>
       {show && (
-        <text x={x} y={y} dy={-10} fontSize={12} fontWeight={500} fill={theme.subText} textAnchor="middle">
+        <text
+          x={x}
+          y={y}
+          dx={index ? undefined : 20}
+          dy={-10}
+          fontSize={12}
+          fontWeight={500}
+          fill={theme.subText}
+          textAnchor="middle"
+        >
           {formatUSDValue(value)}
         </text>
       )}
@@ -33,11 +43,34 @@ const CustomizedLabel = (props: any) => {
   )
 }
 
+const subscriptMap: { [key: string]: string } = {
+  '0': '₀',
+  '1': '₁',
+  '2': '₂',
+  '3': '₃',
+  '4': '₄',
+  '5': '₅',
+  '6': '₆',
+  '7': '₇',
+  '8': '₈',
+  '9': '₉',
+}
+
 const formatter = (value: string) => {
   const num = Number(value)
+  const numberOfZero = -Math.floor(Math.log10(num) + 1)
+
+  if (num > 0 && num < 1 && numberOfZero > 2) {
+    const temp = Number(toFixed(num).split('.')[1])
+    return `$0.0${numberOfZero
+      .toString()
+      .split('')
+      .map(item => subscriptMap[item])
+      .join('')}${temp > 10 ? (temp / 10).toFixed(0) : temp}`
+  }
 
   const formatter = Intl.NumberFormat('en-US', {
-    notation: num > 1000 ? 'compact' : 'standard',
+    notation: num >= 1000 ? 'compact' : 'standard',
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 0,
@@ -75,14 +108,14 @@ const EarningAreaChart: React.FC<Props> = ({ data, setHoverValue = EMPTY_FUNCTIO
             <stop offset="100%" stopColor={theme.primary} stopOpacity={0} />
           </linearGradient>
         </defs>
-        <XAxis dataKey="date" fontSize="12px" axisLine={false} tickLine={false} stroke={theme.subText} />
+        <XAxis angle={-30} dataKey="date" fontSize="12px" axisLine={false} tickLine={false} stroke={theme.subText} />
         <YAxis
           fontSize="12px"
           axisLine={false}
           tickLine={false}
           stroke={theme.subText}
           tickFormatter={(value: any, _index: number) => formatter(String(value))}
-          width={48}
+          width={54}
         />
         <Customized component={KyberLogo} />
         <Tooltip

@@ -4,20 +4,21 @@ import { isMobile } from 'react-device-detect'
 import {
   Award,
   BookOpen,
+  ChevronDown,
   Edit,
   FileText,
   HelpCircle,
   Info,
-  Menu as MenuIcon,
   MessageCircle,
   PieChart,
   Share2,
 } from 'react-feather'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
+import { ReactComponent as MenuIcon } from 'assets/svg/all_icon.svg'
 import { ReactComponent as BlogIcon } from 'assets/svg/blog.svg'
 import { ReactComponent as LightIcon } from 'assets/svg/light.svg'
 import { ReactComponent as RoadMapIcon } from 'assets/svg/roadmap.svg'
@@ -31,20 +32,20 @@ import LanguageSelector from 'components/LanguageSelector'
 import Loader from 'components/Loader'
 import MenuFlyout from 'components/MenuFlyout'
 import Row, { AutoRow } from 'components/Row'
-import NotificationModal from 'components/SubscribeButton/NotificationModal'
 import Toggle from 'components/Toggle'
 import ThemeToggle from 'components/Toggle/ThemeToggle'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { TAG } from 'constants/env'
+import { ENV_LEVEL, TAG } from 'constants/env'
 import { AGGREGATOR_ANALYTICS_URL, APP_PATHS, DMM_ANALYTICS_URL, TERM_FILES_PATH } from 'constants/index'
 import { getLocaleLabel } from 'constants/locales'
 import { FAUCET_NETWORKS } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
+import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
 import useClaimReward from 'hooks/useClaimReward'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
+import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
@@ -73,14 +74,6 @@ const MenuItem = styled.li`
   color: ${({ theme }) => theme.subText};
   font-size: 15px;
 
-  :hover {
-    color: ${({ theme }) => theme.text};
-    cursor: pointer;
-    a {
-      color: ${({ theme }) => theme.text};
-    }
-  }
-
   svg {
     margin-right: 8px;
     height: 16px;
@@ -98,12 +91,6 @@ const MenuItem = styled.li`
   }
 `
 
-const StyledMenuIcon = styled(MenuIcon)`
-  path {
-    stroke: ${({ theme }) => theme.text};
-  }
-`
-
 const KyberAIWrapper = styled(MenuItem)`
   display: none;
 
@@ -116,18 +103,11 @@ const NavLinkBetween = styled(MenuItem)`
   justify-content: space-between;
   position: unset !important;
   max-height: 40px;
+  cursor: pointer;
   svg {
     margin: 0;
     width: unset;
     height: unset;
-  }
-`
-
-const CampaignWrapper = styled.div`
-  display: none;
-
-  @media (max-width: 560px) {
-    display: flex;
   }
 `
 
@@ -141,15 +121,13 @@ const StyledMenuButton = styled.button<{ active?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${({ theme }) => theme.text};
+  color: ${({ theme }) => theme.subText};
 
   border-radius: 999px;
 
   :hover {
     cursor: pointer;
     outline: none;
-    background-color: ${({ theme }) => theme.buttonBlack};
-    border: 1px solid ${({ theme }) => theme.primary};
   }
 
   ${({ active }) =>
@@ -157,7 +135,7 @@ const StyledMenuButton = styled.button<{ active?: boolean }>`
     css`
       cursor: pointer;
       outline: none;
-      background-color: ${({ theme }) => theme.buttonBlack};
+      color: ${({ theme }) => theme.text};
     `}
 `
 
@@ -168,6 +146,11 @@ const StyledMenu = styled.div`
   position: relative;
   border: none;
   text-align: left;
+`
+
+const ListWrapper = styled.div`
+  max-height: calc(100vh - 150px);
+  overflow-y: scroll;
 `
 
 const MenuFlyoutBrowserStyle = css`
@@ -214,9 +197,29 @@ const Title = styled(MenuItem)`
   font-size: 16px;
   color: ${({ theme }) => theme.text};
 `
-const noop = () => {
-  //
-}
+
+const ScrollEnd = styled.div<{ show: boolean }>`
+  visibility: ${({ show }) => (show ? 'initial' : 'hidden')};
+  position: sticky !important;
+  width: 100%;
+  text-align: center;
+  z-index: 2;
+  @keyframes floating {
+    from {
+      bottom: 10px;
+    }
+    to {
+      bottom: -10px;
+    }
+  }
+  animation-name: floating;
+  animation-duration: 1s;
+  animation-timing-function: ease;
+  animation-iteration-count: infinite;
+  animation-direction: alternate-reverse;
+`
+
+const noop = () => {}
 
 export default function Menu() {
   const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
@@ -263,12 +266,34 @@ export default function Menu() {
     mixpanelHandler(MIXPANEL_TYPE.MENU_PREFERENCE_CLICK, { menu: name })
   }
 
+  const [wrapperNode, setWrapperNode] = useState<HTMLDivElement | null>(null)
+  const [showScroll, setShowScroll] = useState<boolean>(false)
+
+  useEffect(() => {
+    if (wrapperNode) {
+      const abortController = new AbortController()
+      const onScroll = () => {
+        if (abortController.signal.aborted) return
+        setShowScroll(Math.abs(wrapperNode.offsetHeight + wrapperNode.scrollTop - wrapperNode.scrollHeight) > 10) //no need to show scroll down when scrolled to last 10px
+      }
+      onScroll()
+      wrapperNode.addEventListener('scroll', onScroll)
+      window.addEventListener('resize', onScroll)
+      return () => {
+        abortController.abort()
+        wrapperNode.removeEventListener('scroll', onScroll)
+        window.removeEventListener('resize', onScroll)
+      }
+    }
+    return
+  }, [wrapperNode])
+
   return (
     <StyledMenu>
       <MenuFlyout
         trigger={
           <StyledMenuButton active={open} onClick={toggle} aria-label="Menu" id={TutorialIds.BUTTON_MENU_HEADER}>
-            <StyledMenuIcon />
+            <MenuIcon width={18} height={18} />
           </StyledMenuButton>
         }
         customStyle={MenuFlyoutBrowserStyle}
@@ -282,7 +307,7 @@ export default function Menu() {
             <LanguageSelector setIsSelectingLanguage={setIsSelectingLanguage} />
           </AutoColumn>
         ) : (
-          <>
+          <ListWrapper ref={wrapperNode => setWrapperNode(wrapperNode)}>
             <Title style={{ paddingTop: 0 }}>
               <Trans>Menu</Trans>
             </Title>
@@ -344,36 +369,28 @@ export default function Menu() {
               />
             </KyberAIWrapper>
 
-            <CampaignWrapper>
-              <MenuItem>
-                <NavDropDown
-                  icon={<Award />}
-                  title={
-                    <Text>
-                      <Trans>Campaigns</Trans>{' '}
-                      <NewLabel>
-                        <Trans>New</Trans>
-                      </NewLabel>
-                    </Text>
-                  }
-                  link={'#'}
-                  options={[
-                    { link: APP_PATHS.CAMPAIGN, label: t`Trading Campaigns` },
-                    {
-                      link: APP_PATHS.GRANT_PROGRAMS,
-                      label: (
-                        <Text as="span">
-                          <Trans>Trading Grant Campaign</Trans>{' '}
-                          <NewLabel>
-                            <Trans>New</Trans>
-                          </NewLabel>
-                        </Text>
-                      ),
-                    },
-                  ]}
-                />
-              </MenuItem>
-            </CampaignWrapper>
+            <MenuItem>
+              <NavDropDown
+                icon={<Award />}
+                title={
+                  <Text>
+                    <Trans>Campaigns</Trans>
+                  </Text>
+                }
+                link={'#'}
+                options={[
+                  { link: APP_PATHS.CAMPAIGN, label: t`Trading Campaigns` },
+                  {
+                    link: APP_PATHS.GRANT_PROGRAMS,
+                    label: (
+                      <Text as="span">
+                        <Trans>Trading Grant Campaign</Trans>
+                      </Text>
+                    ),
+                  },
+                ]}
+              />
+            </MenuItem>
 
             {under1440 && (
               <MenuItem>
@@ -397,6 +414,7 @@ export default function Menu() {
                   options={[
                     { link: '/kyberdao/stake-knc', label: t`Stake KNC` },
                     { link: '/kyberdao/vote', label: t`Vote` },
+                    { link: APP_PATHS.KYBERDAO_KNC_UTILITY, label: t`KNC Utility` },
                     { link: 'https://kyberswap.canny.io/feature-request', label: t`Feature Request`, external: true },
                   ]}
                 />
@@ -500,7 +518,14 @@ export default function Menu() {
                 <Trans>Help</Trans>
               </ExternalLink>
             </MenuItem>
-
+            {ENV_LEVEL === ENV_TYPE.LOCAL && (
+              <MenuItem>
+                <NavLink to="/icons">
+                  <BookOpen />
+                  <Trans>Icons</Trans>
+                </NavLink>
+              </MenuItem>
+            )}
             <Divider />
 
             <Title>
@@ -552,7 +577,7 @@ export default function Menu() {
             </NavLinkBetween>
             <NavLinkBetween
               onClick={() => {
-                navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.OVERVIEW}`)
+                navigate(`${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.PREFERENCE}`)
                 mixpanelHandler(MIXPANEL_TYPE.NOTIFICATION_CLICK_MENU)
                 handlePreferenceClickMixpanel('Notifications')
                 toggle()
@@ -601,12 +626,14 @@ export default function Menu() {
             <Text fontSize="10px" fontWeight={300} color={theme.subText} mt="16px" textAlign={'center'}>
               kyberswap@{TAG}
             </Text>
-          </>
+            <ScrollEnd show={showScroll}>
+              <ChevronDown color={theme.text4} />
+            </ScrollEnd>
+          </ListWrapper>
         )}
       </MenuFlyout>
 
       <ClaimRewardModal />
-      <NotificationModal />
       {FAUCET_NETWORKS.includes(chainId) && <FaucetModal />}
     </StyledMenu>
   )

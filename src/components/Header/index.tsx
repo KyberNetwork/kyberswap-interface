@@ -1,18 +1,23 @@
 import { Trans } from '@lingui/macro'
+import { lighten } from 'polished'
 import { Link } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import styled from 'styled-components'
 
 import Announcement from 'components/Announcement'
 import CampaignNavGroup from 'components/Header/groups/CampaignNavGroup'
 import SelectNetwork from 'components/Header/web3/SelectNetwork'
 import SelectWallet from 'components/Header/web3/SelectWallet'
+import SignWallet from 'components/Header/web3/SignWallet'
 import Menu from 'components/Menu'
 import Row, { RowFixed } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useTheme from 'hooks/useTheme'
 import { useHolidayMode, useIsDarkMode } from 'state/user/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 
 import KyberAINavItem from './KyberAINavItem'
 import AboutNavGroup from './groups/AboutNavGroup'
@@ -31,7 +36,6 @@ const HeaderFrame = styled.div`
   width: 100%;
   top: 0;
   position: relative;
-  background-color: ${({ theme }) => theme.background};
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   padding: 1rem;
   z-index: ${Z_INDEXS.HEADER};
@@ -43,8 +47,8 @@ const HeaderFrame = styled.div`
   `};
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-   padding: 0.5rem 1rem;
-   height: 60px;
+    padding: 0.5rem 1rem;
+    height: 60px;
   `}
 `
 
@@ -53,12 +57,11 @@ const HeaderControls = styled.div`
   flex-direction: row;
   align-items: center;
   justify-self: flex-end;
-
+  gap: 8px;
   ${({ theme }) => theme.mediaWidth.upToLarge`
     flex-direction: row;
     justify-content: space-between;
     justify-self: center;
-    width: 100%;
     padding: 1rem;
     position: fixed;
     bottom: 0px;
@@ -66,11 +69,13 @@ const HeaderControls = styled.div`
     width: 100%;
     z-index: 98;
     height: 72px;
-    border-radius: 12px 12px 0 0;
-    background-color: ${({ theme }) => theme.background};
+    background-color: ${({ theme }) => theme.buttonBlack};
   `};
   ${({ theme }) => theme.mediaWidth.upToSmall`
       height: 60px;
+  `};
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+      padding: 1rem 8px;
   `};
 `
 
@@ -79,15 +84,27 @@ const HeaderElement = styled.div`
   align-items: center;
   gap: 8px;
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
     align-items: center;
+    width: 100%;
+    justify-content: space-between;
   `};
 `
 
 const HeaderElementWrap = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 8px;
+  padding: 0px 6px;
+  border-radius: 36px;
+  background-color: ${({ theme }) => theme.background};
+  border: 1px solid ${({ theme }) => theme.background};
+  color: ${({ theme }) => theme.subText};
+  :hover,
+  :focus {
+    background-color: ${({ theme }) => lighten(0.05, theme.background)};
+    border: 1px solid ${({ theme }) => theme.primary};
+  }
 `
 
 const HeaderRow = styled(RowFixed)`
@@ -161,8 +178,16 @@ export default function Header() {
   const { networkInfo } = useActiveWeb3React()
   const isDark = useIsDarkMode()
   const [holidayMode] = useHolidayMode()
-
+  const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  const menu = (
+    <HeaderElementWrap>
+      <Announcement />
+      <div style={{ height: '18px', borderLeft: `2px solid ${theme.subText}` }} />
+      <Menu />
+    </HeaderElementWrap>
+  )
   return (
     <HeaderFrame>
       <HeaderRow>
@@ -203,14 +228,25 @@ export default function Header() {
         </HeaderLinks>
       </HeaderRow>
       <HeaderControls>
-        <HeaderElement>
-          <SelectNetwork />
-          <SelectWallet />
-        </HeaderElement>
-        <HeaderElementWrap>
-          <Announcement />
-          <Menu />
-        </HeaderElementWrap>
+        {upToExtraSmall ? (
+          <HeaderElement>
+            <SelectNetwork />
+            <SelectWallet />
+            {menu}
+            <SignWallet />
+          </HeaderElement>
+        ) : (
+          <>
+            <HeaderElement style={{ justifyContent: 'flex-start' }}>
+              <SelectNetwork />
+              <SelectWallet />
+            </HeaderElement>
+            <HeaderElement style={{ justifyContent: 'flex-end' }}>
+              {menu}
+              <SignWallet />
+            </HeaderElement>
+          </>
+        )}
       </HeaderControls>
     </HeaderFrame>
   )

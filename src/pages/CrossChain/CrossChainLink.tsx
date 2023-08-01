@@ -10,6 +10,7 @@ import useTheme from 'hooks/useTheme'
 export default function CrossChainLink({ isBridge }: { isBridge?: boolean }) {
   const navigate = useNavigate()
   const theme = useTheme()
+  return null
   return (
     <Flex fontSize={'12px'} color={theme.subText} justifyContent={'center'} style={{ gap: '3px', fontWeight: '500' }}>
       {isBridge ? <Trans>Looking to</Trans> : <Trans>Looking to make a</Trans>}

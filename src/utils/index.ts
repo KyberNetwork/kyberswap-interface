@@ -6,10 +6,10 @@ import dayjs from 'dayjs'
 import JSBI from 'jsbi'
 import Numeral from 'numeral'
 
-import { GET_BLOCK, GET_BLOCKS } from 'apollo/queries'
+import { GET_BLOCKS } from 'apollo/queries'
 import { BLOCK_SERVICE_API, ENV_KEY } from 'constants/env'
 import { DEFAULT_GAS_LIMIT_MARGIN, ZERO_ADDRESS } from 'constants/index'
-import { NETWORKS_INFO, NETWORKS_INFO_CONFIG, isEVM } from 'constants/networks'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from 'constants/networks'
 import { KNC, KNCL_ADDRESS } from 'constants/tokens'
 import { EVMWalletInfo, SUPPORTED_WALLET, SolanaWalletInfo, WalletInfo } from 'constants/wallets'
 import store from 'state'
@@ -252,6 +252,7 @@ export async function splitQuery<ResultType, T, U>(
   localClient: ApolloClient<NormalizedCacheObject>,
   list: T[],
   vars: U[],
+  signal: AbortSignal,
   skipCount = 100,
 ): Promise<
   | {
@@ -272,6 +273,11 @@ export async function splitQuery<ResultType, T, U>(
     const result = await localClient.query({
       query: query(sliced, ...vars),
       fetchPolicy: 'no-cache',
+      context: {
+        fetchOptions: {
+          signal,
+        },
+      },
     })
     fetchedData = {
       ...fetchedData,
@@ -288,29 +294,6 @@ export async function splitQuery<ResultType, T, U>(
 }
 
 /**
- * @notice Fetches first block after a given timestamp
- * @dev Query speed is optimized by limiting to a 600-second period
- * @param {Int} timestamp in seconds
- */
-export async function getBlockFromTimestamp(
-  timestamp: number,
-  chainId: ChainId,
-  blockClient: ApolloClient<NormalizedCacheObject>,
-) {
-  if (!isEVM(chainId)) return
-  const result = await blockClient.query({
-    query: GET_BLOCK,
-    variables: {
-      timestampFrom: timestamp,
-      timestampTo: timestamp + 600,
-    },
-    fetchPolicy: 'cache-first',
-  })
-
-  return result?.data?.blocks?.[0]?.number
-}
-
-/**
  * @notice Fetches block objects for an array of timestamps.
  * @dev blocks are returned in chronological order (ASC) regardless of input.
  * @dev blocks are returned at string representations of Int
@@ -321,13 +304,20 @@ export async function getBlocksFromTimestampsSubgraph(
   blockClient: ApolloClient<NormalizedCacheObject>,
   timestamps: number[],
   chainId: ChainId,
+  signal: AbortSignal,
 ): Promise<{ timestamp: number; number: number }[]> {
   if (!isEVM(chainId)) return []
   if (timestamps?.length === 0) {
     return []
   }
 
-  const fetchedData = await splitQuery<{ number: string }[], number, any>(GET_BLOCKS, blockClient, timestamps, [])
+  const fetchedData = await splitQuery<{ number: string }[], number, any>(
+    GET_BLOCKS,
+    blockClient,
+    timestamps,
+    [],
+    signal,
+  )
   const blocks: { timestamp: number; number: number }[] = []
   if (fetchedData) {
     for (const t in fetchedData) {
@@ -346,6 +336,7 @@ export async function getBlocksFromTimestampsSubgraph(
 export async function getBlocksFromTimestampsBlockService(
   timestamps: number[],
   chainId: ChainId,
+  signal: AbortSignal,
 ): Promise<{ timestamp: number; number: number }[]> {
   if (!isEVM(chainId)) return []
   if (timestamps?.length === 0) {
@@ -360,6 +351,7 @@ export async function getBlocksFromTimestampsBlockService(
               `${BLOCK_SERVICE_API}/${
                 NETWORKS_INFO[chainId].aggregatorRoute
               }/api/v1/block?timestamps=${timestampsChunk.join(',')}`,
+              { signal },
             )
           ).json() as Promise<{ data: { timestamp: number; number: number }[] }>,
       ),
@@ -377,9 +369,10 @@ export async function getBlocksFromTimestamps(
   blockClient: ApolloClient<NormalizedCacheObject>,
   timestamps: number[],
   chainId: ChainId,
+  signal: AbortSignal,
 ): Promise<{ timestamp: number; number: number }[]> {
-  if (isEnableBlockService) return getBlocksFromTimestampsBlockService(timestamps, chainId)
-  return getBlocksFromTimestampsSubgraph(blockClient, timestamps, chainId)
+  if (isEnableBlockService) return getBlocksFromTimestampsBlockService(timestamps, chainId, signal)
+  return getBlocksFromTimestampsSubgraph(blockClient, timestamps, chainId, signal)
 }
 
 /**
@@ -526,8 +519,9 @@ export const isChristmasTime = () => {
   return currentTime.month() === 11 && currentTime.date() >= 15
 }
 
-export const getLimitOrderContract = (chainId: ChainId) => {
-  const { production, development } = NETWORKS_INFO_CONFIG[chainId]?.limitOrder ?? {}
+export const getLimitOrderContract = (chainId: ChainId): string | null => {
+  if (!SUPPORTED_NETWORKS.includes(chainId)) return null
+  const { production, development } = NETWORKS_INFO[chainId]?.limitOrder ?? {}
   return ENV_KEY === 'production' || ENV_KEY === 'staging' ? production : development
 }
 

@@ -35,9 +35,6 @@ const maticInfo: EVMNetworkInfo = {
   multicall: '0xed386Fe855C1EFf2f843B910923Dd8846E45C5A4',
   classic: {
     defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-polygon',
-    // defaultSubgraph: (
-    //   'https://polygon-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-polygon',
-    // ),
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
       router: '0x5649B4DD00780e99Bab7Abb4A3d581Ea1aEB23D0',
@@ -71,7 +68,7 @@ const maticInfo: EVMNetworkInfo = {
     routers: '0xF9c2b5746c946EF883ab2660BbbB1f10A5bdeAb4',
     farms: ['0x7D5ba536ab244aAA1EA42aB88428847F25E3E676'],
     farmv2Quoter: '0x6AFeb9EDd6Cf44fA8E89b1eee28284e6dD7705C8',
-    farmV2Contract: '0xE44ec65521B85612fa7BC45d842645Fb4B690E4b',
+    farmV2S: ['0xA70a1Ad0F91c52c79e177c5A18a7C9E1C4360e0e', '0x3d6afe2fb73ffed2e3dd00c501a174554e147a43'],
   },
   limitOrder: {
     development: '0x3C2E9227A6d3779e5b469E425CAa7067b40Ff124',

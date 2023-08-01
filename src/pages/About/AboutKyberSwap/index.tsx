@@ -56,8 +56,6 @@ import {
   OptimismLogoFull,
   Polygon,
   PolygonLogoFull,
-  Solana,
-  SolanaLogoFull,
   Velas,
   VelasLogoFull,
 } from 'components/Icons'
@@ -103,7 +101,8 @@ import {
   VerticalDivider,
   Wrapper,
 } from '../styleds'
-import MeetTheTeam from './MeetTheTeam'
+
+// import MeetTheTeam from './MeetTheTeam'
 
 const KNCBlack = styled(KNCSVG)`
   path {
@@ -523,7 +522,7 @@ function AboutKyberSwap() {
             <Oasis />
             <Bttc />
             <OptimismLogo />
-            <Solana />
+            {/* <Solana /> */}
             <ZkSync />
             <img src="https://linea.build/apple-touch-icon.png" width="36px" height="36px" alt="Linea" />
           </SupportedChain>
@@ -1025,7 +1024,7 @@ function AboutKyberSwap() {
             </Flex>
           </AboutKNC>
 
-          <MeetTheTeam />
+          {/* <MeetTheTeam /> */}
 
           <Text as="h2" marginTop={['100px', '160px']} fontSize={['28px', '36px']} fontWeight="500" textAlign="center">
             <Trans>Powered by</Trans>
@@ -1044,7 +1043,7 @@ function AboutKyberSwap() {
               <OasisLogoFull />
               <img src={isDarkMode ? BTTCDark : BTTCLight} alt="btt" width="100%" />
               <OptimismLogoFull />
-              <SolanaLogoFull />
+              {/* <SolanaLogoFull /> */}
               <ZkSyncFull />
               <LineaFull />
             </Powered>

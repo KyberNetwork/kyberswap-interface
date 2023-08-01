@@ -5,6 +5,7 @@ import { Flex, Text } from 'rebass'
 import { useGetElasticEarningQuery, useGetElasticLegacyEarningQuery } from 'services/earning'
 import styled from 'styled-components'
 
+import { COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import ChainSelect from 'pages/MyEarnings/ChainSelect'
@@ -12,6 +13,7 @@ import MultipleChainSelect from 'pages/MyEarnings/MultipleChainSelect'
 import TotalEarningsAndChainSelect from 'pages/MyEarnings/TotalEarningsAndChainSelect'
 import { calculateEarningBreakdowns, calculateTicksOfAccountEarningsInMultipleChains } from 'pages/MyEarnings/utils'
 import { useAppSelector } from 'state/hooks'
+import { useShowMyEarningChart } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { EarningStatsTick, EarningsBreakdown } from 'types/myEarnings'
 
@@ -58,7 +60,7 @@ const ChainSelectAndEarningsWrapper = styled.div`
   justify-content: space-between;
   gap: 16px;
 
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
     flex-direction: column;
     align-items: initial;
     justify-content: initial;
@@ -78,7 +80,10 @@ const MyEarningStats = () => {
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
 
   const elasticEarningQueryResponse = useGetElasticEarningQuery({ account, chainIds: selectedChainIds })
-  const elasticLegacyEarningQueryResponse = useGetElasticLegacyEarningQuery({ account, chainIds: selectedChainIds })
+  const elasticLegacyEarningQueryResponse = useGetElasticLegacyEarningQuery({
+    account,
+    chainIds: selectedChainIds.filter(item => !COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY.includes(item)),
+  })
   // const classicEarningQueryResponse = useGetClassicEarningQuery({ account, chainIds: selectedChainIds })
 
   const isLoading = elasticEarningQueryResponse.isFetching || elasticLegacyEarningQueryResponse.isFetching
@@ -101,6 +106,8 @@ const MyEarningStats = () => {
     return calculateEarningBreakdowns(ticks?.[0])
   }, [ticks])
 
+  const [showMyEarningChart] = useShowMyEarningChart()
+
   return (
     <Flex
       sx={{
@@ -116,37 +123,41 @@ const MyEarningStats = () => {
         <ChainSelect />
       </ChainSelectAndEarningsWrapper>
 
-      <Flex
-        sx={{
-          gap: '24px',
-          flexDirection: upTo1225px && !upToExtraSmall ? 'column' : 'row',
-          flexWrap: upToExtraSmall ? 'wrap' : 'nowrap',
-        }}
-      >
-        <EarningsBreakdownPanel
-          horizontalLayout={upTo1225px && !upToExtraSmall}
-          isLoading={isLoading}
-          data={earningBreakdown}
-        />
-        <MyEarningsOverTimePanel isLoading={isLoading} ticks={ticks} isContainerSmall={upToExtraSmall} />
-      </Flex>
+      {showMyEarningChart && (
+        <>
+          <Flex
+            sx={{
+              gap: '24px',
+              flexDirection: upTo1225px && !upToExtraSmall ? 'column' : 'row',
+              flexWrap: upToExtraSmall ? 'wrap' : 'nowrap',
+            }}
+          >
+            <EarningsBreakdownPanel
+              horizontalLayout={upTo1225px && !upToExtraSmall}
+              isLoading={isLoading}
+              data={earningBreakdown}
+            />
+            <MyEarningsOverTimePanel isLoading={isLoading} ticks={ticks} isContainerSmall={upToExtraSmall} />
+          </Flex>
 
-      <Text
-        sx={{
-          fontWeight: 400,
-          fontSize: '12px',
-          lineHeight: '16px',
-          fontStyle: 'italic',
-          textAlign: 'center',
-          color: theme.subText,
-          marginBottom: '16px',
-        }}
-      >
-        <Trans>
-          Note: Your earnings will fluctuate according to the dollar value of the tokens earned. These earnings include
-          both claimed and unclaimed fees as well as accrued farming rewards.
-        </Trans>
-      </Text>
+          <Text
+            sx={{
+              fontWeight: 400,
+              fontSize: '12px',
+              lineHeight: '16px',
+              fontStyle: 'italic',
+              textAlign: 'center',
+              color: theme.subText,
+              marginBottom: '16px',
+            }}
+          >
+            <Trans>
+              Note: Your earnings will fluctuate according to the dollar value of the tokens earned. These earnings
+              include both claimed and unclaimed fees as well as accrued farming rewards.
+            </Trans>
+          </Text>
+        </>
+      )}
     </Flex>
   )
 }

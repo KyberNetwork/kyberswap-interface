@@ -148,6 +148,7 @@ const TooltipContent: React.FC<Props> = ({ dataEntry, setHoverValue }) => {
       padding="12px"
       width="min-content"
       flexDirection="column"
+      alignItems="flex-start"
       sx={{
         gap: '8px',
         background: rgba(theme.buttonBlack, 0.9),

@@ -22,7 +22,7 @@ const MyEarningsOverTimePanel = styled(OriginalMyEarningsOverTimePanel)`
 `
 
 const EarningView: React.FC<CommonProps> = props => {
-  const { positionEarning, chainId, myFarmAPR, myPoolAPR } = props
+  const { positionEarning, chainId } = props
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
 
   // format pool value
@@ -32,11 +32,15 @@ const EarningView: React.FC<CommonProps> = props => {
 
   const earningToday = ticks?.[0]
 
+  const myPoolAPR = Number(positionEarning.myPoolApr || '0')
+  const myFarmAPR = Number(positionEarning.myFarmApr || '0')
+
   return (
     <CommonView isEarningView {...props}>
       <Flex
         sx={{
           flexDirection: 'column',
+          width: 'fit-content',
           gap: '4px 16px',
         }}
       >
@@ -78,14 +82,14 @@ const EarningView: React.FC<CommonProps> = props => {
           <Label>
             <Trans>My Pool APR</Trans>
           </Label>
-          <Label $hasTooltip>
+          <Label>
             <Trans>My Farm APR</Trans>
           </Label>
         </Row>
 
         <Row>
-          <ValueAPR>{myPoolAPR}</ValueAPR>
-          <ValueAPR>{myFarmAPR}</ValueAPR>
+          <ValueAPR>{myPoolAPR ? myPoolAPR.toFixed(2) + '%' : '--'}</ValueAPR>
+          <ValueAPR>{myFarmAPR ? myFarmAPR.toFixed(2) + '%' : '--'}</ValueAPR>
         </Row>
       </Column>
 

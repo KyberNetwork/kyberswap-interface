@@ -8,30 +8,6 @@ import { useIsAcceptedTerm } from 'state/user/hooks'
 import { useActivationWallet } from './useActivationWallet'
 import useDisconnectWallet from './useDisconnectWallet'
 
-export async function isAuthorized(): Promise<string | boolean> {
-  if (localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY_EVM) === 'WALLET_CONNECT') {
-    try {
-      const sessionKey = Object.keys(localStorage).find(key => key.match(/wc@2(.*)session/g))
-      return sessionKey
-        ? JSON.parse(localStorage[sessionKey])[0].namespaces?.eip155?.accounts[0].split(':').pop() // account address, tricky for now, will remove after profile feature release
-        : true
-    } catch (error) {
-      return true
-    }
-  }
-  if (!window.ethereum) {
-    return false
-  }
-
-  try {
-    const accounts = await window.ethereum.request({ method: 'eth_accounts' })
-    if (accounts?.length > 0) return accounts[0]
-    return false
-  } catch {
-    return false
-  }
-}
-
 // make sure this hook will be ran only once globally
 let trying = false
 let tried = false

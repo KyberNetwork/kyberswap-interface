@@ -85,7 +85,9 @@ export default function EmailForm({
               ) : rankNo === 2 ? (
                 <Trans>1 user is ahead of you</Trans>
               ) : (
-                <Trans>{rankNo ? formattedNum(rankNo - 1 + '') : t`Many`} users are ahead of you!</Trans>
+                <Trans>
+                  {rankNo && rankNo <= 101 ? formattedNum(rankNo - 1 + '') : t`Many`} users are ahead of you!
+                </Trans>
               )}
             </Flex>
           )}

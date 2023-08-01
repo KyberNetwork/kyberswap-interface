@@ -39,7 +39,7 @@ const PriceAlertAnnouncement: React.FC<PrivateAnnouncementPropCenter<Announcemen
   title,
 }) => {
   const { templateBody, sentAt, templateType } = announcement
-  const { chainId, note } = templateBody.alert
+  const { chainId, note } = templateBody?.alert || {}
   const navigate = useNavigateToUrl()
   const onClick = () => {
     navigate(getSwapUrlPriceAlert(templateBody.alert), Number(chainId))
@@ -56,7 +56,7 @@ const PriceAlertAnnouncement: React.FC<PrivateAnnouncementPropCenter<Announcemen
         </Flex>
       </Flex>
       <Desc>
-        <AlertCondition alertData={templateBody.alert} shouldIncludePrefix={true} />
+        <AlertCondition alertData={templateBody.alert || {}} shouldIncludePrefix={true} />
         {note ? (
           <SupplementaryTextWrapper>
             <Text as="span" sx={{ whiteSpace: 'break-spaces', overflowWrap: 'anywhere' }}>

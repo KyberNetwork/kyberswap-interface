@@ -45,7 +45,7 @@ const HoverInlineText = ({
 
   if (text.length > maxCharacters) {
     return (
-      <Tooltip text={text} show={showHover}>
+      <Tooltip text={text} show={showHover} width="fit-content">
         <TextWrapper
           onMouseEnter={() => setShowHover(true)}
           onMouseLeave={() => setShowHover(false)}

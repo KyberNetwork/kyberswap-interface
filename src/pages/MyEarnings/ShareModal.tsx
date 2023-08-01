@@ -11,11 +11,11 @@ import styled, { css } from 'styled-components'
 
 import BgShare from 'assets/images/bg_share_my_earning.png'
 import BgShareMobile from 'assets/images/bg_share_my_earning_mb.png'
-import { ReactComponent as DesktopIcon } from 'assets/svg/desktop_mobile_icon.svg'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { Telegram } from 'components/Icons'
 import Discord from 'components/Icons/Discord'
 import Facebook from 'components/Icons/Facebook'
+import Icon from 'components/Icons/Icon'
 import TwitterIcon from 'components/Icons/TwitterIcon'
 import Loader from 'components/Loader'
 import Modal from 'components/Modal'
@@ -295,7 +295,7 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
         <RowBetween>
           {!isMobile && (
             <ButtonWrapper onClick={() => setIsSharePc(!isSharePc)}>
-              <DesktopIcon color={theme.subText} />
+              <Icon id="devices" size={20} style={{ color: theme.subText }} />
             </ButtonWrapper>
           )}
           <ShareContainer>

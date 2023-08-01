@@ -33,7 +33,7 @@ const MultipleChainSelect: React.FC<Props> = ({ className }) => {
         width: '150px',
         height: '36px',
         position: 'relative',
-        zIndex: '1',
+        zIndex: '2',
       }}
       className={className}
     >
