@@ -38,7 +38,9 @@ const SubscribeBtn = styled(ButtonPrimary)<{
     background: ${({ bgColor }) => bgColor};
   }
   ${({ iconOnly, bgColor }) => iconOnly && cssSubscribeBtnSmall(bgColor)};
-  ${({ theme, bgColor }) => theme.mediaWidth.upToExtraSmall`
+  ${({ theme, bgColor, iconOnly }) =>
+    iconOnly !== false &&
+    theme.mediaWidth.upToExtraSmall`
    ${cssSubscribeBtnSmall(bgColor)}
   `}
 `
@@ -48,13 +50,15 @@ const ButtonText = styled(Text)<{ iconOnly?: boolean }>`
   font-weight: 500;
   margin-left: 6px !important;
   ${({ iconOnly }) => iconOnly && `display: none`};
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+  ${({ theme, iconOnly }) =>
+    iconOnly !== false &&
+    theme.mediaWidth.upToExtraSmall`
     display: none;
   `}
 `
 export default function SubscribeNotificationButton({
   subscribeTooltip,
-  iconOnly = false,
+  iconOnly,
   trackingEvent,
   onClick,
   topicId,
