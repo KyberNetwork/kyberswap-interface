@@ -1,4 +1,5 @@
-import { getText, getTokenList } from '../e2e/pages/swap-page.po.cy'
+/* eslint-disable @typescript-eslint/no-namespace */
+import { getTokenList } from '../e2e/pages/swap-page.po.cy'
 import { notification, tab, token } from '../e2e/selectors/selectors.cy'
 
 export {}
@@ -17,7 +18,7 @@ declare global {
       verifyValueInList(selector: string, value: Array<string>, exist: boolean): Chainable<void>
       addTokenToFavoriteTokensList(value: string): Chainable<void>
       verifyNoResultFound(): Chainable<void>
-      importNewTokenByAddress(selector: string, address: string): Chainable<void>
+      importNewTokenByAddress(selector: string, address: Array<string>): Chainable<void>
       deleteImportedToken(address: string): Chainable<void>
       clearAllImportedTokens(): Chainable<void>
     }
@@ -84,10 +85,12 @@ Cypress.Commands.add('verifyNoResultFound', () => {
 })
 
 Cypress.Commands.add('importNewTokenByAddress', (selector, address) => {
-  cy.clickButton(selector)
-  cy.input(token.inputToken, address)
-  cy.get(token.btnImport).click()
-  cy.get(token.btnUnderstand).click()
+  address.forEach(element => {
+    cy.clickButton(selector)
+    cy.input(token.inputToken, element)
+    cy.get(token.btnImport).click()
+    cy.get(token.btnUnderstand).click()
+  });
 })
 
 Cypress.Commands.add('deleteImportedToken', address => {
