@@ -151,7 +151,7 @@ export const useTransactionNotify = () => {
   const addPopup = useAddPopup()
   return useCallback(
     (data: PopupContentTxn) => {
-      addPopup(data, PopupType.TRANSACTION, data.hash)
+      addPopup(data, PopupType.TRANSACTION, data.hash, undefined, data.account)
     },
     [addPopup],
   )
@@ -203,11 +203,14 @@ export function useActivePopups() {
   const { chainId, account } = useActiveWeb3React()
 
   return useMemo(() => {
-    const topRightPopups = popups.filter(e => {
-      if ([PopupType.SIMPLE, PopupType.TRANSACTION].includes(e.popupType)) return true
+    const topRightPopups = popups.filter(item => {
+      const { popupType, content } = item
+      if (popupType === PopupType.SIMPLE) return true
+      if (popupType === PopupType.TRANSACTION) return account === item.account
+
       const announcementsAckMap = getAnnouncementsAckMap()
-      const isRead = announcementsAckMap[e.content.metaMessageId]
-      if (e.popupType === PopupType.TOP_RIGHT) return !isRead
+      const isRead = announcementsAckMap[content?.metaMessageId]
+      if (popupType === PopupType.TOP_RIGHT) return !isRead
       return false
     })
 
