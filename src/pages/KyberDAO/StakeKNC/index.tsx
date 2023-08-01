@@ -132,7 +132,7 @@ export default function StakeKNC() {
     })
   }
   const kncPrice = useKNCPrice()
-  const { userTier, gasRefundPerCentage } = useGasRefundTier()
+  const { userTier, gasRefundPercentage } = useGasRefundTier()
 
   return (
     <Wrapper>
@@ -265,7 +265,7 @@ export default function StakeKNC() {
                       })
                     }}
                   >
-                    {gasRefundPerCentage * 100}% gas refund
+                    {gasRefundPercentage ? gasRefundPercentage * 100 : '--'}% gas refund
                   </NavLink>
                   .
                 </Trans>

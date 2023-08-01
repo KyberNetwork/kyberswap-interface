@@ -5,6 +5,13 @@ import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLocalStorage } from 'react-use'
+import kyberDAOApi, {
+  GasRefundTierInfo,
+  RewardInfo,
+  useGetGasRefundEligibleTxsInfoQuery,
+  useGetGasRefundRewardInfoQuery,
+  useGetGasRefundTierInfoQuery,
+} from 'services/kyberDAO'
 import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
 
@@ -36,10 +43,8 @@ import { sendEVMTransaction } from 'utils/sendTransaction'
 
 import {
   EligibleTxsInfo,
-  GasRefundTierInfo,
   ProposalDetail,
   ProposalStatus,
-  RewardInfo,
   RewardStats,
   StakerAction,
   StakerInfo,
@@ -525,14 +530,38 @@ export function useVotingInfo() {
 
 export function useGasRefundTier(): GasRefundTierInfo {
   const { account, chainId } = useActiveWeb3React()
-  const kyberDaoInfo = useKyberDAOInfo()
+  const skip = !account || !isSupportKyberDao(chainId)
+  const { currentData } = useGetGasRefundTierInfoQuery(account || '', { skip })
 
-  const { data } = useSWR<GasRefundTierInfo>(
-    account && isSupportKyberDao(chainId) && kyberDaoInfo?.daoStatsApi + '/api/v1/stakers/' + account + '/refund-info',
-    url => fetcher(url).then(res => res.refundInfo),
+  return {
+    userTier: currentData?.userTier || 0,
+    gasRefundPercentage: currentData?.gasRefundPercentage || 0,
+  }
+}
+
+export function useRefetchGasRefundInfo(): () => void {
+  const { account, chainId } = useActiveWeb3React()
+  const skip = !account || !isSupportKyberDao(chainId)
+
+  const { refetch: refetchClaimable } = kyberDAOApi.endpoints.getGasRefundRewardInfo.useQuerySubscription(
+    { account: account || '', rewardStatus: 'claimable' },
+    { skip },
   )
+  const { refetch: refetchPending } = kyberDAOApi.endpoints.getGasRefundRewardInfo.useQuerySubscription(
+    { account: account || '', rewardStatus: 'pending' },
+    { skip },
+  )
+  const { refetch: refetchClaimed } = kyberDAOApi.endpoints.getGasRefundRewardInfo.useQuerySubscription(
+    { account: account || '', rewardStatus: 'claimed' },
+    { skip },
+  )
+  const refetch = useCallback(() => {
+    refetchClaimable()
+    refetchPending()
+    refetchClaimed()
+  }, [refetchClaimable, refetchPending, refetchClaimed])
 
-  return data || { userTier: 0, gasRefundPerCentage: 0 }
+  return refetch
 }
 
 export function useGasRefundInfo({ rewardStatus = KNCUtilityTabs.Available }: { rewardStatus?: KNCUtilityTabs }): {
@@ -542,44 +571,24 @@ export function useGasRefundInfo({ rewardStatus = KNCUtilityTabs.Available }: { 
     usd: number
     knc: number
   }
-  refetch: () => void
 } {
   const { account, chainId } = useActiveWeb3React()
-  const kyberDaoInfo = useKyberDAOInfo()
+  const skip = !account || !isSupportKyberDao(chainId)
 
-  const { data: claimableReward, mutate: mutate0 } = useSWR<RewardInfo>(
-    account &&
-      isSupportKyberDao(chainId) &&
-      kyberDaoInfo?.daoStatsApi + '/api/v1/stakers/' + account + '/refunds/total?rewardStatus=claimable',
-    url =>
-      fetcher(url)
-        .then(res => res.total)
-        .then(({ knc, usd }) => ({ knc: parseFloat(knc), usd: parseFloat(usd) })),
-  )
-  const { data: pendingReward, mutate: mutate1 } = useSWR<RewardInfo>(
-    account &&
-      isSupportKyberDao(chainId) &&
-      kyberDaoInfo?.daoStatsApi + '/api/v1/stakers/' + account + '/refunds/total?rewardStatus=pending',
-    url =>
-      fetcher(url)
-        .then(res => res.total)
-        .then(({ knc, usd }) => ({ knc: parseFloat(knc), usd: parseFloat(usd) })),
-  )
-  const { data: claimedReward, mutate: mutate2 } = useSWR<RewardInfo>(
-    account &&
-      isSupportKyberDao(chainId) &&
-      kyberDaoInfo?.daoStatsApi + '/api/v1/stakers/' + account + '/refunds/total?rewardStatus=claimed',
-    url =>
-      fetcher(url)
-        .then(res => res.total)
-        .then(({ knc, usd }) => ({ knc: parseFloat(knc), usd: parseFloat(usd) })),
+  const { currentData: claimableReward } = useGetGasRefundRewardInfoQuery(
+    { account: account || '', rewardStatus: 'claimable' },
+    { skip },
   )
 
-  const refetch = useCallback(() => {
-    mutate0()
-    mutate1()
-    mutate2()
-  }, [mutate0, mutate1, mutate2])
+  const { currentData: pendingReward } = useGetGasRefundRewardInfoQuery(
+    { account: account || '', rewardStatus: 'pending' },
+    { skip },
+  )
+
+  const { currentData: claimedReward } = useGetGasRefundRewardInfoQuery(
+    { account: account || '', rewardStatus: 'claimed' },
+    { skip },
+  )
 
   return {
     reward:
@@ -595,7 +604,6 @@ export function useGasRefundInfo({ rewardStatus = KNCUtilityTabs.Available }: { 
       usd: aggregateValue([claimableReward, pendingReward, claimedReward], 'usd'),
       knc: aggregateValue([claimableReward, pendingReward, claimedReward], 'knc'),
     },
-    refetch,
   }
 }
 
@@ -603,7 +611,8 @@ export function useClaimGasRefundRewards() {
   const { account, chainId } = useActiveWeb3React()
   const { library, connector } = useWeb3React()
   const addTransactionWithType = useTransactionAdder()
-  const { claimableReward, refetch } = useGasRefundInfo({})
+  const { claimableReward } = useGasRefundInfo({})
+  const refetch = useRefetchGasRefundInfo()
   const notify = useNotify()
 
   const claimGasRefundRewards = useCallback(async (): Promise<string> => {
@@ -673,19 +682,10 @@ export function useClaimGasRefundRewards() {
 
 export const useEligibleTransactions = (page = 1, pageSize = 100): EligibleTxsInfo | undefined => {
   const { account, chainId } = useActiveWeb3React()
-  const kyberDaoInfo = useKyberDAOInfo()
+  const skip = !account || !isSupportKyberDao(chainId)
+  const { data } = useGetGasRefundEligibleTxsInfoQuery({ account: account || '', page, pageSize }, { skip })
 
-  const { data: eligibleTransactions } = useSWR<EligibleTxsInfo>(
-    account &&
-      isSupportKyberDao(chainId) &&
-      kyberDaoInfo?.daoStatsApi +
-        '/api/v1/stakers/' +
-        account +
-        `/refunds/eligible-transactions?pageSize=${pageSize}&page=${page}`,
-    fetcher,
-  )
-
-  return eligibleTransactions
+  return data?.data
 }
 
 export function useProposalInfoById(id?: number): { proposalInfo?: ProposalDetail } {

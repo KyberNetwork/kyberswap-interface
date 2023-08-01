@@ -1,8 +1,10 @@
 import { Trans } from '@lingui/macro'
 import { formatUnits } from 'ethers/lib/utils'
+import { transparentize } from 'polished'
 import { NavLink } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
+import { useGetGasRefundProgramInfoQuery } from 'services/kyberDAO'
 import styled from 'styled-components'
 
 import bgimg from 'assets/images/about_background.png'
@@ -73,16 +75,15 @@ const Row = styled.div`
   }
 `
 
-// todo: will add again, dont remove this
-// const EndedTag = styled.div`
-//   padding: 2px 12px;
-//   width: fit-content;
-//   border-radius: 12px;
-//   background: ${({ theme }) => transparentize(0.8, theme.red)};
-//   color: ${({ theme }) => theme.red};
-//   font-size: 12px;
-//   font-weight: 500;
-// `
+const EndedTag = styled.div`
+  padding: 2px 12px;
+  width: fit-content;
+  border-radius: 12px;
+  background: ${({ theme }) => transparentize(0.8, theme.red)};
+  color: ${({ theme }) => theme.red};
+  font-size: 12px;
+  font-weight: 500;
+`
 
 const FormWrapper = styled.div`
   background-color: ${({ theme }) => theme.background};
@@ -104,6 +105,8 @@ export default function KNCUtility() {
   const theme = useTheme()
   const { stakedBalance } = useStakingInfo()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+  const { data: gasRefundProgramInfo } = useGetGasRefundProgramInfoQuery()
+  const isEnded = gasRefundProgramInfo?.data.status === 'finished'
 
   return (
     <Wrapper>
@@ -166,11 +169,13 @@ export default function KNCUtility() {
             <Text fontSize={upToMedium ? 20 : 24} fontWeight={500} id="gas-refund-program" alignSelf="start">
               <Trans>Gas Refund Program</Trans>
             </Text>
-            {/* <EndedTag>
-              <Text>
-                <Trans>Ended</Trans>
-              </Text>
-            </EndedTag> */}
+            {isEnded && (
+              <EndedTag>
+                <Text>
+                  <Trans>Ended</Trans>
+                </Text>
+              </EndedTag>
+            )}
           </RowBetween>
           {upToMedium || <div />}
         </Row>
