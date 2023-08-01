@@ -556,9 +556,15 @@ export function useRefetchGasRefundInfo(): () => void {
     { skip },
   )
   const refetch = useCallback(() => {
-    refetchClaimable()
-    refetchPending()
-    refetchClaimed()
+    try {
+      refetchClaimable()
+    } catch {}
+    try {
+      refetchPending()
+    } catch {}
+    try {
+      refetchClaimed()
+    } catch {}
   }, [refetchClaimable, refetchPending, refetchClaimed])
 
   return refetch
@@ -574,10 +580,11 @@ export function useGasRefundInfo({ rewardStatus = KNCUtilityTabs.Available }: { 
 } {
   const { account, chainId } = useActiveWeb3React()
   const skip = !account || !isSupportKyberDao(chainId)
+  const refetch = useRefetchGasRefundInfo()
 
   const { currentData: claimableReward } = useGetGasRefundRewardInfoQuery(
     { account: account || '', rewardStatus: 'claimable' },
-    { skip },
+    { skip, pollingInterval: 5000 },
   )
 
   const { currentData: pendingReward } = useGetGasRefundRewardInfoQuery(
@@ -589,6 +596,10 @@ export function useGasRefundInfo({ rewardStatus = KNCUtilityTabs.Available }: { 
     { account: account || '', rewardStatus: 'claimed' },
     { skip },
   )
+
+  useEffect(() => {
+    refetch()
+  }, [claimableReward, refetch])
 
   return {
     reward:

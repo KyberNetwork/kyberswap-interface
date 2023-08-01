@@ -123,7 +123,9 @@ export default function RewardCenter() {
 
               <BalanceValue>{formatNumberWithPrecisionRange(totalReward.knc, 0, 8)} KNC</BalanceValue>
               <Text fontSize={12} fontWeight={500} lineHeight="16px" color={theme.subText}>
-                {totalReward.usd ? `~ $${formatNumberWithPrecisionRange(totalReward.usd, 0, 8)}` : '$ --'}
+                {typeof totalReward.usd === 'number'
+                  ? `${totalReward.usd > 0 ? '~ ' : ''}$${formatNumberWithPrecisionRange(totalReward.usd, 0, 8)}`
+                  : '$ --'}
               </Text>
             </Flex>
           </Flex>
