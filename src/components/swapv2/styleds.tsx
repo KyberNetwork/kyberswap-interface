@@ -225,7 +225,7 @@ export const KyberAIBannerWrapper = styled.div`
   margin-bottom: 16px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    height: 132px;
+    max-height: 132px;
   `}
 `
 
