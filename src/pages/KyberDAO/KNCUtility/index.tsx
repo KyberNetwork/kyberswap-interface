@@ -8,15 +8,12 @@ import { useGetGasRefundProgramInfoQuery } from 'services/kyberDAO'
 import styled from 'styled-components'
 
 import bgimg from 'assets/images/about_background.png'
-import kncDropping from 'assets/images/gas-refund/knc-dropping.png'
-import kncs from 'assets/images/gas-refund/kncs.png'
-import ringwaveGif from 'assets/images/gas-refund/ringwave.gif'
-import ringwave from 'assets/images/gas-refund/ringwave.png'
-import crystals from 'assets/svg/crystals.svg'
+import kyberDao1 from 'assets/images/gas-refund/kyberdao-1.png'
+import kyberDao2 from 'assets/images/gas-refund/kyberdao-2.png'
 import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
 import { RowBetween } from 'components/Row'
-import { APP_PATHS } from 'constants/index'
+import { APP_PATHS, TERM_FILES_PATH } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useStakingInfo } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
@@ -72,6 +69,12 @@ const Row = styled.div`
       max-width: 700px;
     `}
     width: 100%;
+  }
+`
+
+const Li = styled.li`
+  ::marker {
+    color: ${({ theme }) => theme.subText};
   }
 `
 
@@ -145,23 +148,16 @@ export default function KNCUtility() {
 
               <Trans>
                 <Text as="span" fontSize={16} fontWeight={500} color={theme.subText} lineHeight="24px">
-                  Stake your KNC (Kyber Network Crystal) tokens to vote on KIP proposals, plus enjoy multiple benefits
-                  such as saving on gas fees, earning rewards, and more.
+                  Stake your KNC (<NavLink to={`${APP_PATHS.ABOUT}/knc`}>Kyber Network Crystal</NavLink>) tokens to{' '}
+                  <NavLink to={APP_PATHS.KYBERDAO_VOTE}>vote on KIPs</NavLink> and shape the future of the KyberSwap
+                  ecosystem. KNC stakers also enjoy multiple benefits such as savings on gas fees, protocol fee rewards,
+                  and more.
                 </Text>
               </Trans>
             </Column>
           </Column>
           <Flex flexDirection="column" alignItems="center">
-            <img src={crystals} width="20%" />
-            <img
-              src={ringwaveGif}
-              width="75%"
-              style={{ marginTop: '-40px', maxWidth: '533px' }}
-              onError={({ currentTarget }) => {
-                currentTarget.onerror = null // prevents looping
-                currentTarget.src = ringwave
-              }}
-            />
+            <img src={kyberDao1} width="100%" style={{ maxHeight: '372px' }} />
           </Flex>
         </Row>
         <Row style={{ paddingBottom: upToMedium ? '0' : undefined }}>
@@ -180,9 +176,9 @@ export default function KNCUtility() {
           {upToMedium || <div />}
         </Row>
         <Row style={{ padding: upToMedium ? '16px 0 12px' : undefined }}>
-          <Column sx={{ gap: 80 }}>
+          <Column>
             <GasRefundBox />
-            {upToMedium || <img src={kncs} alt="kncs" />}
+            <img src={kyberDao2} alt="Kyber DAO" width="100%" style={{ maxHeight: '491px', marginTop: '-30px' }} />
           </Column>
           <Column gap="16px">
             <Text fontSize={20} fontWeight={400} lineHeight="32px" color={theme.text} id="how-to-participate">
@@ -211,19 +207,19 @@ export default function KNCUtility() {
                 margin: 0,
               }}
             >
-              <li>
+              <Li>
                 <Text fontSize={16} fontWeight={400} lineHeight="24px" color={theme.subText} as="span">
                   <Trans>
                     Value of each trade (calculated at the point of the trade) on KyberSwap has to be ≥ $200
                   </Trans>
                 </Text>
-              </li>
-              <li>
+              </Li>
+              <Li>
                 <Text fontSize={16} fontWeight={400} lineHeight="24px" color={theme.subText} as="span">
                   <Trans>Trades only on Ethereum chain are applicable</Trans>
                 </Text>
-              </li>
-              <li>
+              </Li>
+              <Li>
                 <Text fontSize={16} fontWeight={400} lineHeight="24px" color={theme.subText} as="span">
                   <Trans>
                     The amount of the gas refunded will depend on your tier displayed below. Read more{' '}
@@ -232,7 +228,7 @@ export default function KNCUtility() {
                     </ExternalLink>
                   </Trans>
                 </Text>
-              </li>
+              </Li>
             </ul>
             <Table>
               <TableHeader>
@@ -273,18 +269,64 @@ export default function KNCUtility() {
               <FAQ />
             </Column>
           </Column>
-          {upToMedium ? null : (
-            <Flex alignItems="center" justifyContent="center" width="100%" sx={{ position: 'relative' }}>
-              <img
-                src={kncDropping}
-                style={{
-                  maxWidth: '100%',
-                  maxHeight: '713px',
-                }}
-                alt="Gas Refund"
-              />
-            </Flex>
-          )}
+          <Column gap="16px" width="100%">
+            <Text fontSize={20} lineHeight="32px" fontWeight={400} id="tac">
+              <Trans>Terms and Conditions</Trans>
+            </Text>
+            <Column gap="56px">
+              <ul style={{ paddingInlineStart: '20px', marginBlockStart: 0 }}>
+                <li>
+                  <Text fontSize={14} fontWeight={400} lineHeight="20px">
+                    <Trans>
+                      These Terms and Conditions should be read in conjunction with the KyberSwap{' '}
+                      <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS}>Terms of Use</ExternalLink>, which lay out
+                      the terms and conditions that apply to all KyberSwap activities.
+                    </Trans>
+                  </Text>
+                </li>
+                <br />
+                <li>
+                  <Text fontSize={14} fontWeight={400} lineHeight="20px">
+                    <Trans>
+                      By visiting KyberSwap and participating in the program, the User is deemed to have read,
+                      understood, and agreed to these Terms and Conditions and the KyberSwap{' '}
+                      <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS}>Terms of Use</ExternalLink>.
+                    </Trans>
+                  </Text>
+                </li>
+                <br />
+                <li>
+                  <Text fontSize={14} fontWeight={400} lineHeight="20px">
+                    <Trans>
+                      For this pilot gas refund program, KyberSwap retains the right to cancel or amend the
+                      program&apos;s end date upon giving reasonable notice.
+                    </Trans>
+                  </Text>
+                </li>
+                <br />
+                <li>
+                  <Text fontSize={14} fontWeight={400} lineHeight="20px">
+                    <Trans>
+                      KyberSwap maintains the right, at its sole discretion, to take action or remove rewards against
+                      the User who violates the KyberSwap{' '}
+                      <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS}>Terms of Use</ExternalLink> and/or violates,
+                      cheats, or exploits the program, including but not limited to, any suspicious activities, or any
+                      attempts to circumvent these Terms and Conditions.
+                    </Trans>
+                  </Text>
+                </li>
+                <br />
+                <li>
+                  <Text fontSize={14} fontWeight={400} lineHeight="20px">
+                    <Trans>
+                      Any and all decisions made by KyberSwap in relation to every aspect of the program shall be final
+                      and conclusive.
+                    </Trans>
+                  </Text>
+                </li>
+              </ul>
+            </Column>
+          </Column>
         </Row>
       </Container>
     </Wrapper>
