@@ -1283,7 +1283,7 @@ export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; no
               <Bar
                 dataKey="inflow"
                 stackId="a"
-                fill={rgba(theme.red, 0.6)}
+                fill={rgba(theme.primary, 0.6)}
                 isAnimationActive={noAnimation ? false : true}
                 animationBegin={ANIMATION_DELAY}
                 animationDuration={ANIMATION_DURATION}
@@ -1292,7 +1292,7 @@ export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; no
               <Bar
                 dataKey="outflow"
                 stackId="a"
-                fill={rgba(theme.primary, 0.6)}
+                fill={rgba(theme.red, 0.6)}
                 isAnimationActive={noAnimation ? false : true}
                 animationBegin={ANIMATION_DELAY}
                 animationDuration={ANIMATION_DURATION}
@@ -1634,7 +1634,7 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
                         Inflow
                       </Text>
                       {payload.cexes.map((item: INetflowToCEX, index: number) => (
-                        <Text key={index} fontSize={textFontSize} lineHeight="16px" color={theme.primary}>
+                        <Text key={index} fontSize={textFontSize} lineHeight="16px" color={theme.red}>
                           ${formatShortNum(item.inflow)}
                         </Text>
                       ))}
@@ -1644,7 +1644,7 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
                         Outflow
                       </Text>
                       {payload.cexes.map((item: INetflowToCEX, index: number) => (
-                        <Text key={index} fontSize={textFontSize} lineHeight="16px" color={theme.red}>
+                        <Text key={index} fontSize={textFontSize} lineHeight="16px" color={theme.primary}>
                           ${formatShortNum(item.outflow)}
                         </Text>
                       ))}
@@ -1657,8 +1657,8 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
           <defs>
             <linearGradient id="gradient2" x1="0" y1="100%" x2="0" y2="0">
               <stop offset="0%" stopColor={theme.red} />
-              <stop offset={`${percentage}%`} stopColor={theme.red} />
               <stop offset={`${percentage}%`} stopColor={theme.primary} />
+              <stop offset={`${percentage}%`} stopColor={theme.red} />
               <stop offset="100%" stopColor={theme.primary} />
             </linearGradient>
           </defs>
