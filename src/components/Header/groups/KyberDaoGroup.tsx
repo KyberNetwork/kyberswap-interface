@@ -45,7 +45,14 @@ const KyberDAONavGroup = () => {
               <VoteIcon />
               <Trans>Vote</Trans>
             </StyledNavLink>
-            <StyledNavLink id="knc-utility" to={APP_PATHS.KYBERDAO_KNC_UTILITY} style={{ gap: '4px' }}>
+            <StyledNavLink
+              id="knc-utility"
+              to={APP_PATHS.KYBERDAO_KNC_UTILITY}
+              style={{ gap: '4px' }}
+              onClick={() => {
+                mixpanelHandler(MIXPANEL_TYPE.GAS_REFUND_SOURCE_CLICK, { source: 'KyberDAO_tab' })
+              }}
+            >
               <KyberLogo width={16} height={16} />
               <Trans>KNC Utility</Trans>
             </StyledNavLink>

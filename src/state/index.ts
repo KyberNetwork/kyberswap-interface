@@ -15,6 +15,7 @@ import earningApi from '../services/earning'
 import geckoTerminalApi from '../services/geckoTermial'
 import identifyApi from '../services/identity'
 import ksSettingApi from '../services/ksSetting'
+import kyberDAO from '../services/kyberDAO'
 import socialApi from '../services/social'
 import application from './application/reducer'
 import authen from './authen/reducer'
@@ -91,6 +92,7 @@ const store = configureStore({
     [geckoTerminalApi.reducerPath]: geckoTerminalApi.reducer,
     [kyberAIApi.reducerPath]: kyberAIApi.reducer,
     [kyberAISubscriptionApi.reducerPath]: kyberAISubscriptionApi.reducer,
+    [kyberDAO.reducerPath]: kyberDAO.reducer,
     [identifyApi.reducerPath]: identifyApi.reducer,
     [ksSettingApi.reducerPath]: ksSettingApi.reducer,
     [crosschainApi.reducerPath]: crosschainApi.reducer,
@@ -116,13 +118,11 @@ const store = configureStore({
       .concat(geckoTerminalApi.middleware)
       .concat(kyberAIApi.middleware)
       .concat(kyberAISubscriptionApi.middleware)
-      .concat(identifyApi.middleware)
       .concat(announcementApi.middleware)
       .concat(publicAnnouncementApi.middleware)
-      .concat(kyberAISubscriptionApi.middleware)
+      .concat(kyberDAO.middleware)
       .concat(identifyApi.middleware)
       .concat(ksSettingApi.middleware)
-      .concat(socialApi.middleware)
       .concat(crosschainApi.middleware)
       .concat(priceAlertApi.middleware)
       .concat(routeApi.middleware)

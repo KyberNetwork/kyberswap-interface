@@ -18,7 +18,7 @@ import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
 import Pagination from 'components/Pagination'
 import Row, { RowBetween, RowFit } from 'components/Row'
-import { APP_PATHS } from 'constants/index'
+import { APP_PATHS, ICON_ID } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -268,7 +268,7 @@ const ButtonTypeInactive = styled(ButtonOutlined)`
 
 const tokenTypeList: {
   type: KyberAIListType
-  icon?: string
+  icon?: ICON_ID
   tooltip?: (theme: DefaultTheme) => ReactNode
   title: string
 }[] = [

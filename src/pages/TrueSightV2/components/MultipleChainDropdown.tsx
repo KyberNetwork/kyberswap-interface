@@ -7,6 +7,7 @@ import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
 import Modal from 'components/Modal'
 import Row, { RowFit } from 'components/Row'
+import { ICON_ID } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 
 import SimpleTooltip from './SimpleTooltip'
@@ -46,7 +47,7 @@ const StyledMobileChainIcon = styled.div`
   gap: 6px;
   padding: 10px 8px;
 `
-const ChainIcon = ({ id, name, onClick }: { id: string; name: string; onClick: () => void }) => {
+const ChainIcon = ({ id, name, onClick }: { id: ICON_ID; name: string; onClick: () => void }) => {
   return (
     <SimpleTooltip text={name}>
       <StyledChainIcon onClick={onClick}>
@@ -56,7 +57,7 @@ const ChainIcon = ({ id, name, onClick }: { id: string; name: string; onClick: (
   )
 }
 
-const MobileChainIcon = ({ id, name, onClick }: { id: string; name: string; onClick: () => void }) => {
+const MobileChainIcon = ({ id, name, onClick }: { id: ICON_ID; name: string; onClick: () => void }) => {
   const theme = useTheme()
   return (
     <StyledMobileChainIcon onClick={onClick}>

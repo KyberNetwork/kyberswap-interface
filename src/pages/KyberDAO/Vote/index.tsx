@@ -15,7 +15,7 @@ import { AutoRow, RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useActiveWeb3React } from 'hooks'
-import { useClaimRewardActions, useVotingActions, useVotingInfo } from 'hooks/kyberdao'
+import { useClaimVotingRewards, useVotingActions, useVotingInfo } from 'hooks/kyberdao'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
@@ -119,7 +119,6 @@ export default function Vote() {
     daoInfo,
     remainingCumulativeAmount,
     claimedRewardAmount,
-    userRewards,
     stakerInfo,
     stakerInfoNextEpoch,
     rewardStats: { knc, usd },
@@ -127,7 +126,7 @@ export default function Vote() {
 
   const kncPrice = useKNCPrice()
 
-  const { claim } = useClaimRewardActions()
+  const claimVotingRewards = useClaimVotingRewards()
   const { vote } = useVotingActions()
   const { switchToEthereum } = useSwitchToEthereum()
 
@@ -175,34 +174,21 @@ export default function Vote() {
   }, [toggleClaimConfirmModal, mixpanelHandler, switchToEthereum])
 
   const handleConfirmClaim = useCallback(async () => {
-    if (!userRewards || !userRewards.userReward || !account) return
-    const { cycle, userReward } = userRewards
-    const { index, tokens, cumulativeAmounts, proof } = userReward
     setPendingText(t`Claming ${formatUnitsToFixed(remainingCumulativeAmount)} KNC`)
     setShowConfirm(true)
     setAttemptingTxn(true)
     toggleClaimConfirmModal()
 
-    const params = {
-      cycle,
-      index,
-      address: account,
-      tokens,
-      cumulativeAmounts,
-      merkleProof: proof,
-      formatAmount: formatUnitsToFixed(remainingCumulativeAmount),
+    try {
+      const tx = await claimVotingRewards()
+      setTxHash(tx)
+    } catch (error) {
+      setTransactionError(error?.message)
+      setTxHash(undefined)
+    } finally {
+      setAttemptingTxn(false)
     }
-    claim(params)
-      .then(tx => {
-        setAttemptingTxn(false)
-        setTxHash(tx)
-      })
-      .catch(error => {
-        setTransactionError(error?.message)
-        setAttemptingTxn(false)
-        setTxHash(undefined)
-      })
-  }, [userRewards, account, claim, remainingCumulativeAmount, toggleClaimConfirmModal])
+  }, [claimVotingRewards, remainingCumulativeAmount, toggleClaimConfirmModal])
 
   const handleVote = useCallback(
     async (proposal_id: number, option: number) => {
