@@ -54,17 +54,28 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
   )
 }
 
+const filterTxsMapByAccount = (obj: GroupedTxsByHash | undefined, account: string | undefined) => {
+  if (!obj) return
+  const result: GroupedTxsByHash = {}
+  Object.keys(obj).forEach(key => {
+    const arr = obj[key] ?? []
+    if (isOwnTransactionGroup(arr, account)) {
+      result[key] = obj[key]
+    }
+  })
+  return result
+}
 // returns all the transactions for the current chain
 export function useAllTransactions(allChain = false): GroupedTxsByHash | undefined {
-  const { chainId } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
   const transactions = useSelector<AppState, AppState['transactions']>(state => state.transactions)
 
   return useMemo(() => {
-    if (!allChain) return transactions[chainId]
+    if (!allChain) return filterTxsMapByAccount(transactions[chainId], account)
     return Object.values(transactions).reduce((rs, obj) => {
-      return { ...rs, ...obj }
+      return { ...rs, ...filterTxsMapByAccount(obj, account) }
     }, {})
-  }, [allChain, transactions, chainId])
+  }, [allChain, transactions, chainId, account])
 }
 
 export function useSortRecentTransactions(recentOnly = true, allChain = false) {
