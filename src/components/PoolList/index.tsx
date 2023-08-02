@@ -15,8 +15,8 @@ import ListItem from 'components/PoolList/ListItem'
 import ShareModal from 'components/ShareModal'
 import { ClickableText } from 'components/YieldPools/styleds'
 import { AMP_HINT, AMP_LIQUIDITY_HINT, MAX_ALLOW_APY } from 'constants/index'
-import { STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
+import { useStableCoins } from 'hooks/Tokens'
 import { SelectPairInstructionWrapper } from 'pages/Pools/styleds'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useOpenModal } from 'state/application/hooks'
@@ -309,6 +309,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
   const { data: farms } = useActiveAndUniqueFarmsData()
 
   const [currentPage, setCurrentPage] = useState(1)
+  const { stableCoins } = useStableCoins(chainId)
   const sortedFilteredSubgraphPoolsData = useMemo(() => {
     let res = [...subgraphPoolsData]
 
@@ -347,7 +348,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
     })
 
     if (onlyShowStable) {
-      const stableList = isEVM ? STABLE_COINS_ADDRESS[chainId]?.map(item => item.toLowerCase()) || [] : []
+      const stableList = isEVM ? stableCoins?.map(item => item.address.toLowerCase()) || [] : []
       res = res.filter(poolData => {
         return (
           stableList.includes(poolData.token0.id.toLowerCase()) && stableList.includes(poolData.token1.id.toLowerCase())
@@ -364,8 +365,8 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
     onlyShowStable,
     farms,
     searchValue,
-    chainId,
     isEVM,
+    stableCoins,
   ])
 
   const startIndex = (currentPage - 1) * ITEM_PER_PAGE
