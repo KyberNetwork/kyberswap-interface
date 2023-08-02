@@ -70,6 +70,9 @@ export type ElasticPositionEarningWithDetails = {
   pendingRewardUSD: string
   myPoolApr?: string
   myFarmApr?: string
+  depositedPosition?: {
+    farm: string
+  }
   joinedPositions?: {
     farmId: string
     farmingPool: {
