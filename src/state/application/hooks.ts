@@ -117,19 +117,20 @@ export function useRegisterCampaignSuccessModalToggle(): () => void {
   return useToggleModal(ApplicationModal.REGISTER_CAMPAIGN_SUCCESS)
 }
 
+type AddPopupPayload = {
+  content: PopupContent
+  popupType: PopupType
+  key?: string
+  removeAfterMs?: number | null
+  account?: string
+}
 // returns a function that allows adding a popup
-export function useAddPopup(): (
-  content: PopupContent,
-  popupType: PopupType,
-  key?: string,
-  removeAfterMs?: number | null,
-  account?: string,
-) => void {
+export function useAddPopup(): (data: AddPopupPayload) => void {
   const dispatch = useDispatch()
 
   return useCallback(
-    (content: PopupContent, popupType: PopupType, key?: string, removeAfterMs?: number | null, account?: string) => {
-      dispatch(addPopup({ content, key, popupType, removeAfterMs, account }))
+    (data: AddPopupPayload) => {
+      dispatch(addPopup(data))
     },
     [dispatch],
   )
@@ -140,7 +141,7 @@ export const useNotify = () => {
   const addPopup = useAddPopup()
   return useCallback(
     (data: PopupContentSimple, removeAfterMs: number | null | undefined = 4000) => {
-      addPopup(data, PopupType.SIMPLE, data.title + Math.random(), removeAfterMs)
+      addPopup({ content: data, popupType: PopupType.SIMPLE, key: data.title + Math.random(), removeAfterMs })
     },
     [addPopup],
   )
@@ -151,7 +152,12 @@ export const useTransactionNotify = () => {
   const addPopup = useAddPopup()
   return useCallback(
     (data: PopupContentTxn) => {
-      addPopup(data, PopupType.TRANSACTION, data.hash)
+      addPopup({
+        content: data,
+        popupType: PopupType.TRANSACTION,
+        key: data.hash,
+        account: data.account,
+      })
     },
     [addPopup],
   )
@@ -203,11 +209,14 @@ export function useActivePopups() {
   const { chainId, account } = useActiveWeb3React()
 
   return useMemo(() => {
-    const topRightPopups = popups.filter(e => {
-      if ([PopupType.SIMPLE, PopupType.TRANSACTION].includes(e.popupType)) return true
+    const topRightPopups = popups.filter(item => {
+      const { popupType, content } = item
+      if (popupType === PopupType.SIMPLE) return true
+      if (popupType === PopupType.TRANSACTION) return account === item.account
+
       const announcementsAckMap = getAnnouncementsAckMap()
-      const isRead = announcementsAckMap[e.content.metaMessageId]
-      if (e.popupType === PopupType.TOP_RIGHT) return !isRead
+      const isRead = announcementsAckMap[content?.metaMessageId]
+      if (popupType === PopupType.TOP_RIGHT) return !isRead
       return false
     })
 
