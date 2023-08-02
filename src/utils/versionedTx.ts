@@ -80,7 +80,7 @@ export async function convertToVersionedTx(
   // get tables that can be used in this message
   const lookupTableAddrs: Array<PublicKey> = []
   for (const pubkey of message.accountKeys) {
-    if (lookupTablesByPool[pubkey.toBase58()]) {
+    if (lookupTablesByPool?.[pubkey.toBase58()]) {
       lookupTableAddrs.push(lookupTablesByPool[pubkey.toBase58()])
     }
   }
