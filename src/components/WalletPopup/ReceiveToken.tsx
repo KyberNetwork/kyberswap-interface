@@ -150,7 +150,7 @@ export default function ReceiveToken() {
             <Trans>Your Wallet Address</Trans>
           </Label>
 
-          <MouseoverTooltip placement="bottom" text={t`Copy address to clipboard`}>
+          <MouseoverTooltip placement="bottom" text={t`Copy address to clipboard`} width="fit-content">
             <Flex
               onClick={onCopy}
               role="button"

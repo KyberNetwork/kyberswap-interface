@@ -68,7 +68,7 @@ export interface StakerInfo {
 
 export interface GasRefundTierInfo {
   userTier: number
-  gasRefundPerCentage: number
+  gasRefundPercentage: number
 }
 
 export interface RewardInfo {

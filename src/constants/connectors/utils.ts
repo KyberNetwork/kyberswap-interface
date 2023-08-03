@@ -50,6 +50,7 @@ export enum ErrorCode {
   CHAIN_NOT_ADDED = 4902,
   MM_ALREADY_PENDING = -32002,
 
+  ACTION_REJECTED = 'ACTION_REJECTED',
   WC_MODAL_CLOSED = 'Error: User closed modal',
   CB_REJECTED_REQUEST = 'Error: User denied account authorization',
   ALPHA_WALLET_USER_REJECTED_REQUEST = -32050,
@@ -60,6 +61,7 @@ export enum ErrorCode {
 export function didUserReject(connector: Connector, error: any): boolean {
   return (
     error?.code === ErrorCode.USER_REJECTED_REQUEST ||
+    error?.code === ErrorCode.ACTION_REJECTED ||
     error?.code === ErrorCode.ALPHA_WALLET_USER_REJECTED_REQUEST ||
     error?.message === ErrorCode.ALPHA_WALLET_REJECTED ||
     (connector === walletConnectV2 && error?.toString?.() === ErrorCode.WC_MODAL_CLOSED) ||

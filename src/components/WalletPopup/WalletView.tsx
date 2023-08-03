@@ -1,12 +1,13 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { ChevronLeft, FileText, StopCircle, X } from 'react-feather'
+import { ChevronLeft, FileText, LogOut, StopCircle, X } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as DragHandleIcon } from 'assets/svg/wallet_drag_handle.svg'
+import CopyHelper from 'components/Copy'
 import SendIcon from 'components/Icons/SendIcon'
 import Row from 'components/Row'
 import AccountInfo from 'components/WalletPopup/AccountInfo'
@@ -14,14 +15,39 @@ import MyAssets from 'components/WalletPopup/MyAssets'
 import PinButton from 'components/WalletPopup/PinButton'
 import SendToken from 'components/WalletPopup/SendToken'
 import { APP_PATHS } from 'constants/index'
+import { SUPPORTED_WALLETS } from 'constants/wallets'
+import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import useDisconnectWallet from 'hooks/web3/useDisconnectWallet'
+import { useIsDarkMode } from 'state/user/hooks'
 import { useTokensHasBalance } from 'state/wallet/hooks'
+import { ExternalLinkIcon } from 'theme'
+import { getEtherscanLink, shortenAddress } from 'utils'
 
 import ReceiveToken from './ReceiveToken'
+import RewardCenter from './RewardCenter'
 import ListTransaction from './Transactions'
+import { View } from './type'
 
 export const HANDLE_CLASS_NAME = 'walletPopupDragHandle'
+
+const IconWrapper = styled.div`
+  display: flex;
+  width: 20px;
+  height: 20px;
+  justify-content: center;
+  align-items: center;
+`
+
+const LogOutIcon = styled(LogOut)`
+  cursor: pointer;
+  color: ${({ theme }) => theme.subText};
+  :hover {
+    opacity: 0.8;
+    text-decoration: none;
+  }
+`
 
 type WrapperProps = { $pinned: boolean; $blur: boolean }
 const Wrapper = styled.div.attrs<WrapperProps>(props => ({
@@ -76,13 +102,6 @@ const ContentWrapper = styled.div`
   gap: 14px;
 `
 
-const View = {
-  ASSETS: t`Assets`,
-  SEND_TOKEN: t`Send`,
-  RECEIVE_TOKEN: t`Receive`,
-  TRANSACTIONS: t`Transactions`,
-} as const
-
 type Props = {
   onDismiss: () => void
   onPin?: () => void
@@ -110,6 +129,9 @@ export default function WalletView({
   const navigate = useNavigate()
   const nodeRef = useRef<HTMLDivElement>(null)
   const [isMinimal, setMinimal] = useState(false)
+  const { chainId, account = '', walletKey } = useActiveWeb3React()
+  const isDarkMode = useIsDarkMode()
+  const disconnectWallet = useDisconnectWallet()
 
   const {
     loading: loadingTokens,
@@ -167,6 +189,7 @@ export default function WalletView({
         onClickSend={handleClickSend}
         isMinimal={isMinimal}
         disabledSend={!currencies.length}
+        setView={setView}
       />
     )
   }
@@ -200,12 +223,15 @@ export default function WalletView({
         return <SendToken loadingTokens={loadingTokens} currencies={currencies} currencyBalances={currencyBalances} />
       case View.RECEIVE_TOKEN:
         return <ReceiveToken />
+      case View.REWARD_CENTER:
+        return <RewardCenter />
     }
     return null
   }
 
   const isSendTab = view === View.SEND_TOKEN
-  const isExchangeTokenTab = isSendTab || view === View.RECEIVE_TOKEN
+  const isShowArrow = isSendTab || view === View.RECEIVE_TOKEN
+  const isShowBack = isShowArrow || view === View.REWARD_CENTER
 
   useLayoutEffect(() => {
     // handle minimal mode when width & height become small
@@ -286,17 +312,34 @@ export default function WalletView({
               justifyContent: 'space-between',
             }}
           >
-            {isExchangeTokenTab ? (
+            {isShowBack ? (
               <>
                 <ChevronLeft cursor="pointer" size={28} onClick={() => setView(View.ASSETS)} color={theme.subText} />
                 <Flex alignItems="center">
-                  <SendIcon style={{ marginRight: 7, transform: isSendTab ? 'unset' : 'rotate(180deg)' }} /> {view}
+                  {isShowArrow && (
+                    <SendIcon style={{ marginRight: 7, transform: isSendTab ? 'unset' : 'rotate(180deg)' }} />
+                  )}{' '}
+                  {view}
                 </Flex>
               </>
             ) : (
-              <Text fontWeight={'500'} fontSize="20px" color={theme.subText}>
-                <Trans>Your Account</Trans>
-              </Text>
+              <Flex alignItems={'center'} style={{ gap: 5 }} color={theme.subText}>
+                {walletKey && (
+                  <IconWrapper>
+                    <img
+                      height={18}
+                      src={isDarkMode ? SUPPORTED_WALLETS[walletKey].icon : SUPPORTED_WALLETS[walletKey].iconLight}
+                      alt={SUPPORTED_WALLETS[walletKey].name + ' icon'}
+                    />
+                  </IconWrapper>
+                )}
+                <Text as="span" fontWeight="500">
+                  {shortenAddress(chainId, account, 5, false)}
+                </Text>
+                <CopyHelper toCopy={account} />
+                <ExternalLinkIcon href={getEtherscanLink(chainId, account, 'address')} color={theme.subText} />
+                <LogOutIcon size={16} onClick={disconnectWallet} />
+              </Flex>
             )}
             <Flex style={{ gap: 20 }} alignItems="center">
               {onPin && onUnpin && <PinButton isActive={isPinned} onClick={isPinned ? onUnpin : onPin} />}

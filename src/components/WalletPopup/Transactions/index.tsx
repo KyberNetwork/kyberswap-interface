@@ -1,4 +1,5 @@
-import { Trans } from '@lingui/macro'
+import { ChainId } from '@kyberswap/ks-sdk-core'
+import { Trans, t } from '@lingui/macro'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Info } from 'react-feather'
 import AutoSizer from 'react-virtualized-auto-sizer'
@@ -11,6 +12,7 @@ import { NUMBERS } from 'components/WalletPopup/Transactions/helper'
 import useCancellingOrders, { CancellingOrderInfo } from 'components/swapv2/LimitOrder/useCancellingOrders'
 import { useActiveWeb3React } from 'hooks'
 import { fetchListTokenByAddresses, findCacheToken, useIsLoadedTokenDefault } from 'hooks/Tokens'
+import { isSupportKyberDao } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
 import { useSortRecentTransactions } from 'state/transactions/hooks'
 import {
@@ -103,6 +105,13 @@ function RowItem({
     />
   )
 }
+const listTab = [
+  { title: t`All`, value: '' },
+  { title: t`Swaps`, value: TRANSACTION_GROUP.SWAP },
+  { title: t`Liquidity`, value: TRANSACTION_GROUP.LIQUIDITY },
+  { title: t`KyberDAO`, value: TRANSACTION_GROUP.KYBERDAO },
+  { title: t`Others`, value: TRANSACTION_GROUP.OTHER },
+] as const
 
 // This is intentional, we don't need to persist in localStorage
 let storedActiveTab = ''
@@ -165,9 +174,21 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
     storedActiveTab = activeTab
   }, [activeTab])
 
+  const filterTab = useMemo(() => {
+    return listTab.filter(tab => {
+      if (tab.value === TRANSACTION_GROUP.KYBERDAO) {
+        return isSupportKyberDao(chainId)
+      }
+      if (tab.value === TRANSACTION_GROUP.LIQUIDITY) {
+        return chainId !== ChainId.SOLANA
+      }
+      return true
+    })
+  }, [chainId])
+
   return (
     <Wrapper>
-      <Tab activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Tab<TRANSACTION_GROUP | string> activeTab={activeTab} setActiveTab={setActiveTab} tabs={filterTab} />
       <ContentWrapper>
         {formatTransactions.length === 0 ? (
           <Flex flexDirection="column" alignItems="center" color={theme.subText} sx={{ gap: 10, marginTop: '20px' }}>

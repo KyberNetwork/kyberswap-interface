@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 
 import sprite from 'assets/svg/sprite.svg'
+import { ICON_IDS } from 'constants/index'
 
 const Wrapper = styled.div`
   display: flex;
@@ -32,36 +33,11 @@ const IconWrapper = styled.div`
     flex: 1;
   }
 `
-const iconIds = [
-  'truesight-v2',
-  'notification-2',
-  'bullish',
-  'bearish',
-  'trending-soon',
-  'flame',
-  'download',
-  'upload',
-  'coin-bag',
-  'speaker',
-  'share',
-  'swap',
-  'copy',
-  'open-link',
-  'star',
-  'fullscreen',
-  'leaderboard',
-  'liquid',
-  'alarm',
-  'on-chain',
-  'technical-analysis',
-  'news',
-  'arrow',
-]
 
 export default function Icons() {
   return (
     <Wrapper>
-      {iconIds.map((id: string) => (
+      {ICON_IDS.map(id => (
         <IconWrapper key={id}>
           <svg>
             <use href={`${sprite}#${id}`} width="24" height="24" />
