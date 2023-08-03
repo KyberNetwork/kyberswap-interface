@@ -14,7 +14,7 @@ const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-
+  user-select: none;
   cursor: pointer;
 `
 
@@ -56,6 +56,9 @@ type Props = {
   onExpand?: () => void
   className?: string
   arrowComponent?: ReactNode
+  headerStyle?: CSSProperties
+  headerBorderRadius?: string
+  arrowStyle?: CSSProperties
 }
 
 export const CollapseItem: React.FC<Props> = ({
@@ -65,18 +68,29 @@ export const CollapseItem: React.FC<Props> = ({
   expandedOnMount = false,
   style = {},
   className,
+  headerStyle,
+  headerBorderRadius,
+  arrowStyle,
 }) => {
   const [isExpanded, setExpanded] = useState(expandedOnMount)
 
   return (
     <ItemWrapper style={style} className={className}>
       <Header
+        style={{
+          ...headerStyle,
+          ...(headerBorderRadius !== undefined
+            ? { borderRadius: isExpanded ? `${headerBorderRadius} ${headerBorderRadius} 0 0` : headerBorderRadius }
+            : {}),
+        }}
         onClick={() => {
           setExpanded(e => !e)
         }}
       >
         {header}
-        <ArrowWrapper data-expanded={isExpanded}>{arrowComponent || <ChevronDown />}</ArrowWrapper>
+        <ArrowWrapper data-expanded={isExpanded} style={arrowStyle}>
+          {arrowComponent || <ChevronDown />}
+        </ArrowWrapper>
       </Header>
       <ContentWrapper data-expanded={isExpanded}>{children}</ContentWrapper>
     </ItemWrapper>
