@@ -36,9 +36,8 @@ const PriceRangeChart: React.FC<Props> = ({ position, disabled }) => {
   const token1 = unwrappedToken(position.pool.token1)
 
   const [baseCurrency, setBaseCurrency] = useState(token0)
-  const quoteCurrency = baseCurrency === token0 ? token1 : token0
-
-  const isRateReversed = quoteCurrency === token0
+  const quoteCurrency = baseCurrency.equals(token0) ? token1 : token0
+  const isRateReversed = quoteCurrency.equals(token0)
 
   const tickAtLimit = useIsTickAtLimit(position.pool.fee, position.tickLower, position.tickUpper)
 
