@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import { useGetNativeTokenLogo } from 'components/CurrencyLogo'
 import { formatUSDValue } from 'components/EarningAreaChart/utils'
 import Logo from 'components/Logo'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -24,11 +25,12 @@ const MyEarningsOverTimePanel = styled(OriginalMyEarningsOverTimePanel)`
 const EarningView: React.FC<CommonProps> = props => {
   const { positionEarning, chainId } = props
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
+  const nativeLogo = useGetNativeTokenLogo(chainId)
 
   // format pool value
   const ticks: EarningStatsTick[] | undefined = useMemo(() => {
-    return calculateEarningStatsTick(positionEarning.historicalEarning, chainId, tokensByChainId)
-  }, [chainId, positionEarning.historicalEarning, tokensByChainId])
+    return calculateEarningStatsTick({ data: positionEarning.historicalEarning, chainId, tokensByChainId, nativeLogo })
+  }, [chainId, positionEarning.historicalEarning, tokensByChainId, nativeLogo])
 
   const earningToday = ticks?.[0]
 

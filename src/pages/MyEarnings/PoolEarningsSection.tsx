@@ -6,7 +6,7 @@ import { Box, Flex } from 'rebass'
 import { HistoricalSingleData } from 'services/earning/types'
 import styled from 'styled-components'
 
-import { NETWORKS_INFO } from 'constants/networks'
+import { useGetNativeTokenLogo } from 'components/CurrencyLogo'
 import { NativeCurrencies } from 'constants/tokens'
 import useTheme from 'hooks/useTheme'
 import { calculateEarningStatsTick, getToday } from 'pages/MyEarnings/utils'
@@ -86,6 +86,7 @@ const PoolEarningsSection: React.FC<Props> = ({ historicalEarning, chainId }) =>
   const theme = useTheme()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
+  const nativeLogo = useGetNativeTokenLogo(chainId)
 
   const earningBreakdown: EarningsBreakdown | undefined = useMemo(() => {
     const data = historicalEarning
@@ -108,7 +109,7 @@ const PoolEarningsSection: React.FC<Props> = ({ historicalEarning, chainId }) =>
               const currency = tokensByChainId[chainId][String(tokenAddress)]
               const isNative = currency.isNative || tokenAddress === WETH[chainId].address
               const symbol = (isNative ? NativeCurrencies[chainId].symbol : currency.symbol) || 'NO SYMBOL'
-              const logoUrl = (isNative ? NETWORKS_INFO[chainId].nativeToken.logo : currency.logoURI) || ''
+              const logoUrl = (isNative ? nativeLogo : currency.logoURI) || ''
 
               return {
                 address: tokenAddress,
@@ -157,12 +158,12 @@ const PoolEarningsSection: React.FC<Props> = ({ historicalEarning, chainId }) =>
       totalValue,
       breakdowns,
     }
-  }, [chainId, historicalEarning, tokensByChainId])
+  }, [chainId, historicalEarning, tokensByChainId, nativeLogo])
 
   // format pool value
   const ticks: EarningStatsTick[] | undefined = useMemo(() => {
-    return calculateEarningStatsTick(historicalEarning, chainId, tokensByChainId)
-  }, [chainId, historicalEarning, tokensByChainId])
+    return calculateEarningStatsTick({ data: historicalEarning, chainId, tokensByChainId, nativeLogo })
+  }, [chainId, historicalEarning, tokensByChainId, nativeLogo])
 
   if (upToExtraSmall) {
     return (
