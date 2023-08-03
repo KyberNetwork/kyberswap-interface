@@ -148,7 +148,7 @@ type Props = {
 const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
   const { account, chainId } = useActiveWeb3React()
   const theme = useTheme()
-  const { gasRefundPerCentage } = useGasRefundTier()
+  const { gasRefundPercentage } = useGasRefundTier()
   const [expanded, setExpanded] = useState(true)
   const [alreadyVisible, setAlreadyVisible] = useState(false)
   const { parsedAmountOut, priceImpact, gasUsd } = routeSummary || {}
@@ -285,9 +285,14 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage }) => {
                   </MouseoverTooltip>
                 </TextDashed>
               </RowFixed>
-              <NavLink to={APP_PATHS.KYBERDAO_KNC_UTILITY}>
+              <NavLink
+                to={APP_PATHS.KYBERDAO_KNC_UTILITY}
+                onClick={() => {
+                  mixpanelHandler(MIXPANEL_TYPE.GAS_REFUND_SOURCE_CLICK, { source: 'Swap_page_more_info' })
+                }}
+              >
                 <ButtonLight padding="0px 8px" width="fit-content" fontSize={10} fontWeight={500} lineHeight="16px">
-                  <Trans>{account ? gasRefundPerCentage * 100 : '--'}% Refund</Trans>
+                  <Trans>{account ? gasRefundPercentage * 100 : '--'}% Refund</Trans>
                 </ButtonLight>
               </NavLink>
             </RowBetween>

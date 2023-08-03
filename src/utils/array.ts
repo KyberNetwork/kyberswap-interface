@@ -27,3 +27,13 @@ export const uniqueArray = <T, U>(array: T[], keySelector = (item: T): U => item
   })
   return result
 }
+
+export const aggregateValue = <T extends string>(
+  values: ({ [key in T]: string | number } | undefined)[],
+  field: T,
+): number => {
+  return values.reduce((acc, cur) => {
+    const value = cur?.[field] ?? 0
+    return (typeof value === 'number' ? value : parseFloat(value)) + acc
+  }, 0)
+}

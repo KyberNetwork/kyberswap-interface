@@ -125,11 +125,10 @@ const WalletPopup: React.FC<Props> = ({ isModalOpen, onDismissModal, isPinned, s
               zIndex: isPinned ? Z_INDEXS.WALLET_POPUP : Z_INDEXS.MODAL + 1,
               cursor: 'auto',
               transition: 'top 150ms, left 150ms',
-              top,
-              left,
             }}
             enableResizing={isPinned}
             disableDragging={!isPinned}
+            bounds="body"
           >
             <WalletView
               {...commonProps}

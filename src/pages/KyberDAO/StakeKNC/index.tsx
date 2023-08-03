@@ -132,7 +132,7 @@ export default function StakeKNC() {
     })
   }
   const kncPrice = useKNCPrice()
-  const { userTier, gasRefundPerCentage } = useGasRefundTier()
+  const { userTier, gasRefundPercentage } = useGasRefundTier()
 
   return (
     <Wrapper>
@@ -241,7 +241,14 @@ export default function StakeKNC() {
                 <Text fontSize={12} lineHeight="16px" fontWeight={500} textAlign="left" color={theme.subText}>
                   <Trans>
                     Discover more staking KNC utility and benefits{' '}
-                    <NavLink to={APP_PATHS.KYBERDAO_KNC_UTILITY}>here ↗</NavLink>
+                    <NavLink
+                      to={APP_PATHS.KYBERDAO_KNC_UTILITY}
+                      onClick={() => {
+                        mixpanelHandler(MIXPANEL_TYPE.GAS_REFUND_SOURCE_CLICK, { source: 'StakeKNC_page_KNC_utility' })
+                      }}
+                    >
+                      here ↗
+                    </NavLink>
                   </Trans>
                 </Text>
               </Row>
@@ -250,7 +257,17 @@ export default function StakeKNC() {
               text={
                 <Trans>
                   Tier {userTier} - You are eligible for{' '}
-                  <NavLink to={APP_PATHS.KYBERDAO_KNC_UTILITY}>{gasRefundPerCentage * 100}% gas refund</NavLink>.
+                  <NavLink
+                    to={APP_PATHS.KYBERDAO_KNC_UTILITY}
+                    onClick={() => {
+                      mixpanelHandler(MIXPANEL_TYPE.GAS_REFUND_SOURCE_CLICK, {
+                        source: 'StakeKNC_page_KNC_utility_tier',
+                      })
+                    }}
+                  >
+                    {gasRefundPercentage ? gasRefundPercentage * 100 : '--'}% gas refund
+                  </NavLink>
+                  .
                 </Trans>
               }
             >
