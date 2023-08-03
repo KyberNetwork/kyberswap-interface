@@ -1,9 +1,9 @@
-import { BigNumber } from 'ethers'
 import { useMemo } from 'react'
 
 import { REWARD_TYPE } from 'components/WalletPopup/type'
 import { useKNCPrice } from 'state/application/hooks'
 import { aggregateValue } from 'utils/array'
+import { formatUnitsToFixed } from 'utils/formatBalance'
 
 import { useClaimGasRefundRewards, useClaimVotingRewards, useGasRefundInfo, useVotingInfo } from './kyberdao'
 
@@ -20,8 +20,8 @@ export const useRewards = () => {
     return {
       [REWARD_TYPE.GAS_REFUND]: { knc: knc || 0, usd: usd || 0, claim: claimGasRefund },
       [REWARD_TYPE.VOTING_REWARDS]: {
-        knc: remainingCumulativeAmount.div(BigNumber.from('10e18')).toNumber(),
-        usd: remainingCumulativeAmount.div(BigNumber.from('10e18')).toNumber() * kncPrice,
+        knc: +formatUnitsToFixed(remainingCumulativeAmount),
+        usd: +formatUnitsToFixed(remainingCumulativeAmount) * +(kncPrice || '0'),
         claim: claimVotingRewards,
       },
     }
