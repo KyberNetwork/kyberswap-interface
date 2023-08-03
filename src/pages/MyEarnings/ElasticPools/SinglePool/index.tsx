@@ -157,7 +157,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
       poolEarning.token1.id,
       +poolEarning.token1.decimals,
       poolEarning.token1.symbol,
-      poolEarning.token0.name,
+      poolEarning.token1.name,
     )
 
     return [currency0, currency1]
