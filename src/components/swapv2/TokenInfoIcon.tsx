@@ -6,7 +6,7 @@ import { Flex, Text } from 'rebass'
 
 import { RowBetween } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
-import TokenInfoTab from 'components/swapv2/TokenInfoTab'
+import TokenInfoTab from 'components/swapv2/TokenInfo'
 import { MobileModalWrapper, StyledActionButtonSwapForm } from 'components/swapv2/styleds'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
