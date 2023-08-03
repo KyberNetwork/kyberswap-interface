@@ -252,7 +252,6 @@ export async function splitQuery<ResultType, T, U>(
   localClient: ApolloClient<NormalizedCacheObject>,
   list: T[],
   vars: U[],
-  _signal: AbortSignal,
   skipCount = 100,
 ): Promise<
   | {
@@ -273,12 +272,6 @@ export async function splitQuery<ResultType, T, U>(
     const result = await localClient.query({
       query: query(sliced, ...vars),
       fetchPolicy: 'no-cache',
-      // We dont need signal here, apollo handle it very well
-      // context: {
-      //   fetchOptions: {
-      //     signal,
-      //   },
-      // },
     })
     fetchedData = {
       ...fetchedData,
@@ -305,20 +298,13 @@ export async function getBlocksFromTimestampsSubgraph(
   blockClient: ApolloClient<NormalizedCacheObject>,
   timestamps: number[],
   chainId: ChainId,
-  signal: AbortSignal,
 ): Promise<{ timestamp: number; number: number }[]> {
   if (!isEVM(chainId)) return []
   if (timestamps?.length === 0) {
     return []
   }
 
-  const fetchedData = await splitQuery<{ number: string }[], number, any>(
-    GET_BLOCKS,
-    blockClient,
-    timestamps,
-    [],
-    signal,
-  )
+  const fetchedData = await splitQuery<{ number: string }[], number, any>(GET_BLOCKS, blockClient, timestamps, [])
   const blocks: { timestamp: number; number: number }[] = []
   if (fetchedData) {
     for (const t in fetchedData) {
@@ -373,7 +359,7 @@ export async function getBlocksFromTimestamps(
   signal: AbortSignal,
 ): Promise<{ timestamp: number; number: number }[]> {
   if (isEnableBlockService) return getBlocksFromTimestampsBlockService(timestamps, chainId, signal)
-  return getBlocksFromTimestampsSubgraph(blockClient, timestamps, chainId, signal)
+  return getBlocksFromTimestampsSubgraph(blockClient, timestamps, chainId)
 }
 
 /**
