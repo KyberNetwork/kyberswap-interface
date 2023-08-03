@@ -7,7 +7,7 @@ const mainPage = `swap/${network_env}`.toLowerCase()
 describe('Metamask Extension tests', { tags: tag.regression }, () => {
    beforeEach(() => {
       cy.visit('/' + mainPage)
-      cy.clickButton(homePage.skipTutorial)
+      cy.get(homePage.skipTutorial, { timeout: 30000 }).should('be.visible').click()
       cy.get(wallet.btnConnectWallet).should('be.visible').click()
       cy.connectWallet()
    })
@@ -21,7 +21,7 @@ describe('Metamask Extension tests', { tags: tag.regression }, () => {
    it('Should approve permission to switch network', () => {
       if (network_env !== 'Ethereum') {
          cy.get(wallet.statusConnected, { timeout: 10000 }).should('be.visible')
-         cy.clickButton(network.btnSelectNetwork)
+         cy.get(network.btnSelectNetwork, { timeout: 30000 }).should('be.visible').click()
          cy.get(network.btnNetwork).contains(network_env).click({ force: true })
          cy.allowMetamaskToAddAndSwitchNetwork().then(approved => {
             expect(approved).to.be.true
