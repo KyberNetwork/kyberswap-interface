@@ -1,3 +1,4 @@
+import { BigNumber } from 'ethers'
 import { useMemo } from 'react'
 
 import { REWARD_TYPE } from 'components/WalletPopup/type'
@@ -19,8 +20,8 @@ export const useRewards = () => {
     return {
       [REWARD_TYPE.GAS_REFUND]: { knc: knc || 0, usd: usd || 0, claim: claimGasRefund },
       [REWARD_TYPE.VOTING_REWARDS]: {
-        knc: remainingCumulativeAmount.toNumber(),
-        usd: remainingCumulativeAmount.toNumber() * kncPrice,
+        knc: remainingCumulativeAmount.div(BigNumber.from('10e18')).toNumber(),
+        usd: remainingCumulativeAmount.div(BigNumber.from('10e18')).toNumber() * kncPrice,
         claim: claimVotingRewards,
       },
     }

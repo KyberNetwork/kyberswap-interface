@@ -431,7 +431,7 @@ export function useVotingInfo() {
     return (
       userRewards?.userReward?.tokens?.map((_: string, index: number) => {
         const cummulativeAmount = userRewards.userReward?.cumulativeAmounts?.[index]
-        if (cummulativeAmount) return BigNumber.from(0)
+        if (!cummulativeAmount) return BigNumber.from(0)
         return BigNumber.from(cummulativeAmount).sub(BigNumber.from(claimedRewardAmounts[0]))
       })[0] || BigNumber.from(0)
     )
