@@ -8,6 +8,7 @@ import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonPrimary } from 'components/Button'
+import { useGetNativeTokenLogo } from 'components/CurrencyLogo'
 import Logo from 'components/Logo'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
@@ -47,7 +48,7 @@ const getFullDisplayBalance = (balance: BigNumber, decimals = 18, significant = 
 }
 
 function FaucetModal() {
-  const { chainId, account, networkInfo } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
   const open = useModalOpen(ApplicationModal.FAUCET_POPUP)
   const toggle = useToggleModal(ApplicationModal.FAUCET_POPUP)
   const theme = useTheme()
@@ -66,11 +67,13 @@ function FaucetModal() {
     }
     return nativeToken
   }, [rewardData, chainId, account, allTokens])
+
+  const nativeLogo = useGetNativeTokenLogo(chainId)
   const tokenLogo = useMemo(() => {
     if (!token) return
-    if (token.isNative) return networkInfo.nativeToken.logo
+    if (token.isNative) return nativeLogo
     return getTokenLogoURL(token.address, chainId)
-  }, [chainId, token, networkInfo])
+  }, [chainId, token, nativeLogo])
   const tokenSymbol = useMemo(() => {
     if (token?.isNative && chainId) return WETH[chainId].name
     return token?.symbol
@@ -147,20 +150,14 @@ function FaucetModal() {
             wallet can only request for the tokens once. You can claim:
           </Trans>
         </Text>
-        <Text fontSize={32} lineHeight="38px" fontWeight={500}>
-          {token && (
-            <>
-              {tokenLogo && (
-                <Logo
-                  srcs={[tokenLogo]}
-                  alt={`${tokenSymbol ?? 'token'} logo`}
-                  style={{ width: '28px', paddingRight: '8px' }}
-                />
-              )}{' '}
-              {rewardData?.amount ? getFullDisplayBalance(rewardData?.amount, token?.decimals) : 0} {tokenSymbol}
-            </>
-          )}
-        </Text>
+
+        {token && (
+          <Flex alignItems={'center'} sx={{ gap: '6px' }} fontSize={28} lineHeight="38px" fontWeight={500}>
+            {tokenLogo && <Logo srcs={[tokenLogo]} alt={`${tokenSymbol ?? 'token'} logo`} style={{ width: '28px' }} />}{' '}
+            {rewardData?.amount ? getFullDisplayBalance(rewardData?.amount, token?.decimals) : 0} {tokenSymbol}
+          </Flex>
+        )}
+
         {account ? (
           <ButtonPrimary
             disabled={!rewardData?.amount || rewardData?.amount.eq(0)}

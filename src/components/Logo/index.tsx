@@ -3,6 +3,7 @@ import { CSSProperties, useState } from 'react'
 import { HelpCircle } from 'react-feather'
 import { ImageProps } from 'rebass'
 
+import { useGetNativeTokenLogo } from 'components/CurrencyLogo'
 import { NETWORKS_INFO } from 'constants/networks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useIsDarkMode } from 'state/user/hooks'
@@ -52,7 +53,8 @@ export function TokenLogoWithChain(data: any) {
   const { tokenLogo: tokenLogoParam, chainId: chainParam, size, currency } = data
 
   const chainId: ChainId = currency?.chainId || chainParam
-  const tokenLogo = (currency?.isNative ? NETWORKS_INFO[chainId].nativeToken.logo : currency?.logoURI) || tokenLogoParam
+  const nativeLogo = useGetNativeTokenLogo(chainId)
+  const tokenLogo = (currency?.isNative ? nativeLogo : currency?.logoURI) || tokenLogoParam
   const ratio = 0.7
   const networkSize = ratio * parseInt(size + '')
 
