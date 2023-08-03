@@ -20,7 +20,7 @@ const coingeckoApi = createApi({
     }),
   }),
 })
-
+// todo (not for now) move basic chart api to this file
 export const { useGetMarketTokenInfoQuery } = coingeckoApi
 
 export default coingeckoApi

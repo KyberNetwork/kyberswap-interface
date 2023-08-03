@@ -20,7 +20,7 @@ import { ListOrderHandle } from 'components/swapv2/LimitOrder/type'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import PairSuggestion, { PairSuggestionHandle } from 'components/swapv2/PairSuggestion'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
-import TokenInfoTab from 'components/swapv2/TokenInfoTab'
+import TokenInfoTab from 'components/swapv2/TokenInfo'
 import TokenInfoV2 from 'components/swapv2/TokenInfoV2'
 import {
   Container,
@@ -246,7 +246,11 @@ export default function Swap() {
               />
             )}
 
-            <AppBodyWrapped data-highlight={shouldHighlightSwapBox} id={TutorialIds.SWAP_FORM}>
+            <AppBodyWrapped
+              data-highlight={shouldHighlightSwapBox}
+              id={TutorialIds.SWAP_FORM}
+              style={activeTab === TAB.INFO ? { padding: 0 } : undefined}
+            >
               {isSwapPage && (
                 <PopulatedSwapForm
                   onSelectSuggestedPair={onSelectSuggestedPair}
