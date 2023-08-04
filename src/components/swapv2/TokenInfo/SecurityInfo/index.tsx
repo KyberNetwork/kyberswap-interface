@@ -42,32 +42,42 @@ const ItemWrapper = styled.div`
 `
 
 type ItemData = { label: string; value: string; type: WarningType; isNumber?: boolean }
+const NO_DATA = '--'
 
-const isValueDanger = ({ value, isNumber }: ItemData) => !value || value === '0' || (isNumber && +value > 0.05)
+const isValueDanger = ({ value, isNumber }: ItemData) =>
+  value !== undefined && (value === '0' || (isNumber && +value > 0.05))
 const reverse = (value: string | undefined) => (!value ? undefined : value === '0' ? '1' : '0')
 
 const InfoItem = ({ data, loading }: { data: ItemData; loading: boolean }) => {
-  const { label, value, type } = data
+  const { label, value, type, isNumber } = data
   const theme = useTheme()
-
+  const displayValue = loading ? (
+    <Loader size="12px" />
+  ) : isNumber && value ? (
+    `${+value * 100}%`
+  ) : value === '0' ? (
+    t`No`
+  ) : value === '1' ? (
+    t`Yes`
+  ) : (
+    NO_DATA
+  )
   return (
     <ItemWrapper>
       <Label>{label}</Label>
       <Label
-        color={isValueDanger(data) ? (type === WarningType.RISKY ? theme.red : theme.warning) : theme.primary}
+        color={
+          isValueDanger(data)
+            ? type === WarningType.RISKY
+              ? theme.red
+              : theme.warning
+            : displayValue === NO_DATA
+            ? theme.subText
+            : theme.primary
+        }
         style={{ fontWeight: '500' }}
       >
-        {loading ? (
-          <Loader size="12px" />
-        ) : value === '0' ? (
-          t`No`
-        ) : value === '1' ? (
-          t`Yes`
-        ) : value ? (
-          `${+value * 100}%`
-        ) : (
-          '--'
-        )}
+        {displayValue}
       </Label>
     </ItemWrapper>
   )
@@ -127,6 +137,7 @@ export default function SecurityInfo({ token }: { token: Token | undefined }) {
     { chainId: token?.chainId as ChainId, address: token?.address ?? '' },
     { skip: !token?.address },
   )
+  console.log(data)
 
   const contractData: ItemData[] = [
     {
