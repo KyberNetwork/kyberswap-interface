@@ -116,18 +116,11 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
       ? tryParseAmount(myLiquidity?.liquidityTokenBalance, NativeCurrencies[chainId])
       : undefined
 
-  const pooledToken0 =
-    liquidityTokenBalance && reserve0 && totalSupply
-      ? liquidityTokenBalance.multiply(reserve0).divide(totalSupply)
-      : undefined
-
-  const pooledToken1 =
-    liquidityTokenBalance && reserve1 && totalSupply
-      ? liquidityTokenBalance.multiply(reserve1).divide(totalSupply)
-      : undefined
-
   const yourShareOfPool =
     liquidityTokenBalance && totalSupply ? new Percent(liquidityTokenBalance.quotient, totalSupply.quotient) : undefined
+
+  const pooledToken0 = yourShareOfPool && reserve0 ? reserve0.multiply(yourShareOfPool) : undefined
+  const pooledToken1 = yourShareOfPool && reserve1 ? reserve1.multiply(yourShareOfPool) : undefined
 
   const currency0Symbol = getTokenSymbolWithHardcode(chainId, currency0.wrapped.address, currency0.symbol)
   const currency1Symbol = getTokenSymbolWithHardcode(chainId, currency1.wrapped.address, currency1.symbol)

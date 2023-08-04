@@ -1,11 +1,14 @@
 import { rgba } from 'polished'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import sprite from 'assets/svg/sprite.svg'
+import { NotificationType } from 'components/Announcement/type'
 import * as IconComponents from 'components/Icons'
 import { ICON_IDS } from 'constants/index'
+import useCopyClipboard from 'hooks/useCopyClipboard'
+import { useNotify } from 'state/application/hooks'
 
 const allSvgFiles = import.meta.glob('../../assets/svg/*')
 
@@ -33,7 +36,7 @@ const IconWrapper = styled.div`
   padding: 20px 10px;
   font-size: 12px;
   &:hover {
-    transform: scale(1.5);
+    transform: scale(1.2);
   }
   > svg {
     display: block;
@@ -41,6 +44,7 @@ const IconWrapper = styled.div`
     width: 24px;
     flex: 1;
   }
+  cursor: pointer;
 `
 
 const IconWrapperV2 = styled(IconWrapper)`
@@ -51,9 +55,33 @@ const IconWrapperV2 = styled(IconWrapper)`
     width: 100%;
   }
 `
+const camelizeSnake = (st: string) =>
+  st
+    .split('_')
+    .map((i: string) => i[0].toUpperCase() + i.slice(1))
+    .join('')
 
 export default function Icons() {
   const [svgComponents, setSvgComponents] = useState<any>([])
+  const [copied, setCopied] = useCopyClipboard(2000)
+  const notify = useNotify()
+
+  const onClick = useCallback(
+    (id: string) => {
+      setCopied(id)
+    },
+    [setCopied],
+  )
+
+  useEffect(() => {
+    if (copied) {
+      notify({
+        title: 'Copy success',
+        summary: `Copied '${copied}'`,
+        type: NotificationType.SUCCESS,
+      })
+    }
+  }, [copied, notify])
 
   useEffect(() => {
     const array = Object.keys(allSvgFiles).map(key => ({ id: key.split('/').pop(), fn: allSvgFiles[key]() }))
@@ -78,7 +106,7 @@ export default function Icons() {
       <h2>Svg sprite icon</h2>
       <Wrapper>
         {ICON_IDS.map((id: string) => (
-          <IconWrapper key={id}>
+          <IconWrapper key={id} onClick={() => onClick(`<Icon id="${id}" size={16} />`)}>
             <svg>
               <use href={`${sprite}#${id}`} width="24" height="24" />
             </svg>
@@ -89,11 +117,17 @@ export default function Icons() {
       <h2>All Svg in: folder /assets/svg </h2>
       <Wrapper>
         {svgComponents.map((el: any) => {
+          const title: string = el.id
           return (
-            <IconWrapperV2 key={el.id}>
+            <IconWrapperV2
+              key={el.id}
+              onClick={() =>
+                onClick(`import { ReactComponent as ${camelizeSnake(title.slice(0, -4))} } from 'assets/svg/${title}'`)
+              }
+            >
               {el.render?.()}
               <Text fontSize={10} style={{ wordBreak: 'break-all' }}>
-                {el.id}
+                {title}
               </Text>
             </IconWrapperV2>
           )
@@ -103,7 +137,7 @@ export default function Icons() {
       <Wrapper>
         {Object.entries(IconComponents).map(([key, component]) => {
           return (
-            <IconWrapperV2 key={key}>
+            <IconWrapperV2 key={key} onClick={() => onClick(`import { ${key} } from 'components/Icons'`)}>
               {component?.({})}
               <Text fontSize={10} style={{ wordBreak: 'break-all' }}>
                 {key}.tsx
