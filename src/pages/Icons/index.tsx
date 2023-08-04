@@ -58,20 +58,25 @@ const IconWrapperV2 = styled(IconWrapper)`
 
 export default function Icons() {
   const [svgComponents, setSvgComponents] = useState<any>([])
-  const [, setCopied] = useCopyClipboard(2000)
+  const [copied, setCopied] = useCopyClipboard(2000)
   const notify = useNotify()
 
   const onClick = useCallback(
     (id: string) => {
       setCopied(id)
+    },
+    [setCopied],
+  )
+
+  useEffect(() => {
+    if (copied) {
       notify({
         title: 'Copy success',
-        summary: `Copied '${id}'`,
+        summary: `Copied '${copied}'`,
         type: NotificationType.SUCCESS,
       })
-    },
-    [setCopied, notify],
-  )
+    }
+  }, [copied, notify])
 
   useEffect(() => {
     const array = Object.keys(allSvgFiles).map(key => ({ id: key.split('/').pop(), fn: allSvgFiles[key]() }))
