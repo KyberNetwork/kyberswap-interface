@@ -1,4 +1,4 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
@@ -130,7 +130,6 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
   const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
   const [isExpanded, setExpanded] = useState(false)
-  const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
   const tabletView = useMedia(`(max-width: ${WIDTHS[3]}px)`)
   const mobileView = useMedia(`(max-width: ${WIDTHS[2]}px)`)
 
@@ -146,11 +145,23 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
       return []
     }
 
-    const currency0 = tokensByChainId[chainId][tokenAddress0]
-    const currency1 = tokensByChainId[chainId][tokenAddress1]
+    const currency0 = new Token(
+      chainId,
+      poolEarning.token0.id,
+      +poolEarning.token0.decimals,
+      poolEarning.token0.symbol,
+      poolEarning.token0.name,
+    )
+    const currency1 = new Token(
+      chainId,
+      poolEarning.token1.id,
+      +poolEarning.token1.decimals,
+      poolEarning.token1.symbol,
+      poolEarning.token1.name,
+    )
 
     return [currency0, currency1]
-  }, [chainId, poolEarning.token0.id, poolEarning.token1.id, tokensByChainId])
+  }, [chainId, poolEarning])
 
   const pool = useMemo(() => {
     if (currency0 && currency1)

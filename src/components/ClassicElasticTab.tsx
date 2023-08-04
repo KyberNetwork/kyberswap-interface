@@ -44,7 +44,7 @@ function ClassicElasticTab() {
 
   const showLegacyExplicit = upToMedium ? false : isFarmpage ? shouldShowFarmTab : shouldShowPositionTab
 
-  const dontShowLegacy = chainId === ChainId.LINEA_TESTNET
+  const dontShowLegacy = [ChainId.LINEA_TESTNET, ChainId.LINEA].includes(chainId)
 
   const legacyTag = (small?: boolean) => (
     <Text

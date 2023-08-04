@@ -78,7 +78,7 @@ export default function SwapDetails({
   const theme = useTheme()
   const isDarkMode = useIsDarkMode()
   const { slippage, routeSummary } = useSwapFormContext()
-  const { gasRefundPerCentage } = useGasRefundTier()
+  const { gasRefundPercentage } = useGasRefundTier()
 
   const currencyIn = routeSummary?.parsedAmountIn?.currency
   const currencyOut = routeSummary?.parsedAmountOut?.currency
@@ -358,7 +358,7 @@ export default function SwapDetails({
               lineHeight="16px"
               style={{ pointerEvents: 'none' }}
             >
-              <Trans>{gasRefundPerCentage * 100}% Refund</Trans>
+              <Trans>{gasRefundPercentage ? gasRefundPercentage * 100 : '--'}% Refund</Trans>
             </ButtonLight>
           </RowBetween>
         )}

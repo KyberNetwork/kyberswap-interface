@@ -34,6 +34,7 @@ const earningApi = createApi({
           includeMyFarmApr: true,
           perPage: 1000,
           page: 1,
+          includeHistorical: true,
         }
 
         const [positionsRes, earningRes] = await Promise.all([
@@ -88,6 +89,7 @@ const earningApi = createApi({
           includeMyFarmApr: true,
           perPage: 1000,
           page: 1,
+          includeHistorical: true,
         }
 
         const [positionsRes, earningRes] = await Promise.all([

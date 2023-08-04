@@ -6,6 +6,7 @@ import { ReactComponent as DollarIcon } from 'assets/svg/dollar.svg'
 import { ButtonLight } from 'components/Button'
 import SendIcon from 'components/Icons/SendIcon'
 import { ClickHandlerProps } from 'components/WalletPopup/AccountInfo'
+import useTheme from 'hooks/useTheme'
 
 const ActionButton = styled(ButtonLight)`
   flex: 0 1 105px;
@@ -17,6 +18,7 @@ type Props = {
   className?: string
 } & ClickHandlerProps
 const ActionButtonGroup: React.FC<Props> = ({ onClickBuy, onClickReceive, onClickSend, className, disabledSend }) => {
+  const theme = useTheme()
   return (
     <Flex
       className={className}
@@ -26,7 +28,7 @@ const ActionButtonGroup: React.FC<Props> = ({ onClickBuy, onClickReceive, onClic
       }}
     >
       <ActionButton onClick={onClickBuy}>
-        <DollarIcon />
+        <DollarIcon color={theme.primary} />
         <Text as="span" marginLeft="7px">
           <Trans>Buy</Trans>
         </Text>

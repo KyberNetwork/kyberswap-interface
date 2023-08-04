@@ -6,7 +6,7 @@ import { NavLink } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import { APP_PATHS, TERM_FILES_PATH } from 'constants/index'
+import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
 
@@ -115,8 +115,9 @@ const FAQ: React.FC = () => {
         title={t`Can I participate in the Gas Refund Program if I am not staking in KyberDAO?`}
         content={
           <Trans>
-            No. You have to stake a minimum of 500 KNC in KyberDAO (on Ethereum) here, and meet the eligibility criteria
-            by completing swap(s) on KyberSwap, with a minimum trading volume of ≥$200 per swap.
+            No. You have to stake a minimum of 500 KNC in KyberDAO (on Ethereum){' '}
+            <NavLink to={APP_PATHS.KYBERDAO_STAKE}>here</NavLink>, and meet the eligibility criteria by completing
+            swap(s) on KyberSwap, with a minimum trading volume of ≥$200 per swap.
           </Trans>
         }
       />
@@ -136,7 +137,7 @@ const FAQ: React.FC = () => {
       <DetailPanel
         toggleExpand={() => handleToggleExpand(Panel.Q_When)}
         isExpanded={expandedPanel === Panel.Q_When}
-        title={t`When will rewards be available to claim?`}
+        title={t`When will gas refunds be available to claim?`}
         content={
           <Trans>
             On the “Pending” tab, there is a countdown timer showing when pending refunds become available for claiming.
@@ -194,54 +195,6 @@ const FAQ: React.FC = () => {
         title={t`What is the maximum gas refund limit for a user?`}
         content={
           <Trans>Each user wallet address is eligible for gas refund of up to $200 within two epoch cycles.</Trans>
-        }
-      />
-      <Separator />
-      <DetailPanel
-        toggleExpand={() => handleToggleExpand(Panel.Q_Term)}
-        isExpanded={expandedPanel === Panel.Q_Term}
-        title={t`Terms and Conditions`}
-        content={
-          <>
-            <li>
-              <Trans>
-                These Terms and Conditions (<ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS}>Terms</ExternalLink>)
-                should be read in conjunction with the KyberSwap Terms of Use, which lay out the terms and conditions
-                that apply to all KyberSwap activities.
-              </Trans>
-            </li>
-            <br />
-            <li>
-              <Trans>
-                Currently, only trades on Ethereum are eligible for gas refunds. Gas refunds amount is based on the
-                users’ KNC staking tier and the value of each trade.
-              </Trans>
-            </li>
-            <br />
-            <li>
-              <Trans>
-                For a trade to be eligible for gas refunds (after staking KNC), the trade value has to be ≥$200;
-                calculated by KyberSwap at the point of trade.
-              </Trans>
-            </li>
-            <br />
-            <li>
-              <Trans>Each address has a maximum limit of $200 in gas refunds per month.</Trans>
-            </li>
-            <br />
-            <li>
-              <Trans>
-                KyberSwap retains the right to amend the gas refund program&apos;s end date with reasonable notice.
-              </Trans>
-            </li>
-            <br />
-            <li>
-              <Trans>
-                KyberSwap maintains the right, at its sole discretion, to remove rewards for any user who violates,
-                cheats, or exploits the program.
-              </Trans>
-            </li>
-          </>
         }
       />
     </DetailsContainer>

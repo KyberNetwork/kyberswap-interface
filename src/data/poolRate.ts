@@ -58,7 +58,6 @@ export const getHourlyRateData = async (
       elasticClient,
       blocks,
       [poolAddress],
-      signal,
       100,
     )
     if (signal.aborted) return

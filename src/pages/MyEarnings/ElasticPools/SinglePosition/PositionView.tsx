@@ -256,7 +256,7 @@ const PositionView: React.FC<CommonProps> = props => {
         feeValue0={feeReward0}
         feeValue1={feeReward1}
         hasUserDepositedInFarm={positionEarning.owner !== positionEarning.ownerOriginal}
-        farmAddress={positionEarning.joinedPositions?.[0]?.farmId}
+        farmAddress={positionEarning.depositedPosition?.farm || positionEarning.joinedPositions?.[0]?.farmId}
         poolAddress={positionEarning.pool.id}
         position={position}
         isLegacy={isLegacyPosition}

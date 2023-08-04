@@ -5,6 +5,7 @@ import { ReactComponent as DollarIcon } from 'assets/svg/dollar.svg'
 import { ButtonLight } from 'components/Button'
 import SendIcon from 'components/Icons/SendIcon'
 import { ClickHandlerProps } from 'components/WalletPopup/AccountInfo'
+import useTheme from 'hooks/useTheme'
 
 const MinimalActionButton = styled(ButtonLight)`
   flex: 0 0 36px;
@@ -23,6 +24,7 @@ const MinimalActionButtonGroup: React.FC<Props> = ({
   className,
   disabledSend,
 }) => {
+  const theme = useTheme()
   return (
     <Flex
       className={className}
@@ -33,7 +35,7 @@ const MinimalActionButtonGroup: React.FC<Props> = ({
       }}
     >
       <MinimalActionButton onClick={onClickBuy}>
-        <DollarIcon width={'24px'} height={'24px'} />
+        <DollarIcon width={'24px'} height={'24px'} color={theme.primary} />
       </MinimalActionButton>
       <MinimalActionButton onClick={onClickReceive}>
         <SendIcon size={14} style={{ transform: 'rotate(180deg)' }} />
