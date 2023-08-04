@@ -34,19 +34,17 @@ const kyberAIApi = createApi({
         chain?: string
         page?: number
         pageSize?: number
-        wallet?: string
         watchlist?: boolean
         keywords?: string
       }
     >({
-      query: ({ type, chain, page, pageSize, wallet, watchlist, keywords }) => ({
+      query: ({ type, chain, page, pageSize, watchlist, keywords }) => ({
         url: '/tokens',
         params: {
           type: type || 'all',
           chain: chain || 'all',
           page: page || 1,
           size: pageSize || 10,
-          wallet,
           watchlist: watchlist ? 'true' : undefined,
           keywords,
         },
@@ -57,12 +55,11 @@ const kyberAIApi = createApi({
         }
         throw new Error(res.msg)
       },
-      providesTags: (result, error, arg) =>
-        arg.watchlist === true && !!arg.wallet ? ['myWatchList', 'tokenList'] : ['tokenList'],
+      providesTags: (result, error, arg) => (arg.watchlist === true ? ['myWatchList', 'tokenList'] : ['tokenList']),
     }),
     //2.
     addToWatchlist: builder.mutation({
-      query: (params: { wallet: string; tokenAddress: string; chain: string }) => ({
+      query: (params: { tokenAddress: string; chain: string }) => ({
         url: `/watchlist`,
         method: 'POST',
         params,
@@ -71,7 +68,7 @@ const kyberAIApi = createApi({
     }),
     //3.
     removeFromWatchlist: builder.mutation({
-      query: (params: { wallet: string; tokenAddress: string; chain: string }) => ({
+      query: (params: { tokenAddress: string; chain: string }) => ({
         url: `/watchlist`,
         method: 'DELETE',
         params,
