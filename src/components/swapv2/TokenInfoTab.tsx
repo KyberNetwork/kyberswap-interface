@@ -5,6 +5,7 @@ import { ArrowLeft } from 'react-feather'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
+import { ReactComponent as Coingecko } from 'assets/svg/coingecko_color.svg'
 import { ReactComponent as CoingeckoLight } from 'assets/svg/coingecko_color_light.svg'
 import AddTokenToMetaMask from 'components/AddToMetamask'
 import { ButtonEmpty } from 'components/Button'
@@ -15,6 +16,7 @@ import { AutoRow, RowBetween } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import useTokenInfo from 'hooks/useTokenInfo'
 import { Field } from 'state/swap/actions'
+import { useIsDarkMode } from 'state/user/hooks'
 import { formattedNum, shortenAddress } from 'utils'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { formatLongNumber } from 'utils/formatBalance'
@@ -120,6 +122,7 @@ const TokenInfoTab = ({ currencies, onBack }: { currencies: { [field in Field]?:
   const [activeTab, setActiveTab] = useState(TAB.TOKEN_IN)
   const selectedToken = activeTab === TAB.TOKEN_OUT ? outputToken : inputToken
   const { data: tokenInfo, loading } = useTokenInfo(selectedToken)
+  const isDarkMode = useIsDarkMode()
 
   // Handle switch network case
   useEffect(() => {
@@ -213,7 +216,7 @@ const TokenInfoTab = ({ currencies, onBack }: { currencies: { [field in Field]?:
         <PoweredByText>
           <Trans>Powered by</Trans>
         </PoweredByText>{' '}
-        <CoingeckoLight style={{ width: 60 }} />
+        {isDarkMode ? <Coingecko style={{ width: 60 }} /> : <CoingeckoLight style={{ width: 60 }} />}
       </PoweredByWrapper>
     </>
   )
