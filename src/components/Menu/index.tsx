@@ -521,7 +521,7 @@ export default function Menu() {
             {ENV_LEVEL === ENV_TYPE.LOCAL && (
               <MenuItem>
                 <NavLink to="/icons">
-                  <BookOpen />
+                  <MenuIcon />
                   <Trans>Icons</Trans>
                 </NavLink>
               </MenuItem>
