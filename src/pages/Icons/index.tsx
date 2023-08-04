@@ -55,6 +55,11 @@ const IconWrapperV2 = styled(IconWrapper)`
     width: 100%;
   }
 `
+const camelizeSnake = (st: string) =>
+  st
+    .split('_')
+    .map((i: string) => i[0].toUpperCase() + i.slice(1))
+    .join('')
 
 export default function Icons() {
   const [svgComponents, setSvgComponents] = useState<any>([])
@@ -101,7 +106,7 @@ export default function Icons() {
       <h2>Svg sprite icon</h2>
       <Wrapper>
         {ICON_IDS.map((id: string) => (
-          <IconWrapper key={id} onClick={() => onClick(id)}>
+          <IconWrapper key={id} onClick={() => onClick(`<Icon id="${id}" size={16} />`)}>
             <svg>
               <use href={`${sprite}#${id}`} width="24" height="24" />
             </svg>
@@ -112,9 +117,14 @@ export default function Icons() {
       <h2>All Svg in: folder /assets/svg </h2>
       <Wrapper>
         {svgComponents.map((el: any) => {
-          const title = el.id
+          const title: string = el.id
           return (
-            <IconWrapperV2 key={el.id} onClick={() => onClick(title)}>
+            <IconWrapperV2
+              key={el.id}
+              onClick={() =>
+                onClick(`import { ReactComponent as ${camelizeSnake(title.slice(0, -4))} } from 'assets/svg/${title}'`)
+              }
+            >
               {el.render?.()}
               <Text fontSize={10} style={{ wordBreak: 'break-all' }}>
                 {title}
@@ -126,12 +136,11 @@ export default function Icons() {
       <h2>All icons in: folder /components/Icons </h2>
       <Wrapper>
         {Object.entries(IconComponents).map(([key, component]) => {
-          const title = `${key}.tsx`
           return (
-            <IconWrapperV2 key={key} onClick={() => onClick(title)}>
+            <IconWrapperV2 key={key} onClick={() => onClick(`import { ${key} } from 'components/Icons'`)}>
               {component?.({})}
               <Text fontSize={10} style={{ wordBreak: 'break-all' }}>
-                {title}
+                {key}.tsx
               </Text>
             </IconWrapperV2>
           )
