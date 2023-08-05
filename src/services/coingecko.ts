@@ -4,11 +4,29 @@ import { baseQueryOauthDynamic } from 'services/baseQueryOauth'
 
 import { NETWORKS_INFO } from 'constants/networks'
 
+export type SecurityInfo = {
+  is_open_source: string
+  is_proxy: string
+  is_mintable: string
+  can_take_back_ownership: string
+  external_call: string
+  owner_change_balance: string
+  selfdestruct: string
+  anti_whale_modifiable: string
+  is_anti_whale: string
+  is_whitelisted: string
+  is_blacklisted: string
+  cannot_sell_all: string
+  sell_tax: string
+  buy_tax: string
+  slippage_modifiable: string
+  is_honeypot: string
+  cannot_buy: string
+}
+
 const coingeckoApi = createApi({
   reducerPath: 'coingeckoApi',
-  baseQuery: baseQueryOauthDynamic({
-    baseUrl: '',
-  }),
+  baseQuery: baseQueryOauthDynamic({ baseUrl: '' }),
   endpoints: builder => ({
     getMarketTokenInfo: builder.query<any, { chainId: ChainId; address: string; coingeckoAPI: string }>({
       query: ({ chainId, address, coingeckoAPI }) => ({
@@ -19,7 +37,7 @@ const coingeckoApi = createApi({
         authentication: true,
       }),
     }),
-    getSecurityTokenInfo: builder.query<any, { chainId: ChainId; address: string }>({
+    getSecurityTokenInfo: builder.query<SecurityInfo, { chainId: ChainId; address: string }>({
       query: ({ chainId, address }) => ({
         url: `https://api.gopluslabs.io/api/v1/token_security/${chainId}?contract_addresses=${address}`,
       }),
@@ -28,9 +46,7 @@ const coingeckoApi = createApi({
   }),
 })
 
-// todo memo
 // todo tracking
-// todo rename this file ???
 // todo (not for now) move basic chart api to this file
 export const { useGetMarketTokenInfoQuery, useGetSecurityTokenInfoQuery } = coingeckoApi
 
