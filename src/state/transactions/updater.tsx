@@ -85,8 +85,8 @@ export default function Updater(): null {
 
               const { sentAtBlock, from, to, nonce, data, addedTime } = transaction
               const checkRemoveTxs = () => {
-                // pending >2 days
-                if (Date.now() - addedTime > 2 * 86_400_000) dispatch(removeTx({ chainId, hash }))
+                // pending >1 days
+                if (Date.now() - addedTime > 86_400_000) dispatch(removeTx({ chainId, hash }))
               }
 
               if (sentAtBlock && from && to && nonce && data)
