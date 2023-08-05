@@ -31,9 +31,11 @@ const Tab = styled(ButtonEmpty)<{ isActive?: boolean; isLeft?: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
-  flex: 1;
+  min-width: 80px;
+  width: fit-content;
   background-color: ${({ theme, isActive }) => (isActive ? theme.tabActive : theme.tabBackground)};
   padding: 6px 8px;
+  gap: 4px;
   font-size: 12px;
   font-weight: 500;
   border-radius: 999px;
@@ -44,11 +46,8 @@ const Tab = styled(ButtonEmpty)<{ isActive?: boolean; isLeft?: boolean }>`
 `
 
 const TabText = styled.div<{ isActive: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 2px;
   color: ${({ theme, isActive }) => (isActive ? theme.text : theme.subText)};
-  margin-left: 4px;
+  white-space: nowrap;
 `
 
 const PoweredByWrapper = styled.div`

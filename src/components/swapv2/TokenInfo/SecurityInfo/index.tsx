@@ -41,12 +41,29 @@ const ItemWrapper = styled.div`
   flex-basis: 45%;
 `
 
-type ItemData = { label: string; value: string; type: WarningType; isNumber?: boolean }
+type ItemData = {
+  label: string
+  value: string | undefined
+  type: WarningType
+  isNumber?: boolean
+  riskyReverse?: boolean
+}
 const NO_DATA = '--'
 
-const isValueDanger = ({ value, isNumber }: ItemData) =>
-  value !== undefined && (value === '0' || (isNumber && +value > 0.05))
-const reverse = (value: string | undefined) => (!value ? undefined : value === '0' ? '1' : '0')
+const isItemRisky = ({ value, isNumber, riskyReverse }: ItemData) => {
+  const isRisky = (!isNumber && value === '0') || (isNumber && (Number(value) > 0.05 || value === ''))
+  return value !== undefined && (riskyReverse ? !isRisky : isRisky)
+}
+
+const reverseValue = (value: string | undefined) => (!value ? undefined : value === '0' ? '1' : '0')
+
+const calcTotalRisk = (total: { totalRisk: number; totalWarning: number }, item: ItemData) => {
+  if (isItemRisky(item)) {
+    if (item.type === WarningType.RISKY) total.totalRisk++
+    else total.totalWarning++
+  }
+  return total
+}
 
 const InfoItem = ({ data, loading }: { data: ItemData; loading: boolean }) => {
   const { label, value, type, isNumber } = data
@@ -59,6 +76,8 @@ const InfoItem = ({ data, loading }: { data: ItemData; loading: boolean }) => {
     t`No`
   ) : value === '1' ? (
     t`Yes`
+  ) : isNumber ? (
+    t`Unknown`
   ) : (
     NO_DATA
   )
@@ -67,7 +86,7 @@ const InfoItem = ({ data, loading }: { data: ItemData; loading: boolean }) => {
       <Label>{label}</Label>
       <Label
         color={
-          isValueDanger(data)
+          isItemRisky(data)
             ? type === WarningType.RISKY
               ? theme.red
               : theme.warning
@@ -149,31 +168,37 @@ export default function SecurityInfo({ token }: { token: Token | undefined }) {
       label: t`Proxy Contract`,
       value: data?.is_proxy,
       type: WarningType.WARNING,
+      riskyReverse: true,
     },
     {
       label: t`Mint Function`,
       value: data?.is_mintable,
       type: WarningType.RISKY,
+      riskyReverse: true,
     },
     {
       label: t`Take Back Ownership`,
       value: data?.can_take_back_ownership,
       type: WarningType.RISKY,
+      riskyReverse: true,
     },
     {
       label: t`Can Change Balance`,
       value: data?.owner_change_balance,
       type: WarningType.WARNING,
+      riskyReverse: true,
     },
     {
       label: t`Self-destruct`,
       value: data?.selfdestruct,
       type: WarningType.RISKY,
+      riskyReverse: true,
     },
     {
       label: t`External Call`,
       value: data?.external_call,
       type: WarningType.RISKY,
+      riskyReverse: true,
     },
   ]
 
@@ -194,51 +219,50 @@ export default function SecurityInfo({ token }: { token: Token | undefined }) {
       label: t`Modifiable Tax`,
       value: data?.slippage_modifiable,
       type: WarningType.WARNING,
+      riskyReverse: true,
     },
     {
       label: t`Honeypot`,
       value: data?.is_honeypot,
       type: WarningType.WARNING,
+      riskyReverse: true,
     },
     {
       label: t`Can be bought`,
-      value: reverse(data?.cannot_buy),
+      value: reverseValue(data?.cannot_buy),
       type: WarningType.WARNING,
     },
     {
       label: t`Can sell all`,
-      value: reverse(data?.cannot_sell_all),
+      value: reverseValue(data?.cannot_sell_all),
       type: WarningType.WARNING,
     },
     {
       label: t`Blacklisted Function`,
       value: data?.is_blacklisted,
       type: WarningType.WARNING,
+      riskyReverse: true,
     },
     {
       label: t`Whitelisted Function`,
       value: data?.is_whitelisted,
       type: WarningType.WARNING,
+      riskyReverse: true,
     },
     {
       label: t`Anti Whale`,
       value: data?.is_anti_whale,
       type: WarningType.WARNING,
+      riskyReverse: true,
     },
     {
       label: t`Modifiable Anti Whale`,
       value: data?.anti_whale_modifiable,
       type: WarningType.WARNING,
+      riskyReverse: true,
     },
   ]
 
-  const calcTotalRisk = (total: { totalRisk: number; totalWarning: number }, item: ItemData) => {
-    if (isValueDanger(item)) {
-      if (item.type === WarningType.RISKY) total.totalRisk++
-      else total.totalWarning++
-    }
-    return total
-  }
   const { totalRisk: totalRiskContract, totalWarning: totalWarningContract } = contractData.reduce(calcTotalRisk, {
     totalRisk: 0,
     totalWarning: 0,
@@ -272,6 +296,7 @@ export default function SecurityInfo({ token }: { token: Token | undefined }) {
           totalWarning={totalWarningContract}
         />
       </CollapseItem>
+
       <CollapseItem
         arrowStyle={arrowStyle}
         headerStyle={headerStyle}
