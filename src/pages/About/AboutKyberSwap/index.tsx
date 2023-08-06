@@ -1044,7 +1044,7 @@ function AboutKyberSwap() {
               <img src={isDarkMode ? BTTCDark : BTTCLight} alt="btt" width="100%" />
               <OptimismLogoFull />
               {/* <SolanaLogoFull /> */}
-              <ZkSyncFull />
+              <ZkSyncFull color={theme.text} />
               <LineaFull />
             </Powered>
           </Text>
