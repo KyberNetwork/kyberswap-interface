@@ -1,14 +1,12 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { BarChart2, Info, Plus } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import { ElasticPoolEarningWithDetails, ElasticPositionEarningWithDetails } from 'services/earning/types'
-import styled, { css } from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { ButtonLight } from 'components/Button'
@@ -27,83 +25,13 @@ import useTheme from 'hooks/useTheme'
 import SharePoolEarningsButton from 'pages/MyEarnings/ElasticPools/SinglePool/SharePoolEarningsButton'
 import Positions from 'pages/MyEarnings/Positions'
 import { WIDTHS } from 'pages/MyEarnings/constants'
+import { Badge, DownIcon, MobileStat, MobileStatWrapper, Row, Wrapper } from 'pages/MyEarnings/styled'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { useAppSelector } from 'state/hooks'
 import { isAddress, shortenAddress } from 'utils'
 import { formatDollarAmount } from 'utils/numbers'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-
-const DownIcon = styled(DropdownSVG)<{ isOpen: boolean }>`
-  transform: rotate(${({ isOpen }) => (!isOpen ? '-90deg' : '0')});
-  transition: transform 0.3s;
-`
-
-const Wrapper = styled.div`
-  border-bottom: 1px solid ${({ theme }) => theme.border};
-
-  :last-child {
-    border-bottom: none;
-  }
-`
-
-const MobileStatWrapper = styled(Flex)`
-  flex-direction: column;
-  gap: 1rem;
-`
-
-const MobileStat = styled.div<{ mobileView: boolean }>`
-  display: flex;
-  justify-content: space-between;
-
-  ${({ mobileView }) =>
-    mobileView &&
-    css`
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.75rem;
-
-      > *:nth-child(2n) {
-        align-items: flex-end;
-      }
-    `}
-`
-
-const Row = styled.div`
-  align-items: center;
-  padding: 12px;
-  font-size: 14px;
-  font-weight: 500;
-  display: grid;
-  grid-template-columns: 3fr repeat(7, 1fr);
-
-  :hover {
-    cursor: pointer;
-    background: ${({ theme }) => rgba(theme.primary, 0.15)};
-  }
-`
-
-const Badge = styled.div<{ $color?: string }>`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-
-  padding: 2px 8px;
-  font-weight: 500;
-  font-size: 12px;
-  line-height: 16px;
-  border-radius: 16px;
-
-  user-select: none;
-
-  color: ${({ $color, theme }) => $color || theme.subText};
-  background: ${({ $color, theme }) => rgba($color || theme.subText, 0.3)};
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    height: 16px;
-    padding: 0 4px;
-  `}
-`
 
 export type Props = {
   chainId: ChainId
@@ -113,7 +41,7 @@ export type Props = {
   tokenPrices: { [id: string]: number }
 }
 
-const StatItem = ({ label, value }: { label: ReactNode | string; value: ReactNode | string }) => {
+export const StatItem = ({ label, value }: { label: ReactNode | string; value: ReactNode | string }) => {
   const theme = useTheme()
   return (
     <Flex flexDirection="column" sx={{ gap: '6px' }}>

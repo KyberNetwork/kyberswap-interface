@@ -1,5 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
+import { ClassicPoolData } from 'pages/MyEarnings/hooks'
+
 export type TokenEarning = {
   token: string
   amount: string
@@ -88,9 +90,8 @@ export type ElasticPositionEarningWithDetails = {
 export type ClassicPositionEarningWithDetails = {
   id: string
   ownerOriginal: string
-  pool: {
-    id: string
-  }
+  liquidityTokenBalance: string
+  pool: ClassicPoolData
 } & HistoricalEarning
 
 export type ClassicPoolEarningWithDetails = ClassicPositionEarningWithDetails
