@@ -5,8 +5,8 @@ import { ArrowLeft } from 'react-feather'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
-import CoingeckoLight from 'assets/svg/coingecko-light.svg'
-import Coingecko from 'assets/svg/coingecko.svg'
+import { ReactComponent as Coingecko } from 'assets/svg/coingecko_color.svg'
+import { ReactComponent as CoingeckoLight } from 'assets/svg/coingecko_color_light.svg'
 import AddTokenToMetaMask from 'components/AddToMetamask'
 import { ButtonEmpty } from 'components/Button'
 import Copy from 'components/Copy'
@@ -122,7 +122,7 @@ const TokenInfoTab = ({ currencies, onBack }: { currencies: { [field in Field]?:
   const [activeTab, setActiveTab] = useState(TAB.TOKEN_IN)
   const selectedToken = activeTab === TAB.TOKEN_OUT ? outputToken : inputToken
   const { data: tokenInfo, loading } = useTokenInfo(selectedToken)
-  const darkMode = useIsDarkMode()
+  const isDarkMode = useIsDarkMode()
 
   // Handle switch network case
   useEffect(() => {
@@ -216,7 +216,7 @@ const TokenInfoTab = ({ currencies, onBack }: { currencies: { [field in Field]?:
         <PoweredByText>
           <Trans>Powered by</Trans>
         </PoweredByText>{' '}
-        <img src={darkMode ? Coingecko : CoingeckoLight} alt="Coingecko logo" />
+        {isDarkMode ? <Coingecko style={{ width: 60 }} /> : <CoingeckoLight style={{ width: 60 }} />}
       </PoweredByWrapper>
     </>
   )
