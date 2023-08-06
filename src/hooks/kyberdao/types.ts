@@ -85,7 +85,7 @@ interface TransactionInfo {
   gasFeeInNativeToken: string
   epoch: number
   userTier: number
-  gasRefundPerCentage: string
+  gasRefundPercentage: string
   userWallet: string
 }
 
