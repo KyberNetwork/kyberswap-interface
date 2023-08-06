@@ -1,16 +1,17 @@
 import { rgba } from 'polished'
-import { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import sprite from 'assets/svg/sprite.svg'
 import { NotificationType } from 'components/Announcement/type'
-import * as IconComponents from 'components/Icons'
 import { ICON_IDS } from 'constants/index'
 import useCopyClipboard from 'hooks/useCopyClipboard'
+import useTheme from 'hooks/useTheme'
 import { useNotify } from 'state/application/hooks'
 
 const allSvgFiles = import.meta.glob('../../assets/svg/*')
+const allIconComponentsFiles = import.meta.glob('../../components/Icons/*')
 
 const Wrapper = styled.div`
   display: flex;
@@ -63,8 +64,10 @@ const camelizeSnake = (st: string) =>
 
 export default function Icons() {
   const [svgComponents, setSvgComponents] = useState<any>([])
+  const [iconComponents, setIconComponents] = useState<any>([])
   const [copied, setCopied] = useCopyClipboard(2000)
   const notify = useNotify()
+  const theme = useTheme()
 
   const onClick = useCallback(
     (id: string) => {
@@ -94,6 +97,24 @@ export default function Icons() {
               render: !id?.endsWith('.svg')
                 ? () => <img src={e.default} style={{ maxWidth: '100%' }} />
                 : e.ReactComponent,
+              id,
+            }
+          }),
+        )
+      })
+      .catch(console.error)
+
+    const componentArr = Object.keys(allIconComponentsFiles).map(key => ({
+      id: key.split('/').pop()?.replace('.tsx', ''),
+      fn: allIconComponentsFiles[key](),
+    }))
+    Promise.all(componentArr.map(el => el.fn))
+      .then(data => {
+        setIconComponents(
+          data.map((e: any, i) => {
+            const id = componentArr[i].id
+            return {
+              render: e.default || (() => null),
               id,
             }
           }),
@@ -135,10 +156,19 @@ export default function Icons() {
       </Wrapper>
       <h2>All icons in: folder /components/Icons </h2>
       <Wrapper>
-        {Object.entries(IconComponents).map(([key, component]) => {
+        {iconComponents.map((el: any) => {
+          const key: string = el.id
           return (
-            <IconWrapperV2 key={key} onClick={() => onClick(`import { ${key} } from 'components/Icons'`)}>
-              {component?.({})}
+            <IconWrapperV2 key={key} onClick={() => onClick(`import ${key} from 'components/Icons/${key}'`)}>
+              {(() => {
+                try {
+                  return typeof el?.render === 'function'
+                    ? el.render({ color: theme.text })
+                    : React.createElement(el?.render)
+                } catch (error) {
+                  return 'Display Error'
+                }
+              })()}
               <Text fontSize={10} style={{ wordBreak: 'break-all' }}>
                 {key}.tsx
               </Text>

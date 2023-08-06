@@ -1,8 +1,4 @@
-import { useIsDarkMode } from 'state/user/hooks'
-
-const ZkSyncFull = () => {
-  const isDarkMode = useIsDarkMode()
-  const fill = isDarkMode ? 'white' : 'black'
+const ZkSyncFull = ({ color: fill }: { color: string }) => {
   return (
     <svg width="125" height="25" viewBox="0 0 125 25" fill="none" xmlns="http://www.w3.org/2000/svg">
       <mask
