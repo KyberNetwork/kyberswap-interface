@@ -15,6 +15,7 @@ import { MEDIA_WIDTHS } from 'theme'
 import { formattedNum } from 'utils'
 import { formatTickPrice } from 'utils/formatTickPrice'
 import { getTickToPrice } from 'utils/getTickToPrice'
+import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import PriceVisualizeAlignCurrent from './PriceVisualizeAlignCurrent'
 
@@ -106,6 +107,9 @@ const PositionListItem = ({
   const priceUpper = getTickToPrice(tokenA, tokenB, position.tickUpper)
   const formattedLowerPrice = formatTickPrice(priceLower, ticksAtLimit, Bound.LOWER)
   const formattedUpperPrice = formatTickPrice(priceUpper, ticksAtLimit, Bound.UPPER)
+
+  const currency0 = unwrappedToken(position.amount0.currency)
+  const currency1 = unwrappedToken(position.amount1.currency)
   if (!priceLower || !priceUpper) return null
 
   return (
@@ -120,17 +124,17 @@ const PositionListItem = ({
           <>
             <RowItem>
               <Flex sx={{ gap: '4px' }} alignItems="center">
-                <CurrencyLogo currency={position.amount0.currency} size="16px" />
+                <CurrencyLogo currency={currency0} size="16px" />
                 <Text>
-                  {position.amount0.toSignificant(4)} {position.amount0.currency.symbol}
+                  {position.amount0.toSignificant(4)} {currency0.symbol}
                 </Text>
               </Flex>
             </RowItem>
             <RowItem>
               <Flex sx={{ gap: '4px' }} alignItems="center">
-                <CurrencyLogo currency={position.amount1.currency} size="16px" />
+                <CurrencyLogo currency={currency1} size="16px" />
                 <Text>
-                  {position.amount1.toSignificant(4)} {position.amount1.currency.symbol}
+                  {position.amount1.toSignificant(4)} {currency1.symbol}
                 </Text>
               </Flex>
             </RowItem>
@@ -159,18 +163,18 @@ const PositionListItem = ({
             <Flex sx={{ gap: '8px' }}>
               {/* {position.amount0.currency.symbol} */}
               <Flex sx={{ gap: '4px' }} alignItems="center">
-                <CurrencyLogo currency={position.amount0.currency} size="16px" />
+                <CurrencyLogo currency={currency0} size="16px" />
                 <Text>
-                  {position.amount0.toSignificant(4)} {position.amount0.currency.symbol}
+                  {position.amount0.toSignificant(4)} {currency0.symbol}
                 </Text>
               </Flex>
             </Flex>
             <Flex sx={{ gap: '8px' }}>
               {/* {position.amount1.currency.symbol} */}
               <Flex sx={{ gap: '4px' }} alignItems="center">
-                <CurrencyLogo currency={position.amount1.currency} size="16px" />
+                <CurrencyLogo currency={currency1} size="16px" />
                 <Text>
-                  {position.amount1.toSignificant(4)} {position.amount1.currency.symbol}
+                  {position.amount1.toSignificant(4)} {currency1.symbol}
                 </Text>
               </Flex>
             </Flex>
@@ -225,11 +229,11 @@ const ChartPositions = ({
       {upToSmall ? null : (
         <>
           <RowItem alignItems="flex-start">
-            <Trans>{positions[0].amount0.currency.symbol}</Trans>
+            <Trans>{unwrappedToken(positions[0].amount0.currency).symbol}</Trans>
           </RowItem>
 
           <RowItem alignItems="flex-start">
-            <Trans>{positions[0].amount1.currency.symbol}</Trans>
+            <Trans>{unwrappedToken(positions[0].amount1.currency).symbol}</Trans>
           </RowItem>
         </>
       )}
@@ -239,7 +243,7 @@ const ChartPositions = ({
           <Text>
             PRICE RANGE{' '}
             <Text as="span" sx={{ whiteSpace: 'nowrap' }}>
-              ({tokenB.symbol} per {tokenA.symbol})
+              ({unwrappedToken(tokenB).symbol} per {unwrappedToken(tokenA).symbol})
             </Text>
           </Text>
         </Trans>

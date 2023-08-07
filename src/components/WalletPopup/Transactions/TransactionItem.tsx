@@ -70,7 +70,7 @@ const Description1Token = (transaction: TransactionDetails) => {
   const { extraInfo = {}, type } = transaction
   const { tokenSymbol, tokenAmount, tokenAddress } = extraInfo as TransactionExtraInfo1Token
   // +10KNC or -10KNC
-  const plus = [TRANSACTION_TYPE.KYBERDAO_CLAIM].includes(type)
+  const plus = [TRANSACTION_TYPE.KYBERDAO_CLAIM, TRANSACTION_TYPE.KYBERDAO_CLAIM_GAS_REFUND].includes(type)
   return <DeltaTokenAmount tokenAddress={tokenAddress} symbol={tokenSymbol} amount={tokenAmount} plus={plus} />
 }
 
@@ -342,13 +342,14 @@ const DESCRIPTION_MAP: {
   [TRANSACTION_TYPE.ELASTIC_DEPOSIT_LIQUIDITY]: DescriptionStakeFarm,
   [TRANSACTION_TYPE.ELASTIC_WITHDRAW_LIQUIDITY]: DescriptionStakeFarm,
 
-  [TRANSACTION_TYPE.KYBERDAO_CLAIM]: Description1Token,
-
   [TRANSACTION_TYPE.APPROVE]: DescriptionApproveClaim,
   [TRANSACTION_TYPE.CLAIM_REWARD]: DescriptionApproveClaim,
 
   [TRANSACTION_TYPE.KYBERDAO_STAKE]: DescriptionKyberDaoStake,
   [TRANSACTION_TYPE.KYBERDAO_UNSTAKE]: DescriptionKyberDaoStake,
+  [TRANSACTION_TYPE.KYBERDAO_CLAIM]: Description1Token,
+  [TRANSACTION_TYPE.KYBERDAO_CLAIM_GAS_REFUND]: Description1Token,
+
   [TRANSACTION_TYPE.TRANSFER_TOKEN]: Description1Token,
 
   [TRANSACTION_TYPE.UNWRAP_TOKEN]: Description2Token,

@@ -32,6 +32,7 @@ import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
+import DisclaimerERC20 from 'pages/AddLiquidityV2/components/DisclaimerERC20'
 import { Dots, Wrapper } from 'pages/Pool/styleds'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { Field } from 'state/mint/actions'
@@ -669,6 +670,10 @@ const TokenPair = ({
                 </Text>
               </Warning>
             )}
+
+            <DisclaimerERC20 href="https://docs.kyberswap.com/liquidity-solutions/kyberswap-elastic/user-guides/add-liquidity-to-an-existing-elastic-pool#non-standard-tokens" />
+
+            <div style={{ marginBottom: '1.5rem' }} />
 
             {!account ? (
               <ButtonLight onClick={toggleWalletModal}>

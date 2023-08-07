@@ -141,7 +141,7 @@ export function useChangeNetwork() {
             method: 'wallet_addEthereumChain',
             params: [addChainParameter],
           })
-          changeNetworkHandler(desiredChainId, wrappedSuccessCallback)
+          wrappedSuccessCallback()
         } catch (error) {
           console.error('Add new network failed', { addChainParameter, error })
           failureCallback(connector, desiredChainId, error, customFailureCallback, customTexts)
@@ -160,7 +160,6 @@ export function useChangeNetwork() {
     [
       library?.provider,
       chainId,
-      changeNetworkHandler,
       connector,
       failureCallback,
       fetchKyberswapConfig,
@@ -175,6 +174,7 @@ export function useChangeNetwork() {
       customSuccessCallback?: () => void,
       customFailureCallback?: (connector: Connector, error: Error) => void,
       waitUtilUpdatedChainId = false,
+      isAddNetworkIfPossible = true,
     ) => {
       const wrappedSuccessCallback = () =>
         successCallback(desiredChainId, waitUtilUpdatedChainId, customSuccessCallback)
@@ -207,15 +207,25 @@ export function useChangeNetwork() {
             failureCallback(connector, desiredChainId, error, customFailureCallback)
             return
           }
-
-          addNewNetwork(
-            desiredChainId,
-            undefined,
-            undefined,
-            customSuccessCallback,
-            customFailureCallback,
-            waitUtilUpdatedChainId,
-          )
+          if (isAddNetworkIfPossible) {
+            addNewNetwork(
+              desiredChainId,
+              undefined,
+              undefined,
+              () =>
+                changeNetwork(
+                  desiredChainId,
+                  customSuccessCallback,
+                  customFailureCallback,
+                  waitUtilUpdatedChainId,
+                  false,
+                ),
+              customFailureCallback,
+              waitUtilUpdatedChainId,
+            )
+          } else {
+            failureCallback(connector, desiredChainId, error, customFailureCallback)
+          }
         }
       } else {
         changeNetworkHandler(desiredChainId, wrappedSuccessCallback)

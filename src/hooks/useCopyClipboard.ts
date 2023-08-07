@@ -1,21 +1,21 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useCopyToClipboard } from 'react-use'
 
-export default function useCopyClipboard(timeout = 500): [boolean, (toCopy: string) => void] {
-  const [isCopied, setIsCopied] = useState(false)
+export default function useCopyClipboard(timeout = 500): [string | undefined, (toCopy: string) => void] {
+  const [copied, setCopied] = useState<string | undefined>(undefined)
   const [, copy] = useCopyToClipboard()
   const staticCopy = useCallback(
     (text: string) => {
       copy(text)
-      setIsCopied(Boolean(text))
+      setCopied(text)
     },
     [copy],
   )
 
   useEffect(() => {
-    if (isCopied) {
+    if (copied) {
       const hide = setTimeout(() => {
-        setIsCopied(false)
+        setCopied(undefined)
       }, timeout)
 
       return () => {
@@ -23,7 +23,7 @@ export default function useCopyClipboard(timeout = 500): [boolean, (toCopy: stri
       }
     }
     return undefined
-  }, [isCopied, timeout])
+  }, [copied, timeout])
 
-  return [isCopied, staticCopy]
+  return [copied, staticCopy]
 }

@@ -32,6 +32,7 @@ import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
+import DisclaimerERC20 from 'pages/AddLiquidityV2/components/DisclaimerERC20'
 import { Dots, Wrapper } from 'pages/Pool/styleds'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { Field } from 'state/mint/actions'
@@ -733,6 +734,8 @@ export default function CreatePool() {
                     </Text>
                   </Warning>
                 )}
+
+                <DisclaimerERC20 href="https://docs.kyberswap.com/liquidity-solutions/kyberswap-classic/user-guides/classic-pool-creation#non-standard-tokens" />
 
                 {!account ? (
                   <ButtonLight onClick={toggleWalletModal}>

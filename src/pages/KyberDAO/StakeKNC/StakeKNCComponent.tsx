@@ -22,7 +22,13 @@ import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useActiveWeb3React } from 'hooks'
-import { useKyberDAOInfo, useKyberDaoStakeActions, useStakingInfo, useVotingInfo } from 'hooks/kyberdao'
+import {
+  useKyberDAOInfo,
+  useKyberDaoStakeActions,
+  useRefetchGasRefundInfo,
+  useStakingInfo,
+  useVotingInfo,
+} from 'hooks/kyberdao'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -205,7 +211,6 @@ export default function StakeKNCComponent() {
   const { account, chainId } = useActiveWeb3React()
   const kyberDAOInfo = useKyberDAOInfo()
   const { stakedBalance, KNCBalance, delegatedAddress } = useStakingInfo()
-  console.log('🚀 ~ file: StakeKNCComponent.tsx:208 ~ StakeKNCComponent ~ KNCBalance:', KNCBalance)
   const { calculateVotingPower } = useVotingInfo()
   const isDelegated = !!delegatedAddress && delegatedAddress !== account
   const { stake, unstake, delegate, undelegate } = useKyberDaoStakeActions()
@@ -282,6 +287,7 @@ export default function StakeKNCComponent() {
     calculateVotingPower(formatUnits(stakedBalance), (activeTab === STAKE_TAB.Unstake ? '-' : '') + inputValue),
   )
   const deltaVotingPower = Math.abs(newVotingPower - parseFloat(currentVotingPower)).toPrecision(3)
+  const refetchGasRefundInfo = useRefetchGasRefundInfo()
 
   const handleStake = () => {
     switchToEthereum()
@@ -294,6 +300,7 @@ export default function StakeKNCComponent() {
           .then(tx => {
             setAttemptingTxn(false)
             setTxHash(tx)
+            refetchGasRefundInfo()
           })
           .catch(error => {
             setAttemptingTxn(false)
@@ -315,6 +322,7 @@ export default function StakeKNCComponent() {
           .then(tx => {
             setAttemptingTxn(false)
             setTxHash(tx)
+            refetchGasRefundInfo()
           })
           .catch(error => {
             setAttemptingTxn(false)
@@ -359,6 +367,7 @@ export default function StakeKNCComponent() {
           setAttemptingTxn(false)
           setTxHash(tx)
           setDelegateAddress('')
+          refetchGasRefundInfo()
         })
         .catch(error => {
           setAttemptingTxn(false)
@@ -374,6 +383,7 @@ export default function StakeKNCComponent() {
           setAttemptingTxn(false)
           setTxHash(tx)
           setDelegateAddress('')
+          refetchGasRefundInfo()
         })
         .catch(error => {
           setAttemptingTxn(false)
@@ -381,7 +391,16 @@ export default function StakeKNCComponent() {
         })
     }
     toggleDelegateConfirm()
-  }, [delegate, delegateAddress, account, delegatedAddress, toggleDelegateConfirm, undelegate, mixpanelHandler])
+  }, [
+    delegate,
+    delegateAddress,
+    account,
+    delegatedAddress,
+    toggleDelegateConfirm,
+    undelegate,
+    mixpanelHandler,
+    refetchGasRefundInfo,
+  ])
 
   const kncPrice = useKNCPrice()
   const kncValueInUsd = useMemo(() => {

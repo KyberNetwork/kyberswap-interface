@@ -236,10 +236,10 @@ export const APP_PATHS = {
 } as const
 
 export const TERM_FILES_PATH = {
-  KYBERSWAP_TERMS: '/files/Kyber - Terms of Service - 14 June 2023.pdf',
+  KYBERSWAP_TERMS: '/files/Kyber - Terms of Service - 1 August 2023.pdf',
   PRIVACY_POLICY: '/files/privacy.pdf',
   // Timestamp of changed date, update this to latest timestamp whenever change any above files. This also used to check on client side for updated to force user to disconnect and re-accept terms.
-  VERSION: 1686700800000,
+  VERSION: 1690848000000,
 }
 
 export enum FARM_TAB {
@@ -349,3 +349,52 @@ export const AGGREGATOR_API_PATHS = {
   BUILD_ROUTE: '/api/v1/route/build',
   GET_ROUTE: '/api/v1/routes',
 }
+
+export const ICON_IDS = [
+  'truesight-v2',
+  'notification-2',
+  'bullish',
+  'bearish',
+  'trending-soon',
+  'flame',
+  'download',
+  'upload',
+  'coin-bag',
+  'check',
+  'pig',
+  'speaker',
+  'share',
+  'liquid-outline',
+  'refund',
+  'swap',
+  'copy',
+  'open-link',
+  'star',
+  'fullscreen',
+  'leaderboard',
+  'liquid',
+  'alarm',
+  'on-chain',
+  'technical-analysis',
+  'news',
+  'arrow',
+  'chart',
+  'lightbulb',
+  'info',
+  'question',
+  'timer',
+  'search',
+  'devices',
+  'eth-mono',
+  'ava-mono',
+  'bnb-mono',
+  'matic-mono',
+  'fantom-mono',
+  'optimism-mono',
+  'arbitrum-mono',
+  'telegram',
+  'twitter',
+  'facebook',
+  'discord',
+] as const
+export type ICON_ID = typeof ICON_IDS[number]

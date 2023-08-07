@@ -314,7 +314,7 @@ export const useFarmV2Action = (farmAddress: string) => {
         })
 
         addTransactionWithType({ hash: tx.hash, type: TRANSACTION_TYPE.HARVEST })
-        return tx
+        return tx.hash
       } catch (e) {
         throw e
       }

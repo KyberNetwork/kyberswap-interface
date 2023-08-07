@@ -135,6 +135,7 @@ export enum PopupType {
 export type PopupContentTxn = {
   hash: string
   type: NotificationType
+  account: string
 }
 
 export type PopupContentSimple = {

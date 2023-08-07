@@ -139,7 +139,7 @@ export default function EligibleTxModal({ isOpen, closeModal }: { isOpen: boolea
                       <Flex flexDirection="column" sx={{ gap: '4px' }}>
                         <Text>{formattedNum(tx.gasRefundInKNC)} KNC</Text>
                         <Text fontWeight={400} color={theme.subText}>
-                          <Trans>Tier {tx.userTier}</Trans> - {Number(tx.gasRefundPerCentage) * 100}%
+                          <Trans>Tier {tx.userTier}</Trans> - {Number(tx.gasRefundPercentage) * 100}%
                         </Text>
                       </Flex>
                     </HeaderCell>

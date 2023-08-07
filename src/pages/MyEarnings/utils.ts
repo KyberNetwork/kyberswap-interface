@@ -126,11 +126,17 @@ export const sumTokenEarnings = (earnings: TokenEarning[]) => {
   return earnings.reduce((sum, tokenEarning) => sum + Number(tokenEarning.amountUSD), 0)
 }
 
-export const calculateEarningStatsTick = (
-  data: HistoricalEarning['historicalEarning'],
-  chainId: ChainId,
-  tokensByChainId: TokenAddressMap,
-): EarningStatsTick[] | undefined => {
+export const calculateEarningStatsTick = ({
+  data,
+  chainId,
+  tokensByChainId,
+  nativeLogo,
+}: {
+  data: HistoricalEarning['historicalEarning']
+  chainId: ChainId
+  tokensByChainId: TokenAddressMap
+  nativeLogo: string
+}): EarningStatsTick[] | undefined => {
   if (!data?.length) {
     return undefined
   }
@@ -161,7 +167,7 @@ export const calculateEarningStatsTick = (
           const currency = tokensByChainId[chainId][String(tokenAddress)]
           const isNative = currency.isNative || tokenAddress === WETH[chainId].address
           const symbol = (isNative ? NativeCurrencies[chainId].symbol : currency.symbol) || 'NO SYMBOL'
-          const logoUrl = (isNative ? NETWORKS_INFO[chainId].nativeToken.logo : currency.logoURI) || ''
+          const logoUrl = (isNative ? nativeLogo : currency.logoURI) || ''
 
           const tokenInfo: EarningStatsTick['tokens'][number] = {
             logoUrl,

@@ -91,6 +91,7 @@ import { formatNotDollarAmount } from 'utils/numbers'
 import { SLIPPAGE_STATUS, checkRangeSlippage } from 'utils/slippage'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
+import DisclaimerERC20 from './components/DisclaimerERC20'
 import NewPoolNote from './components/NewPoolNote'
 import { RANGE_LIST, rangeData } from './constants'
 import {
@@ -784,7 +785,7 @@ export default function AddLiquidity() {
   const [allowedSlippage] = useUserSlippageTolerance()
   const slippageStatus = checkRangeSlippage(allowedSlippage, false)
 
-  const warning = (
+  const warnings = (
     <Flex flexDirection="column" sx={{ gap: '12px' }} alignItems="flex-end" maxWidth={chartRef?.current?.clientWidth}>
       {noLiquidity && (
         <SubTextCard padding="10px 16px">
@@ -1327,7 +1328,7 @@ export default function AddLiquidity() {
             showGridListOption={false}
             bottomContent={() => (
               <Flex flexDirection="column" sx={{ gap: '12px' }}>
-                {warning}
+                {warnings}
                 <Row justify={isMultiplePosition ? 'flex-end' : 'flex-start'}>
                   <ButtonError
                     warning={isWarningButton}
@@ -1562,11 +1563,15 @@ export default function AddLiquidity() {
             {!upToMedium && <RightContainer gap="lg">{chart}</RightContainer>}
           </Flex>
           <Row flexDirection="column" sx={{ gap: '16px' }}>
-            {warning && (
+            {warnings && (
               <Row justify="flex-end">
-                <Flex>{warning}</Flex>
+                <Flex>{warnings}</Flex>
               </Row>
             )}
+            <Flex maxWidth={chartRef?.current?.clientWidth} alignSelf="flex-end">
+              <DisclaimerERC20 />
+            </Flex>
+
             <Row justify="flex-end">
               <Buttons />
             </Row>

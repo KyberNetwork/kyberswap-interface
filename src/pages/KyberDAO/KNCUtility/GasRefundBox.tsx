@@ -1,35 +1,30 @@
 import { Trans, t } from '@lingui/macro'
-import axios from 'axios'
-import { BigNumber } from 'ethers'
 import { darken } from 'polished'
 import { useCallback, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
+import { useGetGasRefundNextCycleInfoQuery } from 'services/kyberDAO'
 import styled, { css } from 'styled-components'
 
-import { NotificationType } from 'components/Announcement/type'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
 import { RowBetween } from 'components/Row'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
-import { REWARD_SERVICE_API } from 'constants/env'
-import { KNC } from 'constants/tokens'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import {
   isSupportKyberDao,
+  useClaimGasRefundRewards,
   useEligibleTransactions,
   useGasRefundInfo,
   useGasRefundTier,
-  useVotingInfo,
 } from 'hooks/kyberdao'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { useNotify, useOpenNetworkModal, useWalletModalToggle } from 'state/application/hooks'
-import { useTransactionAdder } from 'state/transactions/hooks'
-import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { useWalletModalToggle } from 'state/application/hooks'
 import { LinkStyledButton, MEDIA_WIDTHS } from 'theme'
 import { formattedNum } from 'utils'
-import { sendEVMTransaction } from 'utils/sendTransaction'
 
+import SwitchToEthereumModal, { useSwitchToEthereum } from '../StakeKNC/SwitchToEthereumModal'
 import TimerCountdown from '../TimerCountdown'
 import EligibleTxModal from './EligibleTxModal'
 import { KNCUtilityTabs } from './type'
@@ -47,7 +42,7 @@ const Wrapper = styled(Flex)`
   border-radius: 20px;
   padding: 20px;
   background-color: ${({ theme }) => theme.tableHeader};
-  gap: 28px;
+  gap: 20px;
   flex-direction: column;
 `
 
@@ -77,87 +72,34 @@ const Tab = styled(Text)<{ active?: boolean }>`
 `
 
 export default function GasRefundBox() {
+  const { mixpanelHandler } = useMixpanel()
   const { account, chainId } = useActiveWeb3React()
-  const { library } = useWeb3React()
   const [selectedTab, setSelectedTab] = useState<KNCUtilityTabs>(KNCUtilityTabs.Available)
   const theme = useTheme()
   const { totalReward, reward, claimableReward } = useGasRefundInfo({ rewardStatus: selectedTab })
   const toggleWalletModal = useWalletModalToggle()
   const [isShowEligibleTx, setShowEligibleTx] = useState(false)
-  const openNetworkModal = useOpenNetworkModal()
-  const notify = useNotify()
-  const [claiming, setClaiming] = useState(false)
-  const addTransactionWithType = useTransactionAdder()
   const eligibleTxs = useEligibleTransactions(1, 1)
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
-  const { userTier, gasRefundPerCentage } = useGasRefundTier()
-  const { daoInfo: { first_epoch_start_timestamp = 0, current_epoch = 0, epoch_period_in_seconds = 0 } = {} } =
-    useVotingInfo()
-  const claimRewards = useCallback(async () => {
-    if (!account || !library || !claimableReward || claimableReward.knc <= 0) return
-
-    setClaiming(true)
-
-    const url = REWARD_SERVICE_API + '/rewards/claim'
-    const data = {
-      wallet: account,
-      chainId: chainId.toString(),
-      clientCode: 'gas-refund',
-      ref: '',
-    }
-    let response: any
+  const { userTier, gasRefundPercentage } = useGasRefundTier()
+  const { data: nextCycleData } = useGetGasRefundNextCycleInfoQuery(undefined)
+  const nextCycleStartTime = nextCycleData?.data.startTime
+  const { switchToEthereum } = useSwitchToEthereum()
+  const claimReward = useClaimGasRefundRewards()
+  const [claiming, setClaiming] = useState(false)
+  const handleClaimReward = useCallback(async () => {
     try {
-      response = await axios({ method: 'POST', url, data })
-      if (response?.data?.code !== 200000) throw new Error(response?.data?.message)
-    } catch (error) {
-      console.error('Claim error:', { error })
-      notify({
-        title: t`Claim Error`,
-        summary: error?.response?.data?.message || error?.message || 'Unknown error',
-        type: NotificationType.ERROR,
+      setClaiming(true)
+      mixpanelHandler(MIXPANEL_TYPE.GAS_REFUND_CLAIM_CLICK, {
+        source: 'KNC Utility page',
+        token_amount: claimableReward?.knc,
       })
-      setClaiming(false)
-      return
-    }
-
-    const rewardContractAddress = response.data.data.ContractAddress
-    const encodedData = response.data.data.EncodedData
-    try {
-      const tx = await sendEVMTransaction(
-        account,
-        library,
-        rewardContractAddress,
-        encodedData,
-        BigNumber.from(0),
-        async transactionResponse => {
-          const transactionReceipt = await transactionResponse.wait()
-          if (transactionReceipt.status === 1) {
-            setClaiming(false)
-          }
-        },
-      )
-      if (!tx) throw new Error()
-      addTransactionWithType({
-        hash: tx.hash,
-        type: TRANSACTION_TYPE.CLAIM_REWARD,
-        extraInfo: {
-          tokenAddress: KNC[chainId].address,
-          tokenAmount: claimableReward.knc.toString(),
-          tokenSymbol: 'KNC',
-        },
-      })
-    } catch (error) {
-      console.error('Claim error:', { error })
-      notify({
-        title: t`Claim Error`,
-        summary: error.message || 'Unknown error',
-        type: NotificationType.ERROR,
-      })
+      await claimReward()
     } finally {
       setClaiming(false)
     }
-  }, [account, addTransactionWithType, chainId, claimableReward, library, notify])
+  }, [claimReward, claimableReward?.knc, mixpanelHandler])
 
   return (
     <Wrapper>
@@ -206,10 +148,10 @@ export default function GasRefundBox() {
               </MouseoverTooltip>
             </TextDashed>
           </Flex>
-          {!!userTier && !!gasRefundPerCentage && (
+          {!!userTier && !!gasRefundPercentage && (
             <Text fontSize={12} fontWeight={400} lineHeight="16px" width="fit-content">
               <Trans>
-                Tier {userTier} - {gasRefundPerCentage * 100}% Gas Refund
+                Tier {userTier} - {gasRefundPercentage * 100}% Gas Refund
               </Trans>
             </Text>
           )}
@@ -227,27 +169,25 @@ export default function GasRefundBox() {
             {selectedTab === KNCUtilityTabs.Available ? (
               account ? (
                 isSupportKyberDao(chainId) ? (
-                  claiming ? (
-                    <ButtonPrimary padding={upToXXSmall ? '8px 28px' : '8px 45px'} onClick={claimRewards} $disabled>
+                  <ButtonPrimary
+                    padding={upToXXSmall ? '8px 28px' : '8px 45px'}
+                    onClick={claiming ? undefined : handleClaimReward}
+                    disabled={claiming || (claimableReward?.knc ?? 0) <= 0}
+                  >
+                    {claiming ? (
                       <Dots>
                         <Trans>Claiming</Trans>
                       </Dots>
-                    </ButtonPrimary>
-                  ) : (
-                    <ButtonPrimary
-                      padding={upToXXSmall ? '8px 28px' : '8px 45px'}
-                      onClick={claimRewards}
-                      disabled={(claimableReward?.knc ?? 0) <= 0}
-                    >
+                    ) : (
                       <Trans>Claim</Trans>
-                    </ButtonPrimary>
-                  )
+                    )}
+                  </ButtonPrimary>
                 ) : (
                   <MouseoverTooltip
                     text={
                       <Trans>
                         Gas Refund Rewards is only available on Ethereum chain. Switch your network to continue{' '}
-                        <LinkStyledButton onClick={openNetworkModal}>here</LinkStyledButton>
+                        <LinkStyledButton onClick={switchToEthereum}>here</LinkStyledButton>
                       </Trans>
                     }
                     width="244px"
@@ -262,12 +202,12 @@ export default function GasRefundBox() {
                   <Trans>Connect Wallet</Trans>
                 </ButtonLight>
               )
-            ) : selectedTab === KNCUtilityTabs.Pending ? (
+            ) : selectedTab === KNCUtilityTabs.Pending && nextCycleStartTime ? (
               <Text fontSize={12} fontWeight={500} lineHeight="16px" as="span">
                 <Trans>
                   Available to claim in{' '}
                   <TimerCountdown
-                    endTime={first_epoch_start_timestamp + (current_epoch + 1) * epoch_period_in_seconds} // reward claim at n+2 epoch
+                    endTime={nextCycleStartTime}
                     maxLength={2}
                     sx={{ display: 'inline-flex !important' }}
                   />
@@ -316,6 +256,7 @@ export default function GasRefundBox() {
         </Flex>
       </RowBetween>
       <EligibleTxModal isOpen={isShowEligibleTx} closeModal={() => setShowEligibleTx(false)} />
+      <SwitchToEthereumModal featureText={t`Gas refund program`} />
     </Wrapper>
   )
 }
