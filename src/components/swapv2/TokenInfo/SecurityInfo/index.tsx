@@ -18,8 +18,8 @@ import Header from './Header'
 
 export default function SecurityInfo({ token }: { token: Token | undefined }) {
   const theme = useTheme()
-  const style: CSSProperties = { background: rgba(theme.subText, 0.08), borderRadius: '16px', padding: '0' }
-  const headerStyle: CSSProperties = { background: rgba(theme.subText, 0.08) }
+  const style: CSSProperties = { background: rgba(theme.buttonBlack, 0.5), borderRadius: '16px', padding: '0' }
+  const headerStyle: CSSProperties = { background: theme.buttonBlack }
   const arrowStyle: CSSProperties = { marginRight: '6px', color: theme.subText }
   const { data, isLoading } = useGetSecurityTokenInfoQuery(
     { chainId: token?.chainId as ChainId, address: token?.address ?? '' },
@@ -31,6 +31,30 @@ export default function SecurityInfo({ token }: { token: Token | undefined }) {
 
   return (
     <Container>
+      <CollapseItem
+        expandedOnMount
+        arrowStyle={arrowStyle}
+        headerStyle={headerStyle}
+        style={style}
+        headerBorderRadius="16px"
+        header={
+          <Header
+            icon={<TreadingSecurity />}
+            title={t`Trading Security`}
+            warning={totalWarningTrading}
+            danger={totalRiskTrading}
+          />
+        }
+        arrowComponent={<DropdownSVG />}
+      >
+        <Content
+          loading={isLoading}
+          data={tradingData}
+          totalRisk={totalRiskTrading}
+          totalWarning={totalWarningTrading}
+        />
+      </CollapseItem>
+
       <CollapseItem
         arrowStyle={arrowStyle}
         headerStyle={headerStyle}
@@ -51,29 +75,6 @@ export default function SecurityInfo({ token }: { token: Token | undefined }) {
           data={contractData}
           totalRisk={totalRiskContract}
           totalWarning={totalWarningContract}
-        />
-      </CollapseItem>
-
-      <CollapseItem
-        arrowStyle={arrowStyle}
-        headerStyle={headerStyle}
-        style={style}
-        headerBorderRadius="16px"
-        header={
-          <Header
-            icon={<TreadingSecurity />}
-            title={t`Trading Security`}
-            warning={totalWarningTrading}
-            danger={totalRiskTrading}
-          />
-        }
-        arrowComponent={<DropdownSVG />}
-      >
-        <Content
-          loading={isLoading}
-          data={tradingData}
-          totalRisk={totalRiskTrading}
-          totalWarning={totalWarningTrading}
         />
       </CollapseItem>
     </Container>

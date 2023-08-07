@@ -22,6 +22,7 @@ export type SecurityInfo = {
   slippage_modifiable: string
   is_honeypot: string
   cannot_buy: string
+  gas_abuse: string
 }
 
 const coingeckoApi = createApi({
