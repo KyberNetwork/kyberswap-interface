@@ -3,8 +3,14 @@ import { SecurityInfo } from 'services/coingecko'
 
 import { ItemData, WarningType } from 'components/swapv2/TokenInfo/SecurityInfo/Content'
 
+export const RISKY_THRESHOLD = {
+  RISKY: 0.05,
+  WARNING: 0.01,
+}
+
 export const isItemRisky = ({ value, isNumber, riskyReverse }: ItemData) => {
-  const isRisky = (!isNumber && value === '0') || (isNumber && (Number(value) > 0.05 || value === ''))
+  const isRisky =
+    (!isNumber && value === '0') || (isNumber && (Number(value) >= RISKY_THRESHOLD.WARNING || value === ''))
   return value !== undefined && (riskyReverse ? !isRisky : isRisky)
 }
 
@@ -41,7 +47,7 @@ export const getSecurityTokenInfo = (data: SecurityInfo | undefined) => {
     {
       label: t`Mint Function`,
       value: data?.is_mintable,
-      type: WarningType.RISKY,
+      type: WarningType.WARNING,
       riskyReverse: true,
     },
     {
@@ -53,7 +59,7 @@ export const getSecurityTokenInfo = (data: SecurityInfo | undefined) => {
     {
       label: t`Can Change Balance`,
       value: data?.owner_change_balance,
-      type: WarningType.WARNING,
+      type: WarningType.RISKY,
       riskyReverse: true,
     },
     {
@@ -66,6 +72,12 @@ export const getSecurityTokenInfo = (data: SecurityInfo | undefined) => {
       label: t`External Call`,
       value: data?.external_call,
       type: WarningType.RISKY,
+      riskyReverse: true,
+    },
+    {
+      label: t`Gas Abuser`,
+      value: data?.gas_abuse,
+      type: WarningType.WARNING,
       riskyReverse: true,
     },
   ]
@@ -92,18 +104,18 @@ export const getSecurityTokenInfo = (data: SecurityInfo | undefined) => {
     {
       label: t`Honeypot`,
       value: data?.is_honeypot,
-      type: WarningType.WARNING,
+      type: WarningType.RISKY,
       riskyReverse: true,
     },
     {
       label: t`Can be bought`,
       value: reverseValue(data?.cannot_buy),
-      type: WarningType.WARNING,
+      type: WarningType.RISKY,
     },
     {
       label: t`Can sell all`,
       value: reverseValue(data?.cannot_sell_all),
-      type: WarningType.WARNING,
+      type: WarningType.RISKY,
     },
     {
       label: t`Blacklisted Function`,

@@ -4,7 +4,7 @@ import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import Loader from 'components/Loader'
-import { isItemRisky } from 'components/swapv2/TokenInfo/SecurityInfo/utils'
+import { RISKY_THRESHOLD, isItemRisky } from 'components/swapv2/TokenInfo/SecurityInfo/utils'
 import useTheme from 'hooks/useTheme'
 
 export enum WarningType {
@@ -62,15 +62,17 @@ const InfoItem = ({ data, loading }: { data: ItemData; loading: boolean }) => {
   ) : (
     NO_DATA
   )
+  const colorRiskyByType = type === WarningType.RISKY ? theme.red : theme.warning
+  const colorRiskyByAmount = Number(value) > RISKY_THRESHOLD.RISKY ? theme.red : theme.warning
   return (
     <ItemWrapper>
       <Label>{label}</Label>
       <Label
         color={
           isItemRisky(data)
-            ? type === WarningType.RISKY
-              ? theme.red
-              : theme.warning
+            ? isNumber
+              ? colorRiskyByAmount
+              : colorRiskyByType
             : displayValue === NO_DATA
             ? theme.subText
             : theme.primary
