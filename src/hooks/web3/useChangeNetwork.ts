@@ -141,7 +141,7 @@ export function useChangeNetwork() {
             method: 'wallet_addEthereumChain',
             params: [addChainParameter],
           })
-          changeNetworkHandler(desiredChainId, wrappedSuccessCallback)
+          wrappedSuccessCallback()
         } catch (error) {
           console.error('Add new network failed', { addChainParameter, error })
           failureCallback(connector, desiredChainId, error, customFailureCallback, customTexts)
@@ -160,7 +160,6 @@ export function useChangeNetwork() {
     [
       library?.provider,
       chainId,
-      changeNetworkHandler,
       connector,
       failureCallback,
       fetchKyberswapConfig,
@@ -212,7 +211,7 @@ export function useChangeNetwork() {
             desiredChainId,
             undefined,
             undefined,
-            customSuccessCallback,
+            () => changeNetwork(desiredChainId, customSuccessCallback, customFailureCallback, waitUtilUpdatedChainId),
             customFailureCallback,
             waitUtilUpdatedChainId,
           )
