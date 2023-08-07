@@ -81,10 +81,9 @@ const kyberAIApi = createApi({
     }),
 
     //4.
-    tokenDetail: builder.query<ITokenOverview, { chain?: string; address?: string; account?: string }>({
-      query: ({ chain, address, account }: { chain?: string; address?: string; account?: string }) => ({
+    tokenDetail: builder.query<ITokenOverview, { chain?: string; address?: string }>({
+      query: ({ chain, address }: { chain?: string; address?: string }) => ({
         url: `/overview/${chain}/${address}`,
-        params: { wallet: account },
       }),
       transformResponse: (res: any) => {
         // If token is stablecoin remove its kyberscore value
