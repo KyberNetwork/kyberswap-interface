@@ -110,7 +110,7 @@ const Content = ({
       <ItemWrapper>
         <Flex sx={{ gap: '6px', alignItems: 'center' }}>
           <AlertOctagon size={16} color={theme.warning} />
-          <Label>{totalWarning <= 1 ? <Trans>Action Item</Trans> : <Trans>Action Item(s)</Trans>}</Label>
+          <Label>{totalWarning <= 1 ? <Trans>Attention Item</Trans> : <Trans>Attention Item(s)</Trans>}</Label>
         </Flex>
         <Label color={theme.warning} style={{ fontWeight: '500' }}>
           {totalWarning}

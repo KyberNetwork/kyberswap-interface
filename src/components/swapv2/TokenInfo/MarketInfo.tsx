@@ -114,7 +114,7 @@ export default function MarketInfo({ token }: { token: Token | undefined }) {
         color={theme.primary}
         onClick={() => setExpand(!expand)}
       >
-        {expand ? <Trans>View more</Trans> : <Trans>View less</Trans>} <DropdownArrowIcon rotate={expand} />
+        {!expand ? <Trans>View more</Trans> : <Trans>View less</Trans>} <DropdownArrowIcon rotate={expand} />
       </Flex>
     </Wrapper>
   )
