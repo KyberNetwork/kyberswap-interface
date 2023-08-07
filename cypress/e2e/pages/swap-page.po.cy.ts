@@ -1,26 +1,38 @@
+// interface text {
+//   (message: string): string
+// }
+
+// interface list {
+//   (arr: string[]) : string[]
+// }
+
+interface getData<T> {
+  (data: T): T
+}
+
 export enum tag {
   smoke = 'smoke',
   regression = 'regression',
 }
 
-export function getText(selector: string, callback: any) {
-  const text = cy.get(selector).invoke('text')
-  text.then($text => {
-    callback($text)
-  })
-}
+// export function getText(selector: string, callback: getData<string>) {
+//   const text = cy.get(selector).invoke('text')
+//   text.then($text => {
+//     return callback($text)
+//   })
+// }
 
-export function getTokenList(selector: string, callback: any) {
-  const arr: string[] = []
-  const listToken = cy.get(selector)
-  listToken
-    .each(item => {
-      arr.push(item.text())
-    })
-    .then(() => {
-      callback(arr)
-    })
-}
+// export function getTokenList(selector: string, callback: getData<string[]>) {
+//   const arr: string[] = []
+//   const listToken = cy.get(selector)
+//   listToken
+//     .each(item => {
+//       arr.push(item.text())
+//     })
+//     .then(() => {
+//       callback(arr)
+//     })
+// }
 
 export const TOKEN_SYMBOLS = {
   'Ethereum': ['BAND', 'DAI', 'USDT', 'USDC'],
