@@ -50,7 +50,7 @@ const InfoItem = ({ data, loading }: { data: ItemData; loading: boolean }) => {
   const { label, value, type, isNumber } = data
   const theme = useTheme()
   const displayValue = loading ? (
-    <Loader size="12px" />
+    <Loader size="10px" />
   ) : isNumber && value ? (
     `${+value * 100}%`
   ) : value === '0' ? (
