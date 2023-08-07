@@ -19,7 +19,7 @@ import Header from './Header'
 export default function SecurityInfo({ token }: { token: Token | undefined }) {
   const theme = useTheme()
   const style: CSSProperties = { background: rgba(theme.buttonBlack, 0.5), borderRadius: '16px', padding: '0' }
-  const headerStyle: CSSProperties = { background: theme.buttonBlack }
+  const headerStyle: CSSProperties = { background: rgba(theme.buttonBlack, 0.2) }
   const arrowStyle: CSSProperties = { marginRight: '6px', color: theme.subText }
   const { data, isLoading } = useGetSecurityTokenInfoQuery(
     { chainId: token?.chainId as ChainId, address: token?.address ?? '' },
