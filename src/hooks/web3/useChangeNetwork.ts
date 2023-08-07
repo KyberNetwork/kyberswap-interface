@@ -174,6 +174,7 @@ export function useChangeNetwork() {
       customSuccessCallback?: () => void,
       customFailureCallback?: (connector: Connector, error: Error) => void,
       waitUtilUpdatedChainId = false,
+      isAddNetworkIfPossible = true,
     ) => {
       const wrappedSuccessCallback = () =>
         successCallback(desiredChainId, waitUtilUpdatedChainId, customSuccessCallback)
@@ -206,15 +207,25 @@ export function useChangeNetwork() {
             failureCallback(connector, desiredChainId, error, customFailureCallback)
             return
           }
-
-          addNewNetwork(
-            desiredChainId,
-            undefined,
-            undefined,
-            () => changeNetwork(desiredChainId, customSuccessCallback, customFailureCallback, waitUtilUpdatedChainId),
-            customFailureCallback,
-            waitUtilUpdatedChainId,
-          )
+          if (isAddNetworkIfPossible) {
+            addNewNetwork(
+              desiredChainId,
+              undefined,
+              undefined,
+              () =>
+                changeNetwork(
+                  desiredChainId,
+                  customSuccessCallback,
+                  customFailureCallback,
+                  waitUtilUpdatedChainId,
+                  false,
+                ),
+              customFailureCallback,
+              waitUtilUpdatedChainId,
+            )
+          } else {
+            failureCallback(connector, desiredChainId, error, customFailureCallback)
+          }
         }
       } else {
         changeNetworkHandler(desiredChainId, wrappedSuccessCallback)
