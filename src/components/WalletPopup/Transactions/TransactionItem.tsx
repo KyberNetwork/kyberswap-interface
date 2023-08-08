@@ -21,6 +21,7 @@ import { CancellingOrderInfo } from 'components/swapv2/LimitOrder/useCancellingO
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
+import { getAxelarScanUrl } from 'pages/CrossChain'
 import {
   TRANSACTION_TYPE,
   TransactionDetails,
@@ -409,7 +410,14 @@ export default forwardRef<HTMLDivElement, Prop>(function TransactionItem(
           <Text color={theme.text} fontSize="14px">
             {type}
           </Text>
-          <ExternalLinkIcon color={theme.subText} href={getEtherscanLink(chainId, hash, 'transaction')} />
+          <ExternalLinkIcon
+            color={theme.subText}
+            href={
+              type === TRANSACTION_TYPE.CROSS_CHAIN_SWAP
+                ? getAxelarScanUrl(hash)
+                : getEtherscanLink(chainId, hash, 'transaction')
+            }
+          />
         </Row>
         <Status transaction={transaction} cancellingOrderInfo={cancellingOrderInfo} />
       </Flex>
