@@ -81,7 +81,8 @@ export default function Updater(): null {
             .getTransaction(hash)
             .then(res => {
               const transaction = findTx(transactions, hash)
-              if (!transaction || !res) return // !res this mean tx was drop
+
+              if (!transaction || !!res) return // !res this mean tx was drop (cancel/replace)
 
               const { sentAtBlock, from, to, nonce, data, addedTime } = transaction
               const checkRemoveTxs = () => {
