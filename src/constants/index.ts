@@ -317,27 +317,9 @@ export const CHAINS_SUPPORT_CROSS_CHAIN =
         ChainId.ARBITRUM,
         ChainId.OPTIMISM,
         ChainId.FANTOM,
+        ChainId.LINEA,
       ]
-    : [
-        ChainId.MAINNET,
-        ChainId.GÖRLI,
-        ChainId.MATIC,
-        ChainId.MUMBAI,
-        ChainId.BSCTESTNET,
-        ChainId.BSCMAINNET,
-        ChainId.AVAXTESTNET,
-        ChainId.AVAXMAINNET,
-        ChainId.FANTOM,
-        ChainId.CRONOS,
-        ChainId.ARBITRUM,
-        ChainId.BTTC,
-        ChainId.VELAS,
-        ChainId.AURORA,
-        ChainId.OASIS,
-        ChainId.OPTIMISM,
-        ChainId.ZKSYNC,
-        ChainId.SOLANA,
-      ]
+    : SUPPORTED_NETWORKS
 
 export const TYPE_AND_SWAP_NOT_SUPPORTED_CHAINS: ChainId[] = [ChainId.ZKSYNC, ChainId.LINEA_TESTNET, ChainId.LINEA]
 

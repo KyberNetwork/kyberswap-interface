@@ -15,7 +15,7 @@ import { revokePermit } from 'state/user/actions'
 import { findTx } from 'utils'
 import { includes } from 'utils/array'
 
-import { checkedTransaction, finalizeTransaction, replaceTx } from './actions'
+import { checkedTransaction, finalizeTransaction, removeTx, replaceTx } from './actions'
 import { SerializableTransactionReceipt, TRANSACTION_TYPE, TransactionDetails } from './type'
 
 function shouldCheck(
@@ -81,9 +81,15 @@ export default function Updater(): null {
             .getTransaction(hash)
             .then(res => {
               const transaction = findTx(transactions, hash)
-              if (!transaction || !res) return // !res this mean tx was drop
 
-              const { sentAtBlock, from, to, nonce, data } = transaction
+              if (!transaction || !!res) return // !res this mean tx was drop (cancel/replace)
+
+              const { sentAtBlock, from, to, nonce, data, addedTime } = transaction
+              const checkRemoveTxs = () => {
+                // pending >1 days
+                if (Date.now() - addedTime > 86_400_000) dispatch(removeTx({ chainId, hash }))
+              }
+
               if (sentAtBlock && from && to && nonce && data)
                 findReplacementTx(readProvider, sentAtBlock, {
                   from,
@@ -103,10 +109,10 @@ export default function Updater(): null {
                     }
                   })
                   .catch(() => {
-                    // dispatch(removeTx({ chainId, hash }))
+                    checkRemoveTxs()
                   })
               else {
-                // dispatch(removeTx({ chainId, hash }))
+                checkRemoveTxs()
               }
             })
             .catch(console.warn)

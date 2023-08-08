@@ -12,13 +12,13 @@ const commonCSS = css`
   padding: 0 16px;
 
   display: grid;
-  grid-template-columns: 120px 150px 80px 200px 70px;
+  grid-template-columns: 120px 150px 80px 220px 70px;
   justify-content: space-between;
   align-items: center;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     column-gap: 4px;
-    grid-template-columns: 112px 100px 64px minmax(auto, 200px) 70px;
+    grid-template-columns: 112px 100px 64px minmax(auto, 220px) 70px;
   `}
 `
 
