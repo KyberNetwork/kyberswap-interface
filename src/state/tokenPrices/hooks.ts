@@ -115,6 +115,14 @@ export const useTokenPricesWithLoading = (
           ])
         }
 
+        if (chainId === ChainId.LINEA) {
+          prices.push({
+            address: '0xf945caa0734a35fd9067f9e603b2e3cbc59d05ef',
+            price: 0.64,
+            preferPriceSource: 'kyberswap',
+          })
+        }
+
         if (prices?.length) {
           const formattedPrices = list.map(address => {
             const price = prices.find(
