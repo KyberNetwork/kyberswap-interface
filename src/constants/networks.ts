@@ -15,7 +15,6 @@ import {
   fantom,
   görli,
   linea,
-  lineaTestnet,
   matic,
   mumbai,
   oasis,
@@ -26,6 +25,7 @@ import {
   zksync,
 } from './networks/index'
 import { EVMNetworkInfo } from './networks/type'
+import zkEvm from './networks/zkevm'
 
 type SOLANA_NETWORK = ChainId.SOLANA | ChainId.SOLANA_DEVNET
 
@@ -50,8 +50,8 @@ const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.OASIS]: oasis,
   [ChainId.OPTIMISM]: optimism,
   [ChainId.ZKSYNC]: zksync,
-  [ChainId.LINEA_TESTNET]: lineaTestnet,
   [ChainId.LINEA]: linea,
+  [ChainId.ZKEVM]: zkEvm,
   [ChainId.SOLANA]: solana,
   [ChainId.SOLANA_DEVNET]: solanaDevnet,
 } as const
@@ -85,6 +85,7 @@ export const MAINNET_NETWORKS = [
   ChainId.AURORA,
   ChainId.ZKSYNC,
   ChainId.LINEA,
+  ChainId.ZKEVM,
 ] as const
 
 export const EVM_NETWORKS = SUPPORTED_NETWORKS.filter(chainId => getChainType(chainId) === ChainType.EVM) as Exclude<
@@ -165,8 +166,8 @@ export const STATIC_FEE_OPTIONS: { [chainId: number]: number[] | undefined } = {
   [ChainId.OPTIMISM]: [8, 10, 50, 300, 500, 1000],
   [ChainId.GÖRLI]: [8, 10, 50, 300, 500, 1000],
   [ChainId.ZKSYNC]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.LINEA_TESTNET]: [8, 10, 50, 300, 500, 1000],
   [ChainId.LINEA]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.ZKEVM]: [8, 10, 50, 300, 500, 1000],
 }
 
 export const ONLY_STATIC_FEE_CHAINS = [
@@ -177,8 +178,8 @@ export const ONLY_STATIC_FEE_CHAINS = [
   ChainId.OPTIMISM,
   ChainId.GÖRLI,
   ChainId.ZKSYNC,
-  ChainId.LINEA_TESTNET,
   ChainId.LINEA,
+  ChainId.ZKEVM,
 ]
 
 // hardcode for unavailable subgraph
@@ -213,6 +214,3 @@ export const SUPPORTED_NETWORKS_FOR_MY_EARNINGS = [
 ]
 export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS: ChainId[] = []
 export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY: ChainId[] = [ChainId.MATIC]
-
-// by pass invalid price impact/unable to calculate price impact/price impact too large
-export const CHAINS_BYPASS_PRICE_IMPACT = [ChainId.LINEA_TESTNET]

@@ -525,6 +525,7 @@ function AboutKyberSwap() {
             {/* <Solana /> */}
             <ZkSync />
             <img src="https://linea.build/apple-touch-icon.png" width="36px" height="36px" alt="Linea" />
+            <img src="https://wallet.polygon.technology/assets/img/zkEVM.svg" width="36px" height="36px" alt="zkEVM" />
           </SupportedChain>
 
           <KyberSwapGeneralIntro />
@@ -1046,6 +1047,15 @@ function AboutKyberSwap() {
               {/* <SolanaLogoFull /> */}
               <ZkSyncFull color={theme.text} />
               <LineaFull />
+              <img
+                src={
+                  isDarkMode
+                    ? 'https://zkevm.polygon.technology/img/polygon-zkevm.svg'
+                    : 'https://zkevm.polygonscan.com/images/logo.svg?v=23.8.1.0'
+                }
+                alt="zkevm"
+                width="100%"
+              />
             </Powered>
           </Text>
         </Wrapper>
