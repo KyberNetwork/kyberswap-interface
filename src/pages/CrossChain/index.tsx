@@ -1,6 +1,6 @@
 import { Squid } from '@0xsquid/sdk'
 import { Trans } from '@lingui/macro'
-import { memo, useEffect, useMemo, useRef } from 'react'
+import { memo, useEffect, useRef } from 'react'
 import { Navigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
@@ -21,8 +21,7 @@ export const getAxelarScanUrl = (srcTxHash: string) => `${CROSS_CHAIN_CONFIG.AXE
 function CrossChain({ visible }: { visible: boolean }) {
   const theme = useTheme()
   const { chainId, isSolana } = useActiveWeb3React()
-  const [{ squidInstance, chainIdOut, chains }, setCrossChainState] = useCrossChainState()
-  const listChainOut = useMemo(() => chains.filter(e => e !== chainId), [chains, chainId])
+  const [{ squidInstance, chainIdOut, listChainOut }, setCrossChainState] = useCrossChainState()
 
   const curChainId = useRef(chainId)
 
@@ -48,10 +47,11 @@ function CrossChain({ visible }: { visible: boolean }) {
         let squid = squidInstance
         if (loading.current) return
         loading.current = true
+        const config = { baseUrl: CROSS_CHAIN_CONFIG.API_DOMAIN, integratorId: CROSS_CHAIN_CONFIG.INTEGRATOR_ID }
         if (!squid) {
-          squid = new Squid({ baseUrl: CROSS_CHAIN_CONFIG.API_DOMAIN, integratorId: CROSS_CHAIN_CONFIG.INTEGRATOR_ID })
+          squid = new Squid(config)
         } else {
-          squid.setConfig({ baseUrl: CROSS_CHAIN_CONFIG.API_DOMAIN, integratorId: CROSS_CHAIN_CONFIG.INTEGRATOR_ID })
+          squid.setConfig(config)
         }
         await squid.init()
         const { chains = [], tokens = [] } = squid
