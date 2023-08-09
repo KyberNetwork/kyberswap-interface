@@ -47,7 +47,6 @@ const coingeckoApi = createApi({
   }),
 })
 
-// todo tracking
 // todo danh (not for now) move basic chart api to this file
 export const { useGetMarketTokenInfoQuery, useGetSecurityTokenInfoQuery } = coingeckoApi
 
