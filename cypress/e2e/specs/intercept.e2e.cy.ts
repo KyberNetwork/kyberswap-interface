@@ -1,15 +1,13 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { tag } from "../pages/swap-page.po.cy"
-import { homePage, menu } from "../selectors/selectors.cy"
+import { SwapPage, tag } from "../pages/swap-page.po.cy"
+import { HeaderSelectors } from "../selectors/selectors.cy"
 
 const network_env = Cypress.env('NETWORK')
-const mainPage = `swap/${network_env}`.toLowerCase()
+const url = `swap/${network_env}`.toLowerCase()
 
 describe('Intercept', { tags: tag.regression }, () => {
    beforeEach(() => {
-      cy.visit('/' + mainPage)
-      cy.url().should('include', mainPage)
-      cy.clickButton(homePage.skipTutorial)
+      SwapPage.open(url)
    })
    describe('Swap', { tags: tag.smoke }, () => {
       it('Should get route successfully', () => {
@@ -23,8 +21,8 @@ describe('Intercept', { tags: tag.regression }, () => {
          cy.intercept('GET', '**/farm-pools?**').as('get-farm-list')
          cy.intercept('GET', '**/pools?**').as('get-pool-list')
          cy.intercept('GET', '**/block?**').as('get-block')
-         cy.get(menu.earnMenu).click({ force: true })
-         cy.get(menu.poolMenu).click({ force: true })
+         cy.get(HeaderSelectors.dropdownEarn).click({ force: true })
+         cy.get(HeaderSelectors.lblPools).click({ force: true })
          cy.wait('@get-farm-list', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
          cy.wait('@get-pool-list', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
          cy.wait('@get-block', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
@@ -34,8 +32,8 @@ describe('Intercept', { tags: tag.regression }, () => {
    describe('My Pools', () => {
       it('Should get farm list successfully', () => {
          cy.intercept('GET', '**/farm-pools?**').as('get-farm-list')
-         cy.get(menu.earnMenu).click({ force: true })
-         cy.get(menu.myPoolMenu).click({ force: true })
+         cy.get(HeaderSelectors.dropdownEarn).click({ force: true })
+         cy.get(HeaderSelectors.lblPools).click({ force: true })
          cy.wait('@get-farm-list', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
       })
    })
@@ -45,8 +43,8 @@ describe('Intercept', { tags: tag.regression }, () => {
          cy.intercept('GET', '**/farm-pools?**').as('get-farm-list')
          cy.intercept('GET', '**/pools?**').as('get-pool-list')
          cy.intercept('GET', '**/block?**').as('get-block')
-         cy.get(menu.earnMenu).click({ force: true })
-         cy.get(menu.farmMenu).click({ force: true })
+         cy.get(HeaderSelectors.dropdownEarn).click({ force: true })
+         cy.get(HeaderSelectors.lblFarms).click({ force: true })
          cy.get('[data-testid=farm-block]')
             .should(_ => {})
             .then($list => {
