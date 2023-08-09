@@ -78,12 +78,13 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
                   {Array.isArray(subRoute)
                     ? subRoute.map(pool => {
                         const dex = getDexInfoByPool(pool, allDexes)
+                        const poolId = pool.id.split('-')?.[0]
                         const link = (i => {
                           // TODO: Dungz remove condition
-                          return isAddress(chainId, pool.id) && !['1inch', 'paraswap', '0x'].includes(pool.exchange) ? (
+                          return isAddress(chainId, poolId) && !['1inch', 'paraswap', '0x'].includes(pool.exchange) ? (
                             <StyledExchange
                               key={`${i}-${pool.id}`}
-                              href={getEtherscanLink(chainId, pool.id, 'address')}
+                              href={getEtherscanLink(chainId, poolId, 'address')}
                               target="_blank"
                             >
                               {i}
