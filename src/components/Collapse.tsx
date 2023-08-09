@@ -1,6 +1,6 @@
 import React, { CSSProperties, ReactNode, useState } from 'react'
 import { ChevronDown } from 'react-feather'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 const ItemWrapper = styled.div`
   position: relative;
@@ -39,11 +39,17 @@ const ArrowWrapper = styled.div`
   }
 `
 
-const ContentWrapper = styled.div`
+const ContentWrapper = styled.div<{ $hasAnim?: boolean; $maxHeight?: string }>`
   width: 100%;
-
+  overflow: hidden;
+  ${({ $hasAnim, $maxHeight }) =>
+    $hasAnim &&
+    css`
+      transition: max-height 500ms ease;
+      max-height: ${$maxHeight};
+    `};
   &[data-expanded='false'] {
-    display: none;
+    max-height: 0;
   }
 `
 
@@ -59,6 +65,8 @@ type Props = {
   headerStyle?: CSSProperties
   headerBorderRadius?: string
   arrowStyle?: CSSProperties
+  animation?: boolean
+  maxHeight?: string
 }
 
 export const CollapseItem: React.FC<Props> = ({
@@ -71,6 +79,8 @@ export const CollapseItem: React.FC<Props> = ({
   headerStyle,
   headerBorderRadius,
   arrowStyle,
+  animation = false,
+  maxHeight,
 }) => {
   const [isExpanded, setExpanded] = useState(expandedOnMount)
 
@@ -92,7 +102,9 @@ export const CollapseItem: React.FC<Props> = ({
           {arrowComponent || <ChevronDown />}
         </ArrowWrapper>
       </Header>
-      <ContentWrapper data-expanded={isExpanded}>{children}</ContentWrapper>
+      <ContentWrapper data-expanded={isExpanded} $hasAnim={animation} $maxHeight={maxHeight}>
+        {children}
+      </ContentWrapper>
     </ItemWrapper>
   )
 }

@@ -9,7 +9,7 @@ import { DropdownArrowIcon } from 'components/ArrowRotate'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Loader from 'components/Loader'
-import { RowBetween } from 'components/Row'
+import { RowBetween, RowFit } from 'components/Row'
 import { getMarketTokenInfo } from 'components/swapv2/TokenInfo/utils'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -56,7 +56,7 @@ export default function MarketInfo({ token }: { token: Token | undefined }) {
           <Trans>Contract Address</Trans>
         </InfoRowLabel>
 
-        <Flex width="fit-content" alignItems={'center'} sx={{ gap: '4px' }}>
+        <RowFit gap="4px">
           {token ? (
             <>
               <CurrencyLogo currency={token} size="16px" />
@@ -67,7 +67,7 @@ export default function MarketInfo({ token }: { token: Token | undefined }) {
           ) : (
             <Loader />
           )}
-        </Flex>
+        </RowFit>
       </RowBetween>
 
       <Flex

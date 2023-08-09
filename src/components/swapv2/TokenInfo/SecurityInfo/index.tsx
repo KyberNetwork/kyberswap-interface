@@ -32,6 +32,8 @@ export default function SecurityInfo({ token }: { token: Token | undefined }) {
   return (
     <Container>
       <CollapseItem
+        animation
+        maxHeight="400px"
         expandedOnMount
         arrowStyle={arrowStyle}
         headerStyle={headerStyle}
@@ -56,6 +58,8 @@ export default function SecurityInfo({ token }: { token: Token | undefined }) {
       </CollapseItem>
 
       <CollapseItem
+        animation
+        maxHeight="400px"
         arrowStyle={arrowStyle}
         headerStyle={headerStyle}
         style={style}
