@@ -59,13 +59,14 @@ const Position: React.FC<Props> = ({ poolEarning, chainId }) => {
   const mobileView = useMedia(`(max-width: ${WIDTHS[2]}px)`)
 
   const myLiquidityBalance =
-    poolEarning.liquidityTokenBalance !== '0' && poolEarning.pool.totalSupply !== '0'
+    poolEarning.liquidityTokenBalanceIncludingStake !== '0' && poolEarning.pool.totalSupply !== '0'
       ? formatDollarAmount(
-          (+poolEarning.liquidityTokenBalance * +poolEarning.pool.reserveUSD) / +poolEarning.pool.totalSupply,
+          (+poolEarning.liquidityTokenBalanceIncludingStake * +poolEarning.pool.reserveUSD) /
+            +poolEarning.pool.totalSupply,
         )
       : '--'
 
-  const myShareOfPool = +poolEarning.liquidityTokenBalance / +poolEarning.pool.totalSupply
+  const myShareOfPool = +poolEarning.liquidityTokenBalanceIncludingStake / +poolEarning.pool.totalSupply
 
   const pooledToken0 = +poolEarning.pool.reserve0 * myShareOfPool
   const pooledToken1 = +poolEarning.pool.reserve1 * myShareOfPool
@@ -93,6 +94,17 @@ const Position: React.FC<Props> = ({ poolEarning, chainId }) => {
       ),
     [chainId, poolEarning],
   )
+
+  const liquidityStaked = +poolEarning.liquidityTokenBalanceIncludingStake - +poolEarning.liquidityTokenBalance
+  const myStakedBalance =
+    liquidityStaked !== 0
+      ? formatDollarAmount((liquidityStaked * +poolEarning.pool.reserveUSD) / +poolEarning.pool.totalSupply)
+      : '--'
+
+  const stakedShare = liquidityStaked / +poolEarning.pool.totalSupply
+
+  const stakedToken0 = +poolEarning.pool.reserve0 * stakedShare
+  const stakedToken1 = +poolEarning.pool.reserve1 * stakedShare
 
   return (
     <Flex
@@ -159,7 +171,33 @@ const Position: React.FC<Props> = ({ poolEarning, chainId }) => {
           }
         />
 
-        <Column label={t`My Staked Balance`} value={'TODO'} />
+        <Column
+          label={t`My Staked Balance`}
+          value={
+            <div>
+              <HoverDropdown
+                anchor={<span>{myStakedBalance}</span>}
+                disabled={liquidityStaked === 0}
+                text={
+                  <div>
+                    <Flex alignItems="center">
+                      <CurrencyLogo currency={unwrappedToken(token0)} size="16px" />
+                      <Text fontSize={12} marginLeft="4px">
+                        {formattedNum(stakedToken0)} {unwrappedToken(token0).symbol}
+                      </Text>
+                    </Flex>
+                    <Flex alignItems="center" marginTop="8px">
+                      <CurrencyLogo currency={unwrappedToken(token1)} size="16px" />
+                      <Text fontSize={12} marginLeft="4px">
+                        {formattedNum(stakedToken1)} {unwrappedToken(token1).symbol}
+                      </Text>
+                    </Flex>
+                  </div>
+                }
+              />
+            </div>
+          }
+        />
 
         <Column
           label={t`Total LP Tokens`}
@@ -168,7 +206,7 @@ const Position: React.FC<Props> = ({ poolEarning, chainId }) => {
 
         <Column label={t`Share of Pool`} value={myShareOfPool ? (myShareOfPool * 100).toFixed(2) + '%' : '--'} />
 
-        <Column label={t`Staked LP Tokens`} value={'TODO'} />
+        <Column label={t`Staked LP Tokens`} value={formattedNum(liquidityStaked.toFixed(8), false, 6)} />
       </Box>
     </Flex>
   )

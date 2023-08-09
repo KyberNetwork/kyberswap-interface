@@ -83,13 +83,6 @@ function ClassicElasticTab() {
     navigate({ search: stringify(newQs) }, { replace: true })
   }
 
-  // useEffect(() => {
-  //   if (tab !== VERSION.ELASTIC && tab !== VERSION.ELASTIC_LEGACY) {
-  //     const newQs = { ...qs, tab: VERSION.ELASTIC }
-  //     navigate({ search: stringify(newQs) }, { replace: true })
-  //   }
-  // }, [navigate, qs, tab])
-
   const renderComboPoolButtonsForMobile = () => {
     return (
       <MouseoverTooltip

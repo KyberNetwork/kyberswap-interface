@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux'
 import { Flex, Text } from 'rebass'
 
 import Toggle from 'components/Toggle'
+import { VERSION } from 'constants/v2'
 import useTheme from 'hooks/useTheme'
 import { useAppSelector } from 'state/hooks'
 import { toggleShowClosedPositions } from 'state/myEarnings/actions'
@@ -11,6 +12,7 @@ const ClosedPositionsToggle = () => {
   const dispatch = useDispatch()
   const theme = useTheme()
   const isActive = useAppSelector(state => state.myEarnings.shouldShowClosedPositions)
+  const activeTab = useAppSelector(state => state.myEarnings.activeTab)
 
   const toggle = () => {
     dispatch(toggleShowClosedPositions())
@@ -33,7 +35,7 @@ const ClosedPositionsToggle = () => {
           whiteSpace: 'nowrap',
         }}
       >
-        <Trans>Closed Positions</Trans>
+        {activeTab === VERSION.CLASSIC ? <Trans>Removed Liquidity</Trans> : <Trans>Closed Positions</Trans>}
       </Text>
       <Toggle id="toggle-closed-positions" isActive={!!isActive} toggle={toggle} />
     </Flex>

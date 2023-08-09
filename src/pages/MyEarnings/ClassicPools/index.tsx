@@ -2,10 +2,12 @@ import { Trans, t } from '@lingui/macro'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useGetClassicEarningQuery } from 'services/earning'
+import { ClassicPositionEarningWithDetails } from 'services/earning/types'
 import styled from 'styled-components'
 
 import InfoHelper from 'components/InfoHelper'
 import { useActiveWeb3React } from 'hooks'
+import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 import { chainIdByRoute } from 'pages/MyEarnings/utils'
 import { useAppSelector } from 'state/hooks'
@@ -30,6 +32,10 @@ const ClassicPools = () => {
   const { account = '' } = useActiveWeb3React()
   const selectedChainIds = useAppSelector(state => state.myEarnings.selectedChains)
   const classicEarningQueryResponse = useGetClassicEarningQuery({ account, chainIds: selectedChainIds })
+  const originalSearchText = useAppSelector(state => state.myEarnings.searchText)
+  const searchText = useDebounce(originalSearchText, 300).toLowerCase().trim()
+  const shouldShowClosedPositions = useAppSelector(state => state.myEarnings.shouldShowClosedPositions)
+
   const data = classicEarningQueryResponse.data
 
   const tabletView = useMedia(`(max-width: ${WIDTHS[3]}px)`)
@@ -37,7 +43,23 @@ const ClassicPools = () => {
   const theme = useTheme()
 
   const renderPools = () => {
-    if (!data || Object.keys(data).every(key => !data[key]?.positions?.length)) {
+    const filterFn = (item: ClassicPositionEarningWithDetails) => {
+      const removedFilter = shouldShowClosedPositions
+        ? true
+        : item.liquidityTokenBalance !== '0' || item.liquidityTokenBalanceIncludingStake !== '0'
+      const poolId = item.pool.id.toLowerCase()
+      const searchFilter =
+        poolId === searchText ||
+        item.pool.token0.id.toLowerCase() === searchText ||
+        item.pool.token0.symbol.toLowerCase().includes(searchText) ||
+        item.pool.token0.name.toLowerCase().includes(searchText) ||
+        item.pool.token1.id.toLowerCase() === searchText ||
+        item.pool.token1.symbol.toLowerCase().includes(searchText) ||
+        item.pool.token1.name.toLowerCase().includes(searchText)
+      return searchFilter && removedFilter
+    }
+
+    if (!data || Object.keys(data).every(key => !data[key]?.positions?.filter(filterFn).length)) {
       return (
         <Text padding="1.5rem" textAlign="center">
           <Trans>No liquidity found</Trans>
@@ -47,7 +69,7 @@ const ClassicPools = () => {
 
     return Object.keys(data).map(chainRoute => {
       const chainId = chainIdByRoute[chainRoute]
-      const poolEarnings = data[chainRoute].positions
+      const poolEarnings = data[chainRoute].positions.filter(filterFn)
 
       return (
         <>

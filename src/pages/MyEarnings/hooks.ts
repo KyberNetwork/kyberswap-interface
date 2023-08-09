@@ -35,6 +35,7 @@ export type ClassicPoolData = {
   id: string
   amp: string
   apr: string
+  farmApr: string
   fee: number
   reserve0: string
   reserve1: string

@@ -91,6 +91,7 @@ export type ClassicPositionEarningWithDetails = {
   id: string
   ownerOriginal: string
   liquidityTokenBalance: string
+  liquidityTokenBalanceIncludingStake: string
   pool: ClassicPoolData
 } & HistoricalEarning
 

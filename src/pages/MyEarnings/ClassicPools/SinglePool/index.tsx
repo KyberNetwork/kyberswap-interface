@@ -14,13 +14,11 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
-import { FarmTag } from 'components/FarmTag'
 import { MoneyBag } from 'components/Icons'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { APRTooltipContent } from 'components/YieldPools/FarmingPoolAPRCell'
 import { APP_PATHS, DMM_ANALYTICS_URL, SUBGRAPH_AMP_MULTIPLIER } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
-import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import Position from 'pages/MyEarnings/ClassicPools/SinglePool/Position'
 import { StatItem } from 'pages/MyEarnings/ElasticPools/SinglePool'
@@ -85,19 +83,13 @@ export type Props = {
 }
 const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
   const theme = useTheme()
-  const { networkInfo } = useActiveWeb3React()
+  const networkInfo = NETWORKS_INFO[chainId]
   const [isExpanded, setExpanded] = useState(false)
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
   const tabletView = useMedia(`(max-width: ${WIDTHS[3]}px)`)
   const mobileView = useMedia(`(max-width: ${WIDTHS[2]}px)`)
 
   const shouldExpandAllPools = useAppSelector(state => state.myEarnings.shouldExpandAllPools)
-
-  // const { decimals, value: rawBalance } = useTokenBalance(poolEarning.pool.id, chainId)
-  // const balance = Number(
-  //   new Fraction(rawBalance.toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals))).toFixed(8),
-  // )
-
   const currency0 = getCurrencyFromTokenAddress(tokensByChainId, chainId, poolEarning.pool.token0.id)
   const currency1 = getCurrencyFromTokenAddress(tokensByChainId, chainId, poolEarning.pool.token1.id)
 
@@ -125,14 +117,13 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
 
   const here = (
     <Link
-      to={`${APP_PATHS.FARMS}/${NETWORKS_INFO[chainId].route}?tab=elastic&type=active&search=${poolEarning.pool.id}`}
+      to={`${APP_PATHS.FARMS}/${NETWORKS_INFO[chainId].route}?tab=classic&type=active&search=${poolEarning.pool.id}`}
     >
       <Trans>here</Trans>
     </Link>
   )
 
-  // TODO
-  const isFarmingPool = false // poolEarning.farmApr && poolEarning.farmApr !== '0'
+  const isFarmingPool = poolEarning.pool.farmApr !== '0'
 
   const poolEarningToday = useMemo(() => {
     const earning = poolEarning.historicalEarning[0]?.total?.reduce(
@@ -227,8 +218,8 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
                     </Text>
                   }
                 >
-                  <Badge $color={theme.apr}>
-                    <MoneyBag size={12} /> V2
+                  <Badge $color={theme.primary} style={{ padding: '4px' }}>
+                    <MoneyBag size={12} />
                   </Badge>
                 </MouseoverTooltip>
               )}
@@ -254,10 +245,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
                   placement="top"
                   text={
                     <APRTooltipContent
-                      farmAPR={
-                        // TODO
-                        0
-                      }
+                      farmAPR={+poolEarning.pool.farmApr}
                       farmV2APR={0}
                       poolAPR={+poolEarning.pool.apr}
                     />
@@ -386,7 +374,22 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
                   {visibleCurrency0Symbol} - {visibleCurrency1Symbol}
                 </Text>
                 <Badge $color={theme.blue}>AMP {+poolEarning.pool.amp / 10000}</Badge>
-                {isFarmingPool && <FarmTag noText address={poolEarning.pool.id} chainId={chainId} />}
+
+                {isFarmingPool && (
+                  <MouseoverTooltip
+                    noArrow
+                    placement="top"
+                    text={
+                      <Text>
+                        <Trans>Available for yield farming. Click {here} to go to the farm.</Trans>
+                      </Text>
+                    }
+                  >
+                    <Badge $color={theme.primary} style={{ padding: '4px' }}>
+                      <MoneyBag size={12} />
+                    </Badge>
+                  </MouseoverTooltip>
+                )}
               </Flex>
 
               {share}
@@ -404,19 +407,11 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
             width="fit-content"
             placement="top"
             text={
-              <APRTooltipContent
-                farmAPR={
-                  // TODO:
-                  0
-                }
-                // Farm v2 is only for elastic
-                farmV2APR={0}
-                poolAPR={+poolEarning.pool.apr}
-              />
+              <APRTooltipContent farmAPR={+poolEarning.pool.farmApr} farmV2APR={0} poolAPR={+poolEarning.pool.apr} />
             }
           >
             <Text as="span" marginRight="4px" color={theme.apr}>
-              {(+poolEarning.pool.apr).toFixed(2)}%
+              {(+poolEarning.pool.apr + +poolEarning.pool.farmApr).toFixed(2)}%
             </Text>
             <Info size={14} color={theme.apr} />
           </MouseoverTooltip>
