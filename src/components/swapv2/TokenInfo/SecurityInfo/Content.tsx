@@ -4,7 +4,7 @@ import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import Loader from 'components/Loader'
-import { RISKY_THRESHOLD, isItemRisky } from 'components/swapv2/TokenInfo/SecurityInfo/utils'
+import { RISKY_THRESHOLD, isItemRisky } from 'components/swapv2/TokenInfo/utils'
 import useTheme from 'hooks/useTheme'
 
 export enum WarningType {

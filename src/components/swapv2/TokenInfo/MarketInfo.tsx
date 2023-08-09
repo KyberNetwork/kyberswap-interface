@@ -1,6 +1,6 @@
 import { Token } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
-import { useState } from 'react'
+import { Trans } from '@lingui/macro'
+import { useMemo, useState } from 'react'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
@@ -10,13 +10,11 @@ import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Loader from 'components/Loader'
 import { RowBetween } from 'components/Row'
+import { getMarketTokenInfo } from 'components/swapv2/TokenInfo/utils'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import useTokenInfo from 'hooks/useTokenInfo'
-import { formattedNum, shortenAddress } from 'utils'
-import { formatLongNumber } from 'utils/formatBalance'
-
-const NOT_AVAIALBLE = '--'
+import { shortenAddress } from 'utils'
 
 const Wrapper = styled.div`
   border-radius: 4px;
@@ -42,37 +40,8 @@ export default function MarketInfo({ token }: { token: Token | undefined }) {
   const [expand, setExpand] = useState(false)
   const { chainId } = useActiveWeb3React()
   const theme = useTheme()
-  const listData = [
-    { label: t`Price`, value: tokenInfo.price ? formattedNum(tokenInfo.price.toString(), true) : NOT_AVAIALBLE },
-    {
-      label: t`Market Cap Rank`,
-      value: tokenInfo.marketCapRank ? `#${formattedNum(tokenInfo.marketCapRank.toString())}` : NOT_AVAIALBLE,
-    },
-    {
-      label: t`Trading Volume (24H)`,
-      value: tokenInfo.tradingVolume ? formatLongNumber(tokenInfo.tradingVolume.toString(), true) : NOT_AVAIALBLE,
-    },
-    {
-      label: t`Market Cap`,
-      value: tokenInfo.marketCap ? formatLongNumber(tokenInfo.marketCap.toString(), true) : NOT_AVAIALBLE,
-    },
-    {
-      label: t`All-Time High`,
-      value: tokenInfo.allTimeHigh ? formattedNum(tokenInfo.allTimeHigh.toString(), true) : NOT_AVAIALBLE,
-    },
-    {
-      label: t`All-Time Low`,
-      value: tokenInfo.allTimeLow ? formattedNum(tokenInfo.allTimeLow.toString(), true) : NOT_AVAIALBLE,
-    },
-    {
-      label: t`Circulating Supply`,
-      value: tokenInfo.circulatingSupply ? formatLongNumber(tokenInfo.circulatingSupply.toString()) : NOT_AVAIALBLE,
-    },
-    {
-      label: t`Total Supply`,
-      value: tokenInfo.totalSupply ? formatLongNumber(tokenInfo.totalSupply.toString()) : NOT_AVAIALBLE,
-    },
-  ]
+  const listData = useMemo(() => getMarketTokenInfo(tokenInfo), [tokenInfo])
+
   return (
     <Wrapper>
       {(expand ? listData : listData.slice(0, 3)).map(item => (

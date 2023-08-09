@@ -9,7 +9,7 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { ReactComponent as ContractSecurity } from 'assets/svg/security_contract.svg'
 import { ReactComponent as TreadingSecurity } from 'assets/svg/security_trading.svg'
 import { CollapseItem } from 'components/Collapse'
-import { getSecurityTokenInfo } from 'components/swapv2/TokenInfo/SecurityInfo/utils'
+import { getSecurityTokenInfo } from 'components/swapv2/TokenInfo/utils'
 import useTheme from 'hooks/useTheme'
 
 import { Container } from '../index'
