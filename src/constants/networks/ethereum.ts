@@ -67,6 +67,8 @@ const ethereumInfo: EVMNetworkInfo = {
     quoter: '0x4d47fd5a29904Dae0Ef51b1c450C9750F15D7856',
     routers: '0xF9c2b5746c946EF883ab2660BbbB1f10A5bdeAb4',
     farms: [],
+    farmv2Quoter: '0x6AFeb9EDd6Cf44fA8E89b1eee28284e6dD7705C8',
+    farmV2S: ['0x3D6AfE2fB73fFEd2E3dD00c501A174554e147a43'],
   },
   limitOrder: { development: NOT_SUPPORT, production: '0x227B0c196eA8db17A665EA6824D972A64202E936' },
   averageBlockTimeInSeconds: 13.13,

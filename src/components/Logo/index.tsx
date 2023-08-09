@@ -65,7 +65,7 @@ export function TokenLogoWithChain(data: any) {
         style={{
           width: size,
           height: size,
-          borderRadius: '50%',
+          borderRadius: '4px',
         }}
       />
       <NetworkLogo
