@@ -422,9 +422,7 @@ export const DAI: { [chainId in ChainId]: Token } = {
     'Dai Stablecoin',
   ),
   [ChainId.ZKEVM]: new Token(ChainId.ZKEVM, '0xC5015b9d9161Dca7e18e32f6f25C4aD850731Fd4', 18, 'DAI', 'Dai'),
-
-  //not existing
-  [ChainId.LINEA]: new Token(ChainId.LINEA, '0x8741Ba6225A6BF91f9D73531A98A89807857a2B3', 18, 'DAI', 'Dai'),
+  [ChainId.LINEA]: new Token(ChainId.LINEA, '0x4AF15ec2A0BD43Db75dd04E62FAA3B8EF36b00d5', 18, 'DAI', 'Dai'),
 
   //not existing on Velas
   [ChainId.VELAS]: new Token(ChainId.VELAS, '0xe7dC549AE8DB61BDE71F22097BEcc8dB542cA100', 18, 'DAI', 'Dai Stablecoin'),
@@ -511,9 +509,7 @@ export const USDC: { [chainId in ChainId]: Token } = {
     'USD Coin',
   ),
   [ChainId.ZKEVM]: new Token(ChainId.ZKEVM, '0xA8CE8aee21bC2A48a5EF670afCc9274C7bbbC035', 6, 'USDC', 'USD Coin'),
-
-  // not existing
-  [ChainId.LINEA]: new Token(ChainId.LINEA, '0xf56dc6695cF1f5c364eDEbC7Dc7077ac9B586068', 6, 'USDC', 'USD Coin'),
+  [ChainId.LINEA]: new Token(ChainId.LINEA, '0x176211869cA2b568f2A7D4EE941E073a821EE1ff', 6, 'USDC', 'USD Coin'),
 }
 
 export const USDT: { [chainId in ChainId]: Token } = {
@@ -569,11 +565,8 @@ export const USDT: { [chainId in ChainId]: Token } = {
     'USDT',
     'Tether USD',
   ),
-
   [ChainId.ZKEVM]: new Token(ChainId.ZKEVM, '0x1E4a5963aBFD975d8c9021ce480b42188849D41d', 6, 'USDT', 'Tether USD'),
-
-  // not existing
-  [ChainId.LINEA]: new Token(ChainId.LINEA, '0x1990BC6dfe2ef605Bfc08f5A23564dB75642Ad73', 6, 'USDT', 'Tether USD'),
+  [ChainId.LINEA]: new Token(ChainId.LINEA, '0xA219439258ca9da29E9Cc4cE5596924745e12B93', 6, 'USDT', 'Tether USD'),
 
   [ChainId.ZKSYNC]: new Token(ChainId.ZKSYNC, '0x493257fd37edb34451f62edf8d2a0c418852ba4c', 6, 'USDT', 'Tether USD'),
   [ChainId.SOLANA]: new Token(ChainId.SOLANA, 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB', 6, 'USDT', 'Tether USD'),
@@ -694,8 +687,6 @@ export const KNC: { [chainId in ChainId]: Token } = {
   ),
 
   // not existing
-  [ChainId.ZKEVM]: new Token(ChainId.ZKEVM, '0x6Cb9750a92643382e020eA9a170AbB83Df05F30B', 6, 'KNC', 'KNC'),
-  // not existing
   [ChainId.ZKEVM]: new Token(ChainId.ZKEVM, '0x3b2F62d42DB19B30588648bf1c184865D4C3B1D6', 18, 'KNC', 'KNC'),
 }
 
@@ -727,7 +718,7 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   [ChainId.GÖRLI]: KNC[ChainId.GÖRLI],
   [ChainId.ZKSYNC]: USDC[ChainId.ZKSYNC],
   [ChainId.ZKEVM]: USDT[ChainId.ZKEVM],
-  [ChainId.LINEA]: new Token(ChainId.LINEA, '0x7d43aabc515c356145049227cee54b608342c0ad', 18, 'BUSD', 'BUSD'),
+  [ChainId.LINEA]: USDC[ChainId.LINEA],
 }
 
 export const DEFAULT_SWAP_FEE_STABLE_PAIRS = 4
