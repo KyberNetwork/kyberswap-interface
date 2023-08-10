@@ -104,8 +104,6 @@ const PopoverBody: React.FC<Props> = ({ onClose }) => {
   const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
   const selectAllRef = useRef<HTMLInputElement>(null)
-  const selectedChains = useSelector((state: AppState) => state.myEarnings.selectedChains)
-  const dispatch = useDispatch()
 
   const isLegacy = useAppSelector(state => state.myEarnings.activeTab === VERSION.ELASTIC_LEGACY)
   const isClassic = useAppSelector(state => state.myEarnings.activeTab === VERSION.CLASSIC)
@@ -116,9 +114,12 @@ const PopoverBody: React.FC<Props> = ({ onClose }) => {
     ? COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC
     : COMING_SOON_NETWORKS_FOR_MY_EARNINGS
 
-  const [localSelectedChains, setLocalSelectedChains] = useState(() =>
-    selectedChains.filter(item => !comingSoonList.includes(item)),
+  const selectedChains = useSelector((state: AppState) =>
+    state.myEarnings.selectedChains.filter(item => !comingSoonList.includes(item)),
   )
+  const dispatch = useDispatch()
+
+  const [localSelectedChains, setLocalSelectedChains] = useState(() => selectedChains)
 
   const networkList = SUPPORTED_NETWORKS_FOR_MY_EARNINGS.filter(item => !comingSoonList.includes(item))
 
@@ -129,17 +130,17 @@ const PopoverBody: React.FC<Props> = ({ onClose }) => {
 
   useEffect(() => {
     setLocalSelectedChains(selectedChains)
-  }, [selectedChains])
+    // eslint-disable-next-line
+  }, [selectedChains.length])
 
   useEffect(() => {
     if (!selectAllRef.current) {
       return
     }
 
-    const indeterminate =
-      0 < localSelectedChains.length && localSelectedChains.length < SUPPORTED_NETWORKS_FOR_MY_EARNINGS.length
+    const indeterminate = 0 < localSelectedChains.length && localSelectedChains.length < networkList.length
     selectAllRef.current.indeterminate = indeterminate
-  }, [localSelectedChains])
+  }, [localSelectedChains, networkList.length])
 
   const allNetworks = [...networkList, ...comingSoonList]
 
