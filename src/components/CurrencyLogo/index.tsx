@@ -15,7 +15,6 @@ const StyledNativeCurrencyLogo = styled.img<{ size: string }>`
   width: ${({ size }) => size};
   height: ${({ size }) => size};
   min-width: ${({ size }) => size};
-  min-height: ${({ size }) => size};
   box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.075);
   border-radius: 24px;
 `
