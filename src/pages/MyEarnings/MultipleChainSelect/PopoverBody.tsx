@@ -11,6 +11,7 @@ import Checkbox from 'components/CheckBox'
 import { MouseoverTooltip } from 'components/Tooltip'
 import {
   COMING_SOON_NETWORKS_FOR_MY_EARNINGS,
+  COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC,
   COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY,
   NETWORKS_INFO,
   SUPPORTED_NETWORKS_FOR_MY_EARNINGS,
@@ -107,8 +108,13 @@ const PopoverBody: React.FC<Props> = ({ onClose }) => {
   const dispatch = useDispatch()
 
   const isLegacy = useAppSelector(state => state.myEarnings.activeTab === VERSION.ELASTIC_LEGACY)
+  const isClassic = useAppSelector(state => state.myEarnings.activeTab === VERSION.CLASSIC)
 
-  const comingSoonList = isLegacy ? COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY : COMING_SOON_NETWORKS_FOR_MY_EARNINGS
+  const comingSoonList = isLegacy
+    ? COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY
+    : isClassic
+    ? COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC
+    : COMING_SOON_NETWORKS_FOR_MY_EARNINGS
 
   const [localSelectedChains, setLocalSelectedChains] = useState(() =>
     selectedChains.filter(item => !comingSoonList.includes(item)),

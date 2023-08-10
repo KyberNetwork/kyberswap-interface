@@ -61,14 +61,13 @@ const formatter = (value: string) => {
   const numberOfZero = -Math.floor(Math.log10(num) + 1)
 
   if (num > 0 && num < 1 && numberOfZero > 2) {
-    const temp = Number(toFixed(num).split('.')[1])
-    const tmp = parseFloat(`0.${temp}`).toFixed(2).split('.')[1]
+    const temp = Number(toFixed(num).split('.')[1]).toString()
 
     return `$0.0${numberOfZero
       .toString()
       .split('')
       .map(item => subscriptMap[item])
-      .join('')}${tmp}`
+      .join('')}${temp.substring(0, 2)}`
   }
 
   const formatter = Intl.NumberFormat('en-US', {

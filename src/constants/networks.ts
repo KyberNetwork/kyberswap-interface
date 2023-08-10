@@ -212,7 +212,8 @@ export const SUPPORTED_NETWORKS_FOR_MY_EARNINGS = [
   ChainId.OASIS,
 ]
 export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS: ChainId[] = []
-export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY: ChainId[] = [ChainId.MATIC]
+export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY: ChainId[] = []
+export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC: ChainId[] = [ChainId.CRONOS, ChainId.OASIS, ChainId.MATIC]
 
 // by pass invalid price impact/unable to calculate price impact/price impact too large
 export const CHAINS_BYPASS_PRICE_IMPACT = [ChainId.LINEA_TESTNET]

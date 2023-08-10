@@ -7,6 +7,7 @@ import styled from 'styled-components'
 
 import InfoHelper from 'components/InfoHelper'
 import { AMP_LIQUIDITY_HINT } from 'constants/index'
+import { COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
@@ -32,7 +33,12 @@ const Header = styled.div`
 const ClassicPools = () => {
   const { account = '' } = useActiveWeb3React()
   const selectedChainIds = useAppSelector(state => state.myEarnings.selectedChains)
-  const classicEarningQueryResponse = useGetClassicEarningQuery({ account, chainIds: selectedChainIds })
+
+  const classicEarningQueryResponse = useGetClassicEarningQuery({
+    account,
+    chainIds: selectedChainIds.filter(item => !COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC.includes(item)),
+  })
+
   const originalSearchText = useAppSelector(state => state.myEarnings.searchText)
   const searchText = useDebounce(originalSearchText, 300).toLowerCase().trim()
   const shouldShowClosedPositions = useAppSelector(state => state.myEarnings.shouldShowClosedPositions)
