@@ -3,14 +3,21 @@ import { rgba } from 'polished'
 import { useEffect, useRef } from 'react'
 import { useDispatch } from 'react-redux'
 import { Button, Flex } from 'rebass'
-import earningApi, { useLazyGetElasticEarningQuery, useLazyGetElasticLegacyEarningQuery } from 'services/earning'
-import styled from 'styled-components'
+import earningApi, {
+  useLazyGetClassicEarningQuery,
+  useLazyGetElasticEarningQuery,
+  useLazyGetElasticLegacyEarningQuery,
+} from 'services/earning'
+import styled, { keyframes } from 'styled-components'
 
 import { ReactComponent as RefreshIcon } from 'assets/svg/refresh.svg'
 import { formatUSDValue } from 'components/EarningAreaChart/utils'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { EMPTY_FUNCTION } from 'constants/index'
-import { COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY } from 'constants/networks'
+import {
+  COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC,
+  COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY,
+} from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -40,6 +47,20 @@ const Value = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
 `
+const rotate = keyframes`
+ from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+`
+const StyledRefreshIcon = styled(RefreshIcon)`
+  width: 1rem;
+  height: 1rem;
+  animation: ${rotate} 1.5s linear infinite;
+`
 
 const RefreshButton = () => {
   const theme = useTheme()
@@ -51,9 +72,9 @@ const RefreshButton = () => {
   const selectedChainIds = useAppSelector(state => state.myEarnings.selectedChains)
   const [elasticTrigger, elasticData] = useLazyGetElasticEarningQuery()
   const [elasticLegacyTrigger, elasticLegacyData] = useLazyGetElasticLegacyEarningQuery()
-  // const [classicTrigger, classicData] = useLazyGetClassicEarningQuery()
+  const [classicTrigger, classicData] = useLazyGetClassicEarningQuery()
 
-  const isFetching = elasticData.isFetching || elasticLegacyData.isFetching
+  const isFetching = elasticData.isFetching || elasticLegacyData.isFetching || classicData.isFetching
 
   refetchRef.current = () => {
     if (isFetching || !account) {
@@ -66,7 +87,10 @@ const RefreshButton = () => {
       account,
       chainIds: selectedChainIds.filter(item => !COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY.includes(item)),
     })
-    // classicTrigger({ account, chainIds: selectedChainIds })
+    classicTrigger({
+      account,
+      chainIds: selectedChainIds.filter(item => !COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC.includes(item)),
+    })
   }
 
   useEffect(() => {
@@ -108,7 +132,7 @@ const RefreshButton = () => {
         refetchRef.current()
       }}
     >
-      <RefreshIcon width="17px" height="17px" />
+      {isFetching ? <StyledRefreshIcon /> : <RefreshIcon width="1rem" height="1rem" />}
     </Button>
   )
 }

@@ -304,6 +304,9 @@ export const fetchTokenByAddress = async (address: string, chainId: ChainId, sig
 }
 
 export const fetchListTokenByAddresses = async (address: string[], chainId: ChainId) => {
+  const cached = filterTruthy(address.map(addr => findCacheToken(addr)))
+  if (cached.length === address.length) return cached
+
   const response = await axios.get(`${KS_SETTING_API}/v1/tokens?addresses=${address}&chainIds=${chainId}`)
   const tokens = response?.data?.data?.tokens ?? []
   return filterTruthy(tokens.map(formatAndCacheToken)) as WrappedTokenInfo[]

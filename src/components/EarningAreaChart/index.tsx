@@ -57,16 +57,17 @@ const subscriptMap: { [key: string]: string } = {
 }
 
 const formatter = (value: string) => {
-  const num = Number(value)
+  const num = parseFloat(value)
   const numberOfZero = -Math.floor(Math.log10(num) + 1)
 
   if (num > 0 && num < 1 && numberOfZero > 2) {
-    const temp = Number(toFixed(num).split('.')[1])
+    const temp = Number(toFixed(num).split('.')[1]).toString()
+
     return `$0.0${numberOfZero
       .toString()
       .split('')
       .map(item => subscriptMap[item])
-      .join('')}${temp > 10 ? (temp / 10).toFixed(0) : temp}`
+      .join('')}${temp.substring(0, 2)}`
   }
 
   const formatter = Intl.NumberFormat('en-US', {
@@ -108,7 +109,15 @@ const EarningAreaChart: React.FC<Props> = ({ data, setHoverValue = EMPTY_FUNCTIO
             <stop offset="100%" stopColor={theme.primary} stopOpacity={0} />
           </linearGradient>
         </defs>
-        <XAxis angle={-30} dataKey="date" fontSize="12px" axisLine={false} tickLine={false} stroke={theme.subText} />
+        <XAxis
+          angle={-30}
+          dataKey="date"
+          fontSize="12px"
+          axisLine={false}
+          tickLine={false}
+          stroke={theme.subText}
+          interval={data.length == 7 ? 0 : data.length == 30 ? 1 : undefined}
+        />
         <YAxis
           fontSize="12px"
           axisLine={false}

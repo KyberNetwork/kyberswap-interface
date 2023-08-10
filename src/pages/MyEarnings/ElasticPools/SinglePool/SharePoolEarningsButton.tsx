@@ -12,7 +12,8 @@ type Props = {
   currency1: Currency | undefined
   currency0Symbol: string
   currency1Symbol: string
-  feePercent: string
+  feePercent?: string
+  amp?: string
 }
 const SharePoolEarningsButton: React.FC<Props> = ({
   totalValue,
@@ -21,6 +22,7 @@ const SharePoolEarningsButton: React.FC<Props> = ({
   currency0Symbol,
   currency1Symbol,
   feePercent,
+  amp,
 }) => {
   const [isOpen, setOpen] = useState(false)
 
@@ -47,13 +49,14 @@ const SharePoolEarningsButton: React.FC<Props> = ({
         isOpen={isOpen}
         setIsOpen={setOpen}
         poolInfo={
-          currency0 && currency1 && feePercent
+          currency0 && currency1 && (feePercent || amp)
             ? {
                 currency0,
                 currency1,
                 currency0Symbol,
                 currency1Symbol,
                 feePercent,
+                amp,
               }
             : undefined
         }

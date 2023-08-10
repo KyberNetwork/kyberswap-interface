@@ -6,6 +6,8 @@ import ElasticPools from 'pages/MyEarnings/ElasticPools'
 import PoolFilteringBar from 'pages/MyEarnings/PoolFilteringBar'
 import { useAppSelector } from 'state/hooks'
 
+import ClassicPools from '../ClassicPools'
+
 const Pools = () => {
   const activeTab = useAppSelector(state => state.myEarnings.activeTab)
 
@@ -14,7 +16,7 @@ const Pools = () => {
       return <ElasticPools />
     }
 
-    return null
+    return <ClassicPools />
   }
 
   return (

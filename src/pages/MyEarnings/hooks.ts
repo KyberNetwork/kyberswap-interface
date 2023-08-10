@@ -34,6 +34,8 @@ import { unwrappedToken } from 'utils/wrappedCurrency'
 export type ClassicPoolData = {
   id: string
   amp: string
+  apr: string
+  farmApr: string
   fee: number
   reserve0: string
   reserve1: string
@@ -41,12 +43,12 @@ export type ClassicPoolData = {
   vReserve1: string
   totalSupply: string
   reserveUSD: string
-  volumeUSD: string
+  volumeUsd: string
+  volumeUsdOneDayAgo: string
+  volumeUsdTwoDaysAgo: string
   feeUSD: string
-  oneDayVolumeUSD: string
-  oneDayVolumeUntracked: string
-  oneDayFeeUSD: string
-  oneDayFeeUntracked: string
+  feesUsdOneDayAgo: string
+  feesUsdTwoDaysAgo: string
   token0: {
     id: string
     symbol: string
