@@ -1,6 +1,6 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import ERC20_INTERFACE from 'constants/abis/erc20'
 import { NativeCurrencies } from 'constants/tokens'
@@ -17,7 +17,12 @@ export const useEthBalanceOfAnotherChain = (chainId: ChainId | undefined) => {
   const { readProvider } = useKyberSwapConfig(chainId)
   const { account } = useActiveWeb3React()
   const [balance, setBalance] = useState<CurrencyAmount<Currency>>()
+  const controller = useRef(new AbortController())
+
   useEffect(() => {
+    controller.current.abort()
+    controller.current = new AbortController()
+    const signal = controller.current.signal
     async function getBalance() {
       try {
         if (!readProvider || !account || !chainId) {
@@ -25,6 +30,9 @@ export const useEthBalanceOfAnotherChain = (chainId: ChainId | undefined) => {
           return
         }
         const balance = await readProvider.getBalance(account)
+        if (signal.aborted) {
+          return
+        }
         setBalance(CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], JSBI.BigInt(balance)))
       } catch (error) {
         setBalance(undefined)
