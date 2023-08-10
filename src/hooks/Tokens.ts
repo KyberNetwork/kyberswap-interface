@@ -4,6 +4,7 @@ import axios from 'axios'
 import { arrayify } from 'ethers/lib/utils'
 import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
+import { useGetTokenListQuery } from 'services/ksSetting'
 import useSWR from 'swr'
 
 import ERC20_INTERFACE, { ERC20_BYTES32_INTERFACE } from 'constants/abis/erc20'
@@ -382,4 +383,21 @@ export function useCurrencyV2(currencyId: string | undefined, customChainId?: Ch
     if (isETH) return NativeCurrencies[chainId]
     return tokenInWhitelist || token
   }, [chainId, isETH, token, currencyId, tokenInWhitelist])
+}
+
+export const useStableCoins = (chainId: ChainId | undefined) => {
+  const { data } = useGetTokenListQuery({ chainId: chainId as ChainId, isStable: true }, { skip: !chainId })
+
+  const stableCoins = useMemo(() => {
+    return data?.data?.tokens || []
+  }, [data])
+
+  const isStableCoin = useCallback(
+    (address: string | undefined) => {
+      if (!address) return false
+      return stableCoins.some(token => token.address.toLowerCase() === address?.toLowerCase())
+    },
+    [stableCoins],
+  )
+  return { isStableCoin, stableCoins }
 }

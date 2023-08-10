@@ -52,9 +52,8 @@ import {
   Wrapper,
 } from 'components/swapv2/styleds'
 import { AGGREGATOR_WAITING_TIME, APP_PATHS, TIME_TO_REFRESH_SWAP_RATE } from 'constants/index'
-import { STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { useAllTokens, useIsLoadedTokenDefault } from 'hooks/Tokens'
+import { useAllTokens, useIsLoadedTokenDefault, useStableCoins } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallbackFromTradeV2 } from 'hooks/useApproveCallback'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
@@ -408,16 +407,11 @@ export default function Swap() {
 
   useSyncTokenSymbolToUrl(currencyIn, currencyOut, onSelectSuggestedPair, isSelectCurrencyManually)
   const isLoadedTokenDefault = useIsLoadedTokenDefault()
+  const { isStableCoin } = useStableCoins(chainId)
 
   const [rawSlippage] = useUserSlippageTolerance()
 
-  const isStableCoinSwap = Boolean(
-    INPUT?.currencyId &&
-      OUTPUT?.currencyId &&
-      chainId &&
-      STABLE_COINS_ADDRESS[chainId].includes(INPUT?.currencyId) &&
-      STABLE_COINS_ADDRESS[chainId].includes(OUTPUT?.currencyId),
-  )
+  const isStableCoinSwap = isStableCoin(INPUT?.currencyId) && isStableCoin(OUTPUT?.currencyId)
 
   useUpdateSlippageInStableCoinSwap()
 

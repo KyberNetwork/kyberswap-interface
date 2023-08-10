@@ -12,8 +12,8 @@ import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
 import { Input as PaginationInput } from 'components/Pagination/PaginationInputOnMobile'
 import ShareModal from 'components/ShareModal'
-import { STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
+import { useStableCoins } from 'hooks/Tokens'
 import { SelectPairInstructionWrapper } from 'pages/Pools/styleds'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useOpenModal } from 'state/application/hooks'
@@ -184,6 +184,7 @@ export default function ProAmmPoolList({
   const cbId = currencies[Field.CURRENCY_B]?.wrapped.address.toLowerCase()
 
   const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
+  const { stableCoins } = useStableCoins(chainId)
   const userLiquidityPositionsQueryResult = useUserProMMPositions(tokenPriceMap)
   const loadingUserPositions = !account ? false : userLiquidityPositionsQueryResult.loading
   const userPositions = useMemo(
@@ -260,7 +261,7 @@ export default function ProAmmPoolList({
     }
 
     if (onlyShowStable) {
-      const stableList = chainId ? STABLE_COINS_ADDRESS[chainId]?.map(item => item.toLowerCase()) || [] : []
+      const stableList = chainId ? stableCoins?.map(item => item.address.toLowerCase()) || [] : []
       filteredPools = filteredPools.filter(poolData => {
         return (
           stableList.includes(poolData.token0.address.toLowerCase()) &&
@@ -285,6 +286,7 @@ export default function ProAmmPoolList({
     onlyShowStable,
     searchValue,
     farms,
+    stableCoins,
     chainId,
     listComparator,
   ])
