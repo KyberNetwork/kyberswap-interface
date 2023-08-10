@@ -149,7 +149,13 @@ export function getTradeComposition(
       return NativeCurrencies[chainId]
     }
 
-    return allTokens?.[isAddressString(chainId, address)] || tokens[address] || defaultToken
+    return (
+      allTokens?.[isAddressString(chainId, address)] ||
+      tokens[address] ||
+      (isAddressString(chainId, address)
+        ? new Token(chainId, isAddressString(chainId, address), 0, '--', '--')
+        : defaultToken)
+    )
   }
 
   // Convert all Swaps to ChartSwaps
