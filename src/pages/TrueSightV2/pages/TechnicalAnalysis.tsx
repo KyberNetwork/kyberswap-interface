@@ -31,6 +31,7 @@ import { defaultExplorePageToken } from './SingleToken'
 const Wrapper = styled.div`
   padding: 20px 0;
   width: 100%;
+  position: relative;
 `
 
 type TechnicalAnalysisContextProps = {
@@ -87,7 +88,7 @@ export default function TechnicalAnalysis() {
   const [showSRLevels, setShowSRLevels] = useState(true)
   const [priceChartResolution, setPriceChartResolution] = useState('1h')
   const now = Math.floor(Date.now() / 60000) * 60
-  const { data, isLoading } = useChartingDataQuery({
+  const { data, isLoading, isFetching } = useChartingDataQuery({
     chain: chain || defaultExplorePageToken.chain,
     address: address || defaultExplorePageToken.address,
     from: now - ({ '1h': 1080000, '4h': 4320000, '1d': 12960000 }[priceChartResolution] || 1080000),
