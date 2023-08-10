@@ -3,8 +3,9 @@ import { useEffect, useMemo } from 'react'
 
 import { KS_SETTING_API } from 'constants/env'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
-import { CORRELATED_COINS_ADDRESS, STABLE_COINS_ADDRESS, SUPER_STABLE_COINS_ADDRESS } from 'constants/tokens'
+import { CORRELATED_COINS_ADDRESS, SUPER_STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
+import { useStableCoins } from 'hooks/Tokens'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 
 import { updateTopTokens } from '.'
@@ -73,6 +74,7 @@ export const usePairFactor = (tokens: [Token | undefined | null, Token | undefin
   //         - non-whitelisted / non-whitelisted
   const { chainId } = useActiveWeb3React()
   const topTokens = useTopTokens()
+  const { isStableCoin } = useStableCoins(chainId)
   const token0 = tokens[0]
   const token1 = tokens[1]
 
@@ -83,8 +85,7 @@ export const usePairFactor = (tokens: [Token | undefined | null, Token | undefin
     SUPER_STABLE_COINS_ADDRESS[chainId].includes(token1.address)
   if (isBothSuperStable) return PairFactor.SUPER_STABLE
 
-  const isBothStable =
-    STABLE_COINS_ADDRESS[chainId].includes(token0.address) && STABLE_COINS_ADDRESS[chainId].includes(token1.address)
+  const isBothStable = isStableCoin(token0.address) && isStableCoin(token1.address)
   const isCorrelated = CORRELATED_COINS_ADDRESS[chainId].some(
     coinsGroup => coinsGroup.includes(token0.address) && coinsGroup.includes(token1.address),
   )
@@ -93,8 +94,8 @@ export const usePairFactor = (tokens: [Token | undefined | null, Token | undefin
   const isBothTop =
     topTokens[token0.address] &&
     topTokens[token1.address] &&
-    !STABLE_COINS_ADDRESS[chainId].includes(token0.address) &&
-    !STABLE_COINS_ADDRESS[chainId].includes(token1.address)
+    !isStableCoin(token0.address) &&
+    !isStableCoin(token1.address)
   if (isBothTop) return PairFactor.NOMAL
 
   return PairFactor.EXOTIC
