@@ -539,14 +539,11 @@ export const useIsWhiteListKyberAI = () => {
   const loadingDebounced = useDebounce(isLoading, 500) || connectingWallet
 
   const participantInfo = isError || loadingDebounced || !account ? participantDefault : rawData
-  // isWhitelist, isWaitList check account is hotfix for now, will remove utils backend fixed bug
   return {
     loading: loadingDebounced,
     isWhiteList:
-      !!account &&
-      isLogin &&
-      (participantInfo?.status === ParticipantStatus.WHITELISTED || userInfo?.data?.hasAccessToKyberAI),
-    isWaitList: !!account && isLogin && participantInfo?.status === ParticipantStatus.WAITLISTED,
+      isLogin && (participantInfo?.status === ParticipantStatus.WHITELISTED || userInfo?.data?.hasAccessToKyberAI),
+    isWaitList: isLogin && participantInfo?.status === ParticipantStatus.WAITLISTED,
     refetch,
   }
 }

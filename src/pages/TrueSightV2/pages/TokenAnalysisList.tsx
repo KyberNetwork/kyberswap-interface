@@ -523,9 +523,7 @@ const TokenRow = ({
         ranking_order: index,
         option: 'remove',
       })
-      Promise.all(
-        token.tokens.map(t => removeFromWatchlist({ wallet: account, tokenAddress: t.address, chain: t.chain })),
-      ).then(() => {
+      Promise.all(token.tokens.map(t => removeFromWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
         setIsWatched(false)
         setLoadingStar(false)
       })
@@ -537,9 +535,7 @@ const TokenRow = ({
           ranking_order: index,
           option: 'add',
         })
-        Promise.all(
-          token.tokens.map(t => addToWatchlist({ wallet: account, tokenAddress: t.address, chain: t.chain })),
-        ).then(() => {
+        Promise.all(token.tokens.map(t => addToWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
           setIsWatched(true)
           setLoadingStar(false)
         })
@@ -773,7 +769,6 @@ const LoadingRowSkeleton = ({ hasExtraCol }: { hasExtraCol?: boolean }) => {
 }
 export default function TokenAnalysisList() {
   const theme = useTheme()
-  const { account } = useActiveWeb3React()
   const { mixpanelHandler } = useMixpanel()
   const [showShare, setShowShare] = useState(false)
   const [isScrolling, setIsScrolling] = useState(false)
@@ -795,7 +790,6 @@ export default function TokenAnalysisList() {
           chain: (chain && SUPPORTED_NETWORK_KYBERAI[Number(chain) as ChainId]) || 'all',
           page,
           pageSize,
-          wallet: account,
           watchlist: true,
         }
       : {
@@ -803,7 +797,6 @@ export default function TokenAnalysisList() {
           chain: (chain && SUPPORTED_NETWORK_KYBERAI[Number(chain) as ChainId]) || 'all',
           page,
           pageSize,
-          wallet: account,
         },
   )
   const listData = data?.data || []
