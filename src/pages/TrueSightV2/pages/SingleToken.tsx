@@ -255,7 +255,6 @@ const TokenNameGroup = ({ token, isLoading }: { token?: ITokenOverview; isLoadin
       })
 
       removeFromWatchlist({
-        wallet: account,
         tokenAddress: token?.address,
         chain,
       }).then(() => setIsWatched(false))
@@ -266,7 +265,7 @@ const TokenNameGroup = ({ token, isLoading }: { token?: ITokenOverview; isLoadin
           source: 'explore',
           option: 'add',
         })
-        addToWatchlist({ wallet: account, tokenAddress: token?.address, chain }).then(() => setIsWatched(true))
+        addToWatchlist({ tokenAddress: token?.address, chain }).then(() => setIsWatched(true))
       }
     }
   }

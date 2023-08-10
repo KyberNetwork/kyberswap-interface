@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { load, save } from 'redux-localstorage-simple'
+import coingeckoApi from 'services/coingecko'
 import kyberAISubscriptionApi from 'services/kyberAISubscription'
 import priceAlertApi from 'services/priceAlert'
 import routeApi from 'services/route'
@@ -90,6 +91,8 @@ const store = configureStore({
     [announcementApi.reducerPath]: announcementApi.reducer,
     [publicAnnouncementApi.reducerPath]: publicAnnouncementApi.reducer,
     [geckoTerminalApi.reducerPath]: geckoTerminalApi.reducer,
+    [coingeckoApi.reducerPath]: coingeckoApi.reducer,
+
     [kyberAIApi.reducerPath]: kyberAIApi.reducer,
     [kyberAISubscriptionApi.reducerPath]: kyberAISubscriptionApi.reducer,
     [kyberDAO.reducerPath]: kyberDAO.reducer,
@@ -116,6 +119,7 @@ const store = configureStore({
     getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
       .concat(save({ states: PERSISTED_KEYS, debounce: 100 }))
       .concat(geckoTerminalApi.middleware)
+      .concat(coingeckoApi.middleware)
       .concat(kyberAIApi.middleware)
       .concat(kyberAISubscriptionApi.middleware)
       .concat(announcementApi.middleware)

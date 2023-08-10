@@ -14,8 +14,9 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import ApeIcon from 'components/Icons/ApeIcon'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
-import { KNC, NativeCurrencies, STABLE_COINS_ADDRESS } from 'constants/tokens'
+import { KNC, NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
+import { useStableCoins } from 'hooks/Tokens'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import KyberScoreMeter from 'pages/TrueSightV2/components/KyberScoreMeter'
@@ -43,6 +44,8 @@ const KyberAITokenBanner = ({
   const staticMode = !isWhiteList || !account
   const token0 = currencyIn?.wrapped
   const token1 = currencyOut?.wrapped
+
+  const { isStableCoin } = useStableCoins(chainId)
 
   const { data: tokenInputOverview } = useTokenDetailQuery(
     { address: token0?.address, chain },
@@ -87,11 +90,7 @@ const KyberAITokenBanner = ({
 
   if (!token && !staticMode) return null
 
-  if (
-    staticMode &&
-    STABLE_COINS_ADDRESS[chainId].some(value => value.toLowerCase() === currencyIn?.wrapped.address.toLowerCase())
-  )
-    return null
+  if (staticMode && isStableCoin(currencyIn?.wrapped.address.toLowerCase())) return null
   const staticModeCurrency = !currencyIn || KNC[chainId].equals(currencyIn) ? NativeCurrencies[chainId] : currencyIn
   const color = staticMode ? theme.primary : calculateValueToColor(token?.kyberScore || 0, theme)
   return (

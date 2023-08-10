@@ -171,7 +171,7 @@ export const Instruction = () => {
           </DetailItem>
 
           <DetailItem>
-            <ZicZac />
+            <ZicZac style={{ color: theme.primary }} />
             <Text flex={1}>
               You can create pools by setting your own static fees or by using dynamic fees. With dynamic fees, trading
               fees are adjusted on-the-fly based on market conditions
