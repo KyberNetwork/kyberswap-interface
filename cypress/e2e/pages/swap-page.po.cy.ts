@@ -1,4 +1,7 @@
-import { SwapPageSelectors } from "../selectors/selectors.cy"
+import { SwapPageLocators, TokenCatalogLocators } from "../selectors/selectors.cy"
+
+
+
 
 export const SwapPage = {
     open(url: string) {
@@ -11,10 +14,17 @@ export const SwapPage = {
         cy.selectTokenIn()
         return new TokenCatalog()
     },
-
     selectTokenOut(): TokenCatalog {
         cy.selectTokenOut()
         return new TokenCatalog()
+    },
+    getCurrentTokenIn() {
+        cy.getContent(SwapPageLocators.dropdownTokenIn, (text: string) => {
+            console.log('text:', text)
+            cy.wait(1000000)
+            return text
+        })
+        
     }
 }
 
@@ -49,7 +59,7 @@ export class TokenCatalog {
 
     importNewTokens(selector: string, address: Array<string>) {
         address.forEach(element => {
-            if (selector === SwapPageSelectors.dropdownTokenIn) {
+            if (selector === SwapPageLocators.dropdownTokenIn) {
                 SwapPage.selectTokenIn().searchToken(element)
             }
             else {
@@ -59,19 +69,12 @@ export class TokenCatalog {
         })
     }
 
-    deleteImportedToken() {
-        cy.deleteImportedToken()
+    deleteImportedToken(value: string) {
+        cy.deleteImportedToken(value)
     }
 
     clearAllImportedTokens() {
         cy.clearAllImportedTokens()
-    }
-
-    getText(selector: string, callback: myCallbackType<string>) {
-        const text = cy.get(selector).invoke('text')
-        text.then(text => {
-            return callback(text)
-        })
     }
 
     getTokenList(selector: string, callback: myCallbackType<string[]>) {
@@ -176,4 +179,3 @@ export const UNWHITE_LIST_TOKENS = {
             }
         ],
 }
-

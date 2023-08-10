@@ -1,4 +1,4 @@
-export const TokenCatalogSelectors = {
+export const TokenCatalogLocators = {
   dropdownTokenIn: '[data-testid=swap-currency-input] [data-testid=token-symbol-container]',
   dropdownTokenOut: '[data-testid=swap-currency-output] [data-testid=token-symbol-container]',
   txtToken: '[data-testid=token-search-input]',
@@ -15,25 +15,25 @@ export const TokenCatalogSelectors = {
   btnImportTab: '[data-testid=tab-import]'
 }
 
-export const SwapPageSelectors = {
+export const SwapPageLocators = {
   dropdownTokenIn: '[data-testid=swap-currency-input] [data-testid=token-symbol-container]',
   dropdownTokenOut: '[data-testid=swap-currency-output] [data-testid=token-symbol-container]',
   btnSkipTutorial: '[data-testid=button-skip-tutorial]',
 }
 
-export const WalletSelectors = {
+export const WalletLocators = {
   btnConnectWallet: '[data-testid=button-connect-wallet]',
   btnMetaMask: '[data-testid=connect-METAMASK]',
   chkAcceptTerm: '[data-testid=accept-term]',
   statusConnected: '[data-testid=web3-status-connected]',
 }
 
-export const NetworkSelectors = {
+export const NetworkLocators = {
   btnSelectNetwork: '[data-testid=select-network]',
   btnNetwork: '[data-testid=network-button]',
 }
 
-export const HeaderSelectors = {
+export const HeaderLocators = {
   dropdownEarn: '[data-testid=earn-menu]',
   lblPools: '[data-testid=pools-nav-link]',
   lblMyPools: '[data-testid=my-pools-nav-link]',
