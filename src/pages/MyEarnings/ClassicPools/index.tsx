@@ -6,6 +6,7 @@ import { ClassicPositionEarningWithDetails } from 'services/earning/types'
 import styled from 'styled-components'
 
 import InfoHelper from 'components/InfoHelper'
+import { AMP_LIQUIDITY_HINT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
@@ -95,7 +96,10 @@ const ClassicPools = () => {
           <Text>
             <Trans>Pool | AMP</Trans>
           </Text>
-          <Text>AMP Liquidity | TVL</Text>
+          <Text>
+            AMP Liquidity | TVL
+            <InfoHelper text={AMP_LIQUIDITY_HINT} />
+          </Text>
           <Text>
             APR
             <InfoHelper
