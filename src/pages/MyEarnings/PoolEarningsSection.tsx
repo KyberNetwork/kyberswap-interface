@@ -1,6 +1,6 @@
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Box, Flex } from 'rebass'
 import { HistoricalSingleData } from 'services/earning/types'
@@ -8,12 +8,14 @@ import styled from 'styled-components'
 
 import { useGetNativeTokenLogo } from 'components/CurrencyLogo'
 import { NativeCurrencies } from 'constants/tokens'
+import { fetchListTokenByAddresses } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
 import { calculateEarningStatsTick, getToday } from 'pages/MyEarnings/utils'
 import { useAppSelector } from 'state/hooks'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { MEDIA_WIDTHS } from 'theme'
 import { EarningStatsTick, EarningsBreakdown } from 'types/myEarnings'
-import { isAddress } from 'utils'
+import { isAddressString } from 'utils'
 
 import OriginalEarningsBreakdownPanel from './EarningsBreakdownPanel'
 import OriginalMyEarningsOverTimePanel from './MyEarningsOverTimePanel'
@@ -88,37 +90,48 @@ const PoolEarningsSection: React.FC<Props> = ({ historicalEarning, chainId }) =>
   const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
   const nativeLogo = useGetNativeTokenLogo(chainId)
 
+  const [tokens, setTokens] = useState<{ [address: string]: WrappedTokenInfo }>({})
+
+  const missingTokens = useMemo(() => {
+    const today = getToday()
+
+    return (
+      historicalEarning?.[0]?.day === today
+        ? historicalEarning?.[0].total?.filter(tokenData => {
+            return !tokensByChainId[chainId][isAddressString(chainId, tokenData.token)]
+          }) || []
+        : []
+    ).map(item => item.token)
+  }, [historicalEarning, tokensByChainId, chainId])
+
+  useEffect(() => {
+    fetchListTokenByAddresses(missingTokens, chainId).then(res =>
+      setTokens(res.reduce((acc, cur) => ({ ...acc, [cur.address]: cur }), {})),
+    )
+  }, [missingTokens, chainId])
+
   const earningBreakdown: EarningsBreakdown | undefined = useMemo(() => {
     const data = historicalEarning
     const today = getToday()
 
     const latestData =
       data?.[0]?.day === today
-        ? data?.[0].total
-            ?.filter(tokenData => {
-              const tokenAddress = isAddress(chainId, tokenData.token)
-              if (!tokenAddress) {
-                return false
-              }
+        ? data?.[0].total?.map(tokenData => {
+            const tokenAddress = isAddressString(chainId, tokenData.token)
+            const currency = tokensByChainId[chainId][String(tokenAddress)] || tokens[tokenAddress]
 
-              const currency = tokensByChainId[chainId][tokenAddress]
-              return !!currency
-            })
-            .map(tokenData => {
-              const tokenAddress = isAddress(chainId, tokenData.token)
-              const currency = tokensByChainId[chainId][String(tokenAddress)]
-              const isNative = currency.isNative || tokenAddress === WETH[chainId].address
-              const symbol = (isNative ? NativeCurrencies[chainId].symbol : currency.symbol) || 'NO SYMBOL'
-              const logoUrl = (isNative ? nativeLogo : currency.logoURI) || ''
+            const isNative = currency?.isNative || tokenAddress === WETH[chainId].address
+            const symbol = (isNative ? NativeCurrencies[chainId].symbol : currency?.symbol) || 'NO SYMBOL'
+            const logoUrl = (isNative ? nativeLogo : currency?.logoURI) || ''
 
-              return {
-                address: tokenAddress,
-                logoUrl,
-                symbol,
-                amountUSD: Number(tokenData.amountUSD),
-                chainId,
-              }
-            }) || []
+            return {
+              address: tokenAddress,
+              logoUrl,
+              symbol,
+              amountUSD: Number(tokenData.amountUSD),
+              chainId,
+            }
+          }) || []
         : []
     latestData.sort((data1, data2) => data2.amountUSD - data1.amountUSD)
 
@@ -158,7 +171,7 @@ const PoolEarningsSection: React.FC<Props> = ({ historicalEarning, chainId }) =>
       totalValue,
       breakdowns,
     }
-  }, [chainId, historicalEarning, tokensByChainId, nativeLogo])
+  }, [chainId, historicalEarning, tokensByChainId, nativeLogo, tokens])
 
   // format pool value
   const ticks: EarningStatsTick[] | undefined = useMemo(() => {

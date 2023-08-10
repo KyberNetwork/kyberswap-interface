@@ -1,4 +1,4 @@
-import { ChainId, Fraction } from '@kyberswap/ks-sdk-core'
+import { ChainId, Fraction, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { rgba } from 'polished'
@@ -27,9 +27,7 @@ import { WIDTHS } from 'pages/MyEarnings/constants'
 import { ClassicRow, DownIcon, MobileStat, MobileStatWrapper, Wrapper } from 'pages/MyEarnings/styled'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { useAppSelector } from 'state/hooks'
-import { TokenAddressMap } from 'state/lists/reducer'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-import { isAddress, shortenAddress } from 'utils'
+import { shortenAddress } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { formatDollarAmount } from 'utils/numbers'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
@@ -63,20 +61,6 @@ const Badge = styled.div<{ $color?: string }>`
   `}
 `
 
-const getCurrencyFromTokenAddress = (
-  tokensByChainId: TokenAddressMap,
-  chainId: ChainId,
-  address: string,
-): WrappedTokenInfo | undefined => {
-  const tokenAddress = isAddress(chainId, address)
-  if (!tokenAddress) {
-    return undefined
-  }
-
-  const currency = tokensByChainId[chainId][tokenAddress]
-  return currency
-}
-
 export type Props = {
   chainId: ChainId
   poolEarning: ClassicPositionEarningWithDetails
@@ -85,13 +69,24 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
   const theme = useTheme()
   const networkInfo = NETWORKS_INFO[chainId]
   const [isExpanded, setExpanded] = useState(false)
-  const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
   const tabletView = useMedia(`(max-width: ${WIDTHS[3]}px)`)
   const mobileView = useMedia(`(max-width: ${WIDTHS[2]}px)`)
 
   const shouldExpandAllPools = useAppSelector(state => state.myEarnings.shouldExpandAllPools)
-  const currency0 = getCurrencyFromTokenAddress(tokensByChainId, chainId, poolEarning.pool.token0.id)
-  const currency1 = getCurrencyFromTokenAddress(tokensByChainId, chainId, poolEarning.pool.token1.id)
+  const currency0 = new Token(
+    chainId,
+    poolEarning.pool.token0.id,
+    +poolEarning.pool.token0.decimals,
+    poolEarning.pool.token0.symbol,
+    poolEarning.pool.token0.name,
+  )
+  const currency1 = new Token(
+    chainId,
+    poolEarning.pool.token1.id,
+    +poolEarning.pool.token1.decimals,
+    poolEarning.pool.token1.symbol,
+    poolEarning.pool.token1.name,
+  )
 
   // Need these because we'll display native tokens instead of wrapped tokens
   const visibleCurrency0 = currency0 ? unwrappedToken(currency0) : undefined
