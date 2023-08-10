@@ -124,7 +124,6 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
         blockClient,
         chainId,
         ethPriceRef.current,
-        abortController.signal,
       )
       if (abortController.signal.aborted) throw new AbortedError()
 
