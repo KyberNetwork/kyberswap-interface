@@ -104,12 +104,13 @@ const ClassicPools = () => {
           </Text>
           <Text>
             AMP Liquidity | TVL
-            <InfoHelper text={AMP_LIQUIDITY_HINT} />
+            <InfoHelper text={AMP_LIQUIDITY_HINT} placement="top" />
           </Text>
           <Text>
             APR
             <InfoHelper
               text={t`Average estimated return based on yearly trading fees from the pool & additional bonus rewards if you participate in the farm`}
+              placement="top"
             />
           </Text>
           <Text>

@@ -27,7 +27,9 @@ import { WIDTHS } from 'pages/MyEarnings/constants'
 import { ClassicRow, DownIcon, MobileStat, MobileStatWrapper, Wrapper } from 'pages/MyEarnings/styled'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { useAppSelector } from 'state/hooks'
-import { shortenAddress } from 'utils'
+import { TokenAddressMap } from 'state/lists/reducer'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { isAddress, shortenAddress } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { formatDollarAmount } from 'utils/numbers'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
@@ -65,28 +67,47 @@ export type Props = {
   chainId: ChainId
   poolEarning: ClassicPositionEarningWithDetails
 }
+
+const getCurrencyFromTokenAddress = (
+  tokensByChainId: TokenAddressMap,
+  chainId: ChainId,
+  address: string,
+): WrappedTokenInfo | undefined => {
+  const tokenAddress = isAddress(chainId, address)
+  if (!tokenAddress) {
+    return undefined
+  }
+
+  const currency = tokensByChainId[chainId][tokenAddress]
+  return currency
+}
+
 const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
   const theme = useTheme()
   const networkInfo = NETWORKS_INFO[chainId]
   const [isExpanded, setExpanded] = useState(false)
   const tabletView = useMedia(`(max-width: ${WIDTHS[3]}px)`)
   const mobileView = useMedia(`(max-width: ${WIDTHS[2]}px)`)
-
+  const tokensByChainId = useAppSelector(state => state.lists.mapWhitelistTokens)
   const shouldExpandAllPools = useAppSelector(state => state.myEarnings.shouldExpandAllPools)
-  const currency0 = new Token(
-    chainId,
-    poolEarning.pool.token0.id,
-    +poolEarning.pool.token0.decimals,
-    poolEarning.pool.token0.symbol,
-    poolEarning.pool.token0.name,
-  )
-  const currency1 = new Token(
-    chainId,
-    poolEarning.pool.token1.id,
-    +poolEarning.pool.token1.decimals,
-    poolEarning.pool.token1.symbol,
-    poolEarning.pool.token1.name,
-  )
+  const currency0 =
+    getCurrencyFromTokenAddress(tokensByChainId, chainId, poolEarning.pool.token0.id) ||
+    new Token(
+      chainId,
+      poolEarning.pool.token0.id,
+      +poolEarning.pool.token0.decimals,
+      poolEarning.pool.token0.symbol,
+      poolEarning.pool.token0.name,
+    )
+  const currency1 =
+    getCurrencyFromTokenAddress(tokensByChainId, chainId, poolEarning.pool.token1.id) ||
+    new Token(
+      chainId,
+      poolEarning.pool.token1.id,
+      +poolEarning.pool.token1.decimals,
+      poolEarning.pool.token1.symbol,
+      poolEarning.pool.token1.name,
+    )
 
   // Need these because we'll display native tokens instead of wrapped tokens
   const visibleCurrency0 = currency0 ? unwrappedToken(currency0) : undefined
@@ -235,22 +256,25 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
                 </MouseoverTooltip>
               }
               value={
-                <MouseoverTooltip
-                  width="fit-content"
-                  placement="top"
-                  text={
-                    <APRTooltipContent
-                      farmAPR={+poolEarning.pool.farmApr}
-                      farmV2APR={0}
-                      poolAPR={+poolEarning.pool.apr}
-                    />
-                  }
-                >
+                <Flex alignItems="center">
                   <Text as="span" marginRight="4px" color={theme.apr}>
                     {(+poolEarning.pool.apr).toFixed(2)}%
                   </Text>
-                  <Info size={14} color={theme.apr} />
-                </MouseoverTooltip>
+
+                  <MouseoverTooltip
+                    width="fit-content"
+                    placement="top"
+                    text={
+                      <APRTooltipContent
+                        farmAPR={+poolEarning.pool.farmApr}
+                        farmV2APR={0}
+                        poolAPR={+poolEarning.pool.apr}
+                      />
+                    }
+                  >
+                    <Info size={14} color={theme.apr} />
+                  </MouseoverTooltip>
+                </Flex>
               }
             />
             <StatItem
@@ -398,18 +422,21 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
             </Text>
           </div>
 
-          <MouseoverTooltip
-            width="fit-content"
-            placement="top"
-            text={
-              <APRTooltipContent farmAPR={+poolEarning.pool.farmApr} farmV2APR={0} poolAPR={+poolEarning.pool.apr} />
-            }
-          >
+          <Flex alignItems="center">
             <Text as="span" marginRight="4px" color={theme.apr}>
               {(+poolEarning.pool.apr + +poolEarning.pool.farmApr).toFixed(2)}%
             </Text>
-            <Info size={14} color={theme.apr} />
-          </MouseoverTooltip>
+
+            <MouseoverTooltip
+              width="fit-content"
+              placement="top"
+              text={
+                <APRTooltipContent farmAPR={+poolEarning.pool.farmApr} farmV2APR={0} poolAPR={+poolEarning.pool.apr} />
+              }
+            >
+              <Info size={14} color={theme.apr} />
+            </MouseoverTooltip>
+          </Flex>
 
           <Text>
             {formatDollarAmount(Number(poolEarning.pool.volumeUsd) - Number(poolEarning.pool.volumeUsdOneDayAgo))}

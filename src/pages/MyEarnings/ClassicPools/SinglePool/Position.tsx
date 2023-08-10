@@ -199,14 +199,11 @@ const Position: React.FC<Props> = ({ poolEarning, chainId }) => {
           }
         />
 
-        <Column
-          label={t`Total LP Tokens`}
-          value={formattedNum((+poolEarning.liquidityTokenBalance).toFixed(8), false, 6)}
-        />
+        <Column label={t`Total LP Tokens`} value={formattedNum(+poolEarning.liquidityTokenBalance, false, 6)} />
 
         <Column label={t`Share of Pool`} value={myShareOfPool ? (myShareOfPool * 100).toFixed(2) + '%' : '--'} />
 
-        <Column label={t`Staked LP Tokens`} value={formattedNum(liquidityStaked.toFixed(8), false, 6)} />
+        <Column label={t`Staked LP Tokens`} value={formattedNum(liquidityStaked, false, 6)} />
       </Box>
     </Flex>
   )

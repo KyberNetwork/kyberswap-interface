@@ -54,6 +54,7 @@ export const StatItem = ({ label, value }: { label: ReactNode | string; value: R
     </Flex>
   )
 }
+
 const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, pendingFees, tokenPrices }) => {
   const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
