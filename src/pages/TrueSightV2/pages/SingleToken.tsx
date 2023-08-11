@@ -511,7 +511,7 @@ export default function SingleToken() {
   const [showShare, setShowShare] = useState(false)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const { chain, address } = useParams()
-  const [currentTab, setCurrentTab] = useState<DiscoverTokenTab>(DiscoverTokenTab.OnChainAnalysis)
+  const [currentTab, setCurrentTab] = useState<DiscoverTokenTab>(DiscoverTokenTab.TechnicalAnalysis)
 
   const { data: token, isLoading } = useKyberAITokenOverview()
 
@@ -596,8 +596,8 @@ export default function SingleToken() {
             <DisplaySettings currentTab={currentTab} />
           </RowFit>
         </Row>
-        {currentTab === DiscoverTokenTab.OnChainAnalysis && <OnChainAnalysis />}
         {currentTab === DiscoverTokenTab.TechnicalAnalysis && <TechnicalAnalysis />}
+        {currentTab === DiscoverTokenTab.OnChainAnalysis && <OnChainAnalysis />}
       </ChartStatesContext.Provider>
       <KyberAIShareModal
         isOpen={showShare}

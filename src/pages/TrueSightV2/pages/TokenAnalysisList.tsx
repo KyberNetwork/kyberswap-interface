@@ -272,8 +272,8 @@ const tokenTypeList: {
   tooltip?: (theme: DefaultTheme) => ReactNode
   title: string
 }[] = [
-  { type: KyberAIListType.ALL, title: t`All` },
   { type: KyberAIListType.MYWATCHLIST, icon: 'star', title: t`My Watchlist` },
+  { type: KyberAIListType.ALL, title: t`All` },
   {
     type: KyberAIListType.BULLISH,
     title: t`Bullish`,

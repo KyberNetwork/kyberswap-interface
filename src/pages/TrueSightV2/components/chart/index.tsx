@@ -925,12 +925,12 @@ export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; no
   const theme = useTheme()
   const { chain, address } = useParams()
   const { state, dispatch } = useChartStatesContext(KYBERAI_CHART_ID.NETFLOW_TO_WHALE_WALLET, {
-    timeframe: KyberAITimeframe.ONE_MONTH,
+    timeframe: KyberAITimeframe.ONE_WEEK,
     showOptions: ['showInflow', 'showOutflow', 'showNetflow'],
     noData: true,
   })
 
-  const timeframe = state?.timeframe || KyberAITimeframe.ONE_MONTH
+  const timeframe = state?.timeframe || KyberAITimeframe.ONE_WEEK
   const showInflow = state?.showOptions?.includes('showInflow')
   const showOutflow = state?.showOptions?.includes('showOutflow')
   const showNetflow = state?.showOptions?.includes('showNetflow')
@@ -940,6 +940,7 @@ export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; no
     const timerange =
       {
         [KyberAITimeframe.ONE_DAY]: 3600,
+        [KyberAITimeframe.THREE_DAY]: 3600,
         [KyberAITimeframe.ONE_WEEK]: 86400,
         [KyberAITimeframe.ONE_MONTH]: 86400,
         [KyberAITimeframe.THREE_MONTHS]: 86400,
@@ -948,6 +949,7 @@ export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; no
       now -
       ({
         [KyberAITimeframe.ONE_DAY]: 86400,
+        [KyberAITimeframe.THREE_DAY]: 259200,
         [KyberAITimeframe.ONE_WEEK]: 604800,
         [KyberAITimeframe.ONE_MONTH]: 2592000,
         [KyberAITimeframe.THREE_MONTHS]: 7776000,
@@ -1173,6 +1175,7 @@ export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; no
               }
               timeframes={[
                 KyberAITimeframe.ONE_DAY,
+                KyberAITimeframe.THREE_DAY,
                 KyberAITimeframe.ONE_WEEK,
                 KyberAITimeframe.ONE_MONTH,
                 KyberAITimeframe.THREE_MONTHS,
@@ -1358,12 +1361,12 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
   const theme = useTheme()
   const { chain, address } = useParams()
   const { state, dispatch } = useChartStatesContext(KYBERAI_CHART_ID.NETFLOW_TO_CEX, {
-    timeframe: KyberAITimeframe.ONE_MONTH,
+    timeframe: KyberAITimeframe.ONE_WEEK,
     showOptions: ['showInflow', 'showOutflow', 'showNetflow'],
     noData: true,
   })
 
-  const timeframe = state?.timeframe || KyberAITimeframe.ONE_MONTH
+  const timeframe = state?.timeframe || KyberAITimeframe.ONE_WEEK
   const showInflow = state?.showOptions?.includes('showInflow')
   const showOutflow = state?.showOptions?.includes('showOutflow')
   const showNetflow = state?.showOptions?.includes('showNetflow')
@@ -1373,6 +1376,7 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
     const timerange =
       {
         [KyberAITimeframe.ONE_DAY]: 3600,
+        [KyberAITimeframe.THREE_DAY]: 3600,
         [KyberAITimeframe.ONE_WEEK]: 86400,
         [KyberAITimeframe.ONE_MONTH]: 86400,
         [KyberAITimeframe.THREE_MONTHS]: 86400,
@@ -1381,6 +1385,7 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
       now -
       ({
         [KyberAITimeframe.ONE_DAY]: 86400,
+        [KyberAITimeframe.THREE_DAY]: 259200,
         [KyberAITimeframe.ONE_WEEK]: 604800,
         [KyberAITimeframe.ONE_MONTH]: 2592000,
         [KyberAITimeframe.THREE_MONTHS]: 7776000,
@@ -1564,6 +1569,7 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
           onSelect={timeframe => dispatch({ type: CHART_STATES_ACTION_TYPE.TIMEFRAME_CHANGE, payload: { timeframe } })}
           timeframes={[
             KyberAITimeframe.ONE_DAY,
+            KyberAITimeframe.THREE_DAY,
             KyberAITimeframe.ONE_WEEK,
             KyberAITimeframe.ONE_MONTH,
             KyberAITimeframe.THREE_MONTHS,
