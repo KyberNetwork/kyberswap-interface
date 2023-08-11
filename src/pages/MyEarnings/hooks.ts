@@ -108,11 +108,10 @@ async function getBulkPoolDataWithPagination(
   blockClient: ApolloClient<NormalizedCacheObject>,
   ethPrice: string,
   chainId: ChainId,
-  signal: AbortSignal,
 ): Promise<any> {
   try {
     const [t1] = getTimestampsForChanges()
-    const blocks = await getBlocksFromTimestamps(isEnableBlockService, blockClient, [t1], chainId, signal)
+    const blocks = await getBlocksFromTimestamps(isEnableBlockService, blockClient, [t1], chainId)
 
     // In case we can't get the block one day ago then we set it to 0 which is fine
     // because our subgraph never syncs from block 0 => response is empty
@@ -227,7 +226,6 @@ export function useAllPoolsData(chainId: ChainId): {
                 blockClient,
                 String(ethPrice),
                 chainId,
-                controller.signal,
               ),
             )
           }
