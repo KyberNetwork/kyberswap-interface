@@ -225,8 +225,19 @@ export const DetailRight = styled.div`
 export const DetailTitle = styled.div`
   font-size: 12px;
   font-weight: 500;
+  line-height: 16px;
   text-transform: uppercase;
   text-align: left;
+`
+export const ViewRouteTitle = styled.div`
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  text-align: right;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 `
 export const Divider = styled.div`
   width: 100%;

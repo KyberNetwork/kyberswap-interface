@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useState } from 'react'
+import { createContext, ReactNode, useContext, useMemo, useState } from 'react'
 import { DEFAULT_TOKENS, TokenInfo } from '../constants'
 import { useActiveWeb3 } from './useWeb3Provider'
 
@@ -68,10 +68,13 @@ export const useTokens = () => {
   const { tokenList, importedTokens } = useContext(TokenContext)
   const { chainId } = useActiveWeb3()
 
-  return [
-    ...importedTokens.filter(item => item.chainId === chainId).map(item => ({ ...item, isImport: true })),
-    ...(tokenList || []),
-  ]
+  return useMemo(
+    () => [
+      ...importedTokens.filter(item => item.chainId === chainId).map(item => ({ ...item, isImport: true })),
+      ...(tokenList || []),
+    ],
+    [tokenList, importedTokens, chainId],
+  )
 }
 
 export const useImportedTokens = () => {

@@ -9,6 +9,7 @@ import { ReactComponent as SwapIcon } from '../../assets/swap.svg'
 import { ReactComponent as BackIcon } from '../../assets/back1.svg'
 import { ReactComponent as KyberSwapLogo } from '../../assets/kyberswap.svg'
 import { ReactComponent as AlertIcon } from '../../assets/alert.svg'
+import { ReactComponent as Expand } from '../../assets/expand.svg'
 
 import useTheme from '../../hooks/useTheme'
 
@@ -37,6 +38,7 @@ import {
   DetailRight,
   ModalHeader,
   ModalTitle,
+  ViewRouteTitle,
 } from './styled'
 
 import { BigNumber } from 'ethers'
@@ -54,6 +56,7 @@ import Confirmation from '../Confirmation'
 import DexesSetting from '../DexesSetting'
 import ImportModal from '../ImportModal'
 import InfoHelper from '../InfoHelper'
+import TradeRouting from '../TradeRouting'
 
 export const DialogWrapper = styled.div`
   background-color: ${({ theme }) => theme.dialog};
@@ -83,6 +86,11 @@ export const DialogWrapper = styled.div`
   &.close {
     transform: translateX(100%);
   }
+`
+const Row = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 `
 
 const ContentWrapper = styled.div`
@@ -119,6 +127,7 @@ enum ModalType {
   REVIEW = 'review',
   DEXES_SETTING = 'dexes_setting',
   IMPORT_TOKEN = 'import_token',
+  TRADE_ROUTE = 'trade_route',
 }
 
 interface FeeSetting {
@@ -132,6 +141,7 @@ interface FeeSetting {
 
 export interface WidgetProps {
   client: string
+  enableRoute?: boolean
   provider?: any
   tokenList?: TokenInfo[]
   theme?: Theme
@@ -139,6 +149,7 @@ export interface WidgetProps {
   defaultTokenOut?: string
   feeSetting?: FeeSetting
   onTxSubmit?: (txHash: string, data: any) => void
+  enableDexes?: string
 }
 
 const Widget = ({
@@ -147,12 +158,16 @@ const Widget = ({
   feeSetting,
   client,
   onTxSubmit,
+  enableRoute,
+  enableDexes,
 }: {
   defaultTokenIn?: string
   defaultTokenOut?: string
   feeSetting?: FeeSetting
   client: string
   onTxSubmit?: (txHash: string, data: any) => void
+  enableRoute: boolean
+  enableDexes?: string
 }) => {
   const [showModal, setShowModal] = useState<ModalType | null>(null)
   const { chainId } = useActiveWeb3()
@@ -182,6 +197,7 @@ const Widget = ({
     defaultTokenIn,
     defaultTokenOut,
     feeSetting,
+    enableDexes,
   })
 
   const trade = isUnsupported ? null : routeTrade
@@ -191,10 +207,14 @@ const Widget = ({
   const { balances, refetch } = useTokenBalances(tokens.map(item => item.address))
 
   const tokenInInfo =
-    tokenIn === NATIVE_TOKEN_ADDRESS ? NATIVE_TOKEN[chainId] : tokens.find(item => item.address === tokenIn)
+    tokenIn === NATIVE_TOKEN_ADDRESS
+      ? NATIVE_TOKEN[chainId]
+      : tokens.find(item => item.address.toLowerCase() === tokenIn.toLowerCase())
 
   const tokenOutInfo =
-    tokenOut === NATIVE_TOKEN_ADDRESS ? NATIVE_TOKEN[chainId] : tokens.find(item => item.address === tokenOut)
+    tokenOut === NATIVE_TOKEN_ADDRESS
+      ? NATIVE_TOKEN[chainId]
+      : tokens.find(item => item.address.toLowerCase() === tokenOut.toLowerCase())
 
   const amountOut = trade?.routeSummary?.amountOut
     ? formatUnits(trade.routeSummary.amountOut, tokenOutInfo?.decimals).toString()
@@ -239,6 +259,8 @@ const Widget = ({
         return 'Liquidity Sources'
       case ModalType.IMPORT_TOKEN:
         return 'Import Token'
+      case ModalType.TRADE_ROUTE:
+        return 'Your Trade Route'
 
       default:
         return null
@@ -262,6 +284,9 @@ const Widget = ({
             onShowSource={() => setShowModal(ModalType.DEXES_SETTING)}
           />
         )
+      case ModalType.TRADE_ROUTE:
+        if (enableRoute) return <TradeRouting trade={trade} currencyIn={tokenInInfo} currencyOut={tokenOutInfo} />
+        return null
       case ModalType.CURRENCY_IN:
         return (
           <SelectCurrency
@@ -536,7 +561,14 @@ const Widget = ({
       </InputWrapper>
 
       <Detail style={{ marginTop: '1rem' }}>
-        <DetailTitle>More information</DetailTitle>
+        <Row>
+          <DetailTitle>More information</DetailTitle>
+          {enableRoute && (
+            <ViewRouteTitle onClick={() => setShowModal(ModalType.TRADE_ROUTE)}>
+              View Routes <Expand style={{ width: 12, height: 12 }} />
+            </ViewRouteTitle>
+          )}
+        </Row>
         <Divider />
         <DetailRow>
           <DetailLabel>
@@ -617,6 +649,8 @@ export default function SwapWidget({
   feeSetting,
   client,
   onTxSubmit,
+  enableRoute = true,
+  enableDexes,
 }: WidgetProps) {
   return (
     <StrictMode>
@@ -629,6 +663,8 @@ export default function SwapWidget({
               feeSetting={feeSetting}
               client={client}
               onTxSubmit={onTxSubmit}
+              enableRoute={enableRoute}
+              enableDexes={enableDexes}
             />
           </TokenListProvider>
         </Web3Provider>

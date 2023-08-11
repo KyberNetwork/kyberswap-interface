@@ -1,25 +1,28 @@
 {
   "name": "@kyberswap/widgets",
   "license": "MIT",
-  "version": "1.0.4",
+  "version": "1.1.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint --max-warnings=0 src"
+    "lint": "eslint --max-warnings=0 src",
+    "prepublishOnly": "yarn && yarn build"
   },
   "dependencies": {
     "@popperjs/core": "^2.11.6",
     "@reach/portal": "^0.18.0",
     "eslint-plugin-better-styled-components": "^1.1.2",
     "ethers": "^5.7.0",
+    "react-indiana-drag-scroll": "^2.2.0",
     "react-popper": "^2.3.0",
     "styled-components": "^5.3.5",
     "vite-plugin-eslint": "^1.8.1",
     "vite-plugin-svgr": "^2.2.1"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.196",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
     "@types/styled-components": "^5.1.26",

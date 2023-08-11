@@ -108,6 +108,25 @@ const App = () => {
         onTxSubmit={(hash, data) => {
           console.log(hash, data)
         }}
+        enableRoute
+        theme={{
+          primary: '#1C1C1C',
+          secondary: '#0F0F0F',
+          text: '#FFFFFF',
+          subText: '#A9A9A9',
+          interactive: '#292929',
+          dialog: '#313131',
+          stroke: '#505050',
+          accent: '#28E0B9',
+
+          success: '#189470',
+          warning: '#FF9901',
+          error: '#F84242',
+          fontFamily: 'Work Sans',
+          borderRadius: '10px',
+          buttonRadius: '10px',
+          boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.04)',
+        }}
       />
       <h1>Vite + React</h1>
       <div className="card">

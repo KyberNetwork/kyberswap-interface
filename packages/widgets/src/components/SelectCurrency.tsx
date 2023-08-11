@@ -51,9 +51,6 @@ export const Input = styled.input`
   outline: none;
   border: none;
   color: ${({ theme }) => theme.text};
-      ).filter(token => token.address.toLowerCase() === search.trim().toLowerCase() || token.name.includes(search.toLowerCase())),  box-shadow: ${({
-        theme,
-      }) => theme.boxShadow};
 `
 
 const TokenListWrapper = styled.div`

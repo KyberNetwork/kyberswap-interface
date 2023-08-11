@@ -132,6 +132,107 @@ export const NATIVE_TOKEN: {
   },
 }
 
+export const WRAPPED_NATIVE_TOKEN: {
+  [chainId: number]: TokenInfo
+} = {
+  1: {
+    name: 'Wrapped Ether',
+    decimals: 18,
+    symbol: 'WETH',
+    address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+    chainId: 1,
+    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
+  },
+  137: {
+    name: 'Wrapped Matic',
+    decimals: 18,
+    symbol: 'WMATIC',
+    address: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
+    chainId: 137,
+    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/3890.png',
+  },
+  56: {
+    name: 'Wrapped BNB',
+    decimals: 18,
+    symbol: 'WBNB',
+    address: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+    chainId: 56,
+    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1839.png',
+  },
+  43114: {
+    name: 'Wrapped AVAX',
+    decimals: 18,
+    symbol: 'WAVAX',
+    address: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7',
+    chainId: 43114,
+    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/5805.png',
+  },
+  250: {
+    name: 'Wrapped Fantom',
+    decimals: 18,
+    symbol: 'WFTM',
+    address: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',
+    chainId: 250,
+    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/3513.png',
+  },
+  25: {
+    name: 'Wrapped CRO',
+    decimals: 18,
+    symbol: 'WCRO',
+    address: '0x5C7F8A570d578ED84E63fdFA7b1eE72dEae1AE23',
+    chainId: 25,
+    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/3635.png',
+  },
+  42161: {
+    name: 'Wrapped Ether',
+    decimals: 18,
+    symbol: 'WETH',
+    address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+    chainId: 42161,
+    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
+  },
+  199: {
+    name: 'Wrapped BitTorrent',
+    decimals: 18,
+    symbol: 'WBTT',
+    address: '0x8D193c6efa90BCFf940A98785d1Ce9D093d3DC8A',
+    chainId: 199,
+    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/16086.png',
+  },
+  106: {
+    name: 'Wrapped VLX',
+    decimals: 18,
+    symbol: 'WVLX',
+    address: '0xc579D1f3CF86749E05CD06f7ADe17856c2CE3126',
+    chainId: 106,
+    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/4747.png',
+  },
+  1313161554: {
+    name: 'Wrapped ETH',
+    decimals: 18,
+    symbol: 'WETH',
+    address: '0xC9BdeEd33CD01541e1eeD10f90519d2C06Fe3feB',
+    chainId: 1313161554,
+    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
+  },
+  42262: {
+    name: 'Wrapped ROSE',
+    decimals: 18,
+    symbol: 'WROSE',
+    address: '0x21C718C22D52d0F3a789b752D4c2fD5908a8A733',
+    chainId: 42262,
+    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/7653.png',
+  },
+  10: {
+    name: 'Wrapped Ether',
+    decimals: 18,
+    symbol: 'WETH',
+    address: '0x4200000000000000000000000000000000000006',
+    chainId: 10,
+    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
+  },
+}
+
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 export const DEFAULT_TOKENS: {

@@ -48,6 +48,7 @@ const useTokenBalances = (tokenAddresses: string[]) => {
     } catch (e) {
       setLoading(false)
     }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [provider, chainId, JSON.stringify(tokenAddresses)])
 
   useEffect(() => {

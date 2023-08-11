@@ -1,6 +1,6 @@
 import { parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AGGREGATOR_PATH, NATIVE_TOKEN_ADDRESS, SUPPORTED_NETWORKS } from '../constants'
 import useDebounce from './useDebounce'
 import useTokenBalances from './useTokenBalances'
@@ -50,48 +50,24 @@ export interface Dex {
   dexId: string
 }
 
-const useSwap = ({
-  defaultTokenIn,
-  defaultTokenOut,
-  feeSetting,
-}: {
-  defaultTokenIn?: string
-  defaultTokenOut?: string
-  feeSetting?: {
-    chargeFeeBy: 'currency_in' | 'currency_out'
-    feeAmount: number
-    feeReceiver: string
-    isInBps: boolean
-  }
-}) => {
-  const { provider, chainId } = useActiveWeb3()
-  const [tokenIn, setTokenIn] = useState(defaultTokenIn || NATIVE_TOKEN_ADDRESS)
-  const [tokenOut, setTokenOut] = useState(defaultTokenOut || '')
-  const tokens = useTokens()
-
+export const useDexes = (enableDexes?: string) => {
+  const enableDexesFormatted: string[] | undefined = useMemo(
+    () => (enableDexes ? enableDexes.split(',') : undefined),
+    [enableDexes],
+  )
+  const { chainId } = useActiveWeb3()
   const isUnsupported = !SUPPORTED_NETWORKS.includes(chainId.toString())
 
-  useEffect(() => {
-    if (isUnsupported) {
-      setTokenIn('')
-      setTokenOut('')
-      setTrade(null)
-    } else {
-      setTrade(null)
-      setTokenIn(defaultTokenIn || NATIVE_TOKEN_ADDRESS)
-      setTokenOut(defaultTokenOut || '')
-    }
-  }, [isUnsupported, chainId, defaultTokenIn, defaultTokenOut])
-
-  const { balances } = useTokenBalances(tokens.map(item => item.address))
   const [allDexes, setAllDexes] = useState<Dex[]>([])
   const [excludedDexes, setExcludedDexes] = useState<Dex[]>([])
-
+  const allDexesEnabled = allDexes.filter(dex =>
+    enableDexesFormatted ? enableDexesFormatted.includes(dex.dexId) : true,
+  )
   const excludedDexIds = excludedDexes.map(i => i.dexId)
   const dexes =
-    excludedDexes.length === 0
+    excludedDexes.length === 0 && !enableDexes
       ? undefined
-      : allDexes
+      : allDexesEnabled
           .filter(item => !excludedDexIds.includes(item.dexId))
           .map(item => item.dexId)
           .join(',')
@@ -143,7 +119,48 @@ const useSwap = ({
     }
 
     fetchAllDexes()
-  }, [isUnsupported, chainId])
+  }, [isUnsupported, chainId, enableDexesFormatted])
+
+  return [allDexesEnabled, dexes, excludedDexes, setExcludedDexes] as const
+}
+
+const useSwap = ({
+  defaultTokenIn,
+  defaultTokenOut,
+  feeSetting,
+  enableDexes,
+}: {
+  defaultTokenIn?: string
+  defaultTokenOut?: string
+  feeSetting?: {
+    chargeFeeBy: 'currency_in' | 'currency_out'
+    feeAmount: number
+    feeReceiver: string
+    isInBps: boolean
+  }
+  enableDexes?: string
+}) => {
+  const { provider, chainId } = useActiveWeb3()
+  const [tokenIn, setTokenIn] = useState(defaultTokenIn || NATIVE_TOKEN_ADDRESS)
+  const [tokenOut, setTokenOut] = useState(defaultTokenOut || '')
+  const tokens = useTokens()
+
+  const isUnsupported = !SUPPORTED_NETWORKS.includes(chainId.toString())
+
+  useEffect(() => {
+    if (isUnsupported) {
+      setTokenIn('')
+      setTokenOut('')
+      setTrade(null)
+    } else {
+      setTrade(null)
+      setTokenIn(defaultTokenIn || NATIVE_TOKEN_ADDRESS)
+      setTokenOut(defaultTokenOut || '')
+    }
+  }, [isUnsupported, chainId, defaultTokenIn, defaultTokenOut])
+
+  const { balances } = useTokenBalances(tokens.map(item => item.address))
+  const [allDexes, dexes, excludedDexes, setExcludedDexes] = useDexes(enableDexes)
 
   const [inputAmout, setInputAmount] = useState('1')
   const debouncedInput = useDebounce(inputAmout)
@@ -162,7 +179,9 @@ const useSwap = ({
     if (isUnsupported) return
 
     const tokenInDecimal =
-      tokenIn === NATIVE_TOKEN_ADDRESS ? 18 : tokens.find(token => token.address === tokenIn)?.decimals
+      tokenIn === NATIVE_TOKEN_ADDRESS
+        ? 18
+        : tokens.find(token => token.address.toLowerCase() === tokenIn.toLowerCase())?.decimals
 
     if (!tokenInDecimal || !tokenIn || !tokenOut || !debouncedInput) {
       setError('Invalid input')
@@ -170,7 +189,14 @@ const useSwap = ({
       return
     }
 
-    const amountIn = parseUnits(debouncedInput, tokenInDecimal)
+    let amountIn: BigNumber = BigNumber.from('0')
+    try {
+      amountIn = parseUnits(debouncedInput, tokenInDecimal)
+    } catch (e) {
+      setError('Invalid input amount')
+      setTrade(null)
+      return
+    }
 
     if (!amountIn) {
       setError('Invalid input amount')
@@ -221,7 +247,7 @@ const useSwap = ({
       },
     ).then(r => r.json())
 
-    if (Number(routeResponse.data.routeSummary?.amountOut)) {
+    if (Number(routeResponse.data?.routeSummary?.amountOut)) {
       setTrade(routeResponse.data)
       if (provider && !tokenInBalance.lt(amountIn)) setError('')
     } else {
@@ -231,7 +257,9 @@ const useSwap = ({
 
     controllerRef.current = null
     setLoading(false)
+    // eslint-disable-next-line
   }, [
+    tokens,
     tokenIn,
     tokenOut,
     provider,
@@ -243,7 +271,8 @@ const useSwap = ({
     feeAmount,
     isInBps,
     feeReceiver,
-    balances,
+    // eslint-disable-next-line
+    JSON.stringify(balances),
   ])
 
   useEffect(() => {
