@@ -5,11 +5,18 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ButtonOutlined } from 'components/Button'
-import { SUPPORTED_NETWORKS_FOR_MY_EARNINGS } from 'constants/networks'
+import {
+  COMING_SOON_NETWORKS_FOR_MY_EARNINGS,
+  COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC,
+  COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY,
+  SUPPORTED_NETWORKS_FOR_MY_EARNINGS,
+} from 'constants/networks'
+import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import MultipleChainSelect from 'pages/MyEarnings/MultipleChainSelect'
+import { useAppSelector } from 'state/hooks'
 import { selectChains } from 'state/myEarnings/actions'
 import { useShowMyEarningChart } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -49,7 +56,19 @@ const ChainSelect = () => {
   const dispatch = useDispatch()
   const { mixpanelHandler } = useMixpanel()
   const { chainId } = useActiveWeb3React()
-  const isValidNetwork = SUPPORTED_NETWORKS_FOR_MY_EARNINGS.includes(chainId)
+
+  const isLegacy = useAppSelector(state => state.myEarnings.activeTab === VERSION.ELASTIC_LEGACY)
+  const isClassic = useAppSelector(state => state.myEarnings.activeTab === VERSION.CLASSIC)
+
+  const comingSoonList = isLegacy
+    ? COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY
+    : isClassic
+    ? COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC
+    : COMING_SOON_NETWORKS_FOR_MY_EARNINGS
+
+  const networkList = SUPPORTED_NETWORKS_FOR_MY_EARNINGS.filter(item => !comingSoonList.includes(item))
+
+  const isValidNetwork = networkList.includes(chainId)
 
   const handleClickCurrentChain = () => {
     if (!isValidNetwork) {

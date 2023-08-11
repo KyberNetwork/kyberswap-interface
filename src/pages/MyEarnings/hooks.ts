@@ -34,6 +34,8 @@ import { unwrappedToken } from 'utils/wrappedCurrency'
 export type ClassicPoolData = {
   id: string
   amp: string
+  apr: string
+  farmApr: string
   fee: number
   reserve0: string
   reserve1: string
@@ -41,12 +43,12 @@ export type ClassicPoolData = {
   vReserve1: string
   totalSupply: string
   reserveUSD: string
-  volumeUSD: string
+  volumeUsd: string
+  volumeUsdOneDayAgo: string
+  volumeUsdTwoDaysAgo: string
   feeUSD: string
-  oneDayVolumeUSD: string
-  oneDayVolumeUntracked: string
-  oneDayFeeUSD: string
-  oneDayFeeUntracked: string
+  feesUsdOneDayAgo: string
+  feesUsdTwoDaysAgo: string
   token0: {
     id: string
     symbol: string
@@ -106,11 +108,10 @@ async function getBulkPoolDataWithPagination(
   blockClient: ApolloClient<NormalizedCacheObject>,
   ethPrice: string,
   chainId: ChainId,
-  signal: AbortSignal,
 ): Promise<any> {
   try {
     const [t1] = getTimestampsForChanges()
-    const blocks = await getBlocksFromTimestamps(isEnableBlockService, blockClient, [t1], chainId, signal)
+    const blocks = await getBlocksFromTimestamps(isEnableBlockService, blockClient, [t1], chainId)
 
     // In case we can't get the block one day ago then we set it to 0 which is fine
     // because our subgraph never syncs from block 0 => response is empty
@@ -225,7 +226,6 @@ export function useAllPoolsData(chainId: ChainId): {
                 blockClient,
                 String(ethPrice),
                 chainId,
-                controller.signal,
               ),
             )
           }

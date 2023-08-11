@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import React, { useRef, useState } from 'react'
-import { ArrowLeft } from 'react-feather'
+import { ChevronLeft } from 'react-feather'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -39,18 +39,9 @@ type Props = {
   isSwapPage?: boolean
   isCrossChainPage?: boolean
 }
-const BackIconWrapper = styled(ArrowLeft)`
-  height: 20px;
-  width: 20px;
-  margin-right: 10px;
-  cursor: pointer;
-  path {
-    stroke: ${({ theme }) => theme.text} !important;
-  }
-`
 
 const BackText = styled.span`
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 500;
   color: ${({ theme }) => theme.text};
 `
@@ -101,14 +92,8 @@ const SettingsPanel: React.FC<Props> = ({
   return (
     <Box width="100%" className={className} id={TutorialIds.TRADING_SETTING_CONTENT} ref={containerRef}>
       <Flex width={'100%'} flexDirection={'column'} marginBottom="4px">
-        <Flex
-          alignItems="center"
-          sx={{
-            // this is to make the arrow stay exactly where it stays in Info panel
-            marginTop: '5px',
-          }}
-        >
-          <BackIconWrapper onClick={onBack}></BackIconWrapper>
+        <Flex alignItems="center" sx={{ gap: '4px' }}>
+          <ChevronLeft onClick={onBack} color={theme.subText} cursor={'pointer'} size={26} />
           <BackText>{t`Settings`}</BackText>
         </Flex>
 

@@ -222,6 +222,12 @@ export default function SwapForm() {
         dstAmount: tokenAmountOut,
       }
 
+      saveTxsToDb(payload)
+        .unwrap()
+        .catch(e => {
+          captureExceptionCrossChain(payload, e, 'CrossChain')
+        })
+
       // trigger for partner
       const params = {
         transactionId: tx.hash,
@@ -237,12 +243,6 @@ export default function SwapForm() {
           })
         }, 3000)
       })
-
-      saveTxsToDb(payload)
-        .unwrap()
-        .catch(e => {
-          captureExceptionCrossChain(payload, e, 'CrossChain')
-        })
     } catch (error) {
       console.error(error)
       setSwapState(state => ({ ...state, attemptingTxn: false, errorMessage: error?.message || error }))

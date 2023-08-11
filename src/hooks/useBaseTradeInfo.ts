@@ -1,13 +1,10 @@
 import { ChainId, Currency, WETH } from '@kyberswap/ks-sdk-core'
-import { ethers } from 'ethers'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { parseGetRouteResponse } from 'services/route/utils'
 
 import useGetRoute, { ArgsGetRoute, useGetRouteSolana } from 'components/SwapForm/hooks/useGetRoute'
-import { GAS_AMOUNT_ETHEREUM } from 'components/swapv2/LimitOrder/const'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
-import useInterval from 'hooks/useInterval'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 
 export type BaseTradeInfo = {
@@ -51,34 +48,10 @@ function useBaseTradeInfo(currencyIn: Currency | undefined, currencyOut: Currenc
   return { loading, tradeInfo, refetch }
 }
 
-export type BaseTradeInfoLO = BaseTradeInfo & {
-  gasFee: number
-}
-
 export function useBaseTradeInfoLimitOrder(currencyIn: Currency | undefined, currencyOut: Currency | undefined) {
-  const { library } = useWeb3React()
-
-  const [gasFee, setGasFee] = useState(0)
   const { loading, tradeInfo } = useBaseTradeInfo(currencyIn, currencyOut)
-  const nativePriceUsd = tradeInfo?.nativePriceUsd
-
-  const fetchGasFee = useCallback(() => {
-    if (!library || !nativePriceUsd) return
-    library
-      .getSigner()
-      .getGasPrice()
-      .then(data => {
-        const gasPrice = Number(ethers.utils.formatEther(data))
-        if (gasPrice) setGasFee(gasPrice * nativePriceUsd * GAS_AMOUNT_ETHEREUM)
-      })
-      .catch(e => {
-        console.error('fetchGasFee', e)
-      })
-  }, [library, nativePriceUsd])
-
-  useInterval(fetchGasFee, nativePriceUsd ? 15_000 : 2000)
   const debouncedLoading = useDebounce(loading, 100) // prevent flip flop UI when loading from true to false
-  return { loading: loading || debouncedLoading, tradeInfo: { ...tradeInfo, gasFee } as BaseTradeInfoLO }
+  return { loading: loading || debouncedLoading, tradeInfo }
 }
 
 export const useBaseTradeInfoWithAggregator = (args: ArgsGetRoute) => {

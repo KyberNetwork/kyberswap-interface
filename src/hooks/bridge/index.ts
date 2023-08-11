@@ -17,7 +17,9 @@ export const useEthBalanceOfAnotherChain = (chainId: ChainId | undefined) => {
   const { readProvider } = useKyberSwapConfig(chainId)
   const { account } = useActiveWeb3React()
   const [balance, setBalance] = useState<CurrencyAmount<Currency>>()
+
   useEffect(() => {
+    const controller = new AbortController()
     async function getBalance() {
       try {
         if (!readProvider || !account || !chainId) {
@@ -25,12 +27,19 @@ export const useEthBalanceOfAnotherChain = (chainId: ChainId | undefined) => {
           return
         }
         const balance = await readProvider.getBalance(account)
+        if (controller.signal.aborted) {
+          return
+        }
         setBalance(CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], JSBI.BigInt(balance)))
       } catch (error) {
+        if (controller.signal.aborted) {
+          return
+        }
         setBalance(undefined)
       }
     }
     getBalance()
+    return () => controller.abort()
   }, [chainId, readProvider, account])
 
   return balance

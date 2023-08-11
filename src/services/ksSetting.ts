@@ -79,16 +79,11 @@ const ksSettingApi = createApi({
 
     getTokenList: builder.query<
       TokenListResponse,
-      { chainId: number; page: number; pageSize: number; isWhitelisted: boolean }
+      { chainId: number; page?: number; pageSize?: number; isWhitelisted?: boolean; isStable?: boolean }
     >({
-      query: ({ chainId, page, pageSize, isWhitelisted }) => ({
+      query: ({ chainId, ...params }) => ({
         url: `/tokens`,
-        params: {
-          chainIds: chainId,
-          page,
-          pageSize,
-          isWhitelisted,
-        },
+        params: { ...params, chainIds: chainId },
       }),
     }),
   }),
@@ -99,6 +94,7 @@ export const {
   useLazyGetKyberswapConfigurationQuery,
   useGetKyberswapGlobalConfigurationQuery,
   useLazyGetTokenListQuery,
+  useGetTokenListQuery,
 } = ksSettingApi
 
 export default ksSettingApi

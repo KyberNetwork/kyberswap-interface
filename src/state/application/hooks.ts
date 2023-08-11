@@ -241,7 +241,6 @@ export const getEthPrice = async (
   chainId: ChainId,
   apolloClient: ApolloClient<NormalizedCacheObject>,
   blockClient: ApolloClient<NormalizedCacheObject>,
-  signal: AbortSignal,
 ) => {
   const utcCurrentTime = dayjs()
   const utcOneDayBack = utcCurrentTime.subtract(1, 'day').startOf('minute').unix()
@@ -252,7 +251,7 @@ export const getEthPrice = async (
 
   try {
     const oneDayBlock = (
-      await getBlocksFromTimestamps(isEnableBlockService, blockClient, [utcOneDayBack], chainId, signal)
+      await getBlocksFromTimestamps(isEnableBlockService, blockClient, [utcOneDayBack], chainId)
     )?.[0]?.number
     const result = await apolloClient.query({
       query: ETH_PRICE(),
@@ -281,7 +280,6 @@ const getPrommEthPrice = async (
   chainId: ChainId,
   apolloClient: ApolloClient<NormalizedCacheObject>,
   blockClient: ApolloClient<NormalizedCacheObject>,
-  signal: AbortSignal,
 ) => {
   const utcCurrentTime = dayjs()
   const utcOneDayBack = utcCurrentTime.subtract(1, 'day').startOf('minute').unix()
@@ -292,7 +290,7 @@ const getPrommEthPrice = async (
 
   try {
     const oneDayBlock = (
-      await getBlocksFromTimestamps(isEnableBlockService, blockClient, [utcOneDayBack], chainId, signal)
+      await getBlocksFromTimestamps(isEnableBlockService, blockClient, [utcOneDayBack], chainId)
     )?.[0]?.number
     const result = await apolloClient.query({
       query: PROMM_ETH_PRICE(),
@@ -332,8 +330,8 @@ export function useETHPrice(version: string = VERSION.CLASSIC): AppState['applic
     async function checkForEthPrice() {
       try {
         const [newPrice, oneDayBackPrice, pricePercentChange] = await (version === VERSION.ELASTIC
-          ? getPrommEthPrice(isEnableBlockService, chainId, elasticClient, blockClient, controller.signal)
-          : getEthPrice(isEnableBlockService, chainId, classicClient, blockClient, controller.signal))
+          ? getPrommEthPrice(isEnableBlockService, chainId, elasticClient, blockClient)
+          : getEthPrice(isEnableBlockService, chainId, classicClient, blockClient))
 
         dispatch(
           version === VERSION.ELASTIC

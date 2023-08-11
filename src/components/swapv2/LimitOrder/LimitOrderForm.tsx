@@ -1,4 +1,4 @@
-import { ChainId, Currency, CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { ethers } from 'ethers'
@@ -40,7 +40,7 @@ import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'
-import { formattedNum, getLimitOrderContract } from 'utils'
+import { getLimitOrderContract } from 'utils'
 import { subscribeNotificationOrderCancelled, subscribeNotificationOrderExpired } from 'utils/firebase'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 
@@ -646,21 +646,10 @@ const LimitOrderForm = function LimitOrderForm({
       )
     }
 
-    const isMainNet = chainId === ChainId.MAINNET
     const threshold = USD_THRESHOLD[chainId]
     const showWarningThresHold = outputAmount && estimateUSD.rawInput && estimateUSD.rawInput < threshold
-    if (isMainNet && showWarningThresHold && tradeInfo?.gasFee) {
-      messages.push(
-        <Text>
-          <Trans>
-            Your order may only be filled when market price of {currencyIn?.symbol} to {currencyOut?.symbol} is &lt;{' '}
-            <HightLight>{formattedNum(String(tradeInfo?.marketRate), true)}</HightLight>, as estimated gas fee to fill
-            your order is ~<HightLight>${removeTrailingZero(tradeInfo?.gasFee?.toPrecision(6) ?? '0')}</HightLight>.
-          </Trans>
-        </Text>,
-      )
-    }
-    if (!isMainNet && showWarningThresHold) {
+
+    if (showWarningThresHold) {
       messages.push(
         <Text>
           <Trans>
@@ -675,15 +664,12 @@ const LimitOrderForm = function LimitOrderForm({
   }, [
     chainId,
     currencyIn,
-    currencyOut?.symbol,
     deltaRate.percent,
     deltaRate.profit,
     deltaRate.rawPercent,
     displayRate,
     estimateUSD.rawInput,
     outputAmount,
-    tradeInfo?.gasFee,
-    tradeInfo?.marketRate,
   ])
 
   return (

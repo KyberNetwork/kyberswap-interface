@@ -385,13 +385,13 @@ export function CurrencySearch({
   const removeImportedToken = useCallback(
     (token: Token) => {
       removeToken(chainId, token.address)
-
-      toggleFavoriteToken({
-        chainId,
-        address: token.address,
-      })
+      if (favoriteTokens?.some(el => el.toLowerCase() === token.address.toLowerCase()))
+        toggleFavoriteToken({
+          chainId,
+          address: token.address,
+        })
     },
-    [chainId, toggleFavoriteToken, removeToken],
+    [chainId, toggleFavoriteToken, removeToken, favoriteTokens],
   )
 
   const removeAllImportToken = () => {
