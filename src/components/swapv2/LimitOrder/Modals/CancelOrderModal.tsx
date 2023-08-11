@@ -9,7 +9,7 @@ import { useCurrencyV2 } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 
-import { BaseTradeInfoLO, useBaseTradeInfoLimitOrder } from '../../../../hooks/useBaseTradeInfo'
+import { BaseTradeInfo, useBaseTradeInfoLimitOrder } from '../../../../hooks/useBaseTradeInfo'
 import { calcPercentFilledOrder, formatAmountOrder } from '../helpers'
 import { LimitOrder, LimitOrderStatus } from '../type'
 import { Container, Header, Label, ListInfo, MarketInfo, Note, Rate, Value } from './styled'
@@ -24,7 +24,7 @@ function ContentCancel({
 }: {
   isCancelAll: boolean
   order: LimitOrder | undefined
-  marketPrice: BaseTradeInfoLO | undefined
+  marketPrice: BaseTradeInfo | undefined
   onSubmit: () => void
   onDismiss: () => void
 }) {
