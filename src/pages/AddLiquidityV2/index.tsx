@@ -19,6 +19,7 @@ import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import { NotificationType } from 'components/Announcement/type'
 import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { OutlineCard, SubTextCard, WarningCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
@@ -45,6 +46,7 @@ import Tooltip, { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
 import { Dots } from 'components/swapv2/styleds'
+import { didUserReject } from 'constants/connectors/utils'
 import { ENV_LEVEL } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
@@ -62,7 +64,7 @@ import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { convertTickToPrice } from 'pages/Farm/ElasticFarmv2/utils'
 import { ApplicationModal } from 'state/application/actions'
-import { useOpenModal, useWalletModalToggle } from 'state/application/hooks'
+import { useNotify, useOpenModal, useWalletModalToggle } from 'state/application/hooks'
 import { FarmUpdater } from 'state/farms/elastic/hooks'
 import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import ElasticFarmV2Updater from 'state/farms/elasticv2/updater'
@@ -85,6 +87,7 @@ import { VIEW_MODE } from 'state/user/reducer'
 import { ExternalLink, MEDIA_WIDTHS, StyledInternalLink, TYPE } from 'theme'
 import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
+import { formatWalletErrorMessage } from 'utils/errorMessage'
 import { toSignificantOrMaxIntegerPart } from 'utils/formatCurrencyAmount'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { formatNotDollarAmount } from 'utils/numbers'
@@ -130,7 +133,7 @@ export default function AddLiquidity() {
   const navigate = useNavigate()
   const [rotate, setRotate] = useState(false)
   const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { connector, library } = useWeb3React()
   const theme = useTheme()
   const toggleWalletModal = useWalletModalToggle() // toggle wallet when disconnected
   const [isDegenMode] = useDegenModeManager()
@@ -139,6 +142,7 @@ export default function AddLiquidity() {
   const [showChart, setShowChart] = useState(false)
   const [positionIndex, setPositionIndex] = useState(0)
   const { mixpanelHandler } = useMixpanel()
+  const notify = useNotify()
 
   // fee selection from url
   const feeAmount: FeeAmount =
@@ -498,11 +502,28 @@ export default function AddLiquidity() {
               })
           })
           .catch((error: any) => {
-            console.error('Failed to send transaction', error)
             setAttemptingTxn(false)
-            // we only care if the error is something _other_ than the user rejected the tx
-            if (error?.code !== 4001) {
-              console.error(error)
+            if (didUserReject(connector, error)) {
+              notify(
+                {
+                  title: t`Transaction rejected`,
+                  summary: t`In order to add liquidity, you must accept the transaction in your wallet.`,
+                  type: NotificationType.ERROR,
+                },
+                8000,
+              )
+            } else {
+              // sending tx error, not tx execute error
+              console.error('Add liquidity error:', { error })
+              const message = formatWalletErrorMessage(error)
+              notify(
+                {
+                  title: t`Add liquidity error`,
+                  summary: message,
+                  type: NotificationType.ERROR,
+                },
+                8000,
+              )
             }
           })
       } else {
@@ -530,6 +551,8 @@ export default function AddLiquidity() {
       isMultiplePosition,
       poolAddress,
       currencyAmountSum,
+      connector,
+      notify,
     ],
   )
 
