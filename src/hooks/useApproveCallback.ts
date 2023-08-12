@@ -133,18 +133,21 @@ export function useApproveCallback(
           if (didUserReject(connector, error)) {
             notify({
               title: t`Transaction rejected`,
-              summary: t`In order to approve token, you must accept in your wallet.`,
+              summary: t`In order to approve token, you must accept the transaction in your wallet.`,
               type: NotificationType.ERROR,
             })
             throw new Error('Transaction rejected.')
           } else {
             console.error('Approve token error:', { error })
             const message = formatWalletErrorMessage(error)
-            notify({
-              title: t`Approve Error`,
-              summary: message,
-              type: NotificationType.ERROR,
-            })
+            notify(
+              {
+                title: t`Approve Error`,
+                summary: message,
+                type: NotificationType.ERROR,
+              },
+              8000,
+            )
             throw error
           }
         })
