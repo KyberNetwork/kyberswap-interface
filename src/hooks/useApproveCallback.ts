@@ -138,7 +138,7 @@ export function useApproveCallback(
             })
             throw new Error('Transaction rejected.')
           } else {
-            console.debug('Failed to approve token', error)
+            console.error('Approve token error:', { error })
             const message = formatWalletErrorMessage(error)
             notify({
               title: t`Approve Error`,
