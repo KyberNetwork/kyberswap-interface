@@ -324,7 +324,7 @@ export default function WalletView({
                 </Flex>
               </>
             ) : (
-              <Flex alignItems={'center'} style={{ gap: 5 }} color={theme.subText}>
+              <Flex alignItems={'center'} style={{ gap: 8 }} color={theme.subText}>
                 {walletKey && (
                   <IconWrapper>
                     <img
