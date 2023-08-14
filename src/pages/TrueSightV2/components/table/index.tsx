@@ -4,6 +4,7 @@ import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import { ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
+import { Info } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Text } from 'rebass'
@@ -151,9 +152,12 @@ const LoadingHandleWrapper = ({
               {isLoading ? (
                 <AnimatedLoader />
               ) : (
-                <Text fontSize="14px">
-                  <Trans>We couldn&apos;t find any information for this token</Trans>
-                </Text>
+                <Column gap="14px" alignItems="center">
+                  <Info size="38px" />
+                  <Text fontSize="14px">
+                    <Trans>We couldn&apos;t find any information for this token</Trans>
+                  </Text>
+                </Column>
               )}
             </StyledLoadingWrapper>
           </tr>
