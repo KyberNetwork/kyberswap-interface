@@ -31,6 +31,7 @@ const Element = styled.div<{ active?: boolean; count?: number }>`
   display: flex;
   justify-content: center;
   text-transform: uppercase;
+  font-style: normal;
   ${({ active, theme }) => active && `color: ${theme.text};`}
   :hover {
     filter: brightness(1.2);
