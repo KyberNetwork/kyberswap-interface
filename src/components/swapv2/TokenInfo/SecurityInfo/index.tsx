@@ -27,13 +27,13 @@ export default function SecurityInfo({ token }: { token: Token | undefined }) {
   }
   const headerStyle: CSSProperties = { background: isDarkMode ? rgba(theme.black, 0.48) : rgba(theme.subText, 0.08) }
   const arrowStyle: CSSProperties = { marginRight: '6px', color: theme.subText }
-  const { data, isLoading } = useGetSecurityTokenInfoQuery(
+  const { data, isLoading, error } = useGetSecurityTokenInfoQuery(
     { chainId: token?.chainId as ChainId, address: token?.address ?? '' },
     { skip: !token?.address },
   )
 
   const { contractData, tradingData, totalWarningContract, totalWarningTrading, totalRiskContract, totalRiskTrading } =
-    useMemo(() => getSecurityTokenInfo(data), [data])
+    useMemo(() => getSecurityTokenInfo(error ? undefined : data), [data, error])
 
   return (
     <Container>
