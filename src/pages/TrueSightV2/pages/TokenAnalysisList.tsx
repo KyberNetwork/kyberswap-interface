@@ -554,7 +554,12 @@ const TokenRow = ({
     <tr key={token.SourceTokenID} ref={rowRef} onClick={handleRowClick} style={{ position: 'relative' }}>
       <td>
         <RowFit gap="6px">
-          <SimpleTooltip text={token.SourceTokenID} hideOnMobile>
+          <SimpleTooltip
+            text={
+              isWatched ? t`Remove from watchlist` : reachedMaxLimit ? t`Reached 30 tokens limit` : t`Add to watchlist`
+            }
+            hideOnMobile
+          >
             <StarWithAnimation
               key={token.SourceTokenID}
               watched={isWatched}
