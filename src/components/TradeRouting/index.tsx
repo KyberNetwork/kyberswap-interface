@@ -197,11 +197,11 @@ const Routing = ({ tradeComposition, maxHeight, inputAmount, outputAmount, curre
 }
 
 const TokenRoute = ({ token }: { token: Token }) => {
-  const currency = useCurrencyV2(token.address)
+  const currency = useCurrencyV2(token.wrapped.address)
   return (
     <StyledToken
       style={{ marginRight: 0 }}
-      href={getEtherscanLink(token.chainId, token?.address, 'token')}
+      href={getEtherscanLink(token.chainId, token?.wrapped.address, 'token')}
       target="_blank"
     >
       <CurrencyLogo currency={currency} size="16px" />
