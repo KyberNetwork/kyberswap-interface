@@ -352,9 +352,11 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
               const infos = res.reduce((acc: UserFarmV2Info[], item) => {
                 const farm = formattedData.find(
                   farm =>
+                    farm.farmAddress === farmAddresses[index] &&
                     farm.poolAddress.toLowerCase() === nftInfos[item.nftId.toString()].poolAddress.toLowerCase() &&
                     +farm.fId === +item.fId.toString(),
                 )
+
                 if (!farm) return acc
 
                 const position = new Position({
