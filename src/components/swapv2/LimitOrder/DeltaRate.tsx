@@ -4,7 +4,7 @@ import { Text } from 'rebass'
 
 import InfoHelper from 'components/InfoHelper'
 import { Label } from 'components/swapv2/LimitOrder/LimitOrderForm'
-import { BaseTradeInfoLO } from 'hooks/useBaseTradeInfo'
+import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 import useTheme from 'hooks/useTheme'
 
 import { RateInfo } from './type'
@@ -13,7 +13,7 @@ export function useGetDeltaRateLimitOrder({
   marketPrice,
   rateInfo,
 }: {
-  marketPrice: BaseTradeInfoLO | undefined
+  marketPrice: BaseTradeInfo | undefined
   rateInfo: RateInfo
 }) {
   const { deltaText, percent } = useMemo(() => {
@@ -48,7 +48,7 @@ const DeltaRate = ({
   rateInfo,
   symbolIn,
 }: {
-  marketPrice: BaseTradeInfoLO | undefined
+  marketPrice: BaseTradeInfo | undefined
   rateInfo: RateInfo
   symbolIn: string
 }) => {
