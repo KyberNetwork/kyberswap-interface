@@ -10,7 +10,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { WORSE_PRICE_DIFF_THRESHOLD } from 'components/swapv2/LimitOrder/const'
 import { useActiveWeb3React } from 'hooks'
-import { BaseTradeInfoLO } from 'hooks/useBaseTradeInfo'
+import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 
@@ -43,7 +43,7 @@ export default memo(function ConfirmOrderModal({
   inputAmount: string
   outputAmount: string
   expireAt: number
-  marketPrice: BaseTradeInfoLO | undefined
+  marketPrice: BaseTradeInfo | undefined
   rateInfo: RateInfo
   note?: string
   warningMessage: ReactNode[]

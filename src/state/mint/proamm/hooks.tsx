@@ -1414,7 +1414,6 @@ export function useHourlyRateData(
   const { elasticClient, blockClient, isEnableBlockService } = useKyberSwapConfig()
 
   useEffect(() => {
-    const controller = new AbortController()
     const currentTime = dayjs.utc()
     let startTime: number
 
@@ -1459,13 +1458,11 @@ export function useHourlyRateData(
           NETWORKS_INFO[chainId],
           elasticClient,
           blockClient,
-          controller.signal,
         )
-        !controller.signal.aborted && ratesData && setRatesData(ratesData)
+        ratesData && setRatesData(ratesData)
       }
     }
     fetch()
-    return () => controller.abort()
   }, [timeWindow, poolAddress, dispatch, chainId, elasticClient, blockClient, isEnableBlockService])
 
   return ratesData

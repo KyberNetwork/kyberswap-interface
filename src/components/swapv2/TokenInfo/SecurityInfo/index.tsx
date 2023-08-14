@@ -11,6 +11,7 @@ import { ReactComponent as TreadingSecurity } from 'assets/svg/security_trading.
 import { CollapseItem } from 'components/Collapse'
 import { getSecurityTokenInfo } from 'components/swapv2/TokenInfo/utils'
 import useTheme from 'hooks/useTheme'
+import { useIsDarkMode } from 'state/user/hooks'
 
 import { Container } from '../index'
 import Content from './Content'
@@ -18,16 +19,21 @@ import Header from './Header'
 
 export default function SecurityInfo({ token }: { token: Token | undefined }) {
   const theme = useTheme()
-  const style: CSSProperties = { background: rgba(theme.black, 0.2), borderRadius: '16px', padding: '0' }
-  const headerStyle: CSSProperties = { background: rgba(theme.black, 0.48) }
+  const isDarkMode = useIsDarkMode()
+  const style: CSSProperties = {
+    background: isDarkMode ? rgba(theme.black, 0.2) : rgba(theme.subText, 0.04),
+    borderRadius: '16px',
+    padding: '0',
+  }
+  const headerStyle: CSSProperties = { background: isDarkMode ? rgba(theme.black, 0.48) : rgba(theme.subText, 0.08) }
   const arrowStyle: CSSProperties = { marginRight: '6px', color: theme.subText }
-  const { data, isLoading } = useGetSecurityTokenInfoQuery(
+  const { data, isLoading, error } = useGetSecurityTokenInfoQuery(
     { chainId: token?.chainId as ChainId, address: token?.address ?? '' },
     { skip: !token?.address },
   )
 
   const { contractData, tradingData, totalWarningContract, totalWarningTrading, totalRiskContract, totalRiskTrading } =
-    useMemo(() => getSecurityTokenInfo(data), [data])
+    useMemo(() => getSecurityTokenInfo(error ? undefined : data), [data, error])
 
   return (
     <Container>

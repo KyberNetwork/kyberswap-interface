@@ -5,9 +5,10 @@ import { PublicKey } from '@solana/web3.js'
 import dayjs from 'dayjs'
 import JSBI from 'jsbi'
 import Numeral from 'numeral'
+import blockServiceApi from 'services/blockService'
 
 import { GET_BLOCKS } from 'apollo/queries'
-import { BLOCK_SERVICE_API, ENV_KEY } from 'constants/env'
+import { ENV_KEY } from 'constants/env'
 import { DEFAULT_GAS_LIMIT_MARGIN, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from 'constants/networks'
 import { KNC, KNCL_ADDRESS } from 'constants/tokens'
@@ -294,7 +295,7 @@ export async function splitQuery<ResultType, T, U>(
  * @dev timestamps are returns as they were provided; not the block time.
  * @param {Array} timestamps
  */
-export async function getBlocksFromTimestampsSubgraph(
+async function getBlocksFromTimestampsSubgraph(
   blockClient: ApolloClient<NormalizedCacheObject>,
   timestamps: number[],
   chainId: ChainId,
@@ -320,31 +321,24 @@ export async function getBlocksFromTimestampsSubgraph(
   return blocks
 }
 
-export async function getBlocksFromTimestampsBlockService(
+async function getBlocksFromTimestampsBlockService(
   timestamps: number[],
   chainId: ChainId,
-  signal: AbortSignal,
 ): Promise<{ timestamp: number; number: number }[]> {
   if (!isEVM(chainId)) return []
   if (timestamps?.length === 0) {
     return []
   }
+
   const allChunkResult = (
     await Promise.all(
       chunk(timestamps, 50).map(
         async timestampsChunk =>
-          (
-            await fetch(
-              `${BLOCK_SERVICE_API}/${
-                NETWORKS_INFO[chainId].aggregatorRoute
-              }/api/v1/block?timestamps=${timestampsChunk.join(',')}`,
-              { signal },
-            )
-          ).json() as Promise<{ data: { timestamp: number; number: number }[] }>,
+          await store.dispatch(blockServiceApi.endpoints.getBlocks.initiate({ chainId, timestamps: timestampsChunk })),
       ),
     )
   )
-    .map(chunk => chunk.data)
+    .map(chunk => chunk.data?.data || [])
     .flat()
     .sort((a, b) => a.number - b.number)
 
@@ -356,9 +350,8 @@ export async function getBlocksFromTimestamps(
   blockClient: ApolloClient<NormalizedCacheObject>,
   timestamps: number[],
   chainId: ChainId,
-  signal: AbortSignal,
 ): Promise<{ timestamp: number; number: number }[]> {
-  if (isEnableBlockService) return getBlocksFromTimestampsBlockService(timestamps, chainId, signal)
+  if (isEnableBlockService) return getBlocksFromTimestampsBlockService(timestamps, chainId)
   return getBlocksFromTimestampsSubgraph(blockClient, timestamps, chainId)
 }
 

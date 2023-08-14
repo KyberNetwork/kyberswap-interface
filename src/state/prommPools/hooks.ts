@@ -209,20 +209,12 @@ export const usePoolBlocks = () => {
   const [block, setBlock] = useState<number | undefined>(undefined)
 
   useEffect(() => {
-    const controller = new AbortController()
     const getBlocks = async () => {
-      const [block] = await getBlocksFromTimestamps(
-        isEnableBlockService,
-        blockClient,
-        [last24h],
-        chainId,
-        controller.signal,
-      )
+      const [block] = await getBlocksFromTimestamps(isEnableBlockService, blockClient, [last24h], chainId)
       setBlock(block?.number)
     }
 
     getBlocks()
-    return () => controller.abort()
   }, [chainId, last24h, blockClient, isEnableBlockService])
 
   return { blockLast24h: block }

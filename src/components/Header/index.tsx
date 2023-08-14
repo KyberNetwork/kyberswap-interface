@@ -141,7 +141,7 @@ const IconImage = styled.img<{ isChristmas?: boolean }>`
 `
 
 const BlogWrapper = styled.span`
-  @media (max-width: 1440px) {
+  @media (max-width: 1600px) {
     display: none;
   }
 `

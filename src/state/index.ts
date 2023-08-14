@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { load, save } from 'redux-localstorage-simple'
+import blockServiceApi from 'services/blockService'
 import coingeckoApi from 'services/coingecko'
 import kyberAISubscriptionApi from 'services/kyberAISubscription'
 import priceAlertApi from 'services/priceAlert'
@@ -114,6 +115,7 @@ const store = configureStore({
     [earningApi.reducerPath]: earningApi.reducer,
     [tokenApi.reducerPath]: tokenApi.reducer,
     [socialApi.reducerPath]: socialApi.reducer,
+    [blockServiceApi.reducerPath]: blockServiceApi.reducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
