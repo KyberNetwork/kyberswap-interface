@@ -16,6 +16,7 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { ButtonGray, ButtonLight, ButtonOutlined } from 'components/Button'
 import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
+import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import Pagination from 'components/Pagination'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { APP_PATHS, ICON_ID } from 'constants/index'
@@ -34,6 +35,7 @@ import NetworkSelect from '../components/NetworkSelect'
 import SimpleTooltip from '../components/SimpleTooltip'
 import SmallKyberScoreMeter from '../components/SmallKyberScoreMeter'
 import TokenChart from '../components/TokenChartSVG'
+import TokenListVariants from '../components/TokenListVariants'
 import { StarWithAnimation } from '../components/WatchlistStar'
 import KyberScoreChart from '../components/chart/KyberScoreChart'
 import TokenAnalysisListShareContent from '../components/shareContent/TokenAnalysisListShareContent'
@@ -549,7 +551,7 @@ const TokenRow = ({
 
   const latestKyberScore: IKyberScoreChart | undefined = token?.ks_3d?.[token.ks_3d.length - 1]
   return (
-    <tr key={token.sourceTokenId} ref={rowRef} onClick={handleRowClick} style={{ position: 'relative' }}>
+    <tr key={token.SourceTokenID} ref={rowRef} onClick={handleRowClick} style={{ position: 'relative' }}>
       <td>
         <RowFit gap="6px">
           <SimpleTooltip
@@ -559,7 +561,7 @@ const TokenRow = ({
             hideOnMobile
           >
             <StarWithAnimation
-              key={token.sourceTokenId}
+              key={token.SourceTokenID}
               watched={isWatched}
               loading={loadingStar}
               onClick={handleWatchlistClick}
@@ -586,23 +588,7 @@ const TokenRow = ({
           <Column gap="8px" style={{ cursor: 'pointer', alignItems: 'flex-start' }}>
             <Text style={{ textTransform: 'uppercase' }}>{token.symbol}</Text>{' '}
             <RowFit gap="6px" color={theme.text}>
-              {token.tokens.map(item => {
-                if (item.chain === 'ethereum')
-                  return <Icon key={'eth-mono' + index} id="eth-mono" size={12} title="Ethereum" />
-                if (item.chain === 'bsc')
-                  return <Icon key={'bnb-mono' + index} id="bnb-mono" size={12} title="Binance" />
-                if (item.chain === 'avalanche')
-                  return <Icon key={'ava-mono' + index} id="ava-mono" size={12} title="Avalanche" />
-                if (item.chain === 'polygon')
-                  return <Icon key={'matic-mono' + index} id="matic-mono" size={12} title="Polygon" />
-                if (item.chain === 'arbitrum')
-                  return <Icon key={'arbitrum-mono' + index} id="arbitrum-mono" size={12} title="Arbitrum" />
-                if (item.chain === 'fantom')
-                  return <Icon key={'fantom-mono' + index} id="fantom-mono" size={12} title="Fantom" />
-                if (item.chain === 'optimism')
-                  return <Icon key={'optimism-mono' + index} id="optimism-mono" size={12} title="Optimism" />
-                return <></>
-              })}
+              <TokenListVariants tokens={token.tokens} />
             </RowFit>
           </Column>
         </Row>
@@ -884,7 +870,24 @@ export default function TokenAnalysisList() {
           <NetworkSelect filter={Number(chain) as ChainId} setFilter={handleChainChange} />
         </RowFit>
       </RowBetween>
-      <Column gap="0px">
+      <Column gap="0px" style={{ position: 'relative' }}>
+        {isFetching && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: '0 0 0 0',
+              background: theme.background,
+              opacity: 0.8,
+              zIndex: 100,
+              borderRadius: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <AnimatedLoader />
+          </div>
+        )}
         <TableWrapper ref={wrapperRef}>
           <Table ref={tableRef}>
             <colgroup>
@@ -1057,7 +1060,7 @@ export default function TokenAnalysisList() {
                 listData.map((token: ITokenList, index: number) => (
                   <TokenRow
                     token={token}
-                    key={token.sourceTokenId}
+                    key={token.SourceTokenID + '_' + (pageSize * (page - 1) + index + 1)}
                     currentTab={listType}
                     index={pageSize * (page - 1) + index + 1}
                     isScrolling={isScrolling}
