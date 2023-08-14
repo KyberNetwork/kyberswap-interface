@@ -1,7 +1,8 @@
 import { SwapPageLocators, TokenCatalogLocators } from "../selectors/selectors.cy"
 
-
-
+export interface myCallbackType<T> {
+    (myArgument: T): void
+}
 
 export const SwapPage = {
     open(url: string) {
@@ -18,24 +19,25 @@ export const SwapPage = {
         cy.selectTokenOut()
         return new TokenCatalog()
     },
-    getCurrentTokenIn() {
-        cy.getContent(SwapPageLocators.dropdownTokenIn, (text: string) => {
-            console.log('text:', text)
-            cy.wait(1000000)
-            return text
-        })
-        
-    }
-}
 
-export interface myCallbackType<T> {
-    (myArgument: T): void
+    getCurrentTokenIn(text: myCallbackType<string>) {
+        cy.getContent(SwapPageLocators.dropdownTokenIn, text)
+    },
+
+    getCurrentTokenOut(text: myCallbackType<string>) {
+        cy.getContent(SwapPageLocators.dropdownTokenOut, text)
+    },
+
 }
 
 export class TokenCatalog {
 
-    searchToken(value: string, tab?: string) {
-        cy.searchToken(value, tab)
+    searchToken(value: string) {
+        cy.searchToken(value)
+    }
+
+    selectImportTab() {
+        cy.selectImportTab()
     }
 
     selectFavoriteToken(tokenSymbol: string) {
@@ -57,15 +59,10 @@ export class TokenCatalog {
         cy.removeFavoriteToken(tokenSymbol)
     }
 
-    importNewTokens(selector: string, address: Array<string>) {
+    importNewTokens(address: Array<string>) {
         address.forEach(element => {
-            if (selector === SwapPageLocators.dropdownTokenIn) {
-                SwapPage.selectTokenIn().searchToken(element)
-            }
-            else {
-                SwapPage.selectTokenOut().searchToken(element)
-            }
-            cy.importNewToken()
+            SwapPage.selectTokenIn()
+            cy.importNewToken(element)
         })
     }
 
@@ -77,17 +74,18 @@ export class TokenCatalog {
         cy.clearAllImportedTokens()
     }
 
-    getTokenList(selector: string, callback: myCallbackType<string[]>) {
-        const arr: string[] = []
-        const listToken = cy.get(selector)
-        listToken
-            .each(item => {
-                arr.push(item.text())
-            })
-            .then(() => {
-                callback(arr)
-            })
+    getFavoriteTokens(list: myCallbackType<string[]>) {
+        cy.getList(TokenCatalogLocators.lblFavoriteToken, list)
     }
+
+    getWhitelistTokens(list: myCallbackType<string[]>) {
+        cy.getList(TokenCatalogLocators.lblRowInWhiteList, list)
+    }
+
+    getNoResultsFound(text: myCallbackType<string>) {
+        cy.getContent(TokenCatalogLocators.lblNotFound, text)
+    }
+
 }
 
 export enum tag {
