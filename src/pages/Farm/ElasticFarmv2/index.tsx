@@ -15,7 +15,6 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
 import HoverDropdown from 'components/HoverDropdown'
 import InfoHelper from 'components/InfoHelper'
-import { RowFit } from 'components/Row'
 import { MouseoverTooltip, MouseoverTooltipDesktopOnly, TextDashed } from 'components/Tooltip'
 import { ConnectWalletButton } from 'components/YieldPools/ElasticFarmGroup/buttons'
 import { FarmList } from 'components/YieldPools/ElasticFarmGroup/styleds'
@@ -68,7 +67,7 @@ export default function ElasticFarmv2({
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const above1000 = useMedia('(min-width: 1000px)')
-  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -79,8 +78,20 @@ export default function ElasticFarmv2({
   const depositedUsd =
     userInfo?.reduce((acc, cur) => (cur.farmAddress === farmAddress ? acc + cur.positionUsdValue : acc), 0) || 0
 
+  const rewardUsd =
+    userInfo?.reduce((acc, cur) => (cur.farmAddress === farmAddress ? acc + cur.unclaimedRewardsUsd : acc), 0) || 0
+
+  const rewardTokenAmounts: { [address: string]: CurrencyAmount<Currency> } = {}
+  userInfo?.forEach(item => {
+    item.unclaimedRewards.forEach(rw => {
+      const address = rw.currency.isNative ? rw.currency.symbol || 'eth' : rw.currency.wrapped.address
+      if (!rewardTokenAmounts[address]) rewardTokenAmounts[address] = rw
+      else rewardTokenAmounts[address] = rewardTokenAmounts[address].add(rw)
+    })
+  })
+
   const depositedTokenAmounts: { [address: string]: CurrencyAmount<Currency> } = {}
-  userInfo?.map(item => {
+  userInfo?.forEach(item => {
     const address0 = item.position.amount0.currency.wrapped.address
     const address1 = item.position.amount1.currency.wrapped.address
     if (!depositedTokenAmounts[address0]) depositedTokenAmounts[address0] = item.position.amount0
@@ -116,47 +127,103 @@ export default function ElasticFarmv2({
 
     if (isApprovedForAll) {
       return (
-        <Flex sx={{ gap: '8px' }} alignItems="center">
-          <MouseoverTooltip
-            text={t`Total value of liquidity positions (i.e. NFT tokens) you've deposited into the farming contract`}
+        <Flex
+          sx={{ gap: '8px' }}
+          alignItems="center"
+          flexDirection={upToSmall ? 'column' : 'row'}
+          width={upToSmall ? '100%' : undefined}
+        >
+          <Flex
+            sx={{ gap: '8px' }}
+            alignItems="center"
+            justifyContent={upToSmall ? 'space-between' : undefined}
+            width={upToSmall ? '100%' : undefined}
           >
-            <TextDashed fontSize="12px" fontWeight="500" color={theme.subText}>
-              <Trans>Deposited Liquidity</Trans>
-            </TextDashed>
-          </MouseoverTooltip>
+            <MouseoverTooltip
+              text={t`Total value of liquidity positions (i.e. NFT tokens) you've deposited into the farming contract`}
+            >
+              <TextDashed fontSize="12px" fontWeight="500" color={theme.subText}>
+                <Trans>Deposited Liquidity</Trans>
+              </TextDashed>
+            </MouseoverTooltip>
 
-          <HoverDropdown
-            style={{ padding: '0', color: theme.text }}
-            content={
-              account ? (
-                <Text as="span" fontSize="20px" fontWeight="500">
-                  {formatDollarAmount(depositedUsd)}
-                </Text>
-              ) : (
-                '--'
-              )
-            }
-            hideIcon={!account || !depositedUsd}
-            dropdownContent={
-              Object.values(depositedTokenAmounts).some(amount => amount.greaterThan(0)) ? (
-                <AutoColumn>
-                  {Object.values(depositedTokenAmounts).map(
-                    amount =>
-                      amount.greaterThan(0) && (
-                        <Flex alignItems="center" key={amount.currency.wrapped.address}>
-                          <CurrencyLogo currency={amount.currency} size="16px" />
-                          <Text fontSize="12px" marginLeft="4px" fontWeight="500">
-                            {amount.toSignificant(8)} {amount.currency.symbol}
-                          </Text>
-                        </Flex>
-                      ),
-                  )}
-                </AutoColumn>
-              ) : (
-                ''
-              )
-            }
-          />
+            <HoverDropdown
+              style={{ padding: '0', color: theme.text }}
+              content={
+                account ? (
+                  <Text as="span" fontSize="20px" fontWeight="500">
+                    {formatDollarAmount(depositedUsd)}
+                  </Text>
+                ) : (
+                  '--'
+                )
+              }
+              hideIcon={!account || !depositedUsd}
+              dropdownContent={
+                Object.values(depositedTokenAmounts).some(amount => amount.greaterThan(0)) ? (
+                  <AutoColumn>
+                    {Object.values(depositedTokenAmounts).map(
+                      amount =>
+                        amount.greaterThan(0) && (
+                          <Flex alignItems="center" key={amount.currency.wrapped.address}>
+                            <CurrencyLogo currency={amount.currency} size="16px" />
+                            <Text fontSize="12px" marginLeft="4px" fontWeight="500">
+                              {amount.toSignificant(8)} {amount.currency.symbol}
+                            </Text>
+                          </Flex>
+                        ),
+                    )}
+                  </AutoColumn>
+                ) : (
+                  ''
+                )
+              }
+            />
+          </Flex>
+
+          <Flex
+            alignItems="center"
+            justifyContent={upToSmall ? 'space-between' : undefined}
+            sx={{ gap: '8px' }}
+            width={upToSmall ? '100%' : undefined}
+          >
+            <Text fontSize={12} color={theme.subText} fontWeight="500">
+              <Trans>Rewards</Trans>
+            </Text>
+
+            <HoverDropdown
+              style={{ padding: '0', color: theme.text }}
+              content={
+                account ? (
+                  <Text as="span" fontSize="20px" fontWeight="500">
+                    {formatDollarAmount(rewardUsd)}
+                  </Text>
+                ) : (
+                  '--'
+                )
+              }
+              hideIcon={!account || !depositedUsd}
+              dropdownContent={
+                Object.values(rewardTokenAmounts).some(amount => amount.greaterThan(0)) ? (
+                  <AutoColumn>
+                    {Object.values(rewardTokenAmounts).map(
+                      amount =>
+                        amount.greaterThan(0) && (
+                          <Flex alignItems="center" key={amount.currency.wrapped.address}>
+                            <CurrencyLogo currency={amount.currency} size="16px" />
+                            <Text fontSize="12px" marginLeft="4px" fontWeight="500">
+                              {amount.toSignificant(8)} {amount.currency.symbol}
+                            </Text>
+                          </Flex>
+                        ),
+                    )}
+                  </AutoColumn>
+                ) : (
+                  ''
+                )
+              }
+            />
+          </Flex>
         </Flex>
       )
     }
@@ -350,7 +417,7 @@ export default function ElasticFarmv2({
       <Flex
         justifyContent="space-between"
         sx={{ gap: '1rem' }}
-        flexDirection={isApprovedForAll && upToExtraSmall ? 'column' : 'row'}
+        flexDirection={isApprovedForAll && upToSmall ? 'column' : 'row'}
       >
         <Flex fontSize="16px" alignItems="center" color={theme.text} sx={{ gap: '6px' }}>
           <Trans>Static Farms</Trans>
@@ -366,7 +433,7 @@ export default function ElasticFarmv2({
             <QuestionSquareIcon />
           </Text>
         </Flex>
-        <RowFit>{renderApproveButton()}</RowFit>
+        {renderApproveButton()}
       </Flex>
       <Divider />
       <FarmList
