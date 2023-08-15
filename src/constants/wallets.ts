@@ -6,8 +6,10 @@ import { isMobile } from 'react-device-detect'
 import BRAVE from 'assets/wallets-connect/brave.svg'
 import COIN98 from 'assets/wallets-connect/coin98.svg'
 import COINBASE from 'assets/wallets-connect/coinbase.svg'
+import KRYSTAL from 'assets/wallets-connect/krystal.svg'
 import METAMASK from 'assets/wallets-connect/metamask.svg'
 import PHANTOM from 'assets/wallets-connect/phantom.svg'
+import SAFE from 'assets/wallets-connect/safe.svg'
 import SLOPE from 'assets/wallets-connect/slope.svg'
 import SOLFLARE from 'assets/wallets-connect/solflare.svg'
 import TRUSTWALLET from 'assets/wallets-connect/trust-wallet.svg'
@@ -21,8 +23,12 @@ import {
   coin98Hooks,
   coinbaseWallet,
   coinbaseWalletHooks,
+  gnosisSafe,
+  gnosisSafeHooks,
   injected,
   injectedHooks,
+  krystal,
+  krystalHooks,
   metaMask,
   metamaskHooks,
   trustWallet,
@@ -43,6 +49,7 @@ import {
   getIsC98Wallet,
   getIsCoinbaseWallet,
   getIsGenericInjector,
+  getIsKrystalWallet,
   getIsMetaMaskWallet,
   getIsTrustWallet,
 } from 'constants/connectors/utils'
@@ -55,6 +62,18 @@ const detectInjected = (): WalletReadyState => {
 
 const detectMetamask = (): WalletReadyState => {
   if (getIsMetaMaskWallet()) return WalletReadyState.Installed
+  return WalletReadyState.NotDetected
+}
+
+const detectSafe = (): WalletReadyState => {
+  // todo namgold: WIP
+  return WalletReadyState.Installed
+  // if (getIsGenericInjector()) return WalletReadyState.Installed
+  // return WalletReadyState.NotDetected
+}
+
+const detectKrystal = (): WalletReadyState => {
+  if (getIsKrystalWallet()) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }
 
@@ -128,6 +147,24 @@ export const SUPPORTED_WALLETS = {
     iconLight: METAMASK,
     installLink: 'https://metamask.io/download',
     readyState: detectMetamask,
+  } as EVMWalletInfo,
+  SAFE: {
+    connector: gnosisSafe,
+    hooks: gnosisSafeHooks,
+    name: 'Safe{Wallet}',
+    icon: SAFE,
+    iconLight: SAFE,
+    installLink: 'https://safe.global/wallet',
+    readyState: detectSafe,
+  } as EVMWalletInfo,
+  KRYSTAL: {
+    connector: krystal,
+    hooks: krystalHooks,
+    name: 'Krystal',
+    icon: KRYSTAL,
+    iconLight: KRYSTAL,
+    installLink: 'https://wallet.krystal.app',
+    readyState: detectKrystal,
   } as EVMWalletInfo,
   BRAVE: {
     connector: brave,

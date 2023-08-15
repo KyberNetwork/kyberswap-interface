@@ -15,6 +15,7 @@ interface Window {
     isTrustWallet?: boolean
     isRabby?: boolean
     isLedgerConnect?: boolean
+    isKrystal?: boolean
     isKrystalWallet?: boolean
     on?: (...args: any[]) => void
     removeListener?: (...args: any[]) => void
