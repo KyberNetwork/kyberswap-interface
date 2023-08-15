@@ -51,6 +51,7 @@ import SimpleTooltip from '../SimpleTooltip'
 import SmallKyberScoreMeter from '../SmallKyberScoreMeter'
 import TimeFrameLegend from '../TimeFrameLegend'
 import TokenChart from '../TokenChartSVG'
+import TokenListVariants from '../TokenListVariants'
 import { StarWithAnimation } from '../WatchlistStar'
 
 const TableWrapper = styled.div`
@@ -698,16 +699,7 @@ const WidgetTokenRow = ({
                     {token.symbol}
                   </Text>{' '}
                   <RowFit gap="6px" color={theme.text}>
-                    {token.tokens.map(item => {
-                      if (item.chain === 'ethereum') return <Icon id="eth-mono" size={10} title="Ethereum" />
-                      if (item.chain === 'bsc') return <Icon id="bnb-mono" size={10} title="Binance" />
-                      if (item.chain === 'avalanche') return <Icon id="ava-mono" size={10} title="Avalanche" />
-                      if (item.chain === 'polygon') return <Icon id="matic-mono" size={10} title="Polygon" />
-                      if (item.chain === 'arbitrum') return <Icon id="arbitrum-mono" size={10} title="Arbitrum" />
-                      if (item.chain === 'fantom') return <Icon id="fantom-mono" size={10} title="Fantom" />
-                      if (item.chain === 'optimism') return <Icon id="optimism-mono" size={10} title="Optimism" />
-                      return <></>
-                    })}
+                    <TokenListVariants tokens={token.tokens} iconSize={10} />
                   </RowFit>
                 </Column>
               </RowFit>
@@ -757,16 +749,7 @@ const WidgetTokenRow = ({
                 <Column gap="4px" style={{ cursor: 'pointer', alignItems: 'flex-start' }}>
                   <Text style={{ textTransform: 'uppercase' }}>{token.symbol}</Text>{' '}
                   <RowFit gap="6px" color={theme.text}>
-                    {token.tokens.map(item => {
-                      if (item.chain === 'ethereum') return <Icon id="eth-mono" size={12} title="Ethereum" />
-                      if (item.chain === 'bsc') return <Icon id="bnb-mono" size={12} title="Binance" />
-                      if (item.chain === 'avalanche') return <Icon id="ava-mono" size={12} title="Avalanche" />
-                      if (item.chain === 'polygon') return <Icon id="matic-mono" size={12} title="Polygon" />
-                      if (item.chain === 'arbitrum') return <Icon id="arbitrum-mono" size={12} title="Arbitrum" />
-                      if (item.chain === 'fantom') return <Icon id="fantom-mono" size={12} title="Fantom" />
-                      if (item.chain === 'optimism') return <Icon id="optimism-mono" size={12} title="Optimism" />
-                      return <></>
-                    })}
+                    <TokenListVariants tokens={token.tokens} />
                   </RowFit>
                 </Column>
               </Row>
