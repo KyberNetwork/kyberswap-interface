@@ -55,7 +55,7 @@ export enum ErrorCode {
   ALPHA_WALLET_REJECTED = 'Request rejected',
 }
 
-const rejectedPhrases = ['user rejected transaction', 'user denied transaction', 'you must accept']
+const rejectedPhrases: string[] = ['user rejected transaction', 'user denied transaction', 'you must accept']
 
 export function didUserReject(error: any): boolean {
   return (
@@ -66,6 +66,6 @@ export function didUserReject(error: any): boolean {
     error?.message === ErrorCode.WALLETCONNECT_MODAL_CLOSED ||
     error?.message === ErrorCode.WALLETCONNECT_CANCELED ||
     error?.message === ErrorCode.WALLETCONNECT_MODAL_CLOSED ||
-    rejectedPhrases.some(phrase => error?.message?.includes(phrase))
+    rejectedPhrases.some(phrase => error?.message?.toLowerCase?.()?.includes?.(phrase.toLowerCase()))
   )
 }
