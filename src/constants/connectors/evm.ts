@@ -5,6 +5,7 @@ import { initializeConnector } from '@web3-react/core'
 import { MetaMask } from '@web3-react/metamask'
 import { WalletConnect as WalletConnectV2 } from '@web3-react/walletconnect-v2'
 
+import Kyber from 'assets/svg/kyber/kyberswap_primary.svg'
 import { WALLETCONNECT_PROJECT_ID } from 'constants/env'
 import {
   NETWORKS_INFO,
@@ -43,6 +44,10 @@ export const [walletConnectV2, walletConnectV2Hooks] = initializeConnector<Walle
           themeMode: darkmode ? 'dark' : 'light',
           themeVariables: {
             '--w3m-z-index': '1000',
+            '--w3m-logo-image-url': Kyber,
+            '--w3m-background-color': '#31CB9E',
+            '--w3m-accent-color': '#31CB9E',
+            '--w3m-accent-fill-color': '#222222',
           },
         },
         metadata: {
