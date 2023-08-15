@@ -23,6 +23,7 @@ import TransactionConfirmationModal, {
   ConfirmationModalContent,
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
+import { didUserReject } from 'constants/connectors/utils'
 import { AMP_HINT, APP_PATHS } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
@@ -315,7 +316,7 @@ const TokenPair = ({
         e.name = 'AddLiquidityError'
         captureException(e, { extra: { args } })
         // we only care if the error is something _other_ than the user rejected the tx
-        if (err?.code !== 4001) {
+        if (!didUserReject(error)) {
           console.error(err)
         }
 

@@ -30,6 +30,7 @@ type Props = {
 const SwapModal: React.FC<Props> = props => {
   const { isOpen, tokenAddToMetaMask, onDismiss, swapCallback, buildResult, isBuildingRoute } = props
   const { chainId, account } = useActiveWeb3React()
+
   const dispatch = useDispatch()
   // modal and loading
   const [{ error, isAttemptingTx, txHash }, setSwapState] = useState<{
@@ -48,7 +49,7 @@ const SwapModal: React.FC<Props> = props => {
 
   const amountOut = currencyOut && CurrencyAmount.fromRawAmount(currencyOut, buildResult?.data?.amountOut || '0')
   // text to show while loading
-  const pendingText = `Swapping ${routeSummary?.parsedAmountIn?.toSignificant(6)} ${
+  const pendingText = t`Swapping ${routeSummary?.parsedAmountIn?.toSignificant(6)} ${
     currencyIn?.symbol
   } for ${amountOut?.toSignificant(6)} ${currencyOut?.symbol}`
 
@@ -107,9 +108,8 @@ const SwapModal: React.FC<Props> = props => {
       const hash = await swapCallback()
       handleTxSubmitted(hash)
     } catch (e) {
-      if (e?.code !== 4001 && e?.code !== 'ACTION_REJECTED') captureSwapError(e)
-      const msg = t`Something went wrong. Please try again`
-      handleError(e.message === '[object Object]' ? msg : e.message || msg)
+      captureSwapError(e)
+      handleError(e.message)
     }
   }
 

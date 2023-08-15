@@ -8,6 +8,7 @@ import JSBI from 'jsbi'
 import { useEffect, useRef, useState } from 'react'
 
 import TickReaderABI from 'constants/abis/v2/ProAmmTickReader.json'
+import { didUserReject } from 'constants/connectors/utils'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -464,7 +465,7 @@ export const useRemoveLiquidityLegacy = (
         setShowPendingModal('removeLiquidity')
         setAttemptingTxn(false)
 
-        if (error?.code !== 'ACTION_REJECTED') {
+        if (!didUserReject(error)) {
           const e = new Error('Remove Legacy Elastic Liquidity Error', { cause: error })
           e.name = ErrorName.RemoveElasticLiquidityError
           captureException(e, {
