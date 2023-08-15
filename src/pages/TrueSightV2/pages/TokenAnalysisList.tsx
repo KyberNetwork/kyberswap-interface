@@ -22,7 +22,7 @@ import Row, { RowBetween, RowFit } from 'components/Row'
 import { APP_PATHS, ICON_ID } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
@@ -355,7 +355,7 @@ const tokenTypeList: {
 
 const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab: (type: KyberAIListType) => void }) => {
   const theme = useTheme()
-  const { mixpanelHandler } = useMixpanel()
+  const mixpanelHandler = useMixpanelKyberAI()
   const [showScrollRightButton, setShowScrollRightButton] = useState(false)
   const [scrollLeftValue, setScrollLeftValue] = useState(0)
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -478,7 +478,7 @@ const TokenRow = ({
 }) => {
   const navigate = useNavigate()
   const location = useLocation()
-  const { mixpanelHandler } = useMixpanel()
+  const mixpanelHandler = useMixpanelKyberAI()
   const { account } = useActiveWeb3React()
   const theme = useTheme()
   const [showMenu, setShowMenu] = useState(false)
@@ -755,7 +755,7 @@ const LoadingRowSkeleton = ({ hasExtraCol }: { hasExtraCol?: boolean }) => {
 }
 export default function TokenAnalysisList() {
   const theme = useTheme()
-  const { mixpanelHandler } = useMixpanel()
+  const mixpanelHandler = useMixpanelKyberAI()
   const [showShare, setShowShare] = useState(false)
   const [isScrolling, setIsScrolling] = useState(false)
   const [listType, setListType] = useState(KyberAIListType.BULLISH)
