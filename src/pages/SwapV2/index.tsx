@@ -311,7 +311,7 @@ export default function Swap() {
         setSwapState({ attemptingTxn: false, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: hash })
       })
       .catch(error => {
-        if (error?.code !== 4001 && error?.code !== 'ACTION_REJECTED') captureSwapError(error)
+        captureSwapError(error)
         setSwapState({
           attemptingTxn: false,
           tradeToConfirm,

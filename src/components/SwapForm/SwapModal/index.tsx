@@ -11,8 +11,7 @@ import {
   TransactionErrorContent,
   TransactionSubmittedContent,
 } from 'components/TransactionConfirmationModal'
-import { didUserReject } from 'constants/connectors/utils'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import { permitError } from 'state/user/actions'
 import { captureSwapError } from 'utils/sentry'
 
@@ -31,7 +30,6 @@ type Props = {
 const SwapModal: React.FC<Props> = props => {
   const { isOpen, tokenAddToMetaMask, onDismiss, swapCallback, buildResult, isBuildingRoute } = props
   const { chainId, account } = useActiveWeb3React()
-  const { connector } = useWeb3React()
 
   const dispatch = useDispatch()
   // modal and loading
@@ -51,7 +49,7 @@ const SwapModal: React.FC<Props> = props => {
 
   const amountOut = currencyOut && CurrencyAmount.fromRawAmount(currencyOut, buildResult?.data?.amountOut || '0')
   // text to show while loading
-  const pendingText = `Swapping ${routeSummary?.parsedAmountIn?.toSignificant(6)} ${
+  const pendingText = t`Swapping ${routeSummary?.parsedAmountIn?.toSignificant(6)} ${
     currencyIn?.symbol
   } for ${amountOut?.toSignificant(6)} ${currencyOut?.symbol}`
 
@@ -110,14 +108,8 @@ const SwapModal: React.FC<Props> = props => {
       const hash = await swapCallback()
       handleTxSubmitted(hash)
     } catch (e) {
-      let msg = e.message
-      if (!msg || msg === '[object Object]') msg = t`Something went wrong. Please try again`
-      if (connector && didUserReject(connector, e)) {
-        msg = t`In order to swap, you must accept the transaction in your wallet.`
-      } else {
-        captureSwapError(e)
-      }
-      handleError(msg)
+      captureSwapError(e)
+      handleError(e.message)
     }
   }
 

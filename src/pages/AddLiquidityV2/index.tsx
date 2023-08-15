@@ -46,7 +46,6 @@ import Tooltip, { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
 import { Dots } from 'components/swapv2/styleds'
-import { didUserReject } from 'constants/connectors/utils'
 import { ENV_LEVEL } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
@@ -87,7 +86,7 @@ import { VIEW_MODE } from 'state/user/reducer'
 import { ExternalLink, MEDIA_WIDTHS, StyledInternalLink, TYPE } from 'theme'
 import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
-import { formatWalletErrorMessage } from 'utils/errorMessage'
+import { friendlyError } from 'utils/errorMessage'
 import { toSignificantOrMaxIntegerPart } from 'utils/formatCurrencyAmount'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { formatNotDollarAmount } from 'utils/numbers'
@@ -133,7 +132,7 @@ export default function AddLiquidity() {
   const navigate = useNavigate()
   const [rotate, setRotate] = useState(false)
   const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
-  const { connector, library } = useWeb3React()
+  const { library } = useWeb3React()
   const theme = useTheme()
   const toggleWalletModal = useWalletModalToggle() // toggle wallet when disconnected
   const [isDegenMode] = useDegenModeManager()
@@ -216,9 +215,10 @@ export default function AddLiquidity() {
 
   // show this for Zohar can get tick to add farm
   useEffect(() => {
-    console.log('-------------------')
-    console.log('tickLower: ', tickLower)
-    console.log('tickUpper: ', tickUpper)
+    console.groupCollapsed('ticks ------------------')
+    console.debug('tickLower: ', tickLower)
+    console.debug('tickUpper: ', tickUpper)
+    console.groupEnd()
   }, [tickLower, tickUpper])
 
   const poolAddress = useProAmmPoolInfo(baseCurrency, currencyB, feeAmount)
@@ -503,28 +503,17 @@ export default function AddLiquidity() {
           })
           .catch((error: any) => {
             setAttemptingTxn(false)
-            if (didUserReject(connector, error)) {
-              notify(
-                {
-                  title: t`Transaction rejected`,
-                  summary: t`In order to add liquidity, you must accept the transaction in your wallet.`,
-                  type: NotificationType.ERROR,
-                },
-                8000,
-              )
-            } else {
-              // sending tx error, not tx execute error
-              console.error('Add liquidity error:', { error })
-              const message = formatWalletErrorMessage(error)
-              notify(
-                {
-                  title: t`Add liquidity error`,
-                  summary: message,
-                  type: NotificationType.ERROR,
-                },
-                8000,
-              )
-            }
+            // sending tx error, not tx execute error
+            const message = friendlyError(error)
+            console.error('Add liquidity error:', { message, error })
+            notify(
+              {
+                title: t`Add liquidity error`,
+                summary: message,
+                type: NotificationType.ERROR,
+              },
+              8000,
+            )
           })
       } else {
         return
@@ -551,7 +540,6 @@ export default function AddLiquidity() {
       isMultiplePosition,
       poolAddress,
       currencyAmountSum,
-      connector,
       notify,
     ],
   )

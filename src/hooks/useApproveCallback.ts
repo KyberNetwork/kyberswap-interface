@@ -6,7 +6,6 @@ import JSBI from 'jsbi'
 import { useCallback, useMemo } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
-import { didUserReject } from 'constants/connectors/utils'
 import { useTokenAllowance } from 'data/Allowances'
 import { useNotify } from 'state/application/hooks'
 import { Field } from 'state/swap/actions'
@@ -14,10 +13,10 @@ import { useHasPendingApproval, useTransactionAdder } from 'state/transactions/h
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { calculateGasMargin } from 'utils'
 import { Aggregator } from 'utils/aggregator'
-import { formatWalletErrorMessage } from 'utils/errorMessage'
+import { friendlyError } from 'utils/errorMessage'
 import { computeSlippageAdjustedAmounts } from 'utils/prices'
 
-import { useActiveWeb3React, useWeb3React } from './index'
+import { useActiveWeb3React } from './index'
 import { useTokenContract } from './useContract'
 
 export enum ApprovalState {
@@ -34,7 +33,6 @@ export function useApproveCallback(
   forceApprove = false,
 ): [ApprovalState, () => Promise<void>, TokenAmount | undefined] {
   const { account, isSolana } = useActiveWeb3React()
-  const { connector } = useWeb3React()
   const token = amountToApprove?.currency.wrapped
   const currentAllowance = useTokenAllowance(token, account ?? undefined, spender)
   const pendingApproval = useHasPendingApproval(token?.address, spender)
@@ -130,39 +128,20 @@ export function useApproveCallback(
           })
         })
         .catch((error: Error) => {
-          if (didUserReject(connector, error)) {
-            notify({
-              title: t`Transaction rejected`,
-              summary: t`In order to approve token, you must accept the transaction in your wallet.`,
+          const message = friendlyError(error)
+          console.error('Approve token error:', { message, error })
+          notify(
+            {
+              title: t`Approve Error`,
+              summary: message,
               type: NotificationType.ERROR,
-            })
-            throw new Error('Transaction rejected.')
-          } else {
-            console.error('Approve token error:', { error })
-            const message = formatWalletErrorMessage(error)
-            notify(
-              {
-                title: t`Approve Error`,
-                summary: message,
-                type: NotificationType.ERROR,
-              },
-              8000,
-            )
-            throw error
-          }
+            },
+            8000,
+          )
+          throw error
         })
     },
-    [
-      approvalState,
-      token,
-      tokenContract,
-      amountToApprove,
-      spender,
-      addTransactionWithType,
-      forceApprove,
-      notify,
-      connector,
-    ],
+    [approvalState, token, tokenContract, amountToApprove, spender, addTransactionWithType, forceApprove, notify],
   )
 
   return [approvalState, approve, currentAllowance]
