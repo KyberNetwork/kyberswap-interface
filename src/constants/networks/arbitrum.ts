@@ -2,7 +2,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import ARBITRUM from 'assets/networks/arbitrum-network.svg'
-import { KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -24,7 +23,6 @@ const arbitrumInfo: EVMNetworkInfo = {
   defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/arbitrum-blocks',
   etherscanUrl: 'https://arbiscan.io',
   etherscanName: 'Arbiscan',
-  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.ARBITRUM}&isWhitelisted=${true}`,
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'ETH',

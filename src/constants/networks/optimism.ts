@@ -2,7 +2,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import OPTIMISM from 'assets/networks/optimism-network.svg'
-import { KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -24,7 +23,6 @@ const optimismInfo: EVMNetworkInfo = {
   defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/ianlapham/uni-testing-subgraph',
   etherscanUrl: 'https://optimistic.etherscan.io',
   etherscanName: 'Optimistic Ethereum Explorer',
-  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.OPTIMISM}&isWhitelisted=${true}`,
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'ETH',

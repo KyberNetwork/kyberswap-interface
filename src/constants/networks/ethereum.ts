@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import Mainnet from 'assets/networks/mainnet-network.svg'
-import { KS_SETTING_API, KYBER_DAO_STATS_API } from 'constants/env'
+import { KYBER_DAO_STATS_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -24,7 +24,6 @@ const ethereumInfo: EVMNetworkInfo = {
   defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-ethereum',
   etherscanUrl: 'https://etherscan.io',
   etherscanName: 'Etherscan',
-  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.MAINNET}&isWhitelisted=${true}`,
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'ETH',

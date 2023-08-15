@@ -1,7 +1,7 @@
 import { Token } from '@kyberswap/ks-sdk-core'
 import { useEffect, useMemo } from 'react'
+import { useLazyGetTopTokensQuery } from 'services/ksSetting'
 
-import { KS_SETTING_API } from 'constants/env'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { CORRELATED_COINS_ADDRESS, SUPER_STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -31,24 +31,24 @@ const useTopTokens = (): {
   const { chainId } = useActiveWeb3React()
   const topTokens = useAppSelector(state => state.topTokens[chainId])
   const dispatch = useAppDispatch()
+  const [getTopTokens] = useLazyGetTopTokensQuery()
 
   useEffect(() => {
     const fetchTopTokens = async () => {
-      const res = await fetch(`${KS_SETTING_API}/v1/tokens/popular?chainId=${chainId}&page=1`, {
-        method: 'GET',
-      }).then(res => res.json())
+      const { data: res } = await getTopTokens({ chainId, page: 1 })
+      const topTokens = res?.data?.tokens || []
 
-      if (res?.data?.tokens?.length) {
-        if (!validateAPI(res.data.tokens)) {
+      if (topTokens.length) {
+        if (!validateAPI(topTokens)) {
           console.error('Validate top tokens API failed', res)
         } else {
-          dispatch(updateTopTokens({ chainId, topTokens: res.data.tokens }))
+          dispatch(updateTopTokens({ chainId, topTokens }))
         }
       }
     }
 
     fetchTopTokens()
-  }, [chainId, dispatch])
+  }, [chainId, dispatch, getTopTokens])
 
   return useMemo(() => {
     if (!topTokens) return {}
