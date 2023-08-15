@@ -8,7 +8,7 @@ import { AutoColumn } from 'components/Column'
 import Modal, { ModalProps } from 'components/Modal'
 import { Z_INDEXS } from 'constants/styles'
 import useTheme from 'hooks/useTheme'
-import { errorFriendly } from 'utils/dmm'
+import { friendlyError } from 'utils/errorMessage'
 
 export const PageWrapper = styled.div`
   display: flex;
@@ -136,9 +136,9 @@ export function SwapCallbackError({ error, style = {} }: { error: string; style?
       <Alert style={{ marginBottom: 'auto' }} />
       <AutoColumn style={{ flexBasis: '100%', margin: '10px 0 auto 8px' }}>
         <Text fontSize="16px" fontWeight="500" color={theme.red} lineHeight={'24px'}>
-          {errorFriendly(error)}
+          {friendlyError(error)}
         </Text>
-        {error !== errorFriendly(error) && (
+        {error !== friendlyError(error) && (
           <Text
             color={theme.primary}
             fontSize="12px"

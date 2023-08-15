@@ -1,15 +1,19 @@
 import { MaxUint256 } from '@ethersproject/constants'
 import { TransactionResponse } from '@ethersproject/providers'
 import { Currency, CurrencyAmount, TokenAmount } from '@kyberswap/ks-sdk-core'
+import { t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { useCallback, useMemo } from 'react'
 
+import { NotificationType } from 'components/Announcement/type'
 import { useTokenAllowance } from 'data/Allowances'
+import { useNotify } from 'state/application/hooks'
 import { Field } from 'state/swap/actions'
 import { useHasPendingApproval, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { calculateGasMargin } from 'utils'
 import { Aggregator } from 'utils/aggregator'
+import { friendlyError } from 'utils/errorMessage'
 import { computeSlippageAdjustedAmounts } from 'utils/prices'
 
 import { useActiveWeb3React } from './index'
@@ -55,6 +59,7 @@ export function useApproveCallback(
         : ApprovalState.NOT_APPROVED
       : ApprovalState.APPROVED
   }, [amountToApprove, currentAllowance, isSolana, pendingApproval, spender])
+  const notify = useNotify()
 
   const tokenContract = useTokenContract(token?.address)
   const addTransactionWithType = useTransactionAdder()
@@ -123,11 +128,20 @@ export function useApproveCallback(
           })
         })
         .catch((error: Error) => {
-          console.debug('Failed to approve token', error)
+          const message = friendlyError(error)
+          console.error('Approve token error:', { message, error })
+          notify(
+            {
+              title: t`Approve Error`,
+              summary: message,
+              type: NotificationType.ERROR,
+            },
+            8000,
+          )
           throw error
         })
     },
-    [approvalState, token, tokenContract, amountToApprove, spender, addTransactionWithType, forceApprove],
+    [approvalState, token, tokenContract, amountToApprove, spender, addTransactionWithType, forceApprove, notify],
   )
 
   return [approvalState, approve, currentAllowance]

@@ -2,7 +2,6 @@ import { getAddress } from '@ethersproject/address'
 import { BigNumber } from '@ethersproject/bignumber'
 import { Pair } from '@kyberswap/ks-sdk-classic'
 import { ChainId, Currency, CurrencyAmount, Fraction, Price, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
-import { t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
 
@@ -521,42 +520,4 @@ export function useRewardTokensFullInfo(): Token[] {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [chainId, nativeName, JSON.stringify(rewardTokens)],
   )
-}
-
-export function errorFriendly(text: string): string {
-  const error = text?.toLowerCase?.() || ''
-
-  if (!error || error.includes('router: expired')) {
-    return 'An error occurred. Refresh the page and try again '
-  }
-
-  if (
-    error.includes('mintotalamountout') ||
-    error.includes('err_limit_out') ||
-    error.includes('return amount is not enough') ||
-    error.includes('code=call_exception') ||
-    error.includes('none of the calls threw an error')
-  ) {
-    return t`An error occurred. Try refreshing the price rate or increase max slippage`
-  }
-  if (error.includes('header not found') || error.includes('swap failed')) {
-    return t`An error occurred. Refresh the page and try again. If the issue still persists, it might be an issue with your RPC node settings in Metamask.`
-  }
-  if (error.includes('user rejected transaction') || error.includes('user denied transaction')) {
-    return t`User rejected transaction.`
-  }
-
-  // classic/elastic remove liquidity error
-  if (error.includes('insufficient')) {
-    return t`An error occurred. Please try increasing max slippage`
-  }
-
-  if (error.includes('permit')) {
-    return t`An error occurred. Invalid Permit Signature`
-  }
-  if (error.includes('burn amount exceeds balance')) {
-    return t`Insufficient fee rewards amount, try to remove your liquidity without claiming fees for now and you can try to claim it later`
-  }
-
-  return t`An error occurred`
 }

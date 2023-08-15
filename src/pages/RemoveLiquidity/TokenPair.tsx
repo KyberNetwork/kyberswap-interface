@@ -24,6 +24,7 @@ import TransactionConfirmationModal, {
   ConfirmationModalContent,
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
+import { didUserReject } from 'constants/connectors/utils'
 import { APP_PATHS, EIP712Domain } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
@@ -204,7 +205,7 @@ export default function TokenPair({
       })
       .catch((error: any) => {
         // for all errors other than 4001 (EIP-1193 user rejected request), fall back to manual approve
-        if (error?.code !== 4001) {
+        if (!didUserReject(error)) {
           approveCallback()
         }
       })
@@ -397,7 +398,7 @@ export default function TokenPair({
         .catch((err: Error) => {
           setAttemptingTxn(false)
           // we only care if the error is something _other_ than the user rejected the tx
-          if ((err as any)?.code !== 4001 && (err as any)?.code !== 'ACTION_REJECTED') {
+          if (!didUserReject(err)) {
             const e = new Error('Remove Classic Liquidity Error', { cause: err })
             e.name = ErrorName.RemoveClassicLiquidityError
             captureException(e, { extra: { args } })

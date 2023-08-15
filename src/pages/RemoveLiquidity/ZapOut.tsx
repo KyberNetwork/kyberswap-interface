@@ -35,6 +35,7 @@ import TransactionConfirmationModal, {
 } from 'components/TransactionConfirmationModal'
 import ZapError from 'components/ZapError'
 import FormattedPriceImpact from 'components/swapv2/FormattedPriceImpact'
+import { didUserReject } from 'constants/connectors/utils'
 import { APP_PATHS, EIP712Domain } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
@@ -246,7 +247,7 @@ export default function ZapOut({
       })
       .catch((error: any) => {
         // for all errors other than 4001 (EIP-1193 user rejected request), fall back to manual approve
-        if (error?.code !== 4001) {
+        if (!didUserReject(error)) {
           approveCallback()
         }
       })
@@ -370,7 +371,7 @@ export default function ZapOut({
           .then(calculateGasMargin)
           .catch(err => {
             // we only care if the error is something other than the user rejected the tx
-            if ((err as any)?.code !== 4001) {
+            if (!didUserReject(err)) {
               console.error(`estimateGas failed`, methodName, args, err)
             }
 
@@ -381,7 +382,7 @@ export default function ZapOut({
               setZapOutError(t`Insufficient Liquidity in the Liquidity Pool to Swap`)
             } else {
               setZapOutError(err?.message)
-              if ((err as any)?.code !== 4001 && (err as any)?.code !== 'ACTION_REJECTED') {
+              if (!didUserReject(err)) {
                 const e = new Error('estimate gas zap out failed', { cause: err })
                 e.name = ErrorName.RemoveClassicLiquidityError
                 captureException(e, { extra: { args } })
@@ -441,7 +442,7 @@ export default function ZapOut({
         .catch((err: Error) => {
           setAttemptingTxn(false)
           // we only care if the error is something _other_ than the user rejected the tx
-          if ((err as any)?.code !== 4001 && (err as any)?.code !== 'ACTION_REJECTED') {
+          if (!didUserReject(err)) {
             const e = new Error('zap out failed', { cause: err })
             e.name = ErrorName.RemoveClassicLiquidityError
             captureException(e, { extra: { args } })
