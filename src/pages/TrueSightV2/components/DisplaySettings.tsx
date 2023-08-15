@@ -12,7 +12,7 @@ import Icon from 'components/Icons/Icon'
 import Popover from 'components/Popover'
 import { RowBetween, RowFit } from 'components/Row'
 import Toggle from 'components/Toggle'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
@@ -105,7 +105,7 @@ const technicalAnalysisSettings = [
 
 export default function DisplaySettings({ currentTab }: { currentTab: DiscoverTokenTab }) {
   const theme = useTheme()
-  const { mixpanelHandler } = useMixpanel()
+  const mixpanelHandler = useMixpanelKyberAI()
   const [showSettings, setShowSettings] = useState(false)
   const [showOnchainSetting, setShowOnchainSetting] = useState(currentTab === DiscoverTokenTab.OnChainAnalysis)
   const [showTechnicalSetting, setShowTechnicalSetting] = useState(currentTab === DiscoverTokenTab.TechnicalAnalysis)

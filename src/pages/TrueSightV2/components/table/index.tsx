@@ -19,7 +19,7 @@ import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
@@ -587,7 +587,7 @@ const WidgetTokenRow = ({
   const theme = useTheme()
   const navigate = useNavigate()
   const { account } = useActiveWeb3React()
-  const { mixpanelHandler } = useMixpanel()
+  const mixpanelHandler = useMixpanelKyberAI()
   const reachedMaxLimit = useIsReachMaxLimitWatchedToken(token?.tokens.length)
 
   const latestKyberScore: IKyberScoreChart | undefined = token?.ks_3d?.[token.ks_3d.length - 1]
