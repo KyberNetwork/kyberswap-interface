@@ -71,21 +71,21 @@ export const SUPPORTED_NETWORKS = Object.keys(NETWORKS_INFO).map(Number).filter(
 
 export const MAINNET_NETWORKS = [
   ChainId.MAINNET,
-  ChainId.BSCMAINNET,
-  ChainId.MATIC,
-  ChainId.AVAXMAINNET,
   ChainId.ARBITRUM,
   ChainId.OPTIMISM,
+  ChainId.LINEA,
+  ChainId.MATIC,
+  ChainId.ZKEVM,
+  ChainId.ZKSYNC,
+  ChainId.BSCMAINNET,
+  ChainId.AVAXMAINNET,
   // ChainId.SOLANA,
-  ChainId.BTTC,
-  ChainId.OASIS,
   ChainId.FANTOM,
+  ChainId.BTTC,
   ChainId.CRONOS,
   ChainId.VELAS,
+  ChainId.OASIS,
   ChainId.AURORA,
-  ChainId.ZKSYNC,
-  ChainId.LINEA,
-  ChainId.ZKEVM,
 ] as const
 
 export const EVM_NETWORKS = SUPPORTED_NETWORKS.filter(chainId => getChainType(chainId) === ChainType.EVM) as Exclude<

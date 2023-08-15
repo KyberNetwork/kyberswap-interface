@@ -22,7 +22,7 @@ const zkEvm: EVMNetworkInfo = {
   iconDarkSelected: NOT_SUPPORT,
   defaultBlockSubgraph:
     'https://polygon-zkevm-graph.kyberengineering.io/subgraphs/name/kybernetwork/polygon-zkevm-blocks',
-  etherscanUrl: 'https://zkevm.polygonscan.com/',
+  etherscanUrl: 'https://zkevm.polygonscan.com',
   etherscanName: 'Polygon zkEVM Explorer',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.ZKEVM}&isWhitelisted=${true}`,
   bridgeURL: EMPTY,
@@ -68,8 +68,8 @@ const zkEvm: EVMNetworkInfo = {
     development: NOT_SUPPORT,
   },
   averageBlockTimeInSeconds: 2, // TODO: check these info
-  coingeckoNetworkId: NOT_SUPPORT,
-  coingeckoNativeTokenId: NOT_SUPPORT,
+  coingeckoNetworkId: 'polygon-zkevm',
+  coingeckoNativeTokenId: 'ethereum',
   deBankSlug: EMPTY,
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: NOT_SUPPORT,
