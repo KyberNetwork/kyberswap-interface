@@ -3,8 +3,8 @@ import { useLocation } from 'react-router-dom'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
-import { THRESHOLD_HEADER } from 'components/Header'
 import { APP_PATHS } from 'constants/index'
+import { THRESHOLD_HEADER } from 'constants/styles'
 
 import { DropdownTextAnchor, StyledNavLink } from '../styleds'
 import NavGroup from './NavGroup'

@@ -2,8 +2,8 @@ import { Trans } from '@lingui/macro'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
-import { THRESHOLD_HEADER } from 'components/Header'
 import { AGGREGATOR_ANALYTICS_URL, PROMM_ANALYTICS_URL } from 'constants/index'
+import { THRESHOLD_HEADER } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 

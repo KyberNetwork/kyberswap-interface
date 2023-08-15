@@ -4,12 +4,12 @@ import styled from 'styled-components'
 
 import { ReactComponent as KyberLogo } from 'assets/svg/knc_black.svg'
 import Column from 'components/Column'
-import { THRESHOLD_HEADER } from 'components/Header'
 import LightBulb from 'components/Icons/LightBulb'
 import StakeIcon from 'components/Icons/Stake'
 import VoteIcon from 'components/Icons/Vote'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS } from 'constants/index'
+import { THRESHOLD_HEADER } from 'constants/styles'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 import { DropdownTextAnchor, StyledNavExternalLink, StyledNavLink } from '../styleds'
