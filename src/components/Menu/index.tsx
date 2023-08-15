@@ -40,6 +40,7 @@ import { AGGREGATOR_ANALYTICS_URL, APP_PATHS, DMM_ANALYTICS_URL, TERM_FILES_PATH
 import { getLocaleLabel } from 'constants/locales'
 import { FAUCET_NETWORKS } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
+import { THRESHOLD_HEADER } from 'constants/styles'
 import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
 import useClaimReward from 'hooks/useClaimReward'
@@ -246,9 +247,10 @@ export default function Menu() {
     toggle()
   }
 
-  const under1440 = useMedia('(max-width: 1440px)')
-  const above1321 = useMedia('(min-width: 1321px)')
-  const under1040 = useMedia('(max-width: 1040px)')
+  const showAbout = useMedia(`(max-width: ${THRESHOLD_HEADER.ABOUT})`)
+  const showBlog = useMedia(`(max-width: ${THRESHOLD_HEADER.BLOG})`)
+  const showAnalytics = useMedia(`(max-width: ${THRESHOLD_HEADER.ANALYTIC})`)
+  const showKyberDao = useMedia(`(max-width: ${THRESHOLD_HEADER.KYBERDAO})`)
 
   const bridgeLink = networkInfo.bridgeURL
   const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
@@ -392,7 +394,7 @@ export default function Menu() {
               />
             </MenuItem>
 
-            {under1440 && (
+            {showAbout && (
               <MenuItem>
                 <NavDropDown
                   icon={<Info />}
@@ -405,7 +407,7 @@ export default function Menu() {
                 />
               </MenuItem>
             )}
-            {under1040 && (
+            {showKyberDao && (
               <MenuItem>
                 <NavDropDown
                   icon={<Info />}
@@ -420,7 +422,7 @@ export default function Menu() {
                 />
               </MenuItem>
             )}
-            {!above1321 && (
+            {!showAnalytics && (
               <MenuItem>
                 <NavDropDown
                   icon={<PieChart />}
@@ -475,7 +477,7 @@ export default function Menu() {
               </ExternalLink>
             </MenuItem>
 
-            {under1440 && (
+            {showBlog && (
               <MenuItem>
                 <ExternalLink href="https://blog.kyberswap.com">
                   <BlogIcon />

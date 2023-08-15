@@ -2,7 +2,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import ARBITRUM from 'assets/networks/arbitrum-network.svg'
-import { KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -24,7 +23,6 @@ const arbitrumInfo: EVMNetworkInfo = {
   defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/arbitrum-blocks',
   etherscanUrl: 'https://arbiscan.io',
   etherscanName: 'Arbiscan',
-  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.ARBITRUM}&isWhitelisted=${true}`,
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'ETH',
@@ -64,7 +62,11 @@ const arbitrumInfo: EVMNetworkInfo = {
     routers: '0xF9c2b5746c946EF883ab2660BbbB1f10A5bdeAb4',
     farms: ['0x7D5ba536ab244aAA1EA42aB88428847F25E3E676'],
     farmv2Quoter: '0x6AFeb9EDd6Cf44fA8E89b1eee28284e6dD7705C8',
-    farmV2S: ['0xE44ec65521B85612fa7BC45d842645Fb4B690E4b', '0x3D6AfE2fB73fFEd2E3dD00c501A174554e147a43'],
+    farmV2S: [
+      '0xE44ec65521B85612fa7BC45d842645Fb4B690E4b',
+      '0x3D6AfE2fB73fFEd2E3dD00c501A174554e147a43',
+      '0xf2BcDf38baA52F6b0C1Db5B025DfFf01Ae1d6dBd',
+    ],
   },
   limitOrder: {
     production: '0x227B0c196eA8db17A665EA6824D972A64202E936',

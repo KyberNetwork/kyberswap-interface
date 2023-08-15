@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
-import { KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -23,7 +22,6 @@ const lineaTestnetInfo: EVMNetworkInfo = {
   defaultBlockSubgraph: 'https://thegraph.goerli.zkevm.consensys.net/subgraphs/name/kybernetwork/linea-blocks',
   etherscanUrl: 'https://goerli.lineascan.build',
   etherscanName: 'Linea Explorer',
-  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.LINEA_TESTNET}&isWhitelisted=${true}`,
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'ETH',

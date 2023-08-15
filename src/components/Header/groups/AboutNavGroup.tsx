@@ -4,13 +4,14 @@ import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import { APP_PATHS } from 'constants/index'
+import { THRESHOLD_HEADER } from 'constants/styles'
 
 import { DropdownTextAnchor, StyledNavLink } from '../styleds'
 import NavGroup from './NavGroup'
 
 const AboutWrapper = styled.span`
   display: inline-flex;
-  @media (max-width: 1440px) {
+  @media (max-width: ${THRESHOLD_HEADER.ABOUT}) {
     display: none;
   }
 `

@@ -18,20 +18,28 @@ export interface TokenInfo {
   name: string
 }
 
-export default function useTokenInfo(token: Token | undefined): { data: TokenInfo; loading: boolean; error: any } {
+export default function useTokenInfo(token: Token | undefined): {
+  data: TokenInfo
+  loading: boolean
+  error: any
+} {
   const { isSolana, chainId: currentChain } = useActiveWeb3React()
   const chainId = token?.chainId || currentChain
   const coingeckoAPI = useCoingeckoAPI()
 
   const tokenAddress = isSolana ? token?.address || '' : (token?.address || '').toLowerCase()
-  const { data, error } = useGetMarketTokenInfoQuery(
+  const {
+    data: rawData,
+    error,
+    isFetching,
+  } = useGetMarketTokenInfoQuery(
     { chainId, address: tokenAddress, coingeckoAPI },
     { skip: !tokenAddress, pollingInterval: 60_000 },
   )
 
-  const loading = !data
+  const data = error ? {} : rawData
 
-  const result = {
+  const result: TokenInfo = {
     price: data?.market_data?.current_price?.usd || 0,
     marketCap: data?.market_data?.market_cap?.usd || 0,
     marketCapRank: data?.market_data?.market_cap_rank || 0,
@@ -44,5 +52,5 @@ export default function useTokenInfo(token: Token | undefined): { data: TokenInf
     name: data?.name || '',
   }
 
-  return { data: result, loading, error }
+  return { data: result, loading: isFetching, error }
 }

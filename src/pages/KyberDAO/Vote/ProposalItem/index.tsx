@@ -18,6 +18,7 @@ import useTheme from 'hooks/useTheme'
 import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
 import TimerCountdown from 'pages/KyberDAO/TimerCountdown'
 import { useWalletModalToggle } from 'state/application/hooks'
+import { escapeScriptHtml } from 'utils/string'
 
 import VoteConfirmModal from '../VoteConfirmModal'
 import OptionButton from './OptionButton'
@@ -430,7 +431,9 @@ function ProposalItem({
                 lineHeight={isMobile ? '18px' : '22px'}
                 color={theme.subText}
                 marginBottom="20px"
-                dangerouslySetInnerHTML={{ __html: proposal.desc.replaceAll('\\n', '').replaceAll('\\r', '') }}
+                dangerouslySetInnerHTML={{
+                  __html: escapeScriptHtml(proposal.desc.replaceAll('\\n', '').replaceAll('\\r', '')),
+                }}
                 style={{ wordBreak: 'break-word' }}
               ></Text>
               {isMobile && <VoteInformation proposal={proposal} />}
