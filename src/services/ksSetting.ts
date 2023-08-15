@@ -86,6 +86,13 @@ const ksSettingApi = createApi({
         params: { ...params, chainIds: chainId },
       }),
     }),
+    importToken: builder.mutation<TokenListResponse, Array<{ chainId: string; address: string }>>({
+      query: tokens => ({
+        url: `/tokens/import`,
+        body: { tokens },
+        method: 'POST',
+      }),
+    }),
   }),
 })
 
@@ -95,6 +102,7 @@ export const {
   useGetKyberswapGlobalConfigurationQuery,
   useLazyGetTokenListQuery,
   useGetTokenListQuery,
+  useImportTokenMutation,
 } = ksSettingApi
 
 export default ksSettingApi

@@ -1,7 +1,5 @@
 import { ChainId, Currency, NativeCurrency, Token, WETH } from '@kyberswap/ks-sdk-core'
-import axios from 'axios'
 
-import { KS_SETTING_API } from 'constants/env'
 import { ETHER_ADDRESS, ETHER_ADDRESS_SOLANA } from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { MAP_TOKEN_HAS_MULTI_BY_NETWORK, WHITE_LIST_TOKEN_INFO_PAIR } from 'constants/tokenLists/token-info'
@@ -71,16 +69,6 @@ export const isTokenNative = (
 
 export const getTokenAddress = (currency: Currency) =>
   currency.isNative ? (isEVM(currency.chainId) ? ETHER_ADDRESS : ETHER_ADDRESS_SOLANA) : currency?.wrapped.address ?? ''
-
-export const importTokensToKsSettings = async (tokens: Array<{ chainId: string; address: string }>) => {
-  try {
-    await axios.post(`${KS_SETTING_API}/v1/tokens/import`, {
-      tokens,
-    })
-  } catch (e) {
-    console.error(e)
-  }
-}
 
 export const getTokenSymbolWithHardcode = (
   chainId: ChainId | undefined,
