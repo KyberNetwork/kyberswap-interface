@@ -4,6 +4,7 @@ import styled from 'styled-components'
 
 import { ReactComponent as KyberLogo } from 'assets/svg/knc_black.svg'
 import Column from 'components/Column'
+import { THRESHOLD_HEADER } from 'components/Header'
 import LightBulb from 'components/Icons/LightBulb'
 import StakeIcon from 'components/Icons/Stake'
 import VoteIcon from 'components/Icons/Vote'
@@ -16,7 +17,7 @@ import NavGroup from './NavGroup'
 
 const KyberDaoWrapper = styled.span`
   display: inline-flex;
-  @media (max-width: 1040px) {
+  @media (max-width: ${THRESHOLD_HEADER.KYBERDAO}) {
     display: none;
   }
 `

@@ -27,6 +27,13 @@ import KyberDAONavGroup from './groups/KyberDaoGroup'
 import SwapNavGroup from './groups/SwapNavGroup'
 import { StyledNavExternalLink } from './styleds'
 
+export const THRESHOLD_HEADER = {
+  BLOG: '1600px',
+  ABOUT: '1440px',
+  ANALYTIC: '1320px',
+  KYBERDAO: '1040px',
+}
+
 const HeaderFrame = styled.div`
   display: grid;
   grid-template-columns: 1fr 120px;
@@ -141,7 +148,7 @@ const IconImage = styled.img<{ isChristmas?: boolean }>`
 `
 
 const BlogWrapper = styled.span`
-  @media (max-width: 1600px) {
+  @media (max-width: ${THRESHOLD_HEADER.BLOG}) {
     display: none;
   }
 `

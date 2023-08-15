@@ -2,6 +2,7 @@ import { Trans } from '@lingui/macro'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
+import { THRESHOLD_HEADER } from 'components/Header'
 import { AGGREGATOR_ANALYTICS_URL, PROMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -12,7 +13,7 @@ import NavGroup from './NavGroup'
 const AnalyticsWrapper = styled.span`
   display: flex;
   align-items: center;
-  @media (max-width: 1320px) {
+  @media (max-width: ${THRESHOLD_HEADER.ANALYTIC}) {
     display: none;
   }
 `

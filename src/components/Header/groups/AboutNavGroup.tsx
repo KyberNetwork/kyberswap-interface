@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
+import { THRESHOLD_HEADER } from 'components/Header'
 import { APP_PATHS } from 'constants/index'
 
 import { DropdownTextAnchor, StyledNavLink } from '../styleds'
@@ -10,7 +11,7 @@ import NavGroup from './NavGroup'
 
 const AboutWrapper = styled.span`
   display: inline-flex;
-  @media (max-width: 1440px) {
+  @media (max-width: ${THRESHOLD_HEADER.ABOUT}) {
     display: none;
   }
 `
