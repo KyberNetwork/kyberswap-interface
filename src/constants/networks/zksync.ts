@@ -2,7 +2,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import zkSync from 'assets/networks/zksync-network.png'
-import { KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -26,7 +25,6 @@ const zkSyncInfo: EVMNetworkInfo = {
   defaultBlockSubgraph: 'https://zksync-graph.kyberengineering.io/subgraphs/name/kybernetwork/zksync-blocks',
   etherscanUrl: 'https://explorer.zksync.io',
   etherscanName: 'zkSync Era Explorer',
-  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${chainId}&isWhitelisted=${true}`,
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'ETH',
