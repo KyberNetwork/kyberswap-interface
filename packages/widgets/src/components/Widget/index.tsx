@@ -193,6 +193,8 @@ const Widget = ({
     excludedDexes,
     setExcludedDexes,
     setTrade,
+    isWrap,
+    isUnwrap,
   } = useSwap({
     defaultTokenIn,
     defaultTokenOut,
@@ -216,14 +218,20 @@ const Widget = ({
       ? NATIVE_TOKEN[chainId]
       : tokens.find(item => item.address.toLowerCase() === tokenOut.toLowerCase())
 
-  const amountOut = trade?.routeSummary?.amountOut
-    ? formatUnits(trade.routeSummary.amountOut, tokenOutInfo?.decimals).toString()
-    : ''
+  const amountOut =
+    isWrap || isUnwrap
+      ? inputAmout
+      : trade?.routeSummary?.amountOut
+      ? formatUnits(trade.routeSummary.amountOut, tokenOutInfo?.decimals).toString()
+      : ''
 
   let minAmountOut = ''
 
   if (amountOut) {
-    minAmountOut = (Number(amountOut) * (1 - slippage / 10_000)).toPrecision(8).toString()
+    minAmountOut =
+      isWrap || isUnwrap
+        ? parseFloat((+amountOut).toPrecision(8)).toString()
+        : (Number(amountOut) * (1 - slippage / 10_000)).toPrecision(8).toString()
   }
 
   const tokenInBalance = balances[tokenIn] || BigNumber.from(0)
@@ -233,9 +241,11 @@ const Widget = ({
   const tokenOutWithUnit = formatUnits(tokenOutBalance, tokenOutInfo?.decimals || 18)
 
   const rate =
-    trade?.routeSummary?.amountIn &&
-    trade?.routeSummary?.amountOut &&
-    parseFloat(formatUnits(trade.routeSummary.amountOut, tokenOutInfo?.decimals || 18)) / parseFloat(inputAmout)
+    isWrap || isUnwrap
+      ? 1
+      : trade?.routeSummary?.amountIn &&
+        trade?.routeSummary?.amountOut &&
+        parseFloat(formatUnits(trade.routeSummary.amountOut, tokenOutInfo?.decimals || 18)) / parseFloat(inputAmout)
 
   const formattedTokenInBalance = parseFloat(parseFloat(tokenInWithUnit).toPrecision(10))
 
@@ -245,7 +255,7 @@ const Widget = ({
 
   const priceImpact = !trade?.routeSummary.amountOutUsd
     ? -1
-    : (+trade.routeSummary.amountInUsd - +trade.routeSummary.amountOutUsd * 100) / +trade.routeSummary.amountInUsd
+    : ((+trade.routeSummary.amountInUsd - +trade.routeSummary.amountOutUsd) * 100) / +trade.routeSummary.amountInUsd
 
   const modalTitle = (() => {
     switch (showModal) {
@@ -519,7 +529,7 @@ const Widget = ({
         </BalanceRow>
 
         <InputRow>
-          <Input disabled value={+Number(amountOut).toPrecision(8)} />
+          <Input disabled value={isWrap || isUnwrap ? +amountOut : (+amountOut).toPrecision(8)} />
 
           {!!trade?.routeSummary?.amountOutUsd && (
             <span
@@ -563,7 +573,7 @@ const Widget = ({
       <Detail style={{ marginTop: '1rem' }}>
         <Row>
           <DetailTitle>More information</DetailTitle>
-          {enableRoute && (
+          {enableRoute && !(isWrap || isUnwrap) && (
             <ViewRouteTitle onClick={() => setShowModal(ModalType.TRADE_ROUTE)}>
               View Routes <Expand style={{ width: 12, height: 12 }} />
             </ViewRouteTitle>
@@ -605,7 +615,7 @@ const Widget = ({
       <Button
         disabled={!!error || loading || checkingAllowance || approvalState === APPROVAL_STATE.PENDING || isUnsupported}
         onClick={async () => {
-          if (approvalState === APPROVAL_STATE.NOT_APPROVED) {
+          if (approvalState === APPROVAL_STATE.NOT_APPROVED && !isWrap && !isUnwrap) {
             approve()
           } else {
             setShowModal(ModalType.REVIEW)
@@ -621,6 +631,10 @@ const Widget = ({
           <Dots>Calculate best route</Dots>
         ) : error ? (
           error
+        ) : isWrap ? (
+          'Wrap'
+        ) : isUnwrap ? (
+          'Unwrap'
         ) : checkingAllowance ? (
           <Dots>Checking Allowance</Dots>
         ) : approvalState === APPROVAL_STATE.NOT_APPROVED ? (

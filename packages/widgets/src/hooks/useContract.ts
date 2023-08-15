@@ -1,6 +1,7 @@
 import { Contract, ContractInterface } from 'ethers'
 import { useMemo } from 'react'
-import { MULTICALL_ADDRESS } from '../constants'
+import { MULTICALL_ADDRESS, WRAPPED_NATIVE_TOKEN } from '../constants'
+import wethABI from '../constants/abis/weth.json'
 import { multicallABI } from '../constants/multicall'
 import { isAddress } from '../utils'
 import { useActiveWeb3 } from './useWeb3Provider'
@@ -23,4 +24,9 @@ export const useMulticalContract = () => {
   const { chainId } = useActiveWeb3()
 
   return useContract(MULTICALL_ADDRESS[chainId], multicallABI)
+}
+
+export function useWETHContract(): Contract | null {
+  const { chainId } = useActiveWeb3()
+  return useContract(WRAPPED_NATIVE_TOKEN[chainId].address, wethABI)
 }

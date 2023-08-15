@@ -1,7 +1,7 @@
 import { parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { AGGREGATOR_PATH, NATIVE_TOKEN_ADDRESS, SUPPORTED_NETWORKS } from '../constants'
+import { AGGREGATOR_PATH, NATIVE_TOKEN_ADDRESS, SUPPORTED_NETWORKS, WRAPPED_NATIVE_TOKEN } from '../constants'
 import useDebounce from './useDebounce'
 import useTokenBalances from './useTokenBalances'
 import { useTokens } from './useTokens'
@@ -147,6 +147,11 @@ const useSwap = ({
 
   const isUnsupported = !SUPPORTED_NETWORKS.includes(chainId.toString())
 
+  const isWrap =
+    tokenIn === NATIVE_TOKEN_ADDRESS && tokenOut.toLowerCase() === WRAPPED_NATIVE_TOKEN[chainId].address.toLowerCase()
+  const isUnwrap =
+    tokenOut === NATIVE_TOKEN_ADDRESS && tokenIn.toLowerCase() === WRAPPED_NATIVE_TOKEN[chainId].address.toLowerCase()
+
   useEffect(() => {
     if (isUnsupported) {
       setTokenIn('')
@@ -206,12 +211,39 @@ const useSwap = ({
 
     const tokenInBalance = balances[tokenIn] || BigNumber.from(0)
 
+    let error = ''
     if (tokenInBalance.lt(amountIn)) {
-      setError('Insufficient balance')
+      error = 'Insufficient balance'
     }
 
     if (!provider) {
-      setError('Please connect your wallet')
+      error = 'Please connect your wallet'
+    }
+
+    setError(error)
+    if (isWrap || isUnwrap) {
+      setTrade({
+        routerAddress: WRAPPED_NATIVE_TOKEN[chainId].address,
+        routeSummary: {
+          tokenIn,
+          amountIn: amountIn.toString(),
+          amountInUsd: '',
+          tokenOut,
+          amountOut: amountIn.toString(),
+          amountOutUsd: '',
+          gas: '',
+          gasPrice: '',
+          gasUsd: '',
+          extraFee: {
+            feeAmount: '',
+            chargeFeeBy: '',
+            isInBps: '',
+            feeReceiver: '',
+          },
+          route: [] as any,
+        },
+      })
+      return
     }
 
     const params: { [key: string]: string | number | boolean | undefined } = {
@@ -262,6 +294,8 @@ const useSwap = ({
     tokens,
     tokenIn,
     tokenOut,
+    isWrap,
+    isUnwrap,
     provider,
     debouncedInput,
     dexes,
@@ -298,6 +332,8 @@ const useSwap = ({
     excludedDexes,
     setExcludedDexes,
     setTrade,
+    isWrap,
+    isUnwrap,
   }
 }
 

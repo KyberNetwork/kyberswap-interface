@@ -6,7 +6,7 @@ import useTheme from '../../hooks/useTheme'
 import { useActiveWeb3 } from '../../hooks/useWeb3Provider'
 import { useEffect, useState } from 'react'
 import { BigNumber } from 'ethers'
-import { AGGREGATOR_PATH, NATIVE_TOKEN_ADDRESS, SCAN_LINK, TokenInfo } from '../../constants'
+import { AGGREGATOR_PATH, NATIVE_TOKEN_ADDRESS, SCAN_LINK, TokenInfo, WRAPPED_NATIVE_TOKEN } from '../../constants'
 import { ReactComponent as BackIcon } from '../../assets/back.svg'
 import { ReactComponent as Loading } from '../../assets/loader.svg'
 import { ReactComponent as External } from '../../assets/external.svg'
@@ -14,6 +14,7 @@ import { ReactComponent as SuccessSVG } from '../../assets/success.svg'
 import { ReactComponent as ErrorIcon } from '../../assets/error.svg'
 import { ReactComponent as Info } from '../../assets/info.svg'
 import InfoHelper from '../InfoHelper'
+import { useWETHContract } from '../../hooks/useContract'
 
 const Success = styled(SuccessSVG)`
   color: ${({ theme }) => theme.success};
@@ -168,14 +169,21 @@ function Confirmation({
   onTxSubmit?: (txHash: string, data: any) => void
 }) {
   const theme = useTheme()
+  const { provider, account, chainId } = useActiveWeb3()
 
   let minAmountOut = '--'
 
-  if (amountOut) {
+  const isWrap =
+    trade.routeSummary.tokenIn.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase() &&
+    trade.routeSummary.tokenOut.toLowerCase() === WRAPPED_NATIVE_TOKEN[chainId].address.toLowerCase()
+  const isUnwrap =
+    trade.routeSummary.tokenOut.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase() &&
+    trade.routeSummary.tokenIn.toLowerCase() === WRAPPED_NATIVE_TOKEN[chainId].address.toLowerCase()
+
+  if (amountOut && !isWrap && !isUnwrap) {
     minAmountOut = (Number(amountOut) * (1 - slippage / 10_000)).toPrecision(8).toString()
   }
 
-  const { provider, account, chainId } = useActiveWeb3()
   const [attempTx, setAttempTx] = useState(false)
   const [txHash, setTxHash] = useState('')
   const [txStatus, setTxStatus] = useState<'success' | 'failed' | ''>('')
@@ -204,12 +212,47 @@ function Confirmation({
     amountOut: string
   } | null>(null)
 
+  const wethContract = useWETHContract()
+
   const confirmSwap = async () => {
     setSnapshotTrade({ amountIn, amountOut })
     try {
       setAttempTx(true)
       setTxHash('')
       setTxError(false)
+
+      if (isWrap) {
+        if (!wethContract) return
+        const estimateGas = await wethContract.estimateGas.deposit({
+          value: BigNumber.from(trade.routeSummary.amountIn).toHexString(),
+        })
+        const txReceipt = await wethContract.deposit({
+          value: BigNumber.from(trade.routeSummary.amountIn).toHexString(),
+          gasLimit: calculateGasMargin(estimateGas),
+        })
+
+        setTxHash(txReceipt?.hash || '')
+        onTxSubmit?.(txReceipt?.hash || '', txReceipt)
+        setAttempTx(false)
+
+        return
+      }
+
+      if (isUnwrap) {
+        if (!wethContract) return
+        const estimateGas = await wethContract.estimateGas.withdraw(
+          BigNumber.from(trade.routeSummary.amountIn).toHexString(),
+        )
+        const txReceipt = await wethContract.withdraw(BigNumber.from(trade.routeSummary.amountIn).toHexString(), {
+          gasLimit: calculateGasMargin(estimateGas),
+        })
+
+        setTxHash(txReceipt?.hash || '')
+        onTxSubmit?.(txReceipt?.hash || '', txReceipt)
+        setAttempTx(false)
+
+        return
+      }
 
       const date = new Date()
       date.setMinutes(date.getMinutes() + (deadline || 20))
@@ -374,16 +417,18 @@ function Confirmation({
         <div>{tokenOutInfo.symbol}</div>
       </Flex>
 
-      <Note>
-        Output is estimated. You will receive at least {minAmountOut} {tokenOutInfo.symbol} or the transaction will
-        revert.
-      </Note>
+      {isWrap || isUnwrap ? null : (
+        <Note>
+          Output is estimated. You will receive at least {minAmountOut} {tokenOutInfo.symbol} or the transaction will
+          revert.
+        </Note>
+      )}
 
       <Detail>
         <DetailRow>
           <DetailLabel>Current Price</DetailLabel>
           <DetailRight>
-            1 {tokenInInfo.symbol} = {rate.toPrecision(6)} {tokenOutInfo.symbol}
+            1 {tokenInInfo.symbol} = {parseFloat(rate.toPrecision(6))} {tokenOutInfo.symbol}
           </DetailRight>
         </DetailRow>
 
@@ -393,7 +438,7 @@ function Confirmation({
             <InfoHelper text={`Minimum amount you will receive or your transaction will revert`} />
           </DetailLabel>
           <DetailRight>
-            {minAmountOut} {tokenOutInfo.symbol}
+            {minAmountOut} {minAmountOut === '--' ? '' : tokenOutInfo.symbol}
           </DetailRight>
         </DetailRow>
 
@@ -402,7 +447,11 @@ function Confirmation({
             Gas Fee
             <InfoHelper text="Estimated network fee for your transaction" />
           </DetailLabel>
-          <DetailRight>${(+trade.routeSummary.gasUsd).toPrecision(4)}</DetailRight>
+          {isWrap || isUnwrap ? (
+            <DetailRight>--</DetailRight>
+          ) : (
+            <DetailRight>${(+trade.routeSummary.gasUsd).toPrecision(4)}</DetailRight>
+          )}
         </DetailRow>
 
         <DetailRow>
@@ -426,7 +475,7 @@ function Confirmation({
       </Detail>
 
       <div style={{ marginTop: 'auto' }}>
-        {priceImpact > 15 ? (
+        {isWrap || isUnwrap ? null : priceImpact > 15 ? (
           <PriceImpactVeryHigh>
             <Warning /> Price Impact is Very High
           </PriceImpactVeryHigh>
@@ -440,7 +489,7 @@ function Confirmation({
             Unable to calculate Price Impact
           </PriceImpactHigh>
         ) : null}
-        <Button onClick={confirmSwap}>Confirm swap</Button>
+        <Button onClick={confirmSwap}>Confirm {isWrap ? 'wrap' : isUnwrap ? 'unwrap' : 'swap'}</Button>
       </div>
     </>
   )
