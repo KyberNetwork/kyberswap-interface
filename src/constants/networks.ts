@@ -67,7 +67,7 @@ export const NETWORKS_INFO = new Proxy(NETWORKS_INFO_CONFIG, {
 
 // temporary disable Solana
 // todo: either enable back or completely remove Solana from codebase
-export const SUPPORTED_NETWORKS = Object.keys(NETWORKS_INFO).map(Number).filter(isEVM) as ChainId[]
+export const SUPPORTED_NETWORKS = Object.keys(NETWORKS_INFO).map(Number).filter(isEVM)
 
 export const MAINNET_NETWORKS = [
   ChainId.MAINNET,

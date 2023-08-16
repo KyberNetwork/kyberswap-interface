@@ -16,7 +16,6 @@ import ActionButtons from 'pages/CrossChain/TransfersHistory/HistoryTable/Action
 import { DetailTransaction } from 'pages/CrossChain/TransfersHistory/HistoryTable/DetailTransaction'
 import { useGetTransactionStatus } from 'pages/CrossChain/TransfersHistory/HistoryTable/TransactionItem'
 import { CrossChainTransfer } from 'pages/CrossChain/useTransferHistory'
-import { includes } from 'utils/array'
 
 import TokenReceiveCell from './TokenReceiveCell'
 import { Props } from './index'
@@ -65,7 +64,7 @@ const ChainWrapper = styled.div`
   color: ${({ theme }) => theme.subText};
 `
 const ChainDisplay: React.FC<{ chainId: number }> = ({ chainId }) => {
-  if (includes(SUPPORTED_NETWORKS, chainId)) {
+  if (SUPPORTED_NETWORKS.includes(chainId)) {
     const chainInfo = NETWORKS_INFO[chainId]
     return (
       <ChainWrapper>

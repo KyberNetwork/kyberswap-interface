@@ -22,7 +22,6 @@ export function useWalletSupportedChains() {
     case walletConnectV2:
       return [
         ...getChainsFromEIP155Accounts((connector as WalletConnectV2).provider?.session?.namespaces?.eip155?.accounts),
-        // ChainId.SOLANA,
       ]
     default:
       return SUPPORTED_NETWORKS

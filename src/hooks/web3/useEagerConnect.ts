@@ -35,6 +35,10 @@ export function useEagerConnect() {
         if (trying || tried) return
         trying = true
         let activated = false
+        try {
+          await tryActivation('SAFE', true)
+          activated = true
+        } catch {}
         const lastWalletKeyEVM = localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY_EVM)
         const lastWalletKeySolana = localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY_SOLANA)
         await Promise.all([

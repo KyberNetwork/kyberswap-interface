@@ -12,9 +12,10 @@ const allNonMetamaskFlags = [
   'isKrystal',
   'isKrystalWallet',
 ] as const
-
 export const getIsMetaMaskWallet = () =>
   Boolean(window.ethereum?.isMetaMask && !allNonMetamaskFlags.some(flag => window.ethereum?.[flag]))
+
+export const getIsRabbyWallet = () => Boolean(window.ethereum?.isRabby)
 
 export const getIsKrystalWallet = () =>
   Boolean(window.ethereum?.isKrystalWallet || (window.ethereum?.isKrystal && !getIsTrustWallet()))
@@ -37,6 +38,8 @@ export const getIsGenericInjector = () =>
   !getIsCoinbaseWallet() &&
   !getIsBraveWallet() &&
   !getIsC98Wallet() &&
+  !getIsRabbyWallet() &&
+  !getIsKrystalWallet() &&
   !getIsTrustWallet()
 
 // https://eips.ethereum.org/EIPS/eip-1193#provider-errors

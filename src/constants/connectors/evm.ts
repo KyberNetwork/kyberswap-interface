@@ -15,6 +15,7 @@ import {
 } from 'constants/networks'
 
 export const [injected, injectedHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
+export const [rabby, rabbyHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
 export const [krystal, krystalHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
 export const [metaMask, metamaskHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
 export const [gnosisSafe, gnosisSafeHooks] = initializeConnector<GnosisSafe>(actions => new GnosisSafe({ actions }))

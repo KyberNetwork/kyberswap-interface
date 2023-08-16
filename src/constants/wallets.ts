@@ -9,6 +9,7 @@ import COINBASE from 'assets/wallets-connect/coinbase.svg'
 import KRYSTAL from 'assets/wallets-connect/krystal.svg'
 import METAMASK from 'assets/wallets-connect/metamask.svg'
 import PHANTOM from 'assets/wallets-connect/phantom.svg'
+import RABBY from 'assets/wallets-connect/rabby.svg'
 import SAFE from 'assets/wallets-connect/safe.svg'
 import SLOPE from 'assets/wallets-connect/slope.svg'
 import SOLFLARE from 'assets/wallets-connect/solflare.svg'
@@ -31,6 +32,8 @@ import {
   krystalHooks,
   metaMask,
   metamaskHooks,
+  rabby,
+  rabbyHooks,
   trustWallet,
   trustWalletHooks,
   walletConnectV2,
@@ -51,6 +54,7 @@ import {
   getIsGenericInjector,
   getIsKrystalWallet,
   getIsMetaMaskWallet,
+  getIsRabbyWallet,
   getIsTrustWallet,
 } from 'constants/connectors/utils'
 
@@ -70,6 +74,11 @@ const detectSafe = (): WalletReadyState => {
   return WalletReadyState.Installed
   // if (getIsGenericInjector()) return WalletReadyState.Installed
   // return WalletReadyState.NotDetected
+}
+
+const detectRabby = (): WalletReadyState => {
+  if (getIsRabbyWallet()) return WalletReadyState.Installed
+  return WalletReadyState.NotDetected
 }
 
 const detectKrystal = (): WalletReadyState => {
@@ -157,6 +166,15 @@ export const SUPPORTED_WALLETS = {
     installLink: 'https://safe.global/wallet',
     readyState: detectSafe,
   } as EVMWalletInfo,
+  RABBBY: {
+    connector: rabby,
+    hooks: rabbyHooks,
+    name: 'Rabby',
+    icon: RABBY,
+    iconLight: RABBY,
+    installLink: 'https://rabby.io',
+    readyState: detectRabby,
+  } as EVMWalletInfo,
   KRYSTAL: {
     connector: krystal,
     hooks: krystalHooks,
@@ -243,10 +261,20 @@ export const SUPPORTED_WALLETS = {
     readyState: detectTrustWallet,
   } as EVMWalletInfo,
 } as const
+export type SUPPORTED_WALLET = keyof typeof SUPPORTED_WALLETS
 
 export const connections = Object.values(SUPPORTED_WALLETS).filter(wallet => 'connector' in wallet) as EVMWalletInfo[]
 
-export type SUPPORTED_WALLET = keyof typeof SUPPORTED_WALLETS
-
 export const LOCALSTORAGE_LAST_WALLETKEY_EVM = 'last-wallet-key-evm'
 export const LOCALSTORAGE_LAST_WALLETKEY_SOLANA = 'last-wallet-key-solana'
+export const INJECTED_KEYS = [
+  'COIN98',
+  'BRAVE',
+  'METAMASK',
+  'COINBASE',
+  'TRUST_WALLET',
+  'KRYSTAL',
+  'RABBBY',
+  'INJECTED',
+] as const
+export type INJECTED_KEY = typeof INJECTED_KEYS[number]
