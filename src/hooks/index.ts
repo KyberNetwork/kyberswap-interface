@@ -7,7 +7,7 @@ import { useEffect, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useSearchParams } from 'react-router-dom'
 
-import { metaMask, walletConnectV2 } from 'constants/connectors/evm'
+import { gnosisSafe, metaMask, walletConnectV2 } from 'constants/connectors/evm'
 import { MOCK_ACCOUNT_EVM, MOCK_ACCOUNT_SOLANA } from 'constants/env'
 import { NETWORKS_INFO, isSupportedChainId } from 'constants/networks'
 import { NetworkInfo } from 'constants/networks/type'
@@ -59,6 +59,9 @@ export function useActiveWeb3React(): {
     if (!isConnectedEVM) return undefined
     if (connectedConnectorEVM === walletConnectV2) {
       return 'WALLET_CONNECT'
+    }
+    if (connectedConnectorEVM === gnosisSafe) {
+      return 'SAFE'
     }
     const detectedWallet = detectInjectedType()
 
