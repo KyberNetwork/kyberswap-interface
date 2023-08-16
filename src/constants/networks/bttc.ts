@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
-import BTT from 'assets/networks/bttc.png'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -26,7 +25,7 @@ const bttcInfo: EVMNetworkInfo = {
   nativeToken: {
     symbol: 'BTT',
     name: 'BTT',
-    logo: BTT,
+    logo: 'https://storage.googleapis.com/ks-setting-a3aa20b7/4877aa34-b675-4fb3-8de2-15ab8a8f6a53.svg',
     decimal: 18,
     minForGas: 10 ** 16,
   },
