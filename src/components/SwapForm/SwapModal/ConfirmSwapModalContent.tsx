@@ -1,7 +1,7 @@
 import { Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { transparentize } from 'polished'
-import React, { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Check, Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { calculatePriceImpact } from 'services/route/utils'
@@ -80,7 +80,7 @@ export default function ConfirmSwapModalContent({
   onSwap,
 }: Props) {
   const theme = useTheme()
-  const { isSolana, chainId } = useActiveWeb3React()
+  const { isSolana } = useActiveWeb3React()
   const [encodeSolana] = useEncodeSolana()
   const { routeSummary, slippage, isStablePairSwap, isAdvancedMode } = useSwapFormContext()
   const [hasAcceptedNewAmount, setHasAcceptedNewAmount] = useState(false)
@@ -218,7 +218,7 @@ export default function ConfirmSwapModalContent({
   const warningStyle =
     priceImpactResult.isVeryHigh || priceImpactResult.isInvalid ? { background: theme.red } : undefined
 
-  const shouldDisableByPriceImpact = checkShouldDisableByPriceImpact(chainId, isAdvancedMode, priceImpactFromBuild)
+  const shouldDisableByPriceImpact = checkShouldDisableByPriceImpact(isAdvancedMode, priceImpactFromBuild)
 
   const isShowAcceptNewAmount =
     outputChangePercent < SHOW_ACCEPT_NEW_AMOUNT_THRESHOLD || (isStablePairSwap && outputChangePercent < 0)
