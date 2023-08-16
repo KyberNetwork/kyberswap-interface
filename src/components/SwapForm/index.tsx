@@ -1,4 +1,4 @@
-import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
@@ -216,26 +216,24 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               </Flex>
 
               <Flex sx={{ gap: '12px' }}>
-                {chainId === ChainId.LINEA_TESTNET ? null : (
-                  <PriceAlertButton
-                    onClick={() =>
-                      navigate(
-                        `${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.CREATE_ALERT}?${stringify({
-                          amount: typedValue || undefined,
-                          inputCurrency: currencyId(currencyIn, chainId),
-                          outputCurrency: currencyId(currencyOut, chainId),
-                        })}`,
-                      )
-                    }
-                  >
-                    <Clock size={14} color={theme.subText} />
-                    {upToExtraSmall ? null : (
-                      <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>
-                        <Trans>Price Alert</Trans>
-                      </Text>
-                    )}
-                  </PriceAlertButton>
-                )}
+                <PriceAlertButton
+                  onClick={() =>
+                    navigate(
+                      `${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.CREATE_ALERT}?${stringify({
+                        amount: typedValue || undefined,
+                        inputCurrency: currencyId(currencyIn, chainId),
+                        outputCurrency: currencyId(currencyOut, chainId),
+                      })}`,
+                    )
+                  }
+                >
+                  <Clock size={14} color={theme.subText} />
+                  {upToExtraSmall ? null : (
+                    <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>
+                      <Trans>Price Alert</Trans>
+                    </Text>
+                  )}
+                </PriceAlertButton>
                 <ReverseTokenSelectionButton onClick={() => currencyIn && handleChangeCurrencyOut(currencyIn)} />
               </Flex>
             </AutoRow>

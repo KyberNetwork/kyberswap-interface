@@ -1,5 +1,4 @@
 import { ChainId, getChainType } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
 import { darken, rgba } from 'polished'
 import { stringify } from 'querystring'
 import React from 'react'
@@ -17,13 +16,6 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useIsDarkMode } from 'state/user/hooks'
-
-const NewLabel = styled.span`
-  font-size: 12px;
-  color: ${({ theme }) => theme.red};
-  margin-left: 2px;
-  margin-top: -10px;
-`
 
 const ListItem = styled.div<{ selected?: boolean }>`
   width: 100%;
@@ -197,11 +189,6 @@ const Networks = ({
                     {name}
                   </Text>
                 </Flex>
-                {key === ChainId.LINEA && (
-                  <NewLabel>
-                    <Trans>New</Trans>
-                  </NewLabel>
-                )}
                 {selected && !walletKey && <CircleGreen />}
                 {walletKey && (
                   <WalletWrapper>

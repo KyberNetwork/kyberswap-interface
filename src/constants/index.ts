@@ -197,7 +197,6 @@ export const DEFAULT_SLIPPAGES = [5, 10, 50, 100]
 
 export const DEFAULT_SLIPPAGE = 50
 export const DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP = 5
-export const DEFAULT_SLIPPAGE_TESTNET = 1000
 
 export const AGGREGATOR_WAITING_TIME = 1700 // 1700 means that we at least show '.' '..' '...' '.' '..' '...'
 
@@ -321,7 +320,7 @@ export const CHAINS_SUPPORT_CROSS_CHAIN =
       ]
     : SUPPORTED_NETWORKS
 
-export const TYPE_AND_SWAP_NOT_SUPPORTED_CHAINS: ChainId[] = [ChainId.ZKSYNC, ChainId.LINEA_TESTNET, ChainId.LINEA]
+export const TYPE_AND_SWAP_NOT_SUPPORTED_CHAINS: ChainId[] = [ChainId.ZKSYNC, ChainId.LINEA, ChainId.ZKEVM]
 
 export const SWAP_FEE_RECEIVER_ADDRESS = '0x4f82e73EDb06d29Ff62C91EC8f5Ff06571bdeb29'
 
