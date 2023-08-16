@@ -160,7 +160,7 @@ export default function NewRangesNotiModal({ updatedFarms }: { updatedFarms: Ela
                     {range.isRemoved ? (
                       <Trans>Idle Range</Trans>
                     ) : (
-                      <Link to={`${addliquidityElasticPool}?farmRange=${range.index}`}>
+                      <Link to={`${addliquidityElasticPool}?farmRange=${range.index}&fId=${range.farm.fId}`}>
                         <Trans>Add Liquidity ↗</Trans>
                       </Link>
                     )}

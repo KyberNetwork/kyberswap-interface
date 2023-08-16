@@ -121,7 +121,11 @@ export default function ElasticFarmv2({
   const toggleWalletModal = useWalletModalToggle()
   const renderApproveButton = () => {
     if (!account) {
-      return <ConnectWalletButton onClick={toggleWalletModal} />
+      return (
+        <div style={{ width: 'max-content' }}>
+          <ConnectWalletButton onClick={toggleWalletModal} />
+        </div>
+      )
     }
     if (res?.loading) return <Dots />
 
