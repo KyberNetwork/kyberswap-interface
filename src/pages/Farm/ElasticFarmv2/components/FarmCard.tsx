@@ -369,7 +369,7 @@ function FarmCard({
                         {range?.isRemoved ? (
                           <Trans>Idle Range</Trans>
                         ) : (
-                          <Link to={`${addliquidityElasticPool}?farmRange=${activeRangeIndex}`}>
+                          <Link to={`${addliquidityElasticPool}?farmRange=${activeRangeIndex}&fId=${farm.fId}`}>
                             <Trans>Add Liquidity ↗</Trans>
                           </Link>
                         )}
