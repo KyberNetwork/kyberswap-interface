@@ -14,7 +14,7 @@ import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import KyberScoreMeter from 'pages/TrueSightV2/components/KyberScoreMeter'
 import SimpleTooltip from 'pages/TrueSightV2/components/SimpleTooltip'
@@ -94,7 +94,7 @@ const enum TokenTabType {
 const KyberAIModalInPool = ({ currency0, currency1 }: { currency0?: Currency; currency1?: Currency }) => {
   const theme = useTheme()
   const { chainId } = useActiveWeb3React()
-  const { mixpanelHandler } = useMixpanel()
+  const mixpanelHandler = useMixpanelKyberAI()
   const { isWhiteList } = useIsWhiteListKyberAI()
   const [tab, setTab] = useState<TokenTabType>(TokenTabType.First)
   const [openTruesightModal, setOpenTruesightModal] = useState(false)

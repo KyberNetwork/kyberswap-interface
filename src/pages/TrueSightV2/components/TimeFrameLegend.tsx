@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useRef, useState } from 'react'
 import styled, { css } from 'styled-components'
 
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 
 import useKyberAITokenOverview from '../hooks/useKyberAITokenOverview'
 import { KyberAITimeframe } from '../types'
@@ -66,7 +66,7 @@ const TimeFrameLegend = ({
   timeframes: KyberAITimeframe[]
   onSelect: (timeframe: KyberAITimeframe) => void
 }) => {
-  const { mixpanelHandler } = useMixpanel()
+  const mixpanelHandler = useMixpanelKyberAI()
   const refs = useRef<any>({})
   const ref = useRef<HTMLDivElement>(null)
   const [left, setLeft] = useState(0)

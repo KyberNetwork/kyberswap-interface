@@ -2,6 +2,10 @@ import { TransactionRequest } from '@ethersproject/abstract-provider'
 import { captureException } from '@sentry/react'
 import { Deferrable } from 'ethers/lib/utils'
 
+import { didUserReject } from 'constants/connectors/utils'
+
+import { friendlyError } from './errorMessage'
+
 export enum ErrorName {
   SwappError = 'SwapError',
   RemoveElasticLiquidityError = 'RemoveElasticLiquidityError',
@@ -9,10 +13,12 @@ export enum ErrorName {
 }
 
 export function captureSwapError(error: TransactionError) {
-  if (error.message.toLowerCase().includes('user canceled') || error.message.toLowerCase().includes('user reject')) {
-    return
-  }
-  const e = new Error('Swap failed', { cause: error })
+  if (didUserReject(error)) return
+
+  const friendlyErrorResult = friendlyError(error)
+  if (friendlyErrorResult.includes('slippage')) return
+
+  const e = new Error(friendlyErrorResult, { cause: error })
   e.name = ErrorName.SwappError
 
   const tmp = JSON.stringify(error)

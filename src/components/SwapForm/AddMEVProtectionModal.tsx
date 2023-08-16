@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { Connector } from '@web3-react/types'
 import { darken } from 'polished'
 import { useCallback, useState } from 'react'
 import { X } from 'react-feather'
@@ -14,12 +13,12 @@ import { NotificationType } from 'components/Announcement/type'
 import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
-import { didUserReject } from 'constants/connectors/utils'
 import { Z_INDEXS } from 'constants/styles'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useNotify } from 'state/application/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
+import { friendlyError } from 'utils/errorMessage'
 
 const Wrapper = styled.div`
   padding: 20px;
@@ -113,10 +112,9 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
         onClose?.()
         mixpanelHandler(MIXPANEL_TYPE.MEV_ADD_RESULT, { type: addingOption.name, result: 'success' })
       },
-      (connector: Connector, error: Error) => {
-        let reason = error?.message || 'Unknown reason'
-        if (didUserReject(connector, error)) reason = 'User rejected'
-        mixpanelHandler(MIXPANEL_TYPE.MEV_ADD_RESULT, { type: addingOption.name, result: 'fail', reason })
+      (error: Error) => {
+        const message = friendlyError(error)
+        mixpanelHandler(MIXPANEL_TYPE.MEV_ADD_RESULT, { type: addingOption.name, result: 'fail', reason: message })
       },
     )
   }, [addNewNetwork, notify, onClose, selectedOption, mixpanelHandler])

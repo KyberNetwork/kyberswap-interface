@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
-import AVAX from 'assets/networks/avax-network.png'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -15,7 +14,7 @@ const avaxTestnetInfo: EVMNetworkInfo = {
   aggregatorRoute: 'avalanche',
   poolFarmRoute: EMPTY,
   name: 'Avalanche Testnet',
-  icon: AVAX,
+  icon: 'https://storage.googleapis.com/ks-setting-a3aa20b7/31645e2e-9c40-4fdf-9ddf-50d24e5399e4.svg',
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
@@ -26,7 +25,7 @@ const avaxTestnetInfo: EVMNetworkInfo = {
   nativeToken: {
     symbol: 'AVAX',
     name: 'AVAX',
-    logo: AVAX,
+    logo: 'https://storage.googleapis.com/ks-setting-a3aa20b7/31645e2e-9c40-4fdf-9ddf-50d24e5399e4.svg',
     decimal: 18,
     minForGas: 10 ** 16,
   },

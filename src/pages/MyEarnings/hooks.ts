@@ -9,6 +9,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch } from 'react-redux'
 
 import { POOLS_BULK_WITH_PAGINATION, POOLS_HISTORICAL_BULK_WITH_PAGINATION, POOL_COUNT } from 'apollo/queries'
+import { didUserReject } from 'constants/connectors/utils'
 import { NETWORKS_INFO, ONLY_DYNAMIC_FEE_CHAINS, isEVM as isEVMChain } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { Position as SubgraphLegacyPosition, config, parsePosition } from 'hooks/useElasticLegacy'
@@ -360,7 +361,7 @@ export function useRemoveLiquidityFromLegacyPosition(
         dispatch(setShowPendingModal(MODAL_PENDING_TEXTS.REMOVE_LIQUIDITY))
         dispatch(setAttemptingTxn(false))
 
-        if (error?.code !== 'ACTION_REJECTED') {
+        if (!didUserReject(error)) {
           const e = new Error('Remove Legacy Elastic Liquidity Error', { cause: error })
           e.name = ErrorName.RemoveElasticLiquidityError
           captureException(e, {

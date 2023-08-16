@@ -37,6 +37,7 @@ import TransactionConfirmationModal, {
 } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
 import FarmV2ABI from 'constants/abis/v2/farmv2.json'
+import { didUserReject } from 'constants/connectors/utils'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useContract, useProAmmNFTPositionManagerContract, useProMMFarmContract } from 'hooks/useContract'
@@ -416,7 +417,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       .catch((error: any) => {
         setAttemptingTxn(false)
 
-        if (error?.code !== 'ACTION_REJECTED') {
+        if (!didUserReject(error)) {
           const e = new Error('Remove Elastic Liquidity Error', { cause: error })
           e.name = ErrorName.RemoveElasticLiquidityError
           captureException(e, {

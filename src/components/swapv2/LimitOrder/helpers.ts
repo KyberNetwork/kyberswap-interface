@@ -132,6 +132,7 @@ export const calcPercentFilledOrder = (value: string, total: string, decimals: n
   }
 }
 
+// todo: move to friendlyError
 export const getErrorMessage = (error: any) => {
   console.error('Limit order error: ', error)
   const errorCode: string = error?.response?.data?.code || error.code || ''
