@@ -27,20 +27,12 @@ const usePoolBlocks = () => {
   const [blocks, setBlocks] = useState<{ number: number }[]>([])
 
   useEffect(() => {
-    const controller = new AbortController()
     const getBlocks = async () => {
-      const blocks = await getBlocksFromTimestamps(
-        isEnableBlockService,
-        blockClient,
-        [last24h],
-        chainId,
-        controller.signal,
-      )
+      const blocks = await getBlocksFromTimestamps(isEnableBlockService, blockClient, [last24h], chainId)
       setBlocks(blocks)
     }
 
     getBlocks()
-    return () => controller.abort()
   }, [chainId, last24h, blockClient, isEnableBlockService])
 
   const [blockLast24h] = blocks ?? []

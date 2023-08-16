@@ -19,7 +19,6 @@ import HorizontalScroll from 'components/HorizontalScroll'
 import HoverInlineText from 'components/HoverInlineText'
 import { TwoWayArrow } from 'components/Icons'
 import Harvest from 'components/Icons/Harvest'
-import { RowBetween } from 'components/Row'
 import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { ButtonColorScheme, MinimalActionButton } from 'components/YieldPools/ElasticFarmGroup/buttons'
@@ -154,11 +153,12 @@ export const ListView = ({
   const maxFarmAPR = Math.max(...farm.ranges.map(r => r.apr || 0))
 
   const mixpanelPayload = { farm_pool_address: farm.poolAddress, farm_id: farm.id, farm_fid: farm.fId }
+  const above1500 = useMedia('(min-width: 1500px)')
 
   return (
     <Wrapper isDeposited={!!stakedPos.length}>
-      <RowBetween gap="1rem">
-        <Flex alignItems="center" justifyContent="space-between">
+      <Flex justifyContent="space-between" sx={{ gap: '1rem' }}>
+        <Flex alignItems="center" justifyContent="space-between" width="max-content">
           <DoubleCurrencyLogo currency0={farm.token0} currency1={farm.token1} />
           <Link
             to={addliquidityElasticPool}
@@ -193,41 +193,48 @@ export const ListView = ({
           </Flex>
         </Flex>
 
-        <HorizontalScroll
-          style={{ gap: '8px', justifyContent: 'flex-end' }}
-          noShadow
-          items={['-1'].concat(farm.ranges.map(item => item.index.toString()))}
-          renderItem={(item, index) => {
-            if (item === '-1')
-              return (
-                <Text color={theme.subText} fontSize={12} fontWeight="500" marginRight="4px">
-                  <Trans>Available Farming Range</Trans>
-                </Text>
-              )
-            const range = farm.ranges.find(r => r.index === +item)
-            if (!range) return null
-            return (
-              <Flex
-                alignItems="center"
-                sx={{ gap: '2px' }}
-                color={range.isRemoved ? theme.warning : theme.subText}
-                fontSize={12}
-                fontWeight="500"
-              >
-                {convertTickToPrice(farm.token0, farm.token1, range.tickLower, farm.pool.fee)}
-                <TwoWayArrow />
-                {convertTickToPrice(farm.token0, farm.token1, range.tickUpper, farm.pool.fee)}
+        <Flex sx={{ gap: '8px' }} alignItems="center">
+          <Text color={theme.subText} fontSize={12} fontWeight="500" marginRight="4px">
+            <Trans>Available Farming Range</Trans>
+          </Text>
 
-                {index !== farm.ranges.length && (
-                  <Text paddingLeft="6px" color={theme.subText}>
-                    |
-                  </Text>
-                )}
-              </Flex>
-            )
-          }}
-        />
-      </RowBetween>
+          <div style={{ maxWidth: above1500 ? '900px' : 'calc(100vw - 500px)' }}>
+            <HorizontalScroll
+              style={{ gap: '8px' }}
+              noShadow
+              items={farm.ranges.map(item => item.index.toString())}
+              renderItem={(item, index) => {
+                const range = farm.ranges.find(r => r.index === +item)
+                if (!range) return null
+                return (
+                  <Flex
+                    alignItems="center"
+                    minWidth="fit-content"
+                    sx={{ gap: '2px' }}
+                    color={range.isRemoved ? theme.warning : theme.subText}
+                    fontSize={12}
+                    fontWeight="500"
+                  >
+                    <Text minWidth="max-content">
+                      {convertTickToPrice(farm.token0, farm.token1, range.tickLower, farm.pool.fee)}
+                    </Text>
+                    <TwoWayArrow />
+                    <Text minWidth="max-content">
+                      {convertTickToPrice(farm.token0, farm.token1, range.tickUpper, farm.pool.fee)}
+                    </Text>
+
+                    {index !== farm.ranges.length - 1 && (
+                      <Text paddingLeft="6px" color={theme.subText}>
+                        |
+                      </Text>
+                    )}
+                  </Flex>
+                )
+              }}
+            />
+          </div>
+        </Flex>
+      </Flex>
       <ElasticFarmV2TableRow>
         <Text textAlign="left">{formatDollarAmount(farm.tvl)}</Text>
         <Text

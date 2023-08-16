@@ -37,7 +37,7 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { calculateGasMargin } from 'utils'
 import { aggregateValue } from 'utils/array'
-import { formatWalletErrorMessage } from 'utils/errorMessage'
+import { friendlyError } from 'utils/errorMessage'
 import { formatUnitsToFixed } from 'utils/formatBalance'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 
@@ -89,7 +89,7 @@ export function useKyberDaoStakeActions() {
         })
         return tx.hash
       } catch (error) {
-        if (error?.code === 4001 || error?.code === 'ACTION_REJECTED') {
+        if (didUserReject(error)) {
           throw new Error('Transaction rejected.')
         } else {
           throw error
@@ -120,7 +120,7 @@ export function useKyberDaoStakeActions() {
         })
         return tx.hash
       } catch (error) {
-        if (error?.code === 4001 || error?.code === 'ACTION_REJECTED') {
+        if (didUserReject(error)) {
           throw new Error('Transaction rejected.')
         } else {
           throw error
@@ -155,7 +155,7 @@ export function useKyberDaoStakeActions() {
         })
         return tx.hash
       } catch (error) {
-        if (error?.code === 4001 || error?.code === 'ACTION_REJECTED') {
+        if (didUserReject(error)) {
           throw new Error('Transaction rejected.')
         } else {
           throw error
@@ -181,7 +181,7 @@ export function useKyberDaoStakeActions() {
         })
         return tx.hash
       } catch (error) {
-        if (error?.code === 4001 || error?.code === 'ACTION_REJECTED') {
+        if (didUserReject(error)) {
           throw new Error('Transaction rejected.')
         } else {
           throw error
@@ -208,7 +208,7 @@ export function useKyberDaoStakeActions() {
         })
         return tx.hash
       } catch (error) {
-        if (error?.code === 4001 || error?.code === 'ACTION_REJECTED') {
+        if (didUserReject(error)) {
           throw new Error('Transaction rejected.')
         } else {
           throw error
@@ -272,7 +272,7 @@ export function useClaimVotingRewards() {
       })
       return tx.hash as string
     } catch (error) {
-      if (error?.code === 4001 || error?.code === 'ACTION_REJECTED') {
+      if (didUserReject(error)) {
         throw new Error('Transaction rejected.')
       } else {
         throw error
@@ -312,7 +312,7 @@ export const useVotingActions = () => {
         })
         return tx.hash
       } catch (error) {
-        if (error?.code === 4001 || error?.code === 'ACTION_REJECTED') {
+        if (didUserReject(error)) {
           throw new Error('Transaction rejected.')
         } else {
           throw error
@@ -620,7 +620,7 @@ export function useGasRefundInfo({ rewardStatus = KNCUtilityTabs.Available }: { 
 
 export function useClaimGasRefundRewards() {
   const { account, chainId } = useActiveWeb3React()
-  const { library, connector } = useWeb3React()
+  const { library } = useWeb3React()
   const addTransactionWithType = useTransactionAdder()
   const { claimableReward } = useGasRefundInfo({})
   const refetch = useRefetchGasRefundInfo()
@@ -669,25 +669,16 @@ export function useClaimGasRefundRewards() {
       return tx.hash as string
     } catch (error) {
       refetch()
-      if (didUserReject(connector, error)) {
-        notify({
-          title: t`Transaction rejected`,
-          summary: t`In order to claim, you must accept in your wallet.`,
-          type: NotificationType.ERROR,
-        })
-        throw new Error('Transaction rejected.')
-      } else {
-        const message = formatWalletErrorMessage(error)
-        console.error('Claim error:', { error, message })
-        notify({
-          title: t`Claim Error`,
-          summary: message,
-          type: NotificationType.ERROR,
-        })
-        throw error
-      }
+      const message = friendlyError(error)
+      console.error('Claim error:', { message, error })
+      notify({
+        title: t`Claim Error`,
+        summary: message,
+        type: NotificationType.ERROR,
+      })
+      throw error
     }
-  }, [account, addTransactionWithType, chainId, claimableReward, library, notify, connector, refetch])
+  }, [account, addTransactionWithType, chainId, claimableReward, library, notify, refetch])
   return claimGasRefundRewards
 }
 

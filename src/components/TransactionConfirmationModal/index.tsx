@@ -22,7 +22,7 @@ import { VIEW_MODE } from 'state/user/reducer'
 import { ExternalLink } from 'theme'
 import { CloseIcon } from 'theme/components'
 import { getEtherscanLink, getTokenLogoURL } from 'utils'
-import { errorFriendly } from 'utils/dmm'
+import { friendlyError } from 'utils/errorMessage'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -280,9 +280,9 @@ export function TransactionErrorContent({
             lineHeight={'24px'}
             style={{ textAlign: 'center', width: '85%' }}
           >
-            {errorFriendly(message)}
+            {friendlyError(message)}
           </Text>
-          {message !== errorFriendly(message) && (
+          {message !== friendlyError(message) && (
             <AutoColumn justify="center" style={{ width: '100%' }}>
               <Text
                 color={theme.primary}

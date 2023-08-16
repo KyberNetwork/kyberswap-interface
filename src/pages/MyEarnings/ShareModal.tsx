@@ -138,7 +138,8 @@ type Props = {
     currency1: Currency
     currency0Symbol: string
     currency1Symbol: string
-    feePercent: string
+    feePercent?: string
+    amp?: string
   }
 }
 
@@ -248,7 +249,11 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
             {poolInfo.currency0Symbol} - {poolInfo.currency1Symbol}
           </Trans>
         </Text>
-        <FeeWrapper mobile={!isSharePc}>Fee {poolInfo.feePercent}</FeeWrapper>
+        {poolInfo.feePercent ? (
+          <FeeWrapper mobile={!isSharePc}>Fee {poolInfo.feePercent}</FeeWrapper>
+        ) : (
+          <FeeWrapper mobile={!isSharePc}>AMP {poolInfo.amp}</FeeWrapper>
+        )}
       </Flex>
     )
   }

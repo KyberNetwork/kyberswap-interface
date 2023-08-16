@@ -7,6 +7,7 @@ import { ChangeEvent, KeyboardEvent, ReactNode, useCallback, useEffect, useMemo,
 import { Trash } from 'react-feather'
 import { usePrevious } from 'react-use'
 import { Flex, Text } from 'rebass'
+import { useImportTokenMutation } from 'services/ksSetting'
 import styled from 'styled-components'
 
 import Column from 'components/Column'
@@ -33,7 +34,7 @@ import { useRemoveUserAddedToken, useUserAddedTokens, useUserFavoriteTokens } fr
 import { ButtonText, CloseIcon, TYPE } from 'theme'
 import { filterTruthy, isAddress } from 'utils'
 import { filterTokens } from 'utils/filtering'
-import { importTokensToKsSettings, isTokenNative } from 'utils/tokenInfo'
+import { isTokenNative } from 'utils/tokenInfo'
 
 import CommonBases from './CommonBases'
 import CurrencyList from './CurrencyList'
@@ -311,6 +312,7 @@ export function CurrencySearch({
   }, [fetchFavoriteTokenFromAddress])
 
   const abortControllerRef = useRef(new AbortController())
+  const [importTokensToKsSettings] = useImportTokenMutation()
   const fetchListTokens = useCallback(
     async (page?: number) => {
       const nextPage = (page ?? pageCount) + 1
@@ -340,7 +342,9 @@ export function CurrencySearch({
                 chainId: String(rawToken.chainId),
                 address: rawToken.address,
               },
-            ])
+            ]).catch(err => {
+              console.error('import token err', err)
+            })
           }
         } else if (tokens.length === 0 && isQueryValidSolanaAddress) {
           // TODO: query tokens from Solana token db
@@ -361,6 +365,7 @@ export function CurrencySearch({
       isQueryValidEVMAddress,
       isQueryValidSolanaAddress,
       pageCount,
+      importTokensToKsSettings,
     ],
   )
 
@@ -385,13 +390,13 @@ export function CurrencySearch({
   const removeImportedToken = useCallback(
     (token: Token) => {
       removeToken(chainId, token.address)
-
-      toggleFavoriteToken({
-        chainId,
-        address: token.address,
-      })
+      if (favoriteTokens?.some(el => el.toLowerCase() === token.address.toLowerCase()))
+        toggleFavoriteToken({
+          chainId,
+          address: token.address,
+        })
     },
-    [chainId, toggleFavoriteToken, removeToken],
+    [chainId, toggleFavoriteToken, removeToken, favoriteTokens],
   )
 
   const removeAllImportToken = () => {

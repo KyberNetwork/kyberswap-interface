@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ChevronLeft, FileText, LogOut, StopCircle, X } from 'react-feather'
@@ -10,6 +10,7 @@ import { ReactComponent as DragHandleIcon } from 'assets/svg/wallet_drag_handle.
 import CopyHelper from 'components/Copy'
 import SendIcon from 'components/Icons/SendIcon'
 import Row from 'components/Row'
+import { MouseoverTooltip } from 'components/Tooltip'
 import AccountInfo from 'components/WalletPopup/AccountInfo'
 import MyAssets from 'components/WalletPopup/MyAssets'
 import PinButton from 'components/WalletPopup/PinButton'
@@ -323,7 +324,7 @@ export default function WalletView({
                 </Flex>
               </>
             ) : (
-              <Flex alignItems={'center'} style={{ gap: 5 }} color={theme.subText}>
+              <Flex alignItems={'center'} style={{ gap: 8 }} color={theme.subText}>
                 {walletKey && (
                   <IconWrapper>
                     <img
@@ -336,9 +337,15 @@ export default function WalletView({
                 <Text as="span" fontWeight="500">
                   {shortenAddress(chainId, account, 5, false)}
                 </Text>
-                <CopyHelper toCopy={account} />
-                <ExternalLinkIcon href={getEtherscanLink(chainId, account, 'address')} color={theme.subText} />
-                <LogOutIcon size={16} onClick={disconnectWallet} />
+                <MouseoverTooltip text={t`Copy wallet address`} width="fit-content" placement="top">
+                  <CopyHelper toCopy={account} />
+                </MouseoverTooltip>
+                <MouseoverTooltip text={t`Open scan explorer`} width="fit-content" placement="top">
+                  <ExternalLinkIcon href={getEtherscanLink(chainId, account, 'address')} color={theme.subText} />
+                </MouseoverTooltip>
+                <MouseoverTooltip text={t`Disconnect wallet`} width="fit-content" placement="top">
+                  <LogOutIcon size={16} onClick={disconnectWallet} />
+                </MouseoverTooltip>
               </Flex>
             )}
             <Flex style={{ gap: 20 }} alignItems="center">

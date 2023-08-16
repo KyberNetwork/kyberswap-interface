@@ -16,7 +16,7 @@ import Row, { RowBetween } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { useIsWhiteListKyberAI, useKyberAIWidget } from 'state/user/hooks'
@@ -179,7 +179,7 @@ const widgetTabTooltip = {
 
 export default function Widget() {
   const { account } = useActiveWeb3React()
-  const { mixpanelHandler } = useMixpanel()
+  const mixpanelHandler = useMixpanelKyberAI()
   const theme = useTheme()
   const [showExpanded, setShowExpanded] = useState(false)
   const [showWidget, toggleWidget] = useKyberAIWidget()
@@ -203,7 +203,7 @@ export default function Widget() {
 
   const { data, isFetching, isError } = useTokenListQuery(
     activeTab === WidgetTab.MyWatchlist
-      ? { type: KyberAIListType.ALL, page: 1, pageSize: 5, wallet: account, watchlist: true }
+      ? { type: KyberAIListType.ALL, page: 1, pageSize: 5, watchlist: true }
       : {
           type: {
             [WidgetTab.Bearish]: KyberAIListType.BEARISH,
@@ -213,7 +213,6 @@ export default function Widget() {
           chain: 'all',
           page: 1,
           pageSize: 5,
-          wallet: account,
         },
     { refetchOnMountOrArgChange: true, skip: !isWhiteList },
   )

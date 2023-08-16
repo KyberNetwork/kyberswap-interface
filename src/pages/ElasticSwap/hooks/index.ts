@@ -6,6 +6,7 @@ import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { abi as QuoterABI } from 'constants/abis/v2/ProAmmQuoter.json'
+import { didUserReject } from 'constants/connectors/utils'
 import { INITIAL_ALLOWED_SLIPPAGE } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -555,7 +556,7 @@ export function useSwapCallback(
           })
           .catch((error: any) => {
             // if the user rejected the tx, pass this along
-            if (error?.code === 4001) {
+            if (didUserReject(error)) {
               throw new Error('Transaction rejected.')
             } else {
               // otherwise, the error was unexpected and we need to convey that

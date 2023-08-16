@@ -25,6 +25,7 @@ import TransactionConfirmationModal, {
 } from 'components/TransactionConfirmationModal'
 import ZapError from 'components/ZapError'
 import FormattedPriceImpact from 'components/swapv2/FormattedPriceImpact'
+import { didUserReject } from 'constants/connectors/utils'
 import { AMP_HINT, APP_PATHS } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
@@ -283,7 +284,7 @@ const ZapIn = ({
         captureException(e, { extra: { args } })
 
         // we only care if the error is something _other_ than the user rejected the tx
-        if (err?.code !== 4001) {
+        if (!didUserReject(err)) {
           console.error(err)
         }
 

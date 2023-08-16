@@ -1,4 +1,4 @@
-import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import React, { memo, useCallback, useEffect, useRef } from 'react'
 import ScrollContainer from 'react-indiana-drag-scroll'
 
@@ -25,6 +25,7 @@ import {
   StyledWrapToken,
 } from 'components/TradeRouting/styled'
 import { useActiveWeb3React } from 'hooks'
+import { useCurrencyV2 } from 'hooks/Tokens'
 import { useAllDexes } from 'state/customizeDexes/hooks'
 import { getEtherscanLink, isAddress } from 'utils'
 import { SwapRouteV2 } from 'utils/aggregationRouting'
@@ -67,14 +68,7 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
             return (
               <React.Fragment key={id}>
                 <StyledHop>
-                  <StyledToken
-                    style={{ marginRight: 0 }}
-                    href={getEtherscanLink(chainId, token?.address, 'token')}
-                    target="_blank"
-                  >
-                    <CurrencyLogo currency={token} size="16px" />
-                    <span>{token?.symbol}</span>
-                  </StyledToken>
+                  <TokenRoute token={token} />
                   {Array.isArray(subRoute)
                     ? subRoute.map(pool => {
                         const dex = getDexInfoByPool(pool, allDexes)
@@ -199,6 +193,20 @@ const Routing = ({ tradeComposition, maxHeight, inputAmount, outputAmount, curre
         </div>
       </StyledContainer>
     </Shadow>
+  )
+}
+
+const TokenRoute = ({ token }: { token: Token }) => {
+  const currency = useCurrencyV2(token.wrapped.address)
+  return (
+    <StyledToken
+      style={{ marginRight: 0 }}
+      href={getEtherscanLink(token.chainId, token?.wrapped.address, 'token')}
+      target="_blank"
+    >
+      <CurrencyLogo currency={currency} size="16px" />
+      <span>{currency?.symbol}</span>
+    </StyledToken>
   )
 }
 

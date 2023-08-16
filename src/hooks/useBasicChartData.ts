@@ -1,6 +1,6 @@
 import { KyberOauth2Api } from '@kybernetwork/oauth2'
 import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
 import { getUnixTime, subHours } from 'date-fns'
 import { useMemo } from 'react'
 import useSWR from 'swr'
@@ -60,13 +60,16 @@ const getClosestPrice = (prices: any[], time: number) => {
   })
   return prices[closestIndex][0] - time > 10000000 ? 0 : prices[closestIndex][1]
 }
-
-const fetchKyberDataSWR = async (url: string) => {
-  const res = await axios.get(url, { timeout: 5000 })
+const formatData = (res: AxiosResponse) => {
   if (res.status === 204) {
     throw new Error('No content')
   }
   return res.data
+}
+
+const fetchKyberDataSWR = async (url: string) => {
+  const res = await axios.get(url, { timeout: 5000 })
+  return formatData(res)
 }
 
 const fetchKyberDataSWRWithHeader = async (url: string) => {
@@ -77,10 +80,7 @@ const fetchKyberDataSWRWithHeader = async (url: string) => {
     },
   })
 
-  if (res.status === 204) {
-    throw new Error('No content')
-  }
-  return res.data
+  return formatData(res)
 }
 
 const fetchCoingeckoDataSWR = async ([tokenAddresses, chainIds, timeFrame, coingeckoAPI]: [
@@ -90,15 +90,10 @@ const fetchCoingeckoDataSWR = async ([tokenAddresses, chainIds, timeFrame, coing
   coingeckoAPI: string,
 ]): Promise<any> => {
   return await Promise.all(
-    [tokenAddresses[0], tokenAddresses[1]].map((address, i) =>
+    tokenAddresses.map((address, i) =>
       KyberOauth2Api.get(generateCoingeckoUrl(coingeckoAPI, chainIds[i], address, timeFrame), undefined, {
         timeout: 5000,
-      }).then(res => {
-        if (res.status === 204) {
-          throw new Error('No content')
-        }
-        return res.data
-      }),
+      }).then(formatData),
     ),
   )
 }

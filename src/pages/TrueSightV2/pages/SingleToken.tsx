@@ -14,7 +14,7 @@ import { DotsLoader } from 'components/Loader/DotsLoader'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { MEDIA_WIDTHS } from 'theme'
@@ -235,7 +235,7 @@ const TokenDescription = ({ description }: { description: string }) => {
 const TokenNameGroup = ({ token, isLoading }: { token?: ITokenOverview; isLoading?: boolean }) => {
   const { account } = useActiveWeb3React()
   const theme = useTheme()
-  const { mixpanelHandler } = useMixpanel()
+  const mixpanelHandler = useMixpanelKyberAI()
   const navigate = useNavigate()
   const location = useLocation()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
@@ -255,7 +255,6 @@ const TokenNameGroup = ({ token, isLoading }: { token?: ITokenOverview; isLoadin
       })
 
       removeFromWatchlist({
-        wallet: account,
         tokenAddress: token?.address,
         chain,
       }).then(() => setIsWatched(false))
@@ -266,7 +265,7 @@ const TokenNameGroup = ({ token, isLoading }: { token?: ITokenOverview; isLoadin
           source: 'explore',
           option: 'add',
         })
-        addToWatchlist({ wallet: account, tokenAddress: token?.address, chain }).then(() => setIsWatched(true))
+        addToWatchlist({ tokenAddress: token?.address, chain }).then(() => setIsWatched(true))
       }
     }
   }
@@ -443,7 +442,7 @@ const TokenHeader = ({
   isLoading?: boolean
   onShareClick: () => void
 }) => {
-  const { mixpanelHandler } = useMixpanel()
+  const mixpanelHandler = useMixpanelKyberAI()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const { chain } = useParams()
   return above768 ? (
@@ -507,7 +506,7 @@ const TokenHeader = ({
 export default function SingleToken() {
   const theme = useTheme()
   const navigate = useNavigate()
-  const { mixpanelHandler } = useMixpanel()
+  const mixpanelHandler = useMixpanelKyberAI()
   const [state, dispatch] = useChartStatesReducer()
   const [showShare, setShowShare] = useState(false)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)

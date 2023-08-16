@@ -19,7 +19,7 @@ import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
@@ -51,6 +51,7 @@ import SimpleTooltip from '../SimpleTooltip'
 import SmallKyberScoreMeter from '../SmallKyberScoreMeter'
 import TimeFrameLegend from '../TimeFrameLegend'
 import TokenChart from '../TokenChartSVG'
+import TokenListVariants from '../TokenListVariants'
 import { StarWithAnimation } from '../WatchlistStar'
 
 const TableWrapper = styled.div`
@@ -586,7 +587,7 @@ const WidgetTokenRow = ({
   const theme = useTheme()
   const navigate = useNavigate()
   const { account } = useActiveWeb3React()
-  const { mixpanelHandler } = useMixpanel()
+  const mixpanelHandler = useMixpanelKyberAI()
   const reachedMaxLimit = useIsReachMaxLimitWatchedToken(token?.tokens.length)
 
   const latestKyberScore: IKyberScoreChart | undefined = token?.ks_3d?.[token.ks_3d.length - 1]
@@ -649,9 +650,7 @@ const WidgetTokenRow = ({
         ranking_order: index,
         option: 'remove',
       })
-      Promise.all(
-        token.tokens.map(t => removeFromWatchlist({ wallet: account, tokenAddress: t.address, chain: t.chain })),
-      ).then(() => {
+      Promise.all(token.tokens.map(t => removeFromWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
         setIsWatched(false)
         setLoadingStar(false)
       })
@@ -663,9 +662,7 @@ const WidgetTokenRow = ({
           ranking_order: index,
           option: 'add',
         })
-        Promise.all(
-          token.tokens.map(t => addToWatchlist({ wallet: account, tokenAddress: t.address, chain: t.chain })),
-        ).then(() => {
+        Promise.all(token.tokens.map(t => addToWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
           setIsWatched(true)
           setLoadingStar(false)
         })
@@ -702,16 +699,7 @@ const WidgetTokenRow = ({
                     {token.symbol}
                   </Text>{' '}
                   <RowFit gap="6px" color={theme.text}>
-                    {token.tokens.map(item => {
-                      if (item.chain === 'ethereum') return <Icon id="eth-mono" size={10} title="Ethereum" />
-                      if (item.chain === 'bsc') return <Icon id="bnb-mono" size={10} title="Binance" />
-                      if (item.chain === 'avalanche') return <Icon id="ava-mono" size={10} title="Avalanche" />
-                      if (item.chain === 'polygon') return <Icon id="matic-mono" size={10} title="Polygon" />
-                      if (item.chain === 'arbitrum') return <Icon id="arbitrum-mono" size={10} title="Arbitrum" />
-                      if (item.chain === 'fantom') return <Icon id="fantom-mono" size={10} title="Fantom" />
-                      if (item.chain === 'optimism') return <Icon id="optimism-mono" size={10} title="Optimism" />
-                      return <></>
-                    })}
+                    <TokenListVariants tokens={token.tokens} iconSize={10} />
                   </RowFit>
                 </Column>
               </RowFit>
@@ -761,16 +749,7 @@ const WidgetTokenRow = ({
                 <Column gap="4px" style={{ cursor: 'pointer', alignItems: 'flex-start' }}>
                   <Text style={{ textTransform: 'uppercase' }}>{token.symbol}</Text>{' '}
                   <RowFit gap="6px" color={theme.text}>
-                    {token.tokens.map(item => {
-                      if (item.chain === 'ethereum') return <Icon id="eth-mono" size={12} title="Ethereum" />
-                      if (item.chain === 'bsc') return <Icon id="bnb-mono" size={12} title="Binance" />
-                      if (item.chain === 'avalanche') return <Icon id="ava-mono" size={12} title="Avalanche" />
-                      if (item.chain === 'polygon') return <Icon id="matic-mono" size={12} title="Polygon" />
-                      if (item.chain === 'arbitrum') return <Icon id="arbitrum-mono" size={12} title="Arbitrum" />
-                      if (item.chain === 'fantom') return <Icon id="fantom-mono" size={12} title="Fantom" />
-                      if (item.chain === 'optimism') return <Icon id="optimism-mono" size={12} title="Optimism" />
-                      return <></>
-                    })}
+                    <TokenListVariants tokens={token.tokens} />
                   </RowFit>
                 </Column>
               </Row>

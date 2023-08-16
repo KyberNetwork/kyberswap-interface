@@ -53,8 +53,6 @@ export const CLOSE_ORDER_OPTIONS = [
   },
 ]
 
-export const GAS_AMOUNT_ETHEREUM = 1_200_000
-
 const _USD_THRESHOLD: { [chainId: number]: number } = {
   [ChainId.MAINNET]: 300,
 }

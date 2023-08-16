@@ -123,7 +123,7 @@ const ElasticPools = () => {
 
           return (
             pool.id.toLowerCase() === searchText ||
-            pool.token0.id.toLowerCase().includes(searchText) ||
+            pool.token0.id.toLowerCase() === searchText ||
             pool.token0.symbol.toLowerCase().includes(searchText) ||
             pool.token0.name.toLowerCase().includes(searchText) ||
             pool.token1.id.toLowerCase() === searchText ||
