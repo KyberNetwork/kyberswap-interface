@@ -301,7 +301,9 @@ const StakeWithNFTsModal = ({
 
   const addliquidityElasticPool = `/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${
     farm.token0.isNative ? farm.token0.symbol : farm.token0.address
-  }/${farm.token1.isNative ? farm.token1.symbol : farm.token1.address}/${farm.pool.fee}?farmRange=${activeRange.index}`
+  }/${farm.token1.isNative ? farm.token1.symbol : farm.token1.address}/${farm.pool.fee}?farmRange=${
+    activeRange.index
+  }&fId=${farm.fId}`
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
