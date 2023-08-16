@@ -2,6 +2,7 @@ import synpressPlugins from '@synthetixio/synpress/plugins'
 import { defineConfig } from 'cypress'
 
 export default defineConfig({
+  projectId: '4x4jf8',
   component: {
     devServer: {
       framework: 'create-react-app',
@@ -22,6 +23,6 @@ export default defineConfig({
       require('@cypress/grep/src/plugin')(config)
       synpressPlugins(on, config)
     },
-    specPattern: 'cypress/e2e/specs/*.e2e.cy.ts',
+    specPattern: 'cypress/e2e/specs/*.e2e.cy.ts'
   },
 })

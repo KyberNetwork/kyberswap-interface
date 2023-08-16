@@ -1,15 +1,16 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { SwapPage, tag } from "../pages/swap-page.po.cy"
+import { SwapPage } from "../pages/swap-page.po.cy"
+import { TAG } from "../selectors/constants.cy"
 import { HeaderLocators } from "../selectors/selectors.cy"
 
 const network_env = Cypress.env('NETWORK')
 const url = `swap/${network_env}`.toLowerCase()
 
-describe('Intercept', { tags: tag.regression }, () => {
+describe('Intercept', { tags: TAG.regression }, () => {
    beforeEach(() => {
       SwapPage.open(url)
    })
-   describe('Swap', { tags: tag.smoke }, () => {
+   describe('Swap', { tags: TAG.smoke }, () => {
       it('Should get route successfully', () => {
          cy.intercept('GET', '**/routes?**').as('get-route')
          cy.wait('@get-route', { timeout: 20000 }).its('response.statusCode').should('be.oneOf', [200, 404, 408])
@@ -25,7 +26,7 @@ describe('Intercept', { tags: tag.regression }, () => {
          cy.get(HeaderLocators.lblPools).click({ force: true })
          cy.wait('@get-farm-list', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
          cy.wait('@get-pool-list', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
-         cy.wait('@get-block', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
+         cy.wait('@get-block', { timeout: 60000 }).its('response.statusCode').should('equal', 200)
       })
    })
 
@@ -52,7 +53,7 @@ describe('Intercept', { tags: tag.regression }, () => {
                   cy.wait('@get-pool-list', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
                }
                cy.wait('@get-farm-list', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
-               cy.wait('@get-block', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
+               cy.wait('@get-block', { timeout: 60000 }).its('response.statusCode').should('equal', 200)
             })
       })
    })

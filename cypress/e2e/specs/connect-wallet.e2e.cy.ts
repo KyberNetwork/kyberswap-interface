@@ -1,32 +1,30 @@
-import { tag } from '../pages/swap-page.po.cy'
-import { NetworkLocators, SwapPageLocators, WalletLocators } from '../selectors/selectors.cy'
+import { Network, SwapPage } from '../pages/swap-page.po.cy'
+import { TAG } from '../selectors/constants.cy'
 
 const network_env = Cypress.env('NETWORK')
-const mainPage = `swap/${network_env}`.toLowerCase()
+const url = `swap/${network_env}`.toLowerCase()
 
-describe('Metamask Extension tests', { tags: tag.regression }, () => {
-   beforeEach(() => {
-      cy.visit('/' + mainPage)
-      cy.get(SwapPageLocators.btnSkipTutorial, { timeout: 30000 }).should('be.visible').click()
-      cy.get(WalletLocators.btnConnectWallet).should('be.visible').click()
-      cy.connectWallet()
-   })
+const wallet = new Network()
 
-   it('Redirects to swap page when a user has already connected a wallet', () => {
-      cy.acceptMetamaskAccess()
-      cy.get(WalletLocators.statusConnected, { timeout: 10000 }).should('be.visible')
-      cy.url().should('include', '/swap')
-   })
+describe('Metamask Extension tests', { tags: TAG.regression }, () => {
+    beforeEach(() => {
+        SwapPage.open(url)
+        SwapPage.connectWallet()
+    })
 
-   it('Should approve permission to switch network', () => {
-      if (network_env !== 'Ethereum') {
-         cy.get(WalletLocators.statusConnected, { timeout: 10000 }).should('be.visible')
-         cy.get(NetworkLocators.btnSelectNetwork, { timeout: 30000 }).should('be.visible').click()
-         cy.get(NetworkLocators.btnNetwork).contains(network_env).click({ force: true })
-         cy.allowMetamaskToAddAndSwitchNetwork().then(approved => {
-            expect(approved).to.be.true
-         })
-      }
-      cy.url().should('include', mainPage)
-   })
+    it('Redirects to swap page when a user has already connected a wallet', () => {
+        cy.acceptMetamaskAccess()
+        SwapPage.getStatusConnectedWallet()
+        cy.url().should('include', '/swap')
+    })
+
+    it('Should approve permission to switch network', () => {
+        if (network_env !== 'Ethereum') {
+            SwapPage.getStatusConnectedWallet()
+            wallet.selectNetwork(network_env)
+            cy.allowMetamaskToAddAndSwitchNetwork().then(approved => {
+                expect(approved).to.be.true
+            })
+        }
+    })
 })

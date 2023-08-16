@@ -1,20 +1,17 @@
-import { SwapPage, TOKEN_SYMBOLS, TokenCatalog, UNWHITE_LIST_TOKENS, tag } from "../pages/swap-page.po.cy"
+import { SwapPage, TokenCatalog } from "../pages/swap-page.po.cy"
+import { TAG, TOKEN_SYMBOLS, UNWHITE_LIST_TOKENS, noResultsText, noTokensText, unListedToken } from "../selectors/constants.cy"
 
 const network_env = Cypress.env('NETWORK')
 const unWhitelistTokens = UNWHITE_LIST_TOKENS[network_env]
-
 const tokenSymbols = TOKEN_SYMBOLS[network_env]
-const unListedToken = ['KNNC', 'KCCN']
 const url = `swap/${network_env}`.toLowerCase()
 
 const arrAddress = [unWhitelistTokens[0].address, unWhitelistTokens[1].address, unWhitelistTokens[2].address]
 const arrSymbol = [unWhitelistTokens[0].name, unWhitelistTokens[1].name, unWhitelistTokens[2].name]
 
 const tokenCatalog = new TokenCatalog();
-const noResultsText = "No results found."
-const noTokensText = "Select a token"
 
-describe(`Token Catalog on ${network_env}`, { tags: 'regression' }, () => {
+describe(`Token Catalog on ${network_env}`, { tags: TAG.regression }, () => {
    beforeEach(() => {
       SwapPage.open(url)
    })
@@ -22,7 +19,6 @@ describe(`Token Catalog on ${network_env}`, { tags: 'regression' }, () => {
    describe('Select token in favorite tokens list', () => {
       it('Should be selected tokenIn in favorite tokens list successfully', () => {
          SwapPage.selectTokenIn().selectFavoriteToken(tokenSymbols[2])
-
          SwapPage.getCurrentTokenIn((text: string) => {
             expect(text).to.equal(tokenSymbols[2])
          })
@@ -53,7 +49,6 @@ describe(`Token Catalog on ${network_env}`, { tags: 'regression' }, () => {
 
       it('Should be removed tokenOut from favorite tokens list', () => {
          SwapPage.selectTokenOut().removeFavoriteToken(tokenSymbols[2])
-         cy.wait(2000)
          tokenCatalog.getFavoriteTokens((list: string[]) => {
             expect(list).not.to.include.members([tokenSymbols[2]])
          })
@@ -80,7 +75,6 @@ describe(`Token Catalog on ${network_env}`, { tags: 'regression' }, () => {
          SwapPage.getCurrentTokenOut((text: string) => {
             expect(text).to.equal(tokenSymbols[1])
          })
-
       })
 
       it('Should be unselected tokenIn not exist in whitelist', () => {
@@ -88,7 +82,6 @@ describe(`Token Catalog on ${network_env}`, { tags: 'regression' }, () => {
          tokenCatalog.getNoResultsFound((text: string) => {
             expect(text).to.equal(noResultsText)
          })
-
       })
 
       it('Should be unselected tokenOut not exist in whitelist', () => {
@@ -96,7 +89,6 @@ describe(`Token Catalog on ${network_env}`, { tags: 'regression' }, () => {
          tokenCatalog.getNoResultsFound((text: string) => {
             expect(text).to.equal(noResultsText)
          })
-
       })
    })
 
@@ -117,7 +109,6 @@ describe(`Token Catalog on ${network_env}`, { tags: 'regression' }, () => {
          tokenCatalog.getNoResultsFound((text: string) => {
             expect(text).to.equal(noResultsText)
          })
-
       })
 
       it('Should be imported then deleted tokenOut successfully', () => {
@@ -136,27 +127,20 @@ describe(`Token Catalog on ${network_env}`, { tags: 'regression' }, () => {
          tokenCatalog.getNoResultsFound((text: string) => {
             expect(text).to.equal(noResultsText)
          })
-
       })
 
    })
 
    describe(`E2E Token Catalog`, () => {
-      let tagName = [tag.regression];
-      if (network_env === 'Ethereum') {
-         tagName = [tag.regression, tag.smoke]
-      }
-      it('Should be selected tokenIn and tokenOut to swap', { tags: tagName }, () => {
+      it('Should be selected tokenIn and tokenOut to swap', { tags: TAG.smoke }, () => {
          tokenCatalog.importNewTokens([arrAddress[2]])
          SwapPage.getCurrentTokenIn((text: string) => {
             expect(text).to.equal(arrSymbol[2])
-
          })
 
          SwapPage.selectTokenOut().selectFavoriteToken(tokenSymbols[1])
          SwapPage.getCurrentTokenOut((text: string) => {
             expect(text).to.equal(tokenSymbols[1])
-
          })
 
          SwapPage.selectTokenOut()
@@ -167,7 +151,6 @@ describe(`Token Catalog on ${network_env}`, { tags: 'regression' }, () => {
          SwapPage.getCurrentTokenIn((text: string) => {
             expect(text).to.equal(noTokensText)
          })
-
       })
    })
 })
