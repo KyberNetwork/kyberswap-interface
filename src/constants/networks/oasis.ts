@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import OASIS from 'assets/networks/oasis-network.svg'
-import { KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -23,7 +22,6 @@ const oasisInfo: EVMNetworkInfo = {
   defaultBlockSubgraph: 'https://oasis-graph.kyberengineering.io/subgraphs/name/kybernetwork/oasis-blocks',
   etherscanUrl: 'https://explorer.emerald.oasis.dev',
   etherscanName: 'Oasis Emerald Explorer',
-  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.OASIS}&isWhitelisted=${true}`,
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'ROSE',

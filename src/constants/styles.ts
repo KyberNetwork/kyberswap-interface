@@ -13,3 +13,10 @@ export const Z_INDEXS = {
   TRUE_SIGHT_FOOTER: 2,
   SWAP_PAGE_HEADER_RIGHT_MENU: 1,
 }
+
+export const THRESHOLD_HEADER = {
+  BLOG: '1600px',
+  ABOUT: '1440px',
+  ANALYTIC: '1320px',
+  KYBERDAO: '1040px',
+}

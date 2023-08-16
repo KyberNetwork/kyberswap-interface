@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import VELAS from 'assets/networks/velas-network.png'
-import { KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -23,7 +22,6 @@ const velasInfo: EVMNetworkInfo = {
   defaultBlockSubgraph: 'https://velas-graph.kyberengineering.io/subgraphs/name/kybernetwork/velas-blocks',
   etherscanUrl: 'https://evmexplorer.velas.com',
   etherscanName: 'Velas EVM Explorer',
-  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.VELAS}&isWhitelisted=${true}`,
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'VLX',

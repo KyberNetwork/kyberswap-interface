@@ -1,3 +1,5 @@
+import { escapeScriptHtml } from 'utils/string'
+
 function getEmbedIframeByYoutubeId(id: string) {
   return `
   <div style="position: relative; padding-bottom: 100%; height: 0; padding-bottom: 56.2493%;">
@@ -27,5 +29,5 @@ export default function oembed2iframe(html: string) {
     i++
   }
 
-  return html
+  return escapeScriptHtml(html)
 }

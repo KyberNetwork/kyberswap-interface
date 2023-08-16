@@ -9,6 +9,7 @@ import StakeIcon from 'components/Icons/Stake'
 import VoteIcon from 'components/Icons/Vote'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS } from 'constants/index'
+import { THRESHOLD_HEADER } from 'constants/styles'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 import { DropdownTextAnchor, StyledNavExternalLink, StyledNavLink } from '../styleds'
@@ -16,7 +17,7 @@ import NavGroup from './NavGroup'
 
 const KyberDaoWrapper = styled.span`
   display: inline-flex;
-  @media (max-width: 1040px) {
+  @media (max-width: ${THRESHOLD_HEADER.KYBERDAO}) {
     display: none;
   }
 `

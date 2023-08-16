@@ -26,7 +26,7 @@ import { useCurrencyBalance } from 'state/wallet/hooks'
 import { useCheckAddressSolana } from 'state/wallet/solanaHooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import { formattedNum, shortenAddress } from 'utils'
-import { errorFriendly } from 'utils/dmm'
+import { friendlyError } from 'utils/errorMessage'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 
 const Label = styled.label<{ color?: string }>`
@@ -142,7 +142,7 @@ export default function SendToken({
       setFlowState(state => ({
         ...state,
         attemptingTxn: false,
-        errorMessage: errorFriendly(error?.message ?? 'Error occur, please try again'),
+        errorMessage: friendlyError(error),
       }))
     }
   }

@@ -13,6 +13,7 @@ import useTheme from 'hooks/useTheme'
 import { TokenInfo } from 'hooks/useTokenInfo'
 import { formattedNum } from 'utils'
 import { formatDollarAmount } from 'utils/numbers'
+import { escapeScriptHtml } from 'utils/string'
 
 const NOT_AVAILABLE = '--'
 
@@ -270,7 +271,7 @@ const SingleTokenInfo = ({
         className="desc"
         ref={ref}
         dangerouslySetInnerHTML={{
-          __html: description.replace(/\r\n\r\n/g, '<br><br>'),
+          __html: escapeScriptHtml(description.replace(/\r\n\r\n/g, '<br><br>')),
         }}
       />
       <InfoRowWrapper>

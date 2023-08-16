@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import BnbLogo from 'assets/images/bnb-logo.png'
-import { KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -22,7 +21,6 @@ const bnbInfo: EVMNetworkInfo = {
   defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-bsc',
   etherscanUrl: 'https://bscscan.com',
   etherscanName: 'BscScan',
-  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.BSCMAINNET}&isWhitelisted=${true}`,
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'BNB',

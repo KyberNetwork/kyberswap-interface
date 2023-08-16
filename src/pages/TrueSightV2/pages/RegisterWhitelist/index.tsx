@@ -9,7 +9,7 @@ import { ButtonPrimary } from 'components/Button'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useLogin from 'hooks/useLogin'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import SubscribeForm from 'pages/TrueSightV2/pages/RegisterWhitelist/SubscribeForm'
 import WaitListForm from 'pages/TrueSightV2/pages/RegisterWhitelist/WaitListForm'
@@ -26,7 +26,7 @@ const ConnectWalletButton = styled(ButtonPrimary)`
 export default function RegisterWhitelist({ showForm = true }: { showForm?: boolean }) {
   const navigate = useNavigate()
   const theme = useTheme()
-  const { mixpanelHandler } = useMixpanel()
+  const mixpanelHandler = useMixpanelKyberAI()
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const { isLogin } = useSessionInfo()

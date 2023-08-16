@@ -11,7 +11,7 @@ import Icon from 'components/Icons/Icon'
 import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { CloseIcon, MEDIA_WIDTHS } from 'theme'
 import { openFullscreen } from 'utils/index'
@@ -141,7 +141,7 @@ export const SectionWrapper = ({
   style?: React.CSSProperties
 }) => {
   const theme = useTheme()
-  const { mixpanelHandler } = useMixpanel()
+  const mixpanelHandler = useMixpanelKyberAI()
   const { chain } = useParams()
   const { data: token } = useKyberAITokenOverview()
   const ref = useRef<HTMLDivElement>(null)
