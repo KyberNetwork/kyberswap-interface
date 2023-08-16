@@ -57,9 +57,9 @@ const zkEvm: EVMNetworkInfo = {
     initCodeHash: '0x00e263aaa3a2c06a89b53217a9e7aad7e15613490a72e0f95f303c4de2dc7045',
     quoter: '0x4d47fd5a29904Dae0Ef51b1c450C9750F15D7856',
     routers: '0xF9c2b5746c946EF883ab2660BbbB1f10A5bdeAb4',
-    farms: ['0x86844C008F8799Ed0F067b3Dd886ea433Cc5e37c'],
+    farms: ['0x7D5ba536ab244aAA1EA42aB88428847F25E3E676'],
     farmv2Quoter: '0x6AFeb9EDd6Cf44fA8E89b1eee28284e6dD7705C8',
-    farmV2S: ['0xbD07Eaa92C701810df78eAa4e1c697a0206405E0'],
+    farmV2S: ['0x3D6AfE2fB73fFEd2E3dD00c501A174554e147a43', '0xf2BcDf38baA52F6b0C1Db5B025DfFf01Ae1d6dBd'],
   },
   limitOrder: {
     production: NOT_SUPPORT,
