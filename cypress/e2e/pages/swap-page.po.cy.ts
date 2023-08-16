@@ -36,7 +36,6 @@ export const SwapPage = {
     getStatusConnectedWallet() {
         cy.get(WalletLocators.statusConnected, { timeout: 10000 }).should('be.visible')
     }
-
 }
 
 export class Network {
@@ -47,7 +46,6 @@ export class Network {
 }
 
 export class TokenCatalog {
-
     searchToken(value: string) {
         cy.searchToken(value)
     }
@@ -101,5 +99,4 @@ export class TokenCatalog {
     getNoResultsFound(text: myCallbackType<string>) {
         cy.getContent(TokenCatalogLocators.lblNotFound, text)
     }
-
 }
