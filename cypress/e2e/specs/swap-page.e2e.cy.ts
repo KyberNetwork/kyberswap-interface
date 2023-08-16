@@ -1,19 +1,19 @@
 import { SwapPage, TokenCatalog } from "../pages/swap-page.po.cy"
-import { TAG, TOKEN_SYMBOLS, UNWHITE_LIST_TOKENS, noResultsText, noTokensText, unListedToken } from "../selectors/constants.cy"
+import { DEFAULT_URL, NETWORK, NORESULTS_TEXT, NOTOKENS_TEXT, TAG, TOKEN_SYMBOLS, UNWHITELIST_SYMBOL_TOKENS, UNWHITELIST_TOKENS } from "../selectors/constants.cy"
 
-const network_env = Cypress.env('NETWORK')
-const unWhitelistTokens = UNWHITE_LIST_TOKENS[network_env]
-const tokenSymbols = TOKEN_SYMBOLS[network_env]
-const url = `swap/${network_env}`.toLowerCase()
+const unWhitelistTokens = UNWHITELIST_TOKENS[NETWORK]
+const tokenSymbols = TOKEN_SYMBOLS[NETWORK]
 
 const arrAddress = [unWhitelistTokens[0].address, unWhitelistTokens[1].address, unWhitelistTokens[2].address]
-const arrSymbol = [unWhitelistTokens[0].name, unWhitelistTokens[1].name, unWhitelistTokens[2].name]
+const arrSymbol = [unWhitelistTokens[0].symbol, unWhitelistTokens[1].symbol, unWhitelistTokens[2].symbol]
+
 
 const tokenCatalog = new TokenCatalog();
 
-describe(`Token Catalog on ${network_env}`, { tags: TAG.regression }, () => {
+
+describe(`Token Catalog on ${NETWORK}`, { tags: TAG.regression }, () => {
    beforeEach(() => {
-      SwapPage.open(url)
+      SwapPage.open(DEFAULT_URL)
    })
 
    describe('Select token in favorite tokens list', () => {
@@ -86,16 +86,16 @@ describe(`Token Catalog on ${network_env}`, { tags: TAG.regression }, () => {
       })
 
       it('Should be unselected tokenIn not exist in whitelist', () => {
-         SwapPage.selectTokenIn().searchToken(unListedToken[0])
+         SwapPage.selectTokenIn().searchToken(UNWHITELIST_SYMBOL_TOKENS[0])
          tokenCatalog.getNoResultsFound((text) => {
-            expect(text).to.equal(noResultsText)
+            expect(text).to.equal(NORESULTS_TEXT)
          })
       })
 
       it('Should be unselected tokenOut not exist in whitelist', () => {
-         SwapPage.selectTokenOut().searchToken(unListedToken[0])
+         SwapPage.selectTokenOut().searchToken(UNWHITELIST_SYMBOL_TOKENS[0])
          tokenCatalog.getNoResultsFound((text) => {
-            expect(text).to.equal(noResultsText)
+            expect(text).to.equal(NORESULTS_TEXT)
          })
       })
    })
@@ -115,7 +115,7 @@ describe(`Token Catalog on ${network_env}`, { tags: TAG.regression }, () => {
 
          tokenCatalog.clearAllImportedTokens()
          tokenCatalog.getNoResultsFound((text) => {
-            expect(text).to.equal(noResultsText)
+            expect(text).to.equal(NORESULTS_TEXT)
          })
       })
 
@@ -133,7 +133,7 @@ describe(`Token Catalog on ${network_env}`, { tags: TAG.regression }, () => {
 
          tokenCatalog.clearAllImportedTokens()
          tokenCatalog.getNoResultsFound((text) => {
-            expect(text).to.equal(noResultsText)
+            expect(text).to.equal(NORESULTS_TEXT)
          })
       })
    })
@@ -155,10 +155,10 @@ describe(`Token Catalog on ${network_env}`, { tags: TAG.regression }, () => {
          SwapPage.selectTokenOut()
          tokenCatalog.deleteImportedToken(arrSymbol[2])
          tokenCatalog.getNoResultsFound((text) => {
-            expect(text).to.equal(noResultsText)
+            expect(text).to.equal(NORESULTS_TEXT)
          })
          SwapPage.getCurrentTokenIn((text) => {
-            expect(text).to.equal(noTokensText)
+            expect(text).to.equal(NOTOKENS_TEXT)
          })
       })
    })

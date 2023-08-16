@@ -1,14 +1,11 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { SwapPage } from "../pages/swap-page.po.cy"
-import { TAG } from "../selectors/constants.cy"
+import { DEFAULT_URL, TAG,  } from "../selectors/constants.cy"
 import { HeaderLocators } from "../selectors/selectors.cy"
-
-const network_env = Cypress.env('NETWORK')
-const url = `swap/${network_env}`.toLowerCase()
 
 describe('Intercept', { tags: TAG.regression }, () => {
    beforeEach(() => {
-      SwapPage.open(url)
+      SwapPage.open(DEFAULT_URL)
    })
    describe('Swap', () => {
       it('Should get route successfully', () => {
