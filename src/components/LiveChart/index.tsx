@@ -194,7 +194,6 @@ function LiveChart({
   const [timeFrame, setTimeFrame] = useState<LiveDataTimeframeEnum>(LiveDataTimeframeEnum.DAY)
 
   const { data: chartData, error: basicChartError, loading: basicChartLoading } = useDefinedAPI(tokens, timeFrame)
-  console.log('🚀 ~ file: index.tsx:197 ~ chartData:', chartData)
 
   const isProchartError = !commonPool
   const isBasicchartError = basicChartError && !basicChartLoading
