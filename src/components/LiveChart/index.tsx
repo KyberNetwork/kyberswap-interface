@@ -14,7 +14,8 @@ import ErrorBoundary from 'components/ErrorBoundary'
 import Loader from 'components/LocalLoader'
 import TradingViewChart from 'components/TradingViewChart'
 import { useActiveWeb3React } from 'hooks'
-import useBasicChartData, { LiveDataTimeframeEnum } from 'hooks/useBasicChartData'
+import { LiveDataTimeframeEnum } from 'hooks/useBasicChartData'
+import useDefinedAPI from 'hooks/useDefinedAPI'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { Field } from 'state/swap/actions'
@@ -192,7 +193,8 @@ function LiveChart({
   const [hoverValue, setHoverValue] = useState<number | null>(null)
   const [timeFrame, setTimeFrame] = useState<LiveDataTimeframeEnum>(LiveDataTimeframeEnum.DAY)
 
-  const { data: chartData, error: basicChartError, loading: basicChartLoading } = useBasicChartData(tokens, timeFrame)
+  const { data: chartData, error: basicChartError, loading: basicChartLoading } = useDefinedAPI(tokens, timeFrame)
+  console.log('🚀 ~ file: index.tsx:197 ~ chartData:', chartData)
 
   const isProchartError = !commonPool
   const isBasicchartError = basicChartError && !basicChartLoading
