@@ -5,7 +5,7 @@ import { initializeConnector } from '@web3-react/core'
 import { MetaMask } from '@web3-react/metamask'
 import { WalletConnect as WalletConnectV2 } from '@web3-react/walletconnect-v2'
 
-import Kyber from 'assets/svg/kyber/kyberswap_primary.svg'
+import Kyber from 'assets/svg/kyber/logo_kyberswap_with_padding.svg'
 import { WALLETCONNECT_PROJECT_ID } from 'constants/env'
 import {
   NETWORKS_INFO,
