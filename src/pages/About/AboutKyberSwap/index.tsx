@@ -30,37 +30,24 @@ import Banner from 'components/Banner'
 import { ButtonEmpty, ButtonLight } from 'components/Button'
 import { FooterSocialLink } from 'components/Footer/Footer'
 import {
-  Arbitrum,
-  Aurora,
   AuroraFull,
-  Avalanche,
   BestPrice,
-  Binance,
-  Bttc,
   CircleFocus,
   Clock,
-  Cronos,
   CronosLogoFull,
   Drop,
   Enter,
-  Ethereum,
-  Fantom,
   FantomLogoFull,
   FarmIcon,
   LineaFull,
   LowestSlippage,
   MoneyBagOutline,
-  Oasis,
   OasisLogoFull,
-  OptimismLogo,
   OptimismLogoFull,
-  Polygon,
   PolygonLogoFull,
-  Velas,
   VelasLogoFull,
 } from 'components/Icons'
 import AntiSnippingAttack from 'components/Icons/AntiSnippingAttack'
-import ZkSync from 'components/Icons/ZkSync'
 import ZkSyncFull from 'components/Icons/ZkSyncFull'
 import Loader from 'components/Loader'
 import { APP_PATHS } from 'constants/index'
@@ -510,22 +497,19 @@ function AboutKyberSwap() {
           </Text>
 
           <SupportedChain>
-            <Ethereum />
-            <Polygon />
-            <Binance />
-            <Avalanche />
-            <Fantom />
-            <Cronos />
-            <Arbitrum />
-            <Velas />
-            <Aurora />
-            <Oasis />
-            <Bttc />
-            <OptimismLogo />
-            {/* <Solana /> */}
-            <ZkSync />
-            <img src="https://linea.build/apple-touch-icon.png" width="36px" height="36px" alt="Linea" />
-            <img src="https://wallet.polygon.technology/assets/img/zkEVM.svg" width="36px" height="36px" alt="zkEVM" />
+            {MAINNET_NETWORKS.map(chain => (
+              <img
+                src={
+                  isDarkMode && NETWORKS_INFO[chain].iconDark
+                    ? NETWORKS_INFO[chain].iconDark || NETWORKS_INFO[chain].icon
+                    : NETWORKS_INFO[chain].icon
+                }
+                alt={NETWORKS_INFO[chain].name}
+                key={chain}
+                width="36px"
+                height="36px"
+              />
+            ))}
           </SupportedChain>
 
           <KyberSwapGeneralIntro />

@@ -16,7 +16,7 @@ const bttcInfo: EVMNetworkInfo = {
   poolFarmRoute: 'bttc',
   aggregatorRoute: 'bttc',
   name: 'BitTorrent',
-  icon: BTT,
+  icon: 'https://storage.googleapis.com/ks-setting-a3aa20b7/4877aa34-b675-4fb3-8de2-15ab8a8f6a53.svg',
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,

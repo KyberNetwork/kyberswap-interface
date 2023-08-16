@@ -15,7 +15,7 @@ const maticInfo: EVMNetworkInfo = {
   poolFarmRoute: 'polygon',
   aggregatorRoute: 'polygon',
   name: 'Polygon PoS',
-  icon: 'https://wallet.polygon.technology/assets/img/polygon-pos.svg',
+  icon: 'https://storage.googleapis.com/ks-setting-a3aa20b7/78dfb4fb-089b-431d-8725-b5de2cea0bfc.svg',
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,

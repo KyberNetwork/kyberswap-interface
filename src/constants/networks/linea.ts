@@ -16,7 +16,7 @@ const lineaInfo: EVMNetworkInfo = {
   poolFarmRoute: 'linea',
   aggregatorRoute: 'linea',
   name: 'Linea',
-  icon: 'https://linea.build/apple-touch-icon.png',
+  icon: 'https://storage.googleapis.com/ks-setting-a3aa20b7/5c7ac975-e5af-4a02-8586-da6acfee9ec8.svg',
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,

@@ -15,7 +15,7 @@ const avaxInfo: EVMNetworkInfo = {
   poolFarmRoute: 'avalanche',
   aggregatorRoute: 'avalanche',
   name: 'Avalanche',
-  icon: AVAX,
+  icon: 'https://storage.googleapis.com/ks-setting-a3aa20b7/31645e2e-9c40-4fdf-9ddf-50d24e5399e4.svg',
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
