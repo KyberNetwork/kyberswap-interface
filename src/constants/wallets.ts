@@ -151,7 +151,7 @@ export const SUPPORTED_WALLETS = {
   SAFE: {
     connector: gnosisSafe,
     hooks: gnosisSafeHooks,
-    name: 'Safe{Wallet}',
+    name: 'Safe',
     icon: SAFE,
     iconLight: SAFE,
     installLink: 'https://safe.global/wallet',

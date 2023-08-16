@@ -16,7 +16,8 @@ const allNonMetamaskFlags = [
 export const getIsMetaMaskWallet = () =>
   Boolean(window.ethereum?.isMetaMask && !allNonMetamaskFlags.some(flag => window.ethereum?.[flag]))
 
-export const getIsKrystalWallet = () => Boolean(window.ethereum?.isKrystalWallet || window.ethereum?.isKrystal)
+export const getIsKrystalWallet = () =>
+  Boolean(window.ethereum?.isKrystalWallet || (window.ethereum?.isKrystal && !getIsTrustWallet()))
 
 export const getIsCoinbaseWallet = () =>
   Boolean(
