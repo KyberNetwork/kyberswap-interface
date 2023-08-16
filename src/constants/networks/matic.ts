@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
-import Polygon from 'assets/networks/polygon-network.png'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -13,8 +12,8 @@ const maticInfo: EVMNetworkInfo = {
   priceRoute: 'polygon',
   poolFarmRoute: 'polygon',
   aggregatorRoute: 'polygon',
-  name: 'Polygon',
-  icon: Polygon,
+  name: 'Polygon PoS',
+  icon: 'https://storage.googleapis.com/ks-setting-a3aa20b7/78dfb4fb-089b-431d-8725-b5de2cea0bfc.svg',
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
@@ -25,7 +24,7 @@ const maticInfo: EVMNetworkInfo = {
   nativeToken: {
     symbol: 'MATIC',
     name: 'Polygon',
-    logo: Polygon,
+    logo: 'https://storage.googleapis.com/ks-setting-a3aa20b7/78dfb4fb-089b-431d-8725-b5de2cea0bfc.svg',
     decimal: 18,
     minForGas: 10 ** 17,
   },

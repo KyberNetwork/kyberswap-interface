@@ -65,6 +65,7 @@ export function getEtherscanLink(
       return `${prefix}/tx/${data}`
     }
     case 'token': {
+      if (chainId === ChainId.ZKSYNC) return `${prefix}/address/${data}`
       return `${prefix}/token/${data}`
     }
     case 'block': {

@@ -224,21 +224,24 @@ export default function AddLiquidity() {
   const poolAddress = useProAmmPoolInfo(baseCurrency, currencyB, feeAmount)
 
   const { farms } = useElasticFarmsV2()
-  const farmV2 = farms?.find(
+
+  const farmV2S = farms?.filter(
     item =>
       !item.isSettled &&
       item.endTime > Date.now() / 1000 &&
       item.poolAddress.toLowerCase() === poolAddress.toLowerCase(),
   )
 
-  const activeRanges = farmV2?.ranges.filter(r => !r.isRemoved) || []
+  const activeRanges =
+    farmV2S?.map(farm => farm.ranges.filter(item => !item.isRemoved).map(item => ({ ...item, farm }))).flat() || []
 
-  const isFarmV2Available = !!farmV2
+  const isFarmV2Available = !!farmV2S?.length
 
   const [showFarmRangeSelect, setShowFarmRangeSelect] = useState(() => isFarmV2Available)
   const [searchParams, setSearchParams] = useSearchParams()
   const activeRangeIndex = Number(searchParams.get('farmRange') || '0')
-  const range = activeRanges.find(i => i.index === activeRangeIndex)
+  const defaultFId = Number(searchParams.get('fId') || '0')
+  const range = activeRanges.find(i => i.index === activeRangeIndex && i.farm.fId === defaultFId)
 
   const canJoinFarm =
     isFarmV2Available &&
@@ -928,7 +931,7 @@ export default function AddLiquidity() {
   const [shownTooltip, setShownTooltip] = useState<RANGE | null>(null)
   const pairFactor = usePairFactor([tokenA, tokenB])
 
-  const isReverseWithFarm = baseCurrency?.wrapped.address !== farmV2?.token0.wrapped.address
+  const isReverseWithFarm = baseCurrency?.wrapped.address !== farmV2S?.[0]?.token0.wrapped.address
 
   const chart = (
     <ChartWrapper ref={chartRef}>
@@ -1001,34 +1004,35 @@ export default function AddLiquidity() {
                   </>
                 )}
               </Flex>
-              {showFarmRangeSelect && !!farmV2 && (
+              {showFarmRangeSelect && !!activeRanges.length && farmV2S?.[0] && (
                 <Flex sx={{ gap: '8px' }} flexWrap="wrap">
-                  {farmV2.ranges.map(range => {
+                  {activeRanges.map(range => {
                     if (range.isRemoved) return null
                     return (
                       <RangeBtn
                         style={{ width: 'fit-content' }}
-                        key={range.index}
+                        key={range.farm.fId + '_' + range.index}
                         onClick={() => {
                           searchParams.set('farmRange', range.index.toString())
+                          searchParams.set('fId', range.farm.fId.toString())
                           setSearchParams(searchParams)
                           onFarmRangeSelected(+range.tickLower, +range.tickUpper)
                         }}
-                        isSelected={activeRangeIndex === range.index}
+                        isSelected={activeRangeIndex === range.index && defaultFId === range.farm.fId}
                       >
                         <Flex alignItems="center" sx={{ gap: '2px' }}>
                           {convertTickToPrice(
-                            isReverseWithFarm ? farmV2.token1 : farmV2.token0,
-                            isReverseWithFarm ? farmV2.token0 : farmV2.token1,
+                            isReverseWithFarm ? farmV2S[0].token1 : farmV2S[0].token0,
+                            isReverseWithFarm ? farmV2S[0].token0 : farmV2S[0].token1,
                             isReverseWithFarm ? range.tickUpper : range.tickLower,
-                            farmV2.pool.fee,
+                            farmV2S[0].pool.fee,
                           )}
                           <TwoWayArrow />
                           {convertTickToPrice(
-                            isReverseWithFarm ? farmV2.token1 : farmV2.token0,
-                            isReverseWithFarm ? farmV2.token0 : farmV2.token1,
+                            isReverseWithFarm ? farmV2S[0].token1 : farmV2S[0].token0,
+                            isReverseWithFarm ? farmV2S[0].token0 : farmV2S[0].token1,
                             isReverseWithFarm ? range.tickLower : range.tickUpper,
-                            farmV2.pool.fee,
+                            farmV2S[0].pool.fee,
                           )}
                         </Flex>
                       </RangeBtn>
@@ -1314,11 +1318,22 @@ export default function AddLiquidity() {
   )
 
   useEffect(() => {
-    if (isFarmV2Available && range?.tickUpper && range?.tickUpper) {
+    if (isFarmV2Available) {
       setShowFarmRangeSelect(true)
-      onFarmRangeSelected(range.tickLower, range.tickUpper)
     } else setShowFarmRangeSelect(false)
-  }, [isFarmV2Available, range?.tickUpper, range?.tickLower, onFarmRangeSelected])
+  }, [isFarmV2Available])
+
+  useEffect(() => {
+    if (
+      isFarmV2Available &&
+      range?.tickUpper &&
+      range?.tickUpper &&
+      !positionsState[pIndex].leftRangeTypedValue &&
+      !positionsState[pIndex].rightRangeTypedValue
+    ) {
+      onFarmRangeSelected(range.tickLower, range.tickUpper)
+    }
+  }, [isFarmV2Available, range?.tickUpper, range?.tickLower, onFarmRangeSelected, positionsState, pIndex])
 
   if (!isEVM) return <Navigate to="/" />
 
