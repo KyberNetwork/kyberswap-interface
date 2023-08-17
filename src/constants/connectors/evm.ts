@@ -6,6 +6,8 @@ import { GnosisSafe } from '@web3-react/gnosis-safe'
 import { MetaMask } from '@web3-react/metamask'
 import { WalletConnect as WalletConnectV2 } from '@web3-react/walletconnect-v2'
 
+import WC_BG from 'assets/images/wc-bg.png'
+import Kyber from 'assets/svg/kyber/logo_kyberswap_with_padding.svg'
 import { WALLETCONNECT_PROJECT_ID } from 'constants/env'
 import {
   NETWORKS_INFO,
@@ -48,6 +50,11 @@ export const [walletConnectV2, walletConnectV2Hooks] = initializeConnector<Walle
           themeMode: darkmode ? 'dark' : 'light',
           themeVariables: {
             '--w3m-z-index': '1000',
+            '--w3m-logo-image-url': Kyber,
+            '--w3m-background-image-url': WC_BG,
+            '--w3m-accent-color': '#31CB9E',
+            '--w3m-accent-fill-color': '#222222',
+            '--w3m-color-bg-1': '#0F0F0F',
           },
         },
         metadata: {
