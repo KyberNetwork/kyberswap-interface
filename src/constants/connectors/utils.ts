@@ -1,6 +1,11 @@
 import { captureMessage } from '@sentry/react'
 
+import { ENV_LEVEL } from 'constants/env'
+import { ENV_TYPE } from 'constants/type'
 import checkForBraveBrowser from 'utils/checkForBraveBrowser'
+
+ENV_LEVEL == ENV_TYPE.ADPR &&
+  captureMessage('Injected window.ethereum', { level: 'info', extra: { 'window.ethereum': window.ethereum } })
 
 export const getIsInjected = () => Boolean(window.ethereum)
 
@@ -13,6 +18,7 @@ const allNonMetamaskFlags = [
   'isCoin98',
   'isKrystal',
   'isKrystalWallet',
+  'isBlocto',
 ] as const
 export const getIsMetaMaskWallet = () =>
   Boolean(window.ethereum?.isMetaMask && !allNonMetamaskFlags.some(flag => window.ethereum?.[flag]))
@@ -20,8 +26,7 @@ export const getIsMetaMaskWallet = () =>
 export const getIsRabbyWallet = () => Boolean(window.ethereum?.isRabby)
 
 export const getIsBloctoWallet = () => {
-  captureMessage('blocto eth:', { level: 'info', extra: { 'window.ethereum': window.ethereum } })
-  return Boolean(window.ethereum?.isRabby)
+  return Boolean(window.ethereum?.isBlocto)
 }
 
 export const getIsKrystalWallet = () =>
@@ -47,6 +52,7 @@ export const getIsGenericInjector = () =>
   !getIsC98Wallet() &&
   !getIsRabbyWallet() &&
   !getIsKrystalWallet() &&
+  !getIsBloctoWallet() &&
   !getIsTrustWallet()
 
 // https://eips.ethereum.org/EIPS/eip-1193#provider-errors
