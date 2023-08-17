@@ -1,4 +1,4 @@
-import { captureEvent, captureMessage } from '@sentry/react'
+import { captureMessage } from '@sentry/react'
 
 import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
