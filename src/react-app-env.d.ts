@@ -10,6 +10,7 @@ interface Window {
     isMetaMask?: boolean
     isCoin98?: boolean
     isBraveWallet?: any
+    isPhantom?: any
     isCoinbaseWallet?: boolean
     isTrust?: boolean
     isTrustWallet?: boolean
