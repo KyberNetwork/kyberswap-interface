@@ -4,8 +4,10 @@ import { ENV_LEVEL } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
 import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
-ENV_LEVEL == ENV_TYPE.ADPR &&
+if (ENV_LEVEL == ENV_TYPE.ADPR) {
+  console.log('capturing Injected window.ethereum', { level: 'info', extra: { 'window.ethereum': window.ethereum } })
   captureMessage('Injected window.ethereum', { level: 'info', extra: { 'window.ethereum': window.ethereum } })
+}
 
 export const getIsInjected = () => Boolean(window.ethereum)
 
