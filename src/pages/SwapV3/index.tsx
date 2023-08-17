@@ -8,7 +8,6 @@ import styled from 'styled-components'
 
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import Banner from 'components/Banner'
-import { SEOSwap } from 'components/SEO'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import TokenWarningModal from 'components/TokenWarningModal'
 import TutorialSwap from 'components/Tutorial/TutorialSwap'
@@ -21,7 +20,6 @@ import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import PairSuggestion, { PairSuggestionHandle } from 'components/swapv2/PairSuggestion'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TokenInfoTab from 'components/swapv2/TokenInfo'
-import TokenInfoV2 from 'components/swapv2/TokenInfoV2'
 import {
   Container,
   InfoComponentsWrapper,
@@ -48,11 +46,9 @@ import { useLimitActionHandlers } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
 import { useDefaultsFromURLSearch, useSwapActionHandlers } from 'state/swap/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import { useShowKyberAIBanner, useShowLiveChart, useShowTokenInfo, useShowTradeRoutes } from 'state/user/hooks'
+import { useShowKyberAIBanner, useShowLiveChart, useShowTradeRoutes } from 'state/user/hooks'
 import { DetailedRouteSummary } from 'types/route'
 import { getTradeComposition } from 'utils/aggregationRouting'
-import { getSymbolSlug } from 'utils/string'
-import { checkPairInWhiteList } from 'utils/tokenInfo'
 
 import KyberAIWidget from '../TrueSightV2/components/KyberAIWidget'
 import PopulatedSwapForm from './PopulatedSwapForm'
@@ -107,7 +103,6 @@ export default function Swap() {
   const { chainId } = useActiveWeb3React()
   const isShowLiveChart = useShowLiveChart()
   const isShowTradeRoutes = useShowTradeRoutes()
-  const isShowTokenInfoSetting = useShowTokenInfo()
   const isShowKyberAIBanner = useShowKyberAIBanner()
   const qs = useParsedQueryString<{ highlightBox: string }>()
   const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
@@ -202,15 +197,7 @@ export default function Swap() {
 
   const isLoadedTokenDefault = useIsLoadedTokenDefault()
 
-  const { isInWhiteList: isPairInWhiteList, canonicalUrl } = checkPairInWhiteList(
-    chainId,
-    getSymbolSlug(currencyIn),
-    getSymbolSlug(currencyOut),
-  )
-
   const onBackToSwapTab = () => setActiveTab(getDefaultTab())
-
-  const shouldRenderTokenInfo = isShowTokenInfoSetting && currencyIn && currencyOut && isPairInWhiteList && isSwapPage
 
   const isShowModalImportToken =
     !isCrossChainPage && isLoadedTokenDefault && importTokensNotInDefault.length > 0 && showingPairSuggestionImport
@@ -221,12 +208,7 @@ export default function Swap() {
 
   return (
     <>
-      {isSwapPage && (
-        <>
-          <SEOSwap canonicalUrl={canonicalUrl} />
-          <TutorialSwap />
-        </>
-      )}
+      {isSwapPage && <TutorialSwap />}
       <TokenWarningModal
         isOpen={isShowModalImportToken}
         tokens={importTokensNotInDefault}
@@ -353,7 +335,6 @@ export default function Swap() {
               </RoutesWrapper>
             )}
             {isLimitPage && <ListLimitOrder ref={refListLimitOrder} />}
-            {shouldRenderTokenInfo && <TokenInfoV2 currencyIn={currencyIn} currencyOut={currencyOut} />}
             {isCrossChainPage && <CrossChainTransfersHistory />}
           </InfoComponents>
         </Container>
