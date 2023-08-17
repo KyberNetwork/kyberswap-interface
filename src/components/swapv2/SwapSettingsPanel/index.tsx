@@ -16,11 +16,9 @@ import useTheme from 'hooks/useTheme'
 import {
   useShowKyberAIBanner,
   useShowLiveChart,
-  useShowTokenInfo,
   useShowTradeRoutes,
   useToggleKyberAIBanner,
   useToggleLiveChart,
-  useToggleTokenInfo,
   useToggleTradeRoutes,
 } from 'state/user/hooks'
 
@@ -59,12 +57,10 @@ const SettingsPanel: React.FC<Props> = ({
 
   const { mixpanelHandler } = useMixpanel()
   const isShowTradeRoutes = useShowTradeRoutes()
-  const isShowTokenInfo = useShowTokenInfo()
   const isShowLiveChart = useShowLiveChart()
   const isShowKyberAIBanner = useShowKyberAIBanner()
   const toggleLiveChart = useToggleLiveChart()
   const toggleTradeRoutes = useToggleTradeRoutes()
-  const toggleTokenInfo = useToggleTokenInfo()
   const toggleKyberAIBanner = useToggleKyberAIBanner()
 
   const handleToggleLiveChart = () => {
@@ -172,26 +168,6 @@ const SettingsPanel: React.FC<Props> = ({
                     </RowFixed>
                     <Toggle isActive={isShowTradeRoutes} toggle={handleToggleTradeRoute} />
                   </RowBetween>
-                  {isSwapPage && (
-                    <RowBetween>
-                      <RowFixed>
-                        <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
-                          <MouseoverTooltip text={<Trans>Turn on to display token info</Trans>} placement="right">
-                            <Trans>Token Info</Trans>
-                          </MouseoverTooltip>
-                        </TextDashed>
-                      </RowFixed>
-                      <Toggle
-                        isActive={isShowTokenInfo}
-                        toggle={() => {
-                          mixpanelHandler(MIXPANEL_TYPE.SWAP_DISPLAY_SETTING_CLICK, {
-                            display_setting: isShowTokenInfo ? 'Token Info Off' : 'Token Info On',
-                          })
-                          toggleTokenInfo()
-                        }}
-                      />
-                    </RowBetween>
-                  )}
                 </>
               )}
             </AutoColumn>

@@ -39,7 +39,6 @@ export const removeSerializedPair = createAction<{ chainId: number; tokenAAddres
 export const toggleLiveChart = createAction('user/toggleLiveChart')
 
 export const toggleTradeRoutes = createAction<void>('user/toggleTradeRoutes')
-export const toggleTokenInfo = createAction<void>('user/toggleTokenInfo')
 export const toggleKyberAIBanner = createAction<void>('user/toggleKyberAIBanner')
 
 export const toggleTopTrendingTokens = createAction<void>('user/toggleTopTrendingTokens')

@@ -39,7 +39,6 @@ import {
   toggleKyberAIWidget,
   toggleLiveChart,
   toggleMyEarningChart,
-  toggleTokenInfo,
   toggleTopTrendingTokens,
   toggleTradeRoutes,
   updateAcceptedTermVersion,
@@ -347,10 +346,6 @@ export function useShowTradeRoutes(): boolean {
   return showTradeRoutes
 }
 
-export function useShowTokenInfo(): boolean {
-  return useSelector((state: AppState) => state.user.showTokenInfo) ?? true
-}
-
 export function useShowKyberAIBanner(): boolean {
   return useSelector((state: AppState) => state.user.showKyberAIBanner) ?? true
 }
@@ -374,10 +369,6 @@ export function useToggleTradeRoutes(): () => void {
   return useCallback(() => dispatch(toggleTradeRoutes()), [dispatch])
 }
 
-export function useToggleTokenInfo(): () => void {
-  const dispatch = useDispatch<AppDispatch>()
-  return useCallback(() => dispatch(toggleTokenInfo()), [dispatch])
-}
 export function useToggleKyberAIBanner(): () => void {
   const dispatch = useDispatch<AppDispatch>()
   return useCallback(() => dispatch(toggleKyberAIBanner()), [dispatch])
