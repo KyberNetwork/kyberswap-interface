@@ -134,7 +134,8 @@ const store = configureStore({
       .concat(routeApi.middleware)
       .concat(earningApi.middleware)
       .concat(socialApi.middleware)
-      .concat(tokenApi.middleware),
+      .concat(tokenApi.middleware)
+      .concat(blockServiceApi.middleware),
   preloadedState,
 })
 

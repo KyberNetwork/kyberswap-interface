@@ -6,7 +6,6 @@ import styled from 'styled-components'
 import { ButtonPrimary } from 'components/Button'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { Dots } from 'components/swapv2/styleds'
-import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useDegenModeManager } from 'state/user/hooks'
 import { checkShouldDisableByPriceImpact } from 'utils/priceImpact'
@@ -50,7 +49,6 @@ export const SwapButtonWithPriceImpact = ({
   showTooltipPriceImpact?: boolean
 }) => {
   const theme = useTheme()
-  const { chainId } = useActiveWeb3React()
   const [isDegenMode] = useDegenModeManager()
   const priceImpactResult = checkPriceImpact(priceImpact)
 
@@ -74,7 +72,7 @@ export const SwapButtonWithPriceImpact = ({
     )
   }
 
-  const shouldDisableByPriceImpact = checkShouldDisableByPriceImpact(chainId, isDegenMode, priceImpact)
+  const shouldDisableByPriceImpact = checkShouldDisableByPriceImpact(isDegenMode, priceImpact)
   const shouldDisable = !route || !isApproved || shouldDisableByPriceImpact || disabled
 
   if ((priceImpactResult.isVeryHigh || priceImpactResult.isInvalid) && isDegenMode) {

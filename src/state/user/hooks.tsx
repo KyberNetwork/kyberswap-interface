@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useGetParticipantInfoQuery } from 'services/kyberAISubscription'
 
 import { SUGGESTED_BASES } from 'constants/bases'
-import { DEFAULT_SLIPPAGE_TESTNET, TERM_FILES_PATH } from 'constants/index'
+import { TERM_FILES_PATH } from 'constants/index'
 import { SupportedLocale } from 'constants/locales'
 import { PINNED_PAIRS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -39,7 +39,6 @@ import {
   toggleKyberAIWidget,
   toggleLiveChart,
   toggleMyEarningChart,
-  toggleTokenInfo,
   toggleTopTrendingTokens,
   toggleTradeRoutes,
   updateAcceptedTermVersion,
@@ -49,7 +48,6 @@ import {
   updateUserDegenMode,
   updateUserLocale,
   updateUserSlippageTolerance,
-  updateUserSlippageToleranceForLineaTestnet,
 } from 'state/user/actions'
 import { CROSS_CHAIN_SETTING_DEFAULT, CrossChainSetting, VIEW_MODE } from 'state/user/reducer'
 import { isAddress, isChristmasTime } from 'utils'
@@ -154,23 +152,15 @@ export function useDegenModeManager(): [boolean, () => void] {
 
 export function useUserSlippageTolerance(): [number, (slippage: number) => void] {
   const dispatch = useDispatch<AppDispatch>()
-  const { chainId } = useActiveWeb3React()
-  const isLineaTestnet = chainId === ChainId.LINEA_TESTNET
   const userSlippageTolerance = useSelector<AppState, AppState['user']['userSlippageTolerance']>(state => {
-    return isLineaTestnet
-      ? state.user.userSlippageToleranceForLineaTestnet || DEFAULT_SLIPPAGE_TESTNET
-      : state.user.userSlippageTolerance
+    return state.user.userSlippageTolerance
   })
 
   const setUserSlippageTolerance = useCallback(
     (userSlippageTolerance: number) => {
-      if (isLineaTestnet) {
-        dispatch(updateUserSlippageToleranceForLineaTestnet({ userSlippageTolerance }))
-      } else {
-        dispatch(updateUserSlippageTolerance({ userSlippageTolerance }))
-      }
+      dispatch(updateUserSlippageTolerance({ userSlippageTolerance }))
     },
-    [dispatch, isLineaTestnet],
+    [dispatch],
   )
 
   return [userSlippageTolerance, setUserSlippageTolerance]
@@ -356,10 +346,6 @@ export function useShowTradeRoutes(): boolean {
   return showTradeRoutes
 }
 
-export function useShowTokenInfo(): boolean {
-  return useSelector((state: AppState) => state.user.showTokenInfo) ?? true
-}
-
 export function useShowKyberAIBanner(): boolean {
   return useSelector((state: AppState) => state.user.showKyberAIBanner) ?? true
 }
@@ -383,10 +369,6 @@ export function useToggleTradeRoutes(): () => void {
   return useCallback(() => dispatch(toggleTradeRoutes()), [dispatch])
 }
 
-export function useToggleTokenInfo(): () => void {
-  const dispatch = useDispatch<AppDispatch>()
-  return useCallback(() => dispatch(toggleTokenInfo()), [dispatch])
-}
 export function useToggleKyberAIBanner(): () => void {
   const dispatch = useDispatch<AppDispatch>()
   return useCallback(() => dispatch(toggleKyberAIBanner()), [dispatch])
