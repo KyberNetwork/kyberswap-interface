@@ -3,6 +3,7 @@ import { Web3ReactHooks } from '@web3-react/core'
 import { Connector } from '@web3-react/types'
 import { isMobile } from 'react-device-detect'
 
+import BLOCTO from 'assets/wallets-connect/bocto.svg'
 import BRAVE from 'assets/wallets-connect/brave.svg'
 import COIN98 from 'assets/wallets-connect/coin98.svg'
 import COINBASE from 'assets/wallets-connect/coinbase.svg'
@@ -18,6 +19,8 @@ import WALLETCONNECT from 'assets/wallets-connect/wallet-connect.svg'
 import INJECTED_DARK_ICON from 'assets/wallets/browser-wallet-dark.svg'
 import INJECTED_LIGHT_ICON from 'assets/wallets/browser-wallet-light.svg'
 import {
+  blocto,
+  bloctoHooks,
   brave,
   braveHooks,
   coin98,
@@ -48,6 +51,7 @@ import {
   solflareAdapter,
 } from 'constants/connectors/solana'
 import {
+  getIsBloctoWallet,
   getIsBraveWallet,
   getIsC98Wallet,
   getIsCoinbaseWallet,
@@ -66,6 +70,11 @@ const detectInjected = (): WalletReadyState => {
 
 const detectMetamask = (): WalletReadyState => {
   if (getIsMetaMaskWallet()) return WalletReadyState.Installed
+  return WalletReadyState.NotDetected
+}
+
+const detectBlocto = (): WalletReadyState => {
+  if (getIsBloctoWallet()) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }
 
@@ -156,6 +165,15 @@ export const SUPPORTED_WALLETS = {
     iconLight: METAMASK,
     installLink: 'https://metamask.io/download',
     readyState: detectMetamask,
+  } as EVMWalletInfo,
+  BLOCTO: {
+    connector: blocto,
+    hooks: bloctoHooks,
+    name: 'Blocto',
+    icon: BLOCTO,
+    iconLight: BLOCTO,
+    installLink: 'https://www.blocto.io/download',
+    readyState: detectBlocto,
   } as EVMWalletInfo,
   SAFE: {
     connector: gnosisSafe,

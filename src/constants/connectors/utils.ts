@@ -1,3 +1,5 @@
+import { captureEvent, captureMessage } from '@sentry/react'
+
 import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
 export const getIsInjected = () => Boolean(window.ethereum)
@@ -16,6 +18,11 @@ export const getIsMetaMaskWallet = () =>
   Boolean(window.ethereum?.isMetaMask && !allNonMetamaskFlags.some(flag => window.ethereum?.[flag]))
 
 export const getIsRabbyWallet = () => Boolean(window.ethereum?.isRabby)
+
+export const getIsBloctoWallet = () => {
+  captureMessage('blocto eth:', { level: 'info', extra: { 'window.ethereum': window.ethereum } })
+  return Boolean(window.ethereum?.isRabby)
+}
 
 export const getIsKrystalWallet = () =>
   Boolean(window.ethereum?.isKrystalWallet || (window.ethereum?.isKrystal && !getIsTrustWallet()))

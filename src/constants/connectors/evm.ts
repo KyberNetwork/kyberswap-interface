@@ -22,6 +22,7 @@ export const [gnosisSafe, gnosisSafeHooks] = initializeConnector<GnosisSafe>(act
 export const [coin98, coin98Hooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
 export const [brave, braveHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
 export const [trustWallet, trustWalletHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
+export const [blocto, bloctoHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
 
 const darkmode = Boolean(window.matchMedia('(prefers-color-scheme: dark)'))
 export const [walletConnectV2, walletConnectV2Hooks] = initializeConnector<WalletConnectV2>(
