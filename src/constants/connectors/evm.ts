@@ -46,10 +46,10 @@ export const [walletConnectV2, walletConnectV2Hooks] = initializeConnector<Walle
           themeVariables: {
             '--w3m-z-index': '1000',
             '--w3m-logo-image-url': Kyber,
-            '--w3m-background-color': '#0F2D2D',
             '--w3m-background-image-url': WC_BG,
             '--w3m-accent-color': '#31CB9E',
             '--w3m-accent-fill-color': '#222222',
+            '--w3m-color-bg-1': '#0F0F0F',
           },
         },
         metadata: {
