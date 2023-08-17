@@ -31,7 +31,6 @@ import {
   toggleKyberAIWidget,
   toggleLiveChart,
   toggleMyEarningChart,
-  toggleTokenInfo,
   toggleTradeRoutes,
   updateAcceptedTermVersion,
   updateChainId,
@@ -92,7 +91,6 @@ export interface UserState {
   timestamp: number
   showLiveChart: boolean
   showTradeRoutes: boolean
-  showTokenInfo: boolean
   showKyberAIBanner: boolean
   kyberAIDisplaySettings: {
     [k: string]: boolean
@@ -166,7 +164,6 @@ const initialState: UserState = {
   timestamp: currentTimestamp(),
   showLiveChart: true,
   showTradeRoutes: true,
-  showTokenInfo: true,
   showKyberAIBanner: true,
   kyberAIDisplaySettings: {
     numberOfTrades: true,
@@ -290,9 +287,7 @@ export default createReducer(initialState, builder =>
     .addCase(toggleTradeRoutes, state => {
       state.showTradeRoutes = !state.showTradeRoutes
     })
-    .addCase(toggleTokenInfo, state => {
-      state.showTokenInfo = !state.showTokenInfo
-    })
+
     .addCase(toggleKyberAIBanner, state => {
       state.showKyberAIBanner = !state.showKyberAIBanner
     })
