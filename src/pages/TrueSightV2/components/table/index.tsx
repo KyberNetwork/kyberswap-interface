@@ -23,7 +23,7 @@ import { useActiveWeb3React } from 'hooks'
 import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
-import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
+import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID, Z_INDEX_KYBER_AI } from 'pages/TrueSightV2/constants'
 import useIsReachMaxLimitWatchedToken from 'pages/TrueSightV2/hooks/useIsReachMaxLimitWatchedToken'
 import {
   useAddToWatchlistMutation,
@@ -185,7 +185,7 @@ export const Top10HoldersTable = () => {
       </colgroup>
       <thead>
         <tr>
-          <th style={{ position: 'sticky', zIndex: 2 }}>
+          <th style={{ position: 'sticky', zIndex: Z_INDEX_KYBER_AI.HEADER_TABLE_TOKENS }}>
             <Trans>Address</Trans>
           </th>
           <th>
@@ -199,7 +199,7 @@ export const Top10HoldersTable = () => {
       <tbody>
         {data?.slice(0, 10).map((item: IHolderList, i: number) => (
           <tr key={i}>
-            <td style={{ position: 'sticky', zIndex: 2 }}>
+            <td style={{ position: 'sticky', zIndex: Z_INDEX_KYBER_AI.HEADER_TABLE_TOKENS }}>
               <Column gap="4px">
                 <Text fontSize="14px" lineHeight="20px" color={theme.text}>
                   {shortenAddress(1, item.address)}

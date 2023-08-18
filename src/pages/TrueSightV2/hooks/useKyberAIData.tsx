@@ -15,8 +15,8 @@ import {
   ITokenOverview,
   ITokenSearchResult,
   ITradingVolume,
-  KyberAIListType,
   OHLCData,
+  QueryTokenParams,
 } from '../types'
 
 const kyberAIApi = createApi({
@@ -27,20 +27,11 @@ const kyberAIApi = createApi({
   tagTypes: ['tokenOverview', 'tokenList', 'myWatchList'],
   endpoints: builder => ({
     //1.
-    tokenList: builder.query<
-      { data: ITokenList[]; totalItems: number },
-      {
-        type?: KyberAIListType
-        chain?: string
-        page?: number
-        pageSize?: number
-        watchlist?: boolean
-        keywords?: string
-      }
-    >({
-      query: ({ type, chain, page, pageSize, watchlist, keywords }) => ({
+    tokenList: builder.query<{ data: ITokenList[]; totalItems: number }, QueryTokenParams>({
+      query: ({ type, chain, page, pageSize, watchlist, keywords, ...filter }) => ({
         url: '/tokens',
         params: {
+          ...filter,
           type: type || 'all',
           chain: chain || 'all',
           page: page || 1,

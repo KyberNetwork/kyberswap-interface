@@ -213,3 +213,12 @@ export enum KyberAIListType {
   // TOP_SOCIAL = 'TOP_SOCIAL',
   TRENDING_SOON = 'TRENDINGSOON',
 }
+
+export type QueryTokenParams = {
+  type?: KyberAIListType
+  chain?: string
+  page?: number
+  pageSize?: number
+  watchlist?: boolean
+  keywords?: string
+}

@@ -69,3 +69,8 @@ export enum KYBERAI_CHART_ID {
   PRICE_CHART = 'priceChart',
   LIQUID_ON_CEX = 'liquidOnCEX',
 }
+
+export const Z_INDEX_KYBER_AI = {
+  HEADER_TABLE_TOKENS: 2,
+  FILTER_TOKEN_OPTIONS: 3,
+}

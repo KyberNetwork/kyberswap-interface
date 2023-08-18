@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import React, { CSSProperties, ReactNode, useLayoutEffect, useRef, useState } from 'react'
+import React, { CSSProperties, ReactNode, forwardRef, useLayoutEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useParams } from 'react-router'
 import { useMedia } from 'react-use'
@@ -115,7 +115,7 @@ export const SectionWrapper = ({
   subTitle,
   description,
   id,
-  docsLinks,
+  docsLinks = [],
   shareContent,
   fullscreenButton,
   tabs,
@@ -420,7 +420,7 @@ export const SectionWrapper = ({
   )
 }
 
-const StyledMobileTabButton = styled.div<{ active?: boolean }>`
+const StyledMobileTabButton = styled.div<{ active?: boolean; separator?: boolean }>`
   font-size: 12px;
   line-height: 16px;
   transition: all 0.2s ease;
@@ -431,6 +431,20 @@ const StyledMobileTabButton = styled.div<{ active?: boolean }>`
   flex: 1;
   box-sizing: border-box;
   cursor: pointer;
+
+  ${({ theme, separator, active }) =>
+    separator &&
+    !active &&
+    css`
+      position: relative;
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        height: 16px;
+        border: 1px solid ${theme.border};
+      }
+    `}
   ${({ theme, active }) =>
     active
       ? css`
@@ -447,31 +461,14 @@ const StyledMobileTabButton = styled.div<{ active?: boolean }>`
     filter: brightness(1.2);
   }
 `
-
-export const TabButton = ({
-  text,
-  active,
-  onClick,
-  style,
-}: {
-  text?: string
-  active?: boolean
-  onClick?: () => void
-  style?: CSSProperties
-}) => {
-  const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-
+type Props = { text?: string; active?: boolean; onClick?: () => void; style?: CSSProperties; separator?: boolean }
+export const TabButton = forwardRef<HTMLDivElement, Props>(function TabButton(
+  { text, active, onClick, style, separator },
+  ref,
+) {
   return (
-    <>
-      {above768 ? (
-        <StyledMobileTabButton active={active} onClick={onClick} style={style}>
-          {text}
-        </StyledMobileTabButton>
-      ) : (
-        <StyledMobileTabButton active={active} onClick={onClick} style={style}>
-          {text}
-        </StyledMobileTabButton>
-      )}
-    </>
+    <StyledMobileTabButton active={active} onClick={onClick} style={style} separator={separator} ref={ref}>
+      {text}
+    </StyledMobileTabButton>
   )
-}
+})

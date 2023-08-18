@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
-import { ReactNode, useEffect, useRef, useState } from 'react'
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
@@ -13,7 +13,7 @@ import { Text } from 'rebass'
 import styled, { DefaultTheme, css } from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
-import { ButtonGray, ButtonLight, ButtonOutlined } from 'components/Button'
+import { ButtonGray } from 'components/Button'
 import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
 import AnimatedLoader from 'components/Loader/AnimatedLoader'
@@ -25,6 +25,8 @@ import { useActiveWeb3React } from 'hooks'
 import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
+import { StyledSectionWrapper, TabButton } from 'pages/TrueSightV2/components'
+import TokenFilter from 'pages/TrueSightV2/components/TokenFilter'
 import { MEDIA_WIDTHS } from 'theme'
 
 import ChevronIcon from '../components/ChevronIcon'
@@ -42,7 +44,7 @@ import TokenAnalysisListShareContent from '../components/shareContent/TokenAnaly
 import { KYBERAI_LISTYPE_TO_MIXPANEL, SUPPORTED_NETWORK_KYBERAI } from '../constants'
 import useIsReachMaxLimitWatchedToken from '../hooks/useIsReachMaxLimitWatchedToken'
 import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation, useTokenListQuery } from '../hooks/useKyberAIData'
-import { IKyberScoreChart, ITokenList, KyberAIListType } from '../types'
+import { IKyberScoreChart, ITokenList, KyberAIListType, QueryTokenParams } from '../types'
 import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice, navigateToSwapPage } from '../utils'
 
 const TableWrapper = styled.div`
@@ -209,8 +211,6 @@ const TabWrapper = styled.div`
   cursor: grab;
   display: inline-flex;
   width: fit-content;
-  gap: 8px;
-  padding: 1px;
   position: relative;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
@@ -230,42 +230,6 @@ const TabWrapper = styled.div`
     min-width: initial;
     flex:1;
   `}
-`
-
-const ButtonTypeActive = styled(ButtonLight)`
-  height: 36px;
-  margin: 0 !important;
-  display: flex;
-  gap: 4px;
-  font-size: 14px;
-  white-space: nowrap;
-  border: 1px solid ${({ theme }) => theme.primary};
-  background-color: ${({ theme }) => rgba(theme.primary, 0.33)};
-  transition: all 0.1s ease;
-  flex: 1;
-  :hover {
-    background-color: ${({ theme }) => rgba(theme.primary, 0.5)};
-    filter: none;
-  }
-`
-
-const ButtonTypeInactive = styled(ButtonOutlined)`
-  height: 36px;
-  margin: 0 !important;
-  display: flex;
-  gap: 4px;
-  font-size: 14px;
-  white-space: nowrap;
-  transition: all 0.1s ease;
-  flex: 1;
-
-  ${({ theme }) => css`
-    color: ${theme.subText};
-    border-color: ${theme.subText};
-  `}
-  :hover {
-    background-color: ${({ theme }) => rgba(theme.border, 0.5)};
-  }
 `
 
 const tokenTypeList: {
@@ -353,6 +317,7 @@ const tokenTypeList: {
   },
 ]
 
+const ARROW_SIZE = 40
 const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab: (type: KyberAIListType) => void }) => {
   const theme = useTheme()
   const mixpanelHandler = useMixpanelKyberAI()
@@ -394,11 +359,9 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab:
 
   useEffect(() => {
     const handleResize = () => {
-      if (wrapperRef.current?.clientWidth && wrapperRef.current?.clientWidth < wrapperRef.current?.scrollWidth) {
-        setShowScrollRightButton(true)
-      } else {
-        setShowScrollRightButton(false)
-      }
+      setShowScrollRightButton(
+        Boolean(wrapperRef.current?.clientWidth && wrapperRef.current?.clientWidth < wrapperRef.current?.scrollWidth),
+      )
     }
     handleResize()
     window.addEventListener('resize', handleResize)
@@ -407,10 +370,17 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab:
     }
   }, [])
 
+  const indexActive = tokenTypeList.findIndex(e => e.type === tab)
+
   return (
-    <>
-      <TabWrapper ref={wrapperRef} onScrollCapture={e => e.preventDefault()} {...bind()}>
-        {tokenTypeList.map(({ type, title, icon, tooltip }, index) => {
+    <Row gap="8px" style={{ position: 'relative' }}>
+      <TabWrapper
+        ref={wrapperRef}
+        onScrollCapture={e => e.preventDefault()}
+        {...bind()}
+        style={{ paddingRight: showScrollRightButton ? ARROW_SIZE : undefined }}
+      >
+        {tokenTypeList.map(({ type, title, tooltip }, index) => {
           const props = {
             onClick: () => {
               mixpanelHandler(MIXPANEL_TYPE.KYBERAI_RANKING_CATEGORY_CLICK, {
@@ -430,36 +400,46 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab:
               }
             },
           }
-          if (tab === type) {
-            return (
-              <SimpleTooltip key={type} text={tooltip?.(theme)} delay={500} hideOnMobile>
-                <ButtonTypeActive {...props} ref={el => (tabListRef.current[index] = el)}>
-                  {icon && <Icon id={icon} size={16} />}
-                  {title}
-                </ButtonTypeActive>
-              </SimpleTooltip>
-            )
-          } else {
-            return (
-              <SimpleTooltip key={type} text={tooltip?.(theme)} delay={500} hideOnMobile>
-                <ButtonTypeInactive key={type} {...props} ref={el => (tabListRef.current[index] = el)}>
-                  {icon && <Icon id={icon} size={16} />}
-                  {title}
-                </ButtonTypeInactive>
-              </SimpleTooltip>
-            )
-          }
+          return (
+            <SimpleTooltip key={type} text={tooltip?.(theme)} delay={500} hideOnMobile>
+              <TabButton
+                separator={index !== 0 && index !== indexActive + 1}
+                text={title}
+                active={tab === type}
+                key={type}
+                style={{ fontSize: '14px', padding: '0 12px' }}
+                {...props}
+                ref={el => {
+                  if (el) {
+                    tabListRef.current[index] = el
+                  }
+                }}
+              />
+            </SimpleTooltip>
+          )
         })}
       </TabWrapper>
       {showScrollRightButton && (
         <DropdownSVG
-          style={{ transform: 'rotate(-90deg)', cursor: 'pointer', flexShrink: '0' }}
+          style={{
+            transform: 'rotate(-90deg)',
+            cursor: 'pointer',
+            flexShrink: '0',
+            position: 'absolute',
+            background: theme.background,
+            color: theme.text,
+            right: 0,
+            top: 0,
+            padding: 6,
+            height: ARROW_SIZE,
+            width: ARROW_SIZE,
+          }}
           onClick={() => {
             setScrollLeftValue(prev => prev + 120)
           }}
         />
       )}
-    </>
+    </Row>
   )
 }
 
@@ -753,6 +733,7 @@ const LoadingRowSkeleton = ({ hasExtraCol }: { hasExtraCol?: boolean }) => {
     </>
   )
 }
+
 export default function TokenAnalysisList() {
   const theme = useTheme()
   const mixpanelHandler = useMixpanelKyberAI()
@@ -764,32 +745,44 @@ export default function TokenAnalysisList() {
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
 
   const [searchParams, setSearchParams] = useSearchParams()
-  const listTypeParam = (searchParams.get('listType') as KyberAIListType) || KyberAIListType.BULLISH
-  const page = +(searchParams.get('page') || 1)
-  const chain = searchParams.get('chain') || 'all'
+  // todo refactor
   const pageSize = 25
+  const { chain, page, listTypeParam, ...filter } = useMemo(() => {
+    const { page, chain, listType, ...filter } = Object.fromEntries(searchParams)
+    return {
+      page: +page || 1,
+      listTypeParam: (listType as KyberAIListType) || KyberAIListType.BULLISH,
+      chain: chain || 'all',
+      ...filter,
+    }
+  }, [searchParams])
 
-  const { data, isLoading, isFetching, isError } = useTokenListQuery(
-    listTypeParam === KyberAIListType.MYWATCHLIST
-      ? {
-          type: KyberAIListType.ALL,
-          chain: (chain && SUPPORTED_NETWORK_KYBERAI[Number(chain) as ChainId]) || 'all',
-          page,
-          pageSize,
-          watchlist: true,
-        }
-      : {
-          type: listTypeParam,
-          chain: (chain && SUPPORTED_NETWORK_KYBERAI[Number(chain) as ChainId]) || 'all',
-          page,
-          pageSize,
-        },
-  )
+  const queryParams = useMemo(() => {
+    const params: QueryTokenParams = {
+      page,
+      pageSize,
+      chain: (chain && SUPPORTED_NETWORK_KYBERAI[Number(chain) as ChainId]) || 'all',
+      ...filter,
+    }
+    if (listTypeParam === KyberAIListType.MYWATCHLIST) {
+      params.watchlist = true
+      params.type = KyberAIListType.ALL
+    } else {
+      params.type = listTypeParam
+    }
+    return params
+  }, [chain, page, listTypeParam, filter])
+
+  const { data, isLoading, isFetching, isError } = useTokenListQuery(queryParams)
   const listData = data?.data || []
 
   const handleTabChange = (tab: KyberAIListType) => {
     searchParams.set('listType', tab)
     searchParams.set('page', '1')
+    setSearchParams(searchParams)
+  }
+  const handleFilterChange = (filter: Record<string, string>) => {
+    Object.entries(filter).forEach(([key, value]) => searchParams.set(key, value))
     setSearchParams(searchParams)
   }
   const handlePageChange = (page: number) => {
@@ -838,11 +831,11 @@ export default function TokenAnalysisList() {
     }
   }, [isFetching, listTypeParam])
   return (
-    <>
-      <Row gap="8px" justify="center" flexWrap={above768 ? 'nowrap' : 'wrap'}>
-        <TokenListDraggableTabs tab={listTypeParam} setTab={handleTabChange} />
-      </Row>
-      <RowBetween flexDirection={above768 ? 'row' : 'column'} gap="16px">
+    <StyledSectionWrapper style={{ height: 'fit-content', padding: 0 }}>
+      <TokenListDraggableTabs tab={listTypeParam} setTab={handleTabChange} />
+
+      <TokenFilter handleFilterChange={handleFilterChange} />
+      <RowBetween flexDirection={above768 ? 'row' : 'column'} gap="16px" padding={'0 16px'}>
         <Column gap="8px">
           <Text fontSize="12px" color={theme.subText} fontWeight={500}>
             <Trans>Rankings will be updated every 4 hours</Trans>
@@ -870,6 +863,7 @@ export default function TokenAnalysisList() {
           <NetworkSelect filter={Number(chain) as ChainId} setFilter={handleChainChange} />
         </RowFit>
       </RowBetween>
+
       <Column gap="0px" style={{ position: 'relative' }}>
         {isFetching && (
           <div
@@ -1100,6 +1094,6 @@ export default function TokenAnalysisList() {
         }
       />
       <FeedbackSurvey />
-    </>
+    </StyledSectionWrapper>
   )
 }
