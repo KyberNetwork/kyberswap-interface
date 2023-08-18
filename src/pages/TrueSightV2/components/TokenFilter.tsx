@@ -1,12 +1,17 @@
-import { useState } from 'react'
+import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ReactNode, useState } from 'react'
 import { Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
+import { ButtonGray } from 'components/Button'
 import Column from 'components/Column'
-import Row from 'components/Row'
+import Icon from 'components/Icons/Icon'
+import { RowBetween, RowFit } from 'components/Row'
 import Select, { SelectOption } from 'components/Select'
 import useTheme from 'hooks/useTheme'
-import { Z_INDEX_KYBER_AI } from 'pages/TrueSightV2/constants'
+import MultipleChainSelect from 'pages/MyEarnings/MultipleChainSelect'
+import SubscribeButtonKyberAI from 'pages/TrueSightV2/components/SubscireButtonKyberAI'
+import { NETWORK_TO_CHAINID, Z_INDEX_KYBER_AI } from 'pages/TrueSightV2/constants'
 
 const categories: { [key: string]: SelectOption[] } = {
   categories: [
@@ -40,15 +45,29 @@ const categories: { [key: string]: SelectOption[] } = {
   ],
 }
 
-const StyledSelect = styled(Select)`
+const shareStyle = css`
   border: 1px solid ${({ theme }) => theme.border};
   border-radius: 16px;
+  height: 60px !important;
+`
+
+const StyledSelect = styled(Select)`
+  ${shareStyle}
+`
+
+const StyledChainSelect = styled(MultipleChainSelect)`
+  ${shareStyle}
+  padding: 12px;
 `
 
 export default function TokenFilter({
   handleFilterChange,
+  handleChainChange,
+  setShowShare,
 }: {
   handleFilterChange: (filter: Record<string, string>) => void
+  handleChainChange: (v?: ChainId) => void
+  setShowShare: (v: boolean) => void
 }) {
   const [filter, setFilter] = useState({})
 
@@ -67,28 +86,65 @@ export default function TokenFilter({
     // todo watch list
   ]
 
+  const activeRender = (name: string, label: ReactNode) => (
+    <Column gap="6px">
+      <Text color={theme.subText} fontSize={'10px'}>
+        {name}
+      </Text>
+      <Text color={theme.text} fontSize={'14px'} fontWeight={'500'} className="test">
+        {label}
+      </Text>
+    </Column>
+  )
+
   const theme = useTheme()
+  const [selectedChains, setSelectChains] = useState<ChainId[]>(Object.values(NETWORK_TO_CHAINID))
+
   return (
-    <Row gap="12px" padding={'0 16px'}>
-      {listSelects.map(({ key, label }) => (
-        <StyledSelect
-          key={key}
-          activeRender={item => (
-            <Column gap="6px">
-              <Text color={theme.subText} fontSize={'10px'}>
-                {label}
-              </Text>
-              <Text color={theme.text} fontSize={'14px'}>
-                {item?.label}
-              </Text>
-            </Column>
-          )}
-          options={categories[key]}
-          onChange={value => onChangeFilter(key, value)}
-          optionStyle={{ fontSize: '14px' }}
-          menuStyle={{ zIndex: Z_INDEX_KYBER_AI.FILTER_TOKEN_OPTIONS, top: '60px' }}
+    <RowBetween width={'100%'} align="center" padding={'0 16px'}>
+      <RowFit gap="12px">
+        <StyledChainSelect
+          menuStyle={{ left: 0 }}
+          activeStyle={{
+            backgroundColor: 'transparent',
+            padding: 0,
+          }}
+          labelColor={theme.text}
+          handleChangeChains={setSelectChains}
+          chainIds={Object.values(NETWORK_TO_CHAINID)}
+          selectedChainIds={selectedChains}
+          activeRender={node => activeRender('Chains', node)}
         />
-      ))}
-    </Row>
+        {listSelects.map(({ key, label }) => (
+          <StyledSelect
+            key={key}
+            activeRender={item => activeRender(label, item?.label)}
+            options={categories[key]}
+            onChange={value => onChangeFilter(key, value)}
+            optionStyle={{ fontSize: '14px' }}
+            menuStyle={{ zIndex: Z_INDEX_KYBER_AI.FILTER_TOKEN_OPTIONS, top: '60px' }}
+          />
+        ))}
+      </RowFit>
+
+      <RowFit gap="12px" alignSelf={'flex-end'} height={'60px'}>
+        <ButtonGray
+          color={theme.subText}
+          gap="4px"
+          width="36px"
+          height="36px"
+          padding="6px"
+          style={{
+            filter: 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16))',
+            flexShrink: 0,
+            backgroundColor: theme.background,
+          }}
+          onClick={() => setShowShare(true)}
+        >
+          <Icon size={16} id="share" />
+        </ButtonGray>
+        <SubscribeButtonKyberAI source="ranking" />
+      </RowFit>
+    </RowBetween>
   )
 }

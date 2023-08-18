@@ -1,7 +1,6 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { rgba } from 'polished'
 import { MouseEventHandler, useEffect, useRef, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -9,21 +8,10 @@ import { ReactComponent as LogoKyber } from 'assets/svg/logo_kyber.svg'
 import { ButtonPrimary } from 'components/Button'
 import Checkbox from 'components/CheckBox'
 import { MouseoverTooltip } from 'components/Tooltip'
-import {
-  COMING_SOON_NETWORKS_FOR_MY_EARNINGS,
-  COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC,
-  COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY,
-  NETWORKS_INFO,
-  SUPPORTED_NETWORKS_FOR_MY_EARNINGS,
-} from 'constants/networks'
-import { VERSION } from 'constants/v2'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
-import { AppState } from 'state'
-import { useAppSelector } from 'state/hooks'
-import { selectChains } from 'state/myEarnings/actions'
 
-import { StyledLogo } from '.'
+import { MultipleChainSelectProps, StyledLogo } from '.'
 
 const ChainListWrapper = styled.div`
   display: flex;
@@ -47,7 +35,7 @@ const ChainListWrapper = styled.div`
 
   /* Handle */
   ::-webkit-scrollbar-thumb {
-    background: ${({ theme }) => theme.buttonBlack};
+    background: ${({ theme }) => rgba(theme.subText, 0.4)};
     border-radius: 999px;
   }
 `
@@ -99,34 +87,25 @@ const ApplyButton: React.FC<ApplyButtonProps> = ({ disabled, onClick, numOfChain
   )
 }
 
-type Props = { onClose: () => void }
-const PopoverBody: React.FC<Props> = ({ onClose }) => {
+const PopoverBody: React.FC<MultipleChainSelectProps & { onClose: () => void }> = ({
+  onClose,
+  comingSoonList = [],
+  chainIds,
+  selectedChainIds,
+  handleChangeChains,
+  onTracking,
+  menuStyle,
+}) => {
   const theme = useTheme()
-  const { mixpanelHandler } = useMixpanel()
   const selectAllRef = useRef<HTMLInputElement>(null)
 
-  const isLegacy = useAppSelector(state => state.myEarnings.activeTab === VERSION.ELASTIC_LEGACY)
-  const isClassic = useAppSelector(state => state.myEarnings.activeTab === VERSION.CLASSIC)
-
-  const comingSoonList = isLegacy
-    ? COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY
-    : isClassic
-    ? COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC
-    : COMING_SOON_NETWORKS_FOR_MY_EARNINGS
-
-  const selectedChains = useSelector((state: AppState) =>
-    state.myEarnings.selectedChains.filter(item => !comingSoonList.includes(item)),
-  )
-  const dispatch = useDispatch()
+  const selectedChains = selectedChainIds.filter(item => !comingSoonList.includes(item))
 
   const [localSelectedChains, setLocalSelectedChains] = useState(() => selectedChains)
 
-  const networkList = SUPPORTED_NETWORKS_FOR_MY_EARNINGS.filter(item => !comingSoonList.includes(item))
+  const networkList = chainIds.filter(item => !comingSoonList.includes(item))
 
   const isAllSelected = localSelectedChains.length === networkList.length
-  const handleChangeChains = (chains: ChainId[]) => {
-    dispatch(selectChains(chains))
-  }
 
   useEffect(() => {
     setLocalSelectedChains(selectedChains)
@@ -144,6 +123,15 @@ const PopoverBody: React.FC<Props> = ({ onClose }) => {
 
   const allNetworks = [...networkList, ...comingSoonList]
 
+  const onChangeChain = () => {
+    if (isAllSelected) {
+      setLocalSelectedChains([])
+    } else {
+      onTracking?.()
+      setLocalSelectedChains(networkList)
+    }
+  }
+
   return (
     <Flex
       sx={{
@@ -156,6 +144,7 @@ const PopoverBody: React.FC<Props> = ({ onClose }) => {
         position: 'absolute',
         top: 'calc(100% + 8px)',
         right: '0',
+        ...menuStyle,
       }}
     >
       <Flex
@@ -165,19 +154,7 @@ const PopoverBody: React.FC<Props> = ({ onClose }) => {
           padding: '4px',
         }}
       >
-        <Checkbox
-          type="checkbox"
-          checked={isAllSelected}
-          ref={selectAllRef}
-          onChange={() => {
-            if (isAllSelected) {
-              setLocalSelectedChains([])
-            } else {
-              mixpanelHandler(MIXPANEL_TYPE.EARNING_DASHBOARD_CLICK_ALL_CHAINS_BUTTON)
-              setLocalSelectedChains(networkList)
-            }
-          }}
-        />
+        <Checkbox type="checkbox" checked={isAllSelected} ref={selectAllRef} onChange={onChangeChain} />
 
         <Flex width="20px" alignItems="center" justifyContent="center">
           <LogoKyber width="14px" height="auto" color={theme.primary} />

@@ -1,6 +1,7 @@
-import { useRef, useState } from 'react'
+import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ReactNode, useRef, useState } from 'react'
 import { Flex } from 'rebass'
-import styled from 'styled-components'
+import styled, { CSSProperties } from 'styled-components'
 
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 
@@ -12,10 +13,20 @@ export const StyledLogo = styled.img`
   height: auto;
 `
 
-type Props = {
+export type MultipleChainSelectProps = {
   className?: string
+  comingSoonList?: ChainId[]
+  chainIds: ChainId[]
+  selectedChainIds: ChainId[]
+  handleChangeChains: (v: ChainId[]) => void
+  onTracking?: () => void
+  menuStyle?: CSSProperties
+  style?: CSSProperties
+  activeStyle?: CSSProperties
+  labelColor?: string
+  activeRender?: (node: ReactNode) => ReactNode
 }
-const MultipleChainSelect: React.FC<Props> = ({ className }) => {
+const MultipleChainSelect: React.FC<MultipleChainSelectProps> = ({ className, style, ...props }) => {
   const [expanded, setExpanded] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -33,19 +44,14 @@ const MultipleChainSelect: React.FC<Props> = ({ className }) => {
         width: '150px',
         height: '36px',
         position: 'relative',
-        zIndex: '2',
+        zIndex: '3',
+        ...style,
       }}
       className={className}
     >
-      <SelectButton expanded={expanded} onClick={() => setExpanded(e => !e)} />
+      <SelectButton expanded={expanded} onClick={() => setExpanded(e => !e)} {...props} />
 
-      {expanded && (
-        <PopoverBody
-          onClose={() => {
-            setExpanded(false)
-          }}
-        />
-      )}
+      {expanded && <PopoverBody onClose={() => setExpanded(false)} {...props} />}
     </Flex>
   )
 }
