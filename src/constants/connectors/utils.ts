@@ -30,7 +30,7 @@ export const getIsMetaMaskWallet = () =>
 
 export const getIsRabbyWallet = () => Boolean(window.ethereum?.isRabby)
 
-export const getIsPhantomWallet = () => Boolean(window.ethereum?.isPhantom)
+export const getIsPhantomWallet = () => Boolean(window.ethereum?.isPhantom && window.phantom?.ethereum?.isPhantom)
 
 export const getIsBloctoWallet = () => Boolean(window.ethereum?.isBlocto)
 

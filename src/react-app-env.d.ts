@@ -10,7 +10,7 @@ interface Window {
     isMetaMask?: boolean
     isCoin98?: boolean
     isBraveWallet?: any
-    isPhantom?: any
+    isPhantom?: boolean
     isCoinbaseWallet?: boolean
     isTrust?: boolean
     isTrustWallet?: boolean
@@ -30,6 +30,9 @@ interface Window {
     }
     providers?: any[]
     autoRefreshOnNetworkChange?: boolean
+  }
+  phantom?: {
+    ethereum?: { isPhantom?: boolean }
   }
   web3?: {
     currentProvider?: {
