@@ -4,7 +4,7 @@ import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Info } from 'react-feather'
+import { ArrowDown, Info } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -823,11 +823,19 @@ export default function TokenAnalysisList() {
     }
     return
   }, [])
+
   useEffect(() => {
     if (!isFetching) {
       setListType(listTypeParam)
     }
   }, [isFetching, listTypeParam])
+
+  const isCexFlowTabs = [
+    KyberAIListType.TOP_CEX_INFLOW,
+    KyberAIListType.TOP_CEX_OUTFLOW,
+    KyberAIListType.TRENDING_SOON,
+  ].includes(listType)
+
   return (
     <>
       <RowBetween gap="8px">
@@ -874,11 +882,7 @@ export default function TokenAnalysisList() {
                 <col style={{ width: '230px', minWidth: 'auto' }} />
                 <col style={{ width: '250px', minWidth: 'auto' }} />
                 <col style={{ width: '250px', minWidth: 'auto' }} />
-                {[
-                  KyberAIListType.TOP_CEX_INFLOW,
-                  KyberAIListType.TOP_CEX_OUTFLOW,
-                  KyberAIListType.TRENDING_SOON,
-                ].includes(listType) && <col style={{ width: '150px', minWidth: 'auto' }} />}
+                {isCexFlowTabs && <col style={{ width: '150px', minWidth: 'auto' }} />}
                 <col style={{ width: '150px', minWidth: 'auto' }} />
                 <col style={{ width: '200px', minWidth: 'auto' }} />
               </colgroup>
@@ -886,8 +890,9 @@ export default function TokenAnalysisList() {
                 <tr>
                   <th>#</th>
                   <th style={{ textAlign: 'left' }} className={isScrolling ? 'table-cell-shadow-right' : ''}>
-                    <Row>
+                    <Row gap="4px">
                       <Trans>Token name</Trans>
+                      <ArrowDown size={16} />
                     </Row>
                   </th>
                   <th style={{ textAlign: 'left' }}>
@@ -909,6 +914,7 @@ export default function TokenAnalysisList() {
                         >
                           <Info size={10} color={'currentcolor'} display="block" />
                         </SimpleTooltip>
+                        <ArrowDown size={16} />
                       </Row>
                     </Column>
                   </th>
@@ -918,8 +924,9 @@ export default function TokenAnalysisList() {
                     </Text>
                   </th>
                   <th>
-                    <Row justify="flex-start">
+                    <Row justify="flex-start" gap="4px">
                       <Trans>Current Price</Trans>
+                      <ArrowDown size={16} />
                     </Row>
                   </th>
                   <th>
@@ -928,22 +935,19 @@ export default function TokenAnalysisList() {
                     </Row>
                   </th>
                   <th>
-                    <Row justify="flex-start">
+                    <Row justify="flex-start" gap="4px">
                       <Trans>
                         {{
                           [KyberAIListType.TOP_CEX_INFLOW]: '24h Netflow',
                           [KyberAIListType.TOP_CEX_OUTFLOW]: '24h Netflow',
                         }[listType as string] || '24h Volume'}
                       </Trans>
+                      <ArrowDown size={16} />
                     </Row>
                   </th>
-                  {[
-                    KyberAIListType.TOP_CEX_INFLOW,
-                    KyberAIListType.TOP_CEX_OUTFLOW,
-                    KyberAIListType.TRENDING_SOON,
-                  ].includes(listType) && (
+                  {isCexFlowTabs && (
                     <th>
-                      <Row justify="flex-start">
+                      <Row justify="flex-start" gap="4px">
                         <Trans>
                           {{
                             [KyberAIListType.TOP_CEX_INFLOW]: '3D Netflow',
@@ -951,15 +955,7 @@ export default function TokenAnalysisList() {
                             [KyberAIListType.TRENDING_SOON]: 'First Discovered On',
                           }[listType as string] || ''}
                         </Trans>
-                        {/* {sortedColumn === SORT_FIELD.VOLUME ? (
-                          !sortDirection ? (
-                            <ArrowUp size="12" style={{ marginLeft: '2px' }} />
-                          ) : (
-                            <ArrowDown size="12" style={{ marginLeft: '2px' }} />
-                          )
-                        ) : (
-                          ''
-                        )} */}
+                        <ArrowDown size={16} />
                       </Row>
                     </th>
                   )}
@@ -978,31 +974,13 @@ export default function TokenAnalysisList() {
                     duration={1.5}
                     highlightColor={theme.tabActive}
                   >
-                    <LoadingRowSkeleton
-                      hasExtraCol={[
-                        KyberAIListType.TOP_CEX_INFLOW,
-                        KyberAIListType.TOP_CEX_OUTFLOW,
-                        KyberAIListType.TRENDING_SOON,
-                      ].includes(listType)}
-                    />
+                    <LoadingRowSkeleton hasExtraCol={isCexFlowTabs} />
                   </SkeletonTheme>
                 ) : isError || listData.length === 0 ? (
                   <>
                     {above768 ? (
                       <tr>
-                        <td
-                          colSpan={
-                            [
-                              KyberAIListType.TOP_CEX_INFLOW,
-                              KyberAIListType.TOP_CEX_OUTFLOW,
-                              KyberAIListType.TRENDING_SOON,
-                            ].includes(listType)
-                              ? 9
-                              : 8
-                          }
-                          height={200}
-                          style={{ pointerEvents: 'none' }}
-                        >
+                        <td colSpan={isCexFlowTabs ? 9 : 8} height={200} style={{ pointerEvents: 'none' }}>
                           <Text>
                             {listType === KyberAIListType.MYWATCHLIST && listData.length === 0 ? (
                               <Trans>You haven&apos;t added any tokens to your watchlist yet</Trans>
