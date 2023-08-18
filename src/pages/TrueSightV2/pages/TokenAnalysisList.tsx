@@ -18,7 +18,7 @@ import Icon from 'components/Icons/Icon'
 import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import Pagination from 'components/Pagination'
 import Row, { RowBetween, RowFit } from 'components/Row'
-import { APP_PATHS, ICON_ID } from 'constants/index'
+import { APP_PATHS, ICON_ID, SORT_DIRECTION } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
@@ -732,6 +732,16 @@ const LoadingRowSkeleton = ({ hasExtraCol }: { hasExtraCol?: boolean }) => {
   )
 }
 
+enum SORT_FIELD {
+  NAME = 'tvl',
+  KYBER_SCORE = 'apr',
+  PRICE = 'volume',
+  VOLUME_24H = 'fee',
+  NETFLOW_3D = 'my_liquidity',
+  FIRST_DISCOVER_ON = 'my_liquidity',
+  FUNDING_RATe = 'fd',
+}
+
 export default function TokenAnalysisList() {
   const theme = useTheme()
   const mixpanelHandler = useMixpanelKyberAI()
@@ -836,6 +846,18 @@ export default function TokenAnalysisList() {
     KyberAIListType.TRENDING_SOON,
   ].includes(listType)
 
+  const [sortType, setSortType] = useState<SORT_FIELD>()
+  const [sortDirection, setSortDirection] = useState(SORT_DIRECTION.DESC)
+  const SortArrow = ({ type }: { type: SORT_FIELD }) => {
+    return sortType === type ? (
+      sortDirection === SORT_DIRECTION.DESC ? (
+        <ArrowDown size={16} />
+      ) : (
+        <ArrowDown size={16} />
+      )
+    ) : null
+  }
+
   return (
     <>
       <RowBetween gap="8px">
@@ -892,7 +914,7 @@ export default function TokenAnalysisList() {
                   <th style={{ textAlign: 'left' }} className={isScrolling ? 'table-cell-shadow-right' : ''}>
                     <Row gap="4px">
                       <Trans>Token name</Trans>
-                      <ArrowDown size={16} />
+                      <SortArrow type={SORT_FIELD.NAME} />
                     </Row>
                   </th>
                   <th style={{ textAlign: 'left' }}>
@@ -914,7 +936,7 @@ export default function TokenAnalysisList() {
                         >
                           <Info size={10} color={'currentcolor'} display="block" />
                         </SimpleTooltip>
-                        <ArrowDown size={16} />
+                        <SortArrow type={SORT_FIELD.KYBER_SCORE} />
                       </Row>
                     </Column>
                   </th>
@@ -926,7 +948,7 @@ export default function TokenAnalysisList() {
                   <th>
                     <Row justify="flex-start" gap="4px">
                       <Trans>Current Price</Trans>
-                      <ArrowDown size={16} />
+                      <SortArrow type={SORT_FIELD.PRICE} />
                     </Row>
                   </th>
                   <th>
@@ -942,7 +964,7 @@ export default function TokenAnalysisList() {
                           [KyberAIListType.TOP_CEX_OUTFLOW]: '24h Netflow',
                         }[listType as string] || '24h Volume'}
                       </Trans>
-                      <ArrowDown size={16} />
+                      <SortArrow type={SORT_FIELD.VOLUME_24H} />
                     </Row>
                   </th>
                   {isCexFlowTabs && (
@@ -955,7 +977,7 @@ export default function TokenAnalysisList() {
                             [KyberAIListType.TRENDING_SOON]: 'First Discovered On',
                           }[listType as string] || ''}
                         </Trans>
-                        <ArrowDown size={16} />
+                        <SortArrow type={SORT_FIELD.FIRST_DISCOVER_ON} />
                       </Row>
                     </th>
                   )}

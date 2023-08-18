@@ -15,7 +15,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import HoverDropdown from 'components/HoverDropdown'
 import InfoHelper from 'components/InfoHelper'
 import { MouseoverTooltip, MouseoverTooltipDesktopOnly, TextDashed } from 'components/Tooltip'
-import { FARM_TAB, ZERO_ADDRESS } from 'constants/index'
+import { FARM_TAB, SORT_DIRECTION, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
@@ -73,11 +73,6 @@ enum SORT_FIELD {
   END_TIME = 'end_time',
   MY_DEPOSIT = 'my_deposit',
   MY_REWARD = 'my_reward',
-}
-
-enum SORT_DIRECTION {
-  ASC = 'asc',
-  DESC = 'desc',
 }
 
 const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo, onShowStepGuide, tokenPrices }) => {

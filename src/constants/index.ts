@@ -379,3 +379,8 @@ export const ICON_IDS = [
   'discord',
 ] as const
 export type ICON_ID = typeof ICON_IDS[number]
+
+export enum SORT_DIRECTION {
+  ASC = 'asc',
+  DESC = 'desc',
+}

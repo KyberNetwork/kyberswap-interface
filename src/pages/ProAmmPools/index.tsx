@@ -12,6 +12,7 @@ import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
 import { Input as PaginationInput } from 'components/Pagination/PaginationInputOnMobile'
 import ShareModal from 'components/ShareModal'
+import { SORT_DIRECTION } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useStableCoins } from 'hooks/Tokens'
 import { SelectPairInstructionWrapper } from 'pages/Pools/styleds'
@@ -108,11 +109,6 @@ enum SORT_FIELD {
   VOLUME = 'volume',
   FEE = 'fee',
   MY_LIQUIDITY = 'my_liquidity',
-}
-
-enum SORT_DIRECTION {
-  ASC = 'asc',
-  DESC = 'desc',
 }
 
 export default function ProAmmPoolList({

@@ -14,7 +14,7 @@ import { Input as PaginationInput } from 'components/Pagination/PaginationInputO
 import ListItem from 'components/PoolList/ListItem'
 import ShareModal from 'components/ShareModal'
 import { ClickableText } from 'components/YieldPools/styleds'
-import { AMP_HINT, AMP_LIQUIDITY_HINT, MAX_ALLOW_APY } from 'constants/index'
+import { AMP_HINT, AMP_LIQUIDITY_HINT, MAX_ALLOW_APY, SORT_DIRECTION } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useStableCoins } from 'hooks/Tokens'
 import { SelectPairInstructionWrapper } from 'pages/Pools/styleds'
@@ -95,11 +95,6 @@ enum SORT_FIELD {
   VOLUME = 'volume',
   FEE = 'fee',
   MY_LIQUIDITY = 'my_liquidity',
-}
-
-enum SORT_DIRECTION {
-  ASC = 'asc',
-  DESC = 'desc',
 }
 
 const ITEM_PER_PAGE = 12
