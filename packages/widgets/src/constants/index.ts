@@ -11,6 +11,9 @@ import {
   auroraTokens,
   oasisTokens,
   optimismTokens,
+  lineaTokens,
+  zkSyncTokens,
+  zkEvmTokens,
 } from './tokens'
 
 export enum ZIndex {
@@ -31,17 +34,20 @@ export interface TokenInfo {
   chainId: number
   isImport?: boolean
 }
+
+const eth = (chainId: number) => ({
+  name: 'Ether',
+  decimals: 18,
+  symbol: 'ETH',
+  address: NATIVE_TOKEN_ADDRESS,
+  chainId: chainId,
+  logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
+})
+
 export const NATIVE_TOKEN: {
   [chainId: number]: TokenInfo
 } = {
-  1: {
-    name: 'Ether',
-    decimals: 18,
-    symbol: 'ETH',
-    address: NATIVE_TOKEN_ADDRESS,
-    chainId: 1,
-    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
-  },
+  1: eth(1),
   137: {
     name: 'Matic',
     symbol: 'MATIC',
@@ -82,14 +88,7 @@ export const NATIVE_TOKEN: {
     chainId: 25,
     logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/3635.png',
   },
-  42161: {
-    name: 'ETH',
-    symbol: 'ETH',
-    decimals: 18,
-    address: NATIVE_TOKEN_ADDRESS,
-    chainId: 42161,
-    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
-  },
+  42161: eth(42161),
   199: {
     name: 'BTT',
     symbol: 'BTT',
@@ -106,14 +105,7 @@ export const NATIVE_TOKEN: {
     chainId: 106,
     logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/4747.png',
   },
-  1313161554: {
-    name: 'ETH',
-    symbol: 'ETH',
-    decimals: 18,
-    address: NATIVE_TOKEN_ADDRESS,
-    chainId: 1313161554,
-    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
-  },
+  1313161554: eth(1313161554),
   42262: {
     name: 'ROSE',
     symbol: 'ROSE',
@@ -122,14 +114,10 @@ export const NATIVE_TOKEN: {
     chainId: 42262,
     logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/7653.png',
   },
-  10: {
-    name: 'ETH',
-    symbol: 'ETH',
-    decimals: 18,
-    address: NATIVE_TOKEN_ADDRESS,
-    chainId: 10,
-    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
-  },
+  10: eth(10),
+  59144: eth(59144),
+  1101: eth(1101),
+  324: eth(324),
 }
 
 export const WRAPPED_NATIVE_TOKEN: {
@@ -231,6 +219,30 @@ export const WRAPPED_NATIVE_TOKEN: {
     chainId: 10,
     logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
   },
+  59144: {
+    name: 'Wrapped Ether',
+    decimals: 18,
+    symbol: 'WETH',
+    address: '0xe5D7C2a44FfDDf6b295A15c148167daaAf5Cf34f',
+    chainId: 59144,
+    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
+  },
+  1101: {
+    name: 'Wrapped Ether',
+    decimals: 18,
+    symbol: 'WETH',
+    address: '0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9',
+    chainId: 1101,
+    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
+  },
+  324: {
+    name: 'Wrapped Ether',
+    decimals: 18,
+    symbol: 'WETH',
+    address: '0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91',
+    chainId: 324,
+    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
+  },
 }
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -250,6 +262,9 @@ export const DEFAULT_TOKENS: {
   1313161554: auroraTokens,
   42262: oasisTokens,
   10: optimismTokens,
+  59144: lineaTokens,
+  1101: zkEvmTokens,
+  324: zkSyncTokens,
 }
 
 export const MULTICALL_ADDRESS: { [chainId: number]: string } = {
@@ -265,6 +280,9 @@ export const MULTICALL_ADDRESS: { [chainId: number]: string } = {
   1313161554: '0xBF69a56D35B8d6f5A8e0e96B245a72F735751e54',
   42262: '0xBF69a56D35B8d6f5A8e0e96B245a72F735751e54',
   10: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
+  59144: '0xcA11bde05977b3631167028862bE2a173976CA11',
+  1101: '0xcA11bde05977b3631167028862bE2a173976CA11',
+  324: '0xF9cda624FBC7e059355ce98a31693d299FACd963',
 }
 
 export const AGGREGATOR_PATH: { [chainId: number]: string } = {
@@ -280,6 +298,9 @@ export const AGGREGATOR_PATH: { [chainId: number]: string } = {
   1313161554: 'aurora',
   42262: 'oasis',
   10: 'optimism',
+  59144: 'linea',
+  1101: 'polygon-zkevm',
+  324: 'zksync',
 }
 
 export const SCAN_LINK: { [chainId: number]: string } = {
@@ -295,6 +316,9 @@ export const SCAN_LINK: { [chainId: number]: string } = {
   1313161554: 'https://aurorascan.dev',
   42262: 'https://www.oasisscan.com',
   10: 'https://optimistic.etherscan.io',
+  59144: 'https://lineascan.build',
+  1101: 'https://zkevm.polygonscan.com',
+  324: 'https://explorer.zksync.io',
 }
 
 export const SUPPORTED_NETWORKS = Object.keys(SCAN_LINK)
