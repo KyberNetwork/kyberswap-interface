@@ -8,7 +8,7 @@ function capitalizeFirstLetter(string: string) {
 
 function parseKnownPattern(text: string): string | undefined {
   const error = text?.toLowerCase?.() || ''
-  console.info('parseError:', { text, error })
+
   if (!error || error.includes('router: expired')) return 'An error occurred. Refresh the page and try again '
 
   if (

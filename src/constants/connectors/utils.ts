@@ -30,8 +30,6 @@ export const getIsMetaMaskWallet = () =>
 
 export const getIsRabbyWallet = () => Boolean(window.ethereum?.isRabby)
 
-export const getIsPhantomWallet = () => Boolean(window.ethereum?.isPhantom && window.phantom?.ethereum?.isPhantom)
-
 export const getIsBloctoWallet = () => Boolean(window.ethereum?.isBlocto)
 
 export const getIsKrystalWallet = () =>
@@ -58,7 +56,6 @@ export const getIsGenericInjector = () =>
   !getIsRabbyWallet() &&
   !getIsKrystalWallet() &&
   !getIsBloctoWallet() &&
-  !getIsPhantomWallet() &&
   !getIsTrustWallet()
 
 // https://eips.ethereum.org/EIPS/eip-1193#provider-errors

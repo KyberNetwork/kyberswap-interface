@@ -123,13 +123,12 @@ const Networks = ({
   customToggleModal?: () => void
   disabledMsg?: string
 }) => {
-  const { chainId: currentChainId, isWrongNetwork } = useActiveWeb3React()
+  const { chainId: currentChainId, isWrongNetwork, walletEVM, walletSolana } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const qs = useParsedQueryString()
   const navigate = useNavigate()
   const isDarkMode = useIsDarkMode()
   const theme = useTheme()
-  const { walletEVM, walletSolana } = useActiveWeb3React()
   const onSelect = (chainId: ChainId) => {
     customToggleModal?.()
     if (customOnSelectNetwork) {
@@ -160,20 +159,24 @@ const Networks = ({
 
   return (
     <NetworkList mt={mt} mb={mb}>
-      {MAINNET_NETWORKS.map((key: ChainId, i: number) => {
-        const { iconDark, icon, name } = NETWORKS_INFO[key]
-        const disabled = !isAcceptedTerm || (activeChainIds ? !activeChainIds?.includes(key) : false)
-        const selected = selectedId === key && !isWrongNetwork
+      {MAINNET_NETWORKS.map((itemChainId: ChainId, i: number) => {
+        const { iconDark, icon, name } = NETWORKS_INFO[itemChainId]
+        const disabled = !isAcceptedTerm || (activeChainIds ? !activeChainIds?.includes(itemChainId) : false)
+        const selected = selectedId === itemChainId && !isWrongNetwork
 
         const imgSrc = (isDarkMode ? iconDark : icon) || icon
         const walletKey =
-          key === ChainId.SOLANA ? walletSolana.walletKey : walletEVM.chainId === key ? walletEVM.walletKey : null
+          itemChainId === ChainId.SOLANA
+            ? walletSolana.walletKey
+            : walletEVM.chainId === itemChainId
+            ? walletEVM.walletKey
+            : null
         return (
-          <MouseoverTooltip style={{ zIndex: Z_INDEXS.MODAL + 1 }} key={key} text={disabled ? disabledMsg : ''}>
+          <MouseoverTooltip style={{ zIndex: Z_INDEXS.MODAL + 1 }} key={itemChainId} text={disabled ? disabledMsg : ''}>
             <SelectNetworkButton
               key={i}
               padding="0"
-              onClick={() => !selected && onSelect(key)}
+              onClick={() => !selected && onSelect(itemChainId)}
               data-testid="network-button"
               disabled={disabled}
             >

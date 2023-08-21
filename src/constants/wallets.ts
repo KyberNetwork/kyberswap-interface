@@ -35,8 +35,6 @@ import {
   krystalHooks,
   metaMask,
   metamaskHooks,
-  phantom,
-  phantomHooks,
   rabby,
   rabbyHooks,
   trustWallet,
@@ -60,7 +58,6 @@ import {
   getIsGenericInjector,
   getIsKrystalWallet,
   getIsMetaMaskWallet,
-  getIsPhantomWallet,
   getIsRabbyWallet,
   getIsTrustWallet,
 } from 'constants/connectors/utils'
@@ -78,11 +75,6 @@ const detectMetamask = (): WalletReadyState => {
 
 const detectBlocto = (): WalletReadyState => {
   if (getIsBloctoWallet()) return WalletReadyState.Installed
-  return WalletReadyState.NotDetected
-}
-
-const detectPhantom = (): WalletReadyState => {
-  if (getIsPhantomWallet()) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }
 
@@ -262,16 +254,13 @@ export const SUPPORTED_WALLETS = {
     readyStateSolana: () => solflareAdapter.readyState,
   } as SolanaWalletInfo,
   PHANTOM: {
-    connector: phantom,
-    hooks: phantomHooks,
     adapter: phantomAdapter,
     name: 'Phantom',
     icon: PHANTOM,
     iconLight: PHANTOM,
     installLink: phantomAdapter.url,
-    readyState: detectPhantom,
     readyStateSolana: detectPhantomWallet,
-  } as EVMWalletInfo & SolanaWalletInfo,
+  } as SolanaWalletInfo,
   SLOPE: {
     adapter: slopeAdapter,
     name: 'Slope Wallet',

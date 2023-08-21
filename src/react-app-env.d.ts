@@ -31,9 +31,6 @@ interface Window {
     providers?: any[]
     autoRefreshOnNetworkChange?: boolean
   }
-  phantom?: {
-    ethereum?: { isPhantom?: boolean }
-  }
   web3?: {
     currentProvider?: {
       isCoinbaseBrowser: boolean

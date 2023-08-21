@@ -29,15 +29,23 @@ const opts: Opts = {
 
 const appsSdk = new SafeAppsSDK(opts)
 ;(async () => {
-  const envInfo = await appsSdk.safe.getEnvironmentInfo()
-  console.log('safe envInfo', { envInfo })
-  const info = await appsSdk.safe.getInfo()
-  console.log('safe info', { info })
-  const requestAddressBook = await appsSdk.safe.requestAddressBook()
-  console.log('safe requestAddressBook', { requestAddressBook })
+  const getSafeInfo = async (fn: 'getEnvironmentInfo' | 'getInfo' | 'requestAddressBook') => {
+    try {
+      console.log('safe ' + fn + ' start')
+      const promise = appsSdk.safe[fn]()
+      console.log('safe ' + fn + ' promise', { promise })
+      const result = await promise
+      console.log('safe ' + fn + ' result', { result })
+    } catch (error) {
+      console.log('safe' + fn + ' error', { error })
+    }
+  }
+  getSafeInfo('getEnvironmentInfo')
+  getSafeInfo('getInfo')
+  getSafeInfo('requestAddressBook')
 })()
+
 export const [injected, injectedHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
-export const [phantom, phantomHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
 export const [rabby, rabbyHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
 export const [krystal, krystalHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
 export const [metaMask, metamaskHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
