@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
-import { KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -16,14 +15,13 @@ const lineaInfo: EVMNetworkInfo = {
   poolFarmRoute: 'linea',
   aggregatorRoute: 'linea',
   name: 'Linea',
-  icon: 'https://linea.build/apple-touch-icon.png',
+  icon: 'https://storage.googleapis.com/ks-setting-a3aa20b7/5c7ac975-e5af-4a02-8586-da6acfee9ec8.svg',
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
   defaultBlockSubgraph: 'https://graph-query.linea.build/subgraphs/name/kybernetwork/linea-blocks',
   etherscanUrl: 'https://lineascan.build',
   etherscanName: 'Linea Explorer',
-  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.LINEA}&isWhitelisted=${true}`,
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'ETH',

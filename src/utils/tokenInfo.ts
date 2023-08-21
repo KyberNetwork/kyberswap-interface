@@ -1,10 +1,8 @@
 import { ChainId, Currency, NativeCurrency, Token, WETH } from '@kyberswap/ks-sdk-core'
-import axios from 'axios'
 
-import { KS_SETTING_API } from 'constants/env'
 import { ETHER_ADDRESS, ETHER_ADDRESS_SOLANA } from 'constants/index'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
-import { MAP_TOKEN_HAS_MULTI_BY_NETWORK, WHITE_LIST_TOKEN_INFO_PAIR } from 'constants/tokenLists/token-info'
+import { isEVM } from 'constants/networks'
+import { MAP_TOKEN_HAS_MULTI_BY_NETWORK } from 'constants/tokenLists/token-info'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 /**
@@ -20,30 +18,6 @@ export const convertSymbol = (network: string, value: string) => {
     if (newValue) return newValue
   }
   return value
-}
-
-/**
- * check url format /network/sym1-to-sym2, sym1 vs sym2 is in whitelist
- * @param chainId
- * @param symbol1 ex: knc
- * @param symbol2 ex: usdt
- * @returns
- */
-export const checkPairInWhiteList = (chainId: ChainId, symbol1: string, symbol2: string) => {
-  if (!chainId) {
-    return { isInWhiteList: false, data: {}, canonicalUrl: '' }
-  }
-  const mapByNetwork = WHITE_LIST_TOKEN_INFO_PAIR[chainId]
-  const str1 = `${symbol1}-to-${symbol2}`
-  const str2 = `${symbol2}-to-${symbol1}`
-  const data = mapByNetwork ? mapByNetwork[str1] || mapByNetwork[str2] : null
-  const isInWhiteList = !!data
-
-  const pathCanonicalUrl = mapByNetwork && mapByNetwork[str1] ? str1 : str2
-  const canonicalUrl = isInWhiteList
-    ? `${window.location.protocol}//${window.location.host}/swap/${NETWORKS_INFO[chainId].route}/${pathCanonicalUrl}`
-    : ''
-  return { isInWhiteList, data: data || {}, canonicalUrl }
 }
 
 export const getFormattedAddress = (chainId: ChainId, address?: string, fallback?: string): string => {
@@ -71,16 +45,6 @@ export const isTokenNative = (
 
 export const getTokenAddress = (currency: Currency) =>
   currency.isNative ? (isEVM(currency.chainId) ? ETHER_ADDRESS : ETHER_ADDRESS_SOLANA) : currency?.wrapped.address ?? ''
-
-export const importTokensToKsSettings = async (tokens: Array<{ chainId: string; address: string }>) => {
-  try {
-    await axios.post(`${KS_SETTING_API}/v1/tokens/import`, {
-      tokens,
-    })
-  } catch (e) {
-    console.error(e)
-  }
-}
 
 export const getTokenSymbolWithHardcode = (
   chainId: ChainId | undefined,

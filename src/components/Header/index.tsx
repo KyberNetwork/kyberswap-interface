@@ -12,7 +12,7 @@ import SignWallet from 'components/Header/web3/SignWallet'
 import Menu from 'components/Menu'
 import Row, { RowFixed } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
-import { Z_INDEXS } from 'constants/styles'
+import { THRESHOLD_HEADER, Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -141,7 +141,7 @@ const IconImage = styled.img<{ isChristmas?: boolean }>`
 `
 
 const BlogWrapper = styled.span`
-  @media (max-width: 1600px) {
+  @media (max-width: ${THRESHOLD_HEADER.BLOG}) {
     display: none;
   }
 `

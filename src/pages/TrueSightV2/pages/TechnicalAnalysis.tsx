@@ -32,6 +32,7 @@ import { defaultExplorePageToken } from './SingleToken'
 const Wrapper = styled.div`
   padding: 20px 0;
   width: 100%;
+  position: relative;
 `
 
 type TechnicalAnalysisContextProps = {

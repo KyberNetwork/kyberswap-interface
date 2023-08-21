@@ -37,7 +37,7 @@ export interface ITokenOverview {
 export interface ITokenList {
   symbol: string
   name: string
-  sourceTokenId: string
+  SourceTokenID: string
   tokens: Array<{ address: string; logo: string; chain: string }>
   price: number
   percent_change_24h: number

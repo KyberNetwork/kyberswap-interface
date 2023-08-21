@@ -3,7 +3,6 @@ import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
 import { PublicKey } from '@solana/web3.js'
 
 import Solana from 'assets/networks/solana-network.svg'
-import { KS_SETTING_API } from 'constants/env'
 import { SolanaNetworkInfo } from 'constants/networks/type'
 
 export const SelectedNetwork = WalletAdapterNetwork.Mainnet
@@ -44,7 +43,6 @@ const solanaInfo: SolanaNetworkInfo = {
   limitOrder: { development: NOT_SUPPORT, production: NOT_SUPPORT },
   coingeckoNetworkId: 'solana',
   coingeckoNativeTokenId: 'solana',
-  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.SOLANA}&isWhitelisted=${true}`,
   defaultRpcUrl: 'https://solana.kyberengineering.io',
   openBookAddress: new PublicKey('srmqPvymJeFKQ4zGQed1GFppgkRHL9kaELCbyksJtPX'),
   dexToCompare: 'OrcaV2',

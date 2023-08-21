@@ -1,8 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
-import zkSync from 'assets/networks/zksync-network.png'
-import { KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -19,14 +17,13 @@ const zkSyncInfo: EVMNetworkInfo = {
   poolFarmRoute: 'zksync',
   aggregatorRoute: 'zksync',
   name: 'zkSync Era',
-  icon: zkSync,
+  icon: 'https://storage.googleapis.com/ks-setting-a3aa20b7/ad122023-76dd-4cdd-ad5a-7572726f004f.svg',
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
   defaultBlockSubgraph: 'https://zksync-graph.kyberengineering.io/subgraphs/name/kybernetwork/zksync-blocks',
   etherscanUrl: 'https://explorer.zksync.io',
   etherscanName: 'zkSync Era Explorer',
-  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${chainId}&isWhitelisted=${true}`,
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'ETH',

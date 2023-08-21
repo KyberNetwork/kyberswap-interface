@@ -6,7 +6,6 @@ import {
   DEFAULT_DEADLINE_FROM_NOW,
   DEFAULT_SLIPPAGE,
   DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP,
-  DEFAULT_SLIPPAGE_TESTNET,
   INITIAL_ALLOWED_SLIPPAGE,
   MAX_NORMAL_SLIPPAGE_IN_BIPS,
 } from 'constants/index'
@@ -32,7 +31,6 @@ import {
   toggleKyberAIWidget,
   toggleLiveChart,
   toggleMyEarningChart,
-  toggleTokenInfo,
   toggleTradeRoutes,
   updateAcceptedTermVersion,
   updateChainId,
@@ -43,7 +41,6 @@ import {
   updateUserDegenMode,
   updateUserLocale,
   updateUserSlippageTolerance,
-  updateUserSlippageToleranceForLineaTestnet,
 } from './actions'
 
 const currentTimestamp = () => new Date().getTime()
@@ -75,8 +72,6 @@ export interface UserState {
   // user defined slippage tolerance in bips, used in all txns
   userSlippageTolerance: number
 
-  userSlippageToleranceForLineaTestnet: number
-
   // deadline set by user in minutes, used in all txns
   userDeadline: number
 
@@ -96,7 +91,6 @@ export interface UserState {
   timestamp: number
   showLiveChart: boolean
   showTradeRoutes: boolean
-  showTokenInfo: boolean
   showKyberAIBanner: boolean
   kyberAIDisplaySettings: {
     [k: string]: boolean
@@ -164,14 +158,12 @@ const initialState: UserState = {
   userDegenModeAutoDisableTimestamp: 0,
   userLocale: null,
   userSlippageTolerance: INITIAL_ALLOWED_SLIPPAGE,
-  userSlippageToleranceForLineaTestnet: DEFAULT_SLIPPAGE_TESTNET,
   userDeadline: DEFAULT_DEADLINE_FROM_NOW,
   tokens: {},
   pairs: {},
   timestamp: currentTimestamp(),
   showLiveChart: true,
   showTradeRoutes: true,
-  showTokenInfo: true,
   showKyberAIBanner: true,
   kyberAIDisplaySettings: {
     numberOfTrades: true,
@@ -256,10 +248,6 @@ export default createReducer(initialState, builder =>
       state.userSlippageTolerance = action.payload.userSlippageTolerance
       state.timestamp = currentTimestamp()
     })
-    .addCase(updateUserSlippageToleranceForLineaTestnet, (state, action) => {
-      state.userSlippageToleranceForLineaTestnet = action.payload.userSlippageTolerance
-      state.timestamp = currentTimestamp()
-    })
     .addCase(updateUserDeadline, (state, action) => {
       state.userDeadline = action.payload.userDeadline
       state.timestamp = currentTimestamp()
@@ -299,9 +287,7 @@ export default createReducer(initialState, builder =>
     .addCase(toggleTradeRoutes, state => {
       state.showTradeRoutes = !state.showTradeRoutes
     })
-    .addCase(toggleTokenInfo, state => {
-      state.showTokenInfo = !state.showTokenInfo
-    })
+
     .addCase(toggleKyberAIBanner, state => {
       state.showKyberAIBanner = !state.showKyberAIBanner
     })

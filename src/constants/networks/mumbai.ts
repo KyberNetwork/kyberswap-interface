@@ -1,7 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
-import Polygon from 'assets/networks/polygon-network.png'
-import { KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -16,19 +14,18 @@ const mumbaiInfo: EVMNetworkInfo = {
   poolFarmRoute: EMPTY,
   aggregatorRoute: 'mumbai',
   name: 'Mumbai',
-  icon: Polygon,
+  icon: 'https://storage.googleapis.com/ks-setting-a3aa20b7/78dfb4fb-089b-431d-8725-b5de2cea0bfc.svg',
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
   defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/piavgh/mumbai-blocks',
   etherscanUrl: 'https://mumbai.polygonscan.com/',
   etherscanName: 'Polygonscan',
-  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.MUMBAI}&isWhitelisted=${true}`,
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'MATIC',
     name: 'Polygon',
-    logo: Polygon,
+    logo: 'https://storage.googleapis.com/ks-setting-a3aa20b7/78dfb4fb-089b-431d-8725-b5de2cea0bfc.svg',
     decimal: 18,
     minForGas: 10 ** 16,
   },

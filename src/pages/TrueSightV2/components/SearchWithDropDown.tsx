@@ -13,7 +13,7 @@ import Icon from 'components/Icons/Icon'
 import Row, { RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
@@ -304,7 +304,7 @@ const SearchResultTableWrapper = ({ header, children }: { header?: ReactNode; ch
 let checkedNewData = false
 const SearchWithDropdown = () => {
   const theme = useTheme()
-  const { mixpanelHandler } = useMixpanel()
+  const mixpanelHandler = useMixpanelKyberAI()
   const [searchParams] = useSearchParams()
   const { pathname } = useLocation()
 

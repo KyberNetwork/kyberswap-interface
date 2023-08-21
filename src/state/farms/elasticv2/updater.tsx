@@ -170,9 +170,9 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
         const prices = await fetchPrices(tokens)
 
         const formattedData: ElasticFarmV2[] = data.farmV2S.map((farm: SubgraphFarmV2) => {
-          const getToken = (t: SubgraphToken) => {
+          const getToken = (t: SubgraphToken, keepWrapped = false) => {
             const address = isAddressString(chainId, t.id)
-            return address === WETH[chainId].address || address === ZERO_ADDRESS
+            return (keepWrapped ? false : address === WETH[chainId].address) || address === ZERO_ADDRESS
               ? NativeCurrencies[chainId]
               : new Token(
                   chainId,
@@ -211,7 +211,9 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
             Number(tvlToken0.toExact() || '0') * (prices[farm.pool.token0.id] || 0) +
             Number(tvlToken1.toExact() || '0') * (prices[farm.pool.token1.id] || 0)
 
-          const totalRewards = farm.rewards.map(item => CurrencyAmount.fromRawAmount(getToken(item.token), item.amount))
+          const totalRewards = farm.rewards.map(item =>
+            CurrencyAmount.fromRawAmount(getToken(item.token, true), item.amount),
+          )
 
           return {
             id: farm.id,
@@ -350,9 +352,11 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
               const infos = res.reduce((acc: UserFarmV2Info[], item) => {
                 const farm = formattedData.find(
                   farm =>
+                    farm.farmAddress === farmAddresses[index] &&
                     farm.poolAddress.toLowerCase() === nftInfos[item.nftId.toString()].poolAddress.toLowerCase() &&
                     +farm.fId === +item.fId.toString(),
                 )
+
                 if (!farm) return acc
 
                 const position = new Position({

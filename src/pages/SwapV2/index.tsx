@@ -20,7 +20,6 @@ import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import ProgressSteps from 'components/ProgressSteps'
 import Row, { AutoRow, RowBetween } from 'components/Row'
-import { SEOSwap } from 'components/SEO'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import { Label } from 'components/SwapForm/OutputCurrencyPanel'
 import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
@@ -37,7 +36,6 @@ import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import RefreshButton from 'components/swapv2/RefreshButton'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TokenInfoTab from 'components/swapv2/TokenInfo'
-import TokenInfoV2 from 'components/swapv2/TokenInfoV2'
 import TradePrice from 'components/swapv2/TradePrice'
 import TradeTypeSelection from 'components/swapv2/TradeTypeSelection'
 import {
@@ -75,7 +73,6 @@ import {
   useDegenModeManager,
   useHolidayMode,
   useShowLiveChart,
-  useShowTokenInfo,
   useShowTradeRoutes,
   useUserSlippageTolerance,
 } from 'state/user/hooks'
@@ -85,8 +82,6 @@ import { Aggregator } from 'utils/aggregator'
 import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
 import { checkPriceImpact } from 'utils/prices'
 import { captureSwapError } from 'utils/sentry'
-import { getSymbolSlug } from 'utils/string'
-import { checkPairInWhiteList } from 'utils/tokenInfo'
 
 const LiveChart = lazy(() => import('components/LiveChart'))
 const Routing = lazy(() => import('components/TradeRouting'))
@@ -110,7 +105,6 @@ export default function Swap() {
   const isShowLiveChart = useShowLiveChart()
   const [holidayMode] = useHolidayMode()
   const isShowTradeRoutes = useShowTradeRoutes()
-  const isShowTokenInfoSetting = useShowTokenInfo()
   const qs = useParsedQueryString<{ highlightBox: string }>()
   const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
   const { pathname } = useLocation()
@@ -311,7 +305,7 @@ export default function Swap() {
         setSwapState({ attemptingTxn: false, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: hash })
       })
       .catch(error => {
-        if (error?.code !== 4001 && error?.code !== 'ACTION_REJECTED') captureSwapError(error)
+        captureSwapError(error)
         setSwapState({
           attemptingTxn: false,
           tradeToConfirm,
@@ -415,15 +409,7 @@ export default function Swap() {
 
   useUpdateSlippageInStableCoinSwap()
 
-  const { isInWhiteList: isPairInWhiteList, canonicalUrl } = checkPairInWhiteList(
-    chainId,
-    getSymbolSlug(currencyIn),
-    getSymbolSlug(currencyOut),
-  )
-
   const onBackToSwapTab = () => setActiveTab(TAB.SWAP)
-
-  const shouldRenderTokenInfo = isShowTokenInfoSetting && currencyIn && currencyOut && isPairInWhiteList && isSwapPage
 
   const isShowModalImportToken = isLoadedTokenDefault && importTokensNotInDefault.length > 0 && !dismissTokenWarning
 
@@ -433,7 +419,6 @@ export default function Swap() {
 
   return (
     <>
-      <SEOSwap canonicalUrl={canonicalUrl} />
       <TutorialSwap />
       <TokenWarningModal
         isOpen={isShowModalImportToken}
@@ -813,7 +798,6 @@ export default function Swap() {
                 </Flex>
               </RoutesWrapper>
             )}
-            {shouldRenderTokenInfo && <TokenInfoV2 currencyIn={currencyIn} currencyOut={currencyOut} />}
           </InfoComponents>
         </Container>
         <Flex justifyContent="center">

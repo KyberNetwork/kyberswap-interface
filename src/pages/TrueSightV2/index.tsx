@@ -12,7 +12,7 @@ import SubscribeNotificationButton from 'components/SubscribeButton'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { KYBER_AI_TOPIC_ID } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 
@@ -77,7 +77,7 @@ const HeaderNavItem = styled.div<{ active?: boolean }>`
 
 export default function TrueSightV2() {
   const theme = useTheme()
-  const { mixpanelHandler } = useMixpanel()
+  const mixpanelHandler = useMixpanelKyberAI()
   const location = useLocation()
   const isExplore = location?.pathname.includes('Explore')
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)

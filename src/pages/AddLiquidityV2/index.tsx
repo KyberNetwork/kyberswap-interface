@@ -19,6 +19,7 @@ import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import { NotificationType } from 'components/Announcement/type'
 import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { OutlineCard, SubTextCard, WarningCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
@@ -62,7 +63,7 @@ import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { convertTickToPrice } from 'pages/Farm/ElasticFarmv2/utils'
 import { ApplicationModal } from 'state/application/actions'
-import { useOpenModal, useWalletModalToggle } from 'state/application/hooks'
+import { useNotify, useOpenModal, useWalletModalToggle } from 'state/application/hooks'
 import { FarmUpdater } from 'state/farms/elastic/hooks'
 import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import ElasticFarmV2Updater from 'state/farms/elasticv2/updater'
@@ -85,6 +86,7 @@ import { VIEW_MODE } from 'state/user/reducer'
 import { ExternalLink, MEDIA_WIDTHS, StyledInternalLink, TYPE } from 'theme'
 import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
+import { friendlyError } from 'utils/errorMessage'
 import { toSignificantOrMaxIntegerPart } from 'utils/formatCurrencyAmount'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { formatNotDollarAmount } from 'utils/numbers'
@@ -139,6 +141,7 @@ export default function AddLiquidity() {
   const [showChart, setShowChart] = useState(false)
   const [positionIndex, setPositionIndex] = useState(0)
   const { mixpanelHandler } = useMixpanel()
+  const notify = useNotify()
 
   // fee selection from url
   const feeAmount: FeeAmount =
@@ -212,29 +215,33 @@ export default function AddLiquidity() {
 
   // show this for Zohar can get tick to add farm
   useEffect(() => {
-    console.log('-------------------')
-    console.log('tickLower: ', tickLower)
-    console.log('tickUpper: ', tickUpper)
+    console.groupCollapsed('ticks ------------------')
+    console.debug('tickLower: ', tickLower)
+    console.debug('tickUpper: ', tickUpper)
+    console.groupEnd()
   }, [tickLower, tickUpper])
 
   const poolAddress = useProAmmPoolInfo(baseCurrency, currencyB, feeAmount)
 
   const { farms } = useElasticFarmsV2()
-  const farmV2 = farms?.find(
+
+  const farmV2S = farms?.filter(
     item =>
       !item.isSettled &&
       item.endTime > Date.now() / 1000 &&
       item.poolAddress.toLowerCase() === poolAddress.toLowerCase(),
   )
 
-  const activeRanges = farmV2?.ranges.filter(r => !r.isRemoved) || []
+  const activeRanges =
+    farmV2S?.map(farm => farm.ranges.filter(item => !item.isRemoved).map(item => ({ ...item, farm }))).flat() || []
 
-  const isFarmV2Available = !!farmV2
+  const isFarmV2Available = !!farmV2S?.length
 
   const [showFarmRangeSelect, setShowFarmRangeSelect] = useState(() => isFarmV2Available)
   const [searchParams, setSearchParams] = useSearchParams()
   const activeRangeIndex = Number(searchParams.get('farmRange') || '0')
-  const range = activeRanges.find(i => i.index === activeRangeIndex)
+  const defaultFId = Number(searchParams.get('fId') || '0')
+  const range = activeRanges.find(i => i.index === activeRangeIndex && i.farm.fId === defaultFId)
 
   const canJoinFarm =
     isFarmV2Available &&
@@ -498,12 +505,18 @@ export default function AddLiquidity() {
               })
           })
           .catch((error: any) => {
-            console.error('Failed to send transaction', error)
             setAttemptingTxn(false)
-            // we only care if the error is something _other_ than the user rejected the tx
-            if (error?.code !== 4001) {
-              console.error(error)
-            }
+            // sending tx error, not tx execute error
+            const message = friendlyError(error)
+            console.error('Add liquidity error:', { message, error })
+            notify(
+              {
+                title: t`Add liquidity error`,
+                summary: message,
+                type: NotificationType.ERROR,
+              },
+              8000,
+            )
           })
       } else {
         return
@@ -530,6 +543,7 @@ export default function AddLiquidity() {
       isMultiplePosition,
       poolAddress,
       currencyAmountSum,
+      notify,
     ],
   )
 
@@ -917,7 +931,7 @@ export default function AddLiquidity() {
   const [shownTooltip, setShownTooltip] = useState<RANGE | null>(null)
   const pairFactor = usePairFactor([tokenA, tokenB])
 
-  const isReverseWithFarm = baseCurrency?.wrapped.address !== farmV2?.token0.wrapped.address
+  const isReverseWithFarm = baseCurrency?.wrapped.address !== farmV2S?.[0]?.token0.wrapped.address
 
   const chart = (
     <ChartWrapper ref={chartRef}>
@@ -990,34 +1004,35 @@ export default function AddLiquidity() {
                   </>
                 )}
               </Flex>
-              {showFarmRangeSelect && !!farmV2 && (
+              {showFarmRangeSelect && !!activeRanges.length && farmV2S?.[0] && (
                 <Flex sx={{ gap: '8px' }} flexWrap="wrap">
-                  {farmV2.ranges.map(range => {
+                  {activeRanges.map(range => {
                     if (range.isRemoved) return null
                     return (
                       <RangeBtn
                         style={{ width: 'fit-content' }}
-                        key={range.index}
+                        key={range.farm.fId + '_' + range.index}
                         onClick={() => {
                           searchParams.set('farmRange', range.index.toString())
+                          searchParams.set('fId', range.farm.fId.toString())
                           setSearchParams(searchParams)
                           onFarmRangeSelected(+range.tickLower, +range.tickUpper)
                         }}
-                        isSelected={activeRangeIndex === range.index}
+                        isSelected={activeRangeIndex === range.index && defaultFId === range.farm.fId}
                       >
                         <Flex alignItems="center" sx={{ gap: '2px' }}>
                           {convertTickToPrice(
-                            isReverseWithFarm ? farmV2.token1 : farmV2.token0,
-                            isReverseWithFarm ? farmV2.token0 : farmV2.token1,
+                            isReverseWithFarm ? farmV2S[0].token1 : farmV2S[0].token0,
+                            isReverseWithFarm ? farmV2S[0].token0 : farmV2S[0].token1,
                             isReverseWithFarm ? range.tickUpper : range.tickLower,
-                            farmV2.pool.fee,
+                            farmV2S[0].pool.fee,
                           )}
                           <TwoWayArrow />
                           {convertTickToPrice(
-                            isReverseWithFarm ? farmV2.token1 : farmV2.token0,
-                            isReverseWithFarm ? farmV2.token0 : farmV2.token1,
+                            isReverseWithFarm ? farmV2S[0].token1 : farmV2S[0].token0,
+                            isReverseWithFarm ? farmV2S[0].token0 : farmV2S[0].token1,
                             isReverseWithFarm ? range.tickLower : range.tickUpper,
-                            farmV2.pool.fee,
+                            farmV2S[0].pool.fee,
                           )}
                         </Flex>
                       </RangeBtn>
@@ -1303,11 +1318,22 @@ export default function AddLiquidity() {
   )
 
   useEffect(() => {
-    if (isFarmV2Available && range?.tickUpper && range?.tickUpper) {
+    if (isFarmV2Available) {
       setShowFarmRangeSelect(true)
-      onFarmRangeSelected(range.tickLower, range.tickUpper)
     } else setShowFarmRangeSelect(false)
-  }, [isFarmV2Available, range?.tickUpper, range?.tickLower, onFarmRangeSelected])
+  }, [isFarmV2Available])
+
+  useEffect(() => {
+    if (
+      isFarmV2Available &&
+      range?.tickUpper &&
+      range?.tickUpper &&
+      !positionsState[pIndex].leftRangeTypedValue &&
+      !positionsState[pIndex].rightRangeTypedValue
+    ) {
+      onFarmRangeSelected(range.tickLower, range.tickUpper)
+    }
+  }, [isFarmV2Available, range?.tickUpper, range?.tickLower, onFarmRangeSelected, positionsState, pIndex])
 
   if (!isEVM) return <Navigate to="/" />
 

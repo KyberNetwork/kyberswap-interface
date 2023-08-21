@@ -30,6 +30,7 @@ import { RowBetween } from 'components/Row'
 import { SLIPPAGE_EXPLANATION_URL } from 'components/SlippageWarningNote'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
+import { didUserReject } from 'constants/connectors/utils'
 import { APP_PATHS } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
@@ -310,7 +311,7 @@ export default function IncreaseLiquidity() {
           console.error('Failed to send transaction', error)
           setAttemptingTxn(false)
           // we only care if the error is something _other_ than the user rejected the tx
-          if (error?.code !== 4001) {
+          if (!didUserReject(error)) {
             console.error(error)
           }
         })

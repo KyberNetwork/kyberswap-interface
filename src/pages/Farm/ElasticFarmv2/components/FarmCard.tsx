@@ -34,6 +34,7 @@ import { useFarmV2Action, useUserFarmV2Info } from 'state/farms/elasticv2/hooks'
 import { ElasticFarmV2 } from 'state/farms/elasticv2/types'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import { formatDollarAmount } from 'utils/numbers'
+import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 
 import { convertTickToPrice } from '../utils'
 
@@ -107,7 +108,7 @@ function FarmCard({
   isApproved: boolean
 }) {
   const theme = useTheme()
-  const { account, networkInfo } = useActiveWeb3React()
+  const { account, networkInfo, chainId } = useActiveWeb3React()
   const [activeRangeIndex, setActiveRangeIndex] = useState(farm.ranges[0].index)
 
   const [, setSharePoolAddress] = useShareFarmAddress()
@@ -213,7 +214,8 @@ function FarmCard({
                 }}
               >
                 <Text fontSize="16px" lineHeight="20px" color={theme.primary}>
-                  {`${farm.token0.symbol} - ${farm.token1.symbol}`}
+                  {getTokenSymbolWithHardcode(chainId, farm.token0.wrapped.address, farm.token0.symbol)} -{' '}
+                  {getTokenSymbolWithHardcode(chainId, farm.token1.wrapped.address, farm.token1.symbol)}
                 </Text>
               </Link>
               <IconButton>
@@ -367,7 +369,7 @@ function FarmCard({
                         {range?.isRemoved ? (
                           <Trans>Idle Range</Trans>
                         ) : (
-                          <Link to={`${addliquidityElasticPool}?farmRange=${activeRangeIndex}`}>
+                          <Link to={`${addliquidityElasticPool}?farmRange=${activeRangeIndex}&fId=${farm.fId}`}>
                             <Trans>Add Liquidity ↗</Trans>
                           </Link>
                         )}
