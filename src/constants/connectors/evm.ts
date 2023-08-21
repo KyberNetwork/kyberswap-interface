@@ -23,7 +23,7 @@ type Opts = {
 }
 
 const opts: Opts = {
-  allowedDomains: [/kyberengineering.io$/, /kyberswap.com$/],
+  // allowedDomains: [/kyberengineering.io$/, /kyberswap.com$/],
   debug: true,
 }
 
