@@ -15,7 +15,7 @@ function getChainsFromEIP155Accounts(accounts?: string[]): ChainId[] {
     .filter(x => x !== undefined) as ChainId[]
 }
 
-export function useWalletSupportedChains() {
+export function useWalletSupportedChains(): ChainId[] {
   const { connector, chainId } = useWeb3React()
 
   switch (connector) {
@@ -24,7 +24,7 @@ export function useWalletSupportedChains() {
         ...getChainsFromEIP155Accounts((connector as WalletConnectV2).provider?.session?.namespaces?.eip155?.accounts),
       ]
     case gnosisSafe:
-      return [chainId]
+      return chainId ? [chainId] : SUPPORTED_NETWORKS
     default:
       return SUPPORTED_NETWORKS
   }
