@@ -1,4 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import SafeAppsSDK from '@safe-global/safe-apps-sdk'
 import { OPTIONAL_EVENTS } from '@walletconnect/ethereum-provider'
 import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
 import { initializeConnector } from '@web3-react/core'
@@ -16,6 +17,25 @@ import {
   WALLET_CONNECT_SUPPORTED_CHAIN_IDS,
 } from 'constants/networks'
 
+type Opts = {
+  allowedDomains?: RegExp[]
+  debug?: boolean
+}
+
+const opts: Opts = {
+  allowedDomains: [/kyberengineering.io$/, /kyberswap.com$/],
+  debug: true,
+}
+
+const appsSdk = new SafeAppsSDK(opts)
+;(async () => {
+  const envInfo = await appsSdk.safe.getEnvironmentInfo()
+  console.log('safe envInfo', { envInfo })
+  const info = await appsSdk.safe.getInfo()
+  console.log('safe info', { info })
+  const requestAddressBook = await appsSdk.safe.requestAddressBook()
+  console.log('safe requestAddressBook', { requestAddressBook })
+})()
 export const [injected, injectedHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
 export const [phantom, phantomHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
 export const [rabby, rabbyHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
@@ -56,7 +76,7 @@ export const [walletConnectV2, walletConnectV2Hooks] = initializeConnector<Walle
             '--w3m-accent-color': '#31CB9E',
             '--w3m-accent-fill-color': '#222222',
             '--w3m-color-bg-1': '#0F0F0F',
-          },
+          } as any,
         },
         metadata: {
           name: 'Kyberswap',
