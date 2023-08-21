@@ -4,7 +4,7 @@ import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { ArrowDown, Info } from 'react-feather'
+import { ArrowDown, ArrowUp } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -18,6 +18,7 @@ import Icon from 'components/Icons/Icon'
 import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import Pagination from 'components/Pagination'
 import Row, { RowBetween, RowFit } from 'components/Row'
+import { TextDotted } from 'components/Tooltip'
 import { APP_PATHS, ICON_ID, SORT_DIRECTION } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
@@ -849,13 +850,11 @@ export default function TokenAnalysisList() {
   const [sortType, setSortType] = useState<SORT_FIELD>()
   const [sortDirection, setSortDirection] = useState(SORT_DIRECTION.DESC)
   const SortArrow = ({ type }: { type: SORT_FIELD }) => {
-    return sortType === type ? (
-      sortDirection === SORT_DIRECTION.DESC ? (
-        <ArrowDown size={16} />
-      ) : (
-        <ArrowDown size={16} />
-      )
-    ) : null
+    return sortType === type && sortDirection === SORT_DIRECTION.DESC ? <ArrowUp size={16} /> : <ArrowDown size={16} />
+  }
+  const onChangeSort = (sort: SORT_FIELD) => {
+    setSortType(sort)
+    setSortDirection(sortDirection === SORT_DIRECTION.DESC ? SORT_DIRECTION.ASC : SORT_DIRECTION.DESC)
   }
 
   return (
@@ -911,31 +910,41 @@ export default function TokenAnalysisList() {
               <thead>
                 <tr>
                   <th>#</th>
-                  <th style={{ textAlign: 'left' }} className={isScrolling ? 'table-cell-shadow-right' : ''}>
+                  <th
+                    style={{ textAlign: 'left' }}
+                    className={isScrolling ? 'table-cell-shadow-right' : ''}
+                    onClick={() => onChangeSort(SORT_FIELD.NAME)}
+                  >
                     <Row gap="4px">
                       <Trans>Token name</Trans>
                       <SortArrow type={SORT_FIELD.NAME} />
                     </Row>
                   </th>
-                  <th style={{ textAlign: 'left' }}>
+                  <th style={{ textAlign: 'left' }} onClick={() => onChangeSort(SORT_FIELD.KYBER_SCORE)}>
                     <Column gap="4px">
                       <Row justify="flex-start" gap="4px">
-                        <Trans>Kyberscore</Trans>{' '}
-                        <SimpleTooltip
-                          text={
-                            <span>
-                              KyberScore uses AI to measure the upcoming trend of a token (bullish or bearish) by taking
-                              into account multiple on-chain and off-chain indicators. The score ranges from 0 to 100.
-                              Higher the score, more bullish the token in the short-term. Read more{' '}
-                              <a href="https://docs.kyberswap.com/kyberswap-solutions/kyberai/concepts/kyberscore">
-                                here ↗
-                              </a>
-                            </span>
-                          }
-                          delay={200}
-                        >
-                          <Info size={10} color={'currentcolor'} display="block" />
-                        </SimpleTooltip>
+                        <Column gap="2px">
+                          <SimpleTooltip
+                            text={
+                              <span>
+                                KyberScore uses AI to measure the upcoming trend of a token (bullish or bearish) by
+                                taking into account multiple on-chain and off-chain indicators. The score ranges from 0
+                                to 100. Higher the score, more bullish the token in the short-term. Read more{' '}
+                                <a href="https://docs.kyberswap.com/kyberswap-solutions/kyberai/concepts/kyberscore">
+                                  here ↗
+                                </a>
+                              </span>
+                            }
+                            delay={200}
+                          >
+                            <TextDotted>
+                              <Trans>Kyberscore</Trans>
+                            </TextDotted>
+                          </SimpleTooltip>
+                          <Text as="small" fontSize={'10px'} sx={{ textTransform: 'none' }}>
+                            At 08:88AM // todo
+                          </Text>
+                        </Column>
                         <SortArrow type={SORT_FIELD.KYBER_SCORE} />
                       </Row>
                     </Column>
@@ -945,7 +954,7 @@ export default function TokenAnalysisList() {
                       <Trans>Last 3D KyberScores</Trans>
                     </Text>
                   </th>
-                  <th>
+                  <th onClick={() => onChangeSort(SORT_FIELD.PRICE)}>
                     <Row justify="flex-start" gap="4px">
                       <Trans>Current Price</Trans>
                       <SortArrow type={SORT_FIELD.PRICE} />
@@ -956,7 +965,7 @@ export default function TokenAnalysisList() {
                       <Trans>Last 7d price</Trans>
                     </Row>
                   </th>
-                  <th>
+                  <th onClick={() => onChangeSort(SORT_FIELD.VOLUME_24H)}>
                     <Row justify="flex-start" gap="4px">
                       <Trans>
                         {{
@@ -968,7 +977,7 @@ export default function TokenAnalysisList() {
                     </Row>
                   </th>
                   {isCexFlowTabs && (
-                    <th>
+                    <th onClick={() => onChangeSort(SORT_FIELD.FIRST_DISCOVER_ON)}>
                       <Row justify="flex-start" gap="4px">
                         <Trans>
                           {{
