@@ -1,8 +1,9 @@
-import { wallet } from '../e2e/selectors/selectors.cy'
+import { WalletLocators } from '../e2e/selectors/selectors.cy'
 
 export {}
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Cypress {
     interface Chainable {
       connectWallet(): Chainable<void>
@@ -11,6 +12,6 @@ declare global {
 }
 
 Cypress.Commands.add('connectWallet', () => {
-  cy.get(wallet.checkboxAcceptTerm).click()
-  cy.get(wallet.btnMetaMask).click()
+  cy.get(WalletLocators.chkAcceptTerm).click()
+  cy.get(WalletLocators.btnMetaMask).click()
 })

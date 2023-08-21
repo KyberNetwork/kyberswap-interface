@@ -27,8 +27,8 @@
     "start-dev": "vite --mode dev --host",
     "start-stg": "vite --mode stg --host",
     "start-prod": "vite --mode production --host",
-    "test-e2e": "synpress run -cf cypress.config.ts -c baseUrl=http://127.0.0.1:4173/ -e grepTags=smoke,grepFilterSpecs=true,grepOmitFiltered=true",
-    "test-schedule": "synpress run -cf cypress.config.ts -c baseUrl=https://kyberswap.com/ -e grepTags=regression,grepFilterSpecs=true,grepOmitFiltered=true"
+    "test-e2e": "synpress run -cf cypress.config.ts -c baseUrl=http://127.0.0.1:4173/",
+    "test-schedule": "synpress run -cf cypress.config.ts -c baseUrl=https://kyberswap.com/"
   },
   "browserslist": [
     "chrome >= 52",
