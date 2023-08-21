@@ -46,6 +46,28 @@ import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation, useTokenList
 import { IKyberScoreChart, ITokenList, KyberAIListType, QueryTokenParams } from '../types'
 import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice, navigateToSwapPage } from '../utils'
 
+const SIZE_MOBILE = '1080px'
+
+const TradeInfoWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+   flex-direction: column;
+  `}
+`
+
+const ListTokenWrapper = styled(StyledSectionWrapper)`
+  height: fit-content;
+  padding: 0;
+  @media only screen and (max-width: ${SIZE_MOBILE}) {
+    margin-left: -16px;
+    margin-right: -16px;
+    border-left: 0;
+    border-right: 0;
+  }
+`
+
 const TableWrapper = styled.div`
   border-radius: 20px 20px 0 0;
   padding: 0;
@@ -53,9 +75,7 @@ const TableWrapper = styled.div`
   border-bottom: none;
   transition: all 0.15s ease;
   overflow: hidden;
-  @media only screen and (max-width: 1080px) {
-    margin-left: -16px;
-    margin-right: -16px;
+  @media only screen and (max-width: ${SIZE_MOBILE}) {
     border-radius: 0px;
     border: none;
     overflow-x: scroll;
@@ -69,7 +89,7 @@ const PaginationWrapper = styled.div`
   overflow: hidden;
   min-height: 50px;
   background-color: ${({ theme }) => theme.background};
-  @media only screen and (max-width: 1080px) {
+  @media only screen and (max-width: ${SIZE_MOBILE}) {
     margin-left: -16px;
     margin-right: -16px;
     border-radius: 0px;
@@ -752,6 +772,7 @@ export default function TokenAnalysisList() {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const tableRef = useRef<HTMLTableElement>(null)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
+  const isMobile = useMedia(`(max-width:${SIZE_MOBILE})`)
 
   const [searchParams, setSearchParams] = useSearchParams()
   // todo refactor
@@ -859,15 +880,15 @@ export default function TokenAnalysisList() {
 
   return (
     <>
-      <RowBetween gap="8px">
+      <TradeInfoWrapper>
         <Text fontSize="12px" color={theme.subText} fontWeight={500}>
           <Trans>Rankings will be updated every 4 hours</Trans>
         </Text>
         <Text fontSize="12px" color={theme.subText} fontStyle="italic">
           <Trans>Disclaimer: The information here should not be treated as any form of financial advice</Trans>
         </Text>
-      </RowBetween>
-      <StyledSectionWrapper style={{ height: 'fit-content', padding: 0 }}>
+      </TradeInfoWrapper>
+      <ListTokenWrapper>
         <TokenListDraggableTabs tab={listTypeParam} setTab={handleTabChange} />
 
         <TokenFilter
@@ -885,7 +906,7 @@ export default function TokenAnalysisList() {
                 background: theme.background,
                 opacity: 0.8,
                 zIndex: 100,
-                borderRadius: '20px',
+                borderRadius: isMobile ? 0 : '20px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -1000,7 +1021,7 @@ export default function TokenAnalysisList() {
                   <SkeletonTheme
                     baseColor={theme.border}
                     height="28px"
-                    borderRadius="8px"
+                    borderRadius={'8px'}
                     direction="ltr"
                     duration={1.5}
                     highlightColor={theme.tabActive}
@@ -1086,7 +1107,7 @@ export default function TokenAnalysisList() {
           }
         />
         <FeedbackSurvey />
-      </StyledSectionWrapper>
+      </ListTokenWrapper>
     </>
   )
 }

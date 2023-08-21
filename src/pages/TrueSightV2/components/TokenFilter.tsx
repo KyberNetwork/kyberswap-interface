@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ReactNode, useState } from 'react'
+import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -12,6 +13,7 @@ import useTheme from 'hooks/useTheme'
 import MultipleChainSelect from 'pages/MyEarnings/MultipleChainSelect'
 import SubscribeButtonKyberAI from 'pages/TrueSightV2/components/SubscireButtonKyberAI'
 import { NETWORK_TO_CHAINID, Z_INDEX_KYBER_AI } from 'pages/TrueSightV2/constants'
+import { MEDIA_WIDTHS } from 'theme'
 
 const categories: { [key: string]: SelectOption[] } = {
   categories: [
@@ -45,10 +47,17 @@ const categories: { [key: string]: SelectOption[] } = {
   ],
 }
 
+const SELECT_SIZE = '60px'
+
 const shareStyle = css`
   border: 1px solid ${({ theme }) => theme.border};
   border-radius: 16px;
-  height: 60px !important;
+  height: ${SELECT_SIZE} !important;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    height: unset !important;
+    padding-top: 6px;
+    padding-bottom: 6px;
+  `}
 `
 
 const StyledSelect = styled(Select)`
@@ -60,6 +69,59 @@ const StyledChainSelect = styled(MultipleChainSelect)`
   padding: 12px;
 `
 
+const SelectName = styled.div`
+  color: ${({ theme }) => theme.subText};
+  font-size: 10px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    display: none;
+  `}
+`
+
+const StyledWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 0 16px;
+  width: 100%;
+  align-items: center;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    position: relative;
+  `}
+`
+
+const ShareGroup = styled.div`
+  width: fit-content;
+  gap: 12px;
+  display: flex;
+  height: ${SELECT_SIZE};
+  align-self: flex-end;
+  align-items: center;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    height: unset;
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    padding: 0 12px;
+    background: ${theme.buttonBlack}
+  `}
+`
+
+const SelectGroup = styled.div`
+  width: fit-content;
+  gap: 12px;
+  display: flex;
+  height: ${SELECT_SIZE};
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    position: relative;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    overflow-x: scroll;
+  `}
+`
+
 export default function TokenFilter({
   handleFilterChange,
   handleChainChange,
@@ -69,6 +131,7 @@ export default function TokenFilter({
   handleChainChange: (v?: ChainId) => void
   setShowShare: (v: boolean) => void
 }) {
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const [filter, setFilter] = useState({})
 
   const onChangeFilter = (key: string, value: string) => {
@@ -88,9 +151,7 @@ export default function TokenFilter({
 
   const activeRender = (name: string, label: ReactNode) => (
     <Column gap="6px">
-      <Text color={theme.subText} fontSize={'10px'}>
-        {name}
-      </Text>
+      <SelectName>{name}</SelectName>
       <Text color={theme.text} fontSize={'14px'} fontWeight={'500'} className="test">
         {label}
       </Text>
@@ -101,8 +162,8 @@ export default function TokenFilter({
   const [selectedChains, setSelectChains] = useState<ChainId[]>(Object.values(NETWORK_TO_CHAINID))
 
   return (
-    <RowBetween width={'100%'} align="center" padding={'0 16px'}>
-      <RowFit gap="12px">
+    <StyledWrapper>
+      <SelectGroup>
         <StyledChainSelect
           menuStyle={{ left: 0 }}
           activeStyle={{
@@ -122,12 +183,11 @@ export default function TokenFilter({
             options={categories[key]}
             onChange={value => onChangeFilter(key, value)}
             optionStyle={{ fontSize: '14px' }}
-            menuStyle={{ zIndex: Z_INDEX_KYBER_AI.FILTER_TOKEN_OPTIONS, top: '60px' }}
+            menuStyle={{ zIndex: Z_INDEX_KYBER_AI.FILTER_TOKEN_OPTIONS, top: upToSmall ? undefined : SELECT_SIZE }}
           />
         ))}
-      </RowFit>
-
-      <RowFit gap="12px" alignSelf={'flex-end'} height={'60px'}>
+      </SelectGroup>
+      <ShareGroup>
         <ButtonGray
           color={theme.subText}
           gap="4px"
@@ -144,7 +204,7 @@ export default function TokenFilter({
           <Icon size={16} id="share" />
         </ButtonGray>
         <SubscribeButtonKyberAI source="ranking" />
-      </RowFit>
-    </RowBetween>
+      </ShareGroup>
+    </StyledWrapper>
   )
 }
