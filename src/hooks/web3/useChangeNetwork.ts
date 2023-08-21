@@ -36,7 +36,7 @@ export function useChangeNetwork() {
   const successCallback = useCallback(
     async (desiredChainId: ChainId, waitUtilUpdatedChainId: boolean, customSuccessCallback?: () => void) => {
       const initialChainId = latestChainId
-      /** although change chain successfully, but it take 1-2s for chainId has a new value
+      /** although change chain successfully, but it take 1-2s for chainId has a new value | update: or never change chain but still return success, e.g: safe, phantom evm
        * => this option will wait util chainId has actually update to new value to prevent some edge case
        */
       while (waitUtilUpdatedChainId) {
@@ -163,7 +163,7 @@ export function useChangeNetwork() {
       desiredChainId: ChainId,
       customSuccessCallback?: () => void,
       customFailureCallback?: (error: Error) => void,
-      waitUtilUpdatedChainId = false,
+      waitUtilUpdatedChainId = false, //todo: force all to true
       isAddNetworkIfPossible = true,
     ) => {
       const wrappedSuccessCallback = () =>
