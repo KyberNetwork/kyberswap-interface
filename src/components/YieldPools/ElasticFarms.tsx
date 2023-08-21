@@ -18,7 +18,7 @@ function ElasticFarms({ onShowStepGuide }: { onShowStepGuide: () => void }) {
   const [open, setOpen] = useState(false)
   useOnClickOutside(ref, open ? () => setOpen(prev => !prev) : undefined)
 
-  const { filteredFarms, farms, userFarmInfo } = useFilteredFarms()
+  const { filteredFarms, farms } = useFilteredFarms()
 
   const [selectedFarm, setSeletedFarm] = useState<null | string>(null)
   const [selectedModal, setSeletedModal] = useState<ModalType | null>(null)
@@ -85,7 +85,6 @@ function ElasticFarms({ onShowStepGuide }: { onShowStepGuide: () => void }) {
                 setSeletedPool(pool)
               }}
               pools={farm.pools}
-              userInfo={userFarmInfo?.[farm.id]}
               tokenPrices={tokenPrices}
             />
           )

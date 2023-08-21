@@ -3,9 +3,11 @@ import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Position, computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
+import { Interface } from 'ethers/lib/utils'
 import { useCallback, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
+import ELASTIC_FARM_ABI from 'constants/abis/v2/farm.json'
 import { ELASTIC_FARM_TYPE, FARM_TAB } from 'constants/index'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { isEVM as isEVMNetwork } from 'constants/networks'
@@ -14,8 +16,12 @@ import { useActiveWeb3React } from 'hooks'
 import { useTokens } from 'hooks/Tokens'
 import { useProAmmNFTPositionManagerContract, useProMMFarmContract } from 'hooks/useContract'
 import { usePools } from 'hooks/usePools'
-import { FarmingPool, NFTPosition } from 'state/farms/elastic/types'
+import { useProAmmPositionsFromTokenIds } from 'hooks/useProAmmPositions'
+import { useBlockNumber } from 'state/application/hooks'
+import { FarmingPool, NFTPosition, UserFarmInfo, UserInfo } from 'state/farms/elastic/types'
 import { useAppSelector } from 'state/hooks'
+import { getPoolAddress } from 'state/mint/proamm/utils'
+import { toCallState, useCallsData, useMultipleContractSingleData } from 'state/multicall/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import {
   TRANSACTION_TYPE,
@@ -38,12 +44,13 @@ export const useElasticFarms = () => {
 
 export const useFilteredFarms = () => {
   const { isEVM, networkInfo, chainId } = useActiveWeb3React()
+  const depositedPositions = useDepositedNfts()
 
   const [searchParams] = useSearchParams()
   const filteredToken0Id = searchParams.get('token0') || undefined
   const filteredToken1Id = searchParams.get('token1') || undefined
 
-  const { farms, loading, userFarmInfo } = useElasticFarms()
+  const { farms, loading } = useElasticFarms()
 
   const type = searchParams.get('type')
   const activeTab: string = type || FARM_TAB.ACTIVE
@@ -130,10 +137,10 @@ export const useFilteredFarms = () => {
 
     if (activeTab === FARM_TAB.MY_FARMS && isEVM) {
       result = result?.map(item => {
-        if (!userFarmInfo?.[item.id].depositedPositions.length) {
+        if (depositedPositions[item.id]?.length) {
           return { ...item, pools: [] }
         }
-        const stakedPools = userFarmInfo?.[item.id].depositedPositions.map(pos =>
+        const stakedPools = depositedPositions[item.id]?.map(pos =>
           computePoolAddress({
             factoryAddress: (networkInfo as EVMNetworkInfo).elastic.coreFactory,
             tokenA: pos.pool.token0,
@@ -154,7 +161,7 @@ export const useFilteredFarms = () => {
     search,
     activeTab,
     chainId,
-    userFarmInfo,
+    depositedPositions,
     isEVM,
     networkInfo,
     filteredToken0Id,
@@ -165,7 +172,6 @@ export const useFilteredFarms = () => {
   return {
     farms,
     loading,
-    userFarmInfo,
     filteredFarms,
   }
 }
@@ -497,4 +503,162 @@ export const usePositionFilter = (positions: PositionDetails[], validPools: stri
     eligiblePositions,
     filterOptions,
   }
+}
+
+const farmInterface = new Interface(ELASTIC_FARM_ABI)
+
+export function useDepositedNfts(): { [address: string]: NFTPosition[] } {
+  const elasticFarm = useElasticFarms()
+  const farmAddresses = useMemo(() => {
+    return elasticFarm.farms?.map(item => item.id) || []
+  }, [elasticFarm])
+
+  const { account } = useActiveWeb3React()
+  const result = useMultipleContractSingleData(farmAddresses, farmInterface, 'getDepositedNFTs', [account])
+
+  const nftByFarmAddress = useMemo(() => {
+    const res: { [key: string]: BigNumber[] } = {}
+    result.forEach((item, idx) => {
+      res[farmAddresses[idx]] = item.result?.listNFTs || []
+    })
+    return res
+  }, [result, farmAddresses])
+
+  const { positions = [] } = useProAmmPositionsFromTokenIds(Object.values(nftByFarmAddress).flat())
+
+  return useMemo(() => {
+    const positionByFarmAddess: { [key: string]: Array<NFTPosition> } = {}
+
+    farmAddresses.forEach(address => {
+      const { pools } = elasticFarm.farms?.find(item => item.id === address) || {}
+
+      positionByFarmAddess[address] = (nftByFarmAddress[address] || [])
+        .map((id: BigNumber) => {
+          const position = positions.find(item => item.tokenId.toString() === id.toString())
+          const pool = pools?.find(pool => pool.poolAddress.toLowerCase() === position?.poolId.toLowerCase())?.pool
+          if (!pool || !position) return null
+          return new NFTPosition({
+            nftId: id,
+            pool,
+            liquidity: position.liquidity.toString(),
+            tickLower: position.tickLower,
+            tickUpper: position.tickUpper,
+          })
+        })
+        .filter(item => item !== null) as NFTPosition[]
+    })
+
+    return positionByFarmAddess
+  }, [elasticFarm, positions, nftByFarmAddress, farmAddresses])
+}
+
+export function useDepositedNftsByFarm(farmAddress: string): NFTPosition[] {
+  const positionByFarm = useDepositedNfts()
+  return useMemo(() => positionByFarm[farmAddress] || [], [positionByFarm, farmAddress])
+}
+
+const getUserInfoFragment = farmInterface.getFunction('getUserInfo')
+
+export function useJoinedPositions() {
+  const positions = useDepositedNfts()
+  const elasticFarm = useElasticFarms()
+  const latestBlockNumber = useBlockNumber()
+
+  const params = useMemo(() => {
+    return (elasticFarm.farms || []).map(farm => {
+      const calls: { address: string; callData: string; pos: NFTPosition; pid: string }[] = []
+
+      const deposited = positions[farm.id] || []
+      deposited.forEach(pos => {
+        const poolAddress = getPoolAddress(pos.pool)
+        const matchedPools = farm.pools.filter(p => p.poolAddress.toLowerCase() === poolAddress.toLowerCase())
+
+        matchedPools.forEach(pool => {
+          calls.push({
+            address: farm.id,
+            callData: farmInterface.encodeFunctionData(getUserInfoFragment, [pos.nftId, pool.pid]),
+            pid: pool.pid.toString(),
+            pos: pos,
+          })
+        })
+      })
+      return calls
+    })
+  }, [elasticFarm, positions])
+
+  const rawRes = useCallsData(params.flat())
+
+  const result = useMemo(
+    () => rawRes.map(item => toCallState(item, farmInterface, getUserInfoFragment, latestBlockNumber)),
+    [rawRes, latestBlockNumber],
+  )
+
+  return useMemo(() => {
+    const userInfo: UserFarmInfo = {}
+    elasticFarm.farms?.forEach((farm, idx) => {
+      const joinedPositions: { [pid: string]: NFTPosition[] } = {}
+      const rewardPendings: { [pid: string]: CurrencyAmount<Currency>[] } = {}
+      const rewardByNft: { [pid_nftId: string]: CurrencyAmount<Currency>[] } = {}
+
+      const startIdx = idx === 0 ? 0 : params.slice(0, idx + 1).reduce((acc, cur) => acc + cur.length, 0)
+      const endIdx = startIdx + params[idx].length
+
+      const res = result.slice(startIdx, endIdx)
+
+      params[idx].forEach((param, index) => {
+        const pid = param.pid.toString()
+        const nftId = param.pos.nftId
+
+        if (res[index].result) {
+          if (!joinedPositions[pid]) {
+            joinedPositions[pid] = []
+          }
+
+          const depositedPos = positions[farm.id].find(pos => pos.nftId.eq(nftId))
+          const farmingPool = farm.pools.find(p => p.pid === pid)
+
+          if (depositedPos && farmingPool) {
+            const pos = new NFTPosition({
+              nftId,
+              liquidity: res[index].result?.liquidity,
+              tickLower: depositedPos.tickLower,
+              tickUpper: depositedPos.tickUpper,
+              pool: depositedPos.pool,
+            })
+            joinedPositions[pid].push(pos)
+
+            const id = `${pid}_${nftId.toString()}`
+            if (!rewardByNft[id]) {
+              rewardByNft[id] = []
+            }
+            if (!rewardPendings[pid]) {
+              rewardPendings[pid] = []
+            }
+            farmingPool.rewardTokens.forEach((currency, i) => {
+              const amount = CurrencyAmount.fromRawAmount(currency, res[index].result?.rewardPending[i])
+              rewardByNft[id][i] = amount
+
+              if (!rewardPendings[pid][i]) {
+                rewardPendings[pid][i] = amount
+              } else {
+                rewardPendings[pid][i] = rewardPendings[pid][i].add(amount)
+              }
+            })
+          }
+        }
+      })
+
+      userInfo[farm.id] = {
+        joinedPositions,
+        rewardPendings,
+        rewardByNft,
+      }
+    })
+    return userInfo
+  }, [result, params, elasticFarm, positions])
+}
+
+export function useUserInfoByFarm(farmAddress: string): UserInfo {
+  const userFarmsInfo = useJoinedPositions()
+  return useMemo(() => userFarmsInfo[farmAddress] || {}, [userFarmsInfo, farmAddress])
 }

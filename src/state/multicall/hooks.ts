@@ -53,7 +53,7 @@ export const NEVER_RELOAD: ListenerOptions = {
 }
 
 // the lowest level call for subscribing to contract data
-function useCallsData(calls: (Call | undefined)[], options?: ListenerOptions): CallResult[] {
+export function useCallsData(calls: (Call | undefined)[], options?: ListenerOptions): CallResult[] {
   const { chainId, isEVM } = useActiveWeb3React()
   const callResults = useSelector<AppState, AppState['multicall']['callResults'][ChainId]>(
     state => state.multicall.callResults?.[chainId],
@@ -132,7 +132,7 @@ interface CallState {
 const INVALID_CALL_STATE: CallState = { valid: false, result: undefined, loading: false, syncing: false, error: false }
 const LOADING_CALL_STATE: CallState = { valid: true, result: undefined, loading: true, syncing: true, error: false }
 
-function toCallState(
+export function toCallState(
   callResult: CallResult | undefined,
   contractInterface: Interface | undefined,
   fragment: FunctionFragment | undefined,

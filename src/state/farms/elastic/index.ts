@@ -1,12 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-import { ElasticFarm, UserFarmInfo } from './types'
+import { ElasticFarm } from './types'
 
 interface ElasticFarmState {
   [chainId: number]: {
     loading: boolean
     farms: ElasticFarm[] | null
-    userFarmInfo?: UserFarmInfo
     loadingUserInfo: boolean
     poolFeeLast24h: {
       [poolId: string]: number
@@ -38,13 +37,6 @@ const slice = createSlice({
       } else state[chainId] = { ...state[chainId], loading }
     },
 
-    setUserFarmInfo(
-      state,
-      { payload: { userInfo, chainId } }: { payload: { userInfo: UserFarmInfo; chainId: number } },
-    ) {
-      state[chainId].userFarmInfo = userInfo
-    },
-
     setPoolFeeData(state, { payload: { chainId, data } }) {
       state[chainId].poolFeeLast24h = data
     },
@@ -57,6 +49,6 @@ const slice = createSlice({
   },
 })
 
-export const { setFarms, setLoading, setUserFarmInfo, setPoolFeeData, setLoadingUserInfo } = slice.actions
+export const { setFarms, setLoading, setPoolFeeData, setLoadingUserInfo } = slice.actions
 
 export default slice.reducer

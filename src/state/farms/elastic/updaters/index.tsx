@@ -12,7 +12,7 @@ export type CommonProps = {
 const FarmUpdater: React.FC<CommonProps> = ({ interval = true }) => {
   const { chainId } = useActiveWeb3React()
 
-  useGetUserFarmingInfo(interval)
+  useGetUserFarmingInfo()
 
   if (!chainId) {
     return null
