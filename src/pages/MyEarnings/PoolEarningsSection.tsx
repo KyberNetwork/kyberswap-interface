@@ -175,8 +175,13 @@ const PoolEarningsSection: React.FC<Props> = ({ historicalEarning, chainId }) =>
 
   // format pool value
   const ticks: EarningStatsTick[] | undefined = useMemo(() => {
-    return calculateEarningStatsTick({ data: historicalEarning, chainId, tokensByChainId, nativeLogo })
-  }, [chainId, historicalEarning, tokensByChainId, nativeLogo])
+    return calculateEarningStatsTick({
+      data: historicalEarning,
+      chainId,
+      tokensByChainId: { ...tokensByChainId[chainId], ...tokens },
+      nativeLogo,
+    })
+  }, [chainId, historicalEarning, tokensByChainId, nativeLogo, tokens])
 
   if (upToExtraSmall) {
     return (
