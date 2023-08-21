@@ -1,3 +1,4 @@
+import SafeAppsSDK from '@safe-global/safe-apps-sdk'
 import { BaseMessageSignerWalletAdapter, WalletReadyState } from '@solana/wallet-adapter-base'
 import { Web3ReactHooks } from '@web3-react/core'
 import { Connector } from '@web3-react/types'
@@ -78,11 +79,16 @@ const detectBlocto = (): WalletReadyState => {
   return WalletReadyState.NotDetected
 }
 
+let isSafe = false
+const appsSdk = new SafeAppsSDK({})
+;(async () => {
+  try {
+    const result = await appsSdk.safe.getEnvironmentInfo()
+    if (result) isSafe = true
+  } catch (error) {}
+})()
 const detectSafe = (): WalletReadyState => {
-  // todo namgold: WIP
-  return WalletReadyState.Installed
-  // if (getIsGenericInjector()) return WalletReadyState.Installed
-  // return WalletReadyState.NotDetected
+  return isSafe ? WalletReadyState.Installed : WalletReadyState.NotDetected
 }
 
 const detectRabby = (): WalletReadyState => {

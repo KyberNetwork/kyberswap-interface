@@ -1,5 +1,4 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import SafeAppsSDK from '@safe-global/safe-apps-sdk'
 import { OPTIONAL_EVENTS } from '@walletconnect/ethereum-provider'
 import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
 import { initializeConnector } from '@web3-react/core'
@@ -16,34 +15,6 @@ import {
   WALLET_CONNECT_REQUIRED_CHAIN_IDS,
   WALLET_CONNECT_SUPPORTED_CHAIN_IDS,
 } from 'constants/networks'
-
-type Opts = {
-  allowedDomains?: RegExp[]
-  debug?: boolean
-}
-
-const opts: Opts = {
-  // allowedDomains: [/kyberengineering.io$/, /kyberswap.com$/],
-  debug: true,
-}
-
-const appsSdk = new SafeAppsSDK(opts)
-;(async () => {
-  const getSafeInfo = async (fn: 'getEnvironmentInfo' | 'getInfo' | 'requestAddressBook') => {
-    try {
-      console.log('safe ' + fn + ' start')
-      const promise = appsSdk.safe[fn]()
-      console.log('safe ' + fn + ' promise', { promise })
-      const result = await promise
-      console.log('safe ' + fn + ' result', { result })
-    } catch (error) {
-      console.log('safe' + fn + ' error', { error })
-    }
-  }
-  getSafeInfo('getEnvironmentInfo')
-  getSafeInfo('getInfo')
-  getSafeInfo('requestAddressBook')
-})()
 
 export const [injected, injectedHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
 export const [rabby, rabbyHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
