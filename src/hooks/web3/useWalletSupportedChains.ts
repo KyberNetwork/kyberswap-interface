@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { WalletConnect as WalletConnectV2 } from '@web3-react/walletconnect-v2'
 
-import { walletConnectV2 } from 'constants/connectors/evm'
+import { gnosisSafe, walletConnectV2 } from 'constants/connectors/evm'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { useWeb3React } from 'hooks'
 
@@ -16,13 +16,15 @@ function getChainsFromEIP155Accounts(accounts?: string[]): ChainId[] {
 }
 
 export function useWalletSupportedChains() {
-  const { connector } = useWeb3React()
+  const { connector, chainId } = useWeb3React()
 
   switch (connector) {
     case walletConnectV2:
       return [
         ...getChainsFromEIP155Accounts((connector as WalletConnectV2).provider?.session?.namespaces?.eip155?.accounts),
       ]
+    case gnosisSafe:
+      return [chainId]
     default:
       return SUPPORTED_NETWORKS
   }
