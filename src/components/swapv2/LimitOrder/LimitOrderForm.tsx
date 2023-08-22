@@ -8,6 +8,7 @@ import { rgba } from 'polished'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Info, Repeat } from 'react-feather'
 import { Flex, Text } from 'rebass'
+import { useGetLOContractAddressQuery } from 'services/limitOrder'
 import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -40,7 +41,6 @@ import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'
-import { getLimitOrderContract } from 'utils'
 import { subscribeNotificationOrderCancelled, subscribeNotificationOrderExpired } from 'utils/firebase'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 
@@ -276,10 +276,11 @@ const LimitOrderForm = function LimitOrderForm({
   }
 
   const parseInputAmount = tryParseAmount(inputAmount, currencyIn ?? undefined)
+  const { data: limitOrderContract } = useGetLOContractAddressQuery(chainId)
   const currentAllowance = useTokenAllowance(
     currencyIn as Token,
     account ?? undefined,
-    getLimitOrderContract(chainId) ?? '',
+    limitOrderContract ?? '',
   ) as CurrencyAmount<Currency>
 
   const parsedActiveOrderMakingAmount = useMemo(() => {
@@ -323,11 +324,7 @@ const LimitOrderForm = function LimitOrderForm({
     }
   }, [currencyIn?.isNative, currentAllowance, parseInputAmount, parsedActiveOrderMakingAmount])
 
-  const [approval, approveCallback] = useApproveCallback(
-    parseInputAmount,
-    getLimitOrderContract(chainId) ?? '',
-    !enoughAllowance,
-  )
+  const [approval, approveCallback] = useApproveCallback(parseInputAmount, limitOrderContract ?? '', !enoughAllowance)
 
   const { inputError, outPutError } = useValidateInputError({
     inputAmount,
