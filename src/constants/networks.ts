@@ -214,4 +214,9 @@ export const SUPPORTED_NETWORKS_FOR_MY_EARNINGS = [
 ]
 export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS: ChainId[] = []
 export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY: ChainId[] = []
-export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC: ChainId[] = []
+export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC: ChainId[] = [
+  ChainId.CRONOS,
+  ChainId.VELAS,
+  ChainId.AURORA,
+  ChainId.OASIS,
+]
