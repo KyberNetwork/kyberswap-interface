@@ -464,7 +464,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     const response = await sendEVMTransaction(
       account,
       library,
-      getLimitOrderContract(chainId) ?? '',
+      order?.contractAddress ?? '',
       encodedData,
       BigNumber.from(0),
     )
