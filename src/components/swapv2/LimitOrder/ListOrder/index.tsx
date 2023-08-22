@@ -21,7 +21,6 @@ import SubscribeNotificationButton from 'components/SubscribeButton'
 import LIMIT_ORDER_ABI from 'constants/abis/limit_order.json'
 import { EMPTY_ARRAY, TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useContract } from 'hooks/useContract'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useNotify } from 'state/application/hooks'
@@ -30,12 +29,13 @@ import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { TransactionFlowState } from 'types/TransactionFlowState'
-import { findTx, getLimitOrderContract } from 'utils'
+import { findTx } from 'utils'
 import {
   subscribeNotificationOrderCancelled,
   subscribeNotificationOrderExpired,
   subscribeNotificationOrderFilled,
 } from 'utils/firebase'
+import { getContract } from 'utils/getContract'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { getTransactionStatus } from 'utils/transaction'
 
@@ -132,7 +132,6 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   const [keyword, setKeyword] = useState('')
   const [isOpenCancel, setIsOpenCancel] = useState(false)
   const [isOpenEdit, setIsOpenEdit] = useState(false)
-  const limitOrderContract = useContract(getLimitOrderContract(chainId) ?? '', LIMIT_ORDER_ABI)
   const notify = useNotify()
   const { ordersUpdating } = useLimitState()
   const addTransactionWithType = useTransactionAdder()
@@ -447,7 +446,10 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   }, [orders, isOrderCancelling])
 
   const requestCancelOrder = async (order: LimitOrder | undefined) => {
-    if (!library || !account || !limitOrderContract) return Promise.reject('Wrong input')
+    if (!library || !account) return Promise.reject('Wrong input')
+    const limitOrderContract = isCancelAll
+      ? getContract(order?.contractAddress ?? '', LIMIT_ORDER_ABI, library, account)
+      : undefined
 
     setFlowState(state => ({
       ...state,
@@ -458,7 +460,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
 
     const [{ encodedData }, nonce] = await Promise.all([
       getEncodeData([order?.id].filter(Boolean) as number[], isCancelAll),
-      isCancelAll ? limitOrderContract.nonce(account) : Promise.resolve(BigNumber.from(0)),
+      isCancelAll ? limitOrderContract?.nonce?.(account) : Promise.resolve(BigNumber.from(0)),
     ])
 
     const response = await sendEVMTransaction(
