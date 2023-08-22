@@ -95,10 +95,11 @@ function subscribeListLimitOrder(
   return unsubscribe
 }
 
+export type OrderNonces = { [key: string]: number[] }
 export function subscribeCancellingOrders(
   account: string,
   chainId: ChainId,
-  callback: (data: { orderIds: number[]; nonces: number[] }) => void,
+  callback: (data: { orderIds: number[]; noncesByContract: OrderNonces }) => void,
 ) {
   return subscribeDocument(
     dbLimitOrder,

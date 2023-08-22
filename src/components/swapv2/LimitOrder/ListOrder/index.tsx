@@ -471,7 +471,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
       BigNumber.from(0),
     )
     const newOrders = isCancelAll ? orders.map(e => e.id) : order?.id ? [order?.id] : []
-    setCancellingOrders({ orderIds: cancellingOrdersIds.concat(newOrders) })
+    setCancellingOrders(cancellingOrdersIds.concat(newOrders))
 
     if (response?.hash) {
       insertCancellingOrder({
