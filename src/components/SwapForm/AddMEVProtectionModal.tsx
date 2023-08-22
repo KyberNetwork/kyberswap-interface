@@ -138,17 +138,20 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
         <Row gap="12px">
           <Text fontSize={12} lineHeight="16px">
             <Trans>
-              We suggest using the{' '}
+              <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/maximal-extractable-value-mev">
+                MEV
+              </ExternalLink>{' '}
+              Protection safeguards you from front-running attacks on Ethereum. We suggest you employing the{' '}
               <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-technologies/rpc">
                 RPC endpoint
               </ExternalLink>{' '}
-              of trusted third-parties like{' '}
+              of reliable third-parties such as{' '}
               <ExternalLink href="https://docs.flashbots.net/flashbots-protect/overview">Flashbots</ExternalLink> or{' '}
-              <ExternalLink href="https://mevblocker.io/#faq">MEVBlocker</ExternalLink> to protect you from MEV Bots.{' '}
+              <ExternalLink href="https://mevblocker.io/#faq">MEVBlocker</ExternalLink>.
               <br />
               <br />
-              Please note that adding a RPC endpoint automatically is only supported via the MetaMask wallet. If you
-              wish to add the RPC endpoint to your wallet manually, refer to this{' '}
+              Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you would
+              like to add the RPC endpoint to your wallet manually, please refer to this{' '}
               <ExternalLink href="https://docs.kyberswap.com/getting-started/quickstart/faq#how-to-change-rpc-in-metamask">
                 guide
               </ExternalLink>
