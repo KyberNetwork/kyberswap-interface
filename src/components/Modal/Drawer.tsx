@@ -1,10 +1,10 @@
 import { Trans } from '@lingui/macro'
 import { DialogContent, DialogOverlay } from '@reach/dialog'
 import '@reach/dialog/styles.css'
+import { AnimatePresence, motion } from 'framer-motion'
 import { transparentize } from 'polished'
 import React, { ReactNode } from 'react'
 import { X } from 'react-feather'
-import { animated, useTransition } from 'react-spring'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -12,7 +12,7 @@ import Column from 'components/Column'
 import Row from 'components/Row'
 import useTheme from 'hooks/useTheme'
 
-const AnimatedDialogOverlay = animated(DialogOverlay)
+const AnimatedDialogOverlay = motion(DialogOverlay)
 
 const StyledDialogOverlay = styled(AnimatedDialogOverlay)<{ zindex: string | number }>`
   &[data-reach-dialog-overlay] {
@@ -27,7 +27,7 @@ const StyledDialogOverlay = styled(AnimatedDialogOverlay)<{ zindex: string | num
   }
 `
 
-const AnimatedDialogContent = animated(DialogContent)
+const AnimatedDialogContent = motion(DialogContent)
 // destructure to not pass custom props to Dialog DOM element
 const StyledDialogContent = styled(
   ({ borderRadius, minHeight, maxHeight, maxWidth, width, height, bgColor, isOpen, margin, ...rest }) => (
@@ -80,22 +80,31 @@ export default function Drawer({
   trigger,
   title,
 }: ModalProps) {
-  const fadeTransition = useTransition(isOpen, {
-    config: { duration: 200 },
-    from: { left: -window.innerWidth },
-    enter: { left: 0 },
-    leave: { left: -window.innerWidth },
-  })
-
   const theme = useTheme()
+
   return (
     <>
       {trigger}
-      {fadeTransition(
-        (style, item) =>
-          item && (
-            <StyledDialogOverlay zindex={zindex} style={style} onDismiss={onDismiss}>
-              <StyledDialogContent width={width} bgColor={bgColor} className={className}>
+      {
+        <AnimatePresence>
+          {isOpen && (
+            <StyledDialogOverlay
+              zindex={zindex}
+              onDismiss={onDismiss}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <StyledDialogContent
+                width={width}
+                bgColor={bgColor}
+                className={className}
+                initial={{ x: -window.innerWidth }}
+                animate={{ x: 0 }}
+                exit={{ x: -window.innerWidth }}
+                transition={{ duration: 0.3 }}
+              >
                 <Column width={'100%'} gap="12px">
                   <Row width={'100%'} justify="space-between">
                     <Text fontWeight={'500'} color={theme.text}>
@@ -107,8 +116,9 @@ export default function Drawer({
                 </Column>
               </StyledDialogContent>
             </StyledDialogOverlay>
-          ),
-      )}
+          )}
+        </AnimatePresence>
+      }
     </>
   )
 }
