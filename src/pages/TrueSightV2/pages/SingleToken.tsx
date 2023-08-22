@@ -285,7 +285,15 @@ const TokenNameGroup = ({ token, isLoading }: { token?: ITokenOverview; isLoadin
           <ChevronLeft size={24} />
         </ButtonIcon>
       </SimpleTooltip>
-      <WatchlistButton />
+      <WatchlistButton
+        wrapperStyle={{
+          color: theme.subText,
+          backgroundColor: theme.darkMode ? theme.buttonGray : theme.background,
+          height: above768 ? '36px' : '32px',
+          width: above768 ? '36px' : '32px',
+          borderRadius: '100%',
+        }}
+      />
       <div style={{ position: 'relative' }}>
         <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
           <img
