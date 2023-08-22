@@ -136,10 +136,10 @@ const SwapActionButton: React.FC<Props> = ({
   const toggleApprovalModal = useToggleModal(ApplicationModal.SWAP_APPROVAL)
 
   const handleApproveClick = () => {
-    if (walletKey && ['METAMASK', 'TRUST_WALLET'].includes(walletKey)) {
-      approveCallback()
-    } else {
+    if (['COIN98', 'BRAVE', 'COINBASE'].includes(walletKey)) {
       toggleApprovalModal()
+    } else {
+      approveCallback()
     }
   }
 

@@ -190,7 +190,7 @@ export const SUPPORTED_WALLETS = {
     installLink: 'https://safe.global/wallet',
     readyState: detectSafe,
   } as EVMWalletInfo,
-  RABBBY: {
+  RABBY: {
     connector: rabby,
     hooks: rabbyHooks,
     name: 'Rabby',
@@ -298,7 +298,7 @@ export const INJECTED_KEYS = [
   'COINBASE',
   'TRUST_WALLET',
   'KRYSTAL',
-  'RABBBY',
+  'RABBY',
   'INJECTED',
 ] as const
 export type INJECTED_KEY = typeof INJECTED_KEYS[number]
