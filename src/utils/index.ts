@@ -471,10 +471,10 @@ export const isChristmasTime = () => {
   return currentTime.month() === 11 && currentTime.date() >= 15
 }
 
-export const getLimitOrderContract = (chainId: ChainId): string | null => {
-  if (!SUPPORTED_NETWORKS.includes(chainId)) return null
+export const isSupportLimitOrder = (chainId: ChainId): boolean => {
+  if (!SUPPORTED_NETWORKS.includes(chainId)) return false
   const { production, development } = NETWORKS_INFO[chainId]?.limitOrder ?? {}
-  return ENV_KEY === 'production' || ENV_KEY === 'staging' ? production : development
+  return ENV_KEY === 'production' || ENV_KEY === 'staging' ? !!production : !!development
 }
 
 export function openFullscreen(elem: any) {

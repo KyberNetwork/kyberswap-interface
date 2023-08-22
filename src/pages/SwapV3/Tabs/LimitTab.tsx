@@ -10,7 +10,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { getNumberOfInsufficientFundOrders } from 'components/swapv2/LimitOrder/request'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { getLimitOrderContract } from 'utils'
+import { isSupportLimitOrder } from 'utils'
 
 import { Tab } from './index'
 
@@ -34,12 +34,12 @@ export default function LimitTab({ onClick }: Props) {
   const [numberOfInsufficientFundOrders, setNumberOfInsufficientFundOrders] = useState(0)
 
   const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT)
-  const isSupportLimitOrder = getLimitOrderContract(chainId)
+  const isSupport = isSupportLimitOrder(chainId)
 
   const getMountedState = useMountedState()
 
   useEffect(() => {
-    if (!isSupportLimitOrder || !account) {
+    if (!isSupport || !account) {
       return
     }
 
@@ -62,9 +62,9 @@ export default function LimitTab({ onClick }: Props) {
     return () => {
       clearInterval(interval)
     }
-  }, [account, chainId, isSupportLimitOrder, getMountedState])
+  }, [account, chainId, isSupport, getMountedState])
 
-  if (!isSupportLimitOrder) {
+  if (!isSupport) {
     return null
   }
 
