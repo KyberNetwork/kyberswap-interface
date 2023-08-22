@@ -216,12 +216,6 @@ export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS: ChainId[] = []
 export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY: ChainId[] = []
 export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC: ChainId[] = [
   ChainId.CRONOS,
-  ChainId.OASIS,
-  ChainId.MATIC,
-  ChainId.BSCMAINNET,
-  ChainId.AVAXMAINNET,
-  ChainId.CRONOS,
-  ChainId.BTTC,
   ChainId.VELAS,
   ChainId.AURORA,
   ChainId.OASIS,

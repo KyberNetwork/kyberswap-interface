@@ -29,7 +29,12 @@ const EarningView: React.FC<CommonProps> = props => {
 
   // format pool value
   const ticks: EarningStatsTick[] | undefined = useMemo(() => {
-    return calculateEarningStatsTick({ data: positionEarning.historicalEarning, chainId, tokensByChainId, nativeLogo })
+    return calculateEarningStatsTick({
+      data: positionEarning.historicalEarning,
+      chainId,
+      tokensByChainId: tokensByChainId[chainId],
+      nativeLogo,
+    })
   }, [chainId, positionEarning.historicalEarning, tokensByChainId, nativeLogo])
 
   const earningToday = ticks?.[0]

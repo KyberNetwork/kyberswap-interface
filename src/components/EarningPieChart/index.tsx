@@ -2,6 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { darken, rgba } from 'polished'
 import { useCallback, useMemo, useState } from 'react'
+import { HelpCircle } from 'react-feather'
 import { PieChart, pieChartDefaultProps } from 'react-minimal-pie-chart'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -133,18 +134,7 @@ const Legend: React.FC<LegendProps> = ({
           justifyContent: 'center',
         }}
       >
-        {logoUrl ? (
-          <Logo srcs={[logoUrl]} style={{ width: 14, height: 14 }} />
-        ) : (
-          <Flex
-            sx={{
-              flex: '0 0 14px',
-              height: '14px',
-              borderRadius: '999px',
-              background: theme.subText,
-            }}
-          />
-        )}
+        {logoUrl ? <Logo srcs={[logoUrl]} style={{ width: 14, height: 14 }} /> : <HelpCircle />}
         {chainId && (
           <NetworkLogo
             chainId={chainId}
