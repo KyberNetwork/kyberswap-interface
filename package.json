@@ -47,6 +47,7 @@
     "@apollo/client": "^3.7.1",
     "@blocto/web3-react-connector": "^1.0.0",
     "@datadog/browser-rum": "^4.23.3",
+    "@coinbase/wallet-sdk": "^3.0.4",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@kybernetwork/oauth2": "1.0.0",
     "@kyberswap/ks-sdk-classic": "^1.0.3",
