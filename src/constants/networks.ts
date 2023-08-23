@@ -1,4 +1,5 @@
 import { ChainId, ChainType, getChainType } from '@kyberswap/ks-sdk-core'
+import { t } from '@lingui/macro'
 
 import { SolanaNetworkInfo } from 'constants/networks/type'
 
@@ -225,3 +226,13 @@ export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC: ChainId[] = [
   ChainId.AURORA,
   ChainId.OASIS,
 ]
+
+export const ELASTIC_NOT_SUPPORTED: { [key: string]: string } = {
+  [ChainId.AURORA]: t`Elastic is not supported on Aurora. Please switch to other chains`,
+  [ChainId.ZKSYNC]: t`Elastic will be available soon`,
+  // [ChainId.VELAS]: t`Elastic will be available soon`,
+}
+
+export const CLASSIC_NOT_SUPPORTED: { [key: string]: string } = {
+  [ChainId.BASE]: t`Classic is not supported on Base. Please switch to other chains`,
+}
