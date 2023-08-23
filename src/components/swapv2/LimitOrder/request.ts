@@ -73,13 +73,3 @@ export const ackNotificationOrder = (docIds: string[], maker: string, chainId: C
     })
     .then(formatData)
 }
-
-export const insertCancellingOrder = (data: {
-  orderIds?: number[]
-  nonce?: number
-  maker: string
-  chainId: string
-  txHash: string
-}) => {
-  return axios.post(`${LIMIT_ORDER_API_WRITE}/v1/orders/cancelling`, data).then(formatData)
-}
