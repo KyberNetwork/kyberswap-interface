@@ -317,6 +317,7 @@ export const CHAINS_SUPPORT_CROSS_CHAIN =
         ChainId.OPTIMISM,
         ChainId.FANTOM,
         ChainId.LINEA,
+        ChainId.BASE,
       ]
     : SUPPORTED_NETWORKS
 
