@@ -7,7 +7,7 @@ import { isMobile } from 'react-device-detect'
 import { Info, Trash } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
-import { useGetListOrdersQuery } from 'services/limitOrder'
+import { useGetListOrdersQuery, useInsertCancellingOrderMutation } from 'services/limitOrder'
 import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -43,7 +43,7 @@ import EditOrderModal from '../EditOrderModal'
 import CancelOrderModal from '../Modals/CancelOrderModal'
 import { ACTIVE_ORDER_OPTIONS, CLOSE_ORDER_OPTIONS } from '../const'
 import { calcPercentFilledOrder, formatAmountOrder, getErrorMessage, isActiveStatus } from '../helpers'
-import { ackNotificationOrder, getEncodeData, insertCancellingOrder } from '../request'
+import { ackNotificationOrder, getEncodeData } from '../request'
 import { LimitOrder, LimitOrderStatus, ListOrderHandle } from '../type'
 import useCancellingOrders from '../useCancellingOrders'
 import OrderItem from './OrderItem'
@@ -419,11 +419,9 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     return orders.filter(e => !isOrderCancelling(e)).length
   }, [orders, isOrderCancelling])
 
+  const [insertCancellingOrder] = useInsertCancellingOrderMutation()
   const requestCancelOrder = async (order: LimitOrder | undefined) => {
     if (!library || !account) return Promise.reject('Wrong input')
-    const limitOrderContract = isCancelAll
-      ? getContract(order?.contractAddress ?? '', LIMIT_ORDER_ABI, library, account)
-      : undefined
 
     setFlowState(state => ({
       ...state,
@@ -432,58 +430,66 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
       attemptingTxn: true,
     }))
 
-    const [{ encodedData }, nonce] = await Promise.all([
-      getEncodeData([order?.id].filter(Boolean) as number[], isCancelAll),
-      isCancelAll ? limitOrderContract?.nonce?.(account) : Promise.resolve(BigNumber.from(0)),
-    ])
-
-    const response = await sendEVMTransaction(
-      account,
-      library,
-      order?.contractAddress ?? '',
-      encodedData,
-      BigNumber.from(0),
-    )
     const newOrders = isCancelAll ? orders.map(e => e.id) : order?.id ? [order?.id] : []
-    setCancellingOrders(cancellingOrdersIds.concat(newOrders))
 
-    if (response?.hash) {
-      insertCancellingOrder({
-        maker: account,
-        chainId: chainId.toString(),
-        txHash: response.hash,
-        [isCancelAll ? 'nonce' : 'orderIds']: isCancelAll ? nonce?.toNumber() : newOrders,
-      })
+    const sendTransaction = async (encodedData: string, contract: string, payload: any) => {
+      const response = await sendEVMTransaction(account, library, contract, encodedData, BigNumber.from(0))
+      if (response?.hash) {
+        insertCancellingOrder({
+          maker: account,
+          chainId: chainId.toString(),
+          txHash: response.hash,
+          contractAddress: contract ?? '',
+          ...payload,
+        }).unwrap()
+      }
+
+      if (response) {
+        const {
+          makerAssetDecimals,
+          takerAssetDecimals,
+          takerAssetSymbol,
+          takingAmount,
+          makingAmount,
+          takerAsset,
+          makerAssetSymbol,
+          makerAsset,
+        } = order || ({} as LimitOrder)
+        const amountIn = order ? formatAmountOrder(makingAmount, makerAssetDecimals) : ''
+        const amountOut = order ? formatAmountOrder(takingAmount, takerAssetDecimals) : ''
+        addTransactionWithType({
+          ...response,
+          type: TRANSACTION_TYPE.CANCEL_LIMIT_ORDER,
+          extraInfo: order
+            ? {
+                tokenAddressIn: makerAsset,
+                tokenAddressOut: takerAsset,
+                tokenSymbolIn: makerAssetSymbol,
+                tokenSymbolOut: takerAssetSymbol,
+                tokenAmountIn: amountIn,
+                tokenAmountOut: amountOut,
+                arbitrary: getPayloadTracking(order),
+              }
+            : { arbitrary: { totalOrder } },
+        })
+      }
     }
-    if (response) {
-      const {
-        makerAssetDecimals,
-        takerAssetDecimals,
-        takerAssetSymbol,
-        takingAmount,
-        makingAmount,
-        takerAsset,
-        makerAssetSymbol,
-        makerAsset,
-      } = order || ({} as LimitOrder)
-      const amountIn = order ? formatAmountOrder(makingAmount, makerAssetDecimals) : ''
-      const amountOut = order ? formatAmountOrder(takingAmount, takerAssetDecimals) : ''
-      addTransactionWithType({
-        ...response,
-        type: TRANSACTION_TYPE.CANCEL_LIMIT_ORDER,
-        extraInfo: order
-          ? {
-              tokenAddressIn: makerAsset,
-              tokenAddressOut: takerAsset,
-              tokenSymbolIn: makerAssetSymbol,
-              tokenSymbolOut: takerAssetSymbol,
-              tokenAmountIn: amountIn,
-              tokenAmountOut: amountOut,
-              arbitrary: getPayloadTracking(order),
-            }
-          : { arbitrary: { totalOrder } },
-      })
+
+    if (isCancelAll) {
+      const contracts = [...new Set(orders.map(e => e.contractAddress))]
+      for (const address of contracts) {
+        const limitOrderContract = getContract(address, LIMIT_ORDER_ABI, library, account)
+        const [{ encodedData }, nonce] = await Promise.all([
+          getEncodeData([], isCancelAll),
+          limitOrderContract?.nonce?.(account),
+        ])
+        await sendTransaction(encodedData, address, { nonce: nonce.toNumber() })
+      }
+    } else {
+      const { encodedData } = await getEncodeData([order?.id].filter(Boolean) as number[], isCancelAll)
+      await sendTransaction(encodedData, order?.contractAddress ?? '', { orderIds: newOrders })
     }
+    setCancellingOrders(cancellingOrdersIds.concat(newOrders))
 
     return
   }
