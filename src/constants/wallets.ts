@@ -82,7 +82,6 @@ const detectBloctoInjected = (): WalletReadyState => {
 }
 
 const detectBlocto = (): WalletReadyState => {
-  if (getIsBloctoWallet()) return WalletReadyState.Unsupported
   return WalletReadyState.Installed
 }
 
@@ -191,7 +190,7 @@ export const SUPPORTED_WALLETS = {
   BLOCTO_INJECTED: {
     connector: bloctoInjected,
     hooks: bloctoInjectedHooks,
-    name: 'Blocto',
+    name: 'Blocto Injected',
     icon: BLOCTO,
     iconLight: BLOCTO,
     installLink: 'https://www.blocto.io/download',
