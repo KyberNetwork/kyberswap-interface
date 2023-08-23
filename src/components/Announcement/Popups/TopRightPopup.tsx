@@ -1,7 +1,7 @@
+import { motion } from 'framer-motion'
 import { rgba } from 'polished'
 import { useCallback, useEffect, useState } from 'react'
 import { X } from 'react-feather'
-import { animated, useSpring } from 'react-spring'
 import { Flex } from 'rebass'
 import styled, { DefaultTheme, keyframes } from 'styled-components'
 
@@ -78,7 +78,7 @@ const Fader = styled.div`
   background-color: ${({ theme }) => theme.subText};
 `
 
-const AnimatedFader = animated(Fader)
+const AnimatedFader = motion(Fader)
 
 const PopupWrapper = styled.div<{ removeAfterMs?: number | null }>`
   position: relative;
@@ -106,13 +106,13 @@ const SolidBackgroundLayer = styled.div`
 `
 
 const WrappedAnimatedFader = ({ removeAfterMs }: { removeAfterMs: number | null }) => {
-  const faderStyle = useSpring({
-    from: { width: '100%' },
-    to: { width: '0%' },
-    config: { duration: removeAfterMs ?? undefined },
-  })
-
-  return <AnimatedFader style={faderStyle} />
+  return (
+    <AnimatedFader
+      initial={{ width: '100%' }}
+      animate={{ width: '0%' }}
+      transition={{ duration: removeAfterMs ?? undefined }}
+    />
+  )
 }
 
 const Overlay = styled.div`

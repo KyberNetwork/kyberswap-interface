@@ -44,6 +44,7 @@ export const Row = styled.div`
   padding: 12px;
   font-size: 14px;
   font-weight: 500;
+  gap: 8px;
   display: grid;
   grid-template-columns: 3fr repeat(7, 1fr);
 
