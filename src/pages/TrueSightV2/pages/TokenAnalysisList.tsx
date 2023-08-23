@@ -1,14 +1,13 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
+import { motion } from 'framer-motion'
 import { rgba } from 'polished'
 import { ReactNode, useEffect, useRef, useState } from 'react'
-import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { useGesture } from 'react-use-gesture'
 import { Text } from 'rebass'
 import styled, { DefaultTheme, css } from 'styled-components'
 
@@ -202,7 +201,7 @@ const ActionButton = styled.button<{ color: string }>`
   gap: 4px;
 `
 
-const TabWrapper = styled.div`
+const TabWrapper = styled(motion.div)`
   overflow: auto;
   cursor: grab;
   display: inline-flex;
@@ -264,6 +263,24 @@ const ButtonTypeInactive = styled(ButtonOutlined)`
   :hover {
     background-color: ${({ theme }) => rgba(theme.border, 0.5)};
   }
+`
+
+const LoadingWrapper = styled(Row)`
+  position: absolute;
+  inset: 0 0 0 0;
+  background: ${({ theme }) => theme.background};
+  opacity: 0.8;
+  z-index: 100;
+  border-radius: 20px;
+  padding-top: 25vh;
+  justify-content: center;
+  align-items: flex-start;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    inset: 0 -16px 0 -16px;
+    paddingTop: 20vh;
+    width: 100vw;
+    border-radius: 0;
+  `}
 `
 
 const tokenTypeList: {
@@ -359,20 +376,6 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab:
   const wrapperRef = useRef<HTMLDivElement>(null)
   const tabListRef = useRef<HTMLDivElement[]>([])
 
-  const bind = useGesture({
-    onDrag: state => {
-      if (isMobile || !wrapperRef.current) return
-      //state.event?.preventDefault()
-      if (wrapperRef.current?.scrollLeft !== undefined && state.dragging) {
-        wrapperRef.current.classList.add('no-scroll')
-        wrapperRef.current.scrollLeft -= state.values?.[0] - state.previous?.[0] || 0
-      }
-      if (!state.dragging) {
-        setScrollLeftValue(wrapperRef.current.scrollLeft)
-        wrapperRef.current.classList.remove('no-scroll')
-      }
-    },
-  })
   useEffect(() => {
     wrapperRef.current?.scrollTo({ left: scrollLeftValue, behavior: 'smooth' })
   }, [scrollLeftValue])
@@ -407,7 +410,7 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab:
 
   return (
     <>
-      <TabWrapper ref={wrapperRef} onScrollCapture={e => e.preventDefault()} {...bind()}>
+      <TabWrapper ref={wrapperRef} onScrollCapture={e => e.preventDefault()}>
         {tokenTypeList.map(({ type, title, icon, tooltip }, index) => {
           const props = {
             onClick: () => {
@@ -863,23 +866,10 @@ export default function TokenAnalysisList() {
         </RowFit>
       </RowBetween>
       <Column gap="0px" style={{ position: 'relative' }}>
-        {isFetching && (
-          <div
-            style={{
-              position: 'absolute',
-              inset: '0 0 0 0',
-              background: theme.background,
-              opacity: 0.8,
-              zIndex: 100,
-              borderRadius: '20px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <AnimatedLoader />
-          </div>
-        )}
+        <LoadingWrapper>
+          <AnimatedLoader />
+        </LoadingWrapper>
+
         <TableWrapper ref={wrapperRef}>
           <Table ref={tableRef}>
             <colgroup>
@@ -1035,6 +1025,7 @@ export default function TokenAnalysisList() {
                           height: '200px',
                           justifyContent: 'center',
                           backgroundColor: theme.background,
+                          width: '100vw',
                         }}
                       >
                         <Text>
