@@ -7,6 +7,7 @@ import {
   aurora,
   avax,
   avaxTestnet,
+  base,
   bnb,
   bnbTestnet,
   bttc,
@@ -22,10 +23,10 @@ import {
   solana,
   solanaDevnet,
   velas,
+  zkEvm,
   zksync,
 } from './networks/index'
 import { EVMNetworkInfo } from './networks/type'
-import zkEvm from './networks/zkevm'
 
 type SOLANA_NETWORK = ChainId.SOLANA | ChainId.SOLANA_DEVNET
 
@@ -52,6 +53,7 @@ const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.ZKSYNC]: zksync,
   [ChainId.LINEA]: linea,
   [ChainId.ZKEVM]: zkEvm,
+  [ChainId.BASE]: base,
   [ChainId.SOLANA]: solana,
   [ChainId.SOLANA_DEVNET]: solanaDevnet,
 } as const
@@ -77,6 +79,7 @@ export const MAINNET_NETWORKS = [
   ChainId.MATIC,
   ChainId.ZKEVM,
   ChainId.ZKSYNC,
+  ChainId.BASE,
   ChainId.BSCMAINNET,
   ChainId.AVAXMAINNET,
   // ChainId.SOLANA,
@@ -168,6 +171,7 @@ export const STATIC_FEE_OPTIONS: { [chainId: number]: number[] | undefined } = {
   [ChainId.ZKSYNC]: [8, 10, 50, 300, 500, 1000],
   [ChainId.LINEA]: [8, 10, 50, 300, 500, 1000],
   [ChainId.ZKEVM]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.BASE]: [8, 10, 50, 300, 500, 1000],
 }
 
 export const ONLY_STATIC_FEE_CHAINS = [
@@ -180,6 +184,7 @@ export const ONLY_STATIC_FEE_CHAINS = [
   ChainId.ZKSYNC,
   ChainId.LINEA,
   ChainId.ZKEVM,
+  ChainId.BASE,
 ]
 
 // hardcode for unavailable subgraph
