@@ -82,7 +82,7 @@ function subscribeListLimitOrder(
         all: [],
       }
       data.forEach((e: any) => {
-        if (e.id.startsWith('nonce')) {
+        if (e.id.includes('nonce')) {
           result.all.push(e as AllItem)
         } else {
           result.orders.push({ ...e, id: Number(e.id) } as LimitOrder)
