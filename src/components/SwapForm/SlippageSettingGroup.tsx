@@ -8,11 +8,10 @@ import styled from 'styled-components'
 
 import { Shield } from 'components/Icons'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
-import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { ExternalLink, MEDIA_WIDTHS } from 'theme'
+import { MEDIA_WIDTHS } from 'theme'
 
 import AddMEVProtectionModal from './AddMEVProtectionModal'
 
@@ -52,23 +51,12 @@ export default function SlippageSettingGroup({
 
   const rightButton =
     chainId === ChainId.MAINNET && walletEVM.isConnected ? (
-      <MouseoverTooltip
-        text={
-          <Trans>
-            MEV Protection will protect you from front-running and sandwich attacks on Ethereum. Learn more{' '}
-            <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/maximal-extractable-value-mev">
-              here ↗
-            </ExternalLink>
-          </Trans>
-        }
-      >
-        <PriceAlertButton onClick={addMevProtectionHandler}>
-          <Shield size={14} color={theme.subText} />
-          <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>
-            {upToXXSmall ? <Trans>MEV Protection</Trans> : <Trans>Add MEV Protection</Trans>}
-          </Text>
-        </PriceAlertButton>
-      </MouseoverTooltip>
+      <PriceAlertButton onClick={addMevProtectionHandler}>
+        <Shield size={14} color={theme.subText} />
+        <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>
+          {upToXXSmall ? <Trans>MEV Protection</Trans> : <Trans>Add MEV Protection</Trans>}
+        </Text>
+      </PriceAlertButton>
     ) : null
 
   return (

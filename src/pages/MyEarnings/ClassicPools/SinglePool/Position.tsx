@@ -149,7 +149,7 @@ const Position: React.FC<Props> = ({ poolEarning, chainId }) => {
             <div>
               <HoverDropdown
                 anchor={<span>{myLiquidityBalance}</span>}
-                disabled={poolEarning.liquidityTokenBalance === '0'}
+                disabled={poolEarning.liquidityTokenBalanceIncludingStake === '0'}
                 text={
                   <div>
                     <Flex alignItems="center">
@@ -199,11 +199,24 @@ const Position: React.FC<Props> = ({ poolEarning, chainId }) => {
           }
         />
 
-        <Column label={t`Total LP Tokens`} value={formattedNum(+poolEarning.liquidityTokenBalance, false, 6)} />
+        <Column
+          label={t`Total LP Tokens`}
+          value={
+            poolEarning.liquidityTokenBalanceIncludingStake !== '0'
+              ? formattedNum(+poolEarning.liquidityTokenBalanceIncludingStake, false, 6)
+              : '--'
+          }
+        />
 
-        <Column label={t`Share of Pool`} value={myShareOfPool ? (myShareOfPool * 100).toFixed(2) + '%' : '--'} />
+        <Column
+          label={t`Share of Pool`}
+          value={myShareOfPool ? (myShareOfPool * 100 < 1 ? '<0.01%' : (myShareOfPool * 100).toFixed(2) + '%') : '--'}
+        />
 
-        <Column label={t`Staked LP Tokens`} value={formattedNum(liquidityStaked, false, 6)} />
+        <Column
+          label={t`Staked LP Tokens`}
+          value={liquidityStaked !== 0 ? formattedNum(liquidityStaked, false, 6) : '--'}
+        />
       </Box>
     </Flex>
   )
