@@ -1,6 +1,5 @@
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
-import { debounce } from 'lodash'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
@@ -8,6 +7,7 @@ import { isMobile } from 'react-device-detect'
 import { Info, Trash } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
+import { useGetListOrdersQuery } from 'services/limitOrder'
 import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -43,7 +43,7 @@ import EditOrderModal from '../EditOrderModal'
 import CancelOrderModal from '../Modals/CancelOrderModal'
 import { ACTIVE_ORDER_OPTIONS, CLOSE_ORDER_OPTIONS } from '../const'
 import { calcPercentFilledOrder, formatAmountOrder, getErrorMessage, isActiveStatus } from '../helpers'
-import { ackNotificationOrder, getEncodeData, getListOrder, insertCancellingOrder } from '../request'
+import { ackNotificationOrder, getEncodeData, insertCancellingOrder } from '../request'
 import { LimitOrder, LimitOrderStatus, ListOrderHandle } from '../type'
 import useCancellingOrders from '../useCancellingOrders'
 import OrderItem from './OrderItem'
@@ -139,12 +139,25 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   const transactions = useAllTransactions()
   const { mixpanelHandler } = useMixpanel()
 
-  const [orders, setOrders] = useState<LimitOrder[]>([])
-  const [totalOrder, setTotalOrder] = useState<number>(0)
+  const {
+    data: { orders = [], totalOrder = 0 } = {},
+    isFetching: loading,
+    refetch: refetchOrders,
+  } = useGetListOrdersQuery(
+    {
+      chainId,
+      maker: account,
+      status: orderType,
+      query: keyword,
+      page: curPage,
+      pageSize: PAGE_SIZE,
+    },
+    { skip: !account },
+  )
+
   const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
   const [currentOrder, setCurrentOrder] = useState<LimitOrder>()
   const [isCancelAll, setIsCancelAll] = useState(false)
-  const [loading, setLoading] = useState(true)
 
   const tokenAddresses = useMemo(() => {
     const activeOrders = orders.filter(checkOrderActive)
@@ -184,55 +197,16 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     setCurPage(1)
   }
 
-  const controller = useRef(new AbortController())
-  const fetchListOrder = useCallback(
-    async (orderType: LimitOrderStatus, query: string, curPage: number) => {
-      try {
-        let orders: LimitOrder[] = []
-        let totalItems = 0
-        if (account) {
-          controller.current.abort()
-          controller.current = new AbortController()
-          const response = await getListOrder(
-            {
-              chainId,
-              maker: account,
-              status: orderType,
-              query,
-              page: curPage,
-              pageSize: PAGE_SIZE,
-            },
-            controller.current.signal,
-          )
-          orders = response.orders ?? []
-          totalItems = response.pagination.totalItems ?? 0
-        }
-        setOrders(orders)
-        setTotalOrder(totalItems)
-      } catch (error) {
-        if (error?.name === 'AbortError') return
-        console.error(error)
-      }
-      setLoading(false)
-    },
-    [account, chainId],
-  )
-
-  const fetchListOrderDebounce = useMemo(() => debounce(fetchListOrder, 400), [fetchListOrder])
-  useEffect(() => {
-    setLoading(true)
-    setOrders([])
-    fetchListOrderDebounce(orderType, keyword, curPage)
-  }, [orderType, keyword, fetchListOrderDebounce, curPage])
-
   useEffect(() => {
     onReset()
-  }, [chainId])
+  }, [chainId, orderType])
 
   const refreshListOrder = useCallback(() => {
-    onReset()
-    fetchListOrderDebounce(orderType, '', 1)
-  }, [fetchListOrderDebounce, orderType])
+    try {
+      onReset()
+      refetchOrders()
+    } catch (error) {}
+  }, [refetchOrders])
 
   useImperativeHandle(ref, () => ({
     refreshListOrder,
