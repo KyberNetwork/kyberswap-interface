@@ -4,24 +4,9 @@ import { stringify } from 'querystring'
 
 import { LIMIT_ORDER_API_READ, LIMIT_ORDER_API_WRITE } from 'constants/env'
 
-import { LimitOrder, LimitOrderStatus } from './type'
+import { LimitOrderStatus } from './type'
 
 const formatData = (data: any) => data.data.data
-export const getListOrder = (
-  params: any,
-  signal: AbortSignal,
-): Promise<{ orders: LimitOrder[]; pagination: { totalItems: number } }> => {
-  return fetch(`${LIMIT_ORDER_API_READ}/v1/orders?${stringify(params)}`, { signal })
-    .then(data => data.json())
-    .then(data => data.data)
-    .then(data => {
-      data.orders.forEach((order: any) => {
-        order.chainId = Number(order.chainId) as ChainId
-      })
-
-      return data
-    })
-}
 
 export const getNumberOfInsufficientFundOrders = async (
   params: {
