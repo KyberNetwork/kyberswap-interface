@@ -33,12 +33,12 @@ export const getIsRabbyWallet = () => Boolean(window.ethereum?.isRabby)
 export const getIsBloctoWallet = () => Boolean(window.ethereum?.isBlocto)
 
 export const getIsKrystalWallet = () =>
-  Boolean(window.ethereum?.isKrystalWallet || (window.ethereum?.isKrystal && !getIsTrustWallet()))
+  Boolean((window.ethereum?.isKrystalWallet || window.ethereum?.isKrystal) && !getIsTrustWallet())
 
 export const getIsCoinbaseWallet = () =>
   Boolean(
     (window.ethereum?.isCoinbaseWallet || window.ethereum?.providers?.some(p => p?.isCoinbaseWallet)) &&
-      !window.ethereum?.isKrystalWallet,
+      !getIsTrustWallet(),
   )
 
 export const getIsBraveWallet = () => Boolean(checkForBraveBrowser() && window.ethereum?.isBraveWallet)

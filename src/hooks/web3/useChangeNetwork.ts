@@ -4,7 +4,7 @@ import { captureException } from '@sentry/react'
 import { useCallback } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
-import { walletConnectV2 } from 'constants/connectors/evm'
+import { blocto, walletConnectV2 } from 'constants/connectors/evm'
 import { didUserReject } from 'constants/connectors/utils'
 import { NETWORKS_INFO, isEVM, isSolana } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'

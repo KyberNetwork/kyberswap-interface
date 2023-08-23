@@ -22,6 +22,8 @@ import INJECTED_LIGHT_ICON from 'assets/wallets/browser-wallet-light.svg'
 import {
   blocto,
   bloctoHooks,
+  bloctoInjected,
+  bloctoInjectedHooks,
   brave,
   braveHooks,
   coin98,
@@ -74,9 +76,14 @@ const detectMetamask = (): WalletReadyState => {
   return WalletReadyState.NotDetected
 }
 
-const detectBlocto = (): WalletReadyState => {
+const detectBloctoInjected = (): WalletReadyState => {
   if (getIsBloctoWallet()) return WalletReadyState.Installed
-  return WalletReadyState.NotDetected
+  return WalletReadyState.Unsupported
+}
+
+const detectBlocto = (): WalletReadyState => {
+  if (getIsBloctoWallet()) return WalletReadyState.Unsupported
+  return WalletReadyState.Installed
 }
 
 let isSafe = false
@@ -180,6 +187,15 @@ export const SUPPORTED_WALLETS = {
     iconLight: BLOCTO,
     installLink: 'https://www.blocto.io/download',
     readyState: detectBlocto,
+  } as EVMWalletInfo,
+  BLOCTO_INJECTED: {
+    connector: bloctoInjected,
+    hooks: bloctoInjectedHooks,
+    name: 'Blocto',
+    icon: BLOCTO,
+    iconLight: BLOCTO,
+    installLink: 'https://www.blocto.io/download',
+    readyState: detectBloctoInjected,
   } as EVMWalletInfo,
   SAFE: {
     connector: gnosisSafe,

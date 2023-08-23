@@ -1,3 +1,4 @@
+import { BloctoConnector } from '@blocto/web3-react-connector'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { OPTIONAL_EVENTS } from '@walletconnect/ethereum-provider'
 import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
@@ -24,7 +25,14 @@ export const [gnosisSafe, gnosisSafeHooks] = initializeConnector<GnosisSafe>(act
 export const [coin98, coin98Hooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
 export const [brave, braveHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
 export const [trustWallet, trustWalletHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
-export const [blocto, bloctoHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
+export const [bloctoInjected, bloctoInjectedHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
+export const [blocto, bloctoHooks] = initializeConnector<BloctoConnector>(
+  actions =>
+    new BloctoConnector({
+      actions,
+      options: { chainId: ChainId.ARBITRUM, rpc: NETWORKS_INFO[ChainId.ARBITRUM].defaultRpcUrl },
+    }),
+)
 
 const darkmode = Boolean(window.matchMedia('(prefers-color-scheme: dark)'))
 export const [walletConnectV2, walletConnectV2Hooks] = initializeConnector<WalletConnectV2>(

@@ -64,11 +64,9 @@ export default function SlippageSettingGroup({
       >
         <PriceAlertButton onClick={addMevProtectionHandler}>
           <Shield size={14} color={theme.subText} />
-          {upToXXSmall ? null : (
-            <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>
-              <Trans>Add MEV Protection</Trans>
-            </Text>
-          )}
+          <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>
+            {upToXXSmall ? <Trans>MEV Protection</Trans> : <Trans>Add MEV Protection</Trans>}
+          </Text>
         </PriceAlertButton>
       </MouseoverTooltip>
     ) : null
