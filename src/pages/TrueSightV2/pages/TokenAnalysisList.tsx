@@ -274,12 +274,12 @@ const LoadingWrapper = styled(Row)`
   opacity: 0.8;
   z-index: 100;
   border-radius: 20px;
-  padding-top: 25vh;
+  padding-top: min(25vh, 20%);
   justify-content: center;
   align-items: flex-start;
+  box-sizing: border-box;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     inset: 0 -16px 0 -16px;
-    paddingTop: 20vh;
     width: 100vw;
     border-radius: 0;
   `}
@@ -874,10 +874,11 @@ export default function TokenAnalysisList() {
         </RowFit>
       </RowBetween>
       <Column gap="0px" style={{ position: 'relative' }}>
-        <LoadingWrapper>
-          <AnimatedLoader />
-        </LoadingWrapper>
-
+        {isFetching && (
+          <LoadingWrapper>
+            <AnimatedLoader />
+          </LoadingWrapper>
+        )}
         <TableWrapper ref={wrapperRef}>
           <Table ref={tableRef}>
             <colgroup>
@@ -1013,7 +1014,7 @@ export default function TokenAnalysisList() {
                             ? 9
                             : 8
                         }
-                        height={200}
+                        height={550}
                         style={{ pointerEvents: 'none' }}
                       >
                         <Text>
