@@ -8,7 +8,12 @@ import { rgba } from 'polished'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Info, Repeat } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import { useCreateOrderMutation, useGetLOContractAddressQuery } from 'services/limitOrder'
+import {
+  useCreateOrderMutation,
+  useCreateOrderSignatureMutation,
+  useGetLOContractAddressQuery,
+  useGetTotalActiveMakingAmountQuery,
+} from 'services/limitOrder'
 import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -63,7 +68,6 @@ import {
   parseFraction,
   removeTrailingZero,
 } from './helpers'
-import { clearCacheActiveMakingAmount, getMessageSignature, getTotalActiveMakingAmount } from './request'
 import { CreateOrderParam, LimitOrder, RateInfo } from './type'
 
 export const Label = styled.div`
@@ -144,7 +148,6 @@ const LimitOrderForm = function LimitOrderForm({
 
   const [inputAmount, setInputAmount] = useState(defaultInputAmount)
   const [outputAmount, setOuputAmount] = useState(defaultOutputAmount)
-  const [activeOrderMakingAmount, setActiveOrderMakingAmount] = useState(defaultActiveMakingAmount)
 
   const [rateInfo, setRateInfo] = useState<RateInfo>(defaultRate)
   const displayRate = rateInfo.invert ? rateInfo.invertRate : rateInfo.rate
@@ -159,6 +162,12 @@ const LimitOrderForm = function LimitOrderForm({
 
   const { loading: loadingTrade, tradeInfo } = useBaseTradeInfoLimitOrder(currencyIn, currencyOut)
   const deltaRate = useGetDeltaRateLimitOrder({ marketPrice: tradeInfo, rateInfo })
+
+  const { data: activeOrderMakingAmount = defaultActiveMakingAmount, refetch: getActiveMakingAmount } =
+    useGetTotalActiveMakingAmountQuery(
+      { chainId, tokenAddress: currencyIn?.wrapped.address ?? '', account: account ?? '' },
+      { skip: !currencyIn || !account },
+    )
 
   const { execute: onWrap, inputError: wrapInputError } = useWrapCallback(currencyIn, currencyOut, inputAmount, true)
   const showWrap = !!currencyIn?.isNative
@@ -379,20 +388,6 @@ const LimitOrderForm = function LimitOrderForm({
     }
   }
 
-  const getActiveMakingAmount = useCallback(
-    async (currencyIn: Currency) => {
-      try {
-        const address = currencyIn?.wrapped.address
-        if (!address || !account) return
-        const { activeMakingAmount } = await getTotalActiveMakingAmount(chainId, address, account)
-        setActiveOrderMakingAmount(activeMakingAmount)
-      } catch (error) {
-        console.log(error)
-      }
-    },
-    [account, chainId],
-  )
-
   const onResetForm = () => {
     setInputAmount(defaultInputAmount)
     setOuputAmount(defaultOutputAmount)
@@ -414,6 +409,7 @@ const LimitOrderForm = function LimitOrderForm({
     [setFlowState],
   )
 
+  const [getMessageSignature] = useCreateOrderSignatureMutation()
   const signOrder = async (params: CreateOrderParam) => {
     const { currencyIn, currencyOut, inputAmount, outputAmount, signature, salt } = params
     if (signature && salt) return { signature, salt }
@@ -427,7 +423,7 @@ const LimitOrderForm = function LimitOrderForm({
         outputAmount,
       )} ${currencyOut.symbol}`,
     }))
-    const messagePayload = await getMessageSignature(payload)
+    const messagePayload = await getMessageSignature(payload).unwrap()
 
     const rawSignature = await library.send('eth_signTypedData_v4', [account, JSON.stringify(messagePayload)])
 
@@ -527,19 +523,16 @@ const LimitOrderForm = function LimitOrderForm({
   const refreshActiveMakingAmount = useMemo(
     () =>
       debounce(() => {
-        clearCacheActiveMakingAmount()
-        if (currencyIn) {
-          getActiveMakingAmount(currencyIn)
-        }
+        try {
+          getActiveMakingAmount()
+        } catch (error) {}
       }, 100),
-    [currencyIn, getActiveMakingAmount],
+    [getActiveMakingAmount],
   )
 
-  const isInit = useRef(false)
   useEffect(() => {
-    if (isInit.current && currencyIn) getActiveMakingAmount(currencyIn) // skip the first time
-    isInit.current = true
-  }, [currencyIn, getActiveMakingAmount, isEdit])
+    if (currencyIn) refreshActiveMakingAmount()
+  }, [currencyIn, refreshActiveMakingAmount, isEdit])
 
   // use ref to prevent too many api call when firebase update status
   const refSubmitCreateOrder = useRef(onSubmitCreateOrder)

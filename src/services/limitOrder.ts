@@ -1,8 +1,14 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
-import { LimitOrder } from 'components/swapv2/LimitOrder/type'
+import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import { LIMIT_ORDER_API_READ, LIMIT_ORDER_API_WRITE } from 'constants/env'
+
+const mapPath: Partial<Record<LimitOrderStatus, string>> = {
+  [LimitOrderStatus.CANCELLED]: 'cancelled',
+  [LimitOrderStatus.EXPIRED]: 'expired',
+  [LimitOrderStatus.FILLED]: 'filled',
+}
 
 const limitOrderApi = createApi({
   reducerPath: 'limitOrderApi',
@@ -69,6 +75,45 @@ const limitOrderApi = createApi({
       }),
       transformResponse: (data: any) => data?.data,
     }),
+    createOrderSignature: builder.mutation<any, any>({
+      query: body => ({
+        url: `${LIMIT_ORDER_API_WRITE}/v1/orders/sign-message`,
+        body,
+        method: 'POST',
+      }),
+      transformResponse: (data: any) => data?.data,
+    }),
+    getEncodeData: builder.mutation<any, { orderIds: number[]; isCancelAll?: boolean }>({
+      query: ({ orderIds, isCancelAll = false }) => ({
+        url: `${LIMIT_ORDER_API_READ}/v1/encode/${isCancelAll ? 'increase-nonce' : 'cancel-batch-orders'}`,
+        body: isCancelAll ? {} : { orderIds },
+        method: 'POST',
+      }),
+      transformResponse: (data: any) => data?.data,
+    }),
+    ackNotificationOrder: builder.mutation<
+      any,
+      { docIds: string[]; maker: string; chainId: ChainId; type: LimitOrderStatus }
+    >({
+      // todo test
+      query: ({ maker, chainId, type, docIds }) => ({
+        url: `${LIMIT_ORDER_API_WRITE}/v1/events/${mapPath[type]}`,
+        body: { maker, chainId: chainId + '', [type === LimitOrderStatus.FILLED ? 'uuids' : 'docIds']: docIds },
+        method: 'DELETE',
+      }),
+      transformResponse: (data: any) => data?.data,
+    }),
+    getTotalActiveMakingAmount: builder.query<string, { chainId: ChainId; tokenAddress: string; account: string }>({
+      query: ({ chainId, tokenAddress, account }) => ({
+        url: `${LIMIT_ORDER_API_READ}/v1/orders/active-making-amount`,
+        params: {
+          chainId: chainId + '',
+          makerAsset: tokenAddress,
+          maker: account,
+        },
+      }),
+      transformResponse: (data: any) => data?.data?.activeMakingAmount,
+    }),
   }),
 })
 
@@ -79,6 +124,10 @@ export const {
   useInsertCancellingOrderMutation,
   useGetNumberOfInsufficientFundOrdersQuery,
   useCreateOrderMutation,
+  useCreateOrderSignatureMutation,
+  useGetEncodeDataMutation,
+  useGetTotalActiveMakingAmountQuery,
+  useAckNotificationOrderMutation,
 } = limitOrderApi
 
 export default limitOrderApi
