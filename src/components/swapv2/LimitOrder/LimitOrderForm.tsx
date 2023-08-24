@@ -276,13 +276,13 @@ const LimitOrderForm = function LimitOrderForm({
   }
 
   const parseInputAmount = tryParseAmount(inputAmount, currencyIn ?? undefined)
-  const { data = '', isError } = useGetLOContractAddressQuery(chainId)
-  const limitOrderContract = isError ? '' : data
+  const { data, isError } = useGetLOContractAddressQuery(chainId)
+  const limitOrderContract = isError ? undefined : data
 
   const currentAllowance = useTokenAllowance(
     currencyIn as Token,
     account ?? undefined,
-    limitOrderContract || '',
+    limitOrderContract,
   ) as CurrencyAmount<Currency>
 
   const parsedActiveOrderMakingAmount = useMemo(() => {
