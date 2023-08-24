@@ -276,7 +276,9 @@ const LimitOrderForm = function LimitOrderForm({
   }
 
   const parseInputAmount = tryParseAmount(inputAmount, currencyIn ?? undefined)
-  const { data: limitOrderContract = '' } = useGetLOContractAddressQuery(chainId)
+  const { data = '', isError } = useGetLOContractAddressQuery(chainId)
+  const limitOrderContract = isError ? '' : data
+
   const currentAllowance = useTokenAllowance(
     currencyIn as Token,
     account ?? undefined,
