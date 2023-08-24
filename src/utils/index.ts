@@ -9,7 +9,7 @@ import Numeral from 'numeral'
 import blockServiceApi from 'services/blockService'
 
 import { GET_BLOCKS } from 'apollo/queries'
-import { ENV_KEY } from 'constants/env'
+import { ENV_LEVEL } from 'constants/env'
 import { DEFAULT_GAS_LIMIT_MARGIN, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from 'constants/networks'
 import { KNCL_ADDRESS, KNC_ADDRESS } from 'constants/tokens'
@@ -473,8 +473,8 @@ export const isChristmasTime = () => {
 
 export const isSupportLimitOrder = (chainId: ChainId): boolean => {
   if (!SUPPORTED_NETWORKS.includes(chainId)) return false
-  const { production, development } = NETWORKS_INFO[chainId]?.limitOrder ?? {}
-  return ENV_KEY === 'production' || ENV_KEY === 'staging' ? !!production : !!development
+  const limitOrder = NETWORKS_INFO[chainId]?.limitOrder
+  return limitOrder === '*' || (limitOrder || []).includes(ENV_LEVEL)
 }
 
 export function openFullscreen(elem: any) {
