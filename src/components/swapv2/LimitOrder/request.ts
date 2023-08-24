@@ -7,10 +7,6 @@ import { LimitOrderStatus } from './type'
 
 const formatData = (data: any) => data.data.data
 
-export const submitOrder = (data: any) => {
-  return axios.post(`${LIMIT_ORDER_API_WRITE}/v1/orders`, data).then(formatData)
-}
-
 export const getMessageSignature = (data: any) => {
   return axios.post(`${LIMIT_ORDER_API_WRITE}/v1/orders/sign-message`, data).then(formatData)
 }
