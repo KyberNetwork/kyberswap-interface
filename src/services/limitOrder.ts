@@ -95,7 +95,6 @@ const limitOrderApi = createApi({
       any,
       { docIds: string[]; maker: string; chainId: ChainId; type: LimitOrderStatus }
     >({
-      // todo test
       query: ({ maker, chainId, type, docIds }) => ({
         url: `${LIMIT_ORDER_API_WRITE}/v1/events/${mapPath[type]}`,
         body: { maker, chainId: chainId + '', [type === LimitOrderStatus.FILLED ? 'uuids' : 'docIds']: docIds },
