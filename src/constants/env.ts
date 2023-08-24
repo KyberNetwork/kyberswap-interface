@@ -143,7 +143,12 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key: string]: { [type: string]: string } } =
   },
 }
 
-export const ENV_KEY: 'production' | 'staging' | 'development' = import.meta.env.VITE_ENV
+export enum EnvKeys {
+  PROD = 'production',
+  STG = 'staging',
+  DEV = 'development',
+}
+export const ENV_KEY: EnvKeys = import.meta.env.VITE_ENV
 
 export const getAnnouncementsTemplateIds = (type: PrivateAnnouncementType | 'EXCLUDE') => {
   return ANNOUNCEMENT_TEMPLATE_IDS[ENV_KEY]?.[type]
