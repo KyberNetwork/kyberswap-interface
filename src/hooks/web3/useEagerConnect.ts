@@ -19,8 +19,10 @@ export function useEagerConnect() {
   const { tryActivation } = useActivationWallet()
 
   const setTried = () => {
-    tried.current = true
-    Object.freeze(tried)
+    try {
+      tried.current = true
+      Object.freeze(tried)
+    } catch {}
     reRender({})
   }
 
