@@ -276,11 +276,11 @@ const LimitOrderForm = function LimitOrderForm({
   }
 
   const parseInputAmount = tryParseAmount(inputAmount, currencyIn ?? undefined)
-  const { data: limitOrderContract } = useGetLOContractAddressQuery(chainId)
+  const { data: limitOrderContract = '' } = useGetLOContractAddressQuery(chainId)
   const currentAllowance = useTokenAllowance(
     currencyIn as Token,
     account ?? undefined,
-    limitOrderContract ?? '',
+    limitOrderContract || '',
   ) as CurrencyAmount<Currency>
 
   const parsedActiveOrderMakingAmount = useMemo(() => {
@@ -324,7 +324,7 @@ const LimitOrderForm = function LimitOrderForm({
     }
   }, [currencyIn?.isNative, currentAllowance, parseInputAmount, parsedActiveOrderMakingAmount])
 
-  const [approval, approveCallback] = useApproveCallback(parseInputAmount, limitOrderContract ?? '', !enoughAllowance)
+  const [approval, approveCallback] = useApproveCallback(parseInputAmount, limitOrderContract || '', !enoughAllowance)
 
   const { inputError, outPutError } = useValidateInputError({
     inputAmount,
