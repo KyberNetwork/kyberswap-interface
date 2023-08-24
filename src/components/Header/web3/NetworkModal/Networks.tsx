@@ -172,7 +172,12 @@ const Networks = ({
             ? walletEVM.walletKey
             : null
         return (
-          <MouseoverTooltip style={{ zIndex: Z_INDEXS.MODAL + 1 }} key={itemChainId} text={disabled ? disabledMsg : ''}>
+          <MouseoverTooltip
+            style={{ zIndex: Z_INDEXS.MODAL + 1 }}
+            key={itemChainId}
+            text={disabled ? disabledMsg : ''}
+            width="fit-content"
+          >
             <SelectNetworkButton
               key={i}
               padding="0"
