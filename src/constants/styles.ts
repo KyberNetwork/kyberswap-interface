@@ -19,4 +19,5 @@ export const THRESHOLD_HEADER = {
   ABOUT: '1440px',
   ANALYTIC: '1320px',
   KYBERDAO: '1040px',
+  CAMPAIGNS: '560px',
 }
