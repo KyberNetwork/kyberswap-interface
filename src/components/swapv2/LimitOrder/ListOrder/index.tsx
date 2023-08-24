@@ -7,7 +7,12 @@ import { isMobile } from 'react-device-detect'
 import { Info, Trash } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
-import { useGetListOrdersQuery, useInsertCancellingOrderMutation } from 'services/limitOrder'
+import {
+  useAckNotificationOrderMutation,
+  useGetEncodeDataMutation,
+  useGetListOrdersQuery,
+  useInsertCancellingOrderMutation,
+} from 'services/limitOrder'
 import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -43,7 +48,6 @@ import EditOrderModal from '../EditOrderModal'
 import CancelOrderModal from '../Modals/CancelOrderModal'
 import { ACTIVE_ORDER_OPTIONS, CLOSE_ORDER_OPTIONS } from '../const'
 import { calcPercentFilledOrder, formatAmountOrder, getErrorMessage, isActiveStatus } from '../helpers'
-import { ackNotificationOrder, getEncodeData } from '../request'
 import { LimitOrder, LimitOrderStatus, ListOrderHandle } from '../type'
 import useCancellingOrders from '../useCancellingOrders'
 import OrderItem from './OrderItem'
@@ -225,6 +229,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     showedNotificationOrderIds.current = { ...showedNotificationOrderIds.current, [id]: true }
   }
 
+  const [ackNotificationOrder] = useAckNotificationOrderMutation()
   useEffect(() => {
     if (!account) return
     const unsubscribeCancelled = subscribeNotificationOrderCancelled(account, chainId, data => {
@@ -260,7 +265,9 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
             return e.id
           }) ?? []
         if (nonces.length) {
-          ackNotificationOrder(nonces, account, chainId, LimitOrderStatus.CANCELLED).catch(console.error)
+          ackNotificationOrder({ docIds: nonces, maker: account, chainId, type: LimitOrderStatus.CANCELLED }).catch(
+            console.error,
+          )
         }
       }
 
@@ -289,15 +296,15 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
           10000,
         )
       if (orders.length)
-        ackNotificationOrder(
-          orders.map(({ id }) => {
+        ackNotificationOrder({
+          docIds: orders.map(({ id }) => {
             ackNotiLocal(id)
             return id.toString()
           }),
-          account,
+          maker: account,
           chainId,
-          LimitOrderStatus.CANCELLED,
-        ).catch(console.error)
+          type: LimitOrderStatus.CANCELLED,
+        }).catch(console.error)
     })
     const unsubscribeExpired = subscribeNotificationOrderExpired(account, chainId, data => {
       refreshListOrder()
@@ -311,12 +318,12 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
           },
           10000,
         )
-        ackNotificationOrder(
-          orders.map(e => e.id.toString()),
-          account,
+        ackNotificationOrder({
+          docIds: orders.map(e => e.id.toString()),
+          maker: account,
           chainId,
-          LimitOrderStatus.EXPIRED,
-        ).catch(console.error)
+          type: LimitOrderStatus.EXPIRED,
+        }).catch(console.error)
       }
     })
     const unsubscribeFilled = subscribeNotificationOrderFilled(account, chainId, data => {
@@ -349,12 +356,12 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
         )
       })
       if (orders.length) {
-        ackNotificationOrder(
-          orders.map(e => e.uuid),
-          account,
+        ackNotificationOrder({
+          docIds: orders.map(e => e.uuid),
+          maker: account,
           chainId,
-          LimitOrderStatus.FILLED,
-        ).catch(console.error)
+          type: LimitOrderStatus.FILLED,
+        }).catch(console.error)
       }
     })
     return () => {
@@ -362,7 +369,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
       unsubscribeExpired?.()
       unsubscribeFilled?.()
     }
-  }, [account, chainId, notify, refreshListOrder])
+  }, [account, chainId, notify, refreshListOrder, ackNotificationOrder])
 
   const hideConfirmCancel = useCallback(() => {
     setFlowState(state => ({ ...state, showConfirm: false }))
@@ -420,6 +427,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   }, [orders, isOrderCancelling])
 
   const [insertCancellingOrder] = useInsertCancellingOrderMutation()
+  const [getEncodeData] = useGetEncodeDataMutation()
   const requestCancelOrder = async (order: LimitOrder | undefined) => {
     if (!library || !account) return Promise.reject('Wrong input')
 
@@ -480,13 +488,16 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
       for (const address of contracts) {
         const limitOrderContract = getContract(address, LIMIT_ORDER_ABI, library, account)
         const [{ encodedData }, nonce] = await Promise.all([
-          getEncodeData([], isCancelAll),
+          getEncodeData({ orderIds: [], isCancelAll }).unwrap(),
           limitOrderContract?.nonce?.(account),
         ])
         await sendTransaction(encodedData, address, { nonce: nonce.toNumber() })
       }
     } else {
-      const { encodedData } = await getEncodeData([order?.id].filter(Boolean) as number[], isCancelAll)
+      const { encodedData } = await getEncodeData({
+        orderIds: [order?.id].filter(Boolean) as number[],
+        isCancelAll,
+      }).unwrap()
       await sendTransaction(encodedData, order?.contractAddress ?? '', { orderIds: newOrders })
     }
     setCancellingOrders(cancellingOrdersIds.concat(newOrders))

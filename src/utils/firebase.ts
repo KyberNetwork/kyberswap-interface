@@ -88,6 +88,7 @@ function subscribeListLimitOrder(
           result.orders.push({ ...e, id: Number(e.id) } as LimitOrder)
         }
       })
+      console.log(result)
       callback(result)
     },
   )
