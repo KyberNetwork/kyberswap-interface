@@ -1,6 +1,8 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { PublicKey } from '@solana/web3.js'
 
+import { ENV_TYPE } from 'constants/type'
+
 export interface NetworkInfo {
   readonly chainId: ChainId
 
@@ -27,10 +29,7 @@ export interface NetworkInfo {
   readonly coingeckoNetworkId: string | null //https://api.coingecko.com/api/v3/asset_platforms
   readonly coingeckoNativeTokenId: string | null //https://api.coingecko.com/api/v3/coins/list
   readonly dexToCompare: string | null
-  readonly limitOrder: {
-    development: string | null
-    production: string | null
-  }
+  readonly limitOrder: null | ENV_TYPE[]
   readonly defaultRpcUrl: string
   // token: {
   //   DAI: Token
@@ -79,10 +78,7 @@ export interface EVMNetworkInfo extends NetworkInfo {
     readonly farmv2Quoter?: string
     readonly farmV2S?: string[]
   }
-  readonly limitOrder: {
-    development: string | null
-    production: string | null
-  }
+  readonly limitOrder: null | '*' | ENV_TYPE[]
   readonly averageBlockTimeInSeconds: number
   readonly deBankSlug: string
   readonly kyberDAO?: {

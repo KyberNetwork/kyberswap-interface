@@ -63,10 +63,7 @@ const optimismInfo: EVMNetworkInfo = {
       '0xf2BcDf38baA52F6b0C1Db5B025DfFf01Ae1d6dBd',
     ],
   },
-  limitOrder: {
-    development: '0xAF800D3EB207BAFBadE540554DF8bDCe561166f8',
-    production: '0x227B0c196eA8db17A665EA6824D972A64202E936',
-  },
+  limitOrder: '*',
   averageBlockTimeInSeconds: 120,
   coingeckoNetworkId: 'optimistic-ethereum',
   coingeckoNativeTokenId: 'ethereum',
