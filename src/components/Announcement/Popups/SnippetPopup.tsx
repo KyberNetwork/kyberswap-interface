@@ -83,6 +83,8 @@ const SeeMore = styled.div`
   color: ${({ theme }) => theme.subText};
   font-size: 14px;
   font-weight: 500;
+  text-align: right;
+  white-space: nowrap;
 `
 
 function SnippetPopupItem({
