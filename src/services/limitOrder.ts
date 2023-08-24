@@ -117,7 +117,6 @@ const limitOrderApi = createApi({
   }),
 })
 
-// todo danh (later, move all api to this file)
 export const {
   useGetLOContractAddressQuery,
   useGetListOrdersQuery,
