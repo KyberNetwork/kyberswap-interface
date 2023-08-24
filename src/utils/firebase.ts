@@ -19,7 +19,7 @@ const dbLimitOrder = getFirestore(firebaseAppLimitOrder)
 
 const COLLECTIONS = {
   LO_CANCELLING_ORDERS: 'cancellingOrders',
-  LO_CANCELLED_ORDERS: 'cancelledEvents',
+  LO_CANCELLED_ORDERS: 'cancelledEventsByContract',
   LO_EXPIRED_ORDERS: 'expiredEvents',
   LO_FILLED_ORDERS: 'filledEvents',
 
