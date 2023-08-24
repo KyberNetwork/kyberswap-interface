@@ -37,6 +37,13 @@ const limitOrderApi = createApi({
         return { orders: data?.orders || [], totalOrder: data?.pagination?.totalItems || 0 }
       },
     }),
+    getNumberOfInsufficientFundOrders: builder.query<number, { chainId: ChainId; maker: string }>({
+      query: params => ({
+        url: `${LIMIT_ORDER_API_READ}/v1/orders/insufficient-funds`,
+        params,
+      }),
+      transformResponse: (data: any) => data?.data?.total || 0,
+    }),
     insertCancellingOrder: builder.mutation<
       any,
       {
@@ -58,6 +65,11 @@ const limitOrderApi = createApi({
 })
 
 // todo danh (later, move all api to this file)
-export const { useGetLOContractAddressQuery, useGetListOrdersQuery, useInsertCancellingOrderMutation } = limitOrderApi
+export const {
+  useGetLOContractAddressQuery,
+  useGetListOrdersQuery,
+  useInsertCancellingOrderMutation,
+  useGetNumberOfInsufficientFundOrdersQuery,
+} = limitOrderApi
 
 export default limitOrderApi

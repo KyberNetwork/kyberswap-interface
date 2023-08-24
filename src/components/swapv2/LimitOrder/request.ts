@@ -1,24 +1,11 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import axios from 'axios'
-import { stringify } from 'querystring'
 
 import { LIMIT_ORDER_API_READ, LIMIT_ORDER_API_WRITE } from 'constants/env'
 
 import { LimitOrderStatus } from './type'
 
 const formatData = (data: any) => data.data.data
-
-export const getNumberOfInsufficientFundOrders = async (
-  params: {
-    chainId: ChainId
-    maker: string
-  },
-  signal?: AbortSignal,
-): Promise<number> => {
-  return fetch(`${LIMIT_ORDER_API_READ}/v1/orders/insufficient-funds?${stringify(params)}`, { signal })
-    .then(data => data.json())
-    .then(data => data?.data?.total || 0)
-}
 
 export const submitOrder = (data: any) => {
   return axios.post(`${LIMIT_ORDER_API_WRITE}/v1/orders`, data).then(formatData)
