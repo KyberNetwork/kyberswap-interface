@@ -30,7 +30,7 @@ export const [blocto, bloctoHooks] = initializeConnector<BloctoConnector>(
   actions =>
     new BloctoConnector({
       actions,
-      options: { chainId: ChainId.ARBITRUM, rpc: NETWORKS_INFO[ChainId.ARBITRUM].defaultRpcUrl },
+      options: { chainId: ChainId.ARBITRUM, rpc: NETWORKS_INFO[ChainId.ARBITRUM].defaultRpcUrl }, // todo namgold: change this to eth
     }),
 )
 
