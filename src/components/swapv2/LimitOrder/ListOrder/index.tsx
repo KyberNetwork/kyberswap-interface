@@ -156,7 +156,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
       page: curPage,
       pageSize: PAGE_SIZE,
     },
-    { skip: !account },
+    { skip: !account, refetchOnFocus: true },
   )
 
   const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
