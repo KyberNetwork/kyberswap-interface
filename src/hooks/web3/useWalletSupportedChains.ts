@@ -1,8 +1,8 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { WalletConnect as WalletConnectV2 } from '@web3-react/walletconnect-v2'
 
-import { blocto, bloctoInjected, gnosisSafe, walletConnectV2 } from 'constants/connectors/evm'
-import { SUPPORTED_NETWORKS } from 'constants/networks'
+import { blocto, gnosisSafe, walletConnectV2 } from 'constants/connectors/evm'
+import { BLOCTO_SUPPORTED_NETWORKS, SUPPORTED_NETWORKS } from 'constants/networks'
 import { useWeb3React } from 'hooks'
 
 function getChainsFromEIP155Accounts(accounts?: string[]): ChainId[] {
@@ -24,9 +24,9 @@ export function useWalletSupportedChains(): ChainId[] {
         ...getChainsFromEIP155Accounts((connector as WalletConnectV2).provider?.session?.namespaces?.eip155?.accounts),
       ]
     case gnosisSafe:
-    case blocto:
-    case bloctoInjected:
       return chainId ? [chainId] : SUPPORTED_NETWORKS
+    case blocto:
+      return BLOCTO_SUPPORTED_NETWORKS
     default:
       return SUPPORTED_NETWORKS
   }

@@ -132,30 +132,48 @@ export function useChangeNetwork() {
         blockExplorerUrls: [NETWORKS_INFO[desiredChainId].etherscanUrl],
       }
       console.info('Add new network', { addChainParameter })
-      const activeProvider = library?.provider ?? window.ethereum
-      if (activeProvider && activeProvider.request) {
-        try {
-          await activeProvider.request({
-            method: 'wallet_addEthereumChain',
-            params: [addChainParameter],
-          })
-          wrappedSuccessCallback()
-        } catch (error) {
-          console.error('Add new network failed', { addChainParameter, error })
+      try {
+        await connector.activate(addChainParameter)
+      } catch (error) {
+        if (didUserReject(error)) {
           failureCallback(desiredChainId, error, customFailureCallback, customTexts)
-          if (!didUserReject(error)) {
-            const e = new Error(`[Wallet] ${error.message}`)
-            e.name = 'Add new network Error'
-            e.stack = ''
-            captureException(e, {
-              level: 'warning',
-              extra: { error, wallet: walletEVM.walletKey, chainId, addChainParameter },
-            })
+        } else {
+          try {
+            const activeProvider = library?.provider ?? window.ethereum
+            if (activeProvider?.request) {
+              await activeProvider.request({
+                method: 'wallet_addEthereumChain',
+                params: [addChainParameter],
+              })
+              wrappedSuccessCallback()
+            } else {
+              throw error
+            }
+          } catch (error) {
+            console.error('Add new network failed', { addChainParameter, error })
+            failureCallback(desiredChainId, error, customFailureCallback, customTexts)
+            if (!didUserReject(error)) {
+              const e = new Error(`[Wallet] ${error.message}`)
+              e.name = 'Add new network Error'
+              e.stack = ''
+              captureException(e, {
+                level: 'warning',
+                extra: { error, wallet: walletEVM.walletKey, chainId, addChainParameter },
+              })
+            }
           }
         }
       }
     },
-    [library?.provider, chainId, failureCallback, fetchKyberswapConfig, successCallback, walletEVM.walletKey],
+    [
+      library?.provider,
+      chainId,
+      failureCallback,
+      fetchKyberswapConfig,
+      successCallback,
+      walletEVM.walletKey,
+      connector,
+    ],
   )
 
   const changeNetwork = useCallback(

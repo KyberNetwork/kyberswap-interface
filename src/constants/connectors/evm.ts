@@ -25,12 +25,11 @@ export const [gnosisSafe, gnosisSafeHooks] = initializeConnector<GnosisSafe>(act
 export const [coin98, coin98Hooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
 export const [brave, braveHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
 export const [trustWallet, trustWalletHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
-export const [bloctoInjected, bloctoInjectedHooks] = initializeConnector<MetaMask>(actions => new MetaMask({ actions }))
 export const [blocto, bloctoHooks] = initializeConnector<BloctoConnector>(
   actions =>
     new BloctoConnector({
       actions,
-      options: { chainId: ChainId.ARBITRUM, rpc: NETWORKS_INFO[ChainId.ARBITRUM].defaultRpcUrl }, // todo namgold: change this to eth
+      options: { chainId: ChainId.MATIC, rpc: NETWORKS_INFO[ChainId.MATIC].defaultRpcUrl },
     }),
 )
 
