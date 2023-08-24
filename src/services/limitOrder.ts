@@ -55,11 +55,19 @@ const limitOrderApi = createApi({
         contractAddress: string
       }
     >({
-      query: params => ({
+      query: body => ({
         url: `${LIMIT_ORDER_API_WRITE}/v1/orders/cancelling`,
-        params,
+        body,
         method: 'POST',
       }),
+    }),
+    createOrder: builder.mutation<{ id: number }, any>({
+      query: body => ({
+        url: `${LIMIT_ORDER_API_WRITE}/v1/orders`,
+        body,
+        method: 'POST',
+      }),
+      transformResponse: (data: any) => data?.data,
     }),
   }),
 })
@@ -70,6 +78,7 @@ export const {
   useGetListOrdersQuery,
   useInsertCancellingOrderMutation,
   useGetNumberOfInsufficientFundOrdersQuery,
+  useCreateOrderMutation,
 } = limitOrderApi
 
 export default limitOrderApi

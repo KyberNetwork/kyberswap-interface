@@ -8,7 +8,7 @@ import { rgba } from 'polished'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Info, Repeat } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import { useGetLOContractAddressQuery } from 'services/limitOrder'
+import { useCreateOrderMutation, useGetLOContractAddressQuery } from 'services/limitOrder'
 import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -63,7 +63,7 @@ import {
   parseFraction,
   removeTrailingZero,
 } from './helpers'
-import { clearCacheActiveMakingAmount, getMessageSignature, getTotalActiveMakingAmount, submitOrder } from './request'
+import { clearCacheActiveMakingAmount, getMessageSignature, getTotalActiveMakingAmount } from './request'
 import { CreateOrderParam, LimitOrder, RateInfo } from './type'
 
 export const Label = styled.div`
@@ -441,6 +441,7 @@ const LimitOrderForm = function LimitOrderForm({
     return { signature: ethers.utils.hexlify(bytes), salt: messagePayload?.message?.salt }
   }
 
+  const [submitOrder] = useCreateOrderMutation()
   const onSubmitCreateOrder = async (params: CreateOrderParam) => {
     try {
       const { currencyIn, currencyOut, account, inputAmount, outputAmount, expiredAt } = params
@@ -451,7 +452,7 @@ const LimitOrderForm = function LimitOrderForm({
       const { signature, salt } = await signOrder(params)
       const payload = getPayloadCreateOrder(params)
       setFlowState(state => ({ ...state, pendingText: t`Placing order` }))
-      const response = await submitOrder({ ...payload, salt, signature })
+      const response = await submitOrder({ ...payload, salt, signature }).unwrap()
       setFlowState(state => ({ ...state, showConfirm: false }))
 
       notify(
@@ -467,6 +468,7 @@ const LimitOrderForm = function LimitOrderForm({
       return response?.id
     } catch (error) {
       handleError(error)
+      return
     }
   }
 
