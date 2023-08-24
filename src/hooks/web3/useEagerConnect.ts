@@ -38,6 +38,7 @@ export function useEagerConnect() {
         try {
           await tryActivation('SAFE', true)
           activated = true
+          tried = true
         } catch {}
         const lastWalletKeyEVM = localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY_EVM)
         const lastWalletKeySolana = localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY_SOLANA)
