@@ -22,7 +22,7 @@ const slideInFromBottom = keyframes`
 const Wrapper = styled(Row)`
   background-color: ${({ theme }) => theme.background};
   height: 44px;
-  position: sticky;
+  position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
