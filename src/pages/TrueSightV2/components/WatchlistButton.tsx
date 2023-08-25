@@ -1,8 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { AnimatePresence, Reorder, useDragControls } from 'framer-motion'
-import { useEffect, useRef, useState } from 'react'
+import { CSSProperties, useEffect, useMemo, useRef, useState } from 'react'
 import { Check, Plus, X } from 'react-feather'
-import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css, useTheme } from 'styled-components'
 
@@ -14,7 +13,6 @@ import Modal from 'components/Modal'
 import Popover from 'components/Popover'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
-import { MEDIA_WIDTHS } from 'theme'
 
 import SimpleTooltip from './SimpleTooltip'
 import { StarWithAnimation } from './WatchlistStar'
@@ -45,7 +43,7 @@ const MenuOption = styled(Row)`
 const ReorderWrapper = styled.div`
   gap: 16px;
   height: 280px;
-  overflow: scroll;
+
   ::-webkit-scrollbar {
     -webkit-appearance: button;
     width: 7px;
@@ -104,10 +102,12 @@ const options = [
 
 function WatchlistItem({
   item,
+  wrapperRef,
   onValueChange,
   onRemove,
 }: {
   item: IOption
+  wrapperRef: React.RefObject<HTMLDivElement>
   onValueChange?: (newValue: string) => void
   onRemove?: () => void
 }) {
@@ -163,6 +163,8 @@ function WatchlistItem({
       value={item}
       dragListener={false}
       dragControls={controls}
+      dragConstraints={wrapperRef}
+      dragElastic={0}
       initial={{ opacity: 0, scale: 1 }}
       animate={{
         opacity: 1,
@@ -280,14 +282,15 @@ const CreateListInput = ({ onCreate, disabled }: { onCreate: (listName: string) 
   )
 }
 
-export default function WatchlistButton() {
+export default function WatchlistButton({ size, wrapperStyle }: { size?: number; wrapperStyle?: CSSProperties }) {
   const [openMenu, setOpenMenu] = useState(false)
   const [openManageModal, setOpenManageModal] = useState(false)
   const [listOptions, setListOptions] = useState(options)
 
   const theme = useTheme()
-  const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
+  // const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const ref = useRef<HTMLDivElement>(null)
+  const reorderWrapperRef = useRef<HTMLDivElement>(null)
   useOnClickOutside(ref, () => {
     setOpenMenu(false)
   })
@@ -305,8 +308,12 @@ export default function WatchlistButton() {
     const id = Math.max(...listOptions.map(i => i.id)) + 1
     setListOptions([{ id: id, text: newListName, watched: false }, ...listOptions])
   }
+
+  const watched = useMemo(() => {
+    return listOptions.some(t => t.watched)
+  }, [listOptions])
   return (
-    <>
+    <div onClick={e => e.stopPropagation()}>
       <Popover
         show={openMenu}
         style={{ backgroundColor: theme.tableHeader, borderRadius: '20px' }}
@@ -347,19 +354,14 @@ export default function WatchlistButton() {
       >
         <StarWithAnimation
           loading={false}
-          watched={false}
+          watched={watched}
           onClick={() => setOpenMenu(prev => !prev)}
-          wrapperStyle={{
-            color: theme.subText,
-            backgroundColor: theme.darkMode ? theme.buttonGray : theme.background,
-            height: above768 ? '36px' : '32px',
-            width: above768 ? '36px' : '32px',
-            borderRadius: '100%',
-          }}
+          wrapperStyle={wrapperStyle}
+          size={size}
         />
       </Popover>
       <Modal isOpen={openManageModal} width="380px">
-        <ModalWrapper>
+        <ModalWrapper onClick={e => e.stopPropagation()}>
           <RowBetween>
             <Text>Manage Watchlists</Text>
             <ButtonAction onClick={() => setOpenManageModal(false)}>
@@ -367,7 +369,7 @@ export default function WatchlistButton() {
             </ButtonAction>
           </RowBetween>
           <CreateListInput onCreate={handleCreateNewList} disabled={listOptions.length >= 5} />
-          <ReorderWrapper>
+          <ReorderWrapper ref={reorderWrapperRef}>
             <Reorder.Group
               axis="y"
               values={listOptions}
@@ -378,6 +380,7 @@ export default function WatchlistButton() {
               <AnimatePresence>
                 {listOptions.map((item, i) => (
                   <WatchlistItem
+                    wrapperRef={reorderWrapperRef}
                     key={item.id}
                     item={item}
                     onValueChange={newValue => handleSingleValueChange(newValue, i)}
@@ -389,6 +392,6 @@ export default function WatchlistButton() {
           </ReorderWrapper>
         </ModalWrapper>
       </Modal>
-    </>
+    </div>
   )
 }

@@ -125,9 +125,10 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
     visibleCurrency1?.symbol || poolEarning.pool.token1.symbol,
   )
   const myLiquidityBalance =
-    poolEarning.liquidityTokenBalance !== '0' && poolEarning.pool.totalSupply !== '0'
+    poolEarning.liquidityTokenBalanceIncludingStake !== '0' && poolEarning.pool.totalSupply !== '0'
       ? formatDollarAmount(
-          (+poolEarning.liquidityTokenBalance * +poolEarning.pool.reserveUSD) / +poolEarning.pool.totalSupply,
+          (+poolEarning.liquidityTokenBalanceIncludingStake * +poolEarning.pool.reserveUSD) /
+            +poolEarning.pool.totalSupply,
         )
       : '--'
 
@@ -198,8 +199,10 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
         <MobileStatWrapper padding={mobileView ? '1rem 0' : '1rem'}>
           <Flex
             sx={{
-              alignItems: 'center',
+              gap: '8px',
+              alignItems: mobileView ? 'flex-start' : 'center',
               justifyContent: 'space-between',
+              flexDirection: mobileView ? 'column' : 'row',
             }}
           >
             <Flex
@@ -209,7 +212,21 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
               }}
             >
               <Flex alignItems="center">
-                <DoubleCurrencyLogo currency0={visibleCurrency0} currency1={visibleCurrency1} size={20} />
+                <Box sx={{ position: 'relative' }}>
+                  <DoubleCurrencyLogo currency0={visibleCurrency0} currency1={visibleCurrency1} size={20} />
+                  <img
+                    src={NETWORKS_INFO[chainId].icon}
+                    alt={NETWORKS_INFO[chainId].name}
+                    width={12}
+                    height={12}
+                    style={{
+                      position: 'absolute',
+                      bottom: 0,
+                      right: 0,
+                      zIndex: 1,
+                    }}
+                  />
+                </Box>
 
                 <Text
                   sx={{
@@ -389,10 +406,28 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
                   gap: '8px',
                 }}
               >
-                <Text>
-                  {visibleCurrency0Symbol} - {visibleCurrency1Symbol}
+                <Text flex={1} maxWidth="fit-content">
+                  <MouseoverTooltip
+                    text={`${visibleCurrency0Symbol} - ${visibleCurrency1Symbol}`}
+                    width="fit-content"
+                    containerStyle={{ maxWidth: '100%' }}
+                    placement="top"
+                  >
+                    <Text
+                      sx={{
+                        textOverflow: 'ellipsis',
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {visibleCurrency0Symbol} - {visibleCurrency1Symbol}
+                    </Text>
+                  </MouseoverTooltip>
                 </Text>
-                <Badge $color={theme.blue}>AMP {+poolEarning.pool.amp / 10000}</Badge>
+
+                <Badge $color={theme.blue} style={{ minWidth: 'max-content' }}>
+                  AMP {+poolEarning.pool.amp / 10000}
+                </Badge>
 
                 {isFarmingPool && (
                   <MouseoverTooltip
