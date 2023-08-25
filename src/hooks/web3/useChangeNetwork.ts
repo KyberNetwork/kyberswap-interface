@@ -117,8 +117,9 @@ export function useChangeNetwork() {
       customFailureCallback?: (error: Error) => void,
       waitUtilUpdatedChainId = false,
     ) => {
-      const wrappedSuccessCallback = () =>
+      const wrappedSuccessCallback = () => {
         successCallback(desiredChainId, waitUtilUpdatedChainId, customSuccessCallback)
+      }
 
       const { rpc } = customRpc ? { rpc: customRpc } : await fetchKyberswapConfig(desiredChainId)
       const addChainParameter = {
@@ -132,48 +133,64 @@ export function useChangeNetwork() {
         },
         blockExplorerUrls: [NETWORKS_INFO[desiredChainId].etherscanUrl],
       }
-      console.info('Add new network', { addChainParameter })
 
-      try {
-        const activeProvider = library?.provider ?? window.ethereum
-        if (activeProvider?.request) {
-          await activeProvider.request({
-            method: 'wallet_addEthereumChain',
-            params: [addChainParameter],
-          })
-          wrappedSuccessCallback()
-        } else {
-          throw new Error('empty request function')
-        }
-      } catch (error) {
-        if (didUserReject(error)) {
-          failureCallback(desiredChainId, error, customFailureCallback, customTexts)
-        } else {
-          try {
-            await connector.activate(addChainParameter)
-          } catch (error2) {
-            console.error('Add new network failed', { addChainParameter, error: error2 })
-            failureCallback(desiredChainId, error2, customFailureCallback, customTexts)
-            if (!didUserReject(error2)) {
-              const e = new Error(`[Add network] ${walletEVM.walletKey} ${friendlyError(error2.message)}`)
-              e.name = 'Add new network Error'
-              e.stack = ''
-              captureException(e, {
-                level: 'warning',
-                extra: {
-                  wallet: walletEVM.walletKey,
-                  chainId,
-                  addChainParameter,
-                  friendlyMessage1: friendlyError(error.message),
-                  friendlyMessage2: friendlyError(error2.message),
-                  rawError1: error,
-                  rawError2: error2,
-                },
-              })
-            }
+      enum Solution {
+        web3_react,
+        provider_request,
+      }
+      const solutions = {
+        [Solution.web3_react]: async () => await connector.activate(addChainParameter),
+        [Solution.provider_request]: async () => {
+          const activeProvider = library?.provider ?? window.ethereum
+          if (activeProvider?.request) {
+            await activeProvider.request({
+              method: 'wallet_addEthereumChain',
+              params: [addChainParameter],
+            })
+          } else {
+            throw new Error('empty request function')
           }
+        },
+      }
+
+      let solutionPrefer = [solutions[Solution.provider_request], solutions[Solution.web3_react]]
+      if (walletEVM.walletKey === 'KRYSTAL') {
+        // Krystal break when call by web3-react
+        solutionPrefer = [solutions[Solution.provider_request]]
+      } else if (walletEVM.walletKey === 'BLOCTO') {
+        // Blocto break when call by provider.request
+        solutionPrefer = [solutions[Solution.web3_react]]
+      }
+
+      const errors: Error[] = []
+      for (let i = 0; i < solutionPrefer.length; i++) {
+        try {
+          await solutionPrefer[i]()
+          wrappedSuccessCallback()
+          return
+        } catch (error) {
+          if (didUserReject(error)) {
+            failureCallback(desiredChainId, error, customFailureCallback, customTexts)
+            return
+          }
+          errors.push(error)
         }
       }
+
+      failureCallback(desiredChainId, errors.at(-1), customFailureCallback, customTexts)
+      const e = new Error(`[Add network] ${walletEVM.walletKey} ${friendlyError(errors.at(-1) || '')}`)
+      e.name = 'Add new network Error'
+      e.stack = ''
+      captureException(e, {
+        level: 'warning',
+        extra: {
+          wallet: walletEVM.walletKey,
+          chainId,
+          addChainParameter,
+          friendlyMessages: errors.map(friendlyError),
+          errors,
+        },
+      })
     },
     [
       library?.provider,
