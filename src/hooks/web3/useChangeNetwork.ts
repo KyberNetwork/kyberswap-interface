@@ -133,24 +133,24 @@ export function useChangeNetwork() {
         blockExplorerUrls: [NETWORKS_INFO[desiredChainId].etherscanUrl],
       }
       console.info('Add new network', { addChainParameter })
+
       try {
-        await connector.activate(addChainParameter)
-        wrappedSuccessCallback()
+        const activeProvider = library?.provider ?? window.ethereum
+        if (activeProvider?.request) {
+          await activeProvider.request({
+            method: 'wallet_addEthereumChain',
+            params: [addChainParameter],
+          })
+          wrappedSuccessCallback()
+        } else {
+          throw new Error('empty request function')
+        }
       } catch (error) {
         if (didUserReject(error)) {
           failureCallback(desiredChainId, error, customFailureCallback, customTexts)
         } else {
           try {
-            const activeProvider = library?.provider ?? window.ethereum
-            if (activeProvider?.request) {
-              await activeProvider.request({
-                method: 'wallet_addEthereumChain',
-                params: [addChainParameter],
-              })
-              wrappedSuccessCallback()
-            } else {
-              throw error
-            }
+            await connector.activate(addChainParameter)
           } catch (error2) {
             console.error('Add new network failed', { addChainParameter, error: error2 })
             failureCallback(desiredChainId, error2, customFailureCallback, customTexts)
