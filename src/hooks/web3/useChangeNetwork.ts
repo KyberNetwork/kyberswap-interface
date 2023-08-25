@@ -134,6 +134,7 @@ export function useChangeNetwork() {
       console.info('Add new network', { addChainParameter })
       try {
         await connector.activate(addChainParameter)
+        wrappedSuccessCallback()
       } catch (error) {
         if (didUserReject(error)) {
           failureCallback(desiredChainId, error, customFailureCallback, customTexts)
