@@ -28,6 +28,7 @@ import { EMPTY_ARRAY, TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
+import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import { useNotify } from 'state/application/hooks'
 import { useLimitState } from 'state/limit/hooks'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
@@ -145,7 +146,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
 
   const {
     data: { orders = [], totalOrder = 0 } = {},
-    isFetching: loading,
+    isFetching,
     refetch: refetchOrders,
   } = useGetListOrdersQuery(
     {
@@ -158,6 +159,8 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     },
     { skip: !account, refetchOnFocus: true },
   )
+
+  const loading = useShowLoadingAtLeastTime(isFetching)
 
   const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
   const [currentOrder, setCurrentOrder] = useState<LimitOrder>()
