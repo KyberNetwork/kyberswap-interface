@@ -100,38 +100,42 @@ export default function EmailForm({
   const theme = useTheme()
   return (
     <>
-      <FormWrapper>
-        <Column style={{ width: isMobile ? '100%' : '70%' }} gap="6px">
-          <Label>
-            <Trans>Your Email*</Trans>
-          </Label>
-          <Tooltip text={errorInput.email} show={!!errorInput.email} placement="top">
-            <Input
-              disabled={!!userInfo?.email}
-              $borderColor={errorInput.email ? theme.red : theme.border}
-              value={inputEmail}
-              placeholder="Enter your email address"
-              onChange={onChangeInput}
-            />
-          </Tooltip>
-          <Text fontSize={10} color={theme.subText}>
-            <Trans>We will never share your email with third parties</Trans>
-          </Text>
-        </Column>
-        <Column gap="6px" style={{ width: isMobile ? '100%' : undefined }}>
-          <Label>
-            <Trans>Referral Code (Optional)</Trans>
-          </Label>
-          <Tooltip text={errorInput.referredByCode} show={!!errorInput.referredByCode} placement="top">
-            <Input
-              $borderColor={errorInput.referredByCode ? theme.red : theme.border}
-              value={referredByCode}
-              placeholder="Enter your Code"
-              onChange={onChangeCode}
-            />
-          </Tooltip>
-        </Column>
-      </FormWrapper>
+      <Column gap="10px">
+        <FormWrapper>
+          <Column style={{ width: isMobile ? '100%' : '70%' }} gap="6px">
+            <Label>
+              <Trans>Your Email*</Trans>
+            </Label>
+            <Tooltip text={errorInput.email} show={!!errorInput.email} placement="top">
+              <Input
+                disabled={!!userInfo?.email}
+                $borderColor={errorInput.email ? theme.red : theme.border}
+                value={inputEmail}
+                placeholder="Enter your email address"
+                onChange={onChangeInput}
+              />
+            </Tooltip>
+          </Column>
+          <Column gap="6px" style={{ width: isMobile ? '100%' : undefined }}>
+            <Label>
+              <Trans>Referral Code (Optional)</Trans>
+            </Label>
+            <Tooltip text={errorInput.referredByCode} show={!!errorInput.referredByCode} placement="top">
+              <Input
+                $borderColor={errorInput.referredByCode ? theme.red : theme.border}
+                value={referredByCode}
+                placeholder="Enter your Code"
+                onChange={onChangeCode}
+              />
+            </Tooltip>
+          </Column>
+        </FormWrapper>
+        <Text fontSize={10} color={theme.subText}>
+          <Trans>
+            We will never share your email with third parties. Use a referral code to get access to KyberAI faster!
+          </Trans>
+        </Text>
+      </Column>
 
       <ButtonPrimary width="230px" height="36px" onClick={joinWaitList}>
         <Trans>Join KyberAI Waitlist</Trans>
