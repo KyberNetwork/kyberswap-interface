@@ -251,6 +251,7 @@ export default function Menu() {
   const showBlog = useMedia(`(max-width: ${THRESHOLD_HEADER.BLOG})`)
   const showAnalytics = useMedia(`(max-width: ${THRESHOLD_HEADER.ANALYTIC})`)
   const showKyberDao = useMedia(`(max-width: ${THRESHOLD_HEADER.KYBERDAO})`)
+  const showCampaign = useMedia(`(max-width: ${THRESHOLD_HEADER.CAMPAIGNS})`)
 
   const bridgeLink = networkInfo.bridgeURL
   const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
@@ -371,42 +372,31 @@ export default function Menu() {
               />
             </KyberAIWrapper>
 
-            <MenuItem>
-              <NavDropDown
-                icon={<Award />}
-                title={
-                  <Text>
-                    <Trans>Campaigns</Trans>
-                  </Text>
-                }
-                link={'#'}
-                options={[
-                  { link: APP_PATHS.CAMPAIGN, label: t`Trading Campaigns` },
-                  {
-                    link: APP_PATHS.GRANT_PROGRAMS,
-                    label: (
-                      <Text as="span">
-                        <Trans>Trading Grant Campaign</Trans>
-                      </Text>
-                    ),
-                  },
-                ]}
-              />
-            </MenuItem>
-
-            {showAbout && (
+            {showCampaign && (
               <MenuItem>
                 <NavDropDown
-                  icon={<Info />}
-                  title={t`About`}
-                  link={'/about'}
+                  icon={<Award />}
+                  title={
+                    <Text>
+                      <Trans>Campaigns</Trans>
+                    </Text>
+                  }
+                  link={'#'}
                   options={[
-                    { link: '/about/kyberswap', label: 'Kyberswap' },
-                    { link: '/about/knc', label: 'KNC' },
+                    { link: APP_PATHS.CAMPAIGN, label: t`Trading Campaigns` },
+                    {
+                      link: APP_PATHS.GRANT_PROGRAMS,
+                      label: (
+                        <Text as="span">
+                          <Trans>Trading Grant Campaign</Trans>
+                        </Text>
+                      ),
+                    },
                   ]}
                 />
               </MenuItem>
             )}
+
             {showKyberDao && (
               <MenuItem>
                 <NavDropDown
@@ -422,7 +412,7 @@ export default function Menu() {
                 />
               </MenuItem>
             )}
-            {!showAnalytics && (
+            {showAnalytics && (
               <MenuItem>
                 <NavDropDown
                   icon={<PieChart />}
@@ -439,6 +429,20 @@ export default function Menu() {
                 />
               </MenuItem>
             )}
+            {showAbout && (
+              <MenuItem>
+                <NavDropDown
+                  icon={<Info />}
+                  title={t`About`}
+                  link={'/about'}
+                  options={[
+                    { link: '/about/kyberswap', label: 'Kyberswap' },
+                    { link: '/about/knc', label: 'KNC' },
+                  ]}
+                />
+              </MenuItem>
+            )}
+
             <MenuItem>
               <ExternalLink
                 href="https://docs.kyberswap.com"
@@ -496,6 +500,18 @@ export default function Menu() {
               >
                 <FileText />
                 <Trans>Terms</Trans>
+              </ExternalLink>
+            </MenuItem>
+            <MenuItem>
+              <ExternalLink
+                href={TERM_FILES_PATH.PRIVACY_POLICY}
+                onClick={() => {
+                  toggle()
+                  handleMenuClickMixpanel('Privacy Policy')
+                }}
+              >
+                <FileText />
+                <Trans>Privacy Policy</Trans>
               </ExternalLink>
             </MenuItem>
             <MenuItem>

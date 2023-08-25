@@ -84,7 +84,7 @@ const HeaderElement = styled.div`
   align-items: center;
   gap: 8px;
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${({ theme }) => theme.mediaWidth.upToXXSmall`
     align-items: center;
     width: 100%;
     justify-content: space-between;
@@ -180,7 +180,7 @@ export default function Header() {
   const [holidayMode] = useHolidayMode()
   const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
-  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const menu = (
     <HeaderElementWrap>
       <Announcement />
@@ -228,7 +228,7 @@ export default function Header() {
         </HeaderLinks>
       </HeaderRow>
       <HeaderControls>
-        {upToExtraSmall ? (
+        {upToXXSmall ? (
           <HeaderElement>
             <SelectNetwork />
             <SelectWallet />
