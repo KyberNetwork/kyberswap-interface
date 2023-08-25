@@ -11,6 +11,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useNotify } from 'state/application/hooks'
 import { useAppDispatch } from 'state/hooks'
 import { updateChainId } from 'state/user/actions'
+import { friendlyError } from 'utils/errorMessage'
 import { wait } from 'utils/retry'
 
 import { useLazyKyberswapConfig } from '../useKyberSwapConfig'
@@ -150,16 +151,24 @@ export function useChangeNetwork() {
             } else {
               throw error
             }
-          } catch (error) {
-            console.error('Add new network failed', { addChainParameter, error })
-            failureCallback(desiredChainId, error, customFailureCallback, customTexts)
-            if (!didUserReject(error)) {
-              const e = new Error(`[Wallet] ${error.message}`)
+          } catch (error2) {
+            console.error('Add new network failed', { addChainParameter, error: error2 })
+            failureCallback(desiredChainId, error2, customFailureCallback, customTexts)
+            if (!didUserReject(error2)) {
+              const e = new Error(`[Add network] ${walletEVM.walletKey} ${friendlyError(error2.message)}`)
               e.name = 'Add new network Error'
               e.stack = ''
               captureException(e, {
                 level: 'warning',
-                extra: { error, wallet: walletEVM.walletKey, chainId, addChainParameter },
+                extra: {
+                  wallet: walletEVM.walletKey,
+                  chainId,
+                  addChainParameter,
+                  friendlyMessage1: friendlyError(error.message),
+                  friendlyMessage2: friendlyError(error2.message),
+                  rawError1: error,
+                  rawError2: error2,
+                },
               })
             }
           }
