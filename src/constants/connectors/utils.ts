@@ -79,14 +79,24 @@ const rejectedPhrases: string[] = ['user rejected transaction', 'user denied tra
 
 export function didUserReject(error: any): boolean {
   return (
-    error?.code?.toString() === ErrorCode.USER_REJECTED_REQUEST.toString() ||
-    error?.code?.toString() === ErrorCode.ACTION_REJECTED ||
-    error?.code?.toString() === ErrorCode.ALPHA_WALLET_REJECTED_CODE.toString() ||
-    error?.message?.toString() === ErrorCode.USER_REJECTED_REQUEST.toString() ||
-    error?.message === ErrorCode.ALPHA_WALLET_REJECTED ||
-    error?.message === ErrorCode.WALLETCONNECT_MODAL_CLOSED ||
-    error?.message === ErrorCode.WALLETCONNECT_CANCELED ||
-    error?.message === ErrorCode.WALLETCONNECT_MODAL_CLOSED ||
+    [
+      ErrorCode.USER_REJECTED_REQUEST,
+      ErrorCode.CHAIN_NOT_ADDED,
+      ErrorCode.ACTION_REJECTED,
+      ErrorCode.ALPHA_WALLET_REJECTED_CODE,
+    ]
+      .map(String)
+      .includes(error?.code?.toString()) ||
+    [
+      ErrorCode.USER_REJECTED_REQUEST,
+      ErrorCode.CHAIN_NOT_ADDED,
+      ErrorCode.ALPHA_WALLET_REJECTED,
+      ErrorCode.WALLETCONNECT_MODAL_CLOSED,
+      ErrorCode.WALLETCONNECT_CANCELED,
+      ErrorCode.WALLETCONNECT_MODAL_CLOSED,
+    ]
+      .map(String)
+      .includes(error?.message?.toString()) ||
     rejectedPhrases.some(phrase => error?.message?.toLowerCase?.()?.includes?.(phrase.toLowerCase()))
   )
 }
