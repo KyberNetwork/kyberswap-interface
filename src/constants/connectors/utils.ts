@@ -79,9 +79,10 @@ const rejectedPhrases: string[] = ['user rejected transaction', 'user denied tra
 
 export function didUserReject(error: any): boolean {
   return (
-    error?.code === ErrorCode.USER_REJECTED_REQUEST ||
-    error?.code === ErrorCode.ACTION_REJECTED ||
-    error?.code === ErrorCode.ALPHA_WALLET_REJECTED_CODE ||
+    error?.code?.toString() === ErrorCode.USER_REJECTED_REQUEST.toString() ||
+    error?.code?.toString() === ErrorCode.ACTION_REJECTED ||
+    error?.code?.toString() === ErrorCode.ALPHA_WALLET_REJECTED_CODE.toString() ||
+    error?.message?.toString() === ErrorCode.USER_REJECTED_REQUEST.toString() ||
     error?.message === ErrorCode.ALPHA_WALLET_REJECTED ||
     error?.message === ErrorCode.WALLETCONNECT_MODAL_CLOSED ||
     error?.message === ErrorCode.WALLETCONNECT_CANCELED ||
