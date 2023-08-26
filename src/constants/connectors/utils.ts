@@ -75,9 +75,16 @@ export enum ErrorCode {
   ALPHA_WALLET_REJECTED = 'Request rejected',
 }
 
-const rejectedPhrases: string[] = ['user rejected transaction', 'user denied transaction', 'you must accept']
+const rejectedPhrases: readonly string[] = [
+  'user rejected transaction',
+  'user denied transaction',
+  'you must accept',
+].map(phrase => phrase.toLowerCase())
 
 export function didUserReject(error: any): boolean {
+  const message = (
+    typeof error === 'string' ? error : error?.message || error?.code || error?.errorMessage || ''
+  ).toLowerCase()
   return (
     [
       ErrorCode.USER_REJECTED_REQUEST,
@@ -86,7 +93,7 @@ export function didUserReject(error: any): boolean {
       ErrorCode.ALPHA_WALLET_REJECTED_CODE,
     ]
       .map(String)
-      .includes(error?.code?.toString()) ||
+      .includes(error?.code?.toString?.()) ||
     [
       ErrorCode.USER_REJECTED_REQUEST,
       ErrorCode.CHAIN_NOT_ADDED,
@@ -96,7 +103,7 @@ export function didUserReject(error: any): boolean {
       ErrorCode.WALLETCONNECT_MODAL_CLOSED,
     ]
       .map(String)
-      .includes(error?.message?.toString()) ||
-    rejectedPhrases.some(phrase => error?.message?.toLowerCase?.()?.includes?.(phrase.toLowerCase()))
+      .includes(message) ||
+    rejectedPhrases.some(phrase => message?.includes?.(phrase))
   )
 }

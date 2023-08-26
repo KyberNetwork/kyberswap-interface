@@ -44,6 +44,7 @@ const patterns: { pattern: RegExp; getMessage: (match: RegExpExecArray) => strin
     getMessage: match => match[1],
   },
   { pattern: /^([\w ]*\w+) \(.+?\)$/, getMessage: match => match[1] },
+  { pattern: /"message": ?"[^"]+?"/, getMessage: match => match[1] },
 ]
 function parseKnownRegexPattern(text: string): string | undefined {
   const pattern = patterns.find(pattern => pattern.pattern.exec(text))
