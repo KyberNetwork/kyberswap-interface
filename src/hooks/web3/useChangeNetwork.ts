@@ -134,8 +134,8 @@ export function useChangeNetwork() {
       }
 
       enum Solution {
-        web3_react,
-        provider_request,
+        web3_react = 'web3_react',
+        provider_request = 'provider_request',
       }
       const solutions = {
         [Solution.web3_react]: async () => await connector.activate(addChainParameter),
@@ -152,33 +152,55 @@ export function useChangeNetwork() {
         },
       }
 
-      const solutionPrefer: readonly (() => Promise<void>)[] = (() => {
+      const solutionPrefer: readonly Solution[] = (() => {
         if (walletEVM.walletKey === 'KRYSTAL') {
           // Krystal break when call by web3-react .activate
-          return [solutions[Solution.provider_request]]
+          return [Solution.provider_request]
         } else if (walletEVM.walletKey === 'BLOCTO') {
           // Blocto break when call by provider.request
-          return [solutions[Solution.web3_react]]
+          return [Solution.web3_react]
         }
-        return [solutions[Solution.provider_request], solutions[Solution.web3_react]]
+        return [Solution.provider_request, Solution.web3_react]
       })()
 
       const errors: Error[] = []
       for (let i = 0; i < solutionPrefer.length; i++) {
         try {
-          await solutionPrefer[i]()
+          console.info('[Add network] start:', {
+            wallet: walletEVM.walletKey,
+            solution: solutionPrefer[i],
+            addChainParameter,
+          })
+          await solutions[solutionPrefer[i]]()
+          console.info('[Add network] success:', {
+            wallet: walletEVM.walletKey,
+            solution: solutionPrefer[i],
+            addChainParameter,
+          })
           wrappedSuccessCallback()
           return
         } catch (error) {
+          console.error(
+            '[Add network] error:',
+            JSON.stringify(
+              {
+                wallet: walletEVM.walletKey,
+                desiredChainId,
+                solution: solutionPrefer[i],
+                message: friendlyError(error),
+                error,
+                addChainParameter,
+                didUserReject: didUserReject(error),
+              },
+              null,
+              2,
+            ),
+          )
+
           if (didUserReject(error)) {
-            console.error('Add network rejected', JSON.stringify({ message: friendlyError(error) }, null, 2))
             failureCallback(desiredChainId, error, customFailureCallback, customTexts)
             return
           }
-          console.error(
-            'Add network error',
-            JSON.stringify({ i, message: friendlyError(error), error, addChainParameter }, null, 2),
-          )
           errors.push(error)
         }
       }
@@ -188,25 +210,17 @@ export function useChangeNetwork() {
       e.name = 'Add new network Error'
       e.stack = ''
       captureException(e, {
-        level: 'warning',
+        level: 'error',
         extra: {
           wallet: walletEVM.walletKey,
-          chainId,
+          desiredChainId,
           addChainParameter,
           friendlyMessages: errors.map(friendlyError),
           errors,
         },
       })
     },
-    [
-      library?.provider,
-      chainId,
-      failureCallback,
-      fetchKyberswapConfig,
-      successCallback,
-      walletEVM.walletKey,
-      connector,
-    ],
+    [library?.provider, failureCallback, fetchKyberswapConfig, successCallback, walletEVM.walletKey, connector],
   )
 
   const changeNetwork = useCallback(
@@ -236,13 +250,13 @@ export function useChangeNetwork() {
 
       if (isEVM(desiredChainId)) {
         try {
-          console.info('Switch network', { desiredChainId })
+          console.info('[Switch network] start:', { desiredChainId })
           await connector.activate(desiredChainId)
-          console.info('Switch network success', { desiredChainId })
+          console.info('[Switch network] success:', { desiredChainId })
           changeNetworkHandler(desiredChainId, wrappedSuccessCallback)
         } catch (error) {
           console.error(
-            'Switch network error',
+            '[Switch network] error:',
             JSON.stringify({ desiredChainId, error, didUserReject: didUserReject(error) }, null, 2),
           )
 
