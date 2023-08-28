@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { KyberSwapConfig, KyberSwapConfigResponse } from 'services/ksSetting'
 
-import { ETH_PRICE, PROMM_ETH_PRICE, TOKEN_DERIVED_ETH } from 'apollo/queries'
+import { ETH_PRICE, PROMM_ETH_PRICE } from 'apollo/queries'
 import { ackAnnouncementPopup, getAnnouncementsAckMap, isPopupCanShow } from 'components/Announcement/helper'
 import {
   AnnouncementTemplatePopup,
@@ -20,7 +20,7 @@ import {
 import { NETWORKS_INFO, isEVM, isSolana } from 'constants/networks'
 import ethereumInfo from 'constants/networks/ethereum'
 import { AppJsonRpcProvider } from 'constants/providers'
-import { KNC, KNC_ADDRESS } from 'constants/tokens'
+import { KNC_ADDRESS } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks/index'
 import { useAppSelector } from 'state/hooks'
@@ -357,28 +357,6 @@ export function useETHPrice(version: string = VERSION.CLASSIC): AppState['applic
   }, [dispatch, chainId, version, isEVM, elasticClient, classicClient, blockClient, isEnableBlockService])
 
   return ethPrice
-}
-
-/**
- * Gets the current price of KNC by ETH
- */
-export const getKNCPriceByETH = async (chainId: ChainId, apolloClient: ApolloClient<NormalizedCacheObject>) => {
-  let kncPriceByETH = 0
-
-  try {
-    const result = await apolloClient.query({
-      query: TOKEN_DERIVED_ETH(KNC[chainId].address),
-      fetchPolicy: 'no-cache',
-    })
-
-    const derivedETH = result?.data?.tokens[0]?.derivedETH
-
-    kncPriceByETH = parseFloat(derivedETH) || 0
-  } catch (e) {
-    console.log(e)
-  }
-
-  return kncPriceByETH
 }
 
 export function useKNCPrice() {

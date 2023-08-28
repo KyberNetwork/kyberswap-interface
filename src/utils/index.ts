@@ -12,7 +12,7 @@ import { GET_BLOCKS } from 'apollo/queries'
 import { ENV_KEY } from 'constants/env'
 import { DEFAULT_GAS_LIMIT_MARGIN, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from 'constants/networks'
-import { KNC, KNCL_ADDRESS } from 'constants/tokens'
+import { KNCL_ADDRESS, KNC_ADDRESS } from 'constants/tokens'
 import {
   EVMWalletInfo,
   INJECTED_KEY,
@@ -385,7 +385,7 @@ export const getTokenLogoURL = (inputAddress: string, chainId: ChainId): string 
     address = WETH[chainId].address
   }
 
-  if (address.toLowerCase() === KNC[chainId].address.toLowerCase()) {
+  if (address.toLowerCase() === KNC_ADDRESS) {
     return 'https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/develop/src/assets/images/KNC.svg'
   }
 
