@@ -49,7 +49,7 @@ export const InputWithCopy = (props: InputProps) => {
 }
 
 export const FormWrapper = styled.div`
-  width: 500px;
+  width: 380px;
   display: flex;
   gap: 1rem;
   z-index: 1;
