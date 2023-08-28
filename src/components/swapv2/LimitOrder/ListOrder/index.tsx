@@ -2,20 +2,14 @@ import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Info, Trash } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
-import {
-  useAckNotificationOrderMutation,
-  useGetEncodeDataMutation,
-  useGetListOrdersQuery,
-  useInsertCancellingOrderMutation,
-} from 'services/limitOrder'
+import { useGetEncodeDataMutation, useGetListOrdersQuery, useInsertCancellingOrderMutation } from 'services/limitOrder'
 import styled from 'styled-components'
 
-import { NotificationType } from 'components/Announcement/type'
 import { ButtonEmpty } from 'components/Button'
 import Column from 'components/Column'
 import LocalLoader from 'components/LocalLoader'
@@ -29,13 +23,11 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
-import { useNotify } from 'state/application/hooks'
 import { useLimitState } from 'state/limit/hooks'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
-import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { TransactionFlowState } from 'types/TransactionFlowState'
-import { findTx } from 'utils'
 import {
   subscribeNotificationOrderCancelled,
   subscribeNotificationOrderExpired,
@@ -43,7 +35,6 @@ import {
 } from 'utils/firebase'
 import { getContract } from 'utils/getContract'
 import { sendEVMTransaction } from 'utils/sendTransaction'
-import { getTransactionStatus } from 'utils/transaction'
 
 import EditOrderModal from '../EditOrderModal'
 import CancelOrderModal from '../Modals/CancelOrderModal'
@@ -52,7 +43,6 @@ import { calcPercentFilledOrder, formatAmountOrder, getErrorMessage, isActiveSta
 import { LimitOrder, LimitOrderStatus, ListOrderHandle } from '../type'
 import useCancellingOrders from '../useCancellingOrders'
 import OrderItem from './OrderItem'
-import SummaryNotify from './SummaryNotify'
 import TabSelector from './TabSelector'
 import TableHeader from './TableHeader'
 
@@ -137,11 +127,9 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   const [keyword, setKeyword] = useState('')
   const [isOpenCancel, setIsOpenCancel] = useState(false)
   const [isOpenEdit, setIsOpenEdit] = useState(false)
-  const notify = useNotify()
   const { ordersUpdating } = useLimitState()
   const addTransactionWithType = useTransactionAdder()
   const { isOrderCancelling, setCancellingOrders, cancellingOrdersIds } = useCancellingOrders()
-  const transactions = useAllTransactions()
   const { mixpanelHandler } = useMixpanel()
 
   const {
@@ -219,160 +207,21 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     refreshListOrder,
   }))
 
-  const isTransactionFailed = (txHash: string) => {
-    const transactionInfo = findTx(transactions, txHash)
-    return transactionInfo ? getTransactionStatus(transactionInfo).error : false
-  }
-
-  const isTxFailed = useRef(isTransactionFailed)
-  isTxFailed.current = isTransactionFailed
-
-  const showedNotificationOrderIds = useRef<{ [id: string]: boolean }>({})
-  const ackNotiLocal = (id: string | number) => {
-    showedNotificationOrderIds.current = { ...showedNotificationOrderIds.current, [id]: true }
-  }
-
-  const [ackNotificationOrder] = useAckNotificationOrderMutation()
   useEffect(() => {
     if (!account) return
-    const unsubscribeCancelled = subscribeNotificationOrderCancelled(account, chainId, data => {
-      refreshListOrder()
-      const cancelAllData = data?.all?.[0]
-      const cancelAllSuccess = cancelAllData?.isSuccessful
-      if (cancelAllSuccess !== undefined) {
-        // not show Notification when cancel failed because duplicate.
-        if (
-          !isTxFailed.current(cancelAllData?.txHash ?? '') &&
-          !showedNotificationOrderIds.current[cancelAllData.id ?? '']
-        ) {
-          notify(
-            {
-              type: cancelAllSuccess ? NotificationType.WARNING : NotificationType.ERROR,
-              title: cancelAllSuccess ? t`Order Cancelled` : t`Cancel Orders Failed`,
-              summary: (
-                <SummaryNotify
-                  message={
-                    cancelAllSuccess
-                      ? t`You have successfully cancelled all orders.`
-                      : t`Cancel all orders failed. Please try again.`
-                  }
-                />
-              ),
-            },
-            10000,
-          )
-        }
-        const nonces =
-          data?.all.map((e: { id: string }) => {
-            ackNotiLocal(e.id)
-            return e.id
-          }) ?? []
-        if (nonces.length) {
-          ackNotificationOrder({ docIds: nonces, maker: account, chainId, type: LimitOrderStatus.CANCELLED }).catch(
-            console.error,
-          )
-        }
-      }
-
+    const callback = (data: any) => {
       const orders: LimitOrder[] = data?.orders ?? []
-      const orderCancelSuccess = orders.filter(e => e.isSuccessful && !showedNotificationOrderIds.current[e.id])
-      const orderCancelFailed = orders.filter(
-        e => !e.isSuccessful && !isTxFailed.current(e.txHash) && !showedNotificationOrderIds.current[e.id],
-      )
-
-      if (orderCancelSuccess.length)
-        notify(
-          {
-            type: NotificationType.WARNING,
-            title: t`Order Cancelled`,
-            summary: <SummaryNotify orders={orderCancelSuccess} type={LimitOrderStatus.CANCELLED} />,
-          },
-          10000,
-        )
-      if (orderCancelFailed.length)
-        notify(
-          {
-            type: NotificationType.ERROR,
-            title: t`Order Cancel Failed`,
-            summary: <SummaryNotify orders={orderCancelFailed} type={LimitOrderStatus.CANCELLED_FAILED} />,
-          },
-          10000,
-        )
-      if (orders.length)
-        ackNotificationOrder({
-          docIds: orders.map(({ id }) => {
-            ackNotiLocal(id)
-            return id.toString()
-          }),
-          maker: account,
-          chainId,
-          type: LimitOrderStatus.CANCELLED,
-        }).catch(console.error)
-    })
-    const unsubscribeExpired = subscribeNotificationOrderExpired(account, chainId, data => {
-      refreshListOrder()
-      const orders: LimitOrder[] = data?.orders ?? []
-      if (orders.length) {
-        notify(
-          {
-            type: NotificationType.WARNING,
-            title: t`Order Expired`,
-            summary: <SummaryNotify orders={orders} type={LimitOrderStatus.EXPIRED} />,
-          },
-          10000,
-        )
-        ackNotificationOrder({
-          docIds: orders.map(e => e.id.toString()),
-          maker: account,
-          chainId,
-          type: LimitOrderStatus.EXPIRED,
-        }).catch(console.error)
-      }
-    })
-    const unsubscribeFilled = subscribeNotificationOrderFilled(account, chainId, data => {
-      refreshListOrder()
-      const orders: LimitOrder[] = data?.orders ?? []
-      const orderFilled = orders.filter(
-        order => order.status === LimitOrderStatus.FILLED || order.takingAmount === order.filledTakingAmount,
-      )
-      const orderPartialFilled = orders.filter(
-        order => order.status === LimitOrderStatus.PARTIALLY_FILLED || order.takingAmount !== order.filledTakingAmount,
-      )
-      if (orderFilled.length) {
-        notify(
-          {
-            type: NotificationType.SUCCESS,
-            title: t`Order Filled`,
-            summary: <SummaryNotify orders={orderFilled} type={LimitOrderStatus.FILLED} />,
-          },
-          10000,
-        )
-      }
-      orderPartialFilled.forEach(order => {
-        notify(
-          {
-            type: NotificationType.SUCCESS,
-            title: t`Order Partially Filled`,
-            summary: <SummaryNotify orders={[order]} type={LimitOrderStatus.PARTIALLY_FILLED} />,
-          },
-          10000,
-        )
-      })
-      if (orders.length) {
-        ackNotificationOrder({
-          docIds: orders.map(e => e.uuid),
-          maker: account,
-          chainId,
-          type: LimitOrderStatus.FILLED,
-        }).catch(console.error)
-      }
-    })
+      if (orders.length) refreshListOrder()
+    }
+    const unsubscribeCancelled = subscribeNotificationOrderCancelled(account, chainId, refreshListOrder)
+    const unsubscribeExpired = subscribeNotificationOrderExpired(account, chainId, callback)
+    const unsubscribeFilled = subscribeNotificationOrderFilled(account, chainId, callback)
     return () => {
       unsubscribeCancelled?.()
       unsubscribeExpired?.()
       unsubscribeFilled?.()
     }
-  }, [account, chainId, notify, refreshListOrder, ackNotificationOrder])
+  }, [account, chainId, refreshListOrder])
 
   const hideConfirmCancel = useCallback(() => {
     setFlowState(state => ({ ...state, showConfirm: false }))
