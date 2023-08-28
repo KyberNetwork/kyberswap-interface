@@ -53,8 +53,8 @@ export const FormWrapper = styled.div`
   display: flex;
   gap: 1rem;
   z-index: 1;
+  flex-direction: column;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 100%;
-    flex-wrap: wrap;
   `}
 `
