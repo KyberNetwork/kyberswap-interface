@@ -232,7 +232,6 @@ const TokenDescription = ({ description }: { description: string }) => {
 const TokenNameGroup = ({ token, isLoading }: { token?: ITokenOverview; isLoading?: boolean }) => {
   // const { account } = useActiveWeb3React()
   const theme = useTheme()
-  const mixpanelHandler = useMixpanelKyberAI()
   const navigate = useNavigate()
   const location = useLocation()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
