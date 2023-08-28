@@ -104,7 +104,7 @@ export default function EmailForm({
               disabled={!!userInfo?.email}
               $borderColor={errorInput.email ? theme.red : theme.border}
               value={inputEmail}
-              placeholder="Email Address"
+              placeholder={t`Email Address`}
               onChange={onChangeInput}
             />
           </Tooltip>
@@ -118,7 +118,7 @@ export default function EmailForm({
             <Input
               $borderColor={errorInput.referredByCode ? theme.red : theme.border}
               value={referredByCode}
-              placeholder="Referral Code (Optional)"
+              placeholder={t`Referral Code (Optional)`}
               onChange={onChangeCode}
             />
           </Tooltip>
