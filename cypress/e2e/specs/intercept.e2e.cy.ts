@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
+import { FarmPage } from "../pages/farm-page.po.cy";
 import { SwapPage, TokenCatalog } from "../pages/swap-page.po.cy"
 import { DEFAULT_URL, TAG, } from "../selectors/constants.cy"
 import { HeaderLocators } from "../selectors/selectors.cy"
-const tokenCatalog = new TokenCatalog();
+const tokenCatalog = new TokenCatalog()
+const farm = new FarmPage()
 
 describe('Intercept', { tags: TAG.regression }, () => {
    beforeEach(() => {
@@ -20,8 +22,7 @@ describe('Intercept', { tags: TAG.regression }, () => {
          cy.intercept('GET', '**/farm-pools?**').as('get-farm-list')
          cy.intercept('GET', '**/pools?**').as('get-pool-list')
          cy.intercept('GET', '**/block?**').as('get-block')
-         cy.get(HeaderLocators.dropdownEarn).click({ force: true })
-         cy.get(HeaderLocators.lblPools).click({ force: true })
+         SwapPage.goToPoolPage()
          cy.wait('@get-farm-list', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
          cy.wait('@get-pool-list', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
          cy.wait('@get-block', { timeout: 60000 }).its('response.statusCode').should('equal', 200)
@@ -29,8 +30,7 @@ describe('Intercept', { tags: TAG.regression }, () => {
 
       it('Should be displayed APR and TVL values', () => {
          cy.intercept('GET', '**/pools?**').as('get-pools')
-         cy.get(HeaderLocators.dropdownEarn).click({ force: true })
-         cy.get(HeaderLocators.lblPools).click({ force: true })
+         SwapPage.goToPoolPage()
          cy.wait('@get-pools', { timeout: 20000 }).its('response.body.data').then(response => {
             const totalPools = response.pools.length;
             const count = response.pools.reduce((acc: number, pool: { totalValueLockedUsd: string; apr: string }) => {
@@ -47,8 +47,7 @@ describe('Intercept', { tags: TAG.regression }, () => {
    describe('My Pools', () => {
       it('Should get farm list successfully', () => {
          cy.intercept('GET', '**/farm-pools?**').as('get-farm-list')
-         cy.get(HeaderLocators.dropdownEarn).click({ force: true })
-         cy.get(HeaderLocators.lblPools).click({ force: true })
+         SwapPage.goToMyPoolsPage()
          cy.wait('@get-farm-list', { timeout: 5000 }).its('response.statusCode').should('equal', 200)
       })
    })
@@ -58,8 +57,7 @@ describe('Intercept', { tags: TAG.regression }, () => {
          cy.intercept('GET', '**/farm-pools?**').as('get-farm-list')
          cy.intercept('GET', '**/pools?**').as('get-pool-list')
          cy.intercept('GET', '**/block?**').as('get-block')
-         cy.get(HeaderLocators.dropdownEarn).click({ force: true })
-         cy.get(HeaderLocators.lblFarms).click({ force: true })
+         SwapPage.goToFarmPage()
          cy.get('[data-testid=farm-block]')
             .should(_ => {})
             .then($list => {

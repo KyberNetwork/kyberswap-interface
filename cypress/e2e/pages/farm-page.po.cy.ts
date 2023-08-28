@@ -33,11 +33,6 @@ export class FarmPage {
         return count
     }
 
-    goToFarmPage() {
-        cy.get(HeaderLocators.dropdownEarn).click({ force: true })
-        cy.get(HeaderLocators.lblFarms).click({ force: true })
-    }
-
     checkExistData() {
         return cy.get(FarmLocators.lblApr, {timeout: 5000}).should(() => { }).then($obj => {
             if ($obj.length > 0) {

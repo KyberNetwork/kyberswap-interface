@@ -6,8 +6,7 @@ const farm = new FarmPage()
 describe('Farm', { tags: TAG.regression }, () => {
     beforeEach(() => {
         SwapPage.open(DEFAULT_URL)
-        farm.goToFarmPage()
-        cy.wait(5000)
+        SwapPage.goToFarmPage()
         farm.checkExistData().then((value) => {
             if (value === true) {
                 cy.wrap(farm.getAprValues()).as('arrApr')
