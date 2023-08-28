@@ -87,18 +87,12 @@ export function didUserReject(error: any): boolean {
     typeof error === 'string' ? error : error?.message || error?.code || error?.errorMessage || '',
   ).toLowerCase()
   return (
-    [
-      ErrorCode.USER_REJECTED_REQUEST,
-      ErrorCode.CHAIN_NOT_ADDED,
-      ErrorCode.ACTION_REJECTED,
-      ErrorCode.ALPHA_WALLET_REJECTED_CODE,
-    ]
+    [ErrorCode.USER_REJECTED_REQUEST, ErrorCode.ACTION_REJECTED, ErrorCode.ALPHA_WALLET_REJECTED_CODE]
       .map(String)
       .includes(error?.code?.toString?.()) ||
     (
       [
         ErrorCode.USER_REJECTED_REQUEST,
-        ErrorCode.CHAIN_NOT_ADDED,
         ErrorCode.ALPHA_WALLET_REJECTED,
         ErrorCode.WALLETCONNECT_MODAL_CLOSED,
         ErrorCode.WALLETCONNECT_CANCELED,
