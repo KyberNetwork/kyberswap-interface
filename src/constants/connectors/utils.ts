@@ -94,16 +94,16 @@ export function didUserReject(error: any): boolean {
     ]
       .map(String)
       .includes(error?.code?.toString?.()) ||
-    [
-      ErrorCode.USER_REJECTED_REQUEST,
-      ErrorCode.CHAIN_NOT_ADDED,
-      ErrorCode.ALPHA_WALLET_REJECTED,
-      ErrorCode.WALLETCONNECT_MODAL_CLOSED,
-      ErrorCode.WALLETCONNECT_CANCELED,
-      ErrorCode.WALLETCONNECT_MODAL_CLOSED,
-    ]
-      .map(String)
-      .includes(message) ||
+    (
+      [
+        ErrorCode.USER_REJECTED_REQUEST,
+        ErrorCode.CHAIN_NOT_ADDED,
+        ErrorCode.ALPHA_WALLET_REJECTED,
+        ErrorCode.WALLETCONNECT_MODAL_CLOSED,
+        ErrorCode.WALLETCONNECT_CANCELED,
+        ErrorCode.WALLETCONNECT_MODAL_CLOSED,
+      ].map(String) as ErrorCode[]
+    ).includes(message) ||
     rejectedPhrases.some(phrase => message?.includes?.(phrase))
   )
 }
