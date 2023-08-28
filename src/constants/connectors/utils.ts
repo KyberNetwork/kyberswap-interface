@@ -82,8 +82,8 @@ const rejectedPhrases: readonly string[] = [
 ].map(phrase => phrase.toLowerCase())
 
 export function didUserReject(error: any): boolean {
-  const message = (
-    typeof error === 'string' ? error : error?.message || error?.code || error?.errorMessage || ''
+  const message = String(
+    typeof error === 'string' ? error : error?.message || error?.code || error?.errorMessage || '',
   ).toLowerCase()
   return (
     [

@@ -153,14 +153,16 @@ export function useChangeNetwork() {
         },
       }
 
-      let solutionPrefer = [solutions[Solution.provider_request], solutions[Solution.web3_react]]
-      if (walletEVM.walletKey === 'KRYSTAL') {
-        // Krystal break when call by web3-react
-        solutionPrefer = [solutions[Solution.provider_request]]
-      } else if (walletEVM.walletKey === 'BLOCTO') {
-        // Blocto break when call by provider.request
-        solutionPrefer = [solutions[Solution.web3_react]]
-      }
+      const solutionPrefer: readonly (() => Promise<void>)[] = (() => {
+        if (walletEVM.walletKey === 'KRYSTAL') {
+          // Krystal break when call by web3-react .activate
+          return [solutions[Solution.provider_request]]
+        } else if (walletEVM.walletKey === 'BLOCTO') {
+          // Blocto break when call by provider.request
+          return [solutions[Solution.web3_react]]
+        }
+        return [solutions[Solution.provider_request], solutions[Solution.web3_react]]
+      })()
 
       const errors: Error[] = []
       for (let i = 0; i < solutionPrefer.length; i++) {
