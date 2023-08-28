@@ -77,6 +77,7 @@ export enum ErrorCode {
 
 const rejectedPhrases: readonly string[] = [
   'user rejected transaction',
+  'User declined to send the transaction',
   'user denied transaction',
   'you must accept',
 ].map(phrase => phrase.toLowerCase())
