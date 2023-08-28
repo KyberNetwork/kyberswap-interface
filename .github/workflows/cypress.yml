@@ -48,11 +48,11 @@ jobs:
             REF_BRANCH=${REF/refs\/tags\//}
             BRANCH=$REF_BRANCH
           fi
-          echo "::set-output name=value::$BRANCH"
+          echo "value=$BRANCH" >> $GITHUB_OUTPUT
 
       - name: Extract GitHub HEAD SHA
         id: head_sha
-        run: echo "::set-output name=value::$(git rev-parse HEAD)"
+        run: echo "value=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
 
       - name: Get Docker image tag
         id: get_tag
@@ -60,7 +60,7 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           short_sha="$(echo $HEAD_SHA | head -c7)"
-          echo "::set-output name=image_tag::adpr-$short_sha"
+          echo "image_tag=adpr-$short_sha" >> $GITHUB_OUTPUT
 
   cypress-test:
     runs-on: ubuntu-latest
