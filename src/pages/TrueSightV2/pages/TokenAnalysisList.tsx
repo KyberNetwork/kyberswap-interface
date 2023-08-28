@@ -20,6 +20,7 @@ import Pagination from 'components/Pagination'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { APP_PATHS, ICON_ID } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
+import { useActiveWeb3React } from 'hooks'
 import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
@@ -34,11 +35,12 @@ import SimpleTooltip from '../components/SimpleTooltip'
 import SmallKyberScoreMeter from '../components/SmallKyberScoreMeter'
 import TokenChart from '../components/TokenChartSVG'
 import TokenListVariants from '../components/TokenListVariants'
-import WatchlistButton from '../components/WatchlistButton'
+import { StarWithAnimation } from '../components/WatchlistStar'
 import KyberScoreChart from '../components/chart/KyberScoreChart'
 import TokenAnalysisListShareContent from '../components/shareContent/TokenAnalysisListShareContent'
 import { KYBERAI_LISTYPE_TO_MIXPANEL, SUPPORTED_NETWORK_KYBERAI } from '../constants'
-import { useTokenListQuery } from '../hooks/useKyberAIData'
+import useIsReachMaxLimitWatchedToken from '../hooks/useIsReachMaxLimitWatchedToken'
+import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation, useTokenListQuery } from '../hooks/useKyberAIData'
 import { IKyberScoreChart, ITokenList, KyberAIListType } from '../types'
 import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice, navigateToSwapPage } from '../utils'
 
@@ -480,16 +482,16 @@ const TokenRow = ({
   const navigate = useNavigate()
   const location = useLocation()
   const mixpanelHandler = useMixpanelKyberAI()
-  // const { account } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
   const theme = useTheme()
   const [showMenu, setShowMenu] = useState(false)
   const [showSwapMenu, setShowSwapMenu] = useState(false)
   const [menuLeft, setMenuLeft] = useState<number | undefined>(undefined)
-  // const [addToWatchlist] = useAddToWatchlistMutation()
-  // const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
-  // const reachedMaxLimit = useIsReachMaxLimitWatchedToken(token?.tokens.length)
-  // const [isWatched, setIsWatched] = useState(false)
-  // const [loadingStar, setLoadingStar] = useState(false)
+  const [addToWatchlist] = useAddToWatchlistMutation()
+  const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
+  const reachedMaxLimit = useIsReachMaxLimitWatchedToken(token?.tokens.length)
+  const [isWatched, setIsWatched] = useState(false)
+  const [loadingStar, setLoadingStar] = useState(false)
   const rowRef = useRef<HTMLTableRowElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -515,55 +517,61 @@ const TokenRow = ({
     }
   }
 
-  // const handleWatchlistClick = (e: any) => {
-  //   e.stopPropagation()
-  //   if (!account) return
-  //   setLoadingStar(true)
-  //   if (isWatched) {
-  //     mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-  //       token_name: token.symbol?.toUpperCase(),
-  //       source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
-  //       ranking_order: index,
-  //       option: 'remove',
-  //     })
-  //     Promise.all(token.tokens.map(t => removeFromWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
-  //       setIsWatched(false)
-  //       setLoadingStar(false)
-  //     })
-  //   } else {
-  //     if (!reachedMaxLimit) {
-  //       mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-  //         token_name: token.symbol?.toUpperCase(),
-  //         source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
-  //         ranking_order: index,
-  //         option: 'add',
-  //       })
-  //       Promise.all(token.tokens.map(t => addToWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
-  //         setIsWatched(true)
-  //         setLoadingStar(false)
-  //       })
-  //     }
-  //   }
-  // }
+  const handleWatchlistClick = (e: any) => {
+    e.stopPropagation()
+    if (!account) return
+    setLoadingStar(true)
+    if (isWatched) {
+      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
+        token_name: token.symbol?.toUpperCase(),
+        source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
+        ranking_order: index,
+        option: 'remove',
+      })
+      Promise.all(token.tokens.map(t => removeFromWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
+        setIsWatched(false)
+        setLoadingStar(false)
+      })
+    } else {
+      if (!reachedMaxLimit) {
+        mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
+          token_name: token.symbol?.toUpperCase(),
+          source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
+          ranking_order: index,
+          option: 'add',
+        })
+        Promise.all(token.tokens.map(t => addToWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
+          setIsWatched(true)
+          setLoadingStar(false)
+        })
+      }
+    }
+  }
 
-  // useEffect(() => {
-  //   setIsWatched(token.isWatched)
-  // }, [token.isWatched])
+  useEffect(() => {
+    setIsWatched(token.isWatched)
+  }, [token.isWatched])
 
   const latestKyberScore: IKyberScoreChart | undefined = token?.ks_3d?.[token.ks_3d.length - 1]
   return (
     <tr key={token.SourceTokenID} ref={rowRef} onClick={handleRowClick} style={{ position: 'relative' }}>
       <td>
         <RowFit gap="6px">
-          <WatchlistButton size={above768 ? 20 : 16} />
-          {/* <StarWithAnimation
+          <SimpleTooltip
+            text={
+              isWatched ? t`Remove from watchlist` : reachedMaxLimit ? t`Reached 30 tokens limit` : t`Add to watchlist`
+            }
+            hideOnMobile
+          >
+            <StarWithAnimation
               key={token.SourceTokenID}
               watched={isWatched}
               loading={loadingStar}
               onClick={handleWatchlistClick}
               size={above768 ? 20 : 16}
               disabled={!isWatched && reachedMaxLimit}
-            /> */}
+            />
+          </SimpleTooltip>
           {above768 ? index : <></>}
         </RowFit>
       </td>

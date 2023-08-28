@@ -22,7 +22,7 @@ const PopoverContainer = styled.div<{ show: boolean; opacity?: number }>`
 `
 
 const ReferenceElement = styled.div`
-  display: block;
+  display: inline-block;
 `
 
 const Arrow = styled.div`
