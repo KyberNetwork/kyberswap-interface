@@ -42,7 +42,7 @@ export class Network {
     selectNetwork(network: string) {
         cy.get(NetworkLocators.btnSelectNetwork, { timeout: 30000 }).should('be.visible').click()
         cy.get(NetworkLocators.btnNetwork).contains(network).click({ force: true })
-    } 
+    }
 }
 
 export class TokenCatalog {

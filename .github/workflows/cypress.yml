@@ -87,7 +87,7 @@ jobs:
             sudo apt-get install --no-install-recommends -y \
             fluxbox \
             xvfb
-  
+
       - name: Yarn Build
         env:
           CI: false
@@ -95,16 +95,16 @@ jobs:
           CURRENT_BRANCH: ${{ needs.prepare.outputs.current_branch }}
           NODE_OPTIONS: '--max_old_space_size=4096'
         run: yarn build-adpr
-      
+
       - name: Install cypress
-        run: yarn cypress install --force  
-        
+        run: yarn cypress install --force
+
       - name: Run xvfb and fluxbox
         run: |
           Xvfb :0 -screen 0 1024x768x24 -listen tcp -ac &
           fluxbox &
         env:
-          DISPLAY: :0.0  
+          DISPLAY: :0.0
 
       - name: Run Cypress Test
         run: |+
@@ -113,8 +113,8 @@ jobs:
           yarn test-e2e -e grepTags=smoke,NETWORK=Ethereum
         env:
             DISPLAY: :0.0
-      
-      - name: Archive e2e artifacts 
+
+      - name: Archive e2e artifacts
         uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
         if: always()
         with:
@@ -122,4 +122,4 @@ jobs:
             path: |
               cypress/videos
               cypress/screenshots
-        continue-on-error: true    
+        continue-on-error: true

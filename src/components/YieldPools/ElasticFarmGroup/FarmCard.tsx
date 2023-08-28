@@ -207,7 +207,7 @@ const FarmCard = ({
             </MouseoverTooltip>
           </Text>
 
-          <Text fontSize="28px" fontWeight="500" color={theme.apr}>
+          <Text fontSize="28px" fontWeight="500" color={theme.apr} data-testid="apr-value">
             {(pool.farmAPR + pool.poolAPR).toFixed(2)}%
           </Text>
 
@@ -230,7 +230,9 @@ const FarmCard = ({
           </Flex>
 
           <Flex justifyContent="space-between" marginTop="4px" fontSize="16px" fontWeight="500" marginBottom="16px">
-            <Text fontWeight="500">{formatDollarAmount(pool.tvl)}</Text>
+            <Text fontWeight="500" data-testid="tvl-value">
+              {formatDollarAmount(pool.tvl)}
+            </Text>
             {pool.startTime > currentTimestamp ? (
               <Text color={theme.warning}>{getFormattedTimeFromSecond(pool.startTime - currentTimestamp)}</Text>
             ) : pool.endTime > currentTimestamp ? (
