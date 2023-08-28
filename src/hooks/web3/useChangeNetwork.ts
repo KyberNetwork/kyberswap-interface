@@ -85,9 +85,8 @@ export function useChangeNetwork() {
         message = t`Your wallet not support chain ${NETWORKS_INFO[desiredChainId].name}`
       } else {
         message = error?.message || message
-        const e = new Error(`[Wallet] ${error.message}`)
-        e.name = 'Activate chain fail'
-        e.stack = ''
+        const e = new Error(`[Activate chain] ${walletEVM.walletKey} ${message}`)
+        e.name = 'Activate chain error'
         captureException(e, {
           level: 'warning',
           extra: { error, wallet: walletEVM.walletKey, chainId, desiredChainId, message },
@@ -172,9 +171,14 @@ export function useChangeNetwork() {
           return
         } catch (error) {
           if (didUserReject(error)) {
+            console.error('Add network rejected', JSON.stringify({ message: friendlyError(error) }, null, 2))
             failureCallback(desiredChainId, error, customFailureCallback, customTexts)
             return
           }
+          console.error(
+            'Add network error',
+            JSON.stringify({ i, message: friendlyError(error), error, addChainParameter }, null, 2),
+          )
           errors.push(error)
         }
       }
@@ -237,7 +241,10 @@ export function useChangeNetwork() {
           console.info('Switch network success', { desiredChainId })
           changeNetworkHandler(desiredChainId, wrappedSuccessCallback)
         } catch (error) {
-          console.error('Switch network failed', { desiredChainId, error })
+          console.error(
+            'Switch network error',
+            JSON.stringify({ desiredChainId, error, didUserReject: didUserReject(error) }, null, 2),
+          )
 
           // walletconnect v2 not support add network, so halt execution here
           if (didUserReject(error) || connector === walletConnectV2) {
