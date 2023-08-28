@@ -377,9 +377,5 @@ export const ICON_IDS = [
   'twitter',
   'facebook',
   'discord',
-  'assignment',
-  'drag-indicator',
-  'pencil',
-  'trash',
 ] as const
 export type ICON_ID = typeof ICON_IDS[number]
