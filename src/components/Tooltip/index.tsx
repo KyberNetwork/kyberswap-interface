@@ -1,9 +1,10 @@
 import { ReactNode, useCallback, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Flex, Text } from 'rebass'
+import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import Popover, { PopoverProps } from 'components/Popover'
+import Row from 'components/Row'
 
 const TooltipContainer = styled.div<{ width?: string; maxWidth?: string; size?: number }>`
   width: ${({ width }) => width || '228px'};
@@ -87,9 +88,9 @@ export function MouseoverTooltip({ children, disableTooltip, delay, ...rest }: O
   if (disableTooltip) return <>{children}</>
   return (
     <Tooltip {...rest} show={show} onMouseEnter={open} onMouseLeave={close}>
-      <Flex onMouseOver={open} onMouseLeave={close} alignItems="center">
+      <Row onMouseOver={open} onMouseLeave={close}>
         {children}
-      </Flex>
+      </Row>
     </Tooltip>
   )
 }

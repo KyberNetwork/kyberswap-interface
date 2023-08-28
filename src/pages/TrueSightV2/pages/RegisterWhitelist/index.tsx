@@ -5,7 +5,10 @@ import { Text } from 'rebass'
 import { useRequestWhiteListMutation } from 'services/kyberAISubscription'
 import styled from 'styled-components'
 
-import { ButtonPrimary } from 'components/Button'
+import { ButtonLight, ButtonPrimary } from 'components/Button'
+import Column from 'components/Column'
+import DownloadWalletModal from 'components/DownloadWalletModal'
+import Row from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useLogin from 'hooks/useLogin'
@@ -14,11 +17,13 @@ import useTheme from 'hooks/useTheme'
 import SubscribeForm from 'pages/TrueSightV2/pages/RegisterWhitelist/SubscribeForm'
 import WaitListForm from 'pages/TrueSightV2/pages/RegisterWhitelist/WaitListForm'
 import VerifyCodeModal from 'pages/Verify/VerifyCodeModal'
-import { useWalletModalToggle } from 'state/application/hooks'
+import { ApplicationModal } from 'state/application/actions'
+import { useOpenModal, useWalletModalToggle } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 import { useIsWhiteListKyberAI } from 'state/user/hooks'
+import { ButtonText } from 'theme'
 
-const ConnectWalletButton = styled(ButtonPrimary)`
+const ConnectWalletButton = styled(ButtonLight)`
   height: 36px;
   width: 236px;
 `
@@ -40,6 +45,7 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
     referredByCode: '',
     showVerifySuccess: false,
   })
+  const openDownloadWalletModal = useOpenModal(ApplicationModal.DOWNLOAD_WALLET)
 
   const showVerify = (email: string, referredByCode: string, showVerifySuccess: boolean) => {
     setVerifyModalState({ isOpen: true, referredByCode, email, showVerifySuccess })
@@ -95,9 +101,18 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
 
   if (!account)
     return (
-      <ConnectWalletButton onClick={toggleWalletModal}>
-        <Trans>Connect Wallet</Trans>
-      </ConnectWalletButton>
+      <Column gap="16px" alignItems="center" width="fit-content" paddingTop="20px">
+        <ConnectWalletButton onClick={toggleWalletModal}>
+          <Trans>Sign in with wallet</Trans>
+        </ConnectWalletButton>
+        <Row color={theme.subText} fontSize="14px" gap="4px">
+          <span>Don&apos;t have a wallet?</span>
+          <ButtonText color={theme.primary} onClick={openDownloadWalletModal}>
+            Get started here
+          </ButtonText>
+        </Row>
+        <DownloadWalletModal />
+      </Column>
     )
 
   if (!isLogin)

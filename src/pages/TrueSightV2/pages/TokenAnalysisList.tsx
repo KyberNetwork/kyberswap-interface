@@ -18,6 +18,7 @@ import Icon from 'components/Icons/Icon'
 import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import Pagination from 'components/Pagination'
 import Row, { RowBetween, RowFit } from 'components/Row'
+import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS, ICON_ID } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
@@ -435,21 +436,21 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab:
           }
           if (tab === type) {
             return (
-              <SimpleTooltip key={type} text={tooltip?.(theme)} delay={500} hideOnMobile>
+              <MouseoverTooltipDesktopOnly key={type} text={tooltip?.(theme)} delay={500} placement="top">
                 <ButtonTypeActive {...props} ref={el => (tabListRef.current[index] = el)}>
                   {icon && <Icon id={icon} size={16} />}
                   {title}
                 </ButtonTypeActive>
-              </SimpleTooltip>
+              </MouseoverTooltipDesktopOnly>
             )
           } else {
             return (
-              <SimpleTooltip key={type} text={tooltip?.(theme)} delay={500} hideOnMobile>
+              <MouseoverTooltipDesktopOnly key={type} text={tooltip?.(theme)} delay={500} placement="top">
                 <ButtonTypeInactive key={type} {...props} ref={el => (tabListRef.current[index] = el)}>
                   {icon && <Icon id={icon} size={16} />}
                   {title}
                 </ButtonTypeInactive>
-              </SimpleTooltip>
+              </MouseoverTooltipDesktopOnly>
             )
           }
         })}
