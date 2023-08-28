@@ -134,11 +134,11 @@ const EarningsBreakdownPanel: React.FC<Props> = ({ isLoading, data, className, h
             ...item,
             logoUrl:
               item.chainId && item.address && !item.logoUrl
-                ? tokens[item.chainId]?.[item.address].logoURI
+                ? tokens[item.chainId]?.[item.address]?.logoURI
                 : item.logoUrl,
             symbol:
               item.chainId && item.address && !item.symbol
-                ? tokens[item.chainId]?.[item.address].symbol || ''
+                ? tokens[item.chainId]?.[item.address]?.symbol || ''
                 : item.symbol,
           }))}
           totalValue={formatUSDValue(data.totalValue, true)}
