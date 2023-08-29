@@ -32,10 +32,13 @@ export default function LimitTab({ onClick }: Props) {
 
   const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT)
   const isSupport = isSupportLimitOrder(chainId)
-  const { data: numberOfInsufficientFundOrders } = useGetNumberOfInsufficientFundOrdersQuery(
+
+  const skip = !account || !isSupport
+  const { data } = useGetNumberOfInsufficientFundOrdersQuery(
     { chainId, maker: account || '' },
-    { skip: !account || !isSupport, pollingInterval: 10_000 },
+    { skip, pollingInterval: 10_000 },
   )
+  const numberOfInsufficientFundOrders = skip ? undefined : data
 
   if (!isSupport) {
     return null
