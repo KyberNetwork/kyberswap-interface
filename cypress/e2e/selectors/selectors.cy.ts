@@ -39,3 +39,8 @@ export const HeaderLocators = {
   lblMyPools: '[data-testid=my-pools-nav-link]',
   lblFarms: '[data-testid=farms-nav-link]',
 }
+
+export const FarmLocators = {
+  lblApr: '[data-testid=apr-value]',
+  lblTvl: '[data-testid=tvl-value]',
+}

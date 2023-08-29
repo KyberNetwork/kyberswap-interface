@@ -14,8 +14,8 @@ export default defineConfig({
   viewportWidth: 1920,
   viewportHeight: 1080,
   env: {
-    grepFilterSpecs:true,
-    grepOmitFiltered:true
+    grepFilterSpecs: true,
+    grepOmitFiltered: true,
   },
   e2e: {
     setupNodeEvents(on, config) {
@@ -23,6 +23,6 @@ export default defineConfig({
       require('@cypress/grep/src/plugin')(config)
       synpressPlugins(on, config)
     },
-    specPattern: 'cypress/e2e/specs/*.e2e.cy.ts'
+    specPattern: 'cypress/e2e/specs/*.e2e.cy.ts',
   },
 })

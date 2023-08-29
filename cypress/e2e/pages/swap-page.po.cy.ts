@@ -1,4 +1,4 @@
-import { NetworkLocators, SwapPageLocators, TokenCatalogLocators, WalletLocators } from "../selectors/selectors.cy"
+import { HeaderLocators, NetworkLocators, SwapPageLocators, TokenCatalogLocators, WalletLocators } from "../selectors/selectors.cy"
 
 export interface myCallbackType<T> {
     (myArgument: T): void
@@ -35,14 +35,29 @@ export const SwapPage = {
 
     getStatusConnectedWallet() {
         cy.get(WalletLocators.statusConnected, { timeout: 10000 }).should('be.visible')
-    }
+    },
+
+    goToFarmPage() {
+        cy.get(HeaderLocators.dropdownEarn).click({ force: true })
+        cy.get(HeaderLocators.lblFarms).click({ force: true })
+    },
+
+    goToPoolPage() {
+        cy.get(HeaderLocators.dropdownEarn).click({ force: true })
+        cy.get(HeaderLocators.lblPools).click({ force: true })
+    },
+
+    goToMyPoolsPage() {
+        cy.get(HeaderLocators.dropdownEarn).click({ force: true })
+        cy.get(HeaderLocators.lblMyPools).click({ force: true })
+    },
 }
 
 export class Network {
     selectNetwork(network: string) {
         cy.get(NetworkLocators.btnSelectNetwork, { timeout: 30000 }).should('be.visible').click()
         cy.get(NetworkLocators.btnNetwork).contains(network).click({ force: true })
-    } 
+    }
 }
 
 export class TokenCatalog {
