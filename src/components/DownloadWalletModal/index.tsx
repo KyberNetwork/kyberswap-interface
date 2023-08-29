@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { X } from 'react-feather'
-import { Flex, Image, Text } from 'rebass'
+import { Image, Text } from 'rebass'
 import styled from 'styled-components'
 
 import Column from 'components/Column'
