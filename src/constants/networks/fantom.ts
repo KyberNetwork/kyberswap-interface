@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
-import FTM from 'assets/networks/fantom-network.png'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -15,7 +14,7 @@ const fantomInfo: EVMNetworkInfo = {
   poolFarmRoute: 'fantom',
   aggregatorRoute: 'fantom',
   name: 'Fantom',
-  icon: FTM,
+  icon: 'https://storage.googleapis.com/ks-setting-a3aa20b7/779366f0-c120-4827-ac5e-9ed77ca202b91692929044916.png',
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
@@ -26,7 +25,7 @@ const fantomInfo: EVMNetworkInfo = {
   nativeToken: {
     symbol: 'FTM',
     name: 'FTM',
-    logo: FTM,
+    logo: 'https://storage.googleapis.com/ks-setting-a3aa20b7/779366f0-c120-4827-ac5e-9ed77ca202b91692929044916.png',
     decimal: 18,
     minForGas: 10 ** 16,
   },

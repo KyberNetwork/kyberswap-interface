@@ -25,7 +25,7 @@ import Snowfall from 'components/Snowflake/Snowfall'
 import Web3ReactManager from 'components/Web3ReactManager'
 import { ENV_LEVEL } from 'constants/env'
 import { APP_PATHS, BLACKLIST_WALLETS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
-import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
+import { CLASSIC_NOT_SUPPORTED, NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
 import { useAutoLogin } from 'hooks/useLogin'
@@ -156,7 +156,7 @@ const RedirectWithNetworkSuffix = () => {
 
 const RoutesWithNetworkPrefix = () => {
   const { network } = useParams()
-  const { networkInfo } = useActiveWeb3React()
+  const { networkInfo, chainId } = useActiveWeb3React()
   const location = useLocation()
 
   useSyncNetworkParamWithStore()
@@ -176,15 +176,22 @@ const RoutesWithNetworkPrefix = () => {
 
   return (
     <Routes>
-      <Route path={`${APP_PATHS.CLASSIC_CREATE_POOL}/:currencyIdA?/:currencyIdB?`} element={<RedirectCreatePool />} />
-      <Route
-        path={`${APP_PATHS.CLASSIC_ADD_LIQ}/:currencyIdA/:currencyIdB?/:pairAddress?`}
-        element={<AddLiquidity />}
-      />
-      <Route
-        path={`${APP_PATHS.CLASSIC_REMOVE_POOL}/:currencyIdA/:currencyIdB/:pairAddress`}
-        element={<RemoveLiquidity />}
-      />
+      {!CLASSIC_NOT_SUPPORTED[chainId] && (
+        <>
+          <Route
+            path={`${APP_PATHS.CLASSIC_CREATE_POOL}/:currencyIdA?/:currencyIdB?`}
+            element={<RedirectCreatePool />}
+          />
+          <Route
+            path={`${APP_PATHS.CLASSIC_ADD_LIQ}/:currencyIdA/:currencyIdB?/:pairAddress?`}
+            element={<AddLiquidity />}
+          />
+          <Route
+            path={`${APP_PATHS.CLASSIC_REMOVE_POOL}/:currencyIdA/:currencyIdB/:pairAddress`}
+            element={<RemoveLiquidity />}
+          />
+        </>
+      )}
 
       <Route
         path={`${APP_PATHS.ELASTIC_CREATE_POOL}/:currencyIdA?/:currencyIdB?/:feeAmount?`}

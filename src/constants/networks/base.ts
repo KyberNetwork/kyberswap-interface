@@ -7,22 +7,21 @@ const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const zkEvm: EVMNetworkInfo = {
-  chainId: ChainId.ZKEVM,
-  route: 'polygon-zkevm',
-  ksSettingRoute: 'polygon-zkevm',
-  priceRoute: 'polygon-zkevm',
-  poolFarmRoute: 'polygon-zkevm',
-  aggregatorRoute: 'polygon-zkevm',
-  name: 'Polygon zkEVM',
-  icon: 'https://storage.googleapis.com/ks-setting-a3aa20b7/41cb81da-c7ed-4bc1-99ef-4bfe6d80861e1692928936919.svg',
+const base: EVMNetworkInfo = {
+  chainId: ChainId.BASE,
+  route: 'base',
+  ksSettingRoute: 'base',
+  priceRoute: 'base',
+  poolFarmRoute: 'base',
+  aggregatorRoute: 'base',
+  name: 'Base',
+  icon: 'https://raw.githubusercontent.com/base-org/brand-kit/001c0e9b40a67799ebe0418671ac4e02a0c683ce/logo/in-product/Base_Network_Logo.svg',
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
-  defaultBlockSubgraph:
-    'https://polygon-zkevm-graph.kyberengineering.io/subgraphs/name/kybernetwork/polygon-zkevm-blocks',
-  etherscanUrl: 'https://zkevm.polygonscan.com',
-  etherscanName: 'Polygon zkEVM Explorer',
+  defaultBlockSubgraph: 'https://base-graph.kyberengineering.io/subgraphs/name/kybernetwork/base-blocks',
+  etherscanUrl: 'https://basescan.org',
+  etherscanName: 'Base Explorer',
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'ETH',
@@ -31,11 +30,10 @@ const zkEvm: EVMNetworkInfo = {
     decimal: 18,
     minForGas: 10 ** 16,
   },
-  defaultRpcUrl: 'https://zkevm-rpc.com',
+  defaultRpcUrl: 'https://mainnet.base.org',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',
   classic: {
-    defaultSubgraph:
-      'https://polygon-zkevm-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-polygon-zkevm',
+    defaultSubgraph: 'https://base-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-base',
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
       router: '0x5649B4DD00780e99Bab7Abb4A3d581Ea1aEB23D0',
@@ -48,9 +46,8 @@ const zkEvm: EVMNetworkInfo = {
     fairlaunchV2: EMPTY_ARRAY,
   },
   elastic: {
-    defaultSubgraph:
-      'https://polygon-zkevm-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-elastic-polygon-zkevm',
-    startBlock: 4164470,
+    defaultSubgraph: 'https://base-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-elastic-base',
+    startBlock: 2949023,
     coreFactory: '0xC7a590291e07B9fe9E64b86c58fD8fC764308C4A',
     nonfungiblePositionManager: '0xe222fBE074A436145b255442D919E4E3A6c6a480',
     tickReader: '0x8Fd8Cb948965d9305999D767A02bf79833EADbB3',
@@ -65,12 +62,12 @@ const zkEvm: EVMNetworkInfo = {
     production: NOT_SUPPORT,
     development: NOT_SUPPORT,
   },
-  averageBlockTimeInSeconds: 2, // TODO: check these info
-  coingeckoNetworkId: 'polygon-zkevm',
+  averageBlockTimeInSeconds: 2, // dont use for base
+  coingeckoNetworkId: 'base',
   coingeckoNativeTokenId: 'ethereum',
   deBankSlug: EMPTY,
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: NOT_SUPPORT,
 }
 
-export default zkEvm
+export default base
