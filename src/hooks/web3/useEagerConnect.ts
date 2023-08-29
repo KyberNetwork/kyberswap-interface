@@ -10,7 +10,7 @@ import useDisconnectWallet from './useDisconnectWallet'
 
 // make sure this hook will be ran only once globally
 let trying = false
-let tried = false
+const tried = { current: false } // global ref
 export function useEagerConnect() {
   const { active } = useWeb3React()
   const disconnect = useDisconnectWallet()
@@ -19,7 +19,10 @@ export function useEagerConnect() {
   const { tryActivation } = useActivationWallet()
 
   const setTried = () => {
-    tried = true
+    try {
+      tried.current = true
+      Object.freeze(tried)
+    } catch {}
     reRender({})
   }
 
@@ -32,26 +35,34 @@ export function useEagerConnect() {
         return
       }
       try {
-        if (trying || tried) return
+        if (trying || tried.current) return
         trying = true
-        let activated = false
+        let activatedSuccess = false
+        // must retrieve this before activate safe, or will be overriden to SAFE
         const lastWalletKeyEVM = localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY_EVM)
         const lastWalletKeySolana = localStorage.getItem(LOCALSTORAGE_LAST_WALLETKEY_SOLANA)
+
+        try {
+          await tryActivation('SAFE', true)
+          activatedSuccess = true
+          setTried()
+        } catch {}
+
         await Promise.all([
           (async () => {
             if (lastWalletKeyEVM) {
               await tryActivation(lastWalletKeyEVM, true)
-              activated = true
+              activatedSuccess = true
             }
           })(),
           (async () => {
             if (lastWalletKeySolana) {
               await tryActivation(lastWalletKeySolana)
-              activated = true
+              activatedSuccess = true
             }
           })(),
         ])
-        if (!activated) {
+        if (!activatedSuccess) {
           if (isMobile && window.ethereum) {
             await tryActivation('INJECTED', true)
           }

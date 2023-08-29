@@ -1,6 +1,7 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId, Currency, CurrencyAmount, Percent, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { WalletReadyState } from '@solana/wallet-adapter-base'
 import { PublicKey } from '@solana/web3.js'
 import dayjs from 'dayjs'
 import JSBI from 'jsbi'
@@ -12,11 +13,18 @@ import { ENV_KEY } from 'constants/env'
 import { DEFAULT_GAS_LIMIT_MARGIN, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from 'constants/networks'
 import { KNCL_ADDRESS, KNC_ADDRESS } from 'constants/tokens'
-import { EVMWalletInfo, SUPPORTED_WALLET, SolanaWalletInfo, WalletInfo } from 'constants/wallets'
+import {
+  EVMWalletInfo,
+  INJECTED_KEY,
+  INJECTED_KEYS,
+  SUPPORTED_WALLET,
+  SUPPORTED_WALLETS,
+  SolanaWalletInfo,
+  WalletInfo,
+} from 'constants/wallets'
 import store from 'state'
 import { GroupedTxsByHash, TransactionDetails } from 'state/transactions/type'
 import { chunk } from 'utils/array'
-import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
 export const isWalletAddressSolana = async (addr: string) => {
   try {
@@ -422,54 +430,26 @@ export const deleteUnique = <T>(array: T[] | undefined, element: T): T[] => {
 export const isEVMWallet = (wallet?: WalletInfo): wallet is EVMWalletInfo => !!wallet && 'connector' in wallet
 export const isSolanaWallet = (wallet?: WalletInfo): wallet is SolanaWalletInfo => !!wallet && 'adapter' in wallet
 
-enum WALLET_KEYS {
-  COIN98 = 'COIN98',
-  BRAVE = 'BRAVE',
-  METAMASK = 'METAMASK',
-  COINBASE = 'COINBASE',
-  TRUST_WALLET = 'TRUST_WALLET',
-  WALLET_CONNECT = 'WALLET_CONNECT',
-}
-
 // https://docs.metamask.io/guide/ethereum-provider.html#basic-usage
 // https://docs.cloud.coinbase.com/wallet-sdk/docs/injected-provider#properties
 // Coin98 and Brave wallet is overriding Metamask. So at a time, there is only 1 exists
-export const detectInjectedType = (): WALLET_KEYS | null => {
-  const { ethereum } = window
-  // When Coinbase wallet connected will inject selectedProvider property and some others props
-  if (ethereum?.selectedProvider) {
-    if (ethereum?.selectedProvider?.isMetaMask) return WALLET_KEYS.METAMASK
-    if (ethereum?.selectedProvider?.isCoinbaseWallet) return WALLET_KEYS.COINBASE
-  }
-
-  if (ethereum?.isCoinbaseWallet) return WALLET_KEYS.COINBASE
-
-  if (ethereum?.isTrustWallet) return WALLET_KEYS.TRUST_WALLET
-
-  if (checkForBraveBrowser() && ethereum?.isBraveWallet) return WALLET_KEYS.BRAVE
-
-  if (ethereum?.isMetaMask) {
-    if (ethereum?.isCoin98) {
-      return WALLET_KEYS.COIN98
-    }
-    return WALLET_KEYS.METAMASK
-  }
-  if (JSON.parse(localStorage.walletconnect || '{}').connected) {
-    return WALLET_KEYS.WALLET_CONNECT
-  }
-  return null
+export const detectInjectedType = (): INJECTED_KEY | undefined => {
+  return INJECTED_KEYS.find(walletKey => {
+    const wallet = SUPPORTED_WALLETS[walletKey]
+    return wallet.readyState() === WalletReadyState.Installed
+  })
 }
 
 export const isOverriddenWallet = (wallet: SUPPORTED_WALLET) => {
   const injectedType = detectInjectedType()
   return (
-    (wallet === WALLET_KEYS.COIN98 && injectedType === WALLET_KEYS.METAMASK) ||
-    (wallet === WALLET_KEYS.METAMASK && injectedType === WALLET_KEYS.COIN98) ||
-    (wallet === WALLET_KEYS.BRAVE && injectedType === WALLET_KEYS.COIN98) ||
-    (wallet === WALLET_KEYS.COIN98 && injectedType === WALLET_KEYS.BRAVE) ||
-    (wallet === WALLET_KEYS.COINBASE && injectedType === WALLET_KEYS.COIN98) ||
+    (wallet === 'COIN98' && injectedType === 'METAMASK') ||
+    (wallet === 'METAMASK' && injectedType === 'COIN98') ||
+    (wallet === 'BRAVE' && injectedType === 'COIN98') ||
+    (wallet === 'COIN98' && injectedType === 'BRAVE') ||
+    (wallet === 'COINBASE' && injectedType === 'COIN98') ||
     // Coin98 turned off override MetaMask in setting
-    (wallet === WALLET_KEYS.COIN98 && window.coin98 && !window.ethereum?.isCoin98)
+    (wallet === 'COIN98' && window.coin98 && !window.ethereum?.isCoin98)
   )
 }
 

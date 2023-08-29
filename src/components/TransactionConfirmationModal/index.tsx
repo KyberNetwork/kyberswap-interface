@@ -260,7 +260,7 @@ export function TransactionErrorContent({
   confirmText?: string
 }) {
   const theme = useTheme()
-  const [showDetail, setShowDetail] = useState<boolean>(true)
+  const [showDetail, setShowDetail] = useState<boolean>(false)
 
   return (
     <Wrapper>
