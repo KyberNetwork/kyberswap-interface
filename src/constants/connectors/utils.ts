@@ -30,8 +30,7 @@ export const getIsMetaMaskWallet = () =>
 
 export const getIsRabbyWallet = () => Boolean(window.ethereum?.isRabby)
 
-export const getIsKrystalWallet = () =>
-  Boolean((window.ethereum?.isKrystalWallet || window.ethereum?.isKrystal) && !getIsTrustWallet())
+export const getIsKrystalWallet = () => Boolean(window.ethereum?.isKrystalWallet || window.ethereum?.isKrystal)
 
 export const getIsCoinbaseWallet = () =>
   Boolean(
@@ -45,7 +44,8 @@ export const getIsBloctoWallet = () => Boolean(window.ethereum?.isBlocto)
 
 export const getIsC98Wallet = () => Boolean(window.ethereum?.isCoin98 && window.coin98)
 
-export const getIsTrustWallet = () => Boolean(window.ethereum?.isTrustWallet || window.ethereum?.isTrust)
+export const getIsTrustWallet = () =>
+  Boolean((window.ethereum?.isTrustWallet || window.ethereum?.isTrust) && !getIsKrystalWallet())
 
 export const getIsGenericInjector = () =>
   getIsInjected() &&
