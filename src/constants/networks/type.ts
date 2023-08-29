@@ -78,6 +78,11 @@ export interface EVMNetworkInfo extends NetworkInfo {
     readonly farms: string[]
     readonly farmv2Quoter?: string
     readonly farmV2S?: string[]
+    readonly zap?: {
+      helper: string
+      zapIn: string
+      zapOut: string
+    }
   }
   readonly limitOrder: {
     development: string | null

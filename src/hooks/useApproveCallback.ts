@@ -20,10 +20,10 @@ import { useActiveWeb3React } from './index'
 import { useTokenContract } from './useContract'
 
 export enum ApprovalState {
-  UNKNOWN,
-  NOT_APPROVED,
-  PENDING,
-  APPROVED,
+  UNKNOWN = 'UNKNOWN',
+  NOT_APPROVED = 'NOT_APPROVED',
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
 }
 
 // returns a variable indicating the state of the approval and a function which approves if necessary or early returns

@@ -70,6 +70,11 @@ const maticInfo: EVMNetworkInfo = {
       '0x3D6AfE2fB73fFEd2E3dD00c501A174554e147a43',
       '0xf2BcDf38baA52F6b0C1Db5B025DfFf01Ae1d6dBd',
     ],
+    zap: {
+      helper: '0x74d7F490BF302B2c26Db059c0f4c73fB7159D61C',
+      zapIn: '0xE04Ce2D23223a643a7Cb1FB4F8396D255058d60d',
+      zapOut: '0xf55d0A8Df5C864c0058CC2F755695ff6A20c9CB4',
+    },
   },
   limitOrder: {
     development: '0x3C2E9227A6d3779e5b469E425CAa7067b40Ff124',

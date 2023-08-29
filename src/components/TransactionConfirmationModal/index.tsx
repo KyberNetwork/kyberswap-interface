@@ -56,7 +56,7 @@ export function ConfirmationPendingContent({
 }: {
   onDismiss: () => void
   pendingText: string | React.ReactNode
-  startedTime: number | undefined
+  startedTime?: number | undefined
 }) {
   const theme = useTheme()
 
