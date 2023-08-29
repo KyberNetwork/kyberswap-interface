@@ -41,6 +41,8 @@ export const getIsCoinbaseWallet = () =>
 
 export const getIsBraveWallet = () => Boolean(checkForBraveBrowser() && window.ethereum?.isBraveWallet)
 
+export const getIsBloctoWallet = () => Boolean(window.ethereum?.isBlocto)
+
 export const getIsC98Wallet = () => Boolean(window.ethereum?.isCoin98 && window.coin98)
 
 export const getIsTrustWallet = () => Boolean(window.ethereum?.isTrustWallet || window.ethereum?.isTrust)
@@ -52,6 +54,7 @@ export const getIsGenericInjector = () =>
   !getIsBraveWallet() &&
   !getIsC98Wallet() &&
   !getIsRabbyWallet() &&
+  !getIsBloctoWallet() &&
   !getIsKrystalWallet() &&
   !getIsTrustWallet()
 
