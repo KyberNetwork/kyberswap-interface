@@ -22,6 +22,8 @@ import INJECTED_LIGHT_ICON from 'assets/wallets/browser-wallet-light.svg'
 import {
   blocto,
   bloctoHooks,
+  bloctoInject,
+  bloctoInjectHooks,
   brave,
   braveHooks,
   coin98,
@@ -38,8 +40,8 @@ import {
   metamaskHooks,
   rabby,
   rabbyHooks,
-  trustWallet,
-  trustWalletHooks,
+  trust,
+  trustHooks,
   walletConnectV2,
   walletConnectV2Hooks,
 } from 'constants/connectors/evm'
@@ -52,6 +54,7 @@ import {
   solflareAdapter,
 } from 'constants/connectors/solana'
 import {
+  getIsBloctoWallet,
   getIsBraveWallet,
   getIsC98Wallet,
   getIsCoinbaseWallet,
@@ -74,7 +77,13 @@ const detectMetamask = (): WalletReadyState => {
 }
 
 const detectBlocto = (): WalletReadyState => {
+  if (getIsBloctoWallet()) return WalletReadyState.NotDetected
   return WalletReadyState.Installed
+}
+
+const detectBloctoInjected = (): WalletReadyState => {
+  if (getIsBloctoWallet()) return WalletReadyState.Installed
+  return WalletReadyState.NotDetected
 }
 
 let isSafe = false
@@ -179,6 +188,15 @@ export const SUPPORTED_WALLETS = {
     installLink: 'https://www.blocto.io/download',
     readyState: detectBlocto,
   } as EVMWalletInfo,
+  BLOCTO_INJECTED: {
+    connector: bloctoInject,
+    hooks: bloctoInjectHooks,
+    name: 'Blocto',
+    icon: BLOCTO,
+    iconLight: BLOCTO,
+    installLink: 'https://www.blocto.io/download',
+    readyState: detectBloctoInjected,
+  } as EVMWalletInfo,
   SAFE: {
     connector: gnosisSafe,
     hooks: gnosisSafeHooks,
@@ -274,8 +292,8 @@ export const SUPPORTED_WALLETS = {
     readyStateSolana: () => (isMobile ? WalletReadyState.Unsupported : slopeAdapter.readyState),
   } as SolanaWalletInfo,
   TRUST_WALLET: {
-    connector: trustWallet,
-    hooks: trustWalletHooks,
+    connector: trust,
+    hooks: trustHooks,
     name: 'Trust Wallet',
     icon: TRUSTWALLET,
     iconLight: TRUSTWALLET,
