@@ -83,7 +83,7 @@ const detectBlocto = (): WalletReadyState => {
 
 const detectBloctoInjected = (): WalletReadyState => {
   if (getIsBloctoWallet()) return WalletReadyState.Installed
-  return WalletReadyState.NotDetected
+  return WalletReadyState.Unsupported
 }
 
 let isSafe = false
