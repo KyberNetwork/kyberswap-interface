@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import React, { CSSProperties, ReactNode, forwardRef, useLayoutEffect, useRef, useState } from 'react'
+import React, { ReactNode, useLayoutEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useParams } from 'react-router'
 import { useMedia } from 'react-use'
@@ -10,6 +10,7 @@ import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
 import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit } from 'components/Row'
+import { TabButton } from 'components/TabButton'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -419,56 +420,3 @@ export const SectionWrapper = ({
     </StyledSectionWrapper>
   )
 }
-
-const StyledMobileTabButton = styled.div<{ active?: boolean; separator?: boolean }>`
-  font-size: 12px;
-  line-height: 16px;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 40px;
-  flex: 1;
-  box-sizing: border-box;
-  cursor: pointer;
-
-  ${({ theme, separator, active }) =>
-    separator &&
-    !active &&
-    css`
-      position: relative;
-      &::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        height: 16px;
-        border: 1px solid ${theme.border};
-      }
-    `}
-  ${({ theme, active }) =>
-    active
-      ? css`
-          color: ${theme.primary};
-          background-color: ${theme.primary + '40'};
-          box-shadow: inset 0 -2px 0 0 ${theme.primary};
-        `
-      : css`
-          color: ${theme.subText};
-          background-color: ${theme.background};
-        `}
-
-  :hover {
-    filter: brightness(1.2);
-  }
-`
-type Props = { text?: string; active?: boolean; onClick?: () => void; style?: CSSProperties; separator?: boolean }
-export const TabButton = forwardRef<HTMLDivElement, Props>(function TabButton(
-  { text, active, onClick, style, separator },
-  ref,
-) {
-  return (
-    <StyledMobileTabButton active={active} onClick={onClick} style={style} separator={separator} ref={ref}>
-      {text}
-    </StyledMobileTabButton>
-  )
-})
