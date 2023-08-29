@@ -17,7 +17,7 @@ export default function Web3ReactManager({ children }: { children: JSX.Element }
   const triedEager = useEagerConnect()
 
   // when there's no account connected, react to logins (broadly speaking) on the injected provider, if it exists
-  useInactiveListener(!triedEager)
+  useInactiveListener(!triedEager.current)
   const dispatch = useDispatch()
   /** On user change network from wallet, update chainId in store, only work on EVM wallet */
   useEffect(() => {
@@ -29,7 +29,7 @@ export default function Web3ReactManager({ children }: { children: JSX.Element }
   }, [chainIdEVM, triedEager.current, active])
 
   // on page load, do nothing until we've tried to connect to the injected connector
-  if (isEVM && !triedEager) {
+  if (isEVM && !triedEager.current) {
     return <LocalLoader />
   }
 
