@@ -19,7 +19,7 @@ const limitOrderApi = createApi({
         url: `${LIMIT_ORDER_API_READ}/v1/configs/contract-address`,
         params: { chainId },
       }),
-      transformResponse: (data: any) => data?.data?.latest ?? '',
+      transformResponse: (data: any) => data?.data?.latest?.toLowerCase?.() ?? '',
     }),
     getListOrders: builder.query<
       { orders: LimitOrder[]; totalOrder: number },
