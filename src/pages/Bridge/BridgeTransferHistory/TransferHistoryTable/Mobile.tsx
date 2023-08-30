@@ -11,7 +11,6 @@ import ActionCell from 'pages/Bridge/BridgeTransferHistory/ActionCell'
 import StatusBadge from 'pages/Bridge/BridgeTransferHistory/StatusBadge'
 import TimeStatusCell from 'pages/Bridge/BridgeTransferHistory/TimeStatusCell'
 import TokenReceiveCell from 'pages/Bridge/BridgeTransferHistory/TokenReceiveCell'
-import { includes } from 'utils/array'
 
 import { Props } from './index'
 
@@ -59,7 +58,7 @@ const ChainWrapper = styled.div`
   color: ${({ theme }) => theme.subText};
 `
 const ChainDisplay: React.FC<{ chainId: number }> = ({ chainId }) => {
-  if (includes(SUPPORTED_NETWORKS, chainId)) {
+  if (SUPPORTED_NETWORKS.includes(chainId)) {
     const chainInfo = NETWORKS_INFO[chainId]
     return (
       <ChainWrapper>

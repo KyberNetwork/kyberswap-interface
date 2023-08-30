@@ -10,11 +10,14 @@ interface Window {
     isMetaMask?: boolean
     isCoin98?: boolean
     isBraveWallet?: any
+    isPhantom?: boolean
     isCoinbaseWallet?: boolean
     isTrust?: boolean
     isTrustWallet?: boolean
     isRabby?: boolean
+    isBlocto?: boolean
     isLedgerConnect?: boolean
+    isKrystal?: boolean
     isKrystalWallet?: boolean
     on?: (...args: any[]) => void
     removeListener?: (...args: any[]) => void

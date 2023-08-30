@@ -11,6 +11,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useNotify } from 'state/application/hooks'
 import { useAppDispatch } from 'state/hooks'
 import { updateChainId } from 'state/user/actions'
+import { friendlyError } from 'utils/errorMessage'
 import { wait } from 'utils/retry'
 
 import { useLazyKyberswapConfig } from '../useKyberSwapConfig'
@@ -36,7 +37,7 @@ export function useChangeNetwork() {
   const successCallback = useCallback(
     async (desiredChainId: ChainId, waitUtilUpdatedChainId: boolean, customSuccessCallback?: () => void) => {
       const initialChainId = latestChainId
-      /** although change chain successfully, but it take 1-2s for chainId has a new value
+      /** although change chain successfully, but it take 1-2s for chainId has a new value | update: or never change chain but still return success, e.g: safe, phantom evm
        * => this option will wait util chainId has actually update to new value to prevent some edge case
        */
       while (waitUtilUpdatedChainId) {
@@ -84,9 +85,8 @@ export function useChangeNetwork() {
         message = t`Your wallet not support chain ${NETWORKS_INFO[desiredChainId].name}`
       } else {
         message = error?.message || message
-        const e = new Error(`[Wallet] ${error.message}`)
-        e.name = 'Activate chain fail'
-        e.stack = ''
+        const e = new Error(`[Activate chain] ${walletEVM.walletKey} ${message}`)
+        e.name = 'Activate chain error'
         captureException(e, {
           level: 'warning',
           extra: { error, wallet: walletEVM.walletKey, chainId, desiredChainId, message },
@@ -116,8 +116,9 @@ export function useChangeNetwork() {
       customFailureCallback?: (error: Error) => void,
       waitUtilUpdatedChainId = false,
     ) => {
-      const wrappedSuccessCallback = () =>
+      const wrappedSuccessCallback = () => {
         successCallback(desiredChainId, waitUtilUpdatedChainId, customSuccessCallback)
+      }
 
       const { rpc } = customRpc ? { rpc: customRpc } : await fetchKyberswapConfig(desiredChainId)
       const addChainParameter = {
@@ -131,31 +132,95 @@ export function useChangeNetwork() {
         },
         blockExplorerUrls: [NETWORKS_INFO[desiredChainId].etherscanUrl],
       }
-      console.info('Add new network', { addChainParameter })
-      const activeProvider = library?.provider ?? window.ethereum
-      if (activeProvider && activeProvider.request) {
+
+      enum Solution {
+        web3_react = 'web3_react',
+        provider_request = 'provider_request',
+      }
+      const solutions = {
+        [Solution.web3_react]: async () => await connector.activate(addChainParameter),
+        [Solution.provider_request]: async () => {
+          const activeProvider = library?.provider ?? window.ethereum
+          if (activeProvider?.request) {
+            await activeProvider.request({
+              method: 'wallet_addEthereumChain',
+              params: [addChainParameter],
+            })
+          } else {
+            throw new Error('empty request function')
+          }
+        },
+      }
+
+      const solutionPrefer: readonly Solution[] = (() => {
+        if (walletEVM.walletKey === 'KRYSTAL') {
+          // Krystal break when call by web3-react .activate
+          return [Solution.provider_request]
+        } else if (walletEVM.walletKey === 'BLOCTO') {
+          // Blocto break when call by provider.request
+          return [Solution.web3_react]
+        }
+        return [Solution.provider_request, Solution.web3_react]
+      })()
+
+      const errors: Error[] = []
+      for (let i = 0; i < solutionPrefer.length; i++) {
         try {
-          await activeProvider.request({
-            method: 'wallet_addEthereumChain',
-            params: [addChainParameter],
+          console.info('[Add network] start:', {
+            wallet: walletEVM.walletKey,
+            solution: solutionPrefer[i],
+            addChainParameter,
+          })
+          await solutions[solutionPrefer[i]]()
+          console.info('[Add network] success:', {
+            wallet: walletEVM.walletKey,
+            solution: solutionPrefer[i],
+            addChainParameter,
           })
           wrappedSuccessCallback()
+          return
         } catch (error) {
-          console.error('Add new network failed', { addChainParameter, error })
-          failureCallback(desiredChainId, error, customFailureCallback, customTexts)
-          if (!didUserReject(error)) {
-            const e = new Error(`[Wallet] ${error.message}`)
-            e.name = 'Add new network Error'
-            e.stack = ''
-            captureException(e, {
-              level: 'warning',
-              extra: { error, wallet: walletEVM.walletKey, chainId, addChainParameter },
-            })
+          console.error(
+            '[Add network] error:',
+            JSON.stringify(
+              {
+                wallet: walletEVM.walletKey,
+                desiredChainId,
+                solution: solutionPrefer[i],
+                message: friendlyError(error),
+                error,
+                addChainParameter,
+                didUserReject: didUserReject(error),
+              },
+              null,
+              2,
+            ),
+          )
+
+          if (didUserReject(error)) {
+            failureCallback(desiredChainId, error, customFailureCallback, customTexts)
+            return
           }
+          errors.push(error)
         }
       }
+
+      failureCallback(desiredChainId, errors.at(-1), customFailureCallback, customTexts)
+      const e = new Error(`[Add network] ${walletEVM.walletKey} ${friendlyError(errors.at(-1) || '')}`)
+      e.name = 'Add new network Error'
+      e.stack = ''
+      captureException(e, {
+        level: 'error',
+        extra: {
+          wallet: walletEVM.walletKey,
+          desiredChainId,
+          addChainParameter,
+          friendlyMessages: errors.map(friendlyError),
+          errors,
+        },
+      })
     },
-    [library?.provider, chainId, failureCallback, fetchKyberswapConfig, successCallback, walletEVM.walletKey],
+    [library?.provider, failureCallback, fetchKyberswapConfig, successCallback, walletEVM.walletKey, connector],
   )
 
   const changeNetwork = useCallback(
@@ -163,7 +228,7 @@ export function useChangeNetwork() {
       desiredChainId: ChainId,
       customSuccessCallback?: () => void,
       customFailureCallback?: (error: Error) => void,
-      waitUtilUpdatedChainId = false,
+      waitUtilUpdatedChainId = false, //todo: force all to true
       isAddNetworkIfPossible = true,
     ) => {
       const wrappedSuccessCallback = () =>
@@ -185,12 +250,15 @@ export function useChangeNetwork() {
 
       if (isEVM(desiredChainId)) {
         try {
-          console.info('Switch network', { desiredChainId })
+          console.info('[Switch network] start:', { desiredChainId })
           await connector.activate(desiredChainId)
-          console.info('Switch network success', { desiredChainId })
+          console.info('[Switch network] success:', { desiredChainId })
           changeNetworkHandler(desiredChainId, wrappedSuccessCallback)
         } catch (error) {
-          console.error('Switch network failed', { desiredChainId, error })
+          console.error(
+            '[Switch network] error:',
+            JSON.stringify({ desiredChainId, error, didUserReject: didUserReject(error) }, null, 2),
+          )
 
           // walletconnect v2 not support add network, so halt execution here
           if (didUserReject(error) || connector === walletConnectV2) {

@@ -70,7 +70,7 @@ export const NETWORKS_INFO = new Proxy(NETWORKS_INFO_CONFIG, {
 
 // temporary disable Solana
 // todo: either enable back or completely remove Solana from codebase
-export const SUPPORTED_NETWORKS = Object.keys(NETWORKS_INFO).map(Number).filter(isEVM) as ChainId[]
+export const SUPPORTED_NETWORKS = Object.keys(NETWORKS_INFO).map(Number).filter(isEVM)
 
 export const MAINNET_NETWORKS = [
   ChainId.MAINNET,
@@ -225,6 +225,14 @@ export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC: ChainId[] = [
   ChainId.VELAS,
   ChainId.AURORA,
   ChainId.OASIS,
+]
+export const BLOCTO_SUPPORTED_NETWORKS: ChainId[] = [
+  ChainId.MAINNET,
+  ChainId.ARBITRUM,
+  ChainId.OPTIMISM,
+  ChainId.MATIC,
+  ChainId.BSCMAINNET,
+  ChainId.AVAXMAINNET,
 ]
 
 export const ELASTIC_NOT_SUPPORTED: { [key: string]: string } = {
