@@ -77,7 +77,7 @@ const detectMetamask = (): WalletReadyState => {
 }
 
 const detectBlocto = (): WalletReadyState => {
-  if (getIsBloctoWallet()) return WalletReadyState.NotDetected
+  if (getIsBloctoWallet()) return WalletReadyState.Unsupported
   return WalletReadyState.Installed
 }
 
