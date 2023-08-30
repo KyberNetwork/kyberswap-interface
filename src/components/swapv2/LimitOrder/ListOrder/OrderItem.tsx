@@ -42,7 +42,7 @@ const ItemWrapperMobile = styled.div`
   flex-direction: column;
   justify-content: space-between;
   gap: 14px;
-  padding: 20px 0px;
+  padding: 20px 10px;
   border-bottom: 1px solid ${({ theme }) => theme.border};
 `
 const DeltaAmount = styled.div<{ color: string }>`

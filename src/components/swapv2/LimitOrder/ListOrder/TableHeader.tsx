@@ -15,9 +15,7 @@ const Header = styled(ItemWrapper)`
   padding: 16px 12px;
   border-bottom: none;
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding-left: 30px;
-    margin-left: -30px;
-    width: calc(100vw + 14px);
+    padding-left: 16px;
   `};
 `
 
@@ -46,8 +44,8 @@ const TableHeader = () => {
           </Text>
         </>
       ) : (
-        <Text>
-          <Trans>TRADE</Trans>
+        <Text style={{ whiteSpace: 'nowrap' }}>
+          <Trans>LIMIT ORDER(S)</Trans>
         </Text>
       )}
     </Header>

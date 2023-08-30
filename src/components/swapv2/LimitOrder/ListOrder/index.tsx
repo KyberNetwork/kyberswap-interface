@@ -52,6 +52,12 @@ const Wrapper = styled.div`
   border-radius: 20px;
   gap: 1rem;
   border: 1px solid ${({ theme }) => theme.border};
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    margin-left: -16px;
+    width: 100vw;
+    border-left: none;
+    border-right: none;
+  `};
 `
 
 const ButtonCancelAll = styled(ButtonEmpty)`
@@ -74,9 +80,6 @@ const NoResultWrapper = styled.div`
   align-items: center;
   justify-content: center;
   color: ${({ theme }) => theme.subText};
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-   margin-top: 16px;
-  `};
 `
 
 const TableFooterWrapper = styled.div`
