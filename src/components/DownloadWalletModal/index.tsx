@@ -7,7 +7,7 @@ import styled from 'styled-components'
 import Column from 'components/Column'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
-import { SUPPORTED_WALLETS } from 'constants/wallets'
+import { connections } from 'constants/wallets'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useCloseModal, useModalOpen } from 'state/application/hooks'
@@ -25,7 +25,14 @@ const DownloadWalletRow = styled.a`
   background: ${({ theme }) => theme.buttonBlack};
   line-height: 24px;
   text-decoration: none;
-  width: calc(50% - 10px);
+
+  flex-basis: calc((100% - 20px) / 2); // 20px gap
+  min-width: 170px;
+  box-sizing: border-box;
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    flex-basis: 100%;
+  `}
+
   :hover {
     background: ${({ theme }) => rgba(theme.buttonBlack, 0.6)};
   }
@@ -50,7 +57,7 @@ export default function DownloadWalletModal() {
         </RowBetween>
 
         <Row gap="20px" marginTop="24px" flexWrap="wrap">
-          {Object.values(SUPPORTED_WALLETS)
+          {Object.values(connections)
             .filter(e => e.installLink)
             .map(item => (
               <DownloadWalletRow
@@ -59,7 +66,7 @@ export default function DownloadWalletModal() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Image width="24px" src={isDarkMode ? item.icon : item.iconLight} />
+                <Image width="24px" maxHeight="24px" src={isDarkMode ? item.icon : item.iconLight} />
                 {item.name}
               </DownloadWalletRow>
             ))}
