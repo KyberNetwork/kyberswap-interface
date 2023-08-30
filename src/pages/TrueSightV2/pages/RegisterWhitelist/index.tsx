@@ -101,11 +101,11 @@ export default function RegisterWhitelist({ showForm = true }: { showForm?: bool
 
   if (!account)
     return (
-      <Column gap="16px" alignItems="center" width="fit-content" paddingTop="20px">
+      <Column gap="20px" alignItems="center" width="fit-content" paddingTop="20px">
         <ConnectWalletButton onClick={toggleWalletModal}>
           <Trans>Sign in with wallet</Trans>
         </ConnectWalletButton>
-        <Row color={theme.subText} fontSize="14px" gap="4px">
+        <Row color={theme.subText} fontSize="14px" gap="4px" width="fit-content">
           <span>Don&apos;t have a wallet?</span>
           <ButtonText color={theme.primary} onClick={openDownloadWalletModal}>
             Get started here

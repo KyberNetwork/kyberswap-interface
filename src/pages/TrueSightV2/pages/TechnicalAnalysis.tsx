@@ -87,7 +87,7 @@ export default function TechnicalAnalysis() {
   const [prochartDataURL, setProchartDataURL] = useState<string | undefined>()
   const [liveChartTab, setLiveChartTab] = useState(ChartTab.First)
   const [showSRLevels, setShowSRLevels] = useState(true)
-  const [priceChartResolution, setPriceChartResolution] = useState('1h')
+  const [priceChartResolution, setPriceChartResolution] = useState('4h')
   const now = Math.floor(Date.now() / 60000) * 60
   const { data, isLoading } = useChartingDataQuery({
     chain: chain || defaultExplorePageToken.chain,

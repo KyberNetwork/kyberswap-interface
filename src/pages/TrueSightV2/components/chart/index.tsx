@@ -1218,7 +1218,13 @@ export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; no
                   axisLine={false}
                   tick={{ fill: theme.subText, fontWeight: 400 }}
                   tickFormatter={value =>
-                    dayjs(value).format(timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm' : 'MMM DD')
+                    dayjs(value).format(
+                      timeframe === KyberAITimeframe.ONE_DAY
+                        ? 'HH:mm'
+                        : KyberAITimeframe.THREE_DAY
+                        ? 'HH:mm MMM DD'
+                        : 'MMM DD',
+                    )
                   }
                   minTickGap={12}
                 />
@@ -1609,7 +1615,15 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
               tickLine={false}
               axisLine={false}
               tick={{ fill: theme.subText, fontWeight: 400 }}
-              tickFormatter={value => dayjs(value).format(timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm' : 'MMM DD')}
+              tickFormatter={value =>
+                dayjs(value).format(
+                  timeframe === KyberAITimeframe.ONE_DAY
+                    ? 'HH:mm'
+                    : KyberAITimeframe.THREE_DAY
+                    ? 'HH:mm MMM DD'
+                    : 'MMM DD',
+                )
+              }
               minTickGap={12}
             />
             <YAxis
@@ -2660,7 +2674,7 @@ export const Prochart = ({
     const widgetOptions: ChartingLibraryWidgetOptions = {
       symbol: 'BTC',
       datafeed: datafeed,
-      interval: '1h' as ResolutionString,
+      interval: '4H' as ResolutionString,
       container: ref,
       library_path: '/charting_library/',
       disabled_features: [
@@ -2681,7 +2695,7 @@ export const Prochart = ({
       studies_overrides: {},
       theme: theme.darkMode ? 'Dark' : 'Light',
       custom_css_url: '/charting_library/style.css',
-      timeframe: '2w',
+      timeframe: '1m',
       time_frames: [
         { text: '2w', resolution: '1H' as ResolutionString, description: '2 Weeks' },
         { text: '1m', resolution: '4H' as ResolutionString, description: '1 Month' },
@@ -2723,7 +2737,7 @@ export const Prochart = ({
         .subscribe(
           null,
           r => {
-            const resolution = { 60: '1h', 240: '4h', '1D': '1d', '4D': '4d' }[r as string] || '1h'
+            const resolution = { 60: '1h', 240: '4h', '1D': '1d', '4D': '4d' }[r as string] || '4h'
             if (resolution !== variablesRef.current?.resolution) {
               setResolution?.(resolution)
             }

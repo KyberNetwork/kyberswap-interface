@@ -206,7 +206,7 @@ export const Top10HoldersTable = () => {
                 </Text>
                 <RowFit gap="12px">
                   <ActionButton color={theme.subText} style={{ padding: '6px 0' }}>
-                    <CopyHelper toCopy={item.address} text="Copy" />
+                    <CopyHelper toCopy={item.address} text="Copy" size={16} />
                   </ActionButton>
                   <ActionButton
                     color={theme.subText}
