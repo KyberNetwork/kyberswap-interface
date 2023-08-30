@@ -254,12 +254,17 @@ export default function WalletModal() {
       }
     })
 
-    const sortWallets = (walletA: WalletInfoExtended, walletB: WalletInfoExtended): -1 | 0 | 1 => {
-      if (!walletA.installLink && !walletA.isOverridden && !walletB.installLink && !walletB.isOverridden) {
-        return walletA.name < walletB.name ? -1 : 1
-      }
-      if (walletA.installLink || walletA.isOverridden) return 1
-      return -1
+    const sortPoint: { [readyState in WalletReadyState]: number } = {
+      [WalletReadyState.Installed]: 1000,
+      [WalletReadyState.Loadable]: 100,
+      [WalletReadyState.NotDetected]: 10,
+      [WalletReadyState.Unsupported]: 1,
+    }
+    const sortWallets = (walletA: WalletInfoExtended, walletB: WalletInfoExtended): number => {
+      return (
+        sortPoint[walletB.readyState || WalletReadyState.Unsupported] -
+        sortPoint[walletA.readyState || WalletReadyState.Unsupported]
+      )
     }
     return (
       parsedWalletList
