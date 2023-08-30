@@ -2,7 +2,8 @@ import { t } from '@lingui/macro'
 
 import { didUserReject } from 'constants/connectors/utils'
 
-function capitalizeFirstLetter(string: string) {
+function capitalizeFirstLetter(str?: string) {
+  const string = str || ''
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
 
