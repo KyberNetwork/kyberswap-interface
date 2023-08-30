@@ -282,21 +282,19 @@ export function TransactionErrorContent({
           >
             {friendlyError(message)}
           </Text>
-          {message !== friendlyError(message) && (
-            <AutoColumn justify="center" style={{ width: '100%' }}>
-              <Text
-                color={theme.primary}
-                fontSize="14px"
-                sx={{ cursor: `pointer` }}
-                onClick={() => setShowDetail(prev => !prev)}
-              >
-                {showDetail ? 'Show less' : 'Show more details'}
-              </Text>
-              {showDetail && (
-                <ErrorDetail>{typeof message === 'string' ? message : JSON.stringify(message)}</ErrorDetail>
-              )}
-            </AutoColumn>
-          )}
+          {/* {message !== friendlyError(message) && ( */}
+          <AutoColumn justify="center" style={{ width: '100%' }}>
+            <Text
+              color={theme.primary}
+              fontSize="14px"
+              sx={{ cursor: `pointer` }}
+              onClick={() => setShowDetail(prev => !prev)}
+            >
+              {showDetail ? 'Show less' : 'Show more details'}
+            </Text>
+            {showDetail && <ErrorDetail>{typeof message === 'string' ? message : JSON.stringify(message)}</ErrorDetail>}
+          </AutoColumn>
+          {/* )} */}
         </AutoColumn>
       </Section>
       <BottomSection gap="12px">
