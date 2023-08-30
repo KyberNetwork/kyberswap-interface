@@ -167,7 +167,6 @@ export const SUPPORTED_WALLETS = {
     name: 'Browser Wallet',
     icon: INJECTED_DARK_ICON,
     iconLight: INJECTED_LIGHT_ICON,
-    installLink: 'https://metamask.io/download',
     readyState: detectInjected,
   } as EVMWalletInfo,
   METAMASK: {
