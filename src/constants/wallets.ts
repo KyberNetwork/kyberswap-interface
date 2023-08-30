@@ -196,6 +196,15 @@ export const SUPPORTED_WALLETS = {
     installLink: 'https://rabby.io',
     readyState: detectRabby,
   } as EVMWalletInfo,
+  TRUST_WALLET: {
+    connector: trust,
+    hooks: trustHooks,
+    name: 'Trust Wallet',
+    icon: TRUSTWALLET,
+    iconLight: TRUSTWALLET,
+    installLink: 'https://trustwallet.com/vi/deeplink',
+    readyState: detectTrustWallet,
+  } as EVMWalletInfo,
   BRAVE: {
     connector: brave,
     hooks: braveHooks,
@@ -230,15 +239,6 @@ export const SUPPORTED_WALLETS = {
     readyState: detectCoinbase,
     readyStateSolana: () => (isMobile ? WalletReadyState.Unsupported : coinbaseAdapter.readyState),
   } as EVMWalletInfo & SolanaWalletInfo,
-  TRUST_WALLET: {
-    connector: trust,
-    hooks: trustHooks,
-    name: 'Trust Wallet',
-    icon: TRUSTWALLET,
-    iconLight: TRUSTWALLET,
-    installLink: 'https://trustwallet.com/vi/deeplink',
-    readyState: detectTrustWallet,
-  } as EVMWalletInfo,
   WALLET_CONNECT: {
     connector: walletConnectV2,
     hooks: walletConnectV2Hooks,
