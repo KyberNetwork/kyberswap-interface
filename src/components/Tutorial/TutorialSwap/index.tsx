@@ -81,6 +81,9 @@ const NetworkItemWrapper = styled.div`
   padding: 10px 15px;
   gap: 10px;
   cursor: pointer;
+  flex-basis: calc((100% - 10px) / 2); // 10px gap
+  min-width: 160px;
+  box-sizing: border-box;
 `
 
 const NetworkWrapper = styled.div`
@@ -89,7 +92,7 @@ const NetworkWrapper = styled.div`
   padding: 15px;
   gap: 10px;
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
 `
 
 const ImageMobile = ({
