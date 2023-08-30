@@ -70,6 +70,7 @@ if (ENV_LEVEL > ENV_TYPE.LOCAL) {
     ignoreErrors: ['AbortError'],
     integrations: [new BrowserTracing()],
     tracesSampleRate: 0.1,
+    normalizeDepth: 5,
   })
   Sentry.configureScope(scope => {
     scope.setTag('request_id', sentryRequestId)

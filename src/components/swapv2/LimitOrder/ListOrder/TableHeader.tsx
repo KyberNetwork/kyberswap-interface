@@ -19,7 +19,7 @@ const Header = styled(ItemWrapper)`
     border-radius: 0px;
     padding-left: 30px;
     margin-left: -30px;
-    width: 110vw;
+    width: calc(100vw + 14px);
   `};
 `
 
