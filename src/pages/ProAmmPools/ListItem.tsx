@@ -1,6 +1,7 @@
 import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
+import { useState } from 'react'
 import { BarChart2, Plus, Share2 } from 'react-feather'
 import { Link, useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
@@ -10,6 +11,7 @@ import { ReactComponent as ViewPositionIcon } from 'assets/svg/view_positions.sv
 import { ButtonEmpty } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
+import QuickZap, { QuickZapButton } from 'components/ElasticZap/QuickZap'
 import { FarmTag } from 'components/FarmTag'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
@@ -79,6 +81,7 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
   const { chainId, networkInfo } = useActiveWeb3React()
   const theme = useTheme()
   const navigate = useNavigate()
+  const [showQuickZap, setShowQuickZap] = useState(false)
 
   const allTokens = useAllTokens()
 
@@ -157,6 +160,7 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
 
   return (
     <TableRow key={pool.address} data-testid={pool.address}>
+      <QuickZap poolAddress={pool.address} isOpen={showQuickZap} onDismiss={() => setShowQuickZap(false)} />
       <div>
         <Link
           to={`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${token0Slug}/${token1Slug}/${pool.feeTier}`}
@@ -235,6 +239,7 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
       </DataText>
       <DataText alignItems="flex-end">{myLiquidity ? formatDollarAmount(Number(myLiquidity)) : '-'}</DataText>
       <ButtonWrapper>
+        <QuickZapButton onClick={() => setShowQuickZap(true)} size="small" />
         <MouseoverTooltip text={<Trans> Add liquidity </Trans>} placement={'top'} width={'fit-content'}>
           <ButtonEmpty
             padding="0"

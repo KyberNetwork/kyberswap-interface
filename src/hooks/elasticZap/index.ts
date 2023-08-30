@@ -122,7 +122,67 @@ export function useZapInAction() {
     [zapInContract, account, deadline, posManagerAddress, slippage],
   )
 
+  const zapInPoolToMint = useCallback(
+    async ({
+      pool,
+      tokenIn,
+      previousTicks,
+      amount,
+      zapResult,
+      tickLower,
+      tickUpper,
+    }: {
+      pool: string
+      tokenIn: string
+      previousTicks: [number, number]
+      amount: string
+      zapResult: ZapResult
+      tickLower: number
+      tickUpper: number
+    }) => {
+      if (!zapInContract || !account) return
+
+      const minLiquidity = zapResult.liquidity.sub(
+        zapResult.liquidity.mul(BigNumber.from(basisPointsToPercent(slippage).quotient.toString())),
+      )
+
+      const maxRemainingAmount0 = zapResult.remainingAmount0.mul(
+        BigNumber.from(basisPointsToPercent(slippage).add(new Percent(1)).quotient.toString()),
+      )
+      const maxRemainingAmount1 = zapResult.remainingAmount1.mul(
+        BigNumber.from(basisPointsToPercent(slippage).add(new Percent(1)).quotient.toString()),
+      )
+
+      const params = [
+        [
+          posManagerAddress,
+          pool,
+          account,
+          tokenIn,
+          tickLower,
+          tickUpper,
+          previousTicks,
+          amount,
+          minLiquidity,
+          maxRemainingAmount0,
+          maxRemainingAmount1,
+          deadline,
+        ],
+        1,
+      ]
+
+      const gas = await zapInContract.estimateGas.zapInPoolToMint(...params)
+
+      const { hash } = await zapInContract.zapInPoolToMint(...params, {
+        gasLimit: calculateGasMargin(gas),
+      })
+      return hash
+    },
+    [zapInContract, account, deadline, posManagerAddress, slippage],
+  )
+
   return {
     zapInPoolToAddLiquidity,
+    zapInPoolToMint,
   }
 }

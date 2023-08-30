@@ -119,7 +119,7 @@ const FeeOption = ({
   )
 }
 
-const FeeSelectorWrapper = styled.div`
+export const FeeSelectorWrapper = styled.div`
   display: flex;
   padding: 8px 12px;
   justify-content: space-between;
@@ -131,7 +131,7 @@ const FeeSelectorWrapper = styled.div`
   z-index: 3;
 `
 
-const SelectWrapperOuter = styled.div<{ show: boolean }>`
+export const SelectWrapperOuter = styled.div<{ show: boolean }>`
   position: absolute;
   left: 0;
   right: 0;
@@ -143,7 +143,7 @@ const SelectWrapperOuter = styled.div<{ show: boolean }>`
   transition: padding 0.15s ${({ show }) => (show ? 'ease-in' : 'ease-out')};
 `
 
-const SelectWrapper = styled.div<{ show: boolean }>`
+export const SelectWrapper = styled.div<{ show: boolean }>`
   border-radius: 20px;
   z-index: 2;
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);

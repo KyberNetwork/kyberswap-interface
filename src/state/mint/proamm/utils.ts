@@ -77,13 +77,19 @@ export const getRangeTicks = (
   tokenB: Token,
   currentTick: number,
   pairFactor: PairFactor,
-) => {
+): [number, number] => {
   const rangeFactor = rangeData[range].factor
   const leftRange = 1 - (pairFactor * rangeFactor) / 10000
   const rightRange = 1 + (pairFactor * rangeFactor) / 10000
 
-  const result1 = [currentTick + Math.floor(log10001(leftRange)), currentTick + Math.ceil(log10001(rightRange))]
-  const result2 = [currentTick + Math.floor(log10001(1 / leftRange)), currentTick + Math.ceil(log10001(1 / rightRange))]
+  const result1: [number, number] = [
+    currentTick + Math.floor(log10001(leftRange)),
+    currentTick + Math.ceil(log10001(rightRange)),
+  ]
+  const result2: [number, number] = [
+    currentTick + Math.floor(log10001(1 / leftRange)),
+    currentTick + Math.ceil(log10001(1 / rightRange)),
+  ]
   const result = tokenA.sortsBefore(tokenB) ? result1 : result2
 
   return result

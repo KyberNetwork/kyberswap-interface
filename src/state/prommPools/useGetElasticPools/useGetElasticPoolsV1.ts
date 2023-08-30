@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client'
 import dayjs from 'dayjs'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { PROMM_POOLS_BULK, ProMMPoolFields } from 'apollo/queries/promm'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
@@ -145,13 +145,19 @@ const useGetElasticPoolsV1 = (poolAddresses: string[], skip?: boolean): CommonRe
     skip,
   })
 
+  const data24Ref = useRef(data24)
+
+  if (data24) data24Ref.current = data24
+
   const anyError = error24?.message.includes('Failed to decode `block.number`')
     ? Boolean(error)
     : Boolean(error || error24)
   const anyLoading = Boolean(loading || loading24)
 
+  const formatted = parsedPoolData(poolAddresses, data, data24Ref.current)
+
   // return early if not all data yet
-  if (anyError || anyLoading) {
+  if ((anyError || anyLoading) && !formatted) {
     return {
       isLoading: anyLoading,
       isError: anyError,
@@ -159,7 +165,6 @@ const useGetElasticPoolsV1 = (poolAddresses: string[], skip?: boolean): CommonRe
     }
   }
 
-  const formatted = parsedPoolData(poolAddresses, data, data24)
   return {
     isLoading: anyLoading,
     isError: anyError,

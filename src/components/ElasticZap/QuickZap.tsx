@@ -27,31 +27,37 @@ import {
 } from 'components/TransactionConfirmationModal'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { abi } from 'constants/abis/v2/ProAmmPoolState.json'
-import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
+import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
 import { useZapInAction, useZapInPoolResult } from 'hooks/elasticZap'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
-import { useContract } from 'hooks/useContract'
+import { useContract, useProAmmTickReader } from 'hooks/useContract'
 import useDebounce from 'hooks/useDebounce'
 import { useProAmmPositionsFromTokenId } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
+import { RANGE_LIST } from 'pages/AddLiquidityV2/constants'
 import { useWalletModalToggle } from 'state/application/hooks'
-import { NEVER_RELOAD, useSingleCallResult } from 'state/multicall/hooks'
+import { RANGE } from 'state/mint/proamm/type'
+import { NEVER_RELOAD, useSingleCallResult, useSingleContractMultipleData } from 'state/multicall/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useCurrencyBalances } from 'state/wallet/hooks'
+import { StyledInternalLink } from 'theme'
 import { formatDollarAmount } from 'utils/numbers'
 import { checkPriceImpact } from 'utils/prices'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
-const QuickZapButtonWrapper = styled(ButtonOutlined)`
+import RangeSelector, { useTicksFromRange } from './RangeSelector'
+
+const QuickZapButtonWrapper = styled(ButtonOutlined)<{ size: 'small' | 'medium' }>`
   padding: 0;
-  max-width: 36px;
-  height: 36px;
+  width: ${({ size }) => (size === 'small' ? '28px' : '36px')};
+  max-width: ${({ size }) => (size === 'small' ? '28px' : '36px')};
+  height: ${({ size }) => (size === 'small' ? '28px' : '36px')};
   background: ${({ theme }) => rgba(theme.subText, 0.2)};
   color: ${({ theme }) => theme.subText};
 
@@ -81,11 +87,11 @@ const Detail = styled.div`
   margin-top: 20px;
 `
 
-export const QuickZapButton = ({ onClick }: { onClick: () => void }) => {
+export const QuickZapButton = ({ onClick, size = 'medium' }: { onClick: () => void; size?: 'small' | 'medium' }) => {
   return (
     <MouseoverTooltip text={<Trans>Quickly zap and add liquidity using only one token</Trans>}>
-      <QuickZapButtonWrapper onClick={onClick}>
-        <Zap size={20} />
+      <QuickZapButtonWrapper onClick={onClick} size={size}>
+        <Zap size={size === 'small' ? 16 : 20} />
       </QuickZapButtonWrapper>
     </MouseoverTooltip>
   )
@@ -108,11 +114,14 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
   const { chainId, networkInfo, account } = useActiveWeb3React()
   const zapInContractAddress = (networkInfo as EVMNetworkInfo).elastic.zap?.zapIn
   const theme = useTheme()
+  const [selectedRange, setSelectedRange] = useState<RANGE>(RANGE_LIST[1])
 
   const toggleWalletModal = useWalletModalToggle()
   const poolContract = useContract(poolAddress, abi)
 
-  const { loading: loadingPos, position: positionDetail } = useProAmmPositionsFromTokenId(BigNumber.from(tokenId))
+  const { loading: loadingPos, position: positionDetail } = useProAmmPositionsFromTokenId(
+    tokenId ? BigNumber.from(tokenId) : undefined,
+  )
 
   const { loading: loadingPoolState, result: poolStateRes } = useSingleCallResult(poolContract, 'getPoolState')
   const { loading: loadingToken0, result: token0Res } = useSingleCallResult(
@@ -190,23 +199,35 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
 
   const amountIn = useParsedAmount(selectedCurrency, debouncedValue)
 
+  const [tickLower, tickUpper] = useTicksFromRange(selectedRange, pool || undefined)
+  const tickReader = useProAmmTickReader()
+
+  const results = useSingleContractMultipleData(tickReader, 'getNearestInitializedTicks', [
+    [poolAddress, tickLower],
+    [poolAddress, tickUpper],
+  ])
+
+  const tickPrevious = useMemo(() => {
+    return results.map(call => call.result?.previous)
+  }, [results])
+
   const params = useMemo(() => {
-    return amountIn?.greaterThan('0') && position && selectedCurrency
+    return amountIn?.greaterThan('0') && selectedCurrency
       ? {
           poolAddress,
           tokenIn: selectedCurrency.wrapped.address,
           amountIn,
-          tickLower: position.tickLower,
-          tickUpper: position.tickUpper,
+          tickLower: position?.tickLower || tickLower,
+          tickUpper: position?.tickUpper || tickUpper,
         }
       : undefined
-  }, [amountIn, position, poolAddress, selectedCurrency])
+  }, [amountIn, position, poolAddress, selectedCurrency, tickLower, tickUpper])
 
   const { loading: zapLoading, result } = useZapInPoolResult(params)
 
   const [approvalState, approve] = useApproveCallback(amountIn, zapInContractAddress)
 
-  const { zapInPoolToAddLiquidity } = useZapInAction()
+  const { zapInPoolToAddLiquidity, zapInPoolToMint } = useZapInAction()
 
   let error: ReactElement | null = null
   if (!typedValue || (typedValue && !amountIn)) error = <Trans>Invalid Input</Trans>
@@ -232,8 +253,8 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
     return <Trans>Add Liquidity</Trans>
   }
 
-  const usedAmount0 = currency0 && CurrencyAmount.fromRawAmount(currency0, result?.usedAmount0.toString() || '0')
-  const usedAmount1 = currency1 && CurrencyAmount.fromRawAmount(currency1, result?.usedAmount1.toString() || '0')
+  const usedAmount0 = token0 && CurrencyAmount.fromRawAmount(token0, result?.usedAmount0.toString() || '0')
+  const usedAmount1 = token1 && CurrencyAmount.fromRawAmount(token1, result?.usedAmount1.toString() || '0')
 
   let newPooledAmount0 = usedAmount0
   if (position && newPooledAmount0) newPooledAmount0 = newPooledAmount0.add(position.amount0)
@@ -269,7 +290,7 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
 
   const skeleton = (width?: number) => (
     <Skeleton
-      height="14px"
+      height="13px"
       width={`${width || 169}px`}
       baseColor={theme.border}
       highlightColor={theme.buttonGray}
@@ -287,17 +308,28 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
       approve()
       return
     }
+    console.log(tickPrevious)
 
-    if (selectedCurrency && tokenId && result && amountIn?.quotient) {
+    if (selectedCurrency && (tokenId || tickPrevious.every(Boolean)) && result && amountIn?.quotient) {
       try {
         setAttempingTx(true)
-        const txHash = await zapInPoolToAddLiquidity({
-          pool: poolAddress,
-          tokenIn: selectedCurrency.wrapped.address,
-          positionId: tokenId.toString(),
-          amount: amountIn.quotient.toString(),
-          zapResult: result,
-        })
+        const txHash = await (tokenId
+          ? zapInPoolToAddLiquidity({
+              pool: poolAddress,
+              tokenIn: selectedCurrency.wrapped.address,
+              positionId: tokenId.toString(),
+              amount: amountIn.quotient.toString(),
+              zapResult: result,
+            })
+          : zapInPoolToMint({
+              pool: poolAddress,
+              tokenIn: selectedCurrency.wrapped.address,
+              previousTicks: [tickPrevious[0], tickPrevious[1]],
+              amount: amountIn.quotient.toString(),
+              zapResult: result,
+              tickLower,
+              tickUpper,
+            }))
 
         setTxHash(txHash)
         addTransactionWithType({
@@ -401,9 +433,35 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
                 }}
               />
 
-              <Flex marginTop="20px" />
+              {!position && pool && (
+                <>
+                  <Flex justifyContent="space-between" alignItems="center" marginTop="20px" marginBottom="12px">
+                    <Text fontWeight="500" fontSize={14}>
+                      <Trans>Step 2. Choose Price Range</Trans>
+                    </Text>
 
-              <SlippageSettingGroup isWrapOrUnwrap={false} isStablePairSwap={false} />
+                    <StyledInternalLink
+                      to={`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${
+                        currency0?.isNative ? currency0.symbol : currency0?.wrapped.address || ''
+                      }/${currency1?.isNative ? currency1.symbol : currency1?.wrapped.address || ''}/${pool?.fee}`}
+                    >
+                      <Text fontSize="12px" fontWeight="500">
+                        <Trans>Set a Custom Range</Trans> ↗
+                      </Text>
+                    </StyledInternalLink>
+                  </Flex>
+
+                  <RangeSelector
+                    pool={pool}
+                    selectedRange={selectedRange}
+                    onChange={range => setSelectedRange(range)}
+                  />
+                </>
+              )}
+
+              <div style={{ margin: '20px -8px 0' }}>
+                <SlippageSettingGroup isWrapOrUnwrap={false} isStablePairSwap={false} />
+              </div>
 
               <Detail>
                 <Flex justifyContent="space-between">
