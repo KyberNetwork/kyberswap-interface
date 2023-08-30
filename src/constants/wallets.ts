@@ -239,14 +239,6 @@ export const SUPPORTED_WALLETS = {
     readyState: detectCoinbase,
     readyStateSolana: () => (isMobile ? WalletReadyState.Unsupported : coinbaseAdapter.readyState),
   } as EVMWalletInfo & SolanaWalletInfo,
-  WALLET_CONNECT: {
-    connector: walletConnectV2,
-    hooks: walletConnectV2Hooks,
-    name: 'WalletConnect',
-    icon: WALLETCONNECT,
-    iconLight: WALLETCONNECT,
-    readyState: () => WalletReadyState.Installed,
-  } as EVMWalletInfo,
   SAFE: {
     connector: gnosisSafe,
     hooks: gnosisSafeHooks,
@@ -256,6 +248,22 @@ export const SUPPORTED_WALLETS = {
     installLink: 'https://safe.global/wallet',
     readyState: detectSafe,
   } as EVMWalletInfo,
+  BLOCTO_INJECTED: {
+    connector: bloctoInject,
+    hooks: bloctoInjectHooks,
+    name: 'Blocto',
+    icon: BLOCTO,
+    iconLight: BLOCTO,
+    readyState: detectBloctoInjected,
+  } as EVMWalletInfo,
+  WALLET_CONNECT: {
+    connector: walletConnectV2,
+    hooks: walletConnectV2Hooks,
+    name: 'WalletConnect',
+    icon: WALLETCONNECT,
+    iconLight: WALLETCONNECT,
+    readyState: () => WalletReadyState.Installed,
+  } as EVMWalletInfo,
   BLOCTO: {
     connector: blocto,
     hooks: bloctoHooks,
@@ -264,14 +272,6 @@ export const SUPPORTED_WALLETS = {
     iconLight: BLOCTO,
     installLink: 'https://www.blocto.io/download',
     readyState: detectBlocto,
-  } as EVMWalletInfo,
-  BLOCTO_INJECTED: {
-    connector: bloctoInject,
-    hooks: bloctoInjectHooks,
-    name: 'Blocto',
-    icon: BLOCTO,
-    iconLight: BLOCTO,
-    readyState: detectBloctoInjected,
   } as EVMWalletInfo,
   SOLFLARE: {
     adapter: solflareAdapter,
