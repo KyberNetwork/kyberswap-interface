@@ -2,7 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react'
+import { ReactNode, forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Info, Trash } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
@@ -46,6 +46,14 @@ import OrderItem from './OrderItem'
 import TabSelector from './TabSelector'
 import TableHeader from './TableHeader'
 
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  gap: 1rem;
+  border: 1px solid ${({ theme }) => theme.border};
+`
+
 const ButtonCancelAll = styled(ButtonEmpty)`
   background-color: ${({ theme }) => rgba(theme.red, 0.2)};
   color: ${({ theme }) => theme.red};
@@ -60,11 +68,12 @@ const ButtonCancelAll = styled(ButtonEmpty)`
 
 const PAGE_SIZE = 10
 const NoResultWrapper = styled.div`
+  min-height: 116px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   color: ${({ theme }) => theme.subText};
-  margin-top: 40px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
    margin-top: 16px;
   `};
@@ -72,18 +81,30 @@ const NoResultWrapper = styled.div`
 
 const TableFooterWrapper = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
   gap: 1rem;
+  border-radius: 0 0 20px 20px;
+  padding: 10px 0px;
+  background-color: ${({ theme }) => rgba(theme.subText, 0.2)};
   ${({ theme }) => theme.mediaWidth.upToSmall`
     flex-direction: column-reverse;
   `};
 `
 
+const TableFooter = ({ children = [] }: { children: ReactNode[] }) => {
+  const totalChild = children.filter(Boolean).length
+  return totalChild ? (
+    <TableFooterWrapper style={{ justifyContent: totalChild === 1 ? 'center' : 'space-between' }}>
+      {children}
+    </TableFooterWrapper>
+  ) : null
+}
+
 const SearchFilter = styled.div`
   gap: 16px;
-  margin-top: 24px;
+  padding: 0 12px;
   display: flex;
+  justify-content: space-between;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     gap: 8px;
   `};
@@ -92,6 +113,7 @@ const SelectFilter = styled(Select)`
   background: ${({ theme }) => theme.background};
   border-radius: 40px;
   max-width: 50%;
+  height: 36px;
   font-size: 14px;
   width: 180px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
@@ -103,6 +125,8 @@ const SelectFilter = styled(Select)`
 `
 const SearchInputWrapped = styled(SearchInput)`
   flex: 1;
+  height: 36px;
+  max-width: 330px;
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
      width: 60%;
   `};
@@ -388,69 +412,55 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   }, [totalOrderNotCancelling, orders, ordersUpdating])
 
   return (
-    <>
-      <Flex justifyContent={'space-between'} alignItems="center">
+    <Wrapper>
+      <Flex justifyContent={'space-between'} alignItems="flex-start">
         <TabSelector
           setActiveTab={onSelectTab}
           activeTab={isTabActive ? LimitOrderStatus.ACTIVE : LimitOrderStatus.CLOSED}
         />
         <SubscribeNotificationButton
+          style={{ margin: '12px 12px 0px 12px' }}
           subscribeTooltip={t`Subscribe to receive notifications on your limit orders`}
           trackingEvent={MIXPANEL_TYPE.LO_CLICK_SUBSCRIBE_BTN}
         />
       </Flex>
 
-      <Flex flexDirection={'column'} style={{ gap: '1rem' }}>
-        <SearchFilter>
-          <SelectFilter
-            key={orderType}
-            options={isTabActive ? ACTIVE_ORDER_OPTIONS : CLOSE_ORDER_OPTIONS}
-            value={orderType}
-            onChange={setOrderType}
-          />
-          <SearchInputWrapped
-            placeholder={t`Search by token symbol or token address`}
-            maxLength={255}
-            value={keyword}
-            onChange={onChangeKeyword}
-          />
-        </SearchFilter>
-        {loading ? (
-          <LocalLoader />
-        ) : (
-          <>
-            <div>
-              <TableHeader />
-              <Column>
-                {orders.map((order, index) => (
-                  <OrderItem
-                    isOrderCancelling={isOrderCancelling}
-                    index={index + (curPage - 1) * PAGE_SIZE}
-                    key={order.id}
-                    order={order}
-                    onCancelOrder={showConfirmCancel}
-                    onEditOrder={showEditOrderModal}
-                    tokenPrices={tokenPrices}
-                  />
-                ))}
-              </Column>
-            </div>
-            {orders.length === 0 && (
-              <NoResultWrapper>
-                <Info size={isMobile ? 40 : 48} />
-                <Text marginTop={'10px'}>
-                  {keyword ? (
-                    <Trans>No orders found</Trans>
-                  ) : isTabActive ? (
-                    <Trans>You don&apos;t have any active orders yet</Trans>
-                  ) : (
-                    <Trans>You don&apos;t have any order history</Trans>
-                  )}
-                </Text>
-              </NoResultWrapper>
-            )}
+      <SearchFilter>
+        <SelectFilter
+          key={orderType}
+          options={isTabActive ? ACTIVE_ORDER_OPTIONS : CLOSE_ORDER_OPTIONS}
+          value={orderType}
+          onChange={setOrderType}
+        />
+        <SearchInputWrapped
+          placeholder={t`Search by token symbol or token address`}
+          maxLength={255}
+          value={keyword}
+          onChange={onChangeKeyword}
+        />
+      </SearchFilter>
+      {loading ? (
+        <LocalLoader />
+      ) : (
+        <>
+          <div>
+            <TableHeader />
+            <Column>
+              {orders.map((order, index) => (
+                <OrderItem
+                  isLast={index === orders.length - 1}
+                  isOrderCancelling={isOrderCancelling}
+                  index={index + (curPage - 1) * PAGE_SIZE}
+                  key={order.id}
+                  order={order}
+                  onCancelOrder={showConfirmCancel}
+                  onEditOrder={showEditOrderModal}
+                  tokenPrices={tokenPrices}
+                />
+              ))}
+            </Column>
             {orders.length !== 0 && (
-              <TableFooterWrapper>
+              <TableFooter>
                 {isTabActive ? (
                   <ButtonCancelAll onClick={onCancelAllOrder} disabled={disabledBtnCancelAll}>
                     <Trash size={15} />
@@ -458,22 +468,36 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
                       <Trans>Cancel All</Trans>
                     </Text>
                   </ButtonCancelAll>
-                ) : (
-                  <div />
+                ) : null}
+                {totalOrder > PAGE_SIZE && (
+                  <Pagination
+                    haveBg={false}
+                    onPageChange={onPageChange}
+                    totalCount={totalOrder}
+                    currentPage={curPage}
+                    pageSize={PAGE_SIZE}
+                    style={{ padding: '0' }}
+                  />
                 )}
-                <Pagination
-                  haveBg={false}
-                  onPageChange={onPageChange}
-                  totalCount={totalOrder}
-                  currentPage={curPage}
-                  pageSize={PAGE_SIZE}
-                  style={{ padding: '0' }}
-                />
-              </TableFooterWrapper>
+              </TableFooter>
             )}
-          </>
-        )}
-      </Flex>
+          </div>
+          {orders.length === 0 && (
+            <NoResultWrapper>
+              <Info size={isMobile ? 30 : 38} />
+              <Text marginTop={'10px'}>
+                {keyword ? (
+                  <Trans>No orders found</Trans>
+                ) : isTabActive ? (
+                  <Trans>You don&apos;t have any active orders yet</Trans>
+                ) : (
+                  <Trans>You don&apos;t have any order history</Trans>
+                )}
+              </Text>
+            </NoResultWrapper>
+          )}
+        </>
+      )}
 
       <CancelOrderModal
         isOpen={isOpenCancel}
@@ -503,6 +527,6 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
           } Cancelling an order will cost gas fees`}
         />
       )}
-    </>
+    </Wrapper>
   )
 })

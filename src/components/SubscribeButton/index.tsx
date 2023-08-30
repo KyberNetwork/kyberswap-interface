@@ -2,7 +2,7 @@ import { Trans } from '@lingui/macro'
 import { ReactNode, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
-import styled, { css } from 'styled-components'
+import styled, { CSSProperties, css } from 'styled-components'
 
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import { APP_PATHS } from 'constants/index'
@@ -62,12 +62,14 @@ export default function SubscribeNotificationButton({
   trackingEvent,
   onClick,
   topicId,
+  style,
 }: {
   subscribeTooltip?: ReactNode
   iconOnly?: boolean
   trackingEvent?: MIXPANEL_TYPE
   onClick?: () => void
   topicId?: string
+  style?: CSSProperties
 }) {
   const theme = useTheme()
 
@@ -97,7 +99,7 @@ export default function SubscribeNotificationButton({
 
   return (
     <MouseoverTooltipDesktopOnly text={subscribeTooltip} width="400px">
-      <SubscribeBtn bgColor={theme.primary} onClick={onClickBtn} iconOnly={iconOnly}>
+      <SubscribeBtn bgColor={theme.primary} onClick={onClickBtn} iconOnly={iconOnly} style={style}>
         <NotificationIcon size={16} />
         <ButtonText iconOnly={iconOnly}>
           {hasSubscribe ? <Trans>Unsubscribe</Trans> : <Trans>Subscribe</Trans>}
