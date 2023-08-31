@@ -4,7 +4,7 @@ import { FeeAmount, NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
-import { useCallback, useEffect, useState } from 'react'
+import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { useMedia, usePrevious } from 'react-use'
@@ -15,10 +15,13 @@ import RangeBadge from 'components/Badge/RangeBadge'
 import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { BlackCard, WarningCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
+import Copy from 'components/Copy'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
 import Dots from 'components/Dots'
+import DoubleCurrencyLogo from 'components/DoubleLogo'
+import ZapDetail from 'components/ElasticZap/ZapDetail'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import Loader from 'components/Loader'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
@@ -28,17 +31,25 @@ import ProAmmPriceRangeConfirm from 'components/ProAmm/ProAmmPriceRangeConfirm'
 import Rating from 'components/Rating'
 import { RowBetween } from 'components/Row'
 import { SLIPPAGE_EXPLANATION_URL } from 'components/SlippageWarningNote'
-import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
+import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
+import TransactionConfirmationModal, {
+  ConfirmationModalContent,
+  TransactionErrorContent,
+} from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
+import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { didUserReject } from 'constants/connectors/utils'
-import { APP_PATHS } from 'constants/index'
+import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
+import { useZapInAction, useZapInPoolResult } from 'hooks/elasticZap'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
+import useDebounce from 'hooks/useDebounce'
 import { useProAmmDerivedPositionInfo } from 'hooks/useProAmmDerivedPositionInfo'
+import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 import { useProAmmPositionsFromTokenId } from 'hooks/useProAmmPositions'
 import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
 import useTheme from 'hooks/useTheme'
@@ -61,7 +72,7 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useDegenModeManager, useUserSlippageTolerance } from 'state/user/hooks'
 import { MEDIA_WIDTHS, TYPE } from 'theme'
-import { calculateGasMargin, formattedNum, isAddressString } from 'utils'
+import { calculateGasMargin, formattedNum, isAddressString, shortenAddress } from 'utils'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { formatDollarAmount } from 'utils/numbers'
 import { SLIPPAGE_STATUS, checkRangeSlippage } from 'utils/slippage'
@@ -84,7 +95,31 @@ const TextUnderlineTransparent = styled(Text)`
   display: inline;
 `
 
+const Tabs = styled.div`
+  border-radius: 999px;
+  border: 1px solid ${({ theme }) => theme.border};
+  background: ${({ theme }) => theme.buttonBlack};
+  padding: 2px;
+  display: flex;
+`
+
+const Tab = styled.div<{ active: boolean }>`
+  background: ${({ theme, active }) => (active ? theme.tabActive : theme.buttonBlack)};
+  color: ${({ theme, active }) => (active ? theme.text : theme.subText)};
+  cursor: pointer;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  padding: 2px;
+  min-width: 96px;
+`
+
 export default function IncreaseLiquidity() {
+  const [method, setMethod] = useState<'pair' | 'zap'>('pair')
   const { currencyIdB, currencyIdA, feeAmount: feeAmountFromUrl, tokenId } = useParams()
   const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
   const { library } = useWeb3React()
@@ -170,6 +205,12 @@ export default function IncreaseLiquidity() {
   const address0 = baseCurrency?.wrapped.address || ''
   const address1 = quoteCurrency?.wrapped.address || ''
   const usdPrices = useTokenPrices([address0, address1])
+
+  const poolAddress = useProAmmPoolInfo(
+    existingPosition?.pool.token0,
+    existingPosition?.pool.token1,
+    existingPosition?.pool.fee as FeeAmount,
+  )
 
   const estimatedUsdCurrencyA =
     parsedAmounts[Field.CURRENCY_A] && usdPrices[address0]
@@ -417,10 +458,175 @@ export default function IncreaseLiquidity() {
 
   const slippageStatus = checkRangeSlippage(allowedSlippage, false)
 
+  // ZAP STATE
+  const [value, setValue] = useState('')
+  const [isReverse, setIsReverse] = useState(false)
+
+  const selectedCurrency = useMemo(() => {
+    return isReverse ? currencies[Field.CURRENCY_B] : currencies[Field.CURRENCY_A]
+  }, [isReverse, currencies])
+  const debouncedValue = useDebounce(value, 300)
+  const amountIn = useParsedAmount(selectedCurrency, debouncedValue)
+
+  const params = useMemo(() => {
+    return poolAddress && amountIn?.greaterThan('0') && selectedCurrency && existingPosition
+      ? {
+          poolAddress,
+          tokenIn: selectedCurrency.wrapped.address,
+          amountIn,
+          tickLower: existingPosition.tickLower,
+          tickUpper: existingPosition.tickUpper,
+        }
+      : undefined
+  }, [amountIn, existingPosition, poolAddress, selectedCurrency])
+
+  const { loading: zapLoading, result: zapResult } = useZapInPoolResult(params)
+  const zapInContractAddress = (networkInfo as EVMNetworkInfo).elastic.zap?.zapIn
+  const [zapApprovalState, zapApprove] = useApproveCallback(amountIn, zapInContractAddress)
+  const { zapInPoolToAddLiquidity } = useZapInAction()
+  const [showZapPendingModal, setShowZapPendingModal] = useState(false)
+  const [zapError, setZapError] = useState('')
+
+  const balance = currencyBalances[isReverse ? Field.CURRENCY_B : Field.CURRENCY_A]
+  let error: ReactElement | null = null
+  if (!value) error = <Trans>Enter an amount</Trans>
+  else if (!amountIn) error = <Trans>Invalid Input</Trans>
+  else if (balance && amountIn?.greaterThan(balance)) error = <Trans>Insufficient Balance</Trans>
+
+  const usedAmount0 =
+    existingPosition?.pool?.token0 &&
+    CurrencyAmount.fromRawAmount(existingPosition.pool.token0, zapResult?.usedAmount0.toString() || '0')
+  const usedAmount1 =
+    existingPosition?.pool?.token1 &&
+    CurrencyAmount.fromRawAmount(existingPosition?.pool.token1, zapResult?.usedAmount1.toString() || '0')
+
+  const handleZap = async () => {
+    if (zapApprovalState === ApprovalState.NOT_APPROVED) {
+      zapApprove()
+      return
+    }
+
+    if (selectedCurrency && tokenId && zapResult && amountIn?.quotient && existingPosition) {
+      try {
+        setShowZapPendingModal(true)
+        setAttemptingTxn(true)
+        const txHash = await zapInPoolToAddLiquidity({
+          pool: poolAddress,
+          tokenIn: selectedCurrency.wrapped.address,
+          positionId: tokenId,
+          amount: amountIn.quotient.toString(),
+          zapResult,
+        })
+        setTxHash(txHash)
+        setAttemptingTxn(false)
+        const tokenSymbolIn = usedAmount0 ? unwrappedToken(usedAmount0.currency).symbol : ''
+        const tokenSymbolOut = usedAmount1 ? unwrappedToken(usedAmount1.currency).symbol : ''
+        addTransactionWithType({
+          hash: txHash,
+          type: TRANSACTION_TYPE.ELASTIC_INCREASE_LIQUIDITY,
+          extraInfo: {
+            tokenAmountIn: usedAmount0?.toSignificant(6) || '',
+            tokenAmountOut: usedAmount1?.toSignificant(6) || '',
+            tokenAddressIn: usedAmount0?.currency.wrapped.address || '',
+            tokenAddressOut: usedAmount1?.currency.wrapped.address || '',
+            tokenSymbolIn,
+            tokenSymbolOut,
+            arbitrary: {
+              token_1: tokenSymbolIn,
+              token_2: tokenSymbolOut,
+            },
+          },
+        })
+      } catch (e) {
+        console.error('zap error', e)
+        setAttemptingTxn(false)
+        setZapError(e?.message || JSON.stringify(e))
+      }
+    }
+  }
+  const ZapButton = (
+    <ButtonPrimary
+      onClick={handleZap}
+      disabled={!!error || zapApprovalState === ApprovalState.PENDING || zapLoading}
+      style={{ width: upToMedium ? '100%' : 'fit-content', minWidth: '164px' }}
+    >
+      {(() => {
+        if (error) return error
+        if (zapApprovalState === ApprovalState.PENDING)
+          return (
+            <Dots>
+              <Trans>Approving</Trans>
+            </Dots>
+          )
+        if (zapApprovalState !== ApprovalState.APPROVED) return <Trans>Approve</Trans>
+
+        if (zapLoading)
+          return (
+            <Dots>
+              <Trans>Loading</Trans>
+            </Dots>
+          )
+        if (!!position) return <Trans>Increase Liquidity</Trans>
+        return <Trans>Add Liquidity</Trans>
+      })()}
+    </ButtonPrimary>
+  )
+
   if (!isEVM) return <Navigate to="/" />
+
+  const inputAmountStyle = {
+    flex: 1,
+    border: `1px solid ${theme.border}`,
+    borderRadius: '1rem',
+    overflow: 'hidden',
+  }
+
+  const handleSwitch = (isQuote?: boolean) => {
+    const param1 = isQuote
+      ? currencyIdA
+      : baseCurrencyIsETHER
+      ? WETH[chainId].address
+      : NativeCurrencies[chainId].symbol
+    const param2 = isQuote
+      ? quoteCurrencyIsETHER
+        ? WETH[chainId].address
+        : NativeCurrencies[chainId].symbol
+      : currencyIdB
+    return (
+      chainId &&
+      navigate(`/${networkInfo.route}${APP_PATHS.ELASTIC_INCREASE_LIQ}/${param1}/${param2}/${feeAmount}/${tokenId}`, {
+        replace: true,
+      })
+    )
+  }
+
+  const handleDissmissZap = () => {
+    setShowZapPendingModal(false)
+    setTxHash('')
+    setZapError('')
+    setAttemptingTxn(false)
+  }
 
   return (
     <>
+      <TransactionConfirmationModal
+        isOpen={showZapPendingModal}
+        onDismiss={handleDissmissZap}
+        hash={txHash}
+        attemptingTxn={attemptingTxn}
+        pendingText={
+          <Trans>
+            Supplying {usedAmount0?.toSignificant(6)} {existingPosition?.pool.token0.symbol} and{' '}
+            {usedAmount1?.toSignificant(6)} {existingPosition?.pool?.token1?.symbol}
+          </Trans>
+        }
+        content={() => (
+          <Flex flexDirection={'column'} width="100%">
+            {errorMessage ? <TransactionErrorContent onDismiss={handleDissmissZap} message={zapError} /> : null}
+          </Flex>
+        )}
+      />
+
       <TransactionConfirmationModal
         isOpen={showConfirm}
         onDismiss={handleDismissConfirmation}
@@ -495,7 +701,35 @@ export default function IncreaseLiquidity() {
             <AutoColumn gap="md" style={{ textAlign: 'left' }}>
               <GridColumn>
                 <FirstColumn style={{ height: 'calc(100% - 56px)' }}>
-                  <ProAmmPoolInfo position={existingPosition} tokenId={tokenId} showRangeInfo={false} />
+                  <Flex justifyContent="space-between" alignItems="center" color={theme.subText} lineHeight="28px">
+                    <Flex flex={1} alignItems="center">
+                      <DoubleCurrencyLogo
+                        currency0={unwrappedToken(existingPosition.pool.token0)}
+                        currency1={unwrappedToken(existingPosition.pool.token1)}
+                        size={20}
+                      />
+                      <Text
+                        fontSize="16px"
+                        fontWeight="500"
+                        color={theme.text}
+                        maxWidth="fit-content"
+                        flex={1}
+                        sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                      >
+                        {unwrappedToken(existingPosition.pool.token0).symbol} -{' '}
+                        {unwrappedToken(existingPosition.pool.token1).symbol}
+                      </Text>
+                      <FeeTag>FEE {(existingPosition?.pool.fee * 100) / ELASTIC_BASE_FEE_UNIT}% </FeeTag>
+                    </Flex>
+                    <Copy
+                      toCopy={poolAddress}
+                      text={
+                        <Text fontSize="12px" fontWeight="500" color={theme.subText}>
+                          {shortenAddress(chainId, poolAddress)}{' '}
+                        </Text>
+                      }
+                    />
+                  </Flex>
 
                   <BlackCard style={{ borderRadius: '1rem', padding: '1rem' }}>
                     <Flex alignItems="center" sx={{ gap: '4px' }}>
@@ -553,9 +787,32 @@ export default function IncreaseLiquidity() {
                       </Flex>
                     </Flex>
                   </BlackCard>
+
+                  {method === 'zap' && (
+                    <ZapDetail
+                      pool={existingPosition?.pool}
+                      position={existingPosition}
+                      zapLoading={zapLoading}
+                      amountIn={amountIn}
+                      zapResult={zapResult}
+                    />
+                  )}
                 </FirstColumn>
 
                 <SecondColumn>
+                  <Flex justifyContent="space-between" alignItems="center" marginBottom="0.75rem">
+                    <Text fontWeight="500" fontSize={20}>
+                      <Trans>Your Position</Trans>
+                    </Text>
+                    <Tabs>
+                      <Tab role="button" onClick={() => setMethod('pair')} active={method === 'pair'}>
+                        Token Pair
+                      </Tab>
+                      <Tab role="button" onClick={() => setMethod('zap')} active={method === 'zap'}>
+                        Zap
+                      </Tab>
+                    </Tabs>
+                  </Flex>
                   <BlackCard style={{ marginBottom: '24px' }}>
                     <Box
                       sx={{
@@ -577,80 +834,83 @@ export default function IncreaseLiquidity() {
                     <Chart position={existingPosition} ticksAtLimit={ticksAtLimit} />
 
                     <TokenInputWrapper>
-                      <div
-                        style={{
-                          flex: 1,
-                          border: `1px solid ${theme.border}`,
-                          borderRadius: '1rem',
-                        }}
-                      >
-                        <CurrencyInputPanel
-                          value={formattedAmounts[Field.CURRENCY_A]}
-                          onUserInput={onFieldAInput}
-                          onMax={() => {
-                            onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
-                          }}
-                          onHalf={() => {
-                            onFieldAInput(currencyBalances[Field.CURRENCY_A]?.divide(2)?.toExact() ?? '')
-                          }}
-                          currency={currencies[Field.CURRENCY_A] ?? null}
-                          id="add-liquidity-input-tokena"
-                          showCommonBases
-                          positionMax="top"
-                          locked={depositADisabled}
-                          estimatedUsd={formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined}
-                          disableCurrencySelect={!baseCurrencyIsETHER && !baseCurrencyIsWETH}
-                          isSwitchMode={baseCurrencyIsETHER || baseCurrencyIsWETH}
-                          onSwitchCurrency={() => {
-                            chainId &&
-                              navigate(
-                                `/${networkInfo.route}${APP_PATHS.ELASTIC_INCREASE_LIQ}/${
-                                  baseCurrencyIsETHER ? WETH[chainId].address : NativeCurrencies[chainId].symbol
-                                }/${currencyIdB}/${feeAmount}/${tokenId}`,
-                                {
-                                  replace: true,
-                                },
-                              )
-                          }}
-                        />
-                      </div>
+                      {method === 'pair' ? (
+                        <>
+                          <div style={inputAmountStyle}>
+                            <CurrencyInputPanel
+                              value={formattedAmounts[Field.CURRENCY_A]}
+                              onUserInput={onFieldAInput}
+                              onMax={() => {
+                                onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
+                              }}
+                              onHalf={() => {
+                                onFieldAInput(currencyBalances[Field.CURRENCY_A]?.divide(2)?.toExact() ?? '')
+                              }}
+                              currency={currencies[Field.CURRENCY_A] ?? null}
+                              id="add-liquidity-input-tokena"
+                              showCommonBases
+                              positionMax="top"
+                              locked={depositADisabled}
+                              estimatedUsd={formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined}
+                              disableCurrencySelect={!baseCurrencyIsETHER && !baseCurrencyIsWETH}
+                              isSwitchMode={baseCurrencyIsETHER || baseCurrencyIsWETH}
+                              onSwitchCurrency={() => handleSwitch(false)}
+                            />
+                          </div>
 
-                      <div
-                        style={{
-                          flex: 1,
-                          border: `1px solid ${theme.border}`,
-                          borderRadius: '1rem',
-                          overflow: 'hidden',
-                        }}
-                      >
-                        <CurrencyInputPanel
-                          value={formattedAmounts[Field.CURRENCY_B]}
-                          onUserInput={onFieldBInput}
-                          onMax={() => {
-                            onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')
-                          }}
-                          onHalf={() => {
-                            onFieldBInput(currencyBalances[Field.CURRENCY_B]?.divide(2).toExact() ?? '')
-                          }}
-                          currency={currencies[Field.CURRENCY_B] ?? null}
-                          id="add-liquidity-input-tokenb"
-                          showCommonBases
-                          positionMax="top"
-                          locked={depositBDisabled}
-                          estimatedUsd={formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined}
-                          disableCurrencySelect={!quoteCurrencyIsETHER && !quoteCurrencyIsWETH}
-                          isSwitchMode={quoteCurrencyIsETHER || quoteCurrencyIsWETH}
-                          onSwitchCurrency={() => {
-                            chainId &&
-                              navigate(
-                                `/${networkInfo.route}${APP_PATHS.ELASTIC_INCREASE_LIQ}/${currencyIdA}/${
-                                  quoteCurrencyIsETHER ? WETH[chainId].address : NativeCurrencies[chainId].symbol
-                                }/${feeAmount}/${tokenId}`,
-                                { replace: true },
+                          <div style={inputAmountStyle}>
+                            <CurrencyInputPanel
+                              value={formattedAmounts[Field.CURRENCY_B]}
+                              onUserInput={onFieldBInput}
+                              onMax={() => {
+                                onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')
+                              }}
+                              onHalf={() => {
+                                onFieldBInput(currencyBalances[Field.CURRENCY_B]?.divide(2).toExact() ?? '')
+                              }}
+                              currency={currencies[Field.CURRENCY_B] ?? null}
+                              id="add-liquidity-input-tokenb"
+                              showCommonBases
+                              positionMax="top"
+                              locked={depositBDisabled}
+                              estimatedUsd={formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined}
+                              disableCurrencySelect={!quoteCurrencyIsETHER && !quoteCurrencyIsWETH}
+                              isSwitchMode={quoteCurrencyIsETHER || quoteCurrencyIsWETH}
+                              onSwitchCurrency={() => handleSwitch(true)}
+                            />
+                          </div>
+                        </>
+                      ) : (
+                        <div style={inputAmountStyle}>
+                          <CurrencyInputPanel
+                            id="zap-increase-liquidity"
+                            value={value}
+                            onUserInput={v => {
+                              setValue(v)
+                            }}
+                            onMax={() => {
+                              setValue(
+                                currencyBalances[isReverse ? Field.CURRENCY_B : Field.CURRENCY_A]?.toExact() || '',
                               )
-                          }}
-                        />
-                      </div>
+                            }}
+                            onHalf={() => {
+                              setValue(
+                                currencyBalances[isReverse ? Field.CURRENCY_B : Field.CURRENCY_A]
+                                  ?.divide('2')
+                                  .toExact() || '',
+                              )
+                            }}
+                            currency={selectedCurrency}
+                            positionMax="top"
+                            showCommonBases
+                            estimatedUsd=""
+                            isSwitchMode
+                            onSwitchCurrency={() => {
+                              setIsReverse(prev => !prev)
+                            }}
+                          />
+                        </div>
+                      )}
                     </TokenInputWrapper>
                   </BlackCard>
 
@@ -678,9 +938,7 @@ export default function IncreaseLiquidity() {
                     </WarningCard>
                   )}
 
-                  <Flex justifyContent="flex-end">
-                    <Buttons />
-                  </Flex>
+                  <Flex justifyContent="flex-end">{method === 'pair' ? <Buttons /> : ZapButton}</Flex>
                 </SecondColumn>
               </GridColumn>
             </AutoColumn>

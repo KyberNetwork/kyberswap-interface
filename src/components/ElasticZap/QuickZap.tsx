@@ -1,18 +1,15 @@
-import { CurrencyAmount, WETH } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { rgba } from 'polished'
 import { ReactElement, useMemo, useState } from 'react'
 import { Zap } from 'react-feather'
-import Skeleton from 'react-loading-skeleton'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
-import CurrencyLogo from 'components/CurrencyLogo'
-import Divider from 'components/Divider'
 import Dots from 'components/Dots'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import LocalLoader from 'components/LocalLoader'
@@ -25,9 +22,8 @@ import {
   TransactionErrorContent,
   TransactionSubmittedContent,
 } from 'components/TransactionConfirmationModal'
-import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { abi } from 'constants/abis/v2/ProAmmPoolState.json'
-import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
+import { APP_PATHS } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
@@ -41,17 +37,15 @@ import { RANGE_LIST } from 'pages/AddLiquidityV2/constants'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { RANGE } from 'state/mint/proamm/type'
 import { NEVER_RELOAD, useSingleCallResult, useSingleContractMultipleData } from 'state/multicall/hooks'
-import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { StyledInternalLink } from 'theme'
-import { formatDollarAmount } from 'utils/numbers'
-import { checkPriceImpact } from 'utils/prices'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import RangeSelector, { useTicksFromRange } from './RangeSelector'
+import ZapDetail from './ZapDetail'
 
 const QuickZapButtonWrapper = styled(ButtonOutlined)<{ size: 'small' | 'medium' }>`
   padding: 0;
@@ -75,16 +69,6 @@ const QuickZapButtonWrapper = styled(ButtonOutlined)<{ size: 'small' | 'medium' 
 const Content = styled.div`
   padding: 1rem;
   width: 100%;
-`
-
-const Detail = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  border: 1px solid ${({ theme }) => theme.border};
-  border-radius: 1rem;
-  padding: 12px;
-  margin-top: 20px;
 `
 
 export const QuickZapButton = ({ onClick, size = 'medium' }: { onClick: () => void; size?: 'small' | 'medium' }) => {
@@ -184,10 +168,6 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
   const currencies = useMemo(() => [currency0, currency1], [currency0, currency1])
   const balances = useCurrencyBalances(currencies)
 
-  const prices = useTokenPrices(
-    [WETH[chainId].address, currency0?.wrapped.address, currency1?.wrapped.address].filter(Boolean) as string[],
-  )
-
   const [isReverse, setIsReverse] = useState(false)
 
   const selectedCurrency = useMemo(() => {
@@ -224,13 +204,12 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
   }, [amountIn, position, poolAddress, selectedCurrency, tickLower, tickUpper])
 
   const { loading: zapLoading, result } = useZapInPoolResult(params)
-
   const [approvalState, approve] = useApproveCallback(amountIn, zapInContractAddress)
-
   const { zapInPoolToAddLiquidity, zapInPoolToMint } = useZapInAction()
 
   let error: ReactElement | null = null
-  if (!typedValue || (typedValue && !amountIn)) error = <Trans>Invalid Input</Trans>
+  if (!typedValue) error = <Trans>Enter an amount</Trans>
+  else if (!amountIn) error = <Trans>Invalid Input</Trans>
   else if (amountIn?.greaterThan(balances[isReverse ? 1 : 0])) error = <Trans>Insufficient Balance</Trans>
 
   const renderActionName = () => {
@@ -265,39 +244,6 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
   const symbol0 = getTokenSymbolWithHardcode(chainId, token0?.wrapped.address, currency0?.symbol)
   const symbol1 = getTokenSymbolWithHardcode(chainId, token1?.wrapped.address, currency1?.symbol)
 
-  const oldUsdValue =
-    +(position?.amount0.toExact() || '0') * (prices[currency0?.wrapped.address || ''] || 0) +
-    +(position?.amount1.toExact() || '0') * (prices[currency1?.wrapped.address || ''] || 0)
-
-  const newUsdValue =
-    +(newPooledAmount0?.toExact() || '0') * (prices[currency0?.wrapped?.address || ''] || 0) +
-    +(newPooledAmount1?.toExact() || '0') * (prices[currency1?.wrapped?.address || ''] || 0)
-
-  const totalAmount0 = BigNumber.from(result?.usedAmount0 || '0').add(BigNumber.from(result?.remainingAmount0 || '0'))
-  const totalAmount1 = BigNumber.from(result?.usedAmount1 || '0').add(BigNumber.from(result?.remainingAmount1 || '0'))
-
-  const amountInUsd = +(amountIn?.toExact() || '0') * (prices[selectedCurrency?.wrapped.address || ''] || 0)
-  const amountUSDAfterSwap =
-    currency0 && currency1
-      ? +CurrencyAmount.fromRawAmount(currency0, totalAmount0.toString()).toExact() *
-          (prices[currency0.wrapped.address] || 0) +
-        +CurrencyAmount.fromRawAmount(currency1, totalAmount1.toString()).toExact() *
-          (prices[currency1.wrapped.address] || 0)
-      : 0
-
-  const priceImpact = ((amountInUsd - amountUSDAfterSwap) * 100) / amountInUsd
-  const priceImpactRes = checkPriceImpact(priceImpact)
-
-  const skeleton = (width?: number) => (
-    <Skeleton
-      height="13px"
-      width={`${width || 169}px`}
-      baseColor={theme.border}
-      highlightColor={theme.buttonGray}
-      borderRadius="999px"
-    />
-  )
-
   const [attempingTx, setAttempingTx] = useState(false)
   const [txHash, setTxHash] = useState('')
   const [errorMsg, setError] = useState('')
@@ -308,7 +254,6 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
       approve()
       return
     }
-    console.log(tickPrevious)
 
     if (selectedCurrency && (tokenId || tickPrevious.every(Boolean)) && result && amountIn?.quotient) {
       try {
@@ -362,7 +307,7 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
           }}
           pendingText={
             <Trans>
-              Adding {usedAmount0?.toSignificant(6)} {symbol0} and {usedAmount1?.toSignificant(6)} {symbol1}
+              Supplying {usedAmount0?.toSignificant(6)} {symbol0} and {usedAmount1?.toSignificant(6)} {symbol1}
             </Trans>
           }
         />
@@ -459,101 +404,17 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
                 </>
               )}
 
-              <div style={{ margin: '20px -8px 0' }}>
+              <div style={{ margin: '20px -8px' }}>
                 <SlippageSettingGroup isWrapOrUnwrap={false} isStablePairSwap={false} />
               </div>
 
-              <Detail>
-                <Flex justifyContent="space-between">
-                  <Flex>
-                    <Text fontWeight="500">
-                      {symbol0} - {symbol1}
-                    </Text>
-                    <FeeTag>FEE {((pool?.fee || 0) * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
-                  </Flex>
-                </Flex>
-
-                <Divider />
-
-                <Flex justifyContent="space-between" fontSize={12}>
-                  <Text color={theme.subText}>Pooled {symbol0}</Text>
-
-                  {zapLoading ? (
-                    skeleton()
-                  ) : !result ? (
-                    '--'
-                  ) : (
-                    <Flex fontWeight="500" alignItems="center" sx={{ gap: '4px' }}>
-                      {position && (
-                        <>
-                          <CurrencyLogo currency={currency0} size="14px" />
-                          <Text color={theme.subText}>{position.amount0.toSignificant(6)} →</Text>
-                        </>
-                      )}
-                      <Text>
-                        {newPooledAmount0?.toSignificant(6) || '--'} {symbol0}
-                      </Text>
-                    </Flex>
-                  )}
-                </Flex>
-
-                <Flex justifyContent="space-between" fontSize={12}>
-                  <Text color={theme.subText}>Pooled {symbol1}</Text>
-
-                  {zapLoading ? (
-                    skeleton()
-                  ) : !result ? (
-                    '--'
-                  ) : (
-                    <Flex fontWeight="500" alignItems="center" sx={{ gap: '4px' }}>
-                      {position && (
-                        <>
-                          <CurrencyLogo currency={currency0} size="14px" />
-                          <Text color={theme.subText}>{position.amount1.toSignificant(6)} →</Text>
-                        </>
-                      )}
-                      <Text>
-                        {newPooledAmount1?.toSignificant(6) || '--'} {symbol1}
-                      </Text>
-                    </Flex>
-                  )}
-                </Flex>
-
-                <Flex justifyContent="space-between" fontSize={12}>
-                  <Text color={theme.subText}>Liquidity Balance</Text>
-                  {zapLoading ? (
-                    skeleton(120)
-                  ) : !result ? (
-                    '--'
-                  ) : (
-                    <Flex sx={{ gap: '4px' }}>
-                      {position && <Text color={theme.subText}>{formatDollarAmount(oldUsdValue)} →</Text>}
-                      <Text>{formatDollarAmount(newUsdValue)}</Text>
-                    </Flex>
-                  )}
-                </Flex>
-
-                <Flex justifyContent="space-between" fontSize={12}>
-                  <Text color={theme.subText}>Price Impact</Text>
-                  {zapLoading ? (
-                    skeleton(40)
-                  ) : (
-                    <Text
-                      fontWeight="500"
-                      color={priceImpactRes.isVeryHigh ? theme.red : priceImpactRes.isHigh ? theme.warning : theme.text}
-                    >
-                      {priceImpactRes.isInvalid ? '--' : priceImpact < 0.01 ? '<0.01%' : priceImpact.toFixed(2) + '%'}
-                    </Text>
-                  )}
-                </Flex>
-
-                <Flex justifyContent="space-between" fontSize={12}>
-                  <Text color={theme.subText}>Zap Fee</Text>
-                  <Text fontWeight="500" color={theme.primary}>
-                    Free
-                  </Text>
-                </Flex>
-              </Detail>
+              <ZapDetail
+                pool={pool}
+                position={position}
+                zapResult={result}
+                zapLoading={zapLoading}
+                amountIn={amountIn}
+              />
 
               <Flex sx={{ gap: '1rem' }} marginTop="1.25rem">
                 <ButtonOutlined onClick={onDismiss}>

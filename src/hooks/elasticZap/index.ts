@@ -12,7 +12,7 @@ import { useSingleCallResult } from 'state/multicall/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { basisPointsToPercent, calculateGasMargin } from 'utils'
 
-interface ZapResult {
+export interface ZapResult {
   liquidity: BigNumber
   usedAmount0: BigNumber
   usedAmount1: BigNumber

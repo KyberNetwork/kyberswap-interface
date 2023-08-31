@@ -109,7 +109,7 @@ const CopyHelper = forwardRef<HTMLDivElement, Props>(function CopyHelper(
   return (
     <Wrapper ref={ref} onMouseDown={onCopy} margin={margin} style={style}>
       {text ? (
-        <Flex>
+        <Flex alignItems="center">
           {copyIcon}&nbsp;{text}
         </Flex>
       ) : (
