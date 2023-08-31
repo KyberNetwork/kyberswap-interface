@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useGetLOContractAddressQuery } from 'services/limitOrder'
+import { useGetLOConfigQuery } from 'services/limitOrder'
 
 import { useActiveWeb3React } from 'hooks'
 import { OrderNonces, subscribeCancellingOrders } from 'utils/firebase'
@@ -20,8 +20,8 @@ export default function useCancellingOrders(): CancellingOrderInfo {
   const [cancellingOrdersIds, setCancellingOrdersIds] = useState<number[]>([])
   const [cancellingOrdersNonces, setCancellingOrdersNonces] = useState<OrderNonces>({})
   const [loading, setLoading] = useState(true)
-  const { data = '', isError } = useGetLOContractAddressQuery(chainId)
-  const contract = isError ? '' : data
+  const { data, isError } = useGetLOConfigQuery(chainId)
+  const contract = isError ? '' : data?.contract || ''
 
   const setCancellingOrders = useCallback((orderIds: number[]) => {
     setCancellingOrdersIds(orderIds)

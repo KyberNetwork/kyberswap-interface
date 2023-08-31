@@ -10,16 +10,24 @@ const mapPath: Partial<Record<LimitOrderStatus, string>> = {
   [LimitOrderStatus.FILLED]: 'filled',
 }
 
+const transformResponse = (data: any) => data?.data
+
 const limitOrderApi = createApi({
   reducerPath: 'limitOrderApi',
   baseQuery: fetchBaseQuery({ baseUrl: '' }),
   endpoints: builder => ({
-    getLOContractAddress: builder.query<string, ChainId>({
+    getLOConfig: builder.query<{ contract: string }, ChainId>({
       query: chainId => ({
         url: `${LIMIT_ORDER_API_READ}/v1/configs/contract-address`,
         params: { chainId },
       }),
-      transformResponse: (data: any) => data?.data?.latest?.toLowerCase?.() ?? '',
+      transformResponse: (data: any) => {
+        const features = data?.data?.features || {}
+        Object.keys(features).forEach(key => {
+          features[key.toLowerCase()] = features[key]
+        })
+        return { contract: data?.data?.latest?.toLowerCase?.() ?? '', features }
+      },
     }),
     getListOrders: builder.query<
       { orders: LimitOrder[]; totalOrder: number },
@@ -73,7 +81,7 @@ const limitOrderApi = createApi({
         body,
         method: 'POST',
       }),
-      transformResponse: (data: any) => data?.data,
+      transformResponse,
     }),
     createOrderSignature: builder.mutation<any, any>({
       query: body => ({
@@ -81,15 +89,16 @@ const limitOrderApi = createApi({
         body,
         method: 'POST',
       }),
-      transformResponse: (data: any) => data?.data,
+      transformResponse,
     }),
+
     getEncodeData: builder.mutation<any, { orderIds: number[]; isCancelAll?: boolean }>({
       query: ({ orderIds, isCancelAll = false }) => ({
         url: `${LIMIT_ORDER_API_READ}/v1/encode/${isCancelAll ? 'increase-nonce' : 'cancel-batch-orders'}`,
         body: isCancelAll ? {} : { orderIds },
         method: 'POST',
       }),
-      transformResponse: (data: any) => data?.data,
+      transformResponse,
     }),
     ackNotificationOrder: builder.mutation<
       any,
@@ -100,7 +109,7 @@ const limitOrderApi = createApi({
         body: { maker, chainId: chainId + '', [type === LimitOrderStatus.FILLED ? 'uuids' : 'docIds']: docIds },
         method: 'DELETE',
       }),
-      transformResponse: (data: any) => data?.data,
+      transformResponse,
     }),
     getTotalActiveMakingAmount: builder.query<string, { chainId: ChainId; tokenAddress: string; account: string }>({
       query: ({ chainId, tokenAddress, account }) => ({
@@ -113,11 +122,28 @@ const limitOrderApi = createApi({
       }),
       transformResponse: (data: any) => data?.data?.activeMakingAmount,
     }),
+
+    createCancelOrderSignature: builder.mutation<any, { chainId: string; maker: string; orderIds: number[] }>({
+      query: body => ({
+        url: `${LIMIT_ORDER_API_WRITE}/v1/orders/cancel-sign`,
+        body,
+        method: 'POST',
+      }),
+      transformResponse,
+    }),
+    cancelOrders: builder.mutation<any, { chainId: string; maker: string; orderIds: number[]; signature: string }>({
+      query: body => ({
+        url: `${LIMIT_ORDER_API_WRITE}/v1/orders/cancel`,
+        body,
+        method: 'POST',
+      }),
+      transformResponse,
+    }),
   }),
 })
 
 export const {
-  useGetLOContractAddressQuery,
+  useGetLOConfigQuery,
   useGetListOrdersQuery,
   useInsertCancellingOrderMutation,
   useGetNumberOfInsufficientFundOrdersQuery,
@@ -126,6 +152,8 @@ export const {
   useGetEncodeDataMutation,
   useGetTotalActiveMakingAmountQuery,
   useAckNotificationOrderMutation,
+  useCreateCancelOrderSignatureMutation,
+  useCancelOrdersMutation,
 } = limitOrderApi
 
 export default limitOrderApi

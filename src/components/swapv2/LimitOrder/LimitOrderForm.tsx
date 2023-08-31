@@ -11,7 +11,7 @@ import { Flex, Text } from 'rebass'
 import {
   useCreateOrderMutation,
   useCreateOrderSignatureMutation,
-  useGetLOContractAddressQuery,
+  useGetLOConfigQuery,
   useGetTotalActiveMakingAmountQuery,
 } from 'services/limitOrder'
 import styled from 'styled-components'
@@ -285,8 +285,8 @@ const LimitOrderForm = function LimitOrderForm({
   }
 
   const parseInputAmount = tryParseAmount(inputAmount, currencyIn ?? undefined)
-  const { data, isError } = useGetLOContractAddressQuery(chainId)
-  const limitOrderContract = isError ? undefined : data
+  const { data, isError } = useGetLOConfigQuery(chainId)
+  const limitOrderContract = isError ? undefined : data?.contract
 
   const currentAllowance = useTokenAllowance(
     currencyIn as Token,

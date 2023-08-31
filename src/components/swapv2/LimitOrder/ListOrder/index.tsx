@@ -3,7 +3,6 @@ import { BigNumber } from 'ethers'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
 import { ReactNode, forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react'
-import { isMobile } from 'react-device-detect'
 import { Info, Trash } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -43,7 +42,7 @@ import EditOrderModal from '../EditOrderModal'
 import CancelOrderModal from '../Modals/CancelOrderModal'
 import { ACTIVE_ORDER_OPTIONS, CLOSE_ORDER_OPTIONS } from '../const'
 import { calcPercentFilledOrder, formatAmountOrder, getErrorMessage, isActiveStatus } from '../helpers'
-import { LimitOrder, LimitOrderStatus, ListOrderHandle } from '../type'
+import { CancelOrderType, LimitOrder, LimitOrderStatus, ListOrderHandle } from '../type'
 import useCancellingOrders from '../useCancellingOrders'
 import OrderItem from './OrderItem'
 import TabSelector from './TabSelector'
@@ -121,19 +120,16 @@ const SelectFilter = styled(Select)`
   max-width: 50%;
   height: 36px;
   font-size: 14px;
-  min-width: 200px;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-     width: 160px;
-  `};
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-     width: 40%;
+  min-width: 100%;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+     min-width: unset;
   `};
 `
 const SearchInputWrapped = styled(SearchInput)`
   flex: 1;
   height: 36px;
   max-width: 330px;
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
      width: 100%;
      max-width: unset;
   `};
@@ -388,8 +384,9 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     return
   }
 
-  const onCancelOrder = async (order: LimitOrder | undefined) => {
+  const onCancelOrder = async (order: LimitOrder | undefined, cancelType: CancelOrderType) => {
     try {
+      console.log(cancelType)
       await requestCancelOrder(order)
       setFlowState(state => ({ ...state, showConfirm: false }))
     } catch (error) {
@@ -518,7 +515,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
         isOpen={isOpenCancel}
         flowState={flowState}
         onDismiss={hideConfirmCancel}
-        onSubmit={() => onCancelOrder(currentOrder)}
+        onSubmit={cancelType => onCancelOrder(currentOrder, cancelType)}
         order={currentOrder}
         isCancelAll={isCancelAll}
       />
@@ -539,7 +536,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
                   currentOrder.takerAssetDecimals,
                 )}% filled.`
               : ''
-          } Cancelling an order will cost gas fees`}
+          }`}
         />
       )}
     </Wrapper>

@@ -30,7 +30,7 @@ const SubscribeBtn = styled(ButtonPrimary)<{
 }>`
   overflow: hidden;
   width: fit-content;
-  height: 36px;
+  height: 32px;
   padding: 8px 12px;
   background: ${({ bgColor }) => bgColor};
   color: ${({ theme, isDisabled }) => (isDisabled ? theme.border : theme.textReverse)};

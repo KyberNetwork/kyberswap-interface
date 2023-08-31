@@ -14,7 +14,7 @@ const TabSelector = ({
   activeTab: LimitOrderStatus
   setActiveTab: (n: LimitOrderStatus) => void
 }) => {
-  const style = { padding: '16px', flex: 'unset', fontSize: '14px', height: 'unset' }
+  const style = { padding: '16px', flex: 'unset', fontSize: '14px' }
   return (
     <Flex className={className} sx={{ borderTopLeftRadius: '20px', overflow: 'hidden' }}>
       <TabButton

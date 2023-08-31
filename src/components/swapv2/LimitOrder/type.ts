@@ -47,6 +47,11 @@ export type LimitOrder = {
   contractAddress: string
 }
 
+export enum CancelOrderType {
+  GAS_LESS_CANCEL,
+  HARD_CANCEL,
+}
+
 export type RateInfo = {
   rate: string // to store user input
   invertRate: string // to store user input

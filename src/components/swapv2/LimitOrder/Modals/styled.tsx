@@ -14,11 +14,11 @@ import { formatAmountOrder, formatRateLimitOrder } from '../helpers'
 import { LimitOrder, RateInfo } from '../type'
 
 export const Container = styled.div`
-  padding: 25px 30px;
+  padding: 20px 24px;
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 25px;
+  gap: 24px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
     font-size:14px;
     padding: 16px 20px;
