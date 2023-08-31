@@ -1,4 +1,3 @@
-import { datadogRum } from '@datadog/browser-rum'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import * as Sentry from '@sentry/react'
@@ -82,7 +81,6 @@ const AppWrapper = styled.div`
   display: flex;
   flex-flow: column;
   align-items: flex-start;
-  overflow-x: hidden;
 `
 
 const HeaderWrapper = styled.div`
@@ -230,7 +228,6 @@ export default function App() {
   useEffect(() => {
     if (account) {
       Sentry.setUser({ id: account })
-      datadogRum.setUser({ id: account })
     }
   }, [account])
 
@@ -239,10 +236,6 @@ export default function App() {
       Sentry.setTags({
         chainId: chainId,
         network: networkInfo.name,
-      })
-      datadogRum.setGlobalContext({
-        chainId,
-        networkName: networkInfo.name,
       })
     }
   }, [chainId, networkInfo.name])

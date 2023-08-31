@@ -220,7 +220,7 @@ function FeeSelector({
     (acc, cur, index) => ({ ...acc, [cur]: poolAddresses[index] }),
     {} as { [key in FeeAmount]: string },
   )
-  const tiersThatHasFarmV1 = FEE_AMOUNTS.filter((_fee, i) => {
+  const tiersThatHasFarmV1: FeeAmount[] = FEE_AMOUNTS.filter((_fee, i) => {
     const poolAddress = poolAddresses[i].toLowerCase()
     return farmingPoolAddress.includes(poolAddress)
   })
@@ -249,7 +249,7 @@ function FeeSelector({
       </Flex>
 
       <Flex alignItems="center" sx={{ gap: '8px' }}>
-        {(tiersThatHasFarmV1.includes(feeAmount) ||
+        {(tiersThatHasFarmV1.includes(feeAmount as any) ||
           activeFarmV2s?.find(item => item.poolAddress === poolByFeeAmount[feeAmount].toLowerCase())) && (
           <FarmTag address={poolByFeeAmount[feeAmount]} />
         )}
