@@ -27,7 +27,7 @@ const TableHeader = () => {
         <>
           <Flex alignItems={'center'} style={{ gap: 10 }}>
             <Text>
-              <Trans>TRADE</Trans>
+              <Trans>LIMIT ORDER(S)</Trans>
             </Text>
           </Flex>
           <Text className="rate">

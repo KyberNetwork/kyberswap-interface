@@ -6,6 +6,7 @@ import { ReactNode, forwardRef, useCallback, useEffect, useImperativeHandle, use
 import { isMobile } from 'react-device-detect'
 import { Info, Trash } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useGetEncodeDataMutation, useGetListOrdersQuery, useInsertCancellingOrderMutation } from 'services/limitOrder'
 import styled from 'styled-components'
@@ -14,6 +15,7 @@ import { ButtonEmpty } from 'components/Button'
 import Column from 'components/Column'
 import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
+import Row from 'components/Row'
 import SearchInput from 'components/SearchInput'
 import Select from 'components/Select'
 import SubscribeNotificationButton from 'components/SubscribeButton'
@@ -27,6 +29,7 @@ import { useLimitState } from 'state/limit/hooks'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { MEDIA_WIDTHS } from 'theme'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import {
   subscribeNotificationOrderCancelled,
@@ -74,7 +77,7 @@ const ButtonCancelAll = styled(ButtonEmpty)`
 
 const PAGE_SIZE = 10
 const NoResultWrapper = styled.div`
-  min-height: 116px;
+  min-height: 140px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -104,12 +107,12 @@ const TableFooter = ({ children = [] }: { children: ReactNode[] }) => {
 }
 
 const SearchFilter = styled.div`
-  gap: 16px;
+  gap: 1rem;
   padding: 0 12px;
   display: flex;
   justify-content: space-between;
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    gap: 8px;
+    flex-direction: column;
   `};
 `
 const SelectFilter = styled(Select)`
@@ -118,7 +121,7 @@ const SelectFilter = styled(Select)`
   max-width: 50%;
   height: 36px;
   font-size: 14px;
-  width: 180px;
+  min-width: 200px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
      width: 160px;
   `};
@@ -131,7 +134,8 @@ const SearchInputWrapped = styled(SearchInput)`
   height: 36px;
   max-width: 330px;
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-     width: 60%;
+     width: 100%;
+     max-width: unset;
   `};
 `
 
@@ -414,6 +418,16 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     window.onbeforeunload = () => (orderCancelling > 0 && ordersUpdating.length > 0 ? '' : null) // return null will not show confirm, else will show
   }, [totalOrderNotCancelling, orders, ordersUpdating])
 
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const subscribeBtn = (
+    <SubscribeNotificationButton
+      iconOnly={false}
+      style={{ margin: upToSmall ? 0 : '12px 12px 0px 12px' }}
+      subscribeTooltip={t`Subscribe to receive notifications on your limit orders`}
+      trackingEvent={MIXPANEL_TYPE.LO_CLICK_SUBSCRIBE_BTN}
+    />
+  )
+
   return (
     <Wrapper>
       <Flex justifyContent={'space-between'} alignItems="flex-start">
@@ -421,20 +435,19 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
           setActiveTab={onSelectTab}
           activeTab={isTabActive ? LimitOrderStatus.ACTIVE : LimitOrderStatus.CLOSED}
         />
-        <SubscribeNotificationButton
-          style={{ margin: '12px 12px 0px 12px' }}
-          subscribeTooltip={t`Subscribe to receive notifications on your limit orders`}
-          trackingEvent={MIXPANEL_TYPE.LO_CLICK_SUBSCRIBE_BTN}
-        />
+        {!upToSmall && subscribeBtn}
       </Flex>
 
       <SearchFilter>
-        <SelectFilter
-          key={orderType}
-          options={isTabActive ? ACTIVE_ORDER_OPTIONS : CLOSE_ORDER_OPTIONS}
-          value={orderType}
-          onChange={setOrderType}
-        />
+        <Row width={upToSmall ? '100%' : 'fit-content'} alignItems="center" gap="8px" justify={'space-between'}>
+          {upToSmall && subscribeBtn}
+          <SelectFilter
+            key={orderType}
+            options={isTabActive ? ACTIVE_ORDER_OPTIONS : CLOSE_ORDER_OPTIONS}
+            value={orderType}
+            onChange={setOrderType}
+          />
+        </Row>
         <SearchInputWrapped
           placeholder={t`Search by token symbol or token address`}
           maxLength={255}
@@ -462,7 +475,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
                 />
               ))}
             </Column>
-            {orders.length !== 0 && (
+            {orders.length !== 0 ? (
               <TableFooter>
                 {isTabActive ? (
                   <ButtonCancelAll onClick={onCancelAllOrder} disabled={disabledBtnCancelAll}>
@@ -483,22 +496,21 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
                   />
                 )}
               </TableFooter>
+            ) : (
+              <NoResultWrapper>
+                <Info size={30} />
+                <Text marginTop={'10px'}>
+                  {keyword ? (
+                    <Trans>No orders found</Trans>
+                  ) : isTabActive ? (
+                    <Trans>You don&apos;t have any active orders yet</Trans>
+                  ) : (
+                    <Trans>You don&apos;t have any order history</Trans>
+                  )}
+                </Text>
+              </NoResultWrapper>
             )}
           </div>
-          {orders.length === 0 && (
-            <NoResultWrapper>
-              <Info size={isMobile ? 30 : 38} />
-              <Text marginTop={'10px'}>
-                {keyword ? (
-                  <Trans>No orders found</Trans>
-                ) : isTabActive ? (
-                  <Trans>You don&apos;t have any active orders yet</Trans>
-                ) : (
-                  <Trans>You don&apos;t have any order history</Trans>
-                )}
-              </Text>
-            </NoResultWrapper>
-          )}
         </>
       )}
 
