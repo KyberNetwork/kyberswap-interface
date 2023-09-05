@@ -216,7 +216,7 @@ export const Top10HoldersTable = () => {
                         window.open(getEtherscanLink(NETWORK_TO_CHAINID[chain], item.address, 'address'), '_blank')
                     }}
                   >
-                    <Icon id="open-link" size={16} /> Explore
+                    <Icon id="open-link" size={16} /> <Trans>Explore</Trans>
                   </ActionButton>
                 </RowFit>
               </Column>
