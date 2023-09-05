@@ -15,6 +15,7 @@ import {
 import { GasStation } from 'components/Icons'
 import ProgressSteps from 'components/ProgressSteps'
 import { RowBetween } from 'components/Row'
+import { CancelOrderType } from 'components/swapv2/LimitOrder/type'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState } from 'hooks/useApproveCallback'
 import useTheme from 'hooks/useTheme'
@@ -52,7 +53,7 @@ export default function ActionButtonLimitOrder({
   showWarning: boolean
   approveCallback: () => Promise<void>
   onWrapToken: () => Promise<void>
-  showPreview: () => void
+  showPreview: (v?: CancelOrderType) => void
   isEdit: boolean
 }) {
   const theme = useTheme()
@@ -99,7 +100,7 @@ export default function ActionButtonLimitOrder({
               approval={approval}
             />
           )}
-          <ButtonError width="48%" id="review-order-button" disabled={disableBtnReview} onClick={showPreview}>
+          <ButtonError width="48%" id="review-order-button" disabled={disableBtnReview} onClick={() => showPreview()}>
             <Text fontSize={16} fontWeight={500}>
               <Trans>Review Order</Trans>
             </Text>
@@ -117,13 +118,17 @@ export default function ActionButtonLimitOrder({
   if (isEdit) {
     return (
       <RowBetween gap="16px">
-        <ButtonLight onClick={showPreview} disabled={disableBtnReview} height={'40px'}>
+        <ButtonLight
+          onClick={() => showPreview(CancelOrderType.GAS_LESS_CANCEL)}
+          disabled={disableBtnReview}
+          height={'40px'}
+        >
           <GasLessIcon />
           &nbsp;
           <Trans>Edit (gasless)</Trans>
         </ButtonLight>
         <ButtonLight // todo disable btn 2 noi
-          onClick={showPreview}
+          onClick={() => showPreview(CancelOrderType.HARD_CANCEL)}
           disabled={disableBtnReview}
           height={'40px'}
           style={{ color: theme.red, backgroundColor: rgba(theme.red, 0.2) }}
@@ -136,9 +141,10 @@ export default function ActionButtonLimitOrder({
     )
   }
 
-  if (showWarning && !disableBtnReview) return <ButtonWarning onClick={showPreview}>{contentButton}</ButtonWarning>
+  if (showWarning && !disableBtnReview)
+    return <ButtonWarning onClick={() => showPreview()}>{contentButton}</ButtonWarning>
   return (
-    <ButtonPrimary id="review-order-button" onClick={showPreview} disabled={disableBtnReview}>
+    <ButtonPrimary id="review-order-button" onClick={() => showPreview()} disabled={disableBtnReview}>
       {contentButton}
     </ButtonPrimary>
   )

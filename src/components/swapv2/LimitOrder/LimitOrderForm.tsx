@@ -68,7 +68,7 @@ import {
   parseFraction,
   removeTrailingZero,
 } from './helpers'
-import { CreateOrderParam, LimitOrder, RateInfo } from './type'
+import { CancelOrderFunction, CancelOrderType, CreateOrderParam, LimitOrder, RateInfo } from './type'
 
 export const Label = styled.div`
   font-weight: 500;
@@ -93,7 +93,7 @@ type Props = {
   defaultExpire?: Date
   setIsSelectCurrencyManual?: (val: boolean) => void
   note?: string
-  onCancelOrder?: () => Promise<any>
+  onCancelOrder?: CancelOrderFunction
   orderInfo?: LimitOrder
   flowState: TransactionFlowState
   setFlowState: React.Dispatch<React.SetStateAction<TransactionFlowState>>
@@ -117,7 +117,7 @@ const HightLight = styled.span`
   color: ${({ theme }) => theme.warning};
 `
 
-const LimitOrderForm = function LimitOrderForm({
+function LimitOrderForm({
   refreshListOrder,
   onCancelOrder,
   currencyIn,
@@ -358,16 +358,19 @@ const LimitOrderForm = function LimitOrderForm({
 
   const expiredAt = customDateExpire?.getTime() || Date.now() + expire * 1000
 
-  const showPreview = () => {
+  const showPreview = (cancelType?: CancelOrderType) => {
     if (!currencyIn || !currencyOut || !outputAmount || !inputAmount || !displayRate) return
     setFlowState({ ...TRANSACTION_STATE_DEFAULT, showConfirm: true })
-    if (!isEdit)
-      mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_REVIEW_PLACE_ORDER, {
-        from_token: currencyIn.symbol,
-        to_token: currencyOut.symbol,
-        from_network: chainId,
-        trade_qty: inputAmount,
-      })
+    if (isEdit) {
+      setCancelType(cancelType)
+      return
+    }
+    mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_REVIEW_PLACE_ORDER, {
+      from_token: currencyIn.symbol,
+      to_token: currencyOut.symbol,
+      from_network: chainId,
+      trade_qty: inputAmount,
+    })
   }
 
   const hidePreview = useCallback(() => {
@@ -460,10 +463,11 @@ const LimitOrderForm = function LimitOrderForm({
     }
   }
 
+  const [cancelType, setCancelType] = useState<CancelOrderType>()
   const onSubmitEditOrder = async () => {
     try {
-      if (!onCancelOrder) return
-      await onCancelOrder()
+      if (!onCancelOrder || !cancelType) return
+      await onCancelOrder(orderInfo ? [orderInfo] : [], cancelType)
       if (orderInfo) {
         const param = {
           orderId: orderInfo?.id,

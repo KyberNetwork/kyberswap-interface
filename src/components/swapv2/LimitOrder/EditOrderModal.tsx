@@ -13,7 +13,7 @@ import { TransactionFlowState } from 'types/TransactionFlowState'
 
 import LimitOrderForm, { Label } from './LimitOrderForm'
 import { calcInvert, calcPercentFilledOrder, calcRate, removeTrailingZero } from './helpers'
-import { LimitOrder, LimitOrderStatus, RateInfo } from './type'
+import { CancelOrderFunction, LimitOrder, LimitOrderStatus, RateInfo } from './type'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -36,7 +36,7 @@ export default function EditOrderModal({
   setFlowState,
   refreshListOrder,
 }: {
-  onCancelOrder: () => Promise<any>
+  onCancelOrder: CancelOrderFunction
   onDismiss: () => void
   order: LimitOrder
   note: string
