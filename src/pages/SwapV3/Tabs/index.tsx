@@ -10,7 +10,7 @@ import { useActiveWeb3React } from 'hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { TAB } from 'pages/SwapV3'
 import LimitTab from 'pages/SwapV3/Tabs/LimitTab'
-import { getLimitOrderContract } from 'utils'
+import { isSupportLimitOrder } from 'utils'
 
 const TabContainer = styled.div`
   display: flex;
@@ -102,7 +102,7 @@ export default function Tabs({ activeTab }: Props) {
             <Trans>Swap</Trans>
           </Text>
         </Tab>
-        {getLimitOrderContract(chainId) && <LimitTab onClick={() => onClickTab(TAB.LIMIT)} />}
+        {isSupportLimitOrder(chainId) && <LimitTab onClick={() => onClickTab(TAB.LIMIT)} />}
         {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && (
           <Tab onClick={() => onClickTab(TAB.CROSS_CHAIN)} isActive={isCrossChainPage}>
             <Text fontSize={20} fontWeight={500}>

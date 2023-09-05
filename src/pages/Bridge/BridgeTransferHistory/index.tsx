@@ -1,9 +1,9 @@
 import { rgba } from 'polished'
-import { useEffect, useState } from 'react'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import { useActiveWeb3React } from 'hooks'
+import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import NoData from 'pages/Bridge/BridgeTransferHistory/NoData'
 import Pagination from 'pages/Bridge/BridgeTransferHistory/Pagination'
 import TransferHistoryTable from 'pages/Bridge/BridgeTransferHistory/TransferHistoryTable'
@@ -15,19 +15,9 @@ type Props = {
 }
 const TransferHistory: React.FC<Props> = ({ className }) => {
   const { account } = useActiveWeb3React()
-  const [shouldShowLoading, setShouldShowLoading] = useState(true)
   const response = useTransferHistory(account || '')
   const { isCompletelyEmpty, transfers } = response
-
-  useEffect(() => {
-    // This is to ensure loading is displayed at least 0.5s
-    const existingTimeout = setTimeout(() => {
-      setShouldShowLoading(false)
-    }, 500)
-    return () => {
-      existingTimeout && clearTimeout(existingTimeout)
-    }
-  }, [])
+  const shouldShowLoading = useShowLoadingAtLeastTime()
 
   if (shouldShowLoading || isCompletelyEmpty) {
     return <NoData isLoading={shouldShowLoading} isEmpty={isCompletelyEmpty} />
