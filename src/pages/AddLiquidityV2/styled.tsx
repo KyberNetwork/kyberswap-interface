@@ -1,5 +1,6 @@
-import { Flex } from 'rebass'
-import styled, { css, keyframes, useTheme } from 'styled-components'
+import { Trans } from '@lingui/macro'
+import { Flex, Text } from 'rebass'
+import styled, { CSSProperties, css, keyframes, useTheme } from 'styled-components'
 
 import { ButtonOutlined } from 'components/Button'
 import { AutoColumn } from 'components/Column'
@@ -209,3 +210,59 @@ export const RangeTab = styled.div<{ active: boolean }>`
   color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
   cursor: pointer;
 `
+
+const MethodTabs = styled.div`
+  border-radius: 999px;
+  border: 1px solid ${({ theme }) => theme.border};
+  background: ${({ theme }) => theme.buttonBlack};
+  padding: 2px;
+  display: flex;
+`
+
+const MethodTab = styled.div<{ active: boolean }>`
+  background: ${({ theme, active }) => (active ? theme.tabActive : theme.buttonBlack)};
+  color: ${({ theme, active }) => (active ? theme.text : theme.subText)};
+  cursor: pointer;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  padding: 2px;
+  min-width: 96px;
+`
+
+export const MethodSelector = ({
+  method,
+  setMethod,
+  sx,
+}: {
+  method: 'zap' | 'pair'
+  setMethod: (method: 'pair' | 'zap') => void
+  sx?: CSSProperties
+}) => {
+  return (
+    <Flex
+      justifyContent="space-between"
+      alignItems="center"
+      sx={{
+        marginBottom: '0.75rem',
+        ...sx,
+      }}
+    >
+      <Text fontWeight="500" fontSize={20}>
+        <Trans>Your Position</Trans>
+      </Text>
+      <MethodTabs>
+        <MethodTab role="button" onClick={() => setMethod('pair')} active={method === 'pair'}>
+          Token Pair
+        </MethodTab>
+        <MethodTab role="button" onClick={() => setMethod('zap')} active={method === 'zap'}>
+          Zap
+        </MethodTab>
+      </MethodTabs>
+    </Flex>
+  )
+}

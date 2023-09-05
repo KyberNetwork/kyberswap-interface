@@ -57,7 +57,6 @@ const getPrommAnalyticLink = (chainId: ChainId, poolAddress: string) => {
 const Wrapper = styled.div`
   padding: 16px;
   display: flex;
-  flex: 1;
   flex-direction: column;
   gap: 16px;
   background-image: url(${bgimg});

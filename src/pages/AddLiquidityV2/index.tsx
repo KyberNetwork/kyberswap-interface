@@ -12,7 +12,7 @@ import {
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle, Repeat } from 'react-feather'
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -24,6 +24,7 @@ import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { OutlineCard, SubTextCard, WarningCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
+import ZapDetail from 'components/ElasticZap/ZapDetail'
 import FeeSelector from 'components/FeeSelector'
 import HoverInlineText from 'components/HoverInlineText'
 import { Swap as SwapIcon, TwoWayArrow } from 'components/Icons'
@@ -42,8 +43,12 @@ import Rating from 'components/Rating'
 import Row, { RowBetween, RowFixed } from 'components/Row'
 import ShareModal from 'components/ShareModal'
 import { SLIPPAGE_EXPLANATION_URL } from 'components/SlippageWarningNote'
+import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import Tooltip, { MouseoverTooltip } from 'components/Tooltip'
-import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
+import TransactionConfirmationModal, {
+  ConfirmationModalContent,
+  TransactionErrorContent,
+} from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
 import { Dots } from 'components/swapv2/styleds'
 import { ENV_LEVEL } from 'constants/env'
@@ -53,8 +58,10 @@ import { NativeCurrencies } from 'constants/tokens'
 import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
+import { useZapInAction, useZapInPoolResult } from 'hooks/elasticZap'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
-import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
+import { useProAmmNFTPositionManagerContract, useProAmmTickReader } from 'hooks/useContract'
+import useDebounce from 'hooks/useDebounce'
 import useInterval from 'hooks/useInterval'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
@@ -75,6 +82,7 @@ import {
   useRangeHopCallbacks,
 } from 'state/mint/proamm/hooks'
 import { Bound, Field, RANGE } from 'state/mint/proamm/type'
+import { useSingleContractMultipleData } from 'state/multicall/hooks'
 import { useUserProMMPositions } from 'state/prommPools/hooks'
 import useGetElasticPools from 'state/prommPools/useGetElasticPools'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
@@ -103,6 +111,7 @@ import {
   Container,
   DynamicSection,
   FlexLeft,
+  MethodSelector,
   PageWrapper,
   RangeBtn,
   RangeTab,
@@ -243,11 +252,19 @@ export default function AddLiquidity() {
   const defaultFId = Number(searchParams.get('fId') || '0')
   const range = activeRanges.find(i => i.index === activeRangeIndex && i.farm.fId === defaultFId)
 
+  const [method, setMethod] = useState<'pair' | 'zap'>('pair')
+
   const canJoinFarm =
     isFarmV2Available &&
     positions.some(pos => activeRanges.some(r => pos && pos.tickLower <= r.tickLower && pos.tickUpper >= r.tickUpper))
 
-  const farmPosWarning = positions.every(Boolean) && isFarmV2Available && !canJoinFarm
+  const farmPosWarning =
+    method === 'pair'
+      ? positions.every(Boolean) && isFarmV2Available && !canJoinFarm
+      : isFarmV2Available &&
+        tickUpper &&
+        tickLower &&
+        activeRanges.every(r => r.tickLower < tickLower || r.tickUpper > tickUpper)
 
   const previousTicks: number[] | undefined = useProAmmPreviousTicks(pool, position)
   const mutiplePreviousTicks: number[][] | undefined = useProAmmMultiplePreviousTicks(pool, positions)
@@ -799,8 +816,23 @@ export default function AddLiquidity() {
   const [allowedSlippage] = useUserSlippageTolerance()
   const slippageStatus = checkRangeSlippage(allowedSlippage, false)
 
-  const warnings = (
-    <Flex flexDirection="column" sx={{ gap: '12px' }} alignItems="flex-end" maxWidth={chartRef?.current?.clientWidth}>
+  useEffect(() => {
+    if (noLiquidity) {
+      setMethod('pair')
+    }
+  }, [noLiquidity])
+
+  const showWarning =
+    noLiquidity ||
+    isPriceDeviated ||
+    errorLabel ||
+    invalidRange ||
+    isFullRange ||
+    outOfRange ||
+    slippageStatus === SLIPPAGE_STATUS.HIGH ||
+    farmPosWarning
+  const warnings = showWarning && (
+    <Flex flexDirection="column" sx={{ gap: '12px' }} width="100%">
       {noLiquidity && (
         <SubTextCard padding="10px 16px">
           <Flex alignItems="center">
@@ -846,7 +878,7 @@ export default function AddLiquidity() {
           </Flex>
         </WarningCard>
       )}
-      {errorLabel && (
+      {errorLabel && method === 'pair' && (
         <WarningCard padding="10px 16px">
           <Flex alignItems="center">
             <AlertTriangle stroke={theme.warning} size="16px" />
@@ -933,280 +965,464 @@ export default function AddLiquidity() {
 
   const isReverseWithFarm = baseCurrency?.wrapped.address !== farmV2S?.[0]?.token0.wrapped.address
 
+  const handleSwitch = (isQuote?: boolean) => {
+    const param1 = isQuote
+      ? currencyIdA
+      : baseCurrencyIsETHER
+      ? WETH[chainId].address
+      : NativeCurrencies[chainId].symbol
+    const param2 = isQuote
+      ? quoteCurrencyIsETHER
+        ? WETH[chainId].address
+        : NativeCurrencies[chainId].symbol
+      : currencyIdB
+    return (
+      chainId &&
+      navigate(`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${param1}/${param2}/${feeAmount}`, {
+        replace: true,
+      })
+    )
+  }
+
+  // ZAP state
+  const [zapValue, setZapValue] = useState('')
+  const [isReverse, setIsReverse] = useState(false)
+
+  const selectedCurrency = useMemo(() => {
+    return isReverse ? currencies[Field.CURRENCY_B] : currencies[Field.CURRENCY_A]
+  }, [isReverse, currencies])
+  const debouncedValue = useDebounce(zapValue, 300)
+  const amountIn = useParsedAmount(selectedCurrency, debouncedValue)
+
+  const params = useMemo(() => {
+    return poolAddress && amountIn?.greaterThan('0') && selectedCurrency && tickLower && tickUpper
+      ? {
+          poolAddress,
+          tokenIn: selectedCurrency.wrapped.address,
+          amountIn,
+          tickLower,
+          tickUpper,
+        }
+      : undefined
+  }, [amountIn, poolAddress, selectedCurrency, tickLower, tickUpper])
+
+  const { loading: zapLoading, result: zapResult } = useZapInPoolResult(params)
+  const zapInContractAddress = (networkInfo as EVMNetworkInfo).elastic.zap?.zapIn
+  const [zapApprovalState, zapApprove] = useApproveCallback(amountIn, zapInContractAddress)
+  const { zapInPoolToMint } = useZapInAction()
+  const [showZapPendingModal, setShowZapPendingModal] = useState(false)
+  const [zapError, setZapError] = useState('')
+
+  const balance = currencyBalances[isReverse ? Field.CURRENCY_B : Field.CURRENCY_A]
+  let error: ReactElement | null = null
+  if (!zapValue) error = <Trans>Enter an amount</Trans>
+  else if (!amountIn) error = <Trans>Invalid Input</Trans>
+  else if (balance && amountIn?.greaterThan(balance)) error = <Trans>Insufficient Balance</Trans>
+
+  const usedAmount0 =
+    pool?.token0 && CurrencyAmount.fromRawAmount(pool.token0, zapResult?.usedAmount0.toString() || '0')
+  const usedAmount1 =
+    pool?.token1 && CurrencyAmount.fromRawAmount(pool.token1, zapResult?.usedAmount1.toString() || '0')
+
+  const tickReader = useProAmmTickReader()
+
+  const results = useSingleContractMultipleData(
+    tickLower && tickUpper ? tickReader : undefined,
+    'getNearestInitializedTicks',
+    [
+      [poolAddress, tickLower],
+      [poolAddress, tickUpper],
+    ],
+  )
+
+  const tickPreviousForZap = useMemo(() => {
+    return results.map(call => call.result?.previous)
+  }, [results])
+
+  const handleZap = async () => {
+    if (zapApprovalState === ApprovalState.NOT_APPROVED) {
+      zapApprove()
+      return
+    }
+
+    if (
+      tickUpper &&
+      tickLower &&
+      selectedCurrency &&
+      zapResult &&
+      amountIn?.quotient &&
+      tickPreviousForZap.length == 2
+    ) {
+      try {
+        setShowZapPendingModal(true)
+        setAttemptingTxn(true)
+        const txHash = await zapInPoolToMint({
+          pool: poolAddress,
+          tokenIn: selectedCurrency.wrapped.address,
+          previousTicks: [tickPreviousForZap[0], tickPreviousForZap[1]],
+          amount: amountIn.quotient.toString(),
+          zapResult,
+          tickLower,
+          tickUpper,
+        })
+        setTxHash(txHash)
+        setAttemptingTxn(false)
+        const tokenSymbolIn = usedAmount0 ? unwrappedToken(usedAmount0.currency).symbol : ''
+        const tokenSymbolOut = usedAmount1 ? unwrappedToken(usedAmount1.currency).symbol : ''
+        addTransactionWithType({
+          hash: txHash,
+          type: TRANSACTION_TYPE.ELASTIC_INCREASE_LIQUIDITY,
+          extraInfo: {
+            tokenAmountIn: usedAmount0?.toSignificant(6) || '',
+            tokenAmountOut: usedAmount1?.toSignificant(6) || '',
+            tokenAddressIn: usedAmount0?.currency.wrapped.address || '',
+            tokenAddressOut: usedAmount1?.currency.wrapped.address || '',
+            tokenSymbolIn,
+            tokenSymbolOut,
+            arbitrary: {
+              token_1: tokenSymbolIn,
+              token_2: tokenSymbolOut,
+            },
+          },
+        })
+      } catch (e) {
+        console.error('zap error', e)
+        setAttemptingTxn(false)
+        setZapError(e?.message || JSON.stringify(e))
+      }
+    }
+  }
+
+  const handleDissmissZap = () => {
+    setShowZapPendingModal(false)
+    setTxHash('')
+    setZapError('')
+    setAttemptingTxn(false)
+  }
+
+  const ZapButton = (
+    <ButtonPrimary
+      onClick={handleZap}
+      disabled={!!error || zapApprovalState === ApprovalState.PENDING || zapLoading}
+      style={{ width: upToMedium ? '100%' : 'fit-content', minWidth: '164px' }}
+    >
+      {(() => {
+        if (error) return error
+        if (zapApprovalState === ApprovalState.PENDING)
+          return (
+            <Dots>
+              <Trans>Approving</Trans>
+            </Dots>
+          )
+        if (zapApprovalState !== ApprovalState.APPROVED) return <Trans>Approve</Trans>
+
+        if (zapLoading)
+          return (
+            <Dots>
+              <Trans>Loading</Trans>
+            </Dots>
+          )
+        return <Trans>Add Liquidity</Trans>
+      })()}
+    </ButtonPrimary>
+  )
+
   const chart = (
-    <ChartWrapper ref={chartRef}>
-      {hasTab && (
-        <Tabs
-          tabsCount={positionsState.length}
-          selectedTab={pIndex}
-          onChangedTab={index => setPositionIndex(index)}
-          onAddTab={onAddPositionEvent}
-          onRemoveTab={onRemovePositionEvent}
-          showChart={showChart}
-          onToggleChart={(newShowChart: boolean | undefined) => {
-            const newValue = typeof newShowChart !== 'undefined' ? newShowChart : !showChart
-            if (newValue && tokenA?.symbol && tokenB?.symbol) {
-              mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_PRICE_CHART, {
-                token_1: tokenA?.symbol,
-                token_2: tokenB?.symbol,
-              })
-            }
-            setShowChart(newValue)
-          }}
-        />
-      )}
-      <ChartBody>
-        {hasTab && (
-          <PoolPriceChart currencyA={baseCurrency} currencyB={quoteCurrency} feeAmount={feeAmount} show={showChart} />
+    <>
+      {!noLiquidity && <MethodSelector method={method} setMethod={setMethod} sx={{ marginBottom: '1rem' }} />}
+      <ChartWrapper ref={chartRef}>
+        {hasTab && method !== 'zap' && (
+          <Tabs
+            tabsCount={positionsState.length}
+            selectedTab={pIndex}
+            onChangedTab={index => setPositionIndex(index)}
+            onAddTab={onAddPositionEvent}
+            onRemoveTab={onRemovePositionEvent}
+            showChart={showChart}
+            onToggleChart={(newShowChart: boolean | undefined) => {
+              const newValue = typeof newShowChart !== 'undefined' ? newShowChart : !showChart
+              if (newValue && tokenA?.symbol && tokenB?.symbol) {
+                mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_PRICE_CHART, {
+                  token_1: tokenA?.symbol,
+                  token_2: tokenB?.symbol,
+                })
+              }
+              setShowChart(newValue)
+            }}
+          />
         )}
-        {hasTab && showChart ? null : (
-          <>
-            <DynamicSection gap="md" disabled={disableRangeSelect}>
-              <Flex sx={{ gap: '6px' }} alignItems="center" lineHeight={1.5}>
-                <MouseoverTooltip
-                  text={t`Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees`}
-                >
-                  <RangeTab active={!showFarmRangeSelect} role="button" onClick={() => setShowFarmRangeSelect(false)}>
-                    {isFarmV2Available ? <Trans>Custom Ranges</Trans> : <Trans>Select a Range</Trans>}
-                  </RangeTab>
-                </MouseoverTooltip>
-
-                {isFarmV2Available && (
-                  <>
-                    <Text fontWeight="500" fontSize="12px" color={theme.subText}>
-                      |
-                    </Text>
-
-                    <MouseoverTooltip
-                      text={
-                        <Text>
-                          <Trans>
-                            Add your liquidity into one of the farming ranges to participate in Elastic Static Farm.
-                            Only positions that cover the range of the farm will earn maximum rewards. Learn more{' '}
-                            <ExternalLink href="https://docs.kyberswap.com/liquidity-solutions/kyberswap-elastic/user-guides/yield-farming-on-elastic">
-                              here ↗
-                            </ExternalLink>
-                          </Trans>
-                        </Text>
-                      }
-                    >
-                      <RangeTab
-                        active={showFarmRangeSelect}
-                        role="button"
-                        onClick={() => {
-                          range && onFarmRangeSelected(range.tickLower, range.tickUpper)
-                          setShowFarmRangeSelect(true)
-                        }}
-                      >
-                        <Trans>Farming Ranges</Trans>
-                      </RangeTab>
-                    </MouseoverTooltip>
-                  </>
-                )}
-              </Flex>
-              {showFarmRangeSelect && !!activeRanges.length && farmV2S?.[0] && (
-                <Flex sx={{ gap: '8px' }} flexWrap="wrap">
-                  {activeRanges.map(range => {
-                    if (range.isRemoved) return null
-                    return (
-                      <RangeBtn
-                        style={{ width: 'fit-content' }}
-                        key={range.farm.fId + '_' + range.index}
-                        onClick={() => {
-                          searchParams.set('farmRange', range.index.toString())
-                          searchParams.set('fId', range.farm.fId.toString())
-                          setSearchParams(searchParams)
-                          onFarmRangeSelected(+range.tickLower, +range.tickUpper)
-                        }}
-                        isSelected={activeRangeIndex === range.index && defaultFId === range.farm.fId}
-                      >
-                        <Flex alignItems="center" sx={{ gap: '2px' }}>
-                          {convertTickToPrice(
-                            isReverseWithFarm ? farmV2S[0].token1 : farmV2S[0].token0,
-                            isReverseWithFarm ? farmV2S[0].token0 : farmV2S[0].token1,
-                            isReverseWithFarm ? range.tickUpper : range.tickLower,
-                            farmV2S[0].pool.fee,
-                          )}
-                          <TwoWayArrow />
-                          {convertTickToPrice(
-                            isReverseWithFarm ? farmV2S[0].token1 : farmV2S[0].token0,
-                            isReverseWithFarm ? farmV2S[0].token0 : farmV2S[0].token1,
-                            isReverseWithFarm ? range.tickLower : range.tickUpper,
-                            farmV2S[0].pool.fee,
-                          )}
-                        </Flex>
-                      </RangeBtn>
-                    )
-                  })}
-                </Flex>
-              )}
-              {!showFarmRangeSelect &&
-                (() => {
-                  const gap = '16px'
-                  const buttonColumn = upToMedium ? 2 : 4
-                  const buttonWidth = `calc((100% - ${gap} * (${buttonColumn} - 1)) / ${buttonColumn})`
-                  return (
-                    <Row gap={gap} flexWrap="wrap">
-                      {RANGE_LIST.map(range => (
-                        <Flex key={rangeData[range].title} width={buttonWidth}>
-                          <Tooltip
-                            text={rangeData[range].tooltip[pairFactor]}
-                            containerStyle={{ width: '100%' }}
-                            show={shownTooltip === range}
-                            placement="bottom"
-                          >
-                            <RangeBtn
-                              onClick={() => setRange(range)}
-                              isSelected={range === activeRange}
-                              onMouseEnter={() => setShownTooltip(range)}
-                              onMouseLeave={() => setShownTooltip(null)}
-                            >
-                              {rangeData[range].title}
-                            </RangeBtn>
-                          </Tooltip>
-                        </Flex>
-                      ))}
-                    </Row>
-                  )
-                })()}
-
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridGap: upToMedium ? '12px' : '24px',
-                  gridTemplateColumns: `repeat(${upToMedium ? 1 : 2} , fit-content(100%) fit-content(100%))`,
-                }}
-              >
-                <Text fontSize={12} color={theme.red}>
-                  <Trans>Estimated Risk</Trans>
-                </Text>
-                <Rating point={riskPoint} color={theme.red} />
-                <Text fontSize={12} color={theme.primary}>
-                  <Trans>Estimated Profit</Trans>
-                </Text>
-                <Rating point={profitPoint} color={theme.primary} />
-              </Box>
-              {price && baseCurrency && quoteCurrency && !noLiquidity && (
-                <Flex justifyContent="center" marginTop="0.5rem" sx={{ gap: '0.25rem' }}>
-                  <Text fontWeight={500} textAlign="center" color={theme.subText} fontSize={12}>
-                    <Trans>Current Price</Trans>
-                  </Text>
-                  <Text fontWeight={500} textAlign="center" fontSize={12}>
-                    <HoverInlineText
-                      maxCharacters={20}
-                      text={invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)}
-                    />
-                  </Text>
-                  <Text fontSize={12}>
-                    {quoteCurrency?.symbol} per {baseCurrency.symbol}
-                  </Text>
-                </Flex>
-              )}
-              <LiquidityChartRangeInput
-                currencyA={baseCurrency ?? undefined}
-                currencyB={quoteCurrency ?? undefined}
-                feeAmount={feeAmount}
-                ticksAtLimit={ticksAtLimit}
-                price={price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined}
-                leftPrice={leftPrice}
-                rightPrice={rightPrice}
-                onLeftRangeInput={onLeftRangeInput}
-                onRightRangeInput={onRightRangeInput}
-                interactive
-                height="233.5px"
-              />
+        <ChartBody>
+          {hasTab && (
+            <PoolPriceChart currencyA={baseCurrency} currencyB={quoteCurrency} feeAmount={feeAmount} show={showChart} />
+          )}
+          {hasTab && showChart ? null : (
+            <>
               <DynamicSection gap="md" disabled={disableRangeSelect}>
-                <StackedContainer>
-                  <StackedItem style={{ opacity: showCapitalEfficiencyWarning ? '0.05' : 1 }}>
-                    <RangeSelector
-                      priceLower={priceLower}
-                      priceUpper={priceUpper}
-                      getDecrementLower={getDecrementLower}
-                      getIncrementLower={getIncrementLower}
-                      getDecrementUpper={getDecrementUpper}
-                      getIncrementUpper={getIncrementUpper}
-                      onLeftRangeInput={onLeftRangeInput}
-                      onRightRangeInput={onRightRangeInput}
-                      currencyA={baseCurrency}
-                      currencyB={quoteCurrency}
-                      feeAmount={feeAmount}
-                      ticksAtLimit={ticksAtLimit}
-                    />
-                  </StackedItem>
-                </StackedContainer>
+                <Flex sx={{ gap: '6px' }} alignItems="center" lineHeight={1.5}>
+                  <MouseoverTooltip
+                    text={t`Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees`}
+                  >
+                    <RangeTab active={!showFarmRangeSelect} role="button" onClick={() => setShowFarmRangeSelect(false)}>
+                      {isFarmV2Available ? <Trans>Custom Ranges</Trans> : <Trans>Select a Range</Trans>}
+                    </RangeTab>
+                  </MouseoverTooltip>
+
+                  {isFarmV2Available && (
+                    <>
+                      <Text fontWeight="500" fontSize="12px" color={theme.subText}>
+                        |
+                      </Text>
+
+                      <MouseoverTooltip
+                        text={
+                          <Text>
+                            <Trans>
+                              Add your liquidity into one of the farming ranges to participate in Elastic Static Farm.
+                              Only positions that cover the range of the farm will earn maximum rewards. Learn more{' '}
+                              <ExternalLink href="https://docs.kyberswap.com/liquidity-solutions/kyberswap-elastic/user-guides/yield-farming-on-elastic">
+                                here ↗
+                              </ExternalLink>
+                            </Trans>
+                          </Text>
+                        }
+                      >
+                        <RangeTab
+                          active={showFarmRangeSelect}
+                          role="button"
+                          onClick={() => {
+                            range && onFarmRangeSelected(range.tickLower, range.tickUpper)
+                            setShowFarmRangeSelect(true)
+                          }}
+                        >
+                          <Trans>Farming Ranges</Trans>
+                        </RangeTab>
+                      </MouseoverTooltip>
+                    </>
+                  )}
+                </Flex>
+                {showFarmRangeSelect && !!activeRanges.length && farmV2S?.[0] && (
+                  <Flex sx={{ gap: '8px' }} flexWrap="wrap">
+                    {activeRanges.map(range => {
+                      if (range.isRemoved) return null
+                      return (
+                        <RangeBtn
+                          style={{ width: 'fit-content' }}
+                          key={range.farm.fId + '_' + range.index}
+                          onClick={() => {
+                            searchParams.set('farmRange', range.index.toString())
+                            searchParams.set('fId', range.farm.fId.toString())
+                            setSearchParams(searchParams)
+                            onFarmRangeSelected(+range.tickLower, +range.tickUpper)
+                          }}
+                          isSelected={activeRangeIndex === range.index && defaultFId === range.farm.fId}
+                        >
+                          <Flex alignItems="center" sx={{ gap: '2px' }}>
+                            {convertTickToPrice(
+                              isReverseWithFarm ? farmV2S[0].token1 : farmV2S[0].token0,
+                              isReverseWithFarm ? farmV2S[0].token0 : farmV2S[0].token1,
+                              isReverseWithFarm ? range.tickUpper : range.tickLower,
+                              farmV2S[0].pool.fee,
+                            )}
+                            <TwoWayArrow />
+                            {convertTickToPrice(
+                              isReverseWithFarm ? farmV2S[0].token1 : farmV2S[0].token0,
+                              isReverseWithFarm ? farmV2S[0].token0 : farmV2S[0].token1,
+                              isReverseWithFarm ? range.tickLower : range.tickUpper,
+                              farmV2S[0].pool.fee,
+                            )}
+                          </Flex>
+                        </RangeBtn>
+                      )
+                    })}
+                  </Flex>
+                )}
+                {!showFarmRangeSelect &&
+                  (() => {
+                    const gap = '16px'
+                    const buttonColumn = upToMedium ? 2 : 4
+                    const buttonWidth = `calc((100% - ${gap} * (${buttonColumn} - 1)) / ${buttonColumn})`
+                    return (
+                      <Row gap={gap} flexWrap="wrap">
+                        {RANGE_LIST.map(range => (
+                          <Flex key={rangeData[range].title} width={buttonWidth}>
+                            <Tooltip
+                              text={rangeData[range].tooltip[pairFactor]}
+                              containerStyle={{ width: '100%' }}
+                              show={shownTooltip === range}
+                              placement="bottom"
+                            >
+                              <RangeBtn
+                                onClick={() => setRange(range)}
+                                isSelected={range === activeRange}
+                                onMouseEnter={() => setShownTooltip(range)}
+                                onMouseLeave={() => setShownTooltip(null)}
+                              >
+                                {rangeData[range].title}
+                              </RangeBtn>
+                            </Tooltip>
+                          </Flex>
+                        ))}
+                      </Row>
+                    )
+                  })()}
+
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridGap: upToMedium ? '12px' : '24px',
+                    gridTemplateColumns: `repeat(${upToMedium ? 1 : 2} , fit-content(100%) fit-content(100%))`,
+                  }}
+                >
+                  <Text fontSize={12} color={theme.red}>
+                    <Trans>Estimated Risk</Trans>
+                  </Text>
+                  <Rating point={riskPoint} color={theme.red} />
+                  <Text fontSize={12} color={theme.primary}>
+                    <Trans>Estimated Profit</Trans>
+                  </Text>
+                  <Rating point={profitPoint} color={theme.primary} />
+                </Box>
+                {price && baseCurrency && quoteCurrency && !noLiquidity && (
+                  <Flex justifyContent="center" marginTop="0.5rem" sx={{ gap: '0.25rem' }}>
+                    <Text fontWeight={500} textAlign="center" color={theme.subText} fontSize={12}>
+                      <Trans>Current Price</Trans>
+                    </Text>
+                    <Text fontWeight={500} textAlign="center" fontSize={12}>
+                      <HoverInlineText
+                        maxCharacters={20}
+                        text={invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)}
+                      />
+                    </Text>
+                    <Text fontSize={12}>
+                      {quoteCurrency?.symbol} per {baseCurrency.symbol}
+                    </Text>
+                  </Flex>
+                )}
+                <LiquidityChartRangeInput
+                  currencyA={baseCurrency ?? undefined}
+                  currencyB={quoteCurrency ?? undefined}
+                  feeAmount={feeAmount}
+                  ticksAtLimit={ticksAtLimit}
+                  price={price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined}
+                  leftPrice={leftPrice}
+                  rightPrice={rightPrice}
+                  onLeftRangeInput={onLeftRangeInput}
+                  onRightRangeInput={onRightRangeInput}
+                  interactive
+                  height="233.5px"
+                />
+                <DynamicSection gap="md" disabled={disableRangeSelect}>
+                  <StackedContainer>
+                    <StackedItem style={{ opacity: showCapitalEfficiencyWarning ? '0.05' : 1 }}>
+                      <RangeSelector
+                        priceLower={priceLower}
+                        priceUpper={priceUpper}
+                        getDecrementLower={getDecrementLower}
+                        getIncrementLower={getIncrementLower}
+                        getDecrementUpper={getDecrementUpper}
+                        getIncrementUpper={getIncrementUpper}
+                        onLeftRangeInput={onLeftRangeInput}
+                        onRightRangeInput={onRightRangeInput}
+                        currencyA={baseCurrency}
+                        currencyB={quoteCurrency}
+                        feeAmount={feeAmount}
+                        ticksAtLimit={ticksAtLimit}
+                      />
+                    </StackedItem>
+                  </StackedContainer>
+                </DynamicSection>
               </DynamicSection>
-            </DynamicSection>
-            <DynamicSection style={{ marginTop: '16px' }} gap="12px" disabled={disableAmountSelect}>
-              <Text fontWeight={500} fontSize="12px">
-                <Trans>Deposit Amounts</Trans>
-              </Text>
-              <Flex sx={{ gap: '16px' }} flexDirection={upToMedium ? 'column' : 'row'}>
-                <Flex width="100%">
+              <DynamicSection style={{ marginTop: '16px' }} gap="12px" disabled={disableAmountSelect}>
+                <Text fontWeight={500} fontSize="12px">
+                  <Trans>Deposit Amounts</Trans>
+                </Text>
+
+                {method === 'pair' ? (
+                  <Flex sx={{ gap: '16px' }} flexDirection={upToMedium ? 'column' : 'row'}>
+                    <Flex width="100%">
+                      <CurrencyInputPanel
+                        value={formattedAmounts[Field.CURRENCY_A]}
+                        onUserInput={onFieldAInput}
+                        onMax={() => {
+                          onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
+                        }}
+                        onHalf={() => {
+                          onFieldAInput(currencyBalanceA?.divide(2).toExact() ?? '')
+                        }}
+                        currency={currencies_A ?? null}
+                        id="add-liquidity-input-tokena"
+                        showCommonBases
+                        positionMax="top"
+                        locked={depositADisabled}
+                        estimatedUsd={formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined}
+                        disableCurrencySelect={!baseCurrencyIsETHER && !baseCurrencyIsWETH}
+                        isSwitchMode={baseCurrencyIsETHER || baseCurrencyIsWETH}
+                        onSwitchCurrency={() => handleSwitch(false)}
+                        outline
+                      />
+                    </Flex>
+                    <Flex width="100%">
+                      <CurrencyInputPanel
+                        value={formattedAmounts[Field.CURRENCY_B]}
+                        onUserInput={onFieldBInput}
+                        onMax={() => {
+                          onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')
+                        }}
+                        onHalf={() => {
+                          onFieldBInput(currencyBalanceB?.divide(2).toExact() ?? '')
+                        }}
+                        currency={currencies_B ?? null}
+                        id="add-liquidity-input-tokenb"
+                        showCommonBases
+                        positionMax="top"
+                        locked={depositBDisabled}
+                        estimatedUsd={formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined}
+                        disableCurrencySelect={!quoteCurrencyIsETHER && !quoteCurrencyIsWETH}
+                        isSwitchMode={quoteCurrencyIsETHER || quoteCurrencyIsWETH}
+                        onSwitchCurrency={() => handleSwitch(true)}
+                        outline
+                      />
+                    </Flex>
+                  </Flex>
+                ) : (
                   <CurrencyInputPanel
-                    value={formattedAmounts[Field.CURRENCY_A]}
-                    onUserInput={onFieldAInput}
+                    id="zap-increase-liquidity"
+                    value={zapValue}
+                    onUserInput={v => {
+                      setZapValue(v)
+                    }}
                     onMax={() => {
-                      onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
+                      setZapValue(currencyBalances[isReverse ? Field.CURRENCY_B : Field.CURRENCY_A]?.toExact() || '')
                     }}
                     onHalf={() => {
-                      onFieldAInput(currencyBalanceA?.divide(2).toExact() ?? '')
+                      setZapValue(
+                        currencyBalances[isReverse ? Field.CURRENCY_B : Field.CURRENCY_A]?.divide('2').toExact() || '',
+                      )
                     }}
-                    currency={currencies_A ?? null}
-                    id="add-liquidity-input-tokena"
-                    showCommonBases
+                    currency={selectedCurrency}
                     positionMax="top"
-                    locked={depositADisabled}
-                    estimatedUsd={formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined}
-                    disableCurrencySelect={!baseCurrencyIsETHER && !baseCurrencyIsWETH}
-                    isSwitchMode={baseCurrencyIsETHER || baseCurrencyIsWETH}
+                    showCommonBases
+                    estimatedUsd=""
+                    isSwitchMode
                     onSwitchCurrency={() => {
-                      chainId &&
-                        navigate(
-                          `/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${
-                            baseCurrencyIsETHER ? WETH[chainId].address : NativeCurrencies[chainId].symbol
-                          }/${currencyIdB}/${feeAmount}`,
-                          { replace: true },
-                        )
+                      setIsReverse(prev => !prev)
                     }}
                     outline
                   />
-                </Flex>
-                <Flex width="100%">
-                  <CurrencyInputPanel
-                    value={formattedAmounts[Field.CURRENCY_B]}
-                    onUserInput={onFieldBInput}
-                    onMax={() => {
-                      onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')
-                    }}
-                    onHalf={() => {
-                      onFieldBInput(currencyBalanceB?.divide(2).toExact() ?? '')
-                    }}
-                    currency={currencies_B ?? null}
-                    id="add-liquidity-input-tokenb"
-                    showCommonBases
-                    positionMax="top"
-                    locked={depositBDisabled}
-                    estimatedUsd={formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined}
-                    disableCurrencySelect={!quoteCurrencyIsETHER && !quoteCurrencyIsWETH}
-                    isSwitchMode={quoteCurrencyIsETHER || quoteCurrencyIsWETH}
-                    onSwitchCurrency={() => {
-                      chainId &&
-                        navigate(
-                          `/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${currencyIdA}/${
-                            quoteCurrencyIsETHER ? WETH[chainId].address : NativeCurrencies[chainId].symbol
-                          }/${feeAmount}`,
-                          { replace: true },
-                        )
-                    }}
-                    outline
-                  />
-                </Flex>
-              </Flex>
-            </DynamicSection>
-          </>
-        )}
-      </ChartBody>
-    </ChartWrapper>
+                )}
+              </DynamicSection>
+            </>
+          )}
+        </ChartBody>
+      </ChartWrapper>
+
+      <Row flexDirection="column" sx={{ gap: '16px' }} marginTop="1rem">
+        {warnings}
+        <DisclaimerERC20 />
+
+        <Row justify="flex-end">{method === 'pair' ? <Buttons /> : ZapButton}</Row>
+      </Row>
+    </>
   )
 
   // const [viewMode] = useViewMode()
@@ -1382,6 +1598,7 @@ export default function AddLiquidity() {
           onCleared={() => {
             onFieldAInput('0')
             onFieldBInput('0')
+            poolStatRef.current = undefined
             navigate(`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}`)
           }}
           tutorialType={TutorialType.ELASTIC_ADD_LIQUIDITY}
@@ -1490,6 +1707,17 @@ export default function AddLiquidity() {
                 />
               </DynamicSection>
 
+              {method === 'zap' && (
+                <ZapDetail
+                  pool={pool}
+                  position={undefined}
+                  zapResult={zapResult}
+                  zapLoading={zapLoading}
+                  amountIn={amountIn}
+                  sx={{ backgroundColor: theme.buttonBlack }}
+                />
+              )}
+
               {noLiquidity ? (
                 <AutoColumn gap="1rem">
                   <AutoColumn gap="12px">
@@ -1588,24 +1816,28 @@ export default function AddLiquidity() {
             </FlexLeft>
             {!upToMedium && <RightContainer gap="lg">{chart}</RightContainer>}
           </Flex>
-          <Row flexDirection="column" sx={{ gap: '16px' }}>
-            {warnings && (
-              <Row justify="flex-end">
-                <Flex>{warnings}</Flex>
-              </Row>
-            )}
-            <Flex maxWidth={chartRef?.current?.clientWidth} alignSelf="flex-end">
-              <DisclaimerERC20 />
-            </Flex>
-
-            <Row justify="flex-end">
-              <Buttons />
-            </Row>
-          </Row>
         </Container>
       </PageWrapper>
       <FarmUpdater interval={false} />
       <ElasticFarmV2Updater interval={false} />
+
+      <TransactionConfirmationModal
+        isOpen={showZapPendingModal}
+        onDismiss={handleDissmissZap}
+        hash={txHash}
+        attemptingTxn={attemptingTxn}
+        pendingText={
+          <Trans>
+            Supplying {usedAmount0?.toSignificant(6)} {pool?.token0.symbol} and {usedAmount1?.toSignificant(6)}{' '}
+            {pool?.token1?.symbol}
+          </Trans>
+        }
+        content={() => (
+          <Flex flexDirection={'column'} width="100%">
+            {errorMessage ? <TransactionErrorContent onDismiss={handleDissmissZap} message={zapError} /> : null}
+          </Flex>
+        )}
+      />
     </>
   )
 }

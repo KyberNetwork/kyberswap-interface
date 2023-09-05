@@ -54,6 +54,7 @@ import { useProAmmPositionsFromTokenId } from 'hooks/useProAmmPositions'
 import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
+import { MethodSelector } from 'pages/AddLiquidityV2/styled'
 import {
   Container,
   Content,
@@ -93,29 +94,6 @@ const TextUnderlineTransparent = styled(Text)`
   border-bottom: 1px solid transparent;
   width: fit-content;
   display: inline;
-`
-
-const Tabs = styled.div`
-  border-radius: 999px;
-  border: 1px solid ${({ theme }) => theme.border};
-  background: ${({ theme }) => theme.buttonBlack};
-  padding: 2px;
-  display: flex;
-`
-
-const Tab = styled.div<{ active: boolean }>`
-  background: ${({ theme, active }) => (active ? theme.tabActive : theme.buttonBlack)};
-  color: ${({ theme, active }) => (active ? theme.text : theme.subText)};
-  cursor: pointer;
-  border-radius: 999px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 20px;
-  padding: 2px;
-  min-width: 96px;
 `
 
 export default function IncreaseLiquidity() {
@@ -800,19 +778,7 @@ export default function IncreaseLiquidity() {
                 </FirstColumn>
 
                 <SecondColumn>
-                  <Flex justifyContent="space-between" alignItems="center" marginBottom="0.75rem">
-                    <Text fontWeight="500" fontSize={20}>
-                      <Trans>Your Position</Trans>
-                    </Text>
-                    <Tabs>
-                      <Tab role="button" onClick={() => setMethod('pair')} active={method === 'pair'}>
-                        Token Pair
-                      </Tab>
-                      <Tab role="button" onClick={() => setMethod('zap')} active={method === 'zap'}>
-                        Zap
-                      </Tab>
-                    </Tabs>
-                  </Flex>
+                  <MethodSelector method={method} setMethod={setMethod} />
                   <BlackCard style={{ marginBottom: '24px' }}>
                     <Box
                       sx={{

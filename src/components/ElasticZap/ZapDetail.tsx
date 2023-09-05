@@ -2,8 +2,8 @@ import { CurrencyAmount, NativeCurrency, Token, WETH } from '@kyberswap/ks-sdk-c
 import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 import Skeleton from 'react-loading-skeleton'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
+import { Box, Flex, Text } from 'rebass'
+import styled, { CSSProperties } from 'styled-components'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
@@ -18,7 +18,7 @@ import { checkPriceImpact } from 'utils/prices'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
-const Detail = styled.div`
+const Detail = styled(Box)`
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -33,12 +33,14 @@ export default function ZapDetail({
   position,
   zapLoading,
   amountIn,
+  sx,
 }: {
   pool: Pool | null | undefined
   zapResult: ZapResult | undefined
   position: Position | null | undefined
   zapLoading: boolean
   amountIn: CurrencyAmount<NativeCurrency | Token> | undefined
+  sx?: CSSProperties
 }) {
   const theme = useTheme()
   const { chainId } = useActiveWeb3React()
@@ -103,7 +105,7 @@ export default function ZapDetail({
   const priceImpactRes = checkPriceImpact(priceImpact)
 
   return (
-    <Detail>
+    <Detail sx={sx}>
       <Flex justifyContent="space-between">
         <Flex>
           <Text fontWeight="500">
