@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { createContext, useMemo, useState } from 'react'
+import { createContext, useCallback, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { useTheme } from 'styled-components'
@@ -15,6 +15,7 @@ import { isSupportLimitOrder } from 'utils'
 
 import { SectionWrapper } from '../components'
 import CexRekt from '../components/CexRekt'
+import TimeFrameLegend from '../components/TimeFrameLegend'
 import { LiquidOnCentralizedExchanges, Prochart } from '../components/chart'
 import { DexTradesShareContent } from '../components/shareContent/DexTradesShareContent'
 import FundingRateShareContent from '../components/shareContent/FundingRateShareContent'
@@ -24,7 +25,7 @@ import { FundingRateTable, LiveDEXTrades, SupportResistanceLevel } from '../comp
 import { KYBERAI_CHART_ID, NETWORK_TO_CHAINID } from '../constants'
 import { useChartingDataQuery } from '../hooks/useKyberAIData'
 import useKyberAITokenOverview from '../hooks/useKyberAITokenOverview'
-import { ChartTab, ISRLevel, OHLCData } from '../types'
+import { ChartTab, ISRLevel, KyberAITimeframe, OHLCData } from '../types'
 import { navigateToLimitPage } from '../utils'
 import { defaultExplorePageToken } from './SingleToken'
 
@@ -86,7 +87,7 @@ export default function TechnicalAnalysis() {
   const [prochartDataURL, setProchartDataURL] = useState<string | undefined>()
   const [liveChartTab, setLiveChartTab] = useState(ChartTab.First)
   const [showSRLevels, setShowSRLevels] = useState(true)
-  const [priceChartResolution, setPriceChartResolution] = useState('1h')
+  const [priceChartResolution, setPriceChartResolution] = useState('4h')
   const now = Math.floor(Date.now() / 60000) * 60
   const { data, isLoading } = useChartingDataQuery({
     chain: chain || defaultExplorePageToken.chain,
@@ -139,6 +140,12 @@ export default function TechnicalAnalysis() {
       console.log(err)
     }
   }
+
+  const handleTimeframeSelect = useCallback(
+    (t: KyberAITimeframe) => setPriceChartResolution?.(t as string),
+    [setPriceChartResolution],
+  )
+
   return (
     <TechnicalAnalysisContext.Provider
       value={{
@@ -159,7 +166,17 @@ export default function TechnicalAnalysis() {
           onTabClick={setLiveChartTab}
           style={{ height: '800px' }}
           subTitle={
-            <RowFit gap="8px">
+            <RowFit gap="12px">
+              <TimeFrameLegend
+                selected={priceChartResolution}
+                timeframes={[
+                  KyberAITimeframe.ONE_HOUR,
+                  KyberAITimeframe.FOUR_HOURS,
+                  KyberAITimeframe.ONE_DAY,
+                  KyberAITimeframe.FOUR_DAY,
+                ]}
+                onSelect={handleTimeframeSelect}
+              />
               <Text fontSize="14px" fontStyle="initial">
                 <Trans>Support / Resistance Levels</Trans>
               </Text>

@@ -164,9 +164,8 @@ export interface ISRLevel {
 }
 
 export enum DiscoverTokenTab {
-  OnChainAnalysis = 'On-Chain Analysis',
   TechnicalAnalysis = 'Technical Analysis',
-  // News = 'News',
+  OnChainAnalysis = 'On-Chain Analysis',
 }
 
 export enum ChartTab {
@@ -179,6 +178,7 @@ export enum KyberAITimeframe {
   ONE_HOUR = '1h',
   FOUR_HOURS = '4h',
   ONE_DAY = '1d',
+  THREE_DAY = '3d',
   FOUR_DAY = '4d',
   ONE_WEEK = '7d',
   ONE_MONTH = '1m',

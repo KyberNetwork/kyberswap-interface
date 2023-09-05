@@ -7,6 +7,7 @@ import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import { useActiveWeb3React } from 'hooks'
 import { useNotify } from 'state/application/hooks'
 import { useAllTransactions } from 'state/transactions/hooks'
+import { GroupedTxsByHash } from 'state/transactions/type'
 import { findTx } from 'utils'
 import {
   subscribeNotificationOrderCancelled,
@@ -16,6 +17,11 @@ import {
 import { getTransactionStatus } from 'utils/transaction'
 
 import SummaryNotify from './ListOrder/SummaryNotify'
+
+const isTransactionFailed = (txHash: string, transactions: GroupedTxsByHash | undefined) => {
+  const transactionInfo = findTx(transactions, txHash)
+  return transactionInfo ? getTransactionStatus(transactionInfo).error : false
+}
 
 const useNotificationLimitOrder = () => {
   const notify = useNotify()
@@ -27,13 +33,6 @@ const useNotificationLimitOrder = () => {
   }, [])
 
   const transactions = useAllTransactions()
-  const isTransactionFailed = (txHash: string) => {
-    const transactionInfo = findTx(transactions, txHash)
-    return transactionInfo ? getTransactionStatus(transactionInfo).error : false
-  }
-
-  const isTxFailed = useRef(isTransactionFailed)
-  isTxFailed.current = isTransactionFailed
   const [ackNotificationOrder] = useAckNotificationOrderMutation()
 
   useEffect(() => {
@@ -44,7 +43,7 @@ const useNotificationLimitOrder = () => {
       if (cancelAllSuccess !== undefined) {
         // not show Notification when cancel failed because duplicate.
         if (
-          !isTxFailed.current(cancelAllData?.txHash ?? '') &&
+          !isTransactionFailed(cancelAllData?.txHash ?? '', transactions) &&
           !showedNotificationOrderIds.current[cancelAllData.id ?? '']
         ) {
           notify(
@@ -79,7 +78,8 @@ const useNotificationLimitOrder = () => {
       const orders: LimitOrder[] = data?.orders ?? []
       const orderCancelSuccess = orders.filter(e => e.isSuccessful && !showedNotificationOrderIds.current[e.id])
       const orderCancelFailed = orders.filter(
-        e => !e.isSuccessful && !isTxFailed.current(e.txHash) && !showedNotificationOrderIds.current[e.id],
+        e =>
+          !e.isSuccessful && !isTransactionFailed(e.txHash, transactions) && !showedNotificationOrderIds.current[e.id],
       )
 
       if (orderCancelSuccess.length)
@@ -172,6 +172,6 @@ const useNotificationLimitOrder = () => {
       unsubscribeExpired?.()
       unsubscribeFilled?.()
     }
-  }, [account, chainId, notify, ackNotificationOrder, ackNotiLocal])
+  }, [account, chainId, notify, ackNotificationOrder, ackNotiLocal, transactions])
 }
 export default useNotificationLimitOrder

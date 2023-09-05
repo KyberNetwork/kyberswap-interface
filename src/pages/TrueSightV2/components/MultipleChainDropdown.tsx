@@ -84,7 +84,7 @@ const MultipleChainDropdown = React.forwardRef(
     if (isMobile) {
       return (
         <Modal isOpen={show}>
-          <Column padding="24px" width="100%" gap="12px">
+          <Column padding="24px" width="100%" gap="12px" onClick={e => e.stopPropagation()}>
             <Row>
               <Text fontSize="20px" fontWeight={500}>
                 Select Chain
@@ -169,6 +169,7 @@ const MultipleChainDropdown = React.forwardRef(
         color={theme.text}
         style={{ left: menuLeft !== undefined ? `${menuLeft}px` : undefined }}
         ref={ref}
+        onClick={e => e.stopPropagation()}
       >
         {tokens?.map((item: { address: string; logo: string; chain: string }) => {
           if (item.chain === 'ethereum')
