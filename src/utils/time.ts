@@ -18,3 +18,12 @@ export const formatTime = (time: number) => {
   const day = Math.floor(delta / (24 * 3600))
   return t`${day} ${formatMulti(day, 'day')} ago`
 }
+
+// 1800 => 00:03:00
+const pad = (n: number) => (n < 10 ? `0${n}` : n)
+export const formatRemainTime = (timeInSeconds: number) => {
+  const hours = Math.floor(timeInSeconds / 3600)
+  const minutes = Math.floor((timeInSeconds - hours * 3600) / 60)
+  const seconds = timeInSeconds - hours * 3600 - minutes * 60
+  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
+}

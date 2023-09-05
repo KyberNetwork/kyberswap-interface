@@ -1,7 +1,6 @@
 import { Currency, CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { ethers } from 'ethers'
 import JSBI from 'jsbi'
 import { debounce } from 'lodash'
 import { rgba } from 'polished'
@@ -63,6 +62,7 @@ import {
   calcRate,
   calcUsdPrices,
   formatAmountOrder,
+  formatSignature,
   getErrorMessage,
   getPayloadCreateOrder,
   parseFraction,
@@ -426,15 +426,7 @@ const LimitOrderForm = function LimitOrderForm({
     const messagePayload = await getMessageSignature(payload).unwrap()
 
     const rawSignature = await library.send('eth_signTypedData_v4', [account, JSON.stringify(messagePayload)])
-
-    const bytes = ethers.utils.arrayify(rawSignature)
-    const lastByte = bytes[64]
-    if (lastByte === 0 || lastByte === 1) {
-      // to support hardware wallet https://ethereum.stackexchange.com/a/113727
-      bytes[64] += 27
-    }
-
-    return { signature: ethers.utils.hexlify(bytes), salt: messagePayload?.message?.salt }
+    return { signature: formatSignature(rawSignature), salt: messagePayload?.message?.salt }
   }
 
   const [submitOrder] = useCreateOrderMutation()
