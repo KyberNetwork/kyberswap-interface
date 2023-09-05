@@ -7,6 +7,7 @@ import { CSSProperties } from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
+import { formatDisplayNumber } from 'utils/numbers'
 
 import { Dots, StyledBalanceMaxMini } from './styleds'
 
@@ -23,7 +24,7 @@ export default function TradePrice({ price, label, icon, style = {}, color }: Tr
   const [showInverted, setShowInverted] = useState<boolean>(false)
   let formattedPrice
   try {
-    formattedPrice = showInverted ? price?.invert()?.toSignificant(6) : price?.toSignificant(6)
+    formattedPrice = formatDisplayNumber({ value: showInverted ? price?.invert() : price })
   } catch (error) {}
 
   const show = Boolean(price?.baseCurrency && price?.quoteCurrency && formattedPrice)
