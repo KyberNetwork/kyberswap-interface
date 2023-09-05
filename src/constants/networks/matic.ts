@@ -76,10 +76,7 @@ const maticInfo: EVMNetworkInfo = {
       zapOut: '0xf55d0A8Df5C864c0058CC2F755695ff6A20c9CB4',
     },
   },
-  limitOrder: {
-    development: '0x3C2E9227A6d3779e5b469E425CAa7067b40Ff124',
-    production: '0x227B0c196eA8db17A665EA6824D972A64202E936',
-  },
+  limitOrder: '*',
   averageBlockTimeInSeconds: 2.6,
   coingeckoNetworkId: 'polygon-pos',
   coingeckoNativeTokenId: 'matic-network',

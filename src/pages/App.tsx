@@ -38,10 +38,9 @@ import TruesightFooter from 'pages/TrueSightV2/components/TruesightFooter'
 import KyberAILandingPage from 'pages/TrueSightV2/pages/LandingPage'
 import { useHolidayMode } from 'state/user/hooks'
 import DarkModeQueryParamReader from 'theme/DarkModeQueryParamReader'
-import { getLimitOrderContract, isAddressString, shortenAddress } from 'utils'
+import { isAddressString, isSupportLimitOrder, shortenAddress } from 'utils'
 
 import ElasticLegacyNotice from './ElasticLegacy/ElasticLegacyNotice'
-import Icons from './Icons'
 import VerifyAuth from './Verify/VerifyAuth'
 
 // test page for swap only through elastic
@@ -76,6 +75,7 @@ const BuyCrypto = lazy(() => import('pages/BuyCrypto'))
 const Campaign = lazy(() => import('pages/Campaign'))
 const GrantProgramPage = lazy(() => import('pages/GrantProgram'))
 const NotificationCenter = lazy(() => import('pages/NotificationCenter'))
+const Icons = lazy(() => import('./Icons'))
 
 const AppWrapper = styled.div`
   display: flex;
@@ -321,7 +321,7 @@ export default function App() {
                       <Route path={`${APP_PATHS.CROSS_CHAIN}`} element={<SwapV3 />} />
                     )}
 
-                    {getLimitOrderContract(chainId) && (
+                    {isSupportLimitOrder(chainId) && (
                       <Route path={`${APP_PATHS.LIMIT}/:network/:currency?`} element={<SwapPage />} />
                     )}
 

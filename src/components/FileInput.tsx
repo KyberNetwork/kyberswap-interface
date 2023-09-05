@@ -1,5 +1,7 @@
 import { ChangeEvent, ReactNode, useRef } from 'react'
 
+import { IMAGE_ALLOW_EXTENSIONS } from 'hooks/social'
+
 export default function FileInput({
   onChange,
   children,
@@ -41,7 +43,7 @@ export default function FileInput({
         type="file"
         onChange={handleFileChange}
         style={{ visibility: 'hidden', height: 0, width: 0 }}
-        accept={image ? 'image/*' : undefined}
+        accept={image ? IMAGE_ALLOW_EXTENSIONS.map(ext => `image/${ext}`).join(', ') : undefined}
       />
     </>
   )
