@@ -17,7 +17,7 @@ const zkSyncInfo: EVMNetworkInfo = {
   poolFarmRoute: 'zksync',
   aggregatorRoute: 'zksync',
   name: 'zkSync Era',
-  icon: 'https://storage.googleapis.com/ks-setting-a3aa20b7/5c5dc8c7-ba2d-4861-8ff2-4646892e5cb41692929153917.png',
+  icon: 'https://storage.googleapis.com/ks-setting-1d682dca/bd11850b-6aef-48c6-a27d-f8ee833e0dbc1693378187666.svg',
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,

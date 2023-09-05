@@ -15,7 +15,7 @@ const lineaInfo: EVMNetworkInfo = {
   poolFarmRoute: 'linea',
   aggregatorRoute: 'linea',
   name: 'Linea',
-  icon: 'https://storage.googleapis.com/ks-setting-a3aa20b7/5c7ac975-e5af-4a02-8586-da6acfee9ec8.svg',
+  icon: 'https://storage.googleapis.com/ks-setting-1d682dca/12a257d3-65e3-4b16-8a84-03a4ca34a6bc1693378197244.svg',
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,

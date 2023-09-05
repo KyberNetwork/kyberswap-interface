@@ -77,7 +77,7 @@ const detectMetamask = (): WalletReadyState => {
 }
 
 const detectBlocto = (): WalletReadyState => {
-  if (getIsBloctoWallet()) return WalletReadyState.NotDetected
+  if (getIsBloctoWallet()) return WalletReadyState.Unsupported
   return WalletReadyState.Installed
 }
 
@@ -167,7 +167,6 @@ export const SUPPORTED_WALLETS = {
     name: 'Browser Wallet',
     icon: INJECTED_DARK_ICON,
     iconLight: INJECTED_LIGHT_ICON,
-    installLink: 'https://metamask.io/download',
     readyState: detectInjected,
   } as EVMWalletInfo,
   METAMASK: {
@@ -179,32 +178,14 @@ export const SUPPORTED_WALLETS = {
     installLink: 'https://metamask.io/download',
     readyState: detectMetamask,
   } as EVMWalletInfo,
-  BLOCTO: {
-    connector: blocto,
-    hooks: bloctoHooks,
-    name: 'Blocto',
-    icon: BLOCTO,
-    iconLight: BLOCTO,
-    installLink: 'https://www.blocto.io/download',
-    readyState: detectBlocto,
-  } as EVMWalletInfo,
-  BLOCTO_INJECTED: {
-    connector: bloctoInject,
-    hooks: bloctoInjectHooks,
-    name: 'Blocto',
-    icon: BLOCTO,
-    iconLight: BLOCTO,
-    installLink: 'https://www.blocto.io/download',
-    readyState: detectBloctoInjected,
-  } as EVMWalletInfo,
-  SAFE: {
-    connector: gnosisSafe,
-    hooks: gnosisSafeHooks,
-    name: 'Safe',
-    icon: SAFE,
-    iconLight: SAFE,
-    installLink: 'https://safe.global/wallet',
-    readyState: detectSafe,
+  KRYSTAL: {
+    connector: krystal,
+    hooks: krystalHooks,
+    name: 'Krystal',
+    icon: KRYSTAL,
+    iconLight: KRYSTAL,
+    installLink: 'https://wallet.krystal.app',
+    readyState: detectKrystal,
   } as EVMWalletInfo,
   RABBY: {
     connector: rabby,
@@ -215,14 +196,14 @@ export const SUPPORTED_WALLETS = {
     installLink: 'https://rabby.io',
     readyState: detectRabby,
   } as EVMWalletInfo,
-  KRYSTAL: {
-    connector: krystal,
-    hooks: krystalHooks,
-    name: 'Krystal',
-    icon: KRYSTAL,
-    iconLight: KRYSTAL,
-    installLink: 'https://wallet.krystal.app',
-    readyState: detectKrystal,
+  TRUST_WALLET: {
+    connector: trust,
+    hooks: trustHooks,
+    name: 'Trust Wallet',
+    icon: TRUSTWALLET,
+    iconLight: TRUSTWALLET,
+    installLink: 'https://trustwallet.com/vi/deeplink',
+    readyState: detectTrustWallet,
   } as EVMWalletInfo,
   BRAVE: {
     connector: brave,
@@ -236,17 +217,15 @@ export const SUPPORTED_WALLETS = {
     // If Phantom extension installed block Brave wallet
     readyStateSolana: () => (window.solana?.isBraveWallet ? braveAdapter.readyState : WalletReadyState.NotDetected),
   } as EVMWalletInfo & SolanaWalletInfo,
-  COIN98: {
-    connector: coin98,
-    hooks: coin98Hooks,
-    adapter: coin98Adapter,
-    name: 'Coin98',
-    icon: COIN98,
-    iconLight: COIN98,
-    installLink: 'https://wallet.coin98.com/',
-    readyState: detectCoin98,
-    readyStateSolana: () => coin98Adapter.readyState,
-  } as EVMWalletInfo & SolanaWalletInfo,
+  SAFE: {
+    connector: gnosisSafe,
+    hooks: gnosisSafeHooks,
+    name: 'Safe',
+    icon: SAFE,
+    iconLight: SAFE,
+    installLink: 'https://safe.global/wallet',
+    readyState: detectSafe,
+  } as EVMWalletInfo,
   COINBASE: {
     connector: coinbaseWallet,
     hooks: coinbaseWalletHooks,
@@ -258,14 +237,41 @@ export const SUPPORTED_WALLETS = {
     readyState: detectCoinbase,
     readyStateSolana: () => (isMobile ? WalletReadyState.Unsupported : coinbaseAdapter.readyState),
   } as EVMWalletInfo & SolanaWalletInfo,
+  COIN98: {
+    connector: coin98,
+    hooks: coin98Hooks,
+    adapter: coin98Adapter,
+    name: 'Coin98',
+    icon: COIN98,
+    iconLight: COIN98,
+    installLink: 'https://wallet.coin98.com/',
+    readyState: detectCoin98,
+    readyStateSolana: () => coin98Adapter.readyState,
+  } as EVMWalletInfo & SolanaWalletInfo,
+  BLOCTO_INJECTED: {
+    connector: bloctoInject,
+    hooks: bloctoInjectHooks,
+    name: 'Blocto',
+    icon: BLOCTO,
+    iconLight: BLOCTO,
+    readyState: detectBloctoInjected,
+  } as EVMWalletInfo,
   WALLET_CONNECT: {
     connector: walletConnectV2,
     hooks: walletConnectV2Hooks,
     name: 'WalletConnect',
     icon: WALLETCONNECT,
     iconLight: WALLETCONNECT,
-    installLink: 'https://walletconnect.com/',
     readyState: () => WalletReadyState.Installed,
+  } as EVMWalletInfo,
+  BLOCTO: {
+    connector: blocto,
+    hooks: bloctoHooks,
+    name: 'Blocto',
+    icon: BLOCTO,
+    iconLight: BLOCTO,
+    installLink: 'https://www.blocto.io/download',
+    readyState: detectBlocto,
   } as EVMWalletInfo,
   SOLFLARE: {
     adapter: solflareAdapter,
@@ -291,15 +297,6 @@ export const SUPPORTED_WALLETS = {
     installLink: slopeAdapter.url,
     readyStateSolana: () => (isMobile ? WalletReadyState.Unsupported : slopeAdapter.readyState),
   } as SolanaWalletInfo,
-  TRUST_WALLET: {
-    connector: trust,
-    hooks: trustHooks,
-    name: 'Trust Wallet',
-    icon: TRUSTWALLET,
-    iconLight: TRUSTWALLET,
-    installLink: 'https://trustwallet.com/vi/deeplink',
-    readyState: detectTrustWallet,
-  } as EVMWalletInfo,
 } as const
 export type SUPPORTED_WALLET = keyof typeof SUPPORTED_WALLETS
 
