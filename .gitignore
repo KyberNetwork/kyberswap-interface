@@ -41,3 +41,4 @@ cypress/fixtures/example.json
 .vim
 target/
 
+/.swc
