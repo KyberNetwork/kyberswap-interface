@@ -521,6 +521,7 @@ const LimitOrderForm = function LimitOrderForm({
       }, 100),
     [getActiveMakingAmount],
   )
+  // todo split file + file list order as well
 
   useEffect(() => {
     if (currencyIn) refreshActiveMakingAmount()
@@ -842,6 +843,7 @@ const LimitOrderForm = function LimitOrderForm({
             showPreview,
             showApproveFlow,
             showWarning: warningMessage.length > 0,
+            isEdit,
           }}
         />
       </Flex>

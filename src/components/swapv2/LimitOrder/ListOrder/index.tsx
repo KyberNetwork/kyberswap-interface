@@ -7,7 +7,13 @@ import { Info, Trash } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { useGetEncodeDataMutation, useGetListOrdersQuery, useInsertCancellingOrderMutation } from 'services/limitOrder'
+import {
+  useCancelOrdersMutation,
+  useCreateCancelOrderSignatureMutation,
+  useGetEncodeDataMutation,
+  useGetListOrdersQuery,
+  useInsertCancellingOrderMutation,
+} from 'services/limitOrder'
 import styled from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
@@ -41,7 +47,7 @@ import { sendEVMTransaction } from 'utils/sendTransaction'
 import EditOrderModal from '../EditOrderModal'
 import CancelOrderModal from '../Modals/CancelOrderModal'
 import { ACTIVE_ORDER_OPTIONS, CLOSE_ORDER_OPTIONS } from '../const'
-import { calcPercentFilledOrder, formatAmountOrder, getErrorMessage, isActiveStatus } from '../helpers'
+import { calcPercentFilledOrder, formatAmountOrder, formatSignature, getErrorMessage, isActiveStatus } from '../helpers'
 import { CancelOrderType, LimitOrder, LimitOrderStatus, ListOrderHandle } from '../type'
 import useCancellingOrders from '../useCancellingOrders'
 import OrderItem from './OrderItem'
@@ -89,17 +95,17 @@ const TableFooterWrapper = styled.div`
   align-items: center;
   gap: 1rem;
   border-radius: 0 0 20px 20px;
-  padding: 10px 0px;
+  padding: 10px 12px;
   background-color: ${({ theme }) => rgba(theme.subText, 0.2)};
   ${({ theme }) => theme.mediaWidth.upToSmall`
     flex-direction: column-reverse;
   `};
 `
 
-const TableFooter = ({ children = [] }: { children: ReactNode[] }) => {
+const TableFooter = ({ children = [], isTabActive }: { children: ReactNode[]; isTabActive: boolean }) => {
   const totalChild = children.filter(Boolean).length
   return totalChild ? (
-    <TableFooterWrapper style={{ justifyContent: totalChild === 1 ? 'center' : 'space-between' }}>
+    <TableFooterWrapper style={{ justifyContent: totalChild === 1 && !isTabActive ? 'center' : 'space-between' }}>
       {children}
     </TableFooterWrapper>
   ) : null
@@ -307,7 +313,8 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
 
   const [insertCancellingOrder] = useInsertCancellingOrderMutation()
   const [getEncodeData] = useGetEncodeDataMutation()
-  const requestCancelOrder = async (order: LimitOrder | undefined) => {
+
+  const requestHardCancelOrder = async (order: LimitOrder | undefined) => {
     if (!library || !account) return Promise.reject('Wrong input')
 
     setFlowState(state => ({
@@ -384,11 +391,36 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     return
   }
 
-  const onCancelOrder = async (order: LimitOrder | undefined, cancelType: CancelOrderType) => {
+  const [createCancelSignature] = useCreateCancelOrderSignatureMutation()
+  const [cancelOrderRequest] = useCancelOrdersMutation()
+  const requestGasLessCancelOrder = async (orders: LimitOrder[]) => {
+    if (!library || !account) return Promise.reject('Wrong input')
+    setFlowState(state => ({
+      ...state,
+      pendingText: t`Canceling your orders`,
+      showConfirm: true,
+      attemptingTxn: true,
+    }))
+
+    const orderIds = orders.map(e => e.id)
+    const cancelPayload = { chainId: chainId.toString(), maker: account, orderIds }
+    const messagePayload = await createCancelSignature(cancelPayload).unwrap()
+    const rawSignature = await library.send('eth_signTypedData_v4', [account, JSON.stringify(messagePayload)])
+    const signature = formatSignature(rawSignature)
+    const resp = await cancelOrderRequest({ ...cancelPayload, signature }).unwrap()
+    // todo countdown
+    // todo canse cancelled ngay lap tuc
+    setCancellingOrders(cancellingOrdersIds.concat(orderIds))
+    return resp
+  }
+
+  const onCancelOrder = async (orders: LimitOrder[], cancelType: CancelOrderType) => {
     try {
-      console.log(cancelType)
-      await requestCancelOrder(order)
+      let resp: any // todo
+      if (cancelType === CancelOrderType.HARD_CANCEL) resp = await requestHardCancelOrder(orders?.[0])
+      else resp = await requestGasLessCancelOrder(orders)
       setFlowState(state => ({ ...state, showConfirm: false }))
+      return resp
     } catch (error) {
       setFlowState(state => ({
         ...state,
@@ -404,7 +436,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   }
 
   const onUpdateOrder = async () => {
-    await requestCancelOrder(currentOrder)
+    await requestHardCancelOrder(currentOrder)
   }
 
   const disabledBtnCancelAll = totalOrderNotCancelling === 0
@@ -473,7 +505,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
               ))}
             </Column>
             {orders.length !== 0 ? (
-              <TableFooter>
+              <TableFooter isTabActive={isTabActive}>
                 {isTabActive ? (
                   <ButtonCancelAll onClick={onCancelAllOrder} disabled={disabledBtnCancelAll}>
                     <Trash size={15} />
@@ -515,7 +547,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
         isOpen={isOpenCancel}
         flowState={flowState}
         onDismiss={hideConfirmCancel}
-        onSubmit={cancelType => onCancelOrder(currentOrder, cancelType)}
+        onSubmit={onCancelOrder}
         order={currentOrder}
         isCancelAll={isCancelAll}
       />
