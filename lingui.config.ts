@@ -1,5 +1,3 @@
-import { formatter } from '@lingui/format-po'
-
 const config = {
   catalogs: [
     {
@@ -12,7 +10,7 @@ const config = {
   fallbackLocales: {
     default: 'en-US',
   },
-  format: formatter({ explicitIdAsDefault: true }),
+  format: 'po',
   formatOptions: {
     lineNumbers: false,
   },
