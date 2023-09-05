@@ -10,7 +10,7 @@ import { formatTokenPrice } from '../utils'
 import SimpleTooltip from './SimpleTooltip'
 
 const transformValue = (value: number, [from0, from1]: number[], [to0, to1]: number[]) => {
-  return ((value - from0) / (from1 - from0)) * (to1 - to0)
+  return ((value - from0) / (from1 - from0 || 1)) * (to1 - to0)
 }
 
 const PathHandleHover = ({
