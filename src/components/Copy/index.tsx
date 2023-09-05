@@ -77,7 +77,7 @@ type Props = {
   children?: React.ReactNode
   margin?: string
   style?: CSSProperties
-  size?: string
+  size?: string | number
   text?: ReactNode
   color?: string
 }
