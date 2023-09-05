@@ -1710,11 +1710,18 @@ export default function AddLiquidity() {
               {method === 'zap' && (
                 <ZapDetail
                   pool={pool}
+                  tokenIn={selectedCurrency?.wrapped?.address}
                   position={undefined}
                   zapResult={zapResult}
                   zapLoading={zapLoading}
                   amountIn={amountIn}
                   sx={{ backgroundColor: theme.buttonBlack }}
+                  poolAddress={poolAddress}
+                  tickLower={tickLower}
+                  tickUpper={tickUpper}
+                  previousTicks={
+                    tickPreviousForZap.length === 2 ? [tickPreviousForZap[0], tickPreviousForZap[1]] : undefined
+                  }
                 />
               )}
 

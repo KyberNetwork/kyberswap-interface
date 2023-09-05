@@ -770,9 +770,14 @@ export default function IncreaseLiquidity() {
                     <ZapDetail
                       pool={existingPosition?.pool}
                       position={existingPosition}
+                      tokenIn={selectedCurrency?.wrapped.address}
+                      tokenId={tokenId}
                       zapLoading={zapLoading}
                       amountIn={amountIn}
                       zapResult={zapResult}
+                      poolAddress={poolAddress}
+                      tickLower={existingPosition?.tickLower}
+                      tickUpper={existingPosition?.tickUpper}
                     />
                   )}
                 </FirstColumn>

@@ -60,6 +60,24 @@ export function useZapInPoolResult(params?: {
   }
 }
 
+interface ZapInToAddParams {
+  pool: string
+  tokenIn: string
+  positionId: string
+  amount: string
+  zapResult: ZapResult
+}
+
+interface ZapInToMintParams {
+  pool: string
+  tokenIn: string
+  previousTicks: [number, number]
+  amount: string
+  zapResult: ZapResult
+  tickLower: number
+  tickUpper: number
+}
+
 export function useZapInAction() {
   const { networkInfo, account } = useActiveWeb3React()
   const zapInContractAddress = (networkInfo as EVMNetworkInfo).elastic.zap?.zapIn
@@ -69,21 +87,13 @@ export function useZapInAction() {
   const [slippage] = useUserSlippageTolerance()
   const deadline = useTransactionDeadline() // custom from users settings
 
-  const zapInPoolToAddLiquidity = useCallback(
-    async ({
-      pool,
-      tokenIn,
-      positionId,
-      amount,
-      zapResult,
-    }: {
-      pool: string
-      tokenIn: string
-      positionId: string
-      amount: string
-      zapResult: ZapResult
-    }) => {
-      if (!zapInContract || !account) return
+  const estimateGasZapInPoolToAddLiquidity = useCallback(
+    async ({ pool, tokenIn, positionId, amount, zapResult }: ZapInToAddParams) => {
+      if (!zapInContract || !account)
+        return {
+          gas: undefined,
+          params: undefined,
+        }
 
       const minLiquidity = zapResult.liquidity.sub(
         zapResult.liquidity.mul(BigNumber.from(basisPointsToPercent(slippage).quotient.toString())),
@@ -114,33 +124,31 @@ export function useZapInAction() {
 
       const gas = await zapInContract.estimateGas.zapInPoolToAddLiquidity(...params)
 
-      const { hash } = await zapInContract.zapInPoolToAddLiquidity(...params, {
-        gasLimit: calculateGasMargin(gas),
-      })
-      return hash
+      return {
+        gas,
+        params,
+      }
     },
     [zapInContract, account, deadline, posManagerAddress, slippage],
   )
 
-  const zapInPoolToMint = useCallback(
-    async ({
-      pool,
-      tokenIn,
-      previousTicks,
-      amount,
-      zapResult,
-      tickLower,
-      tickUpper,
-    }: {
-      pool: string
-      tokenIn: string
-      previousTicks: [number, number]
-      amount: string
-      zapResult: ZapResult
-      tickLower: number
-      tickUpper: number
-    }) => {
+  const zapInPoolToAddLiquidity = useCallback(
+    async (params: ZapInToAddParams) => {
       if (!zapInContract || !account) return
+      const { gas, params: callParams } = await estimateGasZapInPoolToAddLiquidity(params)
+      if (!gas || !callParams) return
+
+      const { hash } = await zapInContract.zapInPoolToAddLiquidity(...callParams, {
+        gasLimit: calculateGasMargin(gas),
+      })
+      return hash
+    },
+    [estimateGasZapInPoolToAddLiquidity, zapInContract, account],
+  )
+
+  const estimateGasZapInPoolToMint = useCallback(
+    async ({ pool, tokenIn, previousTicks, amount, zapResult, tickLower, tickUpper }: ZapInToMintParams) => {
+      if (!zapInContract || !account) return {}
 
       const minLiquidity = zapResult.liquidity.sub(
         zapResult.liquidity.mul(BigNumber.from(basisPointsToPercent(slippage).quotient.toString())),
@@ -173,16 +181,33 @@ export function useZapInAction() {
 
       const gas = await zapInContract.estimateGas.zapInPoolToMint(...params)
 
-      const { hash } = await zapInContract.zapInPoolToMint(...params, {
+      return {
+        gas,
+        params,
+      }
+    },
+    [zapInContract, account, deadline, posManagerAddress, slippage],
+  )
+
+  const zapInPoolToMint = useCallback(
+    async (params: ZapInToMintParams) => {
+      if (!zapInContract || !account) return
+      const { gas, params: callParams } = await estimateGasZapInPoolToMint(params)
+      if (!gas || !callParams) return
+
+      console.log(gas.toString(), calculateGasMargin(gas).toString())
+      const { hash } = await zapInContract.zapInPoolToMint(...callParams, {
         gasLimit: calculateGasMargin(gas),
       })
       return hash
     },
-    [zapInContract, account, deadline, posManagerAddress, slippage],
+    [estimateGasZapInPoolToMint, account, zapInContract],
   )
 
   return {
     zapInPoolToAddLiquidity,
     zapInPoolToMint,
+    estimateGasZapInPoolToMint,
+    estimateGasZapInPoolToAddLiquidity,
   }
 }

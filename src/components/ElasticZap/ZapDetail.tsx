@@ -1,17 +1,20 @@
 import { CurrencyAmount, NativeCurrency, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
+import { useEffect, useState } from 'react'
 import Skeleton from 'react-loading-skeleton'
 import { Box, Flex, Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
+import { GasStation } from 'components/Icons'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { ZapResult } from 'hooks/elasticZap'
+import { ZapResult, useZapInAction } from 'hooks/elasticZap'
 import useTheme from 'hooks/useTheme'
+import { useKyberSwapConfig } from 'state/application/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { formatDollarAmount } from 'utils/numbers'
 import { checkPriceImpact } from 'utils/prices'
@@ -33,17 +36,30 @@ export default function ZapDetail({
   position,
   zapLoading,
   amountIn,
+  tokenIn,
+  tokenId,
   sx,
+  poolAddress,
+  tickLower,
+  tickUpper,
+  previousTicks,
 }: {
   pool: Pool | null | undefined
+  tokenIn: string | undefined
   zapResult: ZapResult | undefined
   position: Position | null | undefined
   zapLoading: boolean
   amountIn: CurrencyAmount<NativeCurrency | Token> | undefined
   sx?: CSSProperties
+  poolAddress: string | undefined
+  tokenId?: string
+  tickLower?: number
+  tickUpper?: number
+  previousTicks?: number[]
 }) {
   const theme = useTheme()
   const { chainId } = useActiveWeb3React()
+  const { readProvider } = useKyberSwapConfig()
 
   const skeleton = (width?: number) => (
     <Skeleton
@@ -104,6 +120,71 @@ export default function ZapDetail({
   const priceImpact = ((amountInUsd - amountUSDAfterSwap) * 100) / amountInUsd
   const priceImpactRes = checkPriceImpact(priceImpact)
 
+  const [gas, setGas] = useState('') // GWei
+  const { estimateGasZapInPoolToMint, estimateGasZapInPoolToAddLiquidity } = useZapInAction()
+
+  const amount = amountIn?.quotient.toString()
+
+  const [gasPrice, setGasPrice] = useState('0') // wei
+  useEffect(() => {
+    readProvider?.getGasPrice().then(res => setGasPrice(res.toString()))
+  }, [readProvider])
+
+  useEffect(() => {
+    if (tokenId) {
+      if (poolAddress && tokenIn && tokenId && amount && result) {
+        estimateGasZapInPoolToAddLiquidity({
+          pool: poolAddress,
+          tokenIn,
+          positionId: tokenId,
+          amount,
+          zapResult: result,
+        })
+          .then(({ gas }) => {
+            setGas(gas?.toString() || '')
+          })
+          .catch(() => {
+            setGas('')
+          })
+      } else {
+        setGas('')
+      }
+    } else {
+      if (poolAddress && tokenIn && previousTicks && amount && result && tickLower && tickUpper) {
+        estimateGasZapInPoolToMint({
+          pool: poolAddress,
+          tokenIn,
+          previousTicks: previousTicks as any,
+          amount,
+          zapResult: result,
+          tickLower,
+          tickUpper,
+        })
+          .then(({ gas }) => {
+            setGas(gas?.toString() || '')
+          })
+          .catch(() => {
+            setGas('')
+          })
+      } else setGas('')
+    }
+  }, [
+    amount,
+    estimateGasZapInPoolToMint,
+    estimateGasZapInPoolToAddLiquidity,
+    tokenIn,
+    poolAddress,
+    tokenId,
+    tickLower,
+    tickUpper,
+    previousTicks,
+    readProvider,
+    result,
+  ])
+
+  const estimateGasUsd =
+    gas && prices[WETH[chainId].address] ? ((+gasPrice * +gas) / 1e18) * prices[WETH[chainId].address] : 0
+
   return (
     <Detail sx={sx}>
       <Flex justifyContent="space-between">
@@ -113,6 +194,17 @@ export default function ZapDetail({
           </Text>
           <FeeTag>FEE {((pool?.fee || 0) * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
         </Flex>
+
+        {zapLoading ? (
+          skeleton(40)
+        ) : (
+          <Flex alignItems="center" sx={{ gap: '2px' }}>
+            <GasStation />
+            <Text fontSize={12} fontWeight="500">
+              {estimateGasUsd ? '$' + estimateGasUsd.toFixed(2) : '--'}
+            </Text>
+          </Flex>
+        )}
       </Flex>
 
       <Divider />

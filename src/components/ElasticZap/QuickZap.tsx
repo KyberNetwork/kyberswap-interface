@@ -410,10 +410,16 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
 
               <ZapDetail
                 pool={pool}
+                tokenIn={selectedCurrency?.wrapped.address}
+                tokenId={tokenId?.toString()}
                 position={position}
                 zapResult={result}
                 zapLoading={zapLoading}
                 amountIn={amountIn}
+                poolAddress={poolAddress}
+                tickLower={position?.tickLower || tickLower}
+                tickUpper={position?.tickUpper || tickUpper}
+                previousTicks={tickPrevious}
               />
 
               <Flex sx={{ gap: '1rem' }} marginTop="1.25rem">
