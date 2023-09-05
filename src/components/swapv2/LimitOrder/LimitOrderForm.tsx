@@ -820,7 +820,8 @@ function LimitOrderForm({
             />
             <Text fontWeight={400} fontSize={12} color={theme.text}>
               <Trans>
-                Limit order price is &gt;=30% higher than the market. We just want to make sure this is correct
+                Limit order price is &gt;={BETTER_PRICE_DIFF_THRESHOLD}% higher than the market. We just want to make
+                sure this is correct
               </Trans>
             </Text>
           </Flex>
