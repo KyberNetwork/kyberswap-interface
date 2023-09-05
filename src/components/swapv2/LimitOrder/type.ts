@@ -63,6 +63,8 @@ export type ListOrderHandle = {
   refreshListOrder: () => void
 }
 
+export type CancelOrderFunction = (orders: LimitOrder[], cancelType: CancelOrderType) => Promise<void>
+
 export type CreateOrderParam = {
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined

@@ -22,7 +22,7 @@ import { TransactionFlowState } from 'types/TransactionFlowState'
 
 import { BaseTradeInfo, useBaseTradeInfoLimitOrder } from '../../../../hooks/useBaseTradeInfo'
 import { calcPercentFilledOrder, formatAmountOrder } from '../helpers'
-import { CancelOrderType, LimitOrder, LimitOrderStatus } from '../type'
+import { CancelOrderFunction, CancelOrderType, LimitOrder, LimitOrderStatus } from '../type'
 import { Container, Header, Label, ListInfo, MarketInfo, Note, Rate, Value } from './styled'
 
 const ButtonWrapper = styled.div`
@@ -54,7 +54,7 @@ function ContentCancel({
   isCancelAll: boolean
   order: LimitOrder | undefined
   marketPrice: BaseTradeInfo | undefined
-  onSubmit: (orders: LimitOrder[], cancelType: CancelOrderType) => void
+  onSubmit: CancelOrderFunction
   onDismiss: () => void
   flowState: TransactionFlowState
   isOpen: boolean
@@ -283,7 +283,7 @@ export default function CancelOrderModal({
   isOpen,
   isCancelAll,
 }: {
-  onSubmit: (orders: LimitOrder[], cancelType: CancelOrderType) => void
+  onSubmit: CancelOrderFunction
   onDismiss: () => void
   flowState: TransactionFlowState
   order?: LimitOrder

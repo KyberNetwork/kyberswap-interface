@@ -435,8 +435,9 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     setIsCancelAll(true)
   }
 
-  const onUpdateOrder = async () => {
-    await requestHardCancelOrder(currentOrder)
+  const onUpdateOrder = async (orders: LimitOrder[], cancelType: CancelOrderType) => {
+    if (cancelType === CancelOrderType.HARD_CANCEL) await requestHardCancelOrder(orders?.[0])
+    else await requestGasLessCancelOrder(orders)
   }
 
   const disabledBtnCancelAll = totalOrderNotCancelling === 0
