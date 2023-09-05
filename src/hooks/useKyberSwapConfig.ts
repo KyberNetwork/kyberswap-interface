@@ -11,7 +11,6 @@ import {
   useLazyGetKyberswapConfigurationQuery,
 } from 'services/ksSetting'
 
-import { AGGREGATOR_API } from 'constants/env'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM, isSolana } from 'constants/networks'
 import ethereumInfo from 'constants/networks/ethereum'
 import solanaInfo from 'constants/networks/solana'
@@ -64,15 +63,13 @@ const parseGlobalResponse = (
   responseData: KyberswapGlobalConfigurationResponse | undefined,
   chainId: ChainId,
 ): KyberswapGlobalConfig => {
-  const data = responseData?.data?.config
-  const aggregatorDomain = data?.aggregator ?? AGGREGATOR_API
-  const isEnableAuthenAggregator = !!data?.isEnableAuthenAggregator
   return {
-    aggregatorDomain,
-    aggregatorAPI: `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}/route/encode`,
-    isEnableAuthenAggregator,
+    aggregatorDomain: 'https://meta-aggregator-api.kyberswap.com',
+    aggregatorAPI: 'https://meta-aggregator-api.kyberswap.com/route/encode',
+    isEnableAuthenAggregator: true,
   }
 }
+
 export const useLazyKyberswapConfig = (): ((customChainId?: ChainId) => Promise<KyberSwapConfig>) => {
   const storeChainId = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET // read directly from store instead of useActiveWeb3React to prevent circular loop
   const [getKyberswapConfiguration] = useLazyGetKyberswapConfigurationQuery()
