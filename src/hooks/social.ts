@@ -11,11 +11,11 @@ export const useUploadImageToCloud = () => {
   const [uploadImage] = useUploadImageMutation()
 
   return useCallback(
-    async (file: Blob | File) => {
+    async (fileObject: Blob | File) => {
       try {
-        const ext = (file as File).name.split('.').pop() ?? ''
-        if (!IMAGE_ALLOW_EXTENSIONS.includes(ext)) throw new Error('File is not support')
-
+        const file = fileObject as File
+        const ext = file.name?.split('.')?.pop() ?? ''
+        if (!IMAGE_ALLOW_EXTENSIONS.includes(ext) && file.name) throw new Error('File is not support')
         const fileName = `${uuid() + Date.now()}.${ext}`
         const res = await uploadImage({
           fileName,
