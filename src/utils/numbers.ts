@@ -1,7 +1,7 @@
-import { Fraction } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount, Fraction, Percent, Price } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 
-import { RESERVE_USD_DECIMALS } from 'constants/index'
+import { BIG_INT_MINUS_ONE, BIG_INT_ONE, BIG_INT_ZERO, RESERVE_USD_DECIMALS } from 'constants/index'
 
 // todo: deprecated, use formatDisplayNumber instead
 export const formatDollarAmount = (num: number | undefined, digits = 2) => {
@@ -83,16 +83,29 @@ const log10 = (n: Fraction): number => {
 
 const parseNum = (value: FormatParam['value']): Fraction => {
   try {
+    if (
+      typeof value === 'string' ||
+      typeof value === 'number' ||
+      value instanceof CurrencyAmount ||
+      value instanceof Percent ||
+      value instanceof Price
+    ) {
+      const valueStr = (() => {
+        if (typeof value === 'string') return value
+        if (typeof value === 'number') return toFixed(value)
+        if (value instanceof CurrencyAmount) return value.toFixed(value.currency.decimals)
+        if (value instanceof Price) return '0' //todo: not implemented yet
+        if (value instanceof Percent) return '0' //todo: not implemented yet
+        return '0'
+      })()
+      return new Fraction(valueStr.replace('.', ''), '1' + '0'.repeat(valueStr.split('.')[1]?.length || 0))
+    }
     if (value instanceof Fraction) return value
     if (value instanceof JSBI) return new Fraction(value)
     if (typeof value === 'bigint') return new Fraction(value.toString(10))
-    if (typeof value === 'string' || typeof value === 'number') {
-      const valueStr = typeof value === 'string' ? value : toFixed(value)
-      return new Fraction(valueStr.replace('.', ''), '1' + '0'.repeat(valueStr.split('.')[1]?.length || 0))
-    }
     return new Fraction(0, 1)
-  } catch {
-    console.error('parseNum error', { value, 'typeof value': typeof value })
+  } catch (error) {
+    console.error('parseNum error', { value, 'typeof value': typeof value, error })
     return new Fraction(0, 1)
   }
 }
@@ -119,10 +132,10 @@ export const formatDisplayNumber = ({
   const numberOfLeadingZeros = -Math.floor(log10(parsedFraction) + 1)
 
   if (
-    parsedFraction.greaterThan(-1) &&
-    parsedFraction.lessThan(1) &&
-    !parsedFraction.equalTo(0) &&
-    numberOfLeadingZeros > 2 //todo namgold: add handle case less than 1 but not enough zeros
+    parsedFraction.greaterThan(BIG_INT_MINUS_ONE) &&
+    parsedFraction.lessThan(BIG_INT_ONE) &&
+    !parsedFraction.equalTo(BIG_INT_ZERO) &&
+    numberOfLeadingZeros > 2
   ) {
     const temp = Number(parsedStr.split('.')[1]).toString()
     const isNegative = parsedFraction.lessThan(0)

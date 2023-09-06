@@ -416,10 +416,6 @@ const EarningPieChart: React.FC<Props> = ({
               <LegendsColumn key={columnIndex}>
                 {columnData.map((entry, i) => {
                   const index = (legendData?.[columnIndex - 1]?.length || 0) + i
-                  if (entry.value === '3.3858097957983313e-7') {
-                    console.log('namgold entry2', { entry })
-                  }
-
                   return (
                     <Legend
                       active={selectedIndex === index}

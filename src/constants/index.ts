@@ -126,6 +126,8 @@ export const DEFAULT_DEADLINE_FROM_NOW = 60 * 20
 // denominated in seconds
 export const TIME_TO_REFRESH_SWAP_RATE = 10
 
+export const BIG_INT_ONE = JSBI.BigInt(1)
+export const BIG_INT_MINUS_ONE = JSBI.BigInt(-1)
 export const BIG_INT_ZERO = JSBI.BigInt(0)
 
 // one basis point

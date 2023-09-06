@@ -16,6 +16,7 @@ import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
 import { useNativeBalance } from 'state/wallet/hooks'
+import { formatDisplayNumber } from 'utils/numbers'
 
 const NetworkSwitchContainer = styled.div`
   display: flex;
@@ -74,13 +75,8 @@ function SelectNetwork(): JSX.Element | null {
   const userEthBalance = useNativeBalance()
   const labelContent = useMemo(() => {
     if (!userEthBalance) return networkInfo.name
-    const balanceFixedStr = userEthBalance.lessThan(1000 * 10 ** NativeCurrencies[chainId].decimals) // less than 1000
-      ? userEthBalance.lessThan(10 ** NativeCurrencies[chainId].decimals) // less than 1
-        ? parseFloat(userEthBalance.toSignificant(6)).toFixed(6)
-        : parseFloat(userEthBalance.toExact()).toFixed(4)
-      : parseFloat(userEthBalance.toExact()).toFixed(2)
-    const balanceFixed = Number(balanceFixedStr)
-    return `${balanceFixed} ${NativeCurrencies[chainId].symbol}`
+    const balanceFixedStr = formatDisplayNumber({ value: userEthBalance, significantDigits: 6 })
+    return `${balanceFixedStr} ${NativeCurrencies[chainId].symbol}`
   }, [userEthBalance, chainId, networkInfo])
   const walletSupportsChain = useWalletSupportedChains()
   const disableSelectNetwork = walletSupportsChain.length <= 1
