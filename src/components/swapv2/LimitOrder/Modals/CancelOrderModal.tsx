@@ -1,36 +1,21 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useMemo, useState } from 'react'
+import { ReactNode, useMemo, useState } from 'react'
 import { Check } from 'react-feather'
 import { Text } from 'rebass'
-import styled from 'styled-components'
 
-import { ReactComponent as GasLessIcon } from 'assets/svg/gas_less_icon.svg'
-import { ButtonLight } from 'components/Button'
-import Column from 'components/Column'
-import { GasStation } from 'components/Icons'
 import Logo from 'components/Logo'
 import Modal from 'components/Modal'
+import CancelButtons from 'components/swapv2/LimitOrder/Modals/CancelButtons'
 import CancelCountDown from 'components/swapv2/LimitOrder/Modals/CancelCountDown'
 import useFetchActiveAllOrders from 'components/swapv2/LimitOrder/useFetchActiveAllOrders'
 import { useCurrencyV2 } from 'hooks/Tokens'
-import useTheme from 'hooks/useTheme'
-import { ExternalLink } from 'theme'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 
 import { BaseTradeInfo, useBaseTradeInfoLimitOrder } from '../../../../hooks/useBaseTradeInfo'
 import { calcPercentFilledOrder, formatAmountOrder } from '../helpers'
 import { CancelOrderFunction, CancelOrderType, LimitOrder, LimitOrderStatus } from '../type'
 import { Container, Header, Label, ListInfo, MarketInfo, Note, Rate, Value } from './styled'
-
-const ButtonWrapper = styled.div`
-  display: flex;
-  align-items: flex-start;
-  gap: 20px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    flex-direction: column;
-  `}
-`
 
 export enum CancelStatus {
   WAITING,
@@ -57,7 +42,6 @@ function ContentCancel({
   flowState: TransactionFlowState
   isOpen: boolean
 }) {
-  const theme = useTheme()
   const {
     takerAssetLogoURL,
     makerAssetSymbol,
@@ -70,8 +54,6 @@ function ContentCancel({
     makerAssetDecimals,
     takerAssetDecimals,
   } = order ?? ({} as LimitOrder)
-  const { attemptingTxn, errorMessage } = flowState
-  const pendingText = flowState.pendingText || t`Canceling order`
 
   const [expiredTime, setExpiredTime] = useState(0)
   const [cancelStatus, setCancelStatus] = useState<CancelStatus>(CancelStatus.WAITING)
@@ -88,9 +70,9 @@ function ContentCancel({
   }
 
   const onClickGaslessCancel = () => !isCountDown && requestCancel(CancelOrderType.GAS_LESS_CANCEL)
+  const onClickHardCancel = () => requestCancel(CancelOrderType.HARD_CANCEL)
 
   const isCountDown = cancelStatus === CancelStatus.COUNTDOWN
-  const isTimeout = cancelStatus === CancelStatus.TIMEOUT
   const isCancelDone = cancelStatus === CancelStatus.CANCEL_DONE
 
   const renderContentCancelAll = () => {
@@ -147,76 +129,11 @@ function ContentCancel({
     takerAssetDecimals,
   ])
 
-  const renderButtons = () => {
-    return (
-      <ButtonWrapper style={{ justifyContent: isTimeout ? 'flex-end' : undefined }}>
-        {isCancelDone ? (
-          <ButtonLight onClick={onDismiss} height={'40px'} width={'100%'}>
-            <Check size={18} /> &nbsp;<Trans>Okay</Trans>
-          </ButtonLight>
-        ) : isTimeout ? (
-          <ButtonLight onClick={onClickGaslessCancel} height={'40px'} width={'100px'}>
-            <Trans>Try Again</Trans>
-          </ButtonLight>
-        ) : (
-          <>
-            <Column width={'100%'} gap="8px">
-              <ButtonLight
-                disabled={isCountDown ? false : !supportCancelGasless || attemptingTxn}
-                onClick={onClickGaslessCancel}
-                height={'40px'}
-                width={'100%'}
-              >
-                {isCountDown ? <Check size={18} /> : <GasLessIcon />}
-                &nbsp;
-                {isCountDown ? (
-                  <Trans>Okay</Trans>
-                ) : isCancelAll ? (
-                  <Trans>
-                    Cancel (gasless){' '}
-                    {ordersSoftCancel.length === orders.length || !supportCancelGasless
-                      ? 'all'
-                      : `${ordersSoftCancel.length}/${orders.length}`}{' '}
-                    orders{' '}
-                  </Trans>
-                ) : (
-                  <Trans>Cancel (gasless)</Trans>
-                )}
-              </ButtonLight>
-              <Text color={theme.subText} fontSize={'10px'} lineHeight={'14px'}>
-                <Trans>
-                  Cancel without paying gas.
-                  <br /> Cancellation may not be instant. <ExternalLink href="/todo">Learn more ↗︎</ExternalLink>
-                </Trans>
-              </Text>
-            </Column>
-            <Column width={'100%'} gap="8px">
-              <ButtonLight
-                disabled={attemptingTxn}
-                onClick={() => requestCancel(CancelOrderType.HARD_CANCEL)}
-                style={{ color: theme.red, backgroundColor: rgba(theme.red, 0.2), height: '40px', width: '100%' }}
-              >
-                <GasStation size={20} />
-                &nbsp;
-                {isCountDown ? (
-                  <Trans>Hard Cancel Instead</Trans>
-                ) : isCancelAll ? (
-                  <Trans>Hard Cancel all orders</Trans>
-                ) : (
-                  <Trans>Hard Cancel</Trans>
-                )}
-              </ButtonLight>
-              <Text color={theme.subText} fontSize={'10px'} lineHeight={'14px'}>
-                <Trans>
-                  Cancel immediately by paying gas fees. <ExternalLink href="/todo">Learn more ↗︎</ExternalLink>
-                </Trans>
-              </Text>
-            </Column>
-          </>
-        )}
-      </ButtonWrapper>
-    )
-  }
+  const totalOrder =
+    ordersSoftCancel.length === orders.length || !supportCancelGasless
+      ? t`all`
+      : `${ordersSoftCancel.length}/${orders.length}`
+
   return (
     <Modal
       maxWidth={isCancelAll && !isCancelDone ? 600 : 480}
@@ -248,12 +165,19 @@ function ContentCancel({
           expiredTime={expiredTime}
           cancelStatus={cancelStatus}
           setCancelStatus={setCancelStatus}
-          attemptingTxn={attemptingTxn}
-          errorMessage={errorMessage}
-          pendingText={pendingText}
+          flowState={flowState}
         />
         {/** // todo */}
-        {renderButtons()}
+        <CancelButtons
+          supportCancelGasless={supportCancelGasless}
+          loading={flowState.attemptingTxn}
+          cancelStatus={cancelStatus}
+          onOkay={onDismiss}
+          onClickGaslessCancel={onClickGaslessCancel}
+          onClickHardCancel={onClickHardCancel}
+          isCancelAll={isCancelAll}
+          totalOrder={isCancelAll ? <Trans>Cancel (gasless) {totalOrder} orders</Trans> : null}
+        />
       </Container>
     </Modal>
   )

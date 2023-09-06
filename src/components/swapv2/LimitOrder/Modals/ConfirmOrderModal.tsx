@@ -34,6 +34,7 @@ export default memo(function ConfirmOrderModal({
   note,
   warningMessage,
   percentDiff,
+  renderButtons,
 }: {
   onSubmit: () => void
   onDismiss: () => void
@@ -48,6 +49,7 @@ export default memo(function ConfirmOrderModal({
   note?: string
   warningMessage: ReactNode[]
   percentDiff: number
+  renderButtons?: () => ReactNode
 }) {
   const { account } = useActiveWeb3React()
   const [confirmed, setConfirmed] = useState(false)
@@ -110,8 +112,7 @@ export default memo(function ConfirmOrderModal({
       return null
     }
 
-    const shouldDisable = confirmed
-    if (shouldDisable) {
+    if (confirmed) {
       return (
         <ButtonPrimary disabled>
           <Trans>Confirm Price</Trans>
@@ -177,14 +178,18 @@ export default memo(function ConfirmOrderModal({
                 </Column>
               )}
 
-              <Flex
-                sx={{
-                  gap: '12px',
-                }}
-              >
-                {renderConfirmPriceButton()}
-                {renderPlaceOrderButton()}
-              </Flex>
+              {renderButtons ? (
+                renderButtons?.()
+              ) : (
+                <Flex
+                  sx={{
+                    gap: '12px',
+                  }}
+                >
+                  {renderConfirmPriceButton()}
+                  {renderPlaceOrderButton()}
+                </Flex>
+              )}
             </Container>
           )}
         </div>

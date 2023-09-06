@@ -15,6 +15,7 @@ import useInterval from 'hooks/useInterval'
 import useTheme from 'hooks/useTheme'
 import { useNotify } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
+import { TransactionFlowState } from 'types/TransactionFlowState'
 import { friendlyError } from 'utils/errorMessage'
 import { formatRemainTime } from 'utils/time'
 
@@ -51,17 +52,16 @@ export default function CancelCountDown({
   expiredTime,
   cancelStatus,
   setCancelStatus,
-  attemptingTxn,
-  errorMessage,
-  pendingText,
+  flowState,
 }: {
   expiredTime: number
   cancelStatus: CancelStatus
   setCancelStatus: (v: CancelStatus) => void
-  attemptingTxn: boolean
-  errorMessage: string | undefined
-  pendingText: string
+  flowState: TransactionFlowState
 }) {
+  const { errorMessage, attemptingTxn } = flowState
+  const pendingText = flowState.pendingText || t`Canceling order`
+
   const theme = useTheme()
   const notify = useNotify()
 

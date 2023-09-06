@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { ethers } from 'ethers'
+import { useCallback, useState } from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
@@ -26,6 +27,11 @@ const Wrapper = styled.div`
 const StyledLabel = styled(Label)`
   margin-bottom: 0;
 `
+
+enum Steps {
+  EDIT_ORDER,
+  REVIEW_ORDER,
+}
 export default function EditOrderModal({
   onCancelOrder,
   onDismiss,
@@ -46,6 +52,7 @@ export default function EditOrderModal({
   refreshListOrder: () => void
 }) {
   const { chainId, account } = useActiveWeb3React()
+  const [step, setStep] = useState(Steps.EDIT_ORDER)
 
   const { status, makingAmount, takingAmount, makerAsset, takerAsset, filledTakingAmount, expiredAt } = order
   const currencyIn = useCurrencyV2(makerAsset) ?? undefined
@@ -65,46 +72,54 @@ export default function EditOrderModal({
     { skip: !currencyIn || !account },
   )
 
+  const onNext = useCallback(() => {
+    setStep(Steps.REVIEW_ORDER)
+  }, [])
+
+  const content = (
+    <Wrapper style={{ display: step === Steps.EDIT_ORDER ? 'flex' : 'none' }}>
+      <Flex justifyContent={'space-between'} alignItems="center">
+        <Text>
+          <Trans>Edit Order</Trans>
+        </Text>
+        <X style={{ cursor: 'pointer' }} onClick={onDismiss} />
+      </Flex>
+      <div>
+        <StyledLabel>
+          <Trans>
+            Editing this order will automatically cancel your existing order and a new order will be created.
+          </Trans>
+        </StyledLabel>
+        {status === LimitOrderStatus.PARTIALLY_FILLED && (
+          <StyledLabel style={{ marginTop: '0.75rem' }}>
+            <Trans>Your currently existing order is {filled}% filled.</Trans>
+          </StyledLabel>
+        )}
+      </div>
+      <LimitOrderForm
+        zIndexToolTip={Z_INDEXS.MODAL}
+        flowState={flowState}
+        setFlowState={setFlowState}
+        currencyIn={currencyIn}
+        currencyOut={currencyOut}
+        isEdit
+        defaultInputAmount={formatIn}
+        defaultOutputAmount={formatOut}
+        defaultActiveMakingAmount={defaultActiveMakingAmount}
+        defaultRate={defaultRate}
+        onDismissModalEdit={onNext} // todo rename
+        onCancelOrder={onCancelOrder}
+        refreshListOrder={refreshListOrder}
+        note={note}
+        orderInfo={order}
+        defaultExpire={defaultExpire}
+      />
+    </Wrapper>
+  )
+
   return (
     <Modal isOpen={isOpen && !!currencyIn && !!currencyOut && !!defaultActiveMakingAmount} onDismiss={onDismiss}>
-      <Wrapper>
-        <Flex justifyContent={'space-between'} alignItems="center">
-          <Text>
-            <Trans>Edit Order</Trans>
-          </Text>
-          <X style={{ cursor: 'pointer' }} onClick={onDismiss} />
-        </Flex>
-        <div>
-          <StyledLabel>
-            <Trans>
-              Editing this order will automatically cancel your existing order and a new order will be created.
-            </Trans>
-          </StyledLabel>
-          {status === LimitOrderStatus.PARTIALLY_FILLED && (
-            <StyledLabel style={{ marginTop: '0.75rem' }}>
-              <Trans>Your currently existing order is {filled}% filled.</Trans>
-            </StyledLabel>
-          )}
-        </div>
-        <LimitOrderForm
-          zIndexToolTip={Z_INDEXS.MODAL}
-          flowState={flowState}
-          setFlowState={setFlowState}
-          currencyIn={currencyIn}
-          currencyOut={currencyOut}
-          isEdit
-          defaultInputAmount={formatIn}
-          defaultOutputAmount={formatOut}
-          defaultActiveMakingAmount={defaultActiveMakingAmount}
-          defaultRate={defaultRate}
-          onDismissModalEdit={onDismiss}
-          onCancelOrder={onCancelOrder}
-          refreshListOrder={refreshListOrder}
-          note={note}
-          orderInfo={order}
-          defaultExpire={defaultExpire}
-        />
-      </Wrapper>
+      {content}
     </Modal>
   )
 }

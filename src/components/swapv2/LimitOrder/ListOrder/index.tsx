@@ -395,6 +395,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   const [cancelOrderRequest] = useCancelOrdersMutation()
   const requestGasLessCancelOrder = async (orders: LimitOrder[]) => {
     if (!library || !account) return Promise.reject('Wrong input')
+    return { orders: [{ operatorSignatureExpiredAt: (Date.now() / 1000 + 30) | 0 }] }
     setFlowState(state => ({
       ...state,
       pendingText: t`Canceling your orders`,
@@ -436,8 +437,8 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   }
 
   const onUpdateOrder = async (orders: LimitOrder[], cancelType: CancelOrderType) => {
-    if (cancelType === CancelOrderType.HARD_CANCEL) await requestHardCancelOrder(orders?.[0])
-    else await requestGasLessCancelOrder(orders)
+    if (cancelType === CancelOrderType.HARD_CANCEL) return await requestHardCancelOrder(orders?.[0])
+    else return await requestGasLessCancelOrder(orders)
   }
 
   const disabledBtnCancelAll = totalOrderNotCancelling === 0

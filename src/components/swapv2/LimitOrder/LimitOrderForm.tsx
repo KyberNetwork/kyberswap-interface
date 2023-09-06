@@ -26,6 +26,8 @@ import Tooltip, { MouseoverTooltip } from 'components/Tooltip'
 import ActionButtonLimitOrder from 'components/swapv2/LimitOrder/ActionButtonLimitOrder'
 import DeltaRate, { useGetDeltaRateLimitOrder } from 'components/swapv2/LimitOrder/DeltaRate'
 import { SummaryNotifyOrderPlaced } from 'components/swapv2/LimitOrder/ListOrder/SummaryNotify'
+import CancelCountDown from 'components/swapv2/LimitOrder/Modals/CancelCountDown'
+import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
 import ConfirmOrderModal from 'components/swapv2/LimitOrder/Modals/ConfirmOrderModal'
 import TradePrice from 'components/swapv2/LimitOrder/TradePrice'
 import useValidateInputError from 'components/swapv2/LimitOrder/useValidateInputError'
@@ -455,12 +457,14 @@ function LimitOrderForm({
   }
 
   const [cancelType, setCancelType] = useState<CancelOrderType>()
+  const [cancelStatus, setCancelStatus] = useState<CancelStatus>(CancelStatus.WAITING)
+  const [expiredTime, setExpiredTime] = useState(0)
 
-  const onSubmitEditOrder = async () => {
+  const onSubmitEditOrder = async (cancelType?: CancelOrderType) => {
     try {
-      if (!onCancelOrder || !cancelType) return
-      await onCancelOrder(orderInfo ? [orderInfo] : [], cancelType)
-      if (orderInfo) {
+      if (!onCancelOrder || cancelType === undefined) return
+      const data = await onCancelOrder(orderInfo ? [orderInfo] : [], cancelType)
+      if (false && orderInfo) {
         const param = {
           orderId: orderInfo?.id,
           account,
@@ -474,6 +478,9 @@ function LimitOrderForm({
         const { signature, salt } = await signOrder(param)
         setCurrentOrder({ ...param, salt, signature })
       }
+      if (cancelType === CancelOrderType.GAS_LESS_CANCEL) setCancelStatus(CancelStatus.COUNTDOWN)
+      const expired = data?.orders?.[0]?.operatorSignatureExpiredAt
+      expired && setExpiredTime(expired)
       onDismissModalEdit?.()
     } catch (error) {
       orderInfo && removeCurrentOrder(orderInfo.id)
@@ -590,6 +597,8 @@ function LimitOrderForm({
     })
     if (order_id) trackingPlaceOrder(MIXPANEL_TYPE.LO_PLACE_ORDER_SUCCESS, { order_id })
   }
+
+  const onSubmitOrder = isEdit ? onSubmitEditOrder : onSubmitCreateOrderWithTracking
 
   const styleTooltip = { maxWidth: '250px', zIndex: zIndexToolTip }
   const estimateUSD = useMemo(() => {
@@ -764,10 +773,10 @@ function LimitOrderForm({
             padding="14px 18px"
             color={theme.text}
             alignItems="center"
-            style={{ background: rgba(theme.subText, 0.2) }}
             sx={{
               borderRadius: '16px',
               gap: '8px',
+              background: rgba(theme.subText, 0.2),
             }}
           >
             <Info
@@ -807,14 +816,31 @@ function LimitOrderForm({
             showApproveFlow,
             showWarning: warningMessage.length > 0,
             isEdit,
+            flowState,
+            cancelStatus,
+            onCancelOrder: onSubmitEditOrder,
           }}
         />
       </Flex>
 
       <ConfirmOrderModal
+        renderButtons={
+          isEdit
+            ? () => (
+                <>
+                  <CancelCountDown
+                    expiredTime={expiredTime}
+                    cancelStatus={cancelStatus}
+                    setCancelStatus={setCancelStatus}
+                    flowState={flowState}
+                  />
+                </>
+              )
+            : undefined
+        }
         flowState={flowState}
         onDismiss={hidePreview}
-        onSubmit={isEdit ? onSubmitEditOrder : onSubmitCreateOrderWithTracking}
+        onSubmit={onSubmitOrder}
         currencyIn={currencyIn}
         currencyOut={currencyOut}
         inputAmount={inputAmount}
