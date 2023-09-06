@@ -130,7 +130,7 @@ export const formatDisplayNumber = ({
   }
 
   const formatter = Intl.NumberFormat('en-US', {
-    notation: parsedFraction.greaterThan(10_000_000) ? 'compact' : 'standard',
+    notation: parsedFraction.greaterThan(10_000) ? 'compact' : 'standard',
     style,
     currency: 'USD',
     minimumSignificantDigits: 1,
