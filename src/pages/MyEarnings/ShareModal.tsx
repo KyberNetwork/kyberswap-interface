@@ -28,6 +28,7 @@ import useTheme from 'hooks/useTheme'
 import { ButtonText, MEDIA_WIDTHS } from 'theme'
 import { downloadImage } from 'utils'
 
+// todo: deprecated, use formatDisplayNumber instead
 const formatValue = (num: number, isSharePc: boolean) => {
   const notation = (num > 1_000_000 && !isSharePc) || (num > 100_000_000 && isSharePc) ? 'compact' : 'standard'
   const formatter = new Intl.NumberFormat('en-US', {

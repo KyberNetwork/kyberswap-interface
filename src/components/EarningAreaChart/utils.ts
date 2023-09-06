@@ -1,3 +1,4 @@
+// todo: deprecated, use formatDisplayNumber instead
 export const formatUSDValue = (v: number, compact = true): string => {
   if (v === 0) {
     return '$0'

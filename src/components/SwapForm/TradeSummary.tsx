@@ -64,6 +64,7 @@ const Wrapper = styled.div.attrs<WrapperProps>(props => ({
   }
 `
 
+// todo: deprecated, use formatDisplayNumber instead
 const formatPercent = (v: number) => {
   const formatter = Intl.NumberFormat('en-US', {
     minimumFractionDigits: 0,

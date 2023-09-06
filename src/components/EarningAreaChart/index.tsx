@@ -56,6 +56,7 @@ const subscriptMap: { [key: string]: string } = {
   '9': '₉',
 }
 
+// todo: deprecated, use formatDisplayNumber instead
 const formatter = (value: string) => {
   const num = parseFloat(value)
   const numberOfZero = -Math.floor(Math.log10(num) + 1)

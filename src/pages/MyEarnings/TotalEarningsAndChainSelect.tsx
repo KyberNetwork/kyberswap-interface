@@ -25,6 +25,7 @@ import ShareTotalEarningsButton from 'pages/MyEarnings/ShareTotalEarningsButton'
 import { useAppSelector } from 'state/hooks'
 
 // TODO: move to common
+// todo: deprecated, use formatDisplayNumber instead
 const formatPercent = (value: number) => {
   const formatter = Intl.NumberFormat('en-US', {
     notation: 'standard',

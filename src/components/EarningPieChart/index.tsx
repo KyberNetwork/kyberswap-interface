@@ -12,6 +12,7 @@ import { EMPTY_ARRAY } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { Loading } from 'pages/ProAmmPool/ContentLoader'
 
+// todo: deprecated, use formatDisplayNumber instead
 const formatUSDValue = (v: string) => {
   const num = Number(v)
 
@@ -34,6 +35,7 @@ const formatUSDValue = (v: string) => {
   return formatter.format(num)
 }
 
+// todo: deprecated, use formatDisplayNumber instead
 const formatPercent = (num: number) => {
   if (num < 0.01) {
     return '< 0.01%'

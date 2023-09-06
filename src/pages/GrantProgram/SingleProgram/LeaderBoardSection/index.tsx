@@ -25,6 +25,7 @@ const EmptyRankings: any[] = []
 
 export const ITEMS_PER_PAGE = 5
 
+// todo: deprecated, use formatDisplayNumber instead
 const formatTradingVolume = (num: number) => {
   const notation = num > 100_000_000 ? 'compact' : 'standard'
   const formatter = new Intl.NumberFormat('en-US', {

@@ -9,6 +9,7 @@ import useTheme from 'hooks/useTheme'
 import { EarningStatsTick } from 'types/myEarnings'
 import { formattedNum } from 'utils'
 
+// todo: deprecated, use formatDisplayNumber instead
 const formatUSDValue = (v: number) => {
   if (v === 0) {
     return '$0'

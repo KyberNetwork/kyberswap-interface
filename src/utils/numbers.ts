@@ -3,7 +3,7 @@ import JSBI from 'jsbi'
 
 import { RESERVE_USD_DECIMALS } from 'constants/index'
 
-// todo: refactor
+// todo: deprecated, use formatDisplayNumber instead
 // using a currency library here in case we want to add more in future
 export const formatDollarAmount = (num: number | undefined, digits = 2) => {
   if (num === 0) return '$0.00'
@@ -23,7 +23,7 @@ export const formatDollarAmount = (num: number | undefined, digits = 2) => {
     .toLowerCase()
 }
 
-// todo: refactor
+// todo: deprecated, use formatDisplayNumber instead
 // do the same with above, without the $ sign
 export const formatNotDollarAmount = (num: number | undefined, digits = 2) => {
   if (num === 0) return '0.00'
@@ -102,6 +102,7 @@ type FormatParam = {
   fallback?: string
 }
 
+// todo: deprecated others format functions and all .toSignificant() to only use this function
 export const formatDisplayNumber = ({
   value,
   style = 'decimal',
@@ -113,10 +114,15 @@ export const formatDisplayNumber = ({
 
   const numberOfLeadingZeros = -Math.floor(log10(parsedFraction) + 1)
 
-  if (parsedFraction.greaterThan(0) && parsedFraction.lessThan(1) && numberOfLeadingZeros > 2) {
+  if (
+    parsedFraction.greaterThan(-1) &&
+    parsedFraction.lessThan(1) &&
+    !parsedFraction.equalTo(0) &&
+    numberOfLeadingZeros > 2
+  ) {
     const temp = Number(parsedFraction.toSignificant(30).split('.')[1]).toString()
-
-    return `${style === 'currency' ? '$' : ''}0.0${numberOfLeadingZeros
+    const isNegative = parsedFraction.lessThan(0)
+    return `${isNegative ? '-' : ''}${style === 'currency' ? '$' : ''}0.0${numberOfLeadingZeros
       .toString()
       .split('')
       .map(item => subscriptMap[item])
@@ -126,7 +132,7 @@ export const formatDisplayNumber = ({
   const formatter = Intl.NumberFormat('en-US', {
     notation: parsedFraction.greaterThan(10_000_000) ? 'compact' : 'standard',
     style,
-    currency: style === 'currency' ? 'USD' : undefined,
+    currency: 'USD',
     minimumSignificantDigits: 1,
     maximumSignificantDigits: significantDigits,
   })
