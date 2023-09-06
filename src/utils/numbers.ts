@@ -106,7 +106,8 @@ type FormatParam = {
 export const formatDisplayNumber = ({
   value,
   style = 'decimal',
-  significantDigits = 6,
+  significantDigits,
+  fractionDigits,
   fallback = '--',
 }: FormatParam): string => {
   if (value === undefined || value === null) return fallback
@@ -126,15 +127,17 @@ export const formatDisplayNumber = ({
       .toString()
       .split('')
       .map(item => subscriptMap[item])
-      .join('')}${temp.substring(0, significantDigits)}`
+      .join('')}${temp.substring(0, significantDigits || fractionDigits || 6)}`
   }
 
   const formatter = Intl.NumberFormat('en-US', {
     notation: parsedFraction.greaterThan(10_000) ? 'compact' : 'standard',
     style,
     currency: 'USD',
-    minimumSignificantDigits: 1,
-    maximumSignificantDigits: significantDigits,
+    minimumFractionDigits: fractionDigits ? 0 : undefined,
+    maximumFractionDigits: fractionDigits, // usually for percent style
+    minimumSignificantDigits: significantDigits ? 1 : undefined,
+    maximumSignificantDigits: significantDigits, // usually for decimal & currency styles
   })
 
   return formatter.format(Number(parsedFraction.toSignificant(30)))

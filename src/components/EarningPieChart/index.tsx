@@ -11,6 +11,7 @@ import Logo, { NetworkLogo } from 'components/Logo'
 import { EMPTY_ARRAY } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { Loading } from 'pages/ProAmmPool/ContentLoader'
+import { formatDisplayNumber } from 'utils/numbers'
 
 // todo: deprecated, use formatDisplayNumber instead
 const formatUSDValue = (v: string) => {
@@ -181,7 +182,8 @@ const Legend: React.FC<LegendProps> = ({
             whiteSpace: 'nowrap',
           }}
         >
-          {formatUSDValue(value)} ({formatPercent(percent)})
+          {formatDisplayNumber({ value, style: 'currency', significantDigits: 4 })} (
+          {formatDisplayNumber({ value: percent / 100, style: 'percent', fractionDigits: 2 })})
         </Text>
       </Flex>
     </Flex>
