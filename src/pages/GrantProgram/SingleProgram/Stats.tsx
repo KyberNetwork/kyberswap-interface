@@ -78,20 +78,6 @@ type Props = {
   trades?: number
 }
 
-// todo: deprecated, use formatDisplayNumber instead
-const formatTradingVolume = (v: string) => {
-  const formatter = Intl.NumberFormat('en-US', {
-    notation: 'compact',
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 1,
-  })
-
-  return formatter.format(Number(v))
-}
-
-// todo: deprecated, use formatDisplayNumber instead
 const formatNumber = (v: number) => {
   const formatter = Intl.NumberFormat('en-US', {
     notation: 'compact',

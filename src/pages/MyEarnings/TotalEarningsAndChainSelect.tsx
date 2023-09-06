@@ -11,7 +11,6 @@ import earningApi, {
 import styled, { keyframes } from 'styled-components'
 
 import { ReactComponent as RefreshIcon } from 'assets/svg/refresh.svg'
-import { formatUSDValue } from 'components/EarningAreaChart/utils'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { EMPTY_FUNCTION } from 'constants/index'
 import {
@@ -23,19 +22,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import ShareTotalEarningsButton from 'pages/MyEarnings/ShareTotalEarningsButton'
 import { useAppSelector } from 'state/hooks'
-
-// TODO: move to common
-// todo: deprecated, use formatDisplayNumber instead
-const formatPercent = (value: number) => {
-  const formatter = Intl.NumberFormat('en-US', {
-    notation: 'standard',
-    style: 'percent',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  })
-
-  return formatter.format(value)
-}
+import { formatDisplayNumber } from 'utils/numbers'
 
 const Value = styled.span`
   max-width: 100%;
@@ -149,11 +136,15 @@ const TotalEarningsAndChainSelect: React.FC<Props> = ({ totalEarningToday, total
     return <Value>--</Value>
   }
 
-  const totalValue = formatUSDValue(totalEarningToday)
+  const totalValue = formatDisplayNumber({ value: totalEarningToday, style: 'currency' })
 
   const diffPercent =
     totalEarningYesterday && !Number.isNaN(totalEarningYesterday)
-      ? formatPercent(totalEarningToday / totalEarningYesterday - 1)
+      ? formatDisplayNumber({
+          value: totalEarningToday / totalEarningYesterday - 1,
+          style: 'percent',
+          fractionDigits: 2,
+        })
       : ''
 
   return (

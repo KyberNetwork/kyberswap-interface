@@ -128,26 +128,32 @@ export const formatDisplayNumber = ({
 }: FormatParam): string => {
   if (value === undefined || value === null) return fallback
   const parsedFraction = parseNum(value)
+  const referenceFraction = style === 'percent' ? parsedFraction.multiply(100) : parsedFraction
   const parsedStr = parsedFraction.toSignificant(30)
   const numberOfLeadingZeros = -Math.floor(log10(parsedFraction) + 1)
 
   if (
-    parsedFraction.greaterThan(BIG_INT_MINUS_ONE) &&
-    parsedFraction.lessThan(BIG_INT_ONE) &&
-    !parsedFraction.equalTo(BIG_INT_ZERO) &&
-    numberOfLeadingZeros > 2
+    referenceFraction.greaterThan(BIG_INT_MINUS_ONE) &&
+    referenceFraction.lessThan(BIG_INT_ONE) &&
+    !referenceFraction.equalTo(BIG_INT_ZERO)
   ) {
-    const temp = Number(parsedStr.split('.')[1]).toString()
+    const decimal = Number(parsedStr.split('.')[1]).toString()
     const isNegative = parsedFraction.lessThan(0)
-    return `${isNegative ? '-' : ''}${style === 'currency' ? '$' : ''}0.0${numberOfLeadingZeros
-      .toString()
-      .split('')
-      .map(item => subscriptMap[item])
-      .join('')}${temp.substring(0, significantDigits || fractionDigits || 6)}`
+    if (numberOfLeadingZeros > 2) {
+      return `${isNegative ? '-' : ''}${style === 'currency' ? '$' : ''}0.0${numberOfLeadingZeros
+        .toString()
+        .split('')
+        .map(item => subscriptMap[item])
+        .join('')}${decimal.substring(0, significantDigits || fractionDigits || 6)}${style === 'percent' ? '%' : ''}`
+    }
+    return `${isNegative ? '-' : ''}${style === 'currency' ? '$' : ''}0.${decimal.substring(
+      0,
+      significantDigits || fractionDigits || 6,
+    )}${style === 'percent' ? '%' : ''}`
   }
 
   const formatter = Intl.NumberFormat('en-US', {
-    notation: parsedFraction.greaterThan(10 ** (significantDigits || fractionDigits || 4)) ? 'compact' : 'standard',
+    notation: referenceFraction.greaterThan(10 ** (significantDigits || fractionDigits || 4)) ? 'compact' : 'standard',
     style,
     currency: 'USD',
     minimumFractionDigits: fractionDigits ? 0 : undefined,

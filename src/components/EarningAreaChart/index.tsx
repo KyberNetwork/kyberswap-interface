@@ -10,7 +10,6 @@ import { EarningStatsTick } from 'types/myEarnings'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import TooltipContent from './TooltipContent'
-import { formatUSDValue } from './utils'
 
 const labelGapByTimePeriod: Record<TimePeriod, number> = {
   ['7D']: isMobile ? 2 : 1,
@@ -36,7 +35,7 @@ const CustomizedLabel = (props: any) => {
           fill={theme.subText}
           textAnchor="middle"
         >
-          {formatUSDValue(value)}
+          {formatDisplayNumber({ value, style: 'currency', fractionDigits: 3 })}
         </text>
       )}
     </>
