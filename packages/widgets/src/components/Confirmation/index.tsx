@@ -13,8 +13,10 @@ import { ReactComponent as External } from '../../assets/external.svg'
 import { ReactComponent as SuccessSVG } from '../../assets/success.svg'
 import { ReactComponent as ErrorIcon } from '../../assets/error.svg'
 import { ReactComponent as Info } from '../../assets/info.svg'
+import { ReactComponent as DropdownIcon } from '../../assets/dropdown.svg'
 import InfoHelper from '../InfoHelper'
 import { useWETHContract } from '../../hooks/useContract'
+import { friendlyError } from '../../utils/errorMessage'
 
 const Success = styled(SuccessSVG)`
   color: ${({ theme }) => theme.success};
@@ -125,13 +127,47 @@ const SubText = styled.div`
   margin-top: 12px;
 `
 
-const ErrMsg = styled.div`
+const ErrMsg = styled.div<{ show: boolean }>`
+  margin-top: ${({ show }) => (show ? '12px' : '0')};
+  max-height: ${({ show }) => (show ? '200px' : '0')};
+  transition: 0.2s ease-out;
+
   font-size: 12px;
   color: ${({ theme }) => theme.subText};
-  max-height: 200px;
   overflow-wrap: break-word;
   overflow-y: scroll;
-  padding-top: 12px;
+
+  /* width */
+  ::-webkit-scrollbar {
+    display: unset;
+    width: 6px;
+    border-radius: 999px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 999px;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: ${({ theme }) => theme.subText + '66'};
+    border-radius: 999px;
+  }
+`
+
+const ErrorDetail = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  cursor: pointer;
+`
+
+const DownIcon = styled(DropdownIcon)<{ open: boolean }>`
+  transform: rotate(${({ open }) => (!open ? '0' : '-180deg')});
+  transition: all 0.2s ease;
 `
 
 function calculateGasMargin(value: BigNumber): BigNumber {
@@ -188,6 +224,7 @@ function Confirmation({
   const [txHash, setTxHash] = useState('')
   const [txStatus, setTxStatus] = useState<'success' | 'failed' | ''>('')
   const [txError, setTxError] = useState<any>('')
+  const [showErrorDetail, setShowErrorDetail] = useState(false)
 
   useEffect(() => {
     if (txHash) {
@@ -219,7 +256,7 @@ function Confirmation({
     try {
       setAttempTx(true)
       setTxHash('')
-      setTxError(false)
+      setTxError('')
 
       if (isWrap) {
         if (!wethContract) return
@@ -343,35 +380,37 @@ function Confirmation({
       <>
         <Central>
           <StyledError />
-          <WaitingText>Something went wrong</WaitingText>
+          <WaitingText>{friendlyError(txError)}</WaitingText>
         </Central>
 
         <div>
           <Divider />
-          <div
-            style={{
-              display: 'flex',
-              padding: '8px 0',
-              alignItems: 'center',
-              gap: '4px',
-              fontSize: '14px',
-            }}
-          >
-            <Info />
-            Error details
-          </div>
+          <ErrorDetail role="button" onClick={() => setShowErrorDetail(prev => !prev)}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                fontSize: '14px',
+              }}
+            >
+              <Info />
+              Error details
+            </div>
+            <DownIcon open={showErrorDetail} />
+          </ErrorDetail>
           <Divider />
-          <ErrMsg>{txError?.data?.message || txError?.message}</ErrMsg>
+          <ErrMsg show={showErrorDetail}>{txError?.data?.message || txError?.message}</ErrMsg>
         </div>
 
-        <Divider />
+        {showErrorDetail && <Divider />}
         {txHash && (
           <ViewTx>
             View transaction <External />
           </ViewTx>
         )}
         <Button style={{ marginTop: 0 }} onClick={onClose}>
-          Close
+          {txError ? 'Dismiss' : 'Close'}
         </Button>
       </>
     )

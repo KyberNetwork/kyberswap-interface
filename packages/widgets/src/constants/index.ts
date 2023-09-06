@@ -14,6 +14,7 @@ import {
   lineaTokens,
   zkSyncTokens,
   zkEvmTokens,
+  baseTokens,
 } from './tokens'
 
 export enum ZIndex {
@@ -118,6 +119,7 @@ export const NATIVE_TOKEN: {
   59144: eth(59144),
   1101: eth(1101),
   324: eth(324),
+  8453: eth(8453),
 }
 
 export const WRAPPED_NATIVE_TOKEN: {
@@ -243,6 +245,14 @@ export const WRAPPED_NATIVE_TOKEN: {
     chainId: 324,
     logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
   },
+  8453: {
+    name: 'Wrapped Ether',
+    decimals: 18,
+    symbol: 'WETH',
+    address: '0x4200000000000000000000000000000000000006',
+    chainId: 8453,
+    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
+  },
 }
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -265,6 +275,7 @@ export const DEFAULT_TOKENS: {
   59144: lineaTokens,
   1101: zkEvmTokens,
   324: zkSyncTokens,
+  8453: baseTokens,
 }
 
 export const MULTICALL_ADDRESS: { [chainId: number]: string } = {
@@ -283,6 +294,7 @@ export const MULTICALL_ADDRESS: { [chainId: number]: string } = {
   59144: '0xcA11bde05977b3631167028862bE2a173976CA11',
   1101: '0xcA11bde05977b3631167028862bE2a173976CA11',
   324: '0xF9cda624FBC7e059355ce98a31693d299FACd963',
+  8453: '0xcA11bde05977b3631167028862bE2a173976CA11',
 }
 
 export const AGGREGATOR_PATH: { [chainId: number]: string } = {
@@ -301,6 +313,7 @@ export const AGGREGATOR_PATH: { [chainId: number]: string } = {
   59144: 'linea',
   1101: 'polygon-zkevm',
   324: 'zksync',
+  8453: 'base',
 }
 
 export const SCAN_LINK: { [chainId: number]: string } = {
@@ -319,6 +332,7 @@ export const SCAN_LINK: { [chainId: number]: string } = {
   59144: 'https://lineascan.build',
   1101: 'https://zkevm.polygonscan.com',
   324: 'https://explorer.zksync.io',
+  8453: 'https://basescan.org',
 }
 
 export const SUPPORTED_NETWORKS = Object.keys(SCAN_LINK)
