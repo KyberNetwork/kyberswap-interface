@@ -29,7 +29,7 @@ import { Badge, DownIcon, MobileStat, MobileStatWrapper, Row, Wrapper } from 'pa
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { useAppSelector } from 'state/hooks'
 import { isAddress, shortenAddress } from 'utils'
-import { formatDollarAmount } from 'utils/numbers'
+import { formatDisplayNumber } from 'utils/numbers'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
@@ -271,7 +271,10 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
           </Flex>
 
           <MobileStat mobileView={mobileView}>
-            <StatItem label="TVL" value={formatDollarAmount(+poolEarning.totalValueLockedUsd)} />
+            <StatItem
+              label="TVL"
+              value={formatDisplayNumber({ value: poolEarning.totalValueLockedUsd, style: 'currency' })}
+            />
             <StatItem
               label={
                 <MouseoverTooltip
@@ -304,14 +307,32 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
             />
             <StatItem
               label={t`Volume (24h)`}
-              value={formatDollarAmount(Number(poolEarning.volumeUsd) - Number(poolEarning.volumeUsdOneDayAgo))}
+              value={formatDisplayNumber({
+                value: Number(poolEarning.volumeUsd) - Number(poolEarning.volumeUsdOneDayAgo),
+                style: 'currency',
+                significantDigits: 4,
+              })}
             />
             <StatItem
               label={t`Fees (24h)`}
-              value={formatDollarAmount(Number(poolEarning.feesUsd) - Number(poolEarning.feesUsdOneDayAgo))}
+              value={formatDisplayNumber({
+                value: Number(poolEarning.feesUsd) - Number(poolEarning.feesUsdOneDayAgo),
+                style: 'currency',
+                significantDigits: 4,
+              })}
             />
-            <StatItem label={t`My Liquidity`} value={formatDollarAmount(myLiquidityUsd)} />
-            <StatItem label={t`My Earnings`} value={formatDollarAmount(poolEarningToday)} />
+            <StatItem
+              label={t`My Liquidity`}
+              value={formatDisplayNumber({
+                value: myLiquidityUsd,
+                style: 'currency',
+                significantDigits: 4,
+              })}
+            />
+            <StatItem
+              label={t`My Earnings`}
+              value={formatDisplayNumber({ value: poolEarningToday, style: 'currency', significantDigits: 4 })}
+            />
           </MobileStat>
 
           <Flex justifyContent="space-between" alignItems="center">
@@ -409,7 +430,9 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
             {share}
           </Flex>
         </Flex>
-        <Text>{formatDollarAmount(+poolEarning.totalValueLockedUsd)}</Text>
+        <Text>
+          {formatDisplayNumber({ value: poolEarning.totalValueLockedUsd, style: 'currency', significantDigits: 4 })}
+        </Text>
 
         <MouseoverTooltip
           width="fit-content"
@@ -431,10 +454,22 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
           <Info size={14} color={theme.apr} />
         </MouseoverTooltip>
 
-        <Text>{formatDollarAmount(Number(poolEarning.volumeUsd) - Number(poolEarning.volumeUsdOneDayAgo))}</Text>
-        <Text>{formatDollarAmount(Number(poolEarning.feesUsd) - Number(poolEarning.feesUsdOneDayAgo))}</Text>
-        <Text>{formatDollarAmount(myLiquidityUsd)}</Text>
-        <Text>{formatDollarAmount(poolEarningToday)}</Text>
+        <Text>
+          {formatDisplayNumber({
+            value: Number(poolEarning.volumeUsd) - Number(poolEarning.volumeUsdOneDayAgo),
+            style: 'currency',
+            significantDigits: 4,
+          })}
+        </Text>
+        <Text>
+          {formatDisplayNumber({
+            value: Number(poolEarning.feesUsd) - Number(poolEarning.feesUsdOneDayAgo),
+            style: 'currency',
+            significantDigits: 4,
+          })}
+        </Text>
+        <Text>{formatDisplayNumber({ value: myLiquidityUsd, style: 'currency', significantDigits: 4 })}</Text>
+        <Text>{formatDisplayNumber({ value: poolEarningToday, style: 'currency', significantDigits: 4 })}</Text>
 
         <Flex sx={{ gap: '8px' }} justifyContent="flex-end">
           <ButtonIcon

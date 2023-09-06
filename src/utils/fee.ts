@@ -5,7 +5,8 @@ import { BuildRouteData } from 'services/route/types/buildRoute'
 
 import { BIPS_BASE, RESERVE_USD_DECIMALS } from 'constants/index'
 import { ChargeFeeBy, DetailedRouteSummary } from 'types/route'
-import { formattedNum } from 'utils/index'
+
+import { formatDisplayNumber } from './numbers'
 
 export const calculateFeeFromBuildData = (
   routeSummary: DetailedRouteSummary | undefined,
@@ -39,8 +40,8 @@ export const calculateFeeFromBuildData = (
   const feeUsd = buildData.feeUsd
 
   return {
-    feeAmount: formattedNum(fee, false),
-    feeAmountUsd: feeUsd && feeUsd !== '0' ? formattedNum(feeUsd, true, 4) : '',
+    feeAmount: formatDisplayNumber({ value: fee, significantDigits: 10 }),
+    feeAmountUsd: feeUsd && feeUsd !== '0' ? formatDisplayNumber({ value: feeUsd, style: 'currency' }) : '',
     currency: currencyAmountToTakeFee.currency,
   }
 }

@@ -20,6 +20,7 @@ import { ExternalLink, TYPE } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { formattedNum } from 'utils'
 import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
+import { formatDisplayNumber } from 'utils/numbers'
 import { checkPriceImpact, formatPriceImpact } from 'utils/prices'
 
 const IconWrapper = styled.div<{ $flip: boolean }>`
@@ -64,23 +65,16 @@ const Wrapper = styled.div.attrs<WrapperProps>(props => ({
   }
 `
 
-// todo: deprecated, use formatDisplayNumber instead
-const formatPercent = (v: number) => {
-  const formatter = Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-    style: 'percent',
-  })
-
-  return formatter.format(v)
-}
-
 type TooltipTextOfSwapFeeProps = {
   feeBips: string | undefined
   feeAmountText: string
 }
 export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({ feeBips, feeAmountText }) => {
-  const feePercent = formatPercent(Number(feeBips) / Number(BIPS_BASE.toString()))
+  const feePercent = formatDisplayNumber({
+    value: Number(feeBips) / Number(BIPS_BASE.toString()),
+    style: 'percent',
+    fractionDigits: 2,
+  })
   const hereLink = (
     <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/user-guides/instantly-swap-at-superior-rates#swap-fees-supporting-transactions-on-low-trading-volume-chains">
       <b>

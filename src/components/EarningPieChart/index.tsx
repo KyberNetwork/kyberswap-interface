@@ -13,43 +13,6 @@ import useTheme from 'hooks/useTheme'
 import { Loading } from 'pages/ProAmmPool/ContentLoader'
 import { formatDisplayNumber } from 'utils/numbers'
 
-// todo: deprecated, use formatDisplayNumber instead
-const formatUSDValue = (v: string) => {
-  const num = Number(v)
-
-  if (num === 0) {
-    return '$0'
-  }
-
-  if (num < 0.01) {
-    return '< $0.01'
-  }
-
-  const formatter = Intl.NumberFormat('en-US', {
-    notation: 'compact',
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: num < 0.1 ? 2 : 1,
-  })
-
-  return formatter.format(num)
-}
-
-// todo: deprecated, use formatDisplayNumber instead
-const formatPercent = (num: number) => {
-  if (num < 0.01) {
-    return '< 0.01%'
-  }
-
-  const formatter = Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  })
-
-  return formatter.format(num) + '%'
-}
-
 const LegendsWrapper = styled.div`
   display: flex;
   gap: 4px;
@@ -182,7 +145,7 @@ const Legend: React.FC<LegendProps> = ({
             whiteSpace: 'nowrap',
           }}
         >
-          {formatDisplayNumber({ value, style: 'currency', significantDigits: 4 })} (
+          {formatDisplayNumber({ value, style: 'currency', fractionDigits: 2 })} (
           {formatDisplayNumber({ value: percent / 100, style: 'percent', fractionDigits: 2 })})
         </Text>
       </Flex>
@@ -453,6 +416,10 @@ const EarningPieChart: React.FC<Props> = ({
               <LegendsColumn key={columnIndex}>
                 {columnData.map((entry, i) => {
                   const index = (legendData?.[columnIndex - 1]?.length || 0) + i
+                  if (entry.value === '3.3858097957983313e-7') {
+                    console.log('namgold entry2', { entry })
+                  }
+
                   return (
                     <Legend
                       active={selectedIndex === index}
