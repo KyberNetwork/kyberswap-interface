@@ -9,11 +9,9 @@ import { ReactComponent as GasLessIcon } from 'assets/svg/gas_less_icon.svg'
 import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
 import { GasStation } from 'components/Icons'
-import WarningIcon from 'components/Icons/WarningIcon'
-import Loader from 'components/Loader'
 import Logo from 'components/Logo'
 import Modal from 'components/Modal'
-import CancelCountDown, { CountDownWrapper } from 'components/swapv2/LimitOrder/Modals/CancelCountDown'
+import CancelCountDown from 'components/swapv2/LimitOrder/Modals/CancelCountDown'
 import useFetchActiveAllOrders from 'components/swapv2/LimitOrder/useFetchActiveAllOrders'
 import { useCurrencyV2 } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
@@ -91,7 +89,6 @@ function ContentCancel({
 
   const onClickGaslessCancel = () => !isCountDown && requestCancel(CancelOrderType.GAS_LESS_CANCEL)
 
-  const isWaiting = cancelStatus === CancelStatus.WAITING
   const isCountDown = cancelStatus === CancelStatus.COUNTDOWN
   const isTimeout = cancelStatus === CancelStatus.TIMEOUT
   const isCancelDone = cancelStatus === CancelStatus.CANCEL_DONE
@@ -247,27 +244,14 @@ function ContentCancel({
               : ''
           }
         />
-
-        {attemptingTxn || errorMessage ? (
-          <CountDownWrapper style={{ flexDirection: 'row', justifyContent: 'center' }}>
-            {errorMessage ? (
-              <>
-                <WarningIcon color={theme.red} />
-                <Text fontSize={'14px'} color={theme.red}>
-                  {errorMessage}
-                </Text>
-              </>
-            ) : (
-              <>
-                <Loader /> <Text fontSize={'14px'}>{pendingText}</Text>
-              </>
-            )}
-          </CountDownWrapper>
-        ) : (
-          !isWaiting && (
-            <CancelCountDown expiredTime={expiredTime} cancelStatus={cancelStatus} setCancelStatus={setCancelStatus} />
-          )
-        )}
+        <CancelCountDown
+          expiredTime={expiredTime}
+          cancelStatus={cancelStatus}
+          setCancelStatus={setCancelStatus}
+          attemptingTxn={attemptingTxn}
+          errorMessage={errorMessage}
+          pendingText={pendingText}
+        />
         {/** // todo */}
         {renderButtons()}
       </Container>

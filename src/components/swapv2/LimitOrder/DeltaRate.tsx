@@ -9,13 +9,15 @@ import useTheme from 'hooks/useTheme'
 
 import { RateInfo } from './type'
 
+export type DeltaRateLimitOrder = { rawPercent: number | undefined; percent: string; profit: boolean }
+
 export function useGetDeltaRateLimitOrder({
   marketPrice,
   rateInfo,
 }: {
   marketPrice: BaseTradeInfo | undefined
   rateInfo: RateInfo
-}) {
+}): DeltaRateLimitOrder {
   const { deltaText, percent } = useMemo(() => {
     try {
       if (marketPrice && rateInfo.rate && rateInfo.invertRate) {
@@ -39,7 +41,7 @@ export function useGetDeltaRateLimitOrder({
   return {
     rawPercent: percent,
     percent: percentText,
-    profit: percent && Number(percent) > 0,
+    profit: Boolean(percent && Number(percent) > 0),
   }
 }
 

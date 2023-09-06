@@ -29,6 +29,7 @@ import { SummaryNotifyOrderPlaced } from 'components/swapv2/LimitOrder/ListOrder
 import ConfirmOrderModal from 'components/swapv2/LimitOrder/Modals/ConfirmOrderModal'
 import TradePrice from 'components/swapv2/LimitOrder/TradePrice'
 import useValidateInputError from 'components/swapv2/LimitOrder/useValidateInputError'
+import useWarningCreateOrder from 'components/swapv2/LimitOrder/useWarningCreateOrder'
 import useWrapEthStatus from 'components/swapv2/LimitOrder/useWrapEthStatus'
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { Z_INDEXS } from 'constants/styles'
@@ -49,13 +50,7 @@ import { subscribeNotificationOrderCancelled, subscribeNotificationOrderExpired 
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 
 import ExpirePicker from './ExpirePicker'
-import {
-  BETTER_PRICE_DIFF_THRESHOLD,
-  DEFAULT_EXPIRED,
-  USD_THRESHOLD,
-  WORSE_PRICE_DIFF_THRESHOLD,
-  getExpireOptions,
-} from './const'
+import { BETTER_PRICE_DIFF_THRESHOLD, DEFAULT_EXPIRED, getExpireOptions } from './const'
 import {
   calcInvert,
   calcOutput,
@@ -111,10 +106,6 @@ const InputWrapper = styled.div`
   flex-direction: column;
   gap: 0.5rem;
   display: flex;
-`
-const HightLight = styled.span`
-  font-weight: 500;
-  color: ${({ theme }) => theme.warning};
 `
 
 function LimitOrderForm({
@@ -464,6 +455,7 @@ function LimitOrderForm({
   }
 
   const [cancelType, setCancelType] = useState<CancelOrderType>()
+
   const onSubmitEditOrder = async () => {
     try {
       if (!onCancelOrder || !cancelType) return
@@ -545,6 +537,7 @@ function LimitOrderForm({
         const findInfo = ordersUpdating.find(e => e.orderId === order.id)
         if (!findInfo?.orderId) return
         removeCurrentOrder(findInfo.orderId)
+        // when cancel order success => create a new order
         if (order.isSuccessful) refSubmitCreateOrder.current(findInfo)
       })
       refRefreshActiveMakingAmount.current()
@@ -620,48 +613,13 @@ function LimitOrderForm({
       !enoughAllowance ||
       (approvalSubmitted && approval === ApprovalState.APPROVED))
 
-  const warningMessage = useMemo(() => {
-    const messages = []
-
-    if (currencyIn && displayRate && !deltaRate.profit && Number(deltaRate.rawPercent) <= WORSE_PRICE_DIFF_THRESHOLD) {
-      // need to remove the minus out of the percent text
-      const percentWithoutMinus = deltaRate.percent.slice(1)
-
-      messages.push(
-        <Text>
-          <Trans>
-            Your limit order price is <HightLight>{percentWithoutMinus}</HightLight> lower than the market. You will be
-            selling your {currencyIn.symbol} exceedingly cheap.
-          </Trans>
-        </Text>,
-      )
-    }
-
-    const threshold = USD_THRESHOLD[chainId]
-    const showWarningThresHold = outputAmount && estimateUSD.rawInput && estimateUSD.rawInput < threshold
-
-    if (showWarningThresHold) {
-      messages.push(
-        <Text>
-          <Trans>
-            We suggest you increase the value of your limit order to at least <HightLight>${threshold}</HightLight>.
-            This will increase the odds of your order being filled.
-          </Trans>
-        </Text>,
-      )
-    }
-
-    return messages
-  }, [
-    chainId,
+  const warningMessage = useWarningCreateOrder({
+    estimateUSD: estimateUSD.rawInput,
     currencyIn,
-    deltaRate.percent,
-    deltaRate.profit,
-    deltaRate.rawPercent,
-    displayRate,
-    estimateUSD.rawInput,
     outputAmount,
-  ])
+    displayRate,
+    deltaRate,
+  })
 
   return (
     <>

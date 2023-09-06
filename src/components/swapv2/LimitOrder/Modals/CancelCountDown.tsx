@@ -8,11 +8,14 @@ import styled from 'styled-components'
 import { ReactComponent as TimerIcon } from 'assets/svg/clock_timer.svg'
 import { NotificationType } from 'components/Announcement/type'
 import { Clock } from 'components/Icons'
+import WarningIcon from 'components/Icons/WarningIcon'
+import Loader from 'components/Loader'
 import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
 import useInterval from 'hooks/useInterval'
 import useTheme from 'hooks/useTheme'
 import { useNotify } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
+import { friendlyError } from 'utils/errorMessage'
 import { formatRemainTime } from 'utils/time'
 
 const SuccessIcon = styled.div`
@@ -25,7 +28,7 @@ const SuccessIcon = styled.div`
   justify-content: center;
 `
 
-export const CountDownWrapper = styled.div`
+const CountDownWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -48,10 +51,16 @@ export default function CancelCountDown({
   expiredTime,
   cancelStatus,
   setCancelStatus,
+  attemptingTxn,
+  errorMessage,
+  pendingText,
 }: {
   expiredTime: number
   cancelStatus: CancelStatus
   setCancelStatus: (v: CancelStatus) => void
+  attemptingTxn: boolean
+  errorMessage: string | undefined
+  pendingText: string
 }) {
   const theme = useTheme()
   const notify = useNotify()
@@ -76,9 +85,30 @@ export default function CancelCountDown({
     })
   }, [setCancelStatus, notify])
 
-  useInterval(countdown, remain ? 1000 : null)
+  useInterval(countdown, remain && cancelStatus === CancelStatus.COUNTDOWN ? 1000 : null)
 
   // todo
+
+  if (errorMessage || attemptingTxn)
+    return (
+      <CountDownWrapper style={{ flexDirection: 'row', justifyContent: 'center' }}>
+        {errorMessage ? (
+          <>
+            <WarningIcon color={theme.red} />
+            <Text fontSize={'14px'} color={theme.red}>
+              {friendlyError(errorMessage)}
+            </Text>
+          </>
+        ) : (
+          <>
+            <Loader /> <Text fontSize={'14px'}>{pendingText}</Text>
+          </>
+        )}
+      </CountDownWrapper>
+    )
+
+  if (cancelStatus === CancelStatus.WAITING) return null
+
   return (
     <CountDownWrapper>
       {cancelStatus === CancelStatus.TIMEOUT ? (

@@ -2,6 +2,7 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { Text } from 'rebass'
+import styled from 'styled-components'
 
 import { ReactComponent as GasLessIcon } from 'assets/svg/gas_less_icon.svg'
 import {
@@ -12,6 +13,7 @@ import {
   ButtonWarning,
   ButtonWithInfoHelper,
 } from 'components/Button'
+import Column from 'components/Column'
 import { GasStation } from 'components/Icons'
 import ProgressSteps from 'components/ProgressSteps'
 import { RowBetween } from 'components/Row'
@@ -20,7 +22,16 @@ import { useActiveWeb3React } from 'hooks'
 import { ApprovalState } from 'hooks/useApproveCallback'
 import useTheme from 'hooks/useTheme'
 import { useWalletModalToggle } from 'state/application/hooks'
+import { ExternalLink } from 'theme'
 
+const ButtonWrapper = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex-direction: column;
+  `}
+`
 export default function ActionButtonLimitOrder({
   showWrap,
   approval,
@@ -115,29 +126,45 @@ export default function ActionButtonLimitOrder({
       {checkingAllowance ? <Trans>Checking Allowance...</Trans> : <Trans>Review Order</Trans>}
     </Text>
   )
+
   if (isEdit) {
     return (
-      <RowBetween gap="16px">
-        <ButtonLight
-          onClick={() => showPreview(CancelOrderType.GAS_LESS_CANCEL)}
-          disabled={disableBtnReview}
-          height={'40px'}
-        >
-          <GasLessIcon />
-          &nbsp;
-          <Trans>Edit (gasless)</Trans>
-        </ButtonLight>
-        <ButtonLight // todo disable btn 2 noi
-          onClick={() => showPreview(CancelOrderType.HARD_CANCEL)}
-          disabled={disableBtnReview}
-          height={'40px'}
-          style={{ color: theme.red, backgroundColor: rgba(theme.red, 0.2) }}
-        >
-          <GasStation size={20} />
-          &nbsp;
-          <Trans>Hard Edit</Trans>
-        </ButtonLight>
-      </RowBetween>
+      <ButtonWrapper>
+        <Column width={'100%'} gap="8px">
+          <ButtonLight
+            onClick={() => showPreview(CancelOrderType.GAS_LESS_CANCEL)}
+            disabled={disableBtnReview}
+            height={'40px'}
+            width={'100%'}
+          >
+            <GasLessIcon />
+            &nbsp;
+            <Trans>Edit (gasless)</Trans>
+          </ButtonLight>
+          <Text color={theme.subText} fontSize={'10px'} lineHeight={'14px'}>
+            <Trans>
+              Edit the order without paying gas.
+              <br /> Cancellation may not be instant. <ExternalLink href="/todo">Learn more ↗︎</ExternalLink>
+            </Trans>
+          </Text>
+        </Column>
+        <Column width={'100%'} gap="8px">
+          <ButtonLight
+            onClick={() => showPreview(CancelOrderType.HARD_CANCEL)}
+            disabled={disableBtnReview}
+            style={{ color: theme.red, backgroundColor: rgba(theme.red, 0.2), height: '40px', width: '100%' }}
+          >
+            <GasStation size={20} />
+            &nbsp;
+            <Trans>Hard Edit</Trans>
+          </ButtonLight>
+          <Text color={theme.subText} fontSize={'10px'} lineHeight={'14px'}>
+            <Trans>
+              Edit immediately by paying gas fees. <ExternalLink href="/todo">Learn more ↗︎</ExternalLink>
+            </Trans>
+          </Text>
+        </Column>
+      </ButtonWrapper>
     )
   }
 
