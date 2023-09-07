@@ -1,7 +1,6 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { Text } from 'rebass'
-import styled from 'styled-components'
 
 import {
   ButtonApprove,
@@ -14,8 +13,7 @@ import {
 import ProgressSteps from 'components/ProgressSteps'
 import { RowBetween } from 'components/Row'
 import CancelButtons from 'components/swapv2/LimitOrder/Modals/CancelButtons'
-import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
-import { CancelOrderType } from 'components/swapv2/LimitOrder/type'
+import { CancelOrderInfo, CancelOrderType } from 'components/swapv2/LimitOrder/type'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState } from 'hooks/useApproveCallback'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -39,8 +37,7 @@ export default function ActionButtonLimitOrder({
   showWarning,
   isEdit,
   flowState,
-  cancelStatus,
-  onCancelOrder,
+  cancelOrderInfo,
 }: {
   currencyIn: Currency | undefined
   approval: ApprovalState
@@ -56,11 +53,10 @@ export default function ActionButtonLimitOrder({
   showWarning: boolean
   approveCallback: () => Promise<void>
   onWrapToken: () => Promise<void>
-  onCancelOrder: () => Promise<void>
   showPreview: (v?: CancelOrderType) => void
   isEdit: boolean
   flowState: TransactionFlowState
-  cancelStatus: CancelStatus
+  cancelOrderInfo: CancelOrderInfo | undefined
 }) {
   const disableBtnApproved =
     approval === ApprovalState.PENDING ||
@@ -121,11 +117,12 @@ export default function ActionButtonLimitOrder({
     </Text>
   )
 
-  if (isEdit) {
+  if (isEdit && cancelOrderInfo) {
+    const { cancelStatus, onCancelOrder, supportCancelGasless } = cancelOrderInfo
     return (
-      <CancelButtons
+      <CancelButtons // todo pass this as props ?
         isEdit
-        supportCancelGasless={true} // todo
+        supportCancelGasless={supportCancelGasless}
         loading={flowState.attemptingTxn}
         cancelStatus={cancelStatus}
         onOkay={() => {}}

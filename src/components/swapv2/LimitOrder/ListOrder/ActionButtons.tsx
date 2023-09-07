@@ -1,16 +1,20 @@
 import { t } from '@lingui/macro'
 import { rgba } from 'polished'
+import { useCallback, useEffect, useState } from 'react'
 import { Edit3, ExternalLink as LinkIcon, Trash } from 'react-feather'
-import { Flex } from 'rebass'
+import { Flex, Text } from 'rebass'
 import styled, { CSSProperties, css } from 'styled-components'
 
+import { ReactComponent as History } from 'assets/svg/history.svg'
 import { DropdownArrowIcon } from 'components/ArrowRotate'
 import CopyHelper from 'components/Copy'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
+import useInterval from 'hooks/useInterval'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink } from 'utils'
+import { formatRemainTime } from 'utils/time'
 
 import { isActiveStatus } from '../helpers'
 import { LimitOrder, LimitOrderStatus } from '../type'
@@ -38,6 +42,48 @@ const IconWrap = styled.div<{ color: string; isDisabled?: boolean }>`
   justify-content: center;
 `
 
+const CancelStatusButton = ({ expiredAt, style }: { expiredAt: number | undefined; style?: CSSProperties }) => {
+  const theme = useTheme()
+
+  const [remain, setRemain] = useState(0)
+  useEffect(() => {
+    setRemain(expiredAt ? Math.floor(expiredAt - Date.now() / 1000) : 0)
+  }, [expiredAt])
+
+  const countdown = useCallback(() => {
+    setRemain(v => v - 1)
+  }, [])
+
+  useInterval(countdown, remain ? 1000 : null)
+
+  return (
+    <MouseoverTooltipDesktopOnly
+      text={
+        remain > 0 ? (
+          <Text as="span">
+            Gaslessly cancelling in{' '}
+            <Text as="span" color={theme.red} fontWeight={'500'}>
+              {formatRemainTime(remain)}
+            </Text>
+          </Text>
+        ) : (
+          t`Order History`
+        )
+      }
+      placement="top"
+      width="fit-content"
+    >
+      <IconWrap
+        color={theme.subText}
+        style={style}
+        onClick={undefined} // todo
+      >
+        <History color={remain > 0 ? theme.red : theme.subText} />
+      </IconWrap>
+    </MouseoverTooltipDesktopOnly>
+  )
+}
+
 const ActionButtons = ({
   order,
   expand,
@@ -61,7 +107,7 @@ const ActionButtons = ({
 }) => {
   const { networkInfo } = useActiveWeb3React()
   const theme = useTheme()
-  const { status, chainId, transactions = [] } = order
+  const { status, chainId, transactions = [], operatorSignatureExpiredAt } = order
   const isActiveTab = isActiveStatus(status)
   const numberTxs = transactions.length
   const iconExpand =
@@ -76,11 +122,12 @@ const ActionButtons = ({
   const disabledCancel = isCancelling
 
   return (
-    <Flex alignItems={'center'}>
+    <Flex alignItems={'center'} justifyContent={'flex-end'}>
       {isActiveTab && !isChildren ? (
         <>
+          <CancelStatusButton style={itemStyle} expiredAt={operatorSignatureExpiredAt} />
           {numberTxs === 0 && (
-            <MouseoverTooltipDesktopOnly text={disabledCancel ? '' : t`Edit`} placement="top" width="60px">
+            <MouseoverTooltipDesktopOnly text={disabledCancel ? '' : t`Edit`} placement="top" width="fit-content">
               <IconWrap
                 color={theme.primary}
                 style={itemStyle}
@@ -91,7 +138,7 @@ const ActionButtons = ({
               </IconWrap>
             </MouseoverTooltipDesktopOnly>
           )}
-          <MouseoverTooltipDesktopOnly text={disabledCancel ? '' : t`Cancel`} placement="top" width="80px">
+          <MouseoverTooltipDesktopOnly text={disabledCancel ? '' : t`Cancel`} placement="top" width="fit-content">
             <IconWrap
               color={theme.red}
               style={itemStyle}

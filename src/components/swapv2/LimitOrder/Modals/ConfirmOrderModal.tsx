@@ -35,6 +35,7 @@ export default memo(function ConfirmOrderModal({
   warningMessage,
   percentDiff,
   renderButtons,
+  isEdit,
 }: {
   onSubmit: () => void
   onDismiss: () => void
@@ -50,6 +51,7 @@ export default memo(function ConfirmOrderModal({
   warningMessage: ReactNode[]
   percentDiff: number
   renderButtons?: () => ReactNode
+  isEdit?: boolean
 }) {
   const { account } = useActiveWeb3React()
   const [confirmed, setConfirmed] = useState(false)
@@ -153,7 +155,7 @@ export default memo(function ConfirmOrderModal({
     )
   }
 
-  const renderConfirmationContent = () => {
+  const renderConfirmationContent = (): ReactNode => {
     return (
       <Flex flexDirection={'column'} width="100%">
         <div>
@@ -204,6 +206,7 @@ export default memo(function ConfirmOrderModal({
       isOpen={flowState.showConfirm}
       onDismiss={handleDismiss}
       attemptingTxn={flowState.attemptingTxn}
+      attemptingTxnContent={isEdit ? renderConfirmationContent : undefined}
       content={renderConfirmationContent}
       pendingText={flowState.pendingText || t`Placing order`}
     />

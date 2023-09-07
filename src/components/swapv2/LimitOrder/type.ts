@@ -1,5 +1,7 @@
 import { ChainId, Currency, Fraction } from '@kyberswap/ks-sdk-core'
 
+import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
+
 export enum LimitOrderStatus {
   // status from BE
   ACTIVE = 'active',
@@ -40,11 +42,12 @@ export type LimitOrder = {
     makingAmount: string
     takingAmount: string
   }>
+  contractAddress: string
+  operatorSignatureExpiredAt?: number
   // custom
   isSuccessful: boolean
   uuid: string
   txHash: string
-  contractAddress: string
 }
 
 export enum CancelOrderType {
@@ -64,6 +67,16 @@ export type ListOrderHandle = {
 }
 
 export type CancelOrderFunction = (orders: LimitOrder[], cancelType: CancelOrderType) => Promise<any>
+
+export type CancelOrderInfo = {
+  cancelStatus: CancelStatus
+  supportCancelGasless: boolean
+  onCancelOrder: (v?: CancelOrderType) => Promise<void>
+}
+
+export type CancelOrderResponse = {
+  orders: { operatorSignatureExpiredAt: number }[]
+}
 
 export type CreateOrderParam = {
   currencyIn: Currency | undefined

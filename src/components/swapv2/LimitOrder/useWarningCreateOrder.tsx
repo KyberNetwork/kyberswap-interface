@@ -5,7 +5,11 @@ import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import { DeltaRateLimitOrder } from 'components/swapv2/LimitOrder/DeltaRate'
-import { USD_THRESHOLD, WORSE_PRICE_DIFF_THRESHOLD } from 'components/swapv2/LimitOrder/const'
+import {
+  BETTER_PRICE_DIFF_THRESHOLD,
+  USD_THRESHOLD,
+  WORSE_PRICE_DIFF_THRESHOLD,
+} from 'components/swapv2/LimitOrder/const'
 import { useActiveWeb3React } from 'hooks'
 
 const HightLight = styled.span`
@@ -28,6 +32,15 @@ export default function useWarningCreateOrder({
   const { chainId } = useActiveWeb3React()
   const warningMessage = useMemo(() => {
     const messages = []
+    if (Number(deltaRate.rawPercent) >= BETTER_PRICE_DIFF_THRESHOLD)
+      messages.push(
+        <Text>
+          <Trans>
+            Limit order price is &gt;={BETTER_PRICE_DIFF_THRESHOLD}% higher than the market. We just want to make sure
+            this is correct
+          </Trans>
+        </Text>,
+      )
 
     if (currencyIn && displayRate && !deltaRate.profit && Number(deltaRate.rawPercent) <= WORSE_PRICE_DIFF_THRESHOLD) {
       // need to remove the minus out of the percent text

@@ -4,11 +4,23 @@ import { useGetLOConfigQuery, useLazyGetListOrdersQuery } from 'services/limitOr
 import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import { useActiveWeb3React } from 'hooks'
 
+export const useIsSupportSoftCancelOrder = () => {
+  const { chainId } = useActiveWeb3React()
+  const { data: config } = useGetLOConfigQuery(chainId)
+  return useCallback(
+    (order: LimitOrder) => {
+      const features = config?.features || {}
+      return !!features?.[order.contractAddress?.toLowerCase?.()]?.softCancel
+    },
+    [config],
+  )
+}
+
 export default function useFetchActiveAllOrders(disabled = false) {
   const { account, chainId } = useActiveWeb3React()
   const [getOrders] = useLazyGetListOrdersQuery()
   const [orders, setOrders] = useState<LimitOrder[]>([])
-  const { data: config } = useGetLOConfigQuery(chainId)
+  const isSupportSoftCancel = useIsSupportSoftCancelOrder()
 
   const getAllOrders = useCallback(async () => {
     if (!account) return []
@@ -40,12 +52,11 @@ export default function useFetchActiveAllOrders(disabled = false) {
   }, [getAllOrders, disabled])
 
   return useMemo(() => {
-    const features = config?.features || {}
-    const ordersSoftCancel = orders.filter(e => features?.[e.contractAddress?.toLowerCase?.()]?.softCancel)
+    const ordersSoftCancel = orders.filter(isSupportSoftCancel)
     return {
       orders,
       ordersSoftCancel,
       supportCancelGasless: ordersSoftCancel.length > 0,
     }
-  }, [orders, config])
+  }, [orders, isSupportSoftCancel])
 }

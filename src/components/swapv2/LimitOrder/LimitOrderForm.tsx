@@ -3,16 +3,10 @@ import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import JSBI from 'jsbi'
 import { debounce } from 'lodash'
-import { rgba } from 'polished'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Info, Repeat } from 'react-feather'
+import { Repeat } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import {
-  useCreateOrderMutation,
-  useCreateOrderSignatureMutation,
-  useGetLOConfigQuery,
-  useGetTotalActiveMakingAmountQuery,
-} from 'services/limitOrder'
+import { useCreateOrderMutation, useGetLOConfigQuery, useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -26,10 +20,9 @@ import Tooltip, { MouseoverTooltip } from 'components/Tooltip'
 import ActionButtonLimitOrder from 'components/swapv2/LimitOrder/ActionButtonLimitOrder'
 import DeltaRate, { useGetDeltaRateLimitOrder } from 'components/swapv2/LimitOrder/DeltaRate'
 import { SummaryNotifyOrderPlaced } from 'components/swapv2/LimitOrder/ListOrder/SummaryNotify'
-import CancelCountDown from 'components/swapv2/LimitOrder/Modals/CancelCountDown'
-import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
 import ConfirmOrderModal from 'components/swapv2/LimitOrder/Modals/ConfirmOrderModal'
 import TradePrice from 'components/swapv2/LimitOrder/TradePrice'
+import useSignOrder from 'components/swapv2/LimitOrder/useSignOrder'
 import useValidateInputError from 'components/swapv2/LimitOrder/useValidateInputError'
 import useWarningCreateOrder from 'components/swapv2/LimitOrder/useWarningCreateOrder'
 import useWrapEthStatus from 'components/swapv2/LimitOrder/useWrapEthStatus'
@@ -52,20 +45,19 @@ import { subscribeNotificationOrderCancelled, subscribeNotificationOrderExpired 
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 
 import ExpirePicker from './ExpirePicker'
-import { BETTER_PRICE_DIFF_THRESHOLD, DEFAULT_EXPIRED, getExpireOptions } from './const'
+import { DEFAULT_EXPIRED, getExpireOptions } from './const'
 import {
   calcInvert,
   calcOutput,
   calcRate,
   calcUsdPrices,
   formatAmountOrder,
-  formatSignature,
   getErrorMessage,
   getPayloadCreateOrder,
   parseFraction,
   removeTrailingZero,
 } from './helpers'
-import { CancelOrderFunction, CancelOrderType, CreateOrderParam, LimitOrder, RateInfo } from './type'
+import { CancelOrderInfo, CreateOrderParam, LimitOrder, RateInfo } from './type'
 
 export const Label = styled.div`
   font-weight: 500;
@@ -90,12 +82,11 @@ type Props = {
   defaultExpire?: Date
   setIsSelectCurrencyManual?: (val: boolean) => void
   note?: string
-  onCancelOrder?: CancelOrderFunction
   orderInfo?: LimitOrder
   flowState: TransactionFlowState
   setFlowState: React.Dispatch<React.SetStateAction<TransactionFlowState>>
   zIndexToolTip?: number
-  onDismissModalEdit?: () => void
+  cancelOrderInfo?: CancelOrderInfo
   defaultRate?: RateInfo
   isEdit?: boolean
 }
@@ -112,7 +103,6 @@ const InputWrapper = styled.div`
 
 function LimitOrderForm({
   refreshListOrder,
-  onCancelOrder,
   currencyIn,
   currencyOut,
   defaultInputAmount = '',
@@ -126,7 +116,7 @@ function LimitOrderForm({
   flowState,
   setFlowState,
   zIndexToolTip = Z_INDEXS.TOOL_TIP_ERROR_INPUT_SWAP_FORM,
-  onDismissModalEdit,
+  cancelOrderInfo,
   isEdit = false, // else create
 }: Props) {
   const { account, chainId, networkInfo } = useActiveWeb3React()
@@ -135,8 +125,7 @@ function LimitOrderForm({
   const notify = useNotify()
   const { mixpanelHandler } = useMixpanel()
 
-  const { setCurrencyIn, setCurrencyOut, switchCurrency, setCurrentOrder, removeCurrentOrder, resetState } =
-    useLimitActionHandlers()
+  const { setCurrencyIn, setCurrencyOut, switchCurrency, removeCurrentOrder, resetState } = useLimitActionHandlers()
   const { ordersUpdating, inputAmount: inputAmountGlobal } = useLimitState()
 
   const [inputAmount, setInputAmount] = useState(defaultInputAmount)
@@ -351,19 +340,16 @@ function LimitOrderForm({
 
   const expiredAt = customDateExpire?.getTime() || Date.now() + expire * 1000
 
-  const showPreview = (cancelType?: CancelOrderType) => {
+  const showPreview = () => {
     if (!currencyIn || !currencyOut || !outputAmount || !inputAmount || !displayRate) return
     setFlowState({ ...TRANSACTION_STATE_DEFAULT, showConfirm: true })
-    if (isEdit) {
-      setCancelType(cancelType)
-      return
-    }
-    mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_REVIEW_PLACE_ORDER, {
-      from_token: currencyIn.symbol,
-      to_token: currencyOut.symbol,
-      from_network: chainId,
-      trade_qty: inputAmount,
-    })
+    if (!isEdit)
+      mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_REVIEW_PLACE_ORDER, {
+        from_token: currencyIn.symbol,
+        to_token: currencyOut.symbol,
+        from_network: chainId,
+        trade_qty: inputAmount,
+      })
   }
 
   const hidePreview = useCallback(() => {
@@ -405,25 +391,7 @@ function LimitOrderForm({
     [setFlowState],
   )
 
-  const [getMessageSignature] = useCreateOrderSignatureMutation()
-  const signOrder = async (params: CreateOrderParam) => {
-    const { currencyIn, currencyOut, inputAmount, outputAmount, signature, salt } = params
-    if (signature && salt) return { signature, salt }
-    if (!library || !currencyIn || !currencyOut) return { signature: '', salt: '' }
-
-    const payload = getPayloadCreateOrder(params)
-    setFlowState(state => ({
-      ...state,
-      attemptingTxn: true,
-      pendingText: `Sign limit order: ${formatAmountOrder(inputAmount)} ${currencyIn.symbol} to ${formatAmountOrder(
-        outputAmount,
-      )} ${currencyOut.symbol}`,
-    }))
-    const messagePayload = await getMessageSignature(payload).unwrap()
-
-    const rawSignature = await library.send('eth_signTypedData_v4', [account, JSON.stringify(messagePayload)])
-    return { signature: formatSignature(rawSignature), salt: messagePayload?.message?.salt }
-  }
+  const signOrder = useSignOrder(setFlowState)
 
   const [submitOrder] = useCreateOrderMutation()
   const onSubmitCreateOrder = async (params: CreateOrderParam) => {
@@ -453,38 +421,6 @@ function LimitOrderForm({
     } catch (error) {
       handleError(error)
       return
-    }
-  }
-
-  const [cancelType, setCancelType] = useState<CancelOrderType>()
-  const [cancelStatus, setCancelStatus] = useState<CancelStatus>(CancelStatus.WAITING)
-  const [expiredTime, setExpiredTime] = useState(0)
-
-  const onSubmitEditOrder = async (cancelType?: CancelOrderType) => {
-    try {
-      if (!onCancelOrder || cancelType === undefined) return
-      const data = await onCancelOrder(orderInfo ? [orderInfo] : [], cancelType)
-      if (false && orderInfo) {
-        const param = {
-          orderId: orderInfo?.id,
-          account,
-          chainId,
-          currencyIn,
-          currencyOut,
-          inputAmount,
-          outputAmount,
-          expiredAt,
-        }
-        const { signature, salt } = await signOrder(param)
-        setCurrentOrder({ ...param, salt, signature })
-      }
-      if (cancelType === CancelOrderType.GAS_LESS_CANCEL) setCancelStatus(CancelStatus.COUNTDOWN)
-      const expired = data?.orders?.[0]?.operatorSignatureExpiredAt
-      expired && setExpiredTime(expired)
-      onDismissModalEdit?.()
-    } catch (error) {
-      orderInfo && removeCurrentOrder(orderInfo.id)
-      handleError(error)
     }
   }
 
@@ -597,8 +533,6 @@ function LimitOrderForm({
     })
     if (order_id) trackingPlaceOrder(MIXPANEL_TYPE.LO_PLACE_ORDER_SUCCESS, { order_id })
   }
-
-  const onSubmitOrder = isEdit ? onSubmitEditOrder : onSubmitCreateOrderWithTracking
 
   const styleTooltip = { maxWidth: '250px', zIndex: zIndexToolTip }
   const estimateUSD = useMemo(() => {
@@ -768,32 +702,6 @@ function LimitOrderForm({
           />
         </Tooltip>
 
-        {Number(deltaRate.rawPercent) >= BETTER_PRICE_DIFF_THRESHOLD && (
-          <Flex
-            padding="14px 18px"
-            color={theme.text}
-            alignItems="center"
-            sx={{
-              borderRadius: '16px',
-              gap: '8px',
-              background: rgba(theme.subText, 0.2),
-            }}
-          >
-            <Info
-              size={16}
-              style={{
-                flex: '0 0 16px',
-              }}
-            />
-            <Text fontWeight={400} fontSize={12} color={theme.text}>
-              <Trans>
-                Limit order price is &gt;={BETTER_PRICE_DIFF_THRESHOLD}% higher than the market. We just want to make
-                sure this is correct
-              </Trans>
-            </Text>
-          </Flex>
-        )}
-
         {warningMessage.map((mess, i) => (
           <ErrorWarningPanel type="warn" key={i} title={mess} />
         ))}
@@ -817,41 +725,28 @@ function LimitOrderForm({
             showWarning: warningMessage.length > 0,
             isEdit,
             flowState,
-            cancelStatus,
-            onCancelOrder: onSubmitEditOrder,
+            cancelOrderInfo,
           }}
         />
       </Flex>
 
-      <ConfirmOrderModal
-        renderButtons={
-          isEdit
-            ? () => (
-                <>
-                  <CancelCountDown
-                    expiredTime={expiredTime}
-                    cancelStatus={cancelStatus}
-                    setCancelStatus={setCancelStatus}
-                    flowState={flowState}
-                  />
-                </>
-              )
-            : undefined
-        }
-        flowState={flowState}
-        onDismiss={hidePreview}
-        onSubmit={onSubmitOrder}
-        currencyIn={currencyIn}
-        currencyOut={currencyOut}
-        inputAmount={inputAmount}
-        outputAmount={outputAmount}
-        expireAt={expiredAt}
-        rateInfo={rateInfo}
-        marketPrice={tradeInfo}
-        note={note}
-        warningMessage={warningMessage}
-        percentDiff={Number(deltaRate.rawPercent)}
-      />
+      {!isEdit && (
+        <ConfirmOrderModal
+          flowState={flowState}
+          onDismiss={hidePreview}
+          onSubmit={onSubmitCreateOrderWithTracking}
+          currencyIn={currencyIn}
+          currencyOut={currencyOut}
+          inputAmount={inputAmount}
+          outputAmount={outputAmount}
+          expireAt={expiredAt}
+          rateInfo={rateInfo}
+          marketPrice={tradeInfo}
+          note={note}
+          warningMessage={warningMessage}
+          percentDiff={Number(deltaRate.rawPercent)}
+        />
+      )}
 
       <ExpirePicker
         defaultDate={customDateExpire}

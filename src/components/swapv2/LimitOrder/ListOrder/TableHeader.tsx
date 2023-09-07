@@ -39,7 +39,7 @@ const TableHeader = () => {
           <Text>
             <Trans> FILLED % | STATUS</Trans>
           </Text>
-          <Text textAlign={'center'}>
+          <Text textAlign={'right'}>
             <Trans>ACTION</Trans>
           </Text>
         </>

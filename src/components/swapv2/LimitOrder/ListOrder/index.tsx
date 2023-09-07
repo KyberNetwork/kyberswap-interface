@@ -141,15 +141,6 @@ const SearchInputWrapped = styled(SearchInput)`
   `};
 `
 
-export const checkOrderActive = (order: LimitOrder) => {
-  return ![
-    LimitOrderStatus.FILLED,
-    LimitOrderStatus.CANCELLED,
-    LimitOrderStatus.CANCELLING,
-    LimitOrderStatus.EXPIRED,
-  ].includes(order.status)
-}
-
 export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   const { account, chainId, networkInfo } = useActiveWeb3React()
   const { library } = useWeb3React()
@@ -188,7 +179,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   const [isCancelAll, setIsCancelAll] = useState(false)
 
   const tokenAddresses = useMemo(() => {
-    const activeOrders = orders.filter(checkOrderActive)
+    const activeOrders = orders.filter(e => isActiveStatus(e.status))
     if (!activeOrders.length) {
       return EMPTY_ARRAY
     }
@@ -257,7 +248,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   }, [account, chainId, refreshListOrder])
 
   const hideConfirmCancel = useCallback(() => {
-    setFlowState(state => ({ ...state, showConfirm: false }))
+    setFlowState(TRANSACTION_STATE_DEFAULT)
     setIsOpenCancel(false)
     setTimeout(() => {
       setCurrentOrder(undefined)
@@ -265,7 +256,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   }, [])
 
   const hideEditModal = useCallback(() => {
-    setFlowState(state => ({ ...state, showConfirm: false }))
+    setFlowState(TRANSACTION_STATE_DEFAULT)
     setCurrentOrder(undefined)
     setIsOpenEdit(false)
   }, [])
@@ -318,12 +309,11 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     if (!library || !account) return Promise.reject('Wrong input')
 
     setFlowState(state => ({
-      ...state,
+      ...TRANSACTION_STATE_DEFAULT,
       pendingText: t`Canceling your orders`,
       showConfirm: true,
       attemptingTxn: true,
     }))
-
     const newOrders = isCancelAll ? orders.map(e => e.id) : order?.id ? [order?.id] : []
 
     const sendTransaction = async (encodedData: string, contract: string, payload: any) => {
@@ -395,13 +385,13 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   const [cancelOrderRequest] = useCancelOrdersMutation()
   const requestGasLessCancelOrder = async (orders: LimitOrder[]) => {
     if (!library || !account) return Promise.reject('Wrong input')
-    return { orders: [{ operatorSignatureExpiredAt: (Date.now() / 1000 + 30) | 0 }] }
-    setFlowState(state => ({
-      ...state,
+    // return { orders: [{ operatorSignatureExpiredAt: (Date.now() / 1000 + 5) | 0 }] }
+    setFlowState({
+      ...TRANSACTION_STATE_DEFAULT,
       pendingText: t`Canceling your orders`,
       showConfirm: true,
       attemptingTxn: true,
-    }))
+    })
 
     const orderIds = orders.map(e => e.id)
     const cancelPayload = { chainId: chainId.toString(), maker: account, orderIds }
@@ -409,7 +399,6 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     const rawSignature = await library.send('eth_signTypedData_v4', [account, JSON.stringify(messagePayload)])
     const signature = formatSignature(rawSignature)
     const resp = await cancelOrderRequest({ ...cancelPayload, signature }).unwrap()
-    // todo countdown
     // todo canse cancelled ngay lap tuc
     setCancellingOrders(cancellingOrdersIds.concat(orderIds))
     return resp
@@ -553,7 +542,8 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
         order={currentOrder}
         isCancelAll={isCancelAll}
       />
-      {currentOrder && (
+
+      {currentOrder && isOpenEdit && (
         <EditOrderModal
           flowState={flowState}
           setFlowState={setFlowState}

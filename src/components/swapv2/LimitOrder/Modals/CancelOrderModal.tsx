@@ -1,7 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
-import { ReactNode, useMemo, useState } from 'react'
-import { Check } from 'react-feather'
+import { useEffect, useMemo, useState } from 'react'
 import { Text } from 'rebass'
 
 import Logo from 'components/Logo'
@@ -14,7 +12,7 @@ import { TransactionFlowState } from 'types/TransactionFlowState'
 
 import { BaseTradeInfo, useBaseTradeInfoLimitOrder } from '../../../../hooks/useBaseTradeInfo'
 import { calcPercentFilledOrder, formatAmountOrder } from '../helpers'
-import { CancelOrderFunction, CancelOrderType, LimitOrder, LimitOrderStatus } from '../type'
+import { CancelOrderFunction, CancelOrderResponse, CancelOrderType, LimitOrder, LimitOrderStatus } from '../type'
 import { Container, Header, Label, ListInfo, MarketInfo, Note, Rate, Value } from './styled'
 
 export enum CancelStatus {
@@ -60,17 +58,23 @@ function ContentCancel({
   const { orders = [], ordersSoftCancel = [], supportCancelGasless } = useFetchActiveAllOrders(false && !isCancelAll)
   const requestCancel = async (type: CancelOrderType) => {
     const gasLessCancel = type === CancelOrderType.GAS_LESS_CANCEL
-    const data: any = await onSubmit(
+    const data: CancelOrderResponse = await onSubmit(
       isCancelAll ? (gasLessCancel ? ordersSoftCancel : orders) : order ? [order] : [],
       type,
-    ) // todo
-    if (gasLessCancel) setCancelStatus(CancelStatus.COUNTDOWN)
+    )
+    setCancelStatus(gasLessCancel ? CancelStatus.COUNTDOWN : CancelStatus.WAITING)
     const expired = data?.orders?.[0]?.operatorSignatureExpiredAt
     expired && setExpiredTime(expired)
   }
 
   const onClickGaslessCancel = () => !isCountDown && requestCancel(CancelOrderType.GAS_LESS_CANCEL)
   const onClickHardCancel = () => requestCancel(CancelOrderType.HARD_CANCEL)
+
+  useEffect(() => {
+    if (!isOpen) {
+      setCancelStatus(CancelStatus.WAITING)
+    }
+  }, [isOpen])
 
   const isCountDown = cancelStatus === CancelStatus.COUNTDOWN
   const isCancelDone = cancelStatus === CancelStatus.CANCEL_DONE
@@ -167,7 +171,6 @@ function ContentCancel({
           setCancelStatus={setCancelStatus}
           flowState={flowState}
         />
-        {/** // todo */}
         <CancelButtons
           supportCancelGasless={supportCancelGasless}
           loading={flowState.attemptingTxn}

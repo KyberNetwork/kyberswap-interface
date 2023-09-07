@@ -28,7 +28,7 @@ const CancelButtons = ({
   onClickHardCancel,
   onClickGaslessCancel,
   loading,
-  supportCancelGasless, // todo check edit
+  supportCancelGasless,
   isEdit,
   isCancelAll,
   totalOrder,
@@ -63,7 +63,7 @@ const CancelButtons = ({
           <Column width={'100%'} gap="8px">
             <ButtonLight
               disabled={isCountDown ? false : !supportCancelGasless || loading}
-              onClick={onClickGaslessCancel}
+              onClick={isCountDown ? onOkay : onClickGaslessCancel}
               height={'40px'}
               width={'100%'}
             >
@@ -110,10 +110,10 @@ const CancelButtons = ({
             </ButtonLight>
             <Text color={theme.subText} fontSize={'10px'} lineHeight={'14px'}>
               {isEdit ? (
-                <Trans>Edit immediately by paying gas fees.</Trans>
+                <Trans>Edit immediately by paying gas fees. </Trans>
               ) : (
-                <Trans>Cancel immediately by paying gas fees.</Trans>
-              )}
+                <Trans>Cancel immediately by paying gas fees. </Trans>
+              )}{' '}
               <ExternalLink href="/todo">
                 <Trans>Learn more ↗︎</Trans>
               </ExternalLink>
