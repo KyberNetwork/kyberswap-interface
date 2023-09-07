@@ -95,7 +95,7 @@ const parseNum = (value: FormatParam['value']): Fraction => {
         if (typeof value === 'number') return toFixed(value)
         if (value instanceof CurrencyAmount) return value.toFixed(value.currency.decimals)
         if (value instanceof Price) return value.toFixed(18)
-        if (value instanceof Percent) return '0' //todo: not implemented yet
+        if (value instanceof Percent) return value.divide(100).toFixed(18)
         return '0'
       })()
       return new Fraction(valueStr.replace('.', ''), '1' + '0'.repeat(valueStr.split('.')[1]?.length || 0))
@@ -139,17 +139,28 @@ export const formatDisplayNumber = ({
   ) {
     const decimal = parsedStr.split('.')[1]
     const isNegative = parsedFraction.lessThan(0)
+
+    const negative = isNegative ? '-' : ''
+    const currency = style === 'currency' ? '$' : ''
+    const percent = style === 'percent' ? '%' : ''
+
     if (numberOfLeadingZeros > 2) {
-      return `${isNegative ? '-' : ''}${style === 'currency' ? '$' : ''}0.0${numberOfLeadingZeros
+      const subscript = numberOfLeadingZeros
         .toString()
         .split('')
         .map(item => subscriptMap[item])
-        .join('')}${decimal.substring(0, significantDigits || fractionDigits || 6)}${style === 'percent' ? '%' : ''}`
+        .join('')
+      const slicedDecimal = decimal
+        .replace(/^0+/, '')
+        .substring(0, Math.min(significantDigits ?? Infinity, fractionDigits ?? Infinity, 6))
+      return `${negative}${currency}0.0${subscript}${slicedDecimal}${percent}`
     }
-    return `${isNegative ? '-' : ''}${style === 'currency' ? '$' : ''}0.${decimal.substring(
-      0,
-      significantDigits || fractionDigits || 6,
-    )}${style === 'percent' ? '%' : ''}`
+
+    const slicedDecimal = decimal
+      .slice(0, numberOfLeadingZeros + (significantDigits ?? 6))
+      .slice(0, fractionDigits)
+      .replace(/0+$/, '')
+    return `${negative}${currency}0${slicedDecimal.length ? '.' + slicedDecimal : ''}${percent}`
   }
 
   const formatter = Intl.NumberFormat('en-US', {

@@ -146,7 +146,7 @@ const Legend: React.FC<LegendProps> = ({
           }}
         >
           {formatDisplayNumber({ value, style: 'currency', fractionDigits: 2 })} (
-          {formatDisplayNumber({ value: percent / 100, style: 'percent', fractionDigits: 2 })})
+          {formatDisplayNumber({ value: percent / 100, style: 'percent', fractionDigits: 3 })})
         </Text>
       </Flex>
     </Flex>
