@@ -1,5 +1,4 @@
-// import synpressPlugins from '@synthetixio/synpress/plugins'
-// eslint-disable-next-line prettier/prettier
+import synpressPlugins from '@synthetixio/synpress/plugins'
 import { defineConfig } from 'cypress'
 import client from 'prom-client'
 
@@ -24,6 +23,7 @@ export default defineConfig({
     setupNodeEvents(on, config) {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       require('@cypress/grep/src/plugin')(config)
+      synpressPlugins(on, config)
       on('after:run', async results => {
         if (results) {
           const register = new client.Registry()
