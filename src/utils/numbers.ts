@@ -94,7 +94,7 @@ const parseNum = (value: FormatParam['value']): Fraction => {
         if (typeof value === 'string') return value
         if (typeof value === 'number') return toFixed(value)
         if (value instanceof CurrencyAmount) return value.toFixed(value.currency.decimals)
-        if (value instanceof Price) return '0' //todo: not implemented yet
+        if (value instanceof Price) return value.toFixed(18)
         if (value instanceof Percent) return '0' //todo: not implemented yet
         return '0'
       })()
