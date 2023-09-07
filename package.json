@@ -50,7 +50,7 @@
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@kybernetwork/oauth2": "1.0.0",
     "@kyberswap/ks-sdk-classic": "^1.0.3",
-    "@kyberswap/ks-sdk-core": "1.0.10",
+    "@kyberswap/ks-sdk-core": "1.0.11-rc",
     "@kyberswap/ks-sdk-elastic": "^1.1.2",
     "@kyberswap/ks-sdk-solana": "^1.0.2",
     "@lingui/loader": "~3.14.0",
@@ -198,7 +198,7 @@
     "vite-tsconfig-paths": "^4.0.8"
   },
   "resolutions": {
-    "@kyberswap/ks-sdk-core": "1.0.10",
+    "@kyberswap/ks-sdk-core": "1.0.11-rc",
     "react-error-overlay": "6.0.9",
     "@lingui/babel-plugin-extract-messages": "3.14.0",
     "@lingui/cli": "3.14.0",
