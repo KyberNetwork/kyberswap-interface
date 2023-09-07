@@ -273,7 +273,12 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
           <MobileStat mobileView={mobileView}>
             <StatItem
               label="TVL"
-              value={formatDisplayNumber({ value: poolEarning.totalValueLockedUsd, style: 'currency' })}
+              value={formatDisplayNumber({
+                value: poolEarning.totalValueLockedUsd,
+                style: 'currency',
+                significantDigits: 6,
+                fractionDigits: 4,
+              })}
             />
             <StatItem
               label={
@@ -431,7 +436,12 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
           </Flex>
         </Flex>
         <Text>
-          {formatDisplayNumber({ value: poolEarning.totalValueLockedUsd, style: 'currency', significantDigits: 4 })}
+          {formatDisplayNumber({
+            value: poolEarning.totalValueLockedUsd,
+            style: 'currency',
+            significantDigits: 6,
+            fractionDigits: 4,
+          })}
         </Text>
 
         <MouseoverTooltip
