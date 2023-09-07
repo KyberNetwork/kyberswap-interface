@@ -15,7 +15,7 @@ export const useUploadImageToCloud = () => {
       try {
         const file = fileObject as File
         const ext = file.name?.split('.')?.pop() ?? ''
-        if (ext && !IMAGE_ALLOW_EXTENSIONS.includes(ext)) throw new Error('File is not support')
+        if (ext && !IMAGE_ALLOW_EXTENSIONS.includes(ext.toLowerCase())) throw new Error('File is not support')
         const fileName = `${uuid() + Date.now()}.${ext || 'png'}`
         const res = await uploadImage({
           fileName,
