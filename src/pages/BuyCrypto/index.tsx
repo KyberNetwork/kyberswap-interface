@@ -1,9 +1,8 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { rgba } from 'polished'
 import { stringify } from 'querystring'
-import React, { useEffect, useRef, useState } from 'react'
-import { ArrowDown, ChevronDown, Repeat, X } from 'react-feather'
+import React, { useEffect, useRef } from 'react'
+import { ArrowDown, ChevronDown, Repeat } from 'react-feather'
 import { Link, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Image, Text } from 'rebass'
@@ -27,18 +26,18 @@ import metamask from 'assets/wallets-connect/metamask.svg'
 import walletConnect from 'assets/wallets-connect/wallet-connect.svg'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
+import DownloadWalletModal from 'components/DownloadWalletModal'
 import Cart from 'components/Icons/Cart'
 import Deposit from 'components/Icons/Deposit'
-import Modal from 'components/Modal'
 import { TRANSAK_API_KEY, TRANSAK_URL } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
-import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { KSStatistic } from 'pages/About/AboutKyberSwap'
-import { useWalletModalToggle } from 'state/application/hooks'
+import { ApplicationModal } from 'state/application/actions'
+import { useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { useDarkModeManager } from 'state/user/hooks'
 import { ButtonText, ExternalLink } from 'theme'
 
@@ -136,23 +135,6 @@ const Address = styled.div`
   width: fit-content;
 `
 
-const DownloadWalletRow = styled.a`
-  display: flex;
-  gap: 8px;
-  border-radius: 999px;
-  padding: 12px 16px;
-  color: ${({ theme }) => theme.subText};
-  font-size: 16px;
-  font-weight: 500;
-  background: ${({ theme }) => theme.buttonBlack};
-  line-height: 24px;
-  text-decoration: none;
-
-  :hover {
-    background: ${({ theme }) => rgba(theme.buttonBlack, 0.6)};
-  }
-`
-
 const Step = ({
   currentStep = 1,
   direction = 'vertical',
@@ -190,6 +172,7 @@ function BuyCrypto() {
   const { account, chainId, networkInfo } = useActiveWeb3React()
 
   const toggleWalletModal = useWalletModalToggle()
+  const toggleDownloadWalletModal = useToggleModal(ApplicationModal.DOWNLOAD_WALLET)
 
   const step0Ref = useRef<HTMLDivElement>(null)
   const step1Ref = useRef<HTMLDivElement>(null)
@@ -248,8 +231,6 @@ function BuyCrypto() {
   const [isDarkMode] = useDarkModeManager()
   const { mixpanelHandler } = useMixpanel()
 
-  const [showDownloadModal, setShowDownloadModal] = useState(false)
-
   const handleStepClick = (value: number) => {
     switch (value) {
       case 1:
@@ -288,36 +269,7 @@ function BuyCrypto() {
 
   return (
     <>
-      <Modal isOpen={showDownloadModal} onDismiss={() => setShowDownloadModal(false)} maxWidth="512px">
-        <Flex width="100%" padding="30px 24px" flexDirection="column">
-          <Flex justifyContent="space-between" alignItems="center">
-            <Text fontSize="20px" fontWeight="500">
-              <Trans>Download a Wallet</Trans>
-            </Text>
-
-            <ButtonText onClick={() => setShowDownloadModal(false)} style={{ lineHeight: 0 }}>
-              <X size={24} color={theme.text} />
-            </ButtonText>
-          </Flex>
-
-          <Flex sx={{ gap: '20px' }} marginTop="24px" flexDirection="column" justifyContent="center">
-            {Object.values(SUPPORTED_WALLETS)
-              .filter(e => e.installLink)
-              .map(item => (
-                <DownloadWalletRow
-                  key={item.installLink}
-                  href={item.installLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Image width="24px" src={isDarkMode ? item.icon : item.iconLight} />
-                  {item.name}
-                </DownloadWalletRow>
-              ))}
-          </Flex>
-        </Flex>
-      </Modal>
-
+      <DownloadWalletModal />
       <IntroWrapper ref={step0Ref}>
         <IntroContent>
           {!upToMedium && <Step currentStep={1} direction="vertical" onStepClick={handleStepClick} />}
@@ -437,7 +389,7 @@ function BuyCrypto() {
                     padding="10px"
                     onClick={() => {
                       mixpanelHandler(MIXPANEL_TYPE.TRANSAK_DOWNLOAD_WALLET_CLICKED)
-                      setShowDownloadModal(true)
+                      toggleDownloadWalletModal()
                     }}
                   >
                     <Deposit width={24} height={24} />

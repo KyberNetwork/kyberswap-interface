@@ -26,7 +26,7 @@ import useDebounce from './useDebounce'
 function useTokensFromMap(tokenMap: TokenAddressMap, lowercaseAddress?: boolean, customChainId?: ChainId): TokenMap {
   const { chainId: currentChainId } = useActiveWeb3React()
   const chainId = customChainId || currentChainId
-  const userAddedTokens = useUserAddedTokens()
+  const userAddedTokens = useUserAddedTokens(chainId)
 
   return useMemo(() => {
     if (!chainId) return {}

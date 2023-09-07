@@ -1,16 +1,14 @@
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import { useMountedState } from 'react-use'
 import { Text } from 'rebass'
+import { useGetNumberOfInsufficientFundOrdersQuery } from 'services/limitOrder'
 import styled from 'styled-components'
 
 import { MouseoverTooltip } from 'components/Tooltip'
-import { getNumberOfInsufficientFundOrders } from 'components/swapv2/LimitOrder/request'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { getLimitOrderContract } from 'utils'
+import { isSupportLimitOrder } from 'utils'
 
 import { Tab } from './index'
 
@@ -31,40 +29,18 @@ type Props = {
 export default function LimitTab({ onClick }: Props) {
   const { chainId, account } = useActiveWeb3React()
   const { pathname } = useLocation()
-  const [numberOfInsufficientFundOrders, setNumberOfInsufficientFundOrders] = useState(0)
 
   const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT)
-  const isSupportLimitOrder = getLimitOrderContract(chainId)
+  const isSupport = isSupportLimitOrder(chainId)
 
-  const getMountedState = useMountedState()
+  const skip = !account || !isSupport
+  const { data } = useGetNumberOfInsufficientFundOrdersQuery(
+    { chainId, maker: account || '' },
+    { skip, pollingInterval: 10_000 },
+  )
+  const numberOfInsufficientFundOrders = skip ? undefined : data
 
-  useEffect(() => {
-    if (!isSupportLimitOrder || !account) {
-      return
-    }
-
-    const run = async () => {
-      try {
-        const num = await getNumberOfInsufficientFundOrders({
-          chainId,
-          maker: account || '',
-        })
-
-        getMountedState() && setNumberOfInsufficientFundOrders(num)
-      } catch (e) {
-        console.error(e)
-      }
-    }
-
-    run()
-    const interval = setInterval(run, 10_000)
-
-    return () => {
-      clearInterval(interval)
-    }
-  }, [account, chainId, isSupportLimitOrder, getMountedState])
-
-  if (!isSupportLimitOrder) {
+  if (!isSupport) {
     return null
   }
 

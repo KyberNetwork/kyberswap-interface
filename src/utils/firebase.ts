@@ -19,7 +19,7 @@ const dbLimitOrder = getFirestore(firebaseAppLimitOrder)
 
 const COLLECTIONS = {
   LO_CANCELLING_ORDERS: 'cancellingOrders',
-  LO_CANCELLED_ORDERS: 'cancelledEvents',
+  LO_CANCELLED_ORDERS: 'cancelledEventsByContract',
   LO_EXPIRED_ORDERS: 'expiredEvents',
   LO_FILLED_ORDERS: 'filledEvents',
 
@@ -82,12 +82,13 @@ function subscribeListLimitOrder(
         all: [],
       }
       data.forEach((e: any) => {
-        if (e.id.startsWith('nonce')) {
+        if (e.id.includes('nonce')) {
           result.all.push(e as AllItem)
         } else {
           result.orders.push({ ...e, id: Number(e.id) } as LimitOrder)
         }
       })
+      console.log(result)
       callback(result)
     },
   )
@@ -95,10 +96,11 @@ function subscribeListLimitOrder(
   return unsubscribe
 }
 
+export type OrderNonces = { [key: string]: number[] }
 export function subscribeCancellingOrders(
   account: string,
   chainId: ChainId,
-  callback: (data: { orderIds: number[]; nonces: number[] }) => void,
+  callback: (data: { orderIds: number[]; noncesByContract: OrderNonces }) => void,
 ) {
   return subscribeDocument(
     dbLimitOrder,

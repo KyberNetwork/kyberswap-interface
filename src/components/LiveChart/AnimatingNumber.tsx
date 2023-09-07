@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { useRef } from 'react'
+import { useCallback, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -50,11 +50,18 @@ const TickerColumn = styled(motion.div)`
 `
 
 function NumberColumn({ digit, fontSize }: { digit: number; fontSize: number }) {
-  const columnContainer = useRef<HTMLDivElement>()
-  const y = (columnContainer.current?.clientHeight || 0) * digit ?? 0
+  const [clientHeight, setClientHeight] = useState(0)
+
+  const columnContainerRef = useCallback((node: HTMLDivElement) => {
+    if (node !== null) {
+      setClientHeight(node.clientHeight)
+    }
+  }, [])
+
+  const y = (clientHeight || 0) * digit ?? 0
 
   return (
-    <Container ref={columnContainer as any} fontSize={fontSize}>
+    <Container ref={columnContainerRef} fontSize={fontSize}>
       <TickerColumn animate={{ y }} transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
         {[9, 8, 7, 6, 5, 4, 3, 2, 1, 0].map(num => (
           <TickerDigit key={num}>{num}</TickerDigit>

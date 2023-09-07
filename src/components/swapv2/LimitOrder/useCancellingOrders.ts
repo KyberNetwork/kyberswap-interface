@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useGetLOContractAddressQuery } from 'services/limitOrder'
 
 import { useActiveWeb3React } from 'hooks'
-import { subscribeCancellingOrders } from 'utils/firebase'
+import { OrderNonces, subscribeCancellingOrders } from 'utils/firebase'
 
 import { isActiveStatus } from './helpers'
 import { LimitOrder } from './type'
@@ -9,8 +10,7 @@ import { LimitOrder } from './type'
 export type CancellingOrderInfo = {
   loading: boolean
   cancellingOrdersIds: number[]
-  cancellingOrdersNonces: number[]
-  setCancellingOrders: (data: { orderIds?: number[]; nonces?: number[] }) => void
+  setCancellingOrders: (orderIds: number[]) => void
   isOrderCancelling: (order: LimitOrder) => boolean
 }
 
@@ -18,35 +18,40 @@ export default function useCancellingOrders(): CancellingOrderInfo {
   const { account, chainId } = useActiveWeb3React()
 
   const [cancellingOrdersIds, setCancellingOrdersIds] = useState<number[]>([])
-  const [cancellingOrdersNonces, setCancellingOrdersNonces] = useState<number[]>([])
+  const [cancellingOrdersNonces, setCancellingOrdersNonces] = useState<OrderNonces>({})
   const [loading, setLoading] = useState(true)
+  const { data = '', isError } = useGetLOContractAddressQuery(chainId)
+  const contract = isError ? '' : data
 
-  const setCancellingOrders = useCallback((data: { orderIds?: number[]; nonces?: number[] }) => {
-    if (data.orderIds) setCancellingOrdersIds(data.orderIds)
-    if (data.nonces) setCancellingOrdersNonces(data.nonces)
+  const setCancellingOrders = useCallback((orderIds: number[]) => {
+    setCancellingOrdersIds(orderIds)
   }, [])
 
   useEffect(() => {
     if (!account) return
     const unsubscribe = subscribeCancellingOrders(account, chainId, data => {
       setCancellingOrdersIds(data?.orderIds ?? [])
-      setCancellingOrdersNonces(data?.nonces ?? [])
+      setCancellingOrdersNonces(data?.noncesByContract ?? {})
       setLoading(false)
     })
     return () => unsubscribe?.()
-  }, [account, chainId, setCancellingOrders])
+  }, [account, chainId])
 
   const isOrderCancelling = useCallback(
-    (order: LimitOrder) => {
+    (order: LimitOrder | string | undefined) => {
+      if (!order) return false
+      const nonces = cancellingOrdersNonces[contract] || []
+      if (typeof order === 'string') {
+        return cancellingOrdersIds.includes(+order) && nonces.length > 0
+      }
       return (
-        isActiveStatus(order.status) &&
-        (cancellingOrdersNonces.includes(order.nonce) || cancellingOrdersIds?.includes(order.id))
+        isActiveStatus(order.status) && (nonces?.includes?.(order.nonce) || cancellingOrdersIds?.includes(order.id))
       )
     },
-    [cancellingOrdersNonces, cancellingOrdersIds],
+    [cancellingOrdersNonces, cancellingOrdersIds, contract],
   )
 
   return useMemo(() => {
-    return { cancellingOrdersIds, cancellingOrdersNonces, loading, setCancellingOrders, isOrderCancelling }
-  }, [cancellingOrdersIds, cancellingOrdersNonces, loading, setCancellingOrders, isOrderCancelling])
+    return { cancellingOrdersIds, loading, setCancellingOrders, isOrderCancelling }
+  }, [cancellingOrdersIds, loading, setCancellingOrders, isOrderCancelling])
 }

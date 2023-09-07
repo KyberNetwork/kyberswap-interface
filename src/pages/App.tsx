@@ -1,4 +1,3 @@
-import { datadogRum } from '@datadog/browser-rum'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import * as Sentry from '@sentry/react'
@@ -25,7 +24,7 @@ import Snowfall from 'components/Snowflake/Snowfall'
 import Web3ReactManager from 'components/Web3ReactManager'
 import { ENV_LEVEL } from 'constants/env'
 import { APP_PATHS, BLACKLIST_WALLETS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
-import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
+import { CLASSIC_NOT_SUPPORTED, NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
 import { useAutoLogin } from 'hooks/useLogin'
@@ -39,10 +38,9 @@ import TruesightFooter from 'pages/TrueSightV2/components/TruesightFooter'
 import KyberAILandingPage from 'pages/TrueSightV2/pages/LandingPage'
 import { useHolidayMode } from 'state/user/hooks'
 import DarkModeQueryParamReader from 'theme/DarkModeQueryParamReader'
-import { getLimitOrderContract, isAddressString, shortenAddress } from 'utils'
+import { isAddressString, isSupportLimitOrder, shortenAddress } from 'utils'
 
 import ElasticLegacyNotice from './ElasticLegacy/ElasticLegacyNotice'
-import Icons from './Icons'
 import VerifyAuth from './Verify/VerifyAuth'
 
 // test page for swap only through elastic
@@ -77,12 +75,12 @@ const BuyCrypto = lazy(() => import('pages/BuyCrypto'))
 const Campaign = lazy(() => import('pages/Campaign'))
 const GrantProgramPage = lazy(() => import('pages/GrantProgram'))
 const NotificationCenter = lazy(() => import('pages/NotificationCenter'))
+const Icons = lazy(() => import('./Icons'))
 
 const AppWrapper = styled.div`
   display: flex;
   flex-flow: column;
   align-items: flex-start;
-  overflow-x: hidden;
 `
 
 const HeaderWrapper = styled.div`
@@ -156,7 +154,7 @@ const RedirectWithNetworkSuffix = () => {
 
 const RoutesWithNetworkPrefix = () => {
   const { network } = useParams()
-  const { networkInfo } = useActiveWeb3React()
+  const { networkInfo, chainId } = useActiveWeb3React()
   const location = useLocation()
 
   useSyncNetworkParamWithStore()
@@ -176,15 +174,22 @@ const RoutesWithNetworkPrefix = () => {
 
   return (
     <Routes>
-      <Route path={`${APP_PATHS.CLASSIC_CREATE_POOL}/:currencyIdA?/:currencyIdB?`} element={<RedirectCreatePool />} />
-      <Route
-        path={`${APP_PATHS.CLASSIC_ADD_LIQ}/:currencyIdA/:currencyIdB?/:pairAddress?`}
-        element={<AddLiquidity />}
-      />
-      <Route
-        path={`${APP_PATHS.CLASSIC_REMOVE_POOL}/:currencyIdA/:currencyIdB/:pairAddress`}
-        element={<RemoveLiquidity />}
-      />
+      {!CLASSIC_NOT_SUPPORTED[chainId] && (
+        <>
+          <Route
+            path={`${APP_PATHS.CLASSIC_CREATE_POOL}/:currencyIdA?/:currencyIdB?`}
+            element={<RedirectCreatePool />}
+          />
+          <Route
+            path={`${APP_PATHS.CLASSIC_ADD_LIQ}/:currencyIdA/:currencyIdB?/:pairAddress?`}
+            element={<AddLiquidity />}
+          />
+          <Route
+            path={`${APP_PATHS.CLASSIC_REMOVE_POOL}/:currencyIdA/:currencyIdB/:pairAddress`}
+            element={<RemoveLiquidity />}
+          />
+        </>
+      )}
 
       <Route
         path={`${APP_PATHS.ELASTIC_CREATE_POOL}/:currencyIdA?/:currencyIdB?/:feeAmount?`}
@@ -223,7 +228,6 @@ export default function App() {
   useEffect(() => {
     if (account) {
       Sentry.setUser({ id: account })
-      datadogRum.setUser({ id: account })
     }
   }, [account])
 
@@ -232,10 +236,6 @@ export default function App() {
       Sentry.setTags({
         chainId: chainId,
         network: networkInfo.name,
-      })
-      datadogRum.setGlobalContext({
-        chainId,
-        networkName: networkInfo.name,
       })
     }
   }, [chainId, networkInfo.name])
@@ -321,7 +321,7 @@ export default function App() {
                       <Route path={`${APP_PATHS.CROSS_CHAIN}`} element={<SwapV3 />} />
                     )}
 
-                    {getLimitOrderContract(chainId) && (
+                    {isSupportLimitOrder(chainId) && (
                       <Route path={`${APP_PATHS.LIMIT}/:network/:currency?`} element={<SwapPage />} />
                     )}
 

@@ -1,8 +1,8 @@
 import { Trans } from '@lingui/macro'
 import { ethers } from 'ethers'
-import { useEffect, useState } from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
+import { useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 import styled from 'styled-components'
 
 import Modal from 'components/Modal'
@@ -13,7 +13,6 @@ import { TransactionFlowState } from 'types/TransactionFlowState'
 
 import LimitOrderForm, { Label } from './LimitOrderForm'
 import { calcInvert, calcPercentFilledOrder, calcRate, removeTrailingZero } from './helpers'
-import { getTotalActiveMakingAmount } from './request'
 import { LimitOrder, LimitOrderStatus, RateInfo } from './type'
 
 const Wrapper = styled.div`
@@ -61,15 +60,10 @@ export default function EditOrderModal({
   const defaultRate: RateInfo = { rate, invertRate: calcInvert(rate), invert: false }
   const filled = currencyOut ? calcPercentFilledOrder(filledTakingAmount, takingAmount, currencyOut.decimals) : 0
 
-  const [defaultActiveMakingAmount, setDefaultActiveMakingAmount] = useState('')
-
-  // prefetch
-  useEffect(() => {
-    if (!currencyIn || !account) return
-    getTotalActiveMakingAmount(chainId, currencyIn.wrapped.address, account)
-      .then(({ activeMakingAmount }) => setDefaultActiveMakingAmount(activeMakingAmount))
-      .catch(console.error)
-  }, [currencyIn, account, chainId])
+  const { data: defaultActiveMakingAmount } = useGetTotalActiveMakingAmountQuery(
+    { chainId, tokenAddress: currencyIn?.wrapped.address ?? '', account: account ?? '' },
+    { skip: !currencyIn || !account },
+  )
 
   return (
     <Modal isOpen={isOpen && !!currencyIn && !!currencyOut && !!defaultActiveMakingAmount} onDismiss={onDismiss}>

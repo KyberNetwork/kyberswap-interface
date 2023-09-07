@@ -13,7 +13,6 @@ import { useSetClaimingCampaignRewardId } from 'state/campaigns/hooks'
 import { AppDispatch, AppState } from 'state/index'
 import { revokePermit } from 'state/user/actions'
 import { findTx } from 'utils'
-import { includes } from 'utils/array'
 
 import { checkedTransaction, finalizeTransaction, removeTx, replaceTx } from './actions'
 import { SerializableTransactionReceipt, TRANSACTION_TYPE, TransactionDetails } from './type'
@@ -134,7 +133,7 @@ export default function Updater(): null {
                     blockHash: receipt.blockHash,
                     status: receipt.status,
                   },
-                  needCheckSubgraph: includes(NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES, transaction.type),
+                  needCheckSubgraph: NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES.includes(transaction.type),
                 }),
               )
 

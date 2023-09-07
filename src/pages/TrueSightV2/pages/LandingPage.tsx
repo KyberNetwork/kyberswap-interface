@@ -34,6 +34,7 @@ import tokenPriceImage from 'assets/images/truesight-v2/landing-page/token-price
 // import videoPlaceholderImage from 'assets/images/truesight-v2/landing-page/video-placeholder.png'
 import sprite from 'assets/svg/kyberAILandingPageSprite.svg'
 import Column from 'components/Column'
+import DownloadWalletModal from 'components/DownloadWalletModal'
 import GlobalIcon from 'components/Icons/Icon'
 import Row from 'components/Row'
 import useTheme from 'hooks/useTheme'
@@ -410,7 +411,7 @@ export default function KyberAILandingPage() {
               />
             </Column>
           )}
-          <Column height="100%" gap="24px" style={{ justifyContent: 'center' }}>
+          <Column height="100%" gap="24px" style={{ justifyContent: 'center', zIndex: 2 }}>
             <Text fontSize="48px" lineHeight="60px" fontWeight={800}>
               <Trans>
                 Ape Smart with{' '}
@@ -802,6 +803,7 @@ export default function KyberAILandingPage() {
           </CallToActionBox>
         </FixedWidth>
       </Part8>
+      <DownloadWalletModal />
     </Wrapper>
   )
 }

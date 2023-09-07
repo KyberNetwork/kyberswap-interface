@@ -3,7 +3,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
-const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
@@ -17,14 +16,14 @@ const zkSyncInfo: EVMNetworkInfo = {
   poolFarmRoute: 'zksync',
   aggregatorRoute: 'zksync',
   name: 'zkSync Era',
-  icon: 'https://storage.googleapis.com/ks-setting-a3aa20b7/ad122023-76dd-4cdd-ad5a-7572726f004f.svg',
+  icon: 'https://storage.googleapis.com/ks-setting-1d682dca/bd11850b-6aef-48c6-a27d-f8ee833e0dbc1693378187666.svg',
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
   defaultBlockSubgraph: 'https://zksync-graph.kyberengineering.io/subgraphs/name/kybernetwork/zksync-blocks',
   etherscanUrl: 'https://explorer.zksync.io',
   etherscanName: 'zkSync Era Explorer',
-  bridgeURL: EMPTY,
+  bridgeURL: 'https://portal.zksync.io/bridge/',
   nativeToken: {
     symbol: 'ETH',
     name: 'ETH',
@@ -58,10 +57,7 @@ const zkSyncInfo: EVMNetworkInfo = {
     routers: '',
     farms: [],
   },
-  limitOrder: {
-    development: NOT_SUPPORT,
-    production: NOT_SUPPORT,
-  },
+  limitOrder: NOT_SUPPORT,
   averageBlockTimeInSeconds: 15,
   coingeckoNetworkId: 'zksync-ethereum',
   coingeckoNativeTokenId: 'ethereum',
