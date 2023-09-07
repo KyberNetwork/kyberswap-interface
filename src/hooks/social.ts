@@ -5,18 +5,18 @@ import { v4 as uuid } from 'uuid'
 
 import { BUCKET_NAME } from 'constants/env'
 
-const ALLOW_EXTENSIONS = ['jpg', 'jpeg', 'png', 'svg', 'webp', 'gif']
+export const IMAGE_ALLOW_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif']
 
 export const useUploadImageToCloud = () => {
   const [uploadImage] = useUploadImageMutation()
 
   return useCallback(
-    async (file: Blob | File) => {
+    async (fileObject: Blob | File) => {
       try {
-        const ext = (file as File).name.split('.').pop() ?? ''
-        if (!ALLOW_EXTENSIONS.includes(ext)) throw new Error('File is not support')
-
-        const fileName = `${uuid() + Date.now()}.${ext}`
+        const file = fileObject as File
+        const ext = file.name?.split('.')?.pop() ?? ''
+        if (ext && !IMAGE_ALLOW_EXTENSIONS.includes(ext)) throw new Error('File is not support')
+        const fileName = `${uuid() + Date.now()}.${ext || 'png'}`
         const res = await uploadImage({
           fileName,
         }).unwrap()

@@ -2,6 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import Mainnet from 'assets/networks/mainnet-network.svg'
+import { EnvKeys } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -60,7 +61,7 @@ const görliInfo: EVMNetworkInfo = {
     farmv2Quoter: '0x1e9C12303855433052A31815Dc28C146aF3e9C1F',
     farmV2S: ['0xdd463A7a71122D0248f3Fa1eF975202bAEe74B46'],
   },
-  limitOrder: { development: '0x43E49489dD38dbFF4Aef0d7FC34026aBEF0e1134', production: NOT_SUPPORT },
+  limitOrder: [EnvKeys.DEV],
   averageBlockTimeInSeconds: 13.13,
   coingeckoNetworkId: 'ethereum',
   coingeckoNativeTokenId: 'ethereum',

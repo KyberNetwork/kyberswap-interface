@@ -18,6 +18,7 @@ import geckoTerminalApi from '../services/geckoTermial'
 import identifyApi from '../services/identity'
 import ksSettingApi from '../services/ksSetting'
 import kyberDAO from '../services/kyberDAO'
+import limitOrderApi from '../services/limitOrder'
 import socialApi from '../services/social'
 import application from './application/reducer'
 import authen from './authen/reducer'
@@ -93,6 +94,7 @@ const store = configureStore({
     [publicAnnouncementApi.reducerPath]: publicAnnouncementApi.reducer,
     [geckoTerminalApi.reducerPath]: geckoTerminalApi.reducer,
     [coingeckoApi.reducerPath]: coingeckoApi.reducer,
+    [limitOrderApi.reducerPath]: limitOrderApi.reducer,
 
     [kyberAIApi.reducerPath]: kyberAIApi.reducer,
     [kyberAISubscriptionApi.reducerPath]: kyberAISubscriptionApi.reducer,
@@ -122,6 +124,7 @@ const store = configureStore({
       .concat(save({ states: PERSISTED_KEYS, debounce: 100 }))
       .concat(geckoTerminalApi.middleware)
       .concat(coingeckoApi.middleware)
+      .concat(limitOrderApi.middleware)
       .concat(kyberAIApi.middleware)
       .concat(kyberAISubscriptionApi.middleware)
       .concat(announcementApi.middleware)
