@@ -152,7 +152,9 @@ export const formatDisplayNumber = ({
         .join('')
       const slicedDecimal = decimal
         .replace(/^0+/, '')
-        .substring(0, Math.min(significantDigits ?? Infinity, fractionDigits ?? Infinity, 6))
+        .slice(0, fractionDigits)
+        .slice(0, significantDigits || 6)
+        .replace(/0+$/, '')
       return `${negative}${currency}0.0${subscript}${slicedDecimal}${percent}`
     }
 
