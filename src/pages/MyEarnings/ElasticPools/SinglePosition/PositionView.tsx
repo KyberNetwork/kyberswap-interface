@@ -15,6 +15,7 @@ import Divider from 'components/Divider'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import { MouseoverTooltip } from 'components/Tooltip'
 import PROMM_FARM_ABI from 'constants/abis/v2/farm.json'
+import FarmV2ABI from 'constants/abis/v2/farmv2.json'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
@@ -39,6 +40,7 @@ import { formatDollarAmount } from 'utils/numbers'
 import ActionButtons from './ActionButtons'
 
 const FarmInterface = new Interface(PROMM_FARM_ABI)
+const FarmV2Interface = new Interface(FarmV2ABI)
 
 const PositionView: React.FC<CommonProps> = props => {
   const { positionEarning, position, pendingFee, tokenPrices: prices, chainId, currency0, currency1 } = props
@@ -114,35 +116,60 @@ const PositionView: React.FC<CommonProps> = props => {
   const theme = useTheme()
   const tokens = useAllTokens(true, chainId)
 
-  const farmRewards = positionEarning.joinedPositions?.[0]?.farmingPool?.rewardTokensIds?.map((rwId, index) => {
-    const token = tokens[rwId] || new Token(chainId, rwId, 18, '', '')
+  let farmRewards =
+    positionEarning.joinedPositions?.[0]?.farmingPool?.rewardTokensIds?.map((rwId, index) => {
+      const token = tokens[rwId] || new Token(chainId, rwId, 18, '', '')
 
-    return CurrencyAmount.fromRawAmount(token, positionEarning.joinedPositions?.[0]?.pendingRewards?.[index] || '0')
-  })
+      return CurrencyAmount.fromRawAmount(token, positionEarning.joinedPositions?.[0]?.pendingRewards?.[index] || '0')
+    }) || []
+
+  const farmV2Rewards =
+    positionEarning.farmV2DepositedPosition?.pendingRewards.map((amount, index) => {
+      const tokenId = positionEarning.farmV2DepositedPosition?.farmV2.rewards[index].token || ''
+      const token = tokens[tokenId] || new Token(chainId, tokenId, 18, '', '')
+
+      return CurrencyAmount.fromRawAmount(token, amount)
+    }) || []
+
+  farmRewards = farmRewards.concat(farmV2Rewards)
+
+  const disabledHarvest =
+    !positionEarning.joinedPositions?.[0]?.pendingRewards?.some(item => item !== '0') &&
+    !positionEarning.farmV2DepositedPosition?.pendingRewards?.some(item => item !== '0')
 
   const addTransactionWithType = useTransactionAdder()
 
   const handleHarvest = () => {
-    const farmContract = positionEarning.joinedPositions?.[0]?.farmId
+    const farmContract =
+      positionEarning.joinedPositions?.[0]?.farmId || positionEarning.farmV2DepositedPosition?.farmV2.id.split('_')[0]
+    const isInFarmV2 = !!positionEarning.farmV2DepositedPosition
     const pId = positionEarning.joinedPositions?.[0]?.pid
+    const fId = positionEarning?.farmV2DepositedPosition?.farmV2.id.split('_')[1]
+
     const library = libraryRef.current
 
     dispatch(setShowPendingModal(MODAL_PENDING_TEXTS.HARVEST))
     dispatch(setAttemptingTxn(true))
 
-    if (!library || !pId || !farmContract) {
+    if (!library || (isInFarmV2 ? !fId : !pId) || !farmContract) {
       dispatch(setAttemptingTxn(false))
       dispatch(setTxError('Something went wrong!'))
       return
     }
 
-    const encodedPid = defaultAbiCoder.encode(['tupple(uint256[] pIds)'], [{ pIds: [pId] }])
-    const encodedData = FarmInterface.encodeFunctionData('harvestMultiplePools', [[positionEarning.id], [encodedPid]])
+    let encodedData = ''
+    if (isInFarmV2) {
+      encodedData = FarmV2Interface.encodeFunctionData('claimReward', [fId, [positionEarning.id]])
+    } else {
+      const encodedPid = defaultAbiCoder.encode(['tupple(uint256[] pIds)'], [{ pIds: [pId] }])
+      encodedData = FarmInterface.encodeFunctionData('harvestMultiplePools', [[positionEarning.id], [encodedPid]])
+    }
 
     const txn = {
       to: farmContract,
       data: encodedData,
     }
+
     library
       .getSigner()
       .estimateGas(txn)
@@ -251,12 +278,17 @@ const PositionView: React.FC<CommonProps> = props => {
 
       <CollectFeesPanel
         nftId={positionEarning.id}
+        fId={positionEarning?.farmV2DepositedPosition?.farmV2.id.split('_')[1]}
         chainId={chainId}
         feeUsd={feeUsd}
         feeValue0={feeReward0}
         feeValue1={feeReward1}
         hasUserDepositedInFarm={positionEarning.owner !== positionEarning.ownerOriginal}
-        farmAddress={positionEarning.depositedPosition?.farm || positionEarning.joinedPositions?.[0]?.farmId}
+        farmAddress={
+          positionEarning?.farmV2DepositedPosition?.farmV2.id.split('_')[0] ||
+          positionEarning.depositedPosition?.farm ||
+          positionEarning.joinedPositions?.[0]?.farmId
+        }
         poolAddress={positionEarning.pool.id}
         position={position}
         isLegacy={isLegacyPosition}
@@ -299,7 +331,7 @@ const PositionView: React.FC<CommonProps> = props => {
         </Flex>
 
         <ButtonOutlined
-          disabled={!positionEarning.joinedPositions?.[0]?.pendingRewards?.some(item => item !== '0')}
+          disabled={disabledHarvest}
           style={{
             height: '36px',
             width: 'fit-content',
