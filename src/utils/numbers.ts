@@ -137,7 +137,7 @@ export const formatDisplayNumber = ({
     referenceFraction.lessThan(BIG_INT_ONE) &&
     !referenceFraction.equalTo(BIG_INT_ZERO)
   ) {
-    const decimal = Number(parsedStr.split('.')[1]).toString()
+    const decimal = parsedStr.split('.')[1]
     const isNegative = parsedFraction.lessThan(0)
     if (numberOfLeadingZeros > 2) {
       return `${isNegative ? '-' : ''}${style === 'currency' ? '$' : ''}0.0${numberOfLeadingZeros
