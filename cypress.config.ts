@@ -26,7 +26,6 @@ export default defineConfig({
       require('@cypress/grep/src/plugin')(config)
       on('after:run', async results => {
         if (results) {
-          const build_number = process.env.BUILD_NUMBER
           const register = new client.Registry()
           const prefix = 'e2e_cypress'
 
@@ -57,11 +56,11 @@ export default defineConfig({
           register.registerMetric(testFail)
           register.registerMetric(suite)
 
-          testFail.labels({ buildId: build_number }).inc(totalFailed)
-          testPass.labels({ buildId: build_number }).inc(totalPassed)
+          testFail.labels({ buildId: `${process.env.GITHUB_RUN_ID}` }).inc(totalFailed)
+          testPass.labels({ buildId: `${process.env.GITHUB_RUN_ID}` }).inc(totalPassed)
           suite
             .labels({
-              buildId: build_number,
+              buildId: `${process.env.GITHUB_RUN_ID}`,
             })
             .inc(totalTests)
 
