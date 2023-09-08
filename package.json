@@ -150,7 +150,7 @@
     "@cypress/grep": "^3.1.5",
     "@lingui/cli": "~3.14.0",
     "@lingui/vite-plugin": "~3.16.1",
-    "@synthetixio/synpress": "^3.7.0",
+    "@synthetixio/synpress": "^3.7.2-beta.7",
     "@trivago/prettier-plugin-sort-imports": "^3.3.1",
     "@types/aos": "^3.0.4",
     "@types/big.js": "^6.0.0",
