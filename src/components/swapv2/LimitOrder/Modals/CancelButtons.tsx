@@ -31,6 +31,8 @@ const CancelButtons = ({
   isEdit,
   isCancelAll,
   totalOrder,
+  disabledGasLessCancel = false,
+  disabledHardCancel = false,
 }: {
   cancelStatus: CancelStatus
   onOkay: () => void
@@ -41,6 +43,8 @@ const CancelButtons = ({
   isEdit?: boolean // else cancel
   isCancelAll?: boolean
   totalOrder?: ReactNode
+  disabledGasLessCancel?: boolean
+  disabledHardCancel?: boolean
 }) => {
   const theme = useTheme()
   const isCountDown = cancelStatus === CancelStatus.COUNTDOWN
@@ -61,7 +65,7 @@ const CancelButtons = ({
         <>
           <Column width={'100%'} gap="8px">
             <ButtonLight
-              disabled={isCountDown ? false : !supportCancelGasless || loading}
+              disabled={disabledGasLessCancel || (isCountDown ? false : !supportCancelGasless || loading)}
               onClick={isCountDown ? onOkay : onClickGaslessCancel}
               height={'40px'}
               width={'100%'}
@@ -88,7 +92,7 @@ const CancelButtons = ({
           <Column width={'100%'} gap="8px">
             <ButtonLight
               color={theme.red}
-              disabled={loading}
+              disabled={loading || disabledHardCancel}
               onClick={onClickHardCancel}
               style={{ height: '40px', width: '100%' }}
             >

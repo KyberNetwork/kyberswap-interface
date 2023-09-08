@@ -593,6 +593,12 @@ function LimitOrderForm({
     deltaRate,
   })
 
+  const hasChangedOrderInfo =
+    isEdit &&
+    (defaultInputAmount !== inputAmount ||
+      defaultRate?.rate !== rateInfo.rate ||
+      defaultExpire?.getTime() !== expiredAt)
+
   return (
     <>
       <Flex flexDirection={'column'} style={{ gap: '1rem' }}>
@@ -754,6 +760,7 @@ function LimitOrderForm({
             showWarning: warningMessage.length > 0,
             isEdit,
             cancelOrderInfo,
+            hasChangedOrderInfo,
           }}
         />
       </Flex>

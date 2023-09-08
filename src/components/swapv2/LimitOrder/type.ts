@@ -74,7 +74,7 @@ export type CancelOrderInfo = {
   supportCancelGasless: boolean
   onClickGaslessCancel: () => Promise<void>
   onClickHardCancel: () => Promise<void>
-  renderCancelButtons: (v?: boolean) => ReactNode
+  renderCancelButtons: (v?: boolean, disableButtons?: boolean) => ReactNode
 }
 
 export type CancelOrderResponse = {

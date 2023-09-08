@@ -35,6 +35,7 @@ export default function ActionButtonLimitOrder({
   showWarning,
   isEdit,
   cancelOrderInfo,
+  hasChangedOrderInfo,
 }: {
   currencyIn: Currency | undefined
   approval: ApprovalState
@@ -53,6 +54,7 @@ export default function ActionButtonLimitOrder({
   showPreview: (v?: CancelOrderType) => void
   isEdit: boolean
   cancelOrderInfo: CancelOrderInfo | undefined
+  hasChangedOrderInfo: boolean
 }) {
   const disableBtnApproved =
     approval === ApprovalState.PENDING ||
@@ -114,8 +116,9 @@ export default function ActionButtonLimitOrder({
   )
 
   if (isEdit && cancelOrderInfo) {
+    // todo refactor props this file
     const { renderCancelButtons } = cancelOrderInfo
-    return renderCancelButtons(false) as JSX.Element
+    return renderCancelButtons(false, !hasChangedOrderInfo) as JSX.Element
   }
 
   if (showWarning && !disableBtnReview)

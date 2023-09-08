@@ -113,7 +113,7 @@ export default function EditOrderModal({
   const isSupportSoftCancelOrder = useIsSupportSoftCancelOrder()
   const supportCancelGasless = isSupportSoftCancelOrder(order)
 
-  const renderCancelButtons = (showCancelStatus = true) => (
+  const renderCancelButtons = (showCancelStatus = true, disableButtons = false) => (
     <>
       {showCancelStatus && (
         <CancelStatusCountDown
@@ -131,6 +131,8 @@ export default function EditOrderModal({
         onOkay={onDismiss}
         onClickGaslessCancel={onClickGaslessCancel}
         onClickHardCancel={onClickHardCancel}
+        disabledGasLessCancel={disableButtons}
+        disabledHardCancel={disableButtons}
       />
     </>
   )
