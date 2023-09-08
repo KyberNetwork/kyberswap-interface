@@ -15,8 +15,8 @@ import useTheme from 'hooks/useTheme'
 import { Bound } from 'state/mint/proamm/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { ExternalLink, TYPE } from 'theme'
-import { toSignificantOrMaxIntegerPart } from 'utils/formatCurrencyAmount'
 import { formatTickPrice } from 'utils/formatTickPrice'
+import { formatDisplayNumber } from 'utils/numbers'
 import { checkWarningSlippage, formatSlippage } from 'utils/slippage'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
@@ -80,7 +80,8 @@ export default function ProAmmPriceRangeConfirm({
           </Text>
           <RowFixed>
             <Text fontSize={'12px'} fontWeight="500" style={{ textAlign: 'right' }}>
-              1 {baseCurrency.symbol} = {toSignificantOrMaxIntegerPart(price, 6)} {quoteCurrency.symbol}
+              1 {baseCurrency.symbol} = {formatDisplayNumber({ value: price, significantDigits: 6 })}{' '}
+              {quoteCurrency.symbol}
             </Text>
             <span onClick={handleRateChange} style={{ marginLeft: '2px', cursor: 'pointer' }}>
               <RotateSwapIcon rotated={baseCurrency !== currency0} size={16} />

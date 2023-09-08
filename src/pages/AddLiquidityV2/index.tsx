@@ -87,7 +87,6 @@ import { ExternalLink, MEDIA_WIDTHS, StyledInternalLink, TYPE } from 'theme'
 import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { friendlyError } from 'utils/errorMessage'
-import { toSignificantOrMaxIntegerPart } from 'utils/formatCurrencyAmount'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { formatDisplayNumber } from 'utils/numbers'
 import { SLIPPAGE_STATUS, checkRangeSlippage } from 'utils/slippage'
@@ -1547,11 +1546,10 @@ export default function AddLiquidity() {
                             <RowFixed>
                               <HoverInlineText
                                 maxCharacters={24}
-                                text={`1 ${baseCurrency?.symbol} = ${
-                                  invertPrice
-                                    ? toSignificantOrMaxIntegerPart(price.invert(), 6)
-                                    : toSignificantOrMaxIntegerPart(price, 6)
-                                } ${quoteCurrency?.symbol}`}
+                                text={`1 ${baseCurrency?.symbol} = ${formatDisplayNumber({
+                                  value: invertPrice ? price.invert() : price,
+                                  significantDigits: 6,
+                                })} ${quoteCurrency?.symbol}`}
                               />
                             </RowFixed>
                           </TYPE.main>

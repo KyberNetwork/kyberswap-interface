@@ -8,7 +8,7 @@ import SwitchIcon from 'components/Icons/SwitchIcon'
 import { RowBetween } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 import { TYPE } from 'theme'
-import { formattedNum } from 'utils'
+import { formatDisplayNumber } from 'utils/numbers'
 
 import { Spin } from '../styled'
 
@@ -43,10 +43,14 @@ function NewPoolNote({
                 maxCharacters={24}
                 text={
                   !invertMarketPrice
-                    ? `1 ${baseCurrency?.symbol} = ${formattedNum(marketPrice.toString())} ${quoteCurrency?.symbol}`
-                    : `1 ${quoteCurrency?.symbol} = ${formattedNum((1 / marketPrice).toString())} ${
-                        baseCurrency?.symbol
-                      }`
+                    ? `1 ${baseCurrency?.symbol} = ${formatDisplayNumber({
+                        value: marketPrice,
+                        significantDigits: 6,
+                      })} ${quoteCurrency?.symbol}`
+                    : `1 ${quoteCurrency?.symbol} = ${formatDisplayNumber({
+                        value: 1 / marketPrice,
+                        significantDigits: 6,
+                      })} ${baseCurrency?.symbol}`
                 }
               />
 
