@@ -185,8 +185,13 @@ const TokenDescription = ({ description }: { description: string }) => {
   const [show, setShow] = useState(true)
   const [isTextExceeded, setIsTextExceeded] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+
   useLayoutEffect(() => {
-    setIsTextExceeded((description && ref.current && ref.current?.clientWidth <= ref.current?.scrollWidth) || false)
+    setIsTextExceeded((!!description && ref.current && ref.current?.clientWidth <= ref.current?.scrollWidth) || false)
+    console.log(
+      '🚀 ~ file: SingleToken.tsx:191 ~ useLayoutEffect ~ ref.current:',
+      !!description && ref.current && ref.current?.clientWidth <= ref.current?.scrollWidth,
+    )
   }, [description])
 
   useEffect(() => {
@@ -206,9 +211,11 @@ const TokenDescription = ({ description }: { description: string }) => {
         dangerouslySetInnerHTML={{
           __html:
             linkify(description) +
-            `<span style="color:${
-              theme.primary
-            }; cursor:pointer; margin-left:4px;" id="hide-token-description-span">${t`Hide`}</span>`,
+            (isTextExceeded
+              ? `<span style="color:${
+                  theme.primary
+                }; cursor:pointer; margin-left:4px;" id="hide-token-description-span">${t`Hide`}</span>`
+              : ''),
         }}
       />
       {isTextExceeded && !show && (
