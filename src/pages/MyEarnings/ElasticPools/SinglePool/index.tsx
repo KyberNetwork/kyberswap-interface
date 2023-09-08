@@ -276,7 +276,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
               value={formatDisplayNumber({
                 value: poolEarning.totalValueLockedUsd,
                 style: 'currency',
-                significantDigits: 6,
+                significantDigits: 7,
                 fractionDigits: 4,
               })}
             />
@@ -439,7 +439,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
           {formatDisplayNumber({
             value: poolEarning.totalValueLockedUsd,
             style: 'currency',
-            significantDigits: 6,
+            significantDigits: 7,
             fractionDigits: 4,
           })}
         </Text>
