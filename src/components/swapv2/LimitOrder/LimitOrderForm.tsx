@@ -461,7 +461,6 @@ function LimitOrderForm({
       }, 100),
     [getActiveMakingAmount],
   )
-  // todo split file + file list order as well
 
   useEffect(() => {
     if (currencyIn) refreshActiveMakingAmount()
@@ -469,7 +468,7 @@ function LimitOrderForm({
 
   useEffect(() => {
     if (!isEdit || !orderInfo?.id) return
-    const param: CreateOrderParam = {
+    setOrderEditing({
       orderId: orderInfo.id,
       account,
       chainId,
@@ -478,8 +477,7 @@ function LimitOrderForm({
       inputAmount,
       outputAmount,
       expiredAt,
-    }
-    setOrderEditing(param)
+    })
   }, [
     setOrderEditing,
     account,
@@ -497,7 +495,6 @@ function LimitOrderForm({
   const refSubmitCreateOrder = useRef(onSubmitCreateOrder)
   refSubmitCreateOrder.current = onSubmitCreateOrder
 
-  // todo refactor
   useEffect(() => {
     if (!account) return
     // call when cancel expired/cancelled

@@ -32,7 +32,6 @@ const limitOrderApi = createApi({
         return { contract: data?.data?.latest?.toLowerCase?.() ?? '', features }
       },
     }),
-    // todo invalidate tag: when cancelled
     getListOrders: builder.query<
       { orders: LimitOrder[]; totalOrder: number },
       {

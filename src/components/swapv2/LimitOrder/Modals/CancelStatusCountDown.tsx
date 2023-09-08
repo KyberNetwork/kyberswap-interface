@@ -78,7 +78,6 @@ export default function CancelStatusCountDown({
           summary: t`Your cancellation request has timed out.`,
           title: t`Limit Order`,
           type: NotificationType.ERROR,
-          // todo btn
         })
       }
       return v - 1
@@ -87,7 +86,7 @@ export default function CancelStatusCountDown({
 
   useInterval(countdown, remain && cancelStatus === CancelStatus.COUNTDOWN ? 1000 : null)
 
-  // todo
+  // todo docs link
 
   if (errorMessage || attemptingTxn)
     return (
