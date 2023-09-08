@@ -137,7 +137,7 @@ export const formatDisplayNumber = ({
   if (!allowNegative && parsedStr.startsWith('-')) return fallbackResult
 
   const numberOfLeadingZeros = -Math.floor(log10(parsedFraction) + 1)
-  console.log('namgold format', { value, parsedStr })
+
   if (
     referenceFraction.greaterThan(BIG_INT_MINUS_ONE) &&
     referenceFraction.lessThan(BIG_INT_ONE) &&
