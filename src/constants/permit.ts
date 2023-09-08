@@ -38,26 +38,6 @@ export const PERMITTABLE_TOKENS: {
     '0xeEeEEb57642040bE42185f49C52F7E9B38f8eeeE': { type: PermitType.AMOUNT, version: '1' }, // ELK
     '0x8497842420cFdbc97896C2353D75d89Fc8D5Be5D': { type: PermitType.AMOUNT, version: '1' }, // VERSA
   },
-  [ChainId.OASIS]: {
-    // '0x32847e63E99D3a044908763056e25694490082F8': { type: PermitType.SALT, version: '1' },
-    // '0xd79Ef9A91b56c690C7b80570a3c060678667f469': { type: PermitType.SALT, version: '1' },
-    // '0x4cA2A3De42eabC8fd8b0AC46127E64DB08b9150e': { type: PermitType.SALT, version: '1' },
-    // '0x366EF31C8dc715cbeff5fA54Ad106dC9c25C6153': { type: PermitType.SALT, version: '1' },
-    // '0x3223f17957Ba502cbe71401D55A0DB26E5F7c68F': { type: PermitType.SALT, version: '1' },
-    // '0xE8A638b3B7565Ee7c5eb9755E58552aFc87b94DD': { type: PermitType.SALT, version: '1' },
-    // '0xdC19A122e268128B5eE20366299fc7b5b199C8e3': { type: PermitType.SALT, version: '1' },
-    // '0xd43ce0aa2a29DCb75bDb83085703dc589DE6C7eb': { type: PermitType.SALT, version: '1' },
-    // '0x3E62a9c3aF8b810dE79645C4579acC8f0d06a241': { type: PermitType.SALT, version: '1' },
-    // '0xFffD69E757d8220CEA60dc80B9Fe1a30b58c94F3': { type: PermitType.SALT, version: '1' },
-    // '0x1d1149a53deB36F2836Ae7877c9176413aDfA4A8': { type: PermitType.SALT, version: '1' },
-    // '0x24285C5232ce3858F00bacb950Cae1f59d1b2704': { type: PermitType.SALT, version: '1' },
-    // '0xa1E73c01E0cF7930F5e91CB291031739FE5Ad6C2': { type: PermitType.SALT, version: '1' },
-    // '0x4F43717B20ae319Aa50BC5B2349B93af5f7Ac823': { type: PermitType.SALT, version: '1' },
-    '0xB44a9B6905aF7c801311e8F4E76932ee959c663C': { type: PermitType.AMOUNT, version: '1' }, //ETH
-    '0x80A16016cC4A2E6a2CACA8a4a498b1699fF0f844': { type: PermitType.AMOUNT, version: '1' }, //USDC
-    '0xE3F5a90F9cb311505cd691a46596599aA1A0AD7D': { type: PermitType.AMOUNT, version: '1' }, //BNB
-    '0x639A647fbe20b6c8ac19E48E2de44ea792c62c5C': { type: PermitType.AMOUNT, version: '1' }, //BUSD
-  },
   [ChainId.CRONOS]: {
     '0xe6801928061CDbE32AC5AD0634427E140EFd05F9': { type: PermitType.AMOUNT, version: '1' }, //BIFI
   },
@@ -79,9 +59,6 @@ export const PERMITTABLE_TOKENS: {
   },
   [ChainId.BSCMAINNET]: {
     // '0xD6Cce248263ea1e2b8cB765178C944Fc16Ed0727': { type: PermitType.SALT, version: '1' },
-  },
-  [ChainId.VELAS]: {
-    // '0xcD7509b76281223f5B7d3aD5d47F8D7Aa5C2B9bf': { type: PermitType.SALT, version: '1' },
   },
   [ChainId.OPTIMISM]: {
     // '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1': { type: PermitType.SALT, version: '1' },
