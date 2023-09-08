@@ -187,7 +187,6 @@ function BuyCrypto() {
     [ChainId.BSCMAINNET]: 'bsc',
     [ChainId.AVAXMAINNET]: 'avaxcchain',
     [ChainId.FANTOM]: 'fantom',
-    [ChainId.VELAS]: 'velasevm',
     [ChainId.SOLANA]: 'solana',
 
     [ChainId.ZKSYNC]: null,
@@ -198,7 +197,6 @@ function BuyCrypto() {
     [ChainId.AVAXTESTNET]: null,
     [ChainId.BTTC]: null,
     [ChainId.AURORA]: null,
-    [ChainId.OASIS]: null,
   }
   const supportedCurrencies = [
     'AVAX',

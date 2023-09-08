@@ -42,10 +42,8 @@ import {
   LineaFull,
   LowestSlippage,
   MoneyBagOutline,
-  OasisLogoFull,
   OptimismLogoFull,
   PolygonLogoFull,
-  VelasLogoFull,
 } from 'components/Icons'
 import AntiSnippingAttack from 'components/Icons/AntiSnippingAttack'
 import ZkSyncFull from 'components/Icons/ZkSyncFull'
@@ -1023,9 +1021,7 @@ function AboutKyberSwap() {
               <FantomLogoFull color={isDarkMode ? '#fff' : '#1969FF'} width="100%" height="unset" />
               <CronosLogoFull color={isDarkMode ? undefined : '#142564'} />
               <img src={isDarkMode ? ArbitrumDark : ArbitrumLight} alt="" width="100%" />
-              <VelasLogoFull color={isDarkMode ? undefined : 'black'} />
               <AuroraFull />
-              <OasisLogoFull />
               <img src={isDarkMode ? BTTCDark : BTTCLight} alt="btt" width="100%" />
               <OptimismLogoFull />
               {/* <SolanaLogoFull /> */}
