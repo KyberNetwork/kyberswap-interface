@@ -335,7 +335,11 @@ const LimitOrderForm = function LimitOrderForm({
     }
   }, [currencyIn?.isNative, currentAllowance, parseInputAmount, parsedActiveOrderMakingAmount])
 
-  const [approval, approveCallback] = useApproveCallback(parseInputAmount, limitOrderContract || '', !enoughAllowance)
+  const [approval, approveCallback] = useApproveCallback(
+    parseInputAmount,
+    limitOrderContract || undefined,
+    !enoughAllowance,
+  )
 
   const { inputError, outPutError } = useValidateInputError({
     inputAmount,
