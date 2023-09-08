@@ -188,10 +188,6 @@ const TokenDescription = ({ description }: { description: string }) => {
 
   useLayoutEffect(() => {
     setIsTextExceeded((!!description && ref.current && ref.current?.clientWidth <= ref.current?.scrollWidth) || false)
-    console.log(
-      '🚀 ~ file: SingleToken.tsx:191 ~ useLayoutEffect ~ ref.current:',
-      !!description && ref.current && ref.current?.clientWidth <= ref.current?.scrollWidth,
-    )
   }, [description])
 
   useEffect(() => {
