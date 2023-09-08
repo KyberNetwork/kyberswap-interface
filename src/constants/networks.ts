@@ -19,11 +19,9 @@ import {
   linea,
   matic,
   mumbai,
-  oasis,
   optimism,
   solana,
   solanaDevnet,
-  velas,
   zkEvm,
   zksync,
 } from './networks/index'
@@ -47,9 +45,7 @@ const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.CRONOS]: cronos,
   [ChainId.ARBITRUM]: arbitrum,
   [ChainId.BTTC]: bttc,
-  [ChainId.VELAS]: velas,
   [ChainId.AURORA]: aurora,
-  [ChainId.OASIS]: oasis,
   [ChainId.OPTIMISM]: optimism,
   [ChainId.ZKSYNC]: zksync,
   [ChainId.LINEA]: linea,
@@ -87,8 +83,6 @@ export const MAINNET_NETWORKS = [
   ChainId.FANTOM,
   ChainId.BTTC,
   ChainId.CRONOS,
-  ChainId.VELAS,
-  ChainId.OASIS,
   ChainId.AURORA,
 ] as const
 
@@ -149,8 +143,6 @@ export const CHAINS_SUPPORT_NEW_POOL_FARM_API: readonly ChainId[] = [
   ChainId.BTTC,
   ChainId.ARBITRUM,
   ChainId.AURORA,
-  // ChainId.VELAS,
-  // ChainId.OASIS,
   ChainId.OPTIMISM,
 ]
 
@@ -158,8 +150,6 @@ export const CHAINS_SUPPORT_NEW_POOL_FARM_API: readonly ChainId[] = [
 export const STATIC_FEE_OPTIONS: { [chainId: number]: number[] | undefined } = {
   [ChainId.ARBITRUM]: [8, 10, 50, 300, 500, 1000],
   [ChainId.AURORA]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.VELAS]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.OASIS]: [8, 10, 50, 300, 500, 1000],
   [ChainId.MAINNET]: [8, 10, 50, 300, 500, 1000],
   [ChainId.MATIC]: [8, 10, 50, 300, 500, 1000],
   [ChainId.AVAXMAINNET]: [8, 10, 50, 300, 500, 1000],
@@ -178,8 +168,6 @@ export const STATIC_FEE_OPTIONS: { [chainId: number]: number[] | undefined } = {
 export const ONLY_STATIC_FEE_CHAINS = [
   ChainId.ARBITRUM,
   ChainId.AURORA,
-  ChainId.VELAS,
-  ChainId.OASIS,
   ChainId.OPTIMISM,
   ChainId.GÖRLI,
   ChainId.ZKSYNC,
@@ -214,18 +202,11 @@ export const SUPPORTED_NETWORKS_FOR_MY_EARNINGS = [
   ChainId.FANTOM,
   ChainId.CRONOS,
   ChainId.BTTC,
-  ChainId.VELAS,
   ChainId.AURORA,
-  ChainId.OASIS,
 ]
 export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS: ChainId[] = []
 export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY: ChainId[] = []
-export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC: ChainId[] = [
-  ChainId.CRONOS,
-  ChainId.VELAS,
-  ChainId.AURORA,
-  ChainId.OASIS,
-]
+export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC: ChainId[] = [ChainId.CRONOS, ChainId.AURORA]
 export const BLOCTO_SUPPORTED_NETWORKS: ChainId[] = [
   ChainId.MAINNET,
   ChainId.ARBITRUM,
@@ -238,7 +219,6 @@ export const BLOCTO_SUPPORTED_NETWORKS: ChainId[] = [
 export const ELASTIC_NOT_SUPPORTED: { [key: string]: string } = {
   [ChainId.AURORA]: t`Elastic is not supported on Aurora. Please switch to other chains`,
   [ChainId.ZKSYNC]: t`Elastic will be available soon`,
-  // [ChainId.VELAS]: t`Elastic will be available soon`,
 }
 
 export const CLASSIC_NOT_SUPPORTED: { [key: string]: string } = {
