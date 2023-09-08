@@ -135,19 +135,18 @@ export const formatDisplayNumber = ({
 
   if (value === undefined || value === null) return fallbackResult
   const parsedFraction = parseNum(value)
-  const referenceFraction = style === 'percent' ? parsedFraction.multiply(100) : parsedFraction
-  const parsedStr = parsedFraction.toSignificant(30)
-  if (!allowNegative && parsedStr.startsWith('-')) return fallbackResult
+  if (!allowNegative && parsedFraction.lessThan(BIG_INT_ZERO)) return fallbackResult
 
-  const numberOfLeadingZeros = -Math.floor(log10(parsedFraction) + 1)
+  const shownFraction = style === 'percent' ? parsedFraction.multiply(100) : parsedFraction
 
   if (
-    referenceFraction.greaterThan(BIG_INT_MINUS_ONE) &&
-    referenceFraction.lessThan(BIG_INT_ONE) &&
-    !referenceFraction.equalTo(BIG_INT_ZERO)
+    shownFraction.greaterThan(BIG_INT_MINUS_ONE) &&
+    shownFraction.lessThan(BIG_INT_ONE) &&
+    !shownFraction.equalTo(BIG_INT_ZERO)
   ) {
-    const decimal = parsedStr.split('.')[1]
-    const negative = parsedFraction.lessThan(0) ? '-' : ''
+    const decimal = shownFraction.toSignificant(30).split('.')[1]
+    const negative = shownFraction.lessThan(BIG_INT_ZERO) ? '-' : ''
+    const numberOfLeadingZeros = -Math.floor(log10(shownFraction) + 1)
 
     if (numberOfLeadingZeros > 2) {
       const subscripts = numberOfLeadingZeros
@@ -171,7 +170,7 @@ export const formatDisplayNumber = ({
   }
 
   const formatter = Intl.NumberFormat('en-US', {
-    notation: referenceFraction.greaterThan(10 ** (significantDigits || fractionDigits || 4)) ? 'compact' : 'standard',
+    notation: shownFraction.greaterThan(10 ** (significantDigits || fractionDigits || 4)) ? 'compact' : 'standard',
     style,
     currency: 'USD',
     minimumFractionDigits: fractionDigits ? 0 : undefined,
@@ -180,7 +179,7 @@ export const formatDisplayNumber = ({
     maximumSignificantDigits: significantDigits,
   })
 
-  const result = formatter.format(Number(parsedStr))
+  const result = formatter.format(Number(parsedFraction.toSignificant(30)))
 
   // Intl.NumberFormat does not handle maximumFractionDigits well when used along with maximumSignificantDigits
   // It might return number with longer fraction digits than maximumFractionDigits

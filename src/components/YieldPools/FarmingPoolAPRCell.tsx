@@ -44,7 +44,7 @@ export const APRTooltipContent = ({
           <Text as="span" fontSize={'14px'}>
             Total APR:{' '}
             <Text as="span" color={theme.text} fontWeight={500}>
-              {formatDisplayNumber({ value: poolAPR + maxFarmAPR, style: 'percent', fractionDigits: 2 })}
+              {formatDisplayNumber({ value: (poolAPR + maxFarmAPR) / 100, style: 'percent', fractionDigits: 2 })}
             </Text>
           </Text>
           <Box
@@ -66,7 +66,7 @@ export const APRTooltipContent = ({
         <Text as="span">
           Pool APR:{' '}
           <Text as="span" color={theme.text} fontWeight={500}>
-            {formatDisplayNumber({ value: poolAPR, style: 'percent', fractionDigits: 2 })}
+            {formatDisplayNumber({ value: poolAPR / 100, style: 'percent', fractionDigits: 2 })}
           </Text>
         </Text>
         <Text
@@ -91,7 +91,7 @@ export const APRTooltipContent = ({
           <Text as="span" color={theme.warning}>
             Farm APR:{' '}
             <Text as="span" fontWeight={500}>
-              {formatDisplayNumber({ value: farmAPR, style: 'percent', fractionDigits: 2 })}%
+              {formatDisplayNumber({ value: farmAPR / 100, style: 'percent', fractionDigits: 2 })}
             </Text>
           </Text>
           <Text
@@ -117,7 +117,7 @@ export const APRTooltipContent = ({
           <Text as="span" color={theme.warning}>
             Farm APR:{' '}
             <Text as="span" fontWeight={500}>
-              {formatDisplayNumber({ value: farmV2APR, style: 'percent', fractionDigits: 2 })}%
+              {formatDisplayNumber({ value: farmV2APR / 100, style: 'percent', fractionDigits: 2 })}
             </Text>
           </Text>
           <Text
@@ -192,7 +192,7 @@ const FarmingPoolAPRCell: React.FC<Props> = ({
         text={<APRTooltipContent farmAPR={farmAPR} farmV2APR={farmV2APR} poolAPR={poolAPR} />}
       >
         <Text as="span" marginRight="4px">
-          {formatDisplayNumber({ value: poolAPR + maxFarmAPR, style: 'percent', fractionDigits: 2 })}%
+          {formatDisplayNumber({ value: (poolAPR + maxFarmAPR) / 100, style: 'percent', fractionDigits: 2 })}%
         </Text>
         <Info size={14} />
       </MouseoverTooltip>
@@ -218,7 +218,9 @@ export const ClassicFarmingPoolAPRCell = ({ poolAPR, farm }: { poolAPR: number; 
         gap: '4px',
       }}
     >
-      <Text as="span">{formatDisplayNumber({ value: poolAPR + farmAPR, style: 'percent', fractionDigits: 2 })}%</Text>
+      <Text as="span">
+        {formatDisplayNumber({ value: (poolAPR + farmAPR) / 100, style: 'percent', fractionDigits: 2 })}%
+      </Text>
       <MouseoverTooltip width="fit-content" text={<APRTooltipContent farmAPR={farmAPR} poolAPR={poolAPR} />}>
         <MoneyBag size={16} color={theme.apr} />
       </MouseoverTooltip>

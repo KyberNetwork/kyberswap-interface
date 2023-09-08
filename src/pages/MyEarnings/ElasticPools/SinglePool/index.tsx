@@ -304,7 +304,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
                   }
                 >
                   <Text as="span" marginRight="4px" color={theme.apr}>
-                    {(poolAPR + farmAPR).toFixed(2)}%
+                    {formatDisplayNumber({ value: (poolAPR + farmAPR) / 100, style: 'percent', fractionDigits: 2 })}
                   </Text>
                   <Info size={14} color={theme.apr} />
                 </MouseoverTooltip>
@@ -459,7 +459,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
           }
         >
           <Text as="span" marginRight="4px" color={theme.apr}>
-            {(poolAPR + farmAPR).toFixed(2)}%
+            {formatDisplayNumber({ value: (poolAPR + farmAPR) / 100, style: 'percent', fractionDigits: 2 })}
           </Text>
           <Info size={14} color={theme.apr} />
         </MouseoverTooltip>

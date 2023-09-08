@@ -89,7 +89,7 @@ import { currencyId } from 'utils/currencyId'
 import { friendlyError } from 'utils/errorMessage'
 import { toSignificantOrMaxIntegerPart } from 'utils/formatCurrencyAmount'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
-import { formatNotDollarAmount } from 'utils/numbers'
+import { formatDisplayNumber } from 'utils/numbers'
 import { SLIPPAGE_STATUS, checkRangeSlippage } from 'utils/slippage'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
@@ -806,10 +806,13 @@ export default function AddLiquidity() {
           <Flex alignItems="center">
             <TYPE.black ml="12px" fontSize="12px" flex={1}>
               <Trans>
-                Note: A very small amount of your liquidity about {formattedNum(amountUnlockUSD.toString(), true)}{' '}
+                Note: A very small amount of your liquidity about{' '}
+                {formatDisplayNumber({ value: amountUnlockUSD, style: 'currency', significantDigits: 6 })}{' '}
                 <Text as="span" color={theme.text}>
-                  ({amountUnlocks[Field.CURRENCY_A].toSignificant(6)} {amountUnlocks[Field.CURRENCY_A].currency.symbol},{' '}
-                  {amountUnlocks[Field.CURRENCY_B].toSignificant(6)} {amountUnlocks[Field.CURRENCY_B].currency.symbol})
+                  ({formatDisplayNumber({ value: amountUnlocks[Field.CURRENCY_A], significantDigits: 6 })}{' '}
+                  {amountUnlocks[Field.CURRENCY_A].currency.symbol},{' '}
+                  {formatDisplayNumber({ value: amountUnlocks[Field.CURRENCY_B], significantDigits: 6 })}{' '}
+                  {amountUnlocks[Field.CURRENCY_B].currency.symbol})
                 </Text>{' '}
                 will be used to first initialize the pool. Read more{' '}
                 <ExternalLink href="https://docs.kyberswap.com/liquidity-solutions/kyberswap-elastic/user-guides/yield-farming-on-static-farms">
@@ -828,17 +831,23 @@ export default function AddLiquidity() {
               {noLiquidity ? (
                 <Trans>
                   The pool’s current price of 1 {baseCurrency.symbol} ={' '}
-                  {(invertPrice ? price.invert() : price).toSignificant(4)} {quoteCurrency.symbol} deviates from the
-                  market price (1 {baseCurrency.symbol} ={' '}
-                  {formatNotDollarAmount(usdPrices[tokenA.wrapped.address] / usdPrices[tokenB.wrapped.address], 4)}{' '}
+                  {formatDisplayNumber({ value: invertPrice ? price.invert() : price, significantDigits: 4 })}{' '}
+                  {quoteCurrency.symbol} deviates from the market price (1 {baseCurrency.symbol} ={' '}
+                  {formatDisplayNumber({
+                    value: usdPrices[tokenA.wrapped.address] / usdPrices[tokenB.wrapped.address],
+                    significantDigits: 4,
+                  })}{' '}
                   {quoteCurrency.symbol}). You might have high impermanent loss after the pool is created
                 </Trans>
               ) : (
                 <Trans>
                   The pool’s current price of 1 {baseCurrency.symbol} ={' '}
-                  {(invertPrice ? price.invert() : price).toSignificant(4)} {quoteCurrency.symbol} deviates from the
-                  market price (1 {baseCurrency.symbol} ={' '}
-                  {formatNotDollarAmount(usdPrices[tokenA.wrapped.address] / usdPrices[tokenB.wrapped.address], 4)}{' '}
+                  {formatDisplayNumber({ value: invertPrice ? price.invert() : price, significantDigits: 4 })}{' '}
+                  {quoteCurrency.symbol} deviates from the market price (1 {baseCurrency.symbol} ={' '}
+                  {formatDisplayNumber({
+                    value: usdPrices[tokenA.wrapped.address] / usdPrices[tokenB.wrapped.address],
+                    significantDigits: 4,
+                  })}{' '}
                   {quoteCurrency.symbol}). You might have high impermanent loss after you add liquidity to this pool
                 </Trans>
               )}
@@ -1094,7 +1103,10 @@ export default function AddLiquidity() {
                   <Text fontWeight={500} textAlign="center" fontSize={12}>
                     <HoverInlineText
                       maxCharacters={20}
-                      text={invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)}
+                      text={formatDisplayNumber({
+                        value: invertPrice ? price.invert() : price,
+                        significantDigits: 6,
+                      })}
                     />
                   </Text>
                   <Text fontSize={12}>

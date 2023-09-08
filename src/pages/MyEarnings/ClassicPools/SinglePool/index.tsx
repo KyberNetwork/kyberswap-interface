@@ -285,7 +285,11 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
               value={
                 <Flex alignItems="center">
                   <Text as="span" marginRight="4px" color={theme.apr}>
-                    {(+poolEarning.pool.apr).toFixed(2)}%
+                    {formatDisplayNumber({
+                      value: (+poolEarning.pool.apr + +poolEarning.pool.farmApr) / 100,
+                      style: 'percent',
+                      fractionDigits: 2,
+                    })}
                   </Text>
 
                   <MouseoverTooltip
@@ -485,7 +489,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
           <Flex alignItems="center">
             <Text as="span" marginRight="4px" color={theme.apr}>
               {formatDisplayNumber({
-                value: +poolEarning.pool.apr + +poolEarning.pool.farmApr,
+                value: (+poolEarning.pool.apr + +poolEarning.pool.farmApr) / 100,
                 style: 'percent',
                 fractionDigits: 2,
               })}
