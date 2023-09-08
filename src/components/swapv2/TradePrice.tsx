@@ -24,7 +24,7 @@ export default function TradePrice({ price, label, icon, style = {}, color }: Tr
   const [showInverted, setShowInverted] = useState<boolean>(false)
   let formattedPrice
   try {
-    formattedPrice = formatDisplayNumber({ value: showInverted ? price?.invert() : price, significantDigits: 6 })
+    formattedPrice = formatDisplayNumber({ value: showInverted ? price?.invert() : price, significantDigits: 7 })
   } catch (error) {}
 
   const show = Boolean(price?.baseCurrency && price?.quoteCurrency && formattedPrice)
