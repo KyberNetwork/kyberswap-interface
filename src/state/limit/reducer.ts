@@ -3,20 +3,28 @@ import { createReducer } from '@reduxjs/toolkit'
 
 import { CreateOrderParam } from 'components/swapv2/LimitOrder/type'
 
-import { removeCurrentOrderUpdate, setCurrentOrderUpdate, setInputAmount, setLimitCurrency } from './actions'
+import {
+  pushOrderNeedCreated,
+  removeOrderNeedCreated,
+  setInputAmount,
+  setLimitCurrency,
+  setOrderEditing,
+} from './actions'
 
 export interface LimitState {
   inputAmount: string
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
   ordersUpdating: CreateOrderParam[]
+  orderEditing: CreateOrderParam | undefined
 }
 
 const initialState: LimitState = {
   inputAmount: '',
   currencyIn: undefined,
   currencyOut: undefined,
-  ordersUpdating: [],
+  ordersUpdating: [], // orders need to be created when cancel is completed
+  orderEditing: undefined, // order is editing
 }
 
 export default createReducer<LimitState>(initialState, builder =>
@@ -28,10 +36,13 @@ export default createReducer<LimitState>(initialState, builder =>
       state.currencyIn = currencyIn
       state.currencyOut = currencyOut
     })
-    .addCase(setCurrentOrderUpdate, (state, { payload }) => {
+    .addCase(pushOrderNeedCreated, (state, { payload }) => {
       state.ordersUpdating = [...state.ordersUpdating, payload]
     })
-    .addCase(removeCurrentOrderUpdate, (state, { payload: orderId }) => {
+    .addCase(removeOrderNeedCreated, (state, { payload: orderId }) => {
       state.ordersUpdating = state.ordersUpdating.filter(e => e.orderId !== orderId)
+    })
+    .addCase(setOrderEditing, (state, { payload: orderEditing }) => {
+      state.orderEditing = orderEditing
     }),
 )

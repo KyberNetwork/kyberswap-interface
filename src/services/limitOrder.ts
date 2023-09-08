@@ -16,21 +16,22 @@ const limitOrderApi = createApi({
   reducerPath: 'limitOrderApi',
   baseQuery: fetchBaseQuery({ baseUrl: '' }),
   endpoints: builder => ({
-    getLOConfig: builder.query<{ contract: string; features: { [address: string]: { softCancel: boolean } } }, ChainId>(
-      {
-        query: chainId => ({
-          url: `${LIMIT_ORDER_API_READ}/v1/configs/contract-address`,
-          params: { chainId },
-        }),
-        transformResponse: (data: any) => {
-          const features = data?.data?.features || {}
-          Object.keys(features).forEach(key => {
-            features[key.toLowerCase()] = features[key]
-          })
-          return { contract: data?.data?.latest?.toLowerCase?.() ?? '', features }
-        },
+    getLOConfig: builder.query<
+      { contract: string; features: { [address: string]: { supportDoubleSignature: boolean } } },
+      ChainId
+    >({
+      query: chainId => ({
+        url: `${LIMIT_ORDER_API_READ}/v1/configs/contract-address`,
+        params: { chainId },
+      }),
+      transformResponse: (data: any) => {
+        const features = data?.data?.features || {}
+        Object.keys(features).forEach(key => {
+          features[key.toLowerCase()] = features[key]
+        })
+        return { contract: data?.data?.latest?.toLowerCase?.() ?? '', features }
       },
-    ),
+    }),
     // todo invalidate tag: when cancelled
     getListOrders: builder.query<
       { orders: LimitOrder[]; totalOrder: number },

@@ -125,7 +125,8 @@ function LimitOrderForm({
   const notify = useNotify()
   const { mixpanelHandler } = useMixpanel()
 
-  const { setCurrencyIn, setCurrencyOut, switchCurrency, removeCurrentOrder, resetState } = useLimitActionHandlers()
+  const { setCurrencyIn, setCurrencyOut, switchCurrency, removeOrderNeedCreated, resetState, setOrderEditing } =
+    useLimitActionHandlers()
   const { ordersUpdating, inputAmount: inputAmountGlobal } = useLimitState()
 
   const [inputAmount, setInputAmount] = useState(defaultInputAmount)
@@ -466,31 +467,56 @@ function LimitOrderForm({
     if (currencyIn) refreshActiveMakingAmount()
   }, [currencyIn, refreshActiveMakingAmount, isEdit])
 
+  useEffect(() => {
+    if (!isEdit || !orderInfo?.id) return
+    const param: CreateOrderParam = {
+      orderId: orderInfo.id,
+      account,
+      chainId,
+      currencyIn,
+      currencyOut,
+      inputAmount,
+      outputAmount,
+      expiredAt,
+    }
+    setOrderEditing(param)
+  }, [
+    setOrderEditing,
+    account,
+    chainId,
+    currencyIn,
+    currencyOut,
+    inputAmount,
+    outputAmount,
+    expiredAt,
+    orderInfo?.id,
+    isEdit,
+  ])
+
   // use ref to prevent too many api call when firebase update status
   const refSubmitCreateOrder = useRef(onSubmitCreateOrder)
   refSubmitCreateOrder.current = onSubmitCreateOrder
-  const refRefreshActiveMakingAmount = useRef(refreshActiveMakingAmount)
-  refRefreshActiveMakingAmount.current = refreshActiveMakingAmount
 
   useEffect(() => {
     if (!account) return
+    // todo test api call
     // call when cancel expired/cancelled
     const unsubscribeCancelled = subscribeNotificationOrderCancelled(account, chainId, data => {
       data?.orders.forEach(order => {
         const findInfo = ordersUpdating.find(e => e.orderId === order.id)
         if (!findInfo?.orderId) return
-        removeCurrentOrder(findInfo.orderId)
+        removeOrderNeedCreated(findInfo.orderId)
         // when cancel order success => create a new order
         if (order.isSuccessful) refSubmitCreateOrder.current(findInfo)
       })
-      refRefreshActiveMakingAmount.current()
+      refreshActiveMakingAmount()
     })
-    const unsubscribeExpired = subscribeNotificationOrderExpired(account, chainId, refRefreshActiveMakingAmount.current)
+    const unsubscribeExpired = subscribeNotificationOrderExpired(account, chainId, refreshActiveMakingAmount)
     return () => {
       unsubscribeCancelled?.()
       unsubscribeExpired?.()
     }
-  }, [account, chainId, ordersUpdating, removeCurrentOrder])
+  }, [account, chainId, ordersUpdating, removeOrderNeedCreated, refreshActiveMakingAmount])
 
   useEffect(() => {
     if (inputAmountGlobal) onSetInput(inputAmountGlobal)
@@ -724,29 +750,28 @@ function LimitOrderForm({
             showApproveFlow,
             showWarning: warningMessage.length > 0,
             isEdit,
-            flowState,
             cancelOrderInfo,
           }}
         />
       </Flex>
 
-      {!isEdit && (
-        <ConfirmOrderModal
-          flowState={flowState}
-          onDismiss={hidePreview}
-          onSubmit={onSubmitCreateOrderWithTracking}
-          currencyIn={currencyIn}
-          currencyOut={currencyOut}
-          inputAmount={inputAmount}
-          outputAmount={outputAmount}
-          expireAt={expiredAt}
-          rateInfo={rateInfo}
-          marketPrice={tradeInfo}
-          note={note}
-          warningMessage={warningMessage}
-          percentDiff={Number(deltaRate.rawPercent)}
-        />
-      )}
+      <ConfirmOrderModal
+        flowState={flowState}
+        onDismiss={hidePreview}
+        onSubmit={onSubmitCreateOrderWithTracking}
+        currencyIn={currencyIn}
+        currencyOut={currencyOut}
+        inputAmount={inputAmount}
+        outputAmount={outputAmount}
+        expireAt={expiredAt}
+        rateInfo={rateInfo}
+        marketPrice={tradeInfo}
+        note={note}
+        isEdit={isEdit}
+        warningMessage={warningMessage}
+        percentDiff={Number(deltaRate.rawPercent)}
+        renderButtons={cancelOrderInfo?.renderCancelButtons}
+      />
 
       <ExpirePicker
         defaultDate={customDateExpire}

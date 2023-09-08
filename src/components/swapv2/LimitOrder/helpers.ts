@@ -168,3 +168,14 @@ export const formatSignature = (rawSignature: string) => {
   }
   return ethers.utils.hexlify(bytes)
 }
+
+export const getPayloadTracking = (order: LimitOrder, networkName: string) => {
+  const { makerAssetSymbol, takerAssetSymbol, makingAmount, makerAssetDecimals, id } = order
+  return {
+    from_token: makerAssetSymbol,
+    to_token: takerAssetSymbol,
+    from_network: networkName,
+    trade_qty: formatAmountOrder(makingAmount, makerAssetDecimals),
+    order_id: id,
+  }
+}

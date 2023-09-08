@@ -11,6 +11,7 @@ export default function WarningIcon({
     return (
       <svg
         width={size}
+        style={{ minWidth: size }}
         height={(18 / 20) * Number(size)}
         viewBox="0 0 20 18"
         fill="none"
@@ -24,7 +25,14 @@ export default function WarningIcon({
     )
 
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      style={{ minWidth: size, minHeight: size }}
+      viewBox="0 0 24 24"
+      fill="none"
+    >
       <path
         fillRule="evenodd"
         clipRule="evenodd"

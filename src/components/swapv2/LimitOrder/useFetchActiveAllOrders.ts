@@ -10,7 +10,7 @@ export const useIsSupportSoftCancelOrder = () => {
   return useCallback(
     (order: LimitOrder) => {
       const features = config?.features || {}
-      return !!features?.[order.contractAddress?.toLowerCase?.()]?.softCancel
+      return !!features?.[order.contractAddress?.toLowerCase?.()]?.supportDoubleSignature
     },
     [config],
   )

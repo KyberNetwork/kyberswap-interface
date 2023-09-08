@@ -7,7 +7,13 @@ import { APP_PATHS } from 'constants/index'
 import useDefaultsTokenFromURLSearch from 'hooks/useDefaultsTokenFromURLSearch'
 import { AppDispatch, AppState } from 'state/index'
 
-import { removeCurrentOrderUpdate, setCurrentOrderUpdate, setInputAmount, setLimitCurrency } from './actions'
+import {
+  pushOrderNeedCreated as pushOrderNeedCreatedAction,
+  removeOrderNeedCreated as removeOrderNeedCreatedAction,
+  setInputAmount,
+  setLimitCurrency,
+  setOrderEditing as setOrderEditingAction,
+} from './actions'
 import { LimitState } from './reducer'
 
 export function useLimitState(): LimitState {
@@ -72,16 +78,23 @@ export function useLimitActionHandlers() {
     onSelectPair(currencyOut, currencyIn)
   }, [onSelectPair, currencyOut, currencyIn])
 
-  const setCurrentOrder = useCallback(
+  const pushOrderNeedCreated = useCallback(
     (order: CreateOrderParam) => {
-      dispatch(setCurrentOrderUpdate(order))
+      dispatch(pushOrderNeedCreatedAction(order))
     },
     [dispatch],
   )
 
-  const removeCurrentOrder = useCallback(
+  const removeOrderNeedCreated = useCallback(
     (orderId: number) => {
-      dispatch(removeCurrentOrderUpdate(orderId))
+      dispatch(removeOrderNeedCreatedAction(orderId))
+    },
+    [dispatch],
+  )
+
+  const setOrderEditing = useCallback(
+    (order: CreateOrderParam) => {
+      dispatch(setOrderEditingAction(order))
     },
     [dispatch],
   )
@@ -91,8 +104,9 @@ export function useLimitActionHandlers() {
     setCurrencyIn,
     setCurrencyOut,
     onSelectPair,
-    setCurrentOrder,
-    removeCurrentOrder,
+    pushOrderNeedCreated,
+    removeOrderNeedCreated,
+    setOrderEditing,
     resetState,
   }
 }

@@ -159,7 +159,7 @@ export default memo(function ConfirmOrderModal({
     return (
       <Flex flexDirection={'column'} width="100%">
         <div>
-          {flowState.errorMessage ? (
+          {flowState.errorMessage && !isEdit ? (
             <TransactionErrorContent onDismiss={onDismiss} message={flowState.errorMessage} />
           ) : (
             <Container>

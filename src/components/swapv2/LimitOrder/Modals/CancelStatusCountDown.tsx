@@ -48,7 +48,7 @@ const Timer = styled.div`
   gap: 6px;
 `
 
-export default function CancelCountDown({
+export default function CancelStatusCountDown({
   expiredTime,
   cancelStatus,
   setCancelStatus,

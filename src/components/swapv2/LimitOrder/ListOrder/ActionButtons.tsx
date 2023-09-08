@@ -5,9 +5,9 @@ import { Edit3, ExternalLink as LinkIcon, Trash } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled, { CSSProperties, css } from 'styled-components'
 
-import { ReactComponent as History } from 'assets/svg/history.svg'
 import { DropdownArrowIcon } from 'components/ArrowRotate'
 import CopyHelper from 'components/Copy'
+import WarningIcon from 'components/Icons/WarningIcon'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
 import useInterval from 'hooks/useInterval'
@@ -56,29 +56,22 @@ const CancelStatusButton = ({ expiredAt, style }: { expiredAt: number | undefine
 
   useInterval(countdown, remain ? 1000 : null)
 
+  if (remain <= 0) return null
   return (
     <MouseoverTooltipDesktopOnly
       text={
-        remain > 0 ? (
-          <Text as="span">
-            Gaslessly cancelling in{' '}
-            <Text as="span" color={theme.red} fontWeight={'500'}>
-              {formatRemainTime(remain)}
-            </Text>
+        <Text as="span">
+          Gaslessly cancelling in{' '}
+          <Text as="span" color={theme.red} fontWeight={'500'}>
+            {formatRemainTime(remain)}
           </Text>
-        ) : (
-          t`Order History`
-        )
+        </Text>
       }
       placement="top"
       width="fit-content"
     >
-      <IconWrap
-        color={theme.subText}
-        style={style}
-        onClick={undefined} // todo
-      >
-        <History color={remain > 0 ? theme.red : theme.subText} />
+      <IconWrap color={theme.warning} style={style}>
+        <WarningIcon color={theme.warning} />
       </IconWrap>
     </MouseoverTooltipDesktopOnly>
   )

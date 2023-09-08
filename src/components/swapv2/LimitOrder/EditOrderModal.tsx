@@ -8,15 +8,14 @@ import styled from 'styled-components'
 
 import Modal from 'components/Modal'
 import CancelButtons from 'components/swapv2/LimitOrder/Modals/CancelButtons'
-import CancelCountDown from 'components/swapv2/LimitOrder/Modals/CancelCountDown'
 import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
-import ConfirmOrderModal from 'components/swapv2/LimitOrder/Modals/ConfirmOrderModal'
+import CancelStatusCountDown from 'components/swapv2/LimitOrder/Modals/CancelStatusCountDown'
 import { useIsSupportSoftCancelOrder } from 'components/swapv2/LimitOrder/useFetchActiveAllOrders'
 import useSignOrder from 'components/swapv2/LimitOrder/useSignOrder'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/Tokens'
-import { useLimitActionHandlers } from 'state/limit/hooks'
+import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 
 import LimitOrderForm, { Label } from './LimitOrderForm'
@@ -84,7 +83,7 @@ export default function EditOrderModal({
     setFlowState(v => ({ ...v, showConfirm: true }))
   }, [setFlowState])
 
-  const { removeCurrentOrder, setCurrentOrder } = useLimitActionHandlers()
+  const { removeOrderNeedCreated, pushOrderNeedCreated } = useLimitActionHandlers()
   const [cancelStatus, setCancelStatus] = useState<CancelStatus>(CancelStatus.WAITING)
   const [expiredTime, setExpiredTime] = useState(0)
 
@@ -100,104 +99,85 @@ export default function EditOrderModal({
   )
 
   const signOrder = useSignOrder(setFlowState)
-  const onSubmitEditOrder = async (cancelType?: CancelOrderType) => {
+  const { orderEditing } = useLimitState()
+  const onSubmitEditOrder = async (cancelType: CancelOrderType) => {
     try {
-      if (!onCancelOrder || cancelType === undefined) return
       const data = await onCancelOrder(order ? [order] : [], cancelType)
-      if (order) {
-        const param = {
-          orderId: order?.id,
-          account,
-          chainId,
-          currencyIn,
-          currencyOut,
-          inputAmount,
-          outputAmount,
-          expiredAt,
-        }
-        const { signature, salt } = await signOrder(param)
-        setCurrentOrder({ ...param, salt, signature })
+      if (orderEditing) {
+        const { signature, salt } = await signOrder(orderEditing)
+        pushOrderNeedCreated({ ...orderEditing, salt, signature })
       }
       setCancelStatus(cancelType === CancelOrderType.GAS_LESS_CANCEL ? CancelStatus.COUNTDOWN : CancelStatus.WAITING)
       const expired = data?.orders?.[0]?.operatorSignatureExpiredAt
       expired && setExpiredTime(expired)
       onNext()
     } catch (error) {
-      order && removeCurrentOrder(order.id)
+      order && removeOrderNeedCreated(order.id)
       handleError(error)
     }
   }
 
   const onClickGaslessCancel = () => onSubmitEditOrder(CancelOrderType.GAS_LESS_CANCEL)
   const onClickHardCancel = () => onSubmitEditOrder(CancelOrderType.HARD_CANCEL)
+
   const isSupportSoftCancelOrder = useIsSupportSoftCancelOrder()
   const supportCancelGasless = isSupportSoftCancelOrder(order)
 
+  const renderCancelButtons = (showCancelStatus = true) => (
+    <>
+      {showCancelStatus && (
+        <CancelStatusCountDown
+          expiredTime={expiredTime}
+          cancelStatus={cancelStatus}
+          setCancelStatus={setCancelStatus}
+          flowState={flowState}
+        />
+      )}
+      <CancelButtons
+        isEdit
+        supportCancelGasless={supportCancelGasless}
+        loading={flowState.attemptingTxn}
+        cancelStatus={cancelStatus}
+        onOkay={() => {}}
+        onClickGaslessCancel={onClickGaslessCancel}
+        onClickHardCancel={onClickHardCancel}
+      />
+    </>
+  )
+
   const cancelOrderInfo: CancelOrderInfo = {
     cancelStatus,
-    onCancelOrder: onSubmitEditOrder,
     supportCancelGasless,
+    renderCancelButtons,
+    onClickGaslessCancel,
+    onClickHardCancel,
   }
-
-  if (step === Steps.REVIEW_ORDER || flowState.attemptingTxn)
-    return (
-      <ConfirmOrderModal
-        isEdit
-        renderButtons={() => (
-          <>
-            <CancelCountDown
-              expiredTime={expiredTime}
-              cancelStatus={cancelStatus}
-              setCancelStatus={setCancelStatus}
-              flowState={flowState}
-            />
-            <CancelButtons
-              isEdit
-              supportCancelGasless={supportCancelGasless}
-              loading={flowState.attemptingTxn}
-              cancelStatus={cancelStatus}
-              onOkay={() => {}}
-              onClickGaslessCancel={onClickGaslessCancel}
-              onClickHardCancel={onClickHardCancel}
-            />
-          </>
-        )}
-        flowState={flowState}
-        onDismiss={onDismiss}
-        currencyIn={currencyIn}
-        currencyOut={currencyOut}
-        inputAmount={inputAmount}
-        outputAmount={outputAmount}
-        expireAt={expiredAt}
-        // rateInfo={rateInfo} // todo
-        // marketPrice={tradeInfo}
-        note={note}
-        // warningMessage={warningMessage}
-        // percentDiff={Number(deltaRate.rawPercent)}
-      />
-    )
 
   return (
     <Modal isOpen={isOpen && !!currencyIn && !!currencyOut && !!defaultActiveMakingAmount} onDismiss={onDismiss}>
       <Wrapper>
-        <Flex justifyContent={'space-between'} alignItems="center">
-          <Text>
-            <Trans>Edit Order</Trans>
-          </Text>
-          <X style={{ cursor: 'pointer' }} onClick={onDismiss} />
-        </Flex>
-        <div>
-          <StyledLabel>
-            <Trans>
-              Editing this order will automatically cancel your existing order and a new order will be created.
-            </Trans>
-          </StyledLabel>
-          {status === LimitOrderStatus.PARTIALLY_FILLED && (
-            <StyledLabel style={{ marginTop: '0.75rem' }}>
-              <Trans>Your currently existing order is {filled}% filled.</Trans>
-            </StyledLabel>
-          )}
-        </div>
+        {step === Steps.EDIT_ORDER && (
+          <>
+            <Flex justifyContent={'space-between'} alignItems="center">
+              <Text>
+                <Trans>Edit Order</Trans>
+              </Text>
+              <X style={{ cursor: 'pointer' }} onClick={onDismiss} />
+            </Flex>
+            <div>
+              <StyledLabel>
+                <Trans>
+                  Editing this order will automatically cancel your existing order and a new order will be created.
+                </Trans>
+              </StyledLabel>
+              {status === LimitOrderStatus.PARTIALLY_FILLED && (
+                <StyledLabel style={{ marginTop: '0.75rem' }}>
+                  <Trans>Your currently existing order is {filled}% filled.</Trans>
+                </StyledLabel>
+              )}
+            </div>
+          </>
+        )}
         <LimitOrderForm
           zIndexToolTip={Z_INDEXS.MODAL}
           flowState={flowState}

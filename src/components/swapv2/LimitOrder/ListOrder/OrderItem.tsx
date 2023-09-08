@@ -216,6 +216,7 @@ export default function OrderItem({
   isOrderCancelling,
   tokenPrices,
   isLast,
+  hasOrderCancelling,
 }: {
   order: LimitOrder
   onCancelOrder: (order: LimitOrder) => void
@@ -224,6 +225,7 @@ export default function OrderItem({
   isOrderCancelling: (order: LimitOrder) => boolean
   tokenPrices: Record<string, number>
   isLast: boolean
+  hasOrderCancelling: boolean
 }) {
   const [expand, setExpand] = useState(false)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -368,7 +370,10 @@ export default function OrderItem({
   }
   return (
     <>
-      <ItemWrapper hasBorder={isLast ? false : !transactions.length || !expand} active={isOrderActive}>
+      <ItemWrapper
+        hasBorder={isLast ? false : !transactions.length || !expand}
+        active={isOrderActive && hasOrderCancelling}
+      >
         <Flex alignItems={'center'} style={{ gap: 10 }}>
           <IndexText>{index + 1}</IndexText>
           <AmountInfo order={order} />

@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { rgba } from 'polished'
 import { ReactNode } from 'react'
 import { Check } from 'react-feather'
 import { Text } from 'rebass'
@@ -88,9 +87,10 @@ const CancelButtons = ({
           </Column>
           <Column width={'100%'} gap="8px">
             <ButtonLight
+              color={theme.red}
               disabled={loading}
               onClick={onClickHardCancel}
-              style={{ color: theme.red, backgroundColor: rgba(theme.red, 0.2), height: '40px', width: '100%' }}
+              style={{ height: '40px', width: '100%' }}
             >
               <GasStation size={20} />
               &nbsp;

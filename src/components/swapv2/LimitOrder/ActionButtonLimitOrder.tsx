@@ -12,12 +12,10 @@ import {
 } from 'components/Button'
 import ProgressSteps from 'components/ProgressSteps'
 import { RowBetween } from 'components/Row'
-import CancelButtons from 'components/swapv2/LimitOrder/Modals/CancelButtons'
 import { CancelOrderInfo, CancelOrderType } from 'components/swapv2/LimitOrder/type'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState } from 'hooks/useApproveCallback'
 import { useWalletModalToggle } from 'state/application/hooks'
-import { TransactionFlowState } from 'types/TransactionFlowState'
 
 export default function ActionButtonLimitOrder({
   showWrap,
@@ -36,7 +34,6 @@ export default function ActionButtonLimitOrder({
   showApproveFlow,
   showWarning,
   isEdit,
-  flowState,
   cancelOrderInfo,
 }: {
   currencyIn: Currency | undefined
@@ -55,7 +52,6 @@ export default function ActionButtonLimitOrder({
   onWrapToken: () => Promise<void>
   showPreview: (v?: CancelOrderType) => void
   isEdit: boolean
-  flowState: TransactionFlowState
   cancelOrderInfo: CancelOrderInfo | undefined
 }) {
   const disableBtnApproved =
@@ -118,22 +114,13 @@ export default function ActionButtonLimitOrder({
   )
 
   if (isEdit && cancelOrderInfo) {
-    const { cancelStatus, onCancelOrder, supportCancelGasless } = cancelOrderInfo
-    return (
-      <CancelButtons // todo pass this as props ?
-        isEdit
-        supportCancelGasless={supportCancelGasless}
-        loading={flowState.attemptingTxn}
-        cancelStatus={cancelStatus}
-        onOkay={() => {}}
-        onClickGaslessCancel={() => onCancelOrder(CancelOrderType.GAS_LESS_CANCEL)}
-        onClickHardCancel={() => onCancelOrder(CancelOrderType.HARD_CANCEL)}
-      />
-    )
+    const { renderCancelButtons } = cancelOrderInfo
+    return renderCancelButtons(false) as JSX.Element
   }
 
   if (showWarning && !disableBtnReview)
     return <ButtonWarning onClick={() => showPreview()}>{contentButton}</ButtonWarning>
+
   return (
     <ButtonPrimary id="review-order-button" onClick={() => showPreview()} disabled={disableBtnReview}>
       {contentButton}

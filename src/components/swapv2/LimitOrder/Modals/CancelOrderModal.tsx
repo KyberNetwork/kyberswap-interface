@@ -5,7 +5,7 @@ import { Text } from 'rebass'
 import Logo from 'components/Logo'
 import Modal from 'components/Modal'
 import CancelButtons from 'components/swapv2/LimitOrder/Modals/CancelButtons'
-import CancelCountDown from 'components/swapv2/LimitOrder/Modals/CancelCountDown'
+import CancelStatusCountDown from 'components/swapv2/LimitOrder/Modals/CancelStatusCountDown'
 import useFetchActiveAllOrders from 'components/swapv2/LimitOrder/useFetchActiveAllOrders'
 import { useCurrencyV2 } from 'hooks/Tokens'
 import { TransactionFlowState } from 'types/TransactionFlowState'
@@ -71,10 +71,10 @@ function ContentCancel({
   const onClickHardCancel = () => requestCancel(CancelOrderType.HARD_CANCEL)
 
   useEffect(() => {
-    if (!isOpen) {
+    if (!isOpen || flowState.errorMessage) {
       setCancelStatus(CancelStatus.WAITING)
     }
-  }, [isOpen])
+  }, [isOpen, flowState.errorMessage])
 
   const isCountDown = cancelStatus === CancelStatus.COUNTDOWN
   const isCancelDone = cancelStatus === CancelStatus.CANCEL_DONE
@@ -165,7 +165,7 @@ function ContentCancel({
               : ''
           }
         />
-        <CancelCountDown
+        <CancelStatusCountDown
           expiredTime={expiredTime}
           cancelStatus={cancelStatus}
           setCancelStatus={setCancelStatus}

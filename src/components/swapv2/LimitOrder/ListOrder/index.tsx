@@ -1,5 +1,4 @@
 import { Trans, t } from '@lingui/macro'
-import { BigNumber } from 'ethers'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
 import { ReactNode, forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react'
@@ -7,16 +6,10 @@ import { Info, Trash } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import {
-  useCancelOrdersMutation,
-  useCreateCancelOrderSignatureMutation,
-  useGetEncodeDataMutation,
-  useGetListOrdersQuery,
-  useInsertCancellingOrderMutation,
-} from 'services/limitOrder'
+import { useGetListOrdersQuery } from 'services/limitOrder'
 import styled from 'styled-components'
 
-import { ButtonEmpty } from 'components/Button'
+import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
 import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
@@ -24,31 +17,27 @@ import Row from 'components/Row'
 import SearchInput from 'components/SearchInput'
 import Select from 'components/Select'
 import SubscribeNotificationButton from 'components/SubscribeButton'
-import LIMIT_ORDER_ABI from 'constants/abis/limit_order.json'
+import useRequestCancelOrder from 'components/swapv2/LimitOrder/ListOrder/useRequestCancelOrder'
 import { EMPTY_ARRAY, TRANSACTION_STATE_DEFAULT } from 'constants/index'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
+import useTheme from 'hooks/useTheme'
 import { useLimitState } from 'state/limit/hooks'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
-import { useTransactionAdder } from 'state/transactions/hooks'
-import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { MEDIA_WIDTHS } from 'theme'
-import { TransactionFlowState } from 'types/TransactionFlowState'
 import {
   subscribeNotificationOrderCancelled,
   subscribeNotificationOrderExpired,
   subscribeNotificationOrderFilled,
 } from 'utils/firebase'
-import { getContract } from 'utils/getContract'
-import { sendEVMTransaction } from 'utils/sendTransaction'
 
 import EditOrderModal from '../EditOrderModal'
 import CancelOrderModal from '../Modals/CancelOrderModal'
 import { ACTIVE_ORDER_OPTIONS, CLOSE_ORDER_OPTIONS } from '../const'
-import { calcPercentFilledOrder, formatAmountOrder, formatSignature, getErrorMessage, isActiveStatus } from '../helpers'
-import { CancelOrderType, LimitOrder, LimitOrderStatus, ListOrderHandle } from '../type'
+import { calcPercentFilledOrder, getPayloadTracking, isActiveStatus } from '../helpers'
+import { LimitOrder, LimitOrderStatus, ListOrderHandle } from '../type'
 import useCancellingOrders from '../useCancellingOrders'
 import OrderItem from './OrderItem'
 import TabSelector from './TabSelector'
@@ -68,9 +57,7 @@ const Wrapper = styled.div`
   `};
 `
 
-const ButtonCancelAll = styled(ButtonEmpty)`
-  background-color: ${({ theme }) => rgba(theme.red, 0.2)};
-  color: ${({ theme }) => theme.red};
+const ButtonCancelAll = styled(ButtonLight)`
   font-size: 14px;
   width: fit-content;
   padding: 8px 14px;
@@ -143,7 +130,6 @@ const SearchInputWrapped = styled(SearchInput)`
 
 export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   const { account, chainId, networkInfo } = useActiveWeb3React()
-  const { library } = useWeb3React()
   const [curPage, setCurPage] = useState(1)
 
   const { tab, ...qs } = useParsedQueryString<{ tab: LimitOrderStatus }>()
@@ -152,8 +138,8 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   const [isOpenCancel, setIsOpenCancel] = useState(false)
   const [isOpenEdit, setIsOpenEdit] = useState(false)
   const { ordersUpdating } = useLimitState()
-  const addTransactionWithType = useTransactionAdder()
-  const { isOrderCancelling, setCancellingOrders, cancellingOrdersIds } = useCancellingOrders()
+
+  const { isOrderCancelling } = useCancellingOrders()
   const { mixpanelHandler } = useMixpanel()
 
   const {
@@ -174,7 +160,6 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
 
   const loading = useShowLoadingAtLeastTime(isFetching)
 
-  const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
   const [currentOrder, setCurrentOrder] = useState<LimitOrder>()
   const [isCancelAll, setIsCancelAll] = useState(false)
 
@@ -247,33 +232,25 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     }
   }, [account, chainId, refreshListOrder])
 
+  const { flowState, setFlowState, onCancelOrder, onUpdateOrder } = useRequestCancelOrder({
+    orders,
+    isCancelAll,
+    totalOrder,
+  })
+
   const hideConfirmCancel = useCallback(() => {
     setFlowState(TRANSACTION_STATE_DEFAULT)
     setIsOpenCancel(false)
     setTimeout(() => {
       setCurrentOrder(undefined)
     }, 300)
-  }, [])
+  }, [setFlowState])
 
   const hideEditModal = useCallback(() => {
     setFlowState(TRANSACTION_STATE_DEFAULT)
     setCurrentOrder(undefined)
     setIsOpenEdit(false)
-  }, [])
-
-  const getPayloadTracking = useCallback(
-    (order: LimitOrder) => {
-      const { makerAssetSymbol, takerAssetSymbol, makingAmount, makerAssetDecimals, id } = order
-      return {
-        from_token: makerAssetSymbol,
-        to_token: takerAssetSymbol,
-        from_network: networkInfo.name,
-        trade_qty: formatAmountOrder(makingAmount, makerAssetDecimals),
-        order_id: id,
-      }
-    },
-    [networkInfo],
-  )
+  }, [setFlowState])
 
   const showConfirmCancel = useCallback(
     (order?: LimitOrder) => {
@@ -282,10 +259,10 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
       setIsOpenCancel(true)
       setIsCancelAll(false)
       if (order) {
-        mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_CANCEL_ORDER, getPayloadTracking(order))
+        mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_CANCEL_ORDER, getPayloadTracking(order, networkInfo.name))
       }
     },
-    [mixpanelHandler, getPayloadTracking],
+    [mixpanelHandler, setFlowState, networkInfo],
   )
 
   const showEditOrderModal = useCallback(
@@ -293,141 +270,18 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
       setCurrentOrder(order)
       setIsOpenEdit(true)
       setIsCancelAll(false)
-      mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_EDIT_ORDER, getPayloadTracking(order))
+      mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_EDIT_ORDER, getPayloadTracking(order, networkInfo.name))
     },
-    [mixpanelHandler, getPayloadTracking],
+    [mixpanelHandler, networkInfo.name],
   )
 
   const totalOrderNotCancelling = useMemo(() => {
     return orders.filter(e => !isOrderCancelling(e)).length
   }, [orders, isOrderCancelling])
 
-  const [insertCancellingOrder] = useInsertCancellingOrderMutation()
-  const [getEncodeData] = useGetEncodeDataMutation()
-
-  const requestHardCancelOrder = async (order: LimitOrder | undefined) => {
-    if (!library || !account) return Promise.reject('Wrong input')
-
-    setFlowState(state => ({
-      ...TRANSACTION_STATE_DEFAULT,
-      pendingText: t`Canceling your orders`,
-      showConfirm: true,
-      attemptingTxn: true,
-    }))
-    const newOrders = isCancelAll ? orders.map(e => e.id) : order?.id ? [order?.id] : []
-
-    const sendTransaction = async (encodedData: string, contract: string, payload: any) => {
-      const response = await sendEVMTransaction(account, library, contract, encodedData, BigNumber.from(0))
-      if (response?.hash) {
-        insertCancellingOrder({
-          maker: account,
-          chainId: chainId.toString(),
-          txHash: response.hash,
-          contractAddress: contract ?? '',
-          ...payload,
-        }).unwrap()
-      }
-
-      if (response) {
-        const {
-          makerAssetDecimals,
-          takerAssetDecimals,
-          takerAssetSymbol,
-          takingAmount,
-          makingAmount,
-          takerAsset,
-          makerAssetSymbol,
-          makerAsset,
-        } = order || ({} as LimitOrder)
-        const amountIn = order ? formatAmountOrder(makingAmount, makerAssetDecimals) : ''
-        const amountOut = order ? formatAmountOrder(takingAmount, takerAssetDecimals) : ''
-        addTransactionWithType({
-          ...response,
-          type: TRANSACTION_TYPE.CANCEL_LIMIT_ORDER,
-          extraInfo: order
-            ? {
-                tokenAddressIn: makerAsset,
-                tokenAddressOut: takerAsset,
-                tokenSymbolIn: makerAssetSymbol,
-                tokenSymbolOut: takerAssetSymbol,
-                tokenAmountIn: amountIn,
-                tokenAmountOut: amountOut,
-                arbitrary: getPayloadTracking(order),
-              }
-            : { arbitrary: { totalOrder } },
-        })
-      }
-    }
-
-    if (isCancelAll) {
-      const contracts = [...new Set(orders.map(e => e.contractAddress))]
-      for (const address of contracts) {
-        const limitOrderContract = getContract(address, LIMIT_ORDER_ABI, library, account)
-        const [{ encodedData }, nonce] = await Promise.all([
-          getEncodeData({ orderIds: [], isCancelAll }).unwrap(),
-          limitOrderContract?.nonce?.(account),
-        ])
-        await sendTransaction(encodedData, address, { nonce: nonce.toNumber() })
-      }
-    } else {
-      const { encodedData } = await getEncodeData({
-        orderIds: [order?.id].filter(Boolean) as number[],
-        isCancelAll,
-      }).unwrap()
-      await sendTransaction(encodedData, order?.contractAddress ?? '', { orderIds: newOrders })
-    }
-    setCancellingOrders(cancellingOrdersIds.concat(newOrders))
-
-    return
-  }
-
-  const [createCancelSignature] = useCreateCancelOrderSignatureMutation()
-  const [cancelOrderRequest] = useCancelOrdersMutation()
-  const requestGasLessCancelOrder = async (orders: LimitOrder[]) => {
-    if (!library || !account) return Promise.reject('Wrong input')
-    // return { orders: [{ operatorSignatureExpiredAt: (Date.now() / 1000 + 5) | 0 }] }
-    setFlowState({
-      ...TRANSACTION_STATE_DEFAULT,
-      pendingText: t`Canceling your orders`,
-      showConfirm: true,
-      attemptingTxn: true,
-    })
-
-    const orderIds = orders.map(e => e.id)
-    const cancelPayload = { chainId: chainId.toString(), maker: account, orderIds }
-    const messagePayload = await createCancelSignature(cancelPayload).unwrap()
-    const rawSignature = await library.send('eth_signTypedData_v4', [account, JSON.stringify(messagePayload)])
-    const signature = formatSignature(rawSignature)
-    const resp = await cancelOrderRequest({ ...cancelPayload, signature }).unwrap()
-    // todo canse cancelled ngay lap tuc
-    setCancellingOrders(cancellingOrdersIds.concat(orderIds))
-    return resp
-  }
-
-  const onCancelOrder = async (orders: LimitOrder[], cancelType: CancelOrderType) => {
-    try {
-      let resp: any // todo
-      if (cancelType === CancelOrderType.HARD_CANCEL) resp = await requestHardCancelOrder(orders?.[0])
-      else resp = await requestGasLessCancelOrder(orders)
-      setFlowState(state => ({ ...state, showConfirm: false }))
-      return resp
-    } catch (error) {
-      setFlowState(state => ({
-        ...state,
-        attemptingTxn: false,
-        errorMessage: getErrorMessage(error),
-      }))
-    }
-  }
-
   const onCancelAllOrder = () => {
     showConfirmCancel()
     setIsCancelAll(true)
-  }
-
-  const onUpdateOrder = async (orders: LimitOrder[], cancelType: CancelOrderType) => {
-    if (cancelType === CancelOrderType.HARD_CANCEL) return await requestHardCancelOrder(orders?.[0])
-    else return await requestGasLessCancelOrder(orders)
   }
 
   const disabledBtnCancelAll = totalOrderNotCancelling === 0
@@ -447,6 +301,8 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
       trackingEvent={MIXPANEL_TYPE.LO_CLICK_SUBSCRIBE_BTN}
     />
   )
+
+  const theme = useTheme()
 
   return (
     <Wrapper>
@@ -492,13 +348,14 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
                   onCancelOrder={showConfirmCancel}
                   onEditOrder={showEditOrderModal}
                   tokenPrices={tokenPrices}
+                  hasOrderCancelling={orders.some(e => !!e.operatorSignatureExpiredAt)}
                 />
               ))}
             </Column>
             {orders.length !== 0 ? (
               <TableFooter isTabActive={isTabActive}>
                 {isTabActive ? (
-                  <ButtonCancelAll onClick={onCancelAllOrder} disabled={disabledBtnCancelAll}>
+                  <ButtonCancelAll color={theme.red} onClick={onCancelAllOrder} disabled={disabledBtnCancelAll}>
                     <Trash size={15} />
                     <Text marginLeft={'5px'}>
                       <Trans>Cancel All</Trans>
