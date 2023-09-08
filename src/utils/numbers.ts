@@ -129,7 +129,10 @@ export const formatDisplayNumber = ({
   fallback = '--',
   allowNegative = false,
 }: FormatParam): string => {
-  const fallbackResult = `${style === 'currency' ? '$' : ''}${fallback}${style === 'percent' ? '%' : ''}`
+  const currency = style === 'currency' ? '$' : ''
+  const percent = style === 'percent' ? '%' : ''
+  const fallbackResult = `${currency}${fallback}${percent}`
+
   if (value === undefined || value === null) return fallbackResult
   const parsedFraction = parseNum(value)
   const referenceFraction = style === 'percent' ? parsedFraction.multiply(100) : parsedFraction
@@ -144,14 +147,10 @@ export const formatDisplayNumber = ({
     !referenceFraction.equalTo(BIG_INT_ZERO)
   ) {
     const decimal = parsedStr.split('.')[1]
-    const isNegative = parsedFraction.lessThan(0)
-
-    const negative = isNegative ? '-' : ''
-    const currency = style === 'currency' ? '$' : ''
-    const percent = style === 'percent' ? '%' : ''
+    const negative = parsedFraction.lessThan(0) ? '-' : ''
 
     if (numberOfLeadingZeros > 2) {
-      const subscript = numberOfLeadingZeros
+      const subscripts = numberOfLeadingZeros
         .toString()
         .split('')
         .map(item => subscriptMap[item])
@@ -161,7 +160,7 @@ export const formatDisplayNumber = ({
         .slice(0, fractionDigits)
         .slice(0, significantDigits || 6)
         .replace(/0+$/, '')
-      return `${negative}${currency}0.0${subscript}${slicedDecimal}${percent}`
+      return `${negative}${currency}0.0${subscripts}${slicedDecimal}${percent}`
     }
 
     const slicedDecimal = decimal
