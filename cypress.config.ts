@@ -64,7 +64,7 @@ export default defineConfig({
             })
             .inc(totalTests)
 
-          const gateway = new client.Pushgateway('https://core-pushgateway.dev.kyberengineering.io', [], register)
+          const gateway = new client.Pushgateway(`${process.env.CORE_PUSH_GATEWAY_URL}`, [], register)
 
           console.log('gateway: ', gateway)
           await gateway
