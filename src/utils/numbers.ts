@@ -39,8 +39,9 @@ export const formatNotDollarAmount = (num: number | undefined, digits = 2) => {
     .toLowerCase()
 }
 
-// (123456789123456789123456789).toString() => 1.2345678912345679e+26
-// toFixed(123456789123456789123456789) => 123456789123456800000000000
+// stringify number without scientific format
+// e.g: (123456789123456789123456789).toString() => 1.2345678912345679e+26
+//      toFixed(123456789123456789123456789) => 123456789123456800000000000
 // https://stackoverflow.com/a/1685917/8153505
 export function toFixed(x: number): string {
   if (Math.abs(x) < 1.0) {
@@ -116,6 +117,7 @@ type FormatParam = {
   fractionDigits?: number // usually for percent  & currency styles
   significantDigits?: number // usually for decimal style
   fallback?: string
+  allowNegative?: boolean
 }
 
 // todo: deprecated others format functions and all .toSignificant() to only use this function
@@ -125,13 +127,17 @@ export const formatDisplayNumber = ({
   significantDigits,
   fractionDigits,
   fallback = '--',
+  allowNegative = false,
 }: FormatParam): string => {
-  if (value === undefined || value === null) return fallback
+  const fallbackResult = `${style === 'currency' ? '$' : ''}${fallback}${style === 'percent' ? '%' : ''}`
+  if (value === undefined || value === null) return fallbackResult
   const parsedFraction = parseNum(value)
   const referenceFraction = style === 'percent' ? parsedFraction.multiply(100) : parsedFraction
   const parsedStr = parsedFraction.toSignificant(30)
-  const numberOfLeadingZeros = -Math.floor(log10(parsedFraction) + 1)
+  if (!allowNegative && parsedStr.startsWith('-')) return fallbackResult
 
+  const numberOfLeadingZeros = -Math.floor(log10(parsedFraction) + 1)
+  console.log('namgold format', { value, parsedStr })
   if (
     referenceFraction.greaterThan(BIG_INT_MINUS_ONE) &&
     referenceFraction.lessThan(BIG_INT_ONE) &&
