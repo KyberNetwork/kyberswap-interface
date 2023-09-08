@@ -497,9 +497,9 @@ function LimitOrderForm({
   const refSubmitCreateOrder = useRef(onSubmitCreateOrder)
   refSubmitCreateOrder.current = onSubmitCreateOrder
 
+  // todo refactor
   useEffect(() => {
     if (!account) return
-    // todo test api call
     // call when cancel expired/cancelled
     const unsubscribeCancelled = subscribeNotificationOrderCancelled(account, chainId, data => {
       data?.orders.forEach(order => {
@@ -507,7 +507,9 @@ function LimitOrderForm({
         if (!findInfo?.orderId) return
         removeOrderNeedCreated(findInfo.orderId)
         // when cancel order success => create a new order
-        if (order.isSuccessful) refSubmitCreateOrder.current(findInfo)
+        if (order.isSuccessful && !isEdit) {
+          refSubmitCreateOrder.current(findInfo)
+        }
       })
       refreshActiveMakingAmount()
     })
@@ -516,7 +518,7 @@ function LimitOrderForm({
       unsubscribeCancelled?.()
       unsubscribeExpired?.()
     }
-  }, [account, chainId, ordersUpdating, removeOrderNeedCreated, refreshActiveMakingAmount])
+  }, [account, chainId, ordersUpdating, removeOrderNeedCreated, refreshActiveMakingAmount, isEdit])
 
   useEffect(() => {
     if (inputAmountGlobal) onSetInput(inputAmountGlobal)

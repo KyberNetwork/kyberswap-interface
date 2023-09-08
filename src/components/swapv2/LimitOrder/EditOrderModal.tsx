@@ -34,10 +34,6 @@ const StyledLabel = styled(Label)`
   margin-bottom: 0;
 `
 
-enum Steps {
-  EDIT_ORDER,
-  REVIEW_ORDER,
-}
 export default function EditOrderModal({
   onCancelOrder,
   onDismiss,
@@ -58,7 +54,6 @@ export default function EditOrderModal({
   refreshListOrder: () => void
 }) {
   const { chainId, account } = useActiveWeb3React()
-  const [step, setStep] = useState(Steps.EDIT_ORDER)
 
   const { status, makingAmount, takingAmount, makerAsset, takerAsset, filledTakingAmount, expiredAt } = order
   const currencyIn = useCurrencyV2(makerAsset) ?? undefined
@@ -77,11 +72,6 @@ export default function EditOrderModal({
     { chainId, tokenAddress: currencyIn?.wrapped.address ?? '', account: account ?? '' },
     { skip: !currencyIn || !account },
   )
-
-  const onNext = useCallback(() => {
-    setStep(Steps.REVIEW_ORDER)
-    setFlowState(v => ({ ...v, showConfirm: true }))
-  }, [setFlowState])
 
   const { removeOrderNeedCreated, pushOrderNeedCreated } = useLimitActionHandlers()
   const [cancelStatus, setCancelStatus] = useState<CancelStatus>(CancelStatus.WAITING)
@@ -102,15 +92,15 @@ export default function EditOrderModal({
   const { orderEditing } = useLimitState()
   const onSubmitEditOrder = async (cancelType: CancelOrderType) => {
     try {
-      const data = await onCancelOrder(order ? [order] : [], cancelType)
       if (orderEditing) {
         const { signature, salt } = await signOrder(orderEditing)
         pushOrderNeedCreated({ ...orderEditing, salt, signature })
       }
+      const data = await onCancelOrder(order ? [order] : [], cancelType)
       setCancelStatus(cancelType === CancelOrderType.GAS_LESS_CANCEL ? CancelStatus.COUNTDOWN : CancelStatus.WAITING)
       const expired = data?.orders?.[0]?.operatorSignatureExpiredAt
       expired && setExpiredTime(expired)
-      onNext()
+      onDismiss()
     } catch (error) {
       order && removeOrderNeedCreated(order.id)
       handleError(error)
@@ -138,7 +128,7 @@ export default function EditOrderModal({
         supportCancelGasless={supportCancelGasless}
         loading={flowState.attemptingTxn}
         cancelStatus={cancelStatus}
-        onOkay={() => {}}
+        onOkay={onDismiss}
         onClickGaslessCancel={onClickGaslessCancel}
         onClickHardCancel={onClickHardCancel}
       />
@@ -156,28 +146,24 @@ export default function EditOrderModal({
   return (
     <Modal isOpen={isOpen && !!currencyIn && !!currencyOut && !!defaultActiveMakingAmount} onDismiss={onDismiss}>
       <Wrapper>
-        {step === Steps.EDIT_ORDER && (
-          <>
-            <Flex justifyContent={'space-between'} alignItems="center">
-              <Text>
-                <Trans>Edit Order</Trans>
-              </Text>
-              <X style={{ cursor: 'pointer' }} onClick={onDismiss} />
-            </Flex>
-            <div>
-              <StyledLabel>
-                <Trans>
-                  Editing this order will automatically cancel your existing order and a new order will be created.
-                </Trans>
-              </StyledLabel>
-              {status === LimitOrderStatus.PARTIALLY_FILLED && (
-                <StyledLabel style={{ marginTop: '0.75rem' }}>
-                  <Trans>Your currently existing order is {filled}% filled.</Trans>
-                </StyledLabel>
-              )}
-            </div>
-          </>
-        )}
+        <Flex justifyContent={'space-between'} alignItems="center">
+          <Text>
+            <Trans>Edit Order</Trans>
+          </Text>
+          <X style={{ cursor: 'pointer' }} onClick={onDismiss} />
+        </Flex>
+        <div>
+          <StyledLabel>
+            <Trans>
+              Editing this order will automatically cancel your existing order and a new order will be created.
+            </Trans>
+          </StyledLabel>
+          {status === LimitOrderStatus.PARTIALLY_FILLED && (
+            <StyledLabel style={{ marginTop: '0.75rem' }}>
+              <Trans>Your currently existing order is {filled}% filled.</Trans>
+            </StyledLabel>
+          )}
+        </div>
         <LimitOrderForm
           zIndexToolTip={Z_INDEXS.MODAL}
           flowState={flowState}

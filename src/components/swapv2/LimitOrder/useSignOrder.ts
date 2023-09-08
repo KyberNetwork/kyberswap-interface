@@ -3,6 +3,7 @@ import { useCreateOrderSignatureMutation } from 'services/limitOrder'
 
 import { formatAmountOrder, formatSignature, getPayloadCreateOrder } from 'components/swapv2/LimitOrder/helpers'
 import { CreateOrderParam } from 'components/swapv2/LimitOrder/type'
+import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 
@@ -18,13 +19,14 @@ export default function useSignOrder(setFlowState: React.Dispatch<React.SetState
       if (!library || !currencyIn || !currencyOut) return { signature: '', salt: '' }
 
       const payload = getPayloadCreateOrder(params)
-      setFlowState(state => ({
-        ...state,
+      setFlowState({
+        ...TRANSACTION_STATE_DEFAULT,
+        showConfirm: true,
         attemptingTxn: true,
         pendingText: `Sign limit order: ${formatAmountOrder(inputAmount)} ${currencyIn.symbol} to ${formatAmountOrder(
           outputAmount,
         )} ${currencyOut.symbol}`,
-      }))
+      })
       const messagePayload = await getMessageSignature(payload).unwrap()
 
       const rawSignature = await library.send('eth_signTypedData_v4', [account, JSON.stringify(messagePayload)])
