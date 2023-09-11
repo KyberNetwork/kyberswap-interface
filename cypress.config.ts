@@ -135,6 +135,6 @@ export default defineConfig({
         }
       })
     },
-    specPattern: 'cypress/e2e/specs/farm*.e2e.cy.ts',
+    specPattern: 'cypress/e2e/specs/*.e2e.cy.ts',
   },
 })
