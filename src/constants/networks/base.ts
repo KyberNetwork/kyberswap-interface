@@ -22,7 +22,7 @@ const base: EVMNetworkInfo = {
   defaultBlockSubgraph: 'https://base-graph.kyberengineering.io/subgraphs/name/kybernetwork/base-blocks',
   etherscanUrl: 'https://basescan.org',
   etherscanName: 'Base Explorer',
-  bridgeURL: EMPTY,
+  bridgeURL: 'https://bridge.base.org/deposit',
   nativeToken: {
     symbol: 'ETH',
     name: 'ETH',
