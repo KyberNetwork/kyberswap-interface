@@ -192,7 +192,7 @@ const FarmingPoolAPRCell: React.FC<Props> = ({
         text={<APRTooltipContent farmAPR={farmAPR} farmV2APR={farmV2APR} poolAPR={poolAPR} />}
       >
         <Text as="span" marginRight="4px">
-          {formatDisplayNumber({ value: (poolAPR + maxFarmAPR) / 100, style: 'percent', fractionDigits: 2 })}%
+          {formatDisplayNumber({ value: (poolAPR + maxFarmAPR) / 100, style: 'percent', fractionDigits: 2 })}
         </Text>
         <Info size={14} />
       </MouseoverTooltip>
@@ -219,7 +219,7 @@ export const ClassicFarmingPoolAPRCell = ({ poolAPR, farm }: { poolAPR: number; 
       }}
     >
       <Text as="span">
-        {formatDisplayNumber({ value: (poolAPR + farmAPR) / 100, style: 'percent', fractionDigits: 2 })}%
+        {formatDisplayNumber({ value: (poolAPR + farmAPR) / 100, style: 'percent', fractionDigits: 2 })}
       </Text>
       <MouseoverTooltip width="fit-content" text={<APRTooltipContent farmAPR={farmAPR} poolAPR={poolAPR} />}>
         <MoneyBag size={16} color={theme.apr} />
