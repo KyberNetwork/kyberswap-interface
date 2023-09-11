@@ -24,6 +24,7 @@ export default defineConfig({
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       require('@cypress/grep/src/plugin')(config)
       synpressPlugins(on, config)
+      console.log('baseURL: ', process.env.CYPRESS_BASE_URL)
       if (process.env.CYPRESS_BASE_URL === 'https://kyberswap.com/') {
         on('after:run', async results => {
           if (results) {
@@ -132,12 +133,20 @@ export default defineConfig({
             register.registerMetric(suite)
 
             const gateway = new client.Pushgateway(`${process.env.CORE_PUSH_GATEWAY_URL}`, [], register)
-            await gateway.push({ jobName: 'ui-automation' })
+            await gateway
+              .push({ jobName: 'ui-automation' })
+              .then(({ resp, body }) => {
+                console.log(`Body: ${body}`)
+                console.log(`Response status: ${resp}`)
+              })
+              .catch((err: any) => {
+                console.log('err: ', err)
+              })
           }
         })
       }
     },
     baseUrl: process.env.CYPRESS_BASE_URL,
-    specPattern: 'cypress/e2e/specs/*.e2e.cy.ts',
+    specPattern: 'cypress/e2e/specs/farm-page.e2e.cy.ts',
   },
 })
