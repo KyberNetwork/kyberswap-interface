@@ -130,7 +130,7 @@ export default defineConfig({
           register.registerMetric(testFail)
           register.registerMetric(suite)
 
-          const gateway = new client.Pushgateway('https://core-pushgateway.dev.kyberengineering.io', [], register)
+          const gateway = new client.Pushgateway(`${process.env.CORE_PUSH_GATEWAY_URL}`, [], register)
           await gateway.push({ jobName: 'ui-automation' })
         }
       })
