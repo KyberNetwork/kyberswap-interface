@@ -2,7 +2,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import { EVMNetworkInfo } from 'constants/networks/type'
 
-const EMPTY = ''
 const NOT_SUPPORT = null
 
 const avaxInfo: EVMNetworkInfo = {
@@ -20,7 +19,7 @@ const avaxInfo: EVMNetworkInfo = {
   defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/ducquangkstn/avalache-blocks',
   etherscanUrl: 'https://snowtrace.io',
   etherscanName: 'Snowtrace',
-  bridgeURL: EMPTY,
+  bridgeURL: 'https://core.app/bridge',
   nativeToken: {
     symbol: 'AVAX',
     name: 'AVAX',

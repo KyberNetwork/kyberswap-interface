@@ -21,7 +21,7 @@ const bttcInfo: EVMNetworkInfo = {
   defaultBlockSubgraph: 'https://bttc-graph.kyberengineering.io/subgraphs/name/kybernetwork/bttc-blocks',
   etherscanUrl: 'https://bttcscan.com',
   etherscanName: 'Bttcscan',
-  bridgeURL: EMPTY,
+  bridgeURL: 'https://bttc.bittorrent.com/bridge/',
   nativeToken: {
     symbol: 'BTT',
     name: 'BTT',
