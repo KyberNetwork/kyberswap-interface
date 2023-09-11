@@ -283,7 +283,7 @@ function FarmCard({
                 )
               }
             >
-              <Text fontSize="16px" fontWeight="500" color={theme.text}>
+              <Text fontSize="16px" fontWeight="500" color={theme.text} data-testid="tvl-value">
                 {farm.tvl ? formatDollarAmount(farm.tvl) : '--'}
               </Text>
 
@@ -377,7 +377,7 @@ function FarmCard({
                     </MouseoverTooltip>
                   </RowBetween>
 
-                  <Text fontSize="28px" marginTop="2px" color={theme.apr}>
+                  <Text fontSize="28px" marginTop="2px" color={theme.apr} data-testid="apr-value">
                     {(poolAPR + (range?.apr || 0)).toFixed(2)}%
                   </Text>
                 </Flex>

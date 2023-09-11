@@ -1,4 +1,3 @@
-import { datadogRum } from '@datadog/browser-rum'
 import * as Sentry from '@sentry/react'
 import { BrowserTracing } from '@sentry/tracing'
 import { Web3ReactHooks, Web3ReactProvider } from '@web3-react/core'
@@ -48,28 +47,13 @@ mixpanel.init(MIXPANEL_PROJECT_TOKEN, {
 })
 
 if (ENV_LEVEL > ENV_TYPE.LOCAL) {
-  datadogRum.init({
-    applicationId: '5bd0c243-6141-4bab-be21-5dac9b9efa9f',
-    clientToken: 'pub9163f29b2cdb31314b89ae232af37d5a',
-    site: 'datadoghq.eu',
-    service: 'kyberswap-interface',
-
-    version: TAG,
-    sampleRate: ENV_LEVEL === ENV_TYPE.PROD ? 10 : 100,
-    sessionReplaySampleRate: 100,
-    trackInteractions: true,
-    trackResources: true,
-    trackLongTasks: true,
-    defaultPrivacyLevel: 'mask-user-input',
-  })
-  datadogRum.startSessionReplayRecording()
-
   Sentry.init({
     dsn: SENTRY_DNS,
     environment: 'production',
     ignoreErrors: ['AbortError'],
     integrations: [new BrowserTracing()],
     tracesSampleRate: 0.1,
+    normalizeDepth: 5,
   })
   Sentry.configureScope(scope => {
     scope.setTag('request_id', sentryRequestId)

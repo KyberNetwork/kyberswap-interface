@@ -2,7 +2,7 @@ import { Navigate, useLocation } from 'react-router-dom'
 
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { getLimitOrderContract } from 'utils'
+import { isSupportLimitOrder } from 'utils'
 
 // Redirects to swap-v3 but only replace the pathname
 export function RedirectPathToSwapV3Network() {
@@ -12,7 +12,7 @@ export function RedirectPathToSwapV3Network() {
 
   let redirectTo = ''
 
-  if (pathname.startsWith(APP_PATHS.LIMIT) && getLimitOrderContract(chainId)) {
+  if (pathname.startsWith(APP_PATHS.LIMIT) && isSupportLimitOrder(chainId)) {
     redirectTo = APP_PATHS.LIMIT
   } else {
     redirectTo = APP_PATHS.SWAP

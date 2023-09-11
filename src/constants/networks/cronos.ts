@@ -5,7 +5,6 @@ import CRONOS from 'assets/networks/cronos-network.svg'
 import CronosLogo from 'assets/svg/cronos-token-logo.svg'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
-const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
@@ -24,7 +23,7 @@ const cronosInfo: EVMNetworkInfo = {
   defaultBlockSubgraph: 'https://cronos-graph.kyberengineering.io/subgraphs/name/kybernetwork/cronos-blocks',
   etherscanUrl: 'https://cronoscan.com',
   etherscanName: 'Cronos explorer',
-  bridgeURL: EMPTY,
+  bridgeURL: 'https://cronos.org/bridge/',
   nativeToken: {
     symbol: 'CRO',
     name: 'CRO',
@@ -62,10 +61,7 @@ const cronosInfo: EVMNetworkInfo = {
     routers: '0xF9c2b5746c946EF883ab2660BbbB1f10A5bdeAb4',
     farms: [],
   },
-  limitOrder: {
-    production: NOT_SUPPORT,
-    development: NOT_SUPPORT,
-  },
+  limitOrder: NOT_SUPPORT,
   averageBlockTimeInSeconds: 6,
   coingeckoNetworkId: 'cronos',
   coingeckoNativeTokenId: 'crypto-com-chain',

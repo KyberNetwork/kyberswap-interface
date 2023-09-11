@@ -19,7 +19,7 @@ export const checkRangeSlippage = (slippage: number, isStablePairSwap: boolean):
     return SLIPPAGE_STATUS.NORMAL
   }
 
-  if (slippage < 10) {
+  if (slippage < 5) {
     return SLIPPAGE_STATUS.LOW
   }
 

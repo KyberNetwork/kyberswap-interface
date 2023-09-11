@@ -8,6 +8,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        network: ['Ethereum', 'Arbitrum','Optimism', 'Avalanche', 'BNB']
     steps:
       - name: Trigger Code Checkout
         uses: actions/checkout@v3
@@ -29,23 +33,23 @@ jobs:
             sudo apt-get install --no-install-recommends -y \
             fluxbox \
             xvfb
-      
+
       - name: Install cypress
-        run: yarn cypress install --force  
-        
+        run: yarn cypress install --force
+
       - name: Run xvfb and fluxbox
         run: Xvfb :0 -screen 0 1024x768x24 -listen tcp -ac &
           fluxbox &
         env:
-          DISPLAY: :0.0  
+          DISPLAY: :0.0
 
       - name: Run Cypress Test
         run: |+
           #!/bin/bash
-          yarn test-schedule
+          yarn test-schedule -e grepTags=regression,NETWORK=${{ matrix.network }}
         env:
             DISPLAY: :0.0
-            
+
       - name: Notify on failure
         if: ${{ failure() }}
         uses: rtCamp/action-slack-notify@v2
@@ -57,8 +61,8 @@ jobs:
             SLACK_TITLE: E2E Test ${{inputs.BASE_URL}}
             SLACK_USERNAME: autoBot
             SLACK_LINK_NAMES: true
-      
-      - name: Archive e2e artifacts 
+
+      - name: Archive e2e artifacts
         uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
         if: always()
         with:

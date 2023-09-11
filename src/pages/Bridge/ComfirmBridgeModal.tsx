@@ -361,7 +361,7 @@ export const ConfirmCrossChainModal = memo(function ConfirmCrossChainModal({
                 }}
                 type="checkbox"
                 checked={accepted}
-                style={{ height: '16px', width: '16px', cursor: 'pointer' }}
+                style={{ height: '16px', width: '16px', minWidth: '16px', minHeight: '16px', cursor: 'pointer' }}
               />
               <span>
                 <Trans>

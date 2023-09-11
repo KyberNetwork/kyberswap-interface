@@ -10,9 +10,11 @@ import {
   TokenEarning,
 } from 'services/earning/types'
 
-import { NETWORKS_INFO, SUPPORTED_NETWORKS_FOR_MY_EARNINGS } from 'constants/networks'
+import { ZERO_ADDRESS } from 'constants/index'
+import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { TokenAddressMap } from 'state/lists/reducer'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { EarningStatsTick, EarningsBreakdown } from 'types/myEarnings'
 import { isAddress } from 'utils'
 
@@ -114,7 +116,7 @@ const fillHistoricalEarningsForTicks = (ticks: EarningStatsTick[] | undefined): 
   return results
 }
 
-export const chainIdByRoute: Record<string, ChainId> = SUPPORTED_NETWORKS_FOR_MY_EARNINGS.map(chainId => ({
+export const chainIdByRoute: Record<string, ChainId> = MAINNET_NETWORKS.map(chainId => ({
   route: NETWORKS_INFO[chainId].aggregatorRoute,
   chainId,
 })).reduce((acc, { route, chainId }) => {
@@ -134,7 +136,7 @@ export const calculateEarningStatsTick = ({
 }: {
   data: HistoricalEarning['historicalEarning']
   chainId: ChainId
-  tokensByChainId: TokenAddressMap
+  tokensByChainId: { [tokenAddress: string]: WrappedTokenInfo }
   nativeLogo: string
 }): EarningStatsTick[] | undefined => {
   if (!data?.length) {
@@ -153,18 +155,22 @@ export const calculateEarningStatsTick = ({
       farmRewardsValue: farmRewardsValueUSD,
       totalValue: poolRewardsValueUSD + farmRewardsValueUSD,
       tokens: (singlePointData.total || [])
-        .filter(tokenEarning => {
-          const tokenAddress = isAddress(chainId, tokenEarning.token)
-          if (!tokenAddress) {
-            return false
-          }
-
-          const currency = tokensByChainId[chainId][tokenAddress]
-          return !!currency
-        })
         .map(tokenEarning => {
           const tokenAddress = isAddress(chainId, tokenEarning.token)
-          const currency = tokensByChainId[chainId][String(tokenAddress)]
+          const currency =
+            tokenEarning.token === ZERO_ADDRESS ? NativeCurrencies[chainId] : tokensByChainId[String(tokenAddress)]
+
+          if (!currency) {
+            return {
+              logoUrl: '',
+              amount: Number(tokenEarning.amountFloat),
+              amountUSD: Number(tokenEarning.amountUSD),
+              symbol: '',
+              chainId,
+              address: String(tokenAddress),
+            }
+          }
+
           const isNative = currency.isNative || tokenAddress === WETH[chainId].address
           const symbol = (isNative ? NativeCurrencies[chainId].symbol : currency.symbol) || 'NO SYMBOL'
           const logoUrl = (isNative ? nativeLogo : currency.logoURI) || ''
@@ -204,13 +210,13 @@ export const calculateEarningStatsTick = ({
   return ticks
 }
 
-const mergeTokenEarnings = (earnings: Array<TokenEarning>): Array<TokenEarning> => {
+const mergeTokenEarnings = (earnings: Array<TokenEarning>, chainId: ChainId): Array<TokenEarning> => {
   const earningByTokenId: Record<string, TokenEarning> = {}
 
   earnings.forEach(earning => {
-    const tokenId = earning.token
+    const tokenId = earning.token === ZERO_ADDRESS ? WETH[chainId].address.toLowerCase() : earning.token
     if (!earningByTokenId[tokenId]) {
-      earningByTokenId[tokenId] = cloneDeep(earning)
+      earningByTokenId[tokenId] = cloneDeep({ ...earning, token: tokenId })
     } else {
       earningByTokenId[tokenId].amountFloat = String(
         Number(earningByTokenId[tokenId].amountFloat) + Number(earning.amountFloat),
@@ -224,7 +230,10 @@ const mergeTokenEarnings = (earnings: Array<TokenEarning>): Array<TokenEarning> 
   return Object.values(earningByTokenId)
 }
 
-const mergeHistoricalEarningsByDay = (historicalData: HistoricalSingleData[]): HistoricalSingleData[] => {
+const mergeHistoricalEarningsByDay = (
+  historicalData: HistoricalSingleData[],
+  chainId: ChainId,
+): HistoricalSingleData[] => {
   const dataByDay: Record<string, HistoricalSingleData> = {}
 
   historicalData.forEach(singlePointData => {
@@ -232,8 +241,11 @@ const mergeHistoricalEarningsByDay = (historicalData: HistoricalSingleData[]): H
     if (!dataByDay[day]) {
       dataByDay[day] = cloneDeep(singlePointData)
     } else {
-      const fees = mergeTokenEarnings([...(dataByDay[day].fees || []), ...(singlePointData.fees || [])])
-      const rewards = mergeTokenEarnings([...(dataByDay[day].rewards || []), ...(singlePointData.rewards || [])])
+      const fees = mergeTokenEarnings([...(dataByDay[day].fees || []), ...(singlePointData.fees || [])], chainId)
+      const rewards = mergeTokenEarnings(
+        [...(dataByDay[day].rewards || []), ...(singlePointData.rewards || [])],
+        chainId,
+      )
 
       dataByDay[day].fees = fees
       dataByDay[day].rewards = rewards
@@ -245,7 +257,10 @@ const mergeHistoricalEarningsByDay = (historicalData: HistoricalSingleData[]): H
     .sort((d1, d2) => d2 - d1)
 
   return days.map(day => {
-    dataByDay[day].total = mergeTokenEarnings([...(dataByDay[day].fees || []), ...(dataByDay[day].rewards || [])])
+    dataByDay[day].total = mergeTokenEarnings(
+      [...(dataByDay[day].fees || []), ...(dataByDay[day].rewards || [])],
+      chainId,
+    )
     return dataByDay[day]
   })
 }
@@ -315,15 +330,16 @@ export const aggregatePositionEarnings = <
     const chains = Object.keys(draft)
 
     chains.forEach(chain => {
+      const chainId = chainIdByRoute[chain]
       const { positions } = draft[chain]
 
       positions.forEach(position => {
         const earnings = position.historicalEarning || []
 
         earnings.forEach(earning => {
-          const fees = mergeTokenEarnings(earning.fees || [])
-          const rewards = mergeTokenEarnings(earning.rewards || [])
-          const total = mergeTokenEarnings([...fees, ...rewards])
+          const fees = mergeTokenEarnings(earning.fees || [], chainId)
+          const rewards = mergeTokenEarnings(earning.rewards || [], chainId)
+          const total = mergeTokenEarnings([...fees, ...rewards], chainId)
           earning.fees = fees
           earning.rewards = rewards
           earning.total = total
@@ -346,6 +362,7 @@ export const aggregatePoolEarnings = (
     const chains = Object.keys(draft)
 
     chains.forEach(chain => {
+      const chainId = chainIdByRoute[chain]
       const { positions } = draft[chain]
       // historical earning data only
       const byPool: Record<string, ElasticPoolEarningWithDetails> = {}
@@ -366,7 +383,7 @@ export const aggregatePoolEarnings = (
       const poolIds = Object.keys(byPool)
       const pools = poolIds.map(poolId => {
         const historicalEarning = fillHistoricalEarningsForEmptyDays(
-          mergeHistoricalEarningsByDay(byPool[poolId].historicalEarning),
+          mergeHistoricalEarningsByDay(byPool[poolId].historicalEarning, chainId),
         )
         byPool[poolId].historicalEarning = historicalEarning
 
@@ -401,6 +418,7 @@ export const aggregateAccountEarnings = <
     chains.forEach(chain => {
       const { positions } = draft[chain]
 
+      const chainId = chainIdByRoute[chain]
       const byDay: Record<string, HistoricalSingleData> = {}
 
       positions.forEach(position => {
@@ -426,9 +444,9 @@ export const aggregateAccountEarnings = <
 
       Object.keys(byDay).forEach(day => {
         const earning = byDay[day]
-        const fees = mergeTokenEarnings(earning.fees || [])
-        const rewards = mergeTokenEarnings(earning.rewards || [])
-        const total = mergeTokenEarnings([...fees, ...rewards])
+        const fees = mergeTokenEarnings(earning.fees || [], chainId)
+        const rewards = mergeTokenEarnings(earning.rewards || [], chainId)
+        const total = mergeTokenEarnings([...fees, ...rewards], chainId)
         earning.fees = fees
         earning.rewards = rewards
         earning.total = total
@@ -525,18 +543,20 @@ export const calculateTicksOfAccountEarningsInMultipleChains = (
           farmRewardsValue: farmRewardsValueUSD,
           totalValue: poolRewardsValueUSD + farmRewardsValueUSD,
           tokens: (singleDataPoint.total || [])
-            .filter(tokenEarning => {
-              const tokenAddress = isAddress(chainId, tokenEarning.token)
-              if (!tokenAddress) {
-                return false
-              }
-
-              const currency = tokensByChainId[chainId][tokenAddress]
-              return !!currency
-            })
             .map(tokenEarning => {
               const tokenAddress = isAddress(chainId, tokenEarning.token)
               const currency = tokensByChainId[chainId][String(tokenAddress)]
+              if (!currency) {
+                return {
+                  logoUrl: '',
+                  amount: Number(tokenEarning.amountFloat),
+                  amountUSD: Number(tokenEarning.amountUSD),
+                  symbol: '',
+                  chainId,
+                  address: String(tokenAddress),
+                }
+              }
+
               const isNative = currency.isNative || tokenAddress === WETH[chainId].address
               const symbol = (isNative ? NativeCurrencies[chainId].symbol : currency.symbol) || 'NO SYMBOL'
               const logoUrl = (isNative ? NETWORKS_INFO[chainId].nativeToken.logo : currency.logoURI) || ''
@@ -602,6 +622,7 @@ export const calculateEarningBreakdowns = (
   const breakdowns: EarningsBreakdown['breakdowns'] =
     tokens.length <= 10
       ? tokens.map(data => ({
+          address: data.address,
           chainId: data.chainId,
           logoUrl: data.logoUrl,
           symbol: data.symbol,
@@ -610,6 +631,7 @@ export const calculateEarningBreakdowns = (
         }))
       : [
           ...tokens.slice(0, 9).map(data => ({
+            address: data.address,
             chainId: data.chainId,
             logoUrl: data.logoUrl,
             symbol: data.symbol,

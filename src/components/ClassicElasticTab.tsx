@@ -9,7 +9,8 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
-import { ELASTIC_NOT_SUPPORTED, VERSION } from 'constants/v2'
+import { CLASSIC_NOT_SUPPORTED, ELASTIC_NOT_SUPPORTED } from 'constants/networks'
+import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useElasticCompensationData from 'hooks/useElasticCompensationData'
 import useElasticLegacy from 'hooks/useElasticLegacy'
@@ -34,6 +35,8 @@ function ClassicElasticTab() {
   const { chainId } = useActiveWeb3React()
   const notSupportedMsg = ELASTIC_NOT_SUPPORTED[chainId]
 
+  const notSupportedClassicMsg = CLASSIC_NOT_SUPPORTED[chainId]
+
   const theme = useTheme()
   const location = useLocation()
   const navigate = useNavigate()
@@ -44,7 +47,7 @@ function ClassicElasticTab() {
 
   const showLegacyExplicit = upToMedium ? false : isFarmpage ? shouldShowFarmTab : shouldShowPositionTab
 
-  const dontShowLegacy = [ChainId.ZKEVM, ChainId.LINEA].includes(chainId)
+  const dontShowLegacy = [ChainId.ZKEVM, ChainId.BASE, ChainId.LINEA].includes(chainId)
 
   const legacyTag = (small?: boolean) => (
     <Text
@@ -65,6 +68,7 @@ function ClassicElasticTab() {
   )
 
   const handleSwitchTab = (version: VERSION) => {
+    if (!!notSupportedClassicMsg && version === VERSION.CLASSIC) return
     if (!!notSupportedMsg && version !== VERSION.CLASSIC) return
     const newQs = { ...qs, tab: version }
     navigate({ search: stringify(newQs) }, { replace: true })
@@ -90,6 +94,17 @@ function ClassicElasticTab() {
     return theme.subText
   }
 
+  const getColorOfClassicTab = () => {
+    if (!!notSupportedClassicMsg) {
+      return theme.disableText
+    }
+
+    if (tab === VERSION.CLASSIC) {
+      return theme.primary
+    }
+    return theme.subText
+  }
+
   const getColorOfLegacyElasticTab = () => {
     if (!!notSupportedMsg) {
       return theme.disableText
@@ -102,11 +117,14 @@ function ClassicElasticTab() {
   const legacyElasticColor = getColorOfLegacyElasticTab()
 
   useEffect(() => {
-    if (!!notSupportedMsg && tab !== VERSION.CLASSIC) {
+    if (!!notSupportedClassicMsg && tab === VERSION.CLASSIC) {
+      const newQs = { ...qs, tab: VERSION.ELASTIC }
+      navigate({ search: stringify(newQs) }, { replace: true })
+    } else if (!!notSupportedMsg && tab !== VERSION.CLASSIC) {
       const newQs = { ...qs, tab: VERSION.CLASSIC }
       navigate({ search: stringify(newQs) }, { replace: true })
     }
-  }, [navigate, notSupportedMsg, qs, tab])
+  }, [navigate, notSupportedMsg, notSupportedClassicMsg, qs, tab])
 
   return (
     <Flex width="max-content">
@@ -116,6 +134,8 @@ function ClassicElasticTab() {
         text={
           dontShowLegacy
             ? ''
+            : tab === VERSION.CLASSIC && notSupportedClassicMsg
+            ? notSupportedClassicMsg
             : notSupportedMsg ||
               (!showLegacyExplicit ? (
                 <Flex flexDirection="column" sx={{ gap: '16px', padding: '8px' }}>
@@ -212,25 +232,27 @@ function ClassicElasticTab() {
         </>
       )}
 
-      <Flex
-        alignItems={'center'}
-        onClick={() => {
-          handleSwitchTab(VERSION.CLASSIC)
-        }}
-      >
-        <PoolClassicIcon size={20} color={tab === VERSION.CLASSIC ? theme.primary : theme.subText} />
-        <Text
-          fontWeight={500}
-          fontSize={[18, 20, 24]}
-          color={tab === VERSION.CLASSIC ? theme.primary : theme.subText}
-          width={'auto'}
-          marginLeft="4px"
-          style={{ cursor: 'pointer' }}
-          role="button"
+      <MouseoverTooltip text={notSupportedClassicMsg || ''}>
+        <Flex
+          alignItems={'center'}
+          onClick={() => {
+            handleSwitchTab(VERSION.CLASSIC)
+          }}
         >
-          {isFarmpage ? <Trans>Classic Farms</Trans> : <Trans>Classic Pools</Trans>}
-        </Text>
-      </Flex>
+          <PoolClassicIcon size={20} color={getColorOfClassicTab()} />
+          <Text
+            fontWeight={500}
+            fontSize={[18, 20, 24]}
+            color={getColorOfClassicTab()}
+            width={'auto'}
+            marginLeft="4px"
+            style={{ cursor: 'pointer' }}
+            role="button"
+          >
+            {isFarmpage ? <Trans>Classic Farms</Trans> : <Trans>Classic Pools</Trans>}
+          </Text>
+        </Flex>
+      </MouseoverTooltip>
     </Flex>
   )
 }

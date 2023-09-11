@@ -15,14 +15,14 @@ const lineaInfo: EVMNetworkInfo = {
   poolFarmRoute: 'linea',
   aggregatorRoute: 'linea',
   name: 'Linea',
-  icon: 'https://storage.googleapis.com/ks-setting-a3aa20b7/5c7ac975-e5af-4a02-8586-da6acfee9ec8.svg',
+  icon: 'https://storage.googleapis.com/ks-setting-1d682dca/12a257d3-65e3-4b16-8a84-03a4ca34a6bc1693378197244.svg',
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
   defaultBlockSubgraph: 'https://graph-query.linea.build/subgraphs/name/kybernetwork/linea-blocks',
   etherscanUrl: 'https://lineascan.build',
   etherscanName: 'Linea Explorer',
-  bridgeURL: EMPTY,
+  bridgeURL: 'https://bridge.linea.build/',
   nativeToken: {
     symbol: 'ETH',
     name: 'LineaETH',
@@ -58,10 +58,7 @@ const lineaInfo: EVMNetworkInfo = {
     farmv2Quoter: '0x6AFeb9EDd6Cf44fA8E89b1eee28284e6dD7705C8',
     farmV2S: ['0x3d6afe2fb73ffed2e3dd00c501a174554e147a43'],
   },
-  limitOrder: {
-    production: NOT_SUPPORT,
-    development: NOT_SUPPORT,
-  },
+  limitOrder: NOT_SUPPORT,
   averageBlockTimeInSeconds: 2, // TODO: check these info
   coingeckoNetworkId: NOT_SUPPORT,
   coingeckoNativeTokenId: NOT_SUPPORT,

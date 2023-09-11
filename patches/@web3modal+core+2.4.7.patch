@@ -1,0 +1,12 @@
+diff --git a/node_modules/@web3modal/core/dist/_types/src/types/controllerTypes.d.ts b/node_modules/@web3modal/core/dist/_types/src/types/controllerTypes.d.ts
+index 57a1c75..c8d5687 100644
+--- a/node_modules/@web3modal/core/dist/_types/src/types/controllerTypes.d.ts
++++ b/node_modules/@web3modal/core/dist/_types/src/types/controllerTypes.d.ts
+@@ -172,6 +172,7 @@ export interface ThemeCtrlState {
+         '--w3m-accent-fill-color'?: string;
+         '--w3m-background-color'?: string;
+         '--w3m-background-image-url'?: string;
++        '--w3m-color-bg-1'?: string;
+         '--w3m-logo-image-url'?: string;
+         '--w3m-background-border-radius'?: string;
+         '--w3m-container-border-radius'?: string;

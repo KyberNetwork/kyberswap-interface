@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import { animated, useSpring } from 'react-spring'
+import { motion } from 'framer-motion'
+import { useCallback, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -42,7 +42,7 @@ const TickerDigit = styled.div`
   text-align: center;
 `
 
-const TickerColumn = styled(animated.div)`
+const TickerColumn = styled(motion.div)`
   position: absolute;
   height: 1000%;
   bottom: 0;
@@ -50,24 +50,19 @@ const TickerColumn = styled(animated.div)`
 `
 
 function NumberColumn({ digit, fontSize }: { digit: number; fontSize: number }) {
-  const [position, setPosition] = useState(0)
-  const columnContainer = useRef<HTMLDivElement>()
+  const [clientHeight, setClientHeight] = useState(0)
 
-  const setColumnToNumber = (number: number) => {
-    if (columnContainer.current) {
-      setPosition(columnContainer.current?.clientHeight * number ?? 0)
+  const columnContainerRef = useCallback((node: HTMLDivElement) => {
+    if (node !== null) {
+      setClientHeight(node.clientHeight)
     }
-  }
+  }, [])
 
-  useEffect(() => setColumnToNumber(digit), [digit])
-
-  const styles = useSpring({
-    to: { transform: `translateY(${position}px)` },
-  })
+  const y = (clientHeight || 0) * digit ?? 0
 
   return (
-    <Container ref={columnContainer as any} fontSize={fontSize}>
-      <TickerColumn style={styles}>
+    <Container ref={columnContainerRef} fontSize={fontSize}>
+      <TickerColumn animate={{ y }} transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
         {[9, 8, 7, 6, 5, 4, 3, 2, 1, 0].map(num => (
           <TickerDigit key={num}>{num}</TickerDigit>
         ))}

@@ -236,9 +236,9 @@ export const APP_PATHS = {
 
 export const TERM_FILES_PATH = {
   KYBERSWAP_TERMS: '/files/Kyber - Terms of Service - 1 August 2023.pdf',
-  PRIVACY_POLICY: '/files/privacy.pdf',
+  PRIVACY_POLICY: '/files/Kyber - Privacy Policy - 23 Aug 2023.pdf',
   // Timestamp of changed date, update this to latest timestamp whenever change any above files. This also used to check on client side for updated to force user to disconnect and re-accept terms.
-  VERSION: 1690848000000,
+  VERSION: 1692748800000,
 }
 
 export enum FARM_TAB {
@@ -305,9 +305,9 @@ export const TRANSACTION_STATE_DEFAULT: TransactionFlowState = {
   pendingText: '',
 }
 
-export const CHAINS_SUPPORT_FEE_CONFIGS = [ChainId.OASIS, ChainId.VELAS, ChainId.AURORA, ChainId.CRONOS]
+export const CHAINS_SUPPORT_FEE_CONFIGS = [ChainId.AURORA, ChainId.CRONOS]
 export const CHAINS_SUPPORT_CROSS_CHAIN =
-  ENV.ENV_KEY === 'production' || ENV.ENV_KEY === 'staging'
+  ENV.ENV_KEY === ENV.EnvKeys.PROD || ENV.ENV_KEY === ENV.EnvKeys.STG
     ? [
         ChainId.MAINNET,
         ChainId.BSCMAINNET,
@@ -317,10 +317,16 @@ export const CHAINS_SUPPORT_CROSS_CHAIN =
         ChainId.OPTIMISM,
         ChainId.FANTOM,
         ChainId.LINEA,
+        ChainId.BASE,
       ]
     : SUPPORTED_NETWORKS
 
-export const TYPE_AND_SWAP_NOT_SUPPORTED_CHAINS: ChainId[] = [ChainId.ZKSYNC, ChainId.LINEA, ChainId.ZKEVM]
+export const TYPE_AND_SWAP_NOT_SUPPORTED_CHAINS: ChainId[] = [
+  ChainId.ZKSYNC,
+  ChainId.LINEA,
+  ChainId.ZKEVM,
+  ChainId.BASE,
+]
 
 export const SWAP_FEE_RECEIVER_ADDRESS = '0x4f82e73EDb06d29Ff62C91EC8f5Ff06571bdeb29'
 

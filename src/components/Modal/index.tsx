@@ -1,13 +1,12 @@
 import { DialogContent, DialogOverlay } from '@reach/dialog'
 import '@reach/dialog/styles.css'
+import { AnimatePresence, motion } from 'framer-motion'
 import { transparentize } from 'polished'
-import React from 'react'
+import React, { useCallback } from 'react'
 import { isMobile } from 'react-device-detect'
-import { animated, useSpring, useTransition } from 'react-spring'
-import { useGesture } from 'react-use-gesture'
 import styled, { css } from 'styled-components'
 
-const AnimatedDialogOverlay = animated(DialogOverlay)
+const AnimatedDialogOverlay = motion(DialogOverlay)
 
 const StyledDialogOverlay = styled(AnimatedDialogOverlay)<{ zindex: string | number }>`
   &[data-reach-dialog-overlay] {
@@ -22,7 +21,7 @@ const StyledDialogOverlay = styled(AnimatedDialogOverlay)<{ zindex: string | num
   }
 `
 
-const AnimatedDialogContent = animated(DialogContent)
+const AnimatedDialogContent = motion(DialogContent)
 // destructure to not pass custom props to Dialog DOM element
 const StyledDialogContent = styled(
   ({ borderRadius, minHeight, maxHeight, maxWidth, width, height, bgColor, mobile, isOpen, margin, ...rest }) => (
@@ -99,6 +98,7 @@ export interface ModalProps {
   bypassScrollLock?: boolean
   bypassFocusLock?: boolean
 }
+
 export default function Modal({
   isOpen,
   onDismiss = () => {
@@ -117,67 +117,61 @@ export default function Modal({
   transition = true,
   zindex = 100,
   borderRadius = '20px',
-  enableSwipeGesture = true,
+  enableSwipeGesture = false,
   bypassScrollLock = false,
   bypassFocusLock = false,
 }: ModalProps) {
-  const fadeTransition = useTransition(isOpen, {
-    config: { duration: transition ? 200 : 0 },
-    from: { opacity: 0 },
-    enter: { opacity: 1 },
-    leave: { opacity: 0 },
-  })
+  const animateValues = {
+    initial: { opacity: 0 },
+    animate: { opacity: 1 },
+    exit: { opacity: 0 },
+    transition: { duration: transition ? 0.2 : 0 },
+  }
 
-  const [{ y }, set] = useSpring(() => ({ y: 0, config: { mass: 1, tension: 210, friction: 20 } }))
-  const bind = useGesture({
-    onDrag: state => {
-      set({
-        y: state.down ? state.movement[1] : 0,
-      })
-      if (state.movement[1] > 300 || (state.velocity > 3 && state.direction[1] > 0)) {
+  const handleDrag = useCallback(
+    (e: any, info: any) => {
+      if (info.offset.y > 500 || info.velocity.y > 2000) {
         onDismiss()
       }
     },
-  })
+    [onDismiss],
+  )
+
   return (
-    <>
-      {fadeTransition(
-        (style, item) =>
-          item && (
-            <StyledDialogOverlay
-              zindex={zindex}
-              style={style}
-              onDismiss={onDismiss}
-              dangerouslyBypassScrollLock={bypassScrollLock}
-              dangerouslyBypassFocusLock={bypassFocusLock}
-            >
-              <StyledDialogContent
-                {...(isMobile && enableSwipeGesture
-                  ? {
-                      ...bind(),
-                      style: { transform: y.interpolate(y => `translateY(${(y as number) > 0 ? y : 0}px)`) },
-                    }
-                  : {})}
-                aria-label="dialog content"
-                minHeight={minHeight}
-                maxHeight={maxHeight}
-                maxWidth={maxWidth}
-                margin={margin}
-                width={width}
-                height={height}
-                bgColor={bgColor}
-                borderRadius={borderRadius}
-                mobile={isMobile}
-                className={className}
-              >
-                {/* prevents the automatic focusing of inputs on mobile by the reach dialog */}
-                {!enableInitialFocusInput && isMobile ? <div tabIndex={1} /> : null}
-                {children}
-              </StyledDialogContent>
-            </StyledDialogOverlay>
-          ),
+    <AnimatePresence>
+      {isOpen && (
+        <StyledDialogOverlay
+          zindex={zindex}
+          onDismiss={onDismiss}
+          dangerouslyBypassScrollLock={bypassScrollLock}
+          dangerouslyBypassFocusLock={bypassFocusLock}
+          {...animateValues}
+        >
+          <StyledDialogContent
+            drag={isMobile && enableSwipeGesture && 'y'}
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.5 }}
+            onDrag={handleDrag}
+            aria-label="dialog content"
+            minHeight={minHeight}
+            maxHeight={maxHeight}
+            maxWidth={maxWidth}
+            margin={margin}
+            width={width}
+            height={height}
+            bgColor={bgColor}
+            borderRadius={borderRadius}
+            mobile={isMobile}
+            className={className}
+            {...animateValues}
+          >
+            {/* prevents the automatic focusing of inputs on mobile by the reach dialog */}
+            {!enableInitialFocusInput && isMobile ? <div tabIndex={1} /> : null}
+            {children}
+          </StyledDialogContent>
+        </StyledDialogOverlay>
       )}
-    </>
+    </AnimatePresence>
   )
 }
 

@@ -1,18 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import {
-  Award,
-  BookOpen,
-  ChevronDown,
-  Edit,
-  FileText,
-  HelpCircle,
-  Info,
-  MessageCircle,
-  PieChart,
-  Share2,
-} from 'react-feather'
+import { Award, BookOpen, ChevronDown, Edit, FileText, HelpCircle, Info, MessageCircle, PieChart } from 'react-feather'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -20,6 +9,7 @@ import styled, { css } from 'styled-components'
 
 import { ReactComponent as MenuIcon } from 'assets/svg/all_icon.svg'
 import { ReactComponent as BlogIcon } from 'assets/svg/blog.svg'
+import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
 import { ReactComponent as LightIcon } from 'assets/svg/light.svg'
 import { ReactComponent as RoadMapIcon } from 'assets/svg/roadmap.svg'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
@@ -251,6 +241,7 @@ export default function Menu() {
   const showBlog = useMedia(`(max-width: ${THRESHOLD_HEADER.BLOG})`)
   const showAnalytics = useMedia(`(max-width: ${THRESHOLD_HEADER.ANALYTIC})`)
   const showKyberDao = useMedia(`(max-width: ${THRESHOLD_HEADER.KYBERDAO})`)
+  const showCampaign = useMedia(`(max-width: ${THRESHOLD_HEADER.CAMPAIGNS})`)
 
   const bridgeLink = networkInfo.bridgeURL
   const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
@@ -331,7 +322,7 @@ export default function Menu() {
             {bridgeLink && (
               <MenuItem>
                 <ExternalLink href={bridgeLink}>
-                  <Share2 />
+                  <BridgeIcon />
                   <Trans>Bridge Assets</Trans>
                 </ExternalLink>
               </MenuItem>
@@ -371,42 +362,31 @@ export default function Menu() {
               />
             </KyberAIWrapper>
 
-            <MenuItem>
-              <NavDropDown
-                icon={<Award />}
-                title={
-                  <Text>
-                    <Trans>Campaigns</Trans>
-                  </Text>
-                }
-                link={'#'}
-                options={[
-                  { link: APP_PATHS.CAMPAIGN, label: t`Trading Campaigns` },
-                  {
-                    link: APP_PATHS.GRANT_PROGRAMS,
-                    label: (
-                      <Text as="span">
-                        <Trans>Trading Grant Campaign</Trans>
-                      </Text>
-                    ),
-                  },
-                ]}
-              />
-            </MenuItem>
-
-            {showAbout && (
+            {showCampaign && (
               <MenuItem>
                 <NavDropDown
-                  icon={<Info />}
-                  title={t`About`}
-                  link={'/about'}
+                  icon={<Award />}
+                  title={
+                    <Text>
+                      <Trans>Campaigns</Trans>
+                    </Text>
+                  }
+                  link={'#'}
                   options={[
-                    { link: '/about/kyberswap', label: 'Kyberswap' },
-                    { link: '/about/knc', label: 'KNC' },
+                    { link: APP_PATHS.CAMPAIGN, label: t`Trading Campaigns` },
+                    {
+                      link: APP_PATHS.GRANT_PROGRAMS,
+                      label: (
+                        <Text as="span">
+                          <Trans>Trading Grant Campaign</Trans>
+                        </Text>
+                      ),
+                    },
                   ]}
                 />
               </MenuItem>
             )}
+
             {showKyberDao && (
               <MenuItem>
                 <NavDropDown
@@ -422,7 +402,7 @@ export default function Menu() {
                 />
               </MenuItem>
             )}
-            {!showAnalytics && (
+            {showAnalytics && (
               <MenuItem>
                 <NavDropDown
                   icon={<PieChart />}
@@ -439,6 +419,20 @@ export default function Menu() {
                 />
               </MenuItem>
             )}
+            {showAbout && (
+              <MenuItem>
+                <NavDropDown
+                  icon={<Info />}
+                  title={t`About`}
+                  link={'/about'}
+                  options={[
+                    { link: '/about/kyberswap', label: 'Kyberswap' },
+                    { link: '/about/knc', label: 'KNC' },
+                  ]}
+                />
+              </MenuItem>
+            )}
+
             <MenuItem>
               <ExternalLink
                 href="https://docs.kyberswap.com"
@@ -496,6 +490,18 @@ export default function Menu() {
               >
                 <FileText />
                 <Trans>Terms</Trans>
+              </ExternalLink>
+            </MenuItem>
+            <MenuItem>
+              <ExternalLink
+                href={TERM_FILES_PATH.PRIVACY_POLICY}
+                onClick={() => {
+                  toggle()
+                  handleMenuClickMixpanel('Privacy Policy')
+                }}
+              >
+                <FileText />
+                <Trans>Privacy Policy</Trans>
               </ExternalLink>
             </MenuItem>
             <MenuItem>

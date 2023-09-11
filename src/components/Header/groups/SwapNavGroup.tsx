@@ -21,7 +21,7 @@ import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
-import { getLimitOrderContract } from 'utils'
+import { isSupportLimitOrder } from 'utils'
 
 import { DropdownTextAnchor, StyledNavLink } from '../styleds'
 import NavGroup from './NavGroup'
@@ -89,7 +89,7 @@ const SwapNavGroup = () => {
             </Flex>
           </StyledNavLink>
 
-          {getLimitOrderContract(chainId) && (
+          {isSupportLimitOrder(chainId) && (
             <StyledNavLink
               id="limit-order-nav-link"
               to={`${APP_PATHS.LIMIT}/${networkInfo.route}`}

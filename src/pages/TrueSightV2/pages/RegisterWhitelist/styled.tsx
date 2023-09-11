@@ -23,7 +23,6 @@ export const Input = styled.input<{ $borderColor: string }>`
   background-color: ${({ theme }) => theme.buttonBlack};
   transition: border 0.5s;
   border: ${({ theme, $borderColor }) => `1px solid ${$borderColor || theme.border}`};
-  text-overflow: ellipsis;
   ::placeholder {
     color: ${({ theme }) => theme.border};
     font-size: 12px;
@@ -50,12 +49,12 @@ export const InputWithCopy = (props: InputProps) => {
 }
 
 export const FormWrapper = styled.div`
-  width: 500px;
+  width: 380px;
   display: flex;
   gap: 1rem;
   z-index: 1;
+  flex-direction: column;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 100%;
-    flex-wrap: wrap;
   `}
 `
