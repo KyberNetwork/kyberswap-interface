@@ -5,6 +5,7 @@ import { Connection } from '@solana/web3.js'
 
 import { KS_SETTING_API } from 'constants/env'
 import { AppJsonRpcProvider } from 'constants/providers'
+import { ChainStateMap } from 'hooks/useChainsConfig'
 import { TokenInfo } from 'state/lists/wrappedTokenInfo'
 import { TopToken } from 'state/topTokens/type'
 
@@ -41,6 +42,7 @@ export type KyberswapGlobalConfigurationResponse = {
     config: {
       aggregator: string
       isEnableAuthenAggregator: boolean
+      chainStates: ChainStateMap
     }
   }
 }
@@ -77,6 +79,20 @@ const ksSettingApi = createApi({
         },
       }),
     }),
+    getChainsConfiguration: builder.query<{ chainId: string; name: string; icon: string }[], void>({
+      query: () => ({
+        url: '/configurations/fetch',
+        params: {
+          serviceCode: `chains`,
+        },
+      }),
+      transformResponse: (data: any) =>
+        data?.data?.config?.map((e: any) => ({
+          ...e,
+          name: e.displayName,
+          icon: e.logoUrl,
+        })),
+    }),
 
     getTokenList: builder.query<
       TokenListResponse,
@@ -111,6 +127,7 @@ export const {
   useGetTokenListQuery,
   useImportTokenMutation,
   useLazyGetTopTokensQuery,
+  useGetChainsConfigurationQuery,
 } = ksSettingApi
 
 export default ksSettingApi

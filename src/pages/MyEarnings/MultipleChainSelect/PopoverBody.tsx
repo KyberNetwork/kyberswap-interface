@@ -17,6 +17,7 @@ import {
   SUPPORTED_NETWORKS_FOR_MY_EARNINGS,
 } from 'constants/networks'
 import { VERSION } from 'constants/v2'
+import useChainsConfig from 'hooks/useChainsConfig'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { AppState } from 'state'
@@ -107,6 +108,7 @@ const PopoverBody: React.FC<Props> = ({ onClose }) => {
 
   const isLegacy = useAppSelector(state => state.myEarnings.activeTab === VERSION.ELASTIC_LEGACY)
   const isClassic = useAppSelector(state => state.myEarnings.activeTab === VERSION.CLASSIC)
+  const { activeChains } = useChainsConfig()
 
   const comingSoonList = isLegacy
     ? COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY
@@ -121,7 +123,9 @@ const PopoverBody: React.FC<Props> = ({ onClose }) => {
 
   const [localSelectedChains, setLocalSelectedChains] = useState(() => selectedChains)
 
-  const networkList = SUPPORTED_NETWORKS_FOR_MY_EARNINGS.filter(item => !comingSoonList.includes(item))
+  const networkList = SUPPORTED_NETWORKS_FOR_MY_EARNINGS.filter(
+    item => !comingSoonList.includes(item) && activeChains.some(e => e.chainId === item),
+  )
 
   const isAllSelected = localSelectedChains.length === networkList.length
   const handleChangeChains = (chains: ChainId[]) => {
