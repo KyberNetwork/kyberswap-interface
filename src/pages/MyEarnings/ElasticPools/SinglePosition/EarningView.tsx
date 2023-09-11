@@ -77,7 +77,7 @@ const EarningView: React.FC<CommonProps> = props => {
                   }}
                 >
                   <Logo srcs={[token.logoUrl]} style={{ flex: '0 0 16px', height: '16px', borderRadius: '999px' }} />
-                  <Text fontSize={12}>
+                  <Text fontSize={12} sx={{ whiteSpace: 'nowrap' }}>
                     {formatDisplayNumber({ value: token.amount })} {token.symbol}
                   </Text>
                 </Flex>
