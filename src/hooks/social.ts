@@ -10,16 +10,16 @@ export const IMAGE_ALLOW_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif']
 
 export const useUploadImageToCloud = () => {
   const [uploadImage] = useUploadImageMutation()
-  const { signedUserInfo } = useSessionInfo()
+  const { userInfo } = useSessionInfo()
 
   return useCallback(
     async (fileObject: Blob | File) => {
       try {
-        if (!signedUserInfo?.identityId) throw new Error('invalid operation')
+        if (!userInfo?.identityId) throw new Error('invalid operation')
         const file = fileObject as File
         const ext = file.name?.split('.')?.pop() ?? ''
         if (ext && !IMAGE_ALLOW_EXTENSIONS.includes(ext.toLowerCase())) throw new Error('File is not support')
-        const fileName = `${signedUserInfo?.identityId}_${uuid()}_${Date.now()}.${ext || 'png'}`
+        const fileName = `${userInfo?.identityId}_${uuid()}_${Date.now()}.${ext || 'png'}`
         const res = await uploadImage({
           fileName,
         }).unwrap()
@@ -40,6 +40,6 @@ export const useUploadImageToCloud = () => {
         return
       }
     },
-    [uploadImage, signedUserInfo?.identityId],
+    [uploadImage, userInfo?.identityId],
   )
 }
