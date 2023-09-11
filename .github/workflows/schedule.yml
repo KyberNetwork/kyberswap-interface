@@ -49,6 +49,7 @@ jobs:
           echo ENV=${ENV} > .env
           echo GITHUB_RUN_ID=${GITHUB_RUN_ID} > .env
           echo CORE_PUSH_GATEWAY_URL=${{ secrets.CORE_PUSH_GATEWAY_URL }} > .env
+          echo CYPRESS_BASE_URL='https://kyberswap.com/' > .env
 
       - name: Run Cypress Test
         run: |+
