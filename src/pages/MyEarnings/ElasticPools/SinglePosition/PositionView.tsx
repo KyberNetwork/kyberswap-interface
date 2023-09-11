@@ -124,8 +124,8 @@ const PositionView: React.FC<CommonProps> = props => {
     }) || []
 
   const farmV2Rewards =
-    positionEarning.farmV2DepositedPosition?.pendingRewards.map((amount, index) => {
-      const tokenId = positionEarning.farmV2DepositedPosition?.farmV2.rewards[index].token || ''
+    positionEarning.farmV2DepositedPositions?.[0].pendingRewards.map((amount, index) => {
+      const tokenId = positionEarning.farmV2DepositedPositions?.[0].farmV2.rewards[index].tokenID || ''
       const token = tokens[tokenId] || new Token(chainId, tokenId, 18, '', '')
 
       return CurrencyAmount.fromRawAmount(token, amount)
@@ -135,16 +135,17 @@ const PositionView: React.FC<CommonProps> = props => {
 
   const disabledHarvest =
     !positionEarning.joinedPositions?.[0]?.pendingRewards?.some(item => item !== '0') &&
-    !positionEarning.farmV2DepositedPosition?.pendingRewards?.some(item => item !== '0')
+    !positionEarning.farmV2DepositedPositions?.[0].pendingRewards?.some(item => item !== '0')
 
   const addTransactionWithType = useTransactionAdder()
 
   const handleHarvest = () => {
     const farmContract =
-      positionEarning.joinedPositions?.[0]?.farmId || positionEarning.farmV2DepositedPosition?.farmV2.id.split('_')[0]
-    const isInFarmV2 = !!positionEarning.farmV2DepositedPosition
+      positionEarning.joinedPositions?.[0]?.farmId ||
+      positionEarning.farmV2DepositedPositions?.[0].farmV2.id.split('_')[0]
+    const isInFarmV2 = !!positionEarning.farmV2DepositedPositions?.[0]
     const pId = positionEarning.joinedPositions?.[0]?.pid
-    const fId = positionEarning?.farmV2DepositedPosition?.farmV2.id.split('_')[1]
+    const fId = positionEarning?.farmV2DepositedPositions?.[0].farmV2.id.split('_')[1]
 
     const library = libraryRef.current
 
@@ -278,14 +279,14 @@ const PositionView: React.FC<CommonProps> = props => {
 
       <CollectFeesPanel
         nftId={positionEarning.id}
-        fId={positionEarning?.farmV2DepositedPosition?.farmV2.id.split('_')[1]}
+        fId={positionEarning?.farmV2DepositedPositions?.[0].farmV2.id.split('_')[1]}
         chainId={chainId}
         feeUsd={feeUsd}
         feeValue0={feeReward0}
         feeValue1={feeReward1}
         hasUserDepositedInFarm={positionEarning.owner !== positionEarning.ownerOriginal}
         farmAddress={
-          positionEarning?.farmV2DepositedPosition?.farmV2.id.split('_')[0] ||
+          positionEarning?.farmV2DepositedPositions?.[0].farmV2.id.split('_')[0] ||
           positionEarning.depositedPosition?.farm ||
           positionEarning.joinedPositions?.[0]?.farmId
         }
