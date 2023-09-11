@@ -133,7 +133,7 @@ export const formatDisplayNumber = ({
   const percent = style === 'percent' ? '%' : ''
   const fallbackResult = `${currency}${fallback}${percent}`
 
-  if (value === undefined || value === null) return fallbackResult
+  if (value === undefined || value === null || Number.isNaN(value)) return fallbackResult
   const parsedFraction = parseNum(value)
   if (!allowNegative && parsedFraction.lessThan(BIG_INT_ZERO)) return fallbackResult
 
@@ -146,7 +146,14 @@ export const formatDisplayNumber = ({
   ) {
     const decimal = shownFraction.toSignificant(30).split('.')[1]
     const negative = shownFraction.lessThan(BIG_INT_ZERO) ? '-' : ''
-    const numberOfLeadingZeros = -Math.floor(log10(shownFraction) + 1)
+    const numberOfLeadingZeros = -Math.floor(
+      log10(shownFraction.lessThan(0) ? shownFraction.multiply(-1) : shownFraction) + 1,
+    )
+    const slicedDecimal = decimal
+      .replace(/^0+/, '')
+      .slice(0, fractionDigits)
+      .slice(0, significantDigits || 6)
+      .replace(/0+$/, '')
 
     if (numberOfLeadingZeros > 2) {
       const subscripts = numberOfLeadingZeros
@@ -154,18 +161,9 @@ export const formatDisplayNumber = ({
         .split('')
         .map(item => subscriptMap[item])
         .join('')
-      const slicedDecimal = decimal
-        .replace(/^0+/, '')
-        .slice(0, fractionDigits)
-        .slice(0, significantDigits || 6)
-        .replace(/0+$/, '')
       return `${negative}${currency}0.0${subscripts}${slicedDecimal}${percent}`
     }
 
-    const slicedDecimal = decimal
-      .slice(0, numberOfLeadingZeros + (significantDigits ?? 6))
-      .slice(0, fractionDigits)
-      .replace(/0+$/, '')
     return `${negative}${currency}0${slicedDecimal.length ? '.' + slicedDecimal : ''}${percent}`
   }
 
