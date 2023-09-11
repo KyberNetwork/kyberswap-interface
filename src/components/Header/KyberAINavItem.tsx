@@ -25,7 +25,7 @@ const CustomSlideToUnlock = styled(SlideToUnlock)`
   );
   background-clip: text;
   -webkit-background-clip: text;
-
+  color: ${({ theme }) => theme.subText};
   &[data-active='true'] {
     background: linear-gradient(
       to right,
@@ -36,6 +36,7 @@ const CustomSlideToUnlock = styled(SlideToUnlock)`
     /* Repetitive but not redundant */
     background-clip: text;
     -webkit-background-clip: text;
+    color: ${({ theme }) => theme.primary};
   }
 `
 
