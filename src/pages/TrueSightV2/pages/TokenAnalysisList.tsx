@@ -228,21 +228,18 @@ const TabWrapper = styled(motion.div)`
   }
   ${({ theme }) => theme.mediaWidth.upToSmall`
     min-width: initial;
-    flex:1;
+    flex: 1;
   `}
 `
 
 const ButtonTypeActive = styled(ButtonLight)`
   height: 36px;
-  margin: 0 !important;
-  display: flex;
   gap: 4px;
   font-size: 14px;
   white-space: nowrap;
   border: 1px solid ${({ theme }) => theme.primary};
   background-color: ${({ theme }) => rgba(theme.primary, 0.33)};
   transition: all 0.1s ease;
-  flex: 1;
   :hover {
     background-color: ${({ theme }) => rgba(theme.primary, 0.5)};
     filter: none;
@@ -251,14 +248,10 @@ const ButtonTypeActive = styled(ButtonLight)`
 
 const ButtonTypeInactive = styled(ButtonOutlined)`
   height: 36px;
-  margin: 0 !important;
-  display: flex;
   gap: 4px;
   font-size: 14px;
   white-space: nowrap;
   transition: all 0.1s ease;
-  flex: 1;
-
   ${({ theme }) => css`
     color: ${theme.subText};
     border-color: ${theme.subText};
