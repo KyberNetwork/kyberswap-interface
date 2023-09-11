@@ -141,7 +141,7 @@ const EarningsBreakdownPanel: React.FC<Props> = ({ isLoading, data, className, h
                 ? tokens[item.chainId]?.[item.address]?.symbol || ''
                 : item.symbol,
           }))}
-          totalValue={formatDisplayNumber({ value: data.totalValue, style: 'currency', significantDigits: 3 })}
+          totalValue={formatDisplayNumber(data.totalValue, { style: 'currency', significantDigits: 3 })}
         />
       )}
     </Wrapper>

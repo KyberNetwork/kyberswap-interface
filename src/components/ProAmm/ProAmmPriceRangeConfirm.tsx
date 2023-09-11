@@ -80,8 +80,7 @@ export default function ProAmmPriceRangeConfirm({
           </Text>
           <RowFixed>
             <Text fontSize={'12px'} fontWeight="500" style={{ textAlign: 'right' }}>
-              1 {baseCurrency.symbol} = {formatDisplayNumber({ value: price, significantDigits: 6 })}{' '}
-              {quoteCurrency.symbol}
+              1 {baseCurrency.symbol} = {formatDisplayNumber(price, { significantDigits: 6 })} {quoteCurrency.symbol}
             </Text>
             <span onClick={handleRateChange} style={{ marginLeft: '2px', cursor: 'pointer' }}>
               <RotateSwapIcon rotated={baseCurrency !== currency0} size={16} />

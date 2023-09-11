@@ -42,7 +42,7 @@ const rankByConfigs: RankByConfig[] = [
   },
   {
     extracter: (p: ProjectRanking) => {
-      return formatDisplayNumber({ value: p.totalVolume, style: 'currency', significantDigits: 10, fractionDigits: 0 })
+      return formatDisplayNumber(p.totalVolume, { style: 'currency', significantDigits: 10, fractionDigits: 0 })
     },
     param: 'total_volume',
     title: t`Trading Volume`,

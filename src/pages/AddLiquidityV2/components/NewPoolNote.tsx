@@ -43,12 +43,10 @@ function NewPoolNote({
                 maxCharacters={24}
                 text={
                   !invertMarketPrice
-                    ? `1 ${baseCurrency?.symbol} = ${formatDisplayNumber({
-                        value: marketPrice,
+                    ? `1 ${baseCurrency?.symbol} = ${formatDisplayNumber(marketPrice, {
                         significantDigits: 6,
                       })} ${quoteCurrency?.symbol}`
-                    : `1 ${quoteCurrency?.symbol} = ${formatDisplayNumber({
-                        value: 1 / marketPrice,
+                    : `1 ${quoteCurrency?.symbol} = ${formatDisplayNumber(1 / marketPrice, {
                         significantDigits: 6,
                       })} ${baseCurrency?.symbol}`
                 }

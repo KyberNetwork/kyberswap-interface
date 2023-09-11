@@ -59,13 +59,14 @@ const Position: React.FC<Props> = ({ poolEarning, chainId }) => {
 
   const myLiquidityBalance =
     poolEarning.liquidityTokenBalanceIncludingStake !== '0' && poolEarning.pool.totalSupply !== '0'
-      ? formatDisplayNumber({
-          value:
-            (+poolEarning.liquidityTokenBalanceIncludingStake * +poolEarning.pool.reserveUSD) /
+      ? formatDisplayNumber(
+          (+poolEarning.liquidityTokenBalanceIncludingStake * +poolEarning.pool.reserveUSD) /
             +poolEarning.pool.totalSupply,
-          style: 'currency',
-          significantDigits: 6,
-        })
+          {
+            style: 'currency',
+            significantDigits: 6,
+          },
+        )
       : '--'
 
   const myShareOfPool = +poolEarning.liquidityTokenBalanceIncludingStake / +poolEarning.pool.totalSupply
@@ -98,11 +99,13 @@ const Position: React.FC<Props> = ({ poolEarning, chainId }) => {
   )
 
   const liquidityStaked = +poolEarning.liquidityTokenBalanceIncludingStake - +poolEarning.liquidityTokenBalance
-  const myStakedBalance = formatDisplayNumber({
-    value: (liquidityStaked * +poolEarning.pool.reserveUSD) / +poolEarning.pool.totalSupply,
-    style: 'currency',
-    significantDigits: 6,
-  })
+  const myStakedBalance = formatDisplayNumber(
+    (liquidityStaked * +poolEarning.pool.reserveUSD) / +poolEarning.pool.totalSupply,
+    {
+      style: 'currency',
+      significantDigits: 6,
+    },
+  )
 
   const stakedShare = liquidityStaked / +poolEarning.pool.totalSupply
 
@@ -158,15 +161,13 @@ const Position: React.FC<Props> = ({ poolEarning, chainId }) => {
                     <Flex alignItems="center">
                       <CurrencyLogo currency={unwrappedToken(token0)} size="16px" />
                       <Text fontSize={12} marginLeft="4px">
-                        {formatDisplayNumber({ value: pooledToken0, significantDigits: 6 })}{' '}
-                        {unwrappedToken(token0).symbol}
+                        {formatDisplayNumber(pooledToken0, { significantDigits: 6 })} {unwrappedToken(token0).symbol}
                       </Text>
                     </Flex>
                     <Flex alignItems="center" marginTop="8px">
                       <CurrencyLogo currency={unwrappedToken(token1)} size="16px" />
                       <Text fontSize={12} marginLeft="4px">
-                        {formatDisplayNumber({ value: pooledToken1, significantDigits: 6 })}{' '}
-                        {unwrappedToken(token1).symbol}
+                        {formatDisplayNumber(pooledToken1, { significantDigits: 6 })} {unwrappedToken(token1).symbol}
                       </Text>
                     </Flex>
                   </div>
@@ -188,15 +189,13 @@ const Position: React.FC<Props> = ({ poolEarning, chainId }) => {
                     <Flex alignItems="center">
                       <CurrencyLogo currency={unwrappedToken(token0)} size="16px" />
                       <Text fontSize={12} marginLeft="4px">
-                        {formatDisplayNumber({ value: stakedToken0, significantDigits: 6 })}{' '}
-                        {unwrappedToken(token0).symbol}
+                        {formatDisplayNumber(stakedToken0, { significantDigits: 6 })} {unwrappedToken(token0).symbol}
                       </Text>
                     </Flex>
                     <Flex alignItems="center" marginTop="8px">
                       <CurrencyLogo currency={unwrappedToken(token1)} size="16px" />
                       <Text fontSize={12} marginLeft="4px">
-                        {formatDisplayNumber({ value: stakedToken1, significantDigits: 6 })}{' '}
-                        {unwrappedToken(token1).symbol}
+                        {formatDisplayNumber(stakedToken1, { significantDigits: 6 })} {unwrappedToken(token1).symbol}
                       </Text>
                     </Flex>
                   </div>
@@ -208,18 +207,15 @@ const Position: React.FC<Props> = ({ poolEarning, chainId }) => {
 
         <Column
           label={t`Total LP Tokens`}
-          value={formatDisplayNumber({ value: poolEarning.liquidityTokenBalanceIncludingStake, significantDigits: 6 })}
+          value={formatDisplayNumber(poolEarning.liquidityTokenBalanceIncludingStake, { significantDigits: 6 })}
         />
 
         <Column
           label={t`Share of Pool`}
-          value={formatDisplayNumber({ value: myShareOfPool, style: 'percent', fractionDigits: 2 })}
+          value={formatDisplayNumber(myShareOfPool, { style: 'percent', fractionDigits: 2 })}
         />
 
-        <Column
-          label={t`Staked LP Tokens`}
-          value={formatDisplayNumber({ value: liquidityStaked, significantDigits: 6 })}
-        />
+        <Column label={t`Staked LP Tokens`} value={formatDisplayNumber(liquidityStaked, { significantDigits: 6 })} />
       </Box>
     </Flex>
   )

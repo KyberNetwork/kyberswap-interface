@@ -35,7 +35,7 @@ const CustomizedLabel = (props: any) => {
           fill={theme.subText}
           textAnchor="middle"
         >
-          {formatDisplayNumber({ value, style: 'currency', fractionDigits: 3 })}
+          {formatDisplayNumber(value, { style: 'currency', fractionDigits: 3 })}
         </text>
       )}
     </>
@@ -83,7 +83,7 @@ const EarningAreaChart: React.FC<Props> = ({ data, setHoverValue = EMPTY_FUNCTIO
           tickLine={false}
           stroke={theme.subText}
           tickFormatter={(value: any, _index: number) =>
-            formatDisplayNumber({ value, style: 'currency', fractionDigits: 2 })
+            formatDisplayNumber(value, { style: 'currency', fractionDigits: 2 })
           }
           width={54}
         />

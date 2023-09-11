@@ -82,7 +82,7 @@ const log10 = (n: Fraction): number => {
   return Math.log10(parsedN)
 }
 
-const parseNum = (value: FormatParam['value']): Fraction => {
+const parseNum = (value: FormatValue): Fraction => {
   try {
     if (
       typeof value === 'string' ||
@@ -111,24 +111,46 @@ const parseNum = (value: FormatParam['value']): Fraction => {
   }
 }
 
-type FormatParam = {
-  value: string | number | bigint | JSBI | Fraction | undefined | null
+type FormatValue = string | number | bigint | JSBI | Fraction | undefined | null
+type FormatOptions = {
   style?: 'decimal' | 'currency' | 'percent'
   fractionDigits?: number // usually for percent  & currency styles
   significantDigits?: number // usually for decimal style
   fallback?: string
   allowNegative?: boolean
 }
+interface RequiredFraction extends FormatOptions {
+  fractionDigits: number // usually for percent  & currency styles
+}
+interface RequiredSignificant extends FormatOptions {
+  significantDigits: number // usually for percent  & currency styles
+}
 
 // todo: deprecated others format functions and all .toSignificant() to only use this function
-export const formatDisplayNumber = ({
-  value,
-  style = 'decimal',
-  significantDigits,
-  fractionDigits,
-  fallback = '--',
-  allowNegative = false,
-}: FormatParam): string => {
+/**
+ * Format number to displaying to the UI
+ * @example
+ * // returns 0.2
+ * formatDisplayNumber(0.2, { style: 'decimal', significantDigits: 6 })
+ * @example
+ * // returns $0.2
+ * formatDisplayNumber(0.2, { style: 'currency', significantDigits: 6 })
+ * @example
+ * // returns 20%
+ * formatDisplayNumber(0.2, { style: 'percent', significantDigits: 6 })
+ * @example
+ * @returns {string} Returns the formatted number in string
+ */
+export const formatDisplayNumber = (
+  value: FormatValue,
+  {
+    style = 'decimal',
+    significantDigits,
+    fractionDigits,
+    fallback = '--',
+    allowNegative = false,
+  }: RequiredFraction | RequiredSignificant,
+): string => {
   const currency = style === 'currency' ? '$' : ''
   const percent = style === 'percent' ? '%' : ''
   const fallbackResult = `${currency}${fallback}${percent}`
@@ -147,7 +169,7 @@ export const formatDisplayNumber = ({
     const decimal = shownFraction.toSignificant(30).split('.')[1]
     const negative = shownFraction.lessThan(BIG_INT_ZERO) ? '-' : ''
     const numberOfLeadingZeros = -Math.floor(
-      log10(shownFraction.lessThan(0) ? shownFraction.multiply(-1) : shownFraction) + 1,
+      log10(shownFraction.lessThan(0) ? shownFraction.invert() : shownFraction) + 1,
     )
     const slicedDecimal = decimal
       .replace(/^0+/, '')
@@ -164,7 +186,9 @@ export const formatDisplayNumber = ({
       return `${negative}${currency}0.0${subscripts}${slicedDecimal}${percent}`
     }
 
-    return `${negative}${currency}0${slicedDecimal.length ? '.' + slicedDecimal : ''}${percent}`
+    return `${negative}${currency}0${
+      slicedDecimal.length ? '.' + '0'.repeat(numberOfLeadingZeros) + slicedDecimal : ''
+    }${percent}`
   }
 
   const formatter = Intl.NumberFormat('en-US', {

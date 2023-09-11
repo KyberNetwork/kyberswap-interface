@@ -40,8 +40,9 @@ export const calculateFeeFromBuildData = (
   const feeUsd = buildData.feeUsd
 
   return {
-    feeAmount: formatDisplayNumber({ value: fee, significantDigits: 10 }),
-    feeAmountUsd: feeUsd && feeUsd !== '0' ? formatDisplayNumber({ value: feeUsd, style: 'currency' }) : '',
+    feeAmount: formatDisplayNumber(fee, { significantDigits: 10 }),
+    feeAmountUsd:
+      feeUsd && feeUsd !== '0' ? formatDisplayNumber(feeUsd, { style: 'currency', significantDigits: 10 }) : '',
     currency: currencyAmountToTakeFee.currency,
   }
 }

@@ -70,8 +70,7 @@ type TooltipTextOfSwapFeeProps = {
   feeAmountText: string
 }
 export const TooltipTextOfSwapFee: React.FC<TooltipTextOfSwapFeeProps> = ({ feeBips, feeAmountText }) => {
-  const feePercent = formatDisplayNumber({
-    value: Number(feeBips) / Number(BIPS_BASE.toString()),
+  const feePercent = formatDisplayNumber(Number(feeBips) / Number(BIPS_BASE.toString()), {
     style: 'percent',
     fractionDigits: 2,
   })

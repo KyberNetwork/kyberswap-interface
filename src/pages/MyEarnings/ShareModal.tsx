@@ -281,7 +281,7 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
               {renderPool()}
 
               <Text fontSize={isSharePc ? 50 : 30} fontWeight="500" color={theme.primary}>
-                {formatDisplayNumber({ value, style: 'currency' })}
+                {formatDisplayNumber(value, { style: 'currency', fractionDigits: 2 })}
               </Text>
             </InnerContent>
           </InnerContentWrapper>

@@ -124,9 +124,7 @@ const Stats: React.FC<Props> = ({ participants, trades, volume }) => {
       <StatsCard
         icon={<CampaignVolume />}
         value={
-          volume
-            ? formatDisplayNumber({ value: volume, style: 'currency', fractionDigits: 2, significantDigits: 6 })
-            : volume
+          volume ? formatDisplayNumber(volume, { style: 'currency', fractionDigits: 2, significantDigits: 6 }) : volume
         }
         title="Total Trading Volume"
       />

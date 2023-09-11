@@ -136,11 +136,10 @@ const TotalEarningsAndChainSelect: React.FC<Props> = ({ totalEarningToday, total
     return <Value>--</Value>
   }
 
-  const totalValue = formatDisplayNumber({ value: totalEarningToday, style: 'currency', significantDigits: 6 })
+  const totalValue = formatDisplayNumber(totalEarningToday, { style: 'currency', significantDigits: 6 })
   const diffPercent =
     totalEarningYesterday && !Number.isNaN(totalEarningYesterday)
-      ? formatDisplayNumber({
-          value: totalEarningToday / totalEarningYesterday - 1,
+      ? formatDisplayNumber(totalEarningToday / totalEarningYesterday - 1, {
           style: 'percent',
           fractionDigits: 2,
           significantDigits: 6,

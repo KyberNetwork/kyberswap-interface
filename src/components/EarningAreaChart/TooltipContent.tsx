@@ -79,7 +79,7 @@ const Tokens: React.FC<TokensProps> = ({ tokens }) => {
                 lineHeight: '14px',
               }}
             >
-              {formatDisplayNumber({ value: token.amount })}
+              {formatDisplayNumber(token.amount, { significantDigits: 6 })}
             </Text>
           </Flex>
         )
@@ -153,7 +153,8 @@ const TooltipContent: React.FC<Props> = ({ dataEntry, setHoverValue }) => {
           whiteSpace: 'nowrap',
         }}
       >
-        <Trans>My Total Earnings</Trans>: {formatDisplayNumber({ value: dataEntry.totalValue, style: 'currency' })}
+        <Trans>My Total Earnings</Trans>:{' '}
+        {formatDisplayNumber(dataEntry.totalValue, { style: 'currency', significantDigits: 6 })}
       </Text>
 
       <Text
@@ -166,7 +167,8 @@ const TooltipContent: React.FC<Props> = ({ dataEntry, setHoverValue }) => {
           whiteSpace: 'nowrap',
         }}
       >
-        <Trans>Pool Fees</Trans>: {formatDisplayNumber({ value: dataEntry.poolFeesValue, style: 'currency' })}
+        <Trans>Pool Fees</Trans>:{' '}
+        {formatDisplayNumber(dataEntry.poolFeesValue, { style: 'currency', significantDigits: 6 })}
       </Text>
 
       <Text
@@ -179,7 +181,8 @@ const TooltipContent: React.FC<Props> = ({ dataEntry, setHoverValue }) => {
           whiteSpace: 'nowrap',
         }}
       >
-        <Trans>Farm Rewards</Trans>: {formatDisplayNumber({ value: dataEntry.farmRewardsValue, style: 'currency' })}
+        <Trans>Farm Rewards</Trans>:{' '}
+        {formatDisplayNumber(dataEntry.farmRewardsValue, { style: 'currency', significantDigits: 6 })}
       </Text>
 
       <Flex

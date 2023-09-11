@@ -806,11 +806,11 @@ export default function AddLiquidity() {
             <TYPE.black ml="12px" fontSize="12px" flex={1}>
               <Trans>
                 Note: A very small amount of your liquidity about{' '}
-                {formatDisplayNumber({ value: amountUnlockUSD, style: 'currency', significantDigits: 6 })}{' '}
+                {formatDisplayNumber(amountUnlockUSD, { style: 'currency', significantDigits: 6 })}{' '}
                 <Text as="span" color={theme.text}>
-                  ({formatDisplayNumber({ value: amountUnlocks[Field.CURRENCY_A], significantDigits: 6 })}{' '}
+                  ({formatDisplayNumber(amountUnlocks[Field.CURRENCY_A], { significantDigits: 6 })}{' '}
                   {amountUnlocks[Field.CURRENCY_A].currency.symbol},{' '}
-                  {formatDisplayNumber({ value: amountUnlocks[Field.CURRENCY_B], significantDigits: 6 })}{' '}
+                  {formatDisplayNumber(amountUnlocks[Field.CURRENCY_B], { significantDigits: 6 })}{' '}
                   {amountUnlocks[Field.CURRENCY_B].currency.symbol})
                 </Text>{' '}
                 will be used to first initialize the pool. Read more{' '}
@@ -830,10 +830,9 @@ export default function AddLiquidity() {
               {noLiquidity ? (
                 <Trans>
                   The pool’s current price of 1 {baseCurrency.symbol} ={' '}
-                  {formatDisplayNumber({ value: invertPrice ? price.invert() : price, significantDigits: 4 })}{' '}
+                  {formatDisplayNumber(invertPrice ? price.invert() : price, { significantDigits: 4 })}{' '}
                   {quoteCurrency.symbol} deviates from the market price (1 {baseCurrency.symbol} ={' '}
-                  {formatDisplayNumber({
-                    value: usdPrices[tokenA.wrapped.address] / usdPrices[tokenB.wrapped.address],
+                  {formatDisplayNumber(usdPrices[tokenA.wrapped.address] / usdPrices[tokenB.wrapped.address], {
                     significantDigits: 4,
                   })}{' '}
                   {quoteCurrency.symbol}). You might have high impermanent loss after the pool is created
@@ -841,10 +840,9 @@ export default function AddLiquidity() {
               ) : (
                 <Trans>
                   The pool’s current price of 1 {baseCurrency.symbol} ={' '}
-                  {formatDisplayNumber({ value: invertPrice ? price.invert() : price, significantDigits: 4 })}{' '}
+                  {formatDisplayNumber(invertPrice ? price.invert() : price, { significantDigits: 4 })}{' '}
                   {quoteCurrency.symbol} deviates from the market price (1 {baseCurrency.symbol} ={' '}
-                  {formatDisplayNumber({
-                    value: usdPrices[tokenA.wrapped.address] / usdPrices[tokenB.wrapped.address],
+                  {formatDisplayNumber(usdPrices[tokenA.wrapped.address] / usdPrices[tokenB.wrapped.address], {
                     significantDigits: 4,
                   })}{' '}
                   {quoteCurrency.symbol}). You might have high impermanent loss after you add liquidity to this pool
@@ -1102,8 +1100,7 @@ export default function AddLiquidity() {
                   <Text fontWeight={500} textAlign="center" fontSize={12}>
                     <HoverInlineText
                       maxCharacters={20}
-                      text={formatDisplayNumber({
-                        value: invertPrice ? price.invert() : price,
+                      text={formatDisplayNumber(invertPrice ? price.invert() : price, {
                         significantDigits: 6,
                       })}
                     />
@@ -1546,10 +1543,12 @@ export default function AddLiquidity() {
                             <RowFixed>
                               <HoverInlineText
                                 maxCharacters={24}
-                                text={`1 ${baseCurrency?.symbol} = ${formatDisplayNumber({
-                                  value: invertPrice ? price.invert() : price,
-                                  significantDigits: 6,
-                                })} ${quoteCurrency?.symbol}`}
+                                text={`1 ${baseCurrency?.symbol} = ${formatDisplayNumber(
+                                  invertPrice ? price.invert() : price,
+                                  {
+                                    significantDigits: 6,
+                                  },
+                                )} ${quoteCurrency?.symbol}`}
                               />
                             </RowFixed>
                           </TYPE.main>

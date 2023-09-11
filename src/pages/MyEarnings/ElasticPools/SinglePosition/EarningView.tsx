@@ -62,9 +62,7 @@ const EarningView: React.FC<CommonProps> = props => {
         <HoverDropdown
           disabled={!earningToday?.totalValue}
           anchor={
-            <Value>
-              {earningToday ? formatDisplayNumber({ value: earningToday.totalValue, style: 'currency' }) : '--'}
-            </Value>
+            <Value>{formatDisplayNumber(earningToday?.totalValue, { style: 'currency', significantDigits: 6 })}</Value>
           }
           text={
             <>
@@ -78,7 +76,7 @@ const EarningView: React.FC<CommonProps> = props => {
                 >
                   <Logo srcs={[token.logoUrl]} style={{ flex: '0 0 16px', height: '16px', borderRadius: '999px' }} />
                   <Text fontSize={12} sx={{ whiteSpace: 'nowrap' }}>
-                    {formatDisplayNumber({ value: token.amount })} {token.symbol}
+                    {formatDisplayNumber(token.amount, { significantDigits: 6 })} {token.symbol}
                   </Text>
                 </Flex>
               ))}
@@ -98,8 +96,8 @@ const EarningView: React.FC<CommonProps> = props => {
         </Row>
 
         <Row>
-          <ValueAPR>{myPoolAPR ? myPoolAPR.toFixed(2) + '%' : '--'}</ValueAPR>
-          <ValueAPR>{myFarmAPR ? myFarmAPR.toFixed(2) + '%' : '--'}</ValueAPR>
+          <ValueAPR>{formatDisplayNumber(myPoolAPR / 100, { style: 'percent', fractionDigits: 2 })}</ValueAPR>
+          <ValueAPR>{formatDisplayNumber(myFarmAPR / 100, { style: 'percent', fractionDigits: 2 })}</ValueAPR>
         </Row>
       </Column>
 

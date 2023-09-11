@@ -199,7 +199,7 @@ const PositionView: React.FC<CommonProps> = props => {
 
         <Row>
           <HoverDropdown
-            anchor={<Value>{formatDisplayNumber({ value: liquidityInUsd, style: 'currency' })}</Value>}
+            anchor={<Value>{formatDisplayNumber(liquidityInUsd, { style: 'currency', significantDigits: 6 })}</Value>}
             disabled={!liquidityInUsd || Number.isNaN(liquidityInUsd)}
             text={
               <div>
@@ -221,7 +221,9 @@ const PositionView: React.FC<CommonProps> = props => {
 
           {myStakedBalance ? (
             <HoverDropdown
-              anchor={<Value>{formatDisplayNumber({ value: myStakedBalance, style: 'currency' })}</Value>}
+              anchor={
+                <Value>{formatDisplayNumber(myStakedBalance, { style: 'currency', significantDigits: 6 })}</Value>
+              }
               text={
                 <div>
                   <Flex alignItems="center">
@@ -274,7 +276,7 @@ const PositionView: React.FC<CommonProps> = props => {
             anchor={
               <Text as="span" fontSize="16px" fontWeight={500} lineHeight={'20px'}>
                 {+positionEarning.pendingRewardUSD
-                  ? formatDisplayNumber({ value: positionEarning.pendingRewardUSD, style: 'currency' })
+                  ? formatDisplayNumber(positionEarning.pendingRewardUSD, { style: 'currency', significantDigits: 6 })
                   : '--'}
               </Text>
             }

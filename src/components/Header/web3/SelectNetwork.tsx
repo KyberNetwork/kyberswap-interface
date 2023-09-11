@@ -75,7 +75,7 @@ function SelectNetwork(): JSX.Element | null {
   const userEthBalance = useNativeBalance()
   const labelContent = useMemo(() => {
     if (!userEthBalance) return networkInfo.name
-    const balanceFixedStr = formatDisplayNumber({ value: userEthBalance, significantDigits: 6 })
+    const balanceFixedStr = formatDisplayNumber(userEthBalance, { significantDigits: 6 })
     return `${balanceFixedStr} ${NativeCurrencies[chainId].symbol}`
   }, [userEthBalance, chainId, networkInfo])
   const walletSupportsChain = useWalletSupportedChains()

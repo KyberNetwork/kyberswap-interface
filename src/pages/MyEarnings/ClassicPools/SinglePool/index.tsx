@@ -126,13 +126,14 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
   )
   const myLiquidityBalance =
     poolEarning.liquidityTokenBalanceIncludingStake !== '0' && poolEarning.pool.totalSupply !== '0'
-      ? formatDisplayNumber({
-          value:
-            (+poolEarning.liquidityTokenBalanceIncludingStake * +poolEarning.pool.reserveUSD) /
+      ? formatDisplayNumber(
+          (+poolEarning.liquidityTokenBalanceIncludingStake * +poolEarning.pool.reserveUSD) /
             +poolEarning.pool.totalSupply,
-          style: 'currency',
-          significantDigits: 4,
-        })
+          {
+            style: 'currency',
+            significantDigits: 4,
+          },
+        )
       : '--'
 
   const here = (
@@ -267,8 +268,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
           <MobileStat mobileView={mobileView}>
             <StatItem
               label="TVL"
-              value={formatDisplayNumber({
-                value: poolEarning.pool.reserveUSD,
+              value={formatDisplayNumber(poolEarning.pool.reserveUSD, {
                 style: 'currency',
                 significantDigits: 4,
               })}
@@ -285,8 +285,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
               value={
                 <Flex alignItems="center">
                   <Text as="span" marginRight="4px" color={theme.apr}>
-                    {formatDisplayNumber({
-                      value: (+poolEarning.pool.apr + +poolEarning.pool.farmApr) / 100,
+                    {formatDisplayNumber((+poolEarning.pool.apr + +poolEarning.pool.farmApr) / 100, {
                       style: 'percent',
                       fractionDigits: 2,
                     })}
@@ -310,16 +309,17 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
             />
             <StatItem
               label={t`Volume (24h)`}
-              value={formatDisplayNumber({
-                value: Number(poolEarning.pool.volumeUsd) - Number(poolEarning.pool.volumeUsdOneDayAgo),
-                style: 'currency',
-                significantDigits: 4,
-              })}
+              value={formatDisplayNumber(
+                Number(poolEarning.pool.volumeUsd) - Number(poolEarning.pool.volumeUsdOneDayAgo),
+                {
+                  style: 'currency',
+                  significantDigits: 4,
+                },
+              )}
             />
             <StatItem
               label={t`Fees (24h)`}
-              value={formatDisplayNumber({
-                value: Number(poolEarning.pool.feeUSD) - Number(poolEarning.pool.feesUsdOneDayAgo),
+              value={formatDisplayNumber(Number(poolEarning.pool.feeUSD) - Number(poolEarning.pool.feesUsdOneDayAgo), {
                 style: 'currency',
                 significantDigits: 4,
               })}
@@ -327,7 +327,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
             <StatItem label={t`My Liquidity`} value={myLiquidityBalance} />
             <StatItem
               label={t`My Earnings`}
-              value={formatDisplayNumber({ value: poolEarningToday, style: 'currency', significantDigits: 4 })}
+              value={formatDisplayNumber(poolEarningToday, { style: 'currency', significantDigits: 4 })}
             />
           </MobileStat>
 
@@ -475,21 +475,19 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
 
           <div>
             <Text>
-              {formatDisplayNumber({
-                value: ampLiquidity,
+              {formatDisplayNumber(ampLiquidity, {
                 style: 'currency',
                 significantDigits: 7,
               })}
             </Text>
             <Text color={theme.subText} fontSize={12} marginTop="4px">
-              {formatDisplayNumber({ value: poolEarning.pool.reserveUSD, style: 'currency', significantDigits: 7 })}
+              {formatDisplayNumber(poolEarning.pool.reserveUSD, { style: 'currency', significantDigits: 7 })}
             </Text>
           </div>
 
           <Flex alignItems="center">
             <Text as="span" marginRight="4px" color={theme.apr}>
-              {formatDisplayNumber({
-                value: (+poolEarning.pool.apr + +poolEarning.pool.farmApr) / 100,
+              {formatDisplayNumber((+poolEarning.pool.apr + +poolEarning.pool.farmApr) / 100, {
                 style: 'percent',
                 fractionDigits: 2,
               })}
@@ -507,21 +505,19 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId }) => {
           </Flex>
 
           <Text>
-            {formatDisplayNumber({
-              value: Number(poolEarning.pool.volumeUsd) - Number(poolEarning.pool.volumeUsdOneDayAgo),
+            {formatDisplayNumber(Number(poolEarning.pool.volumeUsd) - Number(poolEarning.pool.volumeUsdOneDayAgo), {
               style: 'currency',
               significantDigits: 4,
             })}
           </Text>
           <Text>
-            {formatDisplayNumber({
-              value: Number(poolEarning.pool.feeUSD) - Number(poolEarning.pool.feesUsdOneDayAgo),
+            {formatDisplayNumber(Number(poolEarning.pool.feeUSD) - Number(poolEarning.pool.feesUsdOneDayAgo), {
               style: 'currency',
               significantDigits: 4,
             })}
           </Text>
           <Text>{myLiquidityBalance}</Text>
-          <Text>{formatDisplayNumber({ value: poolEarningToday, style: 'currency', significantDigits: 4 })}</Text>
+          <Text>{formatDisplayNumber(poolEarningToday, { style: 'currency', significantDigits: 4 })}</Text>
 
           <Flex sx={{ gap: '8px' }} justifyContent="flex-end">
             <ButtonIcon
