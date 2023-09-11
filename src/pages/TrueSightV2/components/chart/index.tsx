@@ -2724,6 +2724,7 @@ export const Prochart = ({
         'mainSeriesProperties.priceAxisProperties.autoScale': true,
         'scalesProperties.textColor': theme.text,
       })
+
       tvWidget
         .activeChart()
         .createStudy('Relative Strength Index')
@@ -2764,7 +2765,7 @@ export const Prochart = ({
   const addSRLevels = useCallback(() => {
     if (!currentPrice || !tvWidget) return
     SRLevels?.forEach((level: ISRLevel) => {
-      const entityId = tvWidget.activeChart().createMultipointShape([{ time: level.timestamp, price: level.value }], {
+      const entityId = tvWidget?.activeChart().createMultipointShape([{ time: level.timestamp, price: level.value }], {
         shape: 'horizontal_ray',
         lock: true,
         disableSelection: true,
@@ -2799,10 +2800,12 @@ export const Prochart = ({
   }, [tvWidget, SRLevels, showSRLevels, currentPrice, theme, removeSRLevels, addSRLevels])
 
   useEffect(() => {
-    if (resolution && tvWidget?.activeChart().resolution() !== (resolution as ResolutionString)) {
-      tvWidget?.activeChart().setResolution(resolution as ResolutionString)
-      variablesRef.current.resolution = resolution
-    }
+    try {
+      if (resolution && tvWidget?.activeChart().resolution() !== (resolution as ResolutionString)) {
+        tvWidget?.activeChart().setResolution(resolution as ResolutionString)
+        variablesRef.current.resolution = resolution
+      }
+    } catch {}
   }, [resolution, tvWidget])
 
   return (
