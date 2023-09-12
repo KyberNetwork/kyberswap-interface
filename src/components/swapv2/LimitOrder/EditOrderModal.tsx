@@ -42,7 +42,6 @@ export default function EditOrderModal({
   isOpen,
   flowState,
   setFlowState,
-  refreshListOrder,
 }: {
   onCancelOrder: CancelOrderFunction
   onDismiss: () => void
@@ -51,7 +50,6 @@ export default function EditOrderModal({
   isOpen: boolean
   flowState: TransactionFlowState
   setFlowState: React.Dispatch<React.SetStateAction<TransactionFlowState>>
-  refreshListOrder: () => void
 }) {
   const { chainId, account } = useActiveWeb3React()
 
@@ -178,7 +176,6 @@ export default function EditOrderModal({
           defaultActiveMakingAmount={defaultActiveMakingAmount}
           defaultRate={defaultRate}
           cancelOrderInfo={cancelOrderInfo}
-          refreshListOrder={refreshListOrder}
           note={note}
           orderInfo={order}
           defaultExpire={defaultExpire}

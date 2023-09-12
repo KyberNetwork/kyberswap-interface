@@ -63,10 +63,6 @@ export type RateInfo = {
   rateFraction?: Fraction // to calc with big number
 }
 
-export type ListOrderHandle = {
-  refreshListOrder: () => void
-}
-
 export type CancelOrderFunction = (orders: LimitOrder[], cancelType: CancelOrderType) => Promise<any>
 
 export type CancelOrderInfo = {

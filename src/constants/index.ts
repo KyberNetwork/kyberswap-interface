@@ -295,6 +295,9 @@ export const RTK_QUERY_TAGS = {
 
   // kyber ai
   GET_PARTICIPANT_INFO_KYBER_AI: 'GET_PARTICIPANT_INFO_KYBER_AI',
+
+  // limit order
+  GET_LIST_ORDERS: 'GET_LIST_ORDERS',
 }
 
 export const TRANSACTION_STATE_DEFAULT: TransactionFlowState = {

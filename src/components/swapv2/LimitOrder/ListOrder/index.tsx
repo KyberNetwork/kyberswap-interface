@@ -1,15 +1,16 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
-import { ReactNode, forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { Trash } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { useGetListOrdersQuery } from 'services/limitOrder'
+import limitOrderApi, { useGetListOrdersQuery } from 'services/limitOrder'
 import styled from 'styled-components'
 
 import { ReactComponent as NoDataIcon } from 'assets/svg/no-data.svg'
+import { useInvalidateTags } from 'components/Announcement/helper'
 import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
 import LocalLoader from 'components/LocalLoader'
@@ -19,7 +20,7 @@ import SearchInput from 'components/SearchInput'
 import Select from 'components/Select'
 import SubscribeNotificationButton from 'components/SubscribeButton'
 import useRequestCancelOrder from 'components/swapv2/LimitOrder/ListOrder/useRequestCancelOrder'
-import { EMPTY_ARRAY, TRANSACTION_STATE_DEFAULT } from 'constants/index'
+import { EMPTY_ARRAY, RTK_QUERY_TAGS, TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
@@ -38,7 +39,7 @@ import EditOrderModal from '../EditOrderModal'
 import CancelOrderModal from '../Modals/CancelOrderModal'
 import { ACTIVE_ORDER_OPTIONS, CLOSE_ORDER_OPTIONS } from '../const'
 import { calcPercentFilledOrder, getPayloadTracking, isActiveStatus } from '../helpers'
-import { LimitOrder, LimitOrderStatus, ListOrderHandle } from '../type'
+import { LimitOrder, LimitOrderStatus } from '../type'
 import useCancellingOrders from '../useCancellingOrders'
 import OrderItem from './OrderItem'
 import TabSelector from './TabSelector'
@@ -129,7 +130,7 @@ const SearchInputWrapped = styled(SearchInput)`
   `};
 `
 
-export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
+export default function ListLimitOrder() {
   const { account, chainId, networkInfo } = useActiveWeb3React()
   const [curPage, setCurPage] = useState(1)
 
@@ -143,11 +144,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   const { isOrderCancelling } = useCancellingOrders()
   const { mixpanelHandler } = useMixpanel()
 
-  const {
-    data: { orders = [], totalOrder = 0 } = {},
-    isFetching,
-    refetch: refetchOrders,
-  } = useGetListOrdersQuery(
+  const { data: { orders = [], totalOrder = 0 } = {}, isFetching } = useGetListOrdersQuery(
     {
       chainId,
       maker: account,
@@ -206,16 +203,17 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     onReset()
   }, [chainId, orderType])
 
+  const invalidateTag = useInvalidateTags(limitOrderApi.reducerPath)
+  const refetchOrders = useCallback(() => {
+    invalidateTag(RTK_QUERY_TAGS.GET_LIST_ORDERS)
+  }, [invalidateTag])
+
   const refreshListOrder = useCallback(() => {
     try {
       onReset()
       refetchOrders()
     } catch (error) {}
   }, [refetchOrders])
-
-  useImperativeHandle(ref, () => ({
-    refreshListOrder,
-  }))
 
   useEffect(() => {
     if (!account) return
@@ -409,7 +407,6 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
           isOpen={isOpenEdit}
           onDismiss={hideEditModal}
           onCancelOrder={onUpdateOrder}
-          refreshListOrder={refreshListOrder}
           order={currentOrder}
           note={t`Note: Your existing order will be automatically cancelled and a new order will be created.${
             currentOrder.status === LimitOrderStatus.PARTIALLY_FILLED
@@ -424,4 +421,4 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
       )}
     </Wrapper>
   )
-})
+}

@@ -3,6 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import { LIMIT_ORDER_API_READ, LIMIT_ORDER_API_WRITE } from 'constants/env'
+import { RTK_QUERY_TAGS } from 'constants/index'
 
 const mapPath: Partial<Record<LimitOrderStatus, string>> = {
   [LimitOrderStatus.CANCELLED]: 'cancelled',
@@ -15,6 +16,7 @@ const transformResponse = (data: any) => data?.data
 const limitOrderApi = createApi({
   reducerPath: 'limitOrderApi',
   baseQuery: fetchBaseQuery({ baseUrl: '' }),
+  tagTypes: [RTK_QUERY_TAGS.GET_LIST_ORDERS],
   endpoints: builder => ({
     getLOConfig: builder.query<
       { contract: string; features: { [address: string]: { supportDoubleSignature: boolean } } },
@@ -53,6 +55,7 @@ const limitOrderApi = createApi({
         })
         return { orders: data?.orders || [], totalOrder: data?.pagination?.totalItems || 0 }
       },
+      providesTags: [RTK_QUERY_TAGS.GET_LIST_ORDERS],
     }),
     getNumberOfInsufficientFundOrders: builder.query<number, { chainId: ChainId; maker: string }>({
       query: params => ({
@@ -85,6 +88,7 @@ const limitOrderApi = createApi({
         method: 'POST',
       }),
       transformResponse,
+      invalidatesTags: [RTK_QUERY_TAGS.GET_LIST_ORDERS],
     }),
     createOrderSignature: builder.mutation<any, any>({
       query: body => ({

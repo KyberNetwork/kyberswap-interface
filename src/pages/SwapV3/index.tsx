@@ -15,7 +15,6 @@ import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import GasPriceTrackerPanel from 'components/swapv2/GasPriceTrackerPanel'
 import LimitOrder from 'components/swapv2/LimitOrder'
 import ListLimitOrder from 'components/swapv2/LimitOrder/ListOrder'
-import { ListOrderHandle } from 'components/swapv2/LimitOrder/type'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import PairSuggestion, { PairSuggestionHandle } from 'components/swapv2/PairSuggestion'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
@@ -112,7 +111,6 @@ export default function Swap() {
   const { pathname } = useLocation()
 
   const refSuggestPair = useRef<PairSuggestionHandle>(null)
-  const refListLimitOrder = useRef<ListOrderHandle>(null)
 
   const [showingPairSuggestionImport, setShowingPairSuggestionImport] = useState<boolean>(false) // show modal import when click pair suggestion
 
@@ -134,12 +132,6 @@ export default function Swap() {
   useEffect(() => {
     setActiveTab(getDefaultTab())
   }, [getDefaultTab])
-
-  const refreshListOrder = useCallback(() => {
-    if (isLimitPage) {
-      refListLimitOrder.current?.refreshListOrder()
-    }
-  }, [isLimitPage])
 
   useDefaultsFromURLSearch()
 
@@ -263,7 +255,6 @@ export default function Swap() {
                 <LimitOrder
                   isSelectCurrencyManual={isSelectCurrencyManually}
                   setIsSelectCurrencyManual={setIsSelectCurrencyManually}
-                  refreshListOrder={refreshListOrder}
                 />
               )}
               {isCrossChainPage && <CrossChain visible={activeTab === TAB.CROSS_CHAIN} />}
@@ -334,7 +325,7 @@ export default function Swap() {
                 </Flex>
               </RoutesWrapper>
             )}
-            {isLimitPage && <ListLimitOrder ref={refListLimitOrder} />}
+            {isLimitPage && <ListLimitOrder />}
             {isCrossChainPage && <CrossChainTransfersHistory />}
           </InfoComponents>
         </Container>

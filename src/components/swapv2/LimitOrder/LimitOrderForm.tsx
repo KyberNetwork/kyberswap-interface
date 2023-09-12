@@ -74,7 +74,6 @@ const Set2Market = styled(Label)`
 const INPUT_HEIGHT = 28
 
 type Props = {
-  refreshListOrder: () => void
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
   defaultInputAmount?: string
@@ -103,7 +102,6 @@ const InputWrapper = styled.div`
 `
 
 function LimitOrderForm({
-  refreshListOrder,
   currencyIn,
   currencyOut,
   defaultInputAmount = '',
@@ -422,7 +420,6 @@ function LimitOrderForm({
         10000,
       )
       onResetForm()
-      setTimeout(() => refreshListOrder?.(), 500)
       return response?.id
     } catch (error) {
       handleError(error)
