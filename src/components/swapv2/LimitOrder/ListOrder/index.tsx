@@ -267,12 +267,13 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
 
   const showEditOrderModal = useCallback(
     (order: LimitOrder) => {
+      setFlowState({ ...TRANSACTION_STATE_DEFAULT })
       setCurrentOrder(order)
       setIsOpenEdit(true)
       setIsCancelAll(false)
       mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_EDIT_ORDER, getPayloadTracking(order, networkInfo.name))
     },
-    [mixpanelHandler, networkInfo.name],
+    [mixpanelHandler, networkInfo.name, setFlowState],
   )
 
   const totalOrderNotCancelling = useMemo(() => {

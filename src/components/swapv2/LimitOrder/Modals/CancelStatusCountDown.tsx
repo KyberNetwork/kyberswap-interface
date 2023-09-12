@@ -90,7 +90,7 @@ export default function CancelStatusCountDown({
 
   if (errorMessage || attemptingTxn)
     return (
-      <CountDownWrapper style={{ flexDirection: 'row', justifyContent: 'center' }}>
+      <CountDownWrapper style={{ flexDirection: 'row', justifyContent: 'center', minHeight: 50 }}>
         {errorMessage ? (
           <>
             <WarningIcon color={theme.red} />
