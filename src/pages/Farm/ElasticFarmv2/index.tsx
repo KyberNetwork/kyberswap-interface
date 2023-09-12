@@ -19,6 +19,7 @@ import { MouseoverTooltip, MouseoverTooltipDesktopOnly, TextDashed } from 'compo
 import { ConnectWalletButton } from 'components/YieldPools/ElasticFarmGroup/buttons'
 import { FarmList } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { ClickableText, ElasticFarmV2TableHeader } from 'components/YieldPools/styleds'
+import { FRAX_FARMS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
@@ -31,7 +32,7 @@ import useGetElasticPools from 'state/prommPools/useGetElasticPools'
 import { useIsTransactionPending } from 'state/transactions/hooks'
 import { useViewMode } from 'state/user/hooks'
 import { VIEW_MODE } from 'state/user/reducer'
-import { MEDIA_WIDTHS } from 'theme'
+import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { formatDollarAmount } from 'utils/numbers'
 
 import FarmCard from './components/FarmCard'
@@ -65,7 +66,7 @@ export default function ElasticFarmv2({
   farmAddress: string
 }) {
   const theme = useTheme()
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const above1000 = useMedia('(min-width: 1000px)')
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
@@ -414,6 +415,9 @@ export default function ElasticFarmv2({
   if (!filteredFarms?.length) return null
 
   const listMode = above1000 && viewMode === VIEW_MODE.LIST
+  const hasFraxFarm = filteredFarms.some(farm =>
+    FRAX_FARMS[chainId]?.map(address => address.toLowerCase()).includes(farm.poolAddress.toLowerCase()),
+  )
 
   return (
     <Wrapper>
@@ -440,6 +444,19 @@ export default function ElasticFarmv2({
         {renderApproveButton()}
       </Flex>
       <Divider />
+      {hasFraxFarm && (
+        <Text fontSize={12} lineHeight="16px" fontWeight={400} color={theme.text}>
+          <Trans>
+            KyberSwap Frax farms do not currently receive KNC incentives. They are continuously available for staking so
+            that users can participate in KyberSwap Frax gauges to earn FXS emissions. The amount of FXS emissions
+            depends on the results of each weekly Frax gauge voting cycle. More info:{' '}
+            <ExternalLink href="https://app.frax.finance/gauge">https://app.frax.finance/gauge</ExternalLink> and{' '}
+            <ExternalLink href="https://docs.frax.finance/vefxs/gauge">
+              https://docs.frax.finance/vefxs/gauge
+            </ExternalLink>
+          </Trans>
+        </Text>
+      )}
       <FarmList
         gridMode={viewMode === VIEW_MODE.GRID || !above1000}
         style={{ margin: '0', paddingBottom: viewMode === VIEW_MODE.GRID ? '12px' : '0' }}

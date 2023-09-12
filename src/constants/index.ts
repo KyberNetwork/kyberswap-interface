@@ -385,3 +385,14 @@ export const ICON_IDS = [
   'discord',
 ] as const
 export type ICON_ID = typeof ICON_IDS[number]
+
+export const FRAX_FARMS: { [chainId in ChainId]?: string[] } = {
+  [ChainId.MAINNET]: [
+    '0xe5379f5ee90d70a0f9de0ed8b3cdde3b9427524a',
+    '0xfd7b111aa83b9b6f547e617c7601efd997f64703',
+    '0x36240069ff26cecbde04d9e49a2af8d39146263e',
+  ],
+  [ChainId.MATIC]: ['0xa5ebdde0f2e657d77bebeda085dd49f6decf8504'],
+  [ChainId.ARBITRUM]: ['0x6a7dccf168fba624a81b293c2538d31427b5b4bd'],
+  [ChainId.OPTIMISM]: ['0xa837d04a64acf66912d05cfd9b951e4e399ab680'],
+}
