@@ -113,7 +113,7 @@ describe('formatDisplayNumber tests', () => {
             expect(formatDisplayNumber(123456789, { significantDigits: 18 })).toBe('123,456,789')
           })
           test('format number 123456789123456789 correctly', async () => {
-            expect(formatDisplayNumber(123456789123456789, { significantDigits: 6 })).toBe('123,457T')
+            expect(formatDisplayNumber(123456789123456789, { significantDigits: 18 })).toBe('123,456,789,123,456,780')
           })
         })
       })
