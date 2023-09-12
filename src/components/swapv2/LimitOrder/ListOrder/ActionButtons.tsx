@@ -44,17 +44,17 @@ const IconWrap = styled.div<{ color: string; isDisabled?: boolean }>`
 
 const CancelStatusButton = ({ expiredAt, style }: { expiredAt: number | undefined; style?: CSSProperties }) => {
   const theme = useTheme()
-
   const [remain, setRemain] = useState(0)
+
   useEffect(() => {
-    setRemain(expiredAt ? Math.floor(expiredAt - Date.now() / 1000) : 0)
+    setRemain(expiredAt && expiredAt - Date.now() > 0 ? Math.floor(expiredAt - Date.now() / 1000) : 0)
   }, [expiredAt])
 
   const countdown = useCallback(() => {
     setRemain(v => v - 1)
   }, [])
 
-  useInterval(countdown, remain ? 1000 : null)
+  useInterval(countdown, remain > 0 ? 1000 : null)
 
   if (remain <= 0) return null
   return (

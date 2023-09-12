@@ -66,8 +66,9 @@ export default function CancelStatusCountDown({
   const notify = useNotify()
 
   const [remain, setRemain] = useState(0)
+
   useEffect(() => {
-    setRemain(Math.floor(expiredTime - Date.now() / 1000))
+    setRemain(expiredTime - Date.now() > 0 ? Math.floor(expiredTime - Date.now() / 1000) : 0)
   }, [expiredTime])
 
   const countdown = useCallback(() => {
@@ -80,11 +81,11 @@ export default function CancelStatusCountDown({
           type: NotificationType.ERROR,
         })
       }
-      return v - 1
+      return Math.min(0, v - 1)
     })
   }, [setCancelStatus, notify])
 
-  useInterval(countdown, remain && cancelStatus === CancelStatus.COUNTDOWN ? 1000 : null)
+  useInterval(countdown, remain > 0 && cancelStatus === CancelStatus.COUNTDOWN ? 1000 : null)
 
   // todo docs link
 
