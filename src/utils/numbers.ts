@@ -1,7 +1,7 @@
 import { CurrencyAmount, Fraction, Percent, Price } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 
-import { BIG_INT_MINUS_ONE, BIG_INT_ONE, BIG_INT_ZERO, RESERVE_USD_DECIMALS } from 'constants/index'
+import { BIG_INT_ONE, BIG_INT_ZERO, RESERVE_USD_DECIMALS } from 'constants/index'
 
 // todo: deprecated, use formatDisplayNumber instead
 export const formatDollarAmount = (num: number | undefined, digits = 2) => {
@@ -48,7 +48,7 @@ export function toFixed(x: number): string {
     const e = parseInt(x.toString().split('e-')[1])
     if (e) {
       x *= Math.pow(10, e - 1)
-      return '0.' + '0'.repeat(e - 1) + x.toString().substring(2)
+      return x.toString().split('.')[0] + '.' + '0'.repeat(e - 1) + x.toString().split('.')[1]
     }
   } else {
     let e = parseInt(x.toString().split('+')[1])
@@ -160,17 +160,12 @@ export const formatDisplayNumber = (
   if (!allowNegative && parsedFraction.lessThan(BIG_INT_ZERO)) return fallbackResult
 
   const shownFraction = style === 'percent' ? parsedFraction.multiply(100) : parsedFraction
+  const absShownFraction = shownFraction.lessThan(0) ? shownFraction.multiply(-1) : shownFraction
 
-  if (
-    shownFraction.greaterThan(BIG_INT_MINUS_ONE) &&
-    shownFraction.lessThan(BIG_INT_ONE) &&
-    !shownFraction.equalTo(BIG_INT_ZERO)
-  ) {
-    const decimal = shownFraction.toSignificant(30).split('.')[1]
+  if (absShownFraction.lessThan(BIG_INT_ONE) && !shownFraction.equalTo(BIG_INT_ZERO)) {
+    const decimal = shownFraction.toSignificant(Math.max(30, significantDigits || 0, fractionDigits || 0)).split('.')[1]
     const negative = shownFraction.lessThan(BIG_INT_ZERO) ? '-' : ''
-    const numberOfLeadingZeros = -Math.floor(
-      log10(shownFraction.lessThan(0) ? shownFraction.invert() : shownFraction) + 1,
-    )
+    const numberOfLeadingZeros = -Math.floor(log10(absShownFraction) + 1)
     const slicedDecimal = decimal
       .replace(/^0+/, '')
       .slice(0, fractionDigits)
@@ -192,7 +187,7 @@ export const formatDisplayNumber = (
   }
 
   const formatter = Intl.NumberFormat('en-US', {
-    notation: shownFraction.greaterThan(10 ** (significantDigits || fractionDigits || 4)) ? 'compact' : 'standard',
+    notation: absShownFraction.greaterThan(10 ** (significantDigits || fractionDigits || 4)) ? 'compact' : 'standard',
     style,
     currency: 'USD',
     minimumFractionDigits: fractionDigits ? 0 : undefined,
@@ -201,7 +196,9 @@ export const formatDisplayNumber = (
     maximumSignificantDigits: significantDigits,
   })
 
-  const result = formatter.format(Number(parsedFraction.toSignificant(30)))
+  const result = formatter.format(
+    Number(parsedFraction.toSignificant(Math.max(30, significantDigits || 0, fractionDigits || 0))),
+  )
 
   // Intl.NumberFormat does not handle maximumFractionDigits well when used along with maximumSignificantDigits
   // It might return number with longer fraction digits than maximumFractionDigits

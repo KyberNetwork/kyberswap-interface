@@ -8,7 +8,6 @@ import { TransactionFlowState } from 'types/TransactionFlowState'
 import { CAMPAIGN_BASE_URL as CAMPAIGN_BASE_DOMAIN } from './env'
 import * as ENV from './env'
 import { EVM_NETWORK, NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from './networks'
-import { ENV_TYPE } from './type'
 
 export const EMPTY_OBJECT: any = {}
 export const EMPTY_ARRAY: any[] = []
@@ -262,12 +261,6 @@ export const EIP712Domain = [
   { name: 'chainId', type: 'uint256' },
   { name: 'verifyingContract', type: 'address' },
 ]
-
-if (ENV.ENV_LEVEL < ENV_TYPE.PROD) {
-  console.groupCollapsed('ENV')
-  console.log(JSON.stringify(ENV, null, 4))
-  console.groupEnd()
-}
 
 export const INPUT_DEBOUNCE_TIME = 300
 
