@@ -6,7 +6,7 @@ import Logo from 'components/Logo'
 import Modal from 'components/Modal'
 import CancelButtons from 'components/swapv2/LimitOrder/Modals/CancelButtons'
 import CancelStatusCountDown from 'components/swapv2/LimitOrder/Modals/CancelStatusCountDown'
-import useFetchActiveAllOrders from 'components/swapv2/LimitOrder/useFetchActiveAllOrders'
+import useAllActiveOrders from 'components/swapv2/LimitOrder/useFetchActiveAllOrders'
 import { useCurrencyV2 } from 'hooks/Tokens'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 
@@ -57,7 +57,7 @@ function ContentCancel({
 
   const [expiredTime, setExpiredTime] = useState(0)
   const [cancelStatus, setCancelStatus] = useState<CancelStatus>(CancelStatus.WAITING)
-  const { orders = [], ordersSoftCancel = [], supportCancelGasless } = useFetchActiveAllOrders(false && !isCancelAll)
+  const { orders = [], ordersSoftCancel = [], supportCancelGasless } = useAllActiveOrders(false && !isCancelAll)
   const requestCancel = async (type: CancelOrderType) => {
     const gasLessCancel = type === CancelOrderType.GAS_LESS_CANCEL
     const signal = controller.current.signal

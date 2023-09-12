@@ -16,7 +16,7 @@ export const useIsSupportSoftCancelOrder = () => {
   )
 }
 
-export default function useFetchActiveAllOrders(disabled = false) {
+export default function useAllActiveOrders(disabled = false) {
   const { account, chainId } = useActiveWeb3React()
   const { data } = useGetListOrdersQuery(
     { chainId, maker: account, status: LimitOrderStatus.ACTIVE, pageSize: 100 },
