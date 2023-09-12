@@ -750,6 +750,71 @@ describe('formatDisplayNumber tests', () => {
             ).toBe('0.0₂₃123456789123456789')
           })
         })
+        describe('4 fractionDigits', () => {
+          test('format string 12345678.123456789 correctly', () => {
+            expect(formatDisplayNumber('12345678.123456789', { fractionDigits: 4 })).toBe('12.3457M')
+          })
+          test('format string 1234567.123456789 correctly', () => {
+            expect(formatDisplayNumber('1234567.123456789', { fractionDigits: 4 })).toBe('1.2346M')
+          })
+          test('format string 12345.123456789 correctly', () => {
+            expect(formatDisplayNumber('12345.123456789', { fractionDigits: 4 })).toBe('12.3451K')
+          })
+          test('format string 1234.123456789 correctly', () => {
+            expect(formatDisplayNumber('1234.123456789', { fractionDigits: 4 })).toBe('1,234.1235')
+          })
+          test('format string 123.123456789 correctly', () => {
+            expect(formatDisplayNumber('123.123456789', { fractionDigits: 4 })).toBe('123.1235')
+          })
+          test('format string 12.123456789 correctly', () => {
+            expect(formatDisplayNumber('12.123456789', { fractionDigits: 4 })).toBe('12.1235')
+          })
+          test('format string 1.123456789 correctly', () => {
+            expect(formatDisplayNumber('1.123456789', { fractionDigits: 4 })).toBe('1.1235')
+          })
+          test('format string 0.123456789 correctly', () => {
+            expect(formatDisplayNumber('0.123456789', { fractionDigits: 4 })).toBe('0.1234')
+          })
+          test('format string 0.0123456789 correctly', () => {
+            expect(formatDisplayNumber('0.0123456789', { fractionDigits: 4 })).toBe('0.01234')
+          })
+          test('format string 0.00123456789 correctly', () => {
+            expect(formatDisplayNumber('0.00123456789', { fractionDigits: 4 })).toBe('0.001234')
+          })
+          test('format string 0.000123456789 correctly', () => {
+            expect(formatDisplayNumber('0.000123456789', { fractionDigits: 4 })).toBe('0.0₃1234')
+          })
+          test('format string 0.0000123456789 correctly', () => {
+            expect(formatDisplayNumber('0.0000123456789', { fractionDigits: 4 })).toBe('0.0₄1234')
+          })
+          test('format string 0.00000123456789 correctly', () => {
+            expect(formatDisplayNumber('0.00000123456789', { fractionDigits: 4 })).toBe('0.0₅1234')
+          })
+          test('format string 0.000000123456789 correctly', () => {
+            expect(formatDisplayNumber('0.000000123456789', { fractionDigits: 4 })).toBe('0.0₆1234')
+          })
+          test('format string 0.0000000123456789 correctly', () => {
+            expect(formatDisplayNumber('0.0000000123456789', { fractionDigits: 4 })).toBe('0.0₇1234')
+          })
+          test('format string 0.00000000123456789 correctly', () => {
+            expect(formatDisplayNumber('0.00000000123456789', { fractionDigits: 4 })).toBe('0.0₈1234')
+          })
+          test('format string 0.000000000123456789 correctly', () => {
+            expect(formatDisplayNumber('0.000000000123456789', { fractionDigits: 4 })).toBe('0.0₉1234')
+          })
+          test('format string 0.0000000000123456789 correctly', () => {
+            expect(formatDisplayNumber('0.0000000000123456789', { fractionDigits: 4 })).toBe('0.0₁₀1234')
+          })
+          test('format string 0.00000000000123456789 correctly', () => {
+            expect(formatDisplayNumber('0.00000000000123456789', { fractionDigits: 4 })).toBe('0.0₁₁1234')
+          })
+          test('format string 0.000000000000123456789 correctly', () => {
+            expect(formatDisplayNumber('0.000000000000123456789', { fractionDigits: 4 })).toBe('0.0₁₂1234')
+          })
+          test('format string 0.00000000000000000000000123456789 correctly', () => {
+            expect(formatDisplayNumber('0.00000000000000000000000123456789', { fractionDigits: 4 })).toBe('0.0₂₃1234')
+          })
+        })
       })
       describe('negative strings', () => {
         test('format string -123456789123456789.123456789 correctly', () => {
