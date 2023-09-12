@@ -2,13 +2,14 @@ import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
 import { ReactNode, forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react'
-import { Info, Trash } from 'react-feather'
+import { Trash } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useGetListOrdersQuery } from 'services/limitOrder'
 import styled from 'styled-components'
 
+import { ReactComponent as NoDataIcon } from 'assets/svg/no-data.svg'
 import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
 import LocalLoader from 'components/LocalLoader'
@@ -376,12 +377,12 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
               </TableFooter>
             ) : (
               <NoResultWrapper>
-                <Info size={30} />
+                <NoDataIcon />
                 <Text marginTop={'10px'}>
                   {keyword ? (
                     <Trans>No orders found</Trans>
                   ) : isTabActive ? (
-                    <Trans>You don&apos;t have any active orders yet</Trans>
+                    <Trans>You don&apos;t have any open orders yet</Trans>
                   ) : (
                     <Trans>You don&apos;t have any order history</Trans>
                   )}

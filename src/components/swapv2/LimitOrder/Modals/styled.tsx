@@ -103,7 +103,7 @@ export const MarketInfo = ({
     >
       <Row>
         <Label style={{ fontSize: 12 }}>
-          <Trans>Estimated Market Price</Trans>
+          <Trans>Est. Market Price</Trans>
         </Label>
         <Value style={{ maxWidth: '60%' }}>
           <TradePrice
