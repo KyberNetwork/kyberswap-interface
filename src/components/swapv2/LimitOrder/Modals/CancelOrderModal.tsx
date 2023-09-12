@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Text } from 'rebass'
 
 import Logo from 'components/Logo'
@@ -53,15 +53,19 @@ function ContentCancel({
     takerAssetDecimals,
   } = order ?? ({} as LimitOrder)
 
+  const controller = useRef(new AbortController())
+
   const [expiredTime, setExpiredTime] = useState(0)
   const [cancelStatus, setCancelStatus] = useState<CancelStatus>(CancelStatus.WAITING)
   const { orders = [], ordersSoftCancel = [], supportCancelGasless } = useFetchActiveAllOrders(false && !isCancelAll)
   const requestCancel = async (type: CancelOrderType) => {
     const gasLessCancel = type === CancelOrderType.GAS_LESS_CANCEL
+    const signal = controller.current.signal
     const data: CancelOrderResponse = await onSubmit(
       isCancelAll ? (gasLessCancel ? ordersSoftCancel : orders) : order ? [order] : [],
       type,
     )
+    if (signal.aborted) return
     setCancelStatus(gasLessCancel ? CancelStatus.COUNTDOWN : CancelStatus.WAITING)
     const expired = data?.orders?.[0]?.operatorSignatureExpiredAt
     expired && setExpiredTime(expired)
@@ -73,8 +77,10 @@ function ContentCancel({
   useEffect(() => {
     if (!isOpen || flowState.errorMessage) {
       setCancelStatus(CancelStatus.WAITING)
+      controller.current = new AbortController()
     }
-  }, [isOpen, flowState.errorMessage])
+    return () => controller?.current?.abort()
+  }, [isOpen, flowState.errorMessage, isCancelAll])
 
   const isCountDown = cancelStatus === CancelStatus.COUNTDOWN
   const isCancelDone = cancelStatus === CancelStatus.CANCEL_DONE
