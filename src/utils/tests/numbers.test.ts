@@ -115,6 +115,9 @@ describe('formatDisplayNumber tests', () => {
           test('format number 123456789123456789 correctly', () => {
             expect(formatDisplayNumber(123456789123456789, { significantDigits: 18 })).toBe('123,456,789,123,456,780')
           })
+          test('format number 1234567891234567891 correctly', () => {
+            expect(formatDisplayNumber(1234567891234567891, { significantDigits: 18 })).toBe('1,234,567.891234568T')
+          })
         })
       })
       describe('small numbers', () => {
@@ -508,7 +511,10 @@ describe('formatDisplayNumber tests', () => {
             expect(formatDisplayNumber('123456789', { significantDigits: 18 })).toBe('123,456,789')
           })
           test('format string 123456789123456789 correctly', () => {
-            expect(formatDisplayNumber('123456789123456789', { significantDigits: 6 })).toBe('123,457T')
+            expect(formatDisplayNumber('123456789123456789', { significantDigits: 18 })).toBe('123,456,789,123,456,780')
+          })
+          test('format string 1234567891234567891 correctly', () => {
+            expect(formatDisplayNumber('1234567891234567891', { significantDigits: 18 })).toBe('1,234,567.891234568T')
           })
         })
       })
