@@ -106,6 +106,12 @@ jobs:
         env:
           DISPLAY: :0.0
 
+      - name: Create env file
+        run: |
+          touch .env
+          echo ENV=${ENV} > .env
+          echo CYPRESS_BASE_URL='http://127.0.0.1:4173/' > .env
+
       - name: Run Cypress Test
         run: |+
           #!/bin/bash
