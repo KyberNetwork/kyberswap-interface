@@ -150,7 +150,7 @@ function CampaignItem({ campaign, onSelectCampaign, isSelected, style }: Campaig
     (isPassedNumberOfTrade && !tradingVolumeRequired)
   const { showProgressBarVolume, showProgressBarNumberTrade, isShowProgressBar } = getCampaignInfo(campaign, account)
   const hasBonusMultiplier = !!campaign?.conditionGroups?.find(
-    item => item.type === ConditionGroupsType.POINT_MULTIPLIER,
+    item => item.type === ConditionGroupsType.POINT_MULTIPLIER && !!item.conditions?.length,
   )
 
   return (
