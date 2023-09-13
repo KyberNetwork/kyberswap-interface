@@ -46,11 +46,9 @@ import Tooltip, { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
 import { Dots } from 'components/swapv2/styleds'
-import { ENV_LEVEL } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
-import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -88,7 +86,7 @@ import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { friendlyError } from 'utils/errorMessage'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
-import { formatDisplayNumber } from 'utils/numbers'
+import { formatDisplayNumber, toFixed } from 'utils/numbers'
 import { SLIPPAGE_STATUS, checkRangeSlippage } from 'utils/slippage'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
@@ -384,6 +382,10 @@ export default function AddLiquidity() {
     fetchPrices,
     refetch,
   } = useTokenPricesWithLoading(tokens.map(t => t?.wrapped.address || ''))
+  const marketPrice =
+    usdPrices[quoteCurrency?.wrapped.address || ''] &&
+    usdPrices[baseCurrency?.wrapped.address || ''] &&
+    usdPrices[baseCurrency?.wrapped.address || ''] / usdPrices[quoteCurrency?.wrapped.address || '']
 
   useInterval(refetch, 10_000)
 
@@ -616,13 +618,21 @@ export default function AddLiquidity() {
   }, [navigate, networkInfo.route, onFieldAInput, txHash])
 
   const handleDismissConfirmationRef = useRef(handleDismissConfirmation)
+
+  const [waitForMarketPrice, setWaitForMarketPrice] = useState(false)
   useEffect(() => {
-    if (ENV_LEVEL > ENV_TYPE.LOCAL) {
-      setPositionIndex(0)
-      onResetMintState()
-      handleDismissConfirmationRef.current()
-    }
+    setPositionIndex(0)
+    onResetMintState()
+    handleDismissConfirmationRef.current()
+    setWaitForMarketPrice(true)
   }, [onResetMintState, baseCurrency?.wrapped.address, quoteCurrency?.wrapped.address, feeAmount, chainId])
+
+  useEffect(() => {
+    if (waitForMarketPrice && marketPrice) {
+      onStartPriceInput(toFixed(marketPrice))
+      setWaitForMarketPrice(false)
+    }
+  }, [waitForMarketPrice, marketPrice, onStartPriceInput])
 
   const leftPrice = isSorted ? priceLower : priceUpper?.invert()
   const rightPrice = isSorted ? priceUpper : priceLower?.invert()
@@ -1286,11 +1296,6 @@ export default function AddLiquidity() {
   )
 
   const tightTokenSelect = !upToMedium && upToLarge
-
-  const marketPrice =
-    usdPrices[quoteCurrency?.wrapped.address || ''] &&
-    usdPrices[baseCurrency?.wrapped.address || ''] &&
-    usdPrices[baseCurrency?.wrapped.address || ''] / usdPrices[quoteCurrency?.wrapped.address || '']
 
   const onFarmRangeSelected = useCallback(
     (tickLower: number, tickUpper: number) => {
