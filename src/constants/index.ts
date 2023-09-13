@@ -305,9 +305,9 @@ export const TRANSACTION_STATE_DEFAULT: TransactionFlowState = {
   pendingText: '',
 }
 
-export const CHAINS_SUPPORT_FEE_CONFIGS = [ChainId.OASIS, ChainId.VELAS, ChainId.AURORA, ChainId.CRONOS]
+export const CHAINS_SUPPORT_FEE_CONFIGS = [ChainId.AURORA, ChainId.CRONOS]
 export const CHAINS_SUPPORT_CROSS_CHAIN =
-  ENV.ENV_KEY === 'production' || ENV.ENV_KEY === 'staging'
+  ENV.ENV_KEY === ENV.EnvKeys.PROD || ENV.ENV_KEY === ENV.EnvKeys.STG
     ? [
         ChainId.MAINNET,
         ChainId.BSCMAINNET,

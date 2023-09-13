@@ -27,8 +27,8 @@
     "start-dev": "vite --mode dev --host",
     "start-stg": "vite --mode stg --host",
     "start-prod": "vite --mode production --host",
-    "test-e2e": "synpress run -cf cypress.config.ts -c baseUrl=http://127.0.0.1:4173/",
-    "test-schedule": "synpress run -cf cypress.config.ts -c baseUrl=https://kyberswap.com/"
+    "test-e2e": "synpress run -cf cypress.config.ts",
+    "test-schedule": "synpress run -cf cypress.config.ts"
   },
   "browserslist": [
     "chrome >= 52",
@@ -50,7 +50,7 @@
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@kybernetwork/oauth2": "1.0.0",
     "@kyberswap/ks-sdk-classic": "^1.0.3",
-    "@kyberswap/ks-sdk-core": "1.0.10",
+    "@kyberswap/ks-sdk-core": "1.0.11",
     "@kyberswap/ks-sdk-elastic": "^1.1.2",
     "@kyberswap/ks-sdk-solana": "^1.0.2",
     "@lingui/loader": "~3.14.0",
@@ -149,7 +149,7 @@
     "@cypress/grep": "^3.1.5",
     "@lingui/cli": "~3.14.0",
     "@lingui/vite-plugin": "~3.16.1",
-    "@synthetixio/synpress": "^3.7.0",
+    "@synthetixio/synpress": "^3.7.2-beta.7",
     "@trivago/prettier-plugin-sort-imports": "^3.3.1",
     "@types/aos": "^3.0.4",
     "@types/big.js": "^6.0.0",
@@ -190,6 +190,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-unused-imports": "^2.0.0",
     "prettier": "^2.7.1",
+    "prom-client": "^14.2.0",
     "ts-node": "^10.9.1",
     "typescript": "4.8.4",
     "vite": "^4.3.9",
@@ -198,7 +199,7 @@
     "vite-tsconfig-paths": "^4.0.8"
   },
   "resolutions": {
-    "@kyberswap/ks-sdk-core": "1.0.10",
+    "@kyberswap/ks-sdk-core": "1.0.11",
     "react-error-overlay": "6.0.9",
     "@lingui/babel-plugin-extract-messages": "3.14.0",
     "@lingui/cli": "3.14.0",

@@ -128,6 +128,8 @@ export default function SimpleTooltip({
     }
   }, [show, x, y])
 
+  const isShow = (show || (!!x && !!y)) && !(hideOnMobile && isMobile)
+
   const { top, left, alphaLeft } = useMemo(() => {
     const clientRect = ref.current?.getBoundingClientRect()
     if (!bodyRect || !clientRect || !height || !width) return {}
@@ -139,7 +141,9 @@ export default function SimpleTooltip({
     }
 
     return { top, left, alphaLeft }
-  }, [height, width, x, y, bodyRect])
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [height, width, x, y, bodyRect, isShow])
 
   useEffect(() => {
     if (x !== undefined && y !== undefined) {
@@ -158,14 +162,11 @@ export default function SimpleTooltip({
 
     window.addEventListener('resize', handleResize)
     window.addEventListener('scroll', handleResize)
-
     return () => {
       window.removeEventListener('resize', handleResize)
       window.removeEventListener('scroll', handleResize)
     }
   }, [])
-
-  const isShow = (show || (!!x && !!y)) && !(hideOnMobile && isMobile)
 
   const tooltipContent = useMemo(() => {
     if (!text) return null
@@ -187,6 +188,7 @@ export default function SimpleTooltip({
       document.body,
     )
   }, [alphaLeft, className, disappearOnHover, handleMouseLeave, left, maxWidthProp, text, top, widthProp])
+
   if (disabled) {
     return <>{children}</>
   }

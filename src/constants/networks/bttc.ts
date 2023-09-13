@@ -21,7 +21,7 @@ const bttcInfo: EVMNetworkInfo = {
   defaultBlockSubgraph: 'https://bttc-graph.kyberengineering.io/subgraphs/name/kybernetwork/bttc-blocks',
   etherscanUrl: 'https://bttcscan.com',
   etherscanName: 'Bttcscan',
-  bridgeURL: EMPTY,
+  bridgeURL: 'https://bttc.bittorrent.com/bridge/',
   nativeToken: {
     symbol: 'BTT',
     name: 'BTT',
@@ -63,10 +63,7 @@ const bttcInfo: EVMNetworkInfo = {
     routers: '0xF9c2b5746c946EF883ab2660BbbB1f10A5bdeAb4',
     farms: [],
   },
-  limitOrder: {
-    production: NOT_SUPPORT,
-    development: NOT_SUPPORT,
-  },
+  limitOrder: NOT_SUPPORT,
   averageBlockTimeInSeconds: 2, // TODO: check these info
   coingeckoNetworkId: 'tron',
   coingeckoNativeTokenId: 'bittorrent',

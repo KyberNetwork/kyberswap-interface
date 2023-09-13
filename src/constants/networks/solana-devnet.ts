@@ -35,7 +35,7 @@ const solanaInfo: SolanaNetworkInfo = {
     minForGas: 10 ** 7,
   },
   aggregatorProgramAddress: 'GmgkeeJtcjHgeiSDdT5gxznUDr5ygq9jo8tmA4ny7ziv',
-  limitOrder: { development: NOT_SUPPORT, production: NOT_SUPPORT },
+  limitOrder: NOT_SUPPORT,
   coingeckoNetworkId: 'solana',
   coingeckoNativeTokenId: 'solana',
   defaultRpcUrl: 'https://api.devnet.solana.com',
