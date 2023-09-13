@@ -117,7 +117,7 @@ export default function Modal({
   transition = true,
   zindex = 100,
   borderRadius = '20px',
-  enableSwipeGesture = true,
+  enableSwipeGesture = false,
   bypassScrollLock = false,
   bypassFocusLock = false,
 }: ModalProps) {

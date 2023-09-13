@@ -182,8 +182,9 @@ const TokenDescription = ({ description }: { description: string }) => {
   const [show, setShow] = useState(true)
   const [isTextExceeded, setIsTextExceeded] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+
   useLayoutEffect(() => {
-    setIsTextExceeded((description && ref.current && ref.current?.clientWidth <= ref.current?.scrollWidth) || false)
+    setIsTextExceeded((!!description && ref.current && ref.current?.clientWidth <= ref.current?.scrollWidth) || false)
   }, [description])
 
   useEffect(() => {
@@ -203,9 +204,11 @@ const TokenDescription = ({ description }: { description: string }) => {
         dangerouslySetInnerHTML={{
           __html:
             linkify(description) +
-            `<span style="color:${
-              theme.primary
-            }; cursor:pointer; margin-left:4px;" id="hide-token-description-span">${t`Hide`}</span>`,
+            (isTextExceeded
+              ? `<span style="color:${
+                  theme.primary
+                }; cursor:pointer; margin-left:4px;" id="hide-token-description-span">${t`Hide`}</span>`
+              : ''),
         }}
       />
       {isTextExceeded && !show && (
@@ -497,7 +500,7 @@ export default function SingleToken() {
   const [showShare, setShowShare] = useState(false)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const { chain, address } = useParams()
-  const [currentTab, setCurrentTab] = useState<DiscoverTokenTab>(DiscoverTokenTab.OnChainAnalysis)
+  const [currentTab, setCurrentTab] = useState<DiscoverTokenTab>(DiscoverTokenTab.TechnicalAnalysis)
 
   const { data: token, isLoading } = useKyberAITokenOverview()
 
@@ -582,8 +585,8 @@ export default function SingleToken() {
             <DisplaySettings currentTab={currentTab} />
           </RowFit>
         </Row>
-        {currentTab === DiscoverTokenTab.OnChainAnalysis && <OnChainAnalysis />}
         {currentTab === DiscoverTokenTab.TechnicalAnalysis && <TechnicalAnalysis />}
+        {currentTab === DiscoverTokenTab.OnChainAnalysis && <OnChainAnalysis />}
       </ChartStatesContext.Provider>
       <KyberAIShareModal
         isOpen={showShare}

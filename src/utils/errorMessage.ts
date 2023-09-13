@@ -2,13 +2,14 @@ import { t } from '@lingui/macro'
 
 import { didUserReject } from 'constants/connectors/utils'
 
-function capitalizeFirstLetter(string: string) {
+function capitalizeFirstLetter(str?: string) {
+  const string = str || ''
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
 
 function parseKnownPattern(text: string): string | undefined {
   const error = text?.toLowerCase?.() || ''
-  console.info('parseError:', { text, error })
+
   if (!error || error.includes('router: expired')) return 'An error occurred. Refresh the page and try again '
 
   if (
@@ -44,6 +45,7 @@ const patterns: { pattern: RegExp; getMessage: (match: RegExpExecArray) => strin
     getMessage: match => match[1],
   },
   { pattern: /^([\w ]*\w+) \(.+?\)$/, getMessage: match => match[1] },
+  { pattern: /"message": ?"[^"]+?"/, getMessage: match => match[1] },
 ]
 function parseKnownRegexPattern(text: string): string | undefined {
   const pattern = patterns.find(pattern => pattern.pattern.exec(text))

@@ -1,4 +1,5 @@
 import { ChainId, ChainType, getChainType } from '@kyberswap/ks-sdk-core'
+import { t } from '@lingui/macro'
 
 import { SolanaNetworkInfo } from 'constants/networks/type'
 
@@ -7,6 +8,7 @@ import {
   aurora,
   avax,
   avaxTestnet,
+  base,
   bnb,
   bnbTestnet,
   bttc,
@@ -17,15 +19,13 @@ import {
   linea,
   matic,
   mumbai,
-  oasis,
   optimism,
   solana,
   solanaDevnet,
-  velas,
+  zkEvm,
   zksync,
 } from './networks/index'
 import { EVMNetworkInfo } from './networks/type'
-import zkEvm from './networks/zkevm'
 
 type SOLANA_NETWORK = ChainId.SOLANA | ChainId.SOLANA_DEVNET
 
@@ -45,13 +45,12 @@ const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.CRONOS]: cronos,
   [ChainId.ARBITRUM]: arbitrum,
   [ChainId.BTTC]: bttc,
-  [ChainId.VELAS]: velas,
   [ChainId.AURORA]: aurora,
-  [ChainId.OASIS]: oasis,
   [ChainId.OPTIMISM]: optimism,
   [ChainId.ZKSYNC]: zksync,
   [ChainId.LINEA]: linea,
   [ChainId.ZKEVM]: zkEvm,
+  [ChainId.BASE]: base,
   [ChainId.SOLANA]: solana,
   [ChainId.SOLANA_DEVNET]: solanaDevnet,
 } as const
@@ -67,7 +66,7 @@ export const NETWORKS_INFO = new Proxy(NETWORKS_INFO_CONFIG, {
 
 // temporary disable Solana
 // todo: either enable back or completely remove Solana from codebase
-export const SUPPORTED_NETWORKS = Object.keys(NETWORKS_INFO).map(Number).filter(isEVM) as ChainId[]
+export const SUPPORTED_NETWORKS = Object.keys(NETWORKS_INFO).map(Number).filter(isEVM)
 
 export const MAINNET_NETWORKS = [
   ChainId.MAINNET,
@@ -77,14 +76,13 @@ export const MAINNET_NETWORKS = [
   ChainId.MATIC,
   ChainId.ZKEVM,
   ChainId.ZKSYNC,
+  ChainId.BASE,
   ChainId.BSCMAINNET,
   ChainId.AVAXMAINNET,
   // ChainId.SOLANA,
   ChainId.FANTOM,
   ChainId.BTTC,
   ChainId.CRONOS,
-  ChainId.VELAS,
-  ChainId.OASIS,
   ChainId.AURORA,
 ] as const
 
@@ -145,8 +143,6 @@ export const CHAINS_SUPPORT_NEW_POOL_FARM_API: readonly ChainId[] = [
   ChainId.BTTC,
   ChainId.ARBITRUM,
   ChainId.AURORA,
-  // ChainId.VELAS,
-  // ChainId.OASIS,
   ChainId.OPTIMISM,
 ]
 
@@ -154,8 +150,6 @@ export const CHAINS_SUPPORT_NEW_POOL_FARM_API: readonly ChainId[] = [
 export const STATIC_FEE_OPTIONS: { [chainId: number]: number[] | undefined } = {
   [ChainId.ARBITRUM]: [8, 10, 50, 300, 500, 1000],
   [ChainId.AURORA]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.VELAS]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.OASIS]: [8, 10, 50, 300, 500, 1000],
   [ChainId.MAINNET]: [8, 10, 50, 300, 500, 1000],
   [ChainId.MATIC]: [8, 10, 50, 300, 500, 1000],
   [ChainId.AVAXMAINNET]: [8, 10, 50, 300, 500, 1000],
@@ -168,18 +162,18 @@ export const STATIC_FEE_OPTIONS: { [chainId: number]: number[] | undefined } = {
   [ChainId.ZKSYNC]: [8, 10, 50, 300, 500, 1000],
   [ChainId.LINEA]: [8, 10, 50, 300, 500, 1000],
   [ChainId.ZKEVM]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.BASE]: [8, 10, 50, 300, 500, 1000],
 }
 
 export const ONLY_STATIC_FEE_CHAINS = [
   ChainId.ARBITRUM,
   ChainId.AURORA,
-  ChainId.VELAS,
-  ChainId.OASIS,
   ChainId.OPTIMISM,
   ChainId.GÖRLI,
   ChainId.ZKSYNC,
   ChainId.LINEA,
   ChainId.ZKEVM,
+  ChainId.BASE,
 ]
 
 // hardcode for unavailable subgraph
@@ -208,15 +202,25 @@ export const SUPPORTED_NETWORKS_FOR_MY_EARNINGS = [
   ChainId.FANTOM,
   ChainId.CRONOS,
   ChainId.BTTC,
-  ChainId.VELAS,
   ChainId.AURORA,
-  ChainId.OASIS,
 ]
 export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS: ChainId[] = []
 export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_LEGACY: ChainId[] = []
-export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC: ChainId[] = [
-  ChainId.CRONOS,
-  ChainId.VELAS,
-  ChainId.AURORA,
-  ChainId.OASIS,
+export const COMING_SOON_NETWORKS_FOR_MY_EARNINGS_CLASSIC: ChainId[] = [ChainId.CRONOS, ChainId.AURORA]
+export const BLOCTO_SUPPORTED_NETWORKS: ChainId[] = [
+  ChainId.MAINNET,
+  ChainId.ARBITRUM,
+  ChainId.OPTIMISM,
+  ChainId.MATIC,
+  ChainId.BSCMAINNET,
+  ChainId.AVAXMAINNET,
 ]
+
+export const ELASTIC_NOT_SUPPORTED: { [key: string]: string } = {
+  [ChainId.AURORA]: t`Elastic is not supported on Aurora. Please switch to other chains`,
+  [ChainId.ZKSYNC]: t`Elastic will be available soon`,
+}
+
+export const CLASSIC_NOT_SUPPORTED: { [key: string]: string } = {
+  [ChainId.BASE]: t`Classic is not supported on Base. Please switch to other chains`,
+}

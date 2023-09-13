@@ -42,10 +42,8 @@ import {
   LineaFull,
   LowestSlippage,
   MoneyBagOutline,
-  OasisLogoFull,
   OptimismLogoFull,
   PolygonLogoFull,
-  VelasLogoFull,
 } from 'components/Icons'
 import AntiSnippingAttack from 'components/Icons/AntiSnippingAttack'
 import ZkSyncFull from 'components/Icons/ZkSyncFull'
@@ -1023,9 +1021,7 @@ function AboutKyberSwap() {
               <FantomLogoFull color={isDarkMode ? '#fff' : '#1969FF'} width="100%" height="unset" />
               <CronosLogoFull color={isDarkMode ? undefined : '#142564'} />
               <img src={isDarkMode ? ArbitrumDark : ArbitrumLight} alt="" width="100%" />
-              <VelasLogoFull color={isDarkMode ? undefined : 'black'} />
               <AuroraFull />
-              <OasisLogoFull />
               <img src={isDarkMode ? BTTCDark : BTTCLight} alt="btt" width="100%" />
               <OptimismLogoFull />
               {/* <SolanaLogoFull /> */}
@@ -1034,10 +1030,15 @@ function AboutKyberSwap() {
               <img
                 src={
                   isDarkMode
-                    ? 'https://zkevm.polygon.technology/img/polygon-zkevm.svg'
+                    ? 'https://polygontechnology.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fdd9f65de-0698-41f4-9a0e-4120b50b8176%2FPolygon_zkEVM_logo_light.svg?table=block&id=5d157d90-9ed4-48e4-be5d-4405bb02a2aa&spaceId=51562dc1-1dc5-4484-bf96-2aeac848ae2f&userId=&cache=v2'
                     : 'https://zkevm.polygonscan.com/images/logo.svg?v=23.8.1.0'
                 }
                 alt="zkevm"
+                width="100%"
+              />
+              <img
+                src="https://raw.githubusercontent.com/base-org/brand-kit/001c0e9b40a67799ebe0418671ac4e02a0c683ce/logo/wordmark/Base_Wordmark_Blue.svg"
+                alt="Base"
                 width="100%"
               />
             </Powered>

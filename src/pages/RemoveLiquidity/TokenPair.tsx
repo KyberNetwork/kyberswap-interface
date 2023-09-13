@@ -582,7 +582,7 @@ export default function TokenPair({
               <TransactionErrorContent onDismiss={handleDismissConfirmation} message={removeLiquidityError} />
             ) : (
               <ConfirmationModalContent
-                title={'You will receive'}
+                title={t`You will receive`}
                 onDismiss={handleDismissConfirmation}
                 topContent={modalHeader}
                 bottomContent={modalBottom}

@@ -7,6 +7,7 @@ import { ReactComponent as DropdownSvg } from 'assets/svg/down.svg'
 import Card from 'components/Card'
 import NetworkModal from 'components/Header/web3/NetworkModal'
 import Row from 'components/Row'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -82,10 +83,11 @@ function SelectNetwork(): JSX.Element | null {
     return `${balanceFixed} ${NativeCurrencies[chainId].symbol}`
   }, [userEthBalance, chainId, networkInfo])
   const walletSupportsChain = useWalletSupportedChains()
+  const disableSelectNetwork = walletSupportsChain.length <= 1
 
-  return (
+  const button = (
     <NetworkCard
-      onClick={() => toggleNetworkModal()}
+      onClick={() => (disableSelectNetwork ? null : toggleNetworkModal())}
       role="button"
       id={TutorialIds.SELECT_NETWORK}
       data-testid="select-network"
@@ -108,6 +110,11 @@ function SelectNetwork(): JSX.Element | null {
       />
     </NetworkCard>
   )
+  if (disableSelectNetwork)
+    return (
+      <MouseoverTooltip text={t`Unable to switch network. Please try it on your wallet`}>{button}</MouseoverTooltip>
+    )
+  return button
 }
 
 export default SelectNetwork
