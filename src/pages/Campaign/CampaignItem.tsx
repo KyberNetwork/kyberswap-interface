@@ -10,12 +10,13 @@ import { Flex, Text } from 'rebass'
 import styled, { CSSProperties, css } from 'styled-components'
 
 import { ReactComponent as GrantCampaignIcon } from 'assets/svg/grant_campaign.svg'
+import { ReactComponent as StarMultiplierIcon } from 'assets/svg/star_multiplier.svg'
 import ProgressBar from 'components/ProgressBar'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { DEFAULT_SIGNIFICANT, RESERVE_USD_DECIMALS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
-import { CampaignData, CampaignStatus, CampaignUserInfoStatus } from 'state/campaigns/actions'
+import { CampaignData, CampaignStatus, CampaignUserInfoStatus, ConditionGroupsType } from 'state/campaigns/actions'
 import { useIsDarkMode } from 'state/user/hooks'
 
 import CampaignActions from './CampaignActions'
@@ -148,6 +149,9 @@ function CampaignItem({ campaign, onSelectCampaign, isSelected, style }: Campaig
     (isPassedVolume && !tradingNumberRequired) ||
     (isPassedNumberOfTrade && !tradingVolumeRequired)
   const { showProgressBarVolume, showProgressBarNumberTrade, isShowProgressBar } = getCampaignInfo(campaign, account)
+  const hasBonusMultiplier = !!campaign?.conditionGroups?.find(
+    item => item.type === ConditionGroupsType.POINT_MULTIPLIER,
+  )
 
   return (
     <CampaignItemWrapper
@@ -173,6 +177,11 @@ function CampaignItem({ campaign, onSelectCampaign, isSelected, style }: Campaig
               <GrantCampaignIcon width="16px" height="16px" />
             </MouseoverTooltip>
           ) : null}
+          {hasBonusMultiplier && (
+            <MouseoverTooltip placement="top" text={<Trans>Point multiplier is in effect</Trans>}>
+              <StarMultiplierIcon />
+            </MouseoverTooltip>
+          )}
           <CampaignStatusText status={campaign.status}>{rCampaignStatus}</CampaignStatusText>
         </Flex>
       </Container>
