@@ -661,11 +661,9 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
       )
     })
   }
-  const hasFraxFarm =
-    true ||
-    runningFarms.some(farm =>
-      FRAX_FARMS[chainId]?.map(address => address.toLowerCase()).includes(farm.poolAddress.toLowerCase()),
-    )
+  const hasFraxFarm = runningFarms.some(farm =>
+    FRAX_FARMS[chainId]?.map(address => address.toLowerCase()).includes(farm.poolAddress.toLowerCase()),
+  )
 
   return (
     <FarmContent data-testid="farm-block">
