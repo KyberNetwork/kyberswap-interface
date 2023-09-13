@@ -1,4 +1,3 @@
-/// <reference types="vitest" />
 import GlobalPolyFill from '@esbuild-plugins/node-globals-polyfill'
 import lingui from '@lingui/vite-plugin'
 import react from '@vitejs/plugin-react'
@@ -60,8 +59,5 @@ export default defineConfig({
     port: 3000,
     host: '127.0.0.1',
     open: true,
-  },
-  test: {
-    environment: 'jsdom',
   },
 })
