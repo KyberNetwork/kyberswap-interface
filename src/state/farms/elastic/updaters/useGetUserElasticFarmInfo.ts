@@ -19,17 +19,12 @@ const POOL_FEE_HISTORY = gql`
   }
 `
 
-const defaultChainData = {
-  loading: false,
-  farms: null,
-  poolFeeLast24h: {},
-}
 const useGetUserFarmingInfo = () => {
   const dispatch = useDispatch()
   const { chainId } = useActiveWeb3React()
   const { elasticClient } = useKyberSwapConfig()
 
-  const elasticFarm = useAppSelector(state => state.elasticFarm[chainId || 1]) || defaultChainData
+  const farms = useAppSelector(state => state.elasticFarm[chainId || 1]?.farms)
 
   const { blockLast24h } = usePoolBlocks()
   const [getPoolInfo, { data: poolFeeData }] = useLazyQuery(POOL_FEE_HISTORY, {
@@ -55,7 +50,7 @@ const useGetUserFarmingInfo = () => {
 
   useEffect(() => {
     if (!isEVM(chainId)) return
-    const poolIds = elasticFarm.farms?.map(item => item.pools.map(p => p.poolAddress.toLowerCase())).flat()
+    const poolIds = farms?.map(item => item.pools.map(p => p.poolAddress.toLowerCase())).flat()
 
     if (blockLast24h && poolIds?.length) {
       getPoolInfo({
@@ -65,7 +60,7 @@ const useGetUserFarmingInfo = () => {
         },
       })
     }
-  }, [elasticFarm.farms, blockLast24h, getPoolInfo, chainId])
+  }, [farms, blockLast24h, getPoolInfo, chainId])
 }
 
 export default useGetUserFarmingInfo

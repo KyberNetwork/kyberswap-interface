@@ -79,7 +79,7 @@ enum SORT_DIRECTION {
   DESC = 'desc',
 }
 
-const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, onShowStepGuide, tokenPrices }) => {
+const ElasticFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, onShowStepGuide, tokenPrices }) => {
   const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
   const above1000 = useMedia('(min-width: 1000px)')
@@ -749,4 +749,4 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, onShowSt
   )
 }
 
-export default ProMMFarmGroup
+export default ElasticFarmGroup

@@ -132,7 +132,7 @@ export function useProAmmPositions(account: string | null | undefined): UseProAm
 export const useFarmPositions = () => {
   const { isEVM, networkInfo } = useActiveWeb3React()
 
-  const { farms, loading, loadingUserInfo } = useElasticFarms()
+  const { farms, loading } = useElasticFarms()
   const userFarmInfo = useJoinedPositions()
   const depositedPositions = useDepositedNfts()
 
@@ -189,7 +189,7 @@ export const useFarmPositions = () => {
       farms,
       userFarmInfo,
       farmPositions,
-      loading: loadingUserInfo || loading,
+      loading: loading,
     }
-  }, [loading, loadingUserInfo, farmPositions, farms, userFarmInfo])
+  }, [loading, farmPositions, farms, userFarmInfo])
 }

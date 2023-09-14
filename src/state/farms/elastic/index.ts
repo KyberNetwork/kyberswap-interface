@@ -6,7 +6,6 @@ interface ElasticFarmState {
   [chainId: number]: {
     loading: boolean
     farms: ElasticFarm[] | null
-    loadingUserInfo: boolean
     poolFeeLast24h: {
       [poolId: string]: number
     }
@@ -17,7 +16,6 @@ export const defaultChainData = {
   loading: false,
   farms: [],
   poolFeeLast24h: {},
-  loadingUserInfo: false,
 } as ElasticFarmState[number]
 
 const initialState: ElasticFarmState = {}
@@ -40,15 +38,9 @@ const slice = createSlice({
     setPoolFeeData(state, { payload: { chainId, data } }) {
       state[chainId].poolFeeLast24h = data
     },
-
-    setLoadingUserInfo(state, { payload: { loading, chainId } }) {
-      if (!state[chainId]) {
-        state[chainId] = { ...defaultChainData, loadingUserInfo: loading }
-      } else state[chainId] = { ...state[chainId], loadingUserInfo: loading }
-    },
   },
 })
 
-export const { setFarms, setLoading, setPoolFeeData, setLoadingUserInfo } = slice.actions
+export const { setFarms, setLoading, setPoolFeeData } = slice.actions
 
 export default slice.reducer

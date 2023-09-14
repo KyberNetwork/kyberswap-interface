@@ -2,7 +2,7 @@ import { CurrencyAmount, Fraction } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { BigNumber } from 'ethers'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Info, Minus, Plus, Share2 } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -73,6 +73,7 @@ const Row = ({
 
   const [isRevertPrice, setIsRevertPrice] = useState(false)
   const userInfo = useUserInfoByFarm(fairlaunchAddress)
+
   const joinedPositions = userInfo?.joinedPositions[farmingPool.pid] || []
 
   const depositedPositionsByFarm = useDepositedNftsByFarm(fairlaunchAddress)
@@ -531,4 +532,4 @@ const Row = ({
   )
 }
 
-export default Row
+export default React.memo(Row)
