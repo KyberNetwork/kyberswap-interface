@@ -332,6 +332,18 @@ const tokenTypeList: {
     ),
   },
   {
+    type: KyberAIListType.FUNDING_RATE,
+    title: t`Funding Rates`,
+    icon: 'coin-bag',
+    tooltip: () => (
+      <span>
+        Tokens with funding rates on centralized exchanges. Positive funding rate suggests traders are bullish and
+        vice-versa for negative funding rates. Extremely positive or negative funding rates may result in leveraged
+        positions getting squeezed.
+      </span>
+    ),
+  },
+  {
     type: KyberAIListType.TOP_TRADED,
     title: t`Top Traded`,
     icon: 'coin-bag',
@@ -758,6 +770,7 @@ const LoadingRowSkeleton = ({ hasExtraCol }: { hasExtraCol?: boolean }) => {
     </>
   )
 }
+
 export default function TokenAnalysisList() {
   const theme = useTheme()
   const mixpanelHandler = useMixpanelKyberAI()

@@ -21,6 +21,7 @@ const mapTypeTitle = {
   // [KyberAIListType.TOP_SOCIAL]: t`Top Social Tokens`,
   [KyberAIListType.TRENDING_SOON]: t`Trending Soon Tokens`,
   [KyberAIListType.TRENDING]: t`Top Trending Tokens`,
+  [KyberAIListType.FUNDING_RATE]: t`Funding Rates`,
 }
 
 export default function TokenAnalysisListShareContent({
