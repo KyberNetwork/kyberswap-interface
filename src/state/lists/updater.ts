@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
-import { useLazyGetTokenListQuery } from 'services/ksSetting'
+import { useGetChainsConfigurationQuery, useLazyGetTokenListQuery } from 'services/ksSetting'
 
 import { MAINNET_NETWORKS } from 'constants/networks'
 import { TokenMap, formatAndCacheToken } from 'hooks/Tokens'
@@ -29,6 +29,7 @@ export default function Updater(): null {
   const dispatch = useDispatch<AppDispatch>()
 
   const [fetchTokenList] = useLazyGetTokenListQuery()
+  useGetChainsConfigurationQuery()
 
   useEffect(() => {
     const getTokens = async () => {
