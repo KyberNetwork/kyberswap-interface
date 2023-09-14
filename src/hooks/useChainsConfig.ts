@@ -10,7 +10,7 @@ export enum ChainState {
   NEW = 'new',
   ACTIVE = 'active',
   INACTIVE = 'inactive',
-  MAINTENANCE = 'maintainain',
+  MAINTENANCE = 'maintained',
 }
 
 export type ChainStateMap = { [chain in ChainId]: ChainState }
