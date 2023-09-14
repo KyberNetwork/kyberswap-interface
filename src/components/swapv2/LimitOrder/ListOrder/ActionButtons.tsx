@@ -47,7 +47,8 @@ const CancelStatusButton = ({ expiredAt, style }: { expiredAt: number | undefine
   const [remain, setRemain] = useState(0)
 
   useEffect(() => {
-    setRemain(expiredAt && expiredAt - Date.now() > 0 ? Math.floor(expiredAt - Date.now() / 1000) : 0)
+    const delta = Math.floor((expiredAt || 0) - Date.now() / 1000)
+    setRemain(Math.max(0, delta))
   }, [expiredAt])
 
   const countdown = useCallback(() => {

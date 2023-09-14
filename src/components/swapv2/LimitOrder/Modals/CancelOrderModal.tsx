@@ -6,7 +6,7 @@ import Logo from 'components/Logo'
 import Modal from 'components/Modal'
 import CancelButtons from 'components/swapv2/LimitOrder/Modals/CancelButtons'
 import CancelStatusCountDown from 'components/swapv2/LimitOrder/Modals/CancelStatusCountDown'
-import useAllActiveOrders from 'components/swapv2/LimitOrder/useFetchActiveAllOrders'
+import useAllActiveOrders, { useIsSupportSoftCancelOrder } from 'components/swapv2/LimitOrder/useFetchActiveAllOrders'
 import { useCurrencyV2 } from 'hooks/Tokens'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 
@@ -57,7 +57,16 @@ function ContentCancel({
 
   const [expiredTime, setExpiredTime] = useState(0)
   const [cancelStatus, setCancelStatus] = useState<CancelStatus>(CancelStatus.WAITING)
-  const { orders = [], ordersSoftCancel = [], supportCancelGasless } = useAllActiveOrders(false && !isCancelAll)
+  const {
+    orders = [],
+    ordersSoftCancel = [],
+    supportCancelGaslessAllOrders,
+  } = useAllActiveOrders(false && !isCancelAll)
+
+  const isOrderSupportGaslessCancel = useIsSupportSoftCancelOrder()
+
+  const supportGasLessCancel = isCancelAll ? supportCancelGaslessAllOrders : isOrderSupportGaslessCancel(order)
+
   const requestCancel = async (type: CancelOrderType) => {
     const gasLessCancel = type === CancelOrderType.GAS_LESS_CANCEL
     const signal = controller.current.signal
@@ -65,10 +74,14 @@ function ContentCancel({
       isCancelAll ? (gasLessCancel ? ordersSoftCancel : orders) : order ? [order] : [],
       type,
     )
-    if (signal.aborted) return
+    if (signal.aborted) {
+      onDismiss()
+      return
+    }
     setCancelStatus(gasLessCancel ? CancelStatus.COUNTDOWN : CancelStatus.WAITING)
     const expired = data?.orders?.[0]?.operatorSignatureExpiredAt
-    expired && setExpiredTime(expired)
+    if (expired) setExpiredTime(expired)
+    else onDismiss()
   }
 
   const onClickGaslessCancel = () => !isCountDown && requestCancel(CancelOrderType.GAS_LESS_CANCEL)
@@ -77,9 +90,11 @@ function ContentCancel({
   useEffect(() => {
     if (!isOpen || flowState.errorMessage) {
       setCancelStatus(CancelStatus.WAITING)
+    }
+    return () => {
+      controller?.current?.abort()
       controller.current = new AbortController()
     }
-    return () => controller?.current?.abort()
   }, [isOpen, flowState.errorMessage, isCancelAll])
 
   const isCountDown = cancelStatus === CancelStatus.COUNTDOWN
@@ -140,16 +155,12 @@ function ContentCancel({
   ])
 
   const totalOrder =
-    ordersSoftCancel.length === orders.length || !supportCancelGasless
+    ordersSoftCancel.length === orders.length || !supportGasLessCancel
       ? t`all`
       : `${ordersSoftCancel.length}/${orders.length}`
 
   return (
-    <Modal
-      maxWidth={isCancelAll && !isCancelDone ? 600 : 480}
-      isOpen={flowState.showConfirm && isOpen}
-      onDismiss={onDismiss}
-    >
+    <Modal maxWidth={isCancelAll && !isCancelDone ? 600 : 480} isOpen={isOpen} onDismiss={onDismiss}>
       <Container>
         <Header title={isCancelAll ? t`Bulk Cancellation` : t`Cancel an order`} onDismiss={onDismiss} />
         {isCancelAll ? (
@@ -178,7 +189,7 @@ function ContentCancel({
           flowState={flowState}
         />
         <CancelButtons
-          supportCancelGasless={supportCancelGasless}
+          supportCancelGasless={supportGasLessCancel}
           loading={flowState.attemptingTxn}
           cancelStatus={cancelStatus}
           onOkay={onDismiss}

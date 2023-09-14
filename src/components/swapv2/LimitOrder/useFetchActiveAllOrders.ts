@@ -8,7 +8,8 @@ export const useIsSupportSoftCancelOrder = () => {
   const { chainId } = useActiveWeb3React()
   const { data: config } = useGetLOConfigQuery(chainId)
   return useCallback(
-    (order: LimitOrder) => {
+    (order: LimitOrder | undefined) => {
+      if (!order) return false
       const features = config?.features || {}
       return !!features?.[order.contractAddress?.toLowerCase?.()]?.supportDoubleSignature
     },
@@ -30,7 +31,7 @@ export default function useAllActiveOrders(disabled = false) {
     return {
       orders,
       ordersSoftCancel,
-      supportCancelGasless: ordersSoftCancel.length > 0,
+      supportCancelGaslessAllOrders: ordersSoftCancel.length > 0,
     }
   }, [data, isSupportSoftCancel])
 }

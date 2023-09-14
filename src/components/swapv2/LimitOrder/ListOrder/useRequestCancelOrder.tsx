@@ -141,7 +141,7 @@ const useRequestCancelOrder = ({
       const resp = await (cancelType === CancelOrderType.HARD_CANCEL
         ? requestHardCancelOrder(orders?.[0])
         : requestGasLessCancelOrder(orders))
-      setFlowState(state => ({ ...state, showConfirm: false }))
+      setFlowState(state => ({ ...state, attemptingTxn: false, showConfirm: false }))
       return resp
     } catch (error) {
       setFlowState(state => ({

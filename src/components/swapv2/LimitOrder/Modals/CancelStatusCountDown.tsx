@@ -6,14 +6,12 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as TimerIcon } from 'assets/svg/clock_timer.svg'
-import { NotificationType } from 'components/Announcement/type'
 import { Clock } from 'components/Icons'
 import WarningIcon from 'components/Icons/WarningIcon'
 import Loader from 'components/Loader'
 import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
 import useInterval from 'hooks/useInterval'
 import useTheme from 'hooks/useTheme'
-import { useNotify } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import { friendlyError } from 'utils/errorMessage'
@@ -63,27 +61,22 @@ export default function CancelStatusCountDown({
   const pendingText = flowState.pendingText || t`Canceling order`
 
   const theme = useTheme()
-  const notify = useNotify()
 
   const [remain, setRemain] = useState(0)
 
   useEffect(() => {
-    setRemain(expiredTime - Date.now() > 0 ? Math.floor(expiredTime - Date.now() / 1000) : 0)
+    const delta = Math.floor(expiredTime - Date.now() / 1000)
+    setRemain(Math.max(0, delta))
   }, [expiredTime])
 
   const countdown = useCallback(() => {
     setRemain(v => {
       if (v - 1 === 0) {
-        setCancelStatus(CancelStatus.TIMEOUT)
-        notify({
-          summary: t`Your cancellation request has timed out.`,
-          title: t`Limit Order`,
-          type: NotificationType.ERROR,
-        })
+        setCancelStatus(CancelStatus.CANCEL_DONE)
       }
-      return Math.min(0, v - 1)
+      return Math.max(0, v - 1)
     })
-  }, [setCancelStatus, notify])
+  }, [setCancelStatus])
 
   useInterval(countdown, remain > 0 && cancelStatus === CancelStatus.COUNTDOWN ? 1000 : null)
 

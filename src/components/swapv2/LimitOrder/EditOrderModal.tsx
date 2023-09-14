@@ -97,8 +97,8 @@ export default function EditOrderModal({
       const data = await onCancelOrder(order ? [order] : [], cancelType)
       setCancelStatus(cancelType === CancelOrderType.GAS_LESS_CANCEL ? CancelStatus.COUNTDOWN : CancelStatus.WAITING)
       const expired = data?.orders?.[0]?.operatorSignatureExpiredAt
-      expired && setExpiredTime(expired)
-      onDismiss()
+      if (expired) setExpiredTime(expired)
+      else onDismiss()
     } catch (error) {
       order && removeOrderNeedCreated(order.id)
       handleError(error)
