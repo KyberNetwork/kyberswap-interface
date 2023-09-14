@@ -27,18 +27,7 @@ import useShareImage from 'hooks/useShareImage'
 import useTheme from 'hooks/useTheme'
 import { ButtonText, MEDIA_WIDTHS } from 'theme'
 import { downloadImage } from 'utils'
-
-const formatValue = (num: number, isSharePc: boolean) => {
-  const notation = (num > 1_000_000 && !isSharePc) || (num > 100_000_000 && isSharePc) ? 'compact' : 'standard'
-  const formatter = new Intl.NumberFormat('en-US', {
-    notation,
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  })
-  return formatter.format(num)
-}
+import { formatDisplayNumber } from 'utils/numbers'
 
 const ButtonWrapper = styled.div`
   text-align: center;
@@ -292,7 +281,7 @@ export default function ShareModal({ isOpen, setIsOpen, title, value, poolInfo }
               {renderPool()}
 
               <Text fontSize={isSharePc ? 50 : 30} fontWeight="500" color={theme.primary}>
-                {formatValue(value, isSharePc)}
+                {formatDisplayNumber(value, { style: 'currency', fractionDigits: 2 })}
               </Text>
             </InnerContent>
           </InnerContentWrapper>

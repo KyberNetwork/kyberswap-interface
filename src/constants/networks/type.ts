@@ -2,6 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { PublicKey } from '@solana/web3.js'
 
 import { EnvKeys } from 'constants/env'
+import { ChainState } from 'hooks/useChainsConfig'
 
 export interface NetworkInfo {
   readonly chainId: ChainId
@@ -37,6 +38,7 @@ export interface NetworkInfo {
   //   USDT: Token
   // }
   readonly geckoTermialId: string | null
+  readonly state?: ChainState
 }
 
 export interface EVMNetworkInfo extends NetworkInfo {

@@ -49,9 +49,10 @@ import AntiSnippingAttack from 'components/Icons/AntiSnippingAttack'
 import ZkSyncFull from 'components/Icons/ZkSyncFull'
 import Loader from 'components/Loader'
 import { APP_PATHS } from 'constants/index'
-import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO } from 'constants/networks'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
+import useChainsConfig from 'hooks/useChainsConfig'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useGlobalData } from 'state/about/hooks'
@@ -121,6 +122,7 @@ const ForTraderInfoCell = styled.div`
 export const KSStatistic = () => {
   const theme = useTheme()
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
+  const { supportedChains } = useChainsConfig()
 
   return (
     <Box sx={{ position: 'relative', marginTop: '20px' }}>
@@ -153,7 +155,7 @@ export const KSStatistic = () => {
         <ForTraderInfoRow>
           <ForTraderInfoCell>
             <Text fontWeight="600" fontSize="24px">
-              {MAINNET_NETWORKS.length}+
+              {supportedChains.length}+
             </Text>
             <Text color={theme.subText} marginTop="4px" fontSize="14px">
               <Trans>Chains</Trans>
@@ -475,6 +477,8 @@ function AboutKyberSwap() {
     )
   }
 
+  const { supportedChains } = useChainsConfig()
+
   return (
     <div style={{ position: 'relative', background: isDarkMode ? theme.buttonBlack : theme.white, width: '100%' }}>
       <AboutPage>
@@ -495,14 +499,10 @@ function AboutKyberSwap() {
           </Text>
 
           <SupportedChain>
-            {MAINNET_NETWORKS.map(chain => (
+            {supportedChains.map(({ chainId: chain, iconDark, icon, name }) => (
               <img
-                src={
-                  isDarkMode && NETWORKS_INFO[chain].iconDark
-                    ? NETWORKS_INFO[chain].iconDark || NETWORKS_INFO[chain].icon
-                    : NETWORKS_INFO[chain].icon
-                }
-                alt={NETWORKS_INFO[chain].name}
+                src={isDarkMode && iconDark ? iconDark || icon : icon}
+                alt={name}
                 key={chain}
                 width="36px"
                 height="36px"
