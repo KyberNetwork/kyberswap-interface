@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import AnnouncementApi from 'services/announcement'
 
 import { AnnouncementTemplatePopup, PopupContentAnnouncement, PopupItemType } from 'components/Announcement/type'
+import { TIMES_IN_SECS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useAppDispatch } from 'state/hooks'
@@ -13,11 +14,15 @@ export const getAnnouncementsAckMap = () => JSON.parse(localStorage[LsKey] || '{
 
 export const ackAnnouncementPopup = (id: string | number) => {
   const announcementsMap = getAnnouncementsAckMap()
+  const entries = Object.entries(announcementsMap).filter(
+    // keep only ids that was added in the last 30 days
+    ([_, value]) => typeof value === 'number' && Date.now() - value < TIMES_IN_SECS.ONE_DAY * 30 * 1000,
+  )
   localStorage.setItem(
     LsKey,
     JSON.stringify({
-      ...announcementsMap,
-      [id]: '1',
+      ...Object.fromEntries(entries),
+      [id]: Date.now(),
     }),
   )
 }
