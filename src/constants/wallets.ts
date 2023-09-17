@@ -107,7 +107,7 @@ const detectRabby = (): WalletReadyState => {
 
 const detectKrystal = (): WalletReadyState => {
   if (getIsKrystalWallet()) return WalletReadyState.Installed
-  return WalletReadyState.NotDetected
+  return WalletReadyState.Unsupported
 }
 
 const detectKrystalWC = (): WalletReadyState => {
