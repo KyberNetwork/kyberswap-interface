@@ -2236,6 +2236,16 @@
     axios "1.2.1"
     client-oauth2 "^4.3.3"
 
+"@kyberswap/krystal-walletconnect-v2@0.0.1-rc1.0":
+  version "0.0.1-rc1.0"
+  resolved "https://registry.yarnpkg.com/@kyberswap/krystal-walletconnect-v2/-/krystal-walletconnect-v2-0.0.1-rc1.0.tgz#eae5e9d6ebb05471fcd0170d30a54453bbadde19"
+  integrity sha512-TLw2DQsCH5eLhYdCRf48W7FM3LM7+d9+/e2l5ISEDxk0V6urbeybR1BIdQpsoojZiLhUWBjQdkJkXM1P0wRQpg==
+  dependencies:
+    "@walletconnect/ethereum-provider" "2.8.1"
+    "@walletconnect/modal" "2.4.7"
+    "@web3-react/types" "8.2.0"
+    eventemitter3 "4.0.7"
+
 "@kyberswap/ks-sdk-classic@^1.0.3":
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/@kyberswap/ks-sdk-classic/-/ks-sdk-classic-1.0.3.tgz#8ee8e454b2838359a36aee387729d1d2e5aa9c20"
@@ -5368,7 +5378,7 @@
   dependencies:
     tslib "1.14.1"
 
-"@walletconnect/ethereum-provider@^2.8.0":
+"@walletconnect/ethereum-provider@2.8.1", "@walletconnect/ethereum-provider@^2.8.0":
   version "2.8.1"
   resolved "https://registry.yarnpkg.com/@walletconnect/ethereum-provider/-/ethereum-provider-2.8.1.tgz#1743072f42b5c940648b0303a382e8907a362a00"
   integrity sha512-YlF8CCiFTSEZRyANIBsop/U+t+d1Z1/UXXoE9+iwjSGKJsaym6PgBLPb2d8XdmS/qR6Tcx7lVodTp4cVtezKnA==
@@ -5530,7 +5540,7 @@
   resolved "https://registry.yarnpkg.com/@walletconnect/mobile-registry/-/mobile-registry-1.4.0.tgz#502cf8ab87330841d794819081e748ebdef7aee5"
   integrity sha512-ZtKRio4uCZ1JUF7LIdecmZt7FOLnX72RPSY7aUVu7mj7CSfxDwUn6gBuK6WGtH+NZCldBqDl5DenI5fFSvkKYw==
 
-"@walletconnect/modal@^2.4.5":
+"@walletconnect/modal@2.4.7", "@walletconnect/modal@^2.4.5":
   version "2.4.7"
   resolved "https://registry.yarnpkg.com/@walletconnect/modal/-/modal-2.4.7.tgz#fd84d6f1ac767865d63153e32150f790739a189a"
   integrity sha512-kFpvDTT44CgNGcwQVC0jHrYed4xorghKX1DOGo8ZfBSJ5TJx3p6d6SzLxkH1cZupWbljWkYS6SqvZcUBs8vWpg==
@@ -9612,7 +9622,7 @@ eventemitter2@6.4.7:
   resolved "https://registry.yarnpkg.com/eventemitter2/-/eventemitter2-6.4.7.tgz#a7f6c4d7abf28a14c1ef3442f21cb306a054271d"
   integrity sha512-tYUSVOGeQPKt/eC1ABfhHy5Xd96N3oIijJvN3O9+TsC28T5V9yX9oEfEK5faP0EFSNVOG97qtAS68GBrQB2hDg==
 
-eventemitter3@^4.0.0, eventemitter3@^4.0.1, eventemitter3@^4.0.4, eventemitter3@^4.0.7:
+eventemitter3@4.0.7, eventemitter3@^4.0.0, eventemitter3@^4.0.1, eventemitter3@^4.0.4, eventemitter3@^4.0.7:
   version "4.0.7"
   resolved "https://registry.yarnpkg.com/eventemitter3/-/eventemitter3-4.0.7.tgz#2de9b68f6528d5644ef5c59526a1b4a07306169f"
   integrity sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==

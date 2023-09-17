@@ -36,6 +36,8 @@ import {
   injectedHooks,
   krystal,
   krystalHooks,
+  krystalWalletConnectV2,
+  krystalWalletConnectV2Hooks,
   metaMask,
   metamaskHooks,
   rabby,
@@ -106,6 +108,11 @@ const detectRabby = (): WalletReadyState => {
 const detectKrystal = (): WalletReadyState => {
   if (getIsKrystalWallet()) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
+}
+
+const detectKrystalWC = (): WalletReadyState => {
+  if (!getIsKrystalWallet()) return WalletReadyState.Installed
+  return WalletReadyState.Unsupported
 }
 
 const detectBrave = (): WalletReadyState => {
@@ -186,6 +193,15 @@ export const SUPPORTED_WALLETS = {
     iconLight: KRYSTAL,
     installLink: 'https://wallet.krystal.app',
     readyState: detectKrystal,
+  } as EVMWalletInfo,
+  KRYSTAL_WC: {
+    connector: krystalWalletConnectV2,
+    hooks: krystalWalletConnectV2Hooks,
+    name: 'Krystal',
+    icon: KRYSTAL,
+    iconLight: KRYSTAL,
+    installLink: 'https://wallet.krystal.app',
+    readyState: detectKrystalWC,
   } as EVMWalletInfo,
   RABBY: {
     connector: rabby,
