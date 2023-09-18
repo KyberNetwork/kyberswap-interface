@@ -22,19 +22,16 @@ import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS, ICON_ID } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
-import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 
 import ChevronIcon from '../components/ChevronIcon'
 import FeedbackSurvey from '../components/FeedbackSurvey'
 import KyberAIShareModal from '../components/KyberAIShareModal'
-import MultipleChainDropdown from '../components/MultipleChainDropdown'
 import NetworkSelect from '../components/NetworkSelect'
 import SimpleTooltip from '../components/SimpleTooltip'
 import SmallKyberScoreMeter from '../components/SmallKyberScoreMeter'
 import TokenChart from '../components/TokenChartSVG'
-import TokenListVariants from '../components/TokenListVariants'
 import WatchlistButton from '../components/WatchlistButton'
 import KyberScoreChart from '../components/chart/KyberScoreChart'
 import TokenAnalysisListShareContent from '../components/shareContent/TokenAnalysisListShareContent'
@@ -476,32 +473,32 @@ const TokenRow = ({
   const mixpanelHandler = useMixpanelKyberAI()
   // const { account } = useActiveWeb3React()
   const theme = useTheme()
-  const [showMenu, setShowMenu] = useState(false)
-  const [showSwapMenu, setShowSwapMenu] = useState(false)
-  const [menuLeft, setMenuLeft] = useState<number | undefined>(undefined)
+  // const [showMenu, setShowMenu] = useState(false)
+  // const [showSwapMenu, setShowSwapMenu] = useState(false)
+  // const [menuLeft, setMenuLeft] = useState<number | undefined>(undefined)
   // const [addToWatchlist] = useAddToWatchlistMutation()
   // const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
   // const reachedMaxLimit = useIsReachMaxLimitWatchedToken(token?.tokens.length)
   // const [isWatched, setIsWatched] = useState(false)
   // const [loadingStar, setLoadingStar] = useState(false)
   const rowRef = useRef<HTMLTableRowElement>(null)
-  const menuRef = useRef<HTMLDivElement>(null)
+  // const menuRef = useRef<HTMLDivElement>(null)
 
-  useOnClickOutside(menuRef, () => setShowMenu(false))
-  useOnClickOutside(menuRef, () => setShowSwapMenu(false))
+  // useOnClickOutside(menuRef, () => setShowMenu(false))
+  // useOnClickOutside(menuRef, () => setShowSwapMenu(false))
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
 
   const hasMutipleChain = token.tokens.length > 1
 
-  const handleRowClick = (e: any) => {
+  const handleRowClick = () => {
     if (hasMutipleChain) {
-      const left = e.clientX - (rowRef.current?.getBoundingClientRect()?.left || 0)
-      const rowWidth = rowRef.current?.getBoundingClientRect()?.width || 0
-      const menuWidth = menuRef.current?.getBoundingClientRect()?.width || 0
-      if (left !== undefined) {
-        setMenuLeft(Math.min(left, rowWidth - menuWidth))
-        setShowMenu(true)
-      }
+      // const left = e.clientX - (rowRef.current?.getBoundingClientRect()?.left || 0)
+      // const rowWidth = rowRef.current?.getBoundingClientRect()?.width || 0
+      // const menuWidth = menuRef.current?.getBoundingClientRect()?.width || 0
+      // if (left !== undefined) {
+      //   setMenuLeft(Math.min(left, rowWidth - menuWidth))
+      //   setShowMenu(true)
+      // }
     } else {
       navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.tokens[0].chain}/${token.tokens[0].address}`, {
         state: { from: location },
@@ -585,7 +582,7 @@ const TokenRow = ({
           <Column gap="8px" style={{ cursor: 'pointer', alignItems: 'flex-start' }}>
             <Text style={{ textTransform: 'uppercase' }}>{token.symbol}</Text>{' '}
             <RowFit gap="6px" color={theme.text}>
-              <TokenListVariants tokens={token.tokens} />
+              {/* <TokenListVariants tokens={token.tokens} /> */}
             </RowFit>
           </Column>
         </Row>
@@ -658,8 +655,8 @@ const TokenRow = ({
                   option: 'explore',
                 })
                 if (hasMutipleChain) {
-                  setMenuLeft(undefined)
-                  setShowMenu(true)
+                  // setMenuLeft(undefined)
+                  // setShowMenu(true)
                 } else {
                   navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.tokens[0].chain}/${token.tokens[0].address}`, {
                     state: { from: location },
@@ -681,8 +678,8 @@ const TokenRow = ({
                   option: 'swap',
                 })
                 if (hasMutipleChain) {
-                  setMenuLeft(undefined)
-                  setShowSwapMenu(true)
+                  // setMenuLeft(undefined)
+                  // setShowSwapMenu(true)
                 } else {
                   navigateToSwapPage(token.tokens[0])
                 }
@@ -691,7 +688,7 @@ const TokenRow = ({
               <Icon id="swap" size={16} />
             </ActionButton>
           </SimpleTooltip>
-          {hasMutipleChain && (
+          {/* {hasMutipleChain && (
             <>
               <MultipleChainDropdown
                 ref={menuRef}
@@ -715,7 +712,7 @@ const TokenRow = ({
                 }}
               />
             </>
-          )}
+          )} */}
         </Row>
       </td>
     </tr>

@@ -688,7 +688,7 @@ const WidgetTokenRow = ({
                     {token.symbol}
                   </Text>{' '}
                   <RowFit gap="6px" color={theme.text}>
-                    <TokenListVariants tokens={token.tokens} iconSize={10} />
+                    {/* <TokenListVariants tokens={token.tokens} iconSize={10} /> */}
                   </RowFit>
                 </Column>
               </RowFit>

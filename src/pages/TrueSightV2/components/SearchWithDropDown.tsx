@@ -22,6 +22,7 @@ import { KYBERAI_LISTYPE_TO_MIXPANEL, NETWORK_IMAGE_URL } from '../constants'
 import { useLazySearchTokenQuery, useSearchTokenQuery, useTokenListQuery } from '../hooks/useKyberAIData'
 import { ITokenList, ITokenSearchResult, KyberAIListType } from '../types'
 import { formatTokenPrice } from '../utils'
+import WatchlistButton from './WatchlistButton'
 
 const formatTokenType = (token: ITokenList): ITokenSearchResult => {
   const token0 = token.tokens[0]
@@ -211,6 +212,8 @@ const TokenItem = ({ token, onClick }: { token: ITokenSearchResult; onClick?: ()
     >
       <td>
         <RowFit gap="10px">
+          <WatchlistButton size={16} />
+
           <div style={{ position: 'relative' }}>
             <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
               <img
@@ -445,7 +448,7 @@ const SearchWithDropdown = () => {
           {history && (
             <SearchResultTableWrapper
               header={
-                <RowFit color={theme.subText} gap="4px">
+                <RowFit color={theme.subText} gap="10px">
                   <History />
                   <Text fontSize="12px">Search History</Text>
                 </RowFit>
@@ -458,7 +461,7 @@ const SearchWithDropdown = () => {
           )}
           <SearchResultTableWrapper
             header={
-              <RowFit color={theme.subText} gap="4px">
+              <RowFit color={theme.subText} gap="10px">
                 <Icon id="bullish" size={16} />
                 <Text fontSize="12px">Bullish Tokens</Text>
               </RowFit>
@@ -488,7 +491,7 @@ const SearchWithDropdown = () => {
           </SearchResultTableWrapper>
           <SearchResultTableWrapper
             header={
-              <RowFit color={theme.subText} gap="4px">
+              <RowFit color={theme.subText} gap="10px">
                 <Icon id="bearish" size={16} />
                 <Text fontSize="12px">Bearish Tokens</Text>
               </RowFit>
