@@ -37,7 +37,8 @@ export const escapeScriptHtml = (str: string) => {
   return str.replace(/<.*?script.*?>.*?<\/.*?script.*?>/gim, '')
 }
 
-export const isEmailValid = (value: string | undefined) => value?.match(/^\w+([\.-]?\w)*@\w+([\.-]?\w)*(\.\w{2,10})+$/)
+export const isEmailValid = (value: string | undefined) =>
+  (value || '').trim().match(/^\w+([\.-]?\w)*@\w+([\.-]?\w)*(\.\w{2,10})+$/)
 
 export const getChainIdFromSlug = (network: string | undefined): ChainId | undefined => {
   return SUPPORTED_NETWORKS.find(chainId => NETWORKS_INFO[chainId].route === network)
