@@ -29,7 +29,7 @@ import { Badge, DownIcon, MobileStat, MobileStatWrapper, Row, Wrapper } from 'pa
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { useAppSelector } from 'state/hooks'
 import { isAddress, shortenAddress } from 'utils'
-import { formatDollarAmount } from 'utils/numbers'
+import { formatDisplayNumber } from 'utils/numbers'
 import { getTokenSymbolWithHardcode } from 'utils/tokenInfo'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
@@ -271,7 +271,14 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
           </Flex>
 
           <MobileStat mobileView={mobileView}>
-            <StatItem label="TVL" value={formatDollarAmount(+poolEarning.totalValueLockedUsd)} />
+            <StatItem
+              label="TVL"
+              value={formatDisplayNumber(poolEarning.totalValueLockedUsd, {
+                style: 'currency',
+                significantDigits: 7,
+                fractionDigits: 4,
+              })}
+            />
             <StatItem
               label={
                 <MouseoverTooltip
@@ -296,7 +303,7 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
                   }
                 >
                   <Text as="span" marginRight="4px" color={theme.apr}>
-                    {(poolAPR + farmAPR).toFixed(2)}%
+                    {formatDisplayNumber((poolAPR + farmAPR) / 100, { style: 'percent', fractionDigits: 2 })}
                   </Text>
                   <Info size={14} color={theme.apr} />
                 </MouseoverTooltip>
@@ -304,14 +311,29 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
             />
             <StatItem
               label={t`Volume (24h)`}
-              value={formatDollarAmount(Number(poolEarning.volumeUsd) - Number(poolEarning.volumeUsdOneDayAgo))}
+              value={formatDisplayNumber(Number(poolEarning.volumeUsd) - Number(poolEarning.volumeUsdOneDayAgo), {
+                style: 'currency',
+                significantDigits: 4,
+              })}
             />
             <StatItem
               label={t`Fees (24h)`}
-              value={formatDollarAmount(Number(poolEarning.feesUsd) - Number(poolEarning.feesUsdOneDayAgo))}
+              value={formatDisplayNumber(Number(poolEarning.feesUsd) - Number(poolEarning.feesUsdOneDayAgo), {
+                style: 'currency',
+                significantDigits: 4,
+              })}
             />
-            <StatItem label={t`My Liquidity`} value={formatDollarAmount(myLiquidityUsd)} />
-            <StatItem label={t`My Earnings`} value={formatDollarAmount(poolEarningToday)} />
+            <StatItem
+              label={t`My Liquidity`}
+              value={formatDisplayNumber(myLiquidityUsd, {
+                style: 'currency',
+                significantDigits: 4,
+              })}
+            />
+            <StatItem
+              label={t`My Earnings`}
+              value={formatDisplayNumber(poolEarningToday, { style: 'currency', significantDigits: 4 })}
+            />
           </MobileStat>
 
           <Flex justifyContent="space-between" alignItems="center">
@@ -409,7 +431,13 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
             {share}
           </Flex>
         </Flex>
-        <Text>{formatDollarAmount(+poolEarning.totalValueLockedUsd)}</Text>
+        <Text>
+          {formatDisplayNumber(poolEarning.totalValueLockedUsd, {
+            style: 'currency',
+            significantDigits: 7,
+            fractionDigits: 4,
+          })}
+        </Text>
 
         <MouseoverTooltip
           width="fit-content"
@@ -426,15 +454,25 @@ const SinglePool: React.FC<Props> = ({ poolEarning, chainId, positionEarnings, p
           }
         >
           <Text as="span" marginRight="4px" color={theme.apr}>
-            {(poolAPR + farmAPR).toFixed(2)}%
+            {formatDisplayNumber((poolAPR + farmAPR) / 100, { style: 'percent', fractionDigits: 2 })}
           </Text>
           <Info size={14} color={theme.apr} />
         </MouseoverTooltip>
 
-        <Text>{formatDollarAmount(Number(poolEarning.volumeUsd) - Number(poolEarning.volumeUsdOneDayAgo))}</Text>
-        <Text>{formatDollarAmount(Number(poolEarning.feesUsd) - Number(poolEarning.feesUsdOneDayAgo))}</Text>
-        <Text>{formatDollarAmount(myLiquidityUsd)}</Text>
-        <Text>{formatDollarAmount(poolEarningToday)}</Text>
+        <Text>
+          {formatDisplayNumber(Number(poolEarning.volumeUsd) - Number(poolEarning.volumeUsdOneDayAgo), {
+            style: 'currency',
+            significantDigits: 4,
+          })}
+        </Text>
+        <Text>
+          {formatDisplayNumber(Number(poolEarning.feesUsd) - Number(poolEarning.feesUsdOneDayAgo), {
+            style: 'currency',
+            significantDigits: 4,
+          })}
+        </Text>
+        <Text>{formatDisplayNumber(myLiquidityUsd, { style: 'currency', significantDigits: 4 })}</Text>
+        <Text>{formatDisplayNumber(poolEarningToday, { style: 'currency', significantDigits: 4 })}</Text>
 
         <Flex sx={{ gap: '8px' }} justifyContent="flex-end">
           <ButtonIcon
