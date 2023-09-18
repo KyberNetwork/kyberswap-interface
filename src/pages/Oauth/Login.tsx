@@ -151,7 +151,7 @@ function Login() {
           <TextDesc>{error}</TextDesc>
         ) : autoLogin ? (
           <TextDesc style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Loader /> Checking data ...
+            <Loader size="20px" /> Checking data ...
           </TextDesc>
         ) : isSignInEth && address ? (
           renderEthMsg()
