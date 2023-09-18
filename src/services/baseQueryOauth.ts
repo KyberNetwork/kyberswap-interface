@@ -1,7 +1,7 @@
 import { KyberOauth2Api } from '@kybernetwork/oauth2'
 import { BaseQueryFn, fetchBaseQuery } from '@reduxjs/toolkit/query'
 
-import { checkIamDown } from 'utils/iamError'
+import { checkApiDown } from 'utils/iamError'
 
 const queryWithToken = async (config: any, baseUrl: string) => {
   try {
@@ -13,7 +13,7 @@ const queryWithToken = async (config: any, baseUrl: string) => {
     const result = await KyberOauth2Api.call(config)
     return { data: result.data }
   } catch (err) {
-    checkIamDown(err)
+    checkApiDown(err)
     return {
       error: {
         status: err.response?.status,

@@ -1,22 +1,29 @@
 import { captureException } from '@sentry/react'
 import { AxiosError } from 'axios'
 
-import { BFF_API, ENV_LEVEL } from 'constants/env'
+import { BFF_API, ENV_LEVEL, KS_SETTING_API } from 'constants/env'
 import { AGGREGATOR_API_PATHS } from 'constants/index'
 import { ENV_TYPE } from 'constants/type'
 
-const ErrorInfo = {
-  routeApiError: 0,
-  iamApoError: 0,
-  errorThreshold: 2,
-  sentAlertIamApi: false,
-  sentAlertRouteApi: false,
+enum ErrorType {
+  ROUTE_ERROR = 'Route API',
+  IAM_ERROR = 'IAM API',
+  KS_SETTING_ERROR = 'KsSetting API',
+  NOT_TRACK = 'Not track',
 }
+
+const ErrorInfo = Object.values(ErrorType).reduce<Record<string, { sentAlert: boolean; errorCount: number }>>(
+  (rs, cur) => {
+    rs[cur] = { sentAlert: false, errorCount: 0 }
+    return rs
+  },
+  {},
+)
 
 const apiDowns: string[] = []
 
-const isIamApiDown = () => ErrorInfo.iamApoError >= ErrorInfo.errorThreshold
-const isRouteApiDown = () => ErrorInfo.routeApiError >= ErrorInfo.errorThreshold
+const ERROR_THRESHOLD = 2
+const isApiDown = (type: ErrorType) => ErrorInfo[type]?.errorCount >= ERROR_THRESHOLD
 
 const sendError = (name: string, apiUrl: string, trackData: any) => {
   if (ENV_LEVEL < ENV_TYPE.STG) return
@@ -38,11 +45,20 @@ function onDisconnect() {
 window.addEventListener('online', onConnect, false)
 window.addEventListener('offline', onDisconnect, false)
 
+const getErrorType = (apiUrl: string) => {
+  if (apiUrl.endsWith(AGGREGATOR_API_PATHS.GET_ROUTE) || apiUrl.endsWith(AGGREGATOR_API_PATHS.BUILD_ROUTE))
+    return ErrorType.ROUTE_ERROR
+
+  if (apiUrl.startsWith(BFF_API) && !blacklistPathBff.some(path => apiUrl.endsWith(path))) return ErrorType.IAM_ERROR
+
+  if (apiUrl.startsWith(KS_SETTING_API)) return ErrorType.KS_SETTING_ERROR
+  return ErrorType.NOT_TRACK
+}
+
 /**
  * check error status: blocked, maybe cors issues or  server down
- * only check bff api + 2 route apis
  */
-export const checkIamDown = (axiosErr: AxiosError) => {
+export const checkApiDown = (axiosErr: AxiosError) => {
   const statusCode = axiosErr?.response?.status
   const response = axiosErr?.response?.data
 
@@ -73,26 +89,18 @@ export const checkIamDown = (axiosErr: AxiosError) => {
     apiDowns,
   }
 
-  const isRouteApiDie =
-    isDie && (apiUrl.endsWith(AGGREGATOR_API_PATHS.GET_ROUTE) || apiUrl.endsWith(AGGREGATOR_API_PATHS.BUILD_ROUTE))
+  const errorType = getErrorType(apiUrl)
 
-  const isIamDie = isDie && apiUrl.startsWith(BFF_API) && !blacklistPathBff.some(path => apiUrl.endsWith(path))
+  if (isDie && errorType !== ErrorType.NOT_TRACK) {
+    console.log(123, ErrorInfo)
 
-  if (isRouteApiDie) {
-    ErrorInfo.routeApiError++
-    if (isRouteApiDown() && !ErrorInfo.sentAlertRouteApi) {
-      ErrorInfo.sentAlertRouteApi = true
-      sendError('Route API', apiUrl, trackData)
+    ErrorInfo[errorType].errorCount++
+    console.log(123, ErrorInfo)
+
+    if (isApiDown(errorType) && !ErrorInfo[errorType].sentAlert) {
+      ErrorInfo[errorType].sentAlert = true
+      sendError(errorType, apiUrl, trackData)
     }
-  }
-  if (isIamDie) {
-    ErrorInfo.iamApoError++
-    if (isIamApiDown() && !ErrorInfo.sentAlertIamApi) {
-      ErrorInfo.sentAlertIamApi = true
-      sendError('IAM API', apiUrl, trackData)
-    }
-  }
-  if (isRouteApiDie || isIamDie) {
     console.error(`${apiUrl} was down`, trackData)
   }
 }
