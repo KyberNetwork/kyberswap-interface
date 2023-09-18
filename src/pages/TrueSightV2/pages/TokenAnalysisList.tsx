@@ -310,6 +310,17 @@ const tokenTypeList: {
     ),
   },
   {
+    type: KyberAIListType.KYBERSWAP_DELTA,
+    title: t`Kyberscore Delta`,
+    icon: 'bearish',
+    tooltip: theme => (
+      <span>
+        Tokens with a <span style={{ color: theme.text }}>significant change in KyberScore</span> between two
+        consecutive time periods. This may indicate a change in trend of the token
+      </span>
+    ),
+  },
+  {
     type: KyberAIListType.TOP_CEX_INFLOW,
     title: t`Top CEX Positive Netflow`,
     icon: 'download',

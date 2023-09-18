@@ -22,6 +22,7 @@ const mapTypeTitle = {
   [KyberAIListType.TRENDING_SOON]: t`Trending Soon Tokens`,
   [KyberAIListType.TRENDING]: t`Top Trending Tokens`,
   [KyberAIListType.FUNDING_RATE]: t`Funding Rates`,
+  [KyberAIListType.KYBERSWAP_DELTA]: t`Kyberscore Delta`,
 }
 
 export default function TokenAnalysisListShareContent({

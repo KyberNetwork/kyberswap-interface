@@ -212,4 +212,5 @@ export enum KyberAIListType {
   TOP_TRADED = 'top_traded',
   TRENDING_SOON = 'trendingsoon',
   FUNDING_RATE = 'funding_rate_asc',
+  KYBERSWAP_DELTA = 'kyber_score_delta_asc',
 }
