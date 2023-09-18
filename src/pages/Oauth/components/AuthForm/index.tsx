@@ -1,5 +1,6 @@
 import { LoginFlow, LoginFlowUiNode, LoginMethod } from '@kybernetwork/oauth2'
 import React from 'react'
+import { isMobile } from 'react-device-detect'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -65,7 +66,8 @@ const AuthForm: React.FC<AuthFormProps> = ({
     >
       {processingSignEth ? (
         <>
-          <Loader /> &nbsp;<Text style={{ whiteSpace: 'nowrap' }}> Signing In</Text>
+          <Loader />
+          &nbsp; <Text style={{ whiteSpace: 'nowrap' }}> Signing In</Text>
         </>
       ) : (
         <>
@@ -79,7 +81,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
   if (!formConfig) return null
   const { ui } = formConfig
 
-  const showBtnCancel = !hasGoogle && back_uri && !processingSignEth
+  const showBtnCancel = !isMobile && !hasGoogle && back_uri && !processingSignEth
   const hasBothEthAndGoogle = hasGoogle && showEth
   return (
     <Form

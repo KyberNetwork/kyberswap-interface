@@ -30,6 +30,7 @@ export const TextDesc = styled.div`
   font-size: 20px;
   line-height: 24px;
   color: ${({ theme }) => theme.subText};
+  text-align: center;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     font-size: 16px;
     line-height: 20px;
