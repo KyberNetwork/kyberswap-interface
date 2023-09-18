@@ -46,11 +46,10 @@ import Tooltip, { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
 import { Dots } from 'components/swapv2/styleds'
-import { ENV_LEVEL } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
+import { ELASTIC_NOT_SUPPORTED } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
-import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -63,7 +62,7 @@ import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { convertTickToPrice } from 'pages/Farm/ElasticFarmv2/utils'
 import { ApplicationModal } from 'state/application/actions'
-import { useNotify, useOpenModal, useWalletModalToggle } from 'state/application/hooks'
+import { useNotify, useOpenModal, useOpenNetworkModal, useWalletModalToggle } from 'state/application/hooks'
 import { FarmUpdater } from 'state/farms/elastic/hooks'
 import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import ElasticFarmV2Updater from 'state/farms/elasticv2/updater'
@@ -87,9 +86,8 @@ import { ExternalLink, MEDIA_WIDTHS, StyledInternalLink, TYPE } from 'theme'
 import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { friendlyError } from 'utils/errorMessage'
-import { toSignificantOrMaxIntegerPart } from 'utils/formatCurrencyAmount'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
-import { formatNotDollarAmount } from 'utils/numbers'
+import { formatDisplayNumber, toFixed } from 'utils/numbers'
 import { SLIPPAGE_STATUS, checkRangeSlippage } from 'utils/slippage'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
@@ -134,6 +132,7 @@ export default function AddLiquidity() {
   const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
   const { library } = useWeb3React()
   const theme = useTheme()
+  const openNetworkModal = useOpenNetworkModal()
   const toggleWalletModal = useWalletModalToggle() // toggle wallet when disconnected
   const [isDegenMode] = useDegenModeManager()
   const addTransactionWithType = useTransactionAdder()
@@ -385,6 +384,10 @@ export default function AddLiquidity() {
     fetchPrices,
     refetch,
   } = useTokenPricesWithLoading(tokens.map(t => t?.wrapped.address || ''))
+  const marketPrice =
+    usdPrices[quoteCurrency?.wrapped.address || ''] &&
+    usdPrices[baseCurrency?.wrapped.address || ''] &&
+    usdPrices[baseCurrency?.wrapped.address || ''] / usdPrices[quoteCurrency?.wrapped.address || '']
 
   useInterval(refetch, 10_000)
 
@@ -617,13 +620,21 @@ export default function AddLiquidity() {
   }, [navigate, networkInfo.route, onFieldAInput, txHash])
 
   const handleDismissConfirmationRef = useRef(handleDismissConfirmation)
+
+  const [waitForMarketPrice, setWaitForMarketPrice] = useState(false)
   useEffect(() => {
-    if (ENV_LEVEL > ENV_TYPE.LOCAL) {
-      setPositionIndex(0)
-      onResetMintState()
-      handleDismissConfirmationRef.current()
-    }
+    setPositionIndex(0)
+    onResetMintState()
+    handleDismissConfirmationRef.current()
+    setWaitForMarketPrice(true)
   }, [onResetMintState, baseCurrency?.wrapped.address, quoteCurrency?.wrapped.address, feeAmount, chainId])
+
+  useEffect(() => {
+    if (waitForMarketPrice && marketPrice) {
+      onStartPriceInput(toFixed(marketPrice))
+      setWaitForMarketPrice(false)
+    }
+  }, [waitForMarketPrice, marketPrice, onStartPriceInput])
 
   const leftPrice = isSorted ? priceLower : priceUpper?.invert()
   const rightPrice = isSorted ? priceUpper : priceLower?.invert()
@@ -806,10 +817,13 @@ export default function AddLiquidity() {
           <Flex alignItems="center">
             <TYPE.black ml="12px" fontSize="12px" flex={1}>
               <Trans>
-                Note: A very small amount of your liquidity about {formattedNum(amountUnlockUSD.toString(), true)}{' '}
+                Note: A very small amount of your liquidity about{' '}
+                {formatDisplayNumber(amountUnlockUSD, { style: 'currency', significantDigits: 6 })}{' '}
                 <Text as="span" color={theme.text}>
-                  ({amountUnlocks[Field.CURRENCY_A].toSignificant(6)} {amountUnlocks[Field.CURRENCY_A].currency.symbol},{' '}
-                  {amountUnlocks[Field.CURRENCY_B].toSignificant(6)} {amountUnlocks[Field.CURRENCY_B].currency.symbol})
+                  ({formatDisplayNumber(amountUnlocks[Field.CURRENCY_A], { significantDigits: 6 })}{' '}
+                  {amountUnlocks[Field.CURRENCY_A].currency.symbol},{' '}
+                  {formatDisplayNumber(amountUnlocks[Field.CURRENCY_B], { significantDigits: 6 })}{' '}
+                  {amountUnlocks[Field.CURRENCY_B].currency.symbol})
                 </Text>{' '}
                 will be used to first initialize the pool. Read more{' '}
                 <ExternalLink href="https://docs.kyberswap.com/liquidity-solutions/kyberswap-elastic/user-guides/yield-farming-on-static-farms">
@@ -828,17 +842,21 @@ export default function AddLiquidity() {
               {noLiquidity ? (
                 <Trans>
                   The pool’s current price of 1 {baseCurrency.symbol} ={' '}
-                  {(invertPrice ? price.invert() : price).toSignificant(4)} {quoteCurrency.symbol} deviates from the
-                  market price (1 {baseCurrency.symbol} ={' '}
-                  {formatNotDollarAmount(usdPrices[tokenA.wrapped.address] / usdPrices[tokenB.wrapped.address], 4)}{' '}
+                  {formatDisplayNumber(invertPrice ? price.invert() : price, { significantDigits: 4 })}{' '}
+                  {quoteCurrency.symbol} deviates from the market price (1 {baseCurrency.symbol} ={' '}
+                  {formatDisplayNumber(usdPrices[tokenA.wrapped.address] / usdPrices[tokenB.wrapped.address], {
+                    significantDigits: 4,
+                  })}{' '}
                   {quoteCurrency.symbol}). You might have high impermanent loss after the pool is created
                 </Trans>
               ) : (
                 <Trans>
                   The pool’s current price of 1 {baseCurrency.symbol} ={' '}
-                  {(invertPrice ? price.invert() : price).toSignificant(4)} {quoteCurrency.symbol} deviates from the
-                  market price (1 {baseCurrency.symbol} ={' '}
-                  {formatNotDollarAmount(usdPrices[tokenA.wrapped.address] / usdPrices[tokenB.wrapped.address], 4)}{' '}
+                  {formatDisplayNumber(invertPrice ? price.invert() : price, { significantDigits: 4 })}{' '}
+                  {quoteCurrency.symbol} deviates from the market price (1 {baseCurrency.symbol} ={' '}
+                  {formatDisplayNumber(usdPrices[tokenA.wrapped.address] / usdPrices[tokenB.wrapped.address], {
+                    significantDigits: 4,
+                  })}{' '}
                   {quoteCurrency.symbol}). You might have high impermanent loss after you add liquidity to this pool
                 </Trans>
               )}
@@ -1094,7 +1112,9 @@ export default function AddLiquidity() {
                   <Text fontWeight={500} textAlign="center" fontSize={12}>
                     <HoverInlineText
                       maxCharacters={20}
-                      text={invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)}
+                      text={formatDisplayNumber(invertPrice ? price.invert() : price, {
+                        significantDigits: 6,
+                      })}
                     />
                   </Text>
                   <Text fontSize={12}>
@@ -1279,11 +1299,6 @@ export default function AddLiquidity() {
 
   const tightTokenSelect = !upToMedium && upToLarge
 
-  const marketPrice =
-    usdPrices[quoteCurrency?.wrapped.address || ''] &&
-    usdPrices[baseCurrency?.wrapped.address || ''] &&
-    usdPrices[baseCurrency?.wrapped.address || ''] / usdPrices[quoteCurrency?.wrapped.address || '']
-
   const onFarmRangeSelected = useCallback(
     (tickLower: number, tickUpper: number) => {
       const tickSpacing = TICK_SPACINGS[feeAmount]
@@ -1387,221 +1402,243 @@ export default function AddLiquidity() {
           tutorialType={TutorialType.ELASTIC_ADD_LIQUIDITY}
         />
         <Container>
-          <Flex sx={{ gap: '24px' }}>
-            <FlexLeft>
-              <RowBetween>
-                <Text fontSize={20}>
-                  <Trans>Choose pool</Trans>
-                </Text>
-                <div>
-                  <ButtonLight
-                    padding="2px 8px"
-                    as={ExternalLink}
-                    href={`${APP_PATHS.SWAP}/${networkInfo.route}?${currencyIdA ? `inputCurrency=${currencyIdA}` : ''}${
-                      currencyIdB ? `&outputCurrency=${currencyIdB}` : ''
-                    }`}
-                    onClick={() => {
-                      if (tokenA?.symbol && tokenB?.symbol)
-                        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_SWAP, {
-                          token_1: tokenA?.symbol,
-                          token_2: tokenB?.symbol,
-                        })
-                    }}
-                  >
-                    <Repeat size={16} />
-                    <Text marginLeft="4px">
-                      <Trans>Swap</Trans>
-                    </Text>
-                  </ButtonLight>
-                </div>
-              </RowBetween>
-              <RowBetween
-                sx={{ gap: upToXL ? (upToMedium ? '8px' : '4px') : '20px' }}
-                flexDirection={upToXXSmall ? 'column' : 'row'}
+          {ELASTIC_NOT_SUPPORTED[chainId] ? (
+            <Flex
+              height="500px"
+              justifyContent="center"
+              alignItems="center"
+              flexDirection="column"
+              sx={{ gap: '16px' }}
+            >
+              <Text>{ELASTIC_NOT_SUPPORTED[chainId]}</Text>
+              <ButtonLight
+                onClick={openNetworkModal}
+                width={upToMedium ? '100%' : 'fit-content'}
+                minWidth="164px !important"
               >
-                <CurrencyInputPanel
-                  hideBalance
-                  value={formattedAmounts[Field.CURRENCY_A]}
-                  onUserInput={onFieldAInput}
-                  hideInput={true}
-                  onMax={null}
-                  onHalf={null}
-                  onCurrencySelect={handleCurrencyASelect}
-                  currency={currencies_A ?? null}
-                  id="add-liquidity-input-tokena"
-                  showCommonBases
-                  estimatedUsd={formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined}
-                  maxCurrencySymbolLength={6}
-                  tight={tightTokenSelect}
-                />
-
-                <ArrowWrapper
-                  isVertical={!upToXXSmall}
-                  rotated={rotate}
-                  onClick={() => {
-                    if (!!rightPrice) {
-                      onLeftRangeInput(rightPrice?.invert().toString())
-                    }
-                    if (!!leftPrice) {
-                      onRightRangeInput(leftPrice?.invert().toString())
-                    }
-                    setRotate(prev => !prev)
-                  }}
-                >
-                  {!currencyIdA && !currencyIdB ? (
-                    <SwapIcon size={upToMedium ? 12 : 24} color={theme.subText} />
-                  ) : (
-                    <StyledInternalLink
-                      replace
-                      to={`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${currencyIdB}/${currencyIdA}/${feeAmount}`}
-                      style={{ color: 'inherit', display: 'flex' }}
-                    >
-                      <SwapIcon size={24} color={theme.subText} />
-                    </StyledInternalLink>
-                  )}
-                </ArrowWrapper>
-
-                <CurrencyInputPanel
-                  hideBalance
-                  value={formattedAmounts[Field.CURRENCY_B]}
-                  hideInput={true}
-                  onUserInput={onFieldBInput}
-                  onCurrencySelect={handleCurrencyBSelect}
-                  onMax={null}
-                  onHalf={null}
-                  positionMax="top"
-                  currency={currencies_B ?? null}
-                  id="add-liquidity-input-tokenb"
-                  showCommonBases
-                  estimatedUsd={formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined}
-                  maxCurrencySymbolLength={6}
-                  tight={tightTokenSelect}
-                />
-              </RowBetween>
-              <DynamicSection disabled={disableFeeSelect} gap="md">
-                <Text fontWeight={500} fontSize="12px">
-                  <Trans>Select fee tier</Trans>
-                </Text>
-                <FeeSelector
-                  feeAmount={feeAmount}
-                  onChange={handleFeePoolSelect}
-                  currencyA={currencies_A}
-                  currencyB={currencies_B}
-                />
-              </DynamicSection>
-
-              {noLiquidity ? (
-                <AutoColumn gap="1rem">
-                  <AutoColumn gap="12px">
-                    <RowBetween>
-                      <Text fontWeight="500">
-                        <Trans>Set Starting Price</Trans>
-                      </Text>
-                    </RowBetween>
-                    <Flex
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <TYPE.body fontSize={12} textAlign="left" color={theme.subText} lineHeight="16px">
-                        <Trans>
-                          To initialize this pool, select a starting price for the pool then enter your liquidity price
-                          range.
-                        </Trans>
-                      </TYPE.body>
-                    </Flex>
-                  </AutoColumn>
-                  <AutoColumn gap="12px">
-                    <OutlineCard
-                      padding="12px 16px"
-                      style={{ borderRadius: '999px', backgroundColor: theme.buttonBlack, border: 'none' }}
-                    >
-                      <StyledInput
-                        className="start-price-input"
-                        value={startPriceTypedValue}
-                        onUserInput={onStartPriceInput}
-                      />
-                    </OutlineCard>
-
-                    <RowBetween>
-                      <Text fontWeight="500" color={theme.subText} fontSize="12px">
-                        <Trans>Starting Price</Trans>
-                      </Text>
-                      <TYPE.main>
-                        {price ? (
-                          <TYPE.main fontSize="14px">
-                            <RowFixed>
-                              <HoverInlineText
-                                maxCharacters={24}
-                                text={`1 ${baseCurrency?.symbol} = ${
-                                  invertPrice
-                                    ? toSignificantOrMaxIntegerPart(price.invert(), 6)
-                                    : toSignificantOrMaxIntegerPart(price, 6)
-                                } ${quoteCurrency?.symbol}`}
-                              />
-                            </RowFixed>
-                          </TYPE.main>
-                        ) : (
-                          '-'
-                        )}
-                      </TYPE.main>
-                    </RowBetween>
-                    <NewPoolNote
-                      loading={loading}
-                      onRefreshPrice={() => fetchPrices(tokens.map(t => t?.wrapped.address || ''))}
-                      marketPrice={marketPrice}
-                      baseCurrency={baseCurrency}
-                      quoteCurrency={quoteCurrency}
-                    />
-                  </AutoColumn>
-                </AutoColumn>
-              ) : (
-                poolStatRef.current && (
-                  <>
-                    <Flex sx={{ flex: 1, gap: '12px', flexDirection: 'column' }}>
-                      <Text fontWeight={500} fontSize="12px">
-                        <Trans>Pool Stats</Trans>
-                      </Text>
-                      <ProAmmPoolStat
-                        pool={poolStatRef.current}
-                        onShared={openShareModal}
-                        userPositions={userPositions}
-                        onClickPoolAnalytics={() => {
+                <Trans>Change network</Trans>
+              </ButtonLight>
+            </Flex>
+          ) : (
+            <>
+              <Flex sx={{ gap: '24px' }}>
+                <FlexLeft>
+                  <RowBetween>
+                    <Text fontSize={20}>
+                      <Trans>Choose pool</Trans>
+                    </Text>
+                    <div>
+                      <ButtonLight
+                        padding="2px 8px"
+                        as={ExternalLink}
+                        href={`${APP_PATHS.SWAP}/${networkInfo.route}?${
+                          currencyIdA ? `inputCurrency=${currencyIdA}` : ''
+                        }${currencyIdB ? `&outputCurrency=${currencyIdB}` : ''}`}
+                        onClick={() => {
                           if (tokenA?.symbol && tokenB?.symbol)
-                            mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_POOL_ANALYTIC, {
+                            mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_SWAP, {
                               token_1: tokenA?.symbol,
                               token_2: tokenB?.symbol,
                             })
                         }}
-                      />
-                    </Flex>
-                    <ShareModal
-                      url={`${window.location.origin}/pools/${networkInfo.route}?search=${poolAddress}&tab=elastic`}
-                      title={t`Share this pool with your friends!`}
+                      >
+                        <Repeat size={16} />
+                        <Text marginLeft="4px">
+                          <Trans>Swap</Trans>
+                        </Text>
+                      </ButtonLight>
+                    </div>
+                  </RowBetween>
+                  <RowBetween
+                    sx={{ gap: upToXL ? (upToMedium ? '8px' : '4px') : '20px' }}
+                    flexDirection={upToXXSmall ? 'column' : 'row'}
+                  >
+                    <CurrencyInputPanel
+                      hideBalance
+                      value={formattedAmounts[Field.CURRENCY_A]}
+                      onUserInput={onFieldAInput}
+                      hideInput={true}
+                      onMax={null}
+                      onHalf={null}
+                      onCurrencySelect={handleCurrencyASelect}
+                      currency={currencies_A ?? null}
+                      id="add-liquidity-input-tokena"
+                      showCommonBases
+                      estimatedUsd={formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined}
+                      maxCurrencySymbolLength={6}
+                      tight={tightTokenSelect}
                     />
-                  </>
-                )
-              )}
-              {upToMedium && chart}
-            </FlexLeft>
-            {!upToMedium && <RightContainer gap="lg">{chart}</RightContainer>}
-          </Flex>
-          <Row flexDirection="column" sx={{ gap: '16px' }}>
-            {warnings && (
-              <Row justify="flex-end">
-                <Flex>{warnings}</Flex>
-              </Row>
-            )}
-            <Flex maxWidth={chartRef?.current?.clientWidth} alignSelf="flex-end">
-              <DisclaimerERC20 />
-            </Flex>
 
-            <Row justify="flex-end">
-              <Buttons />
-            </Row>
-          </Row>
+                    <ArrowWrapper
+                      isVertical={!upToXXSmall}
+                      rotated={rotate}
+                      onClick={() => {
+                        if (!!rightPrice) {
+                          onLeftRangeInput(rightPrice?.invert().toString())
+                        }
+                        if (!!leftPrice) {
+                          onRightRangeInput(leftPrice?.invert().toString())
+                        }
+                        setRotate(prev => !prev)
+                      }}
+                    >
+                      {!currencyIdA && !currencyIdB ? (
+                        <SwapIcon size={upToMedium ? 12 : 24} color={theme.subText} />
+                      ) : (
+                        <StyledInternalLink
+                          replace
+                          to={`/${networkInfo.route}${APP_PATHS.ELASTIC_CREATE_POOL}/${currencyIdB}/${currencyIdA}/${feeAmount}`}
+                          style={{ color: 'inherit', display: 'flex' }}
+                        >
+                          <SwapIcon size={24} color={theme.subText} />
+                        </StyledInternalLink>
+                      )}
+                    </ArrowWrapper>
+
+                    <CurrencyInputPanel
+                      hideBalance
+                      value={formattedAmounts[Field.CURRENCY_B]}
+                      hideInput={true}
+                      onUserInput={onFieldBInput}
+                      onCurrencySelect={handleCurrencyBSelect}
+                      onMax={null}
+                      onHalf={null}
+                      positionMax="top"
+                      currency={currencies_B ?? null}
+                      id="add-liquidity-input-tokenb"
+                      showCommonBases
+                      estimatedUsd={formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined}
+                      maxCurrencySymbolLength={6}
+                      tight={tightTokenSelect}
+                    />
+                  </RowBetween>
+                  <DynamicSection disabled={disableFeeSelect} gap="md">
+                    <Text fontWeight={500} fontSize="12px">
+                      <Trans>Select fee tier</Trans>
+                    </Text>
+                    <FeeSelector
+                      feeAmount={feeAmount}
+                      onChange={handleFeePoolSelect}
+                      currencyA={currencies_A}
+                      currencyB={currencies_B}
+                    />
+                  </DynamicSection>
+
+                  {noLiquidity ? (
+                    <AutoColumn gap="1rem">
+                      <AutoColumn gap="12px">
+                        <RowBetween>
+                          <Text fontWeight="500">
+                            <Trans>Set Starting Price</Trans>
+                          </Text>
+                        </RowBetween>
+                        <Flex
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <TYPE.body fontSize={12} textAlign="left" color={theme.subText} lineHeight="16px">
+                            <Trans>
+                              To initialize this pool, select a starting price for the pool then enter your liquidity
+                              price range.
+                            </Trans>
+                          </TYPE.body>
+                        </Flex>
+                      </AutoColumn>
+                      <AutoColumn gap="12px">
+                        <OutlineCard
+                          padding="12px 16px"
+                          style={{ borderRadius: '999px', backgroundColor: theme.buttonBlack, border: 'none' }}
+                        >
+                          <StyledInput
+                            className="start-price-input"
+                            value={startPriceTypedValue}
+                            onUserInput={onStartPriceInput}
+                          />
+                        </OutlineCard>
+
+                        <RowBetween>
+                          <Text fontWeight="500" color={theme.subText} fontSize="12px">
+                            <Trans>Starting Price</Trans>
+                          </Text>
+                          <TYPE.main>
+                            {price ? (
+                              <TYPE.main fontSize="14px">
+                                <RowFixed>
+                                  <HoverInlineText
+                                    maxCharacters={24}
+                                    text={`1 ${baseCurrency?.symbol} = ${formatDisplayNumber(
+                                      invertPrice ? price.invert() : price,
+                                      {
+                                        significantDigits: 6,
+                                      },
+                                    )} ${quoteCurrency?.symbol}`}
+                                  />
+                                </RowFixed>
+                              </TYPE.main>
+                            ) : (
+                              '-'
+                            )}
+                          </TYPE.main>
+                        </RowBetween>
+                        <NewPoolNote
+                          loading={loading}
+                          onRefreshPrice={() => fetchPrices(tokens.map(t => t?.wrapped.address || ''))}
+                          marketPrice={marketPrice}
+                          baseCurrency={baseCurrency}
+                          quoteCurrency={quoteCurrency}
+                        />
+                      </AutoColumn>
+                    </AutoColumn>
+                  ) : (
+                    poolStatRef.current && (
+                      <>
+                        <Flex sx={{ flex: 1, gap: '12px', flexDirection: 'column' }}>
+                          <Text fontWeight={500} fontSize="12px">
+                            <Trans>Pool Stats</Trans>
+                          </Text>
+                          <ProAmmPoolStat
+                            pool={poolStatRef.current}
+                            onShared={openShareModal}
+                            userPositions={userPositions}
+                            onClickPoolAnalytics={() => {
+                              if (tokenA?.symbol && tokenB?.symbol)
+                                mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_POOL_ANALYTIC, {
+                                  token_1: tokenA?.symbol,
+                                  token_2: tokenB?.symbol,
+                                })
+                            }}
+                          />
+                        </Flex>
+                        <ShareModal
+                          url={`${window.location.origin}/pools/${networkInfo.route}?search=${poolAddress}&tab=elastic`}
+                          title={t`Share this pool with your friends!`}
+                        />
+                      </>
+                    )
+                  )}
+                  {upToMedium && chart}
+                </FlexLeft>
+                {!upToMedium && <RightContainer gap="lg">{chart}</RightContainer>}
+              </Flex>
+              <Row flexDirection="column" sx={{ gap: '16px' }}>
+                {warnings && (
+                  <Row justify="flex-end">
+                    <Flex>{warnings}</Flex>
+                  </Row>
+                )}
+                <Flex maxWidth={chartRef?.current?.clientWidth} alignSelf="flex-end">
+                  <DisclaimerERC20 />
+                </Flex>
+
+                <Row justify="flex-end">
+                  <Buttons />
+                </Row>
+              </Row>
+            </>
+          )}
         </Container>
       </PageWrapper>
       <FarmUpdater interval={false} />

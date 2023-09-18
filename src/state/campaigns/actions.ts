@@ -91,6 +91,16 @@ export interface CampaignLuckyWinner {
   token: SerializedToken
 }
 
+export enum ConditionGroupsType {
+  POINT_MULTIPLIER = 'POINT_MULTIPLIER',
+}
+export interface ConditionGroups {
+  conditions?: any[]
+  extra?: any
+  priority: number
+  type: ConditionGroupsType
+}
+
 export interface CampaignData {
   id: number
   name: string
@@ -115,6 +125,7 @@ export interface CampaignData {
   tradingNumberRequired: number
   competitionId?: number
   competitorId?: number
+  conditionGroups?: ConditionGroups[]
 }
 
 export interface CampaignProofData {

@@ -35,7 +35,7 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { updateChainId } from 'state/user/actions'
 import { calculateGasMargin } from 'utils'
-import { formatDollarAmount } from 'utils/numbers'
+import { formatDisplayNumber } from 'utils/numbers'
 
 import ActionButtons from './ActionButtons'
 
@@ -227,7 +227,7 @@ const PositionView: React.FC<CommonProps> = props => {
 
         <Row>
           <HoverDropdown
-            anchor={<Value>{formatDollarAmount(liquidityInUsd)}</Value>}
+            anchor={<Value>{formatDisplayNumber(liquidityInUsd, { style: 'currency', significantDigits: 6 })}</Value>}
             disabled={!liquidityInUsd || Number.isNaN(liquidityInUsd)}
             text={
               <div>
@@ -249,7 +249,9 @@ const PositionView: React.FC<CommonProps> = props => {
 
           {myStakedBalance ? (
             <HoverDropdown
-              anchor={<Value>{formatDollarAmount(myStakedBalance)}</Value>}
+              anchor={
+                <Value>{formatDisplayNumber(myStakedBalance, { style: 'currency', significantDigits: 6 })}</Value>
+              }
               text={
                 <div>
                   <Flex alignItems="center">
@@ -306,7 +308,9 @@ const PositionView: React.FC<CommonProps> = props => {
           <HoverDropdown
             anchor={
               <Text as="span" fontSize="16px" fontWeight={500} lineHeight={'20px'}>
-                {+positionEarning.pendingRewardUSD ? formatDollarAmount(+positionEarning.pendingRewardUSD) : '--'}
+                {+positionEarning.pendingRewardUSD
+                  ? formatDisplayNumber(positionEarning.pendingRewardUSD, { style: 'currency', significantDigits: 6 })
+                  : '--'}
               </Text>
             }
             disabled={!+positionEarning.pendingRewardUSD}

@@ -294,7 +294,13 @@ function FarmCard({
                 <Flex
                   alignItems="center"
                   sx={{ gap: '2px' }}
-                  color={item.isRemoved ? theme.warning : theme.subText}
+                  color={
+                    item.isRemoved
+                      ? activeRangeIndex === item.index
+                        ? theme.subText
+                        : theme.disableText
+                      : theme.primary
+                  }
                   onClick={() => {
                     mixpanel.track('ElasticFarmV2 - Range Selected', mixpanelPayload)
                   }}

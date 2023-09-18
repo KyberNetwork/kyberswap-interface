@@ -26,7 +26,7 @@ type Props = {
 }
 const HoverDropdown: React.FC<Props> = ({ anchor, text, disabled = false }) => {
   return (
-    <MouseoverTooltip placement="bottom" width="fit-content" text={text} disableTooltip={disabled}>
+    <MouseoverTooltip placement="bottom" width="max-content" text={text} disableTooltip={disabled}>
       <Wrapper>
         {anchor}
         {!disabled && <DropdownIcon />}

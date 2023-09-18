@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { debounce } from 'lodash'
+import debounce from 'lodash/debounce'
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Text } from 'rebass'
 import { useLazyCheckReferralCodeQuery, useRequestWhiteListMutation } from 'services/kyberAISubscription'

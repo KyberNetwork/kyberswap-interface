@@ -1,5 +1,5 @@
 import { GetRoute, RouteResponse } from '@0xsquid/sdk'
-import { debounce } from 'lodash'
+import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { INPUT_DEBOUNCE_TIME } from 'constants/index'
