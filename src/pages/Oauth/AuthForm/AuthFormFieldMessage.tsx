@@ -6,15 +6,17 @@ const AuthFormFieldMessage: React.FC<{ messages?: { type: string; text: string }
   const theme = useTheme()
   if (!messages?.length) return null
 
-  const messageList: JSX.Element[] = messages.map((value, index) => {
-    return (
-      <Text as="label" key={index} color={value.type === 'warn' ? theme.warning : theme.red}>
-        {value.text}
-      </Text>
-    )
-  })
-
-  return <div className="form-text">{messageList}</div>
+  return (
+    <div>
+      {messages.map((value, index) => {
+        return (
+          <Text as="label" key={index} color={value.type === 'warn' ? theme.warning : theme.red}>
+            {value.text}
+          </Text>
+        )
+      })}
+    </div>
+  )
 }
 
 export default AuthFormFieldMessage

@@ -1,18 +1,19 @@
 import { LoginFlow, LoginFlowUiNode, LoginMethod } from '@kybernetwork/oauth2'
-import React from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Flex, Text } from 'rebass'
+import { Flex } from 'rebass'
 import styled from 'styled-components'
 
-import { ButtonOutlined, ButtonPrimary } from 'components/Button'
-import Wallet from 'components/Icons/Wallet'
-import Loader from 'components/Loader'
+import { ButtonOutlined } from 'components/Button'
 import { useActiveWeb3React } from 'hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
+import useTheme from 'hooks/useTheme'
+import { useEagerConnect } from 'hooks/web3/useEagerConnect'
+import ButtonEth from 'pages/Oauth/AuthForm/ButtonEth'
+import { FlowStatus } from 'pages/Oauth/Login'
 import { useWalletModalToggle } from 'state/application/hooks'
 
-import { BUTTON_IDS } from '../../constants/index'
-import { getSupportLoginMethods, navigateToUrl } from '../../utils'
+import { getSupportLoginMethods, navigateToUrl } from '../utils'
 import AuthFormField from './AuthFormField'
 import AuthFormFieldMessage from './AuthFormFieldMessage'
 
@@ -25,58 +26,48 @@ const Form = styled.form`
 
 interface AuthFormProps extends React.FormHTMLAttributes<HTMLFormElement> {
   formConfig: LoginFlow | undefined
-  autoLogin: boolean
   processingSignEth: boolean
   signInWithEth: () => void
   disableEth: boolean
+  flowStatus: FlowStatus
 }
 
 const Splash = () => <div style={{ flex: 1, borderTop: '1px solid #505050' }}></div>
 
 const AuthForm: React.FC<AuthFormProps> = ({
-  children,
   formConfig,
-  autoLogin,
   signInWithEth,
+  flowStatus,
   processingSignEth,
   disableEth,
-  ...otherProps
 }) => {
   const { back_uri } = useParsedQueryString<{ back_uri: string }>()
+  const theme = useTheme()
+  const { autoLoginMethod, flowReady } = flowStatus
 
   const loginMethods = getSupportLoginMethods(formConfig)
-  const showEth = loginMethods.includes(LoginMethod.ETH) && !autoLogin
+  const showEth = loginMethods.includes(LoginMethod.ETH) && autoLoginMethod !== LoginMethod.GOOGLE
   const hasGoogle = loginMethods.includes(LoginMethod.GOOGLE)
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
 
-  const onClickEth = (e: React.MouseEvent) => {
-    e.preventDefault()
-    !account ? toggleWalletModal() : signInWithEth()
-  }
-
-  const renderBtnEth = () => (
-    <ButtonPrimary
-      width={'230px'}
-      height={'36px'}
-      className="login-btn"
-      id={BUTTON_IDS.LOGIN_ETH}
-      onClick={onClickEth}
-      disabled={processingSignEth || disableEth}
-    >
-      {processingSignEth ? (
-        <>
-          <Loader />
-          &nbsp; <Text style={{ whiteSpace: 'nowrap' }}> Signing In</Text>
-        </>
-      ) : (
-        <>
-          <Wallet />
-          &nbsp; Sign-In with Wallet
-        </>
-      )}
-    </ButtonPrimary>
+  const onClickEth = useCallback(
+    (e?: React.MouseEvent) => {
+      e?.preventDefault()
+      !account ? toggleWalletModal() : signInWithEth()
+    },
+    [toggleWalletModal, signInWithEth, account],
   )
+
+  const isInit = useRef(false)
+  const triedEager = useEagerConnect()
+  const tried = triedEager.current
+  useEffect(() => {
+    if (tried && !isInit.current && flowReady && autoLoginMethod === LoginMethod.ETH) {
+      onClickEth()
+      isInit.current = true
+    }
+  }, [flowReady, autoLoginMethod, onClickEth, tried])
 
   if (!formConfig) return null
   const { ui } = formConfig
@@ -88,31 +79,21 @@ const AuthForm: React.FC<AuthFormProps> = ({
       encType="application/x-www-form-urlencoded"
       action={ui.action}
       method={ui.method}
-      style={{ opacity: autoLogin ? 0 : 1 }}
-      {...otherProps}
-      className="login-form"
+      style={{ opacity: autoLoginMethod === LoginMethod.GOOGLE ? 0 : 1 }}
     >
       <AuthFormFieldMessage messages={ui.messages} />
-      {showEth &&
-        (showBtnCancel ? (
-          <Flex style={{ justifyContent: 'center', flexWrap: 'wrap', alignItems: 'center', gap: '16px' }}>
-            {showBtnCancel && (
-              <ButtonOutlined
-                className="cancel-login-btn"
-                width={'230px'}
-                onClick={() => navigateToUrl(back_uri)}
-                height={'36px'}
-              >
-                Cancel
-              </ButtonOutlined>
-            )}
-            {renderBtnEth()}
-          </Flex>
-        ) : (
-          renderBtnEth()
-        ))}
+      {showEth && (
+        <Flex style={{ justifyContent: 'center', flexWrap: 'wrap', alignItems: 'center', gap: '16px' }}>
+          {showBtnCancel && (
+            <ButtonOutlined width={'230px'} onClick={() => navigateToUrl(back_uri)} height={'36px'}>
+              Cancel
+            </ButtonOutlined>
+          )}
+          <ButtonEth onClick={onClickEth} disabled={processingSignEth || disableEth} loading={processingSignEth} />
+        </Flex>
+      )}
       {hasBothEthAndGoogle && (
-        <div style={{ display: 'flex', width: '100%', alignItems: 'center', gap: 10 }} className="sub-text">
+        <div style={{ display: 'flex', width: '100%', alignItems: 'center', gap: 10, color: theme.subText }}>
           <Splash /> or <Splash />
         </div>
       )}

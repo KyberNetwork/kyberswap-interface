@@ -11,8 +11,7 @@ import getShortenAddress from 'utils/getShortenAddress'
 import { queryStringToObject } from 'utils/string'
 import { formatSignature } from 'utils/transaction'
 
-import AuthForm from './components/AuthForm'
-import { BUTTON_IDS } from './constants/index'
+import AuthForm from './AuthForm'
 import { createSignMessage, getSupportLoginMethods, isValidRedirectURL } from './utils'
 
 const getErrorMsg = (error: any) => {
@@ -30,14 +29,19 @@ const getErrorMsg = (error: any) => {
   return data?.ui?.messages?.[0]?.text || data?.error?.reason || data?.error?.message || error?.message || error + ''
 }
 
-function Login() {
-  const { account: address, chainId } = useActiveWeb3React()
+export type FlowStatus = {
+  flowReady: boolean
+  autoLoginMethod: LoginMethod | undefined // not waiting for click btn
+}
+
+export function Login() {
+  const { account, chainId } = useActiveWeb3React()
   const { library: provider } = useWeb3React()
 
   const [processingSignEth, setProcessingSign] = useState(false)
   const [authFormConfig, setAuthFormConfig] = useState<LoginFlow>()
   const [error, setError] = useState('')
-  const [autoLogin, setAutoLogin] = useState(false) // not waiting for click btn
+  const [flowStatus, setFlowStatus] = useState<FlowStatus>({ flowReady: false, autoLoginMethod: undefined })
 
   const { wallet_address } = useParsedQueryString<{ wallet_address: string }>()
 
@@ -47,15 +51,15 @@ function Login() {
     !loginMethods.includes(LoginMethod.GOOGLE) &&
     isSignInEth &&
     wallet_address &&
-    address &&
-    wallet_address?.toLowerCase() !== address?.toLowerCase()
+    account &&
+    wallet_address?.toLowerCase() !== account?.toLowerCase()
 
   const connectingWallet = useRef(false)
 
   const signInWithEth = useCallback(async () => {
     try {
       const siweConfig = authFormConfig?.oauth_client?.metadata?.siwe_config
-      if (isMismatchEthAddress || !siweConfig || connectingWallet.current || !provider || !address || !chainId) {
+      if (isMismatchEthAddress || !siweConfig || connectingWallet.current || !provider || !account || !chainId) {
         return
       }
       setProcessingSign(true)
@@ -63,7 +67,7 @@ function Login() {
       connectingWallet.current = true
       const csrf = ui.nodes.find(e => e.attributes.name === 'csrf_token')?.attributes?.value ?? ''
       const message = createSignMessage({
-        address,
+        address: account,
         chainId,
         nonce: challenge,
         issuedAt: issued_at,
@@ -72,7 +76,7 @@ function Login() {
 
       const signature = await provider.getSigner().signMessage(message)
       const resp = await KyberOauth2.oauthUi.loginEthereum({
-        address,
+        address: account,
         signature: formatSignature(signature),
         csrf,
         chainId,
@@ -90,7 +94,7 @@ function Login() {
       connectingWallet.current = false
       setProcessingSign(false)
     }
-  }, [address, provider, authFormConfig, chainId, isMismatchEthAddress])
+  }, [account, provider, authFormConfig, chainId, isMismatchEthAddress])
 
   useEffect(() => {
     const getFlowLogin = async () => {
@@ -103,24 +107,21 @@ function Login() {
         const { client_id } = loginFlow.oauth_client
         const loginMethods = getSupportLoginMethods(loginFlow)
 
-        let autoLogin = false
+        let autoLoginMethod: LoginMethod | undefined
         const isIncludeGoogle = loginMethods.includes(LoginMethod.GOOGLE)
         if (loginMethods.length === 1) {
           if (loginMethods.includes(LoginMethod.ANONYMOUS)) {
             throw new Error('Not found login method for this app')
           }
           if (isIncludeGoogle) {
-            autoLogin = true
+            autoLoginMethod = LoginMethod.GOOGLE
           }
         }
-        // todo
         if (loginMethods.includes(LoginMethod.ETH) && !isIncludeGoogle) {
-          setTimeout(() => document.getElementById(BUTTON_IDS.LOGIN_ETH)?.click(), 200)
+          autoLoginMethod = LoginMethod.ETH
         }
-        setAutoLogin(autoLogin)
         KyberOauth2.initialize({ clientId: client_id, mode: ENV_KEY })
-
-        if (autoLogin) setTimeout(() => document.getElementById(BUTTON_IDS.LOGIN_GOOGLE)?.click(), 200)
+        setFlowStatus({ flowReady: true, autoLoginMethod })
       } catch (error: any) {
         const { error_description } = queryStringToObject(window.location.search)
         setError(error_description || getErrorMsg(error))
@@ -135,12 +136,12 @@ function Login() {
     isMismatchEthAddress ? (
       <TextDesc>
         Your address is mismatched. The expected address is {getShortenAddress(wallet_address)}, but the address
-        provided is {getShortenAddress(address)}. Please change your wallet address accordingly.
+        provided is {getShortenAddress(account)}. Please change your wallet address accordingly.
       </TextDesc>
     ) : (
-      address && (
+      account && (
         <TextDesc>
-          To get started, please sign-in to verify your ownership of this wallet address {getShortenAddress(address)}
+          To get started, please sign-in to verify your ownership of this wallet address {getShortenAddress(account)}
         </TextDesc>
       )
     )
@@ -151,18 +152,18 @@ function Login() {
         <KyberLogo />
         {error ? (
           <TextDesc>{error}</TextDesc>
-        ) : autoLogin ? (
+        ) : flowStatus.autoLoginMethod === LoginMethod.GOOGLE ? (
           <TextDesc style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <Loader size="20px" /> Checking data ...
           </TextDesc>
-        ) : isSignInEth && address ? (
+        ) : isSignInEth && account ? (
           renderEthMsg()
         ) : (
           appName && <TextDesc>Please sign in to continue with {appName}</TextDesc>
         )}
         <AuthForm
           formConfig={authFormConfig}
-          autoLogin={autoLogin}
+          flowStatus={flowStatus}
           signInWithEth={signInWithEth}
           processingSignEth={processingSignEth}
           disableEth={!!isMismatchEthAddress}
