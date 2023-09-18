@@ -1,5 +1,5 @@
 import { LoginFlow, LoginFlowUiNode, LoginMethod } from '@kybernetwork/oauth2'
-import React, { useEffect, useRef } from 'react'
+import React from 'react'
 import { isMobile } from 'react-device-detect'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
@@ -7,7 +7,6 @@ import styled from 'styled-components'
 import { ButtonOutlined } from 'components/Button'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
-import { useEagerConnect } from 'hooks/web3/useEagerConnect'
 import ButtonEth from 'pages/Oauth/AuthForm/ButtonEth'
 import { FlowStatus } from 'pages/Oauth/Login'
 
@@ -31,26 +30,6 @@ interface AuthFormProps extends React.FormHTMLAttributes<HTMLFormElement> {
 }
 
 const Splash = () => <div style={{ flex: 1, borderTop: '1px solid #505050' }}></div>
-
-export const useAutoSignIn = ({
-  onClick,
-  method,
-  flowStatus: { flowReady, autoLoginMethod },
-}: {
-  onClick: (e?: React.MouseEvent) => void
-  method: LoginMethod
-  flowStatus: FlowStatus
-}) => {
-  const autoSelect = useRef(false)
-  const { current: tried } = useEagerConnect()
-  useEffect(() => {
-    if (autoSelect.current || !flowReady || autoLoginMethod !== method) return
-    if ((tried && autoLoginMethod === LoginMethod.ETH) || autoLoginMethod === LoginMethod.GOOGLE) {
-      autoSelect.current = true
-      onClick()
-    }
-  }, [flowReady, autoLoginMethod, onClick, tried, method])
-}
 
 const AuthForm: React.FC<AuthFormProps> = ({
   formConfig,

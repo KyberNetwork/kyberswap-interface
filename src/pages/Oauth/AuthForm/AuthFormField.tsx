@@ -2,7 +2,7 @@ import { LoginFlowUiNode, LoginMethod } from '@kybernetwork/oauth2'
 import React, { useCallback, useRef } from 'react'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
-import { useAutoSignIn } from 'pages/Oauth/AuthForm'
+import useAutoSignIn from 'pages/Oauth/AuthForm/useAutoSignIn'
 import { FlowStatus } from 'pages/Oauth/Login'
 
 interface AuthFormFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {

@@ -6,7 +6,7 @@ import { ButtonPrimary } from 'components/Button'
 import Wallet from 'components/Icons/Wallet'
 import Loader from 'components/Loader'
 import { useActiveWeb3React } from 'hooks'
-import { useAutoSignIn } from 'pages/Oauth/AuthForm'
+import useAutoSignIn from 'pages/Oauth/AuthForm/useAutoSignIn'
 import { FlowStatus } from 'pages/Oauth/Login'
 import { useWalletModalToggle } from 'state/application/hooks'
 
