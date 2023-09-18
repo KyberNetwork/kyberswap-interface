@@ -840,6 +840,7 @@ const LimitOrderForm = function LimitOrderForm({
         <ActionButtonLimitOrder
           {...{
             currencyIn,
+            currencyOut,
             approval,
             showWrap,
             isWrappingEth,
