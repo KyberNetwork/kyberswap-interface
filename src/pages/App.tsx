@@ -390,7 +390,7 @@ export default function App() {
                       }
                     />
                     <Route
-                      path={`${APP_PATHS.KYBERAI_EXPLORE}/:chain/:address`}
+                      path={`${APP_PATHS.KYBERAI_EXPLORE}/:assetId`}
                       element={
                         <ProtectedRouteKyberAI redirectUrl={APP_PATHS.KYBERAI_ABOUT}>
                           <KyberAIExplore />

@@ -22,7 +22,7 @@ import useTheme from 'hooks/useTheme'
 import KyberScoreMeter from 'pages/TrueSightV2/components/KyberScoreMeter'
 import { NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
 import { SUPPORTED_NETWORK_KYBERAI } from 'pages/TrueSightV2/constants/index'
-import { useTokenDetailQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
+import { useTokenOverviewQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { calculateValueToColor } from 'pages/TrueSightV2/utils'
 import { useIsWhiteListKyberAI } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -47,17 +47,17 @@ const KyberAITokenBanner = ({
 
   const { isStableCoin } = useStableCoins(chainId)
 
-  const { data: tokenInputOverview } = useTokenDetailQuery(
+  const { data: tokenInputOverview } = useTokenOverviewQuery(
     { address: token0?.address, chain },
     { skip: !token0?.address || !account || !isWhiteList || !chain, refetchOnMountOrArgChange: true },
   )
 
-  const { data: tokenOutputOverview } = useTokenDetailQuery(
+  const { data: tokenOutputOverview } = useTokenOverviewQuery(
     { address: token1?.address, chain },
     { skip: !token1?.address || !account || !isWhiteList || !chain, refetchOnMountOrArgChange: true },
   )
 
-  const { data: tokenNativeOverview } = useTokenDetailQuery(
+  const { data: tokenNativeOverview } = useTokenOverviewQuery(
     { address: NativeCurrencies[chainId].wrapped.address, chain },
     { skip: !account || !isWhiteList || !chain, refetchOnMountOrArgChange: true },
   )

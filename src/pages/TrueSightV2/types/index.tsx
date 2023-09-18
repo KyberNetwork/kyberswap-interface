@@ -4,7 +4,8 @@ export interface IKyberScoreChart {
   kyber_score: number
   created_at: number
 }
-export interface ITokenOverview {
+export interface IAssetOverview {
+  addresses: { chain: string; address: string }[]
   tags: string[]
   name: string
   symbol: string
@@ -37,7 +38,7 @@ export interface ITokenOverview {
 export interface ITokenList {
   symbol: string
   name: string
-  SourceTokenID: string
+  asset_id: string
   tokens: Array<{ address: string; logo: string; chain: string }>
   price: number
   percent_change_24h: number
@@ -103,11 +104,10 @@ export interface IFundingRate {
 }
 
 export interface ITokenSearchResult {
-  address: string
   name: string
   symbol: string
   logo: string
-  chain: string
+  assetId: string
   price: number
   priceChange24h: number
   kyberScore?: {

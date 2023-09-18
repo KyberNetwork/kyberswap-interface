@@ -353,7 +353,6 @@ export default function Widget() {
                   isLoading={isFetching}
                   isError={isError}
                   onRowClick={() => setShowExpanded(false)}
-                  activeTab={activeTab}
                 />
               )}
             </Row>
@@ -471,13 +470,7 @@ const KyberAIWidgetMobileContent = ({
         </MobileTab>
       </Row>
       <div style={{ flex: 1 }}>
-        <WidgetMobileTable
-          data={data}
-          isLoading={isLoading}
-          isError={isError}
-          onRowClick={onRowClick}
-          activeTab={activeTab}
-        />
+        <WidgetMobileTable data={data} isLoading={isLoading} isError={isError} onRowClick={onRowClick} />
       </div>
       <RowBetween padding="8px 12px">
         <div></div>

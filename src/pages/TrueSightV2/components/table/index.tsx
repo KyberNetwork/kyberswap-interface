@@ -6,7 +6,7 @@ import { ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useStat
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { DefaultTheme, css } from 'styled-components'
 
@@ -19,20 +19,12 @@ import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
-import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
 import useIsReachMaxLimitWatchedToken from 'pages/TrueSightV2/hooks/useIsReachMaxLimitWatchedToken'
-import {
-  useAddToWatchlistMutation,
-  useFundingRateQuery,
-  useHolderListQuery,
-  useLiveDexTradesQuery,
-  useRemoveFromWatchlistMutation,
-} from 'pages/TrueSightV2/hooks/useKyberAIData'
-import useKyberAITokenOverview from 'pages/TrueSightV2/hooks/useKyberAITokenOverview'
+import useKyberAIAssetOverview from 'pages/TrueSightV2/hooks/useKyberAIAssetOverview'
+import { useFundingRateQuery, useHolderListQuery, useLiveDexTradesQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import { IHolderList, IKyberScoreChart, ILiveTrade, ITokenList, KyberAITimeframe } from 'pages/TrueSightV2/types'
 import {
@@ -46,7 +38,6 @@ import { getEtherscanLink, shortenAddress } from 'utils'
 import { getProxyTokenLogo } from 'utils/tokenInfo'
 
 import ChevronIcon from '../ChevronIcon'
-import { WidgetTab } from '../KyberAIWidget'
 import MultipleChainDropdown from '../MultipleChainDropdown'
 import SimpleTooltip from '../SimpleTooltip'
 import SmallKyberScoreMeter from '../SmallKyberScoreMeter'
@@ -172,9 +163,8 @@ const LoadingHandleWrapper = ({
 
 export const Top10HoldersTable = () => {
   const theme = useTheme()
-  const { chain, address } = useParams()
-  const { data, isLoading } = useHolderListQuery({ address, chain })
-  const { data: tokenOverview } = useKyberAITokenOverview()
+  const { data: tokenOverview, chain, address } = useKyberAIAssetOverview()
+  const { data, isLoading } = useHolderListQuery({ address, chain }, { skip: !chain || !address })
   return (
     <LoadingHandleWrapper isLoading={isLoading} hasData={!!data && data.length > 0} height="400px">
       <colgroup>
@@ -373,8 +363,8 @@ function colorRateText(value: number, theme: DefaultTheme) {
 
 export const FundingRateTable = ({ mobileMode }: { mobileMode?: boolean }) => {
   const theme = useTheme()
-  const { chain, address } = useParams()
-  const { data, isLoading } = useFundingRateQuery({ address, chain })
+  const { chain, address } = useKyberAIAssetOverview()
+  const { data, isLoading } = useFundingRateQuery({ address, chain }, { skip: !chain || !address })
 
   if (mobileMode) {
     return (
@@ -458,15 +448,15 @@ export const FundingRateTable = ({ mobileMode }: { mobileMode?: boolean }) => {
 export const LiveDEXTrades = () => {
   const theme = useTheme()
   const [currentPage, setCurrentPage] = useState(1)
-  const { chain, address } = useParams()
+  const { data: tokenOverview, chain, address } = useKyberAIAssetOverview()
+
   const { data, isLoading } = useLiveDexTradesQuery(
     {
       chain,
       address,
     },
-    { pollingInterval: 10000 },
+    { pollingInterval: 10000, skip: !chain || !address },
   )
-  const { data: tokenOverview } = useKyberAITokenOverview()
 
   return (
     <>
@@ -577,22 +567,11 @@ const WidgetTableWrapper = styled(Table)`
   }
 `
 
-const WidgetTokenRow = ({
-  token,
-  onClick,
-  activeTab,
-  index,
-}: {
-  token: ITokenList
-  onClick?: () => void
-  activeTab: WidgetTab
-  index: number
-}) => {
+const WidgetTokenRow = ({ token, onClick }: { token: ITokenList; onClick?: () => void }) => {
   const theme = useTheme()
   const navigate = useNavigate()
-  const { account } = useActiveWeb3React()
-  const mixpanelHandler = useMixpanelKyberAI()
-  const reachedMaxLimit = useIsReachMaxLimitWatchedToken(token?.tokens.length)
+
+  const reachedMaxLimit = useIsReachMaxLimitWatchedToken()
 
   const latestKyberScore: IKyberScoreChart | undefined = token?.ks_3d?.[token.ks_3d.length - 1]
   const hasMutipleChain = token?.tokens?.length > 1
@@ -600,9 +579,6 @@ const WidgetTokenRow = ({
   const [showSwapMenu, setShowSwapMenu] = useState(false)
   const [menuLeft, setMenuLeft] = useState<number | undefined>(undefined)
   const [isWatched, setIsWatched] = useState(!!token.isWatched)
-  const [loadingStar, setLoadingStar] = useState(false)
-  const [addToWatchlist] = useAddToWatchlistMutation()
-  const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
 
   const rowRef = useRef<HTMLTableRowElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -643,36 +619,36 @@ const WidgetTokenRow = ({
     navigateToSwapPage({ address, chain })
   }
 
-  const handleWatchlistClick = (e: any) => {
-    e.stopPropagation()
-    if (!account) return
-    setLoadingStar(true)
-    if (isWatched) {
-      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-        token_name: token.symbol?.toUpperCase(),
-        source: activeTab,
-        ranking_order: index,
-        option: 'remove',
-      })
-      Promise.all(token.tokens.map(t => removeFromWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
-        setIsWatched(false)
-        setLoadingStar(false)
-      })
-    } else {
-      if (!isWatched) {
-        mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-          token_name: token.symbol?.toUpperCase(),
-          source: activeTab,
-          ranking_order: index,
-          option: 'add',
-        })
-        Promise.all(token.tokens.map(t => addToWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
-          setIsWatched(true)
-          setLoadingStar(false)
-        })
-      }
-    }
-  }
+  // const handleWatchlistClick = (e: any) => {
+  //   e.stopPropagation()
+  //   if (!account) return
+  //   setLoadingStar(true)
+  //   if (isWatched) {
+  //     mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
+  //       token_name: token.symbol?.toUpperCase(),
+  //       source: activeTab,
+  //       ranking_order: index,
+  //       option: 'remove',
+  //     })
+  //     Promise.all(token.tokens.map(t => removeFromWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
+  //       setIsWatched(false)
+  //       setLoadingStar(false)
+  //     })
+  //   } else {
+  //     if (!isWatched) {
+  //       mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
+  //         token_name: token.symbol?.toUpperCase(),
+  //         source: activeTab,
+  //         ranking_order: index,
+  //         option: 'add',
+  //       })
+  //       Promise.all(token.tokens.map(t => addToWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
+  //         setIsWatched(true)
+  //         setLoadingStar(false)
+  //       })
+  //     }
+  //   }
+  // }
 
   useEffect(() => {
     setIsWatched(token.isWatched)
@@ -685,12 +661,7 @@ const WidgetTokenRow = ({
           <td>
             <Column gap="4px">
               <RowFit gap="6px">
-                <StarWithAnimation
-                  watched={isWatched}
-                  loading={loadingStar}
-                  onClick={handleWatchlistClick}
-                  disabled={!isWatched && reachedMaxLimit}
-                />
+                <StarWithAnimation watched={isWatched} loading={false} disabled={!isWatched && reachedMaxLimit} />
                 <img
                   alt="tokenInList"
                   src={token.tokens[0].logo}
@@ -735,12 +706,7 @@ const WidgetTokenRow = ({
                     : t`Add to watchlist`
                 }
               >
-                <StarWithAnimation
-                  watched={isWatched}
-                  loading={loadingStar}
-                  onClick={handleWatchlistClick}
-                  disabled={!isWatched && reachedMaxLimit}
-                />
+                <StarWithAnimation watched={isWatched} loading={false} disabled={!isWatched && reachedMaxLimit} />
               </SimpleTooltip>
               <Row gap="8px" style={{ position: 'relative', width: '24px', height: '24px' }}>
                 <img
@@ -831,13 +797,11 @@ export const WidgetTable = ({
   isLoading,
   isError,
   onRowClick,
-  activeTab,
 }: {
   data?: ITokenList[]
   isLoading: boolean
   isError: boolean
   onRowClick?: () => void
-  activeTab: WidgetTab
 }) => {
   const theme = useTheme()
   return (
@@ -919,7 +883,7 @@ export const WidgetTable = ({
         ) : (
           <tbody>
             {data?.map((token, i) => {
-              return <WidgetTokenRow token={token} key={i} onClick={onRowClick} activeTab={activeTab} index={i + 1} />
+              return <WidgetTokenRow token={token} key={i} onClick={onRowClick} />
             })}
           </tbody>
         )}
@@ -932,13 +896,11 @@ export const WidgetMobileTable = ({
   isLoading,
   isError,
   onRowClick,
-  activeTab,
 }: {
   data?: ITokenList[]
   isLoading: boolean
   isError: boolean
   onRowClick?: () => void
-  activeTab: WidgetTab
 }) => {
   const theme = useTheme()
   return (
@@ -993,7 +955,7 @@ export const WidgetMobileTable = ({
         ) : (
           <tbody>
             {data?.map((token, i) => {
-              return <WidgetTokenRow token={token} key={i} onClick={onRowClick} activeTab={activeTab} index={i + 1} />
+              return <WidgetTokenRow token={token} key={i} onClick={onRowClick} />
             })}
           </tbody>
         )}
@@ -1024,7 +986,7 @@ export const Top10HoldersShareModalTable = ({
   startIndex?: number
 }) => {
   const theme = useTheme()
-  const { data: tokenOverview } = useKyberAITokenOverview()
+  const { data: tokenOverview } = useKyberAIAssetOverview()
 
   return (
     <ShareTableWrapper style={{ flex: 1 }}>
@@ -1091,7 +1053,7 @@ export const LiveTradesInShareModalTable = ({
   mobileMode?: boolean
 }) => {
   const theme = useTheme()
-  const { data: tokenOverview } = useKyberAITokenOverview()
+  const { data: tokenOverview } = useKyberAIAssetOverview()
 
   return (
     <ShareTableWrapper style={{ flex: 1 }}>

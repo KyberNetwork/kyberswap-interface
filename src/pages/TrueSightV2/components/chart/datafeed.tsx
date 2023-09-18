@@ -13,13 +13,13 @@ import {
 import { getTradingViewTimeZone } from 'components/TradingViewChart/utils'
 import { useLazyChartingDataQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { defaultExplorePageToken } from 'pages/TrueSightV2/pages/SingleToken'
-import { ITokenOverview, OHLCData } from 'pages/TrueSightV2/types'
+import { IAssetOverview, OHLCData } from 'pages/TrueSightV2/types'
 
 const configurationData = {
   supported_resolutions: ['1H', '4H', '1D', '4D'],
 }
 
-export const useDatafeed = (isBTC: boolean, token?: ITokenOverview) => {
+export const useDatafeed = (isBTC: boolean, token?: IAssetOverview) => {
   const intervalRef = useRef<any>()
   const { chain, address } = useParams()
   const [getChartingData, { isLoading }] = useLazyChartingDataQuery()

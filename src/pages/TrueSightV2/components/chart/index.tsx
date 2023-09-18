@@ -4,7 +4,6 @@ import { rgba } from 'polished'
 import React, { ReactNode, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
-import { useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import {
@@ -41,6 +40,7 @@ import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { KYBERAI_CHART_ID, NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
 import { CHART_STATES_ACTION_TYPE, useChartStatesContext } from 'pages/TrueSightV2/hooks/useChartStatesReducer'
+import useKyberAIAssetOverview from 'pages/TrueSightV2/hooks/useKyberAIAssetOverview'
 import {
   useCexesLiquidationQuery,
   useHolderListQuery,
@@ -50,7 +50,6 @@ import {
   useTradingVolumeQuery,
   useTransferInformationQuery,
 } from 'pages/TrueSightV2/hooks/useKyberAIData'
-import useKyberAITokenOverview from 'pages/TrueSightV2/hooks/useKyberAITokenOverview'
 import { defaultExplorePageToken } from 'pages/TrueSightV2/pages/SingleToken'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import {
@@ -297,7 +296,7 @@ const roundNumberUp = (number: number) => {
 
 export const NumberofTradesChart = ({ noAnimation }: { noAnimation?: boolean }) => {
   const theme = useTheme()
-  const { chain, address } = useParams()
+  const { chain, address } = useKyberAIAssetOverview()
   const { state, dispatch } = useChartStatesContext(KYBERAI_CHART_ID.NUMBER_OF_TRADES, {
     timeframe: KyberAITimeframe.ONE_MONTH,
     showOptions: ['showSell', 'showBuy', 'showTotalTrade'],
@@ -328,11 +327,14 @@ export const NumberofTradesChart = ({ noAnimation }: { noAnimation?: boolean }) 
       }[timeframe as string] || 604800)
     return [from, now, timerange]
   }, [timeframe])
-  const { data, isLoading } = useTradingVolumeQuery({
-    chain: chain || defaultExplorePageToken.chain,
-    address: address || defaultExplorePageToken.address,
-    params: { from, to },
-  })
+  const { data, isLoading } = useTradingVolumeQuery(
+    {
+      chain: chain,
+      address: address,
+      params: { from, to },
+    },
+    { skip: !address || !chain },
+  )
 
   const dataRange = useMemo(() => {
     if (!data) return undefined
@@ -615,7 +617,7 @@ export const NumberofTradesChart = ({ noAnimation }: { noAnimation?: boolean }) 
 
 export const TradingVolumeChart = ({ noAnimation }: { noAnimation?: boolean }) => {
   const theme = useTheme()
-  const { chain, address } = useParams()
+  const { chain, address } = useKyberAIAssetOverview()
   const { state, dispatch } = useChartStatesContext(KYBERAI_CHART_ID.TRADING_VOLUME, {
     timeframe: KyberAITimeframe.ONE_MONTH,
     showOptions: ['showSell', 'showBuy', 'showTotalVolume'],
@@ -938,7 +940,7 @@ export const TradingVolumeChart = ({ noAnimation }: { noAnimation?: boolean }) =
 
 export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; noAnimation?: boolean }) => {
   const theme = useTheme()
-  const { chain, address } = useParams()
+  const { chain, address } = useKyberAIAssetOverview()
   const { state, dispatch } = useChartStatesContext(KYBERAI_CHART_ID.NETFLOW_TO_WHALE_WALLET, {
     timeframe: KyberAITimeframe.ONE_WEEK,
     showOptions: ['showInflow', 'showOutflow', 'showNetflow'],
@@ -1381,7 +1383,7 @@ export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; no
 
 export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: ChartTab; noAnimation?: boolean }) => {
   const theme = useTheme()
-  const { chain, address } = useParams()
+  const { chain, address } = useKyberAIAssetOverview()
   const { state, dispatch } = useChartStatesContext(KYBERAI_CHART_ID.NETFLOW_TO_CEX, {
     timeframe: KyberAITimeframe.ONE_WEEK,
     showOptions: ['showInflow', 'showOutflow', 'showNetflow'],
@@ -1773,7 +1775,7 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
 
 export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
   const theme = useTheme()
-  const { chain, address } = useParams()
+  const { chain, address } = useKyberAIAssetOverview()
   const { state, dispatch } = useChartStatesContext(KYBERAI_CHART_ID.NUMBER_OF_TRANSFERS, {
     timeframe: KyberAITimeframe.ONE_MONTH,
     noData: true,
@@ -1962,7 +1964,7 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
 
 export const NumberofHolders = () => {
   const theme = useTheme()
-  const { chain, address } = useParams()
+  const { chain, address } = useKyberAIAssetOverview()
   const { state, dispatch } = useChartStatesContext(KYBERAI_CHART_ID.NUMBER_OF_HOLDERS, {
     timeframe: KyberAITimeframe.ONE_MONTH,
     noData: true,
@@ -2138,7 +2140,7 @@ export const NumberofHolders = () => {
 const COLORS = ['#00a2f7', '#31CB9E', '#FFBB28', '#F3841E', '#FF537B', '#27AE60', '#78d5ff', '#8088E5']
 const CustomLabel = ({ x, y, cx, cy, name, address, percentage, sumPercentage }: any) => {
   let customY = y
-  const { chain } = useParams()
+  const { chain } = useKyberAIAssetOverview()
   if (Math.abs(cx - x) < 30) {
     customY = cy - y > 0 ? y - 8 : y + 8
   }
@@ -2177,22 +2179,11 @@ const CustomLabelLine = (props: any) => {
       )}
     </>
   )
-  // if (percentage > 0.01) {
-  //   return (
-  //     <path
-  //       d={`M${points[0].x},${points[0].y} Q${(points[1].x + 40, points[0].y)} ${points[1].x},${points[1].y}"`}
-  //       stroke={stroke}
-  //       strokeWidth="1px"
-  //     />
-  //   )
-  // } else {
-  //   return <path />
-  // }
 }
 export const HoldersChartWrapper = ({ noAnimation }: { noAnimation?: boolean }) => {
   const theme = useTheme()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
-  const { chain, address } = useParams()
+  const { chain, address } = useKyberAIAssetOverview()
   const { dispatch } = useChartStatesContext(KYBERAI_CHART_ID.HOLDER_PIE_CHART, {
     noData: true,
   })
@@ -2268,7 +2259,7 @@ export const HoldersChartWrapper = ({ noAnimation }: { noAnimation?: boolean }) 
 export const LiquidOnCentralizedExchanges = ({ noAnimation }: { noAnimation?: boolean }) => {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
-  const { chain, address } = useParams()
+  const { chain, address } = useKyberAIAssetOverview()
   const { state, dispatch } = useChartStatesContext(KYBERAI_CHART_ID.LIQUID_ON_CEX, {
     timeframe: KyberAITimeframe.ONE_MONTH,
     noData: true,
@@ -2303,7 +2294,7 @@ export const LiquidOnCentralizedExchanges = ({ noAnimation }: { noAnimation?: bo
     },
     { skip: !address || !chain },
   )
-  const { data: tokenOverview } = useKyberAITokenOverview()
+  const { data: tokenOverview } = useKyberAIAssetOverview()
   const [showLong, setShowLong] = useState(true)
   const [showShort, setShowShort] = useState(true)
   const [showPrice, setShowPrice] = useState(true)
@@ -2655,7 +2646,7 @@ export const Prochart = ({
   const [fullscreen, setFullscreen] = useState(false)
   const [loading, setLoading] = useState(false)
   const userLocale = useUserLocale()
-  const { data } = useKyberAITokenOverview()
+  const { data } = useKyberAIAssetOverview()
   const datafeed = useDatafeed(isBTC || false, data)
   const { SRLevels, currentPrice, resolution, setResolution, showSRLevels } = useContext(TechnicalAnalysisContext)
 

@@ -18,19 +18,17 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 
-import { KYBERAI_LISTYPE_TO_MIXPANEL, NETWORK_IMAGE_URL } from '../constants'
+import { KYBERAI_LISTYPE_TO_MIXPANEL } from '../constants'
 import { useLazySearchTokenQuery, useSearchTokenQuery, useTokenListQuery } from '../hooks/useKyberAIData'
 import { ITokenList, ITokenSearchResult, KyberAIListType } from '../types'
 import { formatTokenPrice } from '../utils'
 
 const formatTokenType = (token: ITokenList): ITokenSearchResult => {
-  const token0 = token.tokens[0]
   return {
-    address: token0.address,
+    assetId: token.asset_id,
     name: token.name,
     symbol: token.symbol,
-    logo: token0.logo,
-    chain: token0.chain,
+    logo: token.tokens[0].logo,
     price: token.price,
     priceChange24h: token.percent_change_24h,
     kyberScore: {
@@ -206,7 +204,7 @@ const TokenItem = ({ token, onClick }: { token: ITokenSearchResult; onClick?: ()
     <DropdownItem
       onClick={() => {
         onClick?.()
-        navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.chain}/${token.address}`)
+        navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.assetId}`)
       }}
     >
       <td>
@@ -231,13 +229,13 @@ const TokenItem = ({ token, onClick }: { token: ITokenSearchResult; onClick?: ()
                 backgroundColor: theme.tableHeader,
               }}
             >
-              <img
+              {/* <img
                 src={NETWORK_IMAGE_URL[token.chain]}
                 alt="eth"
                 width={above768 ? '12px' : '10px'}
                 height={above768 ? '12px' : '10px'}
                 style={{ display: 'block' }}
-              />
+              /> */}
             </div>
           </div>
           <Text fontSize={above768 ? '12px' : '10px'} color={theme.text}>
@@ -322,7 +320,7 @@ const SearchWithDropdown = () => {
   )
   const [history, setHistory] = useLocalStorage<Array<ITokenSearchResult>>('kyberai-search-history')
   const saveToHistory = (token: ITokenSearchResult) => {
-    if (!(history && history.findIndex(t => t.address === token.address && t.chain === token.chain) >= 0)) {
+    if (!(history && history.findIndex(t => t.assetId === token.assetId) >= 0)) {
       setHistory([token, ...(history || [])].slice(0, 3))
     }
   }
@@ -333,7 +331,7 @@ const SearchWithDropdown = () => {
       const fetchHistoryTokenInfo = async () => {
         const results = await Promise.all(
           history.map(t => {
-            return getTokenData({ q: t.address, size: 1 }, true).unwrap()
+            return getTokenData({ q: t.assetId, size: 1 }, true).unwrap()
           }),
         )
         setHistory(results.map(res => res[0]))
@@ -407,7 +405,7 @@ const SearchWithDropdown = () => {
           <SearchResultTableWrapper>
             {searchResult.map(item => (
               <TokenItem
-                key={item.address}
+                key={item.assetId}
                 token={item}
                 onClick={() => {
                   setExpanded(false)
