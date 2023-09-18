@@ -736,6 +736,7 @@ export default function Swap() {
               {activeTab === TAB.INFO && <TokenInfoTab currencies={currencies} onBack={onBackToSwapTab} />}
               {activeTab === TAB.SETTINGS && (
                 <SettingsPanel
+                  swapActionsRef={swapActionsRef}
                   isSwapPage
                   onBack={onBackToSwapTab}
                   onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}
