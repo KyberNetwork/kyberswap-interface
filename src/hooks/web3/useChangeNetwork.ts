@@ -298,6 +298,7 @@ export function useChangeNetwork() {
       successCallback,
       failureCallback,
       addNewNetwork,
+      isWrongNetwork,
     ],
   )
 
