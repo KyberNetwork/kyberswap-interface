@@ -9,6 +9,7 @@ import { ButtonPrimary } from 'components/Button'
 import Checkbox from 'components/CheckBox'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { NETWORKS_INFO } from 'constants/networks'
+import useChainsConfig from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 
 import { MultipleChainSelectProps, StyledLogo } from '.'
@@ -99,11 +100,14 @@ const PopoverBody: React.FC<MultipleChainSelectProps & { onClose: () => void }> 
   const theme = useTheme()
   const selectAllRef = useRef<HTMLInputElement>(null)
 
+  const { activeChains } = useChainsConfig()
   const selectedChains = selectedChainIds.filter(item => !comingSoonList.includes(item))
 
   const [localSelectedChains, setLocalSelectedChains] = useState(() => selectedChains)
 
-  const networkList = chainIds.filter(item => !comingSoonList.includes(item))
+  const networkList = chainIds.filter(
+    item => !comingSoonList.includes(item) && activeChains.some(e => e.chainId === item),
+  )
 
   const isAllSelected = localSelectedChains.length === networkList.length
 

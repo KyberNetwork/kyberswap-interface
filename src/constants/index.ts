@@ -8,7 +8,6 @@ import { TransactionFlowState } from 'types/TransactionFlowState'
 import { CAMPAIGN_BASE_URL as CAMPAIGN_BASE_DOMAIN } from './env'
 import * as ENV from './env'
 import { EVM_NETWORK, NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from './networks'
-import { ENV_TYPE } from './type'
 
 export const EMPTY_OBJECT: any = {}
 export const EMPTY_ARRAY: any[] = []
@@ -126,6 +125,8 @@ export const DEFAULT_DEADLINE_FROM_NOW = 60 * 20
 // denominated in seconds
 export const TIME_TO_REFRESH_SWAP_RATE = 10
 
+export const BIG_INT_ONE = JSBI.BigInt(1)
+export const BIG_INT_MINUS_ONE = JSBI.BigInt(-1)
 export const BIG_INT_ZERO = JSBI.BigInt(0)
 
 // one basis point
@@ -261,12 +262,6 @@ export const EIP712Domain = [
   { name: 'verifyingContract', type: 'address' },
 ]
 
-if (ENV.ENV_LEVEL < ENV_TYPE.PROD) {
-  console.groupCollapsed('ENV')
-  console.log(JSON.stringify(ENV, null, 4))
-  console.groupEnd()
-}
-
 export const INPUT_DEBOUNCE_TIME = 300
 
 export const ENABLE_CLICK_TO_REFRESH_GET_ROUTE = false
@@ -305,9 +300,9 @@ export const TRANSACTION_STATE_DEFAULT: TransactionFlowState = {
   pendingText: '',
 }
 
-export const CHAINS_SUPPORT_FEE_CONFIGS = [ChainId.OASIS, ChainId.VELAS, ChainId.AURORA, ChainId.CRONOS]
+export const CHAINS_SUPPORT_FEE_CONFIGS = [ChainId.AURORA, ChainId.CRONOS]
 export const CHAINS_SUPPORT_CROSS_CHAIN =
-  ENV.ENV_KEY === 'production' || ENV.ENV_KEY === 'staging'
+  ENV.ENV_KEY === ENV.EnvKeys.PROD || ENV.ENV_KEY === ENV.EnvKeys.STG
     ? [
         ChainId.MAINNET,
         ChainId.BSCMAINNET,

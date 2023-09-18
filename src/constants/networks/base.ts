@@ -22,7 +22,7 @@ const base: EVMNetworkInfo = {
   defaultBlockSubgraph: 'https://base-graph.kyberengineering.io/subgraphs/name/kybernetwork/base-blocks',
   etherscanUrl: 'https://basescan.org',
   etherscanName: 'Base Explorer',
-  bridgeURL: EMPTY,
+  bridgeURL: 'https://bridge.base.org/deposit',
   nativeToken: {
     symbol: 'ETH',
     name: 'ETH',
@@ -58,10 +58,7 @@ const base: EVMNetworkInfo = {
     farmv2Quoter: '0x6AFeb9EDd6Cf44fA8E89b1eee28284e6dD7705C8',
     farmV2S: ['0x3D6AfE2fB73fFEd2E3dD00c501A174554e147a43', '0xf2BcDf38baA52F6b0C1Db5B025DfFf01Ae1d6dBd'],
   },
-  limitOrder: {
-    production: NOT_SUPPORT,
-    development: NOT_SUPPORT,
-  },
+  limitOrder: NOT_SUPPORT,
   averageBlockTimeInSeconds: 2, // dont use for base
   coingeckoNetworkId: 'base',
   coingeckoNativeTokenId: 'ethereum',

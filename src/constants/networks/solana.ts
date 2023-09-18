@@ -40,7 +40,7 @@ const solanaInfo: SolanaNetworkInfo = {
   //   pool: 'EKdy97aMrjjxtq4CJh9vN24WuHVsuLz4qtDjyYqttviN',
   //   router: '6VdLuZvVxdgFYQiCQ1VDBBdE27RahXzv2wCxwG4FAzAn',
   // },
-  limitOrder: { development: NOT_SUPPORT, production: NOT_SUPPORT },
+  limitOrder: NOT_SUPPORT,
   coingeckoNetworkId: 'solana',
   coingeckoNativeTokenId: 'solana',
   defaultRpcUrl: 'https://solana.kyberengineering.io',

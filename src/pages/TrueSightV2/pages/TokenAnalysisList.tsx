@@ -245,7 +245,7 @@ const TabWrapper = styled(motion.div)`
   }
   ${({ theme }) => theme.mediaWidth.upToSmall`
     min-width: initial;
-    flex:1;
+    flex: 1;
   `}
 `
 
@@ -550,14 +550,22 @@ const TokenRow = ({
       </td>
       <td className={isScrolling ? 'table-cell-shadow-right' : ''}>
         <Row gap="8px">
-          <div style={{ position: 'relative', width: '36px', height: '36px' }}>
+          <div
+            style={{
+              position: 'relative',
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              overflow: 'hidden',
+            }}
+          >
             <img
               alt="tokenInList"
               src={token.tokens[0].logo}
               width="36px"
               height="36px"
               loading="lazy"
-              style={{ borderRadius: '18px' }}
+              style={{ background: 'white' }}
             />
           </div>
 

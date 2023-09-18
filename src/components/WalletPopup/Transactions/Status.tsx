@@ -1,6 +1,6 @@
 import { t } from '@lingui/macro'
 import axios from 'axios'
-import { debounce } from 'lodash'
+import debounce from 'lodash/debounce'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { useDispatch } from 'react-redux'
@@ -52,7 +52,7 @@ function StatusIcon({
   const [isPendingState, setIsPendingState] = useState<boolean | null>(needCheckActuallyPending ? null : pendingRpc)
 
   const dispatch = useDispatch<AppDispatch>()
-  const { cancellingOrdersIds, cancellingOrdersNonces, loading } = cancellingOrderInfo
+  const { loading, isOrderCancelling } = cancellingOrderInfo
 
   const interval = useRef<NodeJS.Timeout>()
 
@@ -68,7 +68,7 @@ function StatusIcon({
       switch (type) {
         case TRANSACTION_TYPE.CANCEL_LIMIT_ORDER:
           const orderId = extraInfo?.arbitrary?.order_id
-          isPending = cancellingOrdersIds.includes(orderId) || cancellingOrdersNonces.length > 0
+          isPending = isOrderCancelling(orderId)
           break
         case TRANSACTION_TYPE.BRIDGE: {
           const { data: response } = await axios.get(`${BFF_API}/v1/cross-chain-history/multichain-transfers/${hash}`)
@@ -95,7 +95,7 @@ function StatusIcon({
       console.error('Checking txs status error: ', error)
       interval.current && clearInterval(interval.current)
     }
-  }, [cancellingOrdersIds, cancellingOrdersNonces, chainId, dispatch, transaction, extraInfo, hash, type, loading])
+  }, [isOrderCancelling, chainId, dispatch, transaction, extraInfo, hash, type, loading])
 
   const checkStatusDebounced = useMemo(() => debounce(checkStatus, 1000), [checkStatus])
 

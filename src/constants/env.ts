@@ -143,7 +143,12 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key: string]: { [type: string]: string } } =
   },
 }
 
-export const ENV_KEY: 'production' | 'staging' | 'development' = import.meta.env.VITE_ENV
+export enum EnvKeys {
+  PROD = 'production',
+  STG = 'staging',
+  DEV = 'development',
+}
+export const ENV_KEY: EnvKeys = import.meta.env.VITE_ENV
 
 export const getAnnouncementsTemplateIds = (type: PrivateAnnouncementType | 'EXCLUDE') => {
   return ANNOUNCEMENT_TEMPLATE_IDS[ENV_KEY]?.[type]
@@ -156,6 +161,6 @@ export const MOCK_ACCOUNT_SOLANA = mock[1] ?? ''
 const isSupportTestNet = ENV_LEVEL < ENV_TYPE.PROD && new URLSearchParams(window.location.search).get('test')
 export const CROSS_CHAIN_CONFIG = {
   AXELAR_SCAN_URL: isSupportTestNet ? 'https://testnet.axelarscan.io/gmp/' : 'https://axelarscan.io/gmp/',
-  API_DOMAIN: isSupportTestNet ? 'https://testnet.api.0xsquid.com' : 'https://api.0xsquid.com',
+  API_DOMAIN: isSupportTestNet ? 'https://testnet.api.0xsquid.com' : 'https://api.squidrouter.com',
   INTEGRATOR_ID: 'kyberswap-api',
 }

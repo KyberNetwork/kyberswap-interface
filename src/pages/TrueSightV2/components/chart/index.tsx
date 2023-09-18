@@ -79,6 +79,7 @@ const CHART_GREEN_COLOR = '#246250'
 
 const LABEL_GAP_BY_TIMEFRAME: { [timeframe: string]: number } = {
   [KyberAITimeframe.ONE_DAY]: isMobile ? 4 : 2,
+  [KyberAITimeframe.THREE_DAY]: isMobile ? 12 : 6,
   [KyberAITimeframe.ONE_WEEK]: isMobile ? 2 : 1,
   [KyberAITimeframe.ONE_MONTH]: isMobile ? 4 : 2,
   [KyberAITimeframe.THREE_MONTHS]: isMobile ? 8 : 4,
@@ -1218,7 +1219,13 @@ export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; no
                   axisLine={false}
                   tick={{ fill: theme.subText, fontWeight: 400 }}
                   tickFormatter={value =>
-                    dayjs(value).format(timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm' : 'MMM DD')
+                    dayjs(value).format(
+                      timeframe === KyberAITimeframe.ONE_DAY
+                        ? 'HH:mm'
+                        : KyberAITimeframe.THREE_DAY
+                        ? 'HH:mm MMM DD'
+                        : 'MMM DD',
+                    )
                   }
                   minTickGap={12}
                 />
@@ -1609,7 +1616,15 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
               tickLine={false}
               axisLine={false}
               tick={{ fill: theme.subText, fontWeight: 400 }}
-              tickFormatter={value => dayjs(value).format(timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm' : 'MMM DD')}
+              tickFormatter={value =>
+                dayjs(value).format(
+                  timeframe === KyberAITimeframe.ONE_DAY
+                    ? 'HH:mm'
+                    : KyberAITimeframe.THREE_DAY
+                    ? 'HH:mm MMM DD'
+                    : 'MMM DD',
+                )
+              }
               minTickGap={12}
             />
             <YAxis
@@ -2660,7 +2675,7 @@ export const Prochart = ({
     const widgetOptions: ChartingLibraryWidgetOptions = {
       symbol: 'BTC',
       datafeed: datafeed,
-      interval: '1h' as ResolutionString,
+      interval: '4H' as ResolutionString,
       container: ref,
       library_path: '/charting_library/',
       disabled_features: [
@@ -2681,7 +2696,7 @@ export const Prochart = ({
       studies_overrides: {},
       theme: theme.darkMode ? 'Dark' : 'Light',
       custom_css_url: '/charting_library/style.css',
-      timeframe: '2w',
+      timeframe: '1m',
       time_frames: [
         { text: '2w', resolution: '1H' as ResolutionString, description: '2 Weeks' },
         { text: '1m', resolution: '4H' as ResolutionString, description: '1 Month' },
@@ -2709,6 +2724,7 @@ export const Prochart = ({
         'mainSeriesProperties.priceAxisProperties.autoScale': true,
         'scalesProperties.textColor': theme.text,
       })
+
       tvWidget
         .activeChart()
         .createStudy('Relative Strength Index')
@@ -2723,7 +2739,7 @@ export const Prochart = ({
         .subscribe(
           null,
           r => {
-            const resolution = { 60: '1h', 240: '4h', '1D': '1d', '4D': '4d' }[r as string] || '1h'
+            const resolution = { 60: '1h', 240: '4h', '1D': '1d', '4D': '4d' }[r as string] || '4h'
             if (resolution !== variablesRef.current?.resolution) {
               setResolution?.(resolution)
             }
@@ -2749,7 +2765,7 @@ export const Prochart = ({
   const addSRLevels = useCallback(() => {
     if (!currentPrice || !tvWidget) return
     SRLevels?.forEach((level: ISRLevel) => {
-      const entityId = tvWidget.activeChart().createMultipointShape([{ time: level.timestamp, price: level.value }], {
+      const entityId = tvWidget?.activeChart().createMultipointShape([{ time: level.timestamp, price: level.value }], {
         shape: 'horizontal_ray',
         lock: true,
         disableSelection: true,
@@ -2784,10 +2800,12 @@ export const Prochart = ({
   }, [tvWidget, SRLevels, showSRLevels, currentPrice, theme, removeSRLevels, addSRLevels])
 
   useEffect(() => {
-    if (resolution && tvWidget?.activeChart().resolution() !== (resolution as ResolutionString)) {
-      tvWidget?.activeChart().setResolution(resolution as ResolutionString)
-      variablesRef.current.resolution = resolution
-    }
+    try {
+      if (resolution && tvWidget?.activeChart().resolution() !== (resolution as ResolutionString)) {
+        tvWidget?.activeChart().setResolution(resolution as ResolutionString)
+        variablesRef.current.resolution = resolution
+      }
+    } catch {}
   }, [resolution, tvWidget])
 
   return (

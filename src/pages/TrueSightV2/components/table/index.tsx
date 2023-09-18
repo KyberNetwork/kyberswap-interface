@@ -196,7 +196,7 @@ export const Top10HoldersTable = () => {
                 </Text>
                 <RowFit gap="12px">
                   <ActionButton color={theme.subText} style={{ padding: '6px 0' }}>
-                    <CopyHelper toCopy={item.address} text="Copy" />
+                    <CopyHelper toCopy={item.address} text="Copy" size={16} />
                   </ActionButton>
                   <ActionButton
                     color={theme.subText}
@@ -206,7 +206,7 @@ export const Top10HoldersTable = () => {
                         window.open(getEtherscanLink(NETWORK_TO_CHAINID[chain], item.address, 'address'), '_blank')
                     }}
                   >
-                    <Icon id="open-link" size={16} /> Explore
+                    <Icon id="open-link" size={16} /> <Trans>Explore</Trans>
                   </ActionButton>
                 </RowFit>
               </Column>

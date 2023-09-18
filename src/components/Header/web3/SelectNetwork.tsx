@@ -7,6 +7,7 @@ import { ReactComponent as DropdownSvg } from 'assets/svg/down.svg'
 import Card from 'components/Card'
 import NetworkModal from 'components/Header/web3/NetworkModal'
 import Row from 'components/Row'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -15,6 +16,7 @@ import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
 import { useNativeBalance } from 'state/wallet/hooks'
+import { formatDisplayNumber } from 'utils/numbers'
 
 const NetworkSwitchContainer = styled.div`
   display: flex;
@@ -73,19 +75,15 @@ function SelectNetwork(): JSX.Element | null {
   const userEthBalance = useNativeBalance()
   const labelContent = useMemo(() => {
     if (!userEthBalance) return networkInfo.name
-    const balanceFixedStr = userEthBalance.lessThan(1000 * 10 ** NativeCurrencies[chainId].decimals) // less than 1000
-      ? userEthBalance.lessThan(10 ** NativeCurrencies[chainId].decimals) // less than 1
-        ? parseFloat(userEthBalance.toSignificant(6)).toFixed(6)
-        : parseFloat(userEthBalance.toExact()).toFixed(4)
-      : parseFloat(userEthBalance.toExact()).toFixed(2)
-    const balanceFixed = Number(balanceFixedStr)
-    return `${balanceFixed} ${NativeCurrencies[chainId].symbol}`
+    const balanceFixedStr = formatDisplayNumber(userEthBalance, { significantDigits: 6 })
+    return `${balanceFixedStr} ${NativeCurrencies[chainId].symbol}`
   }, [userEthBalance, chainId, networkInfo])
   const walletSupportsChain = useWalletSupportedChains()
+  const disableSelectNetwork = walletSupportsChain.length <= 1
 
-  return (
+  const button = (
     <NetworkCard
-      onClick={() => toggleNetworkModal()}
+      onClick={() => (disableSelectNetwork ? null : toggleNetworkModal())}
       role="button"
       id={TutorialIds.SELECT_NETWORK}
       data-testid="select-network"
@@ -108,6 +106,11 @@ function SelectNetwork(): JSX.Element | null {
       />
     </NetworkCard>
   )
+  if (disableSelectNetwork)
+    return (
+      <MouseoverTooltip text={t`Unable to switch network. Please try it on your wallet`}>{button}</MouseoverTooltip>
+    )
+  return button
 }
 
 export default SelectNetwork

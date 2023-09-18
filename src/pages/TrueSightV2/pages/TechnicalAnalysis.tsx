@@ -11,7 +11,7 @@ import Row, { RowFit } from 'components/Row'
 import Toggle from 'components/Toggle'
 import { IChartingLibraryWidget } from 'components/TradingViewChart/charting_library/charting_library'
 import { useTokenAnalysisSettings } from 'state/user/hooks'
-import { getLimitOrderContract } from 'utils'
+import { isSupportLimitOrder } from 'utils'
 
 import { SectionWrapper } from '../components'
 import CexRekt from '../components/CexRekt'
@@ -87,7 +87,7 @@ export default function TechnicalAnalysis() {
   const [prochartDataURL, setProchartDataURL] = useState<string | undefined>()
   const [liveChartTab, setLiveChartTab] = useState(ChartTab.First)
   const [showSRLevels, setShowSRLevels] = useState(true)
-  const [priceChartResolution, setPriceChartResolution] = useState('1h')
+  const [priceChartResolution, setPriceChartResolution] = useState('4h')
   const now = Math.floor(Date.now() / 60000) * 60
   const { data, isLoading } = useChartingDataQuery({
     chain: chain || defaultExplorePageToken.chain,
@@ -228,7 +228,7 @@ export default function TechnicalAnalysis() {
           ]}
         >
           <SupportResistanceLevel />
-          {chain && getLimitOrderContract(NETWORK_TO_CHAINID[chain]) && (
+          {chain && isSupportLimitOrder(NETWORK_TO_CHAINID[chain]) && (
             <Row justify="flex-end">
               <ButtonPrimary width="fit-content" onClick={() => navigateToLimitPage({ address, chain })}>
                 <Text color={theme.textReverse} fontSize="14px" lineHeight="20px">

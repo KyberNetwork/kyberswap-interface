@@ -283,7 +283,7 @@ function FarmCard({
                 )
               }
             >
-              <Text fontSize="16px" fontWeight="500" color={theme.text}>
+              <Text fontSize="16px" fontWeight="500" color={theme.text} data-testid="tvl-value">
                 {farm.tvl ? formatDollarAmount(farm.tvl) : '--'}
               </Text>
 
@@ -319,7 +319,13 @@ function FarmCard({
                 <Flex
                   alignItems="center"
                   sx={{ gap: '2px' }}
-                  color={item.isRemoved ? theme.warning : theme.subText}
+                  color={
+                    item.isRemoved
+                      ? activeRangeIndex === item.index
+                        ? theme.subText
+                        : theme.disableText
+                      : theme.primary
+                  }
                   onClick={() => {
                     mixpanel.track('ElasticFarmV2 - Range Selected', mixpanelPayload)
                   }}
@@ -377,7 +383,7 @@ function FarmCard({
                     </MouseoverTooltip>
                   </RowBetween>
 
-                  <Text fontSize="28px" marginTop="2px" color={theme.apr}>
+                  <Text fontSize="28px" marginTop="2px" color={theme.apr} data-testid="apr-value">
                     {(poolAPR + (range?.apr || 0)).toFixed(2)}%
                   </Text>
                 </Flex>

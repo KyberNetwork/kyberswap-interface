@@ -6,6 +6,7 @@ import CenterPopup from 'components/Announcement/Popups/CenterPopup'
 import SnippetPopup from 'components/Announcement/Popups/SnippetPopup'
 import { PopupType, PrivateAnnouncementType } from 'components/Announcement/type'
 import { ButtonEmpty } from 'components/Button'
+import useNotificationLimitOrder from 'components/swapv2/LimitOrder/useNotificationLimitOrder'
 import { TIMES_IN_SECS } from 'constants/index'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
@@ -149,6 +150,7 @@ export default function Popups() {
     }
   }, [account, isShowTutorial, addPopup, chainId, userInfo?.identityId])
 
+  useNotificationLimitOrder()
   const totalTopRightPopup = topRightPopups.length
 
   return (

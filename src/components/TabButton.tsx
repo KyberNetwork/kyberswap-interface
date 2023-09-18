@@ -1,7 +1,7 @@
 import { forwardRef } from 'react'
 import styled, { CSSProperties, css } from 'styled-components'
 
-const StyledMobileTabButton = styled.div<{ active?: boolean; separator?: boolean }>`
+const ButtonWrapper = styled.div<{ active?: boolean; separator?: boolean }>`
   font-size: 12px;
   line-height: 16px;
   transition: all 0.2s ease;
@@ -49,9 +49,9 @@ const TabButton = forwardRef<HTMLDivElement, Props>(function TabButton(
   ref,
 ) {
   return (
-    <StyledMobileTabButton active={active} onClick={onClick} style={style} separator={separator} ref={ref}>
+    <ButtonWrapper active={active} onClick={onClick} style={style} separator={separator} ref={ref}>
       {text}
-    </StyledMobileTabButton>
+    </ButtonWrapper>
   )
 })
 

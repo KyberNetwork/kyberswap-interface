@@ -44,6 +44,7 @@ export type LimitOrder = {
   isSuccessful: boolean
   uuid: string
   txHash: string
+  contractAddress: string
 }
 
 export type RateInfo = {
