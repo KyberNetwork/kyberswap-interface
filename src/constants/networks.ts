@@ -131,25 +131,6 @@ export function isSupportedChainId(chainId?: number): chainId is ChainId {
 
 export const FAUCET_NETWORKS = [ChainId.BTTC]
 
-// TODO(viet-nv): Base on this to config ks-setting when release then remove
-// export const CHAINS_SUPPORT_NEW_POOL_FARM_API: readonly ChainId[] = [
-//   ChainId.MAINNET,
-//   // ChainId.MUMBAI,
-//   // ChainId.MATIC,
-//   // ChainId.BSCTESTNET,
-//   ChainId.BSCMAINNET,
-//   // ChainId.AVAXTESTNET,
-//   ChainId.AVAXMAINNET,
-//   ChainId.FANTOM,
-//   ChainId.CRONOS,
-//   ChainId.BTTC,
-//   ChainId.ARBITRUM,
-//   ChainId.AURORA,
-//   // ChainId.VELAS,
-//   // ChainId.OASIS,
-//   ChainId.OPTIMISM,
-// ]
-
 // Fee options instead of dynamic fee
 export const STATIC_FEE_OPTIONS: { [chainId: number]: number[] | undefined } = {
   [ChainId.ARBITRUM]: [8, 10, 50, 300, 500, 1000],

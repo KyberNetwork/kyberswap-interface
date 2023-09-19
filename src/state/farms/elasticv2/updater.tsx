@@ -139,7 +139,6 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
   useEffect(() => {
     if (isEVM && !elasticFarm?.farms && !elasticFarm?.loading) {
       dispatch(setLoading({ chainId, loading: true }))
-      console.log(isEnableKNProtocol)
       if (isEnableKNProtocol) {
         getElasticFarmV2FromKnProtocol(chainId).finally(() => {
           dispatch(setLoading({ chainId, loading: false }))

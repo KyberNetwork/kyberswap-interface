@@ -135,7 +135,6 @@ const CollectFeesPanel: React.FC<Props> = ({
   }
 
   const collectFeeFromFarmContract = async () => {
-    console.log(farmAddress, feeValue0, feeValue1)
     if (!farmAddress || !feeValue0 || !feeValue1) {
       dispatch(setAttemptingTxn(false))
       dispatch(setTxError('Something went wrong!'))

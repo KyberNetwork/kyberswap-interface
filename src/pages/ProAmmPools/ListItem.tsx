@@ -190,7 +190,7 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
             <FeeTag>Fee {(pool.feeTier * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
 
             <Flex alignItems="center" marginLeft="4px" sx={{ gap: '4px' }}>
-              {isFarmingPool && <FarmTag address={pool.address} />}
+              {isFarmingPool && <FarmTag address={pool.address} noText />}
             </Flex>
           </Flex>
         </Link>
