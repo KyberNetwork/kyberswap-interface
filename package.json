@@ -179,6 +179,7 @@
     "@typescript-eslint/eslint-plugin": "^5.58.0",
     "@typescript-eslint/parser": "^5.58.0",
     "@vitejs/plugin-react": "^3.1.0",
+    "babel-plugin-lodash": "^3.3.4",
     "babel-plugin-macros": "^3.1.0",
     "env-cmd": "^10.1.0",
     "eslint": "^8.38.0",
@@ -200,6 +201,7 @@
   },
   "resolutions": {
     "@kyberswap/ks-sdk-core": "1.0.11",
+    "babel-plugin-lodash/@babel/types": "~7.20.0",
     "react-error-overlay": "6.0.9",
     "@lingui/babel-plugin-extract-messages": "3.14.0",
     "@lingui/cli": "3.14.0",

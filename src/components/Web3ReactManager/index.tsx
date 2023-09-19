@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import LocalLoader from 'components/LocalLoader'
-import { useActiveWeb3React, useInactiveListener, useWeb3React } from 'hooks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useEagerConnect } from 'hooks/web3/useEagerConnect'
 import { AppState } from 'state'
 import { updateChainId } from 'state/user/actions'
@@ -16,8 +16,6 @@ export default function Web3ReactManager({ children }: { children: JSX.Element }
   // try to eagerly connect to an injected provider, if it exists and has granted access already
   const triedEager = useEagerConnect()
 
-  // when there's no account connected, react to logins (broadly speaking) on the injected provider, if it exists
-  useInactiveListener(!triedEager.current)
   const dispatch = useDispatch()
   /** On user change network from wallet, update chainId in store, only work on EVM wallet */
   useEffect(() => {

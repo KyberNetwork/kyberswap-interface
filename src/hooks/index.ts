@@ -3,11 +3,11 @@ import { ChainId, ChainType, getChainType } from '@kyberswap/ks-sdk-core'
 import { Wallet, useWallet } from '@solana/wallet-adapter-react'
 import { useWeb3React as useWeb3ReactCore } from '@web3-react/core'
 import { Connector } from '@web3-react/types'
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useSearchParams } from 'react-router-dom'
 
-import { blocto, gnosisSafe, krystalWalletConnectV2, metaMask, walletConnectV2 } from 'constants/connectors/evm'
+import { blocto, gnosisSafe, krystalWalletConnectV2, walletConnectV2 } from 'constants/connectors/evm'
 import { MOCK_ACCOUNT_EVM, MOCK_ACCOUNT_SOLANA } from 'constants/env'
 import { NETWORKS_INFO, isSupportedChainId } from 'constants/networks'
 import { NetworkInfo } from 'constants/networks/type'
@@ -138,45 +138,4 @@ export function useWeb3React(): Web3React {
 export const useWeb3Solana = () => {
   const { connection } = useKyberSwapConfig()
   return { connection }
-}
-
-/**
- * Use for network and injected - logs user in
- * and out after checking what network they're on
- */
-export function useInactiveListener(suppress = false) {
-  const { isEVM } = useActiveWeb3React()
-  const { active } = useWeb3React() // specifically using useWeb3React because of what this hook does
-
-  useEffect(() => {
-    const { ethereum } = window
-    if (isEVM && ethereum?.on && !active && !suppress) {
-      const handleChainChanged = () => {
-        // eat errors
-        metaMask.activate().catch(error => {
-          console.error('Failed to activate after chain changed', error)
-        })
-      }
-
-      const handleAccountsChanged = (accounts: string[]) => {
-        if (accounts.length > 0) {
-          // eat errors
-          metaMask.activate().catch(error => {
-            console.error('Failed to activate after accounts changed', error)
-          })
-        }
-      }
-
-      ethereum.on('chainChanged', handleChainChanged)
-      ethereum.on('accountsChanged', handleAccountsChanged)
-
-      return () => {
-        if (ethereum.removeListener) {
-          ethereum.removeListener('chainChanged', handleChainChanged)
-          ethereum.removeListener('accountsChanged', handleAccountsChanged)
-        }
-      }
-    }
-    return undefined
-  }, [active, suppress, isEVM])
 }
