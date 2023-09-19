@@ -145,14 +145,7 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
       )
     }
 
-    return (
-      <Flex
-        alignItems="center"
-        paddingRight="20px" // to make all the APR numbers vertically align
-      >
-        {pool.apr.toFixed(2)}%
-      </Flex>
-    )
+    return <Flex alignItems="center">{pool.apr.toFixed(2)}%</Flex>
   }
 
   return (

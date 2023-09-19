@@ -56,7 +56,7 @@ const useGetElasticPoolsV2 = (): CommonReturn => {
   const chainRoute = !isEVM(chainId) || NETWORKS_INFO[chainId].poolFarmRoute
 
   const { isValidating, error, data } = useSWRImmutable<Response>(
-    `${POOL_FARM_BASE_URL}/${chainRoute}/api/v1/elastic-new/pools?includeLowTvl=true&page=1&perPage=10000`,
+    `${POOL_FARM_BASE_URL}/${chainRoute}/api/v1/elastic-new/pools?includeLowTvl=true&page=1&perPage=10000&thisParamToForceRefresh=${isEnableKNProtocol}`,
     async (url: string) => {
       if (!isEnableKNProtocol) {
         return Promise.resolve({})
@@ -64,7 +64,7 @@ const useGetElasticPoolsV2 = (): CommonReturn => {
       return fetch(url).then(resp => resp.json())
     },
     {
-      refreshInterval: !isEnableKNProtocol ? 0 : 60_000,
+      refreshInterval: isEnableKNProtocol ? 0 : 60_000,
     },
   )
 
