@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { useNavigate } from 'react-router-dom'
+import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
@@ -8,7 +9,7 @@ import { Dot, InboxItemRow, InboxItemWrapper, RowItem, Title } from 'components/
 import { AnnouncementTemplateKyberAI } from 'components/Announcement/type'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import Icon from 'components/Icons/Icon'
-import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmount'
+import { TokenLogoWithShadow } from 'components/Logo'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 
@@ -18,12 +19,31 @@ const ItemWrapper = styled.div<{ color: string }>`
   gap: 4px;
   color: ${({ color }) => color};
 `
+const TokenDetail = ({
+  color,
+  symbol,
+  logoURL,
+  fontSize,
+}: {
+  color: string
+  logoURL: string
+  symbol: string
+  fontSize: string
+}) => (
+  <Flex color={color} alignItems={'center'} sx={{ gap: '4px', fontSize }}>
+    <TokenLogoWithShadow srcs={[logoURL]} size={fontSize} />
+    {symbol}
+  </Flex>
+)
+
 export const TokenInfo = ({
   templateBody,
   type,
+  fontSize = '12px',
 }: {
   templateBody: AnnouncementTemplateKyberAI
   type: 'bullish' | 'bearish' | 'trending'
+  fontSize?: string
 }) => {
   const theme = useTheme()
   const {
@@ -41,9 +61,12 @@ export const TokenInfo = ({
     case 'bullish':
       return (
         <ItemWrapper color={theme.apr}>
-          <Icon id="bullish" size={14} /> <Trans>Bullish:</Trans>
-          <DeltaTokenAmount
-            amount={null}
+          <Icon id="bullish" size={14} />{' '}
+          <Text as="span" fontSize={fontSize}>
+            <Trans>Bullish:</Trans>
+          </Text>
+          <TokenDetail
+            fontSize={fontSize}
             logoURL={bullishTokenLogoURL}
             color={theme.text}
             symbol={`${bullishTokenSymbol} (${bullishTokenScore})`}
@@ -53,9 +76,12 @@ export const TokenInfo = ({
     case 'bearish':
       return (
         <ItemWrapper color={theme.red}>
-          <Icon id="bearish" size={12} /> <Trans>Bearish:</Trans>
-          <DeltaTokenAmount
-            amount={null}
+          <Icon id="bearish" size={12} />{' '}
+          <Text as="span" fontSize={fontSize}>
+            <Trans>Bearish:</Trans>
+          </Text>
+          <TokenDetail
+            fontSize={fontSize}
             logoURL={bearishTokenLogoURL}
             color={theme.text}
             symbol={`${bearishTokenSymbol} (${bearishTokenScore})`}
@@ -65,9 +91,12 @@ export const TokenInfo = ({
     case 'trending':
       return (
         <ItemWrapper color={theme.text}>
-          <DiscoverIcon size={12} /> <Trans>Trending Soon:</Trans>
-          <DeltaTokenAmount
-            amount={null}
+          <DiscoverIcon size={12} />{' '}
+          <Text as="span" fontSize={fontSize}>
+            <Trans>Trending Soon:</Trans>
+          </Text>
+          <TokenDetail
+            fontSize={fontSize}
             logoURL={trendingSoonTokenLogoURL}
             color={theme.text}
             symbol={`${trendingSoonTokenSymbol} (${trendingSoonTokenScore})`}

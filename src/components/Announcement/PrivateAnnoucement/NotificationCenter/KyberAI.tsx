@@ -32,10 +32,10 @@ export default function AnnouncementItem({
         </Flex>
       </Flex>
       <Desc style={{ gap: 6, flexWrap: 'wrap', color: theme.subText }}>
-        <Trans>Here are our top tokens by KyberAI</Trans>
-        <TokenInfo templateBody={templateBody} type="bullish" />,
-        <TokenInfo templateBody={templateBody} type="bearish" />,
-        <TokenInfo templateBody={templateBody} type="trending" />
+        <Trans>Here are our top tokens by KyberAI:</Trans>
+        <TokenInfo templateBody={templateBody} type="bullish" fontSize="14px" />,
+        <TokenInfo templateBody={templateBody} type="bearish" fontSize="14px" />,
+        <TokenInfo templateBody={templateBody} type="trending" fontSize="14px" />
       </Desc>
     </Wrapper>
   )
