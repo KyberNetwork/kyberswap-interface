@@ -6,6 +6,7 @@ import { Flex } from 'rebass'
 import { useGetTotalUnreadAnnouncementsQuery } from 'services/announcement'
 
 import { ReactComponent as AllIcon } from 'assets/svg/all_icon.svg'
+import { PRIVATE_ANN_TITLE } from 'components/Announcement/PrivateAnnoucement'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { PrivateAnnouncementType } from 'components/Announcement/type'
 import Avatar from 'components/Avatar'
@@ -26,15 +27,6 @@ import { useProfileInfo, useSignedAccountInfo } from 'state/profile/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import getShortenAddress from 'utils/getShortenAddress'
 import { shortString } from 'utils/string'
-
-export const MENU_TITLE: Partial<{ [type in PrivateAnnouncementType]: string }> = {
-  [PrivateAnnouncementType.BRIDGE_ASSET]: t`Cross-Chain Bridge`,
-  [PrivateAnnouncementType.CROSS_CHAIN]: t`Cross-Chain Swaps`,
-  [PrivateAnnouncementType.LIMIT_ORDER]: t`Limit Orders`,
-  [PrivateAnnouncementType.KYBER_AI]: t`Top Tokens by KyberAI`,
-  [PrivateAnnouncementType.PRICE_ALERT]: t`Price Alerts`,
-  [PrivateAnnouncementType.ELASTIC_POOLS]: t`Elastic Liquidity Positions`,
-}
 
 export type Unread = Partial<{ [type in PrivateAnnouncementType]: number | undefined }> & { ALL: number | undefined }
 
@@ -116,7 +108,7 @@ const menuItems: MenuItemType[] = [
             const type = child.type as PrivateAnnouncementType
             return {
               ...child,
-              title: child.title || MENU_TITLE[type],
+              title: child.title || PRIVATE_ANN_TITLE[type],
               icon: child.icon || <InboxIcon type={type} />,
             }
           }),

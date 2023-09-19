@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Flex } from 'rebass'
 
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
-import { TokenInfo } from 'components/Announcement/PrivateAnnoucement/InboxItemTrendingSoon'
+import { TokenInfo } from 'components/Announcement/PrivateAnnoucement/InboxItemKyberAI'
 import { PrivateAnnouncementPropCenter } from 'components/Announcement/PrivateAnnoucement/NotificationCenter'
 import { AnnouncementTemplateTrendingSoon } from 'components/Announcement/type'
 import { APP_PATHS } from 'constants/index'
