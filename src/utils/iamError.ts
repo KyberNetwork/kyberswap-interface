@@ -26,7 +26,7 @@ const ERROR_THRESHOLD = 2
 const isApiDown = (type: ErrorType) => ErrorInfo[type]?.errorCount >= ERROR_THRESHOLD
 
 const sendError = (name: string, apiUrl: string, trackData: any) => {
-  if (ENV_LEVEL < ENV_TYPE.STG) return
+  if (false && ENV_LEVEL < ENV_TYPE.STG) return
   const error = new Error(`${name} Error: ${apiUrl}`)
   error.name = `${name} was down`
   captureException(error, { level: 'fatal', extra: { args: JSON.stringify(trackData, null, 2) } })
