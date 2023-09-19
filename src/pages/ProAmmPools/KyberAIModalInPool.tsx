@@ -20,7 +20,7 @@ import KyberScoreMeter from 'pages/TrueSightV2/components/KyberScoreMeter'
 import SimpleTooltip from 'pages/TrueSightV2/components/SimpleTooltip'
 import { SUPPORTED_NETWORK_KYBERAI } from 'pages/TrueSightV2/constants/index'
 import { useTokenDetailQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
-import { calculateValueToColor, formatTokenPrice, navigateToSwapPage } from 'pages/TrueSightV2/utils'
+import { formatTokenPrice, getColorByKyberScore, navigateToSwapPage } from 'pages/TrueSightV2/utils'
 import { useIsWhiteListKyberAI } from 'state/user/hooks'
 
 const Wrapper = styled.div`
@@ -112,7 +112,7 @@ const KyberAIModalInPool = ({ currency0, currency1 }: { currency0?: Currency; cu
 
   if (!isWhiteList || !token) return null
 
-  const kbsColor = calculateValueToColor(token.kyberScore.score || 0, theme)
+  const kbsColor = getColorByKyberScore(token.kyberScore.score || 0, theme)
   return (
     <>
       <SimpleTooltip text={t`Explore pool tokens in KyberAI`} hideOnMobile>

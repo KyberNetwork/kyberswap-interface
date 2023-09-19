@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { Dot, InboxItemRow, InboxItemWrapper, RowItem, Title } from 'components/Announcement/PrivateAnnoucement/styled'
-import { AnnouncementTemplateTrendingSoon } from 'components/Announcement/type'
+import { AnnouncementTemplateKyberAI } from 'components/Announcement/type'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import Icon from 'components/Icons/Icon'
 import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmount'
@@ -22,7 +22,7 @@ export const TokenInfo = ({
   templateBody,
   type,
 }: {
-  templateBody: AnnouncementTemplateTrendingSoon
+  templateBody: AnnouncementTemplateKyberAI
   type: 'bullish' | 'bearish' | 'trending'
 }) => {
   const theme = useTheme()
@@ -83,7 +83,7 @@ function InboxItemBridge({
   style,
   time,
   title,
-}: PrivateAnnouncementProp<AnnouncementTemplateTrendingSoon>) {
+}: PrivateAnnouncementProp<AnnouncementTemplateKyberAI>) {
   const { templateBody, isRead, templateType } = announcement
 
   const navigate = useNavigate()

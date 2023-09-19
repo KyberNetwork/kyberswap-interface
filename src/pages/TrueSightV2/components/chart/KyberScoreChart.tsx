@@ -7,7 +7,7 @@ import styled from 'styled-components'
 import Column from 'components/Column'
 import useTheme from 'hooks/useTheme'
 import { IKyberScoreChart } from 'pages/TrueSightV2/types'
-import { calculateValueToColor, formatTokenPrice } from 'pages/TrueSightV2/utils'
+import { formatTokenPrice, getColorByKyberScore } from 'pages/TrueSightV2/utils'
 
 import SimpleTooltip from '../SimpleTooltip'
 
@@ -90,7 +90,7 @@ export default function KyberScoreChart({
             const gap = 2
             const rectWidth = (100 - (filledData.length - 1) * gap) / filledData.length
             const rectHeight = !v ? 21 : Math.max((v * 21) / 100, 0.8)
-            const color = calculateValueToColor(v || 0, theme)
+            const color = getColorByKyberScore(v || 0, theme)
 
             return (
               <rect
@@ -130,7 +130,7 @@ export default function KyberScoreChart({
             <Text style={{ whiteSpace: 'nowrap' }}>
               <Trans>KyberScore</Trans>:{' '}
               <span
-                style={{ color: hoveringItem ? calculateValueToColor(hoveringItem.kyber_score, theme) : theme.text }}
+                style={{ color: hoveringItem ? getColorByKyberScore(hoveringItem.kyber_score, theme) : theme.text }}
               >
                 {hoveringItem
                   ? !!hoveringItem.tag

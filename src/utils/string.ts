@@ -43,3 +43,8 @@ export const isEmailValid = (value: string | undefined) =>
 export const getChainIdFromSlug = (network: string | undefined): ChainId | undefined => {
   return SUPPORTED_NETWORKS.find(chainId => NETWORKS_INFO[chainId].route === network)
 }
+
+export function capitalizeFirstLetter(str?: string) {
+  const string = str || ''
+  return string.charAt(0).toUpperCase() + string.slice(1)
+}

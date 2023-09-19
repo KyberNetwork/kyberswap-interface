@@ -23,7 +23,7 @@ import KyberScoreMeter from 'pages/TrueSightV2/components/KyberScoreMeter'
 import { NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
 import { SUPPORTED_NETWORK_KYBERAI } from 'pages/TrueSightV2/constants/index'
 import { useTokenDetailQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
-import { calculateValueToColor } from 'pages/TrueSightV2/utils'
+import { getColorByKyberScore } from 'pages/TrueSightV2/utils'
 import { useIsWhiteListKyberAI } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
@@ -92,7 +92,7 @@ const KyberAITokenBanner = ({
 
   if (staticMode && isStableCoin(currencyIn?.wrapped.address.toLowerCase())) return null
   const staticModeCurrency = !currencyIn || KNC[chainId].equals(currencyIn) ? NativeCurrencies[chainId] : currencyIn
-  const color = staticMode ? theme.primary : calculateValueToColor(token?.kyberScore || 0, theme)
+  const color = staticMode ? theme.primary : getColorByKyberScore(token?.kyberScore || 0, theme)
   return (
     <Wrapper>
       {above768 ? (
@@ -367,11 +367,11 @@ const AnimatedKyberscoreLabels = () => {
       <LabelsWrapper>
         <Label color={theme.text}>??</Label>
         <Label color={theme.text}>Neutral</Label>
-        <Label color={calculateValueToColor(100, theme)}>Very Bullish</Label>
-        <Label color={calculateValueToColor(70, theme)}>Bullish</Label>
+        <Label color={getColorByKyberScore(100, theme)}>Very Bullish</Label>
+        <Label color={getColorByKyberScore(70, theme)}>Bullish</Label>
         <Label color={theme.text}>Neutral</Label>
-        <Label color={calculateValueToColor(30, theme)}>Bearish</Label>
-        <Label color={calculateValueToColor(1, theme)}>Very Bearish</Label>
+        <Label color={getColorByKyberScore(30, theme)}>Bearish</Label>
+        <Label color={getColorByKyberScore(1, theme)}>Very Bearish</Label>
         <Label color={theme.text}>??</Label>
       </LabelsWrapper>
     </AnimatedKyberscoreWrapper>

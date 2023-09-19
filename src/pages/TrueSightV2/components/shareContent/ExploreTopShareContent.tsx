@@ -10,7 +10,7 @@ import Divider from 'components/Divider'
 import Row, { RowFit } from 'components/Row'
 import { useTokenListQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { ITokenOverview, KyberAIListType } from 'pages/TrueSightV2/types'
-import { calculateValueToColor, formatTokenPrice } from 'pages/TrueSightV2/utils'
+import { formatTokenPrice, getColorByKyberScore } from 'pages/TrueSightV2/utils'
 
 import ChevronIcon from '../ChevronIcon'
 import KyberScoreMeter from '../KyberScoreMeter'
@@ -136,7 +136,7 @@ export default function ExploreShareContent({ token, mobileMode }: { token?: ITo
               <Text color={theme.text} fontSize="16px" lineHeight="20px" textAlign="center">
                 <Trans>
                   {token?.symbol?.toUpperCase()} seems to be{' '}
-                  <span style={{ color: calculateValueToColor(latestKyberscore?.kyber_score || 0, theme) }}>
+                  <span style={{ color: getColorByKyberScore(latestKyberscore?.kyber_score || 0, theme) }}>
                     {latestKyberscore ? latestKyberscore.tag : ''}
                   </span>
                 </Trans>
@@ -175,7 +175,7 @@ export default function ExploreShareContent({ token, mobileMode }: { token?: ITo
             <Text color={theme.text} fontSize="24px" lineHeight="28px">
               <Trans>
                 {token?.symbol?.toUpperCase()} seems to be{' '}
-                <span style={{ color: calculateValueToColor(latestKyberscore?.kyber_score || 0, theme) }}>
+                <span style={{ color: getColorByKyberScore(latestKyberscore?.kyber_score || 0, theme) }}>
                   {latestKyberscore ? latestKyberscore.tag : ''}
                 </span>
               </Trans>

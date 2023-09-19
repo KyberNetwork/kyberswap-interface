@@ -43,7 +43,7 @@ import { KYBERAI_LISTYPE_TO_MIXPANEL, SUPPORTED_NETWORK_KYBERAI } from '../const
 import useIsReachMaxLimitWatchedToken from '../hooks/useIsReachMaxLimitWatchedToken'
 import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation, useTokenListQuery } from '../hooks/useKyberAIData'
 import { IKyberScoreChart, ITokenList, KyberAIListType } from '../types'
-import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice, navigateToSwapPage } from '../utils'
+import { formatLocaleStringNum, formatTokenPrice, getColorByKyberScore, navigateToSwapPage } from '../utils'
 
 const TableWrapper = styled.div`
   border-radius: 20px 20px 0 0;
@@ -602,7 +602,7 @@ const TokenRow = ({
         <Column style={{ alignItems: 'center', width: '110px' }}>
           <SmallKyberScoreMeter data={latestKyberScore} />
           <Text
-            color={calculateValueToColor(latestKyberScore?.kyber_score || 0, theme)}
+            color={getColorByKyberScore(latestKyberScore?.kyber_score || 0, theme)}
             fontSize="14px"
             fontWeight={500}
           >

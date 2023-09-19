@@ -22,7 +22,7 @@ import { getEtherscanLink, shortenAddress } from 'utils'
 import { ShareButton } from '.'
 import { MIXPANEL_KYBERAI_TAG, NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from '../constants'
 import { ITokenOverview } from '../types'
-import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice } from '../utils'
+import { formatLocaleStringNum, formatTokenPrice, getColorByKyberScore, getTypeByScore } from '../utils'
 import ChevronIcon from './ChevronIcon'
 import KyberAIShareModal from './KyberAIShareModal'
 import KyberScoreMeter from './KyberScoreMeter'
@@ -159,11 +159,9 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
   }, [data])
 
   const cardClassname = useMemo(() => {
-    if (!data?.kyberScore || data?.kyberScore.score === 0) return ''
-    if (data?.kyberScore.score >= 60) return 'bullish'
-    if (data?.kyberScore.score < 40) return 'bearish'
-    return ''
+    return getTypeByScore(data?.kyberScore.score || 0)
   }, [data])
+
   const priceChangeColor = data && data.price24hChangePercent > 0 ? theme.primary : theme.red
   return (
     <>
@@ -211,7 +209,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                   low={data?.['24hLow'] || 0}
                   current={+(data?.price || 0)}
                   style={{ flex: 'initial' }}
-                  color={calculateValueToColor(data?.kyberScore?.score || 0, theme)}
+                  color={getColorByKyberScore(data?.kyberScore?.score || 0, theme)}
                 />
                 <PriceRange
                   title={t`1Y Range`}
@@ -219,7 +217,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                   low={data?.['1yLow'] || 0}
                   current={data?.price ? +data.price : 0}
                   style={{ flex: 'initial' }}
-                  color={calculateValueToColor(data?.kyberScore?.score || 0, theme)}
+                  color={getColorByKyberScore(data?.kyberScore?.score || 0, theme)}
                 />
               </Column>
               {/*  <Column gap="6px" style={{ justifyContent: 'end' }}>
@@ -301,7 +299,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                 <Text
                   fontSize={24}
                   fontWeight={500}
-                  color={isLoading ? theme.subText : calculateValueToColor(data?.kyberScore?.score || 0, theme)}
+                  color={isLoading ? theme.subText : getColorByKyberScore(data?.kyberScore?.score || 0, theme)}
                 >
                   {isLoading
                     ? t`Loading`
@@ -319,7 +317,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                           </Text>
                           <Text>
                             KyberScore:{' '}
-                            <span style={{ color: calculateValueToColor(latestKyberscore.kyber_score || 0, theme) }}>
+                            <span style={{ color: getColorByKyberScore(latestKyberscore.kyber_score || 0, theme) }}>
                               {latestKyberscore.kyber_score || '--'} ({latestKyberscore.tag || t`Not Applicable`})
                             </span>
                           </Text>
@@ -498,14 +496,14 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
               low={data?.['24hLow'] || 0}
               current={+(data?.price || 0)}
               style={{ marginBottom: '16px' }}
-              color={calculateValueToColor(data?.kyberScore?.score || 0, theme)}
+              color={getColorByKyberScore(data?.kyberScore?.score || 0, theme)}
             />
             <PriceRange
               title={t`1Y Range`}
               high={data?.['1yHigh'] || 0}
               low={data?.['1yLow'] || 0}
               current={data?.price ? +data.price : 0}
-              color={calculateValueToColor(data?.kyberScore?.score || 0, theme)}
+              color={getColorByKyberScore(data?.kyberScore?.score || 0, theme)}
             />
           </ExpandableBox>
           <Row style={{ borderBottom: `1px solid ${theme.border}`, margin: '16px 0' }} />
@@ -541,7 +539,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
               fontSize="24px"
               lineHeight="28px"
               fontWeight={500}
-              color={isLoading ? theme.subText : calculateValueToColor(data?.kyberScore?.score || 0, theme)}
+              color={isLoading ? theme.subText : getColorByKyberScore(data?.kyberScore?.score || 0, theme)}
             >
               {isLoading
                 ? t`Loading`
@@ -558,7 +556,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLo
                     </Text>
                     <Text>
                       KyberScore:{' '}
-                      <span style={{ color: calculateValueToColor(latestKyberscore?.kyber_score || 0, theme) }}>
+                      <span style={{ color: getColorByKyberScore(latestKyberscore?.kyber_score || 0, theme) }}>
                         {latestKyberscore?.kyber_score || '--'} ({latestKyberscore?.tag || t`Not Applicable`})
                       </span>
                     </Text>

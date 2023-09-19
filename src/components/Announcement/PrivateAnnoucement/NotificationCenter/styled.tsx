@@ -45,3 +45,20 @@ export const Time = styled.div<{ isLeft?: boolean }>`
     font-size: 10px;
   `}
 `
+
+export const ArrowWrapper = styled.div`
+  width: 20px;
+  height: 20px;
+  color: ${({ theme }) => theme.subText};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  svg {
+    transition: all 150ms ease-in-out;
+  }
+  &[data-expanded='true'] {
+    svg {
+      transform: rotate(180deg);
+    }
+  }
+`

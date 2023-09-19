@@ -7,7 +7,7 @@ import { APP_PATHS } from 'constants/index'
 
 import { NETWORK_TO_CHAINID } from '../constants'
 
-export const calculateValueToColor = (value: number, theme: DefaultTheme) => {
+export const getColorByKyberScore = (value: number, theme: DefaultTheme) => {
   if (value === 0) return theme.darkMode ? theme.subText : theme.border
   if (value < 17) {
     return theme.red
@@ -22,6 +22,13 @@ export const calculateValueToColor = (value: number, theme: DefaultTheme) => {
     return '#8DE1C7'
   }
   return theme.primary
+}
+
+export const getTypeByScore = (kyberScore: number) => {
+  if (!kyberScore) return ''
+  if (kyberScore >= 60) return 'bullish'
+  if (kyberScore < 40) return 'bearish'
+  return ''
 }
 
 export const formatShortNum = (num: number, fixed = 1): string => {

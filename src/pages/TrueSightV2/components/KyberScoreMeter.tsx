@@ -3,7 +3,7 @@ import styled, { CSSProperties } from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
 
-import { calculateValueToColor } from '../utils'
+import { getColorByKyberScore } from '../utils'
 
 export const gaugeList: { value: number; d: string }[] = [
   {
@@ -292,7 +292,7 @@ function KyberScoreMeter({
           elapsedTime < duration ? easeOutQuart(elapsedTime, prevValue, nextValue - prevValue, duration) : nextValue
         const activeGaugeValue = (gaugeList.length * currentValueRef.current) / 100
         valueRef.current.innerText = hidden ? '??' : nextValue ? currentValueRef.current.toFixed(1) : '--'
-        valueRef.current.setAttribute('style', 'color:' + calculateValueToColor(currentValueRef.current, theme))
+        valueRef.current.setAttribute('style', 'color:' + getColorByKyberScore(currentValueRef.current, theme))
         if (!!gaugeRefs.current) {
           Object.keys(gaugeRefs.current).map((k: string) => {
             const el = gaugeRefs.current?.[k]
@@ -300,7 +300,7 @@ function KyberScoreMeter({
               'style',
               'fill:' +
                 (+k <= activeGaugeValue
-                  ? calculateValueToColor(currentValueRef.current, theme)
+                  ? getColorByKyberScore(currentValueRef.current, theme)
                   : theme.darkMode
                   ? theme.subText + '30'
                   : theme.border + '60'),
@@ -361,7 +361,7 @@ function KyberScoreMeter({
                 d={g.d}
                 fill={
                   g.value < (valueProp * gaugeList.length) / 100
-                    ? calculateValueToColor(valueProp, theme)
+                    ? getColorByKyberScore(valueProp, theme)
                     : theme.darkMode
                     ? theme.subText + '30'
                     : theme.border + '60'
@@ -380,7 +380,7 @@ function KyberScoreMeter({
             ))}
       </svg>
       <GaugeValue
-        color={noAnimation ? calculateValueToColor(valueProp, theme) : theme.text}
+        color={noAnimation ? getColorByKyberScore(valueProp, theme) : theme.text}
         fontSize={fontSize}
         ref={valueRef}
       >

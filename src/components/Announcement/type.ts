@@ -15,6 +15,7 @@ export enum PrivateAnnouncementType {
   LIMIT_ORDER = 'LIMIT_ORDER',
   BRIDGE_ASSET = 'BRIDGE_ASSET',
   KYBER_AI = 'KYBER_AI',
+  KYBER_AI_WATCH_LIST = 'KYBER_AI_WATCH_LIST', // todo
   ELASTIC_POOLS = 'ELASTIC_POOLS',
   CROSS_CHAIN = 'CROSS_CHAIN',
   PRICE_ALERT = 'PRICE_ALERT',
@@ -71,7 +72,7 @@ export type AnnouncementTemplateLimitOrder = {
 }
 export type AnnouncementTemplateCrossChain = { transaction: CrossChainTransfer; popupType: PopupType }
 export type AnnouncementTemplateBridge = { transaction: MultichainTransfer; popupType: PopupType }
-export type AnnouncementTemplateTrendingSoon = {
+export type AnnouncementTemplateKyberAI = {
   bearishTokenLogoURL: string
   bearishTokenScore: string
   bearishTokenSymbol: string
@@ -83,6 +84,18 @@ export type AnnouncementTemplateTrendingSoon = {
   trendingSoonTokenSymbol: string
   popupType: PopupType
 }
+
+export type AnnouncementTemplateKyberAIWatchlist = {
+  tokens: Array<{
+    logoURL: string
+    kyberScore: string
+    symbol: string
+    price: string
+    priceChange: string
+  }>
+  popupType: PopupType
+}
+
 export type AnnouncementTemplatePoolPosition = {
   position: PoolPositionAnnouncement
   popupType: PopupType
@@ -112,7 +125,7 @@ export type AnnouncementTemplate =
   | AnnouncementTemplateLimitOrder
   | AnnouncementTemplateBridge
   | AnnouncementTemplateCrossChain
-  | AnnouncementTemplateTrendingSoon
+  | AnnouncementTemplateKyberAI
   | AnnouncementTemplatePoolPosition
   | AnnouncementTemplatePopup
   | AnnouncementTemplatePriceAlert

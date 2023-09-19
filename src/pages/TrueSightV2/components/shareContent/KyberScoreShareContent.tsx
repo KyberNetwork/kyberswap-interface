@@ -6,7 +6,7 @@ import Column from 'components/Column'
 import Row from 'components/Row'
 import useTheme from 'hooks/useTheme'
 import { ITokenOverview } from 'pages/TrueSightV2/types'
-import { calculateValueToColor, formatTokenPrice } from 'pages/TrueSightV2/utils'
+import { formatTokenPrice, getColorByKyberScore } from 'pages/TrueSightV2/utils'
 
 import KyberScoreMeter from '../KyberScoreMeter'
 import KyberScoreChart from '../chart/KyberScoreChart'
@@ -38,7 +38,7 @@ export default function KyberScoreShareContent({
         <Text color={theme.text} fontSize={mobileMode ? '20px' : '36px'} lineHeight={mobileMode ? '28px' : '44px'}>
           <Trans>
             {token?.symbol?.toUpperCase()} seems to be{' '}
-            <span style={{ color: calculateValueToColor(latestKyberscore?.kyber_score || 0, theme) }}>
+            <span style={{ color: getColorByKyberScore(latestKyberscore?.kyber_score || 0, theme) }}>
               {latestKyberscore ? latestKyberscore.tag : ''}
             </span>
           </Trans>

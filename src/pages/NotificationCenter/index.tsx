@@ -141,6 +141,10 @@ function NotificationCenter() {
               path={PROFILE_MANAGE_ROUTES.KYBER_AI_TOKENS}
               element={<PrivateAnnouncement type={PrivateAnnouncementType.KYBER_AI} />}
             />
+            <Route
+              path={PROFILE_MANAGE_ROUTES.KYBER_AI_WATCH_LIST}
+              element={<PrivateAnnouncement type={PrivateAnnouncementType.KYBER_AI_WATCH_LIST} />}
+            />
             <Route path={PROFILE_MANAGE_ROUTES.CREATE_ALERT} element={<CreateAlert />} />
 
             <Route

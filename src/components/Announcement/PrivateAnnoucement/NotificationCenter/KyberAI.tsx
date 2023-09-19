@@ -5,7 +5,7 @@ import { Flex } from 'rebass'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { TokenInfo } from 'components/Announcement/PrivateAnnoucement/InboxItemKyberAI'
 import { PrivateAnnouncementPropCenter } from 'components/Announcement/PrivateAnnoucement/NotificationCenter'
-import { AnnouncementTemplateTrendingSoon } from 'components/Announcement/type'
+import { AnnouncementTemplateKyberAI } from 'components/Announcement/type'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { formatTime } from 'utils/time'
@@ -15,7 +15,7 @@ import { Desc, Time, Title, Wrapper } from './styled'
 export default function AnnouncementItem({
   announcement,
   title,
-}: PrivateAnnouncementPropCenter<AnnouncementTemplateTrendingSoon>) {
+}: PrivateAnnouncementPropCenter<AnnouncementTemplateKyberAI>) {
   const { sentAt, templateType, templateBody } = announcement
   const theme = useTheme()
   const navigate = useNavigate()

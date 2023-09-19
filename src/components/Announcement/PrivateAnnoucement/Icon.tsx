@@ -25,6 +25,7 @@ const mapIcon: Partial<{ [type in PrivateAnnouncementType]: ReactNode }> = {
   [PrivateAnnouncementType.LIMIT_ORDER]: <LimitOrderIcon />,
   [PrivateAnnouncementType.ELASTIC_POOLS]: <LiquidityIcon />,
   [PrivateAnnouncementType.KYBER_AI]: <ApeIcon size={18} />,
+  [PrivateAnnouncementType.KYBER_AI_WATCH_LIST]: <ApeIcon size={18} />,
   [PrivateAnnouncementType.PRICE_ALERT]: <AlarmIcon style={{ width: 17, height: 17 }} />,
   [PrivateAnnouncementType.DIRECT_MESSAGE]: <Bell style={{ width: 17, height: 17 }} />,
 }

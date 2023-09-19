@@ -9,7 +9,7 @@ import Icon from 'components/Icons/Icon'
 import { RowFit } from 'components/Row'
 
 import { IKyberScoreChart } from '../types'
-import { calculateValueToColor, formatTokenPrice } from '../utils'
+import { formatTokenPrice, getColorByKyberScore } from '../utils'
 import { gaugeList } from './KyberScoreMeter'
 import SimpleTooltip from './SimpleTooltip'
 
@@ -32,7 +32,7 @@ function SmallKyberScoreMeter({ data, disabledTooltip }: { data?: IKyberScoreCha
   const theme = useTheme()
   const emptyColor = theme.darkMode ? theme.subText + '30' : theme.border + '60'
   const activeGaugeValue = value ? (gaugeList.length * value) / 100 : 0
-  const activeGaugeColor = calculateValueToColor(value || 0, theme)
+  const activeGaugeColor = getColorByKyberScore(value || 0, theme)
 
   return (
     <Wrapper>
@@ -60,7 +60,7 @@ function SmallKyberScoreMeter({ data, disabledTooltip }: { data?: IKyberScoreCha
                 </Text>
                 <Text>
                   KyberScore:{' '}
-                  <span style={{ color: calculateValueToColor(data.kyber_score || 0, theme) }}>
+                  <span style={{ color: getColorByKyberScore(data.kyber_score || 0, theme) }}>
                     {data.kyber_score || '--'} ({data.tag || t`Not Applicable`})
                   </span>
                 </Text>
@@ -77,7 +77,7 @@ function SmallKyberScoreMeter({ data, disabledTooltip }: { data?: IKyberScoreCha
           disabled={disabledTooltip}
         >
           <RowFit gap="2px">
-            <Text fontSize="12px" lineHeight="16px" color={calculateValueToColor(value || 0, theme)}>
+            <Text fontSize="12px" lineHeight="16px" color={getColorByKyberScore(value || 0, theme)}>
               {value?.toFixed(0)}
             </Text>
             <Icon id="timer" size={10} />
