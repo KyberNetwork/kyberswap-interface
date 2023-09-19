@@ -722,7 +722,7 @@ export default function AddLiquidity() {
   const Buttons = () =>
     !account ? (
       <ButtonLight onClick={toggleWalletModal} width={upToMedium ? '100%' : 'fit-content'} minWidth="164px !important">
-        <Trans>Connect Wallet</Trans>
+        <Trans>Connect</Trans>
       </ButtonLight>
     ) : (
       <Flex

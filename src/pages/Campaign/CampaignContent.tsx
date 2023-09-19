@@ -571,7 +571,7 @@ export default function Campaign({ refreshListCampaign, ...props }: CampaignProp
                       style={{ gridColumn: '1 / -1', padding: '8px', margin: '0', borderRadius: '18px' }}
                       onClick={toggleWalletModal}
                     >
-                      <Trans>Connect Wallet</Trans>
+                      <Trans>Connect</Trans>
                     </ButtonLight>
                   )
                 ) : (

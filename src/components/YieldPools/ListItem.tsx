@@ -708,7 +708,7 @@ const ListItem = ({ farm }: ListItemProps) => {
               <Flex marginTop="20px">
                 {!account ? (
                   <ButtonLight onClick={toggleWalletModal}>
-                    <Trans>Connect Wallet</Trans>
+                    <Trans>Connect</Trans>
                   </ButtonLight>
                 ) : (
                   approvalState === ApprovalState.UNKNOWN && <Dots></Dots>
