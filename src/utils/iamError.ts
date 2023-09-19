@@ -92,11 +92,7 @@ export const checkApiDown = (axiosErr: AxiosError) => {
   const errorType = getErrorType(apiUrl)
 
   if (isDie && errorType !== ErrorType.NOT_TRACK) {
-    console.log(123, ErrorInfo)
-
     ErrorInfo[errorType].errorCount++
-    console.log(123, ErrorInfo)
-
     if (isApiDown(errorType) && !ErrorInfo[errorType].sentAlert) {
       ErrorInfo[errorType].sentAlert = true
       sendError(errorType, apiUrl, trackData)
