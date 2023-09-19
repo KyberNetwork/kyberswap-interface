@@ -671,7 +671,11 @@ function LimitOrderForm({
         <RowBetween gap="1rem">
           <InputWrapper>
             <Flex justifyContent={'space-between'} alignItems="center">
-              <DeltaRate symbolIn={currencyIn?.symbol ?? ''} marketPrice={tradeInfo} rateInfo={rateInfo} />
+              <DeltaRate
+                symbol={(rateInfo.invert ? currencyOut?.symbol : currencyIn?.symbol) ?? ''}
+                marketPrice={tradeInfo}
+                rateInfo={rateInfo}
+              />
               {tradeInfo && (
                 <Set2Market onClick={setPriceRateMarket}>
                   <Trans>Market</Trans>

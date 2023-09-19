@@ -48,11 +48,11 @@ export function useGetDeltaRateLimitOrder({
 const DeltaRate = ({
   marketPrice,
   rateInfo,
-  symbolIn,
+  symbol,
 }: {
   marketPrice: BaseTradeInfo | undefined
   rateInfo: RateInfo
-  symbolIn: string
+  symbol: string
 }) => {
   const theme = useTheme()
 
@@ -65,7 +65,7 @@ const DeltaRate = ({
   )
   return (
     <Label style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
-      <Trans>Sell {symbolIn} at rate</Trans>
+      <Trans>Sell {symbol} at rate</Trans>
       {percent ? (
         <>
           <Text as="span" color={color}>
