@@ -1,6 +1,6 @@
 import { t } from '@lingui/macro'
 import axios from 'axios'
-import { debounce } from 'lodash'
+import debounce from 'lodash/debounce'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { useDispatch } from 'react-redux'

@@ -2,7 +2,7 @@ import { Currency, Price } from '@kyberswap/ks-sdk-core'
 
 import { Bound } from 'state/mint/proamm/type'
 
-import { formatPrice } from './formatCurrencyAmount'
+import { formatDisplayNumber } from './numbers'
 
 export function formatTickPrice(
   price: Price<Currency, Currency> | undefined,
@@ -17,5 +17,5 @@ export function formatTickPrice(
   if (!price && placeholder !== undefined) {
     return placeholder
   }
-  return formatPrice(price, 5)
+  return formatDisplayNumber(price, { significantDigits: 6 })
 }

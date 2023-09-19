@@ -212,7 +212,7 @@ const LineChart = ({
           <Tooltip
             contentStyle={{ display: 'none' }}
             formatter={(tooltipValue: any, name: string, props: any) => {
-              setHoverValue(props.payload.value)
+              setTimeout(() => setHoverValue(props.payload.value))
               return ''
             }}
             cursor={<CustomizedCursor timeFrame={timeFrame} />}
