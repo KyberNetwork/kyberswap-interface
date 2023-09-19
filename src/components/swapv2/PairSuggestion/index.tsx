@@ -1,6 +1,6 @@
 import { Currency, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { debounce } from 'lodash'
+import debounce from 'lodash/debounce'
 import { stringify } from 'querystring'
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { BrowserView, MobileView, isIOS, isMobile } from 'react-device-detect'

@@ -211,7 +211,7 @@ export const ListView = ({
                     alignItems="center"
                     minWidth="fit-content"
                     sx={{ gap: '2px' }}
-                    color={range.isRemoved ? theme.warning : theme.subText}
+                    color={range.isRemoved ? theme.disableText : theme.primary}
                     fontSize={12}
                     fontWeight="500"
                   >
@@ -222,7 +222,6 @@ export const ListView = ({
                     <Text minWidth="max-content">
                       {convertTickToPrice(farm.token0, farm.token1, range.tickUpper, farm.pool.fee)}
                     </Text>
-
                     {index !== farm.ranges.length - 1 && (
                       <Text paddingLeft="6px" color={theme.subText}>
                         |

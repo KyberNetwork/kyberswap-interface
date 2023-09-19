@@ -3,7 +3,8 @@ import { Trans, t } from '@lingui/macro'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import JSBI from 'jsbi'
-import { debounce } from 'lodash'
+import debounce from 'lodash/debounce'
+import { rgba } from 'polished'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { Flex, Text } from 'rebass'
@@ -760,6 +761,7 @@ function LimitOrderForm({
         <ActionButtonLimitOrder
           {...{
             currencyIn,
+            currencyOut,
             approval,
             showWrap,
             isWrappingEth,

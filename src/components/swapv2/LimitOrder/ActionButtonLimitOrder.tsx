@@ -1,4 +1,4 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
+import { Currency, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { Text } from 'rebass'
 
@@ -16,11 +16,13 @@ import { CancelOrderInfo, CancelOrderType } from 'components/swapv2/LimitOrder/t
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState } from 'hooks/useApproveCallback'
 import { useWalletModalToggle } from 'state/application/hooks'
+import { isTokenNative } from 'utils/tokenInfo'
 
 export default function ActionButtonLimitOrder({
   showWrap,
   approval,
   currencyIn,
+  currencyOut,
   isWrappingEth,
   wrapInputError,
   approveCallback,
@@ -38,6 +40,7 @@ export default function ActionButtonLimitOrder({
   hasChangedOrderInfo,
 }: {
   currencyIn: Currency | undefined
+  currencyOut: Currency | undefined
   approval: ApprovalState
   showWrap: boolean
   isWrappingEth: boolean
@@ -66,7 +69,8 @@ export default function ActionButtonLimitOrder({
     !!hasInputError ||
     approval !== ApprovalState.APPROVED ||
     isWrappingEth ||
-    (showWrap && !isWrappingEth)
+    (showWrap && !isWrappingEth) ||
+    (currencyIn?.equals(WETH[currencyIn.chainId]) && isTokenNative(currencyOut, currencyOut?.chainId))
 
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
