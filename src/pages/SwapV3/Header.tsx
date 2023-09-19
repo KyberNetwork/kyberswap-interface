@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { Dispatch, SetStateAction, useState } from 'react'
+import { Dispatch, RefObject, SetStateAction, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -24,9 +24,11 @@ const DegenBanner = styled(RowBetween)`
 export default function Header({
   activeTab,
   setActiveTab,
+  swapActionsRef,
 }: {
   activeTab: TAB
   setActiveTab: Dispatch<SetStateAction<TAB>>
+  swapActionsRef: RefObject<HTMLDivElement>
 }) {
   const theme = useTheme()
   const [isDegenMode] = useDegenModeManager()
@@ -41,7 +43,7 @@ export default function Header({
       <ColumnCenter gap="sm">
         <RowBetween>
           <Tabs activeTab={activeTab} />
-          <HeaderRightMenu activeTab={activeTab} setActiveTab={setActiveTab} />
+          <HeaderRightMenu activeTab={activeTab} setActiveTab={setActiveTab} swapActionsRef={swapActionsRef} />
         </RowBetween>
         <RowBetween>
           <Text fontSize={12} color={theme.subText}>

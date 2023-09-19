@@ -41,7 +41,6 @@ import DarkModeQueryParamReader from 'theme/DarkModeQueryParamReader'
 import { isAddressString, isSupportLimitOrder, shortenAddress } from 'utils'
 
 import ElasticLegacyNotice from './ElasticLegacy/ElasticLegacyNotice'
-import Farm from './Farm'
 import VerifyAuth from './Verify/VerifyAuth'
 
 // test page for swap only through elastic
@@ -53,7 +52,7 @@ const Pools = lazy(() => import('./Pools'))
 const MyPools = lazy(() => import('./Pool'))
 const MyEarnings = lazy(() => import('./MyEarnings'))
 
-// const Farm = lazy(() => import('./Farm'))
+const Farm = lazy(() => import('./Farm'))
 
 const PoolFinder = lazy(() => import('./PoolFinder'))
 const ElasticRemoveLiquidity = lazy(() => import('pages/RemoveLiquidityProAmm'))
