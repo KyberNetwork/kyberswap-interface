@@ -3,6 +3,7 @@ import JSBI from 'jsbi'
 
 import { MouseoverTooltip } from 'components/Tooltip'
 
+// todo: deprecated, use formatDisplayNumber instead
 export function formatCurrencyAmount(amount: CurrencyAmount<Currency> | undefined, sigFigs: number) {
   if (!amount) {
     return '-'
@@ -19,6 +20,7 @@ export function formatCurrencyAmount(amount: CurrencyAmount<Currency> | undefine
   return amount.toSignificant(sigFigs)
 }
 
+// todo: deprecated, use formatDisplayNumber instead
 export function toSignificantOrMaxIntegerPart(price: Price<Currency, Currency> | undefined, sigFigs: number): string {
   if (!price) return ''
 
@@ -28,6 +30,7 @@ export function toSignificantOrMaxIntegerPart(price: Price<Currency, Currency> |
   return price.toSignificant(sigFigs)
 }
 
+// todo: deprecated, use formatDisplayNumber instead
 export function formatPrice(price: Price<Currency, Currency> | undefined, sigFigs: number) {
   if (!price) {
     return '-'

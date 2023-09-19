@@ -6,9 +6,12 @@ import { hex } from 'wcag-contrast'
 
 import { NETWORKS_INFO } from 'constants/networks'
 import { getTokenLogoURL } from 'utils'
+import { getProxyTokenLogo } from 'utils/tokenInfo'
 
 async function getColorFromToken(token: Currency): Promise<string | null> {
-  const path = token.isNative ? NETWORKS_INFO[token.chainId].icon : getTokenLogoURL(token.address, token.chainId)
+  const path = getProxyTokenLogo(
+    token.isNative ? NETWORKS_INFO[token.chainId].icon : getTokenLogoURL(token.address, token.chainId),
+  )
 
   return Vibrant.from(path)
     .getPalette()
