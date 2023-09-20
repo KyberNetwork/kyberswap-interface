@@ -24,130 +24,130 @@ export default defineConfig({
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       require('@cypress/grep/src/plugin')(config)
       synpressPlugins(on, config)
-      console.log('baseURL: ', process.env.CYPRESS_BASE_URL)
-      if (process.env.CYPRESS_BASE_URL === 'https://kyberswap.com/') {
-        on('after:run', async results => {
-          if (results) {
-            const register = new client.Registry()
-            const prefix = 'e2e_cypress'
-            const suite = new client.Counter({
-              name: `${prefix}_suite`,
-              help: `${prefix}_suite`,
-              labelNames: ['buildId', 'result', 'baseName', 'duration', 'chain'] as const,
-            })
-            suite.reset()
-            const { totalPassed, totalFailed, totalTests, totalDuration, runs } = results
-            runs.forEach(run => {
-              const { stats, spec } = run
-              const { tests, passes, pending, failures, duration } = stats
-              const { baseName } = spec
-              suite
-                .labels({
-                  buildId: `${process.env.GITHUB_RUN_ID}`,
-                  result: 'failed',
-                  baseName: baseName,
-                  duration: duration,
-                  chain: config.env.NETWORK,
-                })
-                .inc(failures)
-
-              suite
-                .labels({
-                  buildId: `${process.env.GITHUB_RUN_ID}`,
-                  result: 'passed',
-                  baseName: baseName,
-                  duration: duration,
-                  chain: config.env.NETWORK,
-                })
-                .inc(passes)
-
-              suite
-                .labels({
-                  buildId: `${process.env.GITHUB_RUN_ID}`,
-                  result: 'pending',
-                  baseName: baseName,
-                  duration: duration,
-                  chain: config.env.NETWORK,
-                })
-                .inc(pending)
-              suite
-                .labels({
-                  buildId: `${process.env.GITHUB_RUN_ID}`,
-                  result: 'tests',
-                  baseName: baseName,
-                  duration: duration,
-                  chain: config.env.NETWORK,
-                })
-                .inc(tests)
-            })
+      // console.log('baseURL: ', process.env.CYPRESS_BASE_URL)
+      // if (process.env.CYPRESS_BASE_URL === 'https://kyberswap.com/') {
+      on('after:run', async results => {
+        if (results) {
+          const register = new client.Registry()
+          const prefix = 'e2e_cypress'
+          const suite = new client.Counter({
+            name: `${prefix}_suite`,
+            help: `${prefix}_suite`,
+            labelNames: ['buildId', 'result', 'baseName', 'duration', 'chain'] as const,
+          })
+          suite.reset()
+          const { totalPassed, totalFailed, totalTests, totalDuration, runs } = results
+          runs.forEach(run => {
+            const { stats, spec } = run
+            const { tests, passes, pending, failures, duration } = stats
+            const { baseName } = spec
+            suite
+              .labels({
+                buildId: `${process.env.GITHUB_RUN_ID}`,
+                result: 'failed',
+                baseName: baseName,
+                duration: duration,
+                chain: config.env.NETWORK,
+              })
+              .inc(failures)
 
             suite
               .labels({
                 buildId: `${process.env.GITHUB_RUN_ID}`,
                 result: 'passed',
-                baseName: 'All Specs',
-                duration: totalDuration,
+                baseName: baseName,
+                duration: duration,
                 chain: config.env.NETWORK,
               })
-              .inc(totalPassed)
+              .inc(passes)
 
             suite
               .labels({
                 buildId: `${process.env.GITHUB_RUN_ID}`,
-                result: 'failed',
-                baseName: 'All Specs',
-                duration: totalDuration,
+                result: 'pending',
+                baseName: baseName,
+                duration: duration,
                 chain: config.env.NETWORK,
               })
-              .inc(totalFailed)
+              .inc(pending)
             suite
               .labels({
                 buildId: `${process.env.GITHUB_RUN_ID}`,
-                result: 'total',
-                baseName: 'All Specs',
-                duration: totalDuration,
+                result: 'tests',
+                baseName: baseName,
+                duration: duration,
                 chain: config.env.NETWORK,
               })
-              .inc(totalTests)
+              .inc(tests)
+          })
 
-            const testPass = new client.Counter({
-              name: `${prefix}_test_passed`,
-              help: `${prefix}_pass`,
-              labelNames: ['buildId', 'chain'] as const,
+          suite
+            .labels({
+              buildId: `${process.env.GITHUB_RUN_ID}`,
+              result: 'passed',
+              baseName: 'All Specs',
+              duration: totalDuration,
+              chain: config.env.NETWORK,
             })
+            .inc(totalPassed)
 
-            const testFail = new client.Counter({
-              name: `${prefix}_test_failed`,
-              help: `${prefix}_fail`,
-              labelNames: ['buildId', 'chain'] as const,
+          suite
+            .labels({
+              buildId: `${process.env.GITHUB_RUN_ID}`,
+              result: 'failed',
+              baseName: 'All Specs',
+              duration: totalDuration,
+              chain: config.env.NETWORK,
             })
+            .inc(totalFailed)
+          suite
+            .labels({
+              buildId: `${process.env.GITHUB_RUN_ID}`,
+              result: 'total',
+              baseName: 'All Specs',
+              duration: totalDuration,
+              chain: config.env.NETWORK,
+            })
+            .inc(totalTests)
 
-            testPass.reset()
-            testFail.reset()
+          const testPass = new client.Counter({
+            name: `${prefix}_test_passed`,
+            help: `${prefix}_pass`,
+            labelNames: ['buildId', 'chain'] as const,
+          })
 
-            testFail.labels({ buildId: `${process.env.GITHUB_RUN_ID}`, chain: config.env.NETWORK }).inc(totalFailed)
-            testPass.labels({ buildId: `${process.env.GITHUB_RUN_ID}`, chain: config.env.NETWORK }).inc(totalPassed)
+          const testFail = new client.Counter({
+            name: `${prefix}_test_failed`,
+            help: `${prefix}_fail`,
+            labelNames: ['buildId', 'chain'] as const,
+          })
 
-            register.registerMetric(testPass)
-            register.registerMetric(testFail)
-            register.registerMetric(suite)
+          testPass.reset()
+          testFail.reset()
 
-            const gateway = new client.Pushgateway(`${process.env.CORE_PUSH_GATEWAY_URL}`, [], register)
-            console.log('gateway link: ', `${process.env.CORE_PUSH_GATEWAY_URL}`)
-            await gateway
-              .push({ jobName: 'ui-automation' })
-              .then(({ resp, body }) => {
-                console.log(`Body: ${body}`)
-                console.log(`Response status: ${resp}`)
-              })
-              .catch((err: any) => {
-                console.log('err: ', err)
-              })
-          }
-        })
-      }
+          testFail.labels({ buildId: `${process.env.GITHUB_RUN_ID}`, chain: config.env.NETWORK }).inc(totalFailed)
+          testPass.labels({ buildId: `${process.env.GITHUB_RUN_ID}`, chain: config.env.NETWORK }).inc(totalPassed)
+
+          register.registerMetric(testPass)
+          register.registerMetric(testFail)
+          register.registerMetric(suite)
+
+          const gateway = new client.Pushgateway(`${process.env.CORE_PUSH_GATEWAY_URL}`, [], register)
+          console.log('gateway link: ', `${process.env.CORE_PUSH_GATEWAY_URL}`)
+          await gateway
+            .push({ jobName: 'ui-automation' })
+            .then(({ resp, body }) => {
+              console.log(`Body: ${body}`)
+              console.log(`Response status: ${resp}`)
+            })
+            .catch((err: any) => {
+              console.log('err: ', err)
+            })
+        }
+      })
+      // }
     },
-    baseUrl: process.env.CYPRESS_BASE_URL,
+    // baseUrl: process.env.CYPRESS_BASE_URL,
     specPattern: 'cypress/e2e/specs/farm-page.e2e.cy.ts',
   },
 })
