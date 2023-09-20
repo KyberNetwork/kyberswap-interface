@@ -37,8 +37,8 @@ const parseResponse = (
 
   return {
     rpc,
-    prochart: data?.prochart || false,
     isEnableBlockService: data?.isEnableBlockService || false,
+    isEnableKNProtocol: data?.isEnableKNProtocol || false,
     blockClient: isEVM(defaultChainId)
       ? createClient(data?.blockSubgraph || NETWORKS_INFO[defaultChainId].defaultBlockSubgraph)
       : createClient(ethereumInfo.defaultBlockSubgraph),

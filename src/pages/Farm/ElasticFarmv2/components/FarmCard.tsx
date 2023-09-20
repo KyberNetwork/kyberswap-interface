@@ -262,34 +262,9 @@ function FarmCard({
           </RowBetween>
 
           <RowBetween>
-            <MouseoverTooltip
-              placement="bottom"
-              width="fit-content"
-              text={
-                farm.tvl ? (
-                  <>
-                    <Flex alignItems="center" sx={{ gap: '4px' }}>
-                      <CurrencyLogo currency={farm.token0} size="16px" />
-                      {farm.tvlToken0.toSignificant(6)} {farm.token0.symbol}
-                    </Flex>
-
-                    <Flex alignItems="center" sx={{ gap: '4px' }} marginTop="4px">
-                      <CurrencyLogo currency={farm.token1} size="16px" />
-                      {farm.tvlToken1.toSignificant(6)} {farm.token1.symbol}
-                    </Flex>
-                  </>
-                ) : (
-                  ''
-                )
-              }
-            >
-              <Text fontSize="16px" fontWeight="500" color={theme.text} data-testid="tvl-value">
-                {farm.tvl ? formatDollarAmount(farm.tvl) : '--'}
-              </Text>
-
-              {!!farm.tvl && <DownSvg />}
-            </MouseoverTooltip>
-
+            <Text fontSize="16px" fontWeight="500" color={theme.text} data-testid="tvl-value">
+              {farm.tvl ? formatDollarAmount(farm.tvl) : '--'}
+            </Text>
             <Text fontSize="14px" fontWeight="500" color={theme.text}>
               {isEnded || farm.isSettled ? (
                 isEnded ? (

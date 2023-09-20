@@ -6,7 +6,8 @@ import { CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
+import { useLazyGetFarmV2Query } from 'services/knprotocol'
 
 import FarmV2QuoterABI from 'constants/abis/farmv2Quoter.json'
 import NFTPositionManagerABI from 'constants/abis/v2/ProAmmNFTPositionManager.json'
@@ -107,6 +108,7 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
   const { networkInfo, isEVM, chainId, account } = useActiveWeb3React()
   const elasticFarm = useAppSelector(state => state.elasticFarmV2[chainId] || defaultChainData)
   const { elasticClient } = useKyberSwapConfig()
+  const isEnableKNProtocol = true
 
   const multicallContract = useMulticallContract()
   const farmv2QuoterContract = useContract(
@@ -114,30 +116,53 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
     FarmV2QuoterABI,
   )
 
-  const [getElasticFarmV2, { data, error }] = useLazyQuery(queryFarms, {
+  const [getElasticFarmV2, { data: subgraphData, error: subgraphError }] = useLazyQuery(queryFarms, {
     client: elasticClient,
     fetchPolicy: 'network-only',
   })
 
+  const [getElasticFarmV2FromKnProtocol, { data: knProtocolData, error: knProtocolError }] = useLazyGetFarmV2Query()
+
+  const latestKnProtocolData = useRef(knProtocolData)
+
+  const data = useMemo(() => {
+    if (isEnableKNProtocol) {
+      return {
+        farmV2S: knProtocolData?.data?.data || latestKnProtocolData.current?.data?.data || [],
+      }
+    } else return subgraphData
+  }, [isEnableKNProtocol, knProtocolData, subgraphData])
+
+  const error = useMemo(() => {
+    if (isEnableKNProtocol) return knProtocolError
+    return subgraphError
+  }, [isEnableKNProtocol, subgraphError, knProtocolError])
+
   useEffect(() => {
     if (isEVM && !elasticFarm?.farms && !elasticFarm?.loading) {
       dispatch(setLoading({ chainId, loading: true }))
-      getElasticFarmV2().finally(() => {
-        dispatch(setLoading({ chainId, loading: false }))
-      })
+      if (isEnableKNProtocol) {
+        getElasticFarmV2FromKnProtocol(chainId).finally(() => {
+          dispatch(setLoading({ chainId, loading: false }))
+        })
+      } else
+        getElasticFarmV2().finally(() => {
+          dispatch(setLoading({ chainId, loading: false }))
+        })
     }
-  }, [isEVM, chainId, dispatch, getElasticFarmV2, elasticFarm])
+  }, [isEVM, chainId, dispatch, getElasticFarmV2, elasticFarm, getElasticFarmV2FromKnProtocol, isEnableKNProtocol])
 
   useEffect(() => {
     const i = interval
       ? setInterval(() => {
-          getElasticFarmV2()
+          if (isEnableKNProtocol) getElasticFarmV2FromKnProtocol(chainId)
+          else getElasticFarmV2()
         }, 10_000)
       : undefined
     return () => {
       i && clearInterval(i)
     }
-  }, [interval, dispatch, getElasticFarmV2])
+  }, [interval, chainId, dispatch, getElasticFarmV2, getElasticFarmV2FromKnProtocol, isEnableKNProtocol])
 
   useEffect(() => {
     if (error && chainId) {
@@ -153,7 +178,7 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
 
   useEffect(() => {
     const getData = async () => {
-      if (data?.farmV2S && chainId) {
+      if (data?.farmV2S.length && chainId) {
         const tokens = [
           ...new Set(
             data.farmV2S
@@ -201,23 +226,29 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
             farm.pool.reinvestL,
             Number(farm.pool.tick),
           )
-          let tvlToken0 = CurrencyAmount.fromRawAmount(token0.wrapped, 0)
-          let tvlToken1 = CurrencyAmount.fromRawAmount(token1.wrapped, 0)
 
-          farm.depositedPositions.forEach(pos => {
-            const position = new Position({
-              pool: p,
-              liquidity: pos.position.liquidity,
-              tickLower: Number(pos.position.tickLower.tickIdx),
-              tickUpper: Number(pos.position.tickUpper.tickIdx),
+          let tvl = 0
+          if (farm.stakedTvl) {
+            tvl = +farm.stakedTvl
+          } else {
+            let tvlToken0 = CurrencyAmount.fromRawAmount(token0.wrapped, 0)
+            let tvlToken1 = CurrencyAmount.fromRawAmount(token1.wrapped, 0)
+
+            farm.depositedPositions?.forEach(pos => {
+              const position = new Position({
+                pool: p,
+                liquidity: pos.position.liquidity,
+                tickLower: Number(pos.position.tickLower.tickIdx),
+                tickUpper: Number(pos.position.tickUpper.tickIdx),
+              })
+
+              tvlToken0 = tvlToken0.add(position.amount0)
+              tvlToken1 = tvlToken1.add(position.amount1)
             })
-
-            tvlToken0 = tvlToken0.add(position.amount0)
-            tvlToken1 = tvlToken1.add(position.amount1)
-          })
-          const tvl =
-            Number(tvlToken0.toExact() || '0') * (prices[farm.pool.token0.id] || 0) +
-            Number(tvlToken1.toExact() || '0') * (prices[farm.pool.token1.id] || 0)
+            tvl =
+              Number(tvlToken0.toExact() || '0') * (prices[farm.pool.token0.id] || 0) +
+              Number(tvlToken1.toExact() || '0') * (prices[farm.pool.token1.id] || 0)
+          }
 
           const totalRewards = farm.rewards.map(item =>
             CurrencyAmount.fromRawAmount(getToken(item.token, true), item.amount),
@@ -235,8 +266,6 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
             token0,
             token1,
             totalRewards,
-            tvlToken0,
-            tvlToken1,
             tvl,
             ranges: farm.ranges.map(r => {
               // https://www.notion.so/kybernetwork/LM-v2-APR-Formula-15b8606e820745b59a5a3aded8bf46e0
