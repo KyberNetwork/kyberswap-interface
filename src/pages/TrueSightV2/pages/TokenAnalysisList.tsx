@@ -33,6 +33,7 @@ import NetworkSelect from '../components/NetworkSelect'
 import SimpleTooltip from '../components/SimpleTooltip'
 import SmallKyberScoreMeter from '../components/SmallKyberScoreMeter'
 import TokenChart from '../components/TokenChartSVG'
+import TokenListVariants from '../components/TokenListVariants'
 import { StarWithAnimation } from '../components/WatchlistStar'
 import KyberScoreChart from '../components/chart/KyberScoreChart'
 import TokenAnalysisListShareContent from '../components/shareContent/TokenAnalysisListShareContent'
@@ -571,6 +572,7 @@ const TokenRow = ({
 
           <Column gap="8px" style={{ cursor: 'pointer', alignItems: 'flex-start' }}>
             <Text style={{ textTransform: 'uppercase' }}>{token.symbol}</Text>{' '}
+            <TokenListVariants tokens={token.tokens} />
           </Column>
         </Row>
       </td>

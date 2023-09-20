@@ -3,6 +3,7 @@ import { rgba } from 'polished'
 import { stringify } from 'querystring'
 import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
+import Skeleton from 'react-loading-skeleton'
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -13,7 +14,8 @@ import Icon from 'components/Icons/Icon'
 import { DotsLoader } from 'components/Loader/DotsLoader'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
-import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
+import { useActiveWeb3React } from 'hooks'
+import useMixpanel, { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { MEDIA_WIDTHS } from 'theme'
@@ -22,6 +24,7 @@ import DisplaySettings from '../components/DisplaySettings'
 import FeedbackSurvey from '../components/FeedbackSurvey'
 import KyberAIShareModal from '../components/KyberAIShareModal'
 import SimpleTooltip from '../components/SimpleTooltip'
+import SwitchVariantDropdown from '../components/SwitchVariantDropdown'
 import { TokenOverview } from '../components/TokenOverview'
 import { StarWithAnimation } from '../components/WatchlistStar'
 import ExploreShareContent from '../components/shareContent/ExploreTopShareContent'
@@ -29,6 +32,7 @@ import { MIXPANEL_KYBERAI_TAG, NETWORK_IMAGE_URL } from '../constants'
 import useChartStatesReducer, { ChartStatesContext } from '../hooks/useChartStatesReducer'
 import useIsReachMaxLimitWatchedToken from '../hooks/useIsReachMaxLimitWatchedToken'
 import useKyberAIAssetOverview from '../hooks/useKyberAIAssetOverview'
+import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation } from '../hooks/useKyberAIData'
 import { DiscoverTokenTab, IAssetOverview } from '../types'
 import { navigateToSwapPage } from '../utils'
 import OnChainAnalysis from './OnChainAnalysis'
@@ -236,39 +240,41 @@ const TokenDescription = ({ description }: { description: string }) => {
 
 const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoading?: boolean }) => {
   const theme = useTheme()
+  const { account } = useActiveWeb3React()
   const navigate = useNavigate()
   const location = useLocation()
+  const { mixpanelHandler } = useMixpanel()
+
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const { chain } = useParams()
   const reachedMaxLimit = useIsReachMaxLimitWatchedToken()
-  // const [addToWatchlist, { isLoading: loadingAddtoWatchlist }] = useAddToWatchlistMutation()
-  // const [removeFromWatchlist, { isLoading: loadingRemovefromWatchlist }] = useRemoveFromWatchlistMutation()
+  const [addToWatchlist, { isLoading: loadingAddtoWatchlist }] = useAddToWatchlistMutation()
+  const [removeFromWatchlist, { isLoading: loadingRemovefromWatchlist }] = useRemoveFromWatchlistMutation()
   const [isWatched, setIsWatched] = useState(false)
+  const handleStarClick = () => {
+    if (!token || !chain || !account) return
+    if (isWatched) {
+      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
+        token_name: token.symbol?.toUpperCase(),
+        source: 'explore',
+        option: 'remove',
+      })
 
-  // const handleStarClick = () => {
-  //   if (!token || !chain || !account) return
-  //   if (isWatched) {
-  //     mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-  //       token_name: token.symbol?.toUpperCase(),
-  //       source: 'explore',
-  //       option: 'remove',
-  //     })
-
-  //     removeFromWatchlist({
-  //       tokenAddress: token?.address,
-  //       chain,
-  //     }).then(() => setIsWatched(false))
-  //   } else {
-  //     if (!reachedMaxLimit) {
-  //       mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-  //         token_name: token.symbol?.toUpperCase(),
-  //         source: 'explore',
-  //         option: 'add',
-  //       })
-  //       addToWatchlist({ tokenAddress: token?.address, chain }).then(() => setIsWatched(true))
-  //     }
-  //   }
-  // }
+      removeFromWatchlist({
+        tokenAddress: token?.address,
+        chain,
+      }).then(() => setIsWatched(false))
+    } else {
+      if (!reachedMaxLimit) {
+        mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
+          token_name: token.symbol?.toUpperCase(),
+          source: 'explore',
+          option: 'add',
+        })
+        addToWatchlist({ tokenAddress: token?.address, chain }).then(() => setIsWatched(true))
+      }
+    }
+  }
   const handleGoBackClick = () => {
     if (!!location?.state?.from) {
       navigate(location.state.from)
@@ -294,7 +300,7 @@ const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoadin
       >
         <StarWithAnimation
           watched={isWatched}
-          loading={false}
+          loading={loadingAddtoWatchlist || loadingRemovefromWatchlist}
           size={16}
           disabled={!isWatched && reachedMaxLimit}
           wrapperStyle={{
@@ -304,6 +310,7 @@ const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoadin
             width: above768 ? '36px' : '32px',
             borderRadius: '100%',
           }}
+          onClick={handleStarClick}
         />
       </SimpleTooltip>
       <div style={{ position: 'relative' }}>
@@ -450,6 +457,7 @@ const TokenHeader = ({
       </RowFit>
       <RowFit gap="12px">
         <SettingButtons token={token} onShareClick={onShareClick} />
+        <SwitchVariantDropdown variants={token?.addresses} />
         <ButtonPrimary
           height={'36px'}
           width="fit-content"
@@ -535,14 +543,15 @@ export default function SingleToken() {
     if (token?.addresses && token.addresses[0].address && token.addresses[0].chain) {
       setSearchParams({ chain: token.addresses[0].chain, address: token.addresses[0].address })
     }
-  }, [token?.addresses, setSearchParams])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token?.addresses])
 
   return (
     <Wrapper>
       <ChartStatesContext.Provider value={{ state, dispatch }}>
         <TokenHeader token={token} isLoading={isLoading} onShareClick={() => setShowShare(true)} />
         <Text fontSize={12} color={theme.subText} marginBottom="12px">
-          {isLoading ? <DotsLoader /> : <TokenDescription description={token?.description || ''} />}
+          {isLoading ? <Skeleton /> : <TokenDescription description={token?.description || ''} />}
         </Text>
 
         <TagWrapper>
@@ -611,7 +620,7 @@ export default function SingleToken() {
         onShareClick={social =>
           mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SHARE_TOKEN_CLICK, {
             token_name: token?.symbol?.toUpperCase(),
-            network: 1, //TODO
+            network: 1, // TODO
             source: MIXPANEL_KYBERAI_TAG.EXPLORE_SHARE_THIS_TOKEN,
             share_via: social,
           })
