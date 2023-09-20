@@ -11,7 +11,7 @@ export type CommonProps = {
 const FarmUpdater: React.FC<CommonProps> = ({ interval = true }) => {
   const { isEnableKNProtocol } = useKyberSwapConfig()
 
-  useGetUserFarmingInfo(interval)
+  useGetUserFarmingInfo()
 
   if (isEnableKNProtocol) {
     return <FarmUpdaterV2 interval={interval} />

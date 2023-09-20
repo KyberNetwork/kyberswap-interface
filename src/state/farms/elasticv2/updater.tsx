@@ -173,6 +173,9 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
 
   const { fetchPrices } = useTokenPricesWithLoading([])
 
+  const tokensRef = useRef<string[]>([])
+  const pricesRef = useRef<{ [key: string]: number | undefined }>({})
+
   useEffect(() => {
     const getData = async () => {
       if (data?.farmV2S.length && chainId) {
@@ -192,7 +195,12 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
           ),
         ] as string[]
 
-        const prices = await fetchPrices(tokens)
+        let prices = pricesRef.current
+        if (tokensRef.current.sort().join() !== tokens.sort().join()) {
+          tokensRef.current = tokens
+          prices = await fetchPrices(tokens)
+          pricesRef.current = prices
+        }
 
         const formattedData: ElasticFarmV2[] = data.farmV2S.map((farm: SubgraphFarmV2) => {
           const getToken = (t: SubgraphToken, keepWrapped = false) => {
