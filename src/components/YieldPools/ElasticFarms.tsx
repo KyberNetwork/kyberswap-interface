@@ -1,7 +1,6 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { Flex } from 'rebass'
 
-import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { useFilteredFarms } from 'state/farms/elastic/hooks'
 import { FarmingPool } from 'state/farms/elastic/types'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
@@ -14,11 +13,7 @@ import WithdrawModal from './ElasticFarmModals/WithdrawModal'
 type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest' | 'forcedWithdraw'
 
 function ElasticFarms({ onShowStepGuide }: { onShowStepGuide: () => void }) {
-  const ref = useRef<HTMLDivElement>()
-  const [open, setOpen] = useState(false)
-  useOnClickOutside(ref, open ? () => setOpen(prev => !prev) : undefined)
-
-  const { filteredFarms, farms, userFarmInfo } = useFilteredFarms()
+  const { filteredFarms, farms } = useFilteredFarms()
 
   const [selectedFarm, setSeletedFarm] = useState<null | string>(null)
   const [selectedModal, setSeletedModal] = useState<ModalType | null>(null)
@@ -85,7 +80,6 @@ function ElasticFarms({ onShowStepGuide }: { onShowStepGuide: () => void }) {
                 setSeletedPool(pool)
               }}
               pools={farm.pools}
-              userInfo={userFarmInfo?.[farm.id]}
               tokenPrices={tokenPrices}
             />
           )

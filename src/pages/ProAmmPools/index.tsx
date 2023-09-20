@@ -19,7 +19,6 @@ import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useOpenModal } from 'state/application/hooks'
 import { FarmUpdater, useElasticFarms } from 'state/farms/elastic/hooks'
 import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
-import ElasticFarmV2Updater from 'state/farms/elasticv2/updater'
 import { Field } from 'state/mint/proamm/type'
 import { useTopPoolAddresses, useUserProMMPositions } from 'state/prommPools/hooks'
 import useGetElasticPools from 'state/prommPools/useGetElasticPools'
@@ -472,7 +471,6 @@ export default function ProAmmPoolList({
         title={sharedPoolId ? t`Share this pool with your friends!` : t`Share this list of pools with your friends`}
       />
       <FarmUpdater interval={false} />
-      <ElasticFarmV2Updater interval={false} />
     </PageWrapper>
   )
 }

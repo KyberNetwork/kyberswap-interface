@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { FC, useEffect, useMemo, useState } from 'react'
+import { FC, Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -70,6 +70,9 @@ export const ElasticFarmCombination: FC = () => {
 
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
+  const showFarmV2 = useCallback(() => setShowFarmStepGuide('v2'), [])
+  const showFarmV1 = useCallback(() => setShowFarmStepGuide('v1'), [])
+
   if (loading && noFarms) {
     return (
       <Flex
@@ -131,15 +134,15 @@ export const ElasticFarmCombination: FC = () => {
           overflow: upToExtraSmall ? undefined : 'hidden',
         }}
       >
-        <ElasticFarms onShowStepGuide={() => setShowFarmStepGuide('v1')} />
+        <ElasticFarms onShowStepGuide={showFarmV1} />
 
         {!!filteredFarmsV1.length && !!filteredFarmsV2.length && <Divider />}
 
         {Object.keys(farmByContract).map((contract, index) => (
-          <>
-            <ElasticFarmv2 onShowStepGuide={() => setShowFarmStepGuide('v2')} farmAddress={contract} key={contract} />
+          <Fragment key={contract}>
+            <ElasticFarmv2 onShowStepGuide={showFarmV2} farmAddress={contract} key={contract} />
             {index !== Object.keys(farmByContract).length - 1 && <Divider />}
-          </>
+          </Fragment>
         ))}
       </Flex>
     </>
