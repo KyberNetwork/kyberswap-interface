@@ -26,6 +26,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { APRTooltipContent } from 'components/YieldPools/FarmingPoolAPRCell'
+import { PartnerFarmTag } from 'components/YieldPools/PartnerFarmTag'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -229,10 +230,12 @@ function FarmCard({
                 <Share2 size={14} fill="currentcolor" />
               </IconButton>
             </RowFit>
-
-            <FeeTag style={{ marginLeft: 0 }}>
-              FEE {farm?.pool?.fee ? (farm?.pool?.fee * 100) / ELASTIC_BASE_FEE_UNIT : 0.03}%
-            </FeeTag>
+            <Flex flexDirection="row">
+              <FeeTag style={{ marginLeft: 0 }}>
+                FEE {farm?.pool?.fee ? (farm?.pool?.fee * 100) / ELASTIC_BASE_FEE_UNIT : 0.03}%
+              </FeeTag>
+              <PartnerFarmTag farmPoolAddress={farm.poolAddress} />
+            </Flex>
           </Flex>
 
           <DoubleCurrencyLogo size={44} currency0={farm.token0} currency1={farm.token1} />

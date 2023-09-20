@@ -15,7 +15,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import HoverDropdown from 'components/HoverDropdown'
 import InfoHelper from 'components/InfoHelper'
 import { MouseoverTooltip, MouseoverTooltipDesktopOnly, TextDashed } from 'components/Tooltip'
-import { FARM_TAB, FRAX_FARMS, ZERO_ADDRESS } from 'constants/index'
+import { FARM_TAB, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
@@ -661,9 +661,6 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
       )
     })
   }
-  const hasFraxFarm = runningFarms.some(farm =>
-    FRAX_FARMS[chainId]?.map(address => address.toLowerCase()).includes(farm.poolAddress.toLowerCase()),
-  )
 
   return (
     <FarmContent data-testid="farm-block">
@@ -718,19 +715,6 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
               paddingX={upToExtraSmall ? '1rem' : '24px'}
             >
               <Trans>Active Farms</Trans>
-            </Text>
-          )}
-          {hasFraxFarm && (
-            <Text fontSize={12} lineHeight="16px" fontWeight={400} color={theme.text} marginX="1.5rem" marginY="16px">
-              <Trans>
-                KyberSwap Frax farms do not currently receive KNC incentives. They are continuously available for
-                staking so that users can participate in KyberSwap Frax gauges to earn FXS emissions. The amount of FXS
-                emissions depends on the results of each weekly Frax gauge voting cycle. More info:{' '}
-                <ExternalLink href="https://app.frax.finance/gauge">https://app.frax.finance/gauge</ExternalLink> and{' '}
-                <ExternalLink href="https://docs.frax.finance/vefxs/gauge">
-                  https://docs.frax.finance/vefxs/gauge
-                </ExternalLink>
-              </Trans>
             </Text>
           )}
 

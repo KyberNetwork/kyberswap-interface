@@ -21,7 +21,7 @@
     "i18n": "yarn i18n:extract && yarn i18n:compile",
     "i18n:compile": "lingui compile",
     "i18n:extract": "lingui extract",
-    "lint": "eslint --ext ts,tsx src",
+    "lint": "eslint \"./src/**/*.{ts,tsx}\"",
     "start": "vite --mode production --host",
     "start-adpr": "vite --mode adpr --host",
     "start-dev": "vite --mode dev --host",

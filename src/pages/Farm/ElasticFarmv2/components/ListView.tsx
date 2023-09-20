@@ -23,6 +23,7 @@ import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Toolti
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { ButtonColorScheme, MinimalActionButton } from 'components/YieldPools/ElasticFarmGroup/buttons'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
+import { PartnerFarmTag } from 'components/YieldPools/PartnerFarmTag'
 import { ElasticFarmV2TableRow } from 'components/YieldPools/styleds'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -171,7 +172,6 @@ export const ListView = ({
               {getTokenSymbolWithHardcode(chainId, farm.token1.wrapped.address, farm.token1.symbol)}
             </Text>
           </Link>
-
           <FeeTag>FEE {(farm.pool.fee * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
 
           <Flex color={theme.subText} marginLeft="0.25rem">
@@ -191,6 +191,7 @@ export const ListView = ({
           >
             <Share2 size="14px" color={theme.subText} />
           </Flex>
+          <PartnerFarmTag farmPoolAddress={farm.poolAddress} />
         </Flex>
 
         <Flex sx={{ gap: '8px' }} alignItems="center">
