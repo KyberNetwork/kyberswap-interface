@@ -172,6 +172,7 @@ export const ListView = ({
               {getTokenSymbolWithHardcode(chainId, farm.token1.wrapped.address, farm.token1.symbol)}
             </Text>
           </Link>
+
           <FeeTag>FEE {(farm.pool.fee * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
 
           <Flex color={theme.subText} marginLeft="0.25rem">
