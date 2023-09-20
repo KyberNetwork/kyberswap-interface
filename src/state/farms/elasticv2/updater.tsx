@@ -6,7 +6,7 @@ import { CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useLazyGetFarmV2Query } from 'services/knprotocol'
 
 import FarmV2QuoterABI from 'constants/abis/farmv2Quoter.json'
@@ -123,10 +123,12 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
 
   const [getElasticFarmV2FromKnProtocol, { data: knProtocolData, error: knProtocolError }] = useLazyGetFarmV2Query()
 
+  const latestKnProtocolData = useRef(knProtocolData)
+
   const data = useMemo(() => {
     if (isEnableKNProtocol) {
       return {
-        farmV2S: knProtocolData?.data?.data || [],
+        farmV2S: knProtocolData?.data?.data || latestKnProtocolData.current?.data?.data || [],
       }
     } else return subgraphData
   }, [isEnableKNProtocol, knProtocolData, subgraphData])
@@ -173,7 +175,7 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
 
   useEffect(() => {
     const getData = async () => {
-      if (data?.farmV2S && chainId) {
+      if (data?.farmV2S.length && chainId) {
         const tokens = [
           ...new Set(
             data.farmV2S

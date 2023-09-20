@@ -128,7 +128,7 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
     .find(farm => farm.poolAddress.toLowerCase() === pool.address.toLowerCase())
   const isFarmV2 = !!farmV2
 
-  const isFarmingPool = isFarmV1 || isFarmV2
+  const isFarmingPool = isFarmV1 || isFarmV2 || !!pool.farmAPR
 
   const maxFarmV2Apr = Math.max(...(farmV2?.ranges.map(item => item.apr || 0) || []), 0)
 
