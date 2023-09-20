@@ -92,6 +92,10 @@ export type ElasticPositionEarningWithDetails = {
       rewards: Array<{ amount: string; index: number; tokenID: string }>
     }
     pendingRewards: Array<string>
+    liquidity: string
+    range: {
+      weight: string
+    }
   }[]
 } & HistoricalEarning
 

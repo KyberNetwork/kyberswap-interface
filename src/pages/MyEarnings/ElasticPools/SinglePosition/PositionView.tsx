@@ -67,9 +67,14 @@ const PositionView: React.FC<CommonProps> = props => {
     parseFloat(position.amount0.toExact() || '0') * prices[currency0.wrapped.address || ''] +
     parseFloat(position.amount1.toExact() || '0') * prices[currency1.wrapped.address || '']
 
+  const stakedLiqFarmv2 = positionEarning.farmV2DepositedPositions?.[0]?.liquidity || '0'
+  const weight = positionEarning.farmV2DepositedPositions?.[0]?.range?.weight || '1'
+
   const stakedPosition = new Position({
     pool: position.pool,
-    liquidity: positionEarning.joinedPositions?.[0]?.liquidity || '0',
+    liquidity:
+      positionEarning.joinedPositions?.[0]?.liquidity ||
+      BigNumber.from(stakedLiqFarmv2).div(BigNumber.from(weight)).toString(),
     tickLower: position.tickLower,
     tickUpper: position.tickUpper,
   })
@@ -301,7 +306,7 @@ const PositionView: React.FC<CommonProps> = props => {
 
       <Flex justifyContent="space-between">
         <Flex flexDirection="column" sx={{ gap: '4px' }}>
-          <Text fontSize={12} fontWeight="500" color={theme.subText}>
+          <Text fontSize={12} fontWeight="500" color={theme.subText} textAlign="left">
             <Trans>Farm Rewards</Trans>
           </Text>
 
