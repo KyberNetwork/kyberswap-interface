@@ -368,7 +368,7 @@ export default function SwapForm() {
 
         {!!priceImpact && <PriceImpactNote priceImpact={Number(priceImpact)} isDegenMode={isDegenMode} />}
 
-        {inputError?.state && (
+        {inputError?.state && !inputError?.insufficientFund && (
           <ErrorWarningPanel title={inputError?.tip} type={inputError?.state} desc={inputError?.desc} />
         )}
 
@@ -383,7 +383,7 @@ export default function SwapForm() {
             route={route}
             minimal={false}
             showNoteGetRoute={priceImpactResult.isHigh || priceImpactResult.isVeryHigh || priceImpactResult.isInvalid}
-            disabledText={t`Swap`}
+            disabledText={(inputError?.insufficientFund ? inputError?.tip : '') || t`Swap`}
             showTooltipPriceImpact={false}
           />
         ) : (
