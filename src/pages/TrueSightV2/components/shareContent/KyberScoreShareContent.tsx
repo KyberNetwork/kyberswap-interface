@@ -15,7 +15,7 @@ export default function KyberScoreShareContent({
   token,
   mobileMode,
 }: {
-  token?: ITokenOverview
+  token?: IAssetOverview
   mobileMode?: boolean
 }) {
   const theme = useTheme()

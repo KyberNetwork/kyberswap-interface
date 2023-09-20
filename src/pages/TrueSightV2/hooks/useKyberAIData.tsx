@@ -4,6 +4,7 @@ import baseQueryOauth from 'services/baseQueryOauth'
 import { BFF_API } from 'constants/env'
 
 import {
+  IAssetOverview,
   ILiquidCEX,
   ILiveTrade,
   INetflowToCEX,
@@ -12,7 +13,6 @@ import {
   INumberOfTrades,
   INumberOfTransfers,
   ITokenList,
-  ITokenOverview,
   ITokenSearchResult,
   ITradingVolume,
   KyberAIListType,
@@ -57,7 +57,7 @@ const kyberAIApi = createApi({
       },
       providesTags: (result, error, arg) => (arg.watchlist === true ? ['myWatchList', 'tokenList'] : ['tokenList']),
     }),
-    //2.
+    //2. TODO
     addToWatchlist: builder.mutation({
       query: (params: { tokenAddress: string; chain: string }) => ({
         url: `/watchlist`,
@@ -66,7 +66,7 @@ const kyberAIApi = createApi({
       }),
       invalidatesTags: (res, err, params) => [{ type: 'tokenOverview', id: params.tokenAddress }, 'myWatchList'],
     }),
-    //3.
+    //3. TODO
     removeFromWatchlist: builder.mutation({
       query: (params: { tokenAddress: string; chain: string }) => ({
         url: `/watchlist`,
@@ -79,9 +79,20 @@ const kyberAIApi = createApi({
         'tokenList',
       ],
     }),
-
+    assetOverview: builder.query<IAssetOverview, { assetId?: string }>({
+      query: ({ assetId }: { assetId?: string }) => ({
+        url: `/assets/${assetId}`,
+      }),
+      transformResponse: (res: any) => {
+        // If token is stablecoin remove its kyberscore value
+        if (res.data && res.data.tags?.includes('stablecoin')) {
+          return { ...res.data, kyberScore: { ks3d: null, label: '', score: 0 } }
+        }
+        return res.data
+      },
+    }),
     //4.
-    tokenDetail: builder.query<ITokenOverview, { chain?: string; address?: string }>({
+    tokenOverview: builder.query<IAssetOverview, { chain?: string; address?: string }>({
       query: ({ chain, address }: { chain?: string; address?: string }) => ({
         url: `/overview/${chain}/${address}`,
       }),
@@ -92,7 +103,6 @@ const kyberAIApi = createApi({
         }
         return res.data
       },
-      providesTags: result => [{ type: 'tokenOverview', id: result?.address }],
     }),
     //5.
     numberOfTrades: builder.query<INumberOfTrades[], string>({
@@ -172,7 +182,7 @@ const kyberAIApi = createApi({
     //11.
     chartingData: builder.query<
       OHLCData[],
-      { chain: string; address: string; from: number; to: number; candleSize: string; currency: string }
+      { chain?: string; address?: string; from: number; to: number; candleSize: string; currency: string }
     >({
       query: ({ chain, address, from, to, candleSize, currency }) => ({
         url: `/ohlcv/${chain}/${address}`,
@@ -259,7 +269,8 @@ const kyberAIApi = createApi({
 })
 
 export const {
-  useTokenDetailQuery,
+  useAssetOverviewQuery,
+  useTokenOverviewQuery,
   useNumberOfTradesQuery,
   useTradingVolumeQuery,
   useNetflowToWhaleWalletsQuery,

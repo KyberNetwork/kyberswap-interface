@@ -143,7 +143,7 @@ const ExternalLink = ({ href, className, children }: { href: string; className?:
   )
 }
 
-export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLoading?: boolean }) => {
+export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLoading?: boolean }) => {
   const theme = useTheme()
   const { chain } = useParams()
   const mixpanelHandler = useMixpanelKyberAI()

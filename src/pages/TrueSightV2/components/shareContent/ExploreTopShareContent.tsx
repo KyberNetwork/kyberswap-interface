@@ -72,7 +72,7 @@ const PriceChart7Days = ({
     </ResponsiveContainer>
   )
 }
-export default function ExploreShareContent({ token, mobileMode }: { token?: ITokenOverview; mobileMode?: boolean }) {
+export default function ExploreShareContent({ token, mobileMode }: { token?: IAssetOverview; mobileMode?: boolean }) {
   const theme = useTheme()
   const { data } = useTokenListQuery(
     { type: KyberAIListType.ALL, page: 1, pageSize: 5, keywords: token?.address },

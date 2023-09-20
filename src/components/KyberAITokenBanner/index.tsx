@@ -47,17 +47,17 @@ const KyberAITokenBanner = ({
 
   const { isStableCoin } = useStableCoins(chainId)
 
-  const { data: tokenInputOverview } = useTokenDetailQuery(
+  const { data: tokenInputOverview } = useTokenOverviewQuery(
     { address: token0?.address, chain },
     { skip: !token0?.address || !account || !isWhiteList || !chain, refetchOnMountOrArgChange: true },
   )
 
-  const { data: tokenOutputOverview } = useTokenDetailQuery(
+  const { data: tokenOutputOverview } = useTokenOverviewQuery(
     { address: token1?.address, chain },
     { skip: !token1?.address || !account || !isWhiteList || !chain, refetchOnMountOrArgChange: true },
   )
 
-  const { data: tokenNativeOverview } = useTokenDetailQuery(
+  const { data: tokenNativeOverview } = useTokenOverviewQuery(
     { address: NativeCurrencies[chainId].wrapped.address, chain },
     { skip: !account || !isWhiteList || !chain, refetchOnMountOrArgChange: true },
   )

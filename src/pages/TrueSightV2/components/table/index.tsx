@@ -6,7 +6,7 @@ import { ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useStat
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { DefaultTheme, css } from 'styled-components'
 
@@ -25,6 +25,7 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
 import useIsReachMaxLimitWatchedToken from 'pages/TrueSightV2/hooks/useIsReachMaxLimitWatchedToken'
+import useKyberAIAssetOverview from 'pages/TrueSightV2/hooks/useKyberAIAssetOverview'
 import {
   useAddToWatchlistMutation,
   useFundingRateQuery,
@@ -32,7 +33,6 @@ import {
   useLiveDexTradesQuery,
   useRemoveFromWatchlistMutation,
 } from 'pages/TrueSightV2/hooks/useKyberAIData'
-import useKyberAITokenOverview from 'pages/TrueSightV2/hooks/useKyberAITokenOverview'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import { IHolderList, IKyberScoreChart, ILiveTrade, ITokenList, KyberAITimeframe } from 'pages/TrueSightV2/types'
 import {
@@ -172,9 +172,8 @@ const LoadingHandleWrapper = ({
 
 export const Top10HoldersTable = () => {
   const theme = useTheme()
-  const { chain, address } = useParams()
-  const { data, isLoading } = useHolderListQuery({ address, chain })
-  const { data: tokenOverview } = useKyberAITokenOverview()
+  const { data: tokenOverview, chain, address } = useKyberAIAssetOverview()
+  const { data, isLoading } = useHolderListQuery({ address, chain }, { skip: !chain || !address })
   return (
     <LoadingHandleWrapper isLoading={isLoading} hasData={!!data && data.length > 0} height="400px">
       <colgroup>
@@ -373,8 +372,8 @@ function colorRateText(value: number, theme: DefaultTheme) {
 
 export const FundingRateTable = ({ mobileMode }: { mobileMode?: boolean }) => {
   const theme = useTheme()
-  const { chain, address } = useParams()
-  const { data, isLoading } = useFundingRateQuery({ address, chain })
+  const { chain, address } = useKyberAIAssetOverview()
+  const { data, isLoading } = useFundingRateQuery({ address, chain }, { skip: !chain || !address })
 
   if (mobileMode) {
     return (
@@ -458,15 +457,15 @@ export const FundingRateTable = ({ mobileMode }: { mobileMode?: boolean }) => {
 export const LiveDEXTrades = () => {
   const theme = useTheme()
   const [currentPage, setCurrentPage] = useState(1)
-  const { chain, address } = useParams()
+  const { data: tokenOverview, chain, address } = useKyberAIAssetOverview()
+
   const { data, isLoading } = useLiveDexTradesQuery(
     {
       chain,
       address,
     },
-    { pollingInterval: 10000 },
+    { pollingInterval: 10000, skip: !chain || !address },
   )
-  const { data: tokenOverview } = useKyberAITokenOverview()
 
   return (
     <>
@@ -1024,7 +1023,7 @@ export const Top10HoldersShareModalTable = ({
   startIndex?: number
 }) => {
   const theme = useTheme()
-  const { data: tokenOverview } = useKyberAITokenOverview()
+  const { data: tokenOverview } = useKyberAIAssetOverview()
 
   return (
     <ShareTableWrapper style={{ flex: 1 }}>
@@ -1091,7 +1090,7 @@ export const LiveTradesInShareModalTable = ({
   mobileMode?: boolean
 }) => {
   const theme = useTheme()
-  const { data: tokenOverview } = useKyberAITokenOverview()
+  const { data: tokenOverview } = useKyberAIAssetOverview()
 
   return (
     <ShareTableWrapper style={{ flex: 1 }}>

@@ -99,11 +99,11 @@ const KyberAIModalInPool = ({ currency0, currency1 }: { currency0?: Currency; cu
   const [tab, setTab] = useState<TokenTabType>(TokenTabType.First)
   const [openTruesightModal, setOpenTruesightModal] = useState(false)
 
-  const { data: token0Overview } = useTokenDetailQuery(
+  const { data: token0Overview } = useTokenOverviewQuery(
     { address: currency0?.wrapped?.address, chain: SUPPORTED_NETWORK_KYBERAI[chainId] },
     { skip: !currency0?.wrapped?.address && !isWhiteList, refetchOnMountOrArgChange: true },
   )
-  const { data: token1Overview } = useTokenDetailQuery(
+  const { data: token1Overview } = useTokenOverviewQuery(
     { address: currency1?.wrapped?.address, chain: SUPPORTED_NETWORK_KYBERAI[chainId] },
     { skip: !currency1?.wrapped?.address && !isWhiteList, refetchOnMountOrArgChange: true },
   )
