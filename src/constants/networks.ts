@@ -182,6 +182,8 @@ export const SUPPORTED_NETWORKS_FOR_MY_EARNINGS = [
   ChainId.ARBITRUM,
   ChainId.OPTIMISM,
   ChainId.MATIC,
+  ChainId.LINEA,
+  ChainId.BASE,
   ChainId.BSCMAINNET,
   ChainId.AVAXMAINNET,
   ChainId.FANTOM,
