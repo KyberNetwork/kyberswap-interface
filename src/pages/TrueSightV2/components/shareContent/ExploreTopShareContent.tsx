@@ -9,7 +9,7 @@ import Column from 'components/Column'
 import Divider from 'components/Divider'
 import Row, { RowFit } from 'components/Row'
 import { useTokenListQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
-import { ITokenOverview, KyberAIListType } from 'pages/TrueSightV2/types'
+import { IAssetOverview, KyberAIListType } from 'pages/TrueSightV2/types'
 import { formatTokenPrice, getColorByKyberScore } from 'pages/TrueSightV2/utils'
 
 import ChevronIcon from '../ChevronIcon'

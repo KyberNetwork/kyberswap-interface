@@ -5,7 +5,7 @@ import { Text } from 'rebass'
 import Column from 'components/Column'
 import Row from 'components/Row'
 import useTheme from 'hooks/useTheme'
-import { ITokenOverview } from 'pages/TrueSightV2/types'
+import { IAssetOverview } from 'pages/TrueSightV2/types'
 import { formatTokenPrice, getColorByKyberScore } from 'pages/TrueSightV2/utils'
 
 import KyberScoreMeter from '../KyberScoreMeter'

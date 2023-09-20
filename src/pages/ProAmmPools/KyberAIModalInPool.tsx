@@ -19,7 +19,7 @@ import useTheme from 'hooks/useTheme'
 import KyberScoreMeter from 'pages/TrueSightV2/components/KyberScoreMeter'
 import SimpleTooltip from 'pages/TrueSightV2/components/SimpleTooltip'
 import { SUPPORTED_NETWORK_KYBERAI } from 'pages/TrueSightV2/constants/index'
-import { useTokenDetailQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
+import { useTokenOverviewQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { formatTokenPrice, getColorByKyberScore, navigateToSwapPage } from 'pages/TrueSightV2/utils'
 import { useIsWhiteListKyberAI } from 'state/user/hooks'
 

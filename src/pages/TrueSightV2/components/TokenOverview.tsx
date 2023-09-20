@@ -21,7 +21,7 @@ import { getEtherscanLink, shortenAddress } from 'utils'
 
 import { ShareButton } from '.'
 import { MIXPANEL_KYBERAI_TAG, NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from '../constants'
-import { ITokenOverview } from '../types'
+import { IAssetOverview } from '../types'
 import { formatLocaleStringNum, formatTokenPrice, getColorByKyberScore, getTypeByScore } from '../utils'
 import ChevronIcon from './ChevronIcon'
 import KyberAIShareModal from './KyberAIShareModal'

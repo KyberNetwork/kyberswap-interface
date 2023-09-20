@@ -1,4 +1,3 @@
-import { Trans } from '@lingui/macro'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -8,10 +7,7 @@ import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { Dot, InboxItemRow, InboxItemWrapper, RowItem, Title } from 'components/Announcement/PrivateAnnoucement/styled'
 import { AnnouncementTemplateKyberAI } from 'components/Announcement/type'
 import Column from 'components/Column'
-import DiscoverIcon from 'components/Icons/DiscoverIcon'
-import Icon from 'components/Icons/Icon'
-import Logo, { TokenLogoWithShadow } from 'components/Logo'
-import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmount'
+import { TokenLogoWithShadow } from 'components/Logo'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { getColorByKyberScore, getTypeByScore } from 'pages/TrueSightV2/utils'
@@ -32,17 +28,7 @@ export const TokenInfo = ({
   logoSize?: string
 }) => {
   const theme = useTheme()
-  const {
-    bullishTokenLogoURL,
-    bullishTokenScore,
-    bullishTokenSymbol,
-    bearishTokenLogoURL,
-    bearishTokenScore,
-    bearishTokenSymbol,
-    trendingSoonTokenLogoURL,
-    trendingSoonTokenScore,
-    trendingSoonTokenSymbol,
-  } = templateBody || {}
+  const { bullishTokenLogoURL, bullishTokenScore, bullishTokenSymbol } = templateBody || {}
   return (
     <ItemWrapper>
       <TokenLogoWithShadow srcs={[bullishTokenLogoURL]} size={logoSize} />
