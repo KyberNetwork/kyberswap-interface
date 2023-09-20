@@ -27,8 +27,6 @@ export interface ElasticFarmV2 {
   token0: Currency
   token1: Currency
   tvl: number
-  tvlToken0: CurrencyAmount<Currency>
-  tvlToken1: CurrencyAmount<Currency>
   totalRewards: Array<CurrencyAmount<Currency>>
   ranges: Array<ElasticFarmV2Range>
 }
@@ -62,7 +60,8 @@ export interface SubgraphFarmV2 {
   endTime: string
   isSettled: boolean
   liquidity: string
-  depositedPositions: Array<{
+  stakedTvl?: string
+  depositedPositions?: Array<{
     id: string
     position: {
       id: string

@@ -50,7 +50,6 @@ export class NFTPosition extends Position {
 }
 
 export interface UserInfo {
-  depositedPositions: NFTPosition[]
   joinedPositions: {
     [pid: string]: NFTPosition[]
   }

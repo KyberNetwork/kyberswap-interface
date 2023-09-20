@@ -189,7 +189,7 @@ const FarmingPoolAPRCell: React.FC<Props> = ({
       <MouseoverTooltip
         width="fit-content"
         placement={tooltipPlacement}
-        text={<APRTooltipContent farmAPR={farmAPR} farmV2APR={farmV2APR} poolAPR={poolAPR} />}
+        text={<APRTooltipContent farmAPR={maxFarmAPR} poolAPR={poolAPR} />}
       >
         <Text as="span" marginRight="4px">
           {formatDisplayNumber((poolAPR + maxFarmAPR) / 100, { style: 'percent', fractionDigits: 2 })}

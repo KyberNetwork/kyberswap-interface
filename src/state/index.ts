@@ -16,6 +16,7 @@ import crosschainApi from '../services/crossChain'
 import earningApi from '../services/earning'
 import geckoTerminalApi from '../services/geckoTermial'
 import identifyApi from '../services/identity'
+import knProtocolApi from '../services/knprotocol'
 import ksSettingApi from '../services/ksSetting'
 import kyberDAO from '../services/kyberDAO'
 import limitOrderApi from '../services/limitOrder'
@@ -118,6 +119,7 @@ const store = configureStore({
     [tokenApi.reducerPath]: tokenApi.reducer,
     [socialApi.reducerPath]: socialApi.reducer,
     [blockServiceApi.reducerPath]: blockServiceApi.reducer,
+    [knProtocolApi.reducerPath]: knProtocolApi.reducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
@@ -138,7 +140,8 @@ const store = configureStore({
       .concat(earningApi.middleware)
       .concat(socialApi.middleware)
       .concat(tokenApi.middleware)
-      .concat(blockServiceApi.middleware),
+      .concat(blockServiceApi.middleware)
+      .concat(knProtocolApi.middleware),
   preloadedState,
 })
 
