@@ -147,7 +147,7 @@ export default defineConfig({
       })
       // }
     },
-    baseUrl: process.env.CYPRESS_BASE_URL,
+    baseUrl: 'https://kyberswap.com/',
     specPattern: 'cypress/e2e/specs/farm-page.e2e.cy.ts',
   },
 })
