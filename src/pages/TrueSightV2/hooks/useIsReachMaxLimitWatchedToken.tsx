@@ -1,8 +1,10 @@
-import { KyberAIListType } from '../types'
+import { useMemo } from 'react'
+
+import { ITokenList, KyberAIListType } from '../types'
 import { useTokenListQuery } from './useKyberAIData'
 
 const MAX_LIMIT_WATCHED_TOKEN = 30
-export default function useIsReachMaxLimitWatchedToken() {
+export default function useIsReachMaxLimitWatchedToken(tokenCount?: number) {
   const { data } = useTokenListQuery({
     type: KyberAIListType.ALL,
     chain: 'all',
@@ -11,7 +13,13 @@ export default function useIsReachMaxLimitWatchedToken() {
     watchlist: true,
   })
 
-  const watchedCount = data?.totalItems || 0
+  const watchedCount = useMemo(() => {
+    let count = 0
+    data?.data.forEach((t: ITokenList) => {
+      count += t.tokens.length
+    })
+    return count
+  }, [data])
 
-  return watchedCount + 1 > MAX_LIMIT_WATCHED_TOKEN
+  return watchedCount + (tokenCount || 1) > MAX_LIMIT_WATCHED_TOKEN
 }

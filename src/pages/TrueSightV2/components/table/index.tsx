@@ -19,12 +19,20 @@ import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
+import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
 import useIsReachMaxLimitWatchedToken from 'pages/TrueSightV2/hooks/useIsReachMaxLimitWatchedToken'
 import useKyberAIAssetOverview from 'pages/TrueSightV2/hooks/useKyberAIAssetOverview'
-import { useFundingRateQuery, useHolderListQuery, useLiveDexTradesQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
+import {
+  useAddToWatchlistMutation,
+  useFundingRateQuery,
+  useHolderListQuery,
+  useLiveDexTradesQuery,
+  useRemoveFromWatchlistMutation,
+} from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import { IHolderList, IKyberScoreChart, ILiveTrade, ITokenList, KyberAITimeframe } from 'pages/TrueSightV2/types'
 import {
@@ -38,6 +46,7 @@ import { getEtherscanLink, shortenAddress } from 'utils'
 import { getProxyTokenLogo } from 'utils/tokenInfo'
 
 import ChevronIcon from '../ChevronIcon'
+import { WidgetTab } from '../KyberAIWidget'
 import MultipleChainDropdown from '../MultipleChainDropdown'
 import SimpleTooltip from '../SimpleTooltip'
 import SmallKyberScoreMeter from '../SmallKyberScoreMeter'
@@ -567,11 +576,22 @@ const WidgetTableWrapper = styled(Table)`
   }
 `
 
-const WidgetTokenRow = ({ token, onClick }: { token: ITokenList; onClick?: () => void }) => {
+const WidgetTokenRow = ({
+  token,
+  onClick,
+  activeTab,
+  index,
+}: {
+  token: ITokenList
+  onClick?: () => void
+  activeTab: WidgetTab
+  index: number
+}) => {
   const theme = useTheme()
   const navigate = useNavigate()
-
-  const reachedMaxLimit = useIsReachMaxLimitWatchedToken()
+  const { account } = useActiveWeb3React()
+  const mixpanelHandler = useMixpanelKyberAI()
+  const reachedMaxLimit = useIsReachMaxLimitWatchedToken(token?.tokens.length)
 
   const latestKyberScore: IKyberScoreChart | undefined = token?.ks_3d?.[token.ks_3d.length - 1]
   const hasMutipleChain = token?.tokens?.length > 1
@@ -579,6 +599,9 @@ const WidgetTokenRow = ({ token, onClick }: { token: ITokenList; onClick?: () =>
   const [showSwapMenu, setShowSwapMenu] = useState(false)
   const [menuLeft, setMenuLeft] = useState<number | undefined>(undefined)
   const [isWatched, setIsWatched] = useState(!!token.isWatched)
+  const [loadingStar, setLoadingStar] = useState(false)
+  const [addToWatchlist] = useAddToWatchlistMutation()
+  const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
 
   const rowRef = useRef<HTMLTableRowElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -619,36 +642,36 @@ const WidgetTokenRow = ({ token, onClick }: { token: ITokenList; onClick?: () =>
     navigateToSwapPage({ address, chain })
   }
 
-  // const handleWatchlistClick = (e: any) => {
-  //   e.stopPropagation()
-  //   if (!account) return
-  //   setLoadingStar(true)
-  //   if (isWatched) {
-  //     mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-  //       token_name: token.symbol?.toUpperCase(),
-  //       source: activeTab,
-  //       ranking_order: index,
-  //       option: 'remove',
-  //     })
-  //     Promise.all(token.tokens.map(t => removeFromWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
-  //       setIsWatched(false)
-  //       setLoadingStar(false)
-  //     })
-  //   } else {
-  //     if (!isWatched) {
-  //       mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-  //         token_name: token.symbol?.toUpperCase(),
-  //         source: activeTab,
-  //         ranking_order: index,
-  //         option: 'add',
-  //       })
-  //       Promise.all(token.tokens.map(t => addToWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
-  //         setIsWatched(true)
-  //         setLoadingStar(false)
-  //       })
-  //     }
-  //   }
-  // }
+  const handleWatchlistClick = (e: any) => {
+    e.stopPropagation()
+    if (!account) return
+    setLoadingStar(true)
+    if (isWatched) {
+      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
+        token_name: token.symbol?.toUpperCase(),
+        source: activeTab,
+        ranking_order: index,
+        option: 'remove',
+      })
+      Promise.all(token.tokens.map(t => removeFromWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
+        setIsWatched(false)
+        setLoadingStar(false)
+      })
+    } else {
+      if (!isWatched) {
+        mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
+          token_name: token.symbol?.toUpperCase(),
+          source: activeTab,
+          ranking_order: index,
+          option: 'add',
+        })
+        Promise.all(token.tokens.map(t => addToWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
+          setIsWatched(true)
+          setLoadingStar(false)
+        })
+      }
+    }
+  }
 
   useEffect(() => {
     setIsWatched(token.isWatched)
@@ -661,7 +684,12 @@ const WidgetTokenRow = ({ token, onClick }: { token: ITokenList; onClick?: () =>
           <td>
             <Column gap="4px">
               <RowFit gap="6px">
-                <StarWithAnimation watched={isWatched} loading={false} disabled={!isWatched && reachedMaxLimit} />
+                <StarWithAnimation
+                  watched={isWatched}
+                  loading={loadingStar}
+                  onClick={handleWatchlistClick}
+                  disabled={!isWatched && reachedMaxLimit}
+                />
                 <img
                   alt="tokenInList"
                   src={token.tokens[0].logo}
@@ -706,7 +734,12 @@ const WidgetTokenRow = ({ token, onClick }: { token: ITokenList; onClick?: () =>
                     : t`Add to watchlist`
                 }
               >
-                <StarWithAnimation watched={isWatched} loading={false} disabled={!isWatched && reachedMaxLimit} />
+                <StarWithAnimation
+                  watched={isWatched}
+                  loading={loadingStar}
+                  onClick={handleWatchlistClick}
+                  disabled={!isWatched && reachedMaxLimit}
+                />
               </SimpleTooltip>
               <Row gap="8px" style={{ position: 'relative', width: '24px', height: '24px' }}>
                 <img
