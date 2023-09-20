@@ -24,8 +24,6 @@ export default defineConfig({
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       require('@cypress/grep/src/plugin')(config)
       synpressPlugins(on, config)
-      // console.log('baseURL: ', process.env.CYPRESS_BASE_URL)
-      // if (process.env.CYPRESS_BASE_URL === 'https://kyberswap.com/') {
       on('after:run', async results => {
         if (results) {
           const register = new client.Registry()
@@ -145,9 +143,7 @@ export default defineConfig({
             })
         }
       })
-      // }
     },
-    // baseUrl: process.env.CYPRESS_BASE_URL,
-    specPattern: 'cypress/e2e/specs/farm-page.e2e.cy.ts',
+    specPattern: 'cypress/e2e/specs/*.e2e.cy.ts',
   },
 })
