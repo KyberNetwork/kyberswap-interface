@@ -830,11 +830,13 @@ export const WidgetTable = ({
   isLoading,
   isError,
   onRowClick,
+  activeTab,
 }: {
   data?: ITokenList[]
   isLoading: boolean
   isError: boolean
   onRowClick?: () => void
+  activeTab: WidgetTab
 }) => {
   const theme = useTheme()
   return (
@@ -916,7 +918,7 @@ export const WidgetTable = ({
         ) : (
           <tbody>
             {data?.map((token, i) => {
-              return <WidgetTokenRow token={token} key={i} onClick={onRowClick} />
+              return <WidgetTokenRow token={token} key={i} onClick={onRowClick} activeTab={activeTab} index={i + 1} />
             })}
           </tbody>
         )}
@@ -929,11 +931,13 @@ export const WidgetMobileTable = ({
   isLoading,
   isError,
   onRowClick,
+  activeTab,
 }: {
   data?: ITokenList[]
   isLoading: boolean
   isError: boolean
   onRowClick?: () => void
+  activeTab: WidgetTab
 }) => {
   const theme = useTheme()
   return (
@@ -988,7 +992,7 @@ export const WidgetMobileTable = ({
         ) : (
           <tbody>
             {data?.map((token, i) => {
-              return <WidgetTokenRow token={token} key={i} onClick={onRowClick} />
+              return <WidgetTokenRow token={token} key={i} onClick={onRowClick} activeTab={activeTab} index={i + 1} />
             })}
           </tbody>
         )}
