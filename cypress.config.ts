@@ -131,7 +131,6 @@ export default defineConfig({
           register.registerMetric(suite)
 
           const gateway = new client.Pushgateway(`${process.env.CORE_PUSH_GATEWAY_URL}`, [], register)
-          console.log('gateway link: ', `${process.env.CORE_PUSH_GATEWAY_URL}`)
           await gateway
             .push({ jobName: 'ui-automation' })
             .then(({ resp, body }) => {
