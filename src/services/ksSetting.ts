@@ -11,8 +11,8 @@ import { TopToken } from 'state/topTokens/type'
 
 export type KyberSwapConfig = {
   rpc: string
-  prochart: boolean
   isEnableBlockService: boolean
+  isEnableKNProtocol: boolean
   blockClient: ApolloClient<NormalizedCacheObject>
   classicClient: ApolloClient<NormalizedCacheObject>
   elasticClient: ApolloClient<NormalizedCacheObject>
@@ -23,8 +23,8 @@ export type KyberSwapConfig = {
 
 export type KyberSwapConfigResponse = {
   rpc: string
-  prochart: boolean
   isEnableBlockService: boolean
+  isEnableKNProtocol: boolean
   blockSubgraph: string
   classicSubgraph: string
   elasticSubgraph: string

@@ -1,5 +1,4 @@
-import { CHAINS_SUPPORT_NEW_POOL_FARM_API } from 'constants/networks'
-import { useActiveWeb3React } from 'hooks'
+import { useKyberSwapConfig } from 'state/application/hooks'
 
 import useGetUserFarmingInfo from './useGetUserElasticFarmInfo'
 import FarmUpdaterV1 from './v1'
@@ -10,15 +9,11 @@ export type CommonProps = {
 }
 
 const FarmUpdater: React.FC<CommonProps> = ({ interval = true }) => {
-  const { chainId } = useActiveWeb3React()
+  const { isEnableKNProtocol } = useKyberSwapConfig()
 
   useGetUserFarmingInfo(interval)
 
-  if (!chainId) {
-    return null
-  }
-
-  if (CHAINS_SUPPORT_NEW_POOL_FARM_API.includes(chainId)) {
+  if (isEnableKNProtocol) {
     return <FarmUpdaterV2 interval={interval} />
   } else {
     return <FarmUpdaterV1 interval={interval} />

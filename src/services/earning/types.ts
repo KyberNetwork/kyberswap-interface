@@ -85,6 +85,18 @@ export type ElasticPositionEarningWithDetails = {
     pendingRewardUSD: string[]
     liquidity: string
   }[]
+
+  farmV2DepositedPositions: {
+    farmV2: {
+      id: string
+      rewards: Array<{ amount: string; index: number; tokenID: string }>
+    }
+    pendingRewards: Array<string>
+    liquidity: string
+    range: {
+      weight: string
+    }
+  }[]
 } & HistoricalEarning
 
 export type ClassicPositionEarningWithDetails = {
