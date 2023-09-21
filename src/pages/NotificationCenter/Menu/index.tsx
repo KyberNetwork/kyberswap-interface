@@ -98,7 +98,7 @@ const menuItems: MenuItemType[] = [
       },
       {
         route: PROFILE_MANAGE_ROUTES.KYBER_AI_WATCH_LIST,
-        type: PrivateAnnouncementType.KYBER_AI_WATCH_LIST,
+        type: PrivateAnnouncementType.KYBER_AI_WATCHLIST,
       },
     ],
   },

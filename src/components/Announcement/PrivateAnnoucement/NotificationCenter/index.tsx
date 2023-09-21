@@ -26,7 +26,7 @@ const ANNOUNCEMENT_MAP_IN_CENTER = {
   [PrivateAnnouncementType.BRIDGE_ASSET]: Bridge,
   [PrivateAnnouncementType.CROSS_CHAIN]: CrossChain,
   [PrivateAnnouncementType.KYBER_AI]: KyberAI,
-  [PrivateAnnouncementType.KYBER_AI_WATCH_LIST]: KyberAIWatchlist,
+  [PrivateAnnouncementType.KYBER_AI_WATCHLIST]: KyberAIWatchlist,
   [PrivateAnnouncementType.PRICE_ALERT]: PriceAlert,
   [PrivateAnnouncementType.DIRECT_MESSAGE]: PrivateMessage,
 } as PrivateAnnouncementCenterMap
