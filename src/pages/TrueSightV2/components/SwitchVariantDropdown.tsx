@@ -12,6 +12,8 @@ import { ICON_ID } from 'constants/index'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 
+import useKyberAIAssetOverview from '../hooks/useKyberAIAssetOverview'
+
 const Wrapper = styled.div`
   position: relative;
 `
@@ -79,9 +81,11 @@ export default function SwitchVariantDropdown({
   const [show, setShow] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const [, setSearchParams] = useSearchParams()
+  const { chain, address } = useKyberAIAssetOverview()
   useOnClickOutside(ref, () => setShow(false))
-  const firstItem = variants?.[0]
-  if (!firstItem && isLoading) {
+  const variant = variants?.find(item => item.address.toLowerCase() === address && item.chain.toLowerCase() === chain)
+  console.log('🚀 ~ file: SwitchVariantDropdown.tsx:87 ~ variant:', variant)
+  if (!variant && isLoading) {
     return (
       <SkeletonTheme
         height="36px"
@@ -100,16 +104,16 @@ export default function SwitchVariantDropdown({
   const setChainAndAdress = (variant: { chain: string; address: string }) => {
     setSearchParams({ chain: variant.chain, address: variant.address })
   }
-  const variant = !!firstItem ? VARIANTS[firstItem?.chain] : undefined
+  const variantInfo = !!variant ? VARIANTS[variant?.chain] : undefined
 
   return (
     <Wrapper ref={ref}>
       <SelectButton onClick={() => setShow(true)}>
         <Row gap="8px">
-          {variant && (
+          {variantInfo && (
             <>
-              <Icon id={variant.icon_id} title={variant.title} size={20} />
-              <Text style={{ flex: 1 }}>{variant.title}</Text>{' '}
+              <Icon id={variantInfo.icon_id} title={variantInfo.title} size={20} />
+              <Text style={{ flex: 1 }}>{variantInfo.title}</Text>{' '}
             </>
           )}
         </Row>
