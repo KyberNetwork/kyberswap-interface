@@ -426,7 +426,7 @@ export default function Menu() {
                   title={t`About`}
                   link={'/about'}
                   options={[
-                    { link: '/about/kyberswap', label: 'Kyberswap' },
+                    { link: '/about/kyberswap', label: 'KyberSwap' },
                     { link: '/about/knc', label: 'KNC' },
                   ]}
                 />
