@@ -449,7 +449,7 @@ export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => 
     return {
       rpc: config.rpc,
       isEnableBlockService: config.isEnableBlockService,
-      isEnableKNProtocol: config.isEnableKNProtocol,
+      isEnableKNProtocol: false, //config.isEnableKNProtocol,
       readProvider,
       blockClient,
       elasticClient,
@@ -460,7 +460,6 @@ export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => 
   }, [
     config.rpc,
     config.isEnableBlockService,
-    config.isEnableKNProtocol,
     config.commonTokens,
     readProvider,
     blockClient,
