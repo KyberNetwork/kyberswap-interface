@@ -13,6 +13,7 @@ import { ButtonOutlined } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { MouseoverTooltip } from 'components/Tooltip'
 import PROMM_FARM_ABI from 'constants/abis/v2/farm.json'
+import FarmV2ABI from 'constants/abis/v2/farmv2.json'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import { config } from 'hooks/useElasticLegacy'
@@ -31,6 +32,7 @@ import { formatDollarAmount } from 'utils/numbers'
 
 type Props = {
   nftId: string
+  fId: string
   feeValue0: CurrencyAmount<Currency>
   feeValue1: CurrencyAmount<Currency>
   feeUsd: number
@@ -43,9 +45,11 @@ type Props = {
 }
 
 const FarmInterface = new Interface(PROMM_FARM_ABI)
+const FarmV2Interface = new Interface(FarmV2ABI)
 
 const CollectFeesPanel: React.FC<Props> = ({
   nftId,
+  fId,
   chainId,
   feeUsd,
   feeValue0,
@@ -140,14 +144,19 @@ const CollectFeesPanel: React.FC<Props> = ({
     const amount0Min = feeValue0.subtract(feeValue0.multiply(basisPointsToPercent(allowedSlippage)))
     const amount1Min = feeValue1.subtract(feeValue1.multiply(basisPointsToPercent(allowedSlippage)))
     try {
-      const encoded = FarmInterface.encodeFunctionData('claimFee', [
-        [nftId],
-        amount0Min.quotient.toString(),
-        amount1Min.quotient.toString(),
-        poolAddress,
-        true,
-        deadline?.toString(),
-      ])
+      const encoded = (fId ? FarmV2Interface : FarmInterface).encodeFunctionData(
+        'claimFee',
+        fId
+          ? [fId, [nftId], amount0Min.quotient.toString(), amount1Min.quotient.toString(), deadline?.toString(), true]
+          : [
+              [nftId],
+              amount0Min.quotient.toString(),
+              amount1Min.quotient.toString(),
+              poolAddress,
+              true,
+              deadline?.toString(),
+            ],
+      )
 
       sendTransaction({
         to: farmAddress,
