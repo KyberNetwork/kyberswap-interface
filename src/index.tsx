@@ -1,3 +1,4 @@
+import '@/wdyr'
 import * as Sentry from '@sentry/react'
 import { BrowserTracing } from '@sentry/tracing'
 import { Web3ReactHooks, Web3ReactProvider } from '@web3-react/core'

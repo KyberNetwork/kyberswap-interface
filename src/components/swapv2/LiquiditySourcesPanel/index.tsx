@@ -106,6 +106,8 @@ const LiquiditySourceHeader = styled.div`
   align-items: center;
 `
 
+export const isKyberSwapDex = (id: string) => id.toLowerCase().includes('kyber')
+
 const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
   const [searchText, setSearchText] = useState('')
   const debouncedSearchText = useDebounce(searchText.toLowerCase(), 200).trim()
@@ -135,7 +137,7 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
   }, [excludeDexes, dexes])
 
   const ksDexes = useMemo(
-    () => dexes.filter(item => item.id.includes('kyberswap')).sort((a, b) => a.sortId - b.sortId),
+    () => dexes.filter(item => isKyberSwapDex(item.id)).sort((a, b) => a.sortId - b.sortId),
     [dexes],
   )
 
@@ -210,10 +212,10 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
                   checked={!ksDexes.map(i => i.id).every(item => excludeDexes.includes(item))}
                   onChange={e => {
                     if (e.target.checked) {
-                      setExcludeDexes(excludeDexes.filter(item => !item.includes('kyberswap')))
+                      setExcludeDexes(excludeDexes.filter(item => !isKyberSwapDex(item)))
                     } else {
                       const newData = [
-                        ...excludeDexes.filter(item => !item.includes('kyberswap')),
+                        ...excludeDexes.filter(item => !isKyberSwapDex(item)),
                         ...ksDexes.map(item => item.id),
                       ]
                       setExcludeDexes(newData)
@@ -244,7 +246,7 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
             </>
           )}
           {dexes
-            ?.filter(item => !item.id.includes('kyberswap') && item.name.toLowerCase().includes(debouncedSearchText))
+            ?.filter(item => !isKyberSwapDex(item.id) && item.name.toLowerCase().includes(debouncedSearchText))
             .map(({ name, logoURL, id }) => (
               <Source key={name}>
                 <Checkbox checked={!excludeDexes.includes(id)} onChange={() => handleToggleDex(id)} />

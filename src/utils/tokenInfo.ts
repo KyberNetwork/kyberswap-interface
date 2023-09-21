@@ -59,6 +59,8 @@ export const getTokenSymbolWithHardcode = (
     return 'mKNC'
   }
   if (chainId === ChainId.ARBITRUM && formatAddress === '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8') return 'USDC.e'
+  if (chainId === ChainId.ARBITRUM && formatAddress === '0x9cfb13e6c11054ac9fcb92ba89644f30775436e4')
+    return 'axl.wstETH'
   return defaultSymbol ?? ''
 }
 
