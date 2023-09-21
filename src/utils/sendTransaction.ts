@@ -63,7 +63,7 @@ export async function sendEVMTransaction(
     handler?.(response)
     return response
   } catch (error) {
-    const a = new TransactionError(
+    throw new TransactionError(
       sentryInfo.name,
       'sendTransaction',
       error?.message,
@@ -71,8 +71,6 @@ export async function sendEVMTransaction(
       { cause: error },
       sentryInfo.wallet,
     )
-    a.message
-    throw a
   }
 }
 
