@@ -7,8 +7,27 @@ import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 if (ENV_LEVEL == ENV_TYPE.ADPR) {
   setTimeout(() => {
     console.log('capturing Injected window.ethereum', { level: 'info', extra: { 'window.ethereum': window.ethereum } })
-    captureMessage('Injected window.ethereum', { level: 'info', extra: { 'window.ethereum': window.ethereum } })
-  }, 2000)
+    captureMessage('Injected window.ethereum', {
+      level: 'info',
+      extra: {
+        'window.ethereum': window.ethereum,
+        'window.web3': window.web3,
+        'window.coin98': window.coin98,
+        'window.coinbaseWalletExtension': window.coinbaseWalletExtension,
+        'navigator.brave': navigator.brave,
+        isInjected: getIsInjected(),
+        isMetaMaskWallet: getIsMetaMaskWallet(),
+        isCoinbaseWallet: getIsCoinbaseWallet(),
+        isBraveWallet: getIsBraveWallet(),
+        isC98Wallet: getIsC98Wallet(),
+        isRabbyWallet: getIsRabbyWallet(),
+        isBloctoWallet: getIsBloctoWallet(),
+        isKrystalWallet: getIsKrystalWallet(),
+        isTrustWallet: getIsTrustWallet(),
+        isGenericInjector: getIsGenericInjector(),
+      },
+    })
+  }, 5000)
 }
 
 export const getIsInjected = () => Boolean(window.ethereum)
