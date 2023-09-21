@@ -34,7 +34,7 @@ const SelectButton = styled(RowFit)`
 const DropdownWrapper = styled(motion.div)`
   position: absolute;
   width: 100%;
-  border-radius: 14px;
+  border-radius: 10px;
   background-color: ${({ theme }) => theme.buttonGray};
   left: 0;
   top: calc(100% + 2px);
@@ -50,6 +50,7 @@ const DropdownItem = styled(Row)`
   padding: 4px 8px;
   gap: 8px;
   border-radius: 4px;
+  font-size: 14px;
   cursor: pointer;
   :hover {
     filter: brightness(1.2);
@@ -67,14 +68,20 @@ const VARIANTS: { [key: string]: { icon_id: ICON_ID; title: string } } = {
   optimism: { icon_id: 'optimism-mono', title: 'Optimism' },
 }
 
-export default function SwitchVariantDropdown({ variants }: { variants?: { chain: string; address: string }[] }) {
+export default function SwitchVariantDropdown({
+  variants,
+  isLoading,
+}: {
+  variants?: { chain: string; address: string }[]
+  isLoading?: boolean
+}) {
   const theme = useTheme()
   const [show, setShow] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const [, setSearchParams] = useSearchParams()
   useOnClickOutside(ref, () => setShow(false))
   const firstItem = variants?.[0]
-  if (!firstItem)
+  if (!firstItem && isLoading) {
     return (
       <SkeletonTheme
         height="36px"
@@ -88,27 +95,35 @@ export default function SwitchVariantDropdown({ variants }: { variants?: { chain
         <Skeleton />
       </SkeletonTheme>
     )
+  }
 
   const setChainAndAdress = (variant: { chain: string; address: string }) => {
     setSearchParams({ chain: variant.chain, address: variant.address })
   }
-  const variant = !!firstItem && VARIANTS[firstItem?.chain]
+  const variant = !!firstItem ? VARIANTS[firstItem?.chain] : undefined
+
   return (
     <Wrapper ref={ref}>
       <SelectButton onClick={() => setShow(true)}>
-        <Icon id={variant.icon_id} title={variant.title} size={20} />
-        <Text style={{ flex: 1 }}>{variant.title}</Text>
+        <Row gap="8px">
+          {variant && (
+            <>
+              <Icon id={variant.icon_id} title={variant.title} size={20} />
+              <Text style={{ flex: 1 }}>{variant.title}</Text>{' '}
+            </>
+          )}
+        </Row>
         <Down />
       </SelectButton>
       <AnimatePresence>
-        {show && (
+        {show && !!variants?.length && (
           <DropdownWrapper
             initial={{ y: -10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -10, opacity: 0 }}
             transition={{ duration: 0.1 }}
           >
-            {variants.map(item => {
+            {variants?.map(item => {
               const itemVariant = VARIANTS[item.chain]
               return (
                 <DropdownItem

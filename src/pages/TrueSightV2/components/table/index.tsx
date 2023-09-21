@@ -595,44 +595,25 @@ const WidgetTokenRow = ({
 
   const latestKyberScore: IKyberScoreChart | undefined = token?.ks_3d?.[token.ks_3d.length - 1]
   const hasMutipleChain = token?.tokens?.length > 1
-  const [showMenu, setShowMenu] = useState(false)
   const [showSwapMenu, setShowSwapMenu] = useState(false)
-  const [menuLeft, setMenuLeft] = useState<number | undefined>(undefined)
   const [isWatched, setIsWatched] = useState(!!token.isWatched)
   const [loadingStar, setLoadingStar] = useState(false)
   const [addToWatchlist] = useAddToWatchlistMutation()
   const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
 
   const rowRef = useRef<HTMLTableRowElement>(null)
-  const menuRef = useRef<HTMLDivElement>(null)
 
-  useOnClickOutside(rowRef, () => setShowMenu(false))
   useOnClickOutside(rowRef, () => setShowSwapMenu(false))
 
-  const handleRowClick = (e: any) => {
-    if (hasMutipleChain) {
-      const left = e.clientX - (rowRef.current?.getBoundingClientRect()?.left || 0)
-      const rowWidth = rowRef.current?.getBoundingClientRect()?.width || 0
-      const menuWidth = menuRef.current?.getBoundingClientRect()?.width || 0
-      if (left !== undefined) {
-        setMenuLeft(Math.min(left, rowWidth - menuWidth))
-        setShowMenu(true)
-      }
-    } else {
-      navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.tokens[0].chain}/${token.tokens[0].address}`)
-      onClick?.()
-    }
+  const handleRowClick = () => {
+    navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.asset_id}`)
+    onClick?.()
   }
 
   const handleSwapClick = (e: any) => {
     e.stopPropagation()
     if (hasMutipleChain) {
-      const left =
-        e.clientX -
-        (rowRef.current?.getBoundingClientRect()?.left || 0) -
-        (menuRef.current?.getBoundingClientRect()?.width || 0)
       setShowSwapMenu(true)
-      setMenuLeft(left)
     } else {
       navigateToSwapPage({ address: token.tokens[0].address, chain: token.tokens[0].chain })
     }
@@ -803,22 +784,7 @@ const WidgetTokenRow = ({
       </td>
       {hasMutipleChain && (
         <>
-          <MultipleChainDropdown
-            ref={menuRef}
-            show={showMenu}
-            menuLeft={menuLeft}
-            tokens={token?.tokens}
-            onChainClick={(chain, address) => {
-              onClick?.()
-              navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${chain}/${address}`)
-            }}
-          />
-          <MultipleChainDropdown
-            show={showSwapMenu}
-            menuLeft={menuLeft}
-            tokens={token?.tokens}
-            onChainClick={handleSwapNavigateClick}
-          />
+          <MultipleChainDropdown show={showSwapMenu} tokens={token?.tokens} onChainClick={handleSwapNavigateClick} />
         </>
       )}
     </tr>

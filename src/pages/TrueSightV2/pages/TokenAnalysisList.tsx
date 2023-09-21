@@ -23,12 +23,14 @@ import { APP_PATHS, ICON_ID } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
+import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 
 import ChevronIcon from '../components/ChevronIcon'
 import FeedbackSurvey from '../components/FeedbackSurvey'
 import KyberAIShareModal from '../components/KyberAIShareModal'
+import MultipleChainDropdown from '../components/MultipleChainDropdown'
 import NetworkSelect from '../components/NetworkSelect'
 import SimpleTooltip from '../components/SimpleTooltip'
 import SmallKyberScoreMeter from '../components/SmallKyberScoreMeter'
@@ -39,7 +41,7 @@ import KyberScoreChart from '../components/chart/KyberScoreChart'
 import TokenAnalysisListShareContent from '../components/shareContent/TokenAnalysisListShareContent'
 import { KYBERAI_LISTYPE_TO_MIXPANEL, SUPPORTED_NETWORK_KYBERAI } from '../constants'
 import useIsReachMaxLimitWatchedToken from '../hooks/useIsReachMaxLimitWatchedToken'
-import { useTokenListQuery } from '../hooks/useKyberAIData'
+import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation, useTokenListQuery } from '../hooks/useKyberAIData'
 import { IKyberScoreChart, ITokenList, KyberAIListType } from '../types'
 import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice, navigateToSwapPage } from '../utils'
 
@@ -477,11 +479,17 @@ const TokenRow = ({
   const { account } = useActiveWeb3React()
   const theme = useTheme()
   const reachedMaxLimit = useIsReachMaxLimitWatchedToken()
+  const [showSwapMenu, setShowSwapMenu] = useState(false)
+  const [addToWatchlist] = useAddToWatchlistMutation()
+  const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
   const [isWatched, setIsWatched] = useState(false)
   const [loadingStar, setLoadingStar] = useState(false)
   const rowRef = useRef<HTMLTableRowElement>(null)
 
+  useOnClickOutside(rowRef, () => setShowSwapMenu(false))
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
+
+  const hasMutipleChain = token.tokens.length > 1
 
   const handleRowClick = () => {
     navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.asset_id}`, {
@@ -500,11 +508,10 @@ const TokenRow = ({
         ranking_order: index,
         option: 'remove',
       })
-      // TODO: refactor removeFromWatchlist
-      // Promise.all(token.tokens.map(t => removeFromWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
-      //   setIsWatched(false)
-      //   setLoadingStar(false)
-      // })
+      Promise.all(token.tokens.map(t => removeFromWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
+        setIsWatched(false)
+        setLoadingStar(false)
+      })
     } else {
       if (!reachedMaxLimit) {
         mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
@@ -513,11 +520,10 @@ const TokenRow = ({
           ranking_order: index,
           option: 'add',
         })
-        // TODO: refactor addToWatchlist
-        // Promise.all(token.tokens.map(t => addToWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
-        //   setIsWatched(true)
-        //   setLoadingStar(false)
-        // })
+        Promise.all(token.tokens.map(t => addToWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
+          setIsWatched(true)
+          setLoadingStar(false)
+        })
       }
     }
   }
@@ -661,12 +667,29 @@ const TokenRow = ({
                   source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
                   option: 'swap',
                 })
-                navigateToSwapPage(token.tokens[0])
+                if (hasMutipleChain) {
+                  setShowSwapMenu(true)
+                } else {
+                  navigateToSwapPage(token.tokens[0])
+                }
               }}
             >
               <Icon id="swap" size={16} />
             </ActionButton>
           </SimpleTooltip>
+          {hasMutipleChain && (
+            <>
+              <MultipleChainDropdown
+                show={showSwapMenu}
+                tokens={token?.tokens}
+                onChainClick={(chain, address) => {
+                  if (chain && address) {
+                    navigateToSwapPage({ chain, address })
+                  }
+                }}
+              />
+            </>
+          )}
         </Row>
       </td>
     </tr>
