@@ -1,7 +1,8 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { createApi } from '@reduxjs/toolkit/query/react'
 import { Connection } from '@solana/web3.js'
+import baseQueryOauth from 'services/baseQueryOauth'
 
 import { KS_SETTING_API } from 'constants/env'
 import { AppJsonRpcProvider } from 'constants/providers'
@@ -58,8 +59,9 @@ export interface TokenListResponse<T = TokenInfo> {
 
 const ksSettingApi = createApi({
   reducerPath: 'ksSettingConfigurationApi',
-  baseQuery: fetchBaseQuery({
+  baseQuery: baseQueryOauth({
     baseUrl: `${KS_SETTING_API}/v1`,
+    trackingOnly: true,
   }),
   endpoints: builder => ({
     getKyberswapConfiguration: builder.query<KyberswapConfigurationResponse, ChainId>({
