@@ -35,6 +35,7 @@ import {
 } from 'utils/firebase'
 import { getContract } from 'utils/getContract'
 import { sendEVMTransaction } from 'utils/sendTransaction'
+import { ErrorName } from 'utils/sentry'
 
 import EditOrderModal from '../EditOrderModal'
 import CancelOrderModal from '../Modals/CancelOrderModal'
@@ -118,7 +119,7 @@ export const checkOrderActive = (order: LimitOrder) => {
 }
 
 export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
-  const { account, chainId, networkInfo } = useActiveWeb3React()
+  const { account, chainId, networkInfo, walletKey } = useActiveWeb3React()
   const { library } = useWeb3React()
   const [curPage, setCurPage] = useState(1)
 
@@ -293,7 +294,10 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     const newOrders = isCancelAll ? orders.map(e => e.id) : order?.id ? [order?.id] : []
 
     const sendTransaction = async (encodedData: string, contract: string, payload: any) => {
-      const response = await sendEVMTransaction(account, library, contract, encodedData, BigNumber.from(0))
+      const response = await sendEVMTransaction(account, library, contract, encodedData, BigNumber.from(0), {
+        name: ErrorName.LimitOrderError,
+        wallet: walletKey,
+      })
       if (response?.hash) {
         insertCancellingOrder({
           maker: account,

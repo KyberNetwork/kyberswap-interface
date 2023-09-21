@@ -33,6 +33,7 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { findTx } from 'utils'
 import { sendEVMTransaction } from 'utils/sendTransaction'
+import { ErrorName } from 'utils/sentry'
 
 type Size = 'small' | 'large'
 export default function CampaignButtonWithOptions({
@@ -59,7 +60,7 @@ export default function CampaignButtonWithOptions({
     ? campaign[type === 'swap_now' ? 'chainIds' : 'rewardChainIds'].split(',').map(Number)
     : []
 
-  const { account, walletSolana } = useActiveWeb3React()
+  const { account, walletSolana, walletKey } = useActiveWeb3React()
   const { library } = useWeb3React()
 
   const rawRewards = campaign?.userInfo?.rewards || []
@@ -195,6 +196,7 @@ export default function CampaignButtonWithOptions({
           rewardContractAddress,
           encodedData,
           BigNumber.from(0),
+          { name: ErrorName.ClaimCampaignError, wallet: walletKey },
           async transactionResponse => {
             addClaimTransactionAndAddClaimRef(
               transactionResponse.hash,

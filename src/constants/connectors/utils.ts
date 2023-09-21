@@ -83,6 +83,8 @@ const rejectedPhrases: readonly string[] = [
   'User declined to send the transaction',
   'user denied transaction',
   'you must accept',
+  'User rejected methods',
+  'User rejected the request',
 ].map(phrase => phrase.toLowerCase())
 
 export function didUserReject(error: any): boolean {

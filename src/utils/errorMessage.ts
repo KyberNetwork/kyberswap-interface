@@ -39,13 +39,18 @@ function parseKnownPattern(text: string): string | undefined {
   return undefined
 }
 
+const codeMapping: { [key: string]: string } = {
+  'Internal JSON-RPC error.': 'Network Error. Please check your connection and try again.',
+}
+
 const patterns: { pattern: RegExp; getMessage: (match: RegExpExecArray) => string }[] = [
+  { pattern: /"message": ?"([^"]+?)"/, getMessage: match => codeMapping[match[1]] },
   {
     pattern: /{"originalError":.+"message":"execution reverted: ([^"]+)"/,
     getMessage: match => match[1],
   },
   { pattern: /^([\w ]*\w+) \(.+?\)$/, getMessage: match => match[1] },
-  { pattern: /"message": ?"[^"]+?"/, getMessage: match => match[1] },
+  { pattern: /"message": ?"([^"]+?)"/, getMessage: match => match[1] },
 ]
 function parseKnownRegexPattern(text: string): string | undefined {
   const pattern = patterns.find(pattern => pattern.pattern.exec(text))

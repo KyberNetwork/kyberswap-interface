@@ -1,12 +1,13 @@
 import { Currency, CurrencyAmount, Token, TradeType } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Pool, Route, SwapQuoter, SwapRouter, Trade, computePoolAddress } from '@kyberswap/ks-sdk-elastic'
+import { t } from '@lingui/macro'
 import { BigNumber, Contract } from 'ethers'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
+import { NotificationType } from 'components/Announcement/type'
 import { abi as QuoterABI } from 'constants/abis/v2/ProAmmQuoter.json'
-import { didUserReject } from 'constants/connectors/utils'
 import { INITIAL_ALLOWED_SLIPPAGE } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -14,10 +15,12 @@ import { useAllCurrencyCombinations } from 'hooks/useAllCurrencyCombinations'
 import { useContractForReading } from 'hooks/useContract'
 import { PoolState, usePools } from 'hooks/usePools'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
+import { useNotify } from 'state/application/hooks'
 import { useSingleContractWithCallData } from 'state/multicall/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { basisPointsToPercent, calculateGasMargin } from 'utils'
+import { friendlyError } from 'utils/errorMessage'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 import { getContract } from 'utils/getContract'
 import isZero from 'utils/isZero'
@@ -451,6 +454,7 @@ export function useSwapCallback(
   const swapCalls = useSwapCallArguments(trade, allowedSlippage)
 
   const addTransactionWithType = useTransactionAdder()
+  const notify = useNotify()
 
   return useMemo(() => {
     if (!trade || !library || !account || !chainId) {
@@ -555,19 +559,21 @@ export function useSwapCallback(
             return response.hash
           })
           .catch((error: any) => {
-            // if the user rejected the tx, pass this along
-            if (didUserReject(error)) {
-              throw new Error('Transaction rejected.')
-            } else {
-              // otherwise, the error was unexpected and we need to convey that
-              console.error(`Swap failed`, error, address, calldata, value)
-              throw new Error(`Swap failed: ${error.message}`)
-            }
+            const message = friendlyError(error)
+            console.error('Swap error:', { message, error })
+            notify(
+              {
+                title: t`Swap Error`,
+                summary: message,
+                type: NotificationType.ERROR,
+              },
+              8000,
+            )
           })
       },
       error: null,
     }
-  }, [trade, library, account, chainId, swapCalls, addTransactionWithType])
+  }, [trade, library, account, chainId, swapCalls, addTransactionWithType, notify])
 }
 
 interface SwapCall {

@@ -14,6 +14,7 @@ import { isAddress, shortenAddress } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 import { sendEVMTransaction, sendSolanaTransactions } from 'utils/sendTransaction'
+import { ErrorName } from 'utils/sentry'
 
 import useProvider from './solana/useProvider'
 
@@ -28,7 +29,7 @@ enum SwapCallbackState {
 export function useSwapV2Callback(
   trade: Aggregator | undefined, // trade to execute, required
 ): { state: SwapCallbackState; callback: null | (() => Promise<string>); error: string | null } {
-  const { account, chainId, isEVM, isSolana, walletSolana } = useActiveWeb3React()
+  const { account, chainId, isEVM, isSolana, walletSolana, walletKey } = useActiveWeb3React()
   const { library } = useWeb3React()
   const { connection } = useWeb3Solana()
   const provider = useProvider()
@@ -115,6 +116,8 @@ export function useSwapV2Callback(
     }
 
     const value = BigNumber.from(trade.inputAmount.currency.isNative ? trade.inputAmount.quotient.toString() : 0)
+    // swap v2 is unused anymore
+    // todo: remove this
     const onSwapWithBackendEncode = async (): Promise<string> => {
       const response = await sendEVMTransaction(
         account,
@@ -122,6 +125,7 @@ export function useSwapV2Callback(
         trade.routerAddress,
         trade.encodedSwapData,
         value,
+        { name: ErrorName.SwapError, wallet: walletKey },
         onHandleSwapResponse,
         chainId,
       )
@@ -165,5 +169,6 @@ export function useSwapV2Callback(
     addTransactionWithType,
     extractSwapData,
     connection,
+    walletKey,
   ])
 }

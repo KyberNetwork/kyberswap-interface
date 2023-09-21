@@ -138,7 +138,6 @@ export function useApproveCallback(
             },
             8000,
           )
-          throw error
         })
     },
     [approvalState, token, tokenContract, amountToApprove, spender, addTransactionWithType, forceApprove, notify],

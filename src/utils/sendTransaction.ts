@@ -6,11 +6,12 @@ import { SignerWalletAdapter } from '@solana/wallet-adapter-base'
 import { Connection, Transaction, VersionedTransaction } from '@solana/web3.js'
 import { ethers } from 'ethers'
 
+import { SUPPORTED_WALLET } from 'constants/wallets'
 import { SolanaEncode } from 'state/swap/types'
 import { TRANSACTION_TYPE, TransactionHistory } from 'state/transactions/type'
 import { calculateGasMargin } from 'utils'
 
-import { TransactionError } from './sentry'
+import { ErrorName, TransactionError } from './sentry'
 
 export async function sendEVMTransaction(
   account: string,
@@ -18,6 +19,10 @@ export async function sendEVMTransaction(
   contractAddress: string,
   encodedData: string,
   value: BigNumber,
+  sentryInfo: {
+    name: ErrorName
+    wallet: SUPPORTED_WALLET | undefined
+  },
   handler?: (response: TransactionResponse) => void,
   chainId?: ChainId,
 ): Promise<TransactionResponse | undefined> {
@@ -35,7 +40,14 @@ export async function sendEVMTransaction(
     gasEstimate = await library.getSigner().estimateGas(estimateGasOption)
     if (!gasEstimate) throw new Error('gasEstimate is nullish value')
   } catch (error) {
-    throw new TransactionError(error?.message, estimateGasOption, { cause: error, step: 'estimateGas' })
+    throw new TransactionError(
+      sentryInfo.name,
+      'estimateGas',
+      error?.message,
+      estimateGasOption,
+      { cause: error },
+      sentryInfo.wallet,
+    )
   }
 
   const sendTransactionOption = {
@@ -51,7 +63,16 @@ export async function sendEVMTransaction(
     handler?.(response)
     return response
   } catch (error) {
-    throw new TransactionError(error?.message, sendTransactionOption, { cause: error, step: 'sendTransaction' })
+    const a = new TransactionError(
+      sentryInfo.name,
+      'sendTransaction',
+      error?.message,
+      sendTransactionOption,
+      { cause: error },
+      sentryInfo.wallet,
+    )
+    a.message
+    throw a
   }
 }
 
