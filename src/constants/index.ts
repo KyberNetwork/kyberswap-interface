@@ -191,8 +191,6 @@ export const SWR_KEYS = {
   getGrantProgramLeaderBoard: (id: number | string) => `${CAMPAIGN_BASE_DOMAIN}/api/v1/competitions/${id}/leaderboard`,
   getListGrantPrograms: `${CAMPAIGN_BASE_DOMAIN}/api/v1/competitions`,
   getGrantProgram: (id: number | string) => `${CAMPAIGN_BASE_DOMAIN}/api/v1/competitions/${id}`,
-  getLeaderboard: (id: number) => CAMPAIGN_BASE_URL + '/' + id + '/leaderboard',
-  getLuckyWinners: (id: number) => CAMPAIGN_BASE_URL + '/' + id + '/lucky-winners',
   getCampaignTransactions: (campaignId: number, limit: number, offset: number, account: string) =>
     `${CAMPAIGN_BASE_URL}/${campaignId}/proofs?limit=${limit}&offset=${offset}&userAddress=${account}`,
 }

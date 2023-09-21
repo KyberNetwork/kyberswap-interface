@@ -1,18 +1,13 @@
-import { Fraction } from '@kyberswap/ks-sdk-core'
-import axios from 'axios'
-import JSBI from 'jsbi'
 import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useGetCampaignsQuery, useGetLeaderboardQuery } from 'services/campaign'
-import useSWRImmutable from 'swr/immutable'
+import { useGetCampaignsQuery, useGetLeaderboardQuery, useGetLuckyWinnersQuery } from 'services/campaign'
 
-import { APP_PATHS, CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE, EMPTY_ARRAY, SWR_KEYS } from 'constants/index'
+import { APP_PATHS, CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE, EMPTY_ARRAY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import {
   CampaignLeaderboard,
-  CampaignLuckyWinner,
   CampaignState,
   setCampaignDataByPage,
   setLastTimeRefreshData,
@@ -162,46 +157,24 @@ export default function CampaignsUpdater() {
     (state: AppState) => state.campaigns,
   )
 
-  const { data: luckyWinners, isValidating: isLoadingLuckyWinners } = useSWRImmutable(
-    selectedCampaign
-      ? [
-          selectedCampaign,
-          SWR_KEYS.getLuckyWinners(selectedCampaign.id),
-          selectedCampaignLuckyWinnersPageNumber,
-          selectedCampaignLuckyWinnersLookupAddress,
-        ]
-      : null,
-    async () => {
-      if (!selectedCampaign || selectedCampaign.campaignState === CampaignState.CampaignStateReady) return []
-
-      try {
-        const response = await axios({
-          method: 'GET',
-          url: SWR_KEYS.getLuckyWinners(selectedCampaign.id),
-          params: {
-            pageSize: CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE,
-            pageNumber: selectedCampaignLuckyWinnersPageNumber,
-            lookupAddress: selectedCampaignLuckyWinnersLookupAddress,
-          },
-        })
-        const data = response.data.data
-        const luckyWinners: CampaignLuckyWinner[] = data.map(
-          (item: any): CampaignLuckyWinner => ({
-            userAddress: item.userAddress,
-            rewardAmount: new Fraction(
-              item.rewardAmount,
-              JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(item?.token?.decimals ?? 18)),
-            ),
-            token: item.token,
-          }),
-        )
-        return luckyWinners
-      } catch (err) {
-        console.error(err)
-        return []
-      }
+  const {
+    data: dataLuckWinners,
+    isError: isErrorLuckyWinner,
+    isFetching: isLoadingLuckyWinners,
+  } = useGetLuckyWinnersQuery(
+    {
+      pageSize: CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE,
+      pageNumber: selectedCampaignLuckyWinnersPageNumber,
+      lookupAddress: selectedCampaignLuckyWinnersLookupAddress,
+      campaignId: selectedCampaign?.id || 0,
     },
+    { skip: !selectedCampaign?.id },
   )
+
+  const luckyWinners =
+    (isErrorLuckyWinner || selectedCampaign?.campaignState === CampaignState.CampaignStateReady
+      ? EMPTY_ARRAY
+      : dataLuckWinners) || EMPTY_ARRAY
 
   useEffect(() => {
     if (luckyWinners !== undefined) {

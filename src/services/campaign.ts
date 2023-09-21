@@ -11,6 +11,7 @@ import {
   CampaignLeaderboard,
   CampaignLeaderboardRanking,
   CampaignLeaderboardReward,
+  CampaignLuckyWinner,
   CampaignStatus,
   RewardDistribution,
 } from 'state/campaigns/actions'
@@ -170,6 +171,20 @@ const formatLeaderboardData = (data: CampaignLeaderboard) => {
   return leaderboard
 }
 
+const formatLuckyWinners = (data: any[]) => {
+  const luckyWinners: CampaignLuckyWinner[] = data.map(
+    (item: any): CampaignLuckyWinner => ({
+      userAddress: item.userAddress,
+      rewardAmount: new Fraction(
+        item.rewardAmount,
+        JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(item?.token?.decimals ?? 18)),
+      ),
+      token: item.token,
+    }),
+  )
+  return luckyWinners
+}
+
 const campaignApi = createApi({
   reducerPath: 'campaignApi',
   baseQuery: fetchBaseQuery({ baseUrl: `${CAMPAIGN_BASE_URL}/api/v1/campaigns` }),
@@ -187,13 +202,23 @@ const campaignApi = createApi({
     >({
       query: ({ campaignId, ...params }) => ({
         params,
-        url: `${campaignId}/leaderboard`,
+        url: `/${campaignId}/leaderboard`,
       }),
       transformResponse: (data: any) => formatLeaderboardData(data?.data),
+    }),
+    getLuckyWinners: builder.query<
+      any,
+      { pageSize: number; pageNumber: number; lookupAddress: string; campaignId: number }
+    >({
+      query: ({ campaignId, ...params }) => ({
+        params,
+        url: `/${campaignId}/lucky-winners`,
+      }),
+      transformResponse: (data: any) => formatLuckyWinners(data?.data || []),
     }),
   }),
 })
 
-export const { useGetCampaignsQuery, useGetLeaderboardQuery } = campaignApi
+export const { useGetCampaignsQuery, useGetLeaderboardQuery, useGetLuckyWinnersQuery } = campaignApi
 
 export default campaignApi

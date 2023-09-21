@@ -8,7 +8,6 @@ import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
-import { useSWRConfig } from 'swr'
 
 import { ButtonEmpty, ButtonLight } from 'components/Button'
 import Divider from 'components/Divider'
@@ -18,7 +17,6 @@ import ProgressBar from 'components/ProgressBar'
 import ShareModal from 'components/ShareModal'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import YourCampaignTransactionsModal from 'components/YourCampaignTransactionsModal'
-import { SWR_KEYS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useInterval from 'hooks/useInterval'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -323,13 +321,10 @@ export default function Campaign({ refreshListCampaign, ...props }: CampaignProp
     loadingCampaignData,
     loadingCampaignDataError,
     data: campaigns,
-    selectedCampaignLeaderboardPageNumber,
-    selectedCampaignLeaderboardLookupAddress,
   } = useSelector((state: AppState) => state.campaigns)
 
   const MINUTE_TO_REFRESH = 5
   const [campaignsRefreshIn, setCampaignsRefreshIn] = useState(MINUTE_TO_REFRESH * 60)
-  const { mutate } = useSWRConfig()
   const dispatch = useAppDispatch()
   useInterval(
     () => {
@@ -377,22 +372,16 @@ export default function Campaign({ refreshListCampaign, ...props }: CampaignProp
 
   useEffect(() => {
     if (campaignsRefreshIn === 0 && selectedCampaign) {
-      mutate([
-        selectedCampaign,
-        SWR_KEYS.getLeaderboard(selectedCampaign.id),
-        selectedCampaignLeaderboardPageNumber,
-        selectedCampaignLeaderboardLookupAddress,
-        account,
-      ])
+      // todo
+      // mutate([
+      //   selectedCampaign,
+      //   SWR_KEYS.getLeaderboard(selectedCampaign.id),
+      //   selectedCampaignLeaderboardPageNumber,
+      //   selectedCampaignLeaderboardLookupAddress,
+      //   account,
+      // ])
     }
-  }, [
-    mutate,
-    campaignsRefreshIn,
-    selectedCampaign,
-    selectedCampaignLeaderboardPageNumber,
-    selectedCampaignLeaderboardLookupAddress,
-    account,
-  ])
+  }, [campaignsRefreshIn, selectedCampaign])
 
   if (campaigns.length === 0 && loadingCampaignData) {
     return <LocalLoader />
