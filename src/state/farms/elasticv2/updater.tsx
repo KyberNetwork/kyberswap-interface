@@ -107,8 +107,7 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
   const dispatch = useAppDispatch()
   const { networkInfo, isEVM, chainId, account } = useActiveWeb3React()
   const elasticFarm = useAppSelector(state => state.elasticFarmV2[chainId] || defaultChainData)
-  const { elasticClient } = useKyberSwapConfig()
-  const isEnableKNProtocol = true
+  const { elasticClient, isEnableKNProtocol } = useKyberSwapConfig()
 
   const multicallContract = useMulticallContract()
   const farmv2QuoterContract = useContract(

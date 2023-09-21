@@ -80,7 +80,7 @@ export const APRTooltipContent = ({
         </Text>
       </Flex>
 
-      {!!farmAPR && (
+      {!!maxFarmAPR && (
         <Flex
           sx={{
             flexDirection: 'column',
@@ -91,33 +91,7 @@ export const APRTooltipContent = ({
           <Text as="span" color={theme.warning}>
             Farm APR:{' '}
             <Text as="span" fontWeight={500}>
-              {formatDisplayNumber(farmAPR / 100, { style: 'percent', fractionDigits: 2 })}
-            </Text>
-          </Text>
-          <Text
-            as="span"
-            fontStyle="italic"
-            sx={{
-              whiteSpace: upToSmall ? 'wrap' : 'nowrap',
-            }}
-          >
-            <Trans>Estimated return from additional rewards if you also participate in the farm</Trans>
-          </Text>
-        </Flex>
-      )}
-
-      {!!farmV2APR && Number.isFinite(farmV2APR) && (
-        <Flex
-          sx={{
-            flexDirection: 'column',
-            fontSize: '12px',
-            lineHeight: '16px',
-          }}
-        >
-          <Text as="span" color={theme.warning}>
-            Farm APR:{' '}
-            <Text as="span" fontWeight={500}>
-              {formatDisplayNumber(farmV2APR / 100, { style: 'percent', fractionDigits: 2 })}
+              {formatDisplayNumber(maxFarmAPR / 100, { style: 'percent', fractionDigits: 2 })}
             </Text>
           </Text>
           <Text
