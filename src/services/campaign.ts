@@ -216,9 +216,17 @@ const campaignApi = createApi({
       }),
       transformResponse: (data: any) => formatLuckyWinners(data?.data || []),
     }),
+    joinCampaign: builder.mutation<any, { token: string | null; address: string; recaptchaId: number }>({
+      query: ({ recaptchaId, ...data }) => ({
+        data,
+        method: 'POST',
+        url: `/${recaptchaId}/participants`,
+      }),
+    }),
   }),
 })
 
-export const { useGetCampaignsQuery, useGetLeaderboardQuery, useGetLuckyWinnersQuery } = campaignApi
+export const { useGetCampaignsQuery, useGetLeaderboardQuery, useGetLuckyWinnersQuery, useJoinCampaignMutation } =
+  campaignApi
 
 export default campaignApi
