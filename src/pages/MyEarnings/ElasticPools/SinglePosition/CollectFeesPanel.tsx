@@ -27,7 +27,7 @@ import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { updateChainId } from 'state/user/actions'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { basisPointsToPercent, calculateGasMargin } from 'utils'
-import { formatDollarAmount } from 'utils/numbers'
+import { formatDisplayNumber } from 'utils/numbers'
 
 type Props = {
   nftId: string
@@ -270,7 +270,7 @@ const CollectFeesPanel: React.FC<Props> = ({
         <HoverDropdown
           anchor={
             <Text as="span" fontSize="16px" fontWeight={500} lineHeight={'20px'}>
-              {formatDollarAmount(feeUsd)}
+              {formatDisplayNumber(feeUsd, { style: 'currency', significantDigits: 6 })}
             </Text>
           }
           disabled={hasNoFeeToCollect}
