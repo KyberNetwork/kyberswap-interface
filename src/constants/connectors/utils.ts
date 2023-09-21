@@ -6,8 +6,7 @@ import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
 if (ENV_LEVEL == ENV_TYPE.ADPR) {
   setTimeout(() => {
-    console.log('capturing Injected window.ethereum', { level: 'info', extra: { 'window.ethereum': window.ethereum } })
-    captureMessage('Injected window.ethereum', {
+    const params = {
       level: 'info',
       extra: {
         'window.ethereum': window.ethereum,
@@ -26,7 +25,9 @@ if (ENV_LEVEL == ENV_TYPE.ADPR) {
         isTrustWallet: getIsTrustWallet(),
         isGenericInjector: getIsGenericInjector(),
       },
-    })
+    } as const
+    captureMessage('Injected window.ethereum', params)
+    console.log('capturing Injected window.ethereum', { params })
   }, 5000)
 }
 
