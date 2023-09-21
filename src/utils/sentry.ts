@@ -38,7 +38,7 @@ export function captureSwapError(error: TransactionError) {
 
   captureException(e, {
     level: 'fatal',
-    extra: { rawData: error.rawData, step: error.step },
+    extra: { rawData: error.rawData },
     tags: {
       type: tag,
     },
@@ -50,7 +50,6 @@ export class TransactionError extends Error {
   type: 'estimateGas' | 'sendTransaction'
   rawData: Deferrable<TransactionRequest>
   code?: number
-  step?: string
   wallet: SUPPORTED_WALLET | undefined
 
   constructor(
