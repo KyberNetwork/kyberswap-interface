@@ -63,7 +63,7 @@ const walletconnectConfig = {
       } as any,
     },
     metadata: {
-      name: 'Kyberswap',
+      name: 'KyberSwap',
       description: document.title,
       url: window.location.origin,
       icons: ['https://kyberswap.com/favicon.svg'],
@@ -92,7 +92,7 @@ export const [coinbaseWallet, coinbaseWalletHooks] = initializeConnector<Coinbas
       actions,
       options: {
         url: NETWORKS_INFO[ChainId.MAINNET].defaultRpcUrl,
-        appName: 'Kyberswap',
+        appName: 'KyberSwap',
       },
     }),
 )
