@@ -1,11 +1,25 @@
+import { ZERO } from '@kyberswap/ks-sdk-classic'
 import { Fraction } from '@kyberswap/ks-sdk-core'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 
 import { CAMPAIGN_BASE_URL } from 'constants/env'
-import { getCampaignStatus } from 'pages/Campaign'
-import { CampaignData, CampaignLeaderboardReward, RewardDistribution } from 'state/campaigns/actions'
+import { RESERVE_USD_DECIMALS } from 'constants/index'
+import {
+  CampaignData,
+  CampaignLeaderboard,
+  CampaignLeaderboardRanking,
+  CampaignLeaderboardReward,
+  CampaignStatus,
+  RewardDistribution,
+} from 'state/campaigns/actions'
 import { SerializedToken } from 'state/user/actions'
+
+const getCampaignStatus = ({ endTime, startTime }: CampaignData) => {
+  const now = Date.now()
+  return endTime <= now ? CampaignStatus.ENDED : startTime >= now ? CampaignStatus.UPCOMING : CampaignStatus.ONGOING
+}
 
 const formatRewards = (rewards: CampaignLeaderboardReward[]) =>
   rewards?.map(
@@ -129,6 +143,33 @@ const formatListCampaign = (response: CampaignData[]) => {
   return formattedCampaigns
 }
 
+const formatLeaderboardData = (data: CampaignLeaderboard) => {
+  const leaderboard: CampaignLeaderboard = {
+    ...data,
+    rankings: data.rankings
+      ? data.rankings.map(
+          (item: any): CampaignLeaderboardRanking => ({
+            userAddress: item.userAddress,
+            totalPoint: item.totalPoint,
+            rankNo: item.rankNo,
+            rewardAmount: new Fraction(
+              item.rewardAmount || ZERO,
+              JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(item?.token?.decimals ?? 18)),
+            ),
+            rewardAmountUsd: new Fraction(
+              parseUnits(item?.rewardAmountUSD?.toString() || '0', RESERVE_USD_DECIMALS).toString(),
+              JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS)),
+            ),
+            rewardInUSD: item.rewardInUSD,
+            token: item.token,
+          }),
+        )
+      : [],
+    rewards: formatRewards(data.rewards),
+  }
+  return leaderboard
+}
+
 const campaignApi = createApi({
   reducerPath: 'campaignApi',
   baseQuery: fetchBaseQuery({ baseUrl: `${CAMPAIGN_BASE_URL}/api/v1/campaigns` }),
@@ -140,9 +181,19 @@ const campaignApi = createApi({
       }),
       transformResponse: (data: any) => formatListCampaign(data?.data || []),
     }),
+    getLeaderboard: builder.query<
+      any,
+      { pageSize: number; pageNumber: number; userAddress: string; lookupAddress: string; campaignId: number }
+    >({
+      query: ({ campaignId, ...params }) => ({
+        params,
+        url: `${campaignId}/leaderboard`,
+      }),
+      transformResponse: (data: any) => formatLeaderboardData(data?.data),
+    }),
   }),
 })
 
-export const { useGetCampaignsQuery } = campaignApi
+export const { useGetCampaignsQuery, useGetLeaderboardQuery } = campaignApi
 
 export default campaignApi

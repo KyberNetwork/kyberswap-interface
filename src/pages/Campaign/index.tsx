@@ -1,31 +1,19 @@
-import { ZERO } from '@kyberswap/ks-sdk-classic'
 import { Fraction } from '@kyberswap/ks-sdk-core'
 import axios from 'axios'
-import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useGetCampaignsQuery } from 'services/campaign'
+import { useGetCampaignsQuery, useGetLeaderboardQuery } from 'services/campaign'
 import useSWRImmutable from 'swr/immutable'
 
-import {
-  APP_PATHS,
-  CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE,
-  EMPTY_ARRAY,
-  RESERVE_USD_DECIMALS,
-  SWR_KEYS,
-} from 'constants/index'
+import { APP_PATHS, CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE, EMPTY_ARRAY, SWR_KEYS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import {
-  CampaignData,
   CampaignLeaderboard,
-  CampaignLeaderboardRanking,
-  CampaignLeaderboardReward,
   CampaignLuckyWinner,
   CampaignState,
-  CampaignStatus,
   setCampaignDataByPage,
   setLastTimeRefreshData,
   setLoadingCampaignData,
@@ -42,74 +30,6 @@ import { getCampaignIdFromSlug, getSlugUrlCampaign } from 'utils/campaign'
 import CampaignContent from './CampaignContent'
 
 const MAXIMUM_ITEMS_PER_REQUEST = 10
-
-export const getCampaignStatus = ({ endTime, startTime }: CampaignData) => {
-  const now = Date.now()
-  return endTime <= now ? CampaignStatus.ENDED : startTime >= now ? CampaignStatus.UPCOMING : CampaignStatus.ONGOING
-}
-
-const formatRewards = (rewards: CampaignLeaderboardReward[]) =>
-  rewards?.map(
-    (item: any): CampaignLeaderboardReward => ({
-      rewardAmount: new Fraction(
-        item.RewardAmount,
-        JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(item?.Token?.decimals ?? 18)),
-      ),
-      ref: item.Ref,
-      claimed: item.Claimed,
-      token: item.Token,
-    }),
-  ) || []
-
-const formatLeaderboardData = (data: CampaignLeaderboard) => {
-  const leaderboard: CampaignLeaderboard = {
-    ...data,
-    rankings: data.rankings
-      ? data.rankings.map(
-          (item: any): CampaignLeaderboardRanking => ({
-            userAddress: item.userAddress,
-            totalPoint: item.totalPoint,
-            rankNo: item.rankNo,
-            rewardAmount: new Fraction(
-              item.rewardAmount || ZERO,
-              JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(item?.token?.decimals ?? 18)),
-            ),
-            rewardAmountUsd: new Fraction(
-              parseUnits(item?.rewardAmountUSD?.toString() || '0', RESERVE_USD_DECIMALS).toString(),
-              JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS)),
-            ),
-            rewardInUSD: item.rewardInUSD,
-            token: item.token,
-          }),
-        )
-      : [],
-    rewards: formatRewards(data.rewards),
-  }
-  return leaderboard
-}
-
-const fetchLeaderBoard = ({
-  pageNumber,
-  userAddress,
-  lookupAddress,
-  campaignId,
-}: {
-  pageNumber: number
-  userAddress: string
-  lookupAddress: string
-  campaignId: number
-}) => {
-  return axios({
-    method: 'GET',
-    url: SWR_KEYS.getLeaderboard(campaignId),
-    params: {
-      pageSize: CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE,
-      pageNumber,
-      userAddress,
-      lookupAddress,
-    },
-  }).then(({ data }) => formatLeaderboardData(data.data))
-}
 
 const LEADERBOARD_DEFAULT: CampaignLeaderboard = {
   finalizedAt: 0,
@@ -210,34 +130,21 @@ export default function CampaignsUpdater() {
   const { selectedCampaignLeaderboardPageNumber, selectedCampaignLeaderboardLookupAddress, selectedCampaign } =
     useSelector((state: AppState) => state.campaigns)
 
-  const { data: leaderboard, isValidating: isLoadingLeaderboard } = useSWRImmutable(
-    selectedCampaign
-      ? [
-          selectedCampaign,
-          SWR_KEYS.getLeaderboard(selectedCampaign.id),
-          selectedCampaignLeaderboardPageNumber,
-          selectedCampaignLeaderboardLookupAddress,
-          account,
-        ]
-      : null,
-    async () => {
-      if (!selectedCampaign) {
-        return LEADERBOARD_DEFAULT
-      }
-
-      try {
-        return fetchLeaderBoard({
-          campaignId: selectedCampaign.id,
-          pageNumber: selectedCampaignLeaderboardPageNumber,
-          userAddress: account ?? '',
-          lookupAddress: selectedCampaignLeaderboardLookupAddress,
-        })
-      } catch (err) {
-        console.error(err)
-        return LEADERBOARD_DEFAULT
-      }
+  const {
+    data,
+    isFetching: isLoadingLeaderboard,
+    isError,
+  } = useGetLeaderboardQuery(
+    {
+      campaignId: selectedCampaign?.id || 0,
+      pageNumber: selectedCampaignLeaderboardPageNumber,
+      userAddress: account ?? '',
+      lookupAddress: selectedCampaignLeaderboardLookupAddress,
+      pageSize: CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE,
     },
+    { skip: !selectedCampaign?.id },
   )
+  const leaderboard = (!isError ? data : LEADERBOARD_DEFAULT) || LEADERBOARD_DEFAULT
 
   useEffect(() => {
     if (leaderboard) {
