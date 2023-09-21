@@ -145,7 +145,7 @@ export const setLoadingCampaignData = createAction<boolean>('campaigns/setLoadin
 
 export const setLastTimeRefreshData = createAction('campaigns/setLastTimeRefreshData')
 
-export const setLoadingCampaignDataError = createAction<Error | undefined>('campaigns/setLoadingCampaignDataError')
+export const setLoadingCampaignDataError = createAction<boolean>('campaigns/setLoadingCampaignDataError')
 
 export const setSelectedCampaign = createAction<{ campaign: CampaignData }>('campaigns/setSelectedCampaign')
 

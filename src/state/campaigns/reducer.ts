@@ -26,7 +26,7 @@ import {
 interface CampaignsState {
   readonly data: CampaignData[]
   readonly loadingCampaignData: boolean
-  readonly loadingCampaignDataError: Error | undefined
+  readonly loadingCampaignDataError: boolean
 
   readonly selectedCampaign: CampaignData | undefined
 
@@ -53,7 +53,7 @@ interface CampaignsState {
 const initialState: CampaignsState = {
   data: [],
   loadingCampaignData: true,
-  loadingCampaignDataError: undefined,
+  loadingCampaignDataError: false,
 
   selectedCampaign: undefined,
 

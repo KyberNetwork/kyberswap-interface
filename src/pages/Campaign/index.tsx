@@ -3,14 +3,19 @@ import { Fraction } from '@kyberswap/ks-sdk-core'
 import axios from 'axios'
 import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
-import { stringify } from 'querystring'
 import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
-import useSWR, { mutate } from 'swr'
+import { useGetCampaignsQuery } from 'services/campaign'
 import useSWRImmutable from 'swr/immutable'
 
-import { APP_PATHS, CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE, RESERVE_USD_DECIMALS, SWR_KEYS } from 'constants/index'
+import {
+  APP_PATHS,
+  CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE,
+  EMPTY_ARRAY,
+  RESERVE_USD_DECIMALS,
+  SWR_KEYS,
+} from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import {
@@ -21,7 +26,6 @@ import {
   CampaignLuckyWinner,
   CampaignState,
   CampaignStatus,
-  RewardDistribution,
   setCampaignDataByPage,
   setLastTimeRefreshData,
   setLoadingCampaignData,
@@ -33,14 +37,13 @@ import {
   setSelectedCampaignLuckyWinners,
 } from 'state/campaigns/actions'
 import { AppState } from 'state/index'
-import { SerializedToken } from 'state/user/actions'
 import { getCampaignIdFromSlug, getSlugUrlCampaign } from 'utils/campaign'
 
 import CampaignContent from './CampaignContent'
 
 const MAXIMUM_ITEMS_PER_REQUEST = 10
 
-const getCampaignStatus = ({ endTime, startTime }: CampaignData) => {
+export const getCampaignStatus = ({ endTime, startTime }: CampaignData) => {
   const now = Date.now()
   return endTime <= now ? CampaignStatus.ENDED : startTime >= now ? CampaignStatus.UPCOMING : CampaignStatus.ONGOING
 }
@@ -117,115 +120,6 @@ const LEADERBOARD_DEFAULT: CampaignLeaderboard = {
   rewards: [],
 }
 
-const formatListCampaign = (response: CampaignData[]) => {
-  const campaigns: CampaignData[] = response.map((item: CampaignData) => ({
-    ...item,
-    startTime: item.startTime * 1000,
-    endTime: item.endTime * 1000,
-  }))
-  const formattedCampaigns: CampaignData[] = campaigns.map((campaign: any) => {
-    const rewardDistribution: RewardDistribution[] = []
-    if (campaign.rewardDistribution.single) {
-      campaign.rewardDistribution.single.forEach(
-        ({
-          amount,
-          rank,
-          token,
-          rewardInUSD,
-        }: {
-          amount: string
-          rank: number
-          token: SerializedToken
-          rewardInUSD: boolean
-        }) => {
-          rewardDistribution.push({
-            type: 'Single',
-            amount,
-            rank,
-            token,
-            rewardInUSD,
-          })
-        },
-      )
-    }
-    if (campaign.rewardDistribution.range) {
-      campaign.rewardDistribution.range.forEach(
-        ({
-          from,
-          to,
-          amount,
-          token,
-          rewardInUSD,
-        }: {
-          from: number
-          to: number
-          amount: string
-          token: SerializedToken
-          rewardInUSD: boolean
-        }) => {
-          rewardDistribution.push({
-            type: 'Range',
-            from,
-            to,
-            amount,
-            token,
-            rewardInUSD,
-          })
-        },
-      )
-    }
-    if (campaign.rewardDistribution.random) {
-      campaign.rewardDistribution.random.forEach(
-        ({
-          from,
-          to,
-          amount,
-          numberOfWinners,
-          token,
-          rewardInUSD,
-        }: {
-          from: number
-          to: number
-          amount: string
-          numberOfWinners: number
-          token: SerializedToken
-          rewardInUSD: boolean
-        }) => {
-          rewardDistribution.push({
-            type: 'Random',
-            from,
-            to,
-            amount,
-            nWinners: numberOfWinners,
-            token,
-            rewardInUSD,
-          })
-        },
-      )
-    }
-    if (campaign?.userInfo?.tradingVolume) campaign.userInfo.tradingVolume = Number(campaign.userInfo.tradingVolume)
-    if (campaign.userInfo) campaign.userInfo.rewards = formatRewards(campaign.userInfo.rewards)
-    return {
-      ...campaign,
-      rewardDistribution,
-      status: getCampaignStatus(campaign),
-      eligibleTokens: campaign.eligibleTokens.map(
-        ({ chainId, name, symbol, address, logoURI, decimals }: SerializedToken) => {
-          return {
-            chainId,
-            name,
-            symbol,
-            address,
-            logoURI,
-            decimals,
-          }
-        },
-      ),
-    }
-  })
-  return formattedCampaigns
-}
-
 const getQueryDefault = (userAddress: string | undefined) => ({
   campaignName: '',
   userAddress,
@@ -247,7 +141,6 @@ export default function CampaignsUpdater() {
   }, [])
 
   const { data: currentCampaigns } = useSelector((state: AppState) => state.campaigns)
-  const getCampaignUrl = useCallback(() => `${SWR_KEYS.getListCampaign}?${stringify(queryParams)}`, [queryParams])
 
   const loadMoreCampaign = useCallback(() => {
     if (!currentCampaigns.length) return
@@ -259,24 +152,22 @@ export default function CampaignsUpdater() {
   }, [account, setQueryParams])
 
   const {
-    data: campaignData,
-    isValidating: isLoadingCampaignData,
+    data: campaignData = EMPTY_ARRAY,
+    isFetching: isLoadingCampaignData,
     error: loadingCampaignDataError,
-  } = useSWR<CampaignData[]>(getCampaignUrl(), async url => {
-    try {
-      const { data: response } = await axios.get(url)
-      const campaigns: CampaignData[] = response.data
-      setHasMoreCampaign(campaigns.length === MAXIMUM_ITEMS_PER_REQUEST)
-      return formatListCampaign(campaigns)
-    } catch (error) {
-      return []
-    }
-  })
+    refetch,
+  } = useGetCampaignsQuery(queryParams)
+
+  useEffect(() => {
+    setHasMoreCampaign(campaignData.length === MAXIMUM_ITEMS_PER_REQUEST)
+  }, [campaignData])
 
   const refreshListCampaign = useCallback(async () => {
-    await mutate(getCampaignUrl())
-    dispatch(setLastTimeRefreshData())
-  }, [getCampaignUrl, dispatch])
+    try {
+      await refetch().unwrap()
+      dispatch(setLastTimeRefreshData())
+    } catch (error) {}
+  }, [refetch, dispatch])
 
   const slug = pathname.replace(APP_PATHS.CAMPAIGN, '')
   const { selectedCampaignId = getCampaignIdFromSlug(slug) } = useParsedQueryString<{ selectedCampaignId: string }>()
@@ -311,7 +202,7 @@ export default function CampaignsUpdater() {
   }, [dispatch, isLoadingCampaignData])
 
   useEffect(() => {
-    dispatch(setLoadingCampaignDataError(loadingCampaignDataError))
+    dispatch(setLoadingCampaignDataError(!!loadingCampaignDataError))
   }, [dispatch, loadingCampaignDataError])
 
   /**********************CAMPAIGN LEADERBOARD**********************/
