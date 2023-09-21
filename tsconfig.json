@@ -24,7 +24,10 @@
     "allowSyntheticDefaultImports": true,
     "typeRoots": ["./types"],
     "baseUrl": "src",
-    "useUnknownInCatchVariables": false
+    "useUnknownInCatchVariables": false,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "exclude": ["node_modules", "cypress"],
   "include": ["./src/**/*.ts", "./src/**/*.tsx"]

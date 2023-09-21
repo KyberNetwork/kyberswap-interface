@@ -128,7 +128,7 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
     .find(farm => farm.poolAddress.toLowerCase() === pool.address.toLowerCase())
   const isFarmV2 = !!farmV2
 
-  const isFarmingPool = isFarmV1 || isFarmV2
+  const isFarmingPool = isFarmV1 || isFarmV2 || !!pool.farmAPR
 
   const maxFarmV2Apr = Math.max(...(farmV2?.ranges.map(item => item.apr || 0) || []), 0)
 
@@ -145,14 +145,7 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
       )
     }
 
-    return (
-      <Flex
-        alignItems="center"
-        paddingRight="20px" // to make all the APR numbers vertically align
-      >
-        {pool.apr.toFixed(2)}%
-      </Flex>
-    )
+    return <Flex alignItems="center">{pool.apr.toFixed(2)}%</Flex>
   }
 
   return (
@@ -190,7 +183,7 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
             <FeeTag>Fee {(pool.feeTier * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
 
             <Flex alignItems="center" marginLeft="4px" sx={{ gap: '4px' }}>
-              {isFarmingPool && <FarmTag address={pool.address} />}
+              {isFarmingPool && <FarmTag address={pool.address} noText />}
             </Flex>
           </Flex>
         </Link>
