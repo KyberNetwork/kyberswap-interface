@@ -6,28 +6,31 @@ import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
 if (ENV_LEVEL == ENV_TYPE.ADPR) {
   setTimeout(() => {
-    const params = {
-      level: 'info',
-      extra: {
-        'window.ethereum': window.ethereum,
-        'window.web3': window.web3,
-        'window.coin98': window.coin98,
-        'window.coinbaseWalletExtension': window.coinbaseWalletExtension,
-        'navigator.brave': navigator.brave,
-        isInjected: getIsInjected(),
-        isMetaMaskWallet: getIsMetaMaskWallet(),
-        isCoinbaseWallet: getIsCoinbaseWallet(),
-        isBraveWallet: getIsBraveWallet(),
-        isC98Wallet: getIsC98Wallet(),
-        isRabbyWallet: getIsRabbyWallet(),
-        isBloctoWallet: getIsBloctoWallet(),
-        isKrystalWallet: getIsKrystalWallet(),
-        isTrustWallet: getIsTrustWallet(),
-        isGenericInjector: getIsGenericInjector(),
-      },
-    } as const
-    captureMessage('Injected window.ethereum', params)
-    console.log('capturing Injected window.ethereum', { params })
+    if (getIsGenericInjector()) {
+      const params = {
+        level: 'warning',
+        extra: {
+          detector: {
+            isMetaMaskWallet: getIsMetaMaskWallet(),
+            isCoinbaseWallet: getIsCoinbaseWallet(),
+            isBraveWallet: getIsBraveWallet(),
+            isC98Wallet: getIsC98Wallet(),
+            isRabbyWallet: getIsRabbyWallet(),
+            isBloctoWallet: getIsBloctoWallet(),
+            isKrystalWallet: getIsKrystalWallet(),
+            isTrustWallet: getIsTrustWallet(),
+            isGenericInjector: getIsGenericInjector(),
+          },
+          'window.ethereum': window.ethereum,
+          'window.web3': window.web3,
+          'window.coin98': window.coin98,
+          'window.coinbaseWalletExtension': window.coinbaseWalletExtension,
+          'navigator.brave': navigator.brave,
+        },
+      } as const
+      captureMessage('Unknown injected window.ethereum', params)
+      console.info('Capturing injected window.ethereum', { params })
+    }
   }, 5000)
 }
 
