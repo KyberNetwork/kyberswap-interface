@@ -34,7 +34,7 @@ export function captureSwapError(error: TransactionError) {
 
   captureException(e, {
     level: 'fatal',
-    extra: error.rawData,
+    extra: { rawData: error.rawData, step: error.step },
     tags: {
       type: tag,
     },
@@ -44,10 +44,12 @@ export function captureSwapError(error: TransactionError) {
 export class TransactionError extends Error {
   rawData: Deferrable<TransactionRequest>
   code?: number
+  step?: string
 
-  constructor(message: string, rawData: Deferrable<TransactionRequest>, options?: ErrorOptions) {
+  constructor(message: string, rawData: Deferrable<TransactionRequest>, options?: { cause: Error; step?: string }) {
     super(message, options)
     this.rawData = rawData
     this.code = (options?.cause as any)?.code
+    this.step = options?.step
   }
 }

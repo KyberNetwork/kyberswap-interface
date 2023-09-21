@@ -194,15 +194,6 @@ export const SUPPORTED_WALLETS = {
     installLink: 'https://wallet.krystal.app',
     readyState: detectKrystal,
   } as EVMWalletInfo,
-  KRYSTAL_WC: {
-    connector: krystalWalletConnectV2,
-    hooks: krystalWalletConnectV2Hooks,
-    name: 'Krystal',
-    icon: KRYSTAL,
-    iconLight: KRYSTAL,
-    installLink: 'https://wallet.krystal.app',
-    readyState: detectKrystalWC,
-  } as EVMWalletInfo,
   RABBY: {
     connector: rabby,
     hooks: rabbyHooks,
@@ -271,6 +262,15 @@ export const SUPPORTED_WALLETS = {
     icon: BLOCTO,
     iconLight: BLOCTO,
     readyState: detectBloctoInjected,
+  } as EVMWalletInfo,
+  KRYSTAL_WC: {
+    connector: krystalWalletConnectV2,
+    hooks: krystalWalletConnectV2Hooks,
+    name: 'Krystal',
+    icon: KRYSTAL,
+    iconLight: KRYSTAL,
+    installLink: 'https://wallet.krystal.app',
+    readyState: detectKrystalWC,
   } as EVMWalletInfo,
   WALLET_CONNECT: {
     connector: walletConnectV2,
