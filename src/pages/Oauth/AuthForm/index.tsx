@@ -62,7 +62,14 @@ const AuthForm: React.FC<AuthFormProps> = ({
       {showEth && (
         <Flex style={{ justifyContent: 'center', flexWrap: 'wrap', alignItems: 'center', gap: '16px' }}>
           {showBtnCancel && (
-            <ButtonOutlined width={'230px'} onClick={() => navigateToUrl(back_uri)} height={'36px'}>
+            <ButtonOutlined
+              width={'230px'}
+              onClick={e => {
+                e.preventDefault()
+                navigateToUrl(back_uri)
+              }}
+              height={'36px'}
+            >
               Cancel
             </ButtonOutlined>
           )}
