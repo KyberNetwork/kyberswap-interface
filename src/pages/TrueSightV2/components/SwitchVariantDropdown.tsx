@@ -84,7 +84,6 @@ export default function SwitchVariantDropdown({
   const { chain, address } = useKyberAIAssetOverview()
   useOnClickOutside(ref, () => setShow(false))
   const variant = variants?.find(item => item.address.toLowerCase() === address && item.chain.toLowerCase() === chain)
-  console.log('🚀 ~ file: SwitchVariantDropdown.tsx:87 ~ variant:', variant)
   if (!variant && isLoading) {
     return (
       <SkeletonTheme

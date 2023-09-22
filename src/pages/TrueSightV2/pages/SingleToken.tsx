@@ -188,7 +188,6 @@ const TokenDescription = ({ description }: { description: string }) => {
   const theme = useTheme()
   const [show, setShow] = useState(true)
   const [isTextExceeded, setIsTextExceeded] = useState(false)
-  console.log('🚀 ~ file: SingleToken.tsx:191 ~ TokenDescription ~ isTextExceeded:', isTextExceeded)
 
   const ref = useCallback(
     (el: HTMLDivElement) => {
