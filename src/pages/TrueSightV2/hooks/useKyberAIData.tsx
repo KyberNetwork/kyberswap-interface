@@ -258,10 +258,9 @@ const kyberAIApi = createApi({
       }),
       transformResponse: (res: any) => res.data,
     }),
-    // filter
     getFilterCategories: builder.query<{ displayName: string; queryKey: string; values: SelectOption[] }[], void>({
       query: () => ({
-        url: `https://truesight-v2.dev.kyberengineering.io/truesight/api/v2/assets/filters`, // todo
+        url: `/assets/filters`,
       }),
       transformResponse: (res: any) =>
         res.data.map((e: any) => ({
