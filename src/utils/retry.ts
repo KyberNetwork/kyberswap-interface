@@ -75,3 +75,7 @@ export const timeoutReject = (ms: number, msg = 'timeout') => {
     }, ms)
   })
 }
+
+export const timeout = (promise: Promise<any>, ms: number) => {
+  return Promise.race([promise, timeoutReject(ms)])
+}

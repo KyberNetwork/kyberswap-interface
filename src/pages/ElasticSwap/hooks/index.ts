@@ -371,7 +371,7 @@ function useElasticAllRoutes(
   const { chainId } = useActiveWeb3React()
   const { pools, loading: poolsLoading } = useProAmmSwapPools(currencyIn, currencyOut)
   return useMemo(() => {
-    if (poolsLoading || !chainId || !pools || !currencyIn || !currencyOut) return { loading: true, routes: [] }
+    if (poolsLoading || !pools || !currencyIn || !currencyOut) return { loading: true, routes: [] }
 
     const routes = computeAllRoutes(currencyIn, currencyOut, pools, chainId, [], [], currencyIn, 1)
 
@@ -592,13 +592,13 @@ function useSwapCallArguments(
   trade: Trade<Currency, Currency, TradeType> | undefined,
   allowedSlippage = INITIAL_ALLOWED_SLIPPAGE,
 ): SwapCall[] {
-  const { account, chainId, networkInfo } = useActiveWeb3React()
+  const { account, networkInfo } = useActiveWeb3React()
   const { library } = useWeb3React()
 
   const deadline = useTransactionDeadline()
 
   return useMemo(() => {
-    if (!trade || !account || !library || !account || !chainId || !deadline) return []
+    if (!trade || !account || !library || !account || !deadline) return []
 
     const routerProAmmContract: Contract | null = getContract(
       (networkInfo as EVMNetworkInfo).elastic.routers,
@@ -621,5 +621,5 @@ function useSwapCallArguments(
         value,
       },
     ]
-  }, [networkInfo, allowedSlippage, chainId, deadline, library, account, trade])
+  }, [networkInfo, allowedSlippage, deadline, library, account, trade])
 }

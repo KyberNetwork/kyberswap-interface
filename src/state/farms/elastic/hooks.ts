@@ -36,9 +36,8 @@ export { default as FarmUpdater } from './updaters'
 
 export const useElasticFarms = () => {
   const { chainId } = useActiveWeb3React()
-  const isEVM = isEVMNetwork(chainId)
-  const elasticFarm = useAppSelector(state => state.elasticFarm[chainId])
-  return useMemo(() => (isEVM ? elasticFarm || defaultChainData : defaultChainData), [isEVM, elasticFarm])
+  const elasticFarm = useAppSelector(state => state.elasticFarm[chainId] || defaultChainData)
+  return elasticFarm
 }
 
 export const useFilteredFarms = () => {

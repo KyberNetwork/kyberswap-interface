@@ -21,6 +21,7 @@ import { useKyberSwapConfig } from 'state/application/hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 import { isAddressString } from 'utils'
+import { timeout } from 'utils/retry'
 
 import { defaultChainData, setFarms, setLoading, setUserFarmInfo } from '.'
 import { ElasticFarmV2, SubgraphFarmV2, SubgraphToken, UserFarmV2Info } from './types'
@@ -125,7 +126,7 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
 
   const latestKnProtocolData = useRef(knProtocolData)
 
-  const data = useMemo(() => {
+  const fetchResult = useMemo(() => {
     if (isEnableKNProtocol) {
       return {
         farmV2S: knProtocolData?.data?.data || latestKnProtocolData.current?.data?.data || [],
@@ -137,30 +138,26 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
     if (isEnableKNProtocol) return knProtocolError
     return subgraphError
   }, [isEnableKNProtocol, subgraphError, knProtocolError])
-  const isLoadingElasticFarm = useRef(elasticFarm.loading)
-  isLoadingElasticFarm.current = elasticFarm.loading
+
+  const nontrackElasticFarm = useRef(elasticFarm)
+  nontrackElasticFarm.current = elasticFarm
 
   useEffect(() => {
-    if (isEVM && !elasticFarm?.farms && !isLoadingElasticFarm.current) {
+    if (isEVM && !nontrackElasticFarm.current?.farms && !nontrackElasticFarm.current?.loading) {
       dispatch(setLoading({ chainId, loading: true }))
       if (isEnableKNProtocol) {
         getElasticFarmV2FromKnProtocol(chainId).finally(() => {
           dispatch(setLoading({ chainId, loading: false }))
         })
-      } else
-        getElasticFarmV2().finally(() => {
+      } else {
+        // Somehow, getElasticFarmV2() doesn't resolve nor reject so finally would be never ran
+        // Hence, we have to add an additional timeout to handle case it won't resolved
+        timeout(getElasticFarmV2(), 5000).finally(() => {
           dispatch(setLoading({ chainId, loading: false }))
         })
+      }
     }
-  }, [
-    isEVM,
-    chainId,
-    dispatch,
-    getElasticFarmV2,
-    elasticFarm?.farms,
-    getElasticFarmV2FromKnProtocol,
-    isEnableKNProtocol,
-  ])
+  }, [isEVM, chainId, dispatch, getElasticFarmV2, getElasticFarmV2FromKnProtocol, isEnableKNProtocol])
 
   useEffect(() => {
     const i = interval
@@ -202,10 +199,10 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
       const fetchPrices = nontrackFetchPrices.current
       const farmv2QuoterContract = nontrackFarmv2QuoterContract.current
       const multicallContract = nontrackMulticallContract.current
-      if (data?.farmV2S.length) {
+      if (fetchResult?.farmV2S.length) {
         const tokens = [
           ...new Set(
-            data.farmV2S
+            fetchResult.farmV2S
               .map((item: SubgraphFarmV2) => [
                 item.pool.token0.id,
                 item.pool.token1.id,
@@ -226,7 +223,7 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
           pricesRef.current = prices
         }
 
-        const formattedData: ElasticFarmV2[] = data.farmV2S.map((farm: SubgraphFarmV2) => {
+        const formattedData: ElasticFarmV2[] = fetchResult.farmV2S.map((farm: SubgraphFarmV2) => {
           const getToken = (t: SubgraphToken, keepWrapped = false) => {
             const address = isAddressString(chainId, t.id)
             return (keepWrapped ? false : address === WETH[chainId].address) || address === ZERO_ADDRESS
@@ -482,11 +479,14 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
         } else {
           dispatch(setUserFarmInfo({ chainId, userInfo: [] }))
         }
+      } else {
+        dispatch(setFarms({ chainId, farms: [] }))
+        dispatch(setUserFarmInfo({ chainId, userInfo: [] }))
       }
     }
 
     getData()
-  }, [dispatch, data, account])
+  }, [dispatch, fetchResult, account])
 
   return null
 }

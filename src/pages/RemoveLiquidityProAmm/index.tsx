@@ -341,7 +341,6 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       !liquidityValue1 ||
       !deadline ||
       !account ||
-      !chainId ||
       !feeValue0 ||
       !feeValue1 ||
       !positionSDK ||
