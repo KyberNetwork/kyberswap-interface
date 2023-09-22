@@ -262,23 +262,22 @@ const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoadin
   const navigate = useNavigate()
   const location = useLocation()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
-  const { chain } = useKyberAIAssetOverview()
+  const { chain, address } = useKyberAIAssetOverview()
   const reachedMaxLimit = useIsReachMaxLimitWatchedToken()
   const [addToWatchlist, { isLoading: loadingAddtoWatchlist }] = useAddToWatchlistMutation()
   const [removeFromWatchlist, { isLoading: loadingRemovefromWatchlist }] = useRemoveFromWatchlistMutation()
   const [isWatched, setIsWatched] = useState(false)
 
   const handleStarClick = () => {
-    if (!token || !chain || !account) return
+    if (!token || !chain || !address || !account) return
     if (isWatched) {
       mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
         token_name: token.symbol?.toUpperCase(),
         source: 'explore',
         option: 'remove',
       })
-
       removeFromWatchlist({
-        tokenAddress: token?.address,
+        tokenAddress: address,
         chain,
       }).then(() => setIsWatched(false))
     } else {
@@ -288,7 +287,7 @@ const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoadin
           source: 'explore',
           option: 'add',
         })
-        addToWatchlist({ tokenAddress: token?.address, chain }).then(() => setIsWatched(true))
+        addToWatchlist({ tokenAddress: address, chain }).then(() => setIsWatched(true))
       }
     }
   }
@@ -373,10 +372,10 @@ const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoadin
     </>
   )
 }
-const SettingButtons = ({ token, onShareClick }: { token?: IAssetOverview; onShareClick: () => void }) => {
+const SettingButtons = ({ onShareClick }: { token?: IAssetOverview; onShareClick: () => void }) => {
   const theme = useTheme()
   const navigate = useNavigate()
-  const { chain } = useKyberAIAssetOverview()
+  const { chain, address } = useKyberAIAssetOverview()
   return (
     <>
       <SimpleTooltip text={t`Set a price alert`} hideOnMobile>
@@ -384,7 +383,7 @@ const SettingButtons = ({ token, onShareClick }: { token?: IAssetOverview; onSha
           onClick={() =>
             navigate(
               `${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.CREATE_ALERT}?${stringify({
-                inputCurrency: token?.address ?? '',
+                inputCurrency: address ?? '',
                 chainId: chain ? NETWORK_TO_CHAINID[chain] : '',
               })}`,
             )
@@ -467,14 +466,14 @@ const TokenHeader = ({
 }) => {
   const mixpanelHandler = useMixpanelKyberAI()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
-  const { chain } = useKyberAIAssetOverview()
+  const { chain, address } = useKyberAIAssetOverview()
   return above768 ? (
     <RowBetween marginBottom="24px">
       <RowFit gap="12px">
         <TokenNameGroup token={token} isLoading={isLoading} />
       </RowFit>
       <RowFit gap="12px">
-        <SettingButtons token={token} onShareClick={onShareClick} />
+        <SettingButtons onShareClick={onShareClick} />
         <SwitchVariantDropdown variants={token?.addresses} isLoading={isLoading} />
         <ButtonPrimary
           height={'36px'}
@@ -485,7 +484,7 @@ const TokenHeader = ({
               token_name: token?.symbol?.toUpperCase(),
               network: chain,
             })
-            navigateToSwapPage({ address: token?.address, chain })
+            navigateToSwapPage({ address, chain })
           }}
         >
           <RowFit gap="4px" style={{ whiteSpace: 'nowrap' }}>
@@ -502,7 +501,7 @@ const TokenHeader = ({
       </MobileStickyHeader>
       <RowBetween marginBottom="12px">
         <RowFit gap="12px">
-          <SettingButtons token={token} onShareClick={onShareClick} />
+          <SettingButtons onShareClick={onShareClick} />
         </RowFit>
         <ButtonPrimary
           height="32px"

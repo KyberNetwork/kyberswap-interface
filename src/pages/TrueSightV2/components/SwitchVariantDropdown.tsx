@@ -25,7 +25,7 @@ const SelectButton = styled(RowFit)`
   gap: 8px;
   cursor: pointer;
   font-size: 14px;
-  width: 135px;
+  width: 145px;
 
   :hover {
     z-index: 10;
