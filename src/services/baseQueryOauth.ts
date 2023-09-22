@@ -10,7 +10,7 @@ const queryWithTokenAndTracking = async (config: any, baseUrl: string, withAcces
       // mapping rtk query vs axios
       config.data = config.data || config.body
     }
-    config.url = baseUrl + config.url
+    config.url = (config.url.startsWith('http') ? '' : baseUrl) + config.url
     const result = await (withAccessToken ? KyberOauth2Api.call(config) : axios(config))
     return { data: result.data }
   } catch (err) {

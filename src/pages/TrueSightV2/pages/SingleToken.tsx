@@ -15,9 +15,11 @@ import Icon from 'components/Icons/Icon'
 import { DotsLoader } from 'components/Loader/DotsLoader'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
+import { StarWithAnimation } from 'pages/TrueSightV2/components/WatchlistStar'
 import { MEDIA_WIDTHS } from 'theme'
 
 import DisplaySettings from '../components/DisplaySettings'
@@ -26,7 +28,6 @@ import KyberAIShareModal from '../components/KyberAIShareModal'
 import SimpleTooltip from '../components/SimpleTooltip'
 import SwitchVariantDropdown from '../components/SwitchVariantDropdown'
 import { TokenOverview } from '../components/TokenOverview'
-import WatchlistButton from '../components/WatchlistButton'
 import ExploreShareContent from '../components/shareContent/ExploreTopShareContent'
 import { MIXPANEL_KYBERAI_TAG, NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from '../constants'
 import useChartStatesReducer, { ChartStatesContext } from '../hooks/useChartStatesReducer'
@@ -258,7 +259,7 @@ const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoadin
   const { account } = useActiveWeb3React()
   const theme = useTheme()
 
-  // const mixpanelHandler = useMixpanelKyberAI()
+  const mixpanelHandler = useMixpanelKyberAI()
   const navigate = useNavigate()
   const location = useLocation()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
@@ -268,30 +269,30 @@ const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoadin
   const [removeFromWatchlist, { isLoading: loadingRemovefromWatchlist }] = useRemoveFromWatchlistMutation()
   const [isWatched, setIsWatched] = useState(false)
 
-  // const handleStarClick = () => {
-  //   if (!token || !chain || !account) return
-  //   if (isWatched) {
-  //     mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-  //       token_name: token.symbol?.toUpperCase(),
-  //       source: 'explore',
-  //       option: 'remove',
-  //     })
+  const handleStarClick = () => {
+    if (!token || !chain || !account) return
+    if (isWatched) {
+      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
+        token_name: token.symbol?.toUpperCase(),
+        source: 'explore',
+        option: 'remove',
+      })
 
-  //     removeFromWatchlist({
-  //       tokenAddress: token?.address,
-  //       chain,
-  //     }).then(() => setIsWatched(false))
-  //   } else {
-  //     if (!reachedMaxLimit) {
-  //       mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-  //         token_name: token.symbol?.toUpperCase(),
-  //         source: 'explore',
-  //         option: 'add',
-  //       })
-  //       addToWatchlist({ tokenAddress: token?.address, chain }).then(() => setIsWatched(true))
-  //     }
-  //   }
-  // }
+      removeFromWatchlist({
+        tokenAddress: token?.address,
+        chain,
+      }).then(() => setIsWatched(false))
+    } else {
+      if (!reachedMaxLimit) {
+        mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
+          token_name: token.symbol?.toUpperCase(),
+          source: 'explore',
+          option: 'add',
+        })
+        addToWatchlist({ tokenAddress: token?.address, chain }).then(() => setIsWatched(true))
+      }
+    }
+  }
   const handleGoBackClick = () => {
     if (!!location?.state?.from) {
       navigate(location.state.from)

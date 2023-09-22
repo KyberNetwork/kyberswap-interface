@@ -74,7 +74,7 @@ enum SORT_FIELD {
   MY_REWARD = 'my_reward',
 }
 
-const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo, onShowStepGuide, tokenPrices }) => {
+const ElasticFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, onShowStepGuide, tokenPrices }) => {
   const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
   const above1000 = useMedia('(min-width: 1000px)')

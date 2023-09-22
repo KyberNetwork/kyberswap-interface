@@ -1,50 +1,23 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { ReactNode, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import Skeleton from 'react-loading-skeleton'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
+import { FadeInAnimation } from 'components/Animation'
 import { ButtonGray } from 'components/Button'
 import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
-import Select, { SelectOption } from 'components/Select'
+import Select from 'components/Select'
+import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
 import MultipleChainSelect from 'pages/MyEarnings/MultipleChainSelect'
 import SubscribeButtonKyberAI from 'pages/TrueSightV2/components/SubscireButtonKyberAI'
-import { NETWORK_TO_CHAINID, Z_INDEX_KYBER_AI } from 'pages/TrueSightV2/constants'
+import { NETWORK_TO_CHAINID, SUPPORTED_NETWORK_KYBERAI, Z_INDEX_KYBER_AI } from 'pages/TrueSightV2/constants'
+import { useGetFilterCategoriesQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
+import { useSessionInfo } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-
-const categories: { [key: string]: SelectOption[] } = {
-  categories: [
-    { label: 'All Categories', value: '' },
-    { label: 'Defi', value: 'defi' },
-    { label: 'Gamefi', value: 'gamefi' },
-    { label: 'Layer 2', value: 'layer2' },
-  ],
-  market_cap: [
-    { label: 'All Market Cap', value: '' },
-    { label: 'Less than $1M', value: '0,1000000' },
-    { label: 'More than $1M', value: '1000000' },
-    { label: 'More than $10M', value: '10000000' },
-    { label: 'More than $100M', value: '100000000' },
-    { label: 'More than $500M', value: '500000000' },
-  ],
-  holders: [
-    { label: 'All Holders', value: '' },
-    { label: 'Less than 1,000', value: '0,1000' },
-    { label: 'More than 1,000', value: '1000' },
-    { label: 'More than 10,000', value: '10000' },
-  ],
-  market: [
-    { label: 'All Markets', value: '' },
-    { label: 'DEXes', value: 'dexes' },
-    { label: 'CEXes', value: 'cexes' },
-  ],
-  chain: [
-    { label: 'All Chains', value: 'all' },
-    { label: 'BNB Chain', value: 'bsc' },
-  ],
-}
 
 const SELECT_SIZE = '60px'
 
@@ -57,6 +30,11 @@ const shareStyle = css`
     padding-top: 6px;
     padding-bottom: 6px;
   `}
+`
+
+const StyledSkeleton = styled(Skeleton)`
+  ${shareStyle}
+  width: 150px;
 `
 
 const StyledSelect = styled(Select)`
@@ -121,32 +99,72 @@ const SelectGroup = styled.div`
   `}
 `
 
+const getChainsFromSlugs = (values: string[] | undefined) =>
+  (values || []).map(item => NETWORK_TO_CHAINID[item || '']).filter(Boolean)
+
 export default function TokenFilter({
   handleFilterChange,
-  handleChainChange,
   setShowShare,
+  onTrackingSelectChain,
+  defaultFilter = {},
 }: {
   handleFilterChange: (filter: Record<string, string>) => void
-  handleChainChange: (v?: ChainId) => void
   setShowShare: (v: boolean) => void
+  onTrackingSelectChain: (v: string) => void
+  defaultFilter: { [k: string]: string }
 }) {
+  const [filter, setFilter] = useState(defaultFilter)
+
+  const onChangeFilter = useCallback(
+    (key: string, value: string) => {
+      const newFilter = { ...filter, [key]: value }
+      setFilter(newFilter)
+      handleFilterChange(newFilter)
+    },
+    [setFilter, handleFilterChange, filter],
+  )
+
+  const { isLogin } = useSessionInfo()
+  const { data = [], isFetching } = useGetFilterCategoriesQuery(undefined, { skip: !isLogin })
+  const showLoading = useShowLoadingAtLeastTime(isFetching, 500)
+
+  const { allChainIds, listSelects, chainFilter } = useMemo(() => {
+    const [chainFilter, ...listSelects] = data
+    const allChainIds = getChainsFromSlugs(chainFilter?.values.map(item => item.value + ''))
+
+    return { allChainIds, listSelects, chainFilter }
+  }, [data])
+
+  const defaultChains = useMemo(
+    () => getChainsFromSlugs(defaultFilter[chainFilter?.queryKey]?.split(',')),
+    [defaultFilter, chainFilter],
+  )
+
+  // todo watch list chains
+
+  const theme = useTheme()
+  const [selectedChains, setSelectChains] = useState<ChainId[]>([])
+  const handleChainChange = useCallback(
+    (values: ChainId[]) => {
+      if (!chainFilter?.queryKey) return
+      setSelectChains(values)
+      const selectAllChain = values.length === allChainIds.length
+      const valueStr = selectAllChain ? '' : values.map(id => SUPPORTED_NETWORK_KYBERAI[id]).join(',')
+      onTrackingSelectChain(selectAllChain ? 'All' : valueStr)
+      onChangeFilter(chainFilter.queryKey, valueStr)
+    },
+    [chainFilter, onChangeFilter, allChainIds, onTrackingSelectChain],
+  )
+
+  const isInit = useRef(false)
+  useEffect(() => {
+    if (isInit.current || defaultChains.length + allChainIds.length === 0) return
+    isInit.current = true
+    setSelectChains(defaultChains.length ? defaultChains : allChainIds)
+  }, [allChainIds, defaultChains])
+
+  // todo loading de len filter
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const [filter, setFilter] = useState({})
-
-  const onChangeFilter = (key: string, value: string) => {
-    const newFilter = { ...filter, [key]: value }
-    setFilter(newFilter)
-    handleFilterChange(newFilter)
-  }
-
-  const listSelects = [
-    { key: 'chain', label: 'Chains' },
-    { key: 'market_cap', label: 'Market Cap' },
-    { key: 'holders', label: 'Holders' },
-    { key: 'categories', label: 'Categories' },
-    { key: 'market', label: 'Markets' },
-    // todo watch list
-  ]
 
   const activeRender = (name: string, label: ReactNode) => (
     <Column gap="6px">
@@ -157,34 +175,45 @@ export default function TokenFilter({
     </Column>
   )
 
-  const theme = useTheme()
-  const [selectedChains, setSelectChains] = useState<ChainId[]>(Object.values(NETWORK_TO_CHAINID))
-
   return (
     <StyledWrapper>
       <SelectGroup>
-        <StyledChainSelect
-          menuStyle={{ left: 0 }}
-          activeStyle={{
-            backgroundColor: 'transparent',
-            padding: 0,
-          }}
-          labelColor={theme.text}
-          handleChangeChains={setSelectChains}
-          chainIds={Object.values(NETWORK_TO_CHAINID)}
-          selectedChainIds={selectedChains}
-          activeRender={node => activeRender('Chains', node)}
-        />
-        {listSelects.map(({ key, label }) => (
-          <StyledSelect
-            key={key}
-            activeRender={item => activeRender(label, item?.label)}
-            options={categories[key]}
-            onChange={value => onChangeFilter(key, value)}
-            optionStyle={{ fontSize: '14px' }}
-            menuStyle={{ zIndex: Z_INDEX_KYBER_AI.FILTER_TOKEN_OPTIONS, top: upToSmall ? undefined : SELECT_SIZE }}
-          />
-        ))}
+        {showLoading ? (
+          new Array(5)
+            .fill(0)
+            .map((_, i) => <StyledSkeleton key={i} baseColor={theme.buttonBlack} highlightColor={theme.border} />)
+        ) : (
+          <>
+            <StyledChainSelect
+              menuStyle={{ left: 0, zIndex: Z_INDEX_KYBER_AI.FILTER_TOKEN_OPTIONS }}
+              activeStyle={{
+                backgroundColor: 'transparent',
+                padding: 0,
+              }}
+              labelColor={theme.text}
+              handleChangeChains={handleChainChange}
+              chainIds={allChainIds}
+              selectedChainIds={selectedChains}
+              activeRender={node => activeRender('Chains', node)}
+            />
+            {listSelects.map(({ queryKey, displayName, values }) => (
+              <StyledSelect
+                value={filter[queryKey]}
+                key={queryKey}
+                activeRender={item => activeRender(displayName, item?.label)}
+                options={values}
+                onChange={value => onChangeFilter(queryKey, value)}
+                optionStyle={{ fontSize: '14px' }}
+                menuStyle={{
+                  zIndex: Z_INDEX_KYBER_AI.FILTER_TOKEN_OPTIONS,
+                  top: upToSmall ? undefined : SELECT_SIZE,
+                  maxHeight: 400,
+                  overflowY: 'scroll',
+                }}
+              />
+            ))}
+          </>
+        )}
       </SelectGroup>
       <ShareGroup>
         <ButtonGray

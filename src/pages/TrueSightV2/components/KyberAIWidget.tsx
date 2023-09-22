@@ -210,7 +210,6 @@ export default function Widget() {
             [WidgetTab.Bullish]: KyberAIListType.BULLISH,
             [WidgetTab.TrendingSoon]: KyberAIListType.TRENDING_SOON,
           }[activeTab],
-          chain: 'all',
           page: 1,
           pageSize: 5,
         },

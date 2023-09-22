@@ -1,6 +1,8 @@
+import { t } from '@lingui/macro'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import baseQueryOauth from 'services/baseQueryOauth'
 
+import { SelectOption } from 'components/Select'
 import { BFF_API } from 'constants/env'
 
 import {
@@ -33,7 +35,7 @@ const kyberAIApi = createApi({
         params: {
           ...filter,
           type: type || 'all',
-          chain: chain || 'all',
+          chain: 'all', // todo remove
           page: page || 1,
           size: pageSize || 10,
           watchlist: watchlist ? 'true' : undefined,
@@ -256,6 +258,20 @@ const kyberAIApi = createApi({
       }),
       transformResponse: (res: any) => res.data,
     }),
+    // filter
+    getFilterCategories: builder.query<{ displayName: string; queryKey: string; values: SelectOption[] }[], void>({
+      query: () => ({
+        url: `https://truesight-v2.dev.kyberengineering.io/truesight/api/v2/assets/filters`, // todo
+      }),
+      transformResponse: (res: any) =>
+        res.data.map((e: any) => ({
+          ...e,
+          values: [
+            { label: t`All ${e.displayName}`, value: '' },
+            ...e.values.map((opt: any) => ({ label: opt.displayName, value: opt.queryValue })),
+          ],
+        })),
+    }),
   }),
 })
 
@@ -279,5 +295,6 @@ export const {
   useSearchTokenQuery,
   useLazySearchTokenQuery,
   useFundingRateQuery,
+  useGetFilterCategoriesQuery,
 } = kyberAIApi
 export default kyberAIApi
