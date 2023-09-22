@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
-import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
@@ -159,7 +159,7 @@ export const defaultExplorePageToken = {
   assetId: 1,
 }
 
-const StyledTokenDescription = styled.div<{ show?: boolean }>`
+const StyledTokenDescription = styled.span<{ show?: boolean }>`
   text-overflow: ellipsis;
   overflow: hidden;
   font-size: 12px;
@@ -187,11 +187,16 @@ const TokenDescription = ({ description }: { description: string }) => {
   const theme = useTheme()
   const [show, setShow] = useState(true)
   const [isTextExceeded, setIsTextExceeded] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
+  console.log('🚀 ~ file: SingleToken.tsx:191 ~ TokenDescription ~ isTextExceeded:', isTextExceeded)
 
-  useLayoutEffect(() => {
-    setIsTextExceeded((!!description && ref.current && ref.current?.clientWidth <= ref.current?.scrollWidth) || false)
-  }, [description])
+  const ref = useCallback(
+    (el: HTMLDivElement) => {
+      if (el && !!description) {
+        setIsTextExceeded(el.clientHeight > 18 || el.scrollWidth > el.clientWidth || false)
+      }
+    },
+    [description],
+  )
 
   useEffect(() => {
     const hideBtn = document.getElementById('hide-token-description-span')
@@ -204,19 +209,30 @@ const TokenDescription = ({ description }: { description: string }) => {
 
   return (
     <Row style={{ position: 'relative' }}>
-      <StyledTokenDescription
-        ref={ref}
-        show={show}
-        dangerouslySetInnerHTML={{
-          __html:
-            linkify(description) +
-            (isTextExceeded
-              ? `<span style="color:${
-                  theme.primary
-                }; cursor:pointer; margin-left:4px;" id="hide-token-description-span">${t`Hide`}</span>`
-              : ''),
-        }}
-      />
+      <StyledTokenDescription ref={ref} show={show}>
+        <span
+          dangerouslySetInnerHTML={{
+            __html: linkify(description),
+          }}
+        />
+        {isTextExceeded && show && (
+          <Text
+            as="span"
+            fontSize="12px"
+            color={theme.primary}
+            width="fit-content"
+            style={{
+              padding: '0 6px',
+              cursor: 'pointer',
+              flexBasis: 'fit-content',
+              whiteSpace: 'nowrap',
+            }}
+            onClick={() => setShow(false)}
+          >
+            Hide
+          </Text>
+        )}
+      </StyledTokenDescription>
       {isTextExceeded && !show && (
         <Text
           as="span"
