@@ -25,7 +25,7 @@ const SelectButton = styled(RowFit)`
   gap: 8px;
   cursor: pointer;
   font-size: 14px;
-  width: 135px;
+  width: 145px;
 
   :hover {
     z-index: 10;
@@ -84,7 +84,6 @@ export default function SwitchVariantDropdown({
   const { chain, address } = useKyberAIAssetOverview()
   useOnClickOutside(ref, () => setShow(false))
   const variant = variants?.find(item => item.address.toLowerCase() === address && item.chain.toLowerCase() === chain)
-  console.log('🚀 ~ file: SwitchVariantDropdown.tsx:87 ~ variant:', variant)
   if (!variant && isLoading) {
     return (
       <SkeletonTheme

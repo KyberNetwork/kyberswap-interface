@@ -38,18 +38,18 @@ const KyberDAONavGroup = () => {
         }
         dropdownContent={
           <Column>
-            <StyledNavLink id="kyberdao-stake-knc" to={APP_PATHS.KYBERDAO_STAKE} style={{ gap: '4px' }}>
+            <StyledNavLink id="kyberdao-stake-knc" to={APP_PATHS.KYBERDAO_STAKE} style={{ gap: '12px' }}>
               <StakeIcon />
               <Trans>Stake KNC</Trans>
             </StyledNavLink>
-            <StyledNavLink id="kyberdao-vote" to={APP_PATHS.KYBERDAO_VOTE} style={{ gap: '4px' }}>
+            <StyledNavLink id="kyberdao-vote" to={APP_PATHS.KYBERDAO_VOTE} style={{ gap: '12px' }}>
               <VoteIcon />
               <Trans>Vote</Trans>
             </StyledNavLink>
             <StyledNavLink
               id="knc-utility"
               to={APP_PATHS.KYBERDAO_KNC_UTILITY}
-              style={{ gap: '4px' }}
+              style={{ gap: '12px' }}
               onClick={() => {
                 mixpanelHandler(MIXPANEL_TYPE.GAS_REFUND_SOURCE_CLICK, { source: 'KyberDAO_tab' })
               }}
@@ -61,7 +61,7 @@ const KyberDAONavGroup = () => {
               id="kyberdao-feature-request"
               href="https://kyberswap.canny.io/feature-request"
               target="_blank"
-              style={{ gap: '4px' }}
+              style={{ gap: '12px' }}
               onClick={() => {
                 mixpanelHandler(MIXPANEL_TYPE.KYBER_DAO_FEATURE_REQUEST_CLICK)
               }}
