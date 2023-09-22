@@ -228,7 +228,7 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
 
         const formattedData: ElasticFarmV2[] = data.farmV2S.map((farm: SubgraphFarmV2) => {
           const getToken = (t: SubgraphToken, keepWrapped = false) => {
-            const address = isAddressString(nontrackChainId.current, t.id)
+            const address = isAddressString(chainId, t.id)
             return (keepWrapped ? false : address === WETH[chainId].address) || address === ZERO_ADDRESS
               ? NativeCurrencies[chainId]
               : new Token(
