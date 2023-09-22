@@ -55,6 +55,7 @@ const earningApi = createApi({
         const positionData: GetElasticEarningResponse = (positionsRes?.data as any).data as GetElasticEarningResponse
 
         const aggregateData = Object.keys(positionData).reduce((acc, chainName) => {
+          if (!positionData?.[chainName]) return acc
           return {
             ...acc,
             [chainName]: {
@@ -110,6 +111,7 @@ const earningApi = createApi({
         const positionData: GetElasticEarningResponse = (positionsRes?.data as any).data as GetElasticEarningResponse
 
         const aggregateData = Object.keys(positionData).reduce((acc, chainName) => {
+          if (!positionData?.[chainName]) return acc
           return {
             ...acc,
             [chainName]: {

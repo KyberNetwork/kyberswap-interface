@@ -6,7 +6,7 @@ import { ReactNode, useCallback, useContext, useMemo, useRef, useState } from 'r
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { DefaultTheme, css } from 'styled-components'
 
@@ -21,9 +21,16 @@ import Row, { RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
-import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID, Z_INDEX_KYBER_AI } from 'pages/TrueSightV2/constants'
-import { useFundingRateQuery, useHolderListQuery, useLiveDexTradesQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
-import useKyberAITokenOverview from 'pages/TrueSightV2/hooks/useKyberAITokenOverview'
+import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
+import useIsReachMaxLimitWatchedToken from 'pages/TrueSightV2/hooks/useIsReachMaxLimitWatchedToken'
+import useKyberAIAssetOverview from 'pages/TrueSightV2/hooks/useKyberAIAssetOverview'
+import {
+  useAddToWatchlistMutation,
+  useFundingRateQuery,
+  useHolderListQuery,
+  useLiveDexTradesQuery,
+  useRemoveFromWatchlistMutation,
+} from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import { IHolderList, IKyberScoreChart, ILiveTrade, ITokenList, KyberAITimeframe } from 'pages/TrueSightV2/types'
 import {
@@ -162,9 +169,8 @@ const LoadingHandleWrapper = ({
 
 export const Top10HoldersTable = () => {
   const theme = useTheme()
-  const { chain, address } = useParams()
-  const { data, isLoading } = useHolderListQuery({ address, chain })
-  const { data: tokenOverview } = useKyberAITokenOverview()
+  const { data: tokenOverview, chain, address } = useKyberAIAssetOverview()
+  const { data, isLoading } = useHolderListQuery({ address, chain }, { skip: !chain || !address })
   return (
     <LoadingHandleWrapper isLoading={isLoading} hasData={!!data && data.length > 0} height="400px">
       <colgroup>
@@ -363,8 +369,8 @@ function colorRateText(value: number, theme: DefaultTheme) {
 
 export const FundingRateTable = ({ mobileMode }: { mobileMode?: boolean }) => {
   const theme = useTheme()
-  const { chain, address } = useParams()
-  const { data, isLoading } = useFundingRateQuery({ address, chain })
+  const { chain, address } = useKyberAIAssetOverview()
+  const { data, isLoading } = useFundingRateQuery({ address, chain }, { skip: !chain || !address })
 
   if (mobileMode) {
     return (
@@ -448,15 +454,15 @@ export const FundingRateTable = ({ mobileMode }: { mobileMode?: boolean }) => {
 export const LiveDEXTrades = () => {
   const theme = useTheme()
   const [currentPage, setCurrentPage] = useState(1)
-  const { chain, address } = useParams()
+  const { data: tokenOverview, chain, address } = useKyberAIAssetOverview()
+
   const { data, isLoading } = useLiveDexTradesQuery(
     {
       chain,
       address,
     },
-    { pollingInterval: 10000 },
+    { pollingInterval: 10000, skip: !chain || !address },
   )
-  const { data: tokenOverview } = useKyberAITokenOverview()
 
   return (
     <>
@@ -586,44 +592,25 @@ const WidgetTokenRow = ({
 
   const latestKyberScore: IKyberScoreChart | undefined = token?.ks_3d?.[token.ks_3d.length - 1]
   const hasMutipleChain = token?.tokens?.length > 1
-  const [showMenu, setShowMenu] = useState(false)
   const [showSwapMenu, setShowSwapMenu] = useState(false)
-  const [menuLeft, setMenuLeft] = useState<number | undefined>(undefined)
-  // const [isWatched, setIsWatched] = useState(!!token.isWatched)
-  // const [loadingStar, setLoadingStar] = useState(false)
-  // const [addToWatchlist] = useAddToWatchlistMutation()
-  // const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
+  const [isWatched, setIsWatched] = useState(!!token.isWatched)
+  const [loadingStar, setLoadingStar] = useState(false)
+  const [addToWatchlist] = useAddToWatchlistMutation()
+  const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
 
   const rowRef = useRef<HTMLTableRowElement>(null)
-  const menuRef = useRef<HTMLDivElement>(null)
 
-  useOnClickOutside(rowRef, () => setShowMenu(false))
   useOnClickOutside(rowRef, () => setShowSwapMenu(false))
 
-  const handleRowClick = (e: any) => {
-    if (hasMutipleChain) {
-      const left = e.clientX - (rowRef.current?.getBoundingClientRect()?.left || 0)
-      const rowWidth = rowRef.current?.getBoundingClientRect()?.width || 0
-      const menuWidth = menuRef.current?.getBoundingClientRect()?.width || 0
-      if (left !== undefined) {
-        setMenuLeft(Math.min(left, rowWidth - menuWidth))
-        setShowMenu(true)
-      }
-    } else {
-      navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.tokens[0].chain}/${token.tokens[0].address}`)
-      onClick?.()
-    }
+  const handleRowClick = () => {
+    navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.asset_id}`)
+    onClick?.()
   }
 
   const handleSwapClick = (e: any) => {
     e.stopPropagation()
     if (hasMutipleChain) {
-      const left =
-        e.clientX -
-        (rowRef.current?.getBoundingClientRect()?.left || 0) -
-        (menuRef.current?.getBoundingClientRect()?.width || 0)
       setShowSwapMenu(true)
-      setMenuLeft(left)
     } else {
       navigateToSwapPage({ address: token.tokens[0].address, chain: token.tokens[0].chain })
     }
@@ -774,22 +761,7 @@ const WidgetTokenRow = ({
       </td>
       {hasMutipleChain && (
         <>
-          <MultipleChainDropdown
-            ref={menuRef}
-            show={showMenu}
-            menuLeft={menuLeft}
-            tokens={token?.tokens}
-            onChainClick={(chain, address) => {
-              onClick?.()
-              navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${chain}/${address}`)
-            }}
-          />
-          <MultipleChainDropdown
-            show={showSwapMenu}
-            menuLeft={menuLeft}
-            tokens={token?.tokens}
-            onChainClick={handleSwapNavigateClick}
-          />
+          <MultipleChainDropdown show={showSwapMenu} tokens={token?.tokens} onChainClick={handleSwapNavigateClick} />
         </>
       )}
     </tr>
@@ -994,7 +966,7 @@ export const Top10HoldersShareModalTable = ({
   startIndex?: number
 }) => {
   const theme = useTheme()
-  const { data: tokenOverview } = useKyberAITokenOverview()
+  const { data: tokenOverview } = useKyberAIAssetOverview()
 
   return (
     <ShareTableWrapper style={{ flex: 1 }}>
@@ -1061,7 +1033,7 @@ export const LiveTradesInShareModalTable = ({
   mobileMode?: boolean
 }) => {
   const theme = useTheme()
-  const { data: tokenOverview } = useKyberAITokenOverview()
+  const { data: tokenOverview } = useKyberAIAssetOverview()
 
   return (
     <ShareTableWrapper style={{ flex: 1 }}>

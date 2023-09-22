@@ -18,7 +18,7 @@ import { CloseIcon, MEDIA_WIDTHS } from 'theme'
 import { openFullscreen } from 'utils/index'
 
 import { MIXPANEL_KYBERAI_TAG } from '../constants'
-import useKyberAITokenOverview from '../hooks/useKyberAITokenOverview'
+import useKyberAIAssetOverview from '../hooks/useKyberAIAssetOverview'
 import { ChartTab } from '../types'
 import KyberAIShareModal from './KyberAIShareModal'
 
@@ -144,7 +144,7 @@ export const SectionWrapper = ({
   const theme = useTheme()
   const mixpanelHandler = useMixpanelKyberAI()
   const { chain } = useParams()
-  const { data: token } = useKyberAITokenOverview()
+  const { data: token } = useKyberAIAssetOverview()
   const ref = useRef<HTMLDivElement>(null)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const [showText, setShowText] = useState(above768 ? true : false)

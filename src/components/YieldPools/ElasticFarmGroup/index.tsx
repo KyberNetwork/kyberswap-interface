@@ -22,8 +22,8 @@ import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
 import { Dots } from 'pages/Pool/styleds'
 import { useWalletModalToggle } from 'state/application/hooks'
-import { useElasticFarms, useFarmAction } from 'state/farms/elastic/hooks'
-import { FarmingPool, UserInfo } from 'state/farms/elastic/types'
+import { useDepositedNftsByFarm, useElasticFarms, useFarmAction, useUserInfoByFarm } from 'state/farms/elastic/hooks'
+import { FarmingPool } from 'state/farms/elastic/types'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useIsTransactionPending } from 'state/transactions/hooks'
 import { useViewMode } from 'state/user/hooks'
@@ -61,7 +61,6 @@ type Props = {
     pool?: FarmingPool,
   ) => void
   pools: FarmingPool[]
-  userInfo?: UserInfo
   onShowStepGuide: () => void
   tokenPrices: { [key: string]: number }
 }
@@ -80,6 +79,9 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
   const { account, chainId } = useActiveWeb3React()
   const above1000 = useMedia('(min-width: 1000px)')
 
+  const depositedPositions = useDepositedNftsByFarm(address)
+  const userInfo = useUserInfoByFarm(address)
+
   const [searchParams, setSearchParams] = useSearchParams()
   const sortField = searchParams.get('orderBy') || SORT_FIELD.MY_DEPOSIT
   const sortDirection = searchParams.get('orderDirection') || SORT_DIRECTION.DESC
@@ -87,7 +89,7 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
   const { poolFeeLast24h } = useElasticFarms()
 
   const depositedUsd =
-    userInfo?.depositedPositions.reduce(
+    depositedPositions.reduce(
       (acc, cur) =>
         acc +
         Number(cur.amount0.toExact()) * (tokenPrices[cur.amount0.currency.wrapped.address] || 0) +
@@ -96,7 +98,7 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
     ) || 0
 
   const userDepositedTokenAmounts =
-    userInfo?.depositedPositions.reduce<{
+    depositedPositions.reduce<{
       [address: string]: CurrencyAmount<Token>
     }>((result, pos) => {
       const address0 = pos.amount0.currency.address
@@ -151,8 +153,8 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
       }
 
       const joinedPositions = userInfo?.joinedPositions[pool.pid] || []
-      const depositedPositions =
-        userInfo?.depositedPositions.filter(pos => {
+      const poolDepositedPositions =
+        depositedPositions.filter(pos => {
           return (
             pool.poolAddress.toLowerCase() ===
             computePoolAddress({
@@ -166,7 +168,7 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
           )
         }) || []
 
-      const depositedUsd = depositedPositions.reduce(
+      const depositedUsd = poolDepositedPositions.reduce(
         (usd, pos) =>
           usd +
           Number(pos.amount1.toExact()) * (tokenPrices[pos.pool.token1.address.toLowerCase()] || 0) +
@@ -253,7 +255,7 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
   if (!pools) return null
 
   const canHarvest = Object.values(userInfo?.rewardPendings || {}).some(rw => rw.some(item => item.greaterThan('0')))
-  const canWithdraw = !!userInfo?.depositedPositions.length
+  const canWithdraw = !!depositedPositions.length
 
   const renderApproveButton = () => {
     if (isApprovedForAll || tab === 'ended') {
@@ -742,4 +744,4 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
   )
 }
 
-export default ProMMFarmGroup
+export default ElasticFarmGroup

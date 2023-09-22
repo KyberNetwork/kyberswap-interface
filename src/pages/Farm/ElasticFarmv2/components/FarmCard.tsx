@@ -26,6 +26,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { APRTooltipContent } from 'components/YieldPools/FarmingPoolAPRCell'
+import { PartnerFarmTag } from 'components/YieldPools/PartnerFarmTag'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -229,10 +230,12 @@ function FarmCard({
                 <Share2 size={14} fill="currentcolor" />
               </IconButton>
             </RowFit>
-
-            <FeeTag style={{ marginLeft: 0 }}>
-              FEE {farm?.pool?.fee ? (farm?.pool?.fee * 100) / ELASTIC_BASE_FEE_UNIT : 0.03}%
-            </FeeTag>
+            <Flex flexDirection="row">
+              <FeeTag style={{ marginLeft: 0 }}>
+                FEE {farm?.pool?.fee ? (farm?.pool?.fee * 100) / ELASTIC_BASE_FEE_UNIT : 0.03}%
+              </FeeTag>
+              <PartnerFarmTag farmPoolAddress={farm.poolAddress} />
+            </Flex>
           </Flex>
 
           <DoubleCurrencyLogo size={44} currency0={farm.token0} currency1={farm.token1} />
@@ -262,34 +265,9 @@ function FarmCard({
           </RowBetween>
 
           <RowBetween>
-            <MouseoverTooltip
-              placement="bottom"
-              width="fit-content"
-              text={
-                farm.tvl ? (
-                  <>
-                    <Flex alignItems="center" sx={{ gap: '4px' }}>
-                      <CurrencyLogo currency={farm.token0} size="16px" />
-                      {farm.tvlToken0.toSignificant(6)} {farm.token0.symbol}
-                    </Flex>
-
-                    <Flex alignItems="center" sx={{ gap: '4px' }} marginTop="4px">
-                      <CurrencyLogo currency={farm.token1} size="16px" />
-                      {farm.tvlToken1.toSignificant(6)} {farm.token1.symbol}
-                    </Flex>
-                  </>
-                ) : (
-                  ''
-                )
-              }
-            >
-              <Text fontSize="16px" fontWeight="500" color={theme.text} data-testid="tvl-value">
-                {farm.tvl ? formatDollarAmount(farm.tvl) : '--'}
-              </Text>
-
-              {!!farm.tvl && <DownSvg />}
-            </MouseoverTooltip>
-
+            <Text fontSize="16px" fontWeight="500" color={theme.text} data-testid="tvl-value">
+              {farm.tvl ? formatDollarAmount(farm.tvl) : '--'}
+            </Text>
             <Text fontSize="14px" fontWeight="500" color={theme.text}>
               {isEnded || farm.isSettled ? (
                 isEnded ? (

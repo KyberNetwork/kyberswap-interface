@@ -3,12 +3,14 @@ import { rgba } from 'polished'
 import { stringify } from 'querystring'
 import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
+import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
 import { DotsLoader } from 'components/Loader/DotsLoader'
 import Row, { RowBetween, RowFit } from 'components/Row'
@@ -22,13 +24,16 @@ import DisplaySettings from '../components/DisplaySettings'
 import FeedbackSurvey from '../components/FeedbackSurvey'
 import KyberAIShareModal from '../components/KyberAIShareModal'
 import SimpleTooltip from '../components/SimpleTooltip'
+import SwitchVariantDropdown from '../components/SwitchVariantDropdown'
 import { TokenOverview } from '../components/TokenOverview'
 import WatchlistButton from '../components/WatchlistButton'
 import ExploreShareContent from '../components/shareContent/ExploreTopShareContent'
 import { MIXPANEL_KYBERAI_TAG, NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from '../constants'
 import useChartStatesReducer, { ChartStatesContext } from '../hooks/useChartStatesReducer'
-import useKyberAITokenOverview from '../hooks/useKyberAITokenOverview'
-import { DiscoverTokenTab, ITokenOverview } from '../types'
+import useIsReachMaxLimitWatchedToken from '../hooks/useIsReachMaxLimitWatchedToken'
+import useKyberAIAssetOverview from '../hooks/useKyberAIAssetOverview'
+import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation } from '../hooks/useKyberAIData'
+import { DiscoverTokenTab, IAssetOverview } from '../types'
 import { navigateToSwapPage } from '../utils'
 import OnChainAnalysis from './OnChainAnalysis'
 import TechnicalAnalysis from './TechnicalAnalysis'
@@ -150,7 +155,8 @@ const TabButton = styled.div<{ active?: boolean }>`
 
 export const defaultExplorePageToken = {
   chain: 'ethereum',
-  address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+  address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', //TODO: remove
+  assetId: 1,
 }
 
 const StyledTokenDescription = styled.div<{ show?: boolean }>`
@@ -232,19 +238,19 @@ const TokenDescription = ({ description }: { description: string }) => {
   )
 }
 
-const TokenNameGroup = ({ token, isLoading }: { token?: ITokenOverview; isLoading?: boolean }) => {
-  // const { account } = useActiveWeb3React()
+const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoading?: boolean }) => {
+  const { account } = useActiveWeb3React()
   const theme = useTheme()
 
   // const mixpanelHandler = useMixpanelKyberAI()
   const navigate = useNavigate()
   const location = useLocation()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
-  const { chain } = useParams()
-  // const reachedMaxLimit = useIsReachMaxLimitWatchedToken()
-  // const [addToWatchlist, { isLoading: loadingAddtoWatchlist }] = useAddToWatchlistMutation()
-  // const [removeFromWatchlist, { isLoading: loadingRemovefromWatchlist }] = useRemoveFromWatchlistMutation()
-  // const [isWatched, setIsWatched] = useState(false)
+  const { chain } = useKyberAIAssetOverview()
+  const reachedMaxLimit = useIsReachMaxLimitWatchedToken()
+  const [addToWatchlist, { isLoading: loadingAddtoWatchlist }] = useAddToWatchlistMutation()
+  const [removeFromWatchlist, { isLoading: loadingRemovefromWatchlist }] = useRemoveFromWatchlistMutation()
+  const [isWatched, setIsWatched] = useState(false)
 
   // const handleStarClick = () => {
   //   if (!token || !chain || !account) return
@@ -289,15 +295,25 @@ const TokenNameGroup = ({ token, isLoading }: { token?: ITokenOverview; isLoadin
           <ChevronLeft size={24} />
         </ButtonIcon>
       </SimpleTooltip>
-      <WatchlistButton
-        wrapperStyle={{
-          color: theme.subText,
-          backgroundColor: theme.darkMode ? theme.buttonGray : theme.background,
-          height: above768 ? '36px' : '32px',
-          width: above768 ? '36px' : '32px',
-          borderRadius: '100%',
-        }}
-      />
+      <SimpleTooltip
+        text={isWatched ? t`Remove from watchlist` : reachedMaxLimit ? t`Reached 30 tokens limit` : t`Add to watchlist`}
+        hideOnMobile
+      >
+        <StarWithAnimation
+          watched={isWatched}
+          loading={loadingAddtoWatchlist || loadingRemovefromWatchlist}
+          size={16}
+          disabled={!isWatched && reachedMaxLimit}
+          wrapperStyle={{
+            color: isWatched ? theme.primary : theme.subText,
+            backgroundColor: isWatched ? theme.primary + '33' : theme.darkMode ? theme.buttonGray : theme.background,
+            height: above768 ? '36px' : '32px',
+            width: above768 ? '36px' : '32px',
+            borderRadius: '100%',
+          }}
+          onClick={handleStarClick}
+        />
+      </SimpleTooltip>
       <div style={{ position: 'relative' }}>
         <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
           <img
@@ -332,19 +348,19 @@ const TokenNameGroup = ({ token, isLoading }: { token?: ITokenOverview; isLoadin
       {isLoading ? (
         <DotsLoader />
       ) : (
-        <>
+        token && (
           <Text fontSize={above768 ? 24 : 16} color={theme.text} fontWeight={500}>
             {token?.name} ({token?.symbol.toUpperCase()})
           </Text>
-        </>
+        )
       )}
     </>
   )
 }
-const SettingButtons = ({ token, onShareClick }: { token?: ITokenOverview; onShareClick: () => void }) => {
+const SettingButtons = ({ token, onShareClick }: { token?: IAssetOverview; onShareClick: () => void }) => {
   const theme = useTheme()
   const navigate = useNavigate()
-  const { chain } = useParams()
+  const { chain } = useKyberAIAssetOverview()
   return (
     <>
       <SimpleTooltip text={t`Set a price alert`} hideOnMobile>
@@ -429,13 +445,13 @@ const TokenHeader = ({
   isLoading,
   onShareClick,
 }: {
-  token?: ITokenOverview
+  token?: IAssetOverview
   isLoading?: boolean
   onShareClick: () => void
 }) => {
   const mixpanelHandler = useMixpanelKyberAI()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
-  const { chain } = useParams()
+  const { chain } = useKyberAIAssetOverview()
   return above768 ? (
     <RowBetween marginBottom="24px">
       <RowFit gap="12px">
@@ -443,6 +459,7 @@ const TokenHeader = ({
       </RowFit>
       <RowFit gap="12px">
         <SettingButtons token={token} onShareClick={onShareClick} />
+        <SwitchVariantDropdown variants={token?.addresses} isLoading={isLoading} />
         <ButtonPrimary
           height={'36px'}
           width="fit-content"
@@ -498,19 +515,20 @@ export default function SingleToken() {
   const theme = useTheme()
   const navigate = useNavigate()
   const mixpanelHandler = useMixpanelKyberAI()
+  const [, setSearchParams] = useSearchParams()
   const [state, dispatch] = useChartStatesReducer()
   const [showShare, setShowShare] = useState(false)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
-  const { chain, address } = useParams()
+  const { assetId } = useParams()
   const [currentTab, setCurrentTab] = useState<DiscoverTokenTab>(DiscoverTokenTab.TechnicalAnalysis)
 
-  const { data: token, isLoading } = useKyberAITokenOverview()
+  const { data: token, isLoading, chain } = useKyberAIAssetOverview()
 
   const [viewAllTag, setViewAllTag] = useState(false)
 
   useEffect(() => {
-    if (!chain || !address) {
-      navigate(APP_PATHS.KYBERAI_EXPLORE + `/${defaultExplorePageToken.chain}/${defaultExplorePageToken.address}`)
+    if (!assetId) {
+      navigate(APP_PATHS.KYBERAI_EXPLORE + `/${defaultExplorePageToken.assetId}`)
       setTimeout(() => {
         const element = document.querySelector('#kyberai-search') as HTMLInputElement
         element?.focus({
@@ -518,17 +536,44 @@ export default function SingleToken() {
         })
       }, 750)
     }
-  }, [chain, address, navigate])
+  }, [assetId, navigate])
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
+
+  useEffect(() => {
+    if (token?.addresses && token.addresses[0].address && token.addresses[0].chain) {
+      setSearchParams({ chain: token.addresses[0].chain, address: token.addresses[0].address })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token?.addresses])
 
   return (
     <Wrapper>
       <ChartStatesContext.Provider value={{ state, dispatch }}>
         <TokenHeader token={token} isLoading={isLoading} onShareClick={() => setShowShare(true)} />
         <Text fontSize={12} color={theme.subText} marginBottom="12px">
-          {isLoading ? <DotsLoader /> : <TokenDescription description={token?.description || ''} />}
+          {isLoading ? (
+            <SkeletonTheme
+              height="16px"
+              direction="ltr"
+              duration={1}
+              baseColor={theme.buttonGray}
+              highlightColor={theme.border}
+              borderRadius="99px"
+            >
+              <Column gap="8px">
+                <Row>
+                  <Skeleton width="140px" inline />
+                  <Skeleton inline />
+                </Row>
+                <Skeleton />
+                <Skeleton />
+              </Column>
+            </SkeletonTheme>
+          ) : (
+            <TokenDescription description={token?.description || ''} />
+          )}
         </Text>
 
         <TagWrapper>

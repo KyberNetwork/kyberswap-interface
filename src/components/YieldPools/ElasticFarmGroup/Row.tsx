@@ -1,9 +1,8 @@
-import { ChainId, CurrencyAmount, Fraction } from '@kyberswap/ks-sdk-core'
-import { computePoolAddress } from '@kyberswap/ks-sdk-elastic'
+import { CurrencyAmount, Fraction } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { BigNumber } from 'ethers'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Info, Minus, Plus, Share2 } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -18,16 +17,17 @@ import { MoneyBag, Swap2 as SwapIcon } from 'components/Icons'
 import Harvest from 'components/Icons/Harvest'
 import InfoHelper from 'components/InfoHelper'
 import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import { PartnerFarmTag } from 'components/YieldPools/PartnerFarmTag'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { TOBE_EXTENDED_FARMING_POOLS } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useProMMFarmContract } from 'hooks/useContract'
 import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
 import { useShareFarmAddress } from 'state/farms/classic/hooks'
-import { useElasticFarms, usePositionFilter } from 'state/farms/elastic/hooks'
+import { useDepositedNftsByFarm, usePositionFilter, useUserInfoByFarm } from 'state/farms/elastic/hooks'
 import { FarmingPool, NFTPosition } from 'state/farms/elastic/types'
+import { getPoolAddress } from 'state/mint/proamm/utils'
 import { useViewMode } from 'state/user/hooks'
 import { VIEW_MODE } from 'state/user/reducer'
 import { shortenAddress } from 'utils'
@@ -73,26 +73,22 @@ const Row = ({
   const above1000 = useMedia('(min-width: 1000px)')
 
   const [isRevertPrice, setIsRevertPrice] = useState(false)
-  const { userFarmInfo } = useElasticFarms()
-  const joinedPositions = userFarmInfo?.[fairlaunchAddress]?.joinedPositions[farmingPool.pid] || []
+  const userInfo = useUserInfoByFarm(fairlaunchAddress)
+
+  const joinedPositions = userInfo?.joinedPositions[farmingPool.pid] || []
+
+  const depositedPositionsByFarm = useDepositedNftsByFarm(fairlaunchAddress)
 
   const depositedPositions =
-    userFarmInfo?.[fairlaunchAddress]?.depositedPositions.filter(pos => {
+    depositedPositionsByFarm.filter(pos => {
       return (
         pos.liquidity.toString() !== '0' &&
-        farmingPool.poolAddress.toLowerCase() ===
-          computePoolAddress({
-            factoryAddress: NETWORKS_INFO[isEVM(chainId) ? chainId : ChainId.MAINNET].elastic.coreFactory,
-            tokenA: pos.pool.token0,
-            tokenB: pos.pool.token1,
-            fee: pos.pool.fee,
-            initCodeHashManualOverride: NETWORKS_INFO[isEVM(chainId) ? chainId : ChainId.MAINNET].elastic.initCodeHash,
-          }).toLowerCase()
+        farmingPool.poolAddress.toLowerCase() === getPoolAddress(pos.pool).toLowerCase()
       )
     }) || []
 
   const rewardPendings =
-    userFarmInfo?.[fairlaunchAddress]?.rewardPendings[farmingPool.pid] ||
+    userInfo?.rewardPendings[farmingPool.pid] ||
     farmingPool.rewardTokens.map(token => CurrencyAmount.fromRawAmount(token, 0))
 
   const rewardValue = rewardPendings.reduce(
@@ -108,7 +104,7 @@ const Row = ({
   useEffect(() => {
     const getFeeTargetInfo = async () => {
       if (!contract || farmingPool.feeTarget === '0') return
-      const userJoinedPos = userFarmInfo?.[fairlaunchAddress].joinedPositions[farmingPool.pid] || []
+      const userJoinedPos = userInfo.joinedPositions[farmingPool.pid] || []
 
       if (!userJoinedPos.length) {
         setTargetPercent('')
@@ -143,7 +139,7 @@ const Row = ({
     }
 
     getFeeTargetInfo()
-  }, [contract, farmingPool.feeTarget, fairlaunchAddress, farmingPool.pid, userFarmInfo])
+  }, [contract, farmingPool.feeTarget, fairlaunchAddress, farmingPool.pid, userInfo])
 
   const { positions } = useProAmmPositions(account)
 
@@ -342,8 +338,10 @@ const Row = ({
                 </MouseoverTooltip>
               </Link>
             </Text>
-
-            <FeeTag>FEE {(farmingPool.pool.fee * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
+            <Flex flexDirection="column" sx={{ gap: '8px' }}>
+              <FeeTag>FEE {(farmingPool.pool.fee * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
+              <PartnerFarmTag farmPoolAddress={farmingPool.poolAddress} />
+            </Flex>
           </Flex>
 
           <Flex
@@ -537,4 +535,4 @@ const Row = ({
   )
 }
 
-export default Row
+export default React.memo(Row)

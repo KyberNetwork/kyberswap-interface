@@ -13,7 +13,7 @@ import Modal from 'components/Modal'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { useElasticFarms, useFarmAction } from 'state/farms/elastic/hooks'
+import { useElasticFarms, useFarmAction, useJoinedPositions } from 'state/farms/elastic/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { formatDollarAmount } from 'utils/numbers'
 
@@ -42,7 +42,8 @@ function HarvestModal({
   onDismiss: () => void
 }) {
   const theme = useTheme()
-  const { farms, userFarmInfo } = useElasticFarms()
+  const { farms } = useElasticFarms()
+  const userFarmInfo = useJoinedPositions()
   const selectedFarm = farms?.find(farm => farm.id.toLowerCase() === farmsAddress.toLowerCase())
 
   const { harvest } = useFarmAction(farmsAddress)
