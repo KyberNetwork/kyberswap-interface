@@ -12,6 +12,7 @@ import { useLazyGetFarmV2Query } from 'services/knprotocol'
 import FarmV2QuoterABI from 'constants/abis/farmv2Quoter.json'
 import NFTPositionManagerABI from 'constants/abis/v2/ProAmmNFTPositionManager.json'
 import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -185,9 +186,23 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
   const tokensRef = useRef<string[]>([])
   const pricesRef = useRef<{ [key: string]: number | undefined }>({})
 
+  const nontrackChainId = useRef(chainId)
+  nontrackChainId.current = chainId
+  const nontrackFetchPrices = useRef(fetchPrices)
+  nontrackFetchPrices.current = fetchPrices
+  const nontrackFarmv2QuoterContract = useRef(farmv2QuoterContract)
+  nontrackFarmv2QuoterContract.current = farmv2QuoterContract
+  const nontrackMulticallContract = useRef(multicallContract)
+  nontrackMulticallContract.current = multicallContract
+
   useEffect(() => {
     const getData = async () => {
-      if (data?.farmV2S.length && chainId) {
+      const chainId = nontrackChainId.current
+      const networkInfo = NETWORKS_INFO[chainId]
+      const fetchPrices = nontrackFetchPrices.current
+      const farmv2QuoterContract = nontrackFarmv2QuoterContract.current
+      const multicallContract = nontrackMulticallContract.current
+      if (data?.farmV2S.length) {
         const tokens = [
           ...new Set(
             data.farmV2S
@@ -213,7 +228,7 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
 
         const formattedData: ElasticFarmV2[] = data.farmV2S.map((farm: SubgraphFarmV2) => {
           const getToken = (t: SubgraphToken, keepWrapped = false) => {
-            const address = isAddressString(chainId, t.id)
+            const address = isAddressString(nontrackChainId.current, t.id)
             return (keepWrapped ? false : address === WETH[chainId].address) || address === ZERO_ADDRESS
               ? NativeCurrencies[chainId]
               : new Token(
@@ -471,7 +486,7 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
     }
 
     getData()
-  }, [fetchPrices, networkInfo, chainId, dispatch, data, account, farmv2QuoterContract, multicallContract])
+  }, [dispatch, data, account])
 
   return null
 }
