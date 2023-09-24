@@ -20,8 +20,8 @@ export default function useCancellingOrders(): CancellingOrderInfo {
   const [cancellingOrdersIds, setCancellingOrdersIds] = useState<number[]>([])
   const [cancellingOrdersNonces, setCancellingOrdersNonces] = useState<OrderNonces>({})
   const [loading, setLoading] = useState(true)
-  const { data, isError } = useGetLOConfigQuery(chainId)
-  const contract = isError ? '' : data?.contract || ''
+  const { currentData } = useGetLOConfigQuery(chainId)
+  const contract = currentData?.contract || ''
 
   const setCancellingOrders = useCallback((orderIds: number[]) => {
     setCancellingOrdersIds(orderIds)

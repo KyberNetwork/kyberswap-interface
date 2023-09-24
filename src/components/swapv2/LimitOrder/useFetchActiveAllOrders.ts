@@ -6,7 +6,7 @@ import { useActiveWeb3React } from 'hooks'
 
 export const useIsSupportSoftCancelOrder = () => {
   const { chainId } = useActiveWeb3React()
-  const { data: config } = useGetLOConfigQuery(chainId)
+  const { currentData: config } = useGetLOConfigQuery(chainId)
   return useCallback(
     (order: LimitOrder | undefined) => {
       if (!order) return false
