@@ -17,7 +17,7 @@ export const Container = styled.div`
   background-repeat: repeat-y;
 `
 
-export const Col = styled.div`
+export const Content = styled.div`
   gap: 30px;
   display: flex;
   flex-direction: column;
@@ -47,12 +47,12 @@ export const KyberLogo = () => {
 export function PageContainer({ msg }: { msg: string }) {
   return (
     <Container>
-      <Col>
+      <Content>
         <KyberLogo />
         <TextDesc style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <Loader size="20px" /> {msg}
         </TextDesc>
-      </Col>
+      </Content>
     </Container>
   )
 }

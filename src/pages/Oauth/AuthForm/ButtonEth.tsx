@@ -1,8 +1,8 @@
 import { LoginMethod } from '@kybernetwork/oauth2'
 import { useCallback } from 'react'
-import { Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 
-import { ButtonPrimary } from 'components/Button'
+import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Wallet from 'components/Icons/Wallet'
 import Loader from 'components/Loader'
 import { useActiveWeb3React } from 'hooks'
@@ -15,11 +15,15 @@ const ButtonEth = ({
   disabled,
   onClick,
   flowStatus,
+  showBtnCancel,
+  onClickCancel,
 }: {
   disabled: boolean
   loading: boolean
   onClick: () => void
+  onClickCancel: () => void
   flowStatus: FlowStatus
+  showBtnCancel: boolean
 }) => {
   const toggleWalletModal = useWalletModalToggle()
   const { account } = useActiveWeb3React()
@@ -35,26 +39,40 @@ const ButtonEth = ({
   useAutoSignIn({ onClick: onClickEth, flowStatus, method: LoginMethod.ETH })
 
   return (
-    <ButtonPrimary
-      width={'230px'}
-      height={'36px'}
-      className="login-btn"
-      id={'btnLoginGoogle'}
-      onClick={onClick}
-      disabled={disabled}
-    >
-      {loading ? (
-        <>
-          <Loader />
-          &nbsp; <Text style={{ whiteSpace: 'nowrap' }}> Signing In</Text>
-        </>
-      ) : (
-        <>
-          <Wallet />
-          &nbsp; Sign-In with Wallet
-        </>
+    <Flex style={{ justifyContent: 'center', flexWrap: 'wrap', alignItems: 'center', gap: '16px' }}>
+      {showBtnCancel && (
+        <ButtonOutlined
+          width={'230px'}
+          onClick={e => {
+            e.preventDefault()
+            onClickCancel()
+          }}
+          height={'36px'}
+        >
+          Cancel
+        </ButtonOutlined>
       )}
-    </ButtonPrimary>
+      <ButtonPrimary
+        width={'230px'}
+        height={'36px'}
+        className="login-btn"
+        id={'btnLoginGoogle'}
+        onClick={onClick}
+        disabled={disabled}
+      >
+        {loading ? (
+          <>
+            <Loader />
+            &nbsp; <Text style={{ whiteSpace: 'nowrap' }}> Signing In</Text>
+          </>
+        ) : (
+          <>
+            <Wallet />
+            &nbsp; Sign-In with Wallet
+          </>
+        )}
+      </ButtonPrimary>
+    </Flex>
   )
 }
 

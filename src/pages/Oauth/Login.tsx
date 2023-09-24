@@ -6,13 +6,13 @@ import { didUserReject } from 'constants/connectors/utils'
 import { ENV_KEY } from 'constants/env'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { Col, Container, KyberLogo, TextDesc } from 'pages/Oauth/styled'
+import { Container, Content, KyberLogo, TextDesc } from 'pages/Oauth/styled'
 import getShortenAddress from 'utils/getShortenAddress'
 import { queryStringToObject } from 'utils/string'
 import { formatSignature } from 'utils/transaction'
 
 import AuthForm from './AuthForm'
-import { createSignMessage, getSupportLoginMethods, isValidRedirectURL } from './utils'
+import { createSignMessage, getSupportLoginMethods, isValidRedirectURL } from './helpers'
 
 const getErrorMsg = (error: any) => {
   const data = error?.response?.data
@@ -30,6 +30,7 @@ const getErrorMsg = (error: any) => {
 }
 
 export type FlowStatus = {
+  processingSignIn: boolean
   flowReady: boolean
   autoLoginMethod: LoginMethod | undefined // not waiting for click btn
 }
@@ -38,10 +39,13 @@ export function Login() {
   const { account, chainId } = useActiveWeb3React()
   const { library: provider } = useWeb3React()
 
-  const [processingSignEth, setProcessingSign] = useState(false)
   const [authFormConfig, setAuthFormConfig] = useState<LoginFlow>()
   const [error, setError] = useState('')
-  const [flowStatus, setFlowStatus] = useState<FlowStatus>({ flowReady: false, autoLoginMethod: undefined })
+  const [flowStatus, setFlowStatus] = useState<FlowStatus>({
+    flowReady: false,
+    autoLoginMethod: undefined,
+    processingSignIn: false,
+  })
 
   const { wallet_address } = useParsedQueryString<{ wallet_address: string }>()
 
@@ -62,7 +66,7 @@ export function Login() {
       if (isMismatchEthAddress || !siweConfig || connectingWallet.current || !provider || !account || !chainId) {
         return
       }
-      setProcessingSign(true)
+      setFlowStatus(v => ({ ...v, processingSignIn: true }))
       const { ui, challenge, issued_at } = authFormConfig
       connectingWallet.current = true
       const csrf = ui.nodes.find(e => e.attributes.name === 'csrf_token')?.attributes?.value ?? ''
@@ -84,7 +88,7 @@ export function Login() {
 
       if (resp) {
         connectingWallet.current = false
-        setProcessingSign(false)
+        setFlowStatus(v => ({ ...v, processingSignIn: false }))
       }
     } catch (error: any) {
       if (!didUserReject(error)) {
@@ -92,7 +96,7 @@ export function Login() {
       }
       console.error('signInWithEthereum err', error)
       connectingWallet.current = false
-      setProcessingSign(false)
+      setFlowStatus(v => ({ ...v, processingSignIn: false }))
     }
   }, [account, provider, authFormConfig, chainId, isMismatchEthAddress])
 
@@ -121,7 +125,7 @@ export function Login() {
           autoLoginMethod = LoginMethod.ETH
         }
         KyberOauth2.initialize({ clientId: client_id, mode: ENV_KEY })
-        setFlowStatus({ flowReady: true, autoLoginMethod })
+        setFlowStatus(v => ({ ...v, flowReady: true, autoLoginMethod }))
       } catch (error: any) {
         const { error_description } = queryStringToObject(window.location.search)
         setError(error_description || getErrorMsg(error))
@@ -148,7 +152,7 @@ export function Login() {
 
   return (
     <Container>
-      <Col>
+      <Content>
         <KyberLogo />
         {error ? (
           <TextDesc>{error}</TextDesc>
@@ -165,10 +169,9 @@ export function Login() {
           formConfig={authFormConfig}
           flowStatus={flowStatus}
           signInWithEth={signInWithEth}
-          processingSignEth={processingSignEth}
           disableEth={!!isMismatchEthAddress}
         />
-      </Col>
+      </Content>
     </Container>
   )
 }
