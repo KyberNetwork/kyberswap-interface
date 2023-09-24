@@ -107,8 +107,7 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
   const dispatch = useAppDispatch()
   const { networkInfo, isEVM, chainId, account } = useActiveWeb3React()
   const elasticFarm = useAppSelector(state => state.elasticFarmV2[chainId] || defaultChainData)
-  const { elasticClient } = useKyberSwapConfig()
-  const isEnableKNProtocol = true
+  const { elasticClient, isEnableKNProtocol } = useKyberSwapConfig()
 
   const multicallContract = useMulticallContract()
   const farmv2QuoterContract = useContract(
@@ -137,9 +136,11 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
     if (isEnableKNProtocol) return knProtocolError
     return subgraphError
   }, [isEnableKNProtocol, subgraphError, knProtocolError])
+  const isLoadingElasticFarm = useRef(elasticFarm.loading)
+  isLoadingElasticFarm.current = elasticFarm.loading
 
   useEffect(() => {
-    if (isEVM && !elasticFarm?.farms && !elasticFarm?.loading) {
+    if (isEVM && !elasticFarm?.farms && !isLoadingElasticFarm.current) {
       dispatch(setLoading({ chainId, loading: true }))
       if (isEnableKNProtocol) {
         getElasticFarmV2FromKnProtocol(chainId).finally(() => {
@@ -150,7 +151,15 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
           dispatch(setLoading({ chainId, loading: false }))
         })
     }
-  }, [isEVM, chainId, dispatch, getElasticFarmV2, elasticFarm, getElasticFarmV2FromKnProtocol, isEnableKNProtocol])
+  }, [
+    isEVM,
+    chainId,
+    dispatch,
+    getElasticFarmV2,
+    elasticFarm?.farms,
+    getElasticFarmV2FromKnProtocol,
+    isEnableKNProtocol,
+  ])
 
   useEffect(() => {
     const i = interval
