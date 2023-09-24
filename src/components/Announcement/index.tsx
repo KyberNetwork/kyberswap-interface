@@ -16,7 +16,6 @@ import NotificationIcon from 'components/Icons/NotificationIcon'
 import MenuFlyout from 'components/MenuFlyout'
 import Modal from 'components/Modal'
 import { RTK_QUERY_TAGS } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
 import useInterval from 'hooks/useInterval'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { ApplicationModal } from 'state/application/actions'
@@ -82,12 +81,11 @@ const browserCustomStyle = css`
 const responseDefault = { numberOfUnread: 0, pagination: { totalItems: 0 }, notifications: [] }
 
 export default function AnnouncementComponent() {
-  const { account } = useActiveWeb3React()
   const [activeTab, setActiveTab] = useState(Tab.ANNOUNCEMENT)
   const { mixpanelHandler } = useMixpanel()
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  const isOpenNotificationCenter = useModalOpen(ApplicationModal.NOTIFICATION_CENTER)
+  const isOpenInbox = useModalOpen(ApplicationModal.NOTIFICATION_CENTER)
   const toggleNotificationCenter = useToggleNotificationCenter()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
@@ -200,19 +198,18 @@ export default function AnnouncementComponent() {
     }
   }, [fetchPrivateAnnouncement, invalidateTag, numberOfUnread, userInfo?.identityId])
 
-  const prevOpen = usePrevious(isOpenNotificationCenter)
+  const prevOpen = usePrevious(isOpenInbox)
   useEffect(() => {
-    const justClosedPopup = prevOpen !== isOpenNotificationCenter && !isOpenNotificationCenter
+    const justClosedPopup = prevOpen !== isOpenInbox && !isOpenInbox
     if (justClosedPopup) return
-
     // prefetch data
     prefetchPrivateAnnouncements().then((data: PrivateAnnouncement[]) => {
-      const newTab = account && data.length ? Tab.INBOX : Tab.ANNOUNCEMENT
+      const newTab = data.length ? Tab.INBOX : Tab.ANNOUNCEMENT
       setActiveTab(newTab)
-      if (prevOpen !== isOpenNotificationCenter && isOpenNotificationCenter) {
+      if (prevOpen !== isOpenInbox && isOpenInbox) {
         trackingClickTabRef.current(newTab, 'auto')
       }
-      if (isOpenNotificationCenter && newTab === Tab.ANNOUNCEMENT)
+      if (isOpenInbox && newTab === Tab.ANNOUNCEMENT)
         fetchGeneralAnnouncement({ page: 1 })
           .then(({ data }) => {
             setAnnouncements((data?.notifications ?? []) as Announcement[])
@@ -221,7 +218,7 @@ export default function AnnouncementComponent() {
             setAnnouncements([])
           })
     })
-  }, [account, prefetchPrivateAnnouncements, fetchGeneralAnnouncement, prevOpen, isOpenNotificationCenter])
+  }, [prefetchPrivateAnnouncements, fetchGeneralAnnouncement, prevOpen, isOpenInbox])
 
   useEffect(() => {
     if (userInfo?.identityId) {
@@ -235,7 +232,7 @@ export default function AnnouncementComponent() {
   const [readAllAnnouncement] = useAckPrivateAnnouncementsByIdsMutation()
   const togglePopupWithAckAllMessage = () => {
     toggleNotificationCenter()
-    if (isOpenNotificationCenter && numberOfUnread) {
+    if (isOpenInbox && numberOfUnread) {
       readAllAnnouncement({})
     }
   }
@@ -275,10 +272,10 @@ export default function AnnouncementComponent() {
   const badgeText = numberOfUnread > 0 ? formatNumberOfUnread(numberOfUnread) : null
   const bellIcon = (
     <StyledMenuButton
-      active={isOpenNotificationCenter || numberOfUnread > 0}
+      active={isOpenInbox || numberOfUnread > 0}
       onClick={() => {
         togglePopupWithAckAllMessage()
-        if (!isOpenNotificationCenter) mixpanelHandler(MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_BELL_ICON_OPEN_POPUP)
+        if (!isOpenInbox) mixpanelHandler(MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_BELL_ICON_OPEN_POPUP)
       }}
     >
       <NotificationIcon />
@@ -290,7 +287,7 @@ export default function AnnouncementComponent() {
       {isMobile ? (
         <>
           {bellIcon}
-          <Modal isOpen={isOpenNotificationCenter} onDismiss={togglePopupWithAckAllMessage} minHeight={80}>
+          <Modal isOpen={isOpenInbox} onDismiss={togglePopupWithAckAllMessage} minHeight={80}>
             <AnnouncementView {...props} />
           </Modal>
         </>
@@ -298,7 +295,7 @@ export default function AnnouncementComponent() {
         <MenuFlyout
           trigger={bellIcon}
           customStyle={browserCustomStyle}
-          isOpen={isOpenNotificationCenter}
+          isOpen={isOpenInbox}
           toggle={togglePopupWithAckAllMessage}
         >
           <AnnouncementView {...props} />
