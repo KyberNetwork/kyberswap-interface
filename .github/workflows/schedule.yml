@@ -2,7 +2,8 @@ name: 'E2E Testing Schedule'
 
 on:
   schedule:
-    - cron: '0 1,5 * * *' # run at 8AM and 12PM (GTM+7)
+    - cron: '*/20 1-12 * * *'
+    - cron: '0 13 * * *'
   workflow_dispatch:
 
 jobs:
@@ -49,12 +50,11 @@ jobs:
           echo ENV=${ENV} > .env
           echo GITHUB_RUN_ID=${GITHUB_RUN_ID} > .env
           echo CORE_PUSH_GATEWAY_URL=${{ secrets.CORE_PUSH_GATEWAY_URL }} > .env
-          echo CYPRESS_BASE_URL='https://kyberswap.com/' > .env
 
       - name: Run Cypress Test
         run: |+
           #!/bin/bash
-          yarn test-schedule -e grepTags=regression,NETWORK=${{ matrix.network }}
+          yarn test-schedule -c baseUrl='https://kyberswap.com/' -e grepTags=regression,NETWORK=${{ matrix.network }}
         env:
           DISPLAY: :0.0
 

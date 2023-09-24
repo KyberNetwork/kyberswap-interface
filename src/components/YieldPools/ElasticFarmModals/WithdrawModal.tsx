@@ -23,7 +23,13 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { usePool } from 'hooks/usePools'
 import useTheme from 'hooks/useTheme'
-import { useElasticFarms, useFarmAction, usePositionFilter } from 'state/farms/elastic/hooks'
+import {
+  useDepositedNftsByFarm,
+  useElasticFarms,
+  useFarmAction,
+  useJoinedPositions,
+  usePositionFilter,
+} from 'state/farms/elastic/hooks'
 import { UserPositionFarm } from 'state/farms/elastic/types'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { PositionDetails } from 'types/position'
@@ -57,9 +63,10 @@ const PositionRow = ({
 }) => {
   const { token0: token0Address, token1: token1Address, fee: feeAmount, liquidity, tickLower, tickUpper } = position
   const { unstake } = useFarmAction(farmAddress)
-  const { userFarmInfo } = useElasticFarms()
+  const userFarmInfo = useJoinedPositions()
 
   const joinedPositions = userFarmInfo?.[farmAddress]?.joinedPositions
+
   let pid: null | string = null
   if (joinedPositions) {
     Object.keys(joinedPositions).forEach(key => {
@@ -215,7 +222,8 @@ function WithdrawModal({
   const { type: tab = 'active' } = useParsedQueryString<{ type: string }>()
 
   const checkboxGroupRef = useRef<any>()
-  const { farms, userFarmInfo } = useElasticFarms()
+  const { farms } = useElasticFarms()
+  const userFarmInfo = useJoinedPositions()
 
   const selectedFarm = farms?.find(farm => farm.id.toLowerCase() === selectedFarmAddress.toLowerCase())
 
@@ -229,7 +237,8 @@ function WithdrawModal({
       )
       .map(pool => pool.poolAddress.toLowerCase()) || []
 
-  const { depositedPositions = [], joinedPositions = {} } = userFarmInfo?.[selectedFarm?.id || ''] || {}
+  const depositedPositions = useDepositedNftsByFarm(selectedFarmAddress)
+  const { joinedPositions = {} } = userFarmInfo?.[selectedFarm?.id || ''] || {}
 
   const userDepositedNFTs: PositionDetails[] = useMemo(
     () =>
@@ -338,7 +347,7 @@ function WithdrawModal({
     <Select role="button" onClick={() => setShowMenu(prev => !prev)}>
       {filterOptions.find(item => item.code === activeFilter)?.value}
 
-      <DropdownIcon rotate={showMenu} />
+      <DropdownIcon isRotate={showMenu} />
 
       {showMenu && (
         <SelectMenu ref={ref}>
