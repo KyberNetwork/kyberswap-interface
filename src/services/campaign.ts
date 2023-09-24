@@ -12,6 +12,7 @@ import {
   CampaignLeaderboardRanking,
   CampaignLeaderboardReward,
   CampaignLuckyWinner,
+  CampaignProofData,
   CampaignStatus,
   RewardDistribution,
 } from 'state/campaigns/actions'
@@ -185,6 +186,18 @@ const formatLuckyWinners = (data: any[]) => {
   return luckyWinners
 }
 
+const formatTxs = (data: any[]) => {
+  return data.map(
+    (item: any): CampaignProofData => ({
+      id: item.id,
+      chainId: parseInt(item.chainId),
+      utcTimestamp: new Date(item.time).getTime(),
+      txPoint: item.txPoint,
+      txHash: item.tx,
+    }),
+  )
+}
+
 const campaignApi = createApi({
   reducerPath: 'campaignApi',
   baseQuery: fetchBaseQuery({ baseUrl: `${CAMPAIGN_BASE_URL}/api/v1/campaigns` }),
@@ -216,6 +229,16 @@ const campaignApi = createApi({
       }),
       transformResponse: (data: any) => formatLuckyWinners(data?.data || []),
     }),
+    getTxsCampaign: builder.query<
+      CampaignProofData[],
+      { limit: number; offset: number; userAddress: string; campaignId: number }
+    >({
+      query: ({ campaignId, ...params }) => ({
+        params,
+        url: `/${campaignId}/proofs`,
+      }),
+      transformResponse: (data: any) => formatTxs(data?.data || []),
+    }),
     joinCampaign: builder.mutation<any, { token: string | null; address: string; recaptchaId: number }>({
       query: ({ recaptchaId, ...data }) => ({
         data,
@@ -226,7 +249,12 @@ const campaignApi = createApi({
   }),
 })
 
-export const { useGetCampaignsQuery, useGetLeaderboardQuery, useGetLuckyWinnersQuery, useJoinCampaignMutation } =
-  campaignApi
+export const {
+  useGetCampaignsQuery,
+  useGetLeaderboardQuery,
+  useGetLuckyWinnersQuery,
+  useJoinCampaignMutation,
+  useGetTxsCampaignQuery,
+} = campaignApi
 
 export default campaignApi

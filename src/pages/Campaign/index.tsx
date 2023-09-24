@@ -125,11 +125,7 @@ export default function CampaignsUpdater() {
   const { selectedCampaignLeaderboardPageNumber, selectedCampaignLeaderboardLookupAddress, selectedCampaign } =
     useSelector((state: AppState) => state.campaigns)
 
-  const {
-    data,
-    isFetching: isLoadingLeaderboard,
-    isError,
-  } = useGetLeaderboardQuery(
+  const { currentData: leaderboard = LEADERBOARD_DEFAULT, isFetching: isLoadingLeaderboard } = useGetLeaderboardQuery(
     {
       campaignId: selectedCampaign?.id || 0,
       pageNumber: selectedCampaignLeaderboardPageNumber,
@@ -139,7 +135,6 @@ export default function CampaignsUpdater() {
     },
     { skip: !selectedCampaign?.id },
   )
-  const leaderboard = (!isError ? data : LEADERBOARD_DEFAULT) || LEADERBOARD_DEFAULT
 
   useEffect(() => {
     if (leaderboard) {
@@ -157,11 +152,7 @@ export default function CampaignsUpdater() {
     (state: AppState) => state.campaigns,
   )
 
-  const {
-    data: dataLuckWinners,
-    isError: isErrorLuckyWinner,
-    isFetching: isLoadingLuckyWinners,
-  } = useGetLuckyWinnersQuery(
+  const { currentData: dataLuckWinners, isFetching: isLoadingLuckyWinners } = useGetLuckyWinnersQuery(
     {
       pageSize: CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE,
       pageNumber: selectedCampaignLuckyWinnersPageNumber,
@@ -172,9 +163,8 @@ export default function CampaignsUpdater() {
   )
 
   const luckyWinners =
-    (isErrorLuckyWinner || selectedCampaign?.campaignState === CampaignState.CampaignStateReady
-      ? EMPTY_ARRAY
-      : dataLuckWinners) || EMPTY_ARRAY
+    (selectedCampaign?.campaignState === CampaignState.CampaignStateReady ? EMPTY_ARRAY : dataLuckWinners) ||
+    EMPTY_ARRAY
 
   useEffect(() => {
     if (luckyWinners !== undefined) {
