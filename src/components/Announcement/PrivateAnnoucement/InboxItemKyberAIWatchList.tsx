@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { Dot, InboxItemRow, InboxItemWrapper, RowItem, Title } from 'components/Announcement/PrivateAnnoucement/styled'
-import { AnnouncementTemplateKyberAI } from 'components/Announcement/type'
+import { AnnouncementTemplateKyberAIWatchlist, TokenInfoWatchlist } from 'components/Announcement/type'
 import Column from 'components/Column'
 import { TokenLogoWithShadow } from 'components/Logo'
 import { APP_PATHS } from 'constants/index'
@@ -19,33 +19,33 @@ const ItemWrapper = styled.div`
   gap: 8px;
 `
 export const TokenInfo = ({
-  templateBody,
   showPrice = true,
   logoSize = '12px',
+  token,
 }: {
-  templateBody: AnnouncementTemplateKyberAI
   showPrice?: boolean
   logoSize?: string
+  token: TokenInfoWatchlist
 }) => {
   const theme = useTheme()
-  const { bullishTokenLogoURL, bullishTokenScore, bullishTokenSymbol } = templateBody || {}
+  const { logoURL, symbol, price, priceChange, kyberScore } = token || {}
   return (
     <ItemWrapper>
-      <TokenLogoWithShadow srcs={[bullishTokenLogoURL]} size={logoSize} />
+      <TokenLogoWithShadow srcs={[logoURL]} size={logoSize} />
       <Column gap="4px" fontSize={logoSize}>
         <Text color={theme.text}>
-          {bullishTokenSymbol}{' '}
-          <Text as="span" color={getColorByKyberScore(+bullishTokenScore, theme)}>
-            {bullishTokenScore} ({capitalizeFirstLetter(getTypeByScore(+bullishTokenScore))})
+          {symbol}{' '}
+          <Text as="span" color={getColorByKyberScore(+kyberScore, theme)}>
+            {kyberScore} ({capitalizeFirstLetter(getTypeByScore(+kyberScore))})
           </Text>
         </Text>
         {showPrice && (
           <Text>
             <Text as="span" color={theme.text}>
-              $0.1
+              ${price}
             </Text>{' '}
             <Text as="span" color={Math.random() > 0.5 ? theme.apr : theme.red}>
-              (+35%)
+              ({priceChange}%)
             </Text>
           </Text>
         )}
@@ -60,8 +60,10 @@ function InboxItemBridge({
   style,
   time,
   title,
-}: PrivateAnnouncementProp<AnnouncementTemplateKyberAI>) {
+}: PrivateAnnouncementProp<AnnouncementTemplateKyberAIWatchlist>) {
   const { templateBody, isRead, templateType } = announcement
+  const { tokens = [] } = templateBody || {}
+  const [token1, token2, token3] = tokens
 
   const navigate = useNavigate()
   const onClick = () => {
@@ -80,12 +82,12 @@ function InboxItemBridge({
       </InboxItemRow>
 
       <InboxItemRow>
-        <TokenInfo templateBody={templateBody} />
-        <TokenInfo templateBody={templateBody} />
+        {token1 && <TokenInfo token={token1} />}
+        {token2 && <TokenInfo token={token2} />}
       </InboxItemRow>
 
       <InboxItemRow style={{ alignItems: 'center' }}>
-        <TokenInfo templateBody={templateBody} />
+        {token3 && <TokenInfo token={token3} />}
         {time}
       </InboxItemRow>
     </InboxItemWrapper>

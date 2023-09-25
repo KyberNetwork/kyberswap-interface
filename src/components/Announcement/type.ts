@@ -85,14 +85,15 @@ export type AnnouncementTemplateKyberAI = {
   popupType: PopupType
 }
 
+export type TokenInfoWatchlist = {
+  logoURL: string
+  kyberScore: string
+  symbol: string
+  price: string
+  priceChange: string
+}
 export type AnnouncementTemplateKyberAIWatchlist = {
-  tokens: Array<{
-    logoURL: string
-    kyberScore: string
-    symbol: string
-    price: string
-    priceChange: string
-  }>
+  tokens: Array<TokenInfoWatchlist>
   popupType: PopupType
 }
 
@@ -126,6 +127,7 @@ export type AnnouncementTemplate =
   | AnnouncementTemplateBridge
   | AnnouncementTemplateCrossChain
   | AnnouncementTemplateKyberAI
+  | AnnouncementTemplateKyberAIWatchlist
   | AnnouncementTemplatePoolPosition
   | AnnouncementTemplatePopup
   | AnnouncementTemplatePriceAlert

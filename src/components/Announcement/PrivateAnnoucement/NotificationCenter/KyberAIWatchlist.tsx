@@ -8,7 +8,7 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { TokenInfo } from 'components/Announcement/PrivateAnnoucement/InboxItemKyberAIWatchList'
 import { PrivateAnnouncementPropCenter } from 'components/Announcement/PrivateAnnoucement/NotificationCenter'
-import { AnnouncementTemplateKyberAI } from 'components/Announcement/type'
+import { AnnouncementTemplateKyberAIWatchlist } from 'components/Announcement/type'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { formatTime } from 'utils/time'
@@ -25,12 +25,12 @@ const Detail = styled.div`
 export default function AnnouncementItem({
   announcement,
   title,
-}: PrivateAnnouncementPropCenter<AnnouncementTemplateKyberAI>) {
+}: PrivateAnnouncementPropCenter<AnnouncementTemplateKyberAIWatchlist>) {
   const { sentAt, templateType, templateBody } = announcement
+  const { tokens = [] } = templateBody || {}
   const theme = useTheme()
   const navigate = useNavigate()
   const [expand, setExpand] = useState(false)
-  const tokens = new Array(10).fill(1)
 
   return (
     <Wrapper onClick={() => setExpand(!expand)}>
@@ -51,7 +51,7 @@ export default function AnnouncementItem({
         {!expand &&
           tokens.slice(0, 3).map((token, i) => (
             <Fragment key={i}>
-              <TokenInfo templateBody={templateBody} showPrice={false} key={i} logoSize={'14px'} />
+              <TokenInfo token={token} showPrice={false} key={i} logoSize={'14px'} />
               {i === 2 ? ', ...' : ', '}
             </Fragment>
           ))}
@@ -59,7 +59,7 @@ export default function AnnouncementItem({
       {expand && (
         <Detail>
           {tokens.map((token, i) => (
-            <TokenInfo templateBody={templateBody} key={i} showPrice logoSize={'14px'} />
+            <TokenInfo token={token} key={i} showPrice logoSize={'14px'} />
           ))}
         </Detail>
       )}
