@@ -12,7 +12,6 @@ import styled, { css } from 'styled-components'
 import { ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
-import { DotsLoader } from 'components/Loader/DotsLoader'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -330,15 +329,27 @@ const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoadin
       </SimpleTooltip>
       <div style={{ position: 'relative' }}>
         <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
-          <img
-            src={token?.logo}
-            style={{
-              width: above768 ? '36px' : '28px',
-              height: above768 ? '36px' : '28px',
-              background: 'white',
-              display: 'block',
-            }}
-          />
+          {token?.logo ? (
+            <img
+              src={token.logo}
+              style={{
+                width: above768 ? '36px' : '28px',
+                height: above768 ? '36px' : '28px',
+                background: 'white',
+                display: 'block',
+              }}
+            />
+          ) : (
+            <Skeleton
+              width={above768 ? '36px' : '28px'}
+              height={above768 ? '36px' : '28px'}
+              direction="ltr"
+              duration={1}
+              baseColor={theme.buttonGray}
+              highlightColor={theme.border}
+              borderRadius="99px"
+            />
+          )}
         </div>
         <div
           style={{
@@ -348,6 +359,7 @@ const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoadin
             borderRadius: '50%',
             border: `1px solid ${theme.background}`,
             backgroundColor: theme.tableHeader,
+            zIndex: 2,
           }}
         >
           <img
@@ -360,7 +372,15 @@ const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoadin
         </div>
       </div>
       {isLoading ? (
-        <DotsLoader />
+        <Skeleton
+          width={150}
+          height="24px"
+          direction="ltr"
+          duration={1}
+          baseColor={theme.buttonGray}
+          highlightColor={theme.border}
+          borderRadius="99px"
+        />
       ) : (
         token && (
           <Text fontSize={above768 ? 24 : 16} color={theme.text} fontWeight={500}>
