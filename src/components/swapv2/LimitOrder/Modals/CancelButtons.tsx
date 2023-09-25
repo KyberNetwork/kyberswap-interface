@@ -5,7 +5,7 @@ import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as GasLessIcon } from 'assets/svg/gas_less_icon.svg'
-import { ButtonLight } from 'components/Button'
+import { ButtonLight, ButtonOutlined } from 'components/Button'
 import Column from 'components/Column'
 import { GasStation } from 'components/Icons'
 import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
@@ -64,7 +64,8 @@ const CancelButtons = ({
       ) : (
         <>
           <Column width={'100%'} gap="8px">
-            <ButtonLight
+            <ButtonOutlined
+              color={theme.primary}
               disabled={disabledGasLessCancel || (isCountDown ? false : !supportCancelGasless || loading)}
               onClick={isCountDown ? onOkay : onClickGaslessCancel}
               height={'40px'}
@@ -77,11 +78,11 @@ const CancelButtons = ({
               ) : isCancelAll ? (
                 totalOrder
               ) : isEdit ? (
-                <Trans>Edit (gasless)</Trans>
+                <Trans>Gasless Edit</Trans>
               ) : (
-                <Trans>Cancel (gasless)</Trans>
+                <Trans>Gasless Cancel</Trans>
               )}
-            </ButtonLight>
+            </ButtonOutlined>
             <Text color={theme.subText} fontSize={'10px'} lineHeight={'14px'}>
               {isEdit ? <Trans>Edit the order without paying gas.</Trans> : <Trans>Cancel without paying gas.</Trans>}
               <Trans>
@@ -90,8 +91,7 @@ const CancelButtons = ({
             </Text>
           </Column>
           <Column width={'100%'} gap="8px">
-            <ButtonLight
-              color={theme.red}
+            <ButtonOutlined
               disabled={loading || disabledHardCancel}
               onClick={onClickHardCancel}
               style={{ height: '40px', width: '100%' }}
@@ -111,7 +111,7 @@ const CancelButtons = ({
               ) : (
                 <Trans>Hard Cancel</Trans>
               )}
-            </ButtonLight>
+            </ButtonOutlined>
             <Text color={theme.subText} fontSize={'10px'} lineHeight={'14px'}>
               {isEdit ? (
                 <Trans>Edit immediately by paying gas fees. </Trans>

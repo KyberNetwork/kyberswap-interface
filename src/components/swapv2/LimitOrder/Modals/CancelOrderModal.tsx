@@ -196,7 +196,7 @@ function ContentCancel({
           onClickGaslessCancel={onClickGaslessCancel}
           onClickHardCancel={onClickHardCancel}
           isCancelAll={isCancelAll}
-          totalOrder={isCancelAll ? <Trans>Cancel (gasless) {totalOrder} orders</Trans> : null}
+          totalOrder={isCancelAll ? <Trans>Gasless Cancel {totalOrder} orders</Trans> : null}
         />
       </Container>
     </Modal>
