@@ -1,8 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
-import { ENV_LEVEL } from 'constants/env'
 import { NETWORKS_INFO } from 'constants/networks'
-import { ENV_TYPE } from 'constants/type'
 
 import { KyberAIListType } from '../types'
 
@@ -75,5 +73,5 @@ export enum KYBERAI_CHART_ID {
 export const DEFAULT_EXPLORE_PAGE_TOKEN = {
   chain: 'ethereum',
   address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-  assetId: ENV_LEVEL < ENV_TYPE.PROD ? 32895 : 32895,
+  assetId: 32895,
 }
