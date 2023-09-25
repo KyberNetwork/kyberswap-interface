@@ -6,24 +6,23 @@ import { CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useLazyGetFarmV2Query } from 'services/knprotocol'
 
 import FarmV2QuoterABI from 'constants/abis/farmv2Quoter.json'
 import NFTPositionManagerABI from 'constants/abis/v2/ProAmmNFTPositionManager.json'
 import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useContract, useMulticallContract } from 'hooks/useContract'
 import { useKyberSwapConfig } from 'state/application/hooks'
-import { useAppDispatch, useAppSelector } from 'state/hooks'
+import { useAppDispatch } from 'state/hooks'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 import { isAddressString } from 'utils'
 import { timeout } from 'utils/retry'
 
-import { defaultChainData, setFarms, setLoading, setUserFarmInfo } from '.'
+import { setFarms, setLoading, setUserFarmInfo } from '.'
 import { ElasticFarmV2, SubgraphFarmV2, SubgraphToken, UserFarmV2Info } from './types'
 
 const positionManagerInterface = new Interface(NFTPositionManagerABI.abi)
@@ -108,7 +107,6 @@ const queryFarms = gql`
 export default function ElasticFarmV2Updater({ interval = true }: { interval?: boolean }) {
   const dispatch = useAppDispatch()
   const { networkInfo, isEVM, chainId, account } = useActiveWeb3React()
-  const elasticFarm = useAppSelector(state => state.elasticFarmV2[chainId] || defaultChainData)
   const { elasticClient, isEnableKNProtocol } = useKyberSwapConfig()
 
   const multicallContract = useMulticallContract()
@@ -117,92 +115,56 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
     FarmV2QuoterABI,
   )
 
-  const [getElasticFarmV2, { data: subgraphData, error: subgraphError }] = useLazyQuery(queryFarms, {
+  const [getElasticFarmV2] = useLazyQuery<{ farmV2S: SubgraphFarmV2[] }>(queryFarms, {
     client: elasticClient,
     fetchPolicy: 'network-only',
   })
 
-  const [getElasticFarmV2FromKnProtocol, { data: knProtocolData, error: knProtocolError }] = useLazyGetFarmV2Query()
-
-  const latestKnProtocolData = useRef(knProtocolData)
-
-  const fetchResult = useMemo(() => {
-    if (isEnableKNProtocol) {
-      return {
-        farmV2S: knProtocolData?.data?.data || latestKnProtocolData.current?.data?.data || [],
-      }
-    } else return subgraphData
-  }, [isEnableKNProtocol, knProtocolData, subgraphData])
-
-  const error = useMemo(() => {
-    if (isEnableKNProtocol) return knProtocolError
-    return subgraphError
-  }, [isEnableKNProtocol, subgraphError, knProtocolError])
-
-  const nontrackElasticFarm = useRef(elasticFarm)
-  nontrackElasticFarm.current = elasticFarm
-
-  useEffect(() => {
-    if (isEVM && !nontrackElasticFarm.current?.farms && !nontrackElasticFarm.current?.loading) {
-      dispatch(setLoading({ chainId, loading: true }))
-      if (isEnableKNProtocol) {
-        getElasticFarmV2FromKnProtocol(chainId).finally(() => {
-          dispatch(setLoading({ chainId, loading: false }))
-        })
-      } else {
-        // Somehow, getElasticFarmV2() doesn't resolve nor reject so finally would be never ran
-        // Hence, we have to add an additional timeout to handle case it won't resolved
-        timeout(getElasticFarmV2(), 5000).finally(() => {
-          dispatch(setLoading({ chainId, loading: false }))
-        })
-      }
-    }
-  }, [isEVM, chainId, dispatch, getElasticFarmV2, getElasticFarmV2FromKnProtocol, isEnableKNProtocol])
-
-  useEffect(() => {
-    const i = interval
-      ? setInterval(() => {
-          if (isEnableKNProtocol) getElasticFarmV2FromKnProtocol(chainId)
-          else getElasticFarmV2()
-        }, 10_000)
-      : undefined
-    return () => {
-      i && clearInterval(i)
-    }
-  }, [interval, chainId, dispatch, getElasticFarmV2, getElasticFarmV2FromKnProtocol, isEnableKNProtocol])
-
-  useEffect(() => {
-    if (error && chainId) {
-      dispatch(setFarms({ chainId, farms: [] }))
-      dispatch(setLoading({ chainId, loading: false }))
-    }
-  }, [error, dispatch, chainId])
+  const [getElasticFarmV2FromKnProtocol] = useLazyGetFarmV2Query()
 
   const { fetchPrices } = useTokenPricesWithLoading([])
-
   const tokensRef = useRef<string[]>([])
   const pricesRef = useRef<{ [key: string]: number | undefined }>({})
 
-  const nontrackChainId = useRef(chainId)
-  nontrackChainId.current = chainId
-  const nontrackFetchPrices = useRef(fetchPrices)
-  nontrackFetchPrices.current = fetchPrices
-  const nontrackFarmv2QuoterContract = useRef(farmv2QuoterContract)
-  nontrackFarmv2QuoterContract.current = farmv2QuoterContract
-  const nontrackMulticallContract = useRef(multicallContract)
-  nontrackMulticallContract.current = multicallContract
-
   useEffect(() => {
-    const getData = async () => {
-      const chainId = nontrackChainId.current
-      const networkInfo = NETWORKS_INFO[chainId]
-      const fetchPrices = nontrackFetchPrices.current
-      const farmv2QuoterContract = nontrackFarmv2QuoterContract.current
-      const multicallContract = nontrackMulticallContract.current
-      if (fetchResult?.farmV2S.length) {
+    const controller = new AbortController()
+    const fetchData = async (): Promise<{ farmV2S: SubgraphFarmV2[]; error?: Error }> => {
+      if (isEVM) {
+        if (isEnableKNProtocol) {
+          try {
+            return { farmV2S: (await getElasticFarmV2FromKnProtocol(chainId))?.data?.data?.data || [] }
+          } catch (error) {
+            return { farmV2S: [], error }
+          }
+        } else {
+          try {
+            // Somehow, getElasticFarmV2() doesn't resolve nor reject so we might got an infinity await here
+            // Hence, we have to add an additional timeout to handle case it won't resolved
+            const result = (await timeout(getElasticFarmV2(), 5000)).data
+            return {
+              farmV2S: result?.farmV2S || [],
+            }
+          } catch (error) {
+            return { farmV2S: [], error }
+          }
+        }
+      }
+      return { farmV2S: [] }
+    }
+
+    const run = async () => {
+      dispatch(setLoading({ chainId, loading: true }))
+      const { farmV2S, error } = await fetchData()
+
+      if (controller.signal.aborted) return
+      dispatch(setLoading({ chainId, loading: false }))
+
+      if (error) {
+        dispatch(setFarms({ chainId, farms: [] }))
+      } else if (farmV2S.length) {
         const tokens = [
           ...new Set(
-            fetchResult.farmV2S
+            farmV2S
               .map((item: SubgraphFarmV2) => [
                 item.pool.token0.id,
                 item.pool.token1.id,
@@ -223,7 +185,7 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
           pricesRef.current = prices
         }
 
-        const formattedData: ElasticFarmV2[] = fetchResult.farmV2S.map((farm: SubgraphFarmV2) => {
+        const formattedData: ElasticFarmV2[] = farmV2S.map((farm: SubgraphFarmV2) => {
           const getToken = (t: SubgraphToken, keepWrapped = false) => {
             const address = isAddressString(chainId, t.id)
             return (keepWrapped ? false : address === WETH[chainId].address) || address === ZERO_ADDRESS
@@ -334,6 +296,7 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
           }
         })
 
+        if (controller.signal.aborted) return
         dispatch(setFarms({ chainId, farms: formattedData }))
 
         const farmAddresses = [...new Set(formattedData.map(item => item.farmAddress))]
@@ -475,8 +438,10 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
             }),
           )
 
+          if (controller.signal.aborted) return
           dispatch(setUserFarmInfo({ chainId, userInfo: userFarmInfos.flat() }))
         } else {
+          if (controller.signal.aborted) return
           dispatch(setUserFarmInfo({ chainId, userInfo: [] }))
         }
       } else {
@@ -485,8 +450,27 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
       }
     }
 
-    getData()
-  }, [dispatch, fetchResult, account])
+    run()
+    const i = interval ? setInterval(run, 10_000) : undefined
+
+    return () => {
+      controller.abort()
+      i && clearInterval(i)
+    }
+  }, [
+    account,
+    chainId,
+    dispatch,
+    farmv2QuoterContract,
+    fetchPrices,
+    getElasticFarmV2,
+    getElasticFarmV2FromKnProtocol,
+    interval,
+    isEVM,
+    isEnableKNProtocol,
+    multicallContract,
+    networkInfo,
+  ])
 
   return null
 }
