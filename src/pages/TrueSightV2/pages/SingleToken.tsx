@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
-import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
@@ -29,7 +29,7 @@ import SwitchVariantDropdown from '../components/SwitchVariantDropdown'
 import { TokenOverview } from '../components/TokenOverview'
 import { StarWithAnimation } from '../components/WatchlistStar'
 import ExploreShareContent from '../components/shareContent/ExploreTopShareContent'
-import { MIXPANEL_KYBERAI_TAG, NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from '../constants'
+import { DEFAULT_EXPLORE_PAGE_TOKEN, MIXPANEL_KYBERAI_TAG, NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from '../constants'
 import useChartStatesReducer, { ChartStatesContext } from '../hooks/useChartStatesReducer'
 import useIsReachMaxLimitWatchedToken from '../hooks/useIsReachMaxLimitWatchedToken'
 import useKyberAIAssetOverview from '../hooks/useKyberAIAssetOverview'
@@ -153,12 +153,6 @@ const TabButton = styled.div<{ active?: boolean }>`
     }
   `}
 `
-
-export const defaultExplorePageToken = {
-  chain: 'ethereum',
-  address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-  assetId: 19277,
-}
 
 const StyledTokenDescription = styled.span<{ show?: boolean }>`
   text-overflow: ellipsis;
@@ -563,7 +557,7 @@ export default function SingleToken() {
 
   useEffect(() => {
     if (!assetId) {
-      navigate(APP_PATHS.KYBERAI_EXPLORE + `/${defaultExplorePageToken.assetId}`)
+      navigate(APP_PATHS.KYBERAI_EXPLORE + `/${DEFAULT_EXPLORE_PAGE_TOKEN.assetId}`)
       setTimeout(() => {
         const element = document.querySelector('#kyberai-search') as HTMLInputElement
         element?.focus({
