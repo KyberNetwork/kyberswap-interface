@@ -38,7 +38,7 @@ import {
 import { getTradingViewTimeZone } from 'components/TradingViewChart/utils'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { KYBERAI_CHART_ID, NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
+import { DEFAULT_EXPLORE_PAGE_TOKEN, KYBERAI_CHART_ID, NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
 import { CHART_STATES_ACTION_TYPE, useChartStatesContext } from 'pages/TrueSightV2/hooks/useChartStatesReducer'
 import useKyberAIAssetOverview from 'pages/TrueSightV2/hooks/useKyberAIAssetOverview'
 import {
@@ -50,7 +50,6 @@ import {
   useTradingVolumeQuery,
   useTransferInformationQuery,
 } from 'pages/TrueSightV2/hooks/useKyberAIData'
-import { defaultExplorePageToken } from 'pages/TrueSightV2/pages/SingleToken'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import {
   ChartTab,
@@ -649,8 +648,8 @@ export const TradingVolumeChart = ({ noAnimation }: { noAnimation?: boolean }) =
     return [from, now, timerange]
   }, [timeframe])
   const { data, isLoading } = useTradingVolumeQuery({
-    chain: chain || defaultExplorePageToken.chain,
-    address: address || defaultExplorePageToken.address,
+    chain: chain || DEFAULT_EXPLORE_PAGE_TOKEN.chain,
+    address: address || DEFAULT_EXPLORE_PAGE_TOKEN.address,
     params: { from, to },
   })
 
@@ -975,8 +974,8 @@ export const NetflowToWhaleWallets = ({ tab, noAnimation }: { tab?: ChartTab; no
   }, [timeframe])
 
   const { data, isLoading } = useNetflowToWhaleWalletsQuery({
-    chain: chain || defaultExplorePageToken.chain,
-    address: address || defaultExplorePageToken.address,
+    chain: chain || DEFAULT_EXPLORE_PAGE_TOKEN.chain,
+    address: address || DEFAULT_EXPLORE_PAGE_TOKEN.address,
     from,
     to,
   })
@@ -1418,8 +1417,8 @@ export const NetflowToCentralizedExchanges = ({ tab, noAnimation }: { tab?: Char
   }, [timeframe])
 
   const { data, isLoading } = useNetflowToCEXQuery({
-    chain: chain || defaultExplorePageToken.chain,
-    address: address || defaultExplorePageToken.address,
+    chain: chain || DEFAULT_EXPLORE_PAGE_TOKEN.chain,
+    address: address || DEFAULT_EXPLORE_PAGE_TOKEN.address,
     from,
     to,
   })

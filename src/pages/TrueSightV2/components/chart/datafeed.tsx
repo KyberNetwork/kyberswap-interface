@@ -11,8 +11,8 @@ import {
   SubscribeBarsCallback,
 } from 'components/TradingViewChart/charting_library'
 import { getTradingViewTimeZone } from 'components/TradingViewChart/utils'
+import { DEFAULT_EXPLORE_PAGE_TOKEN } from 'pages/TrueSightV2/constants'
 import { useLazyChartingDataQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
-import { defaultExplorePageToken } from 'pages/TrueSightV2/pages/SingleToken'
 import { IAssetOverview, OHLCData } from 'pages/TrueSightV2/types'
 
 const configurationData = {
@@ -84,8 +84,8 @@ export const useDatafeed = (isBTC: boolean, token?: IAssetOverview) => {
         const candleSize = { 60: '1h', 240: '4h', '1D': '1d', '4D': '1d' }[resolution as string] || '1h'
 
         const { data } = await getChartingData({
-          chain: chain || defaultExplorePageToken.chain,
-          address: address || defaultExplorePageToken.address,
+          chain: chain || DEFAULT_EXPLORE_PAGE_TOKEN.chain,
+          address: address || DEFAULT_EXPLORE_PAGE_TOKEN.address,
           from: periodParams.from,
           to: periodParams.to,
           candleSize: candleSize,
@@ -122,8 +122,8 @@ export const useDatafeed = (isBTC: boolean, token?: IAssetOverview) => {
           const candleSize = { 60: '1h', 240: '4h', '1D': '1d' }[resolution as string] || '1h'
 
           const { data } = await getChartingData({
-            chain: chain || defaultExplorePageToken.chain,
-            address: address || defaultExplorePageToken.address,
+            chain: chain || DEFAULT_EXPLORE_PAGE_TOKEN.chain,
+            address: address || DEFAULT_EXPLORE_PAGE_TOKEN.address,
             from: now - 345600,
             to: now,
             candleSize: candleSize,
