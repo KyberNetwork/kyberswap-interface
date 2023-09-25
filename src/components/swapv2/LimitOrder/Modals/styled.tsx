@@ -1,10 +1,12 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { rgba } from 'polished'
 import { ReactNode, useState } from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import Column from 'components/Column'
 import { Swap as SwapIcon } from 'components/Icons'
 import TradePrice from 'components/swapv2/LimitOrder/TradePrice'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
@@ -70,19 +72,40 @@ export const Note = ({ note }: { note?: string }) => {
 }
 
 type ListDataType = { label: string; content: ReactNode }[]
-export function ListInfo({ listData }: { listData: ListDataType }) {
+const ListWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-radius: 12px;
+  background-color: ${({ theme }) => rgba(theme.buttonBlack, 0.2)};
+  padding: 16px;
+`
+export function ListInfo({
+  listData,
+  marketPrice,
+  symbolIn,
+  symbolOut,
+}: {
+  listData: ListDataType
+  marketPrice: BaseTradeInfo | undefined
+  symbolIn: string | undefined
+  symbolOut: string | undefined
+}) {
   return (
-    <Flex style={{ gap: 14 }} flexDirection="column">
-      {listData.map(item => (
-        <Row key={item.label}>
-          <Label>{item.label}</Label>
-          {item.content}
-        </Row>
-      ))}
-    </Flex>
+    <Column gap="8px">
+      <ListWrapper>
+        {listData.map(item => (
+          <Row key={item.label}>
+            <Label>{item.label}</Label>
+            {item.content}
+          </Row>
+        ))}
+      </ListWrapper>
+      <MarketInfo marketPrice={marketPrice} symbolIn={symbolIn} symbolOut={symbolOut} />
+    </Column>
   )
 }
-export const MarketInfo = ({
+const MarketInfo = ({
   marketPrice,
   symbolIn,
   symbolOut,
@@ -93,14 +116,7 @@ export const MarketInfo = ({
 }) => {
   const theme = useTheme()
   return (
-    <Flex
-      flexDirection={'column'}
-      style={{
-        borderRadius: 16,
-        padding: '14px 16px',
-        border: `1px solid ${theme.border}`,
-      }}
-    >
+    <Flex flexDirection={'column'}>
       <Row>
         <Label style={{ fontSize: 12 }}>
           <Trans>Est. Market Price</Trans>

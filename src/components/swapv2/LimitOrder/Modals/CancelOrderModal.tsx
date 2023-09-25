@@ -13,7 +13,7 @@ import { TransactionFlowState } from 'types/TransactionFlowState'
 import { BaseTradeInfo, useBaseTradeInfoLimitOrder } from '../../../../hooks/useBaseTradeInfo'
 import { calcPercentFilledOrder, formatAmountOrder } from '../helpers'
 import { CancelOrderFunction, CancelOrderResponse, CancelOrderType, LimitOrder, LimitOrderStatus } from '../type'
-import { Container, Header, Label, ListInfo, MarketInfo, Note, Rate, Value } from './styled'
+import { Container, Header, Label, ListInfo, Note, Rate, Value } from './styled'
 
 export enum CancelStatus {
   WAITING,
@@ -166,10 +166,12 @@ function ContentCancel({
         {isCancelAll ? (
           renderContentCancelAll()
         ) : (
-          <>
-            <ListInfo listData={listData} />
-            <MarketInfo marketPrice={marketPrice} symbolIn={makerAssetSymbol} symbolOut={takerAssetSymbol} />
-          </>
+          <ListInfo
+            listData={listData}
+            marketPrice={marketPrice}
+            symbolIn={makerAssetSymbol}
+            symbolOut={takerAssetSymbol}
+          />
         )}
         <Note
           note={

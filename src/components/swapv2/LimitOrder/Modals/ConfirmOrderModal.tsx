@@ -16,7 +16,7 @@ import { TransactionFlowState } from 'types/TransactionFlowState'
 
 import { formatAmountOrder } from '../helpers'
 import { RateInfo } from '../type'
-import { Container, Header, ListInfo, MarketInfo, Note, Rate, Value } from './styled'
+import { Container, Header, ListInfo, Note, Rate, Value } from './styled'
 
 const styleLogo = { width: 20, height: 20 }
 
@@ -164,8 +164,8 @@ export default memo(function ConfirmOrderModal({
           ) : (
             <Container>
               <Header title={t`Review your order`} onDismiss={handleDismiss} />
-              <ListInfo listData={listData} />
-              <MarketInfo
+              <ListInfo
+                listData={listData}
                 marketPrice={marketPrice}
                 symbolIn={currencyIn?.symbol}
                 symbolOut={displayCurrencyOut?.symbol}
