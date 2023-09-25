@@ -19,6 +19,7 @@ import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { MEDIA_WIDTHS } from 'theme'
+import { escapeScriptHtml } from 'utils/string'
 
 import DisplaySettings from '../components/DisplaySettings'
 import FeedbackSurvey from '../components/FeedbackSurvey'
@@ -211,7 +212,7 @@ const TokenDescription = ({ description }: { description: string }) => {
       <StyledTokenDescription ref={ref} show={show}>
         <span
           dangerouslySetInnerHTML={{
-            __html: linkify(description),
+            __html: escapeScriptHtml(linkify(description)),
           }}
         />
         {isTextExceeded && show && (
