@@ -213,8 +213,9 @@ export default function Widget() {
           page: 1,
           pageSize: 5,
         },
-    { refetchOnMountOrArgChange: true, skip: !isWhiteList },
+    { refetchOnMountOrArgChange: true, skip: !isWhiteList || !showWidget },
   )
+
   if (!account) return <></>
 
   return (

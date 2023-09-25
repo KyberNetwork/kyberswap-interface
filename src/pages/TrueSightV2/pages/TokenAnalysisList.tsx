@@ -37,7 +37,6 @@ import SimpleTooltip from '../components/SimpleTooltip'
 import SmallKyberScoreMeter from '../components/SmallKyberScoreMeter'
 import TokenChart from '../components/TokenChartSVG'
 import TokenListVariants from '../components/TokenListVariants'
-import WatchlistButton from '../components/WatchlistButton'
 import KyberScoreChart from '../components/chart/KyberScoreChart'
 import TokenAnalysisListShareContent from '../components/shareContent/TokenAnalysisListShareContent'
 import { KYBERAI_LISTYPE_TO_MIXPANEL, Z_INDEX_KYBER_AI } from '../constants'
@@ -465,16 +464,14 @@ const TokenRow = React.memo(function TokenRow({
   const { account } = useActiveWeb3React()
   const theme = useTheme()
   const reachedMaxLimit = useIsReachMaxLimitWatchedToken()
+  const [showSwapMenu, setShowSwapMenu] = useState(false)
   const [addToWatchlist] = useAddToWatchlistMutation()
   const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
-
-  const [showSwapMenu, setShowSwapMenu] = useState(false)
   const [isWatched, setIsWatched] = useState(false)
   const [loadingStar, setLoadingStar] = useState(false)
   const rowRef = useRef<HTMLTableRowElement>(null)
-  const menuRef = useRef<HTMLDivElement>(null)
 
-  useOnClickOutside(menuRef, () => setShowSwapMenu(false))
+  useOnClickOutside(rowRef, () => setShowSwapMenu(false))
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
 
   const hasMutipleChain = token.tokens.length > 1
@@ -528,15 +525,21 @@ const TokenRow = React.memo(function TokenRow({
     <tr key={token.asset_id} ref={rowRef} onClick={handleRowClick} style={{ position: 'relative' }}>
       <td>
         <RowFit gap="6px">
-          <WatchlistButton size={above768 ? 20 : 16} />
-          <StarWithAnimation
-            key={token.asset_id}
-            watched={isWatched}
-            loading={loadingStar}
-            onClick={handleWatchlistClick}
-            size={above768 ? 20 : 16}
-            disabled={!isWatched && reachedMaxLimit}
-          />
+          <SimpleTooltip
+            text={
+              isWatched ? t`Remove from watchlist` : reachedMaxLimit ? t`Reached 30 tokens limit` : t`Add to watchlist`
+            }
+            hideOnMobile
+          >
+            <StarWithAnimation
+              key={token.asset_id}
+              watched={isWatched}
+              loading={loadingStar}
+              onClick={handleWatchlistClick}
+              size={above768 ? 20 : 16}
+              disabled={!isWatched && reachedMaxLimit}
+            />
+          </SimpleTooltip>
           {above768 ? index : <></>}
         </RowFit>
       </td>
@@ -666,15 +669,17 @@ const TokenRow = React.memo(function TokenRow({
             </ActionButton>
           </SimpleTooltip>
           {hasMutipleChain && (
-            <MultipleChainDropdown
-              show={showSwapMenu}
-              tokens={token?.tokens}
-              onChainClick={(chain, address) => {
-                if (chain && address) {
-                  navigateToSwapPage({ chain, address })
-                }
-              }}
-            />
+            <>
+              <MultipleChainDropdown
+                show={showSwapMenu}
+                tokens={token?.tokens}
+                onChainClick={(chain, address) => {
+                  if (chain && address) {
+                    navigateToSwapPage({ chain, address })
+                  }
+                }}
+              />
+            </>
           )}
         </Row>
       </td>
@@ -947,15 +952,6 @@ export default function TokenAnalysisList() {
                           [KyberAIListType.TOP_CEX_OUTFLOW]: '24h Netflow',
                         }[listType as string] || '24h Volume'}
                       </Trans>
-                      {/* {sortedColumn === SORT_FIELD.VOLUME ? (
-                          !sortDirection ? (
-                            <ArrowUp size="12" style={{ marginLeft: '2px' }} />
-                          ) : (
-                            <ArrowDown size="12" style={{ marginLeft: '2px' }} />
-                          )
-                        ) : (
-                          ''
-                        )} */}
                     </Row>
                   </th>
                   {isCexFlowTabs && (

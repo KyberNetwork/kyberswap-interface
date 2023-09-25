@@ -320,7 +320,7 @@ const SearchWithDropdown = () => {
   )
   const [history, setHistory] = useLocalStorage<Array<ITokenSearchResult>>('kyberai-search-history')
   const saveToHistory = (token: ITokenSearchResult) => {
-    if (!(history && history.findIndex(t => t.assetId === token.assetId) >= 0)) {
+    if (!(history && history.some(t => t.assetId === token.assetId))) {
       setHistory([token, ...(history || [])].slice(0, 3))
     }
   }
