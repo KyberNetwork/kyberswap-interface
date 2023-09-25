@@ -1,17 +1,24 @@
 import { useMemo } from 'react'
 
+import { useIsWhiteListKyberAI } from 'state/user/hooks'
+
 import { ITokenList, KyberAIListType } from '../types'
 import { useTokenListQuery } from './useKyberAIData'
 
 const MAX_LIMIT_WATCHED_TOKEN = 30
 export default function useIsReachMaxLimitWatchedToken(tokenCount?: number) {
-  const { data } = useTokenListQuery({
-    type: KyberAIListType.ALL,
-    chain: 'all',
-    page: 1,
-    pageSize: 30,
-    watchlist: true,
-  })
+  const { isWhiteList } = useIsWhiteListKyberAI()
+
+  const { data } = useTokenListQuery(
+    {
+      type: KyberAIListType.ALL,
+      chain: 'all',
+      page: 1,
+      pageSize: 30,
+      watchlist: true,
+    },
+    { skip: !isWhiteList },
+  )
 
   const watchedCount = useMemo(() => {
     let count = 0
