@@ -606,7 +606,9 @@ const WidgetTokenRow = ({
   useOnClickOutside(rowRef, () => setShowSwapMenu(false))
 
   const handleRowClick = () => {
-    navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.asset_id}`)
+    navigate(
+      `${APP_PATHS.KYBERAI_EXPLORE}/${token.asset_id}?chain=${token.tokens[0].chain}&address=${token.tokens[0].address}`,
+    )
     onClick?.()
   }
 

@@ -156,8 +156,8 @@ const TabButton = styled.div<{ active?: boolean }>`
 
 export const defaultExplorePageToken = {
   chain: 'ethereum',
-  address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', //TODO: remove
-  assetId: 1,
+  address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+  assetId: 19277,
 }
 
 const StyledTokenDescription = styled.span<{ show?: boolean }>`
@@ -536,7 +536,7 @@ export default function SingleToken() {
   const { assetId } = useParams()
   const [currentTab, setCurrentTab] = useState<DiscoverTokenTab>(DiscoverTokenTab.TechnicalAnalysis)
 
-  const { data: token, isLoading, chain } = useKyberAIAssetOverview()
+  const { data: token, isLoading, chain: chainParam, address: addressParam } = useKyberAIAssetOverview()
 
   const [viewAllTag, setViewAllTag] = useState(false)
 
@@ -556,7 +556,7 @@ export default function SingleToken() {
   }, [])
 
   useEffect(() => {
-    if (token?.addresses && token.addresses[0].address && token.addresses[0].chain) {
+    if ((!chainParam || !addressParam) && token?.addresses && token.addresses[0].address && token.addresses[0].chain) {
       setSearchParams({ chain: token.addresses[0].chain, address: token.addresses[0].address })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -600,7 +600,7 @@ export default function SingleToken() {
               onClick={() => {
                 mixpanelHandler(MIXPANEL_TYPE.KYBERAI_EXPLORING_VIEW_ALL_CLICK, {
                   token_name: token?.symbol?.toUpperCase(),
-                  network: chain,
+                  network: chainParam,
                 })
                 setViewAllTag(true)
               }}
@@ -622,7 +622,7 @@ export default function SingleToken() {
                   onClick={() => {
                     mixpanelHandler(MIXPANEL_TYPE.KYBERAI_EXPLORING_ANALYSIS_TYPE_CLICK, {
                       token_name: token?.symbol?.toUpperCase(),
-                      network: chain,
+                      network: chainParam,
                       option: tab === DiscoverTokenTab.OnChainAnalysis ? 'onchain_analysis' : 'technical_analysis',
                     })
                     setCurrentTab(tab)
@@ -656,7 +656,7 @@ export default function SingleToken() {
         onShareClick={social =>
           mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SHARE_TOKEN_CLICK, {
             token_name: token?.symbol?.toUpperCase(),
-            network: chain,
+            network: chainParam,
             source: MIXPANEL_KYBERAI_TAG.EXPLORE_SHARE_THIS_TOKEN,
             share_via: social,
           })
