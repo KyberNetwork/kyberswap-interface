@@ -4,7 +4,7 @@ export const getSupportLoginMethods = (loginFlow: LoginFlow | undefined) => {
   return loginFlow?.oauth_client?.metadata?.allowed_login_methods ?? []
 }
 
-const whiteListDomains = [/https:\/\/(.+?\.)?kyberswap.com/, /https:\/\/(.+)\.kyberengineering.io/]
+const whiteListDomains = [/https:\/\/(.+?\.)?kyberswap\.com$/, /https:\/\/(.+)\.kyberengineering\.io$/]
 export const isValidRedirectURL = (url: string | undefined) => {
   try {
     if (!url) return false
