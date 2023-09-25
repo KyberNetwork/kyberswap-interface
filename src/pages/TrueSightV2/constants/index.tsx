@@ -75,3 +75,9 @@ export const Z_INDEX_KYBER_AI = {
   LOADING_TOKENS_TABLE: 3,
   FILTER_TOKEN_OPTIONS: 4,
 }
+
+export const DEFAULT_EXPLORE_PAGE_TOKEN = {
+  chain: 'ethereum',
+  address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+  assetId: 32895,
+}
