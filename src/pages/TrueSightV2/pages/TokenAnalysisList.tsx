@@ -2,7 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { motion } from 'framer-motion'
 import { rgba } from 'polished'
-import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowDown, ArrowUp } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
@@ -446,7 +446,7 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab:
   )
 }
 
-const TokenRow = ({
+const TokenRow = React.memo(function TokenRow({
   token,
   currentTab,
   index,
@@ -458,7 +458,7 @@ const TokenRow = ({
   index: number
   isScrolling?: boolean
   listType: KyberAIListType
-}) => {
+}) {
   const navigate = useNavigate()
   const location = useLocation()
   const mixpanelHandler = useMixpanelKyberAI()
@@ -480,9 +480,12 @@ const TokenRow = ({
   const hasMutipleChain = token.tokens.length > 1
 
   const handleRowClick = () => {
-    navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.asset_id}`, {
-      state: { from: location },
-    })
+    navigate(
+      `${APP_PATHS.KYBERAI_EXPLORE}/${token.asset_id}?chain=${token.tokens[0].chain}&address=${token.tokens[0].address}`,
+      {
+        state: { from: location },
+      },
+    )
   }
 
   const handleWatchlistClick = (e: any) => {
@@ -631,9 +634,12 @@ const TokenRow = ({
                   source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
                   option: 'explore',
                 })
-                navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.asset_id}`, {
-                  state: { from: location },
-                })
+                navigate(
+                  `${APP_PATHS.KYBERAI_EXPLORE}/${token.asset_id}?chain=${token.tokens[0].chain}&address=${token.tokens[0].address}`,
+                  {
+                    state: { from: location },
+                  },
+                )
               }}
             >
               <Icon id="truesight-v2" size={16} />
@@ -674,7 +680,7 @@ const TokenRow = ({
       </td>
     </tr>
   )
-}
+})
 const LoadingRowSkeleton = ({ hasExtraCol }: { hasExtraCol?: boolean }) => {
   return (
     <>
@@ -941,7 +947,15 @@ export default function TokenAnalysisList() {
                           [KyberAIListType.TOP_CEX_OUTFLOW]: '24h Netflow',
                         }[listType as string] || '24h Volume'}
                       </Trans>
-                      <SortArrow type={SORT_FIELD.VOLUME_24H} />
+                      {/* {sortedColumn === SORT_FIELD.VOLUME ? (
+                          !sortDirection ? (
+                            <ArrowUp size="12" style={{ marginLeft: '2px' }} />
+                          ) : (
+                            <ArrowDown size="12" style={{ marginLeft: '2px' }} />
+                          )
+                        ) : (
+                          ''
+                        )} */}
                     </Row>
                   </th>
                   {isCexFlowTabs && (
