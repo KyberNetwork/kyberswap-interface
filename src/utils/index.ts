@@ -506,3 +506,22 @@ export const downloadImage = (data: Blob | string | undefined, filename: string)
   link.click()
   document.body.removeChild(link)
 }
+
+export function buildFlagsForFarmV21({
+  isClaimFee,
+  isSyncFee,
+  isClaimReward,
+  isReceiveNative,
+}: {
+  isClaimFee: boolean
+  isSyncFee: boolean
+  isClaimReward: boolean
+  isReceiveNative: boolean
+}) {
+  let flags = 1
+  if (isReceiveNative) flags = 1
+  if (isClaimFee) flags = flags | (1 << 3)
+  if (isSyncFee) flags = flags | (1 << 2)
+  if (isClaimReward) flags = flags | (1 << 1)
+  return flags
+}

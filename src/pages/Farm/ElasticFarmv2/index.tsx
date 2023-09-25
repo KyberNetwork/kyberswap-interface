@@ -83,6 +83,7 @@ export default function ElasticFarmv2({
 
   const rewardTokenAmounts: { [address: string]: CurrencyAmount<Currency> } = {}
   userInfo?.forEach(item => {
+    if (item.farmAddress !== farmAddress) return
     item.unclaimedRewards.forEach(rw => {
       const address = rw.currency.isNative ? rw.currency.symbol || 'eth' : rw.currency.wrapped.address
       if (!rewardTokenAmounts[address]) rewardTokenAmounts[address] = rw
@@ -92,6 +93,7 @@ export default function ElasticFarmv2({
 
   const depositedTokenAmounts: { [address: string]: CurrencyAmount<Currency> } = {}
   userInfo?.forEach(item => {
+    if (item.farmAddress !== farmAddress) return
     const address0 = item.position.amount0.currency.wrapped.address
     const address1 = item.position.amount1.currency.wrapped.address
     if (!depositedTokenAmounts[address0]) depositedTokenAmounts[address0] = item.position.amount0
