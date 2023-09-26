@@ -1,9 +1,8 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { motion } from 'framer-motion'
 import { rgba } from 'polished'
-import { ReactNode, useEffect, useRef, useState } from 'react'
+import React, { ReactNode, useEffect, useRef, useState } from 'react'
 import { Info } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
@@ -37,7 +36,7 @@ import TokenListVariants from '../components/TokenListVariants'
 import { StarWithAnimation } from '../components/WatchlistStar'
 import KyberScoreChart from '../components/chart/KyberScoreChart'
 import TokenAnalysisListShareContent from '../components/shareContent/TokenAnalysisListShareContent'
-import { KYBERAI_LISTYPE_TO_MIXPANEL, SUPPORTED_NETWORK_KYBERAI } from '../constants'
+import { KYBERAI_LISTYPE_TO_MIXPANEL, NETWORK_TO_CHAINID } from '../constants'
 import useIsReachMaxLimitWatchedToken from '../hooks/useIsReachMaxLimitWatchedToken'
 import { useTokenListQuery } from '../hooks/useKyberAIData'
 import { IKyberScoreChart, ITokenList, KyberAIListType } from '../types'
@@ -458,7 +457,7 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: KyberAIListType; setTab:
   )
 }
 
-const TokenRow = ({
+const TokenRow = React.memo(function TokenRow({
   token,
   currentTab,
   index,
@@ -470,23 +469,32 @@ const TokenRow = ({
   index: number
   isScrolling?: boolean
   listType: KyberAIListType
-}) => {
+}) {
   const navigate = useNavigate()
   const location = useLocation()
   const mixpanelHandler = useMixpanelKyberAI()
   const { account } = useActiveWeb3React()
   const theme = useTheme()
   const reachedMaxLimit = useIsReachMaxLimitWatchedToken()
+  const [showSwapMenu, setShowSwapMenu] = useState(false)
+  const [addToWatchlist] = useAddToWatchlistMutation()
+  const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
   const [isWatched, setIsWatched] = useState(false)
   const [loadingStar, setLoadingStar] = useState(false)
   const rowRef = useRef<HTMLTableRowElement>(null)
 
+  useOnClickOutside(rowRef, () => setShowSwapMenu(false))
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
 
+  const hasMutipleChain = token.tokens.length > 1
+
   const handleRowClick = () => {
-    navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.asset_id}`, {
-      state: { from: location },
-    })
+    navigate(
+      `${APP_PATHS.KYBERAI_EXPLORE}/${token.asset_id}?chain=${token.tokens[0].chain}&address=${token.tokens[0].address}`,
+      {
+        state: { from: location },
+      },
+    )
   }
 
   const handleWatchlistClick = (e: any) => {
@@ -643,9 +651,12 @@ const TokenRow = ({
                   source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
                   option: 'explore',
                 })
-                navigate(`${APP_PATHS.KYBERAI_EXPLORE}/${token.asset_id}`, {
-                  state: { from: location },
-                })
+                navigate(
+                  `${APP_PATHS.KYBERAI_EXPLORE}/${token.asset_id}?chain=${token.tokens[0].chain}&address=${token.tokens[0].address}`,
+                  {
+                    state: { from: location },
+                  },
+                )
               }}
             >
               <Icon id="truesight-v2" size={16} />
@@ -661,17 +672,34 @@ const TokenRow = ({
                   source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
                   option: 'swap',
                 })
-                navigateToSwapPage(token.tokens[0])
+                if (hasMutipleChain) {
+                  setShowSwapMenu(true)
+                } else {
+                  navigateToSwapPage(token.tokens[0])
+                }
               }}
             >
               <Icon id="swap" size={16} />
             </ActionButton>
           </SimpleTooltip>
+          {hasMutipleChain && (
+            <>
+              <MultipleChainDropdown
+                show={showSwapMenu}
+                tokens={token?.tokens}
+                onChainClick={(chain, address) => {
+                  if (chain && address) {
+                    navigateToSwapPage({ chain, address })
+                  }
+                }}
+              />
+            </>
+          )}
         </Row>
       </td>
     </tr>
   )
-}
+})
 const LoadingRowSkeleton = ({ hasExtraCol }: { hasExtraCol?: boolean }) => {
   return (
     <>
@@ -714,21 +742,21 @@ export default function TokenAnalysisList() {
   const [searchParams, setSearchParams] = useSearchParams()
   const listTypeParam = (searchParams.get('listType') as KyberAIListType) || KyberAIListType.BULLISH
   const page = +(searchParams.get('page') || 1)
-  const chain = searchParams.get('chain') || 'all'
+  const chain = searchParams.get('chain') || undefined
   const pageSize = 25
 
   const { data, isLoading, isFetching, isError } = useTokenListQuery(
     listTypeParam === KyberAIListType.MYWATCHLIST
       ? {
           type: KyberAIListType.ALL,
-          chain: (chain && SUPPORTED_NETWORK_KYBERAI[Number(chain) as ChainId]) || 'all',
+          chain: chain || 'all',
           page,
           pageSize,
           watchlist: true,
         }
       : {
           type: listTypeParam,
-          chain: (chain && SUPPORTED_NETWORK_KYBERAI[Number(chain) as ChainId]) || 'all',
+          chain: chain || 'all',
           page,
           pageSize,
         },
@@ -744,18 +772,18 @@ export default function TokenAnalysisList() {
     searchParams.set('page', page.toString())
     setSearchParams(searchParams)
   }
-  const handleChainChange = (chainId?: ChainId) => {
-    if (!chainId) {
+  const handleChainChange = (chainName?: string) => {
+    if (!chainName) {
       searchParams.delete('chain')
       mixpanelHandler(MIXPANEL_TYPE.KYBERAI_RANKING_SWITCH_CHAIN_CLICK, {
         source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
         network: 'All',
       })
     } else {
-      searchParams.set('chain', chainId.toString())
+      searchParams.set('chain', chainName)
       mixpanelHandler(MIXPANEL_TYPE.KYBERAI_RANKING_SWITCH_CHAIN_CLICK, {
         source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
-        network: NETWORKS_INFO[chainId].name,
+        network: NETWORKS_INFO[NETWORK_TO_CHAINID[chainName]].name,
       })
     }
     searchParams.set('page', '1')
@@ -815,7 +843,7 @@ export default function TokenAnalysisList() {
           >
             <Icon size={16} id="share" />
           </ButtonGray>
-          <NetworkSelect filter={Number(chain) as ChainId} setFilter={handleChainChange} />
+          <NetworkSelect filter={chain} setFilter={handleChainChange} />
         </RowFit>
       </RowBetween>
       <Column gap="0px" style={{ position: 'relative' }}>
@@ -910,15 +938,6 @@ export default function TokenAnalysisList() {
                           [KyberAIListType.TRENDING_SOON]: 'First Discovered On',
                         }[listType as string] || ''}
                       </Trans>
-                      {/* {sortedColumn === SORT_FIELD.VOLUME ? (
-                          !sortDirection ? (
-                            <ArrowUp size="12" style={{ marginLeft: '2px' }} />
-                          ) : (
-                            <ArrowDown size="12" style={{ marginLeft: '2px' }} />
-                          )
-                        ) : (
-                          ''
-                        )} */}
                     </Row>
                   </th>
                 )}

@@ -36,6 +36,8 @@ const KyberAITokenBanner = ({
 }) => {
   const { chainId, account } = useActiveWeb3React()
   const { isWhiteList } = useIsWhiteListKyberAI()
+  const isShowKyberAIBanner = useShowKyberAIBanner()
+
   const navigate = useNavigate()
   const { mixpanelHandler } = useMixpanel()
   const chain = Object.keys(NETWORK_TO_CHAINID).find(i => NETWORK_TO_CHAINID[i] === chainId)
@@ -49,17 +51,23 @@ const KyberAITokenBanner = ({
 
   const { data: tokenInputOverview } = useTokenOverviewQuery(
     { address: token0?.address, chain },
-    { skip: !token0?.address || !account || !isWhiteList || !chain, refetchOnMountOrArgChange: true },
+    {
+      skip: !token0?.address || !account || !isWhiteList || !chain || !isShowKyberAIBanner,
+      refetchOnMountOrArgChange: true,
+    },
   )
 
   const { data: tokenOutputOverview } = useTokenOverviewQuery(
     { address: token1?.address, chain },
-    { skip: !token1?.address || !account || !isWhiteList || !chain, refetchOnMountOrArgChange: true },
+    {
+      skip: !token1?.address || !account || !isWhiteList || !chain || !isShowKyberAIBanner,
+      refetchOnMountOrArgChange: true,
+    },
   )
 
   const { data: tokenNativeOverview } = useTokenOverviewQuery(
     { address: NativeCurrencies[chainId].wrapped.address, chain },
-    { skip: !account || !isWhiteList || !chain, refetchOnMountOrArgChange: true },
+    { skip: !account || !isWhiteList || !chain || !isShowKyberAIBanner, refetchOnMountOrArgChange: true },
   )
 
   const token: { kyberScore?: number; label?: string; address?: string; logo?: string; symbol?: string } | undefined =

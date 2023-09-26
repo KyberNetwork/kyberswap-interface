@@ -1,17 +1,17 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
-import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
-import Skeleton from 'react-loading-skeleton'
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
+import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
-import { DotsLoader } from 'components/Loader/DotsLoader'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -19,6 +19,7 @@ import useMixpanel, { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpane
 import useTheme from 'hooks/useTheme'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { MEDIA_WIDTHS } from 'theme'
+import { escapeScriptHtml } from 'utils/string'
 
 import DisplaySettings from '../components/DisplaySettings'
 import FeedbackSurvey from '../components/FeedbackSurvey'
@@ -28,7 +29,7 @@ import SwitchVariantDropdown from '../components/SwitchVariantDropdown'
 import { TokenOverview } from '../components/TokenOverview'
 import { StarWithAnimation } from '../components/WatchlistStar'
 import ExploreShareContent from '../components/shareContent/ExploreTopShareContent'
-import { MIXPANEL_KYBERAI_TAG, NETWORK_IMAGE_URL } from '../constants'
+import { DEFAULT_EXPLORE_PAGE_TOKEN, MIXPANEL_KYBERAI_TAG, NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from '../constants'
 import useChartStatesReducer, { ChartStatesContext } from '../hooks/useChartStatesReducer'
 import useIsReachMaxLimitWatchedToken from '../hooks/useIsReachMaxLimitWatchedToken'
 import useKyberAIAssetOverview from '../hooks/useKyberAIAssetOverview'
@@ -153,13 +154,7 @@ const TabButton = styled.div<{ active?: boolean }>`
   `}
 `
 
-export const defaultExplorePageToken = {
-  chain: 'ethereum',
-  address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', //TODO: remove
-  assetId: 1,
-}
-
-const StyledTokenDescription = styled.div<{ show?: boolean }>`
+const StyledTokenDescription = styled.span<{ show?: boolean }>`
   text-overflow: ellipsis;
   overflow: hidden;
   font-size: 12px;
@@ -187,11 +182,15 @@ const TokenDescription = ({ description }: { description: string }) => {
   const theme = useTheme()
   const [show, setShow] = useState(true)
   const [isTextExceeded, setIsTextExceeded] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
 
-  useLayoutEffect(() => {
-    setIsTextExceeded((!!description && ref.current && ref.current?.clientWidth <= ref.current?.scrollWidth) || false)
-  }, [description])
+  const ref = useCallback(
+    (el: HTMLDivElement) => {
+      if (el && !!description) {
+        setIsTextExceeded(el.clientHeight > 18 || el.scrollWidth > el.clientWidth || false)
+      }
+    },
+    [description],
+  )
 
   useEffect(() => {
     const hideBtn = document.getElementById('hide-token-description-span')
@@ -204,19 +203,30 @@ const TokenDescription = ({ description }: { description: string }) => {
 
   return (
     <Row style={{ position: 'relative' }}>
-      <StyledTokenDescription
-        ref={ref}
-        show={show}
-        dangerouslySetInnerHTML={{
-          __html:
-            linkify(description) +
-            (isTextExceeded
-              ? `<span style="color:${
-                  theme.primary
-                }; cursor:pointer; margin-left:4px;" id="hide-token-description-span">${t`Hide`}</span>`
-              : ''),
-        }}
-      />
+      <StyledTokenDescription ref={ref} show={show}>
+        <span
+          dangerouslySetInnerHTML={{
+            __html: escapeScriptHtml(linkify(description)),
+          }}
+        />
+        {isTextExceeded && show && (
+          <Text
+            as="span"
+            fontSize="12px"
+            color={theme.primary}
+            width="fit-content"
+            style={{
+              padding: '0 6px',
+              cursor: 'pointer',
+              flexBasis: 'fit-content',
+              whiteSpace: 'nowrap',
+            }}
+            onClick={() => setShow(false)}
+          >
+            Hide
+          </Text>
+        )}
+      </StyledTokenDescription>
       {isTextExceeded && !show && (
         <Text
           as="span"
@@ -239,29 +249,27 @@ const TokenDescription = ({ description }: { description: string }) => {
 }
 
 const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoading?: boolean }) => {
-  const theme = useTheme()
   const { account } = useActiveWeb3React()
   const navigate = useNavigate()
   const location = useLocation()
   const { mixpanelHandler } = useMixpanel()
 
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
-  const { chain } = useParams()
+  const { chain, address } = useKyberAIAssetOverview()
   const reachedMaxLimit = useIsReachMaxLimitWatchedToken()
   const [addToWatchlist, { isLoading: loadingAddtoWatchlist }] = useAddToWatchlistMutation()
   const [removeFromWatchlist, { isLoading: loadingRemovefromWatchlist }] = useRemoveFromWatchlistMutation()
   const [isWatched, setIsWatched] = useState(false)
   const handleStarClick = () => {
-    if (!token || !chain || !account) return
+    if (!token || !chain || !address || !account) return
     if (isWatched) {
       mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
         token_name: token.symbol?.toUpperCase(),
         source: 'explore',
         option: 'remove',
       })
-
       removeFromWatchlist({
-        tokenAddress: token?.address,
+        tokenAddress: address,
         chain,
       }).then(() => setIsWatched(false))
     } else {
@@ -271,7 +279,7 @@ const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoadin
           source: 'explore',
           option: 'add',
         })
-        addToWatchlist({ tokenAddress: token?.address, chain }).then(() => setIsWatched(true))
+        addToWatchlist({ tokenAddress: address, chain }).then(() => setIsWatched(true))
       }
     }
   }
@@ -315,15 +323,27 @@ const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoadin
       </SimpleTooltip>
       <div style={{ position: 'relative' }}>
         <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
-          <img
-            src={token?.logo}
-            style={{
-              width: above768 ? '36px' : '28px',
-              height: above768 ? '36px' : '28px',
-              background: 'white',
-              display: 'block',
-            }}
-          />
+          {token?.logo ? (
+            <img
+              src={token.logo}
+              style={{
+                width: above768 ? '36px' : '28px',
+                height: above768 ? '36px' : '28px',
+                background: 'white',
+                display: 'block',
+              }}
+            />
+          ) : (
+            <Skeleton
+              width={above768 ? '36px' : '28px'}
+              height={above768 ? '36px' : '28px'}
+              direction="ltr"
+              duration={1}
+              baseColor={theme.buttonGray}
+              highlightColor={theme.border}
+              borderRadius="99px"
+            />
+          )}
         </div>
         <div
           style={{
@@ -333,6 +353,7 @@ const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoadin
             borderRadius: '50%',
             border: `1px solid ${theme.background}`,
             backgroundColor: theme.tableHeader,
+            zIndex: 2,
           }}
         >
           <img
@@ -345,20 +366,29 @@ const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoadin
         </div>
       </div>
       {isLoading ? (
-        <DotsLoader />
+        <Skeleton
+          width={150}
+          height="24px"
+          direction="ltr"
+          duration={1}
+          baseColor={theme.buttonGray}
+          highlightColor={theme.border}
+          borderRadius="99px"
+        />
       ) : (
-        <>
+        token && (
           <Text fontSize={above768 ? 24 : 16} color={theme.text} fontWeight={500}>
             {token?.name} ({token?.symbol.toUpperCase()})
           </Text>
-        </>
+        )
       )}
     </>
   )
 }
-const SettingButtons = ({ token, onShareClick }: { token?: IAssetOverview; onShareClick: () => void }) => {
+const SettingButtons = ({ onShareClick }: { token?: IAssetOverview; onShareClick: () => void }) => {
   const theme = useTheme()
   const navigate = useNavigate()
+  const { chain, address } = useKyberAIAssetOverview()
   return (
     <>
       <SimpleTooltip text={t`Set a price alert`} hideOnMobile>
@@ -366,8 +396,8 @@ const SettingButtons = ({ token, onShareClick }: { token?: IAssetOverview; onSha
           onClick={() =>
             navigate(
               `${APP_PATHS.PROFILE_MANAGE}${PROFILE_MANAGE_ROUTES.CREATE_ALERT}?${stringify({
-                inputCurrency: token?.address ?? '',
-                chainId: 1, //TODO
+                inputCurrency: address ?? '',
+                chainId: chain ? NETWORK_TO_CHAINID[chain] : '',
               })}`,
             )
           }
@@ -449,15 +479,15 @@ const TokenHeader = ({
 }) => {
   const mixpanelHandler = useMixpanelKyberAI()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
-  const { chain } = useParams()
+  const { chain, address } = useKyberAIAssetOverview()
   return above768 ? (
     <RowBetween marginBottom="24px">
       <RowFit gap="12px">
         <TokenNameGroup token={token} isLoading={isLoading} />
       </RowFit>
       <RowFit gap="12px">
-        <SettingButtons token={token} onShareClick={onShareClick} />
-        <SwitchVariantDropdown variants={token?.addresses} />
+        <SettingButtons onShareClick={onShareClick} />
+        <SwitchVariantDropdown variants={token?.addresses} isLoading={isLoading} />
         <ButtonPrimary
           height={'36px'}
           width="fit-content"
@@ -467,7 +497,7 @@ const TokenHeader = ({
               token_name: token?.symbol?.toUpperCase(),
               network: chain,
             })
-            navigateToSwapPage({ address: token?.address, chain })
+            navigateToSwapPage({ address, chain })
           }}
         >
           <RowFit gap="4px" style={{ whiteSpace: 'nowrap' }}>
@@ -484,7 +514,7 @@ const TokenHeader = ({
       </MobileStickyHeader>
       <RowBetween marginBottom="12px">
         <RowFit gap="12px">
-          <SettingButtons token={token} onShareClick={onShareClick} />
+          <SettingButtons onShareClick={onShareClick} />
         </RowFit>
         <ButtonPrimary
           height="32px"
@@ -520,13 +550,13 @@ export default function SingleToken() {
   const { assetId } = useParams()
   const [currentTab, setCurrentTab] = useState<DiscoverTokenTab>(DiscoverTokenTab.TechnicalAnalysis)
 
-  const { data: token, isLoading } = useKyberAIAssetOverview()
+  const { data: token, isLoading, chain: chainParam, address: addressParam } = useKyberAIAssetOverview()
 
   const [viewAllTag, setViewAllTag] = useState(false)
 
   useEffect(() => {
     if (!assetId) {
-      navigate(APP_PATHS.KYBERAI_EXPLORE + `/${defaultExplorePageToken.assetId}`)
+      navigate(APP_PATHS.KYBERAI_EXPLORE + `/${DEFAULT_EXPLORE_PAGE_TOKEN.assetId}`)
       setTimeout(() => {
         const element = document.querySelector('#kyberai-search') as HTMLInputElement
         element?.focus({
@@ -540,7 +570,7 @@ export default function SingleToken() {
   }, [])
 
   useEffect(() => {
-    if (token?.addresses && token.addresses[0].address && token.addresses[0].chain) {
+    if ((!chainParam || !addressParam) && token?.addresses && token.addresses[0].address && token.addresses[0].chain) {
       setSearchParams({ chain: token.addresses[0].chain, address: token.addresses[0].address })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -551,7 +581,27 @@ export default function SingleToken() {
       <ChartStatesContext.Provider value={{ state, dispatch }}>
         <TokenHeader token={token} isLoading={isLoading} onShareClick={() => setShowShare(true)} />
         <Text fontSize={12} color={theme.subText} marginBottom="12px">
-          {isLoading ? <Skeleton /> : <TokenDescription description={token?.description || ''} />}
+          {isLoading ? (
+            <SkeletonTheme
+              height="16px"
+              direction="ltr"
+              duration={1}
+              baseColor={theme.buttonGray}
+              highlightColor={theme.border}
+              borderRadius="99px"
+            >
+              <Column gap="8px">
+                <Row>
+                  <Skeleton width="140px" inline />
+                  <Skeleton inline />
+                </Row>
+                <Skeleton />
+                <Skeleton />
+              </Column>
+            </SkeletonTheme>
+          ) : (
+            <TokenDescription description={token?.description || ''} />
+          )}
         </Text>
 
         <TagWrapper>
@@ -564,7 +614,7 @@ export default function SingleToken() {
               onClick={() => {
                 mixpanelHandler(MIXPANEL_TYPE.KYBERAI_EXPLORING_VIEW_ALL_CLICK, {
                   token_name: token?.symbol?.toUpperCase(),
-                  network: 1, //TODO
+                  network: chainParam,
                 })
                 setViewAllTag(true)
               }}
@@ -586,7 +636,7 @@ export default function SingleToken() {
                   onClick={() => {
                     mixpanelHandler(MIXPANEL_TYPE.KYBERAI_EXPLORING_ANALYSIS_TYPE_CLICK, {
                       token_name: token?.symbol?.toUpperCase(),
-                      network: 1, //TODO
+                      network: chainParam,
                       option: tab === DiscoverTokenTab.OnChainAnalysis ? 'onchain_analysis' : 'technical_analysis',
                     })
                     setCurrentTab(tab)
@@ -620,7 +670,7 @@ export default function SingleToken() {
         onShareClick={social =>
           mixpanelHandler(MIXPANEL_TYPE.KYBERAI_SHARE_TOKEN_CLICK, {
             token_name: token?.symbol?.toUpperCase(),
-            network: 1, // TODO
+            network: chainParam,
             source: MIXPANEL_KYBERAI_TAG.EXPLORE_SHARE_THIS_TOKEN,
             share_via: social,
           })
