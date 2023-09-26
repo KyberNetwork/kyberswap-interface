@@ -21,6 +21,9 @@ function parseKnownPattern(text: string): string | undefined {
   )
     return t`An error occurred. Try refreshing the price rate or increase max slippage`
 
+  if (error.includes('insufficient funds for intrinsic transaction cost'))
+    return t`Your current balance falls short of covering the required gas fee.`
+
   if (error.includes('header not found') || error.includes('swap failed'))
     return t`An error occurred. Refresh the page and try again. If the issue still persists, it might be an issue with your RPC node settings in Metamask.`
 

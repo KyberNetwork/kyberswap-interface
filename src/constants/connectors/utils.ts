@@ -101,14 +101,15 @@ export enum ErrorCode {
   ALPHA_WALLET_REJECTED = 'Request rejected',
 }
 
-const rejectedPhrases: readonly string[] = [
-  'user rejected transaction',
-  'User declined to send the transaction',
-  'user denied transaction',
-  'you must accept',
-  'User rejected methods',
-  'User rejected the request',
-].map(phrase => phrase.toLowerCase())
+// Known phrases:
+// - User declined to send the transaction ...
+// - user denied transaction ...
+// - user rejected transaction ...
+// - User rejected methods ...
+// - User rejected the request ...
+const rejectedPhrases: readonly string[] = ['User declined', 'user denied', 'you must accept', 'User rejected'].map(
+  phrase => phrase.toLowerCase(),
+)
 
 export function didUserReject(error: any): boolean {
   const message = String(
