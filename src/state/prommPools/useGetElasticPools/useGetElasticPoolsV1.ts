@@ -124,15 +124,15 @@ const parsedPoolData = (
   return formatted
 }
 
-const useGetElasticPoolsV1 = (poolAddresses: string[], skip?: boolean): CommonReturn => {
-  const { elasticClient } = useKyberSwapConfig()
+const useGetElasticPoolsV1 = (poolAddresses: string[]): CommonReturn => {
+  const { elasticClient, isEnableKNProtocol } = useKyberSwapConfig()
 
   const { blockLast24h } = usePoolBlocks()
 
   const { loading, error, data } = useQuery<PoolDataResponse>(PROMM_POOLS_BULK(undefined, poolAddresses), {
     client: elasticClient,
     fetchPolicy: 'no-cache',
-    skip,
+    skip: isEnableKNProtocol,
   })
 
   const {
@@ -142,7 +142,7 @@ const useGetElasticPoolsV1 = (poolAddresses: string[], skip?: boolean): CommonRe
   } = useQuery<PoolDataResponse>(PROMM_POOLS_BULK(blockLast24h, poolAddresses), {
     client: elasticClient,
     fetchPolicy: 'no-cache',
-    skip,
+    skip: isEnableKNProtocol,
   })
 
   const anyError = error24?.message.includes('Failed to decode `block.number`')

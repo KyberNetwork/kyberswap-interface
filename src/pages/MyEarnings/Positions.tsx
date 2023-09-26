@@ -231,14 +231,16 @@ function PositionStats({
 
   return (
     <Flex sx={{ gap: '1rem' }}>
-      <Flex sx={{ gap: '4px' }}>
-        <IconWrapper color={theme.primary}>
-          <Info size={10} />
-        </IconWrapper>
-        <Text fontSize={14} fontWeight="500">
-          <Trans>{numOfActivePositions} Active</Trans>
-        </Text>
-      </Flex>
+      {!!numOfActivePositions && (
+        <Flex sx={{ gap: '4px' }}>
+          <IconWrapper color={theme.primary}>
+            <Info size={10} />
+          </IconWrapper>
+          <Text fontSize={14} fontWeight="500">
+            <Trans>{numOfActivePositions} Active</Trans>
+          </Text>
+        </Flex>
+      )}
 
       {numOfInactivePositions ? (
         <Flex sx={{ gap: '4px' }}>

@@ -18,7 +18,7 @@ import { useLazyKyberswapConfig } from '../useKyberSwapConfig'
 
 let latestChainId: ChainId
 export function useChangeNetwork() {
-  const { chainId, walletEVM, walletSolana } = useActiveWeb3React()
+  const { chainId, walletEVM, walletSolana, isWrongNetwork } = useActiveWeb3React()
   const { connector, library } = useWeb3React()
   const fetchKyberswapConfig = useLazyKyberswapConfig()
 
@@ -234,7 +234,7 @@ export function useChangeNetwork() {
       const wrappedSuccessCallback = () =>
         successCallback(desiredChainId, waitUtilUpdatedChainId, customSuccessCallback)
       // if connected, nothing todo, success return
-      if (desiredChainId === chainId) {
+      if (desiredChainId === chainId && !isWrongNetwork) {
         customSuccessCallback?.()
         return
       }
@@ -298,6 +298,7 @@ export function useChangeNetwork() {
       successCallback,
       failureCallback,
       addNewNetwork,
+      isWrongNetwork,
     ],
   )
 

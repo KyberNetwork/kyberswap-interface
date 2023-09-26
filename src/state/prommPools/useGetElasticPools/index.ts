@@ -1,5 +1,4 @@
-import { CHAINS_SUPPORT_NEW_POOL_FARM_API } from 'constants/networks'
-import { useActiveWeb3React } from 'hooks'
+import { useKyberSwapConfig } from 'state/application/hooks'
 import { ElasticPoolDetail } from 'types/pool'
 
 import useGetElasticPoolsV1 from './useGetElasticPoolsV1'
@@ -14,13 +13,12 @@ export type CommonReturn = {
 }
 
 const useGetElasticPools = (poolAddresses: string[]): CommonReturn => {
-  const { chainId } = useActiveWeb3React()
+  const { isEnableKNProtocol } = useKyberSwapConfig()
 
-  const shouldRunV2 = CHAINS_SUPPORT_NEW_POOL_FARM_API.includes(chainId)
-  const responseV1 = useGetElasticPoolsV1(poolAddresses, shouldRunV2)
+  const responseV1 = useGetElasticPoolsV1(poolAddresses)
   const responseV2 = useGetElasticPoolsV2()
 
-  if (shouldRunV2) {
+  if (isEnableKNProtocol) {
     return responseV2
   }
 

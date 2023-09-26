@@ -75,6 +75,11 @@ const PriceRangeChart: React.FC<Props> = ({ position, disabled }) => {
             overflow: 'hidden',
             whiteSpace: 'nowrap',
             textOverflow: 'ellipsis',
+            ':hover': {
+              overflow: 'visible',
+              whiteSpace: 'normal',
+              height: 'auto',
+            },
           }}
         >
           <Trans>Current Price</Trans>:

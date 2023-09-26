@@ -30,8 +30,6 @@ const StyledDialogContent = styled(
 ).attrs({
   'aria-label': 'dialog',
 })`
-  overflow-y: ${({ mobile }) => (mobile ? 'scroll' : 'hidden')};
-
   &[data-reach-dialog-content] {
     margin: ${({ margin }) => margin || '0 0 2rem 0'};
     background-color: ${({ theme, bgColor }) => bgColor || theme.tableHeader};
@@ -39,7 +37,7 @@ const StyledDialogContent = styled(
     padding: 0;
     width: ${({ width }) => width || '50vw'};
     height: ${({ height }) => height || 'auto'};
-    overflow-y: ${({ mobile }) => (mobile ? 'scroll' : 'hidden')};
+    overflow-y: scroll;
     overflow-x: hidden;
     align-self: ${({ mobile }) => (mobile ? 'flex-end' : 'center')};
     max-width: ${({ maxWidth }) => (maxWidth && !isNaN(maxWidth) ? `${maxWidth}px` : maxWidth)};

@@ -116,7 +116,7 @@ jobs:
         run: |+
           #!/bin/bash
           yarn preview &
-          yarn test-e2e -e grepTags=smoke,NETWORK=Ethereum
+          yarn test-e2e -c baseUrl='http://127.0.0.1:4173/' -e grepTags=smoke,NETWORK=Ethereum
         env:
             DISPLAY: :0.0
 

@@ -1,14 +1,20 @@
+import { defaultAbiCoder } from '@ethersproject/abi'
+import { keccak256 } from '@ethersproject/solidity'
 import { Price, Token } from '@kyberswap/ks-sdk-core'
 import {
   FeeAmount,
+  Pool,
   TICK_SPACINGS,
   TickMath,
   encodeSqrtRatioX96,
   nearestUsableTick,
   priceToClosestTick,
 } from '@kyberswap/ks-sdk-elastic'
+import { getCreate2Address } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 
+import { NETWORKS_INFO } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { rangeData } from 'pages/AddLiquidityV2/constants'
 import { PairFactor } from 'state/topTokens/type'
 
@@ -87,4 +93,16 @@ export const getRangeTicks = (
   const result = tokenA.sortsBefore(tokenB) ? result1 : result2
 
   return result
+}
+
+export function getPoolAddress(pool: Pool): string {
+  const networkInfo = NETWORKS_INFO[pool.token0.chainId] as EVMNetworkInfo
+  return getCreate2Address(
+    networkInfo.elastic.coreFactory,
+    keccak256(
+      ['bytes'],
+      [defaultAbiCoder.encode(['address', 'address', 'uint24'], [pool.token0.address, pool.token1.address, pool.fee])],
+    ),
+    networkInfo.elastic.initCodeHash,
+  )
 }

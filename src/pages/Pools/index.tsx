@@ -33,6 +33,7 @@ import { Instruction } from 'pages/Pools/InstructionAndGlobalData'
 import ProAmmPoolList from 'pages/ProAmmPools'
 import { ApplicationModal } from 'state/application/actions'
 import { useOpenModal } from 'state/application/hooks'
+import ElasticFarmV2Updater from 'state/farms/elasticv2/updater'
 import { Field } from 'state/pair/actions'
 import { MEDIA_WIDTHS } from 'theme'
 import { currencyId } from 'utils/currencyId'
@@ -370,6 +371,7 @@ const Pools = () => {
         )}
       </PoolsPageWrapper>
       <SwitchLocaleLink />
+      <ElasticFarmV2Updater interval={false} />
     </>
   )
 }

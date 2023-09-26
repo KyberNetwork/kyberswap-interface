@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import React, { useRef, useState } from 'react'
+import React, { RefObject, useRef, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -36,6 +36,7 @@ type Props = {
   isLimitOrder?: boolean
   isSwapPage?: boolean
   isCrossChainPage?: boolean
+  swapActionsRef: RefObject<HTMLDivElement>
 }
 
 const BackText = styled.span`
@@ -52,6 +53,7 @@ const SettingsPanel: React.FC<Props> = ({
   onBack,
   onClickLiquiditySources,
   onClickGasPriceTracker,
+  swapActionsRef,
 }) => {
   const theme = useTheme()
 
@@ -83,7 +85,7 @@ const SettingsPanel: React.FC<Props> = ({
   const [showConfirmation, setShowConfirmation] = useState(false)
 
   const containerRef = useRef<HTMLDivElement>(null)
-  useOnClickOutside(containerRef, () => !showConfirmation && onBack())
+  useOnClickOutside([containerRef, swapActionsRef], () => !showConfirmation && onBack())
 
   return (
     <Box width="100%" className={className} id={TutorialIds.TRADING_SETTING_CONTENT} ref={containerRef}>

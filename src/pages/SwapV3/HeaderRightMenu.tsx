@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { Dispatch, SetStateAction, useState } from 'react'
+import { Dispatch, RefObject, SetStateAction, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { MoreHorizontal } from 'react-feather'
 import { useLocation } from 'react-router-dom'
@@ -61,9 +61,11 @@ const TransactionSettingsIconWrapper = styled.span`
 export default function HeaderRightMenu({
   activeTab,
   setActiveTab,
+  swapActionsRef,
 }: {
   activeTab: TAB
   setActiveTab: Dispatch<SetStateAction<TAB>>
+  swapActionsRef: RefObject<HTMLDivElement>
 }) {
   const theme = useTheme()
 
@@ -96,7 +98,12 @@ export default function HeaderRightMenu({
   const isShowMenu = Boolean(isShowHeaderMenu || forceShowMenu)
 
   return (
-    <SwapFormActions onMouseEnter={onMouseEnterMenu} onMouseLeave={onMouseLeaveMenu} isShowHeaderMenu={isShowMenu}>
+    <SwapFormActions
+      ref={swapActionsRef}
+      onMouseEnter={onMouseEnterMenu}
+      onMouseLeave={onMouseLeaveMenu}
+      isShowHeaderMenu={isShowMenu}
+    >
       <ActionPanel>
         {isShowMenu && (
           <>

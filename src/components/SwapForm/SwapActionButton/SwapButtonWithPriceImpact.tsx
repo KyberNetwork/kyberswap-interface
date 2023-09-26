@@ -1,4 +1,5 @@
 import { Trans, t } from '@lingui/macro'
+import { ReactNode } from 'react'
 import { Info } from 'react-feather'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -44,8 +45,8 @@ export const SwapButtonWithPriceImpact = ({
   route: any
   disabled?: boolean
   showNoteGetRoute?: boolean
-  disabledText?: string
-  text?: string
+  disabledText?: ReactNode
+  text?: ReactNode
   showTooltipPriceImpact?: boolean
 }) => {
   const theme = useTheme()

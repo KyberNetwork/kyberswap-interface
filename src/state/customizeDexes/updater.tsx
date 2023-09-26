@@ -1,7 +1,8 @@
 import { useEffect, useMemo } from 'react'
 import { useDispatch } from 'react-redux'
 
-import { KYBERSWAP_KS_DEXES_TO_UI_DEXES, KYBERSWAP_UI_DEXES } from 'constants/dexes'
+import { isKyberSwapDex } from 'components/swapv2/LiquiditySourcesPanel'
+import { KYBERSWAP_KS_DEXES_TO_UI_DEXES, KYBERSWAP_UI_DEXES_CUSTOM } from 'constants/dexes'
 import { useActiveWeb3React } from 'hooks'
 import useLiquiditySources from 'hooks/useAggregatorStats'
 import { AppDispatch } from 'state/index'
@@ -18,16 +19,19 @@ export default function Updater(): null {
   // filterout kyberswap dexes, will hardcode
   const normalizeDexes = useMemo(() => {
     const dexesFormatted: Dex[] = dexes?.map(item => ({ ...item, id: item.dexId, sortId: item.id })) || []
-    const dexesOutsideKyberswap = dexesFormatted.filter(item => !item.id.includes('kyberswap'))
+    const dexesOutsideKyberswap = dexesFormatted.filter(item => !isKyberSwapDex(item.id))
     const dexesKyberswap = uniqueArray(
       dexesFormatted.filter(dex => KYBERSWAP_KS_DEXES_TO_UI_DEXES[dex.id]),
       dex => KYBERSWAP_KS_DEXES_TO_UI_DEXES[dex.id],
     )
-    const dexesUIKyberswap = dexesKyberswap.map(dex => ({
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      ...KYBERSWAP_UI_DEXES[KYBERSWAP_KS_DEXES_TO_UI_DEXES[dex.id]!],
-      sortId: dex.sortId,
-    }))
+    const dexesUIKyberswap = dexesKyberswap.map(dex => {
+      const custom = KYBERSWAP_UI_DEXES_CUSTOM[KYBERSWAP_KS_DEXES_TO_UI_DEXES[dex.id] || ''] || dex
+      return {
+        ...custom,
+        sortId: dex.sortId,
+        logoURL: 'https://kyberswap.com/favicon.ico',
+      }
+    })
 
     return [...dexesOutsideKyberswap, ...dexesUIKyberswap]
   }, [dexes])
