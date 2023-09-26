@@ -24,7 +24,7 @@ import { NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'
 import { SUPPORTED_NETWORK_KYBERAI } from 'pages/TrueSightV2/constants/index'
 import { useTokenOverviewQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { getColorByKyberScore } from 'pages/TrueSightV2/utils'
-import { useIsWhiteListKyberAI } from 'state/user/hooks'
+import { useIsWhiteListKyberAI, useShowKyberAIBanner } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 const KyberAITokenBanner = ({

@@ -253,7 +253,7 @@ const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoadin
   const navigate = useNavigate()
   const location = useLocation()
   const { mixpanelHandler } = useMixpanel()
-
+  const theme = useTheme()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const { chain, address } = useKyberAIAssetOverview()
   const reachedMaxLimit = useIsReachMaxLimitWatchedToken()
