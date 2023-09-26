@@ -60,7 +60,6 @@ const DropdownItem = styled(Row)`
 `
 
 const NetworkSelect = ({ filter, setFilter }: { filter?: string; setFilter: (c?: string) => void }) => {
-  console.log('🚀 ~ file: NetworkSelect.tsx:63 ~ NetworkSelect ~ filter:', filter)
   const theme = useTheme()
 
   const [isShowOptions, setIsShowOptions] = useState(false)
