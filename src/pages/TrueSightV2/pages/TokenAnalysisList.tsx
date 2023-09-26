@@ -50,12 +50,15 @@ const TableWrapper = styled.div`
   border-bottom: none;
   transition: all 0.15s ease;
   overflow: hidden;
+  min-height: 500px;
+  background-color: ${({ theme }) => theme.background};
   @media only screen and (max-width: 1080px) {
     margin-left: -16px;
     margin-right: -16px;
     border-radius: 0px;
     border: none;
     overflow-x: scroll;
+    min-height: 250px;
   }
 `
 const PaginationWrapper = styled.div`
@@ -66,6 +69,8 @@ const PaginationWrapper = styled.div`
   overflow: hidden;
   min-height: 50px;
   background-color: ${({ theme }) => theme.background};
+  border-top: 1px solid ${({ theme }) => theme.border};
+
   @media only screen and (max-width: 1080px) {
     margin-left: -16px;
     margin-right: -16px;
@@ -988,7 +993,7 @@ export default function TokenAnalysisList() {
                       </td>
                     </tr>
                   ) : (
-                    <tr style={{ height: '201px' }}>
+                    <tr style={{ height: '250px' }}>
                       <Row
                         style={{
                           position: 'absolute',
