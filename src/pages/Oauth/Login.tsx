@@ -12,18 +12,13 @@ import { queryStringToObject } from 'utils/string'
 import { formatSignature } from 'utils/transaction'
 
 import AuthForm from './AuthForm'
-import { createSignMessage, getSupportLoginMethods, isValidRedirectURL } from './helpers'
+import { createSignMessage, getSupportLoginMethods } from './helpers'
 
 const getErrorMsg = (error: any) => {
   const data = error?.response?.data
   const isExpired = data?.error?.id === 'self_service_flow_expired'
-  const backUri = queryStringToObject(window.location.search)?.back_uri + ''
-  if (isExpired && isValidRedirectURL(backUri)) {
-    return (
-      <span>
-        Time to sign-in is Expired, please <a href={backUri}>go back</a> and try again.
-      </span>
-    )
+  if (isExpired) {
+    return <span>Time to sign-in is Expired, please go back and try again.</span>
   }
 
   return data?.ui?.messages?.[0]?.text || data?.error?.reason || data?.error?.message || error?.message || error + ''

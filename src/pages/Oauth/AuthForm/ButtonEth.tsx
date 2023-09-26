@@ -56,7 +56,7 @@ const ButtonEth = ({
         width={'230px'}
         height={'36px'}
         className="login-btn"
-        id={'btnLoginGoogle'}
+        id={'btnLoginEth'}
         onClick={onClick}
         disabled={disabled}
       >
