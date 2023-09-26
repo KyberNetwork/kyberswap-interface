@@ -764,6 +764,15 @@ export default function TokenAnalysisList() {
   const { data, isLoading, isFetching, isError } = useTokenListQuery(queryParams)
   const listData = data?.data || []
 
+  const kyberscoreCalculateAt = useMemo(() => {
+    const listData = data?.data || []
+    const timestamps = listData.map(token => {
+      const latestKyberScore: IKyberScoreChart | undefined = token?.ks_3d?.[token.ks_3d.length - 1]
+      return latestKyberScore?.created_at || 0
+    })
+    return Math.max(...timestamps, 0)
+  }, [data])
+
   const handleTabChange = (tab: KyberAIListType) => {
     searchParams.set('listType', tab)
     searchParams.set('page', '1')
@@ -921,7 +930,7 @@ export default function TokenAnalysisList() {
                             </TextDotted>
                           </SimpleTooltip>
                           <Text as="small" fontSize={'10px'} sx={{ textTransform: 'none' }}>
-                            At 08:88AM // todo
+                            At {kyberscoreCalculateAt ? dayjs(kyberscoreCalculateAt * 1000).format('hh:mm A') : '--'}
                           </Text>
                         </Column>
                         <SortArrow type={SORT_FIELD.KYBER_SCORE} />
