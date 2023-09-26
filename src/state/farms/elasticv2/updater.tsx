@@ -135,21 +135,28 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
   }, [isEnableKNProtocol, subgraphError, knProtocolError])
 
   useEffect(() => {
-    const getFarm = (withLoading = false) => {
+    const getFarm = (chainId: number, withLoading = false) => {
       if (withLoading) dispatch(setLoading({ chainId, loading: true }))
       if (isEnableKNProtocol)
         getElasticFarmV2FromKnProtocol(chainId).finally(() => {
-          if (withLoading) dispatch(setLoading({ chainId, loading: false }))
+          dispatch(setLoading({ chainId, loading: false }))
         })
-      else
+      else {
         getElasticFarmV2().finally(() => {
-          if (withLoading) dispatch(setLoading({ chainId, loading: false }))
+          dispatch(setLoading({ chainId, loading: false }))
         })
+      }
     }
-    dispatch(knProtocolApi.util.resetApiState())
-    dispatch(setFarms({ chainId, farms: [] }))
-    getFarm(true)
-    const i = interval ? setInterval(() => getFarm(false), 10_000) : undefined
+    Promise.resolve(dispatch(knProtocolApi.util.resetApiState())).then(() => {
+      dispatch(setFarms({ chainId, farms: [] }))
+      getFarm(chainId, true)
+    })
+    // for chain which is not enable kn protocol
+    setTimeout(() => {
+      dispatch(setLoading({ chainId, loading: false }))
+    }, 3000)
+
+    const i = interval ? setInterval(() => getFarm(chainId, false), 10_000) : undefined
     return () => {
       i && clearInterval(i)
     }

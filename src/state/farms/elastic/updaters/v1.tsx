@@ -177,8 +177,9 @@ const FarmUpdaterV1: React.FC<CommonProps> = ({ interval }) => {
     }
   }, [error, dispatch, chainId])
 
+  const hasFarm = elasticFarm?.farms?.length
   useEffect(() => {
-    if (data?.farms && chainId && !elasticFarm?.farms?.length) {
+    if (data?.farms && chainId && !hasFarm) {
       // transform farm data
       const formattedData: ElasticFarm[] = data.farms.map((farm: SubgraphFarm) => {
         return {
@@ -266,7 +267,7 @@ const FarmUpdaterV1: React.FC<CommonProps> = ({ interval }) => {
       })
       dispatch(setFarms({ chainId, farms: formattedData }))
     }
-  }, [data, dispatch, chainId, elasticFarm])
+  }, [data, dispatch, chainId, hasFarm])
 
   return null
 }
