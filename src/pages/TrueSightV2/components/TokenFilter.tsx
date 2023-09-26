@@ -95,6 +95,7 @@ const SelectGroup = styled.div`
     width: 100%;
     height: 100%;
     overflow-x: scroll;
+    padding-right: 100px;
   `}
 `
 
