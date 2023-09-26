@@ -42,7 +42,7 @@ import { KYBERAI_LISTYPE_TO_MIXPANEL, NETWORK_TO_CHAINID } from '../constants'
 import useIsReachMaxLimitWatchedToken from '../hooks/useIsReachMaxLimitWatchedToken'
 import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation, useTokenListQuery } from '../hooks/useKyberAIData'
 import { IKyberScoreChart, ITokenList, KyberAIListType } from '../types'
-import { formatLocaleStringNum, formatTokenPrice, getColorByKyberScore, navigateToSwapPage } from '../utils'
+import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice, navigateToSwapPage } from '../utils'
 
 const TableWrapper = styled.div`
   border-radius: 20px 20px 0 0;
@@ -481,7 +481,6 @@ const TokenRow = React.memo(function TokenRow({
   const [showSwapMenu, setShowSwapMenu] = useState(false)
   const [addToWatchlist] = useAddToWatchlistMutation()
   const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
-  //
   const [isWatched, setIsWatched] = useState(false)
   const [loadingStar, setLoadingStar] = useState(false)
   const rowRef = useRef<HTMLTableRowElement>(null)
@@ -511,11 +510,10 @@ const TokenRow = React.memo(function TokenRow({
         ranking_order: index,
         option: 'remove',
       })
-      // TODO: refactor removeFromWatchlist
-      // Promise.all(token.tokens.map(t => removeFromWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
-      //   setIsWatched(false)
-      //   setLoadingStar(false)
-      // })
+      Promise.all(token.tokens.map(t => removeFromWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
+        setIsWatched(false)
+        setLoadingStar(false)
+      })
     } else {
       if (!reachedMaxLimit) {
         mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
@@ -524,11 +522,10 @@ const TokenRow = React.memo(function TokenRow({
           ranking_order: index,
           option: 'add',
         })
-        // TODO: refactor addToWatchlist
-        // Promise.all(token.tokens.map(t => addToWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
-        //   setIsWatched(true)
-        //   setLoadingStar(false)
-        // })
+        Promise.all(token.tokens.map(t => addToWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
+          setIsWatched(true)
+          setLoadingStar(false)
+        })
       }
     }
   }
@@ -591,7 +588,7 @@ const TokenRow = React.memo(function TokenRow({
         <Column style={{ alignItems: 'center', width: '110px' }}>
           <SmallKyberScoreMeter data={latestKyberScore} />
           <Text
-            color={getColorByKyberScore(latestKyberScore?.kyber_score || 0, theme)}
+            color={calculateValueToColor(latestKyberScore?.kyber_score || 0, theme)}
             fontSize="14px"
             fontWeight={500}
           >

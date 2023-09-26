@@ -36,9 +36,9 @@ import {
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import { IHolderList, IKyberScoreChart, ILiveTrade, ITokenList, KyberAITimeframe } from 'pages/TrueSightV2/types'
 import {
+  calculateValueToColor,
   formatLocaleStringNum,
   formatTokenPrice,
-  getColorByKyberScore,
   navigateToSwapPage,
 } from 'pages/TrueSightV2/utils'
 import { ExternalLink } from 'theme'
@@ -745,7 +745,7 @@ const WidgetTokenRow = ({
             <Column style={{ alignItems: 'center', width: '110px' }}>
               <SmallKyberScoreMeter data={latestKyberScore} disabledTooltip={token.symbol === 'KNC'} />
               <Text
-                color={getColorByKyberScore(latestKyberScore?.kyber_score || 0, theme)}
+                color={calculateValueToColor(latestKyberScore?.kyber_score || 0, theme)}
                 fontSize="14px"
                 fontWeight={500}
               >
@@ -1205,7 +1205,7 @@ export const TokenListInShareModalTable = ({
               </td>
               {!mobileMode && (
                 <td style={{ textAlign: 'right' }}>
-                  <Text color={getColorByKyberScore(latestKyberscore?.kyber_score || 0, theme)}>
+                  <Text color={calculateValueToColor(latestKyberscore?.kyber_score || 0, theme)}>
                     {latestKyberscore?.kyber_score}
                   </Text>
                 </td>

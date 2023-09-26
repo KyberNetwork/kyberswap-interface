@@ -184,10 +184,8 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
   }, [userInfo, reset])
 
   useEffect(() => {
-    setTimeout(() => {
-      setSelectedTopic(topicGroupsGlobal.filter(e => e.isSubscribed).map(e => e.id))
-      setTopicGroups(sortGroup(topicGroupsGlobal))
-    }, 0)
+    setSelectedTopic(topicGroupsGlobal.filter(e => e.isSubscribed).map(e => e.id))
+    setTopicGroups(sortGroup(topicGroupsGlobal))
   }, [topicGroupsGlobal])
 
   const getDiffChangeTopics = useCallback(

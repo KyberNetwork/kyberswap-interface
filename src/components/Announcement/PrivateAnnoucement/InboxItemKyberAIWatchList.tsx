@@ -10,9 +10,8 @@ import Column from 'components/Column'
 import { TokenLogoWithShadow } from 'components/Logo'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import { getColorByKyberScore, getTypeByScore } from 'pages/TrueSightV2/utils'
+import { calculateValueToColor, getTypeByKyberScore } from 'pages/TrueSightV2/utils'
 import { formatDisplayNumber } from 'utils/numbers'
-import { capitalizeFirstLetter } from 'utils/string'
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -36,8 +35,8 @@ export const TokenInfo = ({
       <Column gap="4px" fontSize={logoSize}>
         <Text color={theme.text}>
           {symbol}{' '}
-          <Text as="span" color={getColorByKyberScore(+kyberScore, theme)}>
-            {kyberScore} ({capitalizeFirstLetter(getTypeByScore(+kyberScore))})
+          <Text as="span" color={calculateValueToColor(+kyberScore, theme)}>
+            {kyberScore} ({getTypeByKyberScore(+kyberScore)})
           </Text>
         </Text>
         {showPrice && (
