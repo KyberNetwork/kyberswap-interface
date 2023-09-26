@@ -28,7 +28,7 @@ export const getTypeByScore = (kyberScore: number) => {
   if (!kyberScore) return ''
   if (kyberScore >= 60) return 'bullish'
   if (kyberScore < 40) return 'bearish'
-  return ''
+  return 'neutral'
 }
 
 export const formatShortNum = (num: number, fixed = 1): string => {

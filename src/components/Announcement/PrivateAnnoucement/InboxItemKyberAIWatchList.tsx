@@ -11,6 +11,7 @@ import { TokenLogoWithShadow } from 'components/Logo'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { getColorByKyberScore, getTypeByScore } from 'pages/TrueSightV2/utils'
+import { formatDisplayNumber } from 'utils/numbers'
 import { capitalizeFirstLetter } from 'utils/string'
 
 const ItemWrapper = styled.div`
@@ -42,11 +43,11 @@ export const TokenInfo = ({
         {showPrice && (
           <Text>
             <Text as="span" color={theme.text}>
-              ${price}
+              {formatDisplayNumber(price, { style: 'currency', significantDigits: 4 })}
             </Text>{' '}
             <Text as="span" color={+priceChange > 0 ? theme.apr : theme.red}>
               ({+priceChange > 0 && '+'}
-              {priceChange}%)
+              {formatDisplayNumber(priceChange, { style: 'percent', fractionDigits: 2, allowNegative: true })})
             </Text>
           </Text>
         )}
@@ -88,7 +89,7 @@ function InboxItemBridge({
       </InboxItemRow>
 
       <InboxItemRow style={{ alignItems: 'center' }}>
-        {token3 && <TokenInfo token={token3} />}
+        {token3 ? <TokenInfo token={token3} /> : <div />}
         {time}
       </InboxItemRow>
     </InboxItemWrapper>
