@@ -481,6 +481,7 @@ const TokenRow = React.memo(function TokenRow({
   const [showSwapMenu, setShowSwapMenu] = useState(false)
   const [addToWatchlist] = useAddToWatchlistMutation()
   const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
+  //
   const [isWatched, setIsWatched] = useState(false)
   const [loadingStar, setLoadingStar] = useState(false)
   const rowRef = useRef<HTMLTableRowElement>(null)
