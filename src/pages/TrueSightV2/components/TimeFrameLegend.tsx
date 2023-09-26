@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components'
 
 import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 
-import useKyberAITokenOverview from '../hooks/useKyberAITokenOverview'
+import useKyberAIAssetOverview from '../hooks/useKyberAIAssetOverview'
 import { KyberAITimeframe } from '../types'
 
 const TimeFrameWrapper = styled.div`
@@ -72,7 +72,7 @@ const TimeFrameLegend = ({
   const ref = useRef<HTMLDivElement>(null)
   const [left, setLeft] = useState(0)
   const [width, setWidth] = useState(0)
-  const { data: token } = useKyberAITokenOverview()
+  const { data: token } = useKyberAIAssetOverview()
   const handleSelect = (t: KyberAITimeframe) => {
     const wrapperEl = ref.current?.closest('section-wrapper')
 
