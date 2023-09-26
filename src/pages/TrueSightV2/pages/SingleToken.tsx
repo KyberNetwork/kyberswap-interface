@@ -262,7 +262,7 @@ const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoadin
   const [isWatched, setIsWatched] = useState(false)
 
   const handleStarClick = () => {
-    if (!token || !chain || !address || !account) return
+    if (!token || !chain || !address) return
     if (isWatched) {
       mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
         token_name: token.symbol?.toUpperCase(),

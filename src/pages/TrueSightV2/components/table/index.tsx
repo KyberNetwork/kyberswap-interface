@@ -627,7 +627,6 @@ const WidgetTokenRow = ({
 
   const handleWatchlistClick = (e: any) => {
     e.stopPropagation()
-    if (!account) return
     setLoadingStar(true)
     if (isWatched) {
       mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
