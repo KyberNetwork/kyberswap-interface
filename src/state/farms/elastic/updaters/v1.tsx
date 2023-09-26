@@ -151,26 +151,24 @@ const FarmUpdaterV1: React.FC<CommonProps> = ({ interval }) => {
   })
 
   useEffect(() => {
-    if (!elasticFarm.farms && !elasticFarm.loading) {
-      dispatch(setLoading({ chainId, loading: true }))
+    const getFarm = (withLoading = false) => {
+      withLoading && dispatch(setLoading({ chainId, loading: true }))
       try {
         getElasticFarms()
       } finally {
-        dispatch(setLoading({ chainId, loading: false }))
+        withLoading && dispatch(setLoading({ chainId, loading: false }))
       }
     }
-  }, [elasticFarm, getElasticFarms, dispatch, chainId])
-
-  useEffect(() => {
+    getFarm(true)
     const i = interval
       ? setInterval(() => {
-          getElasticFarms()
+          getFarm()
         }, 20_000)
       : undefined
     return () => {
       i && clearInterval(i)
     }
-  }, [interval, getElasticFarms])
+  }, [interval, chainId, getElasticFarms, dispatch])
 
   useEffect(() => {
     if (error && chainId) {
