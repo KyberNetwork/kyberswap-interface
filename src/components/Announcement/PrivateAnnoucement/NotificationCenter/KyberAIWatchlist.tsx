@@ -27,7 +27,7 @@ export default function AnnouncementItem({
   title,
 }: PrivateAnnouncementPropCenter<AnnouncementTemplateKyberAIWatchlist>) {
   const { sentAt, templateType, templateBody } = announcement
-  const { tokens = [] } = templateBody || {}
+  const { assets = [] } = templateBody || {}
   const theme = useTheme()
   const navigate = useNavigate()
   const [expand, setExpand] = useState(false)
@@ -49,7 +49,7 @@ export default function AnnouncementItem({
       <Desc style={{ gap: 6, flexWrap: 'wrap', color: theme.subText }}>
         <Trans>Here is an update on the tokens in your watchlist:</Trans>
         {!expand &&
-          tokens.slice(0, 3).map((token, i) => (
+          assets.slice(0, 3).map((token, i) => (
             <Fragment key={i}>
               <TokenInfo token={token} showPrice={false} key={i} logoSize={'14px'} />
               {i === 2 ? ', ...' : ', '}
@@ -58,7 +58,7 @@ export default function AnnouncementItem({
       </Desc>
       {expand && (
         <Detail>
-          {tokens.map((token, i) => (
+          {assets.map((token, i) => (
             <TokenInfo token={token} key={i} showPrice logoSize={'14px'} />
           ))}
         </Detail>

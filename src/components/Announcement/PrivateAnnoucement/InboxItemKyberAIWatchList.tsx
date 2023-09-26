@@ -44,8 +44,9 @@ export const TokenInfo = ({
             <Text as="span" color={theme.text}>
               ${price}
             </Text>{' '}
-            <Text as="span" color={Math.random() > 0.5 ? theme.apr : theme.red}>
-              ({priceChange}%)
+            <Text as="span" color={+priceChange > 0 ? theme.apr : theme.red}>
+              ({+priceChange > 0 && '+'}
+              {priceChange}%)
             </Text>
           </Text>
         )}
@@ -62,8 +63,8 @@ function InboxItemBridge({
   title,
 }: PrivateAnnouncementProp<AnnouncementTemplateKyberAIWatchlist>) {
   const { templateBody, isRead, templateType } = announcement
-  const { tokens = [] } = templateBody || {}
-  const [token1, token2, token3] = tokens
+  const { assets = [] } = templateBody || {}
+  const [token1, token2, token3] = assets
 
   const navigate = useNavigate()
   const onClick = () => {

@@ -93,7 +93,7 @@ export type TokenInfoWatchlist = {
   priceChange: string
 }
 export type AnnouncementTemplateKyberAIWatchlist = {
-  tokens: Array<TokenInfoWatchlist>
+  assets: Array<TokenInfoWatchlist>
   popupType: PopupType
 }
 
