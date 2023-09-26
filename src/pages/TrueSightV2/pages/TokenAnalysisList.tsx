@@ -20,7 +20,6 @@ import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS, ICON_ID } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
-import { useActiveWeb3React } from 'hooks'
 import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
@@ -475,7 +474,6 @@ const TokenRow = React.memo(function TokenRow({
   const navigate = useNavigate()
   const location = useLocation()
   const mixpanelHandler = useMixpanelKyberAI()
-  const { account } = useActiveWeb3React()
   const theme = useTheme()
   const reachedMaxLimit = useIsReachMaxLimitWatchedToken()
   const [showSwapMenu, setShowSwapMenu] = useState(false)
