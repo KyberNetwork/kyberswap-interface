@@ -1,5 +1,5 @@
 import { gql, useLazyQuery } from '@apollo/client'
-import { ChainId, CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { useEffect } from 'react'
 
@@ -153,9 +153,11 @@ const FarmUpdaterV1: React.FC<CommonProps> = ({ interval }) => {
   useEffect(() => {
     if (!elasticFarm.farms && !elasticFarm.loading) {
       dispatch(setLoading({ chainId, loading: true }))
-      getElasticFarms().finally(() => {
+      try {
+        getElasticFarms()
+      } finally {
         dispatch(setLoading({ chainId, loading: false }))
-      })
+      }
     }
   }, [elasticFarm, getElasticFarms, dispatch, chainId])
 
@@ -163,7 +165,7 @@ const FarmUpdaterV1: React.FC<CommonProps> = ({ interval }) => {
     const i = interval
       ? setInterval(() => {
           getElasticFarms()
-        }, 10_000)
+        }, 20_000)
       : undefined
     return () => {
       i && clearInterval(i)
@@ -178,7 +180,7 @@ const FarmUpdaterV1: React.FC<CommonProps> = ({ interval }) => {
   }, [error, dispatch, chainId])
 
   useEffect(() => {
-    if (data?.farms && chainId) {
+    if (data?.farms && chainId && !elasticFarm?.farms?.length) {
       // transform farm data
       const formattedData: ElasticFarm[] = data.farms.map((farm: SubgraphFarm) => {
         return {
@@ -236,7 +238,7 @@ const FarmUpdaterV1: React.FC<CommonProps> = ({ interval }) => {
 
             return {
               startTime: Number(pool.startTime),
-              endTime: chainId === ChainId.AVAXMAINNET && pool.pid === '125' ? 1680104783 : Number(pool.endTime),
+              endTime: Number(pool.endTime),
               pid: pool.pid,
               id: pool.id,
               feeTarget: pool.feeTarget,
@@ -266,7 +268,7 @@ const FarmUpdaterV1: React.FC<CommonProps> = ({ interval }) => {
       })
       dispatch(setFarms({ chainId, farms: formattedData }))
     }
-  }, [data, dispatch, chainId])
+  }, [data, dispatch, chainId, elasticFarm])
 
   return null
 }

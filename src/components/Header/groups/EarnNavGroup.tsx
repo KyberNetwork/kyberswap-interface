@@ -47,7 +47,7 @@ const EarnNavGroup = () => {
             to={`${APP_PATHS.POOLS}/${networkInfo.route}`}
             style={{ width: '100%' }}
           >
-            <Flex sx={{ gap: '4px' }} alignItems="center">
+            <Flex sx={{ gap: '12px' }} alignItems="center">
               <Icon id="liquid" size={16} />
               <Trans>Pools</Trans>
             </Flex>
@@ -61,14 +61,14 @@ const EarnNavGroup = () => {
             data-testid="farms-nav-link"
             to={`${APP_PATHS.FARMS}/${networkInfo.route}`}
           >
-            <Flex sx={{ gap: '4px' }} alignItems="center">
+            <Flex sx={{ gap: '12px' }} alignItems="center">
               <MoneyBag size={16} />
               <Trans>Farms</Trans>
             </Flex>
           </StyledNavLink>
 
           <StyledNavLink id="my-earnings-link" to={APP_PATHS.MY_EARNINGS}>
-            <Flex sx={{ gap: '4px' }} alignItems="center">
+            <Flex sx={{ gap: '12px' }} alignItems="center">
               <Icon id="pig" size={16} />
               <Trans>My Earnings</Trans>
               <NewLabel>
@@ -82,7 +82,7 @@ const EarnNavGroup = () => {
             data-testid="my-pools-nav-link"
             to={`${APP_PATHS.MY_POOLS}/${networkInfo.route}`}
           >
-            <Flex sx={{ gap: '4px' }} alignItems="center">
+            <Flex sx={{ gap: '12px' }} alignItems="center">
               <Icon id="liquid-outline" size={16} />
               <Trans>My Pools</Trans>
             </Flex>

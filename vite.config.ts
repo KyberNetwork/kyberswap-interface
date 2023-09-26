@@ -1,6 +1,7 @@
 import GlobalPolyFill from '@esbuild-plugins/node-globals-polyfill'
 import lingui from '@lingui/vite-plugin'
 import react from '@vitejs/plugin-react'
+import path from 'path'
 import { defineConfig } from 'vite'
 import checker from 'vite-plugin-checker'
 import svgrPlugin from 'vite-plugin-svgr'
@@ -13,6 +14,7 @@ export default defineConfig({
   },
   plugins: [
     react({
+      jsxImportSource: '@welldone-software/why-did-you-render',
       babel: {
         // Use .babelrc files, necessary to use LinguiJS CLI
         babelrc: true,
@@ -53,6 +55,9 @@ export default defineConfig({
       stream: 'stream-browserify',
       zlib: 'browserify-zlib',
       util: 'util',
+      'react-redux': 'react-redux/dist/react-redux.js',
+      '@': path.resolve(__dirname, './src/'),
+      "react-dom/client": "react-dom/profiling",
     },
   },
   server: {

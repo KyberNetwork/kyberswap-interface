@@ -24,7 +24,14 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
 import { Tab } from 'pages/Pools/styleds'
-import { StakeParam, useElasticFarms, useFarmAction, usePositionFilter } from 'state/farms/elastic/hooks'
+import {
+  StakeParam,
+  useDepositedNftsByFarm,
+  useElasticFarms,
+  useFarmAction,
+  useJoinedPositions,
+  usePositionFilter,
+} from 'state/farms/elastic/hooks'
 import { NFTPosition } from 'state/farms/elastic/types'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { StyledInternalLink } from 'theme'
@@ -236,7 +243,8 @@ function StakeModal({
 
   const { eligiblePositions } = usePositionFilter(positions || [], [poolAddress])
 
-  const { farms, userFarmInfo } = useElasticFarms()
+  const { farms } = useElasticFarms()
+  const userFarmInfo = useJoinedPositions()
   const selectedFarm = farms?.find(farm => farm.id.toLowerCase() === selectedFarmAddress.toLowerCase())
 
   const { stake, unstake, depositAndJoin } = useFarmAction(selectedFarmAddress)
@@ -244,12 +252,13 @@ function StakeModal({
   const selectedPool = selectedFarm?.pools.find(pool => Number(pool.pid) === Number(poolId))
 
   const { token0, token1 } = selectedPool || {}
+  const allDepositedPositions = useDepositedNftsByFarm(selectedFarmAddress)
 
   const depositedNfts: ExplicitNFT[] = useMemo(() => {
     if (!isEVM(chainId)) return []
     const joinedPositions = userFarmInfo?.[selectedFarmAddress]?.joinedPositions?.[poolId] || []
     const depositedPositions =
-      userFarmInfo?.[selectedFarmAddress].depositedPositions.filter(pos => {
+      allDepositedPositions.filter(pos => {
         return (
           selectedPool?.poolAddress.toLowerCase() ===
           computePoolAddress({
@@ -294,7 +303,7 @@ function StakeModal({
       })
 
     return depositedNfts
-  }, [type, selectedPool, chainId, poolId, poolAddress, selectedFarmAddress, userFarmInfo])
+  }, [type, selectedPool, chainId, poolId, poolAddress, selectedFarmAddress, allDepositedPositions, userFarmInfo])
 
   const depositAndJoinNfts = useMemo(
     () =>

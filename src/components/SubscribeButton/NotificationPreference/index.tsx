@@ -137,7 +137,7 @@ export const useValidateEmail = (defaultEmail?: string) => {
     [defaultEmail],
   )
 
-  return { inputEmail, onChangeEmail, errorInput, errorColor, hasErrorInput, reset }
+  return { inputEmail: inputEmail.trim(), onChangeEmail, errorInput, errorColor, hasErrorInput, reset }
 }
 
 function NotificationPreference({

@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { debounce } from 'lodash'
+import debounce from 'lodash/debounce'
 import { stringify } from 'querystring'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 

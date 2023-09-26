@@ -23,6 +23,7 @@ import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Toolti
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { ButtonColorScheme, MinimalActionButton } from 'components/YieldPools/ElasticFarmGroup/buttons'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
+import { PartnerFarmTag } from 'components/YieldPools/PartnerFarmTag'
 import { ElasticFarmV2TableRow } from 'components/YieldPools/styleds'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -191,6 +192,7 @@ export const ListView = ({
           >
             <Share2 size="14px" color={theme.subText} />
           </Flex>
+          <PartnerFarmTag farmPoolAddress={farm.poolAddress} />
         </Flex>
 
         <Flex sx={{ gap: '8px' }} alignItems="center">
@@ -211,7 +213,7 @@ export const ListView = ({
                     alignItems="center"
                     minWidth="fit-content"
                     sx={{ gap: '2px' }}
-                    color={range.isRemoved ? theme.warning : theme.subText}
+                    color={range.isRemoved ? theme.disableText : theme.primary}
                     fontSize={12}
                     fontWeight="500"
                   >
@@ -222,7 +224,6 @@ export const ListView = ({
                     <Text minWidth="max-content">
                       {convertTickToPrice(farm.token0, farm.token1, range.tickUpper, farm.pool.fee)}
                     </Text>
-
                     {index !== farm.ranges.length - 1 && (
                       <Text paddingLeft="6px" color={theme.subText}>
                         |

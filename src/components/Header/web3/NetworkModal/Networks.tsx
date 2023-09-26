@@ -1,4 +1,5 @@
 import { ChainId, getChainType } from '@kyberswap/ks-sdk-core'
+import { Trans, t } from '@lingui/macro'
 import { darken, rgba } from 'polished'
 import { stringify } from 'querystring'
 import React from 'react'
@@ -8,14 +9,29 @@ import styled, { css } from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
+import { NetworkInfo } from 'constants/networks/type'
 import { Z_INDEXS } from 'constants/styles'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
+import useChainsConfig, { ChainState } from 'hooks/useChainsConfig'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useIsDarkMode } from 'state/user/hooks'
+
+const NewLabel = styled.span`
+  font-size: 12px;
+  color: ${({ theme }) => theme.red};
+  margin-left: 2px;
+  margin-top: -10px;
+`
+
+const MaintainLabel = styled.span`
+  font-size: 8px;
+  color: ${({ theme }) => theme.red};
+  margin-left: 2px;
+  margin-top: -10px;
+`
 
 const ListItem = styled.div<{ selected?: boolean }>`
   width: 100%;
@@ -157,11 +173,14 @@ const Networks = ({
     }
   }
 
+  const { supportedChains } = useChainsConfig()
+
   return (
     <NetworkList mt={mt} mb={mb}>
-      {MAINNET_NETWORKS.map((itemChainId: ChainId, i: number) => {
-        const { iconDark, icon, name } = NETWORKS_INFO[itemChainId]
-        const disabled = !isAcceptedTerm || (activeChainIds ? !activeChainIds?.includes(itemChainId) : false)
+      {supportedChains.map(({ chainId: itemChainId, iconDark, icon, name, state }: NetworkInfo, i: number) => {
+        const isMaintenance = state === ChainState.MAINTENANCE
+        const disabled =
+          !isAcceptedTerm || (activeChainIds ? !activeChainIds?.includes(itemChainId) : false) || isMaintenance
         const selected = selectedId === itemChainId && !isWrongNetwork
 
         const imgSrc = (isDarkMode ? iconDark : icon) || icon
@@ -175,7 +194,13 @@ const Networks = ({
           <MouseoverTooltip
             style={{ zIndex: Z_INDEXS.MODAL + 1 }}
             key={itemChainId}
-            text={disabled ? disabledMsg : ''}
+            text={
+              disabled
+                ? isMaintenance
+                  ? t`Chain under maintenance. We will be back as soon as possible`
+                  : disabledMsg
+                : ''
+            }
             width="fit-content"
           >
             <SelectNetworkButton
@@ -197,6 +222,16 @@ const Networks = ({
                     {name}
                   </Text>
                 </Flex>
+                {state === ChainState.NEW && (
+                  <NewLabel>
+                    <Trans>New</Trans>
+                  </NewLabel>
+                )}
+                {isMaintenance && (
+                  <MaintainLabel>
+                    <Trans>Maintainance</Trans>
+                  </MaintainLabel>
+                )}
                 {selected && !walletKey && <CircleGreen />}
                 {walletKey && (
                   <WalletWrapper>

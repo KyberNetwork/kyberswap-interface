@@ -73,3 +73,9 @@ export enum KYBERAI_CHART_ID {
   PRICE_CHART = 'priceChart',
   LIQUID_ON_CEX = 'liquidOnCEX',
 }
+
+export const DEFAULT_EXPLORE_PAGE_TOKEN = {
+  chain: 'ethereum',
+  address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+  assetId: 32895,
+}

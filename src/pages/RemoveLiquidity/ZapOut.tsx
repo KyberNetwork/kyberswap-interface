@@ -510,16 +510,14 @@ export default function ZapOut({
     parsedAmounts[independentTokenField] && independentTokenPrice
       ? parseFloat((parsedAmounts[independentTokenField] as TokenAmount).toSignificant(6)) * independentTokenPrice
       : 0
-
+  const noZapDependentAmount = noZapAmounts[dependentTokenField]
   const priceImpact =
     priceToSwap &&
-    noZapAmounts[dependentTokenField] &&
+    noZapDependentAmount &&
     amountOut &&
-    computePriceImpact(
-      priceToSwap,
-      noZapAmounts[dependentTokenField] as CurrencyAmount<Currency>,
-      amountOut as CurrencyAmount<Currency>,
-    )
+    !priceToSwap.equalTo(0) &&
+    !noZapDependentAmount.equalTo(0) &&
+    computePriceImpact(priceToSwap, noZapDependentAmount, amountOut as CurrencyAmount<Currency>)
 
   const priceImpactWithoutFee = pair && priceImpact ? computePriceImpactWithoutFee([pair], priceImpact) : undefined
 

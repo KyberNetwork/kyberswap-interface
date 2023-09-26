@@ -20,6 +20,7 @@ export const useIsTokensSupport = () => {
   )
 }
 
+type InputError = undefined | { state: 'warn' | 'error'; tip: string; desc?: ReactNode; insufficientFund?: boolean }
 export default function useValidateInput({
   inputAmount,
   route,
@@ -37,7 +38,7 @@ export default function useValidateInput({
   const showErrorGas = !isEnoughEth && route
   const isTokenSupport = useIsTokensSupport()
 
-  const inputError: undefined | { state: 'warn' | 'error'; tip: string; desc?: ReactNode } = useMemo(() => {
+  const inputError: InputError = useMemo(() => {
     if (!listTokenOut.length && !listTokenIn.length && !loadingToken) {
       return { state: 'error', tip: t`Cannot get token info. Please try again later.` }
     }
@@ -65,7 +66,8 @@ export default function useValidateInput({
         desc: t`Please decrease the size of your transaction and try again.`,
       }
 
-    if (balance?.lessThan(parseAmount)) return { state: 'warn', tip: t`Insufficient ${currencyIn?.symbol} balance` }
+    if (balance?.lessThan(parseAmount))
+      return { state: 'warn', tip: t`Insufficient ${currencyIn?.symbol} balance`, insufficientFund: true }
 
     if (showErrorGas && account) {
       return {
