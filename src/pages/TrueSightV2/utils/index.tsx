@@ -24,11 +24,21 @@ export const getColorByKyberScore = (value: number, theme: DefaultTheme) => {
   return theme.primary
 }
 
-export const getTypeByScore = (kyberScore: number) => {
+export const getClassByScore = (kyberScore: number) => {
   if (!kyberScore) return ''
   if (kyberScore >= 60) return 'bullish'
   if (kyberScore < 40) return 'bearish'
-  return 'neutral'
+  return ''
+}
+
+export const getTypeByScore = (value: number) => {
+  if (value < 34) {
+    return 'bearish'
+  }
+  if (value < 68) {
+    return 'neutral'
+  }
+  return 'bullish'
 }
 
 export const formatShortNum = (num: number, fixed = 1): string => {

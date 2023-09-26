@@ -22,7 +22,7 @@ import { getEtherscanLink, shortenAddress } from 'utils'
 import { ShareButton } from '.'
 import { MIXPANEL_KYBERAI_TAG, NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from '../constants'
 import { IAssetOverview } from '../types'
-import { formatLocaleStringNum, formatTokenPrice, getColorByKyberScore, getTypeByScore } from '../utils'
+import { formatLocaleStringNum, formatTokenPrice, getClassByScore, getColorByKyberScore } from '../utils'
 import ChevronIcon from './ChevronIcon'
 import KyberAIShareModal from './KyberAIShareModal'
 import KyberScoreMeter from './KyberScoreMeter'
@@ -159,7 +159,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLo
   }, [data])
 
   const cardClassname = useMemo(() => {
-    return getTypeByScore(data?.kyberScore.score || 0)
+    return getClassByScore(data?.kyberScore.score || 0)
   }, [data])
 
   const priceChangeColor = data && data.price24hChangePercent > 0 ? theme.primary : theme.red
