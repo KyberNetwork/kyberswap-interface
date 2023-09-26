@@ -73,13 +73,12 @@ const MultipleChainDropdown = React.forwardRef(
   (
     props: {
       show: boolean
-      menuLeft?: number
       tokens?: Array<{ address: string; logo: string; chain: string }>
       onChainClick: (chain: string, address: string) => void
     },
     ref,
   ) => {
-    const { show, menuLeft, tokens, onChainClick } = props
+    const { show, tokens, onChainClick } = props
     const theme = useTheme()
     if (isMobile) {
       return (
@@ -167,7 +166,7 @@ const MultipleChainDropdown = React.forwardRef(
         className={show ? 'show' : ''}
         gap="8px"
         color={theme.text}
-        style={{ left: menuLeft !== undefined ? `${menuLeft}px` : undefined }}
+        style={{ right: 0 }}
         ref={ref}
         onClick={e => e.stopPropagation()}
       >

@@ -24,7 +24,7 @@ import { downloadImage } from 'utils/index'
 import { getProxyTokenLogo } from 'utils/tokenInfo'
 
 import { NETWORK_IMAGE_URL } from '../constants'
-import useKyberAITokenOverview from '../hooks/useKyberAITokenOverview'
+import useKyberAIAssetOverview from '../hooks/useKyberAIAssetOverview'
 import KyberSwapShareLogo from './KyberSwapShareLogo'
 import LoadingTextAnimation from './LoadingTextAnimation'
 import { InfoWrapper, LegendWrapper } from './chart'
@@ -208,7 +208,7 @@ export default function KyberAIShareModal({
 }) {
   const theme = useTheme()
   const { chain } = useParams()
-  const { data: tokenOverview } = useKyberAITokenOverview()
+  const { data: tokenOverview } = useKyberAIAssetOverview()
 
   const ref = useRef<HTMLDivElement>(null)
   const refMobile = useRef<HTMLDivElement>(null)

@@ -21,7 +21,7 @@ import { getEtherscanLink, shortenAddress } from 'utils'
 
 import { ShareButton } from '.'
 import { MIXPANEL_KYBERAI_TAG, NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from '../constants'
-import { ITokenOverview } from '../types'
+import { IAssetOverview } from '../types'
 import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice } from '../utils'
 import ChevronIcon from './ChevronIcon'
 import KyberAIShareModal from './KyberAIShareModal'
@@ -143,7 +143,7 @@ const ExternalLink = ({ href, className, children }: { href: string; className?:
   )
 }
 
-export const TokenOverview = ({ data, isLoading }: { data?: ITokenOverview; isLoading?: boolean }) => {
+export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLoading?: boolean }) => {
   const theme = useTheme()
   const { chain } = useParams()
   const mixpanelHandler = useMixpanelKyberAI()
