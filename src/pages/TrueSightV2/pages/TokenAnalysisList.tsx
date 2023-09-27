@@ -20,7 +20,6 @@ import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS, ICON_ID } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
-import { useActiveWeb3React } from 'hooks'
 import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
@@ -51,12 +50,15 @@ const TableWrapper = styled.div`
   border-bottom: none;
   transition: all 0.15s ease;
   overflow: hidden;
+  min-height: 500px;
+  background-color: ${({ theme }) => theme.background};
   @media only screen and (max-width: 1080px) {
     margin-left: -16px;
     margin-right: -16px;
     border-radius: 0px;
     border: none;
     overflow-x: scroll;
+    min-height: 250px;
   }
 `
 const PaginationWrapper = styled.div`
@@ -67,6 +69,8 @@ const PaginationWrapper = styled.div`
   overflow: hidden;
   min-height: 50px;
   background-color: ${({ theme }) => theme.background};
+  border-top: 1px solid ${({ theme }) => theme.border};
+
   @media only screen and (max-width: 1080px) {
     margin-left: -16px;
     margin-right: -16px;
@@ -475,7 +479,6 @@ const TokenRow = React.memo(function TokenRow({
   const navigate = useNavigate()
   const location = useLocation()
   const mixpanelHandler = useMixpanelKyberAI()
-  const { account } = useActiveWeb3React()
   const theme = useTheme()
   const reachedMaxLimit = useIsReachMaxLimitWatchedToken()
   const [showSwapMenu, setShowSwapMenu] = useState(false)
@@ -501,7 +504,6 @@ const TokenRow = React.memo(function TokenRow({
 
   const handleWatchlistClick = (e: any) => {
     e.stopPropagation()
-    if (!account) return
     setLoadingStar(true)
     if (isWatched) {
       mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
@@ -991,7 +993,7 @@ export default function TokenAnalysisList() {
                       </td>
                     </tr>
                   ) : (
-                    <tr style={{ height: '201px' }}>
+                    <tr style={{ height: '250px' }}>
                       <Row
                         style={{
                           position: 'absolute',
