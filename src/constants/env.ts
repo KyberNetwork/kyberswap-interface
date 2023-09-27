@@ -113,13 +113,15 @@ export const FIREBASE: { [key: string]: { DEFAULT: FirebaseConfig; LIMIT_ORDER?:
   },
 }
 
-const ANNOUNCEMENT_TEMPLATE_IDS: { [key: string]: { [type: string]: string } } = {
+// todo refaactor type check
+const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: { [type: string]: string } } = {
   development: {
     [PrivateAnnouncementType.PRICE_ALERT]: '53',
     [PrivateAnnouncementType.LIMIT_ORDER]: '8,9,10,11,33,34,35,36',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '37,38',
     [PrivateAnnouncementType.CROSS_CHAIN]: '48,49',
     [PrivateAnnouncementType.KYBER_AI]: '46',
+    [PrivateAnnouncementType.KYBER_AI_WATCHLIST]: '54',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '39,40',
     EXCLUDE: '2,29,1,47,50,44,45',
   },
@@ -129,6 +131,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key: string]: { [type: string]: string } } =
     [PrivateAnnouncementType.BRIDGE_ASSET]: '12,13',
     [PrivateAnnouncementType.CROSS_CHAIN]: '25,26',
     [PrivateAnnouncementType.KYBER_AI]: '27',
+    [PrivateAnnouncementType.KYBER_AI_WATCHLIST]: '54', // todo
     [PrivateAnnouncementType.ELASTIC_POOLS]: '20,21',
     EXCLUDE: '2,11,1,28,29,22,23',
   },
@@ -138,6 +141,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key: string]: { [type: string]: string } } =
     [PrivateAnnouncementType.BRIDGE_ASSET]: '10,11',
     [PrivateAnnouncementType.CROSS_CHAIN]: '27,28',
     [PrivateAnnouncementType.KYBER_AI]: '26',
+    [PrivateAnnouncementType.KYBER_AI_WATCHLIST]: '54', // todo
     [PrivateAnnouncementType.ELASTIC_POOLS]: '17,18',
     EXCLUDE: '2,16,19,9,25,24,21,22',
   },
