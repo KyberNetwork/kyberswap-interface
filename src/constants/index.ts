@@ -40,7 +40,6 @@ export const BAD_RECIPIENT_ADDRESSES: Set<string> = new Set(
   ]).flat(),
 )
 
-console.log('namgold ', { BAD_RECIPIENT_ADDRESSES })
 export class AbortedError extends Error {}
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 export const ZERO_ADDRESS_SOLANA = 'zeroooooooooooooooooooooooooooooooooooooooo'
