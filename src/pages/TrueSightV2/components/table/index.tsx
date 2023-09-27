@@ -19,7 +19,6 @@ import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
 import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
@@ -589,7 +588,6 @@ const WidgetTokenRow = ({
 }) => {
   const theme = useTheme()
   const navigate = useNavigate()
-  const { account } = useActiveWeb3React()
   const mixpanelHandler = useMixpanelKyberAI()
   const reachedMaxLimit = useIsReachMaxLimitWatchedToken(token?.tokens.length)
 
@@ -627,7 +625,6 @@ const WidgetTokenRow = ({
 
   const handleWatchlistClick = (e: any) => {
     e.stopPropagation()
-    if (!account) return
     setLoadingStar(true)
     if (isWatched) {
       mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
