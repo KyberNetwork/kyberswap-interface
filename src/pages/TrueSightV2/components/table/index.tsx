@@ -22,15 +22,8 @@ import { APP_PATHS } from 'constants/index'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID, Z_INDEX_KYBER_AI } from 'pages/TrueSightV2/constants'
-import useIsReachMaxLimitWatchedToken from 'pages/TrueSightV2/hooks/useIsReachMaxLimitWatchedToken'
 import useKyberAIAssetOverview from 'pages/TrueSightV2/hooks/useKyberAIAssetOverview'
-import {
-  useAddToWatchlistMutation,
-  useFundingRateQuery,
-  useHolderListQuery,
-  useLiveDexTradesQuery,
-  useRemoveFromWatchlistMutation,
-} from 'pages/TrueSightV2/hooks/useKyberAIData'
+import { useFundingRateQuery, useHolderListQuery, useLiveDexTradesQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import { IHolderList, IKyberScoreChart, ILiveTrade, ITokenList, KyberAITimeframe } from 'pages/TrueSightV2/types'
 import {
@@ -593,10 +586,10 @@ const WidgetTokenRow = ({
   const latestKyberScore: IKyberScoreChart | undefined = token?.ks_3d?.[token.ks_3d.length - 1]
   const hasMutipleChain = token?.tokens?.length > 1
   const [showSwapMenu, setShowSwapMenu] = useState(false)
-  const [isWatched, setIsWatched] = useState(!!token.isWatched)
-  const [loadingStar, setLoadingStar] = useState(false)
-  const [addToWatchlist] = useAddToWatchlistMutation()
-  const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
+  // const [isWatched, setIsWatched] = useState(!!token.isWatched)
+  // const [loadingStar, setLoadingStar] = useState(false)
+  // const [addToWatchlist] = useAddToWatchlistMutation()
+  // const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
 
   const rowRef = useRef<HTMLTableRowElement>(null)
 
@@ -677,7 +670,7 @@ const WidgetTokenRow = ({
                     {token.symbol}
                   </Text>{' '}
                   <RowFit gap="6px" color={theme.text}>
-                    <TokenListVariants tokens={token.tokens} iconSize={10} />
+                    {/* <TokenListVariants tokens={token.tokens} iconSize={10} /> */}
                   </RowFit>
                 </Column>
               </RowFit>
