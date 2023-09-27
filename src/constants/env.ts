@@ -63,7 +63,7 @@ type FirebaseConfig = {
   measurementId?: string
 }
 
-export const FIREBASE: { [key: string]: { DEFAULT: FirebaseConfig; LIMIT_ORDER?: FirebaseConfig } } = {
+export const FIREBASE: { [key in EnvKeys]: { DEFAULT: FirebaseConfig; LIMIT_ORDER?: FirebaseConfig } } = {
   development: {
     LIMIT_ORDER: {
       apiKey: 'AIzaSyBHRrinrQ3CXVrevZN442fjG0EZ-nYNNaU',
@@ -113,8 +113,8 @@ export const FIREBASE: { [key: string]: { DEFAULT: FirebaseConfig; LIMIT_ORDER?:
   },
 }
 
-// todo refaactor type check
-const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: { [type: string]: string } } = {
+type Config = { [type in PrivateAnnouncementType]: string } & { EXCLUDE: string }
+const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: Config } = {
   development: {
     [PrivateAnnouncementType.PRICE_ALERT]: '53',
     [PrivateAnnouncementType.LIMIT_ORDER]: '8,9,10,11,33,34,35,36',
@@ -123,6 +123,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: { [type: string]: string } 
     [PrivateAnnouncementType.KYBER_AI]: '46',
     [PrivateAnnouncementType.KYBER_AI_WATCHLIST]: '54',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '39,40',
+    [PrivateAnnouncementType.DIRECT_MESSAGE]: '',
     EXCLUDE: '2,29,1,47,50,44,45',
   },
   staging: {
@@ -133,6 +134,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: { [type: string]: string } 
     [PrivateAnnouncementType.KYBER_AI]: '27',
     [PrivateAnnouncementType.KYBER_AI_WATCHLIST]: '54', // todo
     [PrivateAnnouncementType.ELASTIC_POOLS]: '20,21',
+    [PrivateAnnouncementType.DIRECT_MESSAGE]: '',
     EXCLUDE: '2,11,1,28,29,22,23',
   },
   production: {
@@ -143,6 +145,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: { [type: string]: string } 
     [PrivateAnnouncementType.KYBER_AI]: '26',
     [PrivateAnnouncementType.KYBER_AI_WATCHLIST]: '54', // todo
     [PrivateAnnouncementType.ELASTIC_POOLS]: '17,18',
+    [PrivateAnnouncementType.DIRECT_MESSAGE]: '',
     EXCLUDE: '2,16,19,9,25,24,21,22',
   },
 }
