@@ -57,6 +57,7 @@ const kyberAIApi = createApi({
       },
       providesTags: (result, error, arg) => (arg.watchlist === true ? ['myWatchList', 'tokenList'] : ['tokenList']),
     }),
+    //2.
     addToWatchlist: builder.mutation({
       query: (params: { tokenAddress: string; chain: string }) => ({
         url: `/watchlist`,
@@ -65,6 +66,7 @@ const kyberAIApi = createApi({
       }),
       invalidatesTags: (res, err, params) => [{ type: 'tokenOverview', id: params.tokenAddress }, 'myWatchList'],
     }),
+    //3.
     removeFromWatchlist: builder.mutation({
       query: (params: { tokenAddress: string; chain: string }) => ({
         url: `/watchlist`,

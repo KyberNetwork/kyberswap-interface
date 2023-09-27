@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
-import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
@@ -14,7 +14,6 @@ import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
 import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
@@ -29,7 +28,7 @@ import SwitchVariantDropdown from '../components/SwitchVariantDropdown'
 import { TokenOverview } from '../components/TokenOverview'
 import { StarWithAnimation } from '../components/WatchlistStar'
 import ExploreShareContent from '../components/shareContent/ExploreTopShareContent'
-import { MIXPANEL_KYBERAI_TAG, NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from '../constants'
+import { DEFAULT_EXPLORE_PAGE_TOKEN, MIXPANEL_KYBERAI_TAG, NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from '../constants'
 import useChartStatesReducer, { ChartStatesContext } from '../hooks/useChartStatesReducer'
 import useIsReachMaxLimitWatchedToken from '../hooks/useIsReachMaxLimitWatchedToken'
 import useKyberAIAssetOverview from '../hooks/useKyberAIAssetOverview'
@@ -154,12 +153,6 @@ const TabButton = styled.div<{ active?: boolean }>`
   `}
 `
 
-export const defaultExplorePageToken = {
-  chain: 'ethereum',
-  address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-  assetId: 19277,
-}
-
 const StyledTokenDescription = styled.span<{ show?: boolean }>`
   text-overflow: ellipsis;
   overflow: hidden;
@@ -255,7 +248,6 @@ const TokenDescription = ({ description }: { description: string }) => {
 }
 
 const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoading?: boolean }) => {
-  const { account } = useActiveWeb3React()
   const theme = useTheme()
   const mixpanelHandler = useMixpanelKyberAI()
   const navigate = useNavigate()
@@ -268,7 +260,7 @@ const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoadin
   const [isWatched, setIsWatched] = useState(false)
 
   const handleStarClick = () => {
-    if (!token || !chain || !address || !account) return
+    if (!token || !chain || !address) return
     if (isWatched) {
       mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
         token_name: token.symbol?.toUpperCase(),
@@ -563,7 +555,7 @@ export default function SingleToken() {
 
   useEffect(() => {
     if (!assetId) {
-      navigate(APP_PATHS.KYBERAI_EXPLORE + `/${defaultExplorePageToken.assetId}`)
+      navigate(APP_PATHS.KYBERAI_EXPLORE + `/${DEFAULT_EXPLORE_PAGE_TOKEN.assetId}`)
       setTimeout(() => {
         const element = document.querySelector('#kyberai-search') as HTMLInputElement
         element?.focus({
