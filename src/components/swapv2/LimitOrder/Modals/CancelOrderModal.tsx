@@ -159,6 +159,7 @@ function ContentCancel({
       ? t`all`
       : `${ordersSoftCancel.length}/${orders.length}`
 
+  const formatOrders = useMemo(() => (isCancelAll ? orders : order ? [order] : []), [order, isCancelAll, orders])
   return (
     <Modal maxWidth={isCancelAll && !isCancelDone ? 600 : 480} isOpen={isOpen} onDismiss={onDismiss}>
       <Container>
@@ -191,6 +192,7 @@ function ContentCancel({
           flowState={flowState}
         />
         <CancelButtons
+          orders={formatOrders}
           supportCancelGasless={supportGasLessCancel}
           loading={flowState.attemptingTxn}
           cancelStatus={cancelStatus}

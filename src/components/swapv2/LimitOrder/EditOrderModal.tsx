@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { ethers } from 'ethers'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
@@ -111,6 +111,8 @@ export default function EditOrderModal({
   const isSupportSoftCancelOrder = useIsSupportSoftCancelOrder()
   const supportCancelGasless = isSupportSoftCancelOrder(order)
 
+  const orders = useMemo(() => (order ? [order] : []), [order])
+
   const renderCancelButtons = (showCancelStatus = true, disableButtons = false) => (
     <>
       {showCancelStatus && (
@@ -123,6 +125,7 @@ export default function EditOrderModal({
       )}
       <CancelButtons
         isEdit
+        orders={orders}
         supportCancelGasless={supportCancelGasless}
         loading={flowState.attemptingTxn}
         cancelStatus={cancelStatus}

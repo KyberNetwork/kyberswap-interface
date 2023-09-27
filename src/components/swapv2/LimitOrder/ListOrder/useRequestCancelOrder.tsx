@@ -1,6 +1,6 @@
 import { t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import {
   useCancelOrdersMutation,
   useCreateCancelOrderSignatureMutation,
@@ -21,6 +21,36 @@ import { sendEVMTransaction } from 'utils/sendTransaction'
 import { formatAmountOrder, formatSignature, getErrorMessage, getPayloadTracking } from '../helpers'
 import { CancelOrderType, LimitOrder } from '../type'
 
+export const useGetEncodeLimitOrder = () => {
+  const { account } = useActiveWeb3React()
+  const [getEncodeData] = useGetEncodeDataMutation()
+  const { library } = useWeb3React()
+  return useCallback(
+    async ({ orders, isCancelAll }: { orders: LimitOrder[]; isCancelAll: boolean | undefined }) => {
+      if (!library) throw new Error()
+      if (isCancelAll) {
+        const contracts = [...new Set(orders.map(e => e.contractAddress))]
+        const result = []
+        for (const address of contracts) {
+          const limitOrderContract = getContract(address, LIMIT_ORDER_ABI, library, account)
+          const [{ encodedData }, nonce] = await Promise.all([
+            getEncodeData({ orderIds: [], isCancelAll }).unwrap(),
+            limitOrderContract?.nonce?.(account),
+          ])
+          result.push({ encodedData, nonce, contractAddress: address })
+        }
+        return result
+      }
+      // cancel single order
+      const { encodedData } = await getEncodeData({
+        orderIds: orders.map(e => e.id),
+      }).unwrap()
+      return [{ encodedData, contractAddress: orders[0]?.contractAddress, nonce: '' }]
+    },
+    [account, getEncodeData, library],
+  )
+}
+
 const useRequestCancelOrder = ({
   orders,
   isCancelAll,
@@ -35,10 +65,11 @@ const useRequestCancelOrder = ({
   const { library } = useWeb3React()
   const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
   const [insertCancellingOrder] = useInsertCancellingOrderMutation()
-  const [getEncodeData] = useGetEncodeDataMutation()
   const [createCancelSignature] = useCreateCancelOrderSignatureMutation()
   const [cancelOrderRequest] = useCancelOrdersMutation()
   const addTransactionWithType = useTransactionAdder()
+
+  const getEncodeData = useGetEncodeLimitOrder()
 
   const requestHardCancelOrder = async (order: LimitOrder | undefined) => {
     if (!library || !account) return Promise.reject('Wrong input')
@@ -95,24 +126,17 @@ const useRequestCancelOrder = ({
     }
 
     if (isCancelAll) {
-      const contracts = [...new Set(orders.map(e => e.contractAddress))]
-      for (const address of contracts) {
-        const limitOrderContract = getContract(address, LIMIT_ORDER_ABI, library, account)
-        const [{ encodedData }, nonce] = await Promise.all([
-          getEncodeData({ orderIds: [], isCancelAll }).unwrap(),
-          limitOrderContract?.nonce?.(account),
-        ])
-        await sendTransaction(encodedData, address, { nonce: nonce.toNumber() })
+      const data = await getEncodeData({ isCancelAll, orders })
+      for (const item of data) {
+        const { contractAddress, nonce, encodedData } = item
+        await sendTransaction(encodedData, contractAddress, { nonce: nonce.toNumber() })
       }
     } else {
-      const { encodedData } = await getEncodeData({
-        orderIds: [order?.id].filter(Boolean) as number[],
-        isCancelAll,
-      }).unwrap()
-      await sendTransaction(encodedData, order?.contractAddress ?? '', { orderIds: newOrders })
+      const data = await getEncodeData({ isCancelAll, orders: order ? [order] : [] })
+      const { contractAddress, encodedData } = data[0] || {}
+      await sendTransaction(encodedData, contractAddress ?? '', { orderIds: newOrders })
     }
     setCancellingOrders(cancellingOrdersIds.concat(newOrders))
-
     return
   }
 
