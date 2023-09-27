@@ -114,7 +114,7 @@ jobs:
           VITE_TAG: ${{ needs.prepare.outputs.image_tag }}
           CURRENT_BRANCH: ${{ needs.prepare.outputs.current_branch }}
           NODE_OPTIONS: '--max_old_space_size=4096'
-        run: yarn build-adpr
+        run: yarn build-prod
 
       - name: Docker build and push
         uses: docker/build-push-action@v2
