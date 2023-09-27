@@ -21,7 +21,11 @@ function parseKnownPattern(text: string): string | undefined {
   )
     return t`An error occurred. Try refreshing the price rate or increase max slippage`
 
-  if (error.includes('insufficient funds for intrinsic transaction cost'))
+  if (
+    error.includes('insufficient funds for intrinsic transaction cost') ||
+    error.includes('OutOfFund') ||
+    error.includes('insufficient balance for transfer')
+  )
     return t`Your current balance falls short of covering the required gas fee.`
 
   if (error.includes('header not found') || error.includes('swap failed'))
