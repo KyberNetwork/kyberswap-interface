@@ -124,7 +124,7 @@ export default function CancelStatusCountDown({
       ) : (
         <>
           <Text fontSize={'14px'} fontWeight={'400'} color={theme.text}>
-            <Trans>Once submitted, the orders will be automatically cancelled in</Trans>
+            <Trans>Order will be automatically cancelled in</Trans>
           </Text>
           <Timer>
             <Clock color={theme.red} size={16} /> <Text lineHeight={'20px'}>{formatRemainTime(remain)}</Text>
