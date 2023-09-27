@@ -14,7 +14,6 @@ import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
 import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
@@ -249,7 +248,6 @@ const TokenDescription = ({ description }: { description: string }) => {
 }
 
 const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoading?: boolean }) => {
-  const { account } = useActiveWeb3React()
   const theme = useTheme()
   const mixpanelHandler = useMixpanelKyberAI()
   const navigate = useNavigate()
@@ -261,7 +259,7 @@ const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoadin
   const [removeFromWatchlist, { isLoading: loadingRemovefromWatchlist }] = useRemoveFromWatchlistMutation()
   const [isWatched, setIsWatched] = useState(false)
   const handleStarClick = () => {
-    if (!token || !chain || !address || !account) return
+    if (!token || !chain || !address) return
     if (isWatched) {
       mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
         token_name: token.symbol?.toUpperCase(),
