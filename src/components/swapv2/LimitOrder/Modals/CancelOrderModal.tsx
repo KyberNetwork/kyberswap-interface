@@ -160,7 +160,7 @@ function ContentCancel({
       : `${ordersSoftCancel.length}/${orders.length}`
 
   return (
-    <Modal maxWidth={isCancelAll && !isCancelDone ? 600 : 480} isOpen={isOpen} onDismiss={onDismiss}>
+    <Modal maxWidth={isCancelAll && !isCancelDone ? 600 : 500} isOpen={isOpen} onDismiss={onDismiss}>
       <Container>
         <Header title={isCancelAll ? t`Bulk Cancellation` : t`Cancel an order`} onDismiss={onDismiss} />
         {isCancelAll ? (
