@@ -24,6 +24,16 @@ export const calculateValueToColor = (value: number, theme: DefaultTheme) => {
   return theme.primary
 }
 
+export const getTypeByKyberScore = (value: number) => {
+  if (value < 34) {
+    return 'Bearish'
+  }
+  if (value < 68) {
+    return 'Neutral'
+  }
+  return 'Bullish'
+}
+
 export const formatShortNum = (num: number, fixed = 1): string => {
   const negative = num < 0
   const absNum = Math.abs(num)

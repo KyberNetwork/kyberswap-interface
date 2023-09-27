@@ -24,6 +24,7 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { StyledSectionWrapper } from 'pages/TrueSightV2/components'
 import TokenFilter from 'pages/TrueSightV2/components/TokenFilter'
+import { StarWithAnimation } from 'pages/TrueSightV2/components/WatchlistStar'
 import { MEDIA_WIDTHS } from 'theme'
 
 import ChevronIcon from '../components/ChevronIcon'
@@ -37,7 +38,8 @@ import WatchlistButton from '../components/WatchlistButton'
 import KyberScoreChart from '../components/chart/KyberScoreChart'
 import TokenAnalysisListShareContent from '../components/shareContent/TokenAnalysisListShareContent'
 import { KYBERAI_LISTYPE_TO_MIXPANEL, Z_INDEX_KYBER_AI } from '../constants'
-import { useTokenListQuery } from '../hooks/useKyberAIData'
+import useIsReachMaxLimitWatchedToken from '../hooks/useIsReachMaxLimitWatchedToken'
+import { useAddToWatchlistMutation, useRemoveFromWatchlistMutation, useTokenListQuery } from '../hooks/useKyberAIData'
 import { IKyberScoreChart, ITokenList, KyberAIListType, QueryTokenParams } from '../types'
 import { calculateValueToColor, formatLocaleStringNum, formatTokenPrice, navigateToSwapPage } from '../utils'
 
@@ -460,12 +462,12 @@ const TokenRow = React.memo(function TokenRow({
   const mixpanelHandler = useMixpanelKyberAI()
   // const { account } = useActiveWeb3React()
   const theme = useTheme()
-  // const reachedMaxLimit = useIsReachMaxLimitWatchedToken()
+  const reachedMaxLimit = useIsReachMaxLimitWatchedToken()
   const [showSwapMenu, setShowSwapMenu] = useState(false)
-  // const [addToWatchlist] = useAddToWatchlistMutation()
-  // const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
-  // const [isWatched, setIsWatched] = useState(false)
-  // const [loadingStar, setLoadingStar] = useState(false)
+  const [addToWatchlist] = useAddToWatchlistMutation()
+  const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
+  const [isWatched, setIsWatched] = useState(false)
+  const [loadingStar, setLoadingStar] = useState(false)
   const rowRef = useRef<HTMLTableRowElement>(null)
 
   useOnClickOutside(rowRef, () => setShowSwapMenu(false))
@@ -482,36 +484,35 @@ const TokenRow = React.memo(function TokenRow({
     )
   }
 
-  // const handleWatchlistClick = (e: any) => {
-  //   e.stopPropagation()
-  //   if (!account) return
-  //   setLoadingStar(true)
-  //   if (isWatched) {
-  //     mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-  //       token_name: token.symbol?.toUpperCase(),
-  //       source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
-  //       ranking_order: index,
-  //       option: 'remove',
-  //     })
-  //     Promise.all(token.tokens.map(t => removeFromWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
-  //       setIsWatched(false)
-  //       setLoadingStar(false)
-  //     })
-  //   } else {
-  //     if (!reachedMaxLimit) {
-  //       mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-  //         token_name: token.symbol?.toUpperCase(),
-  //         source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
-  //         ranking_order: index,
-  //         option: 'add',
-  //       })
-  //       Promise.all(token.tokens.map(t => addToWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
-  //         setIsWatched(true)
-  //         setLoadingStar(false)
-  //       })
-  //     }
-  //   }
-  // }
+  const handleWatchlistClick = (e: any) => {
+    e.stopPropagation()
+    setLoadingStar(true)
+    if (isWatched) {
+      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
+        token_name: token.symbol?.toUpperCase(),
+        source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
+        ranking_order: index,
+        option: 'remove',
+      })
+      Promise.all(token.tokens.map(t => removeFromWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
+        setIsWatched(false)
+        setLoadingStar(false)
+      })
+    } else {
+      if (!reachedMaxLimit) {
+        mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
+          token_name: token.symbol?.toUpperCase(),
+          source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
+          ranking_order: index,
+          option: 'add',
+        })
+        Promise.all(token.tokens.map(t => addToWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
+          setIsWatched(true)
+          setLoadingStar(false)
+        })
+      }
+    }
+  }
 
   // useEffect(() => {
   //   setIsWatched(token.isWatched)
@@ -523,14 +524,14 @@ const TokenRow = React.memo(function TokenRow({
       <td>
         <RowFit gap="6px">
           <WatchlistButton size={above768 ? 20 : 16} />
-          {/* <StarWithAnimation
-              key={token.SourceTokenID}
-              watched={isWatched}
-              loading={loadingStar}
-              onClick={handleWatchlistClick}
-              size={above768 ? 20 : 16}
-              disabled={!isWatched && reachedMaxLimit}
-            /> */}
+          <StarWithAnimation
+            key={token.asset_id}
+            watched={isWatched}
+            loading={loadingStar}
+            onClick={handleWatchlistClick}
+            size={above768 ? 20 : 16}
+            disabled={!isWatched && reachedMaxLimit}
+          />
           {above768 ? index : <></>}
         </RowFit>
       </td>

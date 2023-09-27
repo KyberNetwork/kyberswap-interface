@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { Flex } from 'rebass'
 
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
-import { TokenInfo } from 'components/Announcement/PrivateAnnoucement/InboxItemTrendingSoon'
+import { TokenInfo } from 'components/Announcement/PrivateAnnoucement/InboxItemKyberAI'
 import { PrivateAnnouncementPropCenter } from 'components/Announcement/PrivateAnnoucement/NotificationCenter'
-import { AnnouncementTemplateTrendingSoon } from 'components/Announcement/type'
+import { AnnouncementTemplateKyberAI } from 'components/Announcement/type'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { formatTime } from 'utils/time'
@@ -15,7 +15,7 @@ import { Desc, Time, Title, Wrapper } from './styled'
 export default function AnnouncementItem({
   announcement,
   title,
-}: PrivateAnnouncementPropCenter<AnnouncementTemplateTrendingSoon>) {
+}: PrivateAnnouncementPropCenter<AnnouncementTemplateKyberAI>) {
   const { sentAt, templateType, templateBody } = announcement
   const theme = useTheme()
   const navigate = useNavigate()
@@ -32,10 +32,10 @@ export default function AnnouncementItem({
         </Flex>
       </Flex>
       <Desc style={{ gap: 6, flexWrap: 'wrap', color: theme.subText }}>
-        <Trans>Here are our top tokens by KyberAI</Trans>
-        <TokenInfo templateBody={templateBody} type="bullish" />,
-        <TokenInfo templateBody={templateBody} type="bearish" />,
-        <TokenInfo templateBody={templateBody} type="trending" />
+        <Trans>Here are our top tokens by KyberAI:</Trans>
+        <TokenInfo templateBody={templateBody} type="bullish" fontSize="14px" />,
+        <TokenInfo templateBody={templateBody} type="bearish" fontSize="14px" />,
+        <TokenInfo templateBody={templateBody} type="trending" fontSize="14px" />
       </Desc>
     </Wrapper>
   )

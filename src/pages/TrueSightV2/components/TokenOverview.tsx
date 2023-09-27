@@ -164,6 +164,7 @@ export const TokenOverview = ({ data, isLoading }: { data?: IAssetOverview; isLo
     if (data?.kyberScore.score < 40) return 'bearish'
     return ''
   }, [data])
+
   const priceChangeColor = data && data.price24hChangePercent > 0 ? theme.primary : theme.red
   return (
     <>
