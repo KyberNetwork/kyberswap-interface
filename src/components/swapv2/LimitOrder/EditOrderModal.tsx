@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { ethers } from 'ethers'
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
@@ -75,17 +75,6 @@ export default function EditOrderModal({
   const [cancelStatus, setCancelStatus] = useState<CancelStatus>(CancelStatus.WAITING)
   const [expiredTime, setExpiredTime] = useState(0)
 
-  const handleError = useCallback(
-    (error: any) => {
-      setFlowState(state => ({
-        ...state,
-        attemptingTxn: false,
-        errorMessage: getErrorMessage(error),
-      }))
-    },
-    [setFlowState],
-  )
-
   const signOrder = useSignOrder(setFlowState)
   const { orderEditing } = useLimitState()
   const onSubmitEditOrder = async (cancelType: CancelOrderType) => {
@@ -101,7 +90,11 @@ export default function EditOrderModal({
       else onDismiss()
     } catch (error) {
       order && removeOrderNeedCreated(order.id)
-      handleError(error)
+      setFlowState(state => ({
+        ...state,
+        attemptingTxn: false,
+        errorMessage: getErrorMessage(error),
+      }))
     }
   }
 

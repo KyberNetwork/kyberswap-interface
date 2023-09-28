@@ -10,8 +10,8 @@ import useAllActiveOrders, { useIsSupportSoftCancelOrder } from 'components/swap
 import { useCurrencyV2 } from 'hooks/Tokens'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 
-import { BaseTradeInfo, useBaseTradeInfoLimitOrder } from '../../../../hooks/useBaseTradeInfo'
-import { calcPercentFilledOrder, formatAmountOrder } from '../helpers'
+import { useBaseTradeInfoLimitOrder } from '../../../../hooks/useBaseTradeInfo'
+import { calcPercentFilledOrder, formatAmountOrder, getErrorMessage } from '../helpers'
 import { CancelOrderFunction, CancelOrderResponse, CancelOrderType, LimitOrder, LimitOrderStatus } from '../type'
 import { Container, Header, Label, ListInfo, Note, Rate, Value } from './styled'
 
@@ -23,23 +23,27 @@ export enum CancelStatus {
 }
 
 const styleLogo = { width: 20, height: 20 }
-function ContentCancel({
+function CancelOrderModal({
   isCancelAll,
   order,
-  marketPrice,
   onSubmit,
   onDismiss,
   flowState,
   isOpen,
+  setFlowState,
 }: {
   isCancelAll: boolean
   order: LimitOrder | undefined
-  marketPrice: BaseTradeInfo | undefined
   onSubmit: CancelOrderFunction
   onDismiss: () => void
   flowState: TransactionFlowState
   isOpen: boolean
+  setFlowState: React.Dispatch<React.SetStateAction<TransactionFlowState>>
 }) {
+  const currencyIn = useCurrencyV2(order?.makerAsset) || undefined
+  const currencyOut = useCurrencyV2(order?.takerAsset) || undefined
+  const { tradeInfo: marketPrice } = useBaseTradeInfoLimitOrder(currencyIn, currencyOut)
+
   const {
     takerAssetLogoURL,
     makerAssetSymbol,
@@ -68,20 +72,28 @@ function ContentCancel({
   const supportGasLessCancel = isCancelAll ? supportCancelGaslessAllOrders : isOrderSupportGaslessCancel(order)
 
   const requestCancel = async (type: CancelOrderType) => {
-    const gasLessCancel = type === CancelOrderType.GAS_LESS_CANCEL
-    const signal = controller.current.signal
-    const data: CancelOrderResponse = await onSubmit(
-      isCancelAll ? (gasLessCancel ? ordersSoftCancel : orders) : order ? [order] : [],
-      type,
-    )
-    if (signal.aborted) {
-      onDismiss()
-      return
+    try {
+      const gasLessCancel = type === CancelOrderType.GAS_LESS_CANCEL
+      const signal = controller.current.signal
+      const data: CancelOrderResponse = await onSubmit(
+        isCancelAll ? (gasLessCancel ? ordersSoftCancel : orders) : order ? [order] : [],
+        type,
+      )
+      if (signal.aborted) {
+        onDismiss()
+        return
+      }
+      setCancelStatus(gasLessCancel ? CancelStatus.COUNTDOWN : CancelStatus.WAITING)
+      const expired = data?.orders?.[0]?.operatorSignatureExpiredAt
+      if (expired) setExpiredTime(expired)
+      else onDismiss()
+    } catch (error) {
+      setFlowState(state => ({
+        ...state,
+        attemptingTxn: false,
+        errorMessage: getErrorMessage(error),
+      }))
     }
-    setCancelStatus(gasLessCancel ? CancelStatus.COUNTDOWN : CancelStatus.WAITING)
-    const expired = data?.orders?.[0]?.operatorSignatureExpiredAt
-    if (expired) setExpiredTime(expired)
-    else onDismiss()
   }
 
   const onClickGaslessCancel = () => !isCountDown && requestCancel(CancelOrderType.GAS_LESS_CANCEL)
@@ -207,34 +219,4 @@ function ContentCancel({
   )
 }
 
-export default function CancelOrderModal({
-  onSubmit,
-  onDismiss,
-  flowState,
-  order,
-  isOpen,
-  isCancelAll,
-}: {
-  onSubmit: CancelOrderFunction
-  onDismiss: () => void
-  flowState: TransactionFlowState
-  order?: LimitOrder
-  isOpen: boolean
-  isCancelAll: boolean
-}) {
-  const currencyIn = useCurrencyV2(order?.makerAsset) || undefined
-  const currencyOut = useCurrencyV2(order?.takerAsset) || undefined
-  const { tradeInfo } = useBaseTradeInfoLimitOrder(currencyIn, currencyOut)
-
-  return (
-    <ContentCancel
-      isOpen={isOpen}
-      onSubmit={onSubmit}
-      onDismiss={onDismiss}
-      marketPrice={tradeInfo}
-      isCancelAll={isCancelAll}
-      order={order}
-      flowState={flowState}
-    />
-  )
-}
+export default CancelOrderModal

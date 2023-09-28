@@ -77,7 +77,7 @@ const ListWrapper = styled.div`
   flex-direction: column;
   gap: 12px;
   border-radius: 12px;
-  background-color: ${({ theme }) => rgba(theme.buttonBlack, 0.2)};
+  background-color: ${({ theme }) => rgba(theme.buttonBlack, 0.3)};
   padding: 16px;
 `
 export function ListInfo({
