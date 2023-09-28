@@ -71,7 +71,7 @@ const CancelStatusButton = ({ expiredAt, style }: { expiredAt: number | undefine
       placement="top"
       width="fit-content"
     >
-      <IconWrap color={theme.warning} style={style}>
+      <IconWrap color={theme.warning} style={{ ...style, cursor: 'unset' }}>
         <WarningIcon color={theme.warning} />
       </IconWrap>
     </MouseoverTooltipDesktopOnly>
@@ -111,6 +111,10 @@ const ActionButtons = ({
       </IconWrap>
     ) : null
 
+  const iconCancelling = !isChildren ? (
+    <CancelStatusButton style={itemStyle} expiredAt={operatorSignatureExpiredAt} />
+  ) : null
+
   const isDisabledCopy =
     !isChildren && [LimitOrderStatus.CANCELLED, LimitOrderStatus.CANCELLING, LimitOrderStatus.EXPIRED].includes(status)
   const disabledCancel = isCancelling
@@ -119,7 +123,7 @@ const ActionButtons = ({
     <Flex alignItems={'center'} justifyContent={'flex-end'}>
       {isActiveTab && !isChildren ? (
         <>
-          <CancelStatusButton style={itemStyle} expiredAt={operatorSignatureExpiredAt} />
+          {iconCancelling}
           {numberTxs === 0 && (
             <MouseoverTooltipDesktopOnly text={disabledCancel ? '' : t`Edit`} placement="top" width="fit-content">
               <IconWrap
@@ -146,6 +150,7 @@ const ActionButtons = ({
         </>
       ) : (
         <>
+          {iconCancelling}
           {(numberTxs <= 1 || isChildren) && (
             <>
               <MouseoverTooltipDesktopOnly text={isDisabledCopy ? '' : t`Copy Txn Hash`} placement="top" width="135px">

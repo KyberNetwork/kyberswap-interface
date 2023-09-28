@@ -370,10 +370,7 @@ export default function OrderItem({
   }
   return (
     <>
-      <ItemWrapper
-        hasBorder={isLast ? false : !transactions.length || !expand}
-        active={isOrderActive && hasOrderCancelling}
-      >
+      <ItemWrapper hasBorder={isLast ? false : !transactions.length || !expand} active={hasOrderCancelling}>
         <Flex alignItems={'center'} style={{ gap: 10 }}>
           <IndexText>{index + 1}</IndexText>
           <AmountInfo order={order} />
