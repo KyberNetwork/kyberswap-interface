@@ -11,7 +11,7 @@ export const StarWithAnimation = ({
   wrapperStyle,
 }: {
   watched: boolean
-  loading: boolean
+  loading?: boolean
   onClick?: (e: any) => void
   size?: number
   disabled?: boolean

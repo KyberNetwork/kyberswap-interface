@@ -1,3 +1,4 @@
+import { t } from '@lingui/macro'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import baseQueryOauth from 'services/baseQueryOauth'
 
@@ -5,6 +6,7 @@ import { BFF_API } from 'constants/env'
 
 import {
   IAssetOverview,
+  ICustomWatchlists,
   ILiquidCEX,
   ILiveTrade,
   INetflowToCEX,
@@ -56,26 +58,6 @@ const kyberAIApi = createApi({
         throw new Error(res.msg)
       },
       providesTags: (result, error, arg) => (arg.watchlist === true ? ['myWatchList', 'tokenList'] : ['tokenList']),
-    }),
-    addToWatchlist: builder.mutation({
-      query: (params: { tokenAddress: string; chain: string }) => ({
-        url: `/watchlist`,
-        method: 'POST',
-        params,
-      }),
-      invalidatesTags: (res, err, params) => [{ type: 'tokenOverview', id: params.tokenAddress }, 'myWatchList'],
-    }),
-    removeFromWatchlist: builder.mutation({
-      query: (params: { tokenAddress: string; chain: string }) => ({
-        url: `/watchlist`,
-        method: 'DELETE',
-        params,
-      }),
-      invalidatesTags: (res, err, params) => [
-        { type: 'tokenOverview', id: params.tokenAddress },
-        'myWatchList',
-        'tokenList',
-      ],
     }),
     assetOverview: builder.query<IAssetOverview, { assetId?: string }>({
       query: ({ assetId }: { assetId?: string }) => ({
@@ -263,6 +245,99 @@ const kyberAIApi = createApi({
       }),
       transformResponse: (res: any) => res.data,
     }),
+    //19.
+    addToWatchlist: builder.mutation({
+      query: ({ userWatchlistId, assetId }: { userWatchlistId: number; assetId: number }) => ({
+        url: `/watchlists/${userWatchlistId}/assets`,
+        method: 'POST',
+        params: { assetId },
+      }),
+      async onQueryStarted({ userWatchlistId, assetId }, { dispatch }) {
+        dispatch(
+          kyberAIApi.util.updateQueryData('getWatchlistInformation', undefined, draft => {
+            draft.totalUniqueAssetNumber += 1
+            const watchlists = draft.watchlists.find(item => item.id === userWatchlistId)
+            if (watchlists) {
+              if (watchlists.assetIds) {
+                watchlists.assetIds.push(assetId)
+              } else {
+                watchlists.assetIds = [assetId]
+              }
+              watchlists.assetNumber += 1
+            }
+          }),
+        )
+      },
+    }),
+    //20.
+    removeFromWatchlist: builder.mutation({
+      query: ({ userWatchlistId, assetId }: { userWatchlistId: number; assetId: number }) => ({
+        url: `/watchlists/${userWatchlistId}/assets`,
+        method: 'DELETE',
+        params: { assetId },
+      }),
+      async onQueryStarted({ userWatchlistId, assetId }, { dispatch }) {
+        dispatch(
+          kyberAIApi.util.updateQueryData('getWatchlistInformation', undefined, draft => {
+            draft.totalUniqueAssetNumber -= 1
+            const watchlists = draft.watchlists.find(item => item.id === userWatchlistId)
+            if (watchlists) {
+              if (watchlists.assetIds) {
+                const index = watchlists.assetIds.indexOf(assetId)
+                watchlists.assetIds.splice(index, 1)
+              }
+              watchlists.assetNumber -= 1
+            }
+          }),
+        )
+      },
+    }),
+    //21.
+    createCustomWatchlist: builder.mutation({
+      query: (params: { name: string }) => ({
+        url: `/watchlists`,
+        method: 'POST',
+        params,
+      }),
+    }),
+    //22.
+    deleteCustomWatchlist: builder.mutation({
+      query: (params: { ids: string }) => ({
+        url: `/watchlists`,
+        method: 'DELETE',
+        params,
+      }),
+    }),
+    //23.
+    updateWatchlistsName: builder.mutation({
+      query: ({ userWatchlistId, name }: { userWatchlistId: number; name: string }) => ({
+        url: `/watchlists/${userWatchlistId}`,
+        method: 'PUT',
+        params: { name },
+      }),
+    }),
+    //24.
+    getWatchlistInformation: builder.query<{ totalUniqueAssetNumber: number; watchlists: ICustomWatchlists[] }, void>({
+      query: () => ({
+        url: `/watchlists/overview`,
+      }),
+      transformResponse: (res: any) => res.data,
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        const { data } = await queryFulfilled
+        if (data.watchlists.length === 0) {
+          await dispatch(kyberAIApi.endpoints.createCustomWatchlist.initiate({ name: t`My 1st Watchlists` }))
+          dispatch(kyberAIApi.endpoints.getWatchlistInformation.initiate())
+        }
+      },
+    }),
+    //26.
+    updateCustomizedWatchlistsPriorities: builder.mutation({
+      query: ({ orderedIds }: { orderedIds: string }) => ({
+        url: `/watchlists/priorities`,
+        method: 'PUT',
+        params: { orderedIds },
+      }),
+    }),
   }),
 })
 
@@ -286,5 +361,10 @@ export const {
   useSearchTokenQuery,
   useLazySearchTokenQuery,
   useFundingRateQuery,
+  useCreateCustomWatchlistMutation,
+  useDeleteCustomWatchlistMutation,
+  useUpdateWatchlistsNameMutation,
+  useGetWatchlistInformationQuery,
+  useUpdateCustomizedWatchlistsPrioritiesMutation,
 } = kyberAIApi
 export default kyberAIApi

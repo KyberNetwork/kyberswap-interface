@@ -536,7 +536,7 @@ const TokenRow = React.memo(function TokenRow({
     <tr key={token.asset_id} ref={rowRef} onClick={handleRowClick} style={{ position: 'relative' }}>
       <td>
         <RowFit gap="6px">
-          <WatchlistButton size={above768 ? 20 : 16} />
+          <WatchlistButton size={above768 ? 20 : 16} assetId={token.asset_id} />
           {/* <StarWithAnimation
               key={token.SourceTokenID}
               watched={isWatched}

@@ -251,6 +251,7 @@ const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoadin
   const navigate = useNavigate()
   const location = useLocation()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
+  const { assetId } = useParams()
   const { chain } = useKyberAIAssetOverview()
   // const reachedMaxLimit = useIsReachMaxLimitWatchedToken()
   // const [addToWatchlist, { isLoading: loadingAddtoWatchlist }] = useAddToWatchlistMutation()
@@ -300,6 +301,7 @@ const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoadin
         </ButtonIcon>
       </SimpleTooltip>
       <WatchlistButton
+        assetId={assetId}
         wrapperStyle={{
           color: theme.subText,
           backgroundColor: theme.darkMode ? theme.buttonGray : theme.background,
