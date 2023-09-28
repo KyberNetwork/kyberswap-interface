@@ -485,35 +485,35 @@ const TokenRow = React.memo(function TokenRow({
     )
   }
 
-  const handleWatchlistClick = (e: any) => {
-    e.stopPropagation()
-    setLoadingStar(true)
-    if (isWatched) {
-      mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-        token_name: token.symbol?.toUpperCase(),
-        source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
-        ranking_order: index,
-        option: 'remove',
-      })
-      Promise.all(token.tokens.map(t => removeFromWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
-        setIsWatched(false)
-        setLoadingStar(false)
-      })
-    } else {
-      if (!reachedMaxLimit) {
-        mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-          token_name: token.symbol?.toUpperCase(),
-          source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
-          ranking_order: index,
-          option: 'add',
-        })
-        Promise.all(token.tokens.map(t => addToWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
-          setIsWatched(true)
-          setLoadingStar(false)
-        })
-      }
-    }
-  }
+  // const handleWatchlistClick = (e: any) => {
+  //   e.stopPropagation()
+  //   setLoadingStar(true)
+  //   if (isWatched) {
+  //     mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
+  //       token_name: token.symbol?.toUpperCase(),
+  //       source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
+  //       ranking_order: index,
+  //       option: 'remove',
+  //     })
+  //     Promise.all(token.tokens.map(t => removeFromWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
+  //       setIsWatched(false)
+  //       setLoadingStar(false)
+  //     })
+  //   } else {
+  //     if (!reachedMaxLimit) {
+  //       mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
+  //         token_name: token.symbol?.toUpperCase(),
+  //         source: KYBERAI_LISTYPE_TO_MIXPANEL[listType],
+  //         ranking_order: index,
+  //         option: 'add',
+  //       })
+  //       Promise.all(token.tokens.map(t => addToWatchlist({ tokenAddress: t.address, chain: t.chain }))).then(() => {
+  //         setIsWatched(true)
+  //         setLoadingStar(false)
+  //       })
+  //     }
+  //   }
+  // }
 
   // useEffect(() => {
   //   setIsWatched(token.isWatched)
