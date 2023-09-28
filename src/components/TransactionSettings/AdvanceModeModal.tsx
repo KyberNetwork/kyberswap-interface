@@ -14,7 +14,7 @@ const ModalContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding: 24px 24px 28px;
+  padding: 20px;
   background-color: ${({ theme }) => theme.tableHeader};
 `
 
@@ -23,7 +23,9 @@ const StyledInput = styled.input`
   background: ${({ theme }) => theme.buttonBlack};
   border-radius: 999px;
   padding: 8px 16px;
-  font-size: 16px;
+  font-size: 14px;
+  font-weight: 500px;
+  line-height: 20px;
   outline: none;
   color: ${({ theme }) => theme.text};
   border: none;
@@ -33,8 +35,8 @@ const StyledInput = styled.input`
 `
 
 const StyledCloseIcon = styled(X)`
-  height: 28px;
-  width: 28px;
+  height: 24px;
+  width: 24px;
   :hover {
     cursor: pointer;
   }
@@ -42,6 +44,12 @@ const StyledCloseIcon = styled(X)`
   > * {
     stroke: ${({ theme }) => theme.text};
   }
+`
+
+const ConfirmText = styled.span`
+  color: ${({ theme }) => theme.warning};
+  cursor: not-allowed;
+  user-select: none;
 `
 
 function AdvanceModeModal({ show, setShow }: { show: boolean; setShow: (v: boolean) => void }) {
@@ -69,32 +77,33 @@ function AdvanceModeModal({ show, setShow }: { show: boolean; setShow: (v: boole
         setShow(false)
       }}
       maxHeight={100}
+      width="480px"
+      maxWidth="unset"
     >
       <ModalContentWrapper>
         <Flex alignItems="center" justifyContent="space-between">
-          <Text fontSize="20px" fontWeight={500}>
+          <Text fontSize="20px" fontWeight={500} lineHeight="24px">
             <Trans>Are you sure?</Trans>
           </Text>
 
           <StyledCloseIcon onClick={() => setShow(false)} />
         </Flex>
 
-        <Text marginTop="28px">
+        <Text marginTop="24px" fontSize={14} fontWeight={500} lineHeight="20px" color={theme.subText}>
           <Trans>
             Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can
             result in bad rates and loss of funds. Be cautious.
           </Trans>
         </Text>
 
-        <Text marginTop="20px">
+        <Text marginTop="24px" fontSize={14} fontWeight={400} lineHeight="24px" color={theme.text}>
           <Trans>
-            Please type the word &apos;confirm&apos; below to enable{' '}
-            <span style={{ color: theme.warning }}>Degen Mode</span>
+            Please type the word <ConfirmText>Confirm</ConfirmText> below to enable Degen Mode
           </Trans>
         </Text>
 
         <StyledInput
-          placeholder="confirm"
+          placeholder="Confirm"
           value={confirmText}
           onChange={e => setConfirmText(e.target.value)}
           onKeyUp={e => {
@@ -104,7 +113,7 @@ function AdvanceModeModal({ show, setShow }: { show: boolean; setShow: (v: boole
           }}
         />
 
-        <Flex sx={{ gap: '16px' }} marginTop="28px" justifyContent={'center'}>
+        <Flex sx={{ gap: '16px' }} marginTop="24px" justifyContent={'center'}>
           <ButtonOutlined
             style={{
               flex: 1,

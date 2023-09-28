@@ -19,6 +19,10 @@ import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
+<<<<<<< HEAD
+=======
+import { MIXPANEL_TYPE, useMixpanelKyberAI } from 'hooks/useMixpanel'
+>>>>>>> origin/main
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { NETWORK_IMAGE_URL, NETWORK_TO_CHAINID } from 'pages/TrueSightV2/constants'

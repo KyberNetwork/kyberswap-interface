@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef } from 'react'
-import { useParams } from 'react-router-dom'
 
 import {
   ErrorCallback,
@@ -12,6 +11,7 @@ import {
 } from 'components/TradingViewChart/charting_library'
 import { getTradingViewTimeZone } from 'components/TradingViewChart/utils'
 import { DEFAULT_EXPLORE_PAGE_TOKEN } from 'pages/TrueSightV2/constants'
+import useKyberAIAssetOverview from 'pages/TrueSightV2/hooks/useKyberAIAssetOverview'
 import { useLazyChartingDataQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
 import { IAssetOverview, OHLCData } from 'pages/TrueSightV2/types'
 
@@ -21,7 +21,7 @@ const configurationData = {
 
 export const useDatafeed = (isBTC: boolean, token?: IAssetOverview) => {
   const intervalRef = useRef<any>()
-  const { chain, address } = useParams()
+  const { chain, address } = useKyberAIAssetOverview()
   const [getChartingData, { isLoading }] = useLazyChartingDataQuery()
   useEffect(() => {
     return () => {
