@@ -76,6 +76,7 @@ const TableWrapper = styled.div`
     border-radius: 0px;
     border: none;
     overflow-x: scroll;
+    min-height: 250px;
   }
 `
 const PaginationWrapper = styled.div`
@@ -523,15 +524,15 @@ const TokenRow = React.memo(function TokenRow({
     <tr key={token.asset_id} ref={rowRef} onClick={handleRowClick} style={{ position: 'relative' }}>
       <td>
         <RowFit gap="6px">
-          <WatchlistButton size={above768 ? 20 : 16} />
-          <StarWithAnimation
-            key={token.asset_id}
-            watched={isWatched}
-            loading={loadingStar}
-            onClick={handleWatchlistClick}
-            size={above768 ? 20 : 16}
-            disabled={!isWatched && reachedMaxLimit}
-          />
+          <WatchlistButton size={above768 ? 20 : 16} assetId={token.asset_id} />
+          {/* <StarWithAnimation
+              key={token.SourceTokenID}
+              watched={isWatched}
+              loading={loadingStar}
+              onClick={handleWatchlistClick}
+              size={above768 ? 20 : 16}
+              disabled={!isWatched && reachedMaxLimit}
+            /> */}
           {above768 ? index : <></>}
         </RowFit>
       </td>

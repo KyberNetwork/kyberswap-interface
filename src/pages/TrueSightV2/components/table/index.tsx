@@ -657,7 +657,7 @@ const WidgetTokenRow = ({
           <td>
             <Column gap="4px">
               <RowFit gap="6px">
-                <WatchlistButton />
+                <WatchlistButton assetId={token.asset_id} />
                 <img
                   alt="tokenInList"
                   src={token.tokens[0].logo}
@@ -693,7 +693,7 @@ const WidgetTokenRow = ({
         <>
           <td>
             <RowFit gap="6px">
-              <WatchlistButton />
+              <WatchlistButton assetId={token.asset_id} />
               <Row gap="8px" style={{ position: 'relative', width: '24px', height: '24px' }}>
                 <img
                   alt="tokenInList"

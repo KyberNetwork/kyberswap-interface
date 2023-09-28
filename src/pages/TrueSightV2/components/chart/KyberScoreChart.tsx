@@ -111,7 +111,6 @@ export default function KyberScoreChart({
                   dur={noAnimation ? '0s' : '0.5s'}
                   begin={noAnimation ? '0s' : `${1 + index * 0.05}s`}
                   fill="freeze"
-                  keySplines="0 0.33 0.3 1"
                 />
               </rect>
             )

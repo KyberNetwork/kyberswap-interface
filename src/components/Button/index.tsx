@@ -388,7 +388,7 @@ export const ButtonApprove = ({
   )
 }
 
-const StyledButtonAction = styled.button`
+const StyledButtonAction = styled(RebassButton)`
   cursor: pointer;
   appearance: none;
   padding: 2px;
@@ -409,6 +409,14 @@ const StyledButtonAction = styled.button`
   }
 `
 
-export const ButtonAction = ({ onClick, children }: { onClick?: () => void; children: ReactNode }) => {
-  return <StyledButtonAction onClick={onClick}>{children}</StyledButtonAction>
+export const ButtonAction = ({
+  onClick,
+  children,
+  ...rest
+}: { onClick?: () => void; children: ReactNode } & ButtonProps) => {
+  return (
+    <StyledButtonAction onClick={onClick} {...rest}>
+      {children}
+    </StyledButtonAction>
+  )
 }

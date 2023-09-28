@@ -1,19 +1,32 @@
 import { Trans, t } from '@lingui/macro'
 import { AnimatePresence, Reorder, useDragControls } from 'framer-motion'
-import { CSSProperties, useEffect, useMemo, useRef, useState } from 'react'
+import { CSSProperties, useEffect, useRef, useState } from 'react'
 import { Check, Plus, X } from 'react-feather'
+import { useDispatch } from 'react-redux'
 import { Text } from 'rebass'
 import styled, { css, useTheme } from 'styled-components'
 
 import { ButtonAction } from 'components/Button'
 import Column from 'components/Column'
+import { useShowConfirm } from 'components/ConfirmModal'
 import Divider from 'components/Divider'
 import Icon from 'components/Icons/Icon'
+import AnimatedSpinLoader from 'components/Loader/AnimatedSpinLoader'
 import Modal from 'components/Modal'
 import Popover from 'components/Popover'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 
+import kyberAIApi, {
+  useAddToWatchlistMutation,
+  useCreateCustomWatchlistMutation,
+  useDeleteCustomWatchlistMutation,
+  useGetWatchlistInformationQuery,
+  useRemoveFromWatchlistMutation,
+  useUpdateCustomizedWatchlistsPrioritiesMutation,
+  useUpdateWatchlistsNameMutation,
+} from '../hooks/useKyberAIData'
+import { ICustomWatchlists } from '../types'
 import SimpleTooltip from './SimpleTooltip'
 import { StarWithAnimation } from './WatchlistStar'
 
@@ -89,47 +102,59 @@ const InlineInput = styled.input`
   border: none;
 `
 
-interface IOption {
-  id: number
-  text: string
-  watched: boolean
-}
-const options = [
-  { id: 1, text: 'Default List (20)', watched: false },
-  { id: 2, text: 'List 1 (2)', watched: false },
-  { id: 3, text: 'Side Token (0)', watched: false },
-]
-
-function WatchlistItem({
+function WatchlistsItem({
   item,
+  watchlistsCount,
   wrapperRef,
-  onValueChange,
-  onRemove,
+  refetchList,
 }: {
-  item: IOption
+  item: ICustomWatchlists
+  watchlistsCount: number
   wrapperRef: React.RefObject<HTMLDivElement>
-  onValueChange?: (newValue: string) => void
-  onRemove?: () => void
+  refetchList: () => void
 }) {
   const controls = useDragControls()
   const theme = useTheme()
+  const showConfirm = useShowConfirm()
+
   const [isEditting, setIsEditting] = useState(false)
+
+  const [updateWatchlistsName] = useUpdateWatchlistsNameMutation()
+  const [deleteCustomWatchlist, { isLoading: isDeleting }] = useDeleteCustomWatchlistMutation()
+
   const ref = useRef<HTMLInputElement>(null)
-  const preEditValue = useRef<string>('')
 
-  const startEdit = () => {
+  const handleStartEdit = () => {
     setIsEditting(true)
-    preEditValue.current = item.text
   }
 
-  const exitEdit = () => {
+  const handleExitEdit = () => {
     setIsEditting(false)
-    onValueChange?.(preEditValue.current)
   }
 
-  const submitEdit = () => {
+  const handleUpdateWatchlists = () => {
     setIsEditting(false)
-    onValueChange?.(ref.current?.value || '')
+    updateWatchlistsName({ userWatchlistId: item.id, name: ref.current?.value || '' }).finally(() => refetchList())
+  }
+
+  const handleRemoveWatchlists = () => {
+    showConfirm({
+      isOpen: true,
+      content: (
+        <Text padding="1em 0">
+          <Trans>
+            Do you want to remove{' '}
+            <strong style={{ color: theme.text }}>
+              {item.name} ({item.assetNumber})
+            </strong>
+          </Trans>
+        </Text>
+      ),
+      title: t`Remove Watchlist`,
+      confirmText: t`Yes`,
+      cancelText: t`No, go back`,
+      onConfirm: () => deleteCustomWatchlist({ ids: item.id.toString() }).finally(() => refetchList()),
+    })
   }
 
   useEffect(() => {
@@ -137,26 +162,25 @@ function WatchlistItem({
       const element = e.target as HTMLInputElement
       if (e.key === 'Enter') {
         e.preventDefault() // Prevent line break
-        setIsEditting(false)
-        onValueChange?.(element?.value)
+        handleUpdateWatchlists()
       }
       if (e.key === 'Escape') {
-        setIsEditting(false)
-        element.value = item.text
+        handleExitEdit()
+        element.value = item.name
       }
     }
     const element = ref.current
     if (isEditting && element) {
       element.focus()
-      element.setAttribute('value', item.text)
-      element.setSelectionRange(item.text.length, item.text.length)
+      element.setAttribute('value', item.name)
+      element.setSelectionRange(item.name.length, item.name.length)
       element.addEventListener('keydown', keydownHandler)
     }
     return () => {
       element?.removeEventListener('keydown', keydownHandler)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEditting, item, onValueChange])
+  }, [isEditting, item])
 
   return (
     <Reorder.Item
@@ -168,9 +192,9 @@ function WatchlistItem({
       initial={{ opacity: 0, scale: 1 }}
       animate={{
         opacity: 1,
-        transition: { duration: 0.1 },
+        transition: { duration: 0.2 },
       }}
-      exit={{ opacity: 0, transition: { duration: 0.3 } }}
+      exit={{ opacity: 0, transition: { duration: 0.1 } }}
       whileDrag={{ boxShadow: '2px 5px 10px rgba(0,0,0,0.3)', scale: 1.02 }}
     >
       <RowBetween gap="4px">
@@ -178,26 +202,46 @@ function WatchlistItem({
           <GrabButton onPointerDown={e => controls.start(e)} style={{ cursor: 'grab' }}>
             <Icon id="drag-indicator" />
           </GrabButton>
-          {isEditting ? <InlineInput ref={ref} maxLength={25} /> : <div style={{ flex: 1 }}>{item.text}</div>}
+          {isEditting ? (
+            <InlineInput ref={ref} maxLength={30} />
+          ) : (
+            <div style={{ flex: 1 }}>
+              {item.name} ({item.assetNumber})
+            </div>
+          )}
         </Row>
         <RowFit gap="2px" flexShrink={0}>
           {isEditting ? (
             <>
-              <ButtonAction onClick={submitEdit}>
+              <ButtonAction onClick={handleUpdateWatchlists}>
                 <Check size={16} color={theme.primary} strokeWidth="3px" />
               </ButtonAction>
-              <ButtonAction onClick={exitEdit}>
+              <ButtonAction onClick={handleExitEdit}>
                 <X size={16} color={theme.red} strokeWidth="3px" />
               </ButtonAction>
             </>
           ) : (
-            <ButtonAction onClick={startEdit}>
+            <ButtonAction onClick={handleStartEdit} sx={{ ':hover': { color: theme.text } }}>
               <Icon id="pencil" size={16} />
             </ButtonAction>
           )}
-          <ButtonAction onClick={() => onRemove?.()}>
-            <Icon id="trash" size={16} />
-          </ButtonAction>
+          {isDeleting ? (
+            <AnimatedSpinLoader size={20} />
+          ) : (
+            <ButtonAction
+              disabled={watchlistsCount <= 1}
+              onClick={handleRemoveWatchlists}
+              sx={{
+                ':hover': { color: theme.text },
+                ':disabled': {
+                  pointerEvents: 'none',
+                  filter: 'brightness(0.5)',
+                },
+              }}
+            >
+              <Icon id="trash" size={16} />
+            </ButtonAction>
+          )}
         </RowFit>
       </RowBetween>
     </Reorder.Item>
@@ -233,26 +277,32 @@ const CreateListWrapper = styled.div<{ $disabled: boolean }>`
 `
 
 const CreateListButtonWrapper = styled(RowFit)`
-  color: ${({ theme }) => theme.subText};
+  color: ${({ theme }) => theme.primary};
   cursor: pointer;
   transition: all 0.1s;
   gap: 4px;
   :hover {
-    color: ${({ theme }) => theme.text};
+    filter: brightness(1.2);
   }
 `
 
-const CreateListInput = ({ onCreate, disabled }: { onCreate: (listName: string) => void; disabled?: boolean }) => {
+const CreateListInput = ({ watchlistsCount, refetchList }: { watchlistsCount: number; refetchList: () => void }) => {
   const [value, setValue] = useState<string>('')
+  const [createCustomWatchlist] = useCreateCustomWatchlistMutation()
   const ref = useRef<HTMLInputElement>(null)
   const onSubmit = (e: any) => {
     e.stopPropagation()
-
     if (value !== '') {
-      onCreate(value)
+      const newListName = value ? value : generateNewListName(watchlistsCount + 1)
+      if (newListName) {
+        createCustomWatchlist({ name: newListName }).finally(() => {
+          refetchList()
+        })
+      }
     }
     setValue('')
   }
+  const disabled = watchlistsCount >= 5
 
   return (
     <SimpleTooltip text={t`You can only create up to 5 watchlists`} disabled={!disabled} delay={100}>
@@ -282,36 +332,72 @@ const CreateListInput = ({ onCreate, disabled }: { onCreate: (listName: string) 
   )
 }
 
-export default function WatchlistButton({ size, wrapperStyle }: { size?: number; wrapperStyle?: CSSProperties }) {
+const generateNewListName = (number: number) => {
+  const ordinalStrings: { [key: number]: string } = { 1: '1st', 2: '2nd', 3: '3rd', 4: '4th', 5: '5th' }
+  return `My ${ordinalStrings[number]} Watchlist`
+}
+
+let timer: NodeJS.Timeout
+const debounce = (func: () => void, timeout = 1000) => {
+  clearTimeout(timer)
+  timer = setTimeout(() => func(), timeout)
+}
+
+export default function WatchlistButton({
+  assetId,
+  size,
+  wrapperStyle,
+}: {
+  assetId?: string
+  size?: number
+  wrapperStyle?: CSSProperties
+}) {
+  const theme = useTheme()
+  const dispatch = useDispatch()
   const [openMenu, setOpenMenu] = useState(false)
   const [openManageModal, setOpenManageModal] = useState(false)
-  const [listOptions, setListOptions] = useState(options)
 
-  const theme = useTheme()
-  // const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
+  const { data, refetch: refetchWatchlists } = useGetWatchlistInformationQuery()
+  const watchlists = data?.watchlists || []
+  const numberOfWatchlists = watchlists?.length || 0
+
+  const [updateWatchlistsPriorities] = useUpdateCustomizedWatchlistsPrioritiesMutation()
+
+  const [addToWatchlist] = useAddToWatchlistMutation()
+  const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
+
   const ref = useRef<HTMLDivElement>(null)
   const reorderWrapperRef = useRef<HTMLDivElement>(null)
   useOnClickOutside(ref, () => {
     setOpenMenu(false)
   })
-  const handleSingleValueChange = (newText: string, index: number) => {
-    const newOptions = [...listOptions]
-    newOptions[index].text = newText
-    setListOptions(newOptions)
-  }
-  const handleRemoveValue = (index: number) => {
-    const newOptions = [...listOptions]
-    newOptions.splice(index, 1)
-    setListOptions(newOptions)
-  }
-  const handleCreateNewList = (newListName: string) => {
-    const id = Math.max(...listOptions.map(i => i.id)) + 1
-    setListOptions([{ id: id, text: newListName, watched: false }, ...listOptions])
+
+  const handleAddtoWatchlist = (id: number) => {
+    if (id && assetId) {
+      addToWatchlist({ userWatchlistId: id, assetId: +assetId })
+    }
   }
 
-  const watched = useMemo(() => {
-    return listOptions.some(t => t.watched)
-  }, [listOptions])
+  const handleRemoveFromWatchlist = (id: number) => {
+    if (id && assetId) {
+      removeFromWatchlist({ userWatchlistId: id, assetId: +assetId })
+    }
+  }
+
+  const handleReorder = (newOrders: ICustomWatchlists[]) => {
+    const orderedIds = newOrders.map(item => item.id).join(',')
+    dispatch(
+      kyberAIApi.util.updateQueryData('getWatchlistInformation', undefined, draft => {
+        const order = orderedIds.split(',')
+        draft.watchlists = draft.watchlists.sort((a, b) => {
+          return order.indexOf(a.id.toString()) - order.indexOf(b.id.toString())
+        })
+        return draft
+      }),
+    )
+    debounce(() => updateWatchlistsPriorities({ orderedIds }), 1000)
+  }
+
   return (
     <div onClick={e => e.stopPropagation()}>
       <Popover
@@ -319,23 +405,22 @@ export default function WatchlistButton({ size, wrapperStyle }: { size?: number;
         style={{ backgroundColor: theme.tableHeader, borderRadius: '20px' }}
         content={
           <MenuWrapper ref={ref}>
-            {listOptions.map((t: IOption, i: number) => (
-              <MenuOption key={t.id}>
-                <StarWithAnimation
-                  loading={false}
-                  watched={listOptions[i].watched}
-                  size={16}
-                  onClick={() =>
-                    setListOptions(prev => {
-                      const newListOptions = [...prev]
-                      newListOptions[i].watched = !newListOptions[i].watched
-                      return newListOptions
-                    })
-                  }
-                />
-                {t.text}
-              </MenuOption>
-            ))}
+            {watchlists?.map((watchlists: ICustomWatchlists) => {
+              const watched = !!assetId && !!watchlists.assetIds && watchlists.assetIds.includes(+assetId)
+              return (
+                <MenuOption key={watchlists.id}>
+                  <StarWithAnimation
+                    watched={watched}
+                    size={16}
+                    onClick={() => {
+                      watched ? handleRemoveFromWatchlist(watchlists.id) : handleAddtoWatchlist(watchlists.id)
+                    }}
+                  />
+                  {watchlists.name} ({watchlists.assetNumber})
+                </MenuOption>
+              )
+            })}
+
             <Divider />
             <MenuOption
               justify="center"
@@ -344,7 +429,7 @@ export default function WatchlistButton({ size, wrapperStyle }: { size?: number;
                 setOpenMenu(false)
               }}
             >
-              <Icon id="assignment" /> Manage Lists
+              <Icon id="assignment" size={20} /> <Trans>Manage Lists</Trans>
             </MenuOption>
           </MenuWrapper>
         }
@@ -354,7 +439,7 @@ export default function WatchlistButton({ size, wrapperStyle }: { size?: number;
       >
         <StarWithAnimation
           loading={false}
-          watched={watched}
+          watched={!!assetId && !!watchlists && watchlists?.some(item => item.assetIds?.includes(+assetId))}
           onClick={() => setOpenMenu(prev => !prev)}
           wrapperStyle={wrapperStyle}
           size={size}
@@ -368,23 +453,17 @@ export default function WatchlistButton({ size, wrapperStyle }: { size?: number;
               <X />
             </ButtonAction>
           </RowBetween>
-          <CreateListInput onCreate={handleCreateNewList} disabled={listOptions.length >= 5} />
+          <CreateListInput watchlistsCount={numberOfWatchlists} refetchList={() => refetchWatchlists()} />
           <ReorderWrapper ref={reorderWrapperRef}>
-            <Reorder.Group
-              axis="y"
-              values={listOptions}
-              onReorder={newOrders => {
-                setListOptions(newOrders)
-              }}
-            >
+            <Reorder.Group axis="y" values={watchlists} onReorder={handleReorder}>
               <AnimatePresence>
-                {listOptions.map((item, i) => (
-                  <WatchlistItem
+                {watchlists?.map(item => (
+                  <WatchlistsItem
                     wrapperRef={reorderWrapperRef}
+                    watchlistsCount={numberOfWatchlists}
                     key={item.id}
                     item={item}
-                    onValueChange={newValue => handleSingleValueChange(newValue, i)}
-                    onRemove={() => handleRemoveValue(i)}
+                    refetchList={() => refetchWatchlists()}
                   />
                 ))}
               </AnimatePresence>

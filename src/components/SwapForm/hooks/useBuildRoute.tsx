@@ -8,6 +8,7 @@ import { useRouteApiDomain } from 'components/SwapForm/hooks/useGetRoute'
 import { AGGREGATOR_API_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import useENS from 'hooks/useENS'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
 
 export type BuildRouteResult =
@@ -35,6 +36,8 @@ const useBuildRoute = (args: Args) => {
   const { isEnableAuthenAggregator } = useKyberswapGlobalConfig()
   const [buildRoute] = routeApi.useBuildRouteMutation()
   const aggregatorDomain = useRouteApiDomain()
+  const recipientLookup = useENS(recipient)
+  const to: string | null = (recipient === '' ? account : recipientLookup.address) ?? null
 
   const fetcher = useCallback(async (): Promise<BuildRouteResult> => {
     if (!account) {
@@ -54,7 +57,7 @@ const useBuildRoute = (args: Args) => {
       deadline: Math.floor(Date.now() / 1000) + transactionTimeout,
       slippageTolerance: slippage,
       sender: account,
-      recipient: recipient || account,
+      recipient: to || account,
       source: 'kyberswap',
       skipSimulateTx: false,
       permit,
@@ -90,7 +93,7 @@ const useBuildRoute = (args: Args) => {
     account,
     aggregatorDomain,
     chainId,
-    recipient,
+    to,
     routeSummary,
     slippage,
     transactionTimeout,

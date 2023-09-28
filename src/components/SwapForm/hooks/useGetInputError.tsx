@@ -39,7 +39,7 @@ const useGetInputError = (args: Args): string | undefined => {
   if (!to || !formattedTo) {
     inputError = inputError ?? t`Enter a recipient`
   } else {
-    if (BAD_RECIPIENT_ADDRESSES.indexOf(formattedTo) !== -1) {
+    if (BAD_RECIPIENT_ADDRESSES.has(formattedTo)) {
       inputError = inputError ?? t`Invalid recipient`
     }
   }

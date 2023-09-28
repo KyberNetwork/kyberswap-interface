@@ -34,7 +34,7 @@ export type ConfirmModalState = {
   cancelText?: string
   confirmText: string
   title?: string
-  content: string
+  content: string | React.ReactNode
   onConfirm?: () => void
   onCancel?: () => void
 }

@@ -115,6 +115,17 @@ export interface ITokenSearchResult {
     label: string
   }
 }
+
+export interface ICustomWatchlists {
+  id: number
+  name: string
+  assetNumber: number
+  assetIds: number[] | null
+  identityId?: string
+  updatedAt?: string
+  createdAt?: string
+}
+
 export interface IPagination {
   page: number
   pageSize: number

@@ -210,7 +210,7 @@ const TokenItem = ({ token, onClick }: { token: ITokenSearchResult; onClick?: ()
     >
       <td>
         <RowFit gap="10px">
-          <WatchlistButton size={16} />
+          <WatchlistButton size={16} assetId={token.assetId} />
 
           <div style={{ position: 'relative' }}>
             <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
@@ -364,6 +364,7 @@ const SearchWithDropdown = () => {
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
 
   useOnClickOutside(wrapperRef, () => setExpanded(false))
+
   useEffect(() => {
     if (!inputRef.current) return
     const inputEl = inputRef.current
