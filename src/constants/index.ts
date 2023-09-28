@@ -7,7 +7,7 @@ import { TransactionFlowState } from 'types/TransactionFlowState'
 
 import { CAMPAIGN_BASE_URL as CAMPAIGN_BASE_DOMAIN } from './env'
 import * as ENV from './env'
-import { EVM_NETWORK, NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from './networks'
+import { EVM_MAINNET_NETWORKS, EVM_NETWORK, NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from './networks'
 
 export const EMPTY_OBJECT: any = {}
 export const EMPTY_ARRAY: any[] = []
@@ -15,12 +15,30 @@ export const EMPTY_FUNCTION = () => {
   // empty
 }
 
-export const BAD_RECIPIENT_ADDRESSES: string[] = [
-  NETWORKS_INFO[ChainId.MAINNET].classic.static.factory,
-  NETWORKS_INFO[ChainId.MAINNET].classic.static.router,
-  NETWORKS_INFO[ChainId.MAINNET].classic.static.factory,
-  NETWORKS_INFO[ChainId.MAINNET].classic.static.router,
-]
+export const BAD_RECIPIENT_ADDRESSES: Set<string> = new Set(
+  EVM_MAINNET_NETWORKS.map(chainId => [
+    ...Object.values(NETWORKS_INFO[chainId].classic.static || {}),
+    ...Object.values(NETWORKS_INFO[chainId].classic.oldStatic || {}),
+    ...Object.values(NETWORKS_INFO[chainId].classic.dynamic || {}),
+    ...Object.values(NETWORKS_INFO[chainId].classic.fairlaunchV2 || {}),
+    ...Object.values(NETWORKS_INFO[chainId].elastic.farms || {}),
+    ...Object.values(NETWORKS_INFO[chainId].elastic.farmV2S || {}),
+    ...([
+      NETWORKS_INFO[chainId].classic.claimReward,
+      NETWORKS_INFO[chainId].elastic.coreFactory,
+      NETWORKS_INFO[chainId].elastic.nonfungiblePositionManager,
+      NETWORKS_INFO[chainId].elastic.tickReader,
+      NETWORKS_INFO[chainId].elastic.quoter,
+      NETWORKS_INFO[chainId].elastic.routers,
+      NETWORKS_INFO[chainId].elastic.farmv2Quoter,
+      NETWORKS_INFO[chainId].kyberDAO?.staking,
+      NETWORKS_INFO[chainId].kyberDAO?.dao,
+      NETWORKS_INFO[chainId].kyberDAO?.rewardsDistributor,
+      NETWORKS_INFO[chainId].kyberDAO?.KNCAddress,
+      NETWORKS_INFO[chainId].kyberDAO?.KNCLAddress,
+    ].filter(s => typeof s === 'string') as string[]),
+  ]).flat(),
+)
 
 export class AbortedError extends Error {}
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
