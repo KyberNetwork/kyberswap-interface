@@ -11,6 +11,7 @@ import Loader from 'components/Loader'
 import Row from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { PRICE_ALERT_TOPIC_ID } from 'constants/env'
+import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useNotification, { Topic, TopicType } from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
@@ -141,6 +142,7 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
   const theme = useTheme()
   const { isLoading, saveNotification, topicGroups: topicGroupsGlobal, unsubscribeAll } = useNotification()
 
+  const { account } = useActiveWeb3React()
   const { userInfo, isLogin } = useSessionInfo()
   const { isSignInEmail } = useSignedAccountInfo()
   const { isWhiteList } = useIsWhiteListKyberAI()
@@ -386,7 +388,7 @@ function NotificationPreference({ toggleModal = noop }: { toggleModal?: () => vo
         <ListGroupWrapper>
           <GroupColum>
             {commons.map(topic => {
-              const isDisabled = topic.isPriceAlert ? false : disableCheckbox
+              const isDisabled = topic.isPriceElasticPool ? !account : topic.isPriceAlert ? false : disableCheckbox
               return renderTopic(
                 topic,
                 isDisabled,
