@@ -19,7 +19,7 @@ import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 
 import LimitOrderForm, { Label } from './LimitOrderForm'
-import { calcInvert, calcPercentFilledOrder, calcRate, getErrorMessage, removeTrailingZero } from './helpers'
+import { calcInvert, calcPercentFilledOrder, calcRate, removeTrailingZero } from './helpers'
 import { CancelOrderFunction, CancelOrderInfo, CancelOrderType, LimitOrder, LimitOrderStatus, RateInfo } from './type'
 
 const Wrapper = styled.div`
@@ -90,14 +90,8 @@ export default function EditOrderModal({
       else onDismiss()
     } catch (error) {
       order && removeOrderNeedCreated(order.id)
-      setFlowState(state => ({
-        ...state,
-        attemptingTxn: false,
-        errorMessage: getErrorMessage(error),
-      }))
     }
   }
-
   const onClickGaslessCancel = () => onSubmitEditOrder(CancelOrderType.GAS_LESS_CANCEL)
   const onClickHardCancel = () => onSubmitEditOrder(CancelOrderType.HARD_CANCEL)
 

@@ -1,11 +1,11 @@
 import { Trans } from '@lingui/macro'
-import { ReactNode, useEffect, useState } from 'react'
+import React, { ReactNode, useEffect, useState } from 'react'
 import { Check } from 'react-feather'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as GasLessIcon } from 'assets/svg/gas_less_icon.svg'
-import { ButtonLight, ButtonOutlined } from 'components/Button'
+import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import { GasStation } from 'components/Icons'
 import { useGetEncodeLimitOrder } from 'components/swapv2/LimitOrder/ListOrder/useRequestCancelOrder'
@@ -95,8 +95,86 @@ const CancelButtons = ({
       })}`
     : ''
 
+  const renderGroupButtons = () => {
+    const props = {
+      color: theme.primary,
+      disabled: disabledGasLessCancel || (isCountDown ? false : !supportCancelGasless || loading),
+      onClick: isCountDown ? onOkay : onClickGaslessCancel,
+      height: '40px',
+      width: '100%',
+      children: (
+        <>
+          {isCountDown ? <Check size={18} /> : <GasLessIcon />}
+          &nbsp;
+          {isCountDown ? (
+            <Trans>Close</Trans>
+          ) : isCancelAll ? (
+            totalOrder
+          ) : isEdit ? (
+            <Trans>Gasless Edit</Trans>
+          ) : (
+            <Trans>Gasless Cancel</Trans>
+          )}
+        </>
+      ),
+    }
+    const buttonGasless = React.createElement(isCountDown ? ButtonPrimary : ButtonOutlined, props)
+    return (
+      <>
+        <Column width={'100%'} gap="8px">
+          {buttonGasless}
+          <Text color={theme.subText} fontSize={'10px'} lineHeight={'14px'}>
+            {isEdit ? <Trans>Edit the order without paying gas.</Trans> : <Trans>Cancel without paying gas.</Trans>}
+            <Trans>
+              <br /> Cancellation may not be instant. <ExternalLink href="/todo">Learn more ↗︎</ExternalLink>
+            </Trans>
+          </Text>
+        </Column>
+        <Column width={'100%'} gap="8px">
+          <ButtonOutlined
+            disabled={loading || disabledHardCancel}
+            onClick={onClickHardCancel}
+            style={{ height: '40px', width: '100%' }}
+            color={isCountDown ? theme.red : undefined}
+          >
+            <GasStation size={20} />
+            &nbsp;
+            {isCountDown ? (
+              isEdit ? (
+                <Trans>Hard Edit Instead</Trans>
+              ) : (
+                <Trans>Hard Cancel Instead</Trans>
+              )
+            ) : isCancelAll ? (
+              <Trans>Hard Cancel all orders</Trans>
+            ) : isEdit ? (
+              <Trans>Hard Edit</Trans>
+            ) : (
+              <Trans>Hard Cancel</Trans>
+            )}
+          </ButtonOutlined>
+          <Text color={theme.subText} fontSize={'10px'} lineHeight={'14px'}>
+            {isEdit ? (
+              <Trans>Edit immediately by paying {gasAmountDisplay} gas fees. </Trans>
+            ) : (
+              <Trans>Cancel immediately by paying {gasAmountDisplay} gas fees. </Trans>
+            )}{' '}
+            <ExternalLink href="/todo">
+              <Trans>Learn more ↗︎</Trans>
+            </ExternalLink>
+          </Text>
+        </Column>
+      </>
+    )
+  }
+
   return (
-    <ButtonWrapper style={{ justifyContent: isTimeout ? 'flex-end' : undefined }}>
+    <ButtonWrapper
+      style={{
+        justifyContent: isTimeout ? 'flex-end' : undefined,
+        flexDirection: isCountDown ? 'row-reverse' : undefined,
+      }}
+    >
       {isCancelDone ? (
         <ButtonLight onClick={onOkay} height={'40px'} width={'100%'}>
           <Check size={18} /> &nbsp;<Trans>Close</Trans>
@@ -106,68 +184,7 @@ const CancelButtons = ({
           <Trans>Try Again</Trans>
         </ButtonLight>
       ) : (
-        <>
-          <Column width={'100%'} gap="8px">
-            <ButtonOutlined
-              color={theme.primary}
-              disabled={disabledGasLessCancel || (isCountDown ? false : !supportCancelGasless || loading)}
-              onClick={isCountDown ? onOkay : onClickGaslessCancel}
-              height={'40px'}
-              width={'100%'}
-            >
-              {isCountDown ? <Check size={18} /> : <GasLessIcon />}
-              &nbsp;
-              {isCountDown ? (
-                <Trans>Close</Trans>
-              ) : isCancelAll ? (
-                totalOrder
-              ) : isEdit ? (
-                <Trans>Gasless Edit</Trans>
-              ) : (
-                <Trans>Gasless Cancel</Trans>
-              )}
-            </ButtonOutlined>
-            <Text color={theme.subText} fontSize={'10px'} lineHeight={'14px'}>
-              {isEdit ? <Trans>Edit the order without paying gas.</Trans> : <Trans>Cancel without paying gas.</Trans>}
-              <Trans>
-                <br /> Cancellation may not be instant. <ExternalLink href="/todo">Learn more ↗︎</ExternalLink>
-              </Trans>
-            </Text>
-          </Column>
-          <Column width={'100%'} gap="8px">
-            <ButtonOutlined
-              disabled={loading || disabledHardCancel}
-              onClick={onClickHardCancel}
-              style={{ height: '40px', width: '100%' }}
-            >
-              <GasStation size={20} />
-              &nbsp;
-              {isCountDown ? (
-                isEdit ? (
-                  <Trans>Hard Edit Instead</Trans>
-                ) : (
-                  <Trans>Hard Cancel Instead</Trans>
-                )
-              ) : isCancelAll ? (
-                <Trans>Hard Cancel all orders</Trans>
-              ) : isEdit ? (
-                <Trans>Hard Edit</Trans>
-              ) : (
-                <Trans>Hard Cancel</Trans>
-              )}
-            </ButtonOutlined>
-            <Text color={theme.subText} fontSize={'10px'} lineHeight={'14px'}>
-              {isEdit ? (
-                <Trans>Edit immediately by paying {gasAmountDisplay} gas fees. </Trans>
-              ) : (
-                <Trans>Cancel immediately by paying {gasAmountDisplay} gas fees. </Trans>
-              )}{' '}
-              <ExternalLink href="/todo">
-                <Trans>Learn more ↗︎</Trans>
-              </ExternalLink>
-            </Text>
-          </Column>
-        </>
+        renderGroupButtons()
       )}
     </ButtonWrapper>
   )

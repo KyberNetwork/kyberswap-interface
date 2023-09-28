@@ -11,7 +11,7 @@ import { useCurrencyV2 } from 'hooks/Tokens'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 
 import { useBaseTradeInfoLimitOrder } from '../../../../hooks/useBaseTradeInfo'
-import { calcPercentFilledOrder, formatAmountOrder, getErrorMessage } from '../helpers'
+import { calcPercentFilledOrder, formatAmountOrder } from '../helpers'
 import { CancelOrderFunction, CancelOrderResponse, CancelOrderType, LimitOrder, LimitOrderStatus } from '../type'
 import { Container, Header, Label, ListInfo, Note, Rate, Value } from './styled'
 
@@ -30,7 +30,6 @@ function CancelOrderModal({
   onDismiss,
   flowState,
   isOpen,
-  setFlowState,
 }: {
   isCancelAll: boolean
   order: LimitOrder | undefined
@@ -38,7 +37,6 @@ function CancelOrderModal({
   onDismiss: () => void
   flowState: TransactionFlowState
   isOpen: boolean
-  setFlowState: React.Dispatch<React.SetStateAction<TransactionFlowState>>
 }) {
   const currencyIn = useCurrencyV2(order?.makerAsset) || undefined
   const currencyOut = useCurrencyV2(order?.takerAsset) || undefined
@@ -87,13 +85,7 @@ function CancelOrderModal({
       const expired = data?.orders?.[0]?.operatorSignatureExpiredAt
       if (expired) setExpiredTime(expired)
       else onDismiss()
-    } catch (error) {
-      setFlowState(state => ({
-        ...state,
-        attemptingTxn: false,
-        errorMessage: getErrorMessage(error),
-      }))
-    }
+    } catch (error) {}
   }
 
   const onClickGaslessCancel = () => !isCountDown && requestCancel(CancelOrderType.GAS_LESS_CANCEL)

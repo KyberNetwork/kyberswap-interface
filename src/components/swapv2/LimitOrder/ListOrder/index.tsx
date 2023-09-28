@@ -394,7 +394,6 @@ export default function ListLimitOrder() {
       <CancelOrderModal
         isOpen={isOpenCancel}
         flowState={flowState}
-        setFlowState={setFlowState}
         onDismiss={hideConfirmCancel}
         onSubmit={onCancelOrder}
         order={currentOrder}

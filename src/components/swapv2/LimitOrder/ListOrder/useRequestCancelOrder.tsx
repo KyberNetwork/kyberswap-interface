@@ -18,7 +18,7 @@ import { TransactionFlowState } from 'types/TransactionFlowState'
 import { getContract } from 'utils/getContract'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 
-import { formatAmountOrder, formatSignature, getPayloadTracking } from '../helpers'
+import { formatAmountOrder, formatSignature, getErrorMessage, getPayloadTracking } from '../helpers'
 import { CancelOrderType, LimitOrder } from '../type'
 
 export const useGetEncodeLimitOrder = () => {
@@ -160,17 +160,34 @@ const useRequestCancelOrder = ({
     return resp
   }
 
+  const handleError = (error: any) => {
+    setFlowState(state => ({
+      ...state,
+      attemptingTxn: false,
+      errorMessage: getErrorMessage(error),
+    }))
+    throw error // keep origin error
+  }
+
   const onCancelOrder = async (orders: LimitOrder[], cancelType: CancelOrderType) => {
-    const resp = await (cancelType === CancelOrderType.HARD_CANCEL
-      ? requestHardCancelOrder(orders?.[0])
-      : requestGasLessCancelOrder(orders))
-    setFlowState(state => ({ ...state, attemptingTxn: false, showConfirm: false }))
-    return resp
+    try {
+      const resp = await (cancelType === CancelOrderType.HARD_CANCEL
+        ? requestHardCancelOrder(orders?.[0])
+        : requestGasLessCancelOrder(orders))
+      setFlowState(state => ({ ...state, attemptingTxn: false, showConfirm: false }))
+      return resp
+    } catch (error) {
+      handleError(error)
+    }
   }
 
   const onUpdateOrder = async (orders: LimitOrder[], cancelType: CancelOrderType) => {
-    if (cancelType === CancelOrderType.HARD_CANCEL) return await requestHardCancelOrder(orders?.[0])
-    return await requestGasLessCancelOrder(orders)
+    try {
+      if (cancelType === CancelOrderType.HARD_CANCEL) return await requestHardCancelOrder(orders?.[0])
+      return await requestGasLessCancelOrder(orders)
+    } catch (error) {
+      handleError(error)
+    }
   }
 
   return { flowState, setFlowState, onCancelOrder, onUpdateOrder }
