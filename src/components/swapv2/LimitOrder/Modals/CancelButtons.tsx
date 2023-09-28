@@ -1,8 +1,8 @@
 import { Trans } from '@lingui/macro'
-import React, { ReactNode, useEffect, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { Check } from 'react-feather'
 import { Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { CSSProperties } from 'styled-components'
 
 import { ReactComponent as GasLessIcon } from 'assets/svg/gas_less_icon.svg'
 import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
@@ -10,12 +10,54 @@ import Column from 'components/Column'
 import { GasStation } from 'components/Icons'
 import { useGetEncodeLimitOrder } from 'components/swapv2/LimitOrder/ListOrder/useRequestCancelOrder'
 import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
-import { LimitOrder } from 'components/swapv2/LimitOrder/type'
+import { CancelOrderType, LimitOrder } from 'components/swapv2/LimitOrder/type'
 import { EMPTY_ARRAY } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 import useEstimateGasTxs from 'utils/useEstimateGasTxs'
+
+const ButtonGroup = ({
+  isEdit,
+  buttonGasless,
+  buttonHardEdit,
+  gasAmountDisplay,
+  style,
+}: {
+  isEdit?: boolean
+  buttonGasless: ReactNode
+  buttonHardEdit: ReactNode
+  gasAmountDisplay: string
+  style?: CSSProperties
+}) => {
+  const theme = useTheme()
+  return (
+    <ButtonWrapper style={style}>
+      <Column width={'100%'} gap="8px">
+        {buttonGasless}
+        <Text color={theme.subText} fontSize={'10px'} lineHeight={'14px'}>
+          {isEdit ? <Trans>Edit the order without paying gas.</Trans> : <Trans>Cancel without paying gas.</Trans>}
+          <Trans>
+            <br /> Cancellation may not be instant. <ExternalLink href="/todo">Learn more ↗︎</ExternalLink>
+          </Trans>
+        </Text>
+      </Column>
+      <Column width={'100%'} gap="8px">
+        {buttonHardEdit}
+        <Text color={theme.subText} fontSize={'10px'} lineHeight={'14px'}>
+          {isEdit ? (
+            <Trans>Edit immediately by paying {gasAmountDisplay} gas fees. </Trans>
+          ) : (
+            <Trans>Cancel immediately by paying {gasAmountDisplay} gas fees. </Trans>
+          )}{' '}
+          <ExternalLink href="/todo">
+            <Trans>Learn more ↗︎</Trans>
+          </ExternalLink>
+        </Text>
+      </Column>
+    </ButtonWrapper>
+  )
+}
 
 const ButtonWrapper = styled.div`
   display: flex;
@@ -54,9 +96,14 @@ const CancelButtons = ({
   orders?: LimitOrder[]
 }) => {
   const theme = useTheme()
+  const isWaiting = cancelStatus === CancelStatus.WAITING
   const isCountDown = cancelStatus === CancelStatus.COUNTDOWN
   const isTimeout = cancelStatus === CancelStatus.TIMEOUT
   const isCancelDone = cancelStatus === CancelStatus.CANCEL_DONE
+
+  const [cancelType, setCancelType] = useState(
+    supportCancelGasless ? CancelOrderType.GAS_LESS_CANCEL : CancelOrderType.HARD_CANCEL,
+  )
 
   const getEncodeData = useGetEncodeLimitOrder()
   const estimateGas = useEstimateGasTxs()
@@ -95,98 +142,100 @@ const CancelButtons = ({
       })}`
     : ''
 
-  const renderGroupButtons = () => {
-    const props = {
-      color: theme.primary,
-      disabled: disabledGasLessCancel || (isCountDown ? false : !supportCancelGasless || loading),
-      onClick: isCountDown ? onOkay : onClickGaslessCancel,
-      height: '40px',
-      width: '100%',
-      children: (
-        <>
-          {isCountDown ? <Check size={18} /> : <GasLessIcon />}
-          &nbsp;
-          {isCountDown ? (
-            <Trans>Close</Trans>
-          ) : isCancelAll ? (
-            totalOrder
-          ) : isEdit ? (
-            <Trans>Gasless Edit</Trans>
-          ) : (
-            <Trans>Gasless Cancel</Trans>
-          )}
-        </>
-      ),
-    }
-    const buttonGasless = React.createElement(isCountDown ? ButtonPrimary : ButtonOutlined, props)
+  if (isCancelDone)
     return (
-      <>
-        <Column width={'100%'} gap="8px">
-          {buttonGasless}
-          <Text color={theme.subText} fontSize={'10px'} lineHeight={'14px'}>
-            {isEdit ? <Trans>Edit the order without paying gas.</Trans> : <Trans>Cancel without paying gas.</Trans>}
-            <Trans>
-              <br /> Cancellation may not be instant. <ExternalLink href="/todo">Learn more ↗︎</ExternalLink>
-            </Trans>
-          </Text>
-        </Column>
-        <Column width={'100%'} gap="8px">
+      <ButtonWrapper>
+        <ButtonLight onClick={onOkay} height={'40px'} width={'100%'}>
+          <Check size={18} /> &nbsp;<Trans>Close</Trans>
+        </ButtonLight>
+      </ButtonWrapper>
+    )
+
+  if (isTimeout)
+    return (
+      <ButtonWrapper style={{ justifyContent: 'flex-end' }}>
+        <ButtonLight onClick={onClickGaslessCancel} height={'40px'} width={'100px'}>
+          <Trans>Try Again</Trans>
+        </ButtonLight>
+      </ButtonWrapper>
+    )
+
+  const propsGasless = {
+    color: cancelType === CancelOrderType.GAS_LESS_CANCEL ? theme.primary : undefined,
+    height: '40px',
+    width: '100%',
+  }
+  const propsHardCancel = { style: { height: '40px', width: '100%' }, disabled: loading || disabledHardCancel }
+
+  if (isCountDown)
+    return (
+      <ButtonGroup
+        style={{ flexDirection: 'row-reverse' }}
+        isEdit={isEdit}
+        gasAmountDisplay={gasAmountDisplay}
+        buttonGasless={
+          <ButtonPrimary {...propsGasless} onClick={onOkay}>
+            <Check size={18} />
+            &nbsp;
+            <Trans>Close</Trans>
+          </ButtonPrimary>
+        }
+        buttonHardEdit={
+          <ButtonOutlined {...propsHardCancel} onClick={onClickHardCancel} color={theme.red}>
+            <GasStation size={20} />
+            &nbsp;
+            {isEdit ? <Trans>Hard Edit Instead</Trans> : <Trans>Hard Cancel Instead</Trans>}
+          </ButtonOutlined>
+        }
+      />
+    )
+
+  return (
+    <>
+      <ButtonGroup
+        style={{ flexDirection: isCountDown ? 'row-reverse' : undefined }}
+        isEdit={isEdit}
+        gasAmountDisplay={gasAmountDisplay}
+        buttonGasless={
           <ButtonOutlined
-            disabled={loading || disabledHardCancel}
-            onClick={onClickHardCancel}
-            style={{ height: '40px', width: '100%' }}
-            color={isCountDown ? theme.red : undefined}
+            {...propsGasless}
+            onClick={() => setCancelType(CancelOrderType.GAS_LESS_CANCEL)}
+            disabled={disabledGasLessCancel || !supportCancelGasless || loading}
+          >
+            <GasLessIcon />
+            &nbsp;
+            {isCancelAll ? totalOrder : isEdit ? <Trans>Gasless Edit</Trans> : <Trans>Gasless Cancel</Trans>}
+          </ButtonOutlined>
+        }
+        buttonHardEdit={
+          <ButtonOutlined
+            {...propsHardCancel}
+            onClick={() => setCancelType(CancelOrderType.HARD_CANCEL)}
+            color={cancelType === CancelOrderType.HARD_CANCEL ? theme.primary : undefined}
           >
             <GasStation size={20} />
             &nbsp;
-            {isCountDown ? (
-              isEdit ? (
-                <Trans>Hard Edit Instead</Trans>
-              ) : (
-                <Trans>Hard Cancel Instead</Trans>
-              )
-            ) : isCancelAll ? (
-              <Trans>Hard Cancel all orders</Trans>
+            {isCancelAll ? (
+              <Trans>Hard Cancel All Orders</Trans>
             ) : isEdit ? (
               <Trans>Hard Edit</Trans>
             ) : (
               <Trans>Hard Cancel</Trans>
             )}
           </ButtonOutlined>
-          <Text color={theme.subText} fontSize={'10px'} lineHeight={'14px'}>
-            {isEdit ? (
-              <Trans>Edit immediately by paying {gasAmountDisplay} gas fees. </Trans>
-            ) : (
-              <Trans>Cancel immediately by paying {gasAmountDisplay} gas fees. </Trans>
-            )}{' '}
-            <ExternalLink href="/todo">
-              <Trans>Learn more ↗︎</Trans>
-            </ExternalLink>
-          </Text>
-        </Column>
-      </>
-    )
-  }
-
-  return (
-    <ButtonWrapper
-      style={{
-        justifyContent: isTimeout ? 'flex-end' : undefined,
-        flexDirection: isCountDown ? 'row-reverse' : undefined,
-      }}
-    >
-      {isCancelDone ? (
-        <ButtonLight onClick={onOkay} height={'40px'} width={'100%'}>
-          <Check size={18} /> &nbsp;<Trans>Close</Trans>
-        </ButtonLight>
-      ) : isTimeout ? (
-        <ButtonLight onClick={onClickGaslessCancel} height={'40px'} width={'100px'}>
-          <Trans>Try Again</Trans>
-        </ButtonLight>
-      ) : (
-        renderGroupButtons()
+        }
+      />
+      {isWaiting && (
+        <ButtonPrimary
+          disabled={loading}
+          width={'100%'}
+          height={'40px'}
+          onClick={cancelType === CancelOrderType.GAS_LESS_CANCEL ? onClickGaslessCancel : onClickHardCancel}
+        >
+          {isCancelAll ? <Trans>Cancel Orders</Trans> : <Trans>Cancel Order</Trans>}
+        </ButtonPrimary>
       )}
-    </ButtonWrapper>
+    </>
   )
 }
 

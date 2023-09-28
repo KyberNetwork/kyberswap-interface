@@ -158,14 +158,9 @@ function CancelOrderModal({
     takerAssetDecimals,
   ])
 
-  const totalOrder =
-    ordersSoftCancel.length === orders.length || !supportGasLessCancel
-      ? t`all`
-      : `${ordersSoftCancel.length}/${orders.length}`
-
   const formatOrders = useMemo(() => (isCancelAll ? orders : order ? [order] : []), [order, isCancelAll, orders])
   return (
-    <Modal maxWidth={isCancelAll && !isCancelDone ? 600 : 480} isOpen={isOpen} onDismiss={onDismiss}>
+    <Modal maxWidth={isCancelAll && !isCancelDone ? 540 : 480} isOpen={isOpen} onDismiss={onDismiss}>
       <Container>
         <Header title={isCancelAll ? t`Bulk Cancellation` : t`Cancel an order`} onDismiss={onDismiss} />
         {isCancelAll ? (
@@ -204,7 +199,17 @@ function CancelOrderModal({
           onClickGaslessCancel={onClickGaslessCancel}
           onClickHardCancel={onClickHardCancel}
           isCancelAll={isCancelAll}
-          totalOrder={isCancelAll ? <Trans>Gasless Cancel {totalOrder} orders</Trans> : null}
+          totalOrder={
+            isCancelAll ? (
+              ordersSoftCancel.length === orders.length || !supportGasLessCancel ? (
+                <Trans>Gasless Cancel All Orders</Trans>
+              ) : (
+                <Trans>
+                  Gasless Cancel {ordersSoftCancel.length}/{orders.length} Orders
+                </Trans>
+              )
+            ) : null
+          }
         />
       </Container>
     </Modal>
