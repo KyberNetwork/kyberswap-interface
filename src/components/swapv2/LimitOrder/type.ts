@@ -63,7 +63,11 @@ export type RateInfo = {
   rateFraction?: Fraction // to calc with big number
 }
 
-export type CancelOrderFunction = (orders: LimitOrder[], cancelType: CancelOrderType) => Promise<any>
+export type CancelOrderFunction = (data: {
+  orders: LimitOrder[]
+  cancelType: CancelOrderType
+  isEdit?: boolean
+}) => Promise<any>
 
 export type CancelOrderInfo = {
   cancelStatus: CancelStatus

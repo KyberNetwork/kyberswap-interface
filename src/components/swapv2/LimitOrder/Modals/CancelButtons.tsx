@@ -227,12 +227,18 @@ const CancelButtons = ({
       />
       {isWaiting && (
         <ButtonPrimary
-          disabled={loading}
+          disabled={loading || (disabledGasLessCancel && disabledHardCancel)}
           width={'100%'}
           height={'40px'}
           onClick={cancelType === CancelOrderType.GAS_LESS_CANCEL ? onClickGaslessCancel : onClickHardCancel}
         >
-          {isCancelAll ? <Trans>Cancel Orders</Trans> : <Trans>Cancel Order</Trans>}
+          {isEdit ? (
+            <Trans>Edit Order</Trans>
+          ) : isCancelAll ? (
+            <Trans>Cancel Orders</Trans>
+          ) : (
+            <Trans>Cancel Order</Trans>
+          )}
         </ButtonPrimary>
       )}
     </>

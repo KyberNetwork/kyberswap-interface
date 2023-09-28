@@ -1,9 +1,10 @@
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo } from 'react'
 import { Text } from 'rebass'
 
 import Logo from 'components/Logo'
 import Modal from 'components/Modal'
+import { useProcessCancelOrder } from 'components/swapv2/LimitOrder/ListOrder/useRequestCancelOrder'
 import CancelButtons from 'components/swapv2/LimitOrder/Modals/CancelButtons'
 import CancelStatusCountDown from 'components/swapv2/LimitOrder/Modals/CancelStatusCountDown'
 import useAllActiveOrders, { useIsSupportSoftCancelOrder } from 'components/swapv2/LimitOrder/useFetchActiveAllOrders'
@@ -12,7 +13,7 @@ import { TransactionFlowState } from 'types/TransactionFlowState'
 
 import { useBaseTradeInfoLimitOrder } from '../../../../hooks/useBaseTradeInfo'
 import { calcPercentFilledOrder, formatAmountOrder } from '../helpers'
-import { CancelOrderFunction, CancelOrderResponse, CancelOrderType, LimitOrder, LimitOrderStatus } from '../type'
+import { CancelOrderFunction, LimitOrder, LimitOrderStatus } from '../type'
 import { Container, Header, Label, ListInfo, Note, Rate, Value } from './styled'
 
 export enum CancelStatus {
@@ -55,10 +56,6 @@ function CancelOrderModal({
     takerAssetDecimals,
   } = order ?? ({} as LimitOrder)
 
-  const controller = useRef(new AbortController())
-
-  const [expiredTime, setExpiredTime] = useState(0)
-  const [cancelStatus, setCancelStatus] = useState<CancelStatus>(CancelStatus.WAITING)
   const {
     orders = [],
     ordersSoftCancel = [],
@@ -69,39 +66,16 @@ function CancelOrderModal({
 
   const supportGasLessCancel = isCancelAll ? supportCancelGaslessAllOrders : isOrderSupportGaslessCancel(order)
 
-  const requestCancel = async (type: CancelOrderType) => {
-    try {
-      const gasLessCancel = type === CancelOrderType.GAS_LESS_CANCEL
-      const signal = controller.current.signal
-      const data: CancelOrderResponse = await onSubmit(
+  const { onClickGaslessCancel, onClickHardCancel, expiredTime, cancelStatus, setCancelStatus } = useProcessCancelOrder(
+    {
+      isOpen,
+      onDismiss,
+      onSubmit,
+      getOrders: (gasLessCancel: boolean) =>
         isCancelAll ? (gasLessCancel ? ordersSoftCancel : orders) : order ? [order] : [],
-        type,
-      )
-      if (signal.aborted) {
-        onDismiss()
-        return
-      }
-      setCancelStatus(gasLessCancel ? CancelStatus.COUNTDOWN : CancelStatus.WAITING)
-      const expired = data?.orders?.[0]?.operatorSignatureExpiredAt
-      if (expired) setExpiredTime(expired)
-      else onDismiss()
-    } catch (error) {}
-  }
+    },
+  )
 
-  const onClickGaslessCancel = () => !isCountDown && requestCancel(CancelOrderType.GAS_LESS_CANCEL)
-  const onClickHardCancel = () => requestCancel(CancelOrderType.HARD_CANCEL)
-
-  useEffect(() => {
-    if (!isOpen || flowState.errorMessage) {
-      setCancelStatus(CancelStatus.WAITING)
-    }
-    return () => {
-      controller?.current?.abort()
-      controller.current = new AbortController()
-    }
-  }, [isOpen, flowState.errorMessage, isCancelAll])
-
-  const isCountDown = cancelStatus === CancelStatus.COUNTDOWN
   const isCancelDone = cancelStatus === CancelStatus.CANCEL_DONE
 
   const renderContentCancelAll = () => {

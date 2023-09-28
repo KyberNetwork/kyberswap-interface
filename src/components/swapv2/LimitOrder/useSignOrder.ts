@@ -7,7 +7,9 @@ import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 
-export default function useSignOrder(setFlowState: React.Dispatch<React.SetStateAction<TransactionFlowState>>) {
+export default function useSignOrder(
+  setFlowState: React.Dispatch<React.SetStateAction<TransactionFlowState>> | undefined,
+) {
   const { library } = useWeb3React()
   const { account } = useActiveWeb3React()
   const [getMessageSignature] = useCreateOrderSignatureMutation()
@@ -19,7 +21,7 @@ export default function useSignOrder(setFlowState: React.Dispatch<React.SetState
       if (!library || !currencyIn || !currencyOut) return { signature: '', salt: '' }
 
       const payload = getPayloadCreateOrder(params)
-      setFlowState({
+      setFlowState?.({
         ...TRANSACTION_STATE_DEFAULT,
         showConfirm: true,
         attemptingTxn: true,

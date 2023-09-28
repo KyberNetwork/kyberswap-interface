@@ -6,6 +6,7 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as TimerIcon } from 'assets/svg/clock_timer.svg'
+import Column from 'components/Column'
 import { Clock } from 'components/Icons'
 import WarningIcon from 'components/Icons/WarningIcon'
 import Loader from 'components/Loader'
@@ -46,6 +47,12 @@ const Timer = styled.div`
   gap: 6px;
 `
 
+const ErrorWrapper = styled(CountDownWrapper)`
+  flex-direction: row;
+  justify-content: center;
+  min-height: 50px;
+`
+
 export default function CancelStatusCountDown({
   expiredTime,
   cancelStatus,
@@ -63,6 +70,7 @@ export default function CancelStatusCountDown({
   const theme = useTheme()
 
   const [remain, setRemain] = useState(0)
+  const isCountDown = cancelStatus === CancelStatus.COUNTDOWN
 
   useEffect(() => {
     const delta = Math.floor(expiredTime - Date.now() / 1000)
@@ -78,29 +86,48 @@ export default function CancelStatusCountDown({
     })
   }, [setCancelStatus])
 
-  useInterval(countdown, remain > 0 && cancelStatus === CancelStatus.COUNTDOWN ? 1000 : null)
+  useInterval(countdown, remain > 0 && isCountDown ? 1000 : null)
 
   // todo docs link
+  const contentCountDown = isCountDown ? (
+    <CountDownWrapper>
+      <Text fontSize={'14px'} fontWeight={'400'} color={theme.text}>
+        <Trans>Order will be automatically cancelled in</Trans>
+      </Text>
+      <Timer>
+        <Clock color={theme.red} size={16} /> <Text lineHeight={'20px'}>{formatRemainTime(remain)}</Text>
+      </Timer>
+      <Text fontSize={'10px'} fontWeight={'400'} color={theme.subText}>
+        *There is a possibility that the order might be filled before cancellation.{' '}
+        <ExternalLink href="/todo">Learn more ↗︎</ExternalLink>
+      </Text>
+    </CountDownWrapper>
+  ) : null
 
   if (errorMessage || attemptingTxn)
     return (
-      <CountDownWrapper style={{ flexDirection: 'row', justifyContent: 'center', minHeight: 50 }}>
-        {errorMessage ? (
-          <>
-            <WarningIcon color={theme.red} />
-            <Text fontSize={'14px'} color={theme.red}>
-              {friendlyError(errorMessage)}
-            </Text>
-          </>
-        ) : (
-          <>
-            <Loader /> <Text fontSize={'14px'}>{pendingText}</Text>
-          </>
-        )}
-      </CountDownWrapper>
+      <Column gap="14px">
+        {contentCountDown}
+        <ErrorWrapper>
+          {errorMessage ? (
+            <>
+              <WarningIcon color={theme.red} />
+              <Text fontSize={'14px'} color={theme.red}>
+                {friendlyError(errorMessage)}
+              </Text>
+            </>
+          ) : (
+            <>
+              <Loader /> <Text fontSize={'14px'}>{pendingText}</Text>
+            </>
+          )}
+        </ErrorWrapper>
+      </Column>
     )
 
   if (cancelStatus === CancelStatus.WAITING) return null
+
+  if (isCountDown) return contentCountDown
 
   return (
     <CountDownWrapper>
@@ -121,20 +148,7 @@ export default function CancelStatusCountDown({
           </SuccessIcon>{' '}
           Order has been successfully cancelled.
         </Flex>
-      ) : (
-        <>
-          <Text fontSize={'14px'} fontWeight={'400'} color={theme.text}>
-            <Trans>Order will be automatically cancelled in</Trans>
-          </Text>
-          <Timer>
-            <Clock color={theme.red} size={16} /> <Text lineHeight={'20px'}>{formatRemainTime(remain)}</Text>
-          </Timer>
-          <Text fontSize={'10px'} fontWeight={'400'} color={theme.subText}>
-            *There is a possibility that the order might be filled before cancellation.{' '}
-            <ExternalLink href="/todo">Learn more ↗︎</ExternalLink>
-          </Text>
-        </>
-      )}
+      ) : null}
     </CountDownWrapper>
   )
 }

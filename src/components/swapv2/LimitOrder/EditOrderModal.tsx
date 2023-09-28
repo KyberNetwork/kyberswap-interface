@@ -1,26 +1,24 @@
 import { Trans } from '@lingui/macro'
 import { ethers } from 'ethers'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 import styled from 'styled-components'
 
 import Modal from 'components/Modal'
+import { useProcessCancelOrder } from 'components/swapv2/LimitOrder/ListOrder/useRequestCancelOrder'
 import CancelButtons from 'components/swapv2/LimitOrder/Modals/CancelButtons'
-import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
 import CancelStatusCountDown from 'components/swapv2/LimitOrder/Modals/CancelStatusCountDown'
 import { useIsSupportSoftCancelOrder } from 'components/swapv2/LimitOrder/useFetchActiveAllOrders'
-import useSignOrder from 'components/swapv2/LimitOrder/useSignOrder'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/Tokens'
-import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 
 import LimitOrderForm, { Label } from './LimitOrderForm'
 import { calcInvert, calcPercentFilledOrder, calcRate, removeTrailingZero } from './helpers'
-import { CancelOrderFunction, CancelOrderInfo, CancelOrderType, LimitOrder, LimitOrderStatus, RateInfo } from './type'
+import { CancelOrderFunction, CancelOrderInfo, LimitOrder, LimitOrderStatus, RateInfo } from './type'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -35,7 +33,7 @@ const StyledLabel = styled(Label)`
 `
 
 export default function EditOrderModal({
-  onCancelOrder,
+  onSubmit,
   onDismiss,
   order,
   note,
@@ -43,7 +41,7 @@ export default function EditOrderModal({
   flowState,
   setFlowState,
 }: {
-  onCancelOrder: CancelOrderFunction
+  onSubmit: CancelOrderFunction
   onDismiss: () => void
   order: LimitOrder
   note: string
@@ -71,29 +69,15 @@ export default function EditOrderModal({
     { skip: !currencyIn || !account },
   )
 
-  const { removeOrderNeedCreated, pushOrderNeedCreated } = useLimitActionHandlers()
-  const [cancelStatus, setCancelStatus] = useState<CancelStatus>(CancelStatus.WAITING)
-  const [expiredTime, setExpiredTime] = useState(0)
-
-  const signOrder = useSignOrder(setFlowState)
-  const { orderEditing } = useLimitState()
-  const onSubmitEditOrder = async (cancelType: CancelOrderType) => {
-    try {
-      if (orderEditing) {
-        const { signature, salt } = await signOrder(orderEditing)
-        pushOrderNeedCreated({ ...orderEditing, salt, signature })
-      }
-      const data = await onCancelOrder(order ? [order] : [], cancelType)
-      setCancelStatus(cancelType === CancelOrderType.GAS_LESS_CANCEL ? CancelStatus.COUNTDOWN : CancelStatus.WAITING)
-      const expired = data?.orders?.[0]?.operatorSignatureExpiredAt
-      if (expired) setExpiredTime(expired)
-      else onDismiss()
-    } catch (error) {
-      order && removeOrderNeedCreated(order.id)
-    }
-  }
-  const onClickGaslessCancel = () => onSubmitEditOrder(CancelOrderType.GAS_LESS_CANCEL)
-  const onClickHardCancel = () => onSubmitEditOrder(CancelOrderType.HARD_CANCEL)
+  const { onClickGaslessCancel, onClickHardCancel, expiredTime, cancelStatus, setCancelStatus } = useProcessCancelOrder(
+    {
+      isOpen,
+      onDismiss,
+      onSubmit,
+      getOrders: () => (order ? [order] : []),
+      isEdit: true,
+    },
+  )
 
   const isSupportSoftCancelOrder = useIsSupportSoftCancelOrder()
   const supportCancelGasless = isSupportSoftCancelOrder(order)

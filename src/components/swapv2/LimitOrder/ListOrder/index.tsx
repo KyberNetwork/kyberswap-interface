@@ -231,7 +231,7 @@ export default function ListLimitOrder() {
     }
   }, [account, chainId, refreshListOrder])
 
-  const { flowState, setFlowState, onCancelOrder, onUpdateOrder } = useRequestCancelOrder({
+  const { flowState, setFlowState, onCancelOrder } = useRequestCancelOrder({
     orders,
     isCancelAll,
     totalOrder,
@@ -406,7 +406,7 @@ export default function ListLimitOrder() {
           setFlowState={setFlowState}
           isOpen={isOpenEdit}
           onDismiss={hideEditModal}
-          onCancelOrder={onUpdateOrder}
+          onSubmit={onCancelOrder}
           order={currentOrder}
           note={t`Note: Your existing order will be automatically cancelled and a new order will be created.${
             currentOrder.status === LimitOrderStatus.PARTIALLY_FILLED
