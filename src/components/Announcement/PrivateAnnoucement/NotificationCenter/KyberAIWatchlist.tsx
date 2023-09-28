@@ -31,6 +31,8 @@ export default function AnnouncementItem({
   const theme = useTheme()
   const navigate = useNavigate()
   const [expand, setExpand] = useState(false)
+  const slice = 3
+  const minimalAssets = assets.slice(0, slice)
 
   return (
     <Wrapper onClick={() => setExpand(!expand)}>
@@ -49,10 +51,10 @@ export default function AnnouncementItem({
       <Desc style={{ gap: 6, flexWrap: 'wrap', color: theme.subText }}>
         <Trans>Here is an update on the tokens in your watchlist:</Trans>
         {!expand &&
-          assets.slice(0, 3).map((token, i) => (
+          minimalAssets.map((token, i) => (
             <Fragment key={i}>
               <TokenInfo token={token} showPrice={false} key={i} logoSize={'14px'} />
-              {i === 2 ? ', ...' : ', '}
+              {i === minimalAssets.length - 1 ? (minimalAssets.length < slice ? '' : ', ...') : ', '}
             </Fragment>
           ))}
       </Desc>
