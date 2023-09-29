@@ -4,6 +4,7 @@ import baseQueryOauth from 'services/baseQueryOauth'
 
 import { SelectOption } from 'components/Select'
 import { BFF_API } from 'constants/env'
+import { useIsWhiteListKyberAI } from 'state/user/hooks'
 
 import {
   IAssetOverview,
@@ -346,6 +347,14 @@ const kyberAIApi = createApi({
   }),
 })
 
+export const useGetWatchlistInformationQuery = () => {
+  const { isWhiteList } = useIsWhiteListKyberAI()
+
+  const data = kyberAIApi.useGetWatchlistInformationQuery(undefined, { skip: !isWhiteList })
+
+  return data
+}
+
 export const {
   useAssetOverviewQuery,
   useTokenOverviewQuery,
@@ -369,7 +378,6 @@ export const {
   useCreateCustomWatchlistMutation,
   useDeleteCustomWatchlistMutation,
   useUpdateWatchlistsNameMutation,
-  useGetWatchlistInformationQuery,
   useUpdateCustomizedWatchlistsPrioritiesMutation,
   useGetFilterCategoriesQuery,
 } = kyberAIApi

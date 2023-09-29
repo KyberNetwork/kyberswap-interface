@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
-import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
@@ -247,42 +247,13 @@ const TokenDescription = ({ description }: { description: string }) => {
 }
 
 const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoading?: boolean }) => {
-  const { account } = useActiveWeb3React()
   const theme = useTheme()
-  const mixpanelHandler = useMixpanelKyberAI()
   const navigate = useNavigate()
   const location = useLocation()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const { assetId } = useParams()
   const { chain } = useKyberAIAssetOverview()
-  // const reachedMaxLimit = useIsReachMaxLimitWatchedToken()
-  // const [addToWatchlist, { isLoading: loadingAddtoWatchlist }] = useAddToWatchlistMutation()
-  // const [removeFromWatchlist, { isLoading: loadingRemovefromWatchlist }] = useRemoveFromWatchlistMutation()
-  // const [isWatched, setIsWatched] = useState(false)
 
-  // const handleStarClick = () => {
-  //   if (!token || !chain || !address || !account) return
-  //   if (isWatched) {
-  //     mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-  //       token_name: token.symbol?.toUpperCase(),
-  //       source: 'explore',
-  //       option: 'remove',
-  //     })
-  //     removeFromWatchlist({
-  //       tokenAddress: address,
-  //       chain,
-  //     }).then(() => setIsWatched(false))
-  //   } else {
-  //     if (!reachedMaxLimit) {
-  //       mixpanelHandler(MIXPANEL_TYPE.KYBERAI_ADD_TOKEN_TO_WATCHLIST, {
-  //         token_name: token.symbol?.toUpperCase(),
-  //         source: 'explore',
-  //         option: 'add',
-  //       })
-  //       addToWatchlist({ tokenAddress: address, chain }).then(() => setIsWatched(true))
-  //     }
-  //   }
-  // }
   const handleGoBackClick = () => {
     if (!!location?.state?.from) {
       navigate(location.state.from)
@@ -290,11 +261,7 @@ const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoadin
       navigate({ pathname: APP_PATHS.KYBERAI_RANKINGS })
     }
   }
-  useEffect(() => {
-    if (token) {
-      // setIsWatched(token.isWatched)
-    }
-  }, [token])
+
   return (
     <>
       <SimpleTooltip text={t`Go back Ranking page`} hideOnMobile>
@@ -304,13 +271,16 @@ const TokenNameGroup = ({ token, isLoading }: { token?: IAssetOverview; isLoadin
       </SimpleTooltip>
       <WatchlistButton
         assetId={assetId}
-        wrapperStyle={{
-          color: theme.subText,
-          backgroundColor: theme.darkMode ? theme.buttonGray : theme.background,
-          height: above768 ? '36px' : '32px',
-          width: above768 ? '36px' : '32px',
-          borderRadius: '100%',
-        }}
+        wrapperStyle={useMemo(() => {
+          return {
+            color: theme.subText,
+            backgroundColor: theme.darkMode ? theme.buttonGray : theme.background,
+            height: above768 ? '36px' : '32px',
+            width: above768 ? '36px' : '32px',
+            borderRadius: '100%',
+          }
+        }, [above768, theme])}
+        symbol={token?.symbol}
       />
       <div style={{ position: 'relative' }}>
         <div style={{ borderRadius: '50%', overflow: 'hidden' }}>

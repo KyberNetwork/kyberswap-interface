@@ -210,7 +210,7 @@ const TokenItem = ({ token, onClick }: { token: ITokenSearchResult; onClick?: ()
     >
       <td>
         <RowFit gap="10px">
-          <WatchlistButton size={16} assetId={token.assetId} />
+          <WatchlistButton size={16} assetId={token.assetId} symbol={token.symbol} />
 
           <div style={{ position: 'relative' }}>
             <div style={{ borderRadius: '50%', overflow: 'hidden' }}>

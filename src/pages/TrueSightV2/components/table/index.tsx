@@ -579,17 +579,10 @@ const WidgetTokenRow = ({
 }) => {
   const theme = useTheme()
   const navigate = useNavigate()
-  // const { account } = useActiveWeb3React()
-  // const mixpanelHandler = useMixpanelKyberAI()
-  // const reachedMaxLimit = useIsReachMaxLimitWatchedToken(token?.tokens.length)
 
   const latestKyberScore: IKyberScoreChart | undefined = token?.ks_3d?.[token.ks_3d.length - 1]
   const hasMutipleChain = token?.tokens?.length > 1
   const [showSwapMenu, setShowSwapMenu] = useState(false)
-  // const [isWatched, setIsWatched] = useState(!!token.isWatched)
-  // const [loadingStar, setLoadingStar] = useState(false)
-  // const [addToWatchlist] = useAddToWatchlistMutation()
-  // const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
 
   const rowRef = useRef<HTMLTableRowElement>(null)
 
@@ -646,10 +639,6 @@ const WidgetTokenRow = ({
   //   }
   // }
 
-  // useEffect(() => {
-  //   setIsWatched(token.isWatched)
-  // }, [token.isWatched])
-
   return (
     <tr onClick={handleRowClick} style={{ position: 'relative' }} ref={rowRef}>
       {isMobile ? (
@@ -657,7 +646,7 @@ const WidgetTokenRow = ({
           <td>
             <Column gap="4px">
               <RowFit gap="6px">
-                <WatchlistButton assetId={token.asset_id} />
+                <WatchlistButton assetId={token.asset_id} symbol={token.symbol} />
                 <img
                   alt="tokenInList"
                   src={token.tokens[0].logo}
@@ -693,7 +682,7 @@ const WidgetTokenRow = ({
         <>
           <td>
             <RowFit gap="6px">
-              <WatchlistButton assetId={token.asset_id} />
+              <WatchlistButton assetId={token.asset_id} symbol={token.symbol} />
               <Row gap="8px" style={{ position: 'relative', width: '24px', height: '24px' }}>
                 <img
                   alt="tokenInList"
