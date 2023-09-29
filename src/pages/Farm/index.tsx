@@ -439,6 +439,7 @@ const Farm = () => {
                       maxLength={255}
                       value={search}
                       onChange={e => handleSearch(e.target.value)}
+                      data-testid="input-search"
                     />
                     <Search color={theme.subText} size={16} />
                   </SearchContainer>

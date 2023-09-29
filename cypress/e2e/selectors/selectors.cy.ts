@@ -43,4 +43,17 @@ export const HeaderLocators = {
 export const FarmLocators = {
   lblApr: '[data-testid=apr-value]',
   lblTvl: '[data-testid=tvl-value]',
+  txtSearch: '[data-testid=input-search]'
+}
+
+export const PoolLocators = {
+  txtSearch: '[data-testid=input-search]'
+}
+
+export const MyPoolLocators = {
+  txtSearch: '[data-testid=input-search]'
+}
+
+export const MyEarningLocators = {
+  txtSearch: '[data-testid=input-search]'
 }

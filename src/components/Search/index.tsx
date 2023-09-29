@@ -73,6 +73,7 @@ const Search = ({ searchValue, onSearch, placeholder, minWidth, style }: SearchP
           onChange={e => {
             onSearch(e.target.value)
           }}
+          data-testid="input-search"
         />
         {searchValue && (
           <ButtonEmpty onClick={() => onSearch('')} style={{ padding: '2px 4px', width: 'max-content' }}>

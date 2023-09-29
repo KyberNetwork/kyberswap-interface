@@ -1,5 +1,6 @@
 import { SwapPage, TokenCatalog } from "../pages/swap-page.po.cy"
 import { DEFAULT_URL, TAG } from "../selectors/constants.cy"
+import { FarmLocators, MyPoolLocators, PoolLocators } from "../selectors/selectors.cy"
 
 const tokenCatalog = new TokenCatalog()
 
@@ -32,7 +33,7 @@ describe('CSP', { tags: TAG.regression }, () => {
             SwapPage.goToPoolPage()
         })
         it('injecting <script> tag does not work', () => {
-            cy.get('div input', { timeout: 10000 })
+            cy.get(PoolLocators.txtSearch, { timeout: 10000 })
                 .should('be.visible')
                 .click()
                 .type('KNC<img src="" onerror="console.log(`hacked`)" />')
@@ -53,7 +54,7 @@ describe('CSP', { tags: TAG.regression }, () => {
             SwapPage.goToMyPoolsPage()
         })
         it('injecting <script> tag does not work', () => {
-            cy.get('div input', { timeout: 10000 })
+            cy.get(MyPoolLocators.txtSearch, { timeout: 10000 })
                 .should('be.visible')
                 .click()
                 .type('KNC<img src="" onerror="console.log(`hacked`)" />')
@@ -75,7 +76,7 @@ describe('CSP', { tags: TAG.regression }, () => {
             SwapPage.goToFarmPage()
         })
         it('injecting <script> tag does not work', () => {
-            cy.get('div input', { timeout: 10000 })
+            cy.get(FarmLocators.txtSearch, { timeout: 10000 })
                 .should('be.visible')
                 .click()
                 .type('KNC<img src="" onerror="console.log(`hacked`)" />')
