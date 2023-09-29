@@ -741,6 +741,7 @@ export default function TokenAnalysisList() {
 
   const handleTabChange = (tab: KyberAIListType) => {
     startTransition(() => {
+      const searchParams = new URLSearchParams() // to reset filter/sort
       searchParams.set('listType', tab)
       searchParams.set('page', '1')
       setSearchParams(searchParams)
@@ -826,7 +827,7 @@ export default function TokenAnalysisList() {
         <TokenListDraggableTabs tab={listTypeParam} setTab={handleTabChange} />
 
         <TokenFilter
-          defaultFilter={filter}
+          filter={filter}
           handleFilterChange={handleFilterChange}
           setShowShare={setShowShare}
           onTrackingSelectChain={onTrackingSelectChain}

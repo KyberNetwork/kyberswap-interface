@@ -9,6 +9,7 @@ import { ButtonGray } from 'components/Button'
 import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
 import Select from 'components/Select'
+import { EMPTY_OBJECT } from 'constants/index'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
 import MultipleChainSelect from 'pages/MyEarnings/MultipleChainSelect'
@@ -120,22 +121,18 @@ export default function TokenFilter({
   handleFilterChange,
   setShowShare,
   onTrackingSelectChain,
-  defaultFilter = {},
+  filter = EMPTY_OBJECT,
 }: {
   handleFilterChange: (filter: Record<string, string>) => void
   setShowShare: (v: boolean) => void
   onTrackingSelectChain: (v: string) => void
-  defaultFilter: { [k: string]: string }
+  filter: { [k: string]: string }
 }) {
-  const [filter, setFilter] = useState(defaultFilter)
-
   const onChangeFilter = useCallback(
     (key: string, value: string) => {
-      const newFilter = { ...filter, [key]: value }
-      setFilter(newFilter)
-      handleFilterChange(newFilter)
+      handleFilterChange({ ...filter, [key]: value })
     },
-    [setFilter, handleFilterChange, filter],
+    [handleFilterChange, filter],
   )
 
   const { isLogin } = useSessionInfo()
@@ -150,8 +147,8 @@ export default function TokenFilter({
   }, [data])
 
   const defaultChains = useMemo(
-    () => getChainsFromSlugs(defaultFilter[chainFilter?.queryKey]?.split(',')),
-    [defaultFilter, chainFilter],
+    () => getChainsFromSlugs(filter[chainFilter?.queryKey]?.split(',')),
+    [filter, chainFilter],
   )
 
   const theme = useTheme()
