@@ -116,7 +116,7 @@ export const SectionWrapper = ({
   subTitle,
   description,
   id,
-  docsLinks,
+  docsLinks = [],
   shareContent,
   fullscreenButton,
   tabs,

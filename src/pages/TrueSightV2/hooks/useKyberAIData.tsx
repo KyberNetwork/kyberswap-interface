@@ -2,6 +2,7 @@ import { t } from '@lingui/macro'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import baseQueryOauth from 'services/baseQueryOauth'
 
+import { SelectOption } from 'components/Select'
 import { BFF_API } from 'constants/env'
 import { useIsWhiteListKyberAI } from 'state/user/hooks'
 
@@ -18,8 +19,8 @@ import {
   ITokenList,
   ITokenSearchResult,
   ITradingVolume,
-  KyberAIListType,
   OHLCData,
+  QueryTokenParams,
 } from '../types'
 
 const kyberAIApi = createApi({
@@ -30,22 +31,13 @@ const kyberAIApi = createApi({
   tagTypes: ['tokenOverview', 'tokenList', 'myWatchList'],
   endpoints: builder => ({
     //1.
-    tokenList: builder.query<
-      { data: ITokenList[]; totalItems: number },
-      {
-        type?: KyberAIListType
-        chain?: string
-        page?: number
-        pageSize?: number
-        watchlist?: boolean
-        keywords?: string
-      }
-    >({
-      query: ({ type, chain, page, pageSize, watchlist, keywords }) => ({
+    tokenList: builder.query<{ data: ITokenList[]; totalItems: number }, QueryTokenParams>({
+      query: ({ type, chain, page, pageSize, watchlist, keywords, ...filter }) => ({
         url: '/tokens',
         params: {
+          ...filter,
           type: type || 'all',
-          chain: chain || 'all',
+          chain: 'all', // todo remove
           page: page || 1,
           size: pageSize || 10,
           watchlist: watchlist ? 'true' : undefined,
@@ -339,6 +331,19 @@ const kyberAIApi = createApi({
         params: { orderedIds },
       }),
     }),
+    getFilterCategories: builder.query<{ displayName: string; queryKey: string; values: SelectOption[] }[], void>({
+      query: () => ({
+        url: `/assets/filters`,
+      }),
+      transformResponse: (res: any) =>
+        res.data.map((e: any) => ({
+          ...e,
+          values: [
+            { label: t`All ${e.displayName}`, value: '' },
+            ...e.values.map((opt: any) => ({ label: opt.displayName, value: opt.queryValue })),
+          ],
+        })),
+    }),
   }),
 })
 
@@ -374,5 +379,6 @@ export const {
   useDeleteCustomWatchlistMutation,
   useUpdateWatchlistsNameMutation,
   useUpdateCustomizedWatchlistsPrioritiesMutation,
+  useGetFilterCategoriesQuery,
 } = kyberAIApi
 export default kyberAIApi

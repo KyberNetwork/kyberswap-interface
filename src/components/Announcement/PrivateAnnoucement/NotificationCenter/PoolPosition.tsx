@@ -16,24 +16,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import { formatTime } from 'utils/time'
 
-import { Desc, Time, Title, Wrapper } from './styled'
-
-const ArrowWrapper = styled.div`
-  width: 20px;
-  height: 20px;
-  color: ${({ theme }) => theme.subText};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  svg {
-    transition: all 150ms ease-in-out;
-  }
-  &[data-expanded='true'] {
-    svg {
-      transform: rotate(180deg);
-    }
-  }
-`
+import { ArrowWrapper, Desc, Time, Title, Wrapper } from './styled'
 
 const Detail = styled(Desc)`
   flex-direction: column;

@@ -413,3 +413,8 @@ export const FRAX_FARMS: { [chainId in ChainId]?: string[] } = {
   [ChainId.ARBITRUM]: ['0x6a7dccf168fba624a81b293c2538d31427b5b4bd'],
   [ChainId.OPTIMISM]: ['0xa837d04a64acf66912d05cfd9b951e4e399ab680'],
 }
+
+export enum SORT_DIRECTION {
+  ASC = 'asc',
+  DESC = 'desc',
+}

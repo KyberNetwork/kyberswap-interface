@@ -1,11 +1,7 @@
 import { t } from '@lingui/macro'
 
 import { didUserReject } from 'constants/connectors/utils'
-
-function capitalizeFirstLetter(str?: string) {
-  const string = str || ''
-  return string.charAt(0).toUpperCase() + string.slice(1)
-}
+import { capitalizeFirstLetter } from 'utils/string'
 
 function parseKnownPattern(text: string): string | undefined {
   const error = text?.toLowerCase?.() || ''

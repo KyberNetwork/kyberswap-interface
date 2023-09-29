@@ -50,7 +50,7 @@ const SelectedWrap = styled.div`
   text-overflow: ellipsis;
   flex: 1;
 `
-type SelectOption = { value?: string | number; label: string | number; onSelect?: () => void }
+export type SelectOption = { value?: string | number; label: string | number; onSelect?: () => void }
 
 const getOptionValue = (option: SelectOption | undefined) => {
   if (!option) return ''
@@ -67,7 +67,7 @@ function isElementOverflowBottom(el: HTMLElement) {
 }
 
 function Select({
-  options,
+  options = [],
   activeRender,
   optionRender,
   style = {},
@@ -91,7 +91,7 @@ function Select({
   forceMenuPlacementTop?: boolean
   arrowColor?: string
 }) {
-  const [selected, setSelected] = useState(getOptionValue(options[0]))
+  const [selected, setSelected] = useState(getOptionValue(options?.[0]))
   const [showMenu, setShowMenu] = useState(false)
   const [menuPlacementTop, setForceMenuPlacementTop] = useState(forceMenuPlacementTop)
 

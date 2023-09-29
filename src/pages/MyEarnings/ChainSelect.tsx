@@ -1,5 +1,6 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -16,6 +17,7 @@ import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import MultipleChainSelect from 'pages/MyEarnings/MultipleChainSelect'
+import { AppState } from 'state'
 import { useAppSelector } from 'state/hooks'
 import { selectChains } from 'state/myEarnings/actions'
 import { useShowMyEarningChart } from 'state/user/hooks'
@@ -68,6 +70,8 @@ const ChainSelect = () => {
 
   const networkList = SUPPORTED_NETWORKS_FOR_MY_EARNINGS.filter(item => !comingSoonList.includes(item))
 
+  const selectedChains = useSelector((state: AppState) => state.myEarnings.selectedChains)
+
   const isValidNetwork = networkList.includes(chainId)
 
   const handleClickCurrentChain = () => {
@@ -77,6 +81,10 @@ const ChainSelect = () => {
 
     mixpanelHandler(MIXPANEL_TYPE.EARNING_DASHBOARD_CLICK_CURRENT_CHAIN_BUTTON)
     dispatch(selectChains([chainId]))
+  }
+
+  const handleChangeChains = (chains: ChainId[]) => {
+    dispatch(selectChains(chains))
   }
 
   return (
@@ -110,7 +118,13 @@ const ChainSelect = () => {
           <Trans>Current Chain</Trans>
         </ButtonOutlined>
 
-        <MultipleChainSelect />
+        <MultipleChainSelect
+          handleChangeChains={handleChangeChains}
+          comingSoonList={comingSoonList}
+          chainIds={SUPPORTED_NETWORKS_FOR_MY_EARNINGS}
+          selectedChainIds={selectedChains}
+          onTracking={() => mixpanelHandler(MIXPANEL_TYPE.EARNING_DASHBOARD_CLICK_ALL_CHAINS_BUTTON)}
+        />
       </Flex>
     </Flex>
   )
