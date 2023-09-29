@@ -175,11 +175,9 @@ const useRequestCancelOrder = ({
         const { signature, salt } = await signOrder(orderEditing)
         pushOrderNeedCreated({ ...orderEditing, salt, signature })
       }
-      const resp = await (cancelType === CancelOrderType.HARD_CANCEL
-        ? requestHardCancelOrder(orders?.[0])
-        : requestGasLessCancelOrder(orders))
-
-      setFlowState(state => ({ ...state, attemptingTxn: false, showConfirm: false }))
+      const gaslessCancel = cancelType === CancelOrderType.GAS_LESS_CANCEL
+      const resp = await (gaslessCancel ? requestGasLessCancelOrder(orders) : requestHardCancelOrder(orders?.[0]))
+      setFlowState(state => ({ ...state, attemptingTxn: false, showConfirm: !!(isEdit && gaslessCancel) }))
       return resp
     } catch (error) {
       if (isEdit && orders[0]) removeOrderNeedCreated(orders[0].id)
