@@ -250,7 +250,7 @@ function useDerivedSwapInfo(): {
     inputError = inputError ?? t`Enter a recipient`
   } else {
     if (
-      BAD_RECIPIENT_ADDRESSES.indexOf(formattedTo) !== -1 ||
+      BAD_RECIPIENT_ADDRESSES.has(formattedTo) ||
       (bestTradeExactIn && involvesAddress(bestTradeExactIn, formattedTo))
     ) {
       inputError = inputError ?? t`Invalid recipient`

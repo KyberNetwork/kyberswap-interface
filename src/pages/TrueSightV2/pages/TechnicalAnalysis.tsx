@@ -1,6 +1,5 @@
 import { Trans, t } from '@lingui/macro'
 import { createContext, useCallback, useMemo, useState } from 'react'
-import { useParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { useTheme } from 'styled-components'
 
@@ -23,11 +22,10 @@ import ProchartShareContent from '../components/shareContent/ProchartShareConten
 import SupportResistanceShareContent from '../components/shareContent/SupportResistanceShareContent'
 import { FundingRateTable, LiveDEXTrades, SupportResistanceLevel } from '../components/table'
 import { KYBERAI_CHART_ID, NETWORK_TO_CHAINID } from '../constants'
+import useKyberAIAssetOverview from '../hooks/useKyberAIAssetOverview'
 import { useChartingDataQuery } from '../hooks/useKyberAIData'
-import useKyberAITokenOverview from '../hooks/useKyberAITokenOverview'
 import { ChartTab, ISRLevel, KyberAITimeframe, OHLCData } from '../types'
 import { navigateToLimitPage } from '../utils'
-import { defaultExplorePageToken } from './SingleToken'
 
 const Wrapper = styled.div`
   padding: 20px 0;
@@ -82,23 +80,24 @@ export const TechnicalAnalysisContext = createContext<TechnicalAnalysisContextPr
 
 export default function TechnicalAnalysis() {
   const theme = useTheme()
-  const { chain, address } = useParams()
+  const { data: tokenOverview, chain, address } = useKyberAIAssetOverview()
   const [tvWidget, setTvWidget] = useState<IChartingLibraryWidget | undefined>()
   const [prochartDataURL, setProchartDataURL] = useState<string | undefined>()
   const [liveChartTab, setLiveChartTab] = useState(ChartTab.First)
   const [showSRLevels, setShowSRLevels] = useState(true)
   const [priceChartResolution, setPriceChartResolution] = useState('4h')
   const now = Math.floor(Date.now() / 60000) * 60
-  const { data, isLoading } = useChartingDataQuery({
-    chain: chain || defaultExplorePageToken.chain,
-    address: address || defaultExplorePageToken.address,
-    from: now - ({ '1h': 1080000, '4h': 4320000, '1d': 12960000 }[priceChartResolution] || 1080000),
-    to: now,
-    candleSize: priceChartResolution,
-    currency: liveChartTab === ChartTab.First ? 'USD' : 'BTC',
-  })
-
-  const { data: tokenOverview } = useKyberAITokenOverview()
+  const { data, isLoading } = useChartingDataQuery(
+    {
+      chain: chain,
+      address: address,
+      from: now - ({ '1h': 1080000, '4h': 4320000, '1d': 12960000 }[priceChartResolution] || 1080000),
+      to: now,
+      candleSize: priceChartResolution,
+      currency: liveChartTab === ChartTab.First ? 'USD' : 'BTC',
+    },
+    { skip: !chain || !address },
+  )
 
   const SRLevels: ISRLevel[] = useMemo(() => {
     if (isLoading && !data) return []

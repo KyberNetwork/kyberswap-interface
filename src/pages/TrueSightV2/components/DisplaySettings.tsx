@@ -19,7 +19,7 @@ import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
 import { useTokenAnalysisSettings, useUpdateTokenAnalysisSettings } from 'state/user/hooks'
 
-import useKyberAITokenOverview from '../hooks/useKyberAITokenOverview'
+import useKyberAIAssetOverview from '../hooks/useKyberAIAssetOverview'
 import { HeaderButton } from '../pages/SingleToken'
 import { DiscoverTokenTab } from '../types'
 
@@ -112,7 +112,7 @@ export default function DisplaySettings({ currentTab }: { currentTab: DiscoverTo
   const storedTokenAnalysisSettings = useTokenAnalysisSettings()
   const updateTokenAnalysisSettings = useUpdateTokenAnalysisSettings()
   const toggleTutorial = useToggleModal(ApplicationModal.KYBERAI_TUTORIAL)
-  const { data: token } = useKyberAITokenOverview()
+  const { data: token } = useKyberAIAssetOverview()
   const { chain } = useParams()
   const ref = useRef<HTMLDivElement>(null)
   useOnClickOutside(ref, () => {

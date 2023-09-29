@@ -27,11 +27,14 @@ const Card = styled.div`
 export default function CexRekt() {
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const { address, chain } = useParams()
-  const { data } = useCexesLiquidationQuery({
-    tokenAddress: address,
-    chartSize: '1m',
-    chain,
-  })
+  const { data } = useCexesLiquidationQuery(
+    {
+      tokenAddress: address,
+      chartSize: '1m',
+      chain,
+    },
+    { skip: !chain || !address },
+  )
 
   return (
     <>
