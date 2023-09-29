@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { AnimatePresence, Reorder, useDragControls } from 'framer-motion'
-import { CSSProperties, memo, useEffect, useRef, useState } from 'react'
+import { CSSProperties, ReactNode, memo, useEffect, useRef, useState } from 'react'
 import { Check, Plus, X } from 'react-feather'
 import { useDispatch } from 'react-redux'
 import { Text } from 'rebass'
@@ -352,11 +352,15 @@ function WatchlistButton({
   symbol,
   size,
   wrapperStyle,
+  onSelectWatchlist,
+  trigger,
 }: {
   assetId?: string
   symbol?: string
   size?: number
   wrapperStyle?: CSSProperties
+  onSelectWatchlist?: (watchListId: ICustomWatchlists) => void
+  trigger?: ReactNode
 }) {
   const theme = useTheme()
   const dispatch = useDispatch()
@@ -415,6 +419,32 @@ function WatchlistButton({
     debounce(() => updateWatchlistsPriorities({ orderedIds }), 1000)
   }
 
+  const onSelect = (watchlist: ICustomWatchlists, watched: boolean) => {
+    if (onSelectWatchlist) {
+      onSelectWatchlist(watchlist)
+      return
+    }
+    watched ? handleRemoveFromWatchlist(watchlist.id) : handleAddtoWatchlist(watchlist.id)
+  }
+
+  const btnStar = (
+    <MouseoverTooltip
+      text={t`You can only watch up to ${MAX_LIMIT_WATCHED_TOKEN} tokens`}
+      disableTooltip={!isReachMaxLimit}
+    >
+      <StarWithAnimation
+        stopPropagation
+        loading={false}
+        watched={!!assetId && !!watchlists && watchlists?.some(item => item.assetIds?.includes(+assetId))}
+        onClick={() => {
+          !isReachMaxLimit && setOpenMenu(prev => !prev)
+        }}
+        wrapperStyle={wrapperStyle}
+        size={size}
+      />
+    </MouseoverTooltip>
+  )
+
   return (
     <div onClick={e => e.stopPropagation()}>
       <Popover
@@ -425,14 +455,13 @@ function WatchlistButton({
             {watchlists?.map((watchlists: ICustomWatchlists) => {
               const watched = !!assetId && !!watchlists.assetIds && watchlists.assetIds.includes(+assetId)
               return (
-                <MenuOption key={watchlists.id}>
-                  <StarWithAnimation
-                    watched={watched}
-                    size={16}
-                    onClick={() => {
-                      watched ? handleRemoveFromWatchlist(watchlists.id) : handleAddtoWatchlist(watchlists.id)
-                    }}
-                  />
+                <MenuOption
+                  key={watchlists.id}
+                  onClick={() => {
+                    onSelect(watchlists, watched)
+                  }}
+                >
+                  <StarWithAnimation watched={watched} size={16} />
                   {watchlists.name} ({watchlists.assetNumber})
                 </MenuOption>
               )
@@ -454,20 +483,18 @@ function WatchlistButton({
         placement="bottom-start"
         noArrow={true}
       >
-        <MouseoverTooltip
-          text={t`You can only watch up to ${MAX_LIMIT_WATCHED_TOKEN} tokens`}
-          disableTooltip={!isReachMaxLimit}
-        >
-          <StarWithAnimation
-            loading={false}
-            watched={!!assetId && !!watchlists && watchlists?.some(item => item.assetIds?.includes(+assetId))}
-            onClick={() => {
-              !isReachMaxLimit && setOpenMenu(prev => !prev)
+        {trigger ? (
+          <div
+            onClick={e => {
+              e.stopPropagation()
+              setOpenMenu(v => !v)
             }}
-            wrapperStyle={wrapperStyle}
-            size={size}
-          />
-        </MouseoverTooltip>
+          >
+            {trigger}
+          </div>
+        ) : (
+          btnStar
+        )}
       </Popover>
       <Modal isOpen={openManageModal} width="380px">
         <ModalWrapper onClick={e => e.stopPropagation()}>

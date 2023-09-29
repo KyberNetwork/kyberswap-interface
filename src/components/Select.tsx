@@ -92,7 +92,7 @@ function Select({
   style?: CSSProperties
   menuStyle?: CSSProperties
   optionStyle?: CSSProperties
-  onChange: (value: any) => void
+  onChange?: (value: any) => void
   forceMenuPlacementTop?: boolean
   arrowColor?: string
 }) {
@@ -148,7 +148,7 @@ function Select({
                 if (item.onSelect) item.onSelect?.()
                 else {
                   setSelected(value)
-                  onChange(value)
+                  onChange?.(value)
                 }
               }
               return (
