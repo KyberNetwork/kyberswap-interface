@@ -1,10 +1,9 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { t } from '@lingui/macro'
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Skeleton from 'react-loading-skeleton'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
-import styled, { css } from 'styled-components'
+import styled, { CSSProperties, css } from 'styled-components'
 
 import { ButtonGray } from 'components/Button'
 import Column from 'components/Column'
@@ -14,10 +13,9 @@ import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
 import MultipleChainSelect from 'pages/MyEarnings/MultipleChainSelect'
 import SubscribeButtonKyberAI from 'pages/TrueSightV2/components/SubscireButtonKyberAI'
-import WatchlistButton from 'pages/TrueSightV2/components/WatchlistButton'
+import WatchlistSelect from 'pages/TrueSightV2/components/TokenFilter/WatchlistSelect'
 import { NETWORK_TO_CHAINID, SUPPORTED_NETWORK_KYBERAI, Z_INDEX_KYBER_AI } from 'pages/TrueSightV2/constants'
 import { useGetFilterCategoriesQuery } from 'pages/TrueSightV2/hooks/useKyberAIData'
-import { ICustomWatchlists } from 'pages/TrueSightV2/types'
 import { useSessionInfo } from 'state/authen/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
@@ -39,7 +37,7 @@ const StyledSkeleton = styled(Skeleton)`
   width: 150px;
 `
 
-const StyledSelect = styled(Select)`
+export const StyledSelect = styled(Select)`
   ${shareStyle}
 `
 
@@ -106,6 +104,18 @@ const SelectGroup = styled.div`
 const getChainsFromSlugs = (values: string[] | undefined) =>
   (values || []).map(item => NETWORK_TO_CHAINID[item || '']).filter(Boolean)
 
+export const ActiveSelectItem = ({ name, label }: { name: string; label: ReactNode }) => {
+  const theme = useTheme()
+  return (
+    <Column gap="6px">
+      <SelectName>{name}</SelectName>
+      <Text color={theme.text} fontSize={'14px'} fontWeight={'500'} className="test">
+        {label}
+      </Text>
+    </Column>
+  )
+}
+
 export default function TokenFilter({
   handleFilterChange,
   setShowShare,
@@ -158,12 +168,6 @@ export default function TokenFilter({
     [chainFilter, onChangeFilter, allChainIds, onTrackingSelectChain],
   )
 
-  const [watchListInfo, setWatchlistInfo] = useState<ICustomWatchlists>()
-  const handleChangeWatchlist = (watchlist: ICustomWatchlists) => {
-    setWatchlistInfo(watchlist)
-    onChangeFilter('watchlist', watchlist.id + '')
-  }
-
   const isInit = useRef(false)
   useEffect(() => {
     if (isInit.current || defaultChains.length + allChainIds.length === 0) return
@@ -174,15 +178,12 @@ export default function TokenFilter({
   // todo loading de len filter
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const activeRender = (name: string, label: ReactNode) => (
-    <Column gap="6px">
-      <SelectName>{name}</SelectName>
-      <Text color={theme.text} fontSize={'14px'} fontWeight={'500'} className="test">
-        {label}
-      </Text>
-    </Column>
-  )
-
+  const menuStyle: CSSProperties = {
+    zIndex: Z_INDEX_KYBER_AI.FILTER_TOKEN_OPTIONS,
+    top: upToSmall ? undefined : SELECT_SIZE,
+    maxHeight: 400,
+    overflowY: 'scroll',
+  }
   return (
     <StyledWrapper>
       <SelectGroup>
@@ -202,32 +203,23 @@ export default function TokenFilter({
               handleChangeChains={handleChainChange}
               chainIds={allChainIds}
               selectedChainIds={selectedChains}
-              activeRender={node => activeRender('Chains', node)}
+              activeRender={node => <ActiveSelectItem name={'Chains'} label={node} />}
             />
             {listSelects.map(({ queryKey, displayName, values }) => (
               <StyledSelect
                 value={filter[queryKey]}
                 key={queryKey}
-                activeRender={item => activeRender(displayName, item?.label)}
+                activeRender={item => <ActiveSelectItem name={displayName} label={item?.label} />}
                 options={values}
                 onChange={value => onChangeFilter(queryKey, value)}
                 optionStyle={{ fontSize: '14px' }}
-                menuStyle={{
-                  zIndex: Z_INDEX_KYBER_AI.FILTER_TOKEN_OPTIONS,
-                  top: upToSmall ? undefined : SELECT_SIZE,
-                  maxHeight: 400,
-                  overflowY: 'scroll',
-                }}
+                menuStyle={menuStyle}
               />
             ))}
-            <WatchlistButton
-              trigger={
-                <StyledSelect
-                  options={[]}
-                  activeRender={() => activeRender('Watchlist', watchListInfo?.name || t`All Tokens`)}
-                />
-              }
-              onSelectWatchlist={handleChangeWatchlist}
+            <WatchlistSelect
+              value={filter['watchlist']}
+              onChange={value => onChangeFilter('watchlist', value)}
+              menuStyle={menuStyle}
             />
           </>
         )}

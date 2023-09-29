@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { AnimatePresence, Reorder, useDragControls } from 'framer-motion'
-import { CSSProperties, ReactNode, memo, useEffect, useRef, useState } from 'react'
+import { CSSProperties, memo, useEffect, useRef, useState } from 'react'
 import { Check, Plus, X } from 'react-feather'
 import { useDispatch } from 'react-redux'
 import { Text } from 'rebass'
@@ -347,40 +347,86 @@ const debounce = (func: () => void, timeout = 1000) => {
 
 const MAX_LIMIT_WATCHED_TOKEN = 50
 
+export const ManageListModal = ({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (v: boolean) => void }) => {
+  const { data, refetch: refetchWatchlists } = useGetWatchlistInformationQuery()
+  const watchlists = data?.watchlists || []
+  const numberOfWatchlists = watchlists?.length || 0
+  const dispatch = useDispatch()
+  const [updateWatchlistsPriorities] = useUpdateCustomizedWatchlistsPrioritiesMutation()
+  const reorderWrapperRef = useRef<HTMLDivElement>(null)
+  const handleReorder = (newOrders: ICustomWatchlists[]) => {
+    const orderedIds = newOrders.map(item => item.id).join(',')
+    dispatch(
+      kyberAIApi.util.updateQueryData('getWatchlistInformation', undefined, draft => {
+        const order = orderedIds.split(',')
+        draft.watchlists = draft.watchlists.sort((a, b) => {
+          return order.indexOf(a.id.toString()) - order.indexOf(b.id.toString())
+        })
+        return draft
+      }),
+    )
+    debounce(() => updateWatchlistsPriorities({ orderedIds }), 1000)
+  }
+
+  const onDismiss = () => setIsOpen(false)
+
+  return (
+    <Modal isOpen={isOpen} width="380px" onDismiss={onDismiss}>
+      <ModalWrapper onClick={e => e.stopPropagation()}>
+        <RowBetween>
+          <Text>Manage Watchlists</Text>
+          <ButtonAction onClick={onDismiss}>
+            <X />
+          </ButtonAction>
+        </RowBetween>
+        <CreateListInput watchlistsCount={numberOfWatchlists} refetchList={() => refetchWatchlists()} />
+        <ReorderWrapper ref={reorderWrapperRef}>
+          <Reorder.Group axis="y" values={watchlists} onReorder={handleReorder}>
+            <AnimatePresence>
+              {watchlists?.map(item => (
+                <WatchlistsItem
+                  wrapperRef={reorderWrapperRef}
+                  watchlistsCount={numberOfWatchlists}
+                  key={item.id}
+                  item={item}
+                  refetchList={() => refetchWatchlists()}
+                />
+              ))}
+            </AnimatePresence>
+          </Reorder.Group>
+        </ReorderWrapper>
+      </ModalWrapper>
+    </Modal>
+  )
+}
+
 function WatchlistButton({
   assetId,
   symbol,
   size,
   wrapperStyle,
-  onSelectWatchlist,
-  trigger,
 }: {
   assetId?: string
   symbol?: string
   size?: number
   wrapperStyle?: CSSProperties
-  onSelectWatchlist?: (watchListId: ICustomWatchlists) => void
-  trigger?: ReactNode
 }) {
   const theme = useTheme()
-  const dispatch = useDispatch()
+
   const mixpanelHandler = useMixpanelKyberAI()
 
   const [openMenu, setOpenMenu] = useState(false)
   const [openManageModal, setOpenManageModal] = useState(false)
 
-  const { data, refetch: refetchWatchlists } = useGetWatchlistInformationQuery()
+  const { data } = useGetWatchlistInformationQuery()
   const watchlists = data?.watchlists || []
-  const numberOfWatchlists = watchlists?.length || 0
   const isReachMaxLimit = (data?.totalUniqueAssetNumber || 0) >= MAX_LIMIT_WATCHED_TOKEN
-
-  const [updateWatchlistsPriorities] = useUpdateCustomizedWatchlistsPrioritiesMutation()
 
   const [addToWatchlist] = useAddToWatchlistMutation()
   const [removeFromWatchlist] = useRemoveFromWatchlistMutation()
 
   const ref = useRef<HTMLDivElement>(null)
-  const reorderWrapperRef = useRef<HTMLDivElement>(null)
+
   useOnClickOutside(ref, () => {
     setOpenMenu(false)
   })
@@ -405,25 +451,7 @@ function WatchlistButton({
     }
   }
 
-  const handleReorder = (newOrders: ICustomWatchlists[]) => {
-    const orderedIds = newOrders.map(item => item.id).join(',')
-    dispatch(
-      kyberAIApi.util.updateQueryData('getWatchlistInformation', undefined, draft => {
-        const order = orderedIds.split(',')
-        draft.watchlists = draft.watchlists.sort((a, b) => {
-          return order.indexOf(a.id.toString()) - order.indexOf(b.id.toString())
-        })
-        return draft
-      }),
-    )
-    debounce(() => updateWatchlistsPriorities({ orderedIds }), 1000)
-  }
-
   const onSelect = (watchlist: ICustomWatchlists, watched: boolean) => {
-    if (onSelectWatchlist) {
-      onSelectWatchlist(watchlist)
-      return
-    }
     watched ? handleRemoveFromWatchlist(watchlist.id) : handleAddtoWatchlist(watchlist.id)
   }
 
@@ -483,45 +511,9 @@ function WatchlistButton({
         placement="bottom-start"
         noArrow={true}
       >
-        {trigger ? (
-          <div
-            onClick={e => {
-              e.stopPropagation()
-              setOpenMenu(v => !v)
-            }}
-          >
-            {trigger}
-          </div>
-        ) : (
-          btnStar
-        )}
+        {btnStar}
       </Popover>
-      <Modal isOpen={openManageModal} width="380px">
-        <ModalWrapper onClick={e => e.stopPropagation()}>
-          <RowBetween>
-            <Text>Manage Watchlists</Text>
-            <ButtonAction onClick={() => setOpenManageModal(false)}>
-              <X />
-            </ButtonAction>
-          </RowBetween>
-          <CreateListInput watchlistsCount={numberOfWatchlists} refetchList={() => refetchWatchlists()} />
-          <ReorderWrapper ref={reorderWrapperRef}>
-            <Reorder.Group axis="y" values={watchlists} onReorder={handleReorder}>
-              <AnimatePresence>
-                {watchlists?.map(item => (
-                  <WatchlistsItem
-                    wrapperRef={reorderWrapperRef}
-                    watchlistsCount={numberOfWatchlists}
-                    key={item.id}
-                    item={item}
-                    refetchList={() => refetchWatchlists()}
-                  />
-                ))}
-              </AnimatePresence>
-            </Reorder.Group>
-          </ReorderWrapper>
-        </ModalWrapper>
-      </Modal>
+      <ManageListModal isOpen={openManageModal} setIsOpen={setOpenManageModal} />
     </div>
   )
 }
