@@ -174,6 +174,9 @@ export default function AddressInputPanel({
             <ExternalLink
               href={getEtherscanLink(chainId, name ?? address, 'address')}
               style={{ fontSize: '12px', marginLeft: '4px' }}
+              onClick={e => {
+                e.stopPropagation()
+              }}
             >
               ({networkInfo.etherscanName})
             </ExternalLink>

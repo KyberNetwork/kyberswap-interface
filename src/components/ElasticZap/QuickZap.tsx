@@ -204,6 +204,7 @@ function QuickZapModal({ isOpen, onDismiss, poolAddress, tokenId }: Props) {
   }, [amountIn, position, poolAddress, selectedCurrency, tickLower, tickUpper])
 
   const { loading: zapLoading, result } = useZapInPoolResult(params)
+  console.log(result)
   const [approvalState, approve] = useApproveCallback(amountIn, zapInContractAddress)
   const { zapInPoolToAddLiquidity, zapInPoolToMint } = useZapInAction()
 

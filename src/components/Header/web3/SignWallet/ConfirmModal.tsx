@@ -38,7 +38,7 @@ const Highlight = styled.span`
 
 const ModalConfirmProfile: React.FC = () => {
   const theme = useTheme()
-  const isOpen = useSelector((state: AppState) => state.authen.showConfirmProfile)
+
   const setConfirm = useSetConfirmChangeProfile()
 
   const [connectSuccess, setConnectSuccess] = useState(false)
@@ -50,6 +50,10 @@ const ModalConfirmProfile: React.FC = () => {
   const { getCacheProfile } = useProfileInfo()
   const navigate = useNavigate()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+
+  const isOpen =
+    useSelector((state: AppState) => state.authen.showConfirmProfile) &&
+    signedAccount?.toLowerCase?.() !== account?.toLowerCase?.()
 
   useEffect(() => {
     if (!isOpen)

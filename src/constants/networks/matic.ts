@@ -2,7 +2,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import { EVMNetworkInfo } from 'constants/networks/type'
 
-const EMPTY = ''
 const NOT_SUPPORT = null
 
 const maticInfo: EVMNetworkInfo = {
@@ -20,7 +19,7 @@ const maticInfo: EVMNetworkInfo = {
   defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-polygon',
   etherscanUrl: 'https://polygonscan.com',
   etherscanName: 'Polygonscan',
-  bridgeURL: EMPTY,
+  bridgeURL: 'https://wallet.polygon.technology/',
   nativeToken: {
     symbol: 'MATIC',
     name: 'Polygon',
@@ -71,7 +70,7 @@ const maticInfo: EVMNetworkInfo = {
       '0xf2BcDf38baA52F6b0C1Db5B025DfFf01Ae1d6dBd',
     ],
     zap: {
-      helper: '0x74d7F490BF302B2c26Db059c0f4c73fB7159D61C',
+      helper: '0x03d07c4fb8Ab9165aa99c758FEc879A78A5c6395',
       zapIn: '0xE04Ce2D23223a643a7Cb1FB4F8396D255058d60d',
       zapOut: '0xf55d0A8Df5C864c0058CC2F755695ff6A20c9CB4',
     },

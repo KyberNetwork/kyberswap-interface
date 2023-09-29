@@ -17,6 +17,7 @@ import NavGroup from './groups/NavGroup'
 import { DropdownTextAnchor, StyledNavLink } from './styleds'
 
 const CustomSlideToUnlock = styled(SlideToUnlock)`
+  background: ${({ theme }) => theme.subText};
   background: linear-gradient(
     to right,
     ${({ theme }) => theme.subText} 0,
@@ -25,8 +26,8 @@ const CustomSlideToUnlock = styled(SlideToUnlock)`
   );
   background-clip: text;
   -webkit-background-clip: text;
-
   &[data-active='true'] {
+    background: ${({ theme }) => theme.primary};
     background: linear-gradient(
       to right,
       ${({ theme }) => theme.primary} 0,

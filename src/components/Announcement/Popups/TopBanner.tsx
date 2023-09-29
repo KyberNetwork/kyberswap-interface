@@ -86,6 +86,8 @@ const TextContent = styled.div<{ isOverflow: boolean; animationDuration: number 
      };
     white-space: nowrap;
     position: absolute;
+    display: flex;
+    gap: 4px;
   `}
   > * {
     margin: 0;

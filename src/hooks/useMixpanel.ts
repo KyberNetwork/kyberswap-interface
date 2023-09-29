@@ -1739,6 +1739,7 @@ export const useGlobalMixpanelEvents = () => {
         'notification-center': 'Notification',
         [APP_PATHS.KYBERAI_ABOUT]: 'KyberAI About',
         [APP_PATHS.KYBERDAO_KNC_UTILITY]: 'Gas refund - KNC Utility',
+        [APP_PATHS.MY_EARNINGS]: 'Earning Dashboard',
       }
       const protectedPaths: { [key: string]: string } = {
         [APP_PATHS.KYBERAI_RANKINGS]: 'KyberAI Rankings',

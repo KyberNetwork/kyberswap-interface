@@ -28,16 +28,6 @@ export const NativeCurrencies = new Proxy(NativeCurrenciesLocal, {
 // This list is intentionally different from the list above
 // Was requested from product team, to implement Swap fee config
 export const STABLE_COIN_ADDRESSES_TO_TAKE_FEE: Record<ChainId, string[]> = {
-  [ChainId.OASIS]: [
-    '0x80A16016cC4A2E6a2CACA8a4a498b1699fF0f844', // usdc
-    '0x6Cb9750a92643382e020eA9a170AbB83Df05F30B', // usdt
-    '0x639A647fbe20b6c8ac19E48E2de44ea792c62c5C', // busd
-  ],
-  [ChainId.VELAS]: [
-    '0xe2C120f188eBd5389F71Cf4d9C16d05b62A58993', // usdc
-    '0x01445C31581c354b7338AC35693AB2001B50b9aE', // usdt
-    '0xc111c29A988AE0C0087D97b33C6E6766808A3BD3', // busd
-  ],
   [ChainId.AURORA]: [
     '0xB12BFcA5A55806AaF64E99521918A4bf0fC40802', // usdc
     '0x4988a896b1227218e4A686fdE5EabdcAbd91571f', // usdt
@@ -131,23 +121,10 @@ export const SUPER_STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
     '0xE887512ab8BC60BcC9224e1c3b5Be68E26048B8B', // usdt_e
     '0xAE17940943BA9440540940DB0F1877f101D39e8b', // usdc_e
   ],
-  [ChainId.VELAS]: [
-    '0xe2C120f188eBd5389F71Cf4d9C16d05b62A58993', // usdc
-    '0x01445C31581c354b7338AC35693AB2001B50b9aE', // usdt
-  ],
   [ChainId.AURORA]: [
     '0xe3520349F477A5F6EB06107066048508498A291b', // Dai
     '0xB12BFcA5A55806AaF64E99521918A4bf0fC40802', // usdc
     '0x4988a896b1227218e4A686fdE5EabdcAbd91571f', // usdt
-  ],
-  [ChainId.OASIS]: [
-    '0x80A16016cC4A2E6a2CACA8a4a498b1699fF0f844', // usdc
-    '0xdC19A122e268128B5eE20366299fc7b5b199C8e3', // usdtet
-    '0x639A647fbe20b6c8ac19E48E2de44ea792c62c5C', // busd
-    '0x6Cb9750a92643382e020eA9a170AbB83Df05F30B', // usdt
-    '0x5a4Ba16C2AeB295822A95280A7c7149E87769E6A', // ceDAI
-    '0x81ECac0D6Be0550A00FF064a4f9dd2400585FE9c', // ceUSDC
-    '0x4Bf769b05E832FCdc9053fFFBC78Ca889aCb5E1E', // ceUSDT
   ],
   [ChainId.OPTIMISM]: [
     '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1', // Dai
@@ -213,9 +190,7 @@ export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
   [ChainId.CRONOS]: [],
   [ChainId.ARBITRUM]: [],
   [ChainId.BTTC]: [],
-  [ChainId.VELAS]: [],
   [ChainId.AURORA]: [],
-  [ChainId.OASIS]: [],
   [ChainId.OPTIMISM]: [],
   [ChainId.SOLANA]: [],
   [ChainId.GÖRLI]: [],
@@ -252,10 +227,6 @@ export const DAI: { [chainId in ChainId]: Token } = {
   [ChainId.LINEA]: new Token(ChainId.LINEA, '0x4AF15ec2A0BD43Db75dd04E62FAA3B8EF36b00d5', 18, 'DAI', 'Dai'),
   [ChainId.BASE]: new Token(ChainId.BASE, '0x50c5725949a6f0c72e6c4a641f24049a917db0cb', 18, 'DAI', 'Dai'),
 
-  //not existing on Velas
-  [ChainId.VELAS]: new Token(ChainId.VELAS, '0xe7dC549AE8DB61BDE71F22097BEcc8dB542cA100', 18, 'DAI', 'DAI'),
-  //not existing on Oasis
-  [ChainId.OASIS]: new Token(ChainId.OASIS, '0xe7dC549AE8DB61BDE71F22097BEcc8dB542cA100', 18, 'DAI', 'DAI'),
   [ChainId.OPTIMISM]: new Token(ChainId.OPTIMISM, '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1', 18, 'DAI', 'DAI'),
   [ChainId.ZKSYNC]: new Token(ChainId.ZKSYNC, '0x4BEf76b6b7f2823C6c1f4FcfEACD85C24548ad7e', 18, 'DAI', 'Dai'),
   [ChainId.SOLANA]: new Token(
@@ -300,14 +271,6 @@ export const USDC: { [chainId in ChainId]: Token } = {
   [ChainId.ARBITRUM]: new Token(ChainId.ARBITRUM, '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8', 6, 'USDC', 'USD Coin'),
   [ChainId.BTTC]: new Token(ChainId.BTTC, '0xCa424b845497f7204D9301bd13Ff87C0E2e86FCF', 18, 'USDC_b', 'USD Coin_BSC'),
   [ChainId.AURORA]: new Token(ChainId.AURORA, '0xB12BFcA5A55806AaF64E99521918A4bf0fC40802', 6, 'USDC', 'USD Coin'),
-  [ChainId.VELAS]: new Token(ChainId.VELAS, '0xe2C120f188eBd5389F71Cf4d9C16d05b62A58993', 6, 'USDC', 'Multichain USDC'),
-  [ChainId.OASIS]: new Token(
-    ChainId.OASIS,
-    '0x80a16016cc4a2e6a2caca8a4a498b1699ff0f844',
-    6,
-    'USDC',
-    'USD Coin (Multichain)',
-  ),
   [ChainId.OPTIMISM]: new Token(ChainId.OPTIMISM, '0x7F5c764cBc14f9669B88837ca1490cCa17c31607', 6, 'USDC', 'USD Coin'),
   [ChainId.ZKSYNC]: new Token(ChainId.ZKSYNC, '0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4', 6, 'USDC', 'USD Coin'),
   [ChainId.SOLANA]: new Token(ChainId.SOLANA, 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', 6, 'USDC', 'USD Coin'),
@@ -367,8 +330,6 @@ export const USDT: { [chainId in ChainId]: Token } = {
   ),
   [ChainId.BTTC]: new Token(ChainId.BTTC, '0x9B5F27f6ea9bBD753ce3793a07CbA3C74644330d', 18, 'USDT_b', 'Tether USD_BSC'),
   [ChainId.AURORA]: new Token(ChainId.AURORA, '0x4988a896b1227218e4A686fdE5EabdcAbd91571f', 6, 'USDT', 'Tether USD'),
-  [ChainId.VELAS]: new Token(ChainId.VELAS, '0x01445C31581c354b7338AC35693AB2001B50b9aE', 6, 'USDT', 'Multichain USDT'),
-  [ChainId.OASIS]: new Token(ChainId.OASIS, '0x6Cb9750a92643382e020eA9a170AbB83Df05F30B', 6, 'USDT', 'Tether USD'),
   [ChainId.OPTIMISM]: new Token(
     ChainId.OPTIMISM,
     '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58',
@@ -427,8 +388,6 @@ export const KNC: { [chainId in ChainId]: Token } = {
   [ChainId.FANTOM]: new Token(ChainId.FANTOM, KNC_ADDRESS, 18, 'KNC', 'KNC'),
   [ChainId.BASE]: new Token(ChainId.BASE, KNC_ADDRESS, 18, 'KNC', 'KNC'),
   [ChainId.ZKSYNC]: new Token(ChainId.ZKSYNC, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.VELAS]: new Token(ChainId.VELAS, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.OASIS]: new Token(ChainId.OASIS, KNC_ADDRESS, 18, 'KNC', 'KNC'),
 
   [ChainId.AVAXTESTNET]: new Token(ChainId.AVAXTESTNET, KNC_ADDRESS, 18, 'KNC', 'KNC'),
   [ChainId.MUMBAI]: new Token(ChainId.MUMBAI, '0xFD1f9381Cb641Dc76Fe8087dbcf8ea84a2c77cbE', 18, 'KNC', 'KNC'),
@@ -463,9 +422,7 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   [ChainId.CRONOS]: USDC[ChainId.CRONOS],
   [ChainId.ARBITRUM]: new Token(ChainId.ARBITRUM, '0x912CE59144191C1204E64559FE8253a0e49E6548', 18, 'ARB', 'Arbitrum'),
   [ChainId.OPTIMISM]: USDC[ChainId.OPTIMISM],
-  [ChainId.VELAS]: USDC[ChainId.VELAS],
   [ChainId.AURORA]: USDC[ChainId.AURORA],
-  [ChainId.OASIS]: USDC[ChainId.OASIS],
   [ChainId.BTTC]: USDT[ChainId.BTTC], // USDT_b
   [ChainId.SOLANA]: USDC[ChainId.SOLANA],
   [ChainId.GÖRLI]: USDT[ChainId.GÖRLI],

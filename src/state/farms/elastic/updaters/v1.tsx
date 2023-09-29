@@ -1,5 +1,5 @@
 import { gql, useLazyQuery } from '@apollo/client'
-import { ChainId, CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { useEffect } from 'react'
 
@@ -151,24 +151,24 @@ const FarmUpdaterV1: React.FC<CommonProps> = ({ interval }) => {
   })
 
   useEffect(() => {
-    if (!elasticFarm.farms && !elasticFarm.loading) {
-      dispatch(setLoading({ chainId, loading: true }))
-      getElasticFarms().finally(() => {
-        dispatch(setLoading({ chainId, loading: false }))
-      })
+    const getFarm = (withLoading = false) => {
+      withLoading && dispatch(setLoading({ chainId, loading: true }))
+      try {
+        getElasticFarms()
+      } finally {
+        withLoading && dispatch(setLoading({ chainId, loading: false }))
+      }
     }
-  }, [elasticFarm, getElasticFarms, dispatch, chainId])
-
-  useEffect(() => {
+    getFarm(true)
     const i = interval
       ? setInterval(() => {
-          getElasticFarms()
-        }, 10_000)
+          getFarm()
+        }, 20_000)
       : undefined
     return () => {
       i && clearInterval(i)
     }
-  }, [interval, getElasticFarms])
+  }, [interval, chainId, getElasticFarms, dispatch])
 
   useEffect(() => {
     if (error && chainId) {
@@ -177,8 +177,9 @@ const FarmUpdaterV1: React.FC<CommonProps> = ({ interval }) => {
     }
   }, [error, dispatch, chainId])
 
+  const hasFarm = elasticFarm?.farms?.length
   useEffect(() => {
-    if (data?.farms && chainId) {
+    if (data?.farms && chainId && !hasFarm) {
       // transform farm data
       const formattedData: ElasticFarm[] = data.farms.map((farm: SubgraphFarm) => {
         return {
@@ -236,7 +237,7 @@ const FarmUpdaterV1: React.FC<CommonProps> = ({ interval }) => {
 
             return {
               startTime: Number(pool.startTime),
-              endTime: chainId === ChainId.AVAXMAINNET && pool.pid === '125' ? 1680104783 : Number(pool.endTime),
+              endTime: Number(pool.endTime),
               pid: pool.pid,
               id: pool.id,
               feeTarget: pool.feeTarget,
@@ -266,7 +267,7 @@ const FarmUpdaterV1: React.FC<CommonProps> = ({ interval }) => {
       })
       dispatch(setFarms({ chainId, farms: formattedData }))
     }
-  }, [data, dispatch, chainId])
+  }, [data, dispatch, chainId, hasFarm])
 
   return null
 }

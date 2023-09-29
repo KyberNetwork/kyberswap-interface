@@ -23,7 +23,7 @@ const zkEvm: EVMNetworkInfo = {
     'https://polygon-zkevm-graph.kyberengineering.io/subgraphs/name/kybernetwork/polygon-zkevm-blocks',
   etherscanUrl: 'https://zkevm.polygonscan.com',
   etherscanName: 'Polygon zkEVM Explorer',
-  bridgeURL: EMPTY,
+  bridgeURL: 'https://wallet.polygon.technology/',
   nativeToken: {
     symbol: 'ETH',
     name: 'ETH',

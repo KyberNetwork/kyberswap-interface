@@ -106,11 +106,17 @@ jobs:
         env:
           DISPLAY: :0.0
 
+      - name: Create env file
+        run: |
+          touch .env
+          echo ENV=${ENV} > .env
+          echo CYPRESS_BASE_URL='http://127.0.0.1:4173/' > .env
+
       - name: Run Cypress Test
         run: |+
           #!/bin/bash
           yarn preview &
-          yarn test-e2e -e grepTags=smoke,NETWORK=Ethereum
+          yarn test-e2e -c baseUrl='http://127.0.0.1:4173/' -e grepTags=smoke,NETWORK=Ethereum
         env:
             DISPLAY: :0.0
 

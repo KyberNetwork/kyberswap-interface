@@ -4,7 +4,6 @@ import EthereumLogo from 'assets/images/ethereum-logo.png'
 import ARBITRUM from 'assets/networks/arbitrum-network.svg'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
-const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
@@ -23,7 +22,7 @@ const arbitrumInfo: EVMNetworkInfo = {
   defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/arbitrum-blocks',
   etherscanUrl: 'https://arbiscan.io',
   etherscanName: 'Arbiscan',
-  bridgeURL: EMPTY,
+  bridgeURL: 'https://bridge.arbitrum.io/',
   nativeToken: {
     symbol: 'ETH',
     name: 'ETH',

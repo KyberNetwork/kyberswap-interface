@@ -4,7 +4,6 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { useGetNativeTokenLogo } from 'components/CurrencyLogo'
-import { formatUSDValue } from 'components/EarningAreaChart/utils'
 import Logo from 'components/Logo'
 import { MouseoverTooltip } from 'components/Tooltip'
 import CommonView, { CommonProps } from 'pages/MyEarnings/ElasticPools/SinglePosition/CommonView'
@@ -14,7 +13,7 @@ import OriginalMyEarningsOverTimePanel from 'pages/MyEarnings/MyEarningsOverTime
 import { calculateEarningStatsTick } from 'pages/MyEarnings/utils'
 import { useAppSelector } from 'state/hooks'
 import { EarningStatsTick } from 'types/myEarnings'
-import { formattedNum } from 'utils'
+import { formatDisplayNumber } from 'utils/numbers'
 
 const MyEarningsOverTimePanel = styled(OriginalMyEarningsOverTimePanel)`
   padding: 0;
@@ -62,7 +61,9 @@ const EarningView: React.FC<CommonProps> = props => {
 
         <HoverDropdown
           disabled={!earningToday?.totalValue}
-          anchor={<Value>{earningToday ? formatUSDValue(earningToday.totalValue, false) : '--'}</Value>}
+          anchor={
+            <Value>{formatDisplayNumber(earningToday?.totalValue, { style: 'currency', significantDigits: 6 })}</Value>
+          }
           text={
             <>
               {earningToday?.tokens.map((token, index) => (
@@ -74,8 +75,8 @@ const EarningView: React.FC<CommonProps> = props => {
                   }}
                 >
                   <Logo srcs={[token.logoUrl]} style={{ flex: '0 0 16px', height: '16px', borderRadius: '999px' }} />
-                  <Text fontSize={12}>
-                    {formattedNum(token.amount, false)} {token.symbol}
+                  <Text fontSize={12} sx={{ whiteSpace: 'nowrap' }}>
+                    {formatDisplayNumber(token.amount, { significantDigits: 6 })} {token.symbol}
                   </Text>
                 </Flex>
               ))}
@@ -95,8 +96,8 @@ const EarningView: React.FC<CommonProps> = props => {
         </Row>
 
         <Row>
-          <ValueAPR>{myPoolAPR ? myPoolAPR.toFixed(2) + '%' : '--'}</ValueAPR>
-          <ValueAPR>{myFarmAPR ? myFarmAPR.toFixed(2) + '%' : '--'}</ValueAPR>
+          <ValueAPR>{formatDisplayNumber(myPoolAPR / 100, { style: 'percent', fractionDigits: 2 })}</ValueAPR>
+          <ValueAPR>{formatDisplayNumber(myFarmAPR / 100, { style: 'percent', fractionDigits: 2 })}</ValueAPR>
         </Row>
       </Column>
 

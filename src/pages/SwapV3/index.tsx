@@ -205,6 +205,7 @@ export default function Swap() {
   const tradeRouteComposition = useMemo(() => {
     return getTradeComposition(chainId, routeSummary?.parsedAmountIn, undefined, routeSummary?.route, defaultTokens)
   }, [chainId, defaultTokens, routeSummary])
+  const swapActionsRef = useRef(null)
 
   return (
     <>
@@ -218,7 +219,7 @@ export default function Swap() {
         <Banner />
         <Container>
           <SwapFormWrapper isShowTutorial={isShowTutorial}>
-            <Header activeTab={activeTab} setActiveTab={setActiveTab} />
+            <Header activeTab={activeTab} setActiveTab={setActiveTab} swapActionsRef={swapActionsRef} />
 
             {(isLimitPage || isSwapPage) && !TYPE_AND_SWAP_NOT_SUPPORTED_CHAINS.includes(chainId) && (
               <PairSuggestion
@@ -251,6 +252,7 @@ export default function Swap() {
                   onBack={onBackToSwapTab}
                   onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}
                   onClickGasPriceTracker={() => setActiveTab(TAB.GAS_PRICE_TRACKER)}
+                  swapActionsRef={swapActionsRef}
                 />
               )}
               {activeTab === TAB.GAS_PRICE_TRACKER && (

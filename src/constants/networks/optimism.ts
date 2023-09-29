@@ -4,7 +4,6 @@ import EthereumLogo from 'assets/images/ethereum-logo.png'
 import OPTIMISM from 'assets/networks/optimism-network.svg'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
-const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
@@ -23,7 +22,7 @@ const optimismInfo: EVMNetworkInfo = {
   defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/ianlapham/uni-testing-subgraph',
   etherscanUrl: 'https://optimistic.etherscan.io',
   etherscanName: 'Optimistic Ethereum Explorer',
-  bridgeURL: EMPTY,
+  bridgeURL: 'https://app.optimism.io/bridge/deposit',
   nativeToken: {
     symbol: 'ETH',
     name: 'ETH',

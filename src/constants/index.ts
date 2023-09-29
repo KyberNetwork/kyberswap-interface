@@ -7,8 +7,7 @@ import { TransactionFlowState } from 'types/TransactionFlowState'
 
 import { CAMPAIGN_BASE_URL as CAMPAIGN_BASE_DOMAIN } from './env'
 import * as ENV from './env'
-import { EVM_NETWORK, NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from './networks'
-import { ENV_TYPE } from './type'
+import { EVM_MAINNET_NETWORKS, EVM_NETWORK, NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from './networks'
 
 export const EMPTY_OBJECT: any = {}
 export const EMPTY_ARRAY: any[] = []
@@ -16,12 +15,30 @@ export const EMPTY_FUNCTION = () => {
   // empty
 }
 
-export const BAD_RECIPIENT_ADDRESSES: string[] = [
-  NETWORKS_INFO[ChainId.MAINNET].classic.static.factory,
-  NETWORKS_INFO[ChainId.MAINNET].classic.static.router,
-  NETWORKS_INFO[ChainId.MAINNET].classic.static.factory,
-  NETWORKS_INFO[ChainId.MAINNET].classic.static.router,
-]
+export const BAD_RECIPIENT_ADDRESSES: Set<string> = new Set(
+  EVM_MAINNET_NETWORKS.map(chainId => [
+    ...Object.values(NETWORKS_INFO[chainId].classic.static || {}),
+    ...Object.values(NETWORKS_INFO[chainId].classic.oldStatic || {}),
+    ...Object.values(NETWORKS_INFO[chainId].classic.dynamic || {}),
+    ...Object.values(NETWORKS_INFO[chainId].classic.fairlaunchV2 || {}),
+    ...Object.values(NETWORKS_INFO[chainId].elastic.farms || {}),
+    ...Object.values(NETWORKS_INFO[chainId].elastic.farmV2S || {}),
+    ...([
+      NETWORKS_INFO[chainId].classic.claimReward,
+      NETWORKS_INFO[chainId].elastic.coreFactory,
+      NETWORKS_INFO[chainId].elastic.nonfungiblePositionManager,
+      NETWORKS_INFO[chainId].elastic.tickReader,
+      NETWORKS_INFO[chainId].elastic.quoter,
+      NETWORKS_INFO[chainId].elastic.routers,
+      NETWORKS_INFO[chainId].elastic.farmv2Quoter,
+      NETWORKS_INFO[chainId].kyberDAO?.staking,
+      NETWORKS_INFO[chainId].kyberDAO?.dao,
+      NETWORKS_INFO[chainId].kyberDAO?.rewardsDistributor,
+      NETWORKS_INFO[chainId].kyberDAO?.KNCAddress,
+      NETWORKS_INFO[chainId].kyberDAO?.KNCLAddress,
+    ].filter(s => typeof s === 'string') as string[]),
+  ]).flat(),
+)
 
 export class AbortedError extends Error {}
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -126,6 +143,8 @@ export const DEFAULT_DEADLINE_FROM_NOW = 60 * 20
 // denominated in seconds
 export const TIME_TO_REFRESH_SWAP_RATE = 10
 
+export const BIG_INT_ONE = JSBI.BigInt(1)
+export const BIG_INT_MINUS_ONE = JSBI.BigInt(-1)
 export const BIG_INT_ZERO = JSBI.BigInt(0)
 
 // one basis point
@@ -261,12 +280,6 @@ export const EIP712Domain = [
   { name: 'verifyingContract', type: 'address' },
 ]
 
-if (ENV.ENV_LEVEL < ENV_TYPE.PROD) {
-  console.groupCollapsed('ENV')
-  console.log(JSON.stringify(ENV, null, 4))
-  console.groupEnd()
-}
-
 export const INPUT_DEBOUNCE_TIME = 300
 
 export const ENABLE_CLICK_TO_REFRESH_GET_ROUTE = false
@@ -305,7 +318,7 @@ export const TRANSACTION_STATE_DEFAULT: TransactionFlowState = {
   pendingText: '',
 }
 
-export const CHAINS_SUPPORT_FEE_CONFIGS = [ChainId.OASIS, ChainId.VELAS, ChainId.AURORA, ChainId.CRONOS]
+export const CHAINS_SUPPORT_FEE_CONFIGS = [ChainId.AURORA, ChainId.CRONOS]
 export const CHAINS_SUPPORT_CROSS_CHAIN =
   ENV.ENV_KEY === ENV.EnvKeys.PROD || ENV.ENV_KEY === ENV.EnvKeys.STG
     ? [
@@ -385,3 +398,14 @@ export const ICON_IDS = [
   'discord',
 ] as const
 export type ICON_ID = typeof ICON_IDS[number]
+
+export const FRAX_FARMS: { [chainId in ChainId]?: string[] } = {
+  [ChainId.MAINNET]: [
+    '0xe5379f5ee90d70a0f9de0ed8b3cdde3b9427524a',
+    '0xfd7b111aa83b9b6f547e617c7601efd997f64703',
+    '0x36240069ff26cecbde04d9e49a2af8d39146263e',
+  ],
+  [ChainId.MATIC]: ['0xa5ebdde0f2e657d77bebeda085dd49f6decf8504'],
+  [ChainId.ARBITRUM]: ['0x6a7dccf168fba624a81b293c2538d31427b5b4bd'],
+  [ChainId.OPTIMISM]: ['0xa837d04a64acf66912d05cfd9b951e4e399ab680'],
+}

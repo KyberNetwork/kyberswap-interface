@@ -88,13 +88,13 @@ export const SelectOption = styled.div`
   color: ${({ theme }) => theme.subText};
 `
 
-export const DropdownIcon = styled.div<{ rotate?: boolean }>`
-  transform: rotate(${({ rotate }) => (rotate ? '-180deg' : '0')});
+export const DropdownIcon = styled.div<{ isRotate?: boolean }>`
+  transform: rotate(${({ isRotate: rotate }) => (rotate ? '-180deg' : '0')});
   height: 0;
   border-left: 4px solid transparent;
   border-right: 4px solid transparent;
   border-top: 4px solid ${({ theme }) => theme.text};
 
   transition: transform 300ms;
-  transform: rotate(${({ rotate }) => (rotate ? '-180deg' : '0')});
+  transform: rotate(${({ isRotate: rotate }) => (rotate ? '-180deg' : '0')});
 `

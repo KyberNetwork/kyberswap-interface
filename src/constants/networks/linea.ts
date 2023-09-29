@@ -22,7 +22,7 @@ const lineaInfo: EVMNetworkInfo = {
   defaultBlockSubgraph: 'https://graph-query.linea.build/subgraphs/name/kybernetwork/linea-blocks',
   etherscanUrl: 'https://lineascan.build',
   etherscanName: 'Linea Explorer',
-  bridgeURL: EMPTY,
+  bridgeURL: 'https://bridge.linea.build/',
   nativeToken: {
     symbol: 'ETH',
     name: 'LineaETH',

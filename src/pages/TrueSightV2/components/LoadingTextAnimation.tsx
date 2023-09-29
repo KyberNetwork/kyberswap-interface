@@ -1,4 +1,7 @@
+import { useMedia } from 'react-use'
 import styled, { keyframes } from 'styled-components'
+
+import { MEDIA_WIDTHS } from 'theme'
 
 const bounce = keyframes`
   15%,
@@ -24,7 +27,6 @@ const Wrapper = styled.div`
     color: ${({ theme }) => theme.text};
     animation: ${bounce} 3s infinite ease;
     min-width: 10px;
-    display: flex;
     justify-content: center;
     margin-bottom: 10px;
   }
@@ -120,16 +122,34 @@ const Wrapper = styled.div`
     animation-delay: 1.55s;
   }
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    font-size: 12px;
+    font-size: 14px;
   `}
 `
 
 export default function LoadingTextAnimation() {
+  const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   return (
-    <Wrapper>
-      {'Crafting your screenshot...'.split('').map((w, index) => (
-        <span key={index}>{w}</span>
-      ))}
-    </Wrapper>
+    <>
+      {isMobile ? (
+        <Wrapper>
+          <div>
+            {'Crafting your'.split('').map((w, index) => (
+              <span key={index}>{w}</span>
+            ))}
+          </div>
+          <div>
+            {'screenshot...'.split('').map((w, index) => (
+              <span key={index}>{w}</span>
+            ))}
+          </div>
+        </Wrapper>
+      ) : (
+        <Wrapper>
+          {'Crafting your screenshot...'.split('').map((w, index) => (
+            <span key={index}>{w}</span>
+          ))}
+        </Wrapper>
+      )}
+    </>
   )
 }

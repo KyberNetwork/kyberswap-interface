@@ -166,6 +166,7 @@ export const formatPoolValue = (amount: PoolBridgeValue) => {
   123456789012.123456 => 123.457B
   1234567890123.123456 => 1.23457T
  */
+// todo: deprecated, use formatDisplayNumber instead
 export const formatAmountBridge = (rawAmount: string) => {
   const amount = parseFloat(String(rawAmount) ?? '0')
   if (amount > 100_000_000) {

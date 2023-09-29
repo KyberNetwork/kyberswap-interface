@@ -7,26 +7,7 @@ import styled from 'styled-components'
 import Logo, { NetworkLogo } from 'components/Logo'
 import useTheme from 'hooks/useTheme'
 import { EarningStatsTick } from 'types/myEarnings'
-import { formattedNum } from 'utils'
-
-const formatUSDValue = (v: number) => {
-  if (v === 0) {
-    return '$0'
-  }
-
-  if (v < 0.0001) {
-    return '< $0.0001'
-  }
-
-  const formatter = Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    notation: 'compact',
-    maximumSignificantDigits: 4,
-  })
-
-  return formatter.format(v)
-}
+import { formatDisplayNumber } from 'utils/numbers'
 
 const TokensWrapper = styled.div`
   display: flex;
@@ -36,10 +17,6 @@ const TokensWrapper = styled.div`
   color: ${({ theme }) => theme.subText};
   font-weight: 500;
 `
-
-const formatTokenAmount = (a: number | string) => {
-  return formattedNum(String(a), false)
-}
 
 type TokensProps = {
   tokens: EarningStatsTick['tokens']
@@ -102,7 +79,7 @@ const Tokens: React.FC<TokensProps> = ({ tokens }) => {
                 lineHeight: '14px',
               }}
             >
-              {formatTokenAmount(token.amount)}
+              {formatDisplayNumber(token.amount, { significantDigits: 6 })}
             </Text>
           </Flex>
         )
@@ -176,7 +153,8 @@ const TooltipContent: React.FC<Props> = ({ dataEntry, setHoverValue }) => {
           whiteSpace: 'nowrap',
         }}
       >
-        <Trans>My Total Earnings</Trans>: {formatUSDValue(dataEntry.totalValue)}
+        <Trans>My Total Earnings</Trans>:{' '}
+        {formatDisplayNumber(dataEntry.totalValue, { style: 'currency', significantDigits: 6 })}
       </Text>
 
       <Text
@@ -189,7 +167,8 @@ const TooltipContent: React.FC<Props> = ({ dataEntry, setHoverValue }) => {
           whiteSpace: 'nowrap',
         }}
       >
-        <Trans>Pool Fees</Trans>: {formatUSDValue(dataEntry.poolFeesValue)}
+        <Trans>Pool Fees</Trans>:{' '}
+        {formatDisplayNumber(dataEntry.poolFeesValue, { style: 'currency', significantDigits: 6 })}
       </Text>
 
       <Text
@@ -202,7 +181,8 @@ const TooltipContent: React.FC<Props> = ({ dataEntry, setHoverValue }) => {
           whiteSpace: 'nowrap',
         }}
       >
-        <Trans>Farm Rewards</Trans>: {formatUSDValue(dataEntry.farmRewardsValue)}
+        <Trans>Farm Rewards</Trans>:{' '}
+        {formatDisplayNumber(dataEntry.farmRewardsValue, { style: 'currency', significantDigits: 6 })}
       </Text>
 
       <Flex

@@ -11,7 +11,7 @@ import PriceVisualize from 'components/ProAmm/PriceVisualize'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import useTheme from 'hooks/useTheme'
-import { useElasticFarms, useFarmAction } from 'state/farms/elastic/hooks'
+import { useFarmAction, useUserInfoByFarm } from 'state/farms/elastic/hooks'
 import { FarmingPool, NFTPosition } from 'state/farms/elastic/types'
 import { Bound } from 'state/mint/proamm/type'
 import { formatTickPrice } from 'utils/formatTickPrice'
@@ -42,8 +42,8 @@ const PositionDetail = ({
 }: Props) => {
   const theme = useTheme()
 
-  const { userFarmInfo } = useElasticFarms()
-  const joinedPositions = userFarmInfo?.[farmAddress]?.joinedPositions[pool.pid] || []
+  const userInfo = useUserInfoByFarm(farmAddress)
+  const joinedPositions = userInfo?.joinedPositions[pool.pid] || []
   const { unstake } = useFarmAction(farmAddress)
 
   const joinedInfo = joinedPositions.find(jp => jp.nftId.toString() === item.nftId.toString())
@@ -61,7 +61,7 @@ const PositionDetail = ({
   const priceLower = !isRevertPrice ? item.token0PriceLower : item.token0PriceUpper.invert()
   const priceUpper = !isRevertPrice ? item.token0PriceUpper : item.token0PriceLower.invert()
 
-  const rewardByNft = userFarmInfo?.[farmAddress]?.rewardByNft
+  const rewardByNft = userInfo?.rewardByNft
   const rewards = rewardByNft?.[pool.pid + '_' + item.nftId.toString()] || []
 
   const rewardValue = rewards.reduce(

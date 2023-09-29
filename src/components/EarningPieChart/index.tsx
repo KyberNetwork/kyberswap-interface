@@ -11,41 +11,7 @@ import Logo, { NetworkLogo } from 'components/Logo'
 import { EMPTY_ARRAY } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { Loading } from 'pages/ProAmmPool/ContentLoader'
-
-const formatUSDValue = (v: string) => {
-  const num = Number(v)
-
-  if (num === 0) {
-    return '$0'
-  }
-
-  if (num < 0.01) {
-    return '< $0.01'
-  }
-
-  const formatter = Intl.NumberFormat('en-US', {
-    notation: 'compact',
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: num < 0.1 ? 2 : 1,
-  })
-
-  return formatter.format(num)
-}
-
-const formatPercent = (num: number) => {
-  if (num < 0.01) {
-    return '< 0.01%'
-  }
-
-  const formatter = Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  })
-
-  return formatter.format(num) + '%'
-}
+import { formatDisplayNumber } from 'utils/numbers'
 
 const LegendsWrapper = styled.div`
   display: flex;
@@ -179,7 +145,8 @@ const Legend: React.FC<LegendProps> = ({
             whiteSpace: 'nowrap',
           }}
         >
-          {formatUSDValue(value)} ({formatPercent(percent)})
+          {formatDisplayNumber(value, { style: 'currency', fractionDigits: 2 })} (
+          {formatDisplayNumber(percent / 100, { style: 'percent', fractionDigits: 3 })})
         </Text>
       </Flex>
     </Flex>

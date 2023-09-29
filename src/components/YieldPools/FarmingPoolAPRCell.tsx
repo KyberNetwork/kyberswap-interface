@@ -15,6 +15,7 @@ import { useElasticFarms } from 'state/farms/elastic/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { useFarmApr } from 'utils/dmm'
+import { formatDisplayNumber } from 'utils/numbers'
 
 export const APRTooltipContent = ({
   poolAPR,
@@ -43,7 +44,7 @@ export const APRTooltipContent = ({
           <Text as="span" fontSize={'14px'}>
             Total APR:{' '}
             <Text as="span" color={theme.text} fontWeight={500}>
-              {(poolAPR + maxFarmAPR).toFixed(2)}%
+              {formatDisplayNumber((poolAPR + maxFarmAPR) / 100, { style: 'percent', fractionDigits: 2 })}
             </Text>
           </Text>
           <Box
@@ -65,7 +66,7 @@ export const APRTooltipContent = ({
         <Text as="span">
           Pool APR:{' '}
           <Text as="span" color={theme.text} fontWeight={500}>
-            {poolAPR.toFixed(2)}%
+            {formatDisplayNumber(poolAPR / 100, { style: 'percent', fractionDigits: 2 })}
           </Text>
         </Text>
         <Text
@@ -79,7 +80,7 @@ export const APRTooltipContent = ({
         </Text>
       </Flex>
 
-      {!!farmAPR && (
+      {!!maxFarmAPR && (
         <Flex
           sx={{
             flexDirection: 'column',
@@ -90,33 +91,7 @@ export const APRTooltipContent = ({
           <Text as="span" color={theme.warning}>
             Farm APR:{' '}
             <Text as="span" fontWeight={500}>
-              {farmAPR.toFixed(2)}%
-            </Text>
-          </Text>
-          <Text
-            as="span"
-            fontStyle="italic"
-            sx={{
-              whiteSpace: upToSmall ? 'wrap' : 'nowrap',
-            }}
-          >
-            <Trans>Estimated return from additional rewards if you also participate in the farm</Trans>
-          </Text>
-        </Flex>
-      )}
-
-      {!!farmV2APR && Number.isFinite(farmV2APR) && (
-        <Flex
-          sx={{
-            flexDirection: 'column',
-            fontSize: '12px',
-            lineHeight: '16px',
-          }}
-        >
-          <Text as="span" color={theme.warning}>
-            Farm APR:{' '}
-            <Text as="span" fontWeight={500}>
-              {farmV2APR.toFixed(2)}%
+              {formatDisplayNumber(maxFarmAPR / 100, { style: 'percent', fractionDigits: 2 })}
             </Text>
           </Text>
           <Text
@@ -188,10 +163,10 @@ const FarmingPoolAPRCell: React.FC<Props> = ({
       <MouseoverTooltip
         width="fit-content"
         placement={tooltipPlacement}
-        text={<APRTooltipContent farmAPR={farmAPR} farmV2APR={farmV2APR} poolAPR={poolAPR} />}
+        text={<APRTooltipContent farmAPR={maxFarmAPR} poolAPR={poolAPR} />}
       >
         <Text as="span" marginRight="4px">
-          {(poolAPR + maxFarmAPR).toFixed(2)}%
+          {formatDisplayNumber((poolAPR + maxFarmAPR) / 100, { style: 'percent', fractionDigits: 2 })}
         </Text>
         <Info size={14} />
       </MouseoverTooltip>
@@ -217,7 +192,7 @@ export const ClassicFarmingPoolAPRCell = ({ poolAPR, farm }: { poolAPR: number; 
         gap: '4px',
       }}
     >
-      <Text as="span">{(poolAPR + farmAPR).toFixed(2)}%</Text>
+      <Text as="span">{formatDisplayNumber((poolAPR + farmAPR) / 100, { style: 'percent', fractionDigits: 2 })}</Text>
       <MouseoverTooltip width="fit-content" text={<APRTooltipContent farmAPR={farmAPR} poolAPR={poolAPR} />}>
         <MoneyBag size={16} color={theme.apr} />
       </MouseoverTooltip>

@@ -4,12 +4,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import { formatUSDValue } from 'components/EarningAreaChart/utils'
 import EarningPieChart from 'components/EarningPieChart'
 import { fetchListTokenByAddresses } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { EarningsBreakdown } from 'types/myEarnings'
+import { formatDisplayNumber } from 'utils/numbers'
 
 type WrapperProps = { $columns: 1 | 2 }
 const Wrapper = styled.div.attrs<WrapperProps>(({ $columns }) => ({
@@ -141,7 +141,7 @@ const EarningsBreakdownPanel: React.FC<Props> = ({ isLoading, data, className, h
                 ? tokens[item.chainId]?.[item.address]?.symbol || ''
                 : item.symbol,
           }))}
-          totalValue={formatUSDValue(data.totalValue, true)}
+          totalValue={formatDisplayNumber(data.totalValue, { style: 'currency', significantDigits: 3 })}
         />
       )}
     </Wrapper>

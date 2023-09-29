@@ -1,4 +1,4 @@
-import { CSSProperties, ReactNode, useEffect, useRef } from 'react'
+import { CSSProperties, Fragment, ReactNode, useEffect, useRef } from 'react'
 import ScrollContainer from 'react-indiana-drag-scroll'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
@@ -61,7 +61,9 @@ const HorizontalScroll = ({
     >
       <ScrollContainer innerRef={scrollRef} vertical={false} className="scroll-container" onScroll={handleShadow}>
         <TagContainer style={style} ref={contentRef}>
-          {(items ?? []).map(renderItem)}
+          {(items ?? []).map(i => (
+            <Fragment key={i}>{renderItem(i)}</Fragment>
+          ))}
         </TagContainer>
       </ScrollContainer>
     </ScrollContainerWithGradient>

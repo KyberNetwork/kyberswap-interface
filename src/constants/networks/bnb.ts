@@ -3,7 +3,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import BnbLogo from 'assets/images/bnb-logo.png'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
-const EMPTY = ''
 const NOT_SUPPORT = null
 
 const bnbInfo: EVMNetworkInfo = {
@@ -21,7 +20,7 @@ const bnbInfo: EVMNetworkInfo = {
   defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-bsc',
   etherscanUrl: 'https://bscscan.com',
   etherscanName: 'BscScan',
-  bridgeURL: EMPTY,
+  bridgeURL: 'https://www.bnbchain.org/en/bridge',
   nativeToken: {
     symbol: 'BNB',
     name: 'BNB',

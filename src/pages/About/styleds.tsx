@@ -227,7 +227,7 @@ export const Powered = styled.div`
   justify-content: center;
   gap: 52px;
   & > * {
-    width: calc(100% / 6 - 52px);
+    width: calc(100% / 5 - 52px);
   }
   svg {
     max-width: 100%;

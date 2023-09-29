@@ -17,6 +17,7 @@ import { Swap as SwapIcon } from 'components/Icons'
 import Harvest from 'components/Icons/Harvest'
 import InfoHelper from 'components/InfoHelper'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { PartnerFarmTag } from 'components/YieldPools/PartnerFarmTag'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { TOBE_EXTENDED_FARMING_POOLS } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
@@ -125,6 +126,7 @@ const FarmCard = ({
               </Link>
 
               <FeeTag style={{ fontSize: '12px' }}>FEE {(pool.pool.fee * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
+              <PartnerFarmTag farmPoolAddress={pool.poolAddress} />
             </Flex>
 
             <Flex sx={{ gap: '4px' }}>

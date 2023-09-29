@@ -1,18 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import {
-  Award,
-  BookOpen,
-  ChevronDown,
-  Edit,
-  FileText,
-  HelpCircle,
-  Info,
-  MessageCircle,
-  PieChart,
-  Share2,
-} from 'react-feather'
+import { Award, BookOpen, ChevronDown, Edit, FileText, HelpCircle, Info, MessageCircle, PieChart } from 'react-feather'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -20,6 +9,7 @@ import styled, { css } from 'styled-components'
 
 import { ReactComponent as MenuIcon } from 'assets/svg/all_icon.svg'
 import { ReactComponent as BlogIcon } from 'assets/svg/blog.svg'
+import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
 import { ReactComponent as LightIcon } from 'assets/svg/light.svg'
 import { ReactComponent as RoadMapIcon } from 'assets/svg/roadmap.svg'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
@@ -332,7 +322,7 @@ export default function Menu() {
             {bridgeLink && (
               <MenuItem>
                 <ExternalLink href={bridgeLink}>
-                  <Share2 />
+                  <BridgeIcon />
                   <Trans>Bridge Assets</Trans>
                 </ExternalLink>
               </MenuItem>

@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { FC, useEffect, useMemo, useState } from 'react'
+import { FC, Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -70,6 +70,9 @@ export const ElasticFarmCombination: FC = () => {
 
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
+  const showFarmV2 = useCallback(() => setShowFarmStepGuide('v2'), [])
+  const showFarmV1 = useCallback(() => setShowFarmStepGuide('v1'), [])
+
   if (loading && noFarms) {
     return (
       <Flex
@@ -99,11 +102,7 @@ export const ElasticFarmCombination: FC = () => {
 
       {type === FARM_TAB.ENDED && tab !== VERSION.CLASSIC && (
         <Text fontStyle="italic" fontSize={12} marginBottom="1rem" color={theme.subText}>
-          <Trans>
-            Your rewards may be automatically harvested a few days after the farm ends. Please check the{' '}
-            <StyledInternalLink to={`${APP_PATHS.FARMS}/${networkInfo.route}?type=vesting`}>Vesting</StyledInternalLink>{' '}
-            tab to see your rewards
-          </Trans>
+          <Trans>Your rewards may be automatically harvested a few days after the farm ends.</Trans>
         </Text>
       )}
 
@@ -114,11 +113,11 @@ export const ElasticFarmCombination: FC = () => {
             <Text as="span" color={theme.warning}>
               multiple phases
             </Text>
-            . Once the current phase ends, you can harvest your rewards from the farm in the{' '}
+            If you haven’t harvested your rewards for ended farms, you still can access them via the{' '}
             <StyledInternalLink to={`${APP_PATHS.FARMS}/${networkInfo.route}?type=${FARM_TAB.ENDED}`}>
               Ended
             </StyledInternalLink>{' '}
-            tab. To continue earning rewards in the new phase, you must restake your NFT position into the active farm
+            tab. To continue earning rewards in the new phase, you must retake your NFT position into the active farm
           </Trans>
         </Text>
       )}
@@ -131,15 +130,15 @@ export const ElasticFarmCombination: FC = () => {
           overflow: upToExtraSmall ? undefined : 'hidden',
         }}
       >
-        <ElasticFarms onShowStepGuide={() => setShowFarmStepGuide('v1')} />
+        <ElasticFarms onShowStepGuide={showFarmV1} />
 
         {!!filteredFarmsV1.length && !!filteredFarmsV2.length && <Divider />}
 
         {Object.keys(farmByContract).map((contract, index) => (
-          <>
-            <ElasticFarmv2 onShowStepGuide={() => setShowFarmStepGuide('v2')} farmAddress={contract} key={contract} />
+          <Fragment key={contract}>
+            <ElasticFarmv2 onShowStepGuide={showFarmV2} farmAddress={contract} key={contract} />
             {index !== Object.keys(farmByContract).length - 1 && <Divider />}
-          </>
+          </Fragment>
         ))}
       </Flex>
     </>
