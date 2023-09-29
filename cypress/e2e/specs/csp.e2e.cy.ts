@@ -4,18 +4,18 @@ import { FarmLocators, MyPoolLocators, PoolLocators } from "../selectors/selecto
 
 const tokenCatalog = new TokenCatalog()
 
-describe('CSP', { tags: TAG.regression }, () => {
+describe('CSP', { tags: TAG.smoke }, () => {
     beforeEach(() => {
         cy.on('window:load', (win) => cy.stub(win.console, 'log').as('log'))
         SwapPage.open(DEFAULT_URL)
     })
 
-    describe('Search token in Token Catalog', { tags: TAG.regression }, () => {
+    describe('Search token in Token Catalog', () => {
         beforeEach(() => {
             SwapPage.selectTokenIn()
         })
         it('injecting <script> tag does not work', () => {
-            tokenCatalog.searchToken('KNC<img src="" onerror="console.log(`hacked`)" />')
+            tokenCatalog.searchToken('KNC<img src="" onerror="console.log(`failed`)" />')
             cy.get('@log').should('not.have.been.called')
         })
 
@@ -28,7 +28,7 @@ describe('CSP', { tags: TAG.regression }, () => {
         })
     })
 
-    describe('Search token in Pools Page', { tags: TAG.regression }, () => {
+    describe('Search token in Pools Page', () => {
         beforeEach(() => {
             SwapPage.goToPoolPage()
         })
@@ -36,7 +36,7 @@ describe('CSP', { tags: TAG.regression }, () => {
             cy.get(PoolLocators.txtSearch, { timeout: 10000 })
                 .should('be.visible')
                 .click()
-                .type('KNC<img src="" onerror="console.log(`hacked`)" />')
+                .type('KNC<img src="" onerror="console.log(`failed`)" />')
             cy.get('@log').should('not.have.been.called')
         })
 
@@ -49,7 +49,7 @@ describe('CSP', { tags: TAG.regression }, () => {
         })
     })
 
-    describe('Search token in My Pools Page', { tags: TAG.regression }, () => {
+    describe('Search token in My Pools Page', () => {
         beforeEach(() => {
             SwapPage.goToMyPoolsPage()
         })
@@ -57,7 +57,7 @@ describe('CSP', { tags: TAG.regression }, () => {
             cy.get(MyPoolLocators.txtSearch, { timeout: 10000 })
                 .should('be.visible')
                 .click()
-                .type('KNC<img src="" onerror="console.log(`hacked`)" />')
+                .type('KNC<img src="" onerror="console.log(`failed`)" />')
             cy.get('@log').should('not.have.been.called')
         })
 
@@ -71,7 +71,7 @@ describe('CSP', { tags: TAG.regression }, () => {
 
     })
 
-    describe('Search token in Farms Page', { tags: TAG.regression }, () => {
+    describe('Search token in Farms Page', () => {
         beforeEach(() => {
             SwapPage.goToFarmPage()
         })
@@ -79,7 +79,7 @@ describe('CSP', { tags: TAG.regression }, () => {
             cy.get(FarmLocators.txtSearch, { timeout: 10000 })
                 .should('be.visible')
                 .click()
-                .type('KNC<img src="" onerror="console.log(`hacked`)" />')
+                .type('KNC<img src="" onerror="console.log(`failed`)" />')
             cy.get('@log').should('not.have.been.called')
         })
 
