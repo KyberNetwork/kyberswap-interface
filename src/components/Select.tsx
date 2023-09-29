@@ -135,7 +135,7 @@ function Select({
               if (item.onSelect) item.onSelect?.()
               else {
                 setSelected(value)
-                onChange(value)
+                onChange?.(value)
               }
             }
             return (
